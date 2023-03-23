@@ -4,7 +4,7 @@
 使用は自己責任で
 元コードの作者様は問題あったら連絡ください
 
-#　野良アドオンの使い方
+野良アドオンの使い方
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons
 にアドオン名の先頭の_とか⛄を抜いたフォルダを作って
 settings.json
