@@ -6,6 +6,12 @@
 
 野良アドオンの使い方
 
+C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\data
+
+に
+
+アドオンファイルを置いてください。_meshinuki-⛄-v1.0.0.ipf　こんな感じのやつ
+
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons
 
 にアドオン名の先頭の_とか⛄を抜いたフォルダを作って
