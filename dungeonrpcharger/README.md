@@ -1,0 +1,3 @@
+Tree of saviorのアドオンです
+dungeonrpcharger
+のギルティネドロップのアドオンの自動補充をバカココインの自動補充に変更
