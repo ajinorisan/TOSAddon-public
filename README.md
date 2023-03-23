@@ -36,4 +36,8 @@ settings.json
 
 というファイルを置いておく感じです。
 
+C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\data
+
+にバージョン違いのipfファイルがあると上手に動かないよ！
+
 なんでかは良く知りません（
