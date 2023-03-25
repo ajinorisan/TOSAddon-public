@@ -13,7 +13,7 @@ g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc)
 local acutil = require("acutil")
 
 function GTSYSMSG_ON_INIT(addon, frame)
-    CHAT_SYSTEM("GTSYSMSG_ON_INIT")
+    
     g.addon = addon
     g.frame = frame
 
@@ -21,10 +21,11 @@ function GTSYSMSG_ON_INIT(addon, frame)
         g.loaded = true
     end
 
-    frame:ShowWindow(0)
+    --frame:ShowWindow(0)
 
     acutil.setupHook(GTSYSMSG_ON_MSG, "NOTICE_ON_MSG")
     addon:RegisterMsg('GAME_START_3SEC', 'GTSYSMSG_ON_MSG')
+    CHAT_SYSTEM("GTSYSMSG_ON_INIT")
 end
 
 function GTSYSMSG_ON_MSG(frame, msg, argStr, argNum)
@@ -36,6 +37,8 @@ function GTSYSMSG_CENTER_MSG(argStr)
 end
 
 function GTSYSMSG_ALL(frame, msg, argStr, argNum)
+if argStr ~= "None"  then　--マップ読み込むたびにNoneって出るので直してみました。
     CHAT_SYSTEM(argStr)
     GTSYSMSG_CENTER_MSG(argStr)
+    end
 end
