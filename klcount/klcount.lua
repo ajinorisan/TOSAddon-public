@@ -23,7 +23,6 @@ local maptable = {
     {mapid = 11258, name = "デルムーア待合室", zonename = "ep14_2_d_castle_1"}
 }
 
- 
 function KLCOUNT_ON_INIT(addon, frame)
     CHAT_SYSTEM("KLCOUNT_ON_INIT")
     g.addon = addon
@@ -32,7 +31,7 @@ function KLCOUNT_ON_INIT(addon, frame)
     if not g.loaded then
         g.loaded = true
     end
-    
+
     --local frame = ui.GetFrame("klcount")
     --frame:ShowWindow(1)
     --frame:Resize(300, 150)
@@ -47,21 +46,20 @@ function KLCOUNT_ON_INIT(addon, frame)
 
 end
 
-
 function KLCOUNT_MAP_NAME()
-   count=0
+    count=0
     local mapID = session.GetMapID()
     for i = 1, #maptable do
         if mapID == maptable[i].mapid then
-           KLCOUNT_GO(maptable[i].name)
-           KLCOUNT_COUNT(frame, msg, argStr, argNum)
+            KLCOUNT_GO(maptable[i].name)
+            KLCOUNT_COUNT(frame, msg, argStr, argNum)
             break
         end
     end
 end
 
 function KLCOUNT_GO(mapname)
-   local frame = ui.GetFrame("klcount")
+    local frame = ui.GetFrame("klcount")
     frame:ShowWindow(1)
     frame:Resize(300, 150)
     frame:SetOffset(450, 0)
@@ -69,22 +67,19 @@ function KLCOUNT_GO(mapname)
     local mapText = frame:CreateOrGetControl("richtext", "map_text", 10, 10, 130, 30)
     mapText:SetText(string.format("{#FF0000}{s18}%s{/}{/}", mapname))
     mapText:SetOffset(10, 60)
-
 end
 
 function KLCOUNT_COUNT(frame, msg, argStr, argNum)
-local frame = ui.GetFrame("klcount")
+    local frame = ui.GetFrame("klcount")
     frame:ShowWindow(1)
     frame:Resize(300, 150)
     frame:SetOffset(450, 0)
     frame:SetAlpha(0)
-local countText = frame:CreateOrGetControl("richtext", "count_text", 10, 10, 130, 30)
+    local countText = frame:CreateOrGetControl("richtext", "count_text", 10, 10, 130, 30)
     countText:SetOffset(10, 30)
-    
+
     if msg == 'EXP_UPDATE' then
-        
         countText:SetText(string.format("{#FF0000}{s18}モンスター退治数: %d{/}{/}", count))
         count = count + 1
     end
-
 end
