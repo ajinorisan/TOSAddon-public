@@ -10,7 +10,8 @@ EP14とEP15地域の敵を倒した数をカウントします。
 
 あとはヴァカコの数じゃなく倒した数でイキってこ
 
-メモ
+備忘メモ
+
 function _G.KLCOUNT_TIME_UPDATE()
 
     local time = imcTime.GetAppTimeMS() - g.starttime
@@ -31,6 +32,8 @@ function _G.KLCOUNT_TIME_UPDATE()
     
 end
 
-これで実行するとクライアント落ちる
+これで実行するとクライアント落ちる　他のアドオン全部抜いても無理
 
 ReserveScript("_G.KLCOUNT_TIME_UPDATE()", 1.0)ここをコメントアウトしたら落ちない
+
+なんかちゃう方法で回避必要
