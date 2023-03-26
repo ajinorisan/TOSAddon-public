@@ -22,3 +22,5 @@ function _G.KLCOUNT_TIME_UPDATE()
     ReserveScript("_G.KLCOUNT_TIME_UPDATE()", 1.0)
 end
 これで実行するとクライアント落ちる
+
+ReserveScript("_G.KLCOUNT_TIME_UPDATE()", 1.0)ここをコメントアウトしたら落ちない
