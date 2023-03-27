@@ -37,3 +37,5 @@ end
 ReserveScript("_G.KLCOUNT_TIME_UPDATE()", 1.0)ここをコメントアウトしたら落ちない
 
 なんかちゃう方法で回避必要
+
+なんかちゃう方法めにまにさんに教えてもらった→addon:RegisterMsg("FPS_UPDATE", "KLCOUNT_TIME_UPDATE")
