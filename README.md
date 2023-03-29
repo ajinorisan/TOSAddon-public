@@ -20,6 +20,7 @@ The author of this addon is Kiicchanさん
 ### muteki2ex
 
 既存の動作にオーバーロードレイドのクールダウンゲージを付けました。色は選べません。
+セッティングファイル抜けていたので修正しました。
 
 The author of this addon is WRITさん
 
