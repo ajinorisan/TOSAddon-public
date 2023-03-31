@@ -1,0 +1,10 @@
+{
+		"name" : "klcount",
+		"file" : "klcountr",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.2",
+		"releaseTag" : "klcountr",
+		"unicode" : "⛄",
+		"description" : "EP14.15地域で倒したモンスターをカウント",
+		"tags" : 
+	},
