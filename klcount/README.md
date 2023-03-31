@@ -1,4 +1,4 @@
-![image](https://github.com/ajinorisan/TOSAddon-public/issues/2#issue-1649412438.jpg)
+![TreeOfSavior_20230327_190148](https://user-images.githubusercontent.com/128560971/229144670-91770665-8fd9-4f47-b9b6-33e293e41c5a.jpg)
 
 Ver1.0.1--単純に倒した敵をカウント
 
