@@ -1,3 +1,5 @@
+https://github.com/ajinorisan/TOSAddon-public/issues/2#issue-1649412438
+
 Ver1.0.1--単純に倒した敵をカウント
 
 Ver1.0.2--タイマーついてます
