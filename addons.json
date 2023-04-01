@@ -1,4 +1,4 @@
-{
+[{
 		"name" : "klcount",
 		"file" : "klcount",
 		"extension" : "ipf",
@@ -8,3 +8,4 @@
 		"description" : "EP14.15地域で倒したモンスターをカウント",
 		"tags" : " "
 	}
+]
