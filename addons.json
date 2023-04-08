@@ -16,9 +16,9 @@
 		"fileVersion" : "v1.0.5",
 		"releaseTag" : "gtsysmsg",
 		"unicode" : "⛄",
-		"description" : "追従者が出たらシステムチャットでお知らせ。音も鳴るよ。",
+		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。",
 		"tags" : [
-			”ui.chat"
+			”chat"
 		]
 	}
 ]
