@@ -7,5 +7,16 @@
 		"unicode" : "⛄",
 		"description" : "EP14.15地域で倒したモンスターをカウント",
 		"tags" : []
+	},
+ 
+ {
+		"name" : "gtsysmsg",
+		"file" : "gtsysmsg",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.5",
+		"releaseTag" : "gtsysmsg",
+		"unicode" : "⛄",
+		"description" : "追従者が出たらシステムチャットでお知らせ。音も鳴るよ。",
+		"tags" : [”chat"]
 	}
 ]
