@@ -17,6 +17,8 @@
 		"releaseTag" : "gtsysmsg",
 		"unicode" : "⛄",
 		"description" : "追従者が出たらシステムチャットでお知らせ。音も鳴るよ。",
-		"tags" : [”chat"]
+		"tags" : [
+			”chat"
+		]
 	}
 ]
