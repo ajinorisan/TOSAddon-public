@@ -255,7 +255,8 @@ function MUTEKI2_INIT_GAUGE(frame, buffObj, colorTone)
 
   --テキスト1 時間
   gauge:AddStat("");
-  gauge:SetStatOffset(0, -10, -2);
+  --gauge:SetStatOffset(0, -10, -2);
+  gauge:SetStatOffset(0, 60, 0);
   if isAfterRebuild() then
     gauge:SetStatAlign(0, ui.RIGHT, ui.CENTER_HORZ);
   else
