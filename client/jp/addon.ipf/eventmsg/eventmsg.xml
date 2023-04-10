@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by LEE (EMBRACE) -->
+<uiframe name="eventmsg" x="0" y="0" width="377" height="140">
+	<frame layout_gravity="right top" margin="0 400 400 0"/>
+	<option closebutton="false" visible="false"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<layer layerlevel="90"/>
+	<input hittest="false"/>
+	<script OpenScp="EVENTMSG_OPEN" CloseScp="EVENTMSG_CLOSE"/>
+	<animation frameOpenAnim="dialog_select_start" frameCloseAnim="dialog_end"/>
+	<controls>
+        <groupbox name="bg" rect="0 0 377 90" margin="0 10 0 0" layout_gravity="left top" draw="true" skin="event_recently_notice" scrollbar="false"/>
+		<picture name="inform" rect="0 0 22 22" margin="6 0 0 0" layout_gravity="left top" image="event_recently_notice_inform" hittest="false" stretch="true"/>
+		<richtext name="msg" parent="bg" rect="0 0 337 16" margin="20 13 0 0" layout_gravity="left top" format="{@st43b}{s14}%s{/}" param1="value" param1_def="하나{nl}두울{nl}세엣{nl}네엣{nl}다섯" hittest="false" omitbywidth="false" maxwidth="337" fixwidth="true"/>
+	</controls>
+</uiframe>

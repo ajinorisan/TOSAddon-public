@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="earthtowershop" x="0" y="0" width="580" height="1920">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame title="{@st43}유물 수집상{/}" layout_gravity="left top" margin="-650 0 0 0" fullheight="true" fasthide="true" open="pip"/>
+	<input moveable="false" maxwidth="1280"/>
+	<layer layerlevel="151"/>
+	<option closebutton="false"/>
+	<sound opensound="window_mohum_open" closesound="window_mohum_close"/>
+	<script CloseScp="ITEMCRAFT_CLOSE" OpenScp="EARTH_TOWER_SHOP_OPEN"/>
+	<controls>
+		<groupbox name="bg2" rect="0 0 580 1000" margin="0 30 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyresolution="true" skin="test_frame_low"/>
+		<groupbox name="pipwin_top" rect="0 0 580 126" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_top"/>
+		<groupbox name="bg" rect="0 0 580 930" margin="0 60 0 0" layout_gravity="center top" draw="false" resizebyresolution="true" scrollbar="false" skin="pipwin_low"/>
+		<groupbox name="bg_category" rect="0 0 580 44" margin="0 130 0 0" layout_gravity="center top" draw="false" resizebyresolution="false" scrollbar="false" skin="pipwin_low"/>
+		<groupbox name="Recipe" rect="0 0 575 850" margin="0 210 0 0" layout_gravity="left top" draw="false" hittestbox="true" resizebyresolution="false" scrollbar="false" skin="pipwin_low"/>
+		<groupbox name="recipetree_Box" parent="Recipe" rect="0 0 560 850" margin="15 20 0 0" layout_gravity="left top" draw="true" resizebyresolution="false" scrollbar="true" skin="none"/>
+		<groupbox name="bg_bottom" rect="0 0 580 44" margin="0 0 0 50" layout_gravity="center bottom" draw="false" resizebyresolution="false" scrollbar="false" skin="pipwin_low"/>
+		<richtext name="title" rect="0 0 100 30" margin="0 16 0 0" layout_gravity="center top" caption="{@st43}유물 수집상{/}"/>
+		<richtext name="propertyRemain" parent="bg2" rect="0 0 100 30" margin="0 30 30 0" layout_gravity="right top" fontname="black_18" format="보유 %s:{@st66d_y}%s{/}" param1="itemName" param2="itemCount"/>
+		<richtext name="resetDatetime" parent="bg2" rect="0 0 100 60" margin="10 40 35 0" layout_gravity="left top" />
+		<tree name="recipetree" parent="recipetree_Box" rect="0 0 570 100" margin="0 0 0 0" layout_gravity="center top" drawline="true" selectioncolor="000000" scrollbar="false"/>
+		<grid name="category" parent="Recipe" rect="0 0 0 200" margin="0 0 0 0" layout_gravity="left top" slotsize="100 70" slotspc="10 0"/>
+		<button name="close" rect="0 0 44 44" margin="0 20 28 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;earthtowershop&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+		<checkbox name="showonlyhavemat" parent="bg_bottom" rect="0 0 150 30" margin="30 5 0 0" layout_gravity="left top" ConfigName="CraftMaterial" LBtnUpScp="EARTH_TOWER_SHOP_OPTION" caption="{@st42b}재료가 있는 것만 보기{/}" clicksound="button_click_big" oversound="button_over"/>
+		<checkbox name="showExchangeEnable" parent="bg_bottom" rect="0 0 150 30" margin="0 5 30 0" layout_gravity="right top" LBtnUpScp="EARTH_TOWER_SHOP_OPTION" caption="{@st42b}교환 횟수가 남은 것만 보기{/}" clicksound="button_click_big" oversound="button_over"/>
+		<button name="pointbuyBtn" rect="0 0 140 40" margin="25 85 0 0" layout_gravity="left top" LBtnUpScp="EARTHTOWERSHOP_POINT_BUY_OPEN" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}포인트 변환" clicksound="button_click_big" oversound="button_over" skin="test_red_button" textalign="center center" textoffset="0 -2"/>
+		<button name="prevShopBtn" rect="0 0 140 40" margin="165 85 0 0" layout_gravity="left top" LBtnUpScp="EARTHTOWERSHOP_PREV_SHOP_OPEN" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}지난 시즌 상점" clicksound="button_click_big" oversound="button_over" skin="test_red_button" textalign="center center" textoffset="0 -2"/>
+		<groupbox name="event_gb" rect="0 0 560 60" margin="0 65 0 0" layout_gravity="center top" draw="false" scrollbar="false"/>
+		<richtext name="remain_time" rect="0 0 100 30" margin="0 90 35 0" layout_gravity="right top" fontname="black_18" format="{#ff0000}%s초 남았습니다" param1="value"/>
+	</controls>
+</uiframe>
