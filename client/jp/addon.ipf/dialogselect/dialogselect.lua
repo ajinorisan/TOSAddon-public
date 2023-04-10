@@ -1,0 +1,545 @@
+function DIALOGSELECT_ON_INIT(addon, frame)
+	DialogSelect_index = 0;
+	DialogSelect_count = 0;
+	DialogSelect_offsetY = frame:GetY();
+	DialogSelect_Type = 0;
+	addon:RegisterMsg('DIALOG_CHANGE_SELECT', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg('DIALOG_ADD_SELECT', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg("DIALOG_ADD_SELECT_MULTIPLE", "DIALOGSELECT_ON_MSG");
+	addon:RegisterMsg('DIALOG_NUMBER_RANGE', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg('DIALOG_TEXT_INPUT', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg('DIALOG_CLOSE', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg('DIALOGSELECT_UP', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg('DIALOGSELECT_DOWN', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg('DIALOGSELECT_SELECT', 'DIALOGSELECT_ON_MSG');
+	addon:RegisterMsg("DIALOGSELECT_MULTIPLE_SKIN_RESET", "DIALOGSELECT_ON_MSG");
+	addon:RegisterMsg("DIALOGSELECT_MULTIPLE_SELECT_TOGGLE", "DIALOGSELECT_ON_MSG");
+	addon:RegisterMsg('ESCAPE_PRESSED', 'DIALOGSELECT_ON_PRESS_ESCAPE');
+end
+
+function GET_DIALOGSELECT_ITEMBTN_COUNT(frame)
+	local itemBtnCnt = 0;
+	if frame ~= nil then
+		local count = frame:GetChildCount();
+		if count ~= nil and count ~= 0 then
+			for i = 0, count do
+				local ctrl = frame:GetChildByIndex(i);
+				if ctrl ~= nil then
+					local classString = ctrl:GetClassString();
+					if classString == "ui::CButton" and string.find(ctrl:GetName(), "item") ~= nil then
+						itemBtnCnt = itemBtnCnt + 1;
+					end
+				end
+			end
+		end
+	end
+	return itemBtnCnt;
+end
+
+function DIALOGSELECT_FIX_WIDTH(frame, width)
+	frame:SetUserConfig("MAX_WIDTH", width);
+	local itemBtnCount = GET_DIALOGSELECT_ITEMBTN_COUNT(frame);
+	for i = 1, itemBtnCount do
+		local controlName = 'item'..i..'Btn';
+		local ItemBtn = frame:GetChild(controlName);
+		local ItemBtnCtrl = tolua.cast(ItemBtn, 'ui::CButton');
+		ItemBtnCtrl:Resize(width, ItemBtn:GetHeight());
+	end
+	frame:Resize(width + 60, frame:GetHeight());
+end
+
+function DIALOGSELECT_CHECK_MSGBOX(argNum)
+	local frame = ui.GetFrame('dialogselect')
+	local btn = GET_CHILD_RECURSIVELY(frame, 'item' .. argNum .. 'Btn')
+	local txt = btn:GetText()
+	local yesScp = 'control.DialogSelect(' .. argNum .. ')'
+	ui.MsgBox(ScpArgMsg('ReallySelect{NAME}Item', 'NAME', txt), yesScp, 'None')
+end
+
+function DIALOGSELECT_ITEM_ADD(frame, msg, argStr, argNum)
+	if argNum == 1 then
+		if DIALOGSELECT_QUEST_REWARD_ADD(frame, argStr) == 1 then
+			frame:SetUserValue("FIRSTORDER_MAXHEIGHT", 1);			
+			return;
+		else
+			local questRewardBox = frame:GetChild('questreward');
+			if questRewardBox ~= nil then
+				frame:RemoveChild('questreward');
+			end
+		end
+	end
+	
+	local questRewardBox = frame:GetChild('questreward');
+	if questRewardBox ~= nil then
+		argNum = argNum - 1;
+	end
+
+	local controlName = 'item'..argNum..'Btn';
+	local ItemBtn = GET_CHILD_RECURSIVELY(frame, controlName);
+	local ItemBtnCtrl = tolua.cast(ItemBtn, 'ui::CButton');
+	ItemBtnCtrl:SetGravity(ui.CENTER_HORZ, ui.TOP);
+
+	if questRewardBox ~= nil then
+		local width  = questRewardBox:GetWidth();
+		local height = questRewardBox:GetHeight();
+		local offset = 10 + ((argNum - 1) * 40);
+		local offsetEx = 20 + ((argNum) * 40);
+		local y = tonumber(frame:GetUserValue("QUESTFRAME_HEIGHT"));	
+		local frameHeight = offset + y + 50;
+		local maxHeight = ui.GetSceneHeight();
+
+		questRewardBox:SetGravity(ui.CENTER_HORZ, ui.TOP);	
+		questRewardBox:SetOffset(0, 50);
+
+		if frame:GetUserIValue("FIRSTORDER_MAXHEIGHT") == 1 then			
+			if (y + (maxHeight - frame:GetY())) > (maxHeight) then	
+				local frameMaxHeight = maxHeight/2;
+				frameHeight = offset + frameMaxHeight + 50;
+				frame:SetUserValue("IsScroll", "YES");	
+				ItemBtnCtrl:SetOffset(0, questRewardBox:GetY() + questRewardBox:GetHeight() + 10);	
+			else				
+				frame:SetUserValue("IsScroll", "NO");
+				ItemBtnCtrl:SetOffset(0, height + offset + 10 + ItemBtnCtrl:GetHeight());
+			end;
+			frame:SetUserValue("FIRSTORDER_MAXHEIGHT", 0);
+		else
+			if frame:GetUserValue("IsScroll") == "NO" then
+				height = y + ItemBtnCtrl:GetHeight();	
+				frameHeight = height + offset + 50;	
+				ItemBtnCtrl:SetOffset(0, height + offset + 10);				
+			else
+				frameHeight = height + offsetEx + 50;	
+				ItemBtnCtrl:SetOffset(0, height + offsetEx);
+			end
+		end
+		frame:Resize(frame:GetWidth(), frameHeight + 10);
+		frame:ShowWindow(1);	
+	else
+		ItemBtnCtrl:SetOffset(0, (argNum-1) * 40 + 40);
+		frame:Resize(frame:GetWidth(), (argNum + 1) * 40 + 10);
+	end
+
+	local eventScp = 'control.DialogSelect('..argNum..')';
+	if session.IsMultipleSelect() == true then
+		eventScp = 'DIALOGSELECT_MULTIPLE_SELECT_EVENT('..argNum..')';
+	else
+		if session.IsShowSelDlgMsgBox() == true then
+			eventScp = string.format('DIALOGSELECT_CHECK_MSGBOX(%d)', argNum);
+		end
+	end
+	ItemBtnCtrl:SetEventScript(ui.LBUTTONUP, eventScp, true);	
+	ItemBtnCtrl:ShowWindow(1);
+	ItemBtnCtrl:SetText('{s18}{b}{#2f1803}'..argStr..'{/}{/}{/}');
+
+	if ItemBtnCtrl:GetWidth() > tonumber(frame:GetUserConfig("MAX_WIDTH")) then
+		DIALOGSELECT_FIX_WIDTH(frame, ItemBtnCtrl:GetWidth());
+	end
+
+	frame:Update();
+end
+
+function DIALOGSELECT_MULTIPLE_SELECT_EVENT(argNum)
+	local frame = ui.GetFrame("dialogselect");
+	if frame ~= nil then
+		local itemBtn = GET_CHILD_RECURSIVELY(frame, "item"..argNum.."Btn");
+		if itemBtn ~= nil then
+			itemBtn:SetSkinName("test_gray_button");
+		end
+		control.DialogSelectMultiple(argNum);
+	end
+end
+
+function DIALOGSELECT_QUEST_REWARD_ADD(frame, argStr)
+	local questCls = GetClass("QuestProgressCheck", argStr);
+	local cls = GetClass("QuestProgressCheck_Auto", argStr);
+	local pc = GetMyPCObject();
+	if questCls == nil or cls == nil then
+		return 0;
+	end
+
+	local questRewardBox = frame:CreateOrGetControl('groupbox', 'questreward', 10, 10, frame:GetWidth() - 70, 400);
+	tolua.cast(questRewardBox, "ui::CGroupBox");
+	questRewardBox:DeleteAllControl();
+	questRewardBox:EnableDrawFrame(0);
+	questRewardBox:EnableScrollBar(1);
+	questRewardBox:EnableResizeByParent(0);
+	questRewardBox:ShowWindow(1);
+    
+    local questName;
+    if questCls.QuestMode == 'REPEAT' then
+        local sObj = GetSessionObject(pc, 'ssn_klapeda')
+		if sObj ~= nil then
+			if questCls.Repeat_Count ~= 0 then
+				questName = questCls.Name..ScpArgMsg("Auto__-_BanBog({Auto_1}/{Auto_2})","Auto_1", sObj[questCls.QuestPropertyName..'_R'] + 1, "Auto_2",questCls.Repeat_Count)
+			else
+				questName = questCls.Name..ScpArgMsg("Auto__-_BanBog({Auto_1}/MuHan)","Auto_1", sObj[questCls.QuestPropertyName..'_R'])
+			end
+		end
+	elseif questCls.QuestMode == 'PARTY' then
+	    local sObj = GetSessionObject(pc, 'ssn_klapeda')
+		if sObj ~= nil then
+			questName = questCls.Name..ScpArgMsg("Auto__-_BanBog({Auto_1}/{Auto_2})","Auto_1", sObj.PARTY_Q_COUNT1 + 1, "Auto_2",CON_PARTYQUEST_DAYMAX1)
+		end
+	end
+
+	if questName == nil then
+	    questName = questCls.Name
+	end
+	
+	local y = 0;
+	if questCls.QuestMode == 'MAIN' then
+	    y = BOX_CREATE_RICHTEXT(questRewardBox, "title", y, 50, "{@st41}{#FFCC00}"..ScpArgMsg("Auto_[Mein]_")..questName);
+	else
+    	y = BOX_CREATE_RICHTEXT(questRewardBox, "title", y, 50, "{@st41}"..questName);
+    end
+
+	local pc = GetMyPCObject();
+    local repeat_reward_item = {}
+    local repeat_reward_achieve = {}
+    local repeat_reward_achieve_point = {}
+    local repeat_reward_exp = 0;
+    local repeat_reward_npc_point = 0
+    local repeat_reward_select = false
+    local repeat_reward_select_use = false
+    local sObj = GetSessionObject(pc, 'ssn_klapeda')
+    
+    repeat_reward_item, repeat_reward_achieve, repeat_reward_achieve_point, repeat_reward_exp, repeat_reward_npc_point, repeat_reward_select, repeat_reward_select_use = SCR_REPEAT_REWARD_CHECK(pc, questCls, cls, sObj)
+    
+    y = MAKE_SELECT_REWARD_CTRL(questRewardBox, y, cls, 'DIALOGSELECT_QUEST_REWARD_ADD');
+	y = y + 30;
+    
+    local reward_result = QUEST_REWARD_CHECK(argStr)
+    if #reward_result > 0 then
+    	y = BOX_CREATE_RICHTEXT(questRewardBox, "t_addreward", y, 50, ScpArgMsg("DialogSelectRewardTxt"));
+    	y = MAKE_BASIC_REWARD_MONEY_CTRL_WITH_BONUS(questRewardBox, cls, y);
+    	y = MAKE_BASIC_REWARD_BUFF_CTRL(questRewardBox, cls, y);
+    	y = MAKE_BASIC_REWARD_HONOR_CTRL(questRewardBox, cls, y);
+    	y = MAKE_BASIC_REWARD_PCPROPERTY_CTRL(questRewardBox, cls, y);
+    	y = MAKE_BASIC_REWARD_JOURNEYSHOP_CTRL(questRewardBox, cls, y);
+    end
+    
+	local succExp = cls.Success_Exp;
+	local succJobExp = 0;
+	if repeat_reward_exp > 0 then
+	    succExp = succExp + repeat_reward_exp
+	end
+	
+	local sumvalue = MultForBigNumberInt64(tostring(succExp), tostring(77));
+	sumvalue = DivForBigNumberInt64(tostring(sumvalue), tostring(100));
+    if succExp > 0 then
+		succJobExp = tonumber(SumForBigNumberInt64(succJobExp, sumvalue));
+	end
+
+    if cls.Success_Lv_Exp > 0 then
+        local xpIES = GetClass('Xp', pc.Lv)
+        if xpIES ~= nil then
+            local lvexpvalue =  math.floor(xpIES.QuestStandardExp * cls.Success_Lv_Exp)
+            if lvexpvalue ~= nil and lvexpvalue > 0 and pc.Lv < PC_MAX_LEVEL then
+	            succExp = succExp + lvexpvalue
+            end
+            local lvjobexpvalue =  math.floor(xpIES.QuestStandardJobExp * cls.Success_Lv_Exp)
+            if lvjobexpvalue ~= nil and lvjobexpvalue > 0 and GetJobLv(pc) < 15 then
+	            succJobExp = succJobExp + lvjobexpvalue
+            end
+        end
+    end
+    
+	if succExp > 0 then
+	    succExp = GET_COMMAED_STRING(succExp)
+	    y = y + 5
+		y = BOX_CREATE_RICHTEXT(questRewardBox, "t_successExp", y, 50, ScpArgMsg("Auto_{@st41}KyeongHeomChi_:_") .."{s18}{#FFFF00}"..  succExp.."{/}", 10);
+		local tempY = y
+		y = MAKE_QUESTINFO_REWARD_LVUP(questRewardBox, questCls, 20, y, '{@st41b}')
+		if tempY ~= y then
+		    y = y - 5
+		end
+	end
+	if succJobExp > 0 then
+	    succJobExp = GET_COMMAED_STRING(succJobExp)
+		y = BOX_CREATE_RICHTEXT(questRewardBox, "t_successJobExp", y , 50, ScpArgMsg("SuccessJobExpGiveMSG1") .."{s18}{#FFFF00}"..  succJobExp.."{/}", 10);
+	end
+
+	y = MAKE_REWARD_ITEM_CTRL(questRewardBox, cls, y);
+    y = MAKE_BASIC_REWARD_RANDOM_CTRL(questRewardBox, questCls, cls, y)
+    y = MAKE_REWARD_STEP_ITEM_CTRL(questRewardBox, questCls, cls, y)
+	y = MAKE_BASIC_REWARD_REPE_CTRL(questRewardBox, questCls, cls, y)
+	questRewardBox:Resize(questRewardBox:GetWidth(), math.min(questRewardBox:GetHeight(), y));
+	frame:SetUserValue("QUESTFRAME_HEIGHT",  questRewardBox:GetHeight());
+	frame:Invalidate();
+	return 1;
+end
+
+function DIALOGSELECT_ON_MSG(frame, msg, argStr, argNum)
+	frame:SetMargin(0, 0, 0, 300);
+	if msg == 'DIALOG_CHANGE_SELECT' then
+		local itemBtnCount = GET_DIALOGSELECT_ITEMBTN_COUNT(frame);
+		for i = 1, itemBtnCount do
+			local childName = 'item' .. i .. 'Btn'
+			local ItemBtn = frame:GetChild(childName);
+			ItemBtn:ShowWindow(0);
+		end
+
+		local numberEdit = frame:GetChild('numberEdit');
+		local numberHelp = frame:GetChild('numberHelp');
+		numberHelp:ShowWindow(0);
+		numberEdit:ShowWindow(0);
+
+		DialogSelect_index = 0;
+		DialogSelect_count = 0;
+	elseif msg == 'DIALOG_NUMBER_RANGE' then
+		local numberHelp = frame:GetChild('numberHelp');
+		numberHelp:ShowWindow(1);
+		argStr = math.floor(argStr);
+		numberHelp:SetText(ScpArgMsg('Auto_ChoeSo_:_')..argStr..ScpArgMsg('Auto__ChoeDae_:_')..argNum);
+		local numberEdit = frame:GetChild('numberEdit');
+		tolua.cast(numberEdit, "ui::CEditControl");
+		numberEdit:SetText(argStr);
+		numberEdit:Resize(70, 40);
+		numberEdit:ShowWindow(1);
+		numberEdit:SetNumberMode(1);
+        numberEdit:SetMaxLen(16)
+		numberEdit:AcquireFocus();
+		frame:Resize(400, 100);
+
+		DialogSelect_Type = 1;
+	elseif msg == 'DIALOG_TEXT_INPUT' then
+		local numberEdit = frame:GetChild('numberEdit');
+		tolua.cast(numberEdit, "ui::CEditControl");
+		numberEdit:ClearText();
+		numberEdit:Resize(360, 40);
+		numberEdit:ShowWindow(1);
+		numberEdit:SetNumberMode(0);
+        numberEdit:SetMaxLen(32)
+		numberEdit:AcquireFocus();
+		frame:Resize(400, 100);
+
+		DialogSelect_Type = 2;
+		local questreward = frame:GetChild('questreward');
+		if questreward ~= nil then
+    		questreward:ShowWindow(0)
+    	end
+	elseif msg == 'DIALOG_ADD_SELECT' then
+		DialogSelect_Type = 0;
+		DIALOGSELECT_ITEM_ADD(frame, msg, argStr, argNum);
+
+		local ItemBtn = frame:GetChild('item1Btn');
+
+		local questRewardBox = frame:GetChild('questreward');
+		if questRewardBox ~= nil then
+			argNum = argNum - 1;
+		end
+		DialogSelect_count = argNum;
+		DialogSelect_index = 1;
+		DIALOGSELECT_ITEM_SELECT(frame);
+	elseif msg == 'DIALOG_ADD_SELECT_MULTIPLE' then
+		DialogSelect_Type = 0;
+		DIALOGSELECT_ITEM_ADD(frame, msg, argStr, argNum);
+
+		local ItemBtn = frame:GetChild('item1Btn');
+		local itemWidth = ItemBtn:GetWidth();
+		local x, y = GET_SCREEN_XY(ItemBtn, itemWidth / 2.5);		
+
+		local questRewardBox = frame:GetChild('questreward');
+		if questRewardBox ~= nil then
+			argNum = argNum - 1;
+			y = y - questRewardBox:GetY();
+		end
+
+		DialogSelect_count = argNum;
+		DialogSelect_index = 1;
+
+		mouse.SetPos(x,y);
+		mouse.SetHidable(0);
+	elseif msg == 'DIALOG_CLOSE' then
+		DIALOGSELECT_FIX_WIDTH(frame, 540);
+		frame:SetUserValue("QUESTFRAME_HEIGHT",  0);
+		frame:SetUserValue("FIRSTORDER_MAXHEIGHT", 0);
+		frame:SetUserValue("IsScroll", "NO");
+		ui.CloseFrame(frame:GetName());
+		DialogSelect_index = 0;
+		DialogSelect_count = 0;
+		mouse.SetHidable(1);	
+	elseif msg == 'DIALOGSELECT_UP' then
+		DialogSelect_index = DialogSelect_index - 1;
+		if DialogSelect_index <= 0 then
+			DialogSelect_index = DialogSelect_count;
+		end
+		DIALOGSELECT_ITEM_SELECT(frame);
+	elseif msg == 'DIALOGSELECT_DOWN' then
+		DialogSelect_index = DialogSelect_index + 1;
+		if DialogSelect_index > DialogSelect_count then
+			DialogSelect_index = 1;
+		end
+		DIALOGSELECT_ITEM_SELECT(frame);
+	elseif msg == 'DIALOGSELECT_SELECT' then
+		if DialogSelect_index ~= 0 then
+			if session.IsMultipleSelect() == true then
+				DIALOGSELECT_MULTIPLE_SELECT_EVENT(DialogSelect_index);
+			else
+				control.DialogSelect(DialogSelect_index);
+			end
+		end
+	elseif msg == "DIALOGSELECT_MULTIPLE_SKIN_RESET" then
+		if session.IsMultipleSelect() == true then
+			DIALOGSELECT_MULTIPLE_SELECT_SKIN_RESET(frame);
+		end
+	elseif msg == "DIALOGSELECT_MULTIPLE_SELECT_TOGGLE" then
+		if session.IsMultipleSelect() == true then
+			DIALOGSELECT_MULTIPLE_SELECT_TOGGLE(frame, argStr, argNum);
+		end
+	end
+end
+
+function DIALOGSELECT_ITEM_SELECT(frame)
+	local childName = 'item' .. DialogSelect_index .. 'Btn'
+	local ItemBtn = frame:GetChild(childName);
+
+	if ItemBtn == nil then
+		return;
+	end;
+
+    local itemWidth = ItemBtn:GetWidth();
+	local x, y = GET_SCREEN_XY(ItemBtn,itemWidth / 2.5);
+	mouse.SetPos(x, y);
+	mouse.SetHidable(0);
+end
+
+function DIALOGSELECT_ON_PRESS_ESCAPE(frame, msg, argStr, argNum)
+	if Dialog_IsTalking == 1 then
+		control.DialogCancel();
+	end
+end
+
+function DIALOGSELECT_NUMBER_ENTER(frame, ctrl)
+	local strText = ctrl:GetText();
+	if strText ~= nil then
+		if DialogSelect_Type == 1 then
+			local number = tonumber(strText);
+			control.DialogNumberSelect(number);
+		elseif DialogSelect_Type == 2 then
+			control.DialogStringSelect(strText);
+		end
+	end
+end
+
+function DIALOGSELECT_STRING_ENTER(frame, ctrl)
+	local strText = ctrl:GetText();
+	if strText ~= nil then
+		control.DialogStringSelect(strText);
+	end
+end
+
+function MAKE_REWARD_STEP_ITEM_CTRL(box, questCls, cls, y, state)
+    if TryGetProp(cls, 'StepRewardList1') ~= nil and TryGetProp(cls, 'StepRewardList1') ~= 'None' then
+        local duplicate = TryGetProp(cls, 'StepRewardDuplicatePayments')
+        local lastReward
+        local pc = GetMyPCObject();
+        if duplicate == 'NODUPLICATE' then
+            local sObj = GetSessionObject(pc, 'ssn_klapeda')
+            local lastRewardList = TryGetProp(sObj, questCls.QuestPropertyName..'_SRL')
+            if lastRewardList ~= nil and lastRewardList ~= 'None' then
+                lastReward = SCR_STRING_CUT(lastRewardList)
+            end
+        end
+        local maxRewardIndex
+        if state == 'SUCCESS' then
+            for index = 1, 10 do
+                if table.find(lastReward, index) == 0 then
+                    local stepRewardFuncList = TryGetProp(cls, 'StepRewardFunc'..index)
+                    if stepRewardFuncList ~= nil and stepRewardFuncList ~= 'None' then
+						stepRewardFuncList = SCR_STRING_CUT(stepRewardFuncList)
+                        local stepRewardFunc = _G[stepRewardFuncList[1]]
+                        if stepRewardFunc ~= nil then
+                            local result = stepRewardFunc(pc, stepRewardFuncList)
+                            if result == 'YES' then
+                                maxRewardIndex = index
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        local titleFlag = 0
+        for index = 1, 10 do
+            if (state == nil and table.find(lastReward, index) == 0) or (state == 'SUCCESS' and maxRewardIndex == index) then
+                if titleFlag == 0 then
+                    y = y + 10
+                    y = BOX_CREATE_RICHTEXT(box, "t_stepReward", y, 50, '{@st54}{b}'..ScpArgMsg("QUEST_STEPREWARD_MSG1"), 0);
+                    titleFlag = 1
+                end
+                local rewardList = SCR_TABLE_TYPE_SEPARATE(SCR_STRING_CUT(TryGetProp(cls, 'StepRewardList'..index)), {'ITEM'})
+                local itemList = rewardList['ITEM']
+                if itemList ~= nil and itemList[1] ~= 'None' and #itemList > 0 then
+                    y = y + 7
+                    y = BOX_CREATE_RICHTEXT(box, "s_stepReward_text_"..index, y, 50, '{@st41b}'..ScpArgMsg("QUEST_STEPREWARD_MSG2", "STEP", index), 10);
+                    y = y - 5
+                    for i2 = 1, #itemList/2 do
+                        local itemName = itemList[i2*2 - 1]
+                        local itemCount = itemList[i2*2]
+                        y = MAKE_ITEM_TAG_TEXT_CTRL(y, box, "s_stepReward_item_", itemName, itemCount, index*10+i2);
+                        y = y - 10
+                    end
+                end
+            end
+        end
+    end
+    return y;
+end
+
+function MAKE_REWARD_ITEM_CTRL(box, cls, y)
+	local MySession		= session.GetMyHandle();
+	local MyJobNum		= info.GetJob(MySession);
+	local JobName		= GetClassString('Job', MyJobNum, 'ClassName');
+	local job = SCR_JOBNAME_MATCHING(JobName)
+	local index = 0
+	local pc = GetMyPCObject();
+	local isItem = 0;
+
+	if cls.Success_ItemName1 ~= "None" or cls.Success_JobItem_Name1 ~= "None" then
+		for i = 1 , MAX_QUEST_TAKEITEM do
+			local propName = "Success_ItemName" .. i;
+			if cls[propName] ~= "None" and cls[propName] ~= 'Vis' then
+				y = MAKE_ITEM_TAG_TEXT_CTRL(y, box, "reward_item", cls[propName], cls["Success_ItemCount" .. i], i);
+				index = index + 1
+				isItem = 1;
+			end
+		end
+
+        for i = 1, 20 do
+            if cls['Success_JobItem_Name'..i] ~= 'None' and cls['Success_JobItem_JobList'..i] ~= 'None' then
+                local jobList = SCR_STRING_CUT(cls['Success_JobItem_JobList'..i])
+                if SCR_Q_SUCCESS_REWARD_JOB_GENDER_CHECK(pc, jobList, job, pc.Gender, cls.Success_ChangeJob) == 'YES' then
+                    local propName = 'Success_JobItem_Name'..i
+
+                    y = MAKE_ITEM_TAG_TEXT_CTRL(y, box, "reward_item", cls[propName], cls["Success_JobItem_Count" .. i], index + i);
+        			isItem = 1;
+                end
+            end
+        end
+	end
+
+	return y;
+end
+
+function DIALOGSELECT_MULTIPLE_SELECT_SKIN_RESET(frame)
+	if frame == nil then return; end
+	for i = 0, frame:GetChildCount() - 1 do
+		local child = frame:GetChildByIndex(i);
+		if child ~= nil and string.find(child:GetName(), "item") ~= nil then
+			child:SetSkinName("test_pvp_btn");
+		end
+	end
+end
+
+function DIALOGSELECT_MULTIPLE_SELECT_TOGGLE(frame, argStr, argNum)
+	if frame == nil then return; end
+	local item_btn = GET_CHILD_RECURSIVELY(frame, "item"..argNum.."Btn");
+	if item_btn == nil then return; end
+	if argStr == "select" then
+		item_btn:SetSkinName("test_gray_button");
+	else
+		item_btn:SetSkinName("test_pvp_btn");
+	end
+end
+
+

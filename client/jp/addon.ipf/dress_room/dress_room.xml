@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="dress_room" x="0" y="0" width="584" height="677">
+	<frame fasthide="true" margin="0 0 0 0" layout_gravity="center center"/>
+	<draw drawtitlebar="false"/>
+	<skin frameskin="mainwindow3"/>
+	<layer layerlevel="80"/>
+	<script OpenScp="DRESS_ROOM_UI_OPEN" CloseScp="DRESS_ROOM_UI_CLOSE"/>
+	<input moveable="true"/>
+	<userconfig COMPLETE_DECK_TITLE_FONT="{@st66d_y}" DECK_TITLE_FONT="{@st66e}{s18}" ENABLE_SKIN="test_skin_01_btn" DISABLE_SKIN="test_skin_gary_01" DISABLE_DECK_TITLE_FONT="{@st66b}" NOT_HAVE_COLOR="BB000000" DISABLE_MAGIC_LIST_FONT="{@st66b}{#a59172}{s17}" ENABLE_MAGIC_LIST_FONT="{@st66b}{s17}"/>
+	<controls>
+		<richtext name="title" rect="0 0 584 40" margin="0 37 0 0" layout_gravity="center top" caption="{@st43b}{s24}코스튬 컬렉션{/}" hittest="false"/>
+		<button name="close" rect="0 0 44 44" margin="0 36 14 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;dress_room&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}코스튬 컬렉션을 닫습니다{/}"/>
+		<button name="viewAllAddStatus" rect="0 0 151 43" margin="0 85 28 0" layout_gravity="right top" LBtnUpScp="VIEW_DRESS_ROOM_ALL_STATUS" caption="{@st66b}{s16}총 효과보기{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" skin="test_pvp_btn" oversound="button_over" stretch="true" texttooltip="{@st59}총 효과를 출력 합니다.{/}"/>
+		<groupbox name="gb" rect="0 0 528 510" margin="0 130 0 0" layout_gravity="center top" skin="" draw="false" hittestbox="false" scrollbar="false"/>
+		<groupbox name="ListBox" parent="gb" rect="0 0 528 510" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_midle" hittest="true"/>
+	</controls>
+</uiframe>

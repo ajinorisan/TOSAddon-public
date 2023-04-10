@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="colorspray" x="0" y="0" width="710" height="440" create="open">
+	<frame layout_gravity="center center" margin="0 -50 0 0"/>
+	<draw drawframe="false"/>
+	<layer layerlevel="100"/>
+	<script OpenScp="OPEN_ROLLBACK_BRIQUETTING" CloseScp="CLOSE_ROLLBACK_BRIQUETTING"/>
+	<controls>
+		<groupbox name="bgBox" rect="0 0 710 430" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_low"/>
+		<groupbox name="headerBox" rect="0 0 710 74" margin="0 0 0 0" layout_gravity="left top" skin="TPshop_title" hittest="false"/>
+		<picture name="colorspray_bg" rect="0 0 630 320" parent="bgBox" margin="0 10 0 0" layout_gravity="center center" image="colorspray_bg" stretch="false"/>
+		<button name="closeBtn" rect="0 0 50 50" margin="0 20 28 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('colorspray')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}장비 외형 초기화 UI를 닫습니다{/}"/>
+		<richtext name="headerText" rect="0 0 600 50" parent="headerBox" margin="0 0 0 0" layout_gravity="center center " caption="{@st43}장비 외형 초기화{/}" hittest="false"/>
+		<groupbox name="beforeBox" rect="0 0 300 230" margin="24 105 0 0" layout_gravity="left top" draw="false"/>
+		<slot name="beforeSlot" parent="beforeBox" rect="0 0 160 160" margin="0 40 0 0" layout_gravity="center top" skin="skill_squaier_slot" DropScp="DROP_ROLLBACK_BRIQUETTING_TARGET" PopScp="POP_ROLLBACK_BRIQUETTING_TARGET" RBtnUpScp="POP_ROLLBACK_BRIQUETTING_TARGET"/>
+		<richtext name="beforeText" rect="0 0 300 30" parent="beforeBox" margin="0 0 0 0" layout_gravity="center top" format="{@st43b}{s22}변경 전{/}" fontname="white_16_b_ol"/>
+		<richtext name="beforeNameText" parent="beforeBox" rect="0 0 160 30" margin="0 0 0 0" layout_gravity="center bottom" format="{@st42}%s" param1="name" param1_def="dd"/>
+		<groupbox name="afterBox" rect="0 0 300 230" margin="0 105 23 0" layout_gravity="right top" draw="false"/>
+		<slot name="afterSlot" parent="afterBox" rect="0 0 160 160" margin="0 40 0 0" layout_gravity="center top" movepop="false" enabledrop="false" enabledrag="false" eanblepop="false" skin="skill_squaier_slot" hittest="true"/>
+		<richtext name="afterText" rect="0 0 300 30" parent="afterBox" margin="0 0 0 0" layout_gravity="center top" format="{@st66d_y}{s22}변경 후{/}" fontname="yellow_16_b_ol"/>
+		<richtext name="afterNameText" parent="afterBox" rect="0 0 160 30" margin="0 0 0 0" layout_gravity="center bottom" format="{@st42}%s" param1="name" param1_def="dd"/>
+		<picture name="arrowPic" rect="0 0 83 67" margin="0 3 0 0" layout_gravity="center center" image="white_arrow" stretch="true"/>
+		<button name="execBtn" rect="0 0 250 50" margin="0 0 0 20" parent="bgBox" layout_gravity="center bottom" skin="test_red_button" caption="{@st43b}{s18}초기화 하기{/}{/}" fontname="white_14_ol" LBtnUpScp="EXEC_ROLLBACK_BRIQUETTING"/>
+	</controls>
+</uiframe>
