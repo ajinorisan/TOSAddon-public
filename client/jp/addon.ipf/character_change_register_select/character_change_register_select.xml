@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="character_change_register_select" x="0" y="0" width="500" height="630">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<option visible="false" hideable="true" closebutton="false" moveable="true" alwaysVisible="false" exceptionUpdateUiMode="true"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<layer layerlevel="102"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 500 630" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_low" image="none"/>
+		<groupbox name="title_gbox" parent="bg" rect="0 0 500 76" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_top" image="none"/>
+		<groupbox name="gbox" parent="bg" rect="0 0 500 500" margin="0 70 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="none" image="none"/>
+		<groupbox name="character_list_gbox" parent="gbox" rect="0 0 470 500" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true" skin="none" image="none"/>
+		<richtext name="title" parent="title_gbox" rect="0 0 200 30" margin="0 15 0 0" layout_gravity="center top" caption="{@st43}캐릭터 선택{/}"/>
+		<picture name="help" parent="title_gbox" rect="0 0 35 35" margin="23 18 0 0" layout_gravity="left top" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" texttooltip="{@st61}{s18}캐릭터 선택{/}{nl}- 교체 캐릭터 등록 후 해당 캐릭터로 접속하여 {nl}장비 및 관련 세팅이 교체 캐릭터의 조건을 충족하는지 1회 이상 확인이 필요합니다.{nl}{#ff0000}*등록된 캐릭터가 팀 배틀 리그 참여 조건을 충족하지 못 한 경우,{nl}팀 배틀 리그 진행 중 캐릭터 교체가 불가합니다{/}{nl}- 교체 캐릭터 등록은 캐릭터 단위로 저장됩니다." image="testquesten_button"/>
+		<button name="close" parent="title_gbox" rect="0 0 50 50" margin="0 18 25 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;character_change_register_select&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+	</controls>
+</uiframe>
