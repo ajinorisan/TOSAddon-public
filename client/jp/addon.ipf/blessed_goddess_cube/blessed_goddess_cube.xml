@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="blessed_goddess_cube" x="0" y="0" width="860" height="550" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin="test_frame_low"/>
+	<frame title="" fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="true"/>
+	<layer layerlevel="81"/>
+	<option closebutton="false"/>
+	<sound opensound="inven_win_open" closesound="inven_win_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<script OpenScp="" CloseScp="BLESSED_CUBE_CLOSE"/>
+	<userconfig TP_IMG="icon_item_tpBox_30" ITEM_LIST_INTERVAL="-3"/>
+	<controls>
+		<groupbox name="headerBox" rect="0 0 862 72" margin="0 0 0 0" layout_gravity="left top" skin="TPshop_title"/>
+		<richtext name="headerText" rect="0 0 300 30" parent="headerBox" margin="0 0 0 0" layout_gravity="center center" caption="{@st43}{s22}여신의 축복{/}"/>
+		<button name="closeBtn" rect="0 0 60 60" margin="0 15 5 0" layout_gravity="right top" image="testclose_button" LBtnUpScp="ui.CloseFrame('blessed_goddess_cube')"/>
+		<picture name="cubeBox" rect="0 0 450 345" margin="13 70 0 0" layout_gravity="left top" image="cube_item_bg" stretch="true" skin="None"/>
+		<picture name="cubePic" rect="0 0 200 200" parent="cubeBox" margin="0 0 0 0" layout_gravity="center center" image="testclose_button" stretch="true"/>
+		<richtext name="cubeText" rect="0 0 300 30" parent="cubeBox" margin="0 0 0 15" layout_gravity="center bottom" caption="큐브 이름이다" fontname="white_18_b_ol"/>
+		<groupbox name="cubeListBox" rect="0 0 382 341" margin="0 73 13 0" layout_gravity="right top" skin="test_frame_midle" fixheight="true" scrollbar="true"/>
+    	<checkbox name="skip_animation" margin="0 0 50 20" rect="0 0 150 100" layout_gravity="right bottom" caption="애니메이션 스킵" fontname="black_18" checked="false" LBtnUpScp="SCR_BLESSED_CUBE_SKIP_ANIMATION"/>
+		<button name="openBtn" rect="0 0 281 63" margin="0 0 0 60" layout_gravity="center bottom" skin="test_red_button" format="{nl}{img %s 40 40}{@st42b}{s20}캡슐 개봉   " fontname="white_18_b_ol" LBtnUpScp="BLESSED_CUBE_OPEN_BUTTON" param1="icon" param1_def="icon_item_tpBox_30"/>
+		<button name="openBtn2" rect="0 0 281 40" margin="0 0 0 20" layout_gravity="center bottom" skin="test_gray_button" format="{nl}{@st42b}{s20}확률형 아이템 목록" fontname="white_18_b_ol" LBtnUpScp="BLESSED_CUBE_ITEM_LIST_BUTTON"/>
+	</controls>
+</uiframe>
