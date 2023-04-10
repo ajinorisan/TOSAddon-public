@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="extract_luciferi_property" x="0" y="0" width="450" height="1160" create="open">
+	<frame title="{@st43}루시페리 속성 추출{/}" titlepos="0 0" fullheight="true" fasthide="true" layout_gravity="left top" margin="0 0 0 0" piptype="left" open="pip"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<layer layerlevel="95"/>
+	<option closebutton="false"/>
+	<input moveable="false"/>
+	<script OpenScp="EXTRACT_LUCIFERI_PROPERTY_OPEN" CloseScp="EXTRACT_LUCIFERI_PROPERTY_CLOSE" DropScp="EXTRACT_LUCIFERI_PROPERTY_DROP"/>
+	<sound opensound="win_open" closesound="win_close"/>
+	<userconfig STAR_SIZE="15" NEGATIVE_COLOR="{#ff0000}" POSITIVE_COLOR="{#00ff00}"/>
+	<controls>
+		<groupbox name="bodyGbox_bg" rect="0 0 450 1020" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_low"/>		
+		<groupbox name="bodyGbox1" rect="0 0 450 430" margin="0 90 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="gem_socket_bg"/>		
+		<groupbox name="pip4" rect="0 0 450 61" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_top"/>
+		<picture name="helpPic" parent="pip4" rect="0 0 50 50" margin="28 15 0 0" layout_gravity="left center" image="testquesten_button" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" texttooltip="도움말" useclickimg="false"/>
+		<button name="close" rect="0 0 44 44" parent="pip4" margin="0 7 28 0" layout_gravity="right center" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;extract_luciferi_property&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}루세피리 속성 추출창을 닫습니다{/}"/>
+		<richtext name="title" parent="pip4" rect="0 0 200 80" margin="0 2 0 0" layout_gravity="center center" format="{@st43}%s{/}" param1="title" param1_def="루시페리 속성 추출" textalign="center center"/>
+		<slot name="item_slot_1" parent="bodyGbox1" rect="0 0 120 120" margin="0 60 0 0" movepop="false" layout_gravity="center top" dropsound="icon_get_down" picksound="icon_pick_up" DropScp="EXTRACT_LUCIFERI_PROPERTY_DROP" skin="invenslot2" RBtnUpScp="EXTRACT_LUCIFERI_PROPERTY_SLOT_POP"/>
+		<picture name="item_pic_1" parent="bodyGbox1" rect="0 0 100 100" margin="0 70 0 0" layout_gravity="center top" DropScp="EXTRACT_LUCIFERI_PROPERTY_DROP" changecursor="false" hittest="false" image="socket_slot_bg" stretch="true"/>
+		<richtext name="item_text_1" parent="bodyGbox1" rect="0 0 190 30" margin="0 205 0 0" layout_gravity="center top" caption="아이템을 올려주세요" drawbackground="false" fixwidth="true" fontname="brown_16" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="center center" updateparent="false"/>				
+		<groupbox name="division_arrow" parent="bodyGbox_bg" rect="0 0 400 30" margin="0 40 0 0" skin="test_arow" layout_gravity="center top"/>
+		<richtext name="text_msg" parent="bodyGbox_bg" rect="0 0 410 70" margin="0 0 0 150" layout_gravity="center bottom" format="%s{/}" param1="text" param1_def="루시페리 계열 액세서리의 강화/초월/포텐셜 속성 수치를 추출하여 속성이 저장된 스크롤 2장을 획득합니다.{nl}*추출된 아이템의 모든 속성은 0이 됩니다." drawbackground="false" fixwidth="true" fontname="brown_16" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left center" updateparent="false"/>
+		<button name="button_exchange" parent="bodyGbox_bg" rect="0 0 160 50" margin="0 0 0 21" layout_gravity="center bottom" LBtnUpScp="EXTRACT_LUCIFERI_PROPERTY_EXCHANGE_BUTTON_CLICK" caption="{@st41b}추출" skin="test_red_button"/>		
+	</controls>
+</uiframe>

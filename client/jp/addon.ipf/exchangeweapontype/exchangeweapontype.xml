@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="exchangeweapontype" x="0" y="0" width="450" height="1160" create="open">
+	<frame title="{@st43}무기 계열 변경{/}" titlepos="0 0" fullheight="true" fasthide="true" layout_gravity="left top" margin="0 0 0 0" piptype="left" open="pip"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<layer layerlevel="95"/>
+	<option closebutton="false"/>
+	<input moveable="false"/>
+	<script OpenScp="EXCHANGEWEAPONTYPE_OPEN" CloseScp="EXCHANGEWEAPONTYPE_CLOSE" DropScp="EXCHANGEWEAPONTYPE_DROP"/>
+	<sound opensound="win_open" closesound="win_close"/>
+	<userconfig STAR_SIZE="15" NEGATIVE_COLOR="{#ff0000}" POSITIVE_COLOR="{#00ff00}"/>
+	<controls>
+		<groupbox name="bodyGbox_bg" rect="0 0 450 1020" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_low"/>
+		<groupbox name="bodyGbox_middle" rect="0 0 430 400" margin="0 520 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true" skin="test_frame_midle"/>
+		<groupbox name="bodyGbox1" rect="0 0 450 260" margin="0 90 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="gem_socket_bg"/>
+		<groupbox name="bodyGbox2" rect="0 0 450 680" margin="0 360 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true" skin="gem_socket_bg"/>
+		<groupbox name="pip4" rect="0 0 450 61" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_top"/>
+		<picture name="helpPic" parent="pip4" rect="0 0 50 50" margin="28 15 0 0" layout_gravity="left center" image="testquesten_button" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" texttooltip="도움말" useclickimg="false"/>
+		<button name="close" rect="0 0 44 44" parent="pip4" margin="0 7 28 0" layout_gravity="right center" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;exchangeweapontype&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}무기 계열 변경을 닫습니다{/}"/>
+		<richtext name="title" parent="pip4" rect="0 0 200 80" margin="0 2 0 0" layout_gravity="center center" format="{@st43}%s{/}" param1="title" param1_def="무기 계열 변경" textalign="center center"/>
+		<slot name="item_slot_1" parent="bodyGbox1" rect="0 0 120 120" margin="-120 60 0 0" movepop="false" layout_gravity="center top" dropsound="icon_get_down" picksound="icon_pick_up" DropScp="EXCHANGEWEAPONTYPE_DROP" skin="invenslot2" RBtnUpScp="EXCHANGEWEAPONTYPE_SLOT_POP"/>
+		<picture name="item_pic_1" parent="bodyGbox1" rect="0 0 100 100" margin="-120 70 0 0" layout_gravity="center top" DropScp="EXCHANGEWEAPONTYPE_DROP" changecursor="false" hittest="false" image="socket_slot_bg" stretch="true"/>
+		<richtext name="item_text_1" parent="bodyGbox1" rect="0 0 190 30" margin="-120 205 0 0" layout_gravity="center top" caption="아이템을 올려주세요" drawbackground="false" fixwidth="true" fontname="brown_18" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="center center" updateparent="false"/>
+		<slot name="item_slot_2" parent="bodyGbox1" rect="0 0 120 120" margin="120 60 0 0" movepop="false" layout_gravity="center top" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpScp="EXCHANGEWEAPONTYPE_SLOT_POP"/>
+		<picture name="item_pic_2" parent="bodyGbox1" rect="0 0 100 100" margin="120 70 0 0" layout_gravity="center top" changecursor="false" hittest="false" image="socket_slot_bg" stretch="true"/>
+		<richtext name="item_text_2" parent="bodyGbox1" rect="0 0 190 30" margin="120 205 0 0" layout_gravity="center top" caption="변형시킬 아이템 입니다." drawbackground="false" fixwidth="true" fontname="brown_18" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="center center" updateparent="false"/>
+		<picture name="arrowPic" parent="bodyGbox1" rect="0 0 30 86" stretch="true" margin="0 0 0 0" layout_gravity="center center" image="icon_arrow_right"/>
+		<groupbox name="division_arrow" parent="bodyGbox_bg" rect="0 0 400 30" margin="0 40 0 0" skin="test_arow" layout_gravity="center top"/>
+		<button name="button_exchange_weapontype" parent="bodyGbox_bg" rect="0 0 160 50" margin="0 0 0 21" layout_gravity="center bottom" LBtnUpScp="EXCHANGEWEAPONTYPE_EXCHANGE_BUTTON_CLICK" caption="{@st41b}교환" skin="test_red_button"/>
+	</controls>
+</uiframe>
