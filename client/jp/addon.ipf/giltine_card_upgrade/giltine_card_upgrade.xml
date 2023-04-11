@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="giltine_card_upgrade" x="0" y="0" width="600" height="1030" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame titlepos="0 0" margin="0 0 0 0" layout_gravity="left top" open="pip" fullheight="true" fasthide="true"/>
+	<input moveable="false"/>
+	<layer layerlevel="96"/>
+	<option closebutton="false"/>
+	<script OpenScp="GILTINE_CARD_UPGRADE_OPEN" CloseScp="GILTINE_CARD_UPGRADE_CLOSE"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 600 1030" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" skin="test_frame_low"/>
+		<groupbox name="title" rect="0 0 600 62" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_top_r"/>
+		<groupbox name="mainGbox" rect="0 0 600 700" margin="0 50 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="pipwin_low"/>
+		<groupbox name="subGbox2" parent="mainGbox" rect="0 0 600 160" margin="0 490 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="pipwin_low"/>
+		<groupbox name="subGbox1" parent="mainGbox" rect="0 0 600 650" margin="0 18 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="pipwin_low"/>
+		<groupbox name="optionGbox" parent="bg" rect="0 0 580 220" margin="0 700 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_midle"/>
+		<groupbox name="option_bg" parent="optionGbox" rect="0 0 565 220" margin="0 7 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
+		<groupbox name="giltineCardNameGBox" rect="0 0 300 45" margin="0 320 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" image="guildname_frame"/>
+		<richtext name="title_text" rect="0 0 100 30" margin="0 16 0 0" layout_gravity="center top" caption="{@st43}길티네 카드 제작{/}" fontname="default" spacey="0" hittest="false"/>
+		<richtext name="giltine_card_name_text" parent="giltineCardNameGBox" rect="0 0 100 30" margin="0 -2 0 0" layout_gravity="center center " hittest="false" format="{@st66d}{#ffcc33}{s18}%s{/}" param1="value" param1_def="길티네 카드" stretch="true"/>
+		<richtext name="nothing_text_1" rect="0 0 40 40" margin="2 80 0 0" layout_gravity="center top" hittest="false" format="{@st66d}{s60}X{/}"/>
+		<richtext name="nothing_text_2" rect="0 0 40 40" margin="2 390 0 0" layout_gravity="center top" hittest="false" format="{@st66d}{s60}X{/}"/>
+		<picture name="magic_square" parent="subGbox1" rect="0 0 571 620" margin="0 0 0 0" layout_gravity="center top" enableselect="false" movepop="false" scrollbar="false" image="card_reinforce_legend_bg" hittest="false"/>
+		<slot name="target_card_slot" parent="subGbox1" rect="0 0 105 105" margin="3 140 0 0" layout_gravity="center top" dropsound="icon_get_down" enableselect="false" movepop="false" scrollbar="false" picksound="icon_pick_up" size="100 150"/>
+		<slot name="material_slot_boruta" parent="subGbox1" rect="0 0 65 65" margin="161 158 0 0 " layout_gravity="center top" dropsound="icon_get_down" enableselect="false" movepop="false" scrollbar="false" picksound="icon_pick_up" size="75 100" RBtnUpScp="GILTINE_CARD_UPGRADE_SLOT_CLEAR" texttooltip="{@st59}보루타 카드 10성이 필요합니다.{/}"/>
+		<slot name="material_slot_legend" parent="subGbox1" rect="0 0 65 65" margin="-158 158 0 0 " layout_gravity="center top" dropsound="icon_get_down" enableselect="false" movepop="false" scrollbar="false" picksound="icon_pick_up" size="75 100" RBtnUpScp="GILTINE_CARD_UPGRADE_SLOT_CLEAR" texttooltip="{@st59}보루타 카드를 제외한 레전드 카드 10성이 필요합니다.{/}"/>
+		<slot name="material_item_slot" parent="subGbox1" rect="0 0 90 90" margin="3 493 0 0" layout_gravity="center top" dropsound="icon_get_down" enableselect="false" movepop="false" scrollbar="false" picksound="icon_pick_up" size="75 100" textalign="right bottom"/>
+		<richtext name="info_text_1" parent="optionGbox" rect="0 0 400 40" margin="10 40 0 0" layout_gravity="left top" hittest="false" format="{@st100white_16}아래 아이템을 모두 소모하여 {@st204_purple}{s17}[LV10] 길티네 카드{/}{/}{@st100white_16}를 획득합니다. {nl} {nl} - {@st100white_16}{@st66d_y}{s17}혼돈의 편린{/}{/}  10개{nl} {nl} - {@st59}{@st66d_y}{s17}[LV10] 보루타 카드{/}{/}{@st100white_16}1개{nl} {nl} - {@st204_green}임의의 {/}{/}{@st66d_y}{s17}[LV10] 레전드 카드{/}{/}{@st100white_16}1개{/}{/}" stretch="false"/>
+		<button name="upgrade_btn" rect="0 0 180 50" margin="-5 0  0 70" layout_gravity="center bottom" LBtnUpScp="GILTINE_CARD_UPGRADE_EXEC" skin="test_red_button" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="제작" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<button name="close" rect="0 0 44 44" margin="0 20 28 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('giltine_card_upgrade')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}길티네 카드 제작 UI를 닫습니다.{/}"/>
+	</controls>
+</uiframe>

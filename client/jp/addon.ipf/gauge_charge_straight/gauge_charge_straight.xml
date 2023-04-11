@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="gauge_charge_straight" x="0" y="0" width="540" height="130" create="open">
+	<frame title="{@st43}{s22}name{/}" titlepos="0 5" fasthide="true" layout_gravity="center bottom" margin="0 0 0 200" piptype="top"/>
+	<input maxwidth="250" moveable="true" hittestframe="true"/>
+	<layer layerlevel="95"/>
+	<script OpenScp="GAUGE_CHARGE_STRAIGHT_OPEN" CloseScp="GAUGE_CHARGE_STRAIGHT_CLOSE"/>
+	<option hideable="false" closebutton="false"/>
+	<skin frameskin="none" draw="false"/>
+	<draw drawtitlebar="false" drawframe="true"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="popup_start" frameCloseAnim="popup_end"/>
+	<effect open="timeactionOpen" close="timeactionClose"/>
+	<userconfig TitleFont="{@st43}{s22}"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 540 130" margin="0 0 0 0" layout_gravity="center center" scrollbar="false" draw="false" hittest="false"/>
+		<groupbox name="gauge_bg" rect="0 0 436 37" margin="0 0 0 0" layout_gravity="center center" scrollbar="false" draw="false" hittest="false"/>
+		<gauge name="gauge" parent="gauge_bg" rect="0 0 436 36" margin="0 0 0 0" layout_gravity="center center" charging="true" hittest="false" inverse="false" point="50" maxpoint="100" skin="epicraid_gauge_charging"/>
+	</controls>
+</uiframe>

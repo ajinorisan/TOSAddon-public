@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="guide_quest" x="0" y="0" width="1021" height="805" create="open">
+	<frame layout_gravity="center center" margin="0 0 0 0" tooltipoverlap="true"/>
+	<option closebutton="false"/>
+	<draw drawframe="false" drawtitlebar="false" drawnotitlebar="false"><![CDATA[]]></draw>
+	<input moveable="true" hittestframe="true"/>
+	<script OpenScp="GUIDE_QUEST_OPEN" CloseScp=""/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end"/>
+	<layer layerlevel="94"/>
+	<controls>
+		<groupbox name="gFrame" rect="0 0 1016 805" margin="0 0 0 0" layout_gravity="left center" skin="relic_frame_bg" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" rect="0 0 1021 61" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_top" hittestbox="false" stretch="true"/>
+		<richtext name="title" parent="titlegbox" rect="0 0 200 50" margin="0 17 0 0" layout_gravity="center top" caption="{@st43}{s24}필수 가이드" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="closeBtn" parent="titlegbox" rect="0 0 44 44" margin="0 20 27 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;guide_quest&apos;)" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}필수 가이드를 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover"/>
+		
+		<groupbox name="gb" rect="0 0 994 729" margin="11 65 0 0" layout_gravity="left top" skin="ps_frame3" draw="true" hittestbox="true" hittest="true" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="tab_gb" parent="gb" rect="0 0 284 729" margin="0 0 0 0" layout_gravity="left top" skin="" draw="false" hittestbox="true" hittest="true" resizebyparent="false" scrollbar="true"/>
+		
+		<groupbox name="info_gb" rect="0 0 710 729" margin="295 65 0 0" layout_gravity="left top" skin="ps_frame1" draw="true" hittestbox="true" hittest="true" resizebyparent="false" scrollbar="false"/>
+		<richtext name="quest_text" parent="info_gb" rect="0 0 200 50" margin="0 7 0 0" layout_gravity="center top" format="{@stc1}{s22}STEP %s" param1="value" param1_def="1" drawbackground="false" fixwidth="false" fontname="brown_18" textalign="center center"/>
+		<richtext name="count_text" parent="info_gb" rect="0 0 200 50" margin="0 37 0 0" layout_gravity="center top" format="{@st63}{s15}({@st66_y}{s15}%s{/}{/}/%s)" param1="cur" param1_def="0" param2="max" param2_def="2" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<richtext name="desc_text" parent="info_gb" rect="0 0 680 50" margin="0 70 0 0" layout_gravity="center top" format="{@st63}{s16}%s" param1="desc" param1_def="Episode 12 - 1 퀘스트를 통해 마지막 계시 - 사명의 완성 이야기를 진행하고,{nl}에피소드 클리어 보상을 획득하세요" drawbackground="false" fixwidth="true" fontname="brown_18" textalign="center center"/>
+	
+
+		<richtext name="reward_text" parent="info_gb" rect="0 0 200 50" margin="0 0 0 183" layout_gravity="center bottom" caption="{@st63}{s18}완료 보상" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<picture name="reward_line" parent="info_gb" rect="0 0 665 19" margin="0 0 0 165" layout_gravity="center bottom" image="essential_guide_labelline" hittestbox="false" stretch="true"/>
+		<button name="reward_btn" parent="info_gb" rect="0 0 186 46"  margin="0 0 0 10" layout_gravity="center bottom" skin="test_red_button" format="{@st43b}{s16}%s" param1="text" param1_def="보상 받기" textoffset="0 0" LBtnUpScp="GUIDE_QUEST_GET_REWARD"/>
+		<slotset name="slotset_list_reward" parent="info_gb" rect="0 0 100 100" margin="0 0 0 100" layout_gravity="center bottom" LBtnDownScp="" enabledrag="false" enableselect="false" hideindrag="true" row="1" col="6" maxselect="60" size="60 60" skin="invenslot2" spc="2 2" enabledrop="false" enablepop="false"/>
+		<groupbox name="coin_reward_gb" parent="info_gb" rect="0 0 674 31" margin="0 0 0 62" layout_gravity="center bottom" skin="" draw="false"/>
+	
+		<groupbox name="mission" parent="info_gb" rect="0 0 706 395" margin="2 -47 0 0" layout_gravity="left center" skin="" draw="false" hittestbox="true" hittest="true" resizebyparent="false" scrollbar="true"/>
+		<groupbox name="mission_gb" parent="mission" rect="0 0 716 395" margin="0 0 0 0" layout_gravity="left center" skin="ps_frame4" draw="true" hittestbox="true" hittest="true" resizebyparent="false" scrollbar="true"/>
+
+
+		<!-- 재화 보상 컨트롤 셋  -->
+		<groupbox name="coin_reward_bg" parent="coin_reward_gb" rect="0 0 218 31" margin="0 0 0 0" layout_gravity="center top" skin="essential_guide_property" hittestbox="false" stretch="true"/>
+		<picture name="coin_pic" parent="coin_reward_bg" rect="0 0 27 27" margin="7 0 0 0" layout_gravity="left center" image="silver_pic" hittestbox="false" stretch="true"/>
+		<richtext name="reward_text" parent="coin_reward_bg" rect="0 0 200 50" margin="0 0 15 0" layout_gravity="right center" format="%s" param1="value" param1_def="296,296" drawbackground="false" fixwidth="false" fontname="white_14_ol" resizebytext="true" textalign="right center"/>
+
+	</controls>
+</uiframe>

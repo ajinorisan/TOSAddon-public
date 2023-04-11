@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="goddesscardslot" x="0" y="0" width="556" height="745" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame titlepos="0 0" layout_gravity="center center" margin="160 0 0 0" fasthide="true"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<layer layerlevel="96"/>
+	<option closebutton="false"/>
+	<script OpenScp="GODDESSCARDSLOT_OPEN" CloseScp="GODDESSCARDSLOT_CLOSE"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<controls>
+		<picture name="cardInformationImage" rect="0 0 556 739" margin="0 0 0 0" layout_gravity="center top" hittest="false" image="goddess_card_information"/>
+		<richtext name="title" rect="0 0 556 50" margin="0 15 0 0" layout_gravity="center top" hittest="false" caption="{@st43b}{s24}가디스 카드 슬롯"/>
+		<groupbox name="cardbg" rect="0 0 330 440" margin="0 61 0 0" layout_gravity="center top" draw="false"/>
+		<slot name="cardSlot" rect="0 0 330 440" margin="0 0 0 0" layout_gravity="center top" parent="cardbg" skin="goddess_card__activation" DropScp="GODDESSCARD_SLOT_DROP" RBtnUpScp="GODDESSCARD_SLOT_REMOVE"/>
+		<picture name="cardImage" rect="0 0 330 440" margin="0 0 0 0" layout_gravity="center top" parent="cardbg" hittest="false" stretch="true"/>
+		<picture name="bgPic" rect="0 0 330 440" margin="0 0 0 0" layout_gravity="center top" parent="cardbg" image="Card_Bg_Demon" stretch="true" hittest="false" visible="false"/>
+		<spinepic name="cardSpinePic" rect="0 0 330 440" margin="0 0 0 0" layout_gravity="center top" parent="cardbg" hittest="false" stretch="false"/>
+		<groupbox name="resultBox" rect="0 0 530 220" margin="0 515 0 0" layout_gravity="center top" draw="false" hittest="true" resizebyparent="true" resizebyresolution="false"/>
+		<button name="close" rect="0 0 44 44" margin="0 9 24 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;goddesscardslot&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}카드첩 카드 장착 UI를 닫습니다{/}"/>
+	</controls>
+</uiframe>
