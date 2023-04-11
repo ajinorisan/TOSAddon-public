@@ -11,7 +11,9 @@ The author of this addon is meldavyさん
 
 ### easybuff
 
-画面左上に食事バフを消すボタンを付けました。シャンパン呑まないのは仕様です。
+~~画面左上に食事バフを消すボタンを付けました。シャンパン呑まないのは仕様です。~~
+
+v2.0.0系で色々見直しました。詳しくはREADME.md参照
 
 The author of this addon is Kiicchanさん
 
