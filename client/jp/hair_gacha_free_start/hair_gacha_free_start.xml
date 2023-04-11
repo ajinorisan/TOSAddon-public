@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="hair_gacha_free_start" x="0" y="0" width="450" height="500">
+	<frame fullheight="false" fasthide="false" layout_gravity="center center" margin="270 -100 0 0" scale_align="right center"/>
+	<skin frameskin="none"/>
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="100"/>
+	<input moveable="true"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="popup_start3" frameCloseAnim="popup_end3"/>
+	<effect open="character_item_window_open" close="character_item_window_close"/>
+	<script OpenScp="HAIR_GACHA_FREE_OPEN" CloseScp=""/>
+	<controls>
+		<groupbox name="bg_hair" rect="0 0 450 480" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" image="gacha_skin"/>
+		<groupbox name="bg_rbox" rect="0 0 450 480" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" image="randombox_skin"/>
+		<button name="button" margin="0 0 0 85" rect="0 0 280 60" format="%s" param1="value" skin="test_red_button" layout_gravity="center bottom" oversound="button_over" LBtnUpScp="HAIR_GACHA_FREE_OK_BTN" clicksound="skl_eff_gacha_box_button"/>
+		<button name="close" rect="30 40 0 0" margin="0 10 60 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('hair_gacha_start')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다.{/}"/>
+		<richtext name="richtext_2" margin="0 0 0 170" rect="0 0 350 50" caption=" {@st66b}사용 시 각 확률에 따라{nl}구성 아이템 중 1종을 획득할 수 있습니다.{/}" textalign="center top" resizebytext="false" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom"/>
+		<richtext name="richtext_3" margin="0 0 0 170" rect="0 0 350 50" caption=" " textalign="center top" resizebytext="false" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom"/>
+		<checkbox name="skip_animation" margin="0 0 0 150" rect="0 0 0 20" layout_gravity="center bottom" caption="큐브 애니메이션 스킵" fontname="black_18" checked="false" LBtnUpScp="SCR_GACHA_SKIP_ANIMATION"/>
+	</controls>
+</uiframe>
