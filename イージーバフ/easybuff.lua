@@ -1,78 +1,177 @@
 local addonName = "EASYBUFF"
-local author = "norisan"
-local version = '1.0.6'
+local addonNameLower = string.lower(addonName)
+local author = "from Kiicchan to norisan"
+local version = '2.0.0'
 --CHAT_SYSTEM("Easy Buff by Kiicchan!")
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName];
+
+g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
+
+g.settings = {useHook = 1}
 g.buffIndex = 0;
 g.foodIndex = 0;
+
 
 local acutil = require("acutil");
 
 function EASYBUFF_ON_INIT(addon, frame)
-    CHAT_SYSTEM("EASYBUFF_ON_INIT")
-    local frame = ui.GetFrame("easybuff")
-    frame:Resize(100, 30)
-    frame:ShowWindow(1)
-    frame:SetAlpha(0)
-    -- ボタンを取得する
-    local button = GET_CHILD(frame, "myButton", "ui::CButton");
-    button:ShowWindow(1) -- ボタンを表示する
-    -- ボタンのサイズを変更する
-    button:Resize(100, 30)
-    frame:SetOffset(10,200)
-
+CHAT_SYSTEM("EASYBUFF loaded")
+    frame:ShowWindow(1);
+    
+    if not g.loaded then
+    local t, err = acutil.loadJSON(g.settingsFileLoc, g.settings);
+    if err then
+      --設定ファイル読み込み失敗時処理
+      CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonName))
+    else
+      --設定ファイル読み込み成功時処理
+      g.settings = t;
+    end
+    g.loaded = true
+  end
+  
+  EASYBUFF_SAVESETTINGS();
+  
     addon:RegisterMsg('GAME_START_3SEC', 'EASYBUFF_BUFFSELLER_TARGET_INIT')
+    --addon:RegisterMsg('OPEN_ITEMBUFF_UI_COMMON', 'EASYBUFF_OPEN_ITEMBUFF_UI_COMMON');
     acutil.setupHook(EASYBUFF_HOOK_CLICK, 'TARGET_BUFF_AUTOSELL_LIST')
     acutil.setupHook(EASYBUFF_HOOK_CLICK_FOOD, 'OPEN_FOOD_TABLE_UI')
     acutil.setupHook(EASYBUFF_HOOK_CLICK_REPAIR, 'ITEMBUFF_REPAIR_UI_COMMON')
+    acutil.setupHook(EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL, 'SQUIRE_BUFF_EQUIP_CTRL')
+   
     acutil.slashCommand("/easybuff",EASYBUFF_CMD);
-
-    button:SetEventScript(ui.LBUTTONDOWN, "EASYBUFF_MYBUTTON_DOWN");
-
-    EASYBUFF_LOADSETTINGS();
-end
-
-function EASYBUFF_MYBUTTON_DOWN()
-    EASYBUFF_FOODCLEAR();
+    acutil.slashCommand("/esbf",EASYBUFF_CMD);
 end
 
 function EASYBUFF_BUFFSELLER_TARGET_INIT()
-    local frame = ui.GetFrame('buffseller_target')
-    local btn = frame:CreateOrGetControl('button', 'allbuff', 20, 70, 100, 30)
-    btn:SetText('{ol}Easy Buff')
-    btn:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_ONBUTTON')
+    --local frame = ui.GetFrame('buffseller_target')
+    --local btn = frame:CreateOrGetControl('button', 'allbuff', 20, 70, 100, 30)
+    --btn:SetText('{ol}Easy Buff')
+    --btn:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_ONBUTTON')
 
     frame = ui.GetFrame('foodtable_ui')
-    btn = frame:CreateOrGetControl('button', 'allfood', 20, 50, 100, 30)
-    btn:SetText('{ol}Easy Buff')
-    btn:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_ONBUTTON_FOOD')
+    btn = frame:CreateOrGetControl('button', 'clearfood', 10, 50, 80, 30)
+    btn:SetSkinName("test_red_button")
+    btn:SetText('{ol}foodclear')
+    btn:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_FOODCLEAR')
 
-    frame = ui.GetFrame('itembuffrepair')
-    btn = frame:CreateOrGetControl('button', 'onerepair', 20, 70, 100, 30)
-    btn:SetText('{ol}Easy Buff')
-    btn:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_ONBUTTON_REPAIR')
-end
+    frame = ui.GetFrame('foodtable_ui')
+    btn2 = frame:CreateOrGetControl('button', 'myButton2', 140, 50, 80, 30)
+    btn2:SetText('{ol}4foodonly')
+    btn2:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_4FOODONLY')
 
-function EASYBUFF_LOADSETTINGS()
-	local settings, error = acutil.loadJSON("../addons/easybuff/settings.json");
-	if error then
-		EASYBUFF_SAVESETTINGS();
-		return
-	end
-		g.settings = settings;
+    frame = ui.GetFrame('foodtable_ui')
+    btn3 = frame:CreateOrGetControl('button', 'myButton3', 240, 50, 80, 30)
+    btn3:SetText('{ol}5foodonly')
+    btn3:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_5FOODONLY')
+
+    frame = ui.GetFrame('foodtable_ui')
+    btn4 = frame:CreateOrGetControl('button', 'myButton4', 340, 50, 80, 30)
+    btn4:SetText('{ol}allfood')
+    btn4:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_ALLFOOD')
+    
+    --frame = ui.GetFrame('itembuffrepair')
+    --btn = frame:CreateOrGetControl('button', 'onerepair', 20, 70, 100, 30)
+    --btn:SetText('{ol}Easy Buff')
+    --btn:SetEventScript(ui.LBUTTONUP, 'EASYBUFF_ONBUTTON_REPAIR')
 end
 
 function EASYBUFF_SAVESETTINGS()
-	if g.settings == nil then
-		g.settings = {
-            useHook = 1
-		};
-	end
-	acutil.saveJSON("../addons/easybuff/settings.json", g.settings);
+	acutil.saveJSON(g.settingsFileLoc, g.settings);
+end
+
+
+function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL(frame)
+    SQUIRE_BUFF_EQUIP_CTRL_OLD(frame)
+
+    if g.settings.useHook ~= 1 then
+        return
+    end
+
+    EASYBUFF_SQUIRE_BUFF_EXCUTE()
+end
+
+function EASYBUFF_SQUIRE_BUFF_EXCUTE()
+    CHAT_SYSTEM("test")
+    local enable_slot_list = {
+        'RH', 'LH', 'RH_SUB', 'LH_SUB', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS',
+    }
+    local frame = ui.GetFrame("itembuffopen")
+    local handle = frame:GetUserValue("HANDLE")
+    local skillName = frame:GetUserValue("SKILLNAME")
+
+    session.ResetItemList()
+
+    local cnt = 0
+    for i = 1, #enable_slot_list do
+        local slot_name = enable_slot_list[i]
+        local ctrlset = GET_CHILD_RECURSIVELY(frame, 'ITEMBUFF_CTRL_' .. slot_name)
+        if ctrlset ~= nil then
+            local checkbox = GET_CHILD(ctrlset, 'checkbox')
+            checkbox:SetCheck(1)
+            if checkbox:IsChecked() == 1 then
+                local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+                if inv_item ~= nil then
+                    session.AddItemID(inv_item:GetIESID())
+                    cnt = cnt + 1
+                end
+            end
+        end
+    end
+
+    if cnt <= 0 then
+        ui.MsgBox(ScpArgMsg("SelectBuffItemPlz"))
+        return
+    end
+    frame:ShowWindow(0)
+    ui.SysMsg("{#FF0000}Equipment Maintenance in progress")
+    session.autoSeller.BuyItems(handle, AUTO_SELL_SQUIRE_BUFF, session.GetItemIDList(), skillName)
+end
+
+function EASYBUFF_4FOODONLY()
+    
+    local handle = frame:GetUserIValue("HANDLE");
+    local sellType = frame:GetUserIValue("SELLTYPE");
+    
+    if g.foodIndex < 4 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        g.foodIndex = g.foodIndex + 1;
+        ReserveScript(string.format('EASYBUFF_4FOODONLY()'), 0.3)        
+    else
+        ReserveScript("EASYBUFF_END_FOOD()", 0.3)
+    end
+end
+
+function EASYBUFF_5FOODONLY()
+    
+    local handle = frame:GetUserIValue("HANDLE");
+    local sellType = frame:GetUserIValue("SELLTYPE");
+    
+    if g.foodIndex < 5 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        g.foodIndex = g.foodIndex + 1;
+        ReserveScript(string.format('EASYBUFF_5FOODONLY()'), 0.3)        
+    else
+        ReserveScript("EASYBUFF_END_FOOD()", 0.3)
+    end
+end
+
+function EASYBUFF_ALLFOOD()
+    
+    local handle = frame:GetUserIValue("HANDLE");
+    local sellType = frame:GetUserIValue("SELLTYPE");
+    
+    if g.foodIndex <= 5 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        g.foodIndex = g.foodIndex + 1;
+        ReserveScript(string.format('EASYBUFF_ALLFOOD()'), 0.3)        
+    else
+        ReserveScript("EASYBUFF_END_FOOD()", 0.3)
+    end
 end
 
 function EASYBUFF_CMD(command)
@@ -109,7 +208,7 @@ function EASYBUFF_BUY(handle, sellType, cnt)
         g.buffIndex = g.buffIndex + 1;
         ReserveScript(string.format('EASYBUFF_BUY(%d, %d, %d)', handle, sellType, cnt), 0.3)        
     else
-        --CHAT_SYSTEM("Buff completed");
+        CHAT_SYSTEM("Buff completed");
         ReserveScript("EASYBUFF_END()", 0.3)
     end
 end
@@ -134,6 +233,7 @@ function EASYBUFF_END()
     ui.CloseFrame("buffseller_target");
 end
 
+--[[
 function EASYBUFF_ONBUTTON_FOOD()
     local frame = ui.GetFrame("foodtable_ui");
     local handle = frame:GetUserIValue("HANDLE");
@@ -150,18 +250,15 @@ end
 
 function EASYBUFF_BUY_FOOD(handle, sellType, cnt)
     if g.foodIndex < cnt then
-        if g.foodIndex <= 4 then
-            session.autoSeller.Buy(handle, g.foodIndex, 1, sellType)
-            g.foodIndex = g.foodIndex + 1
-            ReserveScript(string.format('EASYBUFF_BUY_FOOD(%d, %d, %d)', handle, sellType, cnt), 0.3)
-        else
-            ReserveScript("EASYBUFF_END_FOOD()", 0.3)
-        end
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        g.foodIndex = g.foodIndex + 1;
+        ReserveScript(string.format('EASYBUFF_BUY_FOOD(%d, %d, %d)', handle, sellType, cnt), 0.3)        
     else
-        --CHAT_SYSTEM("FoodBuff completed")
+        CHAT_SYSTEM("Buff completed")
         ReserveScript("EASYBUFF_END_FOOD()", 0.3)
     end
 end
+]]
     
 function EASYBUFF_END_FOOD()
     g.foodIndex = 0;
@@ -185,8 +282,9 @@ function EASYBUFF_HOOK_CLICK_FOOD(groupName, sellType, handle, sellerCID, arg_nu
     if myTable then
         return;
     elseif g.foodIndex == 0 then
-        EASYBUFF_ONBUTTON_FOOD()
+        --EASYBUFF_ONBUTTON_FOOD()
     end
+    --return;
 end
 
 -- Repair buff
@@ -237,22 +335,30 @@ function EASYBUFF_HOOK_CLICK_REPAIR(groupName, sellType, handle)
 end
 
 function EASYBUFF_FOODCLEAR()
+    local myhandle = session.GetMyHandle()
     local bufftable = {
-        [1] = 4022,
-        [2] = 4023,
-        [3] = 4024,
-        [4] = 4021,
-        [5] = 4087,
-        [6] = 4136
+        [4022] = true,
+        [4023] = true,
+        [4024] = true,
+        [4021] = true,
+        [4087] = true,
+        [4136] = true
     }
-    
-    local handle = session.GetMyHandle()
-
-    for _, buffID in pairs(bufftable) do
-        local buff = info.GetBuff(handle, buffID)
+      
+    local shouldReserveScript = false
+    for buffID, _ in pairs(bufftable) do
+        local buff = info.GetBuff(myhandle, buffID)
         if buff ~= nil then
+            
             packet.ReqRemoveBuff(buffID)
-            ReserveScript(string.format("EASYBUFF_FOODCLEAR()"),0.3)
+            shouldReserveScript = true
         end
+    end
+
+    if shouldReserveScript then
+        ReserveScript("EASYBUFF_FOODCLEAR()", 0.3)
+    else
+        ui.SysMsg("{#FF0000}food buffs have disappeared")
+        return;
     end
 end
