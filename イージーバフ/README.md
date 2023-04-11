@@ -29,5 +29,3 @@ The foodclear button removes the current buffs.
 allfood" button adds all buffs.
 
 Corresponds to buffing shop buffs, meal buffs, repair buffs, and maintenance buffs.
-
-Translated with www.DeepL.com/Translator (free version)
