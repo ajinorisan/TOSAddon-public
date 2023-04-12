@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="item_point_extractor" x="0" y="0" width="470" height="1000">
+	<draw drawtitlebar="false"/>
+	<frame fullheight="false" fasthide="true" layout_gravity="left top" margin="550 20 0 0"/>
+	<input maxwidth="1280" moveable="true" hittestframe="true"/>
+	<layer layerlevel="102"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<script OpenScp="ITEM_POINT_EXTRACTOR_OPEN" CloseScp="ITEM_POINT_EXTRACTOR_CLOSE"/>
+	<userconfig DEFAULT_ROW="5"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 470 1000" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="test_frame_low"/>
+		<groupbox name="pip4" rect="0 0 470 130" margin="0 -5 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="test_frame_top"/>
+		<richtext name="title" rect="0 0 100 30" margin="0 11 0 0" layout_gravity="center top" format="{@st43}%s{/}" param1="title" param1_def="상점" fontname="default" spacey="0" hittest="false"/>
+		<button name="close" rect="-10 0 44 44" margin="0 15 17 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;item_point_extractor&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="question" rect="0 0 44 44" margin="27 20 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="툴팁"/>
+		<groupbox name="ingredientGbox" rect="0 0 450 310" margin="10 80 0 0" layout_gravity="left top" draw="true" hittestbox="false" skin=" "/>
+		<slotset name="slotlist" parent="ingredientGbox" rect="0 0 360 0" margin="0 0 0 0" layout_gravity="center top" LBtnDownScp="SCP_LBTDOWN_ITEM_POINT_EXTRACTOR" LBtnDblClickScp="SCP_LBTDOWN_ITEM_POINT_EXTRACTOR" RBtnDownScp="SCP_LBTDOWN_ITEM_POINT_EXTRACTOR" col="7" cursoronresize="false" dropsound="icon_get_down" enabledrag="false" enableselect="true" hideindrag="true" image="slot" maxselect="80" movepop="false" oversound="button_over" picksound="icon_pick_up" row="5" selectmode="count" size="58 58" skin="invenslot2" spc="1 1"/>
+		<groupbox name="materialInfoGbox" rect="0 0 420 310" margin="0 400 0 0" layout_gravity="center top" skin="test_frame_midle"/>
+		<groupbox name="point_gb" rect="0 0 420 170" margin="0 740 0 0" layout_gravity="center top" draw="true" hittestbox="false" skin="test_frame_midle"/>
+		<richtext name="totalPoint" rect="0 0 420 30" margin="5 20 0 0" layout_gravity="left top" parent="point_gb" format="{@st41b}현재 포인트: %s{/}" param1="value" param1_def="0"/>
+		<richtext name="addPoint" rect="0 0 420 30" margin="5 60 0 0" layout_gravity="left top" parent="point_gb" format="{@st41b}획득 포인트: {#ec0000}%s{/}{/}" param1="value" param1_def="0"/>
+		<richtext name="afterPoint" rect="0 0 420 30" margin="5 100 0 0" layout_gravity="left top" parent="point_gb" format="{@st41b}총 포인트: {@st66d_y}%s{/}{/}" param1="value" param1_def="0"/>
+		<button name="repairBtn" rect="0 0 160 55" margin="0 0 0 10" layout_gravity="center bottom" LBtnUpScp="EXECUTE_ITEM_POINT_EXTRACTOR" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}변환{/}" clicksound="button_click_stats_OK" oversound="button_over" skin="test_red_button" texttooltip="{@st59}포인트로 변환합니다.{/}"/>
+	</controls>
+</uiframe>

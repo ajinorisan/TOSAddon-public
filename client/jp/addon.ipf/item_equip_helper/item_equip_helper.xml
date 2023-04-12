@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="item_equip_helper" x="0" y="0" width="504" height="371">
+	<frame fullheight="false" fasthide="true" layout_gravity="right top" margin="0 279 505 0"/>
+	<draw drawtitlebar="false"/>
+	<skin frameskin="test_frame_low"/>
+	<layer layerlevel="100"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<!-- <script OpenScp="ITEM_UNREVERT_RANDOM_OPEN" CloseScp="ITEM_UNREVERT_RANDOM_CLOSE"/> -->
+	<controls>
+		<groupbox name="bg" rect="0 0 465 330" margin="21 20 0 0" skin="None" layout_gravity="left top" draw="true"/>
+	</controls>
+</uiframe>
