@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="weeklyboss_result" x="0" y="100" width="740" height="600" create="open">
+	<frame layout_gravity="center center" margin="0 -50 0 0"/>
+	<skin layout_gravity="left top" rect="0 82 220 220" frameskin="None"/>
+	<option hideable="false" closebutton="false" useimageitem="true"/>
+	<sound opensound="sys_card_battle_result_1" closesound="win_close"/>
+	<draw drawtitlebar="false"/>
+	<animation frameOpenAnim="dialog_start" frameCloseAnim="dialog_end"/>
+	<layer layerlevel="150"/>
+    <userconfig GAUGE_FONT="{@st42b}{ds}{s12}" MY_GAUGE_COLOR="{#ffc600}"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 710 550" margin="0 40 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" skin="test_pvp_skin"/>
+		<groupbox name="title" rect="0 0 710 80" margin="0 10 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" skin=""/>
+		<richtext name="titleText" rect="0 0 350 60" margin="0 0 0 0" parent="title" layout_gravity="center bottom" textalign="left top" caption="{@st43}{s28}전투 결과" fontname="white_24"/>
+		
+		<richtext name="recordText" rect="0 0 350 60" margin="195 100 0 0" parent="bg" layout_gravity="left top" textalign="center top" caption="{@st43}{s22}기록" fontname="white_24"/>
+		<richtext name="damageText" rect="0 0 350 60" margin="0 100 153 0" parent="bg" layout_gravity="right top" textalign="center top" caption="{@st43}{s22}세부 정보" fontname="white_24"/>
+		
+        <groupbox name="recordBox" rect="0 0 300 240" margin="70 -15 0 0" parent="bg" layout_gravity="left center" skin="test_frame_midle" hittestbox="false"/>
+		<richtext name="timeText" rect="0 0 300 240" margin="0 10 0 0" parent="recordBox" layout_gravity="center top" textalign="center center" fixwidth="true" format="{@st43}{s15}{#FFFF00}전투 시간{nl} {#FFFFFF}{s17}%s" param1="value" param1_def="48초" fontname="white_24"/>
+		<richtext name="curDamageText" rect="0 0 300 240" margin="0 65 0 0" parent="recordBox" layout_gravity="center top" textalign="center center" fixwidth="true" format="{@st43}{s15}{#FFFF00}총 피해량{nl} {#FFFFFF}{s17}%s" param1="value" param1_def="805,574,131" fontname="white_24"/>
+		<richtext name="topDamageText" rect="0 0 300 240" margin="0 120 0 0" parent="recordBox" layout_gravity="center top" textalign="center center" fixwidth="true" format="{@st43}{s15}{#FFFF00}이전 최고 기록{nl} {#FFFFFF}{s17}%s" param1="value" param1_def="660,948,417" fontname="white_24"/>
+		<richtext name="totalDamageText" rect="0 0 300 240" margin="0 190 0 0" parent="recordBox" layout_gravity="center top" textalign="center center" fixwidth="true" format="{@st43}{s17}{#FFFF00}이번 주 누적 피해량{nl} {#FFFFFF}{s18}%s" param1="value" param1_def="1,218,475,070" fontname="white_24"/>
+		<labelline name="labelline2" parent="recordBox" rect="0 0 300 5" margin="0 0 0 65" layout_gravity="center bottom" skin=""/>
+        
+		<groupbox name="damagegBox" rect="0 0 260 240" margin="0 -15 70 0" parent="bg" layout_gravity="right center" skin="test_frame_midle" fixheight="true" scrollbar="true" hittestbox="true" />
+		<groupbox name="damageBox" parent="damagegBox" rect="0 0 260 240" margin="0 0 0 0" layout_gravity="left top" draw="false" skin="" fixheight="false" scrollbar="false" hittestbox="false" />
+
+		<button name="returnBtn" rect="0 0 170 55" margin="0 0 0 108" caption="{@st42b}{s18}종료하기{/}" skin="test_red_button" layout_gravity="center bottom" clicksound="button_click_skill_up_OK" oversound="button_over" LBtnUpScp="WEEKLYBOSS_RESULT_EXIT"/>
+		<richtext name="timeLeftText" rect="0 0 300 30" margin="0 0 0 54" parent="bg" layout_gravity="center bottom" textalign="center top" fontname="brown_18_b" format="{s16}{#FF0000}집계 종료까지 %s 남았습니다." param1="value" param1_def="5일 5시간 38분 49초"/>
+	</controls>
+</uiframe>
