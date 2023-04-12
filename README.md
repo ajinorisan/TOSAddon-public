@@ -8,7 +8,7 @@ The author of this addon is meldavyさん
 
 ----
 
-### easybuff
+### easybuff-アドオンマネージャーに追加
 
 ~~画面左上に食事バフを消すボタンを付けました。シャンパン呑まないのは仕様です。~~
 
@@ -27,7 +27,7 @@ The author of this addon is WRITさん
 
 ----
 
-### gtsysmsg
+### gtsysmsg-アドオンマネージャーに追加
 
 追従者の出現時間をシステムチャットとニコニコ風チャットに出力。放置してても見逃さない。
 
@@ -35,7 +35,7 @@ Special thanks to menimaniさん
 
 ----
 
-### klcount
+### klcount-アドオンマネージャーに追加
 
 EP14.15マップで敵を倒した数をカウントします。正確な効率が測れるかも。
 
