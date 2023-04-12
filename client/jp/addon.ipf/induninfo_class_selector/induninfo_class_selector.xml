@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="induninfo_class_selector" x="0" y="50" width="285" height="560" create="open">
+	<frame fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<option closebutton="false"/>
+	<input moveable="false" hittestframe="true" moveintitlebar="false"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="101"/>
+	<script OpenScp="INDUNINFO_CLASS_SELECTOR_UI_OPEN" CloseScp="INDUNINFO_CLASS_SELECTOR_UI_CLOSE"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 285 560" margin="0 0 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="test_frame_low"/>
+		<groupbox name="titlebg" parent="bg" rect="0 0 260 35" margin="0 10 0 0 " layout_gravity="center top" hittestbox="false" scrollbar="false" skin="market_listbase" draw="false"/>
+        <picture name="titlepic" rect="0 0 255 35" margin="0 0 0 0" parent="titlebg" layout_gravity="center top" stretch="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_titlebar"/>
+		<richtext name="title" rect="0 0 260 35" margin="0 0 0 0" parent="titlebg" layout_gravity="center center" textalign="center top" fontname="white_18_ol" caption="{@st66d}클래스 선택"/>
+		<groupbox name="classList" rect="0 0 265 500" margin="0 50 0 0" parent="bg" layout_gravity="center top" draw="true" hittestbox="false" skin="test_frame_midle" scrollbar="true"/>
+	</controls>
+</uiframe>

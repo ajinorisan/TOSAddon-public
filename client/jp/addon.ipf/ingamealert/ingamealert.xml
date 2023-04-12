@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="ingamealert" x="0" y="0" width="500" height="100">
+	<frame layout_gravity="left bottom" scale_align="center bottom" margin="0 0 0 0"/>
+	<layer layerlevel="80"/>
+	<option visible="false" hideable="false" closebutton="false" alwaysVisible="false"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<userconfig PADDING_TOP="100"/>
+	<controls>
+		<groupbox name="list_gb" margin="0 0 0 0" rect="0 0 350 100" draw="false" scrollbar="false" hittestbox="true" layout_gravity="left top"/>
+	</controls>
+</uiframe>

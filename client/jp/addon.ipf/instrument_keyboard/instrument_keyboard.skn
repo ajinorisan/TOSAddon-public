@@ -1,0 +1,5 @@
+<skinset name="quickslotnexpbar">
+	<imagelist>
+		<image name="slot_bg" file="\skin\mainframe_07.tga" imgrect="0 904 410 120" Caption=""/>
+	</imagelist>
+</skinset>
