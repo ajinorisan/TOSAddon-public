@@ -22,16 +22,22 @@ on off は　一般チャットで　/esbf です。
 
 ----
 
-This is an add-on for Tree of savior!
+Tree of savior add-on.
 
-The food buffs are handled with a button because the time control is not good.
+Modified easybuff created by Kiicchan.
 
-The foodclear button removes the current buffs.
+V2.0.0-Maintenance buffs are now added automatically. I did my best.
 
-4doofonly button to add buffs except barbecue skewers and champagne.
+I couldn't control time well for meal buffs, so I used buttons to handle it.
+
+The foodclear button removes the buffs that are currently attached.
+
+The 4doofonly button adds the buffs except the barbecue skewers and champagne.
 
 5doofonly button to add buffs except champagne.
 
 allfood" button adds all buffs.
 
-Corresponds to buffing shop buffs, meal buffs, repair buffs, and maintenance buffs.
+Buffing shop buffs, meal buffs, repair buffs, and maintenance buffs.
+
+on off is /esbf in general chat.
