@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="minimized_event_progress_check_button" x="0" y="0" width="110" height="175">
+	<frame layout_gravity="right top" margin="0 193 414 0"/>
+	<layer layerlevel="32"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<option visible="true" closebutton="false" useimageitem="true" piptype="right" autoopen="true" hideable="false"/>
+	<controls>
+		<groupbox name="btn1_gb" rect="0 0 110 85" margin="4 100 0 0" layout_gravity="center top" draw="false" scrollbar="false"/>
+		<button	name="openBtn" parent="btn1_gb" rect="0 0 100 60" margin="0 0 0 0" layout_gravity="center top" clicksound="button_click_3" oversound="button_cursor_over_2"/>
+		<groupbox name="notice_bg" parent="openBtn" rect="0 0 20 20" margin="0 0 0 0" layout_gravity="right top" hittest="false" skin="digitnotice_bg"/>
+		<richtext name="notice_text" parent="notice_bg" rect="0 0 20 20" margin="0 0 0 0" layout_gravity="center center" format="{ol}{b}{s14}%s{/}{/}{/}" param1="value" param1_def="1" fixwidth="false" hittest="false" resizebytext="true"/>
+		<richtext name="title" parent="btn1_gb" rect="0 0 110 20" margin="0 45 0 0" layout_gravity="center top" format="{@st66d_y}{s16}%s" param1="value" hittest="false" fixwidth="true" textalign="center center"/>
+		<groupbox name="btn2_gb" rect="0 0 110 85" margin="0 90 0 0" layout_gravity="center top" draw="false" scrollbar="false"/>
+		<button	name="openBtn2" parent="btn2_gb" rect="0 0 100 60" margin="0 0 0 0" layout_gravity="center top" clicksound="button_click_3" oversound="button_cursor_over_2"/>
+		<richtext name="title2" parent="btn2_gb" rect="0 0 110 20" margin="0 45 0 0" layout_gravity="center top" format="{@st66d_y}{s16}%s" param1="value" hittest="false" fixwidth="true" textalign="center center"/>
+	</controls>
+</uiframe>

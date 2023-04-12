@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="minimized_guidequest_button" x="0" y="0" width="80" height="80">
+	<frame layout_gravity="right top" margin="0 306 347 0"/>
+	<layer layerlevel="31"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<option visible="true" closebutton="false" useimageitem="true" piptype="right" autoopen="true" hideable="false"/>
+	<controls>
+		<button name="openBtn" rect="0 0 58 60" margin="0 0 0 0" layout_gravity="center top" clicksound="button_click_3" oversound="button_cursor_over_2" image="growup_btn_small" LBtnDownScp="MINIMIZED_GUIDEQUEST_BUTTON_CLICK"/>
+		<groupbox name="notice_bg" rect="0 0 20 20" margin="0 0 0 0" layout_gravity="right top" hittest="false" skin="digitnotice_bg"/>
+		<richtext name="notice_text" parent="notice_bg" rect="0 0 20 20" margin="0 0 0 0" layout_gravity="center center" format="{ol}{b}{s14}%s{/}{/}{/}" param1="value" param1_def="1" fixwidth="false" hittest="false" resizebytext="true"/>
+	</controls>
+</uiframe>

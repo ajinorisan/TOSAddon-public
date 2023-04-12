@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 U (http://www.altova.com) by 박선우 (EMBRACE) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="minimized_folding_board" x="0" y="0" width="185" height="50">
+	<frame fullheight="false" fasthide="false" layout_gravity="right top" margin="0 181 380 0"/>
+	<layer layerlevel="31"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<option visible="false" hideable="false" autoopen="false" closebutton="false"/>
+	<controls>
+		<groupbox name="gbox" rect="-15 4 120 45" hittest="false" hittestbox="false" margin="0 0 0 0" layout_gravity="right top" draw="true" resizebyparent="true" resizebyresolution="true" scrollbar="false" fixheight="false" skin="chat_window"/>
+	</controls>
+</uiframe>

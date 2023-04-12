@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="monstercardpreset" x="0" y="0" width="600" height="745" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame titlepos="0 0" layout_gravity="center center" margin="160 0 0 0" fasthide="true"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<layer layerlevel="97"/>
+	<userconfig OPTION_BTN_TEXT_OPEN="{@st43b}{s18}적용효과{/}" OPTION_BTN_TEXT_CLOSE="{@st43b}{s18}적용효과{/}" LEGENDCARD_OPEN_EFFECT="UI_card_lock" LEGENDCARD_OPEN_EFFECT_SCALE="12" LEGENDCARD_CLOSE_IMAGE="legend_cardslot"/>
+	<opencheck scp="" numarg="1"/>
+	<option closebutton="false" hideable="true"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<script CloseScp=""/>
+	<controls>
+		<groupbox name="bg" rect="0 0 550 380" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="true" resizebyresolution="false" skin="relic_frame_bg"/>
+		<groupbox name="pip4" rect="0 0 550 61" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="true" resizebyresolution="false" skin="ps_title_green"/>
+		<droplist name="preset_list" rect="0 0 178 20" margin="45 66 0 0" layout_gravity="left top" SelectScp="CARD_PRESET_SELECT_PRESET" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="left center" textoffset="10 0" visibleline="5"/>
+		<button name="nameBtn" rect="0 0 44 44" margin="230 60 0 0" layout_gravity="left top" LBtnUpArgNum="" LBtnUpScp="CARD_PRESET_CHANGE_NAME" clicksound="button_click_big" image="pen_button" oversound="button_over" texttooltip="{@st59}현재 프리셋의 이름을 변경합니다{/}"/>
+		<button name="saveBtn" rect="0 0 95 38" margin="0 57 147 0" layout_gravity="right top" skin="test_pvp_btn" caption="{@st66b}가져오기" LBtnUpScp="CARD_PRESET_SAVE_PRESET" texttooltip="{@st59}현재 장착한 카드 정보를 현재 프리셋에 가져옵니다{/}"/>
+		<button name="applyBtn" rect="0 0 95 38" margin="0 57 48 0" layout_gravity="right top" skin="test_pvp_btn" caption="{@st66b}적용" LBtnUpScp="CARD_PRESET_APPLY_PRESET" texttooltip="{@st59}현재 프리셋 정보로 장착 카드를 변경합니다{nl}{#FFFF00}※ 인벤토리에 없는 카드는 적용되지 않습니다{/}{/}"/>
+		
+		
+		<groupbox name="mainGbox" rect="0 0 600 316" margin="0 65 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="true" resizebyresolution="false" scrollbar="false" skin="pipwin_low"/>
+		<groupbox name="ATKcardGbox" parent="mainGbox" rect="0 0 200 120" margin="-155 -70 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="true" resizebyresolution="false"/>
+		<groupbox name="DEFcardGbox" parent="mainGbox" rect="0 0 200 120" margin="155 -70 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="true" resizebyresolution="false"/>
+		<groupbox name="UTILcardGbox" parent="mainGbox" rect="0 0 200 120" margin="-155 70 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="true" resizebyresolution="false"/>
+		<groupbox name="STATcardGbox" parent="mainGbox" rect="0 0 200 120" margin="155 70 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="true" resizebyresolution="false"/>
+		<groupbox name="optionGbox" rect="0 0 600 430" margin="0 350 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="true" resizebyresolution="false" scrollbar="false"/>
+		<groupbox name="option_bg" parent="optionGbox" rect="0 0 530 360" margin="0 20 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="true" resizebyresolution="false" scrollbar="false" skin="test_frame_midle"/>
+		<richtext name="optionBtn" rect="0 0 134 40" margin="42 341 48 0" layout_gravity="left top" hittest="false" caption="{@st43b}{s20}적용효과{/}" stretch="true" skin="test_pvp_btn" draw="false" texttooltip="{@st59}카드첩 적용 옵션을 봅니다{/}"/>
+		<richtext name="title" rect="0 0 100 30" margin="0 16 0 0" layout_gravity="center top" caption="{@st43}컬러 카드첩 프리셋{/}" fontname="default" spacey="0" hittest="false"/>
+		<slotset name="ATKcard_slotset" parent="ATKcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" dropsound="icon_get_down" enableselect="false" maxselect="3" enabledrag="false" movepop="false" scrollbar="false" picksound="icon_pick_up" row="1" size="59 84" skin="invenslot2" spc="5 3"/>
+		<slotset name="ATKcard_labelset" parent="ATKcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" enableselect="false" maxselect="3" movepop="false" scrollbar="false" row="1" size="62 100" spc="2 3" hittest="false"/>
+		<slotset name="DEFcard_slotset" parent="DEFcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" dropsound="icon_get_down" enableselect="false" maxselect="3" enabledrag="false" movepop="false" scrollbar="false" picksound="icon_pick_up" row="1" size="59 84" skin="invenslot2" spc="5 3"/>
+		<slotset name="DEFcard_labelset" parent="DEFcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" enableselect="false" maxselect="3" movepop="false" scrollbar="false" row="1" size="62 100" spc="2 3" hittest="false"/>
+		<slotset name="UTILcard_slotset" parent="UTILcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" dropsound="icon_get_down" enableselect="false" maxselect="3" enabledrag="false" movepop="false" scrollbar="false" picksound="icon_pick_up" row="1" size="59 84" skin="invenslot2" spc="5 3"/>
+		<slotset name="UTILcard_labelset" parent="UTILcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" enableselect="false" maxselect="3" movepop="false" scrollbar="false" row="1" size="62 100" spc="2 3" hittest="false"/>
+		<slotset name="STATcard_slotset" parent="STATcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" dropsound="icon_get_down" enableselect="false" maxselect="3" enabledrag="false" movepop="false" scrollbar="false" picksound="icon_pick_up" row="1" size="59 84" skin="invenslot2" spc="5 3"/>
+		<slotset name="STATcard_labelset" parent="STATcardGbox" rect="0 0 67 103" margin="0 0 0 0" layout_gravity="center center" col="3" enableselect="false" maxselect="3" movepop="false" scrollbar="false" row="1" size="62 100" spc="2 3" hittest="false"/>
+		<button name="close" rect="0 0 44 44" margin="0 20 52 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="MONSTERCARDPRESET_FRAME_CLOSE()" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}컬러 카드첩 프리셋을 종료합니다{/}"/>
+	</controls>
+</uiframe>
