@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by LEE (EMBRACE) -->
+<uiframe name="notice_raid_pattern" x="0" y="0" width="600" height="150">
+	<frame title="알림" layout_gravity="center top" margin="0 160 0 0"/>
+	<option closebutton="false" visible="false"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<layer layerlevel="300"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false" catchmovepos="true"/>
+	<script CloseScp="NOTICE_RAID_PATTERN_CLOSE"/>
+	<animation frameOpenAnim="dialog_select_start" frameCloseAnim="dialog_select_end"/>
+	<controls>
+		<picture name="picture" rect="0 0 100 100" layout_gravity="center top" hittest="false" stretch="true"/>
+		<groupbox name="gbox" rect="0 0 600 350" layout_gravity="center bottom" hittest="false" hittestbox="false" margin="0 0 0 0" draw="false" scrollbar="false" fixwidth="true" fixheight="false" textalign="center top"/>
+		<timer name="addontimer" rect="0 0 10 10"/>
+	</controls>
+</uiframe>
