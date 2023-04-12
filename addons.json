@@ -1,5 +1,5 @@
 [{
-		"name" : "klcount",
+		"name" : "KL count",
 		"file" : "klcount",
 		"extension" : "ipf",
 		"fileVersion" : "v1.0.2",
@@ -10,7 +10,7 @@
 	},
  
  {
-		"name" : "gtsysmsg",
+		"name" : "GT sysmsg",
 		"file" : "gtsysmsg",
 		"extension" : "ipf",
 		"fileVersion" : "v1.0.5",
@@ -18,5 +18,17 @@
 		"unicode" : "⛄",
 		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。",
 		"tags" : []
-	}
+	},
+ {
+		"name" : "Easy buff",
+		"file" : "easybuff",
+		"extension" : "ipf",
+		"fileVersion" : "v2.0.0",
+		"releaseTag" : "easybuff",
+		"unicode" : "⛄",
+		"description" : "Kiicchan様作成のeasybuffを改造しました。装備メンテを自動付与。食事バフの見直し",
+		"tags" : [
+		           "buff"
+		]
+	},
 ]
