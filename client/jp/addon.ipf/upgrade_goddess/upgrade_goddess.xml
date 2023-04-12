@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="upgrade_goddess" x="0" y="0" width="500" height="1160" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin="None"/>
+	<frame fullheight="true" fasthide="true" layout_gravity="left top" open="pip" margin="-470 0 0 0"/>
+	<layer layerlevel="80"/>
+	<option closebutton="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<script OpenScp="UPGRADE_GODDESS_OPEN" CloseScp="UPGRADE_GODDESS_CLOSE"/>
+	<userconfig EXTRACT_RESULT_EFFECT="UI_item_parts2" EFFECT_SCALE="5" EFFECT_DURATION="2"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 500 1030" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" skin="test_frame_low"/>
+		<groupbox name="pipwin_top" rect="0 0 500 60" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_top"/>
+		<richtext name="title" rect="0 0 120 24" margin="0 17 0 0" layout_gravity="center top" drawbackground="false" fixwidth="false" fontname="white_16_ol" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st43}%s" param1="value" param1_def="여신/마신 연성"/>
+		<button name="close" rect="0 0 44 44" margin="0 15 28 0" layout_gravity="right top" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" LBtnUpScp="UPGRADE_GODDESS_CLOSE"/>
+		<groupbox name="start_gb" rect="0 0 500 340" margin="0 60 0 0" layout_gravity="center top" draw="false"/>
+		<slot name="slot_1" parent="start_gb" rect="0 0 130 130" margin="-170 80 0 0" layout_gravity="center top" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpArgNum='1' RBtnUpScp="UPGRADE_GODDESS_ITEM_POP" DropArgNum='1' DropScp="UPGRADE_GODDESS_ITEM_DROP"/>
+		<richtext name="slot_1_text" parent="start_gb" rect="0 0 120 120" margin="-170 55 0 0" layout_gravity="center top" format="{@st43}{s20}%s" param1="value" param1_def="{@st66d_y}{b}주 재료"/>
+		<picture name="slot_img_1" parent="slot_1" rect="0 0 100 100" margin="0 0 0 0" layout_gravity="center center" image="socket_slot_bg" stretch="true" hittest="false"/>
+		<slot name="slot_2" parent="start_gb" rect="0 0 130 130" margin="170 80 0 0" layout_gravity="center top" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpArgNum='2' RBtnUpScp="UPGRADE_GODDESS_ITEM_POP" DropArgNum='2' DropScp="UPGRADE_GODDESS_ITEM_DROP"/>
+		<richtext name="slot_2_text" parent="start_gb" rect="0 0 120 120" margin="170 55 0 0" layout_gravity="center top" format="{@st43}{s20}%s" param1="value" param1_def="보조 재료" fontname="white_16_b_ol"/>
+		<picture name="slot_img_2" parent="slot_2" rect="0 0 100 100" margin="0 0 0 0" layout_gravity="center center" image="socket_slot_bg" stretch="true" hittest="false"/>
+		<richtext name="text_input" rect="0 0 400 30" margin="0 80 0 0" layout_gravity="center top" format="{@st43}{s20}%s" param1="value" param1_def="연성할 아이템을 올려주세요" fontname="white_16_b_ol"/>
+		<richtext name="text_warning" rect="0 0 400 30" margin="0 273 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="보조 재료의 연성 수치가 0 이 아닙니다" fontname="red_18_ol"/>
+		<richtext name="text_notice" rect="0 0 450 300" margin="0 563 0 0" layout_gravity="center top" format="%s" param1="value" fixwidth="true" param1_def="- 연성을 통해 주 재료의 연성 수치를 +1 증가시킬 수 있으며, 연성 재료는 소멸됩니다.{nl}- 연성 수치가 MAX치에 도달하면 주 재료, 보조 재료, 연성 재료가 모두 소멸되고 상위 레벨의 아이템을 획득하게 됩니다." multiline="true" fontname="brown_16"/>
+		<groupbox name="result_gb" rect="0 0 500 600" margin="0 285 0 0" layout_gravity="center top" draw="false"/>
+		<picture name="arrowpic" parent="result_gb" rect="0 0 60 60" margin="0 10 0 0" layout_gravity="center top" image="gold_arrow_below" stretch="true"/>
+		<gauge name="refine_gauge_1" parent="slot_1" rect="0 0 120 20" margin="0 0 0 0" hittest="false" layout_gravity="center top" inverse="false" skin="gauge_vibora_upgrade" text1="%v / %m" textfont1="white_14_ol" textalign1="center center"/>
+		<gauge name="refine_gauge_2" parent="slot_2" rect="0 0 120 20" margin="0 0 0 0" hittest="false" layout_gravity="center top" inverse="false" skin="gauge_vibora_upgrade" text1="%v / %m" textfont1="white_14_ol" textalign1="center center"/>
+		<slot name="result_slot" parent="result_gb" rect="0 0 140 140" margin="0 120 0 0" layout_gravity="center top" skin="invenslot2" enabledrop="false" enablepop="false" enabledrag="false"/>
+		<!-- matrial -->
+		<groupbox name="costBox" rect="0 0 470 200" margin="0 750 0 0" layout_gravity="center top" skin="test_frame_midle"/>
+		<richtext name="matrial_text" parent="costBox" rect="0 0 300 30" margin="10 10 0 0" layout_gravity="left top" caption="{@st42}연성 재료"/>
+		<richtext name="matrial_name_1" parent="costBox" rect="0 0 300 30" margin="90 50 0 0" layout_gravity="left top" format="{@st42}{s20}%s" param1="value"/>
+		<slot name="matrial_slot_1" parent="costBox" rect="0 0 70 70" margin="10 50 0 0" layout_gravity="left top" skin="invenslot2" RBtnUpScp="UPGRADE_GODDESS_MATERIAL_POP" DropScp="UPGRADE_GODDESS_MATERIAL_DROP"/>
+		<richtext name="matrial_count_1" parent="costBox" rect="0 0 300 30" margin="0 50 20 0" layout_gravity="right top" format="{@st42}{s20}%s%s/%s" param1="style" param2="cur" param3="need"/>
+		<labelline name="line1" parent="costBox" rect="0 0 460 4" margin="0 35 0 0" layout_gravity="center top" skin="labelline_def2"/>
+		<richtext name="matrial_silver" parent="costBox" rect="0 0 300 30" margin="10 150 0 0" layout_gravity="left top" caption="{@st42}{s20}필요 실버"/>
+		<richtext name="matrial_silver_count" parent="costBox" rect="0 0 300 30" margin="0 160 20 0" layout_gravity="right top" format="{@st42}{s20}%s" param1="value"/>
+		<picture name="upBtn" parent="costBox" rect="0 0 45 20" margin="0 0 20 90" layout_gravity="right bottom" stretch="true" image="guild_community_notice_close" LBtnUpScp="UPGRADE_GODDESS_UP_BTN" oversound="button_over" clicksound="button_click_big"/>
+		<picture name="downBtn" parent="costBox" rect="0 0 45 20" margin="0 0 20 60" layout_gravity="right bottom" stretch="true" image="guild_community_notice_open" LBtnUpScp="UPGRADE_GODDESS_DOWN_BTN" oversound="button_over" clicksound="button_click_big"/>
+		<!-- result -->
+		<groupbox name="reinfResultBox" rect="0 0 500 700" margin="0 320 0 0" layout_gravity="center top" draw="false" resizebyresolution="true" resizebyparent="true"/>
+		<picture name="successBgBox" parent="reinfResultBox" rect="0 0 507 500" margin="0 60 0 0" layout_gravity="center top" hittest="true" image="SUCCESS_gold_bg"/>
+		<picture name="successPic" parent="successBgBox" rect="0 0 150 120" hittest="false" image="1plus_image" margin="0 150 0 0" stretch="true" layout_gravity="center top"/>
+		<slot name="successItem" parent="successBgBox" rect="0 0 140 140" margin="0 120 0 0" layout_gravity="center top" hittest="true"/>
+		<picture name="successTextPic" parent="successBgBox" rect="0 0 330 133" hittest="false" image="card_reinforce_SUCCESS" margin="0 240 0 0" stretch="true" layout_gravity="center top"/>
+		<picture name="completeTextPic" parent="successBgBox" rect="0 0 330 133" hittest="false" image="card_reinforce_COMPLETE" margin="0 240 0 0" stretch="true" layout_gravity="center top"/>
+		<button name="doBtn" rect="0 0 180 50" margin="0 0 0 70" layout_gravity="center bottom" skin="test_red_button" caption="{@st41b}{s18}연성" oversound="button_cursor_over_3" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnUpScp="UPGRADE_GODDESS_BTN_CLICK"/>
+		<button name="resetBtn" rect="0 0 180 50" margin="0 0 0 70" layout_gravity="center bottom" skin="test_red_button" caption="{@st42}확인" LBtnUpScp="UPGRADE_GODDESS_UI_RESET"/>
+	</controls>
+</uiframe>

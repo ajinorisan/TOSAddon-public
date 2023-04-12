@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="toshero_info_score" x="0" y="0" width="600" height="500">
+	<skin frameskin="test_pvp_skin"/>
+	<draw drawtitlebar="false"/>
+	<frame layout_gravity="center center"/>
+	<layer layerlevel="60"/>
+	<input moveable="true" hittestframe="true"/>
+	<option hideable="true" closebutton="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+    <userconfig NORMAL_TEXT_STYLE="{@sti1c}{s18}" ALTER_TEXT_STYLE="{@sti1c}{s18}{#ff0000}"/>
+	<controls>
+        <button name="close" rect="0 0 44 44" margin="0 20 35 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('toshero_info_score')" image="testclose_button" texttooltip="닫기"/>
+        <picture name="title" rect="0 0 450 104" margin="0 65 0 0" layout_gravity="center top" image="BnYellow_skin" stretch="true"/>
+        <richtext name="title_text" rect="0 0 100 30" margin="0 100 0 0" layout_gravity="center top" caption="{@st43}{#ffcc33}{s24}클리어"/>
+        <picture name="ribbon" rect="0 0 112 164" margin="35 6 0 0" layout_gravity="left top" image="test_indun_ribbon"/>
+        <picture name="tropyh" parent="ribbon" rect="0 0 68 57" margin="0 -25 0 0" layout_gravity="center center" image="hero_trophy_big"/>
+        <groupbox name="best_score_gb" rect="0 0 422 44" margin="0 167 0 0" skin="market_listbase" layout_gravity="center top" fixwidth="true" fixheight="true"/>
+        <richtext name="best_score_title" rect="0 0 100 30" margin="20 0 0 0" parent="best_score_gb" layout_gravity="left center" caption="{@st44}{s18}최고 기록 :"/>
+        <richtext name="best_score_text" rect="0 0 300 30" margin="0 0 12 0" parent="best_score_gb" layout_gravity="right center" textalign="center center" caption="{s18}0" fontname="orange_18_b_ol_ds" resizebytext="false"/>
+        <groupbox name="this_score_gb" rect="0 0 422 44" margin="0 207 0 0" skin="market_listbase" layout_gravity="center top" fixwidth="true" fixheight="true"/>
+        <richtext name="this_score_title" rect="0 0 100 30" margin="20 0 0 0" parent="this_score_gb" layout_gravity="left center" caption="{@st44}{s18}총 스코어 :"/>
+        <richtext name="this_score_text" rect="0 0 300 30" margin="0 0 12 0" parent="this_score_gb" layout_gravity="right center" textalign="center center" caption="{s18}0" fontname="orange_18_b_ol_ds" resizebytext="false"/>
+        <groupbox name="score_info_gb_draw" rect="0 0 416 148" margin="0 252 0 0" scrollbar="false" skin="test_frame_midle" layout_gravity="center top" fixwidth="true" fixheight="true"/>
+        <groupbox name="score_info_gb" rect="0 0 418 156" margin="1 1 0 0" parent="score_info_gb_draw" scrollbar="true" skin="None" layout_gravity="center top" fixwidth="true" fixheight="true"/>
+        <groupbox name="info_1" rect="0 0 388 30" margin="5 0 0 0" parent="score_info_gb" hittest="false" skin="None" layout_gravity="left top" fixwidth="true" fixheight="true"/>
+        <groupbox name="info_2" rect="0 0 388 30" margin="5 30 0 0" parent="score_info_gb" hittest="false" skin="hero_frame_brown" layout_gravity="left top" fixwidth="true" fixheight="true"/>
+        <groupbox name="info_3" rect="0 0 388 30" margin="5 60 0 0" parent="score_info_gb" hittest="false" skin="None" layout_gravity="left top" fixwidth="true" fixheight="true"/>
+        <groupbox name="info_4" rect="0 0 388 30" margin="5 90 0 0" parent="score_info_gb" hittest="false" skin="hero_frame_brown" layout_gravity="left top" fixwidth="true" fixheight="true"/>
+        <groupbox name="info_5" rect="0 0 388 30" margin="5 120 0 0" parent="score_info_gb" hittest="false" skin="None" layout_gravity="left top" fixwidth="true" fixheight="true"/>
+        <groupbox name="info_6" rect="0 0 388 30" margin="5 150 0 0" parent="score_info_gb" hittest="false" skin="hero_frame_brown" layout_gravity="left top" fixwidth="true" fixheight="true"/>
+        <groupbox name="info_dummy" rect="0 0 368 30" margin="369 160 0 0" parent="score_info_gb" hittest="false" skin="None" layout_gravity="left top" fixwidth="true" fixheight="true"/>
+        <richtext name="info_title_1" rect="0 0 100 30" margin="5 0 0 0" parent="info_1" layout_gravity="left center" caption="{@sti1c}{s18}남은 포인트"/>
+        <richtext name="info_title_2" rect="0 0 100 30" margin="5 0 0 0" parent="info_2" layout_gravity="left center" caption="{@sti1c}{s18}스테이지 클리어"/>
+        <richtext name="info_title_3" rect="0 0 100 30" margin="5 0 0 0" parent="info_3" layout_gravity="left center" caption="{@sti1c}{s18}보스 처치"/>
+        <richtext name="info_title_4" rect="0 0 100 30" margin="5 0 0 0" parent="info_4" layout_gravity="left center" caption="{@sti1c}{s18}미션"/>
+        <richtext name="info_title_5" rect="0 0 100 30" margin="5 0 0 0" parent="info_5" layout_gravity="left center" caption="{@sti1c}{s18}플레이 타임"/>
+        <richtext name="info_title_6" rect="0 0 100 30" margin="5 0 0 0" parent="info_6" layout_gravity="left center" caption="{@sti1c}{s18}죽은 횟수"/>
+        <richtext name="info_text_1" rect="0 0 100 30" margin="0 0 5 0" parent="info_1" layout_gravity="right center" caption="{@sti1c}{s18}0"/>
+        <richtext name="info_text_2" rect="0 0 100 30" margin="0 0 5 0" parent="info_2" layout_gravity="right center" caption="{@sti1c}{s18}0"/>
+        <richtext name="info_text_3" rect="0 0 100 30" margin="0 0 5 0" parent="info_3" layout_gravity="right center" caption="{@sti1c}{s18}0"/>
+        <richtext name="info_text_4" rect="0 0 100 30" margin="0 0 5 0" parent="info_4" layout_gravity="right center" caption="{@sti1c}{s18}0"/>
+        <richtext name="info_text_5" rect="0 0 100 30" margin="0 0 5 0" parent="info_5" layout_gravity="right center" caption="{@sti1c}{s18}0"/>
+        <richtext name="info_text_6" rect="0 0 100 30" margin="0 0 5 0" parent="info_6" layout_gravity="right center" caption="{@sti1c}{s18}0"/>
+        <richtext name="return_text" rect="0 0 100 30" margin="85 0 0 55" layout_gravity="left bottom" caption="잠시 후 입구로 돌아갑니다..." fontname="brown_18"/>
+	</controls>
+</uiframe>

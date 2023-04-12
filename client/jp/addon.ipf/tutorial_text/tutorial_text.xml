@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="tutorial_text" x="0" y="0" width="550" height="250">
+	<frame fullheight="false" fasthide="true" layout_gravity="left top" margin="0 0 0 0" draw="false"/>
+	<skin frameskin="None"/>
+	<draw drawtitlebar="false"/>
+	<input hittestframe="false"/>
+	<option visible="false" hideable="true" closebutton="false" moveable="false" alwaysVisible="false"/>
+	<layer layerlevel="50"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<script OpenScp="OPEN_TUTORIAL_TEXT" CloseScp="CLOSE_TUTORIAL_TEXT"/>
+	<userconfig/>
+	<controls>
+		<groupbox name="highlight_pic" rect="0 0 100 100" margin="0 0 0 0" layout_gravity="left top" skin="alchemist_ui_slotframe_9patch02" stretch="true" draw="true" hittest="false"/>
+		<groupbox name="bg" rect="0 0 300 60" margin="100 50 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="tooltip1" stretch="true" fixwidth="false"/>
+		<richtext name="title_text" parent="bg" rect="0 0 300 40" margin="0 10 0 0" layout_gravity="center top" format="{@st42b}{s20}%s{/}" param1="value" param1_def="제목" textalign="center top" resizebytext="true" fixwidth="true"/>
+		<richtext name="guide_text" parent="bg" rect="0 0 420 40" margin="0 60 0 0" layout_gravity="center top" format="{@st42b}{s20}%s{/}" param1="value" param1_def="내용" textalign="left top" resizebytext="true" fixwidth="true"/>
+		<button name="skip_btn" parent="bg" rect="0 0 124 50" margin="10 0 0 10" layout_gravity="left bottom" image="testx_button" LBtnUpScp="TUTORIAL_TEXT_SKIP_TUTO" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" oversound="button_over" draw="true" texttooltip="{@st61}{s18}튜토리얼을 종료합니다{/}"/>
+		<button name="next_btn" parent="bg" rect="0 0 124 50" margin="0 0 10 10" layout_gravity="right bottom" image="gachaskip_btn" LBtnUpScp="TUTORIAL_TEXT_NEXT_STEP" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" oversound="button_over" draw="true" texttooltip="{@st61}{s18}다음 단계로 넘어갑니다{/}"/>
+	</controls>
+</uiframe>

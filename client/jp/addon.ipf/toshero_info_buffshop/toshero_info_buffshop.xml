@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="toshero_info_buffshop" x="0" y="0" width="440" height="908">
+	<frame fullheight="false" layout_gravity="right top" margin="0 35 1080 0"/>
+	<skin frameskin="test_frame_low"/>
+	<layer layerlevel="100"/>
+	<input moveable="true"/>
+	<draw drawtitlebar="false"/>
+	<option closebutton="false"/>
+	<script OpenScp="TOSHERO_INFO_BUFFSHOP_OPEN" CloseScp="TOSHERO_INFO_BUFFSHOP_CLOSE"/>
+	<userconfig DEFAULT_SLOT_IMAGE="hero_buff_normal" DEFAULT_NAME="버프명" COMBINE_STATE_1="조합" COMBINE_STATE_2="확인" MATERIAL_EFFECT="I_screen_bosscard_frame06" MATERIAL_EFFECT_SCALE="2.5" MATERIAL_EFFECT_DURATION="0.5" RESULT_EFFECT="UI_screen_CircleButton" RESULT_EFFECT_SCALE="4" RESULT_EFFECT_DURATION="2"/>
+	<controls>
+		<groupbox name="title_bg" margin="0 0 0 0" rect="0 0 437 61" layout_gravity="center top" draw="true" hittestbox="false" skin="test_frame_top"/>
+		<richtext name="title" margin="0 3 0 0" rect="0 0 120 30" parent="title_bg" format="{@st44}{s24}버프 상점{/}" textalign="center center" layout_gravity="center center"/>
+		<button name="close" rect="0 0 44 44" margin="0 22 29 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;toshero_info_buffshop&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="question" rect="0 0 44 44" margin="30 22 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="버프 상점에서 버프를 구매하거나 조합 할 수 있으며 보유하고 있는 버프를 업그레이드 할 수 있습니다.{nl}버프 업그레이드에는 1000 포인트를 사용합니다.{nl}상점의 버프를 바로 조합에 사용할 경우 구매와 마찬가지로 포인트를 소모합니다.{nl}버프 판매 시 해당 버프에 사용한 포인트의 20%를 돌려받습니다.{nl} {nl}{img mouseclick_left 40 40}　: 버프 구매{nl}{img mouseclick_right 40 40}　: 버프 조합 슬롯에 등록(상점 목록, 보유 중인 버프 모두 가능){nl}{img hero_btn_up 40 40}　: 버프 업그레이드 버튼{nl}{img hero_btn_del 40 40}　: 버프 판매 버튼"/>
+        <!--<인벤토리>-->
+        <groupbox name="inventory_bg" margin="0 100 0 0" rect="0 0 406 130" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_frame_green"/>
+        <groupbox name="inventory_1" margin="-131 0 0 0" rect="0 0 130 120" parent="inventory_bg" layout_gravity="center center" draw="true" hittestbox="false" skin="test_skin_01_btn"/>
+        <groupbox name="inventory_2" margin="0 0 0 0" rect="0 0 130 120" parent="inventory_bg" layout_gravity="center center" draw="true" hittestbox="false" skin="test_skin_01_btn"/>
+        <groupbox name="inventory_3" margin="131 0 0 0" rect="0 0 130 120" parent="inventory_bg" layout_gravity="center center" draw="true" hittestbox="false" skin="test_skin_01_btn"/>
+        <slot name="slot_1" parent="inventory_1" rect="0 0 66 66" margin="15 12 0 0" layout_gravity="left top" stretch="true" hittest="true" skin="hero_buff_normal" RBtnUpScp="TOSHERO_INFO_BUFFSHOP_ADD_MATERIAL" RBtnUpArgNum="1" RBtnUpArgStr="inventory" enabledrag="false"/>
+        <slot name="slot_2" parent="inventory_2" rect="0 0 66 66" margin="15 12 0 0" layout_gravity="left top" stretch="true" hittest="true" skin="hero_buff_normal" RBtnUpScp="TOSHERO_INFO_BUFFSHOP_ADD_MATERIAL" RBtnUpArgNum="2" RBtnUpArgStr="inventory" enabledrag="false"/>
+        <slot name="slot_3" parent="inventory_3" rect="0 0 66 66" margin="15 12 0 0" layout_gravity="left top" stretch="true" hittest="true" skin="hero_buff_normal" RBtnUpScp="TOSHERO_INFO_BUFFSHOP_ADD_MATERIAL" RBtnUpArgNum="3" RBtnUpArgStr="inventory" enabledrag="false"/>
+        <picture name="level_shadow_1" parent="inventory_1" rect="0 0 22 22" margin="60 53 0 0" layout_gravity="left top" stretch="true" hittest="false" image="hero_levelShadow"/>
+        <picture name="level_shadow_2" parent="inventory_2" rect="0 0 22 22" margin="60 53 0 0" layout_gravity="left top" stretch="true" hittest="false" image="hero_levelShadow"/>
+        <picture name="level_shadow_3" parent="inventory_3" rect="0 0 22 22" margin="60 53 0 0" layout_gravity="left top" stretch="true" hittest="false" image="hero_levelShadow"/>
+        <richtext name="level_1" margin="64 55 0 0" rect="0 0 24 24" parent="inventory_1" format="{@sti1c}{s16}%s{/}" param1="level" textalign="left center" layout_gravity="left top"/>
+        <richtext name="level_2" margin="64 55 0 0" rect="0 0 24 24" parent="inventory_2" format="{@sti1c}{s16}%s{/}" param1="level" textalign="left center" layout_gravity="left top"/>
+        <richtext name="level_3" margin="64 55 0 0" rect="0 0 24 24" parent="inventory_3" format="{@sti1c}{s16}%s{/}" param1="level" textalign="left center" layout_gravity="left top"/>
+        <button name="up_lv_1" margin="0 15 14 0" rect="0 0 27 27" parent="inventory_1" image="hero_btn_up" layout_gravity="right top" LBtnDownScp="TOSHERO_INFO_BUFFSHOP_REQUEST_UPGRADE" LBtnDownArgNum="0"/>
+        <button name="up_lv_2" margin="0 15 14 0" rect="0 0 27 27" parent="inventory_2" image="hero_btn_up" layout_gravity="right top" LBtnDownScp="TOSHERO_INFO_BUFFSHOP_REQUEST_UPGRADE" LBtnDownArgNum="1"/>
+        <button name="up_lv_3" margin="0 15 14 0" rect="0 0 27 27" parent="inventory_3" image="hero_btn_up" layout_gravity="right top" LBtnDownScp="TOSHERO_INFO_BUFFSHOP_REQUEST_UPGRADE" LBtnDownArgNum="2"/>
+        <button name="delete_1" margin="0 45 14 0" rect="0 0 27 27" parent="inventory_1" image="hero_btn_del" layout_gravity="right top" LBtnDownScp="TOSHERO_INFO_BUFFSHOP_REQUEST_SELL" LBtnDownArgNum="0"/>
+        <button name="delete_2" margin="0 45 14 0" rect="0 0 27 27" parent="inventory_2" image="hero_btn_del" layout_gravity="right top" LBtnDownScp="TOSHERO_INFO_BUFFSHOP_REQUEST_SELL" LBtnDownArgNum="1"/>
+        <button name="delete_3" margin="0 45 14 0" rect="0 0 27 27" parent="inventory_3" image="hero_btn_del" layout_gravity="right top" LBtnDownScp="TOSHERO_INFO_BUFFSHOP_REQUEST_SELL" LBtnDownArgNum="2"/>
+        <groupbox name="inventory_name_bg_1" margin="0 0 0 12" rect="0 0 106 24" parent="inventory_1" layout_gravity="center bottom" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <groupbox name="inventory_name_bg_2" margin="0 0 0 12" rect="0 0 106 24" parent="inventory_2" layout_gravity="center bottom" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <groupbox name="inventory_name_bg_3" margin="0 0 0 12" rect="0 0 106 24" parent="inventory_3" layout_gravity="center bottom" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <richtext name="inventory_name_1" margin="0 1 0 0" rect="0 0 106 24" parent="inventory_name_bg_1" format="{@st202}{s14}%s{/}" param1="name" param1_def="버프명" textalign="center center" layout_gravity="center center" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+        <richtext name="inventory_name_2" margin="0 1 0 0" rect="0 0 106 24" parent="inventory_name_bg_2" format="{@st202}{s14}%s{/}" param1="name" param1_def="버프명" textalign="center center" layout_gravity="center center" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+        <richtext name="inventory_name_3" margin="0 1 0 0" rect="0 0 106 24" parent="inventory_name_bg_3" format="{@st202}{s14}%s{/}" param1="name" param1_def="버프명" textalign="center center" layout_gravity="center center" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+        <groupbox name="inventory_title_bg" margin="0 68 0 0" rect="0 0 178 38" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_label_green"/>
+        <richtext name="inventory_title" margin="0 -2 0 0" rect="0 0 120 30" parent="inventory_title_bg" format="{@sti1c}{s18}보유 버프{/}" textalign="center center" layout_gravity="center center"/>
+        <!--<조합>-->
+        <groupbox name="combine_bg" margin="0 273 0 0" rect="0 0 406 164" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_frame_green2"/>
+        <slot name="combine_slot_1" parent="combine_bg" rect="0 0 66 66" margin="15 15 0 0" layout_gravity="left top" stretch="true" hittest="true" skin="hero_buff_normal" RBtnUpScp="TOSHERO_INFO_BUFFSHOP_REMOVE_MATERIAL" RBtnUpArgNum="1" enabledrag="false"/>
+        <slot name="combine_slot_2" parent="combine_bg" rect="0 0 66 66" margin="110 15 0 0" layout_gravity="left top" stretch="true" hittest="true" skin="hero_buff_normal" RBtnUpScp="TOSHERO_INFO_BUFFSHOP_REMOVE_MATERIAL" RBtnUpArgNum="2" enabledrag="false"/>
+        <slot name="combine_slot_3" parent="combine_bg" rect="0 0 66 66" margin="205 15 0 0" layout_gravity="left top" stretch="true" hittest="true" skin="hero_buff_normal" RBtnUpScp="TOSHERO_INFO_BUFFSHOP_REMOVE_MATERIAL" RBtnUpArgNum="3" enabledrag="false"/>
+        <slot name="combine_result" parent="combine_bg" rect="0 0 66 66" margin="0 15 15 0" layout_gravity="right top" stretch="true" hittest="false" skin="hero_buff_normal" enabledrag="false"/>
+        <richtext name="combine_plus_1" margin="83 27 0 0" rect="0 0 106 24" parent="combine_bg" format="{@st202}{s30}+{/}" textalign="center center" layout_gravity="left top"/>
+        <richtext name="combine_plus_2" margin="178 27 0 0" rect="0 0 106 24" parent="combine_bg" format="{@st202}{s30}+{/}" textalign="center center" layout_gravity="left top"/>
+        <richtext name="combine_equal" margin="286 27 0 0" rect="0 0 106 24" parent="combine_bg" format="{@st202}{s30}={/}" textalign="center center" layout_gravity="left top"/>
+        <groupbox name="combine_name_bg_1" margin="9 15 0 0" rect="0 0 82 20" parent="combine_bg" layout_gravity="left center" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <groupbox name="combine_name_bg_2" margin="104 15 0 0" rect="0 0 82 20" parent="combine_bg" layout_gravity="left center" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <groupbox name="combine_name_bg_3" margin="199 15 0 0" rect="0 0 82 20" parent="combine_bg" layout_gravity="left center" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <groupbox name="combine_name_bg_result" margin="0 15 9 0" rect="0 0 82 20" parent="combine_bg" layout_gravity="right center" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <picture name="combine_shadow_1" parent="combine_slot_1" rect="0 0 44 22" margin="0 0 2 2" layout_gravity="right bottom" stretch="true" hittest="false" image="hero_levelShadow"/>
+        <picture name="combine_shadow_2" parent="combine_slot_2" rect="0 0 44 22" margin="0 0 2 2" layout_gravity="right bottom" stretch="true" hittest="false" image="hero_levelShadow"/>
+        <picture name="combine_shadow_3" parent="combine_slot_3" rect="0 0 44 22" margin="0 0 2 2" layout_gravity="right bottom" stretch="true" hittest="false" image="hero_levelShadow"/>
+        <richtext name="combine_from_1" margin="0 0 0 0" rect="0 0 24 24" parent="combine_shadow_1" format="{@sti1c}{s16}%s{/}" param1="from" param1_def="Shop" textalign="center center" layout_gravity="center center"/>
+        <richtext name="combine_from_2" margin="0 0 0 0" rect="0 0 24 24" parent="combine_shadow_2" format="{@sti1c}{s16}%s{/}" param1="from" param1_def="Shop" textalign="center center" layout_gravity="center center"/>
+        <richtext name="combine_from_3" margin="0 0 0 0" rect="0 0 24 24" parent="combine_shadow_3" format="{@sti1c}{s16}%s{/}" param1="from" param1_def="Shop" textalign="center center" layout_gravity="center center"/>
+        <richtext name="combine_name_1" margin="0 1 0 0" rect="0 0 82 20" parent="combine_name_bg_1" format="{@st202}{s12}%s{/}" param1="name" param1_def="버프명" textalign="center center" layout_gravity="center center" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+        <richtext name="combine_name_2" margin="0 1 0 0" rect="0 0 82 20" parent="combine_name_bg_2" format="{@st202}{s12}%s{/}" param1="name" param1_def="버프명" textalign="center center" layout_gravity="center center" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+        <richtext name="combine_name_3" margin="0 1 0 0" rect="0 0 82 20" parent="combine_name_bg_3" format="{@st202}{s12}%s{/}" param1="name" param1_def="버프명" textalign="center center" layout_gravity="center center" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+        <richtext name="combine_name_result" margin="0 1 0 0" rect="0 0 82 20" parent="combine_name_bg_result" format="{@st202}{s12}%s{/}" param1="name" param1_def="버프명" textalign="center center" layout_gravity="center center" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+        <groupbox name="point_bg" margin="10 0 0 10" rect="0 0 162 28" parent="combine_bg" layout_gravity="left bottom" draw="true" hittestbox="false" skin="hero_point1"/>
+        <richtext name="point_info" parent="point_bg" margin="0 1 5 0" rect="0 0 158 28" format="{@sti1c}{s16}%s" param1="point" param1_def="10,000" textalign="left center" layout_gravity="right center"/>
+        <button name="combine_btn" margin="0 0 120 10" rect="0 0 92 30" parent="combine_bg" format="{@sti1c}{s16}%s" param1="state" param1_def="조합" skin="hero_btn_green" layout_gravity="right bottom" LBtnDownScp="TOSHERO_INFO_BUFFSHOP_REQUEST_COMBINE"/>
+        <button name="combine_info_btn" margin="0 0 20 10" rect="0 0 92 30" parent="combine_bg" format="{@sti1c}{s16}%s" param1="state" param1_def="조합식" skin="hero_btn_green" layout_gravity="right bottom" LBtnDownScp="ui.OpenFrame('toshero_info_combine')"/>
+        <groupbox name="combine_title_bg" margin="0 241 0 0" rect="0 0 178 38" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_label_green"/>
+        <richtext name="combine_title" margin="0 -2 0 0" rect="0 0 120 30" parent="combine_title_bg" format="{@sti1c}{s18}버프 조합{/}" textalign="center center" layout_gravity="center center"/>
+        <!--<상점>-->
+        <groupbox name="buffshop_bg" margin="0 480 0 0" rect="0 0 406 408" layout_gravity="center top" draw="true" scrollbar="true" hittestbox="false" skin="hero_frame_beige"/>
+        <groupbox name="buffshop_title_bg" margin="0 448 0 0" rect="0 0 178 38" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_label_beige"/>
+        <richtext name="buffshop_title" margin="0 -2 0 0" rect="0 0 120 30" parent="buffshop_title_bg" format="{@sti1c}{s18}버프 목록{/}" textalign="center center" layout_gravity="center center"/>
+	</controls>
+</uiframe>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="user_damage_meter" x="0" y="0" width="250" height="145">
+	<draw drawtitlebar="false"/>
+	<frame layout_gravity="right top" margin="0 450 350 0"/>
+	<input moveable="true"/>
+	<layer layerlevel="85"/>
+	<skin frameskin="black_box_op20"/>
+	<option closebutton="false" piptype="right" hideable="false"/>
+    <userconfig GAUGE_FONT="{@st42b}{ds}{s12}" MY_GAUGE_COLOR="{#ffc600}"/>
+	<controls>
+		<groupbox name="damageRankBox" rect="0 0 241 107" margin="0 5 0 0" layout_gravity="center top" draw="false" hittestbox="false"/>
+        <groupbox name="damageRankTitleBox" rect="0 0 241 31" margin="0 0 0 0" parent="damageRankBox" layout_gravity="center top" draw="true" hittestbox="false" skin="white_box_op10" resizebyparent="false"/>
+        <richtext name="damageRankTitleText" rect="0 0 241 31" margin="0 0 0 0" layout_gravity="center center" parent="damageRankTitleBox" format="{@st43}{s16}파티 대미지{/}" param1="stage" />
+        <groupbox name="damageRankGaugeBox" rect="0 0 241 0" margin="0 38 0 0" layout_gravity="center top" draw="false" hittestbox="true"/>
+    </controls>
+</uiframe>

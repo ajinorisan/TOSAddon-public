@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uitile name="toshero_info_gauge" x="0" y="0" width="700" height="170" create="open">
+	<skin frameskin="none" draw="false"/>
+	<frame title="" layout_gravity="center center" margin="-30 250 0 0" piptype="top"/>
+	<input moveable="true" hittestframe="true"/>
+	<option visible="false" hideable="false" closebutton="false" alwaysVisible="true"/>
+	<controls>
+		<picture name="pic_lv_bg" rect="0 0 251 112" margin="50 0 0 0" layout_gravity="left center" hittest="false" image="challenge_gauge_black" stretch="false"/>
+        <richtext name="stage_txt" rect="0 0 120 30" margin="90 -45 0 0" format="{@st205_stage}%s {/}" param1="stage" param1_def="1" textalign="center center" layout_gravity="left center"/>
+		<gauge name="ObjectHP_gauge" rect="0 0 80 33" margin="270 -32 0 0" layout_gravity="center center" ratewidth="true" inverse="false" point="50" maxpoint="100" skin="hero_guage2" text1="{@sti1c}{s15}%v / %m{/}{/}" textalign1="center center" textfont1="white_18_ol" textoffset1="0 0"/>
+		<picture name="ObjectHP_gauge_lv_left" rect="0 0 7 33" margin="226 -32 0 0" layout_gravity="center center" hittest="false" image="challenge_gauge_left" stretch="true"/>
+		<picture name="ObjectHP_gauge_lv_right" rect="0 0 7 33" margin="312 -32 0 0" layout_gravity="center center" hittest="false" image="challenge_gauge_right" stretch="true"/>
+		<picture name="hero_object_gauge" rect="0 0 45 63" margin="215 -38 0 0" layout_gravity="center center" hittest="false" image="hero_object_gauge" stretch="true"/>
+		<picture name="pic_logo" rect="0 0 291 97" margin="80 50 0 0" layout_gravity="left center" hittest="false" image="hero_txt_stage" stretch="false"/>
+        <picture name="gauge_lv_left" rect="0 0 7 33" margin="158 7 0 0" layout_gravity="left center" hittest="false" image="challenge_gauge_left" stretch="true"/>
+		<picture name="gauge_lv_right" rect="0 0 7 33" margin="658 7 0 0" layout_gravity="left center" hittest="false" image="challenge_gauge_right" stretch="true"/>
+        <gauge name="gauge_lv" rect="0 0 495 33" margin="165 7 0 0" layout_gravity="left center" drawlastpoint="false" ratewidth="true" skin="hero_guage" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 4" textoffset2="4 4" hittest="false"/>
+		<picture name="attribute" rect="0 0 46 46" margin="-165 -35 0 0" layout_gravity="center center" hittest="true" image="hero_icon_Default" stretch="true"/>
+        <picture name="buff_1" rect="0 0 36 36" margin="-105 -35 0 0" layout_gravity="center center" hittest="true" image="hero_icon_Default" stretch="true"/>
+        <picture name="buff_2" rect="0 0 36 36" margin="-65 -35 0 0" layout_gravity="center center" hittest="true" image="hero_icon_Default" stretch="true"/>
+        <picture name="buff_3" rect="0 0 36 36" margin="-25 -35 0 0" layout_gravity="center center" hittest="true" image="hero_icon_Default" stretch="true"/>
+        <picture name="pic_max" rect="0 0 70 40" margin="55 10 0 0" layout_gravity="center center" hittest="false" image="skill_max_img" stretch="true"/>
+		<richtext name="text_bosscount" rect="0 0 70 50" margin="260 -33 0 0" layout_gravity="center center" format="%s%s" hittest="false" param1="font" param1_def="{@st55_hero_count}" param2="text" param2_def="0" textalign="center center" resizebytext="false" fixwidth="true"/>
+		<picture name="heroimage_bosscountdown" rect="0 0 45 45" margin="210 -33 0 0" layout_gravity="center center" hittest="false" image="hero_bosscountdown" stretch="true"/>
+		<richtext name="text2_bosscount" rect="0 0 70 50" margin="210 -65 0 0" layout_gravity="center center" format="%s%s" hittest="false" param1="font" param1_def="{@st55_hero_count}{s15}" param2="text" param2_def="BOSS" textalign="center center" resizebytext="false" fixwidth="true"/>
+		<richtext name="text3_bosscount" rect="0 0 70 80" margin="300 -33 0 0" layout_gravity="center center" format="%s%s" hittest="false" param1="font" param1_def="{@st55_hero_count}{s18}" param2="text" param2_def="0" textalign="center center" resizebytext="false" fixwidth="true"/>
+	</controls>
+</uitile>

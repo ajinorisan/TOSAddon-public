@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by LeeGY (IMCGames Co., Ltd) -->
+<uiframe name="toshero_info_end" x="0" y="0" width="1920" height="1080">
+    <frame layout_gravity="center center" margin="0 0 0 0"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+    <layer layerlevel="97"/>
+    <script CloseScp="TOSHERO_INFO_END_CLOSE"/>
+    <userconfig SUCCESS_MSG="성공" FAIL_MSG="실패" SUCCESS_IMG_S="hero_success_s" SUCCESS_IMG_L="hero_success_l" FAIL_IMG_S="hero_fail_s" FAIL_IMG_L="hero_fail_l"/>
+	<controls>
+        <picture name="title_img" rect="0 0 1000 1000" margin="0 0 0 0" layout_gravity="center center" imagealign="center center" hittest="false" image="hero_success_s" stretch="false"/>
+        <richtext name="title_txt" rect="0 0 120 30" margin="0 -20 0 0" format="{@st44_shadow}{s90}%s{/}" param1="value" param1_def="성공" textalign="center center" layout_gravity="center center"/>
+	</controls>
+</uiframe>

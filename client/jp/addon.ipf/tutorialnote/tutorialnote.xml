@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="tutorialnote" x="0" y="0" width="765" height="850">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0" draw="false"/>
+	<skin frameskin="None"/>
+	<draw drawtitlebar="false"/>
+	<option visible="false" hideable="true" closebutton="false" moveable="true" alwaysVisible="false"/>
+	<layer layerlevel="50"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<script OpenScp="OPEN_TUTORIALNOTE_SCP"/>
+	<userconfig REWARD_TEXT_FONT="black_14_b" REWARD_DESC_OFFSET_Y="23" />
+	<controls>
+		<picture name="bg" rect="0 0 634 828" margin="0 0 0 0" layout_gravity="center top" image="tutorial_file_bg" stretch="true" draw="true" hittest="true"/>
+		<button name="close" rect="0 0 34 34" margin="0 7 65 0" layout_gravity="right top" image="testclose_button" LBtnUpScp="CLOSE_TUTORIALNOTE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" oversound="button_over" draw="true"/>
+		<groupbox name="typename" parent="bg" rect="0 0 329 68" margin="3 85 0 0" layout_gravity="center top" skin="tutorial_file_title" scrollbar="false" stretch="true" draw="true" hittest="false"/>
+		<richtext name="typename_text" parent="typename" rect="0 0 150 45" margin="0 0 0 0" layout_gravity="center center" format="{@st42b}{s24}%s" param1="value" param1_def="분야" textalign="center center" resizebytext="false"/>
+		<tab name="label_tab" rect="0 0 92 730" margin="0 111 0 0" layout_gravity="right top" draw="false" itemspc="20" vertical="true" LBtnDownScp="TUTORIALNOTE_SELECT_TAB"/>
+		<tabitem name="guide" parent="label_tab" layout_gravity="left top" skinspace="30" width="100" normalimage="tutorial_guide_tap" overimage="tutorial_guide_tap_cursoron" selectimage="tutorial_guide_tap_clicked" texttooltip="{@st59}가이드{/}"/>
+		<picture name="guide_point" parent="label_tab" rect="0 0 14 14" margin="0 0 0 0" layout_gravity="right top" image="tutorial_notify" stretch="true" draw="true" hittest="false"/>
+		<tabitem name="mission_1" parent="label_tab" layout_gravity="left top" skinspace="20" width="100" normalimage="tutorial_mission_tap01" overimage="tutorial_mission_tap01_cursoron" selectimage="tutorial_mission_tap01_clicked" texttooltip="{@st59}미션 : 초급{/}"/>
+		<picture name="mission_1_point" parent="label_tab" rect="0 0 14 14" margin="0 60 0 0" layout_gravity="right top" image="tutorial_notify" stretch="true" draw="true" hittest="false"/>
+		<tabitem name="mission_2" parent="label_tab" layout_gravity="left top" skinspace="20" width="100" normalimage="tutorial_mission_tap02" overimage="tutorial_mission_tap02_cursoron" selectimage="tutorial_mission_tap02_clicked" texttooltip="{@st59}미션 : 중급{/}"/>
+		<picture name="mission_2_point" parent="label_tab" rect="0 0 14 14" margin="0 120 0 0" layout_gravity="right top" image="tutorial_notify" stretch="true" draw="true" hittest="false"/>
+		<tabitem name="mission_3" parent="label_tab" layout_gravity="left top" skinspace="20" width="100" normalimage="tutorial_mission_tap03" overimage="tutorial_mission_tap03_cursoron" selectimage="tutorial_mission_tap03_clicked" texttooltip="{@st59}미션 : 고급{/}"/>		
+		<picture name="mission_3_point" parent="label_tab" rect="0 0 14 14" margin="0 180 0 0" layout_gravity="right top" image="tutorial_notify" stretch="true" draw="true" hittest="false"/>
+		<groupbox name="note_gb" parent="bg" rect="0 0 566 580" margin="0 160 0 0" layout_gravity="center top" scrollbar="true" stretch="true" draw="false"/>
+		<richtext name="tip_text" tabname="guide" rect="0 0 150 45" margin="0 760 0 0" layout_gravity="center top" format="{@st66b}{s16}%s" param1="value" param1_def="클릭시 해당 가이드를 실행 합니다."/>
+	</controls>
+</uiframe>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by LeeGY (IMCGames Co., Ltd) -->
+<uiframe name="toshero_info_stage" x="0" y="0" width="1920" height="1080">
+    <frame layout_gravity="center center" margin="0 0 0 0"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+    <layer layerlevel="97"/>
+    <script CloseScp="TOSHERO_INFO_STAGE_CLOSE"/>
+	<controls>
+        <picture name="title_img" rect="0 0 668 282" margin="0 84 0 0" layout_gravity="center top" hittest="false" image="hero_startLabel" stretch="true"/>
+        <richtext name="title_txt" rect="0 0 120 30" margin="0 -35 0 0" parent="title_img" format="{@sti1c_shadow}{s76}Stage %s{/}" param1="stage" param1_def="1" textalign="center center" layout_gravity="center center"/>
+        <picture name="attribute" rect="0 0 290 290" margin="0 -40 0 0" layout_gravity="center center" hittest="false" image="hero_icon_Default" stretch="true"/>
+        <picture name="shadow" rect="0 0 582 126" margin="0 220 0 0" layout_gravity="center center" hittest="true" image="hero_startShadow" stretch="true"/>
+        <button name="ok" margin="0 0 0 140" rect="0 0 158 58" format="{@sti1c}{s24}확인" skin="test_red_button" textalign="center center" layout_gravity="center bottom" LBtnDownScp="ui.CloseFrame('toshero_info_stage')"/>
+	</controls>
+</uiframe>

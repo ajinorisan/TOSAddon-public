@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="toshero_info_combine" x="0" y="0" width="480" height="908">
+	<frame fullheight="false" layout_gravity="right top" margin="0 35 600 0"/>
+	<skin frameskin="test_frame_low"/>
+	<layer layerlevel="102"/>
+	<input moveable="true"/>
+	<draw drawtitlebar="false"/>
+	<option closebutton="false"/>
+	<script OpenScp="TOSHERO_INFO_COMBINE_OPEN"/>
+	<controls>
+		<groupbox name="title_bg" margin="0 0 0 0" rect="0 0 477 61" layout_gravity="center top" draw="true" hittestbox="false" skin="test_frame_top"/>
+		<richtext name="title" margin="0 3 0 0" rect="0 0 120 30" parent="title_bg" format="{@st44}{s24}버프 조합{/}" textalign="center center" layout_gravity="center center"/>
+		<button name="close" rect="0 0 44 44" margin="0 22 29 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;toshero_info_combine&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="question" rect="0 0 44 44" margin="30 22 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="버프 조합식을 확인 할 수 있습니다.{nl}마우스 오버 시 해당 버프의 정보를 확인할 수 있습니다."/>
+        <groupbox name="info_bg" margin="0 80 0 0" rect="0 0 457 818" layout_gravity="center top" draw="true" hittestbox="false" stretch="true" skin="hero_frame_green"/>
+	</controls>
+</uiframe>
