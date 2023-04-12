@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="special_create_ticket" x="0" y="0" width="810" height="644" create="open">
+	<frame layout_gravity="center center" margin="0 0 0 0" tooltipoverlap="true" fasthide="true" open=""/>
+	<option closebutton="false" hideable="false" escscript="SPECIAL_CREATE_TICKET_DISCARD_SELECT"/>
+	<draw drawframe="false" drawtitlebar="false" drawnotitlebar="false"/>
+	<input moveable="true" hittestframe="true"/>
+	<script OpenScp="SPECIAL_CREATE_TICKET_OPEN" CloseScp="SPECIAL_CREATE_TICKET_CLOSE"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<layer layerlevel="94"/>
+	<controls>
+		<groupbox name="gFrame" rect="0 0 810 644" margin="0 0 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="false"/>
+		<groupbox name="gbox" parent="gFrame" rect="0 0 810 644" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_low" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" parent="gFrame" rect="0 0 808 61" margin="0 0 0 0" draw="true" layout_gravity="center top" skin="test_frame_top" hittestbox="false" stretch="false"/>
+		<richtext name="title" parent="titlegbox" rect="0 0 120 24" margin="0 0 0 0" layout_gravity="center center" drawbackground="false" fixwidth="false" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st41}{s20}%s{/}{/}" param1="value" param1_def="스페셜 생성권 사용 안내"/>
+		<picture name="help" rect="0 0 35 35" margin="28 20 0 0" layout_gravity="left top" image="testquesten_button" texttooltip="{@st59}스페셜 생성권은 기간 한정으로 1회 제공하는 특수한 점핑권입니다.{nl}사용하실 때 유의하여 사용해주시길 바랍니다.{/}"/>
+		<button name="close" rect="0 0 35 35" margin="0 20 29 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="SPECIAL_CREATE_TICKET_DISCARD_SELECT" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" texttooltip="{@st59}창을 닫을 경우, 재접속 시 팝업 됩니다.{/}"/>
+		<!-- inner left -->
+		<groupbox name="gbox_middle_left" parent="gbox" rect="0 0 396 632" margin="8 5 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="relic_frame_bg"/>
+		<groupbox name="middle_left_subtitle_bg" parent="gbox_middle_left" rect="0 0 200 36" margin="0 60 0 0" layout_gravity="center top" draw="true" skin="js_roundbar" stretch="true"/>
+		<richtext name="middle_left_subtitle_text" parent="middle_left_subtitle_bg" rect="0 0 200 34" margin="0 0 0 0" layout_gravity="center center" drawbackground="false" fixwidth="false" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st41}{s18}%s{/}{/}" param1="value" param1_def="스페셜 생성권"/>
+		<picture name="middle_left_picture" parent="gbox_middle_left" rect="0 0 295 202" margin="0 89 0 0" layout_gravity="center top" draw="true" image="js_ticketimg" stretch="true"/>
+		<richtext name="middle_left_text" parent="gbox_middle_left" rect="0 0 396 200" margin="0 291 0 0" layout_gravity="center top" drawbackground="false" fixwidth="true" maxwidth="0" resizebytext="false" slideshow="false" spacey="0" textalign="center top" updateparent="false" fixwidthusespace="false" caption="{@ps1_3}{s16}스페셜 생성권은 기간 한정으로 제공되는{nl}특별한 캐릭터 생성 기회이며,{nl}일반적으로 게임을 즐기는데 적합한 클래스 조합들{nl}중 하나를 선택하실 수 있습니다.{nl} {nl}Lv460 의 캐릭터와,{nl}선택하신 클래스 조합에 필요한 적정 수준의{nl}장비와 셋팅이 모두 완료되어 있습니다.{nl}모든 유저에게 추천합니다.{/}{/}"/>
+		<button name="use_special_ticket" parent="gbox_middle_left" rect="0 0 378 126" margin="0 0 0 9" layout_gravity="center bottom" format="{@st41}{s22}스페셜 생성권을 사용{/}{/}" fontname="orange_18_b_ol_ds" LBtnUpScp="SPECIAL_CREATE_TICKET_GOTO_SELECT" skin="hero_btn_green2" oversound="button_over"/>
+		<!-- inner right -->
+		<groupbox name="gbox_middle_right" parent="gbox" rect="0 0 396 632" margin="0 5 8 0" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="relic_frame_bg"/>
+		<groupbox name="middle_right_subtitle_bg" parent="gbox_middle_right" rect="0 0 200 36" margin="0 60 0 0" layout_gravity="center top" draw="true" skin="js_roundbar" stretch="true"/>
+		<richtext name="middle_right_subtitle_text" parent="middle_right_subtitle_bg" rect="0 0 200 34" margin="0 0 0 0" layout_gravity="center center" drawbackground="false" fixwidth="false" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st41}{s18}%s{/}{/}" param1="value" param1_def="일반 생성"/>
+		<picture name="middle_right_picture" parent="gbox_middle_right" rect="0 0 295 202" margin="0 89 0 0" layout_gravity="center top" draw="true" image="js_normalimg" stretch="true"/>
+		<richtext name="middle_right_text" parent="gbox_middle_right" rect="0 0 396 200" margin="0 291 0 0" layout_gravity="center top" drawbackground="false" fixwidth="true" maxwidth="0" resizebytext="false" slideshow="false" spacey="0" textalign="center center" updateparent="false" fixwidthusespace="false" caption="{@ps1_3}{s16}기존의 방식대로 캐릭터를 생성합니다.{nl}이후 스페셜 생성권을 사용하기 위해선{nl}캐릭터를 새로 생성해야만 합니다.{nl} {nl}아직 게임에 익숙하지 않다면{nl}스페셜 생성권 사용을 권장합니다.{/}{/}"/>
+		<button name="no_use_special_ticket" parent="gbox_middle_right" rect="0 0 378 126" margin="0 0 0 9" layout_gravity="center bottom" format="{@st41}{s22}사용하지 않음" LBtnUpScp="SPECIAL_CREATE_TICKET_DISCARD_SELECT" skin="test_gray_button" oversound="button_over"/>
+	</controls>
+</uiframe>

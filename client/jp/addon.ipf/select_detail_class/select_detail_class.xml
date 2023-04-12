@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="select_detail_class" x="0" y="0" width="1008" height="644" create="open">
+	<frame layout_gravity="center center" margin="0 0 0 0" tooltipoverlap="true" fasthide="true"/>
+	<option closebutton="false" hideable="false" escscript="SELECT_DETAIL_CLASS_DISCARD_SELECT"/>
+	<draw drawframe="false" drawtitlebar="false" drawnotitlebar="false"/>
+	<input moveable="true" hittestframe="true"/>
+	<script OpenScp="SELECT_DETAIL_CLASS_OPEN" CloseScp="SELECT_DETAIL_CLASS_CLOSE"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<layer layerlevel="94"/>
+	<userconfig TITLE_WIDTH_MAIN="807" TITLE_WIDTH_SELECT="1005"/>
+	<controls>
+        <groupbox name="gFrame" rect="0 0 1008 644" margin="0 0 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="gbox" parent="gFrame" rect="0 0 1008 644" margin="0 0 0 0" layout_gravity="center center" skin="test_frame_low" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" parent="gFrame" rect="0 0 1005 61" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_top" hittestbox="false" stretch="false" scrollbar="false"/>
+		<!-- title -->
+		<richtext name="title" parent="titlegbox" rect="0 0 200 50" margin="0 17 0 0" layout_gravity="center top" caption="{@st41}{s20}세부 클래스 선택하기" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="closeBtn" parent="titlegbox" rect="0 0 44 44" margin="0 20 28 0" layout_gravity="right top" LBtnUpScp="SELECT_DETAIL_CLASS_DISCARD_SELECT" clicksound="button_click_big" image="testclose_button" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover"/>
+        <picture name="helpBtn" parent="titlegbox" rect="0 0 44 44" margin="27 20 0 0" layout_gravity="left top" image="testquesten_button" texttooltip="{@st59}트리 오브 세이비어는 총 3개의 세부 클래스를 조합하여{nl}자신만의 캐릭터를 육성하는 게임입니다.{nl}준비된 클래스의 수가 많으므로, 아래 제시되는 추천 조합을 선택하시거나,{nl}오른쪽 하단의 수동 선택 버튼을 눌러 직접 구성하실 수 있습니다.{/}" oversound="button_over"/>
+        <!-- Main -->
+		<groupbox name="gbPageMain" parent="gbox" rect="0 0 810 644" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" resizebyparent="false" skin="test_frame_low" scrollbar="false"/>
+		<groupbox name="gbListClass" parent="gbPageMain" rect="0 0 780 572" margin="0 59 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" skin="None" scrollbar="false"/>
+		<!-- Select -->
+		<groupbox name="gbPageSelect" parent="gbox" rect="0 0 1008 644" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" resizebyparent="false" skin="test_frame_low"/>
+		<groupbox name="gbPageSelectRight" parent="gbPageSelect" rect="0 0 694 625" margin="0 6 14 0" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" skin="test_frame_midle"/>
+		<groupbox name="gbPageSelectLeft" parent="gbPageSelect" rect="0 0 304 630" margin="8 7 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" skin="relic_frame_bg"/>
+		<!-- select - left -->
+		<groupbox name="gbClassAbbr" parent="gbPageSelectLeft" rect="0 0 265 62" margin="0 62 0 0" layout_gravity="center top" draw="true" hittest="true" resizebyparent="false" skin="js_square" texttooltip="{@st59}설명{/}"/>
+		<richtext name="textClassAbbr" parent="gbClassAbbr" rect="0 0 265 59" margin="0 0 0 0" layout_gravity="center center" format="{@st41}{s22}%s" param1="value" param1_def="X.X.X" drawbackground="false" hittest="false" fixwidth="false" resizebytext="true" textalign="center center"/>
+		<richtext name="textDescAbbr" parent="gbPageSelectLeft" rect="0 0 240 60" margin="0 145 0 0" layout_gravity="center top" format="{@st66b}{s16}%s" param1="value" param1_def="설명" drawbackground="false" fixwidth="true" fontname="white_16_ol" resizebytext="true" textalign="left top"/>
+		<video name="video" parent="gbPageSelectLeft" rect="0 0 240 180" margin="0 0 0 20" video="None" layout_gravity="center bottom" stretch="true" playrepeat="true" LBtnUpScp="SELECT_DETAIL_CLASS_VIDEO_CLICK"/>
+		<picture name="play" parent="video" rect="0 0 59 59" margin="0 0 0 0" layout_gravity="center center" image="play_classic" hittest="false"/>
+		<!-- select - right -->
+		<richtext name="textClassInfoTitle" parent="gbPageSelectRight" rect="0 0 240 20" margin="41 64 0 0" layout_gravity="left top" format="{@sti1c}{s16}클래스 세부 정보 {img js_icon_detail 22 20}{/}{/}" drawbackground="false" fixwidth="false" resizebytext="true" textalign="left center"/>
+		<groupbox name="labelline" parent="gbPageSelectRight" rect="0 0 638 3" margin="39 102 0 0" layout_gravity="left top" skin="js_line_dark" stretch="true"/>
+		<richtext name="textClassInfoNameTitle" parent="gbPageSelectRight" rect="0 0 240 60" margin="41 123 0 0" layout_gravity="left top" format="{@sti1c}{s16}클래스 구성 {img js_icon_list 22 20}{/}{/}" drawbackground="false" fixwidth="false" resizebytext="true" textalign="center center"/>
+		<picture name="treePic" parent="gbPageSelectRight" rect="0 0 50 211" margin="194 192 0 0" layout_gravity="left top" image="js_mapline" stretch="true"/>
+		<controlset name="class1" parent="gbPageSelectRight" rect="0 0 198 60" margin="22 270 0 0" type="selectdetailclass_classinfo" layout_gravity="left top" hittestbox="true" scrollbar="false" skin="None"/>
+		<controlset name="class2" parent="gbPageSelectRight" rect="0 0 198 60" margin="228 165 0 0" type="selectdetailclass_classinfo" layout_gravity="left top" hittestbox="true" scrollbar="false" skin="None"/>
+		<controlset name="class3" parent="gbPageSelectRight" rect="0 0 198 60" margin="228 270 0 0" type="selectdetailclass_classinfo" layout_gravity="left top" hittestbox="true" scrollbar="false" skin="None"/>
+		<controlset name="class4" parent="gbPageSelectRight" rect="0 0 198 60" margin="228 375 0 0" type="selectdetailclass_classinfo" layout_gravity="left top" hittestbox="true" scrollbar="false" skin="None"/>
+		<picture name="arrowPic" parent="gbPageSelectRight" rect="0 0 32 30" margin="435 285 0 0" layout_gravity="left top" image="js_arrow" stretch="true"/>
+		<richtext name="textClassInfoPreviewTitle" parent="gbPageSelectRight" rect="0 0 240 60" margin="483 123 0 0" layout_gravity="left top" format="{@sti1c}{s16}미리 보기 {img js_icon_preview 22 20}{/}{/}" drawbackground="false" fixwidth="false" resizebytext="true" textalign="center center"/>
+		<groupbox name="gbPreview" parent="gbPageSelectRight" rect="0 0 180 286" margin="0 163 30 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" skin="None"/>
+		<groupbox name="bgPreview" parent="gbPreview" rect="0 0 180 240" margin="0 0 0 0" layout_gravity="center top" skin="js_frame_preview" draw="true" hittestbox="false" scrollbar="false" fixwidth="true" fixheight="true"/>
+		<picture name="charShadowPic" parent="bgPreview" rect="0 0 110 62" margin="0 0 0 20" layout_gravity="center bottom" image="js_previewshadow" stretch="true"/>
+		<picture name="picSilhouette" parent="bgPreview" rect="0 0 140 250" margin="0 22 0 0" layout_gravity="center center" hittest="true" scale_align="center center" oversound="button_cursor_over_3" stretch="true"/>
+		<button name="btnPreviewTurnLeft" parent="bgPreview" rect="0 0 42 42" margin="7 0 0 7" layout_gravity="left bottom" image="js_previewturn_btn_l" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_TURN_BTN" LBtnUpArgStr="left"/>
+		<button name="btnPreviewTurnRight" parent="bgPreview" rect="0 0 42 42" margin="0 0 7 7" layout_gravity="right bottom" image="js_previewturn_btn_r" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_TURN_BTN" LBtnUpArgStr="right"/>
+		<button name="btnPreviewAction1" parent="gbPreview" rect="0 0 42 42" margin="0 0 0 0" layout_gravity="left bottom" image="js_motion_btn_01" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_BTN_PREVIEW_ACTION" LBtnUpArgStr="STD" LBtnUpArgNum="1"/>
+		<button name="btnPreviewAction2" parent="gbPreview" rect="0 0 42 42" margin="46 0 0 0" layout_gravity="left bottom" image="js_motion_btn_02" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_BTN_PREVIEW_ACTION" LBtnUpArgStr="ASTD" LBtnUpArgNum="2"/>
+		<button name="btnPreviewAction3" parent="gbPreview" rect="0 0 42 42" margin="92 0 0 0" layout_gravity="left bottom" image="js_motion_btn_03" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_BTN_PREVIEW_ACTION" LBtnUpArgStr="RUN" LBtnUpArgNum="3"/>
+		<button name="btnPreviewAction4" parent="gbPreview" rect="0 0 42 42" margin="138 0 0 0" layout_gravity="left bottom" image="js_motion_btn_04" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_BTN_PREVIEW_ACTION" LBtnUpArgStr="REST_IDLE" LBtnUpArgNum="4"/>
+		<button name="btnSelectComplete" parent="gbPageSelectRight" rect="0 0 256 94" margin="0 0 0 20" layout_gravity="center bottom" skin="hero_btn_green2" caption="{@st41}{s20}선택 완료하기{/}{/}" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_BTN_COMPLETE"/>
+		<button name="btnSelectReturn" parent="gbPageSelectRight" rect="0 0 64 64" margin="0 0 38 45" layout_gravity="right bottom" image="js_back_btn" oversound="button_over" LBtnUpScp="SELECT_DETAIL_CLASS_CLICK_BTN_RETURN"/>
+		<richtext name="returnTxt" parent="gbPageSelectRight" rect="0 0 100 20" margin="0 0 38 18" layout_gravity="right bottom" caption="{@s41}{s16}돌아가기{/}{/}" drawbackground="false" fixwidth="false" fontname="white_24_ol" resizebytext="true" textalign="center center"/>
+	</controls>
+</uiframe>

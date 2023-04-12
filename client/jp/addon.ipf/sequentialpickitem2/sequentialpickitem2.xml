@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MinstFaith (EMBRACE) -->
+<uiframe name="sequentialpickitem2" x="0" y="0" width="350" height="64" create="open">
+	<frame layout_gravity="right top" margin="0 1000 400 0"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<option hideable="false" closebutton="false"/>
+	<input hittest="false"/>
+	<script OpenScp="SEQUENTIALPICKITEM2_OPEN" CloseScp="SEQUENTIALPICKITEM2_CLOSE"/>
+	<animation frameOpenAnim="dialog_select_start" frameCloseAnim="dialog_end"/>
+	<userconfig POPUP_DURATION="2" PUSHUP_ANIM_NAME="sequentialpickitem_pushup"/>
+	<layer layerlevel="120"/>
+	<controls>
+		<groupbox name="pickitem" rect="0 0 350 64" layout_gravity="left top" container="true" draw="true" scrollbar="false"  skin="item_show_tootip"/>
+	</controls>
+</uiframe>
