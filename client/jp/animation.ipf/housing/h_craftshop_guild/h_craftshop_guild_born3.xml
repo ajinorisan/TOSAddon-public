@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMCGames Co., Ltd (IMCGames Co., Ltd) -->
+<ActionDesc>
+	<Particle frame="0" attachNode="Dummy_sign_c" particleName="F_light169_white" useAttach="true" hiddenObj="false" changeEffect="None" scale="2.2" pause="true" use2DEffect="true" soft2DValue="20" targetPos="false"/>
+	<Particle frame="0" attachNode="Dummy_effect_fire2" particleName="F_fire049" useAttach="false" hiddenObj="false" changeEffect="None" scale="2.5" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="34" attachNode="Dummy_root" particleName="F_smoke173" useAttach="true" hiddenObj="false" changeEffect="None" scale="2.5" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="68" attachNode="Dummy_root" particleName="F_smoke173" useAttach="true" hiddenObj="false" changeEffect="None" scale="2.7" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="138" attachNode="effect004" particleName="F_smoke173" useAttach="true" hiddenObj="false" changeEffect="None" scale="1.2" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="193" attachNode="Dummy_effect_fire2" particleName="F_ground194_fire1" useAttach="false" hiddenObj="false" changeEffect="None" scale="0.7" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="193" attachNode="Dummy_effect_fire2" particleName="F_spread_out031_fether_fire" useAttach="false" hiddenObj="false" changeEffect="None" scale="1" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="274" attachNode="Dummy_effect_fire2" particleName="F_ground194_fire1" useAttach="false" hiddenObj="false" changeEffect="None" scale="0.7" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="274" attachNode="Dummy_effect_fire2" particleName="F_spread_out031_fether_fire" useAttach="false" hiddenObj="false" changeEffect="None" scale="1" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+</ActionDesc>

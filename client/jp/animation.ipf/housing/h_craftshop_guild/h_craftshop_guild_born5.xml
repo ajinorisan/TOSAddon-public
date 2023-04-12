@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMCGames Co., Ltd (IMCGames Co., Ltd) -->
+<ActionDesc>
+	<Particle frame="0" attachNode="Dummy_sign_c" particleName="F_light169_white" useAttach="true" hiddenObj="false" changeEffect="None" scale="2.2" pause="true" use2DEffect="true" soft2DValue="20" targetPos="false"/>
+	<Particle frame="0" attachNode="effect003" particleName="F_fire049" useAttach="true" hiddenObj="false" changeEffect="None" scale="2.6" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="32" attachNode="Dummy_effect002" particleName="F_smoke173" useAttach="true" hiddenObj="false" changeEffect="None" scale="1" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="78" attachNode="Dummy_effect_004" particleName="F_smoke173" useAttach="true" hiddenObj="false" changeEffect="None" scale="0.8" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="171" attachNode="effect003" particleName="F_ground194_fire1" useAttach="false" hiddenObj="false" changeEffect="None" scale="0.7" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="171" attachNode="effect003" particleName="F_spread_out031_fether_fire" useAttach="false" hiddenObj="false" changeEffect="None" scale="1" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="41" attachNode="Dummy_effect005" particleName="F_water009_purple_ground" useAttach="false" hiddenObj="false" changeEffect="None" scale="0.8" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+	<Particle frame="82" attachNode="Dummy_effect006" particleName="F_water009_purple" useAttach="false" hiddenObj="false" changeEffect="None" scale="0.4" pause="true" use2DEffect="false" soft2DValue="20" targetPos="false"/>
+</ActionDesc>
