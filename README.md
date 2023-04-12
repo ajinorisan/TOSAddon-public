@@ -39,8 +39,6 @@ Special thanks to menimaniさん
 
 EP14.15マップで敵を倒した数をカウントします。正確な効率が測れるかも。
 
-https://github.com/ajinorisan/TOSAddon-public/blob/main/klcount/README.md
-
 Special thanks to menimaniさん
 
 ----
