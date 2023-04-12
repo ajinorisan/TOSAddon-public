@@ -1,5 +1,4 @@
 ## tosaddon
-## Tree of savior addon
 
 ### dungeonrpcharger
 
