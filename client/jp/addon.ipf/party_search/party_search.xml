@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- deprecated. nexttime will be renewaled -->
+<uiframe name="party_search" x="0" y="0" width="0" height="0" create="open">
+	<frame title=" " fullheight="true" fasthide="true" layout_gravity="right top" margin="0 0 -600 0" open="pip" piptype="right"/>	
+	<controls>
+	</controls>
+</uiframe>

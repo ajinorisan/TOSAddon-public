@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="pilgrim_select" x="0" y="0" width="240" height="310" create="open">
+	<frame titlepos="0 0" layout_gravity="center center" margin="0 0 0 0"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<option margin="0 0 0 0" closebutton="false" hideable="false"/>
+	<sound opensound="win_open" closesound="win_close" margin="0 0 0 0"/>
+	<skin frameskin="false"/>
+	<draw drawtitlebar="false" margin="0 0 0 0"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="0 0 0 0"/>
+	<layer layerlevel="101" margin="0 0 0 0"/>
+	<script OpenScp="" CloseScp=""/>
+	<userconfig/>
+	<controls>
+		<groupbox name="gb" rect="0 0 240 310" margin="0 0 0 0" layout_gravity="left top" draw="true" skin="relic_frame_bg" hittestbox="false"/>
+		<!-- title -->
+		<groupbox name="gb_title" parent="gb" rect="0 0 238 43" margin="0 0 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="tribal_title_light"/>
+		<button name="btn_close" parent="gb_title" rect="0 0 44 44" margin="0 3 0 0" layout_gravity="right top" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}" LBtnUpScp="PILGRIM_SELECT_CLOSE"/>
+		<richtext name="title" parent="gb_title" rect="0 0 238 34" margin="0 10 0 0" layout_gravity="center top" caption="{@st41}{s18}순례자 목록" hittest="false"/>
+		<!-- list -->
+		<groupbox name="gb_list" parent="gb" rect="0 0 220 252" margin="12 45 0 0" layout_gravity="left top" hittestbox="false" scrollbar="true" skin="hero_frame_beige"/>
+	</controls>
+</uiframe>

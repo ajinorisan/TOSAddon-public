@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="petlist" x="0" y="0" width="305" height="335">
+	<frame fullheight="false" fasthide="true" layout_gravity="right bottom" margin="0 0 40 70" />
+	<draw drawframe="false" drawtitlebar="false"/>
+	<input moveable="true"/>
+	<option visible="false" hideable="true" closebutton="false" moveable="true" alwaysVisible="false" exceptionUpdateUiMode="true"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<layer layerlevel="92"/>
+	<userconfig TEST_CONFIG="1"/>
+	<controls>
+		<groupbox name="title_bg" rect="0 0 305 333" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="collection_complete"/>
+		<richtext name="title" parent="title_bg" rect="0 0 200 30" margin="0 7 0 0" layout_gravity="center top" caption="{@st43b}{s20}탈 것 목록" fontname="brown_16_b" spacey="0"/>
+		<picture name="question" rect="0 0 44 44" margin="4 2 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="{@st59b}탈 것 소환{nl}{@st59s}[탈 것 선택]{nl} - 탈 것 목록에서 해당 탈 것의 초상화 선택{nl} *탈 것은 '탈 것 등록증' 아이템을 사용하여 등록되어야 목록에 등장{nl}{nl} {nl}[탈 것 선택 해제]{nl} - 탈 것 목록에서 선택된 탈 것의 초상화를 다시 선택하여 해제 가능{nl}{nl} {nl}[탈 것 소환하기]{nl} - 원하는 탈 것을 선택후 탈 것 소환 스킬을 사용{nl} - 컴패니언에 탑승한 상태/전투 중/영웅담 진행 중/사망 등, 특수한 상태에서는 스킬 사용 불가{nl} * 컴패니언 탑승 특성을 보유한 클래스는 컴패니언에 탑승한 상태에서 탈 것의 효과만 적용{nl}{nl} {nl}[탈 것 소환 해제하기]{nl} - 탈 것을 소환한 상태에서 탈 것 소환 스킬 재사용으로 해제{nl} - 캐릭터 사망 시, 해제{nl} - 영웅담 콘텐츠 진입 시, 해제{nl}{nl} {nl}[탈 것의 효과]{nl} - 등록된 탈 것에 마우스를 가져다 대면 세부 내용 표기"/>
+		<button name="close" parent="title_bg" rect="0 0 40 40" margin="0 2 5 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;petlist&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+		
+		<richtext name="effect" layout_gravity="left top" rect="0 0 280 30" margin="20 43 0 0" caption="{@st43b}{s16}적용중인 효과" fixwidth="true" hittest="false" fontname="white_16_ol" textalign="left center"/>
+		<richtext name="effectDesc" layout_gravity="left top" rect="0 0 280 30" margin="20 65 0 0" format="{@st43b}{s14}%s" param1="effect" param1_def="" fixwidth="true" hittest="true" fontname="white_16_ol" textalign="left center"/>
+	    
+		<groupbox name="gb_petlist" rect="0 0 276 212" margin="14 0 0 18" layout_gravity="left bottom" skin="test_frame_midle" scrollbar="true"/>
+	</controls>
+</uiframe>

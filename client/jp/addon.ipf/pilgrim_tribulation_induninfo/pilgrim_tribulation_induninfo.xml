@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="pilgrim_tribulation_induninfo" x="0" y="0" width="550" height="700" create="open">
+	<frame titlepos="0 0" layout_gravity="center center" margin="0 0 0 0"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<option margin="0 0 0 0" closebutton="false" hideable="false"/>
+	<sound opensound="win_open" closesound="win_close" margin="0 0 0 0"/>
+	<skin frameskin="false"/>
+	<draw drawtitlebar="false" margin="0 0 0 0"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="0 0 0 0"/>
+	<layer layerlevel="101" margin="0 0 0 0"/>
+	<script OpenScp="" CloseScp=""/>
+	<userconfig/>
+	<controls>
+		<groupbox name="gb" rect="0 0 550 700" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="false"/>
+		<!-- title -->
+		<groupbox name="gb_title" rect="0 0 550 61" margin="0 0 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="ps_title_green"/>
+		<button name="btn_close" parent="gb_title" rect="0 0 44 44" margin="0 18 27 0" layout_gravity="right top" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}" LBtnUpScp="PILGRIM_TRIBULATION_INDUNINFO_CLOSE"/>
+		<button name="btn_help" parent="gb_title" rect="0 0 44 44" margin="27 18 0 0" layout_gravity="left top" image="testquesten_button" texttooltip="{@st59}현재 시즌의 시련 정보를 확인할 수 있습니다." LBtnUpScp=""/>
+		<richtext name="title" parent="gb_title" rect="0 0 550 40" margin="0 3 0 0" layout_gravity="center center" caption="{@st41}{s20}시련 정보" hittest="false"/>
+		<!-- main -->
+		<groupbox name="gb_main" parent="gb" rect="0 0 525 690" margin="0 5 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" skin="indun_skin"/>
+		<!-- tribulation -->
+		<groupbox name="gb_tribulation" parent="gb_main" rect="0 0 500 560" margin="15 55 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" draw="true" skin="tribal_frame2"/>
+		<!-- category info -->		
+		<groupbox name="gb_category_title" parent="gb_tribulation" rect="0 0 500 60" margin="0 0 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" draw="false"/>
+		<groupbox name="gb_category_name" parent="gb_category_title" rect="0 0 490 50" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="tribal_title_dark" scrollbar="false"/>
+		<richtext name="text_category_name" parent="gb_category_name" rect="0 0 490 30" margin="0 0 0 0" layout_gravity="center center" textalign="center center" format="{@ps1_1}{s18}%s" param1="title" param1_def="카테고리 이름"/>
+		<button name="btn_category_down" parent="gb_category_title" rect="0 0 10 20" margin="-205 15 0 0" layout_gravity="center top" image="tribal_btn_levelDown" stretch="true" oversound="button_over" LBtnUpScp="ON_PILGRIM_TRIBULATION_INDUNINFO_CATEGORY_PREV" texttooltip="이전"/>
+		<button name="btn_category_up" parent="gb_category_title" rect="0 0 10 20" margin="205 15 0 0" layout_gravity="center top" image="tribal_btn_levelUp" stretch="true" oversound="button_over" LBtnUpScp="ON_PILGRIM_TRIBULATION_INDUNINFO_CATEGORY_NEXT" texttooltip="다음"/>
+		<!-- tribulation info -->
+		<groupbox name="gb_tribulation_info" parent="gb_tribulation" rect="0 0 500 560" margin="0 60 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" draw="false"/>
+		<!-- tribulation detail -->
+		<groupbox name="gb_tribulation_detail" parent="gb_tribulation_info" rect="0 0 490 100" margin="0 0 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" draw="true" skin="tribal_frame4"/>
+		<picture name="pic_tribulation_icon" parent="gb_tribulation_detail" rect="0 0 80 80" margin="13 0 0 0" layout_gravity="left center" image="tribal_levelframe_L04" stretch="true" hittestbox="false"/>
+		<picture name="pic_line" parent="gb_tribulation_detail" rect="0 0 1 76" margin="105 0 0 0" layout_gravity="left center" image="tribal_line" stretch="true" hittestbox="false"/>
+		<richtext name="text_desc" parent="gb_tribulation_detail" rect="0 0 250 90" margin="120 10 0 0" layout_gravity="left top" textalign="left top" fixwidth="true" fontname="white_16_b" format="%s" param1="desc" param1_def="시련 정보를 선택해주세요 ."/>
+		<!-- tribulation list -->
+		<groupbox name="gb_tribulation_list" parent="gb_tribulation_info" rect="0 0 490 390" margin="0 105 0 0" layout_gravity="center top" hittestbox="false" scrollbar="true" draw="true" skin="tribal_frame4"/>
+		<!-- bottom -->
+		<groupbox name="gb_bottom" parent="gb_main" rect="0 0 500 50" margin="15 0 0 25" layout_gravity="left bottom" hittestbox="false" scrollbar="false" draw="true" skin="tribal_title_dark"/>
+		<picture name="pic_rank_icon" parent="gb_bottom" rect="0 0 32 32" margin="0 10 0 0" layout_gravity="center top" image="tribal_icon_level_04" stretch="true" hittestbox="false"/>
+		<button name="btn_rank_down" parent="gb_bottom" rect="0 0 10 20" margin="-35 10 0 0" layout_gravity="center top" image="tribal_btn_levelDown" stretch="true" oversound="button_over" LBtnUpScp="ON_PILGRIM_TRIBULATION_INDUNINFO_RANK_DOWN" texttooltip="시련 랭크 레벨을 낮춥니다."/>
+		<button name="btn_rank_up" parent="gb_bottom" rect="0 0 10 20" margin="35 10 0 0" layout_gravity="center top" image="tribal_btn_levelUp" stretch="true" oversound="button_over" LBtnUpScp="ON_PILGRIM_TRIBULATION_INDUNINFO_RANK_UP" texttooltip="시련 랭크 레벨을 올립니다."/>
+	</controls>
+</uiframe>

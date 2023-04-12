@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="pilgrim_selected_tribulation_board" x="0" y="0" width="253" height="80" create="open">
+	<frame layout_gravity="right top" margin="0 340 80 0"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<layer layerlevel="50"/>
+	<draw drawtitlebar="false"/>
+	<skin frameskin="black_box_op20"/>
+	<option visible="false" closebutton="false" piptype="right" autoopen="true" hideable="false"/>
+	<userconfig/>
+	<controls>
+		<groupbox name="gb" rect="0 0 253 80" margin="0 0 0 0" layout_gravity="left top" draw="false" skin="None" hittestbox="false"/>
+		<richtext name="daed_count_text" rect="0 0 20 20" margin="5 55 0 0" layout_gravity="right top" format="{@st100red_16}%s" param1="value" param1_def="사망 횟수 : 0"/>
+	</controls>
+</uiframe>
