@@ -1,5 +1,9 @@
 tree of saviorのアドオンです
 
+ipfファイルがmuteki2exだとアドオンマネージャーに干渉するっぽいので名前変えました。
+
+使う時は　_nori_muteki2ex-⛄-v1.2.7nori1.0.1.ipf　を　_muteki2ex-⛄-v1.2.7nori1.0.1.ipf　に名前変えてください
+
 既存のmuteki2exにオーバーロードのCDを表す白いゲージを付けただけ
 
 魔剣の使用で残り時間がバグるのを修正してます。
