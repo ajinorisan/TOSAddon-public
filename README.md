@@ -1,4 +1,4 @@
-## TOSaddon
+## tosaddon
 ## Tree of savior addon
 
 ### dungeonrpcharger
@@ -39,6 +39,8 @@ Special thanks to menimaniさん
 ### klcount
 
 EP14.15マップで敵を倒した数をカウントします。正確な効率が測れるかも。
+
+https://github.com/ajinorisan/TOSAddon-public/blob/main/klcount/README.md
 
 Special thanks to menimaniさん
 
