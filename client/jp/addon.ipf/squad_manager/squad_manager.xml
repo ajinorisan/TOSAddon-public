@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="squad_manager" x="0" y="0" width="1363" height="802" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame titlepos="0 0" layout_gravity="center center" margin="60 -50 0 0" fasthide="true"/>
+	<layer layerlevel="92"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<option closebutton="false" hideable="true"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<script OpenScp="SQUAD_MANAGER_FRAME_OPEN" CloseScp=""/>
+	<controls>
+		<groupbox name="bgBox" rect="0 0 1363 802" margin="0 0 0 0" layout_gravity="left top" skin="relic_frame_bg" hittestbox="false"/>
+		<groupbox name="headerBox" rect="0 0 1365 61" margin="0 0 0 0" layout_gravity="left top" skin="ps_title_green" hittestbox="false"/>
+		<richtext name="headerText" rect="0 0 600 50" margin="0 15 0 0" layout_gravity="center top" caption="{@st43b}{s24}순례자 정보{/} " hittest="false"/>
+		<button name="close" rect="0 0 50 50" margin="0 20 28 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="SQUAD_MANAGER_FRAME_CLOSE()" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}순례자를 종료합니다{/}"/>
+		<groupbox name="basebg" rect="0 0 1339 725" margin="0 65 0 0" layout_gravity="center top" skin="ps_frame3" hittest="true"/>
+		<button name="contents_button" parent="basebg" image="ps_searchUIBtn" rect="0 0 52 52" margin="300 1 0 0" layout_gravity="left top" draw="true" textoffset="0 0" LBtnUpScp="CONTENTSLIST_OPEN"/>
+		<richtext name="content_text" parent="basebg" rect="0 0 290 54" margin="10 0 0 0" layout_gravity="left top" fixheight="true" fixwidth="true" format="{@ps2}{s16}%s{/}" param1="value" param1_def="여신의 전언 익스트림" textalign="left center" hittest="false"/>
+		<groupbox name="member_box" rect="0 0 350 671" margin="12 118 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyresolution="false" scrollbar="true" skin="ps_frame4"/>
+		<groupbox name="gradient_gb" parent="member_box" rect="0 0 156 28" margin="0 2 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyresolution="false" scrollbar="true" skin="ps_gradient"/>
+		<richtext name="content_text" parent="gradient_gb" rect="0 0 156 28" margin="4 0 0 0" layout_gravity="left top" fixheight="true" fixwidth="true" caption="{img current_group_mark 16 16}{@ps1_1}{s16} 현재 그룹" textalign="left center" hittest="false"/>
+		<richtext name="squad_curName" parent="member_box" margin="0 6 1 0" rect="0 0 185 40" format="{@ps2}{s16}%s" param1="name" param1_def="그룹 이름" textalign="right center" layout_gravity="right top"/>
+		<groupbox name="memberinfo_box" rect="0 0 350 520" parent="member_box" margin="0 33 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyresolution="false"/>
+		<button name="disband_btn" rect="0 0 160 56" parent="member_box" margin="-84 0 0 5" layout_gravity="center bottom" skin="hero_btn_green2" format="{s16}%s" textoffset="0 0" param1="text" param1_def="해제하기" fontname="white_16_ol" LBtnUpScp="SQUAD_MANAGER_DISBAND_SQUAD"/>
+		<button name="leave_btn" rect="0 0 160 56" parent="member_box" margin="84 0 0 5" layout_gravity="center bottom" skin="test_gray_button" format="{s16}%s" textoffset="0 0" param1="text" param1_def="탈퇴하기" fontname="white_16_ol" LBtnUpScp="SQUAD_MANAGER_LEAVE_SQUAD"/>
+		<button name="create_btn" rect="0 0 160 56" parent="member_box" margin="0 0 0 5" layout_gravity="center bottom" skin="relic_btn_purple" format="{s16}%s" textoffset="0 0" param1="text" param1_def="그룹 생성" fontname="white_16_ol" LBtnUpScp="SQUAD_MANAGER_CREATE_SQUAD"/>
+		<groupbox name="rankingBox" rect="0 0 989 588" margin="0 117 12 0" layout_gravity="right top" draw="true" hittestbox="false" resizebyresolution="false" scrollbar="true" skin="ps_frame1"/>
+		<groupbox name="score_top" margin="0 4 0 0" rect="0 0 985 35" parent="rankingBox" layout_gravity="center top" skin="ps_ranking_bar"/>
+		<richtext name="rank" margin="50 1 0 0" rect="0 0 120 30" parent="score_top" caption="{@st202}{s16}순위{/}" textalign="center center" layout_gravity="left center"/>
+		<richtext name="squad_name" margin="250 1 0 0" rect="0 0 120 30" parent="score_top" caption="{@st202}{s16}그룹 명{/}" textalign="center center" layout_gravity="left center"/>
+		<richtext name="play_time" margin="0 1 400 0" rect="0 0 120 30" parent="score_top" caption="{@st202}{s16}플레이 시간{/}" textalign="center center" layout_gravity="right center"/>
+		<richtext name="tribuation" margin="0 1 150 0" rect="0 0 120 30" parent="score_top" caption="{@st202}{s16}시련 단계{/}" textalign="center center" layout_gravity="right center"/>
+		<groupbox name="rank_info_box" rect="0 0 990 524" margin="0 156 10 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyresolution="false" scrollbar="true" skin="" ScrollScp="SQUAD_MANAGER_GET_RANK_LIST_BY_SCROLL"/>
+		<groupbox name="rank_record_box" rect="0 0 985 20" margin="0 176 14 100" layout_gravity="right bottom" draw="true" hittestbox="false" resizebyresolution="false" scrollbar="true" skin="ps_ranking_bar"/>
+		<richtext name="play_record_text" parent="rank_record_box" rect="0 0 300 24" margin="10 0 0 0" layout_gravity="center center" caption="{@ps2}{s14}플레이 기록" fontname="white_16_ol" fixwidth="false" resizebytext="true" hittest="true" textalign="left center" texttooltip="해당 시즌의 플레이 기록이 존재할 경우,{nl}현재 그룹의 해당 시즌 최고 기록이 표시됩니다."/>
+
+		<groupbox name="rank_my_info_box" rect="0 0 984 80" margin="0 0 15 15" layout_gravity="right bottom" draw="true" hittestbox="false" resizebyresolution="false" scrollbar="true" skin="pilgrim_myranking"/>
+		<picture name="rank_icon" parent="rank_my_info_box" rect="0 0 72 54" margin="31 0 0 0" layout_gravity="left center" stretch="true" hittest="false" image=""/>
+		<richtext name="rank_text" rect="0 0 24 24" margin="0 0 0 0" parent="rank_icon" layout_gravity="center center" format="{@42b}{s17}%s" param1="rank" param1_def="-" fontname="white_16_ol" fixwidth="false" resizebytext="true" hittest="false" textalign="center center"/>
+		<richtext name="rank_group_text" parent="rank_my_info_box" rect="0 0 300 24" margin="128 0 0 0" layout_gravity="left center" format="{@42b}{s17}%s" param1="name" param1_def="그룹명" fontname="white_16_ol" fixwidth="true" resizebytext="false" hittest="false" textalign="center center"/>
+		<richtext name="rank_time_text" parent="rank_my_info_box" rect="0 0 300 24" margin="54 0 0 0" layout_gravity="center center" format="{@42b}{s17}%s" param1="time" param1_def="-- : -- : --" fontname="white_16_ol" fixwidth="true" resizebytext="false" hittest="false" textalign="center center"/>
+		<richtext name="rank_score_text" parent="rank_my_info_box" rect="0 0 150 24" margin="0 0 112 0" layout_gravity="right center" format="{@42b}{s17}%s" param1="score" param1_def="-" fontname="white_16_ol" fixwidth="true" resizebytext="false" hittest="false" textalign="center center"/>
+		
+		<button name="rank_reward" parent="rank_my_info_box" rect="0 0 50 50" margin="0 0 25 0" layout_gravity="right center" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" image="pilgrim_reward_gain" oversound="button_over" LBtnDownScp="SQUAD_MANAGER_REQUEST_REWARD"/>
+		<groupbox name="season_line" margin="0 112 12 0" rect="0 0 984 3" layout_gravity="right top" skin="pilgrim_tab_line"/>
+		<tab name="season_tab" rect="0 0 984 52" margin="364 72 0 0" itemspc="0" layout_gravity="left top" vertical="false" LBtnDownScp="SQUAD_MANAGER_SEASON_SELECT" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_7" fixwidth="true" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="season_tab1" parent="season_tab" caption="" fontname="white_18_ol" width="52" layout_gravity="left top" normalimage="pilgrim_tab_btn" overimage="pilgrim_tab_btn_cursoron" selectimage="pilgrim_tab_btn_clicked"/>
+		<tabitem name="season_tab2" parent="season_tab" caption="" fontname="white_18_ol" width="52" layout_gravity="left top" normalimage="pilgrim_tab_btn" overimage="pilgrim_tab_btn_cursoron" selectimage="pilgrim_tab_btn_clicked"/>
+		<tabitem name="season_tab3" parent="season_tab" caption="" fontname="white_18_ol" width="52" layout_gravity="left top" normalimage="pilgrim_tab_btn" overimage="pilgrim_tab_btn_cursoron" selectimage="pilgrim_tab_btn_clicked"/>
+		<tabitem name="season_tab4" parent="season_tab" caption="" fontname="white_18_ol" width="52" layout_gravity="left top" normalimage="pilgrim_tab_btn" overimage="pilgrim_tab_btn_cursoron" selectimage="pilgrim_tab_btn_clicked"/>
+		<richtext name="season_text" rect="0 0 300 24" margin="0 75 20 0" layout_gravity="right top" format="{@42b}{s14}랭킹 기간{nl}%s ~ %s" param1="start" param1_def="2022-01-01" param2="end" param2_def="2022-01-01" fontname="white_16_ol" fixwidth="false" resizebytext="true" hittest="true" textalign="left center"/>
+
+	</controls>
+</uiframe>
