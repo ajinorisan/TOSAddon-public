@@ -5,7 +5,7 @@
 		"fileVersion" : "v1.0.2",
 		"releaseTag" : "klcount",
 		"unicode" : "⛄",
-		"description" : "EP14.15地域で倒したモンスターをカウント",
+		"description" : "EP14.15地域で倒したモンスターをカウント Counting monsters defeated in the EP14.15 region EP14.15 지역에서 처치한 몬스터를 세어보세요.",
 		"tags" : []
 	},
  
@@ -16,7 +16,7 @@
 		"fileVersion" : "v1.0.5",
 		"releaseTag" : "gtsysmsg",
 		"unicode" : "⛄",
-		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。",
+		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。 When a follower appears, you will be notified by the system chat and the Nico Nico chat. A sound will also be played.  팔로워가 생기면 시스템 채팅과 니코니코챗으로 알려줘요. 소리도 울려요.",
 		"tags" : []
 	},
  {
@@ -26,7 +26,7 @@
 		"fileVersion" : "v2.0.0",
 		"releaseTag" : "easybuff",
 		"unicode" : "⛄",
-		"description" : "Kiicchan様作成のeasybuffを改造しました。装備メンテを自動付与。食事バフの見直し",
+		"description" : "Kiicchan様作成のeasybuffを改造しました。装備メンテを自動付与。食事バフの見直し Modified easybuff. Automatic granting of equipment maintenance. Revised meal buffs. easybuff를 개조했습니다. 장비 유지 보수 자동 부여. 식사 버프 개편 ",
 		"tags" : [
 		           "buff"
 		]
