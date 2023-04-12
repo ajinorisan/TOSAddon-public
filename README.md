@@ -4,13 +4,13 @@
 
 自動補充するエクトナイトをコイン交換のタイプに変更
 
+Ectonite that automatically refills is changed to a coin-operated type.
+
 The author of this addon is meldavyさん
 
 ----
 
-### easybuff-アドオンマネージャーに追加
-
-~~画面左上に食事バフを消すボタンを付けました。シャンパン呑まないのは仕様です。~~
+### easybuff-アドオンマネージャーに追加-Add to Add-on Manager
 
 v2.0.0系で色々見直しました。詳しくはREADME.md参照
 
@@ -21,13 +21,14 @@ The author of this addon is Kiicchanさん
 ### muteki2ex
 
 既存の動作にオーバーロードレイドのクールダウンゲージを付けました。色は選べません。
-セッティングファイル抜けていたので修正しました。
+
+Overload Raid cooldown gauge attached to existing operation. Color is not selectable.
 
 The author of this addon is WRITさん
 
 ----
 
-### gtsysmsg-アドオンマネージャーに追加
+### gtsysmsg-アドオンマネージャーに追加-Add to Add-on Manager
 
 追従者の出現時間をシステムチャットとニコニコ風チャットに出力。放置してても見逃さない。
 
@@ -35,7 +36,7 @@ Special thanks to menimaniさん
 
 ----
 
-### klcount-アドオンマネージャーに追加
+### klcount-アドオンマネージャーに追加-Add to Add-on Manager
 
 EP14.15マップで敵を倒した数をカウントします。正確な効率が測れるかも。
 
