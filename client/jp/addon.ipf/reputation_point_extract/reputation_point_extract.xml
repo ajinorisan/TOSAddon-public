@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="reputation_point_extract" x="0" y="0" width="470" height="1000">
+	<draw drawtitlebar="false"/>
+	<frame fasthide="true" layout_gravity="left top" margin="530 5 0 0"/>
+	<layer layerlevel="102"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<script OpenScp="OPEN_REPUTATION_POINT_EXTRACT" CloseScp="CLOSE_REPUTATION_POINT_EXTRACT"/>
+	<userconfig DEFAULT_ROW="5"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 470 1000" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="test_frame_low"/>
+		<groupbox name="pip" rect="0 0 470 130" margin="0 -5 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="test_frame_top"/>
+		<groupbox name="ingredientGbox" rect="0 0 450 310" margin="10 100 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="false" skin="None"/>
+		<groupbox name="materialInfoGbox" rect="0 0 420 280" margin="0 430 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="test_frame_midle"/>
+		<groupbox name="point_gb" rect="0 0 420 170" margin="0 740 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="test_frame_midle"/>
+		<picture name="question" rect="0 0 44 44" margin="27 17 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="{@st59}구호 물품 또는 주요 재화를 증여하여 명성도를 올릴 수 있습니다.{/}{nl}　{nl}주요 재화 교환 정보{nl}  - 그을린 텔하르샤의 의장품 : 20{nl}  - 정제된 글레이시어의 심장 : 20{nl}  - 정제된 모스 탈크 파우더 : 20{nl}  - 브리키나이트 : 5{nl}  - 마정석 : 5{nl}  - 신비한 서 낱장 : 5{nl}  - 프락토늄 : 5{nl}  - 여신의 축복석 : 5{nl}  - [이벤트] 명성 증가 쿠폰 : 5 : 5{nl}  - [하우징공방] 명성 증가 쿠폰 : 5 : 5"/>
+		<tab name="material_tab" margin="0 60 0 0" rect="0 0 400 40" layout_gravity="center top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" LBtnDownScp="REPUTATION_POINT_EXTRACT_INIT" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="tab_material" parent="material_tab" width="200" caption="{@st66b}주요 재화{/}" layout_gravity="left top"/>
+		<tabitem name="tab_relief" parent="material_tab" width="200" caption="{@st66b}구호 물품{/}" layout_gravity="left top"/>
+		<slotset name="slotlist" parent="ingredientGbox" rect="0 0 360 0" margin="0 0 0 0" layout_gravity="center top" LBtnDownScp="REPUTATION_POINT_EXTRACT_ITEM_CLICK" LBtnDblClickScp="REPUTATION_POINT_EXTRACT_ITEM_CLICK" RBtnDownScp="REPUTATION_POINT_EXTRACT_ITEM_CLICK" col="7" row="5" cursoronresize="false" enabledrag="false" enableselect="true" hideindrag="true" maxselect="80" movepop="false" oversound="button_over" picksound="icon_pick_up" dropsound="icon_get_down" selectmode="count" size="58 58" image="slot" skin="invenslot2" spc="1 1"/>
+		<richtext name="title" rect="0 0 100 30" margin="0 11 0 0" layout_gravity="center top" caption="{@st43}구호 물품 조달{/}" hittest="false"/>
+		<richtext name="totalPoint" rect="0 0 420 30" margin="5 -40 0 0" layout_gravity="left center" parent="point_gb" format="{@st41b}현재 포인트: %s {#ffff00}/ MAX : %s{/}{/}" param1="value" param2="max"/>
+		<richtext name="addPoint" rect="0 0 420 30" margin="5 0 0 0" layout_gravity="left center" parent="point_gb" format="{@st41b}획득 포인트: %s{/}" param1="value"/>
+		<richtext name="afterPoint" rect="0 0 420 30" margin="5 40 0 0" layout_gravity="left center" parent="point_gb" format="{@st41b}증여 후 포인트: %s {#ffff00}/ MAX : %s{/}{/}" param1="value" param2="max"/>
+		<button name="close" rect="-10 0 44 44" margin="0 15 17 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('reputation_point_extract')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" oversound="button_over" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<button name="repairBtn" rect="0 0 160 55" margin="0 0 0 20" layout_gravity="center bottom" LBtnUpScp="REPUTATION_POINT_EXTRACT_EXEC" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}증여{/}" clicksound="button_click_stats_OK" oversound="button_over" skin="test_red_button"/>
+	</controls>
+</uiframe>

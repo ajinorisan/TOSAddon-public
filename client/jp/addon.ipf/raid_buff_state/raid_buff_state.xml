@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="raid_buff_state" x="0" y="0" width="100" height="100" create="open" layout_gravity="center center">
+	<draw drawframe="false" drawtitlebar="false"/>
+	<frame layout_gravity="right top" margin="0 30 420 0"/>
+	<input moveable="false"/>
+	<layer layerlevel="35"/>
+	<option visible="true" closebutton="false" piptype="right" autoopen="true" hideable="false"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 100 100" margin="0 0 0 0" layout_gravity="center top" draw="false" scrollbar="false"/>
+		<picture name="pic" rect="0 0 100 100" parent="bg" margin="0 0 0 0" layout_gravity="center top" image="epicraid_icon_eye1" stretch="true"/>
+	</controls>
+</uiframe>

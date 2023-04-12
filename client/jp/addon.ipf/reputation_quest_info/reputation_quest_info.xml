@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="reputation_quest_info" x="0" y="0" width="534" height="850">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame fullheight="false" fasthide="true" layout_gravity="left top" margin="500 0 0 0"/>
+	<input moveable="true" hittestframe="true"/>
+	<layer layerlevel="102"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<script OpenScp="REPUTATION_QUEST_INFO_OPEN" CloseScp="REPUTATION_QUEST_INFO_CLOSE"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 534 850" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="test_frame_low"/>
+		<groupbox name="title" rect="0 0 534 45" margin="0 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="quest_frame_top"/>
+		<groupbox name="bg_sub_1" rect="0 0 498 242" margin="0 100 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="quest_frame_main"/>
+		<groupbox name="bg_sub_2" rect="0 0 498 242" margin="0 345 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="quest_frame_main"/>
+		<groupbox name="bg_sub_3" rect="0 0 498 242" margin="0 590 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="quest_frame_main"/>
+		<groupbox name="bg_sub_1_1" parent="bg_sub_1" rect="0 0 480 166" margin="0 52 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="pvp_Team_skin"/>
+		<groupbox name="bg_sub_weekly" parent="bg_sub_1_1" rect="0 0 480 174" margin="2 2 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="None"/>
+		<groupbox name="bg_sub_2_1" parent="bg_sub_2" rect="0 0 480 166" margin="0 52 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="pvp_Team_skin"/>
+		<groupbox name="bg_sub_daily" parent="bg_sub_2_1" rect="0 0 480 174" margin="2 2 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="None"/>
+		<groupbox name="bg_sub_3_1" parent="bg_sub_3" rect="0 0 480 166" margin="0 52 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="pvp_Team_skin"/>
+		<groupbox name="bg_sub_rep" parent="bg_sub_3_1" rect="0 0 480 174" margin="2 2 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="None"/>
+		<richtext name="title_text" parent="title" rect="0 0 200 24" margin="0 -2 0 0" layout_gravity="center center" textalign="center center" fontname="white_20_ol_ds" format="명성 퀘스트 진행 현황" hittest="false"/>
+		<richtext name="sub_title_text_1" parent="bg_sub_1" rect="0 0 200 24" margin="0 16 0 0" layout_gravity="center top" textalign="center center" fontname="white_20_ol_ds" format="주간 퀘스트" hittest="false"/>
+		<richtext name="sub_title_text_2" parent="bg_sub_2" rect="0 0 200 24" margin="0 16 0 0" layout_gravity="center top" textalign="center center" fontname="white_20_ol_ds" format="일일 퀘스트" hittest="false"/>
+		<richtext name="sub_title_text_3" parent="bg_sub_3" rect="0 0 200 24" margin="0 16 0 0" layout_gravity="center top" textalign="center center" fontname="white_20_ol_ds" format="반복 퀘스트" hittest="false"/>
+		<button name="close_btn" rect="0 0 34 34" margin="0 13 5 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('reputation_quest_info')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" oversound="button_over" image="testclose_button" texttooltip="{@st59}창을 닫습니다.{/}"/>
+		<picture name="info_btn" rect="0 0 34 34" margin="5 13 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" oversound="button_over" image="testquesten_button" texttooltip="{@st59}팀의 명성 퀘스트 진행 현황을 확인할 수 있습니다.{nl}　{nl}주간/일일 퀘스트는 여러 캐릭터로 진행하더라도 퀘스트를 완료한 캐릭터가 있다면 초기화가 될 때까지 다른 캐릭터로 진행할 수 없습니다.{/}"/>
+		<picture name="sub_info_btn_1" parent="bg_sub_1" rect="0 0 30 30" margin="0 13 10 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" oversound="button_over" image="quest_Qmark_btn" texttooltip="{@st59}주간 퀘스트는 매주 월요일 오전 06:00에 초기화됩니다.{nl}주간 퀘스트는 완료 여부와 상관없이 초기화되며 매주 2개의 퀘스트가 무작위로 선정됩니다.{/}"/>
+		<picture name="sub_info_btn_2" parent="bg_sub_2" rect="0 0 30 30" margin="0 13 10 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" oversound="button_over" image="quest_Qmark_btn" texttooltip="{@st59}일일 퀘스트는 완료된 퀘스트에 한하여 매일 오전 06:00에 초기화됩니다.{nl}초기화 이전에 완료하지 않은 일일 퀘스트는 다음 날로 이관됩니다.{/}"/>
+		<picture name="sub_info_btn_3" parent="bg_sub_3" rect="0 0 30 30" margin="0 13 10 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" oversound="button_over" image="quest_Qmark_btn" texttooltip="{@st59}반복 퀘스트는 초기화 되지 않으며 횟수 제한 없이 이용할 수 있습니다.{nl}반복 퀘스트는 1개의 퀘스트만 선택해 진행할 수 있으니 신중히 진행해야 합니다.{/}"/>
+		<droplist name="episode_droplist" rect="0 0 172 36" margin="0 60 20 0" layout_gravity="right top" SelectScp="" frametextalign="left" font="{@st104bright_14}{s16}" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal4" textalign="left center" textoffset="10 0" visibleline="10"/>
+	</controls>
+</uiframe>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="reputation_trade_coin" x="0" y="0" width="470" height="520">
+	<draw drawtitlebar="false"/>
+	<frame fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<layer layerlevel="102"/>
+	<option closebutton="false"/>
+	<input moveable="true" hittestframe="true"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<script OpenScp="REPUTATION_TRADE_COIN_INIT" CloseScp="CLOSE_REPUTATION_TRADE_COIN"/>
+	<userconfig DEFAULT_ROW="5"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 470 520" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="test_frame_low"/>
+		<groupbox name="pip" rect="0 0 470 130" margin="0 -5 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="test_frame_top"/>
+		<groupbox name="ingredientGbox" rect="0 0 450 310" margin="10 60 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="false" skin="None"/>
+		<groupbox name="point_gb" rect="0 0 413 50" margin="0 376 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="test_frame_midle"/>
+		<slotset name="slotlist" parent="ingredientGbox" rect="0 0 360 0" margin="0 0 0 0" layout_gravity="center top" LBtnDownScp="REPUTATION_TRADE_COIN_ITEM_CLICK" LBtnDblClickScp="REPUTATION_TRADE_COIN_ITEM_CLICK" RBtnDownScp="REPUTATION_TRADE_COIN_ITEM_CLICK" col="7" row="5" cursoronresize="false" enabledrag="false" enableselect="true" hideindrag="true" maxselect="80" movepop="false" oversound="button_over" picksound="icon_pick_up" dropsound="icon_get_down" selectmode="count" size="58 58" image="slot" skin="invenslot2" spc="1 1"/>
+		<richtext name="title" rect="0 0 100 30" margin="0 11 0 0" layout_gravity="center top" caption="{@st43}구호 물품 판매{/}" hittest="false"/>
+		<richtext name="addPoint" rect="0 0 420 30" margin="5 0 0 0" layout_gravity="right center" parent="point_gb" format="{@st41b}{#FFFF00} + %s{/}{/} {img icon_item_Reputation_coin_01 40 40}" param1="value"/>
+		<button name="close" rect="-10 0 44 44" margin="0 15 17 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('reputation_trade_coin')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" oversound="button_over" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<button name="sellBtn" rect="0 0 160 55" margin="0 0 0 20" layout_gravity="center bottom" LBtnUpScp="REPUTATION_TRADE_COIN_REQUEST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}판매{/}" clicksound="button_click_stats_OK" oversound="button_over" skin="test_red_button"/>
+	</controls>
+</uiframe>

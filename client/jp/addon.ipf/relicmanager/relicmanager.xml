@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="relicmanager" x="0" y="0" width="500" height="760">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false"/>
+	<input maxwidth="1280" moveable="true" hittestframe="true"/>
+	<option closebutton="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<layer layerlevel="92" topmostlayerbyclick="true"/>
+	<script OpenScp="RELICMANAGER_OPEN" CloseScp="RELICMANAGER_CLOSE"/>
+	<userconfig RELEASE_RESULT_SOUND="sys_transcend_success" RELEASE_SUCCESS_SOUND="sys_transcend_success"/>
+	<controls>
+		<!-- 상단 -->
+		<groupbox name="bg" rect="0 0 448 694" margin="0 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_low"/>
+		<groupbox name="bg_inner" parent="bg" rect="0 0 424 584" margin="0 97 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg"/>
+		<groupbox name="relicmanager_top" rect="0 0 477 76" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="relic_frame_top" stretch="true"/>
+		<richtext name="title" rect="0 0 120 24" margin="0 23 0 0" layout_gravity="center top" drawbackground="false" fixwidth="false" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" caption="{@st44}{s22}성물{/}{/}"/>
+		<button name="close" rect="0 0 35 35" margin="0 20 0 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="RELICMANAGER_CLOSE" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="help" rect="0 0 35 35" margin="0 20 0 0" layout_gravity="left top" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" image="testquesten_button" texttooltip="{@st201}[마력 충전]{/}{/} {@st66d_y}{s17}엑토나이트{/}{/}를 소비하여 마력(RP)을 회복합니다. {nl}{@st201}[경험치]{/}{/} {@st66d_y}{s17}정화된 권능의 숨결{/}{/}을 소비하여 성물의 경험치를 올립니다.{nl}{@st201}[소켓]{/}{/} 성물에{@st66d_y}{s17}성물 젬{/}{/}을 장착/해제 할 수 있습니다."/>
+		<tab name="type_Tab" parent="bg" margin="0 63 0 0" rect="0 0 414 38" layout_gravity="center top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" LBtnUpScp="RELICMANAGER_TAB_CHANGE" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="tab_charge" parent="type_Tab" width="138" caption="{@st66b}마력 충전{/}" texttooltip="{@st59}마력 충전{/}" layout_gravity="left top" normalimage="relic_btn_tab_cursoron" overimage="relic_btn_tab" selectimage="relic_btn_tab_clicked"/>
+		<tabitem name="tab_exp" parent="type_Tab" width="138" caption="{@st66b}경험치{/}" texttooltip="{@st59}경험치 증가{/}" layout_gravity="left top" normalimage="relic_btn_tab_cursoron" overimage="relic_btn_tab" selectimage="relic_btn_tab_clicked"/>
+		<tabitem name="tab_socket" parent="type_Tab" width="138" caption="{@st66b}소켓{/}" texttooltip="{@st59}소켓 관리{/}" layout_gravity="left top" normalimage="relic_btn_tab_cursoron" overimage="relic_btn_tab" selectimage="relic_btn_tab_clicked"/>
+		<groupbox name="relic_gb" rect="0 0 424 210" margin="0 107 0 0" layout_gravity="center top" draw="false" hittestbox="true"/>
+		<richtext name="relic_name" parent="relic_gb" rect="0 0 30 24" margin="0 20 0 0" layout_gravity="center top" format="{@sti1c}{s18}%s{/}{/}" param1="value" param1_def="아이템을 올려주세요" resizebytext="true" textalign="left center"/>
+		<picture name="relic_slot_bg" parent="relic_gb" rect="0 0 128 146" margin="0 50 0 0" layout_gravity="center top" image="relic_item_frame" stretch="true"/>
+		<slot name="relic_slot" parent="relic_slot_bg" rect="0 0 128 128" margin="0 0 0 0" layout_gravity="center center" changecursor="false" hittestbox="false" skin="None" draw="false" enabledrag="false" enabledrop="false"/>
+		<!-- 마력 충전 -->
+		<groupbox name="chargeBg" parent="bg" rect="0 0 424 374" margin="0 307 0 0" layout_gravity="center top" draw="false" hittestbox="false" tabname="tab_charge" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg"/>
+		<richtext name="charge_title" parent="chargeBg" rect="0 0 50 24" margin="0 20 0 0" layout_gravity="center top" format="{@st202}{s16}%s{/}{/}" param1="value" param1_def="소모 아이템" resizebytext="true" textalign="left center"/>
+		<controlset name="charge_mat_ctrl" parent="chargeBg" rect="0 0 378 88" margin="0 50 0 0" type="relicmanager_charge_material" layout_gravity="center top" hittestbox="true" scrollbar="false" skin="None"/>
+		<groupbox name="rp_gauge_gb" parent="chargeBg" rect="0 0 424 30" margin="0 155 0 0" layout_gravity="center top" draw="false" hittestbox="true" scrollbar="false"/>
+		<richtext name="rp_text" parent="rp_gauge_gb" rect="0 0 400 24" margin="23 5 0 0" layout_gravity="left top" format="{@st202}{s16}%s{/}{/}" param1="value" param1_def="마력" resizebytext="true" textalign="left center"/>
+		<gauge name="rp_gauge" parent="rp_gauge_gb" rect="0 0 204 21" margin="84 5 0 0" layout_gravity="left top" inverse="false" point="50" skin="gauge_vibora_upgrade" text1="{@sti1c}{s14}%v / %m{/}{/}" textalign1="center center" textfont1="white_18_ol" textoffset1="0 -1"/>
+		<richtext name="rp_up_text" parent="rp_gauge_gb" rect="0 0 100 24" margin="0 5 23 0" layout_gravity="right top" format="{@sti1c}{s16}+ {/}{/}{@st204_purple}%s{/}" param1="value" param1_def="0" resizebytext="true" textalign="right center"/>
+		<button name="do_charge" parent="chargeBg" rect="0 0 160 70" margin="0 0 0 50" layout_gravity="center bottom" LBtnUpScp="RELICMANAGER_CHARGE_EXEC" skin="relic_btn_purple" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="마력 충전" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<button name="send_ok_charge" parent="chargeBg" rect="0 0 160 70" margin="0 0 0 50" layout_gravity="center bottom" LBtnUpScp="CLEAR_RELICMANAGER_CHARGE" skin="relic_btn_purple" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="확인" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<!-- 마력 충전 끝 -->
+		<!-- 경험치 -->
+		<groupbox name="expBg" parent="bg" rect="0 0 424 374" margin="0 307 0 0" layout_gravity="center top" draw="false" hittestbox="false" tabname="tab_exp" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg"/>
+		<groupbox name="exp_gauge_gb" parent="expBg" rect="0 0 424 100" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="true" scrollbar="false"/>
+		<richtext name="relic_lv_text" parent="exp_gauge_gb" rect="0 0 400 24" margin="23 5 0 0" layout_gravity="left top" format="{@st202}{s16}%s{/}{/}" param1="value" param1_def="레벨" resizebytext="true" textalign="left center"/>
+		<richtext name="relic_lv" parent="exp_gauge_gb" rect="0 0 50 24" margin="79 5 0 0" layout_gravity="left top" format="{@sti1c}{s16}Lv.{/}{/}{@st204_purple}%s{/}" param1="value" param1_def="1" resizebytext="true" textalign="left center"/>
+		<picture name="relic_lv_arrow" parent="exp_gauge_gb" rect="0 0 35 16" margin="129 7 0 0" layout_gravity="left top" image="relic_arrow" stretch="true"/>
+		<richtext name="relic_lv_up" parent="exp_gauge_gb" rect="0 0 400 24" margin="174 5 0 0" layout_gravity="left top" format="{@sti1c}{s16}Lv.{/}{/}{@st204_purple}%s{/}" param1="value" param1_def="2" resizebytext="true" textalign="left center"/>
+		<richtext name="exp_gauge_text" parent="exp_gauge_gb" rect="0 0 400 24" margin="23 40 0 0" layout_gravity="left top" format="{@st202}{s16}%s{/}{/}" param1="value" param1_def="경험치" resizebytext="true" textalign="left center"/>
+		<gauge name="exp_gauge" parent="exp_gauge_gb" rect="0 0 322 21" margin="79 40 0 0" layout_gravity="left top" inverse="false" point="50" skin="gauge_vibora_upgrade" text1="{@sti1c}{s14}%v / %m{/}{/}" textalign1="center center" textfont1="white_18_ol" textoffset1="0 -1"/>
+		<richtext name="exp_up_text" parent="exp_gauge_gb" rect="0 0 400 24" margin="0 70 23 0" layout_gravity="right top" format="{@sti1c}{s16}+ {/}{/}{@st204_purple}%s{/}" param1="value" param1_def="0" resizebytext="true" textalign="right center"/>
+		<groupbox name="mat_gb" parent="expBg" rect="0 0 424 274" margin="0 100 0 0" layout_gravity="center top" skin="test_frame_midle" draw="false"/>
+		<richtext name="exp_title" parent="mat_gb" rect="0 0 50 24" margin="0 50 0 0" layout_gravity="center top" format="{@st202}{s16}%s{/}{/}" param1="value" param1_def="소모 아이템" resizebytext="true" textalign="left center"/>
+		<controlset name="exp_mat_ctrl" parent="mat_gb" rect="0 0 378 88" margin="0 80 0 0" type="relicmanager_material" layout_gravity="center top" hittestbox="true" scrollbar="false" skin="None"/>
+		<button name="do_exp" parent="expBg" rect="0 0 160 70" margin="0 0 0 20" layout_gravity="center bottom" LBtnUpScp="RELICMANAGER_EXP_EXEC" skin="relic_btn_purple" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="실행" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<button name="send_ok_exp" parent="expBg" rect="0 0 160 70" margin="0 0 0 20" layout_gravity="center bottom" LBtnUpScp="CLEAR_RELICMANAGER_EXP" skin="relic_btn_purple" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="확인" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<!-- 경험치 끝 -->
+		<!-- 소켓 관리 -->
+		<groupbox name="socketBg" parent="bg" rect="0 0 424 374" margin="0 307 0 0" layout_gravity="center top" draw="false" hittestbox="false" tabname="tab_socket" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg"/>
+		<groupbox name="ctrlset_bg" parent="socketBg" rect="0 0 376 350" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true" skin="test_frame_midle"/>
+		<controlset name="cset_0" parent="ctrlset_bg" rect="0 0 376 90" margin="0 7 0 0" type="eachsocket_in_relicmanager" layout_gravity="center top" hittestbox="true" scrollbar="false" skin="None"/>
+		<controlset name="cset_1" parent="ctrlset_bg" rect="0 0 376 90" margin="0 104 0 0" type="eachsocket_in_relicmanager" layout_gravity="center top" hittestbox="true" scrollbar="false" skin="None"/>
+		<controlset name="cset_2" parent="ctrlset_bg" rect="0 0 376 90" margin="0 201 0 0" type="eachsocket_in_relicmanager" layout_gravity="center top" hittestbox="true" scrollbar="false" skin="None"/>
+		<!-- 소켓 관리 끝 -->
+	</controls>
+</uiframe>
