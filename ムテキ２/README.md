@@ -14,4 +14,6 @@ ipfファイルそのまま C:\Program Files (x86)\Steam\steamapps\common\Tree o
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons ここに置くのは muteki2ex って名前のフォルダでおねしゃす。 
 
+元から入れてた人はなんもせんでええと思います。
+
 FFFF0000=赤　FF00FF00=緑　FF0000FF=青　FFDCDCDC=白　FFFF6666=オレンジ
