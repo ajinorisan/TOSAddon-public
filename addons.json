@@ -13,10 +13,10 @@
 		"name" : "GT sysmsg",
 		"file" : "gtsysmsg",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.5",
+		"fileVersion" : "v1.0.6",
 		"releaseTag" : "gtsysmsg",
 		"unicode" : "⛄",
-		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。 When a follower appears, you will be notified by the system chat and the Nico Nico chat. A sound will also be played.  팔로워가 생기면 시스템 채팅과 니코니코챗으로 알려줘요. 소리도 울려요.",
+		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。曲も変わるよ。 When a follower appears, you will be notified by the system chat and the Nico Nico chat. A sound will also be played.  팔로워가 생기면 시스템 채팅과 니코니코챗으로 알려줘요. 소리도 울려요.",
 		"tags" : []
 	},
  {
