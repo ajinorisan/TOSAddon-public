@@ -1,7 +1,7 @@
 local addonName = "GTSYSMSG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -13,7 +13,10 @@ g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc)
 
 local acutil = require("acutil")
 
-  --imcSound.PlaySoundEvent('sys_tp_box_3',nil,true);
+--local msg = "test" 
+    --imcSound.PlaySoundEvent("sys_card_battle_percussion_timpani");
+    --imcSound.PlaySoundEvent('sys_tp_box_4')
+    --imcSound.PlayMusicQueueLocal('colonywar_win')    
 
 function GTSYSMSG_ON_INIT(addon, frame)
     
@@ -27,16 +30,18 @@ function GTSYSMSG_ON_INIT(addon, frame)
     --frame:ShowWindow(0)
 
     acutil.setupHook(GTSYSMSG_ON_MSG, "NOTICE_ON_MSG")
-    addon:RegisterMsg('GAME_START_3SEC', 'GTSYSMSG_ON_MSG')
-    CHAT_SYSTEM("GTSYSMSG_ON_INIT")
+    
+    CHAT_SYSTEM("GTSYSMSG loaded")
 end   
 
 function GTSYSMSG_ON_MSG(frame, msg, argStr, argNum)
+NOTICE_ON_MSG_OLD(frame, msg, argStr, argNum)
     if argStr ~= "None" then
         CHAT_SYSTEM(argStr)
         if string.find(argStr, 'AppearPCMonster{name}') then
             GTSYSMSG_CENTER_MSG(argStr)
             imcSound.PlaySoundEvent('sys_tp_box_4')
+            imcSound.PlayMusicQueueLocal('colonywar_win')
         end
 
         if string.find(argStr, '{name}DisappearPCMonster') then
@@ -46,7 +51,8 @@ function GTSYSMSG_ON_MSG(frame, msg, argStr, argNum)
 
         if string.find(argStr, 'AppearFieldBoss_ep14_2_d_castle_3{name}') then
             GTSYSMSG_CENTER_MSG(argStr)
-            --imcSound.PlaySoundEvent('sys_tp_box_3')
+             --imcSound.PlaySoundEvent('sys_tp_box_4')
+            --imcSound.PlayMusicQueueLocal('colonywar_win')
         end
     end
 end
@@ -54,3 +60,4 @@ end
 function GTSYSMSG_CENTER_MSG(argStr)
     NICO_CHAT(string.format("{@st55_a}%s", argStr))
 end
+
