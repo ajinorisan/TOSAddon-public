@@ -5,3 +5,7 @@ ui.SysMsg("test") 画面真ん中に表示
 ScpArgMsg("active_perfection") ＜パーフェクト＞効果が発動しました が翻訳されて出てくる
 
 BroadMsg(groupName,msg,lifeTime ) BroadMsg(”Party",”test",1.0 ) メッセージを決められた秒数表示し続ける
+
+session.GetMapID() マップIDを取得
+
+
