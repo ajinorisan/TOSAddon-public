@@ -8,4 +8,24 @@ BroadMsg(groupName,msg,lifeTime ) BroadMsg(”Party",”test",1.0 ) メッセー
 
 session.GetMapID() マップIDを取得
 
+local inv_item = session.GetInvItemByGuid(itemID)　インベントリのアイテムのID取得 itemIDはグローバルっぽい？
+
+local item_obj = GetIES(inv_item:GetObject())　IESから探すんか？
+
+local item_cls = GetClassByType('Item', inv_item.type)　アイテムのクラス取得
+
+local pc = GetMyPCObject()　プレイしているかどうか要るか？
+
+TryGetProp()　TryGetProp(オブジェクト,プロパティの値nameとか,取得できなかった時の置き換えNoneとか) エラー回避用っぽい
+
+GET_CHILD_RECURSIVELY(frame, 'slot_bg_image') フレームから子要素を探す
+
+AUTO_CAST(フレーム要素) AUTO_CASTしないと動かないものがあるらしい
+
+local frame = parent:GetTopParentFrame() 関数の引数にparentと持ってるとこれでframeの親要素を取得できるっぽい
+
+local frame = ui.GetFrame(xmlファイルのフレーム名かな基本的には)
+
+frame:GetUserIValue(”整数値”) フレームから整数値を取得出来るっポイ
+
 
