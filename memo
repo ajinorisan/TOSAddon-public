@@ -40,4 +40,20 @@ ETC_20200724_048780	{nl} {nl}使用で獲得したアイテムは元に戻せま
 
 <dic_data ID="ETC_20200724_048780" kr="{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?" IsUse="1" Category="ETC" NpcName="" Filename="xml_lang\clientmessage.xml" FilenameWithKey="xml_lang\clientmessage.xml//CategoryNameItemClassClassID42694269YESSCP_OPEN_BASIC_MSG_Data_0"/>
 
-
+function BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
+	if invItem == nil then
+		return;
+	end
+	
+	local invFrame = ui.GetFrame("inventory");	
+	local itemobj = GetIES(invItem:GetObject());
+	if itemobj == nil then
+		return;
+	end
+	invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
+	
+	local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("YESSCP_OPEN_BASIC_MSG"));
+	ui.MsgBox_NonNested(textmsg, itemobj.Name, 'REQUEST_SUMMON_BOSS_TX', "None");
+	
+	return;
+end
