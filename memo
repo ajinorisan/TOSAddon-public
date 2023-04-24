@@ -34,6 +34,6 @@ ClMsg(”定義されたアルファベットのメッセージ") メッセー�
 
 tonumber(文字列で格納された数字) 数値に変換
 
-https://github.com/ajinorisan/TOSAddon/blob/c7eac5c29a596b48fc0ade287e4ba031f45b4599/addon_d/unlock_earring_belonging/unlock_earring_belonging.lua イヤリング交換？
+<Class ClassID="4269" ClassName="YESSCP_OPEN_BASIC_MSG" Data="{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?"/>
 
 
