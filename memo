@@ -34,6 +34,10 @@ ClMsg(”定義されたアルファベットのメッセージ") メッセー�
 
 tonumber(文字列で格納された数字) 数値に変換
 
+ETC_20200724_048780	{nl} {nl}使用で獲得したアイテムは元に戻せません。{nl}{@st66d_y}{s20}{nl} {nl}本当に使用しますか？	{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?
+
 <Class ClassID="4269" ClassName="YESSCP_OPEN_BASIC_MSG" Data="{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?"/>
+
+<dic_data ID="ETC_20200724_048780" kr="{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?" IsUse="1" Category="ETC" NpcName="" Filename="xml_lang\clientmessage.xml" FilenameWithKey="xml_lang\clientmessage.xml//CategoryNameItemClassClassID42694269YESSCP_OPEN_BASIC_MSG_Data_0"/>
 
 
