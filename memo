@@ -10,6 +10,8 @@ session.GetMapID() マップIDを取得
 
 local inv_item = session.GetInvItemByGuid(itemID)　インベントリのアイテムのID取得 itemIDはグローバルっぽい？
 
+session.GetEquipItemByGuid(装備しているアイテム) 戻り値はitemオブジェクトらしい
+
 local item_obj = GetIES(inv_item:GetObject())　IESから探すんか？
 
 local item_cls = GetClassByType('Item', inv_item.type)　アイテムのクラス取得
@@ -27,5 +29,11 @@ local frame = parent:GetTopParentFrame() 関数の引数にparentと持ってる
 local frame = ui.GetFrame(xmlファイルのフレーム名かな基本的には)
 
 frame:GetUserIValue(”整数値”) フレームから整数値を取得出来るっポイ
+
+ClMsg(”定義されたアルファベットのメッセージ") メッセージテーブルに登録されたメッセージ文字列を取得するための関数
+
+tonumber(文字列で格納された数字) 数値に変換
+
+https://github.com/ajinorisan/TOSAddon/blob/c7eac5c29a596b48fc0ade287e4ba031f45b4599/addon_d/unlock_earring_belonging/unlock_earring_belonging.lua イヤリング交換？
 
 
