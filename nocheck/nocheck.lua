@@ -18,6 +18,7 @@ function NOCHECK_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
+    CHAT_SYSTEM("NOCHECK loaded")
 
 end
 
