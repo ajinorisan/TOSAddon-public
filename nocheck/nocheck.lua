@@ -41,10 +41,11 @@ function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
         return originalMsgBox_NonNested(textmsg, "YES", ...);
     end
     
-    ui.MsgBox_NonNested(textmsg, itemobj.Name, 'REQUEST_SUMMON_BOSS_TX', "None");
+    --ui.MsgBox_NonNested(textmsg, itemobj.Name, 'REQUEST_SUMMON_BOSS_TX', "None");
     
     -- Restore the original MsgBox_NonNested function
-    ui.MsgBox_NonNested = originalMsgBox_NonNested;
+    --ui.MsgBox_NonNested = originalMsgBox_NonNested;
+	BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG_OLD(invItem)
     
     return;
 end
