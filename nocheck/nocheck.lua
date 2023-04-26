@@ -23,6 +23,7 @@ function NOCHECK_ON_INIT(addon, frame)
 end
 
 function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
+
     if invItem == nil then
         return;
     end
@@ -34,19 +35,8 @@ function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
     end
     invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
     
-    --local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("YESSCP_OPEN_BASIC_MSG"));
-    
-    -- Replace the MsgBox_NonNested function with a custom function that automatically selects "YES"
-    --local originalMsgBox_NonNested = ui.MsgBox_NonNested;
-    --ui.MsgBox_NonNested = function(text, ...)
-        --return originalMsgBox_NonNested(textmsg, "YES", ...);
-    --end
-    
     REQUEST_SUMMON_BOSS_TX();
-    
-    -- Restore the original MsgBox_NonNested function
-    --ui.MsgBox_NonNested = originalMsgBox_NonNested;
-　　BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG_OLD(invItem)
+    --BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG_OLD(invItem)
     
     return;
 end
