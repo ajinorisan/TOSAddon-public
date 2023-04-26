@@ -149,6 +149,7 @@ function OVERLOAD_NOTICE()
     local overjikan = 50 - (imcTime.GetAppTimeMS() - g.settings.jikan) / 1000
     if overjikan <= 50 then
     NICO_CHAT(string.format("{@st55_a}オバロクールダウンは後%.1f秒", overjikan))
+    addon.BroadMsg(ui.SysMsg,string.format("{@st55_a}Overlord Raid cooldown %.1f second to go", overjikan),overjikan )
     end
 end
 
