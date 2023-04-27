@@ -57,3 +57,7 @@ function BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
 	
 	return;
 end
+
+エーテルジェムここかな？
+
+https://github.com/ajinorisan/TOSAddon-public/blob/main/client/jp/addon.ipf/aether_gem_reinforce/aether_gem_reinforce.lua
