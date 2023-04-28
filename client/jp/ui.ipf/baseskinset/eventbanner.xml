@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MintPC (Mi) -->
+<skinset name="Base">
+	<imagelist category="eventbanner">
+		<image name="inGame_E1" file="\event_banner\inGame_E1.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E2" file="\event_banner\inGame_E2.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E3" file="\event_banner\inGame_E3.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E4" file="\event_banner\inGame_E4.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E5" file="\event_banner\inGame_E5.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E6" file="\event_banner\inGame_E6.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E7" file="\event_banner\inGame_E7.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E8" file="\event_banner\inGame_E8.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E9" file="\event_banner\inGame_E9.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E10" file="\event_banner\inGame_E10.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E11" file="\event_banner\inGame_E11.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E12" file="\event_banner\inGame_E12.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E13" file="\event_banner\inGame_E13.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E14" file="\event_banner\inGame_E14.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E15" file="\event_banner\inGame_E15.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E16" file="\event_banner\inGame_E16.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E17" file="\event_banner\inGame_E17.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E18" file="\event_banner\inGame_E18.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E19" file="\event_banner\inGame_E19.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E20" file="\event_banner\inGame_E20.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E21" file="\event_banner\inGame_E21.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E22" file="\event_banner\inGame_E22.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E23" file="\event_banner\inGame_E23.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E24" file="\event_banner\inGame_E24.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_E25" file="\event_banner\inGame_E25.jpg" imgrect="0 0 480 180"/>
+	</imagelist>
+	<imagelist category="pcbang">
+		<image name="pcbang_test2" file="\event_banner\event1711vakarine.jpg" imgrect="0 0 480 180"/>
+		<image name="pcbang_test" file="\skin\pcbang_banner.tga" imgrect="0 0 348 596"/>
+		<image name="pcbang_banner2" file="\skin\pcbang_banner2.tga" imgrect="0 0 865 190"/>
+	</imagelist>
+	<imagelist category="banner">
+		<image name="tpshop_event_banner" file="\skin\tpshop_event_banner.tga" imgrect="0 0 520 250"/>
+		<image name="news_event_banner" file="\skin\news_event_banner.tga" imgrect="0 0 480 180"/>
+	</imagelist>
+</skinset>
