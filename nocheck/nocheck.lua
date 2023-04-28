@@ -19,12 +19,13 @@ function NOCHECK_ON_INIT(addon, frame)
     g.frame = frame
     acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
     acutil.setupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
-    --acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE, "EQUIP_GODDESSCARDSLOT_BTN_REMOVE")
-    --acutil.setupHook(NOCHECK_EQUIP_CARD_SLOT_RBTNUP_ITEM_INFO, "CARD_SLOT_RBTNUP_ITEM_INFO")
+    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN")
+	--acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE, "EQUIP_GODDESSCARDSLOT_BTN_REMOVE")
     CHAT_SYSTEM("NOCHECK loaded")
 
 end
 
+--欠片アイテム他使用時のメッセージボックス非表示
 function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
 
     if invItem == nil then
@@ -44,6 +45,7 @@ function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
     return;
 end
 
+--レジェンドカード装着時のメッセージボックス非表示
 function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
 	local obj = GetIES(item:GetObject());
 	if obj.GroupName == "Card" then			
@@ -80,38 +82,81 @@ function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
 	end
 end
 
-function NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE(frame)
-	local argStr = string.format("%d", frame:GetUserIValue("REMOVE_CARD_SLOTINDEX"))
+function NOCHECK_EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
+	EQUIP_CARDSLOT_INFO_OPEN_OLD(slotIndex)
 
-	argStr = argStr .. " 0"
+	EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT(frame, nil)
 
-	SCR_TX_UNEQUIP_CARD_SLOT()
 end
+--[[
+function EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
+	local other_frame = ui.GetFrame('equip_cardslot_info_goddess')
+	other_frame:ShowWindow(0)
 
-function NOCHECK_CARD_SLOT_RBTNUP_ITEM_INFO(frame, slot, argStr, argNum)
-	local icon = slot:GetIcon();		
-	if icon == nil then		
-		return;		
+	local frame = ui.GetFrame('equip_cardslot_info');
+	
+	if frame:IsVisible() == 1 then
+		frame:ShowWindow(0);	
+	end
+	
+	local cardID, cardLv, cardExp = GETMYCARD_INFO(slotIndex);	
+	if cardID == 0 then
+		return;
+	end
+
+	local prop = geItemTable.GetProp(cardID);
+	if prop ~= nil then
+		cardLv = prop:GetLevel(cardExp);
+	end
+	
+	-- 카드 슬롯 제거하기 위함
+	frame:SetUserValue("REMOVE_CARD_SLOTINDEX", slotIndex);
+
+	local inven = ui.GetFrame("inventory");
+	local cls = GetClassByType("Item", cardID);
+
+	-- 안내메세지에 이름 적용
+	local infoMsg = GET_CHILD(frame, "infoMsg");
+	infoMsg:SetTextByKey("Name", cls.Name);
+
+	-- 카드 이미지 적용
+	local card_img = GET_CHILD(frame, "card_img");
+	card_img:SetImage(TryGetProp(cls, "TooltipImage"));
+
+	local multiValue = 64;	-- 꽉 찬 카드 이미지를 하고 싶다면 90 으로. (단, 카드레벨 하락 정보가 잘 안보일 수 있음.)
+	local star_bg = GET_CHILD(frame, "star_bg");
+	local cardStar_Before = GET_CHILD(star_bg, "cardStar_Before");
+	local imgSize = frame:GetUserConfig('starSize');
+	if cardLv <= 1 then	
+		multiValue = 90;
+		cardStar_Before:SetVisible(0);
+	else
+		cardStar_Before:SetTextByKey("value", GET_STAR_TXT(imgSize, cardLv, cls));
+		cardStar_Before:SetVisible(1);
 	end;
 
-	local parentSlotSet = slot:GetParent()
-	if parentSlotSet == nil then
-		return
-	end
-		
-	local groupName = string.gsub(parentSlotSet:GetName(), 'card_slotset', '');
-	local slotIndex = CARD_SLOT_GET_SLOT_INDEX(groupName, slot:GetSlotIndex()) 
+	-- 카드 크기 변환.
+--	card_img:Resize(3 * multiValue, 4 * multiValue);
 
-	if groupName == 'LEG' then
-	    --argStr = slotIndex .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
-		pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr);
-	else
-		--argStr = slotIndex .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
-		pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr);
+	-- 제거되는 효과 표시하는 곳. 
+	local removedEffect =  string.format("%s{/}", cls.Desc);	
+	if cls.Desc == "None" then
+		removedEffect = "{/}";
 	end
+
+	local needSilverText = GET_CHILD_RECURSIVELY(frame, "button_3")
+	local needSilver = tonumber(CALC_NEED_SILVER(cls, cardLv))
+	needSilverText:SetTextByKey("needSilver", GET_COMMAED_STRING(needSilver))
+	local bg = GET_CHILD(frame, "bg");
+	local effect_info = GET_CHILD(bg, "effect_info");
+	effect_info:SetTextByKey("RemovedEffect", removedEffect);
+	
+	-- 정보창 위치를 인벤 옆으로 붙힘.
+	frame:SetOffset(inven:GetX() - frame:GetWidth(), frame:GetY());
+
+	frame:ShowWindow(1);	
 end
 
---[[
 function BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
 	if invItem == nil then
 		return;
@@ -167,33 +212,4 @@ function CARD_SLOT_EQUIP(slot, item, groupNameStr)
 	end
 end
 
-function EQUIP_GODDESSCARDSLOT_BTN_REMOVE(frame)
-	local argStr = string.format("%d", frame:GetUserIValue("REMOVE_CARD_SLOTINDEX"))
-
-	argStr = argStr .. " 0"
-
-	pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-end
-
-function CARD_SLOT_RBTNUP_ITEM_INFO(frame, slot, argStr, argNum)
-	local icon = slot:GetIcon();		
-	if icon == nil then		
-		return;		
-	end;
-
-	local parentSlotSet = slot:GetParent()
-	if parentSlotSet == nil then
-		return
-	end
-		
-	local groupName = string.gsub(parentSlotSet:GetName(), 'card_slotset', '');
-	local slotIndex = CARD_SLOT_GET_SLOT_INDEX(groupName, slot:GetSlotIndex()) 
-
-	if groupName == 'LEG' then
-	EQUIP_CARDSLOT_INFO_OPEN(slotIndex);
-	else
-		argStr = slotIndex .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
-		pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr);
-	end
-end
 ]]
