@@ -31,4 +31,16 @@
 		           "buff"
 		]
 	},
+ {
+		"name" : "NO check",
+		"file" : "nocheck",
+		"extension" : "ipf",
+		"fileVersion" : "v0.0.1",
+		"releaseTag" : "nocheck",
+		"unicode" : "⛄",
+		"description" : "インベントリの欠片を確認無しで使用します Use inventory pieces without confirmation 인벤토리 조각을 확인하지 않고 사용합니다.",
+		"tags" : [
+		           "item"
+		]
+	},
 ]
