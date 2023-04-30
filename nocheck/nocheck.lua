@@ -13,14 +13,16 @@ g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc)
 
 local acutil = require("acutil")
 
+
+
 function NOCHECK_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
     acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
     acutil.setupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
-    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN")
-	--acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE, "EQUIP_GODDESSCARDSLOT_BTN_REMOVE")
+    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
+	acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
     CHAT_SYSTEM("NOCHECK loaded")
 
 end
@@ -83,11 +85,61 @@ function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
 end
 
 function NOCHECK_EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
-	EQUIP_CARDSLOT_INFO_OPEN_OLD(slotIndex)
+         --EQUIP_CARDSLOT_INFO_OPEN_OLD(slotIndex)
+         --local slv = tonumber(GET_TOTAL_MONEY_STR());
+         --local cardslv = tonumber(cardLv * 2000)
+    --if slv < cardslv then
+    --ui.SysMsg("Not enough silver.")
+    --return
+    --else
+   
+	NOCHECK_EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT()
+	--end
+   
+    EQUIP_CARDSLOT_INFO_OPEN_OLD(slotIndex)
+end
 
-	EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT(frame, nil)
+function NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN(slotIndex)
+           
+	NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE()
+	
+   
+    EQUIP_GODDESSCARDSLOT_INFO_OPEN_OLD(slotIndex)
+end
+
+function NOCHECK_EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT()
+    local legcardslot = 13
+    local frame = ui.GetFrame("monstercardslot")
+    local argStr = legcardslot - 1
+
+    argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
+    pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
 
 end
+
+function NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE()
+
+local legcardslot = 14
+    local frame = ui.GetFrame("monstercardslot")
+    local argStr = legcardslot - 1
+
+    argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
+    pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
+
+end
+
+--[[
+local success, err = pcall(function()
+local slv = tonumber(GET_TOTAL_MONEY_STR());
+print(slv)
+end)
+
+if not success then
+    -- エラーが発生した場合の処理
+    print("Error: " .. err)
+end
+]]
+
 --[[
 function EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
 	local other_frame = ui.GetFrame('equip_cardslot_info_goddess')
