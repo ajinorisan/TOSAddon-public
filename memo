@@ -61,3 +61,135 @@ end
 エーテルジェムここかな？
 
 https://github.com/ajinorisan/TOSAddon-public/blob/main/client/jp/addon.ipf/aether_gem_reinforce/aether_gem_reinforce.lua
+
+エーテルジェム装備から外す　aether_transfer.lua
+
+--SLOT UI.MOUSE INPUT EVENT START--
+--Deletes the information of the set slot.
+function AETHER_TRANSFER_REMOVE_SLOT_RBTN(parent,ctrl)
+	local topFrame 	 = parent:GetTopParentFrame();
+	ctrl:ClearIcon();
+	local ctrl_name = ctrl:GetName();
+	if ctrl_name==nil then return end
+	local split_list = SCR_STRING_CUT_UNDERBAR(ctrl_name)
+	local str_lower = split_list[2]
+	if str_lower==nil then return end
+
+	GET_CHILD_RECURSIVELY(topFrame,"slot_bg_image_"..str_lower):ShowWindow(1)
+	GET_CHILD_RECURSIVELY(topFrame,"text_putonitem_"..str_lower):ShowWindow(1)
+	local text_itemname = GET_CHILD_RECURSIVELY(topFrame,"text_itemname_"..str_lower)
+	text_itemname:ShowWindow(0)
+	text_itemname:SetTextByKey('name',"");
+
+	local user_str = "SLOT_GUID_"..string.upper(str_lower)
+	local user_val = ctrl:GetUserValue(user_str)
+	if user_val ~= "None" then 
+		SELECT_INV_SLOT_BY_GUID(user_val,0)
+		ctrl:SetUserValue(user_str,"None")
+	end
+	AETHER_TRANSFER_UPDATE_IS_READY(topFrame)
+end
+
+エーテルジェムを装備にはめる
+-- The First Process that you trying to transfer 
+function AETHER_TRANSFER_PRESET_SLOT_INV_RBTN(item_obj, slot, argStr)
+	local frame = ui.GetFrame("aether_transfer")
+	if frame == nil then return end
+	
+	if GETMYPCLEVEL() < PC_MAX_LEVEL then 
+		ui.SysMsg(ClMsg('NeedMorePcLevel'))
+		return 
+	end
+
+	if slot:IsSelected()==1 then slot:Select(0) end
+	
+	local fromFrame = slot:GetTopParentFrame();
+	if fromFrame:GetName() ~= "inventory" then return end
+
+	local group_name = TryGetProp(item_obj,"GroupName","None")
+	if group_name=="None" then return elseif group_name~="Gem_High_Color" then return end
+	
+	local numberArg =  TryGetProp(item_obj,"NumberArg1",0)
+	if numberArg==0 then return end
+
+	local item_icon = slot:GetIcon()
+	local icon_info = item_icon:GetInfo()
+	local guid 	 	= icon_info:GetIESID()	
+	local inv_item 	= session.GetInvItemByGuid(guid)
+	local item_obj  = GetIES(inv_item:GetObject())
+
+	if inv_item.isLockState ==true then
+		ui.SysMsg(ClMsg('MaterialItemIsLock'))
+		return 
+	end
+	
+	local slot_left  = GET_CHILD_RECURSIVELY(frame,"slot_left")
+	local slot_right = GET_CHILD_RECURSIVELY(frame,"slot_right")
+	local currLv 	 = get_current_aether_gem_level(item_obj)
+	
+	if numberArg==460 then
+		if is_max_aether_gem_level(item_obj) then 
+			--SETTING LEFT SLOT 
+			AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"left")
+		else
+			ui.SysMsg(ClMsg('invalidAetherGem'))
+			return
+		end
+	elseif numberArg==480 then
+		if currLv < 120 then 
+			--SETTING RIGHT SLOT
+			AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"right")
+			
+		elseif currLv >= 120 then
+			ui.SysMsg(ClMsg('aleadyHighLevel'))
+			return
+		end
+	end
+
+	AETHER_TRANSFER_UPDATE_IS_READY(frame)
+end
+
+msgbox制御かな？
+function WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM(clmsg, yesScp, noScp, itemGuid)
+	ui.OpenFrame("warningmsgbox")
+	local frame = ui.GetFrame('warningmsgbox')
+	frame:EnableHide(1);
+	local warningText = GET_CHILD_RECURSIVELY(frame, "warningtext")
+	warningText:SetText(clmsg)
+
+	local input_frame = GET_CHILD_RECURSIVELY(frame, "input")
+    input_frame:ShowWindow(1)
+	input_frame:SetText('')
+	input_frame:SetMaxLen(13)
+	input_frame:Focus()
+
+	GET_CHILD_RECURSIVELY(frame, "cbox_showTooltip"):ShowWindow(0)
+
+	local yesBtn = GET_CHILD_RECURSIVELY(frame, "yes")
+	tolua.cast(yesBtn, "ui::CButton");
+
+	yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM_YES');
+	yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
+
+	local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
+	tolua.cast(noBtn, "ui::CButton");
+
+	noBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM_NO');
+	noBtn:SetEventScriptArgString(ui.LBUTTONUP, noScp)
+
+	local buttonMargin = noBtn:GetMargin()
+	local warningbox = GET_CHILD_RECURSIVELY(frame, 'warningbox')
+	local totalHeight = warningbox:GetY() + warningText:GetY() + warningText:GetHeight()  + noBtn:GetHeight() + 2 * buttonMargin.bottom + input_frame:GetHeight()
+
+	local okBtn = GET_CHILD_RECURSIVELY(frame, "ok")
+	tolua.cast(okBtn, "ui::CButton");
+
+	yesBtn:ShowWindow(1);
+	noBtn:ShowWindow(1);
+	okBtn:ShowWindow(0);
+
+	local bg = GET_CHILD_RECURSIVELY(frame, 'bg')
+	warningbox:Resize(warningbox:GetWidth(), totalHeight)
+	bg:Resize(bg:GetWidth(), totalHeight)
+	frame:Resize(frame:GetWidth(), totalHeight)
+end
