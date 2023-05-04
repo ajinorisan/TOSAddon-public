@@ -26,7 +26,7 @@
 		"fileVersion" : "v2.0.1",
 		"releaseTag" : "easybuff",
 		"unicode" : "⛄",
-		"description" : "Kiicchan様作成のeasybuffを改造しました。装備メンテを自動付与。食事バフの見直し Modified easybuff. Automatic granting of equipment maintenance. Revised meal buffs. easybuff를 개조했습니다. 장비 유지 보수 자동 부여. 식사 버프 개편 ",
+		"description" : "Kiicchan様作成のeasybuffを改造しました。装備メンテを自動付与。食事バフの見直し Modified easybuff. Automatic granting of equipment maintenance. Revised meal buffs. 장비 유지 보수 자동 부여. 식사 버프 재검토 ",
 		"tags" : [
 		           "buff"
 		]
@@ -38,7 +38,7 @@
 		"fileVersion" : "v0.0.3",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
-		"description" : "インベントリの欠片を確認無しで使用します。カードの付け外しの確認も消せた。エーテルジェムの確認も消せた。 Use inventory pieces without confirmation 인벤토리 조각을 확인하지 않고 사용합니다.",
+		"description" : "インベントリの欠片を確認無しで使用します。カードの付け外し、エーテルジェムの確認も消します。 Use inventory pieces without confirmation. Also erases the confirmation of card attachments and removals and ether gems. 인벤토리 조각을 확인 없이 사용합니다. 카드 탈부착, 에테르 젬 확인도 지워집니다.",
 		"tags" : [
 		           "item"
 		]
