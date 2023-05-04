@@ -35,10 +35,10 @@
 		"name" : "NO check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v0.0.2",
+		"fileVersion" : "v0.0.3",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
-		"description" : "インベントリの欠片を確認無しで使用します。カードの付け外しの確認も消せた Use inventory pieces without confirmation 인벤토리 조각을 확인하지 않고 사용합니다.",
+		"description" : "インベントリの欠片を確認無しで使用します。カードの付け外しの確認も消せた。エーテルジェムの確認も消せた。 Use inventory pieces without confirmation 인벤토리 조각을 확인하지 않고 사용합니다.",
 		"tags" : [
 		           "item"
 		]
