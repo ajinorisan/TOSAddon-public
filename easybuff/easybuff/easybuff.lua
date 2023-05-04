@@ -1,7 +1,7 @@
 local addonName = "EASYBUFF"
 local addonNameLower = string.lower(addonName)
 local author = "Kiicchan"
-local version = '2.0.0'
+local version = '2.0.1'
 --CHAT_SYSTEM("Easy Buff by Kiicchan!")
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -127,9 +127,13 @@ function EASYBUFF_SQUIRE_BUFF_EXCUTE()
         ui.MsgBox(ScpArgMsg("SelectBuffItemPlz"))
         return
     end
+    
+    
     --frame:ShowWindow(0)
     ui.SysMsg("{#FF0000}Equipment Maintenance in progress")
+    ui.SysMsg("{#FFFFFF}装備メンテナンス中 キャンセルは取消ボタンで!")
     session.autoSeller.BuyItems(handle, AUTO_SELL_SQUIRE_BUFF, session.GetItemIDList(), skillName)
+    ReserveScript(string.format('SQUIRE_TARGET_UI_CLOSE()'),5.0) 
 end
 
 function EASYBUFF_4FOODONLY()
@@ -140,7 +144,7 @@ function EASYBUFF_4FOODONLY()
     if g.foodIndex < 4 then
         session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
         g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format('EASYBUFF_4FOODONLY()'), 0.3)        
+        ReserveScript(string.format('EASYBUFF_4FOODONLY()'), 0.5)        
     else
         ReserveScript("EASYBUFF_END_FOOD()", 0.3)
     end
@@ -154,7 +158,7 @@ function EASYBUFF_5FOODONLY()
     if g.foodIndex < 5 then
         session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
         g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format('EASYBUFF_5FOODONLY()'), 0.3)        
+        ReserveScript(string.format('EASYBUFF_5FOODONLY()'), 0.5)        
     else
         ReserveScript("EASYBUFF_END_FOOD()", 0.3)
     end
@@ -168,7 +172,7 @@ function EASYBUFF_ALLFOOD()
     if g.foodIndex <= 5 then
         session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
         g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format('EASYBUFF_ALLFOOD()'), 0.3)        
+        ReserveScript(string.format('EASYBUFF_ALLFOOD()'), 0.5)        
     else
         ReserveScript("EASYBUFF_END_FOOD()", 0.3)
     end
@@ -199,14 +203,14 @@ function EASYBUFF_ONBUTTON()
 		return;
     end
     g.buffIndex = 0;
-    ReserveScript(string.format('EASYBUFF_BUY(%d, %d, %d)', handle, sellType, cnt), 0.3)
+    ReserveScript(string.format('EASYBUFF_BUY(%d, %d, %d)', handle, sellType, cnt), 0.5)
 end
 
 function EASYBUFF_BUY(handle, sellType, cnt)
     if g.buffIndex < cnt then
         session.autoSeller.Buy(handle, g.buffIndex, 1, sellType);
         g.buffIndex = g.buffIndex + 1;
-        ReserveScript(string.format('EASYBUFF_BUY(%d, %d, %d)', handle, sellType, cnt), 0.3)        
+        ReserveScript(string.format('EASYBUFF_BUY(%d, %d, %d)', handle, sellType, cnt), 0.5)        
     else
         CHAT_SYSTEM("Buff completed");
         ReserveScript("EASYBUFF_END()", 0.3)

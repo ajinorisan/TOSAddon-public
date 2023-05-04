@@ -193,3 +193,7 @@ function WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM(clmsg, yesScp, noScp, itemGuid)
 	bg:Resize(bg:GetWidth(), totalHeight)
 	frame:Resize(frame:GetWidth(), totalHeight)
 end
+
+https://github.com/ajinorisan/TOSAddon-public/blob/5f1e0e6f358215ace138c75d2b9a7b80d2880aa3/client/jp/addon.ipf/goddess_equip_manager/goddess_equip_manager.lua#L3501
+
+実はここ
