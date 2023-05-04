@@ -44,6 +44,12 @@ Special thanks to menimaniさん
 
 ----
 
+### nocheck-アドオンマネージャーに追加-Add to Add-on Manager
+
+各種欠片を使用する際の確認を消します。レジェンドカード、ゴッデスカード、エーテルジェムの着脱時の確認も消します。
+
+----
+
 適当にTOSのアドオンを改変してます。
 使用は自己責任で
 元コードの作者様は問題あったら連絡ください
@@ -90,12 +96,6 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\dat
 
 にバージョン違いのipfファイルがあると上手に動かないよ！
 
-なんでかは良く知りません（
+Twitter
 
-----
-
-構想殴り書き
-
-フォロ自動のダメージを全員分出したい。
-
-ロゼとプロパゲも出したい。ギスらしたいわけではない
+https://twitter.com/ToSJP_rada
