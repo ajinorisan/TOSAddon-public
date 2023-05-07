@@ -1,7 +1,7 @@
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.3"
+local ver = "0.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -13,6 +13,24 @@ g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc)
 
 local acutil = require("acutil")
 
+local targetMap = {
+    3610, -- 魔族収監所 第1区域
+    3620, -- 魔族収監所 第2区域
+    3630, -- 魔族収監所 第3区域
+    3640, -- 魔族収監所 第4区域
+    3650  -- 魔族収監所 第5区域
+    }
+    
+function NOCHEK_ISTARGET_MAP()
+    local mapID = session.GetMapID()
+    for i = 1, #targetMap do
+        if mapID == targetMap[i] then
+            return true
+        end
+    end
+    return false
+end
+    
 function NOCHECK_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -27,28 +45,31 @@ function NOCHECK_ON_INIT(addon, frame)
 	addon:RegisterMsg("DIALOG_CHANGE_SELECT", "NOCHECK_DIALOG_ON_MSG")
 	--acutil.setupHook(NOCHECK_DIALOG_ON_MSG,"DIALOG_ON_MSG")
 	--addon:RegisterMsg("DIALOG_CHANGE_SELECT","NOCHECK_DIALOG_ON_MSG")
-	--addon:RegisterMsg("DIALOG_ADD_SELECT","NOCHECK_DIALOGSELECT_ON_MSG")
+	addon:RegisterMsg("DIALOG_ADD_SELECT","NOCHECK_DIALOGSELECT_ON_MSG")
     CHAT_SYSTEM("NOCHECK loaded")
     --NOCHECK_FRAME_INIT()
     
 end
 
 function NOCHECK_DIALOG_ON_MSG(frame, msg, argStr, argNum)
---print(msg)
---print(argStr)
---print(argNum)
-
     if string.find(argStr, "HighLvZoneEnterMsgCustom") ~= nil then
-   ReserveScript(ui.CloseFrame("dialog"), 0.01)
-     end
-    
+        --if NOCHEK_ISTARGET_MAP() == true then
+            local dialog = ui.GetFrame("dialog")
+            local x, y = dialog:GetX() + 50, dialog:GetY() + 200 -- ダイアログ内の任意の座標を指定
+            ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.5)
+                NOCHECK_DIALOGSELECT()
+            
+        --else
+            --ui.CloseFrame("dialog")
+        --end
+    end
 end
 
---[[
 function NOCHECK_DIALOGSELECT()
 control.DialogSelect(1)
     local x, y = mouse.GetX(), mouse.GetY()
-    ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.02)
+    --ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.02)
+    string.format('mouse.SetPos(%d, %d)', x, y)
 end
 
 function NOCHECK_DIALOGSELECT_ON_MSG(frame, msg, argStr, argNum)
@@ -58,6 +79,7 @@ function NOCHECK_DIALOGSELECT_ON_MSG(frame, msg, argStr, argNum)
     end
 end
 
+--[[
 function NOCHECK_FRAME_INIT()
    local inveframe = ui.GetFrame('inventory')
    local button = inveframe:CreateOrGetControl("button", "equip", 10, 10, 100, 30)
