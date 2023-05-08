@@ -8,15 +8,28 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsDirLoc = string.format("../addons/%s", addonNameLower)
-g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc)
-g.settings = {onoff = 1}--1on0off
+g.settingsFileLoc = string.format("%s/settings.json", addonNameLower)
 
 local acutil = require("acutil")
+
+--true=on false=off
+if not g.loaded then
+g.settings = {onoff = true}
+end
+
+function AUTOMAPCHANGE_SAVESETTINGS()
+	acutil.saveJSON(g.settingsFileLoc, g.settings);
+end
+
+function AUTOMAPCHANGE_LOADSETTINGS()
+	acutil.loadJSON(g.settingsFileLoc, g.settings);
+end
 
 function AUTOMAPCHANGE_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
+    
+    frame:ShowWindow(0);
     
     if not g.loaded then
     local t, err = acutil.loadJSON(g.settingsFileLoc, g.settings);
@@ -28,29 +41,29 @@ function AUTOMAPCHANGE_ON_INIT(addon, frame)
       g.settings = t;
     end
     g.loaded = true
-  end
-  
-  AUTOMAPCHANGE_SAVESETTINGS();
+    end
+    
+    AUTOMAPCHANGE_LOADSETTINGS()
+    --AUTOMAPCHANGE_SAVESETTINGS();
   
     addon:RegisterMsg("DIALOG_CHANGE_SELECT", "AUTOMAPCHANGE_DIALOG_ON_MSG")
+    addon:RegisterMsg('GAME_START_3SEC', 'AUTOMAPCHANGE_DIALOG_ON_MSG')
     acutil.slashCommand("/amc",AUTOMAPCHANGE_CMD)
     acutil.slashCommand("/automapchange",AUTOMAPCHANGE_CMD)
+    --ReserveScript(string.format("/amc"),0.5)
+    --ReserveScript(string.format("/amc"),0.5)
     CHAT_SYSTEM("automapchange loaded")
     camera.CustomZoom(700)
    
 end
 
-function AUTOMAPCHANGE_SAVESETTINGS()
-	acutil.saveJSON(g.settingsFileLoc, g.settings);
-end
-
 function AUTOMAPCHANGE_CMD(command)
-    if g.settings.onoff == 1 then
-        g.settings.useHook = 0
+    if g.settings.onoff == true then
+        g.settings.onoff = false
         AUTOMAPCHANGE_SAVESETTINGS()
         CHAT_SYSTEM('AutoChangeMapOff')
     else
-        g.settings.onoff = 1
+        g.settings.onoff = true
         AUTOMAPCHANGE_SAVESETTINGS()
        CHAT_SYSTEM('AutoChangeMapOn')
     end
@@ -58,7 +71,10 @@ function AUTOMAPCHANGE_CMD(command)
 end
 
 function AUTOMAPCHANGE_DIALOG_ON_MSG(frame, msg, argStr, argNum)
-    if BHModeOn then
+print(msg)
+print(argStr)
+print(argNum)
+    if g.settings.onoff == true then
         if string.find(argStr, "HighLvZoneEnterMsgCustom") ~= nil then
              local dialog = ui.GetFrame("dialog")
             local x, y = dialog:GetX() + 50, dialog:GetY() + 200 -- ダイアログ内の任意の座標を指定
