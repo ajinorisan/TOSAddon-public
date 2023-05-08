@@ -38,7 +38,7 @@ if not g.loaded then
         mode = "fixed", --"FIXED" or "TRACE"
         --フレーム表示場所
         position = {
-            lock = false;
+            lock = false,
             x = 640,
             y = 480
         },
@@ -47,7 +47,7 @@ if not g.loaded then
         version = 1.0,
         layerLvl = 80,
         jikan = 0,
-        cname = charactername
+        cname = GETMYPCNAME()
     }
 end
 
@@ -57,7 +57,7 @@ g.settings.layerLvl = g.settings.layerLvl or 80
 CHAT_SYSTEM(string.format("%s.lua is loaded", addonNameLower));
 
 local function isAfterRebuild()
-    if ui.GetFrame('skillability') then 
+    if ui.GetFrame('skillability') then
         return true
     else
         return false
@@ -148,8 +148,9 @@ end
 function OVERLOAD_NOTICE()
     local overjikan = 50 - (imcTime.GetAppTimeMS() - g.settings.jikan) / 1000
     if overjikan <= 50 then
-    NICO_CHAT(string.format("{@st55_a}オバロクールダウンは後%.1f秒", overjikan))
-    addon.BroadMsg(ui.SysMsg,string.format("{@st55_a}Overlord Raid cooldown %.1f second to go", overjikan),overjikan )
+        NICO_CHAT(string.format("{@st55_a}オバロクールダウンは後%.1f秒", overjikan))
+        addon.BroadMsg(ui.SysMsg, string.format("{@st55_a}Overlord Raid cooldown %.1f second to go", overjikan),
+            overjikan)
     end
 end
 
@@ -163,7 +164,7 @@ function MUTEKI2_CHANGE_MODE(mode)
     if mode == "trace" then
         local handle = session.GetMyHandle();
         local actor = world.GetActor(handle)
-        FRAME_AUTO_POS_TO_OBJ(frame, handle, - frame:GetWidth() / 2, -100, 3, 1);
+        FRAME_AUTO_POS_TO_OBJ(frame, handle, -frame:GetWidth() / 2, -100, 3, 1);
         g.settings.position.lock = true
     else
         --Moveではうまくいかないので、OffSetを使用する…
@@ -195,7 +196,8 @@ function MUTEKI2_CONTEXT_MENU(frame, msg, clickedGroupName, argNum)
     local context = ui.CreateContextMenu("MUTEKI2_RBTN", addonName, 0, 0, 150, 100);
 
     -- if not g.settings.position.lock then
-    ui.AddContextMenuItem(context, g.settings.position.lock and "Release Lock" or "Lock Position", "MUTEKI2_TOGGLE_LOCK()");
+    ui.AddContextMenuItem(context, g.settings.position.lock and "Release Lock" or "Lock Position",
+        "MUTEKI2_TOGGLE_LOCK()");
     -- end
     context:Resize(150, context:GetHeight());
     ui.OpenContextMenu(context);
@@ -244,13 +246,12 @@ function MUTEKI2_INIT_FRAME(frame)
     end
 end
 
-
 function MUTEKI2_INIT_CIRCLE(frame, buffObj)
-    local image = frame:CreateOrGetControl("picture", "circle_"..buffObj.ClassName, 0, 0, 40, 40);
+    local image = frame:CreateOrGetControl("picture", "circle_" .. buffObj.ClassName, 0, 0, 40, 40);
     tolua.cast(image, "ui::CPicture");
     image:ShowWindow(0);
     image:SetGravity(ui.CENTER_HORZ, ui.TOP);
-    image:SetImage('icon_'..buffObj.Icon)
+    image:SetImage('icon_' .. buffObj.Icon)
     image:SetEnableStretch(1);
     image:EnableHitTest(0);
     return image;
@@ -258,7 +259,7 @@ end
 
 function MUTEKI2_INIT_GAUGE(frame, buffObj, colorTone)
     --ゲージを生成
-    local gauge = frame:CreateOrGetControl("gauge", "gauge_"..buffObj.ClassName, 0, 0, 262, 20);
+    local gauge = frame:CreateOrGetControl("gauge", "gauge_" .. buffObj.ClassName, 0, 0, 262, 20);
     tolua.cast(gauge, "ui::CGauge");
     gauge:SetSkinName('muteki2_gauge_white')
     gauge:SetColorTone(colorTone or 'FFFF0000')
@@ -277,7 +278,7 @@ function MUTEKI2_INIT_GAUGE(frame, buffObj, colorTone)
     end
 
     --テキスト2 技名
-    gauge:AddStat("{@st62}"..buffObj.Name.."{/}");
+    gauge:AddStat("{@st62}" .. buffObj.Name .. "{/}");
     if isAfterRebuild() then
         gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_HORZ);
     else
@@ -304,7 +305,6 @@ end
 
 --ゲージを減らす
 function MUTEKI2_START_GAUGE_DOWN(gauge, curPoint, maxPoint)
-
     gauge:ShowWindow(1);
 
     if not curPoint or not maxPoint then
@@ -341,7 +341,8 @@ function MUTEKI2_UPDATE_GAUGE_DOWN(gauge)
     local text = "{@st48}00.00{/}"
 
     if sec >= 0 then
-        text = pause ~= 1 and string.format("{@st48}%02d.%02d{/}", sec, msec) or string.format("{@st48}{#00FF00}%02d.%02d{/}{/}", sec, msec);
+        text = pause ~= 1 and string.format("{@st48}%02d.%02d{/}", sec, msec) or
+            string.format("{@st48}{#00FF00}%02d.%02d{/}{/}", sec, msec);
     end
 
     gauge:SetTextStat(0, text);
@@ -458,8 +459,8 @@ function MUTEKI2_UPDATE_POSITIONS()
     local handle = session.GetMyHandle()
     local buffCount = info.GetBuffCount(handle);
     for i = 0, buffCount - 1 do
-        local buff = info.GetBuffIndexed(handle, i);    
-        local buffSetting , buffObj = MUTEKI2_GET_BUFFS(buff.buffID)
+        local buff = info.GetBuffIndexed(handle, i);
+        local buffSetting, buffObj = MUTEKI2_GET_BUFFS(buff.buffID)
         local circle = g.circle[tostring(buff.buffID)]
         local gauge = g.gauge[tostring(buff.buffID)]
 
@@ -470,33 +471,33 @@ function MUTEKI2_UPDATE_POSITIONS()
                 if buffSetting.isNoTimeBuff then
                     table.insert(noTimeBuffs, gauge)
                 else
-                    table.insert(gaugeList, {gauge = gauge, time = buff.time})
+                    table.insert(gaugeList, { gauge = gauge, time = buff.time })
                 end
             elseif gauge then
                 gauge:ShowWindow(0)
             end
-        end  
+        end
     end
 
     local maxLen = #circleList
     if #circleList > 0 then
-        for i , circle in ipairs(circleList) do
+        for i, circle in ipairs(circleList) do
             circle:SetOffset(-25 * (maxLen - 1) + (i - 1) * 50, 0)
         end
     end
     if #gaugeList > 0 then
         table.sort(gaugeList, function(a, b) return (a.time < b.time) end)
-        for i , obj in ipairs(gaugeList) do
+        for i, obj in ipairs(gaugeList) do
             obj.gauge:ShowWindow(1)
             obj.gauge:Resize(262, 25)
-            obj.gauge:SetGravity(ui.CENTER_HORZ, ui.TOP)      
+            obj.gauge:SetGravity(ui.CENTER_HORZ, ui.TOP)
             obj.gauge:SetOffset(0, (i - 1 + overcd) * offsetY + circleIconHeight)
         end
     end
 
     if #noTimeBuffs > 0 then
         local defaultOffsetY = #gaugeList * offsetY + circleIconHeight
-        for i , ctrl in ipairs(noTimeBuffs) do
+        for i, ctrl in ipairs(noTimeBuffs) do
             ctrl:Resize(131, 25)
             ctrl:SetGravity(0, 0)
             ctrl:SetOffset(19 + (i - 1) % 2 * 131, math.floor((i - 1) / 2 + overcd) * (offsetY - 5) + defaultOffsetY)
@@ -603,10 +604,10 @@ end
 function MUTEKI2_GET_BUFFS(buffid)
     buffid = tonumber(buffid)
     local buffSetting = g.settings.buffList[tostring(buffid)]
-    local buffObj = GetClassByType('Buff',buffid)
+    local buffObj = GetClassByType('Buff', buffid)
     local handle = session.GetMyHandle();
-    local buff = buffid and info.GetBuff(handle, buffid) or nil    
-    return buffSetting , buffObj , buff;
+    local buff = buffid and info.GetBuff(handle, buffid) or nil
+    return buffSetting, buffObj, buff;
 end
 
 function MUTEKI2_GET_BUFF(id)
@@ -621,12 +622,12 @@ end
 
 function MUTEKI2_GET_CONTROL(buffid)
     buffid = tostring(buffid)
-    return not  g.settings.buffList[buffid] and nil or  g.circle[buffid] or g.gauge[buffid]  
+    return not g.settings.buffList[buffid] and nil or g.circle[buffid] or g.gauge[buffid]
 end
 
-function MUTEKI2_CHANGE_COLORTONE(list,control,buffid,argNum)
-    local buffSetting =  g.settings.buffList[buffid]
-    local newColor = tostring(control:GetText()) 
+function MUTEKI2_CHANGE_COLORTONE(list, control, buffid, argNum)
+    local buffSetting = g.settings.buffList[buffid]
+    local newColor = tostring(control:GetText())
     local oldColor = buffSetting.color
     if #newColor ~= 8 or newColor == oldColor then
         return
