@@ -13,19 +13,8 @@ g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
 
 local acutil = require("acutil")
 
-function AUTOMAPCHANGE_ON_INIT(addon, frame)
-    g.addon = addon
-    g.frame = frame
-    
-    --frame:ShowWindow(0);
-  
-    addon:RegisterMsg("DIALOG_CHANGE_SELECT", "AUTOMAPCHANGE_DIALOG_ON_MSG")
-    addon:RegisterMsg('GAME_START', 'AUTOMAPCHANGE_LOADSETTINGS')
-    acutil.slashCommand("/amc",AUTOMAPCHANGE_CMD)
-    acutil.slashCommand("/automapchange",AUTOMAPCHANGE_CMD)
-    CHAT_SYSTEM("automapchange loaded")
-    camera.CustomZoom(700)
-   
+if not g.loaded then
+ g.settings = {onoff = 1};
 end
 
 function AUTOMAPCHANGE_SAVESETTINGS()
@@ -35,7 +24,7 @@ end
 function AUTOMAPCHANGE_LOADSETTINGS()
 	
 	if g.settings == nil then
-	 g.settings = {onoff = true}
+	 g.settings = {onoff = 1}
 	 AUTOMAPCHANGE_SAVESETTINGS()
 	end
 	
@@ -50,47 +39,57 @@ function AUTOMAPCHANGE_LOADSETTINGS()
     g.loaded = true
 end
 
-
 function AUTOMAPCHANGE_CMD(command)
-    if g.settings.onoff == true then
-        g.settings.onoff = false
+
+    if g.settings.onoff == 1 then
+        g.settings.onoff = 0
         AUTOMAPCHANGE_SAVESETTINGS()
         CHAT_SYSTEM('AutoChangeMapOff')
+        
     else
-        g.settings.onoff = true
+    
+        g.settings.onoff = 1
         AUTOMAPCHANGE_SAVESETTINGS()
        CHAT_SYSTEM('AutoChangeMapOn')
+       
     end
     return;
 end
 
-function AUTOMAPCHANGE_DIALOG_ON_MSG(frame, msg, argStr, argNum)
---print(msg)
---print(argStr)
---print(argNum)
-local amcmode = g.settings
+function AUTOMAPCHANGE_ON_INIT(addon, frame)
 
-    if amcmode == true then
+    g.addon = addon
+    g.frame = frame
+    
+    addon:RegisterMsg("DIALOG_CHANGE_SELECT", "AUTOMAPCHANGE_DIALOG_ON_MSG")
+    addon:RegisterMsg('GAME_START', 'AUTOMAPCHANGE_DIALOG_ON_MSG')
+    addon:RegisterMsg('GAME_START', 'AUTOMAPCHANGE_LOADSETTINGS')
+    acutil.slashCommand("/amc",AUTOMAPCHANGE_CMD)
+    acutil.slashCommand("/automapchange",AUTOMAPCHANGE_CMD)
+    CHAT_SYSTEM("automapchange loaded")
+    camera.CustomZoom(700)
+    
+end
+
+function AUTOMAPCHANGE_DIALOG_ON_MSG(frame, msg, argStr, argNum)
+
+    if g.settings.onoff == 1 then
         if string.find(argStr, "HighLvZoneEnterMsgCustom") ~= nil then
-             local dialog = ui.GetFrame("dialog")
-            local x, y = dialog:GetX() + 50, dialog:GetY() + 200 -- ダイアログ内の任意の座標を指定
-            string.format('mouse.SetPos(%d, %d)', x, y)
+       
+             local x, y = mouse:GetX(), mouse:GetY()
+             ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y),0.1)
+             
             AUTOMAPCHANGE_DIALOGSELECT()
             
         end
     end
+    
 end
 
 function AUTOMAPCHANGE_DIALOGSELECT()
-    control.DialogSelect(1)
-    local x, y = mouse.GetX(), mouse.GetY()
-     ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y),0.5)
-     end
-
---[[
-function BHMAPCHANGE_DIALOGSELECT_ON_MSG(frame, msg, argStr, argNum)
-    if argStr == '!@#$WS_ZACHA2F_01_TO_02_ANSWER_GO#@!' then
-        BHMAPCHANGE_DIALOGSELECT()
-    end
+ 
+         control.DialogSelect(1)
+         local x, y = mouse.GetX(), mouse.GetY()
+         ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y),0.2)
+ 
 end
-]]
