@@ -68,11 +68,13 @@ function AUTOMAPCHANGE_DIALOG_ON_MSG(frame, msg, argStr, argNum)
 --print(msg)
 --print(argStr)
 --print(argNum)
-    if g.settings.onoff == true then
+local amcmode = g.settings
+
+    if amcmode == true then
         if string.find(argStr, "HighLvZoneEnterMsgCustom") ~= nil then
              local dialog = ui.GetFrame("dialog")
             local x, y = dialog:GetX() + 50, dialog:GetY() + 200 -- ダイアログ内の任意の座標を指定
-            ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.5)
+            string.format('mouse.SetPos(%d, %d)', x, y)
             AUTOMAPCHANGE_DIALOGSELECT()
             
         end
