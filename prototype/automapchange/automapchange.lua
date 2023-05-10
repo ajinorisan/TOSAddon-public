@@ -13,18 +13,15 @@ g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
 
 local acutil = require("acutil")
 
-if not g.loaded then
-    g.settings = {
-        onoff = 1
-    };
-end
+local mcc = 0
 
 function AUTOMAPCHANGE_SAVESETTINGS()
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 end
 
 function AUTOMAPCHANGE_LOADSETTINGS()
-
+    CHAT_SYSTEM("test")
+    -- 設定値がない場合の初期設定
     if g.settings == nil then
         g.settings = {
             onoff = 1
@@ -32,7 +29,7 @@ function AUTOMAPCHANGE_LOADSETTINGS()
         AUTOMAPCHANGE_SAVESETTINGS()
     end
 
-    local t, err = acutil.loadJSON(g.settingsFileLoc, g.settings);
+    local t, err = acutil.loadJSON(g.settingsFileLoc);
     if err then
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonName))
@@ -66,34 +63,43 @@ function AUTOMAPCHANGE_ON_INIT(addon, frame)
     g.frame = frame
 
     addon:RegisterMsg("DIALOG_CHANGE_SELECT", "AUTOMAPCHANGE_DIALOG_ON_MSG")
-    addon:RegisterMsg('GAME_START', 'AUTOMAPCHANGE_DIALOG_ON_MSG')
-    addon:RegisterMsg('GAME_START', 'AUTOMAPCHANGE_LOADSETTINGS')
+    addon:RegisterMsg('GAME_START_3SEC', 'AUTOMAPCHANGE_DIALOG_ON_MSG')
+    addon:RegisterMsg('GAME_START_3SEC', 'AUTOMAPCHANGE_LOADSETTINGS')
+    addon:RegisterMsg('CHANGE_MAP', 'AUTOMAPCHANGE_CHANGE_MAP')
     acutil.slashCommand("/amc", AUTOMAPCHANGE_CMD)
     acutil.slashCommand("/automapchange", AUTOMAPCHANGE_CMD)
     CHAT_SYSTEM("automapchange loaded")
     camera.CustomZoom(700)
+    
+end
 
+function AUTOMAPCHANGE_CHANGE_MAP
+    if mcc == 0 then
+        ui.Chat("/amc")
+    else
+        ui.Chat("/amc")
+        ui.Chat("/amc")
+    end
+    mcc = mcc + 1
 end
 
 function AUTOMAPCHANGE_DIALOG_ON_MSG(frame, msg, argStr, argNum)
-
-    if g.settings.onoff == 1 then
+    print(msg)
+    print(argStr)
+    print(argNum)
+    if g.settings.onoff == 1 and mcc ~= 0 then
         if string.find(argStr, "HighLvZoneEnterMsgCustom") ~= nil then
-
-            local x, y = mouse:GetX(), mouse:GetY()
-            ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.1)
-
+            ReserveScript("control.DialogOk()", 0.5)
+            
             AUTOMAPCHANGE_DIALOGSELECT()
-
         end
     end
-
 end
 
 function AUTOMAPCHANGE_DIALOGSELECT()
-
+    
     control.DialogSelect(1)
-    local x, y = mouse.GetX(), mouse.GetY()
-    ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.2)
+    --local x, y = mouse.GetX(), mouse.GetY()
+    --ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.2)
 
 end
