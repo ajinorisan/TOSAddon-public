@@ -91,6 +91,10 @@ function AUTOMAPCHANGE_CMD_FULL(command)
 end
 
 function AUTOMAPCHANGE_CHANGE_MAP()
+    if mcc == 0 then
+        g.settings.onoff = 0
+        AUTOMAPCHANGE_SAVESETTINGS()
+    end
 
     mcc = mcc + 1
     if mcc == 1 then
