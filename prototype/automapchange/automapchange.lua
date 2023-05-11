@@ -13,7 +13,8 @@ g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
 
 local acutil = require("acutil")
 
-local mcc = 0 -- 初回ログイン時にだけ動かないのを処理1以上になると通常に動くはず
+local cmcnt = 0 -- 初回ログイン時にだけ動かないのを処理1以上になると通常に動くはず
+local mysetting = false
 
 function AUTOMAPCHANGE_ON_INIT(addon, frame)
 
@@ -27,6 +28,9 @@ function AUTOMAPCHANGE_ON_INIT(addon, frame)
     acutil.slashCommand("/amc", AUTOMAPCHANGE_CMD)
     acutil.slashCommand("/automapchange", AUTOMAPCHANGE_CMD_FULL)
     CHAT_SYSTEM("automapchange loaded")
+    if cmcnt <= 1 then
+        addon:RegisterMsg('CHANGE_MAP', 'AUTOMAPCHANGE_CHANGE_MAP')
+    end
     camera.CustomZoom(700)
 
 end
@@ -60,12 +64,14 @@ function AUTOMAPCHANGE_CMD(command)
 
     if g.settings.onoff == 1 then
         g.settings.onoff = 0
+        mysetting = true
         AUTOMAPCHANGE_SAVESETTINGS()
         CHAT_SYSTEM('AutoChangeMapOff')
 
     else
 
         g.settings.onoff = 1
+        mysetting = true
         AUTOMAPCHANGE_SAVESETTINGS()
         CHAT_SYSTEM('AutoChangeMapOn')
 
@@ -73,40 +79,23 @@ function AUTOMAPCHANGE_CMD(command)
     return;
 end
 
-function AUTOMAPCHANGE_CMD_FULL(command)
-
-    if g.settings.onoff == 1 then
+function AUTOMAPCHANGE_CHANGE_MAP()
+    if cmcnt == 0 and g.settings.onoff == 1 and mysetting == false then
         g.settings.onoff = 0
         AUTOMAPCHANGE_SAVESETTINGS()
-        -- CHAT_SYSTEM('AutoChangeMapOff')
+        cmcnt = cmcnt + 1
+    end
 
-    else
-
+    if cmcnt == 1 and g.settings.onoff == 0 and mysetting == false then
         g.settings.onoff = 1
         AUTOMAPCHANGE_SAVESETTINGS()
-        -- CHAT_SYSTEM('AutoChangeMapOn')
-
+        cmcnt = cmcnt + 1
     end
-    return
-end
-
-function AUTOMAPCHANGE_CHANGE_MAP()
-    if mcc == 0 then
-        g.settings.onoff = 0
-        AUTOMAPCHANGE_SAVESETTINGS()
-    end
-
-    mcc = mcc + 1
-    if mcc == 1 then
-        ui.Chat(string.format("/automapchange"))
-        ui.Chat(string.format("/automapchange"))
-    end
-
 end
 
 function AUTOMAPCHANGE_DIALOG_ON_MSG(frame, msg, argStr, argNum)
 
-    if g.settings.onoff == 1 and mcc ~= 0 then
+    if g.settings.onoff == 1 and cmcnt ~= 0 then
         if string.find(argStr, "HighLvZoneEnterMsgCustom") ~= nil then
             ReserveScript("control.DialogOk()", 0.5)
 
