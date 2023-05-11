@@ -32,6 +32,18 @@
 		]
 	},
  {
+		"name" : "Auto Map Change",
+		"file" : "automapchange",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "automapchange",
+		"unicode" : "⛄",
+		"description" : "MAP移動時の確認を自動化 /amc で無効化バウンティハントに便利かも Automate checks when moving MAP /amc to disable may be useful for bounty hunts MAP 이동 시 확인 자동화 /amc로 비활성화 바운티 헌팅에 유용할 듯 ",
+		"tags" : [
+		           "map"
+		]
+	},
+ {
 		"name" : "NO check",
 		"file" : "nocheck",
 		"extension" : "ipf",
