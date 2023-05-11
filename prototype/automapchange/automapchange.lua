@@ -13,7 +13,23 @@ g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
 
 local acutil = require("acutil")
 
-local mcc = 0
+local mcc = 0 -- 初回ログイン時にだけ動かないのを処理1以上になると通常に動くはず
+
+function AUTOMAPCHANGE_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+
+    addon:RegisterMsg("DIALOG_CHANGE_SELECT", "AUTOMAPCHANGE_DIALOG_ON_MSG")
+    addon:RegisterMsg('GAME_START_3SEC', 'AUTOMAPCHANGE_DIALOG_ON_MSG')
+    addon:RegisterMsg('GAME_START_3SEC', 'AUTOMAPCHANGE_LOADSETTINGS')
+    addon:RegisterMsg('CHANGE_MAP', 'AUTOMAPCHANGE_CHANGE_MAP')
+    acutil.slashCommand("/amc", AUTOMAPCHANGE_CMD)
+    acutil.slashCommand("/automapchange", AUTOMAPCHANGE_CMD_FULL)
+    CHAT_SYSTEM("automapchange loaded")
+    camera.CustomZoom(700)
+
+end
 
 function AUTOMAPCHANGE_SAVESETTINGS()
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -57,49 +73,48 @@ function AUTOMAPCHANGE_CMD(command)
     return;
 end
 
-function AUTOMAPCHANGE_ON_INIT(addon, frame)
+function AUTOMAPCHANGE_CMD_FULL(command)
 
-    g.addon = addon
-    g.frame = frame
+    if g.settings.onoff == 1 then
+        g.settings.onoff = 0
+        AUTOMAPCHANGE_SAVESETTINGS()
+        -- CHAT_SYSTEM('AutoChangeMapOff')
 
-    addon:RegisterMsg("DIALOG_CHANGE_SELECT", "AUTOMAPCHANGE_DIALOG_ON_MSG")
-    addon:RegisterMsg('GAME_START_3SEC', 'AUTOMAPCHANGE_DIALOG_ON_MSG')
-    addon:RegisterMsg('GAME_START_3SEC', 'AUTOMAPCHANGE_LOADSETTINGS')
-    addon:RegisterMsg('CHANGE_MAP', 'AUTOMAPCHANGE_CHANGE_MAP')
-    acutil.slashCommand("/amc", AUTOMAPCHANGE_CMD)
-    acutil.slashCommand("/automapchange", AUTOMAPCHANGE_CMD)
-    CHAT_SYSTEM("automapchange loaded")
-    camera.CustomZoom(700)
-    
+    else
+
+        g.settings.onoff = 1
+        AUTOMAPCHANGE_SAVESETTINGS()
+        -- CHAT_SYSTEM('AutoChangeMapOn')
+
+    end
+    return
 end
 
-function AUTOMAPCHANGE_CHANGE_MAP
-    if mcc == 0 then
-        ui.Chat("/amc")
-    else
-        ui.Chat("/amc")
-        ui.Chat("/amc")
-    end
+function AUTOMAPCHANGE_CHANGE_MAP()
+
     mcc = mcc + 1
+    if mcc == 1 then
+        ui.Chat(string.format("/automapchange"))
+        ui.Chat(string.format("/automapchange"))
+    end
+
 end
 
 function AUTOMAPCHANGE_DIALOG_ON_MSG(frame, msg, argStr, argNum)
-    print(msg)
-    print(argStr)
-    print(argNum)
+
     if g.settings.onoff == 1 and mcc ~= 0 then
         if string.find(argStr, "HighLvZoneEnterMsgCustom") ~= nil then
             ReserveScript("control.DialogOk()", 0.5)
-            
+
             AUTOMAPCHANGE_DIALOGSELECT()
         end
+    else
+        return
     end
 end
 
 function AUTOMAPCHANGE_DIALOGSELECT()
-    
+
     control.DialogSelect(1)
-    --local x, y = mouse.GetX(), mouse.GetY()
-    --ReserveScript(string.format('mouse.SetPos(%d, %d)', x, y), 0.2)
 
 end
