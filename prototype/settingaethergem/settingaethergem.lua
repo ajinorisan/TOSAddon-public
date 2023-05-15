@@ -90,5 +90,3 @@ function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
         end
     end
 end
-
-print(addonNameLower)
