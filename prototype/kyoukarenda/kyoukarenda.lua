@@ -11,13 +11,14 @@ local g = _G["ADDONS"][author][addonName]
 local acutil = require("acutil")
 
 g.autoreinforce = 0
+g.autocontrol = 0
 
 function KYOUKARENDA_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    acutil.setupHook(KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "GODDESS_MGR_REFORGE_REINFORCE_EXEC")
-    acutil.setupHook(_KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "_GODDESS_MGR_REFORGE_REINFORCE_EXEC")
+    -- acutil.setupHook(KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "GODDESS_MGR_REFORGE_REINFORCE_EXEC")
+    acutil.setupHook(KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "_GODDESS_MGR_REFORGE_REINFORCE_EXEC")
     -- acutil.setupHook(KYOUKARENDA_GODDESS_MGR_REINFORCE_CLEAR_BTN, "GODDESS_MGR_REINFORCE_CLEAR_BTN")
     CHAT_SYSTEM("kyoukarenda loaded")
     addon:RegisterMsg('GAME_START_3SEC', 'KYOUKARENDA_FRAME_INIT')
@@ -48,7 +49,7 @@ function KYOUKARENDA_STOP_SCRIPT()
     ui.SysMsg("Continuous Interrupts reinforcement")
     -- g.autoreinforce = 1
 end
-
+--[[
 function KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC(parent, btn)
     g.autoreinforce = 1
     local frame = parent:GetTopParentFrame()
@@ -88,8 +89,9 @@ function KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC(parent, btn)
         SET_MODAL_MSGBOX(msgbox)
     end
 end
-
-function _KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
+]]
+function KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
+    g.autoreinforce = 1
 
     local frame = ui.GetFrame('goddess_equip_manager')
     if frame == nil then
@@ -156,11 +158,12 @@ function _KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
 
     item.DialogTransaction('GODDESS_REINFORCE', result_list)
 
-    if g.autoreinforce == 1 and ref_do_reinforce:IsEnable() == 1 and (icon ~= nil or icon:GetInfo() ~= nil) then
+    if g.autoreinforce == 1 and g.autocontrol == 0 and (icon ~= nil or icon:GetInfo() ~= nil) then
         CHAT_SYSTEM("TEST2")
         CHAT_SYSTEM(g.autoreinforce)
         ref_do_reinforce:SetEnable(0)
-        ReserveScript("_KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC()", 5.0)
+        g.autocontrol = 1
+        ReserveScript("KYOUKARENDA_GODDESS_MGR_REFORGE_REINFORCE_EXEC()", 5.0)
 
     else
         g.autoreinforce = 0
