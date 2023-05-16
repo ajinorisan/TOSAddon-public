@@ -1,7 +1,7 @@
 local addonName = "CONTINUERF"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -41,12 +41,15 @@ function CONTINUERF_FRAME_INIT()
 end
 
 function CONTINUERF_STOP_SCRIPT()
-    -- CHAT_SYSTEM("test")
-    g.autoreinforce = 0
+
     -- CHAT_SYSTEM(g.autoreinforce)
     ui.SysMsg("連続強化を中断します")
     ui.SysMsg("Continuous Interrupts reinforcement")
-    -- g.autoreinforce = 1
+    local frame = ui.GetFrame('goddess_equip_manager')
+    g.autoreinforce = 0
+    GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame)
+    -- ref_do_reinforce:SetEnable(0)
+    return
 end
 
 function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
