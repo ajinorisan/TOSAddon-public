@@ -4,4 +4,4 @@ dungeonrpcharger のギルティネドロップのエクトナイトの自動補
 
 アドオンマネージャーに干渉するっぽいので名前変えました使う時は
 
-_nori_muteki2ex-⛄-v1.2.7nori1.0.1.ipf　を　_muteki2ex-⛄-v1.2.7nori1.0.1.ipf　に変えて使ってください。
+_dungeonrpcharger_nori-📖-v1.0.2.ipf　を　_dungeonrpcharger-📖-v1.0.2.ipf　に変えて使ってください。
