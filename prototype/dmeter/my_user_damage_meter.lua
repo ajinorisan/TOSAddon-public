@@ -6,6 +6,10 @@ function USER_DAMAGE_METER_ON_INIT(addon, frame)
 end
 
 function USER_DAMAGE_METER_UI_OPEN(frame, msg, strArg, numArg)
+    CHAT_SYSTEM(msg)
+    CHAT_SYSTEM(strArg)
+    CHAT_SYSTEM(numArg)
+
     frame:ShowWindow(1)
 end
 
@@ -31,6 +35,7 @@ function ON_USER_DAMAGE_LIST(nameList, damageList)
 end
 
 function UPDATE_USER_DAMAGE_METER_GUAGE(frame, groupbox, totalDamage, nameList)
+    CHAT_SYSTEM(totalDamage)
 
     local SET_HEIGHT = 17 -- 1人分の高さ
 
