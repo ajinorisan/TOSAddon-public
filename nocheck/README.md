@@ -1,14 +1,14 @@
 イコルの欠片とかベルトの欠片とかイヤリングの欠片を確認無しで使用します。
 
-他の大事なアイテムも確認出ないので注意!!
+v1.0.0 変性者とファロウロスの装備の帰属解除を簡易化しました。もうええかなってことでバージョン1.0.0です。
 
 v0.0.3 欠片アイテムとレジェンドカードとゴッデスカードとエーテルジェムの確認を無くしました
 
 --
 
-Use ikol shards, belt shards, or earring shards without confirmation.
+Use Ikol shards, belt shards or earring shards without confirmation.
 
-Other important items will not be confirmed, so be careful!
+v1.0.0 Simplified the unattribution of equipment for mutators and Pharouros. Version 1.0.0 has been released.
 
-v0.0.3 No confirmation for shard items, legend cards, goddess cards and ether gems!
+v0.0.3 No more confirmations for shard items, legend cards, goddess cards, and ether gems.
 
