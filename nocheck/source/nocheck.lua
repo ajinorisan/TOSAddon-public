@@ -1,7 +1,7 @@
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -26,10 +26,38 @@ function NOCHECK_ON_INIT(addon, frame)
     acutil.setupHook(NOCHECK_GODDESS_MGR_REFORGE_OPEN, "GODDESS_MGR_REFORGE_OPEN")
     acutil.setupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
         "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    acutil.setupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
 
     CHAT_SYSTEM("NOCHECK loaded")
     -- NOCHECK_FRAME_INIT()
 
+end
+
+function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
+    local scrollType = frame:GetUserValue("ScrollType")
+    local clickable = frame:GetUserValue("EnableTranscendButton")
+    if tonumber(clickable) ~= 1 then
+        return;
+    end
+
+    local slot = GET_CHILD(frame, "slot");
+    local invItem = GET_SLOT_ITEM(slot);
+    if invItem == nil then
+        ui.MsgBox(ScpArgMsg("DropItemPlz"));
+        imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"));
+        return;
+    end
+
+    local itemObj = GetIES(invItem:GetObject());
+
+    local scrollGuid = frame:GetUserValue("ScrollGuid")
+    local scrollInvItem = session.GetInvItemByGuid(scrollGuid);
+    if scrollInvItem == nil then
+        return;
+    end
+    local clmsg = ScpArgMsg("ReallyUnlockBelonging")
+    local yesscp = 'UNLOCK_ACC_BELONGING_SCROLL_EXEC'
+    ui.MsgBox(clmsg, yesscp, "None");
 end
 
 -- ゴッデス装備帰属解除時の簡易化
@@ -55,9 +83,9 @@ function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(fr
     if scrollInvItem == nil then
         return;
     end
-
+    local clmsg = ScpArgMsg("ReallyUnlockBelonging")
     local yesscp = 'UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC'
-    ui.MsgBox(ScpArgMsg('ReallyGoddessUnlock', 'item', itemObj.Name), yesscp, "None");
+    ui.MsgBox(clmsg, yesscp, "None");
 end
 
 --[[ エーテルジェム自動着脱作りかけ
