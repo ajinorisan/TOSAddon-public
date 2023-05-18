@@ -59,10 +59,11 @@
 		"name" : "NO check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v0.0.3",
+		"fileVersion" : "v1.0.0",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
-		"description" : "インベントリの欠片を確認無しで使用します。カードの付け外し、エーテルジェムの確認も消します。 Use inventory pieces without confirmation. Also erases the confirmation of card attachments and removals and ether gems. 인벤토리 조각을 확인 없이 사용합니다. 카드 탈부착, 에테르 젬 확인도 지워집니다.",
+		"description" : "インベントリの欠片を確認無しで使用します。カードの付け外し、エーテルジェムの確認も消します。アドオンに変性者とファロウロス装備の際に入力する手間を省く機能を搭載。Use inventory pieces without confirmation. Also erases the confirmation of card attachments and removals and ether gems.Add-ons include a feature that eliminates the need to enter when equipping degenerates and Pharouros. 인벤토리 조각을 확인 없이 사용합니다. 카드 탈부착, 에테르 젬 확인도 지워집니다.애드온에 변성자와 파라오로스 장착 시 입력하는 수고를 덜어주는 기능을 탑재했다.
+",
 		"tags" : [
 		           "item"
 		]
