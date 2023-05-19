@@ -4,7 +4,7 @@ ui.SysMsg("test") 画面真ん中に表示
 
 ScpArgMsg("active_perfection") ＜パーフェクト＞効果が発動しました が翻訳されて出てくる
 
-BroadMsg(groupName,msg,lifeTime ) BroadMsg(”Party",”test",1.0 ) メッセージを決められた秒数表示し続ける
+addon:BroadMsg(groupName,msg,lifeTime ) addon:BroadMsg(”Party",”test",1.0 ) メッセージを決められた秒数表示し続ける
 
 session.GetMapID() マップIDを取得
 
@@ -34,166 +34,34 @@ ClMsg(”定義されたアルファベットのメッセージ") メッセー�
 
 tonumber(文字列で格納された数字) 数値に変換
 
-ETC_20200724_048780	{nl} {nl}使用で獲得したアイテムは元に戻せません。{nl}{@st66d_y}{s20}{nl} {nl}本当に使用しますか？	{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?
+frame:CancelReserveScript("_CHATFRAME_RESIZE") 本当にあるのね。ChatGPT疑ってごめん
 
-<Class ClassID="4269" ClassName="YESSCP_OPEN_BASIC_MSG" Data="{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?"/>
+関数名: RunUpdateScript
+引数:
 
-<dic_data ID="ETC_20200724_048780" kr="{nl} {nl}사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?" IsUse="1" Category="ETC" NpcName="" Filename="xml_lang\clientmessage.xml" FilenameWithKey="xml_lang\clientmessage.xml//CategoryNameItemClassClassID42694269YESSCP_OPEN_BASIC_MSG_Data_0"/>
+scriptName: 実行するスクリプトの名前
+updateTime: スクリプトを実行する間隔（秒単位）
+elapsedTime: 実行開始までの待機時間（秒単位）
+isOnce: 一度だけ実行するかどうかのフラグ（1なら一度だけ実行、0なら繰り返し実行）
+delayTime: 実行開始後の待機時間（秒単位）
+処理の概要:
 
-function BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
-	if invItem == nil then
-		return;
-	end
-	
-	local invFrame = ui.GetFrame("inventory");	
-	local itemobj = GetIES(invItem:GetObject());
-	if itemobj == nil then
-		return;
-	end
-	invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
-	
-	local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("YESSCP_OPEN_BASIC_MSG"));
-	ui.MsgBox_NonNested(textmsg, itemobj.Name, 'REQUEST_SUMMON_BOSS_TX', "None");
-	
-	return;
+scriptNameで指定されたスクリプトを実行します。このスクリプトは、登録された関数や処理のことを指します。
+updateTimeで指定された間隔ごとにスクリプトを実行します。例えば、updateTimeが0.01の場合、0.01秒ごとにスクリプトが実行されます。
+elapsedTimeで指定された待機時間が経過した後に、スクリプトの実行を開始します。例えば、elapsedTimeが0の場合、即座に実行が開始されます。
+isOnceが1の場合、スクリプトは一度だけ実行されます。0の場合は繰り返し実行されます。
+delayTimeで指定された待機時間が経過した後、次回のスクリプト実行まで待機します。例えば、delayTimeが0の場合、次の実行がすぐに行われます。
+
+session.dps.ReqStartDpsPacket();--これでサーバーからDPS情報取れるか？
+
+local result = session.dps.ReqStartDpsPacket()
+if result == 1 then
+    -- パケットリクエストが成功した場合の処理
+    CHAT_SYSTEM("計測スタート")
+    -- ...
+else
+    -- パケットリクエストが失敗した場合の処理
+    CHAT_SYSTEM("計測失敗")
+    -- ...
 end
-
-エーテルジェムここかな？
-
-https://github.com/ajinorisan/TOSAddon-public/blob/main/client/jp/addon.ipf/aether_gem_reinforce/aether_gem_reinforce.lua
-
-エーテルジェム装備から外す　aether_transfer.lua
-
---SLOT UI.MOUSE INPUT EVENT START--
---Deletes the information of the set slot.
-function AETHER_TRANSFER_REMOVE_SLOT_RBTN(parent,ctrl)
-	local topFrame 	 = parent:GetTopParentFrame();
-	ctrl:ClearIcon();
-	local ctrl_name = ctrl:GetName();
-	if ctrl_name==nil then return end
-	local split_list = SCR_STRING_CUT_UNDERBAR(ctrl_name)
-	local str_lower = split_list[2]
-	if str_lower==nil then return end
-
-	GET_CHILD_RECURSIVELY(topFrame,"slot_bg_image_"..str_lower):ShowWindow(1)
-	GET_CHILD_RECURSIVELY(topFrame,"text_putonitem_"..str_lower):ShowWindow(1)
-	local text_itemname = GET_CHILD_RECURSIVELY(topFrame,"text_itemname_"..str_lower)
-	text_itemname:ShowWindow(0)
-	text_itemname:SetTextByKey('name',"");
-
-	local user_str = "SLOT_GUID_"..string.upper(str_lower)
-	local user_val = ctrl:GetUserValue(user_str)
-	if user_val ~= "None" then 
-		SELECT_INV_SLOT_BY_GUID(user_val,0)
-		ctrl:SetUserValue(user_str,"None")
-	end
-	AETHER_TRANSFER_UPDATE_IS_READY(topFrame)
-end
-
-エーテルジェムを装備にはめる
--- The First Process that you trying to transfer 
-function AETHER_TRANSFER_PRESET_SLOT_INV_RBTN(item_obj, slot, argStr)
-	local frame = ui.GetFrame("aether_transfer")
-	if frame == nil then return end
-	
-	if GETMYPCLEVEL() < PC_MAX_LEVEL then 
-		ui.SysMsg(ClMsg('NeedMorePcLevel'))
-		return 
-	end
-
-	if slot:IsSelected()==1 then slot:Select(0) end
-	
-	local fromFrame = slot:GetTopParentFrame();
-	if fromFrame:GetName() ~= "inventory" then return end
-
-	local group_name = TryGetProp(item_obj,"GroupName","None")
-	if group_name=="None" then return elseif group_name~="Gem_High_Color" then return end
-	
-	local numberArg =  TryGetProp(item_obj,"NumberArg1",0)
-	if numberArg==0 then return end
-
-	local item_icon = slot:GetIcon()
-	local icon_info = item_icon:GetInfo()
-	local guid 	 	= icon_info:GetIESID()	
-	local inv_item 	= session.GetInvItemByGuid(guid)
-	local item_obj  = GetIES(inv_item:GetObject())
-
-	if inv_item.isLockState ==true then
-		ui.SysMsg(ClMsg('MaterialItemIsLock'))
-		return 
-	end
-	
-	local slot_left  = GET_CHILD_RECURSIVELY(frame,"slot_left")
-	local slot_right = GET_CHILD_RECURSIVELY(frame,"slot_right")
-	local currLv 	 = get_current_aether_gem_level(item_obj)
-	
-	if numberArg==460 then
-		if is_max_aether_gem_level(item_obj) then 
-			--SETTING LEFT SLOT 
-			AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"left")
-		else
-			ui.SysMsg(ClMsg('invalidAetherGem'))
-			return
-		end
-	elseif numberArg==480 then
-		if currLv < 120 then 
-			--SETTING RIGHT SLOT
-			AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"right")
-			
-		elseif currLv >= 120 then
-			ui.SysMsg(ClMsg('aleadyHighLevel'))
-			return
-		end
-	end
-
-	AETHER_TRANSFER_UPDATE_IS_READY(frame)
-end
-
-msgbox制御かな？
-function WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM(clmsg, yesScp, noScp, itemGuid)
-	ui.OpenFrame("warningmsgbox")
-	local frame = ui.GetFrame('warningmsgbox')
-	frame:EnableHide(1);
-	local warningText = GET_CHILD_RECURSIVELY(frame, "warningtext")
-	warningText:SetText(clmsg)
-
-	local input_frame = GET_CHILD_RECURSIVELY(frame, "input")
-    input_frame:ShowWindow(1)
-	input_frame:SetText('')
-	input_frame:SetMaxLen(13)
-	input_frame:Focus()
-
-	GET_CHILD_RECURSIVELY(frame, "cbox_showTooltip"):ShowWindow(0)
-
-	local yesBtn = GET_CHILD_RECURSIVELY(frame, "yes")
-	tolua.cast(yesBtn, "ui::CButton");
-
-	yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM_YES');
-	yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
-
-	local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
-	tolua.cast(noBtn, "ui::CButton");
-
-	noBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM_NO');
-	noBtn:SetEventScriptArgString(ui.LBUTTONUP, noScp)
-
-	local buttonMargin = noBtn:GetMargin()
-	local warningbox = GET_CHILD_RECURSIVELY(frame, 'warningbox')
-	local totalHeight = warningbox:GetY() + warningText:GetY() + warningText:GetHeight()  + noBtn:GetHeight() + 2 * buttonMargin.bottom + input_frame:GetHeight()
-
-	local okBtn = GET_CHILD_RECURSIVELY(frame, "ok")
-	tolua.cast(okBtn, "ui::CButton");
-
-	yesBtn:ShowWindow(1);
-	noBtn:ShowWindow(1);
-	okBtn:ShowWindow(0);
-
-	local bg = GET_CHILD_RECURSIVELY(frame, 'bg')
-	warningbox:Resize(warningbox:GetWidth(), totalHeight)
-	bg:Resize(bg:GetWidth(), totalHeight)
-	frame:Resize(frame:GetWidth(), totalHeight)
-end
-
-https://github.com/ajinorisan/TOSAddon-public/blob/5f1e0e6f358215ace138c75d2b9a7b80d2880aa3/client/jp/addon.ipf/goddess_equip_manager/goddess_equip_manager.lua#L3501
-
-実はここ
+ほんまか？
