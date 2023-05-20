@@ -19,6 +19,16 @@
 		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。曲も変わるよ。 When a follower appears, you will be notified by the system chat and the Nico Nico chat. A sound will also be played.  팔로워가 생기면 시스템 채팅과 니코니코챗으로 알려줘요. 소리도 울려요.",
 		"tags" : []
 	},
+{
+		"name" : "Free From Little Stress",
+		"file" : "freefromlittlestress",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "freefromlittlestress",
+		"unicode" : "⛄",
+		"description" : "何気ないストレスを軽減したい。レイド後のレコードを右上に表示します。スキンをシックでモダンな感じに変更。 I want to reduce casual stress. Display post raid records in the upper right hand corner. Change the skin to a chic and modern look. 일상적인 스트레스를 줄이고 싶다. 레이드 후 기록을 오른쪽 상단에 표시합니다. 스킨을 세련되고 모던한 느낌으로 변경.",
+		"tags" : []
+	},
  {
 		"name" : "Easy buff",
 		"file" : "easybuff",
