@@ -9,18 +9,109 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
---test
+
+g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+
+g.raidlist = {
+    giltine = 628,
+    baubas = "?"
+};
+-- test
 local fflsframe = ui.GetFrame('freefromlittlestress')
 fflsframe:SetPos(1780, 335)
 fflsframe:Resize(50, 50)
-fflsframe:SetSkinName("black_box_op20")
-fflsframe:SetTitleBarSkin("black_box_op20")
+-- fflsframe:SetSkinName("black_box_op20")
+fflsframe:SetSkinName("None")
+fflsframe:SetTitleBarSkin("None")
 -- fflsframe:SetSkinName("shadow_box")
 local rwbtn = fflsframe:CreateOrGetControl("button", "rwbtn", 0, 0, 50, 50)
 fflsframe:ShowWindow(0)
 fflsframe:ShowWindow(1)
+rwbtn:SetText("boruta")
+rwbtn:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CREATE_RW_FRAME")
 
-g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+function FREEFROMLITTLESTRESS_RW_FRAME_INIT()
+
+end
+function FREEFROMLITTLESTRESS_CREATE_RW_FRAME()
+    -- フレームの作成
+    local rwframe = ui.CreateNewFrame("wordframe", "rwframe")
+
+    rwframe:Resize(200, 500)
+    rwframe:SetPos(1580, 390)
+    rwframe:EnableTitleBar(0) -- タイトルバーを非表示にする
+
+    -- クローズボタン
+    local tbutton = rwframe:CreateOrGetControl('button', 'close', 170, 5, 25, 25)
+    tbutton:SetImage("testclose_button")
+    tbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CLOSE_RW_FRAME")
+
+    -- ボルタボタン
+    local borutabutton = rwframe:CreateOrGetControl('button', 'boruta', 5, 40, 180, 30)
+    borutabutton:SetSkinName("test_red_button")
+    borutabutton:SetText("boruta")
+    borutabutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_ON_BORUTA_CLICK")
+
+    -- ギルティネボタン
+    local giltinebutton = rwframe:CreateOrGetControl('button', 'giltine', 5, 80, 180, 30)
+    giltinebutton:SetSkinName("test_red_button")
+    giltinebutton:SetText("giltine")
+    giltinebutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_ON_GILTINE_CLICK")
+
+    -- バウバスボタン
+    local baubasbutton = rwframe:CreateOrGetControl('button', 'baubas', 5, 120, 180, 30)
+    baubasbutton:SetSkinName("test_red_button")
+    baubasbutton:SetText("baubas")
+    baubasbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_ON_BAUBAS_CLICK")
+
+    rwframe:ShowWindow(1)
+end
+
+function FREEFROMLITTLESTRESS_CLOSE_RW_FRAME(frame)
+    -- local frame = ui.GetFrame("rwframe");
+    frame:ShowWindow(0)
+end
+
+function FREEFROMLITTLESTRESS_ON_BORUTA_CLICK(frame)
+    CHAT_SYSTEM("ボルタボタンがクリックされました")
+
+    local indunCls = GetClass('GuildEvent', 'GM_BorutosKapas_1');
+    if indunCls ~= nil then
+        frame:ShowWindow(0)
+        local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
+        _BORUTA_ZONE_MOVE_CLICK(indunClsID);
+    end
+end
+
+function FREEFROMLITTLESTRESS_ON_GILTINE_CLICK(frame)
+    CHAT_SYSTEM("ギルティネボタンがクリックされました")
+
+    local pc = GetMyPCObject();
+
+    if session.world.IsIntegrateServer() == true or IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
+        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
+        return
+    end
+
+    if world.GetLayer() ~= 0 then
+        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
+        return;
+    end
+
+    local curMap = GetClass('Map', session.GetMapName());
+    local mapType = TryGetProp(curMap, 'MapType');
+    if mapType == 'Dungeon' then
+        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
+        return;
+    end
+    frame:ShowWindow(0)
+    control.CustomCommand('MOVE_TO_ENTER_NPC', 628, 0, 0);
+end
+
+function FREEFROMLITTLESTRESS_ON_BAUBAS_CLICK(frame)
+    CHAT_SYSTEM("バウバスボタンがクリックされました")
+    -- ここにバウバスボタンのクリック時の処理を追加
+end
 
 g.Settings = {
     Position = {
@@ -36,7 +127,8 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     CHAT_SYSTEM(addonNameLower .. " loaded")
 
     acutil.setupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
-    FREEFROMLITTLESTRESS_FRAME_INIT()
+    -- FREEFROMLITTLESTRESS_FRAME_INIT()
+    FREEFROMLITTLESTRESS_RW_FRAME_INIT()
 end
 
 -- エーテルジェム自動着脱作りかけ
