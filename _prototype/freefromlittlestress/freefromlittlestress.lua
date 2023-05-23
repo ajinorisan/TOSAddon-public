@@ -12,107 +12,6 @@ local acutil = require("acutil")
 
 g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
-g.raidlist = {
-    giltine = 628,
-    baubas = "?"
-};
--- test
-local fflsframe = ui.GetFrame('freefromlittlestress')
-fflsframe:SetPos(1780, 335)
-fflsframe:Resize(50, 50)
--- fflsframe:SetSkinName("black_box_op20")
-fflsframe:SetSkinName("None")
-fflsframe:SetTitleBarSkin("None")
--- fflsframe:SetSkinName("shadow_box")
-local rwbtn = fflsframe:CreateOrGetControl("button", "rwbtn", 0, 0, 50, 50)
-fflsframe:ShowWindow(0)
-fflsframe:ShowWindow(1)
-rwbtn:SetText("boruta")
-rwbtn:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CREATE_RW_FRAME")
-
-function FREEFROMLITTLESTRESS_RW_FRAME_INIT()
-
-end
-function FREEFROMLITTLESTRESS_CREATE_RW_FRAME()
-    -- フレームの作成
-    local rwframe = ui.CreateNewFrame("wordframe", "rwframe")
-
-    rwframe:Resize(200, 500)
-    rwframe:SetPos(1580, 390)
-    rwframe:EnableTitleBar(0) -- タイトルバーを非表示にする
-
-    -- クローズボタン
-    local tbutton = rwframe:CreateOrGetControl('button', 'close', 170, 5, 25, 25)
-    tbutton:SetImage("testclose_button")
-    tbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CLOSE_RW_FRAME")
-
-    -- ボルタボタン
-    local borutabutton = rwframe:CreateOrGetControl('button', 'boruta', 5, 40, 180, 30)
-    borutabutton:SetSkinName("test_red_button")
-    borutabutton:SetText("boruta")
-    borutabutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_ON_BORUTA_CLICK")
-
-    -- ギルティネボタン
-    local giltinebutton = rwframe:CreateOrGetControl('button', 'giltine', 5, 80, 180, 30)
-    giltinebutton:SetSkinName("test_red_button")
-    giltinebutton:SetText("giltine")
-    giltinebutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_ON_GILTINE_CLICK")
-
-    -- バウバスボタン
-    local baubasbutton = rwframe:CreateOrGetControl('button', 'baubas', 5, 120, 180, 30)
-    baubasbutton:SetSkinName("test_red_button")
-    baubasbutton:SetText("baubas")
-    baubasbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_ON_BAUBAS_CLICK")
-
-    rwframe:ShowWindow(1)
-end
-
-function FREEFROMLITTLESTRESS_CLOSE_RW_FRAME(frame)
-    -- local frame = ui.GetFrame("rwframe");
-    frame:ShowWindow(0)
-end
-
-function FREEFROMLITTLESTRESS_ON_BORUTA_CLICK(frame)
-    CHAT_SYSTEM("ボルタボタンがクリックされました")
-
-    local indunCls = GetClass('GuildEvent', 'GM_BorutosKapas_1');
-    if indunCls ~= nil then
-        frame:ShowWindow(0)
-        local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
-        _BORUTA_ZONE_MOVE_CLICK(indunClsID);
-    end
-end
-
-function FREEFROMLITTLESTRESS_ON_GILTINE_CLICK(frame)
-    CHAT_SYSTEM("ギルティネボタンがクリックされました")
-
-    local pc = GetMyPCObject();
-
-    if session.world.IsIntegrateServer() == true or IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
-        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
-        return
-    end
-
-    if world.GetLayer() ~= 0 then
-        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
-        return;
-    end
-
-    local curMap = GetClass('Map', session.GetMapName());
-    local mapType = TryGetProp(curMap, 'MapType');
-    if mapType == 'Dungeon' then
-        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
-        return;
-    end
-    frame:ShowWindow(0)
-    control.CustomCommand('MOVE_TO_ENTER_NPC', 628, 0, 0);
-end
-
-function FREEFROMLITTLESTRESS_ON_BAUBAS_CLICK(frame)
-    CHAT_SYSTEM("バウバスボタンがクリックされました")
-    -- ここにバウバスボタンのクリック時の処理を追加
-end
-
 g.Settings = {
     Position = {
         X = 900,
@@ -127,8 +26,168 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     CHAT_SYSTEM(addonNameLower .. " loaded")
 
     acutil.setupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+    acutil.setupHook(FREEFROMLITTLESTRESS_RESTART_ON_MSG, "RESTART_ON_MSG")
     -- FREEFROMLITTLESTRESS_FRAME_INIT()
-    FREEFROMLITTLESTRESS_RW_FRAME_INIT()
+
+end
+
+function FREEFROMLITTLESTRESS_RESTART_ON_MSG(frame, msg, argStr, argNum)
+    local minigameover = ui.GetFrame('minigameover');
+    if minigameover:IsVisible() == 1 then
+        return;
+    end
+
+    if msg == 'RESTART_HERE' then
+        for i = 1, 5 do
+            local btnName = "restart" .. i .. "btn";
+            local resButtonObj = GET_CHILD(frame, btnName, 'ui::CButton');
+            local isBit = BitGet(argNum, i);
+            resButtonObj:ShowWindow(isBit);
+        end
+
+        -- 보루타 부활용
+        local returnCityBtn = GET_CHILD(frame, "restart9btn", "ui::CButton");
+        returnCityBtn:ShowWindow(0);
+        if BitGet(argNum, 16) == 1 then
+            frame:RunUpdateScript("BORUTA_RVRRAID_RESTART_UPDATE", 1, 0, 0, 1);
+            frame:SetUserValue("COUNT", 30);
+            returnCityBtn:ShowWindow(1);
+        end
+
+        -- 콜로니전 부활용
+        -- ここで30秒後に戻るボタンを表示
+        local resButtonObj = GET_CHILD(frame, "restart6btn", 'ui::CButton');
+        resButtonObj:ShowWindow(0);
+        if 1 == BitGet(argNum, 12) then
+            frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0)
+            frame:SetSkinName("None")
+            local btnName = "restart6btn";
+            local resButtonObj = GET_CHILD(frame, btnName, 'ui::CButton');
+
+            resButtonObj:ShowWindow(1);
+            resButtonObj:SetAlpha(20)
+        end
+
+        local resButtonObj = GET_CHILD(frame, "restart8btn", 'ui::CButton');
+        resButtonObj:ShowWindow(0);
+        if 1 == BitGet(argNum, 14) then
+            frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0) -- テスト用
+            frame:SetSkinName("None") -- テスト用
+
+            resButtonObj:ShowWindow(1);
+            resButtonObj:SetAlpha(20) -- テスト用
+            COLONY_WAR_RESTART_BY_MYSTIC_UPDATE(frame);
+        end
+
+        -- ここで自動で戻るのを制御している 戦場カメラマンとしてはウズウズ
+        if 1 == BitGet(argNum, 12) or 1 == BitGet(argNum, 14) then
+            frame:RunUpdateScript("COLONY_WAR_RESTART_UPDATE", 1, 0, 0, 1);
+            frame:SetUserValue("COUNT", 30);
+        end
+
+        -- 길드 타워
+        -- ここでギルドタワーボタンを表示
+        local resButtonObj = GET_CHILD(frame, "restart7btn", 'ui::CButton');
+        resButtonObj:ShowWindow(0);
+        if 1 == BitGet(argNum, 13) then
+            frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0)
+            frame:SetSkinName("None")
+            local btnName = 'restart7btn';
+            local resButtonObj = GET_CHILD(frame, btnName, 'ui::CButton');
+            if IS_EXIST_GUILD_TOWER() == true then
+                resButtonObj:ShowWindow(1);
+                resButtonObj:SetAlpha(20)
+            end
+        end
+
+        -- 레이드 부활
+        local map = GetClass('Map', session.GetMapName());
+        local keyword = TryGetProp(map, 'Keyword', 'None');
+        local keyword_table = StringSplit(keyword, ';');
+        if table.find(keyword_table, 'MythicMap') > 0 then
+            local restart10btn = GET_CHILD(frame, "restart10btn", "ui::CButton");
+            if restart10btn ~= nil then
+                restart10btn:ShowWindow(0);
+            end
+        elseif IsRaidField() == 1 or IsRaidMap() == 1 then
+            if argNum == 6 then
+                local restart1btn = GET_CHILD(frame, "restart1btn", "ui::CButton");
+                if restart1btn ~= nil then
+                    restart1btn:ShowWindow(0);
+                end
+
+                -- start point restart
+                local use_start_point = 1;
+                if argStr ~= "" then
+                    local restart_class = GetClass("resurrect_return_control", argStr);
+                    if restart_class ~= nil then
+                        use_start_point = TryGetProp(restart_class, "StartPoint", 1);
+                    end
+                end
+
+                local restart10btn = GET_CHILD(frame, "restart10btn", "ui::CButton");
+                if restart10btn ~= nil then
+                    if use_start_point == 1 then
+                        restart10btn:ShowWindow(1);
+                    else
+                        restart10btn:ShowWindow(0);
+                    end
+                end
+
+                -- return city restart
+                local use_save_point = 0;
+                if argStr ~= "" then
+                    local restart_class = GetClass("resurrect_return_control", argStr);
+                    if restart_class ~= nil then
+                        use_save_point = TryGetProp(restart_class, "SavePoint", 0);
+                    end
+                end
+
+                local restart1btn = GET_CHILD(frame, "restart1btn", "ui::CButton");
+                if restart1btn ~= nil then
+                    if use_save_point == 1 then
+                        restart1btn:ShowWindow(1);
+                    else
+                        restart1btn:ShowWindow(0);
+                    end
+                end
+            end
+        else
+            local restart10btn = GET_CHILD(frame, "restart10btn", "ui::CButton");
+            if restart10btn ~= nil then
+                restart10btn:ShowWindow(0);
+            end
+        end
+
+        AUTORESIZE_RESTART(frame);
+        RESTART_WAIT_STOP();
+        frame:ShowWindow(1);
+    elseif msg == 'RESTARTSELECT_UP' then
+        RESTART_MOVE_INDEX(frame, -1);
+        RESTARTSELECT_ITEM_SELECT(frame)
+    elseif msg == 'RESTARTSELECT_DOWN' then
+        RESTART_MOVE_INDEX(frame, 1);
+        RESTARTSELECT_ITEM_SELECT(frame)
+    elseif msg == 'RESTARTSELECT_SELECT' then
+        local list = RESTART_GET_COMMAND_LIST(frame)
+        local restartSelect_index = frame:GetValue();
+        local ItemBtn = frame:GetChildRecursively(list[restartSelect_index]);
+        local scp = ItemBtn:GetEventScript(ui.LBUTTONUP);
+        local argString = ItemBtn:GetEventScriptArgString(ui.LBUTTONUP);
+        scp = _G[scp];
+        scp(frame, ItemBtn, argString);
+    elseif msg == 'RESTART_WAIT' then
+        for i = 1, 10 do
+            local btn = GET_CHILD(frame, "restart" .. i .. "btn", 'ui::CButton');
+            btn:ShowWindow(0);
+        end
+        local text = GET_CHILD(frame, "restart_wait", 'ui::CRichText');
+        text:ShowWindow(1);
+        text:SetTextByKey("sec", argNum);
+        AddUniqueTimerFunccWithLimitCount("RESTART_WAIT_UPDATE", 1000, argNum);
+    elseif msg == 'RESTART_WAIT_END' then
+        RemoveLuaTimerFunc("RESTART_WAIT_UPDATE")
+    end
 end
 
 -- エーテルジェム自動着脱作りかけ
