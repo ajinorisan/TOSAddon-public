@@ -12,12 +12,10 @@ local acutil = require("acutil")
 
 g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
-g.Settings = {
-    Position = {
-        X = 900,
-        Y = 100
-    },
-    Presetethergem = {}
+g.settings = {
+    x = 500,
+    y = 50
+
 };
 
 function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
