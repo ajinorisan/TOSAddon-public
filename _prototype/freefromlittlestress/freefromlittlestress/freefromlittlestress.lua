@@ -30,6 +30,9 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
 end
 
 function FREEFROMLITTLESTRESS_RESTART_ON_MSG(frame, msg, argStr, argNum)
+    CHAT_SYSTEM(msg)
+    CHAT_SYSTEM(argStr)
+    CHAT_SYSTEM(argNum)
     local minigameover = ui.GetFrame('minigameover');
     if minigameover:IsVisible() == 1 then
         return;
@@ -110,6 +113,9 @@ function FREEFROMLITTLESTRESS_RESTART_ON_MSG(frame, msg, argStr, argNum)
         elseif IsRaidField() == 1 or IsRaidMap() == 1 then
             if argNum == 6 then
                 local restart1btn = GET_CHILD(frame, "restart1btn", "ui::CButton");
+                frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0) -- テスト用
+                frame:SetSkinName("None") -- テスト用
+                resButtonObj:SetAlpha(20) -- テスト用
                 if restart1btn ~= nil then
                     restart1btn:ShowWindow(0);
                 end
