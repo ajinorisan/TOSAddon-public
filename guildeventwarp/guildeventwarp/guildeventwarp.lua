@@ -25,19 +25,24 @@ function GUILDEVENTWARP_ON_INIT(addon, frame)
 
     GUILDEVENTWARP_FRAME_INIT(frame)
 
-    addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_BORUTA_CLICK")
-    addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_GILTINE_CLICK")
-    addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_BAUBAS_CLICK")
-
     CHAT_SYSTEM(addonNameLower .. " loaded")
 
     if g.ctrl == 1 then
+
+        g.ctrl = 0
+        addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_BORUTA_CLICK")
         GUILDEVENTWARP_ON_BORUTA_CLICK(frame)
 
     elseif g.ctrl == 2 then
+
+        g.ctrl = 0
+        addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_GILTINE_CLICK")
         GUILDEVENTWARP_ON_GILTINE_CLICK(frame)
 
     elseif g.ctrl == 3 then
+
+        g.ctrl = 0
+        addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_BAUBAS_CLICK")
         GUILDEVENTWARP_ON_BAUBAS_CLICK(frame)
 
     end

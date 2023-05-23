@@ -29,6 +29,16 @@
 		"description" : "何気ないストレスを軽減したい。レイド後のレコードを右上に表示します。スキンをシックでモダンな感じに変更。 I want to reduce casual stress. Display post raid records in the upper right hand corner. Change the skin to a chic and modern look. 일상적인 스트레스를 줄이고 싶다. 레이드 후 기록을 오른쪽 상단에 표시합니다. 스킨을 세련되고 모던한 느낌으로 변경.",
 		"tags" : []
 	},
+{
+		"name" : "Guild Event Warp",
+		"file" : "guildeventwarp",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "guildeventwarp",
+		"unicode" : "⛄",
+		"description" : "画面右上の小さいボタンから封鎖戦のMAP1Chに飛べるよ 左からボルタ ギルティネ バウバス。You can jump to the MAP1Ch of the blockade fight from the small button in the upper right corner of the screen. From left to right: Volta, Guiltine, Baubus. 화면 오른쪽 상단의 작은 버튼으로 봉쇄전 MAP1Ch로 이동할 수 있다. 왼쪽부터 볼타 길티네 바우바스. ",
+		"tags" : []
+	},
  {
 		"name" : "Easy buff",
 		"file" : "easybuff",
