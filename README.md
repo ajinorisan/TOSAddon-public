@@ -10,14 +10,6 @@ The author of this addon is meldavyさん
 
 ----
 
-### easybuff-アドオンマネージャーに追加-Add to Add-on Manager
-
-v2.0.0系で色々見直しました。詳しくはREADME.md参照
-
-The author of this addon is Kiicchanさん
-
-----
-
 ### muteki2ex
 
 既存の動作にオーバーロードレイドのクールダウンゲージを付けました。色は選べません。
@@ -28,15 +20,23 @@ The author of this addon is WRITさん
 
 ----
 
-### gtsysmsg-アドオンマネージャーに追加-Add to Add-on Manager
+### Easy buff アドオンマネージャーに登録済 Register in Addon Manager
 
-追従者の出現時間をシステムチャットとニコニコ風チャットに出力。放置してても見逃さない。
+v2.0.0系で色々見直しました。詳しくはREADME.md参照
+
+The author of this addon is Kiicchanさん
+
+----
+
+### GT sysmsg アドオンマネージャーに登録済 Register in Addon Manager
+
+追従者の出現時間をシステムチャットとニコニコ風チャットに出力。放置してても見逃さない。音も出るよ。
 
 Special thanks to menimaniさん
 
 ----
 
-### klcount-アドオンマネージャーに追加-Add to Add-on Manager
+### KL count アドオンマネージャーに登録済 Register in Addon Manager
 
 EP14.15マップで敵を倒した数をカウントします。正確な効率が測れるかも。
 
@@ -44,13 +44,41 @@ Special thanks to menimaniさん
 
 ----
 
-### nocheck-アドオンマネージャーに追加-Add to Add-on Manager
+### NO check アドオンマネージャーに登録済 Register in Addon Manager
 
 各種欠片を使用する際の確認を消します。レジェンドカード、ゴッデスカード、エーテルジェムの着脱時の確認も消します。
 
+おまけ機能でゴッデス装備の帰属解除時のインプットボックスも消します。
+
 ----
 
-適当にTOSのアドオンを改変してます。
+### Auto Map Change アドオンマネージャーに登録済 Register in Addon Manager
+
+MAP移動時の確認ダイアログを削除します。バウンティハント用かな？
+
+----
+
+### Continue Reinforce アドオンマネージャーに登録済 Register in Addon Manager
+
+ゴッデス装備の強化を自動化
+
+----
+
+### Free From Trivial Stress アドオンマネージャーに登録済 Register in Addon Manager
+
+V1.0.0 レイド終了時のリワードの位置をずらしました。
+
+今後大きく育てたい。
+
+----
+
+### guildeventwarp
+
+ボルタ、ギルティネ、バウバスの各封鎖戦開始場所までワンクリックで移動するボタンを表示します。
+
+----
+
+TOSのアドオンを作ったり改変してます。
 使用は自己責任で
 元コードの作者様は問題あったら連絡ください
 
@@ -58,9 +86,7 @@ Special thanks to menimaniさん
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\data
 
-に
-
-アドオンファイルを置いてください。_meshinuki-⛄-v1.0.0.ipf　こんな感じのやつ
+にアドオンファイルを置いてください。_meshinuki-⛄-v1.0.0.ipf　こんな感じのやつ
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons
 
