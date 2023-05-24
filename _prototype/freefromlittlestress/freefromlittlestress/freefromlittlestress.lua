@@ -1,7 +1,7 @@
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -12,11 +12,34 @@ local acutil = require("acutil")
 
 g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
-g.settings = {
-    x = 500,
-    y = 50
+if not g.loaded then
 
-};
+    g.settings = {
+        rrfp_x = 1300,
+        rrfp_y = 100
+    };
+
+end
+
+function FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+    acutil.saveJSON(g.settingsFileLoc, g.settings);
+
+end
+
+function FREEFROMLITTLESTRESS_LOADSETTINGS()
+
+    local t, err = acutil.loadJSON(g.settingsFileLoc);
+    if err then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files. Create an " .. addonNameLower ..
+                                      " folder in the addons folder and create a settinngs.json file in it",
+            addonNameLower))
+    else
+        -- 設定ファイル読み込み成功時処理
+        g.settings = t;
+    end
+    g.loaded = true
+end
 
 function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     g.addon = addon
@@ -24,176 +47,34 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     CHAT_SYSTEM(addonNameLower .. " loaded")
 
     acutil.setupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
-    acutil.setupHook(FREEFROMLITTLESTRESS_RESTART_ON_MSG, "RESTART_ON_MSG")
+    acutil.setupHook(FREEFROMLITTLESTRESS_CLEAR_GODDESS_EQUIP_MANAGER, "CLEAR_GODDESS_EQUIP_MANAGER")
+    addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
+    addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
+
+    FREEFROMLITTLESTRESS_LOADSETTINGS()
     -- FREEFROMLITTLESTRESS_FRAME_INIT()
 
 end
 
-function FREEFROMLITTLESTRESS_RESTART_ON_MSG(frame, msg, argStr, argNum)
-    CHAT_SYSTEM(msg)
-    CHAT_SYSTEM(argStr)
-    CHAT_SYSTEM(argNum)
-    local minigameover = ui.GetFrame('minigameover');
-    if minigameover:IsVisible() == 1 then
-        return;
-    end
-
-    if msg == 'RESTART_HERE' then
-        for i = 1, 5 do
-            local btnName = "restart" .. i .. "btn";
-            local resButtonObj = GET_CHILD(frame, btnName, 'ui::CButton');
-            local isBit = BitGet(argNum, i);
-            resButtonObj:ShowWindow(isBit);
-        end
-
-        -- 보루타 부활용
-        local returnCityBtn = GET_CHILD(frame, "restart9btn", "ui::CButton");
-        returnCityBtn:ShowWindow(0);
-        if BitGet(argNum, 16) == 1 then
-            frame:RunUpdateScript("BORUTA_RVRRAID_RESTART_UPDATE", 1, 0, 0, 1);
-            frame:SetUserValue("COUNT", 30);
-            returnCityBtn:ShowWindow(1);
-        end
-
-        -- 콜로니전 부활용
-        -- ここで30秒後に戻るボタンを表示
-        local resButtonObj = GET_CHILD(frame, "restart6btn", 'ui::CButton');
-        resButtonObj:ShowWindow(0);
-        if 1 == BitGet(argNum, 12) then
-            frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0)
-            frame:SetSkinName("None")
-            local btnName = "restart6btn";
-            local resButtonObj = GET_CHILD(frame, btnName, 'ui::CButton');
-
-            resButtonObj:ShowWindow(1);
-            resButtonObj:SetAlpha(20)
-        end
-
-        local resButtonObj = GET_CHILD(frame, "restart8btn", 'ui::CButton');
-        resButtonObj:ShowWindow(0);
-        if 1 == BitGet(argNum, 14) then
-            frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0) -- テスト用
-            frame:SetSkinName("None") -- テスト用
-
-            resButtonObj:ShowWindow(1);
-            resButtonObj:SetAlpha(20) -- テスト用
-            COLONY_WAR_RESTART_BY_MYSTIC_UPDATE(frame);
-        end
-
-        -- ここで自動で戻るのを制御している 戦場カメラマンとしてはウズウズ
-        if 1 == BitGet(argNum, 12) or 1 == BitGet(argNum, 14) then
-            frame:RunUpdateScript("COLONY_WAR_RESTART_UPDATE", 1, 0, 0, 1);
-            frame:SetUserValue("COUNT", 30);
-        end
-
-        -- 길드 타워
-        -- ここでギルドタワーボタンを表示
-        local resButtonObj = GET_CHILD(frame, "restart7btn", 'ui::CButton');
-        resButtonObj:ShowWindow(0);
-        if 1 == BitGet(argNum, 13) then
-            frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0)
-            frame:SetSkinName("None")
-            local btnName = 'restart7btn';
-            local resButtonObj = GET_CHILD(frame, btnName, 'ui::CButton');
-            if IS_EXIST_GUILD_TOWER() == true then
-                resButtonObj:ShowWindow(1);
-                resButtonObj:SetAlpha(20)
-            end
-        end
-
-        -- 레이드 부활
-        local map = GetClass('Map', session.GetMapName());
-        local keyword = TryGetProp(map, 'Keyword', 'None');
-        local keyword_table = StringSplit(keyword, ';');
-        if table.find(keyword_table, 'MythicMap') > 0 then
-            local restart10btn = GET_CHILD(frame, "restart10btn", "ui::CButton");
-            if restart10btn ~= nil then
-                restart10btn:ShowWindow(0);
-            end
-        elseif IsRaidField() == 1 or IsRaidMap() == 1 then
-            if argNum == 6 then
-                local restart1btn = GET_CHILD(frame, "restart1btn", "ui::CButton");
-                frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 0, 0) -- テスト用
-                frame:SetSkinName("None") -- テスト用
-                resButtonObj:SetAlpha(20) -- テスト用
-                if restart1btn ~= nil then
-                    restart1btn:ShowWindow(0);
-                end
-
-                -- start point restart
-                local use_start_point = 1;
-                if argStr ~= "" then
-                    local restart_class = GetClass("resurrect_return_control", argStr);
-                    if restart_class ~= nil then
-                        use_start_point = TryGetProp(restart_class, "StartPoint", 1);
-                    end
-                end
-
-                local restart10btn = GET_CHILD(frame, "restart10btn", "ui::CButton");
-                if restart10btn ~= nil then
-                    if use_start_point == 1 then
-                        restart10btn:ShowWindow(1);
-                    else
-                        restart10btn:ShowWindow(0);
-                    end
-                end
-
-                -- return city restart
-                local use_save_point = 0;
-                if argStr ~= "" then
-                    local restart_class = GetClass("resurrect_return_control", argStr);
-                    if restart_class ~= nil then
-                        use_save_point = TryGetProp(restart_class, "SavePoint", 0);
-                    end
-                end
-
-                local restart1btn = GET_CHILD(frame, "restart1btn", "ui::CButton");
-                if restart1btn ~= nil then
-                    if use_save_point == 1 then
-                        restart1btn:ShowWindow(1);
-                    else
-                        restart1btn:ShowWindow(0);
-                    end
-                end
-            end
-        else
-            local restart10btn = GET_CHILD(frame, "restart10btn", "ui::CButton");
-            if restart10btn ~= nil then
-                restart10btn:ShowWindow(0);
-            end
-        end
-
-        AUTORESIZE_RESTART(frame);
-        RESTART_WAIT_STOP();
-        frame:ShowWindow(1);
-    elseif msg == 'RESTARTSELECT_UP' then
-        RESTART_MOVE_INDEX(frame, -1);
-        RESTARTSELECT_ITEM_SELECT(frame)
-    elseif msg == 'RESTARTSELECT_DOWN' then
-        RESTART_MOVE_INDEX(frame, 1);
-        RESTARTSELECT_ITEM_SELECT(frame)
-    elseif msg == 'RESTARTSELECT_SELECT' then
-        local list = RESTART_GET_COMMAND_LIST(frame)
-        local restartSelect_index = frame:GetValue();
-        local ItemBtn = frame:GetChildRecursively(list[restartSelect_index]);
-        local scp = ItemBtn:GetEventScript(ui.LBUTTONUP);
-        local argString = ItemBtn:GetEventScriptArgString(ui.LBUTTONUP);
-        scp = _G[scp];
-        scp(frame, ItemBtn, argString);
-    elseif msg == 'RESTART_WAIT' then
-        for i = 1, 10 do
-            local btn = GET_CHILD(frame, "restart" .. i .. "btn", 'ui::CButton');
-            btn:ShowWindow(0);
-        end
-        local text = GET_CHILD(frame, "restart_wait", 'ui::CRichText');
-        text:ShowWindow(1);
-        text:SetTextByKey("sec", argNum);
-        AddUniqueTimerFunccWithLimitCount("RESTART_WAIT_UPDATE", 1000, argNum);
-    elseif msg == 'RESTART_WAIT_END' then
-        RemoveLuaTimerFunc("RESTART_WAIT_UPDATE")
-    end
+-- タブ変えた時にスロットクリアーなるの嫌
+function FREEFROMLITTLESTRESS_CLEAR_GODDESS_EQUIP_MANAGER(frame)
+    GODDESS_MGR_REFORGE_CLEAR(frame)
+    GODDESS_MGR_RANDOMOPTION_CLEAR(frame)
+    -- GODDESS_MGR_SOCKET_CLEAR(frame)
+    GODDESS_MGR_MAKE_CLEAR(frame)
+    GODDESS_MGR_INHERIT_CLEAR(frame)
+    GODDESS_MGR_CONVERT_CLEAR(frame)
 end
 
+-- 死んだ時に現れるフレームを移動可能に
+function FREEFROMLITTLESTRESS_FRAME_MOVE()
+
+    local rcframe = ui.GetFrame("restart_contents") -- フレームを移動可能に設定する
+    rcframe:EnableMove(1)
+    local rframe = ui.GetFrame("restart") -- フレームを移動可能に設定する
+    rframe:EnableMove(1)
+
+end
 -- エーテルジェム自動着脱作りかけ
 function FREEFROMLITTLESTRESS_FRAME_INIT()
     local invframe = ui.GetFrame('inventory')
@@ -248,29 +129,36 @@ function ON_RMEQUIP_BUTTON_CLICK(invframe)
     end
 end
 
+-- レイドクリアー時のフレームを移動して場所を覚えさせる。
 function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
-    frame:SetOffset(ui.GetClientInitialWidth() - frame:GetWidth() - 100, 100)
+    frame:SetOffset(g.settings.rrfp_x, g.settings.rrfp_y)
     frame:SetSkinName("shadow_box")
+    FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+
     local myInfo = GET_CHILD_RECURSIVELY(frame, "myInfo")
     local myInfo_name = GET_CHILD_RECURSIVELY(myInfo, "name")
     local myInfo_time = GET_CHILD_RECURSIVELY(myInfo, "time")
     myInfo_name:SetFontName("white_16_ol")
     myInfo_time:SetFontName("white_16_ol")
+
     local friendInfo1 = GET_CHILD_RECURSIVELY(frame, "friendInfo1")
     local friendInfo1_name = GET_CHILD_RECURSIVELY(friendInfo1, "name")
     local friendInfo1_time = GET_CHILD_RECURSIVELY(friendInfo1, "time")
     friendInfo1_name:SetFontName("white_16_ol")
     friendInfo1_time:SetFontName("white_16_ol")
+
     local friendInfo2 = GET_CHILD_RECURSIVELY(frame, "friendInfo2")
     local friendInfo2_name = GET_CHILD_RECURSIVELY(friendInfo2, "name")
     local friendInfo2_time = GET_CHILD_RECURSIVELY(friendInfo2, "time")
     friendInfo2_name:SetFontName("white_16_ol")
     friendInfo2_time:SetFontName("white_16_ol")
+
     local friendInfo3 = GET_CHILD_RECURSIVELY(frame, "friendInfo3")
     local friendInfo3_name = GET_CHILD_RECURSIVELY(friendInfo3, "name")
     local friendInfo3_time = GET_CHILD_RECURSIVELY(friendInfo3, "time")
     friendInfo3_name:SetFontName("white_16_ol")
     friendInfo3_time:SetFontName("white_16_ol")
+
     GET_CHILD_RECURSIVELY(frame, 'bgIndunClear'):ShowWindow(1)
     GET_CHILD_RECURSIVELY(frame, 'textNewRecord'):ShowWindow(0);
 
