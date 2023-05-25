@@ -29,8 +29,7 @@ function FREEFROMLITTLESTRESS_LOADSETTINGS()
 
     if err then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files",
-                                  addonNameLower))
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
     if not settings then
         settings = g.settings
@@ -45,14 +44,11 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     CHAT_SYSTEM(addonNameLower .. " loaded")
 
     acutil.setupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
-    -- acutil.setupHook(FREEFROMLITTLESTRESS_CLEAR_GODDESS_EQUIP_MANAGER, "CLEAR_GODDESS_EQUIP_MANAGER")
-    addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
+    addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
 
-    -- FREEFROMLITTLESTRESS_SAVE_SETTINGS()
     FREEFROMLITTLESTRESS_LOADSETTINGS()
-
-    -- FREEFROMLITTLESTRESS_FRAME_INIT()
+    FREEFROMLITTLESTRESS_FRAME_INIT()
 
 end
 
@@ -112,8 +108,7 @@ function FREEFROMLITTLESTRESS_FRAME_MOVE()
     rframe:EnableMove(1)
     rframe:SetSkinName("None")
     local buttonSkin = "chat_window" -- 適用したいスキンの名前
-    local buttonNames = {"btn_restart_1", "btn_restart_2", "btn_restart_3",
-                         "btn_restart_4", "btn_restart_5"}
+    local buttonNames = {"btn_restart_1", "btn_restart_2", "btn_restart_3", "btn_restart_4", "btn_restart_5"}
 
     for i, buttonName in ipairs(buttonNames) do
         local button = GET_CHILD_RECURSIVELY(rframe, buttonName)
@@ -124,7 +119,7 @@ function FREEFROMLITTLESTRESS_FRAME_MOVE()
 
 end
 -- エーテルジェム自動着脱作りかけ
-function g.FRAME_INIT()
+function FREEFROMLITTLESTRESS_FRAME_INIT()
     local invframe = ui.GetFrame('inventory')
     local inventoryGbox = invframe:GetChild("inventoryGbox")
 
@@ -132,39 +127,40 @@ function g.FRAME_INIT()
     local buttonX = inventoryGbox:GetWidth() - 240
     local buttonY = inventoryGbox:GetHeight() - 610
 
-    local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton",
-                                                      buttonX, buttonY, 50, 30)
+    local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton", buttonX, buttonY, 50, 30)
     eqbutton:SetText("equip")
 
     local rmbuttonX = inventoryGbox:GetWidth() - 105
     local rmbuttonY = inventoryGbox:GetHeight() - 610
 
-    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton",
-                                                        rmbuttonX, rmbuttonY,
-                                                        60, 30)
+    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 60, 30)
     rmeqbutton:SetText("rmequip")
 
-    eqbutton:SetEventScript(ui.LBUTTONUP, "g.ON_EQUIP_BUTTON_CLICK")
-    rmeqbutton:SetEventScript(ui.LBUTTONUP, "g.ON_RMEQUIP_BUTTON_CLICK")
+    eqbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_EQUIP_BUTTON_CLICK")
+    rmeqbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_REMOVEEQUIP_BUTTON_CLICK")
 
 end
 
-function g.ON_EQUIP_BUTTON_CLICK(invframe)
+function FREEFROMLITTLESTRESS_EQUIP_BUTTON_CLICK()
     print("equipボタンがクリックされました")
 
     local gdsframe = ui.GetFrame('goddess_equip_manager')
-    local socket_bg = GET_CHILD_RECURSIVELY(goddessframe, "socket_bg")
+    local socket_bg = GET_CHILD_RECURSIVELY(gdsframe, "socket_bg")
 
 end
 
-function g.ON_RMEQUIP_BUTTON_CLICK(invframe)
+function FREEFROMLITTLESTRESS_REMOVEEQUIP_BUTTON_CLICK()
     print("rmequipボタンがクリックされました")
     local gdsframe = ui.GetFrame('goddess_equip_manager')
-    g.GODDESS_MGR_SOCKET_OPEN(gdsframe)
+    FREEFROMLITTLESTRESS_GODDESS_MGR_SOCKET_OPEN(gdsframe)
 
 end
 
-function g.GODDESS_MGR_SOCKET_OPEN(gdsframe)
-    _G.INVENTORY_SET_CUSTOM_RBTNDOWN('GODDESS_MGR_SOCKET_INV_RBTN')
-    _G.GODDESS_MGR_SOCKET_CLEAR(frame)
+function FREEFROMLITTLESTRESS_GODDESS_MGR_SOCKET_OPEN(gdsframe)
+    INVENTORY_SET_CUSTOM_RBTNDOWN('GODDESS_MGR_SOCKET_INV_RBTN')
+    GODDESS_MGR_SOCKET_CLEAR(gdsframe)
+    gdsframe:ShowWindow(1)
+    print("1")
+    TOGGLE_GODDESS_EQUIP_MANAGER_TAB(gdsframe, 2)
+    print("2")
 end
