@@ -29,7 +29,8 @@ function FREEFROMLITTLESTRESS_LOADSETTINGS()
 
     if err then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files",
+                                  addonNameLower))
     end
     if not settings then
         settings = g.settings
@@ -61,6 +62,39 @@ function FREEFROMLITTLESTRESS_UPDATESETTINGS(frame)
 end
 
 -- レイドクリアー時のフレームを移動して場所を覚えさせる。
+
+function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
+    frame:SetOffset(g.settings.rrfp_x, g.settings.rrfp_y)
+    frame:SetSkinName("shadow_box")
+    frame:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_UPDATESETTINGS")
+
+    local widgetList = {{
+        name = "myInfo",
+        font = "white_16_ol"
+    }, {
+        name = "friendInfo1",
+        font = "white_16_ol"
+    }, {
+        name = "friendInfo2",
+        font = "white_16_ol"
+    }, {
+        name = "friendInfo3",
+        font = "white_16_ol"
+    }}
+
+    for i, widgetData in ipairs(widgetList) do
+        local widget = GET_CHILD_RECURSIVELY(frame, widgetData.name)
+        local name = GET_CHILD_RECURSIVELY(widget, "name")
+        local time = GET_CHILD_RECURSIVELY(widget, "time")
+        name:SetFontName(widgetData.font)
+        time:SetFontName(widgetData.font)
+    end
+
+    GET_CHILD_RECURSIVELY(frame, "bgIndunClear"):ShowWindow(1)
+    GET_CHILD_RECURSIVELY(frame, "textNewRecord"):ShowWindow(0)
+end
+
+--[[
 function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
     frame:SetOffset(g.settings.rrfp_x, g.settings.rrfp_y)
     -- frame:SetOffset(500, 300)
@@ -96,7 +130,7 @@ function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
     GET_CHILD_RECURSIVELY(frame, 'textNewRecord'):ShowWindow(0);
 
 end
-
+]]
 -- 死んだ時に現れるフレームを移動可能に
 function FREEFROMLITTLESTRESS_FRAME_MOVE()
 
@@ -108,7 +142,8 @@ function FREEFROMLITTLESTRESS_FRAME_MOVE()
     rframe:EnableMove(1)
     rframe:SetSkinName("None")
     local buttonSkin = "chat_window" -- 適用したいスキンの名前
-    local buttonNames = {"btn_restart_1", "btn_restart_2", "btn_restart_3", "btn_restart_4", "btn_restart_5"}
+    local buttonNames = {"btn_restart_1", "btn_restart_2", "btn_restart_3",
+                         "btn_restart_4", "btn_restart_5"}
 
     for i, buttonName in ipairs(buttonNames) do
         local button = GET_CHILD_RECURSIVELY(rframe, buttonName)
@@ -118,49 +153,4 @@ function FREEFROMLITTLESTRESS_FRAME_MOVE()
     end
 
 end
--- エーテルジェム自動着脱作りかけ
-function FREEFROMLITTLESTRESS_FRAME_INIT()
-    local invframe = ui.GetFrame('inventory')
-    local inventoryGbox = invframe:GetChild("inventoryGbox")
 
-    -- ボタンの配置位置
-    local buttonX = inventoryGbox:GetWidth() - 240
-    local buttonY = inventoryGbox:GetHeight() - 610
-
-    local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton", buttonX, buttonY, 50, 30)
-    eqbutton:SetText("equip")
-
-    local rmbuttonX = inventoryGbox:GetWidth() - 105
-    local rmbuttonY = inventoryGbox:GetHeight() - 610
-
-    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 60, 30)
-    rmeqbutton:SetText("rmequip")
-
-    eqbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_EQUIP_BUTTON_CLICK")
-    rmeqbutton:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_REMOVEEQUIP_BUTTON_CLICK")
-
-end
-
-function FREEFROMLITTLESTRESS_EQUIP_BUTTON_CLICK()
-    print("equipボタンがクリックされました")
-
-    local gdsframe = ui.GetFrame('goddess_equip_manager')
-    local socket_bg = GET_CHILD_RECURSIVELY(gdsframe, "socket_bg")
-
-end
-
-function FREEFROMLITTLESTRESS_REMOVEEQUIP_BUTTON_CLICK()
-    print("rmequipボタンがクリックされました")
-    local gdsframe = ui.GetFrame('goddess_equip_manager')
-    FREEFROMLITTLESTRESS_GODDESS_MGR_SOCKET_OPEN(gdsframe)
-
-end
-
-function FREEFROMLITTLESTRESS_GODDESS_MGR_SOCKET_OPEN(gdsframe)
-    INVENTORY_SET_CUSTOM_RBTNDOWN('GODDESS_MGR_SOCKET_INV_RBTN')
-    GODDESS_MGR_SOCKET_CLEAR(gdsframe)
-    gdsframe:ShowWindow(1)
-    print("1")
-    TOGGLE_GODDESS_EQUIP_MANAGER_TAB(gdsframe, 2)
-    print("2")
-end
