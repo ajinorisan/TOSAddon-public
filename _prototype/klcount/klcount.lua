@@ -131,7 +131,7 @@ function KLCOUNT_UPDATE(frame, klStr)
     if g.IsTargetMap() == false then
         return
     end
-
+    local countText = GET_CHILD_RECURSIVELY(frame, "count_text")
     count = count + 1
     countText:SetText(string.format("{s16}%s: %d{/}", klStr, count))
 end
