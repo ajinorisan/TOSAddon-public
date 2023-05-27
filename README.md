@@ -72,7 +72,7 @@ V1.0.0 レイド終了時のリワードの位置をずらしました。
 
 ----
 
-### guildeventwarp
+### Guild Event Warp アドオンマネージャーに登録済 Register in Addon Manager
 
 ボルタ、ギルティネ、バウバスの各封鎖戦開始場所までワンクリックで移動するボタンを表示します。
 
