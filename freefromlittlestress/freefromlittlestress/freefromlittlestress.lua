@@ -1,7 +1,7 @@
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
