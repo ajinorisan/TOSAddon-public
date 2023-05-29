@@ -79,13 +79,12 @@
 		"name" : "NO check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.2",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
-		"description" : "インベントリの欠片を確認無しで使用します。カードの付け外し、エーテルジェムの確認も消します。変性者とファロウロス装備とアクセ帰属解除の際に入力する手間を省く機能を搭載。Use inventory pieces without confirmation. Also erases the confirmation of attaching and removing cards and ether gems. Feature to eliminate the need to enter the denaturator and Pharouros equipment and accessory attribution release. 인벤토리 조각을 확인 없이 사용합니다. 카드 탈부착, 에테르 젬 확인도 사라집니다. 변성자와 파라오로스 장비와 접근권한 해제 시 입력하는 번거로움을 없애는 기능을 탑재했습니다.
-",
+		"description" : "欠片アイテムを確認無しで使用、カードの付け外し、エーテルジェムの確認も消します。ゴッデス装備の帰属解除の際の手間を省きます。Use of shard items without confirmation, card attachment/removal, and ether gem confirmation will also be eliminated. Saves time when unattributing Goddess equipment. 조각 아이템 확인 없이 사용, 카드 탈부착, 에테르 젬 확인이 사라집니다. 고데스 장비의 귀속 해제 시 번거로움을 덜어줍니다.",
 		"tags" : [
 		           "item"
 		]
-	},
+	}
 ]
