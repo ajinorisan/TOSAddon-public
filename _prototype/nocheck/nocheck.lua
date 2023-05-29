@@ -1,7 +1,7 @@
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.5"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -17,23 +17,52 @@ function NOCHECK_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
+    acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG,
+                     "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
     acutil.setupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
-    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
-    acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
-    acutil.setupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
-    acutil.setupHook(NOCHECK_GODDESS_MGR_SOCKET_OPEN, "GODDESS_MGR_SOCKET_OPEN")
-    acutil.setupHook(NOCHECK_GODDESS_MGR_REFORGE_OPEN, "GODDESS_MGR_REFORGE_OPEN")
-    acutil.setupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
+    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN,
+                     "EQUIP_CARDSLOT_INFO_OPEN");
+    acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN,
+                     "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
+    acutil.setupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE,
+                     "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
+    acutil.setupHook(
+        NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
         "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    acutil.setupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN,
+                     "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    acutil.setupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL,
+                     "SELECT_ZONE_MOVE_CHANNEL")
 
     CHAT_SYSTEM("NOCHECK loaded")
     -- NOCHECK_FRAME_INIT()
 
 end
 
--- ゴッデス装備帰属解除時の簡易化
-function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
+-- チャンネル移動時の確認を削除
+function NOCHECK_SELECT_ZONE_MOVE_CHANNEL(index, channelID)
+    local zoneInsts = session.serverState.GetMap();
+    if zoneInsts == nil or zoneInsts.pcCount == -1 then
+        ui.SysMsg(ClMsg("ChannelIsClosed"));
+        return;
+    end
+
+    local pc = GetMyPCObject();
+    if IS_BOUNTY_BATTLE_BUFF_APPLIED(pc) == 1 then
+        ui.SysMsg(ClMsg("DoingBountyBattle"));
+        return;
+
+    end
+
+    -- local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
+    ReserveScript(
+        string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
+    -- ui.MsgBox(msg, scpString, "None");
+
+end
+
+-- ゴッデスアクセ帰属解除時の簡易化
+function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
     local scrollType = frame:GetUserValue("ScrollType")
     local clickable = frame:GetUserValue("EnableTranscendButton")
     if tonumber(clickable) ~= 1 then
@@ -55,30 +84,40 @@ function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(fr
     if scrollInvItem == nil then
         return;
     end
+    local clmsg = ScpArgMsg("ReallyUnlockBelonging")
+    local yesscp = 'UNLOCK_ACC_BELONGING_SCROLL_EXEC'
+    ui.MsgBox(clmsg, yesscp, "None");
+end
 
+-- ゴッデス装備帰属解除時の簡易化
+function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(
+    frame, btn)
+    local scrollType = frame:GetUserValue("ScrollType")
+    local clickable = frame:GetUserValue("EnableTranscendButton")
+    if tonumber(clickable) ~= 1 then
+        return;
+    end
+
+    local slot = GET_CHILD(frame, "slot");
+    local invItem = GET_SLOT_ITEM(slot);
+    if invItem == nil then
+        ui.MsgBox(ScpArgMsg("DropItemPlz"));
+        imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"));
+        return;
+    end
+
+    local itemObj = GetIES(invItem:GetObject());
+
+    local scrollGuid = frame:GetUserValue("ScrollGuid")
+    local scrollInvItem = session.GetInvItemByGuid(scrollGuid);
+    if scrollInvItem == nil then
+        return;
+    end
+    local clmsg = ScpArgMsg("ReallyUnlockBelonging")
     local yesscp = 'UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC'
-    ui.MsgBox(ScpArgMsg('ReallyGoddessUnlock', 'item', itemObj.Name), yesscp, "None");
+    ui.MsgBox(clmsg, yesscp, "None");
 end
 
---[[ エーテルジェム自動着脱作りかけ
-function NOCHECK_FRAME_INIT()
-   local inveframe = ui.GetFrame('inventory')
-   local button = inveframe:CreateOrGetControl("button", "equip", 10, 10, 100, 30)
-   button:SetText("equip")
-   button:ShowWindow(1)
-end
-
-
-function NOCHECK_GODDESS_MGR_REFORGE_OPEN(frame)
-    -- GODDESS_MGR_REFORGE_CLEAR(frame)
-    INVENTORY_SET_CUSTOM_RBTNDOWN('GODDESS_MGR_REFORGE_INV_RBTN')
-end
-
-function NOCHECK_GODDESS_MGR_SOCKET_OPEN(frame)
-    INVENTORY_SET_CUSTOM_RBTNDOWN('GODDESS_MGR_SOCKET_INV_RBTN')
-    -- GODDESS_MGR_SOCKET_CLEAR(frame)
-end
-]]
 -- エーテルジェム着脱時のメッセージ非表示
 function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
     local frame = parent:GetTopParentFrame()
@@ -93,7 +132,8 @@ function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
         end
 
         local item_obj = GetIES(inv_item:GetObject())
-        local item_name = dic.getTranslatedStr(TryGetProp(item_obj, 'Name', 'None'))
+        local item_name = dic.getTranslatedStr(
+                              TryGetProp(item_obj, 'Name', 'None'))
 
         local gem_id = inv_item:GetEquipGemID(index)
         local gem_cls = GetClassByType('Item', gem_id)
@@ -127,8 +167,10 @@ function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
                 msg_cls_name = "ReallyRemoveGem"
             end
 
-            local clmsg = "'" .. item_name .. ScpArgMsg("Auto_'_SeonTaeg") .. ScpArgMsg(msg_cls_name)
-            local yesscp = string.format('_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(%s)', index)
+            local clmsg = "'" .. item_name .. ScpArgMsg("Auto_'_SeonTaeg") ..
+                              ScpArgMsg(msg_cls_name)
+            local yesscp = string.format(
+                               '_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(%s)', index)
             local msgbox = ui.MsgBox(clmsg, yesscp, '')
             SET_MODAL_MSGBOX(msgbox)
         end
@@ -159,7 +201,8 @@ end
 function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
     local obj = GetIES(item:GetObject());
     if obj.GroupName == "Card" then
-        local slotIndex = CARD_SLOT_GET_SLOT_INDEX(groupNameStr, slot:GetSlotIndex());
+        local slotIndex = CARD_SLOT_GET_SLOT_INDEX(groupNameStr,
+                                                   slot:GetSlotIndex());
         local cardInfo = equipcard.GetCardInfo(slotIndex + 1);
 
         if cardInfo ~= nil then

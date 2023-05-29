@@ -57,16 +57,7 @@ end
 function AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK()
     print("rmequipボタンがクリックされました")
     local frame = ui.GetFrame('goddess_equip_manager')
-    AETHERGEM_MGR_GODDESS_MGR_SOCKET_OPEN(frame)
-
-end
-
-function AETHERGEM_MGR_GODDESS_MGR_SOCKET_OPEN(frame)
-    INVENTORY_SET_CUSTOM_RBTNDOWN('GODDESS_MGR_SOCKET_INV_RBTN')
-    GODDESS_MGR_SOCKET_CLEAR(frame)
     AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
-    print("1")
-
 end
 
 function AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
@@ -87,9 +78,10 @@ function AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
     end
 
     local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
-    main_tab:SelectTab(0)
+    main_tab:SelectTab(2)
     CLEAR_GODDESS_EQUIP_MANAGER(frame)
-    TOGGLE_GODDESS_EQUIP_MANAGER_TAB(frame, 2)
+    local index = 2
+    TOGGLE_GODDESS_EQUIP_MANAGER_TAB(frame, index)
     -- ui.OpenFrame('inventory')
 
 end
