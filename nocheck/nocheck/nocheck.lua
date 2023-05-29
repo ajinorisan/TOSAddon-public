@@ -1,7 +1,7 @@
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -31,11 +31,36 @@ function NOCHECK_ON_INIT(addon, frame)
         "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     acutil.setupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN,
                      "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    acutil.setupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL,
+                     "SELECT_ZONE_MOVE_CHANNEL")
 
     CHAT_SYSTEM("NOCHECK loaded")
     -- NOCHECK_FRAME_INIT()
 
 end
+
+-- チャンネル移動時の確認を削除
+function NOCHECK_SELECT_ZONE_MOVE_CHANNEL(index, channelID)
+    local zoneInsts = session.serverState.GetMap();
+    if zoneInsts == nil or zoneInsts.pcCount == -1 then
+        ui.SysMsg(ClMsg("ChannelIsClosed"));
+        return;
+    end
+
+    local pc = GetMyPCObject();
+    if IS_BOUNTY_BATTLE_BUFF_APPLIED(pc) == 1 then
+        ui.SysMsg(ClMsg("DoingBountyBattle"));
+        return;
+
+    end
+
+    -- local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
+    ReserveScript(
+        string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
+    -- ui.MsgBox(msg, scpString, "None");
+
+end
+
 -- ゴッデスアクセ帰属解除時の簡易化
 function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
     local scrollType = frame:GetUserValue("ScrollType")
