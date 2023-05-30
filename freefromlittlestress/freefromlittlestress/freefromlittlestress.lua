@@ -1,7 +1,7 @@
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -50,7 +50,7 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     -- addon:RegisterMsg("INDUNINFO_MAKE_DETAIL_BOSS_SELECT_BY_RAID_TYPE", "FREEFROMLITTLESTRESS_INDUNINFO_UPDATE")
     acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK,
-                     "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
+        "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
     -- acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_CHAT_OPEN, "INDUNINFO_CHAT_OPEN")
     FREEFROMLITTLESTRESS_LOADSETTINGS()
     FREEFROMLITTLESTRESS_FRAME_INIT()
@@ -59,6 +59,7 @@ end
 
 -- 激動の入り間違いを減らす
 function FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK(ctrl_set, btn, clicked)
+
     if ctrl_set == nil or btn == nil then
         return;
     end
@@ -72,58 +73,61 @@ function FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK(ctrl_set, 
     end
     local frame = parent:GetTopParentFrame();
 
+    -- local framename = frame:GetClassName()
+    -- print(framename)
     -- ここから追記
+    local indunframe = ui.GetFrame("induninfo")
     local indun_cls_name_ffls = ctrl_set:GetName();
     local indun_cls_ffls = GetClass("Indun", indun_cls_name_ffls);
     if indun_cls_name_ffls == nil then
         return;
     end
 
-    local group_id = TryGetProp(indun_cls_name_ffls, "GroupID", "None");
-    local raid_type = TryGetProp(indun_cls_name_ffls, "RaidType", "None");
+    -- local group_id = TryGetProp(indun_cls_name_ffls, "GroupID", "None");
+    -- local raid_type = TryGetProp(indun_cls_name_ffls, "RaidType", "None");
 
     -- print(group_id)
     -- print(raid_type)
 
-    if group_id == "TurbulentCore" and raid_type == "AutoNormal" and raid_type ~= "Solo" and raid_type ~= "PartyNormal" and
-        raid_type ~= "PartyExtreme" then
-        -- print("test1")
-        -- local indunframe = ui.GetFrame("induninfo")
-        local indungbox = frame:CreateOrGetControl("groupbox", "textbox_1", 200, 100, 400, 200)
-        indungbox:SetSkinName("None")
-        indungbox:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-        local msgtexts = indungbox:CreateOrGetControl("richtext", "msgtexts_1", 0, 50, 295, 225)
-        msgtexts:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-        msgtexts:SetText("{@st55_a}Spreader Select")
-        local msgtexts2 = indungbox:CreateOrGetControl("richtext", "msgtexts_2", 0, 0, 295, 225)
-        msgtexts2:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-        msgtexts2:SetText("{@st55_a}プロパゲ行くんか！？")
-        local msgtextf = indungbox:CreateOrGetControl("richtext", "msgtextf_1", 0, 50, 295, 225)
-        msgtextf:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-        msgtextf:SetText("{@st55_a}Falouros Select")
-        local msgtextf2 = indungbox:CreateOrGetControl("richtext", "msgtextf_2", 0, 0, 295, 225)
-        msgtextf2:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-        msgtextf2:SetText("{@st55_a}ファロ行くんか！？")
-        if string.match(indun_cls_name, "Goddess_Raid_Spreader_Auto") then
-            msgtextf:ShowWindow(0)
-            msgtexts:ShowWindow(1)
-            msgtextf2:ShowWindow(0)
-            msgtexts2:ShowWindow(1)
-            ReserveScript(string.format('FREEFROMLITTLESTRESS_TEXT_DELETE()'), 5.0)
+    ---if group_id == "TurbulentCore" and raid_type == "AutoNormal" then
+    -- print("test1")
+    -- print("test1")
+    -- 
+    local indungbox = frame:CreateOrGetControl("groupbox", "textbox_1", 200, 100, 400, 200)
+    indungbox:SetSkinName("None")
+    indungbox:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+    local msgtexts = indungbox:CreateOrGetControl("richtext", "msgtexts_1", 0, 50, 295, 225)
+    msgtexts:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+    msgtexts:SetText("{@st55_a}Spreader Select")
+    local msgtexts2 = indungbox:CreateOrGetControl("richtext", "msgtexts_2", 0, 0, 295, 225)
+    msgtexts2:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+    msgtexts2:SetText("{@st55_a}プロパゲ行くんか！？")
+    local msgtextf = indungbox:CreateOrGetControl("richtext", "msgtextf_1", 0, 50, 295, 225)
+    msgtextf:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+    msgtextf:SetText("{@st55_a}Falouros Select")
+    local msgtextf2 = indungbox:CreateOrGetControl("richtext", "msgtextf_2", 0, 0, 295, 225)
+    msgtextf2:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+    msgtextf2:SetText("{@st55_a}ファロ行くんか！？")
+    if string.match(indun_cls_name_ffls, "Goddess_Raid_Spreader_Auto") then
+        msgtextf:ShowWindow(0)
+        msgtexts:ShowWindow(1)
+        msgtextf2:ShowWindow(0)
+        msgtexts2:ShowWindow(1)
+        ReserveScript(string.format('FREEFROMLITTLESTRESS_TEXT_DELETE()'), 5.0)
 
-        elseif string.match(indun_cls_name, "Goddess_Raid_Falouros_Auto") then
-            msgtextf:ShowWindow(1)
-            msgtexts:ShowWindow(0)
-            msgtextf2:ShowWindow(1)
-            msgtexts2:ShowWindow(0)
-            ReserveScript(string.format('FREEFROMLITTLESTRESS_TEXT_DELETE()'), 5.0)
-        else
-            ReserveScript(string.format('FREEFROMLITTLESTRESS_TEXT_DELETE()'), 0.1)
-        end
+    elseif string.match(indun_cls_name_ffls, "Goddess_Raid_Falouros_Auto") then
+        msgtextf:ShowWindow(1)
+        msgtexts:ShowWindow(0)
+        msgtextf2:ShowWindow(1)
+        msgtexts2:ShowWindow(0)
+        ReserveScript(string.format('FREEFROMLITTLESTRESS_TEXT_DELETE()'), 5.0)
     else
-
-        ReserveScript(string.format('FREEFROMLITTLESTRESS_TEXT_DELETE()'), 0.1)
+        FREEFROMLITTLESTRESS_TEXT_DELETE()
     end
+    -- else
+
+    --  ReserveScript(string.format('FREEFROMLITTLESTRESS_TEXT_DELETE()'), 0.1)
+    -- end
     -- 追記終わり
     local indun_cls_name = ctrl_set:GetName();
     local indun_cls = GetClass("Indun", indun_cls_name);

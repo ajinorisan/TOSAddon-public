@@ -33,7 +33,9 @@ function GUILDEVENTWARP_ON_INIT(addon, frame)
         g.ctrl = 0
         addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_CH_CHANGE")
         -- GUILDEVENTWARP_ON_BORUTA_CLICK(frame)
-
+    else
+        g.ctrl = 0
+        return;
     end
 
 end
