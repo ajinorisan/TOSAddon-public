@@ -31,21 +31,17 @@ function AETHERGEM_MGR_FRAME_INIT()
     local buttonX = inventoryGbox:GetWidth() - 240
     local buttonY = inventoryGbox:GetHeight() - 610
 
-    local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton",
-                                                      buttonX, buttonY, 50, 30)
+    local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton", buttonX, buttonY, 50, 30)
     eqbutton:SetText("equip")
 
     local rmbuttonX = inventoryGbox:GetWidth() - 105
     local rmbuttonY = inventoryGbox:GetHeight() - 610
 
-    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton",
-                                                        rmbuttonX, rmbuttonY,
-                                                        60, 30)
+    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 60, 30)
     rmeqbutton:SetText("rmequip")
 
     eqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
-    rmeqbutton:SetEventScript(ui.LBUTTONUP,
-                              "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
+    rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
 
 end
 
@@ -77,21 +73,21 @@ function AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
         end
     end
 
+    ui.OpenFrame('goddess_equip_manager')
     local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
     main_tab:SelectTab(2)
     CLEAR_GODDESS_EQUIP_MANAGER(frame)
-    local index = 2
-    TOGGLE_GODDESS_EQUIP_MANAGER_TAB(frame, index)
-    -- ui.OpenFrame('inventory')
-
+    GODDESS_MGR_SOCKET_OPEN(frame)
+    AETHERGEM_MGR_EQUIP_SLOT_SET()
 end
 
 function AETHERGEM_MGR_EQUIP_SLOT_SET()
-    local eqpframe = ui.GetFrame("compare");
-    local g_equip = eqpframe:GetChild("groupbox_2");
-    local eqpSet = GET_CHILD_RECURSIVELY(eqpframe, "EQUIPS", "ui::CGroupBox");
-    tolua.cast(eqpSet, "ui::CControlSet")
+    local eqpframe = ui.GetFrame("inventory");
+    local gbox_Equipped = GET_CHILD_RECURSIVELY(eqpframe, "gbox_Equipped");
 
-    local otherpcinfo = session.otherPC.GetByFamilyName(familyName);
+    if gbox_Equipped:IsVisible() == 1 then
+        CHAT_SYSTEM("true")
+    end
 
+    -- eqpSet:ShowWindow(0)
 end
