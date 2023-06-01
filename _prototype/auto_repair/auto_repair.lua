@@ -12,6 +12,105 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
 
+function AUTO_REPAIR_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+
+    CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
+    acutil.setupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
+    -- addon:RegisterMsg("FPS_UPDATE", "AUTO_REPAIR_DURNOTIFY_UPDATE")
+end
+
+function AUTO_REPAIR_DURNOTIFY_UPDATE(frame, notOpenFrame)
+    if frame:IsVisible() == 0 then
+        frame:ShowWindow(1);
+    end
+
+    local slotSet = GET_CHILD_RECURSIVELY(frame, 'slotlist', 'ui::CSlotSet')
+    slotSet:ClearIconAll();
+
+    for i = 0, slotSet:GetSlotCount() - 1 do
+        local slot = slotSet:GetSlotByIndex(i);
+        slot:ShowWindow(0);
+    end
+
+    local reverseIndex = slotSet:GetSlotCount() - 1;
+    local equiplist = session.GetEquipItemList();
+    local someflag = 1
+    for i = 0, equiplist:Count() - 1 do
+        local equipItem = equiplist:GetEquipItemByIndex(i);
+        local slotcnt = imcSlot:GetFilledSlotCount(slotSet);
+        local tempobj = equipItem:GetObject()
+        if tempobj ~= nil then
+            local obj = GetIES(tempobj);
+            if IS_DUR_UNDER_10PER(obj) == true then
+                local colorTone = "FF999900";
+                if someflag < 2 then
+                    someflag = 2
+                    session.ResetItemList()
+                    local mat_item = session.GetInvItemByName('QuestReward_repairPotion_490')
+
+                    if mat_item == nil then
+                        return
+                    end
+
+                    if mat_item.isLockState == true then
+                        return
+                    end
+
+                    local count = mat_item.count
+                    local repeatCount = math.min(count, 4)
+                    for i = 0, repeatCount - 1 do
+                        AUTO_REPAIR_ITEM_USE(mat_item)
+
+                    end
+                end
+                if IS_DUR_ZERO(obj) == true then
+                    colorTone = "FF990000";
+                    if someflag < 3 then
+                        someflag = 3
+                    end
+                end
+
+                local slot = slotSet:GetSlotByIndex(reverseIndex - slotcnt)
+                local icon = CreateIcon(slot);
+                local iconImg = obj.Icon;
+                local briquettingID = TryGetProp(obj, 'BriquettingIndex', 0);
+                if briquettingID > 0 then
+                    local briquettingItemCls = GetClassByType('Item', briquettingID);
+                    iconImg = briquettingItemCls.Icon;
+                end
+                icon:Set(iconImg, 'Item', equipItem.type, reverseIndex - slotcnt, equipItem:GetIESID());
+                icon:SetColorTone(colorTone);
+                slot:ShowWindow(1);
+            end
+        end
+    end
+
+    local nowvalue = frame:GetValue();
+    if someflag == 1 then
+        frame:SetValue(1)
+    elseif someflag == 2 and nowvalue < someflag then
+        frame:SetValue(2)
+        -- ui.SysMsg(ScpArgMsg('DurUnder30'));
+
+    elseif someflag == 3 and nowvalue < someflag then
+        frame:SetValue(3)
+        ui.SysMsg(ScpArgMsg('DurUnder0'));
+    end
+end
+
+function AUTO_REPAIR_ITEM_USE(mat_item)
+
+    item.UseByGUID(mat_item:GetIESID())
+
+    -- mat_item:UseByGUID()
+
+    -- CHAT_SYSTEM("test")
+end
+
 function AUTO_REPAIR_SAVE_SETTINGS()
     -- CHAT_SYSTEM("save")
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -31,50 +130,6 @@ function AUTO_REPAIR_LOADSETTINGS()
     end
 
     g.settings = settings
-end
-
-function AUTO_REPAIR_ON_INIT(addon, frame)
-
-    g.addon = addon
-    g.frame = frame
-
-    CHAT_SYSTEM(addonNameLower .. " loaded")
-    acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
-end
-
-function AUTO_REPAIR_IS_DUR_UNDER_10PER(itemobj)
-
-    if itemobj == nil then
-        return false
-    end
-
-    local Itemtype = itemobj.ItemType
-
-    if Itemtype == nil then
-        print('If This message has appeared, please tell its ClassId to Young.', itemobj.ClassID)
-        return false;
-    else
-        if itemobj.ItemType ~= 'Equip' then
-            return false
-        end
-    end
-
-    if item.IsNoneItem(itemobj.ClassID) == 0 and itemobj.Dur / itemobj.MaxDur < 0.3 and itemobj.MaxDur ~= -1 then
-        return true
-    end
-
-    return false
-end
-
-function AUTO_REPAIR_ITEM_USE()
-
-    if AUTO_REPAIR_IS_DUR_UNDER_10PER() == false then
-        return
-
-    else
-
-    end
-
 end
 --[[多分これいじったら使える
 function REQUEST_SUMMON_BOSS_TX()
