@@ -8,6 +8,16 @@
 		"description" : "EP14.15地域で倒したモンスターをカウント Counting monsters defeated in the EP14.15 region EP14.15 지역에서 처치한 몬스터를 세어보세요.",
 		"tags" : []
 	},
+{
+		"name" : "Aethergem Manager β",
+		"file" : "aethergem_mgr",
+		"extension" : "ipf",
+		"fileVersion" : "v0.0.1",
+		"releaseTag" : "aethergem_mgr",
+		"unicode" : "⛄",
+		"description" : "エーテルジェムの取り外しヘルパーです。現状外すことに特化してます。β版です。使用感教えて欲しい。",
+		"tags" : []
+	},
  
  {
 		"name" : "GT sysmsg",
