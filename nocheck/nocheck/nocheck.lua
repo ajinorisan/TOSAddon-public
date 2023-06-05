@@ -1,7 +1,7 @@
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -17,26 +17,45 @@ function NOCHECK_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG,
-                     "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
+    acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
     acutil.setupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
-    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN,
-                     "EQUIP_CARDSLOT_INFO_OPEN");
-    acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN,
-                     "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
-    acutil.setupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE,
-                     "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
-    acutil.setupHook(
-        NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    acutil.setupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-                     "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    acutil.setupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL,
-                     "SELECT_ZONE_MOVE_CHANNEL")
+    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
+    acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
+    acutil.setupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
+    acutil.setupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
+                     "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    acutil.setupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    acutil.setupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
+    acutil.setupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
 
     CHAT_SYSTEM("NOCHECK loaded")
     -- NOCHECK_FRAME_INIT()
 
+end
+
+-- カードブック使用時の確認削除
+function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)
+    if invItem == nil then
+        return;
+    end
+
+    local invFrame = ui.GetFrame("inventory");
+    local itemobj = GetIES(invItem:GetObject());
+    if itemobj == nil then
+        return;
+    end
+    invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
+
+    if itemobj.Script == 'SCR_SUMMON_MONSTER_FROM_CARDBOOK' then
+        -- local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("Card_Summon_check_Use"));
+        -- ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
+        REQUEST_SUMMON_BOSS_TX()
+        return;
+    elseif itemobj.Script == 'SCR_QUEST_CLEAR_LEGEND_CARD_LIFT' then
+        local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("Use_Item_LegendCard_Slot_Open2"));
+        ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
+        return;
+    end
 end
 
 -- チャンネル移動時の確認を削除
@@ -55,8 +74,7 @@ function NOCHECK_SELECT_ZONE_MOVE_CHANNEL(index, channelID)
     end
 
     -- local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
-    ReserveScript(
-        string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
+    ReserveScript(string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
     -- ui.MsgBox(msg, scpString, "None");
 
 end
@@ -90,8 +108,7 @@ function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
 end
 
 -- ゴッデス装備帰属解除時の簡易化
-function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(
-    frame, btn)
+function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
     local scrollType = frame:GetUserValue("ScrollType")
     local clickable = frame:GetUserValue("EnableTranscendButton")
     if tonumber(clickable) ~= 1 then
@@ -132,8 +149,7 @@ function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
         end
 
         local item_obj = GetIES(inv_item:GetObject())
-        local item_name = dic.getTranslatedStr(
-                              TryGetProp(item_obj, 'Name', 'None'))
+        local item_name = dic.getTranslatedStr(TryGetProp(item_obj, 'Name', 'None'))
 
         local gem_id = inv_item:GetEquipGemID(index)
         local gem_cls = GetClassByType('Item', gem_id)
@@ -167,10 +183,8 @@ function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
                 msg_cls_name = "ReallyRemoveGem"
             end
 
-            local clmsg = "'" .. item_name .. ScpArgMsg("Auto_'_SeonTaeg") ..
-                              ScpArgMsg(msg_cls_name)
-            local yesscp = string.format(
-                               '_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(%s)', index)
+            local clmsg = "'" .. item_name .. ScpArgMsg("Auto_'_SeonTaeg") .. ScpArgMsg(msg_cls_name)
+            local yesscp = string.format('_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(%s)', index)
             local msgbox = ui.MsgBox(clmsg, yesscp, '')
             SET_MODAL_MSGBOX(msgbox)
         end
@@ -201,8 +215,7 @@ end
 function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
     local obj = GetIES(item:GetObject());
     if obj.GroupName == "Card" then
-        local slotIndex = CARD_SLOT_GET_SLOT_INDEX(groupNameStr,
-                                                   slot:GetSlotIndex());
+        local slotIndex = CARD_SLOT_GET_SLOT_INDEX(groupNameStr, slot:GetSlotIndex());
         local cardInfo = equipcard.GetCardInfo(slotIndex + 1);
 
         if cardInfo ~= nil then
@@ -286,5 +299,29 @@ if not success then
     -- エラーが発生した場合の処理
     print("Error: " .. err)
 end
-]]
 
+
+function BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)	
+	if invItem == nil then
+		return;
+	end
+
+	local invFrame = ui.GetFrame("inventory");	
+	local itemobj = GetIES(invItem:GetObject());
+	if itemobj == nil then
+		return;
+	end
+	invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
+	
+	if itemobj.Script == 'SCR_SUMMON_MONSTER_FROM_CARDBOOK' then
+		local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("Card_Summon_check_Use"));
+		ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
+		return;
+	elseif itemobj.Script == 'SCR_QUEST_CLEAR_LEGEND_CARD_LIFT' then
+		local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("Use_Item_LegendCard_Slot_Open2"));
+		ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
+		return;
+	end
+end
+
+]]
