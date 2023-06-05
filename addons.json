@@ -8,17 +8,7 @@
 		"description" : "EP14.15地域で倒したモンスターをカウント Counting monsters defeated in the EP14.15 region EP14.15 지역에서 처치한 몬스터를 세어보세요.",
 		"tags" : []
 	},
-{
-		"name" : "Aethergem Manager β",
-		"file" : "aethergem_mgr",
-		"extension" : "ipf",
-		"fileVersion" : "v0.0.1",
-		"releaseTag" : "aethergem_mgr",
-		"unicode" : "⛄",
-		"description" : "エーテルジェムの取り外しヘルパーです。現状外すことは割と得意です。β版です。",
-		"tags" : []
-	},
- 
+
  {
 		"name" : "GT sysmsg",
 		"file" : "gtsysmsg",
@@ -33,7 +23,7 @@
 		"name" : "Auto Repair",
 		"file" : "auto_repair",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.0",
 		"releaseTag" : "auto_repair",
 		"unicode" : "⛄",
 		"description" : "装備の耐久を監視して30%未満になると「[Lv.490]緊急修理キット」を使用して自動で修理します。Monitors the equipment's durability and automatically repairs it using the '[Lv.490] Urgent Repair Kit' when it falls below 30%. 장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.490] 긴급 수리 키트'를 사용하여 자동으로 수리한다.",
@@ -100,10 +90,10 @@
 		"name" : "NO check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.4",
+		"fileVersion" : "v1.0.3",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
-		"description" : "モンスターカードの確認消します。Ch移動確認消します。欠片アイテムを確認無しで使用、カードの付け外し、エーテルジェムの確認も消します。ゴッデス装備の帰属解除の際の手間を省きます。Monster card confirmation erase.Use of shard items without confirmation, card attachment/removal, and ether gem confirmation will also be eliminated. Saves time when unattributing Goddess equipment.몬스터 카드의 확인을 지웁니다. 조각 아이템 확인 없이 사용, 카드 탈부착, 에테르 젬 확인이 사라집니다. 고데스 장비의 귀속 해제 시 번거로움을 덜어줍니다.",
+		"description" : "Ch移動確認消します。欠片アイテムを確認無しで使用、カードの付け外し、エーテルジェムの確認も消します。ゴッデス装備の帰属解除の際の手間を省きます。Use of shard items without confirmation, card attachment/removal, and ether gem confirmation will also be eliminated. Saves time when unattributing Goddess equipment. 조각 아이템 확인 없이 사용, 카드 탈부착, 에테르 젬 확인이 사라집니다. 고데스 장비의 귀속 해제 시 번거로움을 덜어줍니다.",
 		"tags" : [
 		           "item"
 		]
