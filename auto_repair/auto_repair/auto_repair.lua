@@ -1,7 +1,7 @@
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -107,7 +107,8 @@ function AUTO_REPAIR_ITEM_USE(obj)
     end
 
     local repeatCount = math.min(autorepair_item.count, 4)
-    ui.SysMsg("Automatic repair of equipment.")
+    -- ui.SysMsg("Automatic repair of equipment.") 表示が邪魔なので消した。v1.0.1
+    CHAT_SYSTEM("Automatic repair of equipment.")
     for i = 0, repeatCount - 1 do
         if obj.Dur / obj.MaxDur < 0.9 then
             item.UseByGUID(autorepair_item:GetIESID())
