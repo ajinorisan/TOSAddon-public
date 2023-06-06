@@ -25,28 +25,32 @@ function AETHERGEM_MGR_ON_INIT(addon, frame)
 end
 
 function AETHERGEM_MGR_TEST(icon)
-    CHAT_SYTEM("test")
+    CHAT_SYSTEM("test")
     local agm_liftIcon = ui.GetLiftIcon();
-    CHAT_SYTEM("test1")
+    CHAT_SYSTEM("test1")
     local agm_iconInfo = agm_liftIcon:GetInfo();
-    CHAT_SYTEM("test2")
-    local item_obj = GetIES(agm_liftIcon:GetObject());
-    CHAT_SYTEM("test3")
+    CHAT_SYSTEM("test2")
+    local item_obj = GetIES(agm_iconInfo:GetObject());
+    CHAT_SYSTEM("test3")
+    local itemIESID = agm_iconInfo:GetIESID();
+    CHAT_SYSTEM("test4")
     local invItem = session.GetInvItemByGuid(itemIESID);
-    CHAT_SYTEM("test4")
+    CHAT_SYSTEM("test5")
     local groupname = TryGetProp(item_obj, 'GroupName', 'None')
-    CHAT_SYTEM("test5")
+    CHAT_SYSTEM("test6")
     local cls = TryGetProp(item_obj, 'ClassName', 'None')
-    CHAT_SYTEM("test6")
+    CHAT_SYSTEM("test7")
     local name = TryGetProp(item_obj, 'Name', 'None')
-    CHAT_SYTEM("test7")
-    CHAT_SYTEM(agm_liftIcon)
-    CHAT_SYTEM(agm_iconInfo)
-    CHAT_SYTEM(item_obj)
-    CHAT_SYTEM(invItem)
-    CHAT_SYTEM(groupname)
-    CHAT_SYTEM(cls)
-    CHAT_SYTEM(name)
+    CHAT_SYSTEM("test8")
+
+    CHAT_SYSTEM("agm_liftIcon: " .. tostring(agm_liftIcon))
+    CHAT_SYSTEM("agm_iconInfo: " .. tostring(agm_iconInfo))
+    CHAT_SYSTEM("item_obj: " .. tostring(item_obj))
+    CHAT_SYSTEM("invItem: " .. tostring(invItem))
+    CHAT_SYSTEM("groupname: " .. tostring(groupname))
+    CHAT_SYSTEM("cls: " .. tostring(cls))
+    CHAT_SYSTEM("name: " .. tostring(name))
+
     print(agm_liftIcon)
     print(agm_iconInfo)
     print(item_obj)
