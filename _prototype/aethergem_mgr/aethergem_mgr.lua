@@ -13,28 +13,75 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 local acutil = require("acutil")
 
 function AETHERGEM_MGR_ON_INIT(addon, frame)
-
     g.addon = addon
     g.frame = frame
 
     CHAT_SYSTEM(addonNameLower .. " loaded")
     acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
-    acutil.setupHook(AETHERGEM_MGR_GET_SLOT_PROP, "GET_SLOT_PROP")
+    acutil.setupHook(AETHERGEM_MGR_CHECK_INV_LBTN, "CHECK_INV_LBTN")
     AETHERGEM_MGR_FRAME_INIT()
 
+    -- testcode
+    -- local testframe = ui.GetFrame('inventory')
+    -- マウスオーバー イベントハンドラの登録
+    -- testframe:EnableHitTest(1)
+    -- testframe:SetEventScript(ui.DROP, "AETHERGEM_MGR_TEST")
+    -- testcodeend
 end
 
-function AETHERGEM_MGR_TEST(icon)
+function AETHERGEM_MGR_CHECK_INV_LBTN(frame, object, argStr, argNum)
+    CHECK_INV_LBTN_OLD(frame, object, argStr, argNum)
+    -- CHAT_SYSTEM(object)
+
+    -- CHAT_SYSTEM(argStr)
+    -- CHAT_SYSTEM(argNum)
+    print(argStr)
+    print(argNum)
+
+    AETHERGEM_MGR_TEST()
+end
+
+function AETHERGEM_MGR_TEST()
     CHAT_SYSTEM("test")
-    local agm_liftIcon = ui.GetLiftIcon();
+    --[[
+    local agm_useItemIndex = item.GetTargetItem();
+    local agm_useItem = session.GetInvItem(useItemIndex);
+    local agm_useItemObj = GetIES(agm_useItem:GetObject());
+    local agm_useItemGroup = agm_useItemObj.GroupName
+    local agm_useItemUseType = agm_useItemObj.Usable
+    print(agm_useItemIndex)
+    print(agm_useItem)
+    print(agm_useItemObj)
+    print(agm_useItemGroup)
+    print(agm_useItemUseType)
+    ]]
+    -- local testframe = ui.GetFrame('inventory')
+    -- CHAT_SYSTEM("test")
+    local agm_liftIcon = ui.GetLiftIcon()
+    if agm_liftIcon == nil then
+        CHAT_SYSTEM("Lift icon not found")
+        return
+    end
+
     CHAT_SYSTEM("test1")
-    local agm_iconInfo = agm_liftIcon:GetInfo();
+    local agm_iconInfo = agm_liftIcon:GetInfo()
+    if agm_iconInfo == nil then
+        CHAT_SYSTEM("Icon info not found")
+        return
+    end
+
     CHAT_SYSTEM("test2")
-    local item_obj = GetIES(agm_iconInfo:GetObject());
-    CHAT_SYSTEM("test3")
-    local itemIESID = agm_iconInfo:GetIESID();
+    local agm_item_obj = GetObjectByGuid(agm_iconInfo:GetIESID())
+    if agm_item_obj == nil then
+        CHAT_SYSTEM("Item object not found")
+        return
+    end
+
+    --[[
+    local agm_item_obj = GetObjectByGuid(agm_iconInfo:GetIESID())
     CHAT_SYSTEM("test4")
-    local invItem = session.GetInvItemByGuid(itemIESID);
+
+    local invItem = session.GetInvItemByGuid(agm_itemIESID);
     CHAT_SYSTEM("test5")
     local groupname = TryGetProp(item_obj, 'GroupName', 'None')
     CHAT_SYSTEM("test6")
@@ -42,27 +89,29 @@ function AETHERGEM_MGR_TEST(icon)
     CHAT_SYSTEM("test7")
     local name = TryGetProp(item_obj, 'Name', 'None')
     CHAT_SYSTEM("test8")
-
+]]
     CHAT_SYSTEM("agm_liftIcon: " .. tostring(agm_liftIcon))
     CHAT_SYSTEM("agm_iconInfo: " .. tostring(agm_iconInfo))
-    CHAT_SYSTEM("item_obj: " .. tostring(item_obj))
-    CHAT_SYSTEM("invItem: " .. tostring(invItem))
-    CHAT_SYSTEM("groupname: " .. tostring(groupname))
-    CHAT_SYSTEM("cls: " .. tostring(cls))
-    CHAT_SYSTEM("name: " .. tostring(name))
+    CHAT_SYSTEM(tostring(agm_itemIESID))
+    -- CHAT_SYSTEM("item_obj: " .. tostring(item_obj))
+    -- CHAT_SYSTEM("invItem: " .. tostring(invItem))
+    -- CHAT_SYSTEM("groupname: " .. tostring(groupname))
+    -- CHAT_SYSTEM("cls: " .. tostring(cls))
+    -- CHAT_SYSTEM("name: " .. tostring(name))
 
     print(agm_liftIcon)
     print(agm_iconInfo)
-    print(item_obj)
-    print(invItem)
-    print(groupname)
-    print(cls)
-    print(name)
+    print(agm_itemIESID)
+    -- print(item_obj)
+    -- print(invItem)
+    -- print(groupname)
+    -- print(cls)
+    -- print(name)
 end
 
 function AETHERGEM_MGR_GET_SLOT_PROP(slot)
     GET_SLOT_PROP_OLD(slot)
-    AETHERGEM_MGR_TEST(icon)
+    AETHERGEM_MGR_TEST(nil)
 end
 
 function AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN(item_obj, slot, guid)
