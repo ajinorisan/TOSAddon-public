@@ -18,97 +18,9 @@ function AETHERGEM_MGR_ON_INIT(addon, frame)
 
     CHAT_SYSTEM(addonNameLower .. " loaded")
     acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
-    acutil.setupHook(AETHERGEM_MGR_CHECK_INV_LBTN, "CHECK_INV_LBTN")
+    -- acutil.setupHook(AETHERGEM_MGR_CHECK_INV_LBTN, "CHECK_INV_LBTN")
     AETHERGEM_MGR_FRAME_INIT()
 
-    -- testcode
-    -- local testframe = ui.GetFrame('inventory')
-    -- マウスオーバー イベントハンドラの登録
-    -- testframe:EnableHitTest(1)
-    -- testframe:SetEventScript(ui.DROP, "AETHERGEM_MGR_TEST")
-    -- testcodeend
-end
-
-function AETHERGEM_MGR_CHECK_INV_LBTN(frame, object, argStr, argNum)
-    CHECK_INV_LBTN_OLD(frame, object, argStr, argNum)
-    -- CHAT_SYSTEM(object)
-
-    -- CHAT_SYSTEM(argStr)
-    -- CHAT_SYSTEM(argNum)
-    print(argStr)
-    print(argNum)
-
-    local am_slot = ui.GetLiftIcon():GetParent()
-    local slot = tolua.cast(am_slot, 'ui::CSlot')
-
-    AETHERGEM_MGR_TEST(slot)
-end
-
-function AETHERGEM_MGR_TEST(slot)
-    CHAT_SYSTEM("test")
-    local am_icon = slot:GetIcon()
-    if am_icon == nil then
-        return;
-    end
-    --[[
-    local agm_useItemIndex = item.GetTargetItem();
-    local agm_useItem = session.GetInvItem(useItemIndex);
-    local agm_useItemObj = GetIES(agm_useItem:GetObject());
-    local agm_useItemGroup = agm_useItemObj.GroupName
-    local agm_useItemUseType = agm_useItemObj.Usable
-    print(agm_useItemIndex)
-    print(agm_useItem)
-    print(agm_useItemObj)
-    print(agm_useItemGroup)
-    print(agm_useItemUseType)
-    ]]
-    -- local testframe = ui.GetFrame('inventory')
-    -- CHAT_SYSTEM("test")
-
-    CHAT_SYSTEM("test1")
-    local am_icon_Info = am_icon:GetInfo()
-    if am_icon_Info == nil then
-        CHAT_SYSTEM("Icon info not found")
-        return
-    end
-
-    CHAT_SYSTEM("test2")
-    local am_item_obj = GetObjectByGuid(am_icon_Info:GetIESID())
-    if am_item_obj == nil then
-        CHAT_SYSTEM("Item object not found")
-        return
-    end
-    --[[
-    local invItem = session.GetInvItemByGuid(agm_itemIESID);
-    CHAT_SYSTEM("test5")
-    local groupname = TryGetProp(item_obj, 'GroupName', 'None')
-    CHAT_SYSTEM("test6")
-    local cls = TryGetProp(item_obj, 'ClassName', 'None')
-    CHAT_SYSTEM("test7")
-    local name = TryGetProp(item_obj, 'Name', 'None')
-    CHAT_SYSTEM("test8")
-]]
-
-    CHAT_SYSTEM("am_iconInfo: " .. tostring(am_icon_Info))
-    -- sCHAT_SYSTEM(tostring(am_itemIESID))
-    -- CHAT_SYSTEM("item_obj: " .. tostring(item_obj))
-    -- CHAT_SYSTEM("invItem: " .. tostring(invItem))
-    -- CHAT_SYSTEM("groupname: " .. tostring(groupname))
-    -- CHAT_SYSTEM("cls: " .. tostring(cls))
-    -- CHAT_SYSTEM("name: " .. tostring(name))
-
-    print(am_icon_Info)
-
-    -- print(item_obj)
-    -- print(invItem)
-    -- print(groupname)
-    -- print(cls)
-    -- print(name)
-end
-
-function AETHERGEM_MGR_GET_SLOT_PROP(slot)
-    GET_SLOT_PROP_OLD(slot)
-    AETHERGEM_MGR_TEST(nil)
 end
 
 function AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN(item_obj, slot, guid)
@@ -171,30 +83,33 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
         local am_index = 2
 
         pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
-
-        GODDESS_MGR_SOCKET_CLEAR(eqpframe)
         local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
         invTab:SelectTab(1)
+
+        -- local frame = eqpframe
+
+        -- GODDESS_MGR_SOCKET_CLEAR(frame)
 
         -- CHAT_SYSTEM("押せる")
     else
         local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
         invTab:SelectTab(6)
 
-        local P_guid = 000000
-        local I_guid = 000000
-        local A_guid = 000000
-        local S_guid = 000000
-        local V_guid = 000000
-        local am_inv_item = session.GetInvItemByGuid(P_guid)
+        AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP()
+        -- CHAT_SYSTEM("test1")
+        --[[
+        local am_inv_item = session.GetEquipGemID()
+        print(am_inv_item)
 
         if am_inv_item == nil then
+            -- CHAT_SYSTEM("test2")
             return
         end
 
         local am_item_obj = GetIES(am_inv_item:GetObject())
 
         if am_item_obj == nil then
+            -- CHAT_SYSTEM("test3")
             return
         end
 
@@ -204,8 +119,54 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 
         GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
         -- CHAT_SYSTEM("押せない")
+        ]]
     end
 
+end
+
+function AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP()
+    local P_guid = 850006
+    local I_guid = 850007
+    local A_guid = 850008
+    local S_guid = 850009
+    local V_guid = 850010
+    local frame = ui.GetFrame("goddess_equip_manager")
+    local equip_slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
+    local guid = equip_slot:GetUserValue('ITEM_GUID')
+    local parent = GET_CHILD_RECURSIVELY(frame, 'socket_bg')
+    if guid ~= 'None' then
+        local equip_item = session.GetInvItemByGuid(guid)
+        if equip_item == nil then
+            return
+        end
+
+        local equip_obj = GetIES(equip_item:GetObject())
+        -- local equip_obj = P_guid
+
+        local index = parent:GetUserIValue('SLOT_INDEX')
+        if equip_item:IsAvailableSocket(index) == false then
+            return
+        end
+        print("test")
+
+        local gem_id = equip_item:GetEquipGemID(index)
+        -- local gem_id = P_guid
+        if gem_id ~= nil and gem_id ~= 0 then
+            print("test1")
+            return
+        end
+        session.ResetItemList()
+
+        session.AddItemID(guid, 1)
+        session.AddItemID(P_guid, 1)
+
+        local arg_list = NewStringList()
+        arg_list:Add(tostring(index))
+
+        local result_list = session.GetItemIDList()
+
+        item.DialogTransaction('GODDESS_SOCKET_AETHER_GEM_EQUIP', result_list, '', arg_list)
+    end
 end
 
 function AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK()
@@ -327,157 +288,3 @@ function AETHERGEM_MGR_UNEQUIP()
 
 end
 
---[[
-    function GET_AETHER_GEM_TOOLTIP(obj, prop_name_list, guid)
-	if obj == nil then return; end
-	if obj.GroupName ~= "Gem_High_Color" then return; end	
-
-	local level = 1;
-		local equip_item = session.GetEquipItemByGuid(guid);
-		if equip_item ~= nil then
-			local item_object = GetIES(equip_item:GetObject());
-			local item_grade = TryGetProp(item_object, "ItemGrade", 0);
-			if item_grade == 6 then
-				local start_index, end_index = GET_AETHER_GEM_INDEX_RANGE(TryGetProp(item_object, 'UseLv', 0))	
-				for i = start_index, end_index do
-					if equip_item:IsAvailableSocket(i) == true then
-						local gem_class_id = equip_item:GetEquipGemID(i);
-						if gem_class_id ~= 0 and gem_class_id == obj.ClassID then
-							local gem_class = GetClassByType("Item", gem_class_id);
-							if gem_class ~= nil then
-								local group_name = TryGetProp(gem_class, "GroupName", "None");
-								if group_name == "Gem_High_Color" then
-									level = equip_item:GetEquipGemLv(i);
-								end
-							end
-						end
-					end
-				end
-			end
-	else
-		local info, where = GET_INV_ITEM_BY_ITEM_OBJ(obj);
-		if where == "inventory" and tonumber(info:GetIESID()) ~= 0 then
-			level = get_current_aether_gem_level(obj);
-		elseif where == "inventory" and tonumber(info:GetIESID()) == 0 then
-			level = 1;
-		end
-	end
-
-	local gem_class = GetClassByType("Item", obj.ClassID);
-	if gem_class ~= nil then
-		local string_arg = TryGetProp(gem_class, "StringArg");
-		local get_func_str = "get_aether_gem_"..string_arg.."_prop";
-		local func = _G[get_func_str];
-		for i = 0, ITEM_SOCKET_PROPERTY_TYPE_COUNT - 1 do
-			local socket_type = geItemTable.GetSocketPropertyTypeStr(i);
-			if socket_type ~= "Helmet" and socket_type ~= "Armband" and socket_type ~= "ShirtsOrPants" and socket_type ~= "HandOrFoot" then
-				local lang_type = "WhenEquipTo"..socket_type;
-				prop_name_list[#prop_name_list + 1] = {};
-				prop_name_list[#prop_name_list]["Title"] = lang_type;
-				local add_count = 1;
-				for j = 0, add_count - 1 do
-					local prop_name, prop_value, use_operator = func(level);
-					prop_name_list[#prop_name_list + 1] = {};
-					prop_name_list[#prop_name_list]["PropName"] = prop_name;
-					prop_name_list[#prop_name_list]["PropValue"] = prop_value;
-					prop_name_list[#prop_name_list]["UseOperator"] = use_operator;
-				end
-			end
-		end
-	end
-end
-    local gemframe = ui.GetFrame("goddess_equip_manager")
-    -- local gbox_Equipped = GET_CHILD_RECURSIVELY(eqpframe, "gbox_Equipped")
-    -- local equipItemList = session.GetEquipItemList()
-
-    -- for i = 0, equipItemList:Count() - 1 do
-    -- local equipItem = equipItemList:GetEquipItemByIndex(i)
-    -- local spname = item.GetEquipSpotName(equipItem.equipSpot)
-    -- if spname == "RH" then
-    -- local slot = GET_CHILD_RECURSIVELY(gbox_Equipped, spname, "ui::CSlot")
-    -- if slot ~= nil then
-
-    -- local item = equipItem:GetObject()
-    -- if item ~= nil then
-    -- CHAT_SYSTEM("true2")
-
-    local socket_slot = GET_CHILD_RECURSIVELY(gemframe, "socket_slot", "ui::CSlot")
-    
-    local equipItemList = session.GetEquipItemList()
-    for i = 0, equipItemList:Count() - 1 do
-        local equipItem = equipItemList:GetEquipItemByIndex(i)
-        local spname = item.GetEquipSpotName(equipItem.equipSpot)
-        if spname == "RH" then
-            CHAT_SYSTEM("true")
-            local slot = GET_CHILD_RECURSIVELY(gbox_Equipped, spname, "ui::CSlot")
-            local slot_bg = GET_CHILD_RECURSIVELY(gbox_Equipped, spname .. "_bg", "ui::CSlot")
-            slot:ClearIcon()
-            slot:SetMaxSelectCount(0)
-            slot:SetText('')
-            slot:RemoveAllChild()
-            slot:SetSkinName(slot_bg:GetSkinName())
-            slot:SetUserValue('clsid', nil)
-            slot:SetUserValue('iesid', nil)
-
-            -- アイコンをsocket_slotにセット
-            local icon = slot:GetIcon()
-            if icon ~= nil then
-                local iconInfo = icon:GetInfo()
-                socket_slot:SetIcon(iconInfo:GetImageName())
-                socket_slot:SetTooltipType(iconInfo:GetTooltipType())
-                socket_slot:SetTooltipArg(iconInfo:GetTooltipNumArg())
-                socket_slot:SetTooltipIESID(iconInfo:GetTooltipIESID())
-            end
-
-            socket_slot:SetUserValue("clsid", tostring(GetIES(equipItem:GetObject()).ClassID))
-            socket_slot:SetUserValue("iesid", tostring(equipItem:GetIESID()))
-        end
-    end
-    
-end
-]]
---[[otehon
-function AWWARDROBE_CLEAREQUIP(frame, spname)
-    --現在の装備を登録
-    AWWARDROBE_try(function()
-        local gbox = frame:GetChildRecursively("equip")
-        local slot = GET_CHILD_RECURSIVELY(gbox, spname, "ui::CSlot")
-        local slot_bg = GET_CHILD_RECURSIVELY(gbox, spname .. "_bg", "ui::CSlot")
-        
-        slot:ClearIcon()
-        slot:SetMaxSelectCount(0)
-        slot:SetText('')
-        slot:RemoveAllChild()
-        slot:SetSkinName(slot_bg:GetSkinName())
-        slot:SetUserValue('clsid', nil)
-        slot:SetUserValue('iesid', nil)
-    
-    end)
-end
-
-TOS側コード発見　status.lua
-function STATUS_SLOT_RBTNDOWN(frame, slot, argStr, equipSpot)
-    frame = frame:GetTopParentFrame()
-    if true == BEING_TRADING_STATE() then
-        return;
-    end
-
-    local isEmptySlot = false;
-
-    local invItemList = session.GetInvItemList();    
-    local itemCount = session.GetInvItemList():Count();
-
-    if session.GetInvItemList():Count() < MAX_INV_COUNT then
-        isEmptySlot = true;
-    end
-
-    if isEmptySlot == true then
-        imcSound.PlaySoundEvent('inven_unequip');
-        local spot = equipSpot;
-        item.UnEquip(spot);
-    else
-        ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."));
-
-    end
-end
-]]
