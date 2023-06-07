@@ -38,11 +38,18 @@ function AETHERGEM_MGR_CHECK_INV_LBTN(frame, object, argStr, argNum)
     print(argStr)
     print(argNum)
 
-    AETHERGEM_MGR_TEST()
+    local am_slot = ui.GetLiftIcon():GetParent()
+    local slot = tolua.cast(am_slot, 'ui::CSlot')
+
+    AETHERGEM_MGR_TEST(slot)
 end
 
-function AETHERGEM_MGR_TEST()
+function AETHERGEM_MGR_TEST(slot)
     CHAT_SYSTEM("test")
+    local am_icon = slot:GetIcon()
+    if am_icon == nil then
+        return;
+    end
     --[[
     local agm_useItemIndex = item.GetTargetItem();
     local agm_useItem = session.GetInvItem(useItemIndex);
@@ -57,30 +64,21 @@ function AETHERGEM_MGR_TEST()
     ]]
     -- local testframe = ui.GetFrame('inventory')
     -- CHAT_SYSTEM("test")
-    local agm_liftIcon = ui.GetLiftIcon()
-    if agm_liftIcon == nil then
-        CHAT_SYSTEM("Lift icon not found")
-        return
-    end
 
     CHAT_SYSTEM("test1")
-    local agm_iconInfo = agm_liftIcon:GetInfo()
-    if agm_iconInfo == nil then
+    local am_icon_Info = am_icon:GetInfo()
+    if am_icon_Info == nil then
         CHAT_SYSTEM("Icon info not found")
         return
     end
 
     CHAT_SYSTEM("test2")
-    local agm_item_obj = GetObjectByGuid(agm_iconInfo:GetIESID())
-    if agm_item_obj == nil then
+    local am_item_obj = GetObjectByGuid(am_icon_Info:GetIESID())
+    if am_item_obj == nil then
         CHAT_SYSTEM("Item object not found")
         return
     end
-
     --[[
-    local agm_item_obj = GetObjectByGuid(agm_iconInfo:GetIESID())
-    CHAT_SYSTEM("test4")
-
     local invItem = session.GetInvItemByGuid(agm_itemIESID);
     CHAT_SYSTEM("test5")
     local groupname = TryGetProp(item_obj, 'GroupName', 'None')
@@ -90,18 +88,17 @@ function AETHERGEM_MGR_TEST()
     local name = TryGetProp(item_obj, 'Name', 'None')
     CHAT_SYSTEM("test8")
 ]]
-    CHAT_SYSTEM("agm_liftIcon: " .. tostring(agm_liftIcon))
-    CHAT_SYSTEM("agm_iconInfo: " .. tostring(agm_iconInfo))
-    CHAT_SYSTEM(tostring(agm_itemIESID))
+
+    CHAT_SYSTEM("am_iconInfo: " .. tostring(am_icon_Info))
+    -- sCHAT_SYSTEM(tostring(am_itemIESID))
     -- CHAT_SYSTEM("item_obj: " .. tostring(item_obj))
     -- CHAT_SYSTEM("invItem: " .. tostring(invItem))
     -- CHAT_SYSTEM("groupname: " .. tostring(groupname))
     -- CHAT_SYSTEM("cls: " .. tostring(cls))
     -- CHAT_SYSTEM("name: " .. tostring(name))
 
-    print(agm_liftIcon)
-    print(agm_iconInfo)
-    print(agm_itemIESID)
+    print(am_icon_Info)
+
     -- print(item_obj)
     -- print(invItem)
     -- print(groupname)
@@ -174,10 +171,38 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
         local am_index = 2
 
         pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
+
+        GODDESS_MGR_SOCKET_CLEAR(eqpframe)
+        local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
+        invTab:SelectTab(1)
+
         -- CHAT_SYSTEM("押せる")
     else
         local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
         invTab:SelectTab(6)
+
+        local P_guid = 000000
+        local I_guid = 000000
+        local A_guid = 000000
+        local S_guid = 000000
+        local V_guid = 000000
+        local am_inv_item = session.GetInvItemByGuid(P_guid)
+
+        if am_inv_item == nil then
+            return
+        end
+
+        local am_item_obj = GetIES(am_inv_item:GetObject())
+
+        if am_item_obj == nil then
+            return
+        end
+
+        local frame = eqpframe
+        local inv_item = am_inv_item
+        local item_obj = am_item_obj
+
+        GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
         -- CHAT_SYSTEM("押せない")
     end
 
