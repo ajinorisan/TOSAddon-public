@@ -252,7 +252,7 @@ function AETHERGEM_MGR_ITEM_PREPARATION()
         return
     end
 end
-
+--[[
 function GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, slot, gem_item, gem_obj)
     local frame = parent:GetTopParentFrame()
     local equip_slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
@@ -293,3 +293,4 @@ function GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, slot, gem_item, gem_obj)
     end
 end
 
+]]
