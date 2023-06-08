@@ -11,14 +11,40 @@ local g = _G["ADDONS"][author][addonName]
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
-
+--[[
+local agmframe = ui.GetFrame("aethergem_mgr")
+agmframe:SetSkinName('chat_window');
+-- agmframe:SetSkinName("test_skin_01_btn");
+agmframe:Resize(80, 150)
+-- agmframe:Resize(300, 300)
+agmframe:ShowTitleBar(0)
+agmframe:EnableHitTest(0)
+agmframe:SetLayerLevel(100);
+agmframe:SetOffset(1810, 385);
+agmframe:ShowWindow(1)
+local strbtn = agmframe:CreateControl('button', 'strbtn', 0, 0, 80, 30);
+AUTO_CAST(strbtn);
+strbtn:SetText("STR")
+local intbtn = agmframe:CreateControl('button', 'intbtn', 0, 30, 80, 30);
+AUTO_CAST(intbtn);
+intbtn:SetText("INT")
+local conbtn = agmframe:CreateControl('button', 'conbtn', 0, 60, 80, 30);
+AUTO_CAST(conbtn);
+conbtn:SetText("CON")
+local sprbtn = agmframe:CreateControl('button', 'sprbtn', 0, 90, 80, 30);
+AUTO_CAST(sprbtn);
+sprbtn:SetText("SPR")
+local dexbtn = agmframe:CreateControl('button', 'dexbtn', 0, 120, 80, 30);
+AUTO_CAST(dexbtn);
+dexbtn:SetText("DEX")
+]]
 function AETHERGEM_MGR_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
     CHAT_SYSTEM(addonNameLower .. " loaded")
     acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
-    -- acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
+    -- acutil.setupHook(AETHERGEM_MGR_test, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
     AETHERGEM_MGR_FRAME_INIT()
 
 end
@@ -86,9 +112,9 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
         local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
         invTab:SelectTab(1)
 
-        local frame = gemframe
+        -- local frame = gemframe
 
-        GODDESS_MGR_SOCKET_CLEAR(frame)
+        -- ReserveScript(string.format("GODDESS_MGR_SOCKET_CLEAR('%s')", frame), 0.5)
 
         -- CHAT_SYSTEM("押せる")
     else
@@ -104,6 +130,7 @@ end
 function AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK()
     -- print("rmequipボタンがクリックされました")
     local frame = ui.GetFrame('goddess_equip_manager')
+
     AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
 end
 
@@ -220,7 +247,6 @@ function AETHERGEM_MGR_UNEQUIP()
 
 end
 --[[
-
 local frameName = "gem_select"
 local frame = ui.CreateNewFrame("chat_window", frameName)
 local P_guid = 850006
@@ -230,31 +256,91 @@ local P_guid = 850006
     local V_guid = 850010
 ]]
 function AETHERGEM_MGR_ITEM_PREPARATION()
+
     local itemClassID = 850006
-    local equip_item = session.GetInvItemByType(itemClassID)
-    if equip_item ~= nil then
+    local am_equip_item = session.GetInvItemByType(itemClassID)
+    -- CHAT_SYSTEM(equip_item)
+    if am_equip_item == nil then
+        ui.SysMsg("[Lv.480]エーテルジェム - 力 がインベントリーにありません")
+        ui.SysMsg("[Lv.480] Aether Gem - STR  is missing from inventory")
+    else
         CHAT_SYSTEM("test1")
-        local guid = equip_item:GetIESID()
+        local guid = am_equip_item:GetIESID()
+        CHAT_SYSTEM(guid)
         local inv_item = session.GetInvItemByGuid(guid)
+        CHAT_SYSTEM(inv_item)
         if inv_item == nil then
             return
         end
 
         local item_obj = GetIES(inv_item:GetObject())
+        CHAT_SYSTEM(item_obj)
         if item_obj == nil then
             return
         end
 
         local gem_type = GET_EQUIP_GEM_TYPE(item_obj)
-        local parent = ui.GetFrame('goddess_equip_manager')
+        local frame = ui.GetFrame('goddess_equip_manager')
+        local aether_inner_bg = GET_CHILD_RECURSIVELY(frame, 'aether_inner_bg')
+        local parent = GET_CHILD(aether_inner_bg, "AETHER_CSET_0")
         if gem_type == 'aether' then
             CHAT_SYSTEM("test4")
-            GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, nil, inv_item, item_obj)
+            AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, nil, inv_item, item_obj)
         end
-    else
-        return
+
     end
+    ui.SysMsg("[Lv.480]エーテルジェム - 力 がインベントリーにありません")
+    ui.SysMsg("[Lv.480] Aether Gem - STR  is missing from inventory")
 end
+
+function AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, slot, gem_item, gem_obj)
+
+    local frame = parent:GetTopParentFrame()
+    local equip_slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
+    local guid = equip_slot:GetUserValue('ITEM_GUID')
+    if guid ~= 'None' then
+
+        local equip_item = session.GetInvItemByGuid(guid)
+        if equip_item == nil then
+            return
+        end
+
+        local equip_obj = GetIES(equip_item:GetObject())
+
+        local index = parent:GetUserIValue('SLOT_INDEX')
+        CHAT_SYSTEM(index)
+        if equip_item:IsAvailableSocket(index) == false then
+            CHAT_SYSTEM("test7")
+            return
+        end
+
+        local gem_id = equip_item:GetEquipGemID(index)
+        CHAT_SYSTEM(gem_id)
+        if gem_id ~= nil and gem_id ~= 0 then
+            CHAT_SYSTEM("test8")
+            return
+        end
+
+        if item_goddess_socket.check_equipable_aether_gem(equip_obj, gem_obj, index) == false then
+            CHAT_SYSTEM("test9")
+            return
+        end
+
+        session.ResetItemList()
+
+        session.AddItemID(guid, 1)
+        session.AddItemID(gem_item:GetIESID(), 1)
+
+        local arg_list = NewStringList()
+        arg_list:Add(tostring(index))
+
+        local result_list = session.GetItemIDList()
+
+        item.DialogTransaction('GODDESS_SOCKET_AETHER_GEM_EQUIP', result_list, '', arg_list)
+    end
+    CHAT_SYSTEM("test7")
+end
+
 --[[
 function GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, slot, gem_item, gem_obj)
     local frame = parent:GetTopParentFrame()
