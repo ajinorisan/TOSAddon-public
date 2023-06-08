@@ -18,7 +18,7 @@ function AETHERGEM_MGR_ON_INIT(addon, frame)
 
     CHAT_SYSTEM(addonNameLower .. " loaded")
     acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
-    acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
+    -- acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
     AETHERGEM_MGR_FRAME_INIT()
 
 end
@@ -95,8 +95,8 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
         local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
         invTab:SelectTab(6)
 
-        AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP()
-
+        -- AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP()
+        AETHERGEM_MGR_ITEM_PREPARATION()
     end
 
 end
@@ -226,83 +226,70 @@ local P_guid = 850006
     local S_guid = 850009
     local V_guid = 850010
 ]]
-
-function AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, slot, gem_item, gem_obj)
-    local frame = parent:GetTopParentFrame()
-    local equip_slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
+function AETHERGEM_MGR_ITEM_PREPARATION()
     local itemClassID = 850006
     local equip_item = session.GetInvItemByType(itemClassID)
-    if equip_item == nil then
+    if equip_item ~= nil then
+        CHAT_SYSTEM("test1")
+        local guid = equip_item:GetIESID()
+        local inv_item = session.GetInvItemByGuid(guid)
+        if inv_item == nil then
+            return
+        end
+
+        local item_obj = GetIES(inv_item:GetObject())
+        if item_obj == nil then
+            return
+        end
+
+        local gem_type = GET_EQUIP_GEM_TYPE(item_obj)
+        local parent = ui.GetFrame('goddess_equip_manager')
+        if gem_type == 'aether' then
+            CHAT_SYSTEM("test4")
+            GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, nil, inv_item, item_obj)
+        end
+    else
         return
     end
-    local guid = equip_item:GetIESID()
-    equip_slot:SetUserValue('ITEM_GUID', guid)
-
-    local equip_obj = GetIES(equip_item:GetObject())
-
-    local index = parent:GetUserIValue('SLOT_INDEX')
-    if equip_item:IsAvailableSocket(index) == false then
-        return
-    end
-
-    local gem_id = equip_item:GetEquipGemID(index)
-    if gem_id ~= nil and gem_id ~= 0 then
-        return
-    end
-
-    if item_goddess_socket.check_equipable_aether_gem(equip_obj, gem_obj, index) == false then
-        return
-    end
-
-    session.ResetItemList()
-
-    session.AddItemID(guid, 1)
-    session.AddItemID(gem_item:GetIESID(), 1)
-
-    local arg_list = NewStringList()
-    arg_list:Add(tostring(index))
-
-    local result_list = session.GetItemIDList()
-
-    item.DialogTransaction('GODDESS_SOCKET_AETHER_GEM_EQUIP', result_list, '', arg_list)
-
 end
---[[
+
 function GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, slot, gem_item, gem_obj)
-	local frame = parent:GetTopParentFrame()
-	local equip_slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
-	local guid = equip_slot:GetUserValue('ITEM_GUID')
-	if guid ~= 'None' then
-		local equip_item = session.GetInvItemByGuid(guid)
-		if equip_item == nil then return end
+    local frame = parent:GetTopParentFrame()
+    local equip_slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
+    local guid = equip_slot:GetUserValue('ITEM_GUID')
+    if guid ~= 'None' then
+        local equip_item = session.GetInvItemByGuid(guid)
+        if equip_item == nil then
+            return
+        end
 
-		local equip_obj = GetIES(equip_item:GetObject())
+        local equip_obj = GetIES(equip_item:GetObject())
 
-		local index = parent:GetUserIValue('SLOT_INDEX')
-		if equip_item:IsAvailableSocket(index) == false then
-			return
-		end
+        local index = parent:GetUserIValue('SLOT_INDEX')
+        if equip_item:IsAvailableSocket(index) == false then
+            return
+        end
 
-		local gem_id = equip_item:GetEquipGemID(index)
-		if gem_id ~= nil and gem_id ~= 0 then
-			return
-		end
+        local gem_id = equip_item:GetEquipGemID(index)
+        if gem_id ~= nil and gem_id ~= 0 then
+            return
+        end
 
-		if item_goddess_socket.check_equipable_aether_gem(equip_obj, gem_obj, index) == false then
-			return
-		end
+        if item_goddess_socket.check_equipable_aether_gem(equip_obj, gem_obj, index) == false then
+            return
+        end
 
-		session.ResetItemList()
+        session.ResetItemList()
 
-		session.AddItemID(guid, 1)
-		session.AddItemID(gem_item:GetIESID(), 1)
+        session.AddItemID(guid, 1)
+        session.AddItemID(gem_item:GetIESID(), 1)
 
-		local arg_list = NewStringList()
-		arg_list:Add(tostring(index))
+        local arg_list = NewStringList()
+        arg_list:Add(tostring(index))
 
-		local result_list = session.GetItemIDList()
+        local result_list = session.GetItemIDList()
 
-		item.DialogTransaction('GODDESS_SOCKET_AETHER_GEM_EQUIP', result_list, '', arg_list)
-	end
+        item.DialogTransaction('GODDESS_SOCKET_AETHER_GEM_EQUIP', result_list, '', arg_list)
+    end
 end
-]]
+
