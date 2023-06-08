@@ -220,6 +220,9 @@ function AETHERGEM_MGR_UNEQUIP()
 
 end
 --[[
+
+local frameName = "gem_select"
+local frame = ui.CreateNewFrame("chat_window", frameName)
 local P_guid = 850006
     local I_guid = 850007
     local A_guid = 850008
