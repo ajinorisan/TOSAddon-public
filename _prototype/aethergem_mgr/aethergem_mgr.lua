@@ -101,37 +101,16 @@ function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
     agmframe:EnableHitTest(0)
     agmframe:SetLayerLevel(100);
     agmframe:SetOffset(1810, 385);
-    agmframe:ShowWindow(1)
+    agmframe:RemoveAllChild();
 
-    local strbtn = agmframe:CreateOrGetControl('radio', 'strbtn', 0, 0, 80, 30)
-    AUTO_CAST(strbtn)
-    strbtn:SetText("STR")
-    strbtn:SetGroupID(1)
-    strbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+    local function agmframe_close()
+        agmframe = ui.CloseFrame("aethergem_mgr")
+    end
 
-    local intbtn = agmframe:CreateOrGetControl('radio', 'intbtn', 0, 30, 80, 30)
-    AUTO_CAST(intbtn)
-    intbtn:SetText("INT")
-    intbtn:SetGroupID(1)
-    intbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
-
-    local conbtn = agmframe:CreateOrGetControl('radio', 'conbtn', 0, 60, 80, 30)
-    AUTO_CAST(conbtn)
-    conbtn:SetText("CON")
-    conbtn:SetGroupID(1)
-    conbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
-
-    local sprbtn = agmframe:CreateOrGetControl('radio', 'sprbtn', 0, 90, 80, 30)
-    AUTO_CAST(sprbtn)
-    sprbtn:SetText("SPR")
-    sprbtn:SetGroupID(1)
-    sprbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
-
-    local dexbtn = agmframe:CreateOrGetControl('radio', 'dexbtn', 0, 120, 80, 30)
-    AUTO_CAST(dexbtn)
-    dexbtn:SetText("DEX")
-    dexbtn:SetGroupID(1)
-    dexbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+    local closeBtn = agmframe:CreateOrGetControl("button", "closeBtn", 0, 120, 30, 30)
+    AUTO_CAST(closeBtn)
+    closeBtn:SetText("×")
+    closeBtn:SetEventScript(ui.LBUTTONUP, "agmframe_close")
 
     local function OnRadioButtonSelected(ctrl)
         local STR_guid = 850006
@@ -168,6 +147,52 @@ function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
         end
     end
 
+    local strbtn = agmframe:CreateOrGetControl('radio', 'strbtn', 0, 0, 30, 30)
+    AUTO_CAST(strbtn)
+    if g.gemguid == 850006 then
+        strbtn:IsChecked(1)
+    end
+    strbtn:SetText("{s16}{#F00000}STR")
+    strbtn:SetGroupID(1)
+    strbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+
+    local intbtn = agmframe:CreateOrGetControl('radio', 'intbtn', 0, 30, 30, 30)
+    AUTO_CAST(intbtn)
+    if g.gemguid == 850007 then
+        strbtn:IsChecked(1)
+    end
+    intbtn:SetText("{s16}{#0000F0}INT")
+    intbtn:SetGroupID(1)
+    intbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+
+    local conbtn = agmframe:CreateOrGetControl('radio', 'conbtn', 0, 60, 30, 30)
+    AUTO_CAST(conbtn)
+    if g.gemguid == 850010 then
+        strbtn:IsChecked(1)
+    end
+    conbtn:SetText("{s16}{#FFFFFF}CON")
+    conbtn:SetGroupID(1)
+    conbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+
+    local sprbtn = agmframe:CreateOrGetControl('radio', 'sprbtn', 0, 90, 30, 30)
+    AUTO_CAST(sprbtn)
+    if g.gemguid == 850009 then
+        strbtn:IsChecked(1)
+    end
+    sprbtn:SetText("{s16}{#F0F000}SPR")
+    sprbtn:SetGroupID(1)
+    sprbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+
+    local dexbtn = agmframe:CreateOrGetControl('radio', 'dexbtn', 0, 120, 30, 30)
+    AUTO_CAST(dexbtn)
+    if g.gemguid == 850008 then
+        strbtn:IsChecked(1)
+    end
+    dexbtn:SetText("{s16}{#00F000}DEX")
+    dexbtn:SetGroupID(1)
+    dexbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+
+    agmframe:ShowWindow(1)
 end
 
 function AETHERGEM_MGR_REMOVE_AETHERGEM()
