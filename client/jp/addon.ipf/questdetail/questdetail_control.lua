@@ -4,13 +4,6 @@
 function QUESTDETAIL_BOX_CREATE_RICHTEXT(baseCtrl, x, y, width, height, name, text, prop) 
 	local title = baseCtrl:CreateControl("richtext", name, x, y, width, height);
 	tolua.cast(title, "ui::CRichText");
-	
-	if prop ~= nil then
-		if prop.text_align ~= nil then
-			title:SetTextAlign(prop.text_align.horz,prop.text_align.vert );
-		end
-	end
-
 	title:SetTextFixWidth(1);
 	title:SetText(text.."{/}");
 	return title:GetHeight()
@@ -44,14 +37,10 @@ function QUESTDETAIL_BOX_CREATE_RICH_CONTROLSET(baseCtrl, x, y, width, height, n
 end
 
 -- 태그 텍스트 컨트롤
-function QUESTDETAIL_MAKE_ITEM_TAG_TEXT_CTRL(baseCtrl, x, y, name, itemName, itemCount, index, prop, is_multi, multiple_rate)
+function QUESTDETAIL_MAKE_ITEM_TAG_TEXT_CTRL(baseCtrl, x, y, name, itemName, itemCount, index, prop) 
 	local cls = GetClass("Item", itemName);
 	if cls == nil then
 		return 0;
-	end
-
-	if is_multi == nil then
-		is_multi = false
 	end
 
 	local height = 0;
@@ -90,11 +79,7 @@ function QUESTDETAIL_MAKE_ITEM_TAG_TEXT_CTRL(baseCtrl, x, y, name, itemName, ite
 	    if itemName ~= 'Vis' then
 			itemText = ScpArgMsg("{Auto_1}ItemName{Auto_2}NeedCount","Auto_1", itemCls.Name, "Auto_2",GetCommaedText(itemCount));
 		else
-    		if is_multi == true then
-				itemText = ScpArgMsg("QuestRewardMoneyTextWithBonus", "Auto_1", GetCommaedText(itemCount), "Rate", multiple_rate);
-			else
-				itemText = ScpArgMsg("QuestRewardMoneyText", "Auto_1", GetCommaedText(itemCount));
-			end
+    		itemText = ScpArgMsg("QuestRewardMoneyText", "Auto_1", GetCommaedText(itemCount));
     	end
     end
 	itemNameCtrl:SetText(itemText);
@@ -367,24 +352,8 @@ function QUESTDETAIL_MAKE_REWARD_MONEY_CTRL(gbBody, x, y, questIES)
 		end
 	end
 	
-	if count > 0 then
-		local is_multi = false
-		local multiple_rate = 1
-		local acc_obj = GetMyAccountObj()
-		local ep_cls = GetClassByNumProp('Episode_Quest', 'QuestID', questIES.ClassID)
-		if acc_obj ~= nil and ep_cls ~= nil then
-			local ep_name = TryGetProp(ep_cls, 'EpisodeName', 'None')
-			local check_name = 'FirstQuestClear_' .. ep_name .. '_' .. questIES.ClassID
-			local first_clear = TryGetProp(acc_obj, check_name, 0)
-			local ep_reward_cls = GetClass('Episode_Reward', ep_name)
-			if first_clear == 0 and ep_reward_cls ~= nil then
-				multiple_rate = TryGetProp(ep_reward_cls, 'FirstClearSilver', 1)
-				count = count * multiple_rate
-				is_multi = true
-			end
-		end
-
-		height = height + QUESTDETAIL_MAKE_ITEM_TAG_TEXT_CTRL(gbBody, x, y + height, "reward_item", 'Vis', count, 1, nil, is_multi, multiple_rate);
+    if count > 0 then
+		height = height + QUESTDETAIL_MAKE_ITEM_TAG_TEXT_CTRL(gbBody, x, y + height, "reward_item", 'Vis', count, 1);
 	end
 	
 	return height;
@@ -482,11 +451,9 @@ function  QUESTDETAIL_MAKE_EXP_REWARD_CTRL(gbBody, x, y, questIES)
 	    succExp = succExp + repeat_reward_exp
 	end
 	
-	local sumvalue = MultForBigNumberInt64(tostring(succExp), tostring(77));
-	sumvalue = DivForBigNumberInt64(tostring(sumvalue), tostring(100));
     if succExp > 0 then
-		succJobExp = tonumber(SumForBigNumberInt64(succJobExp, sumvalue));
-	end
+        succJobExp = succJobExp + math.floor(succExp * 77 /100)
+    end
 	
 	if cls.Success_Lv_Exp > 0 then
         local xpIES = GetClass('Xp', pc.Lv)

@@ -57,16 +57,12 @@ function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 	periodText2:SetTextByKey('date', dateStr);
 
 	local infoText = GET_CHILD_RECURSIVELY(frame, 'infoText');
-	local newCharInfoText = GET_CHILD_RECURSIVELY(frame, 'newCharInfoText');
 	if attendanceID == 3 then
-		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2")..'{nl}'..ScpArgMsg("Attendance_infoText_3");
-		newCharInfoStr = ScpArgMsg("Attendance_infoText_4");
+		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2")..'{nl}'..ScpArgMsg("Attendance_infoText_3");		
 	else
 		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2");
-		newCharInfoStr = "";
 	end
 	infoText:SetText(dateStr);
-	newCharInfoText:SetText(newCharInfoStr);
 
 	local diffDays = imcTime.GetDifDaysFromNow(attendanceData.startTime);
 	frame:SetUserValue('TODAY_DAY_OFFSET', diffDays);
@@ -118,13 +114,13 @@ function ATTENDANCE_INIT_REWARD(frame, attendanceID)
             local itemPic = GET_CHILD(ctrlSet, 'itemPic');
             itemPic:SetImage(itemCls.Icon);
 
-			if string.find(itemName, 'Enchant_Jewel') ~= nil then
+			if itemName ~= MONEY_NAME and itemName ~= 'Event_Unique_Enchant_Jewel' then
+				SET_ITEM_TOOLTIP_BY_NAME(itemPic, itemName);
+			else
 				local rewardClassName = attendanceClassData:GetRewardClassName();
 				if rewardClassName ~= nil then
 					SET_ITEM_TOOLTIP_BY_CLASSID(itemPic, itemName, 'RewardAttendance', rewardClassName);
 				end
-			elseif itemName ~= MONEY_NAME then
-				SET_ITEM_TOOLTIP_BY_NAME(itemPic, itemName);
 			end
 			itemPic:SetTooltipOverlap(1);
 
@@ -161,14 +157,6 @@ function ATTENDANCE_INIT_REWARD(frame, attendanceID)
 	local rewardBox = GET_CHILD_RECURSIVELY(frame, 'rewardBox');
 	rewardBox:Resize(rewardBox:GetOriginalWidth(), rewardBox:GetOriginalHeight() + (offsetY * HeightCnt));	
 
-	local bgBoxMargin = bgBox:GetMargin();
-	frame:Resize(frame:GetOriginalWidth(), bgBox:GetHeight() + bgBoxMargin.top);
-	
-	local periodText1 = GET_CHILD_RECURSIVELY(frame, "periodText1");
-	local periodText2 = GET_CHILD_RECURSIVELY(frame, "periodText2");
-	local periodText1_margin =  periodText1:GetMargin();
-	periodText1_margin.right = periodText2:GetWidth() +5
-	
 end
 
 function ATTENDANCE_TOGGLE_VAKARINE_UI()
@@ -181,7 +169,7 @@ function ATTENDANCE_TOGGLE_VAKARINE_UI()
 	ON_ATTENDANCE_RESULT(frame, '', '', vakarineCls.ClassID);
 end
 
-function GET_PROGRESS_ATTENDANCE_CHECK()
+function ATTENDANCE_OPEN_CHECK()
 	local list, cnt = GetClassList('TPEventAttendance');
 	if list == nil then
 		return false;
@@ -194,6 +182,10 @@ function GET_PROGRESS_ATTENDANCE_CHECK()
 	end
 
 	return false;
+end
+
+function ATTENDANCE_LIST_TOGGLE_UI()
+	LISTSELECT_UI_CREATE("attendance")
 end
 
 -- 해당하는 출석 UI창 출력
@@ -240,37 +232,29 @@ end
 function ATTENDANCE_REWARD_CHECK_UI_ON(frame, argStr, argNum, argNum2)
 	if argNum2 == 0 then
 		-- 마을이 아닐 경우 출석 보상 확인 안내 말풍선 UI 생성
-		-- 로딩창이 닫힌후 UI 보여주도록 딜레이 줌
-		ReserveScript("ATTENDANCE_REWARD_BALLOON_CREATE()", 2);
+		local sysFrame = ui.GetFrame("sysmenu");
+		if sysFrame == nil then
+			return;
+		end
+		
+		local systemBtn = sysFrame:GetChild("system");
+		if systemBtn ~= nil then
+			local helpBalloon = MAKE_BALLOON_FRAME(ScpArgMsg('attendance'), 0, 0, nil, nil);
+			helpBalloon:ShowWindow(1);
+	        local margin = systemBtn:GetMargin();
+	        local x = margin.right;
+	        local y = margin.bottom;        
+			x = x + (systemBtn:GetWidth() / 2);
+			y = y + systemBtn:GetHeight() - 5;
+	        helpBalloon:SetGravity(ui.RIGHT, ui.BOTTOM);
+	        helpBalloon:SetMargin(0, 0, x, y);
+			helpBalloon:SetDuration(7);
+			helpBalloon:SetLayerLevel(105);
+		end
+
 	elseif argNum2 == 1 then
 		-- 마을일 경우 출석 보상 확인 list UI 출력
-		-- 로딩창이 닫힌후 UI 보여주도록 딜레이 줌
-		ReserveScript("ATTENDANCE_LIST_TOGGLE_UI()", 2);
+		ATTENDANCE_LIST_TOGGLE_UI();
 	end
 end
 
-function ATTENDANCE_REWARD_BALLOON_CREATE()
-	local sysFrame = ui.GetFrame("sysmenu");
-	if sysFrame == nil then
-		return;
-	end
-	
-	local systemBtn = sysFrame:GetChild("system");
-	if systemBtn ~= nil then
-		local helpBalloon = MAKE_BALLOON_FRAME(ScpArgMsg('attendance'), 0, 0, nil, nil);
-		helpBalloon:ShowWindow(1);
-		local margin = systemBtn:GetMargin();
-		local x = margin.right;
-		local y = margin.bottom;        
-		x = x + (systemBtn:GetWidth() / 2);
-		y = y + systemBtn:GetHeight() - 5;
-		helpBalloon:SetGravity(ui.RIGHT, ui.BOTTOM);
-		helpBalloon:SetMargin(0, 0, x, y);
-		helpBalloon:SetDuration(7);
-		helpBalloon:SetLayerLevel(105);
-	end
-end
-
-function ATTENDANCE_LIST_TOGGLE_UI()
-	LISTSELECT_UI_CREATE("attendance")
-end

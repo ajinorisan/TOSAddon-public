@@ -128,7 +128,6 @@ function ON_RESTQUICKSLOT_CLOSE(frame, msg, argStr, argNum)
 	if flutFrame:IsVisible() == 1 then
 		flutFrame:ShowWindow(0);
 	end
-	
 	frame:ShowWindow(0);
 
 	if IsJoyStickMode() == 0 then
@@ -138,11 +137,8 @@ function ON_RESTQUICKSLOT_CLOSE(frame, msg, argStr, argNum)
 		local joystickQuickFrame = ui.GetFrame('joystickquickslot')
 		joystickQuickFrame:ShowWindow(1);
 	end
-
 	ui.CloseFrame('reinforce_by_mix')
-	ui.CloseFrame('icoradd_multiple')
-	ui.CloseFrame('icorrelease_multiple')
-	ui.CloseFrame('icorrelease_random_multiple')
+
 end
 
 function SET_REST_QUICK_SLOT(slot, cls)
@@ -197,7 +193,7 @@ end
 function REST_SLOT_USE(frame, slotIndex)
 
 	if GetCraftState() == 1 then
-		ui.SysMsg(ClMsg("CHATHEDRAL53_MQ03_ITEM02"));
+		ui.SysMsg(ClMsg("prosessItemCraft"));
 		return;
 	end
 
@@ -218,6 +214,7 @@ function REST_SLOT_USE(frame, slotIndex)
 
 	local scp = _G[cls.Script];
 	if scp == nil then
+		print(cls.Script);
 		return;
 	end
 	scp();
@@ -231,15 +228,10 @@ function REQUEST_OPEN_JORUNAL_CRAFT()
 
 	local frame = ui.GetFrame("itemcraft");
 	if frame ~= nil then
-		if frame:IsVisible() == 1 then
-			ui.CloseFrame("itemcraft");
-		else			
-			SET_CRAFT_IDSPACE(frame, "Recipe");
-			SET_ITEM_CRAFT_UINAME("itemcraft");
-			ui.OpenFrame("itemcraft");
-			CRAFT_OPEN(frame);
-		end
-		
+		SET_CRAFT_IDSPACE(frame, "Recipe");
+		SET_ITEM_CRAFT_UINAME("itemcraft");
+		ui.OpenFrame("itemcraft");
+		CRAFT_OPEN(frame);
 	end
 end
 
@@ -265,6 +257,22 @@ function OPEN_ENCHENCT_CRAFT()
 end
 
 function OPEN_ARROW_CRAFT()
+    if GetCraftState() == 1 then
+        ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
+        return;
+    end
+
+	local abil = session.GetAbilityByName("Fletching")
+	if abil ~= nil then
+		local obj = GetIES(abil:GetObject());
+		local frame = ui.GetFrame("itemcraft_fletching");
+		local title = frame:GetChild("title");
+		title:SetTextByKey("value",  obj.Name);
+		SET_ITEM_CRAFT_UINAME("itemcraft_fletching");
+		SET_CRAFT_IDSPACE(frame, "Recipe_ItemCraft", obj.ClassName, obj.Level);
+		CREATE_CRAFT_ARTICLE(frame);
+		ui.ToggleFrame("itemcraft_fletching");
+	end
 
 end
 
@@ -416,24 +424,4 @@ function QSLOT_VISIBLE_CRAFT_SPELL_BOOK()
 		return 1;
 	end
 	return 0;
-end
-
-function QSLOT_VISIBLE_ICOR_MANAGE_DLG()
-	if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true or IsBuffApplied(GetMyPCObject(), 'Premium_Nexon') == 'YES' then
-		if IsPVPField() == 1 or IsPVPServer() == 1 or session.world.IsIntegrateServer() == true or session.colonywar.GetIsColonyWarMap() == true then
-			return 0
-		end
-		return 1
-	end
-	return 0
-end
-
-function QSLOT_ENABLE_ICOR_MANAGE_DLG()
-	if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true or IsBuffApplied(GetMyPCObject(), 'Premium_Nexon') == 'YES' then
-		if IsPVPField() == 1 or IsPVPServer() == 1 or session.world.IsIntegrateServer() == true or session.colonywar.GetIsColonyWarMap() == true then
-			return 0
-		end
-		return 1
-	end
-	return 0
 end

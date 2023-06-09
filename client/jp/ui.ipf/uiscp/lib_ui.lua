@@ -491,19 +491,16 @@ function GET_CONFIG_HUD_OFFSET(frame, defaultX, defaultY)
     if config.IsExistHUDConfig(name) ~= 1 then
         return defaultX, defaultY;
     end
-    local x = math.floor(config.GetHUDConfigXRatio(name) * option.GetClientWidth());
-	local y = math.floor(config.GetHUDConfigYRatio(name) * option.GetClientHeight());
-	local pos = frame:ScreenPosToFramePos(x, y)
-	x = pos.x
-	y = pos.y
+    local x = math.floor(config.GetHUDConfigXRatio(name) * ui.GetClientInitialWidth());
+    local y = math.floor(config.GetHUDConfigYRatio(name) * ui.GetClientInitialHeight());
 
-    -- -- clamping
-    -- local width = option.GetClientWidth() - frame:GetWidth();
-    -- local height = option.GetClientHeight() - frame:GetHeight();
-    -- x = math.max(0, x);
-    -- x = math.min(x, width);
-    -- y = math.max(0, y);
-    -- y = math.min(y, height);
+    -- clamping
+    local width = option.GetClientWidth() - frame:GetWidth();
+    local height = option.GetClientHeight() - frame:GetHeight();
+    x = math.max(0, x);
+    x = math.min(x, width);
+    y = math.max(0, y);
+    y = math.min(y, height);
     return x, y;
 end
 
@@ -578,44 +575,3 @@ imcRichText = {
 		richtext:SetColorBlend(blendTime, color1, color2, true);
 	end,
 };
-
-function QUICKSLOT_MAKE_GAUGE(slot)
-	local x = 2;
-	local y = slot:GetHeight() - 11;
-	local width  = 45;
-	local height = 10;
-	local gauge = slot:MakeSlotGauge(x, y, width, height);
-	gauge:SetDrawStyle(ui.GAUGE_DRAW_CELL);
-	gauge:SetSkinName("dot_skillslot");
-end
-
-function GET_LAST_CHILD(obj, class, pred)
-	local i = obj:GetChildCount() - 1
-	while true do
-		local child = obj:GetChildByIndex(i)
-		if not child then return nil end
-		if not class or child:GetClassString() == class then
-			child = AUTO_CAST(child)
-			if not pred or pred(child) then
-				return child
-			end
-		end
-		i = i - 1
-	end
-end
-
-function GET_FIRST_CHILD(obj, class, pred)
-	local i = 0
-	while true do
-		local child = obj:GetChildByIndex(i)
-		if not child then return nil end
-		if not class or child:GetClassString() == class then
-			child = AUTO_CAST(child)
-			if not pred or pred(child) then
-				return child
-			end
-		end
-		i = i + 1
-	end
-end
-

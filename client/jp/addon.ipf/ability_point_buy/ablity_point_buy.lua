@@ -4,11 +4,10 @@ end
 
 function GET_SILVER_BY_ONE_ABILITY_POINT_CALC()
     local exchangeRate = SILVER_BY_ONE_ABILITY_POINT;
-	-- Test Server Spec : 80% Sale --
-	local pc = GetMyPCObject();
+    -- Test Server Spec : 80% Sale --
     if (GetServerNation() == "KOR" and (GetServerGroupID() == 9001 or GetServerGroupID() == 9501)) then
         exchangeRate = math.floor(exchangeRate * 0.2);
-	end
+    end
     
     if exchangeRate < 1 then
         exchangeRate = 1;

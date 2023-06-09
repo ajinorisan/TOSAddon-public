@@ -7,24 +7,12 @@ function CHANGENAME_ITEM_NAME(frame, ctrl)
 end
 
 function OPEN_CHECK_USER_MIND_BEFOR_YES_BY_ITEM(inputframe, changedName, itemIES, itemType)
+	
 	local charName = nil;
 	local title = nil;
 	if itemType == "PcName" then
 		charName = GETMYPCNAME(); 
 		title = ClMsg("Change Name")
-
-		local cid = session.GetMySession():GetCID();
-		local accountInfo = session.barrack.GetMyAccount();
-		local cnt = accountInfo:GetPCCount();
-		for i = 0 , cnt - 1 do
-			local pcInfo = accountInfo:GetPCByIndex(i);
-			local pcApc = pcInfo:GetApc();
-			local pcCid = pcInfo:GetCID();
-			if pcCid ~= cid and pcApc:GetName() == changedName then
-				ui.SysMsg(ClMsg("AlreadyorImpossibleName"));
-				return;
-			end
-		end
 	elseif itemType == "TeamName" then
 		charName = GETMYFAMILYNAME();
 		title = ClMsg("Change FamilyName")
@@ -36,8 +24,6 @@ function OPEN_CHECK_USER_MIND_BEFOR_YES_BY_ITEM(inputframe, changedName, itemIES
 		end
 		charName = guild.info.name;
 		title = ClMsg("Change GuildName")
-	elseif itemType == "Companionhire" then
-		title = ClMsg("PetName");
 	else
 		return;
 	end
@@ -52,33 +38,25 @@ function OPEN_CHECK_USER_MIND_BEFOR_YES_BY_ITEM(inputframe, changedName, itemIES
 	end
 
 	local frame = ui.GetFrame("changeName_item");
-	local changename_gb = GET_CHILD(frame, "changename_gb");
-	local usename_gb = GET_CHILD(frame, "usename_gb");
-	if itemType == "Companionhire" then
-		local usename = GET_CHILD_RECURSIVELY(frame, "usename");
-		usename:SetTextByKey("value", changedName)
-
-		changename_gb:ShowWindow(0);
-		usename_gb:ShowWindow(1);
-	else	
-		local myName = GET_CHILD_RECURSIVELY(frame, "myName");
-		myName:SetTextByKey("value", charName)
-	
-		local ChangeName = GET_CHILD_RECURSIVELY(frame, "ChangeName");
-		ChangeName:SetTextByKey("value", changedName)
-
-		changename_gb:ShowWindow(1);
-		usename_gb:ShowWindow(0);	
-	end
-	
-	local prop = GET_CHILD(frame, "prop");
-	prop:SetTextByKey("value", title)
 
 	frame:ShowWindow(1);
 	frame:SetUserValue("changeName", changedName);
 	frame:SetUserValue("itemIES", itemIES);
-	frame:SetUserValue("itemType", itemType);	
+	frame:SetUserValue("itemType", itemType);
+	
 	frame:SetUserValue("inputframe", inputframe:GetName());
+	local prop = frame:GetChild("prop");
+	prop:SetTextByKey("value", title)
+
+	local myName = frame:GetChild("myName");
+	myName:SetTextByKey("value", charName)
+
+	local richtext_2 = frame:GetChild("richtext_2")
+
+	local txt = "{@st66b18}" .. ClMsg("ChangeNameConsumeItem");
+	richtext_2:SetText(txt);
+	local ChangeName = frame:GetChild("ChangeName");
+	ChangeName:SetTextByKey("value", changedName)
 end
 
 function CHANGE_NAME_BY_ITEM(frame, ctrl, itemIES)

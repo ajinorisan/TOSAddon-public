@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="legendprefix_tooltip" x="0" y="0" width="300" height="500">
-	<frame layout_gravity="left top" margin="510 100 0 0" resizebyresolution="true"/>
+	<frame layout_gravity="left top" margin="510 400 0 0" resizebyresolution="true"/>
 	<draw drawtitlebar="false"/>
 	<skin frameskin="test_frame_low"/>
 	<input moveable="false"/>

@@ -4,7 +4,7 @@ function GET_ITEM_FULLNAME_BY_TAG_INFO(props, clsID)
 
 	local newobj = CreateIESByID("Item", clsID);
 	if props ~= 'nullval' then
-		local propInfo = StringSplit(props, '#');		
+		local propInfo = StringSplit(props, '#');
 		SetModifiedPropertiesString(newobj, propInfo[1]);
 	end
 
@@ -14,12 +14,7 @@ function GET_ITEM_FULLNAME_BY_TAG_INFO(props, clsID)
 		newobj.SkillLevel = level
 	end
 
-	local grade = shared_item_earring.get_earring_grade(newobj)
-	local ret = GET_FULL_NAME(newobj);	
-	if grade > 0 then
-		ret = ret .. '(' .. grade .. ClMsg('Grade') .. ')'
-	end
-
+	local ret = GET_FULL_NAME(newobj);
 	DestroyIES(newobj);
 	return ret;
 
@@ -103,8 +98,8 @@ function SET_LINK_TEXT(linkstr)
 
 	local left = editCtrl:GetCursurLeftText();
 	local right = editCtrl:GetCursurRightText();
-	local resultText = string.format("%s%s%s", left, linkstr, right);		
-	SET_CHAT_TEXT_TO_CHATFRAME(resultText);
+	local resultText = string.format("%s%s%s", left, linkstr, right);
+	SET_CHAT_TEXT(resultText);
 end
 
 function LINK_ITEM_TEXT(invitem)
@@ -136,13 +131,9 @@ function LINK_ITEM_TEXT(invitem)
 		properties = 'nullval'
 	end
 	local itemrank_num = itemobj.ItemStar
-	
-	if TryGetProp(itemobj, 'ClassType', 'None') == 'Earring' then
-		local rune_grade = shared_item_earring.get_earring_grade(itemobj)
-		itemName = itemName .. '(' .. rune_grade .. ClMsg('Grade') .. ')'
-	end	
+
 	local linkstr = string.format("{a SLI %s %d}{#0000FF}%s%s{/}{/}{/}", properties, itemobj.ClassID, imgtag, itemName);
-	SET_LINK_TEXT(linkstr);	
+	SET_LINK_TEXT(linkstr);
 
 end
 
@@ -175,7 +166,7 @@ function LINK_MAP_POS(mapName, x, z)
 
 end
 
-function SLC(linktext)	
+function SLC(linktext)
 
 	local sstart, send = string.find(linktext,"@@@")
 

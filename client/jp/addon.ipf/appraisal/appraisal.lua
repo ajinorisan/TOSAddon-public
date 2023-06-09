@@ -86,8 +86,6 @@ function APPRAISAL_UPDATE_ITEM_LIST(frame, itemGradeList)
 				local itemGrade = TryGetProp(obj, 'ItemGrade');
 				if itemGrade == nil then
 					itemGrade = 0;
-				elseif itemGrade > 5 then
-					itemGrade = 5
 				end
 	
 				local needToShow = true;
@@ -95,7 +93,7 @@ function APPRAISAL_UPDATE_ITEM_LIST(frame, itemGradeList)
 					if itemGradeList[j] == 0 and itemGrade == (j + 1) then	-- j + 1인 이유 ex) itemGradeList[1]일때 j = 1, greade = 2(magic)
 						needToShow = false;
 						break;
-					end				
+					end					
 				end
 
 				if needToShow == true then
@@ -259,8 +257,8 @@ function APPRAISAL_CHECKBOX(frame)
     
     magicCheckbox:SetCheck(1);
     rareCheckbox:SetCheck(1);
-    uniqueCheckbox:SetCheck(1);
-    legendeCheckbox:SetCheck(1);
+    uniqueCheckbox:SetCheck(0);
+    legendeCheckbox:SetCheck(0);
 end
 
 function APPRAISAL_ITEM_GRADE_SET(frame, isOpen)

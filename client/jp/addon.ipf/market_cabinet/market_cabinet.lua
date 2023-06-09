@@ -4,12 +4,6 @@ function MARKET_CABINET_ON_INIT(addon, frame)
 end
 
 function MARKET_CABINET_OPEN(frame)
-    local sharedcls = GetClass("SharedConst", "MAX_CABINET_ITEM_COUNT");
-    if sharedcls ~= nil then
-        local ctrl = GET_CHILD_RECURSIVELY(frame, "MaxCabinetItemCountMsg");
-        ctrl:SetTextByKey("vaule", sharedcls.Value);
-    end
-    
 	market.ReqCabinetList();
 end
 
@@ -85,12 +79,8 @@ function ON_CABINET_ITEM_LIST(frame)
             typeText:SetTextByKey('type', ClMsg('BuySuccess'));
         elseif whereFrom == 'market_cancel' or whereFrom == 'market_expire' then -- 판매 취소, 판매 기한 완료
             typeText:SetTextByKey('type', ClMsg('SellCancel'));
-        elseif whereFrom == 'SquadModeReward' then
-            typeText:SetTextByKey('type', ClMsg('SquadModeReward'));
-        elseif whereFrom == 'fishing_statue' then
-            typeText:SetTextByKey('type', ClMsg('fishing_statue'));
         end
-        
+
         -- item picture and name
 		local pic = GET_CHILD(ctrlSet, "pic", "ui::CSlot");
         local itemImage = GET_ITEM_ICON_IMAGE(itemObj);
@@ -98,37 +88,23 @@ function ON_CABINET_ITEM_LIST(frame)
         SET_SLOT_ITEM_CLS(pic, itemObj)
         icon:SetImage(itemImage);
         SET_SLOT_STYLESET(pic, itemObj)
-        SET_SLOT_STAR_TEXT(pic, itemObj);
         if itemObj.ClassName ~= MONEY_NAME and itemObj.MaxStack > 1 then
-            local font = '{s16}{ol}{b}';
-            local count = 0;
             if whereFrom == "market_sell" then
-                count = cabinetItem.sellItemAmount;
+                SET_SLOT_COUNT_TEXT(pic, cabinetItem.sellItemAmount, '{s16}{ol}{b}');
             elseif whereFrom ~= "market_sell" then
-                count = tonumber(cabinetItem:GetCount());  
+    			SET_SLOT_COUNT_TEXT(pic, cabinetItem.count, '{s16}{ol}{b}');
             end
-
-            if 100000 <= count then	-- 6자리 수 폰트 크기 조정
-                font = '{s14}{ol}{b}';
-            end
-
-            SET_SLOT_COUNT_TEXT(pic, count, font);
 		end
 	    -- pic:SetImage(itemImage);
-        local name = ctrlSet:GetChild("name");
-        local name_text = GET_FULL_NAME(itemObj)
-        local grade = shared_item_earring.get_earring_grade(itemObj)		
-		if grade > 0 then
-			name_text = name_text .. '(' .. grade .. ClMsg('Grade') .. ')'
-		end
-		name:SetTextByKey("value", name_text);
+		local name = ctrlSet:GetChild("name");
+		name:SetTextByKey("value", GET_FULL_NAME(itemObj));
 
 		-- etc box
 		local etcBox = GET_CHILD_RECURSIVELY(ctrlSet, 'etcBox');
 		local etcShow = false;
 		if whereFrom ~= 'market_sell' and whereFrom ~= 'market_buy' and itemObj.ClassName ~= MONEY_NAME then
 			local etcText = etcBox:GetChild('etcText');
-			etcText:SetTextByKey('count', tonumber(cabinetItem:GetCount()));
+			etcText:SetTextByKey('count', cabinetItem.count);
 			etcBox:ShowWindow(1);
 			etcShow = true;
 		else
@@ -155,20 +131,20 @@ function ON_CABINET_ITEM_LIST(frame)
         -- fees / NEXON_PC 조건도 추가해야 된다. / 추후 작업
         --local fees = 0;
         --if true == session.loginInfo.IsPremiumState(ITEM_TOKEN) then					
-			--fees = tonumber(cabinetItem:GetCount()) * 0.1
+			--fees = cabinetItem.count * 0.1
 		--elseif false == session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-			--fees = tonumber(cabinetItem:GetCount()) * 0.3   			
+			--fees = cabinetItem.count * 0.3   			
 		--end
 
         -- price (count - fees)
         local totalPrice = GET_CHILD_RECURSIVELY(ctrlSet, "totalPrice");            --10,000 처럼 표기
 		local totalPriceStr = GET_CHILD_RECURSIVELY(ctrlSet, "totalPriceStr");      --1만    처럼 표기
         if itemObj.ClassName == MONEY_NAME or (whereFrom == 'market_sell' and etcShow == false) then
-			if tonumber(cabinetItem:GetCount()) < 70 then
-				ClientRemoteLog("CABINET_ITEM_PRICE_ERROR - ".. tonumber(cabinetItem:GetCount()));
-            end
-		    totalPrice:SetTextByKey("value", GET_COMMAED_STRING(tonumber(cabinetItem:GetCount())));
-		    totalPriceStr:SetTextByKey("value", GetMonetaryString(tonumber(cabinetItem:GetCount())));
+			if cabinetItem.count < 70 then
+				ClientRemoteLog("CABINET_ITEM_PRICE_ERROR - ".. cabinetItem.count);
+			end
+		    totalPrice:SetTextByKey("value", GET_COMMAED_STRING(cabinetItem.count));
+		    totalPriceStr:SetTextByKey("value", GetMonetaryString(cabinetItem.count));
         else
             totalPrice:ShowWindow(0);
             totalPriceStr:ShowWindow(0);

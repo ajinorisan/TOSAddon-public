@@ -129,7 +129,7 @@ function ON_PARTY_UPDATE(frame, msg, str, num)
 		end
 
 		local questinfo2frame = ui.GetFrame('questinfoset_2');
-		ON_PARTY_MEMBER_PROP_UPDATE(questinfo2frame)		
+		QUEST_PARTY_MEMBER_PROP_UPDATE(questinfo2frame)		
 
 		--파티보스 소환관련해서 남아있으면 지워보자.
 		session.minimap.RemoveIconInfo("PartyQuest_FieldBossRaid");
@@ -387,10 +387,11 @@ function PARTY_TAB_CHANGE(frame, ctrl, argStr, argNum)
 			
 			createPartyBtn:ShowWindow(1)
 			outPartyBtn:ShowWindow(0)
-		end		
+		end
 	else
 		createPartyBtn:ShowWindow(0)
 		outPartyBtn:ShowWindow(0)
+
 	end
 
 	RESET_NAME_N_MEMO(frame)
@@ -583,3 +584,4 @@ end
 function EXEC_PARTY_CANCEL_PVP_JOIN(pvpType)
 	worldPVP.ReqJoinPVP(pvpType, PVP_STATE_NONE);
 end
+

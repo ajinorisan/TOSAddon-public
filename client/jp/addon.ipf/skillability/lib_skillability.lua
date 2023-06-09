@@ -30,9 +30,8 @@ function SKILLABILITY_GET_JOB_TAB_INFO_LIST()
         list[#list + 1] = UI_LIB_TAB_GET_ADD_TAB_INFO("tab_"..jobid, "gb_"..jobid, textstyle..jobName, jobcls.ClassName, false);
     end
     
-    local commonSkillCount = session.skill.GetCommonSkillCount();
-    local acc_cnt = GetClassCount("account_ability");
-	if commonSkillCount > 0 or acc_cnt > 0 then		
+	local commonSkillCount = session.skill.GetCommonSkillCount();	
+	if commonSkillCount > 0 then		
         list[#list + 1] = UI_LIB_TAB_GET_ADD_TAB_INFO("tab_"..0, "gb_"..0, textstyle..ClMsg("Common"), "Common", false);
 	end
 
@@ -40,28 +39,14 @@ function SKILLABILITY_GET_JOB_TAB_INFO_LIST()
 end
 
 function SKILLABILITY_GET_ABILITY_GROUP_NAME(jobEngName)--Ability_Peltasta
-    if jobEngName == "Common" then
-        return "account_ability"; 
-    end
-
     local abilGroupName = "Ability_"..jobEngName;
     return abilGroupName;
 end
 
 function SKILLABILITY_GET_ABILITY_NAME_LIST(jobClsName, jobEngName)
     local retList = {}
-    if jobClsName == "Common" then
-        local abilGroupName = SKILLABILITY_GET_ABILITY_GROUP_NAME(jobEngName);
-        local list, cnt = GetClassList(abilGroupName);    
-        for i = 0, cnt - 1 do
-            local groupClass = GetClassByIndexFromList(list, i);
-            retList[#retList+1] = groupClass.ClassName;
-        end
-
-        return retList;
-    end
-
-    local jobCls = GetClass("Job", jobClsName);    
+    local jobCls = GetClass("Job", jobClsName);
+    
     if jobCls.DefHaveAbil ~= "None" then
 	    local sList = StringSplit(jobCls.DefHaveAbil, "#");
         for i=1, #sList do
@@ -69,14 +54,9 @@ function SKILLABILITY_GET_ABILITY_NAME_LIST(jobClsName, jobEngName)
         end
     end
 
-    local dmgReduceCls = GetClass('job_damage_reduce', jobClsName);
-    if dmgReduceCls ~= nil then
-        retList[#retList + 1] = 'ReduceDamageIncome';
-    end
-
     local abilGroupName = SKILLABILITY_GET_ABILITY_GROUP_NAME(jobEngName);
     local list, cnt = GetClassList(abilGroupName);
-
+    
     for i = 0, cnt-1 do
         local groupClass = GetClassByIndexFromList(list, i);
         if groupClass ~= nil then
@@ -87,7 +67,7 @@ function SKILLABILITY_GET_ABILITY_NAME_LIST(jobClsName, jobEngName)
         end
     end
 
-    return retList;
+     return retList;
 end
 
 function GET_ABILITY_CONDITION_UNLOCK(abilIES, groupClass)
@@ -245,13 +225,6 @@ function MAKE_SKILLTREE_CTRLSET_ICON(ctrlset, skillCls, sklObj)
     icon:SetTooltipOverlap(1);
 	icon:Set(iconname, "Skill", skillCls.ClassID, 1);	
     icon:SetDropFinallyScp("DROP_FINALLY_SKILL_ICON");
-
-    -- expand tooltip
-    if skillCls ~= nil then
-        if TryGetProp(skillCls, "ExpandSkillTooltip", "None") ~= 'None' then 
-            icon:SetTooltipType('skill_expand');
-        end
-    end
 
 	return skillSlot, icon;
 end
@@ -417,10 +390,6 @@ function IS_CHANGED_SKILLABILITY_SKILL(jobClsName)
 end
 
 function COMMIT_SKILLABILITY_SKILL(jobClsName)
-    if jobClsName == "Common" then
-        return false;
-    end
-
     local jobCls = GetClass("Job", jobClsName);
     local ArgStr = string.format("%d", jobCls.ClassID);
     
@@ -457,19 +426,13 @@ function SET_SKILLABILITY_LEARN_COUNT(ability_gb, abilClsName, value)
 end
 
 function CLEAR_SKILLABILITY_LEARN_COUNT_BY_JOB(ability_gb, jobClsName)
-    local jobEngName = GET_JOB_ENG_NAME(jobClsName);
+    local jobCls = GetClass("Job", jobClsName);
+    local jobEngName = jobCls.EngName;
     local list = SKILLABILITY_GET_ABILITY_NAME_LIST(jobClsName, jobEngName)--Ability_Peltasta
+
     for i=1, #list do
-        local abilClsName = list[i];
-        if jobEngName ~= "Common" then
-            local abilClass = GetClass("Ability", list[i]);
-            if abilClass == nil then
-                return;
-            end
-            abilClsName = abilClass.ClassName;
-        end
-        
-        SET_SKILLABILITY_LEARN_COUNT(ability_gb, abilClsName, "None");        
+        local abilClass = GetClass("Ability", list[i]);
+        SET_SKILLABILITY_LEARN_COUNT(ability_gb, abilClass.ClassName, "None")
     end
 end
 
@@ -477,7 +440,8 @@ function GET_CHANGED_SKILLABILITY_ABILITY(ability_gb, abilGroupName, jobClsName)
     local abilClsIDList = {}
     local abilCountList = {}
     
-    local jobEngName = GET_JOB_ENG_NAME(jobClsName);
+    local jobCls = GetClass("Job", jobClsName);
+    local jobEngName = jobCls.EngName;
     local list = SKILLABILITY_GET_ABILITY_NAME_LIST(jobClsName, jobEngName)--Ability_Peltasta
     
     for i=1, #list do
@@ -547,7 +511,12 @@ function GET_ABILITY_LEARN_COST(pc, groupClass, abilClass, destLv)
 end
 
 function GET_ABILITY_PRICE(price, groupClass, abilClass, abilLv)
-
+	if IS_SEASON_SERVER(nil) == "YES" then
+		price = price - (price * 0.4)
+--	else
+--	    price = price - (price * 0.2)
+	end
+  
 	price = math.floor(price);
 	
 	return price;
@@ -561,16 +530,7 @@ function GET_SKILLABILITY_COMMON_SKILL_LIST()
     for i=0,commonSkillCount-1 do
 		local skillID = session.skill.GetCommonSkillIDByIndex(i);
         local sklCls = GetClassByType("Skill", skillID);
-        local keyword = TryGetProp(sklCls, "Keyword", "None");
-
-        local isinsert = true;
-        if string.find(keyword, "GoddessCardSkill") ~= nil then -- 여신 카드 더미 스킬은 출력 안함
-            isinsert = false;
-        end
-
-        if isinsert == true then
-            skillIDList[#skillIDList+1] = sklCls.ClassName;
-        end
+        skillIDList[#skillIDList+1] = sklCls.ClassName;
     end
     return skillLvHash;
 end
@@ -601,71 +561,4 @@ function GET_SKILL_OVERHEAT_COUNT(sklObj)
     end
 
     return overHeat;
-end
-
-function HAS_SKILLTREEGB_IN_COMMON_TRANSSKILL_BY_CHILD(gb, gbChildCnt)
-    if gb == nil then 
-        return false; 
-    end
-
-    for i = 0, gbChildCnt - 1 do
-        local child = gb:GetChildByIndex(i);
-        if child ~= nil and string.find(child:GetName(), "SKILL") ~= nil then
-            local datas = StringSplit(child:GetName(), "_");
-            local skillName = datas[2];
-            local cls = GetClassByStrProp("SkillMakeCostume", "SkillName", skillName);
-            if cls ~= nil then
-                return true;
-            end
-        end
-    end
-
-    return false;
-end
-
-function HAS_SKILLTREEGB_IN_COMMON_TRANSSKILL_BY_CHILDNAME(name)
-    local cls = GetClassByStrProp("SkillMakeCostume", "SkillName", name);
-    if cls ~= nil then
-        return true;
-    end
-
-    return false;
-end
-
-function HAS_SKILLTREEGB_IN_COMMON_TRANSSKILL_BY_SKILL_OBJ(obj)
-    if obj == nil then
-        return false;
-    end
-
-    local cls = GetClassByStrProp("SkillMakeCostume", "SkillName", obj.ClassName);
-    if cls ~= nil then
-        return true;
-    end
-
-    return false;
-end
-
-function GET_JOB_ENG_NAME(jobClsName)
-    if jobClsName == "Common" then
-        return "Common";
-    end
-
-    local jobCls = GetClass("Job", jobClsName);
-    if jobCls == nil then
-        return "None"; 
-    end
-
-    return jobCls.EngName;
-end
-
-function GET_JOB_NAME_BY_ENGNAME(name)
-	local clslist, cnt  = GetClassList("Job");
-	
-	for i = 0 , cnt - 1 do
-        local cls = GetClassByIndexFromList(clslist, i);
-        local engName = TryGetProp(cls, "EngName", "None");
-        if engName == name then
-            return TryGetProp(cls, "Name", "None");
-        end
-    end
 end

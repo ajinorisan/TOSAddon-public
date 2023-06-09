@@ -107,18 +107,14 @@ function GET_LEGENDEXPPOTION_EXP(itemObj)
 
 	if GetExpOrbGuidStr() ~= "0" then
 		if GetExpOrbGuidStr() == GetIESID(itemObj) and curExp < maxExp then
-			if itemObj.GroupName == "SubExpOrb" then
-				curExp = GetExpSubOrbFillingExp();
-			else
 				curExp = GetExpOrbFillingExp();
-			end
 		end
 	end
     return curExp, maxExp;
 end
 
 function GET_LEGENDEXPPOTION_ICON_IMAGE_FULL(itemObj)
-    return TryGetProp(itemObj, "TooltipImage");
+    return TryGetProp(itemObj, "StringArg");
 end
 
 function GET_LEGENDEXPPOTION_ICON_IMAGE(itemObj)

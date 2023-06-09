@@ -1,4 +1,4 @@
-﻿--joystickquickslot.lua
+--joystickquickslot.lua
 
 MAX_SLOT_CNT = 40;
 SLOT_NAME_INDEX = 0;
@@ -13,8 +13,6 @@ function JOYSTICKQUICKSLOT_ON_INIT(addon, frame)
 	addon:RegisterMsg('JUNGTAN_SLOT_UPDATE', 'JOYSTICK_JUNGTAN_SLOT_ON_MSG');
 	addon:RegisterMsg('EXP_ORB_ITEM_ON', 'JOYSTICK_EXP_ORB_SLOT_ON_MSG');
 	addon:RegisterMsg('EXP_ORB_ITEM_OFF', 'JOYSTICK_EXP_ORB_SLOT_ON_MSG');
-	addon:RegisterMsg('EXP_SUB_ORB_ITEM_ON', 'JOYSTICK_EXP_SUB_ORB_SLOT_ON_MSG');
-	addon:RegisterMsg('EXP_SUB_ORB_ITEM_OFF', 'JOYSTICK_EXP_SUB_ORB_SLOT_ON_MSG');
 	addon:RegisterMsg('TOGGLE_ITEM_SLOT_ON', 'JOYSTICK_TOGGLE_ITEM_SLOT_ON_MSG');
 	addon:RegisterMsg('TOGGLE_ITEM_SLOT_OFF', 'JOYSTICK_TOGGLE_ITEM_SLOT_ON_MSG');
 
@@ -23,6 +21,8 @@ function JOYSTICKQUICKSLOT_ON_INIT(addon, frame)
 
 	setButton_onSkin = frame:GetUserConfig("SET_BUTTON_ONSKIN")
 	setButton_offSkin = frame:GetUserConfig("SET_BUTTON_OFFSKIN")
+
+	JOYSTICK_QUICKSLOTNEXPBAR_Frame = frame;
 
 	for i = 0, MAX_SLOT_CNT-1 do
 		local slot 			= frame:GetChildRecursively("slot"..i+1);
@@ -151,7 +151,8 @@ function JOYSTICK_QUICKSLOT_ON_MSG(frame, msg, argStr, argNum)
 	local MySession	= session.GetMyHandle();
 	local MyJobNum = info.GetJob(MySession);
 	local JobName = GetClassString('Job', MyJobNum, 'ClassName');
-	if msg == 'JOYSTICK_QUICKSLOT_LIST_GET' or msg == 'GAME_START' or msg == 'EQUIP_ITEM_LIST_GET' or msg == 'PC_PROPERTY_UPDATE_TO_QUICKSLOT' 
+
+	if msg == 'JOYSTICK_QUICKSLOT_LIST_GET' or msg == 'GAME_START' or msg == 'EQUIP_ITEM_LIST_GET' or msg == 'PC_PROPERTY_UPDATE' 
 	or  msg == 'INV_ITEM_ADD' or msg == 'INV_ITEM_POST_REMOVE' or msg == 'INV_ITEM_CHANGE_COUNT' then
 		DebounceScript("JOYSTICK_QUICKSLOT_UPDATE_ALL_SLOT", 0.1);
 	end
@@ -203,14 +204,9 @@ function JOYSTICK_QUICKSLOT_REFRESH(curCnt)
 	if curCnt % 10 ~= 0 then
 		curCnt = 20;
 	end
-	
-	local frame = ui.GetFrame('joystickquickslot');
-	if frame == nil then
-		return 0;
-	end
 
 	for i = 0, MAX_QUICKSLOT_CNT-1 do
-		local slot 	= GET_CHILD_RECURSIVELY(frame, "slot"..i+1, "ui::CSlot");
+		local slot 	= GET_CHILD_RECURSIVELY(JOYSTICK_QUICKSLOTNEXPBAR_Frame, "slot"..i+1, "ui::CSlot");
 		tolua.cast(slot, "ui::CSlot");
 		if i < curCnt then
 			slot:ShowWindow(1);
@@ -301,12 +297,6 @@ function JOYSTICK_QUICKSLOT_EXECUTE(slotIndex)
 	end
 
 	local quickslotFrame = ui.GetFrame('joystickquickslot');
-	if quickslotFrame ~= nil and quickslotFrame:IsVisible() == 0 then
-		local monsterquickslot = ui.GetFrame('monsterquickslot');
-        if monsterquickslot ~= nil and monsterquickslot:IsVisible() == 1 then
-            quickslotFrame = monsterquickslot;
-        end
-    end
 	local slot = quickslotFrame:GetChildRecursively("slot"..slotIndex + 1);
 	QUICKSLOTNEXPBAR_SLOT_USE(quickSlotFrame, slot, 'None', 0);	
 end
@@ -370,7 +360,6 @@ function JOYSTICK_QUICKSLOT_ON_DROP(frame, control, argStr, argNum)
 					oldIcon = nil;
 				end
 			end
-
 			QUICKSLOTNEXPBAR_SETICON(popSlot, oldIcon, 1, false);
             local quickslotFrame = ui.GetFrame("quickslotnexpbar");
             QUICKSLOT_REGISTER(quickslotFrame, iconType, slot:GetSlotIndex() + 1, iconCategory, true);
@@ -561,21 +550,6 @@ function JOYSTICK_EXP_ORB_SLOT_ON_MSG(frame, msg, str, num)
 	DebounceScript("JOYSTICK_QUICKSLOT_UPDATE_ALL_SLOT", 0.1);
 end
 
-function JOYSTICK_EXP_SUB_ORB_SLOT_ON_MSG(frame, msg, str, num)
-	local timer = GET_CHILD_RECURSIVELY(frame, "expsuborbtimer", "ui::CAddOnTimer");
-	if msg == "EXP_SUB_ORB_ITEM_OFF" then
-		frame:SetUserValue("EXP_SUB_ORB_EFFECT", 0);
-		timer:Stop();
-		imcSound.PlaySoundEvent('sys_booster_off');
-	elseif msg == "EXP_SUB_ORB_ITEM_ON" then
-		frame:SetUserValue("EXP_SUB_ORB_EFFECT", str);
-		timer:SetUpdateScript("UPDATE_JOYSTICKQUICKSLOT_EXP_ORB");
-		timer:Start(1);
-		imcSound.PlaySoundEvent('sys_atk_booster_on');
-	end
-	DebounceScript("JOYSTICK_QUICKSLOT_UPDATE_ALL_SLOT", 0.1);
-end
-
 --토글
 function JOYSTICK_TOGGLE_ITEM_SLOT_ON_MSG(frame, msg, argstr, argnum)
 	if msg == "TOGGLE_ITEM_SLOT_ON" then
@@ -667,17 +641,6 @@ function UPDATE_JOYSTICKQUICKSLOT_EXP_ORB(frame, ctrl, num, str, time)
 	local expOrb = frame:GetUserValue("EXP_ORB_EFFECT");
 	if expOrb ~= nil and expOrb ~= "None" then
 		PLAY_JOYSTICKQUICKSLOT_UIEFFECT_BY_GUID(frame, expOrb);
-	end
-end
-
-function UPDATE_JOYSTICKQUICKSLOT_EXP_SUB_ORB(frame, ctrl, num, str, time)
-	if frame:IsVisible() == 0 then
-		return;
-	end
-
-	local expSubOrb = frame:GetUserValue("EXP_SUB_ORB_EFFECT");
-	if expSubOrb ~= nil and expSubOrb ~= "None" then
-		PLAY_JOYSTICKQUICKSLOT_UIEFFECT_BY_GUID(frame, expSubOrb);
 	end
 end
 

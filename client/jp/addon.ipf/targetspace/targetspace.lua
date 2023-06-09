@@ -63,11 +63,7 @@ function TARGETSPACE_SET(frame, type)
 				LbtnObj:ShowWindow(0);
 				RbtnObj:ShowWindow(1);
 			else
-				if housing.IsEditMode() == false then
-					LbtnObj:ShowWindow(1);
-				else
-					LbtnObj:ShowWindow(0);
-				end
+			LbtnObj:ShowWindow(1);
 				RbtnObj:ShowWindow(0);
 			end
 			joyBbtn:ShowWindow(0);

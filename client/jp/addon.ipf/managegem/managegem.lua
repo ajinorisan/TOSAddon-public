@@ -16,6 +16,7 @@ function MANAGEGEM_MSG(frame, msg, argStr, argNum)
 		local richtext_howmuch = GET_CHILD_RECURSIVELY(frame, 'richtext_howmuch')
 		CLEAR_MANAGEGEM_UI()
 		SET_COLONY_TAX_RATE_TEXT(richtext_howmuch, "add_tax_rate")
+		SET_COLONY_TAX_RATE_TEXT(richtext_howmuch, "remove_tax_rate")
 	end
 end
 
@@ -23,15 +24,6 @@ function MANAGEGEM_OPEN(frame)
 	ui.OpenFrame("inventory")
 	INVENTORY_SET_CUSTOM_RBTNDOWN("MANAGEGEM_INV_RBTN");
 	CLEAR_MANAGEGEM_UI()
-	if option.GetCurrentCountry() == 'German' then
-		local bodyGbox2 = GET_CHILD_RECURSIVELY(frame,'bodyGbox2')
-		local button_make_socket = GET_CHILD_RECURSIVELY(bodyGbox2,'button_make_socket')
-		local margin = button_make_socket:GetOriginalMargin()
-		button_make_socket:SetMargin(-100,margin.top,margin.right,margin.bottom)
-		local button_remove_gem = GET_CHILD_RECURSIVELY(bodyGbox2,'button_remove_gem')
-		margin = button_remove_gem:GetOriginalMargin()
-		button_remove_gem:SetMargin(100,margin.top,margin.right,margin.bottom)
-	end
 end
 
 function MANAGEGEM_CLOSE(frame)
@@ -77,8 +69,10 @@ function CLEAR_MANAGEGEM_UI()
 
 	local richtext_howmuch = GET_CHILD_RECURSIVELY(frame, 'richtext_howmuch', 'ui::CRichText')
 	richtext_howmuch:SetTextByKey("add",'--')
+	richtext_howmuch:SetTextByKey("remove",'--')
 	
 	SET_COLONY_TAX_RATE_TEXT(richtext_howmuch, "add_tax_rate", false)
+	SET_COLONY_TAX_RATE_TEXT(richtext_howmuch, "remove_tax_rate", false)
 	
 	frame:SetUserValue("NOW_SELECT_INDEX",0);
 
@@ -111,11 +105,6 @@ function ADD_ITEM_TO_MANAGEGEM_FROM_INV(item)
 	if item.MaxSocket <= 0 then
 		ui.MsgBox(ScpArgMsg("IMPOSSIBLE_ITEM"))
 		return;
-	end
-
-	if item.ItemGrade >= 6 then
-		ui.MsgBox(ScpArgMsg("IMPOSSIBLE_ITEM"))
-		return
 	end
 
 	local id = GetIESID(item);
@@ -180,6 +169,7 @@ function ADD_ITEM_TO_MANAGEGEM_FROM_INV(item)
 			
 			if equipGemID == 0 then
 				socketname = socketCls.Name .. ' '.. ScpArgMsg("JustSocket")
+
 				local socketCls = GetClassByType("Socket", GET_COMMON_SOCKET_TYPE());
 				socketicon = socketCls.SlotIcon
 
@@ -191,6 +181,7 @@ function ADD_ITEM_TO_MANAGEGEM_FROM_INV(item)
 			else
 			    local socketItemCls = GetClassByNumProp('Item', 'ClassID', equipGemID)
 			    socketname = socketItemCls.Name;
+
 				local socketCls = GetClassByType("Item", equipGemID);
 				socketicon = socketCls.Icon;
 
@@ -209,6 +200,7 @@ function ADD_ITEM_TO_MANAGEGEM_FROM_INV(item)
 
 				for i = 0 , cnt - 1 do
 					local addProp = socketProp:GetPropAddByType(type, i);
+					
 					local tempvalue = addProp.value
 					local plma_mark = POSITIVE_COLOR .. '+{/}'
 					if tempvalue < 0 then
@@ -218,7 +210,7 @@ function ADD_ITEM_TO_MANAGEGEM_FROM_INV(item)
 					if addProp:GetPropName() == "OptDesc" then
 						desc = addProp:GetPropDesc();
 					else
-					desc = "{@st42b}"..desc .. ScpArgMsg(addProp:GetPropName()) .. " : ".. plma_mark .. tempvalue.."{nl}";
+					desc = desc .. ScpArgMsg(addProp:GetPropName()) .. " : ".. plma_mark .. tempvalue.."{nl}";
 				end
 				end
 
@@ -252,8 +244,10 @@ function ADD_ITEM_TO_MANAGEGEM_FROM_INV(item)
 	    return 0;
 	end
 	richtext_howmuch:SetTextByKey("add",GET_COMMAED_STRING(GET_MAKE_SOCKET_PRICE(lv, grade ,nextSlotIdx, GET_COLONY_TAX_RATE_CURRENT_MAP())));
+	richtext_howmuch:SetTextByKey("remove",GET_COMMAED_STRING(GET_REMOVE_GEM_PRICE(lv, GET_COLONY_TAX_RATE_CURRENT_MAP())));
 
 	SET_COLONY_TAX_RATE_TEXT(richtext_howmuch, "add_tax_rate")
+	SET_COLONY_TAX_RATE_TEXT(richtext_howmuch, "remove_tax_rate")
 	
 	richtext_howmuch:ShowWindow(1)
 	frame:SetUserValue("TEMP_IESID", id);
@@ -287,18 +281,10 @@ function CLICK_REMOVE_GEM_BUTTON(frame, slot, argStr, argNum)
 		ui.MsgBox(ScpArgMsg("SelectSomeItemPlz"))
 		return;
 	end
-	
-	local pc = GetMyPCObject();
-	local isGemRemoveCare = IS_GEM_EXTRACT_FREE_CHECK(pc)
-
 	local itemname = argStr;
 	local yesScp = string.format("EXEC_REMOVE_GEM()");
-
-	if isGemRemoveCare == true then
-		ui.MsgBox( "'"..itemname ..ScpArgMsg("Auto_'_SeonTaeg")..ScpArgMsg("ReallyRemoveGem_Care"), yesScp, "None");
-	else
-		ui.MsgBox( "'"..itemname ..ScpArgMsg("Auto_'_SeonTaeg")..ScpArgMsg("ReallyRemoveGem"), yesScp, "None");
-	end
+	
+	ui.MsgBox( "'"..itemname ..ScpArgMsg("Auto_'_SeonTaeg")..ScpArgMsg("ReallyRemoveGem"), yesScp, "None");
 end
 
 function EXEC_REMOVE_GEM()
@@ -319,17 +305,23 @@ function EXEC_REMOVE_GEM()
 	end
 
 	local itemobj = GetObjectByGuid(tempiesid);	
-	local lv = TryGetProp(itemobj , "UseLv");    
-	if lv == nil then
-		return 0;
-	end
+    local lv = TryGetProp(itemobj , "UseLv");    
+    if lv == nil then
+        return 0;
+    end
 
-	local price = 0
+	local price = GET_REMOVE_GEM_PRICE(lv, GET_COLONY_TAX_RATE_CURRENT_MAP())
+
+	if IsGreaterThanForBigNumber(price, GET_TOTAL_MONEY_STR()) == 1 then
+		ui.MsgBox(ScpArgMsg("NOT_ENOUGH_MONEY"))
+		return;
+	end
 
 	session.ResetItemList();
 	session.AddItemID(tempiesid);	
 	local resultlist = session.GetItemIDList();
 	item.DialogTransaction("REMOVE_GEM", resultlist, selectedNum-1);
+
 end
 
 function CLICK_MAKE_SOCKET_BUTTON(frame, slot, argStr, argNum)
@@ -386,10 +378,6 @@ function EXEC_MAKE_NEW_SOCKET(checkRebuildFlag)
 	local grade = TryGetProp(itemobj,"ItemGrade");
 	if grade == nil then
 		return 0;
-	end
-
-	if grade >= 6 then
-		return
 	end
 
 	local price = GET_MAKE_SOCKET_PRICE(lv, grade, nextSlotIdx, GET_COLONY_TAX_RATE_CURRENT_MAP());

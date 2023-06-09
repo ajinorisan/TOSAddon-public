@@ -17,11 +17,6 @@ function ON_OPEN_DLG_ITEMRANDOMRESET(frame)
 		return;
 	end
 
-	local itemunrevertrandom = ui.GetFrame('itemsandrarevertrandom');
-	if itemunrevertrandom ~= nil and itemunrevertrandom:IsVisible() == 1 then
-		return;
-	end	
-
 	frame:ShowWindow(1);
 end
 
@@ -39,13 +34,6 @@ function ITEMRANDOMRESET_OPEN(frame)
 		ui.OpenFrame("inventory");
 		return;
 	end
-	
-	local itemunrevertrandom = ui.GetFrame('itemsandrarevertrandom');
-	if itemunrevertrandom ~= nil and itemunrevertrandom:IsVisible() == 1 then
-		frame:ShowWindow(0);
-		ui.OpenFrame("inventory");
-		return;
-	end	
 
 	SET_RANDOMRESET_RESET(frame);
 	CLEAR_ITEMRANDOMRESET_UI()
@@ -69,29 +57,6 @@ function RANDOMRESET_UPDATE(isSuccess)
 	UPDATE_RANDOMRESET_RESULT(frame, isSuccess);
 end
 
-function CHECK_RESET_ITEM_TRUE_AND_FALSE()
-	local frame = ui.GetFrame("itemrandomreset");
-
-	local check_no_msgbox = GET_CHILD_RECURSIVELY(frame, 'check_no_reset_item')
-	if check_no_msgbox:IsChecked() == 1 then
-		local slot = GET_CHILD(frame, "slot");
-		local icon = slot:GetIcon();
-		local iconInfo = icon:GetInfo();
-		local invItem = GET_PC_ITEM_BY_GUID(iconInfo:GetIESID());
-		local obj = GetIES(invItem:GetObject());
-
-		local couponSlot = GET_CHILD_RECURSIVELY(frame, "couponSlot")
-		local coupon = GET_SLOT_ITEM(couponSlot)
-
-		ITEM_RANDOMRESET_REG_TARGETITEM(frame, iconInfo:GetIESID())
-		if coupon ~= nil then
-			ITEM_RANDOMRESET_REG_COUPONITEM(frame, coupon:GetIESID())
-		end
-	else
-		CLEAR_ITEMRANDOMRESET_UI();
-	end
-end
-
 function CLEAR_ITEMRANDOMRESET_UI()
 	if ui.CheckHoldedUI() == true then
 		return;
@@ -106,25 +71,25 @@ function CLEAR_ITEMRANDOMRESET_UI()
 	sendOK:ShowWindow(0)
 
 	local do_randomreset = GET_CHILD_RECURSIVELY(frame, "do_randomreset")
-	do_randomreset:ShowWindow(1)
+	do_randomreset : ShowWindow(1)
 
 	local putOnItem = GET_CHILD_RECURSIVELY(frame, "text_putonitem")
 	putOnItem:ShowWindow(1)
 
 	local text_currentoption = GET_CHILD_RECURSIVELY(frame, "text_currentoption")
-	text_currentoption:ShowWindow(1)
+	text_currentoption : ShowWindow(1)
 	local text_material = GET_CHILD_RECURSIVELY(frame, "text_material")
-	text_material:ShowWindow(1)
+	text_material : ShowWindow(1)
 	local text_beforereset = GET_CHILD_RECURSIVELY(frame, "text_beforereset")
-	text_beforereset:ShowWindow(0)
+	text_beforereset : ShowWindow(0)
 	local text_afterreset = GET_CHILD_RECURSIVELY(frame, "text_afterreset")
-	text_afterreset:ShowWindow(0)
+	text_afterreset : ShowWindow(0)
 
 	local slot_bg_image = GET_CHILD_RECURSIVELY(frame, "slot_bg_image")
-	slot_bg_image:ShowWindow(1)
+	slot_bg_image : ShowWindow(1)
 		
 	local arrowbox = GET_CHILD_RECURSIVELY(frame, "arrowbox")
-	arrowbox:ShowWindow(0)
+	arrowbox : ShowWindow(0)
 
 	local itemName = GET_CHILD_RECURSIVELY(frame, "text_itemname")
 	itemName:SetText("")
@@ -138,20 +103,17 @@ function CLEAR_ITEMRANDOMRESET_UI()
 	local bodyGbox3 = GET_CHILD_RECURSIVELY(frame, 'bodyGbox3');
 	bodyGbox3:ShowWindow(0)
 
+
 	local bodyGbox1_1 = GET_CHILD_RECURSIVELY(frame, 'bodyGbox1_1');
-	bodyGbox1_1:RemoveAllChild();
+	bodyGbox1_1 : RemoveAllChild();
 	local bodyGbox2_1 = GET_CHILD_RECURSIVELY(frame, 'bodyGbox2_1');
-	bodyGbox2_1:RemoveAllChild();
+	bodyGbox2_1: RemoveAllChild();
 	local bodyGbox3_1 = GET_CHILD_RECURSIVELY(frame, 'bodyGbox3_1');
-	bodyGbox3_1:RemoveAllChild();
+	bodyGbox3_1: RemoveAllChild();
 
-	-- local gbox_infomation = GET_CHILD_RECURSIVELY(frame, 'gbox_infomation');
-	-- gbox_infomation:ShowWindow(1)
+--	local gbox_infomation = GET_CHILD_RECURSIVELY(frame, 'gbox_infomation');
+--	gbox_infomation:ShowWindow(1)
 
-	local couponGbox = GET_CHILD_RECURSIVELY(frame, "couponGbox")
-	couponGbox:ShowWindow(0)
-	local couponSlot = GET_CHILD_RECURSIVELY(frame, "couponSlot")
-	REMOVE_RANDOMRESET_COUPON_ITEM(couponGbox, couponSlot)
 end
 
 function ITEM_RANDOMRESET_DROP(frame, icon, argStr, argNum)
@@ -162,6 +124,7 @@ function ITEM_RANDOMRESET_DROP(frame, icon, argStr, argNum)
 	local liftIcon = ui.GetLiftIcon();
 	local FromFrame = liftIcon:GetTopParentFrame();
 	local toFrame = frame:GetTopParentFrame();
+	CLEAR_ITEMRANDOMRESET_UI();
 	if FromFrame:GetName() == 'inventory' then
 		local iconInfo = liftIcon:GetInfo();
 		ITEM_RANDOMRESET_REG_TARGETITEM(frame, iconInfo:GetIESID());
@@ -172,7 +135,6 @@ function ITEM_RANDOMRESET_REG_TARGETITEM(frame, itemID)
 	if ui.CheckHoldedUI() == true then
 		return;
 	end
-
 	local invItem = session.GetInvItemByGuid(itemID)
 	if invItem == nil then
 		return;
@@ -181,7 +143,7 @@ function ITEM_RANDOMRESET_REG_TARGETITEM(frame, itemID)
 	local item = GetIES(invItem:GetObject());
 	local itemCls = GetClassByType('Item', item.ClassID)
 
-	if TryGetProp(itemCls, "NeedRandomOption", 0) ~= 1 then
+	if itemCls.NeedRandomOption ~= 1 then
 		ui.SysMsg(ClMsg("NotAllowedRandomReset"));
 		return;
 	end
@@ -203,13 +165,12 @@ function ITEM_RANDOMRESET_REG_TARGETITEM(frame, itemID)
 		return;
 	end
 
-	CLEAR_ITEMRANDOMRESET_UI();
-
 	local putOnItem = GET_CHILD_RECURSIVELY(frame, "text_putonitem")
 	putOnItem:ShowWindow(0)
 
 	local slot_bg_image = GET_CHILD_RECURSIVELY(frame, "slot_bg_image")
-	slot_bg_image:ShowWindow(0)
+	slot_bg_image : ShowWindow(0)
+
 
 	local itemName = GET_CHILD_RECURSIVELY(frame, "text_itemname")
 	itemName:SetText(obj.Name)
@@ -278,9 +239,9 @@ function ITEM_RANDOMRESET_REG_TARGETITEM(frame, itemID)
 	end
 
 	local materialItemSlot = itemRandomResetMaterial.MaterialItemSlot;
-	frame:SetUserValue('MAX_EXCHANGEITEM_CNT', materialItemSlot);
+	frame:SetUserValue('MAX_EXCHANGEITEM_CNT', exchangeItemSlot);
+	
 
-	local bodyGbox2_1 = GET_CHILD_RECURSIVELY(frame, "bodyGbox2_1")
 	for i = 1, materialItemSlot do
 		local materialItemIndex = "MaterialItem_" ..i
 		local materialItemCount = 0
@@ -292,10 +253,7 @@ function ITEM_RANDOMRESET_REG_TARGETITEM(frame, itemID)
 			return
 		end
 
-		if materialItemCount == 0 then
-			break;
-		end
-
+		local bodyGbox2_1 = GET_CHILD_RECURSIVELY(frame, "bodyGbox2_1")
 		local materialClsCtrl = bodyGbox2_1:CreateOrGetControlSet('eachmaterial_in_itemrandomreset', 'MATERIAL_CSET_'..i, 0, 0);
 		materialClsCtrl = AUTO_CAST(materialClsCtrl)
 		local pos_y = materialClsCtrl:GetUserConfig("POS_Y")
@@ -318,7 +276,7 @@ function ITEM_RANDOMRESET_REG_TARGETITEM(frame, itemID)
 			local materialCls = GetClass("Item", itemRandomResetMaterial[materialItemIndex]);
 
 			if i <= materialItemSlot and materialCls ~= 'None' then
-				materialClsCtrl:ShowWindow(1)
+				materialClsCtrl : ShowWindow(1)
 				itemIcon = materialCls.Icon;
 				itemName = materialCls.Name;
 				local itemCount = GetInvItemCount(pc, materialCls.ClassName)
@@ -337,87 +295,75 @@ function ITEM_RANDOMRESET_REG_TARGETITEM(frame, itemID)
 				material_count:SetTextByKey("curCount", itemCount);
 				
 				--EVENT_1903_WEEKEND
---				if SCR_EVENT_1903_WEEKEND_CHECK('ITEMRANDOMRESET', false) == 'YES' then
---    			    material_count:SetTextByKey("needCount", materialItemCount..' '..ScpArgMsg('EVENT_REINFORCE_DISCOUNT_MSG1'))
-    			    
-                --burning_event
-                if IsBuffApplied(pc, "Event_Reappraisal_Discount_50") == "YES" then
-                    material_count:SetTextByKey("needCount", materialItemCount..' '..ScpArgMsg('EVENT_REINFORCE_DISCOUNT_MSG1'))
+				if SCR_EVENT_1903_WEEKEND_CHECK('ITEMRANDOMRESET', false) == 'YES' then
+    			    material_count:SetTextByKey("needCount", materialItemCount..' '..ScpArgMsg('EVENT_REINFORCE_DISCOUNT_MSG1'))
     			else
     				material_count:SetTextByKey("needCount", materialItemCount)
     			end
 					
 				session.AddItemID(materialCls.ClassID, materialItemCount);
 	
-				material_count:ShowWindow(1)
+				material_count: ShowWindow(1)
 			else
-				materialClsCtrl:ShowWindow(0)
+				materialClsCtrl : ShowWindow(0)
 			end
 
 		else
-			materialClsCtrl:ShowWindow(0)
+			materialClsCtrl : ShowWindow(0)
 		end
 
-		material_icon:SetImage(itemIcon)
-		material_name:SetText(itemName)
+		material_icon : SetImage(itemIcon)
+		material_name : SetText(itemName)
+			
 	end
 
 	frame:SetUserValue("isAbleExchange", isAbleExchange)
 
 	local slot = GET_CHILD(frame, "slot");
 	SET_SLOT_ITEM(slot, invItem);
-	SET_RANDOMRESET_RESET(frame);
-
-	local couponGbox = GET_CHILD_RECURSIVELY(frame, "couponGbox")
-	couponGbox:ShowWindow(1)
+	SET_RANDOMRESET_RESET(frame);	
 end
 
 function SET_RANDOMRESET_RESET(frame)
-	-- reg:ShowWindow(0);
-end
+--	reg:ShowWindow(0);
+end;
+
 
 function ITEMRANDOMRESET_EXEC(frame)
 
 	frame = frame:GetTopParentFrame();
 	local slot = GET_CHILD(frame, "slot");
 	local invItem = GET_SLOT_ITEM(slot);
-	local check_no_msgbox = GET_CHILD_RECURSIVELY(frame, 'check_no_reset_item')
 
 	if invItem == nil then
 		return
 	end
 
-	if check_no_msgbox:IsChecked() ~= 1 then
-		local clmsg = ScpArgMsg("DoRandomReset")
-		ui.MsgBox_NonNested(clmsg, frame:GetName(), "_ITEMRANDOMRESET_EXEC", "_ITEMRANDOMRESET_CANCEL");
-	else
-		_ITEMRANDOMRESET_EXEC()
-	end
+	local clmsg = ScpArgMsg("DoRandomReset")
+	ui.MsgBox_NonNested(clmsg, frame:GetName(), "_ITEMRANDOMRESET_EXEC", "_ITEMRANDOMRESET_CANCEL");
 end
 
 function _ITEMRANDOMRESET_CANCEL()
 	local frame = ui.GetFrame("itemrandomreset");
-end
+end;
 
 function _ITEMRANDOMRESET_EXEC()
+
 	local frame = ui.GetFrame("itemrandomreset");
 	if frame:IsVisible() == 0 then
 		return;
 	end
 	
 	local isAbleExchange = frame:GetUserIValue("isAbleExchange")
-	local couponRegister = frame:GetUserIValue("COUPON_REG")
 
-	if couponRegister == 0 then
-		if isAbleExchange == 0 then
-			ui.SysMsg(ClMsg('NotEnoughRecipe'));
-			return
-		end
-	
-		if isAbleExchange == -1 then
-			ui.SysMsg(ClMsg("MaterialItemIsLock"));
-			return
-		end
+	if isAbleExchange == 0 then
+		ui.SysMsg(ClMsg('NotEnoughRecipe'));
+		return
+	end
+
+	if isAbleExchange == -1 then
+		ui.SysMsg(ClMsg("MaterialItemIsLock"));
+		return
 	end
 
 	if isAbleExchange == -2 then
@@ -431,59 +377,41 @@ function _ITEMRANDOMRESET_EXEC()
 		return;
 	end
 
-	local itemObj = GetIES(invItem:GetObject());
-	local itemCls = GetClassByType('Item', itemObj.ClassID)
+	local item = GetIES(invItem:GetObject());
+	local itemCls = GetClassByType('Item', item.ClassID)
 
 	if itemCls.NeedRandomOption ~= 1 then
 		ui.SysMsg(ClMsg("NotAllowedRandomReset"));
 		return;
 	end
 
-	session.ResetItemList();
-	session.AddItemID(invItem:GetIESID(), 1);
-	if couponRegister == 1 then
-		local couponSlot = GET_CHILD_RECURSIVELY(frame, "couponSlot")
-		local couponItem = GET_SLOT_ITEM(couponSlot)
-		if couponItem == nil then
-			ui.SysMsg(ClMsg('NotEnoughRecipe'));
-			return
-		end
+	pc.ReqExecuteTx_Item("RESET_RANDOM_OPTION_ITEM", invItem:GetIESID())
+	
+	return
 
-		if couponItem.isLockState == true then
-			ui.SysMsg(ClMsg("MaterialItemIsLock"));
-			return
-		end
-
-		session.AddItemID(couponItem:GetIESID(), 1)
-	end
-
-	local resultlist = session.GetItemIDList()
-	local argList = NewStringList()
-	item.DialogTransaction("RESET_RANDOM_OPTION_ITEM", resultlist, '', argList)
 end
 
 function SUCCESS_RESET_RANDOM_OPTION(frame)
-	local RESET_SUCCESS_EFFECT_NAME = frame:GetUserConfig('RESET_SUCCESS_EFFECT');
+local RESET_SUCCESS_EFFECT_NAME = frame:GetUserConfig('RESET_SUCCESS_EFFECT');
 	local EFFECT_SCALE = tonumber(frame:GetUserConfig('EFFECT_SCALE'));
 	local EFFECT_DURATION = tonumber(frame:GetUserConfig('EFFECT_DURATION'));
 	local pic_bg = GET_CHILD_RECURSIVELY(frame, 'pic_bg');
 	if pic_bg == nil then
 		return;
 	end
-	-- pic_bg:PlayActiveUIEffect();
-	pic_bg:PlayUIEffect(RESET_SUCCESS_EFFECT_NAME, EFFECT_SCALE, 'RESET_SUCCESS_EFFECT');
+--		pic_bg : PlayActiveUIEffect();
+pic_bg:PlayUIEffect(RESET_SUCCESS_EFFECT_NAME, EFFECT_SCALE, 'RESET_SUCCESS_EFFECT');
 
 	local do_randomreset = GET_CHILD_RECURSIVELY(frame, "do_randomreset")
-	do_randomreset:ShowWindow(0)
+		do_randomreset : ShowWindow(0)
 
-	ui.SetHoldUI(true);
+		ui.SetHoldUI(true);
 
 	ReserveScript("_SUCCESS_RESET_RANDOM_OPTION()", EFFECT_DURATION)
 end
 
 function _SUCCESS_RESET_RANDOM_OPTION()
-	ui.SetHoldUI(false);
-
+ui.SetHoldUI(false);
 	local frame = ui.GetFrame("itemrandomreset");
 	if frame:IsVisible() == 0 then
 		return;
@@ -502,41 +430,40 @@ function _SUCCESS_RESET_RANDOM_OPTION()
 	if pic_bg == nil then
 		return;
 	end
+		pic_bg : StopUIEffect('RESET_SUCCESS_EFFECT', true, 0.5);
 
-	pic_bg:StopUIEffect('RESET_SUCCESS_EFFECT', true, 0.5);
+--	imcSound.PlaySoundEvent('battle_win');
+--	pic_bg:PlayUIEffect(RESET_SUCCESS_EFFECT_NAME, EFFECT_SCALE, 'RESET_SUCCESS_EFFECT');
+--pic_bg:StopActiveUIEffect();
 
-	-- imcSound.PlaySoundEvent('battle_win');
-	-- pic_bg:PlayUIEffect(RESET_SUCCESS_EFFECT_NAME, EFFECT_SCALE, 'RESET_SUCCESS_EFFECT');
-	-- pic_bg:StopActiveUIEffect();
 
 	local item = GetIES(invItem:GetObject());
 
 	local sendOK = GET_CHILD_RECURSIVELY(frame, "send_ok")
 	sendOK:ShowWindow(1)
 
+
 	local bodyGbox2 = GET_CHILD_RECURSIVELY(frame, 'bodyGbox2');
 	bodyGbox2:ShowWindow(0)
 	local bodyGbox2_1 = GET_CHILD_RECURSIVELY(frame, 'bodyGbox2_1');
 	bodyGbox2_1:ShowWindow(0)
-	local couponGbox = GET_CHILD_RECURSIVELY(frame, 'couponGbox');
-	couponGbox:ShowWindow(0)
 
 	local arrowbox = GET_CHILD_RECURSIVELY(frame, "arrowbox")
-	arrowbox:ShowWindow(1)
+	arrowbox : ShowWindow(1)
 	local text_currentoption = GET_CHILD_RECURSIVELY(frame, "text_currentoption")
-	text_currentoption:ShowWindow(0)		
+	text_currentoption : ShowWindow(0)		
 	local text_material = GET_CHILD_RECURSIVELY(frame, "text_material")
-	text_material:ShowWindow(0)
+	text_material : ShowWindow(0)
 	local text_beforereset = GET_CHILD_RECURSIVELY(frame, "text_beforereset")
-	text_beforereset:ShowWindow(1)
+	text_beforereset : ShowWindow(1)
 	local text_afterreset = GET_CHILD_RECURSIVELY(frame, "text_afterreset")
-	text_afterreset:ShowWindow(1)
+	text_afterreset : ShowWindow(1)
 
 	local bodyGbox3 = GET_CHILD_RECURSIVELY(frame, 'bodyGbox3');
 	bodyGbox3:ShowWindow(1)
 
-	-- local gbox_infomation = GET_CHILD_RECURSIVELY(frame, 'gbox_infomation');
-	-- gbox_infomation:ShowWindow(0)
+--	local gbox_infomation = GET_CHILD_RECURSIVELY(frame, 'gbox_infomation');
+--	gbox_infomation:ShowWindow(0)
 
 	local gbox = frame:GetChild("gbox");
 	invItem = GET_SLOT_ITEM(slot);
@@ -587,13 +514,16 @@ function _SUCCESS_RESET_RANDOM_OPTION()
             ypos = i * pos_y + propertyList:GetHeight();
 		end
 	end
+
+	return;
 end
+
 
 function REMOVE_RANDOMRESET_TARGET_ITEM(frame)
 	if ui.CheckHoldedUI() == true then
 		return;
 	end
-	
+
 	frame = frame:GetTopParentFrame();
 	local slot = GET_CHILD(frame, "slot");
 	slot:ClearIcon();
@@ -613,89 +543,8 @@ function ITEMRANDOMRESET_INV_RBTN(itemObj, slot)
 	
 	local slot = GET_CHILD(frame, "slot");
 	local slotInvItem = GET_SLOT_ITEM(slot);
-	if slotInvItem ~= nil and TryGetProp(obj, "StringArg", "None") == "FreeItemRandomReset" then
-		ITEM_RANDOMRESET_REG_COUPONITEM(frame, iconInfo:GetIESID());
-	else
-		ITEM_RANDOMRESET_REG_TARGETITEM(frame, iconInfo:GetIESID());
-	end
-end
-
-function ITEM_RANDOMRESET_COUPON_DROP(parent, ctrl, argStr, argNum)
-	if ui.CheckHoldedUI() == true then
-		return
-	end
-
-	local liftIcon = ui.GetLiftIcon()
-	local FromFrame = liftIcon:GetTopParentFrame()
-	local toFrame = parent:GetTopParentFrame()
-	if FromFrame:GetName() == 'inventory' then
-		local iconInfo = liftIcon:GetInfo()
-		ITEM_RANDOMRESET_REG_COUPONITEM(toFrame, iconInfo:GetIESID())
-	end
-end
-
-function ITEM_RANDOMRESET_REG_COUPONITEM(frame, itemID)
-	if ui.CheckHoldedUI() == true then
-		return
-	end
-
-	local invItem = session.GetInvItemByGuid(itemID)
-	if invItem == nil then
-		return
-	end
-
-	local itemObj = GetIES(invItem:GetObject())
-	if TryGetProp(itemObj, 'StringArg', 'None') ~= 'FreeItemRandomReset' then
-		return
-	end
-		
-	local invframe = ui.GetFrame("inventory")
-	if true == invItem.isLockState or true == IS_TEMP_LOCK(invframe, invItem) then
-		ui.SysMsg(ClMsg("MaterialItemIsLock"))
-		return
-	end
-
-	local slot = GET_CHILD_RECURSIVELY(frame, "couponSlot")
-	SET_SLOT_ITEM(slot, invItem)
-
-	local name = GET_CHILD_RECURSIVELY(frame, "couponName")
-	name:SetTextByKey("value", dic.getTranslatedStr(TryGetProp(itemObj, "Name", "None")))
-
-	local count = GET_CHILD_RECURSIVELY(frame, "couponCount")
-	count:SetTextByKey("curCount", tostring(invItem.count))
-	count:SetTextByKey("needCount", "1")
-	count:ShowWindow(1)
 	
-	local mat_count = frame:GetUserIValue('MAX_EXCHANGEITEM_CNT')
-	for i = 1, mat_count do
-		local materialClsCtrl = GET_CHILD_RECURSIVELY(frame, "MATERIAL_CSET_" .. i)
-		if materialClsCtrl ~= nil then
-			materialClsCtrl:ShowWindow(0)
-		end
-	end
+	CLEAR_ITEMRANDOMRESET_UI()
 
-	frame:SetUserValue("COUPON_REG", 1)
-end
-
-function REMOVE_RANDOMRESET_COUPON_ITEM(parent, ctrl)
-	local frame = parent:GetTopParentFrame()
-
-	local slot = GET_CHILD_RECURSIVELY(frame, "couponSlot")
-	slot:ClearIcon()
-
-	local name = GET_CHILD_RECURSIVELY(frame, "couponName")
-	name:SetTextByKey("value", frame:GetUserConfig("COUPON_DEFAULT"))
-
-	local couponCount = GET_CHILD_RECURSIVELY(frame, "couponCount")
-	couponCount:ShowWindow(0)
-
-	local mat_count = frame:GetUserIValue('MAX_EXCHANGEITEM_CNT')
-	for i = 1, mat_count do
-		local materialClsCtrl = GET_CHILD_RECURSIVELY(frame, "MATERIAL_CSET_" .. i)
-		if materialClsCtrl ~= nil then
-			materialClsCtrl:ShowWindow(1)
-		end
-	end
-
-	frame:SetUserValue("COUPON_REG", 0)
+	ITEM_RANDOMRESET_REG_TARGETITEM(frame, iconInfo:GetIESID()); 
 end

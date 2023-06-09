@@ -62,10 +62,6 @@ function CLEAR_REINFORCE_BY_MIX_CERTIFICATE(frame)
 end
 
 function CLOSE_REINFORCE_BY_MIX_CERTIFICATE(frame)
-	if ui.CheckHoldedUI() == true then
-		return;
-	end
-	
 	CLEAR_REINFORCE_BY_MIX_CERTIFICATE(frame);
 	INVENTORY_SET_CUSTOM_RBTNDOWN("None");
 	ui.CloseFrame("inventory");
@@ -571,9 +567,7 @@ function _REINFORCE_BY_MIX_EXECUTE_CERTIFICATE()
     frame:SetUserValue("UsedMaterialItemListCertificate", mat_list);
 
 	local resultlist = session.GetItemIDList();
-	if resultlist:Count() > 1 then
-		SetCraftState(1);
-		ui.SetHoldUI(true);
+	if resultlist:Count() > 1 then			
 		item.DialogTransaction("SCR_ITEM_EXP_UP", resultlist);		
 	end
 	--local tgtItem = GET_REINFORCE_MIX_ITEM_CERTIFICATE();
@@ -586,9 +580,6 @@ end
 function REINFORCE_MIX_ITEM_EXP_STOP_CERTIFICATE()	
 	local frame = ui.GetFrame("reinforce_by_mix_certificate");
 	frame:SetUserValue("EXECUTE_REINFORCE_CERTIFICATE", 0);
-
-	SetCraftState(0);
-	ui.SetHoldUI(false);
 end;
 
 function REINFORCE_MIX_FORCE_CERTIFICATE(slot, resultText, x, y)	
@@ -657,10 +648,7 @@ function REINFORCE_MIX_ITEM_EXPUP_END_CERTIFICATE(frame, msg, multiPly, totalPoi
         local a = GET_CHILD_RECURSIVELY(box_material, "slot" .. tostring(i))
         a:ClearIcon();
     end
-	CLEAR_MATERIAL_SLOT_CERTIFICATE(frame)
-	
-	SetCraftState(0);
-	ui.SetHoldUI(false);
+    CLEAR_MATERIAL_SLOT_CERTIFICATE(frame)
 end
 
 function CLEAR_MATERIAL_SLOT_CERTIFICATE(frame)        
@@ -734,9 +722,6 @@ function REINFORCE_MIX_ITEM_EXPUP_RESERVE(frame, msg, arg1, totalPoint)
 		
 		frame:ReserveScript("REINFORCE_MIX_ITEM_EXCHANGE", 3, totalPoint, arg1);	
 	end
-
-	SetCraftState(0);
-	ui.SetHoldUI(false);
 end
 
 function REINFORCE_MIX_ITEM_EXPUP_END_NEW_ITEM(frame, totalPoint, arg1)		

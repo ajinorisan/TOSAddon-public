@@ -1,5 +1,3 @@
-HEADSUPDISPLAY_OPTION ={}
-
 function HEADSUPDISPLAY_ON_INIT(addon, frame)
 
 	addon:RegisterOpenOnlyMsg('STANCE_CHANGE', 'HEADSUPDISPLAY_ON_MSG');
@@ -30,8 +28,6 @@ function HEADSUPDISPLAY_ON_INIT(addon, frame)
 	addon:RegisterMsg("SHOW_SOUL_CRISTAL", "HEADSUPDISPLAY_SHOW_SOUL_CRISTAL");
 	addon:RegisterMsg("UPDATE_SOUL_CRISTAL", "HEADSUPDISPLAY_UPDATE_SOUL_CRISTAL");
 	addon:RegisterMsg("UPDATE_REPRESENTATION_CLASS_ICON", "UPDATE_REPRESENTATION_CLASS_ICON");
-	addon:RegisterMsg("UPDATE_RELIC_EQUIP", "HEADSUPDISPLAY_UPDATE_RELIC_EQUIP");
-	addon:RegisterMsg("RP_UPDATE", "HEADSUPDISPLAY_UPDATE_RP_GAUGE")
 
 	local leaderMark = GET_CHILD(frame, "Isleader", "ui::CPicture");
 	leaderMark:SetImage('None_Mark');
@@ -45,12 +41,9 @@ function UPDATE_REPRESENTATION_CLASS_ICON(frame, msg, argStr, argNum)
 end
 
 function CANT_RUN_ALARM(frame, msg, argStr, argNum)
-	local gauge_name = 'sta1'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		gauge_name = 'sta1_relic'
-	end
 
-	local staGauge = GET_CHILD_RECURSIVELY(frame, gauge_name, 'ui::CGauge')
+	local sta = frame:GetChild('sta1');
+	local staGauge = tolua.cast(sta, "ui::CGauge");
 	staGauge:SetGrayStyle(0);
 	ui.AlarmMsg("NotEnoughStamina");
 	imcSound.PlaySoundEvent('stamina_alarm');
@@ -69,11 +62,7 @@ function MOVETOCAMP(aid)
     if session.colonywar.GetIsColonyWarMap() == true then
         ui.SysMsg(ClMsg('ImpossibleInCurrentMap'));
 	    return;
-	end
-	if GetExProp(GetMyPCObject(), 'BOUNTYHUNT_PLAYING') == 1 then
-		ui.SysMsg(ClMsg('WarpBanBountyHunt'));
-		return;
-	end
+    end
 	session.party.RequestMoveToCamp(aid);
 end
 
@@ -132,26 +121,8 @@ function CONTEXT_MY_INFO(frame, ctrl)
 end
 
 function HEADSUPDISPLAY_ON_MSG(frame, msg, argStr, argNum)    
-	if msg == 'GAME_START' then
-		local equip = 1
-		local relic_item = session.GetEquipItemBySpot(item.GetEquipSpotNum('RELIC'))
-		local relic_obj = GetIES(relic_item:GetObject())
-		if IS_NO_EQUIPITEM(relic_obj) == 1 then
-			equip = 0
-		end
-		HEADSUPDISPLAY_OPTION['relic_equip'] = equip
-
-		HEADSUPDISPLAY_UPDATE_RP_VISIBLE(frame, equip)
-	end
-
-	local hp_name = 'hp'
-	local sp_name = 'sp'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		hp_name = 'hp_relic'
-		sp_name = 'sp_relic'
-	end
-	local hpGauge = GET_CHILD_RECURSIVELY(frame, hp_name, 'ui::CGauge')
-	local spGauge = GET_CHILD_RECURSIVELY(frame, sp_name, 'ui::CGauge')
+	local hpGauge = GET_CHILD(frame, "hp", "ui::CGauge");
+	local spGauge = GET_CHILD(frame, "sp", "ui::CGauge");
 	if msg == 'STANCE_CHANGE' or msg == 'NAME_UPDATE' or msg == 'LEVEL_UPDATE' or msg == 'GAME_START' or msg == 'CHANGE_COUNTRY' or msg == 'MYPC_CHANGE_SHAPE' then        
 		local levelRichText = GET_CHILD(frame, "level_text", "ui::CRichText");
 		local level = GETMYPCLEVEL();
@@ -181,7 +152,7 @@ function HEADSUPDISPLAY_ON_MSG(frame, msg, argStr, argNum)
  		
 	end
 
-	if msg == 'LEVEL_UPDATE' or msg == 'STAT_UPDATE' or msg == 'TAKE_DAMAGE' or msg == 'TAKE_HEAL' or msg == 'GAME_START' or msg == 'CHANGE_COUNTRY' then
+	if msg == 'LEVEL_UPDATE'  or  msg == 'STAT_UPDATE'  or  msg == 'TAKE_DAMAGE'  or  msg == 'TAKE_HEAL' or msg == 'GAME_START' or msg == 'CHANGE_COUNTRY' then
 		local stat = info.GetStat(session.GetMyHandle());
 		local beforeVal = hpGauge:GetCurPoint();
 		if beforeVal > 0 and stat.HP < beforeVal then
@@ -224,12 +195,7 @@ end
 function STAMINA_UPDATE(frame, msg, argStr, argNum)
 	session.UpdateMaxStamina();
 
-	local sta_name = 'sta1'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		sta_name = 'sta1_relic'
-	end
-
-	local stGauge = GET_CHILD_RECURSIVELY(frame, sta_name, 'ui::CGauge')
+	local stGauge 	= GET_CHILD(frame, "sta1", "ui::CGauge");
 	stGauge:ShowWindow(1)
 	
 	local stat 		= info.GetStat(session.GetMyHandle());
@@ -252,88 +218,34 @@ end
 
 function CAUTION_DAMAGE_INFO(damage)
 	local frame = ui.GetFrame('charbaseinfo');
-	local hp_name = 'hp'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		hp_name = 'hp_relic'
-	end
-
-	local hpGauge = GET_CHILD_RECURSIVELY(frame, hp_name, 'ui::CGauge')
+	local hpGauge = frame:GetChild('hp');
+	tolua.cast(hpGauge, 'ui::CGauge');
 
 	hpGauge:SetCautionBlink(damage, 1.0, 0xffffffff);
 end
 
 function CAUTION_DAMAGE_INFO_RELEASE()
 	local frame = ui.GetFrame('charbaseinfo');
-	local hp_name = 'hp'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		hp_name = 'hp_relic'
-	end
-
-	local hpGauge = GET_CHILD_RECURSIVELY(frame, hp_name, 'ui::CGauge')
+	local hpGauge = frame:GetChild('hp');
+	tolua.cast(hpGauge, 'ui::CGauge');
 
 	hpGauge:ReleaseCautionBlink();
 end
 
-function SET_CONFIG_HEADSUP_HUD_OFFSET(frame)
-    local x = frame:GetX();
-	local y = frame:GetY();
-	
-    local name = frame:GetName();
-    local width = option.GetClientWidth();
-	local height = option.GetClientHeight(); 			
-	config.SetHUDConfigRatio(name, x / width, y / height);		
-	config.SaveHUDConfig()
-end
-
-function GET_CONFIG_HEADSUP_HUD_OFFSET(frame, defaultX, defaultY)
-    local name = frame:GetName();
-    if config.IsExistHUDConfig(name) ~= 1 then
-        return defaultX, defaultY;
-	end
-	
-	local x = math.floor(config.GetHUDConfigXRatio(name) * option.GetClientWidth());
-    local y = math.floor(config.GetHUDConfigYRatio(name) * option.GetClientHeight());
-
-    return x, y;
-end
-
 function HEADSUPDISPLAY_LBTN_UP(frame, msg, argStr, argNum)
-    SET_CONFIG_HEADSUP_HUD_OFFSET(frame);
+    SET_CONFIG_HUD_OFFSET(frame);
 end
 
-function POST_HUD_SET_SAVED_OFFSET(frame, msg, argStr, argNum)		
-	if frame == nil then
-		frame = ui.GetFrame('headsupdisplay')
-	end
-		
-	local savedX, savedY = GET_CONFIG_HEADSUP_HUD_OFFSET(frame, frame:GetOriginalX(), frame:GetOriginalY());	
-	local _savedX, _savedY = GET_OFFSET_IN_SCREEN(savedX, savedY, frame:GetWidth(), frame:GetHeight());    		
-    
-	_savedX = math.max(_savedX, frame:GetX() / option.GetClientWidth());
-	_savedY = math.max(_savedY, frame:GetY()/ option.GetClientHeight());  		
-	frame:SetOffset(_savedX, _savedY);
-	
-	if savedX ~= _savedX or savedY ~= _savedY then
-		SET_CONFIG_HEADSUP_HUD_OFFSET(frame);
-	end
-end
+function HUD_SET_SAVED_OFFSET(frame, msg, argStr, argNum)
+    local savedX, savedY = GET_CONFIG_HUD_OFFSET(frame, frame:GetOriginalX(), frame:GetOriginalY());
+    local _savedX, _savedY = GET_OFFSET_IN_SCREEN(savedX, savedY, frame:GetWidth(), frame:GetHeight());    
+    _savedX = math.max(_savedX, frame:GetOriginalX());
+    _savedY = math.max(_savedY, frame:GetOriginalY());    
+    frame:SetOffset(_savedX, _savedY);    
 
-function HUD_SET_SAVED_OFFSET(frame, msg, argStr, argNum)	
-	if frame == nil then
-		frame = ui.GetFrame('headsupdisplay')
-	end
-		
-	local savedX, savedY = GET_CONFIG_HEADSUP_HUD_OFFSET(frame, frame:GetOriginalX(), frame:GetOriginalY());	
-	local _savedX, _savedY = GET_OFFSET_IN_SCREEN(savedX, savedY, frame:GetWidth(), frame:GetHeight());    		
-	_savedX = math.max(_savedX, frame:GetX() / option.GetClientWidth());
-	_savedY = math.max(_savedY, frame:GetY()/ option.GetClientHeight());  		
-	frame:SetOffset(_savedX, _savedY);
-	
-	if savedX ~= _savedX or savedY ~= _savedY then
-		SET_CONFIG_HEADSUP_HUD_OFFSET(frame);
-	end
-	
-	ReserveScript('POST_HUD_SET_SAVED_OFFSET()', 1);
+    if savedX ~= _savedX or savedY ~= _savedY then
+        SET_CONFIG_HUD_OFFSET(frame);
+    end
 end
 
 function HEDADSUPDISPLAY_CAMP_BTN_CLICK(parent, ctrl)
@@ -440,7 +352,7 @@ function HEADSUPDISPLAY_SET_CAMP_BTN(frame)
 end
 
 function HEADSUPDISPLAY_SHOW_SOUL_CRISTAL(frame, msg, argStr, argNum)
-	SHOW_SOULCRYSTAL_COUNT(frame, 1, argStr)
+	SHOW_SOULCRYSTAL_COUNT(frame, 1)
 	UPDATE_SOULCRYSTAL_COUNT(frame, 0, argNum)
 end
 
@@ -448,123 +360,27 @@ function HEADSUPDISPLAY_UPDATE_SOUL_CRISTAL(frame, msg, argStr, argNum)
 	UPDATE_SOULCRYSTAL_COUNT(frame, argNum, tonumber(argStr))
 end
 
-function SHOW_SOULCRYSTAL_COUNT(frame, isShow, limitFlag)
+function SHOW_SOULCRYSTAL_COUNT(frame, isShow)
 	local frame = ui.GetFrame('headsupdisplay');
-	if frame ~= nil then
-		local soulCrystalGbox = GET_CHILD_RECURSIVELY(frame, "soulCrystalGbox");
-		if soulCrystalGbox ~= nil then
-			soulCrystalGbox:ShowWindow(isShow);
-		end
-		
-		if limitFlag == "limited" or limitFlag == 1 then
-			frame:SetUserValue("limitFlag", 1);
-		elseif limitFlag == "unlimited" or limitFlag == 0 then
-			frame:SetUserValue("limitFlag", 0);
-		end
-	end
+	local soulCrystalGbox = GET_CHILD_RECURSIVELY(frame, "soulCrystalGbox")
+	-- isShow = 0 or 1
+	soulCrystalGbox:ShowWindow(isShow)
 end
 
 function UPDATE_SOULCRYSTAL_COUNT(frame, curCount, maxCount)
 	local frame = ui.GetFrame('headsupdisplay');
-	if frame ~= nil then
-		local soulCrystalCount = GET_CHILD_RECURSIVELY(frame, "soulCrystalCount")
-		local limitFlag = frame:GetUserIValue("limitFlag");
-		if limitFlag == 1 or maxCount > 0 then
-			if limitFlag ~= 1 then
-				frame:SetUserValue("limitFlag", 1)
-			end
-			local casting_text = tolua.cast(soulCrystalCount, "ui::CRichText");
-			casting_text:SetFormat(" {@st43b}{s16}{#ff2c2c}%s{@st43b}{s16}/%s");
-			casting_text:UpdateFormat();
+	local soulCrystalCount = GET_CHILD_RECURSIVELY(frame, "soulCrystalCount")
 
-			local count = frame:GetUserIValue('MAX_COUNT');
-			if count == 0 and maxCount ~= 0 then
-				frame:SetUserValue('SOULCRYSTAL_MAX_COUNT', maxCount);
-			else
-				maxCount = frame:GetUserIValue('SOULCRYSTAL_MAX_COUNT');
-			end
-			curCount = maxCount - curCount;
-			soulCrystalCount:SetTextByKey("curCount", curCount);
-			soulCrystalCount:SetTextByKey("maxCount", maxCount);
-		else
-			local casting_text = tolua.cast(soulCrystalCount, "ui::CRichText");
-			casting_text:SetFormat(" {@st43b}{s16}{#ff2c2c}%s{@st43b}{s16}%s");
-			casting_text:UpdateFormat();
-
-			soulCrystalCount:SetTextByKey("curCount", "");
-			soulCrystalCount:SetTextByKey("maxCount", "{img infinity_text_red 20 10}");	
-		end
-		soulCrystalCount:Invalidate();
-		SHOW_SOULCRYSTAL_COUNT(frame, 1, limitFlag);
-	end
-end
-
-function HEADSUPDISPLAY_UPDATE_RP_VISIBLE(frame, type)
-	HEADSUPDISPLAY_OPTION['relic_equip'] = type
-	local bg_default = GET_CHILD_RECURSIVELY(frame, 'gaugebg_default')
-	local bg_relic = GET_CHILD_RECURSIVELY(frame, 'gaugebg_relic')
-	local myclasspic1 = GET_CHILD_RECURSIVELY(frame, 'myclasspic1')
-	local myhpspright = GET_CHILD_RECURSIVELY(frame, 'myhpspright')
-	if type == 1 then
-		bg_default:ShowWindow(0)
-		bg_relic:ShowWindow(1)
-		local left_image = frame:GetUserConfig('LEFT_IMAGE_RELIC')
-		myclasspic1:SetImage(left_image)
-		local right_image = frame:GetUserConfig('RIGHT_IMAGE_RELIC')
-		myhpspright:SetImage(right_image)
-
-		local right_height = frame:GetUserConfig('RIGHT_HEIGHT_RP')
-		local right_margin = myhpspright:GetMargin()
-		local margin_top = frame:GetUserConfig('RIGHT_MARGIN_TOP_RP')
-
-		myhpspright:Resize(myhpspright:GetWidth(), right_height)
-		myhpspright:SetMargin(right_margin.left, margin_top, right_margin.right, right_margin.bottom)
-
-		HEADSUPDISPLAY_UPDATE_RP_GAUGE(frame)
-
-		STAMINA_UPDATE(frame)
+	local count = frame:GetUserIValue('MAX_COUNT');
+	if count == 0 and maxCount ~= 0 then
+		frame:SetUserValue('SOULCRYSTAL_MAX_COUNT', maxCount);
 	else
-		bg_relic:ShowWindow(0)
-		bg_default:ShowWindow(1)
-		local left_image = frame:GetUserConfig('LEFT_IMAGE_DEFAULT')
-		myclasspic1:SetImage(left_image)
-		local right_image = frame:GetUserConfig('RIGHT_IMAGE_DEFAULT')
-		myhpspright:SetImage(right_image)
-
-		local right_height = frame:GetUserConfig('RIGHT_HEIGHT_DEF')
-		local right_margin = myhpspright:GetMargin()
-		local margin_top = frame:GetUserConfig('RIGHT_MARGIN_TOP_DEF')
-
-		myhpspright:Resize(myhpspright:GetWidth(), right_height)
-		myhpspright:SetMargin(right_margin.left, margin_top, right_margin.right, right_margin.bottom)
-
-		STAMINA_UPDATE(frame)
-	end
-end
-
-function HEADSUPDISPLAY_UPDATE_RELIC_EQUIP(frame, msg, argStr, argNum)
-	HEADSUPDISPLAY_UPDATE_RP_VISIBLE(frame, argNum)
-end
-
-function HEADSUPDISPLAY_UPDATE_RP_GAUGE(frame)
-	if HEADSUPDISPLAY_OPTION.relic_equip == 0 then
-		return
+		maxCount = frame:GetUserIValue('SOULCRYSTAL_MAX_COUNT');
 	end
 
-	local rpGauge = GET_CHILD_RECURSIVELY(frame, 'rp', 'ui::CGauge')
-	rpGauge:ShowWindow(1)
-	
-	rpGauge:StopTimeProcess()
+	curCount = maxCount - curCount;
+	soulCrystalCount:SetTextByKey("curCount", curCount);
+	soulCrystalCount:SetTextByKey("maxCount", maxCount);
 
-	local pc = GetMyPCObject()
-	local cur_rp, max_rp = shared_item_relic.get_rp(pc)
-
-	rpGauge:SetPoint(cur_rp, max_rp)
-
-	local rpRatio = cur_rp / max_rp
-	if rpRatio <= 0.3 and rpRatio > 0 then
-		rpGauge:SetBlink(0.0, 1.0, 0xffffffff)
-	else
-		rpGauge:ReleaseBlink()
-	end
+	SHOW_SOULCRYSTAL_COUNT(frame, 1);
 end

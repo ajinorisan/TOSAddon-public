@@ -2,7 +2,6 @@ function NOTICE_TUTORIAL_ON_INIT(addon, frame)
 
 	addon:RegisterMsg('KEYBOARD_TUTORIAL', 'ON_KEYBOARD_TUTORIAL');
 	addon:RegisterMsg('DIALOG_SPACE_TUTORIAL', 'ON_DIALOG_SPACE_TUTORIAL');
-	addon:RegisterMsg('DIALOG_SPACE_TUTORIAL_LIME3', 'ON_DIALOG_SPACE_TUTORIAL_LINE3');
 
 	addon:RegisterMsg('L_KEY_TUTORIAL', 'ON_L_KEY_TUTORIAL');
 	addon:RegisterMsg('RETURN_KEY_TUTORIAL', 'ON_RETURN_KEY_TUTORIAL');
@@ -15,7 +14,6 @@ function INIT_KEYBOARD_TUTORIAL(frame)
 	
 	END_KEYBOARD_TUTORIAL(frame);
 	frame:GetChild('comment'):ShowWindow(0);
-	frame:GetChild('comment2'):ShowWindow(0);
 	frame:GetChild('SpaceKey'):ShowWindow(0);
 	frame:GetChild('MoveKey'):ShowWindow(0);
 	frame:GetChild('MoveKey2'):ShowWindow(0);
@@ -183,7 +181,7 @@ function UPDATE_DIALOG_LKEY_TUTORIAL(frame)
 	end
 end
 
--- npc대화 space 튜토리얼 클라페다
+-- npc대화 space 튜토리얼
 function ON_DIALOG_SPACE_TUTORIAL(frame, msg, argStr, argNum)
 
 	INIT_KEYBOARD_TUTORIAL(frame);
@@ -192,9 +190,6 @@ function ON_DIALOG_SPACE_TUTORIAL(frame, msg, argStr, argNum)
 	comment:ShowWindow(1);
 	local groupBox = frame:GetChild('SpaceKey');
 	groupBox:ShowWindow(1);
-	local comment2 = frame:GetChild('comment2');
-	comment2:SetText( ScpArgMsg("USE_Growth_Equip_Box") );
-	comment2:ShowWindow(1);
 
 	groupBox:GetChild("SpaceText"):SetText(ScpArgMsg("Auto_{@st41}DaeHwa_SinCheongKi{/}"));
 	
@@ -212,59 +207,6 @@ function ON_DIALOG_SPACE_TUTORIAL(frame, msg, argStr, argNum)
 end
 
 function UPDATE_DIALOG_SPACE_TUTORIAL(frame)
-
-	local groupBox = frame:GetChild('SpaceKey');
-
-	-- 스페이스 키
-	if keyboard.IsKeyDown("SPACE") == 1 then
-		local space = groupBox:GetChild('space');
-		UI_PLAYFORCE(space, "gmsemf");
-
-		local time = imcTime.GetAppTime() + 0.8;
-		frame:SetUserValue("SPACE_END", time);	-- 그룹박스 닫히는시간 셋팅
-	end
-	
-	-- 그룹박스 닫기
-	if tonumber(frame:GetUserValue("SPACE_END")) < imcTime.GetAppTime() then
-		groupBox:ShowWindow(0);
-	end
-
-	-- 그룹박스 꺼져있으면 frame 종료
-	if groupBox:IsVisible() == 0 then
-		END_KEYBOARD_TUTORIAL(frame);
-	end
-end
-
-
--- npc대화 space 튜토리얼 모로스
-function ON_DIALOG_SPACE_TUTORIAL_LINE3(frame, msg, argStr, argNum)
-
-	INIT_KEYBOARD_TUTORIAL(frame);
-	local comment = frame:GetChild('comment');
-	comment:SetText( ScpArgMsg("HelloTitas") );
-	comment:ShowWindow(1);
-	local groupBox = frame:GetChild('SpaceKey');
-	groupBox:ShowWindow(1);
-	-- local comment2 = frame:GetChild('comment2');
-	-- comment2:SetText( ScpArgMsg("USE_Growth_Equip_Box") );
-	-- comment2:ShowWindow(1);
-
-	groupBox:GetChild("SpaceText"):SetText(ScpArgMsg("Auto_{@st41}DaeHwa_SinCheongKi{/}"));
-	
-	local timer = GET_CHILD(frame, "addontimer", "ui::CAddOnTimer");
-	
-
-	local endTime = imcTime.GetAppTime() + 3600;
-	frame:SetUserValue("SPACE_END", endTime);
-	
-	frame:SetOffset(0, 200);
-	frame:ShowWindow(1);
-
-	timer:SetUpdateScript("UPDATE_DIALOG_SPACE_TUTORIAL_LINE3");
-	timer:Start(0.01);
-end
-
-function UPDATE_DIALOG_SPACE_TUTORIAL_LINE3(frame)
 
 	local groupBox = frame:GetChild('SpaceKey');
 

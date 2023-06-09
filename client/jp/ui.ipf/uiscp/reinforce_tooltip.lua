@@ -99,34 +99,33 @@ function REINFORCE_ITEM_TOOLTIP_EQUIP(tooltipframe, invitem, strarg, usesubframe
 	
 	ypos = DRAW_ITEM_TYPE_N_WEIGHT(tooltipframe, invitem, ypos, mainframename) -- 타입, 무게.
 
-	local basicTooltipProp = invitem.BasicTooltipProp;
-	if basicTooltipProp ~= 'None' then
-		local basicTooltipPropList = StringSplit(invitem.BasicTooltipProp, ';');
-		for i = 1, #basicTooltipPropList do
-			basicTooltipProp = basicTooltipPropList[i];
-			ypos = DRAW_EQUIP_ATK_N_DEF(tooltipframe, invitem, ypos, mainframename, strarg, basicTooltipProp); -- 공격력, 방어력, 타입 아이콘 
-		end
-	end
+    local basicTooltipProp = invitem.BasicTooltipProp;
+    if basicTooltipProp ~= 'None' then
+        local basicTooltipPropList = StringSplit(invitem.BasicTooltipProp, ';');
+        for i = 1, #basicTooltipPropList do
+            basicTooltipProp = basicTooltipPropList[i];
+            ypos = DRAW_EQUIP_ATK_N_DEF(tooltipframe, invitem, ypos, mainframename, strarg, basicTooltipProp); -- 공격력, 방어력, 타입 아이콘 
+        end
+    end
 
-	if basicTooltipProp ~= 'None' then
-		local itemGuid = tooltipframe:GetUserValue('TOOLTIP_ITEM_GUID');
-		local isEquiped = 1;
-		if session.GetEquipItemByGuid(itemGuid) == nil then
-			isEquiped = 0
-		end
-  		local tooltipMainFrame = GET_CHILD(tooltipframe, mainframename, 'ui::CGroupBox');
-		ypos = SET_REINFORCE_TEXT(tooltipMainFrame, invitem, ypos, isEquiped, basicTooltipProp);
-		ypos = SET_TRANSCEND_TEXT(tooltipMainFrame, invitem, ypos, isEquiped);
-		ypos = SET_EVOLVED_TEXT(tooltipMainFrame, invitem, ypos, isEquiped);
-		ypos = SET_BUFF_TEXT(tooltipMainFrame, invitem, ypos, strarg);
-		ypos = SET_REINFORCE_BUFF_TEXT(tooltipMainFrame, invitem, ypos);
-	end
+    if basicTooltipProp ~= 'None' then
+        local itemGuid = tooltipframe:GetUserValue('TOOLTIP_ITEM_GUID');
+	    local isEquiped = 1;
+	    if session.GetEquipItemByGuid(itemGuid) == nil then
+		    isEquiped = 0
+	    end
+        local tooltipMainFrame = GET_CHILD(tooltipframe, mainframename, 'ui::CGroupBox');
+        ypos = SET_REINFORCE_TEXT(tooltipMainFrame, invitem, ypos, isEquiped, basicTooltipProp);
+	    ypos = SET_TRANSCEND_TEXT(tooltipMainFrame, invitem, ypos, isEquiped);
+	    ypos = SET_BUFF_TEXT(tooltipMainFrame, invitem, ypos, strarg);
+	    ypos = SET_REINFORCE_BUFF_TEXT(tooltipMainFrame, invitem, ypos);
+    end
 
 	local addinfoGBox = GET_CHILD(tooltipframe, addinfoframename,'ui::CGroupBox') -- 젬 툴팁 위치 삽입
 	addinfoGBox:SetOffset(addinfoGBox:GetX(),ypos)
 	addinfoGBox:Resize(addinfoGBox:GetOriginalWidth(),0)
 	
-	ypos = DRAW_EQUIP_PROPERTY(tooltipframe, invitem, nil, ypos, mainframename) --각종 프로퍼티
+		ypos = DRAW_EQUIP_PROPERTY(tooltipframe, invitem, ypos, mainframename) --각종 프로퍼티
 	ypos = DRAW_EQUIP_SET(tooltipframe, invitem, ypos, mainframename) -- 세트아이템
 	ypos = DRAW_EQUIP_MEMO(tooltipframe, invitem, ypos, mainframename) -- 제작 템 시 들어간 메모
 	ypos = DRAW_EQUIP_DESC(tooltipframe, invitem, ypos, mainframename) -- 각종 프로퍼티
@@ -134,8 +133,8 @@ function REINFORCE_ITEM_TOOLTIP_EQUIP(tooltipframe, invitem, strarg, usesubframe
 	ypos = DRAW_EQUIP_PR_N_DUR(tooltipframe, invitem, ypos, mainframename) -- 포텐셜 및 내구도
 	ypos = DRAW_EQUIP_ONLY_PR(tooltipframe, invitem, ypos, mainframename) -- 포텐셜 만 있는 애들은 여기서 그림 (그릴 아이템인지 검사는 내부에서)
 	
-	local isHaveLifeTime = TryGetProp(invitem, "LifeTime", 0);
-	if 0 == tonumber(isHaveLifeTime) then
+	local isHaveLifeTime = TryGetProp(invitem, "LifeTime");	
+	if 0 == isHaveLifeTime then
 		ypos = DRAW_SELL_PRICE(tooltipframe, invitem, ypos, mainframename);
 	else
 		ypos = DRAW_REMAIN_LIFE_TIME(tooltipframe, invitem, ypos, mainframename);

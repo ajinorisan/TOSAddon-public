@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<uiframe name="induninfo" x="0" y="0" width="1095" height="610" create="open">
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="induninfo" x="0" y="0" width="1095" height="570" create="open">
 	<frame fasthide="true" layout_gravity="center center" margin="0 -75 0 0"/>
 	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
 	<draw drawframe="false" drawtitlebar="false"/>
@@ -9,69 +9,50 @@
 	<script OpenScp="INDUNINFO_UI_OPEN" CloseScp="INDUNINFO_UI_CLOSE"/>
 	<sound opensound="skill_window_open" closesound="skill_window_close"/>
 	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
-	<userconfig STAR_IMAGE="star_mark" RANDOM_ICON="indun_bossrandom" TOKEN_STATE_IMAGE="token_on" NOT_TOKEN_STATE_IMAGE="indun_icon_day_l" FIRST_OPEN="TRUE" TOOLTIP_POSX="5" TOOLTIP_POSY="42" POSBOX_ORIGIN_HEIGHT="110" HEIGHT_RESIZE_FOR_BUTTON="72" MON_ORIGIN_TOP="244" REWARD_ORIGIN_TOP="358" SCROLL_BAR_FALSE_WIDTH="486" SCROLL_BAR_TRUE_WIDTH="466"/>
+	<userconfig STAR_IMAGE="star_mark" RANDOM_ICON="indun_bossrandom" TOKEN_STATE_IMAGE="token_on" NOT_TOKEN_STATE_IMAGE="indun_icon_day_l" FIRST_OPEN="TRUE" TOOLTIP_POSX="5" TOOLTIP_POSY="42"/>
 	<controls>
-		<groupbox name="bgBox" rect="0 0 1095 610" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_low" hittest="true"/>
+		<groupbox name="bgBox" rect="0 0 1095 570" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_low" hittest="true"/>
 		<groupbox name="headerBox" rect="0 0 1095 60" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_top" hittest="false"/>
-		<picture name="helpPic" rect="0 0 50 50" margin="28 20 0 0" layout_gravity="left top" image="testquesten_button" texttooltip="{nl}각 콘텐츠의 입장 위치 및 횟수를 확인할 수 있습니다."/>
+		<picture name="helpPic" rect="0 0 50 50" margin="28 20 0 0" layout_gravity="left top" image="testquesten_button" texttooltip="{nl}각 던전은 카테고리별로 입장 횟수가 카운트 됩니다. "/>
 		<button name="closeBtn" rect="0 0 50 50" margin="0 20 28 0" layout_gravity="right top" LBtnUpScp="INDUNINFO_UI_CLOSE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}인스턴스 던전 창을 닫습니다{/}"/>
-		<richtext name="headerText" rect="0 0 600 50" margin="0 15 0 0" layout_gravity="center top" caption="{@st43}콘텐츠 현황판{/}" hittest="false"/>
-		<groupbox name="contentBox" rect="0 0 1095 460" margin="0 100 0 0" layout_gravity="left top" draw="false" scrollbar="false"/>
-		<groupbox name="categoryBox" rect="0 0 350 450" margin="10 100 0 0" layout_gravity="left top" skin="test_frame_midle" fixheight="true" scrollbar="true"/>
-		<groupbox name="bottomBox" rect="0 0 1095 30" margin="0 0 0 18" layout_gravity="center bottom" scrollbar="false" draw="false"/>
+		<richtext name="headerText" rect="0 0 600 50" margin="0 15 0 0" layout_gravity="center top" caption="{@st43}인스턴스 던전{/}" hittest="false"/>
+		<groupbox name="contentBox" rect="0 0 1095 460" margin="0 60 0 0" layout_gravity="left top" draw="false" scrollbar="false"/>
+		<groupbox name="categoryBox" rect="0 0 350 450" parent="contentBox" margin="10 0 0 0" layout_gravity="left top" skin="test_frame_midle" fixheight="true" scrollbar="true"/>
 		<!-- Info -->
 		<groupbox name="infoBox" rect="0 0 720 500" parent="contentBox" margin="0 0 12 0" layout_gravity="right top" draw="false"/>
-		<groupbox name="indunbox" rect="0 0 720 500" parent="infoBox" margin="0 0 0 0" layout_gravity="right top" draw="false"/>
-		<groupbox name="pvpbox" rect="0 0 720 500" parent="infoBox" margin="0 0 0 0" layout_gravity="right top" draw="false"/>
 		<groupbox name="nameBox" rect="0 0 420 45" parent="infoBox" margin="0 0 0 0" layout_gravity="right top" draw="false" image="test_com_namebg"/>
 		<richtext name="nameText" rect="0 0 500 30" parent="nameBox" margin="10 0 0 0" layout_gravity="left center" format="{@st66d}%s{/}" param1="name" param1_def="던전 이름"/>
 		<picture name="indunPic" rect="0 0 295 450" parent="infoBox" margin="0 0 0 0" layout_gravity="left top" image="027_boss_Gaigalas" stretch="true"/>
-		<groupbox name="restrictBox" rect="0 0 196 80" parent="infoBox" margin="2 2 0 0" layout_gravity="left top" draw="false"/>
-		<groupbox name="restrictSkillBox" rect="0 0 196 40" parent="restrictBox" margin="0 0 0 0" layout_gravity="left top" draw="false" image="text_bg_black"/>
-		<richtext name="restrictSkillText" rect="0 0 200 30" parent="restrictSkillBox" margin="5 0 0 0" layout_gravity="left center" caption="{img NOTICE_Dm_! 30 30}{@st43}{s16}스킬 제한{/}" hittest="false"/>
-		<groupbox name="restrictItemBox" rect="0 0 196 40" parent="restrictBox" margin="0 40 0 0" layout_gravity="left top" draw="false" image="text_bg_black"/>
-		<richtext name="restrictItemText" rect="0 0 200 30" parent="restrictItemBox" margin="5 0 0 0" layout_gravity="left center" caption="{img NOTICE_Dm_! 30 30}{@st43}{s16}입장 제한{/}" hittest="false"/>
-		<groupbox name="restrictDungeonBox" rect="0 0 196 40" parent="restrictBox" margin="0 40 0 0" layout_gravity="left top" draw="false" image="text_bg_black"/>
-		<richtext name="restrictDungeonText" rect="0 0 200 30" parent="restrictDungeonBox" margin="5 0 0 0" layout_gravity="left center" caption="{img NOTICE_Dm_! 30 30}{@st43}{s16}던전 적용 사항{/}" hittest="false"/>
-		<groupbox name="countBox" parent="indunbox" rect="0 0 412 60" margin="0 44 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
+		<groupbox name="restrictBox" rect="0 0 196 40" parent="infoBox" margin="2 2 0 0" layout_gravity="left top" draw="false" image="text_bg_black"/>
+		<richtext name="restrictText" rect="0 0 200 30" parent="restrictBox" margin="5 0 0 0" layout_gravity="left center" caption="{img NOTICE_Dm_! 30 30}{@st43}{s16}스킬 제한{/}" hittest="false"/>
+		<!-- Count -->
+		<groupbox name="countBox" parent="infoBox" rect="0 0 412 60" margin="0 44 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
 		<picture name="countPic" parent="countBox" rect="0 0 27 27" margin="0 0 0 0" layout_gravity="left center" image="indun_entrance"/>
-		<picture name="cyclePic" parent="countBox" rect="0 0 60 27" margin="110 2 0 0" layout_gravity="left center" image="indun_icon_week_l"/>
-		<picture name="cycleCtrlPic" parent="countBox" rect="0 0 51 27" margin="0 3 75 0" layout_gravity="right center" image="indun_icon_event_l_eng"/>
+		<picture name="cyclePic" parent="countBox" rect="0 0 41 27" margin="110 2 0 0" layout_gravity="left center" image="indun_icon_week_l"/>
+		<picture name="cycleCtrlPic" parent="countBox" rect="0 0 41 27" margin="0 3 70 0" layout_gravity="right center" image="indun_icon_event_s_eng"/>
 		<richtext name="countText" parent="countBox" rect="0 0 190 30" margin="30 0 0 0" layout_gravity="left center" fontname="brown_18_b" caption="입장 횟수"/>
 		<richtext name="countData" parent="countBox" rect="0 0 190 30" margin="0 0 0 0" layout_gravity="right center" textalign="right center" fontname="brown_18_b" format="%s/%s회" param1="now" param1_def="0" param2="max" param2_def="3"/>
-		<richtext name="countData2" parent="countBox" rect="0 0 190 30" margin="0 0 0 0" layout_gravity="right center" textalign="right center" fontname="brown_18_b" format="%s회 가능" param1="now" param1_def="0"/>
 		<richtext name="countItemData" parent="countBox" rect="0 0 190 30" margin="0 0 0 0" layout_gravity="right center" textalign="right center" fontname="brown_18_b" format="%s개" param1="admissionitem" param1_def="0"/>
-		<!-- Restrict By Category -->
-		<groupbox name="gbox_ct_dungeon_restrict" parent="indunbox" rect="0 0 412 60" margin="0 44 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<picture name="pic_ct_dungeon_resetric" parent="gbox_ct_dungeon_restrict" rect="0 0 26 26" margin="0 0 0 0" layout_gravity="left center" image="indun_entrance_limitinfo"/>
-		<richtext name="txt_ct_dungeon_resetric" parent="gbox_ct_dungeon_restrict" rect="0 0 190 30" margin="30 0 0 0" layout_gravity="left center" fontname="brown_18_b" caption="던전 제한"/>
-		<button name="pic_ct_dungeon_resetric_over" parent="gbox_ct_dungeon_restrict" rect="0 0 30 30" margin="0 0 0 0" layout_gravity="right center" image="indun_map_limitinfo_btn"/>
-		<!-- Restrict By Category End -->
-		<picture name="categoryBox" parent="countBox" rect="0 0 30 30" margin="0 -200 0 0" layout_gravity="right center" image="token_on" stretch="true" texttooltip="토큰 혜택으로 1회 추가 입장 가능합니다."/>
+		<picture name="tokenStatePic" parent="countBox" rect="0 0 30 30" margin="0 -200 0 0" layout_gravity="right center" image="token_on" stretch="true" texttooltip="토큰 혜택으로 1회 추가 입장 가능합니다."/>
+		<!-- Level -->
 		<groupbox name="lvBox" parent="infoBox" rect="0 0 412 60" margin="0 80 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
 		<picture name="lvPic" parent="lvBox" rect="0 0 27 27" margin="0 0 0 0" layout_gravity="left center" image="indun_entrance_level"/>
 		<richtext name="lvText" parent="lvBox" rect="0 0 190 30" margin="30 0 0 0" layout_gravity="left center" fontname="brown_18_b" caption="입장 레벨"/>
 		<richtext name="lvData" parent="lvBox" rect="0 0 190 30" margin="0 0 0 0" layout_gravity="right center" fontname="brown_18_b" caption="50"/>
 		<!-- Position -->
-		<groupbox name="posBox" parent="indunbox" rect="0 0 412 110" margin="0 125 0 0" layout_gravity="right top" draw="false" hittestbox="false" scrollbar="false"/>
+		<groupbox name="posBox" parent="infoBox" rect="0 0 412 110" margin="0 125 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
 		<picture name="posPic" parent="posBox" rect="0 0 27 27" margin="0 10 0 0" layout_gravity="left top" image="indun_entrance_location"/>
 		<richtext name="posText" parent="posBox" rect="0 0 190 30" margin="30 10 0 0" layout_gravity="left top" fontname="brown_18_b" caption="위치"/>
-		<!-- Score -->
-		<groupbox name="scoreBox" parent="indunbox" rect="0 0 412 110" margin="0 124 0 0" layout_gravity="right top" draw="false" hittestbox="false" scrollbar="false"/>
-		<picture name="scorePic" parent="scoreBox" rect="0 0 26 26" margin="0 10 0 0" layout_gravity="left top" image="hero_icon_trophy"/>
-		<button name="scoreBtn" parent="scoreBox" rect="0 0 30 30" margin="90 8 0 0" layout_gravity="left top" image="hero_btn_trophy" LBtnUpScp="OPEN_RANKSYSTEM_UI" LBtnUpArgNum="1"/>
-		<richtext name="scoreText" parent="scoreBox" rect="0 0 190 30" margin="30 11 0 0" layout_gravity="left top" fontname="brown_18_b" caption="스코어"/>
 		<!-- Mon Box -->
-		<groupbox name="monBox" parent="indunbox" rect="0 0 412 105" margin="0 239 5 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<button name="monRightBtn" parent="monBox" rect="0 0 40 50" margin="0 40 0 0" layout_gravity="right top" image="button_right_select2" LBtnUpScp="INDUNENTER_MON_CLICK_RIGHT"/>
-		<button name="monLeftBtn" parent="monBox" rect="0 0 40 50" margin="0 40 0 0" layout_gravity="left top" image="button_left_select2" LBtnUpScp="INDUNENTER_MON_CLICK_LEFT"/>
-		<picture name="monPic" parent="monBox" rect="0 0 27 27" margin="5 5 0 0" layout_gravity="left top" image="indun_bossmonster"/>
-		<richtext name="monText" parent="monBox" rect="0 0 190 30" margin="35 5 0 0" layout_gravity="left top" fontname="brown_18_b" caption="대표 등장 몬스터" autofontsizebywidth="140"/>
-		<groupbox name="monBox_dummy" parent="monBox" rect="0 0 340 65" margin="35 5 0 5" layout_gravity="left bottom" draw="false"/>
+		<groupbox name="monBox" parent="infoBox" rect="0 0 412 100" margin="0 244 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
+		<button name="monRightBtn" parent="monBox" rect="0 0 40 50" margin="0 35 0 0" layout_gravity="right top" image="button_right_select2" LBtnUpScp="INDUNENTER_MON_CLICK_RIGHT"/>
+		<button name="monLeftBtn" parent="monBox" rect="0 0 40 50" margin="0 35 0 0" layout_gravity="left top" image="button_left_select2" LBtnUpScp="INDUNENTER_MON_CLICK_LEFT"/>
+		<picture name="monPic" parent="monBox" rect="0 0 27 27" margin="5 0 0 0" layout_gravity="left top" image="indun_bossmonster"/>
+		<richtext name="monText" parent="monBox" rect="0 0 190 30" margin="35 0 0 0" layout_gravity="left top" fontname="brown_18_b" caption="대표 등장 몬스터"/>
+		<groupbox name="monBox_dummy" parent="monBox" rect="0 0 340 65" margin="35 0 0 5" layout_gravity="left bottom" draw="false"/>
 		<slotset name="monSlotSet" parent="monBox_dummy" rect="0 0 370 60" margin="5 0 0 0" layout_gravity="left top" row="1" col="10" size="65 65" skin="invenslot2" spc="2 2" enabledrop="false" enablepop="false"/>
-		<button name="monListBtn" parent="monBox" rect="0 0 30 30" margin="173 1 0 0" layout_gravity="left top" image="hero_btn_monster" LBtnUpScp="OPEN_TOSHERO_INFO_MONSTER"/>
 		<!-- Reward Box -->
-		<groupbox name="rewardBox" parent="indunbox" rect="0 0 412 110" margin="0 358 5 0" layout_gravity="right top" draw="false" hittestbox="false"/>
+		<groupbox name="rewardBox" parent="infoBox" rect="0 0 412 110" margin="0 358 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
 		<picture name="rewardPic" parent="rewardBox" rect="0 0 27 27" margin="5 0 0 0" layout_gravity="left top" image="indun_item"/>
 		<richtext name="rewardText" parent="rewardBox" rect="0 0 190 30" margin="35 0 0 0" layout_gravity="left top" caption="대표 획득 아이템" fontname="brown_18_b"/>
 		<picture name="weaponBtn" parent="rewardBox" rect="0 0 68 68" margin="35 25 0 0" layout_gravity="left top" image="indun_weapon" oversound="button_over" stretch="true" LBtnUpScp="INDUNINFO_MAKE_DROPBOX"/>
@@ -79,182 +60,11 @@
 		<picture name="armourBtn" parent="rewardBox" rect="0 0 68 68" margin="171 25 0 0" layout_gravity="left top" image="indun_armour" oversound="button_over" stretch="true" LBtnUpScp="INDUNINFO_MAKE_DROPBOX"/>
 		<picture name="accBtn" parent="rewardBox" rect="0 0 68 68" margin="239 25 0 0" layout_gravity="left top" image="indun_acc" oversound="button_over" stretch="true" LBtnUpScp="INDUNINFO_MAKE_DROPBOX"/>
 		<picture name="materialBtn" parent="rewardBox" rect="0 0 68 68" margin="307 25 0 0" layout_gravity="left top" image="indun_material" oversound="button_over" stretch="true" LBtnUpScp="INDUNINFO_MAKE_DROPBOX"/>
-		<!-- Map Box -->
-		<groupbox name="mapBox" parent="indunbox" rect="0 0 412 230" margin="0 170 10 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<groupbox name="mapHelpBox" rect="0 0 412 45" parent="mapBox" margin="0 0 0 0" layout_gravity="right top" draw="false" image="test_com_namebg"/>
-		<richtext name="mapHelpText" rect="0 0 412 30" parent="mapHelpBox" margin="10 0 0 0" layout_gravity="left center" format="{@st66d}%s{/}" param1="text" param1_def="도움말"/>
-		<richtext name="mapText1" parent="mapBox" rect="0 0 180 30" margin="30 55 0 0" layout_gravity="left top" fontname="brown_16_b" caption="등장 지역" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
-		<richtext name="mapText2" parent="mapBox" rect="0 0 180 30" margin="210 55 0 0" layout_gravity="left top" fontname="brown_16_b" caption="등장 지역" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
-		<richtext name="mapText3" parent="mapBox" rect="0 0 180 30" margin="30 85 0 0" layout_gravity="left top" fontname="brown_16_b" caption="등장 지역" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
-		<richtext name="mapText4" parent="mapBox" rect="0 0 180 30" margin="210 85 0 0" layout_gravity="left top" fontname="brown_16_b" caption="등장 지역" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
-		<richtext name="mapText5" parent="mapBox" rect="0 0 180 30" margin="30 115 0 0" layout_gravity="left top" fontname="brown_16_b" caption="등장 지역" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
-		<richtext name="mapText6" parent="mapBox" rect="0 0 180 30" margin="210 115 0 0" layout_gravity="left top" fontname="brown_16_b" caption="등장 지역" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
-		<richtext name="mapText7" parent="mapBox" rect="0 0 180 30" margin="30 145 0 0" layout_gravity="left top" fontname="brown_16_b" caption="등장 지역" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
-		<richtext name="noticeText" parent="mapBox" rect="0 0 370 30" margin="20 130 0 0" layout_gravity="left top" fontname="brown_16_b" fixwidth="true" ellipsistexttooltip="true" format="{s14}%s" param1="text" param1_def="내용"/>
-		<!-- Pattern List Box -->
-		<groupbox name="patternBox" parent="indunbox" rect="0 0 412 110" margin="0 358 5 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<picture name="patternPic" parent="patternBox" rect="0 0 27 27" margin="5 0 0 0" layout_gravity="left top" image="indun_pattern"/>
-		<richtext name="patternText" parent="patternBox" rect="0 0 190 30" margin="35 0 0 0" layout_gravity="left top" caption="패턴 정보" fontname="brown_18_b"/>
-		<button name="patternRightBtn" parent="patternBox" rect="0 0 40 50" margin="0 35 0 0" layout_gravity="right top" image="button_right_select2" LBtnUpScp="INDUNENTER_PATTERN_CLICK_RIGHT"/>
-		<button name="patternLeftBtn" parent="patternBox" rect="0 0 40 50" margin="0 35 0 0" layout_gravity="left top" image="button_left_select2" LBtnUpScp="INDUNENTER_PATTERN_CLICK_LEFT"/>
-		<groupbox name="patternIconBoxWrapper" parent="patternBox" rect="0 0 340 85" margin="35 25 0 0" layout_gravity="left top" draw="false"/>
-		<slotset name="patternSlotSet" parent="patternIconBoxWrapper" rect="0 0 340 85" margin="5 0 0 0" layout_gravity="left top" row="1" col="10" size="65 65" skin="invenslot2" spc="2 2" enabledrop="false" enablepop="false"/>
-		<!-- Map Data Box -->
-		<groupbox name="mapInfoBox" parent="indunbox" rect="0 0 412 192" margin="0 208 5 0" layout_gravity="right top" scrollbar="false" draw="false" hittestbox="false"/>
-		<picture name="mapInfoPic" parent="mapInfoBox" rect="0 0 27 27" margin="5 0 0 0" layout_gravity="left top" image="hero_icon_map"/>
-		<richtext name="mapInfoText" parent="mapInfoBox" rect="0 0 190 30" margin="35 0 0 0" layout_gravity="left top" caption="맵 정보" fontname="brown_18_b"/>
-		<groupbox name="mapInfoWrapper_dummy" parent="mapInfoBox" rect="0 0 380 155" margin="15 33 0 0" scrollbar="false" layout_gravity="left top" skin="test_frame_midle"/>
-		<groupbox name="mapInfoWrapper" parent="mapInfoWrapper_dummy" rect="0 0 380 162" margin="2 0 0 0" layout_gravity="left top" skin="none"/>
-		<richtext name="mapInfoMission" parent="mapInfoWrapper" rect="0 0 360 30" margin="0 0 0 0" layout_gravity="left top" caption="{@sti1c}{s14}미션" autofontsizebywidth="65"/>
-		<richtext name="mapInfoPattern" parent="mapInfoWrapper" rect="0 0 60 30" margin="0 0 0 0" layout_gravity="left top" caption="{@sti1c}{s14}맵 패턴" fixwidth="true"/>
-		<richtext name="mapInfoMissionText" parent="mapInfoWrapper" rect="0 0 280 30" margin="50 0 0 0" layout_gravity="left top" fixwidth="true" format="{s14}%s" param1="text" param1_def="내용" fontname="brown_18_b"/>
-		<richtext name="mapInfoPatternText1" parent="mapInfoWrapper" rect="0 0 280 30" margin="50 0 0 0" layout_gravity="left top" fixwidth="true" format="{s14}%s" param1="text" param1_def="내용" fontname="brown_18_b"/>
-		<richtext name="mapInfoPatternText2" parent="mapInfoWrapper" rect="0 0 280 30" margin="50 0 0 0" layout_gravity="left top" fixwidth="true" format="{s14}%s" param1="text" param1_def="내용" fontname="brown_18_b"/>
-		<richtext name="mapInfoPatternText3" parent="mapInfoWrapper" rect="0 0 280 30" margin="50 0 0 0" layout_gravity="left top" fixwidth="true" format="{s14}%s" param1="text" param1_def="내용" fontname="brown_18_b"/>
-		<richtext name="mapInfoDummy" parent="mapInfoWrapper" rect="0 0 360 30" margin="0 0 0 0" layout_gravity="left top" caption=""/>
-		<!-- Indun Button Box -->
-		<groupbox name="buttonBox" parent="infoBox" rect="0 0 412 100" margin="0 368 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<button name="Button1" rect="0 0 160 45" parent="buttonBox" margin="0 0 160 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<button name="Button2" rect="0 0 160 45" parent="buttonBox" margin="0 0 0 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<button name="Button3" rect="0 0 160 45" parent="buttonBox" margin="0 43 160 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<button name="tinyButton" rect="0 0 90 40" parent="buttonBox" margin="0 45 325 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over" format="{s17}{#050505}%s" param1="btnText" param1_def="조합식" LBtnUpScp="ui.OpenFrame('toshero_info_combine')"/>
-		<button name="recordButton" rect="0 0 220 45" parent="buttonBox" margin="0 43 160 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over" format="{s17}{#050505}%s" param1="btnText" param1_def="클리어 기록"/>		
-		<button name="RedButton" rect="0 0 160 45" parent="buttonBox" margin="0 43 0 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_red_button" oversound="button_over"/>
-		<richtext name="Button1Text" rect="0 0 160 45" parent="Button1" margin="0 0 0 0" layout_gravity="center center" textalign="left center" hittest="false" format="{s17}{#050505}%s" param1="btnText" param1_def="이동" autofontsizebywidth="160"/>
-		<richtext name="Button2Text" rect="0 0 160 45" parent="Button2" margin="0 0 0 0" layout_gravity="center center" textalign="left center" hittest="false" format="{s17}{#050505}%s" param1="btnText" param1_def="이동" autofontsizebywidth="160"/>
-		<richtext name="Button3Text" rect="0 0 160 45" parent="Button3" margin="0 0 0 0" layout_gravity="center center" textalign="left center" hittest="false" format="{s17}{#050505}%s" param1="btnText" param1_def="이동" autofontsizebywidth="160"/>
-		<richtext name="RedButtonText" rect="0 0 160 45" parent="RedButton" margin="0 0 0 0" layout_gravity="center center" textalign="left center" hittest="false" format="{s18}{ol}{#FFFFFF}%s" param1="btnText" param1_def="이동" autofontsizebywidth="160"/>
 		<!-- Bottom controls -->
-		<richtext name="canNotEnterText" rect="0 0 600 30" parent="bottomBox" margin="0 0 20 0" layout_gravity="right center" caption="{@st66b}랭킹 집계로 인해 토요일 00:00 ~ 06:00시 사이에는 입장이 불가능합니다.{nl}{s13}{#FF0000}※ 랭킹은 자동매칭을 통해서만 등록이 가능합니다.{/}{/}{/}"/>
-		<richtext name="resetInfoText" rect="0 0 600 30" parent="bottomBox" margin="0 0 20 0" layout_gravity="right center" format="{@st66b}입장 횟수는 매일 %s시에 초기화 됩니다.{/}" param1="resetTime" param1_def="6"/>
-		<richtext name="resetInfoText_Week" rect="0 0 600 30" parent="bottomBox" margin="0 0 20 0" layout_gravity="right center" format="{@st66b}입장 횟수는 매주 월요일 %s시에 초기화 됩니다.{/}" param1="resetTime" param1_def="6"/>
-		<radiobutton name="lvAscendRadio" parent="bottomBox" rect="0 0 200 30" margin="70 0 0 0" layout_gravity="left center" group="sortOption" LBtnDownScp="INDUNINFO_SORT_BY_LEVEL" caption="{@st66b}레벨 오름차순{/}" clicksound="button_click_big" oversound="button_over"/>
-		<radiobutton name="lvDescendRadio" parent="bottomBox" rect="0 0 200 30" margin="250 0 0 0" layout_gravity="left center" group="sortOption" LBtnDownScp="INDUNINFO_SORT_BY_LEVEL" caption="{@st66b}레벨 내림차순{/}" clicksound="button_click_big" oversound="button_over"/>
-		<button name="showCharIndunState" parent="bottomBox" rect="0 0 5 5" margin="20 0 0 3" layout_gravity="left center" image="indun_count_btn" clicksound="button_click_big" oversound="button_over" LBtnUpScp="UI_TOGGLE_INDUNINFO_CHAR_UI" isEnabled="0"/>
-		<tab name="tab" rect="0 0 1050 40" margin="10 60 0 0" layout_gravity="left top" LBtnDownScp="INDUNINFO_TAB_CHANGE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" fixwidth="true" omitbywidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
-		<tabitem name="Itembox1" parent="tab" caption="{@st66b}즐겨찾기" width="130" layout_gravity="left top" texttooltip="즐겨찾기"/>
-		<tabitem name="Itembox2" parent="tab" caption="{@st66b}던전{/}" width="130" layout_gravity="left top" texttooltip="던전"/>
-		<tabitem name="Itembox3" parent="tab" caption="{@st66b}레이드{/}" width="130" layout_gravity="left top" texttooltip="레이드"/>
-		<tabitem name="Itembox4" parent="tab" caption="{@st66b}주간 보스 레이드" width="130" layout_gravity="left top" texttooltip="주간 보스 레이드"/>
-		<tabitem name="Itembox8" parent="tab" caption="{@st66b}보스 협동전" width="130" layout_gravity="left top" texttooltip="보스 협동전"/>
-		<tabitem name="Itembox6" parent="tab" caption="{@st66b}봉쇄전" width="130" layout_gravity="left top" texttooltip="봉쇄전"/>
-		<tabitem name="ItemboxN" parent="tab" caption="{@st66b}PVP" width="130" layout_gravity="left top" texttooltip="PVP"/>
-		<tabitem name="Itembox5" parent="tab" caption="{@st66b}콘텐츠 랭킹" width="130" layout_gravity="left top" texttooltip="콘텐츠 랭킹"/>
-		<!-- Time for pvp tab -->
-		<groupbox name="timeBox" parent="pvpbox" rect="0 0 412 60" margin="0 44 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<picture name="timePic" parent="timeBox" rect="0 0 27 27" margin="0 0 0 0" layout_gravity="left center" image="indun_entrance"/>
-		<richtext name="timeText" parent="timeBox" rect="0 0 190 30" margin="30 0 0 0" layout_gravity="left center" fontname="brown_18_b" caption="입장 시간"/>
-		<richtext name="timeData" parent="timeBox" rect="0 0 100 30" margin="0 0 0 0" layout_gravity="right center" textalign="right center" fontname="brown_18_b" format="%s~%s" param1="start" param1_def="00:00" param2="end" param2_def="24:00"/>
-		<picture name="dayPic" parent="timeBox" rect="0 0 210 27" margin="110 5 0 0" layout_gravity="left center" image="indun_icon_week_l"/>
-		<!-- pvp info box -->
-		<groupbox name="pvpInfoBox" parent="pvpbox" rect="0 0 412 200" margin="0 150 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<richtext name="pvpInfoText" parent="pvpInfoBox" rect="0 0 190 30" margin="0 0 0 0" layout_gravity="left top" fontname="brown_18_b" caption="전적"/>
-		<richtext name="pvpInfoValue" parent="pvpInfoBox" rect="0 0 190 30" margin="0 0 0 0" layout_gravity="right top" fontname="brown_18_b" format="%s전 %s승 %s패" param1="total" param1_def="0" param2="win" param2_def="0" param3="lose" param3_def="0"/>
-		<richtext name="pvpScoreText" parent="pvpInfoBox" rect="0 0 190 30" margin="0 30 0 0" layout_gravity="left top" fontname="brown_18_b" caption="점수"/>
-		<richtext name="pvpScoreValue" parent="pvpInfoBox" rect="0 0 190 30" margin="0 30 0 0" layout_gravity="right top" fontname="brown_18_b" format="%s점" param1="score" param1_def="0"/>
-		<button name="pvpShopBtn" parent="pvpInfoBox" rect="0 0 160 45" margin="0 150 160 0" layout_gravity="right top" format="{@st66b}{s16}팀 배틀리그 상점" LBtnUpScp="PVP_INDUNINFO_OPEN_SHOP" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<button name="pvpCharacterRegistBtn" parent="pvpInfoBox" rect="0 0 160 45" margin="0 150 0 0" layout_gravity="right top" format="{@st66b}{s16}교체 캐릭터 등록" LBtnUpScp="PVP_INDUNINFO_CHARACTER_REGIST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<!-- WeeklyBoss info box -->
-		<groupbox name="WeeklyBossbox" rect="0 0 1070 500" margin="0 100 0 0" layout_gravity="center top" draw="false"/>
-		<groupbox name="rank_gb" parent="WeeklyBossbox" rect="0 0 552 500" margin="0 0 0 0" layout_gravity="left top" skin="" draw="false" hittestbox="false" scrollbar="false"/>
-		<tab name="classtype_tab" parent="rank_gb" rect="0 0 500 50" margin="52 6 0 0" layout_gravity="left top" LBtnDownScp="WEEKLY_BOSS_DATA_REUQEST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_3" fixwidth="true" itemspc="2" oversound="button_cursor_over_2" skin="tab2"/>
-		<tabitem name="tab1" parent="classtype_tab" caption="" width="89" layout_gravity="left top" normalimage="swordsman_raid_week_tap" overimage="swordsman_raid_week_tap_cursoron" selectimage="swordsman_raid_week_tap_clicked" texttooltip="소드맨 계열"/>
-		<tabitem name="tab2" parent="classtype_tab" caption="" width="89" layout_gravity="left top" normalimage="wizard_raid_week_tap" overimage="wizard_raid_week_tap_cursoron" selectimage="wizard_raid_week_tap_clicked" texttooltip="위자드 계열"/>
-		<tabitem name="tab3" parent="classtype_tab" caption="" width="89" layout_gravity="left top" normalimage="archer_raid_week_tap" overimage="archer_raid_week_tap_cursoron" selectimage="archer_raid_week_tap_clicked" texttooltip="아처 계열"/>
-		<tabitem name="tab4" parent="classtype_tab" caption="" width="89" layout_gravity="left top" normalimage="cleric_raid_week_tap" overimage="cleric_raid_week_tap_cursoron" selectimage="cleric_raid_week_tap_clicked" texttooltip="클레릭 계열"/>
-		<tabitem name="tab5" parent="classtype_tab" caption="" width="89" layout_gravity="left top" normalimage="scout_raid_week_tap" overimage="scout_raid_week_tap_cursoron" selectimage="scout_raid_week_tap_clicked" texttooltip="스카우트 계열"/>
-		<button name="class_selector_btn" parent="rank_gb" rect="0 0 50 50" margin="0 6 0 0" layout_gravity="left top" stretch="false" image="details_classes_rank_btn" LBtnUpScp="ui.ToggleFrame('induninfo_class_selector')"/>
-		<groupbox name="rankbox" parent="rank_gb" rect="0 0 487 434" margin="52 58 0 0" layout_gravity="left top" skin="test_frame_midle" draw="true" hittestbox="false"/>
-		<groupbox name="rankboxTitle" parent="rank_gb" rect="0 0 486 41" margin="52 58 0 0" layout_gravity="left top" skin="market_listbase" draw="true" hittestbox="false"/>
-		<richtext name="rankTitle" parent="rankboxTitle" rect="0 0 30 40" margin="30 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}순위"/>
-		<richtext name="rankTeamName" parent="rankboxTitle" rect="0 0 30 40" margin="130 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}팀명"/>
-		<richtext name="rankDamage" parent="rankboxTitle" rect="0 0 30 40" margin="0 0 20 0" layout_gravity="right center" caption="{@st66b}{s16}1회 최고 대미지"/>
-		<groupbox name="rankListBox" parent="rankbox" rect="0 0 487 393" margin="0 36 0 0" layout_gravity="left top" draw="false" hittest="true"/>
-		<tab name="season_tab" parent="rank_gb" rect="0 0 52 300" margin="0 58 0 0" itemspc="16" layout_gravity="left top" vertical="true" LBtnDownScp="WEEKLY_BOSS_DATA_REUQEST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_7" fixwidth="true" oversound="button_cursor_over_2" skin="tab2"/>
-		<tabitem name="season_tab1" parent="season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<tabitem name="season_tab2" parent="season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<tabitem name="season_tab3" parent="season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<tabitem name="season_tab4" parent="season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<groupbox name="info_gb" parent="WeeklyBossbox" rect="0 0 500 490" margin="0 1 30 0" layout_gravity="right top" skin="" draw="false" hittestbox="false" scrollbar="false"/>
-		<picture name="monster_info" parent="info_gb" rect="0 0 469 41" margin="0 0 0 0" layout_gravity="center top" draw="true" image="adventure_info_title" stretch="true"/>
-		<richtext name="monster_info_text" parent="monster_info" rect="0 0 120 40" margin="0 0 0 0" layout_gravity="center center" caption="몬스터 정보" fontname="white_20_ol_ds"/>
-		<picture name="monster_icon_pic" parent="info_gb" rect="0 0 94 94" margin="25 50 0 0" layout_gravity="left top" draw="false" stretch="true" image="adventure_slotbg"/>
-		<controlset name="monster_attr1" parent="info_gb" rect="0 0 350 23" margin="0 47 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="monster_attr2" parent="info_gb" rect="0 0 350 23" margin="0 71 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="monster_attr3" parent="info_gb" rect="0 0 350 23" margin="0 95 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="monster_attr4" parent="info_gb" rect="0 0 350 23" margin="0 119 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="monster_attr5" parent="info_gb" rect="0 0 350 23" margin="0 143 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="monster_attr6" parent="info_gb" rect="0 0 350 23" margin="0 167 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<button name="monster_attr_map" parent="info_gb" rect="0 0 31 31" margin="25 150 0 0" layout_gravity="left top" image="indun_map_info_btn" LBtnUpScp="BOSS_PATTERN_UI_OPEN" stretch="false" texttooltip="주간 패턴 정보를 표시합니다."/>
-		<picture name="battle_info" parent="info_gb" rect="0 0 469 41" margin="0 197 0 0" layout_gravity="center top" draw="true" image="adventure_info_title" stretch="true"/>
-		<richtext name="battle_info_text" parent="battle_info" rect="0 0 120 40" margin="0 0 0 0" layout_gravity="center center" caption="전투 정보" fontname="white_20_ol_ds"/>
-		<controlset name="battle_info_attr" parent="info_gb" rect="0 0 350 130" margin="0 242 0 0" type="content_status_board_battle_attribute" layout_gravity="center top" hittestbox="false" scrollbar="false"/>
-		<gauge name="gauge" parent="info_gb" rect="0 0 470 21" margin="0 348 0 0" layout_gravity="center top" skin="test_gauge_barrack_defence" inverse="false"/>
-		<richtext name="battle_info_time_text" parent="info_gb" rect="0 0 200 40" margin="0 370 10 0" layout_gravity="right top" format="{@st47}{s14}%s{/}" param1="value" param1_def="0"/>
-		<button name="classtype_reward" parent="info_gb" rect="0 0 141 38" margin="20 0 0 60" layout_gravity="left bottom" format="{@st66b}{s16}계열 순위 보상" LBtnUpScp="WEEKLY_BOSS_RANK_REWARD_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<button name="total_damage_reward" parent="info_gb" rect="0 0 141 38" margin="0 0 180 60" layout_gravity="right bottom" format="{@st66b}{s16}누적 대미지 보상" LBtnUpScp="WEEKLY_BOSS_TOTAL_DAMAGE_REWARD_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<button name="total_class_rank_reward" parent="info_gb" rect="0 0 141 38" margin="0 0 20 60" layout_gravity="right bottom" format="{@st66b}{s16}클래스 순위 보상" LBtnUpScp="WEEKLY_BOSS_TOTAL_CLASS_RANK_REWARD_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
-		<button name="joinenter" parent="info_gb" rect="0 0 163 48" margin="0 0 69 0" layout_gravity="right bottom" format="{s16}{ol}{#FFFFFF}입장하기(%s/%s)" param1="cur" param1_def="0" param2="max" param2_def="0" LBtnUpScp="WEEKLY_BOSS_JOIN_ENTER_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_red_button" oversound="button_over"/>
-		<button name="joinpracticeenter" parent="info_gb" rect="0 0 163 48" margin="69 0 0 0" layout_gravity="left bottom" format="{s16}{ol}{#FFFFFF}연습모드" LBtnUpScp="WEEKLY_BOSS_JOIN_PRACTICE_ENTER_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_red_button" oversound="button_over"/>
-		<!-- raid rank box -->
-		<groupbox name="raidrankingBox" rect="0 0 1075 500" margin="0 100 0 0" layout_gravity="center top" draw="false"/>
-		<groupbox name="raidcategoryBox" parent="raidrankingBox" rect="0 0 350 450" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_midle" fixheight="true" scrollbar="true" hittest="true" draw="true"/>
-		<groupbox name="raidrankinglistBox" parent="raidrankingBox" rect="0 0 720 450" margin="353 0 0 0" layout_gravity="left top" skin="test_frame_midle" fixheight="true" scrollbar="true" hittest="true" draw="true"/>
-		<groupbox name="raidrankingtitle" parent="raidrankinglistBox" rect="0 0 720 41" margin="0 0 0 0" layout_gravity="center top" skin="market_listbase" draw="true" hittestbox="false"/>
-		<richtext name="raidranking_rank" parent="raidrankingtitle" rect="0 0 30 40" margin="40 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}순위"/>
-		<richtext name="raidranking_time" parent="raidrankingtitle" rect="0 0 30 40" margin="130 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}클리어 시간"/>
-		<richtext name="raidranking_guild" parent="raidrankingtitle" rect="0 0 30 40" margin="330 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}길드 명"/>
-		<richtext name="raidranking_name" parent="raidrankingtitle" rect="0 0 30 40" margin="500 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}파티원 명"/>
-		<groupbox name="raidrankinglist" parent="raidrankinglistBox" rect="0 0 720 400" margin="0 40 0 0" layout_gravity="left top" fixheight="true" scrollbar="true" hittest="true" draw="false"/>
-		<!-- boruta ranking info box -->
-		<groupbox name="boruta_box" rect="0 0 1070 500" margin="0 100 0 0" layout_gravity="center top" draw="false"/>
-		<groupbox name="ranking_gb" parent="boruta_box" rect="0 0 552 500" margin="0 0 0 0" layout_gravity="left top" skin="" draw="false" hittestbox="false" scrollbar="false"/>
-		<tab name="eventtype_tab" parent="ranking_gb" rect="0 0 500 50" margin="52 6 0 0" layout_gravity="left top" LBtnDownScp="BORUTA_RANKING_DATA_REQUEST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_3" fixwidth="true" itemspc="2" oversound="button_cursor_over_2" skin="tab2"/>
-		<tabitem name="event_tab1" parent="eventtype_tab" caption="{@st66b}보루타{/}" width="89" layout_gravity="left top" texttooltip="보루타 봉쇄전"/>
-		<tabitem name="event_tab2" parent="eventtype_tab" caption="{@st66b}길티네{/}" width="89" layout_gravity="left top" texttooltip="길티네 봉쇄전"/>
-		<tabitem name="event_tab3" parent="eventtype_tab" caption="{@st66b}바우바스{/}" width="89" layout_gravity="left top" texttooltip="바우바스 봉쇄전"/>
-		<groupbox name="ranking" parent="ranking_gb" rect="0 0 487 434" margin="52 58 0 0" layout_gravity="left top" skin="test_frame_midle" draw="true" hittestbox="false"/>
-		<groupbox name="ranking_title" parent="ranking_gb" rect="0 0 486 41" margin="52 58 0 0" layout_gravity="left top" skin="market_listbase" draw="true" hittestbox="false"/>
-		<richtext name="ranking_title_txt" parent="ranking_title" rect="0 0 30 40" margin="30 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}순위"/>
-		<richtext name="guild_name" parent="ranking_title" rect="0 0 30 40" margin="144 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}길드명"/>
-		<richtext name="rank_point" parent="ranking_title" rect="0 0 30 40" margin="0 0 30 0" layout_gravity="right center" caption="{@st66b}{s16}시간" textalign="center center"/>
-		<groupbox name="ranking_list_box" parent="ranking" rect="0 0 487 393" margin="0 36 0 0" layout_gravity="left top" draw="false" hittest="true"/>
-		<tab name="boruta_season_tab" parent="ranking_gb" rect="0 0 52 300" margin="0 58 0 0" itemspc="16" layout_gravity="left top" vertical="true" LBtnDownScp="BORUTA_RANKING_DATA_REQUEST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_7" fixwidth="true" oversound="button_cursor_over_2" skin="tab2"/>
-		<tabitem name="boruta_season_tab1" parent="boruta_season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<tabitem name="boruta_season_tab2" parent="boruta_season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<tabitem name="boruta_season_tab3" parent="boruta_season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<tabitem name="boruta_season_tab4" parent="boruta_season_tab" caption="" width="52" layout_gravity="left top" normalimage="indun_season_tap" overimage="indun_season_tap_cursoron" selectimage="indun_season_tap_clicked"/>
-		<groupbox name="boruta_info_gb" parent="boruta_box" rect="0 0 500 490" margin="0 1 30 0" layout_gravity="right top" skin="" draw="false" hittestbox="false" scrollbar="false"/>
-		<picture name="boruta_info" parent="boruta_info_gb" rect="0 0 469 41" margin="0 0 0 0" layout_gravity="center top" draw="true" image="adventure_info_title" stretch="true"/>
-		<richtext name="boss_info_text" parent="boruta_info" rect="0 0 120 40" margin="0 0 0 0" layout_gravity="center center" caption="보스 정보" fontname="white_20_ol_ds"/>
-		<picture name="boss_icon_pic" parent="boruta_info_gb" rect="0 0 94 94" margin="25 50 0 0" layout_gravity="left top" draw="false" stretch="true" image="adventure_slotbg"/>
-		<controlset name="boss_attr1" parent="boruta_info_gb" rect="0 0 350 23" margin="0 47 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="boss_attr2" parent="boruta_info_gb" rect="0 0 350 23" margin="0 71 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="boss_attr3" parent="boruta_info_gb" rect="0 0 350 23" margin="0 95 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="boss_attr4" parent="boruta_info_gb" rect="0 0 350 23" margin="0 119 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="boss_attr5" parent="boruta_info_gb" rect="0 0 350 23" margin="0 143 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<controlset name="boss_attr6" parent="boruta_info_gb" rect="0 0 350 23" margin="0 167 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<picture name="guild_info" parent="boruta_info_gb" rect="0 0 469 41" margin="0 227 0 0" layout_gravity="center top" draw="true" image="adventure_info_title" stretch="true"/>
-		<richtext name="guild_info_text" parent="guild_info" rect="0 0 120 40" margin="0 0 0 0" layout_gravity="center center" caption="봉쇄전 정보" fontname="white_20_ol_ds"/>
-		<picture name="boruta_help" parent="guild_info" rect="0 0 36 36" margin="0 0 5 0" layout_gravity="right center" image="testquesten_button" texttooltip="{nl}{s18}봉쇄전 도움말{/}{nl} {nl}[봉쇄전 순위 정산]{nl} 봉쇄전 순위는 소숫점까지 계산되어 가장 빨리 콘텐츠를{nl}클리어한 길드가 높은 순위에 랭크되는 방식으로 진행됩니다.{nl} {nl}[봉쇄전 보상 수령]{nl} 봉쇄전 보상 수령은 일요일 오후 7시 이후, 길드 마스터 권한이 있는{nl}플레이어가 '보상 수령'탭을 통해 획득할 수 있습니다."/>
-		<controlset name="guild_info_attr" parent="boruta_info_gb" rect="0 0 350 130" margin="0 272 0 0" type="boruta_guild_attribute" layout_gravity="center top" hittestbox="false" scrollbar="false"/>
-		<gauge name="time_gauge" parent="boruta_info_gb" rect="0 0 470 21" margin="0 371 0 0" layout_gravity="center top" skin="test_gauge_barrack_defence" inverse="false"/>
-		<richtext name="guild_info_time_text" parent="boruta_info_gb" rect="0 0 200 40" margin="0 393 10 0" layout_gravity="right top" format="{@st47}{s14}%s{/}" param1="value" param1_def="0"/>
-		<button name="boruta_move_btn" parent="boruta_info_gb" rect="0 0 163 48" margin="69 0 0 10" layout_gravity="left bottom" format="{s16}{ol}{#FFFFFF}이동" LBtnUpScp="BORUTA_ZONE_MOVE_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_red_button" oversound="button_over" texttooltip="입장 위치로 이동합니다."/>
-		<button name="boruta_reward_btn" parent="boruta_info_gb" rect="0 0 163 48" margin="0 0 69 10" layout_gravity="right bottom" format="{s16}{ol}{#FFFFFF}보상 수령" LBtnUpScp="BORUTA_RANKING_REWARD_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_red_button" oversound="button_over" texttooltip="길드 마스터만 이용 가능합니다.{nl}수령한 보상은 길드 보관함으로 지급됩니다."/>
-	<!-- field boss ranking -->
-		<groupbox name="field_boss_box" rect="0 0 1070 500" margin="0 100 0 0" layout_gravity="center top" draw="false"/>
-		<controlset name="field_boss_ranking_control" parent="field_boss_box" rect="0 0 530 500" margin="0 0 0 0" type="season_raid_ranking_info" layout_gravity="left top"/>
-		<controlset name="field_boss_boss_control" parent="field_boss_box" rect="0 0 500 200" margin="0 0 30 0" type="season_raid_boss_info" layout_gravity="right top"/>
-		<controlset name="field_boss_my_rank_control" parent="field_boss_box" rect="0 0 500 310" margin="0 100 30 0" type="season_raid_my_info" layout_gravity="right top"/>
-		<groupbox name="field_boss_util_box" rect="0 0 500 100" margin="0 390 0 0" parent="field_boss_box" layout_gravity="right top" draw="false"/>
-		<!-- <button name="field_boss_total_damage_reward" parent="field_boss_util_box" rect="0 0 141 38" margin="0 0 80 60" layout_gravity="center bottom" format="{@st66b}{s16}누적 대미지 보상" LBtnUpScp="WEEKLY_BOSS_TOTAL_DAMAGE_REWARD_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/> -->
-		<button name="field_boss_joinenter" parent="field_boss_util_box" rect="0 0 163 48" margin="0 0 69 0" layout_gravity="center bottom" format="{s16}{ol}{#FFFFFF}입장하기" LBtnUpScp="FIELD_BOSS_JOIN_ENTER_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_red_button" oversound="button_over"/>
-		<!-- mythicdungeon auto hard(raid) time -->
-		<groupbox name="raid_time_box" parent="indunbox" rect="0 0 412 60" margin="0 119 0 0" layout_gravity="right top" draw="false" hittestbox="false"/>
-		<picture name="raid_time_pic" parent="raid_time_box" rect="0 0 27 27" margin="0 0 0 0" layout_gravity="left center" image="indun_entrance"/>
-		<richtext name="raid_time_text" parent="raid_time_box" rect="0 0 190 30" margin="30 0 0 0" layout_gravity="left center" fontname="brown_18_b" caption="입장 시간"/>
-		<richtext name="raid_time_data" parent="raid_time_box" rect="0 0 100 30" margin="0 0 0 0" layout_gravity="right center" textalign="right center" fontname="brown_18_b" format="%s~%s" param1="start" param1_def="00:00" param2="end" param2_def="24:00"/>
-		<picture name="raid_day_pic" parent="raid_time_box" rect="0 0 210 27" margin="110 5 0 0" layout_gravity="left center" image="indun_icon_week_l"/>
-	</controls>
+		<richtext name="resetInfoText" rect="0 0 600 30" parent="bgBox" margin="0 0 20 22" layout_gravity="right bottom" format="{@st66b}입장 횟수는 매일 %s시에 초기화 됩니다.{/}" param1="resetTime" param1_def="6"/>
+		<richtext name="resetInfoText_Week" rect="0 0 600 30" parent="bgBox" margin="0 0 20 22" layout_gravity="right bottom" format="{@st66b}입장 횟수는 매주 월요일 %s시에 초기화 됩니다.{/}" param1="resetTime" param1_def="6"/>
+		<radiobutton name="lvAscendRadio" parent="bgBox" rect="0 0 200 30" margin="70 0 0 17" layout_gravity="left bottom" group="sortOption" LBtnDownScp="INDUNINFO_SORT_BY_LEVEL" caption="{@st66b}레벨 오름차순{/}" clicksound="button_click_big" oversound="button_over"/>
+		<radiobutton name="lvDescendRadio" parent="bgBox" rect="0 0 200 30" margin="250 0 0 17" layout_gravity="left bottom" group="sortOption" LBtnDownScp="INDUNINFO_SORT_BY_LEVEL" caption="{@st66b}레벨 내림차순{/}" clicksound="button_click_big" oversound="button_over"/>
+		<button name="showCharIndunState" parent="bgBox" rect="0 0 5 5" margin="20 0 0 17" layout_gravity="left bottom" image="indun_count_btn" clicksound="button_click_big" oversound="button_over" LBtnUpScp="UI_TOGGLE_INDUNINFO_CHAR_UI" isEnabled="0" />
+		</controls>
 </uiframe>

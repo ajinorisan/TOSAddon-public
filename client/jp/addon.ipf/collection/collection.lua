@@ -134,7 +134,8 @@ function SET_COLLECTION_PIC(frame, slotSet, itemCls, coll, type,drawitemset)
 		showedcount = drawitemset[itemCls.ClassID]
 	end
 
-	if coll ~= nil then		
+	-- 컬렉션을 등록했을 경우
+	if coll ~= nil then
 		local collecount = coll:GetItemCountByType(itemCls.ClassID);
 
 		-- 1. 내가 이미 모은 것들(컬렉션을 등록했을 때만)
@@ -199,8 +200,8 @@ function COLLECTION_CLOSE(frame)
 
 	local inventory = ui.GetFrame("inventory")
 	inventory:ShowWindow(0)
-
-	ui.CloseFrame('collection_magic')
+	
+	COLLECTION_MAGIC_CLOSE();
 
 	UNREGISTERR_LASTUIOPEN_POS(frame)
 end
@@ -534,9 +535,7 @@ function CHECK_COLLECTION_INFO_FILTER(collectionInfo,  searchText,  collectionCl
 	local checkOption = 0;
 	if collectionInfo.view == collectionView.isUnknown then	
 		-- 미확인
-		if collectionClass.Journal == 'TRUE' then
-			collectionViewCount.showUnknownCollections = collectionViewCount.showUnknownCollections +1;
-		end
+		collectionViewCount.showUnknownCollections = collectionViewCount.showUnknownCollections +1;
 		checkOption = 1;
 	elseif collectionInfo.view == collectionView.isComplete then 
 		-- 완성
@@ -544,9 +543,7 @@ function CHECK_COLLECTION_INFO_FILTER(collectionInfo,  searchText,  collectionCl
 		checkOption = 2;
 	else
 		-- 미완성
-		if collectionClass.Journal == 'TRUE' then
-			collectionViewCount.showIncompleteCollections = collectionViewCount.showIncompleteCollections +1;
-		end
+		collectionViewCount.showIncompleteCollections = collectionViewCount.showIncompleteCollections +1;
 		checkOption = 3;
 	end
 	
@@ -808,7 +805,8 @@ function GET_COLLECTION_SEARCH_TEXT(frame)
 	return nil;
 end
 
-function EXEC_PUT_COLLECTION(itemID, type)	
+function EXEC_PUT_COLLECTION(itemID, type)
+
 	session.ResetItemList();
 	session.AddItemID(itemID);
 	local resultlist = session.GetItemIDList();
@@ -822,21 +820,6 @@ function COLLECTION_ADD(collectionType, itemType, itemIesID)
 		return;
 	end
 
-	local inv_item = session.GetInvItemByGuid(itemIesID)
-	local item_obj = GetIES(inv_item:GetObject())
-	local groupName = TryGetProp(item_obj,"GroupName","None")
-	if groupName=='Gem' then 		
-		local belonging = TryGetProp(item_obj,"CharacterBelonging",0)
-		if tonumber(belonging)==1 then
-			ui.SysMsg(ClMsg('AddDenied'));	
-			return
-		end
-
-		if IS_RANDOM_OPTION_SKILL_GEM(item_obj) == true then
-			ui.SysMsg(ClMsg('CantUseCabinetCuzRandomOption'));				
-			return
-		end
-	end
 	local colls = session.GetMySession():GetCollection();
 	local coll = colls:Get(collectionType);
 	local nowcnt = coll:GetItemCountByType(itemType)

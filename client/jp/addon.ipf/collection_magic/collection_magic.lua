@@ -1,6 +1,6 @@
 -- collection_magic.lua
 
-function COLLECTION_MAGIC_OPEN(collection_frame, customUIName)		
+function COLLECTION_MAGIC_OPEN(collection_frame)		
 	if collection_frame == nil then
 		return
 	end
@@ -12,31 +12,26 @@ function COLLECTION_MAGIC_OPEN(collection_frame, customUIName)
 
 	local x = collection_frame:GetGlobalX() + collection_frame:GetWidth() - 5;
 	local y = btn_viewAllAddStatus:GetGlobalY();
-	local frame = ui.GetFrame("collection_magic");
-	if customUIName ~= nil then
-		frame = ui.GetFrame(customUIName)
-	end
+	local frame = ui.GetFrame("collection_magic");	
 
 	-- frame이 현재 보여지는 상태면 닫는다.
 	if frame:IsVisible() == 1 then
-		frame:ShowWindow(0);
+		COLLECTION_MAGIC_CLOSE()
 	else 
 		frame:SetOffset(x,y);
 		frame:ShowWindow(1);
 	end
 end
 
-function COLLECTION_MAGIC_CLOSE(frame)
+function COLLECTION_MAGIC_CLOSE()
+	local frame = ui.GetFrame("collection_magic");	
 	frame:ShowWindow(0);
 end
 
 
 -- 리스트를 받고 리치텍스트에 입력한다.
-function SET_COLLECTION_MAIGC_LIST(collection_frame, collectionCompleteMagicList, completeCount, customUIName)
+function SET_COLLECTION_MAIGC_LIST(collection_frame, collectionCompleteMagicList, completeCount)
 	local frame = ui.GetFrame("collection_magic");
-	if customUIName ~= nil then
-		frame = ui.CreateNewFrame("collection_magic",customUIName)
-	end
 	if frame == nil or collection_frame == nil then
 		return
 	end
@@ -58,7 +53,7 @@ function SET_COLLECTION_MAIGC_LIST(collection_frame, collectionCompleteMagicList
 		if i > 1 then
 			textlist = textlist .. "{nl}";
 		end
-		textlist = textlist .. v.name .. " {#0000FF}+" .. tostring(v.value) .. "{/}";
+		textlist = textlist .. v.name .. " +" .. tostring(v.value);
 	end
 	
 	local magictext = GET_CHILD(frame, "richtext_magic_list", "ui::CRichText");

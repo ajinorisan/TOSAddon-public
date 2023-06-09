@@ -58,14 +58,12 @@ function RECYCLESHOP_POPUPMSG_MAKE_ITEMLIST(type)
 				
 				if type == "buy" then
 					itemname:SetText(item.Name)
-					itemname:SetTextTooltip(item.Name)
 					itemStaticprice_buy:ShowWindow(1)
 					itemStaticprice_sell:ShowWindow(0)
 					itemprice:SetText(tostring(tpitem.BuyPrice))
 					allprice = allprice + tpitem.BuyPrice
 				else
 					itemname:SetText(item.Name.. " X"..tostring(cnt))
-					itemname:SetTextTooltip(item.Name.. " X"..tostring(cnt))
 					itemStaticprice_buy:ShowWindow(0)
 					itemStaticprice_sell:ShowWindow(1)
 					itemprice:SetText(tostring(tpitem.SellPrice * cnt))

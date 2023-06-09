@@ -1,6 +1,6 @@
 function SYSMENU_ON_INIT(addon, frame)
 	addon:RegisterMsg('NOTICE_Dm_levelup_base', 'SYSMENU_ON_MSG');
-	addon:RegisterMsg('PC_PROPERTY_UPDATE_TO_SYSMENU', 'SYSMENU_ON_MSG');
+	addon:RegisterMsg('PC_PROPERTY_UPDATE', 'SYSMENU_ON_MSG');
 	addon:RegisterMsg('GAME_START', 'SYSMENU_ON_MSG');
 	addon:RegisterOpenOnlyMsg('RESET_SKL_UP', 'SYSMENU_ON_MSG');
 	addon:RegisterMsg('JOB_CHANGE', 'SYSMENU_ON_JOB_CHANGE');
@@ -10,19 +10,14 @@ function SYSMENU_ON_INIT(addon, frame)
 	addon:RegisterMsg("REMOVE_FRIEND", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("ADD_FRIEND", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("GUILD_ENTER", "SYSMENU_MYPC_GUILD_JOIN");
-	addon:RegisterMsg("ANCIENT_UI_OPEN", "SYSMENU_CHECK_HIDE_VAR_ICONS");
 
 	addon:RegisterMsg('SERV_UI_EMPHASIZE', 'ON_UI_EMPHASIZE');
 	addon:RegisterMsg("UPDATE_READ_COLLECTION_COUNT", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("PREMIUM_NEXON_PC", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("ENABLE_PCBANG_SHOP", "SYSMENU_ON_MSG");
-	addon:RegisterMsg("NEW_USER_REQUEST_GUILD_JOIN", "SYSMENU_ON_MSG");
-	addon:RegisterMsg("GUILD_PROMOTE_NOTICE", "SYSMENU_GUILD_PROMOTE_NOTICE");
-	
-	addon:RegisterMsg("ACHIEVE_REWARD", "SYSMENU_ON_MSG")
-	addon:RegisterMsg("ACHIEVE_REWARD_ALL", "SYSMENU_ON_MSG")
-	addon:RegisterMsg("ACHIEVE_NEW", "SYSMENU_ON_MSG")
+	addon:RegisterMsg("NEW_USER_REQUEST_GUILD_JOIN", "SYSMENU_ON_MSG");    
 	frame:EnableHideProcess(1);
+
 end
 
 function SYSMENU_ON_JOB_CHANGE(frame)
@@ -44,7 +39,6 @@ end
 function SYSMENU_ON_MSG(frame, msg, argStr, argNum)
 	if msg == "GAME_START" then
 		SYSMENU_CHECK_HIDE_VAR_ICONS(frame);
-		ReserveScript("SYSMENU_GUILD_PROMOTE_NOTICE_CHECK()", 2);
 	end
 
 	if msg == "PREMIUM_NEXON_PC" or msg == "ENABLE_PCBANG_SHOP" then
@@ -58,7 +52,7 @@ function SYSMENU_ON_MSG(frame, msg, argStr, argNum)
 		end
 	end
 
-	if msg == 'PC_PROPERTY_UPDATE_TO_SYSMENU' or msg == 'RESET_SKL_UP' or msg =='GAME_START' or msg=='UPDATE_READ_COLLECTION_COUNT' then
+	if msg == 'PC_PROPERTY_UPDATE' or msg == 'RESET_SKL_UP' or msg =='GAME_START' or msg=='UPDATE_READ_COLLECTION_COUNT' then
 		SYSMENU_PC_STATUS_NOTICE(frame);
 		SYSMENU_PC_SKILL_NOTICE(frame);
 		SYSMENU_CHECK_OPENCONDITION(frame);
@@ -69,10 +63,6 @@ function SYSMENU_ON_MSG(frame, msg, argStr, argNum)
 	if msg == 'JOB_SKILL_POINT_UPDATE' then
 		SYSMENU_PC_SKILL_NOTICE(frame);
 		imcSound.PlaySoundEvent('sys_alarm_skl_status_point_count');
-	end
-
-	if msg =='GAME_START' or msg == 'ACHIEVE_REWARD' or msg == "ACHIEVE_REWARD_ALL" or msg == "ACHIEVE_NEW" then
-		SYSMENU_JOURNAL_NOTICE(frame);
 	end
 
 	if msg == 'UPDATE_FRIEND_LIST' or msg == 'REMOVE_FRIEND' or msg == 'ADD_FRIEND' then
@@ -97,7 +87,7 @@ function SYSMENU_CHECK_OPENCONDITION(frame)
 	CHECK_CTRL_OPENCONDITION(frame, "quest", "quest");
 	CHECK_CTRL_OPENCONDITION(frame, "sys_collection", "sys_collection");
 	CHECK_CTRL_OPENCONDITION(frame, "helplist", "helplist");
-	
+
 end
 
 function SYSMENU_CHECK_HIDE_VAR_ICONS(frame)
@@ -108,7 +98,6 @@ function SYSMENU_CHECK_HIDE_VAR_ICONS(frame)
 	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "guild", "guild")
 	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "poisonpot", "poisonpot")    
 	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "pcbang_shop", "pcbang_shop")
-	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "ancient_card_list", "ancient_card_list")
 	then
 		return;
 	end
@@ -122,7 +111,6 @@ function SYSMENU_CHECK_HIDE_VAR_ICONS(frame)
     local offsetX = extraBag:GetX() - guildRank:GetX()
 	local rightMargin = guildRank:GetMargin().right + offsetX;
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "guildinfo", "guildinfo", "sysmenu_guild", rightMargin, offsetX, "Guild");
-	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "ancient_card_list", "ancient_card_list", "Ancient_Menu", rightMargin, offsetX);	   
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "customdrag", "customdrag", "sysmenu_alchemist", rightMargin, offsetX);
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "necronomicon", "necronomicon", "sysmenu_card", rightMargin, offsetX);
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "grimoire", "grimoire", "sysmenu_neacro", rightMargin, offsetX);
@@ -309,77 +297,6 @@ function SYSMENU_PC_NEWFRIEND_NOTICE(frame)
 
 end
 
-function SYSMENU_INVENTORY_WEIGHT_NOTICE()
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticeInventoryOverWeight"), 0, 0, nil, "invenWeightNoticeBallon");
-	noticeBallon:ShowWindow(1);
-
-	local margin = parentCtrl:GetMargin();
-	local x = margin.right;
-	local y = margin.bottom;
-
-	x = x + (parentCtrl:GetWidth() / 2);
-	y = y + parentCtrl:GetHeight() - 5;
-
-	noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-	noticeBallon:SetMargin(0, 0, x, y);
-	noticeBallon:SetLayerLevel(106);
-end
-
-function SYSMENU_INVENTORY_WEIGHT_NOTICE_CLOSE()
-	local noticeBallon = ui.GetFrame("invenWeightNoticeBallon");
-	if noticeBallon ~= nil then
-		noticeBallon:ShowWindow(0);
-	end
-end
-
-function SYSMENU_INVENTORY_SLOTCOUNT_NOTICE()
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticeInventoryOverSlotCount"), 0, 0, nil, "invenSlotCountNoticeBalloon");
-	noticeBallon:ShowWindow(1);
-
-	local margin = parentCtrl:GetMargin();
-	local x = margin.right;
-	local y = margin.bottom;
-
-	x = x + (parentCtrl:GetWidth() / 2);
-	local weightBalloon = ui.GetFrame("invenWeightNoticeBallon");
-	if weightBalloon ~= nil then
-		y = y + parentCtrl:GetHeight() + weightBalloon:GetHeight() - 5;
-	else
-		y = y + parentCtrl:GetHeight() - 5;
-	end
-
-	noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-	noticeBallon:SetMargin(0, 0, x, y);
-	noticeBallon:SetLayerLevel(106);
-end
-
-function SYSMENU_INVENTORY_SLOTCOUNT_NOTICE_CLOSE()
-	local noticeBallon = ui.GetFrame("invenSlotCountNoticeBalloon");
-	if noticeBallon ~= nil then
-		noticeBallon:ShowWindow(0);
-	end
-end
-
 function SYSMENU_GUILD_NOTICE(frame, isChecked)
 	local parentCtrl = frame:GetChild('guildinfo');
 	if parentCtrl == nil then
@@ -418,13 +335,6 @@ function SYSMENU_PC_SKILL_NOTICE(frame)
 	local parentCtrl = frame:GetChild("skilltree");
 	local point = session.GetSkillPoint();
 	NOTICE_CTRL_SET(parentCtrl, "skilltree", point);
-end
-
-function SYSMENU_JOURNAL_NOTICE(frame)
-	local parentCtrl = frame:GetChild("journal");
-	local list = ADVENTURE_BOOK_ACHIEVE_CONTENT.LIST_REWARD()
-	local point = #list
-	NOTICE_CTRL_SET(parentCtrl, "journal", point);
 end
 
 function SYSMENU_COLLECTION_NOTICE(frame)
@@ -634,7 +544,6 @@ function AUCTION_TOOLTIP_SET_REMAINTIME(frame, aucItem)
 
 end
 
--- 카드 합성
 function TOGGLE_CARD_REINFORCE(frame)
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
@@ -651,7 +560,7 @@ function TOGGLE_CARD_REINFORCE(frame)
 	end
 end
 
--- 증표 합성
+
 function TOGGLE_CERTIFICATE_REINFORCE(frame)		-- This is registered in restquickslotinfo.xml
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
@@ -668,7 +577,6 @@ function TOGGLE_CERTIFICATE_REINFORCE(frame)		-- This is registered in restquick
 	end
 end
 
--- 젬 강화
 function TOGGLE_GEM_REINFORCE(frame)
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
@@ -685,7 +593,6 @@ function TOGGLE_GEM_REINFORCE(frame)
 	end
 end
 
--- 고급 카드(여신,레전드 카드) 강화
 function TOGGLE_LEGEND_CARD_REINFORCE(frame)
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
@@ -697,87 +604,8 @@ function TOGGLE_LEGEND_CARD_REINFORCE(frame)
 		rframe:ShowWindow(0);
 	else
 		local title = rframe:GetChild("title");
-		title:SetTextByKey("value", ClMsg("AdvancedCardReinforce"));
+		title:SetTextByKey("value", ClMsg("LegendCardReinforce"));
 		rframe:ShowWindow(1);
 	end
 end
 
--- 아크 합성
-function TOGGLE_ARK_COMPOSITION(frame)
-    if GetCraftState() == 1 then
-        ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
-        return;
-    end
-
-	local rframe = ui.GetFrame("ark_composition");
-	if rframe:IsVisible() == 1 then
-		TOGGLE_ARK_COMPOSITION_UI(0);
-	else
-		TOGGLE_ARK_COMPOSITION_UI(1);
-	end
-end
-
--- 아크 이전
-function TOGGLE_ARK_RELOCATION(frame)
-    if GetCraftState() == 1 then
-        ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
-        return;
-    end
-
-	local rframe = ui.GetFrame("ark_relocation");
-	if rframe:IsVisible() == 1 then
-		TOGGLE_ARK_RELOCATION_UI(0);
-	else
-		TOGGLE_ARK_RELOCATION_UI(1);
-	end
-end
-
-function SYSMENU_GUILD_PROMOTE_NOTICE_CHECK()
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	if session.party.GetPartyInfo(PARTY_GUILD) ~= nil then
-		return;
-	end
-	
-	local aObj = GetMyAccountObj();
-	local cnt = TryGetProp(aObj, "GUILD_PROMOTE_NOTICE_COUNT");
-	local maxCnt = GET_GUILD_PROMOTE_NOTICE_MAX_COUNT();
-
-	if cnt < maxCnt then
-        control.CustomCommand("REQ_GUILD_PROMOTE_NOTICE_COUNT", 0);
-	end
-end
-
-function SYSMENU_GUILD_PROMOTE_NOTICE(frame)
-	local frame = ui.GetFrame("sysmenu");
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "guildRank");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("GuildPromoteNotice"), 0, 0, nil, "GuildPromoteNoticeBallon", nil, nil, 1);
-
-	local margin = parentCtrl:GetMargin();
-	local x = margin.right - noticeBallon:GetWidth();
-	local y = margin.bottom;
-
-	x = x + (parentCtrl:GetWidth() / 2);
-	y = y + parentCtrl:GetHeight() - 5;
-
-	noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-	noticeBallon:SetMargin(0, 0, x, y);
-	noticeBallon:SetLayerLevel(60);
-	noticeBallon:ShowWindow(1);
-end
-
-function REQUEST_ICOR_MANAGE_DLG(frame)
-	ui.CloseFrame('reinforce_by_mix')
-	ui.CloseFrame('icoradd_multiple')
-	ui.CloseFrame('icorrelease_multiple')
-	ui.CloseFrame('icorrelease_random_multiple')
-	control.CustomCommand('REQ_ICOR_MANAGE_DLG', 0)
-end

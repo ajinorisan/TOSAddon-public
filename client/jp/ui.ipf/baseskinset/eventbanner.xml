@@ -3,31 +3,36 @@
 <!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MintPC (Mi) -->
 <skinset name="Base">
 	<imagelist category="eventbanner">
-		<image name="inGame_E1" file="\event_banner\inGame_E1.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E2" file="\event_banner\inGame_E2.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E3" file="\event_banner\inGame_E3.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E4" file="\event_banner\inGame_E4.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E5" file="\event_banner\inGame_E5.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E6" file="\event_banner\inGame_E6.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E7" file="\event_banner\inGame_E7.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E8" file="\event_banner\inGame_E8.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E9" file="\event_banner\inGame_E9.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E10" file="\event_banner\inGame_E10.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E11" file="\event_banner\inGame_E11.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E12" file="\event_banner\inGame_E12.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E13" file="\event_banner\inGame_E13.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E14" file="\event_banner\inGame_E14.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E15" file="\event_banner\inGame_E15.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E16" file="\event_banner\inGame_E16.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E17" file="\event_banner\inGame_E17.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E18" file="\event_banner\inGame_E18.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E19" file="\event_banner\inGame_E19.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E20" file="\event_banner\inGame_E20.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E21" file="\event_banner\inGame_E21.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E22" file="\event_banner\inGame_E22.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E23" file="\event_banner\inGame_E23.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E24" file="\event_banner\inGame_E24.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_E25" file="\event_banner\inGame_E25.jpg" imgrect="0 0 480 180"/>
+		<image name="event1809goddesscubesale" file="\event_banner\event1809goddesscubesale.jpg" imgrect="0 0 480 180"/>
+		<image name="event1809goddesscube" file="\event_banner\event1809goddesscube.jpg" imgrect="0 0 480 180"/>
+		<image name="event1809chuseokmoon" file="\event_banner\event1809chuseokmoon.jpg" imgrect="0 0 480 180"/>
+		<image name="event1809chuseokday" file="\event_banner\event1809chuseokday.jpg" imgrect="0 0 480 180"/>
+		<image name="event1809ucc" file="\event_banner\event1809ucc.jpg" imgrect="0 0 480 180"/>
+		<image name="event1809daycheck" file="\event_banner\event1809daycheck.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808goddesscube" file="\event_banner\event1808goddesscube.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808vivid" file="\event_banner\event1808vivid.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808build" file="\event_banner\event1808build.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808rankreset" file="\event_banner\event1808rankreset.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808for10" file="\event_banner\event1808for10.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808rank" file="\event_banner\event1808rank.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808new" file="\event_banner\event1808new.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808cash" file="\event_banner\event1808cash.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808weekend" file="\event_banner\event1808weekend.jpg" imgrect="0 0 480 180"/>
+		<image name="event1808pccafe" file="\event_banner\event1808pccafe.jpg" imgrect="0 0 480 180"/>
+		<image name="event1807goddesscube" file="\event_banner\event1807goddesscube.jpg" imgrect="0 0 480 180"/>
+		<image name="event1807story2" file="\event_banner\event1807story2.jpg" imgrect="0 0 480 180"/>
+		<image name="event1807pool" file="\event_banner\event1807pool.jpg" imgrect="0 0 480 180"/>
+		<image name="event1807summercube" file="\event_banner\event1807summercube.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806tp" file="\event_banner\event1806tp.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806story1" file="\event_banner\event1806story1.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806kick" file="\event_banner\event1806kick.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806goddesscube" file="\event_banner\event1806goddesscube.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806soccermission" file="\event_banner\event1806soccermission.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806penalty" file="\event_banner\event1806penalty.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806number" file="\event_banner\event1806number.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806support" file="\event_banner\event1806support.jpg" imgrect="0 0 480 180"/>
+		<image name="event1806weekend" file="\event_banner\event1806weekend.jpg" imgrect="0 0 480 180"/>
+		<image name="event1711vakarine" file="\event_banner\event1711vakarine.jpg" imgrect="0 0 480 180"/>
 	</imagelist>
 	<imagelist category="pcbang">
 		<image name="pcbang_test2" file="\event_banner\event1711vakarine.jpg" imgrect="0 0 480 180"/>
@@ -36,6 +41,5 @@
 	</imagelist>
 	<imagelist category="banner">
 		<image name="tpshop_event_banner" file="\skin\tpshop_event_banner.tga" imgrect="0 0 520 250"/>
-		<image name="news_event_banner" file="\skin\news_event_banner.tga" imgrect="0 0 480 180"/>
 	</imagelist>
 </skinset>

@@ -1,4 +1,4 @@
-﻿
+
 function EXCHANGEANTIQUE_ON_INIT(addon, frame)
 	addon:RegisterMsg("MSG_EXCHANGE_ANTIQUE", "EXCHANGEANTIQUE_MSG");
 	addon:RegisterMsg("MSG_CLEAR_EXCHANGE_ANTIQUE", "CLEAR_EXCHANGEANTIQUE_UI");
@@ -43,13 +43,11 @@ local function _ADD_ITEM_TO_EXCHANGEANTIQUE_FROM_INV(frame, item)
 
 	local isAbleExchange = 1;
 	local itemClass = GetClassByType("Item", item.ClassID);
-	
-	if itemClass.GroupName ~= "Armor" then
-		ui.SysMsg(ClMsg('PossibleToOnlyArmor'));
+	local exchangeAntique = GET_EXCHANGE_ANTIQUE_INFO(item.ClassName);
+	if exchangeAntique.ExchangeGroup == 'RebuildCare' then
 		return;
 	end
-
-	local exchangeAntique = GET_EXCHANGE_ANTIQUE_INFO('EarthTower', item.ClassName);
+	
 	if exchangeAntique == nil then
 		ui.SysMsg(ClMsg('WrongDropItem'));
 		return;
@@ -280,7 +278,6 @@ function CLICK_EXCHANGE_BUTTON()
 			end
 		end
 
-        if item.MaxSocket > 100 then item.MaxSocket = 0 end
 		for i = 0, item.MaxSocket - 1 do
 			if invItem:IsAvailableSocket(i) == true then
 				if str ~= '' then
@@ -359,7 +356,7 @@ function CHECK_EXCHANGE_ANTIQUE()
 		return
 	end
 	local itemCls = GetClassByType("Item", invItem.type)		
-	local inputItemCls = GET_EXCHANGE_ANTIQUE_INFO('EarthTower', itemCls.ClassName);
+	local inputItemCls = GET_EXCHANGE_ANTIQUE_INFO(itemCls.ClassName);
 	if inputItemCls == nil then
 		return;
 	end

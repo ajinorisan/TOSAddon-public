@@ -151,8 +151,6 @@ function ADVENTURE_BOOK_MONSTER_CONTENT.MONSTER_INFO(monClsID)
 	retTable['desc'] = TryGetProp(monCls, "Desc");
 	retTable['kill_count'] = ADVENTURE_BOOK_MONSTER_CONTENT.MONSTER_KILL_COUNT(monClsID)
 	retTable['is_found']=ADVENTURE_BOOK_MONSTER_CONTENT.EXIST_IN_HISTORY(monClsID)
-	retTable['journal'] = TryGetProp(monCls, "Journal");
-	retTable['cls_name'] = TryGetProp(monCls, "ClassName");
 	return retTable;
 end
 
@@ -166,26 +164,26 @@ end
 
 function ADVENTURE_BOOK_MONSTER_CONTENT.FILTER_LIST(list, sortOption, gradeOption, raceOption, searchText)
 	if gradeOption == 1 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"MonRank"}, "Normal")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "MonRank", "Normal")
 	elseif gradeOption == 2 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"MonRank"}, "Elite")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "MonRank", "Elite")
 	elseif gradeOption == 3 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"MonRank"}, "Boss")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "MonRank", "Boss")
 	end
 
 	if raceOption == 1 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"RaceType"}, "Paramune")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "RaceType", "Paramune")
 	elseif raceOption == 2 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"RaceType"}, "Widling")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "RaceType", "Widling")
 	elseif raceOption == 3 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"RaceType"}, "Velnias")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "RaceType", "Velnias")
 	elseif raceOption == 4 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"RaceType"}, "Forester")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "RaceType", "Forester")
 	elseif raceOption == 5 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"RaceType"}, "Klaida")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "RaceType", "Klaida")
 	end
 
-	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Monster", {"Name"}, searchText)
+	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Monster", "Name", searchText)
 
 	if sortOption == 0 then
         table.sort(list, ADVENTURE_BOOK_MONSTER_CONTENT['SORT_NAME_BY_CLASSID_ASC']);

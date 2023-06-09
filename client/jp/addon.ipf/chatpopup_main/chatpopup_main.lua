@@ -88,7 +88,7 @@ end
 function DO_CLOSE_MAINCHATPOPUP(parent,ctrl)
 	
 	local frame = parent:GetTopParentFrame();	
-	CHATMAINPOPUP_CLOSE(frame)
+
 	frame:ShowWindow(0)
 
 end

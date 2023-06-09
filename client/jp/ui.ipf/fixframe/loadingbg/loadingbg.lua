@@ -67,26 +67,27 @@ function LOADINGBG_ON_INIT(addon, frame)
 	local faqCtl 			= GET_CHILD_RECURSIVELY(frame,'gamefaq')
 	
 	if cls ~= nil then
-		local isVisible = 0;
+		local isHide = 0;
 
-		if cls.FAQ_Hide == "NO" then
-			isVisible = 1;
+		if cls.FAQ_Hide == "YES" then	
+			isHide = 1;
 		else
-			isVisible = 0;
+			isHide = 0;		
 		end
-		--faqGroupbox:SetVisible(isVisible);
+		--faqGroupbox:SetVisible(isHide);	
 
-		if cls.Tooltip_Hide == "NO" then
-			isVisible = 1;
+		if cls.Tooltip_Hide == "YES" then	
+			isHide = 1;
 		else
-			isVisible = 0;
+			isHide = 0;		
 		end
-		tipGroupbox:SetVisible(isVisible);
+		tipGroupbox:SetVisible(isHide);
 	end
 	
 	local gauge = frame:GetChild("gauge");
 	gauge:Resize(frame:GetWidth(), gauge:GetHeight());
 
+	
 	local nowjobtype = config.GetConfig("LastJobCtrltype");
 	local nowlevel = config.GetConfigInt("LastPCLevel", 0);
 

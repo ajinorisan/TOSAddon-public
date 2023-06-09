@@ -10,13 +10,8 @@ function ERROR_INFO_INIT(errorCode, summary, infoMsg, handleMsg, url, argNum, cl
 	local _summaryText = MAKE_NEW_LINE_TAG(summary, false);
 	summaryText:SetTextByKey('msg', _summaryText);
 
-	if errorCode == 43 then
-		local errorCodeText = frame:GetChild('errorCodeText');
-		errorCodeText:ShowWindow(0)
-	else
-		local errorCodeText = frame:GetChild('errorCodeText');
-		errorCodeText:SetTextByKey('errorCode', errorCode);		
-	end
+	local errorCodeText = frame:GetChild('errorCodeText');
+	errorCodeText:SetTextByKey('errorCode', errorCode);
 
 	local infoText = GET_CHILD_RECURSIVELY(frame, 'infoText');	
 	local _infoText = MAKE_NEW_LINE_TAG(infoMsg);

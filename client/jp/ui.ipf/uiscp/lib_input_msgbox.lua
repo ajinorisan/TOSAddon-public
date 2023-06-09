@@ -1,10 +1,7 @@
 -- lib_input_msgbox.lua
 
-function INPUT_NUMBER_BOX(cbframe, titleName, strscp, defNumber, minNumber, maxNumber, numarg, strarg, isNumber)	
-	if isNumber == nil then
-		isNumber = 1;
-	end
 
+function INPUT_NUMBER_BOX(cbframe, titleName, strscp, defNumber, minNumber, maxNumber, numarg, strarg, isNumber)
 	local frame = INPUT_STRING_BOX_CB(cbframe, titleName, strscp, defNumber, numarg, strarg, nil, isNumber)
 	local edit = GET_CHILD(frame, 'input', "ui::CEditControl");
 	edit:SetNumberMode(1);
@@ -14,11 +11,12 @@ function INPUT_NUMBER_BOX(cbframe, titleName, strscp, defNumber, minNumber, maxN
 end
 
 function INPUT_STRING_BOX_CB(fromFrame, titleName, strscp, defText, numarg, strarg, maxLen, isNumber)
-	local titleName = ui.ConvertScpArgMsgTag(titleName);
+	local titleName = ui.ConvertScpArgMsgTag(titleName)
+
 	local newframe;
 
 	--판매시, 가지고 있는 아이템 수량의 MAX 값 파싱
-	if strscp == 'EXEC_SHOP_SELL' or strscp == "EXEC_HOUSING_SHOP_SELL" then
+	if strscp == 'EXEC_SHOP_SELL' then
 		local str_len = string.len(titleName)
 		local tilde = string.find(titleName, "~")
         local sub_str = 1
@@ -28,10 +26,13 @@ function INPUT_STRING_BOX_CB(fromFrame, titleName, strscp, defText, numarg, stra
             sub_str = string.sub(titleName, tilde + 2, str_len - 1)
         end		
 		local sellMaxNum = tostring(sub_str):match("^%s*(.-)%s*$")
+        
 		newframe = INPUT_STRING_BOX(titleName, strscp, defText, numarg, maxLen, nil, nil, sellMaxNum,strarg, isNumber);
 	else
 		newframe = INPUT_STRING_BOX(titleName, strscp, defText, numarg, maxLen, nil, nil, nil, strarg, isNumber);
+	
 	end
+
 
 	local confirm = newframe:GetChild("confirm");
 	confirm:SetEventScript(ui.LBUTTONUP, "INPUT_STRING_EXEC");
@@ -45,12 +46,15 @@ function INPUT_STRING_BOX_CB(fromFrame, titleName, strscp, defText, numarg, stra
 	else
 		newframe:SetUserValue("FROM_FR", "NULL");
 	end
+
 	return newframe;
+
 end
 
 -- sellMaxNum 은 가지고 있는 아이템 판매 수량 Max 값
-function INPUT_STRING_BOX(titleName, strscp, defaultText, numArg, maxLen, titleName2, defaultText2, sellMaxNum, strarg, isNumber)		
+function INPUT_STRING_BOX(titleName, strscp, defaultText, numArg, maxLen, titleName2, defaultText2, sellMaxNum, strarg, isNumber)
 	local newframe = ui.GetFrame("inputstring");
+	
 	newframe:SetUserValue("FROM_FR", "None");
 	
 	local byFullString = string.find(strscp, '%(') ~= nil;
@@ -74,24 +78,23 @@ function INPUT_STRING_BOX(titleName, strscp, defaultText, numArg, maxLen, titleN
 	local edit = GET_CHILD(newframe, 'input', "ui::CEditControl");
 	edit:SetEnableEditTag(1);
 	if nil ~= isNumber and 1 == isNumber then
-		edit:SetNumberMode(1);		
+		edit:SetNumberMode(1);
 	else
-		edit:SetNumberMode(0);
+	edit:SetNumberMode(0);
 	end
 	edit:SetText("");
-
 	if defaultText ~= nil then
-		if strscp == "EXEC_SHOP_SELL" or strscp == "EXEC_HOUSING_SHOP_SELL" then			
+		if strscp == "EXEC_SHOP_SELL" then			
 			edit:SetText(sellMaxNum);
 		else
-			edit:SetText(defaultText);			
+			edit:SetText(defaultText);
 		end
 	else
-		edit:SetText("");		
+		edit:SetText("");
 	end
 
 	if maxLen ~= nil then
-		edit:SetMaxLen(maxLen);		
+		edit:SetMaxLen(maxLen);
 	end
 
 	newframe:ShowWindow(1);
@@ -112,20 +115,25 @@ function INPUT_STRING_BOX(titleName, strscp, defaultText, numArg, maxLen, titleN
 	local confirm = newframe:GetChild("confirm");
 	confirm:SetEventScript(ui.LBUTTONUP, strscp, byFullString);
 	edit:SetEventScript(ui.ENTERKEY, strscp, byFullString);
+
 	edit:AcquireFocus();
 	return newframe;
+
 end
 
 function GET_INPUT_STRING_TXT(frame)
+
 	local edit = frame:GetChild('input');
 	tolua.cast(edit, "ui::CEditControl");	
 	return edit:GetText();
 end
 
 function GET_INPUT2_STRING_TXT(frame)
+
 	local edit = frame:GetChild('input2');
 	tolua.cast(edit, "ui::CEditControl");
 	return edit:GetText();
+
 end
 
 function INPUT_DROPLIST_BOX(barrackFrame, strscp, charName, jobName, minNumber, maxNumber)
@@ -186,6 +194,7 @@ function INPUT_DROPLIST_BOX_EXEC(frame)
 end
 
 function INPUT_GETALL_MSG_BOX(frame, ctrl, now, flag, moneyItem)
+
 	-- market 완료 모두받기
 	local marketFrame = ui.GetFrame("market_cabinet");
 	local gBox = GET_CHILD_RECURSIVELY(frame, 'listGbox');
@@ -200,8 +209,11 @@ function INPUT_GETALL_MSG_BOX(frame, ctrl, now, flag, moneyItem)
 	for i = 0, count - 1 do
 		local cabinetItem = session.market.GetCabinetItemByIndex(i);
 		local whereFrom = cabinetItem:GetWhereFrom();
-		local registerTime = cabinetItem:GetRegSysTime(); -- Time
+
+		-- Time
+		local registerTime = cabinetItem:GetRegSysTime();
 		local difSec = imcTime.GetDifSec(registerTime, sysTime);
+		
 		if whereFrom == 'market_sell' and (difSec <= 0 or difSec == nil) then
 			--Draw ControlSet
 			local soldItemCtrl = gBox:CreateControlSet('market_cabinet_item_sold', 'Item_GetAll_Ctrl_'..i, 0, inner_yPos)
@@ -213,7 +225,7 @@ function INPUT_GETALL_MSG_BOX(frame, ctrl, now, flag, moneyItem)
 
 			itemName:SetTextByKey("value2", GET_FULL_NAME(itemObj));
 			itemName:SetTextByKey("value3", cabinetItem.sellItemAmount)		
-			itemName:SetTextByKey("value4", GET_COMMAED_STRING(tonumber(cabinetItem:GetCount())))
+			itemName:SetTextByKey("value4", GET_COMMAED_STRING(cabinetItem.count))
 		elseif whereFrom ~= 'market_sell'  then 
 			--Draw ControlSet
 			local buyItemCtrl = gBox:CreateControlSet('market_cabinet_item_etc', 'Item_GetAll_Ctrl_'..i, 0, inner_yPos)
@@ -224,7 +236,7 @@ function INPUT_GETALL_MSG_BOX(frame, ctrl, now, flag, moneyItem)
 			local itemObj = GetIES(cabinetItem:GetObject());
 			
 			itemName:SetTextByKey("value2", GET_FULL_NAME(itemObj));
-			itemName:SetTextByKey("value3", tonumber(cabinetItem:GetCount()))		
+			itemName:SetTextByKey("value3", cabinetItem.count)		
 		end
 	end
 
@@ -276,13 +288,14 @@ function INPUT_TEXTMSG_BOX(marketFrame, strscp, charName, jobName, minNumber, ma
 	
 	if whereFrom == 'market_sell' then
 		--실 수령 금액 계산
+
 		--수수료 계산 / 추후 작업
 		--local frame, fees, fessPercent;
 		--if true == session.loginInfo.IsPremiumState(ITEM_TOKEN) then	
-			--fees = tonumber(cabinetItem:GetCount()) * 0.1
+			--fees = cabinetItem.count * 0.1
 			--fessPercent = 10;
 		--elseif false == session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-			--fees = tonumber(cabinetItem:GetCount()) * 0.3   			
+			--fees = cabinetItem.count * 0.3   			
 			--fessPercent = 30;
 		--end
 		if cabinetItem_Obj.MaxStack <= 1 then
@@ -293,7 +306,7 @@ function INPUT_TEXTMSG_BOX(marketFrame, strscp, charName, jobName, minNumber, ma
 			richText_1:SetTextByKey("item_reinforce_level", levelStr);
 		end
 		richText_1:SetTextByKey("itemCount", cabinetItem.sellItemAmount);
-		richText_1:SetTextByKey("itemPrice", GET_COMMAED_STRING(tonumber(cabinetItem:GetCount())));
+		richText_1:SetTextByKey("itemPrice", GET_COMMAED_STRING(cabinetItem.count));
 
 		--no btn ( market_sell )
 		local noBtn = GET_CHILD_RECURSIVELY(frame, "button_1")
@@ -302,7 +315,7 @@ function INPUT_TEXTMSG_BOX(marketFrame, strscp, charName, jobName, minNumber, ma
 		yesBtn:SetEventScript(ui.LBUTTONUP, strscp)        
 		yesBtn:SetEventScriptArgString(ui.LBUTTONUP, guid)
     else 
-		richText_1:SetTextByKey("itemCount", tonumber(cabinetItem:GetCount()));
+		richText_1:SetTextByKey("itemCount", cabinetItem.count);
 		--Reinforce Level Setting
 		local maxStack = cabinetItem_Obj.MaxStack;
 		if maxStack == nil then	
@@ -356,9 +369,11 @@ function INPUT_TEXTMSG_BOX_EXEC(frame)
 	if frame == nil then
 		return
 	end
+
 	local scpName = frame:GetSValue();
 	local execScp = _G[scpName];
 	execScp(frame, resultString, frame);
+	
 	ui.CloseFrame("market_cabinet_popup")
 end
 

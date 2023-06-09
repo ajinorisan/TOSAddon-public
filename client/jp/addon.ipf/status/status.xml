@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="status" x="0" y="0" width="500" height="1080">
 	<draw drawtitlebar="false"/>
 	<skin frameskin=" "/>
@@ -10,7 +10,7 @@
 	<option closebutton="false"/>
 	<sound opensound="character_item_window_open" closesound="character_item_window_close"/>
 	<script OpenScp="STATUS_ONLOAD" CloseScp="STATUS_CLOSE"/>
-	<userconfig ADD_STAT_COLOR="{#00FF00}" BEFORE_STAT_COLOR="{#FF6600}" BTNUP_STAT_COLOR="{@st41b}" CHANGE_STAT_FONTNAME="orange_16_b_ol" DEFAULT_STAT_VALUE_FONTNAME="white_16_ol" DEFAULT_STAT_NAME_FONTNAME="yellow_16_ol" StatIconStartX="10" DEFAULT_TITLE_TEXT="{@st42b}없음"/>
+	<userconfig ADD_STAT_COLOR="{#00FF00}" BEFORE_STAT_COLOR="{#FF6600}" BTNUP_STAT_COLOR="{@st41b}" CHANGE_STAT_FONTNAME="orange_16_b_ol" DEFAULT_STAT_VALUE_FONTNAME="white_16_ol" DEFAULT_STAT_NAME_FONTNAME="yellow_16_ol" StatIconStartX="10" DEFAULT_TITLE_TEXT="없음"/>
 	<controls>
 		<groupbox name="equip" rect="0 0 500 990" margin="0 40 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_low"/>
 		<groupbox name="pipwin_top_my" rect="0 0 500 126" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_topf1"/>
@@ -18,17 +18,18 @@
 		<groupbox name="statusUpGbox" rect="0 0 480 440" margin="25 100 0 0" layout_gravity="left top" draw="false" frameOpenAnim="pip_simbol_ani_4" hittestbox="false" resizebyparent="false" scrollbar="false" skin="bg2"/>
 		<groupbox name="test_arow" parent="statusUpGbox" rect="0 0 480 49" margin="-20 170 0 0" layout_gravity="center center" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_arow"/>
 		<button name="set_btn" rect="0 0 42 42" margin="0 48 80 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click" image="class_setting_btn" oversound="button_over" texttooltip="{@st59}대표 클래스 설정{/}" LBtnUpScp="STATUS_OPEN_CLASS_DROPLIST"/>
-		<tab name="statusTab" rect="0 0 500 40" layout_gravity="left top" LBtnDownScp="STATUS_TAB_CHANGE" omitbywidth="true" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" fixwidth="true" itemspc="2" oversound="button_cursor_over_2" skin="tab2" margin="25 90 0 0"/>
-		<tabitem name="Itembox1" parent="statusTab" caption="{@st66b}정보{/}" texttooltip="{@st59}정보{/}" width="150" layout_gravity="left top"/>
-		<tabitem name="Itembox2" parent="statusTab" caption="{@st66b}캐릭터 설정{/}" texttooltip="{@st59}캐릭터 설정{/}" width="150" layout_gravity="left top"/>
-		<tabitem name="Itembox3" parent="statusTab" caption="{@st66b}명성{/}" texttooltip="{@st59}명성{/}" width="150" layout_gravity="left top"/>
+		<tab name="statusTab" rect="0 0 500 40" layout_gravity="left top" LBtnDownScp="STATUS_TAB_CHANGE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2" margin="25 90 0 0"/>
+		<tabitem name="Itembox1" parent="statusTab" caption="{@st66b}정보{/}" width="150" layout_gravity="left top"/>
+		<tabitem name="Itembox2" parent="statusTab" caption="{@st66b}업적{/}" width="150" layout_gravity="left top"/>
+		<tabitem name="Itembox3" parent="statusTab" caption="{@st66b}캐릭터 설정{/}" width="150" layout_gravity="left top"/>
 		<richtext name="Title_RemainStat" parent="statusUpGbox" rect="0 0 200 24" margin="-20 320 0 0" layout_gravity="center top" fontname="brown_18_b" format="남은 스테이터스 포인트 {nl}{@st46}%s" hittest="false" param1="statpts" spacey="0" textalign="center center"/>
 		<picture name="question" rect="0 0 44 44" margin="27 20 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="{@st59b}내 정보{nl}{@st59s} - 스테이터스 : 레벨업으로 증가하는 5가지 능력{nl} - 정보 : 아이템 및 스테이터스 능력치에 따른 캐릭터 능력치 정보{nl} - 칭호 : 업적을 완료했을때 습득가능한 칭호{nl}{/}"/>
 		<groupbox name="statusGbox" rect="0 0 480 415" margin="10 550 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_midle"/>
+		<groupbox name="achieveGbox" rect="0 0 500 830" margin="10 160 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="true" scrollbar="false"/>
 		<groupbox name="internalstatusBox" parent="statusGbox" rect="0 0 483 415" margin="0 0 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="true" scrollbar="true"/>
+		<groupbox name="internalBox" parent="achieveGbox" rect="0 0 480 830" margin="0 0 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="true" scrollbar="true"/>
 		<groupbox name="logoutGBox" rect="0 0 495 915" margin="10 140 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="true" scrollbar="false"/>
-		<groupbox name="customizingGBox" parent="logoutGBox" rect="0 0 480 475" margin="0 110 0 0" layout_gravity="left top" draw="true" hittest="true" resizebyparent="false" resizebyresolution="true" scrollbar="true" skin="test_frame_midle"/>
-		<groupbox name="reputationGBox" rect="0 0 500 900" margin="0 140 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="true" scrollbar="false"/>
+		<groupbox name="customizingGBox" parent="logoutGBox" rect="0 0 480 400" margin="0 110 0 0" layout_gravity="left top" draw="true" hittest="true" resizebyparent="false" resizebyresolution="true" scrollbar="true" skin="test_frame_midle"/>
 		<!--<경험치율 총합 계산 UI>-->
 		<groupbox name="expupGBox" parent="internalstatusBox" rect="0 0 483 70" margin="0 10 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
 		<groupbox name="expupBuffBox" parent="expupGBox" rect="0 0 310 70" margin="82 0 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
@@ -37,16 +38,12 @@
 		<picture name="expUp" parent="expupGBox" rect="0 0 70 60" margin="10 -2 0 0" layout_gravity="left top" image="expup_img"/>
 		<richtext name="expUP_Static" parent="expupTextBox" rect="0 0 200 20" margin="0 2 0 0" layout_gravity="center top" caption="{@st66d_y}{s20}총{/}" fontname="brown_18_b" hittest="false" spacey="0" textalign="left center"/>
 		<richtext name="totalExpUpValueText" parent="expupTextBox" rect="0 0 300 20" margin="0 27 0 0" layout_gravity="center top" caption="" fontname="brown_18_b" format="{@st66d_y} {s20}%s%{/}" hittest="false" param1="value" param1_def="100" spacey="0" textalign="left center"/>
-		<!--<말풍선 스킨 UI>-->
-		<richtext name="chatballoonskin_text" parent="customizingGBox" rect="0 0 200 10" margin="15 20 0 0" layout_gravity="left top" format="{@st42}캐릭터 말풍선" fontname="brown_18_b" hittest="false" spacey="0" textalign="left center"/>
-		<droplist name="chatballoonskin_list" parent="customizingGBox" rect="0 0 386 36" margin="80 55 0 0" layout_gravity="left top" SelectScp="CHANGE_CHATBALLOON_SKIN" frametextalign="center" font="white_20_ol" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal4" textalign="center center" textoffset="10 0" visibleline="10"/>
-		<slot	  name="chatballoonskin_slot" parent="customizingGBox" rect="0 0 60 61" margin="18 45 0 0" layout_gravity="left top" skin="invenslot2" hittest="false" movepop="false" enabledrag="false" />
 		<!--</경험치율 총합 계산 UI>-->
-		<richtext name="titleListStatic" parent="customizingGBox" rect="0 0 200 10" margin="15 125 0 0" layout_gravity="left top" format="{@st42}장착 가능한 칭호 [%s]{/}" param1="value1" param1_def="value1" fontname="brown_18_b" hittest="false" spacey="0" textalign="left center"/>
-		<droplist name="useableTitleList" parent="customizingGBox" rect="0 0 450 20" margin="15 150 0 0" layout_gravity="left top" SelectScp="SELECT_ACHIEVE_TITLE" frametextalign="center" font="white_20_ol" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal4" textalign="center center" textoffset="10 0" visibleline="10"/>
-		<groupbox name="currentbuffGbox" parent="customizingGbox" rect="0 0 225 70" margin="10 200 0 0" layout_gravity="left top" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
-		<groupbox name="nextbuffGbox" parent="customizingGbox" rect="0 0 225 70" margin="10 280 0 0" layout_gravity="left top" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
-		<groupbox name="statsGbox" parent="customizingGbox" rect="0 0 225 245" margin="0 200 0 0" layout_gravity="right top" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
+		<richtext name="titleListStatic" parent="customizingGBox" rect="0 0 200 20" margin="15 35 0 0" layout_gravity="left top" format="{@st42}장착 가능한 칭호 [%s]{/}" param1="value1" param1_def="value1" fontname="brown_18_b" hittest="false" spacey="0" textalign="left center"/>
+		<droplist name="useableTitleList" parent="customizingGBox" rect="0 0 450 20" margin="15 60 0 0" layout_gravity="left top" SelectScp="SELECT_ACHIEVE_TITLE" frametextalign="center" font="white_20_ol" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="center center" textoffset="10 0" visibleline="10"/>
+		<groupbox name="currentbuffGbox" parent="customizingGbox" rect="0 0 225 70" margin="10 100 0 0" layout_gravity="left top" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
+		<groupbox name="nextbuffGbox" parent="customizingGbox" rect="0 0 225 70" margin="10 180 0 0" layout_gravity="left top" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
+		<groupbox name="statsGbox" parent="customizingGbox" rect="0 0 225 245" margin="0 100 0 0" layout_gravity="right top" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
 		<richtext name="currentbuffTextTitle" parent="currentbuffGbox" rect="0 0 200 20" margin="5 0 0 0" layout_gravity="left top" format="{@st42}{#00fec5}현재 칭호 버프 단계" fontname="brown_18_b" hittest="false" spacey="0" textalign="left center"/>
 		<richtext name="nextbuffTextTitle" parent="nextbuffGbox" rect="0 0 200 20" margin="5 0 0 0" layout_gravity="left top" format="{@st42}다음단계까지 필요한 칭호{/}" hittest="false" spacey="0" textalign="left center"/>
 		<groupbox name="currentbuffTextBg" parent="currentbuffGbox" rect="0 0 210 40" margin="0 0 0 0" layout_gravity="center bottom" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_weight_skin"/>
@@ -74,7 +71,7 @@
 		<richtext name="DEF_VALUE" parent="statsGbox" rect="0 0 50 20" margin="0 154 10 0" layout_gravity="right top" format="%s" fontname="white_16_ol" param1="value" param1_def="0" hittest="false" spacey="0" textalign="left center"/>
 		<richtext name="MDEF_VALUE" parent="statsGbox" rect="0 0 50 20" margin="0 176 10 0" layout_gravity="right top" format="%s" fontname="white_16_ol" param1="value" param1_def="0" hittest="false" spacey="0" textalign="left center"/>
 		<richtext name="MSP_VALUE" parent="statsGbox" rect="0 0 50 20" margin="0 198 10 0" layout_gravity="right top" format="%s" fontname="white_16_ol" param1="value" param1_def="0" hittest="false" spacey="0" textalign="left center"/>
-		<picture name="labellineGbox" parent="customizingGbox" rect="0 0 2 225" margin="0 200 0 20" draw="true" layout_gravity="center top" stretch="true" image="guild_line_p"/>
+		<picture name="labellineGbox" parent="customizingGbox" rect="0 0 2 225" margin="0 100 0 20" draw="true" layout_gravity="center top" stretch="true" image="guild_line_p"/>
 		<controlset name="logoutInternal" parent="logoutGBox" rect="0 0 485 550" margin="0 0 0 0" layout_gravity="left top" draw="false" hittest="true" resizebyparent="false" resizebyresolution="false" scrollbar="true" skin="none" type="logoutpc_config"/>
 		<button name="close" rect="0 0 44 44" margin="0 20 28 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;status&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}캐릭터 정보를 닫습니다{/}"/>
 		<richtext name="LevJobText" rect="0 0 200 20" layout_gravity="center top" caption="직업 출력" fontname="white_20_ol_ds" hittest="false" spacey="0" textalign="left center" margin="0 56 0 0"/>
@@ -85,31 +82,5 @@
 		<button name="CANCEL" parent="statusUpGbox" rect="0 0 105 50" margin="55 0 0 0" layout_gravity="center bottom" LBtnUpScp="ROLLBACK_STAT" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}" clicksound="button_click_3" image="testx_button" oversound="button_over" spacey="0"/>
 		<groupbox name="likeCountGbox" rect="0 0 480 40" margin="10 0 0 70" layout_gravity="left bottom" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_midle" tabname="Itembox1"/>
 		<richtext name="loceCountText" parent="likeCountGbox" rect="0 0 430 40" margin="0 0 0 0" layout_gravity="center center" fontname="white_18_ol" format="내가 받은 좋아요! : %s개" hittest="false" param1="Count" param1_def="-1" textalign="center center"/>
-		<!--명성-->
-		<groupbox name="reputationChildGBox_Frame" parent="reputationGBox" rect="0 0 444 651" margin="-2 180 0 0" layout_gravity="center top" skin="test_frame_midle" hittest="true" scrollbar="true"/>
-		<groupbox name="reputationStatusGBox" parent="reputationGBox" rect="0 0 450 176" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_midle" hittest="true" scrollbar="false"/>
-		<groupbox name="reputationChildGBox" parent="reputationGBox" rect="0 0 450 661" margin="0 180 0 0" layout_gravity="center top" skin="None" hittest="true" scrollbar="true"/>
-		<groupbox name="reputationSearchGBox" parent="reputationGBox" rect="0 0 450 30" margin="0 840 0 0" layout_gravity="center top" scrollbar="false" skin="test_weight_skin"/>
-		<groupbox name="reputationTitle" rect="0 0 330 40" margin="0 15 0 0" layout_gravity="center top" parent="reputationStatusGBox" skin="the_present_reputation_title"/>
-		<richtext name="reputationTitleText" rect="0 0 330 38" margin="0 0 0 0" layout_gravity="center center" parent="reputationTitle" caption="{@st43b}{s18}전체 명성도 달성 현황"/>
-		<picture name="reputationStatusBGPic1" rect="0 0 92 101" margin="-178 25 0 0" layout_gravity="center center" parent="reputationStatusGBox" image="present_reputation_bg"/>
-		<picture name="reputationStatusBGPic2" rect="0 0 92 101" margin="-89 25 0 0" layout_gravity="center center" parent="reputationStatusGBox" image="present_reputation_bg"/>
-		<picture name="reputationStatusBGPic3" rect="0 0 92 101" margin="0 25 0 0" layout_gravity="center center" parent="reputationStatusGBox" image="present_reputation_bg"/>
-		<picture name="reputationStatusBGPic4" rect="0 0 92 101" margin="89 25 0 0" layout_gravity="center center" parent="reputationStatusGBox" image="present_reputation_bg"/>
-		<picture name="reputationStatusBGPic5" rect="0 0 92 101" margin="178 25 0 0" layout_gravity="center center" parent="reputationStatusGBox" image="present_reputation_bg"/>
-		<picture name="reputationStatusPic1" rect="0 0 80 62" margin="0 -10 0 0" layout_gravity="center center" parent="reputationStatusBGPic1" image="reputation02"/>
-		<picture name="reputationStatusPic2" rect="0 0 80 62" margin="0 -10 0 0" layout_gravity="center center" parent="reputationStatusBGPic2" image="reputation03"/>
-		<picture name="reputationStatusPic3" rect="0 0 80 62" margin="0 -10 0 0" layout_gravity="center center" parent="reputationStatusBGPic3" image="reputation04"/>
-		<picture name="reputationStatusPic4" rect="0 0 80 62" margin="0 -10 0 0" layout_gravity="center center" parent="reputationStatusBGPic4" image="reputation05"/>
-		<picture name="reputationStatusPic5" rect="0 0 80 62" margin="0 -10 0 0" layout_gravity="center center" parent="reputationStatusBGPic5" image="reputation06"/>
-		<richtext name="reputationStatusText1" rect="0 0 92 101" margin="2 34 0 0" layout_gravity="center center" parent="reputationStatusBGPic1" fontname="white_14_ol" format="%s%" param1="value" param1_def="0"/>
-		<richtext name="reputationStatusText2" rect="0 0 92 101" margin="2 34 0 0" layout_gravity="center center" parent="reputationStatusBGPic2" fontname="white_14_ol" format="%s%" param1="value" param1_def="0"/>
-		<richtext name="reputationStatusText3" rect="0 0 92 101" margin="2 34 0 0" layout_gravity="center center" parent="reputationStatusBGPic3" fontname="white_14_ol" format="%s%" param1="value" param1_def="0"/>
-		<richtext name="reputationStatusText4" rect="0 0 92 101" margin="2 34 0 0" layout_gravity="center center" parent="reputationStatusBGPic4" fontname="white_14_ol" format="%s%" param1="value" param1_def="0"/>
-		<richtext name="reputationStatusText5" rect="0 0 92 101" margin="2 34 0 0" layout_gravity="center center" parent="reputationStatusBGPic5" fontname="white_14_ol" format="%s%" param1="value" param1_def="0"/>
-		<richtext name="reputationStatusWarningText" rect="0 0 100 100" margin="0 -5 0 0" layout_gravity="center center" parent="reputationChildGBox_Frame" fontname="white_14_ol" caption="{@st41b}열려있는 명성이 아직 없습니다.{/}"/>
-		<edit name="reputation_search" parent="reputationSearchGBox" rect="0 0 430 26" margin="5 2 0 0" layout_gravity="left top" skin="None" OffsetForDraw="0 -1" drawbackground="false" maxlen="40" textalign="left center" fontname="white_18_ol" EnterKeyScp="STATUS_REPUTATION_SEARCH" oversound="button_over" clicksound="button_click_big" typingsound="chat_typing"/>
-		<button name="reputation_search_btn" parent="reputationSearchGBox" rect="0 0 50 50" margin="0 -2 0 0" layout_gravity="right top" stretch="true" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" image="inven_s" oversound="button_over" clicksound="button_click_big" LBtnUpScp="STATUS_REPUTATION_SEARCH"/>
-		<button name="reputation_quest_btn" parent="reputationStatusGBox" rect="0 0 38 38" margin="0 16 16 0" layout_gravity="right top" hittest="true" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" image="quest_Qbtn" oversound="button_over" clicksound="button_click_big" LBtnUpScp="STATUS_REPUTATION_QUEST_INFO" texttooltip="{@st59}명성 퀘스트 진행 현황을 확인합니다.{/}"/>
 	</controls>
 </uiframe>

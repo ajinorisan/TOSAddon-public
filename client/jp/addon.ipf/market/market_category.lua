@@ -103,21 +103,20 @@ local function ADD_SUB_CATEGORY(detailBox, parentCategory, subCategoryList)
 		if category == nil then
 			category = 'ShowAll';
 		end
-		if category ~= 'Relic' then
-			local subCateCtrlset = subCateBox:CreateControl('groupbox', 'SUB_CATE_'..category, 0, 0, detailBox:GetWidth(), 20);
-			AUTO_CAST(subCateCtrlset);
-			subCateCtrlset:SetSkinName('None');
-			subCateCtrlset:SetUserValue('PARENT_CATEGORY', parentCategory);
-			subCateCtrlset:SetUserValue('CATEGORY', category);
-			subCateCtrlset:SetEventScript(ui.LBUTTONUP, 'MARKET_SUB_CATEOGRY_CLICK');
-			subCateCtrlset:EnableScrollBar(0);
+		
+		local subCateCtrlset = subCateBox:CreateControl('groupbox', 'SUB_CATE_'..category, 0, 0, detailBox:GetWidth(), 20);
+		AUTO_CAST(subCateCtrlset);
+		subCateCtrlset:SetSkinName('None');
+		subCateCtrlset:SetUserValue('PARENT_CATEGORY', parentCategory);
+		subCateCtrlset:SetUserValue('CATEGORY', category);
+		subCateCtrlset:SetEventScript(ui.LBUTTONUP, 'MARKET_SUB_CATEOGRY_CLICK');
+		subCateCtrlset:EnableScrollBar(0);
 
-			local text = subCateCtrlset:CreateControl('richtext', 'text', 20, 0, 100, 20);
-			text:SetGravity(ui.LEFT, ui.CENTER_VERT);
-			text:SetFontName('brown_16_b');
-			text:SetText(ClMsg(category));
-			text:EnableHitTest(0);
-		end
+		local text = subCateCtrlset:CreateControl('richtext', 'text', 20, 0, 100, 20);
+		text:SetGravity(ui.LEFT, ui.CENTER_VERT);
+		text:SetFontName('brown_16_b');
+		text:SetText(ClMsg(category));
+		text:EnableHitTest(0);
 	end
 
 	GBOX_AUTO_ALIGN(subCateBox, 2, 2, 0, true, true);
@@ -166,11 +165,11 @@ local function ADD_APPRAISAL_OPTION(detailBox, ypos, parentCategory)
 end
 
 local function ADD_DETAIL_OPTION_SETTING(detailBox, ypos, parentCategory, forceOpen)
-	if parentCategory ~= 'Weapon' and parentCategory ~= 'Accessory' and parentCategory ~= 'Armor' and parentCategory ~= 'Recipe' and parentCategory ~= 'HairAcc' and parentCategory ~= 'OPTMisc'and parentCategory ~= 'Gem'then
+	if parentCategory ~= 'Weapon' and parentCategory ~= 'Accessory' and parentCategory ~= 'Armor' and parentCategory ~= 'Recipe' and parentCategory ~= 'HairAcc' then
 		return ypos;
 	end
 
-	if parentCategory ~= 'HairAcc' and parentCategory ~= 'Recipe' and parentCategory ~= 'OPTMisc'and parentCategory ~= 'Gem' then
+	if parentCategory ~= 'HairAcc' and parentCategory ~= 'Recipe' then
 		local market_detail_setting = detailBox:CreateOrGetControlSet('market_detail_setting', 'detailOptionSet', 0, ypos);
 		if forceOpen ~= true then
 			MARKET_ADD_SEARCH_DETAIL_SETTING(market_detail_setting, nil, true);
@@ -229,7 +228,7 @@ function DRAW_DETAIL_CATEGORY(frame, selectedCtrlset, subCategoryList, forceOpen
 		detailBox:Resize(detailBox:GetWidth(), _ypos);
 		return detailBox;
 	end
-	
+
 	local ypos = ADD_SUB_CATEGORY(detailBox, parentCategory, subCategoryList);
 	ypos = ADD_LEVEL_RANGE(detailBox, ypos, parentCategory);
 	ypos = ADD_ITEM_GRADE(detailBox, ypos, parentCategory);
@@ -302,12 +301,12 @@ function MARKET_SUB_CATEOGRY_CLICK(parent, subCategoryCtrlset, reqList)
 	local prevSelectedSubCategory = frame:GetUserValue('SELECTED_SUB_CATEGORY');
 	local prevSelectedSubCateCtrlset = GET_CHILD_RECURSIVELY(frame, 'SUB_CATE_'..prevSelectedSubCategory);
 	if prevSelectedSubCateCtrlset ~= nil then
-		prevSelectedSubCateCtrlset:FillColor(false, nil);
+		prevSelectedSubCateCtrlset:FillColorRect(false, nil);
 	end
 
 	local parentCategory = subCategoryCtrlset:GetUserValue('PARENT_CATEGORY');
-	local category = subCategoryCtrlset:GetUserValue('CATEGORY');
-	subCategoryCtrlset:FillColor(true, 'FFDEDE00');
+	local category = subCategoryCtrlset:GetUserValue('CATEGORY');	
+	subCategoryCtrlset:FillColorRect(true, 'FFDEDE00');
 	frame:SetUserValue('SELECTED_SUB_CATEGORY', category);
 
 	if reqList ~= false then
@@ -363,13 +362,12 @@ local function GET_SEARCH_PRICE_ORDER(frame)
 	return 0; -- default
 end
 
-local function GET_SEARCH_TEXT(frame)	
+local function GET_SEARCH_TEXT(frame)
 	local defaultValue = '';
 	local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet');
 	if market_search ~= nil and market_search:IsVisible() == 1 then
 		local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit');
 		local findItem = searchEdit:GetText();
-		searchEdit:Focus()
 		local minLength = 0;
 		local findItemStrLength = findItem.len(findItem);
 		local maxLength = 60;
@@ -783,7 +781,6 @@ function MARKET_REFRESH_SEARCH_OPTION(parent, ctrl)
 	if itemSearchSet ~= nil and itemSearchSet:IsVisible() == 1 then
 		local searchEdit = GET_CHILD_RECURSIVELY(itemSearchSet, 'searchEdit');
 		searchEdit:SetText('');
-		searchEdit:Focus()
 	end
 
 	-- appraisal

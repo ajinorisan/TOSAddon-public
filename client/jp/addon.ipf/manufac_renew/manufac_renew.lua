@@ -403,10 +403,8 @@ function ON_MANU_END(frame, msg, madeItemID)
 		local item = itemList[i]["Item"];
 		local popcnt = itemList[i]["Used"];
 		local slot = GET_SLOT_BY_ITEMID(slotSet, item:GetIESID())
-		if slot ~= nil then
-			slot:SetUserValue("_POP_COUNT", popcnt);
-			UI_PLAYFORCE(slot, "manu_slot_pop", x, y);
-		end
+		slot:SetUserValue("_POP_COUNT", popcnt);
+		UI_PLAYFORCE(slot, "manu_slot_pop", x, y);
 	end
 
 	frame:Invalidate();
@@ -490,7 +488,7 @@ function DRAW_RECIPE_MATERIAL(exinfoGroupBox, recipecls, ypos, drawStartIndex)
 				if propname == 'FromItem' or propname == 'NeedWiki' then
 					recipeItemCnt = 1;
 				else
-					recipeItemCnt, recipeItemLv = GET_RECIPE_REQITEM_CNT(recipecls, propname, GetMyPCObject());
+					recipeItemCnt, recipeItemLv = GET_RECIPE_REQITEM_CNT(recipecls, propname);
 				end
 
 				local itemRecipePicCtrl = exinfoGroupBox:CreateOrGetControl('picture', recipeItem, recipeItemXPos, groupboxYPos, recipeItemPicSize, recipeItemPicSize);

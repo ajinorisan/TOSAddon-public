@@ -9,7 +9,7 @@ function REPAIR140731_ON_INIT(addon, frame)
 end
 
 function REPAIR140731_ON_MSG(frame, msg, argStr, argNum)
-	if msg == 'DIALOG_CLOSE'  then
+	if  msg == 'DIALOG_CLOSE'  then
 		frame:OpenFrame(0);
     elseif msg == 'OPEN_DLG_REPAIR' then
     	UPDATE_REPAIR140731_LIST(frame);
@@ -17,6 +17,7 @@ function REPAIR140731_ON_MSG(frame, msg, argStr, argNum)
 	elseif msg == 'UPDATE_DLG_REPAIR' then
 		UPDATE_REPAIR140731_LIST(frame);
 	elseif msg == 'UPDATE_ITEM_REPAIR' then
+
 		if argNum == 90000 then
 			DRAW_TOTAL_VIS_OTHER_FRAME(frame, 'sys_silver');
 		else
@@ -55,26 +56,23 @@ function UPDATE_REPAIR140731_LIST(frame)
 		if tempobj ~= nil then
 			local obj = GetIES(tempobj);
 			if IS_NEED_REPAIR_ITEM(obj, isSquire) == true then
-				local itemGroup = TryGetProp(GetIES(equipItem:GetObject()), "GroupName" ,"None")
-				if itemGroup ~= 'Arcane' then
-					local slotcnt = imcSlot:GetEmptySlotIndex(slotSet);
-					local slot = slotSet:GetSlotByIndex(slotcnt)
-					slot:SetClickSound('button_click_stats');
-					while slot == nil do 
-						slotSet:ExpandRow()
-						slot = slotSet:GetSlotByIndex(slotcnt)
-					end
-
-					local icon = CreateIcon(slot);
-					local iconValue = obj.Icon;
-					if obj.BriquettingIndex > 0 then
-						local briquettingItemCls = GetClassByType('Item', obj.BriquettingIndex);
-						iconValue = briquettingItemCls.Icon;
-					end
-					icon:Set(iconValue, 'Item', equipItem.type, slotcnt, equipItem:GetIESID());
-					local class = GetClassByType('Item', equipItem.type);
-					ICON_SET_INVENTORY_TOOLTIP(icon, equipItem, "repair", class);
+				local slotcnt = imcSlot:GetEmptySlotIndex(slotSet);
+				local slot = slotSet:GetSlotByIndex(slotcnt)
+				slot:SetClickSound('button_click_stats');
+				while slot == nil do 
+					slotSet:ExpandRow()
+					slot = slotSet:GetSlotByIndex(slotcnt)
 				end
+
+				local icon = CreateIcon(slot);
+				local iconValue = obj.Icon;
+				if obj.BriquettingIndex > 0 then
+					local briquettingItemCls = GetClassByType('Item', obj.BriquettingIndex);
+					iconValue = briquettingItemCls.Icon;
+				end
+				icon:Set(iconValue, 'Item', equipItem.type, slotcnt, equipItem:GetIESID());
+				local class = GetClassByType('Item', equipItem.type);
+				ICON_SET_INVENTORY_TOOLTIP(icon, equipItem, "repair", class);
 			end
 		end
 	end
@@ -85,26 +83,23 @@ function UPDATE_REPAIR140731_LIST(frame)
 		if tempobj ~= nil then
 			local obj = GetIES(tempobj);
 			if IS_NEED_REPAIR_ITEM(obj, isSquire) == true then
-				local itemGroup = TryGetProp(GetIES(invItem:GetObject()), "GroupName" ,"None")
-    				if itemGroup ~= 'Arcane' then
-					local slotcnt = imcSlot:GetEmptySlotIndex(slotSet);
-					local slot = slotSet:GetSlotByIndex(slotcnt);
-					
-					while slot == nil do 
-						slotSet:ExpandRow()
-						slot = slotSet:GetSlotByIndex(slotcnt)
-					end
-				
-					local icon = CreateIcon(slot);
-                	local iconValue = obj.Icon;
-					if obj.BriquettingIndex > 0 then
-						local briquettingItemCls = GetClassByType('Item', obj.BriquettingIndex);
-						iconValue = briquettingItemCls.Icon;
-					end
-					icon:Set(iconValue, 'Item', invItem.type, slotcnt, invItem:GetIESID());
-					local class = GetClassByType('Item', invItem.type);
-					ICON_SET_INVENTORY_TOOLTIP(icon, invItem, "repair", class);
+				local slotcnt = imcSlot:GetEmptySlotIndex(slotSet);
+				local slot = slotSet:GetSlotByIndex(slotcnt);
+
+				while slot == nil do 
+					slotSet:ExpandRow()
+					slot = slotSet:GetSlotByIndex(slotcnt)
 				end
+
+				local icon = CreateIcon(slot);
+                local iconValue = obj.Icon;
+				if obj.BriquettingIndex > 0 then
+					local briquettingItemCls = GetClassByType('Item', obj.BriquettingIndex);
+					iconValue = briquettingItemCls.Icon;
+				end
+				icon:Set(iconValue, 'Item', invItem.type, slotcnt, invItem:GetIESID());
+				local class = GetClassByType('Item', invItem.type);
+				ICON_SET_INVENTORY_TOOLTIP(icon, invItem, "repair", class);
 			end
 		end
 	end, false, isSquire, slotSet);

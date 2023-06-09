@@ -8,14 +8,15 @@ function ITEMBUFF_SET_SKILLTYPE(frame, skillName, skillLevel, titleName)
 	frame:SetUserValue("SKILLNAME", skillName)
 	frame:SetUserValue("SKILLLEVEL", skillLevel)
 
-	local title = GET_CHILD_RECURSIVELY(frame, "title");
+	local title = frame:GetChild("title");
 	title:SetTextByKey("txt", titleName);
 end
 
 function ITEMBUFF_REFRESH_LIST(frame)
-	local reqitemtext = GET_CHILD_RECURSIVELY(frame, "reqitemCount");
-	local reqitemName = GET_CHILD_RECURSIVELY(frame, "reqitemName");
-	local reqitemStr = GET_CHILD_RECURSIVELY(frame, "reqitemStr");
+	local reqitembox = frame:GetChild("Material");
+	local reqitemtext = reqitembox:GetChild("reqitemCount");
+	local reqitemName = reqitembox:GetChild("reqitemName");
+	local reqitemStr = reqitembox:GetChild("reqitemStr");
 	local pc = GetMyPCObject();
 	local invItemList = session.GetInvItemList();
 	local checkFunc = _G["ITEMBUFF_STONECOUNT_" .. frame:GetUserValue("SKILLNAME")];
@@ -62,35 +63,10 @@ function ITEM_BUFF_CREATE_STORE(frame)
 	dummyInfo.classID = GetClass("Skill", sklName).ClassID;
 	dummyInfo.price = price;
 	dummyInfo.level = sklLevel;
-	
+
 	local storeGroupName = frame:GetUserValue("STORE_GROUP_NAME");
-	local pc = GetMyPCObject();
 	if storeGroupName == 'None' then
 		storeGroupName = 'Squire';
-		local abilSquire14 = GetAbility(pc, 'Squire14');
-		local abilSquire15 = GetAbility(pc, 'Squire15');
-		local abilSquire16 = GetAbility(pc, 'Squire16');
-		local abilState = 0;		
-		if abilSquire14 ~= nil then
-			local squire14_buff = info.GetBuffByName(session.GetMyHandle(), "Squire14_Buff");
-			if squire14_buff ~= nil then
-				abilState = 1;
-			end
-		end
-		if abilSquire15 ~= nil then
-			local squire15_buff = info.GetBuffByName(session.GetMyHandle(), "Squire15_Buff");
-			if squire15_buff ~= nil then
-				abilState = 2;
-			end
-		end
-		if abilSquire16 ~= nil then
-			local squire16_buff = info.GetBuffByName(session.GetMyHandle(), "Squire16_Buff");
-			if squire16_buff ~= nil then
-				abilState = 3;
-			end
-		end
-		
-		dummyInfo.squireAbilState = abilState;
 	end
 
 	if "" == edit:GetText() then
@@ -116,6 +92,7 @@ function ITEM_BUFF_CREATE_STORE(frame)
 		return;
 	end
 
+	local pc = GetMyPCObject();
 	local x, y, z = GetPos(pc);
 	if 0 == IsFarFromNPC(pc, x, y, z, 50) then
 		ui.SysMsg(ClMsg("TooNearFromNPC"));	
@@ -196,10 +173,11 @@ function GEMROASTING_HIDE_UI(frame)
 end
 
 function SQUIRE_HIDE_UI(frame)
-	local log = GET_CHILD_RECURSIVELY(frame, "statusTab");
+	local log = frame:GetChild("statusTab");
 	log:SetVisible(0);
+	local repairBox = frame:GetChild("repair");
 
-	local material = GET_CHILD_RECURSIVELY(frame, "materialGbox");
+	local material = repairBox:GetChild("materialGbox");
 	material:SetVisible(0);
 end
 
@@ -215,7 +193,7 @@ function OPEN_ITEMBUFF_UI_COMMON(groupName, sellType, handle)
 	open:ShowWindow(1);
 	open:SetUserValue("GroupName", groupName);
 
-	local statusTab = GET_CHILD_RECURSIVELY(open, 'statusTab');
+	local statusTab = open:GetChild('statusTab');
 	ITEMBUFF_SHOW_TAB(statusTab, handle);
 
 	local sklName = GetClassByType("Skill", groupInfo.classID).ClassName;	
@@ -223,33 +201,21 @@ function OPEN_ITEMBUFF_UI_COMMON(groupName, sellType, handle)
 	open:SetUserValue("SKILLLEVEL", groupInfo.level);
 	open:SetUserValue("HANDLE", handle);
 
-	local repairBox = GET_CHILD_RECURSIVELY(open, "repair");
+	local repairBox = open:GetChild("repair");
 
 	if session.GetMyHandle() == handle then
-		local money = GET_CHILD_RECURSIVELY(open, "reqitemMoney");
+		local money = repairBox:GetChild("reqitemMoney");
 		money:SetTextByKey("txt", groupInfo.price);
-		local effectGbox = GET_CHILD_RECURSIVELY(open, "effectGbox");
-	end
-
-	-- 아츠 특성 표시
-	local abilState = groupInfo.squireAbilState;
-	local abil_text = GET_CHILD_RECURSIVELY(open, 'abil_text');
-	if abilState == 1 then
-		abil_text:SetTextByKey('txt', ScpArgMsg('Squire14AbilityAble'));
-	elseif abilState == 2 then
-		abil_text:SetTextByKey('txt', ScpArgMsg('Squire15AbilityAble'));
-	elseif abilState == 3 then
-		abil_text:SetTextByKey('txt', ScpArgMsg('Squire16AbilityAble'));
-	else
-		abil_text:SetTextByKey('txt', '');
+		local effectGbox = repairBox:GetChild("effectGbox");
 	end
 	
 	open:SetUserValue("PRICE", groupInfo.price)
 	
-	local itembox_tab = GET_CHILD_RECURSIVELY(open, 'statusTab');
+	local tabObj = open:GetChild('statusTab');
+	local itembox_tab = tolua.cast(tabObj, "ui::CTabControl");
 	itembox_tab:SelectTab(0);
-	SQUIRE_BUFF_VIEW(open);
-	SQUIRE_UI_RESET(open);
+	SQIORE_BUFF_VIEW(open);
+	SQUTE_UI_RESET(open);
 	SQUIRE_UPDATE_MATERIAL(open);
 	ui.OpenFrame("inventory");
 end

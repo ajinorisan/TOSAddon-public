@@ -171,20 +171,12 @@ function CLEAR_REINFORCE_BY_MIX(frame)
 	INVENTORY_SET_CUSTOM_RBTNDOWN("REINFORCE_MIX_RBTN");
 	INVENTORY_SET_CUSTOM_RDBTNDOWN("None");
 	RESET_INVENTORY_ICON();
-
-	SetCraftState(0);
-	ui.SetHoldUI(false);
 end
 
 function CLOSE_REINFORCE_BY_MIX(frame)
-	if ui.CheckHoldedUI() == true then
-		return;
-	end
-	
 	CLEAR_REINFORCE_BY_MIX(frame);
 	INVENTORY_SET_CUSTOM_RBTNDOWN("None");
 	ui.CloseFrame("inventory");
-	ui.CloseFrame("reinforce_by_mix");
 end
 
 function OPEN_REINFORCE_BY_MIX(frame)
@@ -709,64 +701,8 @@ function REMAIN_SELECTED_ITEM_COUNT(slot_index, nowselectedcount, count, inven_i
     item_obj = nil
 end
 
-local selectSlot
-local selectguid
 function REINFORCE_MIX_INV_RBTN(itemObj, slot, selectall)    
-	local guid = GetIESID(itemObj);
-	local invitem = session.GetInvItemByGuid(guid);
-	if nil == invitem then        
-		return;
-	end
-
-	if IS_KEY_ITEM(itemObj) == true or IS_KEY_MATERIAL(itemObj) == true or itemObj.ItemLifeTimeOver ~= 0 then
-		ui.SysMsg(ClMsg("CanNotBeUsedMaterial"));
-		return;
-	end
-	
-	if IS_MECHANICAL_ITEM(itemObj) == true then
-	    ui.SysMsg(ClMsg("IS_MechanicalItem"));
-	    return;
-	end
-
-	if true == invitem.isLockState then
-		ui.SysMsg(ClMsg("MaterialItemIsLock"));
-		return;
-	end
-
-	local exp = get_exp_from_slot()
-	local lv = 1
-	local tgtItem = GET_REINFORCE_MIX_ITEM()
-	local lv = GET_ITEM_LEVEL_EXP(tgtItem, exp + tgtItem.ItemExp)
-	if lv == GET_ITEM_MAX_LEVEL(tgtItem) then
-		ui.SysMsg(ClMsg("ArriveInMaxLevel"))            
-		return
-	end
-
-	local reinfItem = GET_REINFORCE_MIX_ITEM();
-	local reinforceCls = GetClass("Reinforce", reinfItem.Reinforce_Type);
-	if 1 == _G[reinforceCls.MaterialScript](reinfItem, itemObj) then
-
-		selectSlot = slot
-		selectguid = tostring(invitem:GetIESID())
-		local maxCnt = invitem.count - slot:GetUserIValue("REINF_MIX_SELECTED")
-		if maxCnt == 0 then
-			return
-		end
-
-		if maxCnt == 1 then
-			REINFORCE_MIX_INPUT_MATERIAL(frame, 1, frame)
-			return
-		end
-		INPUT_NUMBER_BOX(frame, ScpArgMsg("InputCount"), "REINFORCE_MIX_INPUT_MATERIAL", maxCnt, 1, maxCnt, nil, selectguid);
-	end
-end
-
-function REINFORCE_MIX_INPUT_MATERIAL(frame, inputCount, inputframe)    
-	inputframe:ShowWindow(0);
-	local slot = selectSlot
-    local guid = selectguid;
-    local itemObj = GetObjectByGuid(guid);
-	local invitem = session.GetInvItemByGuid(guid);
+	local invitem = session.GetInvItemByGuid(GetIESID(itemObj))    
 	if nil == invitem then        
 		return;
 	end
@@ -788,8 +724,12 @@ function REINFORCE_MIX_INPUT_MATERIAL(frame, inputCount, inputframe)
 			ui.SysMsg(ClMsg("MaterialItemIsLock"));
 			return;
 		end
-		local nowselectedcount = slot:GetUserIValue("REINF_MIX_SELECTED") + inputCount - 1
+		local nowselectedcount = slot:GetUserIValue("REINF_MIX_SELECTED")
           
+        if selectall == 'YES' then            
+			nowselectedcount = invitem.count -1;
+		end
+
         local exp = get_exp_from_slot()
         local lv = 1
         local tgtItem = GET_REINFORCE_MIX_ITEM()
@@ -815,18 +755,14 @@ function REINFORCE_MIX_INPUT_MATERIAL(frame, inputCount, inputframe)
         if nowselectedcount + 1 == count then
             if count <= invitem.count then                
 		        local reinfFrame = ui.GetFrame("reinforce_by_mix");
+			    local icon = slot:GetIcon();			
 			    if 1 == REINFORCE_BY_MIX_ADD_MATERIAL(reinfFrame, itemObj, count)  then            
-					imcSound.PlaySoundEvent("icon_get_down");
-					for i = 0, 1 do
-						slot = INV_GET_SLOT_BY_ITEMGUID(guid, nil, i);
-						local icon = slot:GetIcon();
-						slot:SetUserValue("REINF_MIX_SELECTED", nowselectedcount + 1);
-						local nowselectedcount = slot:GetUserIValue("REINF_MIX_SELECTED")
-								
-						if icon ~= nil and count == invitem.count then
-							icon:SetColorTone("AA000000");
-						end
-					end
+				    imcSound.PlaySoundEvent("icon_get_down");
+				    slot:SetUserValue("REINF_MIX_SELECTED", count);
+				    local count = slot:GetUserIValue("REINF_MIX_SELECTED")						
+				    if icon ~= nil and count == invitem.count then                    
+					    icon:SetColorTone("AA000000");
+				    end
 			    end
 		    end 
         else
@@ -891,14 +827,11 @@ function REINFORCE_BY_MIX_SLOT_RBTN(parent, slot)
     end
 	local guid = invItem:GetIESID();
 
-	for i = 0, 1 do
-		local invSlot = INV_GET_SLOT_BY_ITEMGUID(guid, nil, i);
-		local icon = invSlot:GetIcon();
-		icon:SetColorTone("FFFFFFFF");
-		invSlot:SetUserValue("REINF_MIX_SELECTED", 0);
-	end
-
+	local invSlot = GET_PC_SLOT_BY_ITEMID(guid);
+	local icon = invSlot:GetIcon();
+	icon:SetColorTone("FFFFFFFF");
 	slot:ClearIcon();
+	invSlot:SetUserValue("REINF_MIX_SELECTED", 0);
 	ui.UpdateVisibleToolTips();
 
 	REINFORCE_MIX_UPDATE_EXP(frame);
@@ -1025,8 +958,6 @@ function _REINFORCE_BY_MIX_EXECUTE()
 
 	local resultlist = session.GetItemIDList();
 	if resultlist:Count() > 1 then
-		SetCraftState(1);
-		ui.SetHoldUI(true);
 		item.DialogTransaction("SCR_ITEM_EXP_UP", resultlist);	
 	end
 	--local tgtItem = GET_REINFORCE_MIX_ITEM();
@@ -1039,9 +970,6 @@ end
 function REINFORCE_MIX_ITEM_EXP_STOP()	    
 	local frame = ui.GetFrame("reinforce_by_mix");
 	frame:SetUserValue("EXECUTE_REINFORCE", 0);
-	SetCraftState(0);
-	ui.SetHoldUI(false);
-
     local reinforceButton = GET_CHILD_RECURSIVELY(frame, "exec_mixreinf");
 	if reinforceButton ~= nil then
 	  reinforceButton:EnableHitTest(1);
@@ -1115,8 +1043,7 @@ function REINFORCE_MIX_ITEM_EXPUP_END(frame, msg, multiPly, totalPoint)
         a:ClearIcon();
     end
     CLEAR_MATERIAL_SLOT(frame)
-	SetCraftState(0);
-	ui.SetHoldUI(false);
+
 end
 
 function CLEAR_MATERIAL_SLOT(frame)
