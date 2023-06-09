@@ -1,7 +1,7 @@
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.1"
+local ver = "0.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -14,7 +14,8 @@ local acutil = require("acutil")
 
 if not g.loaded then
     g.settings = {
-        pctbl = {}
+        pctbl = {},
+        gemguid = {}
     }
 end
 
@@ -47,16 +48,18 @@ function AETHERGEM_MGR_ON_INIT(addon, frame)
     CHAT_SYSTEM(addonNameLower .. " loaded")
     acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
     -- acutil.setupHook(AETHERGEM_MGR_test, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
-
+    --[[
     local loginCharID = info.GetCID(session.GetMyHandle())
+    CHAT_SYSTEM(loginCharID)
     g.gemguid = nil
-    for charID, charGemguid in pairs(g.settings.gemguid) do
+    for charID in pairs(g.settings.pctbl) do
         if charID == loginCharID then
-            g.gemguid = charGemguid
+
             break
         end
     end
-
+    CHAT_SYSTEM(g.gemguid)
+    ]]
     -- AETHERGEM_MGR_LOADSETTINGS()
     AETHERGEM_MGR_FRAME_INIT()
 
@@ -73,124 +76,140 @@ function AETHERGEM_MGR_FRAME_INIT()
     local inventoryGbox = invframe:GetChild("inventoryGbox")
 
     -- ボタンの配置位置
-    local buttonX = inventoryGbox:GetWidth() - 105
-    local buttonY = inventoryGbox:GetHeight() - 580
+    -- local buttonX = inventoryGbox:GetWidth() - 35
+    -- local buttonY = inventoryGbox:GetHeight() - 610
 
-    local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton", buttonX, buttonY, 50, 30)
-    eqbutton:SetText("AG_SET")
+    -- local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton", buttonX, buttonY, 20, 20)
+    -- eqbutton:SetText("AG_SET")
+    -- AUTO_CAST(eqbutton)
+    -- eqbutton:SetSkinName("None")
+    -- eqbutton:SetImage("config_button_normal")
+    -- eqbutton:Resize(30, 30)
 
-    local rmbuttonX = inventoryGbox:GetWidth() - 105
+    local rmbuttonX = inventoryGbox:GetWidth() - 110
     local rmbuttonY = inventoryGbox:GetHeight() - 610
 
     local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 60, 30)
     rmeqbutton:SetText("AG_MGR")
 
-    eqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
-    rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
+    -- eqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
+    -- rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
+    rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
+end
 
+function AETHERGEM_MGR_ON_BUTTON_SELECTED(frame, ctrl, argStr, argNum)
+    -- CHAT_SYSTEM("ボタンが押されました: " .. argStr)
+    local STR_guid = 850006
+    local INT_guid = 850007
+    local DEX_guid = 850008
+    local SPR_guid = 850009
+    local CON_guid = 850010
+    -- 選択されたラジオボタンの処理を記述
+    if argStr == 'STR' then
+        frame:ShowWindow(0)
+        g.settings.gemguid = STR_guid
+        g.settings.pctbl = info.GetCID(session.GetMyHandle())
+        g.gemguid = STR_guid
+        local frame = ui.GetFrame('goddess_equip_manager')
+
+        AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
+        AETHERGEM_MGR_SAVE_SETTINGS()
+        -- STRボタンが選択された場合の処理
+    elseif argStr == 'INT' then
+        frame:ShowWindow(0)
+        g.settings.gemguid = INT_guid
+        g.settings.pctbl = info.GetCID(session.GetMyHandle())
+        g.gemguid = INT_guid
+        local frame = ui.GetFrame('goddess_equip_manager')
+
+        AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
+        AETHERGEM_MGR_SAVE_SETTINGS()
+        -- INTボタンが選択された場合の処理
+    elseif argStr == 'CON' then
+        frame:ShowWindow(0)
+        g.settings.gemguid = CON_guid
+        g.settings.pctbl = info.GetCID(session.GetMyHandle())
+        g.gemguid = CON_guid
+        local frame = ui.GetFrame('goddess_equip_manager')
+
+        AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
+        AETHERGEM_MGR_SAVE_SETTINGS()
+        -- CONボタンが選択された場合の処理
+    elseif argStr == 'SPR' then
+        frame:ShowWindow(0)
+        g.settings.gemguid = SPR_guid
+        g.settings.pctbl = info.GetCID(session.GetMyHandle())
+        g.gemguid = SPR_guid
+        local frame = ui.GetFrame('goddess_equip_manager')
+
+        AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
+        AETHERGEM_MGR_SAVE_SETTINGS()
+        -- SPRボタンが選択された場合の処理
+    elseif argStr == 'DEX' then
+        frame:ShowWindow(0)
+        g.settings.gemguid = DEX_guid
+        g.settings.pctbl = info.GetCID(session.GetMyHandle())
+        g.gemguid = DEX_guid
+        local frame = ui.GetFrame('goddess_equip_manager')
+
+        AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
+        AETHERGEM_MGR_SAVE_SETTINGS()
+        -- DEXボタンが選択された場合の処理
+    end
+end
+
+function AETHERGEM_MGR_AGMFRAME_CLOSE()
+    agmframe = ui.CloseFrame("aethergem_mgr")
 end
 
 function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
-    -- print("equipボタンがクリックされました")
     local agmframe = ui.GetFrame("aethergem_mgr")
-    agmframe:SetSkinName('chat_window');
-    -- agmframe:SetSkinName("test_skin_01_btn");
-    agmframe:Resize(80, 150)
-    -- agmframe:Resize(300, 300)
+    agmframe:SetSkinName('None')
+    agmframe:Resize(120, 180)
     agmframe:ShowTitleBar(0)
-    agmframe:EnableHitTest(0)
-    agmframe:SetLayerLevel(100);
-    agmframe:SetOffset(1810, 385);
-    agmframe:RemoveAllChild();
+    agmframe:EnableHitTest(1)
+    agmframe:SetLayerLevel(100)
+    agmframe:SetOffset(1490, 135)
+    agmframe:RemoveAllChild()
 
-    local function agmframe_close()
-        agmframe = ui.CloseFrame("aethergem_mgr")
-    end
-
-    local closeBtn = agmframe:CreateOrGetControl("button", "closeBtn", 0, 120, 30, 30)
+    local closeBtn = agmframe:CreateOrGetControl("button", "closeBtn", 90, 0, 30, 30)
     AUTO_CAST(closeBtn)
     closeBtn:SetText("×")
-    closeBtn:SetEventScript(ui.LBUTTONUP, "agmframe_close")
+    closeBtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_AGMFRAME_CLOSE")
 
-    local function OnRadioButtonSelected(ctrl)
-        local STR_guid = 850006
-        local INT_guid = 850007
-        local DEX_guid = 850008
-        local APR_guid = 850009
-        local CON_guid = 850010
-        -- 選択されたラジオボタンの処理を記述
-        if ctrl:GetName() == 'strbtn' then
-            local gemid = STR_guid
-            g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
-            AETHERGEM_MGR_SAVE_SETTINGS()
-            -- STRボタンが選択された場合の処理
-        elseif ctrl:GetName() == 'intbtn' then
-            local gemid = INT_guid
-            g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
-            AETHERGEM_MGR_SAVE_SETTINGS()
-            -- INTボタンが選択された場合の処理
-        elseif ctrl:GetName() == 'conbtn' then
-            local gemid = CON_guid
-            g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
-            AETHERGEM_MGR_SAVE_SETTINGS()
-            -- CONボタンが選択された場合の処理
-        elseif ctrl:GetName() == 'sprbtn' then
-            local gemid = APR_guid
-            g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
-            AETHERGEM_MGR_SAVE_SETTINGS()
-            -- SPRボタンが選択された場合の処理
-        elseif ctrl:GetName() == 'dexbtn' then
-            local gemid = DEX_guid
-            g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
-            AETHERGEM_MGR_SAVE_SETTINGS()
-            -- DEXボタンが選択された場合の処理
-        end
-    end
+    -- local titleText = agmframe:CreateOrGetControl('richtext', 'titleText', 0, 5, 80, 30)
+    -- AUTO_CAST(titleText)
+    -- titleText:SetText("{s16}{#00FFFF}AG SELECT")
 
-    local strbtn = agmframe:CreateOrGetControl('radio', 'strbtn', 0, 0, 30, 30)
+    local strbtn = agmframe:CreateOrGetControl('button', 'strbtn', 0, 30, 120, 30)
     AUTO_CAST(strbtn)
-    if g.gemguid == 850006 then
-        strbtn:IsChecked(1)
-    end
     strbtn:SetText("{s16}{#F00000}STR")
-    strbtn:SetGroupID(1)
-    strbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+    strbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    strbtn:SetEventScriptArgString(ui.LBUTTONUP, "STR") -- ボタンが押されたことを示す文字列を渡す
 
-    local intbtn = agmframe:CreateOrGetControl('radio', 'intbtn', 0, 30, 30, 30)
+    local intbtn = agmframe:CreateOrGetControl('button', 'intbtn', 0, 60, 120, 30)
     AUTO_CAST(intbtn)
-    if g.gemguid == 850007 then
-        strbtn:IsChecked(1)
-    end
-    intbtn:SetText("{s16}{#0000F0}INT")
-    intbtn:SetGroupID(1)
-    intbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+    intbtn:SetText("{s16}{#00FFFF}INT")
+    intbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    intbtn:SetEventScriptArgString(ui.LBUTTONUP, "INT") -- ボタンが押されたことを示す文字列を渡す
 
-    local conbtn = agmframe:CreateOrGetControl('radio', 'conbtn', 0, 60, 30, 30)
+    local conbtn = agmframe:CreateOrGetControl('button', 'conbtn', 0, 90, 120, 30)
     AUTO_CAST(conbtn)
-    if g.gemguid == 850010 then
-        strbtn:IsChecked(1)
-    end
     conbtn:SetText("{s16}{#FFFFFF}CON")
-    conbtn:SetGroupID(1)
-    conbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+    conbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    conbtn:SetEventScriptArgString(ui.LBUTTONUP, "CON") -- ボタンが押されたことを示す文字列を渡す
 
-    local sprbtn = agmframe:CreateOrGetControl('radio', 'sprbtn', 0, 90, 30, 30)
+    local sprbtn = agmframe:CreateOrGetControl('button', 'sprbtn', 0, 120, 120, 30)
     AUTO_CAST(sprbtn)
-    if g.gemguid == 850009 then
-        strbtn:IsChecked(1)
-    end
     sprbtn:SetText("{s16}{#F0F000}SPR")
-    sprbtn:SetGroupID(1)
-    sprbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+    sprbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    sprbtn:SetEventScriptArgString(ui.LBUTTONUP, "SPR") -- ボタンが押されたことを示す文字列を渡す
 
-    local dexbtn = agmframe:CreateOrGetControl('radio', 'dexbtn', 0, 120, 30, 30)
+    local dexbtn = agmframe:CreateOrGetControl('button', 'dexbtn', 0, 150, 120, 30)
     AUTO_CAST(dexbtn)
-    if g.gemguid == 850008 then
-        strbtn:IsChecked(1)
-    end
     dexbtn:SetText("{s16}{#00F000}DEX")
-    dexbtn:SetGroupID(1)
-    dexbtn:SetEventScript(ui.LBUTTONUP, 'OnRadioButtonSelected')
+    dexbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    dexbtn:SetEventScriptArgString(ui.LBUTTONUP, "DEX") -- ボタンが押されたことを示す文字列を渡す
 
     agmframe:ShowWindow(1)
 end
@@ -228,7 +247,7 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 
         -- local frame = am_gem_slot:GetTopParentFrame()
 
-        -- ReserveScript(string.format("GODDESS_MGR_SOCKET_CLEAR("%s")", frame), 0.5)
+        -- ReserveScript(string.format("GODDESS_MGR_SOCKET_CLEAR(" % s ")", frame), 0.5)
 
         -- CHAT_SYSTEM("押せる")
     else
@@ -361,12 +380,11 @@ function AETHERGEM_MGR_UNEQUIP()
 end
 
 function AETHERGEM_MGR_ITEM_PREPARATION()
-    if g.gemguid ~= nil then
-        -- local itemClassID = 850006
-        local itemClassID = g.gemguid
-    else
-        return
-    end
+    -- CHAT_SYSTEM(g.gemguid)
+
+    -- local itemClassID = 850006
+    local itemClassID = tonumber(g.gemguid)
+
     local am_equip_item = session.GetInvItemByType(itemClassID)
 
     if am_equip_item == nil then
