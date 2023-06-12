@@ -8,6 +8,16 @@
 		"description" : "EP14.15地域で倒したモンスターをカウント Counting monsters defeated in the EP14.15 region EP14.15 지역에서 처치한 몬스터를 세어보세요.",
 		"tags" : []
 	},
+{
+		"name" : "Aethergem Manager",
+		"file" : "aethergem_mgr",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.1",
+		"releaseTag" : "aethergem_mgr",
+		"unicode" : "⛄",
+		"description" : "エーテルジェムの付け替えを補助します。LV480エーテルジェムのみ、右クリックでのエーテルジェムソケット装着サポートします。 Assists in attaching and removing ether gems; supports right-click attachment of ether gem sockets for LV480 ether gems only. 에테르 젬 교체 지원, LV480 에테르 젬에 한해 우클릭으로 에테르 젬 소켓 장착을 지원합니다.",
+		"tags" : []
+	},
 
  {
 		"name" : "GT sysmsg",

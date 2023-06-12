@@ -1,7 +1,7 @@
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -184,11 +184,16 @@ function AETHERGEM_MGR_ON_BUTTON_SELECTED(frame, ctrl, argStr, argNum)
 end
 
 function AETHERGEM_MGR_AGMFRAME_CLOSE()
+    local agmframe = ui.GetFrame("aethergem_mgr")
     agmframe = ui.CloseFrame("aethergem_mgr")
 end
 
 function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
     local agmframe = ui.GetFrame("aethergem_mgr")
+    if agmframe:IsVisible() == 1 then
+        agmframe:ShowWindow(0)
+        return
+    end
     agmframe:SetSkinName('None')
     agmframe:Resize(60, 180)
     agmframe:ShowTitleBar(0)
@@ -256,8 +261,10 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
     local am_aether_cover_bg = GET_CHILD_RECURSIVELY(gemframe, 'aether_cover_bg')
 
     if am_aether_cover_bg:IsVisible() == 1 then
+        -- CHAT_SYSTEM("あいてない")
         return;
-
+        -- else
+        -- CHAT_SYSTEM("あいてる")
     end
 
     local am_gem_slot = GET_CHILD(am_ctrlset, 'gem_slot', "ui::CSlot")
@@ -320,6 +327,7 @@ function AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
 
     CLEAR_GODDESS_EQUIP_MANAGER(frame)
     GODDESS_MGR_SOCKET_OPEN(frame)
+
     AETHERGEM_MGR_UNEQUIP()
 end
 
