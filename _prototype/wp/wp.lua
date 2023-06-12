@@ -21,9 +21,13 @@ function WP_ON_INIT(addon, frame)
 end
 
 function BANDI_CAM_HIDECHAT_JUDGE(frame, msg, argStr, argNum)
-    local frame = ui.GetFrame('chatframe')
-    if frame:IsVisible() == 1 then
-        frame:ShowWindow(0)
+    CHAT_SYSTEM(msg)
+    CHAT_SYSTEM(argStr)
+    CHAT_SYSTEM(argNum)
+    CHAT_SYSTEM("ctframe_hide")
+    local ctframe = ui.GetFrame('chatframe')
+    if ctframe:IsVisible() == 1 then
+        ctframe:ShowWindow(0)
         ReserveScript("BANDI_CAM_HIDECHAT()", 60)
     end
 
@@ -31,5 +35,5 @@ end
 
 function BANDI_CAM_HIDECHAT()
     local frame = ui.GetFrame('chatframe')
-    frame:ShowWindow(1)
+    ctframe:ShowWindow(1)
 end
