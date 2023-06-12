@@ -1,5 +1,19 @@
 ## tosaddon
 
+こちらのリポジトリに置かれているアドオンを利用したことにより生じるいかなる損害についても、理由の如何に関わらず作者は責任を負えません。
+
+くれぐれも自己の責任においてご利用ください。
+
+また、当然の事ながら、個人で作成して個人で配布していますので所属ギルドとも一切の関係はありません。
+
+author = "norisan"のアドオンについては、改変や再配布などご自由にどうぞ。
+
+不具合ありましたら、下記まで連絡ください。
+
+Twitter
+
+https://twitter.com/ToSJP_rada
+
 ### dungeonrpcharger
 
 自動補充するエクトナイトをコイン交換のタイプに変更
@@ -121,7 +135,3 @@ settings.json
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\data
 
 にバージョン違いのipfファイルがあると上手に動かないよ！
-
-Twitter
-
-https://twitter.com/ToSJP_rada
