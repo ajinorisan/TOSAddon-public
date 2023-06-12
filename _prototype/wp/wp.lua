@@ -16,21 +16,20 @@ function WP_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     CHAT_SYSTEM(addonNameLower .. " loaded")
-    addon:RegisterMsg('FPS_UPDATE', 'WP_test');
+    addon:RegisterMsg("BANDI_CAM", "BANDI_CAM_HIDECHAT");
 
 end
 
-function WP_test()
-    local am_liftIcon = ui.GetLiftIcon();
-    AUTO_CAST(am_liftIcon);
-    local itemName = "アイテム名" -- アイテム名を指定
-    local classID = 12345 -- クラスIDを指定
-    am_liftIcon:SetEventScript(ui.LBUTTONUP, "WP_test2")
-    am_liftIcon:SetEventScriptArgString(ui.LBUTTONUP, itemName)
-    am_liftIcon:SetEventScriptArgNumber(ui.LBUTTONUP, classID)
+function BANDI_CAM_HIDECHAT_JUDGE(frame, msg, argStr, argNum)
+    local frame = ui.GetFrame('chatframe')
+    if frame:IsVisible() == 1 then
+        frame:ShowWindow(0)
+        ReserveScript("BANDI_CAM_HIDECHAT()", 60)
+    end
+
 end
 
-function WP_test2(frame, ctrl, strarg, numarg)
-    print(strarg)
-    print(numarg)
+function BANDI_CAM_HIDECHAT()
+    local frame = ui.GetFrame('chatframe')
+    frame:ShowWindow(1)
 end
