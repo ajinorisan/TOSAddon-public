@@ -21,19 +21,26 @@ function HIDE_CHATFRAME_ON_INIT(addon, frame)
     g.frame = frame
 
     CHAT_SYSTEM(addonNameLower .. " loaded")
-
-    acutil.setupHook(HIDE_CHATFRAME_ON_BANDI_CAM, "ON_BANDI_CAM")
+    addon:RegisterMsg("BANDI_CAM", "HIDE_CHATFRAME_ON_BANDI_CAM")
+    -- acutil.setupHook(HIDE_CHATFRAME_ON_BANDI_CAM, "ON_BANDI_CAM")
 
 end
 
-function HIDE_CHATFRAME_ON_BANDI_CAM(frame, msg, argStr, argNum)
-    CHAT_SYSTEM(msg)
-    CHAT_SYSTEM(argStr)
-    CHAT_SYSTEM(argNum)
-    print(msg)
-    print(argStr)
-    print(argNum)
+function HIDE_CHATFRAME_ON_BANDI_CAM()
+    CHAT_SYSTEM("msg")
 
-    ON_BANDI_CAM_OLD(frame, msg, argStr, argNum)
+    -- local chatframe = ui.GetFrame('chatframe')
+    ui.CloseFrame('chatframe')
+    -- elseif argNum == 0 and argStr == "None" then
+    -- local cframe = ui.GetFrame('chatframe')
+    -- cframe:showwindow(1)
+    -- end
+
+    -- CHAT_SYSTEM(msg)
+    -- CHAT_SYSTEM(argStr)
+    -- CHAT_SYSTEM(argNum)
+    -- print(msg)
+    -- print(argStr)
+    -- print(argNum)
 
 end
