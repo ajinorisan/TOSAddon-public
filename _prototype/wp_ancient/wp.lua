@@ -69,13 +69,13 @@ function ANCIENT_NOTICE_FRAME_INIT(frame)
     frame:ShowWindow(1)
     local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
     if slotset == nil then
-        slotset = frame:CreateOrGetControl("slotset", "slotset", 0, 0, 0, 0)
+        slotset = frame:CreateOrGetControl("slotset", "slotset", 0, 0, 170, 60)
 
         tolua.cast(slotset, "ui::CSlotSet")
         slotset:RemoveAllChild();
         slotset:SetColRow(4, 1)
         slotset:SetMaxSelectionCount(1)
-        slotset:SetSlotSize(40, 40)
+        slotset:SetSlotSize(40, 60)
         slotset:SetSkinName('invenslot')
 
         slotset:CreateSlots()
