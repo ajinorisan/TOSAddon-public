@@ -18,6 +18,16 @@
 		"description" : "エーテルジェムの付け替えを補助します。LV480エーテルジェムのみ、右クリックでのエーテルジェムソケット装着サポートします。 Assists in attaching and removing ether gems; supports right-click attachment of ether gem sockets for LV480 ether gems only. 에테르 젬 교체 지원, LV480 에테르 젬에 한해 우클릭으로 에테르 젬 소켓 장착을 지원합니다.",
 		"tags" : []
 	},
+{
+		"name" : "Ancient AutoSet",
+		"file" : "ancient_autoset",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "ancient_autoset",
+		"unicode" : "⛄",
+		"description" : "アシスターセットをキャラ毎に自動で付け替えます。事前登録必要です。街でしか動きません。 Assister sets will be automatically replaced for each character. Pre-registration required. Only works in city. 캐릭터마다 어시스터 세트를 자동으로 교체합니다. 사전 등록이 필요합니다. 도시에서만 움직입니다.",
+		"tags" : []
+	},
 
  {
 		"name" : "GT sysmsg",
