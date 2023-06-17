@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="buff_visibility" x="0" y="0" width="700" height="25">
+	<frame title="character" layout_gravity="center center" outside="true" useothercountryframe="false" fasthide="true"/>
+	<option visible="false" closebutton="false" hideable="false" useimageitem="true"/>
+	<layer layerlevel="30"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<input hittest="true" hittestframe="false"/>
+	<controls>
+		<groupbox name="buff_visiblity_gb" rect="0 0 110 25" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
+	</controls>
+</uiframe>

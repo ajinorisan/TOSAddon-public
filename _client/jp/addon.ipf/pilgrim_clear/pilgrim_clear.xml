@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by LeeGY (IMCGames Co., Ltd) -->
+<uiframe name="pilgrim_clear" x="0" y="0" width="1920" height="1080">
+	<frame layout_gravity="center center" margin="0 0 0 0"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="101"/>
+	<controls>
+		<picture name="pic_title_backeffect_img" rect="0 0 444 178" margin="0 86 0 0" layout_gravity="center top" hittest="false" image="tribal_backEffect" stretch="true"/>		
+		<picture name="pic_title_text_img" rect="0 0 250 83" margin="0 182 0 0" layout_gravity="center top" hittest="false" image="tribal_txt_extreme" stretch="true"/>
+		<groupbox name="gb_title_clear" rect="0 0 740 150" margin="0 236 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" skin="tribal_frameClear"/>
+		<picture name="pic_title_clear" parent="gb_title_clear" rect="0 0 433 50" margin="0 40 0 0" layout_gravity="center top" hittest="false" image="tribal_txt_clear" stretch="true"/>
+		<richtext name="text_title_clear_indun_name" parent="gb_title_clear" rect="0 0 433 50" margin="0 0 0 28" layout_gravity="center bottom" format="{@tribal_03}%s{/}" param1="name" param1_def="던전 이름" textalign="center center"/>
+		<groupbox name="gb_clear_info" rect="0 0 740 400" margin="0 386 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" draw="false"/>
+		<picture name="pic_pilgrim_icon" parent="gb_clear_info" rect="0 0 30 28" margin="-90 28 0 0" layout_gravity="center top" hittest="false" image="tribal_icon_shell_L" stretch="true"/>
+		<richtext name="text_pilgrim_name" parent="gb_clear_info" rect="0 0 740 50" margin="0 28 0 28" layout_gravity="center top" format="{@st41}{s20}%s{/}{/}" param1="name" param1_def="순례자그룹이름" textalign="center center"/>
+		<groupbox name="gb_scroe_time" parent="gb_clear_info" rect="0 0 731 335" margin="0 65 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" draw="true" skin="tribal_frameScore"/>
+		<picture name="pic_total_score" parent="gb_scroe_time" rect="0 0 17 24" margin="110 30 0 0" layout_gravity="left top" hittest="false" image="tribal_icon_totalscore" stretch="true"/>
+		<richtext name="text_title_score" parent="gb_scroe_time" rect="0 0 740 50" margin="137 30 0 0" layout_gravity="left top" format="{@ps2}{s16}%s{/}{/}" param1="title" param1_def="CLEAR LEVEL" textalign="center center"/>
+		<richtext name="text_total_score" parent="gb_scroe_time" rect="0 0 740 50" margin="0 30 0 0" layout_gravity="center top" format="{@tribal_01}{s70}%s{/}{/}" param1="score" param1_def="12" textalign="center center"/>
+		<picture name="pic_line" parent="gb_scroe_time" rect="0 0 537 2" margin="0 142 0 0" layout_gravity="center top" hittest="false" image="tribal_line2" stretch="true"/>
+		<picture name="pic_play_time" parent="gb_scroe_time" rect="0 0 17 24" margin="110 162 0 0" layout_gravity="left top" hittest="false" image="tribal_icon_playtime" stretch="true"/>
+		<richtext name="text_title_play_time" parent="gb_scroe_time" rect="0 0 740 50" margin="137 162 0 0" layout_gravity="left top" format="{@ps2}{s16}%s{/}{/}" param1="title" param1_def="PLAY TIME" textalign="center center"/>
+		<richtext name="text_play_time" parent="gb_scroe_time" rect="0 0 740 50" margin="0 180 0 0" layout_gravity="center top" format="{@tribal_01}{s70}%s{/}{/}" param1="time" param1_def="-" textalign="center center"/>
+		<richtext name="text_play_time_prev" parent="gb_scroe_time" rect="0 0 740 50" margin="0 270 0 0" layout_gravity="center top" format="{@tribal_02}{s36}(-%s){/}{/}" param1="time" param1_def="" textalign="center center"/>
+		<button name="btn_exit" rect="0 0 234 77" margin="0 815 0 0" layout_gravity="center top" skin="hero_btn_green2" oversound="button_over" caption="{@st41}{s20}나가기" LBtnUpScp="CLOSE_PILGRIM_CLEAR"/>
+	</controls>
+</uiframe>

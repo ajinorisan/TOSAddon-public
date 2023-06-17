@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="toshero_info_monster" x="0" y="0" width="400" height="530" create="open">
+	<frame fasthide="true" layout_gravity="center center" margin="745 -35 0 0"/>
+	<input hittestframe="true" moveintitlebar="false"/>
+	<draw drawtitlebar="false"/>
+    <skin frameskin="test_frame_low"/>
+	<layer layerlevel="102"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+    <controls>
+		<groupbox name="titleBox" rect="0 0 382 40" margin="9 10 0 0" resizebyparent="true" layout_gravity="left top" draw="false" image="test_com_namebg" hittest="true"/>
+		<richtext name="titleText" rect="0 0 382 40" parent="titleBox" margin="10 0 0 0" layout_gravity="left center" caption="{@st43b}{s20}대표 등장 몬스터"/>
+		<button name="closeBtn" rect="0 0 34 34" margin="0 0 0 0" parent="titleBox" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('toshero_info_monster')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}대표 등장 몬스터 창을 닫습니다{/}"/>
+		<groupbox name="monListBox" rect="0 0 381 462" margin="9 55 0 0" resizebyparent="true" layout_gravity="left top" skin="test_frame_midle" hittest="true" scrollbar="true"/>
+    </controls>
+</uiframe>

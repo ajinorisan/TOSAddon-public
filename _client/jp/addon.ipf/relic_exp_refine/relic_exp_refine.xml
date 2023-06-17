@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="relic_exp_refine" x="0" y="0" width="500" height="820">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false"/>
+	<input maxwidth="1280" moveable="true" hittestframe="true"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<layer layerlevel="92" topmostlayerbyclick="true"/>
+	<script OpenScp="RELIC_EXP_REFINE_OPEN" CloseScp="RELIC_EXP_REFINE_CLOSE"/>
+	<userconfig DEFAULT_ROW="2"/>
+	<controls>
+		<!-- 상단 -->
+		<groupbox name="bg" rect="0 0 448 820" margin="0 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="test_frame_low"/>
+		<groupbox name="bg_inner" parent="bg" rect="0 0 424 744" margin="0 63 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" resizebyparent="false" resizebyresolution="false" skin="relic_frame_bg"/>
+		<groupbox name="relicexp_top" rect="0 0 477 76" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="relic_frame_top" stretch="true"/>
+		<richtext name="title" rect="0 0 120 24" margin="0 23 0 0" layout_gravity="center top" drawbackground="false" fixwidth="false" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st44}{s22}%s{/}{/}" param1="value" param1_def="권능의 숨결 정화"/>
+		<button name="close" rect="0 0 35 35" margin="0 20 0 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;relic_exp_refine&apos;)" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="help" rect="0 0 35 35" margin="0 20 0 0" layout_gravity="left top" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" image="testquesten_button" texttooltip="{@st59}보유한 재료 아이템과 일정량의 실버를 소모하여 {@st66d_y}{s18}권능의 숨결{/}{/}을 정화합니다.{/}{nl} {nl}{@st66d_y}{s18}권능의 숨결{/}{/}{@st59} 10개로{@st204_green}{s18}정화된 권능의 숨결{/}{@st59}  1개를 획득할 수 있습니다.{nl} {nl}{@st204_green}{s18}정화된 권능의 숨결{/}{@st59}  1개를 정화할 때 마다 재료가 필요하며,{nl}다음 아이템 목록 중 한 종류를 선택하여 정화 재료로 소비할 수 있습니다.{nl} {nl}재료 아이템 목록{nl} - {@st204_purple}신비한 서 낱장{/} {s16} 2개{nl}  - {@st204_purple}프락토늄{/} {s16} 2개{nl}  - {@st204_purple}마정석{/} {s16} 2개{nl}  - {@st204_purple}축복받은 조각{/} {s16} 20개{nl}  - {@st204_purple}여신의 축복석{/} {s16} 2개{nl}  - {@st204_purple}그을린 텔하르샤의 의장품{/} {s16} 1개{nl}  - {@st204_purple}정제된 글레이시어 심장{/} {s16} 1개{nl}  - {@st204_purple}정제된 모스 탈크 파우더{/} {s16} 1개{nl}  - {@st204_purple}권능의 숨결 정화제{/} {s16} 1개{nl}  - {@st204_purple}[이벤트] 권능의 숨결 정화제{/} {s16} 1개"/>
+		<!-- 재료 -->
+		<slotset name="slotlist" parent="bg_inner" rect="0 0 360 0" margin="0 34 0 0" layout_gravity="center top" LBtnDownScp="SCP_LBTDOWN_RELIC_EXP_REFINE" LBtnDblClickScp="SCP_LBTDOWN_RELIC_EXP_REFINE" RBtnDownScp="SCP_RBTDOWN_RELIC_EXP_REFINE" col="6" cursoronresize="false" dropsound="icon_get_down" enabledrag="false" enableselect="true" hideindrag="true" image="slot" maxselect="80" movepop="false" oversound="button_over" picksound="icon_pick_up" row="2" selectmode="count" size="58 58" skin="invenslot2" spc="2 2"/>
+		<groupbox name="materialInfoGbox" parent="bg_inner" rect="0 0 358 226" margin="0 166 0 0" layout_gravity="center top" skin="relic_frame_inner" stretch="false" scrollbar="true"/>
+		<richtext name="discountTxt" rect="0 0 378 30" margin="32 414 0 0" layout_gravity="left top" parent="bg_inner" caption="{@st202}보유 쿠폰 ▶{/}"/>
+		<slotset name="slotlist_discount" parent="bg_inner" rect="0 0 360 0" margin="0 444 0 0" layout_gravity="center top" LBtnDownScp="RELIC_EXP_REFINE_DISCOUNT_CLICK" LBtnDblClickScp="RELIC_EXP_REFINE_DISCOUNT_CLICK" RBtnDownScp="RELIC_EXP_REFINE_DISCOUNT_CLICK" col="6" row="1" cursoronresize="false" dropsound="icon_get_down" enabledrag="false" enableselect="true" hideindrag="true" image="slot" maxselect="80" movepop="false" oversound="button_over" picksound="icon_pick_up" selectmode="count" size="58 58" skin="invenslot2" spc="2 2"/>
+		<!-- 획득 개수 및 소모 실버 -->
+		<groupbox name="expect_gb" parent="bg_inner" rect="0 0 358 135" margin="0 519 0 0" layout_gravity="center top" draw="false" hittestbox="false" skin="relic_frame_inner" scrollbar="true"/>
+		<richtext name="requireTxt" rect="0 0 378 30" margin="0 10 0 0" layout_gravity="left top" parent="expect_gb" caption="{@st202}권능의 숨결 소모 ▶{/}"/>
+		<richtext name="resultTxt" rect="0 0 378 30" margin="0 40 0 0" layout_gravity="left top" parent="expect_gb" caption="{@st202}정화된 권능의 숨결 ▶{/}"/>
+		<richtext name="priceTxt" rect="0 0 64 20" margin="0 70 0 0" layout_gravity="left top" parent="expect_gb" caption="{@st202}쿠폰 소모 ▶{/}" textalign="left center"/>
+		<richtext name="requireCount" rect="0 0 220 20" margin="0 10 0 0" layout_gravity="right top" parent="expect_gb" format="{@st204_green}%s {/}{img icon_item_relic_exp_token 24 24}" param1="value" param1_def="0" spacey="0" textalign="right center"/>
+		<richtext name="resultCount" rect="0 0 220 20" margin="0 40 0 0" layout_gravity="right top" parent="expect_gb" format="{@st204_green}%s {/}{img icon_item_relic_exp_token_refine 24 24}" param1="value" param1_def="0" spacey="0" textalign="right center"/>
+		<gauge name="price_gauge" parent="expect_gb" rect="0 0 250 21" margin="0 72 5 0" layout_gravity="right top" inverse="false" point="50" skin="gauge_vibora_upgrade" text1="{@sti1c}{s14}%v / %m{/}{/}" textalign1="center center" textfont1="white_18_ol" textoffset1="0 -1"/>
+		<button name="refineBtn" parent="bg_inner" rect="0 0 160 70" margin="0 0 0 20" layout_gravity="center bottom" LBtnUpScp="RELIC_EXP_REFINE_EXEC" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" format="{@st41b}{s18}%s{/}" param1="value" param1_def="정화" clicksound="button_click_stats_OK" oversound="button_over" skin="relic_btn_purple" texttooltip="{@st59}권능의 숨결 정화{/}"/>
+		<button name="clearBtn" parent="bg_inner" rect="0 0 160 70" margin="0 0 0 20" layout_gravity="center bottom" LBtnUpScp="CLEAR_EXP_REFINE_EXECUTE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" format="{@st41b}{s18}%s{/}" param1="value" param1_def="확인" clicksound="button_click_stats_OK" oversound="button_over" skin="relic_btn_purple" texttooltip="{@st59}확인{/}"/>
+	</controls>
+</uiframe>

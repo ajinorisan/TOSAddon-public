@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="toshero_info_reinforce" x="0" y="0" width="504" height="400">
+	<frame fullheight="false" layout_gravity="right top" margin="0 400 560 0"/>
+	<skin frameskin="test_frame_low"/>
+	<layer layerlevel="100"/>
+	<input moveable="true"/>
+	<draw drawtitlebar="false"/>
+	<option closebutton="false"/>
+	<script OpenScp="TOSHERO_INFO_REINFORCE_OPEN"/>
+	<userconfig DEFAULT_TEXT="{img blue_type} 옵션을 추가하세요." OPTION_CHANGE_BUTTON="hero_btn_return" OPTION_ADD_BUTTON="hero_btn_plus" BASE_HEIGHT="160"/>
+	<controls>
+		<groupbox name="title_bg" margin="0 0 0 0" rect="0 0 520 43" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_titleBar"/>
+		<richtext name="title" margin="0 0 0 0" rect="0 0 120 30" parent="title_bg" format="{@st44}{s18}강화{/}" textalign="center center" layout_gravity="center center"/>
+		<button name="close" rect="0 0 44 44" margin="0 3 5 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;toshero_info_reinforce&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="question" rect="0 0 44 44" margin="5 3 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="{#FFFF00}※ 준비 단계에서 장비 아이템을 강화할 수 있습니다.{/}{nl}옵션을 추가하면 장비에 랜덤 옵션을 부여합니다.{nl}옵션을 부여한 장비는 장비의 성능도 함께 강화됩니다.{nl} {nl}1번 옵션 추가 비용 : 2500 포인트{nl}2번 옵션 추가 비용 : 5000 포인트{nl}옵션 변경 비용 : 5000 포인트"/>
+		<slot name="equip" rect="0 0 80 80" margin="0 60 0 0" layout_gravity="center top" DropScp="TOSHERO_INFO_REINFORCE_DROP_EQUIP" RBtnUpScp="TOSHERO_INFO_REINFORCE_REMOVE_EQUIP" skin="rh"/>
+		<groupbox name="point_bg" margin="0 0 0 20" rect="0 0 440 28" layout_gravity="center bottom" draw="true" hittestbox="false" skin="hero_point1"/>
+		<richtext name="point_info" parent="point_bg" margin="0 1 5 0" rect="0 0 158 28" format="{@sti1c}{s16}%s" param1="point" param1_def="10,000" textalign="left center" layout_gravity="right center"/>
+	</controls>
+</uiframe>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="decompose_manager" x="0" y="0" width="610" height="609" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame title="" fullheight="true" fasthide="true" layout_gravity="left top" open="pip" margin="-470 0 0 0"/>
+	<input maxwidth="1280" moveable="false"/>
+	<layer layerlevel="80"/>
+	<option closebutton="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<script OpenScp="DECOMPOSE_MANAGER_OPEN" CloseScp="DECOMPOSE_MANAGER_CLOSE"/>
+	<controls>
+		<!-- 상단 -->
+		<groupbox name="bg" rect="0 0 610 1030" draw="true" hittestbox="false" margin="0 0 0 0" layout_gravity="center top" resizebyparent="false" resizebyresolution="true" scrollbar="true" skin="test_frame_low"/>
+		<picture name="pip_top_image" rect="0 0 453 70" margin="0 0 0 0" layout_gravity="center top" changecursor="false" hittest="true" image="test_socket_top" stretch="true"/>
+		<groupbox name="pipwin_top" rect="0 0 500 60" margin="0 45 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_socket_topskin"/>
+		<richtext name="richtext_1" rect="0 0 120 24" margin="0 63 0 0" layout_gravity="center top" drawbackground="false" fixwidth="false" fontname="white_16_ol" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st43}%s" param1="value" param1_def="특수 아이템 분해"/>
+		<button name="close" rect="0 0 44 44" margin="0 60 40 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame('decompose_manager')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+		<!-- 탭 -->
+		<tab name="type_Tab" parent="bg" margin="30 110 0 0" rect="0 0 610 40" layout_gravity="left top" fixwidth="true" omitbywidth="true" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" LBtnUpScp="DECOMPOSE_MANAGER_TAB_CHANGE" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="tab_ark" parent="type_Tab" width="110" caption="{@st66b}아크{/}" texttooltip="{@st59}아크 분해{/}" layout_gravity="left top"/>
+		<tabitem name="tab_unique" parent="type_Tab" width="110" caption="{@st66b}여신/마신{/}" texttooltip="{@st59}여신/마신 장비 분해{/}" layout_gravity="left top"/>
+		<tabitem name="tab_misc_legend" parent="type_Tab" width="110" caption="{@st66b}아키스톤{/}" texttooltip="{@st59}아키스톤 분해{/}" layout_gravity="left top"/>
+		<tabitem name="tab_acc_ep12" parent="type_Tab" width="110" caption="{@st66b}액세서리{/}" texttooltip="{@st59}카랄리엔 액세서리 분해{/}" layout_gravity="left top"/>
+		<tabitem name="tab_vibora" parent="type_Tab" width="110" caption="{@st66b}바이보라{/}" texttooltip="{@st59}바이보라 분해{/}" layout_gravity="left top"/>
+		<!-- 분해 대상 -->
+		<groupbox name="gbox" rect="0 0 610 964" margin="0 110 0 0" layout_gravity="center top" resizebyparent="false" draw="false" hittestbox="false" resizebyresolution="true" scrollbar="false" skin="gem_socket_bg"/>
+		<groupbox name="slotbox" parent="gbox" rect="0 0 610 320" margin="0 25 0 0" layout_gravity="center top" resizebyparent="false" draw="false" hittestbox="false" resizebyresolution="false" scrollbar="false" skin="gem_socket_bg"/>
+		<slot name="slot" parent="slotbox" margin="0 65 0 0" rect="0 0 150 150" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" DropScp="DECOMPOSE_MANAGER_DROP_TARGET" RBtnUpScp="CLEAR_DECOMPOSE_MANAGER" layout_gravity="center top"/>
+		<picture name="slot_bg_image" parent="slot" rect="0 0 122 115" margin="0 0 0 0" layout_gravity="center center" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="false" image="socket_slot_bg" oversound="button_over"/>
+		<groupbox name="namebox" rect="0 0 493 57" margin="0 0 0 25" parent="slotbox" layout_gravity="center bottom" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="monster_skill_bg"/>
+		<richtext name="text_itemname" margin="0 -3 0 0" rect="0 0 300 50" parent="namebox" hittestbox="false" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_20_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center center"/>
+		<richtext name="text_putonitem" margin="0 -3 0 0" rect="0 0 400 50" parent="namebox" format="{@st43b}{s18}분해할 아이템을 올려주세요" hittestbox="false" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_20_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center center"/>
+		<richtext name="text_complete" margin="0 -3 0 0" rect="0 0 400 50" parent="namebox" format="{@st43b}{s18}분해가 완료되었습니다" hittestbox="false" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_20_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center center"/>
+		<!-- 분해 비용 -->
+		<groupbox name="costBox" parent="gbox" rect="0 0 466 135" margin="0 375 0 0" layout_gravity="center top" skin="test_frame_midle"/>
+		<richtext name="itemNameText" parent="costBox" rect="0 0 300 30" margin="10 10 0 0" layout_gravity="left top" format="{@st42}%s" param1="name" param1_def="아이템"/>
+		<labelline name="line1" parent="costBox" rect="0 0 460 4" margin="0 35 0 0" layout_gravity="center top" skin="labelline_def2"/>
+		<slot name="itemSlot" parent="costBox" rect="0 0 70 70" margin="10 0 0 13" layout_gravity="left bottom" skin="invenslot2" enabledrop="false" enablepop="false" enabledrag="false"/>
+		<richtext name="cost_count" parent="costBox" rect="0 0 30 30" margin="0 0 10 20" layout_gravity="right bottom" textalign="right center" resizebytext="true" fixwidth="false" format="%s%s{/} / %s{/}" param1="color" param2="curCount" param3="needCount" fontname="white_18"/>
+		<richtext name="costStaticText" parent="costBox" rect="0 0 300 30" margin="10 0 0 13" layout_gravity="left bottom" caption="{img silver_pic 24 24} 가격" fontname="white_16_b_ol"/>
+		<richtext name="priceText" parent="costBox" rect="0 0 300 30" margin="0 0 10 13" layout_gravity="right bottom" format="{@st66d_y}%s" param1="price" param1_def="0"/>
+		<!-- 분해 결과 -->
+		<groupbox name="resultbox" parent="gbox" rect="0 0 466 383" margin="0 375 0 0" layout_gravity="center top" resizebyparent="false" draw="true" hittestbox="false" resizebyresolution="false" scrollbar="true" skin="test_frame_midle"/>
+		<slot name="result1" parent="resultbox" margin="20 21 0 0" rect="0 0 65 65" movepop="false" hittest="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" layout_gravity="left top"/>
+		<richtext name="text_result1" margin="100 21 0 0" rect="0 0 200 50" parent="resultbox" hittestbox="false" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>		
+		<slot name="result2" parent="resultbox" margin="20 91 0 0" rect="0 0 65 65" movepop="false" hittest="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" layout_gravity="left top"/>
+		<richtext name="text_result2" margin="100 91 0 0" rect="0 0 200 50" parent="resultbox" hittestbox="false" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>		
+		<slot name="result3" parent="resultbox" margin="20 161 0 0" rect="0 0 65 65" movepop="false" hittest="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" layout_gravity="left top"/>
+		<richtext name="text_result3" margin="100 161 0 0" rect="0 0 200 50" parent="resultbox" hittestbox="false" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>		
+		<slot name="result4" parent="resultbox" margin="20 231 0 0" rect="0 0 65 65" movepop="false" hittest="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" layout_gravity="left top"/>
+		<richtext name="text_result4" margin="100 231 0 0" rect="0 0 200 50" parent="resultbox" hittestbox="false" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>		<!-- 하단 -->
+		<slot name="result5" parent="resultbox" margin="20 301 0 0" rect="0 0 65 65" movepop="false" hittest="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" layout_gravity="left top"/>
+		<richtext name="text_result5" margin="100 301 0 0" rect="0 0 200 50" parent="resultbox" hittestbox="false" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>		<!-- 하단 -->
+		<slot name="result6" parent="resultbox" margin="20 371 0 0" rect="0 0 65 65" movepop="false" hittest="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" layout_gravity="left top"/>
+		<richtext name="text_result6" margin="100 371 0 0" rect="0 0 200 50" parent="resultbox" hittestbox="false" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>		<!-- 하단 -->
+		<slot name="result7" parent="resultbox" margin="20 441 0 0" rect="0 0 65 65" movepop="false" hittest="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" layout_gravity="left top"/>
+		<richtext name="text_result7" margin="100 441 0 0" rect="0 0 200 50" parent="resultbox" hittestbox="false" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>		<!-- 하단 -->
+		<groupbox name="gbox2" parent="gbox" rect="0 0 610 400" draw="false" hittestbox="false" margin="0 0 0 0" layout_gravity="center bottom" resizebyparent="false" resizebyresolution="false"/>
+		<richtext name="tip_text" parent="gbox2" rect="0 0 570 80" margin="0 0 0 120" layout_gravity="center bottom" hittest="false" resizebytext="false" fixwidth="true" format="{@st66b}{s16}%s" param1="value" param1_def="- 아크 분해 시 재료로 사용된 아키스톤을 획득합니다."/>
+		<button name="execbutton" parent="gbox2" rect="0 0 180 50" margin="0 0 0 70" layout_gravity="center bottom" LBtnUpScp="DECOMPOSE_MANAGER_EXECUTE" skin="test_red_button" format="{@st41b}{s20}%s" oversound="button_cursor_over_3" param1="value" param1_def="분해" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<button name="okbutton" parent="gbox2" rect="0 0 180 50" margin="0 0 0 70" layout_gravity="center bottom" LBtnUpScp="CLEAR_DECOMPOSE_MANAGER" skin="test_red_button" format="{@st41b}{s20}%s" oversound="button_cursor_over_3" param1="value" param1_def="확인" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>		
+	</controls>
+</uiframe>

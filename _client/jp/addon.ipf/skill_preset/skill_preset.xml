@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="skill_preset" width="1200" height="730">
+	<frame layout_gravity="center top" margin="0 0 0 0"/>
+	<layer layerlevel="99" topmostlayerbyclick="true"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<option escscript="SKILL_PRESET_ON_ESCAPE" visible="false" hideable="false" closebutton="false" alwaysVisible="false" moveable="true"/>	
+    <animation frameOpenAnim="dialog_start" frameCloseAnim="dialog_end"/>
+	<script OpenScp="SKILL_PRESET_OPEN" CloseScp="SKILL_PRESET_CLOSE"/>
+	<controls>
+		<groupbox name="gb" rect="0 0 1200 730" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_low" hittestbox="false" scrollbar="false"/>
+		<!--title_section START-->
+		<groupbox name="title_gb" rect="0 0 1200 61" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_top" hittest="false"  />
+		<richtext name="title_text" parent="title_gb" rect="0 0 518 61" margin="0 15 0 0" layout_gravity="center top" format="{@st43}{s24}" param1="value" param1_def="스킬 스냅샷 설정하기"/>
+		<button name="close_btn" rect="0 0 34 34" margin="0 20 28 0" layout_gravity="right top" image="testclose_button"  clicksound="button_click_big" texttooltip="{@st59}스냅샷 설정 창을 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" LBtnUpScp="ui.CloseFrame(&apos;skill_preset&apos;)"/>
+		<!--title_section END-->
+        
+		<groupbox name="regist_gb" parent="gb" rect="0 0 250 45" margin="15 60 0 15" layout_gravity="left top" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="test_edit_skin"/>
+		<richtext name="regist_cnt" parent="regist_gb" rect="0 0 250 48" margin="0 0 0 0" layout_gravity="left center" textalign="center center"  format="{@st41}{s20}전체: {@st45ty}{s22}%s{@st41}{s20}/30{/}" fixheight="true" autofontsizebywidth="200" param1="value" param1_def="0" drawbackground="false" fixwidth="true" resizebytext="true"  fontname="white_18_ol" spacey="0" />
+        <groupbox name="list_gb" parent="gb" rect="0 0 270 600" margin="15 110 0 0" layout_gravity="left top" scrollbar="true" skin="test_frame_midle"  hittest="true"/>
+        
+		<!--save_section-->
+		<groupbox name="save_section" parent="gb" rect="0 0 880 650" margin="300 60 0 0" layout_gravity="left top" skin="premium_case_skin" draw="true" hittest="true" scrollbar="false"/>	
+		<controlset name="class_ctrlset" parent="save_section" rect="0 0 800 245" margin="0 15 0 0" type="character_preset_info" layout_gravity="left top" scrollbar="false" skin="None"/>
+		<groupbox name="each_info_gb" parent="save_section" rect="0 0 880 390" margin="0 255 0 0" layout_gravity="left top" draw="false" hittest="true" scrollbar="false"/>	
+		<groupbox name="each_skill_info_gb" parent="each_info_gb"  rect="0 0 700 290"  margin="0 5 0 0"  layout_gravity="center top" scrollbar="true" draw="true" skin="test_frame_midle"/>
+		
+
+		<groupbox name="input_title_gb" parent="each_info_gb" rect="0 0 820 90" margin="0 0 10 0" layout_gravity="center bottom" draw="false"  hittestbox="false"  resizebyparent="false" />
+			<richtext name="plz_input_title"  parent="input_title_gb" rect="0 0 100 38" margin="10 0 0 0" layout_gravity="left center" hittest="false"   textalign="center center" format="{@st41}{s18}*프리셋 명을 입력 후,저장버튼을 눌러주세요.{/}{/}"  fixheight="true" drawbackground="true" fixwidth="false" resizebytext="true"  fontname="white_18_ol" spacey="0" />
+			<groupbox name="input_text_gb" 	  parent="input_title_gb" rect="0 0 100 38" margin="380 0 0 0"  layout_gravity="left center" draw="true"  hittestbox="false" skin="test_frame_midle" resizebyparent="false" />
+			<richtext name="input_title_text" parent="input_title_gb" rect="0 0 100 38" margin="390 0 0 0" layout_gravity="left center" hittest="false"   textalign="center center" format="{@st41}{s20}입력창{/}{/}"  fixheight="true" drawbackground="true" fixwidth="false" resizebytext="true"  fontname="white_18_ol" spacey="0" />	
+			<edit name="input_title_edit"     parent="input_title_gb" rect="0 0 230 38" margin="478 0 0 0" layout_gravity="left center" OffsetForDraw="0 -1" clicksound="button_click_big" drawbackground="true" maxlen="24" oversound="button_over" fontname="white_18_ol" draw="true" skin="test_edit_skin" textalign="left center" typingsound="chat_typing"/>
+			<button name="save_preset"  parent="input_title_gb" rect="0 0 100 44" margin="706 0 0 0" layout_gravity="left center" LBtnUpScp="SKILL_PRESET_SAVE" skin="test_red_button" format="{@st41}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="프리셋 저장"  clicksound="button_click_big"/>
+		
+		<groupbox name="apply_section" parent="gb" rect="0 0 880 600" margin="300 110 0 0" layout_gravity="left top" draw="false" hittest="true" scrollbar="false"/>
+		
+		<groupbox   name="applyInfo" parent="apply_section" margin="0 0 0 0" rect="0 0 880 600" scrollbar="false" draw="true" skin="premium_case_skin" layout_gravity="left top"/>
+		<picture name="icon_bg" parent="applyInfo" layout_gravity="left top" rect="0 0 148 148" margin="31 41 0 0" stretch="true" hittest="false" image="class_tree_mark" />
+		<picture name="icon"	parent="applyInfo" layout_gravity="left top" rect="0 0 140 140" margin="34 47 0 0" stretch="true" hittest="false" image="c_warrior_templar" />
+		<richtext name="class_name" parent="applyInfo" rect="0 0 120 30" layout_gravity="left top" margin="46 195 0 0" hittest="false" fontname="black_20_b" textalign="center center" caption="job1" fixwidth="true" omitbywidth="true" ellipsistexttooltip="true"/>
+		
+		<richtext name="skill_point_info" parent="applyInfo" rect="0 0 640 30"   margin="205 35 0 0"  layout_gravity="left top" hittest="false" fontname="black_18_b" textalign="center center" format="스킬 및 특성포인트 투자 정보(총: {@st45ty}{s18}%s{/}{/} 스킬 포인트 투자)" param1="value" param1_def="0" fixwidth="true" ellipsistexttooltip="true"/>
+		<groupbox   name="skill_info_gb" parent="applyInfo"  rect="0 0 640 480"  margin="205 75 0 0"  layout_gravity="left top" scrollbar="true" draw="true" skin="test_frame_midle"/>
+		
+		<groupbox   name="rename_gb" parent="apply_section"  rect="0 0 195 50"  margin="10 230 0 0" layout_gravity="left top"  draw="false" />
+		<edit name="rename_edit"     parent="rename_gb" rect="0 0 140 36" margin="0 0 0 0" layout_gravity="left center" OffsetForDraw="0 -1" clicksound="button_click_big" drawbackground="true" maxlen="24" oversound="button_over" fontname="white_18_ol" draw="true" skin="test_edit_skin" textalign="left center" typingsound="chat_typing"/>
+		<button name="do_rename"  parent="rename_gb" rect="0 0 60 41" margin="135 1 0 0" layout_gravity="left center" LBtnUpScp="SKILL_PRESET_RENAME" skin="test_red_button" format="{@st41}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="저장"  clicksound="button_click_big"/>
+	
+
+		<button name="rename_preset" parent="apply_section" rect="0 0 180 70" margin="15 280 0 0" layout_gravity="left top" LBtnUpScp="SKILL_PRESET_RENAME_EDIT_OPEN" skin="test_pvp_btn" format="{@st41}{s22}%s" oversound="button_cursor_over_3" param1="value" param1_def="프리셋 이름변경"  clicksound="button_click_big"/>
+		<button name="apply_preset"  parent="apply_section" rect="0 0 180 70" margin="15 360 0 0" layout_gravity="left top" LBtnUpScp="SKILL_PRESET_APPLY" skin="test_red_button" format="{@st41}{s22}%s" oversound="button_cursor_over_3" param1="value" param1_def="프리셋 적용"  clicksound="button_click_big"/>
+		<button name="delete_preset" parent="apply_section" rect="0 0 180 70" margin="15 440 0 0" layout_gravity="left top" LBtnUpScp="SKILL_PRESET_REMOVE" skin="test_gray_button" format="{@st41}{s22}%s" oversound="button_cursor_over_3" param1="value" param1_def="프리셋 삭제"  clicksound="button_click_big"/>
+	</controls>
+</uiframe>

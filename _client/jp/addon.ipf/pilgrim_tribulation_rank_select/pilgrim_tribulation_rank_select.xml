@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="pilgrim_tribulation_rank_select" x="0" y="0" width="840" height="700" create="open">
+	<frame titlepos="0 0" layout_gravity="center center" margin="0 0 0 0"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<option margin="0 0 0 0" closebutton="false" hideable="false"/>
+	<sound opensound="win_open" closesound="win_close" margin="0 0 0 0"/>
+	<skin frameskin="false"/>
+	<draw drawtitlebar="false" margin="0 0 0 0"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="0 0 0 0"/>
+	<layer layerlevel="101" margin="0 0 0 0"/>
+	<script OpenScp="" CloseScp="PILGRIM_TRIBULATION_RANK_SELECT_CLOSE"/>
+	<userconfig/>
+	<controls>
+		<groupbox name="gb" rect="0 0 840 700" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="false"/>
+		<!-- title -->
+		<groupbox name="gb_title" rect="0 0 840 61" margin="0 0 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="ps_title_green"/>
+		<button name="btn_close" parent="gb_title" rect="0 0 44 44" margin="0 18 27 0" layout_gravity="right top" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}" LBtnUpScp="PILGRIM_TRIBULATION_RANK_SELECT_CLOSE"/>
+		<button name="btn_help" parent="gb_title" rect="0 0 44 44" margin="27 18 0 0" layout_gravity="left top" image="testquesten_button" texttooltip="{@st59}순례자, 시련을 선택합니다."/>
+		<richtext name="title" parent="gb_title" rect="0 0 400 40" margin="0 3 0 0" layout_gravity="center center" caption="{@st41}{s20}시련" hittest="false"/>
+		<!-- main -->
+		<groupbox name="gb_main" parent="gb" rect="0 0 840 700" margin="0 0 0 0" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="indun_skin"/>
+		<!-- pilgrim -->
+		<groupbox name="gb_pilgrim" parent="gb_main" rect="0 0 273 620" margin="22 61 0 0" layout_gravity="left top" draw="true" skin="tribal_frame1" hittestbox="false" scrollbar="false"/>
+		<!-- pilgrim title -->
+		<groupbox name="gb_pilgrim_title" parent="gb_pilgrim" rect="0 0 273 32" margin="0 0 0 0" layout_gravity="left top" draw="true" skin="tribal_title_dark" scrollbar="false"/>
+		<richtext name="text_pilgrim_title" parent="gb_pilgrim_title" rect="0 0 273 32" margin="0 0 0 0" layout_gravity="center center" textalign="center center" format="{@ps1_1}{s16}%s" param1="title" param1_def="순례자 선택"/>
+		<!-- pilgrim select -->
+		<groupbox name="gb_pilgrim_select" parent="gb_pilgrim" rect="0 0 270 44" margin="0 32 0 0" layout_gravity="left top" draw="true" skin="tribal_gradient" hittestbox="true" scrollbar="false"/>
+		<picture name="pic_pilgrim_select" parent="gb_pilgrim_select" rect="0 0 30 28" margin="13 0 0 0" layout_gravity="left center" image="tribal_icon_shell_L" stretch="true" hittestbox="false"/>
+		<richtext name="text_pilgrim_select" parent="gb_pilgrim_select" rect="0 0 200 44" margin="50 0 0 0" layout_gravity="left center" hittestbox="false" textalign="left center" format="{@sti1c}{s16}%s" param1="title" param1_def="순례자명최대7"/>
+		<!-- pilgrim list -->
+		<groupbox name="gb_pilgrim_list" parent="gb_pilgrim" rect="0 0 270 540" margin="0 76 0 0" layout_gravity="left top" draw="false" scrollbar="false"/>
+		<!-- tribulation -->
+		<groupbox name="gb_tribulation" parent="gb_main" rect="0 0 518 478" margin="305 61 0 0" layout_gravity="left top" draw="true" skin="tribal_frame1" scrollbar="false"/>
+		<!-- tribulation title -->
+		<groupbox name="gb_tribulation_title" parent="gb_tribulation" rect="0 0 518 32" margin="0 0 0 0" layout_gravity="left top" draw="true" scrollbar="false" skin="tribal_title_dark"/>
+		<richtext name="text_tribulation_title" parent="gb_tribulation_title" rect="0 0 514 30" margin="0 0 0 0" layout_gravity="center center" textalign="center center" format="{@ps1_1}{s16}%s" param1="title" param1_def="페널티 선택"/>
+		<!-- tribulation category -->
+		<groupbox name="gb_tribulation_category" parent="gb_tribulation" rect="0 0 112 446" margin="0 30 0 0" layout_gravity="left top" draw="false" hittestbox="false"/>
+		<groupbox name="gb_tribulation_stone_total" parent="gb_tribulation" rect="0 0 112 32" margin="0 443 0 0" layout_gravity="left top" draw="true" hittestbox="false" skin="tribal_frame2"/>
+		<picture name="pic_tribulation_stone_total" parent="gb_tribulation_stone_total" rect="0 0 16 22" margin="10 6 0 0" layout_gravity="left top" image="tribal_icon_stone" stretch="true" hittest="true" hittestbox="false"/>
+		<richtext name="text_tribulation_stone_total" parent="gb_tribulation_stone_total" rect="0 0 90 32" margin="65 0 0 0" layout_gravity="left center" textalign="center center" format="%s" param1="count" param1_def="0"/>
+		<!-- tribulation info -->		
+		<groupbox name="gb_tribulation_info" parent="gb_tribulation" rect="0 0 518 478" margin="112 30 0 0" layout_gravity="left top" draw="false" scrollbar="false"/>
+		<!-- tribulation info rank -->		
+		<groupbox name="gb_tribulation_info_rank" parent="gb_tribulation_info" rect="0 0 406 224" margin="0 3 0 0" layout_gravity="left top" draw="true" skin="tribal_frame2" scrollbar="false"/>
+		<groupbox name="gb_tribulation_stone_need" parent="gb_tribulation_info_rank" rect="0 0 125 30" margin="5 8 0 0" layout_gravity="left top" draw="false" hittestbox="false"/>
+		<groupbox name="gb_tribulation_category_name" parent="gb_tribulation_info_rank" rect="0 0 120 30" margin="0 8 6 0" layout_gravity="right top" draw="true" skin="tribal_frame_cate" scrollbar="false"/>
+		<richtext name="text_tribulation_category_name" parent="gb_tribulation_category_name" rect="0 0 120 60" margin="0 0 0 0" layout_gravity="center center" textalign="center center" format="{@ps2}%s" param1="category" param1_def="카테고리"/>
+		<picture name="pic_select_rank" parent="gb_tribulation_info_rank" rect="0 0 80 80" margin="0 30 0 0" layout_gravity="center top" image="tribal_levelframe_L03" stretch="true" hittestbox="false"/>
+		<picture name="pic_rank_icon" parent="pic_select_rank" rect="0 0 54 54" margin="0 0 0 0" layout_gravity="center center" image="None" stretch="true" hittestbox="false"/>
+		<groupbox name="gb_tribulation_info_desc" parent="gb_tribulation_info_rank" rect="0 0 374 90" margin="0 120 0 0" layout_gravity="center top" draw="true" skin="tribal_frame4" scrollbar="true"/>
+		<picture name="pic_tribulation_desc_rank_icon" parent="gb_tribulation_info_desc" rect="0 0 42 42" margin="30 20 0 0" layout_gravity="left top" image="tribal_icon_level_04" stretch="true" hittestbox="false"/>
+		<button name="btn_rank_down" parent="gb_tribulation_info_desc" rect="0 0 26 32" margin="5 25 0 0" layout_gravity="left top" image="tribal_btn_levelDown" oversound="button_over" LBtnUpScp="ON_PILGRIM_TRIBULATION_RANK_DOWN_BTN" texttooltip="시련 랭크 레벨을 낮춥니다."/>
+		<button name="btn_rank_up" parent="gb_tribulation_info_desc" rect="0 0 26 32" margin="70 25 0 0" layout_gravity="left top" image="tribal_btn_levelUp" oversound="button_over" LBtnUpScp="ON_PILGRIM_TRIBULATION_RANK_UP_BTN" texttooltip="시련 랭크 레벨을 올립니다."/>
+		<richtext name="text_tribulation_rank_level" parent="gb_tribulation_info_desc" rect="0 0 42 20" margin="38 63 0 0" layout_gravity="left top" textalign="left top" fixwidth="true" fontname="white_16_b" format="(%s)" param1="level" param1_def="0"/>
+		<picture name="pic_line" parent="gb_tribulation_info_desc" rect="0 0 1 76" margin="105 0 0 0" layout_gravity="left center" image="tribal_line" stretch="true" hittestbox="false"/>
+		<richtext name="text_tribulation_desc" parent="gb_tribulation_info_desc" rect="0 0 250 90" margin="120 10 0 0" layout_gravity="left top" textalign="left top" fixwidth="true" fontname="white_16_b" format="%s" param1="desc" param1_def="시련 정보를 선택해주세요 ."/>
+		<!-- tribulation info list -->
+		<groupbox name="gb_tribulation_info_list" parent="gb_tribulation_info" rect="0 0 406 220" margin="0 234 0 0" layout_gravity="left top" draw="true" skin="tribal_frame3" scrollbar="true"/>
+		<!-- bottom -->
+		<button name="btn_ready" parent="gb_main" rect="0 0 234 76" margin="450 570 0 0" layout_gravity="left top" skin="hero_btn_green2" oversound="button_over" caption="{@st41}{s18}준비 완료" LBtnUpScp="PILGRIM_TRIBULATION_RANK_SELECT_READY"/>
+	</controls>
+</uiframe>

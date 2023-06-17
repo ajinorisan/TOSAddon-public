@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="select_mgame_buff_party" x="0" y="0" width="481" height="282" create="open">
+	<frame title="select_mgame_buff_party" layout_gravity="center center" margin="250 0 0 0"/>
+	<input maxwidth="1280" moveable="true"/>
+	<draw drawtitlebar="false" drawnotitlebar="false"/>
+	<skin frameskin="none"/>
+	<script OpenScp="SELECT_MGAME_BUFF_PARTY_OPEN" CloseScp="SELECT_MGAME_BUF_PARTY_CLOSE"/>
+	<option hideable="false" closebutton="false"/>
+	<controls>
+		<picture name="gb_pic" rect="0 0 481 282" margin="0 0 0 0" layout_gravity="center top" image="buffselect_frame_p" draw="true" strech="false" hittest="false"/>
+		<richtext name="title" rect="0 0 400 30" margin="0 10 0 0" layout_gravity="center top" format="{@sti1c}{s20}%s" param1="title" param1_def="파티 버프" hittest="false"/>
+		<groupbox name="buff_list" rect="0 0 420 110" margin="0 55 0 0" layout_gravity="center top" draw="false"/>
+		<gauge name="time_gauge" rect="0 0 414 12" margin="0 0 0 95" layout_gravity="center bottom" skin="buffselect_guage" hittest="false"/>
+		<button name="select" rect="0 0 146 70" margin="0 0 0 15" layout_gravity="center bottom" skin="test_gray_button" caption="{@sti1c}{s18}선택완료" LBtnUpScp="ON_SELECT_MGAME_BUFF_PARTY_SELECT_BTN"/>
+	</controls>
+</uiframe>

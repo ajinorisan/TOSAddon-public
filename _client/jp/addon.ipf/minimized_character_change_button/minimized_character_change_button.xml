@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="minimized_character_change_button" x="0" y="0" width="80" height="80">
+	<frame layout_gravity="right top" margin="0 236 347 0"/>
+	<layer layerlevel="31"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<option visible="false" closebutton="false" useimageitem="true" piptype="right" autoopen="true" hideable="false"/>
+	<controls>
+		<button name="open_btn" rect="0 0 100 60" margin="0 0 0 0" layout_gravity="center top" clicksound="button_click_3" oversound="button_cursor_over_2" image="Change_Character_btn" LBtnDownScp="MINIMIZED_CHARACTER_CHANGE_BUTTON_LBTN_DOWN_SCP"/>
+	</controls>
+</uiframe>

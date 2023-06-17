@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="guildcomm_chcfg" width="320" height="210" >
+	<frame layout_gravity="center center" fasthide="true"/>
+	<skin frameskin="test_frame_low"/>
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="100"/>
+	<controls>
+		<richtext name="title" margin="22 16 0 0" layout_gravity="left top" caption="{@st43b}{s20}채팅방 설정"/>
+		<button name="btn_close" rect="0 0 34 34" margin="0 8 12 0" layout_gravity="right top" image="testclose_button" LBtnUpScp="GCM_CLOSE_CHANNEL_CONFIG"/>
+
+		<!-- <picture name="notify_bg" rect="0 0 292 40" margin="0 52 0 0" layout_gravity="center top" image="test_com_namebg"/>
+		<richtext name="notify_title" margin="28 60 0 0" layout_gravity="left top" caption="알림 설정" fontname="white_18_ol"/>
+		<radiobutton name="notify_all" rect="0 0 110 28" caption="{@st66}모든 메시지{/}" margin="30 100 0 0" layout_gravity="left top" group="gcm_notify" LBtnUpScp=""/>
+		<radiobutton name="notify_mention" rect="0 0 110 28" caption="{@st66}{b}@언급{/}만{/}" margin="30 126 0 0" layout_gravity="left top" group="gcm_notify" LBtnUpScp=""/>
+		<radiobutton name="notify_none" rect="0 0 110 28" caption="{@st66}없음{/}" margin="30 152 0 0" layout_gravity="left top" group="gcm_notify" LBtnUpScp=""/>
+
+		<picture name="info_bg" rect="0 0 292 40" margin="0 192 0 0" layout_gravity="center top" image="test_com_namebg"/>
+		<richtext name="info_title" margin="28 200 0 0" layout_gravity="left top" caption="일반 설정" fontname="white_18_ol"/> -->
+		<richtext name="editname_label" margin="0 66 224 0" layout_gravity="right top" caption="{@st66b}{s16}이름"/>
+		<edit name="edit_name" rect="0 0 196 34" margin="0 60 22 0" layout_gravity="right top" textalign="center center" fontname="white_18_ol" maxlen="16"/>
+		<checkbox name="check_pw" margin="0 104 224 0" layout_gravity="right top" caption="{@st66b}{s16}비공개" LBtnDownScp="GCM_CHCFG_TOGGLE_PW"/>
+		<edit name="edit_pw" rect="0 0 196 34" margin="0 98 22 0" layout_gravity="right top" textalign="center center" fontname="white_18_ol" maxlen="8" tooltipcaption="비밀번호 (최소 4자 ~ 최대 8자)"/>
+		<button name="btn_apply" rect="0 0 157 42" margin="0 0 0 18" layout_gravity="center bottom" skin="test_pvp_btn" caption="{@st66b}확인" LBtnUpScp="GCM_CHCFG_APPLY"/>
+	</controls>
+</uiframe>

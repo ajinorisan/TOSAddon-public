@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by asdasd (IMCGames Co., Ltd) -->
+<uiframe name="mythic_dungeon_info" x="0" y="0" width="1392" height="640" create="open">
+	<frame fasthide="false" layout_gravity="center center" margin="0 0 0 0"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="90"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<controls>
+
+	</controls>
+</uiframe>

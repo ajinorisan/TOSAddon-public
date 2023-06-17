@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="multiple_class_change" x="0" y="0" width="1920" height="1080" create="open">
+	<frame  fullwidth="true" fullheight="true" fasthide="false" layout_gravity="center center" scale_align="center center" tooltipoverlap="false"/>
+	<skin frameskin="property_screenbg"/>
+	<draw drawframe="true" drawtitlebar="false"/>
+	<layer layerlevel="100"/>
+	<script OpenScp="MULTIPLE_CLASS_CHANGE_OPEN" CloseScp="MULTIPLE_CLASS_CHANGE_CLOSE"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<userconfig BUTTON_IMG_HAVE_JOB="class_tree_job_sel_btn_02" BUTTON_IMG_NEW_JOB="class_tree_new_icon" BUTTON_IMG_HAD_HIDDEN_JOB="class_tree_job_hidden_sel_btn_02" BUTTON_IMG_HIDDEN_JOB="class_tree_job_hidden_btn" BUTTON_IMG_DEFAULT="class_tree_job_btn"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end2"/>
+	<option escscript="MULTIPLE_CLASS_CHANGE_ON_ESCAPE" hideable="false"/>
+	<controls>
+		<groupbox name="gFrame" rect="0 0 800 490" margin="-100 200 0 0" layout_gravity="center top" draw="true" skin="relic_frame_bg" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" parent="gFrame" rect="0 0 800 60" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_top" hittestbox="false" stretch="false" scrollbar="false"/>
+		<richtext name="title" parent="titlegbox" rect="0 0 320 60" margin="0 17 0 0" layout_gravity="center top" caption="{@st41}{s22}클래스 변경" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="closeBtn" parent="titlegbox" rect="0 0 44 44" margin="0 15 25 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame('multiple_class_change')" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button"/>
+		<controlset name="class_1" parent="gFrame" rect="0 0 780 120" margin="5 50 0 0"  type="selectdetailclass_classchange" layout_gravity="left top" hittestbox="true" scrollbar="false" skin="None"/>
+		<controlset name="class_2" parent="gFrame" rect="0 0 780 120" margin="5 170 0 0" type="selectdetailclass_classchange" layout_gravity="left top" hittestbox="true" scrollbar="false" skin="None"/>
+		<controlset name="class_3" parent="gFrame" rect="0 0 780 120" margin="5 290 0 0" type="selectdetailclass_classchange" layout_gravity="left top" hittestbox="true" scrollbar="false" skin="None"/>
+		<button name="selectBtn" parent="gFrame" rect="0 0 210 60" margin="-5 0 0 10" layout_gravity="center bottom" format="{@st41}{s22}변경{/}{/}{nl}"  fontname="orange_18_b_ol_ds" LBtnUpScp="MULTIPLE_CLASS_CHANGE" skin="hero_btn_green2" oversound="button_over"/>
+	</controls>
+</uiframe>

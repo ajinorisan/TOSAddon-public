@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="earthtowershop_sub" x="0" y="0" width="420" height="500">
+	<draw drawtitlebar="false"/>
+	<skin frameskin="None"/>
+	<frame fasthide="false" layout_gravity="left top" margin="580 0 0 0 "/>
+	<input moveable="false"/>
+	<layer layerlevel="152"/>
+	<userconfig TAB_FONTSTYLE="{@st66b}{s18}"/>
+	<script OpenScp="EARTH_TOWER_SHOP_SUB_OPEN_SCP" CloseScp="EARTH_TOWER_SHOP_SUB_CLOSE_SCP" />
+	<controls>
+		<groupbox name="bg2" rect="0 0 420 490" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" skin="test_frame_low"/>
+		<groupbox name="pipwin_top" rect="0 0 420 60" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="test_frame_top"/>
+		<richtext name="title" rect="0 0 100 30" margin="0 16 0 0" layout_gravity="center top" format="{@st43}%s" param1="value"/>
+		<button name="question" rect="0 0 44 44" margin="28 20 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button"/>
+		<button name="close" rect="0 0 44 44" margin="0 20 28 0" layout_gravity="right top" LBtnUpScp="EARTH_TOWER_SHOP_SUB_CLOSE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+		<groupbox name="desc_gb" rect="0 0 400 170" margin="0 75 0 0" layout_gravity="center top" draw="true" hittestbox="false" skin="None"/>
+		<richtext name="desc_1" parent="desc_gb" rect="0 0 400 30" margin="5 0 0 0" layout_gravity="left top" fontname="black_16_b" format="{@st66b}{s16}%s %s{/}" param1="name" param2="count" textalign="left top"/>
+		<richtext name="desc_2" parent="desc_gb" rect="0 0 400 30" margin="5 30 0 0" layout_gravity="left top" fontname="black_16_b" format="{@st66b}{s16}%s %s{/}" param1="name" param2="count" textalign="left top"/>
+		<richtext name="desc_3" parent="desc_gb" rect="0 0 400 30" margin="5 60 0 0" layout_gravity="left top" fontname="black_16_b" format="{@st66b}{s16}%s %s{/}" param1="name" param2="count" textalign="left top"/>
+		<richtext name="desc_4" parent="desc_gb" rect="0 0 400 60" margin="5 90 0 0" layout_gravity="left top" fontname="black_16_b" format="{@st66b}{s16}%s %s{/}" param1="name" param2="count" textalign="left top" resizebytext="false" fixwidth="true"/>
+		<tab name="tab" rect="0 0 420 41" margin="10 235 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="tab_item1" parent="tab" width="200" layout_gravity="center top"/>
+		<tabitem name="tab_item2" parent="tab" width="200" layout_gravity="center top"/>
+		<groupbox name="tab_gb" rect="0 0 400 200" margin="0 276 0 0" layout_gravity="center top" draw="true" hittestbox="false" skin="test_frame_midle"/>
+		<richtext name="tab_desc" parent="tab_gb" rect="0 0 400 30" margin="10 10 0 0" layout_gravity="left top" format="{@st41b}{s22}%s" param1="value"/>
+	</controls>
+</uiframe>

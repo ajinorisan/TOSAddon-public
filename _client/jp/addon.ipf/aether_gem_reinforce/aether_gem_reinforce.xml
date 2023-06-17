@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="aether_gem_reinforce" x="0" y="0" width="500" height="890">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false"/>
+	<input maxwidth="1280" moveable="true" hittestframe="true"/>
+	<option closebutton="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<layer layerlevel="92" topmostlayerbyclick="true"/>
+	<script OpenScp="AETHER_GEM_REINFORCE_OPEN" CloseScp="AETHER_GEM_REINFORCE_CLOSE"/>
+	<userconfig DO_RESULT_SOUND="sys_transcend_success" DO_RESULT_EFFECT="UI_item_parts2" DO_SUCCESS_SOUND="sys_transcend_success" DO_SUCCESS_EFFECT="UI_item_parts_violet" DO_FAIL_SOUND="sys_transcend_success" DO_FAIL_EFFECT="UI_item_parts_violet" SUCCESS_EFFECT_SCALE="5" SUCCESS_EFFECT_DURATION="0.5" FAIL_EFFECT_SCALE="5" FAIL_EFFECT_DURATION="0.5"/>
+	<controls>
+		<!-- 상단 -->
+		<groupbox name="bg" rect="0 0 448 824" margin="0 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_low" stretch="true"/>
+		<groupbox name="bg_inner" parent="bg" rect="0 0 424 750" margin="0 53 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg" stretch="true"/>
+		<groupbox name="top" rect="0 0 500 66" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="aether_titleBar" stretch="true"/>
+		<richtext name="title" rect="0 0 120 24" margin="0 20 0 0" layout_gravity="center top" drawbackground="false" fixwidth="false" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st44}{s22}%s{/}{/}" param1="value" param1_def="에테르 젬 강화"/>
+		<button name="close" rect="0 0 35 35" margin="0 15 10 0" layout_gravity="right top" LBtnUpScp="AETHER_GEM_REINFORCE_CLOSE" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="help" rect="0 0 35 35" margin="10 15 0 0" layout_gravity="left top" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" image="testquesten_button" texttooltip="{@st59}착용 중인 가디스 장비 소켓에 장착 중이거나, 인벤토리에 보유 중인 {@st66d_y}{s18}에테르 젬{/}{/}을 강화합니다.{/}{nl} {nl}{@st66d_y}{s18}에테르 젬{/}{@st59}의 레벨과 {@st204_purple}{s18}클리어 스테이지 단계에 따라 강화 성공 확률이 차등 적용{/}{@st59}됩니다.{nl}{@st66d_y}{s18}에테르 젬{/}{@st59} 강화는 최대 5회까지 진행 가능하며, 젬 강화에 소모되는 비용이 없습니다.{nl}강화 시 1레벨당 각 {@st66d_y}{s18}에테르 젬{/}{@st59}의 지정된 능력치(힘, 지능, 민첩, 정신, 체력)가 +2 상승합니다.{nl} {nl}※ 에테르 젬은 바운티 헌트를 통해 획득할 수 있습니다."/>
+		<groupbox name="reinforce_gb" parent="bg" rect="0 0 424 755" margin="0 25 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg"/>
+		<groupbox name="reinforceslot_gb" parent="reinforce_gb" rect="0 0 424 350" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
+		<picture name="gem_slot_back_pic" parent="reinforceslot_gb" rect="0 0 300 300" margin="0 30 0 0" layout_gravity="center top" changecursor="false" hittest="true" image="aether_circle" stretch="true"/>
+		<groupbox name="clear_stage_gb" parent="bg" rect="0 0 400 60" margin="0 310 0 0" layout_gravity="center top" draw="true" skin="monster_skill_bg" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false"/>
+		<groupbox name="reinforce_ratio_gb" parent="bg" rect="0 0 400 70" margin="0 625 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="monster_skill_bg"/>
+		<richtext name="select_gem_text" parent="reinforceslot_gb" rect="0 0 30 24" margin="0 0 0 0" layout_gravity="center center" format="{@sti1c}{s18}%s{/}{/}" param1="value" param1_def="젬을 선택하세요" resizebytext="true" textalign="left center"/>
+		<richtext name="select_gem_name_text" parent="reinforceslot_gb" rect="0 0 30 24" margin="0 65 0 0" layout_gravity="center top" format="{@sti1c}{s18}%s{/}{/}" param1="value" param1_def="젬이름" resizebytext="true" textalign="left center"/>
+		<richtext name="select_gem_level_text" parent="reinforceslot_gb" rect="0 0 30 24" margin="0 255 0 0" layout_gravity="center top" format="{@sti1c}{s18}Lv.%s{/}{/}" param1="value" param1_def="1" resizebytext="true" textalign="left center"/>
+		<richtext name="clearstage_text" parent="clear_stage_gb" rect="0 0 400 50" margin="0 0 0 0" layout_gravity="center center" format="{@sti1c}{s18}%s{/}{/}" param1="value" param1_def="클리어 스테이지 - 14층" resizebytext="true" textalign="center center"/>
+		<richtext name="select_gem_success_ratio_text" parent="reinforce_ratio_gb" rect="0 0 400 50" margin="0 -5 0 0" layout_gravity="center center" format="{@st42}{s20}%s{/}{/}" param1="value" param1_def="성공률 100%" resizebytext="true" textalign="center center" openAnim="popup_start3" closeAnim="popup_end3"/>
+		<picture name="gem_slot_bg" parent="reinforceslot_gb" rect="0 0 128 146" margin="0 100 0 0" layout_gravity="center top" image="relic_item_frame" stretch="true"/>
+		<slot name="gem_slot" parent="gem_slot_bg" rect="0 0 128 128" margin="0 0 0 0" layout_gravity="center center" changecursor="false" hittestbox="true" skin="None" draw="false" DropScp="AETHER_GEM_REINFORCE_SELECT_GEM_DROP" RBtnUpScp="AETHER_GEM_REINFORCE_SELECT_GEM_REMOVE"/>
+		<groupbox name="reinforce_result_gb" parent="reinforce_gb" rect="0 0 424 270" margin="0 45 0 0" layout_gravity="center top" draw="false" hittestbox="true"/>
+		<picture name="success_effect_bg" parent="reinforce_result_gb" rect="0 0 338 210" hittest="false" image="SUCCESS_gold_bg" draw="false" oversound="button_cursor_over_3" margin="0 0 0 0" stretch="true" layout_gravity="center top"/>
+		<picture name="fail_effect_bg" parent="reinforce_result_gb" rect="0 0 338 210" hittest="false" image="None" draw="false" oversound="button_cursor_over_3" margin="0 0 0 0" stretch="true" layout_gravity="center top"/>
+		<picture name="success_skin" parent="reinforce_result_gb" rect="0 0 270 100" hittest="false" image="BnYellow_skin" draw="false" margin="0 0 0 15" stretch="true" layout_gravity="center bottom"/>
+		<groupbox name="fail_skin" parent="reinforce_result_gb" rect="0 0 400 130" margin="0 0 0 0" skin="mission_fail_name" hittest="false" layout_gravity="center bottom" draw="true" stretch="true"/>
+		<picture name="result_item_img" parent="reinforce_result_gb" rect="0 0 128 128" hittest="false" image="icon_item_gem_cyan" margin="0 59 0 0" stretch="true" layout_gravity="center top"/>
+		<picture name="text_success" parent="reinforce_result_gb" rect="0 0 220 90" hittest="false" image="card_reinforce_SUCCESS" margin="0 0 0 25" stretch="true" layout_gravity="center bottom"/>
+		<picture name="text_fail" parent="reinforce_result_gb" rect="0 0 220 90" hittest="false" image="card_reinforce_FAIL" margin="0 0 0 25" stretch="true" layout_gravity="center bottom"/>
+		<!-- 하단-->
+		<tab name="tab" margin="50 380 0 0" rect="0 0 380 40" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" LBtnUpScp="AETHER_GEM_REINFORCE_TAB_CHANGE" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="tab_equipment" parent="tab" width="100" caption="{img aether_icon_equip 26 26}" texttooltip="{@st59}장착된 아이템의 에테르 젬을 강화합니다{/}" layout_gravity="left top"/>
+		<tabitem name="tab_inventory" parent="tab" width="100" caption="{img aether_icon_inventory 26 26}" texttooltip="{@st59}인벤토리에 보유한 에테르 젬을 강화합니다{/}" layout_gravity="left top"/>
+		<groupbox name="gemlist_gb" rect="0 0 400 206" margin="0 425 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true" skin="relic_frame_bg"/>
+		<slotset name="gem_slot_list" parent="gemlist_gb" rect="0 0 380 0" margin="0 0 0 0" layout_gravity="left top" LBtnDownScp="AETHER_GEM_REINFORCE_SELECT_GEM" LBtnDblClickScp="AETHER_GEM_REINFORCE_SELECT_GEM" RBtnDownScp="AETHER_GEM_REINFORCE_SELECT_GEM" col="6" cursoronresize="false" dropsound="icon_get_down" enabledrag="false" enableselect="true" hideindrag="true" image="slot" maxselect="1" movepop="false" oversound="button_over" picksound="icon_pick_up" row="9" selectmode="count" size="61 61" skin="invenslot2" spc="2 2"/>
+		<slotset name="gem_slot_list_inven" parent="gemlist_gb" rect="0 0 380 0" margin="0 0 0 0" layout_gravity="left top" LBtnDownScp="AETHER_GEM_REINFORCE_SELECT_GEM" LBtnDblClickScp="AETHER_GEM_REINFORCE_SELECT_GEM" RBtnDownScp="AETHER_GEM_REINFORCE_SELECT_GEM" col="6" cursoronresize="false" dropsound="icon_get_down" enabledrag="false" enableselect="true" hideindrag="true" image="slot" maxselect="1" movepop="false" oversound="button_over" picksound="icon_pick_up" row="9" selectmode="count" size="61 61" skin="invenslot2" spc="2 2"/>
+		<button name="do_reinforce" parent="reinforce_gb" rect="0 0 180 70" margin="0 0 0 15" layout_gravity="center bottom" LBtnUpScp="AETHER_GEM_REINFORCE_EXEC" skin="relic_btn_purple" format="{@st41b}{s18}%s{/}{/}{nl}{@st41b}{s18}(%s/%s){/}{/}" oversound="button_cursor_over_3" param1="value" param1_def="강화" param2="enable_count" param2_def="0" param3="max_count" param3_def="1" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<button name="send_ok_reinforce" parent="reinforce_gb" rect="0 0 180 70" margin="0 0 0 15" layout_gravity="center bottom" LBtnUpScp="AETHER_GEM_REINFORCE_COMMIT" skin="relic_btn_purple" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="확인" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		
+		
+		<richtext name="reinforce_Cnt_Remain" parent="bg_inner" hittest="false" rect="0 0 145 30" margin="0 0 0 5" layout_gravity="center bottom" textalign="center center" caption=""  format="{@st41}{s18}기본 횟수: {@st45ty}{s20}%s{/}{/} / {@st41}{s18}Lv.480 촉매제: {@st45ty}{s20}%s{/}{/} / {@st41}{s18}Lv.460 촉매제: {@st45ty}{s20}%s{/}" param1="value1" param1_def="0" param2="value2" param2_def="0" param3="value3" param3_def="0"   drawbackground="false" fixwidth="false" resizebytext="true"  fontname="white_18_ol" spacey="0" />
+	
+	</controls>
+</uiframe>

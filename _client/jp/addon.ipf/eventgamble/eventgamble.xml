@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="eventgamble" x="0" y="0" width="960" height="910">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<skin frameskin="none"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<layer layerlevel="92"/>
+	<userconfig SPINE="medeina" RESULT_EFFECT="I_screen_bosscard_frame06" RESULT_EFFECT_SCALE="5" RESULT_EFFECT_DURATION="0.5" GAMBLE_BUTTON_EFFECT="UI_screen_CircleButton" GAMBLE_BUTTON_EFFECT_SCALE="7" GAMBLE_BUTTON_EFFECT_DURATION="2" GET_ITEM_SOUND="sys_quest_item_get"/>
+	<!-- RESULT_EFFECT : 획득 가능한 아이템 SLOT들 중 획득한 아이템 이펙트,  GAMBLE_BUTTON_EFFECT : 봉헌 버튼 이펙트-->
+	<script OpenScp="EVENT_GAMBLE_OPEN" CloseScp="EVENT_GAMBLE_CLOSE"/>
+	<controls>
+		<!-- title -->
+		<groupbox name="main_frame" rect="0 0 960 850" margin="0 58 0 0" layout_gravity="center top" skin="test_frame_low" hittest="false"/>
+		<groupbox name="title_frame" rect="0 0 960 49" margin="0 58 0 0" layout_gravity="center top" skin="protection_frame" hittest="false"/>
+		<picture name="title_pic" rect="0 0 548 150" margin="0 0 0 0" layout_gravity="center top" image="protection_title" hittest="false"/>
+		<richtext name="title_text" rect="0 0 470 130" margin="0 60 0 0" layout_gravity="center top" format="{@st43}{s22}%s" param1="title" param1_def="이벤트 룰렛" hittest="false"/>
+		<button name="closeBtn" rect="0 0 35 35" margin="0 65 7 0" layout_gravity="right top" LBtnUpScp="EVENT_GAMBLE_CLOSE" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true"/>
+		<!-- help-->
+		<groupbox name="help_gb" rect="0 0 355 380" margin="293 150 0 0" layout_gravity="center top" draw="true" scrollbar="true" skin="protection_lottery_notice"/>
+		<richtext name="help" rect="0 0 340 370" margin="10 17 0 0" layout_gravity="left top" parent="help_gb" fontname="white_16_b_ds_ol" caption="" fixwidth="true" spacey="5"/>
+		<groupbox name="remain_coin_gb" rect="0 0 355 60" margin="293 540 0 0" layout_gravity="center top" draw="false" scrollbar="false"/>
+		<richtext name="remain_coin" rect="0 0 355 60" margin="10 0 0 0" parent="remain_coin_gb" layout_gravity="left top" autofontsizebywidth="true" resizebytext="true" format="{@st42_yellow}{s30}{img %s 64 64}X %s" param1="icon" param2="count" texttooltip="현재 보유 아이템 개수"/>
+		<!-- gamble -->
+		<groupbox name="gamble_top_gb" rect="0 0 200 260" margin="300 610 0 0" layout_gravity="center top" draw="false" scrollbar="false"/>
+		<picture name="gamble_slot_pic" rect="0 0 120 120" margin="0 0 0 0" parent="gamble_top_gb" image="protection_prize" layout_gravity="center top" stretch="true" draw="true"/>
+		<slot name="gamble_slot" parent="gamble_slot_pic" rect="0 0 71 71" margin="0 3 0 0" layout_gravity="center center" enabledrop="false" enablepop="false" enabledrag="false" draw="true"/>
+		<groupbox name="gamble_gb" rect="0 0 195 41" margin="0 130 0 0" parent="gamble_top_gb" skin="protection_lottery_notice" layout_gravity="center top" hittest="false" scroll="false"/>
+		<richtext name="gamble_text" parent="gamble_gb" rect="0 0 40 41" margin="15 0 0 0" layout_gravity="left center" caption="{@st41b}{s16}1회"/>
+		<picture name="gamble_pic" parent="gamble_gb" rect="0 0 21 21" margin="-30 0 0 0" layout_gravity="center center" image="silver_pic" hittest="false" stretch="true"/>
+		<richtext name="gamble_silver" parent="gamble_gb" rect="0 0 100 41" margin="0 0 15 0" layout_gravity="right center" format="{@st41b}{s16} %s" param1="value" param1_def="돈"/>
+		<groupbox name="gamble_btn_gb" rect="0 0 300 80" parent="gamble_top_gb" margin="0 180 0 0" layout_gravity="center top" scrollbar="false" draw="false"/>
+		<button name="gamble_btn" parent="gamble_btn_gb" rect="0 0 160 60" margin="0 10 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}뽑기" LBtnUpScp="EVENT_GAMBLE_OK_BTN_CLICK" oversound="button_cursor_over_3" clicksound="button_click_big"/>
+		<!-- protection_in -->
+		<groupbox name="protection_gb" rect="0 0 575 730" margin="-175 150 0 0" layout_gravity="center top" skin="protection_in_background" scrollbar="false"/>
+		<picture name="protection_gb_pic" parent="protection_gb" rect="0 0 572 720" margin="0 5 0 0" layout_gravity="center center" image="protection_pattern" hittest="false"/>
+	</controls>
+</uiframe>

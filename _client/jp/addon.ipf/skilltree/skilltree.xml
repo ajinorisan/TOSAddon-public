@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="skilltree" x="0" y="0" width="600" height="480" create="open">
+	<frame fullheight="true" fasthide="true" layout_gravity="right top" margin="0 0 -600 0" open="pip" keyboardselectframe="true"/>	
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="80"/>
+	<option closebutton="false" hideable="true"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<controls>
+		</controls>
+</uiframe>

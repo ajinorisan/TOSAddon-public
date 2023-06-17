@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="nearpartyinfo" x="0" y="0" width="0" height="0">
+	<frame layout_gravity="left top" scale_align="center top" margin="200 370 0 0" keyboardselectframe="false" tooltipoverlap="false"/>
+	<layer layerlevel="61"/>
+	<option visible="false" hideable="true" closebutton="false" alwaysVisible="false"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<controls>
+	</controls>
+</uiframe>

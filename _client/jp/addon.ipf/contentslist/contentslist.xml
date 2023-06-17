@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="contentslist" x="0" y="0" width="292" height="156">
+	<frame fullheight="false" fasthide="true" layout_gravity="right bottom" margin="0 0 350 70" />
+	<draw drawframe="false" drawtitlebar="false"/>
+	<input moveable="true"/>
+	<option visible="false" hideable="true" closebutton="false" moveable="true" alwaysVisible="false" exceptionUpdateUiMode="true"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<layer layerlevel="92"/>
+	<userconfig TEST_CONFIG="1"/>
+	<controls>
+		<groupbox name="title_bg" rect="0 0 262 156" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg"/>
+		<groupbox name="headerBox" parent="title_bg" rect="0 0 292 38" margin="0 4 0 0" layout_gravity="center top" skin="hero_label_beige" hittest="true"/>
+		<richtext name="title" parent="headerBox" rect="0 0 200 30" margin="0 6 0 0" layout_gravity="center top" caption="{@st43b}{s16}콘텐츠 리스트" fontname="brown_16_b" spacey="0"/>
+		<button name="close" rect="0 0 40 40" margin="0 2 20 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;contentslist&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+	    <groupbox name="gb_contentslist" rect="0 0 240 97" margin="0 45 0 0" layout_gravity="center top" skin="hero_frame_beige" scrollbar="true"/>
+	</controls>
+</uiframe>

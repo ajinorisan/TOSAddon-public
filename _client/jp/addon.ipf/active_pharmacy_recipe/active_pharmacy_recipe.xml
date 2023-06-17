@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="active_pharmacy_recipe" x="0" y="0" width="360" height="455">
+	<frame fullheight="false" fasthide="true" layout_gravity="right center" margin="0 65 0 0"/>
+	<skin frameskin="none"/>
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="100"/>
+	<option closebutton="false"/>
+	<sound opensound="button_click_stats_OK"/>
+	<effect open="character_item_window_open" close="character_item_window_close"/>
+	<script OpenScp="OPEN_ACTIVE_PHARMACY_RECIPE" CloseScp="CLOSE_ACTIVE_PHARMACY_RECIPE"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 350 435" margin="3 5 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_Item_tooltip_equip"/>
+		<richtext name="richtext_1" margin="0 14 0 0" rect="0 0 280 30" caption="{@st41b}조제법 감정{/}" textalign="center center" resizebytext="true" spacey="0" maxwidth="280" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>
+		<button name="close" rect="0 0 70 70" margin="10 8 0 0" layout_gravity="left top" LBtnUpScp="ui.CloseFrame('active_pharmacy_recipe')" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="sys_popup_open_2" image="testclose_button" oversound="button_over" texttooltip="{@st59}조제법 감정 창을 닫습니다.{/}"/>
+		<slot name="slot" margin="0 70 0 0" rect="0 0 160 160" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" texttooltip="{@st59}감정할 조제법을 올려주세요{/}" layout_gravity="center top" DropScp="ACTIVE_PHARMACY_RECIPE_ITEM_DROP" RBtnUpScp="ACTIVE_PHARMACY_RECIPE_ITEM_REMOVE"/>
+		<richtext name="itemName" margin="0 250 0 0" rect="0 0 380 50" format="%s" param1="name" textalign="center top" resizebytext="true" spacey="0" maxwidth="0" fontname="brown_18_b" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>
+		<labelline name="labelline_1" margin="10 290 0 0" rect="0 0 340 4" skin="none" layout_gravity="left top"/>
+		<richtext name="costText" margin="0 0 0 129" rect="0 0 120 24" format="{@st42b}비용 : {img %s 24 24} %s %s개{/}" param1="img" param1_def="icon_item_season_coin_gabia" param2="name" param3="value" textalign="center top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom"/>
+		<richtext name="continueText" margin="0 0 0 129" rect="0 0 120 24" caption="{@st42b}현재 조제를 진행중인 조제법입니다.{/}" textalign="center top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom"/>
+		<button name="activeBtn" margin="0 0 0 35" rect="0 0 160 50" skin="test_red_button" layout_gravity="center bottom" caption="{@st41b}감정" LBtnUpScp="ACTIVE_PHARMACY_RECIPE_OK_BTN"/>
+		<button name="continueBtn" margin="0 0 0 35" rect="0 0 160 50" skin="test_red_button" layout_gravity="center bottom" caption="{@st41b}계속하기" LBtnUpScp="CONTINUE_PHARMACY_RECIPE"/>
+	</controls>
+</uiframe>

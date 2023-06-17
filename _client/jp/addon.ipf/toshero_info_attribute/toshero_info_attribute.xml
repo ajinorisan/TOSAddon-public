@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="toshero_info_attribute" x="0" y="0" width="244" height="294">
+	<frame fullheight="false" layout_gravity="right top" margin="0 35 820 0"/>
+	<skin frameskin="test_frame_low"/>
+	<layer layerlevel="100"/>
+	<input moveable="true"/>
+	<draw drawtitlebar="false"/>
+	<option closebutton="false"/>
+	<script OpenScp="TOSHERO_INFO_ATTRIBUTE_OPEN"/>
+	<controls>
+		<groupbox name="title_bg" margin="0 0 0 0" rect="0 0 244 43" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_titleBar"/>
+		<richtext name="title" margin="0 0 0 0" rect="0 0 120 30" parent="title_bg" format="{@st44}{s18}속성{/}" textalign="center center" layout_gravity="center center"/>
+		<button name="close" rect="0 0 44 44" margin="0 3 5 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;toshero_info_attribute&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="question" rect="0 0 44 44" margin="5 3 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="{#FFFF00}※ 준비 단계에서 속성을 변경 할 수 있습니다.{/}{nl}속성 변경 시에는 3000 포인트를 소모합니다.{nl}(최초 무속성에서 속성을 변경 시에는 포인트를 소모하지 않습니다.){nl} {nl}상성 정보(공격 시 적용){nl}상성 : 최종 대미지 {img hero_icon_up 11 10}  / 치명타 발생 확률 {img hero_icon_up 11 10}{nl}역상성 : 최종 대미지 {img hero_icon_down 11 10} / 치명타 발생 {img hero_icon_down 11 10} / 명중 {img hero_icon_down 11 10} / 블록 관통 {img hero_icon_down 11 10}{nl} {nl}{img hero_icon_Blessed 20 20} : {img hero_icon_Default 20 20} {img hero_icon_up 11 10} {img hero_icon_Corrupted 20 20} {img hero_icon_up 11 10} {img hero_icon_Neutral 20 20} {img hero_icon_down 11 10} {img hero_icon_Chaos 20 20} {img hero_icon_down 11 10}{nl}{img hero_icon_Neutral 20 20} : {img hero_icon_Default 20 20} {img hero_icon_up 11 10} {img hero_icon_Blessed 20 20} {img hero_icon_up 11 10} {img hero_icon_Corrupted 20 20} {img hero_icon_down 11 10} {img hero_icon_Chaos 20 20} {img hero_icon_down 11 10}{nl}{img hero_icon_Corrupted 20 20} : {img hero_icon_Default 20 20} {img hero_icon_up 11 10} {img hero_icon_Neutral 20 20} {img hero_icon_up 11 10} {img hero_icon_Blessed 20 20} {img hero_icon_down 11 10} {img hero_icon_Chaos 20 20} {img hero_icon_down 11 10}{nl}{img hero_icon_Default 20 20} : ALL {img hero_icon_down 11 10}{nl}{img hero_icon_Chaos 20 20} : ALL {img hero_icon_up 11 10}{nl} {nl}{#FFFF00}[동일 속성은 끼리는 변화 없음]{/}"/>
+		<groupbox name="body_bg" margin="0 17 0 0" rect="0 0 218 230" layout_gravity="center center" draw="true" hittestbox="false" skin="hero_frame_green"/>
+		<picture name="rotate" rect="0 0 50 50" parent="body_bg" margin="0 15 0 0" layout_gravity="center center" image="hero_icon_rotation" imagealign="center center" stretch="true" hittest="true"/>
+		<picture name="attribute_2" rect="0 0 85 85" parent="body_bg" margin="0 10 0 0" layout_gravity="center top" image="hero_icon_Blessed" imagealign="center center" stretch="true" hittest="true" LBtnUpScp="TOSHERO_INFO_ATTRIBUTE_REQUEST_SELECT" LBtnUpArgNum="2"/>
+		<picture name="attribute_3" rect="0 0 85 85" parent="body_bg" margin="5 0 0 5" layout_gravity="left bottom" image="hero_icon_Neutral" imagealign="center center" stretch="true" hittest="true" LBtnUpScp="TOSHERO_INFO_ATTRIBUTE_REQUEST_SELECT" LBtnUpArgNum="3"/>
+		<picture name="attribute_4" rect="0 0 85 85" parent="body_bg" margin="0 0 5 5" layout_gravity="right bottom" image="hero_icon_Corrupted" imagealign="center center" stretch="true" hittest="true" LBtnUpScp="TOSHERO_INFO_ATTRIBUTE_REQUEST_SELECT" LBtnUpArgNum="4"/>
+	</controls>
+</uiframe>
