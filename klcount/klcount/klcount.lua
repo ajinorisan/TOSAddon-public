@@ -1,7 +1,7 @@
 local addonName = "KLCOUNT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -45,6 +45,7 @@ function KLCOUNT_LOADSETTINGS()
     end
 
     g.settings = settings
+    KLCOUNT_SAVE_SETTINGS()
 end
 
 function KLCOUNT_UPDATESETTINGS(frame)
