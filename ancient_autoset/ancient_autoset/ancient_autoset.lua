@@ -1,7 +1,7 @@
 local addonName = "ANCIENT_AUTOSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -215,22 +215,24 @@ function ANCIENT_AUTOSET_FRAME_INIT(frame)
     -- btn:SetEventScript(ui.LBUTTONUP, "ANCIENTMONSTERBOOKSHELF_TOGGLE")
 
     local frame = ui.GetFrame("ancient_autoset")
-    frame:Resize(400, 100)
+    frame:Resize(320, 80)
     frame:SetSkinName("None")
     -- frame:SetImage("pcbang_timer_bg")
-    frame:SetLayerLevel(120)
+    frame:SetLayerLevel(31)
     frame:ShowTitleBar(0)
     frame:EnableHitTest(1)
     local screenWidth = ui.GetClientInitialWidth()
-    local offsetX = screenWidth - 1000
+    -- local offsetX = screenWidth - 1000
+    local offsetX = 450
     local screenHeight = ui.GetClientInitialHeight()
     local frameHeight = frame:GetHeight()
-    local offsetY = screenHeight - frameHeight - 600
+    -- local offsetY = screenHeight - frameHeight - 600
+    local offsetY = 20
     frame:SetOffset(offsetX, offsetY)
     frame:RemoveAllChild();
     frame:ShowWindow(1)
 
-    local ancient_card_slot_Gbox = frame:CreateOrGetControl("groupbox", "ancient_card_slot_Gbox", 400, 100, ui.LEFT,
+    local ancient_card_slot_Gbox = frame:CreateOrGetControl("groupbox", "ancient_card_slot_Gbox", 320, 80, ui.LEFT,
         ui.TOP, 0, 0, 0, 0);
     AUTO_CAST(ancient_card_slot_Gbox)
     ancient_card_slot_Gbox:EnableHittestGroupBox(false)
@@ -243,7 +245,7 @@ function ANCIENT_AUTOSET_FRAME_INIT(frame)
     slotset:SetColRow(4, 1)
     slotset:SetMaxSelectionCount(1)
     -- slotset:SetSlotSize(33, 43)
-    slotset:SetSlotSize(100, 100)
+    slotset:SetSlotSize(80, 80)
     -- slotset:SetSlotSpace(5, 0)
     slotset:SetSkinName("slot");
     slotset:CreateSlots()
@@ -281,7 +283,7 @@ function ANCIENT_AUTOSET_CTRL_INIT(frame, slotset)
         local toicon = CreateIcon(toslot);
         toicon:SetImage(iconName)
     end
-    ReserveScript("ANCIENT_AUTOSET_CLOSE()", 5.0)
+    ReserveScript("ANCIENT_AUTOSET_CLOSE()", 3.0)
 end
 
 function ANCIENT_AUTOSET_CLOSE()

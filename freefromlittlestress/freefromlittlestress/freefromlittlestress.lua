@@ -1,7 +1,7 @@
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -163,6 +163,7 @@ function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
     frame:SetOffset(g.settings.rrfp_x, g.settings.rrfp_y)
     frame:SetSkinName("shadow_box")
     frame:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_UPDATESETTINGS")
+    frame:SetLayerLevel(5)
 
     local widgetList = {{
         name = "myInfo",
