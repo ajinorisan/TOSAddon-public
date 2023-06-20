@@ -14,23 +14,29 @@ Twitter
 
 https://twitter.com/ToSJP_rada
 
-### dungeonrpcharger
+----
 
-自動補充するエクトナイトをコイン交換のタイプに変更
+### Ancient AutoSet アドオンマネージャーに登録済 Register in Addon Manager
 
-Ectonite that automatically refills is changed to a coin-operated type.
+キャラクター毎にアシスターを自動でセットします。アシスターフレームに設定ボタンが付くのでそれを押してアシスターセットを登録してください。
 
-The author of this addon is meldavyさん
+1キャラにつき1回登録を行えば、以後CCの度に自動でアシスターを付け替えます。街でしか動きません。
 
 ----
 
-### muteki2ex
+### Aethergem Manager アドオンマネージャーに登録済 Register in Addon Manager
 
-既存の動作にオーバーロードレイドのクールダウンゲージを付けました。色は選べません。
+エーテルジェムの着け外し補助。インベントリに見慣れないボタンが付きます。設定アイコンでキャラクター毎にエーテルジェムの登録をします。
 
-Overload Raid cooldown gauge attached to existing operation. Color is not selectable.
+その後左側のボタンを押すと装備が勝手に外れます。右クリックで装備をソケットにはめれば勝手に着け外しを行います。
 
-The author of this addon is WRITさん
+----
+
+### Auto Repair アドオンマネージャーに登録済 Register in Addon Manager
+
+装備の耐久を監視して30%未満になると「[Lv.490]緊急修理キット」を使用して自動で修理します。
+
+他の修理キットには未対応。
 
 ----
 
@@ -92,6 +98,26 @@ V1.0.0 レイド終了時のリワードの位置をずらしました。
 
 ----
 
+### dungeonrpcharger
+
+自動補充するエクトナイトをコイン交換のタイプに変更
+
+Ectonite that automatically refills is changed to a coin-operated type.
+
+The author of this addon is meldavyさん
+
+----
+
+### muteki2ex
+
+既存の動作にオーバーロードレイドのクールダウンゲージを付けました。色は選べません。
+
+Overload Raid cooldown gauge attached to existing operation. Color is not selectable.
+
+The author of this addon is WRITさん
+
+----
+
 TOSのアドオンを作ったり改変してます。
 使用は自己責任で
 元コードの作者様は問題あったら連絡ください
@@ -100,38 +126,16 @@ TOSのアドオンを作ったり改変してます。
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\data
 
-にアドオンファイルを置いてください。_meshinuki-⛄-v1.0.0.ipf　こんな感じのやつ
+にアドオンファイルを置いてください。_nocheck-⛄-v1.0.0.ipf　こんな感じのやつ
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons
 
-にアドオン名の先頭の_とか⛄を抜いたフォルダを作って
+にアドオン名と同じ名前のフォルダを作ります。
 
-settings.json
+C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons\nocheck
 
-っていうファイルを作ってください。テキストファイルで中身は空で良いです。
-
-仮に入れるアドオンが
-
-_meshinuki-⛄-v1.0.0.ipf
-
-であれば
-
-C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons
-
-に
-
-meshinuki
-
-フォルダを作成し
-
-C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons\meshinuki
-
-に
-
-settings.json
-
-というファイルを置いておく感じです。
+これでTOSを起動すれば動くと思います。
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\data
 
-にバージョン違いのipfファイルがあると上手に動かないよ！
+にバージョン違いのipfファイルがあると競合して上手に動かないよ！
