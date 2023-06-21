@@ -372,6 +372,25 @@ function AETHERGEM_MGR_UNEQUIP()
             local rh_sub_iesid = rh_sub_icon_info:GetIESID()
             print(rh_sub_iesid)
 
+            local rh_sub_guid = RH_SUB:GetUserValue('ITEM_GUID')
+            CHAT_SYSTEM("1")
+            local inv_item = session.GetInvItemByGuid(rh_sub_guid)
+            CHAT_SYSTEM("2")
+            local item_obj = GetIES(invItem:GetObject())
+            CHAT_SYSTEM("3")
+
+            if itemObj ~= nil then
+                local frame = ui.GetFrame('goddess_equip_manager')
+                local slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
+                GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
+                CHAT_SYSTEM("aruyo")
+            else
+                CHAT_SYSTEM("naiyo")
+            end
+            CHAT_SYSTEM("右手サブウェポンのアイテム名は" .. item.GetName(invItem:GetObject()) ..
+                            "です。")
+            CHAT_SYSTEM("右手サブウェポンのアイテムレベルは" .. invItem:GetLevel() .. "です。")
+            CHAT_SYSTEM("右手サブウェポンのアイテム品質は" .. invItem:GetQuality() .. "です。")
             local lh_sub_icon_info = lh_sub_icon:GetInfo()
             local lh_sub_iesid = lh_sub_icon_info:GetIESID()
             print(lh_sub_iesid)
