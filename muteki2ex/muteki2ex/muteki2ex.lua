@@ -9,7 +9,7 @@
 local addonName = "Muteki2ex";
 local addonNameUpper = string.upper(addonName);
 local addonNameLower = string.lower(addonName);
-local ver = "1.2.8"
+local ver = "1.0.0"
 
 -- 作者名
 local author = "WRIT";
