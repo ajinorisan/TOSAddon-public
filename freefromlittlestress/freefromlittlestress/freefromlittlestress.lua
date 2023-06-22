@@ -1,7 +1,10 @@
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
+
+-- v1.0.4 画面右上のミニボタンを街意外だと消す。街にいる場合はマーケットボタンとかが押せるような状態で表示
+-- v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -53,7 +56,103 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
         "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
     -- acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_CHAT_OPEN, "INDUNINFO_CHAT_OPEN")
     FREEFROMLITTLESTRESS_LOADSETTINGS()
-    FREEFROMLITTLESTRESS_FRAME_INIT()
+
+    -- 右上のミニボタンを消したりする機能
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType ~= "City" then
+
+        addon:RegisterMsg("GAME_START", "FREEFROMLITTLESTRESS_MINIMIZED_CLOSE")
+    else
+        addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
+
+    end
+    addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
+
+end
+
+function FREEFROMLITTLESTRESS_PETINFO()
+
+    local summonedPet = session.pet.GetSummonedPet();
+    if summonedPet == nil then
+        -- CHAT_SYSTEM("呼び出されていない")
+        FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
+        -- return;
+    else
+        -- CHAT_SYSTEM("呼び出されている")
+        return
+    end
+
+end
+
+function FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
+    local frame = ui.GetFrame("companionlist");
+    frame:ShowWindow(1);
+    frame:SetGravity(ui.RIGHT, ui.BOTTOM);
+    frame:SetMargin(0, 0, 350, 70);
+    UPDATE_COMPANIONLIST(frame);
+
+    ReserveScript("FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()", 6.0)
+end
+
+function FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()
+    local frame = ui.GetFrame("companionlist");
+    frame:ShowWindow(0);
+end
+
+function FREEFROMLITTLESTRESS_MINIMIZED_CLOSE()
+    -- "minimized_pvpmine_shop_button"傭兵団ショップ
+    -- "minimized_certificate_shop_button"女神の証ショップ
+
+    -- TP受け取りボタン
+    local tp_button = ui.GetFrame("openingameshopbtn")
+    if tp_button:IsVisible() then
+        -- CHAT_SYSTEM("tp_button" .. "が表示されてる")
+        tp_button:ShowWindow(0)
+    end
+
+    -- ピルグリムボタン
+    local pilgrim_mode = ui.GetFrame("minimized_pilgrim_mode")
+    if pilgrim_mode:IsVisible() then
+        -- CHAT_SYSTEM("pilgrim_mode" .. "が表示されてる")
+        pilgrim_mode:ShowWindow(0)
+    end
+
+    -- マーケットとかのボタン
+    local total_shop_button = ui.GetFrame("minimized_total_shop_button")
+    if total_shop_button:IsVisible() then
+        -- CHAT_SYSTEM("total_shop_button" .. "が表示されてる")
+        total_shop_button:ShowWindow(0)
+    end
+
+    -- パーティー募集ボタン
+    local total_party_button = ui.GetFrame("minimized_total_party_button")
+    if total_party_button:IsVisible() then
+        -- CHAT_SYSTEM("total_party_button" .. "が表示されてる")
+        total_party_button:ShowWindow(0)
+    end
+
+    -- TPショップボタン
+    local tpshop_button = ui.GetFrame("minimized_tp_button")
+    if tpshop_button:IsVisible() then
+        -- CHAT_SYSTEM("tpshop_button" .. "が表示されてる")
+        tpshop_button:ShowWindow(0)
+    end
+
+    -- 掲示板
+    local total_bord = ui.GetFrame("minimized_total_board_button")
+    if total_bord:IsVisible() then
+        -- CHAT_SYSTEM("total_bord" .. "が表示されてる")
+        total_bord:ShowWindow(0)
+    end
+
+    -- なんか冒険者ガイドのやつ
+    local guidequest = ui.GetFrame("minimized_guidequest_button")
+    if guidequest:IsVisible() then
+        -- CHAT_SYSTEM("guidequest" .. "が表示されてる")
+        guidequest:ShowWindow(0)
+    end
 
 end
 

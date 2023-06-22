@@ -54,10 +54,10 @@
 		"name" : "Free From Trivial Stress",
 		"file" : "freefromlittlestress",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.3",
+		"fileVersion" : "v1.0.4",
 		"releaseTag" : "freefromlittlestress",
 		"unicode" : "⛄",
-		"description" : "何気ないストレスを軽減したい。レイド後のレコードを好きな所に表示できます。激動の核の入り間違いを軽減します。 I want to reduce casual stress. You can display the record after a raid wherever you want. Reduce mistakes in entering a turbulent nucleus. 일상적인 스트레스를 줄이고 싶다. 레이드 후 기록을 원하는 곳에 표시할 수 있습니다. 격변의 핵의 진입 실수를 줄일 수 있습니다.",
+		"description" : "右上のミニボタンを街以外で非表示に。ペット未召喚キャラの場合ペットリストを表示します。レイド後のレコードを好きな所に表示できます。激動の核の入り間違いを軽減します。Hide the mini-button in the upper right corner except in the city. Display the pet list if the character is a pet unsummoned. Display the record after a raid wherever you want. Reduce mistakes in entering the nucleus of the cataclysm. 오른쪽 상단의 미니버튼을 도시 외의 지역에서는 숨겨져 있습니다. 펫 미소환 캐릭터의 경우 펫 목록을 표시합니다. 레이드 후 기록을 원하는 곳에 표시할 수 있습니다. 격변의 핵 진입 오류를 줄입니다.",
 		"tags" : []
 	},
 {
