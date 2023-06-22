@@ -19,6 +19,16 @@
 		"tags" : []
 	},
 {
+		"name" : "muteki2ex",
+		"file" : "muteki2ex",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "muteki2ex",
+		"unicode" : "⛄",
+		"description" : "miteki2exの改造版。オーバーロードレイドのCD管理とパーティーチャットのお知らせ機能追加。Modified version of miteki2ex. Added CD management and party chat notification for Overlord Raid.",
+		"tags" : []
+	},
+{
 		"name" : "Ancient AutoSet",
 		"file" : "ancient_autoset",
 		"extension" : "ipf",

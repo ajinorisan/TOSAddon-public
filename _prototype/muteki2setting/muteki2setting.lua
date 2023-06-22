@@ -29,7 +29,7 @@ g.translations = {
         colorTone = '{#000000}Color Tone{/}',
         hideGauge = 'MUTEKI2 - Hide gauge with remaining time more than %d seconds',
         isNotNotify = "{#000000}Hide with this character{/}",
-        isEffect = "{#000000}With effect{/}"
+        isEffect = "{#000000}Announce to party{/}"
     },
     JP = {
         gaugeDescription = '{#000000}指定されたバフの時間を超えている場合は隠されています{/}',
@@ -42,7 +42,7 @@ g.translations = {
         colorTone = '{#000000}カラートーン{/}',
         hideGauge = 'MUTEKI2 - %d秒以上のバフは非表示になります',
         isNotNotify = "{#000000}このキャラクターでは表示しない{/}",
-        isEffect = "{#000000}バフが追加されたときにエフェクトを表示する{/}"
+        isEffect = "{#000000}バフの状況をPTメンバーにお知らせする{/}"
     },
     KOR = {
         gaugeDescription = "{#000000}설정된 초 이상 남은 버프 숨기기{/}",

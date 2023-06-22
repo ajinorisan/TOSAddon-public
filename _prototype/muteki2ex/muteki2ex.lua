@@ -27,10 +27,6 @@ g.oldAddonSettingFileLoc = '../addons/muteki2/settings.json'
 -- ライブラリ読み込み
 local acutil = require('acutil');
 
-local spam1 = "asd";
-local spam2 = "asd";
-local spam3 = 0;
-
 -- デフォルト設定
 if not g.loaded then
     g.hooked = false;
@@ -363,22 +359,44 @@ function MUTEKI2_UPDATE_GAUGE_DOWN(gauge)
 end
 
 local overcd = 0
+local spam1 = "asd";
+local spam2 = "asd";
+local spam3 = 0;
 
 function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
     local buffSetting, buffObj, buff = MUTEKI2_GET_BUFFS(buffid)
     if buffSetting and not buffSetting.isNotNotify[g.user] then
         local control = MUTEKI2_GET_CONTROL(buffid)
+        local beef = GetClassByType('Buff', buffid);
         if buffSetting.circleIcon then
             if msg == 'BUFF_REMOVE' then
                 MUTEKI2_REMOVE_CIRCLE_BUFF(buff, control)
             elseif msg == 'BUFF_UPDATE' or msg == 'BUFF_ADD' then
                 if buffSetting.isEffect then
-                    MUTEKI2_EXEC_EFFECT()
+                    -- MUTEKI2_EXEC_EFFECT()
+                    if (not ((spam1 == beef.Name) and (spam2 == msg))) then
+                        if (buffid == 251) then
+                            ui.Chat(string.format("/s I'm inside %s", beef.Name))
+                        else
+                            ui.Chat(string.format("/p I got %s", beef.Name))
+                        end
+                        spam1 = beef.Name
+                        spam2 = msg
+                    end
+
                 end
                 MUTEKI2_ADD_CIRCLE_BUFF(buff, control)
             end
         else
             if msg == 'BUFF_REMOVE' then
+                if buffSetting.isEffect then
+                    if (not ((spam1 == beef.Name) and (spam2 == 'BUFF_REMOVE'))) then
+
+                        ui.Chat(string.format("/p %s gone", beef.Name))
+                        spam1 = beef.Name
+                        spam2 = 'BUFF_REMOVE'
+                    end
+                end
                 if buffid == 4483 then
                     OVERLOAD_COOLDOWN(4483, control)
                     overcd = 1
@@ -387,11 +405,22 @@ function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
                 end
             elseif msg == 'BUFF_ADD' then
                 if buffSetting.isEffect then
-                    MUTEKI2_EXEC_EFFECT()
+                    -- MUTEKI2_EXEC_EFFECT()
+                    if (not ((spam1 == beef.Name) and (spam2 == msg))) then
+                        if (buffid == 251) then
+                            ui.Chat(string.format("/p I'm inside %s", beef.Name))
+                            spam1 = beef.Name
+                            spam2 = 'BUFF_REMOVE'
+                        else
+                            ui.Chat(string.format("/p I got %s", beef.Name))
+                            spam1 = beef.Name
+                            spam2 = msg
+                        end
+                    end
                 end
                 if buffid == 4483 then
-                    g.settings.jikan = imcTime.GetAppTimeMS()
-                    MUTEKI2_SAVE_SETTINGS();
+                    -- g.settings.jikan = imcTime.GetAppTimeMS()
+                    -- MUTEKI2_SAVE_SETTINGS();
                     OVERLOAD_START(buffid, control, buff)
                     overcd = 0
                 else
@@ -399,7 +428,19 @@ function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
                 end
             elseif msg == 'BUFF_UPDATE' then
                 if buffSetting.isEffect then
-                    MUTEKI2_EXEC_EFFECT()
+                    -- MUTEKI2_EXEC_EFFECT()
+                    if (not ((spam1 == beef.Name) and (spam2 == msg))) then
+                        if (buffid == 251) then
+                            ui.Chat(string.format("/p I'm inside %s", beef.Name))
+                            spam1 = beef.Name
+                            spam2 = 'BUFF_REMOVE'
+                        else
+                            ui.Chat(string.format("/p I got %s", beef.Name))
+                            spam1 = beef.Name
+                            spam2 = msg
+                        end
+                    end
+
                 end
                 MUTEKI2_ADD_GAUGE_BUFF(buff, control)
             end
@@ -513,10 +554,16 @@ function MUTEKI2_UPDATE_POSITIONS()
     g.frame:Resize(300, (height < 200) and 200 or height + 20)
 end
 
-function MUTEKI2_EXEC_EFFECT()
+function MUTEKI2_EXEC_EFFECT(buff, status)
     local handle = session.GetMyHandle();
     local actor = world.GetActor(handle)
-    pcall(effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0) or nil);
+    local beef = GetClassByType('Buff', buff.buffID);
+    -- pcall(effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0) or nil);
+    if status == 1 then
+        ui.Chat(string.format("/p I got %s", beef.Name));
+    else
+        ui.Chat(string.format("/p My %s done", beef.Name));
+    end
 end
 
 function MUTEKI2_ADD_GAUGE_BUFF(buff, frame)
