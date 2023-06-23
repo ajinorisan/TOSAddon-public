@@ -1,7 +1,7 @@
 local addonName = "ANCIENT_AUTOSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -46,9 +46,10 @@ function ANCIENT_AUTOSET_LOAD_SETTINGS()
         ANCIENT_AUTOSET_ON_SETTINGS()
 
     else
-        ui.SysMsg("[AAS]This character is not registered as an assister.")
-
-        ui.SysMsg("[AAS]このキャラクターはアシスターセットの登録を行っていません")
+        -- ui.SysMsg("[AAS]This character is not registered as an assister.")
+        CHAT_SYSTEM("[AAS]このキャラクターはアシスターセットの登録を行っていません")
+        CHAT_SYSTEM("AAS]This character is not registered as an assister.")
+        --  ui.SysMsg("[AAS]このキャラクターはアシスターセットの登録を行っていません")
     end
 end
 
@@ -125,7 +126,7 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
     local btn2 = origframe:GetChildRecursively("topbg"):CreateOrGetControl("button", "btn_aas", 0, 0, 90, 33)
     AUTO_CAST(btn2)
     btn2:SetGravity(ui.LEFT, ui.BOTTOM)
-    btn2:SetMargin(200, 0, 0, 0)
+    btn2:SetMargin(470, 0, 0, 0)
     btn2:SetSkinName("None")
     btn2:SetImage("config_button_normal")
     btn2:Resize(33, 33)
@@ -215,7 +216,7 @@ function ANCIENT_AUTOSET_FRAME_INIT(frame)
     -- btn:SetEventScript(ui.LBUTTONUP, "ANCIENTMONSTERBOOKSHELF_TOGGLE")
 
     local frame = ui.GetFrame("ancient_autoset")
-    frame:Resize(320, 80)
+    frame:Resize(120, 30)
     frame:SetSkinName("None")
     -- frame:SetImage("pcbang_timer_bg")
     frame:SetLayerLevel(31)
@@ -223,16 +224,16 @@ function ANCIENT_AUTOSET_FRAME_INIT(frame)
     frame:EnableHitTest(1)
     local screenWidth = ui.GetClientInitialWidth()
     -- local offsetX = screenWidth - 1000
-    local offsetX = 450
+    local offsetX = 1670
     local screenHeight = ui.GetClientInitialHeight()
     local frameHeight = frame:GetHeight()
     -- local offsetY = screenHeight - frameHeight - 600
-    local offsetY = 20
+    local offsetY = 5
     frame:SetOffset(offsetX, offsetY)
     frame:RemoveAllChild();
     frame:ShowWindow(1)
 
-    local ancient_card_slot_Gbox = frame:CreateOrGetControl("groupbox", "ancient_card_slot_Gbox", 320, 80, ui.LEFT,
+    local ancient_card_slot_Gbox = frame:CreateOrGetControl("groupbox", "ancient_card_slot_Gbox", 120, 30, ui.LEFT,
         ui.TOP, 0, 0, 0, 0);
     AUTO_CAST(ancient_card_slot_Gbox)
     ancient_card_slot_Gbox:EnableHittestGroupBox(false)
@@ -245,7 +246,7 @@ function ANCIENT_AUTOSET_FRAME_INIT(frame)
     slotset:SetColRow(4, 1)
     slotset:SetMaxSelectionCount(1)
     -- slotset:SetSlotSize(33, 43)
-    slotset:SetSlotSize(80, 80)
+    slotset:SetSlotSize(30, 30)
     -- slotset:SetSlotSpace(5, 0)
     slotset:SetSkinName("slot");
     slotset:CreateSlots()
