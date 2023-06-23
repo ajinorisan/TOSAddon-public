@@ -35,7 +35,7 @@
 		"fileVersion" : "v1.0.2",
 		"releaseTag" : "ancient_autoset",
 		"unicode" : "⛄",
-		"description" : "Assiter Plusと被るのを回避、他ちょいと修正。アシスターセットをキャラ毎に自動で付け替えます。事前登録必要です。街でしか動きません。 Assister sets will be automatically replaced for each character. Pre-registration required. Only works in city. 캐릭터마다 어시스터 세트를 자동으로 교체합니다. 사전 등록이 필요합니다. 도시에서만 움직입니다.",
+		"description" : "Assister Plusと被るのを回避、他ちょいと修正。アシスターセットをキャラ毎に自動で付け替えます。事前登録必要です。街でしか動きません。 Assister sets will be automatically replaced for each character. Pre-registration required. Only works in city. 캐릭터마다 어시스터 세트를 자동으로 교체합니다. 사전 등록이 필요합니다. 도시에서만 움직입니다.",
 		"tags" : []
 	},
 
