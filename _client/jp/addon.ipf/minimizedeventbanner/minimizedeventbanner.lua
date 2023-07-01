@@ -3,45 +3,50 @@ function MINIMIZEDEVENTBANNER_ON_INIT(addon, frame)
 end
 
 function MINIMIZEDEVENTBANNER_MSG(frame, msg, argStr, argNum)
-	local indun_reward_hud = ui.GetFrame('indun_reward_hud');
-	if session.DontUseMinimap() == true or (indun_reward_hud ~= nil and indun_reward_hud:IsVisible() == 1) then
-		frame:ShowWindow(0);
-		return;
-	end
+	-- local indun_reward_hud = ui.GetFrame('indun_reward_hud');
+	-- if session.DontUseMinimap() == true or (indun_reward_hud ~= nil and indun_reward_hud:IsVisible() == 1) then
+	-- 	frame:ShowWindow(0);
+	-- 	return;
+	-- end
 
-	if frame == nil then
-		frame = ui.GetFrame('minimizedeventbanner');
-	end	
-	local bannerList, bannerCnt = GetClassList("event_banner")	
+	-- if frame == nil then
+	-- 	frame = ui.GetFrame('minimizedeventbanner');
+	-- end	
+	-- local bannerList, bannerCnt = GetClassList("event_banner")	
 
-	local eventBannerCnt = 0
-	for i = 0, bannerCnt - 1 do
-		local banner = GetClassByIndexFromList(bannerList, i);
+	-- local eventBannerCnt = 0
+	-- for i = 0, bannerCnt - 1 do
+	-- 	local banner = GetClassByIndexFromList(bannerList, i);
 		
-		local remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.StartTimeYYYYMM, banner.StartTimeDDHHMM)
-		local remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.EndTimeYYYYMM, banner.EndTimeDDHHMM)
-		local remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.ExchangeTimeYYYYMM, banner.ExchangeTimeDDHHMM)
+	-- 	local remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.StartTimeYYYYMM, banner.StartTimeDDHHMM)
+	-- 	local remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.EndTimeYYYYMM, banner.EndTimeDDHHMM)
+	-- 	local remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.ExchangeTimeYYYYMM, banner.ExchangeTimeDDHHMM)
 
-		if remainStartTime ~= nil and remainStartTime < 0 then
+	-- 	if remainStartTime ~= nil and remainStartTime < 0 then
 				
-			if remainEndTime ~= nil and remainEndTime >= 0 then
-				eventBannerCnt = eventBannerCnt + 1
-			elseif remainEndTime ~= nil and remainEndTime < 0 then
-				if remainExchangeTime ~= nil and remainExchangeTime >= 0 then
-					eventBannerCnt = eventBannerCnt + 1
-				end
-			end
-		end	
-	end
+	-- 		if remainEndTime ~= nil and remainEndTime >= 0 then
+	-- 			eventBannerCnt = eventBannerCnt + 1
+	-- 		elseif remainEndTime ~= nil and remainEndTime < 0 then
+	-- 			if remainExchangeTime ~= nil and remainExchangeTime >= 0 then
+	-- 				eventBannerCnt = eventBannerCnt + 1
+	-- 			end
+	-- 		end
+	-- 	end	
+	-- end
 
-	if eventBannerCnt == 0 then
-		frame:ShowWindow(0)
-	else
-		frame:ShowWindow(1)
-	end
+	-- if eventBannerCnt == 0 then
+	-- 	frame:ShowWindow(0)
+	-- else
+	-- 	frame:ShowWindow(1)
+	-- end
 
 end
 
 function OPEN_INGAME_EVENTBANNER_FRAME(frame)
+	local indun_reward_hud = ui.GetFrame('indun_reward_hud');
+	if session.DontUseMinimap() == true or (indun_reward_hud ~= nil and indun_reward_hud:IsVisible() == 1) then
+		return;
+	end
+	
 	ui.OpenFrame("ingameeventbanner");
 end

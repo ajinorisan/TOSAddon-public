@@ -47,7 +47,7 @@ function GET_PACKAGE_ITEM_NAME(itemID)
 	return 'None';
 end
 
-function PACKAGELIST_EDIT_ON_TYPING(parent, ctrl)
+function PACKAGELIST_EDIT_ON_TYPING(parent, ctrl)	
 	local frame = parent:GetTopParentFrame();
 	local textEdit = GET_CHILD_RECURSIVELY(frame, 'textEdit');
 	local curCount = 0;
@@ -58,6 +58,13 @@ function PACKAGELIST_EDIT_ON_TYPING(parent, ctrl)
 
 	local tpItemID = frame:GetUserIValue('TPITEM_ID');
 	local tpItemCls = GetClassByType('TPitem', tpItemID);	
+
+	if IS_SEASON_SERVER() == 'YES' then
+		tpItemCls = GetClassByType('TPitem_SEASON', tpItemID);			
+	elseif config.GetServiceNation() == 'PAPAYA' then
+		tpItemCls = GetClassByType('TPitem_PAPAYA', tpItemID);
+	end
+
 	if tpItemCls ~= nil then
 		local limit = GET_LIMITATION_TO_BUY(tpItemID);
 		if limit == 'ACCOUNT' and curCount + 1 > tpItemCls.AccountLimitCount then
@@ -67,6 +74,14 @@ function PACKAGELIST_EDIT_ON_TYPING(parent, ctrl)
 		elseif limit == 'MONTH' and curCount + 1 > tpItemCls.MonthLimitCount then
 			textEdit:SetText(tpItemCls.MonthLimitCount);
 			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.MonthLimitCount));
+			return;
+		elseif limit == 'WEEKLY' and curCount + 1 > tpItemCls.AccountLimitWeeklyCount then
+			textEdit:SetText(tpItemCls.AccountLimitWeeklyCount);
+			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitWeeklyCount));
+			return;
+		elseif limit == 'CUSTOM' and curCount + 1 > tpItemCls.AccountLimitWeeklyCount then
+			textEdit:SetText(tpItemCls.AccountLimitCustomCount);
+			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitCustomCount));
 			return;
 		end
 	end
@@ -85,6 +100,13 @@ function PACKAGELIST_UP_BTN_CLICK(parent, ctrl)
 
 	local tpItemID = frame:GetUserIValue('TPITEM_ID');
 	local tpItemCls = GetClassByType('TPitem', tpItemID);	
+
+	if IS_SEASON_SERVER() == 'YES' then
+		tpItemCls = GetClassByType('TPitem_SEASON', tpItemID);	
+	elseif config.GetServiceNation() == 'PAPAYA' then
+		tpItemCls = GetClassByType('TPitem_PAPAYA', tpItemID);
+	end
+
 	if tpItemCls ~= nil then
 		local limit = GET_LIMITATION_TO_BUY(tpItemID);
 		if limit == 'ACCOUNT' and curCount + 1 > tpItemCls.AccountLimitCount then
@@ -94,6 +116,10 @@ function PACKAGELIST_UP_BTN_CLICK(parent, ctrl)
 		elseif limit == 'MONTH' and curCount + 1 > tpItemCls.MonthLimitCount then
 			textEdit:SetText(tpItemCls.MonthLimitCount);
 			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.MonthLimitCount));
+			return;
+		elseif limit == 'WEEKLY' and curCount + 1 > tpItemCls.AccountLimitWeeklyCount then
+			textEdit:SetText(tpItemCls.AccountLimitWeeklyCount);
+			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitWeeklyCount));
 			return;
 		end
 	end
@@ -117,7 +143,7 @@ function PACKAGELIST_DOWN_BTN_CLICK(parent, ctrl)
 	textEdit:SetText(nextCount);
 end
 
-function PACKAGELIST_PUT_INTO_BASKET(parent, ctrl)
+function PACKAGELIST_PUT_INTO_BASKET(parent, ctrl)	
 
 	-- TPShop하고 같이 쓸 수 없다. 여기서 분기.
 	local beautyshopFrame = ui.GetFrame('beautyshop');
@@ -133,6 +159,12 @@ function PACKAGELIST_PUT_INTO_BASKET(parent, ctrl)
     local selectedCtrlSetName = frame:GetUserValue('SELECTED_CTRLSET_NAME');
 	local tpitemID = frame:GetUserIValue('TPITEM_ID');
 	local tpItemCls = GetClassByType('TPitem', tpitemID);
+	if IS_SEASON_SERVER() == 'YES' then
+		tpItemCls = GetClassByType('TPitem_SEASON', tpitemID);
+	elseif config.GetServiceNation() == 'PAPAYA' then
+		tpItemCls = GetClassByType('TPitem_PAPAYA', tpitemID);
+	end
+	
 
 	local mainSubGbox = GET_CHILD_RECURSIVELY(tpitem, 'mainSubGbox');	
 	local itemCtrl = GET_CHILD_RECURSIVELY(mainSubGbox, selectedCtrlSetName);    	
@@ -143,7 +175,7 @@ function PACKAGELIST_PUT_INTO_BASKET(parent, ctrl)
 
 	local textEdit = GET_CHILD_RECURSIVELY(frame, 'textEdit');
 	local curCnt = tonumber(textEdit:GetText());	
-	for i = 1, curCnt do
+	for i = 1, curCnt do		
 		if TPSHOP_ITEM_TO_BASKET_PREPROCESSOR(itemCtrl, itemCtrl:GetChild('buyBtn'), tpItemCls.ClassName, tpitemID) == false then
             break;
         end
@@ -234,7 +266,12 @@ function PACKAGELIST_INIT_ITEMLIST(frame, itemCls, packageName)
 		SET_ITEM_TOOLTIP_BY_NAME(icon, packageItemCls.ClassName);
 
 		local nameText = GET_CHILD(ctrlset, 'nameText');
-		nameText:SetText(packageItemCls.Name);
+		local name = packageItemCls.Name
+		if string.len(name) >= 63 then
+			name = string.sub(name,1,60)
+			name = name.."..."
+		end
+		nameText:SetText(name);
 
 		local typeText = GET_CHILD(ctrlset, 'typeText');
 		if packageList[i].EquipType == "None" then

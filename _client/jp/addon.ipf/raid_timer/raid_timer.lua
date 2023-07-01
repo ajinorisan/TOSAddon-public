@@ -45,7 +45,7 @@ end
 
 function RAID_TIMER_UPDATE_TEXT_GAUGE(frame, msg, arg_str, arg_num)
     local frame = ui.GetFrame("raid_timer");
-    if frame:IsVisible() == 0 then
+    if frame:IsVisible() == 0 and geClientDirection.IsMyActorPlayingClientDirection() == false then
         frame:ShowWindow(1);
         local deadcountBox = GET_CHILD_RECURSIVELY(frame, "deadcountBox");
         if arg_num <= 0 then

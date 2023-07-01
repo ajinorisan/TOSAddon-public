@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="induninfo_autosweep" x="0" y="0" width="275" height="450" create="open">
+	<frame fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<input moveable="false" hittestframe="false" moveintitlebar="false"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="101"/>
+	<script OpenScp="INDUNINFO_AUTOSWEEP_UI_OPEN" CloseScp="INDUNINFO_AUTOSWEEP_UI_CLOSE"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 275 450" margin="0 0 0 0" layout_gravity="right bottom" hittestbox="false" scrollbar="false" skin="test_frame_low"/>
+        <groupbox name="gbox" parent="bg" rect="0 0 275 380" margin="0 0 0 0" layout_gravity="center bottom" hittestbox="false" scrollbar="false" skin="test_frame_midle" draw="false"/>
+        <richtext name="text" rect="0 0 250 380" margin="0 0 0 0" parent="gbox" layout_gravity="center top" fixwidth="true" textalign="center top" fontname="white_18_ol" caption=""/>
+        <groupbox name="gbox_name" parent="bg" rect="0 0 260 40" margin="0 10 0 0 " layout_gravity="center top" hittestbox="false" scrollbar="false" skin="market_listbase" draw="false"/>
+        <picture name="pic_name" rect="0 0 255 40" margin="0 0 0 0" parent="gbox_name" layout_gravity="center top" stretch="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_titlebar"/>
+        <richtext name="info" rect="0 0 260 40" margin="0 0 0 0" parent="pic_name" layout_gravity="center center" textalign="center top" fontname="white_18_ol" format="{@st66d}자동 소탕"/>
+		<button name="auto_sweep_btn" parent="gbox" rect="0 0 163 48" margin="0 0 0 20" layout_gravity="center bottom" format="{s17}{#050505}자동 소탕" LBtnUpScp="INDUNINFO_AUTOSWEEP_REQUEST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" skin="test_pvp_btn" oversound="button_over"/>
+		<button name="close_btn" rect="0 0 50 50" margin="0 12 10 0" layout_gravity="right top" LBtnUpScp="INDUNINFO_AUTOSWEEP_UI_CLOSE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+	</controls>
+</uiframe>

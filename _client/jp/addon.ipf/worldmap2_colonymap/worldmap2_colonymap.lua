@@ -35,6 +35,17 @@ function WORLDMAP2_COLONYMAP_INIT(frame)
 	colonyChallengesBox:SetScrollBarBottomMargin(0)
 	colonyChallengesBox:SetScrollBarSkinName("worldmap2_scrollbar")
 
+	if config.GetServiceNation() == "GLOBAL_JP" then
+		local colonymap_champions_text = GET_CHILD_RECURSIVELY(frame, 'colonymap_champions_text')
+		if colonymap_champions_text ~= nil then
+			colonymap_champions_text:SetMargin(-103, -406, 0, 0)
+		end
+		local colonymap_challenges_text = GET_CHILD_RECURSIVELY(frame, 'colonymap_challenges_text')
+		if colonymap_challenges_text ~= nil then
+			colonymap_challenges_text:SetMargin(-93, -96, 0, 0)
+		end
+	end
+
 	for i = 1, #colonyDataList do
 		local colonyData = colonyDataList[i]
 

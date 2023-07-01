@@ -289,7 +289,8 @@ function COLONY_BATTLE_INFO_RESET(frame)
             local countText = GET_CHILD(ctrlset, 'countText')
             local disableText = GET_CHILD(ctrlset, 'disableText')
 
-            nameText:SetText(map_info.MapName)
+            local map_name = TranArgMsg(map_info.MapName);
+            nameText:SetText(map_name);
             btn:ShowWindow(BoolToNumber(has_claim == 'master'))
             pic:ShowWindow(BoolToNumber(has_claim ~= 'master'))
             countText:ShowWindow(BoolToNumber((has_claim == 'master') or (has_claim == 'true')))

@@ -5,14 +5,20 @@ function CHANNEL_ON_INIT(addon, frame)
     UPDATE_CURRENT_CHANNEL_TRAFFIC(frame);
 end
 
-function UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
+function UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)    
     local curchannel = frame:GetChild("curchannel");
 
     local channel = session.loginInfo.GetChannel();     
     local zoneInst = session.serverState.GetZoneInst(channel);
     if zoneInst ~= nil then
-        local str, stateString = GET_CHANNEL_STRING(zoneInst);
-        curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+        if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+            local str, stateString = GET_CHANNEL_STRING(zoneInst);
+            curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+        else
+            local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+            local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);            
+            curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+        end
     else
         curchannel:SetTextByKey("value", "");
     end
@@ -22,7 +28,20 @@ function POPUP_CHANNEL_LIST(parent)
     if session.colonywar.GetIsColonyWarMap() == true then
         return;
     end
-    
+	
+	local mapName = session.GetMapName();
+	if mapName == 'guild_agit_1' or mapName == 'guild_agit_extension' then
+		return;
+	end
+	
+	local housingPlaceClass = GetClass("Housing_Place", mapName);
+	if housingPlaceClass ~= nil then
+		local housingPlaceType = TryGetProp(housingPlaceClass, "Type");
+		if housingPlaceType == "Personal" then
+			return;
+		end
+	end
+
     if parent:GetUserValue("ISOPENDROPCHANNELLIST") == "YES" then
         parent:SetUserValue("ISOPENDROPCHANNELLIST", "NO");
         return;
@@ -52,6 +71,10 @@ function POPUP_CHANNEL_LIST(parent)
         for i = 0  , cnt - 1 do
             local zoneInst = zoneInsts:GetZoneInstByIndex(i);
             local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+            if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
+                local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+                str, gaugeString = GET_CHANNEL_STRING(zoneInst, true, suffix);
+            end
             ui.AddDropListItem(str, gaugeString, zoneInst.channel);
         end
     end
@@ -73,6 +96,13 @@ function SELECT_ZONE_MOVE_CHANNEL(index, channelID)
     if zoneInsts == nil or zoneInsts.pcCount == -1 then
         ui.SysMsg(ClMsg("ChannelIsClosed"));
         return;
+    end
+
+    local pc = GetMyPCObject();
+    if IS_BOUNTY_BATTLE_BUFF_APPLIED(pc) == 1 then
+        ui.SysMsg(ClMsg("DoingBountyBattle"));
+        return;
+
     end
     
     local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);

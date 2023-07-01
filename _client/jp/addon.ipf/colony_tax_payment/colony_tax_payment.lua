@@ -32,6 +32,12 @@ function ON_COLONY_TAX_PAYMENT_RECV_SUCCESS(frame, msg, logKey)
 end
 
 function ON_OPEN_COLONY_TAX_PAYMENT(frame)
+    if config.GetServiceNation() == 'GLOBAL_JP' then
+        frame:Resize(650, 500)
+    elseif config.GetServiceNation() == 'GLOBAL' then
+        frame:Resize(650, 520)
+    end
+    
     local guidance_text = GET_CHILD_RECURSIVELY(frame, "guidance_text");
     local receiveDetailMsg = ScpArgMsg("ColonyTaxReceiveDetail{TaxReceiveTime}", "TaxReceiveTime", (COLONY_TAX_RECEIVE_PERIOD_MIN/1440));
     guidance_text:SetTextByKey("value", receiveDetailMsg);

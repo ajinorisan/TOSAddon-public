@@ -26,7 +26,7 @@ end
 
 function SEQUENTIALPICKITEM2_GET_PROPERTY_POINT(frame, msg, propertyName, count)
 	if config.GetPickItemMessage() == 1 then
-		local chat_msg = ScpArgMsg("PointGet{name}{count}", "name", ClMsg(argStr), "count", count);
+		local chat_msg = ScpArgMsg("PointGet{name}{count}", "name", ScpArgMsg(argStr), "count", count);
 		session.ui.GetChatMsg():AddSystemMsg(chat_msg, true, 'System', '', false);
 	end
 
@@ -46,7 +46,7 @@ function SEQUENTIALPICKITEM2_GET_PROPERTY_POINT(frame, msg, propertyName, count)
 	SEQUENTIALPICKITEM2_ADD_SEQUENTIAL_PICKITEM(classID, iconName, itemName, count, 'AccountProperty')
 end
 
-function SEQUENTIALPICKITEM2_MSG(frame, msg, guid, count, class)	
+function SEQUENTIALPICKITEM2_MSG(frame, msg, guid, count, class)
     if IS_IN_EVENT_MAP() == true then return end
 	
 	local classID = 0
@@ -65,10 +65,10 @@ function SEQUENTIALPICKITEM2_MSG(frame, msg, guid, count, class)
 		if config.GetPickItemMessage() == 1 then
 			local cls_point = GetClass('accountprop_inventory_list', class.ClassName)
 			if cls_point ~= nil then
-				local chat_msg = ScpArgMsg("PointGet{name}{count}", "name", ClMsg(TryGetProp(cls_point, 'ClassName', 'None')), "count", count);
+				local chat_msg = ScpArgMsg("PointGet{name}{count}", "name", ScpArgMsg(TryGetProp(cls_point, 'ClassName', 'None')), "count", count);
 				session.ui.GetChatMsg():AddSystemMsg(chat_msg, true, 'System', '', false);
 			else			
-				local chat_msg = ScpArgMsg("ItemGet{name}{count}", "name", TryGetProp(class, 'Name', 'None'), "count", count);
+				local chat_msg = ScpArgMsg("ItemGet{name}{count}", "name", TranArgMsg(TryGetProp(class, 'Name', 'None')), "count", count);
 				session.ui.GetChatMsg():AddSystemMsg(chat_msg, true, 'System', '', false);										
 			end
 		end

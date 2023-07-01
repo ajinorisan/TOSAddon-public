@@ -29,7 +29,6 @@ function ON_GUILD_APPLICANT_GET(_code, ret_json)
     local frame = ui.GetFrame("guildinfo");
     local scrollPanel = GET_CHILD_RECURSIVELY(frame, "applicantMemberListBox");
 
-
     for k, v in pairs(parsed_json) do
         for x, y in pairs(v) do
             if y['is_accept'] == 0 then
@@ -64,10 +63,11 @@ function ON_GUILD_APPLICANT_GET(_code, ret_json)
                 local commentText = GET_CHILD_RECURSIVELY(row, 'commentText');
                 commentText:SetTextByKey("comment", txtToJson['msg_text'])
                 commentText:SetTextTooltip(txtToJson['msg_text'])
-
+                
                 local acceptBtn = GET_CHILD_RECURSIVELY(row, 'acceptJoinBtn')
                 acceptBtn:SetUserValue('account_idx', y['account_idx'])
                 acceptBtn:SetUserValue('account_team_name', y['account_team_name'])
+                acceptBtn:SetUserValue('server_guild_out_day', txtToJson['server_guild_out_day'])
                 local declineBtn = GET_CHILD_RECURSIVELY(row, 'refuseJoinBtn')
                 declineBtn:SetUserValue('account_idx', y['account_idx'])
                 declineBtn:SetUserValue('account_team_name', y['account_team_name'])
@@ -97,7 +97,7 @@ function ACCEPT_APPLICANT(parent, control)
         return;
     end
     selected_applicant = control:GetAboveControlset();
-    ApplicationUserGuildJoin(control:GetUserValue('account_idx'), control:GetUserValue('account_team_name'));
+    ApplicationUserGuildJoin(control:GetUserValue('account_idx'), control:GetUserValue('account_team_name'), control:GetUserValue('server_guild_out_day'));
     REMOVE_APPLICANT_RESUME();
 end
 

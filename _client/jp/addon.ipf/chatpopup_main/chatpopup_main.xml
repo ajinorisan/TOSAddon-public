@@ -7,7 +7,7 @@
   <option visible="false" hideable="false" useimageitem="true" closebutton="false"/>
   <layer layerlevel="79"/>
   <userconfig GBOX_LEFT_MARGIN="0" GBOX_RIGHT_MARGIN="0" GBOX_TOP_MARGIN="36" GBOX_BOTTOM_MARGIN="0" CTRLSET_OFFSETX="30"/>
-  <script CloseScp="CHATMAINPOPUP_CLOSE" OpenScp="CHATMAINPOPUP_OPEN" ResizeScp="CHATMAINPOPUP_RESIZE"/>
+  <script OpenScp="CHATMAINPOPUP_OPEN" ResizeScp="CHATMAINPOPUP_RESIZE"/>
   <controls>
     <groupbox name="tabgbox" rect="0 0 1000 30" margin="0 5 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="chat_window" LBtnDownScp="MOVE_FRAME_MAIN_POPUP_CHAT_START" LBtnUpScp="MOVE_FRAME_MAIN_POPUP_CHAT_END"/>
       <button name="closebtn" parent="tabgbox" rect="0 0 30 30" margin="5 5 0 0" layout_gravity="left top" LBtnUpScp="DO_CLOSE_MAINCHATPOPUP" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_skill_up_OK" image="chat_close_btn" oversound="button_over" stretch="true"/>

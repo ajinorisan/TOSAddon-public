@@ -57,22 +57,22 @@ end
 
 function ADVENTURE_BOOK_INDUN_CONTENT.FILTER_LIST(list, sortOption, categoryOption, searchText)
 	if categoryOption == 1 then    
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Category", ClMsg('IndunDungeon'))
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Category"}, ClMsg('IndunDungeon'))
 	elseif categoryOption == 2 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Category", ClMsg('IndunMission'))
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Category"}, ClMsg('IndunMission'))
 	elseif categoryOption == 3 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Category", ClMsg('IndunGroundTower'))
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Category"}, ClMsg('IndunGroundTower'))
 	elseif categoryOption == 4 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Category",  ClMsg('IndunNunnery'))
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Category"},  ClMsg('IndunNunnery'))
 	elseif categoryOption == 5 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Category", ClMsg('IndunUpHill'))
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Category"}, ClMsg('IndunUpHill'))
 	elseif categoryOption == 6 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Category", ClMsg('IndunFantasyLib'))
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Category"}, ClMsg('IndunFantasyLib'))
 	elseif categoryOption == 7 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Category", ClMsg('IndunRaid'))
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Category"}, ClMsg('IndunRaid'))
 	end
     
-	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Indun", "Name", searchText)    
+	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Indun", {"Name"}, searchText)    
     
 	if sortOption == 0 then
         table.sort(list, ADVENTURE_BOOK_INDUN_CONTENT['SORT_NAME_BY_CLASSID_ASC']);

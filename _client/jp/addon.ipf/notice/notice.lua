@@ -54,7 +54,6 @@ function NOTICE_ON_INIT(addon, frame)
     addon:RegisterMsg('NOTICE_Dm_OffLeft30Sec', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_OffLeft10Sec', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_OffLeft5Sec', 'NOTICE_ON_MSG');
-
     addon:RegisterMsg('NOTICE_Dm_raid_fail', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_reward_box', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_raid_clear', 'NOTICE_ON_MSG');
@@ -63,38 +62,31 @@ function NOTICE_ON_INIT(addon, frame)
     addon:RegisterMsg('NOTICE_Dm_stage_ready', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_move_to_point', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_guildevent_join_complete', 'NOTICE_ON_MSG');
-
     addon:RegisterMsg('NOTICE_Dm_invenfull', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_levelup_base', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_LevelUP_Auto', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_levelup_skill', 'NOTICE_ON_MSG');
-
     addon:RegisterMsg('NOTICE_Dm_GuildQuestSuccess', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_GuildQuestFail', 'NOTICE_ON_MSG');
-    
     addon:RegisterMsg('NOTICE_Dm_Shoptutorial', 'NOTICE_ON_MSG');
-    
     addon:RegisterMsg('NOTICE_Dm_quest_complete', 'NOTICE_ON_MSG');
-    
     addon:RegisterMsg('NOTICE_Dm_Fishing', 'NOTICE_ON_MSG');
-    
     addon:RegisterMsg('NOTICE_Dm_BossAppear', 'NOTICE_ON_MSG');
-
     addon:RegisterMsg('NOTICE_Dm_GuildColony', 'NOTICE_ON_MSG');    
     addon:RegisterMsg('NOTICE_Dm_GuildColony2', 'NOTICE_ON_MSG');
     addon:RegisterMsg('NOTICE_Dm_GuildColony3', 'NOTICE_ON_MSG');
+    addon:RegisterMsg('NOTICE_Dm_fanfare', 'NOTICE_ON_MSG');
+    addon:RegisterMsg('NOTICE_Dm_information', 'NOTICE_ON_MSG');
 end
 
 function NOTICE_CLOSE(frame)
     local statusUpControlSet = frame:GetChild('autolevup');
-    
     if statusUpControlSet ~= nil then
         statusUpControlSet:ShowWindow(0);
     end 
 end
 
 function NOTICE_SKILL_USE(skillType, hotkey, slot)
-
     local frame = ui.GetFrame("notice");    
     if slot ~= nil then
         local tx, ty = GET_UI_FORCE_POS(slot);
@@ -124,7 +116,6 @@ function NOTICE_CHECK_SKILL(frame, timer, str, num, totalTime)
 end
 
 function EXEC_NOTICE_SKILL(frame, hotkey, skillType)
-
     local skillCls = GetClassByType("Skill", skillType);
     local textObj = GET_CHILD(frame, "text", "ui::CRichText");
     textObj:SetText('{@st41}'.. hotkey..ScpArgMsg("Auto_Ki_SayongHayeo_")..skillCls.Name..ScpArgMsg("Auto__SeuKileul_SayongHal_Su_issSeupNiDa"));       
@@ -138,7 +129,6 @@ function EXEC_NOTICE_SKILL(frame, hotkey, skillType)
     local fx, fy = GET_UI_FORCE_POS(pic);
     local tx, ty = frame:GetUserIValue("FORCE_X"), frame:GetUserIValue("FORCE_Y");
     UI_FORCE("skill_quickslot", fx, fy, tx, ty, 3.0, 'icon_'..skillCls.Icon);
-
 end
 
 function NOTICE_CUSTOM(msg, icon)
@@ -153,9 +143,8 @@ function NOTICE_CUSTOM(msg, icon)
 end
 
 function NOTICE_ON_MSG(frame, msg, argStr, argNum)  
-    
     frame:Invalidate(); 
-    local pFrame   = tolua.cast(frame, "ui::CFrame");
+    local pFrame = tolua.cast(frame, "ui::CFrame");
     local textObj = frame:GetChild('text');
     tolua.cast(textObj, "ui::CRichText");
     local pictureObj = frame:GetChild('dungeon_msg');
@@ -164,14 +153,12 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
         pictureObj:ShowWindow(1);
         pictureObj:SetOffset(0, 0);
     end
+
     local noticeText = argStr;
     local exeText;
-    
     textObj:SetOffset(0, 0);
     
     local addHeight = 0;
-    
-    
     if msg == 'NOTICE_Dm_Shoptutorial' then
         frame:Resize(frame:GetOriginalWidth(), frame:GetOriginalHeight() + 200)
         pictureObj:SetOffset(-250, 0);
@@ -195,7 +182,6 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
                 imcSound.PlaySoundEvent('statsup');
             end
         end
-
         exeText = '{@st41}'..noticeText;
     end
     
@@ -203,8 +189,6 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
         pFrame:ShowFrame(1);
         pFrame:SetImage('notice_levup');
         pictureObj:ShowWindow(0);       
-        --imcSound.PlaySoundItem('sys_levelup');
-        
         local statusUpControlSet = pFrame:CreateOrGetControlSet('statusinfo', 'autolevup', 0, 0);
         tolua.cast(statusUpControlSet, "ui::CControlSet");
         statusUpControlSet:ShowWindow(1);
@@ -225,12 +209,10 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
         
         local pc = GetMyPCObject();
         local total = pc[statName];
-
         local statupValue = total;
         if statupValue >= 10 then
             local one = statupValue % 10;
             local ten = math.floor(statupValue / 10);
-
             onepic:SetImage(tostring(one));
             onepic:ShowWindow(1);
             onepic:SetOffset(15, 20);
@@ -255,7 +237,7 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
         pFrame:SetImage('notice_guildquestsuccess');
         pictureObj:SetOffset(0, 0);
         textObj:SetOffset(0, 0);
-        exeText = '{#FFFFFF}{s20}{ol}{gr gradation1}{/}'..noticeText ;
+        exeText = '{#FFFFFF}{s20}{ol}{gr gradation1}{/}'..noticeText;
         imcSound.PlaySoundEvent('quest_success_3')
     end
 
@@ -264,165 +246,163 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
         pFrame:SetImage('notice_guildquestfail');
         pictureObj:SetOffset(0, 0);
         textObj:SetOffset(0, 0);
-        --imcSound.PlaySoundItem('sys_levelup'); -- levelup
-
-        exeText = '{#FFFFFF}{s20}{ol}{gr gradation1}{/}'..noticeText ;
+        exeText = '{#FFFFFF}{s20}{ol}{gr gradation1}{/}'..noticeText;
     end
 
     if msg == 'NOTICE_Dm_Global_Shout' then 
         pFrame:ShowFrame(1);
-
         textObj:SetOffset(0, 0);
-
         exeText = '{@st55_a}'..noticeText;
     end
 
     if msg == 'NOTICE_Dm_timestart' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_5Min' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_3Min' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_2Min' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_1Min' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_30Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_20Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_10Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_5Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_3Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_2Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_1Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefStart5Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefStart4Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefStart3Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefStart2Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefStart1Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefExplan' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefLeft1Min' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefLeft30Sec' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefLeft5Sec' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefLeft4Sec' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefLeft3Sec' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefLeft2Sec' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefLeft1Sec' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefSucces' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_DefFail' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_Boss5Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_Boss4Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_Boss3Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_Boss2Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_Boss1Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_BossKill' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_Trap' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_TrapPlus' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_Clear' then
---      imcSound.PlaySoundItem('sys_confirm');
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_GetItem' then
         imcSound.PlaySoundEvent("sys_quest_item_get")
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_UsePotion' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_Dead' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_ResBuff' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_scroll' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_Bell' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_Bomb' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_!' then
         imcSound.PlaySoundEvent("sys_quest_message")
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_SpaceBar' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffStart5Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffStart4Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffStart3Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffStart2Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffStart1Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffLeft2Min' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffLeft1Min' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffLeft30Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffLeft10Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_OffLeft5Sec' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_invenfull' then
-        exeText = '{@st41_red}'..noticeText ;
+        exeText = '{@st41_red}'..noticeText;
     elseif msg == 'NOTICE_Dm_quest_complete' then
-        exeText = '{@st41}'..noticeText ;
-        
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_raid_fail' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_reward_box' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_raid_clear' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_stage_clear' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_stage_start' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
         imcSound.PlaySoundEvent('quest_event_start')
     elseif msg == 'NOTICE_Dm_stage_ready' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
         imcSound.PlaySoundEvent('quest_success_2')
     elseif msg == 'NOTICE_Dm_move_to_point' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_guildevent_join_complete' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_Fishing' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_BossAppear' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_GuildColony' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_GuildColony2' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
     elseif msg == 'NOTICE_Dm_GuildColony3' then
-        exeText = '{@st41}'..noticeText ;
+        exeText = '{@st41}'..noticeText;
+    elseif msg == 'NOTICE_Dm_fanfare' then
+        exeText = '{@st41}'..noticeText;
+    elseif msg == 'NOTICE_Dm_information' then
+        exeText = '{@st41}'..noticeText;
     end
     
     textObj:SetText(exeText);
@@ -431,7 +411,7 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
     end
 
     frame:ShowWindow(1);
-    
+
     if msg == 'NOTICE_Dm_Shoptutorial' then
     elseif addHeight == 0 and pictureObj ~= nil then
         frame:Resize(frame:GetWidth(), textObj:GetHeight() + pictureObj:GetHeight());
@@ -445,15 +425,12 @@ function NOTICE_ON_MSG(frame, msg, argStr, argNum)
     end
 
     local effectOffset = (frame:GetY() + pictureObj:GetOffsetY()) * 2;
-
     if msg ~= 'NOTICE_Dm_levelup_base' and msg ~= NOTICE_Dm_GuildQuestSuccess and msg ~= NOTICE_Dm_GuildQuestFail then
         frame:ShowFrame(0);
-        --movie.PlayUIEffect('uitest1', ui.GetClientInitialWidth() / 2 - 10, effectOffset, 1.0);
     end
 end
 
 function NOTICE_ITEM(itemCls, text, duration)
-
     local frame = ui.GetFrame("notice");
     frame:EnableHitTest(1);
     local pic = GET_CHILD(frame, "dungeon_msg", "ui::CPicture");
@@ -466,5 +443,4 @@ function NOTICE_ITEM(itemCls, text, duration)
     textObj:SetText(text);
     frame:ShowWindow(1);
     frame:SetDuration(duration);
-
 end

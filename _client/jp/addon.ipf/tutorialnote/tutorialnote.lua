@@ -329,7 +329,7 @@ function TUTORIALNOTE_BLOCK_CLEAR_UPDATE(ctrlSet, group)
 	-- 보상 획득
 	local clear_bg = GET_CHILD_RECURSIVELY(ctrlSet, 'clear_bg');
 	local clear_pic = GET_CHILD_RECURSIVELY(ctrlSet, 'clear_pic');	
-	if config.GetServiceNation() ~= 'KOR' then
+	if config.GetServiceNation() ~= 'KOR' and config.GetServiceNation() ~= 'GLOBAL_KOR' then
 		clear_pic:SetImage("very_nice_stamp_eng");
 	end
 

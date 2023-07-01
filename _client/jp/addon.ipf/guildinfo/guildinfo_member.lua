@@ -1,174 +1,49 @@
 -- 한글
-
+local curPage = 1;
+local onlinecurPage = 1;
+local scrolledTime = 0;
 function GUILDINFO_INIT_MEMBER_TAB(frame, msg)    
     _GUILDINFO_INIT_MEMBER_TAB(frame, msg);
 end
 
-function _GUILDINFO_INIT_MEMBER_TAB(frame, msg)    
-    if g_ENABLE_GUILD_MEMBER_SHOW == false then
+function _GUILDINFO_INIT_MEMBER_TAB(frame, msg)
+    local maintab = GET_CHILD_RECURSIVELY(frame, "maintab");
+    if frame:IsVisible() ~= 1 or maintab:GetSelectItemIndex() ~= 0 then
         return;
     end
+
     local guild = GET_MY_GUILD_INFO();
     if guild == nil then
         return;
     end
-
-    local memberBox = GET_CHILD_RECURSIVELY(frame, 'guildinfo_');
-    if memberBox:IsVisible() == 0 then
+    
+    local pc = GetMyPCObject();
+    if IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
         return;
     end
 
     GUILDINFO_MEMBER_INIT_ONLINE_CHECKBOX(frame);
 
-    local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
-    DESTROY_CHILD_BYNAME(memberCtrlBox, 'MEMBER_');
-
     local leaderAID = guild.info:GetLeaderAID();
-
-    local onlineCnt = 0;    
-    local list = session.party.GetPartyMemberList(PARTY_GUILD);
-	local count = list:Count();    
-	for i = 0 , count - 1 do
-        local partyMemberInfo = list:Element(i);                            
-        local aid = partyMemberInfo:GetAID();
-        local memberCtrlSet = memberCtrlBox:CreateOrGetControlSet('guild_memberinfo', 'MEMBER_'..aid, 0, 0);
-        memberCtrlSet = AUTO_CAST(memberCtrlSet);
-        memberCtrlSet:SetUserValue('AID', aid);
-
-        local isOnline = true;
-        local pic_online = GET_CHILD_RECURSIVELY(memberCtrlSet, 'pic_online');
-        local txt_location = GET_CHILD_RECURSIVELY(memberCtrlSet, 'txt_location');
-        local ONLINE_IMG = memberCtrlSet:GetUserConfig('ONLINE_IMG');
-        local OFFLINE_IMG = memberCtrlSet:GetUserConfig('OFFLINE_IMG');
-        local MY_CHAR_BG_SKIN = memberCtrlSet:GetUserConfig('MY_CHAR_BG_SKIN');
-
-        -- bg
-        if aid == session.loginInfo.GetAID() then
-            local bg = GET_CHILD_RECURSIVELY(memberCtrlSet,'bg');
-            bg:SetSkinName(MY_CHAR_BG_SKIN);
-        end
-
-        -- on/off & location
-        local locationText = "";
-        if partyMemberInfo:GetMapID() > 0 then
-            local mapCls = GetClassByType("Map", partyMemberInfo:GetMapID());
-            if mapCls ~= nil then
-                pic_online:SetImage(ONLINE_IMG);
-                locationText = string.format("[%s%d] %s", ScpArgMsg("Channel"), partyMemberInfo:GetChannel() + 1, mapCls.Name);
-                onlineCnt = onlineCnt + 1;
-                memberCtrlSet:SetUserValue('IS_ONLINE', 'YES');
-            end
-        else
-            isOnline = false;
-            pic_online:SetImage(OFFLINE_IMG);
-            local logoutSec = partyMemberInfo:GetLogoutSec();
-            if logoutSec >= 0 then
-            	locationText = GET_DIFF_TIME_TXT(logoutSec);
-            else				
-            	locationText = ScpArgMsg("LogoutLongTime");
-            end
-            memberCtrlSet:SetUserValue('IS_ONLINE', 'NO');
-        end
-        txt_location:SetTextByKey("value", locationText);
-        txt_location:SetTextTooltip(locationText);
-
-        -- name
-        local txt_teamname = GET_CHILD_RECURSIVELY(memberCtrlSet, 'txt_teamname');
-        local name = partyMemberInfo:GetName();
-        txt_teamname:SetTextByKey('value', partyMemberInfo:GetName());
-        txt_teamname:SetTextTooltip(partyMemberInfo:GetName());
-
-        -- job
-        local jobID = partyMemberInfo:GetIconInfo().job;
-        local jobCls = GetClassByType('Job', jobID);
-        local jobName = GET_JOB_NAME(jobCls, partyMemberInfo:GetIconInfo().gender);
-        if jobName ~= nil then
-            local jobText = GET_CHILD_RECURSIVELY(memberCtrlSet, 'jobText')
-            jobText:SetTextByKey('job', jobName);
-        end
-                    
-        -- level
-        if isOnline == true then
-            local levelText = GET_CHILD_RECURSIVELY(memberCtrlSet, 'levelText');
-            levelText:SetTextByKey('level', partyMemberInfo:GetLevel());
-        end
-        -- claim
-        local txt_duty = GET_CHILD_RECURSIVELY(memberCtrlSet, 'txt_duty');        
-        local grade = partyMemberInfo.grade;    
-        if leaderAID == partyMemberInfo:GetAID() then
-            local dutyName = "{ol}{#FFFF00}" .. ScpArgMsg("GuildMaster") .. "{/}{/}";
-            dutyName = dutyName .. " " .. guild:GetDutyName(grade);
-            txt_duty:SetTextByKey("value", dutyName);
-        else
-            local claimName = GET_CLAIM_NAME_BY_AIDX(partyMemberInfo:GetAID())
-            if claimName == nil then
-                claimName = ""
-            end
-            txt_duty:SetTextByKey("value", claimName);
-        end
-
-        -- contribution
-        local memberObj = GetIES(partyMemberInfo:GetObject());
-        local contributionText =GET_CHILD_RECURSIVELY(memberCtrlSet, 'contributionText');
-        contributionText:SetTextByKey('contribution', memberObj.Contribution);
-
-        memberCtrlSet:SetEventScript(ui.RBUTTONDOWN, 'POPUP_GUILD_MEMBER');
-    end
-    GUILDINFO_MEMBER_ONLINE_CLICK(frame);
-
-    -- on/off
-    local memberCountText = GET_CHILD_RECURSIVELY(memberBox, 'memberCountText');
-    memberCountText:SetTextByKey('online', onlineCnt);
-    memberCountText:SetTextByKey('offline', count - onlineCnt);
-
-    memberBox:ShowWindow(1);
-
-    GUILDINFO_MEMBER_LEADER_ON_TOP(frame, leaderAID);
-
-end
-
-function GUILDINFO_MEMBER_LEADER_ON_TOP(frame, leaderAID)
-    local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
-    local memberBoxChildCount = memberCtrlBox:GetChildCount();
-    local firstMember = nil;
-    for i = 0, memberBoxChildCount - 1 do
-        local child = memberCtrlBox:GetChildByIndex(i);        
-        if string.find(child:GetName(), 'MEMBER_') ~= nil and child:IsVisible() == 1 then
-            firstMember = child;
-            break;
-        end
-    end
-
-    local leader = GET_CHILD_RECURSIVELY(frame, 'MEMBER_'..leaderAID);
-    if leader ~= nil and firstMember ~= nil then
-        local leaderOffsetY = leader:GetY();
-        leader:SetOffset(leader:GetX(), firstMember:GetY());
-        firstMember:SetOffset(firstMember:GetX(), leaderOffsetY);
-    end
+    GUILDINFO_MEMBER_LIST_UPDATE(frame, guild, leaderAID);
 end
 
 function GUILDINFO_MEMBER_ONLINE_CLICK(parent, checkBox)
+    local pc = GetMyPCObject();
+    if IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
+        return;
+    end
+
     local topFrame = parent:GetTopParentFrame();
     local memberCtrlBox = GET_CHILD_RECURSIVELY(topFrame, 'memberCtrlBox');
     if checkBox == nil then
         checkBox = GET_CHILD_RECURSIVELY(topFrame, 'memberFilterCheck');
     end
 
-    local childCount = memberCtrlBox:GetChildCount();
     local showOnlyOnline = checkBox:IsChecked();
     config.ChangeXMLConfig('OnlyOnlineGuildMember', showOnlyOnline);    
 
-    for i = 0, childCount - 1 do
-        local child = memberCtrlBox:GetChildByIndex(i);
-        if string.find(child:GetName(), 'MEMBER_') ~= nil then
-            if showOnlyOnline == 1 and child:GetUserValue('IS_ONLINE') == 'NO' then
-                child:ShowWindow(0);
-            else
-                child:ShowWindow(1);
-            end
-        end
-    end
-    GBOX_AUTO_ALIGN(memberCtrlBox, 0, 0, 0, true, false, true);
+    _GUILDINFO_MEMBER_LIST_UPDATE(topFrame);
     ui.CloseFrame('guild_authority_popup');
 end
 
@@ -193,14 +68,14 @@ function POPUP_GUILD_MEMBER(parent, ctrl)
 
 	if isLeader == 1 and aid ~= myAid then
 		local mapName = session.GetMapName();
-		if mapName == 'guild_agit_1' then
+		if mapName == 'guild_agit_1' or mapName == 'guild_agit_extension' then
 			ui.AddContextMenuItem(context, ScpArgMsg("GiveGuildLeaderPermission"), string.format("SEND_REQ_GUILD_MASTER('%s')", name));
 		end
 	end
 
 	if isLeader == 1 then
-		local list = session.party.GetPartyMemberList(PARTY_GUILD);
-		if list:Count() == 1 then
+        local count = session.party.GetAllMemberCount(PARTY_GUILD);
+		if count == 1 then
 			ui.AddContextMenuItem(context, ScpArgMsg("Disband"), "DESTROY_GUILD()");            
 		end
 	else
@@ -396,6 +271,11 @@ function _SEND_REQ_GUILD_MASTER(name)
 end
 
 function OUT_GUILD_CHECK()
+    local yesScp = string.format("_OUT_GUILD_CHECK()");
+	ui.MsgBox(ScpArgMsg('ReallyOutGuild'), yesScp, "None");
+end
+
+function _OUT_GUILD_CHECK()
 	ui.Chat("/outguildcheck");
     ui.CloseFrame('guildinfo');
 end
@@ -486,12 +366,20 @@ function WARP_GUILD_MEMBER_EXEC(aid)
             return;
         end
         local mapID = memberInfo:GetMapID()
-        if mapID == 9996 or mapID == 9997 or mapID == 9998 then
+        if mapID == 9993 or mapID == 9994 or mapID == 9995 or mapID == 9996 or mapID == 9997 or mapID == 9998 then
             local aObj = GetMyAccountObj();
+            local lastGuildGIDX = TryGetProp(aObj, 'LastGuildOutGIDX');
             local lastGuildOutDay = TryGetProp(aObj, "LastGuildOutDay")
             if lastGuildOutDay ~= "None" then
                 local lastTime = imcTime.GetSysTimeByStr(lastGuildOutDay)
                 local addTime = AFTER_GUILD_OUT_COLONY_WAR_PARTICIPATE_PERIOD_DELAY
+
+                -- 개척 길드 탈퇴 패널티 제거
+                local guildidx = GET_GUILD_MEMBER_JOIN_AUTO_GUILD_IDX();
+                if guildidx ~= "0" and guildidx == lastGuildGIDX then
+                    return;
+                end
+
                 local enterEnableTime = imcTime.AddSec(lastTime, (addTime*60));
                 local nowTime = session.GetDBSysTime();
                 local difSec = imcTime.GetDifSec(enterEnableTime, nowTime);
@@ -511,4 +399,203 @@ function WARP_GUILD_MEMBER_EXEC(aid)
     session.party.AddSkillTarget(aid);
     local summonSkl = GetClass('Skill', 'Templer_WarpToGuildMember');
 	session.party.ReqUsePartyMemberSkill(PARTY_GUILD, summonSkl.ClassID);
+end
+
+function GUILDINFO_MEMBER_LIST_INIT()
+    local allcount = session.party.GetAllMemberCount(PARTY_GUILD);
+
+    curPage = 1;
+    onlinecurPage = 1;
+    scrolledTime = 0;
+
+    local frame = ui.GetFrame("guildinfo");
+    local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
+    memberCtrlBox:SetScrollPos(0);
+
+    _GUILDINFO_INIT_MEMBER_TAB(frame);
+end
+
+function GUILDINFO_MEMBER_LIST_UPDATE(frame, guild, leaderAID)
+    if leaderAID == nil then
+        leaderAID = guild.info:GetLeaderAID();
+    end
+
+    _GUILDINFO_MEMBER_LIST_UPDATE(frame);
+
+    -- on/off
+    local allcount = session.party.GetAllMemberCount(PARTY_GUILD);
+    local onlineCnt = session.party.GetOnlineMemberCount(PARTY_GUILD);
+    local memberBox = GET_CHILD_RECURSIVELY(frame, 'guildinfo_');
+    local memberCountText = GET_CHILD_RECURSIVELY(memberBox, 'memberCountText');
+    memberCountText:SetTextByKey('online', onlineCnt);
+    memberCountText:SetTextByKey('offline', allcount - onlineCnt);
+end
+
+function _GUILDINFO_MEMBER_LIST_UPDATE(frame)
+    local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
+    DESTROY_CHILD_BYNAME(memberCtrlBox, 'MEMBER_');
+
+    local guild = GET_MY_GUILD_INFO();
+    local leaderAID = guild.info:GetLeaderAID();
+    local leaderInfo = session.party.GetPartyMemberInfoByAID(PARTY_GUILD, leaderAID);
+
+    local checkBox = GET_CHILD_RECURSIVELY(frame, 'memberFilterCheck');
+    local showOnlyOnline = checkBox:IsChecked();
+    if showOnlyOnline == 0 then
+        -- 길드 마스터 먼저 추가
+        local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
+        GUILDINFO_MEMBER_LIST_CREATE(memberCtrlBox, leaderInfo);
+
+        for i = 1, curPage do 
+            GUILDINFO_MEMBER_LIST(frame, i);
+        end
+    else
+        if leaderInfo:GetMapID() > 0 then
+            -- 길드 마스터 먼저 추가
+            local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
+            GUILDINFO_MEMBER_LIST_CREATE(memberCtrlBox, leaderInfo);
+        end
+
+        for i = 1, onlinecurPage do
+            GUILDINFO_ONLINE_MEMBER_LIST(frame, i);
+        end
+    end
+
+    GBOX_AUTO_ALIGN(memberCtrlBox, 0, 0, 0, true, false, true);
+end
+
+function GUILDINFO_MEMBER_LIST(frame, page)
+    local list = session.party.GetPartyMemberListbyPage(PARTY_GUILD, page);
+    local cnt = list:Count();
+    local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
+    for i = 0, cnt - 1 do
+        local partyMemberInfo = list:Element(i);
+        GUILDINFO_MEMBER_LIST_CREATE(memberCtrlBox, partyMemberInfo);
+    end
+end
+
+function GUILDINFO_ONLINE_MEMBER_LIST(frame, page)
+    local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
+    local list = session.party.GetOnlinePartyMemberListbyPage(PARTY_GUILD, page);
+    local count = list:Count();
+    for i = 0, count - 1 do
+        local partyMemberInfo = list:Element(i);
+        GUILDINFO_MEMBER_LIST_CREATE(memberCtrlBox, partyMemberInfo);
+    end
+end
+
+function GUILDINFO_MEMBER_LIST_CREATE(memberCtrlBox, partyMemberInfo)
+    if partyMemberInfo == nil then
+        return;
+    end
+
+    local aid = partyMemberInfo:GetAID();
+    local memberCtrlSet = memberCtrlBox:CreateOrGetControlSet('guild_memberinfo', 'MEMBER_'..aid, 0, 0);
+    memberCtrlSet = AUTO_CAST(memberCtrlSet);
+    memberCtrlSet:SetUserValue('AID', aid);
+
+    local isOnline = true;
+    local pic_online = GET_CHILD_RECURSIVELY(memberCtrlSet, 'pic_online');
+    local txt_location = GET_CHILD_RECURSIVELY(memberCtrlSet, 'txt_location');
+    local ONLINE_IMG = memberCtrlSet:GetUserConfig('ONLINE_IMG');
+    local OFFLINE_IMG = memberCtrlSet:GetUserConfig('OFFLINE_IMG');
+    local MY_CHAR_BG_SKIN = memberCtrlSet:GetUserConfig('MY_CHAR_BG_SKIN');
+
+    -- bg
+    if aid == session.loginInfo.GetAID() then
+        local bg = GET_CHILD_RECURSIVELY(memberCtrlSet,'bg');
+        bg:SetSkinName(MY_CHAR_BG_SKIN);
+    end
+
+    -- on/off & location
+    local locationText = "";
+    if partyMemberInfo:GetMapID() > 0 then
+        local mapCls = GetClassByType("Map", partyMemberInfo:GetMapID());
+        if mapCls ~= nil then
+            pic_online:SetImage(ONLINE_IMG);
+            locationText = string.format("[%s%d] %s", ScpArgMsg("Channel"), partyMemberInfo:GetChannel() + 1, mapCls.Name);
+        end
+    else
+        isOnline = false;
+        pic_online:SetImage(OFFLINE_IMG);
+        local logoutSec = partyMemberInfo:GetLogoutSec();
+        if logoutSec >= 0 then
+            locationText = GET_DIFF_TIME_TXT(logoutSec);
+        else				
+            locationText = ScpArgMsg("LogoutLongTime");
+        end
+    end
+    txt_location:SetTextByKey("value", locationText);
+    txt_location:SetTextTooltip(locationText);
+
+    -- name
+    local txt_teamname = GET_CHILD_RECURSIVELY(memberCtrlSet, 'txt_teamname');
+    local name = partyMemberInfo:GetName();
+    txt_teamname:SetTextByKey('value', partyMemberInfo:GetName());
+    txt_teamname:SetTextTooltip(partyMemberInfo:GetName());
+
+    -- job
+    local jobID = partyMemberInfo:GetIconInfo().repre_job;    
+    local jobCls = GetClassByType('Job', jobID);
+    local jobName = GET_JOB_NAME(jobCls, partyMemberInfo:GetIconInfo().gender);
+    if jobName ~= nil then
+        local jobText = GET_CHILD_RECURSIVELY(memberCtrlSet, 'jobText')
+        jobText:SetTextByKey('job', jobName);
+    end
+                
+    -- level
+    if isOnline == true then
+        local levelText = GET_CHILD_RECURSIVELY(memberCtrlSet, 'levelText');
+        levelText:SetTextByKey('level', partyMemberInfo:GetLevel());
+    end
+    -- claim
+    local txt_duty = GET_CHILD_RECURSIVELY(memberCtrlSet, 'txt_duty');        
+    local grade = partyMemberInfo.grade;
+    
+    local guild = GET_MY_GUILD_INFO();
+    local leaderAID = guild.info:GetLeaderAID();
+    if leaderAID == aid then
+        local dutyName = "{ol}{#FFFF00}" .. ScpArgMsg("GuildMaster") .. "{/}{/}";
+        dutyName = dutyName .. " " .. guild:GetDutyName(grade);
+        txt_duty:SetTextByKey("value", dutyName);
+    else
+        local claimName = GET_CLAIM_NAME_BY_AIDX(aid);
+        if claimName == nil then
+            claimName = "";
+            GetPlayerMemberTitle("ON_GUILDINFO_MEMBER_TITLE_GET", aid);
+        end
+        txt_duty:SetTextByKey("value", claimName);
+    end
+
+    -- contribution
+    local memberObj = GetIES(partyMemberInfo:GetObject());
+    local contributionText =GET_CHILD_RECURSIVELY(memberCtrlSet, 'contributionText');
+    contributionText:SetTextByKey('contribution', memberObj.Contribution);
+
+    memberCtrlSet:SetEventScript(ui.RBUTTONDOWN, 'POPUP_GUILD_MEMBER');
+end
+
+function GUILDINFO_MEMBER_LIST_SCROLL(parent, ctrl)
+    local frame = parent:GetTopParentFrame();
+    if ctrl:IsScrollEnd() == true then
+        local now = imcTime.GetAppTime();
+        local dif = now - scrolledTime;
+
+        if 1 < dif then
+            scrolledTime = now;
+            
+            local checkBox = GET_CHILD_RECURSIVELY(frame, 'memberFilterCheck');
+            local showOnlyOnline = checkBox:IsChecked();
+            if showOnlyOnline == 0 then
+                curPage = curPage + 1;
+                GUILDINFO_MEMBER_LIST(frame, curPage);
+            else
+                onlinecurPage = onlinecurPage + 1;
+                GUILDINFO_ONLINE_MEMBER_LIST(frame, onlinecurPage);
+            end
+        end
+    end
+
+    local memberCtrlBox = GET_CHILD_RECURSIVELY(frame, 'memberCtrlBox');
+    GBOX_AUTO_ALIGN(memberCtrlBox, 0, 0, 0, true, false, true);
 end

@@ -1,15 +1,23 @@
 function INGAMEALERT_ON_INIT(addon, frame)
 	addon:RegisterMsg("INGAME_PRIVATE_ALERT", "INGAMEALERT_SHOW")
 	addon:RegisterMsg("INDUN_ASK_PARTY_MATCH", "ON_INDUN_ASK_PARTY_MATCH")
+	addon:RegisterMsg("INDUN_ASK_PARTY_MATCH_AUTO_CHALLENGE", "ON_INDUN_ASK_PARTY_MATCH_AUTO_CHALLENGE");
 	addon:RegisterMsg("SOLD_ITEM_NOTICE", "ON_SOLD_ITEM_NOTICE")
 	addon:RegisterMsg("RECEIVABLE_SILVER_NOTICE", "ON_RECEIVABLE_SILVER_NOTICE")
 	addon:RegisterMsg("RECEIVABLE_TAX_PAYMENT_NOTICE", "ON_RECEIVABLE_TAX_PAYMENT_NOTICE")
+	addon:RegisterMsg("FIELD_BOSS_WORLD_EVENT_RECEIVABLE_ITEM_NOTICE", "ON_FIELD_BOSS_WORLD_EVENT_RECEIVABLE_ITEM_NOTICE")	
+	addon:RegisterMsg("FIELD_BOSS_WORLD_EVENT_RECEIVABLE_SILVER_NOTICE", "ON_FIELD_BOSS_WORLD_EVENT_RECEIVABLE_SILVER_NOTICE")	
+	addon:RegisterMsg("PARTICIPANT_UPDATE", "ON_PARTY_BOARD_PARTICIPANT_NOTICE")	
+
 	
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "Private")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "Party")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "SoldItem")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "ReceivableSilver")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "TaxPayment")
+	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "WorldEventReceivableItem")
+	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "WorldEventReceivableSilver")
+	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "PartyParticipant")
 	INGAMEALERT_SET_SCRIPT_YESNO(frame, "TaxPayment", "INGAMEALERT_TAX_PAYMENT_SCP_YES", "None")
 
 end
@@ -79,7 +87,7 @@ end
 function INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame)
 	local chatFrame = ui.GetFrame("chatframe")
 	if chatFrame ~= nil and chatFrame:IsVisible() == 1 then
-		frame:SetMargin(5, 0, 0, chatFrame:GetHeight() + 20)
+		frame:SetMargin(5, 0, 0, config.GetXMLConfig("ChatFrameSizeHeight") + 20)
 	end
 	INGAMEALERT_ALIGN_ELEM(frame)
 	frame:ShowWindow(1)
@@ -116,8 +124,22 @@ function INGAMEALERT_REMOVE_ELEM_BY_OBJECT(obj)
 end
 
 function ON_INGAMEALERT_ELEM_CLOSE(parent, ctrl)
+	local frame = parent:GetTopParentFrame();
 	INGAMEALERT_REMOVE_ELEM_BY_OBJECT(parent)
-	INGAMEALERT_ALIGN_ELEM(parent:GetTopParentFrame())
+	INGAMEALERT_ALIGN_ELEM(frame)
+
+	local count = 0; 
+	local list_gb = GET_CHILD(frame, "list_gb")
+	for i=0, list_gb:GetChildCount()-1 do
+		local ctrl = list_gb:GetChildByIndex(i);
+		if ctrl:IsVisible() == 1 then
+			count = count + 1;
+		end
+	end
+
+	if count <= 0 then
+		frame:ShowWindow(0);
+	end
 end
 
 function ON_INGAMEALERT_ELEM_NO(parent, ctrl)
@@ -167,6 +189,23 @@ function ON_INDUN_ASK_PARTY_MATCH(frame, msg, argStr, argNum)
 
 	INGAMEALERT_RESIZE_ELEM(ctrlset)
 	INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame)	
+end
+
+function ON_INDUN_ASK_PARTY_MATCH_AUTO_CHALLENGE(frame, msg, argStr, argNum)
+	local ctrlset = INGAMEALERT_GET_ELEM_BY_TYPE(frame, "Party");
+	local arglist = StringSplit(argStr, "/");
+	if #arglist ~= 2 then
+		INGAMEALERT_REMOVE_ELEM_BY_OBJECT(ctrlset);
+		INGAMEALERT_ALIGN_ELEM(frame);
+		return;
+	end
+
+	local text = GET_CHILD(ctrlset, "text");
+	local ask_msg = ScpArgMsg("PartyMatchingAutoChallenge", "MEMBER", arglist[1], "INDUN", arglist[2]);
+	text:SetText(ask_msg);
+
+	INGAMEALERT_RESIZE_ELEM(ctrlset);
+	INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame);
 end
 
 function ON_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)	
@@ -224,4 +263,44 @@ end
 
 function INGAMEALERT_TAX_PAYMENT_SCP_YES(ctrlset)
 	ui.OpenFrame("colony_tax_payment")
+end
+
+function ON_FIELD_BOSS_WORLD_EVENT_RECEIVABLE_ITEM_NOTICE(frame, msg, argStr, argNum)
+	local ctrlset = INGAMEALERT_GET_ELEM_BY_TYPE(frame, "WorldEventReceivableItem")
+	
+	local text = GET_CHILD(ctrlset, "text")
+	local askMsg = ScpArgMsg("WorldEventReceivableItemNotice")
+	text:SetText(askMsg)
+
+	INGAMEALERT_RESIZE_ELEM(ctrlset)
+	INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame)
+end
+
+function ON_FIELD_BOSS_WORLD_EVENT_RECEIVABLE_SILVER_NOTICE(frame, msg, argStr, argNum)
+	local ctrlset = INGAMEALERT_GET_ELEM_BY_TYPE(frame, "WorldEventReceivableSilver")
+	
+	local text = GET_CHILD(ctrlset, "text")
+	local askMsg = ScpArgMsg("WorldEventReceivableSilverNotice")
+	text:SetText(askMsg)
+
+	INGAMEALERT_RESIZE_ELEM(ctrlset)
+	INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame)
+end
+
+
+function ON_PARTY_BOARD_PARTICIPANT_NOTICE(frame, msg, argStr, argNum)
+	frame = ui.GetFrame('ingamealert')
+	local participantList = session.party.GetParticipantList()
+	if participantList:Count() == 0 then
+		return;
+	end
+
+	local ctrlset = INGAMEALERT_GET_ELEM_BY_TYPE(frame, "PartyParticipant")
+	
+	local text = GET_CHILD(ctrlset, "text")
+	local askMsg = ScpArgMsg("PartyParticipantNotice")
+	text:SetText(askMsg)
+
+	INGAMEALERT_RESIZE_ELEM(ctrlset)
+	INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame)
 end

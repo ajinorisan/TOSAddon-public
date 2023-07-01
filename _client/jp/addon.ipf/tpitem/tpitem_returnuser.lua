@@ -114,8 +114,7 @@ function RETURNUSER_CREATE_ITEM_LIST(frame)
             local itemClassName = TryGetProp(obj, "ItemClassName");
             if itemClassName ~= nil then
                 local itemobj = GetClass("Item", itemClassName);
-                if CHECK_RETURNUSER_SHOW_ITEM(frame, obj, itemobj) == true then
-            
+                if CHECK_RETURNUSER_SHOW_ITEM(frame, obj, itemobj) == true and CHECK_TPITEM_ENABLE_VIEW_RETURN(obj) == true then
                     x = ( (showitemcnt-1) % 3) * ui.GetControlSetAttribute("tpshop_item", 'width')
                     y = (math.ceil( (showitemcnt / 3) ) - 1) * (ui.GetControlSetAttribute("tpshop_item", 'height') * 1)
                     local itemcset = returnuser_mainSubGbox:CreateOrGetControlSet('tpshop_item', 'eachitem_'..showitemcnt, x, y);
@@ -125,6 +124,24 @@ function RETURNUSER_CREATE_ITEM_LIST(frame)
             end
 		end
 	end
+end
+
+function CHECK_TPITEM_ENABLE_VIEW_RETURN(itemObj)    
+	local startProp = TryGetProp(itemObj, "SellStartTime")
+	local endProp = TryGetProp(itemObj, "SellEndTime")
+	
+	if startProp == nil or endProp == nil then
+		return true;
+	end
+
+	if startProp == "None" or endProp == "None" then
+		return true;
+	end
+	local curYear = 0
+	local endYear = 0
+	local ret = IS_BETWEEN_DAY(startProp, endProp, geTime.GetServerSystemTime())    
+	
+	return ret	
 end
 
 function CHECK_RETURNUSER_SHOW_ITEM(frame, shopObj, itemobj)
@@ -225,15 +242,23 @@ function TPITEM_RETURNUSER_DRAW_MARK_CTRL(itemobj, itemcset)
 	local isEvent_mark = GET_CHILD_RECURSIVELY(itemcset,"isEvent_mark");	-- 이벤트
 	local isSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isSale_mark");		-- 세일 마크
 
-	-- 우선 모두 꺼둔다. 
-	isNew_mark:SetVisible(0);
-	isLimit_mark:SetVisible(0);
-	isHot_mark:SetVisible(0);
-	isEvent_mark:SetVisible(0);
-	isSale_mark:SetVisible(0);
+	-- 우선 모두 꺼둔다. 특판 판매로 한시적으로 활성화
+	if itemobj.NumberArg1 == 505 then
+		isNew_mark:SetVisible(0);
+		isLimit_mark:SetVisible(1);
+		isHot_mark:SetVisible(0);
+		isEvent_mark:SetVisible(0);
+		isSale_mark:SetVisible(1);
+	else
+		isNew_mark:SetVisible(0);
+		isLimit_mark:SetVisible(0);
+		isHot_mark:SetVisible(0);
+		isEvent_mark:SetVisible(0);
+		isSale_mark:SetVisible(0);
+	end
 end
 
-function TPITEM_RETURNUSER_DRAW_TIME_SALE_CTRL(itemobj, itemcset)
+function TPITEM_RETURNUSER_DRAW_TIME_SALE_CTRL(obj, itemobj, itemcset)
 	
 	local limited_line = GET_CHILD_RECURSIVELY(itemcset, "titleLine_limited");
 	local limited_case = GET_CHILD_RECURSIVELY(itemcset, "case_limited");
@@ -241,14 +266,166 @@ function TPITEM_RETURNUSER_DRAW_TIME_SALE_CTRL(itemobj, itemcset)
 	local time_limited_bg = GET_CHILD_RECURSIVELY(itemcset, "time_limited_bg");
 	local time_limited_text = GET_CHILD_RECURSIVELY(itemcset, "time_limited_text");
 
-	-- 이것도 필요 없으니 모두 꺼둔다.
+	-- 이것도 필요 없으니 모두 꺼둔다. 특판 판매로 한시적으로 활성화
 	itemcset:SetSkinName('test_skin_01_btn')
-	limited_bg:SetVisible(0);
-	limited_case:SetVisible(0);
-	limited_line:SetVisible(0);
-	time_limited_bg:SetVisible(0);
-	time_limited_text:SetVisible(0);
+	if itemobj.NumberArg1 == 505 then
 
+		local curTime = geTime.GetServerSystemTime()
+		local curSysTimeStr = string.format("%04d%02d%01d%02d%02d%02d%02d", curTime.wYear, curTime.wMonth, '0', curTime.wDay, curTime.wHour, curTime.wMinute, curTime.wSecond)
+		local startTime = TryGetProp(obj, "SellStartTime");
+		local endTime = TryGetProp(obj, "SellEndTime");
+                
+		time_limited_text:SetUserValue("SELL_START_TIME", startTime);
+		time_limited_text:SetUserValue("SELL_END_TIME", endTime);
+
+		local curYear = curTime.wYear
+		local endYear = curTime.wYear
+		startTime, curYear = CONVERT_NEWTIME_FORMAT_TO_OLDTIME_FORMAT_re(startTime)        
+		endTime, endYear = CONVERT_NEWTIME_FORMAT_TO_OLDTIME_FORMAT_re(endTime)
+		startTime = tonumber(startTime)
+		endTime = tonumber(endTime)
+
+		local endSysTimeStr = string.format("%04d%09d%02d", endYear, endTime, '00')
+		local curSysTime = imcTime.GetSysTimeByStr(curSysTimeStr)
+		local endSysTime = imcTime.GetSysTimeByStr(endSysTimeStr)
+		local difSec = imcTime.GetDifSec(endSysTime, curSysTime);
+
+		time_limited_text:SetUserValue("REMAINMIN", difSec);
+		time_limited_text:RunUpdateScript("SHOW_REMAIN_SALE_TIME");
+
+		limited_bg:SetVisible(1);
+		limited_case:SetVisible(1);
+		limited_line:SetVisible(1);
+		time_limited_bg:SetVisible(1);
+		time_limited_text:SetVisible(1);
+	else
+		limited_bg:SetVisible(0);
+		limited_case:SetVisible(0);
+		limited_line:SetVisible(0);
+		time_limited_bg:SetVisible(0);
+		time_limited_text:SetVisible(0);
+	end
+end
+
+function CONVERT_NEWTIME_FORMAT_TO_OLDTIME_FORMAT_re(date)
+	local token = StringSplit(date, ' ')    
+	if #token ~= 2 then
+		ShowMessageBox('date and time format error')
+		return
+		-- error
+	end
+
+	local d = token[1]
+	local d_token = StringSplit(d, '-')
+	if #d_token ~= 3 then
+		ShowMessageBox('date format error')
+		return
+		-- error
+	end
+	local year = tonumber(d_token[1])
+	if year < 2000 then
+		ShowMessageBox('year should be larger than in 2000')
+		return
+		-- error
+	end
+
+	local month = tonumber(d_token[2])
+	if month < 1 or month > 12 then
+		ShowMessageBox('minute is out of bounds')
+		return
+		-- error
+	end
+
+	local day = tonumber(d_token[3])
+	if day < 1 then
+		ShowMessageBox('day is out of bounds')
+		return
+		-- error
+	end
+
+	local pivot_day = 0
+
+	if month == 1 then
+		pivot_day = 31    
+	elseif month == 2 then
+		local is_moreday = false
+		if year % 4 == 0 then            
+			is_moreday = true
+		end
+		if year % 100 == 0 then
+			is_moreday = false
+		end
+		if year % 400 == 0 then
+			is_moreday = true
+		end
+
+		if is_moreday == true then
+			pivot_day = 29
+		else
+			pivot_day = 28
+		end
+	elseif month == 3 then
+		pivot_day = 31
+	elseif month == 4 then
+		pivot_day = 30
+	elseif month == 5 then
+		pivot_day = 31
+	elseif month == 6 then
+		pivot_day = 30
+	elseif month == 7 then
+		pivot_day = 31
+	elseif month == 8 then
+		pivot_day = 31
+	elseif month == 9 then
+		pivot_day = 30
+	elseif month == 10 then
+		pivot_day = 31
+	elseif month == 11 then
+		pivot_day = 30
+	elseif month == 12 then
+		pivot_day = 31    
+	end
+
+	if pivot_day == 0 then
+		ShowMessageBox('month is out of bounds')
+		return
+		-- error
+	end
+
+	if day > pivot_day then
+		ShowMessageBox('day is out of bounds')
+		return
+		-- error
+	end
+
+	local t = token[2]
+	local t_token = StringSplit(t, ':')
+	if #t_token ~= 3 then
+		ShowMessageBox('time format error')
+		return
+		-- error
+	end
+	local hour = tonumber(t_token[1])
+	local minute = tonumber(t_token[2])
+	local seconds = tonumber(t_token[3])
+	if hour < 0 or hour > 24 then
+		ShowMessageBox('hour is out of bounds')
+		return
+		-- error
+	end
+
+	if minute < 0 or minute > 59 then
+		ShowMessageBox('minute is out of bounds')
+		return
+		-- error
+	end
+
+	if seconds < 0 or seconds > 59 then
+
+	end
+
+	local old_format = string.format("%02d%01d%02d%02d%02d", month, 0, day, hour, minute)
+	return old_format, year
 end
 
 function TPITEM_RETURNUSER_DRAW_SLOT_CTRL(obj, itemobj, itemcset)
@@ -335,7 +512,7 @@ function TPITEM_RETURNUSER_DRAW_ITEM_DETAIL(obj, itemobj, itemcset)
 	TPITEM_RETURNUSER_DRAW_MARK_CTRL(itemobj, itemcset)
 
 	-- 기간 한정
-	TPITEM_RETURNUSER_DRAW_TIME_SALE_CTRL(itemobj, itemcset)
+	TPITEM_RETURNUSER_DRAW_TIME_SALE_CTRL(obj, itemobj, itemcset)
 
 	-- Slot 설정
 	TPITEM_RETURNUSER_DRAW_SLOT_CTRL(obj, itemobj, itemcset)
@@ -364,11 +541,81 @@ function  TPITEM_RETURNUSER_ENABLE_BY_LIMITATION(tpitemCls, itemcset )
 	local itemCls = GetClass('Item', tpitemCls.ItemClassName);	
 	local curBuyCount = session.shop.GetCurrentBuyLimitCount(shopType, tpitemCls.ClassID, itemCls.ClassID);    
 	local accountLimitCount = TryGetProp(tpitemCls, 'AccountLimitCount');
+
+	local limit = GET_LIMITATION_TO_BUY_WITH_SHOPTYPE(tpitemCls.ClassID, shopType);	
+
+	local itemobj = GetClass("Item", tpitemCls.ItemClassName)
+
+	if itemobj == nil then
+		return
+	end
+
+	local classid = itemobj.ClassID;
 	
 	if (accountLimitCount ~= nil and accountLimitCount > 0 and curBuyCount >= accountLimitCount) then
 		buyBtn:SetSkinName('test_gray_button');
 		buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
 		buyBtn:EnableHitTest(0)
+	elseif limit == 'ACCOUNT' then		
+		if TryGetProp(tpitemCls, 'ItemSocial', 'None') == 'Gesture' then		
+			local pc = GetMyPCObject()
+			if pc ~= nil then	
+				local accObj = GetMyAccountObj(pc)
+				local pose_prop = TryGetProp(GetClass('Pose', TryGetProp(itemobj, "StringArg", "None")), 'RewardName', 'None')				
+				if pose_prop ~= nil and pose_prop ~= 'None' then
+					if TryGetProp(accObj, pose_prop, 0) ~= 0 then
+						buyBtn:SetSkinName('test_gray_button');
+						buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
+						buyBtn:EnableHitTest(0)
+					end
+				end
+			end
+		else
+			local curBuyCount = session.shop.GetCurrentBuyLimitCount(0, tpitemCls.ClassID, classid);
+			if curBuyCount >= tpitemCls.AccountLimitCount then
+				buyBtn:SetSkinName('test_gray_button');
+				buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
+				buyBtn:EnableHitTest(0)
+			end
+		end
+	elseif limit == 'MONTH' then		
+        local curBuyCount = session.shop.GetCurrentBuyLimitCount(0, tpitemCls.ClassID, classid);
+		if curBuyCount >= tpitemCls.MonthLimitCount then
+			buyBtn:SetSkinName('test_gray_button');
+			buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
+			buyBtn:EnableHitTest(0)
+		end
+	elseif limit == 'WEEKLY' then
+		local prop = TryGetProp(tpitemCls, 'AccountLimitWeeklyCountProperty', 'None')		
+		local accObj = GetMyAccountObj(pc)
+		local curBuyCount = TryGetProp(accObj, prop, 0)		
+		if curBuyCount >= tpitemCls.AccountLimitWeeklyCount then
+			buyBtn:SetSkinName('test_gray_button');
+			buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
+			buyBtn:EnableHitTest(0)
+		end
+	elseif limit == 'CUSTOM' then
+		local prop = TryGetProp(tpitemCls, 'AccountLimitCustomCountProperty', 'None')		
+		local accObj = GetMyAccountObj(pc)
+		local curBuyCount = TryGetProp(accObj, prop, 0)		
+		if curBuyCount >= tpitemCls.AccountLimitCustomCount then
+			buyBtn:SetSkinName('test_gray_button');
+			buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
+			buyBtn:EnableHitTest(0)
+		end
+	elseif TryGetProp(tpitemCls, 'ItemSocial', 'None') == 'Gesture' then		
+		local pc = GetMyPCObject()
+		if pc == nil then return false end
+
+		local accObj = GetMyAccountObj(pc)
+		local pose_prop = TryGetProp(GetClass('Pose', TryGetProp(itemobj, "StringArg", "None")), 'RewardName', 'None')		
+		if pose_prop ~= nil and pose_prop ~= 'None' then
+			if TryGetProp(accObj, pose_prop, 0) ~= 0 then
+				buyBtn:SetSkinName('test_gray_button');
+				buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
+				buyBtn:EnableHitTest(0)
+			end
+		end
 	end
 end
 
@@ -430,6 +677,24 @@ function TPSHOP_ITEM_TO_RETURNUSER_BUY_BASKET_PREPROCESSOR(parent, control, tpit
             return false;
 		else
 			ui.MsgBox(ScpArgMsg("SelectPurchaseRestrictedItemByMonth","Value", obj.MonthLimitCount -curBuyCount ), string.format("TPSHOP_ITEM_TO_RETURNUSER_BUY_BASKET('%s', %d)", tpitemname, classid), "None");
+		end
+	elseif limit == 'WEEKLY' then
+		local prop = TryGetProp(obj, 'AccountLimitWeeklyCountProperty', 'None')
+		local curBuyCount = TryGetProp(GetMyAccountObj(), prop, 0)
+		if curBuyCount >= obj.AccountLimitWeeklyCount then
+			ui.MsgBox_OneBtnScp(ScpArgMsg("PurchaseItemExceeded","Value", obj.AccountLimitWeeklyCount), "")
+            return false;
+		else
+			ui.MsgBox(ScpArgMsg("SelectPurchaseRestrictedItemByWeekly","Value", obj.AccountLimitWeeklyCount, "Value2", obj.AccountLimitWeeklyCount - curBuyCount), string.format("TPSHOP_ITEM_TO_RETURNUSER_BUY_BASKET('%s', %d)", tpitemname, classid), "None");
+		end
+	elseif limit == 'CUSTOM' then
+		local prop = TryGetProp(obj, 'AccountLimitCustomCountProperty', 'None')
+		local curBuyCount = TryGetProp(GetMyAccountObj(), prop, 0)
+		if curBuyCount >= obj.AccountLimitCustomCount then
+			ui.MsgBox_OneBtnScp(ScpArgMsg("PurchaseItemExceeded","Value", obj.AccountLimitCustomCount), "")
+            return false;
+		else
+			ui.MsgBox(ScpArgMsg("SelectPurchaseRestrictedItemByCustom","Value", obj.AccountLimitCustomCount, "Value2", obj.AccountLimitCustomCount - curBuyCount), string.format("TPSHOP_ITEM_TO_RETURNUSER_BUY_BASKET('%s', %d)", tpitemname, classid), "None");
 		end
 	elseif TPITEM_IS_ALREADY_PUT_INTO_BASKET(parent:GetTopParentFrame(), obj) == true then
 		ui.MsgBox(ClMsg("AleadyPutInBasketReallyBuy?"), string.format("TPSHOP_ITEM_TO_RETURNUSER_BUY_BASKET('%s', %d)", tpitemname, classid), "None");	

@@ -742,12 +742,11 @@ function PILGRIM_TRIBULATION_RANK_SELECT_STONE_TOTAL_COUNT_UPDATE(frame, mgame_n
     if gb_stone_total ~= nil then
         local pic_stone_total = GET_CHILD_RECURSIVELY(frame, "pic_tribulation_stone_total");
         if pic_stone_total ~= nil then
-            local cur_count = session.TribulationSystem.GetInvCountTribulationStone();
+            local cur_count = session.TribulationSystem.GetInvCountTribulationStone(mgame_name);
             local tooltip_text = ClMsg("TribulationInvStoneCuont")..cur_count;
             pic_stone_total:SetTooltipOverlap(1);
             pic_stone_total:SetTextTooltip(tooltip_text);
         end
-
         local total_count = 0;
         local stone_need_list = { "pc", "monster", "pattern" };
         for i = 1, #stone_need_list do

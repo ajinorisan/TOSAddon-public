@@ -218,7 +218,7 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 			clear_bg:SetAlpha(REWARD_CLEAR_BG_ALPHA);
 			clear_Pic:ShowWindow(1);
 
-			if config.GetServiceNation() ~= 'KOR' then
+			if config.GetServiceNation() ~= 'KOR' and config.GetServiceNation() ~= 'GLOBAL_KOR' then
 				clear_Pic:SetImage("very_nice_stamp_eng");
 			end
 			local go_btn = GET_CHILD_RECURSIVELY(ctrlSet,'go_btn')
@@ -370,7 +370,7 @@ function ON_EVENT_STAMP_TOUR_REWARD_GET(frame, msg, argstr, argnum)
 	clear_bg:ShowWindow(0);
 	clear_Pic:ShowWindow(0);
 	
-	if config.GetServiceNation() ~= 'KOR' then
+	if config.GetServiceNation() ~= 'KOR' and config.GetServiceNation() ~= 'GLOBAL_KOR' then
 		clear_Pic:SetImage("very_nice_stamp_eng");
 	end
 

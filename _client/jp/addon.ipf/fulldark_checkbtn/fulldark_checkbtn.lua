@@ -32,7 +32,7 @@ function GODDESS_ROULETTE_RESULT_FULLDARK_UI_OPEN(grade, itemClassName, itemCoun
     local itemname = GET_CHILD(frame, "itemname");
     if itemCount ~= nil then
         local getText = itemCls.Name.." "..itemCount..ClMsg("Piece");
-        if GetServerNation() ~= "KOR" then
+        if GetServerNation() ~= "KOR" and GetServerNation() ~= "GLOBAL_KOR" then
             getText = itemCls.Name.." "..itemCount;
         end
         itemname:SetTextByKey("value", getText);

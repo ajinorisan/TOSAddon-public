@@ -237,6 +237,9 @@ function ADVENTURE_BOOK_ACHIEVE_CONTENT.CHECK_COUNTRY(clsID) -- 국가 체크
 
 	local CountryList = StringSplit(Country, '/')
 	local CurCountry = config.GetServiceNation()
+	if CurCountry == "GLOBAL_KOR" then
+		CurCountry = "KOR"
+	end
 	for i = 1, #CountryList do
 		if CountryList[i] == CurCountry then
 			return 1
@@ -672,7 +675,7 @@ function ADVENTURE_BOOK_ACHIEVE_SEARCH_FUNC(clsID, idSpace, propName, searchText
 				end
 			elseif RewardType == "HairColor" then
 				local prop = Reward
-				if config.GetServiceNation() ~= "KOR" then
+				if config.GetServiceNation() ~= "KOR" and config.GetServiceNation() ~= "GLOBAL_KOR" then
 					prop = dic.getTranslatedStr(prop);
 				end
 				prop = string.lower(prop)

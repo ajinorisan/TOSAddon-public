@@ -179,14 +179,13 @@ function FLUTING_SLOT_LBTN_DOWN(frame, slot, strarg, numarg)
 	end
 	
 	if type == 0 then
-		return;
+		type = slot:GetUserIValue("FLUTING_SCALE_TYPE");
 	end
 
 	local cls = GetClassByType("fluting_scale", type);	
 	if cls == nil then
 		return;
 	end
-
 	Piedpiper.ReqPlayFluting(cls.ClassID)
 end
 
@@ -196,9 +195,9 @@ function FLUTING_SLOT_LBTN_UP(frame, slot, strarg, numarg)
 	if isSpaceBar == 1 then
 		type = slot:GetUserIValue("FLUTING_SCALE_SHARP_TYPE");
 	end
-	
+
 	if type == 0 then
-		return;
+		type = slot:GetUserIValue("FLUTING_SCALE_TYPE");
 	end
 
 	local cls = GetClassByType("fluting_scale", type);	

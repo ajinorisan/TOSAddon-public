@@ -11,6 +11,14 @@ function ITEM_CABINET_ON_INIT(addon, frame)
 	addon:RegisterMsg('END_OPEN_ALL_CABINET', 'END_OPEN_ALL_CABINET')	
 end
 
+function UI_TOGGLE_ITEM_CABINET()
+	local frame = ui.GetFrame("item_cabinet");
+	if frame ~= nil then
+		ui.OpenFrame("item_cabinet");
+		ITEM_CABINET_OPEN(frame);
+	end
+end
+
 function ITEM_CABINET_OPEN(frame)
 	if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
 		ui.SysMsg(ClMsg('CanUseAfterTutorialClear'))
@@ -933,7 +941,7 @@ function ITEM_CABINET_MATCH_NAME(listCls, cap)
 		return true;
 	end
 
-	local enable_name = GET_ENABLE_EQUIP_JOB(listCls)
+	local enable_name = string.lower(GET_ENABLE_EQUIP_JOB(listCls));
 	if string.find(enable_name, tempcap) ~= nil then
 		return true;
 	end

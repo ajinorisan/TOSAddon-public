@@ -1,6 +1,6 @@
 
 function MONSTERBASEINFO_ON_INIT(addon, frame)  
-    addon:RegisterMsg('PC_PROPERTY_UPDATE', 'MONSTERBASEINFO_ON_MSG');
+    addon:RegisterMsg('PC_PROPERTY_UPDATE_TO_MONBASEINFO', 'MONSTERBASEINFO_ON_MSG');
     addon:RegisterMsg('TARGET_CLOSE', 'ON_TARGET_CLEAR');
     addon:RegisterMsg('TARGET_CLEAR', 'ON_TARGET_CLEAR');
     addon:RegisterMsg('TARGET_UPDATE', 'ON_MONB_TARGET_UPDATE');
@@ -64,6 +64,7 @@ function DRAW_DEBUFF_UI_EFECT(handle, buffType)
 end
 
 function MONBASE_GAUGE_SET(frame, targetinfo)
+    if targetinfo == nil then return; end
     local nameRichText = GET_CHILD(frame, "name", "ui::CRichText");
     local stat = targetinfo.stat;
     local hpGauge = GET_CHILD(frame, "hp", "ui::CGauge");
@@ -244,7 +245,7 @@ function UPDATE_MONB_HP(frame, handle)
     end
 
     -- 보스는 보스HP UI에서 따로 보여줌. 이거땜시 빨간hp, name 깜빡거림
-    local targetInfo = info.GetTargetInfo(handle);
+	local targetInfo = info.GetTargetInfo(handle);
     if targetInfo ~= nil and targetInfo.isBoss == true and targetInfo.isSummoned ~= 1 then
         frame:ShowWindow(0);
         return;
@@ -266,10 +267,10 @@ function UPDATE_MONB_HP(frame, handle)
             end
         end
     elseif hpGauge:GetMaxPoint() == 0 then
-        hpGauge:SetPoint(stat.HP, stat.maxHP);
+		hpGauge:SetPoint(stat.HP, stat.maxHP);
     end
 
-    if targetInfo.isSummoned == 1 then
+    if targetInfo ~= nil and targetInfo.isSummoned == 1 then
         hpGauge:SetSkinName("hpgauge2");
         hpGauge:SetColorTone("FF777777");
         hpGauge:ShowWindow(1);
@@ -299,7 +300,7 @@ function MONSTERBASEINFO_ON_MSG(baseFrame, msg, argStr, argNum)
         return;
     end
     
-    if msg == 'PC_PROPERTY_UPDATE' then
+    if msg == 'PC_PROPERTY_UPDATE_TO_MONBASEINFO' then
         MONSTERBASEINFO_CHECK_OPENCONDITION(frame);
     end
 end

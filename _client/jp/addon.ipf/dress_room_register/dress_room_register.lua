@@ -38,6 +38,9 @@ end
 
 function OPEN_DRESS_ROOM_REGISTER(parent, btn, arg_str, arg_num)
 	local reward_cls = GetClassByType('dress_room', arg_num)
+	if config.GetServiceNation() == 'PAPAYA' then
+		reward_cls = GetClassByType('dress_room_papaya', arg_num)
+	end
 	if reward_cls == nil then return end
 
 	ui.OpenFrame('dress_room_register')
@@ -88,6 +91,9 @@ end
 function DRESS_ROOM_REGISTER_SLOT_ITEM(frame, inv_item, item_obj)
 	local dress_cls_id = frame:GetUserIValue('DRESS_CLS_ID')
 	local dress_cls = GetClassByType('dress_room', dress_cls_id)
+	if config.GetServiceNation() == 'PAPAYA' then
+		dress_cls = GetClassByType('dress_room_papaya', dress_cls_id)
+	end
 	if dress_cls == nil then return end
 
 	local item_cls_name = TryGetProp(dress_cls, 'ItemClassName', 'None')
@@ -150,6 +156,9 @@ function _DRESS_ROOM_REGISTER_REG_COSTUME()
 
 	local dress_cls_id = frame:GetUserIValue('DRESS_CLS_ID')
 	local dress_cls = GetClassByType('dress_room', dress_cls_id)
+	if config.GetServiceNation() == 'PAPAYA' then
+		dress_cls = GetClassByType('dress_room_papaya', dress_cls_id)
+	end
 	if dress_cls == nil then return end
 
 	local slot = GET_CHILD_RECURSIVELY(frame, 'slot')

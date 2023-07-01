@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Kim TaekBin (IMCGames Co., Ltd) -->
 <uiframe name="worldmap2_submap" x="0" y="0" width="1920" height="1080">
 	<frame stretch="true" fasthide="true" fullwidth="true" fullheight="true" scale_align="center center" layout_gravity="center center"/>
 	<skin frameskin="fullblack_bg"/>
@@ -36,6 +36,6 @@
 		<richtext name="submap_show_all_text" parent="submap_show_option_gb" rect="0 0 180 50" margin="30 -23 0 0" caption="{@st100white_16}모든 지역 표시" textalign="left center" resizebytext="false" layout_gravity="center center"/>
 		<richtext name="submap_show_undefined_text" parent="submap_show_option_gb" rect="0 0 180 50" margin="30 23 0 0" caption="{@st100orange_16}미확인 여신상 표시" textalign="left center" resizebytext="false" layout_gravity="center center"/>
 		<groupbox name="submap_tip" layout_gravity="center center" rect="0 0 820 40" margin="0 515 0 0" skin="shadow_box" scrollbar="false" scale_align="center bottom"/>
-		<richtext parent="submap_tip" name="submap_tip_text" layout_gravity="center center" rect="0 0 620 40" margin="0 0 0 0" textalign="center center" caption="{@st100white_16}키보드의 쉬프트 키를 누른 상태에서 지역을 클릭하면 토큰 이동을 이용할 수 있습니다."/>
+		<richtext parent="submap_tip" name="submap_tip_text" layout_gravity="center center" rect="0 0 620 40" margin="0 0 0 0" textalign="center center" caption="{@st100white_16}키보드의 Shift 키를 누른 상태에서 지역을 클릭하면 토큰 이동을 이용할 수 있습니다."/>
 	</controls>
 </uiframe>

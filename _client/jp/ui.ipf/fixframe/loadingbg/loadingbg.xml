@@ -13,6 +13,8 @@
 		<picture name="screenmask" rect="0 0 1920 1080" margin="0 0 0 0" layout_gravity="center top" resizebyresolution="true" stretch="true" image="directormode_2"/>
 		<picture name="game_violent" rect="0 0 100 116" margin="0 20 130 0" layout_gravity="right top" hittest="false" stretch="true" image="game_violent_mark" serviceNation="KOR"/>
 		<picture name="game_rating" rect="0 0 100 116" margin="0 20 20 0" layout_gravity="right top" hittest="false" stretch="true" image="game_rating_mark" serviceNation="KOR"/>
+		<picture name="game_violent_GK" rect="0 0 100 116" margin="0 20 130 0" layout_gravity="right top" hittest="false" stretch="true" image="game_violent_mark" serviceNation="GLOBAL_KOR"/>
+		<picture name="game_rating_GK" rect="0 0 100 116" margin="0 20 20 0" layout_gravity="right top" hittest="false" stretch="true" image="game_rating_mark" serviceNation="GLOBAL_KOR"/>
 		<picture name="ESRB_T" rect="0 0 120 168" margin="0 20 20 0" layout_gravity="right top" hittest="false" stretch="true" image="ESRB_T_mark" serviceNation="GLOBAL"/>
 		<groupbox name="tip" skin="shadow_box" layout_gravity="center bottom" rect="0 0 1000 50" caption="팁" scrollbar="false" margin="0 0 0 100" scale_align="center bottom" frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end"/>
 		<richtext parent="tip" name="gametip" layout_gravity="center center" rect="0 0 960 40" textalign="left center" caption="게임팁" fixwidth="false" resizebytext="true" margin="0 0 0 0"/>

@@ -3,7 +3,7 @@
 function GET_EQUIP_TOOLTIP_PROP_LIST(invitem)
 
 	local groupName = invitem.GroupName;
-	if groupName == 'Weapon' then
+	if groupName == 'Weapon' or groupName == 'SubWeapon' or groupName == 'Arcane' then
 		return GET_ATK_PROP_LIST();
 	
 	elseif groupName == "PetWeapon" then
@@ -28,6 +28,7 @@ function GET_DEF_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "DEX";
     list[#list+1] = "INT";
     list[#list+1] = "CON";
+    list[#list+1] = "ALLSTAT";
     list[#list+1] = "MNA";
     list[#list+1] = "MHP";
     list[#list+1] = "MSP";
@@ -40,6 +41,7 @@ function GET_DEF_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "CRTMATK";
     list[#list+1] = "MDEF";
     list[#list+1] = "SkillRange";
+    list[#list+1] = "SkillWidthRange";
     list[#list+1] = "SkillAngle";
     list[#list+1] = "MSPD";
     list[#list+1] = "RHP";
@@ -85,6 +87,12 @@ function GET_DEF_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "HR";
     list[#list+1] = "DR";
     list[#list+1] = "LootingChance";
+    list[#list+1] = "ADD_BOSS_ATK";
+   	list[#list+1] = "ResAdd_Damage";
+    list[#list+1] = 'AllMaterialType_Def';
+    list[#list+1] = 'AllMaterialType_Atk';
+    list[#list+1] = 'AllSize_Atk';
+    list[#list+1] = 'AllRace_Atk';
 	return list;
 
 end
@@ -105,6 +113,7 @@ function GET_ATK_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "INT";
     list[#list+1] = "MNA";
     list[#list+1] = "CON";
+    list[#list+1] = "ALLSTAT";
     list[#list+1] = "MHP";
     list[#list+1] = "MSP";
     list[#list+1] = "MSTA";
@@ -116,6 +125,7 @@ function GET_ATK_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "CRTMATK";
     list[#list+1] = "MDEF";
     list[#list+1] = "SkillRange";
+    list[#list+1] = "SkillWidthRange";
     list[#list+1] = "SkillAngle";
     list[#list+1] = "MSPD";
     list[#list+1] = "RHP";
@@ -130,6 +140,7 @@ function GET_ATK_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "ADD_SMALLSIZE";
     list[#list+1] = "ADD_MIDDLESIZE";
     list[#list+1] = "ADD_LARGESIZE";
+    list[#list+1] = "ADD_BOSS_ATK";
     list[#list+1] = "ADD_CLOTH";
     list[#list+1] = "ADD_LEATHER";
     list[#list+1] = "ADD_IRON";
@@ -142,6 +153,7 @@ function GET_ATK_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "ADD_EARTH";
     list[#list+1] = "ADD_HOLY";
     list[#list+1] = "ADD_DARK";
+    list[#list+1] = "Add_Damage_Atk";
     list[#list+1] = "Aries";
     list[#list+1] = "Slash";
     list[#list+1] = "Strike";
@@ -159,6 +171,11 @@ function GET_ATK_PROP_CHANGEVALUETOOLTIP_LIST()
     list[#list+1] = "HR";
     list[#list+1] = "DR";
     list[#list+1] = "LootingChance";
+	list[#list+1] = "ResAdd_Damage";
+    list[#list+1] = 'AllMaterialType_Def';
+    list[#list+1] = 'AllMaterialType_Atk';
+    list[#list+1] = 'AllSize_Atk';
+    list[#list+1] = 'AllRace_Atk';
 	return list;
 
 end
@@ -177,6 +194,7 @@ function GET_DEF_PROP_LIST()
     list[#list+1] = "DEX";
     list[#list+1] = "INT";
     list[#list+1] = "CON";
+    list[#list+1] = "ALLSTAT";
     list[#list+1] = "MNA";
     list[#list+1] = "MHP";
     list[#list+1] = "MSP";
@@ -192,6 +210,7 @@ function GET_DEF_PROP_LIST()
     list[#list+1] = "MDEF";
     list[#list+1] = "ADD_MDEF";
     list[#list+1] = "SkillRange";
+    list[#list+1] = "SkillWidthRange";
     list[#list+1] = "SkillAngle";
     list[#list+1] = "MSPD";
     list[#list+1] = "RHP";
@@ -220,6 +239,7 @@ function GET_DEF_PROP_LIST()
     list[#list+1] = "ADD_EARTH";
     list[#list+1] = "ADD_HOLY";
     list[#list+1] = "ADD_DARK";
+    list[#list+1] = "Add_Damage_Atk";
     list[#list+1] = "Aries";
     list[#list+1] = "Slash";
     list[#list+1] = "Strike";
@@ -237,6 +257,13 @@ function GET_DEF_PROP_LIST()
     list[#list+1] = "HR";
     list[#list+1] = "DR";
     list[#list+1] = "LootingChance";
+    list[#list+1] = "ADD_BOSS_ATK";
+    list[#list+1] = "MiddleSize_Def";
+	list[#list+1] = "ResAdd_Damage";
+    list[#list+1] = 'AllMaterialType_Def';
+    list[#list+1] = 'AllMaterialType_Atk';
+    list[#list+1] = 'AllSize_Atk';
+    list[#list+1] = 'AllRace_Atk';
 	return list;
 
 end
@@ -259,6 +286,7 @@ function GET_ATK_PROP_LIST()
     list[#list+1] = "INT";
     list[#list+1] = "MNA";
     list[#list+1] = "CON";
+    list[#list+1] = "ALLSTAT";
     list[#list+1] = "MHP";
     list[#list+1] = "MSP";
     list[#list+1] = "MSTA";
@@ -273,6 +301,7 @@ function GET_ATK_PROP_LIST()
     list[#list+1] = "MDEF";
     list[#list+1] = "ADD_MDEF";
     list[#list+1] = "SkillRange";
+    list[#list+1] = "SkillWidthRange";
     list[#list+1] = "SkillAngle";
     list[#list+1] = "MSPD";
     list[#list+1] = "RHP";
@@ -287,6 +316,7 @@ function GET_ATK_PROP_LIST()
     list[#list+1] = "ADD_SMALLSIZE";
     list[#list+1] = "ADD_MIDDLESIZE";
     list[#list+1] = "ADD_LARGESIZE";
+    list[#list+1] = "ADD_BOSS_ATK";
     list[#list+1] = "ADD_CLOTH";
     list[#list+1] = "ADD_LEATHER";
     list[#list+1] = "ADD_IRON";
@@ -299,6 +329,7 @@ function GET_ATK_PROP_LIST()
     list[#list+1] = "ADD_EARTH";
     list[#list+1] = "ADD_HOLY";
     list[#list+1] = "ADD_DARK";
+    list[#list+1] = "Add_Damage_Atk";
     list[#list+1] = "Aries";
     list[#list+1] = "Slash";
     list[#list+1] = "Strike";
@@ -316,6 +347,21 @@ function GET_ATK_PROP_LIST()
     list[#list+1] = "HR";
     list[#list+1] = "DR";
     list[#list+1] = "LootingChance";
+    list[#list+1] = "Magic_Earth_Atk";
+    list[#list+1] = "Magic_Ice_Atk";
+    list[#list+1] = "Magic_Soul_Atk";
+    list[#list+1] = "Magic_Dark_Atk";
+    list[#list+1] = "Magic_Melee_Atk";
+    list[#list+1] = "Magic_Fire_Atk";
+    list[#list+1] = "Magic_Lightning_Atk";
+    list[#list+1] = "ResAdd_Damage";
+    list[#list+1] = 'AllMaterialType_Def';
+    list[#list+1] = 'AllMaterialType_Atk';
+    list[#list+1] = 'AllSize_Atk';
+    list[#list+1] = 'AllRace_Atk';
+    list[#list+1] = "Magic_Holy_Atk";
+    list[#list+1] = "MiddleSize_Def";
+
 	return list;
 
 end
@@ -384,7 +430,7 @@ function GET_SUM_OF_PROP(equipItem, propList)
 
 	local ret = 0;
 	for i = 1 , #propList do
-		ret = ret + equipItem[propList[i]];
+		ret = ret + TryGetProp(equipItem, propList[i], 0);
 	end
 	
 	return ret;

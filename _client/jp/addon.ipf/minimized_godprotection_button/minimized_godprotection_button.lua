@@ -12,7 +12,16 @@ function MINIMIZED_GODPROTECTION_START(frame)
     else
     	frame:ShowWindow(1);
 	end
-	
+
+	local text_title = GET_CHILD_RECURSIVELY(frame, "title");
+	if text_title ~= nil then
+		if config.GetServiceNation() ~= "GLOBAL_KOR" then
+			text_title:EnableResizeByText(0);
+			text_title:SetTextFixWidth(0);
+			text_title:EnableSlideShow(1);
+		end
+	end
+
 	local time = GET_CHILD_RECURSIVELY(frame, 'time');
 	local font = frame:GetUserConfig("TIME_FONT_NOMAL");
 	time:SetFormat(font.."%s:%s");

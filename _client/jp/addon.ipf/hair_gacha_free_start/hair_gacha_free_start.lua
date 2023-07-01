@@ -9,7 +9,7 @@ function HAIR_GACHA_FREE_OPEN(frame)
 	
 	local button = GET_CHILD_RECURSIVELY(frame, "button")
 	if button ~= nil then
-		if config.GetServiceNation() ~= "KOR" then
+		if config.GetServiceNation() ~= "KOR" and config.GetServiceNation() ~= "GLOBAL_KOR" then
 			button:SetMargin(0, 0, 0, 70);
 		end
 	end
@@ -94,7 +94,6 @@ function GACHA_FREE_START(gachaDetail)
 	btn:SetVisible(1)
 	local val = ScpArgMsg("GachaMsg", "Name", item.Name);
 	btn:SetTextByKey("value", "{@st42b}"..val)
-	print(gachaDetail)
 	if gachaDetail.GachaType == "hair" then
 		hairbg:SetVisible(1);
 		rboxbg:SetVisible(0);

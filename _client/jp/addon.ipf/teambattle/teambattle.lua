@@ -1,7 +1,7 @@
 function _TEAM_BATTLE_ALARM_MSG(msg, countdownSec)
 	if msg ~= nil and msg ~= "None" then
 		if msg == "COUNT" then
-			if config.GetServiceNation() == 'KOR' then
+			if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
 				imcSound.PlaySoundEvent('countdown_'..countdownSec);
 			else
 				if config.GetServiceNation() ~= 'GLOBAL_JP' then
@@ -9,7 +9,7 @@ function _TEAM_BATTLE_ALARM_MSG(msg, countdownSec)
 				end
 			end
         elseif msg == "START" then
-            if config.GetServiceNation() == 'KOR' then
+            if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
                 imcSound.PlaySoundEvent('battle_start');
             else
                 if config.GetServiceNation() ~= 'GLOBAL_JP' then
@@ -17,7 +17,7 @@ function _TEAM_BATTLE_ALARM_MSG(msg, countdownSec)
                 end
             end
         elseif msg == "END" then
-            if config.GetServiceNation() == 'KOR' then
+            if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
                 imcSound.PlaySoundEvent('battle_end');
             else
                 if config.GetServiceNation() ~= 'GLOBAL_JP' then

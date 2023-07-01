@@ -191,14 +191,14 @@ function MULTIPLE_CLASS_CHANGE()
 	local curExp = session.job.GetClassResetPointExp();
 	local CanChangeCnt = math.floor(curExp/1000)
 
-	if changeCnt > CanChangeCnt then
+	if changeCnt > CanChangeCnt and GetMyPCObject().Lv >= PC_MAX_LEVEL then
 		ui.SysMsg(ClMsg('ClassResetFailPoint'));
 		return 
 	end
 	ui.CloseFrame('multiple_class_selector');
 	ui.CloseFrame('multiple_class_change');
 	ui.CloseFrame('changejob');
-	session.job.ReqUnEquipItemAll()
+	-- session.job.ReqUnEquipItemAll()
 
 	local rankrollback = ui.GetFrame("rankrollback");
 	rankrollback:ShowWindow(1);

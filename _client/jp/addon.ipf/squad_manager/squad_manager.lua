@@ -1,6 +1,6 @@
 -- squad_manager.lua
 local g_curContentsNum = 0
-local g_contentsNum = 2
+local g_contentsNum = 4
 local g_squadType = 0
 local height = 0
 local scrolledTime = 0
@@ -20,12 +20,12 @@ function SQUAD_MANAGER_ON_INIT(addon, frame)
 end
 
 function SQUAD_MANAGER_FRAME_OPEN(frame)
-	help.RequestAddHelp('TUTO_PILGRIM_1')
-	
+	help.RequestAddHelp('TUTO_PILGRIM_1');
 	height = 0
-	g_contentsNum = 3
+	g_contentsNum = 4
+	
 	local contentsCls = GetClassByType("rank_system_contents_list", g_contentsNum)
-	g_squadType = TryGetProp(contentsCls, "SquadType", 0)
+	g_squadType = TryGetProp(contentsCls, "SquadType", g_contentsNum)
 	ui.CloseFrame("induninfo")
 
 	local tab = GET_CHILD_RECURSIVELY(frame,"season_tab")
@@ -556,7 +556,11 @@ function SQUAD_MANAGER_RANKING_SEASON_SET(frame)
 		local cls = GetClassByIndexFromList(clsList, i)
 		local contentsNum = TryGetProp(cls, "contents_num")
 		local nation = TryGetProp(cls, "Nation")
-		if config.GetServiceNation() == nation and contentsNum == g_contentsNum then
+		local _nation = config.GetServiceNation()
+		if _nation == "GLOBAL_KOR" then
+			_nation = "KOR"
+		end
+		if _nation == nation and contentsNum == g_contentsNum then
 			local startDate = TryGetProp(cls, "start_date")
 			local endDate = TryGetProp(cls, "end_date")
 			seasonText:SetTextByKey("start", startDate)

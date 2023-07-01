@@ -108,21 +108,30 @@ function FISHING_PASTE_BAIT_SLOTSET_INIT(frame)
     local invItemList = session.GetInvItemList();
     FOR_EACH_INVENTORY(invItemList, function(invItemList, invItem, pasteBaitSlotset)		
 		if invItem ~= nil then
-		    local itemObj = GetIES(invItem:GetObject());
+            local itemObj = GetIES(invItem:GetObject());
             if IS_PASTE_BAIT_ITEM(itemObj.ClassID) == 1 then
-                local pasteBaitCount = imcSlot:GetEmptySlotIndex(pasteBaitSlotset);
-                local slot = pasteBaitSlotset:GetSlotByIndex(pasteBaitCount);
-                if slot == nil then
-                    slot = GET_EMPTY_SLOT(pasteBaitSlotset);
-                end        
-                SET_SLOT_IMG(slot, itemObj.Icon);
-                SET_SLOT_COUNT(slot, invItem.count);
-                SET_SLOT_COUNT_TEXT(slot, invItem.count);
-                SET_SLOT_IESID(slot, invItem:GetIESID());
-                SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, invItem, itemObj, nil);
-                SET_ITEM_TOOLTIP_BY_NAME(slot:GetIcon(), itemObj.ClassName);
-                slot:SetMaxSelectCount(1);
-                slot:SetUserValue('PASTE_BAIT_ID', itemObj.ClassID);
+                local zoneName = GetZoneName()
+                local ispass = 1
+                if itemObj.ClassName == 'Paste_Bait_orsha' then
+                    if zoneName ~= "c_orsha" then
+                        ispass = 0
+                    end
+                end
+                if ispass == 1 then
+                    local pasteBaitCount = imcSlot:GetEmptySlotIndex(pasteBaitSlotset);
+                    local slot = pasteBaitSlotset:GetSlotByIndex(pasteBaitCount);
+                    if slot == nil then
+                        slot = GET_EMPTY_SLOT(pasteBaitSlotset);
+                    end        
+                    SET_SLOT_IMG(slot, itemObj.Icon);
+                    SET_SLOT_COUNT(slot, invItem.count);
+                    SET_SLOT_COUNT_TEXT(slot, invItem.count);
+                    SET_SLOT_IESID(slot, invItem:GetIESID());
+                    SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, invItem, itemObj, nil);
+                    SET_ITEM_TOOLTIP_BY_NAME(slot:GetIcon(), itemObj.ClassName);
+                    slot:SetMaxSelectCount(1);
+                    slot:SetUserValue('PASTE_BAIT_ID', itemObj.ClassID);
+                end
             end
 	    end
 	end, false, pasteBaitSlotset);

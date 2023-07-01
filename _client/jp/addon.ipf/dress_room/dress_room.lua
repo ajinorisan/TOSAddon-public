@@ -25,15 +25,20 @@ function DRESS_ROOM_INIT(frame)
 	local y = 0
 	for i = 0, cnt-1 do
 		local cls = GetClassByIndexFromList(clsList, i);
-		local ctrlSet = ListBox:CreateOrGetControlSet('dress_room_deck', 'CTRL_'..i, 0, y);
-		DRESS_ROOM_INIT_DECK(frame,ctrlSet,cls,itemTable,aObj)
-		y = y + ctrlSet:GetHeight() + DRESS_ROOM_CTRL_Y_OFFSET
+		if itemTable[cls.ClassName] ~= nil then
+			local ctrlSet = ListBox:CreateOrGetControlSet('dress_room_deck', 'CTRL_'..i, 0, y);
+			DRESS_ROOM_INIT_DECK(frame,ctrlSet,cls,itemTable,aObj)
+			y = y + ctrlSet:GetHeight() + DRESS_ROOM_CTRL_Y_OFFSET
+		end
 	end
 end
 
 function DRESS_ROOM_GET_ITEM_TABLE()
 	local itemTable = {}
 	local clsList,cnt = GetClassList("dress_room")
+	if config.GetServiceNation() == 'PAPAYA' then
+		clsList,cnt = GetClassList("dress_room_papaya")
+	end
 	for i = 0, cnt-1 do
 		local cls = GetClassByIndexFromList(clsList, i);
 		local thema = TryGetProp(cls,"Thema")
@@ -117,6 +122,11 @@ end
 -- 완성 여부 확인 확인
 function GET_DRESS_ROOM_THEMA_ITEM_NUM(thema,itemTable,aObj)
 	local cnt = 0
+	
+	if itemTable[thema] == nil then
+		return 0
+	end
+
 	for j = 1,#itemTable[thema] do
 		if DRESS_ROOM_IS_ITEM_SET(aObj,itemTable[thema][j]) == true then
 			cnt = cnt + 1
@@ -180,6 +190,9 @@ function ON_CLICK_DRESS_ROOM_MAKE_ITEM(parent,ctrl)
 		return
 	end
 	local cls = GetClass("dress_room",propName)
+	if config.GetServiceNation() == 'PAYAYA' then
+		cls = GetClass("dress_room_papaya",propName)
+	end
 	if cls == nil then
 		return
 	end

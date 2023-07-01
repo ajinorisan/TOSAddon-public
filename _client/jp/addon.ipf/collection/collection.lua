@@ -44,17 +44,17 @@ function COLLECTION_ON_INIT(addon, frame)
 	addon:RegisterMsg('COLLECTION_UI_OPEN', 'COLLECTION_DO_OPEN');
 end
 
-function COLLECTION_DO_OPEN(frame)
+function COLLECTION_DO_OPEN(frame)	
 	ui.ToggleFrame('inventory')
     ui.ToggleFrame('collection')
 	RUN_CHECK_LASTUIOPEN_POS(frame)
 end
 
-function UI_TOGGLE_COLLECTION()
-
+function UI_TOGGLE_COLLECTION()	
 	if app.IsBarrackMode() == true then
 		return;
 	end
+
 	ui.ToggleFrame('inventory')
 	ui.ToggleFrame('collection')
 end
@@ -134,8 +134,7 @@ function SET_COLLECTION_PIC(frame, slotSet, itemCls, coll, type,drawitemset)
 		showedcount = drawitemset[itemCls.ClassID]
 	end
 
-	-- 컬렉션을 등록했을 경우
-	if coll ~= nil then
+	if coll ~= nil then		
 		local collecount = coll:GetItemCountByType(itemCls.ClassID);
 
 		-- 1. 내가 이미 모은 것들(컬렉션을 등록했을 때만)
@@ -200,8 +199,8 @@ function COLLECTION_CLOSE(frame)
 
 	local inventory = ui.GetFrame("inventory")
 	inventory:ShowWindow(0)
-	
-	COLLECTION_MAGIC_CLOSE();
+
+	ui.CloseFrame('collection_magic')
 
 	UNREGISTERR_LASTUIOPEN_POS(frame)
 end
@@ -535,7 +534,9 @@ function CHECK_COLLECTION_INFO_FILTER(collectionInfo,  searchText,  collectionCl
 	local checkOption = 0;
 	if collectionInfo.view == collectionView.isUnknown then	
 		-- 미확인
-		collectionViewCount.showUnknownCollections = collectionViewCount.showUnknownCollections +1;
+		if collectionClass.Journal == 'TRUE' then
+			collectionViewCount.showUnknownCollections = collectionViewCount.showUnknownCollections +1;
+		end
 		checkOption = 1;
 	elseif collectionInfo.view == collectionView.isComplete then 
 		-- 완성
@@ -543,7 +544,9 @@ function CHECK_COLLECTION_INFO_FILTER(collectionInfo,  searchText,  collectionCl
 		checkOption = 2;
 	else
 		-- 미완성
-		collectionViewCount.showIncompleteCollections = collectionViewCount.showIncompleteCollections +1;
+		if collectionClass.Journal == 'TRUE' then
+			collectionViewCount.showIncompleteCollections = collectionViewCount.showIncompleteCollections +1;
+		end
 		checkOption = 3;
 	end
 	
@@ -805,8 +808,7 @@ function GET_COLLECTION_SEARCH_TEXT(frame)
 	return nil;
 end
 
-function EXEC_PUT_COLLECTION(itemID, type)
-
+function EXEC_PUT_COLLECTION(itemID, type)	
 	session.ResetItemList();
 	session.AddItemID(itemID);
 	local resultlist = session.GetItemIDList();
@@ -820,6 +822,21 @@ function COLLECTION_ADD(collectionType, itemType, itemIesID)
 		return;
 	end
 
+	local inv_item = session.GetInvItemByGuid(itemIesID)
+	local item_obj = GetIES(inv_item:GetObject())
+	local groupName = TryGetProp(item_obj,"GroupName","None")
+	if groupName=='Gem' then 		
+		local belonging = TryGetProp(item_obj,"CharacterBelonging",0)
+		if tonumber(belonging)==1 then
+			ui.SysMsg(ClMsg('AddDenied'));	
+			return
+		end
+
+		if IS_RANDOM_OPTION_SKILL_GEM(item_obj) == true then
+			ui.SysMsg(ClMsg('CantUseCabinetCuzRandomOption'));				
+			return
+		end
+	end
 	local colls = session.GetMySession():GetCollection();
 	local coll = colls:Get(collectionType);
 	local nowcnt = coll:GetItemCountByType(itemType)
@@ -1090,4 +1107,8 @@ function VIEW_COLLECTION_ALL_STATUS(parent, ctrl)
 	SET_COLLECTION_MAIGC_LIST(frame, collectionCompleteMagicList, collectionViewCount.showCompleteCollections) -- 활성화되어 있지 않다면 그냥반환.
 
 	COLLECTION_MAGIC_OPEN(frame);
+end
+
+function OPEN_DRESS_ROOM_COLLECTION()	
+	ui.ToggleFrame('dress_room')
 end

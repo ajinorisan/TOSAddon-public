@@ -146,11 +146,11 @@ local function _GET_EFFECT_UI_MARGIN()
 end
 
 function GODDESS_EQUIP_MANAGER_OPEN(frame)
-	if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
-		ui.SysMsg(ClMsg('CanUseAfterTutorialClear'))
-		frame:ShowWindow(0)
-		return
-	end
+	-- if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
+	-- 	ui.SysMsg(ClMsg('CanUseAfterTutorialClear'))
+	-- 	frame:ShowWindow(0)
+	-- 	return
+	-- end
 	
 	ui.CloseFrame('rareoption')
 	ui.CloseFrame('item_cabinet')
@@ -413,6 +413,7 @@ function GODDESS_MGR_REFORGE_ITEM_DROP(parent, slot, arg_str, arg_num)
 	end
 end
 
+-- 제련 가능 아이템 확인
 function GODDESS_MGR_REFORGE_REG_ITEM(frame, inv_item, item_obj)
 	if inv_item == nil or item_obj == nil then return end
 
@@ -438,6 +439,11 @@ function GODDESS_MGR_REFORGE_REG_ITEM(frame, inv_item, item_obj)
 		local msg = item_goddess_transcend.is_able_to_transcend(item_obj)
 		if msg ~= 'YES' then
 			ui.SysMsg(ClMsg(msg))
+			return
+		end
+	elseif index == 3 then  -- 진화
+		if item_goddess_growth.is_goddess_growth_item(item_obj) == true then
+			ui.SysMsg(ClMsg('WebService_38'))
 			return
 		end
 	end
@@ -795,7 +801,15 @@ function GODDESS_MGR_REINFORCE_MAT_UPDATE(frame)
 		local reinf_value = TryGetProp(item_obj, 'Reinforce_2', 0)
 		local dic = item_goddess_reinforce.get_material_list(use_lv, class_type, reinf_value + 1)
 		if dic == nil then
-			return
+			if item_goddess_growth.is_goddess_growth_item(item_obj) == true then
+				local _max = false
+				dic, _max = item_goddess_growth.get_material_list(item_obj, class_type, reinf_value + 1)				
+				if dic == nil then					
+					return
+				end
+			else
+				return
+			end
 		end
 		for mat_name, mat_count in pairs(dic) do
 			_REFORGE_REINFORCE_ADD_MAT_CTRL(reinf_main_mat_bg, mat_name, mat_count)
@@ -891,6 +905,13 @@ function GODDESS_MGR_REINFORCE_EXTRA_MAT_UPDATE(frame)
 	if guid ~= 'None' then
 		local inv_item = session.GetInvItemByGuid(guid)
 		if inv_item == nil then return end
+
+		local item_obj = GetIES(inv_item:GetObject())
+		if item_goddess_growth.is_goddess_growth_item(item_obj) == true then
+			reinf_normal_mat_text:SetTextByKey('total', 0)
+			reinf_premium_mat_text:SetTextByKey('total', 0)
+			return
+		end
 
 		local use_lv = ref_slot:GetUserIValue('ITEM_USE_LEVEL')
 
@@ -2867,7 +2888,7 @@ function GODDESS_MGR_RANDOMOPTION_APPLY_CLEAR(frame)
 		slot_name:SetTextByKey('name', ClMsg(slot_info.ClMsg))
 		checkbox:SetCheck(0)
 
-		if item_obj == nil or IS_NO_EQUIPITEM(item_obj) == 1 then
+		if item_obj == nil or IS_NO_EQUIPITEM(item_obj) == 1 or item_goddess_growth.is_goddess_growth_item(item_obj) == true then
 			slot:ClearIcon()
 			slot:SetUserValue('ITEM_GUID', 'None')
 			slot:SetUserValue('IS_APPLY', 0)
@@ -3507,7 +3528,7 @@ function GODDESS_MGR_SOCKET_INV_RBTN(item_obj, slot, guid)
 	local inv_item = session.GetInvItemByGuid(guid)
 	if inv_item ~= nil then
 		local slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
-		local guid = slot:GetUserValue('ITEM_GUID')
+		local guid = slot:GetUserValue('ITEM_GUID')		
 		if guid == 'None' or TryGetProp(item_obj, 'ItemType', 'None') == 'Equip' then			
 			GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
 		else
@@ -3555,7 +3576,7 @@ function GODDESS_MGR_SOCKET_INV_RBTN(item_obj, slot, guid)
 	end
 end
 
-function GODDESS_MGR_SOCKET_ITEM_DROP(parent, slot, arg_str, arg_num)
+function GODDESS_MGR_SOCKET_ITEM_DROP(parent, slot, arg_str, arg_num)	
 	local frame = parent:GetTopParentFrame()
 	local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
 	local index = main_tab:GetSelectItemIndex()
@@ -3576,7 +3597,7 @@ function GODDESS_MGR_SOCKET_ITEM_DROP(parent, slot, arg_str, arg_num)
 	end
 end
 
-function GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
+function GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)	
 	if inv_item == nil or item_obj == nil then return end	
 
 	if item_goddess_transcend.is_able_to_socket(item_obj) == false then
@@ -3862,7 +3883,7 @@ function GODDESS_MGR_SOCKET_NORMAL_GEM_EQUIP(parent, slot, gem_item, gem_obj)
 
 		local equip_obj = GetIES(equip_item:GetObject())
 
-		local index = parent:GetUserIValue('SLOT_INDEX')
+		local index = parent:GetUserIValue('SLOT_INDEX')		
 		if equip_item:IsAvailableSocket(index) == false then
 			return
 		end
@@ -3871,8 +3892,10 @@ function GODDESS_MGR_SOCKET_NORMAL_GEM_EQUIP(parent, slot, gem_item, gem_obj)
 		if gem_id ~= nil and gem_id ~= 0 then
 			return
 		end
-
-		if item_goddess_socket.check_equipable_normal_gem(equip_obj, gem_obj, index) == false then
+		
+		local flag, msg = item_goddess_socket.check_equipable_normal_gem(equip_obj, gem_obj, index)
+		if flag == false then
+			ui.SysMsg(ClMsg(msg))
 			return
 		end
 
@@ -4707,7 +4730,12 @@ function GODDESS_MGR_INHERIT_REG_TARGET(frame)
 	inherit_after_bg:ShowWindow(1)
 
 	local after_slot = GET_CHILD_RECURSIVELY(frame, 'inherit_slot_after')
-	SET_SLOT_ITEM_CLS(after_slot, target_cls)
+
+	local after_slot_icon = SET_SLOT_ITEM_CLS(after_slot, target_cls)
+	if after_slot_icon ~= nil then		
+		local key = 'reinforce_2' .. '/' .. tostring(reinf_value)
+		after_slot_icon:SetTooltipStrArg(key)
+	end
 
 	local after_name = GET_CHILD_RECURSIVELY(frame, 'inherit_after_item_name')
 	local after_enchant = GET_CHILD_RECURSIVELY(frame, 'inherit_after_item_enchant')
@@ -4720,7 +4748,7 @@ function GODDESS_MGR_INHERIT_REG_TARGET(frame)
 		end
 		
 		if enchant_name ~= 'None' or enchant_value ~= 0 then
-			local enchant_str = _GET_RANDOM_OPTION_RARE_CLIENT_TEXT(enchant_name, enchant_value)
+			local enchant_str = _GET_RANDOM_OPTION_RARE_CLIENT_TEXT(enchant_name, enchant_value)			
 			if enchant_str ~= nil then
 				after_enchant:SetTextByKey('value', enchant_str)
 				after_enchant:ShowWindow(1)
@@ -4740,7 +4768,7 @@ function GODDESS_MGR_INHERIT_REG_TARGET(frame)
 		dont_equip:ShowWindow(0)
 	end
 
-	after_name:SetTextByKey('name', name_str)
+	after_name:SetTextByKey('name', name_str)	
 end
 
 function GODDESS_MGR_INHERIT_UPDATE_TARGET_LIST(frame)
@@ -4900,6 +4928,7 @@ function GODDESS_MGR_INHERIT_CLEAR(frame)
 	inherit_after_bg:ShowWindow(0)
 	
 	local inherit_help_text = GET_CHILD_RECURSIVELY(frame, 'inherit_help_text')
+	inherit_help_text:SetTextByKey('text', ClMsg('GoddessInheritanceMsg'))
 	inherit_help_text:ShowWindow(1)
 
 	GODDESS_MGR_INHERIT_UPDATE_TARGET_LIST(frame)
@@ -4942,6 +4971,7 @@ function GODDESS_MGR_INHERIT_EXEC(parent, btn)
 	end
 
 	local clmsg = 'AllItemPropertyResetAlert'
+	local _title = 'TitleAllItemPropertyResetAlert'
 	if is_acc == false then
 		if grade < 6 then
 	if TryGetProp(item_obj, 'Transcend', 'None') == 10 and TryGetProp(item_obj, 'Reinforce_2', 'None') > 10 then
@@ -4949,10 +4979,16 @@ function GODDESS_MGR_INHERIT_EXEC(parent, btn)
 	end
 		else
 			clmsg = 'AccItemPropertyAlert'	
+			if item_goddess_growth.is_goddess_growth_item(item_obj) then
+				clmsg = 'NoInheritReinforcement'
+				_title = 'ProcessInheritance'
+			end
 		end
 	else
 		clmsg = 'AccItemPropertyAlert'
 	end
+
+	
 
 	local item_classtype = TryGetProp(item_obj, 'ClassType', 'None')
 	local select_classtype = TryGetProp(selected_cls, 'ClassType', 'None')
@@ -4962,7 +4998,7 @@ function GODDESS_MGR_INHERIT_EXEC(parent, btn)
 	end
 
 	local option = {}
-	option.ChangeTitle = "TitleAllItemPropertyResetAlert"
+	option.ChangeTitle = _title
 	option.CompareTextColor = nil
 	option.CompareTextDesc = ClMsg('ReallyGoddessInherit')
 

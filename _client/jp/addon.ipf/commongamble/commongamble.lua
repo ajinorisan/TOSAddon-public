@@ -193,7 +193,7 @@ function COMMON_GAMBLE_INIT(frame, gamble_type)
 			return
 		end
 		if slotratio ~= nil and RatioTable[i+1] ~= nil or RatioTable[i+1] ~= 0 then
-			slotratio:SetTextByKey('value'..i, '          '.. string.format('%.1f', RatioTable[i+1] / RatioSum * 100) .. '%')
+			slotratio:SetTextByKey('value'..i, '          '.. string.format('%.2f', RatioTable[i+1] / RatioSum * 100) .. '%')
 		end
 	end
 

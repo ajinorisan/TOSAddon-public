@@ -227,9 +227,15 @@ function FRAGMENTATION_SHOW_TARGETS_APPLY_FILTER(slotSet, target, argList)
 		local group_name = TryGetProp(obj, 'GroupName', 'None')
 		local stringArg = TryGetProp(obj, 'StringArg', 'None')
 		local item_guid = invItem:GetIESID()
+	
 		if true == invItem.isLockState then
 			return;
 		end
+
+		if shared_item_earring.is_able_to_fragmetation(obj) == false then
+			return;
+		end
+		
 		if group_name == target and stringArg~="None" then
 			if target =="Earring" then
 				local arg = shared_item_earring.get_fragmentation_count(obj)

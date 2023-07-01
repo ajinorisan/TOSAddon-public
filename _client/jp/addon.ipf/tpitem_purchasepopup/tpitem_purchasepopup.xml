@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (IMCGames Co., Ltd) -->
+<uiframe name="tpitem_purchasepopup" x="0" y="0" width="550" height="700">
+	<frame layout_gravity="center center" margin="0 0 0 0" tooltipoverlap="true"/>
+	<option closebutton="false"/>
+	<script CloseScp="TPITEM_PURCHASEPOPUP_CLOSE"/>
+	<draw drawframe="false" drawtitlebar="false" drawnotitlebar="false"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<layer layerlevel="99"/>
+	<controls>
+		<button name="SkinFrame" margin="0 0 0 0" rect="0 0 525 700" layout_gravity="center center" skin="test_win_lastpopup2" hittest="false"/>
+		<richtext name="title" margin="0 80 0 0" autofontsizebywidth="220" rect="0 0 220 50" caption="{@st43}교환 목록{/}" textalign="center center" resizebytext="false" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>
+		<groupbox name="itemlistgbox" rect="0 0 450 350" margin="0 135 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true" image=""/>
+    	<labelline name="labelline_1" margin="0 0 0 235" rect="0 0 450 2" skin="labelline_def_2" layout_gravity="center bottom"/>
+		<richtext name="totalTP_buy" margin="0 0 125 195" rect="0 0 180 50" caption="{@st41b}Total TOC Used : {/}" textalign="center bottom" resizebytext="false" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="right bottom"/>
+		<richtext name="totalTP" margin="0 0 50 195" rect="0 0 60 50" format="{@st41b}%s{/}" param1="price" param1_def="devval" textalign="center bottom" resizebytext="false" spacey="0" maxwidth="0" fontname="brown_16_b" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="right bottom"/>
+		<richtext name="explain_buy" margin="0 0 0 155" rect="0 0 350 100" caption="구입하시겠습니까?" textalign="center bottom" resizebytext="true" spacey="0" maxwidth="0" fontname="brown_16_b" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom"/>
+		<richtext name="explain_buy2" margin="0 0 0 125" rect="0 0 350 100" caption="구입 시 원래의 아이템으로 되돌릴 수 없습니다." textalign="center bottom" resizebytext="true" spacey="0" maxwidth="0" fontname="brown_16" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom"/>
+		<button name="button_ok" margin="-80 0 0 50" rect="0 0 150 50" caption="{@st66b}확인{/}" skin="test_pvp_btn" layout_gravity="center bottom" oversound="button_over" LBtnUpScp="TPITEM_POPUP_PRESS_PURCHASE_BTN"/>
+		<button name="button_cancel" margin="80 0 0 50" rect="0 0 150 50" caption="{@st66b}취소{/}" skin="test_pvp_btn" layout_gravity="center bottom" oversound="button_over" LBtnUpScp="ui.CloseFrame('tpitem_purchasepopup')"/>
+	</controls>
+</uiframe>

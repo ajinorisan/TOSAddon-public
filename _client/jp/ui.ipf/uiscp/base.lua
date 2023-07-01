@@ -60,66 +60,6 @@ function CHAT_NEW(frame, control, argStr, argNum)
 	
 end
 
-
-function ICON_ON_COOLTIMEEND(frame, object, argStr, argNum)
-
-	local iconPt = object;
-	if iconPt  ~=  nil then
-		local icon 		= tolua.cast(iconPt, 'ui::CIcon');
-		local iconInfo 	= icon:GetInfo();
-		local x 			= iconPt:GetGlobalX();
-		local y 			= iconPt:GetGlobalY();
-
-		-- Create Icon Image To Center
-
-		local screenWidth = ui.GetClientInitialWidth();
-		local screenHeight = ui.GetClientInitialHeight();
-		local centerX 	= (screenWidth - 32) * 0.5;
-		local centerY 	= (screenHeight - 32) * 0.7;
-
-		local imageItem = ui.CreateImageItem("eft_" .. icon:GetDumpArgNum(), x, y);
-		if imageItem ~= nil then
-			imageItem:SetImage('effect_star1');
-			imageItem:SetScale(2.0, 2.0);
-
-			local parentObj = iconPt:GetParent();
-			if parentObj  ~=  nil then
-				local width = parentObj:GetWidth();
-				local height = parentObj:GetHeight();
-				imageItem:SetSize(width, height);
-			 end
-
-			imageItem:SetLifeTime(1.0);
-			imageItem:SetAngleSpd(3.0);
-			imageItem:SetScaleDest(1.0, 1.0);
-			imageItem:SetAlphaBlendDest(0.0);
-			imageItem:SetMoveDest(x, y);
-		end
-	 end
- end
-
-function ICON_ON_ENABLE(frame, object, argStr, argNum)
-
-	local iconPt = object;
-	if iconPt  ~=  nil then
-		local icon = tolua.cast(iconPt, 'ui::CIcon');
-		local iconInfo = icon:GetInfo();
-
-		local x = object:GetGlobalX();
-		local y = object:GetGlobalY();
-
-		local imageItem = ui.CreateImageItem("IconOnEnableItem", x, y);
-		imageItem:SetImage(iconInfo:GetImageName());
-		imageItem:SetScale(3.0, 3.0);
-
-		imageItem:SetLifeTime(1.0);
-		imageItem:SetAngleSpd(5.0);
-		imageItem:SetScaleDest(0.1, 0.1);
-		imageItem:SetAlphaBlendDest(0.1);
-		imageItem:SetMoveDest(x, y);
-	 end
- end
- 
   function SCR_DISPEL_DEBUFF_TOGGLE(invItem)
 	-- debuff dispel on/off 토글
 	local curZone = GetZoneName();
@@ -132,6 +72,23 @@ function ICON_ON_ENABLE(frame, object, argStr, argNum)
     end
 	if mapCls.ClassName == 'pvp_Mine' or mapCls.ClassName == 'pvp_Mine_2' then
 		return;
+	end
+    
+    local mGameName = session.mgame.GetCurrentMGameName()
+	if mGameName ~= nil and mGameName ~= 'None' then	
+	    local indunCls = GetClassByStrProp('Indun', 'MGame', mGameName)
+		local dungeonType = TryGetProp(indunCls, 'DungeonType', 'None')
+	    if IsRaidField() == 1 or IsRaidMap() == 1 then
+			if dungeonType == 'Raid' or dungeonType == 'GTower' then
+				ui.SysMsg(ClMsg("NotAvailableInThisContents"))
+				return
+			end
+		else
+		    if dungeonType == 'WeeklyRaid' then
+		        ui.SysMsg(ClMsg("NotAvailableInThisContents"))
+				return
+			end
+		end
 	end
 
 	if invItem ~= nil then
@@ -233,7 +190,7 @@ function ICON_USE(object, reAction)
 			else
 				local itemType = itemObj.ItemType;
 				local groupName = TryGetProp(itemObj, "GroupName");
-				if itemType == 'Consume' or itemType == "Quest" or groupName == "Cube" or groupName == "ExpOrb" then
+				if itemType == 'Consume' or itemType == "Quest" or groupName == "Cube" or groupName == "ExpOrb" or groupName == "SubExpOrb" then
 					local usable = itemObj.Usable;
 					if usable ~= 'ITEMTARGET' then						
 						local invenItemInfo = GET_ICON_ITEM(iconInfo);
@@ -259,13 +216,13 @@ function ICON_USE(object, reAction)
 			QUICKSLOT_TOGGLE_ABILITY(iconInfo.type)
 		elseif iconInfo:GetCategory() == 'ACTION' then
 			local script = GetClassString('Action', iconInfo.type, 'Script');
-			loadstring(script)();
+			load(script)();
 		elseif iconInfo:GetCategory() == 'CHEAT' then
 			local script = GetClassString('Cheat', iconInfo.type, 'Scp');
 			if string.find(script,'//') ~= nil then
 				ui.Chat(script);
 			else
-				loadstring(script)();
+				load(script)();
 			end
 		elseif iconInfo:GetCategory() == 'ITEMCREATE' then
 			local msg = '//item ' .. iconInfo.type .. ' 1';
@@ -273,6 +230,8 @@ function ICON_USE(object, reAction)
 		elseif iconInfo:GetCategory() == 'MONCREATE' then
 			local msg = '//mon ' .. iconInfo.type .. ' 1';
 			ui.Chat(msg);	
+		elseif iconInfo:GetCategory() == 'Companion' then
+			HOTKEY_SUMMON_COMPANION(iconInfo.type, iconInfo:GetIESID())
 		end
 	end	
 end
@@ -476,6 +435,21 @@ function ICON_UPDATE_SKILL_COOLDOWN(icon)
 		return ret;
 	end
 end
+
+-- companion Cooldown Update
+function ICON_UPDATE_COMPANION_COOLDOWN(icon)
+
+	local totalTime = 0;
+	local curTime = 0;
+	local iconInfo = icon:GetInfo();
+	
+	local petInfo = session.pet.GetPetByGUID(iconInfo:GetIESID())
+	if petInfo ~= nil then
+		curTime = petInfo:GetCurrentCoolDownTime();
+		totalTime = petInfo:GetTotalCoolDownTime();
+	end
+	return curTime, totalTime;
+ end
 
  function MONSTER_ICON_UPDATE_SKILL_ENABLE(icon)		
 	local iconInfo = icon:GetInfo();
@@ -714,14 +688,14 @@ end
 			local ClassIDSource		= "local ClassID = GetClassNumber('[IES]', '[ClassName]', 'ClassID' ); return ClassID;";
 			ClassIDSource			= string.gsub(ClassIDSource,'%[IES%]', IES);
 			ClassIDSource			= string.gsub(ClassIDSource,'%[ClassName%]', MultiValue[i]);
-			local GetClassID		= assert(loadstring(ClassIDSource));
+			local GetClassID		= assert(load(ClassIDSource));
 			local ClassID			= GetClassID();
 
 			local Subsource			= "local class = GetClassByType('[IES]', [ClassID]); return class.[Column]"
 			Subsource				= string.gsub(Subsource, '%[IES%]', IES);
 			Subsource				= string.gsub(Subsource, '%[ClassID%]', ClassID);
 			Subsource				= string.gsub(Subsource, '%[Column%]', DataTable['SubColumn']);
-			local ClassByType		= assert(loadstring(Subsource));
+			local ClassByType		= assert(load(Subsource));
 
 			-- 값을 덮어 씌운다.
 			if DataTable['preFix'] ~= 'None' then
@@ -759,14 +733,14 @@ end
 		local ClassIDSource		= "local ClassID = GetClassNumber('[IES]', '[ClassName]', 'ClassID' ); return ClassID;";
 		ClassIDSource			= string.gsub(ClassIDSource,'%[IES%]', IES);
 		ClassIDSource			= string.gsub(ClassIDSource,'%[ClassName%]', ClassName);
-		local GetClassID		= assert(loadstring(ClassIDSource));
+		local GetClassID		= assert(load(ClassIDSource));
 		local ClassID			= GetClassID();
 
 		local Subsource			= "local class = GetClassByType('[IES]', [ClassID]); return class.[Column]"
 		Subsource				= string.gsub(Subsource, '%[IES%]', IES);
 		Subsource				= string.gsub(Subsource, '%[ClassID%]', ClassID);
 		Subsource				= string.gsub(Subsource, '%[Column%]', DataTable['SubColumn']);
-		local ClassByType		= assert(loadstring(Subsource));
+		local ClassByType		= assert(load(Subsource));
 
 		-- 값을 덮어 씌운다.
 		if DataTable['preFix'] ~= 'None' then
@@ -806,7 +780,7 @@ end
 
 		if ColumnName ~= 'None' then
 			if DataTable[k]['IES']	== 'None' then
-				local runLoadString		= assert(loadstring(source));
+				local runLoadString		= assert(load(source));
 				local tempClass			= runLoadString();
 
 				-- 만약 MultiValue의 값이 YES일 경우.
@@ -823,12 +797,12 @@ end
 				-- MyHandle 일경우 처리를 하자
 				local MyHandleSource 		= "local MySession = session.GetMyHandle(); local CharProperty	= GetProperty(MySession); return CharProperty.[ColumnName]"
 				MyHandleSource				= string.gsub(MyHandleSource, '%[ColumnName%]', ColumnName);
-				local LoadMyHandleSourece	= assert(loadstring(MyHandleSource));
+				local LoadMyHandleSourece	= assert(load(MyHandleSource));
 				local runLoadMyHandle		= LoadMyHandleSourece();
 				argData[k]					= runLoadMyHandle;
 			else
 				-- IES에 IES Name가 있을 경우. (MultiValue를 사용할 수 있다)
-				local runLoadString		= assert(loadstring(source));
+				local runLoadString		= assert(load(source));
 				local ClassName			= runLoadString();
 				if ClassName ~='None' then
 					argData[k]				= GET_IESTYPE_DATA(tempIESName, DataTable[k], ClassName);
@@ -850,7 +824,7 @@ end
 				local replaceSource		= "if [Compare] then  return 'TRUE'; else return 'FALSE'; end";
 				replaceSource			= string.gsub(replaceSource, '%[Compare%]', DataTable[k]['If'][c]['Compare']);
 				replaceSource			= string.gsub(replaceSource, '%[Arg%]', argData[k]);
-				local Loadreplace		= assert(loadstring(replaceSource));
+				local Loadreplace		= assert(load(replaceSource));
 				local CheckCompare		= Loadreplace();
 				if CheckCompare == 'TRUE' then
 					if DataTable[k]['If'][c]['reValue'] == 'None' then
@@ -859,7 +833,7 @@ end
 						local reValue			= DataTable[k]['If'][c]['reValue'];
 						reValue					= string.gsub(reValue, '%[Arg%]', argData[k]);
 						local reValueSource		= 'return ' .. reValue;
-						local LoadreValueSource = assert(loadstring(reValueSource));
+						local LoadreValueSource = assert(load(reValueSource));
 						local runreValueSource	= LoadreValueSource();
 						argData[k]				= runreValueSource;
 					end
@@ -870,7 +844,7 @@ end
 						local elseValue			= DataTable[k]['If'][c]['else']
 						elseValue				= string.gsub(elseValue, '%[Arg%]', argData[k]);
 						local elseSource		= 'return ' .. elseValue;
-						local LoadelseSource	= assert(loadstring(elseSource));
+						local LoadelseSource	= assert(load(elseSource));
 						local runelseSource		= LoadelseSource();
 						argData[k]				= runelseSource;
 					end
@@ -1061,7 +1035,7 @@ end
 			if Object ~= nil then
 				nameValue[i + 2]		= Object[checkArg];
 			else	
-				local nameTempText		= assert(loadstring(SelSource));
+				local nameTempText		= assert(load(SelSource));
 				nameValue[i + 2]		= nameTempText();
 			end
 
@@ -1083,7 +1057,7 @@ end
 
 
 	-- 값이 특별히 오류가 없다면 무사 통과(Value 값이 None이라 하여도 통과 됨)
-	local TempText	= assert(loadstring('local Value = ' .. ToolTipName .. ';' .. 'if Value ~= tostring(Value) then if Value == nil then return ' .. "'" .. ToolTipName .. "'" .. 'else return Value; end end'));
+	local TempText	= assert(load('local Value = ' .. ToolTipName .. ';' .. 'if Value ~= tostring(Value) then if Value == nil then return ' .. "'" .. ToolTipName .. "'" .. 'else return Value; end end'));
 	local TempText2	= TempText()
 
 	if TempText2 == nil then
@@ -1134,7 +1108,7 @@ function RETURN_TRUEORFALSE(ifData, arg)
 
 	local replaceSource		= "if [Compare] then  return 'TRUE'; else return 'FALSE'; end";
 	replaceSource			= string.gsub(replaceSource, '%[Compare%]', CheckArg);
-	local Loadreplace		= assert(loadstring(replaceSource));
+	local Loadreplace		= assert(load(replaceSource));
 	local CheckCompare		= Loadreplace();
 	return CheckCompare;
 end
@@ -1189,7 +1163,7 @@ function RETURN_TOOLTIPCOMMENT(ToolTipTable, Type, IESName, count)
 				end
 
 				local ValueSource			= nil
-				local GetType				= type(loadstring(tempValue));
+				local GetType				= type(load(tempValue));
 
 				if GetType == 'string' then
 					ValueSource					= "local Value = '[Value]'; return Value;"
@@ -1198,7 +1172,7 @@ function RETURN_TOOLTIPCOMMENT(ToolTipTable, Type, IESName, count)
 				end
 
 				ValueSource					= string.gsub(ValueSource, '%[Value%]', tempValue);
-				local RunSource				= assert(loadstring(ValueSource));
+				local RunSource				= assert(load(ValueSource));
 				local TempText2				= RunSource()
 
 				if TempText2 == nil then

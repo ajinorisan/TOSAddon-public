@@ -128,7 +128,11 @@ function MY_AUTOSELL_HISTORY(groupName, sellType)
     elseif sellType == AUTO_SELL_AWAKENING then
         local itemdungeon = ui.GetFrame('itemdungeon');
         ITEMDUNGEON_UPDATE_HISTORY(itemdungeon);
-        return;
+		return;
+	elseif sellType == AUTO_TITLE_FOOD_TABLE then
+		local foodtable_ui = ui.GetFrame('foodtable_ui');
+		FOODTABLE_HISTORY_UI(foodtable_ui);
+		return;
 	end
 
 	local frame = ui.GetFrame("buffseller_my");

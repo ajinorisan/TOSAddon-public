@@ -27,6 +27,7 @@ function CLIENT_ENCHANTCHIP(invItem)
 	end
 
 	HAIRENCHANT_UI_RESET();
+	local itemHaveCount = GET_INV_ITEM_COUNT_BY_CLASSID(obj.ClassID);
 
 	local enchantFrame = ui.GetFrame("hairenchant");
 	local invframe = ui.GetFrame("inventory");
@@ -35,7 +36,7 @@ function CLIENT_ENCHANTCHIP(invItem)
 	enchantFrame:SetMargin(0, 65, invframe:GetWidth(), 0);
 	enchantFrame:SetUserValue("Enchant", invItem:GetIESID());
 	local cnt = enchantFrame:GetChild("scrollCnt");
-	cnt:SetTextByKey("value", tostring(invItem.count));
+	cnt:SetTextByKey("value", itemHaveCount);
 	
 	ui.SetEscapeScp("CANCEL_ENCHANTCHIP()");
 
@@ -63,7 +64,7 @@ function CLIENT_ENCHANTCHIP(invItem)
 
 		-- 마법 부여 스크롤(거래불가) 부분 처리
 		local bg = GET_CHILD_RECURSIVELY(enchantFrame, "bg");
-		if obj ~= nil and obj.ClassName == "Premium_Enchantchip_CT" and text1:GetLineCount() > 1 then	
+		if obj ~= nil and (obj.ClassName == "Premium_Enchantchip_CT" or obj.ClassName == "Premium_Enchantchip_NoTrade") and text1:GetLineCount() > 1 then	
 			if bg ~= nil then
 				bg:SetSkinName("test_Item_tooltip_equip_sub");
 				
@@ -86,7 +87,7 @@ function CLIENT_ENCHANTCHIP(invItem)
 
 				enchantFrame:Invalidate();
 			end
-		elseif obj ~= nil and obj.ClassName == "Premium_Enchantchip_CT" and  text1:GetLineCount() <= 1 then
+		elseif obj ~= nil and (obj.ClassName == "Premium_Enchantchip_CT" or obj.ClassName == "Premium_Enchantchip_NoTrade") and  text1:GetLineCount() <= 1 then
 			local bg_title = GET_CHILD_RECURSIVELY(bg, "bg_title");
 			if bg_title ~= nil then
 				bg_title:RemoveChild("bg_title");
@@ -115,22 +116,24 @@ function CLIENT_ENCHANTCHIP(invItem)
 		close:SetTextTooltip(ClMsg("hairenchant_close"));
 	end
 
-	SET_INV_LBTN_FUNC(invframe, "ENCHANTCHIP_LBTN_CLICK");
-	ui.GuideMsg("SelectItem");
+	ui.GuideMsg("DropItemPlz");
 	CHANGE_MOUSE_CURSOR("MORU", "MORU_UP", "CURSOR_CHECK_ENCHANTCHIP");
+	INVENTORY_SET_CUSTOM_RBTNDOWN("ENCHANTCHIP_INV_RBTN");
 end
 
 
 function CANCEL_ENCHANTCHIP()
-	SET_MOUSE_FOLLOW_BALLOON(nil);
-	ui.RemoveGuideMsg("SelectItem");
-	SET_MOUSE_FOLLOW_BALLOON();
+	ui.RemoveGuideMsg("DropItemPlz");
 	ui.SetEscapeScp("");
+
 	HAIRENCHANT_UI_RESET();
+
 	local invframe = ui.GetFrame("inventory");
 	SET_SLOT_APPLY_FUNC(invframe, "None");
-	SET_INV_LBTN_FUNC(invframe, "None");
+
 	RESET_MOUSE_CURSOR();
+
+	INVENTORY_SET_CUSTOM_RBTNDOWN("None");
 end
 
 function CURSOR_CHECK_ENCHANTCHIP(slot)
@@ -163,9 +166,15 @@ function CHECK_ENCHANTCHIP_TARGET_ITEM(slot)
 	end
 end
 
-function ENCHANTCHIP_LBTN_CLICK(frame, invItem)
+function ENCHANTCHIP_INV_RBTN(itemObj, slot)
 	local enchantFrame = ui.GetFrame("hairenchant");
-	local slot = enchantFrame:GetChild("slot");
-	slot  = tolua.cast(slot, 'ui::CSlot');
-	HAIRENCHANT_DRAW_HIRE_ITEM(slot, invItem);
+
+	local icon = slot:GetIcon();
+	local iconInfo = icon:GetInfo();
+	local invItem = GET_PC_ITEM_BY_GUID(iconInfo:GetIESID());
+
+	local enchantslot = GET_CHILD(enchantFrame, "slot");
+	enchantslot = tolua.cast(enchantslot, 'ui::CSlot');
+
+	HAIRENCHANT_DRAW_HIRE_ITEM(enchantslot, invItem);
 end

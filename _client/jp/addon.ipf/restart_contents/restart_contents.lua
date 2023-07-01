@@ -90,6 +90,14 @@ function RESTART_CONTENTS_ON_HERE_VISIBLE(num, is_bit)
 		local btn = GET_CHILD_RECURSIVELY(frame, "btn_restart_"..num);
 		if btn ~= nil then
 			btn:ShowWindow(is_bit);
+			if num == 5 then
+				local map_name = session.GetMapName();
+				if map_name == "Content_Bridge_of_Wailing" then
+					btn:SetText(ClMsg("RESTART_CONTENTS_HERE_TEXT"));
+				else
+					btn:SetText(ClMsg("RESTART_CONTENTS_START_POINT_TEXT"));
+				end
+			end
 		end
 	end
 end

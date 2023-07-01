@@ -57,8 +57,7 @@ function UPDATE_RIDE_PETLIST(frame, msg, argstr)
 
 	for i = 1, cnt-1 do
 		local cls = GetClassByIndexFromList(ridepetlist, i)
-		local isHave = TryGetProp(aObj, cls.AccProp);
-
+		local isHave = TryGetProp(aObj, cls.AccProp, "None");
 		if isHave ~= "None" then
 			local ctrlset = gb_petlist:CreateControlSet('petlist_ctrl', "_CTRLSET_"..cls.ClassID, x, y);
 			y = y + ui.GetControlSetAttribute("petlist_ctrl", "height");

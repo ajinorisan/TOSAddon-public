@@ -1,6 +1,24 @@
 -- damage_meter.lua
 
 local damage_meter_info_total = {}
+dps_skill_convertion_list={
+    ["31"] = 42009,
+    ["13"] = 42010,
+    ["32"] = 42012,
+    ["23"] = 42011,
+    ["42"] = 42013,
+    ["24"] = 42014,
+    ["123011"] = 12317,
+    ["123012"] = 12316,
+    ["123021"] = 12308,
+    ["123022"] = 12312,
+    ["123031"] = 12309,
+    ["123032"] = 12313,
+    ["123051"] = 12310,
+    ["123052"] = 12314,
+    ["123061"] = 12311,
+    ["123062"] = 12315,
+}
 
 function DAMAGE_METER_ON_INIT(addon, frame)
     addon:RegisterMsg('GAME_START', 'DAMAGE_METER_OPEN_CHECK');
@@ -130,6 +148,29 @@ function WEEKLY_BOSS_UPDATE_DPS(frame,totalTime,elapsedTime)
                 end
                 if IsSummonSkill(sklClsName) == 1 then
                     sklID = 163915
+                end
+                if sklID >= 42005 and sklID <= 42007 then
+                    local pc = GetMyPCObject();
+                    if pc ~= nil then
+                        local fistCnt = GetExProp(pc, "LamaFistCnt", 0);
+                        local kickCnt = GetExProp(pc, "LamaKickCnt", 0);
+                        local convertID = dps_skill_convertion_list[fistCnt..kickCnt];
+                        if convertID ~= nil then
+                            sklID = convertID;    
+                        end
+                    end
+                end
+                if sklID >=12301 and sklID <=12306 then
+                    local pc = GetMyPCObject();
+                    if pc ~= nil then
+                        if stance ~= 0 then
+                            local stance = GetExProp(pc, "SPEARMASTER_STANCE", 0);
+                            local convertID = dps_skill_convertion_list[sklID..stance];
+                            if convertID ~= nil then
+                                sklID = convertID;
+                            end
+                        end
+                    end
                 end
                 if table.find(keyword, "Ancient") > 0 then
                     sklID = 179999

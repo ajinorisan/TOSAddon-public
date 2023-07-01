@@ -107,26 +107,21 @@ function GET_TOTAL_ITEM_CNT_LIST(type, list)
 end
 
 function INV_APPLY_TO_ALL_SLOT(func, ...)
-
-	for i = 1 , #SLOTSET_NAMELIST do
-
+	local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
+	for i = 1, slotSetNameListCnt do
 		local frame = ui.GetFrame("inventory");
 		local group = GET_CHILD(frame, 'inventoryGbox', 'ui::CGroupBox')
-		
-
 		for typeNo = 1, #g_invenTypeStrList do
-			local tree_box = GET_CHILD(group, 'treeGbox_'.. g_invenTypeStrList[typeNo],'ui::CGroupBox')
-			local tree = GET_CHILD(tree_box, 'inventree_'.. g_invenTypeStrList[typeNo],'ui::CTreeControl')
-		local slotSet = GET_CHILD(tree,SLOTSET_NAMELIST[i],'ui::CSlotSet')	
-
-		APPLY_TO_ALL_ITEM_SLOT(slotSet, func, ...);
-		end;
+			local tree_box = GET_CHILD(group, 'treeGbox_'.. g_invenTypeStrList[typeNo],'ui::CGroupBox');
+			local tree = GET_CHILD(tree_box, 'inventree_'.. g_invenTypeStrList[typeNo],'ui::CTreeControl');
+			
+			local slotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
+			local slotSet = GET_CHILD(tree, slotSetName, 'ui::CSlotSet');	
+			APPLY_TO_ALL_ITEM_SLOT(slotSet, func, ...);
+		end
 
 		frame:Invalidate();
 	end
-
-
-
 end
 
 function EQP_APPLY_TO_ALL_SLOT(func, ...)
@@ -575,8 +570,15 @@ function GET_ITEM_ICON_IMAGE(itemCls, gender)
 			 if nil ~= cls then
 				iconImg = cls.Icon;
 			 end
+
+			-- vibora vision
+			if TryGetProp(cls, "ClassType", "None") == "Arcane" and TryGetProp(cls, "StringArg", "None") == "Vibora" then
+				local filename = TryGetProp(cls, "FileName", "None")
+				local vibora_cls = GetClassByStrProp2('Item', "FileName", filename, "StringArg", "WoodCarving")
+				iconImg = vibora_cls.Icon
 		end
-	elseif itemCls.GroupName == "ExpOrb" then
+		end
+	elseif itemCls.GroupName == "ExpOrb" or itemCls.GroupName == "SubExpOrb" then
 		local exp = TryGetProp(itemCls, "ItemExpString");
 		local maxExp = TryGetProp(itemCls, "NumberArg1");
 		if exp ~= nil and maxExp ~= nil then 
@@ -592,8 +594,8 @@ function UPDATE_ETC_ITEM_SLOTSET(slotset, etcType, tooltipType)
 	for i = 0, slotCnt - 1 do
 		local tempSlot = slotset:GetSlotByIndex(i)
 		DESTROY_CHILD_BYNAME(tempSlot, "styleset_")		
+		SET_SLOT_STAR_TEXT(tempSlot,nil)
 	end
-
 	slotset:ClearIconAll();
     slotset:SetSkinName("invenslot2")
 
@@ -613,7 +615,7 @@ function UPDATE_ETC_ITEM_SLOTSET(slotset, etcType, tooltipType)
 
 		SET_SLOT_IMG(slot, iconImg)
 		SET_SLOT_COUNT(slot, invItem.count)
-
+		SET_SLOT_STAR_TEXT(slot,itemCls)
         local icon = slot:GetIcon();
 
         if itemCls.ItemType == 'Equip' then
@@ -635,7 +637,10 @@ function UPDATE_ETC_ITEM_SLOTSET(slotset, etcType, tooltipType)
 		icon:SetTooltipArg(tooltipType, invItem.type, invItem:GetIESID());
 		SET_ITEM_TOOLTIP_TYPE(icon, itemCls.ClassID, itemCls, tooltipType);
 
-		if invItem.hasLifeTime == true then
+		-- 아이커 종류 표시	
+		SET_SLOT_ICOR_CATEGORY(slot, itemCls);
+
+		if invItem.hasLifeTime == true or GET_ITEM_EXPIRE_TIME(itemCls) ~= 'None' then
 			ICON_SET_ITEM_REMAIN_LIFETIME(icon, etcType);
 			slot:SetFrontImage('clock_inven');
 		else
@@ -658,7 +663,8 @@ function SET_SLOT_INFO_FOR_WAREHOUSE(slot, invItem, tooltipType)
 	local iconImg = GET_ITEM_ICON_IMAGE(itemCls);
     SET_SLOT_IMG(slot, iconImg)
 	SET_SLOT_COUNT(slot, invItem.count)
-	
+	SET_SLOT_STAR_TEXT(slot, itemCls)
+
     local icon = slot:GetIcon();
     
     if itemCls.ItemType == 'Equip' then
@@ -680,13 +686,14 @@ function SET_SLOT_INFO_FOR_WAREHOUSE(slot, invItem, tooltipType)
 	icon:SetTooltipArg(tooltipType, invItem.type, invItem:GetIESID());
 	SET_ITEM_TOOLTIP_TYPE(icon, itemCls.ClassID, itemCls, tooltipType);		
 
-	if invItem.hasLifeTime == true then
+	if invItem.hasLifeTime == true or GET_ITEM_EXPIRE_TIME(itemCls) ~= 'None' then
 		ICON_SET_ITEM_REMAIN_LIFETIME(icon, IT_WAREHOUSE);
 		slot:SetFrontImage('clock_inven');
 	else
 		CLEAR_ICON_REMAIN_LIFETIME(slot, icon);
 	end
 end
+
 
 function GET_INVENTORY_TREEGROUP(baseidcls)
 	local invenTabName = "All"
@@ -733,6 +740,64 @@ function GET_INV_ITEM_COUNT_BY_PROPERTY(propCondList, exceptLock, itemList, chec
     return count, matchedList;
 end
 
+function GET_INV_ITEM_COUNT_BY_CLASSID(classID)	
+	if itemList == nil then
+		itemList = session.GetInvItemList();
+	end
+	local guidList = itemList:GetGuidList();
+	local cnt = guidList:Count();
+    local count = 0;
+    local matchedList = {};
+	for i = 0, cnt - 1 do
+		local guid = guidList:Get(i);
+		local invItem = itemList:GetItemByGuid(guid);
+        if invItem ~= nil and invItem:GetObject() ~= nil and invItem.isLockState == false then
+			local itemObj = GetIES(invItem:GetObject());
+			if TryGetProp(itemObj, "ClassID", "None") == tonumber(classID) then
+				if itemObj.MaxStack > 1 then
+	                count = count + invItem.count;
+	            else -- 비스택형 아이템
+		            count = count + 1;
+				end
+				
+				matchedList[#matchedList + 1] = invItem;
+			end
+	    end
+	end
+
+    return count, matchedList;
+end
+
+function GET_NEXT_ITEM_GUID_BY_CLASSID(classID)
+	local itemList = session.GetInvItemList();
+	local guidList = itemList:GetGuidList();
+	local cnt = guidList:Count();
+    local matchedList = {};
+	for i = 0, cnt - 1 do
+		local guid = guidList:Get(i);
+		local invItem = itemList:GetItemByGuid(guid);
+        if invItem ~= nil and invItem:GetObject() ~= nil and invItem.isLockState == false then
+			local itemObj = GetIES(invItem:GetObject());
+			if TryGetProp(itemObj, "ClassID") == tonumber(classID) then
+				matchedList[#matchedList + 1] = invItem;
+			end
+	    end
+	end
+
+	local itemClass = GetClassByType("Item", classID);
+	if 0 < itemClass.LifeTime then
+		table.sort(matchedList, INVENTORY_SORT_BY_LIMIT_TIME);
+	end
+	
+	if #matchedList == 0 then
+		return nil;
+	end
+
+	local ret_item = matchedList[1];
+
+    return ret_item:GetIESID();
+end
+
 function SELECT_INV_SLOT_BY_GUID(guid, isSelect)
 	local invSlot = GET_SLOT_BY_ITEMID(nil, guid);
 	if invSlot == nil then
@@ -747,6 +812,53 @@ function SELECT_INV_SLOT_BY_GUID(guid, isSelect)
 	invSlot_All:Select(isSelect);
 end
 
+function GET_INV_ITEM_BY_WHERE(itemIdx, where)
+	local invItem = nil;
+	local _where = nil; 
+
+	-- where로 넘어오는 값이 inven인데 inventory로 넘겨줘야 하는 경우가 있으므로 확인된 inven과 link만 반환한다.
+	-- 나머지는 넘어오는 값이 확인되면 수정 후에 주석을 풀어야한다.
+	if where == 'inven' then
+		invItem, isEquip = GET_PC_ITEM_BY_GUID(itemIdx);	
+		_where = 'inventory';
+	-- elseif where == 'warehouse' then
+	-- 	invItem =  session.GetEtcItemByGuid(IT_WAREHOUSE, itemIdx);
+	-- 	_where =  'warehouse';
+	-- elseif where == 'account_warehouse' then
+	-- 	invItem =  session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, itemIdx);
+	-- 	_where =  'account_warehouse';
+	-- elseif where == 'sold' then
+	-- 	invItem =  session.GetEtcItemByGuid(IT_SOLD, itemIdx);
+	-- 	_where =  'sold';
+	-- elseif where == 'guild_joint' then
+	-- 	invItem =  session.GetEtcItemByGuid(IT_GUILD_JOINT, itemIdx);
+	-- 	_where =  'guild_joint';
+	-- elseif where == 'compare' then
+	-- 	invItem =  session.otherPC.GetItemByGuid(itemIdx);
+	-- 	_where =  'compare';
+	-- elseif where == 'market' then
+	-- 	invItem =  session.market.GetItemByItemID(itemIdx);
+	-- 	_where =  'market';
+	-- elseif where == 'cabinet' then
+	-- 	invItem =  session.market.GetCabinetItemByItemObjID(itemIdx);
+	-- 	_where =  'cabinet';
+	-- elseif where == 'exchange' then
+	-- 	invItem =  exchange.GetExchangeItemInfoByGuid(itemIdx);
+	-- 	_where =  'exchange';
+	-- elseif where == 'pet_equip' then
+	-- 	invItem =  session.pet.GetPetEquipObjByGuid(itemIdx);
+	-- 	_where =  'pet_equip';
+	-- elseif where == 'compare' then
+	-- 	invItem =  session.otherPC.GetItemByGuid(itemIdx);
+	-- 	_where =  'compare';
+	elseif where == 'link' then
+		invItem =  session.link.GetGCLinkObject(itemIdx)
+		_where =  'link';
+	end
+
+	return invItem, _where ;
+end
+
 function GET_INV_ITEM_BY_ITEM_OBJ(item)	
 	if item == nil then
 		return nil;
@@ -757,9 +869,20 @@ function GET_INV_ITEM_BY_ITEM_OBJ(item)
 		return session.barrack.GetEquipItemByGuid(CUR_SELECT_GUID, itemIdx), 'barrack';
 	end
 
-	local invitem = GET_PC_ITEM_BY_GUID(itemIdx);	
-	local dummy1, dummy2;
-	local where = 'inventory';
+	-- 어디에서왔는지 exProp을 조사해서 선행처리한다.
+	local invitem =nil;
+	local where = GetExProp_Str(item, 'where'); 
+	if where ~= nil and where ~= 'None' then
+		invitem, where = GET_INV_ITEM_BY_WHERE(itemIdx,where )
+		if invitem ~= nil then
+			return invitem, where;
+		end
+	end
+
+	-- 위 검사에 걸리지 않는다면 다음을 순서대로 수행해서 아이템을 찾는다.
+	invitem, isEquip = GET_PC_ITEM_BY_GUID(itemIdx);	
+	where = 'inventory';
+
 	if invitem == nil then
 		invitem = session.GetEtcItemByGuid(IT_WAREHOUSE, itemIdx);
 		where = 'warehouse';
@@ -785,7 +908,7 @@ function GET_INV_ITEM_BY_ITEM_OBJ(item)
 		where = 'market';
 	end
 	if invitem == nil then		
-		invitem = session.market.GetCabinetItemByItemObjID(itemIdx);		
+		invitem = session.market.GetCabinetItemByItemObjID(itemIdx);
 		where = 'cabinet';
 	end
 	if invitem == nil then
@@ -800,6 +923,7 @@ function GET_INV_ITEM_BY_ITEM_OBJ(item)
 		invitem = session.link.GetGCLinkObject(itemIdx);
 		where = 'link';
 	end
+
 	return invitem, where;
 end
 
@@ -832,4 +956,95 @@ function FOR_EACH_INVENTORY(invItemList, func, desc, ...)
 		end
 	end
 	return true;
+end
+
+local furniture_cache = {};
+
+function CLEAR_FURNITURE_CLASS_BY_ITEM()
+	furniture_cache = {};
+end
+
+function GET_FURNITURE_CLASS_BY_ITEM(className)
+	if furniture_cache[className] == nil then
+		local classList, count = GetClassList("Housing_Furniture");
+		
+		for i = 0, count - 1 do
+			local furnitureClass = GetClassByIndexFromList(classList, i);
+			local itemClassName = TryGetProp(furnitureClass, "ItemClassName", "None");
+			if itemClassName == className then
+				furniture_cache[className] = furnitureClass.ClassName;
+				break;
+			end
+		end
+	end
+	
+	return GetClass("Housing_Furniture", furniture_cache[className]);
+end
+
+function GET_FURNITURE_CLASS_BY_ITEM_CLASSID(classID)
+	local itemClass = GetClassByType("Item", classID);
+	if itemClass == nil then
+		return nil;
+	end
+
+	return GET_FURNITURE_CLASS_BY_ITEM(itemClass.ClassName);
+end
+
+function SET_SLOT_ICOR_CATEGORY(slot, item_obj)
+	if item_obj.GroupName == 'Icor' then
+		local font = '{s14}{ol}{b}'
+		local item_name = TryGetProp(item_obj, 'InheritanceItemName', 'None')
+		local is_fix = false		
+		if item_name ~= 'None' then			
+			is_fix = true
+		end
+		if item_name == 'None' then
+			item_name = TryGetProp(item_obj, 'InheritanceRandomItemName', 'None')		
+		end		
+		if item_name ~= 'None' then		
+			local cls = GetClass('Item', item_name)			
+			local msg = font
+			
+			if is_fix == true then
+				msg = msg .. ClMsg('FixOptionItem').. '{nl}'
+			end
+
+			if config.GetServiceNation() == "KOR" or config.GetServiceNation() == "GLOBAL_KOR" then
+				msg = msg .. ClMsg(cls.ClassType)
+			else
+				msg = msg .. ClMsg(cls.ClassType .. '_Icor')
+			end
+			
+			slot:SetText(msg, 'quickiconfont', ui.CENTER_VERT, ui.CENTER_HORZ, -2, 1);
+		end
+	elseif TryGetProp(item_obj, 'GroupName', 'None') == 'Arcane' then
+		local font = '{s14}{ol}{b}'		
+		local msg = font
+
+		local type = TryGetProp(item_obj, 'Name', 'None')
+		local token = StringSplit(type, '-')
+		local name = ''
+		
+		if #token > 1 then
+			name = TrimString(token[2])
+		end
+
+		if config.GetServiceNation() == "KOR" or config.GetServiceNation() == "GLOBAL_KOR" then
+			msg = msg .. name
+		else
+			local className = TryGetProp(item_obj, 'ClassName', 'None')
+			local lv = string.match(className, "_Lv(%d)")
+			if lv ~= nil then
+				className = string.sub(className, 1, -5)
+			end
+			local acronyms = GetClass("acronyms_list", className)
+			if acronyms == nil then
+				msg = msg .. name
+			else
+				msg = msg .. TryGetProp(acronyms, 'Name', 'None')
+			end
+		end
+		
+		slot:SetText(msg, 'quickiconfont', ui.CENTER_VERT, ui.CENTER_HORZ, -2, 1);
+	end	
 end

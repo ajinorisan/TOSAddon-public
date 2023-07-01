@@ -11,7 +11,8 @@ function ADVENTURE_BOOK_COLLECTION_POINT(frame)
     local totalScore = GET_ADVENTURE_BOOK_COLLECTION_POINT(pc);
     total_score_text:SetTextByKey('value', totalScore);
 
-    local page_explore = topFrame:GetChild('page_explore');
+    local gb_adventure = topFrame:GetChild('gb_adventure');
+    local page_explore = gb_adventure:GetChild('page_explore');
     local total_rate_text = page_explore:GetChild('total_rate_text');
     total_rate_text:ShowWindow(0);
 end

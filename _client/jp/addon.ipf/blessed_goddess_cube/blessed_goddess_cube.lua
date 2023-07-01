@@ -2,6 +2,10 @@
     addon:RegisterMsg("BLESSED_CUBE_NOT_ENABLE", "BLESSED_CUBE_CLOSE_ALL");
 end
 
+function UI_TOGGLE_BLESSED_CUBE_OPEN()
+    BLESSED_CUBE_OPEN();
+end
+
 function BLESSED_CUBE_OPEN(frame)
 	local frame = ui.GetFrame('blessed_goddess_cube');
 	BLESSED_CUBE_LIST_UPDATE(frame);
@@ -15,7 +19,6 @@ function BLESSED_CUBE_OPEN(frame)
 end
 
 function BLESSED_CUBE_CLOSE()
-
 end
 
 function BLESSED_CUBE_LIST_UPDATE(frame)

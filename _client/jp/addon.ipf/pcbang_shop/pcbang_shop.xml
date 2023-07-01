@@ -12,16 +12,16 @@
 	<controls>
 		<groupbox name="background" rect="0 0 1250 800" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="true" resizebyresolution="true" scrollbar="false" skin="test_frame_low"/>
 		<groupbox name="titlebg" rect="0 0 1250 70" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="TPshop_title"/>
-		<richtext name="title" rect="0 0 300 30" margin="0 0 0 0" fontname="white_24_b_ol" layout_gravity="center center " caption="{@st42}{s22}PC방" parent="titlebg"/>
+		<richtext name="title" rect="0 0 300 30" margin="0 0 0 0" fontname="white_24_b_ol" layout_gravity="center center " caption="{@st42}{s22}Popo Points" parent="titlebg"/>
 		<button name="close_btn" image="testclose_button" margin="0 20 50 0" rect="0 0 44 44" layout_gravity="right top" clicksound="button_click_big" oversound="button_over" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="ON_PCBANG_SHOP_CLOSE_BTN"/>
 		<button name="refresh_btn" image="market_reset2_btn" margin="0 90 10 0" rect="0 0 0 0" layout_gravity="right top" LBtnUpScp="ON_PCBANG_SHOP_REFRESH_BTN" clicksound="button_click_big" oversound="button_over" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" stretch="true" texttooltip="{@st59}수령에 실패한 아이템을 다시 수령합니다.{/}"/>
 		<groupbox name="point_gb" rect="0 0 300 40" margin="0 92 60 0" layout_gravity="right top" draw="true" resizebyparent="false" scrollbar="false" skin="test_weight_skin"/>
-		<picture name="computer_pic" rect="0 0 38 30" margin="5 2 0 0" parent="point_gb" layout_gravity="left center" image="pcbang_point_icon" stretch="true"/>
+		<picture name="computer_pic" rect="0 0 38 40" margin="5 2 0 0" parent="point_gb" layout_gravity="left center" image="pp_point_icon" stretch="true" />		
 		<richtext name="point_text" parent="point_gb" rect="0 0 64 30" margin="0 0 5 0" layout_gravity="right center" format="{s18}%s" param1="value" param1_def="None" fontname="white_24_b_ol"/>
-		<richtext name="point_timer_text" rect="0 0 300 30" margin="0 0 15 20" layout_gravity="right bottom" format="{img test_cooltime 25 25}{s18}포인트 초기화까지 %s일 %s시간 %s분 남았습니다.{/}" param1="day" param1_def="None" param2="hour" param2_def="None" param3="min" param3_def="None" fontname="limitedsale"/>
+		<richtext name="point_timer_text" rect="0 0 300 30" margin="0 0 15 20" layout_gravity="right bottom" format="{img test_cooltime 25 25}{s18}1월/4월/7월/10월 1일 오전 0시에 보유하고 있는 포인트가 초기화됩니다." param1="day" param1_def=" " param2="hour" param2_def=" " param3="min" param3_def=" " fontname="limitedsale"/>
 		<!--메뉴 탭-->
 		<tab name="tab" rect="0 0 600 45" margin="15 90 0 0" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" oversound="button_cursor_over_2" skin="tab2"/>
-		<tabitem name="main_tab" parent="tab" layout_gravity="left top" caption="{@st66b}메인{/}" width="140"/>
+		<tabitem name="main_tab" parent="tab" layout_gravity="left top" caption="{@st66b}메인{/}" width="0"/>
 		<tabitem name="pointshop_tab" parent="tab" layout_gravity="left top" caption="{@st66b}포인트 샵{/}" width="140"/>
 		<tabitem name="rental_tab" parent="tab" layout_gravity="left top" caption="{@st66b}PC방 장비 대여{/}" width="140"/>
 		<tabitem name="guide_tab" parent="tab" layout_gravity="left top" caption="{@st66b}안내{/}" width="140"/>
@@ -61,7 +61,7 @@
 		<groupbox name="pointshop_list_gb" parent="pointshop_gb" rect="0 0 875 596" margin="0 0 0 0" layout_gravity="right center " draw="true" resizebyparent="false" scrollbar="true" skin="test_frame_midle"/>
 		<groupbox name="pointshop_list_title_gb" parent="pointshop_list_gb" rect="0 0 875 40" margin="0 0 0 0" layout_gravity="left top" draw="true" resizebyparent="false" skin="market_listbase"/>
 		<richtext name="pointshop_list_title_text" parent="pointshop_list_title_gb" rect="0 0 98 21" margin="10 0 0 0" layout_gravity="left center" caption="구입가능 목록" fontname="black_16_b" textalign="left center" fixwidth="false"/>
-		<richtext name="pointshop_list_info_text" parent="pointshop_list_title_gb" rect="0 0 340 30" margin="0 0 10 0" layout_gravity="right center" caption="※매 분기마다(1,4,7,10월 1일) 상품이 갱신됩니다." fontname="brown_16_b" textalign="left center" fixwidth="false"/>
+		<richtext name="pointshop_list_info_text" parent="pointshop_list_title_gb" rect="0 0 340 30" margin="0 0 10 0" layout_gravity="right center" caption="" fontname="brown_16_b" textalign="left center" fixwidth="false"/>
 		<groupbox name="pointshop_list_products_gb" parent="pointshop_list_gb" rect="0 0 875 555" margin="0 40 0 0" layout_gravity="left top" draw="false" resizebyparent="false" scrollbar="true" skin="test_weight_skin"/>
 		<!--장비 대여 탭-->
 		<groupbox name="rental_category_gb" parent="rental_gb" rect="0 0 348 596" margin="0 0 0 0" layout_gravity="left center " draw="true" resizebyparent="false" scrollbar="true" skin="test_frame_midle"/>

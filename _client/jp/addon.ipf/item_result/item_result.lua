@@ -77,7 +77,9 @@ local function ADD_ITEM_RESULT_CTRL(frame, itemBgBox, xpos, itemClsName, cnt)
 	AUTO_CAST(getText);
 	getText:SetGravity(ui.CENTER_HORZ, ui.BOTTOM);
 	getText:SetText(TEXT_STYLE..itemCls.Name..' x'..cnt..' '..ClMsg('Gain')..'!{/}');
-
+	if getText:GetWidth() >= 500 then
+			getText:AdjustFontSizeByWidth(500)
+	end
 	xpos = xpos + itemBox:GetWidth();
 	return xpos, CTRLSET_HEIGHT, itemPic;
 end
@@ -135,7 +137,7 @@ function ADD_MATITEM_ITEM_CTRL(frame, itemClsName, allMatCnt, listgb, MatItemLis
 
 	local cnt = #MatItemList;
 	for i = 1, cnt do
-		local ctrlset = listgb:CreateOrGetControlSet("item_result", "item_result"..allMatCnt, 0, 0);
+        local ctrlset = listgb:CreateOrGetControlSet("item_result", "item_result"..allMatCnt, 0, 0);
         ctrlset:Move(0, ctrlset:GetHeight() * allMatCnt)
 		ctrlset:ShowWindow(1);      
 
@@ -145,11 +147,17 @@ function ADD_MATITEM_ITEM_CTRL(frame, itemClsName, allMatCnt, listgb, MatItemLis
 		
 		local matitemname = GET_CHILD(ctrlset, 'itemname');
 		matitemname:SetTextByKey('value', MatitemCls.Name);
-
 		local resultitemCls = GetClass('Item', itemClsName);
 		local result = GET_CHILD(ctrlset, 'result');	
 		result:SetTextByKey('value', resultitemCls.Name);
-		
+	
+	if matitemname:GetWidth() >= 220 then
+		matitemname:AdjustFontSizeByWidth(220)
+	end
+	
+	if result:GetWidth() >= 280 then
+		result:AdjustFontSizeByWidth(280)
+	end
 		allMatCnt = allMatCnt + 1;
 	end
 

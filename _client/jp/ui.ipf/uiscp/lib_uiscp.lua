@@ -10,7 +10,6 @@ function GET_GENNPC_NAME(frame, monProp)
 end
 
 function INIT_MAP_PICTURE_UI(pic, mapName, hitTest)
-
     if hitTest == 1 then
         pic:EnableHitTest(hitTest);
     end
@@ -18,7 +17,6 @@ function INIT_MAP_PICTURE_UI(pic, mapName, hitTest)
     pic:SetUserValue("MAP_NAME", mapName);
     pic:ShowWindow(1);
     pic:SetEventScript(ui.LBUTTONDOWN, "MAP_LBTN_DOWN");
-
 end
 
 function DISABLE_BUTTON_DOUBLECLICK_WITH_CHILD(framename, childname, buttonname, sec)
@@ -71,22 +69,55 @@ function DISABLE_BUTTON_DOUBLECLICK(framename, buttonname, sec)
 end
 
 function ENABLE_BUTTON_DOUBLECLICK(framename, buttonname)
-
     local frame = ui.GetFrame(framename)
     local btn = GET_CHILD_RECURSIVELY(frame, buttonname)
     btn:SetEnable(1)
+end
 
+function UPDATE_BUFF_UI_SLOTSET(frame, buff_ui, index)
+    if frame == nil or buff_ui == nil or index == nil then
+        return;
+    end
+
+    while 1 do
+        if buff_ui["slotsets"][index] == nil then
+            break;
+        end
+
+        local slot = buff_ui["slotsets"][index]:GetSlotByIndex(buff_ui["slotcount"][index]);
+        if slot == nil then
+            break;
+        end
+
+        buff_ui["slotlist"][index][buff_ui["slotcount"][index]] = slot;
+        slot:ShowWindow(0);
+        
+        local icon = CreateIcon(slot);
+        if icon ~= nil then
+            icon:SetDrawCoolTimeText(0);
+        end
+
+        local x = buff_ui["slotsets"][index]:GetX() + slot:GetX() + buff_ui["txt_x_offset"];
+        local y = buff_ui["slotsets"][index]:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
+
+        local captWidth, captHeight = 50, 20;
+        local caption = frame:CreateOrGetControl('richtext', "_t_" .. index .. "_" .. buff_ui["slotcount"][index], x, y, captWidth, captHeight);
+        caption:SetFontName("yellow_13");
+        buff_ui["captionlist"][index][buff_ui["slotcount"][index]] = caption;
+        buff_ui["slotcount"][index] = buff_ui["slotcount"][index] + 1;
+    end
 end
 
 function INIT_BUFF_UI(frame, buff_ui, updatescp)
-
     local slotcountSetPt = frame:GetChild('buffcountslot');
     local slotSetPt = frame:GetChild('buffslot');
     local deslotSetPt = frame:GetChild('debuffslot');
+    local slotcountsubSetPt = frame:GetChild("buffcountslot_sub");
 
     buff_ui["slotsets"][0] = tolua.cast(slotcountSetPt, 'ui::CSlotSet');
     buff_ui["slotsets"][1] = tolua.cast(slotSetPt, 'ui::CSlotSet');
     buff_ui["slotsets"][2] = tolua.cast(deslotSetPt, 'ui::CSlotSet');
+    buff_ui["slotsets"][3] = tolua.cast(slotcountsubSetPt, "ui::CSlotSet");
 
     for i = 0, buff_ui["buff_group_cnt"] do
         buff_ui["slotcount"][i] = 0;
@@ -107,36 +138,28 @@ function INIT_BUFF_UI(frame, buff_ui, updatescp)
             local icon = CreateIcon(slot);
             icon:SetDrawCoolTimeText(0);
 
-
             local x = buff_ui["slotsets"][i]:GetX() + slot:GetX() + buff_ui["txt_x_offset"];
             local y = buff_ui["slotsets"][i]:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
 
-            local capt = frame:CreateOrGetControl('richtext', "_t_" .. i .. "_" .. buff_ui["slotcount"][i], x, y, 50, 20);
-            -- capt:SetTextAlign("center", "top");
+            local captWidth, captHeight = 50, 20;
+            local capt = frame:CreateOrGetControl('richtext', "_t_" .. i .. "_" .. buff_ui["slotcount"][i], x, y, captWidth, captHeight);
             capt:SetFontName("yellow_13");
             buff_ui["captionlist"][i][buff_ui["slotcount"][i]] = capt;
-
             buff_ui["slotcount"][i] = buff_ui["slotcount"][i] + 1;
         end
-
     end
-
 
     local timer = frame:GetChild("addontimer");
     tolua.cast(timer, "ui::CAddOnTimer");
     timer:SetUpdateScript(updatescp);
     timer:Start(0.45);
-
 end
 
 function IS_STATE_PRINT(state)
-
     if state == 'COMPLETE' or state == 'IMPOSSIBLE' then
         return 0;
     end
-
     return 1;
-
 end
 
 function GET_NPC_STATE(npcname, statelist, npclist, questIESList)
@@ -196,9 +219,7 @@ function MAKE_MY_CURSOR_TOP(frame)
     end
 end
 
-
 function MAP_UPDATE_PARTY(frame, msg, arg, type, info)
-
     DESTROY_CHILD_BYNAME(frame, 'PM_');
 
     local mapprop = session.GetCurrentMapProp();
@@ -213,14 +234,13 @@ function MAP_UPDATE_PARTY(frame, msg, arg, type, info)
         local pcInfo = list:Element(i);
         CREATE_PM_PICTURE(frame, pcInfo, type, mapprop);
     end
-
 end
 
 function MAP_UPDATE_GUILD(frame, msg, arg, type, info)
     DESTROY_CHILD_BYNAME(frame, 'GM_');
     if session.world.IsIntegrateServer() == true then
         DESTROY_GUILD_MEMBER_ICON()
-        return
+        return;
     end
 
     local mapprop = session.GetCurrentMapProp();
@@ -249,7 +269,6 @@ end
 
 
 function MAKE_TOP_QUEST_ICONS(frame)
-
     for i = 0, frame:GetChildCount() -1 do
         local child = frame:GetChildByIndex(i);
         local value = child:GetValue2();
@@ -265,10 +284,7 @@ function MAKE_TOP_QUEST_ICONS(frame)
             child:MakeTopBetweenChild();
         end
     end
-
 end
-
-
 
 function STATE_TONUMBER(state)
     if state == "POSSIBLE" then
@@ -296,11 +312,8 @@ function QUESTMODE_TONUMBER(state)
     return 0;
 end
 
-
-
 function SET_PICTURE_BUTTON(picture)
     picture:SetEnable(1);
-    -- picture:SetEnableStretch(1);
     picture:EnableChangeMouseCursor(1);
 end
 
@@ -330,7 +343,6 @@ function GET_NPC_ICON(i, statelist, questIESlist)
 end
 
 function SET_MAP_MONGEN_NPC_INFO(picture, mapprop, WorldPos, MonProp, npclist, statelist, questIESlist)
-
     SET_PICTURE_BUTTON(picture);
 
     local cheat = string.format("//setpos %d %d %d", WorldPos.x, WorldPos.y, WorldPos.z);
@@ -355,7 +367,6 @@ function SET_MAP_MONGEN_NPC_INFO(picture, mapprop, WorldPos, MonProp, npclist, s
         Icon_copy = Icon
     end
 
-
     if questIESlist[idx] ~= nil then
         if state == 'PROGRESS' and questIESlist[idx].StartNPC == questIESlist[idx].ProgNPC then
             Icon_copy = Icon_basic
@@ -363,7 +374,6 @@ function SET_MAP_MONGEN_NPC_INFO(picture, mapprop, WorldPos, MonProp, npclist, s
     else
         Icon_copy = Icon_basic
     end
-
 
     local pc = GetMyPCObject();
     local mongenprop = tolua.cast(MonProp, "geMapTable::MAP_NPC_PROPERTY");
@@ -377,7 +387,11 @@ function SET_MAP_MONGEN_NPC_INFO(picture, mapprop, WorldPos, MonProp, npclist, s
             if questclsIdStr == '' then
                 questclsIdStr = result .. '/' .. tostring(questIES.ClassID);
             else
-                questclsIdStr = questclsIdStr .. '/' .. result .. '/' .. tostring(questIES.ClassID);
+                local addStr = result .. '/' .. tostring(questIES.ClassID);
+                -- 중복된 값이 있는지 검사하고 추가한다.
+                if string.find(questclsIdStr, addStr) == nil then
+                    questclsIdStr = questclsIdStr .. '/' .. addStr;
+                end
             end
         end
     end
@@ -389,9 +403,7 @@ function SET_MAP_MONGEN_NPC_INFO(picture, mapprop, WorldPos, MonProp, npclist, s
     picture:SetValue2(iconState);
 
     SET_MONGEN_NPC_VISIBLE(picture, mapprop, MonProp);
-
     return idx, Icon;
-
 end
 
 function SET_MONGEN_NPC_VISIBLE(picture, mapprop, MonProp)
@@ -408,7 +420,6 @@ function SET_MONGEN_NPC_VISIBLE(picture, mapprop, MonProp)
             end
         end
 
-
         if hide == true then
             picture:ShowWindow(0);
         elseif MonProp.GenType == 0 then
@@ -422,39 +433,33 @@ function SET_MONGEN_NPC_VISIBLE(picture, mapprop, MonProp)
             end
         end
     end
+    SET_MONGEN_NPC_VISIBLE_BY_MGAME(picture);
 end
 
-
-
+function SET_MONGEN_NPC_VISIBLE_BY_MGAME(picture)
+    local mgame_name = session.mgame.GetCurrentMGameName();
+    if mgame_name ~= nil and (string.find(mgame_name, "CHALLENGE_AUTO") ~= nil or string.find(mgame_name, "CHALLENGE_SOLO") ~= nil) then
+        picture:ShowWindow(0);
+    end
+end
 
 function SET_NPC_STATE_ICON(PictureC, iconName, state, questID, worldPos)
     PictureC:SetSValue(state);
     PictureC:SetValue(questID);
     PictureC:SetImage(iconName);
     PictureC:SetEnableStretch(1);
-    -- local xFix = math.floor((iconW - ) / 2);
-    -- local yFix = math.floor((iconH - PictureC:GetImageHeight()) / 2);
-    -- PictureC:Resize(PictureC:GetOffsetX() + xFix, PictureC:GetOffsetY() + yFix, PictureC:GetImageWidth(), PictureC:GetImageHeight());
-
 end
 
-
-
-
 function BUFF_TIME_UPDATE(handle, buff_ui)
-    local TOKEN_BUFF_ID = TryGetProp(GetClass("Buff", "Premium_Token"), "ClassID");
-
     local updated = 0;
+    local TOKEN_BUFF_ID = TryGetProp(GetClass("Buff", "Premium_Token"), "ClassID");
     for j = 0, buff_ui["buff_group_cnt"] do
-
         local slotlist = buff_ui["slotlist"][j];
         local captlist = buff_ui["captionlist"][j];
         if buff_ui["slotcount"][j] ~= nil and buff_ui["slotcount"][j] >= 0 then
             for i = 0, buff_ui["slotcount"][j] -1 do
-
                 local slot = slotlist[i];
                 local text = captlist[i];
-
                 if slot:IsVisible() == 1 then
                     local icon = slot:GetIcon();
                     local iconInfo = icon:GetInfo();
@@ -463,7 +468,6 @@ function BUFF_TIME_UPDATE(handle, buff_ui)
                     if buff ~= nil then
                         SET_BUFF_TIME_TO_TEXT(text, buff.time);
                         updated = 1;
-
                         if buff.time < 5000 and buff.time ~= 0.0 then
                             if slot:IsBlinking() == 0 then
                                 slot:SetBlink(600000, 1.0, "55FFFFFF", 1);
@@ -537,24 +541,38 @@ end
 function GET_QUEST_NPC_NAMES(mapname)
     RequestUpdateMinimap(mapname, 0);
     local npclist, statelist, questIESList, questPropList = GetQuestNpcNames(mapname);
-
     return npclist, statelist, questIESList, questPropList;
 end
 
 function GET_JOB_ICON(job)
-
     local cls = GetClassByType("Job", job);
     if cls == nil then
         return "None";
     end
-
     return cls.Icon;
-
 end
 
+function GET_BASE_JOB_ICON(job)
+    local cls = GetClassByType("Job", job);
+    if cls == nil then return "None"; end
+    local ctrl_type = TryGetProp(cls, "CtrlType", "None");
+    local list, cnt = GetClassList("Job");
+    if list ~= nil and cnt > 0 then
+        for i = 0, cnt - 1 do
+            local job_cls = GetClassByIndexFromList(list, i);
+            if job_cls ~= nil then
+                local rank = TryGetProp(job_cls, "Rank", 0);
+                local job_ctrl_type = TryGetProp(job_cls, "CtrlType", "None");
+                if rank <= 1 and job_ctrl_type == ctrl_type then
+                    return TryGetProp(job_cls, "Icon", "None");
+                end
+            end
+        end
+    end
+    return "None";
+end
 
 function GET_MON_ILLUST(monCls)
-
     if monCls == nil then
         return "unknown_monster";
     end
@@ -626,3 +644,6 @@ function FIND_CLASSNAME_LIST_BY_PROP(idspace, propName, propVal)
     return list;
 end
 
+function ENABLE_FRAME(frame,argNum,argStr)
+	frame:SetEnable(1)
+end

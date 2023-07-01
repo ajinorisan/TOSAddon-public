@@ -5,7 +5,7 @@
 	<skin frameskin="test_pvp_skin"/>
 	<!-- 프레임 스킨인가? -->
 	<draw drawtitlebar="false"/>
-	<layer layerlevel="1000"/>
+	<layer layerlevel="100"/>
 	<input moveable="false"/>
 	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
 	<effect open="character_item_window_open" close="character_item_window_close"/>

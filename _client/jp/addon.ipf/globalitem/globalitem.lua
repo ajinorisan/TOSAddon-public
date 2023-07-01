@@ -25,7 +25,7 @@ function BEFORE_GLOBAL_PRE_ITEM_OPEN(invItem)
 	local ctrlSet = gBox:CreateControlSet("tokenDetail", "CTRLSET_" .. 1,  ui.CENTER_HORZ, ui.TOP, 10, 0, 0, 0);
 	local prop = ctrlSet:GetChild("prop");
 	local img;
-	if GetServerNation() == 'KOR' then
+	if GetServerNation() == 'KOR' or GetServerNation() == 'GLOBAL_KOR' then
 		img = string.format("{img icon_pizza %d %d}", 45, 45);
 	else 
 		img = string.format("   {img icon_pizza %d %d}", 45, 45);
@@ -41,7 +41,7 @@ function BEFORE_GLOBAL_PRE_ITEM_OPEN(invItem)
 	local ctrlSet = gBox:CreateControlSet("tokenDetail", "CTRLSET_" .. 2,  ui.CENTER_HORZ, ui.TOP, 10, 0, 0, 0);
 	local prop = ctrlSet:GetChild("prop");
 	local img;
-	if GetServerNation() == 'KOR' then
+	if GetServerNation() == 'KOR' or GetServerNation() == 'GLOBAL_KOR' then
 		img = string.format("{img icon_delivery_man %d %d}", 45, 45);
 	else 
 		img = string.format("   {img icon_delivery_man %d %d}", 45, 45);

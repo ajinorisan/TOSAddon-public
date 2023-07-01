@@ -130,12 +130,12 @@ function LAYER_SCORE_OPEN(frame)
 	ON_LAYER_PC_PROP_UPDATE(frame);	
 	frame:SetValue(0);
 	
-	ui.CloseFrame('questinfoset_2');
+	CHASEINFO_CLOSE_FRAME()
 	ui.ShowWindowByPIPType(frame:GetName(), ui.PT_RIGHT, 1);
 end
 
 function LAYER_SCORE_CLOSE(frame)
-	ui.OpenFrame('questinfoset_2');	
+	CHASEINFO_OPEN_FRAME()
 end
 
 function MINIMIZE_LAYERSCORE()

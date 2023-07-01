@@ -7,7 +7,7 @@ function ON_START_HOTKEY_EMPHASIZE(frame, msg, iconName, num)
 	local key_img = frame:GetChild("icon_img");
 	tolua.cast(key_img, "ui::CPicture");
 	key_img:SetImage(iconName);
-
+	ui.CloseFrame('customkey_emphasize')
 	frame:ShowWindow(1);
 end
 

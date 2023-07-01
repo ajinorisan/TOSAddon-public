@@ -236,6 +236,9 @@ function UNLOCK_ACC_BELONGING_SCROLL_UI_INIT()
 
 	local button_transcend = GET_CHILD(frame, "button_transcend");
 	button_transcend:SetTextByKey("value", ClMsg("UnlockBelonging"));
+
+	local text_title = GET_CHILD(frame, 'text_title')
+	text_title:SetTextByKey('value', scrollObj.Name)
 end
 
 function UNLOCK_ACC_BELONGING_SCROLL_UI_RESET()

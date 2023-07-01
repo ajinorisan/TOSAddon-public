@@ -1,6 +1,7 @@
 MAX_QUEST_TAKEITEM = 4;
 MAX_QUEST_SELECTITEM = 8;
 QUESTREWARD_SELECT = 1;
+MAX_SIZE_HEIGT_FRAME_EMPTY_VALUE = 100;
 
 function QUESTREWARD_ON_INIT(addon, frame)
 	addon:RegisterMsg("SHOW_QUEST_SEL_DLG", "ON_SHOW_QUEST_SEL_DLG");
@@ -11,9 +12,7 @@ function QUESTREWARD_ON_INIT(addon, frame)
 	addon:RegisterMsg('DIALOG_ITEM_SELECT', 'ON_QUEST_ITEM_SELECT');
 	addon:RegisterMsg('CHANGE_COUNTRY', 'QUESTREWARD_ON_LANGUAGECHANGE');
 
-	
-
-	local frame 	= ui.GetFrame('questreward');
+	local frame = ui.GetFrame('questreward');
 	frame:SetUserValue("QUEST_REWARD_PC_CON_LOCK", 0);
 end
 
@@ -123,27 +122,29 @@ function QUEST_REWARD_TEST(frame, questID)
     
 	y = MAKE_TAKEITEM_CTRL(box, cls, y);
 	y = MAKE_SELECT_REWARD_CTRL(box, y, cls);
-	
+
     local reward_result = QUEST_REWARD_CHECK(questCls.ClassName)
     if #reward_result > 0 then
         y = y + 20;
     	y = BOX_CREATE_RICHTEXT(box, "t_addreward", y, 20, ScpArgMsg("Auto_{@st41}BoSang"));
-    	y = MAKE_BASIC_REWARD_MONEY_CTRL(box, cls, y);
+    	y = MAKE_BASIC_REWARD_MONEY_CTRL_WITH_BONUS(box, cls, y);
     	y = MAKE_BASIC_REWARD_BUFF_CTRL(box, cls, y);
     	y = MAKE_BASIC_REWARD_HONOR_CTRL(box, cls, y);
     	y = MAKE_BASIC_REWARD_PCPROPERTY_CTRL(box, cls, y);
     	y = MAKE_BASIC_REWARD_JOURNEYSHOP_CTRL(box, cls, y);
-    end
-    
+	end
+	
 	local succExp = cls.Success_Exp;
 	local succJobExp = 0;
 	if repeat_reward_exp > 0 then
 	    succExp = succExp + repeat_reward_exp
 	end
 	
+	local sumvalue = MultForBigNumberInt64(tostring(succExp), tostring(77));
+	sumvalue = DivForBigNumberInt64(tostring(sumvalue), tostring(100));
     if succExp > 0 then
-        succJobExp = succJobExp + math.floor(succExp * 77 /100)
-    end
+		succJobExp = tonumber(SumForBigNumberInt64(succJobExp, sumvalue));
+	end
     
 	if cls.Success_Lv_Exp > 0 then
         local xpIES = GetClass('Xp', pc.Lv)
@@ -176,25 +177,23 @@ function QUEST_REWARD_TEST(frame, questID)
 	end
 
 	y = MAKE_BASIC_REWARD_ITEM_CTRL(box, cls, y);
-	
 	y = MAKE_BASIC_REWARD_RANDOM_CTRL(box, questCls, cls, y + 20)
     y = MAKE_REWARD_STEP_ITEM_CTRL(box, questCls, cls, y, 'SUCCESS')
     y = y + 10
 	
     if cls.Success_RepeatComplete ~= 'None' then
     	y = MAKE_BASIC_REWARD_REPE_CTRL(box, questCls, cls, y + 20);
---    	y = y + 20
     end
-
 	
 	local cancelBtn = frame:GetChild('CancelBtn');
 	local useBtn = frame:GetChild('UseBtn');
 
 	box:Resize(box:GetWidth(), y);
+
 	local maxSizeHeightFrame = box:GetY() + box:GetHeight() + 20;
-	local maxSizeHeightWnd = ui.GetSceneHeight();
-	if maxSizeHeightWnd < (maxSizeHeightFrame + 50) then 
-		local margin = maxSizeHeightWnd/2;
+	local maxSizeHeightWnd = ui.GetClientInitialHeight();
+	if maxSizeHeightWnd < (maxSizeHeightFrame + MAX_SIZE_HEIGT_FRAME_EMPTY_VALUE) then 
+		local margin = maxSizeHeightWnd / 2;
 		box:EnableScrollBar(1);
 		box:Resize(box:GetWidth() + 15, margin - useBtn:GetHeight() - 40);
 		box:SetScrollBar(margin - useBtn:GetHeight() - 40);
@@ -206,8 +205,8 @@ function QUEST_REWARD_TEST(frame, questID)
 		box:Resize(box:GetWidth(), y);
 		frame:Resize(frame:GetWidth() + 10, maxSizeHeightFrame);
 	end;
-	frame:ShowWindow(1);
 
+	frame:ShowWindow(1);
 	
 	local selectExist = 0;
 	local cnt = box:GetChildCount();
@@ -220,9 +219,7 @@ function QUEST_REWARD_TEST(frame, questID)
 	end    
     
     local flag = false
-    
     local dlgShowState = SCR_QUEST_SUCC_REWARD_DLG(pc, questCls, cls, sObj)
-    
     if dlgShowState == 'DlgBefore' then
         if questCls.QuestEndMode ~= 'SYSTEM' and cls.Success_Move == 'None' and ((cls.Possible_NextNPC == 'SUCCESS' and cls.Success_Dialog1 ~= 'None') or cls.Possible_NextNPC ~= 'SUCCESS' or cls.Possible_SelectDialog1 ~= 'None') and (cls.Progress_PCLoopAnim == 'None' or cls.Progress_NextNPC ~= 'SUCCESS' or (cls.Progress_NextNPC == 'SUCCESS' and cls.Success_Dialog1 ~= 'None')) then
             local index
@@ -231,11 +228,12 @@ function QUEST_REWARD_TEST(frame, questID)
                     flag = true
                     break
                 end
-            end
+			end
+			
             if repeat_reward_select == false or (repeat_reward_select == true and repeat_reward_select_use == true) then
                 for index = 1, MAX_QUEST_SELECTITEM do
                     if cls['Success_SelectItemName'..index] ~= 'None' then
-                        flag = true
+                        flag = true;
                         break
                     end
                 end
@@ -257,7 +255,6 @@ function QUEST_REWARD_TEST(frame, questID)
 		mouse.SetPos(x,y);
 		mouse.SetHidable(0);
 	end
-
 end
 
 function AUTO_CLOSE_QUESTREWARD_FRAME()
@@ -341,12 +338,16 @@ function MAKE_MONEY_TAG_TEXT_CTRL(y, box, ctrlNameHead, itemCount, index)
 	return y;
 end
 
-function MAKE_ITEM_TAG_TEXT_CTRL(y, box, ctrlNameHead, itemName, itemCount, index)
+function MAKE_ITEM_TAG_TEXT_CTRL(y, box, ctrlNameHead, itemName, itemCount, index, is_multi, multiple_rate)
 	local cls = GetClass("Item", itemName);
 	if cls == nil then
 		return y;
 	end
-    
+
+	if is_multi == nil then
+		is_multi = false
+	end
+
 	local icon = GET_ITEM_ICON_IMAGE(cls);
 	    
     y = y + 5
@@ -385,7 +386,11 @@ function MAKE_ITEM_TAG_TEXT_CTRL(y, box, ctrlNameHead, itemName, itemCount, inde
 	    if itemName ~= 'Vis' then
 			itemText = ScpArgMsg("{Auto_1}ItemName{Auto_2}NeedCount","Auto_1", itemCls.Name, "Auto_2",GetCommaedText(itemCount));
 		else
-    		itemText = ScpArgMsg("QuestRewardMoneyText", "Auto_1", GetCommaedText(itemCount));
+			if is_multi == true then
+				itemText = ScpArgMsg("QuestRewardMoneyTextWithBonus", "Auto_1", GetCommaedText(itemCount), "Rate", multiple_rate);
+			else
+				itemText = ScpArgMsg("QuestRewardMoneyText", "Auto_1", GetCommaedText(itemCount));
+			end
     	end
     end
 	itemNameCtrl:SetText(itemText);
@@ -805,6 +810,41 @@ function MAKE_BASIC_REWARD_MONEY_CTRL(box, cls, y)
 	return y;
 end
 
+function MAKE_BASIC_REWARD_MONEY_CTRL_WITH_BONUS(box, cls, y)
+	local count = 0;
+
+	if cls.Success_ItemName1 ~= "None" then
+		for i = 1 , MAX_QUEST_TAKEITEM do
+			local propName = "Success_ItemName" .. i;
+			if cls[propName] ~= "None" and cls[propName] == 'Vis' then
+				count = count + tonumber(cls["Success_ItemCount" .. i])
+			end
+		end
+	end
+    
+	if count > 0 then
+		local is_multi = false
+		local multiple_rate = 1
+		local acc_obj = GetMyAccountObj()
+		local ep_cls = GetClassByNumProp('Episode_Quest', 'QuestID', cls.ClassID)
+		if acc_obj ~= nil and ep_cls ~= nil then
+			local ep_name = TryGetProp(ep_cls, 'EpisodeName', 'None')
+			local _RewardGroup = TryGetProp(ep_cls, 'RewardGroup', 'None')
+			local check_name = 'FirstQuestClear_' .. _RewardGroup .. '_' .. cls.ClassID
+			local first_clear = TryGetProp(acc_obj, check_name, 0)
+			local ep_reward_cls = GetClass('Episode_Reward', ep_name)
+			if first_clear == 0 and ep_reward_cls ~= nil then
+				multiple_rate = TryGetProp(ep_reward_cls, 'FirstClearSilver', 1)
+				count = count * multiple_rate
+				is_multi = true
+			end
+		end
+
+        y = MAKE_ITEM_TAG_TEXT_CTRL(y, box, "reward_item", 'Vis', count, 1, is_multi, multiple_rate);
+    end
+	return y;
+end
+
 function MAKE_BASIC_REWARD_ITEM_CTRL(box, cls, y)
     local MySession		= session.GetMyHandle();
 	local MyJobNum		= info.GetJob(MySession);
@@ -932,7 +972,7 @@ function CREATE_QUEST_REWARE_CTRL(box, y, index, ItemName, itemCnt, callFunc, tr
 	ctrlSet:SetValue(index);
 	
 	if callFunc == 'DIALOGSELECT_QUEST_REWARD_ADD' then
-	    ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
+	ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
 	end
 
 	local itemCls = GetClass("Item", ItemName);
@@ -963,6 +1003,129 @@ function CREATE_QUEST_REWARE_CTRL(box, y, index, ItemName, itemCnt, callFunc, tr
 	return y;
 
 end
+
+
+function CREATE_QUEST_REWARE_CTRL_DIFF_COUNT(box, y, index, ItemName, itemCnt, NeedItemCount, callFunc, tradeselectitemClassName)
+	local isOddCol = 0;
+	if math.floor((index - 1) % 2) == 1 then
+		isOddCol = 0;
+	end
+
+	local x = 5;
+	if isOddCol == 1 then
+		x = (box:GetWidth() / 2) + 5;
+		local ctrlHeight = ui.GetControlSetAttribute('quest_reward_s_diff', 'height');
+		y = y - ctrlHeight - 10;
+	end
+	
+	local ctrlSet = box:CreateControlSet('quest_reward_s_diff', "REWARD_" .. index, x, y);
+	tolua.cast(ctrlSet, "ui::CControlSet");
+	ctrlSet:SetValue(index);
+	
+	if callFunc == 'DIALOGSELECT_QUEST_REWARD_ADD' then
+	ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
+	end
+
+	local itemCls = GetClass("Item", ItemName);
+	local slot = ctrlSet:GetChild("slot");
+	tolua.cast(slot, "ui::CSlot");
+	
+	local icon = GET_ITEM_ICON_IMAGE(itemCls, GETMYPCGENDER())
+	SET_SLOT_IMG(slot, icon);
+
+	local ItemName = ctrlSet:GetChild("ItemName");
+
+	local itemText = string.format("{@st41b}%s x%d", itemCls.Name, itemCnt);
+
+	ItemName:EnableTextOmitByWidth(true);
+	ItemName:SetText(itemText);
+
+	-- 교환 재료
+	local diff_slot = ctrlSet:GetChild("diff_slot");
+	tolua.cast(diff_slot, "ui::CSlot");
+
+	local diffitemCls = GetClass("Item", tradeselectitemClassName);
+	local icon_diff = GET_ITEM_ICON_IMAGE(diffitemCls, GETMYPCGENDER())
+	SET_SLOT_IMG(diff_slot, icon_diff);
+	
+	local diffCntName = ctrlSet:GetChild("diffCntName");
+	local CntTxt = string.format("{@st41_yellow}%d", NeedItemCount);
+	diffCntName:SetText(CntTxt);
+
+
+	ctrlSet:SetOverSound("button_cursor_over_3");
+	ctrlSet:SetClickSound("button_click_stats");
+	ctrlSet:SetEnableSelect(1);
+	ctrlSet:SetSelectGroupName("QuestRewardList");
+	
+	if tradeselectitemClassName == nil or tradeselectitemClassName == 'None' then
+		SET_ITEM_TOOLTIP_BY_TYPE(ctrlSet, itemCls.ClassID);
+	else
+		SET_ITEM_TOOLTIP_BY_TRADESELECTITEM(ctrlSet, tradeselectitemClassName, itemCls.ClassID)
+	end
+	
+	ctrlSet:Resize(box:GetWidth() - 30, ctrlSet:GetHeight());
+
+	y = y + ctrlSet:GetHeight();
+	return y;
+
+end
+
+
+function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectitemClassName)
+
+	local isOddCol = 0;
+	if math.floor((index - 1) % 2) == 1 then
+		isOddCol = 0;
+	end
+
+	local x = 5;
+	if isOddCol == 1 then
+		x = (box:GetWidth() / 2) + 5;
+		local ctrlHeight = ui.GetControlSetAttribute('quest_reward_s', 'height');
+		y = y - ctrlHeight - 10;
+	end
+	
+	local ctrlSet = box:CreateControlSet('quest_reward_s', "REWARD_" .. index, x, y);
+	tolua.cast(ctrlSet, "ui::CControlSet");
+	ctrlSet:SetValue(index);
+	
+	if callFunc == 'DIALOGSELECT_QUEST_REWARD_ADD' then
+	ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
+	end
+
+	local itemCls = ClMsg(ItemName)
+	local slot = ctrlSet:GetChild("slot");
+	tolua.cast(slot, "ui::CSlot");
+
+	local boxitemcls = GetClass('Item', tradeselectitemClassName)
+
+	local icon = GET_ITEM_ICON_IMAGE(boxitemcls, GETMYPCGENDER())
+	SET_SLOT_IMG(slot, icon);
+
+	local ItemName = ctrlSet:GetChild("ItemName");
+	local itemText = string.format("{@st41b}%s", itemCls);
+
+	ItemName:EnableTextOmitByWidth(true);
+	ItemName:SetText(itemText);
+
+	ctrlSet:SetOverSound("button_cursor_over_3");
+	ctrlSet:SetClickSound("button_click_stats");
+	ctrlSet:SetEnableSelect(1);
+	ctrlSet:SetSelectGroupName("QuestRewardList");
+	
+	ctrlSet:Resize(box:GetWidth() - 30, ctrlSet:GetHeight());
+
+	y = y + ctrlSet:GetHeight();
+	return y;
+
+end
+
+
+
+function CREATE_ANCIENT_CARD_CTRL(box, y, index, ItemName, itemCnt, targetItemName, targetName, targetCost)
+end
+
 
 function BOX_CREATE_RICHTEXT(box, name, y, height, text, marginX)
     if marginX == nil then
@@ -1192,3 +1355,71 @@ function QUEST_REWARD_CHECK(questname)
 end
 
 
+
+
+function CREATE_VIBORA_SELECT_CTRL(box, y, index, ItemName, itemCnt, callFunc, tradeselectitemClassName)
+	local isOddCol = 0;
+	if math.floor((index - 1) % 2) == 1 then
+		isOddCol = 0;
+	end
+
+	local x = 5;
+	if isOddCol == 1 then
+		x = (box:GetWidth() / 2) + 5;
+		local ctrlHeight = ui.GetControlSetAttribute('quest_reward_s', 'height');
+		y = y - ctrlHeight - 10;
+	end
+	
+	local ctrlSet = box:CreateControlSet('quest_reward_s', "REWARD_" .. index, x, y);
+	tolua.cast(ctrlSet, "ui::CControlSet");
+	ctrlSet:SetValue(index);
+	
+	if callFunc == 'DIALOGSELECT_QUEST_REWARD_ADD' then
+	ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
+	end
+
+	ctrlSet:SetUserValue("ITEM_NAME", ItemName)
+
+	local itemCls = GetClass("Item", ItemName);
+	local slot = ctrlSet:GetChild("slot");
+	tolua.cast(slot, "ui::CSlot");
+	
+	local icon = GET_ITEM_ICON_IMAGE(itemCls, GETMYPCGENDER())
+	SET_SLOT_IMG(slot, icon);
+	
+	local JobText = ""
+	local viboraCls = GetClass("EliteEquipDrop", ItemName);
+	local JobName = TryGetProp(viboraCls, "JobName")
+	if JobName ~= nil then
+		local jobCls = GetClassByStrProp("Job", "JobName", JobName);
+		local name = TryGetProp(jobCls, "Name")
+		if name ~= nil then
+			local isPcJob = IS_PC_JOB(JobName)
+			if isPcJob == true then
+				JobText = " {#FFFFFF}("..name.."){/}"
+			else
+				JobText = " {#FF0000}("..name.."){/}"
+			end
+		else
+			JobText = " {#FFFFFF}("..ClMsg("EveryClassCommon").."){/}"
+		end
+	end
+	
+
+	local ItemName = ctrlSet:GetChild("ItemName");
+	local itemText = string.format("{@st41b}%s x%d", itemCls.Name, itemCnt);
+	ItemName:SetText(itemText..JobText);
+
+	ctrlSet:SetOverSound("button_cursor_over_3");
+	ctrlSet:SetClickSound("button_click_stats");
+	ctrlSet:SetEnableSelect(1);
+	ctrlSet:SetSelectGroupName("QuestRewardList");
+	
+	SET_ITEM_TOOLTIP_BY_TYPE(ctrlSet, itemCls.ClassID)
+
+	ctrlSet:Resize(box:GetWidth() - 30, ctrlSet:GetHeight())
+
+	y = y + ctrlSet:GetHeight()
+	return y;
+
+end

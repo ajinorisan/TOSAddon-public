@@ -21,7 +21,8 @@ end
 
 function ADVENTURE_BOOK_SELLER.CLEAR()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_seller", "ui::CGroupBox");
 	local char_list_box = GET_CHILD(page, "seller_char_list", "ui::CGroupBox");
 	char_list_box:RemoveAllChild();
@@ -31,7 +32,8 @@ end
 
 function ADVENTURE_BOOK_SELLER.FILL_SELLER_CHAR_LIST()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_seller", "ui::CGroupBox");
 	local sales_gb = GET_CHILD(page, "sales_gb", "ui::CGroupBox");
 	local total_silver_text = GET_CHILD(sales_gb, "silver_text");
@@ -72,7 +74,8 @@ end
 
 function ADVENTURE_BOOK_SELLER.FILL_SKILL_INFO()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_seller", "ui::CGroupBox");
 	local skill_info_gb = GET_CHILD(page, "skill_info_gb", "ui::CGroupBox");
 	local skill_icon = GET_CHILD(skill_info_gb, "skill_icon_pic", "ui::CPicture");
@@ -91,7 +94,8 @@ end
 
 function ADVENTURE_BOOK_SELLER.FILL_ABILITY_INFO()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_seller", "ui::CGroupBox");
 	local list_box = GET_CHILD(page, "seller_abil_list", "ui::CGroupBox");
 	list_box:RemoveAllChild();
@@ -119,7 +123,8 @@ end
 
 function ADVENTURE_BOOK_SELLER.DROPDOWN_LIST_INIT()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_seller", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local category_opt_list = GET_CHILD(page, "category_opt_list", "ui::CDropList");

@@ -148,7 +148,7 @@ local detailCtrlSet = groupBox:CreateControlSet("helpCtrlSet", "detail_"..index,
 		ctrlSetHeight = ctrlSetHeight + subExplainCtrl:GetHeight();
 	end
 
-	detailCtrlSet:Resize(380, ctrlSetHeight + 10);
+	detailCtrlSet:Resize(385, ctrlSetHeight + 10);
 
 	return yPos + detailCtrlSet:GetHeight();
 end

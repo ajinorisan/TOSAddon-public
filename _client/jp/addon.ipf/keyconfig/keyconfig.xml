@@ -13,7 +13,7 @@
 		<groupbox name="bg_midle" rect="0 0 292 930" margin="13 76 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_midle"/>
 		<groupbox name="bg_midle2" rect="0 0 479 930" margin="311 77 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_midle"/>
 		<groupbox name="pip4" rect="0 0 800 130" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_top"/>
-		<richtext name="title" rect="0 0 200 80" margin="0 16 0 0" layout_gravity="center top" caption="{@st43}키 설정{/}" fontname="" textalign="left top"/>
+		<richtext name="title" rect="0 0 200 80" margin="0 16 0 0" layout_gravity="center top" caption="{@st43}키 설정{/}" textalign="left top"/>
 		<button name="close" rect="0 0 44 44" margin="0 20 28 0" layout_gravity="right top" LBtnUpScp="CLOSE_UI" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
 		<button name="button_1" rect="0 0 292 40" margin="13 75 0 0" layout_gravity="left top" skin="market_listbase" Enable="false"/>
 		<tree name="tree" layout_gravity="left top" rect="0 0 289 557" margin="10 105 0 0" drawline="false" skin="none" selectioncolor="CCCC99" enableselectioncolor="true" LBtnDownScp="KEYCONFIG_TREE_CLICK"/>

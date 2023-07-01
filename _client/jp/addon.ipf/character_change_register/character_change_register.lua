@@ -5,6 +5,10 @@ function CHARACTER_CHANGE_REGISTER_ON_INIT(addon, frame)
 end
 
 function CHARACTER_CHANGE_REGISTER_OPEN()
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	ui.OpenFrame("character_change_register");
 	local frame = ui.GetFrame("character_change_register");
 	if frame ~= nil then
@@ -13,6 +17,10 @@ function CHARACTER_CHANGE_REGISTER_OPEN()
 end
 
 function CHARACTER_CHANGE_REGISTER_REMOVE_LIST(frame, gbox)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	if gbox ~= nil then
 		local count = gbox:GetChildCount();
 		for i = 0, count - 1 do
@@ -26,6 +34,10 @@ function CHARACTER_CHANGE_REGISTER_REMOVE_LIST(frame, gbox)
 end
 
 function CHARACTER_CHANGE_REGISTER_CREATE_SLOT_LIST(frame)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return; 
+	end
+
 	local list_gbox = GET_CHILD_RECURSIVELY(frame, "slot_list_gbox");
 	if list_gbox == nil then return; end
 	CHARACTER_CHANGE_REGISTER_REMOVE_LIST(frame, list_gbox);
@@ -47,6 +59,10 @@ function CHARACTER_CHANGE_REGISTER_CREATE_SLOT_LIST(frame)
 end
 
 function CHARACTER_CHANGE_REGISTER_FILL_INFO_EXIST(ctrl_set, index)	
+	if config.GetServiceNation() == "PAPAYA" then 
+		return; 
+	end
+
 	if ctrl_set ~= nil then
 		local selected_index = character_change.GetRegisteredPcIndexFromCandidateList(index);
 		ctrl_set:SetUserValue("selected_index", selected_index);
@@ -97,6 +113,10 @@ function CHARACTER_CHANGE_REGISTER_FILL_INFO_EXIST(ctrl_set, index)
 end
 
 function CHARACTER_CHANGE_REGISTER_FILL_INFO_NOT_EXIST(ctrl_set, index)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	if ctrl_set ~= nil then
 		ctrl_set:SetGravity(ui.CENTER_HORZ, ui.TOP);
 		ctrl_set:SetUserValue("slot_index", index - 1);
@@ -110,6 +130,10 @@ function CHARACTER_CHANGE_REGISTER_FILL_INFO_NOT_EXIST(ctrl_set, index)
 end
 
 function CHARACTER_CAHNGE_REGISTER_VISIBLE_CTRL(ctrl_set, registered)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return; 
+	end
+
 	local empty_visible = 1;
 	if registered == true then empty_visible = 0; end
 	local empty = GET_CHILD_RECURSIVELY(ctrl_set, "empty");
@@ -144,6 +168,10 @@ end
 
 -- select
 function CHARACTER_CHANGE_REGISTER_SELECT_ITEM(ctrl_set, gb, arg_str, arg_num)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	local frame = ctrl_set:GetTopParentFrame();
 	if frame ~= nil then
 		local x = frame:GetX() + frame:GetWidth();
@@ -155,6 +183,10 @@ end
 
 -- register & deregister
 function CHARACTER_CHANGE_REGISTER_ADD_ITEM(add_index, reg_char_index, guid)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	local frame = ui.GetFrame("character_change_register");
 	if frame == nil then return; end
 	local gbox = GET_CHILD_RECURSIVELY(frame, "slot_list_gbox");
@@ -176,6 +208,10 @@ function CHARACTER_CHANGE_REGISTER_ADD_ITEM(add_index, reg_char_index, guid)
 end
 
 function DO_CHARACTER_CHANGE_REGISTER(guid, slot_index)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	if character_change.IsRegistedCharacterByGuid(guid) == false then
 		character_change.RegisterMyCharacter(guid, slot_index);
 		ui.CloseFrame("character_change_register_select");
@@ -183,6 +219,10 @@ function DO_CHARACTER_CHANGE_REGISTER(guid, slot_index)
 end
 
 function CHARACTER_CHANGE_REGISTER_REMOVE_ITEM(parent, btn)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	local upper_parent = parent:GetParent();
 	local ctrl_set = upper_parent:GetParent();
 	if ctrl_set ~= nil then
@@ -195,6 +235,10 @@ function CHARACTER_CHANGE_REGISTER_REMOVE_ITEM(parent, btn)
 end
 
 function DO_CHARACTER_CHANGE_DEREGISTER(guid)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	if guid == "None" then return; end
 	if character_change.IsRegistedCharacterByGuid(guid) == true then
 		character_change.DeregisterByCharacter(guid);
@@ -202,6 +246,10 @@ function DO_CHARACTER_CHANGE_DEREGISTER(guid)
 end
 
 function ON_REGISTER_SUCCESS_UPDATE(frame, msg, arg_str, arg_num)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	if frame == nil then return; end
 	local gbox = GET_CHILD_RECURSIVELY(frame, "slot_list_gbox");
 	CHARACTER_CHANGE_REGISTER_REMOVE_LIST(frame, gbox);
@@ -209,6 +257,10 @@ function ON_REGISTER_SUCCESS_UPDATE(frame, msg, arg_str, arg_num)
 end
 
 function ON_DEREGISTER_SUCCESS_UPDATE(frame, msg, arg_str, arg_num)
+	if config.GetServiceNation() == "PAPAYA" then 
+		return;
+	end
+
 	if frame == nil then return; end
 	local gbox = GET_CHILD_RECURSIVELY(frame, "slot_list_gbox");
 	CHARACTER_CHANGE_REGISTER_REMOVE_LIST(frame, gbox);

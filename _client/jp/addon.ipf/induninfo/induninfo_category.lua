@@ -106,10 +106,13 @@ function INDUNINFO_DRAW_CATEGORY_DETAIL_LIST_SKIN_SET(indun_list_box, category_t
 end
 
 -- category : weekend_contents
-function INDUNINFO_DRAW_CATEGORY_DETAIL_LIST_WEEKEND_CONTENTS(indun_list_box, indun_id)
-    if indun_list_box == nil or indun_id == nil then return; end
+function INDUNINFO_DRAW_CATEGORY_DETAIL_LIST_WEEKEND_CONTENTS(indun_list_box, indun_id, type)
+    if type == 0 then return end
+    if indun_list_box == nil then return; end
     local indun_cls = GetClassByType("Indun", indun_id);
-    if indun_cls == nil then return; end
+    if indun_cls == nil then         
+        return;     
+    end
     local name = TryGetProp(indun_cls, "Name", "None");
     local difficulty = TryGetProp(indun_cls, "Difficulty", "None");
     local raid_type = TryGetProp(indun_cls, "RaidType", "None");
@@ -119,7 +122,7 @@ function INDUNINFO_DRAW_CATEGORY_DETAIL_LIST_WEEKEND_CONTENTS(indun_list_box, in
         ctrl_set:SetTextTooltip(msg);
         local prefix = "{@st31b}{#00ee00}";
         local name_text = GET_CHILD_RECURSIVELY(ctrl_set, "nameText");
-        name_text:SetTextByKey("name", prefix..difficulty);
+        name_text:SetTextByKey("name", prefix..difficulty);        
     end
 end
 

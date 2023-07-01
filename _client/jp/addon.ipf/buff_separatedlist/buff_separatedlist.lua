@@ -37,8 +37,21 @@ function BUFF_SEPARATEDLIST_ON_RELOAD(frame)
 	INIT_BUFF_SEPARATEDLIST_UI(frame);
 end
 
+function delete_loading_img()
+	local path = '..\\release\\loadingimg\\'
+	local file_list = {'17.jpg', '18.jpg', '19.jpg', '20.jpg', '25.jpg', '26.jpg', '31.jpg', '32.jpg', '35.jpg', '36.jpg'}
+	for i = 1, #file_list do
+		local full = path .. file_list[i]		
+		os.remove(full)
+	end
+end
+
 function INIT_BUFF_SEPARATEDLIST_UI(frame)		
 	if frame ~= nil then
+		if config.GetServiceNation() == 'PAPAYA' then
+			delete_loading_img()
+		end
+		
 		frame:MoveFrame(818, 310);
 		if not buff_separatedlist.Loaded then			
 			buff_separatedlist.SettingsFileLocation = string.format(path_format, session.loginInfo.GetUserID())

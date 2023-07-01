@@ -247,3 +247,17 @@ function UI_ANIM(frame, name)
 	end
 	frame:PlayForce(force, 0, 0, 0);
 end
+
+function UI_PLAYFORCE_CUSTOM_MOVE(obj, x, y)
+	local lineName = "custom_move_"..x.."_"..y;
+	local line = ui.force.GetLine(lineName)
+	if line == nil then
+		line = ui.force.CreateLine(lineName)
+		if line == nil then return end
+	end
+	-- line:Clear()
+	line:AddKeyFrame(0, 1, 0, 0)
+	line:AddKeyFrame(0.1, 1, x, y)
+
+	obj:PlayForceByLineName(lineName)
+end

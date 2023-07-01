@@ -34,6 +34,10 @@
 		<button name="dedication_okbtn" parent="dedication_btn_gb" rect="0 0 160 60" margin="0 10 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}확인" LBtnUpScp="GODPROTECTION_DEDICATION_INIT" oversound="button_cursor_over_3" clicksound="button_click_big"/>
 		<!-- 연속 봉헌 -->
 		<groupbox name="auto_gb" rect="0 0 300 300" margin="450 640 0 0" layout_gravity="center top" hittest="true" scroll="false" draw="false"/>
+		<edit name="multiple_count_edit" parent="auto_gb" rect="0 0 100 32" margin="0 35 0 0" layout_gravity="center top" textalign="center center" fontname="white_18_ol" numbermode="true" skin="test_weight_skin" OffsetForDraw="0 -1" minnumber="1" maxnumber="10" typingscp="GODPROTECTION_MULTI_COUNT_TYPING"/>
+		<richtext name="multiple_count_cross" parent="multiple_count_edit" rect="0 0 32 32" margin="-18 8 0 0" layout_gravity="center top" fontname="white_14_ol" caption="X"/>
+		<button name="spin_multiple_count_upBtn" parent="auto_gb" stretch="true" rect="0 0 33 16" margin="-65 35 0 0" layout_gravity="center top" image="test_up_w_btn" oversound="button_over" LBtnUpScp="GODPROTECTION_MULTI_COUNT_UP"/>
+		<button name="spin_multiple_count_downBtn" parent="auto_gb" stretch="true" rect="0 0 33 16" margin="-65 50 0 0" layout_gravity="center top" image="test_down_w_btn" oversound="button_over" LBtnUpScp="GODPROTECTION_MULTI_COUNT_DOWN"/>
 		<edit name="auto_edit" parent="auto_gb" rect="0 0 300 45" margin="0 70 0 0" layout_gravity="center top" fontname="white_18_ol" textalign="center center" OffsetForDraw="0 -1" numbermode="true" typingsound="chat_typing" maxnumber="99999999" LBtnDownScp="GODPROTECTION_AUTO_EDIT_CLICK"/>
 		<richtext name="auto_text" parent="auto_gb" rect="0 0 300 40" margin="0 82 0 0" layout_gravity="center top" caption="{@st41b}{s16}봉헌할 횟수를 입력해 주세요" hittest="false"/>
 		<button name="auto_btn" parent="auto_gb" rect="0 0 160 60" margin="0 130 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}연속 봉헌" oversound="button_cursor_over_3" clicksound="button_click_big" LBtnUpScp="GODPROTECTION_AUTO_START_BTN_CLICK"/>
@@ -56,20 +60,22 @@
 		<slot name="slot_4" parent="slot_4_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
 		<slot name="slot_5" parent="slot_5_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>		
 		<!-- magic -->
-		<picture name="slot_6_pic" parent="protection_gb" rect="0 0 130 142" margin="-190 380 0 0" image="protection_magic" layout_gravity="center top"/>
-		<picture name="slot_7_pic" parent="protection_gb" rect="0 0 130 142" margin="0 380 0 0" image="protection_magic" layout_gravity="center top"/>
-		<picture name="slot_8_pic" parent="protection_gb" rect="0 0 130 142" margin="190 380 0 0" image="protection_magic" layout_gravity="center top"/>		
+		<picture name="slot_6_pic" parent="protection_gb" rect="0 0 130 142" margin="-210 380 0 0" image="protection_magic" layout_gravity="center top"/>
+		<picture name="slot_7_pic" parent="protection_gb" rect="0 0 130 142" margin=" -70 380 0 0" image="protection_magic" layout_gravity="center top"/>
+		<picture name="slot_8_pic" parent="protection_gb" rect="0 0 130 142" margin="  70 380 0 0" image="protection_magic" layout_gravity="center top"/>
+		<picture name="slot_9_pic" parent="protection_gb" rect="0 0 130 142" margin=" 210 380 0 0" image="protection_magic" layout_gravity="center top"/>
 		<slot name="slot_6" parent="slot_6_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
 		<slot name="slot_7" parent="slot_7_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
-		<slot name="slot_8" parent="slot_8_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>		
-		<!-- normal -->
-		<picture name="slot_9_pic" parent="protection_gb" rect="0 0 130 142" margin="-210 555 0 0" image="protection_normal" layout_gravity="center top"/>
-		<picture name="slot_10_pic" parent="protection_gb" rect="0 0 130 142" margin=" -70 555 0 0" image="protection_normal" layout_gravity="center top"/>
-		<picture name="slot_11_pic" parent="protection_gb" rect="0 0 130 142" margin="  70 555 0 0" image="protection_normal" layout_gravity="center top"/>
-		<picture name="slot_12_pic" parent="protection_gb" rect="0 0 130 142" margin=" 210 555 0 0" image="protection_normal" layout_gravity="center top"/>
+		<slot name="slot_8" parent="slot_8_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
 		<slot name="slot_9" parent="slot_9_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
+		<!-- normal -->
+		<picture name="slot_10_pic" parent="protection_gb" rect="0 0 130 142" margin="-210 555 0 0" image="protection_normal" layout_gravity="center top"/>
+		<picture name="slot_11_pic" parent="protection_gb" rect="0 0 130 142" margin=" -70 555 0 0" image="protection_normal" layout_gravity="center top"/>
+		<picture name="slot_12_pic" parent="protection_gb" rect="0 0 130 142" margin="  70 555 0 0" image="protection_normal" layout_gravity="center top"/>
+		<picture name="slot_13_pic" parent="protection_gb" rect="0 0 130 142" margin=" 210 555 0 0" image="protection_normal" layout_gravity="center top"/>
 		<slot name="slot_10" parent="slot_10_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
 		<slot name="slot_11" parent="slot_11_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
 		<slot name="slot_12" parent="slot_12_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
+		<slot name="slot_13" parent="slot_13_pic" rect="0 0 111 111" margin="0 8 0 0" layout_gravity="center top" enabledrop="false" enablepop="false" enabledrag="false"/>
 	</controls>
 </uiframe>

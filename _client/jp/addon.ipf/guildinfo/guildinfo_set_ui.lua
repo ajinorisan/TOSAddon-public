@@ -74,9 +74,6 @@ function SET_UI_BY_CLAIM(code, ret_json)
     local neutralCheck = GET_CHILD_RECURSIVELY(frame, 'neutralCheck')
     neutralCheck:SetEnable(isLeader)
 
-    local postNewTxt = GET_CHILD_RECURSIVELY(frame, 'writeOnelineBoardBtn')
-    postNewTxt:SetEnable(isLeader)
-
     local promoteEdit = GET_CHILD_RECURSIVELY(frame, 'regPromoteText')
     promoteEdit:SetEnable(isLeader)
 
@@ -136,9 +133,7 @@ function SET_UI_BY_CLAIM(code, ret_json)
             depositBtn:SetEnable(1)
         elseif claim == 203 then -- 소개글 쓰기
             regPromoteText:SetEnable(1)
-            promoteSetBtn:SetEnable(1)
-        elseif claim == 205 then -- 길드 한줄 게시판 등록
-            postNewTxt:SetEnable(1)
+            promoteSetBtn:SetEnable(1)        
         elseif claim == 302 then -- 길드 전쟁 중립 설정
             neutralCheck:SetEnable(1)
         elseif claim == 303 then -- 전쟁중인 길드 목록 보기

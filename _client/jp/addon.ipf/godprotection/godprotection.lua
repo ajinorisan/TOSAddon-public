@@ -1,3 +1,65 @@
+--봉헌 배수 local
+local max_godprotection_multivalue = WORLD_EVENT_MAX_MULTIPLE;
+local min_godprotection_multivalue = 1;
+--범위 계산
+local function GODPROTECTION_CHECK_VALIDNUMBER(count)
+	if count < min_godprotection_multivalue then
+		count = min_godprotection_multivalue
+	elseif count > max_godprotection_multivalue then
+		count = max_godprotection_multivalue
+	end
+
+	return count
+end
+--현재 text에 적힌 값 반환
+local function GODPROTECTION_GET_MULTI_COUNT()
+	local frame = ui.GetFrame("godprotection")
+	if frame == nil then 
+		return min_godprotection_multivalue 
+	end
+	
+	local multiple_count_edit = GET_CHILD_RECURSIVELY(frame, 'multiple_count_edit')
+	
+	if multiple_count_edit == nil then 
+		return min_godprotection_multivalue 
+	end
+
+	local count = tonumber(multiple_count_edit:GetText())
+	
+	return GODPROTECTION_CHECK_VALIDNUMBER(count);
+end
+--실버 사용량 업데이트
+local function GODPROTECTION_UPDATE_SLIVER_COST()
+	local frame = ui.GetFrame("godprotection");
+	local count = GODPROTECTION_GET_MULTI_COUNT();
+	local dedication_silver = GET_CHILD_RECURSIVELY(frame, 'dedication_silver');
+	local silvercost = session.GodProtection.GetSilverCost() * count;
+	if silvercost == nil then
+		silvercost = 0;
+	end
+	if dedication_silver ~= nil then
+		dedication_silver:SetText(silvercost);
+	end
+
+end
+--editcontrol 업데이트
+local function GODPROTECTION_MULTI_COUNT_UPDATE(frame, count)
+	local frame = ui.GetFrame('godprotection');
+	if frame == nil then 
+		return 
+	end
+
+	local multiple_count_edit = GET_CHILD_RECURSIVELY(frame, 'multiple_count_edit');
+	if multiple_count_edit == nil then 
+		return 
+	end
+
+	local count = GODPROTECTION_CHECK_VALIDNUMBER(count);
+
+    multiple_count_edit:SetText(count);
+	GODPROTECTION_UPDATE_SLIVER_COST();
+end
+--봉헌 배수 local
 function GODPROTECTION_ON_INIT(addon, frame)
 	addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'GODPROTECTION_START');
 	addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_END', 'GODPROTECTION_END');
@@ -17,12 +79,14 @@ function GODPROTECTION_DO_OPEN()
 
 	local silvercost = session.GodProtection.GetSilverCost();
 	local silver = GET_CHILD_RECURSIVELY(frame, 'dedication_silver');
+	local multiCount = GODPROTECTION_GET_MULTI_COUNT();
 	silver:SetText(silvercost);
 
 	GODPROTECTION_DEDICATION_INIT()
 	AUTO_GODPROTECTION_DEDICATION_INIT()
 	GODPROTECTION_REMAIN_TIME(frame)
 	GODPROTECTION_ITME_LIST_UPDATE(frame)
+	GODPROTECTION_MULTI_COUNT_UPDATE(frame, min_godprotection_multivalue);
 end
 
 function GODPROTECTION_OPEN(frame)
@@ -102,12 +166,17 @@ function GODPROTECTION_ITME_LIST_INIT(frame)
 	local item_index = session.GodProtection.GetItemListCount() - 1;	
 	-- 맨 마지막 slot 부터 생성, 일반 아이템 슬롯만 설정, 뒤에서부터 12개 그리면 됨
 	for i = item_index, item_index - 11, -1 do		
-		slot = GET_CHILD_RECURSIVELY(frame, 'slot_'.. slot_index);		
+		slot = GET_CHILD_RECURSIVELY(frame, 'slot_'.. slot_index);
 		slot_index = slot_index - 1		
 		if slot ~= nil then
+			local controlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
+			if controlset ~= nil then
+				controlset:ShowWindow(0)
+			end
 			local itemid = session.GodProtection.GetItemIDbyIndex(i);
 			local itemCls = GetClassByType('Item', itemid);
-			if itemCls ~= nil then
+			if itemCls ~= nil then	
+				SET_SLOT_STAR_TEXT(slot, itemCls)
 				SET_SLOT_IMG(slot, itemCls.Icon);
 				SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), itemCls.ClassID);
 				local cls = GetClassByType('Item', itemCls.ClassID)
@@ -124,8 +193,7 @@ function GODPROTECTION_ITME_LIST_INIT(frame)
 					end	
 				end
 				local style = '{s20}{ol}{b}{ds}'					
-				slot:SetText(style..count, 'count', ui.RIGHT, ui.BOTTOM, -5, -5)
-
+				slot:SetText(style..count, 'count', ui.RIGHT, ui.BOTTOM, -5, -5)				
 				slot:GetIcon():SetTooltipOverlap(1);
 				slot:SetUserValue("ITEM_ID", itemid);
 			end
@@ -186,8 +254,9 @@ function GODPROTECTION_DEDICATION_CLICK(ctrl)
 		return;
 	end
 
+	local multiple = GODPROTECTION_GET_MULTI_COUNT();
 	local silver = 0; 
-	local silvercost = session.GodProtection.GetSilverCost();
+	local silvercost = session.GodProtection.GetSilverCost() * multiple;
 	local invItem = session.GetInvItemByName('Vis');
 	if invItem ~= nil then
 		silver = tonumber(invItem:GetAmountStr());
@@ -200,7 +269,8 @@ function GODPROTECTION_DEDICATION_CLICK(ctrl)
 
 	-- 봉헌!
 	ui.SetHoldUI(true);
-	RequestBidFieldBossWorldEvent();
+	
+	RequestBidFieldBossWorldEvent(multiple);
 	GODPROTECTION_PLAY_DEDICATION_EFFECT(frame)    
 	ReserveScript("BUTTON_UNFREEZE()", WORLD_EVENT_CLICK_DELAY);
 end
@@ -225,8 +295,10 @@ function AUTO_GODPROTECTION_DEDICATION_CLICK()
 		return;
 	end
 
+	
+	local multiple = GODPROTECTION_GET_MULTI_COUNT();
 	local silver = 0; 
-	local silvercost = session.GodProtection.GetSilverCost();
+	local silvercost = session.GodProtection.GetSilverCost() * multiple;
 	local invItem = session.GetInvItemByName('Vis');
 	if invItem ~= nil then
 		silver = tonumber(invItem:GetAmountStr());
@@ -247,7 +319,8 @@ function AUTO_GODPROTECTION_DEDICATION_CLICK()
 	end
 
 	-- 봉헌!
-	RequestBidFieldBossWorldEvent();
+	
+	RequestBidFieldBossWorldEvent(multiple);
 end
 
 function AUTO_GODPROTECTION_DEDICATION_INIT()
@@ -410,7 +483,7 @@ function GODPROTECTION_START(frame)
 	
 	local silvercost = session.GodProtection.GetSilverCost();
 	local silver = GET_CHILD_RECURSIVELY(frame, 'dedication_silver');
-	silver:SetText(silvercost);
+
 
 	GODPROTECTION_DEDICATION_INIT();
 	AUTO_GODPROTECTION_DEDICATION_INIT();
@@ -557,4 +630,26 @@ function GODPROTECTION_AUTO_COUNT_UPDATE(frame)
 	end
 
 	edit:SetText(next_count);
+
+end
+
+--배수 UI 추가
+--키보드 입력시 
+function GODPROTECTION_MULTI_COUNT_TYPING(frame, ctrl)
+	local count = tonumber(ctrl:GetText());
+	--빈 경우에는 종료.
+	if count == nil then
+		return
+	end
+	GODPROTECTION_MULTI_COUNT_UPDATE(frame,count);
+end
+--up 버튼 
+function GODPROTECTION_MULTI_COUNT_UP(frame, ctrl)
+	local curCnt = GODPROTECTION_GET_MULTI_COUNT();
+	GODPROTECTION_MULTI_COUNT_UPDATE(frame,curCnt + 1);
+end
+--down 버튼
+function GODPROTECTION_MULTI_COUNT_DOWN(frame, ctrl)
+	local curCnt = GODPROTECTION_GET_MULTI_COUNT();
+	GODPROTECTION_MULTI_COUNT_UPDATE(frame,curCnt - 1);
 end

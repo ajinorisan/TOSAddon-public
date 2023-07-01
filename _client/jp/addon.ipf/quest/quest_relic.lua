@@ -379,7 +379,7 @@ function SET_RELIC_QUEST_CTRL_MARK(ctrl, questInfo)
 		typePicName = "indun_icon_week_s"
     end
     
-    if config.GetServiceNation() ~= 'KOR' then
+    if config.GetServiceNation() ~= 'KOR' and config.GetServiceNation() ~= 'GLOBAL_KOR' then
         typePicName = typePicName..'_eng'
     end
 	

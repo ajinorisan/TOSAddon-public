@@ -60,8 +60,8 @@ function BARRACK_THEMA_UPDATE(frame)
 		local goBackBarrack = ctrlSet:GetChild("goBackBarrack");
 		goBackBarrack:ShowWindow(0);
 
-		local env = GetEnv();
-		if env.Mode == "Preview" and preViewName == cls.ClassName then
+		local barrackMode = GetBarrackMode();
+		if barrackMode == "Preview" and preViewName == cls.ClassName then
 			goBackBarrack:ShowWindow(1);
 		end
 

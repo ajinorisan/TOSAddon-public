@@ -1,8 +1,5 @@
-
 function TIMEACTION_ON_INIT(addon, frame)
-
 	addon:RegisterMsg('TIME_ACTION', 'ON_TIME_ACTION');
-
 end
 
 function ON_TIME_ACTION(frame, msg, msgType, isFail, info)
@@ -10,12 +7,11 @@ function ON_TIME_ACTION(frame, msg, msgType, isFail, info)
 		END_TIME_ACTION(frame, isFail);
 		return;
 	end
-	
 	info = tolua.cast(info, "TIME_ACTION_INFO");
-	START_TIME_ACTION(frame, info.msg, info.time);
+	START_TIME_ACTION(frame, info.msg, info.time, info.cancelMsg);
 end
 
-function START_TIME_ACTION(frame, msg, second)
+function START_TIME_ACTION(frame, msg, second, cancelMsg)
 	local uiList = {};
 	uiList[#uiList + 1] = "reinforce_renew";
 	uiList[#uiList + 1] = "manufac_renew";
@@ -47,6 +43,11 @@ function START_TIME_ACTION(frame, msg, second)
 	local fontName = frame:GetUserConfig("TitleFont");
 	local title = GET_CHILD_RECURSIVELY(frame,'title')
 	title:SetText(fontName .. msg .. "{/}");
+
+	if cancelMsg ~= "None" then
+		local cancel = GET_CHILD_RECURSIVELY(frame, "cancel");
+		cancel:SetTextByKey("value", cancelMsg);
+	end
 	
 	local timegauge = GET_CHILD_RECURSIVELY(frame, "timegauge", "ui::CGauge");
 	timegauge:SetPoint(0, second);
@@ -58,7 +59,6 @@ function START_TIME_ACTION(frame, msg, second)
 
 	local animpic = GET_CHILD_RECURSIVELY(frame, "animpic");
 	LINK_OBJ_TO_GAUGE(frame, animpic, timegauge, 0);
-	
 end
 
 function CANCEL_TIME_ACTION_BY_SCRIPT(frame)
@@ -67,7 +67,6 @@ function CANCEL_TIME_ACTION_BY_SCRIPT(frame)
     end
 	packet.StopTimeAction();
 	END_TIME_ACTION(frame, 1)
-		
 end
 
 function CANCEL_TIME_ACTION(frame)
@@ -76,7 +75,6 @@ function CANCEL_TIME_ACTION(frame)
     end
 	packet.StopTimeAction();
 	END_TIME_ACTION(frame, 1)
-		
 end
 
 function END_TIME_ACTION(frame, isFail)
@@ -85,13 +83,10 @@ function END_TIME_ACTION(frame, isFail)
 	timer:Stop();
 	timer:EnableHideUpdate(0);
 	frame:EnableHideProcess(0);
-
-	
 	local rankresetFrame = ui.GetFrame("rankreset");
 	if 1 == rankresetFrame:IsVisible() then
 		RANKRESET_PC_TIMEACTION_STATE(rankresetFrame)
 	end
-		
 end
 
 function STOP_TIEM_ACTINO(frame)
@@ -104,7 +99,6 @@ function UPDATE_TIME_ACTION(frame, timer, str, num, totalTime)
 		STOP_TIEM_ACTINO(frame);
 		return;
 	end
-	
 end
 
 function TIMEACTION_TXT(curPoint, maxPoint)

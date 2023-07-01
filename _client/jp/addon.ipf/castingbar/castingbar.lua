@@ -65,7 +65,17 @@ function DYNAMIC_CASTINGBAR_ON_MSG(frame, msg, argStr, maxTime, isVisivle)
 		local castingObject = frame:GetChild('dynamic_casting');
 		local castingGauge = tolua.cast(castingObject, "ui::CGauge");
 		
-		castingGauge:SetTotalTime(maxTime);
+		local prevMaxTime = frame:GetUserValue('MAX_CHARGE_TIME')
+		if prevMaxTime == nil or prevMaxTime == 'None' then
+			prevMaxTime = '0'
+		end
+		prevMaxTime = tonumber(prevMaxTime)
+		if prevMaxTime > 0 then
+			castingGauge:AddTotalTime(maxTime - prevMaxTime)
+		else
+			castingGauge:SetTotalTime(maxTime);
+		end
+
 		frame:SetUserValue("MAX_CHARGE_TIME", maxTime);
 		castingGauge:SetText("1", 'normal', ui.CENTER_HORZ, ui.BOTTOM, 0, 0);
 		
@@ -120,6 +130,7 @@ function DYNAMIC_CASTINGBAR_ON_MSG(frame, msg, argStr, maxTime, isVisivle)
 		timer:Stop();
 		frame:ShowWindow(0);
 		frame:SetUserValue('LOOPING_CHARGE', 0);
+		frame:SetUserValue('MAX_CHARGE_TIME', 0);
 
 		local dynamic_animpic = GET_CHILD_RECURSIVELY(frame, "dynamic_animpic");
 		dynamic_animpic:SetUserValue("LINKED_GAUGE", 0);

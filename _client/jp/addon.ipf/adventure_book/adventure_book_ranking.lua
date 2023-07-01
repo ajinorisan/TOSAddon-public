@@ -22,7 +22,8 @@ end
 
 function ADVENTURE_BOOK_RANKING_SEARCH_BTN(parent, ctrl)
     local topFrame = parent:GetTopParentFrame();
-    local rankingTab = GET_CHILD(topFrame, 'rankingTab');
+    local gb_adventure = GET_CHILD(topFrame, 'gb_adventure');
+    local rankingTab = GET_CHILD(gb_adventure, 'rankingTab');
     local searchIndex = rankingTab:GetSelectItemIndex();
     local categoryName = 'Initialization_point';
     local rankSet = GET_CHILD_RECURSIVELY(topFrame, 'adventureBookRankingSet');    
@@ -73,7 +74,8 @@ function ADVENTURE_BOOK_RANKING_PAGE_SELECT(parent, ctrl, argStr, pageNum)
         categoryName = 'UpHill';
     elseif argStr == 'TeamBattle' then    
         local pvpCls = GET_TEAM_BATTLE_CLASS();
-        worldPVP.RequestPVPRanking(pvpCls.ClassID, 0, -1, pageNum, 0, '');
+		worldPVP.RequestPVPRanking(pvpCls.ClassID, 0, -1, pageNum, 0, '');
+		worldPVP.RequestGuildBattlePrevSeasonRanking(pvpCls.ClassID);
         return;
     end
     ReqAdventureBookRanking(categoryName, pageNum);

@@ -65,13 +65,13 @@ function ADVENTURE_BOOK_ITEM_CONTENT.HISTORY_ITEM_LIST()
 	local hash_table = {};
 	for i = 1, #itemlist_c do
 	    local cls = GetClassByNumProp("Item", "ClassID", itemlist_c[i]);
-	    if cls.Journal == "TRUE" or cls.Journal == "true" then
+	    if cls ~= nil and (cls.Journal == "TRUE" or cls.Journal == "true") then
 		    retTable[#retTable + 1] = itemlist_c[i]
 		end
 	end
 	for i = 1, #itemlist_p do
-	    local cls = GetClassByNumProp("Item", "ClassID", itemlist_p[i]);
-	    if cls.Journal == "TRUE" or cls.Journal == "true" then
+		local cls = GetClassByNumProp("Item", "ClassID", itemlist_p[i]);
+	    if cls ~= nil and (cls.Journal == "TRUE" or cls.Journal == "true") then
     		local exist_c = GetAdventureBookInstByClassID(ABT_ITEM_COUNTABLE, itemlist_p[i])
     		if exist_c == nil or exist_c == 0 then
     			retTable[#retTable + 1] = itemlist_p[i]
@@ -246,80 +246,78 @@ end
 
 function ADVENTURE_BOOK_ITEM_CONTENT.FILTER_LIST(list, sortOption, categoryOption, subCategoryOption, searchText)
 	if categoryOption == 1 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "GroupName", "Weapon")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"GroupName"}, "Weapon")
 	elseif categoryOption == 2 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "GroupName", "Armor")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"GroupName"}, "Armor")
 	elseif categoryOption == 3 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "GroupName", "SubWeapon")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"GroupName"}, "SubWeapon")
 	elseif categoryOption == 4 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "GroupName", "Drug")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"GroupName"}, "Drug")
 	elseif categoryOption == 5 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "GroupName", "Material")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"GroupName"}, "Material")
 	elseif categoryOption == 6 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "GroupName", "Gem")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"GroupName"}, "Gem")
 	elseif categoryOption == 7 then
-		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "GroupName", "Card")
+		list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"GroupName"}, "Card")
 	end
 
 	if categoryOption == 1 then
 		if subCategoryOption == 1 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Sword")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Sword")
 		elseif subCategoryOption == 2 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "THSword")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "THSword")
 		elseif subCategoryOption == 3 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Staff")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Staff")
 		elseif subCategoryOption == 4 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "THStaff")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "THStaff")
 		elseif subCategoryOption == 5 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "THBow")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "THBow")
 		elseif subCategoryOption == 6 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Bow")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Bow")
 		elseif subCategoryOption == 7 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Mace")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Mace")
 		elseif subCategoryOption == 8 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "THMace")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "THMace")
 		elseif subCategoryOption == 9 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Spear")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Spear")
 		elseif subCategoryOption == 10 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "THSpear")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "THSpear")
 		elseif subCategoryOption == 11 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Rapier")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Rapier")
 		elseif subCategoryOption == 12 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Musket")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Musket")
+		elseif subCategoryOption == 13 then
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Cannon")	
 		end
 	elseif categoryOption == 2 then
 		if subCategoryOption == 1 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Shirt")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Shirt")
 		elseif subCategoryOption == 2 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Pants")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Pants")
 		elseif subCategoryOption == 3 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Boots")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Boots")
 		elseif subCategoryOption == 4 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Gloves")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Gloves")
 		elseif subCategoryOption == 5 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Neck")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Neck")
 		elseif subCategoryOption == 6 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Ring")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Ring")
 		elseif subCategoryOption == 7 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Shield")
-		elseif subCategoryOption == 8 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Outer")
-		elseif subCategoryOption == 9 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Hat")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Hat")
 		end
 	elseif categoryOption == 3 then
 		if subCategoryOption == 1 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Dagger")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Dagger")
 		elseif subCategoryOption == 2 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Pistol")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Pistol")
 		elseif subCategoryOption == 3 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Cannon")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Shield")
 		elseif subCategoryOption == 4 then
-			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", "ClassType", "Artefact")
+			list = ADVENTURE_BOOK_EQUAL_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"ClassType"}, "Artefact")
 		end
 	end
 
-	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Item", "Name", searchText)
+	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Item", {"Name"}, searchText)
 
 	if sortOption == 0 then
         table.sort(list, ADVENTURE_BOOK_ITEM_CONTENT['SORT_NAME_BY_CLASSID_ASC']);

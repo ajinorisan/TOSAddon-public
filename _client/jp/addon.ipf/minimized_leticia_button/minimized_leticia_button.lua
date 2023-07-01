@@ -1,11 +1,16 @@
+function C_Leticia_diff_sec(str_end, str_start)
+    local end_time = date_time.get_lua_datetime_from_str(str_end)
+    local start_time = date_time.get_lua_datetime_from_str(str_start)
+
+    return end_time - start_time
+end
+
 --- 클라에서 레티샤 날짜 가져오기
 function C_get_leticia_start_and_end_time()
 	local startTime = TryGetProp(GetClassByType('leticia_date', 1), "StartTime", "None")
     local endTime = TryGetProp(GetClassByType('leticia_date', 1), "EndTime", "None")
-
 	return startTime, endTime
 end
-
 
 function MINIMIZED_LETICIA_BUTTON_ON_INIT(addon, frame)
 	addon:RegisterMsg('GAME_START', 'MINIMIZED_LETICIA_BUTTON_CHECK')
@@ -16,8 +21,7 @@ function MINIMIZED_LETICIA_BUTTON_CHECK(frame)
 	if frame == nil then return end
 
 	local openLeticiaBtn = GET_CHILD_RECURSIVELY(frame, 'openLeticiaBtn')
-	
-	if config.GetServiceNation() ~= 'KOR' then
+	if config.GetServiceNation() ~= 'GLOBAL_KOR' then
 		openLeticiaBtn:SetEnable(0)
 		frame:ShowWindow(0)
 		return
@@ -25,7 +29,6 @@ function MINIMIZED_LETICIA_BUTTON_CHECK(frame)
 
 	local mapprop = session.GetCurrentMapProp()
 	local mapCls = GetClassByType("Map", mapprop.type)
-
     if IS_BEAUTYSHOP_MAP(mapCls) == false then
         frame:ShowWindow(0)
     else
@@ -33,7 +36,6 @@ function MINIMIZED_LETICIA_BUTTON_CHECK(frame)
     end
 
 	local time = GET_CHILD_RECURSIVELY(frame, 'time')
-
 	local font = frame:GetUserConfig("TIME_FONT_NOMAL")
 	time:SetFormat(font.."%s %s")
 	time:ReleaseBlink()
@@ -44,45 +46,40 @@ end
 
 function MINIMIZED_LETICIA_REMAIN_TIME(frame)
 	local StartTime, EndTime = C_get_leticia_start_and_end_time()
-
 	local getnow = geTime.GetServerSystemTime()
 	local nowstr = string.format("%04d-%02d-%02d %02d:%02d:%02d", getnow.wYear, getnow.wMonth, getnow.wDay, getnow.wHour, getnow.wMinute, getnow.wSecond)
 	
-	local remainsec = date_time.get_diff_sec(EndTime, nowstr)
+	local remainsec = C_Leticia_diff_sec(EndTime, nowstr)
 	local time = GET_CHILD_RECURSIVELY(frame, 'time')
 
 	time:RunUpdateScript("UPDATE_MINIMIZED_LETICIA_REMAIN_TIME", 0.1)
-
 	UPDATE_MINIMIZED_LETICIA_TIME_CTRL(time, remainsec, nowstr, StartTime, EndTime, frame)
 end
 
 function UPDATE_MINIMIZED_LETICIA_REMAIN_TIME(ctrl)
 	local frame = ui.GetFrame('minimized_leticia_button')
-	
 	local StartTime, EndTime = C_get_leticia_start_and_end_time()
 
 	local getnow = geTime.GetServerSystemTime()
 	local nowstr = string.format("%04d-%02d-%02d %02d:%02d:%02d", getnow.wYear, getnow.wMonth, getnow.wDay, getnow.wHour, getnow.wMinute, getnow.wSecond)
 
 
-	local remainsec = date_time.get_diff_sec(EndTime, nowstr)
+	local remainsec = C_Leticia_diff_sec(EndTime, nowstr)
 	
 	UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, nowstr, StartTime, EndTime, frame)	
-
 	return 1
 end
 
 function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, EndTime, frame)
 	local openLeticiaBtn = GET_CHILD_RECURSIVELY(frame, 'openLeticiaBtn')
-
-	if config.GetServiceNation() ~= 'KOR' then
+	if config.GetServiceNation() ~= 'GLOBAL_KOR' then
 		openLeticiaBtn:SetEnable(0)
 		frame:ShowWindow(0)
-		return 0
+		return 0;
 	end
 	
 	if StartTime == nil or EndTime == nil or EndTime == nil then
-		return 0
+		return 0;
 	end
 
 	if date_time.is_later_than(now, StartTime) and date_time.is_later_than(EndTime,now) then
@@ -119,7 +116,7 @@ function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, End
 
 	-- 레티샤 시작까지 남은 시간
 	if date_time.is_later_than(StartTime, now) then
-		local open_ready_time = date_time.get_diff_sec(StartTime, now)
+		local open_ready_time = C_Leticia_diff_sec(StartTime, now)
 		min = math.floor(open_ready_time/60)
 		sec = math.floor(open_ready_time%60)
 		hour = math.floor(open_ready_time/3600)
@@ -141,7 +138,6 @@ function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, End
 			txt1 = ClMsg("leticia_time_hour")
 			txt2 = ""
 		end
-
 		SRtxt = ClMsg('leticia_open_remain_time')
 	end
 
@@ -157,7 +153,6 @@ function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, End
 			goal_month = "0"..tostring(month_num)
 		else 	
 			goal_month = tostring(month_num)
-
 			if tonumber(goal_month) > 12 then
 				goal_month = "01"
 				next_year = tostring(tonumber(year) + 1)
@@ -170,7 +165,7 @@ function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, End
 		end
 		
 		local final_goal_time = year.."-"..goal_month.."-01 00:00:00";
-		local open_remain_time = date_time.get_diff_sec(final_goal_time, now)
+		local open_remain_time = C_Leticia_diff_sec(final_goal_time, now)
 		
 		--- 다음달 1일이 되기 전에 xml 날짜 세팅을 해야함
 		if open_remain_time < 1 then
@@ -178,7 +173,6 @@ function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, End
 			return 0
 		end
 		-------------
-
 		min = math.floor(open_remain_time/60)
 		sec = math.floor(open_remain_time%60)
 		hour = math.floor(open_remain_time/3600)
@@ -200,19 +194,28 @@ function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, End
 			txt1 = ClMsg("leticia_time_hour")
 			txt2 = ""
 		end
-		
 		SRtxt = ClMsg('leticia_open_remain_time')
 	end
-
 	Rtxt:SetTextByKey('rtxt', SRtxt)
 	ctrl:SetTextByKey('min', min..txt1)
 	ctrl:SetTextByKey('sec', sec..txt2)
 end
 
 function MINIMIZED_LETICIA_BUTTON_CLICK()
-	if config.GetServiceNation() ~= 'KOR' then
+	if config.GetServiceNation() ~= 'GLOBAL_KOR' then
 		return
 	end
+	LETICIA_CUBE_OPEN();
+end
 
-	LETICIA_CUBE_OPEN()
+function UI_TOGGLE_MINIMIZED_LETICIA_BUTTON_CLICK()
+	if config.GetServiceNation() ~= 'GLOBAL_KOR' then return; end
+	local start_time, end_time = C_get_leticia_start_and_end_time();
+	local get_now = geTime.GetServerSystemTime();
+	local now_time_str = string.format("%04d-%02d-%02d %02d:%02d:%02d", get_now.wYear, get_now.wMonth, get_now.wDay, get_now.wHour, get_now.wMinute, get_now.wSecond); 
+	if date_time.is_later_than(now_time_str, start_time) and date_time.is_later_than(end_time, now_time_str) then
+		LETICIA_CUBE_OPEN();
+	else
+		ui.SysMsg(ClMsg("LeticiaNotOpenTime"));
+	end
 end

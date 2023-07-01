@@ -213,7 +213,7 @@ function WORLDMAP2_MAINMAP_DRAW_EPISODE(frame, mapData)
 	local episodeBtn = AUTO_CAST(episodeSet:GetChild("episode_btn"))
 
 	-- 사이즈 조정
-	if config.GetServiceNation() == 'KOR' then
+	if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
 		episodeSet:Resize(imageSize.x + 60, imageSize.y + 60)
 	else
 		episodeSet:Resize(imageSize.x + 100, imageSize.y + 100)
@@ -227,8 +227,8 @@ function WORLDMAP2_MAINMAP_DRAW_EPISODE(frame, mapData)
 	episodeBtn:SetText("{@st100white_16}"..mapData.Name)
 	episodeBtn:SetTextOffset(0, 4)
 	
-	if config.GetServiceNation() == 'KOR' then
-    episodeBtn:AdjustFontSizeByWidth(100)
+	if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
+        episodeBtn:AdjustFontSizeByWidth(100)
 	else
 		episodeBtn:AdjustFontSizeByWidth(200)
 	end

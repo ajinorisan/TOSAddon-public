@@ -196,6 +196,12 @@ function BRIQUETTING_SET_LOOK_ITEM(frame, itemObj, invSlot, lookSlot, invItemGui
 		return;
 	end
 
+	local cls = GetClass("cabinet_artefact", itemObj.ClassName)
+	if cls ~= nil then
+		ui.SysMsg(ClMsg("ThisItemNeedToRegister"));
+		return;
+	end
+
 	if true == invItem.isLockState then
 		ui.SysMsg(ClMsg("MaterialItemIsLock"));
 		return;

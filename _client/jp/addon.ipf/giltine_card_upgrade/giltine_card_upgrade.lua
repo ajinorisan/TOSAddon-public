@@ -149,11 +149,16 @@ function GILTINE_CARD_UPGRADE_SET_SLOT(itemGUID)
 
     -- 보루타 카드 / 그 외로 슬롯 구분
     local slot = nil
-
     if itemObj.ClassName == "Legend_card_boruta" then
-        slot =  GET_CHILD_RECURSIVELY(frame, "material_slot_boruta")
+        slot = GET_CHILD_RECURSIVELY(frame, "material_slot_boruta");
+        if slot ~= nil then
+            local guid = slot:GetUserValue("GUID");
+            if guid ~= "None" and itemGUID ~= guid then
+                slot = GET_CHILD_RECURSIVELY(frame, "material_slot_legend");
+            end
+        end
     else
-        slot =  GET_CHILD_RECURSIVELY(frame, "material_slot_legend")
+        slot = GET_CHILD_RECURSIVELY(frame, "material_slot_legend");
     end
 
     if slot == nil then

@@ -24,11 +24,11 @@ function GACHA_CUBE_OK_BTN(frame, ctrl)
 end
 
 -- 뽑기 성공 후, 결과 UI창 생성하여 띄우기 
-function GACHA_CUBE_SUCEECD(invItemClsID, rewardItem, btnVisible, reopenCount)
+function GACHA_CUBE_SUCEECD(invItemClsID, rewardItem, btnVisible, reopenCount, guid)
 	-- UI창 얻어와서	 초기화
 	local gachaCubeFrame = ui.GetFrame("gacha_cube");	
 	GHACHA_CUBE_UI_RESET(gachaCubeFrame);	
-	GACHA_CUBE_SUCEECD_UI(gachaCubeFrame, invItemClsID, rewardItem, btnVisible, reopenCount);
+	GACHA_CUBE_SUCEECD_UI(gachaCubeFrame, invItemClsID, rewardItem, btnVisible, reopenCount, guid);
 end
 
 
@@ -40,7 +40,7 @@ function GACHA_CUBE_SUCEECD_EX(invItemClsID, rewardItem, btnVisible, reopenCount
 end
 
 --
-function GACHA_CUBE_SUCEECD_UI(frame, invItemClsID, rewardItem, btnVisible, reopenCount)
+function GACHA_CUBE_SUCEECD_UI(frame, invItemClsID, rewardItem, btnVisible, reopenCount, guid)
 	-- UI창을 호출한 큐브 정보 얻어놓기
 
 	local cubeItem = GetClassByType("Item", invItemClsID);
@@ -52,13 +52,17 @@ function GACHA_CUBE_SUCEECD_UI(frame, invItemClsID, rewardItem, btnVisible, reop
     	
     	-- ���� ��ǰ �̸����� ������Ʈ ���� ã��
     	local reward = GetClass("Item", rewardItem);
-    		
+    	
     	-- ���� ���� ���Կ� ����
     	local slot  = frame:GetChild("slot");
-    	SET_SLOT_ITEM_OBJ(slot, reward);							-- ������ �̸����� ������ ����
-    	SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), reward.ClassID);	-- ������ ���� Ÿ������ ����
-    	
-    	-- ���� �� �̸� ����
+    	SET_SLOT_ITEM_OBJ(slot, reward);							-- ?????? ??????? ?????? ????
+		if guid ~= nil then
+			local invItem = session.GetInvItemByGuid(guid)
+			SET_ITEM_TOOLTIP_BY_OBJ(slot:GetIcon(), invItem);	-- ?????? ???? ??????? ????
+		else
+			SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), reward.ClassID);	-- ?????? ???? ??????? ????
+		end
+    	-- ???? ?? ??? ????
     	local rewardNameFrame = frame:GetChild("itemName");
     	rewardNameFrame:SetTextByKey("value", reward.Name);	
     	
@@ -128,9 +132,6 @@ function GACHA_CUBE_SUCEECD_UI(frame, invItemClsID, rewardItem, btnVisible, reop
 	    price = SyncFloor(price * discountRatio)
 	    
 	end
-	if IS_SEASON_SERVER(nil) == 'YES' then
-	    price = math.floor(price/2)
-	end
 	
 	if price ~= nil then
 		price = GetCommaedText(price);
@@ -173,7 +174,12 @@ function GACHA_CUBE_SUCEECD_UI(frame, invItemClsID, rewardItem, btnVisible, reop
 	-- 뽑은 템을 슬롯에 설정
 	local slot  = frame:GetChild("slot");
 	SET_SLOT_ITEM_OBJ(slot, reward);							-- 아이템 이름으로 아이콘 설정
+	if guid ~= nil then
+		local invItem = session.GetInvItemByGuid(guid)
+		SET_ITEM_TOOLTIP_BY_OBJ(slot:GetIcon(), invItem);	-- ?????? ???? ??????? ????
+	else
 	SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), reward.ClassID);	-- 아이템 툴팁 타입으로 설정
+	end
 	
 	-- 뽑은 템 이름 설정
 	local rewardNameFrame = frame:GetChild("itemName");

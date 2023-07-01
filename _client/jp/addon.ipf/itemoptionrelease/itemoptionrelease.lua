@@ -8,8 +8,13 @@ function ITEMOPTIONRELEASE_ON_INIT(addon, frame)
 	addon:RegisterMsg("UPDATE_COLONY_TAX_RATE_SET", "ON_OPTIONRELEASE_UPDATE_COLONY_TAX_RATE_SET");
 end;
 
-function ON_OPEN_DLG_ITEMOPTIONRELEASE(frame)
+function ON_OPEN_DLG_ITEMOPTIONRELEASE(frame, msg, argStr, argNum)
 	frame:ShowWindow(1);
+	if argNum == 1 then
+		frame:SetUserValue('IS_LEGEND_SHOP', 1)
+	else
+		frame:SetUserValue('IS_LEGEND_SHOP', 0)
+	end
 end;
 
 function ON_OPTIONRELEASE_UPDATE_COLONY_TAX_RATE_SET(frame)
@@ -95,7 +100,8 @@ function CLEAR_ITEMOPTIONRELEASE_UI()
 
 	local costBox = GET_CHILD_RECURSIVELY(frame, 'costBox');
 	local priceText = GET_CHILD_RECURSIVELY(costBox, 'priceText');
-	priceText:SetTextByKey('price', GET_OPTION_RELEASE_COST());
+	local price = GET_OPTION_RELEASE_COST()
+	priceText:SetTextByKey('price', price);
 	costBox:ShowWindow(1);
 end;
 
@@ -107,7 +113,8 @@ function _UPDATE_RELEASE_COST(frame)
 		return;
 	end;
 	local invItemObj = GetIES(invItem:GetObject());
-	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP())));
+	local isLegendShop = frame:GetUserIValue('IS_LEGEND_SHOP')
+	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP(), isLegendShop)));
 end
 
 function ITEM_OPTIONRELEASE_DROP(frame, icon, argStr, argNum)
@@ -143,10 +150,16 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM(frame, itemID)
 	
 	if IS_ENABLE_RELEASE_OPTION(invItemObj) ~= true then
 		-- 복원 대상인지 체크
-		ui.SysMsg(ClMsg("IcorNotAdded"));
+		ui.SysMsg(ClMsg("IMPOSSIBLE_ITEM"));
 		return;
 	end;
 	
+	--이벤트 장비인지 체크
+	if TryGetProp(invItemObj, 'PremiumEquip', 0) == 0 and SHARED_IS_EVENT_ITEM_CHECK(itemCls, "NoEnchant") == true then
+		ui.SysMsg(ClMsg("IcorNotAdded_EP12_CANT1"))
+		return
+	end
+
 	local pc = GetMyPCObject();
 	if pc == nil then
 		return;
@@ -186,7 +199,7 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM(frame, itemID)
 	for i = 1 , #list do
 
 		local propName = list[i];
-		local propValue = inheritItemCls[propName];
+		local propValue = TryGetProp(inheritItemCls, propName, 0);
 		
 		if propValue ~= 0 then
             local checkPropName = propName;
@@ -201,7 +214,7 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM(frame, itemID)
 
 	for i = 1 , #list2 do
 		local propName = list2[i];
-		local propValue = inheritItemCls[propName];
+		local propValue = TryGetProp(inheritItemCls, propName, 0);
 		
 		if propValue ~= 0 then
 			cnt = cnt + 1;
@@ -227,7 +240,7 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM(frame, itemID)
 
 	for i = 1 , #list do
 		local propName = list[i];
-		local propValue = inheritItemCls[propName];
+		local propValue = TryGetProp(inheritItemCls, propName, 0);
 		local needToShow = true;
 		for j = 1, #basicTooltipPropList do
 			if basicTooltipPropList[j] == propName then
@@ -235,32 +248,32 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM(frame, itemID)
 			end;
 		end;
 
-		if needToShow == true and inheritItemCls[propName] ~= 0 and randomOptionProp[propName] == nil then -- 랜덤 옵션이랑 겹치는 프로퍼티는 여기서 출력하지 않음
+		if needToShow == true and propValue ~= 0 and randomOptionProp[propName] == nil then -- 랜덤 옵션이랑 겹치는 프로퍼티는 여기서 출력하지 않음
 
 			if  inheritItemCls.GroupName == 'Weapon' then
 				if propName ~= "MINATK" and propName ~= 'MAXATK' then
-					local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);					
+					local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);					
 					inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 				end;
 			elseif  inheritItemCls.GroupName == 'Armor' then
 				if inheritItemCls.ClassType == 'Gloves' then
 					if propName ~= "HR" then
-						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
+						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
 						inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 					end;
 				elseif inheritItemCls.ClassType == 'Boots' then
 					if propName ~= "DR" then
-						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
+						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
 						inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 					end;
 				else
 					if propName ~= "DEF" then
-						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
+						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
 						inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 					end;
 				end;
 			else
-				local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
+				local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
 				inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 			end;
 		end;
@@ -278,15 +291,35 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM(frame, itemID)
 
 	for i = 1 , #list2 do
 		local propName = list2[i];
-		local propValue = invItemObj[propName];
+		local propValue = TryGetProp(invItemObj, propName, 0);
 		if propValue ~= 0 then
-			local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), invItemObj[propName]);
+			local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
 			inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 		end;
 	end;
 
 	if inheritItemCls.OptDesc ~= nil and inheritItemCls.OptDesc ~= 'None' then
 		inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, inheritItemCls.OptDesc, 0, inner_yPos);
+	end
+
+	if inheritItemCls.OptDesc ~= nil and (inheritItemCls.OptDesc == 'None' or inheritItemCls.OptDesc == '') and TryGetProp(inheritItemCls, 'StringArg', 'None') == 'Vibora' then
+		local opt_desc = inheritItemCls.OptDesc
+		if opt_desc == 'None' then
+			opt_desc = ''
+		end
+		local idx = 1
+		for idx = 1, MAX_VIBORA_OPTION_COUNT do			
+			local additional_option = TryGetProp(inheritItemCls, 'AdditionalOption_' .. tostring(idx), 'None')			
+			if additional_option ~= 'None' then
+				local tooltip_str = 'tooltip_' .. additional_option					
+				local cls_message = GetClass('ClientMessage', tooltip_str)
+				if cls_message ~= nil then
+					opt_desc = opt_desc .. ClMsg(tooltip_str)
+				end
+			end
+		end
+
+		inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, opt_desc, 0, inner_yPos);
 	end
 
 	if invItemObj.ReinforceRatio > 100 then
@@ -343,7 +376,8 @@ function ITEMOPTIONRELEASE_EXEC(frame)
 	end;
 
 	local invItemObj = GetIES(invItem:GetObject());
-	local price = GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP());
+	local isLegendShop = frame:GetUserIValue('IS_LEGEND_SHOP')
+	local price = GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP(), isLegendShop);
 	local pcMoney = GET_TOTAL_MONEY_STR();
 	if IsGreaterThanForBigNumber(price, pcMoney) == 1 then
         ui.SysMsg(ClMsg('NotEnoughMoney'));
@@ -413,13 +447,13 @@ function SUCCESS_ITEM_OPTION_RELEASE(frame)
 	end;
 	
 	pic_bg:ShowWindow(1);
-	pic_bg:PlayUIEffect(RELEASE_RESULT_EFFECT_NAME, EFFECT_SCALE, 'RELEASE_RESULT_EFFECT');
+	--pic_bg:PlayUIEffect(RELEASE_RESULT_EFFECT_NAME, EFFECT_SCALE, 'RELEASE_RESULT_EFFECT');
 
 	local do_release = GET_CHILD_RECURSIVELY(frame, "do_release");
 	do_release:ShowWindow(0);
 	ui.SetHoldUI(true);
 
-	ReserveScript("_SUCCESS_ITEM_OPTION_RELEASE()", EFFECT_DURATION);
+	ReserveScript("_SUCCESS_ITEM_OPTION_RELEASE()", 0.01);
 end;
 
 function _SUCCESS_ITEM_OPTION_RELEASE()
@@ -435,7 +469,7 @@ function _SUCCESS_ITEM_OPTION_RELEASE()
 	if pic_bg == nil then
 		return;
 	end;
-	pic_bg:StopUIEffect('RELEASE_RESULT_EFFECT', true, 0.5);
+	--pic_bg:StopUIEffect('RELEASE_RESULT_EFFECT', true, 0.5);
 	pic_bg:ShowWindow(0);
 
 	local slot = GET_CHILD_RECURSIVELY(frame, "slot_result");
@@ -484,9 +518,9 @@ function RELEASE_SUCCESS_EFFECT(frame)
 	end;
 	pic_bg:ShowWindow(0);
 
-	result_effect_bg:PlayUIEffect(RELEASE_SUCCESS_EFFECT_NAME, SUCCESS_EFFECT_SCALE, 'RELEASE_SUCCESS_EFFECT');
+	--result_effect_bg:PlayUIEffect(RELEASE_SUCCESS_EFFECT_NAME, SUCCESS_EFFECT_SCALE, 'RELEASE_SUCCESS_EFFECT');
 
-	ReserveScript("_RELEASE_SUCCESS_EFFECT()", SUCCESS_EFFECT_DURATION);
+	ReserveScript("_RELEASE_SUCCESS_EFFECT()", 0.01);
 end
 
 function _RELEASE_SUCCESS_EFFECT()
@@ -499,7 +533,7 @@ function _RELEASE_SUCCESS_EFFECT()
 	if result_effect_bg == nil then
 		return;
 	end
-	result_effect_bg:StopUIEffect('RELEASE_SUCCESS_EFFECT', true, 0.5);
+	--result_effect_bg:StopUIEffect('RELEASE_SUCCESS_EFFECT', true, 0.5);
 	ui.SetHoldUI(false);
 end
 

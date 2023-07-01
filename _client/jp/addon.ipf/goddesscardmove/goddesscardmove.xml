@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="goddesscardmove" x="0" y="0" width="540" height="610" create="open">
+	<frame layout_gravity="center center" margin="0 0 400 0" scale_align="center center"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="99"/>
+	<option closebutton="false"/>
+	<sound opensound="character_item_window_open" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="popup_start2" frameCloseAnim="popup_end2"/>
+	<script OpenScp="GODDESS_CARD_MOVE_OPEN" CloseScp="GODDESS_CARD_MOVE_CLOSE"/>
+	<userconfig SOURCE_CARD="원본 카드를 올려주세요" TARGET_CARD="대상 카드를 올려주세요"/>
+	<controls>
+		<groupbox name="gFrame" rect="0 0 520 600" margin="0 0 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="false"/>
+		<groupbox name="gbox" parent="gFrame" rect="0 0 480 470" margin="0 15 0 0" layout_gravity="center center" skin="test_frame_low" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" rect="0 0 510 74" margin="0 30 0 0" layout_gravity="center top" skin="relic_frame_top" hittestbox="false" stretch="true"/>
+		<richtext name="title" parent="titlegbox" rect="0 0 200 50" margin="0 23 0 0" layout_gravity="center top" caption="{@st43}{s24}레전드 카드 레벨 이전" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="closeBtn" parent="titlegbox" rect="0 0 44 44" margin="0 20 10 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;goddesscardmove&apos;)" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}레전드 카드 레벨 이전 창을 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover"/>
+
+		<groupbox name="bodyGbox1" rect="0 0 450 430" margin="0 70 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="gem_socket_bg"/>
+		<slot name="item_slot_1" parent="bodyGbox1" rect="0 0 120 120" margin="-120 60 0 0" movepop="false" layout_gravity="center top" dropsound="icon_get_down" picksound="icon_pick_up" DropScp="GODDESS_CARD_MOVE_DROP" skin="invenslot2" RBtnUpScp="GODDESS_CARD_MOVE_UI_CLEAR"/>
+		<picture name="item_pic_1" parent="bodyGbox1" rect="0 0 100 100" margin="-120 70 0 0" layout_gravity="center top" DropScp="GODDESS_CARD_MOVE_DROP" changecursor="false" hittest="false" image="socket_slot_bg" stretch="true"/>
+		<richtext name="item_text_1" parent="bodyGbox1" rect="0 0 190 30" margin="-120 205 0 0" layout_gravity="center top" caption="원본 카드를 올려주세요" drawbackground="false" fixwidth="true" fontname="brown_16" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="center center" updateparent="false"/>
+		<slot name="item_slot_2" parent="bodyGbox1" rect="0 0 120 120" margin="120 60 0 0" movepop="false" layout_gravity="center top" DropScp="GODDESS_CARD_MOVE_DROP" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpScp="GODDESS_CARD_COPY_SLOT_POP"/>
+		<picture name="item_pic_2" parent="bodyGbox1" rect="0 0 100 100" margin="120 70 0 0" layout_gravity="center top" DropScp="GODDESS_CARD_MOVE_DROP" changecursor="false" hittest="false" image="socket_slot_bg" stretch="true"/>
+		<richtext name="item_text_2" parent="bodyGbox1" rect="0 0 190 30" margin="120 205 0 0" layout_gravity="center top" caption="대상 카드를 올려주세요" drawbackground="false" fixwidth="true" fontname="brown_16" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="center center" updateparent="false"/>
+		<picture name="arrowPic" parent="bodyGbox1" rect="0 0 30 86" stretch="true" margin="0 0 0 0" layout_gravity="center center" image="icon_arrow_right"/>
+		<richtext name="guide_text" parent="bodyGbox1" rect="0 0 400 100" margin="0 320 0 0" layout_gravity="center top" caption="{#ff0000}※ 레전드 카드 레벨 이전 시 원본 카드의 레벨은 초기화됩니다." drawbackground="false" fixwidth="true" fontname="brown_16" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false"/>
+
+		<button name="moveBtn" rect="0 0 190 70" margin="0 0 0 80" layout_gravity="center bottom" LBtnUpScp="GODDESS_CARD_MOVE_BUTTON_CLICK" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}이전{/}" clicksound="button_click" oversound="button_over" skin="relic_btn_purple"/>
+	</controls>
+</uiframe>

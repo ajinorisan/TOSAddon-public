@@ -75,18 +75,18 @@ function WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
 	else
 		compareText:ShowWindow(0)
 		input_frame:ShowWindow(0)
-	end
-	
+	end	
     
 	local yesBtn = GET_CHILD_RECURSIVELY(frame, "yes")
 	tolua.cast(yesBtn, "ui::CButton")
 	yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_EX_FRAME_OPEN_YES')
 	yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yes_arg)
+	yesBtn:SetEventScript(ui.ENTERKEY, '_WARNINGMSGBOX_EX_FRAME_OPEN_YES')
+	yesBtn:SetEventScriptArgString(ui.ENTERKEY, yes_arg)
 
 	local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
 	tolua.cast(noBtn, "ui::CButton")
-	noBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_EX_FRAME_OPEN_NO')
-
+	noBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_EX_FRAME_OPEN_NO')	
 	local okBtn = GET_CHILD_RECURSIVELY(frame, "ok")
 	tolua.cast(okBtn, "ui::CButton")
 	if argNum == 0 then

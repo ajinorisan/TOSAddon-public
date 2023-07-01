@@ -4,18 +4,30 @@ SEQUENTIALPICKITEM_openCount = 0;
 SEQUENTIALPICKITEM_alreadyOpendGUIDs = {};
 
 function SEQUENTIALPICKITEM_ON_INIT(addon, frame)
-
-	addon:RegisterMsg('INV_ITEM_IN', 'SEQUENTIAL_PICKITEMON_MSG');
-	addon:RegisterMsg('INV_ITEM_ADD', 'SEQUENTIAL_PICKITEMON_MSG');
+	-- addon:RegisterMsg('INV_ITEM_IN', 'SEQUENTIAL_PICKITEMON_MSG');
+	-- addon:RegisterMsg('INV_ITEM_ADD', 'SEQUENTIAL_PICKITEMON_MSG');
 	addon:RegisterMsg('GUILDWAREHOUSE_ITEM_IN', 'SEQUENTIAL_PICKITEMON_MSG');
-		
+	-- addon:RegisterMsg('SEAL_LV_UP_POPUP', 'SEAL_LV_UP_POPUP');
+	-- addon:RegisterMsg('GET_PROPERTY_POINT', 'GET_PROPERTY_POINT')
 end
 
-function SEQUENTIAL_PICKITEMON_MSG(frame, msg, arg1, type, class)
-    if IS_IN_EVENT_MAP() == true then
+function SEAL_LV_UP_POPUP(frame, msg, argStr, argNum)		
+	local item_guid = argStr
+	local invitem = session.GetInvItemByGuid(item_guid);
+	local obj = GetIES(invitem:GetObject())
+	local count = argNum
+	ADD_SEQUENTIAL_PICKITEM_ForSealLvUp(frame, msg, item_guid, count, obj)
+end
+
+function GET_PROPERTY_POINT(frame, msg, argStr, argNum)
+	ADD_SEQUENTIAL_PICKITEM_ForProperty(frame, msg, argStr, argNum)
+end
+
+function SEQUENTIAL_PICKITEMON_MSG(frame, msg, arg1, type, class)		
+	if IS_IN_EVENT_MAP() == true then
         return;
     end
-
+	
 	if msg == 'INV_ITEM_ADD' then
 		if arg1 == 'UNEQUIP' then
 			return
@@ -25,11 +37,11 @@ function SEQUENTIAL_PICKITEMON_MSG(frame, msg, arg1, type, class)
 		if class == nil then
 			class = GetClassByType("Item",	invitem.prop.type)
 		end
-		local tablekey = invitem:GetIESID().."_"..invitem.count
+		local tablekey = invitem:GetIESID().."_".. invitem.count		
 
 		if SEQUENTIALPICKITEM_alreadyOpendGUIDs[tablekey] == nil then
 			SEQUENTIALPICKITEM_alreadyOpendGUIDs[tablekey] = "AlreadyOpen"
-			ADD_SEQUENTIAL_PICKITEM(frame, msg, invitem:GetIESID(), invitem.count, class, tablekey, invitem.fromWareHouse)
+			ADD_SEQUENTIAL_PICKITEM(frame, msg, invitem:GetIESID(), invitem.count, class, tablekey, invitem.fromWareHouse)			
 		end
 
 	elseif msg == 'INV_ITEM_IN' then
@@ -39,9 +51,20 @@ function SEQUENTIAL_PICKITEMON_MSG(frame, msg, arg1, type, class)
 
 		local tablekey = arg1.."_"..invitem.count
 		
+		if config.GetPickItemMessage() == 1 then
+		local cls_point = GetClass('accountprop_inventory_list', class.ClassName)
+		if cls_point ~= nil then
+				local chat_msg = ScpArgMsg("PointGet{name}{count}", "name", ScpArgMsg(TryGetProp(cls_point, 'ClassName', 'None')), "count", count);
+			session.ui.GetChatMsg():AddSystemMsg(chat_msg, true, 'System', '', false);
+		else			
+			local chat_msg = ScpArgMsg("ItemGet{name}{count}", "name", TryGetProp(class, 'Name', 'None'), "count", count);
+			session.ui.GetChatMsg():AddSystemMsg(chat_msg, true, 'System', '', false);										
+		end
+		end
+
 		if SEQUENTIALPICKITEM_alreadyOpendGUIDs[tablekey] == nil then
-			SEQUENTIALPICKITEM_alreadyOpendGUIDs[tablekey] = "AlreadyOpen"
-			ADD_SEQUENTIAL_PICKITEM(frame, msg, arg1, count, class, tablekey)
+			SEQUENTIALPICKITEM_alreadyOpendGUIDs[tablekey] = "AlreadyOpen"			
+			ADD_SEQUENTIAL_PICKITEM(frame, msg, arg1, count, class, tablekey)			
 		end
 
 	elseif msg == "GUILDWAREHOUSE_ITEM_IN" then
@@ -55,7 +78,7 @@ function SEQUENTIAL_PICKITEMON_MSG(frame, msg, arg1, type, class)
 			if msg == "GUILDWAREHOUSE_ITEM_IN" then
 				addMsg = ScpArgMsg("GetItemToGuildWareHouse");
 			end
-			ADD_SEQUENTIAL_PICKITEM(frame, msg, "", type, class, tablekey, false, addMsg)
+			ADD_SEQUENTIAL_PICKITEM(frame, msg, nil, type, class, tablekey, false, addMsg)
 		end
 	end
 
@@ -81,7 +104,6 @@ function SEQUENTIALPICKITEM_OPEN(frame)
 end
 
 function SEQUENTIALPICKITEM_CLOSE(frame)
-
 	local tablekey = frame:GetUserValue("ITEMGUID_N_COUNT")
 	SEQUENTIALPICKITEM_alreadyOpendGUIDs[tablekey] = nil
 
@@ -94,93 +116,224 @@ function ADD_SEQUENTIAL_PICKITEM(frame, msg, itemGuid, itemCount, class, tableke
 		return
 	end
 
-	SEQUENTIALPICKITEM_openCount = SEQUENTIALPICKITEM_openCount + 1;
-	local frameName = "SEQUENTIAL_PICKITEM_"..tostring(SEQUENTIALPICKITEM_openCount);
+	if config.GetPopupPickItem() == 1 then
+		SEQUENTIALPICKITEM_openCount = SEQUENTIALPICKITEM_openCount + 1;
+		local frameName = "SEQUENTIAL_PICKITEM_"..tostring(SEQUENTIALPICKITEM_openCount);
 
-	ui.DestroyFrame(frameName);
+		ui.DestroyFrame(frameName);
 
-	local frame = ui.CreateNewFrame("sequentialpickitem", frameName);
-	if frame == nil then
-		return nil;
-	end
+		local frame = ui.CreateNewFrame("sequentialpickitem", frameName);
+		if frame == nil then
+			return nil;
+		end
+		
+		frame:SetUserValue("ITEMGUID_N_COUNT",tablekey)
+		
+		local duration = tonumber(frame:GetUserConfig("POPUP_DURATION"))
+		local PickItemGropBox	= GET_CHILD(frame,'pickitem')
+		--PickItemGropBox:RemoveAllChild();  -- 여기서 자식들을 죽여서 자식으로 넣은 픽쳐가 안나왔음.
 
-	
-	frame:SetUserValue("ITEMGUID_N_COUNT",tablekey)
-	
-	local duration = tonumber(frame:GetUserConfig("POPUP_DURATION"))
-	local PickItemGropBox	= GET_CHILD(frame,'pickitem')
-	--PickItemGropBox:RemoveAllChild();  -- 여기서 자식들을 죽여서 자식으로 넣은 픽쳐가 안나왔음.
+		-- ControlSet 이름 설정
+		local img = GET_ITEM_ICON_IMAGE(class);
 
-	-- ControlSet 이름 설정
-	local img = GET_ITEM_ICON_IMAGE(class);
+		local PickItemCountObj		= PickItemGropBox:CreateControlSet('pickitemset_Type', 'pickitemset', 0, 0);
+		local PickItemCountCtrl		= tolua.cast(PickItemCountObj, "ui::CControlSet");
+		--PickItemCountCtrl:SetGravity(ui.LEFT, ui.TOP);
 
-	local PickItemCountObj		= PickItemGropBox:CreateControlSet('pickitemset_Type', 'pickitemset', 0, 0);
-	local PickItemCountCtrl		= tolua.cast(PickItemCountObj, "ui::CControlSet");
-	--PickItemCountCtrl:SetGravity(ui.LEFT, ui.TOP);
+		local ConSetBySlot 	= PickItemCountCtrl:GetChild('slot');
+		local slot			= tolua.cast(ConSetBySlot, "ui::CSlot");
+		local icon = CreateIcon(slot);
 
-	local ConSetBySlot 	= PickItemCountCtrl:GetChild('slot');
-	local slot			= tolua.cast(ConSetBySlot, "ui::CSlot");
-	local icon = CreateIcon(slot);
+		-- 아이템 이름과 획득량 출력
+		local invItem = session.GetInvItemByGuid(itemGuid);
+		local nameObj = class;
+		local iconName = img;
+		if invItem ~= nil and invItem:GetObject() ~= nil then
+			nameObj = GetIES(invItem:GetObject());
+			iconName = GET_ITEM_ICON_IMAGE(nameObj);
+		end	
+		icon:Set(iconName, 'PICKITEM', itemCount, 0);
 
-	-- 아이템 이름과 획득량 출력
-	local invItem = session.GetInvItemByGuid(itemGuid);
-	local nameObj = class;
-	local iconName = img;
-	if invItem ~= nil and invItem:GetObject() ~= nil then
-		nameObj = GetIES(invItem:GetObject());
-		iconName = GET_ITEM_ICON_IMAGE(nameObj);
-	end	
-	icon:Set(iconName, 'PICKITEM', itemCount, 0);
+		local printName	 = '{@st41}' ..GET_FULL_NAME(nameObj);
+		local printCount = '{@st41b}'..ScpArgMsg("GetByCount{Count}", "Count", itemCount);
 
-	local printName	 = '{@st41}' ..GET_FULL_NAME(nameObj);
-	local printCount = '{@st41b}'..ScpArgMsg("GetByCount{Count}", "Count", itemCount);
+		PickItemCountCtrl:SetTextByKey('ItemName', printName);
+		PickItemCountCtrl:SetTextByKey('ItemCount', printCount);
+		
+		local AddWiki = GET_CHILD(PickItemCountCtrl,'AddWiki')
+		if addMsg == nil then
+			if class.Journal == 'TRUE' and IsExistItemInAdventureBook(pc, class.ClassID) == 'YES' and false == fromWareHouse then
+				local total = GetItemObtainCount(pc, class.ClassID);
+				if total ~= nil then
+					local totalCount = total;
 
-	PickItemCountCtrl:SetTextByKey('ItemName', printName);
-	PickItemCountCtrl:SetTextByKey('ItemCount', printCount);
-	
-	local AddWiki = GET_CHILD(PickItemCountCtrl,'AddWiki')
-	if addMsg == nil then
-		if class.Journal == 'TRUE' and IsExistItemInAdventureBook(pc, class.ClassID) == 'YES' and false == fromWareHouse then
+					if totalCount > 1 then
+						AddWiki:ShowWindow(0)
+					else
+						AddWiki:ShowWindow(1)
+					end
 
-			local total = GetItemObtainCount(pc, class.ClassID);
-			if total ~= nil then
-				local totalCount = total;
-
-				if totalCount > 1 then
-					AddWiki:ShowWindow(0)
 				else
-					AddWiki:ShowWindow(1)
+					AddWiki:ShowWindow(0)
 				end
 
 			else
 				AddWiki:ShowWindow(0)
 			end
-
 		else
-			AddWiki:ShowWindow(0)
+			AddWiki:SetTextByKey("value", addMsg);
+			AddWiki:ShowWindow(1);
 		end
-	else
-		AddWiki:SetTextByKey("value", addMsg);
-		AddWiki:ShowWindow(1);
+
+		-- 아이템이름 너무길때 짤려서 resize 일단 셋팅.
+		local itemName = GET_CHILD(PickItemCountCtrl,'ItemName');
+		-- 리사이즈 하려는 사이즈가 원래 프레임 사이즈보다 작으면 리사이즈 하지 않음.
+		local newWidth =itemName:GetX()+itemName:GetTextWidth()+ 20;
+		if newWidth > frame:GetOriginalWidth() then
+			frame:Resize(newWidth,  frame:GetOriginalHeight());
+			PickItemGropBox:Resize(newWidth, PickItemGropBox:GetOriginalHeight());
+			PickItemCountCtrl:Resize(newWidth, PickItemCountCtrl:GetOriginalHeight());		
+		end
+
+		PickItemGropBox:UpdateData();
+		PickItemGropBox:Invalidate();
+
+		--내용 끝
+		frame:ShowWindow(1);
+		frame:SetDuration(duration);
+		frame:Invalidate();
+	end
+end
+
+function ADD_SEQUENTIAL_PICKITEM_ForSealLvUp(frame, msg, itemGuid, itemCount, class)
+	if class.ItemType == 'Unused' then
+		return
 	end
 
-	-- 아이템이름 너무길때 짤려서 resize 일단 셋팅.
-	local itemName = GET_CHILD(PickItemCountCtrl,'ItemName');
-	-- 리사이즈 하려는 사이즈가 원래 프레임 사이즈보다 작으면 리사이즈 하지 않음.
-	local newWidth =itemName:GetX()+itemName:GetTextWidth()+ 20;
-	if newWidth > frame:GetOriginalWidth() then
-		frame:Resize(newWidth,  frame:GetOriginalHeight());
-		PickItemGropBox:Resize(newWidth, PickItemGropBox:GetOriginalHeight());
-		PickItemCountCtrl:Resize(newWidth, PickItemCountCtrl:GetOriginalHeight());		
+	if config.GetPopupPickItem() == 1 then
+		SEQUENTIALPICKITEM_openCount = SEQUENTIALPICKITEM_openCount + 1;
+		local frameName = "SEQUENTIAL_PICKITEM_"..tostring(SEQUENTIALPICKITEM_openCount);
+
+		ui.DestroyFrame(frameName);
+
+		local frame = ui.CreateNewFrame("sequentialpickitem", frameName);
+		if frame == nil then
+			return nil;
+		end
+			
+		local duration = 3	
+		local PickItemGropBox	= GET_CHILD(frame,'pickitem')
+
+		-- ControlSet 이름 설정
+		local img = GET_ITEM_ICON_IMAGE(class);
+
+		local PickItemCountObj		= PickItemGropBox:CreateControlSet('pickitemset_Type', 'pickitemset', 0, 0);
+		local PickItemCountCtrl		= tolua.cast(PickItemCountObj, "ui::CControlSet");
+
+		local ConSetBySlot 	= PickItemCountCtrl:GetChild('slot');
+		local slot			= tolua.cast(ConSetBySlot, "ui::CSlot");
+		local icon = CreateIcon(slot);
+
+		-- 아이템 이름과 획득량 출력
+		local invItem = session.GetInvItemByGuid(itemGuid);
+		local nameObj = class;
+		local iconName = img;
+		if invItem ~= nil and invItem:GetObject() ~= nil then
+			nameObj = GetIES(invItem:GetObject());
+			iconName = GET_ITEM_ICON_IMAGE(nameObj);
+		end	
+		icon:Set(iconName, 'PICKITEM', itemCount, 0);
+
+		local printName	 = '{@st41}' ..GET_FULL_NAME(nameObj);	
+		PickItemCountCtrl:SetTextByKey('ItemName', printName);
+
+		-- 아이템이름 너무길때 짤려서 resize 일단 셋팅.
+		local itemName = GET_CHILD(PickItemCountCtrl,'ItemName');
+		-- 리사이즈 하려는 사이즈가 원래 프레임 사이즈보다 작으면 리사이즈 하지 않음.
+		local newWidth =itemName:GetX()+itemName:GetTextWidth()+ 20;
+		if newWidth > frame:GetOriginalWidth() then
+			frame:Resize(newWidth,  frame:GetOriginalHeight());
+			PickItemGropBox:Resize(newWidth, PickItemGropBox:GetOriginalHeight());
+			PickItemCountCtrl:Resize(newWidth, PickItemCountCtrl:GetOriginalHeight());		
+		end
+
+		local AddWiki = GET_CHILD(PickItemCountCtrl,'AddWiki')
+		AddWiki:ShowWindow(0)
+		PickItemGropBox:UpdateData();
+		PickItemGropBox:Invalidate();
+
+		--내용 끝
+		frame:ShowWindow(1);
+		frame:SetDuration(duration);
+		frame:Invalidate();
+	end
+end
+
+function ADD_SEQUENTIAL_PICKITEM_ForProperty(frame, msg, property_name, itemCount)
+
+	if config.GetPickItemMessage() == 1 then
+		local chat_msg = ScpArgMsg("PointGet{name}{count}", "name", ScpArgMsg(property_name), "count", itemCount);
+		session.ui.GetChatMsg():AddSystemMsg(chat_msg, true, 'System', '', false);
 	end
 
+	if config.GetPopupPickItem() == 1 then
+		local cls = GetClass('accountprop_inventory_list', property_name)
+		if cls == nil then
+			return
+		end
+
+		SEQUENTIALPICKITEM_openCount = SEQUENTIALPICKITEM_openCount + 1;
+		local frameName = "SEQUENTIAL_PICKITEM_"..tostring(SEQUENTIALPICKITEM_openCount);
+
+		ui.DestroyFrame(frameName);
+
+		local frame = ui.CreateNewFrame("sequentialpickitem", frameName);
+		if frame == nil then
+			return nil;
+		end
+			
+		local duration = 1
+		local PickItemGropBox	= GET_CHILD(frame,'pickitem')
+
+		-- ControlSet 이름 설정
+		local img = TryGetProp(cls, 'Icon', 'None')
 		
-	PickItemGropBox:UpdateData();
-	PickItemGropBox:Invalidate();
+		if img == 'None' then
+			return
+		end
 
-	--내용 끝
+		local PickItemCountObj		= PickItemGropBox:CreateControlSet('pickitemset_Type', 'pickitemset', 0, 0);
+		local PickItemCountCtrl		= tolua.cast(PickItemCountObj, "ui::CControlSet");
 
-	frame:ShowWindow(1);
-	frame:SetDuration(duration);
-	frame:Invalidate();
+		local ConSetBySlot 	= PickItemCountCtrl:GetChild('slot');
+		local slot			= tolua.cast(ConSetBySlot, "ui::CSlot");
+		local icon = CreateIcon(slot);
+
+		-- 아이템 이름과 획득량 출력		
+		icon:Set(img, 'PICKITEM', itemCount, 0);
+
+		local printName	 = '{@st41}' .. TryGetProp(cls, 'Name', 'None') .. '{nl}' .. ScpArgMsg("GetByPoint{Point}", "Point", itemCount);
+		PickItemCountCtrl:SetTextByKey('ItemName', printName);
+
+		-- 아이템이름 너무길때 짤려서 resize 일단 셋팅.
+		local itemName = GET_CHILD(PickItemCountCtrl,'ItemName');
+		-- 리사이즈 하려는 사이즈가 원래 프레임 사이즈보다 작으면 리사이즈 하지 않음.
+		local newWidth =itemName:GetX()+itemName:GetTextWidth()+ 20;
+		if newWidth > frame:GetOriginalWidth() then
+			frame:Resize(newWidth,  frame:GetOriginalHeight());
+			PickItemGropBox:Resize(newWidth, PickItemGropBox:GetOriginalHeight());
+			PickItemCountCtrl:Resize(newWidth, PickItemCountCtrl:GetOriginalHeight());		
+		end
+
+		local AddWiki = GET_CHILD(PickItemCountCtrl,'AddWiki')
+		AddWiki:ShowWindow(0)
+		PickItemGropBox:UpdateData();
+		PickItemGropBox:Invalidate();
+
+		--내용 끝
+
+		frame:ShowWindow(1);
+		frame:SetDuration(duration);
+		frame:Invalidate();
+	end
 end
