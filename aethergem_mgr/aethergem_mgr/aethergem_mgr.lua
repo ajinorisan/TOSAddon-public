@@ -1,7 +1,8 @@
+-- v1.0.3 waitの時間見直し
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -196,7 +197,7 @@ function AETHERGEM_MGR_UNEQUIP()
             item.UnEquip(tonumber(lhlh_sub));
 
             g.lh_sub_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.25)
+            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
             -- ReserveScript("AETHERGEM_MGR_REMOVE_OR_EQUIP()", 0.2)
             -- return
@@ -207,7 +208,7 @@ function AETHERGEM_MGR_UNEQUIP()
             imcSound.PlaySoundEvent('inven_unequip');
             item.UnEquip(tonumber(lh));
             g.lh_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.25)
+            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
         elseif g.rh_icon ~= nil then
             local rh = 8
@@ -215,7 +216,7 @@ function AETHERGEM_MGR_UNEQUIP()
             imcSound.PlaySoundEvent('inven_unequip');
             item.UnEquip(tonumber(rh));
             g.rh_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.25)
+            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
         else
             if g.rh_guid ~= nil and g.lh_guid ~= nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon ==
@@ -316,7 +317,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.rh_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.25)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
     elseif g.rh_guid == nil and g.lh_guid ~= nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -332,7 +333,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.lh_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.25)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
     elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -348,7 +349,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.rh_sub_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.25)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
     elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid == nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -403,12 +404,12 @@ function AETHERGEM_MGR_REMOVE_OR_EQUIP()
         local am_index = 2
 
         pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
-        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.25)
+        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.6)
         -- ReserveScript("AETHERGEM_MGR_REMOVE_OR_EQUIP()", 0.8)
     else
         -- ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.5)
         AETHERGEM_MGR_ITEM_PREPARATION()
-        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.25)
+        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.6)
 
     end
 
