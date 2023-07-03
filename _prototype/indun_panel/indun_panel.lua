@@ -219,8 +219,8 @@ function indun_panel_init(ipframe)
     checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_checkbox_toggle")
     -- checkbox:SetEventScriptArgNum(ui.LBUTTONUP, ischeck)
 
-    local entext = ipframe:CreateOrGetControl("richtext", "entext", 370, 10)
-    entext:SetText("{#000000}{s20}Always expand")
+    local entext = ipframe:CreateOrGetControl("richtext", "entext", 380, 10)
+    entext:SetText("{#000000}{s20}Always Open")
 
     ipframe:SetLayerLevel(93)
     ipframe:Resize(555, 510)
