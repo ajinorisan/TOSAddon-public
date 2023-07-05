@@ -20,7 +20,7 @@ g.foodIndex = 0;
 local acutil = require("acutil");
 
 function EASYBUFF_ON_INIT(addon, frame)
-    CHAT_SYSTEM("EASYBUFF loaded")
+    CHAT_SYSTEM(addonNameLower .. " loaded")
     frame:ShowWindow(1);
 
     if not g.loaded then
@@ -87,81 +87,27 @@ function EASYBUFF_CMD(command)
 end
 
 -- メンテ処理
-local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
+
+-- local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
 
 function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL(frame)
-    local checkall = GET_CHILD_RECURSIVELY(frame, "checkall")
-    checkall:SetCheck(0)
+    SQUIRE_BUFF_EQUIP_CTRL_OLD(frame)
 
-    local ctrlGbox = GET_CHILD_RECURSIVELY(frame, "ctrlGbox")
-    ctrlGbox:RemoveAllChild()
-
-    local index = 0
-    for i = 1, #enable_slot_list do
-        local slot_name = enable_slot_list[i]
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-        if inv_item ~= nil then
-            local item_obj = GetIES(inv_item:GetObject())
-            if SQUIRE_BUFF_ENABLE_ITEM_CHECK(frame, inv_item, item_obj) == true then
-                local ctrl_height = ui.GetControlSetAttribute("itembuff_ctrlset", "height")
-                local ctrlset = ctrlGbox:CreateOrGetControlSet("itembuff_ctrlset", "ITEMBUFF_CTRL_" .. slot_name, 2,
-                                                               ctrl_height * index)
-
-                if ctrlset ~= nil then
-                    local slot = GET_CHILD(ctrlset, "slot")
-                    SET_SLOT_ITEM(slot, inv_item)
-                    slot:SetUserValue("ITEM_GUID", inv_item:GetIESID())
-                    slot:SetUserValue("ITEM_SLOT", slot_name)
-
-                    local item_name = GET_CHILD(ctrlset, "item_name")
-                    item_name:SetTextByKey("name", dic.getTranslatedStr(TryGetProp(item_obj, "Name", "NONE")))
-
-                    local checkbox = GET_CHILD(ctrlset, "checkbox")
-                    checkbox:SetCheck(0)
-
-                    local time = GET_CHILD_RECURSIVELY(ctrlset, "time")
-                    time:ShowWindow(0)
-                    local timestr = GET_CHILD_RECURSIVELY(ctrlset, "timestr")
-                    timestr:ShowWindow(0)
-
-                    index = index + 1
-                end
-            end
-        end
-    end
-
-    SQUIRE_BUFF_COST_UPDATE(frame)
-    -- checkall:SetCheck(1)
-    EASYBUFF_SQUIRE_BUFF_EQUIP_SELECT_ALL(frame, checkall)
-end
-
-function EASYBUFF_SQUIRE_BUFF_EQUIP_SELECT_ALL(frame, checkall)
-    -- local frame = parent:GetTopParentFrame()
-    local checkall = GET_CHILD_RECURSIVELY(frame, "checkall")
-    checkall:SetCheck(1)
-
-    for i = 1, #enable_slot_list do
-        local slot_name = enable_slot_list[i]
-        local ctrlset = GET_CHILD_RECURSIVELY(frame, "ITEMBUFF_CTRL_" .. slot_name)
-        if ctrlset ~= nil then
-            local checkbox = GET_CHILD(ctrlset, "checkbox")
-            checkbox:SetCheck(ctrl:IsChecked())
-            SQUIRE_BUFF_EQUIP_SELECT(ctrlset, checkbox, "", 0, true)
-        end
-    end
-
-    SQUIRE_BUFF_COST_UPDATE(frame)
     if g.settings.useHook ~= 1 then
-        return;
-    else
-        EASYBUFF_SQUIRE_BUFF_EXCUTE(frame)
+        return
     end
+
+    EASYBUFF_SQUIRE_BUFF_EXCUTE()
 end
 
-function EASYBUFF_SQUIRE_BUFF_EXCUTE(frame)
+function EASYBUFF_SQUIRE_BUFF_EXCUTE()
     -- CHAT_SYSTEM("test")
-    -- local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
+    local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
     local frame = ui.GetFrame("itembuffopen")
+
+    -- local checkall = GET_CHILD_RECURSIVELY(frame, "checkall")
+    -- checkall:SetCheck(1)
+    -- SQUIRE_BUFF_EQUIP_SELECT_ALL(frame, checkall)
     local handle = frame:GetUserValue("HANDLE")
     local skillName = frame:GetUserValue("SKILLNAME")
 
@@ -193,21 +139,20 @@ function EASYBUFF_SQUIRE_BUFF_EXCUTE(frame)
     ui.SysMsg("{#FFFFFF}Equipment Maintenance in progress.")
     ui.SysMsg("{#FFFFFF}To cancel, use the Cancel button.")
     ui.SysMsg("{#FFFFFF}装備メンテナンス中 キャンセルは取消ボタンで!")
+
     session.autoSeller.BuyItems(handle, AUTO_SELL_SQUIRE_BUFF, session.GetItemIDList(), skillName)
+
+    EASYBUFF_SQUIRE_BUFF_EQUIP_SELECT_ALL()
     ReserveScript(string.format("SQUIRE_TARGET_UI_CLOSE()"), 5.5)
 end
 
---[[
-function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL(frame)
-    SQUIRE_BUFF_EQUIP_CTRL_OLD(frame)
+function EASYBUFF_SQUIRE_BUFF_EQUIP_SELECT_ALL()
 
-    if g.settings.useHook ~= 1 then
-        return
-    end
-
-    EASYBUFF_SQUIRE_BUFF_EXCUTE()
+    local frame = ui.GetFrame("itembuffopen")
+    local checkall = GET_CHILD_RECURSIVELY(frame, 'checkall')
+    checkall:SetCheck(1)
+    ReserveScript(string.format("SQUIRE_BUFF_EQUIP_SELECT_ALL('%s', %d)", frame, checkall), 0.5) -- %s文字列''で括らないとダメっぽい""ではダメ %d数値らしい
 end
-]]
 
 -- フード処理
 function EASYBUFF_HOOK_CLICK_FOOD(groupName, sellType, handle, sellerCID, arg_num)
