@@ -1,6 +1,8 @@
+-- INDUNENTER_AUTOMATCH この辺りで自動でボタンを押す状態に出来そう
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -54,7 +56,9 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     -- acutil.setupHook(INDUN_PANEL_REQ_RAID_AUTO_UI_OPEN, "REQ_RAID_AUTO_UI_OPEN")
     -- acutil.setupHook(INDUN_PANEL_INDUNENTER_ENTER, "INDUNENTER_ENTER")
     -- acutil.setupHook(INDUN_PANEL_INDUNINFO_SET_BUTTONS, "INDUNINFO_SET_BUTTONS")
-
+    acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
+    -- acutil.setupEvent(addon, "INVENTORY_ON_MSG", "INDUN_PANEL_INVENTORY_ON_MSG");
+    -- addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', 'INDUN_PANEL_INVENTORY_ON_MSG');
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
@@ -65,19 +69,64 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     -- indun_panel_get_chllengerecipe_trade_count()
 end
 
+function INDUN_PANEL_INVENTORY_ON_MSG(frame, msg)
+    -- CHAT_SYSTEM("testinv")
+    -- CHAT_SYSTEM(msg)
+    -- print(msg)
+    local ipframe = ui.GetFrame(g.framename)
+    -- ipframe:ShowWindow(0)
+
+    indun_panel_init(ipframe)
+    -- local ipframe = ui.GetFrame(g.framename)
+
+    -- indun_panel_judge(ipframe)
+
+end
+
+function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
+    local frame = ui.GetFrame('earthtowershop')
+    if frame:IsVisible() == 1 then
+        ui.CloseFrame('earthtowershop')
+    end
+
+    pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+    --[[
+    local bgCtrl = GET_CHILD_RECURSIVELY(frame, "bg_category")
+    local btnCount = bgCtrl:GetChildCount(); -- ボタンの数を取得
+    for i = 0, btnCount - 1 do
+        local btn = bgCtrl:GetChildByIndex(i); -- インデックスを指定してボタンを取得
+        local categoryName = btn:GetUserValue("CATEGORY_NAME"); -- ボタンのカテゴリーネームを取得
+        CHAT_SYSTEM(categoryName); -- カテゴリーネームを表示するなどの処理を行う
+    end
+    ]]
+
+end
+
+function INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE(frame, msg)
+    local ivframe = ui.GetFrame("inventory")
+    ivframe = acutil.getEventArgs(msg);
+
+    -- ui.CloseFrame("inventory")
+    INVENTORY_OPEN(frame)
+
+end
+
 function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
 
     local frame = ui.GetFrame("indun_panel")
     local indunCls = GetClassByType('Indun', indunType)
     local dungeonType = TryGetProp(indunCls, "DungeonType", "None");
     local btnInfoCls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeonType);
-
+    -- local subType = TryGetProp(indunCls, "SubType", "None");
+    -- CHAT_SYSTEM(dungeonType)
+    -- CHAT_SYSTEM(btnInfoCls)
     if dungeonType == "Raid" then
-        CHAT_SYSTEM("Raid")
-        CHAT_SYSTEM(indunCls.SubType)
+        -- CHAT_SYSTEM("Raid")
+        -- CHAT_SYSTEM(indunCls.SubType)
 
         btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls);
 
+        -- CHAT_SYSTEM(btnInfoCls.classID)
     end
 
     --[[ local auto_sweep_enable = TryGetProp(indunCls, "AutoSweepEnable", "None");
@@ -110,6 +159,10 @@ function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
             redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
         elseif indunType == 681 then
             redButton = GET_CHILD_RECURSIVELY(frame, "rozehard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 628 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "giltinehard")
             redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
             redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
         else
@@ -246,6 +299,9 @@ function indun_panel_judge(ipframe)
         ipframe:Resize(90, 35)
         ipframe:SetPos(665, 30)
         ipframe:SetTitleBarSkin("None")
+        ipframe:EnableHittestFrame(1)
+        ipframe:EnableHide(0)
+        ipframe:EnableHitTest(1)
         ipframe:SetAlpha(70)
 
         -- indun_panel_frame_init()
@@ -275,8 +331,34 @@ function indun_panel_checkbox_toggle()
     -- CHAT_SYSTEM(g.settings.ischecked)
 end
 
+function indun_panel_inv_open()
+    local frame = ui.GetFrame("inventory")
+    frame:ShowWindow(1)
+end
+
 function indun_panel_init(ipframe)
+
     -- CHAT_SYSTEM("button_click")
+    local invbtn = ipframe:CreateOrGetControl('button', 'invbtn', 265, 5, 30, 30)
+    AUTO_CAST(invbtn)
+    invbtn:SetImage("sysmenu_inv")
+    invbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_inv_open")
+
+    local petbtn = ipframe:CreateOrGetControl('button', 'petbtn', 300, 5, 30, 30)
+    AUTO_CAST(petbtn)
+    petbtn:SetImage("sysmenu_pet")
+    petbtn:SetEventScript(ui.LBUTTONUP, "UI_TOGGLE_PETLIST")
+
+    local minebtn = ipframe:CreateOrGetControl('button', 'minebtn', 225, 5, 30, 30)
+    AUTO_CAST(minebtn)
+    minebtn:SetImage("pvpmine_shop_btn_total")
+    -- minebtn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
+    minebtn:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
+    -- local Entrance = GET_CHILD_RECURSIVELY(frame, "BTN_Entrance_Ticket")
+    -- AUTO_CAST(Entrance)
+
+    minebtn:SetEventScript(ui.LBUTTONUP, "CLICK_EXCHANGE_SHOP_CATEGORY");
+    minebtn:SetEventScriptArgString(ui.LBUTTONUP, "Entrance_Ticket");
 
     local checkbox = ipframe:CreateOrGetControl('checkbox', 'checkbox', 520, 5, 30, 30)
     tolua.cast(checkbox, 'ui::CCheckBox')
@@ -288,7 +370,7 @@ function indun_panel_init(ipframe)
     entext:SetText("{#000000}{s20}Always Open")
 
     ipframe:SetLayerLevel(93)
-    ipframe:Resize(555, 510)
+    ipframe:Resize(555, 550) -- 595
     -- ipframe:SetSkinName("chat_window")
     ipframe:SetSkinName("test_frame_low")
 
@@ -343,9 +425,80 @@ function indun_panel_init(ipframe)
             GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 201).PlayPerResetType) .. ")")
     velnicebutton:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_velnice_solo")
 
+    -- 629solo 635auto 629pt
+    local giltine = ipframe:CreateOrGetControl("richtext", "giltine", 10, 505)
+    giltine:SetText("{#000000}{s20}Giltine")
+    indun_panel_giltine_frame(ipframe)
     -- local ancient = ipframe:CreateOrGetControl("richtext", "ancient", 10, 360)
     -- ancient:SetText("{#000000}{s20}Ancient(アシスター)")
 
+end
+
+function indun_panel_giltine_frame(ipframe)
+    local giltinesoro = ipframe:CreateOrGetControl('button', 'giltinesoro', 135, 505, 80, 30)
+    local giltineauto = ipframe:CreateOrGetControl('button', 'giltineauto', 220, 505, 80, 30)
+    local giltinehard = ipframe:CreateOrGetControl('button', 'giltinehard', 360, 505, 80, 30)
+    local giltinecount = ipframe:CreateOrGetControl("richtext", "giltinecount", 305, 510, 50, 30)
+    local giltinecounthard = ipframe:CreateOrGetControl("richtext", "giltinecounthard", 445, 510, 50, 30)
+    -- local giltinesweep = ipframe:CreateOrGetControl('button', 'giltinesweep', 220, 305, 80, 30)
+    -- local giltineticket = ipframe:CreateOrGetControl('button', 'giltineticket', 360, 225, 80, 30)
+    --  local giltineticketcount = ipframe:CreateOrGetControl("richtext", "giltineticketcount", 445, 230, 50, 30)
+
+    --  giltineticketcount:SetText("{#000000}{s16}(1/1)")
+    giltinesoro:SetText("SOLO")
+    giltineauto:SetText("AUTO")
+    giltinehard:SetText("PT")
+    -- giltinesweep:SetText("SWEEP")
+    --  giltineticket:SetText("BUY")
+    giltinecount:SetText(
+        "{#000000}{s16}(" .. GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 635).PlayPerResetType) .. "/" ..
+            GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 635).PlayPerResetType) .. ")")
+    giltinecounthard:SetText("{#000000}{s16}(" ..
+                                 GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 628).PlayPerResetType) .. ")")
+
+    giltinesoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_giltine_solo")
+    giltineauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_giltine_auto")
+    g.giltine_hard_flag = false
+    -- giltinehard:SetUserValue('MOVE_INDUN_CLASSID', 628);
+    giltinehard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_giltine_hard")
+    -- giltinesweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep_giltine")
+
+end
+
+function indun_panel_enter_giltine_hard()
+
+    local indunType = 628
+    local indunCls = GetClassByType("Indun", indunType)
+
+    if g.giltine_hard_flag == false then
+        -- INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+        local frame = ui.GetFrame("induninfo")
+        -- CHAT_SYSTEM("test1")
+        INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+
+        g.giltine_hard_flag = true
+        ReserveScript("indun_panel_enter_giltine_hard()", 0.5)
+        -- else
+    elseif g.giltine_hard_flag == true then
+
+        -- local frame = ui.GetFrame("indunenter")
+        -- frame:ShwWindow(1)
+        SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
+        g.giltine_hard_flag = false
+        return
+    end
+end
+
+function indun_panel_enter_giltine_auto()
+    -- CHAT_SYSTEM("auto")
+    ReqRaidAutoUIOpen(635)
+    INDUNENTER_AUTOMATCH_TYPE(635)
+end
+
+function indun_panel_enter_giltine_solo()
+    -- CHAT_SYSTEM("solo")
+    ReqRaidSoloUIOpen(669)
+    ReqMoveToIndun(1, 0)
 end
 
 function indun_panel_enter_velnice_solo()
@@ -404,29 +557,19 @@ end
 function indun_panel_enter_Delmore_hard()
     local indunType = 665
 
-    -- local enterBtn = GET_CHILD_RECURSIVELY(frame, "enterBtn")
-    -- if enterBtn:IsEnable() == 0 then
-    -- CHAT_SYSTEM("test")
     if g.Delmore_hard_flag == false then
         INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
         g.Delmore_hard_flag = true
         ReserveScript("indun_panel_enter_Delmore_hard()", 0.5)
         -- else
     elseif g.Delmore_hard_flag == true then
-        --  frame:ShowWindow(0)
-        -- ReserveScript("indun_panel_enter_Delmore_hard()", 0.5)
-        -- else
-        -- ui.OpenFrame = ("indunenter")
+
         local frame = ui.GetFrame("indunenter")
         frame:ShwWindow(1)
-        CHAT_SYSTEM("test2")
         SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
         g.Delmore_hard_flag = false
         return
     end
-    -- local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
-
-    -- end
 
 end
 
@@ -466,26 +609,29 @@ function indun_panel_jellyzele_frame(ipframe)
 
     jellyzelesoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_jellyzele_solo")
     jellyzeleauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_jellyzele_auto")
-    jellyzelehard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_jellyzele_hard")
+    g.jellyzele_hard_flag = false
+    jellyzelehard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_jellyzele_hard")
     -- jellyzelesweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep_jellyzele")
 
 end
 
 function indun_panel_enter_jellyzele_hard()
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
 
     local indunType = 670
-    INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
-    local enterBtn = GET_CHILD_RECURSIVELY(frame, "enterBtn")
-    if enterBtn:IsEnable() == 0 then
-        ReserveScript("indun_panel_enter_jellyzele_hard()", 0.2)
+
+    if g.jellyzele_hard_flag == false then
+        INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+        g.jellyzele_hard_flag = true
+        ReserveScript("indun_panel_enter_jellyzele_hard()", 0.5)
+        -- else
+    elseif g.jellyzele_hard_flag == true then
+
+        local frame = ui.GetFrame("indunenter")
+        frame:ShwWindow(1)
+        SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
+        g.jellyzele_hard_flag = false
+        return
     end
-    SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
-    frame:ShowWindow(1)
-    restrictBox:ShowWindow(1)
 end
 
 function indun_panel_enter_jellyzele_auto()
@@ -528,7 +674,8 @@ function indun_panel_spreader_frame(ipframe)
 
     spreadersoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_spreader_solo")
     spreaderauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_spreader_auto")
-    spreaderhard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_spreader_hard")
+    g.spreader_hard_flag = false
+    spreaderhard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_spreader_hard")
     spreadersweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep_spreader")
 
 end
@@ -539,21 +686,21 @@ function indun_panel_autosweep_spreader()
 end
 
 function indun_panel_enter_spreader_hard()
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
 
     local indunType = 675
-    INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
-    local enterBtn = GET_CHILD_RECURSIVELY(frame, "enterBtn")
-    if enterBtn:IsEnable() == 0 then
-        ReserveScript("indun_panel_enter_spreader_hard()", 0.2)
-    end
+    if g.spreader_hard_flag == false then
+        INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+        g.spreader_hard_flag = true
+        ReserveScript("indun_panel_enter_spreader_hard()", 0.5)
+        -- else
+    elseif g.spreader_hard_flag == true then
 
-    SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
-    frame:ShowWindow(1)
-    restrictBox:ShowWindow(1)
+        local frame = ui.GetFrame("indunenter")
+        frame:ShwWindow(1)
+        SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
+        g.spreader_hard_flag = false
+        return
+    end
 end
 
 function indun_panel_enter_spreader_auto()
@@ -589,27 +736,28 @@ function indun_panel_falo_frame(ipframe)
 
     falosoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_falo_solo")
     faloauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_falo_auto")
-    falohard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_falo_hard")
+    g.falo_hard_flag = false
+    falohard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_falo_hard")
     falosweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep_falo")
 
 end
 
 function indun_panel_enter_falo_hard()
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
 
     local indunType = 678
-    INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
-    local enterBtn = GET_CHILD_RECURSIVELY(frame, "enterBtn")
-    if enterBtn:IsEnable() == 0 then
-        ReserveScript("indun_panel_enter_falo_hard()", 0.2)
-    end
+    if g.falo_hard_flag == false then
+        INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+        g.falo_hard_flag = true
+        ReserveScript("indun_panel_enter_falo_hard()", 0.5)
+        -- else
+    elseif g.falo_hard_flag == true then
 
-    SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
-    frame:ShowWindow(1)
-    restrictBox:ShowWindow(1)
+        local frame = ui.GetFrame("indunenter")
+        frame:ShwWindow(1)
+        SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
+        g.falo_hard_flag = false
+        return
+    end
 end
 
 function indun_panel_enter_falo_auto()
@@ -649,28 +797,28 @@ function indun_panel_roze_frame(ipframe)
                               GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType) .. ")")
     rozesoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_roze_solo")
     rozeauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_roze_auto")
+    g.roze_hard_flag = false
     rozehard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_roze_hard")
     rozesweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep_roze")
 
 end
 
 function indun_panel_enter_roze_hard()
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
 
     local indunType = 681
-    INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
-    local enterBtn = GET_CHILD_RECURSIVELY(frame, "enterBtn")
-    if enterBtn:IsEnable() == 0 then
-        ReserveScript("indun_panel_enter_roze_hard()", 0.2)
-    end
+    if g.roze_hard_flag == false then
+        INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+        g.roze_hard_flag = true
+        ReserveScript("indun_panel_enter_roze_hard()", 0.5)
+        -- else
+    elseif g.roze_hard_flag == true then
 
-    local indunCls = GetClassByType('Indun', indunType)
-    SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
-    local frame = ui.GetFrame("indunenter")
-    local restrictBox = GET_CHILD_RECURSIVELY(frame, "restrictBox")
-    frame:ShowWindow(1)
-    restrictBox:ShowWindow(1)
+        local frame = ui.GetFrame("indunenter")
+        frame:ShwWindow(1)
+        SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
+        g.roze_hard_flag = false
+        return
+    end
 end
 
 function indun_panel_enter_roze_auto()

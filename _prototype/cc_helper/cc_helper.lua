@@ -1,3 +1,63 @@
+--[[ function MONSTERCARDSLOT_FRAME_OPEN() モンスターカードフレームを開く
+    --function ACCOUNT_WAREHOUSE_INV_RBTN(itemObj, slot) これでインベから倉庫へ入れられそう
+
+        local enableTeamTrade = TryGetProp(itemCls, "TeamTrade"); このコードあたりでトレード出来ないアークを表示するの制御できそう
+    if enableTeamTrade ~= nil and enableTeamTrade == "NO" then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"));
+        return;
+    end
+
+    local belongingCount = TryGetProp(obj, 'BelongingCount', 0)
+    if belongingCount > 0 and belongingCount >= invItem.count then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"));
+        return;
+    end
+
+    if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"));
+        return;
+    end 
+
+    --function INVENTORY_ON_DROP(frame, control, argStr, argNum) 倉庫から取り出すっぽい
+
+        --function PUT_ITEM_TO_INV(slotSet, slot)こっちの方が良いかな
+
+            local warehouse = session.GetEtcItemList(IT_WAREHOUSE)
+local warehouseCount = warehouse:GetItemCount()
+
+for i = 0, warehouseCount - 1 do　--gemidからIESIDを取得するコード。合ってるんか？
+    local item = warehouse:GetItemByIndex(i)
+    local itemIESID = item.ClassID -- IESIDの取得　tonumber(g.gemid)
+    -- itemIESIDを使って個別の処理を行う
+    -- 例: CHAT_SYSTEM(itemIESID)
+end
+
+local legcardslot = 13 --レジェカを外すコード
+    local frame = ui.GetFrame("monstercardslot")
+    local argStr = legcardslot - 1
+
+    argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
+    pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
+
+    local legcardslot = 14　--ゴッデスカード外す
+    local frame = ui.GetFrame("monstercardslot")
+    local argStr = legcardslot - 1
+
+    argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
+    pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
+
+    function EQUIP_CARD()　--カード装備
+    local slotIndex = 既知のslotIndex
+    local itemGuid = 既知のIESID
+    local invFrame = ui.GetFrame("inventory")
+    invFrame:SetUserValue("EQUIP_CARD_GUID", itemGuid)
+    invFrame:SetUserValue("EQUIP_CARD_SLOTINDEX", slotIndex)
+    local argStr = string.format("%d#%s", slotIndex, itemGuid)
+    pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr)
+    invFrame:SetUserValue("EQUIP_CARD_GUID", "")
+    invFrame:SetUserValue("EQUIP_CARD_SLOTINDEX", "")
+end
+ ]] --
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
