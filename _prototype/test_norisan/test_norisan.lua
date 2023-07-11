@@ -17,47 +17,70 @@ function TEST_NORISAN_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    local frame = ui.GetFrame(addonNameLower)
-    frame:Resize(200, 200)
-    frame:SetOffset(300, 300)
-    frame:SetSkinName("None")
-
-    local btn = frame:CreateOrGetControl("button", "myButton", 0, 0, 200, 200)
-    AUTO_CAST(btn)
-    btn:SetText("My Button")
-    btn:SetEventScript(ui.LBUTTONUP, "test_norisan_on_btn")
-    CHAT_SYSTEM(addonNameLower .. " loaded")
-    acutil.SetupHook(test_norisan_cj_click_changejobbutton, "CJ_CLICK_CHANGEJOBBUTTON")
+    addon:RegisterMsg("GAME_START_3SEC", "TEST_NORISAN_NEWFRAME_INIT")
+    -- addon:RegisterMsg("GAME_START_3SEC", "TEST_NORISAN_NEWFRAME_INIT")
+    --[[
+    local cjframe = ui.GetFrame("changejob")
+    -- CHAT_SYSTEM("test1")
+    local btn = GET_CHILD_RECURSIVELY(cjframe, 'class_select');
+    -- CHAT_SYSTEM("test2")
+    if btn ~= nil then
+        btn:SetEventScript(ui.LBUTTONDOWN, "test_norisan_cj_click_changejobbutton")
+        -- CHAT_SYSTEM("test3")
+    end
+    -- acutil.SetupHook(test_norisan_cj_click_changejobbutton, "CJ_CLICK_CHANGEJOBBUTTON")
+    ]]
 end
 
-function test_norisan_on_btn()
+function TEST_NORISAN_NEWFRAME_INIT()
 
+    local newframe = ui.CreateNewFrame("notice_on_pc", "my_frame", 0, 0, 110, 50)
+    AUTO_CAST(newframe)
+    newframe:SetOffset(1380, 15)
+    newframe:ShowWindow(1)
+    newframe:SetSkinName("None")
+    local btn = newframe:CreateOrGetControl("button", "myButton", 0, 0, 50, 50)
+    AUTO_CAST(btn)
+    btn:SetImage("config_button_normal")
+    btn:SetEventScript(ui.LBUTTONDOWN, "test_norisan_console_init")
+    local btn2 = newframe:CreateOrGetControl("button", "btn2", 60, 0, 50, 50)
+    AUTO_CAST(btn2)
+    btn2:SetEventScript(ui.LBUTTONDOWN, "test_norisan_btnon")
+end
+
+function test_norisan_console_init()
     local console = ui.GetFrame("developerconsole")
-    console:ShowWindow(1)
-    local equipItemList = session.GetEquipItemList()
-
-    for i = 0, equipItemList:size() - 1 do
-        local equipItem = equipItemList:at(i)
-        local equipSlot = equipItem.equipSlot
-        local slotName = equipSlot:GetName()
-        local slotIndex = equipSlot:GetSlotIndex()
-
-        -- CHAT_SYSTEM(string.format("Slot Index: %d, Slot Name: %s", slotIndex, slotName))
-        print(string.format("Slot Index: %d, Slot Name: %s", slotIndex, slotName))
+    if console:IsVisible() == 0 then
+        console:ShowWindow(1)
+    else
+        console:ShowWindow(0)
     end
 end
 
-function test_norisan_cj_click_changejobbutton(frame, slot, argStr, argNum)
+function test_norisan_btnon()
+    local equipItemList = session.GetEquipItemList()
+    for i = 0, equipItemList:Count() - 1 do
+        local equipItem = equipItemList:GetEquipItemByIndex(i)
+        local itemObj = GetIES(equipItem:GetObject())
+        print(i)
+        -- print(equipItem:GetIESID())
+        print(itemObj.ClassName)
+        local slotName = itemObj.EquipXpGroup
+        print("Slot Name: " .. slotName)
+        -- print("---------------")
+    end
+end
 
-    OUT_PARTY()
+function test_norisan_cj_click_changejobbutton()
 
+    --[[
     local summonedPet = session.pet.GetSummonedPet();
     if summonedPet ~= nil then
         control.SummonPet(0, 0, 0)
     end
 
     session.job.ReqUnEquipItemAll()
-
+    CHAT_SYSTEM("test")
     local pc = GetMyPCObject();
     local nowjobName = pc.JobName;
     local nowjobID = GetClass("Job", nowjobName).ClassID;
@@ -82,5 +105,6 @@ function test_norisan_cj_click_changejobbutton(frame, slot, argStr, argNum)
     str = str .. ScpArgMsg("Auto__{nl}JeongMalLo_JinHaengHaSiKessSeupNiKka?");
     ui.MsgBox(str, yesScp, "None");
 
-    CJ_CLICK_CHANGEJOBBUTTON_OLD(frame, slot, argStr, argNum)
+    -- CJ_CLICK_CHANGEJOBBUTTON_OLD(frame, slot, argStr, argNum)
+    ]]
 end

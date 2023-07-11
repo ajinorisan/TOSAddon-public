@@ -76,7 +76,9 @@ if not g.loaded then
     g.settings = {
         charid = {
             sealiesid = {},
+            sealimage = {},
             arkiesid = {},
+            arkimage = {},
             gemid = {},
             legiesid = {},
             legimage = {},
@@ -116,66 +118,13 @@ function CC_HELPER_ON_INIT(addon, frame)
     setbtn:SetImage("config_button_normal")
     setbtn:Resize(30, 30)
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
-    -- if not g.loaded then
-    -- g.loaded = true
-    -- end
+    if not g.loaded then
+        g.loaded = true
+    end
     -- cc_helper_load_settings()
     CHAT_SYSTEM(addonNameLower .. " loaded")
     addon:RegisterMsg("GAME_START_3SEC", "cc_helper_load_settings")
 
-end
-
-function cc_helper_in_btn()
-    CHAT_SYSTEM("click")
-    local frame = ui.GetFrame("inventory")
-
-    local loginCharID = info.GetCID(session.GetMyHandle()) -- ログイン中のキャラクターIDを取得
-
-    local seal = GET_CHILD_RECURSIVELY(frame, "SEAL")
-    local ark = GET_CHILD_RECURSIVELY(frame, "ARK")
-    -- local sealinfo = seal:GetIcon():GetInfo()
-    local sealiesid = seal:GetIcon():GetInfo():GetIESID()
-    local arkiesid = ark:GetIcon():GetInfo():GetIESID()
-    CHAT_SYSTEM(sealiesid)
-    local equipItemList = session.GetEquipItemList()
-    for i = 0, equipItemList:Count() - 1 do
-        local equipItem = equipItemList:GetEquipItemByIndex(i)
-        -- local itemObj = GetIES(equipItem:GetObject())
-
-        local induninfo = ui.GetFrame("induninfo")
-        local indunenter = ui.GetFrame("indunenter")
-
-        if induninfo:IsVisible() == 0 or indunenter:IsVisible() == 0 then
-            if seal:GetIcon() ~= nil then
-                if g.settings.pcitem[loginCharID] and tostring(sealiesid) == tostring(g.settings.pcitem.iesid) then
-                    item.UnEquip(tonumber(25));
-                    ReserveScript("test_norisan_in_btn()", 0.5)
-                    break
-                else
-                    ReserveScript("test_norisan_in_btn()", 0.5)
-                    break
-                end
-            end
-
-            if ark:GetIcon() ~= nil then
-                if g.settings.pcitem[loginCharID] and tostring(arkiesid) == tostring(g.settings.pcitem.iesid) then
-                    item.UnEquip(tonumber(27));
-                    break
-                end
-
-            end
-        else
-            return
-
-        end
-    end
-
-    CHAT_SYSTEM("test")
-    local monstercard = ui.GetFrame("monstercardslot")
-    local goddesscard = ui.GetFrame("goddesscardslot")
-    CHAT_SYSTEM("test1")
-    monstercard:ShowWindow(1)
-    goddesscard:ShowWindow(1)
 end
 
 function cc_helper_save_settings()
@@ -201,44 +150,58 @@ end
 function cc_helper_setting()
     local loginCharID = info.GetCID(session.GetMyHandle())
     local sealiesid = g.settings.charid.sealiesid[loginCharID]
-    g.sealiesid = nil
+    -- g.sealiesid = nil
     if sealiesid ~= nil then
         g.sealiesid = sealiesid
         CHAT_SYSTEM(g.sealiesid)
     end
+
+    local sealimage = g.settings.charid.sealimage[loginCharID]
+    -- g.sealiesid = nil
+    if sealimage ~= nil then
+        g.sealimage = sealimage
+        CHAT_SYSTEM(g.sealimage)
+    end
     -- 
     local arkiesid = g.settings.charid.arkiesid[loginCharID]
 
-    g.arkiesid = nil
+    -- g.arkiesid = nil
     if arkiesid ~= nil then
         g.arkiesid = arkiesid
         CHAT_SYSTEM(g.arkiesid)
     end
+
+    local arkimage = g.settings.charid.arkimage[loginCharID]
+    -- g.sealiesid = nil
+    if arkimage ~= nil then
+        g.arkimage = arkimage
+        CHAT_SYSTEM(g.arkimage)
+    end
     -- 
     -- CHAT_SYSTEM(arkiesid)
     local gemid = g.settings.charid.gemid[loginCharID]
-    g.gemid = nil
+    -- g.gemid = nil
     if gemid ~= nil then
         g.gemid = gemid
         CHAT_SYSTEM(g.gemid)
     end
     -- 
     local legiesid = g.settings.charid.legiesid[loginCharID]
-    g.legiesid = nil
+    -- g.legiesid = nil
     if legiesid ~= nil then
         g.legiesid = legiesid
         CHAT_SYSTEM(g.legiesid)
     end
     -- CHAT_SYSTEM(legiesid)
     local legimage = g.settings.charid.legimage[loginCharID]
-    g.legimage = nil
+    -- g.legimage = nil
     if legimage ~= nil then
         g.legimage = legimage
         CHAT_SYSTEM(g.legimage)
     end
     -- CHAT_SYSTEM(legimage)
     local godiesid = g.settings.charid.godiesid[loginCharID]
-    g.godiesid = nil
+    -- g.godiesid = nil
     if godiesid ~= nil then
         g.godiesid = godiesid
         CHAT_SYSTEM(g.godiesid)
@@ -246,7 +209,7 @@ function cc_helper_setting()
     -- 
     -- CHAT_SYSTEM(godiesid)
     local godimage = g.settings.charid.godimage[loginCharID]
-    g.godimage = nil
+    -- g.godimage = nil
     if godimage ~= nil then
         g.godimage = godimage
         CHAT_SYSTEM(g.godimage)
@@ -255,14 +218,20 @@ function cc_helper_setting()
     -- CHAT_SYSTEM(godimage)
 end
 
-function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage)
+function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
     CHAT_SYSTEM("enddrop")
     local loginCharID = info.GetCID(session.GetMyHandle())
     if sealiesid ~= nil then
         g.settings.charid.sealiesid[tostring(loginCharID)] = sealiesid
     end
+    if sealimage ~= nil then
+        g.settings.charid.sealimage[tostring(loginCharID)] = sealimage
+    end
     if arkiesid ~= nil then
         g.settings.charid.arkiesid[tostring(loginCharID)] = arkiesid
+    end
+    if arkimage ~= nil then
+        g.settings.charid.arkimage[tostring(loginCharID)] = arkimage
     end
     if gemid ~= nil then
         g.settings.charid.gemid[tostring(loginCharID)] = tostring(gemid)
@@ -289,27 +258,43 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
     ctrl:SetMaxSelectCount(0)
     ctrl:RemoveAllChild()
 
+    -- CHAT_SYSTEM(ctrl:GetName())
     local loginCharID = info.GetCID(session.GetMyHandle())
-    if GET_CHILD_RECURSIVELY(frame, "sealslot") then
-        g.settings.charid.sealiesid = nil
+
+    if ctrl:GetName() == tostring("sealslot") then
+        g.settings.charid.sealiesid[tostring(loginCharID)] = {}
+        g.settings.charid.sealimage[tostring(loginCharID)] = {}
+        g.sealiesid = nil
+        g.sealimage = nil
+
     end
 
-    if GET_CHILD_RECURSIVELY(frame, "arkslot") then
-        g.settings.charid.arkiesid = nil
+    if ctrl:GetName() == tostring("arkslot") then
+        g.settings.charid.arkiesid[tostring(loginCharID)] = {}
+        g.settings.charid.arkimage[tostring(loginCharID)] = {}
+        g.arkiesid = nil
+        g.arkimage = nil
     end
 
-    if GET_CHILD_RECURSIVELY(frame, "agemslot") then
-        g.settings.charid.gemid = nil
+    if ctrl:GetName() == tostring("agemslot") then
+        g.settings.charid.gemid[tostring(loginCharID)] = {}
+        g.gemid = nil
+
     end
 
-    if GET_CHILD_RECURSIVELY(frame, "legcardslot") then
-        g.settings.charid.legiesid = nil
-        g.settings.charid.legimage = nil
+    if ctrl:GetName() == tostring("legcardslot") then
+        g.settings.charid.legiesid[tostring(loginCharID)] = {}
+        g.settings.charid.legimage[tostring(loginCharID)] = {}
+        g.legiesid = nil
+        g.legimage = nil
+
     end
 
-    if GET_CHILD_RECURSIVELY(frame, "godcardslot") then
-        g.settings.charid.godiesid = nil
-        g.settings.charid.godimage = nil
+    if ctrl:GetName() == tostring("godcardslot") then
+        g.settings.charid.godiesid[tostring(loginCharID)] = {}
+        g.settings.charid.godimage[tostring(loginCharID)] = {}
+        g.godiesid = nil
+        g.godimage = nil
     end
 
     cc_helper_save_settings()
@@ -341,7 +326,7 @@ function cc_helper_on_legendcard_drop(frame, ctrl, argstr, argnum)
 
     SET_SLOT_IMG(ctrl, legimage)
     SET_SLOT_IESID(ctrl, item:GetIESID());
-    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage)
+    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
     -- cc_helper_enddrop(iesid, type, classid)
 
 end
@@ -373,7 +358,7 @@ function cc_helper_on_goddesscard_drop(frame, ctrl, argstr, argnum)
     SET_SLOT_IMG(ctrl, godimage)
     SET_SLOT_IESID(ctrl, item:GetIESID());
 
-    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage)
+    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
     -- cc_helper_enddrop(iesid, type, classid)
 
 end
@@ -391,7 +376,10 @@ function cc_helper_onark_drop(frame, ctrl, argstr, argnum)
     local iesid = iconinfo:GetIESID()
     local type = itemobj.ClassType
     local gemtype = GET_EQUIP_GEM_TYPE(itemobj)
-    local gemcls = GetClassByType("Item", classid)
+    local arkobj = GetClassByType("Item", classid)
+    -- local cardobj = GetClassByType("Item", classid)
+    -- local arkimage = iconinfo:GetImageName()
+    local arkimage = TryGetProp(arkobj, "TooltipImage", "None")
 
     local itemcls = GetClassByType("Item", item.type);
     local enableTeamTrade = TryGetProp(itemcls, "TeamTrade");
@@ -411,7 +399,7 @@ function cc_helper_onark_drop(frame, ctrl, argstr, argnum)
             SET_SLOT_IMG(slot, itemobj.Icon);
             SET_SLOT_IESID(slot, item:GetIESID());
             local arkiesid = iconinfo:GetIESID()
-            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage)
+            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
         else
             ui.SysMsg("Drop it in the correct slot.")
         end
@@ -438,8 +426,11 @@ function cc_helper_onseal_drop(frame, ctrl, argstr, argnum)
     local iesid = iconinfo:GetIESID()
     local type = itemobj.ClassType
     local gemtype = GET_EQUIP_GEM_TYPE(itemobj)
-    local gemcls = GetClassByType("Item", classid)
+    local sealobj = GetClassByType("Item", classid)
     local sealiesid = item:GetIESID()
+
+    local sealimage = TryGetProp(sealobj, "TooltipImage", "None")
+    CHAT_SYSTEM(sealimage)
 
     if ctrl == GET_CHILD_RECURSIVELY(frame, "sealslot") then
         if type == "Seal" and classid ~= 614001 then
@@ -452,7 +443,7 @@ function cc_helper_onseal_drop(frame, ctrl, argstr, argnum)
             ui.SysMsg("Drop it in the correct slot.")
         end
     end
-    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage)
+    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
 
 end
 
@@ -476,7 +467,7 @@ function cc_helper_ongem_drop(frame, ctrl, argstr, argnum)
             SET_SLOT_IMG(slot, itemobj.Icon);
             SET_SLOT_IESID(slot, item:GetIESID());
             local gemid = classid
-            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage)
+            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
         else
             ui.SysMsg("Drop it in the correct slot.")
         end
@@ -535,13 +526,9 @@ function cc_helper_frame_init()
     -- print(tostring(g.settings.charid))
     -- CHAT_SYSTEM(g.sealiesid)
     if g.sealiesid ~= nil then
-        local sealitem = GET_PC_ITEM_BY_GUID(tonumber(g.sealiesid));
 
-        local sealitemobj = GetIES(sealitem:GetObject());
-
-        SET_SLOT_IMG(sealslot, sealitemobj.Icon);
-
-        SET_SLOT_IESID(sealslot, sealitem:GetIESID());
+        SET_SLOT_IMG(sealslot, g.sealimage);
+        -- CHAT_SYSTEM("test3")
 
     end
 
@@ -556,13 +543,7 @@ function cc_helper_frame_init()
     arkslot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
 
     if g.arkiesid ~= nil then
-        local arkitem = GET_PC_ITEM_BY_GUID(tonumber(g.arkiesid));
-
-        local arkitemobj = GetIES(arkitem:GetObject());
-
-        SET_SLOT_IMG(arkslot, arkitemobj.Icon);
-
-        SET_SLOT_IESID(arkslot, arkitem:GetIESID());
+        SET_SLOT_IMG(arkslot, g.arkimage);
 
     end
 
@@ -594,13 +575,14 @@ function cc_helper_frame_init()
     legcardslot:SetEventScript(ui.DROP, "cc_helper_on_legendcard_drop")
     legcardslot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
 
-    if g.legiesid ~= nil then
-        local legitem = GET_PC_ITEM_BY_GUID(tonumber(g.legiesid));
+    if g.legimage ~= nil then
+        -- CHAT_SYSTEM(g.legiesid)
 
-        local legitemobj = GetIES(legitem:GetObject());
+        -- local itemCls = GetClassByType("Item", g.legiesid)
 
         SET_SLOT_IMG(legcardslot, g.legimage)
-        SET_SLOT_IESID(legcardslot, tonumber(g.legiesid));
+
+        -- SET_SLOT_IESID(legcardslot, tonumber(g.legiesid));
 
     end
 
@@ -614,15 +596,149 @@ function cc_helper_frame_init()
     godcardslot:SetEventScript(ui.DROP, "cc_helper_on_goddesscard_drop")
     godcardslot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
 
-    if g.godiesid ~= nil then
-        local goditem = GET_PC_ITEM_BY_GUID(tonumber(g.godiesid));
-
-        local goditemobj = GetIES(goditem:GetObject());
+    if g.godimage ~= nil then
 
         SET_SLOT_IMG(godcardslot, g.godimage)
-        SET_SLOT_IESID(godcardslot, tonumber(g.godiesid));
+        -- SET_SLOT_IESID(godcardslot, tonumber(g.godiesid));
 
     end
 
+end
+
+function cc_helper_in_btn()
+    CHAT_SYSTEM("click")
+    local frame = ui.GetFrame("inventory")
+
+    if true == BEING_TRADING_STATE() then
+        return;
+    end
+
+    local isEmptySlot = false;
+
+    if session.GetInvItemList():Count() < MAX_INV_COUNT then
+        isEmptySlot = true;
+    end
+
+    if isEmptySlot == true then
+
+        local induninfo = ui.GetFrame("induninfo")
+        local indunenter = ui.GetFrame("indunenter")
+
+        if induninfo:IsVisible() == 0 or indunenter:IsVisible() == 0 then
+            cc_helper_unequip_seal(frame, seal, sealiesid)
+
+        end
+    else
+        ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."))
+    end
+end
+
+function cc_helper_unequip_seal()
+    CHAT_SYSTEM("cc_helper_unequip_seal")
+    local frame = ui.GetFrame("inventory")
+    local seal = GET_CHILD_RECURSIVELY(frame, "SEAL")
+    CHAT_SYSTEM("cc_helper_unequip_seal-1")
+    local sealicon = seal:GetIcon()
+    if sealicon ~= nil then
+        CHAT_SYSTEM("cc_helper_unequip_seal-2")
+        local sealinfo = sealicon:GetInfo()
+        if sealinfo ~= nil then
+            CHAT_SYSTEM("cc_helper_unequip_seal-3")
+            local sealiesid = sealinfo:GetIESID()
+            CHAT_SYSTEM("cc_helper_unequip_seal-4")
+            if sealiesid ~= nil and tostring(sealiesid) == tostring(g.sealiesid) then
+                local sealindex = 25 -- スロットインデックスを適切な値に設定する必要があります
+                item.UnEquip(sealindex)
+                ReserveScript("cc_helper_unequip_ark()", 0.5)
+                -- frame:RunUpdateScript(cc_helper_unequip_ark(frame), 1.0)
+                return;
+            else
+                ReserveScript("cc_helper_unequip_ark()", 0.5)
+            end
+        end
+    else
+        ReserveScript("cc_helper_unequip_ark()", 0.5)
+    end
+
+end
+
+function cc_helper_unequip_ark()
+    CHAT_SYSTEM("cc_helper_unequip_ark-0")
+    local frame = ui.GetFrame("inventory")
+    local ark = GET_CHILD_RECURSIVELY(frame, "ARK")
+    CHAT_SYSTEM("cc_helper_unequip_ark-1")
+    local arkicon = ark:GetIcon()
+
+    if arkicon ~= nil then
+        CHAT_SYSTEM("cc_helper_unequip_ark-2")
+        local arkinfo = arkicon:GetInfo()
+
+        if arkinfo ~= nil then
+            CHAT_SYSTEM("cc_helper_unequip_ark-3")
+            local arkiesid = arkinfo:GetIESID()
+            CHAT_SYSTEM("cc_helper_unequip_ark-4")
+            if arkiesid ~= nil and tostring(arkiesid) == tostring(g.arkiesid) then
+                -- print("ark")
+                local arkindex = 27 -- スロットインデックスを適切な値に設定する必要があります
+                item.UnEquip(arkindex)
+                MONSTERCARDSLOT_FRAME_OPEN()
+                return;
+                -- ReserveScript("MONSTERCARDSLOT_FRAME_OPEN()", 0.5)
+                -- frame:StopUpdateScript(cc_helper_unequip_ark(frame))
+            else
+                -- MONSTERCARDSLOT_FRAME_OPEN()
+                ReserveScript("cc_helper_unequip_legcard()", 0.5)
+                return;
+            end
+        end
+    else
+        -- MONSTERCARDSLOT_FRAME_OPEN()
+        ReserveScript("cc_helper_unequip_legcard()", 0.5)
+    end
+    -- CHAT_SYSTEM("cc_helper_unequip_ark-1")
+
+    -- ReserveScript("cc_helper_unequip_legcard()", 0.5)
+
+    -- ReserveScript("MONSTERCARDSLOT_FRAME_OPEN()", 0.5)
+end
+
+function cc_helper_unequip_legcard()
+    CHAT_SYSTEM("cc_helper_unequip_legcard")
+
+    local frame = ui.GetFrame("monstercardslot")
+    local legcardslotset = GET_CHILD_RECURSIVELY(frame, "LEGcard_slotset")
+    CHAT_SYSTEM(tostring(legcardslotset))
+    local legicon = legcardslotset:GetIcon()
+    CHAT_SYSTEM(tostring(legicon))
+    if legicon ~= nil then
+        CHAT_SYSTEM("legaru")
+        local leginfo = legicon:GetInfo()
+        local legiesid = leginfo:GetIESID()
+        CHAT_SYSTEM("legiesid: " .. legiesid)
+        CHAT_SYSTEM("g.legiesid: " .. g.legiesid)
+        if tostring(legiesid) == tostring(g.legiesid) then
+            CHAT_SYSTEM("lsghazusu")
+            local legcardslot = 13 -- レジェカを外すコード
+            local argStr = legcardslot - 1
+            argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
+            pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
+            ReserveScript("cc_helper_unequip_godcard()", 0.5)
+            return;
+        else
+            CHAT_SYSTEM("legnai")
+        end
+    end
+    ReserveScript("cc_helper_unequip_godcard()", 0.5)
+end
+
+function cc_helper_unequip_godcard()
+    CHAT_SYSTEM("cc_helper_unequip_godcard")
+    local frame = ui.GetFrame("monstercardslot")
+    local godcardslot = 14 -- レジェカを外すコード
+    local argStr = godcardslot - 1
+
+    argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
+    pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
+    return;
 end
 
