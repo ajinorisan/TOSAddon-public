@@ -15,3 +15,49 @@ function ACCOUNT_WAREHOUSE_INV_RBTN(itemObj, slot)
         PUT_ACCOUNT_ITEM_TO_WAREHOUSE_BY_INVITEM(frame, invItem, nil, fromFrame)
     end
 end
+
+-- これのsession.AddItemID(iconInfo:GetIESID(), slot:GetSelectCount());を書き換えたらいけそう
+function ACCOUNT_WAREHOUSE_RECEIVE_ITEM(parent, slot)
+    local frame = parent:GetTopParentFrame();
+    local slotset = GET_CHILD_RECURSIVELY(frame, "slotset");
+    if slotset == nil then
+        local gbox_warehouse = GET_CHILD_RECURSIVELY(frame, "gbox_warehouse");
+        slotset = GET_CHILD_RECURSIVELY(frame, "slotset");
+    end
+    session.ResetItemList();
+    AUTO_CAST(slotset);
+    for i = 0, slotset:GetSelectedSlotCount() - 1 do
+        local slot = slotset:GetSelectedSlot(i)
+        local Icon = slot:GetIcon();
+        local iconInfo = Icon:GetInfo();
+
+        session.AddItemID(iconInfo:GetIESID(), slot:GetSelectCount());
+
+    end
+
+    if session.GetItemIDList():Count() == 0 then
+        ui.MsgBox(ScpArgMsg("SelectItemByMouseLeftButton"));
+        return;
+    end
+
+    local str = ScpArgMsg("TradeCountWillBeConsumedBy{Value}_Continue?", "Value", "1");
+    local msgbox = ui.MsgBox(str, "_EXEC_ACCOUNT_WAREHOUSE_RECEIVE_ITEM", "None");
+    SET_MODAL_MSGBOX(msgbox)
+end
+
+-- CHATGPT
+session.ResetItemList() -- アイテムリストをリセット
+
+local itemA_IESID = "アイテムAのIESID" -- アイテムAのIESIDを取得する方法に応じて置き換える
+local itemB_IESID = "アイテムBのIESID" -- アイテムBのIESIDを取得する方法に応じて置き換える
+
+session.AddItemID(itemA_IESID) -- アイテムAのIESIDをアイテムリストに追加
+session.AddItemID(itemB_IESID) -- アイテムBのIESIDをアイテムリストに追加
+
+local itemList = session.GetItemIDList() -- アイテムリストを取得
+
+-- アイテムリストを使用してアイテムを処理するなどの操作を行う
+for i = 0, itemList:Count() - 1 do
+    local itemID = itemList:GetItemIDByIndex(i)
+    -- アイテムの処理を行う
+end
