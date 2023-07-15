@@ -29,6 +29,16 @@
 		"tags" : []
 	},
 {
+		"name" : "Character Change Helper",
+		"file" : "cc_helper",
+		"extension" : "ipf",
+		"fileVersion" : "v0.0.9",
+		"releaseTag" : "cc_helper",
+		"unicode" : "⛄",
+		"description" : "エンブレム、アーク、レジェンドカード、ゴッデスカードをワンボタンで倉庫から出し入れして装備したり外したりします。Emblems, arcs, legend cards, and goddess cards can be equipped and unequipped by moving them in and out of the warehouse with a single button press.엠블럼, 아크, 레전드 카드, 갓데스 카드를 버튼 하나로 창고에서 꺼내어 장착하거나 제거할 수 있습니다.",
+		"tags" : []
+	},
+{
 		"name" : "muteki2ex",
 		"file" : "muteki2ex",
 		"extension" : "ipf",

@@ -61,3 +61,10 @@ for i = 0, itemList:Count() - 1 do
     local itemID = itemList:GetItemIDByIndex(i)
     -- アイテムの処理を行う
 end
+
+for i = 0, warehouseCount - 1 do -- gemidからIESIDを取得するコード。合ってるんか？
+    local item = warehouse:GetItemByIndex(i)
+    local itemIESID = item.ClassID -- IESIDの取得　tonumber(g.gemid)
+    -- itemIESIDを使って個別の処理を行う
+    -- 例: CHAT_SYSTEM(itemIESID)
+end
