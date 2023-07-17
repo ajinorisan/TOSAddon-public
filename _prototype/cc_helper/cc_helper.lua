@@ -1,67 +1,7 @@
---[[ function MONSTERCARDSLOT_FRAME_OPEN() モンスターカードフレームを開く
-    --function ACCOUNT_WAREHOUSE_INV_RBTN(itemObj, slot) これでインベから倉庫へ入れられそう
-
-        local enableTeamTrade = TryGetProp(itemCls, "TeamTrade"); このコードあたりでトレード出来ないアークを表示するの制御できそう
-    if enableTeamTrade ~= nil and enableTeamTrade == "NO" then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"));
-        return;
-    end
-
-    local belongingCount = TryGetProp(obj, 'BelongingCount', 0)
-    if belongingCount > 0 and belongingCount >= invItem.count then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"));
-        return;
-    end
-
-    if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"));
-        return;
-    end 
-
-    --function INVENTORY_ON_DROP(frame, control, argStr, argNum) 倉庫から取り出すっぽい
-
-        --function PUT_ITEM_TO_INV(slotSet, slot)こっちの方が良いかな
-
-            local warehouse = session.GetEtcItemList(IT_WAREHOUSE)
-local warehouseCount = warehouse:GetItemCount()
-
-for i = 0, warehouseCount - 1 do　--gemidからIESIDを取得するコード。合ってるんか？
-    local item = warehouse:GetItemByIndex(i)
-    local itemIESID = item.ClassID -- IESIDの取得　tonumber(g.gemid)
-    -- itemIESIDを使って個別の処理を行う
-    -- 例: CHAT_SYSTEM(itemIESID)
-end
-
-local legcardslot = 13 --レジェカを外すコード
-    local frame = ui.GetFrame("monstercardslot")
-    local argStr = legcardslot - 1
-
-    argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
-    pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-
-    local legcardslot = 14　--ゴッデスカード外す
-    local frame = ui.GetFrame("monstercardslot")
-    local argStr = legcardslot - 1
-
-    argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
-    pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-
-    function EQUIP_CARD()　--カード装備
-    local slotIndex = 既知のslotIndex
-    local itemGuid = 既知のIESID
-    local invFrame = ui.GetFrame("inventory")
-    invFrame:SetUserValue("EQUIP_CARD_GUID", itemGuid)
-    invFrame:SetUserValue("EQUIP_CARD_SLOTINDEX", slotIndex)
-    local argStr = string.format("%d#%s", slotIndex, itemGuid)
-    pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr)
-    invFrame:SetUserValue("EQUIP_CARD_GUID", "")
-    invFrame:SetUserValue("EQUIP_CARD_SLOTINDEX", "")
-end
- ]] --
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.1"
+local ver = "0.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -102,7 +42,7 @@ function CC_HELPER_ON_INIT(addon, frame)
 
     local invframe = ui.GetFrame("inventory")
     local inventoryGbox = invframe:GetChild("inventoryGbox")
-    local setbtnX = inventoryGbox:GetWidth() - 207
+    local setbtnX = inventoryGbox:GetWidth() - 200
     local setbtnY = inventoryGbox:GetHeight() - 290
     local setbtn = invframe:CreateOrGetControl("button", "set", setbtnX, setbtnY, 30, 30)
     AUTO_CAST(setbtn)
@@ -111,11 +51,40 @@ function CC_HELPER_ON_INIT(addon, frame)
     setbtn:Resize(30, 30)
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
     -- cc_helper_load_settings()
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    local uneqbtnX = inventoryGbox:GetWidth() - 287
+    local uneqbtnY = inventoryGbox:GetHeight() - 290
+    local uneqbtn = invframe:CreateOrGetControl("button", "unequip", uneqbtnX, uneqbtnY, 30, 30)
+    AUTO_CAST(uneqbtn)
+    uneqbtn:SetText("{s12}Remove")
+
+    uneqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_unequip_seal")
+    -- uneqbtn:ShowWindow(1)
+
+    local eqbtnX = inventoryGbox:GetWidth() - 232
+    local eqbtnY = inventoryGbox:GetHeight() - 290
+    local eqbtn = invframe:CreateOrGetControl("button", "g_equip", eqbtnX, eqbtnY, 30, 30)
+    AUTO_CAST(eqbtn)
+    eqbtn:SetText("{s12}Add")
+    eqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_equip")
+    uneqbtn:ShowWindow(1)
+    eqbtn:ShowWindow(1)
+
+    -- local isExist = cc_helper_check_items_in_warehouse()
+
+    -- outbtn:SetEventScriptArgString(ui.LBUTTONUP, isExist)
+    -- equbtn:ShowWindow(1)
+
+    -- print(addonNameLower .. " loaded")
 
     acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "CC_HELPER_ACCOUNTWAREHOUSE_CLOSE");
+
+    -- acutil.setupEvent(addon, "CARD_SLOT_DROP", "CC_HELPER_CARD_SLOT_DROP");
     addon:RegisterMsg("GAME_START_3SEC", "cc_helper_load_settings")
+
     addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_invframe_init")
+
+    -- cc_helper_invframe_init()
+    -- cc_helper_load_settings()
 end
 
 function CC_HELPER_ACCOUNTWAREHOUSE_CLOSE(frame)
@@ -125,13 +94,36 @@ function CC_HELPER_ACCOUNTWAREHOUSE_CLOSE(frame)
     -- AUTO_CAST(inbtn)
     local outbtn = GET_CHILD_RECURSIVELY(invframe, "out")
     -- AUTO_CAST(outbtn)
+    local uneqbtn = GET_CHILD_RECURSIVELY(invframe, "unequip")
+    local eqbtn = GET_CHILD_RECURSIVELY(invframe, "g_equip")
 
     inbtn:ShowWindow(0)
     outbtn:ShowWindow(0)
+    uneqbtn:ShowWindow(1)
+    eqbtn:ShowWindow(1)
 
     -- ui.CloseFrame("inventory")
     -- INVENTORY_OPEN(invframe)
 
+end
+
+function CC_helper_isItemInWarehouse()
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local sortedCnt = sortedGuidList:Count();
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        local obj = GetIES(invItem:GetObject());
+        if obj.ClassName ~= MONEY_NAME then
+            if obj.ClassID == g.gemid then
+                return true
+            else
+                return false
+            end
+        end
+    end
 end
 
 function cc_helper_invframe_init()
@@ -150,36 +142,162 @@ function cc_helper_invframe_init()
     local outbtnY = inventoryGbox:GetHeight() - 290
     local outbtn = invframe:CreateOrGetControl("button", "out", outbtnX, outbtnY, 40, 30)
     AUTO_CAST(outbtn)
+    -- local isExist = cc_helper_check_items_in_warehouse()
     outbtn:SetText("OUT")
     outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
+    -- outbtn:SetEventScriptArgString(ui.LBUTTONUP, isExist)
     outbtn:ShowWindow(1)
+
+    local uneqbtn = GET_CHILD_RECURSIVELY(invframe, "unequip")
+    local eqbtn = GET_CHILD_RECURSIVELY(invframe, "g_equip")
+    uneqbtn:ShowWindow(0)
+    eqbtn:ShowWindow(0)
+
 end
+
 function cc_helper_out_btn()
-    -- if ADDONS.ebisuke.YAACCOUNTINVENTORY ~= nil then
-    -- CHAT_SYSTEM("YES")
-    --  local fromFrame = ui.GetFrame("yaaccountinventory");
 
-    -- else
-    -- CHAT_SYSTEM("NO")
-    local fromFrame = ui.GetFrame("accountwarehouse");
-    local warehouse = session.GetEtcItemList(IT_WAREHOUSE) -- 倉庫アイテムリストの取得
-    CHAT_SYSTEM("warehouse")
-    local warehouseCount = warehouse:size()
-    CHAT_SYSTEM(tostring(warehouseCount))
-    --  end
-    -- local iesID = g.sealiesid
-    local sealiesid = tonumber(g.sealiesid)
-    if sealiesid ~= nil then
-        CHAT_SYSTEM("out1")
-        item.TakeItemFromWarehouse(IT_ACCOUNT_WAREHOUSE, sealiesid, 1, fromFrame:GetUserIValue("HANDLE"));
+    local fromframe = ui.GetFrame("accountwarehouse")
+
+    if fromframe:IsVisible() == 1 then
+        if g.sealiesid ~= nil then
+            local seal = cc_helper_check_items_in_warehouse(g.sealiesid)
+            if seal == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.sealiesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+
+                ReserveScript("cc_helper_out_btn()", 0.5)
+            end -- return
+        end
+
+        if g.arkiesid ~= nil then
+            local ark = cc_helper_check_items_in_warehouse(g.arkiesid)
+            if ark == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.arkiesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+                ReserveScript("cc_helper_out_btn()", 0.5)
+            end
+        end
+
+        if g.legiesid ~= nil then
+            local legcard = cc_helper_check_items_in_warehouse(g.legiesid)
+            if legcard == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.legiesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+                ReserveScript("cc_helper_out_btn()", 0.5)
+            end
+        end
+
+        if g.godiesid ~= nil then
+            local godcard = cc_helper_check_items_in_warehouse(g.godiesid)
+            if godcard == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.godiesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+                ReserveScript("cc_helper_out_btn()", 0.5)
+            end
+
+        end
+
+        if g.gemid ~= nil then
+
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local guidList = itemList:GetGuidList();
+            local sortedGuidList = itemList:GetSortedGuidList();
+            local sortedCnt = sortedGuidList:Count();
+            for i = 0, sortedCnt - 1 do
+                local guid = sortedGuidList:Get(i)
+                local invItem = itemList:GetItemByGuid(guid)
+                local iesid = invItem:GetIESID()
+                -- print(tostring(iesid))
+                local obj = GetIES(invItem:GetObject());
+                if obj.ClassName ~= MONEY_NAME then
+                    -- print(tostring(obj.ClassID))
+                    if tostring(obj.ClassID) == tostring(g.gemid) then
+
+                        session.ResetItemList()
+                        session.AddItemID(tonumber(iesid), 1)
+                        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                            fromframe:GetUserIValue("HANDLE"))
+                        ReserveScript("cc_helper_out_btn()", 0.5)
+
+                    end
+                end
+            end
+
+        end
     end
+    cc_helper_equip()
 end
 
-function CC_HELPER_CARD_SLOT_RBTNUP_ITEM_INFO(frame, slot, argStr, argNum)
-    print(frame:GetName())
-    print(slot:GetName())
-    print(tostring(argStr))
-    print(tostring(argNum))
+function cc_helper_equip()
+    -- CHAT_SYSTEM("equip")
+    local frame = ui.GetFrame("inventory")
+    local sealitem = session.GetInvItemByGuid(tonumber(g.sealiesid));
+    if sealitem ~= nil then
+        local sealspot = "SEAL"
+        ITEM_EQUIP(sealitem.invIndex, sealspot)
+
+        frame:Invalidate();
+        ReserveScript("cc_helper_equip()", 0.5)
+        return
+    end
+
+    local arkitem = session.GetInvItemByGuid(tonumber(g.arkiesid));
+    if arkitem ~= nil then
+        local arkspot = "ARK"
+        ITEM_EQUIP(arkitem.invIndex, arkspot)
+
+        frame:Invalidate();
+        -- ReserveScript("cc_helper_equip()", 0.5)
+    end
+    MONSTERCARDSLOT_FRAME_OPEN()
+    ReserveScript("cc_helper_card_equip()", 0.5)
+end
+
+function cc_helper_card_equip()
+
+    local frame = ui.GetFrame("monstercardslot")
+
+    local legcardslotset = GET_CHILD_RECURSIVELY(frame, "LEGcard_slotset")
+    local legitem = session.GetInvItemByGuid(g.legiesid)
+    local goditem = session.GetInvItemByGuid(g.godiesid)
+    local legcardslot = 12
+    local godcardslot = 13
+    -- CHAT_SYSTEM(godcardslot)
+    -- CHAT_SYSTEM(tostring(legcardslot))
+    -- local groupNameStr = "LEG"
+    if legitem ~= nil then
+        cc_helper_legcard_equip(legcardslot, g.legiesid)
+    end
+    if goditem ~= nil then
+        ReserveScript(string.format("cc_helper_legcard_equip(%d, '%s')", godcardslot, g.godiesid), 1.0)
+    end
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", 3.0)
+end
+
+function cc_helper_legcard_equip(slotIndex, itemGuid)
+    -- CHAT_SYSTEM("leg")
+    local argStr = string.format("%d#%s", slotIndex, tostring(itemGuid));
+    pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
+end
+
+function cc_helper_check_items_in_warehouse(iesid)
+    local item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+    if item == nil then
+        -- CHAT_SYSTEM("Item with IESID " .. iesid .. " is nil")
+        return false
+    else
+        -- CHAT_SYSTEM("Item with IESID " .. iesid .. " exists")
+        return true
+    end
 end
 
 function cc_helper_save_settings()
@@ -203,85 +321,86 @@ function cc_helper_load_settings()
 end
 
 function cc_helper_setting()
+
     local loginCharID = info.GetCID(session.GetMyHandle())
     local sealiesid = g.settings.charid.sealiesid[loginCharID]
-    -- g.sealiesid = nil
+    g.sealiesid = nil
     if sealiesid ~= nil then
         g.sealiesid = sealiesid
-        CHAT_SYSTEM(g.sealiesid)
+        -- CHAT_SYSTEM(g.sealiesid)
     end
 
     local sealimage = g.settings.charid.sealimage[loginCharID]
-    -- g.sealiesid = nil
+    g.sealimage = nil
     if sealimage ~= nil then
         g.sealimage = sealimage
-        CHAT_SYSTEM(g.sealimage)
+        -- CHAT_SYSTEM(g.sealimage)
     end
     -- 
     local arkiesid = g.settings.charid.arkiesid[loginCharID]
 
-    -- g.arkiesid = nil
+    g.arkiesid = nil
     if arkiesid ~= nil then
         g.arkiesid = arkiesid
-        CHAT_SYSTEM(g.arkiesid)
+        -- CHAT_SYSTEM(g.arkiesid)
     end
 
     local arkimage = g.settings.charid.arkimage[loginCharID]
-    -- g.sealiesid = nil
+    g.arkimage = nil
     if arkimage ~= nil then
         g.arkimage = arkimage
-        CHAT_SYSTEM(g.arkimage)
+        -- CHAT_SYSTEM(g.arkimage)
     end
     -- 
     -- CHAT_SYSTEM(arkiesid)
     local gemid = g.settings.charid.gemid[loginCharID]
-    -- g.gemid = nil
+    g.gemid = nil
     if gemid ~= nil then
         g.gemid = gemid
-        CHAT_SYSTEM(g.gemid)
+        -- CHAT_SYSTEM(g.gemid)
     end
     -- 
     local legiesid = g.settings.charid.legiesid[loginCharID]
-    -- g.legiesid = nil
+    g.legiesid = nil
     if legiesid ~= nil then
         g.legiesid = legiesid
-        CHAT_SYSTEM(g.legiesid)
+        --  CHAT_SYSTEM(g.legiesid)
     end
     -- CHAT_SYSTEM(legiesid)
     local legimage = g.settings.charid.legimage[loginCharID]
-    -- g.legimage = nil
+    g.legimage = nil
     if legimage ~= nil then
         g.legimage = legimage
-        CHAT_SYSTEM(g.legimage)
+        -- CHAT_SYSTEM(g.legimage)
     end
     -- CHAT_SYSTEM(legimage)
     local godiesid = g.settings.charid.godiesid[loginCharID]
-    -- g.godiesid = nil
+    g.godiesid = nil
     if godiesid ~= nil then
         g.godiesid = godiesid
-        CHAT_SYSTEM(g.godiesid)
+        -- CHAT_SYSTEM(g.godiesid)
     end
     -- 
     -- CHAT_SYSTEM(godiesid)
     local godimage = g.settings.charid.godimage[loginCharID]
-    -- g.godimage = nil
+    g.godimage = nil
     if godimage ~= nil then
         g.godimage = godimage
-        CHAT_SYSTEM(g.godimage)
+        -- CHAT_SYSTEM(g.godimage)
     end
 
     local legclassid = g.settings.charid.legclassid[loginCharID]
-    -- g.godimage = nil
+    g.legclassid = nil
     if legclassid ~= nil then
         g.legclassid = legclassid
-        CHAT_SYSTEM(g.legclassid)
+        -- CHAT_SYSTEM(g.legclassid)
     end
 
     local godclassid = g.settings.charid.godclassid[loginCharID]
-    -- g.godimage = nil
+    g.godclassid = nil
     if godclassid ~= nil then
         g.godclassid = godclassid
-        CHAT_SYSTEM(g.godclassid)
+        -- CHAT_SYSTEM(g.godclassid)
     end
     -- 
     -- CHAT_SYSTEM(godimage)
@@ -289,7 +408,7 @@ end
 
 function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
     legclassid, godclassid)
-    CHAT_SYSTEM("enddrop")
+    -- CHAT_SYSTEM("enddrop")
     local loginCharID = info.GetCID(session.GetMyHandle())
     if sealiesid ~= nil then
         g.settings.charid.sealiesid[tostring(loginCharID)] = sealiesid
@@ -325,6 +444,7 @@ function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godie
         g.settings.charid.godclassid[tostring(loginCharID)] = godclassid
     end
     cc_helper_save_settings()
+    cc_helper_setting()
 
 end
 
@@ -473,13 +593,14 @@ function cc_helper_onark_drop(frame, ctrl, argstr, argnum)
         return;
     end
     -- IS_ENABLE_TRADE_BY_TRADE_TYPE(item, property)
-    -- CHAT_SYSTEM(gemtype)
-    -- CHAT_SYSTEM(iesid)
-    -- CHAT_SYSTEM(type)
 
-    -- Arkのチームトレードの可否を調べるコードがわからん
+    -- Arkのチームトレードの可否を調べるコードがわからん--わかった
     if ctrl == GET_CHILD_RECURSIVELY(frame, "arkslot") then
         if type == "Ark" then
+            if TryGetProp(itemobj, 'CharacterBelonging', 0) == 1 then
+                ui.SysMsg(ClMsg("ItemIsNotTradable"));
+                return;
+            end
             SET_SLOT_IMG(slot, itemobj.Icon);
             SET_SLOT_IESID(slot, item:GetIESID());
             local arkiesid = iconinfo:GetIESID()
@@ -514,7 +635,7 @@ function cc_helper_onseal_drop(frame, ctrl, argstr, argnum)
     local sealiesid = item:GetIESID()
 
     local sealimage = TryGetProp(sealobj, "TooltipImage", "None")
-    CHAT_SYSTEM(sealimage)
+    --  CHAT_SYSTEM(sealimage)
 
     if ctrl == GET_CHILD_RECURSIVELY(frame, "sealslot") then
         if type == "Seal" and classid ~= 614001 then
@@ -598,7 +719,7 @@ function cc_helper_frame_init()
 
     -- CHAT_SYSTEM("test")
 
-    local sealslot = frame:CreateOrGetControl("slot", "sealslot", 210, 10, 50, 50)
+    local sealslot = frame:CreateOrGetControl("slot", "sealslot", 210, 70, 50, 50)
     AUTO_CAST(sealslot)
     sealslot:SetSkinName("invenslot2")
     sealslot:SetText("{s14}SEAL")
@@ -616,7 +737,7 @@ function cc_helper_frame_init()
 
     end
 
-    local arkslot = frame:CreateOrGetControl("slot", "arkslot", 210, 70, 50, 50)
+    local arkslot = frame:CreateOrGetControl("slot", "arkslot", 210, 130, 50, 50)
     AUTO_CAST(arkslot)
     arkslot:SetSkinName("invenslot2")
     arkslot:SetText("{s14}ARK")
@@ -631,7 +752,7 @@ function cc_helper_frame_init()
 
     end
 
-    local agemslot = frame:CreateOrGetControl("slot", "agemslot", 210, 130, 50, 50)
+    local agemslot = frame:CreateOrGetControl("slot", "agemslot", 210, 10, 50, 50)
     AUTO_CAST(agemslot)
     agemslot:SetSkinName("invenslot2")
     agemslot:SetText("{s14}AETHER GEM")
@@ -690,7 +811,7 @@ function cc_helper_frame_init()
 end
 
 function cc_helper_in_btn()
-    CHAT_SYSTEM("click")
+    -- CHAT_SYSTEM("click")
     local frame = ui.GetFrame("inventory")
 
     if true == BEING_TRADING_STATE() then
@@ -718,70 +839,70 @@ function cc_helper_in_btn()
 end
 
 function cc_helper_unequip_seal()
-    CHAT_SYSTEM("cc_helper_unequip_seal")
+    -- CHAT_SYSTEM("cc_helper_unequip_seal")
     local frame = ui.GetFrame("inventory")
     local seal = GET_CHILD_RECURSIVELY(frame, "SEAL")
-    CHAT_SYSTEM("cc_helper_unequip_seal-1")
+    --  CHAT_SYSTEM("cc_helper_unequip_seal-1")
     local sealicon = seal:GetIcon()
     if sealicon ~= nil then
-        CHAT_SYSTEM("cc_helper_unequip_seal-2")
+        -- CHAT_SYSTEM("cc_helper_unequip_seal-2")
         local sealinfo = sealicon:GetInfo()
         if sealinfo ~= nil then
-            CHAT_SYSTEM("cc_helper_unequip_seal-3")
+            --   CHAT_SYSTEM("cc_helper_unequip_seal-3")
             local sealiesid = sealinfo:GetIESID()
-            CHAT_SYSTEM("cc_helper_unequip_seal-4")
+            -- CHAT_SYSTEM("cc_helper_unequip_seal-4")
             if sealiesid ~= nil and tostring(sealiesid) == tostring(g.sealiesid) then
                 local sealindex = 25 -- スロットインデックスを適切な値に設定する必要があります
                 item.UnEquip(sealindex)
-                ReserveScript("cc_helper_unequip_ark()", 1.0)
+                ReserveScript("cc_helper_unequip_ark()", 0.5)
                 -- frame:RunUpdateScript(cc_helper_unequip_ark(frame), 1.0)
                 return;
             else
-                ReserveScript("cc_helper_unequip_ark()", 1.0)
+                ReserveScript("cc_helper_unequip_ark()", 0.5)
                 return;
             end
         end
     else
-        ReserveScript("cc_helper_unequip_ark()", 1.0)
+        ReserveScript("cc_helper_unequip_ark()", 0.5)
         return;
     end
 
 end
 
 function cc_helper_unequip_ark()
-    CHAT_SYSTEM("cc_helper_unequip_ark-0")
+    --  CHAT_SYSTEM("cc_helper_unequip_ark-0")
     local frame = ui.GetFrame("inventory")
     local ark = GET_CHILD_RECURSIVELY(frame, "ARK")
-    CHAT_SYSTEM("cc_helper_unequip_ark-1")
+    --  CHAT_SYSTEM("cc_helper_unequip_ark-1")
     local arkicon = ark:GetIcon()
 
     if arkicon ~= nil then
-        CHAT_SYSTEM("cc_helper_unequip_ark-2")
+        --  CHAT_SYSTEM("cc_helper_unequip_ark-2")
         local arkinfo = arkicon:GetInfo()
 
         if arkinfo ~= nil then
-            CHAT_SYSTEM("cc_helper_unequip_ark-3")
+            --   CHAT_SYSTEM("cc_helper_unequip_ark-3")
             local arkiesid = arkinfo:GetIESID()
-            CHAT_SYSTEM("cc_helper_unequip_ark-4")
+            --  CHAT_SYSTEM("cc_helper_unequip_ark-4")
             if arkiesid ~= nil and tostring(arkiesid) == tostring(g.arkiesid) then
                 -- print("ark")
                 local arkindex = 27 -- スロットインデックスを適切な値に設定する必要があります
                 item.UnEquip(arkindex)
                 -- MONSTERCARDSLOT_FRAME_OPEN()
-                ReserveScript("cc_helper_unequip_legcard()", 1.0)
+                ReserveScript("cc_helper_unequip_legcard()", 0.5)
                 return;
                 -- 
                 -- frame:StopUpdateScript(cc_helper_unequip_ark(frame))
             else
                 -- MONSTERCARDSLOT_FRAME_OPEN()
-                ReserveScript("cc_helper_unequip_legcard()", 1.0)
+                ReserveScript("cc_helper_unequip_legcard()", 0.5)
                 -- cc_helper_unequip_legcard()
                 return;
             end
         end
     else
         -- MONSTERCARDSLOT_FRAME_OPEN()
-        ReserveScript("cc_helper_unequip_legcard()", 1.0)
+        ReserveScript("cc_helper_unequip_legcard()", 0.5)
         return;
     end
     -- CHAT_SYSTEM("cc_helper_unequip_ark-1")
@@ -792,7 +913,7 @@ function cc_helper_unequip_ark()
 end
 
 function cc_helper_unequip_legcard()
-    CHAT_SYSTEM("cc_helper_unequip_legcard")
+    -- CHAT_SYSTEM("cc_helper_unequip_legcard")
     MONSTERCARDSLOT_FRAME_OPEN()
 
     local frame = ui.GetFrame("monstercardslot")
@@ -802,11 +923,11 @@ function cc_helper_unequip_legcard()
     local legcardslot = 13
 
     local legcardid = GETMYCARD_INFO(legcardslot - 1)
-    print(tostring(legcardid))
+    -- print(tostring(legcardid))
     local cardInfo = equipcard.GetCardInfo(legcardslot);
 
     if cardInfo ~= nil and tostring(legcardid) == tostring(g.legclassid) then
-        CHAT_SYSTEM("legaru")
+        -- CHAT_SYSTEM("legaru")
 
         -- レジェカを外すコード
         local argStr = legcardslot - 1
@@ -820,55 +941,89 @@ function cc_helper_unequip_legcard()
 end
 
 function cc_helper_unequip_godcard()
-    CHAT_SYSTEM("cc_helper_unequip_godcard")
+    --  CHAT_SYSTEM("cc_helper_unequip_godcard")
     local frame = ui.GetFrame("monstercardslot")
     local godcardslot = 14 -- レジェカを外すコード
     local godcardid = GETMYCARD_INFO(godcardslot - 1)
-    CHAT_SYSTEM(tostring(godcardid))
+    --   CHAT_SYSTEM(tostring(godcardid))
     local cardInfo = equipcard.GetCardInfo(godcardslot);
 
     if cardInfo ~= nil and tostring(godcardid) == tostring(g.godclassid) then
-        CHAT_SYSTEM("godaru")
+        --  CHAT_SYSTEM("godaru")
 
         -- レジェカを外すコード
         local argStr = godcardslot - 1
         argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
         pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
         MONSTERCARDSLOT_CLOSE()
-        -- ReserveScript("cc_helper_unequip_godcard()", 0.5)
-        return;
+
+        -- return;
     else
         MONSTERCARDSLOT_CLOSE()
     end
     MONSTERCARDSLOT_CLOSE()
-    -- local awframe = ui.GetFrame("accountwarehouse")
-    -- ON_OPEN_ACCOUNTWAREHOUSE(awframe)
-    --  ACCOUNTWAREHOUSE_OPEN(awframe)
-    -- OPEN_DLG_ACCOUNTWAREHOUSE(awframe)
-    -- ReserveScript("cc_helper_unequip_godcard()", 0.5)
-    -- cc_helper_inv_to_warehouse()
 
+    local awframe = ui.GetFrame("accountwarehouse");
+    if awframe:IsVisible() == 1 then
+        ReserveScript("cc_helper_inv_to_warehouse()", 1.0)
+        return
+    else
+        return
+    end
 end
 
 function cc_helper_inv_to_warehouse()
+    -- CHAT_SYSTEM("test")
     local frame = ui.GetFrame("accountwarehouse");
     local fromFrame = ui.GetFrame("inventory");
 
-    local seal = g.sealiesid
-    if seal ~= nil then
-        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, seal, 1, nil, nil)
-        seal = nil
-        ReserveScript(cc_helper_inv_to_warehouse())
-    end
-    --[[
-    local invItemList = session.GetInvItemList();
-    FOR_EACH_INVENTORY(invItemList, function(invItemList, g.sealiesid)
-        local sealiesid =  g.sealiesid
-        if sealiesid~=nil then
-            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.sealiesid, 1, nil, nil)
+    local seal = session.GetInvItemByGuid(tonumber(g.sealiesid));
+    local ark = session.GetInvItemByGuid(tonumber(g.arkiesid));
+    local leg = session.GetInvItemByGuid(tonumber(g.legiesid));
+    local god = session.GetInvItemByGuid(tonumber(g.godiesid));
+
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+    -- print(tostring(invItemCount))
+    for i = 0, cnt - 1 do
+        local guid = guidList:Get(i);
+        local invItem = invItemList:GetItemByGuid(guid)
+        local itemobj = GetIES(invItem:GetObject())
+        local iesid = invItem:GetIESID()
+        -- print(tostring(iesid))
+        if tostring(itemobj.ClassID) == tostring(g.gemid) then
+            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, nil, nil)
+            session.ResetItemList()
+            ReserveScript("cc_helper_inv_to_warehouse()", 0.5)
+            break
+
         end
-        end,false);
+
     end
-    ]]
+    -- CHAT_SYSTEM("start")
+    -- CHAT_SYSTEM(tostring(seal))
+    if seal ~= nil then
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.sealiesid, 1, nil, nil)
+        ReserveScript("cc_helper_inv_to_warehouse()", 0.5)
+        return
+    elseif ark ~= nil then
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.arkiesid, 1, nil, nil)
+        ReserveScript("cc_helper_inv_to_warehouse()", 0.5)
+        return
+    elseif leg ~= nil then
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.legiesid, 1, nil, nil)
+        ReserveScript("cc_helper_inv_to_warehouse()", 0.5)
+        return
+    elseif god ~= nil then
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.godiesid, 1, nil, nil)
+        ReserveScript("cc_helper_inv_to_warehouse()", 0.5)
+        return
+
+    else
+        ui.SysMsg("[CCH]finish")
+        return
+    end
+
 end
 
