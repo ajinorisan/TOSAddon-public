@@ -1,7 +1,8 @@
+-- v1.0.2 チーム倉庫でESC押してもインベントリが表示される様に変更
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -49,7 +50,7 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.framename = addonName
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    print(addonNameLower .. " loaded")
     indun_panel_load_settings()
 
     -- acutil.setupHook(INDUN_PANEL_REQ_RAID_AUTO_UI_OPEN, "REQ_RAID_AUTO_UI_OPEN")
@@ -102,12 +103,47 @@ function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
 end
 
 function INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE(frame, msg)
-    local ivframe = ui.GetFrame("inventory")
-    ivframe = acutil.getEventArgs(msg);
+    local frame = ui.GetFrame("inventory")
+    frame = acutil.getEventArgs(msg);
 
-    ui.CloseFrame("inventory")
-    ui.OpenFrame("inventory");
+    -- ui.CloseFrame("inventory")
+    -- ReserveScript(string.format("INDUN_PANEL_INVENTORY_OPEN('%s')", frame, 1.0))
+    ReserveScript(string.format("INDUN_PANEL_INVENTORY_OPEN('%s')", frame, 1.0))
+    -- CHAT_SYSTEM("test")
+    -- ReserveScript(string.format("cc_helper_legcard_equip(%d, '%s')", godcardslot, g.godiesid), 1.0)
 
+end
+
+function INDUN_PANEL_INVENTORY_OPEN(frame)
+    -- CHAT_SYSTEM("test1")
+    local frame = ui.GetFrame("inventory")
+    frame:ShowWindow(1)
+    frame:SetUserValue("MONCARDLIST_OPENED", 0);
+
+    ui.Chat("/requpdateequip"); -- 내구도 회복 유료템 때문에 정확한 값을 지금 알아야 함.
+    session.inventory.ReqTrustPoint();
+
+    local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS");
+    if savedPos == 'None' then
+        savedPos = '0'
+    end
+
+    local tree_box = GET_CHILD_RECURSIVELY(frame, 'treeGbox_All')
+    tree_box:SetScrollPos(tonumber(savedPos));
+
+    session.CheckOpenInvCnt();
+    ui.CloseFrame('layerscore');
+    MAKE_WEAPON_SWAP_BUTTON();
+    local questInfoSetFrame = ui.GetFrame('questinfoset_2');
+    if questInfoSetFrame:IsVisible() == 1 then
+        questInfoSetFrame:ShowWindow(0);
+    end
+
+    INV_HAT_VISIBLE_STATE(frame);
+    INV_HAIR_WIG_VISIBLE_STATE(frame);
+
+    local minimapFrame = ui.GetFrame('minimap');
+    minimapFrame:ShowWindow(0);
 end
 
 function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)

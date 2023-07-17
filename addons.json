@@ -22,7 +22,7 @@
 		"name" : "Indun Panel",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.2",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "workpanel的なアドオン。チャレンジやレイドに入る支援パネルを設置します。A workpanel-like add-on. Set up a support panel to enter challenges and raids.workpanel적인 애드온. 챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",
