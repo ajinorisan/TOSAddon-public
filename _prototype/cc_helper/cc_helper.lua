@@ -69,7 +69,7 @@ function CC_HELPER_ON_INIT(addon, frame)
     uneqbtn:ShowWindow(1)
     eqbtn:ShowWindow(1)
 
-    print(addonNameLower .. " loaded")
+    CHAT_SYSTEM(addonNameLower .. " loaded")
 
     acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "CC_HELPER_ACCOUNTWAREHOUSE_CLOSE");
 
@@ -230,7 +230,7 @@ function cc_helper_setting()
 end
 
 function cc_helper_out_btn()
-
+    addon.BroadMsg("NOTICE_Dm_!", "[CCH]in operation", 9.0);
     local fromframe = ui.GetFrame("accountwarehouse")
 
     if fromframe:IsVisible() == 1 then
@@ -240,7 +240,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.sealiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
 
                 ReserveScript("cc_helper_out_btn()", 0.5)
                 return
@@ -253,7 +253,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.arkiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
                 ReserveScript("cc_helper_out_btn()", 0.5)
                 return
             end
@@ -265,7 +265,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.legiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
                 ReserveScript("cc_helper_out_btn()", 0.5)
                 return
             end
@@ -277,7 +277,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.godiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
                 ReserveScript("cc_helper_out_btn()", 0.5)
                 return
             end
@@ -328,13 +328,13 @@ function cc_helper_card_equip()
     -- local groupNameStr = "LEG"
     if legitem ~= nil then
         cc_helper_legcard_equip(legcardslot, g.legiesid)
-        return
+        -- return
     end
     if goditem ~= nil then
-        ReserveScript(string.format("cc_helper_legcard_equip(%d, '%s')", godcardslot, g.godiesid), 1.0)
-        return
+        ReserveScript(string.format("cc_helper_legcard_equip(%d, '%s')", godcardslot, g.godiesid), 1.5)
+        -- return
     end
-    ReserveScript("cc_helper_gem_to_account_warehouse()", 0.5)
+    ReserveScript("cc_helper_gem_to_account_warehouse()", 2.0)
     return
 end
 
@@ -345,6 +345,7 @@ function cc_helper_legcard_equip(slotIndex, itemGuid)
 end
 
 function cc_helper_gem_to_account_warehouse()
+    -- CHAT_SYSTEM("cc_helper_gem_to_account_warehouse()")
     local fromframe = ui.GetFrame("accountwarehouse")
     if fromframe:IsVisible() == 1 then
         if g.gemid ~= nil then
@@ -366,21 +367,19 @@ function cc_helper_gem_to_account_warehouse()
                         session.ResetItemList()
                         session.AddItemID(tonumber(iesid), 1)
                         item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                        fromframe:GetUserIValue("HANDLE"))
-                        ReserveScript("cc_helper_out_btn()", 0.5)
+                            fromframe:GetUserIValue("HANDLE"))
+                        ReserveScript("cc_helper_gem_to_account_warehouse()", 0.5)
                         break
-                        -- return
+                        return
 
                     end
                 end
             end
-        else
-            ReserveScript("MONSTERCARDSLOT_CLOSE()", 2.0)
-            ui.SysMsg("[CCH]finish")
-            return
+
         end
     end
-    ui.SysMsg("[CCH]finish")
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", 2.0)
+    -- ui.SysMsg("[CCH]finish")
     return
 end
 
@@ -396,7 +395,7 @@ function cc_helper_check_items_in_warehouse(iesid)
 end
 
 function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-                           legclassid, godclassid)
+    legclassid, godclassid)
     -- CHAT_SYSTEM("enddrop")
     local loginCharID = info.GetCID(session.GetMyHandle())
     if sealiesid ~= nil then
@@ -447,30 +446,31 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
     local loginCharID = info.GetCID(session.GetMyHandle())
 
     if ctrl:GetName() == tostring("sealslot") then
-        g.settings.charid.sealiesid[tostring(loginCharID)] = {}
-        g.settings.charid.sealimage[tostring(loginCharID)] = {}
+        g.settings.charid.sealiesid[tostring(loginCharID)] = nil
+        g.settings.charid.sealimage[tostring(loginCharID)] = nil
+
         g.sealiesid = nil
         g.sealimage = nil
 
     end
 
     if ctrl:GetName() == tostring("arkslot") then
-        g.settings.charid.arkiesid[tostring(loginCharID)] = {}
-        g.settings.charid.arkimage[tostring(loginCharID)] = {}
+        g.settings.charid.arkiesid[tostring(loginCharID)] = nil
+        g.settings.charid.arkimage[tostring(loginCharID)] = nil
         g.arkiesid = nil
         g.arkimage = nil
     end
 
     if ctrl:GetName() == tostring("agemslot") then
-        g.settings.charid.gemid[tostring(loginCharID)] = {}
+        g.settings.charid.gemid[tostring(loginCharID)] = nil
         g.gemid = nil
 
     end
 
     if ctrl:GetName() == tostring("legcardslot") then
-        g.settings.charid.legiesid[tostring(loginCharID)] = {}
-        g.settings.charid.legimage[tostring(loginCharID)] = {}
-        g.settings.charid.legclassid[tostring(loginCharID)] = {}
+        g.settings.charid.legiesid[tostring(loginCharID)] = nil
+        g.settings.charid.legimage[tostring(loginCharID)] = nil
+        g.settings.charid.legclassid[tostring(loginCharID)] = nil
         g.legiesid = nil
         g.legimage = nil
         g.legclassid = nil
@@ -478,9 +478,9 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
     end
 
     if ctrl:GetName() == tostring("godcardslot") then
-        g.settings.charid.godiesid[tostring(loginCharID)] = {}
-        g.settings.charid.godimage[tostring(loginCharID)] = {}
-        g.settings.charid.godclassid[tostring(loginCharID)] = {}
+        g.settings.charid.godiesid[tostring(loginCharID)] = nil
+        g.settings.charid.godimage[tostring(loginCharID)] = nil
+        g.settings.charid.godclassid[tostring(loginCharID)] = nil
         g.godiesid = nil
         g.godimage = nil
         g.godclassid = nil
@@ -518,7 +518,7 @@ function cc_helper_on_legendcard_drop(frame, ctrl, argstr, argnum)
     SET_SLOT_IMG(ctrl, legimage)
     SET_SLOT_IESID(ctrl, item:GetIESID());
     cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-                      legclassid, godclassid)
+        legclassid, godclassid)
     -- cc_helper_enddrop(iesid, type, classid)
 
 end
@@ -551,7 +551,7 @@ function cc_helper_on_goddesscard_drop(frame, ctrl, argstr, argnum)
     SET_SLOT_IESID(ctrl, item:GetIESID());
 
     cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-                      legclassid, godclassid)
+        legclassid, godclassid)
     -- cc_helper_enddrop(iesid, type, classid)
 
 end
@@ -691,8 +691,8 @@ function cc_helper_frame_init()
         frame:ShowWindow(0)
     end
 
-    local title = frame:CreateOrGetControl("richtext", "title", 45, 15)
-    title:SetText("{#000000}{s20}CC Helper")
+    local title = frame:CreateOrGetControl("richtext", "title", 40, 15)
+    title:SetText("{#000000}{s16}CC Helper")
 
     -- CHAT_SYSTEM("TEST")
     local close = frame:CreateOrGetControl('button', 'close', 10, 10, 30, 30)
@@ -791,9 +791,36 @@ function cc_helper_frame_init()
 
     end
 
+    local simple = frame:CreateOrGetControl("richtext", "simple", 130, 8)
+    simple:SetText("{#000000}{s14}simple")
+    local version = frame:CreateOrGetControl("richtext", "version", 127, 20)
+    version:SetText("{#000000}{s14}version")
+
+    local checkbox = frame:CreateOrGetControl('checkbox', 'checkbox', 180, 10, 15, 15)
+    tolua.cast(checkbox, 'ui::CCheckBox')
+    checkbox:SetCheck(g.ischecked)
+    checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_ischecked")
+
+end
+function cc_helper_ischecked()
+    local frame = ui.GetFrame(addonNameLower)
+    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
+    local ischeck = checkbox:IsChecked();
+
+    if ischeck == 1 then
+        g.ischecked = 1
+        CHAT_SYSTEM(tostring(g.ischecked))
+        return
+    else
+        g.ischecked = 0
+        CHAT_SYSTEM(tostring(g.ischecked))
+        return
+    end
+
 end
 
 function cc_helper_in_btn()
+    addon.BroadMsg("NOTICE_Dm_!", "[CCH]in operation", 8.0);
     -- CHAT_SYSTEM("click")
     local frame = ui.GetFrame("inventory")
 
@@ -953,6 +980,7 @@ function cc_helper_unequip_godcard()
         ReserveScript("cc_helper_inv_to_warehouse()", 1.0)
         return
     else
+        CHAT_SYSTEM("nai")
         return
     end
 end
@@ -995,7 +1023,7 @@ function cc_helper_inv_to_warehouse()
 end
 
 function cc_helper_gem_inv_to_warehouse()
-
+    -- CHAT_SYSTEM("cc_helper_gem_inv_to_warehouse")
     local frame = ui.GetFrame("accountwarehouse");
     local fromFrame = ui.GetFrame("inventory");
     if frame:IsVisible() == 1 then
@@ -1014,12 +1042,12 @@ function cc_helper_gem_inv_to_warehouse()
                 session.ResetItemList()
                 ReserveScript("cc_helper_gem_inv_to_warehouse()", 0.5)
                 break
-                -- return
+                return
             end
-
+            -- ui.SysMsg("[CCH]finish")
         end
     end
-    ui.SysMsg("[CCH]finish")
+
 end
 --[[
 function CC_helper_isItemInWarehouse()
