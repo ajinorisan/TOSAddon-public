@@ -1,8 +1,9 @@
 -- v1.0.3 waitの時間見直し
+-- v1.0.4 チーム倉庫開いている時の挙動見直し
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -74,7 +75,7 @@ function AETHERGEM_MGR_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- CHAT_SYSTEM(addonNameLower .. " loaded")
     acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
     -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_RBDC_ITEMUSE, "INVENTORY_RBDC_ITEMUSE")
     -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_ON_MSG, "INVENTORY_ON_MSG")
@@ -366,9 +367,24 @@ function AETHERGEM_MGR_SET_EQUIP()
         g.lh_sub_guid = nil
 
         local gemframe = ui.GetFrame("goddess_equip_manager")
+        local awframe = ui.GetFrame("accountwarehouse")
+
+        if awframe:IsVisible() == 0 then
+            gemframe:ShowWindow(0)
+            -- ui.CloseFrame("goddess_equip_manager")
+            GODDESS_EQUIP_MANAGER_CLOSE(gemframe)
+            ui.SysMsg("[AGM]end")
+            return
+        else
+            ui.SysMsg("[AGM]end")
+            return
+        end
+
+        --[[
+        local gemframe = ui.GetFrame("goddess_equip_manager")
         GODDESS_EQUIP_MANAGER_CLOSE(gemframe)
         ui.SysMsg("[AGM]end")
-        --[[
+        
         ui.CloseFrame = ("goddess_equip_manager")
         
         ]]
