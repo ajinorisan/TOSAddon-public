@@ -16,6 +16,12 @@ https://twitter.com/ToSJP_rada
 
 ----
 
+### Job Change Helper アドオンマネージャーに登録済 Register in Addon Manager
+
+装備外して、ペット戻して、PTから抜けます。
+
+----
+
 ### Character Change Helper アドオンマネージャーに登録済 Register in Addon Manager
 
 エンブレム、アーク、レジェンドカード、ゴッデスカード、をワンボタンで着け外し出来ます。
