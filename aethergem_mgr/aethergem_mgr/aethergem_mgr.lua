@@ -1,9 +1,10 @@
 -- v1.0.3 waitの時間見直し
 -- v1.0.4 チーム倉庫開いている時の挙動見直し
+-- ｖ1.0.5　インベ表示微修正
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -618,8 +619,8 @@ function AETHERGEM_MGR_FRAME_INIT()
     local inventoryGbox = invframe:GetChild("inventoryGbox")
 
     -- ボタンの配置位置
-    local buttonX = inventoryGbox:GetWidth() - 35
-    local buttonY = inventoryGbox:GetHeight() - 610
+    local buttonX = inventoryGbox:GetWidth() - 28
+    local buttonY = inventoryGbox:GetHeight() - 614
 
     local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton", buttonX, buttonY, 20, 20)
     -- eqbutton:SetText("AG_SET")
@@ -628,11 +629,11 @@ function AETHERGEM_MGR_FRAME_INIT()
     eqbutton:SetImage("config_button_normal")
     eqbutton:Resize(30, 30)
 
-    local rmbuttonX = inventoryGbox:GetWidth() - 100
-    local rmbuttonY = inventoryGbox:GetHeight() - 610
+    local rmbuttonX = inventoryGbox:GetWidth() - 70
+    local rmbuttonY = inventoryGbox:GetHeight() - 614
 
-    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 60, 30)
-    rmeqbutton:SetText("{s14}AGMGR")
+    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 40, 30)
+    rmeqbutton:SetText("{s14}AGM")
 
     eqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
     rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")

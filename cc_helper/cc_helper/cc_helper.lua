@@ -1,9 +1,10 @@
 -- v1.0.0 エーテルジェム対応
 -- v1.0.1 シンプルモード搭載、搬入搬出速度見直し、終了時のメッセージタイミング見直し
+-- v1.0.2　インベの表示微修正　print排除
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -57,15 +58,15 @@ function CC_HELPER_ON_INIT(addon, frame)
     setbtn:Resize(30, 30)
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
     -- cc_helper_load_settings()
-    local uneqbtnX = inventoryGbox:GetWidth() - 287
+    local uneqbtnX = inventoryGbox:GetWidth() - 263
     local uneqbtnY = inventoryGbox:GetHeight() - 290
     local uneqbtn = invframe:CreateOrGetControl("button", "unequip", uneqbtnX, uneqbtnY, 30, 30)
     AUTO_CAST(uneqbtn)
-    uneqbtn:SetText("{s12}Remove")
+    uneqbtn:SetText("{s12}Rem")
     uneqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_unequip_seal")
     -- uneqbtn:ShowWindow(1)
 
-    local eqbtnX = inventoryGbox:GetWidth() - 232
+    local eqbtnX = inventoryGbox:GetWidth() - 230
     local eqbtnY = inventoryGbox:GetHeight() - 290
     local eqbtn = invframe:CreateOrGetControl("button", "g_equip", eqbtnX, eqbtnY, 30, 30)
     AUTO_CAST(eqbtn)
@@ -113,20 +114,20 @@ function cc_helper_invframe_init()
     local invframe = ui.GetFrame("inventory")
     local inventoryGbox = invframe:GetChild("inventoryGbox")
     -- ボタンの配置位置
-    local inbtnX = inventoryGbox:GetWidth() - 285
+    local inbtnX = inventoryGbox:GetWidth() - 267
     local inbtnY = inventoryGbox:GetHeight() - 290
     local inbtn = invframe:CreateOrGetControl("button", "in", inbtnX, inbtnY, 30, 30)
     AUTO_CAST(inbtn)
-    inbtn:SetText("IN")
+    inbtn:SetText("In")
     inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn")
     inbtn:ShowWindow(1)
 
-    local outbtnX = inventoryGbox:GetWidth() - 252
+    local outbtnX = inventoryGbox:GetWidth() - 239
     local outbtnY = inventoryGbox:GetHeight() - 290
     local outbtn = invframe:CreateOrGetControl("button", "out", outbtnX, outbtnY, 40, 30)
     AUTO_CAST(outbtn)
 
-    outbtn:SetText("OUT")
+    outbtn:SetText("Out")
     outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
     outbtn:ShowWindow(1)
 
@@ -143,7 +144,7 @@ function cc_helper_save_settings()
 end
 
 function cc_helper_load_settings()
-    print("Character Change Helper loaded")
+    -- print("Character Change Helper loaded")
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
     if err then

@@ -1,7 +1,8 @@
+-- ｖ1.0.1　全部脱ぐボタン実装
 local addonName = "JOB_CHANGE_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -16,9 +17,34 @@ function JOB_CHANGE_HELPER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        local invframe = ui.GetFrame('inventory')
+        local inventoryGbox = invframe:GetChild("inventoryGbox")
+        local alluneqbtnX = inventoryGbox:GetWidth() - 107
+        local alluneqbtnY = inventoryGbox:GetHeight() - 290
+
+        local alluneqbtn = invframe:CreateOrGetControl("button", "alluneqbtn", alluneqbtnX, alluneqbtnY, 30, 30)
+        AUTO_CAST(alluneqbtn)
+        -- CHAT_SYSTEM("test")
+        alluneqbtn:SetSkinName("test_red_button")
+        -- CHAT_SYSTEM("test2")
+        -- alluneqbtn:SetText("{img god_btn_inventory 20 20}")
+        alluneqbtn:SetText("{img equipment_info_btn_mark2 30 25}")
+        -- CHAT_SYSTEM("test3")
+        -- alluneqbtn:ShowWindow(1)
+        alluneqbtn:SetEventScript(ui.LBUTTONUP, "job_change_helper_allunequip")
+    end
     -- CHAT_SYSTEM("JOB_CHANGE_HELPER")
     addon:RegisterMsg("GAME_START_3SEC", "job_change_helper_changejob_init")
     -- CHAT_SYSTEM("test")
+end
+
+function job_change_helper_allunequip()
+    session.job.ReqUnEquipItemAll()
 end
 
 function job_change_helper_cj_click()
