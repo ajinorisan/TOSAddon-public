@@ -1,7 +1,8 @@
+-- v1.0.5 ミニお知らせの挙動変更　街ではマケとか見れる様に、フィールドは通常、レイドは全消し
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 -- v1.0.4 画面右上のミニボタンを街意外だと消す。街にいる場合はマーケットボタンとかが押せるような状態で表示
 -- v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
@@ -61,12 +62,14 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType ~= "City" then
-
+    -- if mapCls.MapType == "City" then
+    if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
         addon:RegisterMsg("GAME_START", "FREEFROMLITTLESTRESS_MINIMIZED_CLOSE")
-    else
-        addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
 
+    end
+
+    if mapCls.MapType == "City" then
+        addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
     end
     addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
 
@@ -152,6 +155,13 @@ function FREEFROMLITTLESTRESS_MINIMIZED_CLOSE()
     if guidequest:IsVisible() then
         -- CHAT_SYSTEM("guidequest" .. "が表示されてる")
         guidequest:ShowWindow(0)
+    end
+
+    -- menu
+    local menu = ui.GetFrame("minimized_fullscreen_navigation_menu_button")
+    if menu:IsVisible() then
+        -- CHAT_SYSTEM("guidequest" .. "が表示されてる")
+        menu:ShowWindow(0)
     end
 
 end
