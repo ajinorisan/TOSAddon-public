@@ -1,9 +1,11 @@
 -- v1.0.0 エーテルジェム対応
 -- v1.0.1 シンプルモード搭載、搬入搬出速度見直し、終了時のメッセージタイミング見直し
+-- v1.0.2　インベの表示微修正　print排除
+-- v1.0.3 シンプルモード→エコモードに変更　エコモード時レジェカ外れない様に。チェックボックスをインベントリに移す
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -74,14 +76,30 @@ function CC_HELPER_ON_INIT(addon, frame)
     uneqbtn:ShowWindow(1)
     eqbtn:ShowWindow(1)
 
-    local simplemode = invframe:CreateOrGetControl("richtext", "simplemode", 318, 363)
+    -- local checkX = inventoryGbox:GetWidth() - 316
+    -- local checkY = inventoryGbox:GetHeight() - 290
+
+    local eco = invframe:CreateOrGetControl("richtext", "eco", 210, 342)
     -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
-    simplemode:SetText("{#FF0000}{s12}SimpleMode")
+    eco:SetText("{#FF0000}{s10}Eco")
+
+    local checkbox = invframe:CreateOrGetControl('checkbox', 'checkbox', 207, 351, 7, 7)
+    tolua.cast(checkbox, 'ui::CCheckBox')
+    checkbox:SetCheck(g.ischecked)
+    checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_ischecked")
+    checkbox:ShowWindow(1)
+    -- CHAT_SYSTEM("test")
+
+    local ecomode = invframe:CreateOrGetControl("richtext", "ecomode", 320, 363)
+    -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
+    ecomode:SetText("{#FF0000}{s12}EcoMode")
     if g.ischecked == 1 and g.ischecked ~= nil then
-        simplemode:ShowWindow(1)
+        ecomode:ShowWindow(1)
     else
-        simplemode:ShowWindow(0)
+        ecomode:ShowWindow(0)
     end
+
+    -- CHAT_SYSTEM(tostring(g.ischecked))
 
     acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "CC_HELPER_ACCOUNTWAREHOUSE_CLOSE");
 
@@ -143,7 +161,7 @@ function cc_helper_save_settings()
 end
 
 function cc_helper_load_settings()
-    print("Character Change Helper loaded")
+    -- print("Character Change Helper loaded")
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
     if err then
@@ -243,6 +261,9 @@ end
 function cc_helper_out_btn()
     -- addon.BroadMsg("NOTICE_Dm_!", "[CCH]in operation", 9.0);
     local fromframe = ui.GetFrame("accountwarehouse")
+    local invframe = ui.GetFrame("inventory")
+    local invTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+    invTab:SelectTab(1)
 
     if fromframe:IsVisible() == 1 then
         if g.sealiesid ~= nil then
@@ -269,6 +290,9 @@ function cc_helper_out_btn()
                 return
             end
         end
+
+        local cardTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+        cardTab:SelectTab(4)
 
         if g.legiesid ~= nil and (g.ischecked == 0 or g.ischecked == nil) then
             local legcard = cc_helper_check_items_in_warehouse(g.legiesid)
@@ -381,6 +405,11 @@ end
 function cc_helper_gem_to_account_warehouse()
     -- CHAT_SYSTEM("cc_helper_gem_to_account_warehouse()")
     local fromframe = ui.GetFrame("accountwarehouse")
+
+    local invframe = ui.GetFrame("inventory")
+    local gemTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+    gemTab:SelectTab(6)
+
     if fromframe:IsVisible() == 1 then
         if g.gemid ~= nil then
             -- for j = 0, 3 do
@@ -422,6 +451,9 @@ function cc_helper_gem_to_account_warehouse()
 end
 
 function cc_helper_end_of_operation()
+    local invframe = ui.GetFrame("inventory")
+    local allTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+    allTab:SelectTab(0)
     ui.SysMsg("[CCH]end of operation")
 end
 
@@ -832,7 +864,7 @@ function cc_helper_frame_init()
         -- SET_SLOT_IESID(godcardslot, tonumber(g.godiesid));
 
     end
-
+    --[[
     local simple = frame:CreateOrGetControl("richtext", "simple", 130, 8)
     simple:SetText("{#000000}{s14}simple")
     local mode = frame:CreateOrGetControl("richtext", "mode", 137, 20)
@@ -842,13 +874,14 @@ function cc_helper_frame_init()
     tolua.cast(checkbox, 'ui::CCheckBox')
     checkbox:SetCheck(g.ischecked)
     checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_ischecked")
-
+]]
 end
 function cc_helper_ischecked()
     local frame = ui.GetFrame(addonNameLower)
-    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
+
     local invframe = ui.GetFrame("inventory")
-    local simplemode = GET_CHILD_RECURSIVELY(invframe, "simplemode")
+    local checkbox = GET_CHILD_RECURSIVELY(invframe, "checkbox")
+    local simplemode = GET_CHILD_RECURSIVELY(invframe, "ecomode")
     local ischeck = checkbox:IsChecked();
 
     if ischeck == 1 then
@@ -897,6 +930,9 @@ end
 function cc_helper_unequip_seal()
     -- CHAT_SYSTEM("cc_helper_unequip_seal")
     local frame = ui.GetFrame("inventory")
+    -- local invframe = ui.GetFrame("inventory")
+    local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
+    eqpTab:SelectTab(1)
     local seal = GET_CHILD_RECURSIVELY(frame, "SEAL")
     --  CHAT_SYSTEM("cc_helper_unequip_seal-1")
     local sealicon = seal:GetIcon()
@@ -971,6 +1007,9 @@ end
 function cc_helper_unequip_legcard()
     -- CHAT_SYSTEM("cc_helper_unequip_legcard")
     MONSTERCARDSLOT_FRAME_OPEN()
+    local invframe = ui.GetFrame("inventory")
+    local cardTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+    cardTab:SelectTab(4)
 
     local frame = ui.GetFrame("monstercardslot")
     -- frame:ShowWindow(0)
@@ -982,7 +1021,7 @@ function cc_helper_unequip_legcard()
     -- print(tostring(legcardid))
     local cardInfo = equipcard.GetCardInfo(legcardslot);
 
-    if cardInfo ~= nil and tostring(legcardid) == tostring(g.legclassid) then
+    if cardInfo ~= nil and tostring(legcardid) == tostring(g.legclassid) and g.ischecked ~= 1 then
         -- CHAT_SYSTEM("legaru")
 
         -- レジェカを外すコード
@@ -1068,9 +1107,13 @@ function cc_helper_inv_to_warehouse()
 end
 
 function cc_helper_gem_inv_to_warehouse()
+
     -- CHAT_SYSTEM("cc_helper_gem_inv_to_warehouse")
     local frame = ui.GetFrame("accountwarehouse");
     local fromFrame = ui.GetFrame("inventory");
+    -- local invframe = ui.GetFrame("inventory")
+    local gemTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+    gemTab:SelectTab(6)
     if frame:IsVisible() == 1 then
         local invItemList = session.GetInvItemList()
         local guidList = invItemList:GetGuidList();

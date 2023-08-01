@@ -1,8 +1,10 @@
--- INDUNENTER_AUTOMATCH この辺りで自動でボタンを押す状態に出来そう
+-- v1.0.2 チーム倉庫でESC押してもインベントリが表示される様に変更
+-- v1.0.3 CCアイコンを配置、掃討の残りを表示（使っても減らないツライ）
+-- v1.0.4　print排除
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -50,36 +52,36 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.framename = addonName
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- print(addonNameLower .. " loaded")
     indun_panel_load_settings()
 
     -- acutil.setupHook(INDUN_PANEL_REQ_RAID_AUTO_UI_OPEN, "REQ_RAID_AUTO_UI_OPEN")
     -- acutil.setupHook(INDUN_PANEL_INDUNENTER_ENTER, "INDUNENTER_ENTER")
     -- acutil.setupHook(INDUN_PANEL_INDUNINFO_SET_BUTTONS, "INDUNINFO_SET_BUTTONS")
-    acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
-    -- acutil.setupEvent(addon, "INVENTORY_ON_MSG", "INDUN_PANEL_INVENTORY_ON_MSG");
-    -- addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', 'INDUN_PANEL_INVENTORY_ON_MSG');
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
+        local ipframe = ui.GetFrame("indun_panel")
+        ipframe:RemoveAllChild()
         indun_panel_frame_init()
         -- indun_panel_init()
     end
+    acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
+    -- addon:RegisterMsg("WEIGHT_UPDATE", "INDUN_PANEL_WEIGHT_UPDATE");
+    -- acutil.setupEvent(addon, "WEIGHT_UPDATE", "INDUN_PANEL_WEIGHT_UPDATE");
     -- indun_panel_get_chllengerecipe_trade_count()
 end
 
-function INDUN_PANEL_INVENTORY_ON_MSG(frame, msg)
-    -- CHAT_SYSTEM("testinv")
-    -- CHAT_SYSTEM(msg)
-    -- print(msg)
-    local ipframe = ui.GetFrame(g.framename)
-    -- ipframe:ShowWindow(0)
+function INDUN_PANEL_WEIGHT_UPDATE(frame)
 
+    CHAT_SYSTEM("test")
+    local ipframe = ui.GetFrame("indun_panel")
+    ipframe:ShowWindow(0)
     indun_panel_init(ipframe)
-    -- local ipframe = ui.GetFrame(g.framename)
-
-    -- indun_panel_judge(ipframe)
+    ipframe:ShowWindow(1)
+    -- ipframe:Invalidate()
 
 end
 
@@ -88,6 +90,8 @@ function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
     if frame:IsVisible() == 1 then
         ui.CloseFrame('earthtowershop')
     end
+    local invframe = ui.GetFrame('inventory')
+    INDUN_PANEL_INVENTORY_OPEN(invframe)
 
     pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
     --[[
@@ -103,12 +107,47 @@ function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
 end
 
 function INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE(frame, msg)
-    local ivframe = ui.GetFrame("inventory")
-    ivframe = acutil.getEventArgs(msg);
+    local frame = ui.GetFrame("inventory")
+    frame = acutil.getEventArgs(msg);
 
     -- ui.CloseFrame("inventory")
-    INVENTORY_OPEN(frame)
+    -- ReserveScript(string.format("INDUN_PANEL_INVENTORY_OPEN('%s')", frame, 1.0))
+    ReserveScript(string.format("INDUN_PANEL_INVENTORY_OPEN('%s')", frame, 1.0))
+    -- CHAT_SYSTEM("test")
+    -- ReserveScript(string.format("cc_helper_legcard_equip(%d, '%s')", godcardslot, g.godiesid), 1.0)
 
+end
+
+function INDUN_PANEL_INVENTORY_OPEN(frame)
+    -- CHAT_SYSTEM("test1")
+    local frame = ui.GetFrame("inventory")
+    frame:ShowWindow(1)
+    frame:SetUserValue("MONCARDLIST_OPENED", 0);
+
+    ui.Chat("/requpdateequip"); -- 내구도 회복 유료템 때문에 정확한 값을 지금 알아야 함.
+    session.inventory.ReqTrustPoint();
+
+    local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS");
+    if savedPos == 'None' then
+        savedPos = '0'
+    end
+
+    local tree_box = GET_CHILD_RECURSIVELY(frame, 'treeGbox_All')
+    tree_box:SetScrollPos(tonumber(savedPos));
+
+    session.CheckOpenInvCnt();
+    ui.CloseFrame('layerscore');
+    MAKE_WEAPON_SWAP_BUTTON();
+    local questInfoSetFrame = ui.GetFrame('questinfoset_2');
+    if questInfoSetFrame:IsVisible() == 1 then
+        questInfoSetFrame:ShowWindow(0);
+    end
+
+    INV_HAT_VISIBLE_STATE(frame);
+    INV_HAIR_WIG_VISIBLE_STATE(frame);
+
+    local minimapFrame = ui.GetFrame('minimap');
+    minimapFrame:ShowWindow(0);
 end
 
 function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
@@ -179,89 +218,7 @@ function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
     end
     ]]
 end
---[[
-function INDUN_PANEL_INDUNENTER_ENTER(frame, ctrl)
-    local topFrame = frame:GetTopParentFrame();
-    local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
-    local indunType = topFrame:GetUserValue('INDUN_TYPE');
-    local indunCls = GetClassByType('Indun', indunType);
-    local indunMinPCRank = TryGetProp(indunCls, 'PCRank')
-    local totaljobcount = session.GetPcTotalJobGrade()
 
-    if indunMinPCRank ~= nil then
-        if indunMinPCRank > totaljobcount and indunMinPCRank ~= totaljobcount then
-            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indunMinPCRank))
-            return;
-        end
-    end
-
-    if useCount > 0 then
-        local multipleItemList = GET_INDUN_MULTIPLE_ITEM_LIST();
-        for i = 1, #multipleItemList do
-            local itemName = multipleItemList[i];
-            local invItem = session.GetInvItemByName(itemName);
-            if invItem ~= nil and invItem.isLockState then
-                ui.SysMsg(ClMsg("MaterialItemIsLock"));
-                return;
-            end
-        end
-    end
-
-    local topFrame = frame:GetTopParentFrame();
-    if INDUNENTER_CHECK_ADMISSION_ITEM(topFrame, 1) == false then
-        return;
-    end
-
-    local playerCnt = TryGetProp(indunCls, 'PlayerCnt');
-    local party = session.party.GetPartyMemberList(PARTY_NORMAL);
-    local cnt = party:Count();
-    if cnt > playerCnt then
-        ui.SysMsg(ClMsg("OverIndunMaxPC"));
-        return;
-    end
-    CHAT_SYSTEM(indunCls.ClassID)
-    local textCount = topFrame:GetUserIValue("multipleCount");
-    local yesScript = string.format("ReqMoveToIndun(%d,%d)", 1, textCount);
-    ui.MsgBox(ScpArgMsg("EnterRightNow"), yesScript, "None");
-
-end
---[[
-function INDUN_PANEL_REQ_RAID_AUTO_UI_OPEN(frame, ctrl)
-    -- 매칭 던전중이거나 pvp존이면 이용 불가
-    if session.world.IsIntegrateServer() == true or IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
-        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
-        return;
-    end
-
-    -- 퀘스트나 챌린지 모드로 인해 레이어 변경되면 이용 불가
-    if world.GetLayer() ~= 0 then
-        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
-        return;
-    end
-
-    -- 레이드 지역에서 이용 불가
-    local map = GetClass('Map', session.GetMapName());
-    local keyword = TryGetProp(map, 'Keyword', 'None');
-    local keyword_table = StringSplit(keyword, ';');
-    if table.find(keyword_table, 'IsRaidField') > 0 or table.find(keyword_table, 'WeeklyBossMap') > 0 then
-        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
-        return;
-    end
-
-    local indun_classid = tonumber(ctrl:GetUserValue("MOVE_INDUN_CLASSID"));
-    local indun_cls = GetClassByType("Indun", indun_classid);
-    local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
-    if dungeon_type ~= "Raid" and string.find(dungeon_type, "MythicDungeon") ~= 1 then
-        return;
-    end
-
-    ui.CloseFrame("induninfo");
-    ReqRaidAutoUIOpen(indun_classid);
-
-    CHAT_SYSTEM(indun_classid)
-
-end
-]]
 function indun_panel_frame_init()
 
     local ipframe = ui.GetFrame(g.framename)
@@ -309,6 +266,7 @@ function indun_panel_judge(ipframe)
         -- ipframe:EnableHittestFrame(1)
         -- ipframe:EnableHide(0)
         -- ipframe:EnableHitTest(1)
+
         indun_panel_init(ipframe)
     else
         return;
@@ -330,28 +288,46 @@ function indun_panel_checkbox_toggle()
     end
     -- CHAT_SYSTEM(g.settings.ischecked)
 end
-
+--[[
 function indun_panel_inv_open()
     local frame = ui.GetFrame("inventory")
     frame:ShowWindow(1)
 end
-
+]]
 function indun_panel_init(ipframe)
-
+    -- print("roze")
     -- CHAT_SYSTEM("button_click")
-    local invbtn = ipframe:CreateOrGetControl('button', 'invbtn', 265, 5, 30, 30)
-    AUTO_CAST(invbtn)
-    invbtn:SetImage("sysmenu_inv")
-    invbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_inv_open")
+    -- 
+    local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 260, 5, 35, 35)
+    AUTO_CAST(ccbtn)
+    -- ccbtn:Resize(20, 20)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 35 35}")
+    -- ccbtn:SetImage("barrack_button_normal")
+    -- ccbtn:SetImageSize(30, 30)
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
-    local petbtn = ipframe:CreateOrGetControl('button', 'petbtn', 300, 5, 30, 30)
+    local invbtn = ipframe:CreateOrGetControl('button', 'invbtn', 295, 5, 35, 35)
+    AUTO_CAST(invbtn)
+    invbtn:SetSkinName("None")
+    invbtn:SetText("{img sysmenu_inv 35 35}")
+    -- invbtn:SetImage("sysmenu_inv")
+    -- invbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_inv_open")
+    invbtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_INVENTORY_OPEN")
+
+    local petbtn = ipframe:CreateOrGetControl('button', 'petbtn', 330, 5, 35, 35)
     AUTO_CAST(petbtn)
-    petbtn:SetImage("sysmenu_pet")
+    petbtn:SetSkinName("None")
+    petbtn:SetText("{img sysmenu_pet 35 35}")
+    -- petbtn:SetImage("sysmenu_pet")
     petbtn:SetEventScript(ui.LBUTTONUP, "UI_TOGGLE_PETLIST")
 
-    local minebtn = ipframe:CreateOrGetControl('button', 'minebtn', 225, 5, 30, 30)
+    local minebtn = ipframe:CreateOrGetControl('button', 'minebtn', 225, 5, 35, 35)
+
     AUTO_CAST(minebtn)
-    minebtn:SetImage("pvpmine_shop_btn_total")
+    minebtn:SetSkinName("None")
+    minebtn:SetText("{img pvpmine_shop_btn_total 35 35}")
+    -- minebtn:SetImage("pvpmine_shop_btn_total")
     -- minebtn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
     minebtn:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
     -- local Entrance = GET_CHILD_RECURSIVELY(frame, "BTN_Entrance_Ticket")
@@ -431,6 +407,77 @@ function indun_panel_init(ipframe)
     indun_panel_giltine_frame(ipframe)
     -- local ancient = ipframe:CreateOrGetControl("richtext", "ancient", 10, 360)
     -- ancient:SetText("{#000000}{s20}Ancient(アシスター)")
+    indun_panel_autosweep(ipframe)
+end
+
+function indun_panel_sweep_count(buffid)
+    -- print("indun_panel_sweep_count")
+    local handle = session.GetMyHandle()
+    local buffframe = ui.GetFrame("buff")
+    local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
+    local buffslotcount = buffslotset:GetChildCount()
+    local iconcount = 0
+    for i = 0, buffslotcount - 1 do
+        local achild = buffslotset:GetChildByIndex(i)
+        local aicon = achild:GetIcon()
+        local aiconinfo = aicon:GetInfo()
+        local abuff = info.GetBuff(handle, aiconinfo.type)
+        if abuff ~= nil then
+            iconcount = iconcount + 1
+        end
+    end
+
+    -- print(tostring(iconcount))
+
+    local sweepcount = 0
+
+    for i = 0, iconcount - 1 do
+        local child = buffslotset:GetChildByIndex(i)
+        local icon = child:GetIcon()
+        local iconinfo = icon:GetInfo()
+        local buff = info.GetBuff(handle, iconinfo.type)
+        -- print(tostring(buff.buffID))
+
+        if tostring(buff.buffID) == tostring(buffid) then
+
+            sweepcount = buff.over
+            -- print(sweepcount)
+
+        end
+
+    end
+    -- print("sweep" .. sweepcount)
+    return sweepcount
+
+end
+
+function indun_panel_autosweep(ipframe)
+    -- 80017ファロ掃討　/80015ロゼ掃討　/80016プロパ掃討
+    local spreadersweepcount = ipframe:CreateOrGetControl("richtext", "spreadersweepcount", 305, 310, 50, 30)
+    local falosweepcount = ipframe:CreateOrGetControl("richtext", "falosweepcount", 305, 235, 50, 30)
+    local rozesweepcount = ipframe:CreateOrGetControl("richtext", "rozesweepcount", 305, 160, 50, 30)
+    -- print("test")
+    -- indun_panel_sweep_count_Preparation()
+
+    -- print("test2")
+    local rBuffID = 80015 -- 対象のバフID
+    local sweepcount = 0
+    local buffFound = false
+
+    sweepcount = indun_panel_sweep_count(rBuffID)
+
+    rozesweepcount:SetText("{#000000}{s16}(" .. sweepcount .. ")")
+
+    local fBuffID = 80017 -- 対象のバフID
+
+    sweepcount = indun_panel_sweep_count(fBuffID)
+    falosweepcount:SetText("{#000000}{s16}(" .. sweepcount .. ")")
+
+    local sBuffID = 80016 -- 対象のバフID
+
+    sweepcount = indun_panel_sweep_count(sBuffID)
+
+    spreadersweepcount:SetText("{#000000}{s16}(" .. sweepcount .. ")")
 
 end
 
@@ -492,7 +539,6 @@ end
 function indun_panel_enter_giltine_auto()
     -- CHAT_SYSTEM("auto")
     ReqRaidAutoUIOpen(635)
-    INDUNENTER_AUTOMATCH_TYPE(635)
 end
 
 function indun_panel_enter_giltine_solo()
@@ -644,11 +690,7 @@ function indun_panel_enter_jellyzele_solo()
     ReqRaidSoloUIOpen(672)
     ReqMoveToIndun(1, 0)
 end
--- プロゲハード675
--- プロゲソロ674
--- プロパゲオート673
--- クラゲオード671
--- ムーア自動666
+
 function indun_panel_spreader_frame(ipframe)
     local spreadersoro = ipframe:CreateOrGetControl('button', 'spreadersoro', 135, 270, 80, 30)
     local spreaderauto = ipframe:CreateOrGetControl('button', 'spreaderauto', 220, 270, 80, 30)
@@ -656,6 +698,7 @@ function indun_panel_spreader_frame(ipframe)
     local spreadercount = ipframe:CreateOrGetControl("richtext", "spreadercount", 305, 275, 50, 30)
     local spreadercounthard = ipframe:CreateOrGetControl("richtext", "spreadercounthard", 445, 275, 50, 30)
     local spreadersweep = ipframe:CreateOrGetControl('button', 'spreadersweep', 220, 305, 80, 30)
+
     -- local spreaderticket = ipframe:CreateOrGetControl('button', 'spreaderticket', 360, 225, 80, 30)
     --  local spreaderticketcount = ipframe:CreateOrGetControl("richtext", "spreaderticketcount", 445, 230, 50, 30)
 
@@ -671,7 +714,11 @@ function indun_panel_spreader_frame(ipframe)
     spreadercounthard:SetText("{#000000}{s16}(" ..
                                   GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType) .. "/" ..
                                   GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType) .. ")")
+    -- local buffcount = indun_panel_sweep_count(80016)
+    -- if buffcount ~= 0 then
+    -- CHAT_SYSTEM(buffcount)
 
+    -- end
     spreadersoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_spreader_solo")
     spreaderauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_spreader_auto")
     g.spreader_hard_flag = false
@@ -682,7 +729,17 @@ end
 
 function indun_panel_autosweep_spreader()
     local indun_classid = tonumber(673);
-    ReqUseRaidAutoSweep(indun_classid);
+    local sBuffID = 80016 -- 対象のバフID
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(sBuffID)
+    if sweepcount >= 1 then
+        ReqUseRaidAutoSweep(indun_classid);
+        local ipframe = ui.GetFrame(g.framename)
+        indun_panel_init(ipframe)
+    else
+        ui.SysMsg("Does not have a sweeping buff")
+        return
+    end
 end
 
 function indun_panel_enter_spreader_hard()
@@ -719,6 +776,7 @@ function indun_panel_falo_frame(ipframe)
     local falocount = ipframe:CreateOrGetControl("richtext", "falocount", 305, 200, 50, 30)
     local falocounthard = ipframe:CreateOrGetControl("richtext", "falocounthard", 445, 200, 50, 30)
     local falosweep = ipframe:CreateOrGetControl('button', 'falosweep', 220, 230, 80, 30)
+
     -- local faloticket = ipframe:CreateOrGetControl('button', 'faloticket', 360, 225, 80, 30)
     --  local faloticketcount = ipframe:CreateOrGetControl("richtext", "faloticketcount", 445, 230, 50, 30)
 
@@ -771,7 +829,23 @@ end
 
 function indun_panel_autosweep_falo()
     local indun_classid = tonumber(676);
-    ReqUseRaidAutoSweep(indun_classid);
+    local fBuffID = 80017
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(fBuffID)
+    if sweepcount >= 1 then
+        ReqUseRaidAutoSweep(indun_classid);
+        local ipframe = ui.GetFrame(g.framename)
+        indun_panel_init(ipframe)
+        -- indun_panel_autosweep(ipframe)
+        -- ipframe:Invalidate();
+    else
+        ui.SysMsg("Does not have a sweeping buff")
+        return
+    end
+    -- indun_panel_init(ipframe)
+    -- ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
+    -- ipframe:ShowWindow(0)
+    -- ReserveScript(string.format("indun_panel_init('%s')", tostring(ipframe)), 0.1)
 end
 
 function indun_panel_roze_frame(ipframe)
@@ -781,6 +855,7 @@ function indun_panel_roze_frame(ipframe)
     local rozecount = ipframe:CreateOrGetControl("richtext", "rozecount", 305, 125, 50, 30)
     local rozecounthard = ipframe:CreateOrGetControl("richtext", "rozecounthard", 445, 125, 50, 30)
     local rozesweep = ipframe:CreateOrGetControl('button', 'rozesweep', 220, 155, 80, 30)
+
     -- local rozeticket = ipframe:CreateOrGetControl('button', 'rozeticket', 360, 155, 80, 30)
     -- local rozeticketcount = ipframe:CreateOrGetControl("richtext", "rozeticketcount", 445, 160, 50, 30)
 
@@ -798,7 +873,7 @@ function indun_panel_roze_frame(ipframe)
     rozesoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_roze_solo")
     rozeauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_roze_auto")
     g.roze_hard_flag = false
-    rozehard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_roze_hard")
+    rozehard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_roze_hard")
     rozesweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep_roze")
 
 end
@@ -833,7 +908,35 @@ end
 
 function indun_panel_autosweep_roze()
     local indun_classid = tonumber(679);
-    ReqUseRaidAutoSweep(indun_classid);
+
+    local rBuffID = 80015 -- 対象のバフID
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(rBuffID)
+    if sweepcount >= 1 then
+        ReqUseRaidAutoSweep(indun_classid);
+        local ipframe = ui.GetFrame(g.framename)
+        indun_panel_init(ipframe)
+    else
+        ui.SysMsg("Does not have a sweeping buff")
+        return
+    end
+    -- ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
+
+    -- return
+    -- indun_panel_init(ipframe)
+    --[[
+    indun_panel_frame_init()
+    
+    local ipframe = ui.GetFrame(g.framename)
+    local rBuffID = 80015
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(rBuffID)
+    local rozesweepcount = GET_CHILD_RECURSIVELY(ipframe, "rozesweepcount")
+    rozesweepcount:SetText("{#000000}{s16}(" .. sweepcount .. ")")
+    ipframe:Invalidate();
+    ]]
+    -- local ipframe = ui.GetFrame(g.framename)
+    --  indun_panel_init(ipframe)
 end
 
 function indun_panel_challenge_frame(ipframe)
@@ -919,5 +1022,88 @@ function indun_panel_get_chllengerecipe_trade_count()
     end
 
     return nil
+end
+]]
+--[[
+function INDUN_PANEL_INDUNENTER_ENTER(frame, ctrl)
+    local topFrame = frame:GetTopParentFrame();
+    local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
+    local indunType = topFrame:GetUserValue('INDUN_TYPE');
+    local indunCls = GetClassByType('Indun', indunType);
+    local indunMinPCRank = TryGetProp(indunCls, 'PCRank')
+    local totaljobcount = session.GetPcTotalJobGrade()
+
+    if indunMinPCRank ~= nil then
+        if indunMinPCRank > totaljobcount and indunMinPCRank ~= totaljobcount then
+            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indunMinPCRank))
+            return;
+        end
+    end
+
+    if useCount > 0 then
+        local multipleItemList = GET_INDUN_MULTIPLE_ITEM_LIST();
+        for i = 1, #multipleItemList do
+            local itemName = multipleItemList[i];
+            local invItem = session.GetInvItemByName(itemName);
+            if invItem ~= nil and invItem.isLockState then
+                ui.SysMsg(ClMsg("MaterialItemIsLock"));
+                return;
+            end
+        end
+    end
+
+    local topFrame = frame:GetTopParentFrame();
+    if INDUNENTER_CHECK_ADMISSION_ITEM(topFrame, 1) == false then
+        return;
+    end
+
+    local playerCnt = TryGetProp(indunCls, 'PlayerCnt');
+    local party = session.party.GetPartyMemberList(PARTY_NORMAL);
+    local cnt = party:Count();
+    if cnt > playerCnt then
+        ui.SysMsg(ClMsg("OverIndunMaxPC"));
+        return;
+    end
+    CHAT_SYSTEM(indunCls.ClassID)
+    local textCount = topFrame:GetUserIValue("multipleCount");
+    local yesScript = string.format("ReqMoveToIndun(%d,%d)", 1, textCount);
+    ui.MsgBox(ScpArgMsg("EnterRightNow"), yesScript, "None");
+
+end
+--[[
+function INDUN_PANEL_REQ_RAID_AUTO_UI_OPEN(frame, ctrl)
+    -- 매칭 던전중이거나 pvp존이면 이용 불가
+    if session.world.IsIntegrateServer() == true or IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
+        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
+        return;
+    end
+
+    -- 퀘스트나 챌린지 모드로 인해 레이어 변경되면 이용 불가
+    if world.GetLayer() ~= 0 then
+        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
+        return;
+    end
+
+    -- 레이드 지역에서 이용 불가
+    local map = GetClass('Map', session.GetMapName());
+    local keyword = TryGetProp(map, 'Keyword', 'None');
+    local keyword_table = StringSplit(keyword, ';');
+    if table.find(keyword_table, 'IsRaidField') > 0 or table.find(keyword_table, 'WeeklyBossMap') > 0 then
+        ui.SysMsg(ScpArgMsg('ThisLocalUseNot'));
+        return;
+    end
+
+    local indun_classid = tonumber(ctrl:GetUserValue("MOVE_INDUN_CLASSID"));
+    local indun_cls = GetClassByType("Indun", indun_classid);
+    local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
+    if dungeon_type ~= "Raid" and string.find(dungeon_type, "MythicDungeon") ~= 1 then
+        return;
+    end
+
+    ui.CloseFrame("induninfo");
+    ReqRaidAutoUIOpen(indun_classid);
+
+    CHAT_SYSTEM(indun_classid)
+
 end
 ]]
