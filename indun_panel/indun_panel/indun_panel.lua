@@ -1,10 +1,11 @@
 -- v1.0.2 チーム倉庫でESC押してもインベントリが表示される様に変更
 -- v1.0.3 CCアイコンを配置、掃討の残りを表示（使っても減らないツライ）
--- 　ｖ1.0.4　print排除
+-- v1.0.4　print排除
+-- v1.0.5 イヤリングレイド
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -58,30 +59,30 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     -- acutil.setupHook(INDUN_PANEL_REQ_RAID_AUTO_UI_OPEN, "REQ_RAID_AUTO_UI_OPEN")
     -- acutil.setupHook(INDUN_PANEL_INDUNENTER_ENTER, "INDUNENTER_ENTER")
     -- acutil.setupHook(INDUN_PANEL_INDUNINFO_SET_BUTTONS, "INDUNINFO_SET_BUTTONS")
-    acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
-    -- acutil.setupEvent(addon, "INVENTORY_ON_MSG", "INDUN_PANEL_INVENTORY_ON_MSG");
-    -- addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', 'INDUN_PANEL_INVENTORY_ON_MSG');
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
+        local ipframe = ui.GetFrame("indun_panel")
+        ipframe:RemoveAllChild()
         indun_panel_frame_init()
         -- indun_panel_init()
     end
+    acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
+    -- addon:RegisterMsg("WEIGHT_UPDATE", "INDUN_PANEL_WEIGHT_UPDATE");
+    -- acutil.setupEvent(addon, "WEIGHT_UPDATE", "INDUN_PANEL_WEIGHT_UPDATE");
     -- indun_panel_get_chllengerecipe_trade_count()
 end
 
-function INDUN_PANEL_INVENTORY_ON_MSG(frame, msg)
-    -- CHAT_SYSTEM("testinv")
-    -- CHAT_SYSTEM(msg)
-    -- print(msg)
-    local ipframe = ui.GetFrame(g.framename)
-    -- ipframe:ShowWindow(0)
+function INDUN_PANEL_WEIGHT_UPDATE(frame)
 
+    CHAT_SYSTEM("test")
+    local ipframe = ui.GetFrame("indun_panel")
+    ipframe:ShowWindow(0)
     indun_panel_init(ipframe)
-    -- local ipframe = ui.GetFrame(g.framename)
-
-    -- indun_panel_judge(ipframe)
+    ipframe:ShowWindow(1)
+    -- ipframe:Invalidate()
 
 end
 
@@ -231,7 +232,7 @@ function indun_panel_frame_init()
     ipframe:EnableHittestFrame(1)
     ipframe:EnableHide(0)
     ipframe:EnableHitTest(1)
-    ipframe:SetAlpha(70)
+    ipframe:SetAlpha(55)
     ipframe:RemoveAllChild()
     -- ipframe:EnableHideProcess(0)
     local button = ipframe:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
@@ -259,13 +260,14 @@ function indun_panel_judge(ipframe)
         ipframe:EnableHittestFrame(1)
         ipframe:EnableHide(0)
         ipframe:EnableHitTest(1)
-        ipframe:SetAlpha(70)
+        ipframe:SetAlpha(55)
 
         -- indun_panel_frame_init()
     elseif g.settings.ischecked == 1 then
         -- ipframe:EnableHittestFrame(1)
         -- ipframe:EnableHide(0)
         -- ipframe:EnableHitTest(1)
+
         indun_panel_init(ipframe)
     else
         return;
@@ -296,7 +298,7 @@ end
 function indun_panel_init(ipframe)
     -- print("roze")
     -- CHAT_SYSTEM("button_click")
-
+    -- 
     local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 260, 5, 35, 35)
     AUTO_CAST(ccbtn)
     -- ccbtn:Resize(20, 20)
@@ -345,7 +347,7 @@ function indun_panel_init(ipframe)
     entext:SetText("{#000000}{s20}Always Open")
 
     ipframe:SetLayerLevel(93)
-    ipframe:Resize(555, 550) -- 595
+    ipframe:Resize(555, 590) -- 595
     -- ipframe:SetSkinName("chat_window")
     ipframe:SetSkinName("test_frame_low")
 
@@ -407,6 +409,53 @@ function indun_panel_init(ipframe)
     -- local ancient = ipframe:CreateOrGetControl("richtext", "ancient", 10, 360)
     -- ancient:SetText("{#000000}{s20}Ancient(アシスター)")
     indun_panel_autosweep(ipframe)
+
+    -- 661solo 662ptn 663pth  ReqRaidAutoUIOpen(662)
+    local earring = ipframe:CreateOrGetControl("richtext", "earring", 10, 545)
+    earring:SetText("{#000000}{s20}Earring")
+    indun_panel_earring_frame(ipframe)
+
+end
+
+function indun_panel_earring_frame(ipframe)
+    local earringsoro = ipframe:CreateOrGetControl('button', 'earringsoro', 135, 545, 80, 30)
+    local earringnormal = ipframe:CreateOrGetControl('button', 'earringauto', 220, 545, 80, 30)
+    local earringhard = ipframe:CreateOrGetControl('button', 'earringhard', 305, 545, 80, 30)
+    -- local earringcount = ipframe:CreateOrGetControl("richtext", "earringcount", 220, 550, 50, 30)
+    -- local earringnormalcount = ipframe:CreateOrGetControl("richtext", "earringnormalcount", 305, 550, 50, 30)
+    local earringcounthard = ipframe:CreateOrGetControl("richtext", "earringcounthard", 390, 550, 50, 30)
+    -- local giltinesweep = ipframe:CreateOrGetControl('button', 'giltinesweep', 220, 305, 80, 30)
+    -- local giltineticket = ipframe:CreateOrGetControl('button', 'giltineticket', 360, 225, 80, 30)
+    --  local giltineticketcount = ipframe:CreateOrGetControl("richtext", "giltineticketcount", 445, 230, 50, 30)
+
+    --  giltineticketcount:SetText("{#000000}{s16}(1/1)")
+    earringsoro:SetText("SOLO")
+    earringnormal:SetText("{s14}NORMAL")
+    earringhard:SetText("HARD")
+    -- giltinesweep:SetText("SWEEP")
+    --  giltineticket:SetText("BUY")
+    -- earringcount:SetText(
+    -- "{#000000}{s16}(" .. GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 661).PlayPerResetType) .. ")")
+
+    earringcounthard:SetText("{#000000}{s16}(" ..
+                                 GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 663).PlayPerResetType) .. ")")
+
+    earringsoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_earringsoro")
+    earringnormal:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_earringnormal")
+    earringhard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_earringhard")
+
+end
+
+function indun_panel_enter_earringsoro()
+    ReqRaidAutoUIOpen(661)
+end
+
+function indun_panel_enter_earringnormal()
+    ReqRaidAutoUIOpen(662)
+end
+
+function indun_panel_enter_earringhard()
+    ReqRaidAutoUIOpen(663)
 end
 
 function indun_panel_sweep_count(buffid)
@@ -728,10 +777,19 @@ end
 
 function indun_panel_autosweep_spreader()
     local indun_classid = tonumber(673);
-    ReqUseRaidAutoSweep(indun_classid);
-    local ipframe = ui.GetFrame(g.framename)
-    -- indun_panel_init(ipframe)
-    ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
+    local sBuffID = 80016 -- 対象のバフID
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(sBuffID)
+    if sweepcount >= 1 then
+        ReqUseRaidAutoSweep(indun_classid);
+        local ipframe = ui.GetFrame(g.framename)
+        -- ReserveScript(string.format("indun_panel_init('%s')", ipframe, 0.1))
+        -- ipframe:RemoveAllChild()
+        -- indun_panel_init(ipframe)
+    else
+        ui.SysMsg("Does not have a sweeping buff")
+        return
+    end
 end
 
 function indun_panel_enter_spreader_hard()
@@ -821,11 +879,25 @@ end
 
 function indun_panel_autosweep_falo()
     local indun_classid = tonumber(676);
-    ReqUseRaidAutoSweep(indun_classid);
-    local ipframe = ui.GetFrame(g.framename)
-
+    local fBuffID = 80017
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(fBuffID)
+    if sweepcount >= 1 then
+        ReqUseRaidAutoSweep(indun_classid);
+        local ipframe = ui.GetFrame(g.framename)
+        -- ipframe:RemoveAllChild()
+        -- ReserveScript(string.format("indun_panel_init('%s')", ipframe, 0.1))
+        -- indun_panel_init(ipframe)
+        -- indun_panel_autosweep(ipframe)
+        -- ipframe:Invalidate();
+    else
+        ui.SysMsg("Does not have a sweeping buff")
+        return
+    end
     -- indun_panel_init(ipframe)
-    ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
+    -- ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
+    -- ipframe:ShowWindow(0)
+    -- ReserveScript(string.format("indun_panel_init('%s')", tostring(ipframe)), 0.1)
 end
 
 function indun_panel_roze_frame(ipframe)
@@ -888,11 +960,21 @@ end
 
 function indun_panel_autosweep_roze()
     local indun_classid = tonumber(679);
-    ReqUseRaidAutoSweep(indun_classid);
-    -- local ipframe = ui.GetFrame(g.framename)
 
-    -- ipframe:SowWindow(1)
-    ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
+    local rBuffID = 80015 -- 対象のバフID
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(rBuffID)
+    if sweepcount >= 1 then
+        ReqUseRaidAutoSweep(indun_classid);
+        local ipframe = ui.GetFrame(g.framename)
+        -- ipframe:RemoveAllChild()
+        -- ReserveScript(string.format("indun_panel_init('%s')", ipframe, 0.1))
+        -- indun_panel_init(ipframe)
+    else
+        ui.SysMsg("Does not have a sweeping buff")
+        return
+    end
+    -- ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
 
     -- return
     -- indun_panel_init(ipframe)
