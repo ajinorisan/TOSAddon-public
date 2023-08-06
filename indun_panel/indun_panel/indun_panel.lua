@@ -2,10 +2,11 @@
 -- v1.0.3 CCアイコンを配置、掃討の残りを表示（使っても減らないツライ）
 -- v1.0.4　print排除
 -- v1.0.5 イヤリングレイド
+-- v1.0.6 チャレと分裂のチケット交換、表示更新機能
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -242,6 +243,8 @@ function indun_panel_frame_init()
     -- ipframe:EnableHideProcess(0)
     ipframe:ShowWindow(1)
 
+    ipframe:RunUpdateScript("indun_panel_update_frame", 1.0)
+
     indun_panel_judge(ipframe)
 end
 
@@ -295,10 +298,20 @@ function indun_panel_inv_open()
     frame:ShowWindow(1)
 end
 ]]
+
 function indun_panel_init(ipframe)
+    ipframe:RemoveAllChild()
+
     -- print("roze")
     -- CHAT_SYSTEM("button_click")
+    -- ipframe:EnableHideProcess(0)
+    local button = ipframe:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
+    AUTO_CAST(button)
+    button:SetText("INPANEL")
+    button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
     -- 
+    -- CHAT_SYSTEM("test")
+
     local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 260, 5, 35, 35)
     AUTO_CAST(ccbtn)
     -- ccbtn:Resize(20, 20)
@@ -307,6 +320,8 @@ function indun_panel_init(ipframe)
     -- ccbtn:SetImage("barrack_button_normal")
     -- ccbtn:SetImageSize(30, 30)
     ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+
+    -- CHAT_SYSTEM("test1")
 
     local invbtn = ipframe:CreateOrGetControl('button', 'invbtn', 295, 5, 35, 35)
     AUTO_CAST(invbtn)
@@ -343,6 +358,8 @@ function indun_panel_init(ipframe)
     checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_checkbox_toggle")
     -- checkbox:SetEventScriptArgNum(ui.LBUTTONUP, ischeck)
 
+    -- CHAT_SYSTEM("test3")
+
     local entext = ipframe:CreateOrGetControl("richtext", "entext", 380, 10)
     entext:SetText("{#000000}{s20}Always Open")
 
@@ -355,6 +372,8 @@ function indun_panel_init(ipframe)
     title:SetText("{#000000}{s20}Indun Panel")
     local button = GET_CHILD_RECURSIVELY(ipframe, "indun_panel_open")
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
+
+    -- CHAT_SYSTEM("test4")
 
     local challenge = ipframe:CreateOrGetControl("richtext", "challenge", 10, 45)
     challenge:SetText("{#000000}{s20}Challenge")
@@ -415,6 +434,10 @@ function indun_panel_init(ipframe)
     earring:SetText("{#000000}{s20}Earring")
     indun_panel_earring_frame(ipframe)
 
+    -- 
+    ipframe:RunUpdateScript("indun_panel_update_frame", 1.0)
+    -- ReserveScript("indun_panel_update_frame()", 1.0)
+    return
 end
 
 function indun_panel_earring_frame(ipframe)
@@ -443,6 +466,8 @@ function indun_panel_earring_frame(ipframe)
     earringsoro:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_earringsoro")
     earringnormal:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_earringnormal")
     earringhard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_earringhard")
+
+    ipframe:ShowWindow(1)
 
 end
 
@@ -739,6 +764,66 @@ function indun_panel_enter_jellyzele_solo()
     ReqMoveToIndun(1, 0)
 end
 
+function indun_panel_update_frame(frame)
+    local ipframe = ui.GetFrame(g.framename)
+
+    local title = GET_CHILD_RECURSIVELY(ipframe, "indun_panel_title")
+
+    if title:IsVisible() == 1 then
+        -- CHAT_SYSTEM("test 1")
+        local challengeticketcount = GET_CHILD_RECURSIVELY(ipframe, "challengeticketcount")
+        local challengeexpertticketcount = GET_CHILD_RECURSIVELY(ipframe, "challengeexpertticketcount")
+        local challengecount = GET_CHILD_RECURSIVELY(ipframe, "challengecount")
+        local challengeexpertcount = GET_CHILD_RECURSIVELY(ipframe, "challengeexpertcount")
+        -- 80017ファロ掃討　/80015ロゼ掃討　/80016プロパ掃討
+        local spreadersweepcount = GET_CHILD_RECURSIVELY(ipframe, "spreadersweepcount")
+        local falosweepcount = GET_CHILD_RECURSIVELY(ipframe, "falosweepcount")
+        local rozesweepcount = GET_CHILD_RECURSIVELY(ipframe, "rozesweepcount")
+
+        local spreadercount = GET_CHILD_RECURSIVELY(ipframe, "spreadercount")
+        local falocount = GET_CHILD_RECURSIVELY(ipframe, "falocount")
+        local rozecount = GET_CHILD_RECURSIVELY(ipframe, "rozecount")
+
+        challengeticketcount:SetText("{#000000}{s16}(" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") .. "/" ..
+                                         INDUN_PANEL_WORKPANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_40") .. ")")
+
+        challengeexpertticketcount:SetText("{#000000}{s16}(d" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") ..
+                                               "/w" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") .. "/" ..
+                                               (INDUN_PANEL_WORKPANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_41") +
+                                                   INDUN_PANEL_WORKPANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_42")) ..
+                                               ")")
+
+        challengecount:SetText("{#000000}{s16}(" ..
+                                   GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) .. "/" ..
+                                   GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) .. ")")
+        challengeexpertcount:SetText("{#000000}{s16}(" ..
+                                         GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) ..
+                                         "" .. ")")
+
+        rozesweepcount:SetText("{#000000}{s16}(" .. indun_panel_sweep_count(80015) .. ")")
+        spreadersweepcount:SetText("{#000000}{s16}(" .. indun_panel_sweep_count(80016) .. ")")
+        falosweepcount:SetText("{#000000}{s16}(" .. indun_panel_sweep_count(80017) .. ")")
+
+        spreadercount:SetText("{#000000}{s16}(" ..
+                                  GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. "/" ..
+                                  GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. ")")
+
+        falocount:SetText("{#000000}{s16}(" ..
+                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. "/" ..
+                              GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. ")")
+
+        rozecount:SetText("{#000000}{s16}(" ..
+                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType) .. "/" ..
+                              GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType) .. ")")
+        ipframe:Invalidate()
+        return 1
+    else
+        -- CHAT_SYSTEM("test 0")
+        return 0
+    end
+
+end
+
 function indun_panel_spreader_frame(ipframe)
     local spreadersoro = ipframe:CreateOrGetControl('button', 'spreadersoro', 135, 270, 80, 30)
     local spreaderauto = ipframe:CreateOrGetControl('button', 'spreaderauto', 220, 270, 80, 30)
@@ -782,11 +867,19 @@ function indun_panel_autosweep_spreader()
     sweepcount = indun_panel_sweep_count(sBuffID)
     if sweepcount >= 1 then
         ReqUseRaidAutoSweep(indun_classid);
-        local ipframe = ui.GetFrame(g.framename)
-        -- ReserveScript(string.format("indun_panel_init('%s')", ipframe, 0.1))
+        -- local ipframe = ui.GetFrame(g.framename)
+        -- ipframe:ShowWindow(0)
+        -- ReserveScript(string.format(" indun_panel_update_frame('%s')", ipframe, 0.1))
+
+        return
         -- ipframe:RemoveAllChild()
         -- indun_panel_init(ipframe)
     else
+        -- local ipframe = ui.GetFrame(g.framename)
+        -- ipframe:ShowWindow(0)
+        -- ReserveScript(string.format(" indun_panel_update_frame('%s')", ipframe, 0.1))
+        -- ReserveScript(string.format("indun_panel_init('%s')", ipframe, 0.3))
+        -- return
         ui.SysMsg("Does not have a sweeping buff")
         return
     end
@@ -884,15 +977,18 @@ function indun_panel_autosweep_falo()
     sweepcount = indun_panel_sweep_count(fBuffID)
     if sweepcount >= 1 then
         ReqUseRaidAutoSweep(indun_classid);
-        local ipframe = ui.GetFrame(g.framename)
-        -- ipframe:RemoveAllChild()
-        -- ReserveScript(string.format("indun_panel_init('%s')", ipframe, 0.1))
+        -- local ipframe = ui.GetFrame(g.framename)
+        -- ipframe:ShowWindow(0)
         -- indun_panel_init(ipframe)
-        -- indun_panel_autosweep(ipframe)
-        -- ipframe:Invalidate();
-    else
-        ui.SysMsg("Does not have a sweeping buff")
         return
+    else
+        --  ReqUseRaidAutoSweep(indun_classid);
+        local ipframe = ui.GetFrame(g.framename)
+        ipframe:ShowWindow(0)
+        indun_panel_init(ipframe)
+        return
+        -- ui.SysMsg("Does not have a sweeping buff")
+        -- return
     end
     -- indun_panel_init(ipframe)
     -- ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
@@ -966,10 +1062,10 @@ function indun_panel_autosweep_roze()
     sweepcount = indun_panel_sweep_count(rBuffID)
     if sweepcount >= 1 then
         ReqUseRaidAutoSweep(indun_classid);
-        local ipframe = ui.GetFrame(g.framename)
-        -- ipframe:RemoveAllChild()
-        -- ReserveScript(string.format("indun_panel_init('%s')", ipframe, 0.1))
+        -- local ipframe = ui.GetFrame(g.framename)
+        -- ipframe:ShowWindow(0)
         -- indun_panel_init(ipframe)
+        return
     else
         ui.SysMsg("Does not have a sweeping buff")
         return
@@ -997,17 +1093,43 @@ function indun_panel_challenge_frame(ipframe)
     local challenge460 = ipframe:CreateOrGetControl('button', 'challenge460', 135, 45, 80, 30)
     local challenge480 = ipframe:CreateOrGetControl('button', 'challenge480', 220, 45, 80, 30)
     local challengept = ipframe:CreateOrGetControl('button', 'challengept', 305, 45, 80, 30)
+    --[[
+    if challenge460:IsVisible() == 1 then
+        ipframe:RunUpdateScript("indun_panel_cha_update", 1.5)
+    else
+        ipframe:RemoveAllChild()
+        ipframe:StopUpdateScript("indun_panel_cha_update")
+    end
+    ]]
     local challengecount = ipframe:CreateOrGetControl("richtext", "challengecount", 390, 50, 40, 30)
 
     local challengeexpert = ipframe:CreateOrGetControl('button', 'challengeexpert', 435, 45, 80, 30)
     local challengeexpertcount = ipframe:CreateOrGetControl("richtext", "challengeexpertcount", 520, 50, 30, 30)
-    --  local challengeticket = ipframe:CreateOrGetControl('button', 'challengeticket', 445, 45, 80, 30)
-    --  local challengeticketcount = ipframe:CreateOrGetControl("richtext", "challengeticketcount", 530, 50, 50, 30)
-    --  local challengeexpertticket = ipframe:CreateOrGetControl('button', 'challengeexpertticket', 255, 80, 80, 30)
+
+    local challengeticket = ipframe:CreateOrGetControl('button', 'challengeticket', 220, 80, 80, 30)
+    challengeticket:SetText("{s14}BUYUSE")
+    challengeticket:SetEventScript(ui.LBUTTONUP, "indun_panel_challenge_buyuse")
+    -- challengeticket:RunUpdateScript("indun_panel_update_frame", 1.5)
+
+    local challengeticketcount = ipframe:CreateOrGetControl("richtext", "challengeticketcount", 305, 85, 40, 30)
+    challengeticketcount:SetText("{#000000}{s16}(" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") .. "/" ..
+                                     INDUN_PANEL_WORKPANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_40") .. ")")
+
+    local challengeexpertticket = ipframe:CreateOrGetControl('button', 'challengeexpertticket', 380, 80, 80, 30)
+    challengeexpertticket:SetText("{s14}BUYUSE")
+    challengeexpertticket:SetEventScript(ui.LBUTTONUP, "indun_panel_challengeex_buyuse")
+
+    local challengeexpertticketcount = ipframe:CreateOrGetControl("richtext", "challengeexpertticketcount", 465, 85, 40,
+        30)
+    challengeexpertticketcount:SetText(
+        "{#000000}{s16}(d" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. "/w" ..
+            INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") .. "/" ..
+            (INDUN_PANEL_WORKPANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_41") +
+                INDUN_PANEL_WORKPANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_42")) .. ")")
     -- test
-    --  challengeticketcount:SetText(indun_panel_get_chllengerecipe_trade_count)
-    --  challengeexpertticket:SetText("BUY")
-    --  challengeticket:SetText("BUY")
+    --  
+    -- 
+    --  
     challenge460:SetText("460")
     challenge480:SetText("480")
     challengept:SetText("PT")
@@ -1025,6 +1147,100 @@ function indun_panel_challenge_frame(ipframe)
     challengeexpert:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challengeexpert")
 end
 
+function indun_panel_challengeex_buyuse()
+    -- CHAT_SYSTEM("test")
+    local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+    local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
+        if dcount == 0 then
+            local recipeName = "PVP_MINE_42"
+            INDUN_PANEL_ITEM_BUY_USE(recipeName)
+        else
+            local recipeName = "PVP_MINE_41"
+            INDUN_PANEL_ITEM_BUY_USE(recipeName)
+        end
+    else
+        ui.SysMsg("The number Challenge EX remains")
+    end
+end
+
+function indun_panel_challenge_buyuse()
+    -- CHAT_SYSTEM("test")
+    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) == 1 then
+        local recipeName = "PVP_MINE_40"
+        INDUN_PANEL_ITEM_BUY_USE(recipeName)
+    else
+        ui.SysMsg("The number of challenge remains")
+    end
+end
+
+function INDUN_PANEL_ITEM_BUY_USE(recipeName)
+    local count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
+    if count <= 0 then
+        ui.SysMsg("No trade count.")
+        return
+    end
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    session.ResetItemList()
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
+    item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
+
+    local itemCls = GetClass("Item", recipeCls.TargetItem)
+    ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID), 1)
+    return
+
+end
+
+function INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    -- DBGOUT("recipeCls: " .. recipeName)
+    if recipeCls.NeedProperty ~= "None" and recipeCls.NeedProperty ~= "" then
+        local sObj = GetSessionObject(GetMyPCObject(), "ssn_shop")
+        local sCount = TryGetProp(sObj, recipeCls.NeedProperty)
+
+        if sCount then
+            return sCount
+        end
+    end
+
+    if recipeCls.AccountNeedProperty ~= "None" and recipeCls.AccountNeedProperty ~= "" then
+
+        local aObj = GetMyAccountObj()
+        local sCount = TryGetProp(aObj, recipeCls.AccountNeedProperty)
+
+        if sCount then
+            return sCount
+        end
+    end
+
+    return nil
+end
+
+function INDUN_PANEL_WORKPANEL_GET_MAX_RECIPE_TRADE_COUNT(recipeName)
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    local accountCls = GetClassByType("Account", 1)
+    if recipeCls.NeedProperty ~= "None" and recipeCls.NeedProperty ~= "" then
+        local sObj = GetSessionObject(GetMyPCObject(), "ssn_shop")
+        local sCount = TryGetProp(accountCls, recipeCls.NeedProperty)
+
+        if sCount then
+            return sCount
+        end
+    end
+
+    if recipeCls.AccountNeedProperty ~= "None" and recipeCls.AccountNeedProperty ~= "" then
+        -- local aObj = GetMyAccountObj()
+        local sCount = TryGetProp(accountCls, recipeCls.AccountNeedProperty)
+
+        if sCount then
+            return sCount
+        end
+    end
+    return nil
+end
+
 function indun_panel_enter_challenge460()
     ReqChallengeAutoUIOpen(644)
     -- local ieframe = ui.GetFrame("indunenter")
@@ -1040,8 +1256,15 @@ end
 
 function indun_panel_enter_challengept()
     ReqChallengeAutoUIOpen(646)
+    --[[
+    local frame = ui.GetFrame("indunenter")
+    local topFrame = frame:GetTopParentFrame();
+    local textCount = topFrame:GetUserIValue("multipleCount");
+    ReqMoveToIndun(2, 1);
+    ]]
+    -- INDUNENTER_AUTOMATCH(frame, nil)
     -- ReqMoveToIndun(1, 0)
-    local frame = ui.GETFrame("indunenter")
+    -- local frame = ui.GETFrame("indunenter")
     -- local str = "INDUNENTER_AUTOMATCH(frame,nil)"
     -- ReserveScript(str, 0.5)
 end
