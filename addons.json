@@ -22,7 +22,7 @@
 		"name" : "Let's Go Home",
 		"file" : "lets_go_home",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "lets_go_home",
 		"unicode" : "⛄",
 		"description" : "右クリックで設定。左クリックでホームタウンとホームチャンネルに移動します。トークンワープを使います。クールダウン中はワープ呪文書を使います。 Right click to set up. Left click to go to home town and home channel. Use token warp. Use warp spellbook during cooldown. 우클릭으로 설정. 왼쪽 클릭으로 홈타운과 홈 채널로 이동합니다. 토큰 워프를 사용합니다. 재사용 대기시간 동안 워프 주문서를 사용합니다.",
