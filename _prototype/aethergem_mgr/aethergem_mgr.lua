@@ -1,9 +1,10 @@
 -- v1.0.3 waitの時間見直し
 -- v1.0.4 チーム倉庫開いている時の挙動見直し
+-- ｖ1.0.5　インベ表示微修正
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -16,7 +17,8 @@ local acutil = require("acutil")
 
 if not g.loaded then
     g.settings = {
-        pctbl = {}
+        pctbl = {},
+        delay = 0.6
         -- gemguid = {}
     }
 end
@@ -68,7 +70,41 @@ function AETHERGEM_MGR_LOADSETTINGS(gemid)
             break
         end
     end
+
+    g.delay = g.settings.delay
     AETHERGEM_MGR_SAVE_SETTINGS()
+end
+
+function AETHERGEM_MGR_DELAY_FRAME_INIT()
+    local delayframe = ui.CreateNewFrame("notice_on_pc", "delayframe", 0, 0, 110, 50)
+    AUTO_CAST(delayframe)
+    delayframe:SetSkinName('None')
+    delayframe:Resize(60, 180)
+    delayframe:ShowTitleBar(0)
+    delayframe:EnableHitTest(1)
+    delayframe:SetLayerLevel(100)
+    local screenWidth = ui.GetClientInitialWidth()
+    local offsetX = screenWidth - 80
+    local screenHeight = ui.GetClientInitialHeight()
+    local offsetY = 170
+    delayframe:SetOffset(offsetX, offsetY)
+    local closebtn = delayframe:CreateOrGetControl("button", "closebtn", 30, 0, 30, 30)
+    AUTO_CAST(closebtn)
+    closebtn:SetText("×")
+    closebtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_AGMFRAME_CLOSE")
+    local input = delayframe:CreateOrGetControl("edit", "input", 0, 0, 100, 30)
+    delayframe:ShowWindow(1)
+    --[[
+    editElement:SetMargin(0, -43, 0, 0)
+    editElement:Resize(290, 36)
+    editElement:SetFontName("white_22_ol")
+    editElement:SetTextAlign("center", "top")
+    editElement:SetNumberMode(false)
+    editElement:SetTextByKey("maxlen", "8")
+    editElement:SetDrawBackground(false)
+    editElement:SetClickSound("button_click_big")
+    editElement:SetOverSound("button_over")
+    ]]
 end
 
 function AETHERGEM_MGR_ON_INIT(addon, frame)
@@ -635,6 +671,7 @@ function AETHERGEM_MGR_FRAME_INIT()
     rmeqbutton:SetText("{s14}AGM")
 
     eqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
+    eqbutton:SetEventScript(ui.RBUTTONUP, "AETHERGEM_MGR_DELAY_FRAME_INIT")
     rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
     -- rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
 end
@@ -642,6 +679,10 @@ end
 function AETHERGEM_MGR_AGMFRAME_CLOSE()
     local agmframe = ui.GetFrame("aethergem_mgr")
     agmframe = ui.CloseFrame("aethergem_mgr")
+    local delayframe = ui.GetFrame("delayframe")
+    if delayframe:IsVisible() == 1 then
+        delayframe = ui.CloseFrame("delayframe")
+    end
 end
 
 function AETHERGEM_MGR_ON_BUTTON_SELECTED(frame, ctrl, argStr, argNum)
