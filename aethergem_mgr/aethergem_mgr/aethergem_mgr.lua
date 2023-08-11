@@ -1,10 +1,11 @@
 -- v1.0.3 waitの時間見直し
 -- v1.0.4 チーム倉庫開いている時の挙動見直し
 -- ｖ1.0.5　インベ表示微修正
+-- v1.0.6 ディレイタイム設定機能
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -17,7 +18,8 @@ local acutil = require("acutil")
 
 if not g.loaded then
     g.settings = {
-        pctbl = {}
+        pctbl = {},
+        delay = 0.6
         -- gemguid = {}
     }
 end
@@ -69,7 +71,103 @@ function AETHERGEM_MGR_LOADSETTINGS(gemid)
             break
         end
     end
+
+    g.delay = g.settings.delay
     AETHERGEM_MGR_SAVE_SETTINGS()
+end
+
+function AETHERGEM_MGR_DELAY_FRAME_INIT()
+
+    local delayframe = ui.CreateNewFrame("notice_on_pc", "delayframe", 0, 0, 0, 0)
+    AUTO_CAST(delayframe)
+    if delayframe:IsVisible() == 1 then
+        delayframe:ShowWindow(0)
+        return
+    end
+    delayframe:RemoveAllChild()
+    delayframe:SetSkinName('None')
+    delayframe:Resize(50, 150)
+    -- delayframe:SetPos(1610, 550)
+    delayframe:ShowTitleBar(0)
+    delayframe:EnableHitTest(1)
+    delayframe:SetLayerLevel(100)
+    local screenWidth = ui.GetClientInitialWidth()
+    local offsetX = screenWidth - 60
+    local screenHeight = ui.GetClientInitialHeight()
+    local offsetY = 195
+    delayframe:SetOffset(offsetX, offsetY)
+
+    local closebtn = delayframe:CreateOrGetControl("button", "closebtn", 30, 10, 20, 20)
+    AUTO_CAST(closebtn)
+    closebtn:SetText("×")
+    closebtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_DELAY_FRAME_INIT")
+
+    local btn03 = delayframe:CreateOrGetControl("button", "btn03", 0, 30, 50, 30)
+    AUTO_CAST(btn03)
+    btn03:SetText("0.3")
+    btn03:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_DELAY_SAVE")
+    btn03:SetEventScriptArgString(ui.LBUTTONUP, "0.3")
+
+    local btn04 = delayframe:CreateOrGetControl("button", "btn04", 0, 60, 50, 30)
+    AUTO_CAST(btn04)
+    btn04:SetText("0.4")
+    btn04:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_DELAY_SAVE")
+    btn04:SetEventScriptArgString(ui.LBUTTONUP, "0.4")
+
+    local btn05 = delayframe:CreateOrGetControl("button", "btn05", 0, 90, 50, 30)
+    AUTO_CAST(btn05)
+    btn05:SetText("0.5")
+    btn05:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_DELAY_SAVE")
+    btn05:SetEventScriptArgString(ui.LBUTTONUP, "0.5")
+
+    local btn06 = delayframe:CreateOrGetControl("button", "btn06", 0, 120, 50, 30)
+    AUTO_CAST(btn06)
+    btn06:SetText("0.6")
+    btn06:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_DELAY_SAVE")
+    btn06:SetEventScriptArgString(ui.LBUTTONUP, "0.6")
+
+    delayframe:ShowWindow(1)
+    --[[
+    -- closebtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_AGMFRAME_CLOSE")
+    local input = delayframe:CreateOrGetControl("edit", "input", 0, 30, 60, 30)
+    AUTO_CAST(input)
+    input:MakeTextPack();
+    input:SetTextAlign("center", "center");
+    input:SetFontName("white_18_ol")
+    input:SetSkinName("test_weight_skin")
+    input:SetTextByKey("maxlen", "3")
+    input:SetEventScript(ui.ENTERKEY, "AETHERGEM_MGR_DELAY_INPUT")
+    input:SetEventScriptArgNumber(ui.ENTERKEY, input.value)
+    -- input:SetOffsetXForDraw(20);
+    -- input:SetDrawBackground(false)
+    input:SetTextTooltip("{@st59}About 0.3 to 1.0 seconds is desirable.{/}" ..
+                             "{@st59}0.3～1.0秒くらいが望ましい{/}")
+    -- input:SetOffsetYForDraw(0);
+    
+
+    delayframe:ShowWindow(1)
+    --[[
+    editElement:SetMargin(0, -43, 0, 0)
+    editElement:Resize(290, 36)
+    editElement:SetFontName("white_22_ol")
+    editElement:SetTextAlign("center", "top")
+    editElement:SetNumberMode(false)
+    editElement:SetTextByKey("maxlen", "8")
+    editElement:SetDrawBackground(false)
+    editElement:SetClickSound("button_click_big")
+    editElement:SetOverSound("button_over")
+    ]]
+end
+
+function AETHERGEM_MGR_DELAY_SAVE(frame, ctrl, argStr, argNum)
+    --  g.settings.delay=
+    frame:ShowWindow(0)
+    ui.SysMsg("Delay time is now set to " .. tonumber(argStr) .. " seconds")
+    g.settings.delay = tonumber(argStr)
+    -- AETHERGEM_MGR_SAVE_SETTINGS()
+    AETHERGEM_MGR_SAVE_SETTINGS()
+    AETHERGEM_MGR_LOAD_SETTINGS()
+    --
 end
 
 function AETHERGEM_MGR_ON_INIT(addon, frame)
@@ -125,7 +223,7 @@ function AETHERGEM_MGR_GET_EQUIP()
     local eqpframe = ui.GetFrame("inventory")
     local equipItemList = session.GetEquipItemList();
 
-    -- CHAT_SYSTEM("GETSTART")
+    -- CHAT_SYSTEM("Test")
 
     g.RH = GET_CHILD_RECURSIVELY(eqpframe, "RH")
     g.LH = GET_CHILD_RECURSIVELY(eqpframe, "LH")
@@ -137,7 +235,13 @@ function AETHERGEM_MGR_GET_EQUIP()
         -- g.rh_icon_name = g.rh_icon:GetName()
         g.rh_icon_info = g.rh_icon:GetInfo()
         g.rh_guid = g.rh_icon_info:GetIESID()
-
+        --[[このコードで装備中のエーテルジェムのIESが取得できるよ
+        local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(g.rh_guid).type);
+        local classID = itemCls.ClassID;
+        local equip_item = session.GetEquipItemByType(classID)
+        local gem = equip_item:GetEquipGemID(2)
+        CHAT_SYSTEM(tostring(gem))
+]]
     end
 
     g.lh_icon = g.LH:GetIcon()
@@ -199,7 +303,7 @@ function AETHERGEM_MGR_UNEQUIP()
             item.UnEquip(tonumber(lhlh_sub));
 
             g.lh_sub_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+            ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
             -- ReserveScript("AETHERGEM_MGR_REMOVE_OR_EQUIP()", 0.2)
             -- return
@@ -210,7 +314,7 @@ function AETHERGEM_MGR_UNEQUIP()
             imcSound.PlaySoundEvent('inven_unequip');
             item.UnEquip(tonumber(lh));
             g.lh_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+            ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
         elseif g.rh_icon ~= nil then
             local rh = 8
@@ -218,7 +322,7 @@ function AETHERGEM_MGR_UNEQUIP()
             imcSound.PlaySoundEvent('inven_unequip');
             item.UnEquip(tonumber(rh));
             g.rh_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+            ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
         else
             if g.rh_guid ~= nil and g.lh_guid ~= nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon ==
@@ -319,7 +423,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.rh_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
     elseif g.rh_guid == nil and g.lh_guid ~= nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -335,7 +439,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.lh_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
     elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -351,7 +455,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.rh_sub_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
     elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid == nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -374,10 +478,10 @@ function AETHERGEM_MGR_SET_EQUIP()
             gemframe:ShowWindow(0)
             -- ui.CloseFrame("goddess_equip_manager")
             GODDESS_EQUIP_MANAGER_CLOSE(gemframe)
-            ui.SysMsg("[AGM]end")
+            ui.SysMsg("[AGM]end of operation")
             return
         else
-            ui.SysMsg("[AGM]end")
+            ui.SysMsg("[AGM]end of operation")
             return
         end
 
@@ -421,12 +525,12 @@ function AETHERGEM_MGR_REMOVE_OR_EQUIP()
         local am_index = 2
 
         pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
-        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", g.delay)
         -- ReserveScript("AETHERGEM_MGR_REMOVE_OR_EQUIP()", 0.8)
     else
         -- ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.5)
         AETHERGEM_MGR_ITEM_PREPARATION()
-        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", g.delay)
 
     end
 
@@ -628,7 +732,8 @@ function AETHERGEM_MGR_FRAME_INIT()
     eqbutton:SetSkinName("None")
     eqbutton:SetImage("config_button_normal")
     eqbutton:Resize(30, 30)
-
+    eqbutton:SetTextTooltip("{@st59}LeftClick:Gem Settings RightClick:Delay settings{/}" ..
+                                "{@st59}左クリック:ジェム設定 右クリック:ディレイ設定{/}")
     local rmbuttonX = inventoryGbox:GetWidth() - 70
     local rmbuttonY = inventoryGbox:GetHeight() - 614
 
@@ -636,6 +741,7 @@ function AETHERGEM_MGR_FRAME_INIT()
     rmeqbutton:SetText("{s14}AGM")
 
     eqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
+    eqbutton:SetEventScript(ui.RBUTTONUP, "AETHERGEM_MGR_DELAY_FRAME_INIT")
     rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
     -- rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
 end
@@ -643,6 +749,10 @@ end
 function AETHERGEM_MGR_AGMFRAME_CLOSE()
     local agmframe = ui.GetFrame("aethergem_mgr")
     agmframe = ui.CloseFrame("aethergem_mgr")
+    local delayframe = ui.GetFrame("delayframe")
+    if delayframe:IsVisible() == 1 then
+        delayframe = ui.CloseFrame("delayframe")
+    end
 end
 
 function AETHERGEM_MGR_ON_BUTTON_SELECTED(frame, ctrl, argStr, argNum)
