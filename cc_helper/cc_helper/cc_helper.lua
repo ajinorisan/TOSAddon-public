@@ -2,10 +2,11 @@
 -- v1.0.1 シンプルモード搭載、搬入搬出速度見直し、終了時のメッセージタイミング見直し
 -- v1.0.2　インベの表示微修正　print排除
 -- v1.0.3 シンプルモード→エコモードに変更　エコモード時レジェカ外れない様に。チェックボックスをインベントリに移す
+-- v1.0.4 エーテルジェムマネージャーとコラボ
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -58,6 +59,7 @@ function CC_HELPER_ON_INIT(addon, frame)
     setbtn:Resize(30, 30)
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
 
+    --[[
     local uneqbtnX = inventoryGbox:GetWidth() - 263
     local uneqbtnY = inventoryGbox:GetHeight() - 290
     local uneqbtn = invframe:CreateOrGetControl("button", "unequip", uneqbtnX, uneqbtnY, 30, 30)
@@ -73,7 +75,7 @@ function CC_HELPER_ON_INIT(addon, frame)
     eqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_equip")
     uneqbtn:ShowWindow(1)
     eqbtn:ShowWindow(1)
-
+]]
     local eco = invframe:CreateOrGetControl("richtext", "eco", 210, 342)
     -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
     eco:SetText("{#FF0000}{s10}Eco")
@@ -109,8 +111,8 @@ function CC_HELPER_ACCOUNTWAREHOUSE_CLOSE(frame)
 
     inbtn:ShowWindow(0)
     outbtn:ShowWindow(0)
-    uneqbtn:ShowWindow(1)
-    eqbtn:ShowWindow(1)
+    -- uneqbtn:ShowWindow(1)
+    -- eqbtn:ShowWindow(1)
 
 end
 
@@ -123,7 +125,12 @@ function cc_helper_invframe_init()
     local inbtn = invframe:CreateOrGetControl("button", "in", inbtnX, inbtnY, 30, 30)
     AUTO_CAST(inbtn)
     inbtn:SetText("{s13}In")
-    inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn")
+    -- CHAT_SYSTEM(tostring(g.gemid))
+    -- if g.gemid ~= nil then
+    inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
+    -- else
+    --  inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn")
+    -- end
     inbtn:ShowWindow(1)
 
     local outbtnX = inventoryGbox:GetWidth() - 231
@@ -233,7 +240,7 @@ function cc_helper_setting()
 end
 
 function cc_helper_out_btn()
-
+    g.agmin = 0
     local fromframe = ui.GetFrame("accountwarehouse")
     local invframe = ui.GetFrame("inventory")
     local invTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
@@ -432,10 +439,114 @@ function cc_helper_gem_to_account_warehouse()
 end
 
 function cc_helper_end_of_operation()
-    local invframe = ui.GetFrame("inventory")
-    local allTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+    local frame = ui.GetFrame("inventory")
+    local allTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     allTab:SelectTab(0)
+    if g.agmin == 0 then
+        if ADDONS.norisan.AETHERGEM_MGR ~= nil and (g.ischecked == 0 or g.ischecked == nil) then
+            -- local frame = ui.GetFrame("inventory")
+            if g.gemid ~= nil then
+                local equipItemList = session.GetEquipItemList();
+                local rh = GET_CHILD_RECURSIVELY(frame, "RH")
+                local lh = GET_CHILD_RECURSIVELY(frame, "LH")
+                local rh_sub = GET_CHILD_RECURSIVELY(frame, "RH_SUB")
+                local lh_sub = GET_CHILD_RECURSIVELY(frame, "LH_SUB")
+
+                local rh_icon = rh:GetIcon()
+                local lh_icon = lh:GetIcon()
+                local rh_sub_icon = rh_sub:GetIcon()
+                local lh_sub_icon = lh_sub:GetIcon()
+
+                if rh_icon ~= nil then
+                    local rh_icon_info = rh_icon:GetInfo()
+                    local rh_guid = rh_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    -- gem 無い場合は0　ある場合はIES
+                    -- cc_helper_end_of_operation()
+                    -- CHAT_SYSTEM(tostring(gem))
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+                    end
+                    -- print(tostring(gem))
+                elseif lh_icon ~= nil then
+                    local lh_icon_info = lh_icon:GetInfo()
+                    local lh_guid = lh_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+
+                    end
+                elseif rh_sub_icon ~= nil then
+                    local rh_sub_icon_info = lh_icon:GetInfo()
+                    local rh_sub_guid = rh_sub_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_sub_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+
+                    end
+                elseif lh_sub_icon ~= nil then
+                    local lh_sub_icon_info = lh_icon:GetInfo()
+                    local lh_sub_guid = lh_sub_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_sub_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+
+                    end
+                end
+            else
+                ui.SysMsg("[CCH]end of operation")
+                return
+            end
+        else
+            ui.SysMsg("[CCH]end of operation")
+            return
+        end
+
+        ui.SysMsg("[CCH]end of operation")
+        return
+    end
     ui.SysMsg("[CCH]end of operation")
+    return
 end
 
 function cc_helper_check_items_in_warehouse(iesid)
@@ -834,7 +945,106 @@ function cc_helper_ischecked()
 
 end
 
+function cc_helper_in_btn_aethergem_mgr()
+    -- CHAT_SYSTEM("TEST")
+    g.agmin = 1
+    local frame = ui.GetFrame("inventory")
+    if ADDONS.norisan.AETHERGEM_MGR ~= nil then
+        local equipItemList = session.GetEquipItemList();
+        local rh = GET_CHILD_RECURSIVELY(frame, "RH")
+        local lh = GET_CHILD_RECURSIVELY(frame, "LH")
+        local rh_sub = GET_CHILD_RECURSIVELY(frame, "RH_SUB")
+        local lh_sub = GET_CHILD_RECURSIVELY(frame, "LH_SUB")
+
+        local rh_icon = rh:GetIcon()
+        local lh_icon = lh:GetIcon()
+        local rh_sub_icon = rh_sub:GetIcon()
+        local lh_sub_icon = lh_sub:GetIcon()
+
+        if rh_icon ~= nil then
+            local rh_icon_info = rh_icon:GetInfo()
+            local rh_guid = rh_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            -- gem 無い場合は0　ある場合はIES
+            -- cc_helper_end_of_operation()
+            -- CHAT_SYSTEM(tostring(gem))
+            if tostring(gem) == tostring(g.gemid) then
+                local msg = "Do you want to start Aethrgem Manager first?"
+                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                local no_scp = "cc_helper_in_btn()"
+                ui.MsgBox(msg, yes_scp, no_scp);
+                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                return
+            end
+            -- print(tostring(gem))
+        elseif lh_icon ~= nil then
+            local lh_icon_info = lh_icon:GetInfo()
+            local lh_guid = lh_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            if tostring(gem) == tostring(g.gemid) then
+                local msg = "Do you want to start Aethrgem Manager first?"
+                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                local no_scp = "cc_helper_in_btn()"
+                ui.MsgBox(msg, yes_scp, no_scp);
+                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                return
+            end
+        elseif rh_sub_icon ~= nil then
+            local rh_sub_icon_info = lh_icon:GetInfo()
+            local rh_sub_guid = rh_sub_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_sub_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            if tostring(gem) == tostring(g.gemid) then
+                local msg = "Do you want to start Aethrgem Manager first?"
+                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                local no_scp = "cc_helper_in_btn()"
+                ui.MsgBox(msg, yes_scp, no_scp);
+                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                return
+            end
+        elseif lh_sub_icon ~= nil then
+            local lh_sub_icon_info = lh_icon:GetInfo()
+            local lh_sub_guid = lh_sub_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_sub_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            if tostring(gem) == tostring(g.gemid) then
+                local msg = "Do you want to start Aethrgem Manager first?"
+                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                local no_scp = "cc_helper_in_btn()"
+                ui.MsgBox(msg, yes_scp, no_scp);
+                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                return
+            else
+
+                cc_helper_in_btn()
+            end
+        else
+
+            cc_helper_in_btn()
+        end
+    else
+        cc_helper_in_btn()
+    end
+
+    cc_helper_in_btn()
+end
+
 function cc_helper_in_btn()
+    -- CHAT_SYSTEM("test")
 
     local frame = ui.GetFrame("inventory")
 
