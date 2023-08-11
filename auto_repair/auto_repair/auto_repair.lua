@@ -1,7 +1,8 @@
+-- v1.0.2 on_init読み込み時にリペアーアイテムの数量確認
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -17,10 +18,98 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- CHAT_SYSTEM(addonNameLower .. " loaded")
     -- acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
     acutil.setupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
+    --[[
+    ['VakarineCertificate'] = 
+    {
+        ['coinName'] = 'dummy_VakarineCertificate',
+        ['propName'] = 'VakarineCertificate',
+    }
+]] -- 11200243
 
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+
+        local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_490')
+        local repeatCount = autorepair_item.count
+
+        if autorepair_item == nil or repeatCount < 10 then
+
+            -- local msg = '' .. ""
+            --  local yes_scp = "AUTO_REPAIR_BUY()"
+            -- local no_scp = "ANCIENT_SETTING_CANCEL()"
+            --   ui.MsgBox(msg, yes_scp, "None");
+            -- 
+            addon:RegisterMsg("GAME_START_3SEC", "AUTO_REPAIR_FRAME_INIT")
+        end
+
+    end
+
+end
+
+function AUTO_REPAIR_FRAME_INIT()
+    local frame = ui.GetFrame("auto_repair")
+    frame:Resize(450, 180)
+    frame:SetPos(650, 300)
+    frame:SetTitleName("{s20}{ol}Auto Repair")
+    local text1 = frame:CreateOrGetControl('richtext', 'text1', 25, 0)
+    AUTO_CAST(text1)
+    text1:SetText("{s20}{ol}[LV.490]緊急修理キット")
+    local text2 = frame:CreateOrGetControl('richtext', 'text2', 25, 30)
+    AUTO_CAST(text2)
+    text2:SetText("{s20}{ol}残り少ないですが補充しますか？")
+    local text3 = frame:CreateOrGetControl('richtext', 'text3', 25, 60)
+    AUTO_CAST(text3)
+    text3:SetText("{s18}{ol}QuestReward_repairPotion_490")
+    local text4 = frame:CreateOrGetControl('richtext', 'text4', 25, 80)
+    AUTO_CAST(text4)
+    text4:SetText("{s18}{ol}Do you want to replenish the few remaining?")
+
+    local yesbtn = frame:CreateOrGetControl('button', 'yes', 115, 110, 80, 40)
+    yesbtn:SetSkinName("test_red_button")
+    yesbtn:SetText("{ol}YES")
+    yesbtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_BUY")
+
+    local nobtn = frame:CreateOrGetControl('button', 'no', 215, 110, 80, 40)
+    nobtn:SetSkinName("test_gray_button")
+    nobtn:SetText("{ol}NO")
+    nobtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_CLOSE")
+
+    frame:ShowWindow(1)
+
+    ReserveScript("AUTO_REPAIR_CLOSE()", 5.0)
+
+end
+
+function AUTO_REPAIR_CLOSE()
+    local frame = ui.GetFrame("auto_repair")
+    frame:ShowWindow(0)
+end
+
+function AUTO_REPAIR_BUY()
+
+    -- local frame = ui.GetFrame('earthtowershop')
+    -- local shopType = "VakarineCertificate"
+    -- ui.CloseFrame('earthtowershop')
+    -- control.CustomCommand('REQ_SEASON_COIN_SHOP_OPEN', 0);
+
+    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_490')
+    local repeatCount = autorepair_item.count
+    CHAT_SYSTEM(repeatCount)
+    local cnt = 50 - repeatCount
+
+    local recipeCls = GetClass("ItemTradeShop", 'VakarineCertificate_13')
+    session.ResetItemList()
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(cnt))
+    item.DialogTransaction("VakarineCertificate_SHOP", itemlist, cntText)
+
+    AUTO_REPAIR_CLOSE()
 end
 
 function AUTO_REPAIR_DURNOTIFY_UPDATE(frame, notOpenFrame)
@@ -94,27 +183,30 @@ function AUTO_REPAIR_ITEM_USE(obj)
     local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_490')
 
     if autorepair_item == nil then
-        ui.SysMsg('[Lv.490]緊急修理キットがありません')
-        ui.SysMsg('[Lv.490] Urgent Repair Kit is not available.')
+        -- ui.ChatMsg('[Lv.490]緊急修理キットがありません')
+        -- ui.ChatMsg('[Lv.490] Urgent Repair Kit is not available.')
+        CHAT_SYSTEM('[Lv.490]緊急修理キットがありません')
+        CHAT_SYSTEM('[Lv.490] Urgent Repair Kit is not available.')
         return
     end
 
     if autorepair_item.isLockState == true then
         -- ui.SysMsg('[Lv.490]緊急修理キットがありません')
         -- ui.SysMsg('[Lv.490] Urgent Repair Kit is not available.')
-        ui.SysMsg(ClMsg('MaterialItemIsLock'))
+        -- ui.ChatMsg(ClMsg('MaterialItemIsLock'))
+        CHAT_SYSTEM(ClMsg('MaterialItemIsLock'))
         return
     end
 
     local repeatCount = math.min(autorepair_item.count, 4)
     -- ui.SysMsg("Automatic repair of equipment.") 表示が邪魔なので消した。v1.0.1
+    -- ui.ChatMsg("Automatic repair of equipment.")
     CHAT_SYSTEM("Automatic repair of equipment.")
+
     for i = 0, repeatCount - 1 do
         if obj.Dur / obj.MaxDur < 0.9 then
             item.UseByGUID(autorepair_item:GetIESID())
-            -- ui.Chat(string.format("/p 修理したで"))
-            -- ReserveScript(string.format(ui.SysMsg("装備を自動修理します")), 0.5)
-            -- ReserveScript(string.format(ui.SysMsg("Automatic repair of equipment.")), 1.0)
+
         else
             break
         end
