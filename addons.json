@@ -42,7 +42,7 @@
 		"name" : "Aethergem Manager",
 		"file" : "aethergem_mgr",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.5",
+		"fileVersion" : "v1.0.6",
 		"releaseTag" : "aethergem_mgr",
 		"unicode" : "⛄",
 		"description" : "エーテルジェムの付け替えを自動化します。インベントリのボタンで付け外しします。キャラ毎の事前設定が必要です。LV480エーテルジェムのみ、武器右クリックで1個ずつ付け外しのサポート機能も残っています。 Automate the replacement of ether gems. A button on the inventory will attach and detach them. Only the LV480 ether gem still supports right-click on a weapon to attach and remove one at a time. 에테르 젬을 자동으로 교체할 수 있습니다. 인벤토리의 버튼으로 탈부착이 가능합니다. 캐릭터별 사전 설정이 필요하며, LV480 에테르 젬만 무기 우클릭으로 1개씩 탈부착하는 기능도 남아있다.",
