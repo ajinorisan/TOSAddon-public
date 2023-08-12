@@ -3,10 +3,11 @@
 -- v1.0.2　インベの表示微修正　print排除
 -- v1.0.3 シンプルモード→エコモードに変更　エコモード時レジェカ外れない様に。チェックボックスをインベントリに移す
 -- v1.0.4 エーテルジェムマネージャーとコラボ
+-- v1.0.5 エーテルジェムマネージャーとコラボ見直し。ＩＮボタンをシームレスに
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -973,11 +974,7 @@ function cc_helper_in_btn_aethergem_mgr()
             -- cc_helper_end_of_operation()
             -- CHAT_SYSTEM(tostring(gem))
             if tostring(gem) == tostring(g.gemid) then
-                local msg = "Do you want to start Aethrgem Manager first?"
-                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
-                local no_scp = "cc_helper_in_btn()"
-                ui.MsgBox(msg, yes_scp, no_scp);
-                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                cc_helper_msgbox_frame()
                 return
             end
             -- print(tostring(gem))
@@ -990,11 +987,7 @@ function cc_helper_in_btn_aethergem_mgr()
             local equip_item = session.GetEquipItemByType(classID)
             local gem = equip_item:GetEquipGemID(2)
             if tostring(gem) == tostring(g.gemid) then
-                local msg = "Do you want to start Aethrgem Manager first?"
-                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
-                local no_scp = "cc_helper_in_btn()"
-                ui.MsgBox(msg, yes_scp, no_scp);
-                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                cc_helper_msgbox_frame()
                 return
             end
         elseif rh_sub_icon ~= nil then
@@ -1006,11 +999,7 @@ function cc_helper_in_btn_aethergem_mgr()
             local equip_item = session.GetEquipItemByType(classID)
             local gem = equip_item:GetEquipGemID(2)
             if tostring(gem) == tostring(g.gemid) then
-                local msg = "Do you want to start Aethrgem Manager first?"
-                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
-                local no_scp = "cc_helper_in_btn()"
-                ui.MsgBox(msg, yes_scp, no_scp);
-                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                cc_helper_msgbox_frame()
                 return
             end
         elseif lh_sub_icon ~= nil then
@@ -1022,11 +1011,7 @@ function cc_helper_in_btn_aethergem_mgr()
             local equip_item = session.GetEquipItemByType(classID)
             local gem = equip_item:GetEquipGemID(2)
             if tostring(gem) == tostring(g.gemid) then
-                local msg = "Do you want to start Aethrgem Manager first?"
-                local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
-                local no_scp = "cc_helper_in_btn()"
-                ui.MsgBox(msg, yes_scp, no_scp);
-                -- ReserveScript("cc_helper_in_btn()", 2.5)
+                cc_helper_msgbox_frame()
                 return
             else
 
@@ -1043,8 +1028,59 @@ function cc_helper_in_btn_aethergem_mgr()
     cc_helper_in_btn()
 end
 
+function cc_helper_msgbox_frame()
+    --[[
+    local cchframe = ui.GetFrame("cc_helper")
+    cchframe:Resize(400, 140)
+    cchframe:SetPos(980, 300)
+    cchframe:SetTitleBarSkin("None")
+    -- cchframe:SetSkinName("test_Item_tooltip_equip");
+    -- cchframe:SetSkinName("market_listbase");
+    cchframe:SetSkinName("test_frame_midle")
+
+    -- cchframe:SetSkinName("bg");
+
+    local text1 = cchframe:CreateOrGetControl('richtext', 'text1', 15, 20)
+    AUTO_CAST(text1)
+    text1:SetText("{#808080}{s16}{ol}Do you want to start Aethrgem Manager first?")
+    local text2 = cchframe:CreateOrGetControl('richtext', 'text2', 25, 45)
+    AUTO_CAST(text2)
+    text2:SetText("{#808080}{s20}{ol}Aethrgem Manager 起動しますか？")
+
+    local yesbtn = cchframe:CreateOrGetControl('button', 'yes', 115, 80, 80, 40)
+    yesbtn:SetSkinName("test_red_button")
+    yesbtn:SetText("{ol}YES")
+    yesbtn:SetEventScript(ui.LBUTTONDOWN, "AETHERGEM_MGR_GET_EQUIP")
+    yesbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_strat")
+
+    local nobtn = cchframe:CreateOrGetControl('button', 'no', 215, 80, 80, 40)
+    nobtn:SetSkinName("test_gray_button")
+    nobtn:SetText("{ol}NO")
+    nobtn:SetEventScript(ui.LBUTTONDOWN, "cc_helper_in_btn")
+
+    cchframe:ShowWindow(1)
+    ]]
+    local msg = "Do you want to start Aethrgem Manager first?"
+    local yes_scp = "cc_helper_in_btn_strat()"
+    local no_scp = "cc_helper_in_btn()"
+    ui.MsgBox(msg, yes_scp, no_scp);
+
+    -- ReserveScript("cc_helper_in_btn()", 2.5)
+
+    return
+end
+
+function cc_helper_in_btn_strat()
+    local cchframe = ui.GetFrame("cc_helper")
+    cchframe:ShowWindow(0)
+    AETHERGEM_MGR_GET_EQUIP()
+    ReserveScript("cc_helper_in_btn()", 4.0)
+end
+
 function cc_helper_in_btn()
     -- CHAT_SYSTEM("test")
+    local cchframe = ui.GetFrame("cc_helper")
+    cchframe:ShowWindow(0)
 
     local frame = ui.GetFrame("inventory")
 

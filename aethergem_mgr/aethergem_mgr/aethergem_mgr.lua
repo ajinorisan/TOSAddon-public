@@ -2,10 +2,11 @@
 -- v1.0.4 チーム倉庫開いている時の挙動見直し
 -- ｖ1.0.5　インベ表示微修正
 -- v1.0.6 ディレイタイム設定機能
+-- v1.0.7 CC_helper 連携強化
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -164,9 +165,10 @@ function AETHERGEM_MGR_DELAY_SAVE(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
     ui.SysMsg("Delay time is now set to " .. tonumber(argStr) .. " seconds")
     g.settings.delay = tonumber(argStr)
-    -- AETHERGEM_MGR_SAVE_SETTINGS()
     AETHERGEM_MGR_SAVE_SETTINGS()
-    AETHERGEM_MGR_LOAD_SETTINGS()
+    g.delay = g.settings.delay
+    -- AETHERGEM_MGR_SAVE_SETTINGS()
+    -- AETHERGEM_MGR_LOAD_SETTINGS()
     --
 end
 
@@ -271,7 +273,8 @@ end
 function AETHERGEM_MGR_UNEQUIP()
 
     local eqpframe = ui.GetFrame("inventory")
-
+    local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
+    invTab:SelectTab(1)
     if true == BEING_TRADING_STATE() then
         return;
     end
@@ -505,6 +508,9 @@ function AETHERGEM_MGR_CLOSE_FRAME()
 end
 
 function AETHERGEM_MGR_REMOVE_OR_EQUIP()
+    local eqpframe = ui.GetFrame("inventory")
+    local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
+    invTab:SelectTab(6)
     -- CHAT_SYSTEM("AETHERGEM_MGR_REMOVE_OR_EQUIP")
     local frame = ui.GetFrame("goddess_equip_manager")
     local am_aether_cover_bg = GET_CHILD_RECURSIVELY(frame, 'aether_cover_bg')
@@ -567,7 +573,7 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 
         pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
         local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
-        invTab:SelectTab(1)
+        invTab:SelectTab(6)
 
         -- local frame = am_gem_slot:GetTopParentFrame()
 
@@ -575,8 +581,8 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 
         -- CHAT_SYSTEM("押せる")
     else
-        -- local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
-        -- invTab:SelectTab(6)
+        local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
+        invTab:SelectTab(6)
 
         -- AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP()
         AETHERGEM_MGR_ITEM_PREPARATION()
