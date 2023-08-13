@@ -1,8 +1,9 @@
 -- v1.0.2 クエワに対応。バウンティ対策。街以外の登録禁止。
+-- v1.0.3 ショトカ設定‗\ろ。フェディクエワをパヤウタに。
 local addonName = "LETS_GO_HOME"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -35,6 +36,7 @@ function LETS_GO_HOME_ON_INIT(addon, frame)
     -- if bouframe:IsVisible() == 1 then
     addon:RegisterMsg("GAME_START", "LETS_GO_HOME_FRAME_INIT")
     addon:RegisterMsg("FPS_UPDATE", "LETS_GO_HOME_BOUNTYHUNT")
+    -- addon:RegisterMsg("FPS_UPDATE", "LETS_GO_HOME_KEYPRESS")
 
     LETS_GO_HOME_TOKENWARP_CD_FRAME()
 
@@ -54,8 +56,8 @@ function LETS_GO_HOME_FRAME_INIT()
     local btn = frame:CreateOrGetControl('button', 'home', 0, 0, 30, 30)
     btn:SetSkinName("None")
     btn:SetText("{img btn_housing_editmode_small_resize 30 30}")
-    btn:SetTextTooltip("{@st59}RightButton:Setting LeftButton:Warp{/}" ..
-                           "{@st59}右クリック:ホーム設定 左クリック:ワープ{/}")
+    btn:SetTextTooltip("{@st59}RightButton:Setting LeftButton:Warp Shortcut:BackSlash{/}" ..
+                           "{@st59}右クリック:ホーム設定 左クリック:ワープ ショトカ:BackSlash(多分ろ){/}")
     btn:SetEventScript(ui.RBUTTONUP, "LETS_GO_HOME_SETTING")
     -- btn:SetEventScript(ui.LBUTTONUP, "LETS_GO_HOME_WARP")
 
@@ -64,7 +66,24 @@ function LETS_GO_HOME_FRAME_INIT()
     btn:SetEventScriptArgString(ui.LBUTTONDOWN, tostring(g.settings.map))
     -- CHAT_SYSTEM(tostring(g.settings.map))
     frame:ShowWindow(1)
-    -- frame:RunUpdateScript("LETS_GO_HOME_BOUNTYHUNT", 1.0)
+    frame:RunUpdateScript("LETS_GO_HOME_KEYPRESS", 0.3)
+end
+
+function LETS_GO_HOME_KEYPRESS(frame)
+    -- local frame = ui.GetFrame("lets_go_home")
+    if frame:IsVisible() == 1 then
+        if 1 == keyboard.IsKeyPressed("BACKSLASH") then
+
+            local argStr = tostring(g.settings.map)
+            LETS_GO_HOME_WARP(frame, msg, argStr, argNum)
+            return 0
+        end
+        -- CHAT_SYSTEM("test1")
+        return 1
+    else
+        --  CHAT_SYSTEM("test2")
+        return 0
+    end
 end
 
 function LETS_GO_HOME_BOUNTYHUNT()
@@ -84,12 +103,12 @@ end
 
 function LETS_GO_HOME_QUESTWARP(questID)
 
-    if questID == 72159 then -- フェディミアン"c_fedimian"
+    if questID == 60400 then -- フェディミアン"c_fedimian"
         local questIES = GetClassByType('QuestProgressCheck', questID)
         local pc = GetMyPCObject()
         local result = SCR_QUEST_CHECK_C(pc, questIES.ClassName)
         local questState = GET_QUEST_NPC_STATE(questIES, result)
-        if tostring(result) == "SUCCESS" and tostring(questState) == "End" then
+        if tostring(result) == "POSSIBLE" and tostring(questState) == "Start" then
             g.warp = 1
             QUESTION_QUEST_WARP(nil, nil, nil, questID);
             return
@@ -284,7 +303,7 @@ function LETS_GO_HOME_WARP(_, _, className, _)
     elseif g.settings.map == "c_orsha" then
         LETS_GO_HOME_QUESTWARP(90170)
     elseif g.settings.map == "c_fedimian" then
-        LETS_GO_HOME_QUESTWARP(72159)
+        LETS_GO_HOME_QUESTWARP(60400)
     end
     --[[
     local cd = GET_TOKEN_WARP_COOLDOWN()
