@@ -5,10 +5,11 @@
 -- v1.0.6 チャレと分裂のチケット交換、表示更新機能
 -- v1.0.7 当日分裂券が更新しないのを修正 イヤリングレイド回数表示更新 フレーム変えた。ヴェルニケのBUYUSE作成。コイン商店の残高表示
 -- AUTOMODE時に直接ボタン押した状態に。ハードは再入場系が怖いのでそのまま
+-- v1.0.8 チャレとか分裂券買う時にヴェルニケ券買っちゃうバグ修正('Д')
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -234,7 +235,7 @@ function indun_panel_frame_init()
 
     ipframe:SetSkinName('None')
     ipframe:SetLayerLevel(30)
-    ipframe:Resize(90, 35)
+    ipframe:Resize(140, 35)
     ipframe:SetPos(665, 30)
     ipframe:SetTitleBarSkin("None")
     ipframe:EnableHittestFrame(1)
@@ -248,6 +249,12 @@ function indun_panel_frame_init()
     button:SetText("{ol}{s11}INDUNPANEL")
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
     -- ipframe:EnableHideProcess(0)
+    local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 95, 5, 35, 35)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 35 35}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+
     ipframe:ShowWindow(1)
 
     ipframe:RunUpdateScript("indun_panel_update_frame", 1.0)
@@ -264,13 +271,18 @@ function indun_panel_judge(ipframe)
 
         ipframe:SetSkinName('None')
         ipframe:SetLayerLevel(30)
-        ipframe:Resize(90, 35)
+        ipframe:Resize(140, 35)
         ipframe:SetPos(665, 30)
         ipframe:SetTitleBarSkin("None")
         ipframe:EnableHittestFrame(1)
         ipframe:EnableHide(0)
         ipframe:EnableHitTest(1)
         -- ipframe:SetAlpha(55)
+        local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 95, 5, 35, 35)
+        AUTO_CAST(ccbtn)
+        ccbtn:SetSkinName("None")
+        ccbtn:SetText("{img barrack_button_normal 35 35}")
+        ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
         -- indun_panel_frame_init()
     elseif g.settings.ischecked == 1 then
@@ -338,9 +350,10 @@ function indun_panel_init(ipframe)
     tolua.cast(checkbox, 'ui::CCheckBox')
     checkbox:SetCheck(g.settings.ischecked)
     checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_checkbox_toggle")
+    checkbox:SetTextTooltip("{@st59}チェックすると常時展開 IsCheck AlwaysOpen")
 
-    local entext = ipframe:CreateOrGetControl("richtext", "entext", 415, 10)
-    entext:SetText("{ol}{#FFFFFF}{s16}Always Open")
+    --  local entext = ipframe:CreateOrGetControl("richtext", "entext", 415, 10)
+    -- entext:SetText("{ol}{#FFFFFF}{s16}Always Open")
 
     ipframe:SetLayerLevel(93)
     ipframe:Resize(560, 630) -- 595
@@ -417,7 +430,7 @@ function indun_panel_init(ipframe)
 
     local velnicebuyuse = ipframe:CreateOrGetControl('button', 'velnicebuyuse', 275, 465, 80, 30)
     AUTO_CAST(velnicebuyuse)
-    velnicebuyuse:SetText("{ol}{#FF6666}{s14}BUYUSE")
+    velnicebuyuse:SetText("{ol}{#EE7800}{s14}BUYUSE")
     velnicebuyuse:SetEventScript(ui.LBUTTONUP, "indun_panel_velnice_buyuse")
     local velniceexchangecount = ipframe:CreateOrGetControl("richtext", "velniceexchangecount", 360, 470, 60, 30)
     local vexchangecount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52")
@@ -860,9 +873,9 @@ end
 function indun_panel_update_frame(frame)
     local ipframe = ui.GetFrame(g.framename)
 
-    local entext = GET_CHILD_RECURSIVELY(ipframe, "entext")
+    local invbtn = GET_CHILD_RECURSIVELY(ipframe, "invbtn")
 
-    if entext:IsVisible() == 1 then
+    if invbtn:IsVisible() == 1 then
 
         local velnicecount = GET_CHILD_RECURSIVELY(ipframe, "velnicecount")
         velnicecount:SetText("{ol}{#FFFFFF}(" ..
@@ -1288,7 +1301,7 @@ function indun_panel_challenge_frame(ipframe)
     local challengeexpertcount = ipframe:CreateOrGetControl("richtext", "challengeexpertcount", 530, 50, 30, 30)
 
     local challengeticket = ipframe:CreateOrGetControl('button', 'challengeticket', 220, 80, 80, 30)
-    challengeticket:SetText("{ol}{#FF6666}{s14}BUYUSE")
+    challengeticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
     challengeticket:SetEventScript(ui.LBUTTONUP, "indun_panel_challenge_buyuse")
     -- challengeticket:RunUpdateScript("indun_panel_update_frame", 1.5)
 
@@ -1297,7 +1310,7 @@ function indun_panel_challenge_frame(ipframe)
                                      INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_40") .. ")")
 
     local challengeexpertticket = ipframe:CreateOrGetControl('button', 'challengeexpertticket', 390, 80, 80, 30)
-    challengeexpertticket:SetText("{ol}{#FF6666}{s14}BUYUSE")
+    challengeexpertticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
     challengeexpertticket:SetEventScript(ui.LBUTTONDOWN, "indun_panel_shop_open")
     -- challengeexpertticket:SetEventScript(ui.LBUTTONUP, "indun_panel_challengeex_buyuse")
 
@@ -1385,7 +1398,7 @@ function INDUN_PANEL_ITEM_BUY_USE(recipeName)
     local voverbuy_max = TryGetProp(vrecipecls, 'MaxOverBuyCount', 0)
 
     local count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
-    if voverbuy_max >= 1 then
+    if voverbuy_max >= 1 and recipeName == "PVP_MINE_52" then
         indun_panel_item_overbuy_use(vrecipecls)
         return
 
