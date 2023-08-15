@@ -1,8 +1,9 @@
 -- v1.0.5 ミニお知らせの挙動変更　街ではマケとか見れる様に、フィールドは通常、レイドは全消し
+-- v1.0.6 倉庫をチーム倉庫優先に変更
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 -- v1.0.4 画面右上のミニボタンを街意外だと消す。街にいる場合はマーケットボタンとかが押せるような状態で表示
 -- v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
@@ -52,6 +53,7 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     acutil.setupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
     addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
+    addon:RegisterMsg("DIALOG_CHANGE_SELECT", "FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT")
     -- addon:RegisterMsg("INDUNINFO_MAKE_DETAIL_BOSS_SELECT_BY_RAID_TYPE", "FREEFROMLITTLESTRESS_INDUNINFO_UPDATE")
     acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK,
         "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
@@ -73,6 +75,20 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     end
     addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
 
+end
+
+function FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
+    if argStr == tostring("WAREHOUSE_DLG") and msg == ("DIALOG_CHANGE_SELECT") then
+        -- CHAT_SYSTEM(msg)
+        local frame = ui.GetFrame("dialogselect")
+        session.SetSelectDlgList()
+        ui.OpenFrame("dialogselect")
+        DialogSelect_index = 2;
+        local btn2 = GET_CHILD_RECURSIVELY(frame, 'item2Btn')
+        local x, y = GET_SCREEN_XY(btn2)
+        mouse.SetPos(x + 190, y);
+
+    end
 end
 
 function FREEFROMLITTLESTRESS_PETINFO()
