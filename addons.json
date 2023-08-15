@@ -107,8 +107,12 @@
 		"fileVersion" : "v1.0.6",
 		"releaseTag" : "freefromlittlestress",
 		"unicode" : "⛄",
+<<<<<<< HEAD
 		"description" : "右上のミニボタンを街とフィールド以外で非表示に。ペット未召喚キャラの場合ペットリストを表示します。レイド後のレコードを好きな所に表示できます。Hide the mini-buttons in the upper right corner except for town and field. Display the pet list if the character is a pet unsummoned. Display the record after a raid wherever you want. Reduce mistakes in entering the nucleus of the cataclysm.오른쪽 상단의 미니 버튼을 도시와 필드 외에는 숨겨져 있습니다. 펫 미소환 캐릭터의 경우 펫 목록을 표시합니다. 레이드 후 기록을 원하는 곳에 표시할 수 있습니다. 격동의 핵 진입 오류를 줄입니다.
 ",
+=======
+		"description" : "右上のミニボタンを街とフィールド以外で非表示に。ペット未召喚キャラの場合ペットリストを表示します。レイド後のレコードを好きな所に表示できます。Hide the mini-buttons in the upper right corner except for town and field. Display the pet list if the character is a pet unsummoned. Display the record after a raid wherever you want. Reduce mistakes in entering the nucleus of the cataclysm.오른쪽 상단의 미니 버튼을 도시와 필드 외에는 숨겨져 있습니다. 펫 미소환 캐릭터의 경우 펫 목록을 표시합니다. 레이드 후 기록을 원하는 곳에 표시할 수 있습니다. 격동의 핵 진입 오류를 줄입니다.",
+>>>>>>> 8678d9f2544c93f27a3bf00c2d51be4660c3d727
 		"tags" : []
 	},
 {
