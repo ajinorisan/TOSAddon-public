@@ -103,10 +103,10 @@
 		"name" : "Free From Trivial Stress",
 		"file" : "freefromlittlestress",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.6",
+		"fileVersion" : "v1.0.7",
 		"releaseTag" : "freefromlittlestress",
 		"unicode" : "⛄",
-		"description" : "右上のミニボタンを街とフィールド以外で非表示に。ペット未召喚キャラの場合ペットリストを表示します。レイド後のレコードを好きな所に表示できます。Hide the mini-buttons in the upper right corner except for town and field. Display the pet list if the character is a pet unsummoned. Display the record after a raid wherever you want. Reduce mistakes in entering the nucleus of the cataclysm.오른쪽 상단의 미니 버튼을 도시와 필드 외에는 숨겨져 있습니다. 펫 미소환 캐릭터의 경우 펫 목록을 표시합니다. 레이드 후 기록을 원하는 곳에 표시할 수 있습니다. 격동의 핵 진입 오류를 줄입니다.",
+		"description" : "ミニボタンを街とフィールド以外で非表示。ペット未召喚時ペットリストを表示。レイド後のレコードを動かせる様に。倉庫やレイドなど各種ダイアログ制御。Hide mini-buttons except for city and field. Show pet list when pets are not summoned. Added the ability to move records after a raid. Control the dialog of warehouse, raid, etc...도시와 필드 외에는 미니 버튼을 숨깁니다. 펫 미소환 시 펫 목록 표시. 레이드 후 기록 이동 가능. 창고, 레이드 등 각종 대화창 제어.",
 		"tags" : []
 	},
 {

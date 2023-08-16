@@ -1,9 +1,10 @@
 -- v1.0.5 ミニお知らせの挙動変更　街ではマケとか見れる様に、フィールドは通常、レイドは全消し
 -- v1.0.6 倉庫をチーム倉庫優先に変更
+-- v1.0.7 倉庫のダイアログ制御オルシャとフェディにも対応。住居クポルの制御、各種レイド制御。
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 -- v1.0.4 画面右上のミニボタンを街意外だと消す。街にいる場合はマーケットボタンとかが押せるような状態で表示
 -- v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
@@ -77,8 +78,14 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
 
 end
 
+-- ダイアログ制御系
 function FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
-    if argStr == tostring("WAREHOUSE_DLG") and msg == ("DIALOG_CHANGE_SELECT") then
+    local frame = ui.GetFrame("dialogselect")
+    local dframe = ui.GetFrame("dialog")
+    -- CHAT_SYSTEM(argStr)
+    -- 倉庫
+    if argStr == tostring("WAREHOUSE_DLG") or argStr == tostring("ORSHA_WAREHOUSE_DLG") or argStr ==
+        tostring("WAREHOUSE_FEDIMIAN_DLG") and msg == ("DIALOG_CHANGE_SELECT") then
         -- CHAT_SYSTEM(msg)
         local frame = ui.GetFrame("dialogselect")
         session.SetSelectDlgList()
@@ -87,6 +94,45 @@ function FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
         local btn2 = GET_CHILD_RECURSIVELY(frame, 'item2Btn')
         local x, y = GET_SCREEN_XY(btn2)
         mouse.SetPos(x + 190, y);
+        return
+    end
+    -- 住居クポル
+    if argStr == "NPC_PERSONAL_HOUSING_MANAGER_DLG_2" then
+
+        session.SetSelectDlgList()
+        ui.OpenFrame("dialogselect")
+        control.DialogItemSelect(1);
+        -- test_norisan_DIALOGSELECT_STRING_ENTER_2(frame, msg, argStr, argNum)
+        -- control.DialogOk()
+        -- DialogSelect_index = 1
+    elseif string.find(argStr, "PERSONAL_HOUSING_POINT_CHECK_MSG_1") ~= nil then
+
+        session.SetSelectDlgList()
+        ui.OpenFrame("dialogselect")
+        control.DialogItemSelect(1);
+
+    elseif string.find(argStr, "PH_POINT_SHOP_DLG_SEL_1") ~= nil then
+        session.SetSelectDlgList()
+        ui.CloseFrame("dialog")
+        ui.OpenFrame("dialogselect")
+        DialogSelect_index = 3
+        local btn = GET_CHILD_RECURSIVELY(frame, 'item3Btn')
+        local x, y = GET_SCREEN_XY(btn)
+        mouse.SetPos(x + 190, y);
+        return
+    end
+    -- 各種レイド
+    if argStr == "Goddess_Raid_Rozethemiserable_Start_Npc_Dlg" or argStr == "Goddess_Raid_Spreader_Start_Npc_DLG1" or
+        argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" then
+
+        session.SetSelectDlgList()
+        ui.CloseFrame("dialog")
+        ui.OpenFrame("dialogselect")
+        DialogSelect_index = 2
+        local btn = GET_CHILD_RECURSIVELY(frame, 'item2Btn')
+        local x, y = GET_SCREEN_XY(btn)
+        mouse.SetPos(x + 190, y);
+        return
 
     end
 end
