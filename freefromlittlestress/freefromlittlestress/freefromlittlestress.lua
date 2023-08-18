@@ -1,13 +1,13 @@
+-- v1.0.4 画面右上のミニボタンを街意外だと消す。街にいる場合はマーケットボタンとかが押せるような状態で表示
+-- v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
 -- v1.0.5 ミニお知らせの挙動変更　街ではマケとか見れる様に、フィールドは通常、レイドは全消し
 -- v1.0.6 倉庫をチーム倉庫優先に変更
 -- v1.0.7 倉庫のダイアログ制御オルシャとフェディにも対応。住居クポルの制御、各種レイド制御。
+-- ｖ1.0.8　4人以下押したときの確認を削除
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
-
--- v1.0.4 画面右上のミニボタンを街意外だと消す。街にいる場合はマーケットボタンとかが押せるような状態で表示
--- v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -49,8 +49,9 @@ end
 function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- CHAT_SYSTEM(addonNameLower .. " loaded")
 
+    acutil.setupHook(FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
     acutil.setupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
     addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
@@ -76,6 +77,56 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     end
     addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
 
+end
+
+-- 4人以下制御
+function FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
+    local topFrame = parent:GetTopParentFrame();
+    -- perent="indunenter"
+    -- ctrl="understaffEnterAllowBtn"
+    local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
+    if useCount > 0 then
+        local multipleItemList = GET_INDUN_MULTIPLE_ITEM_LIST();
+        for i = 1, #multipleItemList do
+            local itemName = multipleItemList[i];
+            local invItem = session.GetInvItemByName(itemName);
+            if invItem ~= nil and invItem.isLockState then
+                ui.SysMsg(ClMsg("MaterialItemIsLock"));
+                return;
+            end
+        end
+    end
+
+    local withMatchMode = topFrame:GetUserValue('WITHMATCH_MODE');
+    if topFrame:GetUserValue('AUTOMATCH_MODE') ~= 'YES' and withMatchMode == 'NO' then
+        ui.SysMsg(ScpArgMsg('EnableWhenAutoMatching'));
+        return;
+    end
+
+    local indunType = topFrame:GetUserIValue('INDUN_TYPE');
+    local indunCls = GetClassByType('Indun', indunType);
+    local UnderstaffEnterAllowMinMember = TryGetProp(indunCls, 'UnderstaffEnterAllowMinMember');
+    if UnderstaffEnterAllowMinMember == nil then
+        return;
+    end
+
+    -- ??티??과 ??동매칭??경우 처리
+    local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
+    local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
+        UnderstaffEnterAllowMinMember);
+    if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
+        clientMsg = ClMsg('CancelUnderstaffMatching');
+    end
+    if withMatchMode == 'NO' then
+        _INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()
+        -- INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW_OLD(parent, ctrl)
+        return
+
+    elseif withMatchMode == 'YES' then
+        yesScpStr = 'ReqUnderstaffEnterAllowModeWithParty(' .. indunType .. ')';
+        ui.MsgBox(clientMsg, yesScpStr, "None");
+    end
+    INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW_OLD(parent, ctrl)
 end
 
 -- ダイアログ制御系
