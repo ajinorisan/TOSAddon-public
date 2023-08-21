@@ -66,14 +66,13 @@ function INDUN_PANEL_ON_INIT(addon, frame)
         local ipframe = ui.GetFrame("indun_panel")
         ipframe:RemoveAllChild()
         indun_panel_frame_init()
-        if g.ex == 0 then
-            addon:RegisterMsg('GAME_START', 'REQ_PVP_MINE_SHOP_OPEN');
+        if g.ex == 0 and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
+            addon:RegisterMsg('GAME_START', 'indunpanel_minimized_pvpmine_shop_init');
 
-            INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-            local frame = ui.GetFrame('earthtowershop')
-            g.ex = 1
-            print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")))
-            ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 1.5)
+            -- INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+            -- local frame = ui.GetFrame('earthtowershop')
+
+            --            print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")))
 
         end
 
@@ -87,6 +86,14 @@ function INDUN_PANEL_ON_INIT(addon, frame)
 
 end
 
+function indunpanel_minimized_pvpmine_shop_init()
+    -- CHAT_SYSTEM("a")
+    pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+    g.ex = 1
+    local frame = ui.GetFrame('earthtowershop')
+    ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 1.5)
+end
+
 function indun_panel_time_update(frame)
 
     local time = os.date("*t")
@@ -97,17 +104,17 @@ function indun_panel_time_update(frame)
     -- print(time)
 
     if hour >= 5 and hour <= 6 and g.ex == 1 then
-        REQ_PVP_MINE_SHOP_OPEN()
-        INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-        print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")))
+        pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+        -- INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+        -- print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")))
         local frame = ui.GetFrame('earthtowershop')
         -- pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
         ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 1.5)
         g.ex = 2
-        print(hour)
-        print(min)
-        CHAT_SYSTEM(hour)
-        CHAT_SYSTEM(min)
+        -- print(hour)
+        -- print(min)
+        -- CHAT_SYSTEM(hour)
+        -- CHAT_SYSTEM(min)
         --[[
         REQ_PVP_MINE_SHOP_OPEN()
         local frame = ui.GetFrame('earthtowershop')
@@ -226,9 +233,12 @@ function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
     local invframe = ui.GetFrame('inventory')
     INDUN_PANEL_INVENTORY_OPEN(invframe)
 
+    -- local pc = GetMyPCObject();
+
     pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
     local strArg = "Entrance_Ticket"
-    CLICK_EXCHANGE_SHOP_CATEGORY(ctrlSet, ctrl, strArg, numArg)
+    -- ReserveScript(string.format("CLICK_EXCHANGE_SHOP_CATEGORY(\"ctrlSet\",\"ctrl\",\"strArg\",%d", numArg), 0.2);
+    ReserveScript(string.format("DRAW_EXCHANGE_SHOP_IETMS('%s')", strArg), 0.2)
     return
     --[[
     local bgCtrl = GET_CHILD_RECURSIVELY(frame, "bg_category")
@@ -573,7 +583,7 @@ function indun_panel_init(ipframe)
 
     local velniceamount = ipframe:CreateOrGetControl("richtext", " velniceamount", 425, 470, 50, 30)
     if tonumber(vexchangecount) == 1 then
-        velniceamount:SetText("{ol}{#FFFFFF}(1,000)")
+        velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" .. "1,000)")
         -- elseif tonumber(vexchangecount) == 0 and voverbuy_max == 999 then
         -- velniceamount:SetText("{ol}{#FFFFFF}(1,050)")
         -- return
@@ -1496,6 +1506,7 @@ function indun_panel_challengeex_buyuse()
             local recipeName = "PVP_MINE_42"
             INDUN_PANEL_ITEM_BUY_USE(recipeName)
         else
+            g.ex = 1
             local recipeName = "PVP_MINE_41"
             INDUN_PANEL_ITEM_BUY_USE(recipeName)
             -- g.ex = 2

@@ -88,7 +88,8 @@ function NOCHECK_SELECT_ZONE_MOVE_CHANNEL(index, channelID)
     ]]
     -- base["SELECT_ZONE_MOVE_CHANNEL"](index, channelID)
     -- local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
-    ReserveScript(string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
+    -- ReserveScript(string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
+    ReserveScript(string.format("CLICK_EXCHANGE_SHOP_CATEGORY('%s','%s','%s',%d)", ctrlSet, ctrl, strArg, numArg), 0.2)
     -- ui.MsgBox(msg, scpString, "None");
 
 end
