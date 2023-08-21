@@ -1,7 +1,8 @@
+-- v1.0.5 SetupHookの競合を修正
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -12,23 +13,24 @@ g.settingsDirLoc = string.format("../addons/%s", addonNameLower)
 g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc)
 
 local acutil = require("acutil")
+local base = {}
 
 function NOCHECK_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
-    acutil.setupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
-    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
-    acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
-    acutil.setupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
-    acutil.setupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-                     "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    acutil.setupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    acutil.setupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
-    acutil.setupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
+    nocheck.SetupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
+    nocheck.SetupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
+    nocheck.SetupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
+    nocheck.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
+    nocheck.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
+    nocheck.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
+                      "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    nocheck.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    nocheck.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
+    nocheck.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
 
-    CHAT_SYSTEM("NOCHECK loaded")
+    -- CHAT_SYSTEM("NOCHECK loaded")
     -- NOCHECK_FRAME_INIT()
 
 end
@@ -56,6 +58,8 @@ function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)
         ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
         return;
     end
+
+    base["BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN"](invItem)
 end
 
 -- チャンネル移動時の確認を削除
@@ -73,6 +77,7 @@ function NOCHECK_SELECT_ZONE_MOVE_CHANNEL(index, channelID)
 
     end
 
+    base["SELECT_ZONE_MOVE_CHANNEL"](index, channelID)
     -- local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
     ReserveScript(string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
     -- ui.MsgBox(msg, scpString, "None");
@@ -105,6 +110,7 @@ function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
     local clmsg = ScpArgMsg("ReallyUnlockBelonging")
     local yesscp = 'UNLOCK_ACC_BELONGING_SCROLL_EXEC'
     ui.MsgBox(clmsg, yesscp, "None");
+    base["UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
 end
 
 -- ゴッデス装備帰属解除時の簡易化
@@ -133,6 +139,8 @@ function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(fr
     local clmsg = ScpArgMsg("ReallyUnlockBelonging")
     local yesscp = 'UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC'
     ui.MsgBox(clmsg, yesscp, "None");
+
+    base["UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
 end
 
 -- エーテルジェム着脱時のメッセージ非表示
@@ -189,6 +197,8 @@ function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
             SET_MODAL_MSGBOX(msgbox)
         end
     end
+    base["GODDESS_MGR_SOCKET_REQ_GEM_REMOVE"](parent, btn)
+
 end
 
 -- 欠片アイテム他使用時のメッセージボックス非表示
@@ -207,7 +217,7 @@ function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
 
     REQUEST_SUMMON_BOSS_TX();
     -- BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG_OLD(invItem)
-
+    base["BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG"](invItem)
     return;
 end
 
@@ -245,6 +255,8 @@ function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
             REQUEST_EQUIP_CARD_TX();
         end
     end
+    base["CARD_SLOT_EQUIP"](slot, item, groupNameStr)
+
 end
 
 function NOCHECK_EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
@@ -265,8 +277,8 @@ end
 function NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN(slotIndex)
 
     NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE()
-
-    EQUIP_GODDESSCARDSLOT_INFO_OPEN_OLD(slotIndex)
+    base["EQUIP_GODDESSCARDSLOT_INFO_OPEN"](slotIndex)
+    -- EQUIP_GODDESSCARDSLOT_INFO_OPEN_OLD(slotIndex)
 end
 
 function NOCHECK_EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT()
@@ -289,6 +301,17 @@ function NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE()
     pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
 
 end
+
+function nocheck.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
+
 -- レジェンドカード装着時のメッセージボックス非表示ここまで
 --[[
 local success, err = pcall(function()
