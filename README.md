@@ -1,4 +1,4 @@
-## tosaddon
+### ToSAddon
 
 こちらのリポジトリに置かれているアドオンを利用したことにより生じるいかなる損害についても、理由の如何に関わらず作者は責任を負えません。
 
@@ -16,13 +16,27 @@ https://twitter.com/ToSJP_rada
 
 ----
 
-### Job Change Helper アドオンマネージャーに登録済 Register in Addon Manager
+### Let's Go Home
 
-装備外して、ペット戻して、PTから抜けます。
+ミニマップの下に家のアイコンが出来ます。アイコン右クリックでお気に入りの街とチャンネルを登録します。
+
+アイコンを左クリックでワープします。
+
+ワープのチョイスはクエストワープ→トークンワープ→ワープ呪文書の順で決定します。
 
 ----
 
-### Character Change Helper アドオンマネージャーに登録済 Register in Addon Manager
+
+### Job Change Helper
+
+装備外して、ペット戻して、PTから抜けます。
+
+インベントリに全裸になるボタンを設置しました。
+
+
+----
+
+### Character Change Helper
 
 エンブレム、アーク、レジェンドカード、ゴッデスカード、をワンボタンで着け外し出来ます。
 
@@ -30,95 +44,156 @@ https://twitter.com/ToSJP_rada
 
 エーテルジェムは自動で着け外ししないので、Aethergem Managerのご利用を検討ください。
 
+Aethergem Manager導入済の場合はAethergem Managerを起動するかの選択肢が出ます。
+
+
 ----
 
-### Indun Panel アドオンマネージャーに登録済 Register in Addon Manager
+### Indun Panel
 
 チャレンジや各種レイドへの入場を簡素化、補助します。街でしか動きません。
 
+チャレンジ券、分裂券、ヴェルニケチケットをワンボタンで購入して使う機能を追加
+
+
 ----
 
-### Ancient AutoSet アドオンマネージャーに登録済 Register in Addon Manager
+### Ancient AutoSet
 
 キャラクター毎にアシスターを自動でセットします。アシスターフレームに設定ボタンが付くのでそれを押してアシスターセットを登録してください。
 
 1キャラにつき1回登録を行えば、以後CCの度に自動でアシスターを付け替えます。街でしか動きません。
 
+
 ----
 
-### Aethergem Manager アドオンマネージャーに登録済 Register in Addon Manager
+### Aethergem Manager
 
 エーテルジェムの着け外し補助。インベントリに見慣れないボタンが付きます。設定アイコンでキャラクター毎にエーテルジェムの登録をします。
 
-その後左側のボタンを押すと装備が勝手に外れて、登録したエーテルジェムの着け外しを自動で行います。
+その後AGMボタンを押すと装備が外れて、登録したエーテルジェムの着け外しを自動で行います。
+
+設定ボタン右クリックで動作時間を指定できます。あまり早いと失敗するよ。
+
 
 ----
 
-### Auto Repair アドオンマネージャーに登録済 Register in Addon Manager
+### Auto Repair
 
 装備の耐久を監視して30%未満になると「[Lv.490]緊急修理キット」を使用して自動で修理します。
 
 他の修理キットには未対応。
 
+インベントリの修理キットが10個以下になると購入するか聞いてくるUIが立ち上がります。YESで50個自動購入します。
+
+Register in AddonManager
+
+
 ----
 
-### Easy buff アドオンマネージャーに登録済 Register in Addon Manager
+### Easy buff
 
-v2.0.0系で色々見直しました。詳しくはREADME.md参照
+v2.0.0系で色々見直しました。
+
+食事バフを左上の赤ボタンでリセット、4foodボタンで広域系以外、5foodボタンで広域防御を除く、Allfoodで全部のバフを付けます。
+
+修理屋で一番修理費用が安い装備を自動で修理して、機敏バフなどを付与します。
+
+メンテ屋に話しかけると自動でメンテが始まります。
+
+バフ屋に話しかけると自動でバフします。
 
 The author of this addon is Kiicchanさん
 
+Register in AddonManager
+
+
 ----
 
-### GT sysmsg アドオンマネージャーに登録済 Register in Addon Manager
+### GT sysmsg
 
 追従者の出現時間をシステムチャットとニコニコ風チャットに出力。放置してても見逃さない。音も出るよ。
 
 Special thanks to menimaniさん
 
+Register in AddonManager
+
+
 ----
 
-### KL count アドオンマネージャーに登録済 Register in Addon Manager
+### KL count
 
 EP14.15マップで敵を倒した数をカウントします。正確な効率が測れるかも。
 
 Special thanks to menimaniさん
 
+
 ----
 
-### NO check アドオンマネージャーに登録済 Register in Addon Manager
+### NO check
 
 各種欠片を使用する際の確認を消します。レジェンドカード、ゴッデスカード、エーテルジェムの着脱時の確認も消します。
 
-おまけ機能でゴッデス装備の帰属解除時のインプットボックスも消します。
+ゴッデス装備の帰属解除時のインプットボックスも消します。
+
+モンスターカード使用時のメッセージボックス、チャンネル移動時の確認を消します。
+
+v1.0.5 SetupHookの競合修正。このバージョンを入れないと他の作者のアドオンと喧嘩するぞ。 2023.8.21
+
+Register in AddonManager
+
 
 ----
 
-### Auto Map Change アドオンマネージャーに登録済 Register in Addon Manager
+### Auto Map Change
 
 MAP移動時の確認ダイアログを削除します。バウンティハント用かな？
 
+ログイン時の最初の移動時だけ動きません。
+
+Register in AddonManager
+
+
 ----
 
-### Continue Reinforce アドオンマネージャーに登録済 Register in Addon Manager
+### Continue Reinforce
 
 ゴッデス装備の強化を自動化
 
-----
+Register in AddonManager
 
-### Free From Trivial Stress アドオンマネージャーに登録済 Register in Addon Manager
-
-V1.0.0 レイド終了時のリワードの位置をずらしました。
-
-死んだ時の選択ボックスが薄くなるのもこれの仕業です。戦場カメラマン用
-
-今後大きく育てたい。
 
 ----
 
-### Guild Event Warp アドオンマネージャーに登録済 Register in Addon Manager
+### Free From Trivial Stress
+
+日頃のちょっとしたストレスを軽減します。
+
+v1.0.8 AutoMatch4人以下押したときの確認を削除
+
+v1.0.7 倉庫のダイアログ制御オルシャとフェディにも対応。住居クポルの制御、各種レイド制御。
+
+v1.0.6 倉庫をチーム倉庫優先に変更
+
+v1.0.5 ミニお知らせの挙動変更 街ではマケとか見れる様に、フィールドは通常、レイドは全消し
+
+v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
+
+V1.0.0 レイド終了時のリワードの位置をずらしました。死亡時の選択ボックスが薄くなり動かせる様になります。戦場カメラマン用
+
+Register in AddonManager
+
+
+----
+
+### Guild Event Warp
 
 画面右上のミニマップの上に、ボルタ、ギルティネ、バウバスの各封鎖戦開始場所までワンクリックで移動するボタンを表示します。
+
+久保さんはなぜか使ってくれない。僕は悲しい。
+
+Register in AddonManager
+
 
 ----
 
@@ -130,15 +205,21 @@ Ectonite that automatically refills is changed to a coin-operated type.
 
 The author of this addon is meldavyさん
 
+
 ----
 
 ### muteki2ex
 
 既存の動作にオーバーロードレイドのクールダウンゲージを付けました。色は選べません。
 
+WithEffectではなく、パーティーチャットでIgotとかいうタイプに変更
+
 Overload Raid cooldown gauge attached to existing operation. Color is not selectable.
 
 The author of this addon is WRITさん
+
+Register in AddonManager(v1.0.0にダウングレードすることになります)
+
 
 ----
 
