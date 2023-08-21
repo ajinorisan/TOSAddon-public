@@ -1,7 +1,8 @@
+-- v1.0.5 SetupHookの競合を修正
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -12,23 +13,24 @@ g.settingsDirLoc = string.format("../addons/%s", addonNameLower)
 g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc)
 
 local acutil = require("acutil")
+local base = {}
 
 function NOCHECK_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    acutil.setupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
-    acutil.setupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
-    acutil.setupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
-    acutil.setupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
-    acutil.setupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
-    acutil.setupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-                     "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    acutil.setupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    acutil.setupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
-    acutil.setupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
+    g.SetupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
+    g.SetupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
+    g.SetupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
+    g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
+    g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
+    g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
+        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
+    g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
 
-    CHAT_SYSTEM("NOCHECK loaded")
+    -- CHAT_SYSTEM("NOCHECK loaded")
     -- NOCHECK_FRAME_INIT()
 
 end
@@ -47,8 +49,11 @@ function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)
     invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
 
     if itemobj.Script == 'SCR_SUMMON_MONSTER_FROM_CARDBOOK' then
-        -- local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("Card_Summon_check_Use"));
-        -- ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
+        if _G.BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN == nil then
+            CHAT_SYSTEM("nai")
+        else
+            CHAT_SYSTEM("aru")
+        end
         REQUEST_SUMMON_BOSS_TX()
         return;
     elseif itemobj.Script == 'SCR_QUEST_CLEAR_LEGEND_CARD_LIFT' then
@@ -56,6 +61,8 @@ function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)
         ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
         return;
     end
+
+    -- base["BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN"](invItem)
 end
 
 -- チャンネル移動時の確認を削除
@@ -72,7 +79,14 @@ function NOCHECK_SELECT_ZONE_MOVE_CHANNEL(index, channelID)
         return;
 
     end
-
+    --[[
+    if _G.SELECT_ZONE_MOVE_CHANNEL == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+    ]]
+    -- base["SELECT_ZONE_MOVE_CHANNEL"](index, channelID)
     -- local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
     ReserveScript(string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
     -- ui.MsgBox(msg, scpString, "None");
@@ -81,6 +95,13 @@ end
 
 -- ゴッデスアクセ帰属解除時の簡易化
 function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
+    --[[
+    if _G.UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+    --[[
     local scrollType = frame:GetUserValue("ScrollType")
     local clickable = frame:GetUserValue("EnableTranscendButton")
     if tonumber(clickable) ~= 1 then
@@ -105,10 +126,19 @@ function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
     local clmsg = ScpArgMsg("ReallyUnlockBelonging")
     local yesscp = 'UNLOCK_ACC_BELONGING_SCROLL_EXEC'
     ui.MsgBox(clmsg, yesscp, "None");
+
+    -- base["UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
 end
 
 -- ゴッデス装備帰属解除時の簡易化
 function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
+    --[[
+    if _G.UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+    ]]
     local scrollType = frame:GetUserValue("ScrollType")
     local clickable = frame:GetUserValue("EnableTranscendButton")
     if tonumber(clickable) ~= 1 then
@@ -133,10 +163,19 @@ function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(fr
     local clmsg = ScpArgMsg("ReallyUnlockBelonging")
     local yesscp = 'UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC'
     ui.MsgBox(clmsg, yesscp, "None");
+
+    -- base["UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
 end
 
 -- エーテルジェム着脱時のメッセージ非表示
 function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
+    --[[
+    if _G.GODDESS_MGR_SOCKET_REQ_GEM_REMOVE == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+    ]]
     local frame = parent:GetTopParentFrame()
     local slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
     local guid = slot:GetUserValue('ITEM_GUID')
@@ -189,11 +228,20 @@ function NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
             SET_MODAL_MSGBOX(msgbox)
         end
     end
+
+    -- base["GODDESS_MGR_SOCKET_REQ_GEM_REMOVE"](parent, btn)
+
 end
 
 -- 欠片アイテム他使用時のメッセージボックス非表示
 function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
-
+    --[[
+    if _G.BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+]]
     if invItem == nil then
         return;
     end
@@ -206,13 +254,21 @@ function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
     invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
 
     REQUEST_SUMMON_BOSS_TX();
-    -- BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG_OLD(invItem)
 
+    -- BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG_OLD(invItem)
+    -- base["BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG"](invItem)
     return;
 end
 
 -- レジェンドカード装着時のメッセージボックス非表示
 function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
+    --[[
+    if _G.CARD_SLOT_EQUIP == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+]]
     local obj = GetIES(item:GetObject());
     if obj.GroupName == "Card" then
         local slotIndex = CARD_SLOT_GET_SLOT_INDEX(groupNameStr, slot:GetSlotIndex());
@@ -239,15 +295,24 @@ function NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
                 ui.SysMsg(ClMsg("LegendCard_Slot_NotOpen"))
                 return
             end
-
+            -- g.NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
             REQUEST_EQUIP_CARD_TX();
         else
+            -- g.NOCHECK_CARD_SLOT_EQUIP(slot, item, groupNameStr)
             REQUEST_EQUIP_CARD_TX();
         end
     end
+
 end
 
 function NOCHECK_EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
+    --[[
+    if _G.EQUIP_CARDSLOT_INFO_OPEN == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+    ]]
     -- EQUIP_CARDSLOT_INFO_OPEN_OLD(slotIndex)
     -- local slv = tonumber(GET_TOTAL_MONEY_STR());
     -- local cardslv = tonumber(cardLv * 2000)
@@ -259,14 +324,20 @@ function NOCHECK_EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
     NOCHECK_EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT()
     -- end
 
-    EQUIP_CARDSLOT_INFO_OPEN_OLD(slotIndex)
+    base[EQUIP_CARDSLOT_INFO_OPEN](slotIndex)
 end
 
 function NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN(slotIndex)
-
+    --[[
+    if _G.EQUIP_GODDESSCARDSLOT_INFO_OPEN == nil then
+        CHAT_SYSTEM("nai")
+    else
+        CHAT_SYSTEM("aru")
+    end
+]]
     NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE()
+    base["EQUIP_GODDESSCARDSLOT_INFO_OPEN"](slotIndex)
 
-    EQUIP_GODDESSCARDSLOT_INFO_OPEN_OLD(slotIndex)
 end
 
 function NOCHECK_EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT()
@@ -289,6 +360,17 @@ function NOCHECK_EQUIP_GODDESSCARDSLOT_BTN_REMOVE()
     pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
 
 end
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
+
 -- レジェンドカード装着時のメッセージボックス非表示ここまで
 --[[
 local success, err = pcall(function()
