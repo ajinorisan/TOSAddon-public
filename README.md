@@ -24,14 +24,18 @@ https://twitter.com/ToSJP_rada
 
 ワープのチョイスはクエストワープ→トークンワープ→ワープ呪文書の順で決定します。
 
-----
+Register in AddonManager
 
+
+----
 
 ### Job Change Helper
 
 装備外して、ペット戻して、PTから抜けます。
 
 インベントリに全裸になるボタンを設置しました。
+
+Register in AddonManager
 
 
 ----
@@ -46,6 +50,8 @@ https://twitter.com/ToSJP_rada
 
 Aethergem Manager導入済の場合はAethergem Managerを起動するかの選択肢が出ます。
 
+Register in AddonManager
+
 
 ----
 
@@ -55,6 +61,8 @@ Aethergem Manager導入済の場合はAethergem Managerを起動するかの選�
 
 チャレンジ券、分裂券、ヴェルニケチケットをワンボタンで購入して使う機能を追加
 
+Register in AddonManager
+
 
 ----
 
@@ -63,6 +71,8 @@ Aethergem Manager導入済の場合はAethergem Managerを起動するかの選�
 キャラクター毎にアシスターを自動でセットします。アシスターフレームに設定ボタンが付くのでそれを押してアシスターセットを登録してください。
 
 1キャラにつき1回登録を行えば、以後CCの度に自動でアシスターを付け替えます。街でしか動きません。
+
+Register in AddonManager
 
 
 ----
@@ -74,6 +84,8 @@ Aethergem Manager導入済の場合はAethergem Managerを起動するかの選�
 その後AGMボタンを押すと装備が外れて、登録したエーテルジェムの着け外しを自動で行います。
 
 設定ボタン右クリックで動作時間を指定できます。あまり早いと失敗するよ。
+
+Register in AddonManager
 
 
 ----
