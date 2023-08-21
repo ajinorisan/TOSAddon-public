@@ -99,8 +99,6 @@ function monstercard_changer_frame_init()
     CARD_SLOT_CREATE(frame, 'STAT', 3 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
     CARD_SLOT_CREATE(frame, 'LEG', 4 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
 
-    CARD_OPTION_OPEN(frame)
-
     frame:ShowWindow(1)
 
 end
