@@ -6,10 +6,11 @@
 -- v1.0.7 当日分裂券が更新しないのを修正 イヤリングレイド回数表示更新 フレーム変えた。ヴェルニケのBUYUSE作成。コイン商店の残高表示
 -- AUTOMODE時に直接ボタン押した状態に。ハードは再入場系が怖いのでそのまま
 -- v1.0.8 チャレとか分裂券買う時にヴェルニケ券買っちゃうバグ修正('Д')
+-- v1.0.9 分裂券を買う辺りを修正。不要になったので倉庫閉めたらインベも閉める
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -19,18 +20,14 @@ local g = _G["ADDONS"][author][addonName]
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
+local os = require("os")
 
 g.settings = {
     ischecked = 0
+    -- ex = 0
 }
---[[
-local tickettbl = {
-    challenge = "PVP_MINE_40",
-    expertday = "PVP_MINE_41",
-    expertweek = "PVP_MINE_42"
+g.ex = 0 -- 関数の外に定義
 
-}
-]]
 function indun_panel_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -57,12 +54,10 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.framename = addonName
-    -- print(addonNameLower .. " loaded")
-    indun_panel_load_settings()
 
-    -- acutil.setupHook(INDUN_PANEL_INDUNENTER_AUTOMATCH, "INDUNENTER_AUTOMATCH")
-    -- acutil.setupHook(INDUN_PANEL_INDUNENTER_ENTER, "INDUNENTER_ENTER")
-    -- acutil.setupHook(INDUN_PANEL_INDUNINFO_SET_BUTTONS, "INDUNINFO_SET_BUTTONS")
+    -- local starttime = session.GetDBSysTime();
+
+    indun_panel_load_settings()
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -71,14 +66,127 @@ function INDUN_PANEL_ON_INIT(addon, frame)
         local ipframe = ui.GetFrame("indun_panel")
         ipframe:RemoveAllChild()
         indun_panel_frame_init()
-        -- indun_panel_init()
+        if g.ex == 0 and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
+            addon:RegisterMsg('GAME_START', 'indunpanel_minimized_pvpmine_shop_init');
+
+            -- INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+            -- local frame = ui.GetFrame('earthtowershop')
+
+            --            print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")))
+
+        end
+
     end
-    acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
-    -- addon:RegisterMsg("WEIGHT_UPDATE", "INDUN_PANEL_WEIGHT_UPDATE");
-    -- acutil.setupEvent(addon, "WEIGHT_UPDATE", "INDUN_PANEL_WEIGHT_UPDATE");
-    -- indun_panel_get_chllengerecipe_trade_count()
-    -- local excount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-    CHAT_SYSTEM(excount)
+
+    -- addon:RegisterMsg('GAME_START_3SEC', 'indun_panel_earthtowershop_close');
+
+    -- acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
+    -- addon:RegisterMsg('ESCAPE_PRESSED', 'DIALOG_ON_PRESS_ESCAPE');
+    -- addon:RegisterMsg('GAME_START', 'indun_panel_test');
+
+end
+
+function indunpanel_minimized_pvpmine_shop_init()
+    -- CHAT_SYSTEM("a")
+    pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+    g.ex = 1
+    local frame = ui.GetFrame('earthtowershop')
+    ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 1.5)
+end
+
+function indun_panel_time_update(frame)
+
+    local time = os.date("*t")
+    local hour = time.hour
+    local min = time.min
+
+    -- print(tostring(formattedTime.hour))
+    -- print(time)
+
+    if hour >= 5 and hour <= 6 and g.ex == 1 then
+        pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+        -- INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+        -- print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")))
+        local frame = ui.GetFrame('earthtowershop')
+        -- pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+        ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 1.5)
+        g.ex = 2
+        -- print(hour)
+        -- print(min)
+        -- CHAT_SYSTEM(hour)
+        -- CHAT_SYSTEM(min)
+        --[[
+        REQ_PVP_MINE_SHOP_OPEN()
+        local frame = ui.GetFrame('earthtowershop')
+
+        ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 1.0)
+]]
+        return 0
+    end
+    return 1
+end
+
+function INDUN_PANEL_DIALOG_ON_MSG(frame, msg, argStr, argNum)
+
+    local frame = ui.GetFrame("dialog")
+    AUTO_CAST(frame)
+    local msg = tostring("DIALOG_CHANGE_SELECT")
+    local argStr = tostring("WAREHOUSE_DLG")
+    local argNum = 0
+    -- ON_DIALOG_UPDATE_COLONY_TAX_RATE_SET(frame)
+    DIALOG_ON_MSG(frame, msg, argStr, argNum)
+
+    local dsframe = ui.GetFrame("dialogselect")
+    AUTO_CAST(dsframe)
+    DIALOGSELECT_ON_MSG(dsframe, msg, argStr, argNum)
+    ui.CloseFrame('dialogselect');
+
+    session.SetSelectDlgList();
+    msg = "DIALOG_ADD_SELECT"
+    argStr = string.format("!@#$WareHouse#@!")
+    argNum = 1
+    DIALOGSELECT_ITEM_ADD(dsframe, msg, argStr, argNum);
+    local btn1 = GET_CHILD_RECURSIVELY(dsframe, 'item1Btn')
+    AUTO_CAST(btn1)
+
+    argStr = string.format("!@#$AccountWareHouse#@!")
+    argNum = 2
+    DIALOGSELECT_ITEM_ADD(dsframe, msg, argStr, argNum);
+    local btn2 = GET_CHILD_RECURSIVELY(dsframe, 'item2Btn')
+    AUTO_CAST(btn2)
+
+    DIALOGSELECT_STRING_ENTER(frame, btn2)
+    -- local strText = btn2:GetText();
+    -- CHAT_SYSTEM(strText)
+
+    argStr = string.format("!@#$Close#@!")
+    argNum = 3
+    DIALOGSELECT_ITEM_ADD(dsframe, msg, argStr, argNum);
+    local btn3 = GET_CHILD_RECURSIVELY(dsframe, 'item3Btn')
+    AUTO_CAST(btn3)
+    ui.OpenFrame('dialogselect');
+    --[[
+    msg = "DIALOG_CLOSE"
+    argStr = "None"
+    argNum = 0
+    DIALOG_ON_MSG(frame, msg, argStr, argNum)
+
+    msg = "DIALOG_CLOSE"
+    argStr = "None"
+    argNum = 0
+    DIALOGSELECT_ON_MSG(dsframe, msg, argStr, argNum)
+
+    msg = "DIALOG_CLOSE"
+    argStr = "accountwarehouse"
+    argNum = 0
+    DIALOG_ON_MSG(frame, msg, argStr, argNum)
+
+    msg = "DIALOG_CLOSE"
+    argStr = "accountwarehouse"
+    argNum = 0
+    DIALOGSELECT_ON_MSG(dsframe, msg, argStr, argNum)
+]]
+
 end
 
 function indun_panel_overbuy_count()
@@ -101,8 +209,20 @@ function indun_panel_overbuy_amount()
     local overbuy_max = TryGetProp(recipecls, 'MaxOverBuyCount', 0)
     local overbuy_prop = TryGetProp(recipecls, 'OverBuyProperty', 'None')
     local overbuy_count = TryGetProp(aObj, overbuy_prop, 0)
-    local overbuyamount = overbuy_count * 50 + 1050
+    local overbuyamount = 0
+    -- CHAT_SYSTEM(overbuy_count)
+    -- print(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52"))
 
+    if INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52") == 1 and overbuy_count == 0 then
+        overbuyamount = 1000
+        -- return overbuyamount
+
+        -- elseif tonumber(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52")) == -1 then
+    elseif overbuy_count > 0 then
+        overbuyamount = overbuy_count * 50 + 1050
+        -- CHAT_SYSTEM(overbuyamount)
+    end
+    -- print(overbuyamount)
     return overbuyamount
 end
 function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
@@ -113,9 +233,12 @@ function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
     local invframe = ui.GetFrame('inventory')
     INDUN_PANEL_INVENTORY_OPEN(invframe)
 
+    -- local pc = GetMyPCObject();
+
     pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
     local strArg = "Entrance_Ticket"
-    CLICK_EXCHANGE_SHOP_CATEGORY(ctrlSet, ctrl, strArg, numArg)
+    -- ReserveScript(string.format("CLICK_EXCHANGE_SHOP_CATEGORY(\"ctrlSet\",\"ctrl\",\"strArg\",%d", numArg), 0.2);
+    ReserveScript(string.format("DRAW_EXCHANGE_SHOP_IETMS('%s')", strArg), 0.2)
     return
     --[[
     local bgCtrl = GET_CHILD_RECURSIVELY(frame, "bg_category")
@@ -235,7 +358,7 @@ function indun_panel_frame_init()
 
     ipframe:SetSkinName('None')
     ipframe:SetLayerLevel(30)
-    ipframe:Resize(140, 35)
+    ipframe:Resize(140, 40)
     ipframe:SetPos(665, 30)
     ipframe:SetTitleBarSkin("None")
     ipframe:EnableHittestFrame(1)
@@ -257,8 +380,8 @@ function indun_panel_frame_init()
 
     ipframe:ShowWindow(1)
 
-    ipframe:RunUpdateScript("indun_panel_update_frame", 1.0)
-
+    -- ipframe:RunUpdateScript("indun_panel_update_frame", 1.0)
+    ipframe:RunUpdateScript("indun_panel_time_update", 300)
     indun_panel_judge(ipframe)
 end
 
@@ -271,7 +394,7 @@ function indun_panel_judge(ipframe)
 
         ipframe:SetSkinName('None')
         ipframe:SetLayerLevel(30)
-        ipframe:Resize(140, 35)
+        ipframe:Resize(140, 40)
         ipframe:SetPos(665, 30)
         ipframe:SetTitleBarSkin("None")
         ipframe:EnableHittestFrame(1)
@@ -283,6 +406,8 @@ function indun_panel_judge(ipframe)
         ccbtn:SetSkinName("None")
         ccbtn:SetText("{img barrack_button_normal 35 35}")
         ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+
+        -- indun_panel_frame_init()
 
         -- indun_panel_frame_init()
     elseif g.settings.ischecked == 1 then
@@ -313,12 +438,27 @@ function indun_panel_checkbox_toggle()
 end
 
 function indun_panel_init(ipframe)
+    -- CHAT_SYSTEM(g.ex)
+    --[[
+    if g.ex == 0 then
+        indun_panel_shop_open()
+
+    end
+    ]]
     ipframe:RemoveAllChild()
 
     local button = ipframe:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
     AUTO_CAST(button)
     button:SetText("{ol}{s11}INDUNPANEL")
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
+
+    --[[
+    local awbtn = ipframe:CreateOrGetControl('button', 'awbtn', 235, 5, 35, 35)
+    AUTO_CAST(awbtn)
+    awbtn:SetSkinName("None")
+    awbtn:SetText("{img barrack_button_normal 35 35}")
+    awbtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_ON_OPEN_ACCOUNTWAREHOUSE")
+]]
 
     local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 95, 5, 35, 35)
     AUTO_CAST(ccbtn)
@@ -426,13 +566,14 @@ function indun_panel_init(ipframe)
     velnicebutton:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_velnice_solo")
 
     local vrecipecls = GetClass('ItemTradeShop', "PVP_MINE_52");
-    local voverbuy_max = TryGetProp(recipecls, 'MaxOverBuyCount', 0)
+    local voverbuy_max = TryGetProp(vrecipecls, 'MaxOverBuyCount', 0)
 
     local velnicebuyuse = ipframe:CreateOrGetControl('button', 'velnicebuyuse', 275, 465, 80, 30)
     AUTO_CAST(velnicebuyuse)
     velnicebuyuse:SetText("{ol}{#EE7800}{s14}BUYUSE")
     velnicebuyuse:SetEventScript(ui.LBUTTONUP, "indun_panel_velnice_buyuse")
     local velniceexchangecount = ipframe:CreateOrGetControl("richtext", "velniceexchangecount", 360, 470, 60, 30)
+
     local vexchangecount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52")
     if vexchangecount < 0 then
         vexchangecount = 0
@@ -441,13 +582,13 @@ function indun_panel_init(ipframe)
                                      string.format("{ol}{#FF0000}%d", indun_panel_overbuy_count()) .. "{ol}{#FFFFFF})")
 
     local velniceamount = ipframe:CreateOrGetControl("richtext", " velniceamount", 425, 470, 50, 30)
-    if tonumber(vexchangecount) == 1 and voverbuy_max == 999 then
-        velniceamount:SetText("{ol}{#FFFFFF}(1,000)")
-    elseif tonumber(vexchangecount) == 0 and voverbuy_max == 999 then
-        velniceamount:SetText("{ol}{#FFFFFF}(1,050)")
-
+    if tonumber(vexchangecount) == 1 then
+        velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" .. "1,000)")
+        -- elseif tonumber(vexchangecount) == 0 and voverbuy_max == 999 then
+        -- velniceamount:SetText("{ol}{#FFFFFF}(1,050)")
+        -- return
     else
-        velniceamount:SetText("{ol}{#FFFFFF}(" ..
+        velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" ..
                                   string.format("{ol}{#FF0000}%s", GET_COMMAED_STRING(indun_panel_overbuy_amount())) ..
                                   "{ol}{#FFFFFF})")
     end
@@ -468,6 +609,15 @@ function indun_panel_init(ipframe)
     ipframe:RunUpdateScript("indun_panel_update_frame", 1.0)
     -- ReserveScript("indun_panel_update_frame()", 1.0)
     return
+end
+
+function INDUN_PANEL_ON_OPEN_ACCOUNTWAREHOUSE()
+
+    new_add_item = {}
+    new_stack_add_item = {}
+    custom_title_name = {}
+
+    ui.OpenFrame("accountwarehouse");
 end
 
 function indun_panel_velnice_buyuse()
@@ -687,7 +837,7 @@ function indun_panel_enter_giltine_auto()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
 end
 
 function indun_panel_enter_giltine_solo()
@@ -785,7 +935,7 @@ function indun_panel_enter_Delmore_auto()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
 end
 
 function indun_panel_enter_Delmore_solo()
@@ -861,7 +1011,7 @@ function indun_panel_enter_jellyzele_auto()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
 end
 
 function indun_panel_enter_jellyzele_solo()
@@ -890,6 +1040,7 @@ function indun_panel_update_frame(frame)
 
         local velniceexchangecount = GET_CHILD_RECURSIVELY(ipframe, "velniceexchangecount")
         local vexchangecount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52")
+
         if vexchangecount < 0 then
             vexchangecount = 0
         end
@@ -898,15 +1049,18 @@ function indun_panel_update_frame(frame)
                                          "{ol}{#FFFFFF})")
 
         local velniceamount = GET_CHILD_RECURSIVELY(ipframe, " velniceamount")
+        --[[
         if tonumber(vexchangecount) == 1 and voverbuy_max == 999 then
             velniceamount:SetText("{ol}{#FFFFFF}(1,000)")
         elseif tonumber(vexchangecount) == 0 and voverbuy_max == 999 then
             velniceamount:SetText("{ol}{#FFFFFF}(1,050)")
         else
-            velniceamount:SetText("{ol}{#FFFFFF}(" ..
-                                      string.format("{ol}{#FF0000}%s", GET_COMMAED_STRING(indun_panel_overbuy_amount())) ..
-                                      "{ol}{#FFFFFF})")
-        end
+             end
+            ]]
+        velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" ..
+                                  string.format("{ol}{#FF0000}%s", GET_COMMAED_STRING(indun_panel_overbuy_amount())) ..
+                                  "{ol}{#FFFFFF})")
+
         -- CHAT_SYSTEM("test 1")
         local challengeticketcount = GET_CHILD_RECURSIVELY(ipframe, "challengeticketcount")
         local challengeexpertticketcount = GET_CHILD_RECURSIVELY(ipframe, "challengeexpertticketcount")
@@ -1069,7 +1223,7 @@ function indun_panel_enter_spreader_auto()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
 end
 
 function indun_panel_enter_spreader_solo()
@@ -1143,7 +1297,7 @@ function indun_panel_enter_falo_auto()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
 end
 
 function indun_panel_enter_falo_solo()
@@ -1239,7 +1393,7 @@ function indun_panel_enter_roze_auto()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
     -- ReqMoveToIndun(1, 0)
 end
 
@@ -1264,37 +1418,14 @@ function indun_panel_autosweep_roze()
         ui.SysMsg("Does not have a sweeping buff")
         return
     end
-    -- ReserveScript(string.format("indun_panel_init('%s')", ipframe), 0.1)
 
-    -- return
-    -- indun_panel_init(ipframe)
-    --[[
-    indun_panel_frame_init()
-    
-    local ipframe = ui.GetFrame(g.framename)
-    local rBuffID = 80015
-    local sweepcount = 0
-    sweepcount = indun_panel_sweep_count(rBuffID)
-    local rozesweepcount = GET_CHILD_RECURSIVELY(ipframe, "rozesweepcount")
-    rozesweepcount:SetText("{ol}{#FFFFFF}{s16}(" .. sweepcount .. ")")
-    ipframe:Invalidate();
-    ]]
-    -- local ipframe = ui.GetFrame(g.framename)
-    --  indun_panel_init(ipframe)
 end
 
 function indun_panel_challenge_frame(ipframe)
     local challenge460 = ipframe:CreateOrGetControl('button', 'challenge460', 135, 45, 80, 30)
     local challenge480 = ipframe:CreateOrGetControl('button', 'challenge480', 220, 45, 80, 30)
     local challengept = ipframe:CreateOrGetControl('button', 'challengept', 305, 45, 80, 30)
-    --[[
-    if challenge460:IsVisible() == 1 then
-        ipframe:RunUpdateScript("indun_panel_cha_update", 1.5)
-    else
-        ipframe:RemoveAllChild()
-        ipframe:StopUpdateScript("indun_panel_cha_update")
-    end
-    ]]
+
     local challengecount = ipframe:CreateOrGetControl("richtext", "challengecount", 390, 50, 40, 30)
 
     local challengeexpert = ipframe:CreateOrGetControl('button', 'challengeexpert', 445, 45, 80, 30)
@@ -1311,8 +1442,7 @@ function indun_panel_challenge_frame(ipframe)
 
     local challengeexpertticket = ipframe:CreateOrGetControl('button', 'challengeexpertticket', 390, 80, 80, 30)
     challengeexpertticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    challengeexpertticket:SetEventScript(ui.LBUTTONDOWN, "indun_panel_shop_open")
-    -- challengeexpertticket:SetEventScript(ui.LBUTTONUP, "indun_panel_challengeex_buyuse")
+    challengeexpertticket:SetEventScript(ui.LBUTTONUP, "indun_panel_challengeex_buyuse")
 
     local challengeexpertticketcount = ipframe:CreateOrGetControl("richtext", "challengeexpertticketcount", 475, 85, 40,
         30)
@@ -1340,22 +1470,34 @@ function indun_panel_challenge_frame(ipframe)
     challengept:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challengept")
     challengeexpert:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challengeexpert")
 end
-
+--[[
 function indun_panel_shop_open()
+    -- if INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 1 then
+    -- g.ex = 1
+    -- end
+
+    -- if g.ex ~= 1 then
     local shopframe = ui.GetFrame('earthtowershop')
     pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
-    -- shopframe:ShowWindw(0)
-    ReserveScript("indun_panel_challengeex_buyuse()", 0.5)
+
+    local ipframe = ui.GetFrame("indun_panel")
+    local challengeexpertticketcount = GET_CHILD_RECURSIVELY(ipframe, 'challengeexpertticketcount')
+    ipframe:RemoveChild(challengeexpertticketcount)
+    challengeexpertticketcount:SetText("{ol}{#FFFFFF}{s16}(d" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") ..
+                                           "/w" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") .. "/" ..
+                                           (INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_41") +
+                                               INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_42")) .. ")")
+    ipframe:Invalidate()
+    indun_panel_challengeex_buyuse()
     ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", shopframe), 1.0)
+    return
+    -- else
+    --      indun_panel_challengeex_buyuse()
+    --  end
+
 end
-
+]]
 function indun_panel_challengeex_buyuse()
-    -- CHAT_SYSTEM("test")
-    -- local shopframe = ui.GetFrame('earthtowershop')
-    --  pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
-    -- ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", shopframe), 1.0)
-
-    -- 
 
     local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
     local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
@@ -1364,8 +1506,10 @@ function indun_panel_challengeex_buyuse()
             local recipeName = "PVP_MINE_42"
             INDUN_PANEL_ITEM_BUY_USE(recipeName)
         else
+            g.ex = 1
             local recipeName = "PVP_MINE_41"
             INDUN_PANEL_ITEM_BUY_USE(recipeName)
+            -- g.ex = 2
         end
     else
         ui.SysMsg("The number Challenge EX remains")
@@ -1510,7 +1654,7 @@ function indun_panel_enter_challengept()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
 
 end
 
@@ -1530,7 +1674,6 @@ function indun_panel_enter_challengeexpert()
             return;
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.5)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
     -- ReqMoveToIndun(2, 0)
 end
-
