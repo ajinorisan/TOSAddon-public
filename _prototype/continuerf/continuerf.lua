@@ -1,8 +1,9 @@
 -- v1.0.2 ディレイ時間設定
+-- v1.0.3 ボタンの色変更。SetupHookの競合修正
 local addonName = "CONTINUERF"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -10,6 +11,17 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
@@ -28,8 +40,8 @@ function CONTINUERF_ON_INIT(addon, frame)
     g.frame = frame
 
     -- acutil.setupHook(CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "GODDESS_MGR_REFORGE_REINFORCE_EXEC")
-    acutil.setupHook(CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "_GODDESS_MGR_REFORGE_REINFORCE_EXEC")
-    acutil.setupHook(CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN, "GODDESS_MGR_REINFORCE_CLEAR_BTN")
+    g.SetupHook(CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "_GODDESS_MGR_REFORGE_REINFORCE_EXEC")
+    g.SetupHook(CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN, "GODDESS_MGR_REINFORCE_CLEAR_BTN")
     -- CHAT_SYSTEM("CONTINUE_RF loaded")
     if not g.loaded then
         g.settings = {

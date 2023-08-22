@@ -1,0 +1,13 @@
+・EASYBUFF　プロトタイプに
+
+・continuerf　プロトタイプに
+
+・automapchange　プロトタイプに
+
+・gtsysmsg　本番ipf
+
+・freefromlittlestress　本番ipf
+
+・AutoRepair　本番ipf
+
+・ANCIENT_AUTOSET　プロトタイプに　設定解除機能　テーブルnilかの判断追記必要

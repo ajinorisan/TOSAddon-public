@@ -1,8 +1,9 @@
 -- v2.0.2 変数スコープの見直し、メンテの挙動見直し
+-- v2.0.3 SetupHookの修正
 local addonName = "EASYBUFF"
 local addonNameLower = string.lower(addonName)
 local author = "Kiicchan"
-local version = "2.0.2"
+local version = "2.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -18,6 +19,7 @@ g.buffIndex = 0;
 g.foodIndex = 0;
 
 local base = {}
+local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
 
 local acutil = require("acutil");
 
@@ -33,7 +35,7 @@ end
 
 function EASYBUFF_ON_INIT(addon, frame)
     -- CHAT_SYSTEM("EASYBUFF loaded")
-    -- frame:ShowWindow(1);
+
     g.addon = addon
     g.frame = frame
 
@@ -51,17 +53,17 @@ function EASYBUFF_ON_INIT(addon, frame)
 
     EASYBUFF_SAVESETTINGS();
 
-    addon:RegisterMsg("GAME_START_3SEC", "EASYBUFF_BUFFSELLER_TARGET_INIT")
-    g.SetupHook(EASYBUFF_HOOK_CLICK, "TARGET_BUFF_AUTOSELL_LIST")
-    g.SetupHook(EASYBUFF_HOOK_CLICK_FOOD, "OPEN_FOOD_TABLE_UI")
-    g.SetupHook(EASYBUFF_HOOK_CLICK_REPAIR, "ITEMBUFF_REPAIR_UI_COMMON")
+    addon:RegisterMsg("GAME_START_3SEC", "EASYBUFF_FOOD_TABLE_FRAME_INIT")
+    g.SetupHook(EASYBUFF_TARGET_BUFF_AUTOSELL_LIST, "TARGET_BUFF_AUTOSELL_LIST")
+    g.SetupHook(EASYBUFF_OPEN_FOOD_TABLE_UI, "OPEN_FOOD_TABLE_UI")
+    g.SetupHook(EASYBUFF_ITEMBUFF_REPAIR_UI_COMMON, "ITEMBUFF_REPAIR_UI_COMMON")
     g.SetupHook(EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL, "SQUIRE_BUFF_EQUIP_CTRL")
 
     acutil.slashCommand("/easybuff", EASYBUFF_CMD);
     acutil.slashCommand("/esbf", EASYBUFF_CMD);
 end
 
-function EASYBUFF_BUFFSELLER_TARGET_INIT()
+function EASYBUFF_FOOD_TABLE_FRAME_INIT()
 
     local frame = ui.GetFrame("foodtable_ui")
     local btn = frame:CreateOrGetControl("button", "clearfood", 10, 50, 80, 30)
@@ -110,22 +112,75 @@ function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL(frame)
     if g.settings.useHook ~= 1 then
         return
     end
+    local handle = frame:GetUserIValue("HANDLE")
+    local skillName = frame:GetUserValue("SKILLNAME")
+
+    -- 그럼 이것은 판매자
+    if handle == session.GetMyHandle() then
+        if "Squire_Repair" == skillName then
+            SQUIRE_REPAIR_CANCEL()
+            return
+        end
+    end
+
+    local gboxctrl = GET_CHILD_RECURSIVELY(frame, "repair")
+    gboxctrl:ShowWindow(1)
+    local gboxctrl = GET_CHILD_RECURSIVELY(frame, "log")
+    gboxctrl:ShowWindow(0)
+    --[[
+    local myshop = false;
+    if session.GetMySession():GetCID() == sellerCID then
+        myshop = true;
+    end
+
+    if myshop then
+        return;
+    end
+    ]]
     -- <button name="btn_excute" parent="repair" rect="0 0 140 55" margin="-80 0 0 65" layout_gravity="center bottom" LBtnUpScp="SQUIRE_BUFF_EXCUTE" caption="{@st42}확 인" skin="test_red_button"/>
     local iboframe = ui.GetFrame("itembuffopen")
     local parent = GET_CHILD_RECURSIVELY(iboframe, "repair")
     local ctrl = GET_CHILD_RECURSIVELY(iboframe, "btn_excute")
 
     EASYBUFF_SQUIRE_BUFF_EXCUTE(parent, ctrl)
+
+end
+
+function EASYBUFF_OPERATION_CANCEL()
+    local cancelframe = ui.CreateNewFrame("None", "cancelframe", 0, 0, 0, 0)
+    AUTO_CAST(cancelframe)
+    cancelframe:SetRsize(150, 50)
+    local screenWidth = ui.GetClientInitialWidth()
+    local offsetX = screenWidth / 2
+    local screenHeight = ui.GetClientInitialHeight()
+    local offsetY = screenHeight / 2
+    cancelframe:SetOffset(offsetX, offsetY)
+
+    local cancelbtn = cancelframe:CreateOrGetControl("button", "cancelbtn", 0, 0, 150, 50)
+    AUTO_CAST(cancelbtn)
+    cancelbtn:SetText("operation cancel")
+    cancelbtn:SetEventScript(ui.LBUTTONUP, "EASYBUFF_SQUIRE_BUFF_CANCEL_CHECK")
+end
+
+function EASYBUFF_SQUIRE_BUFF_CANCEL_CHECK()
+    local frame = ui.GetFrame("itembuffopen")
+    local handle = frame:GetUserIValue("HANDLE")
+    local skillName = frame:GetUserValue("SKILLNAME")
+
+    -- 그럼 이것은 판매자
+    if handle == session.GetMyHandle() then
+        if "Squire_Repair" == skillName then
+            SQUIRE_REPAIR_CANCEL()
+            return
+        end
+    end
+
+    -- 유저
+    session.autoSeller.BuyerClose(AUTO_SELL_SQUIRE_BUFF, handle)
 end
 
 function EASYBUFF_SQUIRE_BUFF_EXCUTE(parent, ctrl)
-    -- CHAT_SYSTEM("test")
-    local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
-    local frame = ui.GetFrame("itembuffopen")
-
-    -- local checkall = GET_CHILD_RECURSIVELY(frame, "checkall")
-    -- checkall:SetCheck(1)
-    -- SQUIRE_BUFF_EQUIP_SELECT_ALL(frame, checkall)
+    local frame = parent:GetTopParentFrame()
     local handle = frame:GetUserValue("HANDLE")
     local skillName = frame:GetUserValue("SKILLNAME")
 
@@ -134,10 +189,9 @@ function EASYBUFF_SQUIRE_BUFF_EXCUTE(parent, ctrl)
     local cnt = 0
     for i = 1, #enable_slot_list do
         local slot_name = enable_slot_list[i]
-        local ctrlset = GET_CHILD_RECURSIVELY(frame, "ITEMBUFF_CTRL_" .. slot_name)
+        local ctrlset = GET_CHILD_RECURSIVELY(frame, 'ITEMBUFF_CTRL_' .. slot_name)
         if ctrlset ~= nil then
-            local checkbox = GET_CHILD(ctrlset, "checkbox")
-            checkbox:SetCheck(1)
+            local checkbox = GET_CHILD(ctrlset, 'checkbox')
             if checkbox:IsChecked() == 1 then
                 local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
                 if inv_item ~= nil then
@@ -159,23 +213,16 @@ function EASYBUFF_SQUIRE_BUFF_EXCUTE(parent, ctrl)
     ui.SysMsg("{#FFFFFF}装備メンテナンス中 キャンセルは取消ボタンで!")
     session.autoSeller.BuyItems(handle, AUTO_SELL_SQUIRE_BUFF, session.GetItemIDList(), skillName)
 
+    local checkall = GET_CHILD_RECURSIVELY(frame, 'checkall')
+    checkall:SetCheck(1)
+    SQUIRE_BUFF_EQUIP_SELECT_ALL(frame, checkall)
+
     ReserveScript(string.format("SQUIRE_TARGET_UI_CLOSE()"), 5.5)
+    return
 end
-
---[[
-function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL(frame)
-    SQUIRE_BUFF_EQUIP_CTRL_OLD(frame)
-
-    if g.settings.useHook ~= 1 then
-        return
-    end
-
-    EASYBUFF_SQUIRE_BUFF_EXCUTE()
-end
-]]
 
 -- フード処理
-function EASYBUFF_HOOK_CLICK_FOOD(groupName, sellType, handle, sellerCID, arg_num)
+function EASYBUFF_OPEN_FOOD_TABLE_UI(groupName, sellType, handle, sellerCID, arg_num)
     base["OPEN_FOOD_TABLE_UI"](groupName, sellType, handle, sellerCID, arg_num)
 
     if g.settings.useHook ~= 1 then
@@ -198,13 +245,50 @@ function EASYBUFF_4FOODONLY()
     local handle = frame:GetUserIValue("HANDLE");
     local sellType = frame:GetUserIValue("SELLTYPE");
 
-    if g.foodIndex < 4 then
+    local myhandle = session.GetMyHandle()
+
+    if g.foodIndex == 0 then
         session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
-        g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.5)
+        local buff4022 = info.GetBuff(myhandle, 4022)
+        if buff4022 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 1 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4023 = info.GetBuff(myhandle, 4023)
+        if buff4023 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 2 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4024 = info.GetBuff(myhandle, 4024)
+        if buff4024 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 3 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4021 = info.GetBuff(myhandle, 4021)
+        if buff4021 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.3)
+        end
+        return
     else
-        -- g.foodIndex = 0
-        ReserveScript(string.format("EASYBUFF_END_FOOD()"), 0.3)
+        EASYBUFF_END_FOOD()
     end
 end
 
@@ -213,12 +297,60 @@ function EASYBUFF_5FOODONLY()
     local handle = frame:GetUserIValue("HANDLE");
     local sellType = frame:GetUserIValue("SELLTYPE");
 
-    if g.foodIndex < 5 then
+    local myhandle = session.GetMyHandle()
+
+    if g.foodIndex == 0 then
         session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
-        g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.5)
+        local buff4022 = info.GetBuff(myhandle, 4022)
+        if buff4022 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 1 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4023 = info.GetBuff(myhandle, 4023)
+        if buff4023 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 2 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4024 = info.GetBuff(myhandle, 4024)
+        if buff4024 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 3 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4021 = info.GetBuff(myhandle, 4021)
+        if buff4021 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 4 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4087 = info.GetBuff(myhandle, 4087)
+        if buff4087 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.3)
+        end
+        return
     else
-        ReserveScript(string.format("EASYBUFF_END_FOOD()"), 0.3)
+        EASYBUFF_END_FOOD()
     end
 end
 
@@ -227,12 +359,70 @@ function EASYBUFF_ALLFOOD()
     local handle = frame:GetUserIValue("HANDLE");
     local sellType = frame:GetUserIValue("SELLTYPE");
 
-    if g.foodIndex <= 5 then
+    local myhandle = session.GetMyHandle()
+
+    if g.foodIndex == 0 then
         session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
-        g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.5)
+        local buff4022 = info.GetBuff(myhandle, 4022)
+        if buff4022 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 1 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4023 = info.GetBuff(myhandle, 4023)
+        if buff4023 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 2 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4024 = info.GetBuff(myhandle, 4024)
+        if buff4024 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 3 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4021 = info.GetBuff(myhandle, 4021)
+        if buff4021 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 4 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4087 = info.GetBuff(myhandle, 4087)
+        if buff4087 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        end
+        return
+    elseif g.foodIndex == 5 then
+        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
+        local buff4136 = info.GetBuff(myhandle, 4136)
+        if buff4136 ~= nil then
+            g.foodIndex = g.foodIndex + 1;
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        else
+            ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.3)
+        end
+        return
     else
-        ReserveScript(string.format("EASYBUFF_END_FOOD()"), 0.3)
+        EASYBUFF_END_FOOD()
     end
 end
 
@@ -271,7 +461,7 @@ function EASYBUFF_FOODCLEAR()
 end
 
 -- バフ屋
-function EASYBUFF_ONBUTTON()
+function EASYBUFF_AUTO_BUFF()
     local frame = ui.GetFrame("buffseller_target");
     local handle = frame:GetUserIValue("HANDLE");
     local groupName = frame:GetUserValue("GROUPNAME");
@@ -283,21 +473,69 @@ function EASYBUFF_ONBUTTON()
         return;
     end
     g.buffIndex = 0;
-    ReserveScript(string.format("EASYBUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.5)
+    EASYBUFF_BUFF_BUY(handle, sellType, cnt)
+    -- ReserveScript(string.format("EASYBUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.5)
 end
 
-function EASYBUFF_BUY(handle, sellType, cnt)
-    if g.buffIndex < cnt then
+-- あとでbuffid拾って入れる
+function EASYBUFF_BUFF_BUY(handle, sellType, cnt)
+    local myhandle = session.GetMyHandle()
+
+    if g.buffIndex == 0 then
         session.autoSeller.Buy(handle, g.buffIndex, 1, sellType);
-        g.buffIndex = g.buffIndex + 1;
-        ReserveScript(string.format("EASYBUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.5)
+        local buffid = 111
+        local buff = info.GetBuff(myhandle, buffid)
+        if buff ~= nil then
+            g.buffIndex = g.buffIndex + 1;
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        else
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        end
+    elseif g.buffIndex == 1 then
+        session.autoSeller.Buy(handle, g.buffIndex, 1, sellType);
+        local buffid = 111
+        local buff = info.GetBuff(myhandle, buffid)
+        if buff ~= nil then
+            g.buffIndex = g.buffIndex + 1;
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        else
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        end
+    elseif g.buffIndex == 2 then
+        session.autoSeller.Buy(handle, g.buffIndex, 1, sellType);
+        local buffid = 111
+        local buff = info.GetBuff(myhandle, buffid)
+        if buff ~= nil then
+            g.buffIndex = g.buffIndex + 1;
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        else
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        end
+    elseif g.buffIndex == 3 then
+        session.autoSeller.Buy(handle, g.buffIndex, 1, sellType);
+        local buffid = 111
+        local buff = info.GetBuff(myhandle, buffid)
+        if buff ~= nil then
+            g.buffIndex = g.buffIndex + 1;
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        else
+            ReserveScript(string.format("EASYBUFF_BUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.3)
+            return
+        end
     else
-        CHAT_SYSTEM("Buff completed");
-        ReserveScript("EASYBUFF_END()", 0.3)
+
+        EASYBUFF_END()
     end
 end
 
-function EASYBUFF_HOOK_CLICK(groupName, sellType, handle)
+function EASYBUFF_TARGET_BUFF_AUTOSELL_LIST(groupName, sellType, handle)
     base["TARGET_BUFF_AUTOSELL_LIST"](groupName, sellType, handle)
     -- TARGET_BUFF_AUTOSELL_LIST_OLD(groupName, sellType, handle)
     if g.settings.useHook ~= 1 then
@@ -308,8 +546,10 @@ function EASYBUFF_HOOK_CLICK(groupName, sellType, handle)
     if frame ~= nil then
         local sellType = frame:GetUserIValue("SELL_TYPE");
         if sellType == AUTO_SELL_BUFF and g.buffIndex == 0 then
-            EASYBUFF_ONBUTTON()
+            EASYBUFF_AUTO_BUFF()
         end
+    else
+        return
     end
 end
 
@@ -354,8 +594,8 @@ function EASYBUFF_ONBUTTON_REPAIR()
     session.autoSeller.BuyItems(handle, AUTO_SELL_SQUIRE_BUFF, session.GetItemIDList(), skillName);
 end
 
-function EASYBUFF_HOOK_CLICK_REPAIR(groupName, sellType, handle)
-    base["ITEMBUFF_REPAIR_UI_COMMON_OLD"](groupName, sellType, handle)
+function EASYBUFF_ITEMBUFF_REPAIR_UI_COMMON(groupName, sellType, handle)
+    base["ITEMBUFF_REPAIR_UI_COMMON"](groupName, sellType, handle)
     -- ITEMBUFF_REPAIR_UI_COMMON_OLD(groupName, sellType, handle)
 
     if g.settings.useHook ~= 1 then
@@ -367,3 +607,179 @@ function EASYBUFF_HOOK_CLICK_REPAIR(groupName, sellType, handle)
     end
 end
 
+-- メンテ屋local function
+local function _GET_SOCKET_ADD_VALUE(item, invItem, i)
+    if invItem:IsAvailableSocket(i) == false then
+        return
+    end
+
+    local gem = invItem:GetEquipGemID(i)
+    if gem == 0 then
+        return
+    end
+
+    local gemExp = invItem:GetEquipGemExp(i)
+    local roastingLv = invItem:GetEquipGemRoastingLv(i)
+    local props = {}
+    local gemclass = GetClassByType("Item", gem)
+    local lv = GET_ITEM_LEVEL_EXP(gemclass, gemExp)
+    local prop = geItemTable.GetProp(gem)
+    local socketProp = prop:GetSocketPropertyByLevel(lv)
+    local type = item.ClassID
+    local benefitCnt = socketProp:GetPropCountByType(type)
+    for i = 0, benefitCnt - 1 do
+        local benefitProp = socketProp:GetPropAddByType(type, i)
+        props[#props + 1] = {benefitProp:GetPropName(), benefitProp.value}
+    end
+
+    local penaltyCnt = socketProp:GetPropPenaltyCountByType(type)
+    local penaltyLv = lv - roastingLv
+    if 0 > penaltyLv then
+        penaltyLv = 0
+    end
+    local socketPenaltyProp = prop:GetSocketPropertyByLevel(penaltyLv)
+    for i = 0, penaltyCnt - 1 do
+        local penaltyProp = socketPenaltyProp:GetPropPenaltyAddByType(type, i)
+        local value = penaltyProp.value
+        penaltyProp:GetPropName()
+        props[#props + 1] = {penaltyProp:GetPropName(), penaltyProp.value}
+    end
+    return props
+end
+
+local function _GET_ITEM_SOCKET_ADD_VALUE(targetPropName, item)
+    local invItem, where = GET_INV_ITEM_BY_ITEM_OBJ(item)
+    if invItem == nil then
+        return 0
+    end
+
+    local value = 0
+    local sockets = {}
+    if item.MaxSocket > 100 then
+        item.MaxSocket = 0
+    end
+    for i = 0, item.MaxSocket - 1 do
+        sockets[#sockets + 1] = _GET_SOCKET_ADD_VALUE(item, invItem, i)
+    end
+
+    for i = 1, #sockets do
+        local props = sockets[i]
+        for j = 1, #props do
+            local prop = props[j]
+            if prop[1] == targetPropName or ((prop[1] == "PATK") and (targetPropName == "ATK")) then
+                value = value + prop[2]
+            end
+        end
+    end
+    return value
+end
+
+local function SQUIRE_BUFF_ENABLE_ITEM_CHECK(frame, inv_item, item_obj)
+    if inv_item == nil or item_obj == nil then
+        return false
+    end
+
+    if IS_NO_EQUIPITEM(item_obj) == 1 then
+        return false
+    end
+
+    if TryGetProp(item_obj, 'Dur', 0) <= 0 then
+        -- ui.SysMsg(ClMsg("DurUnder0"))
+        return false
+    end
+
+    local checkItem = _G["ITEMBUFF_CHECK_" .. frame:GetUserValue("SKILLNAME")]
+    if 1 ~= checkItem(pc, item_obj) then
+        -- ui.SysMsg(ClMsg("WrongDropItem"))
+        return false
+    end
+
+    return true
+end
+
+local function MAKE_SQUIRE_BUFF_CTRL_OPTION(frame, gbox, inv_item, item_obj)
+    local pc = GetMyPCObject()
+    local checkFunc = _G["ITEMBUFF_NEEDITEM_" .. frame:GetUserValue("SKILLNAME")]
+    local name, cnt = checkFunc(pc, item_obj)
+
+    local skillLevel = frame:GetUserIValue("SKILLLEVEL")
+    local valueFunc = _G["ITEMBUFF_VALUE_" .. frame:GetUserValue("SKILLNAME")]
+    local value, validSec = valueFunc(pc, item_obj, skillLevel)
+
+    local parentbox = gbox:GetParent()
+    local time = GET_CHILD_RECURSIVELY(parentbox, 'time')
+    time:ShowWindow(1)
+    local timestr = GET_CHILD_RECURSIVELY(parentbox, "timestr")
+    timestr:ShowWindow(1)
+    timestr:SetTextByKey("txt", string.format("{img %s %d %d}", "squaier_buff", 25, 25) .. " " .. validSec / 3600 ..
+                             ClMsg("QuestReenterTimeH"))
+
+    local nextObj = CloneIES(item_obj)
+    nextObj.BuffValue = value
+    local refreshScp = nextObj.RefreshScp
+    if refreshScp ~= "None" then
+        refreshScp = _G[refreshScp]
+        refreshScp(nextObj)
+    end
+
+    local basicPropList = StringSplit(item_obj.BasicTooltipProp, ';')
+    for i = 1, #basicPropList do
+        local basicTooltipProp = basicPropList[i]
+        local propertyCtrl = gbox:CreateOrGetControlSet('basic_property_set_narrow', 'BASIC_PROP_' .. i, 5, 0)
+
+        -- 최대, 최소를 작성하고자 해당 항목의 속성을 가지고 옵니다.
+        local mintextStr = GET_CHILD(propertyCtrl, "minPowerStr")
+        local maxtextStr = GET_CHILD(propertyCtrl, "maxPowerStr")
+        local maxtext = GET_CHILD(propertyCtrl, "maxPower")
+        local mintext = GET_CHILD(propertyCtrl, "minPower")
+
+        local prop1, prop2 = GET_ITEM_PROPERT_STR(item_obj, basicTooltipProp)
+        if basicTooltipProp ~= "ATK" then
+            local temp = prop1
+            prop1 = prop2
+            prop2 = temp
+        end
+
+        maxtextStr:SetTextByKey("txt", prop1)
+        mintextStr:SetTextByKey("txt", prop2)
+
+        if item_obj.GroupName == "Weapon" or item_obj.GroupName == "SubWeapon" then
+            if basicTooltipProp == "ATK" then -- 최대, 최소 공격력
+                local socketaddvalue = _GET_ITEM_SOCKET_ADD_VALUE(basicTooltipProp, item_obj)
+                maxtext:SetTextByKey("txt", item_obj.MAXATK + socketaddvalue .. " > " .. nextObj.MAXATK + socketaddvalue)
+                mintext:SetTextByKey("txt", item_obj.MINATK + socketaddvalue .. " > " .. nextObj.MINATK + socketaddvalue)
+            elseif basicTooltipProp == "MATK" then -- 마법공격력
+                local socketaddvalue = _GET_ITEM_SOCKET_ADD_VALUE(basicTooltipProp, item_obj)
+                mintext:SetTextByKey("txt", item_obj.MATK - socketaddvalue .. " > " .. nextObj.MATK + socketaddvalue)
+                maxtext:SetTextByKey("txt", "")
+                propertyCtrl:Resize(propertyCtrl:GetWidth(), mintext:GetHeight())
+            end
+        else
+            if basicTooltipProp == "DEF" then -- 방어
+                local socketaddvalue = _GET_ITEM_SOCKET_ADD_VALUE(basicTooltipProp, item_obj)
+                mintext:SetTextByKey("txt", item_obj.DEF - socketaddvalue .. " > " .. nextObj.DEF + socketaddvalue)
+            elseif basicTooltipProp == "MDEF" then -- 악세사리
+                local socketaddvalue = _GET_ITEM_SOCKET_ADD_VALUE(basicTooltipProp, item_obj)
+                mintext:SetTextByKey("txt", item_obj.MDEF - socketaddvalue .. " > " .. nextObj.MDEF + socketaddvalue)
+            elseif basicTooltipProp == "HR" then -- 명중
+                mintext:SetTextByKey("txt", item_obj.HR .. " > " .. nextObj.HR)
+            elseif basicTooltipProp == "DR" then -- 회피
+                mintext:SetTextByKey("txt", item_obj.DR .. " > " .. nextObj.DR)
+            elseif basicTooltipProp == "CRTMATK" then -- 마법관통
+                mintext:SetTextByKey("txt", item_obj.CRTMATK .. " > " .. nextObj.CRTMATK)
+            elseif basicTooltipProp == "ADD_FIRE" then -- 화염
+                mintext:SetTextByKey("txt", item_obj.FIRE .. " > " .. nextObj.FIRE)
+            elseif basicTooltipProp == "ADD_ICE" then -- 빙한
+                mintext:SetTextByKey("txt", item_obj.ICE .. " > " .. nextObj.ICE)
+            elseif basicTooltipProp == "ADD_LIGHTNING" then -- 전격
+                mintext:SetTextByKey("txt", item_obj.LIGHTNING .. " > " .. nextObj.LIGHTNING)
+            end
+
+            maxtext:SetTextByKey("txt", "")
+            propertyCtrl:Resize(propertyCtrl:GetWidth(), mintext:GetHeight())
+        end
+    end
+
+    GBOX_AUTO_ALIGN(gbox, 5, 2, 0, true, false, true)
+    DestroyIES(nextObj)
+end

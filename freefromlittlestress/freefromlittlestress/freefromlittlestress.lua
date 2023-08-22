@@ -4,10 +4,11 @@
 -- v1.0.6 倉庫をチーム倉庫優先に変更
 -- v1.0.7 倉庫のダイアログ制御オルシャとフェディにも対応。住居クポルの制御、各種レイド制御。
 -- ｖ1.0.8　4人以下押したときの確認を削除
+-- v1.0.9 SetupHookの競合修正
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -15,6 +16,18 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
+
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
@@ -51,14 +64,15 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     g.frame = frame
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
 
-    acutil.setupHook(FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
-    acutil.setupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+    g.SetupHook(FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    g.SetupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+    g.SetupHook(FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK, "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
+
     addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("DIALOG_CHANGE_SELECT", "FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT")
     -- addon:RegisterMsg("INDUNINFO_MAKE_DETAIL_BOSS_SELECT_BY_RAID_TYPE", "FREEFROMLITTLESTRESS_INDUNINFO_UPDATE")
-    acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK,
-        "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
+
     -- acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_CHAT_OPEN, "INDUNINFO_CHAT_OPEN")
     FREEFROMLITTLESTRESS_LOADSETTINGS()
 
@@ -75,7 +89,7 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
     end
-    addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
+    addon:RegisterMsg("GAME_START", "FREEFROMLITTLESTRESS_PETINFO")
 
 end
 
@@ -113,7 +127,7 @@ function FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
@@ -126,7 +140,7 @@ function FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl
         yesScpStr = 'ReqUnderstaffEnterAllowModeWithParty(' .. indunType .. ')';
         ui.MsgBox(clientMsg, yesScpStr, "None");
     end
-    INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW_OLD(parent, ctrl)
+    -- base[INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW](parent, ctrl)
 end
 
 -- ダイアログ制御系
@@ -209,7 +223,7 @@ function FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
     frame:SetMargin(0, 0, 350, 70);
     UPDATE_COMPANIONLIST(frame);
 
-    ReserveScript("FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()", 6.0)
+    ReserveScript("FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()", 9.0)
 end
 
 function FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()
@@ -386,6 +400,7 @@ function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
     frame:SetSkinName("shadow_box")
     frame:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_UPDATESETTINGS")
     frame:SetLayerLevel(5)
+    frame:SetTitleBarSkin("None")
 
     local widgetList = {{
         name = "myInfo",
@@ -413,43 +428,6 @@ function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
     GET_CHILD_RECURSIVELY(frame, "textNewRecord"):ShowWindow(0)
 end
 
---[[
-function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
-    frame:SetOffset(g.settings.rrfp_x, g.settings.rrfp_y)
-    -- frame:SetOffset(500, 300)
-    frame:SetSkinName("shadow_box")
-    frame:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_UPDATESETTINGS")
-    FREEFROMLITTLESTRESS_UPDATESETTINGS(frame)
-
-    local myInfo = GET_CHILD_RECURSIVELY(frame, "myInfo")
-    local myInfo_name = GET_CHILD_RECURSIVELY(myInfo, "name")
-    local myInfo_time = GET_CHILD_RECURSIVELY(myInfo, "time")
-    myInfo_name:SetFontName("white_16_ol")
-    myInfo_time:SetFontName("white_16_ol")
-
-    local friendInfo1 = GET_CHILD_RECURSIVELY(frame, "friendInfo1")
-    local friendInfo1_name = GET_CHILD_RECURSIVELY(friendInfo1, "name")
-    local friendInfo1_time = GET_CHILD_RECURSIVELY(friendInfo1, "time")
-    friendInfo1_name:SetFontName("white_16_ol")
-    friendInfo1_time:SetFontName("white_16_ol")
-
-    local friendInfo2 = GET_CHILD_RECURSIVELY(frame, "friendInfo2")
-    local friendInfo2_name = GET_CHILD_RECURSIVELY(friendInfo2, "name")
-    local friendInfo2_time = GET_CHILD_RECURSIVELY(friendInfo2, "time")
-    friendInfo2_name:SetFontName("white_16_ol")
-    friendInfo2_time:SetFontName("white_16_ol")
-
-    local friendInfo3 = GET_CHILD_RECURSIVELY(frame, "friendInfo3")
-    local friendInfo3_name = GET_CHILD_RECURSIVELY(friendInfo3, "name")
-    local friendInfo3_time = GET_CHILD_RECURSIVELY(friendInfo3, "time")
-    friendInfo3_name:SetFontName("white_16_ol")
-    friendInfo3_time:SetFontName("white_16_ol")
-
-    GET_CHILD_RECURSIVELY(frame, 'bgIndunClear'):ShowWindow(1)
-    GET_CHILD_RECURSIVELY(frame, 'textNewRecord'):ShowWindow(0);
-
-end
-]]
 -- 死んだ時に現れるフレームを移動可能に
 function FREEFROMLITTLESTRESS_FRAME_MOVE()
 

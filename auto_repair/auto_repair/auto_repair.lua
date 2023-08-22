@@ -1,8 +1,9 @@
 -- v1.0.2 on_init読み込み時にリペアーアイテムの数量確認
+-- v1.0.3 SetupHookの競合修正
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -13,6 +14,18 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
 
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
+
 function AUTO_REPAIR_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -20,7 +33,7 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
 
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
     -- acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
-    acutil.setupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
+    g.SetupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
     --[[
     ['VakarineCertificate'] = 
     {
@@ -98,9 +111,9 @@ function AUTO_REPAIR_BUY()
     -- control.CustomCommand('REQ_SEASON_COIN_SHOP_OPEN', 0);
 
     local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_490')
-    local repeatCount = autorepair_item.count
-    CHAT_SYSTEM(repeatCount)
-    local cnt = 50 - repeatCount
+    local repairtCount = autorepair_item.count
+    -- CHAT_SYSTEM(repeatCount)
+    local cnt = 50 - repairtCount
 
     local recipeCls = GetClass("ItemTradeShop", 'VakarineCertificate_13')
     session.ResetItemList()
