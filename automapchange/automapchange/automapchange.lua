@@ -1,8 +1,8 @@
--- v1.0.2 cameraの挙動修正
+-- v1.0.1 cameraの挙動修正
 local addonName = "AUTOMAPCHANGE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}

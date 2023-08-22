@@ -89,7 +89,7 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
     end
-    addon:RegisterMsg("GAME_START", "FREEFROMLITTLESTRESS_PETINFO")
+    addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
 
 end
 
@@ -127,7 +127,7 @@ function FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end

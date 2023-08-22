@@ -1,7 +1,8 @@
+-- v1.0.3 セット解除機能
 local addonName = "ANCIENT_AUTOSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -42,14 +43,9 @@ function ANCIENT_AUTOSET_LOAD_SETTINGS()
     local pctbl = g.settings.pctbl[loginCharID]
     -- CHAT_SYSTEM(pctbl)
     if pctbl then
-        -- CHAT_SYSTEM("true")
+
         ANCIENT_AUTOSET_ON_SETTINGS()
 
-    else
-        -- ui.SysMsg("[AAS]This character is not registered as an assister.")
-        CHAT_SYSTEM("[AAS]このキャラクターはアシスターセットの登録を行っていません")
-        CHAT_SYSTEM("AAS]This character is not registered as an assister.")
-        --  ui.SysMsg("[AAS]このキャラクターはアシスターセットの登録を行っていません")
     end
 end
 
@@ -81,29 +77,34 @@ function ANCIENT_AUTOSET_ON_SETTINGS()
     local guid4 = tonumber(slot4)
     local card4 = session.ancient.GetAncientCardBySlot(3)
     local clsid4 = card4:GetGuid()
+    if slot1 ~= nil then
+        if guid1 ~= tonumber(clsid1) then
+            ReqSwapAncientCard(guid1, 0)
+            -- CHAT_SYSTEM("違う")
 
-    if guid1 ~= tonumber(clsid1) then
-        ReqSwapAncientCard(guid1, 0)
-        -- CHAT_SYSTEM("違う")
+        elseif guid2 ~= tonumber(clsid2) then
+            ReqSwapAncientCard(guid2, 1)
+            -- CHAT_SYSTEM("違う")
 
-    elseif guid2 ~= tonumber(clsid2) then
-        ReqSwapAncientCard(guid2, 1)
-        -- CHAT_SYSTEM("違う")
+        elseif guid3 ~= tonumber(clsid3) then
+            ReqSwapAncientCard(guid3, 2)
+            -- CHAT_SYSTEM("違う")
 
-    elseif guid3 ~= tonumber(clsid3) then
-        ReqSwapAncientCard(guid3, 2)
-        -- CHAT_SYSTEM("違う")
-
-    elseif guid4 ~= tonumber(clsid4) then
-        ReqSwapAncientCard(guid4, 3)
-        -- CHAT_SYSTEM("違う")
+        elseif guid4 ~= tonumber(clsid4) then
+            ReqSwapAncientCard(guid4, 3)
+            -- CHAT_SYSTEM("違う")
+        else
+            local frame = ui.GetFrame(addonNameLower)
+            ANCIENT_AUTOSET_FRAME_INIT(frame)
+            -- CHAT_SYSTEM("一緒")
+            return
+        end
+        ReserveScript("ANCIENT_AUTOSET_ON_SETTINGS()", 0.3)
     else
-        ANCIENT_AUTOSET_FRAME_INIT(frame)
-        -- CHAT_SYSTEM("一緒")
+        CHAT_SYSTEM("[AAS]このキャラクターはアシスターセットの登録を行っていません")
+        CHAT_SYSTEM("AAS]This character is not registered as an assister.")
         return
     end
-    ReserveScript("ANCIENT_AUTOSET_ON_SETTINGS()", 0.3)
-
 end
 
 function ANCIENT_AUTOSET_ON_INIT(addon, frame)
@@ -133,6 +134,9 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
     -- btn2:SetText("{ol}Setting Reg")
     -- btn2:SetEventScript(ui.LBUTTONUP, "ANCIENT_SETTING_REG")
     btn2:SetEventScript(ui.LBUTTONUP, "ANCIENT_SETTING_MSG")
+    btn2:SetEventScript(ui.RBUTTONUP, "ANCIENT_SETTING_MSG_RELEASE")
+    btn2:SetTextTooltip("{@st59}LeftButton:Setting RightButton:ReSetting{/}" ..
+                            "{@st59}左クリック:設定 右クリック:設定解除{/}")
     -- addon:RegisterMsg("BANDI_CAM", "HIDE_CHATFRAME_ON_BANDI_CAM")
     -- acutil.setupHook(HIDE_CHATFRAME_ON_BANDI_CAM, "ON_BANDI_CAM")
 
@@ -147,6 +151,52 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
     end
 
     -- ANCIENT_AUTOSET_LOAD_SETTINGS()
+end
+
+function ANCIENT_SETTING_MSG_RELEASE()
+    local msg = "Do you want to remove the assister set for this character?" ..
+                    "このキャラクターに設定したアシスターセットを解除しますか？"
+    local yes_scp = "ANCIENT_SETTING_RELEASE()"
+    -- local no_scp = "ANCIENT_SETTING_CANCEL()"
+    ui.MsgBox(msg, yes_scp, "None");
+end
+
+function ANCIENT_SETTING_RELEASE()
+
+    local frame = ui.GetFrame("ancient_card_list")
+    local tab = frame:GetChild("tab")
+    AUTO_CAST(tab)
+    tab:SelectTab(0)
+
+    if g.settings == nil then
+        g.settings = {
+            pctbl = {
+                slot1 = nil,
+                slot2 = nil,
+                slot3 = nil,
+                slot4 = nil
+            }
+        }
+    end
+
+    local loginCharID = info.GetCID(session.GetMyHandle())
+    -- CHAT_SYSTEM(loginCharID)
+
+    local settings = {}
+
+    for index = 0, 3 do
+        -- local card = session.ancient.GetAncientCardBySlot(index)
+        -- local clsid = card:GetGuid()
+        -- CHAT_SYSTEM(clsid)
+
+        local slotName = "slot" .. (index + 1)
+        settings[slotName] = nil
+    end
+
+    g.settings.pctbl[loginCharID] = settings
+    ui.SysMsg("[AAS]解除しました。")
+    ui.SysMsg("[AAS]Canceled.")
+    ANCIENT_AUTOSET_SAVE_SETTINGS()
 end
 
 function ANCIENT_SETTING_MSG()
