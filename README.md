@@ -24,9 +24,11 @@ https://twitter.com/ToSJP_rada
 
 ワープのチョイスはクエストワープ→トークンワープ→ワープ呪文書の順で決定します。
 
+
 v1.0.3 ショートカット設定BackSlash。フェディミアンクエストワープをパヤウタに。
 
 v1.0.2 クエストワープに対応。バウンティ対策。街以外の登録禁止。
+
 
 Register in AddonManager
 
@@ -38,6 +40,7 @@ Register in AddonManager
 装備外して、ペット戻して、PTから抜けます。
 
 インベントリに全裸になるボタンを設置しました。
+
 
 Register in AddonManager
 
@@ -54,6 +57,7 @@ Register in AddonManager
 
 Aethergem Manager導入済の場合はAethergem Managerを起動するかの選択肢が出ます。
 
+
 v1.0.5 Aethergem Managerと連携強化
 
 v1.0.4 Aethergem Managerと連携
@@ -66,6 +70,7 @@ v1.0.1 シンプルモード搭載、搬入搬出速度見直し、終了時の�
 
 v1.0.0 エーテルジェム搬入搬出対応
 
+
 Register in AddonManager
 
 
@@ -77,6 +82,7 @@ Register in AddonManager
 
 チャレンジ券、分裂券、ヴェルニケチケットをワンボタンで購入して使う機能を追加。
 
+
 v1.0.9 分裂のデイリーチケットの処理を修正。インベントリ周りの挙動を変更 2023.8.22
 
 v1.0.7 フレーム変更。ヴェルニケチケット処理を追加。AutoMatch系の挙動変更。ハードは再入場の挙動が怖いのでそのまま。
@@ -86,6 +92,7 @@ v1.0.6 チャレンジ券、分裂券を買って使う仕様を追加。
 v1.0.5 イヤリングレイド追加
 
 v1.0.3 キャラチェンジボタンを追加
+
 
 Register in AddonManager
 
@@ -98,7 +105,9 @@ Register in AddonManager
 
 1キャラにつき1回登録を行えば、以後CCの度に自動でアシスターを付け替えます。街でしか動きません。
 
+
 v1.0.3 マウス右ボタンにアシスターセット設定解除機能 2023.8.22
+
 
 Register in AddonManager
 
@@ -113,6 +122,7 @@ Register in AddonManager
 
 設定ボタン右クリックで動作時間を指定できます。あまり早いと失敗するよ。
 
+
 v1.0.8 SetupHookの競合修正 2023.8.23
 
 v1.0.7 Character Change Helper 連携強化
@@ -124,6 +134,7 @@ v1.0.5　インベントリ表示微修正
 v1.0.4 チーム倉庫開いている時の挙動見直し
 
 v1.0.3 ディレイタイムの時間見直し
+
 
 Register in AddonManager
 
@@ -138,9 +149,11 @@ Register in AddonManager
 
 インベントリの修理キットが10個以下になると購入するか聞いてくるUIが立ち上がります。YESで50個自動購入します。
 
+
 v1.0.3 SetupHookの競合修正 2023.8.22
 
 v1.0.2 マップ読み込み時などにリペアーアイテムの数量確認
+
 
 Register in AddonManager
 
@@ -159,6 +172,7 @@ v2.0.0系で色々見直しました。
 
 バフ屋に話しかけると自動でバフします。
 
+
 The author of this addon is Kiicchanさん
 
 Register in AddonManager
@@ -172,9 +186,10 @@ Register in AddonManager
 
 v1.0.7 SetupHookの競合修正。バウバス通知オフ 2023.8.22
 
-Special thanks to menimaniさん
 
 Register in AddonManager
+
+Special thanks to menimaniさん
 
 
 ----
@@ -182,6 +197,9 @@ Register in AddonManager
 ### KL count
 
 EP14.15マップで敵を倒した数をカウントします。正確な効率が測れるかも。
+
+
+Register in AddonManager
 
 Special thanks to menimaniさん
 
@@ -196,7 +214,9 @@ Special thanks to menimaniさん
 
 モンスターカード使用時のメッセージボックス、チャンネル移動時の確認を消します。
 
+
 v1.0.5 SetupHookの競合修正。このバージョンを入れないと他の作者のアドオンと喧嘩するぞ。 2023.8.21
+
 
 Register in AddonManager
 
@@ -209,7 +229,9 @@ MAP移動時の確認ダイアログを削除します。バウンティハン�
 
 ログイン時の最初の移動時だけ動きません。
 
+
 v1.0.1 cameraの挙動修正。MAP切り替え時オートで最大までズームします。 2023.8.22
+
 
 Register in AddonManager
 
@@ -220,9 +242,11 @@ Register in AddonManager
 
 ゴッデス装備の強化を自動化
 
+
 v1.0.3 確認ボタンの色変更。SetupHookの競合修正 2023.8.22
 
 v1.0.2 ディレイ時間設定機能
+
 
 Register in AddonManager
 
@@ -232,6 +256,7 @@ Register in AddonManager
 ### Free From Trivial Stress
 
 日頃のちょっとしたストレスを軽減します。
+
 
 v1.0.9 SetupHookの競合修正
 
@@ -246,6 +271,7 @@ v1.0.5 ミニお知らせの挙動変更 街ではマケとか見れる様に、
 v1.0.4 instantCC用にコンパニオンリストを表示する。既に召喚している場合は表示しない。
 
 V1.0.0 レイド終了時のリワードの位置をずらしました。死亡時の選択ボックスが薄くなり動かせる様になります。戦場カメラマン用
+
 
 Register in AddonManager
 
