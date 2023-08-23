@@ -3,6 +3,7 @@
 -- ｖ1.0.5　インベ表示微修正
 -- v1.0.6 ディレイタイム設定機能
 -- v1.0.7 CC_helper 連携強化
+-- v1.0.8 SetupHookの競合修正
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -16,6 +17,17 @@ local g = _G["ADDONS"][author][addonName]
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
 
 if not g.loaded then
     g.settings = {
@@ -177,7 +189,7 @@ function AETHERGEM_MGR_ON_INIT(addon, frame)
     g.frame = frame
 
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
-    acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
+    g.SetupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
     -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_RBDC_ITEMUSE, "INVENTORY_RBDC_ITEMUSE")
     -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_ON_MSG, "INVENTORY_ON_MSG")
     -- acutil.setupHook(AETHERGEM_MGR_test, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
