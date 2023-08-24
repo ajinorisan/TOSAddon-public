@@ -76,15 +76,13 @@ end
 
 function MONSTERCARD_CHANGER_CARD_PRESET_GET_CARD_EXP_LIST(frame)
     -- CHAT_SYSTEM(tostring("test"))
-    local frame = ui.GetFrame("monstercardslot")
+    local frame = frame:GetTopParentFrame()
     local cardList = {}
     local expList = {}
     for i = 0, 11 do
         local cardClsID, cardLv, cardExp = GETMYCARD_INFO(i)
-        -- CHAT_SYSTEM(tostring(cardClsID))
-        -- CHAT_SYSTEM(tostring(cardLv))
-        -- CHAT_SYSTEM(tostring(cardExp))
-        if cardClsID ~= 0 then
+
+        if cardClsID ~= 0 then -- ここで変数名を修正
             table.insert(cardList, cardClsID);
             table.insert(expList, cardExp);
         else
@@ -117,7 +115,7 @@ function monstercard_changer_inventory_frame_init()
     local frame = ui.GetFrame("monstercardpreset")
     local saveBtn = GET_CHILD_RECURSIVELY(frame, 'saveBtn')
     saveBtn:ShowWindow(0)
-    local savebtn = frame:CreateOrGetControl("button", "cancelbtn", 0, 0, 170, 70)
+    local savebtn = frame:CreateOrGetControl("button", "savebtn", 0, 0, 170, 70)
     savebtn:Resize(95, 38)
     savebtn:SetOffset(350, 57, 0, 0)
     savebtn:SetSkinName("test_pvp_btn")
