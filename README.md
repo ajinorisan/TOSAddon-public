@@ -177,6 +177,9 @@ v2.0.0系で色々見直しました。
 バフ屋に話しかけると自動でバフします。
 
 
+V2.0.3 メンテキャンセル挙動仕様変更。SetupHookの競合修正 2023.8.24
+
+
 The author of this addon is Kiicchanさん
 
 Register in AddonManager
