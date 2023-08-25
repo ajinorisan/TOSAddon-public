@@ -1,5 +1,5 @@
 local addonName = "KoJa_Name_Translater";
-local verText = "1.01";
+local verText = "1.0.2";
 local autherName = "TOUKIBI";
 local addonNameLower = string.lower(addonName);
 local SlashCommandList = {"/kojatrans", "/kjtrans"} -- {"/コマンド1", "/コマンド2", .......};
@@ -141,7 +141,7 @@ local Toukibi = {
             Help = {
                 Title = string.format("{#333333}%s의 패러미터 설명{/}", addonName),
                 Description = string.format("{#92D2A0}%s는 다음 패러미터로 설정을 불러와주세요{/}",
-                    addonName),
+                                            addonName),
                 ParamDummy = "[패러미터]",
                 OrText = "또는",
                 EnableTitle = "사용가능한 명령"
@@ -276,8 +276,8 @@ local Toukibi = {
         local msg;
         if self.CommonResText[Lang] == nil then
             msg = string.format(
-                "Sorry, '%s' does not implement '%s' mode.{nl}Language mode has not been changed from '%s'.", addonName,
-                Lang, Me.Settings.Lang);
+                      "Sorry, '%s' does not implement '%s' mode.{nl}Language mode has not been changed from '%s'.",
+                      addonName, Lang, Me.Settings.Lang);
             self:AddLog(msg, "Warning", true, false)
             return;
         end
@@ -298,12 +298,13 @@ local Toukibi = {
             ParamDummyText = ParamDummyText .. "{#333333}";
             ParamDummyText = ParamDummyText ..
                                  string.format("'%s %s'", SlashCommandList[1],
-                    self:GetResText(self.CommonResText, Me.Settings.Lang, "Help.ParamDummy"));
+                                               self:GetResText(self.CommonResText, Me.Settings.Lang, "Help.ParamDummy"));
             if SlashCommandList[2] ~= nil then
                 ParamDummyText = ParamDummyText ..
                                      string.format(" %s '%s %s'", self:GetResText(self.CommonResText, Me.Settings.Lang,
-                        "Help.OrText"), SlashCommandList[2], self:GetResText(self.CommonResText, Me.Settings.Lang,
-                        "Help.ParamDummy"));
+                                                                                  "Help.OrText"), SlashCommandList[2],
+                                                   self:GetResText(self.CommonResText, Me.Settings.Lang,
+                                                                   "Help.ParamDummy"));
             end
             ParamDummyText = ParamDummyText .. "{/}{nl}";
         end
@@ -311,7 +312,7 @@ local Toukibi = {
         if CommandParamList ~= nil and self:GetTableLen(CommandParamList) > 0 then
             CommandHelpText = CommandHelpText ..
                                   string.format("{#333333}%s: ", self:GetResText(self.CommonResText, Me.Settings.Lang,
-                    "Help.EnableTitle"));
+                                                                                 "Help.EnableTitle"));
             for ParamName, DescriptionKey in pairs(CommandParamList) do
                 local SpaceCount = 10 - string.len(ParamName);
                 local SpaceText = ""
@@ -320,33 +321,34 @@ local Toukibi = {
                 end
                 CommandHelpText = CommandHelpText ..
                                       string.format("{nl}%s %s%s:%s", SlashCommandList[1], ParamName, SpaceText,
-                        self:GetResText(DescriptionKey, Me.Settings.Lang));
+                                                    self:GetResText(DescriptionKey, Me.Settings.Lang));
             end
             CommandHelpText = CommandHelpText .. "{/}{nl} "
         end
 
         self:AddLog(string.format("%s{nl}%s{nl}%s%s",
-            self:GetResText(self.CommonResText, Me.Settings.Lang, "Help.Title"),
-            self:GetResText(self.CommonResText, Me.Settings.Lang, "Help.Description"), ParamDummyText, CommandHelpText),
-            "None", false, false);
+                                  self:GetResText(self.CommonResText, Me.Settings.Lang, "Help.Title"),
+                                  self:GetResText(self.CommonResText, Me.Settings.Lang, "Help.Description"),
+                                  ParamDummyText, CommandHelpText), "None", false, false);
     end,
 
     -- ***** 設定読み書き関連 *****
     SaveTable = function(self, FilePathName, objTable)
         if FilePathName == nil then
             self:AddLog(self:GetResText(self.CommonResText, Me.Settings.Lang, "System.NoSaveFileName"), "Warning", true,
-                false);
+                        false);
         end
         local objFile, objError = io.open(FilePathName, "w")
         if objError then
             self:AddLog(string.format("%s:{nl}%s", self:GetResText(self.CommonResText, Me.Settings.Lang,
-                "System.HasErrorOnSaveSettings"), tostring(objError)), "Warning", true, false);
+                                                                   "System.HasErrorOnSaveSettings"), tostring(objError)),
+                        "Warning", true, false);
         else
             local json = require('json');
             objFile:write(json.encode(objTable));
             objFile:close();
             self:AddLog(self:GetResText(self.CommonResText, Me.Settings.Lang, "System.CompleteSaveSettings"), "Info",
-                true, true);
+                        true, true);
         end
     end,
 
@@ -458,8 +460,8 @@ local function ShowInitializeMessage()
         CurrentLang = Me.Settings.Lang or CurrentLang;
     end
 
-    CHAT_SYSTEM(
-        string.format("{#333333}%s{/}", Toukibi:GetResText(Toukibi.CommonResText, CurrentLang, "System.InitMsg")))
+    --[[CHAT_SYSTEM(
+        string.format("{#333333}%s{/}", Toukibi:GetResText(Toukibi.CommonResText, CurrentLang, "System.InitMsg")))]]
     --	CHAT_SYSTEM(string.format("{#333366}[%s]%s{/}", addonName, Toukibi:GetResText(ResText, CurrentLang, "Log.InitMsg")))
 end
 ShowInitializeMessage()
@@ -501,8 +503,8 @@ local function LoadSetting()
             CurrentLang = Me.Settings.Lang or CurrentLang;
         end
         Toukibi:AddLog(string.format("%s{nl}{#331111}%s{/}",
-            Toukibi:GetResText(ResText, CurrentLang, "System.ErrorToUseDefaults"), tostring(objError)), "Caution", true,
-            false);
+                                     Toukibi:GetResText(ResText, CurrentLang, "System.ErrorToUseDefaults"),
+                                     tostring(objError)), "Caution", true, false);
         MargeDefaultSetting(true, false);
     else
         Me.Settings = objReadValue;
@@ -783,7 +785,7 @@ function Me.AddNamePlateList()
                             end
                             if Me.MemoriseList[CurrentData.familyName] == nil then
                                 hFile:write(string.format("%s\t%s\t%s\n", strHandle, "familyName",
-                                    CurrentData.familyName));
+                                                          CurrentData.familyName));
                             end
                             if Me.MemoriseList[CurrentData.givenName] == nil then
                                 hFile:write(string.format("%s\t%s\t%s\n", strHandle, "givenName", CurrentData.givenName));
@@ -803,7 +805,7 @@ function Me.ReceiveFile()
     if hFile and not err then
         for rawText in hFile:lines() do
             local StartNum, EndNum, pHandle, pType, pResultText, pOriginalText = string.find(rawText,
-                "^%c?([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)$");
+                                                                                             "^%c?([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)$");
             local FoundResult = string.find(tostring(pHandle), "SELL_BALLOON_");
             if FoundResult ~= nil then
                 -- 露店名の場合
@@ -891,13 +893,13 @@ function Me.Switch_NamePlate()
                             local frameGuildEmblem = pcTxtFrame:GetChild("guildEmblem");
                             if nil ~= frameGuildEmblem then
                                 funcSetMargin(frameGuildEmblem, CurrentData.x_GuildEmblem -
-                                    (newGuildNameWidth - CurrentData.w_GuildName) / 2, nil, nil, nil);
+                                                  (newGuildNameWidth - CurrentData.w_GuildName) / 2, nil, nil, nil);
                             end
                             local frameFamilyName = pcTxtFrame:GetChild("familyName");
                             if nil ~= frameFamilyName then
                                 frameFamilyName:SetText(CurrentData.escapeFamilyName .. CurrentData.familyName);
                                 funcSetMargin(frameFamilyName, CurrentData.x_FamilyName, CurrentData.y_FamilyName, nil,
-                                    nil);
+                                              nil);
                             end
                             local frameGivenName = pcTxtFrame:GetChild("givenName");
                             if nil ~= frameGivenName then
@@ -1033,7 +1035,7 @@ end
 -- スラッシュコマンド受取
 function TOUKIBI_KOJA_NAME_TRANSLATER_PROCESS_COMMAND(command)
     Toukibi:AddLog(string.format(Toukibi:GetResText(ResText, Me.Settings.Lang, "System.ExecuteCommands"),
-        SlashCommandList[1] .. " " .. table.concat(command, " ")), "Info", true, true);
+                                 SlashCommandList[1] .. " " .. table.concat(command, " ")), "Info", true, true);
     local cmd = "";
     if #command > 0 then
         -- パラメータが存在した場合はパラメータの1個めを抜き出してみる
@@ -1073,8 +1075,8 @@ function TOUKIBI_KOJA_NAME_TRANSLATER_PROCESS_COMMAND(command)
         if #SlashCommandList > 0 then
             strError = strError ..
                            string.format(
-                    "{nl}" .. Toukibi:GetResText(ResText, Me.Settings.Lang, "System.AnnounceCommandList"),
-                    SlashCommandList[1]);
+                               "{nl}" .. Toukibi:GetResText(ResText, Me.Settings.Lang, "System.AnnounceCommandList"),
+                               SlashCommandList[1]);
         end
         Toukibi:AddLog(strError, "Warning", true, false);
     end
