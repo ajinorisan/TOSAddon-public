@@ -85,6 +85,8 @@ function INDUN_PANEL_ON_INIT(addon, frame)
         acutil.setupHook(indun_panel_autozoom, "AUTOMAPCHANGE_CAMERA_ZOOM")
         addon:RegisterMsg('GAME_START', "indun_panel_autozoom")
     end
+
+    addon:RegisterMsg('GAME_START_3SEC', "indun_panel_autozoom")
     --[[
     local shopframe = ui.GetFrame('earthtowershop')
     if shopframe:IsVisible() == 1 then
