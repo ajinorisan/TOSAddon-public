@@ -7,10 +7,11 @@
 -- AUTOMODE時に直接ボタン押した状態に。ハードは再入場系が怖いのでそのまま
 -- v1.0.8 チャレとか分裂券買う時にヴェルニケ券買っちゃうバグ修正('Д')
 -- v1.0.9 分裂券を買う辺りを修正。不要になったので倉庫閉めたらインベも閉める
+-- v1.1.0 ヴェルニケチケットの傭兵団コインの表示バグ修正。ゲームスタート時の傭兵団コインショップの閉じ方を修正。オートズーム機能
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -23,7 +24,8 @@ local acutil = require("acutil")
 local os = require("os")
 
 g.settings = {
-    ischecked = 0
+    ischecked = 0,
+    zoom = 236
     -- ex = 0
 }
 g.ex = 0 -- 関数の外に定義
@@ -67,8 +69,8 @@ function INDUN_PANEL_ON_INIT(addon, frame)
         ipframe:RemoveAllChild()
         indun_panel_frame_init()
         if g.ex == 0 and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
-            addon:RegisterMsg('GAME_START', 'indunpanel_minimized_pvpmine_shop_init');
-
+            -- addon:RegisterMsg('GAME_START', 'indunpanel_minimized_pvpmine_shop_init');
+            indunpanel_minimized_pvpmine_shop_init()
             -- INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
             -- local frame = ui.GetFrame('earthtowershop')
 
@@ -78,20 +80,46 @@ function INDUN_PANEL_ON_INIT(addon, frame)
 
     end
 
-    -- addon:RegisterMsg('GAME_START_3SEC', 'indun_panel_earthtowershop_close');
+    if _G.ADDONS.norisan.AUTOMAPCHANGE ~= nil then
 
+        acutil.setupHook(indun_panel_autozoom, "AUTOMAPCHANGE_CAMERA_ZOOM")
+        addon:RegisterMsg('GAME_START', "indun_panel_autozoom")
+    end
+    --[[
+    local shopframe = ui.GetFrame('earthtowershop')
+    if shopframe:IsVisible() == 1 then
+        addon:RegisterMsg('GAME_START_3SEC', 'INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART');
+        -- addon:RegisterMsg('GAME_START_3SEC', 'indun_panel_earthtowershop_close');
+    end
     -- acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "INDUN_PANEL_ACCOUNTWAREHOUSE_CLOSE");
     -- addon:RegisterMsg('ESCAPE_PRESSED', 'DIALOG_ON_PRESS_ESCAPE');
     -- addon:RegisterMsg('GAME_START', 'indun_panel_test');
+]]
+end
 
+function indun_panel_autozoom()
+    camera.CustomZoom(tonumber(g.settings.zoom))
+end
+
+function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART()
+    local shopframe = ui.GetFrame('earthtowershop')
+    if shopframe:IsVisible() == 1 then
+        -- CHAT_SYSTEM("close")
+        ui.CloseFrame("earthtowershop")
+        return 0
+    else
+        return 1
+    end
 end
 
 function indunpanel_minimized_pvpmine_shop_init()
     -- CHAT_SYSTEM("a")
     pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
     g.ex = 1
+    -- ui.CloseFrame("earthtowershop")
     local frame = ui.GetFrame('earthtowershop')
-    ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 1.5)
+    frame:RunUpdateScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART", 0.5)
+    -- ReserveScript(string.format("INDUN_PANEL_EARTHTOWERSHOP_CLOSE('%s')", frame), 2.5)
 end
 
 function indun_panel_time_update(frame)
@@ -218,7 +246,7 @@ function indun_panel_overbuy_amount()
         -- return overbuyamount
 
         -- elseif tonumber(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52")) == -1 then
-    elseif overbuy_count > 0 then
+    elseif overbuy_count >= 0 then
         overbuyamount = overbuy_count * 50 + 1050
         -- CHAT_SYSTEM(overbuyamount)
     end
@@ -437,6 +465,27 @@ function indun_panel_checkbox_toggle()
     -- CHAT_SYSTEM(g.settings.ischecked)
 end
 
+function indun_panel_autozoom_save(frame, ctrl)
+    local value = tonumber(ctrl:GetText())
+
+    if value < tonumber(0) or value > tonumber(700) then
+        ui.SysMsg("Invalid value please set between 0 and 700")
+        local text = GET_CHILD_RECURSIVELY(frame, "zoomedit")
+        text:SetText("236")
+        frame:Invalidate()
+        g.settings.zoom = 236
+        indun_panel_save_settings()
+        indun_panel_load_settings()
+        ReserveScript("indun_panel_autozoom()", 1.0)
+        return
+    end
+    ui.SysMsg("Auto Zoom setting set to" .. value)
+    g.settings.zoom = value
+    indun_panel_save_settings()
+    indun_panel_load_settings()
+    ReserveScript("indun_panel_autozoom()", 1.0)
+end
+
 function indun_panel_init(ipframe)
     -- CHAT_SYSTEM(g.ex)
     --[[
@@ -459,6 +508,19 @@ function indun_panel_init(ipframe)
     awbtn:SetText("{img barrack_button_normal 35 35}")
     awbtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_ON_OPEN_ACCOUNTWAREHOUSE")
 ]]
+
+    local zoomtext = ipframe:CreateOrGetControl("richtext", "zoomtext", 260, 15)
+    zoomtext:SetText("{ol}{#FFFFFF}{s14}Auto Zoom")
+
+    local zoomedit = ipframe:CreateOrGetControl('edit', 'zoomedit', 340, 5, 60, 35)
+    AUTO_CAST(zoomedit)
+    zoomedit:SetText("{ol}" .. g.settings.zoom)
+    zoomedit:SetFontName("white_16_ol")
+    zoomedit:SetTextAlign("center", "center")
+    zoomedit:SetEventScript(ui.ENTERKEY, "indun_panel_autozoom_save")
+    -- zoomedit:SetEventScript(ui.LOST_FOCUS, "indun_panel_autozoom_save")
+    zoomedit:SetTextTooltip(
+        "{@st59}0～700の値で入力。標準は236。マップ切り替え時に入力の値までZoomします。 Input a value from 0 to 700. Standard is 236. Zoom to the input value when switching maps.")
 
     local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 95, 5, 35, 35)
     AUTO_CAST(ccbtn)
