@@ -135,14 +135,55 @@ end
 function MONSTERCARD_CHANGER_CARD_SLOT_RBTNUP_ITEM_INFO(frame, slot, argStr, argNum)
     CHAT_SYSTEM(tostring(frame:GetName()))
     CHAT_SYSTEM(tostring(slot:GetName()))
+    local parentSlotSet = slot:GetParent()
+    CHAT_SYSTEM(tostring(parentSlotSet:GetName()))
     CHAT_SYSTEM(tostring(argStr))
     CHAT_SYSTEM(tostring(argNum))
+
     return
 end
 
 function MONSTERCARD_CHANGER_CARD_SLOT_DROP(frame, slot, argStr, argNum)
-    CHAT_SYSTEM(tostring(frame:GetName()))
-    CHAT_SYSTEM(tostring(slot:GetName()))
+    local liftIcon = ui.GetLiftIcon();
+    local FromFrame = liftIcon:GetTopParentFrame();
+    local toFrame = frame:GetTopParentFrame();
+
+    if toFrame:GetName() == 'monstercard_changer' then
+        local iconInfo = liftIcon:GetInfo();
+
+        if iconInfo == nil then
+            return
+        end
+
+        local item = session.GetInvItem(iconInfo.ext);
+        if nil == item then
+            return;
+        end
+        local cardObj = GetClassByType("Item", item.type)
+        if cardObj == nil then
+            return
+        end
+
+        local parentSlotSet = slot:GetParent()
+        if parentSlotSet == nil then
+            return
+        end
+
+        if cardObj.CardGroupName == "REINFORCE_CARD" then
+            ui.SysMsg(ClMsg("LegendReinforceCard_Not_Equip"));
+            return
+        end
+
+        local cardGroupName_slotset = cardObj.CardGroupName .. 'card_slotset'
+        if parentSlotSet:GetName() ~= cardGroupName_slotset then
+            -- 같은 card group 에 착용해야합니다 메세지 띄워줘야해
+            ui.SysMsg(ClMsg("ToEquipSameCardGroup"));
+            return
+        end
+
+        CARD_SLOT_EQUIP(slot, item, cardObj.CardGroupName);
+    end
+
     local loginCharID = info.GetCID(session.GetMyHandle())
     if g.settings.tabindex == nil then
         g.settings.tabindex = {}
@@ -163,7 +204,7 @@ function MONSTERCARD_CHANGER_CARD_SLOT_DROP(frame, slot, argStr, argNum)
     if g.settings.tabindex[loginCharID][framename][slotname] == nil then
         g.settings.tabindex[loginCharID][framename][slotname] = {}
     end
-
+    print(g.settings.tabindex[loginCharID][framename][slotname])
     -- g.settings.tabindex[loginCharID][framename][slotname]=
     return
 end
@@ -358,10 +399,79 @@ function monstercard_changer_slot_init(frame, ctrl)
 
         monstercard_changer_CARD_OPTION_OPEN(frame)
         frame:SetUserValue("CARD_OPTION_OPENED", 0);
+
+        print("start")
+        local test1 = frame:GetUserValue("EQUIP_CARD_GUID")
+        print("test1:" .. tostring(test1.ClassID))
+        local test2 = frame:GetUserValue("EQUIP_CARD_SLOTINDEX")
+        print("test2:" .. tostring(test2))
+        local test3 = frame:GetUserValue("CARD_OPTION_OPENED")
+        print("test3:" .. tostring(test3))
+        local test4 = frame:GetUserValue("CARD_OPTION_INDEX")
+        print("test4:" .. tostring(test4))
+        local test5 = frame:GetUserValue("DUPLICATE_COUNT")
+        print("test5:" .. tostring(test5))
+        local test6 = frame:GetUserValue("IS_EQUIP_TYPE")
+        print("test6:" .. tostring(test6))
+        local test7 = frame:GetUserValue("DUPLICATE_OPTION_VALUE")
+        print("test7:" .. tostring(test7))
+        local test8 = frame:GetUserValue("DUPLICATE_OPTION_VALUE1")
+        print("test8:" .. tostring(test8))
+        local test9 = frame:GetUserValue("DUPLICATE_OPTION_VALUE2")
+        print("test9:" .. tostring(test9))
+        local test10 = frame:GetUserValue("DUPLICATE_OPTION_VALUE3")
+        print("test10:" .. tostring(test10))
+        local test11 = frame:GetUserValue("PREINDEX")
+        print("test11:" .. tostring(test11))
+        local test12 = frame:GetUserValue("CARD_TEMP_CLASSID")
+        print("test12:" .. tostring(test12))
+        local test13 = frame:GetUserValue("CARD_TEMP_LEVEL")
+        print("test13:" .. tostring(test13))
+        local test14 = frame:GetUserValue("CARD_TEMP_EXP")
+        print("test14:" .. tostring(test14))
     else
         local ATKcard_slotset = GET_CHILD_RECURSIVELY(frame, 'ATKcard_slotset')
+        -- local groupName = string.gsub(ATKcard_slotset, 'card_slotset', '');
+        for slotIndex = "slot" .. 1, 3 do
+            -- argStr
+            local argStr = slotIndex .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
+            pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr);
+        end
+
         AUTO_CAST(ATKcard_slotset)
-        ATKcard_slotset:ClearIconAll()
+        -- ATKcard_slotset:ClearIconAll()
+        frame:SetUserValue("REMOVE_CARD_SLOTINDEX", 0)
+        local test1 = frame:GetUserValue("EQUIP_CARD_GUID")
+        print(tostring(test1.ClassID))
+        local test2 = frame:GetUserValue("EQUIP_CARD_SLOTINDEX")
+        print(tostring(test2))
+        local test3 = frame:GetUserValue("CARD_OPTION_OPENED")
+        print(tostring(test3))
+        local test4 = frame:GetUserValue("CARD_OPTION_INDEX")
+        print(tostring(test4))
+        local test5 = frame:GetUserValue("DUPLICATE_COUNT")
+        print(tostring(test5))
+        local test6 = frame:GetUserValue("IS_EQUIP_TYPE")
+        print(tostring(test6))
+
+        local test7 = frame:GetUserValue("DUPLICATE_OPTION_VALUE")
+        print(tostring(test7))
+        frame:SetUserValue("DUPLICATE_OPTION_VALUE1", "")
+        local test8 = frame:GetUserValue("DUPLICATE_OPTION_VALUE1")
+        print(tostring(test8))
+        local test9 = frame:GetUserValue("DUPLICATE_OPTION_VALUE2")
+        print(tostring(test9))
+        local test10 = frame:GetUserValue("DUPLICATE_OPTION_VALUE3")
+        print(tostring(test10))
+        local test11 = frame:GetUserValue("PREINDEX")
+        print(tostring(test11))
+        local test12 = frame:GetUserValue("CARD_TEMP_CLASSID")
+        print(tostring(test12))
+        local test13 = frame:GetUserValue("CARD_TEMP_LEVEL")
+        print(tostring(test13))
+        local test14 = frame:GetUserValue("CARD_TEMP_EXP")
+        print(tostring(test14))
+
         local DEFcard_slotset = GET_CHILD_RECURSIVELY(frame, 'DEFcard_slotset')
         AUTO_CAST(DEFcard_slotset)
         DEFcard_slotset:ClearIconAll()
@@ -375,7 +485,7 @@ function monstercard_changer_slot_init(frame, ctrl)
         optionGbox:RemoveAllChild()
 
     end
-    monstercard_changer_get_card_info()
+    -- monstercard_changer_get_card_info()
 end
 
 function monstercard_changer_CARD_OPTION_OPEN(monsterCardSlotFrame)
