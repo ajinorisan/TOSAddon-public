@@ -1,8 +1,9 @@
 -- v1.0.5 SetupHookの競合を修正
+-- v1.0.6 帰属解除スキップのバグ修正
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -102,7 +103,8 @@ function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
     else
         CHAT_SYSTEM("aru")
     end
-    --[[
+    ]]
+    -- CHAT_SYSTEM("Hi")
     local scrollType = frame:GetUserValue("ScrollType")
     local clickable = frame:GetUserValue("EnableTranscendButton")
     if tonumber(clickable) ~= 1 then
@@ -125,21 +127,36 @@ function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
         return;
     end
     local clmsg = ScpArgMsg("ReallyUnlockBelonging")
-    local yesscp = 'UNLOCK_ACC_BELONGING_SCROLL_EXEC'
+    local yesscp = 'NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC'
     ui.MsgBox(clmsg, yesscp, "None");
 
     -- base["UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
 end
 
+function NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC()
+    local frame = ui.GetFrame("unlock_acc_belonging");
+    imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_EVENT_EXEC"));
+    frame:SetUserValue("EnableTranscendButton", 0);
+
+    local slot = GET_CHILD(frame, "slot");
+    local targetItem = GET_SLOT_ITEM(slot);
+    local scrollGuid = frame:GetUserValue("ScrollGuid")
+
+    session.ResetItemList();
+    session.AddItemID(targetItem:GetIESID());
+    session.AddItemID(scrollGuid);
+    local resultlist = session.GetItemIDList();
+    item.DialogTransaction("ITEM_UNLOCK_ACC_BELONGING_SCROLL", resultlist);
+
+    imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_CAST"));
+
+    ReserveScript("UNLOCK_ACC_BELONGING_SCROLL_CLOSE()", 1.0)
+    return
+end
+
 -- ゴッデス装備帰属解除時の簡易化
 function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
-    --[[
-    if _G.UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN == nil then
-        CHAT_SYSTEM("nai")
-    else
-        CHAT_SYSTEM("aru")
-    end
-    ]]
+    -- CHAT_SYSTEM("Hi2")
     local scrollType = frame:GetUserValue("ScrollType")
     local clickable = frame:GetUserValue("EnableTranscendButton")
     if tonumber(clickable) ~= 1 then
@@ -162,10 +179,31 @@ function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(fr
         return;
     end
     local clmsg = ScpArgMsg("ReallyUnlockBelonging")
-    local yesscp = 'UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC'
+    local yesscp = 'NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC'
     ui.MsgBox(clmsg, yesscp, "None");
 
     -- base["UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
+end
+
+function NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC()
+    local frame = ui.GetFrame("unlock_transmutationspreader_belonging");
+    imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_EVENT_EXEC"));
+    frame:SetUserValue("EnableTranscendButton", 0);
+
+    local slot = GET_CHILD(frame, "slot");
+    local targetItem = GET_SLOT_ITEM(slot);
+    local scrollGuid = frame:GetUserValue("ScrollGuid")
+
+    session.ResetItemList();
+    session.AddItemID(targetItem:GetIESID());
+    session.AddItemID(scrollGuid);
+    local resultlist = session.GetItemIDList();
+    item.DialogTransaction("ITEM_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL", resultlist);
+
+    imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_CAST"));
+
+    ReserveScript("UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_CLOSE()", 1.0)
+    return
 end
 
 -- エーテルジェム着脱時のメッセージ非表示
