@@ -387,11 +387,8 @@ function monstercard_changer_slot_init(frame, ctrl)
     -- CHAT_SYSTEM(tostring(tabindex))
 
     if tabindex == 0 then
+        CARD_SLOTS_CREATE(frame)
 
-        --[[local gbox = frame:CreateOrGetControl("groupbox", "mainGbox", 0, 65, 600, 300);
-        gbox:SetSkinName("pipwin_low")
-        gbox:ShowWindow(1)]]
-        CHAT_SYSTEM(tabindex .. "2")
         CARD_SLOT_CREATE(frame, "ATK", 0 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
         CARD_SLOT_CREATE(frame, 'DEF', 1 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
         CARD_SLOT_CREATE(frame, 'UTIL', 2 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
@@ -436,14 +433,35 @@ function monstercard_changer_slot_init(frame, ctrl)
         local test14 = frame:GetUserValue("CARD_TEMP_EXP")
         print("test14:" .. tostring(test14))]]
     else
+        -- CARD_PRESET_CLEAR_SLOT(frame)
+        -- monstercard_changer_CARD_SLOTS_CREATE(frame)
+        local mainGbox = GET_CHILD_RECURSIVELY(frame, 'mainGbox')
+        local ATKcardGbox = GET_CHILD_RECURSIVELY(frame, 'ATKcardGbox')
+        ATKcardGbox:RemoveAllChild()
+        local ATKcardGbox1 = mainGbox:CreateOrGetControl("groupbox", "ATKcardGbox1", 0, 0, 200, 120);
+        local ATKcard_slotset1 = ATKcardGbox1:CreateOrGetControl("groupbox", "ATKcard_slotset1", 0, 0, 67, 103);
+        AUTO_CAST(ATKcard_slotset1)
 
-        local gbox = GET_CHILD_RECURSIVELY(frame, 'mainGbox')
-        gbox:RemoveAllChild()
+        ATKcard_slotset1:SetSkinName("invenslot2")
+        ATKcardGbox:ShowWindow(1)
         CHAT_SYSTEM(tabindex)
         -- monstercard_changer_load_slots_index(frame, index)
 
     end
     -- monstercard_changer_get_card_info()
+end
+
+function monstercard_changer_CARD_SLOTS_CREATE(frame)
+    local monsterCardSlotFrame = frame;
+    if monsterCardSlotFrame == nil then
+        monsterCardSlotFrame = ui.GetFrame(addonName)
+    end
+
+    monstercard_changer_CARD_SLOTS_CREATE(monsterCardSlotFrame, 'ATK', 0 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
+    monstercard_changer_CARD_SLOTS_CREATE(monsterCardSlotFrame, 'DEF', 1 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
+    monstercard_changer_CARD_SLOTS_CREATE(monsterCardSlotFrame, 'UTIL', 2 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
+    monstercard_changer_CARD_SLOTS_CREATE(monsterCardSlotFrame, 'STAT', 3 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
+    monstercard_changer_CARD_SLOTS_CREATE(monsterCardSlotFrame, 'LEG', 4 * MONSTER_CARD_SLOT_COUNT_PER_TYPE)
 end
 
 function monstercard_changer_CARD_OPTION_OPEN(monsterCardSlotFrame)
