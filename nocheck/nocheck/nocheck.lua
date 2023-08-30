@@ -1,9 +1,10 @@
 -- v1.0.5 SetupHookの競合を修正
 -- v1.0.6 帰属解除スキップのバグ修正
+-- v1.0.7 チャンネルチェンジバグ修正
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -26,7 +27,7 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
     g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
     g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+                "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
@@ -89,8 +90,8 @@ function NOCHECK_SELECT_ZONE_MOVE_CHANNEL(index, channelID)
     ]]
     -- base["SELECT_ZONE_MOVE_CHANNEL"](index, channelID)
     -- local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
-    -- ReserveScript(string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
-    ReserveScript(string.format("CLICK_EXCHANGE_SHOP_CATEGORY('%s','%s','%s',%d)", ctrlSet, ctrl, strArg, numArg), 0.2)
+    ReserveScript(string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID), 0.5);
+    -- ReserveScript(string.format("CLICK_EXCHANGE_SHOP_CATEGORY('%s','%s','%s',%d)", ctrlSet, ctrl, strArg, numArg), 0.2)
     -- ui.MsgBox(msg, scpString, "None");
 
 end
