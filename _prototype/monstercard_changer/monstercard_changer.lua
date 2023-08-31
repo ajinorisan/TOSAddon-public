@@ -433,18 +433,23 @@ function monstercard_changer_slot_init(frame, ctrl)
         local test14 = frame:GetUserValue("CARD_TEMP_EXP")
         print("test14:" .. tostring(test14))]]
     else
-        -- CARD_PRESET_CLEAR_SLOT(frame)
-        -- monstercard_changer_CARD_SLOTS_CREATE(frame)
-        local mainGbox = GET_CHILD_RECURSIVELY(frame, 'mainGbox')
-        local ATKcardGbox = GET_CHILD_RECURSIVELY(frame, 'ATKcardGbox')
-        ATKcardGbox:RemoveAllChild()
-        local ATKcardGbox1 = mainGbox:CreateOrGetControl("groupbox", "ATKcardGbox1", 0, 0, 200, 120);
-        local ATKcard_slotset1 = ATKcardGbox1:CreateOrGetControl("groupbox", "ATKcard_slotset1", 0, 0, 67, 103);
-        AUTO_CAST(ATKcard_slotset1)
 
-        ATKcard_slotset1:SetSkinName("invenslot2")
-        ATKcardGbox:ShowWindow(1)
+        local mainGbox = GET_CHILD_RECURSIVELY(frame, 'mainGbox')
+        mainGbox:RemoveAllChild()
+
+        local ATKcardGbox = mainGbox:CreateOrGetControl("groupbox", "ATKcardGbox" .. tabindex, 0, 0, 200, 120);
+        local ATKcard_slotset = ATKcardGbox:CreateOrGetControl("groupbox", "ATKcard_slotset" .. tabindex, 0, 0, 59, 84);
+        AUTO_CAST(ATKcard_slotset)
+        ATKcard_slotset:SetColRow(1, 3)
+        ATKcard_slotset:SetSkinName("invenslot2")
+        ATKcard_slotset:EnableDrag(1)
+        ATKcard_slotset:EnableDrop(1)
+
+        ATKcard_slotset:SetSpc(5, 3)
+        ATKcard_slotset:CreateSlots();
+        mainGbox:ShowWindow(1)
         CHAT_SYSTEM(tabindex)
+
         -- monstercard_changer_load_slots_index(frame, index)
 
     end
@@ -575,7 +580,7 @@ function monstercard_changer_CARD_OPTION_CREATE(monsterCardSlotFrame)
 
             if cardID ~= 0 then
                 monstercard_changer_CARD_OPTION_CREATE_BY_GROUP(frame, i * cardSlotCount_type + j, clientMessage,
-                    cardID, cardLv, cardExp, optionIndex, labelIndex)
+                                                                cardID, cardLv, cardExp, optionIndex, labelIndex)
             end
         end
 
@@ -607,7 +612,7 @@ function monstercard_changer_CARD_OPTION_CREATE(monsterCardSlotFrame)
 end
 
 function monstercard_changer_CARD_OPTION_CREATE_BY_GROUP(monsterCardSlotFrame, i, clientMessage, cardID, cardLv,
-    cardExp, optionIndex, labelIndex)
+                                                         cardExp, optionIndex, labelIndex)
     local frame = monsterCardSlotFrame;
     if frame == nil then
         frame = ui.GetFrame('monstercardslot')
@@ -694,7 +699,7 @@ function monstercard_changer_CARD_OPTION_CREATE_BY_GROUP(monsterCardSlotFrame, i
             strInfo = strInfo .. optionText
         else
             itemClsCtrl = optionGbox:CreateOrGetControlSet('eachoption_in_monstercard',
-                'OPTION_CSET_' .. duplicateOptionIndex, 0, 0);
+                                                           'OPTION_CSET_' .. duplicateOptionIndex, 0, 0);
 
             for k = 1, #optionTextValueList do
                 optionValue[k] = optionValue_temp[k] + optionTextValueList[k] * cardLv
