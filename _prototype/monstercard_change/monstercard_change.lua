@@ -136,20 +136,39 @@ function monstercard_change_CARD_PRESET_APPLY_PRESET(parent, self)
 
         for i = 1, math.min(#cardList, 12) do
             for j = 0, cnt - 1 do
-                local guid = guidList:Get(i);
+                local guid = guidList:Get(j);
                 local invItem = invItemList:GetItemByGuid(guid)
                 local itemobj = GetIES(invItem:GetObject())
                 local iesid = invItem:GetIESID()
-                -- if tostring(itemobj.ClassID) == tostring(cardList[i]) then
-                local cardexp = GET_ITEM_LEVEL_EXP(invItem);
-                print(tostring(cardexp))
-                -- end
+
+                local obj = GetIES(invItem:GetObject());
+                if obj.ClassName ~= MONEY_NAME then
+                    -- if tostring(itemobj.ClassID) == tostring(cardList[i]) then
+                    local cardexp = GET_ITEM_LEVEL_EXP(invItem);
+                    if tostring(itemobj.ClassID) == tostring(cardList[i]) and tostring(cardexp) == tostring(expList[i]) then
+                        print(tostring(cardexp))
+                        session.ResetItemList()
+                        session.AddItemID(tonumber(iesid), 1)
+                        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                                        fromframe:GetUserIValue("HANDLE"))
+                        if i < math.min(#cardList, 12) then
+                            ReserveScript(string.format("monstercard_change_CARD_PRESET_APPLY_PRESET('%s','%s')",
+                                                        parent, self), 0.1)
+                            return
+                        elseif i == math.min(#cardList, 12) then
+                            if page ~= nil then
+                                pc.ReqExecuteTx_NumArgs("SCR_TX_APPLY_CARD_PRESET", page)
+                                _DISABLE_CARD_PRESET_APPLY_SAVE_BTN()
+                            end
+                        end
+                    end
+                end
             end
 
             -- print("Card at index " .. i .. ": " .. tostring(cardList[i]))
             -- print("Card at index " .. i .. ": " .. tostring(expList[i]))
         end
-        CHAT_SYSTEM("monstercard_change_CARD_PRESET_APPLY_PRESET")
+        -- CHAT_SYSTEM("monstercard_change_CARD_PRESET_APPLY_PRESET")
     end
 
 end
