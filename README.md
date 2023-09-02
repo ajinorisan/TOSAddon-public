@@ -20,6 +20,19 @@ https://twitter.com/ToSJP_rada
 
 ----
 
+### Monster Card Change
+
+モンスターカードプリセットを使いやすくします。カード自動搬出入、自動着脱機能付き。
+
+Easy to use monster card preset. Includes automatic card loading/unloading and automatic card insertion/removal functions.
+
+몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함.
+
+Register in AddonManager
+
+
+----
+
 ### Let's Go Home
 
 ミニマップの下に家のアイコンが出来ます。アイコン右クリックでお気に入りの街とチャンネルを登録します。
