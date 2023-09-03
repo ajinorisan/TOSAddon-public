@@ -1,8 +1,9 @@
 -- v1.0.1 カードをインベントリを探してなければ装備する数を倉庫から搬出。装備してたカードだけを倉庫へ搬入。
+-- v1.0.2 バグ修正
 local addonName = "monstercard_change"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -14,6 +15,15 @@ local acutil = require("acutil")
 local base = {}
 local curPreset = 0
 
+g.slotindex = 0
+
+g.presetcardlist = {}
+g.presetcardlv = {}
+g.presetcardcount = {}
+
+g.cardlist = {}
+g.cardlv = {}
+g.cardcount = {}
 -- session.ResetItemList()
 
 function g.SetupHook(func, baseFuncName)
@@ -31,7 +41,6 @@ g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 function MONSTERCARD_CHANGE_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
-    g.slotindex = 0
 
     -- session.ResetItemList()
 
@@ -99,17 +108,23 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
     saveBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_msgbox")
 
     local awframe = ui.GetFrame("accountwarehouse")
-    if awframe:IsVisible() == 1 then
-        local unequipBtn = frame:CreateOrGetControl("button", "unequipBtn", 480, 57, 70, 38)
-        AUTO_CAST(unequipBtn)
-        unequipBtn:SetText("{@st66b}UNEQIP")
-        unequipBtn:SetSkinName("test_pvp_btn")
+    -- if awframe:IsVisible() == 1 then
+    local unequipBtn = frame:CreateOrGetControl("button", "unequipBtn", 480, 57, 70, 38)
+    AUTO_CAST(unequipBtn)
+    unequipBtn:SetText("{@st66b}REMOVE")
+    unequipBtn:SetSkinName("test_pvp_btn")
 
+    if awframe:IsVisible() == 1 then
         unequipBtn:SetTextTooltip("{@st59}Remove the cards currently equipped and bring them into the warehouse.{nl}" ..
                                       "{@st59}現在装備中のカードを取り外し、倉庫へ搬入します。{/}")
         unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_info")
-
+    else
+        unequipBtn:SetTextTooltip("{@st59}Remove the card currently equipped.{nl}" ..
+                                      "{@st59}現在装備中のカードを取り外します。{/}")
+        unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_info")
     end
+
+    -- end
 
     frame:RemoveChild("applyBtn")
     local applyBtn = frame:CreateOrGetControl("button", "applyBtn", 410, 57, 70, 38)
@@ -184,8 +199,10 @@ function monstercard_change_get_info()
     --[[for i, iesid in ipairs(g.invcardlist) do
         print("g.invcardlist[" .. i .. "]: " .. tostring(iesid))
     end]]
+
     monstercard_change_unequip()
     return
+
 end
 
 function monstercard_change_unequip()
@@ -204,12 +221,12 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             else
 
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             end
         end
@@ -223,11 +240,11 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             else
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             end
         end
@@ -241,11 +258,11 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             else
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             end
         end
@@ -259,11 +276,11 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             else
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.25)
+                ReserveScript("monstercard_change_unequip()", 0.2)
                 return
             end
         end
@@ -275,8 +292,13 @@ function monstercard_change_unequip()
         for i, lv in ipairs(g.cardlv) do
             print("g.cardlv[" .. i .. "]: " .. tostring(lv))
         end]]
-        monstercard_change_put_inv_to_warehouse()
-        return
+        local awframe = ui.GetFrame("accountwarehouse")
+        if awframe:IsVisible() == 1 then
+            monstercard_change_put_inv_to_warehouse()
+            return
+        else
+            return
+        end
     end
 end
 
@@ -326,14 +348,14 @@ function monstercard_change_put_inv_to_warehouse()
                         if tostring(itemobj.ClassID) == tostring(cardid) then
                             for _, lv in pairs(g.cardlv) do
                                 if tostring(itemlv) == tostring(lv) then
-                                    local cardInfo = GetClassByType("Item", cardID)
+                                    --[[local cardInfo = GetClassByType("Item", cardID)
                                     local cardname = cardInfo.ClassName
-                                    -- print(tostring(g.cardcount[cardID]) .. ":" .. (tostring(cardname)))
+                                    -- print(tostring(g.cardcount[cardID]) .. ":" .. (tostring(cardname)))]]
                                     g.cardcount[cardID] = g.cardcount[cardID] - 1
 
                                     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, nil, nil)
                                     session.ResetItemList()
-                                    ReserveScript("monstercard_change_put_inv_to_warehouse()", 0.3)
+                                    ReserveScript("monstercard_change_put_inv_to_warehouse()", 0.2)
                                     return -- 整合が見つかったら関数を終了
                                 end
                             end
@@ -355,12 +377,14 @@ end
 
 function monstercard_change_end_of_operation()
     ui.CloseFrame(addonNameLower)
-
+    g.cardlist = {}
+    g.cardlv = {}
+    g.cardcount = {}
     ui.SysMsg("[MCC]end of operation")
 end
 
 function monstercard_change_get_presetinfo()
-    g.slotindex = 0
+    -- g.slotindex = 0
     g.presetcardlist = {}
     g.presetcardlv = {}
     g.presetcardcount = {}
@@ -430,12 +454,12 @@ function monstercard_change_inventry()
                     if tostring(itemobj.ClassID) == tostring(cardid) then
                         for _, lv in pairs(g.presetcardlv) do
                             if tostring(itemlv) == tostring(lv) then
-                                local cardInfo = GetClassByType("Item", cardID)
-                                local cardname = cardInfo.ClassName
-                                -- print(tostring(g.presetcardcount[cardID]) .. ":" .. (tostring(cardname)))
-                                g.presetcardcount[cardID] = g.presetcardcount[cardID] - 1
 
-                                ReserveScript("monstercard_change_inventry()", 0.1)
+                                g.presetcardcount[cardID] = g.presetcardcount[cardID] - 1
+                                --[[local cardInfo = GetClassByType("Item", cardID)
+                                local cardname = cardInfo.ClassName
+                                print("inv" .. tostring(g.presetcardcount[cardID]) .. ":" .. (tostring(cardname)))]]
+                                ReserveScript("monstercard_change_inventry()", 0.2)
                                 return -- 整合が見つかったら関数を終了
                             end
                         end
@@ -484,15 +508,16 @@ function monstercard_change_warehouse()
                     tostring(cardID) then
                     for _, lv in pairs(g.presetcardlv) do
                         if tostring(cardLevel) == tostring(lv) then
-                            -- if (tostring(obj.ClassID) == tostring(cardList[i])) then
-                            -- print(tostring(obj.ClassID))
-                            -- print(tostring(obj.ClassID))
-                            -- print(tostring(cardList[i]))
+
+                            g.presetcardcount[cardID] = g.presetcardcount[cardID] - 1
+                            --[[local cardInfo = GetClassByType("Item", cardID)
+                            local cardname = cardInfo.ClassName
+                            print("warehouse" .. tostring(g.presetcardcount[cardID]) .. ":" .. (tostring(cardname)))]]
                             session.ResetItemList()
                             session.AddItemID(tonumber(iesid), 1)
                             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
                                 fromframe:GetUserIValue("HANDLE"))
-                            ReserveScript("monstercard_change_warehouse()", 0.1)
+                            ReserveScript("monstercard_change_warehouse()", 0.2)
 
                             return
                         end
@@ -509,6 +534,10 @@ function monstercard_change_warehouse()
         pc.ReqExecuteTx_NumArgs("SCR_TX_APPLY_CARD_PRESET", page)
         _DISABLE_CARD_PRESET_APPLY_SAVE_BTN()
     end
+    g.presetcardlist = {}
+    g.presetcardlv = {}
+    g.presetcardcount = {}
+    return
 end
 
 function monstercard_change_GETMYCARD_INFO(slotIndex)
