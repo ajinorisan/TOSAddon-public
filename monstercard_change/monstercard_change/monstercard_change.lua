@@ -1,7 +1,8 @@
+-- v1.0.1 カードをインベントリを探してなければ装備する数を倉庫から搬出。装備してたカードだけを倉庫へ搬入。
 local addonName = "monstercard_change"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -121,8 +122,10 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
                                     "{@st59}{#FFFF00}※Does not apply to cards not held in inventory or team warehouse{nl}" ..
                                     "{@st59}現在のプリセットで、装着カードを変更します{nl}" ..
                                     "{@st59}{#FFFF00}※インベントリかチーム倉庫に所持していないカードは適用されません")
-        applyBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_APPLY_PRESET")
+        -- applyBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_APPLY_PRESET")
+        applyBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_presetinfo")
         -- frame:RunUpdateScript("monstercard_change_CARD_PRESET_APPLY_PRESET", 0.1)
+
     else
         applyBtn:SetTextTooltip("{@st59}Change the installed card with the current preset{nl}" ..
                                     "{@st59}{#FFFF00}※Does not apply to cards you do not have in your inventory{nl}" ..
@@ -145,14 +148,44 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
 end
 
 function monstercard_change_get_info()
+    g.slotindex = 0
     g.cardlist = {}
     g.cardlv = {}
+    g.cardcount = {}
+
     for index = 0, 11 do
         local cardID, cardLv, cardExp = GETMYCARD_INFO(index);
         table.insert(g.cardlist, cardID)
         table.insert(g.cardlv, cardLv)
+        if g.cardcount[cardID] == nil then
+            g.cardcount[cardID] = 1 -- 初めて出現した場合は1回目として初期化
+        else
+            g.cardcount[cardID] = g.cardcount[cardID] + 1 -- 既に出現している場合はカウントを増やす
+        end
     end
+
+    for id, count in pairs(g.cardcount) do
+        local cardInfo = GetClassByType("Item", id)
+        local cardname = cardInfo.ClassName
+        -- print("カードID " .. tostring(cardname) .. " は " .. count .. " 回出現しました。")
+    end
+    --[[g.invcardlist = {}
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+    for i = 0, cnt - 1 do
+        local guid = guidList:Get(i);
+        local invItem = invItemList:GetItemByGuid(guid)
+        local itemobj = GetIES(invItem:GetObject())
+        local itemlv = TryGetProp(itemobj, "Level", 0)
+        local iesid = invItem:GetIESID()
+        table.insert(g.invcardlist, iesid)
+    end]]
+    --[[for i, iesid in ipairs(g.invcardlist) do
+        print("g.invcardlist[" .. i .. "]: " .. tostring(iesid))
+    end]]
     monstercard_change_unequip()
+    return
 end
 
 function monstercard_change_unequip()
@@ -171,12 +204,12 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             else
 
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             end
         end
@@ -190,11 +223,11 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             else
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             end
         end
@@ -208,11 +241,11 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             else
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             end
         end
@@ -226,11 +259,11 @@ function monstercard_change_unequip()
 
                 local argStr = g.slotindex .. " 1"
                 pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             else
                 g.slotindex = g.slotindex + 1
-                ReserveScript("monstercard_change_unequip()", 0.2)
+                ReserveScript("monstercard_change_unequip()", 0.25)
                 return
             end
         end
@@ -281,24 +314,43 @@ function monstercard_change_put_inv_to_warehouse()
             local itemlv = TryGetProp(itemobj, "Level", 0)
             -- print(tostring(itemlv))
             local iesid = invItem:GetIESID()
-            for _, cardid in pairs(g.cardlist) do
-                -- print(cardid)
-                if tostring(itemobj.ClassID) == tostring(cardid) then
-                    for _, lv in pairs(g.cardlv) do
-                        if tostring(itemlv) == tostring(lv) then
-                            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, nil, nil)
-                            session.ResetItemList()
-                            ReserveScript("monstercard_change_put_inv_to_warehouse()", 0.3)
-                            return -- 整合が見つかったら関数を終了
+            -- for _, cardiesid in pairs(g.invcardlist) do
+            -- if tostring(iesid) ~= tostring(cardiesid) then
+            for cardID, count in pairs(g.cardcount) do
+
+                if g.cardcount[cardID] ~= nil and g.cardcount[cardID] > 0 and tostring(itemobj.ClassID) ==
+                    tostring(cardID) then
+
+                    for _, cardid in pairs(g.cardlist) do
+                        -- print(cardid)
+                        if tostring(itemobj.ClassID) == tostring(cardid) then
+                            for _, lv in pairs(g.cardlv) do
+                                if tostring(itemlv) == tostring(lv) then
+                                    local cardInfo = GetClassByType("Item", cardID)
+                                    local cardname = cardInfo.ClassName
+                                    -- print(tostring(g.cardcount[cardID]) .. ":" .. (tostring(cardname)))
+                                    g.cardcount[cardID] = g.cardcount[cardID] - 1
+
+                                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, nil, nil)
+                                    session.ResetItemList()
+                                    ReserveScript("monstercard_change_put_inv_to_warehouse()", 0.3)
+                                    return -- 整合が見つかったら関数を終了
+                                end
+                            end
                         end
                     end
+
                 end
             end
+            -- end
+            -- end
             -- monstercard_change_end_of_operation()
         end
         monstercard_change_end_of_operation()
+        return
     end
     monstercard_change_end_of_operation()
+    return
 end
 
 function monstercard_change_end_of_operation()
@@ -306,6 +358,34 @@ function monstercard_change_end_of_operation()
 
     ui.SysMsg("[MCC]end of operation")
 end
+
+function monstercard_change_get_presetinfo()
+    g.slotindex = 0
+    g.presetcardlist = {}
+    g.presetcardlv = {}
+    g.presetcardcount = {}
+
+    for index = 0, 11 do
+        local cardID, cardLv, cardExp = _GETMYCARD_INFO(index);
+        table.insert(g.presetcardlist, cardID)
+        table.insert(g.presetcardlv, cardLv)
+        if g.presetcardcount[cardID] == nil then
+            g.presetcardcount[cardID] = 1 -- 初めて出現した場合は1回目として初期化
+        else
+            g.presetcardcount[cardID] = g.presetcardcount[cardID] + 1 -- 既に出現している場合はカウントを増やす
+        end
+    end
+
+    --[[for id, count in pairs(g.presetcardcount) do
+        local cardInfo = GetClassByType("Item", id)
+        local cardname = cardInfo.ClassName
+        print("カードID " .. tostring(cardname) .. " は " .. count .. " 回出現しました。")
+    end]]
+
+    monstercard_change_CARD_PRESET_APPLY_PRESET()
+    return
+end
+
 function monstercard_change_CARD_PRESET_APPLY_PRESET()
     local frame = ui.GetFrame("monstercardpreset")
     -- print("test")
@@ -313,13 +393,7 @@ function monstercard_change_CARD_PRESET_APPLY_PRESET()
     local cardList, expList = monstercard_change_CARD_PRESET_GET_CARD_EXP_LIST(frame)
     local droplist = GET_CHILD_RECURSIVELY(frame, "preset_list")
     local page = tonumber(droplist:GetSelItemKey())
-    -- print(tostring(cardList))
-    --[[for i = 1, math.min(#cardList, 12) do
-        if cardList[i] ~= nil then
-            -- g["cardid" .. i] = cardList[i]
-            print(tostring(cardList[i]))
-        end
-    end]]
+
     if fromframe:IsVisible() == 0 then
 
         if page ~= nil then
@@ -328,47 +402,113 @@ function monstercard_change_CARD_PRESET_APPLY_PRESET()
         end
         return
     else
-        local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-        local guidList = itemList:GetGuidList();
-        local sortedGuidList = itemList:GetSortedGuidList();
-        local sortedCnt = sortedGuidList:Count();
-        for i = 1, math.min(#cardList, 12) do
+        monstercard_change_inventry()
+        return
+    end
 
-            for j = 0, sortedCnt - 1 do
-                local guid = sortedGuidList:Get(j)
-                local invItem = itemList:GetItemByGuid(guid)
-                local iesid = invItem:GetIESID()
+end
 
-                local obj = GetIES(invItem:GetObject());
-                local cardLevel = TryGetProp(obj, 'Level', 1)
+function monstercard_change_inventry()
+    local fromFrame = ui.GetFrame("inventory");
+    local cardTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+    cardTab:SelectTab(4)
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+    for i = 0, cnt - 1 do
+        local guid = guidList:Get(i);
+        local invItem = invItemList:GetItemByGuid(guid)
+        local itemobj = GetIES(invItem:GetObject())
+        local itemlv = TryGetProp(itemobj, "Level", 0)
+        local iesid = invItem:GetIESID()
+        for cardID, count in pairs(g.presetcardcount) do
 
-                if obj.ClassName ~= MONEY_NAME then
+            if g.presetcardcount[cardID] ~= nil and g.presetcardcount[cardID] > 0 and tostring(itemobj.ClassID) ==
+                tostring(cardID) then
+                for _, cardid in pairs(g.presetcardlist) do
+                    -- print(cardid)
+                    if tostring(itemobj.ClassID) == tostring(cardid) then
+                        for _, lv in pairs(g.presetcardlv) do
+                            if tostring(itemlv) == tostring(lv) then
+                                local cardInfo = GetClassByType("Item", cardID)
+                                local cardname = cardInfo.ClassName
+                                -- print(tostring(g.presetcardcount[cardID]) .. ":" .. (tostring(cardname)))
+                                g.presetcardcount[cardID] = g.presetcardcount[cardID] - 1
 
-                    if (tostring(obj.ClassID) == tostring(cardList[i])) then
-
-                        -- print(tostring(obj.ClassID))
-                        -- print(tostring(cardList[i]))
-                        session.ResetItemList()
-                        session.AddItemID(tonumber(iesid), 1)
-                        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                            fromframe:GetUserIValue("HANDLE"))
-                        ReserveScript("monstercard_change_CARD_PRESET_APPLY_PRESET()", 0.1)
-
-                        return
-
+                                ReserveScript("monstercard_change_inventry()", 0.1)
+                                return -- 整合が見つかったら関数を終了
+                            end
+                        end
                     end
-
                 end
 
             end
 
         end
-        if page ~= nil then
-            pc.ReqExecuteTx_NumArgs("SCR_TX_APPLY_CARD_PRESET", page)
-            _DISABLE_CARD_PRESET_APPLY_SAVE_BTN()
+    end
+    --[[for id, count in pairs(g.presetcardcount) do
+        local cardInfo = GetClassByType("Item", id)
+        local cardname = cardInfo.ClassName
+        print(tostring(cardname) .. " : " .. count)
+    end]]
+    monstercard_change_warehouse()
+    return
+end
+
+function monstercard_change_warehouse()
+    local frame = ui.GetFrame("monstercardpreset")
+
+    local fromframe = ui.GetFrame("accountwarehouse")
+    local cardList, expList = monstercard_change_CARD_PRESET_GET_CARD_EXP_LIST(frame)
+    local droplist = GET_CHILD_RECURSIVELY(frame, "preset_list")
+    local page = tonumber(droplist:GetSelItemKey())
+
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local sortedCnt = sortedGuidList:Count();
+    -- for i = 1, math.min(#cardList, 12) do
+
+    for j = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(j)
+        local invItem = itemList:GetItemByGuid(guid)
+        local iesid = invItem:GetIESID()
+
+        local obj = GetIES(invItem:GetObject());
+        local cardLevel = TryGetProp(obj, 'Level', 1)
+        -- local itemlv = TryGetProp(obj, "Level", 0)
+        if obj.ClassName ~= MONEY_NAME then
+            for cardID, count in pairs(g.presetcardcount) do
+                -- print(tostring(obj.ClassID) .. ":" .. tostring(cardID))
+                if g.presetcardcount[cardID] ~= nil and g.presetcardcount[cardID] > 0 and tostring(obj.ClassID) ==
+                    tostring(cardID) then
+                    for _, lv in pairs(g.presetcardlv) do
+                        if tostring(cardLevel) == tostring(lv) then
+                            -- if (tostring(obj.ClassID) == tostring(cardList[i])) then
+                            -- print(tostring(obj.ClassID))
+                            -- print(tostring(obj.ClassID))
+                            -- print(tostring(cardList[i]))
+                            session.ResetItemList()
+                            session.AddItemID(tonumber(iesid), 1)
+                            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                fromframe:GetUserIValue("HANDLE"))
+                            ReserveScript("monstercard_change_warehouse()", 0.1)
+
+                            return
+                        end
+                    end
+                end
+            end
+
         end
+
     end
 
+    -- end
+    if page ~= nil then
+        pc.ReqExecuteTx_NumArgs("SCR_TX_APPLY_CARD_PRESET", page)
+        _DISABLE_CARD_PRESET_APPLY_SAVE_BTN()
+    end
 end
 
 function monstercard_change_GETMYCARD_INFO(slotIndex)

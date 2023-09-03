@@ -28,6 +28,8 @@ Easy to use monster card preset. Includes automatic card loading/unloading and a
 
 몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함.
 
+v1.0.1 自動搬入搬出の数量見直し。 2023.9.3
+
 Register in AddonManager
 
 
