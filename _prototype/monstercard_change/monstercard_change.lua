@@ -99,6 +99,13 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
         return
     end
 
+    local droplist = GET_CHILD_RECURSIVELY(frame, "preset_list")
+    local page = tonumber(4)
+    local name_str = TRIM_STRING_WITH_SPACING("MCC.space saving")
+    SetCardPreSetTitle(page, name_str)
+
+    _DISABLE_CARD_PRESET_CHANGE_NAME_BTN()
+
     frame:RemoveChild("saveBtn")
     local saveBtn = frame:CreateOrGetControl("button", "saveBtn", 340, 57, 70, 38)
     AUTO_CAST(saveBtn)
@@ -109,6 +116,7 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
     saveBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_msgbox")
 
     local awframe = ui.GetFrame("accountwarehouse")
+
     -- if awframe:IsVisible() == 1 then
     local unequipBtn = frame:CreateOrGetControl("button", "unequipBtn", 480, 57, 70, 38)
     AUTO_CAST(unequipBtn)
@@ -119,12 +127,13 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
         unequipBtn:SetTextTooltip("{@st59}Remove the cards currently equipped and bring them into the warehouse.{nl}" ..
                                       "{@st59}現在装備中のカードを取り外し、倉庫へ搬入します。{/}")
         unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_info")
+        -- unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_SELECT_PRESET")
     else
         unequipBtn:SetTextTooltip("{@st59}Remove the card currently equipped.{nl}" ..
                                       "{@st59}現在装備中のカードを取り外します。{/}")
         unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_info")
+        -- unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_SELECT_PRESET")
     end
-
     -- end
 
     frame:RemoveChild("applyBtn")
@@ -154,7 +163,7 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
     end
 
     local etcObj = GetMyEtcObject()
-    local droplist = GET_CHILD_RECURSIVELY(frame, "preset_list")
+
     droplist:SelectItemByKey(0)
     MONSTERCARDPRESET_FRAME_INIT()
     RequestCardPreset(0)
@@ -163,40 +172,90 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
     return
 end
 
+function monstercard_change_CARD_PRESET_SELECT_PRESET(frame)
+    local frame = ui.GetFrame('monstercardpreset')
+    local droplist = GET_CHILD_RECURSIVELY(frame, "preset_list")
+    AUTO_CAST(droplist)
+    droplist:SelectItem(tonumber(4))
+    CARD_PRESET_CLEAR_SLOT(frame)
+    local page = tonumber(droplist:GetSelItemKey(4))
+    CARD_PRESET_SHOW_PRESET(page)
+
+end
+
 function monstercard_change_get_info()
-    g.slotindex = 0
+    local frame = ui.GetFrame('monstercardpreset')
+
+    monstercard_change_CARD_PRESET_SELECT_PRESET(frame)
+    local allnil = true
+    for index = 0, 11 do
+
+        local cardID, cardLv, cardExp = _GETMYCARD_INFO(index);
+
+        if cardID ~= 0 then
+            allnil = false
+            break
+        end
+    end
+
     g.cardlist = {}
     g.cardlv = {}
     g.cardcount = {}
 
-    for index = 0, 11 do
-        local cardID, cardLv, cardExp = GETMYCARD_INFO(index);
+    if allnil == false then
+        g.slotindex = 0
 
-        table.insert(g.cardlist, cardID)
-        table.insert(g.cardlv, cardLv)
-        if g.cardcount[cardID] == nil then
-            g.cardcount[cardID] = 3 -- 初めて出現した場合は1回目として初期化
-            -- else
-            -- g.cardcount[cardID] = g.cardcount[cardID] + 1 -- 既に出現している場合はカウントを増やす
-        end
-    end
+        for index = 0, 11 do
+            local cardID, cardLv, cardExp = GETMYCARD_INFO(index);
 
-    for index = 0, 11 do
-        local cardID, cardLv, cardExp = GETMYCARD_INFO(index);
-        if cardID == nil then
-            g.slotindex = index
-            break
+            table.insert(g.cardlist, cardID)
+            table.insert(g.cardlv, cardLv)
+            if g.cardcount[cardID] == nil then
+                g.cardcount[cardID] = 3 -- 初めて出現した場合は1回目として初期化
+                -- else
+                -- g.cardcount[cardID] = g.cardcount[cardID] + 1 -- 既に出現している場合はカウントを増やす
+            end
         end
 
-    end
+        for index = 0, 11 do
+            local cardID, cardLv, cardExp = GETMYCARD_INFO(index);
+            if cardID == nil then
+                g.slotindex = index
+                break
+            end
 
-    if g.slotindex == 11 then
-        return
+        end
+
+        if g.slotindex == 11 then
+            return
+        else
+            monstercard_change_unequip()
+            return
+        end
     else
-        monstercard_change_unequip()
-        return
-    end
+        for index = 0, 11 do
+            local cardID, cardLv, cardExp = GETMYCARD_INFO(index);
 
+            table.insert(g.cardlist, cardID)
+            table.insert(g.cardlv, cardLv)
+            if g.cardcount[cardID] == nil then
+                g.cardcount[cardID] = 3 -- 初めて出現した場合は1回目として初期化
+                -- else
+                -- g.cardcount[cardID] = g.cardcount[cardID] + 1 -- 既に出現している場合はカウントを増やす
+            end
+        end
+        pc.ReqExecuteTx_NumArgs("SCR_TX_APPLY_CARD_PRESET", tonumber(4))
+        _DISABLE_CARD_PRESET_APPLY_SAVE_BTN()
+        -- g.slotindex = 12
+        local awframe = ui.GetFrame("accountwarehouse")
+        if awframe:IsVisible() == 1 then
+            ReserveScript("monstercard_change_put_inv_to_warehouse()", 0.1)
+            return
+        else
+            return
+        end
+
+    end
     --[[for id, count in pairs(g.cardcount) do
         local cardInfo = GetClassByType("Item", id)
         local cardname = cardInfo.ClassName
@@ -321,7 +380,7 @@ function monstercard_change_unequip()
 end
 
 function monstercard_change_put_inv_to_warehouse()
-
+    -- print("test")
     MONSTERCARDSLOT_CLOSE()
 
     local msgframe = ui.GetFrame(addonNameLower)
@@ -363,13 +422,14 @@ function monstercard_change_put_inv_to_warehouse()
                             for _, lv in pairs(g.cardlv) do
                                 if tostring(itemlv) == tostring(lv) then
                                     --[[local cardInfo = GetClassByType("Item", cardID)
+                                    print(tstring(cardInfo))
                                     local cardname = cardInfo.ClassName
-                                    -- print(tostring(g.cardcount[cardID]) .. ":" .. (tostring(cardname)))]]
+                                    print(tostring(g.cardcount[cardID]) .. ":" .. (tostring(cardname)))]]
                                     g.cardcount[cardID] = g.cardcount[cardID] - 1
-
+                                    print(g.cardcount[cardID])
                                     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, nil, nil)
                                     session.ResetItemList()
-                                    ReserveScript("monstercard_change_put_inv_to_warehouse()", 0.2)
+                                    ReserveScript("monstercard_change_put_inv_to_warehouse()", 0.25)
                                     return -- 整合が見つかったら関数を終了
                                 end
                             end
@@ -436,13 +496,13 @@ function monstercard_change_CARD_PRESET_APPLY_PRESET()
 
     for index = 0, 11 do
         local cardID, cardLv, cardExp = _GETMYCARD_INFO(index);
-        if cardID ~= nil then
+        if cardID ~= 0 then
             allnil = false
             break
         end
 
     end
-
+    print(tostring(allnil))
     if fromframe:IsVisible() == 0 then
 
         if page ~= nil then
@@ -489,10 +549,10 @@ function monstercard_change_inventry()
                             if tostring(itemlv) == tostring(lv) then
 
                                 g.presetcardcount[cardID] = g.presetcardcount[cardID] - 1
-                                --[[local cardInfo = GetClassByType("Item", cardID)
+                                local cardInfo = GetClassByType("Item", cardID)
                                 local cardname = cardInfo.ClassName
-                                print("inv" .. tostring(g.presetcardcount[cardID]) .. ":" .. (tostring(cardname)))]]
-                                ReserveScript("monstercard_change_inventry()", 0.2)
+                                print("inv" .. tostring(g.presetcardcount[cardID]) .. ":" .. (tostring(cardname)))
+                                -- ReserveScript("monstercard_change_inventry()", 0.2)
                                 return -- 整合が見つかったら関数を終了
                             end
                         end
@@ -549,8 +609,8 @@ function monstercard_change_warehouse()
                             session.ResetItemList()
                             session.AddItemID(tonumber(iesid), 1)
                             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                            fromframe:GetUserIValue("HANDLE"))
-                            ReserveScript("monstercard_change_warehouse()", 0.2)
+                                fromframe:GetUserIValue("HANDLE"))
+                            ReserveScript("monstercard_change_warehouse()", 0.25)
 
                             return
                         end
@@ -614,13 +674,23 @@ function monstercard_change_MONSTERCARDSLOT_FRAME_OPEN()
     local cardTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
     cardTab:SelectTab(4)
 
-    local yaiframe = ui.GetFame("yaaccountinventory")
-    if yaiframe ~= nil then
-        if yaiframe:IsVisible() == 1 then
-            local yaicardTab = GET_CHILD_RECURSIVELY(yaiframe, "inventype_Tab")
-            yaicardTab:SelectTab(4)
+    local presetframe = ui.GetFrame("monstercardpreset")
+
+    --[[if ADDONS.ebisuke.YAACCOUNTINVENTORY ~= nil then
+
+        local yaiframe = ui.GetFame("accountwarehouse")
+        if yaiframe ~= nil then
+            CHAT_SYSTEM("framearu1")
+            if yaiframe:IsVisible() == 1 then
+                CHAT_SYSTEM("aru")
+                local yaicardTab = GET_CHILD_RECURSIVELY(yaiframe, "inventype_Tab")
+                yaicardTab:SelectTab(4)
+            end
+        else
+            CHAT_SYSTEM("framenai")
         end
-    end
+
+    end]]
 
 end
 
