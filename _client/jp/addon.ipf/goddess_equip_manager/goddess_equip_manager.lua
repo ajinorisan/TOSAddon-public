@@ -2313,7 +2313,7 @@ function _GODDESS_MGR_MAKE_RANDOM_OPTION_TEXT(gBox, item_obj, option_list)
 		item_obj = option_list
 	end
 
-	for i = 1 , 4 do
+	for i = 1 , MAX_RANDOM_OPTION_COUNT do
 		local group_name = 'RandomOptionGroup_'..i
 		local prop_name = 'RandomOption_'..i
 		local prop_value = 'RandomOptionValue_'..i
@@ -2373,6 +2373,7 @@ end
 
 function GODDESS_MGR_RANDOMOPTION_OPEN(frame)
 	GODDESS_MGR_RANDOMOPTION_CLEAR(frame)
+	GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_OPEN(frame)
 
 	local acc = GetMyAccountObj()
 	if acc == nil then return end
@@ -2399,11 +2400,11 @@ function GODDESS_MGR_RANDOMOPTION_PRESET_SELECT(parent, ctrl)
 	local randomoption_tab = GET_CHILD_RECURSIVELY(frame, 'randomoption_tab')
 	local index = randomoption_tab:GetSelectItemIndex()
 	if index == 0 then
-		GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame)
+		GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_UPDATE(frame) -- 각인 저장(아이커)
 	elseif index == 1 then
-		GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame)
+		GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame)		-- 각인 부여
 	elseif index == 2 then
-		GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_UPDATE(frame)
+		GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame) 	-- 각인 저장(옛날)
 	end
 end
 
@@ -2429,12 +2430,12 @@ function GODDESS_MGR_RANDOMOPTION_TAB_CHANGE(parent, tab)
 
 	local index = tab:GetSelectItemIndex()
 	if index == 0 then
-		GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame)
+		CLEAR_GODDESS_ICOR_TEXT(frame)
+		GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_OPEN(frame)
 	elseif index == 1 then
 		GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame)
 	elseif index == 2 then
-		CLEAR_GODDESS_ICOR_TEXT(frame)
-		GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_OPEN(frame)
+		GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame)		 -- 각인 저장(옛날)
 	end
 end
 
@@ -2641,7 +2642,7 @@ function SCR_LBTNDOWN_GODDESS_MGR_RANDOMOPTION_MAT(slotset, slot)
 	GODDESS_MGR_RANDOMOPTION_ENGRAVE_MAT_UPDATE(frame)
 end
 
-function GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame)
+function GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame) -- 각인 저장(옛날)
 	local rand_equip_list = GET_CHILD_RECURSIVELY(frame, 'rand_equip_list')
 	rand_equip_list:SelectItemByKey(0)
 	GODDESS_MGR_RANDOMOPTION_ENGRAVE_SET_SPOT(frame)
@@ -2652,7 +2653,7 @@ function GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame)
 	checkall:ShowWindow(0)
 end
 
-function GODDESS_MGR_RANDOMOPTION_ENGRAVE_SET_SPOT(frame)
+function GODDESS_MGR_RANDOMOPTION_ENGRAVE_SET_SPOT(frame) -- 각인 저장(옛날)	
 	local rand_equip_list = GET_CHILD_RECURSIVELY(frame, 'rand_equip_list')
 	rand_equip_list:ClearItems()
 
@@ -2661,7 +2662,7 @@ function GODDESS_MGR_RANDOMOPTION_ENGRAVE_SET_SPOT(frame)
 		local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.SlotName))
 		local item_obj = GetIES(inv_item:GetObject())
 
-		if IS_NO_EQUIPITEM(item_obj) == 0 and IS_ENABLE_TO_ENGARVE(item_obj) == true then
+		if IS_NO_EQUIPITEM(item_obj) == 0 and IS_ENABLE_TO_ENGARVE(item_obj, 2) == true then
 			rand_equip_list:AddItem(slot_info.SlotName, ClMsg(slot_info.ClMsg))
 		end
 	end
@@ -2672,13 +2673,13 @@ function GODDESS_MGR_RANDOMOPTION_ENGRAVE_UPDATE(frame)
 	GODDESS_MGR_RANDOMOPTION_ENGRAVE_SPOT_SELECT(frame, rand_equip_list)
 end
 
-function GODDESS_MGR_RANDOMOPTION_ENGRAVE_REG_ITEM(frame, inv_item, item_obj, spot)	
+function GODDESS_MGR_RANDOMOPTION_ENGRAVE_REG_ITEM(frame, inv_item, item_obj, spot)	 -- 각인 저장(옛날)	
 	if inv_item == nil then return end
 
 	local etc = GetMyEtcObject()
 	if etc == nil then return end
 
-	local enable, def_rate = IS_ENABLE_TO_ENGARVE(item_obj)
+	local enable, def_rate = IS_ENABLE_TO_ENGARVE(item_obj, 2)
 	if enable == false then
 		return
 	end
@@ -3308,7 +3309,8 @@ function GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_REG_ITEM(frame, inv_item, item_ob
 	local etc = GetMyEtcObject()
 	if etc == nil then return end
 
-	local enable, def_rate = IS_ENABLE_TO_ENGARVE(item_obj)		
+	local enable, def_rate = IS_ENABLE_TO_ENGARVE(item_obj, 0)	
+	
 	if enable == false then
 		ui.SysMsg(ClMsg('IMPOSSIBLE_ITEM'))
 		return
@@ -3981,7 +3983,7 @@ function GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
 			local isGemRemoveCare = IS_GEM_EXTRACT_FREE_CHECK(pc)
 
 			local free_gem = nil
-			for optionIdx = 1, 4 do
+			for optionIdx = 1, MAX_RANDOM_OPTION_COUNT do
 				free_gem = GET_GEM_PROPERTY_TEXT(item_obj, optionIdx, index)
 				 if free_gem ~= nil then
 					_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(index)
@@ -4668,7 +4670,6 @@ local function GODDESS_MGR_MAKE_INHERIT_TARGET_LIST(gbox, inv_item, item_obj)
 
 			ctrlset:ShowWindow(1)
 			ctrlset:SetUserValue('ITEM_ID', cls.ClassID)
-
 			local radioBtn = GET_CHILD_RECURSIVELY(ctrlset, 'radioBtn', 'ui::CRadioButton')
 			if radioBtn ~= nil then
 				radioBtn:SetEventScript(ui.LBUTTONDOWN, 'GODDESS_MGR_INHERIT_RADIO_BTN_CLICK')
@@ -4733,7 +4734,16 @@ function GODDESS_MGR_INHERIT_REG_TARGET(frame)
 
 	local after_slot_icon = SET_SLOT_ITEM_CLS(after_slot, target_cls)
 	if after_slot_icon ~= nil then		
-		local key = 'reinforce_2' .. '/' .. tostring(reinf_value)
+		local key = 'copy_prop:Reinforce_2' .. '/' .. tostring(reinf_value) .. ';'
+		for i = 1, 10 do
+			local name = 'EnchantSkillName_' .. i
+			local name1 = 'EnchantSkillLevel_' .. i
+			if TryGetProp(item_obj, name, 'None') ~= 'None' then
+				key = key .. name .. '/' .. TryGetProp(item_obj, name, 'None') .. ';'
+				key = key .. name1 .. '/' .. TryGetProp(item_obj, name1, 0) .. ';'
+			end
+		end
+		
 		after_slot_icon:SetTooltipStrArg(key)
 	end
 

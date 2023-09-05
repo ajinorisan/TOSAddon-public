@@ -404,15 +404,14 @@ end
 function CRAFT_HAVE_MATERIAL(recipecls)
     local duplicationCnt = 1;
 	for i = 1 , 5 do
-		if recipecls["Item_"..i.."_1"] ~= "None" then
-			
+		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then			
 			local recipeItemCnt, invItemCnt = GET_RECIPE_MATERIAL_INFO(recipecls, i, GetMyPCObject());            
 			if math.is_larger_than(tostring(recipeItemCnt), tostring(invItemCnt)) == 1 then
 				return 0;
 			end
 			
 			if i > 1 and i < 5 then
-			    if recipecls["Item_"..i.."_1"] == recipecls["Item_"..(i + 1).."_1"] then
+			    if TryGetProp(recipecls, "Item_"..i.."_1", 'None') == TryGetProp(recipecls, "Item_"..(i + 1).."_1", 'None') then
 			        duplicationCnt = duplicationCnt + 1;
 			        if duplicationCnt > invItemCnt then
 			            return 0;
@@ -674,7 +673,7 @@ local function SET_REQITEM_CERTAIN_NUMBER()
 	end
 
 	for i = 1 , 5 do
-		if recipecls["Item_"..i.."_1"] ~= "None" then
+		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then
 			local recipeItemCnt, invItemCnt, dragRecipeItem, invItem, recipeItemLv, invItemlist  = GET_RECIPE_MATERIAL_INFO(recipecls, i, GetMyPCObject());
 			if nil ~= invItemlist then
 				for j = 0, recipeItemCnt - 1 do
@@ -1420,7 +1419,7 @@ function CRAFT_MAKE_DETAIL_REQITEMS(ctrlset)
 	local itemHeight = ui.GetControlSetAttribute(g_craftRecipe_detail_item, 'height');
 
 	for i = 1 , 5 do
-		if recipecls["Item_"..i.."_1"] ~= "None" then
+		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then
 			local recipeItemCnt, invItemCnt, dragRecipeItem, invItem, recipeItemLv, invItemlist  = GET_RECIPE_MATERIAL_INFO(recipecls, i, GetMyPCObject());
 			if invItemlist ~= nil then -- ?щ즺 ?꾩씠?쒖씠 鍮꾩뒪?앺삎?대㈃ ?쇰줈 ?⑤떎
 				for j = 0, recipeItemCnt - 1 do
@@ -1531,7 +1530,7 @@ function ITMCRAFT_BUTTON_UP(ctrl)
 	end
 
 	for i = 1 , 5 do
-		if recipecls["Item_"..i.."_1"] ~= "None" then
+		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then
 			local recipeItemCnt, invItemCnt, dragRecipeItem, invItem, recipeItemLv, invItemlist  = GET_RECIPE_MATERIAL_INFO(recipecls, i, GetMyPCObject());
 			if nil ~= invItemlist then
 				for j = 0, recipeItemCnt - 1 do
@@ -1962,13 +1961,9 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
         propName = 'MISC_PVP_MINE2'
     elseif itemName == 'misc_silver_gacha_mileage' then
 		propName = 'Mileage_SilverGacha'
-	elseif itemName == 'dummy_GabijaCertificate' then
-		propName = 'GabijaCertificate' -- ?ъ떊??利앺몴(媛鍮꾩빞) ?곸젏
-	elseif itemName == 'dummy_VakarineCertificate' then
-		propName = 'VakarineCertificate' -- ?ъ떊??利앺몴(諛붿뭅由щ꽕) ?곸젏
-	elseif itemName == 'dummy_TeamBattleCoin' then
-		propName = 'TeamBattleCoin' -- ?諛곗퐫??
-	elseif itemName == 'Tos_Event_Coin' then --?대깽??肄붿씤??
+	elseif string.find(itemName, 'dummy_') ~= nil then
+		propName = StringSplit(itemName, '_')[2]	
+	elseif itemName == 'Tos_Event_Coin' then --이벤트 코인임
 		propName = 'EVENT_TOS_WHOLE_TOTAL_COIN'
 	elseif itemName == 'Event_2304_ARBOR_DAY_coin' then --?대깽??肄붿씤??
 		CRAFT_ITEM_ALL(itemSet, btn)
@@ -2270,7 +2265,7 @@ function MAKE_DETAIL_REQITEMS(ctrlset)
 
 	local itemHeight = ui.GetControlSetAttribute("journalRecipe_detail_item", 'height');
 	for i = 1 , 5 do
-		if recipecls["Item_"..i.."_1"] ~= "None" then
+		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then
 			local recipeItemCnt, invItemCnt, dragRecipeItem = GET_RECIPE_MATERIAL_INFO(recipecls, i, GetMyPCObject());
 
 			local itemSet = ctrlset:CreateOrGetControlSet("journalRecipe_detail_item", "ITEM_" .. i, x, y);
@@ -2397,8 +2392,8 @@ end
 function JOURNAL_HAVE_MATERIAL(recipecls)
 
 	for i = 1 , 5 do
-		if recipecls["Item_"..i.."_1"] ~= "None" then
-			local dragRecipeItem = GetClass('Item', recipecls["Item_"..i.."_1"]);
+		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then
+			local dragRecipeItem = GetClass('Item', TryGetProp(recipecls, "Item_"..i.."_1", 'None'));
 			local invItem = session.GetInvItemByType(dragRecipeItem.ClassID);
 			if invItem ~= nil then
 				return 1;

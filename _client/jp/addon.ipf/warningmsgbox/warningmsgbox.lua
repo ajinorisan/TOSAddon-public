@@ -556,7 +556,7 @@ function _WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM_NO(parent,ctrl,argStr,argNum)
 end
 
 -- 아이템 버리기, 아이템 파괴
-function WARNINGMSGBOX_FRAME_OPEN_DELETE_ITEM(clmsg, yesScp, noScp, itemGuid)	
+function WARNINGMSGBOX_FRAME_OPEN_DELETE_ITEM(clmsg, yesScp, noScp, itemGuid)		
 	ui.OpenFrame("warningmsgbox")
 	
 	local frame = ui.GetFrame('warningmsgbox')
@@ -587,6 +587,10 @@ function WARNINGMSGBOX_FRAME_OPEN_DELETE_ITEM(clmsg, yesScp, noScp, itemGuid)
 			local_item_grade = cls.ItemGrade
 			if cls.StringArg == "Growth_Item_Legend" then
 				local_item_grade = 0
+			end
+			
+			if TryGetProp(cls, 'GroupName', 'None') == 'Gem_High_Color' then
+				local_item_grade = 3
 			end
         else
             local_item_grade = 0

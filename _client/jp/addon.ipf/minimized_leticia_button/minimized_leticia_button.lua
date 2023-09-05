@@ -8,7 +8,13 @@ end
 --- 클라에서 레티샤 날짜 가져오기
 function C_get_leticia_start_and_end_time()
 	local startTime = TryGetProp(GetClassByType('leticia_date', 1), "StartTime", "None")
-    local endTime = TryGetProp(GetClassByType('leticia_date', 1), "EndTime", "None")
+	local endTime = TryGetProp(GetClassByType('leticia_date', 1), "EndTime", "None")
+	
+	if config.GetServiceNation() == 'PAPAYA' then
+		startTime = TryGetProp(GetClassByType('leticia_date', 10), "StartTime", "None")
+		endTime = TryGetProp(GetClassByType('leticia_date', 10), "EndTime", "None")
+	end
+
 	return startTime, endTime
 end
 

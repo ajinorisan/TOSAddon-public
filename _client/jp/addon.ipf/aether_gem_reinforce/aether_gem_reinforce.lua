@@ -5,9 +5,10 @@ function AETHER_GEM_REINFORCE_ON_INIT(addon, frame)
 	addon:RegisterMsg("AETHER_GEM_REINFORCE_TX_FAIL_THEN_RESET_UI","ON_AETHER_GEM_REINFORCE_TX_FAIL_THEN_RESET_UI")
 end
 
-function ON_OPEN_DLG_AETHER_GEM_REINFORCE(frame)
+function ON_OPEN_DLG_AETHER_GEM_REINFORCE(frame)	
 	frame:ShowWindow(1);
 	AETHER_GEM_REINFORCE_INIT_VISIBLE(frame);
+	DRAW_REMAIN_REINFORCE_COUNT()
 end
 
 function AETHER_GEM_REINFORCE_OPEN(frame)
@@ -442,7 +443,7 @@ function AETHER_GEM_REINFORCE_CLEAR_STAGE_UPDATE(frame)
 end
 
 -- do reinforce button
-function AETHER_GEM_REINFORCE_DO_REINFORCE_BTN_UPDATE(frame)
+function AETHER_GEM_REINFORCE_DO_REINFORCE_BTN_UPDATE(frame)	
 	if frame == nil then return; end
 	local do_reinforce = GET_CHILD_RECURSIVELY(frame, "do_reinforce");
 	local reinforce_Cnt_Remain = GET_CHILD_RECURSIVELY(frame, "reinforce_Cnt_Remain");
@@ -452,12 +453,30 @@ function AETHER_GEM_REINFORCE_DO_REINFORCE_BTN_UPDATE(frame)
 		local max_count = frame:GetUserIValue("gem_reinforce_max_count");
 		do_reinforce:SetTextByKey("max_count", max_count);
 		-- reinforce_Cnt_Remain set -- 
+		DRAW_REMAIN_REINFORCE_COUNT()
+	end
+end
+
+function DRAW_REMAIN_REINFORCE_COUNT()
+	local frame = ui.GetFrame('aether_gem_reinforce')	
+	local reinforce_Cnt_Remain = GET_CHILD_RECURSIVELY(frame, "reinforce_Cnt_Remain");
+	if reinforce_Cnt_Remain ~= nil then				
 		local base_cnt = get_aether_gem_reinforce_count();
-		local reinforce_cnt_480 = get_aether_gem_reinforce_count_480();
-		local reinforce_cnt_460 = get_aether_gem_reinforce_count_460();
-		reinforce_Cnt_Remain:SetTextByKey("value1",base_cnt);
-		reinforce_Cnt_Remain:SetTextByKey("value2",reinforce_cnt_480);
-		reinforce_Cnt_Remain:SetTextByKey("value3",reinforce_cnt_460);
+		local msg = ScpArgMsg('aether_gem_base_count', 'count', base_cnt)
+		local line = 0
+		for i = 460, PC_MAX_LEVEL, 20 do
+			local count = get_aether_gem_reinforce_count_by_level(nil, i)
+			if count > 0 then
+				msg = msg .. '{nl}' .. ScpArgMsg('aether_gem_upgrade_token', 'level', i, 'count', count)
+				line = line + 1
+			end
+		end
+		if line > 3 then
+			reinforce_Cnt_Remain:Resize(200, 200)
+		else
+			reinforce_Cnt_Remain:Resize(200, 100)
+		end
+		reinforce_Cnt_Remain:SetText(msg)
 	end
 end
 

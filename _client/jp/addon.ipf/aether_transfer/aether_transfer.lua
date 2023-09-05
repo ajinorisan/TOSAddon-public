@@ -17,8 +17,7 @@ end
 --Called from When you open UI
 function AETHER_TRANSFER_OPEN(frame)
 	ui.OpenFrame('inventory')
-	local frame = ui.GetFrame('aether_transfer')
-	INVENTORY_SET_CUSTOM_RBTNDOWN('AETHER_TRANSFER_PRESET_SLOT_INV_RBTN')
+	local frame = ui.GetFrame('aether_transfer')	
 	AETHER_TRANSFER_RESET_ALL_SLOT(frame)
 end
 
@@ -57,32 +56,33 @@ function AETHER_TRANSFER_REMOVE_SLOT_RBTN(parent,ctrl)
 end
 
 -- Drag & Drop Aether
-function AETHER_TRANSFER_SET_SLOT_DROP(parent, ctrl)
+function AETHER_TRANSFER_SET_SLOT_DROP(parent, ctrl)	
 	if ui.CheckHoldedUI() == true then return; end
 	local liftIcon 	= ui.GetLiftIcon();
 	local liftSlot  = liftIcon:GetParent();
 	local iconInfo  = liftIcon:GetInfo();
-	local guid 	 	= iconInfo:GetIESID()	
+	local guid 	 	= iconInfo:GetIESID()		
 	local inv_item  = session.GetInvItemByGuid(guid)
 	local item_obj 	= GetIES(inv_item:GetObject())
-	AETHER_TRANSFER_PRESET_SLOT_INV_RBTN(item_obj,liftSlot,guid)
+	AETHER_TRANSFER_PRESET_SLOT_INV_RBTN_LEFT(item_obj,liftSlot,guid)
+end
+
+function AETHER_TRANSFER_SET_SLOT_DROP2(parent, slot, a, b, c)	
+	if ui.CheckHoldedUI() == true then return; end
+	local liftIcon 	= ui.GetLiftIcon();	
+	local liftSlot  = liftIcon:GetParent();
+	local iconInfo  = liftIcon:GetInfo();
+	local guid 	 	= iconInfo:GetIESID()		
+	local inv_item  = session.GetInvItemByGuid(guid)
+	local item_obj 	= GetIES(inv_item:GetObject())	
+	AETHER_TRANSFER_PRESET_SLOT_INV_RBTN_RIGHT(item_obj,liftSlot,guid)
 end
 
 -- The First Process that you trying to transfer 
-function AETHER_TRANSFER_PRESET_SLOT_INV_RBTN(item_obj, slot, argStr)
+function AETHER_TRANSFER_PRESET_SLOT_INV_RBTN_LEFT(item_obj, slot, argStr)	
 	local frame = ui.GetFrame("aether_transfer")
 	if frame == nil then return end
 	
-	if GETMYPCLEVEL() < PC_MAX_LEVEL then 
-		ui.SysMsg(ClMsg('NeedMorePcLevel'))
-		return 
-	end
-
-	if slot:IsSelected()==1 then slot:Select(0) end
-	
-	local fromFrame = slot:GetTopParentFrame();
-	if fromFrame:GetName() ~= "inventory" then return end
-
 	local group_name = TryGetProp(item_obj,"GroupName","None")
 	if group_name=="None" then return elseif group_name~="Gem_High_Color" then return end
 	
@@ -100,28 +100,69 @@ function AETHER_TRANSFER_PRESET_SLOT_INV_RBTN(item_obj, slot, argStr)
 		return 
 	end
 	
-	local slot_left  = GET_CHILD_RECURSIVELY(frame,"slot_left")
-	local slot_right = GET_CHILD_RECURSIVELY(frame,"slot_right")
+	if is_max_aether_gem_level(item_obj) == false then 
+		ui.SysMsg(ClMsg('invalidAetherGem'))
+		return
+	end
+
+	if numberArg == PC_MAX_LEVEL then
+		ui.SysMsg(ClMsg('NotExistNextGradeAetherGem'))
+		return
+	end
+
+	local slot_left  = GET_CHILD_RECURSIVELY(frame,"slot_left")	
 	local currLv 	 = get_current_aether_gem_level(item_obj)
 	
-	if numberArg==460 then
-		if is_max_aether_gem_level(item_obj) then 
-			--SETTING LEFT SLOT 
-			AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"left")
-		else
-			ui.SysMsg(ClMsg('invalidAetherGem'))
-			return
-		end
-	elseif numberArg==480 then
-		if currLv < 120 then 
-			--SETTING RIGHT SLOT
-			AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"right")
-			
-		elseif currLv >= 120 then
-			ui.SysMsg(ClMsg('aleadyHighLevel'))
-			return
-		end
+	AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"left")
+
+	AETHER_TRANSFER_UPDATE_IS_READY(frame)
+end
+
+function AETHER_TRANSFER_PRESET_SLOT_INV_RBTN_RIGHT(item_obj, slot, argStr)	
+	local frame = ui.GetFrame("aether_transfer")
+	if frame == nil then return end
+		
+	local group_name = TryGetProp(item_obj,"GroupName","None")
+	if group_name=="None" then return elseif group_name~="Gem_High_Color" then return end
+	
+	local numberArg =  TryGetProp(item_obj,"NumberArg1",0)
+	if numberArg==0 then return end
+	
+	local item_icon = slot:GetIcon()
+	local icon_info = item_icon:GetInfo()
+	local guid 	 	= icon_info:GetIESID()	
+	local inv_item 	= session.GetInvItemByGuid(guid)
+	local item_obj  = GetIES(inv_item:GetObject())
+
+	if inv_item.isLockState ==true then
+		ui.SysMsg(ClMsg('MaterialItemIsLock'))
+		return 
 	end
+	
+	local slot_left  = GET_CHILD_RECURSIVELY(frame,"slot_left")
+	local left_guid = slot_left:GetUserValue("SLOT_GUID_LEFT")
+	
+	if left_guid == 'None' then
+		ui.SysMsg(ClMsg('FirstRegLowGradeAetherGem'))
+		return
+	end
+
+	local left_inv_item = session.GetInvItemByGuid(left_guid)
+	if left_inv_item == nil then
+		return
+	end
+	
+	local left_gem = GetIES(left_inv_item:GetObject())
+
+	local flag, msg = is_valid_transfer_aether_gem(left_gem, item_obj)
+	if flag == false then
+		if msg ~= 'None' then
+			ui.SysMsg(ClMsg(msg))
+		end
+		return
+	end
+
+	AETHER_TRANSFER_SET_SLOT(frame,inv_item,argStr,"right")
 
 	AETHER_TRANSFER_UPDATE_IS_READY(frame)
 end
@@ -211,6 +252,9 @@ function AETHER_TRANSFER_EXEC(parent)
 	session.ResetItemList()
 	local guid_left,guid_right,to_name,from_name = AETHER_TRANSFER_UPDATE_IS_READY(frame)
 	local right_inv   = session.GetInvItemByGuid(guid_right)
+	if right_inv == nil then
+		return
+	end
 	local right_obj = GetIES(right_inv:GetObject())
 	local obj_lv = TryGetProp(right_obj,"AetherGemLevel",0)
 
@@ -298,7 +342,7 @@ function UNLOCK_AETHER_TRANSFER_UI_CONTROL()
 	GET_CHILD_RECURSIVELY(frame,"reset_all_btn"):SetEnable(1)
 	
 	SetCraftState(0)
-	INVENTORY_SET_CUSTOM_RBTNDOWN('AETHER_TRANSFER_PRESET_SLOT_INV_RBTN')
+	--INVENTORY_SET_CUSTOM_RBTNDOWN('AETHER_TRANSFER_PRESET_SLOT_INV_RBTN')
 	AETHER_TRANSFER_RESET_ALL_SLOT(frame)
 end
 

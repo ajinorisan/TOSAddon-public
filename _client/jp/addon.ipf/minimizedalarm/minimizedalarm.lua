@@ -5,6 +5,11 @@ function MINIMIZEDALARM_ON_INIT(addon, frame)
 end
 
 function ON_PVP_PLAYING_UPDATE(frame, msg, argStr,argNum)
+	if config.GetServiceNation() == 'PAPAYA' then
+		frame:ShowWindow(0)
+		return
+	end
+
 	if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
 		frame:ShowWindow(0)
 		return

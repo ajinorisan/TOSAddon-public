@@ -210,7 +210,7 @@
 		<groupbox name="boruta_box" rect="0 0 1070 500" margin="0 100 0 0" layout_gravity="center top" draw="false"/>
 		<groupbox name="ranking_gb" parent="boruta_box" rect="0 0 552 500" margin="0 0 0 0" layout_gravity="left top" skin="" draw="false" hittestbox="false" scrollbar="false"/>
 		<tab name="eventtype_tab" parent="ranking_gb" rect="0 0 500 50" margin="52 6 0 0" layout_gravity="left top" LBtnDownScp="BORUTA_RANKING_DATA_REQUEST" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_3" fixwidth="true" itemspc="2" oversound="button_cursor_over_2" skin="tab2"/>
-		<tabitem name="event_tab1" parent="eventtype_tab" caption="{@st66b}보루타{/}" width="89" layout_gravity="left top" texttooltip="보루타 봉쇄전"/>
+		<tabitem name="event_tab1" parent="eventtype_tab" caption="{@st66b}타락한 드라군{/}" width="89" layout_gravity="left top" texttooltip="타락한 드라군 봉쇄전"/>
 		<tabitem name="event_tab2" parent="eventtype_tab" caption="{@st66b}길티네{/}" width="89" layout_gravity="left top" texttooltip="길티네 봉쇄전"/>
 		<tabitem name="event_tab3" parent="eventtype_tab" caption="{@st66b}바우바스{/}" width="89" layout_gravity="left top" texttooltip="바우바스 봉쇄전"/>
 		<groupbox name="ranking" parent="ranking_gb" rect="0 0 487 434" margin="52 58 0 0" layout_gravity="left top" skin="test_frame_midle" draw="true" hittestbox="false"/>

@@ -32,6 +32,18 @@ function SHOW_REMAIN_BANNER_TIME(ctrl)
 	local banner = GetClassByIndex('event_banner', curIndex)
 	local remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.EndTimeYYYYMM, banner.EndTimeDDHHMM)	
 	local remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.ExchangeTimeYYYYMM, banner.ExchangeTimeDDHHMM)
+	
+	local end_date_time = TryGetProp(banner, 'EndDateTime', 'None')	
+	local end_ret_time = nil
+	if end_date_time ~= 'None' then				
+		local lua_time = date_time.get_lua_datetime_from_str(end_date_time)
+		end_ret_time = os.date('*t', lua_time)
+		
+		local tail = (string.format('%02d%02d%02d', end_ret_time['day'], end_ret_time['hour'], end_ret_time['min']))
+		remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(string.format('%04d%02d', end_ret_time['year'], end_ret_time['month']), tail)
+		remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(string.format('%04d%02d', end_ret_time['year'], end_ret_time['month']), tail)
+	end
+
 	local flag = 0;
 	if remainEndTime == nil or 0 > remainEndTime then
 		
@@ -320,7 +332,25 @@ function UPDATE_EVENTBANNER_UI(frame)
 		
 				local bannerFlag = 0
 				--endTime 이 있어야 exchange 부르고, endtime 있는데 exchange없으면 endtime 만 지나도 안보이게하고
-				local remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.StartTimeYYYYMM, banner.StartTimeDDHHMM)
+				
+				local use_start_date_time = false
+
+				local remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.StartTimeYYYYMM, banner.StartTimeDDHHMM)				
+				local start_date_time = TryGetProp(banner, 'StartDateTime', 'None')
+				local end_date_time = TryGetProp(banner, 'EndDateTime', 'None')
+				
+				local start_ret_time = nil
+				local end_ret_time = nil
+				if start_date_time ~= 'None' and end_date_time ~= 'None' then
+					use_start_date_time = true
+					local lua_time = date_time.get_lua_datetime_from_str(start_date_time)
+					start_ret_time = os.date('*t', lua_time)
+					lua_time = date_time.get_lua_datetime_from_str(end_date_time)
+					end_ret_time = os.date('*t', lua_time)
+					
+					local tail = (string.format('%02d%02d%02d', start_ret_time['day'], start_ret_time['hour'], start_ret_time['min']))
+					remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(string.format('%04d%02d', start_ret_time['year'], start_ret_time['month']), tail)					
+				end
 				
 				--남은 날짜 삭제 기능
 				if TryGetProp(banner, 'UserCommand1', 'None')  == "time_del" then
@@ -329,10 +359,25 @@ function UPDATE_EVENTBANNER_UI(frame)
 				end
 				
 				if remainStartTime ~= nil and remainStartTime < 0 then
-					local remainNewTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.NewTimeYYYYMM, banner.NewTimeDDHHMM)
-					local remainDeadlineTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.DeadlineTimeYYYYMM, banner.DeadlineTimeDDHHMM)
-					local remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.EndTimeYYYYMM, banner.EndTimeDDHHMM)
-					local remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.ExchangeTimeYYYYMM, banner.ExchangeTimeDDHHMM)
+					local remainNewTime = nil
+					local remainDeadlineTime = nil
+					local remainEndTime = nil
+					local remainExchangeTime = nil
+
+					if use_start_date_time == false then
+						remainNewTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.NewTimeYYYYMM, banner.NewTimeDDHHMM)
+						remainDeadlineTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.DeadlineTimeYYYYMM, banner.DeadlineTimeDDHHMM)
+						remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.EndTimeYYYYMM, banner.EndTimeDDHHMM)
+						remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.ExchangeTimeYYYYMM, banner.ExchangeTimeDDHHMM)
+					else
+						remainNewTime = CHECK_EVENTBANNER_REMAIN_TIME(string.format('%04d%02d', start_ret_time['year'], start_ret_time['month']), 
+						string.format('%02d%02d%02d', start_ret_time['day'], start_ret_time['hour'], start_ret_time['min']))
+						remainDeadlineTime = CHECK_EVENTBANNER_REMAIN_TIME(string.format('%04d%02d', end_ret_time['year'], end_ret_time['month']), 
+						string.format('%02d%02d%02d', end_ret_time['day'], end_ret_time['hour'], end_ret_time['min']))
+						remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(string.format('%04d%02d', end_ret_time['year'], end_ret_time['month']), 
+						string.format('%02d%02d%02d', end_ret_time['day'], end_ret_time['hour'], end_ret_time['min']))
+						remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(0, 0)
+					end
 		
 					if remainNewTime ~= nil and remainNewTime >= 0 then
 						new_ribbon : SetVisible(1);

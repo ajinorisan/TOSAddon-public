@@ -34,7 +34,7 @@
 		<button name="dedication_okbtn" parent="dedication_btn_gb" rect="0 0 160 60" margin="0 10 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}확인" LBtnUpScp="GODPROTECTION_DEDICATION_INIT" oversound="button_cursor_over_3" clicksound="button_click_big"/>
 		<!-- 연속 봉헌 -->
 		<groupbox name="auto_gb" rect="0 0 300 300" margin="450 640 0 0" layout_gravity="center top" hittest="true" scroll="false" draw="false"/>
-		<edit name="multiple_count_edit" parent="auto_gb" rect="0 0 100 32" margin="0 35 0 0" layout_gravity="center top" textalign="center center" fontname="white_18_ol" numbermode="true" skin="test_weight_skin" OffsetForDraw="0 -1" minnumber="1" maxnumber="10" typingscp="GODPROTECTION_MULTI_COUNT_TYPING"/>
+		<edit name="multiple_count_edit" parent="auto_gb" rect="0 0 100 32" margin="0 35 0 0" layout_gravity="center top" textalign="center center" fontname="white_18_ol" numbermode="true" skin="test_weight_skin" OffsetForDraw="0 -1" minnumber="1" maxnumber="20" typingscp="GODPROTECTION_MULTI_COUNT_TYPING"/>
 		<richtext name="multiple_count_cross" parent="multiple_count_edit" rect="0 0 32 32" margin="-18 8 0 0" layout_gravity="center top" fontname="white_14_ol" caption="X"/>
 		<button name="spin_multiple_count_upBtn" parent="auto_gb" stretch="true" rect="0 0 33 16" margin="-65 35 0 0" layout_gravity="center top" image="test_up_w_btn" oversound="button_over" LBtnUpScp="GODPROTECTION_MULTI_COUNT_UP"/>
 		<button name="spin_multiple_count_downBtn" parent="auto_gb" stretch="true" rect="0 0 33 16" margin="-65 50 0 0" layout_gravity="center top" image="test_down_w_btn" oversound="button_over" LBtnUpScp="GODPROTECTION_MULTI_COUNT_DOWN"/>

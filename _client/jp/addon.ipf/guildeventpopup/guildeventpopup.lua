@@ -10,7 +10,7 @@
 	GUILD_EVENT_TABLE = nil;
 end
 
-function ON_GUILD_EVENT_WAITING_LOCATION(frame, msg, argstr, argnum)
+function ON_GUILD_EVENT_WAITING_LOCATION(frame, msg, argstr, argnum)	
 	local posList = StringSplit(argstr, ";");
 	if #posList ~= 3 then
 		return;
@@ -45,7 +45,7 @@ function INIT_GUILD_EVENT_TABLE(eventID, timeStr, recruitingSec, maxPlayerCnt)
 	 end;
 end
 
-function ON_GUILD_EVENT_RECRUITING_START(frame, msg, argstr, argnum)
+function ON_GUILD_EVENT_RECRUITING_START(frame, msg, argstr, argnum)	
 	local btn_join = GET_CHILD(frame, "btn_join");
 	local btn_close = GET_CHILD(frame, "btn_close");
 	local groupbox_1 = GET_CHILD(frame, "groupbox_1");
@@ -54,6 +54,11 @@ function ON_GUILD_EVENT_RECRUITING_START(frame, msg, argstr, argnum)
 	local eventCls = GetClassByType("GuildEvent", argnum);
 	if eventCls == nil then
 		return;
+	else
+		local pc = GetMyPCObject()
+		if IS_ABLE_TO_JOIN_GUILD_EVENT(pc, eventCls) == false then
+			return
+		end
 	end
 
 	frame:SetUserValue("eventID", argnum);

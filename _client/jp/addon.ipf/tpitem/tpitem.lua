@@ -1702,6 +1702,8 @@ function TPITEM_DRAW_ITEM_DETAIL(obj, itemobj, itemcset)
 	local isHot_mark = GET_CHILD_RECURSIVELY(itemcset,"isHot_mark");
 	local isEvent_mark = GET_CHILD_RECURSIVELY(itemcset,"isEvent_mark");
     local isSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isSale_mark");
+	local isCubeSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isCubeSale_mark");
+	
     isSale_mark:SetVisible(0);
 
 	local itemName = itemobj.Name;
@@ -1727,7 +1729,7 @@ function TPITEM_DRAW_ITEM_DETAIL(obj, itemobj, itemcset)
 
 	-- 구매 여부와 착용 여부를 검사한다.
 	itemcset:SetUserValue("TPITEM_CLSID", tpitem_clsID);
-	TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_mark, tpitem_clsID, isSale_mark);
+	TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_mark, tpitem_clsID, isSale_mark,isCubeSale_mark);
 
 	if IS_TIME_SALE_ITEM(tpitem_clsID) == true then
 		local curTime = geTime.GetServerSystemTime()
@@ -2144,19 +2146,21 @@ function _TPSHOP_TPITEM_SET_SPECIAL()
 		local isNew_mark = GET_CHILD_RECURSIVELY(itemcset,"isNew_mark");
 		local isLimit_mark = GET_CHILD_RECURSIVELY(itemcset,"isLimit_mark");
 		local isSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isSale_mark");
+		local isCubeSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isCubeSale_mark");
 
-		TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_mark, classID, isSale_mark);
+		TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_mark, classID, isSale_mark,isCubeSale_mark);
 	end	
 	
 	DebounceScript("TPSHOP_CREATE_TOP5_CTRLSET", 1);
 end
 
-function TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_mark, classID, isSale_mark)
+function TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_mark, classID, isSale_mark,isCubeSale_mark)
 	local founded_info = session.ui.Getlistitem_TPITEM_ADDITIONAL_INFO_Map_byID(classID);
 	local bisNew = 0;
 	local bisHot = 0;
 	local bisEvent = 0;
 	local bisLimit = 0;
+
 	if IS_TIME_SALE_ITEM(classID) == true then
 	 	bisLimit = 1;
 	elseif TPSHOP_ISNEW_CHECK(classID) == true then
@@ -2182,7 +2186,7 @@ function TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_ma
 	isLimit_mark:SetVisible(bisLimit);
 
 	local bisSale = 0
-	
+	local cubeSale = 0
 	local id_space = 'TPitem'
 	if IS_SEASON_SERVER() == 'YES' then
 		id_space = 'TPitem_SEASON'
@@ -2194,7 +2198,13 @@ function TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_ma
 		bisSale = 1
 	end
 
+	if TryGetProp(GetClassByType(id_space, classID), 'MarkType', 'None') == 'Sale' then
+		bisSale = 0
+		cubeSale = 1
+	end
+
 	isSale_mark:SetVisible(bisSale)
+	isCubeSale_mark:SetVisible(cubeSale)
 end
 
 function TPSHOP_CREATE_TOP5_CTRLSET()
@@ -4018,7 +4028,60 @@ function _TPSHOP_BANNER(parent, control, argStr, argNum)
 				end
 			end	
 		end
-		
+	elseif config.GetServiceNation() == "GLOBAL_KOR" then
+		local list, cnt = GetClassList('tpitem_banner')
+		for i = 0, cnt - 1 do
+			local banner_info = GetClassByIndexFromList(list, i)			
+			if banner_info ~= nil and TryGetProp(banner_info, 'Category', 'None') == 'GLOBAL_KOR' then
+				local s = TryGetProp(banner_info, 'start', 'None')
+				local e = TryGetProp(banner_info, 'end', 'None')
+				if s ~= 'None' and e ~= 'None'then
+					if date_time.is_between_time(s, e) == true then
+						banner:SetImage(TryGetProp(banner_info, 'ImagePath', 'None'))
+						banner:SetUserValue("URL_BANNER", TryGetProp(banner_info, 'url', 'None'));
+						banner:SetUserValue('first_open', 1)
+						banner:SetVisible(1)			
+						break
+					end
+				end
+			end	
+		end
+	elseif config.GetServiceNation() == "GLOBAL" then
+		local list, cnt = GetClassList('tpitem_banner')
+		for i = 0, cnt - 1 do
+			local banner_info = GetClassByIndexFromList(list, i)			
+			if banner_info ~= nil and TryGetProp(banner_info, 'Category', 'None') == 'GLOBAL' then
+				local s = TryGetProp(banner_info, 'start', 'None')
+				local e = TryGetProp(banner_info, 'end', 'None')
+				if s ~= 'None' and e ~= 'None'then
+					if date_time.is_between_time(s, e) == true then
+						banner:SetImage(TryGetProp(banner_info, 'ImagePath', 'None'))
+						banner:SetUserValue("URL_BANNER", TryGetProp(banner_info, 'url', 'None'));
+						banner:SetUserValue('first_open', 1)
+						banner:SetVisible(1)			
+						break
+					end
+				end
+			end	
+		end
+	elseif config.GetServiceNation() == "GLOBAL_JP" then
+		local list, cnt = GetClassList('tpitem_banner')
+		for i = 0, cnt - 1 do
+			local banner_info = GetClassByIndexFromList(list, i)			
+			if banner_info ~= nil and TryGetProp(banner_info, 'Category', 'None') == 'GLOBAL_JP' then
+				local s = TryGetProp(banner_info, 'start', 'None')
+				local e = TryGetProp(banner_info, 'end', 'None')
+				if s ~= 'None' and e ~= 'None'then
+					if date_time.is_between_time(s, e) == true then
+						banner:SetImage(TryGetProp(banner_info, 'ImagePath', 'None'))
+						banner:SetUserValue("URL_BANNER", TryGetProp(banner_info, 'url', 'None'));
+						banner:SetUserValue('first_open', 1)
+						banner:SetVisible(1)			
+						break
+					end
+				end
+			end	
+		end
 	else
 		local bannerInfo = session.ui.GetTPItemBannerCategoryByIndex("Right", 0);
 		if bannerInfo ~= nil then
@@ -4135,6 +4198,7 @@ function GETBANNERURL(webUrl)
 	
 	local url = config.GetBannerImgURL();	
 	local urlStr = string.format("%s%s.png", url,webUrl );
+	print(url,webUrl,urlStr)
 	return urlStr;
 end
 

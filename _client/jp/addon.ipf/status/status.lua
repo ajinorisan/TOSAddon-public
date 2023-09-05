@@ -269,7 +269,7 @@ function STATUS_ONLOAD(frame, obj, argStr, argNum)
     STATUS_TAB_CHANGE(frame);
     STATUS_INFO();
     STATUS_UPDATE_EXP_UP_BOX(frame);
-
+    OPEN_DMGSELECTOR(frame);
     pc.ReqExecuteTx('GUIDE_QUEST_OPEN_UI', frame:GetName())
 end
 
@@ -1601,6 +1601,8 @@ function GET_SPECIAL_OPTION_VALUE(pc, name)
             end
         end
     end
+
+    value = value + GetExProp(pc, name .. '_BM')
 
     if value > 0 then
         if name == 'revenge' then
@@ -3028,12 +3030,17 @@ function SELECT_HUD_SKIN(frame)
         local item_value = list_hud_skin:GetSelItemValue();
         if item_value < 0 then
             -- 스킨 제거.
-            HUD_SKIN_APPLY(frame, nil, "Default", nil)     
+            HUD_SKIN_APPLY(frame, nil, "Default", nil)    
+            addon.BroadMsg("HUD_SKIN_APPLY","Default",0);
+ 
         elseif item_value >= 0 then
             -- 등급별 스킨 적용.
             local grade_name = hud_skin.GetHudGradeNameByIndex(item_value);
             HUD_SKIN_APPLY(frame, nil, grade_name, nil);
+            addon.BroadMsg("HUD_SKIN_APPLY", grade_name,0);
         end
+        addon.BroadMsg("STAT_UPDATE", "",0);
+
     end
 end
 

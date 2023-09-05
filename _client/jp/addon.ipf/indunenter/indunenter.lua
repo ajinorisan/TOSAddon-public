@@ -377,12 +377,26 @@ function INDUNENTER_MAKE_CHALLENGE_DIVISION_HELP_TEXT(frame)
     INDUNENTER_SHOW_WINDOW_MONBOX(frame, 0);
     INDUNENTER_SHOW_WINDOW_REWARDBOX(frame, 0);
 
+    local map_help_text = GET_CHILD_RECURSIVELY(frame, "mapHelpText");        
+    if map_help_text ~= nil then
+        map_help_text:ShowWindow(0)
+        local mapHelpBox = GET_CHILD_RECURSIVELY(frame, 'mapHelpBox')
+        mapHelpBox:ShowWindow(0)
+    end
+
+    for i = 1, 7 do
+        local map_text = GET_CHILD_RECURSIVELY(frame, "mapText" .. i);
+        if map_text ~= nil then
+            map_text:ShowWindow(0)
+        end        
+    end
+
     local indun_cls = GetClass("contents_info", "ChallengeMode_HardMode");
     if indun_cls == nil then return; end
 
     local map_list = StringSplit(TryGetProp(indun_cls, "StartMap", ""), '/');
     if map_list ~= nil then
-        local map_help_text = GET_CHILD_RECURSIVELY(frame, "mapHelpText");
+        local map_help_text = GET_CHILD_RECURSIVELY(frame, "mapHelpText");        
         map_help_text:SetTextByKey("text", ClMsg("challenge_auto_division_mode_day_help_text"));
         for i = 1, 3 do
             local map_text = GET_CHILD_RECURSIVELY(frame, "mapText" .. i);
@@ -396,38 +410,6 @@ function INDUNENTER_MAKE_CHALLENGE_DIVISION_HELP_TEXT(frame)
             local map_text = GET_CHILD_RECURSIVELY(frame, "mapText" .. i);
             map_text:ShowWindow(0)
         end
-        
-        -- for i = 1, 7 do
-            
-        --     if map_text ~= nil then
-        --         local map = map_list[i];
-        --         if map ~= nil then
-        --             local map_cls = GetClass("Map", map);
-        --             if map_cls ~= nil then
-        --                 local name = map_cls.Name;
-        --                 local cl_msg = "challenge_auto_division_mode_day_"..i.."{mapName}";
-        --                 local text = ScpArgMsg(cl_msg, "mapName", name);
-        --                 map_text:SetText(text);
-        --                 if IS_SEASON_SERVER() == 'YES' then
-        --                     map_text:ShowWindow(0)
-        --                 end
-        --             end
-        --         else
-        --             if i == 7 then
-        --                 if IS_SEASON_SERVER() ~= 'YES' then                 
-                            
-        --                     map_text:SetText(ClMsg("challenge_auto_division_mode_day_"..i));
-        --                 else
-        --                     map_text:SetTextFixWidth(0)
-	    --                     map_text:EnableTextOmitByWidth(0)
-        --                     map_text:Resize(350, map_text:GetHeight())
-        --                     map_text:SetText(ClMsg("challenge_Mode_Auto_Disable_Portal_Season"));
-        --                 end
-                        
-        --             end
-        --         end
-        --     end
-        -- end
     end
 end
 

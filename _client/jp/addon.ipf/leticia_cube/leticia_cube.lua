@@ -3,12 +3,15 @@
 end
 
 -- 이제 TWN 만 레티샤가 다름
-function LETICIA_CUBE_OPEN(frame)
+function LETICIA_CUBE_OPEN(frame)    
     local svrNation = config.GetServiceNation()
     if svrNation ~= "TAIWAN" then
 	    local button = ui.GetFrame('minimized_leticia_button')
 	    local lua_endTime = button:GetUserIValue('lua_endTime')
         local cls = TryGetProp(GetClassByType('leticia_date', 1), "EndTime", "None")    
+        if svrNation == 'PAPAYA' then
+            cls = TryGetProp(GetClassByType('leticia_date', 10), "EndTime", "None")    
+        end
 	    local lua_endTime = date_time.get_lua_datetime_from_str(cls)
 	    local lua_now = date_time.get_lua_now_datetime()
         
@@ -200,5 +203,10 @@ function LETICIA_CUBE_ITEM_LIST_BUTTON_URL()
     if config.GetServiceNation() == "TAIWAN" then
         return
     end
-	login.OpenURL('https://treeofsavior.jp/page/newsview.php?n=1311')
+
+    if config.GetServiceNation() == 'PAPAYA' then
+        login.OpenURL('https://tos.papayaplay.com/tos.do?tp=news.view&postid=4635');
+    else
+        login.OpenURL('https://steamcommunity.com/games/2178420/announcements/detail/3694694342049057337')
+    end
 end

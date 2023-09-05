@@ -4674,7 +4674,7 @@ function SCR_CHECK_SWAPABLE_C()
 		if mGameName ~= nil then
 			local indunCls = GetClassByStrProp("Indun","MGame",mGameName)
 			local dungeonType = TryGetProp(indunCls,"DungeonType","None")
-			if mGameName == 'LEGEND_RAID_MORINGPONIA_EASY' or mGameName == 'LEGEND_RAID_GLACIER_EASY' or string.find(mGameName, "CHALLENGE_AUTO") ~= nil or string.find(mGameName, "CHALLENGE_SOLO") ~= nil or mGameName == "CHALLENGE_DIVISION_AUTO" or mGameName == "LEGEND_RAID_GILTINE_AUTO" or mGameName == "LEGEND_RAID_GILTINE_SOLO" or dungeonType == "MythicDungeon_Auto" then
+			if mGameName == 'LEGEND_RAID_MORINGPONIA_EASY' or mGameName == 'LEGEND_RAID_GLACIER_EASY' or string.find(mGameName, "CHALLENGE_AUTO") ~= nil or string.find(mGameName, "CHALLENGE_SOLO") ~= nil or string.find(mGameName, "CHALLENGE_DIVISION_AUTO") ~= nil or mGameName == "LEGEND_RAID_GILTINE_AUTO" or mGameName == "LEGEND_RAID_GILTINE_SOLO" or dungeonType == "MythicDungeon_Auto" then
 				return false;
 			end
 		end

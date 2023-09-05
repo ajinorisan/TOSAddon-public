@@ -127,7 +127,10 @@ function REROLL_ITEM_REG_TARGETITEM(frame, itemID, reroll_index, reroll_str)
 	elseif group_name == 'SHOULDER' then
 		reroll_mat_list, is_valid = shared_item_shoulder.get_reroll_cost_table(item_obj)			
 	end
-	if reroll_mat_list == nil or is_valid == false then return end
+	if reroll_mat_list == nil or is_valid == false then 
+		ui.SysMsg(ClMsg('CantRerollEquipment'))
+		return 
+	end
 
 	CLEAR_REROLL_ITEM_UI()
 
@@ -192,7 +195,9 @@ function REROLL_ITEM_MAKE_SELECT_LIST(frame, item_obj, reroll_index, reroll_str)
 			local group_name = 'RandomOptionGroup_' .. i
 			local prop_name = 'RandomOption_' .. i
 			local prop_value = 'RandomOptionValue_' .. i
-			if item_obj[prop_value] ~= 0 and item_obj[prop_name] ~= 'None' then				
+
+			local ret = shared_item_goddess_icor.is_able_to_reroll(item_obj, i)			
+			if ret == true and item_obj[prop_value] ~= 0 and item_obj[prop_name] ~= 'None' then				
 				_MAKE_REROLL_OPTION_CTRL(currentGbox_inner, item_obj, item_obj[group_name], item_obj[prop_name], item_obj[prop_value], i, i, y_adj, 1)
 			end
 		end

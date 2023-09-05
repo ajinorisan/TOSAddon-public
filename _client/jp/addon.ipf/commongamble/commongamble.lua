@@ -1,5 +1,4 @@
 local multiple_count_min = 1
-local multiple_count_max = 5
 
 function COMMONGAMBLE_ON_INIT(addon, frame)
 	addon:RegisterMsg("COMMON_GAMBLE_ITEM_GET", "ON_COMMON_GAMBLE_ITEM_GET");
@@ -66,6 +65,7 @@ function COMMON_GAMBLE_INIT(frame, gamble_type)
 			local itemCnt = itemStrlist[2];
 
 			SET_SLOT_ITEM_INFO(itemslot, itemCls, itemCnt,'{s20}{ol}{b}{ds}', -11, -10);  
+			SET_SLOT_STAR_TEXT(itemslot, itemCls)
 			itemslot:SetUserValue("ITEM_CLASSID", itemCls.ClassID);
 			itemslot:SetUserValue("ITEM_COUNT", itemCnt);
 			
@@ -129,6 +129,7 @@ function COMMON_GAMBLE_INIT(frame, gamble_type)
 			local itemCnt = itemStrlist[2];
 
 			SET_SLOT_ITEM_INFO(itemslot, itemCls, itemCnt,'{s20}{ol}{b}{ds}', -11, -10);  
+			SET_SLOT_STAR_TEXT(itemslot, itemCls)
 			itemslot:SetUserValue("ITEM_CLASSID", itemCls.ClassID);
 			itemslot:SetUserValue("ITEM_COUNT", itemCnt);
 			
@@ -185,15 +186,21 @@ function COMMON_GAMBLE_INIT(frame, gamble_type)
 	if RatioSum == 0 then
 		return
 	end
+	
+	for i = 0, 9 do
+		local slotratio = GET_CHILD(slot_gb, "slot"..i..'_ratio')		
+		slotratio:ShowWindow(0)
+	end
 
 	-- 슬롯 별 확률 표기
 	for i = 0, #Cut - 1 do
-		local slotratio = GET_CHILD(slot_gb, "slot"..i..'_ratio')		
+		local slotratio = GET_CHILD(slot_gb, "slot"..i..'_ratio')				
 		if slotratio == nil and RatioTable[i+1] == nil or RatioTable[i+1] == 0 then
 			return
-		end
+		end		
 		if slotratio ~= nil and RatioTable[i+1] ~= nil or RatioTable[i+1] ~= 0 then
-			slotratio:SetTextByKey('value'..i, '          '.. string.format('%.2f', RatioTable[i+1] / RatioSum * 100) .. '%')
+			slotratio:ShowWindow(1)
+			slotratio:SetTextByKey('value'..i, string.format('%.4f', RatioTable[i+1] / RatioSum * 100) .. '%')
 		end
 	end
 
@@ -211,8 +218,8 @@ function COMMON_GAMBLE_GET_MULTIPLE_COUNT()
 	
 	if count < multiple_count_min then
 		count = multiple_count_min
-	elseif count > multiple_count_max then
-		count = multiple_count_max
+	elseif count > WORLD_EVENT_MAX_MULTIPLE then
+		count = WORLD_EVENT_MAX_MULTIPLE
 	end
 
 
@@ -242,6 +249,7 @@ function COMMON_GAMBLE_UPDATE_CONSUME_COUNT()
 			local itemCnt = itemStrlist[2];
 
 			SET_SLOT_ITEM_INFO(itemslot, itemCls, itemCnt * multiple_count,'{s20}{ol}{b}{ds}', -11, -10);  
+			SET_SLOT_STAR_TEXT(itemslot, itemCls)
 
 			local icon = itemslot:GetIcon();
 			icon:SetDisableSlotSize(true);
@@ -385,7 +393,8 @@ function ON_COMMON_GAMBLE_ITEM_GET(frame, msg, itemid, itemCount)
         resultslot:SetUserValue("ITEM_CLASSID", itemid);
         resultslot:SetUserValue("ITEM_COUNT", itemCount);
 
-        SET_SLOT_ITEM_INFO(resultslot, itemCls, itemCount,'{s20}{ol}{b}{ds}', -7, -6);
+		SET_SLOT_ITEM_INFO(resultslot, itemCls, itemCount,'{s20}{ol}{b}{ds}', -7, -6);
+		SET_SLOT_STAR_TEXT(resultslot, itemCls)
         
 	    local RESULT_EFFECT_NAME = frame:GetUserConfig('RESULT_EFFECT');
         local RESULT_EFFECT_SCALE_S = tonumber(frame:GetUserConfig('RESULT_EFFECT_SCALE_S'));
@@ -520,8 +529,8 @@ end
 function COMMON_GAMBLE_MULTIPLE_COUNT_UPBTN_CLICK(parent, ctrl)
 	local curCnt = COMMON_GAMBLE_GET_MULTIPLE_COUNT()
 	local upCnt = curCnt + 1; 
-    if multiple_count_max < upCnt then
-        upCnt = multiple_count_max;
+    if WORLD_EVENT_MAX_MULTIPLE < upCnt then
+        upCnt = WORLD_EVENT_MAX_MULTIPLE;
 	end
     COMMON_GAMBLE_MULTIPLE_COUNT_UPDATE(upCnt);
 end
@@ -544,8 +553,8 @@ function COMMON_GAMBLE_MULTIPLE_COUNT_UPDATE(count)
 
 	if count < multiple_count_min then
 		count = multiple_count_min
-	elseif count > multiple_count_max then
-		count = multiple_count_max
+	elseif count > WORLD_EVENT_MAX_MULTIPLE then
+		count = WORLD_EVENT_MAX_MULTIPLE
 	end
 
     multiple_count_edit:SetText(count);

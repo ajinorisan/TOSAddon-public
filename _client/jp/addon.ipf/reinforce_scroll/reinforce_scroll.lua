@@ -66,15 +66,18 @@ function REINFORCE_SCROLL_EXEC_ASK_AGAIN(frame, btn)
 	end
 	
 	local before_reinforce = TryGetProp(itemObj, "Reinforce_2", 0);		
-	local after_reinforce = TryGetProp(scrollObj, "NumberArg2", 0);
-		
+	local after_reinforce = TryGetProp(scrollObj, "NumberArg2", 0);	
 	
 	local clmsg = ScpArgMsg("ReinforceScrollWarning{Before}{After}", "Before", before_reinforce, "After", after_reinforce)
+	if TryGetProp(scrollObj, 'StringArg', 'None') == 'rada_option_rescale_scroll' then
+		clmsg = ScpArgMsg("RadaOptionReScaleScrollWarning")
+	end
+
 	imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OK_SOUND"));
 	ui.MsgBox_NonNested(clmsg, frame:GetName(), "REINFORCE_SCROLL_EXEC", "None");
 end
 
-function REINFORCE_SCROLL_RESULT(isSuccess, after_reinforce)
+function REINFORCE_SCROLL_RESULT(isSuccess, after_reinforce)	
 	local frame = ui.GetFrame("reinforce_scroll");
 	if isSuccess == 1 then
 		local animpic_bg = GET_CHILD_RECURSIVELY(frame, "animpic_bg");
@@ -116,7 +119,7 @@ function REINFORCE_SCROLL_CHANGE_BUTTON()
 	button_close:ShowWindow(1);	
 end
 
-function REINFORCE_SCROLL_RESULT_UPDATE(frame, isSuccess)
+function REINFORCE_SCROLL_RESULT_UPDATE(frame, isSuccess)	
 	local slot = GET_CHILD(frame, "slot");
 	
 	local timesecond = 0;
@@ -281,7 +284,7 @@ function REINFORCE_SCROLL_LOCK_ITEM(guid)
 	INVENTORY_ON_MSG(invframe, "UPDATE_ITEM_LUCIFERI_REINFORCE_SCROLL", lockItemGuid);
 end
 
-function REINFORCE_SCROLL_UI_INIT()	
+function REINFORCE_SCROLL_UI_INIT()		
 	local frame = ui.GetFrame("reinforce_scroll");
 	local scrollGuid = frame:GetUserValue("ScrollGuid")	
 	local scrollInvItem = session.GetInvItemByGuid(scrollGuid);
@@ -301,17 +304,28 @@ function REINFORCE_SCROLL_UI_INIT()
 
 
 	local text_reinforce = GET_CHILD_RECURSIVELY(frame, "text_reinforce")
-	text_reinforce:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))
-
+	local num_2 = TryGetProp(scrollObj, 'NumberArg2', 0)
+	if TryGetProp(scrollObj, 'StringArg', 'None') ~= 'rada_option_rescale_scroll' then	
+		text_reinforce:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))
+	else
+		local text_itemtranscend = GET_CHILD_RECURSIVELY(frame, 'text_itemtranscend')
+		text_reinforce:ShowWindow(0)
+		text_itemtranscend:ShowWindow(0)
+	end
+	
 	local text_desc = GET_CHILD_RECURSIVELY(frame, "text_desc");		
-	text_desc:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))	
-	text_desc:ShowWindow(1);	
+	if TryGetProp(scrollObj, 'StringArg', 'None') ~= 'rada_option_rescale_scroll' then
+		text_desc:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))	
+		text_desc:ShowWindow(1);	
+	else
+		text_desc:ShowWindow(0);
+	end
 
 	local main_gb = GET_CHILD_RECURSIVELY(frame, "main_gb");
 	main_gb:ShowWindow(0);
 
 	local button_transcend = GET_CHILD(frame, "button_transcend");
-	button_transcend:SetTextByKey("value", ClMsg("Reinforce_2"));
+	button_transcend:SetTextByKey("value", ClMsg("GuildEmblemChange"));
 end
 
 function REINFORCE_SCROLL_UI_RESET()
@@ -396,7 +410,7 @@ function REINFORCE_SCROLL_SET_TARGET_ITEM(invframe, invItem)
 	local enable_func_str = TryGetProp(scrollObj, 'EnableFunc', 'None')
 	local enable_func = _G[enable_func_str]
 	local can, msg = enable_func(itemObj, scrollObj)
-	if can == false then		
+	if can == false then			
 		ui.SysMsg(ClMsg(msg));
 		return;
 	end
@@ -411,15 +425,20 @@ function REINFORCE_SCROLL_SET_TARGET_ITEM(invframe, invItem)
 	text_name:SetTextByKey("value", "");
 	text_name:SetTextByKey("value", itemObj.Name)
 	text_name:ShowWindow(1);
-
-	text_reinforce:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))
-
-	local lev = TryGetProp(itemObj, 'Reinforce_2', 0)	
+	
+	local lev = TryGetProp(itemObj, 'Reinforce_2', 0)		
 	local gem_lv = get_current_aether_gem_level(itemObj)
 	lev = math.max(lev, gem_lv)
 	text_itemtranscend:SetTextByKey("value", string.format("{s20}%s", lev));
 	text_itemtranscend:StopColorBlend();
 	text_itemtranscend:ShowWindow(1);
+
+	if TryGetProp(scrollObj, 'StringArg', 'None') ~= 'rada_option_rescale_scroll' then
+		text_reinforce:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))
+	else
+		text_reinforce:ShowWindow(0)
+		text_itemtranscend:ShowWindow(0)
+	end
 
 	REINFORCE_SCROLL_CANCEL();
 	REINFORCE_SCROLL_TARGET_ITEM_SLOT(slot, invItem, scrollObj.ClassID);

@@ -3449,7 +3449,7 @@ function BORUTA_RANKING_UI_UPDATE()
 		SET_TEXT(guild_info_attr, "time_value_text", "value", ClMsg("HaveNoClearInfo"))
 	end
 	--번역 문제 수정
-	if config.GetServiceNation() == 'GLOBAL' then
+	if config.GetServiceNation() == 'GLOBAL' or config.GetServiceNation() == 'PAPAYA' then
 		SET_TEXT(guild_info_attr, "time_text", "value", "Time")
     end
     
@@ -3552,8 +3552,8 @@ function BORUTA_RANKING_BOSS_UPDATE()
         SET_TEXT(boss_attr3, "attr_value_text", "value", ScpArgMsg("MonInfo_Attribute_"..monCls.Attribute))
         SET_TEXT(boss_attr4, "attr_value_text", "value", ScpArgMsg(monCls.ArmorMaterial))
         SET_TEXT(boss_attr5, "attr_value_text", "value", monCls.Level)
-        local attr5_value_text = GET_CHILD_RECURSIVELY(boss_attr6,"attr_value_text")
-        local mapClsName = "d_limestonecave_70_1_guild"
+        local attr5_value_text = GET_CHILD_RECURSIVELY(boss_attr6, "attr_value_text")
+        local mapClsName = "guild_f_remains_37_3"
         if event_type == 501 then
             mapClsName = "raid_giltine_AutoGuild"
         elseif event_type == 502 then
@@ -3708,7 +3708,7 @@ function BORUTA_RANKING_EVENT_TYPE()
     local classtype_tab = GET_CHILD_RECURSIVELY(frame, "eventtype_tab", "ui::CTabControl")
     local index = classtype_tab:GetSelectItemIndex()
     eventID = '50'..index;
-    local monClsName = 'Guild_boss_Boruta'
+    local monClsName = 'boss_dragoon_ex'
     if index == 1 then
         monClsName = 'Legend_Boss_Giltine_Guild'
     elseif index == 2 then

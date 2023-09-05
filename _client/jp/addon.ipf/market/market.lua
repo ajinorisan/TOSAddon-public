@@ -416,6 +416,41 @@ local function _CREATE_EARRING_OPTION(ctrlSet, itemObj)
 	end
 end
 
+local function _CREATE_RADA_OPTION(ctrlSet, itemObj)	
+	if TryGetProp(itemObj, 'RadaOption', 'None') == 'None' then
+		return;
+	end
+	
+	
+
+	local RadaOption = TryGetProp(itemObj, 'RadaOption', 'None')
+	local equip_group = TryGetProp(itemObj, 'EquipGroup', 'None')
+	if RadaOption ~= 'None' then
+		
+
+		local list = StringSplit(RadaOption, ';')
+		for i = 1, #list do
+			local desc = ''
+			local prefix = ''
+			local suffix = ''
+			if SEASON_COIN_NAME ~= 'RadaCertificate' then
+				prefix = '{#7F7F7F}'
+				suffix = '{/}'
+			end
+	
+			desc = prefix .. desc
+
+			local name = StringSplit(list[i], '/')[1]
+			local value = StringSplit(list[i], '/')[2]
+
+			local range = GET_RADAOPTION_RANGE(name, equip_group)
+			desc = desc .. ScpArgMsg(name, 'level', value, 'min', range[1], 'max', range[2]) .. '{nl}'			
+			desc = desc .. suffix
+			SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, desc);
+		end
+	end
+end
+
 function MARKET_DRAW_CTRLSET_EQUIP(frame, isShowSocket)     	
 	local itemlist = GET_CHILD_RECURSIVELY(frame, "itemListGbox");
 	itemlist:RemoveAllChild();
@@ -706,6 +741,7 @@ function MARKET_DRAW_CTRLSET_EQUIP(frame, isShowSocket)
 
 		_CREATE_SEAL_OPTION(ctrlSet, itemObj);
 		_CREATE_EARRING_OPTION(ctrlSet, itemObj);
+		_CREATE_RADA_OPTION(ctrlSet, itemObj);
 
 		for i = 1 , #list2 do
 			local propName = list2[i];
@@ -1237,7 +1273,7 @@ function MARKET_DRAW_CTRLSET_GEM(frame)
 			end
 		end
 
-		for j = 1 , 4 do
+		for j = 1 , MAX_RANDOM_OPTION_COUNT do
 		    local propGroupName = "RandomOptionGroup_"..j;
 			local propName = "RandomOption_"..j;
 			local propValue = "RandomOptionValue_"..j;
