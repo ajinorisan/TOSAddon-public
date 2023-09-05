@@ -4390,10 +4390,10 @@ end
 
 -- 기간제 아이템 판별 함수
 function IS_LIFETIME_OVER(itemobj)
-	if itemobj.LifeTime == nil then
+	if TryGetProp(itemobj, 'LifeTime', 0) == 0 then
 		return 0;
-	elseif 0 ~= tonumber(itemobj.LifeTime) or GET_ITEM_EXPIRE_TIME(itemobj) ~= 'None' then
-		local endTime = imcTime.GetSysTimeByStr(itemobj.ItemLifeTime);		
+	elseif 0 ~= tonumber(TryGetProp(itemobj, 'LifeTime', 0)) or GET_ITEM_EXPIRE_TIME(itemobj) ~= 'None' then
+		local endTime = imcTime.GetSysTimeByStr(TryGetProp(itemobj, 'ItemLifeTime', 'None'));		
 		if GET_ITEM_EXPIRE_TIME(itemobj) ~= 'None' then
 			local exprie_str = GET_ITEM_EXPIRE_TIME(itemobj)
 			endTime = imcTime.GetSysTimeByYYMMDDHHMMSS(exprie_str);
@@ -4409,7 +4409,7 @@ function IS_LIFETIME_OVER(itemobj)
 		end;
 		
 		-- ItemLifeTimeOver으로 검사하는 함수		
-		if 0 ~= itemobj.ItemLifeTimeOver then
+		if 0 ~= TryGetProp(itemobj, 'ItemLifeTimeOver', 0) then
 			return 1;
 		end
 	end	

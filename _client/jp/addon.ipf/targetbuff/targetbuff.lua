@@ -56,15 +56,15 @@ function TARGETBUFF_ON_MSG(frame, msg, argStr, argNum)
 	local handle = session.GetTargetHandle();
 	local buffIndex = tonumber(argStr)
 	if msg == "TARGET_BUFF_ADD" then
-		if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
+		--if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
 		if TARGETBUFF_DEBUFF_LIMIT(frame, handle, argNum) == false then 
 		COMMON_BUFF_MSG(frame, "ADD", argNum, handle, t_buff_ui, argStr);
 		end
 	elseif msg == "TARGET_BUFF_REMOVE" then
-		if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
+		--if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
 		COMMON_BUFF_MSG(frame, "REMOVE", argNum, handle, t_buff_ui, argStr);
 	elseif msg == "TARGET_BUFF_UPDATE" then
-		if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
+		--if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
 		COMMON_BUFF_MSG(frame, "UPDATE", argNum, handle, t_buff_ui, argStr);
 	elseif msg == "TARGET_SET" then
 		if s_lsgmsg == msg and s_lasthandle == handle then

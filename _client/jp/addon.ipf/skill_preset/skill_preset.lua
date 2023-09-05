@@ -1,4 +1,4 @@
---skill_preset.
+﻿--skill_preset.
 local MAX_PRESET_CNT = 30;
 local MAX_RANK_IN_PRESET = 4;
 local skill_list,abil_list = nil, nil;
@@ -145,6 +145,17 @@ local function MAKE_SKILL_AND_ABILITY_LIST(job_id)
 
 end
 
+local function SKILL_PRESET_IS_DEFAULT_SKILL(jobID, SkillName)
+    local jobCls = GetClassByType('Job',jobID );
+    local defSkills = TryGetProp(jobCls,"DefHaveSkill","None")
+    local def_skill_list = SCR_STRING_CUT(defSkills, '#')
+    local index = table.find(def_skill_list,SkillName)
+    if index~=0 and index ~=nil then
+        return true
+    end
+    return false
+end
+
 function SKILL_PRESET_OPEN_INFO_BTN(parent,self,arg1,argNum)
     local frame  = parent:GetTopParentFrame();
     frame:SetUserValue("INVEST_SKILLPOINTS_OR_NOT","None")
@@ -177,6 +188,12 @@ function SKILL_PRESET_OPEN_INFO_BTN(parent,self,arg1,argNum)
         local cls_skill = GetClassByNameFromList(skill_list,k)
         local cls_skillTree = GetClassByStrProp("SkillTree", "SkillName",k)
         local skillName = k
+    
+        if v == 0 then
+            if SKILL_PRESET_IS_DEFAULT_SKILL(job_id,skillName) then
+                v=1
+            end
+        end
         local skl_name  =  dic.getTranslatedStr(TryGetProp(cls_skill,"Name"))
         local tooltipSet = each_skill_info_gb:CreateOrGetControlSet('skill_preset_tooltip_narrow', 'INFO_SKILL'..nameIndex,ui.LEFT, ui.TOP, 0, yPos,0,0)
         yPos  = yPos + 60;
@@ -193,9 +210,14 @@ function SKILL_PRESET_OPEN_INFO_BTN(parent,self,arg1,argNum)
         -- Setting Skill Info End --
         nameIndex_sub=0;
         for i,p in pairs(token2) do
-
             local cls_abil = GetClassByNameFromList(abil_list,i) 
             local skill_category = TryGetProp(cls_abil,"SkillCategory","None")
+            local categoryTable  = SCR_STRING_CUT(skill_category, ';')
+            
+            if #categoryTable > 1 then
+                skill_category = categoryTable[1]
+            end
+        
             if skill_category==k then 
                 local job_abil = GetClassByStrProp(myAbil_list[1],"ClassName",i)
                 local abil_name=  dic.getTranslatedStr(TryGetProp(cls_abil,"Name"))
@@ -267,6 +289,13 @@ local function SKILL_PRESET_OPEN_APPLY_SECTION(index)
             local cls_skillTree = GetClassByStrProp("SkillTree", "SkillName",k)
             
             local skillName = k
+            if v == 0 then
+                if SKILL_PRESET_IS_DEFAULT_SKILL(infoList[1],skillName) then
+                    v=1
+                end
+            else
+                totalpoint = totalpoint + v
+            end
             local skl_name  =  dic.getTranslatedStr(TryGetProp(cls_skill,"Name"))
             local tooltipSet = skill_info_gb:CreateOrGetControlSet('skill_preset_tooltip_narrow', 'INFO_SKILL'..nameIndex,ui.LEFT, ui.TOP, 0, yPos,0,0)
             yPos  = yPos + 60;
@@ -274,7 +303,6 @@ local function SKILL_PRESET_OPEN_APPLY_SECTION(index)
             local skill_icon = GET_CHILD_RECURSIVELY(tooltipSet,"single_icon")
             skill_icon:SetImage("icon_"..cls_skill.Icon)
             local txt = GET_CHILD_RECURSIVELY(tooltipSet,"text")
-            totalpoint = totalpoint + v
             txt:SetTextByKey('value1',skl_name);
             txt:SetTextByKey('value2',v);
             if tonumber(TryGetProp(cls_skillTree,"MaxLevel",0))==v then
@@ -285,6 +313,12 @@ local function SKILL_PRESET_OPEN_APPLY_SECTION(index)
             for i,p in pairs(token2) do
                 local cls_abil = GetClassByNameFromList(abil_list,i) 
                 local skill_category = TryGetProp(cls_abil,"SkillCategory","None")
+                local categoryTable  = SCR_STRING_CUT(skill_category, ';')
+                
+                if #categoryTable > 1 then
+                    skill_category = categoryTable[1]
+                end
+                
                 if skill_category==k then 
                     local job_abil = GetClassByStrProp(infoList2[1],"ClassName",i)
                     local abil_name=  dic.getTranslatedStr(TryGetProp(cls_abil,"Name"))

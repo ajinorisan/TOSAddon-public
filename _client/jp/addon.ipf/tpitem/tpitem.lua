@@ -3223,6 +3223,9 @@ function EXEC_BUY_MARKET_ITEM()
 			local slot = slot_set:GetSlotByIndex(i);
 			local tp_item_name = slot:GetUserValue("TPITEMNAME");
 			local tp_item = GetClass("TPitem_Return_User", tp_item_name);
+			if config.GetServiceNation() == 'PAPAYA' then
+				tp_item = GetClass("TPitem_Return_User_PAPAYA", tp_item_name);
+			end
 			if tp_item ~= nil then
 				local price = TryGetProp(tp_item, "Price", 0);
 				allprice = allprice + price;
@@ -3997,14 +4000,25 @@ function _TPSHOP_BANNER(parent, control, argStr, argNum)
 	local itembox_tab = tolua.cast(tabObj, "ui::CTabControl");
 	local curtabIndex = itembox_tab:GetSelectItemIndex();
 	
-	if config.GetServiceNation() == "PAPAYA" or force_papaya then		
-		local banner_info = GetClass('tpitem_banner', '0531_Ingame_banners4_520x250')
-		if banner_info ~= nil then
-			banner:SetImage(TryGetProp(banner_info, 'ImagePath', 'None'))
-			banner:SetUserValue("URL_BANNER", TryGetProp(banner_info, 'url', 'None'));
-			banner:SetUserValue('first_open', 1)
-			banner:SetVisible(1)			
-		end		
+	if config.GetServiceNation() == "PAPAYA" or force_papaya then
+		local list, cnt = GetClassList('tpitem_banner')
+		for i = 0, cnt - 1 do
+			local banner_info = GetClassByIndexFromList(list, i)			
+			if banner_info ~= nil and TryGetProp(banner_info, 'Category', 'None') == 'PAPAYA' then
+				local s = TryGetProp(banner_info, 'start', 'None')
+				local e = TryGetProp(banner_info, 'end', 'None')
+				if s ~= 'None' and e ~= 'None'then
+					if date_time.is_between_time(s, e) == true then
+						banner:SetImage(TryGetProp(banner_info, 'ImagePath', 'None'))
+						banner:SetUserValue("URL_BANNER", TryGetProp(banner_info, 'url', 'None'));
+						banner:SetUserValue('first_open', 1)
+						banner:SetVisible(1)			
+						break
+					end
+				end
+			end	
+		end
+		
 	else
 		local bannerInfo = session.ui.GetTPItemBannerCategoryByIndex("Right", 0);
 		if bannerInfo ~= nil then

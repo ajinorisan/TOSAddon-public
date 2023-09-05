@@ -116,7 +116,7 @@ function OPEN_PROPERTY_SHOP(shopName)
 		tab:ChangeCaption(1, "{@st66b}" .. "            " .. ClMsg("Mileage_Name") .. "            ");
 	
 		title:SetTextByKey("value", ClMsg("GUILD_CONTRIBUTION_SHOP"));
-	elseif shopName == "CONTENTS_TOTAL_SHOP" or shopName == "SEASONOFF_CONTENTS_TOTAL_SHOP" or shopName == "CLASS_COSTUME_TOTAL_SHOP" then
+	elseif string.find(shopName, "CONTENTS_TOTAL_SHOP") ~= nil or shopName == "CLASS_COSTUME_TOTAL_SHOP" then
 		t_mymoney:SetTextByKey("text", ScpArgMsg("TotalHavePoint"));
 		t_totalprice:SetTextByKey("text", ScpArgMsg("TotalBuyPoint"));
 		t_remainprice:ShowWindow(0);

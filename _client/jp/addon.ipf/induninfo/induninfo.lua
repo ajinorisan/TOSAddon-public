@@ -3491,7 +3491,7 @@ function BORUTA_RANKING_UI_UPDATE()
     if config.GetServiceNation() == 'PAPAYA' then
         -- #124856 , #124857
         local start = '2023-05-29 00:00:00'
-        local finish = '2023-07-31 00:00:00'
+        local finish = '2023-07-26 00:00:00'
         local boruta_move_btn = GET_CHILD_RECURSIVELY(frame, 'boruta_move_btn')
         if date_time.is_between_time(start, finish) == true then
             guild_info_time_text:ShowWindow(0) 

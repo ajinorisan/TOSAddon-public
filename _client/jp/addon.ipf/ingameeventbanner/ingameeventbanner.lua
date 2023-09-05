@@ -323,7 +323,7 @@ function UPDATE_EVENTBANNER_UI(frame)
 				local remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.StartTimeYYYYMM, banner.StartTimeDDHHMM)
 				
 				--남은 날짜 삭제 기능
-				if banner.UserCommand1 == "time_del" then
+				if TryGetProp(banner, 'UserCommand1', 'None')  == "time_del" then
 					time_limited_bg:SetVisible(0);
 					time_limited_text:SetVisible(0);
 				end

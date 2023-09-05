@@ -200,6 +200,11 @@ function ITEM_TOOLTIP_EQUIP(tooltipframe, invitem, strarg, usesubframe, isForger
 		ypos = DRAW_AETHER_SOCKET_FOR_EQUIP(tooltipframe, invitem, ypos, mainframename) -- 가디스 등급 장비의 블랙 젬 소켓
 	end
     
+	if shared_common_skill_enchant.is_valid_item(invitem) == true then		
+		ypos = DRAW_EQUIP_SKILL_SOCKET_COUNT(tooltipframe, invitem, ypos, mainframename) -- 스킬 소켓
+		ypos = DRAW_EQUIP_SKILL_SOCKET(tooltipframe, invitem, ypos, mainframename)
+	end
+
 	ypos = DRAW_EQUIP_MEMO(tooltipframe, invitem, ypos, mainframename) -- 제작 템 시 들어간 메모
     ypos = DRAW_EQUIP_DESC(tooltipframe, invitem, ypos, mainframename) -- 각종 설명문
     
@@ -718,7 +723,6 @@ end
 
 --아이템 타입 및 무게
 function DRAW_ITEM_TYPE_N_WEIGHT(tooltipframe, invitem, yPos, mainframename)
-	
 	local gBox = GET_CHILD(tooltipframe, mainframename,'ui::CGroupBox')
 
 	-- 아이템 타입 설정
@@ -1194,11 +1198,14 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
 			local strInfo = nil
 			if max ~= nil then
 				local current_value = propItem[propValue]						
-				if growth_except_list[propName] ~= true and growth_rate > 0 and growth_rate < 1 then
+				if growth_except_list[propName] ~= true then
+					if growth_rate > 0 and growth_rate < 1 then
 					current_value = math.floor(current_value * growth_rate)
 					if current_value <= 0 then
 						current_value = 1
 					end
+				end
+					current_value = current_value + GET_ITEM_GROWTH_VALUE_BY_REINF(propItem, propItem[propName])
 				end
 				if max == current_value then
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 1);
@@ -1281,13 +1288,16 @@ function DRAW_EQUIP_FIXED_ICHOR(invitem, inheritanceItem, property_gbox, inner_y
     for i = 1, #list do
         local propName = list[i];
         local propValue = TryGetProp(class, propName, 0);
-		if growth_except_list[propName] ~= true and growth_rate > 0 and growth_rate < 1 then
+		if growth_except_list[propName] ~= true then
+			if growth_rate > 0 and growth_rate < 1 then
 		local growth_value = math.floor(propValue * growth_rate)
 		if propValue > 0 and growth_value <= 0 then
 			growth_value = 1
 		end
 		propValue = growth_value
 	end
+			propValue = propValue + GET_ITEM_GROWTH_VALUE_BY_REINF(invitem, propName)
+		end
         local needToShow = true;
 
         for j = 1, #basicTooltipPropList do
@@ -2232,7 +2242,7 @@ function DRAW_AVAILABLE_PROPERTY(tooltipframe, invitem, yPos,mainframename)
 	if maxSocket <= 0 then
 		maxSocekt_text:SetText(ScpArgMsg("CantAddSocket"))
 	else
-		if itemClass.NeedAppraisal == 1 then
+		if TryGetProp(itemClass, 'NeedAppraisal', 0) == 1 then
 			local needAppraisal = TryGetProp(invitem, "NeedAppraisal");
 			if nil ~= needAppraisal and needAppraisal == 1 then
 				maxSocekt_text:SetTextByKey("socketcount","{@st66d_y}????{/}");
@@ -2253,7 +2263,6 @@ end
 
 function DRAW_COLLECTION_INFO(invitem, desc)
 	local item_name = TryGetProp(invitem, 'ClassName', 'None')
-
 	if is_collection_item(item_name) == false then
 		return desc
 	end
@@ -2582,22 +2591,30 @@ function DRAW_ENABLE_TREATMENT(tooltipframe, invitem, yPos, mainframename)
 	local enable_engrave = false
 
 	text = _APPEND_LIMITATION_TEXT(0, text, CSet:GetUserConfig("TEXT_FONT2"), false);	
-	text = _APPEND_LIMITATION_TEXT(enable_frag, text, ClMsg('enable_fragmentation'));
-	text = _APPEND_LIMITATION_TEXT(decomposeAble_flag, text, ClMsg('enable_decomposition'));
-	text = _APPEND_LIMITATION_TEXT(reinforce_flag, text, ClMsg('enable_reinforce'));
-	text = _APPEND_LIMITATION_TEXT(transcend_flag, text, ClMsg('enable_transcend'));
-	text = _APPEND_LIMITATION_TEXT(extract_flag, text, ClMsg('enable_extract'));
-	text = _APPEND_LIMITATION_TEXT(socket_flag, text, ClMsg('enable_socket'));	
-	text = _APPEND_LIMITATION_TEXT(briquet_flag, text, ClMsg('enable_extract_briquet'));
-	text = _APPEND_LIMITATION_TEXT(briquet_Valid_flag, text, ClMsg('enable_briquet'));	
-	text = _APPEND_LIMITATION_TEXT(awaken_flag, text, ClMsg('enable_awaken'));
-	text = _APPEND_LIMITATION_TEXT(enchant_flag, text, ClMsg('enable_enchant'))	
-	text = _APPEND_LIMITATION_TEXT(enable_revert, text, ClMsg('enable_revert'))	
-	text = _APPEND_LIMITATION_TEXT(enable_set_option, text, ClMsg('enable_set_option'))	
-	text = _APPEND_LIMITATION_TEXT(enable_engrave, text, ClMsg('enable_engrave'))		
-	text = _APPEND_LIMITATION_TEXT(enable_apply_engrave, text, ClMsg('enable_apply_engrave'))		
-	text = _APPEND_LIMITATION_TEXT(enable_goddess_icor, text, ClMsg('enable_goddess_icor'))		
-	text = _APPEND_LIMITATION_TEXT(item_goddess_transcend.is_able_to_evolve(invitem), text, ClMsg('enable_evolve'))			
+	if item_goddess_growth.is_goddess_growth_item(invitem) == false then
+		text = _APPEND_LIMITATION_TEXT(enable_frag, text, ClMsg('enable_fragmentation'));
+		text = _APPEND_LIMITATION_TEXT(decomposeAble_flag, text, ClMsg('enable_decomposition'));
+		text = _APPEND_LIMITATION_TEXT(reinforce_flag, text, ClMsg('enable_reinforce'));
+		text = _APPEND_LIMITATION_TEXT(transcend_flag, text, ClMsg('enable_transcend'));
+		text = _APPEND_LIMITATION_TEXT(extract_flag, text, ClMsg('enable_extract'));
+		text = _APPEND_LIMITATION_TEXT(socket_flag, text, ClMsg('enable_socket'));	
+		text = _APPEND_LIMITATION_TEXT(briquet_flag, text, ClMsg('enable_extract_briquet'));
+		text = _APPEND_LIMITATION_TEXT(briquet_Valid_flag, text, ClMsg('enable_briquet'));	
+		text = _APPEND_LIMITATION_TEXT(awaken_flag, text, ClMsg('enable_awaken'));
+		text = _APPEND_LIMITATION_TEXT(enchant_flag, text, ClMsg('enable_enchant'))	
+		text = _APPEND_LIMITATION_TEXT(enable_revert, text, ClMsg('enable_revert'))	
+		text = _APPEND_LIMITATION_TEXT(enable_set_option, text, ClMsg('enable_set_option'))	
+		text = _APPEND_LIMITATION_TEXT(enable_engrave, text, ClMsg('enable_engrave'))		
+		text = _APPEND_LIMITATION_TEXT(enable_apply_engrave, text, ClMsg('enable_apply_engrave'))		
+		text = _APPEND_LIMITATION_TEXT(enable_goddess_icor, text, ClMsg('enable_goddess_icor'))		
+		text = _APPEND_LIMITATION_TEXT(item_goddess_transcend.is_able_to_evolve(invitem), text, ClMsg('enable_evolve'))			
+	else
+		if item_goddess_growth.is_max_reinforce(invitem) then
+			text = _APPEND_LIMITATION_TEXT(true, text, '{@st41b}{#00eeee}' .. ClMsg('enable_inheritance') .. '{/}{/}' .. '(' ..ClMsg('use_goddess_equipment') .. ')' );
+		else
+			text = _APPEND_LIMITATION_TEXT(true, text, ClMsg('enable_reinforce'));
+		end
+	end
 
 	if TryGetProp(invitem, 'StringArg', 'None') == 'TOSHeroEquip' or TryGetProp(invitem, 'StringArg', 'None') == 'TOSHeroEquipNeck' then
 		text = '{@st42_gray}{s14}'..ClMsg(TryGetProp(GetClass('ClientMessage', 'TOSHeroEquipTooltip_OnlyUse'), 'ClassName', 'None'))
@@ -3516,6 +3533,7 @@ function DRAW_EQUIP_RANDOM_EARRING_OPTION(invitem, property_gbox, inner_yPos)
 						current_value = 1
 					end
 				end
+				current_value = current_value + GET_ITEM_GROWTH_VALUE_BY_REINF(propItem, propItem[propName])
 				if max == current_value then
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 1);
 				else
@@ -3870,4 +3888,124 @@ function ITEM_TOOLTIP_BELT(tooltipframe, invitem, strarg, usesubframe)
 
     local gBox = GET_CHILD(tooltipframe, mainframename,'ui::CGroupBox')
     gBox:Resize(gBox:GetWidth(), ypos)
+end
+
+
+-- 스킬 소켓
+function DRAW_EQUIP_SKILL_SOCKET_COUNT(tooltipframe, invitem, yPos, addinfoframename)	
+	local value = IS_TOGGLE_EQUIP_ITEM_TOOLTIP_DESC();
+    if value == 1 then
+        return yPos
+    end
+
+	local min = 1
+	local max = shared_common_skill_enchant.get_max_slot_count()
+
+	local gBox = GET_CHILD(tooltipframe, addinfoframename,'ui::CGroupBox')
+	gBox:RemoveChild('tooltip_equip_skill_socket');
+	
+	local tooltip_equip_socket_CSet = gBox:CreateOrGetControlSet('tooltip_equip_skill_socket', 'tooltip_equip_skill_socket', 0, yPos);
+
+	local socket_gbox= GET_CHILD(tooltip_equip_socket_CSet,'socket_gbox','ui::CGroupBox')
+	local socket_value = GET_CHILD_RECURSIVELY(tooltip_equip_socket_CSet, 'socket_value')
+	tolua.cast(tooltip_equip_socket_CSet, "ui::CControlSet");
+	socket_value:SetTextByKey("curCount", min)
+	socket_value:SetTextByKey("maxCount", max)
+	return tooltip_equip_socket_CSet:GetHeight() + tooltip_equip_socket_CSet:GetY();
+end
+
+function DRAW_EQUIP_SKILL_SOCKET(tooltipframe, itemObj, yPos, addinfoframename)	
+	local value = IS_TOGGLE_EQUIP_ITEM_TOOLTIP_DESC();
+    if value == 1 then
+        return yPos;
+	end
+	
+	local invitem = GET_INV_ITEM_BY_ITEM_OBJ(itemObj);
+	if invitem == nil then
+		return yPos;
+	end
+
+	local gBox = GET_CHILD(tooltipframe, addinfoframename,'ui::CGroupBox')
+	local tooltip_equip_socket_CSet = GET_CHILD_RECURSIVELY(gBox, 'tooltip_equip_skill_socket');
+	
+	local socket_gbox= GET_CHILD(tooltip_equip_socket_CSet,'socket_gbox','ui::CGroupBox')
+	local socket_value = GET_CHILD_RECURSIVELY(tooltip_equip_socket_CSet, 'socket_value')
+
+	tolua.cast(tooltip_equip_socket_CSet, "ui::CControlSet");
+	local DEFAULT_POS_Y = tooltip_equip_socket_CSet:GetUserConfig("DEFAULT_POS_Y")
+	local inner_yPos = DEFAULT_POS_Y;
+
+	local function _ADD_ITEM_SOCKET_PROP(GroupCtrl, invitem, yPos, index)
+		if GroupCtrl == nil then
+			return 0;
+		end
+	
+		local cnt = GroupCtrl:GetChildCount();
+		
+		local ControlSetObj = GroupCtrl:CreateControlSet('tooltip_item_prop_skill_socket', "ITEM_PROP_" .. cnt , 0, yPos);
+		local ControlSetCtrl = tolua.cast(ControlSetObj, 'ui::CControlSet');
+	
+		local socket_image = GET_CHILD(ControlSetCtrl, "socket_image", "ui::CPicture");
+		local socket_property_text = GET_CHILD(ControlSetCtrl, "socket_property", "ui::CRichText");
+		local gradetext = GET_CHILD_RECURSIVELY(ControlSetCtrl,"grade","ui::CRichText");
+	
+
+		local option_name = TryGetProp(invitem, 'EnchantSkillName_' .. index, 'None')
+
+		if index > 0 then
+			if option_name == 'None' then
+				local socketCls = GetClassByType("Socket", 5);
+				socketicon = socketCls.SlotIcon
+				local socket_image_name = socketCls.SlotIcon
+				socket_image:SetImage(socket_image_name)		
+				socket_property_text:ShowWindow(0)
+				gradetext:ShowWindow(0)
+			else
+				local cls = GetClass('Skill', option_name)
+				if cls == nil then
+					return 0
+				end
+				local socket_image_name = cls.Icon				
+				socket_image:SetImage('icon_' .. socket_image_name)
+				local name = '{@st47}{s15}{#00EE00}' .. cls.Name 
+				local desc = ScpArgMsg('vakarine_skill_desc', 'level', TryGetProp(invitem, 'EnchantSkillLevel_' .. index), 1)			
+				gradetext:SetText(name)
+				socket_property_text:SetText(desc);
+				socket_property_text:ShowWindow(1);
+				
+				ControlSetCtrl:Resize(ControlSetCtrl:GetWidth(), math.max(ControlSetCtrl:GetHeight(), socket_property_text:GetHeight() + 2));
+			end
+		else			
+			local name = ScpArgMsg('vakarine_npc_skill_socket')
+			gradetext:SetText(name)
+			socket_property_text:ShowWindow(0);
+			
+			ControlSetCtrl:Resize(ControlSetCtrl:GetWidth(), math.max(ControlSetCtrl:GetHeight(), socket_property_text:GetHeight() + 2));
+		end
+	
+		GroupCtrl:ShowWindow(1)
+		GroupCtrl:Resize(GroupCtrl:GetWidth(), GroupCtrl:GetHeight() + ControlSetObj:GetHeight() + 15)
+		return ControlSetCtrl:GetHeight() + ControlSetCtrl:GetY() + 5;
+	end	
+
+	local curCount = 0;	
+    local max = shared_common_skill_enchant.get_max_slot_count(TryGetProp(itemObj, 'UseLv', 1))
+	local before_inner_ypos = inner_yPos
+	for i = 1, max do		
+		curCount = curCount + 1
+		inner_yPos = _ADD_ITEM_SOCKET_PROP(socket_gbox, itemObj, inner_yPos, i);		
+	end
+
+	if curCount > 0 then
+		inner_yPos = _ADD_ITEM_SOCKET_PROP(socket_gbox, itemObj, inner_yPos, 0);
+	end
+
+	local BOTTOM_MARGIN = tooltipframe:GetUserConfig("BOTTOM_MARGIN"); -- 맨 아랫쪽 여백
+	if before_inner_ypos == inner_yPos and curCount > 0 then
+		BOTTOM_MARGIN = 0
+	end
+	tooltip_equip_socket_CSet:Resize(tooltip_equip_socket_CSet:GetWidth(), socket_gbox:GetHeight() + socket_gbox:GetY() + BOTTOM_MARGIN);
+
+	gBox:Resize(gBox:GetWidth(),gBox:GetHeight() + tooltip_equip_socket_CSet:GetHeight())
+	return tooltip_equip_socket_CSet:GetHeight() + tooltip_equip_socket_CSet:GetY();
 end

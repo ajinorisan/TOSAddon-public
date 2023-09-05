@@ -65,7 +65,7 @@ function CREATE_GUILD_EVENT_LIST(frame)
 				local block_mission = TryGetProp(cls, "BlockMission", "None");
 				
 				local start = '2023-05-29 00:00:00'
-				local finish = '2023-07-31 00:00:00'
+				local finish = '2023-07-26 00:00:00'
 				if block_mission == "YES" and config.GetServiceNation() == 'PAPAYA' and date_time.is_between_time(start, finish) == true then
 					-- #124856 , #124857
 				else

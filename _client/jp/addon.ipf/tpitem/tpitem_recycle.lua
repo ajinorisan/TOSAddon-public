@@ -214,7 +214,7 @@ function RECYCLE_CREATE_SELL_LIST()
 	end, false, retTable, mainSubGbox);
 end
 
-function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)
+function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)	
 
 	local title = GET_CHILD_RECURSIVELY(itemcset,"title");
 	local subtitle = GET_CHILD_RECURSIVELY(itemcset,"subtitle");
@@ -226,12 +226,25 @@ function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)
 	local staticBuyMedalbox = GET_CHILD_RECURSIVELY(itemcset,"staticBuyMedalbox"); 
 	local staticSellMedalbox = GET_CHILD_RECURSIVELY(itemcset,"staticSellMedalbox");
 	local remaincnt = GET_CHILD_RECURSIVELY(itemcset,"remaincnt");
-	
+	local isNew_mark = GET_CHILD_RECURSIVELY(itemcset,"isNew_mark");
+	isNew_mark:SetVisible(0);
+	local isHot_mark = GET_CHILD_RECURSIVELY(itemcset,"isHot_mark");
+	isHot_mark:SetVisible(0);	
+	local isSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isSale_mark");
+    isSale_mark:SetVisible(0);	
 
 	local itemName = itemobj.Name;
 	local itemclsID = itemobj.ClassID;
 	local tpitem_clsName = obj.ClassName;
 	local tpitem_clsID = obj.ClassID;
+
+	if TryGetProp(obj, 'New', 'None') == 'YES' then
+		isNew_mark:SetVisible(1)
+	end
+
+	if TryGetProp(obj, 'Sale', 'None') == 'YES' then
+		isSale_mark:SetVisible(1)
+	end
 
 	local price;
 	if type == "sell" then

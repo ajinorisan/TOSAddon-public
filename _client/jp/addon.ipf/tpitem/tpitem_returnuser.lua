@@ -22,7 +22,11 @@ function RETURNUSER_MAKE_TREE(frame)
     categoryTree:Clear();
  	DESTROY_CHILD_BYNAME(categoryTree, "TPSHOP_CT_");
 
-    local clsList, cnt = GetClassList('TPitem_Return_User');	
+	local clsList, cnt = GetClassList('TPitem_Return_User');	
+	if config.GetServiceNation() == 'PAPAYA' then
+		clsList, cnt = GetClassList('TPitem_Return_User_PAPAYA');	
+	end
+
     if cnt == 0 or clsList == nil then
 		return;
     end
@@ -69,7 +73,9 @@ function UPDATE_RETURNUSER_BASKET_MONEY(frame)
 			local slot  = slotset:GetSlotByIndex(i);
 			local classname = slot:GetUserValue("TPITEMNAME");
 			local alreadyItem = GetClass("TPitem_Return_User",classname)
-
+			if config.GetServiceNation() == 'PAPAYA' then
+				alreadyItem = GetClass("TPitem_Return_User_PAPAYA",classname)
+			end
 			if alreadyItem ~= nil then
 
 				allprice = allprice + alreadyItem.Price
@@ -102,6 +108,9 @@ function RETURNUSER_CREATE_ITEM_LIST(frame)
 	mainSubGbox:RemoveAllChild();
 	
 	local clsList, cnt = GetClassList('TPitem_Return_User');	
+	if config.GetServiceNation() == 'PAPAYA' then
+		clsList, cnt = GetClassList('TPitem_Return_User_PAPAYA');	
+	end
 	if cnt == 0 or clsList == nil then
 		return;
 	end
@@ -624,6 +633,10 @@ function TPSHOP_ITEM_TO_RETURNUSER_BUY_BASKET_PREPROCESSOR(parent, control, tpit
 	local shopType = 1; -- 복귀 유저 : 1
 	
 	local obj = GetClassByType("TPitem_Return_User", tpitem_clsID)
+	if config.GetServiceNation() == 'PAPAYA' then
+		obj = GetClassByType("TPitem_Return_User_PAPAYA", tpitem_clsID)
+	end
+
 	if obj == nil then
 		return false;
 	end
@@ -711,6 +724,9 @@ function TPSHOP_ITEM_TO_RETURNUSER_BUY_BASKET(tpitemname, classid)
 	end
 
 	local tpitem = GetClass("TPitem_Return_User", tpitemname)
+	if config.GetServiceNation() == 'PAPAYA' then
+		tpitem = GetClass("TPitem_Return_User_PAPAYA", tpitemname)
+	end
 	if tpitem == nil then
 		ui.MsgBox(ScpArgMsg("DataError"))
 		return
@@ -798,6 +814,9 @@ function TPSHOP_RETURNUSER_ITEM_BASKET_BUY(parent, control)
             local itemClassName = slot:GetUserValue('CLASSNAME');
 			local item = GetClass("Item", itemClassName);			
             local tpitem = GetClass('TPitem_Return_User', tpItemName);
+			if config.GetServiceNation() == 'PAPAYA' then
+				tpitem = GetClass('TPitem_Return_User_PAPAYA', tpItemName);
+			end
 
             itemAndTPItemIDTable[item.ClassID] = tpitem.ClassID;
 
@@ -894,7 +913,9 @@ function EXEC_BUY_RETURNUSER_MARKET_ITEM()
 			local slot  = slotset:GetSlotByIndex(i);
 			local tpitemname = slot:GetUserValue("TPITEMNAME");
 			local tpitem = GetClass('TPitem_Return_User',tpitemname)
-
+			if config.GetServiceNation() == 'PAPAYA' then
+				tpitem = GetClass('TPitem_Return_User_PAPAYA',tpitemname)
+			end
 			if tpitem ~= nil then
 				
 				allprice = allprice + tpitem.Price

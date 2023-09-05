@@ -407,11 +407,24 @@
 		<image name="icon_arch_StrafingShot" file="\icon\skill\archer\icon_arch_StrafingShot.png" imgrect="0 0 128 128" CMM_Caption="스트레이프"/>
 		<image name="icon_arch_DoubleTake" file="\icon\skill\archer\icon_arch_DoubleTake.png" imgrect="0 0 128 128" CMM_Caption="더블 테이크"/>
 		<image name="icon_arch_BlazingArrow" file="\icon\skill\archer\icon_arch_BlazingArrow.png" imgrect="0 0 128 128" CMM_Caption="블레이징 애로우"/>
-
 		<image name="icon_arch_Bolas" file="\icon\skill\archer\icon_arch_Juggling.png" imgrect="0 0 128 128" CMM_Caption="볼라스"/>
 		<image name="icon_arch_BleedingPierce" file="\icon\skill\archer\icon_arch_bleedingpierce.png" imgrect="0 0 128 128" CMM_Caption="블리딩 피어스"/>
 		<image name="icon_arch_Brawl" file="\icon\skill\archer\icon_arch_scrum.png" imgrect="0 0 128 128" CMM_Caption="우당탕탕!"/>
 		<image name="icon_arch_PetComeBack" file="\icon\skill\archer\icon_arch_comeback.png" imgrect="0 0 128 128" CMM_Caption="돌아와!"/>
+		<image name="icon_archer_flameturret" file="\icon\skill\archer\icon_archer_flameturret.png" imgrect="0 0 128 128" CMM_Caption="플레임 터렛"/>
+		<image name="icon_archer_frozenturret" file="\icon\skill\archer\icon_archer_frozenturret.png" imgrect="0 0 128 128" CMM_Caption="프로즌 터렛"/>
+		<image name="icon_archer_arrowturret" file="\icon\skill\archer\icon_archer_arrowturret.png" imgrect="0 0 128 128" CMM_Caption="애로우 터렛"/>
+		<image name="icon_archer_buffturret" file="\icon\skill\archer\icon_archer_buffturret.png" imgrect="0 0 128 128" CMM_Caption="버프 터렛"/>
+		<image name="icon_archer_lightturret" file="\icon\skill\archer\icon_archer_lightturret.png" imgrect="0 0 128 128" CMM_Caption="라이트닝 터렛"/>
+		<image name="icon_archer_kingmecha" file="\icon\skill\archer\icon_archer_kingmecha.png" imgrect="0 0 128 128" CMM_Caption="킹메카V"/>
+		<image name="icon_archer_callback" file="\icon\skill\archer\icon_archer_callback.png" imgrect="0 0 128 128" CMM_Caption="회수"/>
+		<image name="icon_archer_repairkit" file="\icon\skill\archer\icon_archer_repairkit.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
+		<image name="icon_archer_Turret_Buff_recovery" file="\icon\skill\archer\icon_archer_flameturret_01.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
+		<image name="icon_archer_Turret_Buff_Critical" file="\icon\skill\archer\icon_archer_flameturret_02.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
+		<image name="icon_archer_Turret_Debuff" file="\icon\skill\archer\icon_archer_flameturret_03.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
+		<image name="icon_archer_Turret_Buff_Protection" file="\icon\skill\archer\icon_archer_flameturret_04.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
+		<image name="icon_archer_Turret_Inner_Cooltime" file="\icon\skill\archer\icon_archer_buffturret2.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
+	
 	</imagelist>
 	<imagelist category="cleric_skillicon">
 		<image name="icon_cler_Heal" file="\icon\skill\cleric\icon_cler_Heal.png" imgrect="0 0 128 128" CMM_Caption="힐"/>
@@ -1123,7 +1136,7 @@
 		<image name="ability_Warrior_Rodelero1" file="\icon\icon_ability_warrior01.tga" imgrect="512 640 128 128" CMM_Caption="타지스매쉬-부시기"/>
 		<image name="ability_Warrior_Rodelero2" file="\icon\icon_ability_warrior01.tga" imgrect="640 640 128 128" CMM_Caption="몬타노-사이즈"/>
 		<image name="ability_Warrior_Rodelero3" file="\icon\icon_ability_warrior01.tga" imgrect="768 640 128 128" CMM_Caption="실드 챠지-넉백"/>
-		<image name="ability_Warrior_Rodelero4" file="\icon\icon_ability_warrior01.tga" imgrect="896 640 128 128" CMM_Caption="카운터 쓰러스트-디프로텍트"/>
+		<image name="ability_Warrior_Rodelero4" file="\icon\icon_ability_warrior01.tga" imgrect="896 640 128 128" CMM_Caption="카운터 쓰러스트-디프로텍트"/>		
 		<image name="ability_Warrior_Rodelero5" file="\icon\icon_ability_warrior01.tga" imgrect="0 768 128 128" CMM_Caption="실드 푸시-언밸런스"/>
 		<image name="ability_Warrior_Rodelero6" file="\icon\icon_ability_warrior01.tga" imgrect="128 768 128 128" CMM_Caption="타지스매쉬-화염확장"/>
 		<image name="ability_Warrior_DustDevil" file="\icon\icon_ability_warrior01.tga" imgrect="256 768 128 128" CMM_Caption="DustDevil"/>
@@ -2893,7 +2906,6 @@
 		<image name="ability_archer_Arquebusier22" file="\icon\icon_ability_archer10.tga" imgrect="896 384 128 128" CMM_Caption="[아츠] 성형작약탄"/>
 		<image name="ability_archer_Arquebusier23" file="\icon\icon_ability_archer10.tga" imgrect="0 512 128 128" CMM_Caption="[아츠] 프리딕션: 원근 왜곡"/>
 		<image name="ability_archer_Cannoneer34" file="\icon\icon_ability_archer10.tga" imgrect="128 512 128 128" CMM_Caption="연막탄: 강화"/>
-
 		<image name="ability_archer_Hunter28" file="\icon\icon_ability_scout05.tga" imgrect="896 256 128 128" CMM_Caption="볼라스: 강화"/>
 		<image name="ability_archer_Hunter36" file="\icon\icon_ability_scout05.tga" imgrect="0 384 128 128" CMM_Caption="[아츠] 볼라스: 상급 강화"/>
 		<image name="ability_archer_Hunter29" file="\icon\icon_ability_scout05.tga" imgrect="128 384 128 128" CMM_Caption="블리딩 피어스: 강화"/>
@@ -2912,6 +2924,32 @@
 		<image name="ability_archer_Hunter22" file="\icon\icon_ability_scout05.tga" imgrect="894 511 128 128" CMM_Caption="돌아와!: 귀소본능"/>
 		<image name="ability_archer_Hunter24" file="\icon\icon_ability_scout05.tga" imgrect="0 640 128 128" CMM_Caption="그로울링: 비활성"/>
 		<image name="ability_archer_Hunter26" file="\icon\icon_ability_scout05.tga" imgrect="128 640 128 128" CMM_Caption="프레이즈: 무아지경"/>
+
+		<image name="ability_archer_engineer1" file="\icon\icon_ability_archer10.tga" imgrect="256 512 128 128" CMM_Caption="강화: 플레임 터렛"/>
+		<image name="ability_archer_engineer2" file="\icon\icon_ability_archer10.tga" imgrect="384 512 128 128" CMM_Caption="상급 강화: 플레임 터렛"/>
+		<image name="ability_archer_engineer3" file="\icon\icon_ability_archer10.tga" imgrect="512 512 128 128" CMM_Caption="강화: 프로즌 터렛"/>
+		<image name="ability_archer_engineer4" file="\icon\icon_ability_archer10.tga" imgrect="640 512 128 128" CMM_Caption="상급 강화: 프로즌 터렛"/>
+		<image name="ability_archer_engineer5" file="\icon\icon_ability_archer10.tga" imgrect="768 512 128 128" CMM_Caption="강화: 애로우 터렛"/>
+		<image name="ability_archer_engineer6" file="\icon\icon_ability_archer10.tga" imgrect="896 512 128 128" CMM_Caption="상급 강화: 애로우 터렛"/>
+		<image name="ability_archer_engineer7" file="\icon\icon_ability_archer10.tga" imgrect="0 640 128 128" CMM_Caption="강화: 버프 터렛"/>
+		<image name="ability_archer_engineer8" file="\icon\icon_ability_archer10.tga" imgrect="128 640 128 128" CMM_Caption="상급 강화: 버프 터렛"/>
+		<image name="ability_archer_engineer9" file="\icon\icon_ability_archer10.tga" imgrect="256 640 128 128" CMM_Caption="강화: 라이트닝 터렛"/>
+		<image name="ability_archer_engineer10" file="\icon\icon_ability_archer10.tga" imgrect="384 640 128 128" CMM_Caption="상급 강화: 라이트닝 터렛"/>
+		<image name="ability_archer_engineer11" file="\icon\icon_ability_archer10.tga" imgrect="512 640 128 128" CMM_Caption="강화: 킹 메카V"/>
+		<image name="ability_archer_engineer12" file="\icon\icon_ability_archer10.tga" imgrect="640 640 128 128" CMM_Caption="상급 강화: 킹 메카V"/>
+		<image name="ability_archer_engineer13" file="\icon\icon_ability_archer10.tga" imgrect="768 640 128 128" CMM_Caption="플레임 터렛: 넉백 "/>
+		<image name="ability_archer_engineer14" file="\icon\icon_ability_archer10.tga" imgrect="896 640 128 128" CMM_Caption="플레임 터렛: 화력집중"/>
+		<image name="ability_archer_engineer15" file="\icon\icon_ability_archer10.tga" imgrect="0 768 128 128" CMM_Caption="프로즌 터렛: 결빙"/>
+		<image name="ability_archer_engineer16" file="\icon\icon_ability_archer10.tga" imgrect="128 768 128 128" CMM_Caption="애로우 터렛: 연노"/>
+		<image name="ability_archer_engineer17" file="\icon\icon_ability_archer10.tga" imgrect="256 768 128 128" CMM_Caption="[아츠]라이트닝 터렛: 천벌"/>
+		<image name="ability_archer_engineer18" file="\icon\icon_ability_archer10.tga" imgrect="384 768 128 128" CMM_Caption="버프 터렛: 해제"/>
+		<image name="ability_archer_engineer19" file="\icon\icon_ability_archer10.tga" imgrect="512 768 128 128" CMM_Caption="버프 터렛: 치명"/>
+		<image name="ability_archer_engineer20" file="\icon\icon_ability_archer10.tga" imgrect="768 768 128 128" CMM_Caption="버프 터렛: 디버프"/>
+		<image name="ability_archer_engineer21" file="\icon\icon_ability_archer10.tga" imgrect="896 768 128 128" CMM_Caption="버프 터렛: 보호"/>
+		<image name="ability_archer_engineer22" file="\icon\icon_ability_archer10.tga" imgrect="0 896 128 128" CMM_Caption="[아츠]회수: 부품충당"/>
+		<image name="ability_archer_engineer23" file="\icon\icon_ability_archer10.tga" imgrect="128 896 128 128" CMM_Caption="킹 메카V: 화염"/>
+		<image name="ability_archer_engineer24" file="\icon\icon_ability_archer10.tga" imgrect="256 896 128 128" CMM_Caption="킹 메카V: 전격"/>
+		<image name="ability_archer_engineer25" file="\icon\icon_ability_archer10.tga" imgrect="512 896 128 128" CMM_Caption="킹 메카V: 빙결"/>
 	</imagelist>
 	<imagelist category="abilityicon_cleric">
 		<image name="ability_cleric_Cleric1" file="\icon\icon_ability_cleric01.tga" imgrect="0 0 128 128" CMM_Caption="큐어-도트시간감소"/>
@@ -2975,6 +3013,7 @@
 		<image name="ability_cleric_Kriwi13" file="\icon\icon_ability_cleric01.tga" imgrect="640 896 128 128" CMM_Caption="자이바스: 대미지 200%"/>
 		<image name="ability_cleric_Priest11" file="\icon\icon_ability_cleric01.tga" imgrect="768 896 128 128" CMM_Caption="아스퍼션: 대미지"/>
 		<image name="ability_cleric_Priest12" file="\icon\icon_ability_cleric01.tga" imgrect="896 896 128 128" CMM_Caption="사크라멘트: 신성 속성 강화"/>
+		<image name="icon_common_recovery" file="\icon\icon_ability_cleric01.tga" imgrect="896 640 128 128" CMM_Caption="리커버리"/>
 		<image name="ability_cleric_Priest13" file="\icon\icon_ability_cleric02.tga" imgrect="0 0 128 128" CMM_Caption="블레싱: 대미지 강화"/>
 		<image name="ability_cleric_Priest14" file="\icon\icon_ability_cleric02.tga" imgrect="128 0 128 128" CMM_Caption="아스퍼션: 대미지 150%"/>
 		<image name="ability_cleric_Priest15" file="\icon\icon_ability_cleric02.tga" imgrect="256 0 128 128" CMM_Caption="아스퍼션: 대미지 200%"/>

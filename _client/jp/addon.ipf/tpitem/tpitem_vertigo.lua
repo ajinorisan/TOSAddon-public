@@ -210,9 +210,9 @@ function TPITEM_DRAW_VERTIGO_TP()
 	itembox_tab:ChangeCaptionOnly(index, '{@st66b}Purchase TP', false)
 	
 	local mainText = GET_CHILD_RECURSIVELY(frame, 'mainText1')
-	-- mainText:SetText('TP Deals')
+	mainText:SetText('TP Deals')
 	-- #125286
-	mainText:SetText('TP Deals: 10% Extra Bonus TP for a limited week! (June 27th - 6PM, July 4th Server time)')
+	-- mainText:SetText('{#FF0000}TP Deals: 10% Extra Bonus TP for a limited week! (June 27th - 6PM, July 4th Server time){/}')
 	
 	local gachaInfoTitle = GET_CHILD_RECURSIVELY(frame, 'gachaInfoTitle')
 	gachaInfoTitle:SetText("{@st66d}{s18}TOC (Tree of Savior Cash){/}")
@@ -254,7 +254,7 @@ function TPITEM_DRAW_VERTIGO_TP()
 		
 		local cls = GetClass('Item', iteminfo.ClassName)
 
-		local ItemClassName = cls.Name;
+		local ItemClassName = iteminfo.Name;
 		local buyBtn = nil;
 		
 		local itemPrice = iteminfo.Price;

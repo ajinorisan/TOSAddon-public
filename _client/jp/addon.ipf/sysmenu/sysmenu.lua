@@ -51,6 +51,9 @@ function SYSMENU_ON_MSG(frame, msg, argStr, argNum)
 		frame:StopUpdateScript('UPDATE_GET_REINFORCE_MATERIAL')
 		frame:RunUpdateScript('UPDATE_GET_REINFORCE_MATERIAL', 2, 0)
 
+		frame:StopUpdateScript('UPDATE_INHERITANCE_NOTICE')
+		frame:RunUpdateScript('UPDATE_INHERITANCE_NOTICE', 2, 0)
+
 		before_state_list = {}
 		before_lock_list = {}
 		
@@ -920,6 +923,69 @@ function UPDATE_GET_REINFORCE_MATERIAL()
 	return 1
 end
 
+function UPDATE_INHERITANCE_NOTICE()	
+	if IS_HIDE_BALLOON_STATE() == true then
+		return 1
+	end
+
+	local list = {ES_LH, ES_RH, ES_LH_SUB, ES_RH_SUB, ES_SHIRT, ES_PANTS, ES_GLOVES, ES_BOOTS}	
+	local exist = false
+	for i = 1, #list do
+		local spot = list[i]
+		local _item = session.GetEquipItemBySpot(spot)
+		_item = GetIES(_item:GetObject())
+		if item.IsNoneItem(_item.ClassID) ~= 1 then
+			if TryGetProp(_item, 'Reinforce_2', 0) == 20 then
+				local str = TryGetProp(_item, 'StringArg', 'None')
+				local use_lv = TryGetProp(_item, 'UseLv', 0)
+				local make = false
+				if use_lv == 1 and GetMyPCObject().Lv >= 120 then
+					make = true
+				elseif use_lv == 120 and GetMyPCObject().Lv >= 280 then
+					make = true
+				elseif use_lv == 280 and GetMyPCObject().Lv >= 480 then
+					make = true
+				end
+				
+				if string.find(str, 'Growth_By_Reinforce') ~= nil and make == true then
+					exist = true
+					local noticeBallon = ui.GetFrame("NoticedInheritance");
+					if noticeBallon == nil then
+						local frame = ui.GetFrame("sysmenu");
+						local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
+						if parentCtrl ~= nil then
+							local margin = parentCtrl:GetMargin();
+							local x = margin.right;
+							local y = margin.bottom;
+
+							x = x + (parentCtrl:GetWidth() / 2);
+							y = y + parentCtrl:GetHeight() - 5;
+
+							noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticedInheritance", 'name', TryGetProp(_item, 'Name', 'None')), 0, 0, nil, "NoticedInheritance");
+							noticeBallon:ShowWindow(1);
+
+							noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
+							noticeBallon:SetMargin(0, 0, x, y);
+							noticeBallon:SetLayerLevel(106);							
+						end
+					else
+						noticeBallon:ShowWindow(1);
+					end
+					break
+				end				
+			end
+		end
+	end
+
+	if exist == false then
+		local noticeBallon = ui.GetFrame("NoticedInheritance");
+		if noticeBallon ~= nil then
+			noticeBallon:ShowWindow(0)
+		end
+	end
+
+	return 1
+end
 
 local function make_balloon_frame_by(icon_name, name, up_y)	
 	local frame = ui.GetFrame("sysmenu");
@@ -968,8 +1034,8 @@ local function is_same_list(a, b)
 end
 
 function IS_HIDE_BALLOON_STATE()	
-	local name_list = {'market', 'market_sell', 'market_cabinet', 'tpitem'}
-	local hide_frame = {'NoticeStartWeaponBOX', 'NoticeReinforceMaterial', 'CanEquipArk', 'CanEquipRelic', 'CanEquipEarring'}
+	local name_list = {'petlist', 'induninfo','market', 'market_sell', 'market_cabinet', 'tpitem', 'inventory', 'skillability', 'adventure_book', 'companionlist'}
+	local hide_frame = {'NoticeStartWeaponBOX', 'NoticeReinforceMaterial', 'NoticedInheritance', 'CanEquipArk', 'CanEquipRelic', 'CanEquipEarring'}
 
 	for i = 1, #name_list do
 		local frame = ui.GetFrame(name_list[i])		
