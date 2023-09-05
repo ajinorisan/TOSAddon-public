@@ -109,43 +109,80 @@ function UPDATE_BUFF_UI_SLOTSET(frame, buff_ui, index)
 end
 
 function INIT_BUFF_UI(frame, buff_ui, updatescp)
-    local slotcountSetPt = frame:GetChild('buffcountslot');
-    local slotSetPt = frame:GetChild('buffslot');
-    local deslotSetPt = frame:GetChild('debuffslot');
-    local slotcountsubSetPt = frame:GetChild("buffcountslot_sub");
-
-    buff_ui["slotsets"][0] = tolua.cast(slotcountSetPt, 'ui::CSlotSet');
-    buff_ui["slotsets"][1] = tolua.cast(slotSetPt, 'ui::CSlotSet');
-    buff_ui["slotsets"][2] = tolua.cast(deslotSetPt, 'ui::CSlotSet');
-    buff_ui["slotsets"][3] = tolua.cast(slotcountsubSetPt, "ui::CSlotSet");
-
-    for i = 0, buff_ui["buff_group_cnt"] do
-        buff_ui["slotcount"][i] = 0;
-        buff_ui["slotlist"][i] = { };
-        buff_ui["captionlist"][i] = { };
+    if frame == nil then
+        return; 
+    end
+    
+    if frame:GetName() == "targetdebuff_selfapplied" then
+        local deslotSetPt = frame:GetChild("debuffslot");
+        buff_ui["slotsets"][0] = tolua.cast(deslotSetPt, "ui::CSlotSet");
+        buff_ui["slotcount"][0] = 0;
+        buff_ui["slotlist"][0] = {};
+        buff_ui["captionlist"][0] = {};
         while 1 do
-            if buff_ui["slotsets"][i] == nil then
+            if buff_ui["slotsets"][0] == nil then
                 break;
             end
-
-            local slot = buff_ui["slotsets"][i]:GetSlotByIndex(buff_ui["slotcount"][i]);
+            
+            local slot = buff_ui["slotsets"][0]:GetSlotByIndex(buff_ui["slotcount"][0]);
             if slot == nil then
-                break;
+                return;
             end
 
-            buff_ui["slotlist"][i][buff_ui["slotcount"][i]] = slot;
+            buff_ui["slotlist"][0][buff_ui["slotcount"][0]] = slot;
             slot:ShowWindow(0);
+            
             local icon = CreateIcon(slot);
             icon:SetDrawCoolTimeText(0);
 
-            local x = buff_ui["slotsets"][i]:GetX() + slot:GetX() + buff_ui["txt_x_offset"];
-            local y = buff_ui["slotsets"][i]:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
+            local x = buff_ui["slotsets"][0]:GetX() + slot:GetX() + buff_ui["txt_x_offset"];
+            local y = buff_ui["slotsets"][0]:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
 
-            local captWidth, captHeight = 50, 20;
-            local capt = frame:CreateOrGetControl('richtext', "_t_" .. i .. "_" .. buff_ui["slotcount"][i], x, y, captWidth, captHeight);
-            capt:SetFontName("yellow_13");
-            buff_ui["captionlist"][i][buff_ui["slotcount"][i]] = capt;
-            buff_ui["slotcount"][i] = buff_ui["slotcount"][i] + 1;
+            local captionWidth, captionHeight = 50, 20;
+            local caption = frame:CreateOrGetControl("richtext", "_t_" .. 0 .. "_"..buff_ui["slotcount"][0], x, y, captionWidth, captionHeight);
+            caption:SetFontName("yellow_13");
+            
+            buff_ui["captionlist"][0][buff_ui["slotcount"][0]] = caption;
+            buff_ui["slotcount"][0] = buff_ui["slotcount"][0] + 1;
+        end
+    else
+        local slotcountSetPt = frame:GetChild("buffcountslot");
+        local slotSetPt = frame:GetChild("buffslot");
+        local deslotSetPt = frame:GetChild("debuffslot");
+        local slotcountsubSetPt = frame:GetChild("buffcountslot_sub");
+        buff_ui["slotsets"][0] = tolua.cast(slotcountSetPt, "ui::CSlotSet");
+        buff_ui["slotsets"][1] = tolua.cast(slotSetPt, "ui::CSlotSet");
+        buff_ui["slotsets"][2] = tolua.cast(deslotSetPt, "ui::CSlotSet");
+        buff_ui["slotsets"][3] = tolua.cast(slotcountsubSetPt, "ui::CSlotSet");
+
+        for i = 0, buff_ui["buff_group_cnt"] do
+            buff_ui["slotcount"][i] = 0;
+            buff_ui["slotlist"][i] = { };
+            buff_ui["captionlist"][i] = { };
+            while 1 do
+                if buff_ui["slotsets"][i] == nil then
+                    break;
+                end
+    
+                local slot = buff_ui["slotsets"][i]:GetSlotByIndex(buff_ui["slotcount"][i]);
+                if slot == nil then
+                    break;
+                end
+    
+                buff_ui["slotlist"][i][buff_ui["slotcount"][i]] = slot;
+                slot:ShowWindow(0);
+                local icon = CreateIcon(slot);
+                icon:SetDrawCoolTimeText(0);
+    
+                local x = buff_ui["slotsets"][i]:GetX() + slot:GetX() + buff_ui["txt_x_offset"];
+                local y = buff_ui["slotsets"][i]:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
+    
+                local captWidth, captHeight = 50, 20;
+                local capt = frame:CreateOrGetControl('richtext', "_t_" .. i .. "_" .. buff_ui["slotcount"][i], x, y, captWidth, captHeight);
+                capt:SetFontName("yellow_13");
+                buff_ui["captionlist"][i][buff_ui["slotcount"][i]] = capt;
+                buff_ui["slotcount"][i] = buff_ui["slotcount"][i] + 1;
+            end
         end
     end
 
@@ -456,29 +493,32 @@ function BUFF_TIME_UPDATE(handle, buff_ui)
     for j = 0, buff_ui["buff_group_cnt"] do
         local slotlist = buff_ui["slotlist"][j];
         local captlist = buff_ui["captionlist"][j];
-        if buff_ui["slotcount"][j] ~= nil and buff_ui["slotcount"][j] >= 0 then
-            for i = 0, buff_ui["slotcount"][j] -1 do
-                local slot = slotlist[i];
-                local text = captlist[i];
-                if slot:IsVisible() == 1 then
-                    local icon = slot:GetIcon();
-                    local iconInfo = icon:GetInfo();
-                    local buffIndex = icon:GetUserIValue("BuffIndex");
-                    local buff = info.GetBuff(handle, iconInfo.type, buffIndex);
-                    if buff ~= nil then
-                        SET_BUFF_TIME_TO_TEXT(text, buff.time);
-                        updated = 1;
-                        if buff.time < 5000 and buff.time ~= 0.0 then
-                            if slot:IsBlinking() == 0 then
-                                slot:SetBlink(600000, 1.0, "55FFFFFF", 1);
-                            end
-                        elseif buff.buffID == TOKEN_BUFF_ID and GET_REMAIN_TOKEN_SEC() < 3600 then
-                            if slot:IsBlinking() == 0 then
-                                slot:SetBlink(0, 1.0, "55FFFFFF", 1);
-                            end
-                        else
-                            if slot:IsBlinking() == 1 then
-                                slot:ReleaseBlink();
+        if slotlist ~= nil and captlist ~= nil then
+            local slotCount = buff_ui["slotcount"][j];
+            if slotCount ~= nil and slotCount >= 0 then
+                for i = 0, slotCount - 1 do
+                    local slot = slotlist[i];
+                    local text = captlist[i];
+                    if slot:IsVisible() == 1 then
+                        local icon = slot:GetIcon();
+                        local iconInfo = icon:GetInfo();
+                        local buffIndex = icon:GetUserIValue("BuffIndex");
+                        local buff = info.GetBuff(handle, iconInfo.type, buffIndex);
+                        if buff ~= nil then
+                            SET_BUFF_TIME_TO_TEXT(text, buff.time);
+                            updated = 1;
+                            if buff.time < 5000 and buff.time ~= 0.0 then
+                                if slot:IsBlinking() == 0 then
+                                    slot:SetBlink(600000, 1.0, "55FFFFFF", 1);
+                                end
+                            elseif buff.buffID == TOKEN_BUFF_ID and GET_REMAIN_TOKEN_SEC() < 3600 then
+                                if slot:IsBlinking() == 0 then
+                                    slot:SetBlink(0, 1.0, "55FFFFFF", 1);
+                                end
+                            else
+                                if slot:IsBlinking() == 1 then
+                                    slot:ReleaseBlink();
+                                end
                             end
                         end
                     end

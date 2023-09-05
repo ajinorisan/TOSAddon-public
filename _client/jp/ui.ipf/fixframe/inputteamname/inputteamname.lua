@@ -25,13 +25,6 @@ function INPUT_TEAMNAME_EXEC(parent, ctrl)
 	frame:SetUserValue("BeforName", "");
 end
 
-function INPUT_MOVECODE(parent, ctrl)
-	ui.CloseFrame("inputteamname")
-	local frame = ui.GetFrame("inputmovecode")
-	frame:ShowWindow(1)
-end
-
-
 function INPUT_TEAMNAME_EXEC_RESULT(frame, msg, argStr, result)
 	if result ~= 0 then		
         if result == -1 or result == -12 or result == -14 or result == -15 or result == -21 or result == -11 or result == -13 or result == -2 then

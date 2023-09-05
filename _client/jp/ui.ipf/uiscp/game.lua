@@ -34,7 +34,6 @@ function GET_MON_CAPTION(class, level, name, uniquename)
 	if name ~= 'None' then
 		return dic.getTranslatedStr(name);
 	end
-	
 	return dic.getTranslatedStr(class.Name);
 end
 
@@ -1130,6 +1129,10 @@ function GET_FULL_NAME(item, useNewLine, isEquiped, timeImgSize)
 		ownName = string.format("{img test_cooltime "..timeIconSize.." "..timeIconSize.."}%s{/}", ownName);
 	end
 	
+	if TryGetProp(item, "popoboost", 0) == 1 then
+		ownName = "[Event] "..ownName;
+	end
+	
 	if reinforce_2 ~= nil and reinforce_2 > 0 then
 		ownName = string.format("+%d %s", reinforce_2, ownName);
 	end
@@ -1137,7 +1140,7 @@ function GET_FULL_NAME(item, useNewLine, isEquiped, timeImgSize)
 	if IS_ENCHANT_JEWELL_ITEM(item) == true or IS_ICOR_ITEM(item) == true then
 		return GET_EXTRACT_ITEM_NAME(item);
 	end
-
+	
 	if IS_SEAL_ITEM(item) == true then
 		local curLv = GET_CURRENT_SEAL_LEVEL(item);
 		if curLv > 0 then
@@ -1148,6 +1151,7 @@ function GET_FULL_NAME(item, useNewLine, isEquiped, timeImgSize)
 	if TryGetProp(item, "StringArg", "None") ==	"TOSHeroEquip" or TryGetProp(item, "StringArg", "None") ==	"TOSHeroEquipNeck" then
 		ownName = ClMsg('TOSHeroEquipTooltip_Title')..ownName
 	end
+
 
 	return ownName;
 end

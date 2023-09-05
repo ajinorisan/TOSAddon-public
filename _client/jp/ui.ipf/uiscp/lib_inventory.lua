@@ -165,8 +165,11 @@ function PC_APPLY_TO_ALL_ITEM(func, ...)
 end
 
 function _CHECK_INVITEM_LV(invitem, clsId, lv)	
+	if lv == nil then
+		lv = 0
+	end
 	local obj = GetIES(invitem:GetObject());
-	if clsId == obj.ClassID and TryGet(obj, "Level") >= lv then
+	if clsId == obj.ClassID and TryGetProp(obj, "Level", 0) >= lv then
 		return invitem.count;
 	end
 
@@ -730,7 +733,7 @@ function GET_INV_ITEM_COUNT_BY_PROPERTY(propCondList, exceptLock, itemList, chec
             if matched == true then
                 if itemObj.MaxStack > 1 then
 	                count = count + invItem.count;
-	            else -- 비스?�형 ?�이??
+	            else -- 비스택형 아이템
 		            count = count + 1;
 		        end
 	            matchedList[#matchedList + 1] = invItem;
@@ -989,6 +992,7 @@ function GET_FURNITURE_CLASS_BY_ITEM_CLASSID(classID)
 
 	return GET_FURNITURE_CLASS_BY_ITEM(itemClass.ClassName);
 end
+
 
 function SET_SLOT_ICOR_CATEGORY(slot, item_obj)
 	if item_obj.GroupName == 'Icor' then

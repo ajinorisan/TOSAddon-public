@@ -1,5 +1,7 @@
 ﻿-- barrack_charlist.lua
 local prev_select_slot = 0
+local private_channel = false
+local private_dic = nil
 
 function BARRACK_CHARLIST_ON_INIT(addon, frame)
 	addon:RegisterMsg("BARRACK_ADDCHARACTER", "SELECTTEAM_ON_MSG");
@@ -20,7 +22,8 @@ function BARRACK_CHARLIST_ON_INIT(addon, frame)
 	addon:RegisterMsg("BARRACK_ACCOUNT_PROP_UPDATE", "SELECTTEAM_ON_MSG");
 	addon:RegisterMsg('RESULT_CHECK_MARKET', 'ON_RESULT_CHECK_MARKET');
     addon:RegisterMsg("BARRACK_CHARACTER_SWAP_FAIL", "SET_SWAP_REQUEST_FLAG_FALSE")
-    addon:RegisterMsg("BARRACK_CHARACTER_SWAP_SUCCESS", "SET_SWAP_REQUEST_FLAG_FALSE")
+	addon:RegisterMsg("BARRACK_CHARACTER_SWAP_SUCCESS", "SET_SWAP_REQUEST_FLAG_FALSE")
+	addon:RegisterMsg("ACTIVE_PRIVATE_CHANNEL", "ON_ACTIVE_PRIVATE_CHANNEL")
 
 	frame:SetUserValue("BarrackMode", "Barrack");
 
@@ -29,6 +32,40 @@ function BARRACK_CHARLIST_ON_INIT(addon, frame)
 	CHAR_LIST_OPEN_HEIGHT = 450;
 	CUR_SELECT_GUID = 'None';
 	current_layer = 1   
+end
+
+function GET_PRIVATE_CHANNEL_ACTIVE_STATE()
+	return private_channel
+end
+
+function ON_ACTIVE_PRIVATE_CHANNEL(frame)	
+	private_channel = true
+end
+
+function GET_SUFFIX_PRIVATE_CHANNEL(map_id, channel_id)	
+	if private_dic ~= nil and private_dic[map_id] ~= nil and private_dic[map_id][channel_id] ~= nil then
+		return private_dic[map_id][channel_id]
+	end
+
+	private_dic = {}
+	local list, cnt = GetClassList('region_channel_info')
+	for i = 0, cnt - 1 do		
+		local cls = GetClassByIndexFromList(list, i)
+		local map_cls = GetClass('Map', TryGetProp(cls, 'City', 'None'))
+		local id = TryGetProp(map_cls, 'ClassID', 0)
+		local c_id = TryGetProp(cls, 'Channel', 0)
+		local suffix = TryGetProp(cls, 'Suffix', 'None')
+		if private_dic[id] == nil then
+			private_dic[id] = {}
+		end
+		private_dic[id][c_id] = suffix
+	end
+
+	if private_dic[map_id] == nil or private_dic[map_id][channel_id] == nil then
+		return ''
+	else
+		return private_dic[map_id][channel_id]
+	end
 end
 
 function BARRACK_START_FRAME_OPEN(frame)
@@ -859,7 +896,6 @@ function SELECTTEAM_UPDATE_BTN_TITLE(frame)
 end
 
 function SELECTTEAM_ON_MSG(frame, msg, argStr, argNum, ud)
-
 	if g_barrackIndunCategoryList == nil then
 		g_barrackIndunCategoryList = {100, 10000, 400, 800, 200, 300, 500};
 	end
@@ -880,6 +916,7 @@ function SELECTTEAM_ON_MSG(frame, msg, argStr, argNum, ud)
 
 		local account = session.barrack.GetMyAccount();
 		local bpc = account:GetBySlot(argNum);
+		frame:SetUserValue('select_slot', argNum)
         session.barrack.SetSelectSlot(tonumber(argNum))
 		local gameStartFrame = ui.GetFrame('barrack_gamestart')
 		if argNum == 0 or bpc == nil then
@@ -939,10 +976,10 @@ function BARRACK_GO_CREATE()
 			return	
 		end	
 	end
-	BARRACK_STARTMAP_SELECT_INIT()
-end
+-- 	BARRACK_STARTMAP_SELECT_INIT()
+-- end
 
-function _BARRACK_GO_CREATE(select)
+-- function _BARRACK_GO_CREATE(select)
     if IS_FULL_SLOT_CURRENT_LAYER() == true then
         ui.SysMsg(ScpArgMsg("{layer}LayerFull", 'layer', current_layer))
         return
@@ -951,10 +988,10 @@ function _BARRACK_GO_CREATE(select)
 	ui.CloseFrame("inputstring")
 	ui.CloseFrame("barrackthema")
 
-	local createcharframe = ui.GetFrame("pub_createchar")
-	if createcharframe ~= nil then
-		createcharframe:SetUserValue("SELECTED_NUM", select)
-	end
+	-- local createcharframe = ui.GetFrame("pub_createchar")
+	-- if createcharframe ~= nil then
+	-- 	createcharframe:SetUserValue("SELECTED_NUM", select)
+	-- end
 end
 
 function BARRACK_GO_CREATE_RETRY()	
@@ -1204,23 +1241,31 @@ function START_GAME_SET_MAP(frame, slotID, mapID, channelID)
 		        for i = 0  , cnt - 1 do
 			        local zoneInst = zoneInsts:GetZoneInstByIndex(i);
 			        local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
-			        channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");
-		        end
+					channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");					
+				end				
                 channels:SelectItemByKey(channelID);
             end            
         else
             local cnt = zoneInsts:GetZoneInstCount();
 		    for i = 0  , cnt - 1 do
 			    local zoneInst = zoneInsts:GetZoneInstByIndex(i);
-			    local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
-			    channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");
+				
+				if private_channel == false then
+					local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+					channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");
+				else					
+					local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+					local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true, suffix);					
+					channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");					
+				end
+				
 		    end
             channels:SelectItemByKey(channelID);
         end        
 	end
 end
 
-function SELECT_GAMESTART_CHANNEL(parent, ctrl)
+function SELECT_GAMESTART_CHANNEL(parent, ctrl)	
 	local frame = parent:GetTopParentFrame();
 	local channels = GET_CHILD(frame, "channels", "ui::CDropList");
 
@@ -1419,7 +1464,7 @@ function REQUEST_PET_REVIVE(parent, ctrl)
 	local monCls = GetClassByType("Monster", petInfo:GetPetType());
 	local obj = GetIES(petInfo:GetObject());
 
-	local priceStr = PET_REVIVE_PRICE(obj) .. " " .. ScpArgMsg("NXP");
+	local priceStr = PET_REVIVE_PRICE(obj) .. " " .. 'TP'
 	local msg = ScpArgMsg("ReviveCompanion?{Price}WillBeConsumed", "Price", priceStr);
 	local execScript = string.format("_EXEC_REVIVE_PET(\"%s\")", petGuid);
 	ui.MsgBox(msg, execScript, "None");

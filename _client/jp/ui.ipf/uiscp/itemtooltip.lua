@@ -362,21 +362,7 @@ function GET_ITEM_TOOLTIP_DESC(obj, desc)
 	end
 	
 	if config.GetServiceNation() ~= "TAIWAN" then
-		local name = TryGetProp(obj, 'ClassName', 'None')
-		local cls = GetClass('recycle_shop', name)
-		if cls ~= nil  then
-			local sell = TryGetProp(cls, 'SellPrice', 0)
-			if sell > 0 then				
-				byDescColumn = dic.getTranslatedStr(byDescColumn)
-				byDescColumn = replace(byDescColumn, dic.getTranslatedStr(ClMsg('ExchangeRecycleMedal_1')), '')
-				byDescColumn = replace(byDescColumn, dic.getTranslatedStr(ClMsg('ExchangeRecycleMedal_2')), '')
-
-				if TryGetProp(obj, 'TeamBelonging', 0) == 0 and TryGetProp(obj, 'CharacterBelonging', 0) == 0 then
-					local suffix = '{nl}' .. ScpArgMsg('ExchangeRecycleMedal', 'value', sell)
-					byDescColumn = byDescColumn .. suffix
-				end
-			end
-		end
+		byDescColumn = DRAW_RECYCLE_PRICE(obj, byDescColumn)		
 	end
 	
 	if invDesc == "" then
@@ -839,8 +825,57 @@ function ITEM_TOOLTIP_GODDESS_ICOR(tooltipframe, invitem, mouseOverFrameName)
 	ypos = DRAW_EQUIP_TRADABILITY(tooltipframe, invitem, ypos, mainframename);
 end
 
+local function get_goddess_set_option_exprop(name)
+	local sum = 0
+	-- app.IsBarrackMode() == true
+	local charlist = ui.GetFrame("barrack_charlist");
+	if charlist == nil then		
+		local list = {'LH', 'RH', 'LH_SUB', 'RH_SUB', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS'}
+		for i = 1, #list do
+			local slot_name = list[i]
+			local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))		
+			if inv_item ~= nil then
+				local obj = GetIES(inv_item:GetObject())
+				for i = 1, MAX_RANDOM_OPTION_COUNT do
+					local op_name = 'RandomOption_' .. i
+					local _name = TryGetProp(obj, op_name, 'None')		
+					if _name == name then
+						local value = TryGetProp(obj, 'RandomOptionValue_' .. i, 0)
+						sum = sum + value
+					end
+				end
+			end
+		end
+	else
+		local barrack_mode = charlist:GetUserValue('BarrackMode')	
+		if barrack_mode == 'Barrack' then
+			local account = session.barrack.GetMyAccount();
+			local bpc = account:GetBySlot(charlist:GetUserIValue('select_slot'));
+			local spotCount = item.GetEquipSpotCount() - 1;
+			for i = 0 , spotCount do
+				local eqpObj = bpc:GetEquipObj(i);				
+				if eqpObj ~= nil then
+					local obj = GetIES(eqpObj);
+					if item.IsNoneItem(obj.ClassID) == 0 then
+						for i = 1, MAX_RANDOM_OPTION_COUNT do
+							local op_name = 'RandomOption_' .. i
+							local _name = TryGetProp(obj, op_name, 'None')		
+							if _name == name then
+								local value = TryGetProp(obj, 'RandomOptionValue_' .. i, 0)
+								sum = sum + value
+							end
+						end
+					end
+				end
+			end
+		end		
+	end
+
+	return sum
+end
+
 function DRAW_SPECIAL_RANDOM_OPTION(item, desc)		
-	for i = 1, 4 do
+	for i = 1, MAX_RANDOM_OPTION_COUNT do
 		local op_name = 'RandomOption_' .. i
 		local name = TryGetProp(item, op_name, 'None')		
 		local cls = GetClass('goddess_special_option', name)
@@ -863,14 +898,76 @@ function DRAW_SPECIAL_RANDOM_OPTION(item, desc)
 				desc = desc .. ScpArgMsg(name .. '_desc', 'value', value, 'value2', math.floor(value * 0.25))
 			elseif string.find(name, '_res') ~= nil then
 				local pc = GetMyPCObject()
-				local value1 = string.format('%.1f', math.min(tonumber(value / GET_MAX_REG_VALUE(pc.Lv) * 100), 100))
-            	desc = desc .. ScpArgMsg(name .. '_desc', 'value', value1, 'level', pc.Lv)
+				local value1 = 0
+				local level = PC_MAX_LEVEL
+				if pc ~= nil then
+					level = pc.Lv
+				end
+
+				value1 = string.format('%.1f', math.min(tonumber(value / GET_MAX_REG_VALUE(level) * 100), 100))
+            	desc = desc .. ScpArgMsg(name .. '_desc', 'value', value1, 'level', level)
 			else
 				desc = desc .. ScpArgMsg(name .. '_desc', 'value', value)
 			end
 		end
 	end
+
+
+	for i = 1, MAX_RANDOM_OPTION_COUNT do
+		local op_name = 'RandomOption_' .. i
+		local name = TryGetProp(item, op_name, 'None')		
+		local cls = GetClass('goddess_set_option', name)
+		if cls ~= nil then
+			local exprop_value = get_goddess_set_option_exprop(name)
+			-- if exprop_value > 1 then
+				desc = desc .. ' {nl}{img tooltip_attribute5} ' .. ScpArgMsg(name) .. '{nl}'
+			-- end
+			for j = 2, exprop_value do
+				local desc_name = string.format('%s_set%d_desc', name, j)
+				desc = desc .. '{@st47}{s15}{#F4D999}'.. ScpArgMsg(desc_name) .. '{/}{/}{/}' .. '{nl}'
+			end	
+			if exprop_value == 0 then
+				exprop_value = 1
+			end
+			local max = TryGetProp(cls, 'MaxSet', 0)
+			for k = exprop_value + 1, max do
+				local desc_name = string.format('%s_set%d_desc', name, k)
+				desc = desc .. ScpArgMsg(desc_name) .. '{nl}'
+			end
+
+			local desc_name = string.format('%s_set%d_desc2', name, max)
+			if GetClass('ClientMessage', desc_name) ~= nil and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
+				desc = desc .. ScpArgMsg(desc_name) .. '{nl}'
+			end
+
+		end
+	end
 	
+	local RadaOption = TryGetProp(item, 'RadaOption', 'None')
+	local equip_group = TryGetProp(item, 'EquipGroup', 'None')
+	if RadaOption ~= 'None' then
+		local prefix = ''
+		local suffix = ''
+		if SEASON_COIN_NAME ~= 'RadaCertificate' then
+			prefix = '{#7F7F7F}'
+			suffix = '{/}'
+		end
+
+		desc = prefix .. desc
+		desc = desc .. '{nl}' .. ScpArgMsg('rada_option') .. '{nl}'
+
+		local list = StringSplit(RadaOption, ';')
+		for i = 1, #list do
+			local name = StringSplit(list[i], '/')[1]
+			local value = StringSplit(list[i], '/')[2]
+
+			local range = GET_RADAOPTION_RANGE(name, equip_group)
+			desc = desc .. ScpArgMsg(name, 'level', value, 'min', range[1], 'max', range[2]) .. '{nl}'
+		end
+		desc = desc .. ScpArgMsg('rada_option_end') .. '{nl}'
+		desc = desc .. suffix
+	end
+
 	return desc
 end
 
@@ -894,5 +991,22 @@ function DRAW_REROLL_INFOMATION(item, desc)
 		end
 	end
 
+	return desc
+end
+
+
+function DRAW_VAKARINE_SKILL_OPTION(item, desc)	
+	for i = 1, 1 do
+		local op_name = 'EnchantSkillName_' .. i
+		local name = TryGetProp(item, op_name, 'None')
+		if name ~= 'None' then
+			local skl = GetClass('Skill', name)
+			if skl ~= nil then
+				local lv = TryGetProp(item, 'EnchantSkillLevel_'.. i, 1)
+				desc = desc .. ScpArgMsg('vakarine_skill_desc', 'name', TryGetProp(skl, 'Name', 'None'), 'level', lv)
+			end
+		end
+	end
+	
 	return desc
 end

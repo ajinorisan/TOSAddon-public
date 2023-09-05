@@ -654,10 +654,18 @@ function GET_TOOLTIP_ITEM_OBJECT(strarg, guid, numarg1)
 		viewObj = CloneIES_UseCP(itemObj)
 		viewObj.TeamBelonging = 1
 		return viewObj, 1
-	elseif string.find(strarg, 'reinforce_2') ~= nil then
+	elseif string.find(strarg, 'copy_prop') ~= nil then
+		
+		local list = StringSplit(strarg, ':')[2]		
 		local itemObj = GetClassByType('Item', numarg1)		
-		viewObj = CloneIES_UseCP(itemObj)		
-		viewObj.Reinforce_2 = tonumber(StringSplit(strarg, '/')[2])		
+		viewObj = CloneIES_UseCP(itemObj)
+		local prop_list = StringSplit(list, ';')
+		for k, v in pairs(prop_list) do
+			local name = StringSplit(v, '/')[1]			
+			local value = StringSplit(v, '/')[2]
+			SetIESProp(viewObj, name, value)
+		end		
+		
 		return viewObj, 1
 	else
 		invitem = GET_ITEM_BY_GUID(guid, 0);
@@ -1391,15 +1399,18 @@ function IS_DISABLED_TRADE(invitem, type)
 			return true;
 		end
 	elseif type == TRADE_TYPE_MARKET then
-		if TryGetProp(invitem, 'GroupName', 'None') == 'BELT' or TryGetProp(invitem, 'GroupName', 'None') == 'SHOULDER' then
-			return false
-		end
+		if invitem.MaxStack <= 1 then  -- 장비인 경우
+			if 0 < blongCnt then
+				return true -- 마켓 거래 불가
+			end
+			
+			if TryGetProp(invitem, 'MarketTrade', 'None') ~= 'YES' then
+				return true
+			end
 
-		if invitem.MaxStack <= 1 and 
-		((invitem.ItemType == 'Equip' and invitem.ClassType ~= 'Hair' and invitem.ClassType ~= 'Helmet' and invitem.ClassType ~= 'Armband' and prCount <= 0) or 
-		0 < blongCnt or 
-		(TryGetProp(invitem, 'ClassType', 'None') == 'Armband' and invitem.MarketTrade == "NO")) then
-			return true;
+			if TryGetProp(invitem, 'TeamBelonging', 0) == 1 or TryGetProp(invitem, 'CharacterBelonging', 0) == 1 then
+				return true
+			end
 		end
 	else
 		if invitem.MaxStack <= 1 and (0 <  blongCnt) then

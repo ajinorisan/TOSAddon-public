@@ -195,6 +195,9 @@
 		<image name="npc_baubas2" file="\icon\emoticon\Baubas_toothbrushing_01.png" imgrect="0 0 80 80"/>
 		<image name="boss_baubas2" file="\icon\monster\boss\npc_baubas2.png" imgrect="0 0 80 80"/>
 		<image name="boss_Roze" file="\icon\monster\boss\boss_Roze.png" imgrect="0 0 80 80"/>
+		<image name="boss_Upinis" file="\icon\monster\boss\boss_Upinis.png" imgrect="0 0 80 80"/>
+		<image name="boss_Slogutis" file="\icon\monster\boss\boss_Slogutis.png" imgrect="0 0 80 80"/>
+		<image name="boss_FallenDragoon" file="\icon\monster\boss\boss_FallenDragoon.png" imgrect="0 0 80 80"/>
 	</imagelist>
 	<imagelist category="Monster_icon_boss_01">
 		<image name="boss_FerretMarauder" file="\icon\monster\boss\boss_FerretMarauder.png" imgrect="0 0 80 80"/>
@@ -1647,5 +1650,11 @@
 		<image name="ep15_1_boss_Bubas" file="\icon\monster\mon\ep15_1_Q_boss_Bubas.png" imgrect="0 0 80 80"/>
 		<image name="ep15_1_goblin_fighter" file="\icon\monster\mon\ep15_1_goblin_fighter.png" imgrect="0 0 80 80"/>
 		<image name="ep15_1_Pokubu_ferocious" file="\icon\monster\mon\ep15_1_Pokubu_ferocious.png" imgrect="0 0 80 80 "/>
+		<image name="BW_boss_banshee" file="\icon\monster\mon\boss_banshee_Wail.png" imgrect="0 0 80 80 "/>
+		<image name="ep15_2_Papillon_Solider" file="\icon\monster\mon\ep15_2_Papillon_Solider.png" imgrect="0 0 80 80 "/>
+		<image name="ep15_2_masma" file="\icon\monster\mon\ep15_2_masma.png" imgrect="0 0 80 80 "/>
+		<image name="ep15_2_Papillon_Assassin" file="\icon\monster\mon\ep15_2_Papillon_Assassin.png" imgrect="0 0 80 80 "/>
+		<image name="ep15_2_Papillon_leader" file="\icon\monster\mon\ep15_2_Papillon_leader.png" imgrect="0 0 80 80 "/>
+		<image name="ep15_2_dark_statue" file="\icon\monster\mon\ep15_2_dark_statue.png" imgrect="0 0 80 80 "/>
 	</imagelist>
 </skinset>

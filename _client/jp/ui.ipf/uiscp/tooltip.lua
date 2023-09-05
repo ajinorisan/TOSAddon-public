@@ -6,7 +6,7 @@ function TRY_PARSE_TOOLTIPCOND(obj, caption)
     if ifPos == nil then
         return caption, 0;
     end
-
+    
     local ifEndPos = FIND_STRING(caption, ifPos + 2, " THEN ");
     if ifEndPos == nil then
         return caption, 0;
@@ -31,7 +31,6 @@ function TRY_PARSE_TOOLTIPCOND(obj, caption)
 
     local funcStr = string.format("function SKL_TEMP_FUNC(obj)\
         if %s then return \"%s\"; else return \"%s\"; end; end;", ifParsed, thenParsed, elseParsed);
-
 
     local runLoadString = load(funcStr);
     local funcc = runLoadString(obj);
@@ -69,7 +68,7 @@ function TRY_PARSE_PROPERTY(obj, nextObj, caption)
     return caption, 0;
 end
 
-function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
+function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)    
     caption = dictionary.ReplaceDicIDInCompStr(caption);
     local obj;  
     local parsed = 0;
@@ -185,7 +184,6 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
         if addCaption ~= "" then
             addCaption = "{#DD5500}{ol}"..addCaption.."{/}{/}"
         end
-        
         caption = addCaption..caption
     end
 
@@ -203,7 +201,6 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
             break;
         end
     end
-    
     
     if nextObj == nil then
         DestroyIES(obj);
@@ -238,7 +235,7 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
     end
     
     while 1 do
-        lvStart, lvEnd = string.find(lvCaption, "Lv.");        
+        lvStart, lvEnd = string.find(lvCaption, "Lv.");                
         if lvStart ~= nil then
             local propStart = string.find(caption, "#{");
             if propStart ~= nil then
@@ -251,9 +248,9 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
                     skillLevel = skillLevel + 1;                    
 
                     if LevelByDB ~= nil then
-                        nextObj.LevelByDB = skillLevel;
+                        nextObj.LevelByDB = skillLevel;                        
                     else
-                        nextObj.Level = skillLevel
+                        nextObj.Level = skillLevel                        
                     end
                     
                 end
@@ -379,7 +376,7 @@ function UPDATE_ABILITY_TOOLTIP(frame, strarg, numarg1, numarg2)
 		tooltipText = ScpArgMsg("companionRide").."{nl}"
 		compainon = 20;	
 	end
-
+    
     local width = 0;
 	if reqstance == "None" then
 		local shareBtn = reqstancectrl:CreateControl("picture", "All", leftOffset + compainon, topOffset, 28, 20)
@@ -400,11 +397,13 @@ function UPDATE_ABILITY_TOOLTIP(frame, strarg, numarg1, numarg2)
 	
 	local stancelist, stancecnt = GetClassList("Stance");	
 	for word in string.gmatch(reqstance, "%a+")do
-		local stance = GetClassByNameFromList(stancelist, word);	
-		local index = string.find(stance.ClassName, "Artefact")
-		if index == nil then
-				tooltipText = tooltipText..stance.Name.."{nl}";
-		end
+        local stance = GetClassByNameFromList(stancelist, word);	
+        if stance ~= nil then
+            local index = string.find(stance.ClassName, "Artefact")
+            if index == nil then
+                tooltipText = tooltipText..stance.Name.."{nl}";
+            end
+        end
 	end
 	
 	for i = 0, stancecnt -1 do
@@ -427,45 +426,44 @@ function UPDATE_ABILITY_TOOLTIP(frame, strarg, numarg1, numarg2)
 
 		if index ~= nil then
 			local index = string.find(stance.ClassName, "Artefact")
-			if index == nil then
-				if stance.UseSubWeapon == "NO" then
-					mainWeapon[mainSum] = stance.Icon
-					mainWeaponName[mainSum] = stance.Name
-					mainSum = mainSum + 1
-				elseif stance.UseSubWeapon == "YES" then
-					local flag = 0
-					for i = 0, #subWeapon do
-						if subWeapon[i] == stance.Icon then
-							flag = 1
-						end
-					end
-					if flag == 0 then
-						subWeapon[subSum] = stance.Icon
-						subWeaponName[subSum] = stance.Name
-						subSum = subSum + 1
-					end
+            if index == nil then
+                if stance.UseSubWeapon == "NO" then
+                    if mainWeapon[stance.Name] == nil then
+                        mainWeapon[stance.Name] = stance.Icon                        
+                    end
+					
+                elseif stance.UseSubWeapon == "YES" then
+                    if subWeapon[stance.Name] == nil then
+                        subWeapon[stance.Name] = stance.Icon
+                    end
+                    
+
 				end
 			end
 		end
 	end
 	
-	local index = 0	
-	for i = 1, #mainWeapon do
-		local shareBtn = reqstancectrl:CreateControl("picture", mainWeapon[i]..i, (leftOffset + compainon)+((i-1)*20), topOffset, 20, 20)
+    local index = 0	
+    
+    local i = 1
+    for k, v in pairs(mainWeapon) do
+        local shareBtn = reqstancectrl:CreateControl("picture", v .. i, (leftOffset + compainon)+((i-1)*20), topOffset, 20, 20)
 		shareBtn = tolua.cast(shareBtn, "ui::CPicture");
-		shareBtn:SetImage(mainWeapon[i]);
-		--shareBtn:SetTextTooltip(mainWeaponName[i]);	
+		shareBtn:SetImage(v);
+	
 		index = index + 1
-		iconCount = iconCount + 1
-	end
+        iconCount = iconCount + 1
+        i = i + 1
+    end
 
-	for i = 1, #subWeapon do
-		local shareBtn = reqstancectrl:CreateControl("picture", subWeapon[i]..index+i, (leftOffset + compainon)+((index+i-1)*20), topOffset, 20, 20)
+    i = 1
+    for k, v in pairs(subWeapon) do
+        local shareBtn = reqstancectrl:CreateControl("picture", v..index+i, (leftOffset + compainon)+((index+i-1)*20), topOffset, 20, 20)
 		shareBtn = tolua.cast(shareBtn, "ui::CPicture");
-		shareBtn:SetImage(subWeapon[i]);
-		--shareBtn:SetTextTooltip(subWeaponName[i]);	
+		shareBtn:SetImage(v);
+		
 		iconCount = iconCount + 1
-	end
+    end
 
     local compainonindex = 0		
 	if iconCount > 0 then 
@@ -479,22 +477,67 @@ function UPDATE_ABILITY_TOOLTIP(frame, strarg, numarg1, numarg2)
 	return iconCount, compainonindex;
 end
 
-function SET_SKILL_TOOLTIP_ICON_AND_NAME(skillFrame, obj, useTranslateData)    
-    local iconPicture = GET_CHILD(skillFrame, "icon", "ui::CPicture");
-    local iconname = "icon_" .. obj.Icon;
-    iconPicture:SetImage(iconname);
-    local name = skillFrame:GetChild('name');
-    local nameText = '{@st43}'..obj.Name;
+function SET_SKILL_TOOLTIP_ICON_AND_NAME(skillFrame, obj, useTranslateData)
+    if obj ~= nil then
+        local picture = GET_CHILD(skillFrame, "icon", "ui::CPicture");
+        local icon = TryGetProp(obj, "Icon", "");
+        local icon_name = "icon_"..icon;
+        picture:SetImage(icon_name);
+        
+        local suffix = ''
+        local name = skillFrame:GetChild('name');
+        local class_name = TryGetProp(obj, "ClassName", "");
+        local cls = GetClass('enchant_skill_list', class_name);
+        if cls ~= nil then
+            local max = TryGetProp(cls, 'MaxLevel', 10)
+            suffix = string.format("{@st42}(%d/%d){/}", obj.Level, max)
+        end
 
-    if useTranslateData == true then
-        local translatedData = dictionary.ReplaceDicIDInCompStr(obj.Name);
-        if obj.EngName ~= translatedData then
-            if config.GetServiceNation() ~= "GLOBAL" then
-                nameText = nameText .. "{/}{nl}" .. obj.EngName;
+        local obj_name = TryGetProp(obj, "Name", "");
+        local obj_eng_name = TryGetProp(obj, "EngName", "");
+        local name_text = '{@st43}'..obj_name..'{/}'..suffix;
+        if useTranslateData == true then
+            local translated_data = dictionary.ReplaceDicIDInCompStr(obj_name);
+            if obj_eng_name ~= translated_data then
+                if config.GetServiceNation() ~= "GLOBAL" then
+                    name_text = name_text.."{/}{nl}"..obj_eng_name;
+                end
             end
         end
+        name:SetText(name_text); 
     end
-    name:SetText(nameText); 
+end
+
+function SET_SKILL_CONVERSION_TOOLTIP_ICON_AND_NAME(skillFrame, obj, useTranslateData)
+    if obj ~= nil then
+        local picture = GET_CHILD(skillFrame, "icon", "ui::CPicture");
+        local icon = get_skill_conversion_info(nil, obj, "icon");
+        local icon_name = "icon_"..icon;
+        picture:SetImage(icon_name);
+        
+        local suffix = ''
+        local name = skillFrame:GetChild('name');
+        local class_name = TryGetProp(obj, "ClassName", "");
+        local cls = GetClass('enchant_skill_list', class_name);
+        if cls ~= nil then
+            local level = TryGetProp(obj, "Level", 1);
+            local max = TryGetProp(cls, 'MaxLevel', 10);
+            suffix = string.format("{@st42}(%d/%d){/}", level, max);
+        end
+
+        local obj_name = get_skill_conversion_info(nil, obj, "name");
+        local obj_eng_name = get_skill_conversion_info(nil, obj, "eng_name");
+        local name_text = '{@st43}'..obj_name..'{/}'..suffix;
+        if useTranslateData == true then
+            local translated_data = dictionary.ReplaceDicIDInCompStr(obj_name);
+            if obj_eng_name ~= translated_data then
+                if config.GetServiceNation() ~= "GLOBAL" then
+                    name_text = name_text.."{/}{nl}"..obj_eng_name;
+                end
+            end
+        end
+        name:SetText(name_text); 
+    end
 end
 
 function SET_SKILL_TOOLTIP_CAPTION(skillFrame, caption, parsedCaption)
@@ -506,7 +549,25 @@ function SET_SKILL_TOOLTIP_CAPTION(skillFrame, caption, parsedCaption)
         skillDesc:SetDicIDText(caption)
     end
     skillDesc:SetText('{#1f100b}'..parsedCaption);
-    skillDesc:EnableSplitBySpace(0);
+    skillDesc:EnableSplitBySpace(0);    
+end
+
+function SET_SKILL_CONVERSION_TOOLTIP_CAPTION(frame, obj)
+    if obj ~= nil then
+        local text_desc = GET_CHILD_RECURSIVELY(frame, "desc", "ui::CRichText");
+        text_desc:Resize(text_desc:GetWidth(), 20);
+        text_desc:SetTextAlign("left", "top");
+
+        local caption = get_skill_conversion_info(nil, obj, "caption");
+        if caption ~= nil and caption ~= "None" then
+            local translated_data = dictionary.ReplaceDicIDInCompStr(caption); 
+            if caption ~= translated_data then
+                text_desc:SetDicIDText(caption);
+            end
+        end
+        text_desc:SetText('{#1f100b}'..caption);
+        text_desc:EnableSplitBySpace(0);    
+    end
 end
 
 function SET_SKILL_PUB_CREATECHAR_TOOLTIP_CAPTION(skillFrame, caption, parsedCaption)
@@ -575,7 +636,28 @@ local function get_remove_debuff_additional_tooltip(func, lv, lvDesc, additional
     return lvDesc
 end
 
-function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
+local function SET_TOOLTIP_SUBSKILL_CAPTION_BY_CLASS(skill, begin_lv, max_lv)
+    local caption = "";
+    local conversion_caption2 = get_skill_conversion_info(nil, skill, "caption2");
+    if conversion_caption2 == "None" then 
+        conversion_caption2 = ""; 
+        return caption;
+    end
+    for i = 1, begin_lv, max_lv do
+        caption = caption.."Lv."..i;
+        caption = caption..","..conversion_caption2;
+        if i == begin_lv then
+            if CHECK_SKILL_KEYWORD(skill, "pcSummonSkill") == 1 then
+                local factor = SCR_Get_SkillFactor(skill);
+                local text = "{@st43}{s16}"..ClMsg("SkillFactorText")..tostring(factor).."%%";
+                caption = string.gsub(caption, "None", text);
+            end
+        end
+    end
+    return caption
+end
+
+function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)        
     -- destroy skill, ability tooltip
     DESTROY_CHILD_BYNAME(frame:GetChild('skill_desc'), 'SKILL_CAPTION_');
     DESTROY_CHILD_BYNAME(frame:GetChild('ability_desc'), 'ABILITY_CAPTION_');
@@ -615,13 +697,12 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
         
         local mySession = session.GetMySession();
         local skillList = mySession:GetSkillList();
-        local skl = skillList:GetSkillByName(TryGetProp(obj, 'ClassName', 'None'))
-        
-        if skl ~= nil then        
+        local skl = skillList:GetSkillByName(TryGetProp(obj, 'ClassName', 'None'));
+        if skl ~= nil then
             info["obj"] = GetIES(skl:GetObject());
             if info["obj"] ~= nil then
-                obj.Level = info["obj"].Level;                
-                tooltipStartLevel = obj.Level                
+                obj.Level = info["obj"].Level;              
+                tooltipStartLevel = obj.Level;
             end            
         end
     else	
@@ -636,8 +717,16 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
 	
     --------------------------- skill description frame ------------------------------------
     local skillFrame = GET_CHILD(frame, "skill_desc", "ui::CGroupBox")
-    -- set skill icon and name
-    SET_SKILL_TOOLTIP_ICON_AND_NAME(skillFrame, obj, true);    
+    -- set skill icon and name    
+    if is_skill_conversion(obj) == true then
+        if strarg == 'quickslot' then
+            SET_SKILL_CONVERSION_TOOLTIP_ICON_AND_NAME(skillFrame, obj, true);
+        else
+            SET_SKILL_TOOLTIP_ICON_AND_NAME(skillFrame, obj, true);    
+        end
+    else
+        SET_SKILL_TOOLTIP_ICON_AND_NAME(skillFrame, obj, true);    
+    end
     
     -- expand tooltip
     if frame:GetName() == 'skill_expand' then
@@ -645,8 +734,16 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
     end
 
     -- set skill description
-    local skillDesc = GET_CHILD(skillFrame, "desc", "ui::CRichText");   	
-    SET_SKILL_TOOLTIP_CAPTION(skillFrame, obj.Caption, PARSE_TOOLTIP_CAPTION(obj, obj.Caption, true));    	
+    local skillDesc = GET_CHILD(skillFrame, "desc", "ui::CRichText");
+    if is_skill_conversion(obj) == true then
+        if strarg == 'quickslot' then
+            SET_SKILL_CONVERSION_TOOLTIP_CAPTION(skillFrame, obj);
+        else
+            SET_SKILL_TOOLTIP_CAPTION(skillFrame, obj.Caption, PARSE_TOOLTIP_CAPTION(obj, obj.Caption, true));            
+        end
+    else
+        SET_SKILL_TOOLTIP_CAPTION(skillFrame, obj.Caption, PARSE_TOOLTIP_CAPTION(obj, obj.Caption, true));    	
+    end
 
     local stateLevel = 0;
     if strarg ~= "quickslot" then
@@ -669,7 +766,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
     stancePic:RemoveAllChild()
     if TryGetProp(obj, 'ReqStance') ~= nil and TryGetProp(obj, 'EnableCompanion') ~= nil then       
         MAKE_STANCE_ICON(stancePic, obj.ReqStance, obj.EnableCompanion, 100, 37)
-
+        
         local childCount = stancePic:GetChildCount()
         for i=0, childCount-1 do
             local child = stancePic:GetChildByIndex(i);
@@ -679,10 +776,12 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
     
     weaponBox:SetOffset(0, ypos)
     ypos = weaponBox:GetY() + weaponBox:GetHeight() + 5;
-    
 
     -- skill level description controlset
-    local skillCaption2 = MAKE_SKILL_CAPTION2(obj.ClassName, obj.Caption2, tooltipStartLevel);    
+    local skillCaption2 = MAKE_SKILL_CAPTION2(obj.ClassName, obj.Caption2, tooltipStartLevel);
+    if is_skill_conversion(obj) == true then
+        skillCaption2 = MAKE_SKILL_CONVERSION_CAPTION2(obj, tooltipStartLevel);
+    end
     local originalText = ""
     local translatedData2 = dictionary.ReplaceDicIDInCompStr(skillCaption2);        
     if skillCaption2 ~= translatedData2 then
@@ -697,7 +796,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
     end 
 
     local totalLevel = 0;
-    local skl = session.GetSkillByName(obj.ClassName);
+    local skl = session.GetSkillByName(obj.ClassName);    
     if strarg ~= "Level" then
         if skl ~= nil then
             skillObj = GetIES(skl:GetObject());
@@ -708,7 +807,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
     else
         totalLevel = obj.LevelByDB;
     end
-
+    
     -- 적 버프 제거 관련 --------------------------------------------------
     local skill_class_name = TryGetProp(obj, 'ClassName', 'None')
     local additional_remove_buff_tooltip = nil
@@ -733,7 +832,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
     end
     --------------------------------------------------------------------
 
-    local currLvCtrlSet = nil    
+    local currLvCtrlSet = nil            
     if totalLevel == 0 and lvDescStart ~= nil then  -- no have skill case        
         skillLvDesc = string.sub(skillLvDesc, lvDescEnd + 2, string.len(skillLvDesc));
         lvDescStart, lvDescEnd = string.find(skillLvDesc, "Lv.");        
@@ -783,19 +882,19 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
             end
             -------------------------------------------------------------------------------------------------
 
-            ypos = SKILL_LV_DESC_TOOLTIP(skillFrame, obj, totalLevel, lv, lvDesc, ypos, originalText);
+            ypos = SKILL_LV_DESC_TOOLTIP(skillFrame, obj, totalLevel, lv, lvDesc, ypos, originalText);            
         end            
-    elseif lvDescStart ~= nil and totalLevel ~= 0 then        
-        skillLvDesc = string.sub(skillLvDesc, lvDescEnd + 2, string.len(skillLvDesc));                		
-        while 1 do			
-
+    elseif lvDescStart ~= nil and totalLevel ~= 0 then                
+        skillLvDesc = string.sub(skillLvDesc, lvDescEnd + 2, string.len(skillLvDesc));
+        while 1 do
+            
             local levelvalue = 2
             if lv >= 9 then
                 levelvalue = 3
             elseif lv >= 99 then
                 levelvalue = 4
             end
-            
+
             lvDescStart, lvDescEnd = string.find(skillLvDesc, "Lv.");  
             if lvDescStart == nil then -- max skill level = 1
                 local lvDesc = string.sub(skillLvDesc, 2, string.len(skillLvDesc));
@@ -819,7 +918,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
                 end
                 -------------------------------------------------------------------------------------------------
 
-                ypos = SKILL_LV_DESC_TOOLTIP(skillFrame, obj, totalLevel, lv, lvDesc, ypos, originalText);                				
+                ypos = SKILL_LV_DESC_TOOLTIP(skillFrame, obj, totalLevel, lv, lvDesc, ypos, originalText);                
                 break;
             end            
             local lvDesc = string.sub(skillLvDesc, 2, lvDescStart -1);   			            
@@ -828,7 +927,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
                 lvDesc = string.sub(skillLvDesc, 3, lvDescStart -1);   
             end
             skillLvDesc  = string.sub(skillLvDesc, lvDescEnd + levelvalue, string.len(skillLvDesc))
-
+            
             -- 버프 삭제 로직 툴팁 관련 ----------------------------------------------------------------
             if func_name_remove_buff ~= nil and _G[func_name_remove_buff] ~= nil then 
                 local func = _G[func_name_remove_buff]
@@ -852,7 +951,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
             lv = lv + 1;
         end
     end
-         
+       
     local noTrade = GET_CHILD(skillFrame, "trade_text", "ui::CRichText");
     local itemID = frame:GetUserValue("SCROLL_ITEM_ID");
     local noTradeCnt = nil;
@@ -1089,11 +1188,10 @@ function UPDATE_SKILL_PUB_CREATECHAR_TOOLTIP(frame, strarg, numarg1, numarg2, us
     end
 end
 
- function MAKE_SKILL_CAPTION2(className, caption2, curLv)
+function MAKE_SKILL_CAPTION2(className, caption2, curLv)    
     local originCaption = caption2;
-
-    local clslist, cnt  = GetClassList("SkillTree");
-    if cnt == 0 then
+    local clslist, cnt = GetClassList("SkillTree");
+    if cnt == 0 then 
         return originCaption;
     end
 
@@ -1101,7 +1199,7 @@ end
     local beginLv = 1;
     local maxLevel = 2;
 	local find = false;
-    for i=0, cnt-1 do
+    for i = 0, cnt - 1 do
         local class = GetClassByIndexFromList(clslist, i);
         if class ~= nil then
             if class.SkillName == className then
@@ -1115,7 +1213,8 @@ end
 	if find == false then
 		maxLevel = 1;
 		curLv = 1;
-	end
+    end
+    
     if maxLevel < curLv then
         maxLevel = curLv
     end
@@ -1173,16 +1272,58 @@ end
                 local factor = SCR_Get_SkillFactor(sklObj)
                 local text = '{@st43}{s16}' .. ClMsg('SkillFactorText') .. tostring(factor) .. '%%'
                 caption = string.gsub(caption, 'None', text)
-
             end
         end
     end
-
-
     return caption;
- end
+end
 
-function SKILL_LV_DESC_TOOLTIP(frame, obj, totalLevel, lv, desc, ypos, dicidtext)       
+function MAKE_SKILL_CONVERSION_CAPTION2(skill, cur_lv) 
+    local caption = "";
+    if skill ~= nil then
+        local skill_class_name = TryGetProp(skill, "ClassName", "None");
+        local list, cnt = GetClassList("SkillTree");
+        if cnt == 0 then return ""; end
+        local begin_lv = 1;
+        local max_lv = 2;
+        local find = false;
+        for i = 0, cnt - 1 do
+            local cls = GetClassByIndexFromList(list, i);
+            if cls ~= nil then
+                local cls_name = TryGetProp(cls, "SkillName", "None");
+                if cls_name == skill_class_name then
+                    max_lv = TryGetProp(cls, "MaxLevel", 0);
+                    find = true;
+                    break;
+                end
+            end
+        end
+        if find == false then
+            max_lv = 1;
+            cur_lv = 1;
+        end
+        if max_lv < cur_lv then max_lv = cur_lv; end
+        if cur_lv ~= nil then
+            if cur_lv == 0 then 
+                begin_lv = 1; 
+            else 
+                begin_lv = cur_lv; 
+            end
+            if max_lv >= begin_lv + 1 then
+                max_lv = begin_lv + 1;
+            end
+        end
+
+       caption = SET_TOOLTIP_SUBSKILL_CAPTION_BY_CLASS(skill,begin_lv,max_lv);
+       if caption == "" then
+            caption = "None";
+       end
+
+    end
+    return caption;
+end
+
+function SKILL_LV_DESC_TOOLTIP(frame, obj, totalLevel, lv, desc, ypos, dicidtext)     
     if totalLevel ~= lv and totalLevel + 1 ~= lv then        
         return ypos;
     end

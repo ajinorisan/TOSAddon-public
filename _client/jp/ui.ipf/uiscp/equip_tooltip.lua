@@ -1196,7 +1196,7 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
 			end			
 
 			local strInfo = nil
-			if max ~= nil then
+			if max ~= nil and max > 0 then
 				local current_value = propItem[propValue]						
 				if growth_except_list[propName] ~= true then
 					if growth_rate > 0 and growth_rate < 1 then
@@ -2688,10 +2688,10 @@ function DRAW_EQUIP_PR_N_DUR(tooltipframe, invitem, yPos, mainframename)
 		dur_gauge:SetPoint(temparg1, temparg2);
 	end
 
-	if itemClass.NeedAppraisal == 1 or itemClass.NeedRandomOption == 1 then
+	if TryGetProp(itemClass, 'NeedAppraisal', 0) == 1 or TryGetProp(itemClass, 'NeedRandomOption', 0) == 1 then
 		local needAppraisal = TryGetProp(invitem, "NeedAppraisal");
 		local needRandomOption = TryGetProp(invitem, "NeedRandomOption");
-		if needAppraisal ~= nil and  needAppraisal == 0 and itemClass.NeedAppraisal == 1 then -- 감정아이템
+		if needAppraisal ~= nil and  needAppraisal == 0 and TryGetProp(itemClass, 'NeedAppraisal', 0) == 1 then -- 감정아이템
 			pr_gauge:SetStatFont(0, "yellow_14_b")
 		elseif  needRandomOption == 1 or needAppraisal == 1 then --미감정아이템
 		    if needAppraisal == 1 then 
@@ -3678,6 +3678,8 @@ function DRAW_EQUIP_GODDESS_ICOR(invitem, property_gbox, inner_yPos)
             clientMessage = 'ItemRandomOptionGroupUTIL'
         elseif propItem[propGroupName] == 'STAT' then
 			clientMessage = 'ItemRandomOptionGroupSTAT'		
+		elseif propItem[propGroupName] == 'SPECIAL' then
+			clientMessage = 'ItemRandomOptionGroupSPECIAL'		
 		end
         
 		if propItem[propValue] ~= 0 and propItem[propName] ~= "None" then
@@ -3689,7 +3691,7 @@ function DRAW_EQUIP_GODDESS_ICOR(invitem, property_gbox, inner_yPos)
 			local _, max = shared_item_goddess_icor.get_option_value_range_icor(invitem, propItem[propName])	
 			
 			local strInfo = nil
-			if max ~= nil then
+			if max ~= nil and max > 0 then
 				local current_value = propItem[propValue]				
 				if max == current_value then
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 1);
@@ -3897,9 +3899,9 @@ function DRAW_EQUIP_SKILL_SOCKET_COUNT(tooltipframe, invitem, yPos, addinfoframe
     if value == 1 then
         return yPos
     end
-
+	
 	local min = 1
-	local max = shared_common_skill_enchant.get_max_slot_count()
+	local max = shared_common_skill_enchant.get_max_slot_count(TryGetProp(invitem, 'UseLv', 1))
 
 	local gBox = GET_CHILD(tooltipframe, addinfoframename,'ui::CGroupBox')
 	gBox:RemoveChild('tooltip_equip_skill_socket');
@@ -3914,14 +3916,13 @@ function DRAW_EQUIP_SKILL_SOCKET_COUNT(tooltipframe, invitem, yPos, addinfoframe
 	return tooltip_equip_socket_CSet:GetHeight() + tooltip_equip_socket_CSet:GetY();
 end
 
-function DRAW_EQUIP_SKILL_SOCKET(tooltipframe, itemObj, yPos, addinfoframename)	
+function DRAW_EQUIP_SKILL_SOCKET(tooltipframe, itemObj, yPos, addinfoframename)		
 	local value = IS_TOGGLE_EQUIP_ITEM_TOOLTIP_DESC();
     if value == 1 then
         return yPos;
 	end
 	
-	local invitem = GET_INV_ITEM_BY_ITEM_OBJ(itemObj);
-	if invitem == nil then
+	if itemObj == nil then		
 		return yPos;
 	end
 
@@ -3935,7 +3936,7 @@ function DRAW_EQUIP_SKILL_SOCKET(tooltipframe, itemObj, yPos, addinfoframename)
 	local DEFAULT_POS_Y = tooltip_equip_socket_CSet:GetUserConfig("DEFAULT_POS_Y")
 	local inner_yPos = DEFAULT_POS_Y;
 
-	local function _ADD_ITEM_SOCKET_PROP(GroupCtrl, invitem, yPos, index)
+	local function _ADD_ITEM_SOCKET_PROP(GroupCtrl, itemObj, yPos, index)
 		if GroupCtrl == nil then
 			return 0;
 		end
@@ -3950,7 +3951,7 @@ function DRAW_EQUIP_SKILL_SOCKET(tooltipframe, itemObj, yPos, addinfoframename)
 		local gradetext = GET_CHILD_RECURSIVELY(ControlSetCtrl,"grade","ui::CRichText");
 	
 
-		local option_name = TryGetProp(invitem, 'EnchantSkillName_' .. index, 'None')
+		local option_name = TryGetProp(itemObj, 'EnchantSkillName_' .. index, 'None')
 
 		if index > 0 then
 			if option_name == 'None' then
@@ -3968,7 +3969,7 @@ function DRAW_EQUIP_SKILL_SOCKET(tooltipframe, itemObj, yPos, addinfoframename)
 				local socket_image_name = cls.Icon				
 				socket_image:SetImage('icon_' .. socket_image_name)
 				local name = '{@st47}{s15}{#00EE00}' .. cls.Name 
-				local desc = ScpArgMsg('vakarine_skill_desc', 'level', TryGetProp(invitem, 'EnchantSkillLevel_' .. index), 1)			
+				local desc = ScpArgMsg('vakarine_skill_desc', 'level', TryGetProp(itemObj, 'EnchantSkillLevel_' .. index), 1)			
 				gradetext:SetText(name)
 				socket_property_text:SetText(desc);
 				socket_property_text:ShowWindow(1);

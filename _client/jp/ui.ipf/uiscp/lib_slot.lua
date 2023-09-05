@@ -180,21 +180,21 @@ function SET_SLOT_ITEM(slot, invItem, count)
 end
 
 function SET_SLOT_STAR_TEXT(slot, invItem)	
+	local starIconProp = TryGetProp(invItem, 'StarIcon', 'None');
+	local controlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
 	if (TryGetProp(invItem, "StringArg", "None") == "SkillGem" and TryGetProp(invItem, "RandomOption_1", "None") ~= "None") then
-		local controlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
 		local grade = GET_CHILD(controlset, "grade")
 		grade:SetText("{img star_mark 18 18}")
 		controlset:ShowWindow(1)
 		controlset:SetGravity(ui.RIGHT, ui.TOP)
-	elseif TryGetProp(invItem, 'StarIcon', 'None') ~= 'None' then
-		local controlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
+	elseif starIconProp ~= 'None' then
 		local grade = GET_CHILD(controlset, "grade")
-		local name = string.format("{img %s 18 18}", TryGetProp(invItem, 'StarIcon', 'None'))
+		local name = string.format("{img %s 18 18}", starIconProp)
 		grade:SetText(name)
 		controlset:ShowWindow(1)
 		controlset:SetGravity(ui.RIGHT, ui.TOP)		
 	else
-		-- controlset:ShowWindow(0)
+		controlset:ShowWindow(0)
 	end
 end
 

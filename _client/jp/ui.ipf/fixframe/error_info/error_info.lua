@@ -50,6 +50,13 @@ function ERROR_INFO_INIT(errorCode, summary, infoMsg, handleMsg, url, argNum, cl
 		urlBox:Resize(urlBox:GetWidth(), urlText:GetY() + urlText:GetHeight() + 10);
 		ypos = ypos + urlBox:GetHeight();
 		urlBox:ShowWindow(1);
+
+		if config.GetServiceNation() == 'PAPAYA' then
+			local urlTitleText = GET_CHILD_RECURSIVELY(frame, 'urlTitleText')
+			if urlTitleText ~= nil then
+				urlTitleText:SetText('{img notice_br_link 16 16}{@st99w16} Support')
+			end
+		end
 	else
 		urlBox:ShowWindow(0);
 	end

@@ -176,6 +176,29 @@ function DRAW_ETC_PROPRTY(tooltipframe, invitem, yPos, mainframename)
 	return Cset:GetHeight() + Cset:GetY();
 end
 
+function DRAW_RECYCLE_PRICE(invitem, Desc)
+	local name = TryGetProp(invitem, 'ClassName', 'None')	
+	local cls = GetClass('recycle_shop', name)
+	if config.GetServiceNation() == 'PAPAYA' then
+		cls = GetClass('recycle_shop_papaya', name)
+	end
+	
+	if cls ~= nil  then
+		local sell = TryGetProp(cls, 'SellPrice', 0)
+		if sell > 0 then				
+			Desc = dic.getTranslatedStr(Desc)
+			Desc = replace(Desc, dic.getTranslatedStr(ClMsg('ExchangeRecycleMedal_1')), '')
+			Desc = replace(Desc, dic.getTranslatedStr(ClMsg('ExchangeRecycleMedal_2')), '')
+			
+			if TryGetProp(invitem, 'TeamBelonging', 0) == 0 and TryGetProp(invitem, 'CharacterBelonging', 0) == 0 then
+				local suffix = '{nl}' .. ScpArgMsg('ExchangeRecycleMedal', 'value', sell)
+				Desc = Desc .. suffix
+			end
+		end
+	end
+	return Desc
+end
+
 function DRAW_ETC_DESC_TOOLTIP(tooltipframe, invitem, yPos, mainframename)
 
 	local gBox = GET_CHILD(tooltipframe, mainframename,'ui::CGroupBox')
@@ -260,25 +283,11 @@ function DRAW_ETC_DESC_TOOLTIP(tooltipframe, invitem, yPos, mainframename)
 	end
 
 	if config.GetServiceNation() ~= "TAIWAN" then
-		local name = TryGetProp(invitem, 'ClassName', 'None')
-		local cls = GetClass('recycle_shop', name)
-		if cls ~= nil  then
-			local sell = TryGetProp(cls, 'SellPrice', 0)
-			if sell > 0 then				
-				Desc = dic.getTranslatedStr(Desc)
-				Desc = replace(Desc, dic.getTranslatedStr(ClMsg('ExchangeRecycleMedal_1')), '')
-				Desc = replace(Desc, dic.getTranslatedStr(ClMsg('ExchangeRecycleMedal_2')), '')
-
-				if TryGetProp(invitem, 'TeamBelonging', 0) == 0 and TryGetProp(invitem, 'CharacterBelonging', 0) == 0 then
-					local suffix = '{nl}' .. ScpArgMsg('ExchangeRecycleMedal', 'value', sell)
-					Desc = Desc .. suffix
-				end
-			end
-		end
+		Desc = DRAW_RECYCLE_PRICE(invitem, Desc)
 	end
 	Desc = DRAW_COLLECTION_INFO(invitem, Desc)
 	Desc = DRAW_USAGEDESC_INFO(invitem, Desc)
-	
+	Desc = DRAW_COMMON_SKILL_LIST(invitem, Desc)
 	descRichtext:SetText(Desc)
 
 	tolua.cast(CSet, "ui::CControlSet");
@@ -290,6 +299,41 @@ function DRAW_ETC_DESC_TOOLTIP(tooltipframe, invitem, yPos, mainframename)
 
 	return yPos, descRichtext
 
+end
+
+function DRAW_COMMON_SKILL_LIST(invitem, Desc)
+	local str = TryGetProp(invitem, 'StringArg', 'None')
+	if str == 'random_common_skill_scroll' then
+		local list = shared_skill_enchant.get_skill_list(TryGetProp(invitem, 'NumberArg1', 0))
+		if list ~= nil then
+			Desc = Desc .. '{nl} {nl}'
+		end
+		
+		for k, v in pairs(list) do	
+			local name = GetClass('Skill', k).Name
+			if v[1] == v[2] then
+				Desc = Desc .. ScpArgMsg('tooltip_common_skill_list{name}{num}', 'name', name, 'num', v[1]) .. ', '
+			else
+				Desc = Desc .. ScpArgMsg('tooltip_common_skill_list{name}{num1}{num2}', 'name', name, 'num1', v[1], 'num2', v[2])  .. ', '
+			end
+		end
+	elseif str == 'select_common_skill_scroll' then
+		local cls = GetClass('TradeSelectItem', TryGetProp(invitem, 'ClassName', 'None'))
+		if cls ~= nil then
+			for i = 1, 50 do
+				local name = 'SelectItemName_' .. i
+				local count = 'SelectItemCount_' .. i
+				local item_name = TryGetProp(cls, name, 'None')				
+				if item_name == 'None' then
+					break
+				end
+
+				Desc = Desc .. GetClass('Item', item_name).Name .. '{nl}' 
+			end
+		end
+	end
+
+	return Desc
 end
 
 function DRAW_USAGEDESC_INFO(invitem, desc)
@@ -332,7 +376,7 @@ function DRAW_ETC_RECIPE_NEEDITEM_TOOLTIP(tooltipframe, invitem, ypos, mainframe
 	local recipecls = GetClass('Recipe', invitem.ClassName);
 
 	for i = 1 , 5 do
-		if recipecls["Item_"..i.."_1"] ~= "None" then
+		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then
 			local recipeItemCnt, invItemCnt, dragRecipeItem = GET_RECIPE_MATERIAL_INFO(recipecls, i, GetMyPCObject());
 
 			local itemSet = gbox_items:CreateOrGetControlSet("tooltip_recipe_eachitem", "ITEM_" .. i, 0, inner_yPos);
@@ -524,13 +568,11 @@ function UPDATE_INDUN_INFO_TOOLTIP(tooltipframe, cidStr, param1, param2, actor)
                 indunLabel:SetText('{@st42b}' .. indunCls.Category .. ' - ' .. difficulty)
             end
 			
-
 			local indunCntLabel = indunGroupBox:CreateOrGetControl("richtext", "INDUN_COUNT_" .. indunCls.PlayPerResetType, 0, 0, ctrlWidth / 2, ctrlHeight)
 			indunCntLabel:SetGravity(ui.RIGHT, ui.TOP)
 			indunCntLabel:SetEnable(0)
 
 			local entranceCount = BARRACK_GET_CHAR_INDUN_ENTRANCE_COUNT(cidStr, indunCls.PlayPerResetType)
-		
 			if entranceCount ~= nil then
 				if entranceCount == 'None' then
 					entranceCount = 0;
@@ -541,6 +583,8 @@ function UPDATE_INDUN_INFO_TOOLTIP(tooltipframe, cidStr, param1, param2, actor)
 				local dungeonType = TryGetProp(indunCls, "DungeonType", "None");
 				if dungeonType == "MythicDungeon_Auto_Hard" or string.find(indunCls.ClassName, "Challenge_Division_Auto") ~= nil or indunCls.PlayPerResetType == 807 then
 					indunCntLabel:SetText("{@st42b}" .. entranceCount .. "/" .. "{img infinity_text 20 10}");
+				elseif dungeonType == "BridgeWailing" then
+					indunCntLabel:SetText("{@st42b}" .. ScpArgMsg("ChallengeMode_HardMode_Count", "Count", entranceCount));
 				else
 					indunCntLabel:SetText("{@st42b}" .. entranceCount .. "/" .. BARRACK_GET_INDUN_MAX_ENTERANCE_COUNT(indunCls.PlayPerResetType))
 				end

@@ -345,7 +345,7 @@ function GET_TOKEN_WARP_COOLDOWN()
 end
 
 -- 토큰이동 로직
-function WORLDMAP2_TOKEN_WARP(mapName)
+function WORLDMAP2_TOKEN_WARP(mapName)    
 	-- 바운티 헌트 이동제한
 	if ENABLE_WARP_CHECK(GetMyPCObject()) == false then
 		 ui.SysMsg(ScpArgMsg("WarpBanBountyHunt"))
@@ -358,6 +358,7 @@ function WORLDMAP2_TOKEN_WARP(mapName)
 	end
 
     if session.loginInfo.IsPremiumState(ITEM_TOKEN) == false and IsBuffApplied(GetMyPCObject(), 'Premium_Nexon') ~= 'YES' then
+        ui.SysMsg(ClMsg('OnlyTokenUserAbleToUse2'));
         return
     end
 
