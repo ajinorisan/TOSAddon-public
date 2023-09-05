@@ -1,11 +1,11 @@
 [{
-		"name" : "KL count",
+		"name" : "KL count 23.09.05patch",
 		"file" : "klcount",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.4",
+		"fileVersion" : "v1.0.5",
 		"releaseTag" : "klcount",
 		"unicode" : "⛄",
-		"description" : "EP14.15地域で倒したモンスターをカウント Counting monsters defeated in the EP14.15 region EP14.15 지역에서 처치한 몬스터를 세어보세요.",
+		"description" : "フィールドで倒したモンスターをカウント。Count monsters defeated in the field.필드에서 쓰러뜨린 몬스터를 계산한다.",
 		"tags" : []
 	},
 {

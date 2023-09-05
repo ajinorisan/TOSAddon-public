@@ -1,7 +1,8 @@
+-- v1.0.5 23.9.5のアプデのに伴いフィールドマップではどこでも表示に変更。メンドイので（
 local addonName = "KLCOUNT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -58,31 +59,39 @@ end
 
 function _G.KLCOUNT_ON_INIT(addon, frame)
 
-    _G.CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- _G.CHAT_SYSTEM(addonNameLower .. " loaded")
     g.addon = addon
     g.frame = frame
 
     g.starttime = imcTime.GetAppTimeMS()
 
-    addon:RegisterMsg("GAME_START_3SEC", "KLCOUNT_INIT_FRAME")
     -- addon:RegisterMsg("GAME_START_3SEC", "KLCOUNT_UPDATE")
-    addon:RegisterMsg("GAME_START_3SEC", "KLCOUNT_TIME_UPDATE")
-    addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
+    -- addon:RegisterMsg("GAME_START_3SEC", "KLCOUNT_TIME_UPDATE")
 
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+
+    if mapCls.MapType == "Field" then
+        addon:RegisterMsg("FPS_UPDATE", "KLCOUNT_TIME_UPDATE")
+        addon:RegisterMsg("GAME_START", "KLCOUNT_INIT_FRAME")
+        addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
+    end
+    --[[
     if g.IsTargetMap() == true then
         addon:RegisterMsg("FPS_UPDATE", "KLCOUNT_TIME_UPDATE")
     end
-
+]]
     KLCOUNT_LOADSETTINGS()
 end
 
 function KLCOUNT_INIT_FRAME()
     local frame = _G.ui.GetFrame("klcount")
     -- 対象外マップ時は非表示
-    if g.IsTargetMap() == false then
+    --[[if g.IsTargetMap() == false then
         frame:ShowWindow(0)
         return
-    end
+    end]]
 
     frame:ShowWindow(1)
     frame:EnableHitTest(1)
@@ -111,7 +120,7 @@ function KLCOUNT_INIT_FRAME()
     local timer = frame:CreateOrGetControl("richtext", "timer_text", 90, 60, 200, 30)
     local h = 0
     local m = 0
-    local s = 3
+    local s = 0
     timer:SetText(string.format("{s16}%02d:%02d:%02d{/}", h, m, s))
     KLCOUNT_TIME_UPDATE(frame)
     -- KLCOUNT_UPDATE(frame)
@@ -128,9 +137,9 @@ function KLCOUNT_TIME_UPDATE(frame)
 end
 
 function KLCOUNT_UPDATE(frame)
-    if g.IsTargetMap() == false then
+    --[[if g.IsTargetMap() == false then
         return
-    end
+    end]]
     local countText = GET_CHILD_RECURSIVELY(frame, "count_text")
     g.count = g.count + 1
     countText:SetText(string.format("{s16}KLCounter : %d{/}", g.count))
