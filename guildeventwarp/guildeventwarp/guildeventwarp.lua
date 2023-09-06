@@ -1,8 +1,9 @@
--- ｖ1.0.1--1chが満員の場合にエラーになるのでギルドイベント地域に飛んでからチャンネルチェンジ
+-- v1.0.1 1chが満員の場合にエラーになるのでギルドイベント地域に飛んでからチャンネルチェンジ
+-- v1.0.2 23.09.05patch対応。ボルタからドラグーンに変更
 local addonName = "GUILDEVENTWARP"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -10,6 +11,17 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
 
 g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 g.ctrl = 0
@@ -26,7 +38,8 @@ function GUILDEVENTWARP_ON_INIT(addon, frame)
 
     GUILDEVENTWARP_FRAME_INIT(frame)
 
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- g.SetupHook(GUILDEVENTWARP_BORUTA_ZONE_MOVE_CLICK, "BORUTA_ZONE_MOVE_CLICK")
+    -- CHAT_SYSTEM(addonNameLower .. " loaded")
 
     if g.ctrl == 1 then
 
@@ -40,25 +53,52 @@ function GUILDEVENTWARP_ON_INIT(addon, frame)
 
 end
 
+function GUILDEVENTWARP_BORUTA_ZONE_MOVE_CLICK(parent, ctrl)
+
+    -- local indunClsID = ctrl:GetUserValue('MOVE_INDUN_CLASSID');
+    -- CHAT_SYSTEM(tostring(indunClsID.ClassName))
+    -- print(tostring(indunClsID))
+    _BORUTA_ZONE_MOVE_CLICK("500")
+    -- ui.MsgBox(ClMsg('Auto_JiyeogeuLo{nl}_iDongHaSiKessSeupNiKka?'), '_BORUTA_ZONE_MOVE_CLICK(' .. indunClsID .. ')',
+    --     'None')
+end
+
+function GUILDEVENTWARP_ON_DRAGOON_CLICK()
+    g.ctrl = 1
+    _BORUTA_ZONE_MOVE_CLICK("500")
+end
+
 function GUILDEVENTWARP_FRAME_INIT(frame)
 
     -- ボルタボタン
-    local borutabutton = frame:CreateOrGetControl('button', 'boruta', 0, 0, 30, 30)
+    local borutabutton = frame:CreateOrGetControl('button', 'boruta', 5, 0, 30, 30)
+    AUTO_CAST(borutabutton)
     borutabutton:SetSkinName("test_red_button")
-    borutabutton:SetText("{img emoticon_0007 29 29}")
-    borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BORUTA_CLICK")
+    borutabutton:SetText("D")
+    borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")
+    borutabutton:SetTextTooltip("{@st59}Guild events, move to the Dragoon map.{nl}" ..
+                                    "{@st59}ギルドイベント、ドラグーンのマップに移動します。{/}")
+    --[[local monClsName = 'boss_dragoon_ex'
+    local monCls = GetClass("Monster", monClsName)
+    borutabutton:SetImage(monCls.Icon)
+    CHAT_SYSTEM("test")
+    borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")]]
 
     -- ギルティネボタン
     local giltinebutton = frame:CreateOrGetControl('button', 'giltine', 35, 0, 30, 30)
     giltinebutton:SetSkinName("test_red_button")
-    giltinebutton:SetText("Gi")
+    giltinebutton:SetText("G")
     giltinebutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_GILTINE_CLICK")
+    giltinebutton:SetTextTooltip("{@st59}Guild events, move to the Guiltine map.{nl}" ..
+                                     "{@st59}ギルドイベント、ギルティネのマップに移動します。{/}")
 
     -- バウバスボタン
     local baubasbutton = frame:CreateOrGetControl('button', 'baubas', 65, 0, 30, 30)
     baubasbutton:SetSkinName("test_red_button")
-    baubasbutton:SetText("Ba")
+    baubasbutton:SetText("B")
     baubasbutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BAUBAS_CLICK")
+    baubasbutton:SetTextTooltip("{@st59}Guild event, move to the Baubus map.{nl}" ..
+                                    "{@st59}ギルドイベント、バウバスのマップに移動します。{/}")
 
     frame:ShowWindow(1)
 end

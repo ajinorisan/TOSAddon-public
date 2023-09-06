@@ -1,13 +1,14 @@
 -- v1.0.3 waitの時間見直し
 -- v1.0.4 チーム倉庫開いている時の挙動見直し
--- ｖ1.0.5　インベ表示微修正
+-- v1.0.5　インベ表示微修正
 -- v1.0.6 ディレイタイム設定機能
 -- v1.0.7 CC_helper 連携強化
 -- v1.0.8 SetupHookの競合修正
+-- v1.0.9 23.09.05patch対応。LV500エーテルジェム対応。
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -774,13 +775,67 @@ function AETHERGEM_MGR_AGMFRAME_CLOSE()
 end
 
 function AETHERGEM_MGR_ON_BUTTON_SELECTED(frame, ctrl, argStr, argNum)
-    -- CHAT_SYSTEM("ボタンが押されました: " .. argStr)
+    CHAT_SYSTEM("ボタンが押されました: " .. argStr)
     local STR_guid = 850006
     local INT_guid = 850007
     local DEX_guid = 850008
     local SPR_guid = 850009
     local CON_guid = 850010
-    -- 選択されたラジオボタンの処理を記述
+
+    local STR_guid_500 = 850011
+    local INT_guid_500 = 850012
+    local DEX_guid_500 = 850013
+    local SPR_guid_500 = 850014
+    local CON_guid_500 = 850015
+
+    if argStr == '500STR' then
+        frame:ShowWindow(0)
+        local gemid = STR_guid_500
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-力を登録しました。{nl}[Lv.500] Aether Gem - STR set on this character.")
+
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500INT' then
+        frame:ShowWindow(0)
+        local gemid = INT_guid_500
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-知能を登録しました。{nl}[Lv.500] Aether Gem - INT set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500CON' then
+        frame:ShowWindow(0)
+        local gemid = CON_guid
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-体力を登録しました。{nl}[Lv.500] Aether Gem - CON set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500SPR' then
+        frame:ShowWindow(0)
+        local gemid = SPR_guid
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-精神を登録しました。{nl}[Lv.500] Aether Gem - SPR set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500DEX' then
+        frame:ShowWindow(0)
+        local gemid = DEX_guid
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-敏捷を登録しました。{nl}[Lv.500] Aether Gem - DEX set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    end
+
     if argStr == 'STR' then
         frame:ShowWindow(0)
         local gemid = STR_guid
@@ -839,19 +894,19 @@ function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
         agmframe:ShowWindow(0)
         return
     end
-    agmframe:SetSkinName('None')
-    agmframe:Resize(60, 180)
+    agmframe:SetSkinName('bg')
+    agmframe:Resize(215, 190)
     agmframe:ShowTitleBar(0)
     agmframe:EnableHitTest(1)
     agmframe:SetLayerLevel(100)
     local screenWidth = ui.GetClientInitialWidth()
-    local offsetX = screenWidth - 80
+    local offsetX = screenWidth - 230
     local screenHeight = ui.GetClientInitialHeight()
     local offsetY = 170
     agmframe:SetOffset(offsetX, offsetY)
     agmframe:RemoveAllChild()
 
-    local closeBtn = agmframe:CreateOrGetControl("button", "closeBtn", 30, 0, 30, 30)
+    local closeBtn = agmframe:CreateOrGetControl("button", "closeBtn", 180, 0, 30, 30)
     AUTO_CAST(closeBtn)
     closeBtn:SetText("×")
     closeBtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_AGMFRAME_CLOSE")
@@ -860,35 +915,65 @@ function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
     -- AUTO_CAST(titleText)
     -- titleText:SetText("{s16}{#00FFFF}AG SELECT")
 
-    local strbtn = agmframe:CreateOrGetControl('button', 'strbtn', 0, 30, 60, 30)
+    local strbtn = agmframe:CreateOrGetControl('button', 'strbtn', 110, 30, 100, 30)
     AUTO_CAST(strbtn)
-    strbtn:SetText("{s16}{#F00000}STR")
+    strbtn:SetText("{s16}{#F00000}480[STR]")
     strbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     strbtn:SetEventScriptArgString(ui.LBUTTONUP, "STR") -- ボタンが押されたことを示す文字列を渡す
 
-    local intbtn = agmframe:CreateOrGetControl('button', 'intbtn', 0, 60, 60, 30)
+    local intbtn = agmframe:CreateOrGetControl('button', 'intbtn', 110, 60, 100, 30)
     AUTO_CAST(intbtn)
-    intbtn:SetText("{s16}{#00FFFF}INT")
+    intbtn:SetText("{s16}{#00FFFF}480[INT]")
     intbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     intbtn:SetEventScriptArgString(ui.LBUTTONUP, "INT") -- ボタンが押されたことを示す文字列を渡す
 
-    local conbtn = agmframe:CreateOrGetControl('button', 'conbtn', 0, 90, 60, 30)
+    local conbtn = agmframe:CreateOrGetControl('button', 'conbtn', 110, 90, 100, 30)
     AUTO_CAST(conbtn)
-    conbtn:SetText("{s16}{#FFFFFF}CON")
+    conbtn:SetText("{s16}{#FFFFFF}480[CON]")
     conbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     conbtn:SetEventScriptArgString(ui.LBUTTONUP, "CON") -- ボタンが押されたことを示す文字列を渡す
 
-    local sprbtn = agmframe:CreateOrGetControl('button', 'sprbtn', 0, 120, 60, 30)
+    local sprbtn = agmframe:CreateOrGetControl('button', 'sprbtn', 110, 120, 100, 30)
     AUTO_CAST(sprbtn)
-    sprbtn:SetText("{s16}{#F0F000}SPR")
+    sprbtn:SetText("{s16}{#F0F000}480[SPR]")
     sprbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     sprbtn:SetEventScriptArgString(ui.LBUTTONUP, "SPR") -- ボタンが押されたことを示す文字列を渡す
 
-    local dexbtn = agmframe:CreateOrGetControl('button', 'dexbtn', 0, 150, 60, 30)
+    local dexbtn = agmframe:CreateOrGetControl('button', 'dexbtn', 110, 150, 100, 30)
     AUTO_CAST(dexbtn)
-    dexbtn:SetText("{s16}{#00F000}DEX")
+    dexbtn:SetText("{s16}{#00F000}480[DEX]")
     dexbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     dexbtn:SetEventScriptArgString(ui.LBUTTONUP, "DEX") -- ボタンが押されたことを示す文字列を渡す
+
+    local strbtn2 = agmframe:CreateOrGetControl('button', 'strbtn2', 5, 30, 100, 30)
+    AUTO_CAST(strbtn2)
+    strbtn2:SetText("{s16}{#F00000}500[STR]")
+    strbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    strbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500STR") -- ボタンが押されたことを示す文字列を渡す
+
+    local intbtn2 = agmframe:CreateOrGetControl('button', 'intbtn2', 5, 60, 100, 30)
+    AUTO_CAST(intbtn2)
+    intbtn2:SetText("{s16}{#00FFFF}500[INT]")
+    intbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    intbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500INT") -- ボタンが押されたことを示す文字列を渡す
+
+    local conbtn2 = agmframe:CreateOrGetControl('button', 'conbtn2', 5, 90, 100, 30)
+    AUTO_CAST(conbtn2)
+    conbtn2:SetText("{s16}{#FFFFFF}500[CON]")
+    conbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    conbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500CON") -- ボタンが押されたことを示す文字列を渡す
+
+    local sprbtn2 = agmframe:CreateOrGetControl('button', 'sprbtn2', 5, 120, 100, 30)
+    AUTO_CAST(sprbtn2)
+    sprbtn2:SetText("{s16}{#F0F000}500[SPR]")
+    sprbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    sprbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500SPR") -- ボタンが押されたことを示す文字列を渡す
+
+    local dexbtn2 = agmframe:CreateOrGetControl('button', 'dexbtn2', 5, 150, 100, 30)
+    AUTO_CAST(dexbtn2)
+    dexbtn2:SetText("{s16}{#00F000}500[DEX]")
+    dexbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    dexbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500DEX") -- ボタンが押されたことを示す文字列を渡す
 
     agmframe:ShowWindow(1)
 end
