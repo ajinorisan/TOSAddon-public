@@ -1,5 +1,5 @@
 [{
-		"name" : "KL count 23.09.05patch",
+		"name" : "KL count 23.9.5patch",
 		"file" : "klcount",
 		"extension" : "ipf",
 		"fileVersion" : "v1.0.5",
@@ -100,13 +100,13 @@
 		"tags" : []
 	},
 {
-		"name" : "Auto Repair",
+		"name" : "Auto Repair 23.9.5patch",
 		"file" : "auto_repair",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.3",
+		"fileVersion" : "v1.0.4",
 		"releaseTag" : "auto_repair",
 		"unicode" : "⛄",
-		"description" : "装備の耐久を監視して30%未満になると「[Lv.490]緊急修理キット」を使用して自動で修理します。Monitors the equipment's durability and automatically repairs it using the '[Lv.490] Urgent Repair Kit' when it falls below 30%. 장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.490] 긴급 수리 키트'를 사용하여 자동으로 수리한다.",
+		"description" : "装備の耐久を監視して30%未満になると「[Lv.500]緊急修理キット」を使用して自動で修理します。Monitors the equipment's durability and automatically repairs it using the '[Lv.500] Urgent Repair Kit' when it falls below 30%. 장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.500] 긴급 수리 키트'를 사용하여 자동으로 수리한다.",
 		"tags" : []
 	},
 {

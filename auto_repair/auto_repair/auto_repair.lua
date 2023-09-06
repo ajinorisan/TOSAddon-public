@@ -1,9 +1,10 @@
 -- v1.0.2 on_init読み込み時にリペアーアイテムの数量確認
 -- v1.0.3 SetupHookの競合修正
+-- v1.0.4 23.09.05patch対応。修理キット買うコード変えてやがった許せねえ。
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -34,6 +35,8 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
     -- acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
     g.SetupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
+    -- g.SetupHook(AUTO_REPAIR_DRAW_EXCHANGE_SHOP_IETMS, "DRAW_EXCHANGE_SHOP_IETMS")
+    -- g.SetupHook(AUTO_REPAIR_ACCOUNT_EXCHANGE_CREATE_TREE_NODE_CTRL, "EXCHANGE_CREATE_TREE_NODE_CTRL")
     --[[
     ['VakarineCertificate'] = 
     {
@@ -47,16 +50,17 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
 
-        local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_490')
-        local repeatCount = autorepair_item.count
+        local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_500')
 
-        if autorepair_item == nil or repeatCount < 10 then
+        if autorepair_item ~= nil then
+            local repairCount = autorepair_item.count
 
-            -- local msg = '' .. ""
-            --  local yes_scp = "AUTO_REPAIR_BUY()"
-            -- local no_scp = "ANCIENT_SETTING_CANCEL()"
-            --   ui.MsgBox(msg, yes_scp, "None");
-            -- 
+            if repairCount < 10 then
+
+                addon:RegisterMsg("GAME_START_3SEC", "AUTO_REPAIR_FRAME_INIT")
+            end
+        else
+
             addon:RegisterMsg("GAME_START_3SEC", "AUTO_REPAIR_FRAME_INIT")
         end
 
@@ -68,26 +72,30 @@ function AUTO_REPAIR_FRAME_INIT()
     local frame = ui.GetFrame("auto_repair")
     frame:Resize(450, 180)
     frame:SetPos(650, 300)
+    frame:SetSkinName("bg")
+    frame:ShowTitleBar(0)
     frame:SetTitleName("{s20}{ol}Auto Repair")
-    local text1 = frame:CreateOrGetControl('richtext', 'text1', 25, 0)
+    local text1 = frame:CreateOrGetControl('richtext', 'text1', 55, 20)
     AUTO_CAST(text1)
-    text1:SetText("{s20}{ol}[LV.490]緊急修理キット")
-    local text2 = frame:CreateOrGetControl('richtext', 'text2', 25, 30)
+    text1:SetText("{s20}{ol}[LV.500]緊急修理キット{nl}残り少ないですが補充しますか？")
+    text1:SetTextAlign("center", "center")
+    --[[local text2 = frame:CreateOrGetControl('richtext', 'text2', 25, 30)
     AUTO_CAST(text2)
-    text2:SetText("{s20}{ol}残り少ないですが補充しますか？")
-    local text3 = frame:CreateOrGetControl('richtext', 'text3', 25, 60)
+    text2:SetText("{s20}{ol}残り少ないですが補充しますか？")]]
+    local text3 = frame:CreateOrGetControl('richtext', 'text3', 25, 70)
     AUTO_CAST(text3)
-    text3:SetText("{s18}{ol}QuestReward_repairPotion_490")
-    local text4 = frame:CreateOrGetControl('richtext', 'text4', 25, 80)
+    text3:SetText("{s18}{ol}QuestReward_repairPotion_500{nl}Do you want to replenish the few remaining?")
+    text3:SetTextAlign("center", "center")
+    --[[local text4 = frame:CreateOrGetControl('richtext', 'text4', 25, 80)
     AUTO_CAST(text4)
-    text4:SetText("{s18}{ol}Do you want to replenish the few remaining?")
+    text4:SetText("{s18}{ol}Do you want to replenish the few remaining?")]]
 
-    local yesbtn = frame:CreateOrGetControl('button', 'yes', 115, 110, 80, 40)
+    local yesbtn = frame:CreateOrGetControl('button', 'yes', 115, 120, 80, 40)
     yesbtn:SetSkinName("test_red_button")
     yesbtn:SetText("{ol}YES")
     yesbtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_BUY")
 
-    local nobtn = frame:CreateOrGetControl('button', 'no', 215, 110, 80, 40)
+    local nobtn = frame:CreateOrGetControl('button', 'no', 215, 120, 80, 40)
     nobtn:SetSkinName("test_gray_button")
     nobtn:SetText("{ol}NO")
     nobtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_CLOSE")
@@ -110,17 +118,40 @@ function AUTO_REPAIR_BUY()
     -- ui.CloseFrame('earthtowershop')
     -- control.CustomCommand('REQ_SEASON_COIN_SHOP_OPEN', 0);
 
-    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_490')
-    local repairtCount = autorepair_item.count
-    -- CHAT_SYSTEM(repeatCount)
-    local cnt = 50 - repairtCount
+    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_500')
+    if autorepair_item ~= nil then
+        local repairCount = autorepair_item.count
 
-    local recipeCls = GetClass("ItemTradeShop", 'VakarineCertificate_13')
-    session.ResetItemList()
-    session.AddItemID(tostring(0), 1)
-    local itemlist = session.GetItemIDList()
-    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(cnt))
-    item.DialogTransaction("VakarineCertificate_SHOP", itemlist, cntText)
+        -- CHAT_SYSTEM(repeatCount)
+        local cnt = 50 - repairCount
+
+        local shopType = "RadaCertificate"
+        local recipeCls = GetClass("ItemTradeShop", 'RadaCertificate_13')
+
+        session.ResetItemList()
+        session.AddItemID(tostring(0), 1)
+        local itemlist = session.GetItemIDList()
+        local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(cnt))
+        local str_list = NewStringList();
+        str_list:Add(shopType)
+
+        item.DialogTransaction("Certificate_SHOP", itemlist, cntText, str_list)
+    else
+        local cnt = 50
+
+        local shopType = "RadaCertificate"
+        local recipeCls = GetClass("ItemTradeShop", 'RadaCertificate_13')
+
+        session.ResetItemList()
+        session.AddItemID(tostring(0), 1)
+        local itemlist = session.GetItemIDList()
+        local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(cnt))
+        local str_list = NewStringList();
+        str_list:Add(shopType)
+
+        item.DialogTransaction("Certificate_SHOP", itemlist, cntText, str_list)
+
+    end
 
     AUTO_REPAIR_CLOSE()
 end
@@ -193,20 +224,17 @@ end
 
 function AUTO_REPAIR_ITEM_USE(obj)
     session.ResetItemList()
-    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_490')
+    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_500')
 
     if autorepair_item == nil then
-        -- ui.ChatMsg('[Lv.490]緊急修理キットがありません')
-        -- ui.ChatMsg('[Lv.490] Urgent Repair Kit is not available.')
-        CHAT_SYSTEM('[Lv.490]緊急修理キットがありません')
-        CHAT_SYSTEM('[Lv.490] Urgent Repair Kit is not available.')
+
+        CHAT_SYSTEM('[Lv.500]緊急修理キットがありません')
+        CHAT_SYSTEM('[Lv.500] Urgent Repair Kit is not available.')
         return
     end
 
     if autorepair_item.isLockState == true then
-        -- ui.SysMsg('[Lv.490]緊急修理キットがありません')
-        -- ui.SysMsg('[Lv.490] Urgent Repair Kit is not available.')
-        -- ui.ChatMsg(ClMsg('MaterialItemIsLock'))
+
         CHAT_SYSTEM(ClMsg('MaterialItemIsLock'))
         return
     end
@@ -214,7 +242,7 @@ function AUTO_REPAIR_ITEM_USE(obj)
     local repeatCount = math.min(autorepair_item.count, 4)
     -- ui.SysMsg("Automatic repair of equipment.") 表示が邪魔なので消した。v1.0.1
     -- ui.ChatMsg("Automatic repair of equipment.")
-    CHAT_SYSTEM("Automatic repair of equipment.")
+    -- CHAT_SYSTEM("Automatic repair of equipment.")
 
     for i = 0, repeatCount - 1 do
         if obj.Dur / obj.MaxDur < 0.9 then
@@ -248,62 +276,4 @@ function AUTO_REPAIR_LOADSETTINGS()
 
     g.settings = settings
 end
---[[多分これいじったら使える
-function REQUEST_SUMMON_BOSS_TX()
-	local invFrame = ui.GetFrame("inventory");
-	local itemGuid = invFrame:GetUserValue("REQ_USE_ITEM_GUID");
-	local invItem = session.GetInvItemByGuid(itemGuid)
-	
-	if nil == invItem then
-		return;
-	end
-	
-	if true == invItem.isLockState then
-		ui.SysMsg(ClMsg("MaterialItemIsLock"));
-		return;
-	end
-	
-	local stat = info.GetStat(session.GetMyHandle());		
-	if stat.HP <= 0 then
-		return;
-	end
-	
-	local itemtype = invItem.type;
-	local curTime = item.GetCoolDown(itemtype);
-	if curTime ~= 0 then
-		imcSound.PlaySoundEvent("skill_cooltime");
-		return;
-	end
-	
-	item.UseByGUID(invItem:GetIESID());
-end
 
-function DungeonRPCharger.RechargeRelic(self)
-    local curMapID = session.GetMapID()
-    -- check if map is rechargeable
-    if (DungeonRPCharger:IsRechargeableMap(curMapID) == 0) then
-        return;
-    end
-    local pc = GetMyPCObject()
-    local cur_rp, max_rp = shared_item_relic.get_rp(pc)
-    session.ResetItemList()
-    local autorepair_item = session.GetInvItemByName('misc_Ectonite_Care')
-    -- do nothing if no ectonite in inv
-    if autorepair_item == nil then return end
-    -- do nothing if ectonite is locked
-    if autorepair_item.isLockState == true then return end
-
-    local item_idx = autorepair_item:GetIESID()
-    local cur_count = autorepair_item.count
-    local recharge_count = (max_rp - cur_rp) // 10
-
-    if cur_count ~= nil and cur_count > 0 then
-        if (recharge_count > cur_count) then
-            recharge_count = cur_count
-        end
-        session.AddItemID(item_idx, recharge_count)
-        local result_list = session.GetItemIDList()
-        item.DialogTransaction('RELIC_CHARGE_RP', result_list)
-    end
-end
-]]
