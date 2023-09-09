@@ -5,10 +5,11 @@
 -- v1.0.7 CC_helper 連携強化
 -- v1.0.8 SetupHookの競合修正
 -- v1.0.9 23.09.05patch対応。LV500エーテルジェム対応。
+-- v1.1.0 右クリックで着け外し機能削除
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -190,7 +191,7 @@ function AETHERGEM_MGR_ON_INIT(addon, frame)
     g.frame = frame
 
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
-    g.SetupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
+    -- g.SetupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
     -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_RBDC_ITEMUSE, "INVENTORY_RBDC_ITEMUSE")
     -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_ON_MSG, "INVENTORY_ON_MSG")
     -- acutil.setupHook(AETHERGEM_MGR_test, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
@@ -604,7 +605,7 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 end
 
 function AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN(item_obj, slot, guid)
-    GODDESS_MGR_SOCKET_INV_RBTN_OLD(item_obj, slot, guid)
+    base["GODDESS_MGR_SOCKET_INV_RBTN"](item_obj, slot, guid)
 
     AETHERGEM_MGR_REMOVE_AETHERGEM()
 end
