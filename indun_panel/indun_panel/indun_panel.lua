@@ -9,10 +9,11 @@
 -- v1.0.9 分裂券を買う辺りを修正。不要になったので倉庫閉めたらインベも閉める
 -- v1.1.0 ヴェルニケチケットの傭兵団コインの表示バグ修正。ゲームスタート時の傭兵団コインショップの閉じ方を修正。オートズーム機能
 -- v1.1.1 23.09.05patch対応。オートズーム機能をフィールド時には独立させた。嘆きの墓地追加、チャレ分裂のチケットの使い方を修正。
+-- ｖ1.1.2 蝶々とスローガティスの掃討バグ修正
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -432,6 +433,9 @@ function indun_panel_upinis_frame(ipframe)
     upinisauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_auto")
     upinisauto:SetEventScriptArgNumber(ui.LBUTTONUP, 685)
 
+    upinissweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep")
+    upinissweep:SetEventScriptArgNumber(ui.LBUTTONUP, 685)
+
     -- g.upinis_hard_flag = false
     -- upinishard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_upinis_hard")
     -- upinishard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_hard")
@@ -466,6 +470,9 @@ function indun_panel_slogutis_frame(ipframe)
     -- slogutisauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_slogutis_auto")
     slogutisauto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_auto")
     slogutisauto:SetEventScriptArgNumber(ui.LBUTTONUP, 688)
+
+    slogutissweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep")
+    slogutissweep:SetEventScriptArgNumber(ui.LBUTTONUP, 688)
 
     -- g.slogutis_hard_flag = false
     -- slogutishard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_slogutis_hard")
@@ -1054,6 +1061,11 @@ function indun_panel_autosweep(frame, ctrl, argStr, argNum)
         BuffID = 80017
     elseif argNum == 679 then -- ロゼオート
         BuffID = 80015
+    elseif argNum == 685 then -- 蝶々
+        BuffID = 80030
+    elseif argNum == 688 then -- スロガ
+        BuffID = 80031
+
     end
 
     local sweepcount = 0
