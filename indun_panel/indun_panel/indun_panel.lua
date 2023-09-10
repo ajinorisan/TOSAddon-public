@@ -9,11 +9,12 @@
 -- v1.0.9 分裂券を買う辺りを修正。不要になったので倉庫閉めたらインベも閉める
 -- v1.1.0 ヴェルニケチケットの傭兵団コインの表示バグ修正。ゲームスタート時の傭兵団コインショップの閉じ方を修正。オートズーム機能
 -- v1.1.1 23.09.05patch対応。オートズーム機能をフィールド時には独立させた。嘆きの墓地追加、チャレ分裂のチケットの使い方を修正。
--- ｖ1.1.2 蝶々とスローガティスの掃討バグ修正
+-- v1.1.2 蝶々とスローガティスの掃討バグ修正
+-- v1.1.3 オートズーム無効機能。常時展開中でも閉められる様に変更
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -69,17 +70,18 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     end
 
     if _G.ADDONS.norisan.AUTOMAPCHANGE ~= nil then
-
         acutil.setupHook(indun_panel_autozoom, "AUTOMAPCHANGE_CAMERA_ZOOM")
+
         addon:RegisterMsg('GAME_START', "indun_panel_autozoom")
+
     end
 
-    addon:RegisterMsg('GAME_START_3SEC', "indun_panel_autozoom")
+    addon:RegisterMsg('GAME_START', "indun_panel_autozoom")
 
 end
 
 function indun_panel_autozoom_init()
-    CHAT_SYSTEM("test")
+    -- CHAT_SYSTEM("test")
     local ipframe = ui.GetFrame(g.framename)
     ipframe:SetSkinName('None')
     ipframe:SetLayerLevel(30)
@@ -101,7 +103,7 @@ function indun_panel_autozoom_init()
     zoomedit:SetTextAlign("center", "center")
     zoomedit:SetEventScript(ui.ENTERKEY, "indun_panel_autozoom_save")
     zoomedit:SetTextTooltip(
-        "{@st59}0～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.")
+        "{@st59}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
     ipframe:ShowWindow(1)
 end
 
@@ -189,9 +191,16 @@ end
 function indun_panel_autozoom_save(frame, ctrl)
     local value = tonumber(ctrl:GetText())
 
-    if value < tonumber(0) or value > tonumber(700) then
+    if value == 0 then
+        g.settings.zoom = 0
+        indun_panel_save_settings()
+        indun_panel_load_settings()
+        return
+    end
+
+    if value < tonumber(1) or value > tonumber(700) then
         ui.SysMsg(
-            "Invalid value please set between 0 and 700{nl}無効な値です。0から700の間で設定してください。")
+            "Invalid value please set between 1 and 700{nl}無効な値です。1から700の間で設定してください。")
         local text = GET_CHILD_RECURSIVELY(frame, "zoomedit")
         text:SetText("336")
         frame:Invalidate()
@@ -213,6 +222,37 @@ function indun_panel_autozoom_save(frame, ctrl)
     end
 end
 
+function indun_panel_frame_close(ipframe)
+    local ipframe = ui.GetFrame(g.framename)
+
+    ipframe:SetSkinName('None')
+    ipframe:SetLayerLevel(30)
+    ipframe:Resize(140, 40)
+    ipframe:SetPos(665, 30)
+    ipframe:SetTitleBarSkin("None")
+    ipframe:EnableHittestFrame(1)
+    ipframe:EnableHide(0)
+    ipframe:EnableHitTest(1)
+
+    ipframe:RemoveAllChild()
+
+    local button = ipframe:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
+    AUTO_CAST(button)
+    button:SetText("{ol}{s11}INDUNPANEL")
+    button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
+
+    local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 95, 5, 35, 35)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 35 35}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+
+    ipframe:ShowWindow(1)
+
+    ipframe:RunUpdateScript("indun_panel_time_update", 300)
+
+end
+
 -- パネル展開
 function indun_panel_init(ipframe)
 
@@ -221,7 +261,12 @@ function indun_panel_init(ipframe)
     local button = ipframe:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
     AUTO_CAST(button)
     button:SetText("{ol}{s11}INDUNPANEL")
-    button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
+
+    if g.settings.ischecked ~= 1 then
+        button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
+    else
+        button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_close")
+    end
     -- button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
     -- local button = GET_CHILD_RECURSIVELY(ipframe, "indun_panel_open")
 
@@ -235,7 +280,7 @@ function indun_panel_init(ipframe)
     zoomedit:SetTextAlign("center", "center")
     zoomedit:SetEventScript(ui.ENTERKEY, "indun_panel_autozoom_save")
     zoomedit:SetTextTooltip(
-        "{@st59}0～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.")
+        "{@st59}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。{nl}Input a value from 1 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
 
     local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 95, 5, 35, 35)
     AUTO_CAST(ccbtn)
@@ -274,7 +319,9 @@ function indun_panel_init(ipframe)
     -- ipframe:SetSkinName("test_frame_low")
     -- ipframe:SetSkinName("market_listbase")
     ipframe:SetSkinName("bg")
-    ipframe:SetAlpha(40)
+    ipframe:EnableHitTest(1);
+    -- ipframe:SetSkinName("None")
+    ipframe:SetAlpha(25)
 
     local pvpmine = ipframe:CreateOrGetControl("richtext", "pvpmine", 420, 10)
     pvpmine:SetText("{img pvpmine_shop_btn_total 25 25}")
@@ -513,9 +560,20 @@ function indun_panel_update_frame(frame)
 
         local velniceamount = GET_CHILD_RECURSIVELY(ipframe, " velniceamount")
 
-        velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" ..
+        local vexchangecount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52")
+
+        if tonumber(vexchangecount) == 1 then
+            velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" .. "1,000)")
+
+        else
+            velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" ..
+                                      string.format("{ol}{#FF0000}%s", GET_COMMAED_STRING(indun_panel_overbuy_amount())) ..
+                                      "{ol}{#FFFFFF})")
+        end
+
+        --[[velniceamount:SetText("{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}" ..
                                   string.format("{ol}{#FF0000}%s", GET_COMMAED_STRING(indun_panel_overbuy_amount())) ..
-                                  "{ol}{#FFFFFF})")
+                                  "{ol}{#FFFFFF})")]]
 
         local challengeticketcount = GET_CHILD_RECURSIVELY(ipframe, "challengeticketcount")
         local challengeexpertticketcount = GET_CHILD_RECURSIVELY(ipframe, "challengeexpertticketcount")
@@ -1517,7 +1575,9 @@ end
 
 -- MAP切り替え時オートズーム
 function indun_panel_autozoom()
-    camera.CustomZoom(tonumber(g.settings.zoom))
+    if g.settings.zoom ~= 0 then
+        camera.CustomZoom(tonumber(g.settings.zoom))
+    end
 end
 
 -- 起動時に当日分裂チケットが0の場合一度だけ作動
