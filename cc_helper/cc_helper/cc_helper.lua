@@ -4,10 +4,11 @@
 -- v1.0.3 シンプルモード→エコモードに変更　エコモード時レジェカ外れない様に。チェックボックスをインベントリに移す
 -- v1.0.4 エーテルジェムマネージャーとコラボ
 -- v1.0.5 エーテルジェムマネージャーとコラボ見直し。ＩＮボタンをシームレスに
+-- v1.0.6 縦長画面でのボタン位置修正。一部ツールチップ追加。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -52,13 +53,15 @@ function CC_HELPER_ON_INIT(addon, frame)
     local invframe = ui.GetFrame("inventory")
     local inventoryGbox = invframe:GetChild("inventoryGbox")
     local setbtnX = inventoryGbox:GetWidth() - 200
-    local setbtnY = inventoryGbox:GetHeight() - 290
-    local setbtn = invframe:CreateOrGetControl("button", "set", setbtnX, setbtnY, 30, 30)
+    local setbtnY = inventoryGbox:GetHeight() - 614
+    local setbtn = invframe:CreateOrGetControl("button", "set", 296, 345, 30, 30)
     AUTO_CAST(setbtn)
     setbtn:SetSkinName("None")
     setbtn:SetImage("config_button_normal")
     setbtn:Resize(30, 30)
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
+    setbtn:SetTextTooltip(
+        "{@st59}マウス左ボタンクリック、キャラ毎に出し入れするアイテム設定。{nl}Left mouse button click, setting items to be moved in and out for each character.{/}")
 
     --[[
     local uneqbtnX = inventoryGbox:GetWidth() - 263
@@ -86,6 +89,8 @@ function CC_HELPER_ON_INIT(addon, frame)
     checkbox:SetCheck(g.ischecked)
     checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_ischecked")
     checkbox:ShowWindow(1)
+    checkbox:SetTextTooltip(
+        "{@st59}チェックすると外すのにシルバーが必要なレジェンドカードとエーテルジェムの動作をスキップします。{nl}If checked, it skips the operation of legend cards and ether gems that require silver to remove.{/}")
 
     local ecomode = invframe:CreateOrGetControl("richtext", "ecomode", 320, 363)
     -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
@@ -122,8 +127,8 @@ function cc_helper_invframe_init()
     local inventoryGbox = invframe:GetChild("inventoryGbox")
     -- ボタンの配置位置
     local inbtnX = inventoryGbox:GetWidth() - 261
-    local inbtnY = inventoryGbox:GetHeight() - 290
-    local inbtn = invframe:CreateOrGetControl("button", "in", inbtnX, inbtnY, 30, 30)
+    local inbtnY = inventoryGbox:GetHeight() - 614
+    local inbtn = invframe:CreateOrGetControl("button", "in", 234, 345, 30, 30)
     AUTO_CAST(inbtn)
     inbtn:SetText("{s13}In")
     -- CHAT_SYSTEM(tostring(g.gemid))
@@ -135,8 +140,8 @@ function cc_helper_invframe_init()
     inbtn:ShowWindow(1)
 
     local outbtnX = inventoryGbox:GetWidth() - 231
-    local outbtnY = inventoryGbox:GetHeight() - 290
-    local outbtn = invframe:CreateOrGetControl("button", "out", outbtnX, outbtnY, 30, 30)
+    local outbtnY = inventoryGbox:GetHeight() - 614
+    local outbtn = invframe:CreateOrGetControl("button", "out", 265, 345, 30, 30)
     AUTO_CAST(outbtn)
 
     outbtn:SetText("{s13}Out")
