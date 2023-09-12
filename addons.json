@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Boss Direction",
+		"file" : "boss_direction",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "boss_direction",
+		"unicode" : "⛄",
+		"description" : "ボスが向いている方向が分かりやすくなります。It is easier to see the direction the boss is facing.보스가 향하고 있는 방향을 쉽게 알 수 있습니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Yaccountinventory 23.9.5patch",
 		"file" : "yaaccountinventory",
 		"extension" : "ipf",
