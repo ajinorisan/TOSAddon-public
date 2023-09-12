@@ -1,5 +1,7 @@
 charbaseinfo elem_WorldEventReceivableSilver
 
+ingamealert ここにあるのがもの売れた時に出るメッセージ
+
 CHAT_SYSTEM("test") システムチャットに表示
 
 ui.SysMsg("test") 画面真ん中に表示
