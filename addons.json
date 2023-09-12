@@ -18,16 +18,6 @@
 		"description" : "ボスが向いている方向が分かりやすくなります。It is easier to see the direction the boss is facing.보스가 향하고 있는 방향을 쉽게 알 수 있습니다.",
 		"tags" : []
 	},
-	{
-		"name" : "Yaccountinventory 23.9.5patch",
-		"file" : "yaaccountinventory",
-		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
-		"releaseTag" : "yaaccountinventory",
-		"unicode" : "⛄",
-		"description" : "ebisukeさん作成の倉庫改造アドオンのパッチ修正版。Patch modified version of warehouse modification add-on created by ebisuke.ebisuke 님이 만든 창고 개조 애드온의 패치 수정 버전.",
-		"tags" : []
-	},
 {
 		"name" : "Job Change Helper",
 		"file" : "job_change_helper",
