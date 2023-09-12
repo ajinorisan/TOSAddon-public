@@ -8,6 +8,16 @@
 		"description" : "フィールドで倒したモンスターをカウント。Count monsters defeated in the field.필드에서 쓰러뜨린 몬스터를 계산한다.",
 		"tags" : []
 	},
+	{
+		"name" : "Yaaccountinventory 23.9.5patch",
+		"file" : "yaaccountinventory",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "yaaccountinventory",
+		"unicode" : "⛄",
+		"description" : "ebisukeさん作成の倉庫改造アドオンのパッチ修正版。Patch modified version of warehouse modification add-on created by ebisuke.ebisuke 님이 만든 창고 개조 애드온의 패치 수정 버전.",
+		"tags" : []
+	},
 {
 		"name" : "Job Change Helper",
 		"file" : "job_change_helper",

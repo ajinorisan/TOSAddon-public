@@ -316,6 +316,18 @@ Register in AddonManager
 
 ----
 
+### yaaccountinventory
+
+ebisukeさんの倉庫改造アドオンを保守します。
+
+Maintain ebisuke's warehouse modification add-on.
+
+The author of this addon is ebisukeさん
+
+Register in AddonManager
+
+----
+
 ### dungeonrpcharger
 
 自動補充するエクトナイトをコイン交換のタイプに変更
