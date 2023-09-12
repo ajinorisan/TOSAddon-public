@@ -1,3 +1,5 @@
+charbaseinfo elem_WorldEventReceivableSilver
+
 CHAT_SYSTEM("test") システムチャットに表示
 
 ui.SysMsg("test") 画面真ん中に表示
