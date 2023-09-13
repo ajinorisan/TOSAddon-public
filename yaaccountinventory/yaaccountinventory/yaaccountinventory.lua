@@ -1,9 +1,11 @@
 -- YAI
+-- v1.0.0 SetupHook修正。他のアドオンに干渉してそうな検索機能を削除。
+-- v1.0.1 倉庫閉めた後のインベントリ操作のバグ修正
 local addonName = "YAACCOUNTINVENTORY"
 local addonNameLower = string.lower(addonName)
 -- 作者名
 local author = 'ebisuke'
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 -- アドオン内で使用する領域を作成。以下、ファイル内のスコープではグローバル変数gでアクセス可
 _G['ADDONS'] = _G['ADDONS'] or {}
@@ -288,6 +290,7 @@ function YAI_CLOSE_UI(frame, ctrl, numsttr, numarg)
 
     ui.CloseFrame("yaireplacement")
     base["CLOSE_UI"](frame, ctrl, numsttr, numarg)
+    YAI_DEACTIVATE_MOUSEBUTTON()
 
 end
 function YAI_SHOW()

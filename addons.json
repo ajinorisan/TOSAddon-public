@@ -18,6 +18,19 @@
 		"description" : "ボスが向いている方向が分かりやすくなります。It is easier to see the direction the boss is facing.보스가 향하고 있는 방향을 쉽게 알 수 있습니다.",
 		"tags" : []
 	},
+	{
+        "name": "Yet Another Account Inventory",
+        "file": "yaaccountinventory",
+        "extension": "ipf",
+        "fileVersion": "v1.0.1",
+        "releaseTag": "yaaccountinventory",
+        "unicode": "📖",
+        "description": "ebisukeさん作成のチーム倉庫を魔改造アドオンの競合してるっぽい部分を修正。Fixed a conflict with a team warehouse add-on created by ebisuke.ebisuke 님이 만든 팀 창고를 마개조 애드온과 충돌하는 것 같은 부분을 수정했습니다.",
+        "tags": [
+            "storage",
+            "inventory"
+        ]
+    },
 {
 		"name" : "Job Change Helper",
 		"file" : "job_change_helper",
