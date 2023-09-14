@@ -24,14 +24,17 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
+local frame = ui.GetFrame("barrack_charlist")
+g.SetupHook(BARRACK_MGR_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
+ReserveScript(string.format("BARRACK_MGR_BARRACK_START_FRAME_OPEN('%s')", frame), 0.1)
+
 function BARRACK_MGR_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
 
-    g.SetupHook(BARRACK_MGR_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
-    g.SetupHook(BARRACK_MGR_SELECT_CHARBTN_LBTNUP, "SELECT_CHARBTN_LBTNUP")
-
+    g.SetupHook(BARRACK_START_FRAME_OPEN, "BARRACK_MGR_BARRACK_START_FRAME_OPEN")
+    -- g.SetupHook(BARRACK_MGR_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
     -- addon:RegisterMsg("GAME_START", "AUTO_REPAIR_FRAME_INIT")
 
 end
@@ -44,28 +47,5 @@ function BARRACK_MGR_BARRACK_START_FRAME_OPEN(frame)
     local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
     hidelogin:SetCheck(1)
     barrack.SetHideLogin(1);
-end
-
-function BARRACK_MGR_SELECT_CHARBTN_LBTNUP(parent, ctrl, cid, argNum)
-    local pcPCInfo = session.barrack.GetMyAccount():GetByStrCID(cid);
-    if pcPCInfo == nil then
-        return;
-    end
-
-    local lbtnupScp = barrack.GetLBtnDownScript();
-    if lbtnupScp == "COMPANION_SELECT_PC" then
-        barrack.SetLBtnDownScript("None");
-        local selActor = barrack.GetPCByID(cid);
-        COMPANION_SELECT_PC(selActor);
-        return;
-    end
-
-    local mainBox = parent:GetParent();
-    barrack.SelectCharacterByCID(cid);
-    CUR_SELECT_GUID = cid;
-
-    -- local parentFrame = mainBox:GetTopParentFrame();
-    -- UPDATE_SELECT_CHAR_SCROLL(parentFrame);
-    UPDATE_PET_BTN_SELECTED();
 end
 
