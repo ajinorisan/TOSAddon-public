@@ -26,7 +26,7 @@ end
 
 local frame = ui.GetFrame("barrack_charlist")
 g.SetupHook(BARRACK_MGR_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
-ReserveScript(string.format("BARRACK_MGR_BARRACK_START_FRAME_OPEN('%s')", frame), 0.1)
+ReserveScript(string.format("BARRACK_MGR_BARRACK_START_FRAME_OPEN('%s')", frame), 0.5)
 
 function BARRACK_MGR_ON_INIT(addon, frame)
 
@@ -40,9 +40,9 @@ function BARRACK_MGR_ON_INIT(addon, frame)
 end
 
 function BARRACK_MGR_BARRACK_START_FRAME_OPEN(frame)
-    if frame == nil then
-        return;
-    end
+    -- if frame == nil then
+    -- return;
+    -- end
 
     local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
     hidelogin:SetCheck(1)
