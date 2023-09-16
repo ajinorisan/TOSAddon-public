@@ -1016,11 +1016,22 @@ function indun_panel_update_frame(frame)
         end
 
         if g.settings.Upinis_checkbox == 1 then
+            local upiniscount = GET_CHILD_RECURSIVELY(ipframe, "upiniscount")
+            upiniscount:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 686).PlayPerResetType) .. "/" ..
+                                    GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 686).PlayPerResetType) .. ")")
+
             local upinissweepcount = GET_CHILD_RECURSIVELY(ipframe, "upinissweepcount")
             upinissweepcount:SetText("{ol}{#FFFFFF}{s16}(" .. indun_panel_sweep_count(80030) .. ")")
         end
 
         if g.settings.Slogutis_checkbox == 1 then
+            local slogutiscount = GET_CHILD_RECURSIVELY(ipframe, "slogutiscount")
+            slogutiscount:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                      GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 689).PlayPerResetType) .. "/" ..
+                                      GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 689).PlayPerResetType) ..
+                                      ")")
+
             local slogutissweepcount = GET_CHILD_RECURSIVELY(ipframe, "slogutissweepcount")
             slogutissweepcount:SetText("{ol}{#FFFFFF}{s16}(" .. indun_panel_sweep_count(80031) .. ")")
         end
