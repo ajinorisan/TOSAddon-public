@@ -1,6 +1,6 @@
 -- dofile("../data/addon_d/speedloader/speedloader.lua");
 -- areas defined
--- v1.0.5自分好みに。シェリフ以外非表示に。
+-- v1.0.5自分好みに。スカウト以外非表示に。
 local author = 'meldavy'
 local addonName = 'speedloader'
 local ver = "1.0.5"
@@ -31,6 +31,9 @@ SpeedLoader.Default = {
     Enabled = 1 -- Hittest
 };
 
+SpeedLoader.jobidtable = {5001, 5002, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010, 5011, 5012, 5013, 5014, 5015,
+                          5016, 5017, 5018}
+
 local previousStackCount = 0
 local SpeedLoaderFullStackTime = 0;
 
@@ -52,7 +55,7 @@ function SPEEDLOADER_ON_INIT(addon, frame)
     local nowjobID = GetClass("Job", nowjobName).ClassID;
     CHAT_SYSTEM(tostring(nowjobID))
 
-    if nowjobID == 5014 then
+    if nowjobID >= 5001 and nowjobID <= 5018 then
         -- initialize frame
         SPEEDLOADER_ON_FRAME_INIT(frame)
 
@@ -205,8 +208,8 @@ function SpeedLoader.ProcessSpeedLoader(self, frame)
                     effect.AddActorEffectByOffset(actor, effectName, 0.25, "MID", true, true);
                     -- ReserveScript("SPEEDLOADER_REMOVE_ACTOR_EFFECT()", 1)
                 end
-                -- imcSound.PlaySoundEvent('sys_tp_box_3');
-                imcSound.PlaySoundEvent('sys_tp_box_4')
+                imcSound.PlaySoundEvent('sys_tp_box_3');
+                -- imcSound.PlaySoundEvent('sys_tp_box_4')
             end
             gauge:SetSkinName("speedloader_gauge_green");
             gauge:SetColorTone("FFFF0000");
