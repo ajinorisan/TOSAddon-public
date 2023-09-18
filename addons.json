@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Market Sell List",
+		"file" : "market_selllist",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "market_selllist",
+		"unicode" : "⛄",
+		"description" : "マーケットの履歴表示。Market history display.마켓의 이력 표시.",
+		"tags" : []
+	},
+	{
 		"name" : "Boss Direction",
 		"file" : "boss_direction",
 		"extension" : "ipf",
