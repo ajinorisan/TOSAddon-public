@@ -1,4 +1,4 @@
-local addonName = "BARRACK_MGR"
+--[[local addonName = "BARRACK_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
 local ver = "1.0.0"
@@ -10,7 +10,7 @@ local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
-local acutil = require("acutil")
+local acutil = require("acutil")]]
 
 local base = {}
 
@@ -26,9 +26,9 @@ end
 
 local frame = ui.GetFrame("barrack_charlist")
 g.SetupHook(BARRACK_MGR_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
-ReserveScript(string.format("BARRACK_MGR_BARRACK_START_FRAME_OPEN('%s')", frame), 0.5)
+ReserveScript(string.format("BARRACK_MGR_BARRACK_START_FRAME_OPEN('%s')", frame), 0.1)
 
-function BARRACK_MGR_ON_INIT(addon, frame)
+--[[function BARRACK_MGR_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
@@ -37,7 +37,7 @@ function BARRACK_MGR_ON_INIT(addon, frame)
     -- g.SetupHook(BARRACK_MGR_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
     -- addon:RegisterMsg("GAME_START", "AUTO_REPAIR_FRAME_INIT")
 
-end
+end]]
 
 function BARRACK_MGR_BARRACK_START_FRAME_OPEN(frame)
     -- if frame == nil then
