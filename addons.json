@@ -12,10 +12,10 @@
 		"name" : "Boss Direction",
 		"file" : "boss_direction",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "boss_direction",
 		"unicode" : "⛄",
-		"description" : "ボスが向いている方向が分かりやすくなります。It is easier to see the direction the boss is facing.보스가 향하고 있는 방향을 쉽게 알 수 있습니다.",
+		"description" : "ボス倒したらすぐに矢印消える様に修正。ボスが向いている方向が分かりやすくなります。Fix the arrows to disappear as soon as the boss is defeated. It will be easier to see the direction the boss is facing.보스를 쓰러뜨리면 바로 화살표가 사라지도록 수정. 보스가 향하고 있는 방향을 쉽게 알 수 있습니다.",
 		"tags" : []
 	},
 	{

@@ -1,7 +1,8 @@
+-- v1.0.1 BOSS倒したら矢印速攻消える様に。サイズ控え目に。
 local addonName = "BOSS_DIRECTION"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -52,7 +53,7 @@ function BOSS_DIRECTION_ON_MSG(frame, msg, argStr, argNum)
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
 
-    frame:Resize(150, 150);
+    frame:Resize(130, 130);
     frame:SetLayerLevel(91)
 
     local arrow = frame:GetChild("arrow");
@@ -67,10 +68,14 @@ function BOSS_DIRECTION_ON_MSG(frame, msg, argStr, argNum)
     end
     if handle ~= 0 then
         arrow:SetAngle(info.GetAngle(handle) - 30);
-        arrow:Resize(130, 130);
+        arrow:Resize(100, 100);
         arrow:SetColorTone("FFFF0000");
         FRAME_AUTO_POS_TO_OBJ(frame, handle, -frame:GetWidth() / 2, -frame:GetHeight() / 2, 0, 0);
         frame:ShowWindow(1);
+    end
+
+    if msg == "TARGET_CLEAR_BOSS" then
+        frame:ShowWindow(0)
     end
     return 1
 
