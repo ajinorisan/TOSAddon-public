@@ -19,6 +19,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "dungeonrpcharger",
+		"file" : "dungeonrpcharger",
+		"extension" : "ipf",
+		"fileVersion" : "v2.0.0",
+		"releaseTag" : "dungeonrpcharger",
+		"unicode" : "⛄",
+		"description" : "meldavyさん作成のアドオン保守。女神コインのレリックも使用出来ます。右上のチェックボックスでレリック自動OFF。Add-on maintenance created by meldavy. Relic of Goddess Coin can be used. Check box in the upper right corner to turn off the relic automatically.meldavy 님이 만든 애드온 유지보수. 여신 코인 유물도 사용할 수 있습니다. 오른쪽 상단의 체크박스로 유물 자동 OFF.",
+		"tags" : []
+	},
+	{
         "name": "Yet Another Account Inventory",
         "file": "yaaccountinventory",
         "extension": "ipf",
