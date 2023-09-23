@@ -22,10 +22,10 @@
 		"name" : "dungeonrpcharger",
 		"file" : "dungeonrpcharger",
 		"extension" : "ipf",
-		"fileVersion" : "v2.0.0",
+		"fileVersion" : "v2.0.1",
 		"releaseTag" : "dungeonrpcharger",
 		"unicode" : "⛄",
-		"description" : "meldavyさん作成のアドオン保守。女神コインのレリックも使用出来ます。右上のチェックボックスでレリック自動OFF。Add-on maintenance created by meldavy. Relic of Goddess Coin can be used. Check box in the upper right corner to turn off the relic automatically.meldavy 님이 만든 애드온 유지보수. 여신 코인 유물도 사용할 수 있습니다. 오른쪽 상단의 체크박스로 유물 자동 OFF.",
+		"description" : "meldavyさん作成のアドオン保守。女神コインのレリックも使用出来ます。Add-on maintenance created by meldavy. Relic of Goddess Coin can also be used. meldavy 님이 만든 애드온 유지보수. 여신 코인 유물도 사용할 수 있습니다.",
 		"tags" : []
 	},
 	{
@@ -95,7 +95,7 @@
 		"name" : "Indun Panel 23.9.5patch",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.5",
+		"fileVersion" : "v1.1.6",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "チャレンジやレイドに入る支援パネルを設置します。アイテムを購入して使う機能追加。Establish a support panel to enter challenges and raids. Add the ability to purchase and use items.챌린지 및 레이드 진입을 위한 지원 패널을 설치합니다. 아이템 구매 및 사용 기능 추가.",
