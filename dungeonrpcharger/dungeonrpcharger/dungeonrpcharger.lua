@@ -1,9 +1,10 @@
 -- dofile("../data/addon_d/dungeonrpcharger/dungeonrpcharger.lua");
 -- areas defined
 -- v2.0.0 
+-- v2.0.1 大人の事情でレリックオフ機能除去
 local author = 'meldavy'
 local addonName = 'dungeonrpcharger'
-local ver = "2.0.0"
+local ver = "2.0.1"
 
 _G['ADDONS'] = _G['ADDONS'] or {}
 _G['ADDONS'][author] = _G['ADDONS'][author] or {}
@@ -84,11 +85,11 @@ function DUNGEONRPCHARGER_ON_INIT(addon, frame)
     addon:RegisterMsg('BUFF_REMOVE', 'DUNGEONRPCHARGER_ON_BUFF_REMOVE');
     local curMapID = session.GetMapID()
     -- check if map is rechargeable
-    if (DungeonRPCharger:IsRechargeableMap(curMapID) == 1) then
+    --[[if (DungeonRPCharger:IsRechargeableMap(curMapID) == 1) then
         CHAT_SYSTEM(DungeonRPCharger:IsRechargeableMap(curMapID))
         addon:RegisterMsg('FPS_UPDATE', 'DUNGEONRPCHARGER_CHECK_ALL_SLOTS');
         addon:RegisterMsg('FPS_UPDATE', 'DUNGEONRPCHARGER_ISCHECKED');
-    end
+    end]]
     -- DungeonRPCharger.SetupHook(DUNGEONRPCHARGER_ICON_USE, "ICON_USE")
 end
 
@@ -252,12 +253,12 @@ function DUNGEONRPCHARGER_ON_FRAME_INIT(frame)
     frame:SetEventScript(ui.LBUTTONUP, "DUNGEONRPCHARGER_END_DRAG");
 
     -- draw the frame
-    frame:SetSkinName('None');
+    --[[ frame:SetSkinName('None');
     frame:SetPos(1600, 0)
     frame:Resize(30, 30)
     local checkbox = frame:CreateOrGetControl('checkbox', 'checkbox', 0, 2, 30, 30)
     AUTO_CAST(checkbox)
-    checkbox:SetTextTooltip("チェックすると自動でレリックOFF{nl}Automatic relic off when checked.")
+    checkbox:SetTextTooltip("チェックすると自動でレリックOFF{nl}Automatic relic off when checked.")]]
 
     -- frame:RunUpdateScript("DUNGEONRPCHARGER_ISCHECKED", 1.0)
     -- set default position of frame

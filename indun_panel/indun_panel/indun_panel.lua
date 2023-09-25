@@ -13,6 +13,7 @@
 -- v1.1.3 オートズーム無効機能。常時展開中でも閉められる様に変更
 -- v1.1.4 表示するレイドを選択出来る様に変更
 -- v1.1.5 選択表示使用の際の表示更新バグ修正。ペットボタン撤去。TOSイベントショップボタン設置
+-- v1.1.6 谷間園児対応
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -40,6 +41,56 @@ function g.SetupHook(func, baseFuncName)
 end
 
 g.ex = 0 -- 関数の外に定義
+function INDUN_PANEL_LANG(str)
+    local langcode = option.GetCurrentCountry()
+
+    if langcode == "Japanese" then
+        if str == tostring("{s20}Challenge") then
+            str = "{s20}チャレンジ"
+        end
+        if str == tostring("{s20}Singularity") then
+            str = "{s20}分裂特異点"
+        end
+        if str == tostring("{s20}Slogutis") then
+            str = "{s16}スローガティス"
+        end
+        if str == tostring("{s20}Upinis") then
+            str = "{s20}ウピニス"
+        end
+        if str == tostring("{s20}Roze") then
+            str = "{s20}ロゼ"
+        end
+        if str == tostring("{s20}Falouros") then
+            str = "{s18}ファロウロス"
+        end
+        if str == tostring("{s20}Spreader") then
+            str = "{s16}プロパゲーター"
+        end
+        if str == tostring("{s20}Jellyzele") then
+            str = "{s16}ジェリージェル"
+        end
+        if str == tostring("{s20}Delmore") then
+            str = "{s20}デルムーア"
+        end
+        if str == tostring("{s20}TelHarsha") then
+            str = "{s18}テルハルシャ"
+        end
+        if str == tostring("{s20}Velnice") then
+            str = "{s20}ヴェルニケ"
+        end
+        if str == tostring("{s20}Giltine") then
+            str = "{s20}ギルティネ"
+        end
+        if str == tostring("{s20}Earring") then
+            str = "{s20}焔の記憶"
+        end
+        if str == tostring("{s20}Cemetery") then
+            str = "{s20}嘆きの墓地"
+        end
+        return str
+    end
+    return str
+end
 
 function INDUN_PANEL_ON_INIT(addon, frame)
 
@@ -304,7 +355,8 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
 
     local challenge = ipframe:CreateOrGetControl("richtext", "challenge", 15, 45)
-    challenge:SetText("{ol}{#FFFFFF}{s21}Challenge")
+    -- challenge:SetAlign("center", "center") -- テキストを中央寄せに設定
+    challenge:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Challenge"))
     local challenge_checkbox = ipframe:CreateOrGetControl('checkbox', 'challenge_checkbox', 150, 45, 25, 25)
     AUTO_CAST(challenge_checkbox)
     challenge_checkbox:SetCheck(g.settings.challenge_checkbox)
@@ -312,7 +364,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     challenge_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local challengeex = ipframe:CreateOrGetControl("richtext", "challengeex", 15, 85)
-    challengeex:SetText("{ol}{#FFFFFF}{s21}Singularity")
+    challengeex:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Singularity"))
     local challengeex_checkbox = ipframe:CreateOrGetControl('checkbox', 'challengeex_checkbox', 150, 85, 25, 25)
     AUTO_CAST(challengeex_checkbox)
     challengeex_checkbox:SetCheck(g.settings.challengeex_checkbox)
@@ -320,7 +372,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     challengeex_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local Slogutis = ipframe:CreateOrGetControl("richtext", "Slogutis", 15, 125)
-    Slogutis:SetText("{ol}{#FFFFFF}{s21}Slogutis")
+    Slogutis:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Slogutis"))
     local Slogutis_checkbox = ipframe:CreateOrGetControl('checkbox', 'Slogutis_checkbox', 150, 125, 25, 25)
     AUTO_CAST(Slogutis_checkbox)
     Slogutis_checkbox:SetCheck(g.settings.Slogutis_checkbox)
@@ -328,7 +380,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     Slogutis_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local Upinis = ipframe:CreateOrGetControl("richtext", "Upinis", 15, 165)
-    Upinis:SetText("{ol}{#FFFFFF}{s21}Upinis")
+    Upinis:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Upinis"))
     local Upinis_checkbox = ipframe:CreateOrGetControl('checkbox', 'Upinis_checkbox', 150, 165, 25, 25)
     AUTO_CAST(Upinis_checkbox)
     Upinis_checkbox:SetCheck(g.settings.Upinis_checkbox)
@@ -336,7 +388,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     Upinis_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local roze = ipframe:CreateOrGetControl("richtext", "roze", 15, 205)
-    roze:SetText("{ol}{#FFFFFF}{s21}Roze")
+    roze:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Roze"))
     local roze_checkbox = ipframe:CreateOrGetControl('checkbox', 'roze_checkbox', 150, 205, 25, 25)
     AUTO_CAST(roze_checkbox)
     roze_checkbox:SetCheck(g.settings.roze_checkbox)
@@ -344,7 +396,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     roze_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local falouros = ipframe:CreateOrGetControl("richtext", "falouros", 15, 245)
-    falouros:SetText("{ol}{#FFFFFF}{s21}Falouros")
+    falouros:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Falouros"))
     local falouros_checkbox = ipframe:CreateOrGetControl('checkbox', 'falouros_checkbox', 150, 245, 25, 25)
     AUTO_CAST(falouros_checkbox)
     falouros_checkbox:SetCheck(g.settings.falouros_checkbox)
@@ -352,7 +404,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     falouros_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local spreader = ipframe:CreateOrGetControl("richtext", "spreader", 15, 285)
-    spreader:SetText("{ol}{#FFFFFF}{s21}Spreader")
+    spreader:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Spreader"))
     local spreader_checkbox = ipframe:CreateOrGetControl('checkbox', 'spreader_checkbox', 150, 285, 25, 25)
     AUTO_CAST(spreader_checkbox)
     spreader_checkbox:SetCheck(g.settings.spreader_checkbox)
@@ -360,7 +412,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     spreader_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local jellyzele = ipframe:CreateOrGetControl("richtext", "jellyzele", 15, 325)
-    jellyzele:SetText("{ol}{#FFFFFF}{s21}Jellyzele")
+    jellyzele:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Jellyzele"))
     local jellyzele_checkbox = ipframe:CreateOrGetControl('checkbox', 'jellyzele_checkbox', 150, 325, 25, 25)
     AUTO_CAST(jellyzele_checkbox)
     jellyzele_checkbox:SetCheck(g.settings.jellyzele_checkbox)
@@ -368,7 +420,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     jellyzele_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local delmore = ipframe:CreateOrGetControl("richtext", "delmore", 15, 365)
-    delmore:SetText("{ol}{#FFFFFF}{s21}Delmore")
+    delmore:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Delmore"))
     local delmore_checkbox = ipframe:CreateOrGetControl('checkbox', 'delmore_checkbox', 150, 365, 25, 25)
     AUTO_CAST(delmore_checkbox)
     delmore_checkbox:SetCheck(g.settings.delmore_checkbox)
@@ -376,7 +428,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     delmore_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local telharsha = ipframe:CreateOrGetControl("richtext", "telharsha", 15, 405)
-    telharsha:SetText("{ol}{#FFFFFF}{s21}TelHarsha")
+    telharsha:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}TelHarsha"))
     local telharsha_checkbox = ipframe:CreateOrGetControl('checkbox', 'telharsha_checkbox', 150, 405, 25, 25)
     AUTO_CAST(telharsha_checkbox)
     telharsha_checkbox:SetCheck(g.settings.telharsha_checkbox)
@@ -384,7 +436,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     telharsha_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local velnice = ipframe:CreateOrGetControl("richtext", "velnice", 15, 445)
-    velnice:SetText("{ol}{#FFFFFF}{s21}Velnice")
+    velnice:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Velnice"))
     local velnice_checkbox = ipframe:CreateOrGetControl('checkbox', 'velnice_checkbox', 150, 445, 25, 25)
     AUTO_CAST(velnice_checkbox)
     velnice_checkbox:SetCheck(g.settings.velnice_checkbox)
@@ -392,7 +444,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     velnice_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local giltine = ipframe:CreateOrGetControl("richtext", "giltine", 15, 485)
-    giltine:SetText("{ol}{#FFFFFF}{s21}Giltine")
+    giltine:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Giltine"))
     local giltine_checkbox = ipframe:CreateOrGetControl('checkbox', 'giltine_checkbox', 150, 485, 25, 25)
     AUTO_CAST(giltine_checkbox)
     giltine_checkbox:SetCheck(g.settings.giltine_checkbox)
@@ -400,7 +452,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     giltine_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local earring = ipframe:CreateOrGetControl("richtext", "earring", 15, 525)
-    earring:SetText("{ol}{#FFFFFF}{s21}Earring")
+    earring:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Earring"))
     local earring_checkbox = ipframe:CreateOrGetControl('checkbox', 'earring_checkbox', 150, 525, 25, 25)
     AUTO_CAST(earring_checkbox)
     earring_checkbox:SetCheck(g.settings.earring_checkbox)
@@ -408,7 +460,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     earring_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local cemetery = ipframe:CreateOrGetControl("richtext", "cemetery", 15, 565)
-    cemetery:SetText("{ol}{#FFFFFF}{s21}Cemetery")
+    cemetery:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Cemetery"))
     local cemetery_checkbox = ipframe:CreateOrGetControl('checkbox', 'cemetery_checkbox', 150, 565, 25, 25)
     AUTO_CAST(cemetery_checkbox)
     cemetery_checkbox:SetCheck(g.settings.cemetery_checkbox)
@@ -580,7 +632,7 @@ function indun_panel_init(ipframe)
     -- button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
     -- local button = GET_CHILD_RECURSIVELY(ipframe, "indun_panel_open")
 
-    local zoomtext = ipframe:CreateOrGetControl("richtext", "zoomtext", 275, 15)
+    local zoomtext = ipframe:CreateOrGetControl("richtext", "zoomtext", 280, 15)
     zoomtext:SetText("{ol}{#FFFFFF}{s14}Auto Zoom")
 
     local zoomedit = ipframe:CreateOrGetControl('edit', 'zoomedit', 355, 5, 60, 35)
@@ -743,7 +795,7 @@ end
 
 function indun_panel_cemetery_frame(ipframe)
     local cemetery = ipframe:CreateOrGetControl("richtext", "cemetery", 15, g.panelY)
-    cemetery:SetText("{ol}{#FFFFFF}{s21}Cemetery")
+    cemetery:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Cemetery"))
     local cemeterybutton = ipframe:CreateOrGetControl('button', 'cemeterybutton', 135, g.panelY, 80, 30)
     cemeterybutton:SetText("{ol}IN")
     cemeterybutton:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
@@ -755,7 +807,7 @@ end
 
 function indun_panel_velnice_frame(ipframe)
     local velnice = ipframe:CreateOrGetControl("richtext", "velnice", 15, g.panelY)
-    velnice:SetText("{ol}{#FFFFFF}{s21}Velnice")
+    velnice:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Velnice"))
     local velnicebutton = ipframe:CreateOrGetControl('button', 'velnicebutton', 135, g.panelY, 80, 30)
     velnicebutton:SetText("{ol}IN")
     local velnicecount = ipframe:CreateOrGetControl("richtext", "velnicecount", 220, g.panelY + 5, 50, 30)
@@ -794,7 +846,7 @@ end
 
 function indun_panel_telharsha_frame(ipframe)
     local telharsha = ipframe:CreateOrGetControl("richtext", "telharsha", 15, g.panelY)
-    telharsha:SetText("{ol}{#FFFFFF}{s21}TelHarsha")
+    telharsha:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}TelHarsha"))
     local telharshabutton = ipframe:CreateOrGetControl('button', 'telharshabutton', 135, g.panelY, 80, 30)
     telharshabutton:SetText("{ol}IN")
     local telharshacount = ipframe:CreateOrGetControl("richtext", "telharshacount", 220, g.panelY + 5)
@@ -810,7 +862,7 @@ end
 
 function indun_panel_upinis_frame(ipframe)
     local Upinis = ipframe:CreateOrGetControl("richtext", "Upinis", 15, g.panelY)
-    Upinis:SetText("{ol}{#FFFFFF}{s21}Upinis")
+    Upinis:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Upinis"))
     local upinissolo = ipframe:CreateOrGetControl('button', 'upinissolo', 135, g.panelY, 80, 30)
     local upinisauto = ipframe:CreateOrGetControl('button', 'upinisauto', 220, g.panelY, 80, 30)
     -- local upinishard = ipframe:CreateOrGetControl('button', 'upinishard', 350, 125, 80, 30)
@@ -853,7 +905,7 @@ end
 
 function indun_panel_slogutis_frame(ipframe)
     local Slogutis = ipframe:CreateOrGetControl("richtext", "Slogutis", 15, g.panelY)
-    Slogutis:SetText("{ol}{#FFFFFF}{s21}Slogutis")
+    Slogutis:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Slogutis"))
     local slogutissolo = ipframe:CreateOrGetControl('button', 'slogutissolo', 135, g.panelY, 80, 30)
     local slogutisauto = ipframe:CreateOrGetControl('button', 'slogutisauto', 220, g.panelY, 80, 30)
     -- local slogutishard = ipframe:CreateOrGetControl('button', 'slogutishard', 350, 125, 80, 30)
@@ -1132,7 +1184,7 @@ end
 -- イヤリングレイド処理
 function indun_panel_earring_frame(ipframe)
     local earring = ipframe:CreateOrGetControl("richtext", "earring", 15, g.panelY)
-    earring:SetText("{ol}{#FFFFFF}{s21}Earring")
+    earring:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Earring"))
     local earringsolo = ipframe:CreateOrGetControl('button', 'earringsolo', 135, g.panelY, 80, 30)
     local earringnormal = ipframe:CreateOrGetControl('button', 'earringauto', 220, g.panelY, 80, 30)
     local earringhard = ipframe:CreateOrGetControl('button', 'earringhard', 305, g.panelY, 80, 30)
@@ -1161,7 +1213,7 @@ end
 -- ギルティネレイド処理
 function indun_panel_giltine_frame(ipframe)
     local giltine = ipframe:CreateOrGetControl("richtext", "giltine", 15, g.panelY)
-    giltine:SetText("{ol}{#FFFFFF}{s21}Giltine")
+    giltine:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Giltine"))
     local giltinesolo = ipframe:CreateOrGetControl('button', 'giltinesolo', 135, g.panelY, 80, 30)
     local giltineauto = ipframe:CreateOrGetControl('button', 'giltineauto', 220, g.panelY, 80, 30)
     local giltinehard = ipframe:CreateOrGetControl('button', 'giltinehard', 350, g.panelY, 80, 30)
@@ -1196,7 +1248,7 @@ end
 -- デルムーア処理
 function indun_panel_Delmore_frame(ipframe)
     local delmore = ipframe:CreateOrGetControl("richtext", "delmore", 15, g.panelY)
-    delmore:SetText("{ol}{#FFFFFF}{s21}Delmore")
+    delmore:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Delmore"))
     local Delmoresolo = ipframe:CreateOrGetControl('button', 'Delmoresolo', 135, g.panelY, 80, 30)
     local Delmoreauto = ipframe:CreateOrGetControl('button', 'Delmoreauto', 220, g.panelY, 80, 30)
     local Delmorehard = ipframe:CreateOrGetControl('button', 'Delmorehard', 350, g.panelY, 80, 30)
@@ -1233,7 +1285,7 @@ end
 -- クラゲ処理
 function indun_panel_jellyzele_frame(ipframe)
     local jellyzele = ipframe:CreateOrGetControl("richtext", "jellyzele", 15, g.panelY)
-    jellyzele:SetText("{ol}{#FFFFFF}{s21}Jellyzele")
+    jellyzele:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Jellyzele"))
     local jellyzelesolo = ipframe:CreateOrGetControl('button', 'jellyzelesolo', 135, g.panelY, 80, 30)
     local jellyzeleauto = ipframe:CreateOrGetControl('button', 'jellyzeleauto', 220, g.panelY, 80, 30)
     local jellyzelehard = ipframe:CreateOrGetControl('button', 'jellyzelehard', 350, g.panelY, 80, 30)
@@ -1270,7 +1322,7 @@ end
 -- プロパゲ処理
 function indun_panel_spreader_frame(ipframe)
     local spreader = ipframe:CreateOrGetControl("richtext", "spreader", 15, g.panelY)
-    spreader:SetText("{ol}{#FFFFFF}{s21}Spreader")
+    spreader:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Spreader"))
     local spreadersolo = ipframe:CreateOrGetControl('button', 'spreadersolo', 135, g.panelY, 80, 30)
     local spreaderauto = ipframe:CreateOrGetControl('button', 'spreaderauto', 220, g.panelY, 80, 30)
     local spreaderhard = ipframe:CreateOrGetControl('button', 'spreaderhard', 350, g.panelY, 80, 30)
@@ -1316,7 +1368,7 @@ end
 -- ファロウロス処理
 function indun_panel_falo_frame(ipframe)
     local falouros = ipframe:CreateOrGetControl("richtext", "falouros", 15, g.panelY)
-    falouros:SetText("{ol}{#FFFFFF}{s21}Falouros")
+    falouros:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Falouros"))
     local falosolo = ipframe:CreateOrGetControl('button', 'falosolo', 135, g.panelY, 80, 30)
     local faloauto = ipframe:CreateOrGetControl('button', 'faloauto', 220, g.panelY, 80, 30)
     local falohard = ipframe:CreateOrGetControl('button', 'falohard', 350, g.panelY, 80, 30)
@@ -1362,7 +1414,7 @@ end
 -- ロゼ処理
 function indun_panel_roze_frame(ipframe)
     local roze = ipframe:CreateOrGetControl("richtext", "roze", 15, g.panelY)
-    roze:SetText("{ol}{#FFFFFF}{s21}Roze")
+    roze:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Roze"))
     local rozesolo = ipframe:CreateOrGetControl('button', 'rozesolo', 135, g.panelY, 80, 30)
     local rozeauto = ipframe:CreateOrGetControl('button', 'rozeauto', 220, g.panelY, 80, 30)
     local rozehard = ipframe:CreateOrGetControl('button', 'rozehard', 350, g.panelY, 80, 30)
@@ -1408,10 +1460,10 @@ end
 -- チャレンジ処理
 function indun_panel_challenge_frame(ipframe)
     local challenge = ipframe:CreateOrGetControl("richtext", "challenge", 15, g.panelY)
-    challenge:SetText("{ol}{#FFFFFF}{s21}Challenge")
+    challenge:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Challenge"))
 
     -- local challengeex = ipframe:CreateOrGetControl("richtext", "challengeex", 15, 85)
-    -- challengeex:SetText("{ol}{#FFFFFF}{s21}Singularity")
+    -- challengeex:SetText("{ol}{#FFFFFF}{s16}Singularity")
     local challenge460 = ipframe:CreateOrGetControl('button', 'challenge460', 135, g.panelY, 80, 30)
     challenge460:SetText("{ol}480")
     -- challenge460:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge460")
@@ -1479,10 +1531,10 @@ end
 
 function indun_panel_challengeex_frame(ipframe)
     -- local challenge = ipframe:CreateOrGetControl("richtext", "challenge", 15, 45)
-    -- challenge:SetText("{ol}{#FFFFFF}{s21}Challenge")
+    -- challenge:SetText("{ol}{#FFFFFF}{s16}Challenge")
 
     local challengeex = ipframe:CreateOrGetControl("richtext", "challengeex", 15, g.panelY)
-    challengeex:SetText("{ol}{#FFFFFF}{s21}Singularity")
+    challengeex:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Singularity"))
     -- local challenge460 = ipframe:CreateOrGetControl('button', 'challenge460', 135, 45, 80, 30)
     -- challenge460:SetText("{ol}480")
     -- challenge460:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge460")
