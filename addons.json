@@ -19,6 +19,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Market Sell List",
+		"file" : "market_selllist",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.1",
+		"releaseTag" : "market_selllist",
+		"unicode" : "⛄",
+		"description" : "マーケットの販売履歴表示。Market sales history display.마켓의 판매 내역 표시.",
+		"tags" : []
+	},
+	{
 		"name" : "dungeonrpcharger",
 		"file" : "dungeonrpcharger",
 		"extension" : "ipf",
@@ -55,7 +65,7 @@
 		"name" : "Monster Card Change",
 		"file" : "monstercard_change",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.3",
+		"fileVersion" : "v1.0.4",
 		"releaseTag" : "monstercard_change",
 		"unicode" : "⛄",
 		"description" : "モンスターカードプリセットを使いやすくします。カード自動搬出入、自動着脱機能付き。カード3枚セットで運用に変更。Easy to use monster card preset. Includes automatic card loading/unloading and automatic card insertion/removal functions. Changed to operation with 3 card set.몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함. 카드 3장 세트로 운영으로 변경.",

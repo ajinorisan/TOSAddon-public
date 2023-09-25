@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uiframe name="market_selllist" x="0" y="0" width="775" height="445"  create="open">
- <option hideable="true"/>
+<uiframe name="market_selllist" x="0" y="0" width="10" height="10" create="open">
   <controls>
-   <textview name="textview_log" rect="10 10 675 435" transparent="false"/>
     <timer name="addontimer" rect="0 0 10 10" margin="0 0 0 0" layout_gravity="left top"/>
   </controls>
 </uiframe>

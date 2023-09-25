@@ -1,10 +1,11 @@
 -- v1.0.1 カードをインベントリを探してなければ装備する数を倉庫から搬出。装備してたカードだけを倉庫へ搬入。
 -- v1.0.2 バグ修正
 -- v1.0.3 カードを3枚セットで運用に変更
+-- v1.0.4 装備ボタン、外すボタンの運用見直し。
 local addonName = "monstercard_change"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -224,14 +225,13 @@ end
 function monstercard_change_put_inv_to_warehouse()
     -- CHAT_SYSTEM("test")
 
-    MONSTERCARDSLOT_CLOSE()
-
     local msgframe = ui.GetFrame(addonNameLower)
     msgframe:Resize(560, 150)
     msgframe:SetPos(750, 300)
     msgframe:ShowTitleBar(0);
     msgframe:SetSkinName("None")
     msgframe:SetGravity(ui.CENTER, ui.CENTER);
+    msgframe:SetLayerLevel(98)
 
     local text1 = msgframe:CreateOrGetControl('richtext', 'text1', 25, 25)
     AUTO_CAST(text1)
@@ -289,9 +289,11 @@ function monstercard_change_put_inv_to_warehouse()
             -- monstercard_change_end_of_operation()
             -- return
         end
+        MONSTERCARDSLOT_CLOSE()
         monstercard_change_end_of_operation()
         return
     end
+    MONSTERCARDSLOT_CLOSE()
     monstercard_change_end_of_operation()
     return
 end
@@ -461,8 +463,9 @@ function monstercard_change_CARD_PRESET_APPLY_PRESET()
     end
 
 end
--- インベントリに何枚あるか調査
---[[function monstercard_change_inventry()
+
+-- インベントリに足りなければ3枚になるまで補充。無ければ終了
+function monstercard_change_warehouse()
 
     local msgframe = ui.GetFrame(addonNameLower)
     msgframe:Resize(560, 150)
@@ -470,62 +473,13 @@ end
     msgframe:ShowTitleBar(0);
     msgframe:SetSkinName("None")
     msgframe:SetGravity(ui.CENTER, ui.CENTER);
+    msgframe:SetLayerLevel(98)
 
     local text1 = msgframe:CreateOrGetControl('richtext', 'text1', 25, 25)
     AUTO_CAST(text1)
     text1:SetText(
         "{s20}{ol}{#CCCC22}[MCC]Operating. Do not perform{nl}other operations to prevent bugs.{nl}[MCC]動作中。バグ防止の為、{nl}他の動作は行わないでください。")
     msgframe:ShowWindow(1)
-
-    local fromFrame = ui.GetFrame("inventory");
-    local cardTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
-    cardTab:SelectTab(4)
-    local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList();
-    local cnt = guidList:Count();
-    for i = 0, cnt - 1 do
-        local guid = guidList:Get(i);
-        local invItem = invItemList:GetItemByGuid(guid)
-        local itemobj = GetIES(invItem:GetObject())
-        local itemlv = TryGetProp(itemobj, "Level", 0)
-        local iesid = invItem:GetIESID()
-        local iesid_table = {}
-
-        for cardID, count in pairs(g.cardcount) do
-
-            if g.cardcount[cardID] ~= nil and g.cardcount[cardID] > 0 and tostring(itemobj.ClassID) == tostring(cardID) then
-                -- for _, cardid in pairs(g.cardlist) do
-                -- if tostring(itemobj.ClassID) == tostring(cardid) then
-                for _, lv in pairs(g.cardlv) do
-                    if tostring(itemlv) == tostring(lv) then
-                        for _, iesID in pairs(iesid_table) do
-                            if tostring(iesid) ~= tostring(iesID) then
-                                table.insert(iesid_table, iesid)
-                                g.cardcount[cardID] = g.cardcount[cardID] - 1
-                                -- testcode
-                                local cardname = itemobj.ClassName
-                                print("inv: " .. tostring(cardname) .. g.cardcount[cardID])
-
-                                ReserveScript("monstercard_change_inventry()", 0.2)
-                                return
-                            end
-                        end
-                    end
-                end
-                -- end
-                -- end
-
-            end
-
-        end
-    end
-
-    monstercard_change_warehouse()
-    return
-end]]
-
--- インベントリに足りなければ3枚になるまで補充。無ければ終了
-function monstercard_change_warehouse()
 
     local frame = ui.GetFrame("monstercardpreset")
 
@@ -579,9 +533,14 @@ function monstercard_change_warehouse()
     -- end
     if page ~= nil then
         pc.ReqExecuteTx_NumArgs("SCR_TX_APPLY_CARD_PRESET", page)
-        _DISABLE_CARD_PRESET_APPLY_SAVE_BTN()
+        -- print("test")
         ReserveScript("monstercard_change_end_of_operation()", 2.0)
-        return
+        _DISABLE_CARD_PRESET_APPLY_SAVE_BTN()
+
+        -- MONSTERCARDSLOT_CLOSE()
+
+        -- return
+
     end
 
 end
@@ -657,17 +616,35 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
 
     local awframe = ui.GetFrame("accountwarehouse")
 
+    local allnil = true
+    for index = 0, 11 do
+        local cardID, cardLv, cardExp = GETMYCARD_INFO(index);
+        if cardID ~= 0 then
+            allnil = false
+            break
+        end
+
+    end
+
+    -- print(tostring(allnil))
     -- if awframe:IsVisible() == 1 then
     local unequipBtn = frame:CreateOrGetControl("button", "unequipBtn", 480, 57, 70, 38)
     AUTO_CAST(unequipBtn)
     unequipBtn:SetText("{@st66b}REMOVE")
     unequipBtn:SetSkinName("test_pvp_btn")
+    unequipBtn:SetEnable(1)
 
-    if awframe:IsVisible() == 1 then
+    if awframe:IsVisible() == 1 and allnil == false then
         unequipBtn:SetTextTooltip("{@st59}Remove the cards currently equipped and bring them into the warehouse.{nl}" ..
                                       "{@st59}現在装備中のカードを取り外し、倉庫へ搬入します。{/}")
         unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_info_accountwarehouse")
         -- unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_SELECT_PRESET")
+
+    elseif awframe:IsVisible() == 1 and allnil == true then
+        unequipBtn:SetTextTooltip("{@st59}Remove the cards currently equipped and bring them into the warehouse.{nl}" ..
+                                      "{@st59}現在装備中のカードを取り外し、倉庫へ搬入します。{/}")
+        unequipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_info_accountwarehouse")
+        unequipBtn:SetEnable(0)
     else
         unequipBtn:SetTextTooltip("{@st59}Remove the card currently equipped.{nl}" ..
                                       "{@st59}現在装備中のカードを取り外します。{/}")
@@ -677,28 +654,38 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
     -- end
 
     frame:RemoveChild("applyBtn")
-    local applyBtn = frame:CreateOrGetControl("button", "applyBtn", 410, 57, 70, 38)
-    AUTO_CAST(applyBtn)
-    applyBtn:SetText("{@st66b}EQUIP")
-    applyBtn:SetSkinName("test_pvp_btn")
+    local equipBtn = frame:CreateOrGetControl("button", "equipBtn", 410, 57, 70, 38)
+    AUTO_CAST(equipBtn)
+    equipBtn:SetText("{@st66b}EQUIP")
+    equipBtn:SetSkinName("test_pvp_btn")
+    equipBtn:SetEnable(1)
 
-    if awframe:IsVisible() == 1 then
-        applyBtn:SetTextTooltip("{@st59}Change the installed card with the current preset{nl}" ..
+    if awframe:IsVisible() == 1 and allnil == true then
+        equipBtn:SetTextTooltip("{@st59}Change the installed card with the current preset{nl}" ..
                                     "{@st59}{#FFFF00}※Does not apply to cards not held in inventory or team warehouse{nl}" ..
                                     "{@st59}現在のプリセットで、装着カードを変更します{nl}" ..
                                     "{@st59}{#FFFF00}※インベントリかチーム倉庫に所持していないカードは適用されません")
-        -- applyBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_APPLY_PRESET")
-        applyBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_presetinfo")
-        -- frame:RunUpdateScript("monstercard_change_CARD_PRESET_APPLY_PRESET", 0.1)
+        -- equipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_equip_PRESET")
+        equipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_presetinfo")
+        equipBtn:SetEnable(1)
+        -- frame:RunUpdateScript("monstercard_change_CARD_PRESET_equip_PRESET", 0.1)
+    elseif awframe:IsVisible() == 1 and allnil == false then
+        equipBtn:SetTextTooltip("{@st59}Change the installed card with the current preset{nl}" ..
+                                    "{@st59}{#FFFF00}※Does not apply to cards not held in inventory or team warehouse{nl}" ..
+                                    "{@st59}現在のプリセットで、装着カードを変更します{nl}" ..
+                                    "{@st59}{#FFFF00}※インベントリかチーム倉庫に所持していないカードは適用されません")
+        -- equipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_CARD_PRESET_equip_PRESET")
+        equipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_presetinfo")
+        equipBtn:SetEnable(0)
 
     else
-        applyBtn:SetTextTooltip("{@st59}Change the installed card with the current preset{nl}" ..
+        equipBtn:SetTextTooltip("{@st59}Change the installed card with the current preset{nl}" ..
                                     "{@st59}{#FFFF00}※Does not apply to cards you do not have in your inventory{nl}" ..
                                     "{@st59}現在のプリセットで、装着カードを変更します{nl}" ..
                                     "{@st59}{#FFFF00}※インベントリに所持していないカードは適用されません")
 
-        applyBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_presetinfo")
-        -- frame:RunUpdateScript("monstercard_change_CARD_PRESET_APPLY_PRESET", 0.1)
+        equipBtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_get_presetinfo")
+        -- frame:RunUpdateScript("monstercard_change_CARD_PRESET_equip_PRESET", 0.1)
 
     end
 
@@ -707,8 +694,10 @@ function monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
     droplist:SelectItemByKey(0)
     MONSTERCARDPRESET_FRAME_INIT()
     RequestCardPreset(0)
-
-    ReserveScript(string.format("monstercard_change_MONSTERCARDSLOT_FRAME_OPEN()"), 0.1)
+    local mcsframe = ui.GetFrame('monstercardslot')
+    if mcsframe:IsVisible() == 0 then
+        ReserveScript(string.format("monstercard_change_MONSTERCARDSLOT_FRAME_OPEN()"), 0.1)
+    end
     return
 end
 
@@ -747,8 +736,71 @@ function monstercard_change_MONSTERCARDSLOT_FRAME_OPEN()
         end
 
     end
-
+    -- frame:RunUpdateScript("monstercard_change_MONSTERCARDPRESET_FRAME_OPEN", 0.2)
 end
+
+-- インベントリに何枚あるか調査
+--[[function monstercard_change_inventry()
+
+    local msgframe = ui.GetFrame(addonNameLower)
+    msgframe:Resize(560, 150)
+    msgframe:SetPos(750, 300)
+    msgframe:ShowTitleBar(0);
+    msgframe:SetSkinName("None")
+    msgframe:SetGravity(ui.CENTER, ui.CENTER);
+
+    local text1 = msgframe:CreateOrGetControl('richtext', 'text1', 25, 25)
+    AUTO_CAST(text1)
+    text1:SetText(
+        "{s20}{ol}{#CCCC22}[MCC]Operating. Do not perform{nl}other operations to prevent bugs.{nl}[MCC]動作中。バグ防止の為、{nl}他の動作は行わないでください。")
+    msgframe:ShowWindow(1)
+
+    local fromFrame = ui.GetFrame("inventory");
+    local cardTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+    cardTab:SelectTab(4)
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+    for i = 0, cnt - 1 do
+        local guid = guidList:Get(i);
+        local invItem = invItemList:GetItemByGuid(guid)
+        local itemobj = GetIES(invItem:GetObject())
+        local itemlv = TryGetProp(itemobj, "Level", 0)
+        local iesid = invItem:GetIESID()
+        local iesid_table = {}
+
+        for cardID, count in pairs(g.cardcount) do
+
+            if g.cardcount[cardID] ~= nil and g.cardcount[cardID] > 0 and tostring(itemobj.ClassID) == tostring(cardID) then
+                -- for _, cardid in pairs(g.cardlist) do
+                -- if tostring(itemobj.ClassID) == tostring(cardid) then
+                for _, lv in pairs(g.cardlv) do
+                    if tostring(itemlv) == tostring(lv) then
+                        for _, iesID in pairs(iesid_table) do
+                            if tostring(iesid) ~= tostring(iesID) then
+                                table.insert(iesid_table, iesid)
+                                g.cardcount[cardID] = g.cardcount[cardID] - 1
+                                -- testcode
+                                local cardname = itemobj.ClassName
+                                print("inv: " .. tostring(cardname) .. g.cardcount[cardID])
+
+                                ReserveScript("monstercard_change_inventry()", 0.2)
+                                return
+                            end
+                        end
+                    end
+                end
+                -- end
+                -- end
+
+            end
+
+        end
+    end
+
+    monstercard_change_warehouse()
+    return
+end]]
 
 -- ここから恐らく不要関数
 --[[function monstercard_change_GETMYCARD_INFO(slotIndex)
