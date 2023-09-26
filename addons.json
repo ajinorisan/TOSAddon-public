@@ -22,7 +22,7 @@
 		"name" : "Market Sell List",
 		"file" : "market_selllist",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.2",
 		"releaseTag" : "market_selllist",
 		"unicode" : "⛄",
 		"description" : "マーケットの販売履歴表示。Market sales history display.마켓의 판매 내역 표시.",
