@@ -2,10 +2,10 @@
 		"name" : "KL count 23.9.5patch",
 		"file" : "klcount",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.5",
+		"fileVersion" : "v1.0.6",
 		"releaseTag" : "klcount",
 		"unicode" : "⛄",
-		"description" : "フィールドで倒したモンスターをカウント。Count monsters defeated in the field.필드에서 쓰러뜨린 몬스터를 계산한다.",
+		"description" : "未知の聖域にも対応。フィールドで倒したモンスターをカウント。Support for unknown sanctuaries. Counting monsters defeated in the field.미지의 성역에도 대응. 필드에서 처치한 몬스터를 카운트",
 		"tags" : []
 	},
 	{
