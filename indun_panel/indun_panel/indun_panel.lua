@@ -14,10 +14,12 @@
 -- v1.1.4 表示するレイドを選択出来る様に変更
 -- v1.1.5 選択表示使用の際の表示更新バグ修正。ペットボタン撤去。TOSイベントショップボタン設置
 -- v1.1.6 谷間園児対応
+-- v1.1.7 台湾verに対応
+-- v1.1.8 日本語Verに台湾語が混ざってたのを修正。BUYUSEボタンに説明追加。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.1.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -87,8 +89,68 @@ function INDUN_PANEL_LANG(str)
         if str == tostring("{s20}Cemetery") then
             str = "{s20}嘆きの墓地"
         end
+        if str == tostring("SWEEP") then
+            str = "掃討"
+        end
+        if str == tostring(
+            "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due") then
+            str =
+                "優先順位{nl}1.24時間以内の期限付きチケット{nl}2.傭兵団コインチケット(コインで買って使います){nl}3.期限付きチケット"
+        end
         return str
     end
+
+    local LangCode = config.GetServiceNation()
+    if LangCode == "TAIWAN" then
+
+        if str == tostring("{s20}Challenge") then
+            str = "{s20}挑戰"
+        end
+        if str == tostring("{s20}Singularity") then
+            str = "{s20}分裂"
+        end
+        if str == tostring("{s20}Slogutis") then
+            str = "{s18}深淵的觀察者"
+        end
+        if str == tostring("{s20}Upinis") then
+            str = "{s20}夢幻森林"
+        end
+        if str == tostring("{s20}Roze") then
+            str = "{s20}救贖的香爐"
+        end
+        if str == tostring("{s20}Falouros") then
+            str = "{s20}帕盧烏羅斯"
+        end
+        if str == tostring("{s20}Spreader") then
+            str = "{s18}變質的傳播者"
+        end
+        if str == tostring("{s20}Jellyzele") then
+            str = "{s18}沉没的海盜船"
+        end
+        if str == tostring("{s20}Delmore") then
+            str = "{s18}德慕爾激戰地"
+        end
+        if str == tostring("{s20}TelHarsha") then
+            str = "{s20}泰哈爾沙"
+        end
+        if str == tostring("{s20}Velnice") then
+            str = "{s20}貝勒尼凱"
+        end
+        if str == tostring("{s20}Giltine") then
+            str = "{s20}魔神的聖所"
+        end
+        if str == tostring("{s20}Earring") then
+            str = "{s20}煙火的記憶"
+        end
+        if str == tostring("{s20}Cemetery") then
+            str = "{s20}痛哭墓地"
+        end
+        if str == tostring("SWEEP") then
+            str = "掃蕩"
+        end
+        return str
+    end
+
     return str
 end
 
@@ -873,7 +935,7 @@ function indun_panel_upinis_frame(ipframe)
     upinissolo:SetText("{ol}SOLO")
     upinisauto:SetText("{ol}{#FFD900}AUTO")
     -- upinishard:SetText("{ol}{#FF0000}HARD")
-    upinissweep:SetText("{ol}{#00FF00}SWEEP")
+    upinissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP")) -- 掃蕩
 
     upiniscount:SetText("{ol}{#FFFFFF}{s16}(" ..
                             GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 686).PlayPerResetType) .. "/" ..
@@ -916,7 +978,7 @@ function indun_panel_slogutis_frame(ipframe)
     slogutissolo:SetText("{ol}SOLO")
     slogutisauto:SetText("{ol}{#FFD900}AUTO")
     -- slogutishard:SetText("{ol}{#FF0000}HARD")
-    slogutissweep:SetText("{ol}{#00FF00}SWEEP")
+    slogutissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
 
     slogutiscount:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 689).PlayPerResetType) .. "/" ..
@@ -1333,7 +1395,7 @@ function indun_panel_spreader_frame(ipframe)
     spreadersolo:SetText("{ol}SOLO")
     spreaderauto:SetText("{ol}{#FFD900}AUTO")
     spreaderhard:SetText("{ol}{#FF0000}HARD")
-    spreadersweep:SetText("{ol}{#00FF00}SWEEP")
+    spreadersweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
 
     spreadercount:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. "/" ..
@@ -1379,7 +1441,7 @@ function indun_panel_falo_frame(ipframe)
     falosolo:SetText("{ol}SOLO")
     faloauto:SetText("{ol}{#FFD900}AUTO")
     falohard:SetText("{ol}{#FF0000}HARD")
-    falosweep:SetText("{ol}{#00FF00}SWEEP")
+    falosweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
 
     falocount:SetText("{ol}{#FFFFFF}{s16}(" ..
                           GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. "/" ..
@@ -1425,7 +1487,7 @@ function indun_panel_roze_frame(ipframe)
     rozesolo:SetText("{ol}SOLO")
     rozeauto:SetText("{ol}{#FFD900}AUTO")
     rozehard:SetText("{ol}{#FF0000}HARD")
-    rozesweep:SetText("{ol}{#00FF00}SWEEP")
+    rozesweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
 
     rozecount:SetText("{ol}{#FFFFFF}{s16}(" ..
                           GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType) .. "/" ..
@@ -1489,6 +1551,8 @@ function indun_panel_challenge_frame(ipframe)
 
     local challengeticket = ipframe:CreateOrGetControl('button', 'challengeticket', 435, g.panelY, 80, 30)
     challengeticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
+    challengeticket:SetTextTooltip("{@st59}" .. INDUN_PANEL_LANG(
+        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
     challengeticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     challengeticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
@@ -1588,6 +1652,8 @@ function indun_panel_challengeex_frame(ipframe)
 
     local challengeexpertticket = ipframe:CreateOrGetControl('button', 'challengeexpertticket', 335, g.panelY, 80, 30)
     challengeexpertticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
+    challengeexpertticket:SetTextTooltip("{@st59}" .. INDUN_PANEL_LANG(
+        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
     challengeexpertticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     challengeexpertticket:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
