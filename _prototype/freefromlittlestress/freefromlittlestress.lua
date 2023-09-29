@@ -142,8 +142,11 @@ function FREEFROMLITTLESTRESS_OPEN_COMPANIONLIST()
     local checkbox = frame:CreateOrGetControl("checkbox", "checkbox", 240, 10, 20, 20)
     checkbox:SetTextTooltip(
         "{@st59}チェックを入れると自動呼び出し機能をオフにします(キャラクター毎に設定){nl}Check the box to turn off the automatic call function (set for each character).")
-    checkbox:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CHECK_PET_AUTO")
     checkbox:IsChecked(g.check)
+    FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+    FREEFROMLITTLESTRESS_LOADSETTINGS()
+    checkbox:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CHECK_PET_AUTO")
+
     UPDATE_COMPANIONLIST(frame);
 
 end
@@ -218,7 +221,7 @@ function FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
