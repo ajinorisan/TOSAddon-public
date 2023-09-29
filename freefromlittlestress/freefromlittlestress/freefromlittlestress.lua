@@ -3,12 +3,13 @@
 -- v1.0.5 ミニお知らせの挙動変更　街ではマケとか見れる様に、フィールドは通常、レイドは全消し
 -- v1.0.6 倉庫をチーム倉庫優先に変更
 -- v1.0.7 倉庫のダイアログ制御オルシャとフェディにも対応。住居クポルの制御、各種レイド制御。
--- ｖ1.0.8　4人以下押したときの確認を削除
+-- v1.0.8　4人以下押したときの確認を削除
 -- v1.0.9 SetupHookの競合修正
+-- v1.1.0 激動入り間違え機能を無効に。ペットリストの呼び出しをキャラ毎に設定できるように。
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -33,7 +34,9 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 g.settings = {
     rrfp_x = 1100,
-    rrfp_y = 100
+    rrfp_y = 100,
+    charid = {},
+    allcall = 0
 }
 
 -- indunframe:ShowWindow(1)
@@ -44,7 +47,7 @@ function FREEFROMLITTLESTRESS_SAVE_SETTINGS()
 
 end
 
-function FREEFROMLITTLESTRESS_LOADSETTINGS()
+function FREEFROMLITTLESTRESS_LOAD_SETTINGS()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
@@ -57,16 +60,59 @@ function FREEFROMLITTLESTRESS_LOADSETTINGS()
     end
 
     g.settings = settings
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+
+    if err then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    end
+
+    if not settings then
+        settings = g.settings
+    end
+
+    g.settings = settings
+
+    local loginCharID = info.GetCID(session.GetMyHandle())
+
+    for CharID, v in pairs(g.settings.charid) do
+        if not g.settings.charid[loginCharID] then
+            g.settings.charid[loginCharID] = 0
+            FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+            ReserveScript("FREEFROMLITTLESTRESS_LOAD_SETTINGS()", 0.1)
+            return
+        end
+    end
+
+    -- キャラクターIDごとに設定をチェック
+    for CharID, v in pairs(g.settings.charid) do
+        if CharID == loginCharID then
+            g.settings.charid[loginCharID] = v -- キャラクターIDに対応する値を取得
+            if v == 1 then
+                g.check = 1
+                -- CHAT_SYSTEM("CharID " .. CharID .. " has check flag set to 1.")
+            else
+                g.check = 0
+                -- CHAT_SYSTEM("CharID " .. CharID .. " has check flag set to 0.")
+            end
+        end
+    end
 end
+
+-- g.settings = setting
 
 function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
+    FREEFROMLITTLESTRESS_LOAD_SETTINGS()
 
     g.SetupHook(FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
     g.SetupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
-    g.SetupHook(FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK, "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
+    -- g.SetupHook(FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK, "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
+    -- g.SetupHook(FREEFROMLITTLESTRESS_UI_TOGGLE_PETLIST, "UI_TOGGLE_PETLIST")
+    -- acutil.setupEvent(addon, 'FREEFROMLITTLESTRESS_OPEN_PETLIST', "ON_OPEN_PETLIST")
 
     addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
@@ -74,7 +120,6 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     -- addon:RegisterMsg("INDUNINFO_MAKE_DETAIL_BOSS_SELECT_BY_RAID_TYPE", "FREEFROMLITTLESTRESS_INDUNINFO_UPDATE")
 
     -- acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_CHAT_OPEN, "INDUNINFO_CHAT_OPEN")
-    FREEFROMLITTLESTRESS_LOADSETTINGS()
 
     -- 右上のミニボタンを消したりする機能
     local pc = GetMyPCObject();
@@ -89,8 +134,124 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
     end
+
+    -- CHAT_SYSTEM(tostring(g.settings.charid))
+    addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETLIST_FRAME_INIT")
     addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
 
+    -- addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST")
+
+end
+
+function FREEFROMLITTLESTRESS_PETINFO()
+
+    local summonedPet = session.pet.GetSummonedPet();
+    if g.settings.allcall == 1 then
+        if summonedPet == nil then
+            -- CHAT_SYSTEM("呼び出されていない")
+            FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
+            -- return;
+        end
+    elseif g.settings.allcall == 0 and g.check == 0 then
+        if summonedPet == nil then
+            -- CHAT_SYSTEM("呼び出されていない")
+            FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
+            -- return;
+        end
+    else
+        return
+    end
+
+end
+
+function FREEFROMLITTLESTRESS_PETLIST_FRAME_INIT()
+
+    -- CHAT_SYSTEM("test")
+    local frame = ui.GetFrame("companionlist");
+
+    -- frame:ShowWindow(1);
+    -- frame:SetGravity(ui.RIGHT, ui.BOTTOM);
+    -- frame:SetMargin(0, 0, 350, 70);
+    local title = GET_CHILD_RECURSIVELY(frame, "title")
+    title:SetGravity(ui.LEFT, ui.TOP);
+    title:SetOffset(10, 10);
+    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
+    if checkbox ~= nil then
+
+        frame:RemoveChild("checkbox")
+    end
+
+    checkbox = frame:CreateOrGetControl("checkbox", "checkbox", 240, 10, 20, 20)
+    AUTO_CAST(checkbox)
+
+    checkbox:SetTextTooltip(
+        "{@st59}チェックを入れるとコンパニオンリスト呼び出し機能をオフにします(キャラクター毎に設定){nl}Checking the box turns off the companion list call function (set for each character).")
+
+    checkbox:SetCheck(g.check)
+
+    checkbox:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CHECK_PET_AUTO")
+
+    local allcall = GET_CHILD_RECURSIVELY(frame, "allcall")
+    if allcall ~= nil then
+
+        frame:RemoveChild("allcall")
+    end
+
+    allcall = frame:CreateOrGetControl("checkbox", "allcall", 215, 10, 20, 20)
+    AUTO_CAST(allcall)
+
+    allcall:SetTextTooltip(
+        "{@st59}チェックを入れるとキャラ毎の設定を無視して{nl}コンパニオンリストを呼び出します(アカウント共通){nl}If checked, the companion list is called up,{nl} ignoring the settings for each character (common to all accounts).")
+
+    allcall:SetCheck(g.settings.allcall)
+
+    allcall:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_CHECK_PET_AUTO")
+
+    -- UPDATE_COMPANIONLIST(frame);
+
+end
+
+function FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
+    local frame = ui.GetFrame("companionlist");
+
+    frame:SetOffset(800, 500)
+
+    UPDATE_COMPANIONLIST(frame);
+    frame:ShowWindow(1);
+
+    ReserveScript("FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()", 10.0)
+end
+
+function FREEFROMLITTLESTRESS_CHECK_PET_AUTO(frame)
+
+    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
+
+    local loginCharID = info.GetCID(session.GetMyHandle())
+
+    if checkbox:IsChecked() == 1 then
+        g.settings.charid[loginCharID] = 1
+        FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+        FREEFROMLITTLESTRESS_LOAD_SETTINGS()
+
+    else
+
+        g.settings.charid[loginCharID] = 0
+        FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+        FREEFROMLITTLESTRESS_LOAD_SETTINGS()
+    end
+
+    local allcall = GET_CHILD_RECURSIVELY(frame, "allcall")
+    if allcall:IsChecked() == 1 then
+        g.settings.allcall = 1
+        FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+        FREEFROMLITTLESTRESS_LOAD_SETTINGS()
+
+    else
+
+        g.settings.allcall = 0
+        FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+        FREEFROMLITTLESTRESS_LOAD_SETTINGS()
+    end
 end
 
 -- 4人以下制御
@@ -200,30 +361,6 @@ function FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
         return
 
     end
-end
-
-function FREEFROMLITTLESTRESS_PETINFO()
-
-    local summonedPet = session.pet.GetSummonedPet();
-    if summonedPet == nil then
-        -- CHAT_SYSTEM("呼び出されていない")
-        FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
-        -- return;
-    else
-        -- CHAT_SYSTEM("呼び出されている")
-        return
-    end
-
-end
-
-function FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST()
-    local frame = ui.GetFrame("companionlist");
-    frame:ShowWindow(1);
-    frame:SetGravity(ui.RIGHT, ui.BOTTOM);
-    frame:SetMargin(0, 0, 350, 70);
-    UPDATE_COMPANIONLIST(frame);
-
-    ReserveScript("FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()", 9.0)
 end
 
 function FREEFROMLITTLESTRESS_CLOSE_COMPANIONLIST()
@@ -384,7 +521,7 @@ function FREEFROMLITTLESTRESS_TEXT_DELETE()
 
     indunframe:Invalidate()
 end
-
+-- レイドクリアー時のフレームを移動して場所を覚えさせる。
 function FREEFROMLITTLESTRESS_UPDATESETTINGS(frame)
     if g.settings.rrfp_x ~= frame:GetX() or g.settings.rrfp_y ~= frame:GetY() then
         g.settings.rrfp_x = frame:GetX()
@@ -393,14 +530,15 @@ function FREEFROMLITTLESTRESS_UPDATESETTINGS(frame)
     end
 end
 
--- レイドクリアー時のフレームを移動して場所を覚えさせる。
-
 function FREEFROMLITTLESTRESS_RAID_RECORD_INIT(frame)
+    local frame = ui.GetFrame("raid_record")
     frame:SetOffset(g.settings.rrfp_x, g.settings.rrfp_y)
     frame:SetSkinName("shadow_box")
     frame:SetEventScript(ui.LBUTTONUP, "FREEFROMLITTLESTRESS_UPDATESETTINGS")
     frame:SetLayerLevel(5)
     frame:SetTitleBarSkin("None")
+    frame:ShowTitleBar(0)
+    frame:Resize(550, 260)
 
     local widgetList = {{
         name = "myInfo",
