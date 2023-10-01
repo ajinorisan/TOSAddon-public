@@ -55,10 +55,10 @@
 		"name" : "Job Change Helper",
 		"file" : "job_change_helper",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.2",
 		"releaseTag" : "job_change_helper",
 		"unicode" : "⛄",
-		"description" : "転職情報アイコンを押すと左上にボタンが付きます。PTから抜けて、PETを未召喚に戻して、装備を外します。鷹は知らない子。Press the change info icon and a button will appear in the upper left corner. exit PT, return PET to unsummoned, and remove equipment. The hawk is an unknown child. 전직 정보 아이콘을 누르면 왼쪽 상단에 버튼이 생기는데, PT에서 빠져나와 PET를 미소환으로 되돌리고 장비를 해제한다. 매는 모르는 아이.",
+		"description" : "インベントリに早着替えボタンが付きます。転職情報アイコンを押すと左上にボタンが付きます。PTから抜けて、PETを未召喚に戻して、装備を外します。鷹は知らない子。A quick-change button will be added to the inventory.Press the change info icon and a button will appear in the upper left corner. exit PT, return PET to unsummoned, and remove equipment. The hawk is an unknown child. 인벤토리에 빠른 옷 갈아입기 버튼이 추가됩니다.전직 정보 아이콘을 누르면 왼쪽 상단에 버튼이 생기는데, PT에서 빠져나와 PET를 미소환으로 되돌리고 장비를 해제한다. 매는 모르는 아이.",
 		"tags" : []
 	},
 {

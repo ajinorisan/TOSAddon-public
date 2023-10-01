@@ -1,8 +1,9 @@
--- ｖ1.0.1　全部脱ぐボタン実装
+-- v1.0.1　全部脱ぐボタン実装
+-- v1.0.2 直前装備を着ける機能実装。ヘルメット取れないバグも修正
 local addonName = "JOB_CHANGE_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -10,7 +11,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-
+g.equipmode = 0
 local acutil = require("acutil")
 
 function JOB_CHANGE_HELPER_ON_INIT(addon, frame)
@@ -29,22 +30,153 @@ function JOB_CHANGE_HELPER_ON_INIT(addon, frame)
 
         local alluneqbtn = invframe:CreateOrGetControl("button", "alluneqbtn", alluneqbtnX, alluneqbtnY, 30, 30)
         AUTO_CAST(alluneqbtn)
-        -- CHAT_SYSTEM("test")
         alluneqbtn:SetSkinName("test_red_button")
-        -- CHAT_SYSTEM("test2")
-        -- alluneqbtn:SetText("{img god_btn_inventory 20 20}")
         alluneqbtn:SetText("{img equipment_info_btn_mark2 30 25}")
-        -- CHAT_SYSTEM("test3")
-        -- alluneqbtn:ShowWindow(1)
         alluneqbtn:SetEventScript(ui.LBUTTONUP, "job_change_helper_allunequip")
+        -- alluneqbtn:SetEventScript(ui.RBUTTONUP, "job_change_modechange")
+        alluneqbtn:SetTextTooltip("{@st59}装備を全部外します。{nl}Remove all equipment.")
+
+        local alleqbtn = invframe:CreateOrGetControl("button", "alleqbtn", alluneqbtnX, alluneqbtnY, 30, 30)
+        AUTO_CAST(alleqbtn)
+        alleqbtn:SetSkinName("baseyellow_btn")
+        -- CHAT_SYSTEM("test")
+        alleqbtn:SetText("{ol}{img equipment_info_btn_mark2 30 25}")
+        alleqbtn:SetEventScript(ui.LBUTTONUP, "job_change_helper_allequip")
+        alleqbtn:SetEventScript(ui.RBUTTONUP, "job_change_modechange")
+        alleqbtn:SetTextTooltip(
+            "{@st59}直前に脱いだ装備を全部着けます。右クリックでモードを強制クリア{nl}Put on all the equipment you took off just before.Right-click to force clear mode")
+
+        if g.equipmode == 0 then
+            alluneqbtn:ShowWindow(1)
+            alleqbtn:ShowWindow(0)
+        else
+            alluneqbtn:ShowWindow(0)
+            alleqbtn:ShowWindow(1)
+        end
     end
-    -- CHAT_SYSTEM("JOB_CHANGE_HELPER")
+
     addon:RegisterMsg("GAME_START_3SEC", "job_change_helper_changejob_init")
-    -- CHAT_SYSTEM("test")
+
+end
+
+function job_change_modechange(frame)
+    local frame = ui.GetFrame("inventory")
+    local alluneqbtn = GET_CHILD_RECURSIVELY(frame, "alluneqbtn")
+    local alleqbtn = GET_CHILD_RECURSIVELY(frame, "alleqbtn")
+
+    if g.equipmode == 1 then
+        g.equipmode = 0
+        alluneqbtn:ShowWindow(1)
+        alleqbtn:ShowWindow(0)
+    end
+
 end
 
 function job_change_helper_allunequip()
+
+    g.equipInfoTable = {}
+    local equipItemList = session.GetEquipItemList();
+    local cnt = equipItemList:Count();
+
+    for i = 0, cnt - 1 do
+        local equipItem = equipItemList:GetEquipItemByIndex(i);
+        local spotName = item.GetEquipSpotName(equipItem.equipSpot);
+        local iesid = tostring(equipItem:GetIESID())
+        local itemtype = equipItem.type;
+        local iteminfo = session.GetEquipItemByType(itemtype);
+
+        if iesid ~= "0" then
+            g.equipInfoTable[spotName] = iesid
+            -- print(i .. ":" .. spotName .. ":" .. iesid)
+            if spotName == "HELMET" then
+                -- print(i)
+                local helmetindex = tonumber(i)
+                ReserveScript(string.format("item.UnEquip(%d)", helmetindex), 0.5)
+            end
+        end
+
+    end
+
     session.job.ReqUnEquipItemAll()
+
+    local frame = ui.GetFrame("inventory")
+    local alluneqbtn = GET_CHILD_RECURSIVELY(frame, "alluneqbtn")
+    local alleqbtn = GET_CHILD_RECURSIVELY(frame, "alleqbtn")
+    alluneqbtn:ShowWindow(0)
+    alleqbtn:ShowWindow(1)
+    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
+        DO_WEAPON_SLOT_CHANGE(frame, 1)
+    else
+        DO_WEAPON_SWAP(frame, 1)
+    end
+    g.equipmode = 1
+    -- テーブルの内容を表示（テスト用）
+    --[[for spotName, iesid in pairs(equipInfoTable) do
+        print(spotName .. ":" .. iesid)
+    end]]
+end
+
+function job_change_helper_allequip()
+    local frame = ui.GetFrame("inventory")
+    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
+        DO_WEAPON_SLOT_CHANGE(frame, 1)
+    else
+        DO_WEAPON_SWAP(frame, 1)
+    end
+    for spotName, iesid in pairs(g.equipInfoTable) do
+        local equipitem = session.GetInvItemByGuid(tonumber(iesid));
+        if spotName == "RH" and equipitem ~= nil then
+            ITEM_EQUIP(equipitem.invIndex, spotName)
+            ReserveScript("job_change_helper_allequip()", 0.5)
+            return
+
+        end
+    end
+    for spotName, iesid in pairs(g.equipInfoTable) do
+        local equipitem = session.GetInvItemByGuid(tonumber(iesid));
+        if spotName == "LH" and equipitem ~= nil then
+            ITEM_EQUIP(equipitem.invIndex, spotName)
+            ReserveScript("job_change_helper_allequip()", 0.5)
+            return
+
+        end
+    end
+    for spotName, iesid in pairs(g.equipInfoTable) do
+        local equipitem = session.GetInvItemByGuid(tonumber(iesid));
+        if spotName == "RH_SUB" and equipitem ~= nil then
+            ITEM_EQUIP(equipitem.invIndex, spotName)
+            ReserveScript("job_change_helper_allequip()", 0.5)
+            return
+
+        end
+    end
+    for spotName, iesid in pairs(g.equipInfoTable) do
+        local equipitem = session.GetInvItemByGuid(tonumber(iesid));
+        if spotName == "LH_SUB" and equipitem ~= nil then
+            ITEM_EQUIP(equipitem.invIndex, spotName)
+            ReserveScript("job_change_helper_allequip()", 0.5)
+            return
+
+        end
+    end
+    for spotName, iesid in pairs(g.equipInfoTable) do
+        local equipitem = session.GetInvItemByGuid(tonumber(iesid));
+        if equipitem ~= nil then
+            ITEM_EQUIP(equipitem.invIndex, spotName)
+            ReserveScript("job_change_helper_allequip()", 0.5)
+            return
+
+        end
+
+    end
+    local alluneqbtn = GET_CHILD_RECURSIVELY(frame, "alluneqbtn")
+    local alleqbtn = GET_CHILD_RECURSIVELY(frame, "alleqbtn")
+    alluneqbtn:ShowWindow(1)
+    alleqbtn:ShowWindow(0)
+    ui.SysMsg("[JCH]end of operation")
+    g.equipmode = 0
+    return
+
 end
 
 function job_change_helper_cj_click()
@@ -77,10 +209,43 @@ function job_change_helper_pet_bye(summonedPet)
 end
 
 function job_change_helper_unequip()
-    -- CHAT_SYSTEM("equip")
-    -- local invframe = ui.GetFrame("inventory")
-    -- invframe:ShowWindow(1)
+    g.equipInfoTable = {}
+    local equipItemList = session.GetEquipItemList();
+    local cnt = equipItemList:Count();
+
+    for i = 0, cnt - 1 do
+        local equipItem = equipItemList:GetEquipItemByIndex(i);
+        local spotName = item.GetEquipSpotName(equipItem.equipSpot);
+        local iesid = tostring(equipItem:GetIESID())
+        local itemtype = equipItem.type;
+        local iteminfo = session.GetEquipItemByType(itemtype);
+
+        if iesid ~= "0" then
+            g.equipInfoTable[spotName] = iesid
+            -- print(i .. ":" .. spotName .. ":" .. iesid)
+            if spotName == "HELMET" then
+                -- print(i)
+                local helmetindex = tonumber(i)
+                ReserveScript(string.format("item.UnEquip(%d)", helmetindex), 0.5)
+            end
+        end
+
+    end
+
     session.job.ReqUnEquipItemAll()
+
+    local frame = ui.GetFrame("inventory")
+    local alluneqbtn = GET_CHILD_RECURSIVELY(frame, "alluneqbtn")
+    local alleqbtn = GET_CHILD_RECURSIVELY(frame, "alleqbtn")
+    alluneqbtn:ShowWindow(0)
+    alleqbtn:ShowWindow(1)
+    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
+        DO_WEAPON_SLOT_CHANGE(frame, 1)
+    else
+        DO_WEAPON_SWAP(frame, 1)
+    end
+    g.equipmode = 1
+    -- session.job.ReqUnEquipItemAll()
     -- NICO_CHAT(string.format("{@st55_a}%s", "Unequipped OK"))
     ReserveScript("job_change_helper_rankrollback()", 0.5)
     return
@@ -134,10 +299,11 @@ end
 function job_change_helper_do()
     local rrbframe = ui.GetFrame("rankrollback")
     rrbframe:ShowWindow(0)
-    ui.SysMsg("Ready to change jobs")
+
     local frame = ui.GetFrame("changejob")
     -- local frame = ui.GetFrame("rankrollback")
     CHANGEJOB_OPEN(frame)
+    ui.SysMsg("Ready to change jobs")
     -- frame:ShowWindow(1)
 end
 

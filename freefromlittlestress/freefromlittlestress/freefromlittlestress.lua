@@ -55,26 +55,24 @@ function FREEFROMLITTLESTRESS_LOAD_SETTINGS()
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
-    if not settings then
-        settings = g.settings
-    end
-
-    g.settings = settings
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
-
-    if not settings then
-        settings = g.settings
-    end
-
-    g.settings = settings
 
     local loginCharID = info.GetCID(session.GetMyHandle())
+
+    if not settings then
+        g.settings = {
+            rrfp_x = 1100,
+            rrfp_y = 100,
+            charid = {
+                [loginCharID] = 0
+            },
+            allcall = 0
+        }
+        FREEFROMLITTLESTRESS_SAVE_SETTINGS()
+        -- ReserveScript("FREEFROMLITTLESTRESS_LOAD_SETTINGS()", 0.1)
+        settings = g.settings
+    end
+
+    g.settings = settings
 
     for CharID, v in pairs(g.settings.charid) do
         if not g.settings.charid[loginCharID] then
