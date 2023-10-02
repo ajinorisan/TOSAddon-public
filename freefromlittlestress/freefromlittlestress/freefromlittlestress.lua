@@ -6,10 +6,11 @@
 -- v1.0.8　4人以下押したときの確認を削除
 -- v1.0.9 SetupHookの競合修正
 -- v1.1.0 激動入り間違え機能を無効に。ペットリストの呼び出しをキャラ毎に設定できるように。
+-- v1.1.1 ギルティネハードダイアログ修正
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -108,13 +109,18 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
 
     g.SetupHook(FREEFROMLITTLESTRESS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
     g.SetupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
-    -- g.SetupHook(FREEFROMLITTLESTRESS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK, "INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK")
+    -- g.SetupHook(FREEFROMLITTLESTRESS_SET_PARTYINFO_ITEM, "SET_PARTYINFO_ITEM")
     -- g.SetupHook(FREEFROMLITTLESTRESS_UI_TOGGLE_PETLIST, "UI_TOGGLE_PETLIST")
-    -- acutil.setupEvent(addon, 'FREEFROMLITTLESTRESS_OPEN_PETLIST', "ON_OPEN_PETLIST")
+    -- g.SetupHook(FREEFROMLITTLESTRESS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
 
     addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("DIALOG_CHANGE_SELECT", "FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT")
+
+    -- addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "FREEFROMLITTLESTRESS_BUFFLIST_UPDATE");
+    -- addon:RegisterMsg("PARTY_UPDATE", "FREEFROMLITTLESTRESS_BUFFLIST_UPDATE");
+    -- addon:RegisterMsg("PARTY_INST_UPDATE", "FREEFROMLITTLESTRESS_BUFFLIST_UPDATE");
+    -- addon:RegisterMsg("PARTY_OUT", "FREEFROMLITTLESTRESS_BUFFLIST_UPDATE");
     -- addon:RegisterMsg("INDUNINFO_MAKE_DETAIL_BOSS_SELECT_BY_RAID_TYPE", "FREEFROMLITTLESTRESS_INDUNINFO_UPDATE")
 
     -- acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_CHAT_OPEN, "INDUNINFO_CHAT_OPEN")
@@ -136,8 +142,157 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     -- CHAT_SYSTEM(tostring(g.settings.charid))
     addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETLIST_FRAME_INIT")
     addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_PETINFO")
+    -- addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_SLOTSET_RESIZE")
 
     -- addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST")
+
+end
+-- パーティーバフ欄に必要ないバフID
+local excludedBuffIDs = {4732, 4733, 4736, 4735, 4737, 70002, 4731, 4734, 7574, 358, 359, 360, 370, 4136, 4023, 4087,
+                         4021, 4024, 3128, 4022, 70056, 70037, 14132, 7771, 7774, 7775, 7776, 7763, 7764, 7765, 7766,
+                         7767, 4740, 170005}
+
+function FREEFROMLITTLESTRESS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
+    local frame = ui.GetFrame("partyinfo");
+    if frame == nil then
+        return;
+    end
+    local pcparty = session.party.GetPartyInfo();
+    if pcparty == nil then
+        DESTROY_CHILD_BYNAME(frame, 'PTINFO_');
+        frame:ShowWindow(0);
+        return;
+    end
+
+    local partyInfo = pcparty.info;
+    local obj = GetIES(pcparty:GetObject());
+    local list = session.party.GetPartyMemberList(0);
+    local count = list:Count();
+    local memberIndex = 0;
+
+    local myInfo = session.party.GetMyPartyObj();
+    -- 접속중 파티원 버프리스트
+    for i = 0, count - 1 do
+        local partyMemberInfo = list:Element(i);
+        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
+            local buffCount = partyMemberInfo:GetBuffCount();
+            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
+            if partyInfoCtrlSet ~= nil then
+                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet");
+                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet");
+
+                -- 초기화
+                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
+                    local slot = buffListSlotSet:GetSlotByIndex(j);
+                    slot:SetKeyboardSelectable(false);
+                    if slot == nil then
+                        break
+                    end
+                    slot:ShowWindow(0);
+                end
+
+                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
+                    local slot = debuffListSlotSet:GetSlotByIndex(j);
+                    if slot == nil then
+                        break
+                    end
+                    slot:ShowWindow(0);
+                end
+
+                -- 아이콘 셋팅
+                if buffCount <= 0 then
+                    partyMemberInfo:ResetBuff();
+                    buffCount = partyMemberInfo:GetBuffCount();
+                end
+
+                if buffCount > 0 then
+                    local buffIndex = 0;
+                    local debuffIndex = 0;
+                    for j = 0, buffCount - 1 do
+                        local buffID = partyMemberInfo:GetBuffIDByIndex(j);
+
+                        local cls = GetClassByType("Buff", buffID);
+                        if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~= "TeamLevel" then
+                            local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
+                            local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
+                            local slot = nil;
+                            if cls.Group1 == 'Buff' then
+
+                                if not IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
+                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                    buffIndex = buffIndex + 1;
+                                    -- CHAT_SYSTEM(tostring(cls.ClassID))
+
+                                end
+
+                            elseif cls.Group1 == 'Debuff' then
+                                slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
+                                debuffIndex = debuffIndex + 1;
+                            end
+
+                            if slot ~= nil then
+                                local icon = slot:GetIcon();
+                                if icon == nil then
+                                    icon = CreateIcon(slot);
+                                end
+
+                                local handle = 0;
+                                if myInfo ~= nil then
+                                    if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
+                                        partyMemberInfo:GetChannel() then
+                                        handle = partyMemberInfo:GetHandle();
+                                    end
+                                end
+
+                                handle = tostring(handle);
+                                icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
+                                icon:SetTooltipType('buff');
+                                icon:SetTooltipArg(handle, buffID, "");
+
+                                local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
+                                if imageName ~= "icon_None" then
+                                    icon:Set(imageName, 'BUFF', buffID, 0);
+                                end
+
+                                if buffOver > 1 then
+                                    slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
+                                else
+                                    slot:SetText("");
+                                end
+
+                                slot:ShowWindow(1);
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function IsBuffExcluded(buffID, excludedBuffIDs)
+    for _, id in ipairs(excludedBuffIDs) do
+        if buffID == id then
+            return true -- 除外リストに含まれる場合、trueを返す
+        end
+    end
+    return false -- 除外リストに含まれない場合、falseを返す
+end
+
+function FREEFROMLITTLESTRESS_BUFFLIST_UPDATE(frame)
+
+    local frame = ui.GetFrame("partyinfo")
+    frame:Resize(600, 320)
+    local list = session.party.GetPartyMemberList();
+    local count = list:Count();
+    -- CHAT_SYSTEM(tostring(count))
+    for i = 0, count - 1 do
+        local partyMemberInfo = list:Element(i);
+        local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
+        AUTO_CAST(partyInfoCtrlSet)
+        -- CHAT_SYSTEM(tostring(partyInfoCtrlSet))
+        partyInfoCtrlSet:Resize(600, 62)
+    end
 
 end
 
@@ -346,8 +501,11 @@ function FREEFROMLITTLESTRESS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
         return
     end
     -- 各種レイド
+    -- CHAT_SYSTEM(argStr)
+    -- print(argStr)
     if argStr == "Goddess_Raid_Rozethemiserable_Start_Npc_Dlg" or argStr == "Goddess_Raid_Spreader_Start_Npc_DLG1" or
-        argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" then
+        argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" or argStr ==
+        "Legend_Raid_Giltine_ENTER_MSG" then
 
         session.SetSelectDlgList()
         ui.CloseFrame("dialog")

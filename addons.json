@@ -156,7 +156,7 @@
 		"name" : "Free From Trivial Stress",
 		"file" : "freefromlittlestress",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.0",
+		"fileVersion" : "v1.1.1",
 		"releaseTag" : "freefromlittlestress",
 		"unicode" : "⛄",
 		"description" : "ミニボタンを街とフィールド以外で非表示。ペット未召喚時ペットリストを表示(キャラ毎に選べるように)。レイド後のレコードを動かせる様に。倉庫やレイドなど各種ダイアログ制御。Hide mini-buttons except for city and field. Show pet list when no pet is summoned (so that you can choose one for each character). Added the ability to move records after a raid. Control the dialog of warehouse, raid, etc...도시와 필드 외에는 미니 버튼을 숨깁니다. 펫 미소환 시 펫 목록 표시(캐릭터별로 선택할 수 있도록). 레이드 후 기록 이동 가능. 창고, 레이드 등 각종 대화창 제어.",
