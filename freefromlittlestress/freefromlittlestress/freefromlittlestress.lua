@@ -7,6 +7,7 @@
 -- v1.0.9 SetupHookの競合修正
 -- v1.1.0 激動入り間違え機能を無効に。ペットリストの呼び出しをキャラ毎に設定できるように。
 -- v1.1.1 ギルティネハードダイアログ修正
+-- v1.1.2 右上のチャンネル表示バグ修正。パーフェクトのシステムチャット表示削除。PTメンバーの要らないバフを非表示
 local addonName = "FREEFROMLITTLESTRESS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -111,7 +112,9 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     g.SetupHook(FREEFROMLITTLESTRESS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
     -- g.SetupHook(FREEFROMLITTLESTRESS_SET_PARTYINFO_ITEM, "SET_PARTYINFO_ITEM")
     -- g.SetupHook(FREEFROMLITTLESTRESS_UI_TOGGLE_PETLIST, "UI_TOGGLE_PETLIST")
-    -- g.SetupHook(FREEFROMLITTLESTRESS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    g.SetupHook(FREEFROMLITTLESTRESS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+
+    -- acutil.setupHook(FREEFROMLITTLESTRESS_SEQUENTIALPICKITEM2_MSG, "SEQUENTIALPICKITEM2_MSG")
 
     addon:RegisterMsg("RESTART_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
     addon:RegisterMsg("RESTART_CONTENTS_HERE", "FREEFROMLITTLESTRESS_FRAME_MOVE")
@@ -123,7 +126,8 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     -- addon:RegisterMsg("PARTY_OUT", "FREEFROMLITTLESTRESS_BUFFLIST_UPDATE");
     -- addon:RegisterMsg("INDUNINFO_MAKE_DETAIL_BOSS_SELECT_BY_RAID_TYPE", "FREEFROMLITTLESTRESS_INDUNINFO_UPDATE")
 
-    -- acutil.setupHook(FREEFROMLITTLESTRESS_INDUNINFO_CHAT_OPEN, "INDUNINFO_CHAT_OPEN")
+    g.SetupHook(FREEFROMLITTLESTRESS_CHAT_SYSTEM, "CHAT_SYSTEM")
+    g.SetupHook(FREEFROMLITTLESTRESS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
 
     -- 右上のミニボタンを消したりする機能
     local pc = GetMyPCObject();
@@ -147,10 +151,64 @@ function FREEFROMLITTLESTRESS_ON_INIT(addon, frame)
     -- addon:RegisterMsg("GAME_START_3SEC", "FREEFROMLITTLESTRESS_ON_OPEN_COMPANIONLIST")
 
 end
+
+function FREEFROMLITTLESTRESS_UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
+    local curchannel = frame:GetChild("curchannel");
+
+    local channel = session.loginInfo.GetChannel();
+    local zoneInst = session.serverState.GetZoneInst(channel);
+    local langcode = option.GetCurrentCountry()
+    if langcode == "Japanese" then
+        if zoneInst ~= nil then
+            if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+                local str, stateString = GET_CHANNEL_STRING(zoneInst);
+                curchannel:SetTextByKey("value", str .. "                      " .. stateString);
+            else
+                local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+                local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
+                curchannel:SetTextByKey("value", str .. "                      " .. stateString);
+            end
+        else
+            curchannel:SetTextByKey("value", "");
+        end
+    else
+        if zoneInst ~= nil then
+            if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+                local str, stateString = GET_CHANNEL_STRING(zoneInst);
+                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+            else
+                local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+                local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
+                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+            end
+        else
+            curchannel:SetTextByKey("value", "");
+        end
+
+    end
+end
+--[[5014
+[__m2util] is loaded
+[adjustlayer] is loaded
+[extendcharinfo] is loaded]]
+
+function FREEFROMLITTLESTRESS_CHAT_SYSTEM(msg, color)
+    if msg == "@dicID_^*$ETC_20220830_069434$*^" or msg == "@dicID_^*$ETC_20220830_069435$*^" or msg ==
+        "[__m2util] is loaded" or msg == "[adjustlayer] is loaded" or msg == "[extendcharinfo] is loaded" or msg ==
+        "[ICC]Attempt to CC." then
+        return
+    end
+    -- print(msg)
+    session.ui.GetChatMsg():AddSystemMsg(msg, true, 'System', color)
+end
+
+-- ui.SysMsg(ClMsg("decomposeCant"))
 -- パーティーバフ欄に必要ないバフID
 local excludedBuffIDs = {4732, 4733, 4736, 4735, 4737, 70002, 4731, 4734, 7574, 358, 359, 360, 370, 4136, 4023, 4087,
                          4021, 4024, 3128, 4022, 70056, 70037, 14132, 7771, 7774, 7775, 7776, 7763, 7764, 7765, 7766,
-                         7767, 4740, 170005}
+                         7767, 4740, 170005, 80015, 80016, 80017, 80018, 80019, 80020, 80021, 80022, 80023, 80024,
+                         80025, 80026, 80027, 80030, 80031, 14115, 70065, 14125, 4256, 157, 67, 36, 375, 452, 70053,
+                         3127, 3137, 3145, 330, 138, 30002}
 
 function FREEFROMLITTLESTRESS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
     local frame = ui.GetFrame("partyinfo");

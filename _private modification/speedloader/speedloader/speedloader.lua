@@ -53,7 +53,7 @@ function SPEEDLOADER_ON_INIT(addon, frame)
     local pc = GetMyPCObject();
     local nowjobName = pc.JobName;
     local nowjobID = GetClass("Job", nowjobName).ClassID;
-    CHAT_SYSTEM(tostring(nowjobID))
+    -- CHAT_SYSTEM(tostring(nowjobID))
 
     if nowjobID >= 5001 and nowjobID <= 5018 then
         -- initialize frame

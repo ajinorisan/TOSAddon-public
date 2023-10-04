@@ -1,8 +1,9 @@
 -- v1.0.3 セット解除機能
+-- v1.0.4 セット解除機能の挙動がおかしいのを修正
 local addonName = "ANCIENT_AUTOSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -112,7 +113,7 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    -- CHAT_SYSTEM(addonNameLower .. " loaded")
     --[[
     local aasframe = ui.CreateNewFrame("notice_on_pc", "aasframe")
     aasframe:Resize(100, 40)
@@ -135,8 +136,8 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
     -- btn2:SetEventScript(ui.LBUTTONUP, "ANCIENT_SETTING_REG")
     btn2:SetEventScript(ui.LBUTTONUP, "ANCIENT_SETTING_MSG")
     btn2:SetEventScript(ui.RBUTTONUP, "ANCIENT_SETTING_MSG_RELEASE")
-    btn2:SetTextTooltip("{@st59}LeftButton:Setting RightButton:ReSetting{/}" ..
-                            "{@st59}左クリック:設定 右クリック:設定解除{/}")
+    btn2:SetTextTooltip(
+        "Ancient Aoto Set{nl}LeftButton:Setting RightButton:ReSetting{nl}左クリック:設定 右クリック:設定解除")
     -- addon:RegisterMsg("BANDI_CAM", "HIDE_CHATFRAME_ON_BANDI_CAM")
     -- acutil.setupHook(HIDE_CHATFRAME_ON_BANDI_CAM, "ON_BANDI_CAM")
 
@@ -154,8 +155,8 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
 end
 
 function ANCIENT_SETTING_MSG_RELEASE()
-    local msg = "Do you want to remove the assister set for this character?" ..
-                    "このキャラクターに設定したアシスターセットを解除しますか？"
+    local msg =
+        "Do you want to remove the assister set for this character?{nl}このキャラクターに設定したアシスターセットを解除しますか？"
     local yes_scp = "ANCIENT_SETTING_RELEASE()"
     -- local no_scp = "ANCIENT_SETTING_CANCEL()"
     ui.MsgBox(msg, yes_scp, "None");
@@ -197,12 +198,13 @@ function ANCIENT_SETTING_RELEASE()
     ui.SysMsg("[AAS]解除しました。")
     ui.SysMsg("[AAS]Canceled.")
     ANCIENT_AUTOSET_SAVE_SETTINGS()
+    ANCIENT_AUTOSET_LOAD_SETTINGS()
 end
 
 function ANCIENT_SETTING_MSG()
 
-    local msg = "Would you like to register the assister set currently displayed on this character?" ..
-                    "このキャラクターに表示中のアシスターセットを登録しますか？"
+    local msg =
+        "Would you like to register the assister set currently displayed on this character?{nl}このキャラクターに表示中のアシスターセットを登録しますか？"
     local yes_scp = "ANCIENT_SETTING_REG()"
     local no_scp = "ANCIENT_SETTING_CANCEL()"
     ui.MsgBox(msg, yes_scp, no_scp);
