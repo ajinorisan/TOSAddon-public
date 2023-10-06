@@ -1,7 +1,11 @@
+-- v1.0.0 時間、販売者名、アイテム名、個数表示
+-- v1.0.1 落ちてもログ保持する。textファイルにlog保持
+-- v1.0.2 ログデリート機能修正。テーブルが空の場合フレームを開かない様に。
+-- v1.0.3 ボタンで開く方式に変更
 local addonName = "MARKET_SELLLIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -9,13 +13,12 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-g.logpath = string.format('../addons/%s/log.txt', addonNameLower)
+g.logpath = string.format('../addons/%s/log.text', addonNameLower)
 
 local acutil = require("acutil")
 local os = require("os")
 
 local base = {}
-g.sellcount = 0
 
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
@@ -27,48 +30,94 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
-g.settings.sell_list = {}
+if not g.settings then
+    g.settings = {} -- もしg.settingsが存在しない場合、新しいテーブルを作成
+end
 
 function MARKET_SELLLIST_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
 
-    addon:RegisterMsg("SOLD_ITEM_NOTICE", "MARKET_SELLLIST_SOLD_ITEM_NOTICE")
-    -- g.SetupHook(BARRACK_MGR_SELECT_CHARBTN_LBTNUP, "SELECT_CHARBTN_LBTNUP")
+    g.SetupHook(MARKET_SELLLIST_SOLD_ITEM_NOTICE, 'ON_SOLD_ITEM_NOTICE')
 
-    -- addon:RegisterMsg("GAME_START", "AUTO_REPAIR_FRAME_INIT")
-    MARKET_SELLLIST_load_settings()
+    -- acutil.setupEvent(addon, 'MARKET_CABINET_OPEN', "MARKET_SELLLIST_PRINT")
+    addon:RegisterMsg("GAME_START", "MARKET_SLLLIST_FRAME_INIT")
 
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" and g.sellcount > 0 then
-        addon:RegisterMsg("GAME_START_3SEC", "MARKET_SELLLIST_PRINT")
-    end
+    MARKET_SELLLIST_LOAD_SETTINGS()
+
+end
+
+function MARKET_SLLLIST_FRAME_INIT()
+    local frame = ui.GetFrame("market_cabinet")
+
+    local listbtn = frame:CreateOrGetControl("button", "listbtn", 1020, 105, 200, 45)
+    -- logbtn:SetSkinName("tab2_btn_2")
+    listbtn:SetText("{ol}Sales Log")
+    listbtn:SetEventScript(ui.LBUTTONUP, "MARKET_SELLLIST_PRINT")
 end
 
 function MARKET_SELLLIST_PRINT(frame)
 
+    --[[if next(g.settings) == nil then
+        -- g.settingsが空の場合の処理
+        -- print("g.settingsは空です")
+        return
+
+    end]]
+
     local frame = ui.GetFrame("market_selllist")
+
     frame:SetSkinName("chat_window")
     frame:ShowTitleBar(0);
+    frame:SetOffset(450, 30);
+    frame:Resize(850, 975)
+    frame:EnableHitTest(1)
+    frame:SetLayerLevel(100);
 
-    frame:SetEventScript(ui.RBUTTONUP, "MARKET_SELLLIST_CLEAR")
     frame:SetEventScript(ui.LBUTTONUP, "MARKET_SELLLIST_CLOSE")
-    frame:SetTextTooltip(
-        "右クリック:リストクリア 左クリック:リストを閉じる{nl}Right click: Clear list Left click: Close list")
-    local textview_log = frame:GetChildRecursively("textview_log")
-    textview_log:SetText("")
-    textview_log:SetFontName("white_16_ol")
-    for timestamp, msg in pairs(g.settings.sell_list) do
-        local currentText = textview_log:GetText()
-        local newText = timestamp .. " " .. msg .. "\n"
-        textview_log:SetText(currentText .. newText)
+
+    local logdelete = frame:CreateOrGetControl("button", "logdelete", 750, 935, 30, 30)
+    AUTO_CAST(logdelete)
+    logdelete:SetTextTooltip("ログを削除します。{nl}Delete logs.")
+    logdelete:SetText("Log Delete")
+    logdelete:SetEventScript(ui.LBUTTONUP, "MARKET_SELLLIST_CLEAR")
+
+    local close = frame:CreateOrGetControl("button", "close", 810, 10, 30, 30)
+    AUTO_CAST(close)
+    -- close:SetTextTooltip("ログを削除します。{nl}Delete logs.")
+    close:SetText("×")
+    close:SetEventScript(ui.LBUTTONUP, "MARKET_SELLLIST_CLOSE")
+
+    local textview = frame:CreateOrGetControl("richtext", "textview", 10, 10, 820, 940)
+    AUTO_CAST(textview)
+    textview:SetTextTooltip("左クリックでフレームを閉じます。{nl}Left-click to close the frame.")
+    textview:SetText("")
+
+    local logText = "" -- テキストを組み立てる変数
+
+    for _, dataString in ipairs(g.settings) do
+        local parts = {}
+        for part in string.gmatch(dataString, "([^/]+)") do
+            table.insert(parts, part)
+            -- print(tostring(part))
+        end
+
+        if #parts >= 4 then
+            local timestamp = parts[1]
+            local seller = parts[2]
+            local item = parts[3]
+            local quantity = parts[4]
+            local result = timestamp .. " Seller:" .. seller .. "\n Item:" .. item .. "\n Quantity:" .. quantity
+
+            logText = logText .. result .. "{nl}" -- ログテキストに追加
+        end
     end
 
-    -- スクロールバーを一番下までスクロール
-    textview_log:ScrollToBottom()
+    textview:SetText(logText)
+    textview:SetFontName("white_16_ol")
+
+    textview:ShowWindow(1) -- フレーム内でのテキストビューを表示
     frame:ShowWindow(1)
 
 end
@@ -78,20 +127,59 @@ function MARKET_SELLLIST_CLOSE(frame)
 end
 
 function MARKET_SELLLIST_CLEAR(frame)
-    for timestamp, msg in pairs(g.settings.sell_list) do
-        local fd = io.open(g.logpath, "a")
-        fd:write(timestamp .. " " .. msg .. "\n")
-        fd:flush()
-        fd:close()
-    end
-    ui.SysMsg("The list of sold items has been cleared.")
-    g.settings.sell_list = {}
-    MARKET_SELLLIST_save_settings()
+    ui.SysMsg(
+        "The list of sold items has been cleared.{nl}販売履歴を削除しました。logtextには残っています。")
+
+    MARKET_SELLLIST_save_settings_clear()
+
 end
 
-function MARKET_SELLLIST_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)
+function MARKET_SELLLIST_save_settings_clear()
+    local frame = ui.GetFrame("market_selllist")
+    g.settings = {}
+    acutil.saveJSON(g.settingsFileLoc, g.settings);
+    frame:ShowWindow(0)
+end
 
-    g.sellcount = g.sellcount + 1
+-- testcode
+local frame = ui.GetFrame("ingamealert")
+local argStr = "パリパリの/@dicID_^*$ETC_20230130_071000$*^/4"
+MARKET_SELLLIST_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)
+
+function MARKET_SELLLIST_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)
+    local ctrlset = INGAMEALERT_GET_ELEM_BY_TYPE(frame, "SoldItem")
+    local argList = StringSplit(argStr, "/")
+    if #argList ~= 3 then
+        INGAMEALERT_REMOVE_ELEM_BY_OBJECT(ctrlset)
+        INGAMEALERT_ALIGN_ELEM(frame)
+        return
+    end
+
+    local text = GET_CHILD(ctrlset, "text")
+
+    local askMsg = ScpArgMsg("SoldItemNotice", "SELLER", argList[1], "ITEM", argList[2], "COUNT", argList[3])
+    text:SetText(askMsg)
+
+    INGAMEALERT_RESIZE_ELEM(ctrlset)
+    INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame)
+
+    -- print(tostring(argList[1]))
+    -- print(tostring(argList[3]))
+    local data = argStr
+
+    local pattern = "/(@dicID[^/]+)/" -- @dicIDから/までのパターンを検索
+    local match = string.match(data, pattern) -- パターンに一致する部分を取得
+    local str = dictionary.ReplaceDicIDInCompStr(match)
+    if match then
+        argStr = tostring(argList[1]) .. "/" .. tostring(str) .. "/" .. tostring(argList[3])
+    end
+
+    MARKET_SELLLIST_save_settings(argStr)
+    -- base["ON_SOLD_ITEM_NOTICE"](frame, msg, argStr, argNum)
+
+end
+
+function MARKET_SELLLIST_save_settings(argStr)
 
     local time = os.date("*t")
     local year = time.year
@@ -99,23 +187,25 @@ function MARKET_SELLLIST_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)
     local day = time.day
     local hour = time.hour
     local min = time.min
-    local timestamp = string.format("%04d.%02d.%02d-%02d:%02d", year, month, day, hour, min)
+    local sec = time.sec
+    local timestamp = string.format("%04d.%02d.%02d-%02d:%02d:%02d", year, month, day, hour, min, sec)
 
-    if not g.settings.sell_list[timestamp] then
-        g.settings.sell_list[timestamp] = {}
-    end
+    local entrystr = timestamp .. "/" .. argStr
 
-    table.insert(g.settings.sell_list, timestamp, msg)
-    MARKET_SELLLIST_save_settings()
-end
-
-function MARKET_SELLLIST_save_settings()
+    table.insert(g.settings, entrystr)
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 
+    local fd = io.open(g.logpath, "a")
+    fd:write(entrystr .. "\n")
+    fd:flush()
+    fd:close()
+
+    return
+
 end
 
-function MARKET_SELLLIST_load_settings()
+function MARKET_SELLLIST_LOAD_SETTINGS()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
@@ -123,10 +213,20 @@ function MARKET_SELLLIST_load_settings()
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
-    if not settings then
-        settings = g.settings
+
+    if settings then
+
+        g.settings = settings
+        -- CHAT_SYSTEM("settings")
+        -- MARKET_SELLLIST_PRINT_SELL_LIST()
     end
 
-    g.settings = settings
 end
 
+function MARKET_SELLLIST_PRINT_SELL_LIST()
+
+    for _, entry in ipairs(g.settings) do
+        print(entry)
+    end
+
+end
