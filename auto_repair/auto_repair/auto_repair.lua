@@ -1,10 +1,11 @@
 -- v1.0.2 on_init読み込み時にリペアーアイテムの数量確認
 -- v1.0.3 SetupHookの競合修正
 -- v1.0.4 23.09.05patch対応。修理キット買うコード変えてやがった許せねえ。
+-- v1.0.5 数量設定を可能に
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -14,6 +15,11 @@ local g = _G["ADDONS"][author][addonName]
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
+
+g.settings = {
+    buyquantity = 50,
+    msgquantity = 20
+}
 
 local base = {}
 
@@ -31,7 +37,8 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-
+    -- g.settingframe = ui.CreateNewFrame("chat_memberlist", "setting");
+    -- g.settingframe:ShowWindow(0)
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
     -- acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
     g.SetupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
@@ -44,7 +51,7 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
         ['propName'] = 'VakarineCertificate',
     }
 ]] -- 11200243
-
+    acutil.addSysIcon("auto_repair", "sysmenu_sys", "auto_repair", "AUTO_REPAIR_SETTING_FRAME_INIT")
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
@@ -55,7 +62,7 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
         if autorepair_item ~= nil then
             local repairCount = autorepair_item.count
 
-            if repairCount < 10 then
+            if repairCount < g.settings.msgquantity then
 
                 addon:RegisterMsg("GAME_START_3SEC", "AUTO_REPAIR_FRAME_INIT")
             end
@@ -65,6 +72,78 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
         end
 
     end
+
+end
+
+function AUTO_REPAIR_SETTING_FRAME_INIT()
+
+    local frame = ui.CreateNewFrame("chat_memberlist", "auto_repair_setting");
+    frame:SetPos(900, 730)
+    frame:Resize(490, 120)
+    local text1 = frame:CreateOrGetControl('richtext', 'text1', 20, 10)
+    AUTO_CAST(text1)
+    text1:SetText("{s20}{ol}[Lv.500] Urgent Repair Kit Setting")
+    text1:SetTextTooltip("[Lv.500]緊急修理キット")
+
+    local text2 = frame:CreateOrGetControl('richtext', 'text2', 10, 50)
+    AUTO_CAST(text2)
+    text2:SetText("{s20}{ol}Number of automatic purchases")
+    text2:SetTextTooltip("自動購入数")
+
+    local edit1 = frame:CreateOrGetControl('edit', 'edit1', 410, 50, 60, 30)
+    AUTO_CAST(edit1)
+    edit1:SetText("{ol}" .. g.settings.buyquantity)
+    edit1:SetFontName("white_16_ol")
+    edit1:SetTextAlign("center", "center")
+    edit1:SetEventScript(ui.ENTERKEY, "AUTO_REPAIR_SETTING")
+    edit1:SetTextTooltip("エンターキー押下で登録{nl}Register by pressing enter key")
+
+    local text3 = frame:CreateOrGetControl('richtext', 'text3', 10, 80)
+    AUTO_CAST(text3)
+    text3:SetText("{s20}{ol}Message with less than input quantity")
+    text3:SetTextTooltip("入力数量以下でメッセージ")
+    -- text1:SetText("{s20}{ol}a")
+    frame:ShowWindow(1)
+
+    local edit2 = frame:CreateOrGetControl('edit', 'edit2', 410, 80, 60, 30)
+    AUTO_CAST(edit2)
+    edit2:SetText("{ol}" .. g.settings.msgquantity)
+    edit2:SetFontName("white_16_ol")
+    edit2:SetTextAlign("center", "center")
+    edit2:SetEventScript(ui.ENTERKEY, "AUTO_REPAIR_SETTING")
+    edit2:SetTextTooltip("エンターキー押下で登録{nl}Register by pressing enter key")
+
+    local closebtn = frame:CreateOrGetControl("button", "closebtn", 450, 10, 30, 30)
+    AUTO_CAST(closebtn)
+    closebtn:SetText("{ol}×")
+    closebtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_SETTING_FRAME_CLOSE")
+    return
+
+end
+
+function AUTO_REPAIR_SETTING(frame, ctrl)
+    local value = tonumber(ctrl:GetText())
+    local ctrlname = tostring(ctrl:GetName())
+
+    if tonumber(value) ~= tonumber(g.settings.buyquantity) and ctrlname == tostring("edit1") then
+        ui.SysMsg("Buy quantity set to " .. value)
+        g.settings.buyquantity = value
+        AUTO_REPAIR_SAVE_SETTINGS()
+        AUTO_REPAIR_LOAD_SETTINGS()
+
+    elseif tonumber(value) ~= tonumber(g.settings.msgquantity) and ctrlname == tostring("edit2") then
+        ui.SysMsg("Msg quantity set to " .. value)
+        g.settings.msgquantity = value
+        AUTO_REPAIR_SAVE_SETTINGS()
+        AUTO_REPAIR_LOAD_SETTINGS()
+    else
+        return
+    end
+
+end
+
+function AUTO_REPAIR_SETTING_FRAME_CLOSE(frame)
+    ui.CloseFrame("auto_repair_setting")
 
 end
 
@@ -84,7 +163,7 @@ function AUTO_REPAIR_FRAME_INIT()
     text2:SetText("{s20}{ol}残り少ないですが補充しますか？")]]
     local text3 = frame:CreateOrGetControl('richtext', 'text3', 25, 70)
     AUTO_CAST(text3)
-    text3:SetText("{s18}{ol}QuestReward_repairPotion_500{nl}Do you want to replenish the few remaining?")
+    text3:SetText("{s18}{ol}[Lv.500] Urgent Repair Kit{nl}Do you want to replenish the few remaining?")
     text3:SetTextAlign("center", "center")
     --[[local text4 = frame:CreateOrGetControl('richtext', 'text4', 25, 80)
     AUTO_CAST(text4)
@@ -123,7 +202,7 @@ function AUTO_REPAIR_BUY()
         local repairCount = autorepair_item.count
 
         -- CHAT_SYSTEM(repeatCount)
-        local cnt = 50 - repairCount
+        local cnt = g.settings.buyquantity - repairCount
 
         local shopType = "RadaCertificate"
         local recipeCls = GetClass("ItemTradeShop", 'RadaCertificate_13')
@@ -137,7 +216,7 @@ function AUTO_REPAIR_BUY()
 
         item.DialogTransaction("Certificate_SHOP", itemlist, cntText, str_list)
     else
-        local cnt = 50
+        local cnt = g.settings.buyquantity
 
         local shopType = "RadaCertificate"
         local recipeCls = GetClass("ItemTradeShop", 'RadaCertificate_13')
@@ -258,6 +337,7 @@ end
 
 function AUTO_REPAIR_SAVE_SETTINGS()
     -- CHAT_SYSTEM("save")
+    -- ui.SysMsg("Registered.")
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 
 end
