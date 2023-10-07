@@ -1,10 +1,11 @@
 -- v1.0.0 時間、販売者名、アイテム名、個数表示
 -- v1.0.1 落ちてもログ保持する。textファイルにlog保持
 -- v1.0.2 ログデリート機能修正。テーブルが空の場合フレームを開かない様に。
+-- v1.0.3 ボタンで開く方式に変更
 local addonName = "MARKET_SELLLIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -40,20 +41,31 @@ function MARKET_SELLLIST_ON_INIT(addon, frame)
 
     g.SetupHook(MARKET_SELLLIST_SOLD_ITEM_NOTICE, 'ON_SOLD_ITEM_NOTICE')
 
-    acutil.setupEvent(addon, 'MARKET_CABINET_OPEN', "MARKET_SELLLIST_PRINT")
-
+    -- acutil.setupEvent(addon, 'MARKET_CABINET_OPEN', "MARKET_SELLLIST_PRINT")
+    addon:RegisterMsg("GAME_START", "MARKET_SLLLIST_FRAME_INIT")
+    -- MARKET_SLLLIST_FRAME_INIT()
     MARKET_SELLLIST_LOAD_SETTINGS()
 
 end
 
+function MARKET_SLLLIST_FRAME_INIT()
+    local frame = ui.GetFrame("market_cabinet")
+
+    local listbtn = frame:CreateOrGetControl("button", "listbtn", 1020, 105, 200, 45)
+    -- logbtn:SetSkinName("tab2_btn_2")
+    listbtn:SetText("{ol}Sales Log")
+    listbtn:SetEventScript(ui.LBUTTONUP, "MARKET_SELLLIST_PRINT")
+    listbtn:ShowWindow(1)
+end
+
 function MARKET_SELLLIST_PRINT(frame)
 
-    if next(g.settings) == nil then
+    --[[if next(g.settings) == nil then
         -- g.settingsが空の場合の処理
         -- print("g.settingsは空です")
         return
 
-    end
+    end]]
 
     local frame = ui.GetFrame("market_selllist")
 
@@ -131,9 +143,9 @@ function MARKET_SELLLIST_save_settings_clear()
 end
 
 -- testcode
-local frame = ui.GetFrame("ingamealert")
-local argStr = "パリパリの/@dicID_^*$ETC_20230130_071000$*^/4"
-MARKET_SELLLIST_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)
+-- local frame = ui.GetFrame("ingamealert")
+-- local argStr = "パリパリの/@dicID_^*$ETC_20230130_071000$*^/4"
+-- MARKET_SELLLIST_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)
 
 function MARKET_SELLLIST_SOLD_ITEM_NOTICE(frame, msg, argStr, argNum)
     local ctrlset = INGAMEALERT_GET_ELEM_BY_TYPE(frame, "SoldItem")

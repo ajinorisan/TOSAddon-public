@@ -22,10 +22,20 @@
 		"name" : "Market Sell List",
 		"file" : "market_selllist",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.2",
+		"fileVersion" : "v1.0.3",
 		"releaseTag" : "market_selllist",
 		"unicode" : "⛄",
-		"description" : "マーケットの販売履歴表示。Market sales history display.마켓의 판매 내역 표시.",
+		"description" : "マーケットの販売履歴表示(売れた時に記録、要ログイン) Market sales history display (record when sold, login required) 마켓의 판매 이력 표시(판매 시 기록, 로그인 필요)",
+		"tags" : []
+	},
+	{
+		"name" : "Market Voucher",
+		"file" : "market_voucher",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "market_voucher",
+		"unicode" : "⛄",
+		"description" : "マーケットの販売履歴表示(シルバー受け取った時に記録) Market sales history display (recorded when silver is received) 마켓의 판매 내역 표시(실버 수령 시 기록)",
 		"tags" : []
 	},
 	{
@@ -212,7 +222,7 @@
 		"name" : "No check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.7",
+		"fileVersion" : "v1.0.8",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
 		"description" : "Ch移動確認消します。欠片アイテムを確認無しで使用、カードの付け外し、エーテルジェムの確認も消します。ゴッデス装備の帰属解除の際の手間を省きます。Use of shard items without confirmation, card attachment/removal, and ether gem confirmation will also be eliminated. Saves time when unattributing Goddess equipment. 조각 아이템 확인 없이 사용, 카드 탈부착, 에테르 젬 확인이 사라집니다. 고데스 장비의 귀속 해제 시 번거로움을 덜어줍니다.",
