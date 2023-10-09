@@ -1,7 +1,8 @@
+-- v1.0.1 ユラテブレスリリック ｰ 誅罰　とかの - の部分がバグ生んでたのを修正
 local addonName = "MARKET_VOUCHER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -100,6 +101,7 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
             -- local itemName = itemObj.ClassName
 
             local itemName = dictionary.ReplaceDicIDInCompStr(itemObj.Name)
+            local itemnamegsub = string.gsub(itemName, " - ", " ? ")
 
             local registerTime = cabinetItem:GetRegSysTime()
             local sysTime = geTime.GetServerSystemTime();
@@ -255,9 +257,13 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
 
         elseif string.find(total_amount, "total amount.") ~= nil then
 
-            total_amount_sum_eng = total_amount:gsub("total amount.", "")
+            total_amount_sum = total_amount:gsub("total amount.", "")
             g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount_sum_eng)
 
+        end
+
+        if string.find(item, " ? ") ~= nil then
+            item = item:gsub("?", "-")
         end
 
         local result = timestamp .. "  " .. seller .. "  " .. item .. "  " .. quantity .. "  " ..

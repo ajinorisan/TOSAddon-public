@@ -32,10 +32,10 @@
 		"name" : "Market Voucher",
 		"file" : "market_voucher",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "market_voucher",
 		"unicode" : "⛄",
-		"description" : "マーケットの販売履歴表示(シルバー受け取った時に記録) Market sales history display (recorded when silver is received) 마켓의 판매 내역 표시(실버 수령 시 기록)",
+		"description" : "1.0.1 bug fixesマーケットの販売履歴表示(シルバー受け取った時に記録) Market sales history display (recorded when silver is received) 마켓의 판매 내역 표시(실버 수령 시 기록)",
 		"tags" : []
 	},
 	{
