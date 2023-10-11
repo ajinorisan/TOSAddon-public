@@ -1,7 +1,7 @@
 local addonName = "cuervoex"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.2"
+local ver = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -78,11 +78,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "1250000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -92,11 +92,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "750000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -106,11 +106,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "625000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -120,11 +120,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "375000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -134,11 +134,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "300000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -148,11 +148,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "250000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -162,11 +162,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "175000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -176,11 +176,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "125000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -190,11 +190,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "50000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -204,11 +204,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "37500000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -218,11 +218,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "25000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -232,11 +232,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "18750000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -246,11 +246,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "10000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -260,11 +260,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "5000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -274,11 +274,11 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             weekly_boss.RequestAcceptAbsoluteReward(week_num, argStr);
             argStr = "2000000"
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 
@@ -290,7 +290,7 @@ function cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK(frame, ctrl, argStr, argNum
             return
         else
             ReserveScript(string.format("cuervoex_WEEKLYBOSSREWARD_REWARD_LIST_CLICK('%s','%s','%s',%d)", frame, ctrl,
-                argStr, argNum), 1.0)
+                argStr, argNum), 2.0)
             return
         end
 

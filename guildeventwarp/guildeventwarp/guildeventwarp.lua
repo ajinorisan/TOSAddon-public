@@ -1,9 +1,10 @@
 -- v1.0.1 1chが満員の場合にエラーになるのでギルドイベント地域に飛んでからチャンネルチェンジ
 -- v1.0.2 23.09.05patch対応。ボルタからドラグーンに変更
+-- v1.0.3 TPショップ開くと消えるのを修正
 local addonName = "GUILDEVENTWARP"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}

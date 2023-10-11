@@ -176,10 +176,10 @@
 		"name" : "Guild Event Warp 23.9.5patch",
 		"file" : "guildeventwarp",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.2",
+		"fileVersion" : "v1.0.3",
 		"releaseTag" : "guildeventwarp",
 		"unicode" : "⛄",
-		"description" : "画面右上の小さいボタンから封鎖戦のMAP1Chに飛べるよ 左からドラグーン ギルティネ バウバス。You can jump to the MAP1Ch of the blockade fight from the small button in the upper right corner of the screen. From left to right: Dragoon, Guiltine, Baubus.화면 오른쪽 상단의 작은 버튼으로 봉쇄전 MAP1Ch로 이동할 수 있다. 왼쪽부터 드라군 길티네 바우바스, 길티네 바우바스.",
+		"description" : "TPショップ開いたら消えるの修正。画面右上の小さいボタンから封鎖戦のMAP1Chに飛べるよ 左からドラグーン ギルティネ バウバス。Fix for disappearing when TP store is opened.You can jump to the MAP1Ch of the blockade fight from the small button in the upper right corner of the screen. From left to right: Dragoon, Guiltine, Baubus.TP샵 열면 사라지는 현상 수정.화면 오른쪽 상단의 작은 버튼으로 봉쇄전 MAP1Ch로 이동할 수 있다. 왼쪽부터 드라군 길티네 바우바스, 길티네 바우바스.",
 		"tags" : []
 	},
  {
