@@ -1,8 +1,10 @@
 -- v1.0.1 ユラテブレスリリック ｰ 誅罰　とかの - の部分がバグ生んでたのを修正
+-- v1.0.2 マーケットキャビネットフレームにボタンが表示されないバグ修正
+-- v1.0.3 登録日時がバグってたのを修正
 local addonName = "MARKET_VOUCHER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -35,13 +37,13 @@ function MARKET_VOUCHER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    addon:RegisterMsg("GAME_START", "market_voucher_init_frame")
+    -- addon:RegisterMsg("GAME_START", "market_voucher_init_frame")
 
     -- acutil.setupHook(market_voucher_CABINET_ITEM_BUY, "_CABINET_ITEM_BUY")
     acutil.setupEvent(addon, "MARKET_CABINET_MODE", "market_voucher_MARKET_CABINET_MODE");
     -- acutil.setupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST")
     g.SetupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST");
-
+    market_voucher_init_frame()
     market_voucher_load_settings()
 
 end
@@ -101,14 +103,29 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
             -- local itemName = itemObj.ClassName
 
             local itemName = dictionary.ReplaceDicIDInCompStr(itemObj.Name)
-            local itemnamegsub = string.gsub(itemName, " - ", " ? ")
+            local itemnamegsub = string.gsub(itemName, "-", "?")
 
             local registerTime = cabinetItem:GetRegSysTime()
+            local year = string.format("%04d", registerTime.wYear)
+            local month = string.format("%02d", registerTime.wMonth)
+            local day = string.format("%02d", registerTime.wDay)
+            local hour = string.format("%02d", registerTime.wHour)
+            local minute = string.format("%02d", registerTime.wMinute)
+            local second = string.format("%02d", registerTime.wSecond)
+
+            local formattedTime = string.format("%s-%s-%s %s:%s:%s", year, month, day, hour, minute, second)
+
+            --[[local endTime = imcTime.GetSysTimeByStr(registerTime);
+            -- print(tostring(endTime))
             local sysTime = geTime.GetServerSystemTime();
-            local difSec = imcTime.GetDifSec(sysTime, registerTime);
+            -- print(tostring(sysTime))
             local currentTime = os.time()
+            -- print(tostring(currentTime))
+            local difSec = imcTime.GetDifSec(sysTime, registerTime);
+            -- print(tostring(difSec))
             local newTime = currentTime - difSec
-            local newDate = os.date("%Y-%m-%d %H:%M:%S", newTime)
+            -- print(tostring(newTime))
+            local newDate = os.date("%Y-%m-%d %H:%M:%S", newTime)]]
 
             local count = 0;
             local amount = 0;
@@ -124,12 +141,13 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
                       market_voucher_lang("/unit price.") .. amount / tonumber(count) ..
                       market_voucher_lang("/total amount.") .. amount)]]
 
-            local result =
-                market_voucher_lang("Registered on.") .. newDate .. market_voucher_lang("/name.") .. charName ..
-                    market_voucher_lang("/item.") .. itemName .. market_voucher_lang("/quantity.") .. tonumber(count) ..
-                    market_voucher_lang("/unit price.") .. amount / tonumber(count) ..
-                    market_voucher_lang("/total amount.") .. amount .. "/" ..
-                    GET_COMMAED_STRING(amount / tonumber(count)) .. "/" .. GET_COMMAED_STRING(amount)
+            local result = market_voucher_lang("Registered on.") .. formattedTime .. market_voucher_lang("/name.") ..
+                               charName .. market_voucher_lang("/item.") .. itemnamegsub ..
+                               market_voucher_lang("/quantity.") .. tonumber(count) ..
+                               market_voucher_lang("/unit price.") .. amount / tonumber(count) ..
+                               market_voucher_lang("/total amount.") .. amount .. "/" ..
+                               GET_COMMAED_STRING(amount / tonumber(count)) .. "/" .. GET_COMMAED_STRING(amount)
+            -- print(tostring(result))
             table.insert(g.settings, result)
             local fd = io.open(g.logpath, "a")
             fd:write(result .. "\n")
