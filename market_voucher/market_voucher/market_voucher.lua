@@ -1,10 +1,11 @@
 -- v1.0.1 ユラテブレスリリック ｰ 誅罰　とかの - の部分がバグ生んでたのを修正
 -- v1.0.2 マーケットキャビネットフレームにボタンが表示されないバグ修正
 -- v1.0.3 登録日時がバグってたのを修正
+-- v1.0.4 色々修正。表示を時間降順に並べ替えたので実質クリアせんでもずっと使える。
 local addonName = "MARKET_VOUCHER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -141,7 +142,7 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
                       market_voucher_lang("/unit price.") .. amount / tonumber(count) ..
                       market_voucher_lang("/total amount.") .. amount)]]
 
-            local result = market_voucher_lang("Registered on.") .. formattedTime .. market_voucher_lang("/name.") ..
+            local result = market_voucher_lang("time of sale.") .. formattedTime .. market_voucher_lang("/name.") ..
                                charName .. market_voucher_lang("/item.") .. itemnamegsub ..
                                market_voucher_lang("/quantity.") .. tonumber(count) ..
                                market_voucher_lang("/unit price.") .. amount / tonumber(count) ..
@@ -168,8 +169,8 @@ end
 function market_voucher_lang(str)
     local langcode = option.GetCurrentCountry()
     if langcode == "Japanese" then
-        if str == tostring("Registered on.") then
-            str = "登録日時."
+        if str == tostring("time of sale.") then
+            str = "販売日時."
         end
         if str == tostring("/name.") then
             str = "/名前."
@@ -251,54 +252,77 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
 
     local total_amount_sum_eng = 0
 
+    local timestamps = {}
+
     for _, dataString in pairs(g.settings) do
         local parts = {}
         for part in string.gmatch(dataString, "([^/]+)") do
             table.insert(parts, part)
-            -- print(tostring(part))
-        end
-        -- if #parts >= 5 then
-        local timestamp = parts[1]
-        local seller = parts[2]
-        local item = parts[3]
-        local quantity = parts[4]
-        local unit_price = parts[5]
-        local total_amount = parts[6]
-        local show_unit_price = parts[7]
-        local show_total_amount = parts[8]
-        -- print(tostring(show_unit_price))
-        -- print(tostring(show_total_amount))
-
-        if string.find(total_amount, "合計金額.") ~= nil then
-            total_amount_sum = total_amount:gsub("合計金額.", "")
-            g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount_sum)
-
-        elseif string.find(total_amount, "total amount.") ~= nil then
-
-            total_amount_sum = total_amount:gsub("total amount.", "")
-            g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount_sum_eng)
-
         end
 
-        if string.find(item, " ? ") ~= nil then
-            item = item:gsub("?", "-")
+        if #parts >= 5 then
+            local timestamp = parts[1]
+            table.insert(timestamps, timestamp)
         end
+    end
 
-        local result = timestamp .. "  " .. seller .. "  " .. item .. "  " .. quantity .. "  " ..
-                           market_voucher_lang("/unit price.") .. show_unit_price .. "  " ..
-                           market_voucher_lang("/total amount.") .. show_total_amount
+    -- タイムスタンプを降順でソート
+    table.sort(timestamps, function(a, b)
+        return a > b
+    end)
 
-        logText = logText .. tostring(result) .. "{nl}" -- ログテキストに追加
+    -- ログテキストを組み立てる
+    local logText = ""
+    for _, timestamp in pairs(timestamps) do
+        for _, dataString in pairs(g.settings) do
+            local parts = {}
+            for part in string.gmatch(dataString, "([^/]+)") do
+                table.insert(parts, part)
+            end
 
+            -- if #parts >= 5 then
+            local dataTimestamp = parts[1]
+            if dataTimestamp == timestamp then
+                local seller = parts[2]
+                local item = parts[3]
+                local quantity = parts[4]
+                local unit_price = parts[5]
+                local total_amount = parts[6]
+                local show_unit_price = parts[7]
+                local show_total_amount = parts[8]
+
+                if string.find(total_amount, "合計金額.") ~= nil then
+                    total_amount_sum = total_amount:gsub("合計金額.", "")
+                    g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount_sum)
+
+                elseif string.find(total_amount, "total amount.") ~= nil then
+
+                    total_amount_sum = total_amount:gsub("total amount.", "")
+                    g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount_sum_eng)
+
+                end
+
+                if string.find(item, "?") ~= nil then
+                    item = item:gsub("?", "-")
+                end
+
+                local result = timestamp .. "  " .. seller .. "  " .. item .. "  " .. quantity .. "  " ..
+                                   market_voucher_lang("/unit price.") .. show_unit_price .. "  " ..
+                                   market_voucher_lang("/total amount.") .. show_total_amount
+
+                logText = logText .. tostring(result) .. "{nl}"
+            end
+            -- end
+        end
     end
 
     -- print(tostring(g.sumtotal_amount))
     local sumtotal_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 800, 890, 100, 30)
-    local roundedNumber = math.floor(g.sumtotal_amount / 100000)
+    -- local roundedNumber = math.floor(g.sumtotal_amount / 100000)
     -- print(tostring(roundedNumber))
-    local roundednumber = math.floor(tonumber(roundedNumber + 0.5) * 0.1)
+    local roundednumber = round(g.sumtotal_amount / 1000000)
     -- print(tostring(roundednumber))
-    -- local roundedNumber = tonumber(string.format("%.0f", g.sumtotal_amount)) -- 3
+
     sumtotal_amount_text:SetText(market_voucher_lang("{ol}{#FF0000}Log Total Sales:") ..
                                      GET_COMMAED_STRING(g.sumtotal_amount) .. "(" .. roundednumber .. "M)")
     sumtotal_amount_text:ShowWindow(1)
@@ -312,6 +336,9 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
     textview:ShowWindow(1)
     frame:ShowWindow(1)
 
+end
+function round(number)
+    return math.floor(number + 0.5)
 end
 
 function market_voucher_clear(frame)
