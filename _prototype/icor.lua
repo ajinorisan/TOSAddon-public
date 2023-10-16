@@ -49,7 +49,7 @@ end
 
 function _GODDESS_MGR_MAKE_RANDOM_OPTION_TEXT(gBox, item_obj, option_list)
     local tooltip_equip_property_CSet = gBox:CreateOrGetControlSet('tooltip_equip_property_narrow',
-                                                                   'tooltip_equip_property_narrow', 0, 0)
+        'tooltip_equip_property_narrow', 0, 0)
     local labelline = GET_CHILD_RECURSIVELY(tooltip_equip_property_CSet, 'labelline')
     labelline:ShowWindow(0)
     local property_gbox = GET_CHILD(tooltip_equip_property_CSet, 'property_gbox', 'ui::CGroupBox')
@@ -106,7 +106,7 @@ function _GODDESS_MGR_MAKE_RANDOM_OPTION_TEXT(gBox, item_obj, option_list)
     end
 
     tooltip_equip_property_CSet:Resize(tooltip_equip_property_CSet:GetWidth(), tooltip_equip_property_CSet:GetHeight() +
-                                           property_gbox:GetHeight() + property_gbox:GetY())
+        property_gbox:GetHeight() + property_gbox:GetY())
     gBox:Resize(gBox:GetWidth(), tooltip_equip_property_CSet:GetHeight())
 end
 
@@ -220,7 +220,7 @@ function GODDESS_MGR_RANDOMOPTION_CHANGE_NAME(parent, ctrl)
     local newframe = ui.GetFrame('inputstring')
     newframe:SetUserValue('InputType', 'InputNameForChange')
     INPUT_STRING_BOX(ClMsg('ChangeAncientDefenseDeckTabName'), 'GODDESS_MGR_RANDOMOPTION_CHANGE_NAME_EXEC', preset_name,
-                     0, 16)
+        0, 16)
 end
 
 function GODDESS_MGR_RANDOMOPTION_CHANGE_NAME_EXEC(input_frame, ctrl)
@@ -596,7 +596,7 @@ function ON_SUCCESS_RANDOMOPTION_ENGRAVE(frame, msg, arg_str, arg_num)
     local left, top = _GET_EFFECT_UI_MARGIN()
 
     local success_scp = string.format('RESULT_EFFECT_UI_RUN_SUCCESS(\'%s\', \'%s\', \'%d\', \'%d\')',
-                                      '_END_RAMDOMOPTION_ENGRAVE_EXEC', icon, left, top)
+        '_END_RAMDOMOPTION_ENGRAVE_EXEC', icon, left, top)
     ReserveScript(success_scp, 0)
 end
 
@@ -607,7 +607,7 @@ function ON_FAILED_RANDOMOPTION_ENGRAVE(frame, msg, arg_str, arg_num)
     local left, top = _GET_EFFECT_UI_MARGIN()
 
     local failed_scp = string.format('RESULT_EFFECT_UI_RUN_FAILED(\'%s\', \'%d\', \'%d\')',
-                                     '_END_RAMDOMOPTION_ENGRAVE_EXEC', left, top)
+        '_END_RAMDOMOPTION_ENGRAVE_EXEC', left, top)
     ReserveScript(failed_scp, 0)
 end
 
@@ -616,9 +616,9 @@ function _END_RAMDOMOPTION_ENGRAVE_EXEC()
     local rand_ok_engrave = GET_CHILD_RECURSIVELY(frame, 'rand_ok_engrave')
     rand_ok_engrave:ShowWindow(1)
 end
--- 각인 - 저장 끝
+-- 각인 - 저장 끝-- 刻印・保存の終わり
 
--- 각인 - 적용
+-- 각인 - 적용- 刻印・適用
 function GODDESS_MGR_RANDOMOPTION_APPLY_CLEAR(frame)
     local etc = GetMyEtcObject()
     if etc == nil then
@@ -946,9 +946,9 @@ function ON_SUCCESS_RANDOMOPTION_APPLY(frame, msg, arg_str, arg_num)
     ui.SysMsg(ClMsg('AppliedEngraveOption'))
     GODDESS_MGR_RANDOMOPTION_APPLY_CLEAR(frame)
 end
--- 각인 - 적용 끝
+-- 각인 - 적용 끝-- 刻印 - 適用端
 
--- 각인 - 아이커
+-- 각인 - 아이커-- 押すこと-アイカー
 function GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_CLEAR(frame)
     local rand_ok_icor = GET_CHILD_RECURSIVELY(frame, 'rand_ok_icor')
     rand_ok_icor:ShowWindow(0)
@@ -1273,7 +1273,7 @@ function ON_SUCCESS_RANDOMOPTION_ENGRAVE_ICOR(frame, msg, arg_str, arg_num)
     end
 
     local success_scp = string.format('RESULT_EFFECT_UI_RUN_SUCCESS(\'%s\', \'%s\', \'%d\', \'%d\')',
-                                      '_END_RAMDOMOPTION_ENGRAVE_ICOR_EXEC', icon, left, top)
+        '_END_RAMDOMOPTION_ENGRAVE_ICOR_EXEC', icon, left, top)
     ReserveScript(success_scp, 0)
 end
 
@@ -1282,5 +1282,5 @@ function _END_RAMDOMOPTION_ENGRAVE_ICOR_EXEC()
     local rand_ok_engrave = GET_CHILD_RECURSIVELY(frame, 'rand_ok_icor')
     rand_ok_engrave:ShowWindow(1)
 end
--- 각인 - 아이커 끝
--- 각인 끝
+-- 刻印 - アイカーの端
+-- 刻印の先端
