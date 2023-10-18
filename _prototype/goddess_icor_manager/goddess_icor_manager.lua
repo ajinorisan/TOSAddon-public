@@ -19,8 +19,7 @@ function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
     -- addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "test_norisan_ON_PARTYINFO_BUFFLIST_UPDATE");
     -- g.SetupHook(test_norisan_ON_PARTYINFO_BUFFLIST_UPDATE, "PARTY_BUFFLIST_UPDATE")
-    acutil.setupHook(goddess_icor_manager_GODDESS_MGR_RANDOMOPTION_PRESET_SELECT,
-        "GODDESS_MGR_RANDOMOPTION_PRESET_SELECT")
+    -- acutil.setupHook(goddess_icor_manager_GODDESS_ENGRAVE_APPLY_CHECK, "GODDESS_ENGRAVE_APPLY_CHECK")
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -33,23 +32,115 @@ function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
 end
 
-function goddess_icor_manager_GODDESS_MGR_RANDOMOPTION_PRESET_SELECT(parent, ctrl)
-    local frame = parent:GetTopParentFrame()
-    local index = ctrl:GetSelItemKey()
-    -- print(tostring(index))
-    local randomoption_bg = GET_CHILD_RECURSIVELY(frame, 'randomoption_bg')
-    randomoption_bg:SetUserValue('PRESET_INDEX', index)
-    -- print(tostring(randomoption_bg:GetUserValue('PRESET_INDEX')))
-
-    local randomoption_tab = GET_CHILD_RECURSIVELY(frame, 'randomoption_tab')
-    local index = randomoption_tab:GetSelectItemIndex()
-    if index == 0 then
-        GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_UPDATE(frame) -- 각인 저장(아이커)
-    elseif index == 1 then
-        GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame) -- 각인 부여
-    elseif index == 2 then
-        GODDESS_MGR_RANDOMOPTION_ENGRAVE_OPEN(frame) -- 각인 저장(옛날)
+-- 保存された刻印情報のオプション、グループ、値リストをそれぞれ返します。
+function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
+    if etc == nil then
+        return nil
     end
+
+    local suffix = string.format('_%d_%s', tonumber(index), spot)
+    -- print(tostring(suffix))
+
+    local option_prop = TryGetProp(etc, 'RandomOptionPreset' .. suffix, 'None')
+    -- print(tostring(option_prop))
+
+    local group_prop = TryGetProp(etc, 'RandomOptionGroupPreset' .. suffix, 'None')
+    -- print(tostring(group_prop))
+    local value_prop = TryGetProp(etc, 'RandomOptionValuePreset' .. suffix, 'None')
+    -- print(tostring(value_prop))
+    if option_prop == 'None' then
+        return nil
+    end
+    return option_prop, group_prop, value_prop
+
+    -- local option_list = SCR_STRING_CUT(option_prop, '/')
+    -- local group_list = SCR_STRING_CUT(group_prop, '/')
+    -- local value_list = SCR_STRING_CUT(value_prop, '/')
+    -- print(tostring(option_list))
+    -- print(tostring(group_list))
+    -- print(tostring(value_list))
+    -- return option_list, group_list, value_list
+end
+
+local managed_list = {'RH', 'LH', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS', 'RH_SUB', 'LH_SUB'}
+
+function goddess_icor_manager_list_maxcount(frame)
+
+    local acc = GetMyAccountObj()
+    local etc = GetMyEtcObject()
+
+    local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+    for i = 1, page_max do
+        local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+        if bg ~= nil then
+            frame:RemoveChild("bg" .. i)
+        end
+    end
+    local Y = 20
+    local YY = 20
+    for i = 1, 10 do
+        -- for i = 1, page_max do
+        if i <= 5 then
+            local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 0, 265, 440)
+            Y = Y + 265
+
+            local pagename = bg:CreateOrGetControl("richtext", "pagename" .. i, 10, 5)
+
+            local option_prop, group_prop, value_prop = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i,
+                managed_list[i])
+
+            local str = option_prop .. group_prop .. value_prop
+            -- 文字列を「/」で区切る
+            print(tostring(str))
+            local parts = {}
+            for part in string.gmatch(str, "[^/]+") do
+                table.insert(parts, part)
+            end
+
+            -- テーブルの中身を表示
+            for _, part in ipairs(parts) do
+                print(part)
+            end
+            -- print(tostring(str))
+            pagename:SetText(goddess_icor_manager_get_pagename(i))
+            bg:SetSkinName("bg")
+            bg:ShowWindow(1)
+        end
+        if i >= 6 then
+            local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, YY, 445, 265, 440)
+            YY = YY + 265
+
+            local pagename = bg:CreateOrGetControl("richtext", "pagename" .. i, 10, 5)
+            pagename:SetText(goddess_icor_manager_get_pagename(i))
+            bg:SetSkinName("bg")
+            bg:ShowWindow(1)
+        end
+
+    end
+    -- local gemframe = ui.GetFrame("goddess_equip_manager")
+    -- local randapplybg = GET_CHILD_RECURSIVELY(gemframe, 'rand_apply_bg')
+    --  local rand_preset_list = GET_CHILD_RECURSIVELY(gemframe, 'rand_preset_list')
+    --  local randomoption_bg = GET_CHILD_RECURSIVELY(gemframe, 'randomoption_bg')
+
+end
+
+function goddess_icor_manager_list_init()
+    local frame = ui.GetFrame("goddess_icor_manager")
+    frame:Resize(1400, 900)
+    frame:ShowWindow(1)
+    frame:SetLayerLevel(120)
+    local close = frame:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    close:SetText("×")
+    close:SetGravity(ui.RIGHT, ui.TOP);
+    close:SetMargin(0, 0, 20, -70);
+    close:ShowWindow(1)
+    close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
+    goddess_icor_manager_list_maxcount(frame)
+    -- close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_maxcount")
+end
+
+function goddess_icor_manager_list_close(frame)
+    frame:ShowWindow(0)
 end
 
 function goddess_icor_manager_frame_init()
@@ -76,87 +167,108 @@ function goddess_icor_manager_get_pagename(index)
     end
 
 end
-
-function goddess_icor_manager_list_maxcount(frame)
-
-    local acc = GetMyAccountObj()
-
-    local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
-    for i = 1, page_max do
-        local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
-        if bg ~= nil then
-            frame:RemoveChild("bg" .. i)
-        end
+--[[function goddess_icor_manager_GODDESS_ENGRAVE_APPLY_CHECK(frame, ctrlset)
+    local etc = GetMyEtcObject()
+    if etc == nil then
+        return false, 'None'
     end
-    local Y = 20
-    local YY = 20
-    for i = 1, 10 do
-        -- for i = 1, page_max do
-        if i <= 5 then
-            local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 0, 265, 440)
-            Y = Y + 265
 
-            local pagename = bg:CreateOrGetControl("richtext", "pagename" .. i, 10, 5)
-            pagename:SetText(goddess_icor_manager_get_pagename(i))
-            bg:SetSkinName("bg")
-            bg:ShowWindow(1)
-        end
-        if i >= 6 then
-            local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, YY, 445, 265, 440)
-            YY = YY + 265
-
-            local pagename = bg:CreateOrGetControl("richtext", "pagename" .. i, 10, 5)
-            pagename:SetText(goddess_icor_manager_get_pagename(i))
-            bg:SetSkinName("bg")
-            bg:ShowWindow(1)
-        end
-
-    end
-    local gemframe = ui.GetFrame("goddess_equip_manager")
-    local randapplybg = GET_CHILD_RECURSIVELY(gemframe, 'rand_apply_bg')
-    local rand_preset_list = GET_CHILD_RECURSIVELY(gemframe, 'rand_preset_list')
-    local randomoption_bg = GET_CHILD_RECURSIVELY(gemframe, 'randomoption_bg')
+    local randomoption_bg = GET_CHILD_RECURSIVELY(frame, 'randomoption_bg')
     local index = randomoption_bg:GetUserValue('PRESET_INDEX')
-    -- local arg_list = NewStringList()
-    local arg_list = {}
-    for i = 1, page_max do
-        -- session.ResetItemList()
-        arg_list:Add(i)
 
-        print(tostring(arg_list))
-
+    local slot = GET_CHILD(ctrlset, 'slot')
+    local guid = slot:GetUserValue('ITEM_GUID')
+    if guid == 'None' then
+        return false, 'None'
     end
 
-    --[[for i = 1, page_max do
-        local page_name = goddess_icor_manager_get_pagename(i)
-
-        rand_preset_list:AddItem(tostring(i), page_name)
-        -- print(tostring(rand_preset_list))
+    local spot_name = slot:GetUserValue('EQUIP_SPOT')
+    local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
+    if inv_item == nil then
+        return false, 'None'
     end
 
-    -- リスト内のアイテムを表示
-    for i = 0, rand_preset_list:GetItemCount() - 1 do
-        local item = rand_preset_list:GetItemByIndex(i)
-        local itemName = item:GetText()
-        print(tostring(itemName))
-    end]]
+    local item_obj = GetIES(inv_item:GetObject())
+    -- print(tostring(item_obj.ClassName))
+    local item_dic = goddess_icor_manager_GET_ITEM_RANDOMOPTION_DIC(item_obj)
+    -- print(tostring(item_dic))
+    if item_dic == nil then
+        return false, 'None'
+    end
+
+    local option_dic = goddess_icor_manager_GET_ENGRAVED_OPTION_BY_INDEX_SPOT(etc, index, spot_name)
+    -- print(tostring(option_dic))
+    if option_dic == nil then
+        return false, 'None'
+    end
+
+    if COMPARE_ITEM_OPTION_TO_ENGRAVED_OPTION(item_dic, option_dic) == true then
+        return false, 'SameEngraveAppliedAlready'
+    end
+
+    return true
 end
 
-function goddess_icor_manager_list_init()
-    local frame = ui.GetFrame("goddess_icor_manager")
-    frame:Resize(1400, 900)
-    frame:ShowWindow(1)
-    frame:SetLayerLevel(120)
-    local close = frame:CreateOrGetControl("button", "close", 0, 0, 30, 30)
-    close:SetText("×")
-    close:SetGravity(ui.RIGHT, ui.TOP);
-    close:SetMargin(0, 0, 20, -70);
-    close:ShowWindow(1)
-    close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
-    goddess_icor_manager_list_maxcount(frame)
-    -- close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_maxcount")
-end
+function goddess_icor_manager_GET_ITEM_RANDOMOPTION_DIC(item_obj)
+    if item_obj == nil then
+        return nil
+    end
 
-function goddess_icor_manager_list_close(frame)
-    frame:ShowWindow(0)
-end
+    local option_dic = {}
+    option_dic['Size'] = 4
+    for i = 1, 4 do
+        local prop_name = 'RandomOption_' .. i
+
+        local group_name = 'RandomOptionGroup_' .. i
+
+        local prop_value = 'RandomOptionValue_' .. i
+
+        local prop = TryGetProp(item_obj, prop_name, 'None')
+        if prop ~= 'None' then
+            local group = TryGetProp(item_obj, group_name, 'None')
+            local value = TryGetProp(item_obj, prop_value, 0)
+
+            option_dic[prop_name] = prop
+            print(tostring(prop))
+            option_dic[group_name] = group
+            print(tostring(group))
+            option_dic[prop_value] = value
+            print(tostring(value))
+        else
+            option_dic['Size'] = i - 1
+            break
+        end
+    end
+
+    if option_dic['Size'] == 0 then
+        return nil
+    end
+
+    return option_dic
+end]]
+-- 保存された刻印情報ディクショナリをインポートする
+--[[function goddess_icor_manager_GET_ENGRAVED_OPTION_BY_INDEX_SPOT(etc, index, spot)
+    if etc == nil then
+        return nil
+    end
+
+    local option_list, group_list, value_list = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
+    if option_list == nil then
+        return nil
+    end
+
+    local option_dic = {}
+    for i = 1, #option_list do
+        local prop_name = 'RandomOption_' .. i
+        local group_name = 'RandomOptionGroup_' .. i
+        local prop_value = 'RandomOptionValue_' .. i
+
+        option_dic[prop_name] = option_list[i]
+        option_dic[group_name] = group_list[i]
+        option_dic[prop_value] = tonumber(value_list[i])
+    end
+
+    option_dic['Size'] = #option_list
+
+    return option_dic
+end]]
