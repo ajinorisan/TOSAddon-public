@@ -39,38 +39,33 @@ function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
     end
 
     local suffix = string.format('_%d_%s', tonumber(index), spot)
-    -- print(tostring(suffix))
 
     local option_prop = TryGetProp(etc, 'RandomOptionPreset' .. suffix, 'None')
-    -- print(tostring(option_prop))
-
     local group_prop = TryGetProp(etc, 'RandomOptionGroupPreset' .. suffix, 'None')
-    -- print(tostring(group_prop))
     local value_prop = TryGetProp(etc, 'RandomOptionValuePreset' .. suffix, 'None')
-    -- print(tostring(value_prop))
+
     if option_prop == 'None' then
         return nil
     end
-    return option_prop, group_prop, value_prop
 
-    -- local option_list = SCR_STRING_CUT(option_prop, '/')
-    -- local group_list = SCR_STRING_CUT(group_prop, '/')
-    -- local value_list = SCR_STRING_CUT(value_prop, '/')
-    -- print(tostring(option_list))
-    -- print(tostring(group_list))
-    -- print(tostring(value_list))
-    -- return option_list, group_list, value_list
+    local option_list = SCR_STRING_CUT(option_prop, '/')
+    local group_list = SCR_STRING_CUT(group_prop, '/')
+    local value_list = SCR_STRING_CUT(value_prop, '/')
+
+    local is_goddess_option = TryGetProp(etc, 'IsGoddessIcorOption' .. suffix, 0)
+
+    return option_prop, group_prop, value_prop, is_goddess_option
 end
 
 local managed_list = {'RH', 'LH', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS', 'RH_SUB', 'LH_SUB'}
 
-function goddess_icor_manager_list_maxcount(frame)
+function goddess_icor_manager_list_gb_init(frame)
 
     local acc = GetMyAccountObj()
     local etc = GetMyEtcObject()
 
     local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
-    for i = 1, page_max do
+    for i = 1, 10 do
         local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
         if bg ~= nil then
             frame:RemoveChild("bg" .. i)
@@ -78,35 +73,47 @@ function goddess_icor_manager_list_maxcount(frame)
     end
     local Y = 20
     local YY = 20
+    local cnt = 1
+    local parts1 = {}
+    local parts2 = {}
+    local parts3 = {}
     for i = 1, 10 do
-        -- for i = 1, page_max do
+        -- print(i)
         if i <= 5 then
             local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 0, 265, 440)
             Y = Y + 265
 
             local pagename = bg:CreateOrGetControl("richtext", "pagename" .. i, 10, 5)
-
-            local option_prop, group_prop, value_prop = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i,
-                managed_list[i])
-
-            local str = option_prop .. group_prop .. value_prop
-            -- 文字列を「/」で区切る
-            print(tostring(str))
-            local parts = {}
-            for part in string.gmatch(str, "[^/]+") do
-                table.insert(parts, part)
-            end
-
-            -- テーブルの中身を表示
-            for _, part in ipairs(parts) do
-                print(part)
-            end
-            -- print(tostring(str))
             pagename:SetText(goddess_icor_manager_get_pagename(i))
+
+            local option_prop, group_prop, value_prop, is_goddess_option =
+                goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[i])
+
+            -- print(cnt)
+            -- ページごとにテーブルを初期化
+
+            for part in option_prop:gmatch("([^/]+)") do
+                table.insert(parts1, part)
+            end
+
+            for part in group_prop:gmatch("([^/]+)") do
+                table.insert(parts2, part)
+            end
+
+            for part in value_prop:gmatch("([^/]+)") do
+                table.insert(parts3, part)
+            end
+
+            -- print(tostring(parts1 .. parts2 .. parts3))
+
+            -- テーブルの内容を表示
+
             bg:SetSkinName("bg")
             bg:ShowWindow(1)
         end
-        if i >= 6 then
+
+        --[[if i >= 6 then
+            
             local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, YY, 445, 265, 440)
             YY = YY + 265
 
@@ -114,14 +121,25 @@ function goddess_icor_manager_list_maxcount(frame)
             pagename:SetText(goddess_icor_manager_get_pagename(i))
             bg:SetSkinName("bg")
             bg:ShowWindow(1)
-        end
-
+        end]]
     end
+    goddess_icor_manager_set_text(frame, parts1, parts2, parts3)
     -- local gemframe = ui.GetFrame("goddess_equip_manager")
     -- local randapplybg = GET_CHILD_RECURSIVELY(gemframe, 'rand_apply_bg')
     --  local rand_preset_list = GET_CHILD_RECURSIVELY(gemframe, 'rand_preset_list')
     --  local randomoption_bg = GET_CHILD_RECURSIVELY(gemframe, 'randomoption_bg')
 
+end
+
+function goddess_icor_manager_set_text(frame, parts1, parts2, parts3)
+    for i = 1, 10 do
+        local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+        print(tostring(#parts1))
+        for k = 1, #parts1 do
+            local option = bg:CreateOrGetControl("richtext", "option" .. k, 10, i + 20 + k * 15)
+            option:SetText(parts1[k] .. ":" .. parts3[k])
+        end
+    end
 end
 
 function goddess_icor_manager_list_init()
@@ -135,7 +153,7 @@ function goddess_icor_manager_list_init()
     close:SetMargin(0, 0, 20, -70);
     close:ShowWindow(1)
     close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
-    goddess_icor_manager_list_maxcount(frame)
+    goddess_icor_manager_list_gb_init(frame)
     -- close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_maxcount")
 end
 
