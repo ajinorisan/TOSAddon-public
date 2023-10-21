@@ -19,6 +19,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Goddess Icor Manager",
+		"file" : "goddess_icor_manager",
+		"extension" : "ipf",
+		"fileVersion" : "v0.0.1",
+		"releaseTag" : "goddess_icor_manager",
+		"unicode" : "⛄",
+		"description" : "取り敢えず登録済みのイコルをリスト表示します。このバージョンは日本語限定かな。テスト版です。",
+		"tags" : []
+	},
+	{
 		"name" : "Market Sell List",
 		"file" : "market_selllist",
 		"extension" : "ipf",
