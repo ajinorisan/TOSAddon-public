@@ -15,6 +15,7 @@ local base = {}
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+
     if (_G[replacementName] == nil) then
         _G[replacementName] = _G[baseFuncName];
         _G[baseFuncName] = func
@@ -31,31 +32,76 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     acutil.addSysIcon("mini_addons", "sysmenu_sys", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
     MINI_ADDONS_LOAD_SETTINGS()
 
-    g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    --[[g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
     g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
 
     g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
 
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
-    g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
+    g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")]]
+    if g.settings.under_staff == 0 then
+        g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    elseif _G.ADDONS.MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW ~= nil and g.settings.under_staff == 1 then
+        g.SetupHook(INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    end
 
-    -- 右上のミニボタンを消したりする機能
+    if g.settings.raid_record == 0 then
+        g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+    elseif _G.ADDONS.MINI_ADDONS_RAID_RECORD_INIT ~= nil and g.settings.raid_record == 1 then
+        g.SetupHook(RAID_RECORD_INIT, "MINI_ADDONS_RAID_RECORD_INIT")
+    end
+
+    if g.settings.party_buff == 0 then
+        g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    elseif _G.ADDONS.MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE ~= nil and g.settings.party_buff == 1 then
+        g.SetupHook(ON_PARTYINFO_BUFFLIST_UPDATE, "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
+    end
+
+    if g.settings.chat_system == 0 then
+        acutil.setupEvent(addon, "CHAT_SYSTEM", "MINI_ADDONS_CHAT_SYSTEM");
+        -- g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
+    end
+    if g.settings.chat_system == 1 then
+        acutil.setupEvent(addon, "CHAT_SYSTEM", "MINI_ADDONS_CHAT_SYSTEM");
+    end
+
+    if g.settings.channel_display == 0 then
+        g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
+    elseif _G.ADDONS.MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC ~= nil and g.settings.channel_display == 1 then
+        g.SetupHook(UPDATE_CURRENT_CHANNEL_TRAFFIC, "MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC")
+    end
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
-        addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
 
+    if g.settings.mini_btn == 0 then
+        -- 右上のミニボタンを消したりする機能
+
+        if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
+            addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
+        end
     end
 
-    if mapCls.MapType == "City" then
-        addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
+    if g.settings.market_display == 0 then
+        if mapCls.MapType == "City" then
+            addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
+        end
     end
-    addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
-    addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
-    addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
-    addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETLIST_FRAME_INIT")
-    addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETINFO")
+
+    if g.settings.restart_move == 0 then
+        addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
+        addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
+    end
+
+    if g.settings.pet_init == 0 then
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETLIST_FRAME_INIT")
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETINFO")
+    end
+
+    if g.settings.dialog_ctrl == 0 then
+        addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
+    end
 
 end
 
@@ -68,7 +114,13 @@ g.settings = {
     raid_record = 0,
     party_buff = 0,
     chat_system = 0,
-    channel_display = 0
+    channel_display = 0,
+    mini_btn = 0,
+    market_display = 0,
+    restart_move = 0,
+    pet_init = 0,
+    dialog_ctrl = 0
+
 }
 
 function MINI_ADDONS_SETTING_FRAME_INIT()
@@ -77,9 +129,9 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     frame:SetSkinName("test_frame_low")
     frame:SetLayerLevel(93)
-    frame:Resize(190, 600)
-    frame:SetPos(665, 30)
-    frame:ShowTitleBar(1);
+    frame:Resize(710, 320)
+    frame:SetPos(1050, 600)
+    frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
     frame:EnableHide(0)
     frame:EnableHitTest(1)
@@ -87,55 +139,106 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     frame:RemoveAllChild()
     frame:ShowWindow(1)
 
-    local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 15, 45)
+    local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, 10)
     under_staff:SetText("{ol}{#FFFFFF}Skip confirmation for admission of 4 or less people")
     under_staff:SetTextTooltip("{@st59}4人以下入場時の確認をスキップ")
 
-    local under_staff_checkbox = frame:CreateOrGetControl('checkbox', 'under_staff_checkbox', 150, 45, 25, 25)
+    local under_staff_checkbox = frame:CreateOrGetControl('checkbox', 'under_staff_checkbox', 10, 10, 25, 25)
     AUTO_CAST(under_staff_checkbox)
     under_staff_checkbox:SetCheck(g.settings.under_staff)
     under_staff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     under_staff_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
 
-    local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 15, 45)
+    local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, 40)
     raid_record:SetText("{ol}{#FFFFFF}Raid records movable and resizable")
     raid_record:SetTextTooltip("{@st59}レイドレコードを移動可能にしてサイズを変更")
 
-    local raid_record_checkbox = frame:CreateOrGetControl('checkbox', 'raid_record_checkbox', 150, 45, 25, 25)
+    local raid_record_checkbox = frame:CreateOrGetControl('checkbox', 'raid_record_checkbox', 10, 40, 25, 25)
     AUTO_CAST(raid_record_checkbox)
     raid_record_checkbox:SetCheck(g.settings.raid_record)
     raid_record_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     raid_record_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
 
-    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 15, 45)
+    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 40, 70)
     party_buff:SetText("{ol}{#FFFFFF}Ability to reduce the display of buffs for party members")
     party_buff:SetTextTooltip("{@st59}パーティメンバーのバフ表示を減らす機能")
 
-    local party_buff_checkbox = frame:CreateOrGetControl('checkbox', 'party_buff_checkbox', 150, 45, 25, 25)
+    local party_buff_checkbox = frame:CreateOrGetControl('checkbox', 'party_buff_checkbox', 10, 70, 25, 25)
     AUTO_CAST(party_buff_checkbox)
     party_buff_checkbox:SetCheck(g.settings.party_buff)
     party_buff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     party_buff_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
 
-    local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 15, 45)
+    local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, 100)
     chat_system:SetText("{ol}{#FFFFFF}Perfect effect is not displayed in system chat")
     chat_system:SetTextTooltip("{@st59}パーフェクト効果をシステムチャットに表示しない")
 
-    local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 150, 45, 25, 25)
+    local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 10, 100, 25, 25)
     AUTO_CAST(chat_system_checkbox)
     chat_system_checkbox:SetCheck(g.settings.chat_system)
     chat_system_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     chat_system_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
 
-    local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 15, 45)
+    local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, 130)
     channel_display:SetText("{ol}{#FFFFFF}Fixed channel display misalignment")
     channel_display:SetTextTooltip("{@st59}チャンネル表示のズレを修正")
 
-    local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 150, 45, 25, 25)
+    local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, 130, 25, 25)
     AUTO_CAST(channel_display_checkbox)
     channel_display_checkbox:SetCheck(g.settings.channel_display)
     channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     channel_display_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+
+    local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, 160)
+    mini_btn:SetText("{ol}{#FFFFFF}Hide mini-button in upper right corner during raid")
+    mini_btn:SetTextTooltip("{@st59}レイド時右上のミニボタン非表示")
+
+    local mini_btn_checkbox = frame:CreateOrGetControl('checkbox', 'mini_btn_checkbox', 10, 160, 25, 25)
+    AUTO_CAST(mini_btn_checkbox)
+    mini_btn_checkbox:SetCheck(g.settings.mini_btn)
+    mini_btn_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    mini_btn_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+
+    local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, 190)
+    market_display:SetText(
+        "{ol}{#FFFFFF}When moving into town, the list of stores in the upper right corner should be open.")
+    market_display:SetTextTooltip("{@st59}街に移動時、右上の商店一覧を開けた状態にします。")
+
+    local market_display_checkbox = frame:CreateOrGetControl('checkbox', 'market_display_checkbox', 10, 190, 25, 25)
+    AUTO_CAST(market_display_checkbox)
+    market_display_checkbox:SetCheck(g.settings.market_display)
+    market_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    market_display_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+
+    local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, 220)
+    restart_move:SetText("{ol}{#FFFFFF}The choice frame at the restart can be moved.")
+    restart_move:SetTextTooltip("{@st59}リスタート時の選択肢フレームを動かせる様に。")
+
+    local restart_move_checkbox = frame:CreateOrGetControl('checkbox', 'restart_move_checkbox', 10, 220, 25, 25)
+    AUTO_CAST(restart_move_checkbox)
+    restart_move_checkbox:SetCheck(g.settings.restart_move)
+    restart_move_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    restart_move_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+
+    local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, 250)
+    pet_init:SetText("{ol}{#FFFFFF}Ability to display a pet summoning frame.")
+    pet_init:SetTextTooltip("{@st59}ペット召喚フレームを表示する機能。")
+
+    local pet_init_checkbox = frame:CreateOrGetControl('checkbox', 'pet_init_checkbox', 10, 250, 25, 25)
+    AUTO_CAST(pet_init_checkbox)
+    pet_init_checkbox:SetCheck(g.settings.pet_init)
+    pet_init_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    pet_init_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+
+    local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, 280)
+    dialog_ctrl:SetText("{ol}{#FFFFFF}Controls various dialogs.")
+    dialog_ctrl:SetTextTooltip("{@st59}各種ダイアログをコントロールします。")
+
+    local dialog_ctrl_checkbox = frame:CreateOrGetControl('checkbox', 'dialog_ctrl_checkbox', 10, 280, 25, 25)
+    AUTO_CAST(dialog_ctrl_checkbox)
+    dialog_ctrl_checkbox:SetCheck(g.settings.dialog_ctrl)
+    dialog_ctrl_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    dialog_ctrl_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
 end
 
 function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
@@ -143,18 +246,110 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked();
     local ctrlname = ctrl:GetName()
 
-    if ischeck == 1 and ctrlname == "cemetery_checkbox" then
-        g.settings.cemetery_checkbox = 1
+    if ischeck == 1 and ctrlname == "under_staff_checkbox" then
+        g.settings.under_staff = 1
         MINI_ADDONS_SAVE_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "cemetery_checkbox" then
-        g.settings.cemetery_checkbox = 0
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "under_staff_checkbox" then
+        g.settings.under_staff = 0
         MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "raid_record_checkbox" then
+        g.settings.raid_record = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "raid_record_checkbox" then
+        g.settings.raid_record = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "party_buff_checkbox" then
+        g.settings.party_buff = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "party_buff_checkbox" then
+        g.settings.party_buff = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "chat_system_checkbox" then
+        g.settings.chat_system = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "chat_system_checkbox" then
+        g.settings.chat_system = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "channel_display_checkbox" then
+        g.settings.channel_display = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "channel_display_checkbox" then
+        g.settings.channel_display = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "mini_btn_checkbox" then
+        g.settings.mini_btn = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "mini_btn_checkbox" then
+        g.settings.mini_btn = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "market_display_checkbox" then
+        g.settings.market_display = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "market_display_checkbox" then
+        g.settings.market_display = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "restart_move_checkbox" then
+        g.settings.restart_move = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "restart_move_checkbox" then
+        g.settings.restart_move = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "pet_init_checkbox" then
+        g.settings.pet_init = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "pet_init_checkbox" then
+        g.settings.pet_init = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    if ischeck == 1 and ctrlname == "dialog_ctrl_checkbox" then
+        g.settings.dialog_ctrl = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "dialog_ctrl_checkbox" then
+        g.settings.dialog_ctrl = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
     end
 
 end
 
 function MINI_ADDONS_SAVE_SETTINGS()
-    -- CHAT_SYSTEM("save")
+
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 
 end
@@ -172,12 +367,23 @@ function MINI_ADDONS_LOAD_SETTINGS()
 
     if not settings then
         g.settings = {
+
             reword_x = 1100,
             reword_y = 100,
             charid = {
                 [loginCharID] = 0
             },
-            allcall = 0
+            allcall = 0,
+            under_staff = 0,
+            raid_record = 0,
+            party_buff = 0,
+            chat_system = 0,
+            channel_display = 0,
+            mini_btn = 0,
+            market_display = 0,
+            restart_move = 0,
+            pet_init = 0,
+            dialog_ctrl = 0
         }
         MINI_ADDONS_SAVE_SETTINGS()
 
@@ -256,17 +462,18 @@ function MINI_ADDONS_CHAT_SYSTEM(msg, color)
         "[ICC]Attempt to CC." then
         return
     end
-    -- print(msg)
+
     session.ui.GetChatMsg():AddSystemMsg(msg, true, 'System', color)
 end
 
--- ui.SysMsg(ClMsg("decomposeCant"))
 -- パーティーバフ欄に必要ないバフID
 local excludedBuffIDs = {4732, 4733, 4736, 4735, 4737, 70002, 4731, 4734, 7574, 358, 359, 360, 370, 4136, 4023, 4087,
                          4021, 4024, 3128, 4022, 70056, 70037, 14132, 7771, 7774, 7775, 7776, 7763, 7764, 7765, 7766,
                          7767, 4740, 170005, 80015, 80016, 80017, 80018, 80019, 80020, 80021, 80022, 80023, 80024,
                          80025, 80026, 80027, 80030, 80031, 14115, 70065, 14125, 4256, 157, 67, 36, 375, 452, 70053,
-                         3127, 3137, 3145, 330, 138, 30002}
+                         3127, 3137, 3145, 330, 138, 30002, 4206, 4207, 4211, 4753, 690017, 690018, 70042, 1011, 419,
+                         468, 6008, 100017, 110016, 2132, 5173, 620021, 640041, 693008, 696107, 99000, 99900, 99917,
+                         14128, 691, 647, 646, 3129, 3133, 3147, 3127, 3137, 3145}
 
 function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
     local frame = ui.GetFrame("partyinfo");
@@ -334,7 +541,7 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
                             local slot = nil;
                             if cls.Group1 == 'Buff' then
 
-                                if not IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
+                                if not MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
                                     slot = buffListSlotSet:GetSlotByIndex(buffIndex);
                                     buffIndex = buffIndex + 1;
 
@@ -385,7 +592,7 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
     end
 end
 
-function IsBuffExcluded(buffID, excludedBuffIDs)
+function MINI_ADDONS_IsBuffExcluded(buffID, excludedBuffIDs)
     for _, id in ipairs(excludedBuffIDs) do
         if buffID == id then
             return true -- 除外リストに含まれる場合、trueを返す
@@ -434,12 +641,8 @@ end
 
 function MINI_ADDONS_PETLIST_FRAME_INIT()
 
-    -- CHAT_SYSTEM("test")
     local frame = ui.GetFrame("companionlist");
 
-    -- frame:ShowWindow(1);
-    -- frame:SetGravity(ui.RIGHT, ui.BOTTOM);
-    -- frame:SetMargin(0, 0, 350, 70);
     local title = GET_CHILD_RECURSIVELY(frame, "title")
     title:SetGravity(ui.LEFT, ui.TOP);
     title:SetOffset(10, 10);
@@ -556,7 +759,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
@@ -618,9 +821,11 @@ function MINI_ADDONS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
     -- 各種レイド
     -- CHAT_SYSTEM(argStr)
     -- print(argStr)
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
     if argStr == "Goddess_Raid_Rozethemiserable_Start_Npc_Dlg" or argStr == "Goddess_Raid_Spreader_Start_Npc_DLG1" or
-        argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" or argStr ==
-        "Legend_Raid_Giltine_ENTER_MSG" then
+        argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" or
+        (argStr == "Legend_Raid_Giltine_ENTER_MSG" and curMap == "raid_dcapital_108") then
 
         session.SetSelectDlgList()
         ui.CloseFrame("dialog")
@@ -701,7 +906,74 @@ function MINI_ADDONS_MINIMIZED_CLOSE()
 
 end
 
--- 激動の入り間違いを減らす
+-- レイドクリアー時のフレームを移動して場所を覚えさせる。
+function MINI_ADDONS_UPDATESETTINGS(frame)
+    if g.settings.reword_x ~= frame:GetX() or g.settings.reword_y ~= frame:GetY() then
+        g.settings.reword_x = frame:GetX()
+        g.settings.reword_y = frame:GetY()
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+end
+
+function MINI_ADDONS_RAID_RECORD_INIT(frame)
+    local frame = ui.GetFrame("raid_record")
+    frame:SetOffset(g.settings.reword_x, g.settings.reword_y)
+    frame:SetSkinName("shadow_box")
+    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_UPDATESETTINGS")
+    frame:SetLayerLevel(5)
+    frame:SetTitleBarSkin("None")
+    frame:ShowTitleBar(0)
+    frame:Resize(550, 260)
+
+    local widgetList = {{
+        name = "myInfo",
+        font = "white_16_ol"
+    }, {
+        name = "friendInfo1",
+        font = "white_16_ol"
+    }, {
+        name = "friendInfo2",
+        font = "white_16_ol"
+    }, {
+        name = "friendInfo3",
+        font = "white_16_ol"
+    }}
+
+    for i, widgetData in ipairs(widgetList) do
+        local widget = GET_CHILD_RECURSIVELY(frame, widgetData.name)
+        local name = GET_CHILD_RECURSIVELY(widget, "name")
+        local time = GET_CHILD_RECURSIVELY(widget, "time")
+        name:SetFontName(widgetData.font)
+        time:SetFontName(widgetData.font)
+    end
+
+    GET_CHILD_RECURSIVELY(frame, "bgIndunClear"):ShowWindow(1)
+    GET_CHILD_RECURSIVELY(frame, "textNewRecord"):ShowWindow(0)
+end
+
+-- 死んだ時に現れるフレームを移動可能に
+function MINI_ADDONS_FRAME_MOVE()
+
+    local rcframe = ui.GetFrame("restart_contents") -- フレームを移動可能に設定する
+    rcframe:EnableMove(1)
+
+    -- 多分コロニー時はこっちちゃうかな
+    local rframe = ui.GetFrame("restart") -- フレームを移動可能に設定する
+    rframe:EnableMove(1)
+    rframe:SetSkinName("None")
+    local buttonSkin = "chat_window" -- 適用したいスキンの名前
+    local buttonNames = {"btn_restart_1", "btn_restart_2", "btn_restart_3", "btn_restart_4", "btn_restart_5"}
+
+    for i, buttonName in ipairs(buttonNames) do
+        local button = GET_CHILD_RECURSIVELY(rframe, buttonName)
+        if button ~= nil then
+            button:SetSkinName(buttonSkin)
+        end
+    end
+
+end
+
+--[[ 激動の入り間違いを減らす
 function MINI_ADDONS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK(ctrl_set, btn, clicked)
 
     if ctrl_set == nil or btn == nil then
@@ -791,70 +1063,4 @@ function MINI_ADDONS_TEXT_DELETE()
     indungbox:RemoveAllChild()
 
     indunframe:Invalidate()
-end
--- レイドクリアー時のフレームを移動して場所を覚えさせる。
-function MINI_ADDONS_UPDATESETTINGS(frame)
-    if g.settings.reword_x ~= frame:GetX() or g.settings.reword_y ~= frame:GetY() then
-        g.settings.reword_x = frame:GetX()
-        g.settings.reword_y = frame:GetY()
-        MINI_ADDONS_SAVE_SETTINGS()
-    end
-end
-
-function MINI_ADDONS_RAID_RECORD_INIT(frame)
-    local frame = ui.GetFrame("raid_record")
-    frame:SetOffset(g.settings.reword_x, g.settings.reword_y)
-    frame:SetSkinName("shadow_box")
-    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_UPDATESETTINGS")
-    frame:SetLayerLevel(5)
-    frame:SetTitleBarSkin("None")
-    frame:ShowTitleBar(0)
-    frame:Resize(550, 260)
-
-    local widgetList = {{
-        name = "myInfo",
-        font = "white_16_ol"
-    }, {
-        name = "friendInfo1",
-        font = "white_16_ol"
-    }, {
-        name = "friendInfo2",
-        font = "white_16_ol"
-    }, {
-        name = "friendInfo3",
-        font = "white_16_ol"
-    }}
-
-    for i, widgetData in ipairs(widgetList) do
-        local widget = GET_CHILD_RECURSIVELY(frame, widgetData.name)
-        local name = GET_CHILD_RECURSIVELY(widget, "name")
-        local time = GET_CHILD_RECURSIVELY(widget, "time")
-        name:SetFontName(widgetData.font)
-        time:SetFontName(widgetData.font)
-    end
-
-    GET_CHILD_RECURSIVELY(frame, "bgIndunClear"):ShowWindow(1)
-    GET_CHILD_RECURSIVELY(frame, "textNewRecord"):ShowWindow(0)
-end
-
--- 死んだ時に現れるフレームを移動可能に
-function MINI_ADDONS_FRAME_MOVE()
-
-    local rcframe = ui.GetFrame("restart_contents") -- フレームを移動可能に設定する
-    rcframe:EnableMove(1)
-
-    -- 多分コロニー時はこっちちゃうかな
-    local rframe = ui.GetFrame("restart") -- フレームを移動可能に設定する
-    rframe:EnableMove(1)
-    rframe:SetSkinName("None")
-    local buttonSkin = "chat_window" -- 適用したいスキンの名前
-    local buttonNames = {"btn_restart_1", "btn_restart_2", "btn_restart_3", "btn_restart_4", "btn_restart_5"}
-
-    for i, buttonName in ipairs(buttonNames) do
-        local button = GET_CHILD_RECURSIVELY(rframe, buttonName)
-        if button ~= nil then
-            button:SetSkinName(buttonSkin)
-        end
-    end
-
-end
+end]]

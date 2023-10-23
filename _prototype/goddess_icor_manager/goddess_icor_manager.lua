@@ -477,67 +477,67 @@ local high480armortbl = {{
 }}
 
 local low480weapontbl = {{
-    ["STR"] = 169
+    ["STR"] = 171
 }, {
-    ["DEX"] = 169
+    ["DEX"] = 171
 }, {
-    ["INT"] = 169
+    ["INT"] = 171
 }, {
-    ["CON"] = 169
+    ["CON"] = 171
 }, {
-    ["MNA"] = 169
+    ["MNA"] = 171
 }, {
-    ["BLK"] = 565
+    ["BLK"] = 567
 }, {
-    ["BLK_BREAK"] = 565
+    ["BLK_BREAK"] = 567
 }, {
-    ["ADD_HR"] = 565
+    ["ADD_HR"] = 567
 }, {
-    ["ADD_DR"] = 565
+    ["ADD_DR"] = 567
 }, {
-    ["CRTHR"] = 565
+    ["CRTHR"] = 567
 }, {
-    ["CRTDR"] = 565
+    ["CRTDR"] = 567
 }, {
-    ["RHP"] = 565
+    ["RHP"] = 567
 }, {
-    ["RSP"] = 565
+    ["RSP"] = 567
 }, {
-    ["Cloth_Def"] = 1130
+    ["Cloth_Def"] = 1132
 }, {
-    ["Leather_Def"] = 1130
+    ["Leather_Def"] = 1132
 }, {
-    ["Iron_Def"] = 1130
+    ["Iron_Def"] = 1132
 }, {
-    ["MiddleSize_Def"] = 1130
+    ["MiddleSize_Def"] = 1132
 }, {
-    ["ADD_CLOTH"] = 1130
+    ["ADD_CLOTH"] = 1132
 }, {
-    ["ADD_LEATHER"] = 1130
+    ["ADD_LEATHER"] = 1132
 }, {
-    ["ADD_IRON"] = 1130
+    ["ADD_IRON"] = 1132
 }, {
-    ["ADD_SMALLSIZE"] = 1130
+    ["ADD_SMALLSIZE"] = 1132
 }, {
-    ["ADD_MIDDLESIZE"] = 1130
+    ["ADD_MIDDLESIZE"] = 1132
 }, {
-    ["ADD_LARGESIZE"] = 1130
+    ["ADD_LARGESIZE"] = 1132
 }, {
-    ["ADD_GHOST"] = 1130
+    ["ADD_GHOST"] = 1132
 }, {
-    ["ADD_FORESTER"] = 1130
+    ["ADD_FORESTER"] = 1132
 }, {
-    ["ADD_WIDLING"] = 1130
+    ["ADD_WIDLING"] = 1132
 }, {
-    ["ADD_VELIAS"] = 1130
+    ["ADD_VELIAS"] = 1132
 }, {
-    ["ADD_PARAMUNE"] = 1130
+    ["ADD_PARAMUNE"] = 1132
 }, {
-    ["ADD_KLAIDA"] = 1130
+    ["ADD_KLAIDA"] = 1132
 }, {
-    ["Add_Damage_Atk"] = 1696
+    ["Add_Damage_Atk"] = 1698
 }, {
-    ["ResAdd_Damage"] = 1696
+    ["ResAdd_Damage"] = 1698
 }, {
     ["AllMaterialType_Atk"] = 960
 }, {
@@ -650,6 +650,21 @@ function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
 end
 
+function goddess_icor_manager_newframe_init()
+    -- CHAT_SYSTEM("test")
+    local newframe = ui.CreateNewFrame("notice_on_pc", "goddess_icor_manager_newframe", 0, 0, 0, 0)
+    AUTO_CAST(newframe)
+    newframe:SetOffset(1435, 20)
+    newframe:Resize(300, 995)
+    newframe:SetSkinName('base_btn')
+
+    newframe:SetLayerLevel(121)
+    newframe:ShowWindow(1)
+end
+--[[ local token = StringSplit(arg_str, ';')
+local name = token[1]
+local before = token[2]
+local record = token[3]]
 -- 保存された刻印情報のオプション、グループ、値リストをそれぞれ返します。
 function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
     if etc == nil then
@@ -709,7 +724,7 @@ function goddess_icor_manager_list_gb_init(frame)
             local pagename = goddess_icor_manager_get_pagename(i)
 
             if remain_time == 0 and tonumber(max_page) < i then
-                pagename_text:SetText("{ol}{#FF0000}" .. pagename .. goddess_icor_manager_language(" disabled"))
+                pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
             else
                 pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
             end
@@ -725,7 +740,8 @@ function goddess_icor_manager_list_gb_init(frame)
                 local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
                 manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
                 -- manage_bg:SetSkinName("chat_window_2");
-                manage_bg:SetSkinName("test_Item_tooltip_equip_sub");
+                -- manage_bg:SetSkinName("digitnotice_bg");
+                manage_bg:SetSkinName("test_frame_midle_light");
                 manage_X = manage_X + 122
                 -- end
                 local parts1 = {}
@@ -778,7 +794,7 @@ function goddess_icor_manager_list_gb_init(frame)
             local pagename = goddess_icor_manager_get_pagename(i)
 
             if remain_time == 0 and tonumber(max_page) < i then
-                pagename_text:SetText("{ol}{#FF0000}" .. pagename .. goddess_icor_manager_language(" disabled"))
+                pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
             else
                 pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
             end
@@ -795,7 +811,9 @@ function goddess_icor_manager_list_gb_init(frame)
                 manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
                 -- manage_text:SetText(managed_list[j])
                 -- manage_bg:SetSkinName("tooltip1");
-                manage_bg:SetSkinName("test_Item_tooltip_equip_sub");
+                -- manage_bg:SetSkinName("test_Item_tooltip_equip_sub");
+                manage_bg:SetSkinName("test_frame_midle_light");
+                -- manage_bg:SetSkinName("bg");
                 -- manage_bg:SetColorTone('CC808080')
                 manage_X = manage_X + 122
                 -- end
@@ -868,7 +886,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
 
                     end
-                    return "AAFFD700"
+                    return "FFFFD700"
                 end
             end
         end
@@ -882,7 +900,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                     if string.find(text, " LV500") == nil then
                         manage_text:SetText(text .. "{ol} LV500")
                     end
-                    return "AAFFFACD"
+                    return "FFFFFACD"
                 end
             end
         end
@@ -898,7 +916,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
 
                     end
-                    return "AAFF00FF"
+                    return "AA000000"
                 end
             end
         end
@@ -913,7 +931,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                     if string.find(text, " LV480") == nil then
                         manage_text:SetText(text .. "{ol} LV480")
                     end
-                    return "AADDA0DD"
+                    return "AA000000"
                 end
             end
         end
@@ -930,7 +948,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
 
                     end
-                    return "AAFFD700"
+                    return "FFFFD700"
                 end
             end
         end
@@ -944,7 +962,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                     if string.find(text, " LV500") == nil then
                         manage_text:SetText(text .. "{ol} LV500")
                     end
-                    return "AAFFFACD"
+                    return "FFFFFACD"
                 end
             end
         end
@@ -960,7 +978,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
 
                     end
-                    return "AAFF00FF"
+                    return "AA000000"
                 end
             end
         end
@@ -975,7 +993,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                     if string.find(text, " LV480") == nil then
                         manage_text:SetText(text .. "{ol} LV480")
                     end
-                    return "AADDA0DD"
+                    return "AA000000"
                 end
             end
         end
@@ -990,7 +1008,7 @@ function goddess_icor_manager_color(str)
     elseif str == "STAT" then
         return "{#228B22}"
     elseif str == "ATK" then
-        return "{#FF0000}"
+        return "{#FF4500}"
     elseif str == "DEF" then
         return "{#00FFFF}"
     elseif str == "SPECIAL" then
@@ -1216,12 +1234,15 @@ function goddess_icor_manager_list_init()
     close:ShowWindow(1)
     close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")]]
     goddess_icor_manager_list_gb_init(frame)
+    goddess_icor_manager_newframe_init()
     -- close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_maxcount")
 end
 
 function goddess_icor_manager_list_close(frame)
     local frame = ui.GetFrame("goddess_icor_manager")
+    local newframe = ui.GetFrame("goddess_icor_manager_newframe")
     frame:ShowWindow(0)
+    newframe:ShowWindow(0)
 end
 
 function goddess_icor_manager_frame_init()
