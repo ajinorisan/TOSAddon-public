@@ -29,27 +29,38 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    acutil.addSysIcon("mini_addons", "sysmenu_sys", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
+    acutil.addSysIcon("mini_addons", "sysmenu_mac", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
     MINI_ADDONS_LOAD_SETTINGS()
-    CHAT_SYSTEM("test")
-    g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    -- CHAT_SYSTEM("test")
+    acutil.setupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
 
-    g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+    acutil.setupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
 
-    g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    acutil.setupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
 
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
 
-    if g.settings.channel_display == 0 then
-        g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
-    elseif _G.ADDONS.MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC ~= nil and g.settings.channel_display == 1 then
-        g.SetupHook(UPDATE_CURRENT_CHANNEL_TRAFFIC, "MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC")
-    end
+    acutil.setupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
+
+    acutil.setupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
+
+    --[[
+    
+    local loginCharID = info.GetCID(session.GetMyHandle())
+    for CharID, v in pairs(g.settings.auto_casting) do
+
+        if CharID == loginCharID then
+            g.settings.auto_casting[loginCharID] = v -- キャラクターIDに対応する値を取得
+
+            ctrl:IsChecked(v)
+            print(tostring(v))
+
+        end
+    end]]
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
-
     if g.settings.mini_btn == 0 then
         -- 右上のミニボタンを消したりする機能
 
@@ -77,7 +88,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     if g.settings.dialog_ctrl == 0 then
         addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
     end
-
+    addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
 end
 
 g.settings = {
@@ -94,9 +105,61 @@ g.settings = {
     market_display = 0,
     restart_move = 0,
     pet_init = 0,
-    dialog_ctrl = 0
-
+    dialog_ctrl = 0,
+    auto_casting = {}
 }
+
+function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(parent, ctrl)
+    local loginCharID = info.GetCID(session.GetMyHandle())
+    local enable = ctrl:IsChecked()
+    CHAT_SYSTEM(tostring(enable))
+    g.settings.auto_cast[loginCharID] = enable
+    MINI_ADDONS_SAVE_SETTINGS()
+    MINI_ADDONS_LOAD_SETTINGS()
+    config.SetEnableAutoCasting(enable)
+    config.SaveConfig()
+end
+
+function MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()
+    local systemoption_frame = ui.GetFrame("systemoption")
+
+    MINI_ADDONS_SET_ENABLE_AUTO_CASTING(systemoption_frame)
+end
+
+function MINI_ADDONS_SET_ENABLE_AUTO_CASTING(frame)
+    local systemoption_frame = ui.GetFrame("systemoption")
+    local Check_EnableAutoCasting =
+        GET_CHILD_RECURSIVELY(systemoption_frame, "Check_EnableAutoCasting", "ui::CCheckBox")
+    local loginCharID = info.GetCID(session.GetMyHandle())
+
+    for CharID, v in pairs(g.settings.auto_casting) do
+
+        if CharID == loginCharID then
+            g.settings.auto_casting[loginCharID] = v -- キャラクターIDに対応する値を取得
+            if v == 1 then
+                if Check_EnableAutoCasting ~= nil then
+                    Check_EnableAutoCasting:SetCheck(tostring(v))
+                end
+                config.SetEnableAutoCasting(v)
+                config.SaveConfig()
+                CHAT_SYSTEM("test" .. tostring(v))
+            else
+                if Check_EnableAutoCasting ~= nil then
+                    Check_EnableAutoCasting:SetCheck(tostring(v))
+                end
+                config.SetEnableAutoCasting(v)
+                config.SaveConfig()
+                CHAT_SYSTEM("test" .. tostring(v))
+            end
+        end
+    end
+
+end
+
+function MINI_ADDONS_FRAME_CLOSE(frame)
+    frame:ShowWindow(0)
+
+end
 
 function MINI_ADDONS_SETTING_FRAME_INIT()
 
@@ -113,6 +176,10 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     frame:SetAlpha(100)
     frame:RemoveAllChild()
     frame:ShowWindow(1)
+
+    local close = frame:CreateOrGetControl("button", "close", 670, 10, 25, 25)
+    close:SetText("{ol}{#FFFFFF}×")
+    close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
 
     local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, 10)
     under_staff:SetText("{ol}{#FFFFFF}Skip confirmation for admission of 4 or less people")
@@ -358,7 +425,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
             market_display = 0,
             restart_move = 0,
             pet_init = 0,
-            dialog_ctrl = 0
+            dialog_ctrl = 0,
+            auto_casting = {}
         }
         MINI_ADDONS_SAVE_SETTINGS()
 
@@ -367,6 +435,29 @@ function MINI_ADDONS_LOAD_SETTINGS()
 
     g.settings = settings
 
+    if next(g.settings.auto_casting) == nil then
+
+        g.settings.auto_casting[loginCharID] = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
+    for CharID, v in pairs(g.settings.auto_casting) do
+        if not g.settings.auto_casting[loginCharID] then
+
+            g.settings.auto_casting[loginCharID] = 0
+            MINI_ADDONS_SAVE_SETTINGS()
+            MINI_ADDONS_LOAD_SETTINGS()
+
+        end
+    end
+
+    if next(g.settings.charid) == nil then
+        g.settings.charid[loginCharID] = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+    -- print(tostring(next(g.settings.charid)))
     for CharID, v in pairs(g.settings.charid) do
         if not g.settings.charid[loginCharID] then
             g.settings.charid[loginCharID] = 0
@@ -453,7 +544,7 @@ local excludedBuffIDs = {4732, 4733, 4736, 4735, 4737, 70002, 4731, 4734, 7574, 
                          80025, 80026, 80027, 80030, 80031, 14115, 70065, 14125, 4256, 157, 67, 36, 375, 452, 70053,
                          3127, 3137, 3145, 330, 138, 30002, 4206, 4207, 4211, 4753, 690017, 690018, 70042, 1011, 419,
                          468, 6008, 100017, 110016, 2132, 5173, 620021, 640041, 693008, 696107, 99000, 99900, 99917,
-                         14128, 691, 647, 646, 3129, 3133, 3147, 3127, 3137, 3145}
+                         14128, 691, 647, 646, 3129, 3133, 3147, 3127, 3137, 3145, 7014, 7031}
 
 function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
     local frame = ui.GetFrame("partyinfo");
@@ -526,10 +617,10 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
                                         buffIndex = buffIndex + 1;
 
                                     end
+                                else
+                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                    buffIndex = buffIndex + 1;
                                 end
-
-                                slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                buffIndex = buffIndex + 1;
 
                             elseif cls.Group1 == 'Debuff' then
                                 slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
@@ -712,8 +803,6 @@ end
 -- 4人以下制御
 function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     local topFrame = parent:GetTopParentFrame();
-    -- perent="indunenter"
-    -- ctrl="understaffEnterAllowBtn"
     local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
     if useCount > 0 then
         local multipleItemList = GET_INDUN_MULTIPLE_ITEM_LIST();
@@ -743,9 +832,13 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
+    end
+
+    if withMatchMode == 'YES' then
+        yesScpStr = 'ReqUnderstaffEnterAllowModeWithParty(' .. indunType .. ')';
     end
 
     if g.settings.under_staff == 0 then
@@ -756,10 +849,8 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
         end
     end
 
-    if withMatchMode == 'YES' then
-        yesScpStr = 'ReqUnderstaffEnterAllowModeWithParty(' .. indunType .. ')';
-        ui.MsgBox(clientMsg, yesScpStr, "None");
-    end
+    ui.MsgBox(clientMsg, yesScpStr, "None");
+
     -- base[INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW](parent, ctrl)
 end
 
