@@ -31,39 +31,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     acutil.addSysIcon("mini_addons", "sysmenu_sys", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
     MINI_ADDONS_LOAD_SETTINGS()
+    CHAT_SYSTEM("test")
+    g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
 
-    --[[g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
     g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
 
     g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
 
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
-    g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")]]
-    if g.settings.under_staff == 0 then
-        g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
-    elseif _G.ADDONS.MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW ~= nil and g.settings.under_staff == 1 then
-        g.SetupHook(INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
-    end
-
-    if g.settings.raid_record == 0 then
-        g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
-    elseif _G.ADDONS.MINI_ADDONS_RAID_RECORD_INIT ~= nil and g.settings.raid_record == 1 then
-        g.SetupHook(RAID_RECORD_INIT, "MINI_ADDONS_RAID_RECORD_INIT")
-    end
-
-    if g.settings.party_buff == 0 then
-        g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
-    elseif _G.ADDONS.MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE ~= nil and g.settings.party_buff == 1 then
-        g.SetupHook(ON_PARTYINFO_BUFFLIST_UPDATE, "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
-    end
-
-    if g.settings.chat_system == 0 then
-        acutil.setupEvent(addon, "CHAT_SYSTEM", "MINI_ADDONS_CHAT_SYSTEM");
-        -- g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
-    end
-    if g.settings.chat_system == 1 then
-        acutil.setupEvent(addon, "CHAT_SYSTEM", "MINI_ADDONS_CHAT_SYSTEM");
-    end
 
     if g.settings.channel_display == 0 then
         g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
@@ -421,35 +396,38 @@ function MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
 
     local channel = session.loginInfo.GetChannel();
     local zoneInst = session.serverState.GetZoneInst(channel);
-    local langcode = option.GetCurrentCountry()
-    if langcode == "Japanese" then
-        if zoneInst ~= nil then
-            if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
-                local str, stateString = GET_CHANNEL_STRING(zoneInst);
-                curchannel:SetTextByKey("value", str .. "                      " .. stateString);
+    if g.settings.channel_display == 0 then
+        local langcode = option.GetCurrentCountry()
+        if langcode == "Japanese" then
+            if zoneInst ~= nil then
+                if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+                    local str, stateString = GET_CHANNEL_STRING(zoneInst);
+                    curchannel:SetTextByKey("value", str .. "                      " .. stateString);
+                else
+                    local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+                    local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
+                    curchannel:SetTextByKey("value", str .. "                      " .. stateString);
+                end
             else
-                local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-                local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
-                curchannel:SetTextByKey("value", str .. "                      " .. stateString);
+                curchannel:SetTextByKey("value", "");
             end
+        end
+        return
+    end
+
+    if zoneInst ~= nil then
+        if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+            local str, stateString = GET_CHANNEL_STRING(zoneInst);
+            curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
         else
-            curchannel:SetTextByKey("value", "");
+            local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+            local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
+            curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
         end
     else
-        if zoneInst ~= nil then
-            if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
-                local str, stateString = GET_CHANNEL_STRING(zoneInst);
-                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
-            else
-                local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-                local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
-                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
-            end
-        else
-            curchannel:SetTextByKey("value", "");
-        end
-
+        curchannel:SetTextByKey("value", "");
     end
+
 end
 --[[5014
 [__m2util] is loaded
@@ -457,12 +435,14 @@ end
 [extendcharinfo] is loaded]]
 
 function MINI_ADDONS_CHAT_SYSTEM(msg, color)
-    if msg == "@dicID_^*$ETC_20220830_069434$*^" or msg == "@dicID_^*$ETC_20220830_069435$*^" or msg ==
-        "[__m2util] is loaded" or msg == "[adjustlayer] is loaded" or msg == "[extendcharinfo] is loaded" or msg ==
-        "[ICC]Attempt to CC." then
-        return
-    end
 
+    if g.settings.chat_system == 0 then
+        if msg == "@dicID_^*$ETC_20220830_069434$*^" or msg == "@dicID_^*$ETC_20220830_069435$*^" or msg ==
+            "[__m2util] is loaded" or msg == "[adjustlayer] is loaded" or msg == "[extendcharinfo] is loaded" or msg ==
+            "[ICC]Attempt to CC." then
+            return
+        end
+    end
     session.ui.GetChatMsg():AddSystemMsg(msg, true, 'System', color)
 end
 
@@ -540,12 +520,16 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
                             local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
                             local slot = nil;
                             if cls.Group1 == 'Buff' then
+                                if g.settings.party_buff == 0 then
+                                    if not MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
+                                        slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                        buffIndex = buffIndex + 1;
 
-                                if not MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
-                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                    buffIndex = buffIndex + 1;
-
+                                    end
                                 end
+
+                                slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                buffIndex = buffIndex + 1;
 
                             elseif cls.Group1 == 'Debuff' then
                                 slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
@@ -601,7 +585,7 @@ function MINI_ADDONS_IsBuffExcluded(buffID, excludedBuffIDs)
     return false -- 除外リストに含まれない場合、falseを返す
 end
 
-function MINI_ADDONS_BUFFLIST_UPDATE(frame)
+--[[function MINI_ADDONS_BUFFLIST_UPDATE(frame)
 
     local frame = ui.GetFrame("partyinfo")
     frame:Resize(600, 320)
@@ -616,7 +600,7 @@ function MINI_ADDONS_BUFFLIST_UPDATE(frame)
         partyInfoCtrlSet:Resize(600, 62)
     end
 
-end
+end]]
 
 function MINI_ADDONS_PETINFO()
 
@@ -759,16 +743,20 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
-    if withMatchMode == 'NO' then
-        _INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()
-        -- INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW_OLD(parent, ctrl)
-        return
 
-    elseif withMatchMode == 'YES' then
+    if g.settings.under_staff == 0 then
+        if withMatchMode == 'NO' then
+            _INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()
+            -- INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW_OLD(parent, ctrl)
+            return
+        end
+    end
+
+    if withMatchMode == 'YES' then
         yesScpStr = 'ReqUnderstaffEnterAllowModeWithParty(' .. indunType .. ')';
         ui.MsgBox(clientMsg, yesScpStr, "None");
     end
@@ -916,37 +904,40 @@ function MINI_ADDONS_UPDATESETTINGS(frame)
 end
 
 function MINI_ADDONS_RAID_RECORD_INIT(frame)
-    local frame = ui.GetFrame("raid_record")
-    frame:SetOffset(g.settings.reword_x, g.settings.reword_y)
-    frame:SetSkinName("shadow_box")
-    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_UPDATESETTINGS")
-    frame:SetLayerLevel(5)
-    frame:SetTitleBarSkin("None")
-    frame:ShowTitleBar(0)
-    frame:Resize(550, 260)
+    if g.settings.raid_record == 0 then
+        local frame = ui.GetFrame("raid_record")
+        frame:SetOffset(g.settings.reword_x, g.settings.reword_y)
+        frame:SetSkinName("shadow_box")
+        frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_UPDATESETTINGS")
+        frame:SetLayerLevel(5)
+        frame:SetTitleBarSkin("None")
+        frame:ShowTitleBar(0)
+        frame:Resize(550, 260)
 
-    local widgetList = {{
-        name = "myInfo",
-        font = "white_16_ol"
-    }, {
-        name = "friendInfo1",
-        font = "white_16_ol"
-    }, {
-        name = "friendInfo2",
-        font = "white_16_ol"
-    }, {
-        name = "friendInfo3",
-        font = "white_16_ol"
-    }}
+        local widgetList = {{
+            name = "myInfo",
+            font = "white_16_ol"
+        }, {
+            name = "friendInfo1",
+            font = "white_16_ol"
+        }, {
+            name = "friendInfo2",
+            font = "white_16_ol"
+        }, {
+            name = "friendInfo3",
+            font = "white_16_ol"
+        }}
 
-    for i, widgetData in ipairs(widgetList) do
-        local widget = GET_CHILD_RECURSIVELY(frame, widgetData.name)
-        local name = GET_CHILD_RECURSIVELY(widget, "name")
-        local time = GET_CHILD_RECURSIVELY(widget, "time")
-        name:SetFontName(widgetData.font)
-        time:SetFontName(widgetData.font)
+        for i, widgetData in ipairs(widgetList) do
+            local widget = GET_CHILD_RECURSIVELY(frame, widgetData.name)
+            local name = GET_CHILD_RECURSIVELY(widget, "name")
+            local time = GET_CHILD_RECURSIVELY(widget, "time")
+            name:SetFontName(widgetData.font)
+            time:SetFontName(widgetData.font)
+        end
     end
 
+    local frame = ui.GetFrame("raid_record")
     GET_CHILD_RECURSIVELY(frame, "bgIndunClear"):ShowWindow(1)
     GET_CHILD_RECURSIVELY(frame, "textNewRecord"):ShowWindow(0)
 end
