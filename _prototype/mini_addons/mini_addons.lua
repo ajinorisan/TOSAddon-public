@@ -44,20 +44,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     acutil.setupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
 
-    --[[
-    
-    local loginCharID = info.GetCID(session.GetMyHandle())
-    for CharID, v in pairs(g.settings.auto_casting) do
-
-        if CharID == loginCharID then
-            g.settings.auto_casting[loginCharID] = v -- キャラクターIDに対応する値を取得
-
-            ctrl:IsChecked(v)
-            print(tostring(v))
-
-        end
-    end]]
-
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
@@ -108,7 +94,7 @@ g.settings = {
     dialog_ctrl = 0,
     auto_casting = {}
 }
-
+-- オートキャスティング制御
 function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(parent, ctrl)
     local loginCharID = info.GetCID(session.GetMyHandle())
     local enable = ctrl:IsChecked()
@@ -140,16 +126,18 @@ function MINI_ADDONS_SET_ENABLE_AUTO_CASTING(frame)
                 if Check_EnableAutoCasting ~= nil then
                     Check_EnableAutoCasting:SetCheck(tostring(v))
                 end
-                config.SetEnableAutoCasting(v)
+                local enable = Check_EnableAutoCasting:IsChecked()
+                config.SetEnableAutoCasting(enable)
                 config.SaveConfig()
-                CHAT_SYSTEM("test" .. tostring(v))
+                CHAT_SYSTEM("test" .. tostring(enable))
             else
                 if Check_EnableAutoCasting ~= nil then
                     Check_EnableAutoCasting:SetCheck(tostring(v))
                 end
-                config.SetEnableAutoCasting(v)
+                local enable = Check_EnableAutoCasting:IsChecked()
+                config.SetEnableAutoCasting(enable)
                 config.SaveConfig()
-                CHAT_SYSTEM("test" .. tostring(v))
+                CHAT_SYSTEM("test" .. tostring(enable))
             end
         end
     end
@@ -832,7 +820,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
