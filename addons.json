@@ -19,6 +19,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Mini Addons",
+		"file" : "mini_addons",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "mini_addons",
+		"unicode" : "⛄",
+		"description" : "Free From Trivial Stressの上位互換版です。競合するので本アドオンを使う場合抜いてください。右下のaddonsボタンから各機能のON OFF切り替えします。This is an upward compatible version of Free From Trivial Stress. Please remove this add-on when you use this add-on because it conflicts with Free From Trivial Stress. Click the addons button at the bottom right to switch each function on and off.Free From Trivial Stress의 상위 호환 버전입니다. 충돌이 발생하므로 본 애드온을 사용할 경우 빼주세요. 오른쪽 하단의 addons 버튼에서 각 기능의 ON/OFF를 전환할 수 있습니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Goddess Icor Manager",
 		"file" : "goddess_icor_manager",
 		"extension" : "ipf",

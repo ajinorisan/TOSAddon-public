@@ -1,3 +1,4 @@
+-- v1.0.0 freefromtrivialsttresからの焼き直し。オートキャスティングをキャラ毎に。機能の有効化無効化を選択出来る様に。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -32,17 +33,17 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     acutil.addSysIcon("mini_addons", "sysmenu_mac", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
     MINI_ADDONS_LOAD_SETTINGS()
     -- CHAT_SYSTEM("test")
-    acutil.setupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
 
-    acutil.setupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+    g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
 
-    acutil.setupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
 
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
 
-    acutil.setupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
+    g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
 
-    acutil.setupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
+    g.SetupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -74,7 +75,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     if g.settings.dialog_ctrl == 0 then
         addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
     end
-    addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
+
+    if g.settings.auto_cast == 0 then
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
+    end
 end
 
 g.settings = {
@@ -92,18 +96,26 @@ g.settings = {
     restart_move = 0,
     pet_init = 0,
     dialog_ctrl = 0,
+    auto_cast = 0,
     auto_casting = {}
 }
 -- オートキャスティング制御
 function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(parent, ctrl)
-    local loginCharID = info.GetCID(session.GetMyHandle())
-    local enable = ctrl:IsChecked()
-    CHAT_SYSTEM(tostring(enable))
-    g.settings.auto_cast[loginCharID] = enable
-    MINI_ADDONS_SAVE_SETTINGS()
-    MINI_ADDONS_LOAD_SETTINGS()
-    config.SetEnableAutoCasting(enable)
-    config.SaveConfig()
+
+    if g.settings.auto_cast == 0 then
+        local loginCharID = info.GetCID(session.GetMyHandle())
+        local enable = ctrl:IsChecked()
+        -- CHAT_SYSTEM(tostring(enable))
+        g.settings.auto_cast[loginCharID] = enable
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+        config.SetEnableAutoCasting(enable)
+        config.SaveConfig()
+    else
+        local enable = ctrl:IsChecked()
+        config.SetEnableAutoCasting(enable)
+        config.SaveConfig()
+    end
 end
 
 function MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()
@@ -129,7 +141,7 @@ function MINI_ADDONS_SET_ENABLE_AUTO_CASTING(frame)
                 local enable = Check_EnableAutoCasting:IsChecked()
                 config.SetEnableAutoCasting(enable)
                 config.SaveConfig()
-                CHAT_SYSTEM("test" .. tostring(enable))
+                -- CHAT_SYSTEM("test" .. tostring(enable))
             else
                 if Check_EnableAutoCasting ~= nil then
                     Check_EnableAutoCasting:SetCheck(tostring(v))
@@ -137,7 +149,7 @@ function MINI_ADDONS_SET_ENABLE_AUTO_CASTING(frame)
                 local enable = Check_EnableAutoCasting:IsChecked()
                 config.SetEnableAutoCasting(enable)
                 config.SaveConfig()
-                CHAT_SYSTEM("test" .. tostring(enable))
+                -- CHAT_SYSTEM("test" .. tostring(enable))
             end
         end
     end
@@ -153,9 +165,10 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     local frame = ui.GetFrame("mini_addons")
 
-    frame:SetSkinName("test_frame_low")
+    -- frame:SetSkinName("test_frame_low")
+    frame:SetSkinName("bg")
     frame:SetLayerLevel(93)
-    frame:Resize(710, 320)
+    frame:Resize(710, 380)
     frame:SetPos(1050, 600)
     frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
@@ -169,106 +182,143 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     close:SetText("{ol}{#FFFFFF}×")
     close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
 
-    local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, 10)
+    local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, 15)
     under_staff:SetText("{ol}{#FFFFFF}Skip confirmation for admission of 4 or less people")
-    under_staff:SetTextTooltip("{@st59}4人以下入場時の確認をスキップ")
+    under_staff:SetTextTooltip(
+        "{@st59}4人以下入場時の確認をスキップ{nl}4인 이하 입장 시 확인 생략")
 
     local under_staff_checkbox = frame:CreateOrGetControl('checkbox', 'under_staff_checkbox', 10, 10, 25, 25)
     AUTO_CAST(under_staff_checkbox)
     under_staff_checkbox:SetCheck(g.settings.under_staff)
     under_staff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    under_staff_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    under_staff_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, 40)
+    local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, 45)
     raid_record:SetText("{ol}{#FFFFFF}Raid records movable and resizable")
-    raid_record:SetTextTooltip("{@st59}レイドレコードを移動可能にしてサイズを変更")
+    raid_record:SetTextTooltip(
+        "{@st59}レイドレコードを移動可能にしてサイズを変更{nl}레이드 레코드의 이동 및 크기 변경 가능")
 
     local raid_record_checkbox = frame:CreateOrGetControl('checkbox', 'raid_record_checkbox', 10, 40, 25, 25)
     AUTO_CAST(raid_record_checkbox)
     raid_record_checkbox:SetCheck(g.settings.raid_record)
     raid_record_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    raid_record_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    raid_record_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 40, 70)
+    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 40, 75)
     party_buff:SetText("{ol}{#FFFFFF}Ability to reduce the display of buffs for party members")
-    party_buff:SetTextTooltip("{@st59}パーティメンバーのバフ表示を減らす機能")
+    party_buff:SetTextTooltip(
+        "{@st59}パーティメンバーのバフ表示を減らす機能{nl}파티원의 버프 표시를 줄이는 기능")
 
     local party_buff_checkbox = frame:CreateOrGetControl('checkbox', 'party_buff_checkbox', 10, 70, 25, 25)
     AUTO_CAST(party_buff_checkbox)
     party_buff_checkbox:SetCheck(g.settings.party_buff)
     party_buff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    party_buff_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    party_buff_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, 100)
+    local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, 105)
     chat_system:SetText("{ol}{#FFFFFF}Perfect effect is not displayed in system chat")
-    chat_system:SetTextTooltip("{@st59}パーフェクト効果をシステムチャットに表示しない")
+    chat_system:SetTextTooltip(
+        "{@st59}パーフェクト効果をシステムチャットに表示しない{nl}시스템 채팅에 퍼펙트 효과를 표시하지 않음")
 
     local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 10, 100, 25, 25)
     AUTO_CAST(chat_system_checkbox)
     chat_system_checkbox:SetCheck(g.settings.chat_system)
     chat_system_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    chat_system_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    chat_system_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, 130)
+    local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, 135)
     channel_display:SetText("{ol}{#FFFFFF}Fixed channel display misalignment")
-    channel_display:SetTextTooltip("{@st59}チャンネル表示のズレを修正")
+    channel_display:SetTextTooltip(
+        "{@st59}チャンネル表示のズレを修正{nl}채널 표시가 어긋나는 현상 수정")
 
     local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, 130, 25, 25)
     AUTO_CAST(channel_display_checkbox)
     channel_display_checkbox:SetCheck(g.settings.channel_display)
     channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    channel_display_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    channel_display_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, 160)
+    local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, 165)
     mini_btn:SetText("{ol}{#FFFFFF}Hide mini-button in upper right corner during raid")
-    mini_btn:SetTextTooltip("{@st59}レイド時右上のミニボタン非表示")
+    mini_btn:SetTextTooltip(
+        "{@st59}レイド時右上のミニボタン非表示{nl}레이드 시 오른쪽 상단 미니 버튼 숨기기")
 
     local mini_btn_checkbox = frame:CreateOrGetControl('checkbox', 'mini_btn_checkbox', 10, 160, 25, 25)
     AUTO_CAST(mini_btn_checkbox)
     mini_btn_checkbox:SetCheck(g.settings.mini_btn)
     mini_btn_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    mini_btn_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    mini_btn_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, 190)
+    local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, 195)
     market_display:SetText(
         "{ol}{#FFFFFF}When moving into town, the list of stores in the upper right corner should be open.")
-    market_display:SetTextTooltip("{@st59}街に移動時、右上の商店一覧を開けた状態にします。")
+    market_display:SetTextTooltip(
+        "{@st59}街に移動時、右上の商店一覧を開けた状態にします。{nl}거리로 이동할 때, 오른쪽 상단의 상점 목록이 열린 상태로 만듭니다.")
 
     local market_display_checkbox = frame:CreateOrGetControl('checkbox', 'market_display_checkbox', 10, 190, 25, 25)
     AUTO_CAST(market_display_checkbox)
     market_display_checkbox:SetCheck(g.settings.market_display)
     market_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    market_display_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    market_display_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, 220)
-    restart_move:SetText("{ol}{#FFFFFF}The choice frame at the restart can be moved.")
-    restart_move:SetTextTooltip("{@st59}リスタート時の選択肢フレームを動かせる様に。")
+    local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, 225)
+    restart_move:SetText("{ol}{#FFFFFF}Enable to move the choice frame at restart. For colony visits.")
+    restart_move:SetTextTooltip(
+        "{@st59}リスタート時の選択肢フレームを動かせる様にします。コロニー見学用。{nl}재시작 시 선택 프레임을 움직일 수 있도록 합니다. 식민지 견학용.")
 
     local restart_move_checkbox = frame:CreateOrGetControl('checkbox', 'restart_move_checkbox', 10, 220, 25, 25)
     AUTO_CAST(restart_move_checkbox)
     restart_move_checkbox:SetCheck(g.settings.restart_move)
     restart_move_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    restart_move_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    restart_move_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, 250)
+    local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, 255)
     pet_init:SetText("{ol}{#FFFFFF}Ability to display a pet summoning frame.")
-    pet_init:SetTextTooltip("{@st59}ペット召喚フレームを表示する機能。")
+    pet_init:SetTextTooltip(
+        "{@st59}ペット召喚フレームを表示する機能。{nl}애완동물 소환 프레임을 표시하는 기능.")
 
     local pet_init_checkbox = frame:CreateOrGetControl('checkbox', 'pet_init_checkbox', 10, 250, 25, 25)
     AUTO_CAST(pet_init_checkbox)
     pet_init_checkbox:SetCheck(g.settings.pet_init)
     pet_init_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    pet_init_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    pet_init_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
 
-    local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, 280)
+    local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, 285)
     dialog_ctrl:SetText("{ol}{#FFFFFF}Controls various dialogs.")
-    dialog_ctrl:SetTextTooltip("{@st59}各種ダイアログをコントロールします。")
+    dialog_ctrl:SetTextTooltip(
+        "{@st59}各種ダイアログをコントロールします。{nl}각종 대화 상자를 제어합니다.")
 
     local dialog_ctrl_checkbox = frame:CreateOrGetControl('checkbox', 'dialog_ctrl_checkbox', 10, 280, 25, 25)
     AUTO_CAST(dialog_ctrl_checkbox)
     dialog_ctrl_checkbox:SetCheck(g.settings.dialog_ctrl)
     dialog_ctrl_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    dialog_ctrl_checkbox:SetTextTooltip("{@st59}チェックすると無効化{nl}Disabled when checked")
+    dialog_ctrl_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+
+    local auto_cast = frame:CreateOrGetControl("richtext", "auto_cast", 40, 315)
+    auto_cast:SetText("{ol}{#FFFFFF}Autocasting is set up for each character.")
+    auto_cast:SetTextTooltip(
+        "{@st59}オートキャスティングをキャラ毎に設定。{nl}자동 캐스팅을 캐릭터별로 설정합니다.")
+
+    local auto_cast_checkbox = frame:CreateOrGetControl('checkbox', 'auto_cast_checkbox', 10, 310, 25, 25)
+    AUTO_CAST(auto_cast_checkbox)
+    auto_cast_checkbox:SetCheck(g.settings.auto_cast)
+    auto_cast_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    auto_cast_checkbox:SetTextTooltip(
+        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+
+    local description = frame:CreateOrGetControl("richtext", "description", 140, 345)
+    description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
+    description:SetTextTooltip(
+        "{@st59}一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です。{nl}일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다.")
 end
 
 function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
@@ -376,6 +426,16 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         MINI_ADDONS_LOAD_SETTINGS()
     end
 
+    if ischeck == 1 and ctrlname == "auto_cast_checkbox" then
+        g.settings.auto_cast = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "auto_cast_checkbox" then
+        g.settings.auto_cast = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
 end
 
 function MINI_ADDONS_SAVE_SETTINGS()
@@ -414,6 +474,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
             restart_move = 0,
             pet_init = 0,
             dialog_ctrl = 0,
+            auto_cast = 0,
             auto_casting = {}
         }
         MINI_ADDONS_SAVE_SETTINGS()
@@ -425,7 +486,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
 
     if next(g.settings.auto_casting) == nil then
 
-        g.settings.auto_casting[loginCharID] = 0
+        g.settings.auto_casting[loginCharID] = 1
         MINI_ADDONS_SAVE_SETTINGS()
         MINI_ADDONS_LOAD_SETTINGS()
     end
@@ -433,7 +494,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
     for CharID, v in pairs(g.settings.auto_casting) do
         if not g.settings.auto_casting[loginCharID] then
 
-            g.settings.auto_casting[loginCharID] = 0
+            g.settings.auto_casting[loginCharID] = 1
             MINI_ADDONS_SAVE_SETTINGS()
             MINI_ADDONS_LOAD_SETTINGS()
 
@@ -820,7 +881,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
