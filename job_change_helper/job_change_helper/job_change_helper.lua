@@ -1,9 +1,10 @@
 -- v1.0.1　全部脱ぐボタン実装
 -- v1.0.2 直前装備を着ける機能実装。ヘルメット取れないバグも修正
+-- v1.0.3 ジョブ専用コスチュームを転職前に着けてたらバグるの修正、全裸でも全装備ボタンが表示されてたのを修正。
 local addonName = "JOB_CHANGE_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -75,6 +76,7 @@ end
 function job_change_helper_allunequip()
 
     g.equipInfoTable = {}
+    local count = 0
     local equipItemList = session.GetEquipItemList();
     local cnt = equipItemList:Count();
 
@@ -86,6 +88,7 @@ function job_change_helper_allunequip()
         local iteminfo = session.GetEquipItemByType(itemtype);
 
         if iesid ~= "0" then
+            count = count + 1
             g.equipInfoTable[spotName] = iesid
             -- print(i .. ":" .. spotName .. ":" .. iesid)
             if spotName == "HELMET" then
@@ -102,14 +105,23 @@ function job_change_helper_allunequip()
     local frame = ui.GetFrame("inventory")
     local alluneqbtn = GET_CHILD_RECURSIVELY(frame, "alluneqbtn")
     local alleqbtn = GET_CHILD_RECURSIVELY(frame, "alleqbtn")
-    alluneqbtn:ShowWindow(0)
-    alleqbtn:ShowWindow(1)
+    -- print(tostring(count))
+    if count ~= 0 then
+
+        alluneqbtn:ShowWindow(0)
+        alleqbtn:ShowWindow(1)
+    else
+        alluneqbtn:ShowWindow(1)
+        alleqbtn:ShowWindow(0)
+    end
     if tonumber(USE_SUBWEAPON_SLOT) == 1 then
         DO_WEAPON_SLOT_CHANGE(frame, 1)
     else
         DO_WEAPON_SWAP(frame, 1)
     end
     g.equipmode = 1
+    g.outer = 0
+    g.special_costume = 0
     -- テーブルの内容を表示（テスト用）
     --[[for spotName, iesid in pairs(equipInfoTable) do
         print(spotName .. ":" .. iesid)
@@ -161,7 +173,21 @@ function job_change_helper_allequip()
     end
     for spotName, iesid in pairs(g.equipInfoTable) do
         local equipitem = session.GetInvItemByGuid(tonumber(iesid));
-        if equipitem ~= nil then
+        -- print(tostring(spotName))
+
+        if equipitem ~= nil and g.outer == 0 and spotName == "OUTER" then
+            ITEM_EQUIP(equipitem.invIndex, spotName)
+            g.outer = 1
+            -- print(tostring("outer:" .. g.outer))
+            ReserveScript("job_change_helper_allequip()", 0.5)
+            return
+        elseif equipitem ~= nil and g.special_costume == 0 and spotName == "SPECIALCOSTUME" then
+            ITEM_EQUIP(equipitem.invIndex, spotName)
+            g.special_costume = 1
+            -- print(tostring("special_costume:" .. g.special_costume))
+            ReserveScript("job_change_helper_allequip()", 0.5)
+            return
+        elseif equipitem ~= nil then
             ITEM_EQUIP(equipitem.invIndex, spotName)
             ReserveScript("job_change_helper_allequip()", 0.5)
             return
@@ -175,6 +201,9 @@ function job_change_helper_allequip()
     alleqbtn:ShowWindow(0)
     ui.SysMsg("[JCH]end of operation")
     g.equipmode = 0
+    g.outer = 0
+    g.special_costume = 0
+    -- g.equipInfoTable = {}
     return
 
 end
@@ -212,6 +241,7 @@ function job_change_helper_unequip()
     g.equipInfoTable = {}
     local equipItemList = session.GetEquipItemList();
     local cnt = equipItemList:Count();
+    local count = 0
 
     for i = 0, cnt - 1 do
         local equipItem = equipItemList:GetEquipItemByIndex(i);
@@ -221,6 +251,7 @@ function job_change_helper_unequip()
         local iteminfo = session.GetEquipItemByType(itemtype);
 
         if iesid ~= "0" then
+            count = count + 1
             g.equipInfoTable[spotName] = iesid
             -- print(i .. ":" .. spotName .. ":" .. iesid)
             if spotName == "HELMET" then
@@ -237,14 +268,25 @@ function job_change_helper_unequip()
     local frame = ui.GetFrame("inventory")
     local alluneqbtn = GET_CHILD_RECURSIVELY(frame, "alluneqbtn")
     local alleqbtn = GET_CHILD_RECURSIVELY(frame, "alleqbtn")
-    alluneqbtn:ShowWindow(0)
-    alleqbtn:ShowWindow(1)
+
+    if count ~= 0 then
+
+        alluneqbtn:ShowWindow(0)
+        alleqbtn:ShowWindow(1)
+    else
+        alluneqbtn:ShowWindow(1)
+        alleqbtn:ShowWindow(0)
+    end
+    -- alluneqbtn:ShowWindow(0)
+    -- alleqbtn:ShowWindow(1)
     if tonumber(USE_SUBWEAPON_SLOT) == 1 then
         DO_WEAPON_SLOT_CHANGE(frame, 1)
     else
         DO_WEAPON_SWAP(frame, 1)
     end
     g.equipmode = 1
+    g.outer = 0
+    g.special_costume = 0
     -- session.job.ReqUnEquipItemAll()
     -- NICO_CHAT(string.format("{@st55_a}%s", "Unequipped OK"))
     ReserveScript("job_change_helper_rankrollback()", 0.5)
@@ -290,7 +332,7 @@ function job_change_helper_rankrollback()
     -- NICO_CHAT("ready go")
     -- NICO_CHAT(string.format("{@st55_a}%s", "ALL OK"))
     -- ui.SysMsg("ready")
-    frame:ShowWindow(1)
+    -- frame:ShowWindow(1)
     ReserveScript("job_change_helper_do()", 1.0)
     return
     -- frame:ShowWindow(1)

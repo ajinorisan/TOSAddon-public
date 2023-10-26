@@ -85,10 +85,10 @@
 		"name" : "Job Change Helper",
 		"file" : "job_change_helper",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.2",
+		"fileVersion" : "v1.0.3",
 		"releaseTag" : "job_change_helper",
 		"unicode" : "⛄",
-		"description" : "インベントリに早着替えボタンが付きます。転職情報アイコンを押すと左上にボタンが付きます。PTから抜けて、PETを未召喚に戻して、装備を外します。鷹は知らない子。A quick-change button will be added to the inventory.Press the change info icon and a button will appear in the upper left corner. exit PT, return PET to unsummoned, and remove equipment. The hawk is an unknown child. 인벤토리에 빠른 옷 갈아입기 버튼이 추가됩니다.전직 정보 아이콘을 누르면 왼쪽 상단에 버튼이 생기는데, PT에서 빠져나와 PET를 미소환으로 되돌리고 장비를 해제한다. 매는 모르는 아이.",
+		"description" : "職限定コスチュームでの再装備バグ修正。インベントリに早着替えボタンが付きます。転職情報アイコンを押すと左上にボタンが付きます。PTから抜けて、PETを未召喚に戻して、装備を外します。鷹は知らない子。\\nFixed a re-fit bug with job-specific costumes.A quick-change button will be added to the inventory.Press the change info icon and a button will appear in the upper left corner. exit PT, return PET to unsummoned, and remove equipment. The hawk is an unknown child.\\n직업 한정 코스튬의 재장비 버그 수정.인벤토리에 빠른 옷 갈아입기 버튼이 추가됩니다.전직 정보 아이콘을 누르면 왼쪽 상단에 버튼이 생기는데, PT에서 빠져나와 PET를 미소환으로 되돌리고 장비를 해제한다. 매는 모르는 아이.",
 		"tags" : []
 	},
 {
@@ -180,16 +180,6 @@
 		"releaseTag" : "auto_repair",
 		"unicode" : "⛄",
 		"description" : "右下のAddonsで設定機能追加。装備の耐久を監視して30%未満になると「[Lv.500]緊急修理キット」を使用して自動で修理します。Additional configuration functions are available in Addons in the lower right corner.Monitors the equipment's durability and automatically repairs it using the '[Lv.500] Urgent Repair Kit' when it falls below 30%. 우측 하단의 Addons에서 설정 기능 추가.장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.500] 긴급 수리 키트'를 사용하여 자동으로 수리한다.",
-		"tags" : []
-	},
-{
-		"name" : "Free From Trivial Stress",
-		"file" : "freefromlittlestress",
-		"extension" : "ipf",
-		"fileVersion" : "v1.1.2",
-		"releaseTag" : "freefromlittlestress",
-		"unicode" : "⛄",
-		"description" : "ミニボタンを街とフィールド以外で非表示。ペット未召喚時ペットリストを表示(キャラ毎に選べるように)。レイド後のレコードを動かせる様に。倉庫やレイドなど各種ダイアログ制御。Hide mini-buttons except for city and field. Show pet list when no pet is summoned (so that you can choose one for each character). Added the ability to move records after a raid. Control the dialog of warehouse, raid, etc...도시와 필드 외에는 미니 버튼을 숨깁니다. 펫 미소환 시 펫 목록 표시(캐릭터별로 선택할 수 있도록). 레이드 후 기록 이동 가능. 창고, 레이드 등 각종 대화창 제어.",
 		"tags" : []
 	},
 {
