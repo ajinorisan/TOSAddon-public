@@ -16,6 +16,7 @@
 -- v1.1.6 谷間園児対応
 -- v1.1.7 台湾verに対応
 -- v1.1.8 日本語Verに台湾語が混ざってたのを修正。BUYUSEボタンに説明追加。
+-- v1.1.9 スロガ、ウピニスハード入場追加
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -729,7 +730,9 @@ function indun_panel_init(ipframe)
     local tosshop = ipframe:CreateOrGetControl("button", "tosshop", 200, 5, 35, 35);
     AUTO_CAST(tosshop)
     tosshop:SetSkinName("None")
-    tosshop:SetText("{img mon_legendstar 30 30}")
+    -- tosshop:SetText("{img mon_legendstar 30 30}")
+    -- icon_item_Tos_Event_Coin
+    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
     tosshop:SetTextTooltip("{@st59}TOSイベントショップ{nl}TOS Event Shop")
     -- tosshop:SetImage("goddess3_shop_btn")
     -- tosshop:SetColorTone("FFFF00FF")
@@ -927,19 +930,22 @@ function indun_panel_upinis_frame(ipframe)
     Upinis:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Upinis"))
     local upinissolo = ipframe:CreateOrGetControl('button', 'upinissolo', 135, g.panelY, 80, 30)
     local upinisauto = ipframe:CreateOrGetControl('button', 'upinisauto', 220, g.panelY, 80, 30)
-    -- local upinishard = ipframe:CreateOrGetControl('button', 'upinishard', 350, 125, 80, 30)
+    local upinishard = ipframe:CreateOrGetControl('button', 'upinishard', 350, g.panelY, 80, 30)
     local upiniscount = ipframe:CreateOrGetControl("richtext", "upiniscount", 305, g.panelY + 5, 50, 30)
     local upiniscounthard = ipframe:CreateOrGetControl("richtext", "upiniscounthard", 435, g.panelY + 5, 50, 30)
     local upinissweep = ipframe:CreateOrGetControl('button', 'upinissweep', 480, g.panelY, 80, 30)
 
     upinissolo:SetText("{ol}SOLO")
     upinisauto:SetText("{ol}{#FFD900}AUTO")
-    -- upinishard:SetText("{ol}{#FF0000}HARD")
+    upinishard:SetText("{ol}{#FF0000}HARD")
     upinissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP")) -- 掃蕩
 
     upiniscount:SetText("{ol}{#FFFFFF}{s16}(" ..
                             GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 686).PlayPerResetType) .. "/" ..
                             GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 686).PlayPerResetType) .. ")")
+    upiniscounthard:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType) .. "/" ..
+                                GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType) .. ")")
     --[[ upiniscounthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                   GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 628).PlayPerResetType) .. ")")]]
 
@@ -963,6 +969,10 @@ function indun_panel_upinis_frame(ipframe)
     -- upinishard:SetEventScriptArgNumber(ui.LBUTTONUP, 628)
     -- upinishard:SetEventScriptArgString(ui.LBUTTONUP, "false")
 
+    upinishard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
+    upinishard:SetEventScriptArgNumber(ui.LBUTTONDOWN, 687)
+    upinishard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+
 end
 
 function indun_panel_slogutis_frame(ipframe)
@@ -970,19 +980,22 @@ function indun_panel_slogutis_frame(ipframe)
     Slogutis:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Slogutis"))
     local slogutissolo = ipframe:CreateOrGetControl('button', 'slogutissolo', 135, g.panelY, 80, 30)
     local slogutisauto = ipframe:CreateOrGetControl('button', 'slogutisauto', 220, g.panelY, 80, 30)
-    -- local slogutishard = ipframe:CreateOrGetControl('button', 'slogutishard', 350, 125, 80, 30)
+    local slogutishard = ipframe:CreateOrGetControl('button', 'slogutishard', 350, g.panelY, 80, 30)
     local slogutiscount = ipframe:CreateOrGetControl("richtext", "slogutiscount", 305, g.panelY + 5, 50, 30)
     local slogutiscounthard = ipframe:CreateOrGetControl("richtext", "slogutiscounthard", 435, g.panelY + 5, 50, 30)
     local slogutissweep = ipframe:CreateOrGetControl('button', 'slogutissweep', 480, g.panelY, 80, 30)
 
     slogutissolo:SetText("{ol}SOLO")
     slogutisauto:SetText("{ol}{#FFD900}AUTO")
-    -- slogutishard:SetText("{ol}{#FF0000}HARD")
+    slogutishard:SetText("{ol}{#FF0000}HARD")
     slogutissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
 
     slogutiscount:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 689).PlayPerResetType) .. "/" ..
                               GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 689).PlayPerResetType) .. ")")
+    slogutiscounthard:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                  GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType) .. "/" ..
+                                  GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType) .. ")")
     --[[ slogutiscounthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                   GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 628).PlayPerResetType) .. ")")]]
 
@@ -1005,6 +1018,9 @@ function indun_panel_slogutis_frame(ipframe)
     -- slogutishard:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_hard")
     -- slogutishard:SetEventScriptArgNumber(ui.LBUTTONUP, 628)
     -- slogutishard:SetEventScriptArgString(ui.LBUTTONUP, "false")
+    slogutishard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
+    slogutishard:SetEventScriptArgNumber(ui.LBUTTONDOWN, 690)
+    slogutishard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
 
 end
 
@@ -1215,6 +1231,14 @@ function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
             redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
         elseif indunType == 628 then
             redButton = GET_CHILD_RECURSIVELY(frame, "giltinehard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 687 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "upinishard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 690 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "slogutishard")
             redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
             redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
         else

@@ -1,8 +1,9 @@
 -- v1.0.0 freefromtrivialsttresからの焼き直し。オートキャスティングをキャラ毎に。機能の有効化無効化を選択出来る様に。
+-- v1.0.1 チェック外したら機能しない様に。各キャラ毎のオートキャスティングを直したと思う
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -45,10 +46,22 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     g.SetupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
 
+    --[[acutil.setupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+
+    acutil.setupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+
+    acutil.setupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+
+    acutil.setupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
+
+    acutil.setupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
+
+    acutil.setupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")]]
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
-    if g.settings.mini_btn == 0 then
+    if g.settings.mini_btn == 1 then
         -- 右上のミニボタンを消したりする機能
 
         if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
@@ -56,27 +69,27 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         end
     end
 
-    if g.settings.market_display == 0 then
+    if g.settings.market_display == 1 then
         if mapCls.MapType == "City" then
             addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
         end
     end
 
-    if g.settings.restart_move == 0 then
+    if g.settings.restart_move == 1 then
         addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
         addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
     end
 
-    if g.settings.pet_init == 0 then
+    if g.settings.pet_init == 1 then
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETLIST_FRAME_INIT")
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETINFO")
     end
 
-    if g.settings.dialog_ctrl == 0 then
+    if g.settings.dialog_ctrl == 1 then
         addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
     end
 
-    if g.settings.auto_cast == 0 then
+    if g.settings.auto_cast == 1 then
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
 end
@@ -86,33 +99,38 @@ g.settings = {
     reword_y = 100,
     charid = {},
     allcall = 0,
-    under_staff = 0,
-    raid_record = 0,
-    party_buff = 0,
-    chat_system = 0,
-    channel_display = 0,
-    mini_btn = 0,
-    market_display = 0,
-    restart_move = 0,
-    pet_init = 0,
-    dialog_ctrl = 0,
-    auto_cast = 0,
+    under_staff = 1,
+    raid_record = 1,
+    party_buff = 1,
+    chat_system = 1,
+    channel_display = 1,
+    mini_btn = 1,
+    market_display = 1,
+    restart_move = 1,
+    pet_init = 1,
+    dialog_ctrl = 1,
+    auto_cast = 1,
     auto_casting = {}
 }
 -- オートキャスティング制御
 function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(parent, ctrl)
 
-    if g.settings.auto_cast == 0 then
-        local loginCharID = info.GetCID(session.GetMyHandle())
-        local enable = ctrl:IsChecked()
+    local loginCharID = info.GetCID(session.GetMyHandle())
+    local enable = ctrl:IsChecked()
+
+    if g.settings.auto_cast == 1 then
+        -- CHAT_SYSTEM("test" .. ":1")
         -- CHAT_SYSTEM(tostring(enable))
-        g.settings.auto_cast[loginCharID] = enable
+        g.settings.auto_casting[loginCharID] = enable
         MINI_ADDONS_SAVE_SETTINGS()
         MINI_ADDONS_LOAD_SETTINGS()
         config.SetEnableAutoCasting(enable)
         config.SaveConfig()
     else
-        local enable = ctrl:IsChecked()
+        -- CHAT_SYSTEM("test" .. ":0")
+        g.settings.auto_casting[loginCharID] = enable
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
         config.SetEnableAutoCasting(enable)
         config.SaveConfig()
     end
@@ -192,7 +210,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     under_staff_checkbox:SetCheck(g.settings.under_staff)
     under_staff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     under_staff_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, 45)
     raid_record:SetText("{ol}{#FFFFFF}Raid records movable and resizable")
@@ -204,7 +222,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     raid_record_checkbox:SetCheck(g.settings.raid_record)
     raid_record_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     raid_record_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 40, 75)
     party_buff:SetText("{ol}{#FFFFFF}Ability to reduce the display of buffs for party members")
@@ -216,7 +234,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     party_buff_checkbox:SetCheck(g.settings.party_buff)
     party_buff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     party_buff_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, 105)
     chat_system:SetText("{ol}{#FFFFFF}Perfect effect is not displayed in system chat")
@@ -228,7 +246,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     chat_system_checkbox:SetCheck(g.settings.chat_system)
     chat_system_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     chat_system_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, 135)
     channel_display:SetText("{ol}{#FFFFFF}Fixed channel display misalignment")
@@ -240,7 +258,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     channel_display_checkbox:SetCheck(g.settings.channel_display)
     channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     channel_display_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, 165)
     mini_btn:SetText("{ol}{#FFFFFF}Hide mini-button in upper right corner during raid")
@@ -252,7 +270,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     mini_btn_checkbox:SetCheck(g.settings.mini_btn)
     mini_btn_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     mini_btn_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, 195)
     market_display:SetText(
@@ -265,7 +283,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     market_display_checkbox:SetCheck(g.settings.market_display)
     market_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     market_display_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, 225)
     restart_move:SetText("{ol}{#FFFFFF}Enable to move the choice frame at restart. For colony visits.")
@@ -277,7 +295,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     restart_move_checkbox:SetCheck(g.settings.restart_move)
     restart_move_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     restart_move_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, 255)
     pet_init:SetText("{ol}{#FFFFFF}Ability to display a pet summoning frame.")
@@ -289,7 +307,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     pet_init_checkbox:SetCheck(g.settings.pet_init)
     pet_init_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     pet_init_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, 285)
     dialog_ctrl:SetText("{ol}{#FFFFFF}Controls various dialogs.")
@@ -301,7 +319,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     dialog_ctrl_checkbox:SetCheck(g.settings.dialog_ctrl)
     dialog_ctrl_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     dialog_ctrl_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local auto_cast = frame:CreateOrGetControl("richtext", "auto_cast", 40, 315)
     auto_cast:SetText("{ol}{#FFFFFF}Autocasting is set up for each character.")
@@ -313,7 +331,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     auto_cast_checkbox:SetCheck(g.settings.auto_cast)
     auto_cast_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     auto_cast_checkbox:SetTextTooltip(
-        "{@st59}チェックすると無効化{nl}Disabled when checked{nl}체크하면 비활성화")
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
     local description = frame:CreateOrGetControl("richtext", "description", 140, 345)
     description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
@@ -464,17 +482,17 @@ function MINI_ADDONS_LOAD_SETTINGS()
                 [loginCharID] = 0
             },
             allcall = 0,
-            under_staff = 0,
-            raid_record = 0,
-            party_buff = 0,
-            chat_system = 0,
-            channel_display = 0,
-            mini_btn = 0,
-            market_display = 0,
-            restart_move = 0,
-            pet_init = 0,
-            dialog_ctrl = 0,
-            auto_cast = 0,
+            under_staff = 1,
+            raid_record = 1,
+            party_buff = 1,
+            chat_system = 1,
+            channel_display = 1,
+            mini_btn = 1,
+            market_display = 1,
+            restart_move = 1,
+            pet_init = 1,
+            dialog_ctrl = 1,
+            auto_cast = 1,
             auto_casting = {}
         }
         MINI_ADDONS_SAVE_SETTINGS()
@@ -511,7 +529,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
         if not g.settings.charid[loginCharID] then
             g.settings.charid[loginCharID] = 0
             MINI_ADDONS_SAVE_SETTINGS()
-            ReserveScript("MINI_ADDONS_LOAD_SETTINGS()", 0.1)
+            MINI_ADDONS_LOAD_SETTINGS()
             return
         end
     end
@@ -536,7 +554,7 @@ function MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
 
     local channel = session.loginInfo.GetChannel();
     local zoneInst = session.serverState.GetZoneInst(channel);
-    if g.settings.channel_display == 0 then
+    if g.settings.channel_display == 1 then
         local langcode = option.GetCurrentCountry()
         if langcode == "Japanese" then
             if zoneInst ~= nil then
@@ -551,23 +569,35 @@ function MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
             else
                 curchannel:SetTextByKey("value", "");
             end
-        end
-        return
-    end
-
-    if zoneInst ~= nil then
-        if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
-            local str, stateString = GET_CHANNEL_STRING(zoneInst);
-            curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
         else
-            local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-            local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
-            curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+            if zoneInst ~= nil then
+                if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+                    local str, stateString = GET_CHANNEL_STRING(zoneInst);
+                    curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+                else
+                    local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+                    local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
+                    curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+                end
+            else
+                curchannel:SetTextByKey("value", "");
+            end
+
         end
     else
-        curchannel:SetTextByKey("value", "");
+        if zoneInst ~= nil then
+            if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+                local str, stateString = GET_CHANNEL_STRING(zoneInst);
+                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+            else
+                local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+                local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
+                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
+            end
+        else
+            curchannel:SetTextByKey("value", "");
+        end
     end
-
 end
 --[[5014
 [__m2util] is loaded
@@ -576,7 +606,7 @@ end
 
 function MINI_ADDONS_CHAT_SYSTEM(msg, color)
 
-    if g.settings.chat_system == 0 then
+    if g.settings.chat_system == 1 then
         if msg == "@dicID_^*$ETC_20220830_069434$*^" or msg == "@dicID_^*$ETC_20220830_069435$*^" or msg ==
             "[__m2util] is loaded" or msg == "[adjustlayer] is loaded" or msg == "[extendcharinfo] is loaded" or msg ==
             "[ICC]Attempt to CC." then
@@ -890,7 +920,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
         yesScpStr = 'ReqUnderstaffEnterAllowModeWithParty(' .. indunType .. ')';
     end
 
-    if g.settings.under_staff == 0 then
+    if g.settings.under_staff == 1 then
         if withMatchMode == 'NO' then
             _INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()
             -- INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW_OLD(parent, ctrl)
@@ -1044,7 +1074,7 @@ function MINI_ADDONS_UPDATESETTINGS(frame)
 end
 
 function MINI_ADDONS_RAID_RECORD_INIT(frame)
-    if g.settings.raid_record == 0 then
+    if g.settings.raid_record == 1 then
         local frame = ui.GetFrame("raid_record")
         frame:SetOffset(g.settings.reword_x, g.settings.reword_y)
         frame:SetSkinName("shadow_box")
