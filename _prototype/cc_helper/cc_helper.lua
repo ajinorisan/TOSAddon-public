@@ -2,10 +2,13 @@
 -- v1.0.1 シンプルモード搭載、搬入搬出速度見直し、終了時のメッセージタイミング見直し
 -- v1.0.2　インベの表示微修正　print排除
 -- v1.0.3 シンプルモード→エコモードに変更　エコモード時レジェカ外れない様に。チェックボックスをインベントリに移す
+-- v1.0.4 エーテルジェムマネージャーとコラボ
+-- v1.0.5 エーテルジェムマネージャーとコラボ見直し。ＩＮボタンをシームレスに
+-- v1.0.6 縦長画面でのボタン位置修正。一部ツールチップ追加。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -48,54 +51,42 @@ function CC_HELPER_ON_INIT(addon, frame)
     end
 
     local invframe = ui.GetFrame("inventory")
-    local inventoryGbox = invframe:GetChild("inventoryGbox")
-    local setbtnX = inventoryGbox:GetWidth() - 200
-    local setbtnY = inventoryGbox:GetHeight() - 290
-    local setbtn = invframe:CreateOrGetControl("button", "set", setbtnX, setbtnY, 30, 30)
+
+    local setbtn = invframe:CreateOrGetControl("button", "set", 230, 345, 30, 30)
     AUTO_CAST(setbtn)
     setbtn:SetSkinName("None")
-    setbtn:SetImage("config_button_normal")
-    setbtn:Resize(30, 30)
+    -- setbtn:SetImage("config_button_normal")
+    setbtn:SetText("{img config_button_normal 30 30}")
+    -- setbtn:Resize(30, 30)
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
-
-    local uneqbtnX = inventoryGbox:GetWidth() - 263
-    local uneqbtnY = inventoryGbox:GetHeight() - 290
-    local uneqbtn = invframe:CreateOrGetControl("button", "unequip", uneqbtnX, uneqbtnY, 30, 30)
-    AUTO_CAST(uneqbtn)
-    uneqbtn:SetText("{s12}Rem")
-    uneqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_unequip_seal")
-
-    local eqbtnX = inventoryGbox:GetWidth() - 230
-    local eqbtnY = inventoryGbox:GetHeight() - 290
-    local eqbtn = invframe:CreateOrGetControl("button", "g_equip", eqbtnX, eqbtnY, 30, 30)
-    AUTO_CAST(eqbtn)
-    eqbtn:SetText("{s12}Add")
-    eqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_equip")
-    uneqbtn:ShowWindow(1)
-    eqbtn:ShowWindow(1)
+    setbtn:SetTextTooltip(
+        "{@st59}マウス左ボタンクリック、キャラ毎に出し入れするアイテム設定。{nl}Left mouse button click, setting items to be moved in and out for each character.{/}")
 
     local eco = invframe:CreateOrGetControl("richtext", "eco", 210, 342)
     -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
     eco:SetText("{#FF0000}{s10}Eco")
 
-    local checkbox = invframe:CreateOrGetControl('checkbox', 'checkbox', 207, 351, 7, 7)
-    tolua.cast(checkbox, 'ui::CCheckBox')
+    local checkbox = invframe:CreateOrGetControl('checkbox', 'checkbox', 210, 350, 25, 25)
+    AUTO_CAST(checkbox)
     checkbox:SetCheck(g.ischecked)
     checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_ischecked")
     checkbox:ShowWindow(1)
+    checkbox:SetTextTooltip(
+        "{@st59}チェックすると外すのにシルバーが必要なレジェンドカードとエーテルジェムの動作をスキップします。{nl}If checked, it skips the operation of legend cards and ether gems that require silver to remove.{/}")
 
-    local ecomode = invframe:CreateOrGetControl("richtext", "ecomode", 320, 363)
+    --[[local ecomode = invframe:CreateOrGetControl("richtext", "ecomode", 260, 355)
     -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
     ecomode:SetText("{#FF0000}{s12}EcoMode")
     if g.ischecked == 1 and g.ischecked ~= nil then
         ecomode:ShowWindow(1)
     else
         ecomode:ShowWindow(0)
-    end
+    end]]
 
     acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "CC_HELPER_ACCOUNTWAREHOUSE_CLOSE");
     addon:RegisterMsg("GAME_START_3SEC", "cc_helper_load_settings")
-    addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_invframe_init")
+    -- addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_invframe_init")
+    addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
 
 end
 
@@ -109,29 +100,66 @@ function CC_HELPER_ACCOUNTWAREHOUSE_CLOSE(frame)
 
     inbtn:ShowWindow(0)
     outbtn:ShowWindow(0)
-    uneqbtn:ShowWindow(1)
-    eqbtn:ShowWindow(1)
 
+end
+
+function cc_helper_str(str)
+    local langcode = option.GetCurrentCountry()
+
+    if langcode == "Japanese" then
+        if str == tostring("relese") then
+            str = "解除"
+        end
+        if str == tostring("equip") then
+            str = "装備"
+        end
+
+        return str
+    end
+    return str
+end
+
+function cc_helper_accountwarehouse_init()
+    local invframe = ui.GetFrame("accountwarehouse")
+
+    local inbtn = invframe:CreateOrGetControl("button", "in", 510, 120, 90, 30)
+    AUTO_CAST(inbtn)
+    inbtn:SetText("{@st66b}{img in_arrow 20 20}" .. cc_helper_str("relese"))
+    inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
+    inbtn:ShowWindow(1) -- test_pvp_btn
+    inbtn:SetSkinName("test_pvp_btn")
+
+    local outbtn = invframe:CreateOrGetControl("button", "out", 510, 85, 90, 30)
+    AUTO_CAST(outbtn)
+    outbtn:SetText("{@st66b}{img chul_arrow 20 20}" .. cc_helper_str("equip"))
+    outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
+    outbtn:ShowWindow(1)
+    outbtn:SetSkinName("test_pvp_btn")
 end
 
 function cc_helper_invframe_init()
     local invframe = ui.GetFrame("inventory")
     local inventoryGbox = invframe:GetChild("inventoryGbox")
     -- ボタンの配置位置
-    local inbtnX = inventoryGbox:GetWidth() - 267
-    local inbtnY = inventoryGbox:GetHeight() - 290
-    local inbtn = invframe:CreateOrGetControl("button", "in", inbtnX, inbtnY, 30, 30)
+    local inbtnX = inventoryGbox:GetWidth() - 261
+    local inbtnY = inventoryGbox:GetHeight() - 614
+    local inbtn = invframe:CreateOrGetControl("button", "in", 234, 345, 30, 30)
     AUTO_CAST(inbtn)
-    inbtn:SetText("In")
-    inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn")
+    inbtn:SetText("{s13}In")
+    -- CHAT_SYSTEM(tostring(g.gemid))
+    -- if g.gemid ~= nil then
+    inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
+    -- else
+    --  inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn")
+    -- end
     inbtn:ShowWindow(1)
 
-    local outbtnX = inventoryGbox:GetWidth() - 239
-    local outbtnY = inventoryGbox:GetHeight() - 290
-    local outbtn = invframe:CreateOrGetControl("button", "out", outbtnX, outbtnY, 40, 30)
+    local outbtnX = inventoryGbox:GetWidth() - 231
+    local outbtnY = inventoryGbox:GetHeight() - 614
+    local outbtn = invframe:CreateOrGetControl("button", "out", 265, 345, 30, 30)
     AUTO_CAST(outbtn)
 
-    outbtn:SetText("Out")
+    outbtn:SetText("{s13}Out")
     outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
     outbtn:ShowWindow(1)
 
@@ -233,7 +261,7 @@ function cc_helper_setting()
 end
 
 function cc_helper_out_btn()
-
+    g.agmin = 0
     local fromframe = ui.GetFrame("accountwarehouse")
     local invframe = ui.GetFrame("inventory")
     local invTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
@@ -246,7 +274,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.sealiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
 
                 ReserveScript("cc_helper_out_btn()", 0.3)
                 return
@@ -259,7 +287,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.arkiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
                 ReserveScript("cc_helper_out_btn()", 0.3)
                 return
             end
@@ -274,7 +302,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.legiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
                 ReserveScript("cc_helper_out_btn()", 0.3)
                 return
             end
@@ -286,7 +314,7 @@ function cc_helper_out_btn()
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.godiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
                 ReserveScript("cc_helper_out_btn()", 0.3)
                 return
             end
@@ -409,7 +437,7 @@ function cc_helper_gem_to_account_warehouse()
                         session.ResetItemList()
                         session.AddItemID(tonumber(iesid), 1)
                         item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                        fromframe:GetUserIValue("HANDLE"))
+                            fromframe:GetUserIValue("HANDLE"))
                         ReserveScript("cc_helper_gem_to_account_warehouse()", 0.3)
 
                         return
@@ -432,10 +460,114 @@ function cc_helper_gem_to_account_warehouse()
 end
 
 function cc_helper_end_of_operation()
-    local invframe = ui.GetFrame("inventory")
-    local allTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+    local frame = ui.GetFrame("inventory")
+    local allTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     allTab:SelectTab(0)
+    if g.agmin == 0 then
+        if ADDONS.norisan.AETHERGEM_MGR ~= nil and (g.ischecked == 0 or g.ischecked == nil) then
+            -- local frame = ui.GetFrame("inventory")
+            if g.gemid ~= nil then
+                local equipItemList = session.GetEquipItemList();
+                local rh = GET_CHILD_RECURSIVELY(frame, "RH")
+                local lh = GET_CHILD_RECURSIVELY(frame, "LH")
+                local rh_sub = GET_CHILD_RECURSIVELY(frame, "RH_SUB")
+                local lh_sub = GET_CHILD_RECURSIVELY(frame, "LH_SUB")
+
+                local rh_icon = rh:GetIcon()
+                local lh_icon = lh:GetIcon()
+                local rh_sub_icon = rh_sub:GetIcon()
+                local lh_sub_icon = lh_sub:GetIcon()
+
+                if rh_icon ~= nil then
+                    local rh_icon_info = rh_icon:GetInfo()
+                    local rh_guid = rh_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    -- gem 無い場合は0　ある場合はIES
+                    -- cc_helper_end_of_operation()
+                    -- CHAT_SYSTEM(tostring(gem))
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+                    end
+                    -- print(tostring(gem))
+                elseif lh_icon ~= nil then
+                    local lh_icon_info = lh_icon:GetInfo()
+                    local lh_guid = lh_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+
+                    end
+                elseif rh_sub_icon ~= nil then
+                    local rh_sub_icon_info = lh_icon:GetInfo()
+                    local rh_sub_guid = rh_sub_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_sub_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+
+                    end
+                elseif lh_sub_icon ~= nil then
+                    local lh_sub_icon_info = lh_icon:GetInfo()
+                    local lh_sub_guid = lh_sub_icon_info:GetIESID()
+
+                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_sub_guid).type);
+                    local classID = itemCls.ClassID;
+                    local equip_item = session.GetEquipItemByType(classID)
+                    local gem = equip_item:GetEquipGemID(2)
+                    if gem == 0 then
+
+                        local msg = "Call Aethrgem Manager?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        -- local no_scp = "cc_helper_in_btn()"
+                        ui.MsgBox(msg, yes_scp, "None");
+
+                        return
+
+                    end
+                end
+            else
+                ui.SysMsg("[CCH]end of operation")
+                return
+            end
+        else
+            ui.SysMsg("[CCH]end of operation")
+            return
+        end
+
+        ui.SysMsg("[CCH]end of operation")
+        return
+    end
     ui.SysMsg("[CCH]end of operation")
+    return
 end
 
 function cc_helper_check_items_in_warehouse(iesid)
@@ -450,7 +582,7 @@ function cc_helper_check_items_in_warehouse(iesid)
 end
 
 function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-                           legclassid, godclassid)
+    legclassid, godclassid)
     -- CHAT_SYSTEM("enddrop")
     local loginCharID = info.GetCID(session.GetMyHandle())
     if sealiesid ~= nil then
@@ -568,7 +700,7 @@ function cc_helper_on_legendcard_drop(frame, ctrl, argstr, argnum)
     SET_SLOT_IMG(ctrl, legimage)
     SET_SLOT_IESID(ctrl, item:GetIESID());
     cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-                      legclassid, godclassid)
+        legclassid, godclassid)
 
 end
 
@@ -596,7 +728,7 @@ function cc_helper_on_goddesscard_drop(frame, ctrl, argstr, argnum)
     SET_SLOT_IESID(ctrl, item:GetIESID());
 
     cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-                      legclassid, godclassid)
+        legclassid, godclassid)
 
 end
 
@@ -834,7 +966,141 @@ function cc_helper_ischecked()
 
 end
 
+function cc_helper_in_btn_aethergem_mgr()
+    -- CHAT_SYSTEM("TEST")
+    g.agmin = 1
+    local frame = ui.GetFrame("inventory")
+    if ADDONS.norisan.AETHERGEM_MGR ~= nil then
+        local equipItemList = session.GetEquipItemList();
+        local rh = GET_CHILD_RECURSIVELY(frame, "RH")
+        local lh = GET_CHILD_RECURSIVELY(frame, "LH")
+        local rh_sub = GET_CHILD_RECURSIVELY(frame, "RH_SUB")
+        local lh_sub = GET_CHILD_RECURSIVELY(frame, "LH_SUB")
+
+        local rh_icon = rh:GetIcon()
+        local lh_icon = lh:GetIcon()
+        local rh_sub_icon = rh_sub:GetIcon()
+        local lh_sub_icon = lh_sub:GetIcon()
+
+        if rh_icon ~= nil then
+            local rh_icon_info = rh_icon:GetInfo()
+            local rh_guid = rh_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            -- gem 無い場合は0　ある場合はIES
+            -- cc_helper_end_of_operation()
+            -- CHAT_SYSTEM(tostring(gem))
+            if tostring(gem) == tostring(g.gemid) then
+                cc_helper_msgbox_frame()
+                return
+            end
+            -- print(tostring(gem))
+        elseif lh_icon ~= nil then
+            local lh_icon_info = lh_icon:GetInfo()
+            local lh_guid = lh_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            if tostring(gem) == tostring(g.gemid) then
+                cc_helper_msgbox_frame()
+                return
+            end
+        elseif rh_sub_icon ~= nil then
+            local rh_sub_icon_info = lh_icon:GetInfo()
+            local rh_sub_guid = rh_sub_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(rh_sub_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            if tostring(gem) == tostring(g.gemid) then
+                cc_helper_msgbox_frame()
+                return
+            end
+        elseif lh_sub_icon ~= nil then
+            local lh_sub_icon_info = lh_icon:GetInfo()
+            local lh_sub_guid = lh_sub_icon_info:GetIESID()
+
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(lh_sub_guid).type);
+            local classID = itemCls.ClassID;
+            local equip_item = session.GetEquipItemByType(classID)
+            local gem = equip_item:GetEquipGemID(2)
+            if tostring(gem) == tostring(g.gemid) then
+                cc_helper_msgbox_frame()
+                return
+            else
+
+                cc_helper_in_btn()
+            end
+        else
+
+            cc_helper_in_btn()
+        end
+    else
+        cc_helper_in_btn()
+    end
+
+    cc_helper_in_btn()
+end
+
+function cc_helper_msgbox_frame()
+    --[[
+    local cchframe = ui.GetFrame("cc_helper")
+    cchframe:Resize(400, 140)
+    cchframe:SetPos(980, 300)
+    cchframe:SetTitleBarSkin("None")
+    -- cchframe:SetSkinName("test_Item_tooltip_equip");
+    -- cchframe:SetSkinName("market_listbase");
+    cchframe:SetSkinName("test_frame_midle")
+
+    -- cchframe:SetSkinName("bg");
+
+    local text1 = cchframe:CreateOrGetControl('richtext', 'text1', 15, 20)
+    AUTO_CAST(text1)
+    text1:SetText("{#808080}{s16}{ol}Do you want to start Aethrgem Manager first?")
+    local text2 = cchframe:CreateOrGetControl('richtext', 'text2', 25, 45)
+    AUTO_CAST(text2)
+    text2:SetText("{#808080}{s20}{ol}Aethrgem Manager 起動しますか？")
+
+    local yesbtn = cchframe:CreateOrGetControl('button', 'yes', 115, 80, 80, 40)
+    yesbtn:SetSkinName("test_red_button")
+    yesbtn:SetText("{ol}YES")
+    yesbtn:SetEventScript(ui.LBUTTONDOWN, "AETHERGEM_MGR_GET_EQUIP")
+    yesbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_strat")
+
+    local nobtn = cchframe:CreateOrGetControl('button', 'no', 215, 80, 80, 40)
+    nobtn:SetSkinName("test_gray_button")
+    nobtn:SetText("{ol}NO")
+    nobtn:SetEventScript(ui.LBUTTONDOWN, "cc_helper_in_btn")
+
+    cchframe:ShowWindow(1)
+    ]]
+    local msg = "Do you want to start Aethrgem Manager first?"
+    local yes_scp = "cc_helper_in_btn_strat()"
+    local no_scp = "cc_helper_in_btn()"
+    ui.MsgBox(msg, yes_scp, no_scp);
+
+    -- ReserveScript("cc_helper_in_btn()", 2.5)
+
+    return
+end
+
+function cc_helper_in_btn_strat()
+    local cchframe = ui.GetFrame("cc_helper")
+    cchframe:ShowWindow(0)
+    AETHERGEM_MGR_GET_EQUIP()
+    ReserveScript("cc_helper_in_btn()", 4.0)
+end
+
 function cc_helper_in_btn()
+    -- CHAT_SYSTEM("test")
+    local cchframe = ui.GetFrame("cc_helper")
+    cchframe:ShowWindow(0)
 
     local frame = ui.GetFrame("inventory")
 
