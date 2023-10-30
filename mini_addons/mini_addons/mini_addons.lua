@@ -1,9 +1,10 @@
 -- v1.0.0 freefromtrivialsttresからの焼き直し。オートキャスティングをキャラ毎に。機能の有効化無効化を選択出来る様に。
 -- v1.0.1 チェック外したら機能しない様に。各キャラ毎のオートキャスティングを直したと思う
+-- v1.0.2 ADDONSに表示されない人がいるのでMINIMAP左下ボタンに変更
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -31,7 +32,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    acutil.addSysIcon("mini_addons", "sysmenu_mac", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
+    -- acutil.addSysIcon("mini_addons", "sysmenu_mac", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
     MINI_ADDONS_LOAD_SETTINGS()
     -- CHAT_SYSTEM("test")
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
@@ -92,6 +93,8 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     if g.settings.auto_cast == 1 then
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
+
+    MINI_ADDONS_NEW_FRAME_INIT()
 end
 
 g.settings = {
@@ -179,6 +182,25 @@ function MINI_ADDONS_FRAME_CLOSE(frame)
 
 end
 
+function MINI_ADDONS_NEW_FRAME_INIT()
+
+    local newframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_new", 0, 0, 110, 50)
+    AUTO_CAST(newframe)
+
+    newframe:SetSkinName('None')
+    newframe:Resize(30, 30)
+    newframe:SetPos(1580, 305)
+    newframe:SetTitleBarSkin("None")
+
+    local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 25, 30)
+    btn:SetSkinName("None")
+    btn:SetText("{img mine_pvp_icon_player 30 30}")
+    btn:SetTextTooltip("{@st59}Mini Addons setting{nl}Mini Addons設定{/}")
+
+    btn:SetEventScript(ui.LBUTTONDOWN, "MINI_ADDONS_SETTING_FRAME_INIT")
+    newframe:ShowWindow(1)
+end
+
 function MINI_ADDONS_SETTING_FRAME_INIT()
 
     local frame = ui.GetFrame("mini_addons")
@@ -187,7 +209,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     frame:SetSkinName("bg")
     frame:SetLayerLevel(93)
     frame:Resize(710, 380)
-    frame:SetPos(1050, 600)
+    frame:SetPos(1150, 400)
     frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
     frame:EnableHide(0)
