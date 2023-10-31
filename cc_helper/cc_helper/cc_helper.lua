@@ -5,10 +5,11 @@
 -- v1.0.4 エーテルジェムマネージャーとコラボ
 -- v1.0.5 エーテルジェムマネージャーとコラボ見直し。ＩＮボタンをシームレスに
 -- v1.0.6 縦長画面でのボタン位置修正。一部ツールチップ追加。
+-- v1.0.7 インアウトボタンをチーム倉庫にも付けた。センス溢れるUIに。monstercard_changeのボタンもチーム倉庫に付けた。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -51,59 +52,47 @@ function CC_HELPER_ON_INIT(addon, frame)
     end
 
     local invframe = ui.GetFrame("inventory")
-    local inventoryGbox = invframe:GetChild("inventoryGbox")
-    local setbtnX = inventoryGbox:GetWidth() - 200
-    local setbtnY = inventoryGbox:GetHeight() - 614
-    local setbtn = invframe:CreateOrGetControl("button", "set", 296, 345, 30, 30)
+
+    local setbtn = invframe:CreateOrGetControl("button", "set", 230, 345, 30, 30)
     AUTO_CAST(setbtn)
     setbtn:SetSkinName("None")
-    setbtn:SetImage("config_button_normal")
-    setbtn:Resize(30, 30)
+    -- setbtn:SetImage("config_button_normal")
+    setbtn:SetText("{img config_button_normal 30 30}")
+    -- setbtn:Resize(30, 30)
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
     setbtn:SetTextTooltip(
         "{@st59}マウス左ボタンクリック、キャラ毎に出し入れするアイテム設定。{nl}Left mouse button click, setting items to be moved in and out for each character.{/}")
 
-    --[[
-    local uneqbtnX = inventoryGbox:GetWidth() - 263
-    local uneqbtnY = inventoryGbox:GetHeight() - 290
-    local uneqbtn = invframe:CreateOrGetControl("button", "unequip", uneqbtnX, uneqbtnY, 30, 30)
-    AUTO_CAST(uneqbtn)
-    uneqbtn:SetText("{s12}Rem")
-    uneqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_unequip_seal")
-
-    local eqbtnX = inventoryGbox:GetWidth() - 230
-    local eqbtnY = inventoryGbox:GetHeight() - 290
-    local eqbtn = invframe:CreateOrGetControl("button", "g_equip", eqbtnX, eqbtnY, 30, 30)
-    AUTO_CAST(eqbtn)
-    eqbtn:SetText("{s12}Add")
-    eqbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_equip")
-    uneqbtn:ShowWindow(1)
-    eqbtn:ShowWindow(1)
-]]
     local eco = invframe:CreateOrGetControl("richtext", "eco", 210, 342)
     -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
     eco:SetText("{#FF0000}{s10}Eco")
 
-    local checkbox = invframe:CreateOrGetControl('checkbox', 'checkbox', 210, 351, 7, 7)
-    tolua.cast(checkbox, 'ui::CCheckBox')
+    local checkbox = invframe:CreateOrGetControl('checkbox', 'checkbox', 210, 350, 25, 25)
+    AUTO_CAST(checkbox)
     checkbox:SetCheck(g.ischecked)
     checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_ischecked")
     checkbox:ShowWindow(1)
     checkbox:SetTextTooltip(
         "{@st59}チェックすると外すのにシルバーが必要なレジェンドカードとエーテルジェムの動作をスキップします。{nl}If checked, it skips the operation of legend cards and ether gems that require silver to remove.{/}")
 
-    local ecomode = invframe:CreateOrGetControl("richtext", "ecomode", 320, 363)
+    --[[local ecomode = invframe:CreateOrGetControl("richtext", "ecomode", 260, 355)
     -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
     ecomode:SetText("{#FF0000}{s12}EcoMode")
     if g.ischecked == 1 and g.ischecked ~= nil then
         ecomode:ShowWindow(1)
     else
         ecomode:ShowWindow(0)
-    end
+    end]]
 
     acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "CC_HELPER_ACCOUNTWAREHOUSE_CLOSE");
     addon:RegisterMsg("GAME_START_3SEC", "cc_helper_load_settings")
-    addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_invframe_init")
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        -- addon:RegisterMsg("GAME_START", "cc_helper_invframe_init")
+        addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
+    end
 
 end
 
@@ -117,13 +106,82 @@ function CC_HELPER_ACCOUNTWAREHOUSE_CLOSE(frame)
 
     inbtn:ShowWindow(0)
     outbtn:ShowWindow(0)
-    -- uneqbtn:ShowWindow(1)
-    -- eqbtn:ShowWindow(1)
 
+end
+
+function cc_helper_str(str)
+    local langcode = option.GetCurrentCountry()
+
+    if langcode == "Japanese" then
+        if str == tostring("relese") then
+            str = "解除"
+        end
+        if str == tostring("equip") then
+            str = "装備"
+        end
+
+        return str
+    end
+    return str
+end
+
+function cc_helper_accountwarehouse_init()
+    local awhframe = ui.GetFrame("accountwarehouse")
+
+    local awh_inbtn = awhframe:CreateOrGetControl("button", "in", 545, 120, 40, 30)
+    AUTO_CAST(awh_inbtn)
+    awh_inbtn:SetText("{img in_arrow 20 20}") -- {@st66}
+    awh_inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
+    awh_inbtn:ShowWindow(1) -- test_pvp_btn
+    awh_inbtn:SetSkinName("test_pvp_btn")
+    awh_inbtn:SetTextTooltip(
+        "{@st59}Character Change Helper{nl}装備を外して倉庫へ搬入します。{nl}The equipment is removed and brought into the warehouse.{/}")
+
+    local awh_outbtn = awhframe:CreateOrGetControl("button", "out", 585, 120, 40, 30)
+    AUTO_CAST(awh_outbtn)
+    awh_outbtn:SetText("{@st66b}{img chul_arrow 20 20}")
+    awh_outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
+    awh_outbtn:ShowWindow(1)
+    awh_outbtn:SetSkinName("test_pvp_btn")
+    awh_outbtn:SetTextTooltip(
+        "{@st59}Character Change Helper{nl}倉庫から搬出して装備します。{nl}It is carried out from the warehouse and equipped.{/}")
+
+    if _G.ADDONS.norisan.monstercard_change ~= nil then
+
+        local mccbtn = awhframe:CreateOrGetControl("button", "mcc", 625, 120, 30, 30)
+        AUTO_CAST(mccbtn)
+        mccbtn:SetSkinName("test_red_button")
+        mccbtn:SetTextAlign("right", "center")
+        mccbtn:SetText("{img monsterbtn_image 30 20}{/}")
+        mccbtn:SetTextTooltip(
+            "{@st59}カード自動搬出入、自動着脱{nl}Automatic card loading/unloading, automatic insertion/removal{/}")
+        mccbtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_MONSTERCARDPRESET_FRAME_OPEN")
+    end
+
+    cc_helper_invframe_init()
 end
 
 function cc_helper_invframe_init()
     local invframe = ui.GetFrame("inventory")
+
+    local inbtn = invframe:CreateOrGetControl("button", "inv_in", 260, 345, 30, 30)
+    AUTO_CAST(inbtn)
+    inbtn:SetText("{img in_arrow 20 20}") -- {@st66}
+    inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
+    inbtn:ShowWindow(1) -- test_pvp_btn
+    inbtn:SetSkinName("test_pvp_btn")
+    inbtn:SetTextTooltip(
+        "{@st59}Character Change Helper{nl}装備を外して倉庫へ搬入します。{nl}The equipment is removed and brought into the warehouse.{/}")
+
+    local outbtn = invframe:CreateOrGetControl("button", "inv_out", 290, 345, 30, 30)
+    AUTO_CAST(outbtn)
+    outbtn:SetText("{@st66b}{img chul_arrow 20 20}")
+    outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
+    outbtn:ShowWindow(1)
+    outbtn:SetSkinName("test_pvp_btn")
+    outbtn:SetTextTooltip(
+        "{@st59}Character Change Helper{nl}倉庫から搬出して装備します。{nl}It is carried out from the warehouse and equipped.{/}")
+    --[[local invframe = ui.GetFrame("inventory")
     local inventoryGbox = invframe:GetChild("inventoryGbox")
     -- ボタンの配置位置
     local inbtnX = inventoryGbox:GetWidth() - 261
@@ -151,7 +209,7 @@ function cc_helper_invframe_init()
     local uneqbtn = GET_CHILD_RECURSIVELY(invframe, "unequip")
     local eqbtn = GET_CHILD_RECURSIVELY(invframe, "g_equip")
     uneqbtn:ShowWindow(0)
-    eqbtn:ShowWindow(0)
+    eqbtn:ShowWindow(0)]]
 
 end
 

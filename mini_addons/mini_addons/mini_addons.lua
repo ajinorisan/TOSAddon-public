@@ -1,10 +1,11 @@
 -- v1.0.0 freefromtrivialsttresからの焼き直し。オートキャスティングをキャラ毎に。機能の有効化無効化を選択出来る様に。
 -- v1.0.1 チェック外したら機能しない様に。各キャラ毎のオートキャスティングを直したと思う
 -- v1.0.2 ADDONSに表示されない人がいるのでMINIMAP左下ボタンに変更
+-- v1.0.3 バフ一覧設定がテレコになっていたのを修正。センスのないボタンを変更
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -178,6 +179,7 @@ function MINI_ADDONS_SET_ENABLE_AUTO_CASTING(frame)
 end
 
 function MINI_ADDONS_FRAME_CLOSE(frame)
+    local frame = ui.GetFrame("mini_addons")
     frame:ShowWindow(0)
 
 end
@@ -194,15 +196,16 @@ function MINI_ADDONS_NEW_FRAME_INIT()
 
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 25, 30)
     btn:SetSkinName("None")
-    btn:SetText("{img mine_pvp_icon_player 30 30}")
+    -- btn:SetText("{img mine_pvp_icon_player 30 30}")
+    btn:SetText("{img sysmenu_mac 30 30}")
     btn:SetTextTooltip("{@st59}Mini Addons setting{nl}Mini Addons設定{/}")
 
     btn:SetEventScript(ui.LBUTTONDOWN, "MINI_ADDONS_SETTING_FRAME_INIT")
+
     newframe:ShowWindow(1)
 end
 
 function MINI_ADDONS_SETTING_FRAME_INIT()
-
     local frame = ui.GetFrame("mini_addons")
 
     -- frame:SetSkinName("test_frame_low")
@@ -712,7 +715,7 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
                             local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
                             local slot = nil;
                             if cls.Group1 == 'Buff' then
-                                if g.settings.party_buff == 0 then
+                                if g.settings.party_buff == 1 then
                                     if not MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
                                         slot = buffListSlotSet:GetSlotByIndex(buffIndex);
                                         buffIndex = buffIndex + 1;
