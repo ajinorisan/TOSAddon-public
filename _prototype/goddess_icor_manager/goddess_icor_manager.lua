@@ -656,26 +656,193 @@ function goddess_icor_manager_newframe_init()
     -- CHAT_SYSTEM("test")
     local newframe = ui.CreateNewFrame("notice_on_pc", "goddess_icor_manager_newframe", 0, 0, 0, 0)
     AUTO_CAST(newframe)
-    newframe:SetOffset(1435, 20)
-    newframe:Resize(500, 995)
+    newframe:SetOffset(1425, 5)
+    newframe:Resize(300, 1070)
     newframe:SetSkinName('base_btn')
-
     newframe:SetLayerLevel(121)
+    newframe:RemoveAllChild();
+    local x = 0
+    for i = 1, #managed_list do
+        local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 10, x + 10, 280, 130)
+        AUTO_CAST(new_bg)
+        new_bg:SetSkinName("test_frame_midle_light");
+        local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 10, 5)
+        local slot_info = managed_list[i]
+        slot:SetText("{ol}" .. goddess_icor_manager_language(slot_info))
+        new_bg:ShowWindow(1)
+        x = x + 131
+    end
     newframe:ShowWindow(1)
 
     for i = 1, #managed_list do
-        local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 10, 10, 281, 490)
-        AUTO_CAST(new_bg)
+
         local slot_info = managed_list[i]
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.SlotName))
+
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info))
+
         local item_obj = GetIES(inv_item:GetObject())
+
         local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-        print(tostring(item_dic))
+        local size = item_dic["Size"]
+        print(tostring(slot_info))
+        print(tostring(size))
+        local jx = 25
+        for j = 1, size do
+            local key = "RandomOption_" .. j
+            local value_key = "RandomOptionValue_" .. j
+            local group_key = "RandomOptionGroup_" .. j
+            local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
+            local text = bg:CreateOrGetControl("richtext", "text" .. j, 10, jx)
+            local option = item_dic[key]
+            local value = item_dic[value_key]
+            local group = item_dic[group_key]
+            -- manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+            local color = goddess_icor_manager_color(tostring(group))
+            -- option:SetText("{ol}" .. color .. goddess_icor_manager_language(parts1[k]) .. "{ol}{#FFFFFF} : " ..
+            --                   "{ol}{#FFFFFF}" .. parts3[k])
+            text:SetText("{ol}" .. color .. goddess_icor_manager_language(option) .. "{#FFFFFF}:" .. value)
+            jx = jx + 20
+            -- print(formatted)
+        end
+
+    end
+
+    for i = 1, 8 do
+
     end
 end
 
-function goddess_icor_manager_equip(newframe)
+function goddess_icor_manager_set_frame_color_equip(manage_bg, parts1, parts2, parts3, manage_text)
+    local frameName = manage_bg:GetName()
+    -- print(tostring(manage_bg:GetName()))
+    if frameName == "manage_bg1" or frameName == "manage_bg2" or frameName == "manage_bg7" or frameName == "manage_bg8" then
+        for i = 1, #high500weapontbl do
+            local key = high500weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
 
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
+
+                    local text = manage_text:GetText()
+                    if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
+                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
+
+                    end
+                    return "FFFFD700"
+                end
+            end
+        end
+        for i = 1, #low500weapontbl do
+            local key = low500weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    local text = manage_text:GetText()
+                    if string.find(text, " LV500") == nil then
+                        manage_text:SetText(text .. "{ol} LV500")
+                    end
+                    return "FFFFFACD"
+                end
+            end
+        end
+        for i = 1, #high480weapontbl do
+            local key = high480weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    local text = manage_text:GetText()
+                    if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
+                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
+
+                    end
+                    return "AA000000"
+                end
+            end
+        end
+        for i = 1, #low480weapontbl do
+            local key = low480weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    local text = manage_text:GetText()
+                    if string.find(text, " LV480") == nil then
+                        manage_text:SetText(text .. "{ol} LV480")
+                    end
+                    return "AA000000"
+                end
+            end
+        end
+    else
+        for i = 1, #high500armortbl do
+            local key = high500armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    local text = manage_text:GetText()
+                    if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
+                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
+
+                    end
+                    return "FFFFD700"
+                end
+            end
+        end
+        for i = 1, #low500armortbl do
+            local key = low500armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    local text = manage_text:GetText()
+                    if string.find(text, " LV500") == nil then
+                        manage_text:SetText(text .. "{ol} LV500")
+                    end
+                    return "FFFFFACD"
+                end
+            end
+        end
+        for i = 1, #high480armortbl do
+            local key = high480armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    local text = manage_text:GetText()
+                    if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
+                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
+
+                    end
+                    return "AA000000"
+                end
+            end
+        end
+        for i = 1, #low480armortbl do
+            local key = low480armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    local text = manage_text:GetText()
+                    if string.find(text, " LV480") == nil then
+                        manage_text:SetText(text .. "{ol} LV480")
+                    end
+                    return "AA000000"
+                end
+            end
+        end
+    end
+    return "AA000000"
 end
 --[[ local token = StringSplit(arg_str, ';')
 local name = token[1]
