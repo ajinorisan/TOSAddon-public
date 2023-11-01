@@ -650,16 +650,32 @@ function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
 end
 
+local managed_list = {'RH', 'LH', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS', 'RH_SUB', 'LH_SUB'}
+
 function goddess_icor_manager_newframe_init()
     -- CHAT_SYSTEM("test")
     local newframe = ui.CreateNewFrame("notice_on_pc", "goddess_icor_manager_newframe", 0, 0, 0, 0)
     AUTO_CAST(newframe)
     newframe:SetOffset(1435, 20)
-    newframe:Resize(300, 995)
+    newframe:Resize(500, 995)
     newframe:SetSkinName('base_btn')
 
     newframe:SetLayerLevel(121)
     newframe:ShowWindow(1)
+
+    for i = 1, #managed_list do
+        local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 10, 10, 281, 490)
+        AUTO_CAST(new_bg)
+        local slot_info = managed_list[i]
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.SlotName))
+        local item_obj = GetIES(inv_item:GetObject())
+        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+        print(tostring(item_dic))
+    end
+end
+
+function goddess_icor_manager_equip(newframe)
+
 end
 --[[ local token = StringSplit(arg_str, ';')
 local name = token[1]
@@ -689,8 +705,6 @@ function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
 
     return option_prop, group_prop, value_prop, is_goddess_option
 end
-
-local managed_list = {'RH', 'LH', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS', 'RH_SUB', 'LH_SUB'}
 
 function goddess_icor_manager_list_gb_init(frame)
 
