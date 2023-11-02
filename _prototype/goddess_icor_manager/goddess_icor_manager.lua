@@ -666,9 +666,7 @@ function goddess_icor_manager_newframe_init()
         local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 10, x + 10, 280, 130)
         AUTO_CAST(new_bg)
         new_bg:SetSkinName("test_frame_midle_light");
-        local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 10, 5)
-        local slot_info = managed_list[i]
-        slot:SetText("{ol}" .. goddess_icor_manager_language(slot_info))
+
         new_bg:ShowWindow(1)
         x = x + 131
     end
@@ -677,15 +675,16 @@ function goddess_icor_manager_newframe_init()
     for i = 1, #managed_list do
 
         local slot_info = managed_list[i]
+        local new_bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
+        local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 10, 5)
+        slot:SetText("{ol}" .. goddess_icor_manager_language(slot_info))
 
         local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info))
-
         local item_obj = GetIES(inv_item:GetObject())
-
         local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
         local size = item_dic["Size"]
-        print(tostring(slot_info))
-        print(tostring(size))
+        -- print(tostring(slot_info))
+        -- print(tostring(size))
         local jx = 25
         for j = 1, size do
             local key = "RandomOption_" .. j
@@ -701,148 +700,193 @@ function goddess_icor_manager_newframe_init()
             -- option:SetText("{ol}" .. color .. goddess_icor_manager_language(parts1[k]) .. "{ol}{#FFFFFF} : " ..
             --                   "{ol}{#FFFFFF}" .. parts3[k])
             text:SetText("{ol}" .. color .. goddess_icor_manager_language(option) .. "{#FFFFFF}:" .. value)
+
             jx = jx + 20
             -- print(formatted)
         end
+        local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
+        local colortone = goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
+        bg:SetColorTone(colortone)
 
     end
 
-    for i = 1, 8 do
-
-    end
 end
 
-function goddess_icor_manager_set_frame_color_equip(manage_bg, parts1, parts2, parts3, manage_text)
-    local frameName = manage_bg:GetName()
-    -- print(tostring(manage_bg:GetName()))
-    if frameName == "manage_bg1" or frameName == "manage_bg2" or frameName == "manage_bg7" or frameName == "manage_bg8" then
-        for i = 1, #high500weapontbl do
-            local key = high500weapontbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
+function goddess_icor_manager_check(i)
+    local frame = ui.GetFrame("goddess_icor_manager")
+    local equipframe = ui.GetFrame("goddess_icor_manager_newframe")
 
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
+    local equip_tbl = {}
 
-                    local text = manage_text:GetText()
+    local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. i)
+    -- local slot = GET_CHILD_RECURSIVELY(new_bg, "slot" .. i)
+    -- local slot_text = slot:GetText()
+    local equip_textcount = new_bg:GetChildCount() - 1
+    for j = 1, equip_textcount do
+        local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. j):GetText()
+        table.insert(equip_tbl, text)
+    end
+
+    local acc = GetMyAccountObj()
+    local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+    local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
+    local icor_tbl = {}
+
+    local manage_bg = GET_CHILD_RECURSIVELY(frame, "manage_bg" .. i)
+    -- local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. i)
+    local bg_textcount = manage_bg:GetChildCount() - 1
+
+    for j = 1, bg_textcount do
+        local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. j):GetText()
+        table.insert(icor_tbl, text)
+    end
+
+    if tostring(equip_tbl[i]) == tostring(icor_tbl[i]) then
+
+        local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. i)
+        manage_text:SetText(manage_text:GetText() .. "{ img star_mark3 20 20 }")
+        local slot = GET_CHILD_RECURSIVELY(equipframe, "slot" .. i)
+        slot:SetText(slot:GetText() .. " " .. pagename_text)
+    end
+
+end
+
+function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
+    local frameName = bg:GetName()
+    if frameName == "new_bg1" or frameName == "new_bg2" or frameName == "new_bg7" or frameName == "new_bg8" then
+        for i = 1, size do
+            local key = "RandomOption_" .. i
+            local value_key = "RandomOptionValue_" .. i
+            local option = item_dic[key]
+            local value = item_dic[value_key]
+
+            for j = 1, #high500weapontbl do
+                local tblkey = high500weapontbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-
+                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
                     end
                     return "FFFFD700"
                 end
             end
-        end
-        for i = 1, #low500weapontbl do
-            local key = low500weapontbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+
+            for j = 1, #low500weapontbl do
+                local tblkey = low500weapontbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, " LV500") == nil then
-                        manage_text:SetText(text .. "{ol} LV500")
+                        slot:SetText(text .. "{ol} LV500")
                     end
                     return "FFFFFACD"
                 end
             end
-        end
-        for i = 1, #high480weapontbl do
-            local key = high480weapontbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
 
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+            for j = 1, #high480weapontbl do
+                local tblkey = high480weapontbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-
+                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
                     end
                     return "AA000000"
                 end
             end
-        end
-        for i = 1, #low480weapontbl do
-            local key = low480weapontbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
 
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+            for j = 1, #low480weapontbl do
+                local tblkey = low480weapontbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, " LV480") == nil then
-                        manage_text:SetText(text .. "{ol} LV480")
+                        slot:SetText(text .. "{ol} LV480")
                     end
                     return "AA000000"
                 end
             end
+
+            return "AA000000"
         end
     else
-        for i = 1, #high500armortbl do
-            local key = high500armortbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
 
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+        for i = 1, size do
+            local key = "RandomOption_" .. i
+            local value_key = "RandomOptionValue_" .. i
+            local option = item_dic[key]
+            local value = item_dic[value_key]
+
+            for j = 1, #high500armortbl do
+                local tblkey = high500armortbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-
+                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
                     end
                     return "FFFFD700"
                 end
             end
-        end
-        for i = 1, #low500armortbl do
-            local key = low500armortbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+
+            for j = 1, #low500armortbl do
+                local tblkey = low500armortbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, " LV500") == nil then
-                        manage_text:SetText(text .. "{ol} LV500")
+                        slot:SetText(text .. "{ol} LV500")
                     end
                     return "FFFFFACD"
                 end
             end
-        end
-        for i = 1, #high480armortbl do
-            local key = high480armortbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
 
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+            for j = 1, #high480armortbl do
+                local tblkey = high480armortbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-
+                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
                     end
                     return "AA000000"
                 end
             end
-        end
-        for i = 1, #low480armortbl do
-            local key = low480armortbl[i]
-            local keyName = next(key)
-            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
-            for j = 1, #parts1 do
 
-                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+            for j = 1, #low480armortbl do
+                local tblkey = low480armortbl[i]
+                local keyname = next(tblkey)
+                local tblvalue = tblkey[next(tblkey)]
+
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
                     if string.find(text, " LV480") == nil then
-                        manage_text:SetText(text .. "{ol} LV480")
+                        slot:SetText(text .. "{ol} LV480")
                     end
                     return "AA000000"
                 end
             end
+
+            return "AA000000"
         end
+
     end
-    return "AA000000"
+
 end
 --[[ local token = StringSplit(arg_str, ';')
 local name = token[1]
@@ -957,6 +1001,7 @@ function goddess_icor_manager_list_gb_init(frame)
                 end]]
 
                     goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
+                    goddess_icor_manager_check(j) -- 追記
                 end
             end
 
@@ -1414,8 +1459,9 @@ function goddess_icor_manager_list_init()
     close:SetMargin(0, 0, 20, -70);
     close:ShowWindow(1)
     close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")]]
-    goddess_icor_manager_list_gb_init(frame)
     goddess_icor_manager_newframe_init()
+    goddess_icor_manager_list_gb_init(frame)
+
     -- close:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_maxcount")
 end
 
