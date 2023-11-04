@@ -32,10 +32,10 @@
 		"name" : "Goddess Icor Manager",
 		"file" : "goddess_icor_manager",
 		"extension" : "ipf",
-		"fileVersion" : "v0.0.2",
+		"fileVersion" : "v1.0.0",
 		"releaseTag" : "goddess_icor_manager",
 		"unicode" : "⛄",
-		"description" : "登録済みのイコルを色分けしてリスト表示します。チケットが切れて見えない所まで表示します。英語版は変換が不明なので日本語限定かな？テスト版",
+		"description" : "登録済みのイコルを色分けしてリスト表示します。チケットが切れて見えない所まで表示します。英語版は変換が不明なので日本語限定かな？ボタンでイコル上書きします。",
 		"tags" : []
 	},
 	{
