@@ -2,10 +2,11 @@
 -- v1.0.3 SetupHookの競合修正
 -- v1.0.4 23.09.05patch対応。修理キット買うコード変えてやがった許せねえ。
 -- v1.0.5 数量設定を可能に
+-- v1.0.6 イベント修理キットと緊急修理キットを先に使うように設定('EVENT_2005_repairPotion')と('Premium_repairPotion')それ以外持ってない
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -41,8 +42,8 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
     -- g.settingframe:ShowWindow(0)
     -- CHAT_SYSTEM(addonNameLower .. " loaded")
     -- acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
-    g.SetupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
-    -- g.SetupHook(AUTO_REPAIR_DRAW_EXCHANGE_SHOP_IETMS, "DRAW_EXCHANGE_SHOP_IETMS")
+    -- g.SetupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
+    acutil.setupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
     -- g.SetupHook(AUTO_REPAIR_ACCOUNT_EXCHANGE_CREATE_TREE_NODE_CTRL, "EXCHANGE_CREATE_TREE_NODE_CTRL")
     --[[
     ['VakarineCertificate'] = 
@@ -51,7 +52,7 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
         ['propName'] = 'VakarineCertificate',
     }
 ]] -- 11200243
-    acutil.addSysIcon("auto_repair", "sysmenu_sys", "auto_repair", "AUTO_REPAIR_SETTING_FRAME_INIT")
+    acutil.addSysIcon("auto_repair", "sysmenu_sys", "Auto Repair", "AUTO_REPAIR_SETTING_FRAME_INIT")
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
@@ -303,34 +304,77 @@ end
 
 function AUTO_REPAIR_ITEM_USE(obj)
     session.ResetItemList()
+    local autorepair_item_normal = session.GetInvItemByName('Premium_repairPotion')
+    local autorepair_item_event = session.GetInvItemByName('EVENT_2005_repairPotion')
     local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_500')
 
-    if autorepair_item == nil then
+    if autorepair_item_event ~= nil then
+        CHAT_SYSTEM("autorepair_item_event")
+        local repeatCount = math.min(autorepair_item_event.count, 4)
+        if autorepair_item_event.isLockState ~= true then
+            for i = 0, repeatCount - 1 do
+                if obj.Dur / obj.MaxDur < 0.9 then
+                    item.UseByGUID(autorepair_item_event:GetIESID())
+
+                else
+                    break
+                end
+            end
+        end
+
+    elseif autorepair_item_normal ~= nil then
+        CHAT_SYSTEM("autorepair_item_normal")
+        local repeatCount = math.min(autorepair_item_normal.count, 4)
+        if autorepair_item_normal.isLockState ~= true then
+            for i = 0, repeatCount - 1 do
+                if obj.Dur / obj.MaxDur < 0.9 then
+                    item.UseByGUID(autorepair_item_normal:GetIESID())
+
+                else
+                    break
+                end
+            end
+        end
+
+    elseif autorepair_item ~= nil then
+        CHAT_SYSTEM("autorepair_item")
+        local repeatCount = math.min(autorepair_item.count, 4)
+        if autorepair_item.isLockState ~= true then
+            for i = 0, repeatCount - 1 do
+                if obj.Dur / obj.MaxDur < 0.9 then
+                    item.UseByGUID(autorepair_item:GetIESID())
+
+                else
+                    break
+                end
+            end
+        end
+    else
+        CHAT_SYSTEM("Not have a repair kit.")
+        return
+    end
+
+    --[[if autorepair_item == nil then
 
         CHAT_SYSTEM('[Lv.500]緊急修理キットがありません')
         CHAT_SYSTEM('[Lv.500] Urgent Repair Kit is not available.')
         return
-    end
-
-    if autorepair_item.isLockState == true then
-
+    elseif autorepair_item.isLockState == true then
         CHAT_SYSTEM(ClMsg('MaterialItemIsLock'))
         return
-    end
+    else
+        local repeatCount = math.min(autorepair_item.count, 4)
 
-    local repeatCount = math.min(autorepair_item.count, 4)
-    -- ui.SysMsg("Automatic repair of equipment.") 表示が邪魔なので消した。v1.0.1
-    -- ui.ChatMsg("Automatic repair of equipment.")
-    -- CHAT_SYSTEM("Automatic repair of equipment.")
+        for i = 0, repeatCount - 1 do
+            if obj.Dur / obj.MaxDur < 0.9 then
+                item.UseByGUID(autorepair_item:GetIESID())
 
-    for i = 0, repeatCount - 1 do
-        if obj.Dur / obj.MaxDur < 0.9 then
-            item.UseByGUID(autorepair_item:GetIESID())
-
-        else
-            break
+            else
+                break
+            end
         end
-    end
+    end]]
+
     -- ReserveScript(string.format("AUTO_REPAIR_ITEM_USE(\"%s\")", obj), 1.0)
 
 end
