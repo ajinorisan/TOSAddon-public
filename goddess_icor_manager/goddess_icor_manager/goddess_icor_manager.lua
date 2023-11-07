@@ -2,6 +2,7 @@
 -- v0.0.2 イコルLV毎に色分け。次は装備関係か・・・ボチボチやろ
 -- v1.0.0 とりあえず公開
 -- v1.0.1 英語対応、装備裏表切替対応
+-- v1.0.2 必要ステータス表示
 local addonName = "GODDESS_ICOR_MANAGER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -1264,6 +1265,41 @@ local managed_slot_list = {{
     ClMsg = 'LH_SUB'
 }}
 
+--[[local color_attribute = {}
+color_attribute['Cloth_Def'] = 'Cloth_Def_status'
+color_attribute['Leather_Def'] = 'Leather_Def_status'
+color_attribute['Iron_Def'] = 'Iron_Def_status'
+color_attribute['MiddleSize_Def'] = 'MiddleSize_Def_status'
+color_attribute['AllMaterialType_Def'] = 'AllMaterialType_Def_status'
+color_attribute['ResAdd_Damage'] = 'ResAdd_Damage_status'
+
+color_attribute['SmallSize_Atk'] = 'SmallSize_Atk_status'
+color_attribute['MiddleSize_Atk'] = 'MiddleSize_Atk_status'
+color_attribute['LargeSize_Atk'] = 'LargeSize_Atk_status'
+color_attribute['Cloth_Atk'] = 'Cloth_Atk_status'
+color_attribute['Leather_Atk'] = 'Leather_Atk_status'
+color_attribute['Iron_Atk'] = 'Iron_Atk_status'
+color_attribute['Forester_Atk'] = 'Forester_Atk_status'
+color_attribute['Widling_Atk'] = 'Widling_Atk_status'
+color_attribute['Klaida_Atk'] = 'Klaida_Atk_status'
+color_attribute['Paramune_Atk'] = 'Paramune_Atk_status'
+color_attribute['Velnias_Atk'] = 'Velnias_Atk_status'
+color_attribute['Ghost_Atk'] = 'Ghost_Atk_status'
+color_attribute['Add_Damage_Atk'] = 'Add_Damage_Atk_status'
+color_attribute['BOSS_ATK'] = 'BOSS_ATK_status'
+color_attribute['AllMaterialType_Atk'] = 'AllMaterialType_Atk_status'
+color_attribute['AllSize_Atk'] = 'AllSize_Atk_status'
+color_attribute['AllRace_Atk'] = 'AllRace_Atk_status'
+color_attribute['perfection'] = 'perfection_status'
+color_attribute['revenge'] = 'revenge_status'
+color_attribute['stun_res'] = 'stun_res_status'
+color_attribute['high_fire_res'] = 'high_fire_res_status'
+color_attribute['high_freezing_res'] = 'high_freezing_res_status'
+color_attribute['high_lighting_res'] = 'high_lighting_res_status'
+color_attribute['high_poison_res'] = 'high_poison_res_status'
+color_attribute['high_laceration_res'] = 'high_laceration_res_status'
+color_attribute['portion_expansion'] = 'portion_expansion_status']]
+
 function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -1301,7 +1337,7 @@ function goddess_icor_manager_list_init()
     frame:ShowWindow(1)
     frame:SetLayerLevel(121)
     frame:ShowTitleBar(0);
-    frame:SetSkinName("None")
+    frame:SetSkinName("test_frame_midle_light")
 
     goddess_icor_manager_newframe_init()
     goddess_icor_manager_list_gb_init(frame)
@@ -1742,44 +1778,56 @@ function goddess_icor_manager_newframe_init()
 
     local newframe = ui.CreateNewFrame("notice_on_pc", "goddess_icor_manager_newframe", 0, 0, 0, 0)
     AUTO_CAST(newframe)
-    newframe:SetOffset(1415, 5)
-    newframe:Resize(410, 1070)
-    -- newframe:SetSkinName('base_btn')
-    newframe:SetSkinName('None')
+    newframe:SetOffset(1420, 5)
+    newframe:Resize(500, 1070)
+    -- newframe:SetSkinName('bg')
+    newframe:SetSkinName('test_frame_midle_light')
+    -- newframe:SetSkinName('None')
     newframe:SetLayerLevel(121)
     newframe:RemoveAllChild();
 
-    local close_bg = newframe:CreateOrGetControl("groupbox", "close_bg", 290, 10, 50, 100)
+    --[[local close_bg = newframe:CreateOrGetControl("groupbox", "close_bg", 290, 10, 200, 60)
     AUTO_CAST(close_bg)
     -- close_bg:SetSkinName("test_frame_midle_light");
     close_bg:SetSkinName("None");
-    -- close_bg:RemoveAllChild();
+    -- close_bg:RemoveAllChild();]]
 
-    local closebtn = close_bg:CreateOrGetControl("button", "closebtn", 0, 0, 40, 45)
+    local closebtn = newframe:CreateOrGetControl("button", "closebtn", 445, 10, 40, 45)
     closebtn:SetText("{img testclose_button 40 40}")
     AUTO_CAST(closebtn)
     closebtn:SetSkinName("test_pvp_btn")
     closebtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
     closebtn:SetTextTooltip("Frame Close.")
 
-    local swapbtn = close_bg:CreateOrGetControl("button", "swapbtn", 0, 40, 40, 45)
+    local swapbtn = newframe:CreateOrGetControl("button", "swapbtn", 10, 10, 40, 45)
     swapbtn:SetText("{img sysmenu_skill 40 40}")
     AUTO_CAST(swapbtn)
     swapbtn:SetSkinName("test_pvp_btn")
     swapbtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_swap_weapon")
     swapbtn:SetTextTooltip("武器の裏表を入れ替えます。{nl}Swap the reverse side of the weapon.")
 
-    local x = 0
-
+    local x = 50
+    local xx = 50
     -- local new_bg1
     for i = 1, #managed_list do
-        local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 10, x + 10, 280, 130)
-        AUTO_CAST(new_bg)
-        new_bg:SetSkinName("test_frame_midle_light");
-        new_bg:RemoveAllChild();
-        new_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-        new_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
-        x = x + 131
+        if i <= 2 or i >= 7 then
+            local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 5, x + 10, 240, 130)
+            AUTO_CAST(new_bg)
+            new_bg:SetSkinName("test_frame_midle_light");
+            new_bg:RemoveAllChild();
+            new_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+            new_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+            x = x + 131
+
+        elseif i <= 6 or i >= 3 then
+            local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 250, xx + 10, 240, 130)
+            AUTO_CAST(new_bg)
+            new_bg:SetSkinName("test_frame_midle_light");
+            new_bg:RemoveAllChild();
+            new_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+            new_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+            xx = xx + 131
+        end
     end
 
     newframe:ShowWindow(1)
@@ -1788,7 +1836,7 @@ function goddess_icor_manager_newframe_init()
 
         local slot_info = managed_list[i]
         local new_bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
-        local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 10, 5)
+        local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 5, 5)
         AUTO_CAST(slot)
         -- slot:SetText("")
         slot:SetText("{ol}" .. goddess_icor_manager_language(slot_info))
@@ -1808,7 +1856,7 @@ function goddess_icor_manager_newframe_init()
                 local value_key = "RandomOptionValue_" .. j
                 local group_key = "RandomOptionGroup_" .. j
                 local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
-                local text = bg:CreateOrGetControl("richtext", "text" .. j, 10, jx)
+                local text = bg:CreateOrGetControl("richtext", "text" .. j, 5, jx)
                 AUTO_CAST(text)
                 -- text:SetText("")
                 local option = item_dic[key]
@@ -1833,6 +1881,74 @@ function goddess_icor_manager_newframe_init()
 
     end
 
+    local status_bg = newframe:CreateOrGetControl("groupbox", "status_bg", 5, 590, 490, 470)
+    AUTO_CAST(status_bg)
+    -- close_bg:SetSkinName("test_frame_midle_light");
+    status_bg:SetSkinName("bg");
+
+    local status_table = {"Cloth_Atk", "Leather_Atk", "Iron_Atk", "Ghost_Atk", "MiddleSize_Def", "Cloth_Def",
+                          "Leather_Def", "Iron_Def", "Forester_Atk", "Widling_Atk", "Klaida_Atk", "Paramune_Atk",
+                          "Velnias_Atk", "perfection", "revenge"}
+    local stframe = ui.GetFrame("status")
+    if stframe:IsVisible() == 0 then
+        ui.OpenFrame("status")
+    end
+    for i = 1, #status_table do
+        local status_str = status_table[i]
+
+        goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, i)
+    end
+end
+
+function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, index)
+
+    local child_frame = GET_CHILD_RECURSIVELY(stframe, status_str)
+
+    local language = option.GetCurrentCountry()
+
+    if language == "Japanese" then
+        local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
+        -- print(tostring(child_title))
+        local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 30 - 20)
+        titletext:SetText("{ol}" .. child_title)
+
+        local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
+        -- print(tostring(child_stat))
+        local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 240, index * 30 - 20)
+
+        if index <= 4 or (index >= 9 and index <= 13) then
+
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(15000)")
+        elseif index >= 5 and index <= 8 then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(7500)")
+
+        elseif index >= 14 then
+            stattext:SetText("{ol}" .. child_stat)
+
+        end
+    else
+        local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
+        -- print(tostring(child_title))
+        local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 45 - 30)
+        titletext:SetText("{ol}" .. child_title)
+
+        local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
+        -- print(tostring(child_stat))
+        local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 200, index * 45 - 10)
+
+        local line = status_bg:CreateOrGetControl("labelline", "line" .. index, 10, index * 45 + 7, 455, 5)
+
+        if index <= 4 or (index >= 9 and index <= 13) then
+
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(15000)")
+        elseif index >= 5 and index <= 8 then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(7500)")
+
+        elseif index >= 14 then
+            stattext:SetText("{ol}" .. child_stat)
+
+        end
+    end
 end
 
 function goddess_icor_manager_swap_weapon()
@@ -2160,8 +2276,12 @@ end
 function goddess_icor_manager_list_close(frame)
     local frame = ui.GetFrame("goddess_icor_manager")
     local newframe = ui.GetFrame("goddess_icor_manager_newframe")
+    local statusframe = ui.GetFrame("status")
+    local icorframe = ui.GetFrame("goddess_equip_manager")
     frame:ShowWindow(0)
     newframe:ShowWindow(0)
+    statusframe:ShowWindow(0)
+    icorframe:ShowWindow(0)
 end
 
 function goddess_icor_manager_get_pagename(index)

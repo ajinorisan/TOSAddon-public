@@ -32,7 +32,7 @@
 		"name" : "Goddess Icor Manager",
 		"file" : "goddess_icor_manager",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.2",
 		"releaseTag" : "goddess_icor_manager",
 		"unicode" : "⛄",
 		"description" : "イコルのオプション付与を一覧表示して簡易化します。List and simplify the granting of options for ichor.이퀄의 옵션 부여를 목록화하여 간소화합니다.",
