@@ -105,10 +105,10 @@
 		"name" : "Character Change Helper",
 		"file" : "cc_helper",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.7",
+		"fileVersion" : "v1.0.8",
 		"releaseTag" : "cc_helper",
 		"unicode" : "⛄",
-		"description" : "エンブレム、アーク、レジェンドカード、ゴッデスカードをワンボタンで倉庫から出し入れして装備したり外したりします。エーテルジェムの出し入れにも対応。エンブレム、アーク、ゴッデスカードのみの簡易モードに切り替え可能です。Equip and unequip emblems, arcs, legend cards, and goddess cards by moving them in and out of the warehouse with a single button. Aether Gems can also be loaded and unloaded. Switch to a simple mode with only Emblem, Arc, and Goddess cards. 엠블럼, 아크, 레전드 카드, 갓데스 카드를 버튼 하나로 창고에서 꺼내어 장착하거나 제거할 수 있습니다. 에테르 젬의 입출금도 가능합니다. 엠블럼, 아크, 갓데스 카드만 사용하는 간편 모드로 전환할 수 있습니다.",
+		"description" : "ヘアコスチューム対応。各種装備をワンボタンで倉庫から出し入れして装備の着脱をします。事前設定必要です。シルバーの掛からない装備のみの簡易モードに切り替え可能です。Hair costume support. Various equipment can be moved in and out of the warehouse with one button to put on and take off the equipment. Pre-setting required. It is possible to switch to the simple mode of only equipment that does not cost silver.헤어 코스튬 대응. 각종 장비를 버튼 하나로 창고에서 꺼내거나 탈착할 수 있다. 사전 설정이 필요합니다. 실버가 걸리지 않는 장비만 간이 모드로 전환 가능합니다.",
 		"tags" : []
 	},
 {

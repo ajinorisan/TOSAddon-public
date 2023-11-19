@@ -6,10 +6,11 @@
 -- v1.0.5 エーテルジェムマネージャーとコラボ見直し。ＩＮボタンをシームレスに
 -- v1.0.6 縦長画面でのボタン位置修正。一部ツールチップ追加。
 -- v1.0.7 インアウトボタンをチーム倉庫にも付けた。センス溢れるUIに。monstercard_changeのボタンもチーム倉庫に付けた。
+-- v1.0.8 ヘアコス対応とか。MCCと連携。ディレイタイムを設定できるように。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -22,6 +23,7 @@ local acutil = require("acutil")
 
 if not g.loaded then
     g.settings = {
+        delay = 0.3,
         charid = {
             sealiesid = {},
             sealimage = {},
@@ -33,8 +35,17 @@ if not g.loaded then
             godiesid = {},
             godimage = {},
             legclassid = {},
-            godclassid = {}
-
+            godclassid = {},
+            hair1 = {},
+            hair1_iesid = {},
+            hair2 = {},
+            hair2_iesid = {},
+            hair3 = {},
+            hair3_iesid = {},
+            hair1_str = {},
+            hair2_str = {},
+            hair3_str = {},
+            mcc_use = {}
         }
     }
 end
@@ -53,18 +64,18 @@ function CC_HELPER_ON_INIT(addon, frame)
 
     local invframe = ui.GetFrame("inventory")
 
-    local setbtn = invframe:CreateOrGetControl("button", "set", 230, 345, 30, 30)
+    local setbtn = invframe:CreateOrGetControl("button", "set", 232, 345, 30, 30)
     AUTO_CAST(setbtn)
     setbtn:SetSkinName("None")
-    -- setbtn:SetImage("config_button_normal")
+
     setbtn:SetText("{img config_button_normal 30 30}")
-    -- setbtn:Resize(30, 30)
+
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_frame_init")
     setbtn:SetTextTooltip(
-        "{@st59}マウス左ボタンクリック、キャラ毎に出し入れするアイテム設定。{nl}Left mouse button click, setting items to be moved in and out for each character.{/}")
+        "{@st59}Character Change Helper{nl}マウス左ボタンクリック、キャラ毎に出し入れするアイテム設定。{nl}Left mouse button click, setting items to be moved in and out for each character.{/}")
 
     local eco = invframe:CreateOrGetControl("richtext", "eco", 210, 342)
-    -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
+
     eco:SetText("{#FF0000}{s10}Eco")
 
     local checkbox = invframe:CreateOrGetControl('checkbox', 'checkbox', 210, 350, 25, 25)
@@ -73,24 +84,16 @@ function CC_HELPER_ON_INIT(addon, frame)
     checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_ischecked")
     checkbox:ShowWindow(1)
     checkbox:SetTextTooltip(
-        "{@st59}チェックすると外すのにシルバーが必要なレジェンドカードとエーテルジェムの動作をスキップします。{nl}If checked, it skips the operation of legend cards and ether gems that require silver to remove.{/}")
-
-    --[[local ecomode = invframe:CreateOrGetControl("richtext", "ecomode", 260, 355)
-    -- simplemode:SetText("{#FF0000}{s16}[CCH]SimpleMode on")
-    ecomode:SetText("{#FF0000}{s12}EcoMode")
-    if g.ischecked == 1 and g.ischecked ~= nil then
-        ecomode:ShowWindow(1)
-    else
-        ecomode:ShowWindow(0)
-    end]]
+        "{@st59}Character Change Helper{nl}チェックすると外すのにシルバーが必要なレジェンドカードとエーテルジェムの動作をスキップします。{nl}If checked, it skips the operation of legend cards and ether gems that require silver to remove.{/}")
 
     acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "CC_HELPER_ACCOUNTWAREHOUSE_CLOSE");
-    addon:RegisterMsg("GAME_START_3SEC", "cc_helper_load_settings")
+    acutil.setupEvent(addon, "INVENTORY_CLOSE", "cc_helper_settings_close");
+    addon:RegisterMsg("GAME_START", "cc_helper_load_settings")
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-        -- addon:RegisterMsg("GAME_START", "cc_helper_invframe_init")
+
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
     end
 
@@ -99,17 +102,15 @@ end
 function CC_HELPER_ACCOUNTWAREHOUSE_CLOSE(frame)
 
     local invframe = ui.GetFrame("inventory")
-    local inbtn = GET_CHILD_RECURSIVELY(invframe, "in")
-    local outbtn = GET_CHILD_RECURSIVELY(invframe, "out")
-    local uneqbtn = GET_CHILD_RECURSIVELY(invframe, "unequip")
-    local eqbtn = GET_CHILD_RECURSIVELY(invframe, "g_equip")
+    local inbtn = GET_CHILD_RECURSIVELY(invframe, "inv_in")
+    local outbtn = GET_CHILD_RECURSIVELY(invframe, "inv_out")
 
     inbtn:ShowWindow(0)
     outbtn:ShowWindow(0)
 
 end
 
-function cc_helper_str(str)
+--[[function cc_helper_str(str)
     local langcode = option.GetCurrentCountry()
 
     if langcode == "Japanese" then
@@ -123,7 +124,7 @@ function cc_helper_str(str)
         return str
     end
     return str
-end
+end]]
 
 function cc_helper_accountwarehouse_init()
     local awhframe = ui.GetFrame("accountwarehouse")
@@ -164,7 +165,7 @@ end
 function cc_helper_invframe_init()
     local invframe = ui.GetFrame("inventory")
 
-    local inbtn = invframe:CreateOrGetControl("button", "inv_in", 260, 345, 30, 30)
+    local inbtn = invframe:CreateOrGetControl("button", "inv_in", 263, 345, 30, 30)
     AUTO_CAST(inbtn)
     inbtn:SetText("{img in_arrow 20 20}") -- {@st66}
     inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
@@ -173,7 +174,7 @@ function cc_helper_invframe_init()
     inbtn:SetTextTooltip(
         "{@st59}Character Change Helper{nl}装備を外して倉庫へ搬入します。{nl}The equipment is removed and brought into the warehouse.{/}")
 
-    local outbtn = invframe:CreateOrGetControl("button", "inv_out", 290, 345, 30, 30)
+    local outbtn = invframe:CreateOrGetControl("button", "inv_out", 293, 345, 30, 30)
     AUTO_CAST(outbtn)
     outbtn:SetText("{@st66b}{img chul_arrow 20 20}")
     outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
@@ -181,35 +182,6 @@ function cc_helper_invframe_init()
     outbtn:SetSkinName("test_pvp_btn")
     outbtn:SetTextTooltip(
         "{@st59}Character Change Helper{nl}倉庫から搬出して装備します。{nl}It is carried out from the warehouse and equipped.{/}")
-    --[[local invframe = ui.GetFrame("inventory")
-    local inventoryGbox = invframe:GetChild("inventoryGbox")
-    -- ボタンの配置位置
-    local inbtnX = inventoryGbox:GetWidth() - 261
-    local inbtnY = inventoryGbox:GetHeight() - 614
-    local inbtn = invframe:CreateOrGetControl("button", "in", 234, 345, 30, 30)
-    AUTO_CAST(inbtn)
-    inbtn:SetText("{s13}In")
-    -- CHAT_SYSTEM(tostring(g.gemid))
-    -- if g.gemid ~= nil then
-    inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
-    -- else
-    --  inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn")
-    -- end
-    inbtn:ShowWindow(1)
-
-    local outbtnX = inventoryGbox:GetWidth() - 231
-    local outbtnY = inventoryGbox:GetHeight() - 614
-    local outbtn = invframe:CreateOrGetControl("button", "out", 265, 345, 30, 30)
-    AUTO_CAST(outbtn)
-
-    outbtn:SetText("{s13}Out")
-    outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn")
-    outbtn:ShowWindow(1)
-
-    local uneqbtn = GET_CHILD_RECURSIVELY(invframe, "unequip")
-    local eqbtn = GET_CHILD_RECURSIVELY(invframe, "g_equip")
-    uneqbtn:ShowWindow(0)
-    eqbtn:ShowWindow(0)]]
 
 end
 
@@ -233,7 +205,100 @@ end
 
 function cc_helper_setting()
 
+    if g.settings.delay == nil then
+        g.settings.delay = 0.3
+        cc_helper_save_settings()
+    end
+    g.delay = g.settings.delay
+
     local loginCharID = info.GetCID(session.GetMyHandle())
+
+    if g.settings.charid.mcc_use[loginCharID] == nil then
+        g.settings.charid.mcc_use[loginCharID] = 0
+        cc_helper_save_settings()
+    end
+
+    local mcc_use = g.settings.charid.mcc_use[loginCharID]
+    g.mcc_use = nil
+    if mcc_use ~= nil then
+        g.mcc_use = mcc_use
+    end
+
+    if g.settings.charid.hair1 == nil then
+        g.settings.charid.hair1 = {}
+        -- CHAT_SYSTEM("test")
+    elseif g.settings.charid.hair2 == nil then
+        g.settings.charid.hair2 = {}
+    elseif g.settings.charid.hair3 == nil then
+        g.settings.charid.hair3 = {}
+    elseif g.settings.charid.hair1_iesid == nil then
+        g.settings.charid.hair1_iesid = {}
+    elseif g.settings.charid.hair2_iesid == nil then
+        g.settings.charid.hair2_iesid = {}
+    elseif g.settings.charid.hair3_iesid == nil then
+        g.settings.charid.hair3_iesid = {}
+    elseif g.settings.charid.hair1_str == nil then
+        g.settings.charid.hair1_str = {}
+    elseif g.settings.charid.hair2_str == nil then
+        g.settings.charid.hair2_str = {}
+    elseif g.settings.charid.hair3_str == nil then
+        g.settings.charid.hair3_str = {}
+    end
+
+    local hair1 = g.settings.charid.hair1[loginCharID]
+    g.hair1 = nil
+    if hair1 ~= nil then
+        g.hair1 = hair1
+    end
+
+    local hair1_iesid = g.settings.charid.hair1_iesid[loginCharID]
+    g.hair1_iesid = nil
+    if hair1_iesid ~= nil then
+        g.hair1_iesid = hair1_iesid
+    end
+
+    local hair1_str = g.settings.charid.hair1_str[loginCharID]
+    g.hair1_str = nil
+    if hair1_str ~= nil then
+        g.hair1_str = hair1_str
+    end
+
+    local hair2 = g.settings.charid.hair2[loginCharID]
+    g.hair2 = nil
+    if hair2 ~= nil then
+        g.hair2 = hair2
+    end
+
+    local hair2_iesid = g.settings.charid.hair2_iesid[loginCharID]
+    g.hair2_iesid = nil
+    if hair2_iesid ~= nil then
+        g.hair2_iesid = hair2_iesid
+    end
+
+    local hair2_str = g.settings.charid.hair2_str[loginCharID]
+    g.hair2_str = nil
+    if hair2_str ~= nil then
+        g.hair2_str = hair2_str
+    end
+
+    local hair3 = g.settings.charid.hair3[loginCharID]
+    g.hair3 = nil
+    if hair3 ~= nil then
+        g.hair3 = hair3
+    end
+
+    local hair3_iesid = g.settings.charid.hair3_iesid[loginCharID]
+    g.hair3_iesid = nil
+    if hair3_iesid ~= nil then
+        g.hair3_iesid = hair3_iesid
+    end
+
+    local hair3_str = g.settings.charid.hair3_str[loginCharID]
+    g.hair3_str = nil
+    if hair3_str ~= nil then
+        g.hair3_str = hair3_str
+    end
+
     local sealiesid = g.settings.charid.sealiesid[loginCharID]
     g.sealiesid = nil
     if sealiesid ~= nil then
@@ -319,7 +384,7 @@ function cc_helper_out_btn()
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
                     fromframe:GetUserIValue("HANDLE"))
 
-                ReserveScript("cc_helper_out_btn()", 0.3)
+                ReserveScript("cc_helper_out_btn()", g.delay)
                 return
             end
         end
@@ -331,7 +396,7 @@ function cc_helper_out_btn()
                 session.AddItemID(tonumber(g.arkiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
                     fromframe:GetUserIValue("HANDLE"))
-                ReserveScript("cc_helper_out_btn()", 0.3)
+                ReserveScript("cc_helper_out_btn()", g.delay)
                 return
             end
         end
@@ -346,7 +411,7 @@ function cc_helper_out_btn()
                 session.AddItemID(tonumber(g.legiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
                     fromframe:GetUserIValue("HANDLE"))
-                ReserveScript("cc_helper_out_btn()", 0.3)
+                ReserveScript("cc_helper_out_btn()", g.delay)
                 return
             end
         end
@@ -358,7 +423,49 @@ function cc_helper_out_btn()
                 session.AddItemID(tonumber(g.godiesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
                     fromframe:GetUserIValue("HANDLE"))
-                ReserveScript("cc_helper_out_btn()", 0.3)
+                ReserveScript("cc_helper_out_btn()", g.delay)
+                return
+            end
+
+        end
+
+        local hairTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
+        hairTab:SelectTab(1)
+
+        if g.hair1_iesid ~= nil then
+            local hair1_iesid = cc_helper_check_items_in_warehouse(g.hair1_iesid)
+            if hair1_iesid == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.hair1_iesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+                ReserveScript("cc_helper_out_btn()", g.delay)
+                return
+            end
+
+        end
+
+        if g.hair2_iesid ~= nil then
+            local hair2_iesid = cc_helper_check_items_in_warehouse(g.hair2_iesid)
+            if hair2_iesid == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.hair2_iesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+                ReserveScript("cc_helper_out_btn()", g.delay)
+                return
+            end
+
+        end
+
+        if g.hair3_iesid ~= nil then
+            local hair3_iesid = cc_helper_check_items_in_warehouse(g.hair3_iesid)
+            if hair3_iesid == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.hair3_iesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+                ReserveScript("cc_helper_out_btn()", g.delay)
                 return
             end
 
@@ -371,13 +478,44 @@ end
 function cc_helper_equip()
 
     local frame = ui.GetFrame("inventory")
+
+    local hat1_item = session.GetInvItemByGuid(tonumber(g.hair1_iesid));
+    if hat1_item ~= nil then
+        local hat1_spot = "HAT"
+        ITEM_EQUIP(hat1_item.invIndex, hat1_spot)
+
+        frame:Invalidate();
+        ReserveScript("cc_helper_equip()", g.delay)
+        return
+    end
+
+    local hat2_item = session.GetInvItemByGuid(tonumber(g.hair2_iesid));
+    if hat2_item ~= nil then
+        local hat2_spot = "HAT_T"
+        ITEM_EQUIP(hat2_item.invIndex, hat2_spot)
+
+        frame:Invalidate();
+        ReserveScript("cc_helper_equip()", g.delay)
+        return
+    end
+
+    local hat3_item = session.GetInvItemByGuid(tonumber(g.hair3_iesid));
+    if hat3_item ~= nil then
+        local hat3_spot = "HAT_L"
+        ITEM_EQUIP(hat3_item.invIndex, hat3_spot)
+
+        frame:Invalidate();
+        ReserveScript("cc_helper_equip()", g.delay)
+        return
+    end
+
     local sealitem = session.GetInvItemByGuid(tonumber(g.sealiesid));
     if sealitem ~= nil then
         local sealspot = "SEAL"
         ITEM_EQUIP(sealitem.invIndex, sealspot)
 
         frame:Invalidate();
-        ReserveScript("cc_helper_equip()", 0.3)
+        ReserveScript("cc_helper_equip()", g.delay)
         return
     end
 
@@ -392,7 +530,7 @@ function cc_helper_equip()
 
     if g.legiesid ~= nil or g.godiesid ~= nil or g.gemid ~= nil then
 
-        ReserveScript("cc_helper_card_equip()", 0.3)
+        ReserveScript("cc_helper_card_equip()", g.delay)
         return
     else
         cc_helper_end_of_operation()
@@ -421,7 +559,7 @@ function cc_helper_card_equip()
         -- return
 
     elseif goditem ~= nil and g.ischecked == 0 then
-        ReserveScript(string.format("cc_helper_legcard_equip(%d, '%s')", godcardslot, g.godiesid), 1.0)
+        ReserveScript(string.format("cc_helper_legcard_equip(%d, '%s')", godcardslot, g.godiesid), g.delay * 3)
         return
     elseif goditem ~= nil and g.ischecked == 1 then
         cc_helper_legcard_equip(godcardslot, g.godiesid)
@@ -432,7 +570,7 @@ function cc_helper_card_equip()
         -- ui.SysMsg("[CCH]end of operation")
         return
     elseif legitem == nil and goditem == nil and g.gemid ~= nil then
-        ReserveScript("cc_helper_gem_to_account_warehouse()", 0.3)
+        ReserveScript("cc_helper_gem_to_account_warehouse()", g.delay)
         return
     else
         MONSTERCARDSLOT_CLOSE()
@@ -447,7 +585,7 @@ function cc_helper_legcard_equip(slotIndex, itemGuid)
     local argStr = string.format("%d#%s", slotIndex, tostring(itemGuid));
     pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
 
-    ReserveScript("cc_helper_card_equip()", 0.3)
+    ReserveScript("cc_helper_card_equip()", g.delay)
     return
 
 end
@@ -481,7 +619,7 @@ function cc_helper_gem_to_account_warehouse()
                         session.AddItemID(tonumber(iesid), 1)
                         item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
                             fromframe:GetUserIValue("HANDLE"))
-                        ReserveScript("cc_helper_gem_to_account_warehouse()", 0.3)
+                        ReserveScript("cc_helper_gem_to_account_warehouse()", g.delay)
 
                         return
 
@@ -506,6 +644,14 @@ function cc_helper_end_of_operation()
     local frame = ui.GetFrame("inventory")
     local allTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     allTab:SelectTab(0)
+
+    if ADDONS.norisan.monstercard_change ~= nil and (g.ischecked == 0 or g.ischecked == nil) and g.mcc_use == 1 then
+        local msg = "Call monstercard change?"
+        local yes_scp = "monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()"
+
+        ui.MsgBox(msg, yes_scp, "None");
+    end
+
     if g.agmin == 0 then
         if ADDONS.norisan.AETHERGEM_MGR ~= nil and (g.ischecked == 0 or g.ischecked == nil) then
             -- local frame = ui.GetFrame("inventory")
@@ -609,6 +755,7 @@ function cc_helper_end_of_operation()
         ui.SysMsg("[CCH]end of operation")
         return
     end
+
     ui.SysMsg("[CCH]end of operation")
     return
 end
@@ -625,9 +772,28 @@ function cc_helper_check_items_in_warehouse(iesid)
 end
 
 function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-    legclassid, godclassid)
+    legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
     -- CHAT_SYSTEM("enddrop")
     local loginCharID = info.GetCID(session.GetMyHandle())
+    if hair1 ~= nil then
+        g.settings.charid.hair1[tostring(loginCharID)] = hair1
+    end
+    if hair1_iesid ~= nil then
+        g.settings.charid.hair1_iesid[tostring(loginCharID)] = hair1_iesid
+    end
+    if hair2 ~= nil then
+        g.settings.charid.hair2[tostring(loginCharID)] = hair2
+    end
+    if hair2_iesid ~= nil then
+        g.settings.charid.hair2_iesid[tostring(loginCharID)] = hair2_iesid
+    end
+    if hair3 ~= nil then
+        g.settings.charid.hair3[tostring(loginCharID)] = hair3
+    end
+    if hair3_iesid ~= nil then
+        g.settings.charid.hair3_iesid[tostring(loginCharID)] = hair3_iesid
+    end
+
     if sealiesid ~= nil then
         g.settings.charid.sealiesid[tostring(loginCharID)] = sealiesid
     end
@@ -674,6 +840,33 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
 
     -- CHAT_SYSTEM(ctrl:GetName())
     local loginCharID = info.GetCID(session.GetMyHandle())
+    -- !!
+    if ctrl:GetName() == tostring("Hairslot1") then
+        g.settings.charid.hair1_iesid[tostring(loginCharID)] = nil
+        g.settings.charid.hair1[tostring(loginCharID)] = nil
+        g.hair1 = nil
+        g.hair1_iesid = nil
+        g.hair1_str = nil
+
+    end
+
+    if ctrl:GetName() == tostring("Hairslot2") then
+        g.settings.charid.hair2_iesid[tostring(loginCharID)] = nil
+        g.settings.charid.hair2[tostring(loginCharID)] = nil
+        g.hair2 = nil
+        g.hair2_iesid = nil
+        g.hair2_str = nil
+
+    end
+
+    if ctrl:GetName() == tostring("Hairslot3") then
+        g.settings.charid.hair3_iesid[tostring(loginCharID)] = nil
+        g.settings.charid.hair3[tostring(loginCharID)] = nil
+        g.hair3 = nil
+        g.hair3_iesid = nil
+        g.hair3_str = nil
+
+    end
 
     if ctrl:GetName() == tostring("sealslot") then
         g.settings.charid.sealiesid[tostring(loginCharID)] = nil
@@ -743,7 +936,7 @@ function cc_helper_on_legendcard_drop(frame, ctrl, argstr, argnum)
     SET_SLOT_IMG(ctrl, legimage)
     SET_SLOT_IESID(ctrl, item:GetIESID());
     cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-        legclassid, godclassid)
+        legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
 
 end
 
@@ -771,7 +964,7 @@ function cc_helper_on_goddesscard_drop(frame, ctrl, argstr, argnum)
     SET_SLOT_IESID(ctrl, item:GetIESID());
 
     cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
-        legclassid, godclassid)
+        legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
 
 end
 
@@ -807,7 +1000,8 @@ function cc_helper_onark_drop(frame, ctrl, argstr, argnum)
             SET_SLOT_IMG(slot, itemobj.Icon);
             SET_SLOT_IESID(slot, item:GetIESID());
             local arkiesid = iconinfo:GetIESID()
-            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
+            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
+                legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
         else
             ui.SysMsg("Drop it in the correct slot.")
         end
@@ -843,7 +1037,8 @@ function cc_helper_onseal_drop(frame, ctrl, argstr, argnum)
             ui.SysMsg("Drop it in the correct slot.")
         end
     end
-    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
+    cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
+        legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
 
 end
 
@@ -866,7 +1061,8 @@ function cc_helper_ongem_drop(frame, ctrl, argstr, argnum)
             SET_SLOT_IMG(slot, itemobj.Icon);
             SET_SLOT_IESID(slot, item:GetIESID());
             local gemid = classid
-            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage)
+            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
+                legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
         else
             ui.SysMsg("Drop it in the correct slot.")
         end
@@ -875,7 +1071,186 @@ function cc_helper_ongem_drop(frame, ctrl, argstr, argnum)
 end
 
 function cc_helper_settings_close(frame)
+    local frame = ui.GetFrame("cc_helper")
     frame:ShowWindow(0)
+end
+
+function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
+    -- print(tostring(ctrl:GetName()))
+    local frame = ui.GetFrame("inventory")
+    if frame:IsVisible() == 1 then
+        local liftIcon = ui.GetLiftIcon()
+        local iconInfo = liftIcon:GetInfo();
+        local guid = iconInfo:GetIESID();
+        local invItem = GET_ITEM_BY_GUID(guid);
+        local obj = GetIES(invItem:GetObject());
+        local slot = tolua.cast(ctrl, 'ui::CSlot')
+        local str = ""
+
+        if tostring(GET_REQ_TOOLTIP(obj)) == "@dicID_^*$ITEM_20151223_008651$*^" and tostring(ctrl:GetName()) ==
+            "Hairslot1" then
+            for i = 1, 3 do
+                local propName = "HatPropName_" .. i;
+                local propValue = "HatPropValue_" .. i;
+                -- print(tostring(obj[propName]))
+                -- print(tostring(obj[propValue]))
+                if obj[propValue] ~= 0 and obj[propName] ~= "None" then
+                    local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName]));
+                    local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
+                    str = str .. strInfo .. "{nl}"
+                end
+            end
+            cc_helper_hair_enddrop(ctrl, str)
+            SET_SLOT_IMG(slot, obj.Icon);
+            SET_SLOT_IESID(slot, guid);
+            local hair1 = TryGetProp(obj, "TooltipImage", "None")
+            local hair1_iesid = guid
+            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
+                legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
+        elseif tostring(GET_REQ_TOOLTIP(obj)) == "@dicID_^*$ITEM_20151223_008652$*^" and tostring(ctrl:GetName()) ==
+            "Hairslot2" then
+
+            for i = 1, 3 do
+                local propName = "HatPropName_" .. i;
+                local propValue = "HatPropValue_" .. i;
+                -- print(tostring(obj[propName]))
+                -- print(tostring(obj[propValue]))
+                if obj[propValue] ~= 0 and obj[propName] ~= "None" then
+                    local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName]));
+                    local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
+                    str = str .. strInfo .. "{nl}"
+                end
+            end
+            cc_helper_hair_enddrop(ctrl, str)
+
+            SET_SLOT_IMG(slot, obj.Icon);
+            SET_SLOT_IESID(slot, guid);
+            local hair2 = TryGetProp(obj, "TooltipImage", "None")
+            local hair2_iesid = guid
+            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
+                legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
+
+        elseif tostring(GET_REQ_TOOLTIP(obj)) == "@dicID_^*$ITEM_20151223_008653$*^" and tostring(ctrl:GetName()) ==
+            "Hairslot3" then
+
+            for i = 1, 3 do
+                local propName = "HatPropName_" .. i;
+                local propValue = "HatPropValue_" .. i;
+                -- print(tostring(obj[propName]))
+                -- print(tostring(obj[propValue]))
+                if obj[propValue] ~= 0 and obj[propName] ~= "None" then
+                    local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName]));
+                    local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
+                    str = str .. strInfo .. "{nl}"
+                end
+            end
+            cc_helper_hair_enddrop(ctrl, str)
+
+            SET_SLOT_IMG(slot, obj.Icon);
+            SET_SLOT_IESID(slot, guid);
+            local hair3 = TryGetProp(obj, "TooltipImage", "None")
+            local hair3_iesid = guid
+            cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
+                legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
+        else
+            ui.SysMsg("Drop it in the correct slot.")
+        end
+
+    end
+
+end
+
+function cc_helper_hair_enddrop(ctrl, str)
+    -- print(tostring(str))
+    -- print(tostring(ctrl:GetName()))
+    local loginCharID = info.GetCID(session.GetMyHandle())
+    if ctrl:GetName() == "Hairslot1" then
+        if g.settings.charid.hair1_str == nil then
+            g.settings.charid.hair1_str = {}
+            g.settings.charid.hair1_str[tostring(loginCharID)] = str
+            -- print(tostring(str))
+        else
+            g.settings.charid.hair1_str[tostring(loginCharID)] = str
+            -- print(tostring(str))
+        end
+    elseif ctrl:GetName() == "Hairslot2" then
+        if g.settings.charid.hair2_str == nil then
+            g.settings.charid.hair2_str = {}
+            g.settings.charid.hair2_str[tostring(loginCharID)] = str
+            -- print(tostring(str))
+        else
+            g.settings.charid.hair2_str[tostring(loginCharID)] = str
+            -- print(tostring(str))
+        end
+    elseif ctrl:GetName() == "Hairslot3" then
+        if g.settings.charid.hair3_str == nil then
+            g.settings.charid.hair3_str = {}
+            g.settings.charid.hair3_str[tostring(loginCharID)] = str
+            -- print(tostring(str))
+        else
+            g.settings.charid.hair3_str[tostring(loginCharID)] = str
+            -- print(tostring(str))
+        end
+    end
+    cc_helper_save_settings()
+end
+
+function cc_helper_tooltip(frame, ctrl, argStr, argNum)
+    -- print(tostring(frame:GetName()))
+    if ctrl:GetName() == "Hairslot1" then
+        local slot = GET_CHILD_RECURSIVELY(frame, "Hairslot1")
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        icon:SetTextTooltip(g.hair1_str)
+    elseif ctrl:GetName() == "Hairslot2" then
+        local slot = GET_CHILD_RECURSIVELY(frame, "Hairslot2")
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        icon:SetTextTooltip(g.hair2_str)
+    elseif ctrl:GetName() == "Hairslot3" then
+        local slot = GET_CHILD_RECURSIVELY(frame, "Hairslot3")
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        icon:SetTextTooltip(g.hair3_str)
+    end
+
+end
+
+function cc_helper_mcc_use_check(frame, ctrl, argStr, argNum)
+    local loginCharID = info.GetCID(session.GetMyHandle())
+
+    -- local mcc_use = GET_CHILD_RECURSIVELY(frame, "mcc_use")
+
+    local ischeck = ctrl:IsChecked();
+
+    if ischeck == 1 then
+        g.settings.charid.mcc_use[loginCharID] = 1
+        g.mcc_use = 1
+        cc_helper_save_settings()
+    else
+        g.settings.charid.mcc_use[loginCharID] = 0
+        g.mcc_use = 0
+        cc_helper_save_settings()
+    end
+
+end
+
+function cc_helper_delay_change(frame, ctrl, argStr, argNum)
+    local value = tonumber(ctrl:GetText())
+    -- print(tostring(value))
+    if value ~= nil then
+        ui.SysMsg("Delay Time setting set to" .. value)
+        g.settings.delay = value
+        g.delay = value
+        cc_helper_save_settings()
+    else
+        ui.SysMsg("Invalid value. Please enter one-byte numbers.")
+        local text = GET_CHILD_RECURSIVELY(frame, "delay")
+        text:SetText("0.3")
+        g.settings.delay = 0.3
+        g.delay = 0.3
+        cc_helper_save_settings()
+    end
 end
 
 function cc_helper_frame_init()
@@ -883,7 +1258,7 @@ function cc_helper_frame_init()
     local frame = ui.GetFrame(addonNameLower)
     frame:SetSkinName("test_frame_low")
     frame:SetLayerLevel(93)
-    frame:Resize(270, 190)
+    frame:Resize(270, 255)
     frame:SetPos(1140, 380)
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
@@ -905,10 +1280,81 @@ function cc_helper_frame_init()
     close:SetText("×")
     close:SetEventScript(ui.LBUTTONUP, "cc_helper_settings_close")
 
+    local delay = frame:CreateOrGetControl('edit', 'delay', 200, 200, 60, 30)
+    AUTO_CAST(delay)
+    delay:SetText("{ol}" .. g.delay)
+    delay:SetFontName("white_16_ol")
+    delay:SetTextAlign("center", "center")
+    delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
+    -- delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
+    delay:SetTextTooltip(
+        "動作のディレイ時間を設定します。デフォルトは0.3秒。早過ぎると失敗が多発します。{nl}Sets the delay time for the operation. Default is 0.3 seconds. Too early and many failures will occur.")
+
+    if ADDONS.norisan.monstercard_change ~= nil then
+        local mcc_use = frame:CreateOrGetControl('checkbox', 'mcc_use', 180, 10, 30, 30)
+        AUTO_CAST(mcc_use)
+        mcc_use:SetCheck(g.mcc_use)
+        mcc_use:SetEventScript(ui.LBUTTONUP, "cc_helper_mcc_use_check")
+        mcc_use:ShowWindow(1)
+        mcc_use:SetTextTooltip(
+            "{@st59}Character Change Helper{nl}Monster Card Changeとの連携をキャラ毎に設定。チェックを入れると連携します。{nl}Set up linkage with Monster Card Change on a character-by-character basis. Check the box to link.{/}")
+    end
+
+    local Hairslot1 = frame:CreateOrGetControl("slot", "Hairslot1", 10, 190, 50, 50)
+    AUTO_CAST(Hairslot1)
+    Hairslot1:SetSkinName("invenslot2")
+    Hairslot1:SetText("{ol}{s14}HAIR1")
+    Hairslot1:EnablePop(1)
+    Hairslot1:EnableDrag(1)
+    Hairslot1:EnableDrop(1)
+    Hairslot1:SetEventScript(ui.DROP, "cc_helper_hairslot_drop")
+    Hairslot1:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
+    Hairslot1:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
+    -- print(tostring(g.hair1_iesid))
+    -- Hairslot1:SetEventScriptArgString(ui.MOUSEON, g.hair1_iesid)
+    if g.hair1 ~= nil then
+
+        SET_SLOT_IMG(Hairslot1, g.hair1);
+
+    end
+
+    local Hairslot2 = frame:CreateOrGetControl("slot", "Hairslot2", 70, 190, 50, 50)
+    AUTO_CAST(Hairslot2)
+    Hairslot2:SetSkinName("invenslot2")
+    Hairslot2:SetText("{ol}{s14}HAIR2")
+    Hairslot2:EnablePop(1)
+    Hairslot2:EnableDrag(1)
+    Hairslot2:EnableDrop(1)
+    Hairslot2:SetEventScript(ui.DROP, "cc_helper_hairslot_drop")
+    Hairslot2:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
+    Hairslot2:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
+
+    if g.hair2 ~= nil then
+
+        SET_SLOT_IMG(Hairslot2, g.hair2);
+
+    end
+
+    local Hairslot3 = frame:CreateOrGetControl("slot", "Hairslot3", 130, 190, 50, 50)
+    AUTO_CAST(Hairslot3)
+    Hairslot3:SetSkinName("invenslot2")
+    Hairslot3:SetText("{ol}{s14}HAIR3")
+    Hairslot3:EnablePop(1)
+    Hairslot3:EnableDrag(1)
+    Hairslot3:EnableDrop(1)
+    Hairslot3:SetEventScript(ui.DROP, "cc_helper_hairslot_drop")
+    Hairslot3:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
+    Hairslot3:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
+    if g.hair3 ~= nil then
+
+        SET_SLOT_IMG(Hairslot3, g.hair3);
+
+    end
+
     local sealslot = frame:CreateOrGetControl("slot", "sealslot", 210, 70, 50, 50)
     AUTO_CAST(sealslot)
     sealslot:SetSkinName("invenslot2")
-    sealslot:SetText("{s14}SEAL")
+    sealslot:SetText("{ol}{s14}SEAL")
     sealslot:EnablePop(1)
     sealslot:EnableDrag(1)
     sealslot:EnableDrop(1)
@@ -924,7 +1370,7 @@ function cc_helper_frame_init()
     local arkslot = frame:CreateOrGetControl("slot", "arkslot", 210, 130, 50, 50)
     AUTO_CAST(arkslot)
     arkslot:SetSkinName("invenslot2")
-    arkslot:SetText("{s14}ARK")
+    arkslot:SetText("{ol}{s14}ARK")
     arkslot:EnablePop(1)
     arkslot:EnableDrag(1)
     arkslot:EnableDrop(1)
@@ -939,7 +1385,7 @@ function cc_helper_frame_init()
     local agemslot = frame:CreateOrGetControl("slot", "agemslot", 210, 10, 50, 50)
     AUTO_CAST(agemslot)
     agemslot:SetSkinName("invenslot2")
-    agemslot:SetText("{s14}AETHER GEM")
+    agemslot:SetText("{ol}{s12}AETHER{nl}GEM")
     agemslot:EnablePop(1)
     agemslot:EnableDrag(1)
     agemslot:EnableDrop(1)
@@ -957,7 +1403,7 @@ function cc_helper_frame_init()
     local legcardslot = frame:CreateOrGetControl("slot", "legcardslot", 10, 50, 90, 130)
     AUTO_CAST(legcardslot)
     legcardslot:SetSkinName("legendopen_cardslot")
-    legcardslot:SetText("{s14}LEGEND CARD")
+    legcardslot:SetText("{ol}{s14}LEGEND{nl}CARD")
     legcardslot:EnablePop(1)
     legcardslot:EnableDrag(1)
     legcardslot:EnableDrop(1)
@@ -973,7 +1419,7 @@ function cc_helper_frame_init()
     local godcardslot = frame:CreateOrGetControl("slot", "godcardslot", 110, 50, 90, 130)
     AUTO_CAST(godcardslot)
     godcardslot:SetSkinName("goddess_card__activation")
-    godcardslot:SetText("{s14}GODDESS CARD")
+    godcardslot:SetText("{ol}{s14}GODDESS{nl}CARD")
     godcardslot:EnablePop(1)
     godcardslot:EnableDrag(1)
     godcardslot:EnableDrop(1)
@@ -1092,48 +1538,16 @@ function cc_helper_in_btn_aethergem_mgr()
 end
 
 function cc_helper_msgbox_frame()
-    --[[
-    local cchframe = ui.GetFrame("cc_helper")
-    cchframe:Resize(400, 140)
-    cchframe:SetPos(980, 300)
-    cchframe:SetTitleBarSkin("None")
-    -- cchframe:SetSkinName("test_Item_tooltip_equip");
-    -- cchframe:SetSkinName("market_listbase");
-    cchframe:SetSkinName("test_frame_midle")
 
-    -- cchframe:SetSkinName("bg");
-
-    local text1 = cchframe:CreateOrGetControl('richtext', 'text1', 15, 20)
-    AUTO_CAST(text1)
-    text1:SetText("{#808080}{s16}{ol}Do you want to start Aethrgem Manager first?")
-    local text2 = cchframe:CreateOrGetControl('richtext', 'text2', 25, 45)
-    AUTO_CAST(text2)
-    text2:SetText("{#808080}{s20}{ol}Aethrgem Manager 起動しますか？")
-
-    local yesbtn = cchframe:CreateOrGetControl('button', 'yes', 115, 80, 80, 40)
-    yesbtn:SetSkinName("test_red_button")
-    yesbtn:SetText("{ol}YES")
-    yesbtn:SetEventScript(ui.LBUTTONDOWN, "AETHERGEM_MGR_GET_EQUIP")
-    yesbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_strat")
-
-    local nobtn = cchframe:CreateOrGetControl('button', 'no', 215, 80, 80, 40)
-    nobtn:SetSkinName("test_gray_button")
-    nobtn:SetText("{ol}NO")
-    nobtn:SetEventScript(ui.LBUTTONDOWN, "cc_helper_in_btn")
-
-    cchframe:ShowWindow(1)
-    ]]
     local msg = "Do you want to start Aethrgem Manager first?"
-    local yes_scp = "cc_helper_in_btn_strat()"
+    local yes_scp = "cc_helper_in_btn_start()"
     local no_scp = "cc_helper_in_btn()"
     ui.MsgBox(msg, yes_scp, no_scp);
-
-    -- ReserveScript("cc_helper_in_btn()", 2.5)
 
     return
 end
 
-function cc_helper_in_btn_strat()
+function cc_helper_in_btn_start()
     local cchframe = ui.GetFrame("cc_helper")
     cchframe:ShowWindow(0)
     AETHERGEM_MGR_GET_EQUIP()
@@ -1192,16 +1606,16 @@ function cc_helper_unequip_seal()
             if sealiesid ~= nil and tostring(sealiesid) == tostring(g.sealiesid) then
                 local sealindex = 25 -- スロットインデックスを適切な値に設定する必要があります
                 item.UnEquip(sealindex)
-                ReserveScript("cc_helper_unequip_ark()", 0.3)
+                ReserveScript("cc_helper_unequip_ark()", g.delay)
 
                 return;
             else
-                ReserveScript("cc_helper_unequip_ark()", 0.3)
+                ReserveScript("cc_helper_unequip_ark()", g.delay)
                 return;
             end
         end
     else
-        ReserveScript("cc_helper_unequip_ark()", 0.3)
+        ReserveScript("cc_helper_unequip_ark()", g.delay)
         return;
     end
 
@@ -1227,22 +1641,96 @@ function cc_helper_unequip_ark()
                 local arkindex = 27 -- スロットインデックスを適切な値に設定する必要があります
                 item.UnEquip(arkindex)
 
-                ReserveScript("cc_helper_unequip_legcard()", 0.3)
+                -- ReserveScript("cc_helper_unequip_legcard()", 0.3)
+                ReserveScript("cc_helper_hair_remove()", g.delay)
                 return;
 
             else
 
-                ReserveScript("cc_helper_unequip_legcard()", 0.3)
+                -- ReserveScript("cc_helper_unequip_legcard()", 0.3)
+                ReserveScript("cc_helper_hair_remove()", g.delay)
 
                 return;
             end
         end
     else
 
-        ReserveScript("cc_helper_unequip_legcard()", 0.3)
+        -- ReserveScript("cc_helper_unequip_legcard()", 0.3)
+        ReserveScript("cc_helper_hair_remove()", g.delay)
         return;
     end
+    -- cc_helper_hair_remove()
+end
 
+function cc_helper_hair_remove()
+    -- print("test")
+    local frame = ui.GetFrame("inventory")
+
+    local hat = GET_CHILD_RECURSIVELY(frame, "HAT")
+    local haticon = hat:GetIcon()
+
+    local hat_l = GET_CHILD_RECURSIVELY(frame, "HAT_L")
+    local hat_l_icon = hat_l:GetIcon()
+
+    local hat_t = GET_CHILD_RECURSIVELY(frame, "HAT_T")
+    local hat_t_icon = hat_t:GetIcon()
+
+    if haticon ~= nil then
+
+        local hatinfo = haticon:GetInfo()
+
+        if hatinfo ~= nil then
+
+            local hatiesid = hatinfo:GetIESID()
+
+            if hatiesid ~= nil and tostring(hatiesid) == tostring(g.hair1_iesid) then
+
+                local hatindex = 0 -- スロットインデックスを適切な値に設定する必要があります
+                item.UnEquip(hatindex)
+                ReserveScript("cc_helper_hair_remove()", g.delay)
+                return;
+
+            end
+        end
+
+    elseif hat_l_icon ~= nil then
+        local hat_l_info = hat_l_icon:GetInfo()
+
+        if hat_l_info ~= nil then
+
+            local hat_l_iesid = hat_l_info:GetIESID()
+
+            if hat_l_iesid ~= nil and tostring(hat_l_iesid) == tostring(g.hair3_iesid) then
+
+                local hat_l_index = 1 -- スロットインデックスを適切な値に設定する必要があります
+                item.UnEquip(hat_l_index)
+
+                ReserveScript("cc_helper_hair_remove()", g.delay)
+                return;
+
+            end
+        end
+
+    elseif hat_t_icon ~= nil then
+        local hat_t_info = hat_t_icon:GetInfo()
+
+        if hat_t_info ~= nil then
+
+            local hat_t_iesid = hat_t_info:GetIESID()
+
+            if hat_t_iesid ~= nil and tostring(hat_t_iesid) == tostring(g.hair2_iesid) then
+
+                local hat_t_index = 20 -- スロットインデックスを適切な値に設定する必要があります
+                item.UnEquip(hat_t_index)
+
+                ReserveScript("cc_helper_hair_remove()", g.delay)
+                return;
+
+            end
+        end
+    end
+    ReserveScript("cc_helper_unequip_legcard()", g.delay)
+    return;
 end
 
 function cc_helper_unequip_legcard()
@@ -1261,7 +1749,7 @@ function cc_helper_unequip_legcard()
     if godcardInfo == nil and cardInfo == nil then
         local awframe = ui.GetFrame("accountwarehouse");
         if awframe:IsVisible() == 1 then
-            ReserveScript("cc_helper_inv_to_warehouse()", 0.3)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
             return
         else
             cc_helper_end_of_operation()
@@ -1279,11 +1767,11 @@ function cc_helper_unequip_legcard()
         local argStr = legcardslot - 1
         argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
         pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-        ReserveScript("cc_helper_unequip_godcard()", 1.0)
+        ReserveScript("cc_helper_unequip_godcard()", g.delay * 3)
         return;
 
     end
-    ReserveScript("cc_helper_unequip_godcard()", 0.3)
+    ReserveScript("cc_helper_unequip_godcard()", g.delay)
     return
 end
 
@@ -1307,7 +1795,7 @@ function cc_helper_unequip_godcard()
 
     local awframe = ui.GetFrame("accountwarehouse");
     if awframe:IsVisible() == 1 then
-        ReserveScript("cc_helper_inv_to_warehouse()", 0.3)
+        ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
         return
 
     end
@@ -1323,26 +1811,55 @@ function cc_helper_inv_to_warehouse()
         local ark = session.GetInvItemByGuid(tonumber(g.arkiesid));
         local leg = session.GetInvItemByGuid(tonumber(g.legiesid));
         local god = session.GetInvItemByGuid(tonumber(g.godiesid));
+        local hair1_iesid = session.GetInvItemByGuid(tonumber(g.hair1_iesid));
+        local hair2_iesid = session.GetInvItemByGuid(tonumber(g.hair2_iesid));
+        local hair3_iesid = session.GetInvItemByGuid(tonumber(g.hair3_iesid));
 
-        if seal ~= nil then
+        if hair1_iesid ~= nil then
+            local invTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            invTab:SelectTab(1)
+            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.hair1_iesid, 1, nil, nil)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
+            return
+        elseif hair2_iesid ~= nil then
+            local invTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            invTab:SelectTab(1)
+            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.hair2_iesid, 1, nil, nil)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
+            return
+        elseif hair3_iesid ~= nil then
+            local invTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            invTab:SelectTab(1)
+            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.hair3_iesid, 1, nil, nil)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
+            return
+        elseif seal ~= nil then
+            local invTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            invTab:SelectTab(1)
             item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.sealiesid, 1, nil, nil)
-            ReserveScript("cc_helper_inv_to_warehouse()", 0.3)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
             return
         elseif ark ~= nil then
+            local invTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            invTab:SelectTab(1)
             item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.arkiesid, 1, nil, nil)
-            ReserveScript("cc_helper_inv_to_warehouse()", 0.3)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
             return
         elseif leg ~= nil then
+            local cardTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            cardTab:SelectTab(4)
             item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.legiesid, 1, nil, nil)
-            ReserveScript("cc_helper_inv_to_warehouse()", 0.3)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
             return
         elseif god ~= nil then
+            local cardTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            cardTab:SelectTab(4)
             item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.godiesid, 1, nil, nil)
-            ReserveScript("cc_helper_inv_to_warehouse()", 0.3)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
             return
 
         else
-            ReserveScript("cc_helper_gem_inv_to_warehouse()", 0.3)
+            cc_helper_gem_inv_to_warehouse()
             return
         end
     end
@@ -1370,7 +1887,7 @@ function cc_helper_gem_inv_to_warehouse()
             if tostring(itemobj.ClassID) == tostring(g.gemid) then
                 item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, nil, nil)
                 session.ResetItemList()
-                ReserveScript("cc_helper_gem_inv_to_warehouse()", 0.3)
+                ReserveScript("cc_helper_gem_inv_to_warehouse()", g.delay)
                 -- break
                 return
             end
