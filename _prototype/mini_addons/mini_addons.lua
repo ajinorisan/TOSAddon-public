@@ -650,9 +650,6 @@ local excludedBuffIDs = {4732, 4733, 4736, 4735, 4737, 70002, 4731, 4734, 7574, 
                          468, 6008, 100017, 110016, 2132, 5173, 620021, 640041, 693008, 696107, 99000, 99900, 99917,
                          14128, 691, 647, 646, 3129, 3133, 3147, 3127, 3137, 3145, 7014, 7031}
 
-function MINI_ADDONS_BUFF_SAVE()
-end
-
 function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
     local frame = ui.GetFrame("partyinfo");
     if frame == nil then
@@ -682,12 +679,6 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
                 local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet");
                 local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet");
 
-                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
-                    local slot = buffListSlotSet:GetSlotByIndex(j);
-                    slot:SeteEnable(1)
-                    slot:SetEventScript(ui.LBUTTONUP, MINI_ADDONS_BUFF_SAVE)
-
-                end
                 -- 초기화
                 for j = 0, buffListSlotSet:GetSlotCount() - 1 do
                     local slot = buffListSlotSet:GetSlotByIndex(j);
@@ -945,7 +936,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
