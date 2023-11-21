@@ -3,10 +3,11 @@
 -- v1.0.3 登録日時がバグってたのを修正
 -- v1.0.4 色々修正。表示を時間降順に並べ替えたので実質クリアせんでもずっと使える。
 -- v1.0.5 バグ修正。見た目修正
+-- v1.0.6 バグ修正。logtextが長すぎると、文字列が取得出来無さそう。
 local addonName = "MARKET_VOUCHER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -43,6 +44,7 @@ function MARKET_VOUCHER_ON_INIT(addon, frame)
 
     -- acutil.setupHook(market_voucher_CABINET_ITEM_BUY, "_CABINET_ITEM_BUY")
     acutil.setupEvent(addon, "MARKET_CABINET_MODE", "market_voucher_MARKET_CABINET_MODE");
+    -- acutil.setupEvent(addon, "MARKET_CLOSE", "market_voucher_print_close");
     -- acutil.setupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST")
     g.SetupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST");
     market_voucher_init_frame()
@@ -167,6 +169,10 @@ function market_voucher_lang(str)
         if str == tostring("{ol}{#FF0000}Total Sales:") then
             str = "{ol}{#FF0000}売上合計:"
         end
+        if str == tostring("{ol}Period:") then
+            str = "{ol}集計期間:"
+        end
+
         if str == tostring("{ol}Sales Voucher") then
             str = "{ol}売上伝票"
         end
@@ -201,6 +207,10 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
     frame:EnableHitTest(1)
     frame:SetLayerLevel(100);
 
+    local bg = frame:CreateOrGetControl("groupbox", "bg", 5, 5, 1210, 720)
+    AUTO_CAST(bg)
+    bg:SetSkinName("chat_window")
+
     local logdelete = frame:CreateOrGetControl("button", "logdelete", 1130, 730, 80, 30)
     AUTO_CAST(logdelete)
     logdelete:SetTextTooltip("ログを削除します。{nl}Delete logs.")
@@ -226,12 +236,37 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
         return dateA > dateB
     end)
 
+    -- printTable(g.settings)
+    local textview = bg:CreateOrGetControl("richtext", "textview", 5, 5, 1210, 3000)
+    AUTO_CAST(textview)
+    textview:SetTextTooltip("左クリックでフレームを閉じます。{nl}Left-click to close the frame.")
+
+    textview:SetText("")
+    textview:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
+    textview:SetText(tostring(logText))
+
     local count = #g.settings
 
     local logText = ""
 
+    local startdate = ""
+    local enddate = ""
+
     for i = 1, count do
         local token = StringSplit(g.settings[i], '/')
+        if i == 1 then
+            local originalString = token[1]
+            local startIndex = string.find(originalString, ":") + 1 -- ":"の次の位置を取得
+            local endIndex = startIndex + 10 -- ":"の次から10文字分を取得
+            startdate = string.sub(originalString, startIndex, endIndex)
+        end
+
+        if i == #g.settings then
+            local originalString = token[1]
+            local startIndex = string.find(originalString, ":") + 1 -- ":"の次の位置を取得
+            local endIndex = startIndex + 10 -- ":"の次から10文字分を取得
+            enddate = string.sub(originalString, startIndex, endIndex)
+        end
 
         local date = "{ol}" .. token[1]
         local name = "{ol}" .. token[2]
@@ -245,34 +280,57 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
         local total_amount = token[6]
         local show_unit_price = "{ol}" .. token[7]
         local show_total_amount = "{ol}" .. token[8]
-        -- print(show_total_amount)
-        -- print(date .. name .. item .. quantity .. unit_price .. total_amount .. show_unit_price .. show_total_amount)
 
-        -- print(g.sumtotal_amount)
         logText = tostring(logText) .. date .. " , " .. name .. " , " .. item .. " , " .. quantity .. " , " ..
                       show_unit_price .. " , " .. show_total_amount .. "{nl}"
-
+        textview:SetText(logText)
         g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount)
         -- print(tostring(logText))
     end
-    local textview = frame:CreateOrGetControl("richtext", "textview", 10, 10, 1200, 760)
-    AUTO_CAST(textview)
-    textview:SetTextTooltip("左クリックでフレームを閉じます。{nl}Left-click to close the frame.")
 
-    textview:SetText("")
-    textview:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
-    textview:SetText(tostring(logText))
+    -- print(tostring(startdate))
+    -- print(tostring(enddate))
 
-    local sumtotal_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 900, 740, 100, 30)
+    local sumtotal_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 880, 740, 100, 30)
     local roundednumber = market_voucher_round(g.sumtotal_amount / 1000000)
 
     sumtotal_amount_text:SetText(market_voucher_lang("{ol}{#FF0000}Total Sales:") ..
                                      GET_COMMAED_STRING(g.sumtotal_amount) .. "(" .. roundednumber .. "M)")
     sumtotal_amount_text:ShowWindow(1)
 
+    local date_text = frame:CreateOrGetControl("richtext", "date_text", 600, 740, 100, 30)
+    date_text:SetText(market_voucher_lang("{ol}Period:") .. enddate .. "～" .. startdate)
+
     frame:ShowWindow(1)
+    frame:RunUpdateScript("market_voucher_auto_close", 0.5);
+
     textview:ShowWindow(1)
     -- market_voucher_set_textview(textview, logText)
+end
+
+function market_voucher_auto_close(frame)
+    local marketframe = ui.GetFrame("market_cabinet")
+    if marketframe:IsVisible() == 1 then
+        -- CHAT_SYSTEM("1")
+
+        return 1
+    else
+        frame:ShowWindow(0)
+        return 0
+    end
+
+end
+
+function printTable(table, indent)
+    indent = indent or 0
+    for k, v in pairs(table) do
+        if type(v) == "table" then
+            print(string.rep("  ", indent) .. k .. ":")
+            printTable(v, indent + 1)
+        else
+            print(string.rep("  ", indent) .. k .. ": " .. tostring(v))
+        end
+    end
 end
 
 function market_voucher_set_textview(textview, logText)
@@ -298,6 +356,7 @@ function market_voucher_clear(frame)
 end
 
 function market_voucher_print_close(frame, ctrl, argStr, argNum)
+    local frame = ui.GetFrame("market_voucher")
     frame:RemoveAllChild()
     frame:ShowWindow(0)
     return
