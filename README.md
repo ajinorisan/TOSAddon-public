@@ -19,8 +19,6 @@ https://twitter.com/ToSJP_rada
 
 ### Market Voucher
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/53358c33-2e73-4b33-a200-dc2c52320172)
-
 マーケットの販売履歴表示、単価の推移などを確認していこ。
 
 マーケットの受取りで個別受取りボタンが消えるのはこいつの仕業です。
@@ -34,6 +32,8 @@ v1.0.4 時間降順に並べ替え機能追加
 　
 
 アドオンマネージャー登録済
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/53358c33-2e73-4b33-a200-dc2c52320172)
 
 ----
 
