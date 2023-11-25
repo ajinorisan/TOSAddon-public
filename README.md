@@ -85,6 +85,8 @@ v1.0.1 自動搬入搬出の数量見直し。 2023.9.3
 
 アドオンマネージャー登録済
 
+![monstercardchang](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/8ee9eb49-5a70-4dbf-ae1b-af1f8dab083a)
+
 ----
 
 ### Let's Go Home
@@ -125,6 +127,8 @@ v1.0.2 直前装備を着ける機能実装、ヘルメット取れないバグ�
 
 アドオンマネージャー登録済
 
+![jobchange](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7e14178-aae9-47ac-8b67-caa307b63976)
+
 ----
 
 ### Character Change Helper
@@ -162,6 +166,8 @@ v1.0.0 エーテルジェム搬入搬出対応
 　
 
 アドオンマネージャー登録済
+
+![cchelper](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/5f184a1b-fd24-4d17-a701-86a491f3dd42)
 
 ----
 
@@ -201,6 +207,8 @@ v1.0.3 キャラチェンジボタンを追加
 
 アドオンマネージャー登録済
 
+![indun](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/4c644bf1-0458-46e9-b2fd-4d38126d8a0a)
+
 ----
 
 ### Ancient AutoSet
@@ -208,6 +216,8 @@ v1.0.3 キャラチェンジボタンを追加
 キャラクター毎にアシスターを自動でセットします。アシスターフレームに設定ボタンが付くのでそれを押してアシスターセットを登録してください。
 
 1キャラにつき1回登録を行えば、以後CCの度に自動でアシスターを付け替えます。街でしか動きません。
+
+左クリックで今使用しているアシスターを登録、右クリックで忘れます。
 
 　
 
