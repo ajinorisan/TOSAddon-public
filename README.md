@@ -14,10 +14,6 @@ Twitter
 
 https://twitter.com/ToSJP_rada
 
-[English.pdf](https://github.com/ajinorisan/TOSAddon-public/files/12416629/English.pdf)
-
-[korean.pdf](https://github.com/ajinorisan/TOSAddon-public/files/12416631/korean.pdf)
-
 ----
 
 
