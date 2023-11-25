@@ -7,10 +7,11 @@
 -- v1.0.6 縦長画面でのボタン位置修正。一部ツールチップ追加。
 -- v1.0.7 インアウトボタンをチーム倉庫にも付けた。センス溢れるUIに。monstercard_changeのボタンもチーム倉庫に付けた。
 -- v1.0.8 ヘアコス対応とか。MCCと連携。ディレイタイムを設定できるように。
+-- v1.0.9 MCCと連携強化。ヘアコスのエンチャントオプチョンを装備するタイミングで上書き。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -54,6 +55,7 @@ function CC_HELPER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+    g.monstercard = nil
     if not g.ischecked then
         g.ischecked = 0
     end
@@ -250,19 +252,21 @@ function cc_helper_setting()
     if hair1 ~= nil then
         g.hair1 = hair1
     end
-
+    -- print(tostring(loginCharID))
+    -- print(tostring(g.hair1))
     local hair1_iesid = g.settings.charid.hair1_iesid[loginCharID]
     g.hair1_iesid = nil
     if hair1_iesid ~= nil then
         g.hair1_iesid = hair1_iesid
     end
-
+    -- print(tostring(g.hair1_iesid))
     local hair1_str = g.settings.charid.hair1_str[loginCharID]
+    -- print(tostring(hair1_str))
     g.hair1_str = nil
     if hair1_str ~= nil then
         g.hair1_str = hair1_str
     end
-
+    -- print(tostring(g.hair1_str))
     local hair2 = g.settings.charid.hair2[loginCharID]
     g.hair2 = nil
     if hair2 ~= nil then
@@ -369,6 +373,7 @@ function cc_helper_setting()
 end
 
 function cc_helper_out_btn()
+    g.monstercard = 0
     g.agmin = 0
     local fromframe = ui.GetFrame("accountwarehouse")
     local invframe = ui.GetFrame("inventory")
@@ -435,6 +440,7 @@ function cc_helper_out_btn()
         if g.hair1_iesid ~= nil then
             local hair1_iesid = cc_helper_check_items_in_warehouse(g.hair1_iesid)
             if hair1_iesid == true then
+
                 session.ResetItemList()
                 session.AddItemID(tonumber(g.hair1_iesid), 1)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
@@ -478,9 +484,27 @@ end
 function cc_helper_equip()
 
     local frame = ui.GetFrame("inventory")
+    local loginCharID = info.GetCID(session.GetMyHandle())
 
     local hat1_item = session.GetInvItemByGuid(tonumber(g.hair1_iesid));
     if hat1_item ~= nil then
+
+        local str = ""
+        local invItem = GET_ITEM_BY_GUID(g.hair1_iesid);
+        local obj = GetIES(invItem:GetObject());
+        for i = 1, 3 do
+            local propName = "HatPropName_" .. i;
+            local propValue = "HatPropValue_" .. i;
+            if obj[propValue] ~= 0 and obj[propName] ~= "None" then
+                local opName = string.format("%s", ScpArgMsg(obj[propName]));
+                local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
+                str = str .. strInfo .. "{nl}"
+            end
+        end
+        str = string.gsub(str, "-", "")
+        g.settings.charid.hair1_str[tostring(loginCharID)] = str
+        cc_helper_save_settings()
+
         local hat1_spot = "HAT"
         ITEM_EQUIP(hat1_item.invIndex, hat1_spot)
 
@@ -491,6 +515,23 @@ function cc_helper_equip()
 
     local hat2_item = session.GetInvItemByGuid(tonumber(g.hair2_iesid));
     if hat2_item ~= nil then
+
+        local str = ""
+        local invItem = GET_ITEM_BY_GUID(g.hair2_iesid);
+        local obj = GetIES(invItem:GetObject());
+        for i = 1, 3 do
+            local propName = "HatPropName_" .. i;
+            local propValue = "HatPropValue_" .. i;
+            if obj[propValue] ~= 0 and obj[propName] ~= "None" then
+                local opName = string.format("%s", ScpArgMsg(obj[propName]));
+                local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
+                str = str .. strInfo .. "{nl}"
+            end
+        end
+        str = string.gsub(str, "-", "")
+        g.settings.charid.hair2_str[tostring(loginCharID)] = str
+        cc_helper_save_settings()
+
         local hat2_spot = "HAT_T"
         ITEM_EQUIP(hat2_item.invIndex, hat2_spot)
 
@@ -501,6 +542,24 @@ function cc_helper_equip()
 
     local hat3_item = session.GetInvItemByGuid(tonumber(g.hair3_iesid));
     if hat3_item ~= nil then
+
+        local str = ""
+        local invItem = GET_ITEM_BY_GUID(g.hair3_iesid);
+        local obj = GetIES(invItem:GetObject());
+        for i = 1, 3 do
+            local propName = "HatPropName_" .. i;
+            local propValue = "HatPropValue_" .. i;
+            if obj[propValue] ~= 0 and obj[propName] ~= "None" then
+                local opName = string.format("%s", ScpArgMsg(obj[propName]));
+                local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
+                str = str .. strInfo .. "{nl}"
+            end
+        end
+        str = string.gsub(str, "-", "")
+        -- print(tostring(str))
+        g.settings.charid.hair3_str[tostring(loginCharID)] = str
+        cc_helper_save_settings()
+
         local hat3_spot = "HAT_L"
         ITEM_EQUIP(hat3_item.invIndex, hat3_spot)
 
@@ -565,7 +624,7 @@ function cc_helper_card_equip()
         cc_helper_legcard_equip(godcardslot, g.godiesid)
 
     elseif legitem == nil and goditem == nil and g.ischecked == 1 or g.gemid == nil then
-        MONSTERCARDSLOT_CLOSE()
+        ReserveScript("MONSTERCARDSLOT_CLOSE()", g.delay * 2)
         cc_helper_end_of_operation()
         -- ui.SysMsg("[CCH]end of operation")
         return
@@ -573,7 +632,7 @@ function cc_helper_card_equip()
         ReserveScript("cc_helper_gem_to_account_warehouse()", g.delay)
         return
     else
-        MONSTERCARDSLOT_CLOSE()
+        ReserveScript("MONSTERCARDSLOT_CLOSE()", g.delay * 2)
         cc_helper_end_of_operation()
         -- ui.SysMsg("[CCH]end of operation")
         return
@@ -628,15 +687,40 @@ function cc_helper_gem_to_account_warehouse()
             end
 
             -- end
-            MONSTERCARDSLOT_CLOSE()
+            ReserveScript("MONSTERCARDSLOT_CLOSE()", g.delay * 2)
             -- ReserveScript("cc_helper_end_of_operation()", 0.3)
             cc_helper_end_of_operation()
             return
         end
     end
-    MONSTERCARDSLOT_CLOSE()
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.delay * 2)
     -- ReserveScript("cc_helper_end_of_operation()", 0.3)
     cc_helper_end_of_operation()
+
+end
+
+function cc_helper_monstercard_change(frame, ctrl)
+    -- print(tostring(ctrl:GetName()))
+    if tostring(ctrl:GetName()) == "cancel_btn" then
+        frame:ShowWindow(0)
+        return
+    elseif tostring(ctrl:GetName()) == "open_btn" then
+        frame:ShowWindow(0)
+        monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
+        return
+    elseif tostring(ctrl:GetName()) == "remove_btn" then
+        frame:ShowWindow(0)
+        monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
+        ReserveScript("monstercard_change_get_info_accountwarehouse()", g.delay)
+        return
+    elseif tostring(ctrl:GetName()) == "equip_btn" then
+        frame:ShowWindow(0)
+        monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
+        ReserveScript("monstercard_change_get_presetinfo()", g.delay)
+        return
+    else
+        return
+    end
 
 end
 
@@ -646,10 +730,77 @@ function cc_helper_end_of_operation()
     allTab:SelectTab(0)
 
     if ADDONS.norisan.monstercard_change ~= nil and (g.ischecked == 0 or g.ischecked == nil) and g.mcc_use == 1 then
-        local msg = "Call monstercard change?"
-        local yes_scp = "monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()"
 
-        ui.MsgBox(msg, yes_scp, "None");
+        local msgframe = ui.CreateNewFrame("chat_memberlist", "monstercardchange_msg");
+        AUTO_CAST(msgframe)
+
+        local screenWidth = ui.GetClientInitialWidth()
+        local screenHeight = ui.GetClientInitialHeight()
+        msgframe:Resize(390, 90)
+        local frameWidth = msgframe:GetWidth()
+        local frameHeight = msgframe:GetHeight()
+
+        local posX = (screenWidth - frameWidth) / 2
+        local posY = (screenHeight - frameHeight) / 2
+
+        msgframe:SetPos(posX, posY)
+
+        local text = msgframe:CreateOrGetControl('richtext', 'text', 15, 15)
+        AUTO_CAST(text)
+        text:SetText("{#FFA500}{ol}Call monstercard change Addon?")
+
+        local equip_btn = msgframe:CreateOrGetControl('button', 'equip_btn', 20, 45, 80, 30)
+        AUTO_CAST(equip_btn)
+        equip_btn:SetText("{ol}EQUIP")
+        equip_btn:SetTextTooltip(
+            "カードプリセットの1番目のセットを装備します。{nl}Equip the first set of card presets.")
+        equip_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
+        if g.monstercard == 1 then
+            equip_btn:SetEnable(0)
+            equip_btn:SetSkinName("test_gray_button")
+        elseif g.monstercard == 0 then
+            equip_btn:SetEnable(1)
+            equip_btn:SetSkinName("test_red_button")
+        else
+            equip_btn:SetEnable(0)
+            equip_btn:SetSkinName("test_gray_button")
+        end
+
+        local remove_btn = msgframe:CreateOrGetControl('button', 'remove_btn', 105, 45, 90, 30)
+        AUTO_CAST(remove_btn)
+        remove_btn:SetText("{ol}REMOVE")
+        remove_btn:SetTextTooltip(
+            "モンスターカードを外して倉庫に搬入します。{nl}Remove the monster card and bring it into the warehouse.")
+        remove_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
+        if g.monstercard == 1 then
+            remove_btn:SetEnable(1)
+            remove_btn:SetSkinName("test_red_button")
+        elseif g.monstercard == 0 then
+            remove_btn:SetEnable(0)
+            remove_btn:SetSkinName("test_gray_button")
+        else
+            remove_btn:SetEnable(0)
+            remove_btn:SetSkinName("test_gray_button")
+        end
+
+        local open_btn = msgframe:CreateOrGetControl('button', 'open_btn', 200, 45, 80, 30)
+        AUTO_CAST(open_btn)
+        open_btn:SetText("{ol}OPEN")
+        open_btn:SetTextTooltip(
+            "モンスターカードとモンスターカードプリセットを開きます。{nl}Open the Monster Card and Monster Card Preset.")
+        open_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
+
+        local cancel_btn = msgframe:CreateOrGetControl('button', 'cancel_btn', 285, 45, 80, 30)
+        AUTO_CAST(cancel_btn)
+        cancel_btn:SetText("{ol}CANCEL")
+        cancel_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
+
+        msgframe:ShowWindow(1)
+
+        -- local msg = "Call monstercard change?"
+        -- local yes_scp = "monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()"
+
+        -- ui.MsgBox(msg, yes_scp, "None");
     end
 
     if g.agmin == 0 then
@@ -1095,7 +1246,8 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                 -- print(tostring(obj[propName]))
                 -- print(tostring(obj[propValue]))
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
-                    local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName]));
+                    -- local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName])); ＩＭＣオリジナルコード
+                    local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
                     str = str .. strInfo .. "{nl}"
                 end
@@ -1116,7 +1268,7 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                 -- print(tostring(obj[propName]))
                 -- print(tostring(obj[propValue]))
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
-                    local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName]));
+                    local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
                     str = str .. strInfo .. "{nl}"
                 end
@@ -1139,7 +1291,7 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                 -- print(tostring(obj[propName]))
                 -- print(tostring(obj[propValue]))
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
-                    local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName]));
+                    local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
                     str = str .. strInfo .. "{nl}"
                 end
@@ -1254,6 +1406,28 @@ function cc_helper_delay_change(frame, ctrl, argStr, argNum)
 end
 
 function cc_helper_frame_init()
+
+    -- エンチャントオプション上書き
+    local loginCharID = info.GetCID(session.GetMyHandle())
+
+    local hair1_str = g.settings.charid.hair1_str[loginCharID]
+    g.hair1_str = nil
+    if hair1_str ~= nil then
+        g.hair1_str = hair1_str
+    end
+
+    local hair2_str = g.settings.charid.hair2_str[loginCharID]
+    g.hair2_str = nil
+    if hair2_str ~= nil then
+        g.hair2_str = hair2_str
+    end
+
+    local hair3_str = g.settings.charid.hair3_str[loginCharID]
+    g.hair3_str = nil
+    if hair3_str ~= nil then
+        g.hair3_str = hair3_str
+    end
+    -- エンチャントオプション上書き終わり
 
     local frame = ui.GetFrame(addonNameLower)
     frame:SetSkinName("test_frame_low")
@@ -1456,7 +1630,7 @@ function cc_helper_ischecked()
 end
 
 function cc_helper_in_btn_aethergem_mgr()
-    -- CHAT_SYSTEM("TEST")
+    g.monstercard = 1
     g.agmin = 1
     local frame = ui.GetFrame("inventory")
     if ADDONS.norisan.AETHERGEM_MGR ~= nil then
@@ -1788,10 +1962,10 @@ function cc_helper_unequip_godcard()
         local argStr = godcardslot - 1
         argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
         pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-        MONSTERCARDSLOT_CLOSE()
+        ReserveScript("MONSTERCARDSLOT_CLOSE()", g.delay * 2)
 
     end
-    MONSTERCARDSLOT_CLOSE()
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.delay * 2)
 
     local awframe = ui.GetFrame("accountwarehouse");
     if awframe:IsVisible() == 1 then
