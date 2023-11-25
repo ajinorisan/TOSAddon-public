@@ -229,6 +229,8 @@ v1.0.3 セット解除機能追加
 
 アドオンマネージャー登録済
 
+![ancient](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b215523d-37b4-4ded-8fe9-d4f260584f0e)
+
 ----
 
 ### Aethergem Manager
@@ -261,6 +263,8 @@ v1.0.3 ディレイタイムの時間見直し
 
 アドオンマネージャー登録済
 
+![agm](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/942bdd97-4d57-4e06-b5db-224fb7c35d52)
+
 ----
 
 ### Auto Repair
@@ -286,6 +290,8 @@ v1.0.2 マップ読み込み時などにリペアーアイテムの数量確認
 　
 
 アドオンマネージャー登録済
+
+![repair](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/0acba715-6613-4151-a274-4e6dee587397)
 
 ----
 
@@ -337,6 +343,8 @@ v1.0.5 23.09.05patch対応。EP縛りを無くした。 2023.9.5
 　
 
 アドオンマネージャー登録済
+
+![kill](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/3308e640-c373-445c-8b3d-206b21334cb8)
 
 Special thanks to menimaniさん
 
@@ -418,6 +426,8 @@ v1.0.4 パーティーバフ非表示機能追加。何故か無茶苦茶評判�
 
 アドオンマネージャー登録済
 
+![mini](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/842d9c77-e9c5-44c1-8a3a-abc4a38e243a)
+
 ----
 
 ### Free From Trivial Stress
@@ -457,6 +467,8 @@ v1.0.2 ボルタ廃止、ドラグーン追加。
 　
 
 アドオンマネージャー登録済
+
+![guild](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/21897f75-b18e-4a42-ab88-0ee30397857d)
 
 ----
 
