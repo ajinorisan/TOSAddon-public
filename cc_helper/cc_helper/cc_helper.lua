@@ -8,10 +8,11 @@
 -- v1.0.7 インアウトボタンをチーム倉庫にも付けた。センス溢れるUIに。monstercard_changeのボタンもチーム倉庫に付けた。
 -- v1.0.8 ヘアコス対応とか。MCCと連携。ディレイタイムを設定できるように。
 -- v1.0.9 MCCと連携強化。ヘアコスのエンチャントオプチョンを装備するタイミングで上書き。
+-- v1.1.0 ヘアコスの付け替えで韓国語と英語クライアントで動かないバグを修正したつもり
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -99,6 +100,22 @@ function CC_HELPER_ON_INIT(addon, frame)
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
     end
 
+    -- acutil.setupHook(cc_helper_GET_SLOTSET_NAME, "GET_SLOTSET_NAME")
+
+end
+
+function cc_helper_GET_SLOTSET_NAME(invIndex)
+    -- print(tostring(invIndex))
+    local cls = GET_BASEID_CLS_BY_INVINDEX(invIndex)
+    if cls == nil then
+        return 'error'
+    else
+        local className = cls.ClassName
+        if cls.MergedTreeTitle ~= "NO" then
+            className = cls.MergedTreeTitle
+        end
+        return 'sset_' .. className
+    end
 end
 
 function CC_HELPER_ACCOUNTWAREHOUSE_CLOSE(frame)
@@ -1226,20 +1243,674 @@ function cc_helper_settings_close(frame)
     frame:ShowWindow(0)
 end
 
+local function manager_language(str)
+    local language = option.GetCurrentCountry()
+
+    if language == "Japanese" then
+        if str == "PATK" then
+            str = "物理攻撃力"
+        end
+        if str == "ADD_DEF" then
+            str = "物理防御力"
+        end
+        if str == "ADD_MDEF" then
+            str = "魔法防御力"
+        end
+        if str == "MHP" then
+            str = "HP"
+        end
+        if str == "MSP" then
+            str = "SP"
+        end
+        if str == "ADD_MATK" then
+            str = "魔法攻撃力"
+        end
+        if str == "ADD_DEF" then
+            str = "魔法防御力"
+        end
+        if str == "STR" then
+            str = "力"
+        end
+        if str == "DEX" then
+            str = "敏捷"
+        end
+        if str == "INT" then
+            str = "知能"
+        end
+        if str == "CON" then
+            str = "体力"
+        end
+        if str == "MNA" then
+            str = "精神"
+        end
+
+        if str == "BLK" then
+            str = "ブロック"
+        end
+        if str == "BLK_BREAK" then
+            str = "ブロック貫通"
+        end
+        if str == "ADD_HR" then
+            str = "命中"
+        end
+        if str == "ADD_DR" then
+            str = "回避"
+        end
+        if str == "CRTHR" then
+            str = "クリティカル発生"
+        end
+        if str == "CRTDR" then
+            str = "クリティカル抵抗"
+        end
+        if str == "RHP" then
+            str = "HP回復力"
+        end
+        if str == "RSP" then
+            str = "SP回復力"
+        end
+
+        if str == "Leather_Def" then
+            str = "レザー対象攻撃力相殺"
+        end
+        if str == "Cloth_Def" then
+            str = "クロース対象攻撃力相殺"
+        end
+        if str == "Iron_Def" then
+            str = "プレート対象攻撃力相殺"
+        end
+        if str == "MiddleSize_Def" then
+            str = "中型対象攻撃力相殺"
+        end
+
+        if str == "ADD_LEATHER" then
+            str = "レザー防御対象攻撃力"
+        end
+        if str == "ADD_IRON" then
+            str = "プレート防御対象攻撃力"
+        end
+        if str == "ADD_CLOTH" then
+            str = "クロース防御対象攻撃力"
+        end
+        if str == "ADD_GHOST" then
+            str = "アストラル防御対象攻撃力"
+        end
+        if str == "ADD_SMALLSIZE" then
+            str = "小型対象攻撃力"
+        end
+        if str == "ADD_MIDDLESIZE" then
+            str = "中型対象攻撃力"
+        end
+        if str == "ADD_LARGESIZE" then
+            str = "大型対象攻撃力"
+        end
+        if str == "ADD_FORESTER" then
+            str = "植物型対象攻撃力"
+        end
+        if str == "ADD_WIDLING" then
+            str = "野獣型対象攻撃力"
+        end
+        if str == "ADD_VELIAS" then
+            str = "悪魔型対象攻撃力"
+        end
+        if str == "ADD_PARAMUNE" then
+            str = "変異型対象攻撃力"
+        end
+        if str == "ADD_KLAIDA" then
+            str = "昆虫型対象攻撃力"
+        end
+
+        if str == "Add_Damage_Atk" then
+            str = "追加ダメージ"
+        end
+        if str == "ResAdd_Damage" then
+            str = "追加ダメージ抵抗"
+        end
+
+        if str == "AllRace_Atk" then
+            str = "全ての種族の対象攻撃力"
+        end
+        if str == "AllMaterialType_Atk" then
+            str = "全ての防具の対象攻撃力"
+        end
+
+        if str == "perfection" then
+            str = "パーフェクト効果"
+        end
+        if str == "revenge" then
+            str = "復讐効果"
+        end
+
+        if str == "stun_res" then
+            str = "極：気絶抵抗"
+        end
+        if str == "high_fire_res" then
+            str = "極：滅火抵抗"
+        end
+        if str == "high_freezing_res" then
+            str = "極：寒冷抵抗"
+        end
+        if str == "high_lighting_res" then
+            str = "極：過電荷抵抗"
+        end
+        if str == "high_poison_res" then
+            str = "極：強劇猛毒抵抗"
+        end
+        if str == "high_laceration_res" then
+            str = "極：出血過多抵抗"
+        end
+        if str == "portion_expansion" then
+            str = "HPエリクサー広域化"
+        end
+
+        if str == "rada_bless_1" then
+            str = "ラダの恩恵(+1)"
+        end
+        if str == "dievdirbys_bless_1" then
+            str = "テスラの恩恵(+1)"
+        end
+        if str == "zemyna_bless_1" then
+            str = "ジェミナの恩恵(+1)"
+        end
+        if str == "payawoota_bless_1" then
+            str = "パヤウタの恩恵(+1)"
+        end
+        if str == "fireMage_bless_1" then
+            str = "メリンの恩恵(+1)"
+        end
+        if str == "saule_bless_1" then
+            str = "サウレの恩恵(+1)"
+        end
+
+        if str == " 500Advanced" then
+            str = " LV500 上級"
+        end
+        if str == " 480Advanced" then
+            str = " LV480 上級"
+        end
+
+        if str == " disabled" then
+            str = " 使用不可"
+        end
+
+        if str == "RH" then
+            str = "武器"
+        end
+        if str == "LH" then
+            str = "補助"
+        end
+        if str == "RH_SUB" then
+            str = "裏武器"
+        end
+        if str == "LH_SUB" then
+            str = "裏補助"
+        end
+        if str == "SHIRT" then
+            str = "上半身"
+        end
+        if str == "PANTS" then
+            str = "下半身"
+        end
+        if str == "GLOVES" then
+            str = "手袋"
+        end
+        if str == "BOOTS" then
+            str = "靴"
+        end
+
+        return str
+        --[[else
+        if str == "STR" then
+            str = ClMsg("STR")
+        end
+        if str == "DEX" then
+            str = ClMsg("DEX")
+        end
+        if str == "INT" then
+            str = ClMsg("INT")
+        end
+        if str == "CON" then
+            str = ClMsg("CON")
+        end
+        if str == "MNA" then
+            str = ClMsg("MNA")
+        end
+
+        if str == "BLK" then
+            str = ClMsg("BLK")
+        end
+        if str == "BLK_BREAK" then
+            str = ClMsg("BLK_BREAK")
+        end
+        if str == "ADD_HR" then
+            str = ClMsg("ADD_HR")
+        end
+        if str == "ADD_DR" then
+            str = ClMsg("ADD_DR")
+        end
+        if str == "CRTHR" then
+            str = ClMsg("CRTHR")
+        end
+        if str == "CRTDR" then
+            str = ClMsg("CRTDR")
+        end
+        if str == "RHP" then
+            str = ClMsg("RHP")
+        end
+        if str == "RSP" then
+            str = ClMsg("RSP")
+        end
+
+        if str == "Leather_Def" then
+            str = ClMsg("Leather_Def")
+        end
+        if str == "Cloth_Def" then
+            str = ClMsg("Cloth_Def")
+        end
+        if str == "Iron_Def" then
+            str = ClMsg("Iron_Def")
+        end
+        if str == "MiddleSize_Def" then
+            str = ClMsg("MiddleSize_Def")
+        end
+
+        if str == "ADD_LEATHER" then
+            str = ClMsg("ADD_LEATHER")
+        end
+        if str == "ADD_IRON" then
+            str = ClMsg("ADD_IRON")
+        end
+        if str == "ADD_CLOTH" then
+            str = ClMsg("ADD_CLOTH")
+        end
+        if str == "ADD_GHOST" then
+            str = ClMsg("ADD_GHOST")
+        end
+        if str == "ADD_SMALLSIZE" then
+            str = ClMsg("ADD_SMALLSIZE")
+        end
+        if str == "ADD_MIDDLESIZE" then
+            str = ClMsg("ADD_MIDDLESIZE")
+        end
+        if str == "ADD_LARGESIZE" then
+            str = ClMsg("ADD_LARGESIZE")
+        end
+        if str == "ADD_FORESTER" then
+            str = ClMsg("ADD_FORESTER")
+        end
+        if str == "ADD_WIDLING" then
+            str = ClMsg("ADD_WIDLING")
+        end
+        if str == "ADD_VELIAS" then
+            str = ClMsg("ADD_VELIAS")
+        end
+        if str == "ADD_PARAMUNE" then
+            str = ClMsg("ADD_PARAMUNE")
+        end
+        if str == "ADD_KLAIDA" then
+            str = ClMsg("ADD_KLAIDA")
+        end
+
+        if str == "Add_Damage_Atk" then
+            str = ClMsg("Add_Damage_Atk")
+        end
+        if str == "ResAdd_Damage" then
+            str = ClMsg("ResAdd_Damage")
+        end
+
+        if str == "AllRace_Atk" then
+            str = ClMsg("AllRace_Atk")
+        end
+        if str == "AllMaterialType_Atk" then
+            str = ClMsg("AllMaterialType_Atk")
+        end
+
+        if str == "perfection" then
+            str = ClMsg("perfection")
+        end
+        if str == "revenge" then
+            str = ClMsg("revenge")
+        end
+
+        if str == "stun_res" then
+            str = ClMsg("stun_res")
+        end
+        if str == "high_fire_res" then
+            str = ClMsg("high_fire_res")
+        end
+        if str == "high_freezing_res" then
+            str = ClMsg("high_freezing_res")
+        end
+        if str == "high_lighting_res" then
+            str = ClMsg("high_lighting_res")
+        end
+        if str == "high_poison_res" then
+            str = ClMsg("high_poison_res")
+        end
+        if str == "high_laceration_res" then
+            str = ClMsg("high_laceration_res")
+        end
+        if str == "portion_expansion" then
+            str = ClMsg("portion_expansion")
+        end
+
+        if str == "rada_bless_1" then
+            str = ClMsg("rada_bless_1")
+        end
+        if str == "dievdirbys_bless_1" then
+            str = ClMsg("dievdirbys_bless_1")
+        end
+        if str == "zemyna_bless_1" then
+            str = ClMsg("zemyna_bless_1")
+        end
+        if str == "payawoota_bless_1" then
+            str = ClMsg("payawoota_bless_1")
+        end
+        if str == "fireMage_bless_1" then
+            str = ClMsg("fireMage_bless_1")
+        end
+        if str == "saule_bless_1" then
+            str = ClMsg("saule_bless_1")
+        end
+
+        if str == " 500Advanced" then
+            str = " LV500 Advanced"
+        end
+        if str == " 480Advanced" then
+            str = " LV480 Advanced"
+        end
+
+        --[[if str == " disabled" then
+            str = " 使用不可"
+        end
+
+        if str == "RH" then
+            str = ClMsg("RH")
+        end
+        if str == "LH" then
+            str = ClMsg("LH")
+        end
+        if str == "RH_SUB" then
+            str = ClMsg("RH_SUB")
+        end
+        if str == "LH_SUB" then
+            str = ClMsg("LH_SUB")
+        end
+        if str == "SHIRT" then
+            str = ClMsg("Shirt")
+        end
+        if str == "PANTS" then
+            str = ClMsg("Pants")
+        end
+        if str == "GLOVES" then
+            str = ClMsg("GLOVES")
+        end
+        if str == "BOOTS" then
+            str = ClMsg("BOOTS")
+        end
+
+        return str]]
+    else
+        if str == "PATK" then
+            str = ClMsg("PATK")
+        end
+        if str == "ADD_DEF" then
+            str = ClMsg("ADD_DEF")
+        end
+        if str == "ADD_MDEF" then
+            str = ClMsg("ADD_MDEF")
+        end
+        if str == "MHP" then
+            str = ClMsg("MHP")
+        end
+        if str == "MSP" then
+            str = ClMsg("MSP")
+        end
+        if str == "ADD_MATK" then
+            str = ClMsg("ADD_MATK")
+        end
+        if str == "ADD_DEF" then
+            str = ClMsg("ADD_DEF")
+        end
+
+        if str == "STR" then
+            str = "STR"
+        end
+        if str == "DEX" then
+            str = "DEX"
+        end
+        if str == "INT" then
+            str = "INT"
+        end
+        if str == "CON" then
+            str = "CON"
+        end
+        if str == "MNA" then
+            str = "SPR"
+        end
+
+        if str == "BLK" then
+            str = "Block"
+        end
+        if str == "BLK_BREAK" then
+            str = "Block penetration"
+        end
+        if str == "ADD_HR" then
+            str = "Accuracy"
+        end
+        if str == "ADD_DR" then
+            str = "Evasion"
+        end
+        if str == "CRTHR" then
+            str = "Critical Rate"
+        end
+        if str == "CRTDR" then
+            str = "Critical Resistance"
+        end
+        if str == "RHP" then
+            str = "HP Recovery"
+        end
+        if str == "RSP" then
+            str = ClMsg("RSP")
+        end
+
+        if str == "Leather_Def" then
+            str = "DEF Leather armor"
+        end
+        if str == "Cloth_Def" then
+            str = "DEF Cloth armor"
+        end
+        if str == "Iron_Def" then
+            str = "DEF Plate armor"
+        end
+        if str == "MiddleSize_Def" then
+            str = "DEF Medium size"
+        end
+
+        if str == "ADD_LEATHER" then
+            str = "ATK Leather armor"
+        end
+        if str == "ADD_IRON" then
+            str = "ATK Plate armor"
+        end
+        if str == "ADD_CLOTH" then
+            str = "ATK Cloth armor"
+        end
+        if str == "ADD_GHOST" then
+            str = "ATK Ghost armor"
+        end
+        if str == "ADD_SMALLSIZE" then
+            str = "ATK Small size"
+        end
+        if str == "ADD_MIDDLESIZE" then
+            str = "ATK Medium size"
+        end
+        if str == "ADD_LARGESIZE" then
+            str = "ATK Large size"
+        end
+        if str == "ADD_FORESTER" then
+            str = "ATK Plant-type"
+        end
+        if str == "ADD_WIDLING" then
+            str = "ATK Beast-type"
+        end
+        if str == "ADD_VELIAS" then
+            str = "ATK Devil-type"
+        end
+        if str == "ADD_PARAMUNE" then
+            str = "ATK Mutant-type"
+        end
+        if str == "ADD_KLAIDA" then
+            str = "ATK Insect-type"
+        end
+
+        if str == "Add_Damage_Atk" then
+            str = "Additional Damage"
+        end
+        if str == "ResAdd_Damage" then
+            str = "DEF Add Damage"
+        end
+
+        if str == "AllRace_Atk" then
+            str = "ATK all creature type"
+        end
+        if str == "AllMaterialType_Atk" then
+            str = "ATK every type of armor"
+        end
+
+        if str == "perfection" then
+            str = "ATK Perfection"
+        end
+        if str == "revenge" then
+            str = "ATK Revenge"
+        end
+
+        if str == "stun_res" then
+            str = "Ex:Pass out"
+        end
+        if str == "high_fire_res" then
+            str = "Ex:Inferno"
+        end
+        if str == "high_freezing_res" then
+            str = "Ex:Frigid"
+        end
+        if str == "high_lighting_res" then
+            str = "Ex:Overcharge"
+        end
+        if str == "high_poison_res" then
+            str = "Ex:Virulent"
+        end
+        if str == "high_laceration_res" then
+            str = "Ex:Heavy Bleeding"
+        end
+        if str == "portion_expansion" then
+            str = "HP Elixir Broaden"
+        end
+
+        if str == "rada_bless_1" then
+            str = ClMsg("rada_bless_1")
+        end
+        if str == "dievdirbys_bless_1" then
+            str = ClMsg("dievdirbys_bless_1")
+        end
+        if str == "zemyna_bless_1" then
+            str = ClMsg("zemyna_bless_1")
+        end
+        if str == "payawoota_bless_1" then
+            str = ClMsg("payawoota_bless_1")
+        end
+        if str == "fireMage_bless_1" then
+            str = ClMsg("fireMage_bless_1")
+        end
+        if str == "saule_bless_1" then
+            str = ClMsg("saule_bless_1")
+        end
+
+        if str == " 500Advanced" then
+            str = " LV500 Advanced"
+        end
+        if str == " 480Advanced" then
+            str = " LV480 Advanced"
+        end
+
+        --[[if str == " disabled" then
+            str = " 使用不可"
+        end]]
+
+        if str == "RH" then
+            str = ClMsg("RH")
+        end
+        if str == "LH" then
+            str = ClMsg("LH")
+        end
+        if str == "RH_SUB" then
+            str = ClMsg("RH_SUB")
+        end
+        if str == "LH_SUB" then
+            str = ClMsg("LH_SUB")
+        end
+        if str == "SHIRT" then
+            str = ClMsg("Shirt")
+        end
+        if str == "PANTS" then
+            str = ClMsg("Pants")
+        end
+        if str == "GLOVES" then
+            str = ClMsg("GLOVES")
+        end
+        if str == "BOOTS" then
+            str = ClMsg("BOOTS")
+        end
+
+        return str
+    end
+end
+
 function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
     -- print(tostring(ctrl:GetName()))
     local frame = ui.GetFrame("inventory")
+    --[[local group = GET_CHILD_RECURSIVELY(frame, 'inventoryGbox', 'ui::CGroupBox')
+    local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();]]
+    local liftIcon = ui.GetLiftIcon()
+    local iconInfo = liftIcon:GetInfo();
+    local guid = iconInfo:GetIESID();
+    local invItem = GET_ITEM_BY_GUID(guid);
+    local parent = liftIcon:GetParent();
+    local fromslot = parent:GetParent();
+    local obj = GetIES(invItem:GetObject());
+    local slot = tolua.cast(ctrl, 'ui::CSlot')
+    local str = ""
+    -- print(tostring(parent:GetName()))
     if frame:IsVisible() == 1 then
-        local liftIcon = ui.GetLiftIcon()
-        local iconInfo = liftIcon:GetInfo();
-        local guid = iconInfo:GetIESID();
-        local invItem = GET_ITEM_BY_GUID(guid);
-        local obj = GetIES(invItem:GetObject());
-        local slot = tolua.cast(ctrl, 'ui::CSlot')
-        local str = ""
 
-        if tostring(GET_REQ_TOOLTIP(obj)) == "@dicID_^*$ITEM_20151223_008651$*^" and tostring(ctrl:GetName()) ==
-            "Hairslot1" then
+        --[[
+
+        print(tostring(fromslot:GetName()))]]
+        --[[local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_Equip', 'ui::CGroupBox')
+        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_Equip', 'ui::CTreeControl')
+        for i = 1, slotSetNameListCnt do
+            local slotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
+            -- print(tostring(slotSetName))
+            local slotSet = GET_CHILD_RECURSIVELY(tree, slotSetName, 'ui::CSlotSet');
+            if slotSet ~= nil then
+                for j = 0, slotSet:GetChildCount() - 1 do
+                    local slot = slotSet:GetChildByIndex(j);
+                    invItem = GET_SLOT_ITEM(slot);
+                    -- print(tostring(slot.info))
+
+                end
+            end
+        end
+
+        local text_1 = string.find(dictionary.ReplaceDicIDInCompStr(GET_REQ_TOOLTIP(obj)), "1")
+        local text_2 = string.find(dictionary.ReplaceDicIDInCompStr(GET_REQ_TOOLTIP(obj)), "2")
+        local text_3 = string.find(dictionary.ReplaceDicIDInCompStr(GET_REQ_TOOLTIP(obj)), "3")
+        -- print(tostring(text_1))
+        -- print(tostring(text_2))
+        -- print(tostring(text_3))
+        local tooltipText = tostring(GET_REQ_TOOLTIP(obj))]]
+
+        if (tostring(fromslot:GetName()) == "sset_HairAcc_Acc1" or tostring(parent:GetName()) == "HAT") and
+            tostring(ctrl:GetName()) == "Hairslot1" then
             for i = 1, 3 do
                 local propName = "HatPropName_" .. i;
                 local propValue = "HatPropValue_" .. i;
@@ -1249,7 +1920,8 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                     -- local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName])); ＩＭＣオリジナルコード
                     local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                    str = str .. strInfo .. "{nl}"
+                    str = str .. manager_language(tostring(obj[propName])) .. ":" ..
+                              manager_language(tostring(obj[propValue])) .. "{nl}"
                 end
             end
             cc_helper_hair_enddrop(ctrl, str)
@@ -1259,8 +1931,8 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
             local hair1_iesid = guid
             cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
                 legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
-        elseif tostring(GET_REQ_TOOLTIP(obj)) == "@dicID_^*$ITEM_20151223_008652$*^" and tostring(ctrl:GetName()) ==
-            "Hairslot2" then
+        elseif (tostring(fromslot:GetName()) == "sset_HairAcc_Acc2" or tostring(parent:GetName()) == "HAT_T") and
+            tostring(ctrl:GetName()) == "Hairslot2" then
 
             for i = 1, 3 do
                 local propName = "HatPropName_" .. i;
@@ -1270,7 +1942,8 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                     local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                    str = str .. strInfo .. "{nl}"
+                    str = str .. manager_language(tostring(obj[propName])) .. ":" ..
+                              manager_language(tostring(obj[propValue])) .. "{nl}"
                 end
             end
             cc_helper_hair_enddrop(ctrl, str)
@@ -1282,8 +1955,8 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
             cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
                 legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
 
-        elseif tostring(GET_REQ_TOOLTIP(obj)) == "@dicID_^*$ITEM_20151223_008653$*^" and tostring(ctrl:GetName()) ==
-            "Hairslot3" then
+        elseif (tostring(fromslot:GetName()) == "sset_HairAcc_Acc3" or tostring(parent:GetName()) == "HAT_L") and
+            tostring(ctrl:GetName()) == "Hairslot3" then
 
             for i = 1, 3 do
                 local propName = "HatPropName_" .. i;
@@ -1293,7 +1966,8 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                     local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                    str = str .. strInfo .. "{nl}"
+                    str = str .. manager_language(tostring(obj[propName])) .. ":" ..
+                              manager_language(tostring(obj[propValue])) .. "{nl}"
                 end
             end
             cc_helper_hair_enddrop(ctrl, str)

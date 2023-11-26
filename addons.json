@@ -105,7 +105,7 @@
 		"name" : "Character Change Helper",
 		"file" : "cc_helper",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.9",
+		"fileVersion" : "v1.1.0",
 		"releaseTag" : "cc_helper",
 		"unicode" : "⛄",
 		"description" : "ヘアコスチューム対応。各種装備をワンボタンで倉庫から出し入れして装備の着脱をします。事前設定必要です。シルバーの掛からない装備のみの簡易モードに切り替え可能です。Hair costume support. Various equipment can be moved in and out of the warehouse with one button to put on and take off the equipment. Pre-setting required. It is possible to switch to the simple mode of only equipment that does not cost silver.헤어 코스튬 대응. 각종 장비를 버튼 하나로 창고에서 꺼내거나 탈착할 수 있다. 사전 설정이 필요합니다. 실버가 걸리지 않는 장비만 간이 모드로 전환 가능합니다.",
