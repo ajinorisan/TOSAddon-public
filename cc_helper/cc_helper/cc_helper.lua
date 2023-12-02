@@ -9,10 +9,11 @@
 -- v1.0.8 ヘアコス対応とか。MCCと連携。ディレイタイムを設定できるように。
 -- v1.0.9 MCCと連携強化。ヘアコスのエンチャントオプチョンを装備するタイミングで上書き。
 -- v1.1.0 ヘアコスの付け替えで韓国語と英語クライアントで動かないバグを修正したつもり
+-- v1.1.1 △入れた。見え方を自然に
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -515,10 +516,15 @@ function cc_helper_equip()
             if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                 local opName = string.format("%s", ScpArgMsg(obj[propName]));
                 local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                str = str .. strInfo .. "{nl}"
+                local strInfo_gsub = string.gsub(strInfo, "-", "")
+                local strInfo_gsub2 = string.gsub(strInfo_gsub, "  ", "")
+                local strInfo_gsub3 = string.gsub(strInfo_gsub, " ", "")
+                local strInfo_gsub4 = string.gsub(strInfo_gsub2, "#@!!@#", "#@! !@#")
+                str = str .. strInfo_gsub4 .. "{nl}"
+
             end
         end
-        str = string.gsub(str, "-", "")
+        -- str = string.gsub(str, "-", "")
         g.settings.charid.hair1_str[tostring(loginCharID)] = str
         cc_helper_save_settings()
 
@@ -542,10 +548,14 @@ function cc_helper_equip()
             if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                 local opName = string.format("%s", ScpArgMsg(obj[propName]));
                 local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                str = str .. strInfo .. "{nl}"
+                local strInfo_gsub = string.gsub(strInfo, "-", "")
+                local strInfo_gsub2 = string.gsub(strInfo_gsub, "  ", "")
+                local strInfo_gsub3 = string.gsub(strInfo_gsub, " ", "")
+                local strInfo_gsub4 = string.gsub(strInfo_gsub2, "#@!!@#", "#@! !@#")
+                str = str .. strInfo_gsub4 .. "{nl}"
             end
         end
-        str = string.gsub(str, "-", "")
+        -- str = string.gsub(str, "-", "")
         g.settings.charid.hair2_str[tostring(loginCharID)] = str
         cc_helper_save_settings()
 
@@ -569,10 +579,14 @@ function cc_helper_equip()
             if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                 local opName = string.format("%s", ScpArgMsg(obj[propName]));
                 local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                str = str .. strInfo .. "{nl}"
+                local strInfo_gsub = string.gsub(strInfo, "-", "")
+                local strInfo_gsub2 = string.gsub(strInfo_gsub, "  ", "")
+                local strInfo_gsub3 = string.gsub(strInfo_gsub, " ", "")
+                local strInfo_gsub4 = string.gsub(strInfo_gsub2, "#@!!@#", "#@! !@#")
+                str = str .. strInfo_gsub4 .. "{nl}"
             end
         end
-        str = string.gsub(str, "-", "")
+        -- str = string.gsub(str, "-", "")
         -- print(tostring(str))
         g.settings.charid.hair3_str[tostring(loginCharID)] = str
         cc_helper_save_settings()
@@ -1243,7 +1257,7 @@ function cc_helper_settings_close(frame)
     frame:ShowWindow(0)
 end
 
-local function manager_language(str)
+--[[local function manager_language(str)
     local language = option.GetCurrentCountry()
 
     if language == "Japanese" then
@@ -1648,7 +1662,7 @@ local function manager_language(str)
             str = ClMsg("BOOTS")
         end
 
-        return str]]
+        return str
     else
         if str == "PATK" then
             str = ClMsg("PATK")
@@ -1834,7 +1848,7 @@ local function manager_language(str)
 
         --[[if str == " disabled" then
             str = " 使用不可"
-        end]]
+        end
 
         if str == "RH" then
             str = ClMsg("RH")
@@ -1863,7 +1877,7 @@ local function manager_language(str)
 
         return str
     end
-end
+end]]
 
 function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
     -- print(tostring(ctrl:GetName()))
@@ -1914,16 +1928,18 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
             for i = 1, 3 do
                 local propName = "HatPropName_" .. i;
                 local propValue = "HatPropValue_" .. i;
-                -- print(tostring(obj[propName]))
-                -- print(tostring(obj[propValue]))
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                     -- local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(obj[propName])); ＩＭＣオリジナルコード
                     local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                    str = str .. manager_language(tostring(obj[propName])) .. ":" ..
-                              manager_language(tostring(obj[propValue])) .. "{nl}"
+                    local strInfo_gsub = string.gsub(strInfo, "-", "")
+                    local strInfo_gsub2 = string.gsub(strInfo_gsub, "  ", "")
+                    local strInfo_gsub3 = string.gsub(strInfo_gsub, " ", "")
+                    local strInfo_gsub4 = string.gsub(strInfo_gsub2, "#@!!@#", "#@! !@#")
+                    str = str .. strInfo_gsub4 .. "{nl}"
                 end
             end
+            -- print(str)
             cc_helper_hair_enddrop(ctrl, str)
             SET_SLOT_IMG(slot, obj.Icon);
             SET_SLOT_IESID(slot, guid);
@@ -1942,8 +1958,11 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                     local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                    str = str .. manager_language(tostring(obj[propName])) .. ":" ..
-                              manager_language(tostring(obj[propValue])) .. "{nl}"
+                    local strInfo_gsub = string.gsub(strInfo, "-", "")
+                    local strInfo_gsub2 = string.gsub(strInfo_gsub, "  ", "")
+                    local strInfo_gsub3 = string.gsub(strInfo_gsub, " ", "")
+                    local strInfo_gsub4 = string.gsub(strInfo_gsub2, "#@!!@#", "#@! !@#")
+                    str = str .. strInfo_gsub4 .. "{nl}"
                 end
             end
             cc_helper_hair_enddrop(ctrl, str)
@@ -1966,8 +1985,11 @@ function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
                 if obj[propValue] ~= 0 and obj[propName] ~= "None" then
                     local opName = string.format("%s", ScpArgMsg(obj[propName]));
                     local strInfo = ABILITY_DESC_PLUS(opName, obj[propValue]);
-                    str = str .. manager_language(tostring(obj[propName])) .. ":" ..
-                              manager_language(tostring(obj[propValue])) .. "{nl}"
+                    local strInfo_gsub = string.gsub(strInfo, "-", "")
+                    local strInfo_gsub2 = string.gsub(strInfo_gsub, "  ", "")
+                    local strInfo_gsub3 = string.gsub(strInfo_gsub, " ", "")
+                    local strInfo_gsub4 = string.gsub(strInfo_gsub2, "#@!!@#", "#@! !@#")
+                    str = str .. strInfo_gsub4 .. "{nl}"
                 end
             end
             cc_helper_hair_enddrop(ctrl, str)
