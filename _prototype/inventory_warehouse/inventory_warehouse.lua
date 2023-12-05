@@ -18,16 +18,16 @@ function INVENTORY_WAREHOUSE_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    -- addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'inventory_warehouse_frame_init')
-    -- acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "inventory_warehouse_frame_close");
+    addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'inventory_warehouse_frame_init')
+    acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "inventory_warehouse_frame_close");
 end
 
 function inventory_warehouse_frame_init(frame)
 
     frame:SetOffset(700, 300)
-    frame:Resize(700, 610)
+    frame:Resize(700, 540)
     frame:ShowWindow(1)
-
+    inventory_warehouse_update()
 end
 
 function inventory_warehouse_frame_close(frame)
@@ -35,8 +35,13 @@ function inventory_warehouse_frame_close(frame)
     frame:ShowWindow(0)
 
 end
+
+local function IsBlackListedTabName(name)
+    return name == 'Quest'
+end
+
 function inventory_warehouse_activegbox()
-    local frame = ui.GetFrame("yaireplacement")
+    local frame = ui.GetFrame("inventory_warehouse")
 
     for typeNo = 1, #g_invenTypeStrList do
         if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
@@ -155,6 +160,7 @@ function inventory_warehouse_update()
     end
 
     for i = 1, #invenTitleName do
+
         local category = invenTitleName[i]
         local lim = 30
 
@@ -204,7 +210,7 @@ function inventory_warehouse_update()
                                         typeStr);
 
                                 end
-
+                                print(tostring("test1"))
                                 local tree_box_all = GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
                                 local tree_all =
                                     GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All', 'ui::CTreeControl')
@@ -212,6 +218,7 @@ function inventory_warehouse_update()
                                     typeStr);
 
                             end
+
                         end
                     end
                 end
@@ -279,6 +286,7 @@ function inventory_warehouse_update()
         end
     end
     -- スロット残数を表示
+    print("test")
     inventory_warehouse_status()
 end
 
@@ -383,7 +391,21 @@ function inventory_warehouse_status(inc)
     -- itemcnt:UpdateFormat()]]
 end
 
+function inventory_warehouse_get_slotset_name(baseidcls)
+    local cls = baseidcls
+    if cls == nil then
+        return 'error'
+    else
+        local className = cls.ClassName
+        if cls.MergedTreeTitle ~= "NO" then
+            className = cls.MergedTreeTitle
+        end
+        return 'sset_' .. className
+    end
+end
+
 function inventory_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, baseidcls, typeStr)
+
     -- 그룹 없으면 만들기
     local treegroupname = baseidcls.TreeGroup
 
@@ -397,7 +419,7 @@ function inventory_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, 
     end
 
     -- 슬롯셋 없으면 만들기
-    local slotsetname = YAI_GET_SLOTSET_NAME(baseidcls)
+    local slotsetname = inventory_warehouse_get_slotset_name(baseidcls)
     local slotsetnode = tree:FindByValue(treegroup, slotsetname);
     if tree:IsExist(slotsetnode) == 0 then
         local slotsettitle = 'ssettitle_' .. baseidcls.ClassName;
@@ -417,6 +439,7 @@ function inventory_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, 
         MAKE_INVEN_SLOTSET_AND_TITLE(tree, treegroup, slotsetname, baseidcls);
         INVENTORY_CATEGORY_OPENOPTION_CHECK(tree:GetName(), baseidcls.ClassName);
     end
+
     local slotset = GET_CHILD_RECURSIVELY(tree, slotsetname, 'ui::CSlotSet');
     local slotCount = slotset:GetSlotCount();
     local slotindex = slotCount;
@@ -468,16 +491,19 @@ function inventory_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, 
         SET_SLOT_ICOR_CATEGORY(slot, itemCls);
 
     end
+
     -- INV_ICON_SETINFO(frame, slot, invItem, nil, nil, nil);
     _DRAW_ITEM(invItem, slot, nil)
     SET_SLOTSETTITLE_COUNT(tree, baseidcls, 1)
-    if (g.settings.enabledrag) then
+    --[[if (g.settings.enabledrag) then
         slot:EnableDrag(1)
     else
         slot:EnableDrag(0)
-    end
+    end]]
+
     slot:SetEventScript(ui.LBUTTONUP, "YAI_ON_LBUTTON")
     slot:SetEventScript(ui.RBUTTONUP, "YAI_ON_RBUTTON")
     slotset:MakeSelectionList();
+    -- print(tostring("inventory_warehouse_insert_item_to_tree_3"))
     -- slotset:EnableSelection(1)
 end
