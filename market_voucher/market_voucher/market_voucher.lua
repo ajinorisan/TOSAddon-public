@@ -4,10 +4,11 @@
 -- v1.0.4 色々修正。表示を時間降順に並べ替えたので実質クリアせんでもずっと使える。
 -- v1.0.5 バグ修正。見た目修正
 -- v1.0.6 バグ修正。logtextが長すぎると、文字列が取得出来無さそう。
+-- v1.0.7 韓国語クライアントでも動く様になったハズ。知らんけど。
 local addonName = "MARKET_VOUCHER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -96,10 +97,18 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
             local itemID = cabinetItem:GetItemID();
 
             local itemObj = GetIES(cabinetItem:GetObject());
-            -- local itemName = itemObj.ClassName
 
-            local itemName = dictionary.ReplaceDicIDInCompStr(itemObj.Name)
-            local itemnamegsub = string.gsub(itemName, "-", "?")
+            -- local itemName = itemObj.ClassName
+            local langCode = option.GetCurrentCountry()
+            print(tostring(langCode))
+            print(tostring(itemObj.ClassName))
+            if langCode == "kr" then
+                local itemName = itemObj.ClassName
+
+            else
+                local itemName = dictionary.ReplaceDicIDInCompStr(itemObj.Name)
+                local itemnamegsub = string.gsub(itemName, "-", "?")
+            end
 
             local registerTime = cabinetItem:GetRegSysTime()
             local year = string.format("%04d", registerTime.wYear)
@@ -243,7 +252,7 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
 
     textview:SetText("")
     textview:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
-    textview:SetText(tostring(logText))
+    -- textview:SetText(tostring(logText))
 
     local count = #g.settings
 
@@ -272,8 +281,8 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
         local name = "{ol}" .. token[2]
         local item = "{ol}" .. token[3]
         if string.find(item, "?") ~= nil then
-            item = "{ol}" .. item:gsub("?", "-")
-
+            -- item = "{ol}" .. item:gsub("?", "-")
+            item = string.gsub(item, "?", "-")
         end
         local quantity = "{ol}" .. token[4]
         local unit_price = token[5]
