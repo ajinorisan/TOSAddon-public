@@ -15,7 +15,7 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/newsettings.json', addonNameLower)
+g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 g.logpath = string.format('../addons/%s/log.txt', addonNameLower)
 
 local acutil = require("acutil")
@@ -83,33 +83,31 @@ end
 function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
 
     local frame = ui.GetFrame("market_cabinet")
-
     local itemGbox = GET_CHILD(frame, "itemGbox");
-
     local cnt = session.market.GetCabinetItemCount();
-
+    -- print(tostring(cnt))
     for i = 0, cnt - 1 do
         local cabinetItem = session.market.GetCabinetItemByIndex(i);
         local whereFrom = cabinetItem:GetWhereFrom();
-
+        -- print(tostring(whereFrom))
         if whereFrom == "market_sell" then -- 
 
             local itemID = cabinetItem:GetItemID();
 
             local itemObj = GetIES(cabinetItem:GetObject());
+            local itemCls = GetClassByType("Item", itemObj.ClassID);
+            local itemName = TryGetProp(itemCls, "Name");
 
             -- local itemName = itemObj.ClassName
             local langCode = option.GetCurrentCountry()
-            print(tostring(langCode))
-            print(tostring(itemObj.ClassName))
-            if langCode == "kr" then
-                local itemName = itemObj.ClassName
 
-            else
-                local itemName = dictionary.ReplaceDicIDInCompStr(itemObj.Name)
-                local itemnamegsub = string.gsub(itemName, "-", "?")
+            if langCode ~= "Korean" then
+
+                itemName = dictionary.ReplaceDicIDInCompStr(itemObj.Name)
+
             end
-
+            -- print(tostring(itemName))
+            local itemnamegsub = string.gsub(itemName, "-", "?")
             local registerTime = cabinetItem:GetRegSysTime()
             local year = string.format("%04d", registerTime.wYear)
             local month = string.format("%02d", registerTime.wMonth)
@@ -146,8 +144,9 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
     end
     market_voucher_save_settings()
     market_voucher_load_settings()
-    base["CABINET_GET_ALL_LIST"](frame, control, strarg, now)
-    -- CABINET_GET_ALL_LIST_OLD(frame, control, strarg, now)
+    -- table.remove(g.settings)
+    -- base["CABINET_GET_ALL_LIST"](frame, control, strarg, now)
+    CABINET_GET_ALL_LIST_OLD(frame, control, strarg, now)
 
 end
 -- g.settings = {}

@@ -10,10 +10,11 @@
 -- v1.0.9 MCCと連携強化。ヘアコスのエンチャントオプチョンを装備するタイミングで上書き。
 -- v1.1.0 ヘアコスの付け替えで韓国語と英語クライアントで動かないバグを修正したつもり
 -- v1.1.1 △入れた。見え方を自然に
+-- v1.1.2 ヘアコス外した時のセッティングスファイルのバグ修正したつもり
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1026,6 +1027,7 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
     if ctrl:GetName() == tostring("Hairslot1") then
         g.settings.charid.hair1_iesid[tostring(loginCharID)] = nil
         g.settings.charid.hair1[tostring(loginCharID)] = nil
+        g.settings.charid.hair1_str[tostring(loginCharID)] = nil
         g.hair1 = nil
         g.hair1_iesid = nil
         g.hair1_str = nil
@@ -1035,6 +1037,7 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
     if ctrl:GetName() == tostring("Hairslot2") then
         g.settings.charid.hair2_iesid[tostring(loginCharID)] = nil
         g.settings.charid.hair2[tostring(loginCharID)] = nil
+        g.settings.charid.hair2_str[tostring(loginCharID)] = nil
         g.hair2 = nil
         g.hair2_iesid = nil
         g.hair2_str = nil
@@ -1044,6 +1047,7 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
     if ctrl:GetName() == tostring("Hairslot3") then
         g.settings.charid.hair3_iesid[tostring(loginCharID)] = nil
         g.settings.charid.hair3[tostring(loginCharID)] = nil
+        g.settings.charid.hair3_str[tostring(loginCharID)] = nil
         g.hair3 = nil
         g.hair3_iesid = nil
         g.hair3_str = nil
