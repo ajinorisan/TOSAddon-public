@@ -3,10 +3,11 @@
 -- v1.0.2 ADDONSに表示されない人がいるのでMINIMAP左下ボタンに変更
 -- v1.0.3 バフ一覧設定がテレコになっていたのを修正。センスのないボタンを変更
 -- v1.0.4 パーティーバフ非表示機能
+-- v1.0.5 コインアイテムを取得時に自動使用昨日追加
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -33,6 +34,10 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
+
+    if not g.loaded then
+        g.loaded = true
+    end
 
     -- acutil.addSysIcon("mini_addons", "sysmenu_mac", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
     MINI_ADDONS_LOAD_SETTINGS()
@@ -96,62 +101,69 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
 
+    if g.settings.coin_use == nil then
+        g.settings.coin_use = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+    elseif g.settings.coin_use == 1 then
+        addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
+    end
+
     MINI_ADDONS_NEW_FRAME_INIT()
 
-    -- acutil.setupEvent(addon, "SHOW_DMG_DIGIT", "MINI_ADDONS_SHOW_DMG_DIGIT")
-    -- acutil.setupHook(MINI_ADDONS_UI_ANIM, "UI_ANIM")
-    -- addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_WING")
+end
+if not g.loaded then
+    g.settings = {
+        reword_x = 1100,
+        reword_y = 100,
+        charid = {},
+        allcall = 0,
+        under_staff = 1,
+        raid_record = 1,
+        party_buff = 1,
+        chat_system = 1,
+        channel_display = 1,
+        mini_btn = 1,
+        market_display = 1,
+        restart_move = 1,
+        pet_init = 1,
+        dialog_ctrl = 1,
+        auto_cast = 1,
+        auto_casting = {},
+        buffid = {},
+        coin_use = 1
+
+    }
 end
 
---[[function MINI_ADDONS_UI_ANIM(frame, name)
-    CHAT_SYSTEM(tostring(frame:GetName()))
-    CHAT_SYSTEM(tostring(name))
-    local force = ui.force.Get(name);
-    if force == nil then
-        return;
+local coin_item = {869001, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161, 11200160,
+                   11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212, 11030211,
+                   11030210, 11030201, 11035673, 11035670, 11035668, 11030394, 11030240, 646076, 11035672, 11035669,
+                   11035667, 11035457, 11035426, 11035409}
+
+-- 傭兵団コイン、女神コイン、王国再建団コインを取得時、自動で使用
+function MINI_ADDONS_INV_ICON_USE()
+
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+
+    for i = 0, cnt - 1 do
+        local guid = guidList:Get(i);
+        local invItem = invItemList:GetItemByGuid(guid)
+        local itemobj = GetIES(invItem:GetObject())
+
+        for _, coinID in ipairs(coin_item) do
+            if tostring(itemobj.ClassID) == tostring(coinID) then
+
+                ReserveScript(string.format("item.UseByGUID(%d)", invItem:GetIESID()), 1.5)
+
+                break -- 使ったらループを抜ける
+            end
+        end
+
     end
-    frame:PlayForce(force, 0, 0, 0);
-end
-function MINI_ADDONS_WING()
-    local frame = ui.GetFrame("inventory")
-    local slotWING = frame:GetChildRecursively("WING")
-    local btnWING = slotWING:CreateOrGetControl("picture", "btnWING", 0, 0, 20, 20)
-    AUTO_CAST(btnWING)
-    btnWING:SetGravity(ui.LEFT, ui.TOP)
-    -- btnWING:SetImage("inventory_hat_layer_off")
-    btnWING:SetImage("inven_hat_layer_on")
-    btnWING:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WING_HIDE")
-
 end
 
-function MINI_ADDONS_WING_HIDE()
-
-    local actor = GetMyActor()
-
-    print(tostring(actor:GetAnimation():GetAnim()))
-    actor:ShowModelByPart('WING', 0, 0);
-    print("test")
-end]]
-
-g.settings = {
-    reword_x = 1100,
-    reword_y = 100,
-    charid = {},
-    allcall = 0,
-    under_staff = 1,
-    raid_record = 1,
-    party_buff = 1,
-    chat_system = 1,
-    channel_display = 1,
-    mini_btn = 1,
-    market_display = 1,
-    restart_move = 1,
-    pet_init = 1,
-    dialog_ctrl = 1,
-    auto_cast = 1,
-    auto_casting = {},
-    buffid = {}
-}
 -- オートキャスティング制御
 function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(parent, ctrl)
 
@@ -249,7 +261,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         -- frame:SetSkinName("test_frame_low")
         frame:SetSkinName("bg")
         frame:SetLayerLevel(93)
-        frame:Resize(710, 380)
+        frame:Resize(710, 410)
         frame:SetPos(1150, 400)
         frame:ShowTitleBar(0);
         frame:EnableHittestFrame(1)
@@ -328,7 +340,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             "{@st59}チャンネル表示のズレを修正{nl}채널 표시가 어긋나는 현상 수정")
 
         local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, 130, 25,
-            25)
+                                                                  25)
         AUTO_CAST(channel_display_checkbox)
         channel_display_checkbox:SetCheck(g.settings.channel_display)
         channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
@@ -408,7 +420,19 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         auto_cast_checkbox:SetTextTooltip(
             "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-        local description = frame:CreateOrGetControl("richtext", "description", 140, 345)
+        local coin_use = frame:CreateOrGetControl("richtext", "coin_use", 40, 345)
+        coin_use:SetText("{ol}{#FFFFFF}Automatically used when acquiring coin items.")
+        coin_use:SetTextTooltip(
+            "{@st59}傭兵団コイン、シーズンコイン、王国再建団コインを取得時に自動で使用します。{nl}코인 아이템 획득 시 자동으로 사용됩니다.")
+
+        local coin_use_checkbox = frame:CreateOrGetControl('checkbox', 'coin_use_checkbox', 10, 340, 25, 25)
+        AUTO_CAST(coin_use_checkbox)
+        coin_use_checkbox:SetCheck(g.settings.coin_use)
+        coin_use_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+        coin_use_checkbox:SetTextTooltip(
+            "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+
+        local description = frame:CreateOrGetControl("richtext", "description", 140, 375)
         description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
         description:SetTextTooltip(
             "{@st59}一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です。{nl}일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다.")
@@ -627,6 +651,16 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         MINI_ADDONS_LOAD_SETTINGS()
     end
 
+    if ischeck == 1 and ctrlname == "coin_use_checkbox" then
+        g.settings.coin_use = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "coin_use_checkbox" then
+        g.settings.coin_use = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
+
 end
 
 function MINI_ADDONS_SAVE_SETTINGS()
@@ -667,7 +701,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
             dialog_ctrl = 1,
             auto_cast = 1,
             auto_casting = {},
-            buffid = {}
+            buffid = {},
+            coin_use = 1
         }
         MINI_ADDONS_SAVE_SETTINGS()
 
@@ -1119,7 +1154,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
