@@ -313,7 +313,7 @@ function ANCIENT_AUTOSET_SET_ANCIENT_CARD_SLOT(ctrlSet, card, index)
     -- print(tostring(slot))
     local icon = CreateIcon(slot);
     local monCls = GetClass("Monster", card:GetClassName());
-    local iconName = TryGetProp(monCls, "Icon");
+    local iconName = "misc_slogutis_fragments"
     icon:SetImage(iconName)
     -- star drawing
     local starText = slot:CreateOrGetControl("richtext", "starText", 10, 40, 15, 15)
