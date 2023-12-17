@@ -135,7 +135,7 @@
 		"name" : "Indun Panel",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.2.0",
+		"fileVersion" : "v1.2.1",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "キャラ毎のレイド消化状況を一覧表示する機能追加。チャレンジやレイドに入る支援パネルを設置します。アイテムを購入して使う機能追加。Added the ability to list the raid digest status for each character.Establish a support panel to enter challenges and raids. Add the ability to purchase and use items.캐릭터별 레이드 소화 현황을 확인할 수 있는 기능 추가.챌린지 및 레이드 진입을 위한 지원 패널을 설치합니다. 아이템 구매 및 사용 기능 추가.",

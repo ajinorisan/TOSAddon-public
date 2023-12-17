@@ -17,10 +17,12 @@
 -- v1.1.7 台湾verに対応
 -- v1.1.8 日本語Verに台湾語が混ざってたのを修正。BUYUSEボタンに説明追加。
 -- v1.1.9 スロガ、ウピニスハード入場追加
+-- v1.2.0 嘆きの墓地異空間追加、バラックキャラのレイド消化一覧機能
+-- v1.2.1 2秒毎に重い処理して画面カクついてたのを修正。オートクリアを使用した時とCC3秒後だけ処理を走らせる様に変更。反省してる。ウピニスハードの色替え。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.8"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -87,11 +89,11 @@ function INDUN_PANEL_LANG(str)
         if str == tostring("{s20}Earring") then
             str = "{s20}焔の記憶"
         end
-        if str == tostring("{s20}Cemetery") then
+        if str == tostring("{s20}Wailing") then
             str = "{s20}嘆きの墓地"
         end
-        if str == tostring("SWEEP") then
-            str = "掃討"
+        if str == tostring("ACLEAR") then
+            str = "ACLEAR"
         end
         if str == tostring(
             "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due") then
@@ -143,10 +145,10 @@ function INDUN_PANEL_LANG(str)
         if str == tostring("{s20}Earring") then
             str = "{s20}煙火的記憶"
         end
-        if str == tostring("{s20}Cemetery") then
+        if str == tostring("{s20}Wailing") then
             str = "{s20}痛哭墓地"
         end
-        if str == tostring("SWEEP") then
+        if str == tostring("ACLEAR") then
             str = "掃蕩"
         end
         return str
@@ -161,6 +163,15 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     g.frame = frame
     g.framename = addonName
 
+    -- indun_panel_load_settings()
+    -- local loginCharID = info.GetCID(session.GetMyHandle())
+    -- print(tostring(g.settings.loginCID))
+    --[[local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
+
+    for i = 1, #sweepbuff_table do
+        indun_panel_sweep_count_get(sweepbuff_table[i])
+    end]]
+
     indun_panel_load_settings()
 
     local pc = GetMyPCObject();
@@ -169,7 +180,15 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         local ipframe = ui.GetFrame("indun_panel")
         ipframe:RemoveAllChild()
-        indun_panel_frame_init()
+        addon:RegisterMsg('GAME_START_3SEC', "indun_panel_get_sweep_count")
+        if g.settings.ischecked == 1 then
+            indun_panel_frame_init()
+            -- local ipframe = ui.GetFrame(g.framename)
+            indun_panel_init(ipframe)
+
+        else
+            indun_panel_frame_init()
+        end
         if g.ex == 0 and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
 
             indunpanel_minimized_pvpmine_shop_init()
@@ -188,41 +207,450 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     end
 
     addon:RegisterMsg('GAME_START', "indun_panel_autozoom")
+
     -- g.SetupHook(indun_panel_EARTH_TOWER_SHOP_OPEN, "EARTH_TOWER_SHOP_OPEN")
 end
 
---[[function indun_panel_EARTH_TOWER_SHOP_OPEN(frame)
-    if frame == nil then
-        frame = ui.GetFrame("earthtowershop")
+g.settings = {
+    ischecked = 0,
+    zoom = 336,
+    challenge_checkbox = 1,
+    challengeex_checkbox = 1,
+    Slogutis_checkbox = 1,
+    Upinis_checkbox = 1,
+    roze_checkbox = 1,
+    falouros_checkbox = 1,
+    spreader_checkbox = 1,
+    jellyzele_checkbox = 1,
+    delmore_checkbox = 1,
+    telharsha_checkbox = 1,
+    velnice_checkbox = 1,
+    giltine_checkbox = 1,
+    earring_checkbox = 1,
+    cemetery_checkbox = 1
+
+}
+
+function indun_panel_raid_count()
+    local icframe = ui.CreateNewFrame("notice_on_pc", "icframe", 0, 0, 10, 10)
+    AUTO_CAST(icframe)
+    icframe:RemoveAllChild()
+    icframe:SetSkinName("None")
+    icframe:SetLayerLevel(107);
+
+    local gb = icframe:CreateOrGetControl("groupbox", "gb", 0, 0, 10, 10)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+    -- gb:SetSkinName("test_frame_midle_light")
+    gb:SetColorTone("FF000000");
+
+    local charname = gb:CreateOrGetControl("richtext", "charname", 10, 35)
+    AUTO_CAST(charname)
+    charname:SetText("{ol}CharacterName")
+
+    local loginCharID = info.GetCID(session.GetMyHandle())
+
+    local icon_table = {"icon_item_misc_boss_Slogutis", "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze",
+                        "icon_item_misc_high_falouros", "icon_item_misc_high_transmutationSpreader",
+                        "icon_item_misc_falouros", "icon_item_misc_transmutationSpreader"}
+
+    local y = 175
+    for i = 1, 7 do
+        local slot = gb:CreateOrGetControl("slot", "slot" .. i, y, 5, 25, 25)
+        AUTO_CAST(slot)
+
+        slot:SetSkinName("None");
+
+        local icon = CreateIcon(slot);
+        local iconName = icon_table[i]
+
+        icon:SetImage(iconName)
+        local text = gb:CreateOrGetControl("richtext", "text" .. i, y + 30, 10)
+        local hard_text = gb:CreateOrGetControl("richtext", "hard_text" .. i, y, 35)
+        local auto_text = gb:CreateOrGetControl("richtext", "auto_text" .. i, y + 45, 35)
+        local buff_text = gb:CreateOrGetControl("richtext", "buff_text" .. i, y + 90, 35)
+        if i == 1 then
+            hard_text:SetText("{ol}Hard")
+            auto_text:SetText("{ol}Auto")
+            buff_text:SetText("{ol}AClear")
+            text:SetText("{ol}Abyss")
+            y = y + 160
+        elseif i == 2 then
+            hard_text:SetText("{ol}Hard")
+            auto_text:SetText("{ol}Auto")
+            buff_text:SetText("{ol}AClear")
+            text:SetText("{ol}Dreamy")
+            y = y + 160
+        elseif i == 3 then
+            hard_text:SetText("{ol}Hard")
+            auto_text:SetText("{ol}Auto")
+            buff_text:SetText("{ol}AClear")
+            text:SetText("{ol}Roze")
+            y = y + 160
+        elseif i == 4 then
+            hard_text:SetText("{ol}Hard")
+            auto_text:SetText("{ol}Auto")
+            buff_text:SetText("{ol}AClear")
+            y = y + 30
+        elseif i == 5 then
+            y = y + 30
+        elseif i == 6 then
+
+            y = y + 30
+        elseif i == 7 then
+            -- text:SetText("{ol}Turbulent")
+            y = y + 30
+        end
     end
 
-    local shopType = frame:GetUserValue("SHOP_TYPE");
-    if shopType == 'None' then
-        shopType = "EarthTower";
-        frame:SetUserValue("SHOP_TYPE", shopType);
+    local indunClsList, indunCount = GetClassList('Indun')
+    local accountInfo = session.barrack.GetMyAccount();
+    local cnt = accountInfo:GetBarrackPCCount();
+
+    local x = 60
+
+    for i = 0, cnt - 1 do
+
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i);
+
+        local pcName = pcInfo:GetName()
+
+        local jobList, level, lastJobID = GetJobListFromAdventureBookCharData(pcName);
+        local lastJobCls = GetClassByType("Job", lastJobID);
+        local lastJobIcon = TryGetProp(lastJobCls, "Icon");
+        local jobslot = gb:CreateOrGetControl("slot", "jobslot" .. i, 5, x - 4, 25, 25)
+        AUTO_CAST(jobslot)
+        jobslot:SetSkinName("None");
+
+        local jobicon = CreateIcon(jobslot);
+        jobicon:SetImage(lastJobIcon)
+        -- local iconName = icon_table[i]
+        local name = gb:CreateOrGetControl("richtext", pcName, 35, x)
+        AUTO_CAST(name)
+
+        name:SetText("{ol}" .. pcName)
+
+        local line = gb:CreateOrGetControl("labelline", "line" .. i, 30, x - 7, 750, 2)
+        line:SetSkinName("labelline_def_3")
+        -- local temp_table = {690, 688, 687, 685, 681, 679, 678, 676, 675, 673}
+
+        for j = 0, indunCount - 1 do
+            local indunCls = GetClassByIndexFromList(indunClsList, j)
+
+            if indunCls ~= nil and indunCls.Category ~= 'None' then
+
+                local LoginPcName = session.GetMySession():GetPCApc():GetName()
+
+                local entranceCount = BARRACK_GET_CHAR_INDUN_ENTRANCE_COUNT(pcInfo.cid, indunCls.PlayPerResetType)
+
+                -- print(pcName .. ":" .. tostring(indunCls.Category) .. tostring(indunCls.PlayPerResetType) .. ":" ..
+                -- entranceCount)
+                -- ウピニスハード687オート685 スロガH690A688 プロパゲH675A673 ファロH678A676 ロゼH681A679
+                if indunCls.PlayPerResetType == 836 then
+                    local Slogutis_hard = gb:CreateOrGetControl("richtext", "Slogutis_hard" .. i, 175, x)
+                    if pcName ~= LoginPcName then
+                        Slogutis_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 1)")
+                    else
+                        Slogutis_hard:SetText("{ol}{s14}(" ..
+                                                  GET_CURRENT_ENTERANCE_COUNT(
+                                GetClassByType("Indun", 690).PlayPerResetType) .. " / 1)")
+                    end
+                    if Slogutis_hard:GetText() == "{ol}{s14}(1 / 1)" then
+                        Slogutis_hard:SetColorTone("FF990000");
+                    end
+                end
+                if indunCls.PlayPerResetType == 835 then
+                    local Slogutis_auto = gb:CreateOrGetControl("richtext", "Slogutis_auto" .. i, 220, x)
+                    if pcName ~= LoginPcName then
+                        Slogutis_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
+                    else
+                        Slogutis_auto:SetText("{ol}{s14}(" ..
+                                                  GET_CURRENT_ENTERANCE_COUNT(
+                                GetClassByType("Indun", 688).PlayPerResetType) .. " / 2)")
+                    end
+                    -- print(tostring(Slogutis_auto:GetText()))
+                    if Slogutis_auto:GetText() == "{ol}{s14}(2 / 2)" then
+                        Slogutis_auto:SetColorTone("FF990000");
+                    elseif Slogutis_auto:GetText() == "{ol}{s14}(1 / 2)" then
+                        Slogutis_auto:SetColorTone("FF999900");
+                    end
+                end
+                local Slogutis_buff = gb:CreateOrGetControl("richtext", "Slogutis_buff" .. i, 270, x)
+                local Slogutis_buff_count = "?"
+
+                -- 各キャラクターごとにデータを検索
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80031 then
+                        Slogutis_buff_count = tostring(entry.sweepcount)
+                        break
+                    end
+                end
+
+                if Slogutis_buff_count ~= "?" then
+                    Slogutis_buff:SetText("{ol}{s14}(" .. Slogutis_buff_count .. ")")
+                end
+                if tonumber(Slogutis_buff_count) ~= 0 then
+                    Slogutis_buff:SetColorTone("FF999900")
+                end
+
+                -- 80017ファロ掃討　/80015ロゼ掃討　/80016プロパ掃討
+                if indunCls.PlayPerResetType == 834 then
+                    local Upinis_hard = gb:CreateOrGetControl("richtext", "Upinis_hard" .. i, 335, x)
+                    if pcName ~= LoginPcName then
+                        Upinis_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 1)")
+                    else
+                        Upinis_hard:SetText("{ol}{s14}(" ..
+                                                GET_CURRENT_ENTERANCE_COUNT(
+                                GetClassByType("Indun", 687).PlayPerResetType) .. " / 1)")
+                    end
+                    if Upinis_hard:GetText() == "{ol}{s14}(1 / 1)" then
+                        Upinis_hard:SetColorTone("FF990000");
+                    end
+                end
+                if indunCls.PlayPerResetType == 833 then
+                    local Upinis_auto = gb:CreateOrGetControl("richtext", "Upinis_auto" .. i, 380, x)
+                    if pcName ~= LoginPcName then
+                        Upinis_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
+
+                    else
+                        Upinis_auto:SetText("{ol}{s14}(" ..
+                                                GET_CURRENT_ENTERANCE_COUNT(
+                                GetClassByType("Indun", 685).PlayPerResetType) .. " / 2)")
+                    end
+                    if Upinis_auto:GetText() == "{ol}{s14}(2 / 2)" then
+                        Upinis_auto:SetColorTone("FF990000");
+                    elseif Upinis_auto:GetText() == "{ol}{s14}(1 / 2)" then
+                        Upinis_auto:SetColorTone("FF999900");
+                    end
+                end
+                local Upinis_buff = gb:CreateOrGetControl("richtext", "Upinis_buff" .. i, 430, x)
+                local Upinis_buff_count = "?"
+                -- 各キャラクターごとにデータを検索
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80030 then
+                        Upinis_buff_count = tostring(entry.sweepcount)
+                        break
+                    end
+                end
+
+                if Upinis_buff_count ~= "?" then
+                    Upinis_buff:SetText("{ol}{s14}(" .. Upinis_buff_count .. ")")
+                end
+                if tonumber(Upinis_buff_count) ~= 0 then
+                    Upinis_buff:SetColorTone("FF999900")
+                end
+
+                if indunCls.PlayPerResetType == 829 then
+                    local Roze_hard = gb:CreateOrGetControl("richtext", "Roze_hard" .. i, 495, x)
+                    if pcName ~= LoginPcName then
+                        Roze_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 1)")
+                    else
+                        Roze_hard:SetText("{ol}{s14}(" ..
+                                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType) ..
+                                              " / 1)")
+                    end
+                    if Roze_hard:GetText() == "{ol}{s14}(1 / 1)" then
+                        Roze_hard:SetColorTone("FF990000");
+                    end
+                end
+                if indunCls.PlayPerResetType == 828 then
+                    local Roze_auto = gb:CreateOrGetControl("richtext", "Roze_auto" .. i, 540, x)
+                    if pcName ~= LoginPcName then
+                        Roze_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
+                    else
+                        Roze_auto:SetText("{ol}{s14}(" ..
+                                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType) ..
+                                              " / 2)")
+                    end
+                    if Roze_auto:GetText() == "{ol}{s14}(2 / 2)" then
+                        Roze_auto:SetColorTone("FF990000");
+                    elseif Roze_auto:GetText() == "{ol}{s14}(1 / 2)" then
+                        Roze_auto:SetColorTone("FF999900");
+                    end
+                end
+                local Roze_buff = gb:CreateOrGetControl("richtext", "Roze_buff" .. i, 590, x)
+                local Roze_buff_count = "?"
+                -- 各キャラクターごとにデータを検索
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80015 then
+                        Roze_buff_count = tostring(entry.sweepcount)
+                        break
+                    end
+                end
+
+                if Roze_buff_count ~= "?" then
+                    Roze_buff:SetText("{ol}{s14}(" .. Roze_buff_count .. ")")
+                end
+                if tonumber(Roze_buff_count) ~= 0 then
+                    Roze_buff:SetColorTone("FF999900")
+                end
+
+                if indunCls.PlayPerResetType == 827 then
+                    local Turbulent_hard = gb:CreateOrGetControl("richtext", "Turbulent_hard" .. i, 655, x)
+                    if pcName ~= LoginPcName then
+                        Turbulent_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
+                    else
+                        Turbulent_hard:SetText("{ol}{s14}(" ..
+                                                   GET_CURRENT_ENTERANCE_COUNT(
+                                GetClassByType("Indun", 678).PlayPerResetType) .. " / 2)")
+                    end
+                    if Turbulent_hard:GetText() == "{ol}{s14}(2 / 2)" then
+                        Turbulent_hard:SetColorTone("FF990000");
+                    end
+                end
+                if indunCls.PlayPerResetType == 826 then
+                    local Turbulent_auto = gb:CreateOrGetControl("richtext", "Turbulent_auto" .. i, 700, x)
+                    if pcName ~= LoginPcName then
+                        Turbulent_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 4)")
+                    else
+                        Turbulent_auto:SetText("{ol}{s14}(" ..
+                                                   GET_CURRENT_ENTERANCE_COUNT(
+                                GetClassByType("Indun", 676).PlayPerResetType) .. " / 4)")
+                    end
+                    if Turbulent_auto:GetText() == "{ol}{s14}(4 / 4)" then
+                        Turbulent_auto:SetColorTone("FF990000");
+                    elseif Turbulent_auto:GetText() == "{ol}{s14}(3 / 4)" or Turbulent_auto:GetText() ==
+                        "{ol}{s14}(2 / 4)" or Turbulent_auto:GetText() == "{ol}{s14}(1 / 4)" then
+                        Turbulent_auto:SetColorTone("FF999900");
+                    end
+                end
+                local Turbulent_buff = gb:CreateOrGetControl("richtext", "Turbulent_buff" .. i, 750, x)
+                local Turbulent_buff_count = "?"
+
+                -- 各キャラクターごとにデータを検索
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80016 then
+                        Turbulent_buff_count = tonumber(entry.sweepcount)
+                        break
+                    end
+                end
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80017 then
+                        Turbulent_buff_count = Turbulent_buff_count + tonumber(entry.sweepcount)
+                        break
+                    end
+                end
+
+                if Turbulent_buff_count ~= "?" then
+                    Turbulent_buff:SetText("{ol}{s14}(" .. Turbulent_buff_count .. ")")
+                end
+                if tonumber(Turbulent_buff_count) ~= 0 then
+                    Turbulent_buff:SetColorTone("FF999900")
+                end
+            end
+        end
+        x = x + 25
+
+    end
+    local framex = cnt * 25
+    local mapframe = ui.GetFrame('worldmap2_mainmap')
+    local screenWidth = mapframe:GetWidth()
+    local frameWidth = 805
+    local x = (screenWidth - frameWidth) / 2
+    -- print(tostring(screenWidth))
+    icframe:SetPos(x, 10)
+    icframe:Resize(805, framex + 100)
+    gb:Resize(805, framex + 65)
+    gb:SetEventScript(ui.RBUTTONUP, "indun_panel_raid_count_close_btn")
+    gb:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_count_close_btn")
+    local close = gb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.LEFT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_count_close_btn")
+    icframe:ShowWindow(1)
+end
+
+function indun_panel_get_sweep_count()
+    -- print("test")
+    local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
+
+    for i = 1, #sweepbuff_table do
+        ReserveScript(string.format("indun_panel_sweep_count_get(%d)", sweepbuff_table[i]), 0.1)
     end
 
-    EARTH_TOWER_INIT(frame, shopType)
+    return
 
-    local bg = GET_CHILD(frame, "bg", "ui::CGroupBox");
-    bg:ShowWindow(1);
+end
 
-    local article = GET_CHILD(frame, 'recipe', "ui::CGroupBox");
-    if article ~= nil then
-        article:ShowWindow(0)
+function indun_panel_sweep_count_get(buffid)
+
+    local handle = session.GetMyHandle()
+    local buffframe = ui.GetFrame("buff")
+    local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
+    local buffslotcount = buffslotset:GetChildCount()
+    local iconcount = 0
+    for i = 0, buffslotcount - 1 do
+        local achild = buffslotset:GetChildByIndex(i)
+        local aicon = achild:GetIcon()
+        local aiconinfo = aicon:GetInfo()
+        local abuff = info.GetBuff(handle, aiconinfo.type)
+        if abuff ~= nil then
+            iconcount = iconcount + 1
+        end
     end
 
-    local bg = GET_CHILD(frame, "bg", "ui::CGroupBox");
-    bg:ShowWindow(0);
+    local sweepcount = 0
 
-    local group = GET_CHILD(frame, 'Recipe', 'ui::CGroupBox')
-    group:ShowWindow(1)
-    imcSound.PlaySoundEvent('button_click_3');
+    for i = 0, iconcount - 1 do
+        local child = buffslotset:GetChildByIndex(i)
+        local icon = child:GetIcon()
+        local iconinfo = icon:GetInfo()
+        local buff = info.GetBuff(handle, iconinfo.type)
 
-    session.ResetItemList();
-    print(tostring(frame:GetName()))
-    print(tostring(shopType))
-end]]
+        if tostring(buff.buffID) == tostring(buffid) then
+
+            sweepcount = buff.over
+
+        end
+
+    end
+
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+    local pcName = session.GetMySession():GetPCApc():GetName()
+
+    -- print(tostring(g.settings.loginCID))
+
+    if g.settings.loginCID == nil then
+        g.settings.loginCID = {}
+        indun_panel_save_settings()
+    end
+
+    if g.settings.loginCID[pcName] == nil then
+        g.settings.loginCID[pcName] = {}
+    end
+
+    local buffidExists = false
+
+    for i, entry in ipairs(g.settings.loginCID[pcName]) do
+        if entry.buffid == buffid then
+            -- 既存の buffid がある場合、更新
+            entry.sweepcount = sweepcount
+            buffidExists = true
+            break
+        end
+    end
+
+    if not buffidExists then
+        -- 既存の buffid がない場合、新しいエントリを追加
+        table.insert(g.settings.loginCID[pcName], {
+            buffid = buffid,
+            sweepcount = sweepcount
+        })
+    end
+
+    -- 保存処理を最後にまとめて実行
+    indun_panel_save_settings()
+    indun_panel_load_settings()
+
+end
+
+function indun_panel_raid_count_close_btn(frame)
+    local topframe = frame:GetTopParentFrame();
+    topframe:ShowWindow(0)
+
+end
 
 function indun_panel_autozoom_init()
     -- CHAT_SYSTEM("test")
@@ -237,8 +665,8 @@ function indun_panel_autozoom_init()
     ipframe:EnableHitTest(1)
     ipframe:RemoveAllChild()
 
-    local zoomtext = ipframe:CreateOrGetControl("richtext", "zoomtext", 0, 10)
-    zoomtext:SetText("{ol}{#FFFFFF}{s14}Auto Zoom")
+    -- local zoomtext = ipframe:CreateOrGetControl("richtext", "zoomtext", 0, 10)
+    -- zoomtext:SetText("{ol}{#FFFFFF}{s14}Auto Zoom")
 
     local zoomedit = ipframe:CreateOrGetControl('edit', 'zoomedit', 80, 0, 60, 30)
     AUTO_CAST(zoomedit)
@@ -246,8 +674,8 @@ function indun_panel_autozoom_init()
     zoomedit:SetFontName("white_16_ol")
     zoomedit:SetTextAlign("center", "center")
     zoomedit:SetEventScript(ui.ENTERKEY, "indun_panel_autozoom_save")
-    zoomedit:SetTextTooltip(
-        "{@st59}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
+    zoomedit:SetTextTooltip("{@st59}Auto Zoom Setting{nl}" ..
+                                "{@st59}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
     ipframe:ShowWindow(1)
 end
 
@@ -281,7 +709,8 @@ function indun_panel_frame_init()
     ipframe:ShowWindow(1)
 
     ipframe:RunUpdateScript("indun_panel_time_update", 300)
-    indun_panel_judge(ipframe)
+    -- ipframe:RunUpdateScript("indun_panel_get_sweep_count", 2.0)
+    -- indun_panel_judge(ipframe)
 end
 
 -- チェックボックスで常時展開かどうかを制御
@@ -400,7 +829,7 @@ end
 function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     local ipframe = ui.GetFrame(g.framename)
     ipframe:SetSkinName("test_frame_low")
-    ipframe:SetLayerLevel(93)
+    ipframe:SetLayerLevel(30)
     ipframe:Resize(190, 600)
     ipframe:SetPos(665, 30)
     -- ipframe:SetTitleBarSkin("mainframe_03")
@@ -523,7 +952,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     earring_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
     local cemetery = ipframe:CreateOrGetControl("richtext", "cemetery", 15, 565)
-    cemetery:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Cemetery"))
+    cemetery:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Wailing"))
     local cemetery_checkbox = ipframe:CreateOrGetControl('checkbox', 'cemetery_checkbox', 150, 565, 25, 25)
     AUTO_CAST(cemetery_checkbox)
     cemetery_checkbox:SetCheck(g.settings.cemetery_checkbox)
@@ -531,26 +960,6 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     cemetery_checkbox:SetTextTooltip("{@st59}チェックすると表示{nl}Check to show")
 
 end
-
-g.settings = {
-    ischecked = 0,
-    zoom = 336,
-    challenge_checkbox = 1,
-    challengeex_checkbox = 1,
-    Slogutis_checkbox = 1,
-    Upinis_checkbox = 1,
-    roze_checkbox = 1,
-    falouros_checkbox = 1,
-    spreader_checkbox = 1,
-    jellyzele_checkbox = 1,
-    delmore_checkbox = 1,
-    telharsha_checkbox = 1,
-    velnice_checkbox = 1,
-    giltine_checkbox = 1,
-    earring_checkbox = 1,
-    cemetery_checkbox = 1
-    -- ex = 0
-}
 
 function indun_panel_ischecked(frame, ctrl, argStr, argNum)
 
@@ -687,16 +1096,16 @@ function indun_panel_init(ipframe)
     AUTO_CAST(button)
     button:SetText("{ol}{s11}INDUNPANEL")
 
-    if g.settings.ischecked ~= 1 then
+    --[[if g.settings.ischecked ~= 1 then
         button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
     else
         button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_close")
-    end
+    end]]
     -- button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
     -- local button = GET_CHILD_RECURSIVELY(ipframe, "indun_panel_open")
 
-    local zoomtext = ipframe:CreateOrGetControl("richtext", "zoomtext", 280, 15)
-    zoomtext:SetText("{ol}{#FFFFFF}{s14}Auto Zoom")
+    -- local zoomtext = ipframe:CreateOrGetControl("richtext", "zoomtext", 280, 15)
+    -- zoomtext:SetText("{ol}{#FFFFFF}{s14}Auto Zoom")
 
     local zoomedit = ipframe:CreateOrGetControl('edit', 'zoomedit', 355, 5, 60, 35)
     AUTO_CAST(zoomedit)
@@ -704,20 +1113,23 @@ function indun_panel_init(ipframe)
     zoomedit:SetFontName("white_16_ol")
     zoomedit:SetTextAlign("center", "center")
     zoomedit:SetEventScript(ui.ENTERKEY, "indun_panel_autozoom_save")
-    zoomedit:SetTextTooltip(
-        "{@st59}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。{nl}Input a value from 1 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
+    zoomedit:SetTextTooltip("{@st59}Auto Zoom Setting{nl}" ..
+                                "{@st59}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
 
     local ccbtn = ipframe:CreateOrGetControl('button', 'ccbtn', 95, 5, 35, 35)
     AUTO_CAST(ccbtn)
     ccbtn:SetSkinName("None")
     ccbtn:SetText("{img barrack_button_normal 35 35}")
     ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+    ccbtn:SetTextTooltip("{@st59}バラックに戻ります。{nl}Return to Barracks.")
 
-    local invbtn = ipframe:CreateOrGetControl('button', 'invbtn', 165, 5, 35, 35)
+    local invbtn = ipframe:CreateOrGetControl('button', 'invbtn', 195, 5, 35, 35)
     AUTO_CAST(invbtn)
     invbtn:SetSkinName("None")
     invbtn:SetText("{img sysmenu_inv 35 35}")
     invbtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_INVENTORY_OPEN")
+    invbtn:SetSkinName("test_pvp_btn")
+    invbtn:SetTextTooltip("{@st59}インベントリを開きます。{nl}Open inventory.")
     -- invbtn:SetEventScript(ui.LBUTTONUP, "OPEN_DLG_ACCOUNTWAREHOUSE")
 
     --[[local petbtn = ipframe:CreateOrGetControl('button', 'petbtn', 200, 5, 35, 35)
@@ -727,7 +1139,7 @@ function indun_panel_init(ipframe)
     -- petbtn:SetText("{img Tos_Event_Coin 35 35}")
     petbtn:SetEventScript(ui.LBUTTONUP, "UI_TOGGLE_PETLIST")]]
 
-    local tosshop = ipframe:CreateOrGetControl("button", "tosshop", 200, 5, 35, 35);
+    local tosshop = ipframe:CreateOrGetControl("button", "tosshop", 165, 5, 35, 35);
     AUTO_CAST(tosshop)
     tosshop:SetSkinName("None")
     -- tosshop:SetText("{img mon_legendstar 30 30}")
@@ -746,15 +1158,30 @@ function indun_panel_init(ipframe)
     minebtn:SetSkinName("None")
     minebtn:SetText("{img pvpmine_shop_btn_total 35 35}")
     minebtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
-    -- minebtn:SetEventScriptArgString(ui.LBUTTONUP, "Entrance_Ticket");
+    minebtn:SetTextTooltip("{@st59}傭兵団のコイン商店。{nl}Mercenary Coin Shop.")
 
-    local configbtn = ipframe:CreateOrGetControl('button', 'configbtn', 235, 5, 35, 35)
+    local raid_count = ipframe:CreateOrGetControl('button', 'raid_count', 230, 5, 35, 35)
+    AUTO_CAST(raid_count)
+    raid_count:SetSkinName("None")
+    raid_count:SetText("{img sysmenu_skill 35 35}")
+    raid_count:SetSkinName("test_pvp_btn")
+    raid_count:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_count")
+    raid_count:SetTextTooltip("{@st59}キャラ毎のレイド回数表示{nl}Raid count display per character{nl}" ..
+                                  "{@st45r14}※掃討はキャラ毎の最終ログイン時の値なので、期限切れなどで実際とは異なる場合があります。{nl}" ..
+                                  "{@st45r14}※The AutoClear is the value at the last login for each character and may differ{nl}from the actual value due to expiration or other reasons.")
+
+    local configbtn = ipframe:CreateOrGetControl('button', 'configbtn', 315, 5, 35, 35)
     AUTO_CAST(configbtn)
     configbtn:SetSkinName("None")
     configbtn:SetText("{img config_button_normal 35 35}")
     -- configbtn:SetImage("config_button_normal")
     configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
     configbtn:SetTextTooltip("{@st59}レイド表示設定{nl}Raid Display Settings")
+
+    if configbtn:IsVisible() == 1 then
+        button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
+
+    end
 
     local checkbox = ipframe:CreateOrGetControl('checkbox', 'checkbox', 565, 5, 30, 30)
     tolua.cast(checkbox, 'ui::CCheckBox')
@@ -843,15 +1270,16 @@ function indun_panel_init(ipframe)
         g.panelY = g.panelY + 40
     end
 
-    ipframe:SetLayerLevel(93)
+    ipframe:SetLayerLevel(30)
+    -- ipframe:SetLayerLevel(10)
     ipframe:Resize(600, g.panelY + 5)
     -- ipframe:SetSkinName("test_Item_tooltip_equip")
     -- ipframe:SetSkinName("test_frame_low")
     -- ipframe:SetSkinName("market_listbase")
     ipframe:SetSkinName("bg")
     ipframe:EnableHitTest(1);
-    -- ipframe:SetSkinName("None")
-    ipframe:SetAlpha(30)
+    -- ipframe:SetColorTone("FF000000");
+    ipframe:SetAlpha(20)
 
     ipframe:RunUpdateScript("indun_panel_update_frame", 1.0)
 
@@ -860,14 +1288,22 @@ end
 
 function indun_panel_cemetery_frame(ipframe)
     local cemetery = ipframe:CreateOrGetControl("richtext", "cemetery", 15, g.panelY)
-    cemetery:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Cemetery"))
+    cemetery:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Wailing"))
     local cemeterybutton = ipframe:CreateOrGetControl('button', 'cemeterybutton', 135, g.panelY, 80, 30)
-    cemeterybutton:SetText("{ol}IN")
+    cemeterybutton:SetText("{ol}490")
     cemeterybutton:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
     cemeterybutton:SetEventScriptArgNumber(ui.LBUTTONUP, 684)
     local cemeterycount = ipframe:CreateOrGetControl("richtext", "cemeterycount", 220, g.panelY + 5)
     cemeterycount:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 684).PlayPerResetType) .. ")")
+    -- wailing,
+    local cemeterybutton_500 = ipframe:CreateOrGetControl('button', 'cemeterybutton_500', 250, g.panelY, 80, 30)
+    cemeterybutton_500:SetText("{ol}500")
+    cemeterybutton_500:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
+    cemeterybutton_500:SetEventScriptArgNumber(ui.LBUTTONUP, 693)
+    local cemeterycount_500 = ipframe:CreateOrGetControl("richtext", "cemeterycount_500", 335, g.panelY + 5)
+    cemeterycount_500:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                  GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 693).PlayPerResetType) .. ")")
 end
 
 function indun_panel_velnice_frame(ipframe)
@@ -938,7 +1374,8 @@ function indun_panel_upinis_frame(ipframe)
     upinissolo:SetText("{ol}SOLO")
     upinisauto:SetText("{ol}{#FFD900}AUTO")
     upinishard:SetText("{ol}{#FF0000}HARD")
-    upinissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP")) -- 掃蕩
+    upinissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("ACLEAR")) -- 掃蕩
+    -- upinissweep:SetText("{ol}{#00FF00}{s10}AUTOCLEAR")
 
     upiniscount:SetText("{ol}{#FFFFFF}{s16}(" ..
                             GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 686).PlayPerResetType) .. "/" ..
@@ -988,7 +1425,7 @@ function indun_panel_slogutis_frame(ipframe)
     slogutissolo:SetText("{ol}SOLO")
     slogutisauto:SetText("{ol}{#FFD900}AUTO")
     slogutishard:SetText("{ol}{#FF0000}HARD")
-    slogutissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
+    slogutissweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("ACLEAR"))
 
     slogutiscount:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 689).PlayPerResetType) .. "/" ..
@@ -1419,7 +1856,7 @@ function indun_panel_spreader_frame(ipframe)
     spreadersolo:SetText("{ol}SOLO")
     spreaderauto:SetText("{ol}{#FFD900}AUTO")
     spreaderhard:SetText("{ol}{#FF0000}HARD")
-    spreadersweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
+    spreadersweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("ACLEAR"))
 
     spreadercount:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. "/" ..
@@ -1465,7 +1902,7 @@ function indun_panel_falo_frame(ipframe)
     falosolo:SetText("{ol}SOLO")
     faloauto:SetText("{ol}{#FFD900}AUTO")
     falohard:SetText("{ol}{#FF0000}HARD")
-    falosweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
+    falosweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("ACLEAR"))
 
     falocount:SetText("{ol}{#FFFFFF}{s16}(" ..
                           GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType) .. "/" ..
@@ -1511,7 +1948,7 @@ function indun_panel_roze_frame(ipframe)
     rozesolo:SetText("{ol}SOLO")
     rozeauto:SetText("{ol}{#FFD900}AUTO")
     rozehard:SetText("{ol}{#FF0000}HARD")
-    rozesweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("SWEEP"))
+    rozesweep:SetText("{ol}{#00FF00}" .. INDUN_PANEL_LANG("ACLEAR"))
 
     rozecount:SetText("{ol}{#FFFFFF}{s16}(" ..
                           GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType) .. "/" ..
@@ -1784,11 +2221,13 @@ function indun_panel_autosweep(frame, ctrl, argStr, argNum)
     sweepcount = indun_panel_sweep_count(BuffID)
     if sweepcount >= 1 then
         ReqUseRaidAutoSweep(indun_classid);
-        return
+
+        -- return
     else
         ui.SysMsg("Does not have a sweeping buff")
-        return
+        -- return
     end
+    ReserveScript("indun_panel_get_sweep_count()", 1.5)
 end
 
 function indun_panel_velnice_buyuse()
@@ -2121,6 +2560,36 @@ function indun_panel_sweep_count(buffid)
         end
 
     end
+
+    --[[local loginCharID = info.GetCID(session.GetMyHandle())
+
+    if g.settings.loginCID ~= nil then
+        local foundMatch = false
+
+        for i = 1, #g.settings.loginCID do
+            local token = StringSplit(g.settings.loginCID[i], '/')
+            print(tostring(token[1]))
+            print(tostring(token[2]))
+
+            if tostring(token[1]) == tostring(loginCharID) and tostring(token[2]) == tostring(buffid) and
+                tostring(token[3]) == tostring(sweepcount) then
+                foundMatch = true
+                break
+            end
+        end
+
+        if not foundMatch then
+            -- マッチが見つからない場合、新しいエントリを追加
+            table.insert(g.settings.loginCID, loginCharID .. "/" .. buffid .. "/" .. sweepcount)
+            indun_panel_save_settings()
+        end
+    else
+        -- g.settings.loginCIDがnilの場合、新しいテーブルを作成してエントリを追加
+        g.settings.loginCID = {loginCharID .. "/" .. buffid .. "/" .. sweepcount}
+        indun_panel_save_settings()
+    end]]
+
+    -- g.settings.loginCID = {loginCharID .. "/" .. buffid .. "/" .. sweepcount}
 
     return sweepcount
 
