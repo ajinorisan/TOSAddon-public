@@ -829,7 +829,7 @@ end
 function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     local ipframe = ui.GetFrame(g.framename)
     ipframe:SetSkinName("test_frame_low")
-    ipframe:SetLayerLevel(30)
+    ipframe:SetLayerLevel(97)
     ipframe:Resize(190, 600)
     ipframe:SetPos(665, 30)
     -- ipframe:SetTitleBarSkin("mainframe_03")
@@ -1270,7 +1270,7 @@ function indun_panel_init(ipframe)
         g.panelY = g.panelY + 40
     end
 
-    ipframe:SetLayerLevel(30)
+    ipframe:SetLayerLevel(97)
     -- ipframe:SetLayerLevel(10)
     ipframe:Resize(600, g.panelY + 5)
     -- ipframe:SetSkinName("test_Item_tooltip_equip")
