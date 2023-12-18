@@ -18,10 +18,11 @@
 -- v1.1.8 日本語Verに台湾語が混ざってたのを修正。BUYUSEボタンに説明追加。
 -- v1.1.9 スロガ、ウピニスハード入場追加
 -- v1.2.0 嘆きの墓地異空間追加、バラックキャラのレイド消化一覧機能
+-- v1.2.1 2秒毎に重い処理して画面カクついてたのを修正。オートクリアを使用した時とCC3秒後だけ処理を走らせる様に変更。反省してる。ウピニスハードの色替え。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.0"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -171,16 +172,20 @@ function INDUN_PANEL_ON_INIT(addon, frame)
         indun_panel_sweep_count_get(sweepbuff_table[i])
     end]]
 
+    indun_panel_load_settings()
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
         local ipframe = ui.GetFrame("indun_panel")
         ipframe:RemoveAllChild()
+        addon:RegisterMsg('GAME_START_3SEC', "indun_panel_get_sweep_count")
         if g.settings.ischecked == 1 then
             indun_panel_frame_init()
-            local ipframe = ui.GetFrame(g.framename)
+            -- local ipframe = ui.GetFrame(g.framename)
             indun_panel_init(ipframe)
+
         else
             indun_panel_frame_init()
         end
@@ -202,7 +207,7 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     end
 
     addon:RegisterMsg('GAME_START', "indun_panel_autozoom")
-    indun_panel_load_settings()
+
     -- g.SetupHook(indun_panel_EARTH_TOWER_SHOP_OPEN, "EARTH_TOWER_SHOP_OPEN")
 end
 
@@ -383,7 +388,8 @@ function indun_panel_raid_count()
 
                 if Slogutis_buff_count ~= "?" then
                     Slogutis_buff:SetText("{ol}{s14}(" .. Slogutis_buff_count .. ")")
-                elseif tonumber(Slogutis_buff_count) ~= 0 then
+                end
+                if tonumber(Slogutis_buff_count) ~= 0 then
                     Slogutis_buff:SetColorTone("FF999900")
                 end
 
@@ -397,7 +403,7 @@ function indun_panel_raid_count()
                                                 GET_CURRENT_ENTERANCE_COUNT(
                                 GetClassByType("Indun", 687).PlayPerResetType) .. " / 1)")
                     end
-                    if Upinis_hard:GetText() == "{ol}{s14}(1/1)" then
+                    if Upinis_hard:GetText() == "{ol}{s14}(1 / 1)" then
                         Upinis_hard:SetColorTone("FF990000");
                     end
                 end
@@ -419,16 +425,18 @@ function indun_panel_raid_count()
                 end
                 local Upinis_buff = gb:CreateOrGetControl("richtext", "Upinis_buff" .. i, 430, x)
                 local Upinis_buff_count = "?"
-                for i = 1, #g.settings.loginCID do
-                    local token = StringSplit(g.settings.loginCID[i], '/')
-
-                    if tostring(token[1]) == tostring(pcName) and tostring(token[2]) == tostring(80030) then
-                        Upinis_buff_count = tostring(token[3])
+                -- 各キャラクターごとにデータを検索
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80030 then
+                        Upinis_buff_count = tostring(entry.sweepcount)
+                        break
                     end
                 end
+
                 if Upinis_buff_count ~= "?" then
                     Upinis_buff:SetText("{ol}{s14}(" .. Upinis_buff_count .. ")")
-                elseif tonumber(Upinis_buff_count) ~= 0 then
+                end
+                if tonumber(Upinis_buff_count) ~= 0 then
                     Upinis_buff:SetColorTone("FF999900")
                 end
 
@@ -462,16 +470,18 @@ function indun_panel_raid_count()
                 end
                 local Roze_buff = gb:CreateOrGetControl("richtext", "Roze_buff" .. i, 590, x)
                 local Roze_buff_count = "?"
-                for i = 1, #g.settings.loginCID do
-                    local token = StringSplit(g.settings.loginCID[i], '/')
-
-                    if tostring(token[1]) == tostring(pcName) and tostring(token[2]) == tostring(80015) then
-                        Roze_buff_count = tostring(token[3])
+                -- 各キャラクターごとにデータを検索
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80015 then
+                        Roze_buff_count = tostring(entry.sweepcount)
+                        break
                     end
                 end
+
                 if Roze_buff_count ~= "?" then
                     Roze_buff:SetText("{ol}{s14}(" .. Roze_buff_count .. ")")
-                elseif tonumber(Roze_buff_count) ~= 0 then
+                end
+                if tonumber(Roze_buff_count) ~= 0 then
                     Roze_buff:SetColorTone("FF999900")
                 end
 
@@ -506,25 +516,25 @@ function indun_panel_raid_count()
                 end
                 local Turbulent_buff = gb:CreateOrGetControl("richtext", "Turbulent_buff" .. i, 750, x)
                 local Turbulent_buff_count = "?"
-                for i = 1, #g.settings.loginCID do
-                    local token = StringSplit(g.settings.loginCID[i], '/')
 
-                    if tostring(token[1]) == tostring(pcName) and tostring(token[2]) == tostring(80016) then
-                        Turbulent_buff_count = tostring(token[3])
+                -- 各キャラクターごとにデータを検索
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80016 then
+                        Turbulent_buff_count = tonumber(entry.sweepcount)
+                        break
                     end
-
-                    if tostring(token[1]) == tostring(pcName) and tostring(token[2]) == tostring(80017) then
-                        if Turbulent_buff_count == "?" then
-                            Turbulent_buff_count = tonumber(token[3])
-                        else
-                            Turbulent_buff_count = tonumber(Turbulent_buff_count) + tonumber(token[3])
-                        end
+                end
+                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
+                    if entry.buffid == 80017 then
+                        Turbulent_buff_count = Turbulent_buff_count + tonumber(entry.sweepcount)
+                        break
                     end
                 end
 
                 if Turbulent_buff_count ~= "?" then
                     Turbulent_buff:SetText("{ol}{s14}(" .. Turbulent_buff_count .. ")")
-                elseif tonumber(Turbulent_buff_count) ~= 0 then
+                end
+                if tonumber(Turbulent_buff_count) ~= 0 then
                     Turbulent_buff:SetColorTone("FF999900")
                 end
             end
@@ -556,12 +566,36 @@ function indun_panel_get_sweep_count()
     local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
 
     for i = 1, #sweepbuff_table do
-        indun_panel_sweep_count_get(sweepbuff_table[i])
+        ReserveScript(string.format("indun_panel_sweep_count_get(%d)", sweepbuff_table[i]), 0.1)
     end
 
-    return 1
+    return
 
 end
+
+-- 現在の日時を取得
+local currentTime = os.time()
+
+-- 今日の曜日を取得 (0: 日曜日, 1: 月曜日, ..., 6: 土曜日)
+local currentWeekday = tonumber(os.date("%w", currentTime))
+
+-- 月曜日までの日数を計算
+local daysUntilMonday = (currentWeekday + 7 - 1) % 7
+
+-- 月曜日の朝6時の日時を計算
+local mondayMidnight = os.time({
+    year = os.date("%Y", currentTime),
+    month = os.date("%m", currentTime),
+    day = os.date("%d", currentTime) - daysUntilMonday,
+    hour = 6,
+    min = 0,
+    sec = 0
+})
+
+-- 月曜日からの経過秒数を計算
+local secondsSinceMondayMidnight = currentTime - mondayMidnight
+
+print("月曜日の朝6時から現在までの経過時間（秒）: " .. secondsSinceMondayMidnight)
 
 function indun_panel_sweep_count_get(buffid)
 
@@ -600,7 +634,7 @@ function indun_panel_sweep_count_get(buffid)
     local cnt = accountInfo:GetBarrackPCCount()
     local pcName = session.GetMySession():GetPCApc():GetName()
 
-    print(tostring(g.settings.loginCID))
+    -- print(tostring(g.settings.loginCID))
 
     if g.settings.loginCID == nil then
         g.settings.loginCID = {}
@@ -633,55 +667,6 @@ function indun_panel_sweep_count_get(buffid)
     -- 保存処理を最後にまとめて実行
     indun_panel_save_settings()
     indun_panel_load_settings()
-
-    --[[if g.settings.loginCID.name == pcName then
-        for _, entry in ipairs(g.settings.loginCID.name) do
-
-            g.settings.loginCID.name = pcName
-
-            -- return
-        end
-    end]]
-    -- return
-
-    --[[for _, entry in ipairs(g.settings.loginCID) do
-        if entry ~= newEntry then
-            print("test")
-            newTable = newEntry
-        end
-    end
-    g.settings.loginCID = newTable
-    indun_panel_save_settings()
-    indun_panel_load_settings()
-
-    --[[if g.settings.loginCID ~= nil then
-
-        for _, entry in ipairs(g.settings.loginCID) do
-            local token = StringSplit(entry, '/')
-
-            if entry ~= newEntry then
-                print("test3")
-                if tostring(token[1]) == tostring(pcName) then
-                    if tostring(token[2]) == tostring(buffid) then
-                        if tostring(token[3]) ~= tostring(sweepcount) then
-                            g.settings.loginCID = newEntry
-                        end -- buffidが異なる場合、新しいエントリを追加
-                    elseif tostring(token[2]) ~= tostring(buffid) then
-                        g.settings.loginCID = newEntry
-
-                    end
-
-                end
-
-                -- 同じbuffidかつsweepcountも同じ場合、既存のエントリを追加
-
-            end
-        end
-
-    end]]
-
-    -- 保存処理を最後にまとめて実行
-    -- indun_panel_save_settings()
 
 end
 
@@ -748,7 +733,7 @@ function indun_panel_frame_init()
     ipframe:ShowWindow(1)
 
     ipframe:RunUpdateScript("indun_panel_time_update", 300)
-    ipframe:RunUpdateScript("indun_panel_get_sweep_count", 5.0)
+    -- ipframe:RunUpdateScript("indun_panel_get_sweep_count", 2.0)
     -- indun_panel_judge(ipframe)
 end
 
@@ -868,7 +853,7 @@ end
 function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     local ipframe = ui.GetFrame(g.framename)
     ipframe:SetSkinName("test_frame_low")
-    ipframe:SetLayerLevel(30)
+    ipframe:SetLayerLevel(90)
     ipframe:Resize(190, 600)
     ipframe:SetPos(665, 30)
     -- ipframe:SetTitleBarSkin("mainframe_03")
@@ -1309,7 +1294,7 @@ function indun_panel_init(ipframe)
         g.panelY = g.panelY + 40
     end
 
-    ipframe:SetLayerLevel(30)
+    ipframe:SetLayerLevel(90)
     -- ipframe:SetLayerLevel(10)
     ipframe:Resize(600, g.panelY + 5)
     -- ipframe:SetSkinName("test_Item_tooltip_equip")
@@ -2260,11 +2245,13 @@ function indun_panel_autosweep(frame, ctrl, argStr, argNum)
     sweepcount = indun_panel_sweep_count(BuffID)
     if sweepcount >= 1 then
         ReqUseRaidAutoSweep(indun_classid);
-        return
+
+        -- return
     else
         ui.SysMsg("Does not have a sweeping buff")
-        return
+        -- return
     end
+    ReserveScript("indun_panel_get_sweep_count()", 1.5)
 end
 
 function indun_panel_velnice_buyuse()
