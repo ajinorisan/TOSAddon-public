@@ -19,10 +19,11 @@
 -- v1.1.9 スロガ、ウピニスハード入場追加
 -- v1.2.0 嘆きの墓地異空間追加、バラックキャラのレイド消化一覧機能
 -- v1.2.1 2秒毎に重い処理して画面カクついてたのを修正。オートクリアを使用した時とCC3秒後だけ処理を走らせる様に変更。反省してる。ウピニスハードの色替え。
+-- v1.2.2 レイド消化一覧機能、月曜6時のリセットに対応
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.1"
+local ver = "1.2.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -30,6 +31,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.settingsFileLoc2 = string.format('../addons/%s/settings2.json', addonNameLower)
 
 local acutil = require("acutil")
 local os = require("os")
@@ -163,16 +165,13 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     g.frame = frame
     g.framename = addonName
 
-    -- indun_panel_load_settings()
-    -- local loginCharID = info.GetCID(session.GetMyHandle())
-    -- print(tostring(g.settings.loginCID))
-    --[[local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
-
-    for i = 1, #sweepbuff_table do
-        indun_panel_sweep_count_get(sweepbuff_table[i])
-    end]]
+    if not g.lorded then
+        g.lorded = true
+    end
+    -- g.loded = false]]
 
     indun_panel_load_settings()
+    indun_panel_load_settings2()
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -180,7 +179,9 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         local ipframe = ui.GetFrame("indun_panel")
         ipframe:RemoveAllChild()
-        addon:RegisterMsg('GAME_START_3SEC', "indun_panel_get_sweep_count")
+        addon:RegisterMsg('GAME_START', "indun_panel_raid_reset_time")
+        addon:RegisterMsg('GAME_START_3SEC', "indun_panel_sweep_count_get")
+
         if g.settings.ischecked == 1 then
             indun_panel_frame_init()
             -- local ipframe = ui.GetFrame(g.framename)
@@ -194,6 +195,7 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             indunpanel_minimized_pvpmine_shop_init()
 
         end
+
     else
         indun_panel_autozoom_init()
 
@@ -211,25 +213,213 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     -- g.SetupHook(indun_panel_EARTH_TOWER_SHOP_OPEN, "EARTH_TOWER_SHOP_OPEN")
 end
 
-g.settings = {
-    ischecked = 0,
-    zoom = 336,
-    challenge_checkbox = 1,
-    challengeex_checkbox = 1,
-    Slogutis_checkbox = 1,
-    Upinis_checkbox = 1,
-    roze_checkbox = 1,
-    falouros_checkbox = 1,
-    spreader_checkbox = 1,
-    jellyzele_checkbox = 1,
-    delmore_checkbox = 1,
-    telharsha_checkbox = 1,
-    velnice_checkbox = 1,
-    giltine_checkbox = 1,
-    earring_checkbox = 1,
-    cemetery_checkbox = 1
+if not g.lorded then
+    g.settings = {
+        ischecked = 0,
+        zoom = 336,
+        challenge_checkbox = 1,
+        challengeex_checkbox = 1,
+        Slogutis_checkbox = 1,
+        Upinis_checkbox = 1,
+        roze_checkbox = 1,
+        falouros_checkbox = 1,
+        spreader_checkbox = 1,
+        jellyzele_checkbox = 1,
+        delmore_checkbox = 1,
+        telharsha_checkbox = 1,
+        velnice_checkbox = 1,
+        giltine_checkbox = 1,
+        earring_checkbox = 1,
+        cemetery_checkbox = 1,
+        raid_reset_time = 1702846800 -- 202312180600のos.time()
 
-}
+    }
+
+    g.settings2 = {
+        CID = {},
+        loginCID = {}
+    }
+end
+-- indun_panel_sweep_count_get()
+function indun_panel_sweep_count_get()
+
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+
+    if g.settings2.loginCID == nil then
+        g.settings2.loginCID = {}
+    end
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+
+        if g.settings2.loginCID[pcName] == nil then
+            g.settings2.loginCID[pcName] = {}
+        end
+        local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
+        for _, buffid in ipairs(sweepbuff_table) do
+            if g.settings2.loginCID[pcName][tostring(buffid)] == nil then
+                g.settings2.loginCID[pcName][tostring(buffid)] = 0 -- 初期値を設定
+            end
+
+            -- LoginNameとpcNameが一致する場合、sweepcountを更新
+            if LoginName == pcName then
+                -- print(LoginName .. ":" .. buffid)
+                g.settings2.loginCID[pcName][tostring(buffid)] = indun_panel_sweep_count(buffid)
+                indun_panel_get_raid_count(LoginName)
+            end
+        end
+
+    end
+
+    -- 保存処理を最後にまとめて実行
+    indun_panel_save_settings2()
+    indun_panel_load_settings2()
+end
+
+function indun_panel_raid_reset()
+    g.settings2.CID = {}
+
+end
+
+function indun_panel_raid_reset_time()
+    -- 現在の日時を取得
+    local currentTime = os.time()
+
+    -- 今日の曜日を取得 (0: 日曜日, 1: 月曜日, ..., 6: 土曜日)
+    local currentWeekday = tonumber(os.date("%w", currentTime))
+
+    -- 月曜日からの日数を計算
+    local daysUntilMonday = (currentWeekday + 7 - 1) % 7
+    if g.settings.raid_reset_time == nil then
+        g.settings.raid_reset_time = 1702846800
+
+    end
+    -- 月曜日の朝6時の日時を計算
+    local mondayAM6 = os.time({
+        year = os.date("%Y", currentTime),
+        month = os.date("%m", currentTime),
+        day = os.date("%d", currentTime) - daysUntilMonday,
+        hour = 6,
+        min = 0,
+        sec = 0
+    })
+
+    -- 月曜日からの経過秒数を計算
+    local secondsSinceMondayAM6 = currentTime - mondayAM6
+
+    print("月曜日の朝6時から現在までの経過時間（秒）: " .. secondsSinceMondayAM6)
+
+    local nextreset = 604800 -- 次の月曜日の6時までの秒数
+    -- local nextreset = 280000
+    if secondsSinceMondayAM6 > nextreset then
+        g.settings.raid_reset_time = mondayAM6
+        indun_panel_raid_reset()
+
+    else
+        local Name = session.GetMySession():GetPCApc():GetName()
+        indun_panel_get_raid_count(Name)
+    end
+    indun_panel_save_settings()
+    indun_panel_load_settings2()
+end
+
+function indun_panel_get_raid_count(pcName)
+    -- local accountInfo = session.barrack.GetMyAccount()
+    local Name = session.GetMySession():GetPCApc():GetName()
+
+    if g.settings2.CID == nil then
+        g.settings2.CID = {}
+    end
+
+    if g.settings2.CID[pcName] == nil then
+        g.settings2.CID[pcName] = {
+            slogutisH = 0,
+            slogutisN = 0,
+            upinisH = 0,
+            upinisN = 0,
+            rozeH = 0,
+            rozeN = 0,
+            TurbulentH = 0,
+            TurbulentN = 0
+        }
+    end
+
+    if tostring(Name) == tostring(pcName) then
+
+        for key, value in pairs(g.settings2.CID[pcName]) do
+
+            if key == "slogutisH" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType)
+            elseif key == "slogutisN" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 688).PlayPerResetType)
+            elseif key == "upinisH" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType)
+            elseif key == "upinisN" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 685).PlayPerResetType)
+            elseif key == "rozeH" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType)
+            elseif key == "rozeN" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType)
+            elseif key == "TurbulentH" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType)
+            elseif key == "TurbulentN" then
+                g.settings2.CID[pcName][key] =
+                    GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType)
+            end
+
+        end
+    end
+
+    indun_panel_save_settings2()
+    indun_panel_load_settings2()
+end
+
+function indun_panel_memo_save(frame, ctrl, argStr, argNum)
+    local text = ctrl:GetText()
+    -- print(tostring(text))
+    -- print(tostring(argStr))
+    if g.settings2.CIDmemo == nil then
+        g.settings2.CIDmemo = {}
+    end
+    if g.settings2.CIDmemo[argStr] == nil then
+        g.settings2.CIDmemo[argStr] = {}
+    end
+
+    g.settings2.CIDmemo[argStr] = text
+    ui.SysMsg("MEMO registered.")
+
+    indun_panel_save_settings2()
+    indun_panel_load_settings2()
+
+end
+
+function indun_panel_display_save(frame, ctrl, argStr, argNum)
+    local ischeck = ctrl:IsChecked()
+    -- print(tostring(ischeck))
+    -- print(argStr)
+    if g.settings2.CIDcheck == nil then
+        g.settings2.CIDcheck = {}
+    end
+    if g.settings2.CIDcheck[argStr] == nil then
+        g.settings2.CIDcheck[argStr] = {}
+        g.settings2.CIDcheck[argStr] = ischeck
+    else
+        g.settings2.CIDcheck[argStr] = ischeck
+    end
+    indun_panel_save_settings2()
+    indun_panel_load_settings2()
+end
 
 function indun_panel_raid_count()
     local icframe = ui.CreateNewFrame("notice_on_pc", "icframe", 0, 0, 10, 10)
@@ -269,6 +459,7 @@ function indun_panel_raid_count()
         local hard_text = gb:CreateOrGetControl("richtext", "hard_text" .. i, y, 35)
         local auto_text = gb:CreateOrGetControl("richtext", "auto_text" .. i, y + 45, 35)
         local buff_text = gb:CreateOrGetControl("richtext", "buff_text" .. i, y + 90, 35)
+
         if i == 1 then
             hard_text:SetText("{ol}Hard")
             auto_text:SetText("{ol}Auto")
@@ -307,12 +498,18 @@ function indun_panel_raid_count()
     local accountInfo = session.barrack.GetMyAccount();
     local cnt = accountInfo:GetBarrackPCCount();
 
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i);
+
+        local pcName = pcInfo:GetName()
+        indun_panel_get_raid_count(pcName)
+    end
+
     local x = 60
 
     for i = 0, cnt - 1 do
 
         local pcInfo = accountInfo:GetBarrackPCByIndex(i);
-
         local pcName = pcInfo:GetName()
 
         local jobList, level, lastJobID = GetJobListFromAdventureBookCharData(pcName);
@@ -330,227 +527,202 @@ function indun_panel_raid_count()
 
         name:SetText("{ol}" .. pcName)
 
-        local line = gb:CreateOrGetControl("labelline", "line" .. i, 30, x - 7, 750, 2)
+        local line = gb:CreateOrGetControl("labelline", "line" .. i, 30, x - 7, 860, 2)
         line:SetSkinName("labelline_def_3")
-        -- local temp_table = {690, 688, 687, 685, 681, 679, 678, 676, 675, 673}
 
-        for j = 0, indunCount - 1 do
-            local indunCls = GetClassByIndexFromList(indunClsList, j)
+        local memo_text = gb:CreateOrGetControl("richtext", "memo_text", y + 30, 35)
+        memo_text:SetText("{ol}Memo")
+        local display_text = gb:CreateOrGetControl("richtext", "display_text", y + 85, 35)
+        display_text:SetText("{ol}Display")
+        display_text:SetTextTooltip(
+            "チェックしたキャラはレイド回数非表示{nl}Checked characters hide raid count")
 
-            if indunCls ~= nil and indunCls.Category ~= 'None' then
+        local memo = gb:CreateOrGetControl('edit', 'memo' .. i, 780, x - 5, 100, 25)
+        AUTO_CAST(memo)
+        memo:SetFontName("white_16_ol")
+        memo:SetTextAlign("center", "center")
+        memo:SetEventScript(ui.ENTERKEY, "indun_panel_memo_save")
+        memo:SetEventScriptArgString(ui.ENTERKEY, pcName)
 
-                local LoginPcName = session.GetMySession():GetPCApc():GetName()
+        local display = gb:CreateOrGetControl('checkbox', 'display' .. i, 890, x - 5, 25, 25)
+        AUTO_CAST(display)
+        display:SetEventScript(ui.LBUTTONUP, "indun_panel_display_save")
+        display:SetEventScriptArgString(ui.LBUTTONUP, pcName)
 
-                local entranceCount = BARRACK_GET_CHAR_INDUN_ENTRANCE_COUNT(pcInfo.cid, indunCls.PlayPerResetType)
+        for key, _ in pairs(g.settings2.CID) do
+            -- print("プレイヤー名: " .. key .. pcName)
+            if key == pcName then
+                -- print("プレイヤー名: " .. key)
+                if g.settings2.CIDmemo ~= nil then
 
-                -- print(pcName .. ":" .. tostring(indunCls.Category) .. tostring(indunCls.PlayPerResetType) .. ":" ..
-                -- entranceCount)
-                -- ウピニスハード687オート685 スロガH690A688 プロパゲH675A673 ファロH678A676 ロゼH681A679
-                if indunCls.PlayPerResetType == 836 then
-                    local Slogutis_hard = gb:CreateOrGetControl("richtext", "Slogutis_hard" .. i, 175, x)
-                    if pcName ~= LoginPcName then
-                        Slogutis_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 1)")
-                    else
-                        Slogutis_hard:SetText("{ol}{s14}(" ..
-                                                  GET_CURRENT_ENTERANCE_COUNT(
-                                GetClassByType("Indun", 690).PlayPerResetType) .. " / 1)")
+                    local memoData = g.settings2.CIDmemo[pcName]
+                    if memoData ~= nil then
+
+                        memo:SetText(memoData)
+
                     end
+
+                end
+
+                if g.settings2.CIDcheck ~= nil then
+
+                    local check = g.settings2.CIDcheck[pcName]
+                    if check ~= nil then
+                        -- print(tostring(check))
+                        display:SetCheck(check)
+
+                    end
+
+                end
+
+                -- print(tostring(display:IsChecked() .. pcName))
+                if display:IsChecked() == 0 then
+                    local Slogutis_hard = gb:CreateOrGetControl("richtext", "Slogutis_hard" .. i, 175, x)
+                    Slogutis_hard:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].slogutisH .. " / 1)")
                     if Slogutis_hard:GetText() == "{ol}{s14}(1 / 1)" then
                         Slogutis_hard:SetColorTone("FF990000");
                     end
-                end
-                if indunCls.PlayPerResetType == 835 then
+
                     local Slogutis_auto = gb:CreateOrGetControl("richtext", "Slogutis_auto" .. i, 220, x)
-                    if pcName ~= LoginPcName then
-                        Slogutis_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
-                    else
-                        Slogutis_auto:SetText("{ol}{s14}(" ..
-                                                  GET_CURRENT_ENTERANCE_COUNT(
-                                GetClassByType("Indun", 688).PlayPerResetType) .. " / 2)")
-                    end
-                    -- print(tostring(Slogutis_auto:GetText()))
+                    Slogutis_auto:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].slogutisN .. " / 2)")
                     if Slogutis_auto:GetText() == "{ol}{s14}(2 / 2)" then
                         Slogutis_auto:SetColorTone("FF990000");
                     elseif Slogutis_auto:GetText() == "{ol}{s14}(1 / 2)" then
                         Slogutis_auto:SetColorTone("FF999900");
                     end
-                end
-                local Slogutis_buff = gb:CreateOrGetControl("richtext", "Slogutis_buff" .. i, 270, x)
-                local Slogutis_buff_count = "?"
 
-                -- 各キャラクターごとにデータを検索
-                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
-                    if entry.buffid == 80031 then
-                        Slogutis_buff_count = tostring(entry.sweepcount)
-                        break
+                    local Slogutis_buff = gb:CreateOrGetControl("richtext", "Slogutis_buff" .. i, 270, x)
+                    local Slogutis_buff_count = 0
+                    for buffid, entry in pairs(g.settings2.loginCID[pcName] or {}) do
+                        if buffid == tostring(80031) then
+                            Slogutis_buff_count = tostring(entry)
+                            break
+                        end
                     end
-                end
 
-                if Slogutis_buff_count ~= "?" then
                     Slogutis_buff:SetText("{ol}{s14}(" .. Slogutis_buff_count .. ")")
-                end
-                if tonumber(Slogutis_buff_count) ~= 0 then
-                    Slogutis_buff:SetColorTone("FF999900")
-                end
 
-                -- 80017ファロ掃討　/80015ロゼ掃討　/80016プロパ掃討
-                if indunCls.PlayPerResetType == 834 then
-                    local Upinis_hard = gb:CreateOrGetControl("richtext", "Upinis_hard" .. i, 335, x)
-                    if pcName ~= LoginPcName then
-                        Upinis_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 1)")
-                    else
-                        Upinis_hard:SetText("{ol}{s14}(" ..
-                                                GET_CURRENT_ENTERANCE_COUNT(
-                                GetClassByType("Indun", 687).PlayPerResetType) .. " / 1)")
+                    if tonumber(Slogutis_buff_count) ~= 0 then
+                        Slogutis_buff:SetColorTone("FF999900")
                     end
+
+                    local Upinis_hard = gb:CreateOrGetControl("richtext", "Upinis_hard" .. i, 335, x)
+                    Upinis_hard:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].upinisH .. " / 1)")
                     if Upinis_hard:GetText() == "{ol}{s14}(1 / 1)" then
                         Upinis_hard:SetColorTone("FF990000");
                     end
-                end
-                if indunCls.PlayPerResetType == 833 then
-                    local Upinis_auto = gb:CreateOrGetControl("richtext", "Upinis_auto" .. i, 380, x)
-                    if pcName ~= LoginPcName then
-                        Upinis_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
 
-                    else
-                        Upinis_auto:SetText("{ol}{s14}(" ..
-                                                GET_CURRENT_ENTERANCE_COUNT(
-                                GetClassByType("Indun", 685).PlayPerResetType) .. " / 2)")
-                    end
+                    local Upinis_auto = gb:CreateOrGetControl("richtext", "Upinis_auto" .. i, 380, x)
+                    Upinis_auto:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].upinisN .. " / 2)")
                     if Upinis_auto:GetText() == "{ol}{s14}(2 / 2)" then
                         Upinis_auto:SetColorTone("FF990000");
                     elseif Upinis_auto:GetText() == "{ol}{s14}(1 / 2)" then
                         Upinis_auto:SetColorTone("FF999900");
                     end
-                end
-                local Upinis_buff = gb:CreateOrGetControl("richtext", "Upinis_buff" .. i, 430, x)
-                local Upinis_buff_count = "?"
-                -- 各キャラクターごとにデータを検索
-                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
-                    if entry.buffid == 80030 then
-                        Upinis_buff_count = tostring(entry.sweepcount)
-                        break
-                    end
-                end
 
-                if Upinis_buff_count ~= "?" then
+                    local Upinis_buff = gb:CreateOrGetControl("richtext", "Upinis_buff" .. i, 430, x)
+                    local Upinis_buff_count = 0
+
+                    for buffid, entry in pairs(g.settings2.loginCID[pcName] or {}) do
+                        if buffid == tostring(80030) then
+                            Upinis_buff_count = tostring(entry)
+                            break
+                        end
+                    end
+
                     Upinis_buff:SetText("{ol}{s14}(" .. Upinis_buff_count .. ")")
-                end
-                if tonumber(Upinis_buff_count) ~= 0 then
-                    Upinis_buff:SetColorTone("FF999900")
-                end
 
-                if indunCls.PlayPerResetType == 829 then
-                    local Roze_hard = gb:CreateOrGetControl("richtext", "Roze_hard" .. i, 495, x)
-                    if pcName ~= LoginPcName then
-                        Roze_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 1)")
-                    else
-                        Roze_hard:SetText("{ol}{s14}(" ..
-                                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType) ..
-                                              " / 1)")
+                    if tonumber(Upinis_buff_count) ~= 0 then
+                        Upinis_buff:SetColorTone("FF999900")
                     end
+
+                    local Roze_hard = gb:CreateOrGetControl("richtext", "Roze_hard" .. i, 495, x)
+                    Roze_hard:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].rozeH .. " / 1)")
                     if Roze_hard:GetText() == "{ol}{s14}(1 / 1)" then
                         Roze_hard:SetColorTone("FF990000");
                     end
-                end
-                if indunCls.PlayPerResetType == 828 then
+
                     local Roze_auto = gb:CreateOrGetControl("richtext", "Roze_auto" .. i, 540, x)
-                    if pcName ~= LoginPcName then
-                        Roze_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
-                    else
-                        Roze_auto:SetText("{ol}{s14}(" ..
-                                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType) ..
-                                              " / 2)")
-                    end
+                    Roze_auto:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].rozeN .. " / 2)")
                     if Roze_auto:GetText() == "{ol}{s14}(2 / 2)" then
                         Roze_auto:SetColorTone("FF990000");
                     elseif Roze_auto:GetText() == "{ol}{s14}(1 / 2)" then
                         Roze_auto:SetColorTone("FF999900");
                     end
-                end
-                local Roze_buff = gb:CreateOrGetControl("richtext", "Roze_buff" .. i, 590, x)
-                local Roze_buff_count = "?"
-                -- 各キャラクターごとにデータを検索
-                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
-                    if entry.buffid == 80015 then
-                        Roze_buff_count = tostring(entry.sweepcount)
-                        break
-                    end
-                end
 
-                if Roze_buff_count ~= "?" then
+                    local Roze_buff = gb:CreateOrGetControl("richtext", "Roze_buff" .. i, 590, x)
+                    local Roze_buff_count = 0
+
+                    for buffid, entry in pairs(g.settings2.loginCID[pcName] or {}) do
+                        if buffid == tostring(80015) then
+                            Roze_buff_count = tostring(entry)
+                            break
+                        end
+                    end
+
                     Roze_buff:SetText("{ol}{s14}(" .. Roze_buff_count .. ")")
-                end
-                if tonumber(Roze_buff_count) ~= 0 then
-                    Roze_buff:SetColorTone("FF999900")
-                end
 
-                if indunCls.PlayPerResetType == 827 then
-                    local Turbulent_hard = gb:CreateOrGetControl("richtext", "Turbulent_hard" .. i, 655, x)
-                    if pcName ~= LoginPcName then
-                        Turbulent_hard:SetText("{ol}{s14}(" .. entranceCount .. " / 2)")
-                    else
-                        Turbulent_hard:SetText("{ol}{s14}(" ..
-                                                   GET_CURRENT_ENTERANCE_COUNT(
-                                GetClassByType("Indun", 678).PlayPerResetType) .. " / 2)")
+                    if tonumber(Roze_buff_count) ~= 0 then
+                        Roze_buff:SetColorTone("FF999900")
                     end
+
+                    local Turbulent_hard = gb:CreateOrGetControl("richtext", "Turbulent_hard" .. i, 655, x)
+                    Turbulent_hard:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].TurbulentH .. " / 2)")
                     if Turbulent_hard:GetText() == "{ol}{s14}(2 / 2)" then
                         Turbulent_hard:SetColorTone("FF990000");
+                    elseif Turbulent_hard:GetText() == "{ol}{s14}(1 / 2)" then
+                        Turbulent_hard:SetColorTone("FF999900");
                     end
-                end
-                if indunCls.PlayPerResetType == 826 then
+
                     local Turbulent_auto = gb:CreateOrGetControl("richtext", "Turbulent_auto" .. i, 700, x)
-                    if pcName ~= LoginPcName then
-                        Turbulent_auto:SetText("{ol}{s14}(" .. entranceCount .. " / 4)")
-                    else
-                        Turbulent_auto:SetText("{ol}{s14}(" ..
-                                                   GET_CURRENT_ENTERANCE_COUNT(
-                                GetClassByType("Indun", 676).PlayPerResetType) .. " / 4)")
-                    end
+                    Turbulent_auto:SetText("{ol}{s14}(" .. g.settings2.CID[pcName].TurbulentN .. " / 4)")
+
                     if Turbulent_auto:GetText() == "{ol}{s14}(4 / 4)" then
                         Turbulent_auto:SetColorTone("FF990000");
                     elseif Turbulent_auto:GetText() == "{ol}{s14}(3 / 4)" or Turbulent_auto:GetText() ==
                         "{ol}{s14}(2 / 4)" or Turbulent_auto:GetText() == "{ol}{s14}(1 / 4)" then
                         Turbulent_auto:SetColorTone("FF999900");
                     end
-                end
-                local Turbulent_buff = gb:CreateOrGetControl("richtext", "Turbulent_buff" .. i, 750, x)
-                local Turbulent_buff_count = "?"
 
-                -- 各キャラクターごとにデータを検索
-                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
-                    if entry.buffid == 80016 then
-                        Turbulent_buff_count = tonumber(entry.sweepcount)
-                        break
-                    end
-                end
-                for _, entry in ipairs(g.settings.loginCID[pcName] or {}) do
-                    if entry.buffid == 80017 then
-                        Turbulent_buff_count = Turbulent_buff_count + tonumber(entry.sweepcount)
-                        break
-                    end
-                end
+                    local Turbulent_buff = gb:CreateOrGetControl("richtext", "Turbulent_buff" .. i, 750, x)
+                    local Turbulent_buff_count = 0
 
-                if Turbulent_buff_count ~= "?" then
+                    for buffid, entry in pairs(g.settings2.loginCID[pcName] or {}) do
+                        if buffid == tostring(80016) then
+                            Turbulent_buff_count = tonumber(entry)
+                            break
+                        end
+                    end
+                    for buffid, entry in pairs(g.settings2.loginCID[pcName] or {}) do
+                        if buffid == tostring(80017) then
+                            Turbulent_buff_count = Turbulent_buff_count + tonumber(entry)
+                            break
+                        end
+                    end
+
                     Turbulent_buff:SetText("{ol}{s14}(" .. Turbulent_buff_count .. ")")
-                end
-                if tonumber(Turbulent_buff_count) ~= 0 then
-                    Turbulent_buff:SetColorTone("FF999900")
+
+                    if tonumber(Turbulent_buff_count) ~= 0 then
+                        Turbulent_buff:SetColorTone("FF999900")
+                    end
+
+                    break
                 end
             end
         end
+
         x = x + 25
 
     end
     local framex = cnt * 25
     local mapframe = ui.GetFrame('worldmap2_mainmap')
     local screenWidth = mapframe:GetWidth()
-    local frameWidth = 805
+    local frameWidth = 925
     local x = (screenWidth - frameWidth) / 2
     -- print(tostring(screenWidth))
     icframe:SetPos(x, 10)
-    icframe:Resize(805, framex + 100)
-    gb:Resize(805, framex + 65)
+    icframe:Resize(925, framex + 100)
+    gb:Resize(925, framex + 65)
     gb:SetEventScript(ui.RBUTTONUP, "indun_panel_raid_count_close_btn")
     gb:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_count_close_btn")
     local close = gb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
@@ -559,91 +731,6 @@ function indun_panel_raid_count()
     close:SetGravity(ui.LEFT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_count_close_btn")
     icframe:ShowWindow(1)
-end
-
-function indun_panel_get_sweep_count()
-    -- print("test")
-    local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
-
-    for i = 1, #sweepbuff_table do
-        ReserveScript(string.format("indun_panel_sweep_count_get(%d)", sweepbuff_table[i]), 0.1)
-    end
-
-    return
-
-end
-
-function indun_panel_sweep_count_get(buffid)
-
-    local handle = session.GetMyHandle()
-    local buffframe = ui.GetFrame("buff")
-    local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
-    local buffslotcount = buffslotset:GetChildCount()
-    local iconcount = 0
-    for i = 0, buffslotcount - 1 do
-        local achild = buffslotset:GetChildByIndex(i)
-        local aicon = achild:GetIcon()
-        local aiconinfo = aicon:GetInfo()
-        local abuff = info.GetBuff(handle, aiconinfo.type)
-        if abuff ~= nil then
-            iconcount = iconcount + 1
-        end
-    end
-
-    local sweepcount = 0
-
-    for i = 0, iconcount - 1 do
-        local child = buffslotset:GetChildByIndex(i)
-        local icon = child:GetIcon()
-        local iconinfo = icon:GetInfo()
-        local buff = info.GetBuff(handle, iconinfo.type)
-
-        if tostring(buff.buffID) == tostring(buffid) then
-
-            sweepcount = buff.over
-
-        end
-
-    end
-
-    local accountInfo = session.barrack.GetMyAccount()
-    local cnt = accountInfo:GetBarrackPCCount()
-    local pcName = session.GetMySession():GetPCApc():GetName()
-
-    -- print(tostring(g.settings.loginCID))
-
-    if g.settings.loginCID == nil then
-        g.settings.loginCID = {}
-        indun_panel_save_settings()
-    end
-
-    if g.settings.loginCID[pcName] == nil then
-        g.settings.loginCID[pcName] = {}
-    end
-
-    local buffidExists = false
-
-    for i, entry in ipairs(g.settings.loginCID[pcName]) do
-        if entry.buffid == buffid then
-            -- 既存の buffid がある場合、更新
-            entry.sweepcount = sweepcount
-            buffidExists = true
-            break
-        end
-    end
-
-    if not buffidExists then
-        -- 既存の buffid がない場合、新しいエントリを追加
-        table.insert(g.settings.loginCID[pcName], {
-            buffid = buffid,
-            sweepcount = sweepcount
-        })
-    end
-
-    -- 保存処理を最後にまとめて実行
-    indun_panel_save_settings()
-    indun_panel_load_settings()
-
 end
 
 function indun_panel_raid_count_close_btn(frame)
@@ -829,7 +916,7 @@ end
 function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     local ipframe = ui.GetFrame(g.framename)
     ipframe:SetSkinName("test_frame_low")
-    ipframe:SetLayerLevel(97)
+    ipframe:SetLayerLevel(90)
     ipframe:Resize(190, 600)
     ipframe:SetPos(665, 30)
     -- ipframe:SetTitleBarSkin("mainframe_03")
@@ -1270,7 +1357,7 @@ function indun_panel_init(ipframe)
         g.panelY = g.panelY + 40
     end
 
-    ipframe:SetLayerLevel(97)
+    ipframe:SetLayerLevel(90)
     -- ipframe:SetLayerLevel(10)
     ipframe:Resize(600, g.panelY + 5)
     -- ipframe:SetSkinName("test_Item_tooltip_equip")
@@ -2227,7 +2314,7 @@ function indun_panel_autosweep(frame, ctrl, argStr, argNum)
         ui.SysMsg("Does not have a sweeping buff")
         -- return
     end
-    ReserveScript("indun_panel_get_sweep_count()", 1.5)
+    ReserveScript("indun_panel_sweep_count_get()", 1.5)
 end
 
 function indun_panel_velnice_buyuse()
@@ -2751,6 +2838,12 @@ function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART()
     end
 end
 
+function indun_panel_save_settings2()
+
+    acutil.saveJSON(g.settingsFileLoc2, g.settings2);
+
+end
+
 function indun_panel_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -2770,6 +2863,24 @@ function indun_panel_load_settings()
     end
 
     g.settings = settings
+
+end
+
+function indun_panel_load_settings2()
+    if g.settings2 == nil then
+        g.settings2 = {}
+    end
+    local settings2, err2 = acutil.loadJSON(g.settingsFileLoc2, g.settings2)
+
+    if err2 then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting2 files", addonNameLower))
+    end
+    if not settings2 then
+        settings2 = g.settings2
+    end
+
+    g.settings2 = settings2
 end
 
 --[[倉庫を〆た時にインベントリーを開く
