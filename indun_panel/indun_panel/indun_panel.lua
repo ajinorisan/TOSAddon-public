@@ -20,10 +20,11 @@
 -- v1.2.0 嘆きの墓地異空間追加、バラックキャラのレイド消化一覧機能
 -- v1.2.1 2秒毎に重い処理して画面カクついてたのを修正。オートクリアを使用した時とCC3秒後だけ処理を走らせる様に変更。反省してる。ウピニスハードの色替え。
 -- v1.2.2 レイド消化一覧機能、月曜6時のリセットに対応
+-- v1.2.3 レイド消化一覧機能が重いので、使うか選べる様に。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.2"
+local ver = "1.2.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -179,8 +180,6 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         local ipframe = ui.GetFrame("indun_panel")
         ipframe:RemoveAllChild()
-        addon:RegisterMsg('GAME_START', "indun_panel_raid_reset_time")
-        addon:RegisterMsg('GAME_START_3SEC', "indun_panel_sweep_count_get")
 
         if g.settings.ischecked == 1 then
             indun_panel_frame_init()
@@ -194,6 +193,13 @@ function INDUN_PANEL_ON_INIT(addon, frame)
 
             indunpanel_minimized_pvpmine_shop_init()
 
+        end
+        if g.settings.is_raid_count_checked == nil then
+            g.settings.is_raid_count_checked = 0
+            addon:RegisterMsg('GAME_START', "indun_panel_raid_reset_time")
+            addon:RegisterMsg('GAME_START_3SEC', "indun_panel_sweep_count_get")
+            indun_panel_save_settings()
+            indun_panel_load_settings()
         end
 
     else
@@ -271,6 +277,7 @@ function indun_panel_sweep_count_get()
                 g.settings2.loginCID[pcName][tostring(buffid)] = indun_panel_sweep_count(buffid)
                 indun_panel_get_raid_count(LoginName)
             end
+            break
         end
 
     end
@@ -413,10 +420,10 @@ function indun_panel_display_save(frame, ctrl, argStr, argNum)
     end
     if g.settings2.CIDcheck[argStr] == nil then
         g.settings2.CIDcheck[argStr] = {}
-        g.settings2.CIDcheck[argStr] = ischeck
-    else
-        g.settings2.CIDcheck[argStr] = ischeck
     end
+
+    g.settings2.CIDcheck[argStr] = ischeck
+
     indun_panel_save_settings2()
     indun_panel_load_settings2()
 end
@@ -828,6 +835,21 @@ function indun_panel_judge(ipframe)
     else
         return;
     end
+end
+
+function indun_panel_stop_raid_count()
+    local ipframe = ui.GetFrame(g.framename)
+    local checkbox = GET_CHILD_RECURSIVELY(ipframe, "raid_count_check")
+    tolua.cast(checkbox, 'ui::CCheckBox')
+    local ischeck = checkbox:IsChecked();
+    if ischeck == 1 then
+        g.settings.is_raid_count_checked = 1
+        indun_panel_save_settings()
+    elseif ischeck == 0 then
+        g.settings.is_raid_count_checked = 0
+        indun_panel_save_settings()
+    end
+
 end
 
 -- チェックボックスの状況監視
@@ -1247,15 +1269,25 @@ function indun_panel_init(ipframe)
     minebtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
     minebtn:SetTextTooltip("{@st59}傭兵団のコイン商店。{nl}Mercenary Coin Shop.")
 
-    local raid_count = ipframe:CreateOrGetControl('button', 'raid_count', 230, 5, 35, 35)
-    AUTO_CAST(raid_count)
-    raid_count:SetSkinName("None")
-    raid_count:SetText("{img sysmenu_skill 35 35}")
-    raid_count:SetSkinName("test_pvp_btn")
-    raid_count:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_count")
-    raid_count:SetTextTooltip("{@st59}キャラ毎のレイド回数表示{nl}Raid count display per character{nl}" ..
-                                  "{@st45r14}※掃討はキャラ毎の最終ログイン時の値なので、期限切れなどで実際とは異なる場合があります。{nl}" ..
-                                  "{@st45r14}※The AutoClear is the value at the last login for each character and may differ{nl}from the actual value due to expiration or other reasons.")
+    if g.settings.is_raid_count_checked == 0 then
+        local raid_count = ipframe:CreateOrGetControl('button', 'raid_count', 230, 5, 35, 35)
+        AUTO_CAST(raid_count)
+        raid_count:SetSkinName("None")
+        raid_count:SetText("{img sysmenu_skill 35 35}")
+        raid_count:SetSkinName("test_pvp_btn")
+        raid_count:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_count")
+        raid_count:SetTextTooltip(
+            "{@st59}キャラ毎のレイド回数表示{nl}Raid count display per character{nl}" ..
+                "{@st45r14}※掃討はキャラ毎の最終ログイン時の値なので、期限切れなどで実際とは異なる場合があります。{nl}" ..
+                "{@st45r14}※The AutoClear is the value at the last login for each character and may differ{nl}from the actual value due to expiration or other reasons.")
+    end
+
+    local raid_count_check = ipframe:CreateOrGetControl('checkbox', 'raid_count_check', 270, 5, 30, 30)
+    AUTO_CAST(raid_count_check)
+    raid_count_check:SetCheck(g.settings.is_raid_count_checked)
+    raid_count_check:SetEventScript(ui.LBUTTONUP, "indun_panel_stop_raid_count")
+    raid_count_check:SetTextTooltip(
+        "{@st59}チェックすると、レイド回数検索機能を全て停止します。重い場合はチェックしてください。{nl}If checked, raid count search Stops all functions. Check if heavy.")
 
     local configbtn = ipframe:CreateOrGetControl('button', 'configbtn', 315, 5, 35, 35)
     AUTO_CAST(configbtn)
@@ -2314,7 +2346,9 @@ function indun_panel_autosweep(frame, ctrl, argStr, argNum)
         ui.SysMsg("Does not have a sweeping buff")
         -- return
     end
-    ReserveScript("indun_panel_sweep_count_get()", 1.5)
+    if g.settings.is_raid_count_checked == 0 or nil then
+        ReserveScript("indun_panel_sweep_count_get()", 1.5)
+    end
 end
 
 function indun_panel_velnice_buyuse()
