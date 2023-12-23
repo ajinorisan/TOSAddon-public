@@ -21,10 +21,11 @@
 -- v1.2.1 2秒毎に重い処理して画面カクついてたのを修正。オートクリアを使用した時とCC3秒後だけ処理を走らせる様に変更。反省してる。ウピニスハードの色替え。
 -- v1.2.2 レイド消化一覧機能、月曜6時のリセットに対応
 -- v1.2.3 レイド消化一覧機能が重いので、使うか選べる様に。
+-- v1.2.4 バグ修正
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.3"
+local ver = "1.2.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -194,12 +195,12 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             indunpanel_minimized_pvpmine_shop_init()
 
         end
-        if g.settings.is_raid_count_checked == nil then
+        if g.settings.is_raid_count_checked == nil or g.settings.is_raid_count_checked == 0 then
             g.settings.is_raid_count_checked = 0
             addon:RegisterMsg('GAME_START', "indun_panel_raid_reset_time")
             addon:RegisterMsg('GAME_START_3SEC', "indun_panel_sweep_count_get")
             indun_panel_save_settings()
-            indun_panel_load_settings()
+            -- indun_panel_load_settings()
         end
 
     else
@@ -257,7 +258,7 @@ function indun_panel_sweep_count_get()
     end
 
     local LoginName = session.GetMySession():GetPCApc():GetName()
-
+    -- print(LoginName)
     for i = 0, cnt - 1 do
         local pcInfo = accountInfo:GetBarrackPCByIndex(i)
         local pcName = pcInfo:GetName()
@@ -271,13 +272,14 @@ function indun_panel_sweep_count_get()
                 g.settings2.loginCID[pcName][tostring(buffid)] = 0 -- 初期値を設定
             end
 
-            -- LoginNameとpcNameが一致する場合、sweepcountを更新
+            -- print(LoginName .. ":" .. pcName)
             if LoginName == pcName then
-                -- print(LoginName .. ":" .. buffid)
-                g.settings2.loginCID[pcName][tostring(buffid)] = indun_panel_sweep_count(buffid)
+
+                g.settings2.loginCID[pcName][tostring(buffid)] = indun_panel_sweep_count(tostring(buffid))
+                -- print(LoginName .. ":" .. tostring(g.settings2.loginCID[pcName][tostring(buffid)]))
                 indun_panel_get_raid_count(LoginName)
             end
-            break
+            -- break
         end
 
     end
@@ -2667,13 +2669,13 @@ function indun_panel_sweep_count(buffid)
     end
 
     local sweepcount = 0
-
+    -- print(iconcount)
     for i = 0, iconcount - 1 do
         local child = buffslotset:GetChildByIndex(i)
         local icon = child:GetIcon()
         local iconinfo = icon:GetInfo()
         local buff = info.GetBuff(handle, iconinfo.type)
-
+        -- print(tostring(buff.buffID) .. ":" .. tostring(buffid))
         if tostring(buff.buffID) == tostring(buffid) then
 
             sweepcount = buff.over
@@ -2681,7 +2683,7 @@ function indun_panel_sweep_count(buffid)
         end
 
     end
-
+    -- print(buffid .. ":" .. sweepcount)
     --[[local loginCharID = info.GetCID(session.GetMyHandle())
 
     if g.settings.loginCID ~= nil then
