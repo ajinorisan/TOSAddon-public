@@ -3,11 +3,12 @@
 -- v1.0.2 ADDONSに表示されない人がいるのでMINIMAP左下ボタンに変更
 -- v1.0.3 バフ一覧設定がテレコになっていたのを修正。センスのないボタンを変更
 -- v1.0.4 パーティーバフ非表示機能
--- v1.0.5 コインアイテムを取得時に自動使用昨日追加
+-- v1.0.5 コインアイテムを取得時に自動使用機能追加
+-- v1.0.6 コインアイテム自動使用を街だけに。女神ガチャ時は使用しない様に。レイド入場時装備チェック機能。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -15,6 +16,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
+local os = require("os")
 
 local base = {}
 
@@ -54,6 +56,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     g.SetupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
 
+    if g.settings.equip_info == nil then
+        g.settings.equip_info = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "MINI_ADDONS_SHOW_INDUNENTER_DIALOG");
+    elseif g.settings.equip_info == 1 then
+        acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "MINI_ADDONS_SHOW_INDUNENTER_DIALOG");
+    end
+
     --[[acutil.setupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
 
     acutil.setupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")]]
@@ -69,11 +79,24 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
+
+    if mapCls.MapType == "City" then
+        if g.settings.coin_use == nil then
+            g.settings.coin_use = 1
+            MINI_ADDONS_SAVE_SETTINGS()
+            addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
+        end
+        if g.settings.coin_use == 1 then
+            addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
+        end
+    end
+
     if g.settings.mini_btn == 1 then
         -- 右上のミニボタンを消したりする機能
 
         if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
             addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
+
         end
     end
 
@@ -101,13 +124,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
 
-    if g.settings.coin_use == nil then
-        g.settings.coin_use = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-    elseif g.settings.coin_use == 1 then
-        addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
-    end
-
     MINI_ADDONS_NEW_FRAME_INIT()
 
 end
@@ -130,9 +146,59 @@ if not g.loaded then
         auto_cast = 1,
         auto_casting = {},
         buffid = {},
-        coin_use = 1
+        coin_use = 1,
+        equip_info = 1
 
     }
+end
+
+function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
+    local frame = ui.GetFrame('indunenter');
+    local indunType = frame:GetUserValue('INDUN_TYPE', indunType)
+    -- print(tostring(indunType))
+
+    local indunType_table = {665, 670, 675, 678, 681, 628, 687, 690}
+
+    -- テーブルをループ
+    for i = 1, #indunType_table do
+        if tostring(indunType_table[i]) == tostring(indunType) then
+            local equipItemList = session.GetEquipItemList();
+            local cnt = equipItemList:Count();
+            local count = 0
+
+            for i = 0, cnt - 1 do
+                local equipItem = equipItemList:GetEquipItemByIndex(i);
+                local spotName = item.GetEquipSpotName(equipItem.equipSpot);
+                local iesid = tostring(equipItem:GetIESID())
+                local langcode = option.GetCurrentCountry()
+
+                if tostring(spotName) == "SEAL" and tonumber(iesid) == 0 then
+                    if langcode == "Japanese" then
+                        _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
+                            "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？", 3.0)
+                        -- ui.SysMsg("{#FF8C00}エンブレム装備忘れてない?")
+                    else
+                        ui.SysMsg("{#FF8C00}Did you forget to equip an Emblem?")
+                    end
+                    break
+
+                elseif tostring(spotName) == "ARK" and tonumber(iesid) == 0 then
+                    if langcode == "Japanese" then
+                        _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
+                            "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?", 3.0)
+                        -- ui.SysMsg("{st55_a}{#FF8C00}アーク装備忘れてない?")
+                    else
+                        ui.SysMsg("{#FF8C00}Did you forget to equip an Ark?")
+                    end
+                    break
+
+                end
+            end
+
+        end
+
+    end
+
 end
 
 local coin_item = {869001, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161, 11200160,
@@ -142,6 +208,27 @@ local coin_item = {869001, 11200303, 11200302, 11200301, 11200300, 11200299, 112
 
 -- 傭兵団コイン、女神コイン、王国再建団コインを取得時、自動で使用
 function MINI_ADDONS_INV_ICON_USE()
+
+    local currentTime = os.time()
+
+    local AM0Time = os.time({
+        year = os.date("%Y", currentTime),
+        month = os.date("%m", currentTime),
+        day = os.date("%d", currentTime),
+        hour = 0,
+        min = 0,
+        sec = 0
+    })
+    local daytime_start = tonumber(AM0Time) + 43200 + 840
+    local daytime_end = tonumber(AM0Time) + 43200 + 1320
+    local nighttime_start = tonumber(AM0Time) + 79200 + 840
+    local nighttime_end = tonumber(AM0Time) + 79200 + 840
+    -- 43200+840昼のガチャ始まり　43200+1320昼のガチャ終わり　79200+840夜のガチャ始まり　79200+1320夜のガチャ終わり
+
+    if (currentTime >= daytime_start and currentTime <= daytime_end) or
+        (currentTime >= nighttime_start and currentTime <= nighttime_end) then
+        return
+    end
 
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList();
@@ -157,7 +244,7 @@ function MINI_ADDONS_INV_ICON_USE()
 
                 ReserveScript(string.format("item.UseByGUID(%d)", invItem:GetIESID()), 1.5)
 
-                break -- 使ったらループを抜ける
+                -- break -- 使ったらループを抜ける
             end
         end
 
@@ -246,7 +333,7 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     btn:SetSkinName("None")
     -- btn:SetText("{img mine_pvp_icon_player 30 30}")
     btn:SetText("{img sysmenu_mac 30 30}")
-    btn:SetTextTooltip("{@st59}Mini Addons setting{nl}Mini Addons設定{/}")
+    btn:SetTextTooltip("{@st59}Mini Addons setting{/}")
 
     btn:SetEventScript(ui.LBUTTONDOWN, "MINI_ADDONS_SETTING_FRAME_INIT")
 
@@ -261,7 +348,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         -- frame:SetSkinName("test_frame_low")
         frame:SetSkinName("bg")
         frame:SetLayerLevel(93)
-        frame:Resize(710, 410)
+        frame:Resize(710, 440)
         frame:SetPos(1150, 400)
         frame:ShowTitleBar(0);
         frame:EnableHittestFrame(1)
@@ -340,7 +427,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             "{@st59}チャンネル表示のズレを修正{nl}채널 표시가 어긋나는 현상 수정")
 
         local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, 130, 25,
-                                                                  25)
+            25)
         AUTO_CAST(channel_display_checkbox)
         channel_display_checkbox:SetCheck(g.settings.channel_display)
         channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
@@ -421,9 +508,9 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
         local coin_use = frame:CreateOrGetControl("richtext", "coin_use", 40, 345)
-        coin_use:SetText("{ol}{#FFFFFF}Automatically used when acquiring coin items.")
+        coin_use:SetText("{ol}{#FFFFFF}Automatically used when acquiring coin items.Works only in town.")
         coin_use:SetTextTooltip(
-            "{@st59}傭兵団コイン、シーズンコイン、王国再建団コインを取得時に自動で使用します。{nl}코인 아이템 획득 시 자동으로 사용됩니다.")
+            "{@st59}傭兵団コイン、シーズンコイン、王国再建団コインを取得時に自動で使用します。街でのみ動作します。{nl}코인 아이템 획득 시 자동으로 사용됩니다.도시에서만 작동합니다.")
 
         local coin_use_checkbox = frame:CreateOrGetControl('checkbox', 'coin_use_checkbox', 10, 340, 25, 25)
         AUTO_CAST(coin_use_checkbox)
@@ -432,7 +519,20 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         coin_use_checkbox:SetTextTooltip(
             "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-        local description = frame:CreateOrGetControl("richtext", "description", 140, 375)
+        local equip_info = frame:CreateOrGetControl("richtext", "equip_info", 40, 375)
+        equip_info:SetText(
+            "{ol}{#FFFFFF}Notification of forgetting to equip ark and emblem upon entry to the hard raid.")
+        equip_info:SetTextTooltip(
+            "{@st59}ハードレイド入場時にアークやエンブレムの装備忘れをお知らせします。{nl}하드 레이드 입장 시 아크와 엠블럼을 잊어버린 것을 알려드립니다.")
+
+        local equip_info_checkbox = frame:CreateOrGetControl('checkbox', 'equip_info_checkbox', 10, 370, 25, 25)
+        AUTO_CAST(equip_info_checkbox)
+        equip_info_checkbox:SetCheck(g.settings.equip_info)
+        equip_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+        equip_info_checkbox:SetTextTooltip(
+            "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+
+        local description = frame:CreateOrGetControl("richtext", "description", 140, 405)
         description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
         description:SetTextTooltip(
             "{@st59}一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です。{nl}일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다.")
@@ -540,6 +640,16 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
 
     local ischeck = ctrl:IsChecked();
     local ctrlname = ctrl:GetName()
+
+    if ischeck == 1 and ctrlname == "equip_info_checkbox" then
+        g.settings.equip_info = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "equip_info_checkbox" then
+        g.settings.equip_info = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
 
     if ischeck == 1 and ctrlname == "under_staff_checkbox" then
         g.settings.under_staff = 1
@@ -1154,7 +1264,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
