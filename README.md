@@ -163,6 +163,7 @@ Aethergem Manager導入済の場合はAethergem Managerを起動するかの選�
 Monster Card Change導入済の場合は起動するかの選択が出ます。キャラ毎で表示非表示設定できます。
 
 　
+v1.1.3 ギルティネの冠のチーム間移動対応
 
 v1.1.2 ヘアコスチューム登録解除時のsettingsファイルのバグ修正。
 

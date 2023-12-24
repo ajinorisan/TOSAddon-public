@@ -11,10 +11,11 @@
 -- v1.1.0 ヘアコスの付け替えで韓国語と英語クライアントで動かないバグを修正したつもり
 -- v1.1.1 △入れた。見え方を自然に
 -- v1.1.2 ヘアコス外した時のセッティングスファイルのバグ修正したつもり
+-- v1.1.3 ギルティネの冠も移動可能に
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -54,6 +55,21 @@ if not g.loaded then
     }
 end
 
+--[[local function child_name()
+    local equipItemList = session.GetEquipItemList();
+    local cnt = equipItemList:Count();
+    local count = 0
+
+    for i = 0, cnt - 1 do
+        local equipItem = equipItemList:GetEquipItemByIndex(i);
+        local spotName = item.GetEquipSpotName(equipItem.equipSpot);
+        local iesid = tostring(equipItem:GetIESID())
+        local itemtype = equipItem.type;
+        local iteminfo = session.GetEquipItemByType(itemtype);
+        print(tostring(spotName) .. ":" .. i)
+    end
+end
+child_name()]]
 function CC_HELPER_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -101,7 +117,7 @@ function CC_HELPER_ON_INIT(addon, frame)
 
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
     end
-
+    child_name()
     -- acutil.setupHook(cc_helper_GET_SLOTSET_NAME, "GET_SLOTSET_NAME")
 
 end
@@ -265,6 +281,27 @@ function cc_helper_setting()
     elseif g.settings.charid.hair3_str == nil then
         g.settings.charid.hair3_str = {}
     end
+    -- print(tostring(g.settings[tostring(loginCharID)].crown_image))
+    if g.settings[tostring(loginCharID)] ~= nil then
+
+        local crown_image = g.settings[loginCharID].crown_image
+
+        if crown_image ~= nil then
+            g.crown_image = crown_image
+
+        end
+
+        local crown_iesid = g.settings[loginCharID].crown_iesid
+        if crown_iesid ~= nil then
+            g.crown_iesid = crown_iesid
+
+        end
+    else
+        g.crown_image = nil
+        g.crown_iesid = nil
+    end
+    -- print(tostring(g.crown_image))
+    -- print(tostring(g.crown_iesid))
 
     local hair1 = g.settings.charid.hair1[loginCharID]
     g.hair1 = nil
@@ -400,6 +437,20 @@ function cc_helper_out_btn()
     invTab:SelectTab(1)
 
     if fromframe:IsVisible() == 1 then
+
+        if g.crown_iesid ~= nil then
+            local crown = cc_helper_check_items_in_warehouse(g.crown_iesid)
+            if crown == true then
+                session.ResetItemList()
+                session.AddItemID(tonumber(g.crown_iesid), 1)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+
+                ReserveScript("cc_helper_out_btn()", g.delay)
+                return
+            end
+        end
+
         if g.sealiesid ~= nil then
             local seal = cc_helper_check_items_in_warehouse(g.sealiesid)
             if seal == true then
@@ -600,6 +651,16 @@ function cc_helper_equip()
         return
     end
 
+    local crown_item = session.GetInvItemByGuid(tonumber(g.crown_iesid));
+    if crown_item ~= nil then
+        local crown_spot = "RELIC"
+        ITEM_EQUIP(crown_item.invIndex, crown_spot)
+
+        frame:Invalidate();
+        ReserveScript("cc_helper_equip()", g.delay)
+        return
+    end
+
     local sealitem = session.GetInvItemByGuid(tonumber(g.sealiesid));
     if sealitem ~= nil then
         local sealspot = "SEAL"
@@ -765,6 +826,7 @@ function cc_helper_end_of_operation()
 
         local msgframe = ui.CreateNewFrame("chat_memberlist", "monstercardchange_msg");
         AUTO_CAST(msgframe)
+        msgframe:SetLayerLevel(110);
 
         local screenWidth = ui.GetClientInitialWidth()
         local screenHeight = ui.GetClientInitialHeight()
@@ -954,6 +1016,25 @@ function cc_helper_check_items_in_warehouse(iesid)
     end
 end
 
+function cc_helper_crown_enddrop(crown_iesid, crown_image)
+    local loginCharID = info.GetCID(session.GetMyHandle())
+    if crown_image ~= nil then
+        if g.settings[tostring(loginCharID)] == nil then
+            g.settings[tostring(loginCharID)] = {}
+        end
+
+        g.settings[tostring(loginCharID)] = {
+            crown_iesid = crown_iesid,
+            crown_image = crown_image
+        }
+
+        cc_helper_save_settings()
+        cc_helper_load_settings()
+
+    end
+
+end
+
 function cc_helper_enddrop(sealiesid, arkiesid, gemid, legiesid, legimage, godiesid, godimage, sealimage, arkimage,
     legclassid, godclassid, hair1, hair2, hair3, hair1_iesid, hair2_iesid, hair3_iesid)
     -- CHAT_SYSTEM("enddrop")
@@ -1023,6 +1104,14 @@ function cc_helper_cancel(frame, ctrl, argstr, argnum)
 
     -- CHAT_SYSTEM(ctrl:GetName())
     local loginCharID = info.GetCID(session.GetMyHandle())
+    -- print(loginCharID)
+    if ctrl:GetName() == tostring("crownslot") then
+
+        g.settings[tostring(loginCharID)] = {}
+        g.crown_iesid = nil
+        g.crown_image = nil
+
+    end
     -- !!
     if ctrl:GetName() == tostring("Hairslot1") then
         g.settings.charid.hair1_iesid[tostring(loginCharID)] = nil
@@ -1255,633 +1344,39 @@ function cc_helper_ongem_drop(frame, ctrl, argstr, argnum)
     end
 
 end
+-- cc_helper_crown_drop
+function cc_helper_crown_drop(frame, ctrl, argstr, argnum)
+
+    local lifticon = ui.GetLiftIcon();
+    local liftframe = ui.GetLiftFrame():GetTopParentFrame()
+    local slot = tolua.cast(ctrl, 'ui::CSlot')
+    local iconinfo = lifticon:GetInfo();
+    local item = GET_PC_ITEM_BY_GUID(iconinfo:GetIESID());
+    local itemobj = GetIES(item:GetObject());
+    local classid = itemobj.ClassID
+    local iesid = iconinfo:GetIESID()
+    local type = itemobj.ClassType
+    -- print(tostring(type))
+    -- print(tostring(classid))
+    local crown_image = TryGetProp(itemobj, "TooltipImage", "None")
+
+    if ctrl == GET_CHILD_RECURSIVELY(frame, "crownslot") then
+        if type == "Relic" then
+            SET_SLOT_IMG(slot, itemobj.Icon);
+            SET_SLOT_IESID(slot, item:GetIESID());
+        else
+            ui.SysMsg("It is not the correct slot.")
+        end
+    end
+
+    cc_helper_crown_enddrop(iesid, crown_image)
+
+end
 
 function cc_helper_settings_close(frame)
     local frame = ui.GetFrame("cc_helper")
     frame:ShowWindow(0)
 end
-
---[[local function manager_language(str)
-    local language = option.GetCurrentCountry()
-
-    if language == "Japanese" then
-        if str == "PATK" then
-            str = "物理攻撃力"
-        end
-        if str == "ADD_DEF" then
-            str = "物理防御力"
-        end
-        if str == "ADD_MDEF" then
-            str = "魔法防御力"
-        end
-        if str == "MHP" then
-            str = "HP"
-        end
-        if str == "MSP" then
-            str = "SP"
-        end
-        if str == "ADD_MATK" then
-            str = "魔法攻撃力"
-        end
-        if str == "ADD_DEF" then
-            str = "魔法防御力"
-        end
-        if str == "STR" then
-            str = "力"
-        end
-        if str == "DEX" then
-            str = "敏捷"
-        end
-        if str == "INT" then
-            str = "知能"
-        end
-        if str == "CON" then
-            str = "体力"
-        end
-        if str == "MNA" then
-            str = "精神"
-        end
-
-        if str == "BLK" then
-            str = "ブロック"
-        end
-        if str == "BLK_BREAK" then
-            str = "ブロック貫通"
-        end
-        if str == "ADD_HR" then
-            str = "命中"
-        end
-        if str == "ADD_DR" then
-            str = "回避"
-        end
-        if str == "CRTHR" then
-            str = "クリティカル発生"
-        end
-        if str == "CRTDR" then
-            str = "クリティカル抵抗"
-        end
-        if str == "RHP" then
-            str = "HP回復力"
-        end
-        if str == "RSP" then
-            str = "SP回復力"
-        end
-
-        if str == "Leather_Def" then
-            str = "レザー対象攻撃力相殺"
-        end
-        if str == "Cloth_Def" then
-            str = "クロース対象攻撃力相殺"
-        end
-        if str == "Iron_Def" then
-            str = "プレート対象攻撃力相殺"
-        end
-        if str == "MiddleSize_Def" then
-            str = "中型対象攻撃力相殺"
-        end
-
-        if str == "ADD_LEATHER" then
-            str = "レザー防御対象攻撃力"
-        end
-        if str == "ADD_IRON" then
-            str = "プレート防御対象攻撃力"
-        end
-        if str == "ADD_CLOTH" then
-            str = "クロース防御対象攻撃力"
-        end
-        if str == "ADD_GHOST" then
-            str = "アストラル防御対象攻撃力"
-        end
-        if str == "ADD_SMALLSIZE" then
-            str = "小型対象攻撃力"
-        end
-        if str == "ADD_MIDDLESIZE" then
-            str = "中型対象攻撃力"
-        end
-        if str == "ADD_LARGESIZE" then
-            str = "大型対象攻撃力"
-        end
-        if str == "ADD_FORESTER" then
-            str = "植物型対象攻撃力"
-        end
-        if str == "ADD_WIDLING" then
-            str = "野獣型対象攻撃力"
-        end
-        if str == "ADD_VELIAS" then
-            str = "悪魔型対象攻撃力"
-        end
-        if str == "ADD_PARAMUNE" then
-            str = "変異型対象攻撃力"
-        end
-        if str == "ADD_KLAIDA" then
-            str = "昆虫型対象攻撃力"
-        end
-
-        if str == "Add_Damage_Atk" then
-            str = "追加ダメージ"
-        end
-        if str == "ResAdd_Damage" then
-            str = "追加ダメージ抵抗"
-        end
-
-        if str == "AllRace_Atk" then
-            str = "全ての種族の対象攻撃力"
-        end
-        if str == "AllMaterialType_Atk" then
-            str = "全ての防具の対象攻撃力"
-        end
-
-        if str == "perfection" then
-            str = "パーフェクト効果"
-        end
-        if str == "revenge" then
-            str = "復讐効果"
-        end
-
-        if str == "stun_res" then
-            str = "極：気絶抵抗"
-        end
-        if str == "high_fire_res" then
-            str = "極：滅火抵抗"
-        end
-        if str == "high_freezing_res" then
-            str = "極：寒冷抵抗"
-        end
-        if str == "high_lighting_res" then
-            str = "極：過電荷抵抗"
-        end
-        if str == "high_poison_res" then
-            str = "極：強劇猛毒抵抗"
-        end
-        if str == "high_laceration_res" then
-            str = "極：出血過多抵抗"
-        end
-        if str == "portion_expansion" then
-            str = "HPエリクサー広域化"
-        end
-
-        if str == "rada_bless_1" then
-            str = "ラダの恩恵(+1)"
-        end
-        if str == "dievdirbys_bless_1" then
-            str = "テスラの恩恵(+1)"
-        end
-        if str == "zemyna_bless_1" then
-            str = "ジェミナの恩恵(+1)"
-        end
-        if str == "payawoota_bless_1" then
-            str = "パヤウタの恩恵(+1)"
-        end
-        if str == "fireMage_bless_1" then
-            str = "メリンの恩恵(+1)"
-        end
-        if str == "saule_bless_1" then
-            str = "サウレの恩恵(+1)"
-        end
-
-        if str == " 500Advanced" then
-            str = " LV500 上級"
-        end
-        if str == " 480Advanced" then
-            str = " LV480 上級"
-        end
-
-        if str == " disabled" then
-            str = " 使用不可"
-        end
-
-        if str == "RH" then
-            str = "武器"
-        end
-        if str == "LH" then
-            str = "補助"
-        end
-        if str == "RH_SUB" then
-            str = "裏武器"
-        end
-        if str == "LH_SUB" then
-            str = "裏補助"
-        end
-        if str == "SHIRT" then
-            str = "上半身"
-        end
-        if str == "PANTS" then
-            str = "下半身"
-        end
-        if str == "GLOVES" then
-            str = "手袋"
-        end
-        if str == "BOOTS" then
-            str = "靴"
-        end
-
-        return str
-        --[[else
-        if str == "STR" then
-            str = ClMsg("STR")
-        end
-        if str == "DEX" then
-            str = ClMsg("DEX")
-        end
-        if str == "INT" then
-            str = ClMsg("INT")
-        end
-        if str == "CON" then
-            str = ClMsg("CON")
-        end
-        if str == "MNA" then
-            str = ClMsg("MNA")
-        end
-
-        if str == "BLK" then
-            str = ClMsg("BLK")
-        end
-        if str == "BLK_BREAK" then
-            str = ClMsg("BLK_BREAK")
-        end
-        if str == "ADD_HR" then
-            str = ClMsg("ADD_HR")
-        end
-        if str == "ADD_DR" then
-            str = ClMsg("ADD_DR")
-        end
-        if str == "CRTHR" then
-            str = ClMsg("CRTHR")
-        end
-        if str == "CRTDR" then
-            str = ClMsg("CRTDR")
-        end
-        if str == "RHP" then
-            str = ClMsg("RHP")
-        end
-        if str == "RSP" then
-            str = ClMsg("RSP")
-        end
-
-        if str == "Leather_Def" then
-            str = ClMsg("Leather_Def")
-        end
-        if str == "Cloth_Def" then
-            str = ClMsg("Cloth_Def")
-        end
-        if str == "Iron_Def" then
-            str = ClMsg("Iron_Def")
-        end
-        if str == "MiddleSize_Def" then
-            str = ClMsg("MiddleSize_Def")
-        end
-
-        if str == "ADD_LEATHER" then
-            str = ClMsg("ADD_LEATHER")
-        end
-        if str == "ADD_IRON" then
-            str = ClMsg("ADD_IRON")
-        end
-        if str == "ADD_CLOTH" then
-            str = ClMsg("ADD_CLOTH")
-        end
-        if str == "ADD_GHOST" then
-            str = ClMsg("ADD_GHOST")
-        end
-        if str == "ADD_SMALLSIZE" then
-            str = ClMsg("ADD_SMALLSIZE")
-        end
-        if str == "ADD_MIDDLESIZE" then
-            str = ClMsg("ADD_MIDDLESIZE")
-        end
-        if str == "ADD_LARGESIZE" then
-            str = ClMsg("ADD_LARGESIZE")
-        end
-        if str == "ADD_FORESTER" then
-            str = ClMsg("ADD_FORESTER")
-        end
-        if str == "ADD_WIDLING" then
-            str = ClMsg("ADD_WIDLING")
-        end
-        if str == "ADD_VELIAS" then
-            str = ClMsg("ADD_VELIAS")
-        end
-        if str == "ADD_PARAMUNE" then
-            str = ClMsg("ADD_PARAMUNE")
-        end
-        if str == "ADD_KLAIDA" then
-            str = ClMsg("ADD_KLAIDA")
-        end
-
-        if str == "Add_Damage_Atk" then
-            str = ClMsg("Add_Damage_Atk")
-        end
-        if str == "ResAdd_Damage" then
-            str = ClMsg("ResAdd_Damage")
-        end
-
-        if str == "AllRace_Atk" then
-            str = ClMsg("AllRace_Atk")
-        end
-        if str == "AllMaterialType_Atk" then
-            str = ClMsg("AllMaterialType_Atk")
-        end
-
-        if str == "perfection" then
-            str = ClMsg("perfection")
-        end
-        if str == "revenge" then
-            str = ClMsg("revenge")
-        end
-
-        if str == "stun_res" then
-            str = ClMsg("stun_res")
-        end
-        if str == "high_fire_res" then
-            str = ClMsg("high_fire_res")
-        end
-        if str == "high_freezing_res" then
-            str = ClMsg("high_freezing_res")
-        end
-        if str == "high_lighting_res" then
-            str = ClMsg("high_lighting_res")
-        end
-        if str == "high_poison_res" then
-            str = ClMsg("high_poison_res")
-        end
-        if str == "high_laceration_res" then
-            str = ClMsg("high_laceration_res")
-        end
-        if str == "portion_expansion" then
-            str = ClMsg("portion_expansion")
-        end
-
-        if str == "rada_bless_1" then
-            str = ClMsg("rada_bless_1")
-        end
-        if str == "dievdirbys_bless_1" then
-            str = ClMsg("dievdirbys_bless_1")
-        end
-        if str == "zemyna_bless_1" then
-            str = ClMsg("zemyna_bless_1")
-        end
-        if str == "payawoota_bless_1" then
-            str = ClMsg("payawoota_bless_1")
-        end
-        if str == "fireMage_bless_1" then
-            str = ClMsg("fireMage_bless_1")
-        end
-        if str == "saule_bless_1" then
-            str = ClMsg("saule_bless_1")
-        end
-
-        if str == " 500Advanced" then
-            str = " LV500 Advanced"
-        end
-        if str == " 480Advanced" then
-            str = " LV480 Advanced"
-        end
-
-        --[[if str == " disabled" then
-            str = " 使用不可"
-        end
-
-        if str == "RH" then
-            str = ClMsg("RH")
-        end
-        if str == "LH" then
-            str = ClMsg("LH")
-        end
-        if str == "RH_SUB" then
-            str = ClMsg("RH_SUB")
-        end
-        if str == "LH_SUB" then
-            str = ClMsg("LH_SUB")
-        end
-        if str == "SHIRT" then
-            str = ClMsg("Shirt")
-        end
-        if str == "PANTS" then
-            str = ClMsg("Pants")
-        end
-        if str == "GLOVES" then
-            str = ClMsg("GLOVES")
-        end
-        if str == "BOOTS" then
-            str = ClMsg("BOOTS")
-        end
-
-        return str
-    else
-        if str == "PATK" then
-            str = ClMsg("PATK")
-        end
-        if str == "ADD_DEF" then
-            str = ClMsg("ADD_DEF")
-        end
-        if str == "ADD_MDEF" then
-            str = ClMsg("ADD_MDEF")
-        end
-        if str == "MHP" then
-            str = ClMsg("MHP")
-        end
-        if str == "MSP" then
-            str = ClMsg("MSP")
-        end
-        if str == "ADD_MATK" then
-            str = ClMsg("ADD_MATK")
-        end
-        if str == "ADD_DEF" then
-            str = ClMsg("ADD_DEF")
-        end
-
-        if str == "STR" then
-            str = "STR"
-        end
-        if str == "DEX" then
-            str = "DEX"
-        end
-        if str == "INT" then
-            str = "INT"
-        end
-        if str == "CON" then
-            str = "CON"
-        end
-        if str == "MNA" then
-            str = "SPR"
-        end
-
-        if str == "BLK" then
-            str = "Block"
-        end
-        if str == "BLK_BREAK" then
-            str = "Block penetration"
-        end
-        if str == "ADD_HR" then
-            str = "Accuracy"
-        end
-        if str == "ADD_DR" then
-            str = "Evasion"
-        end
-        if str == "CRTHR" then
-            str = "Critical Rate"
-        end
-        if str == "CRTDR" then
-            str = "Critical Resistance"
-        end
-        if str == "RHP" then
-            str = "HP Recovery"
-        end
-        if str == "RSP" then
-            str = ClMsg("RSP")
-        end
-
-        if str == "Leather_Def" then
-            str = "DEF Leather armor"
-        end
-        if str == "Cloth_Def" then
-            str = "DEF Cloth armor"
-        end
-        if str == "Iron_Def" then
-            str = "DEF Plate armor"
-        end
-        if str == "MiddleSize_Def" then
-            str = "DEF Medium size"
-        end
-
-        if str == "ADD_LEATHER" then
-            str = "ATK Leather armor"
-        end
-        if str == "ADD_IRON" then
-            str = "ATK Plate armor"
-        end
-        if str == "ADD_CLOTH" then
-            str = "ATK Cloth armor"
-        end
-        if str == "ADD_GHOST" then
-            str = "ATK Ghost armor"
-        end
-        if str == "ADD_SMALLSIZE" then
-            str = "ATK Small size"
-        end
-        if str == "ADD_MIDDLESIZE" then
-            str = "ATK Medium size"
-        end
-        if str == "ADD_LARGESIZE" then
-            str = "ATK Large size"
-        end
-        if str == "ADD_FORESTER" then
-            str = "ATK Plant-type"
-        end
-        if str == "ADD_WIDLING" then
-            str = "ATK Beast-type"
-        end
-        if str == "ADD_VELIAS" then
-            str = "ATK Devil-type"
-        end
-        if str == "ADD_PARAMUNE" then
-            str = "ATK Mutant-type"
-        end
-        if str == "ADD_KLAIDA" then
-            str = "ATK Insect-type"
-        end
-
-        if str == "Add_Damage_Atk" then
-            str = "Additional Damage"
-        end
-        if str == "ResAdd_Damage" then
-            str = "DEF Add Damage"
-        end
-
-        if str == "AllRace_Atk" then
-            str = "ATK all creature type"
-        end
-        if str == "AllMaterialType_Atk" then
-            str = "ATK every type of armor"
-        end
-
-        if str == "perfection" then
-            str = "ATK Perfection"
-        end
-        if str == "revenge" then
-            str = "ATK Revenge"
-        end
-
-        if str == "stun_res" then
-            str = "Ex:Pass out"
-        end
-        if str == "high_fire_res" then
-            str = "Ex:Inferno"
-        end
-        if str == "high_freezing_res" then
-            str = "Ex:Frigid"
-        end
-        if str == "high_lighting_res" then
-            str = "Ex:Overcharge"
-        end
-        if str == "high_poison_res" then
-            str = "Ex:Virulent"
-        end
-        if str == "high_laceration_res" then
-            str = "Ex:Heavy Bleeding"
-        end
-        if str == "portion_expansion" then
-            str = "HP Elixir Broaden"
-        end
-
-        if str == "rada_bless_1" then
-            str = ClMsg("rada_bless_1")
-        end
-        if str == "dievdirbys_bless_1" then
-            str = ClMsg("dievdirbys_bless_1")
-        end
-        if str == "zemyna_bless_1" then
-            str = ClMsg("zemyna_bless_1")
-        end
-        if str == "payawoota_bless_1" then
-            str = ClMsg("payawoota_bless_1")
-        end
-        if str == "fireMage_bless_1" then
-            str = ClMsg("fireMage_bless_1")
-        end
-        if str == "saule_bless_1" then
-            str = ClMsg("saule_bless_1")
-        end
-
-        if str == " 500Advanced" then
-            str = " LV500 Advanced"
-        end
-        if str == " 480Advanced" then
-            str = " LV480 Advanced"
-        end
-
-        --[[if str == " disabled" then
-            str = " 使用不可"
-        end
-
-        if str == "RH" then
-            str = ClMsg("RH")
-        end
-        if str == "LH" then
-            str = ClMsg("LH")
-        end
-        if str == "RH_SUB" then
-            str = ClMsg("RH_SUB")
-        end
-        if str == "LH_SUB" then
-            str = ClMsg("LH_SUB")
-        end
-        if str == "SHIRT" then
-            str = ClMsg("Shirt")
-        end
-        if str == "PANTS" then
-            str = ClMsg("Pants")
-        end
-        if str == "GLOVES" then
-            str = ClMsg("GLOVES")
-        end
-        if str == "BOOTS" then
-            str = ClMsg("BOOTS")
-        end
-
-        return str
-    end
-end]]
 
 function cc_helper_hairslot_drop(frame, ctrl, argStr, argNum)
     -- print(tostring(ctrl:GetName()))
@@ -2154,7 +1649,7 @@ function cc_helper_frame_init()
     close:SetText("×")
     close:SetEventScript(ui.LBUTTONUP, "cc_helper_settings_close")
 
-    local delay = frame:CreateOrGetControl('edit', 'delay', 200, 200, 60, 30)
+    local delay = frame:CreateOrGetControl('edit', 'delay', 120, 10, 60, 30)
     AUTO_CAST(delay)
     delay:SetText("{ol}" .. g.delay)
     delay:SetFontName("white_16_ol")
@@ -2304,6 +1799,19 @@ function cc_helper_frame_init()
 
         SET_SLOT_IMG(godcardslot, g.godimage)
 
+    end
+
+    local crownslot = frame:CreateOrGetControl("slot", "crownslot", 210, 190, 50, 50)
+    AUTO_CAST(crownslot)
+    crownslot:SetSkinName("invenslot2")
+    crownslot:SetText("{ol}{s12}CROWN")
+    crownslot:EnablePop(1)
+    crownslot:EnableDrag(1)
+    crownslot:EnableDrop(1)
+    crownslot:SetEventScript(ui.DROP, "cc_helper_crown_drop")
+    crownslot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
+    if g.crown_iesid ~= nil then
+        SET_SLOT_IMG(crownslot, g.crown_image);
     end
 
 end
@@ -2463,13 +1971,29 @@ end
 function cc_helper_unequip_seal()
 
     local frame = ui.GetFrame("inventory")
-
     local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     eqpTab:SelectTab(1)
-
     local seal = GET_CHILD_RECURSIVELY(frame, "SEAL")
-
     local sealicon = seal:GetIcon()
+
+    local crown = GET_CHILD_RECURSIVELY(frame, "RELIC")
+    local crown_icon = crown:GetIcon()
+
+    if crown_icon ~= nil then
+        local crown_info = crown_icon:GetInfo()
+        print(tostring(crown_info))
+        if crown_info ~= nil then
+            local crown_iesid = crown_info:GetIESID()
+            -- print(tostring(crown_iesid))
+            -- print(tostring(g.crown_iesid))
+            if crown_iesid ~= nil and tostring(crown_iesid) == tostring(g.crown_iesid) then
+                local crown_index = 29 -- スロットインデックスを適切な値に設定する必要があります
+                item.UnEquip(crown_index)
+                ReserveScript("cc_helper_unequip_seal()", g.delay)
+
+            end
+        end
+    end
     if sealicon ~= nil then
 
         local sealinfo = sealicon:GetInfo()
@@ -2688,6 +2212,15 @@ function cc_helper_inv_to_warehouse()
         local hair1_iesid = session.GetInvItemByGuid(tonumber(g.hair1_iesid));
         local hair2_iesid = session.GetInvItemByGuid(tonumber(g.hair2_iesid));
         local hair3_iesid = session.GetInvItemByGuid(tonumber(g.hair3_iesid));
+        local crown_iesid = session.GetInvItemByGuid(tonumber(g.crown_iesid));
+
+        if crown_iesid ~= nil then
+            local invTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
+            invTab:SelectTab(1)
+            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.crown_iesid, 1, nil, nil)
+            ReserveScript("cc_helper_inv_to_warehouse()", g.delay)
+            return
+        end
 
         if hair1_iesid ~= nil then
             local invTab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
@@ -2772,4 +2305,3 @@ function cc_helper_gem_inv_to_warehouse()
     cc_helper_end_of_operation()
 
 end
-
