@@ -22,6 +22,7 @@
 -- v1.2.2 レイド消化一覧機能、月曜6時のリセットに対応
 -- v1.2.3 レイド消化一覧機能が重いので、使うか選べる様に。
 -- v1.2.4 バグ修正
+-- v1.2.5 月曜日初期化処理の見直し修正。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -244,7 +245,9 @@ if not g.lorded then
 
     g.settings2 = {
         CID = {},
-        loginCID = {}
+        loginCID = {},
+        CIDmemo = {},
+        CIDcheck = {}
     }
 end
 -- indun_panel_sweep_count_get()
@@ -290,7 +293,45 @@ function indun_panel_sweep_count_get()
 end
 
 function indun_panel_raid_reset()
-    g.settings2.CID = {}
+
+    if g.settings2.CID ~= nil then
+        g.settings2.CID = {}
+    end
+    --[[local accountInfo = session.barrack.GetMyAccount();
+    local cnt = accountInfo:GetBarrackPCCount();
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i);
+        local pcName = pcInfo:GetName()
+
+        for key, value in pairs(g.settings2.CID[pcName]) do
+
+            if key == "slogutisH" then
+
+                g.settings2.CID[pcName][key][value] = 0
+            elseif key == "slogutisN" then
+                print(tostring(pcName .. ":" .. key .. ":" .. value))
+                g.settings2.CID[pcName][key][value] = 0
+            elseif key == "upinisH" then
+                g.settings2.CID[pcName][key][value] = 0
+            elseif key == "upinisN" then
+                g.settings2.CID[pcName][key][value] = 0
+            elseif key == "rozeH" then
+                g.settings2.CID[pcName][key][value] = 0
+            elseif key == "rozeN" then
+                g.settings2.CID[pcName][key][value] = 0
+            elseif key == "TurbulentH" then
+                g.settings2.CID[pcName][key][value] = 0
+            elseif key == "TurbulentN" then
+                g.settings2.CID[pcName][key][value] = 0
+            end
+
+        end
+
+    end]]
+    indun_panel_save_settings2()
+    indun_panel_load_settings2()
+    -- indun_panel_sweep_count_get()
 
 end
 
@@ -318,7 +359,7 @@ function indun_panel_raid_reset_time()
     })
 
     -- 月曜日からの経過秒数を計算
-    local secondsSinceMondayAM6 = currentTime - mondayAM6
+    local secondsSinceMondayAM6 = currentTime - g.settings.raid_reset_time
 
     print("月曜日の朝6時から現在までの経過時間（秒）: " .. secondsSinceMondayAM6)
 

@@ -52,10 +52,10 @@
 		"name" : "Market Voucher",
 		"file" : "market_voucher",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.7",
+		"fileVersion" : "v1.0.8",
 		"releaseTag" : "market_voucher",
 		"unicode" : "⛄",
-		"description" : "한국 고객에 대한 대응 생각.マーケットの販売履歴表示(シルバー受け取った時に記録) Market sales history display (recorded when silver is received) 마켓의 판매 내역 표시(실버 수령 시 기록)",
+		"description" : "マーケットの販売履歴表示(シルバー受け取った時に記録)。表示バグ修正。Market sales history display (recorded when silver received). Display bug fixed. 마켓의 판매 내역 표시(실버 수령 시 기록). 표시 버그 수정.",
 		"tags" : []
 	},
 	{

@@ -5,10 +5,11 @@
 -- v1.0.5 バグ修正。見た目修正
 -- v1.0.6 バグ修正。logtextが長すぎると、文字列が取得出来無さそう。
 -- v1.0.7 韓国語クライアントでも動く様になったハズ。知らんけど。
+-- v1.0.8 テキストを上手に格納できずに表示が追いつかずにバグってたのを修正。
 local addonName = "MARKET_VOUCHER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -145,8 +146,8 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
     market_voucher_save_settings()
     market_voucher_load_settings()
     -- table.remove(g.settings)
-    -- base["CABINET_GET_ALL_LIST"](frame, control, strarg, now)
-    CABINET_GET_ALL_LIST_OLD(frame, control, strarg, now)
+    base["CABINET_GET_ALL_LIST"](frame, control, strarg, now)
+    -- CABINET_GET_ALL_LIST_OLD(frame, control, strarg, now)
 
 end
 -- g.settings = {}
@@ -207,6 +208,116 @@ function market_voucher_init_frame()
 end
 
 function market_voucher_print(frame, ctrl, argStr, argNum)
+    local frame = ui.GetFrame("market_voucher")
+    frame:SetSkinName("downbox")
+    frame:ShowTitleBar(0);
+    frame:SetOffset(15, 175);
+    frame:Resize(1220, 770)
+    frame:EnableHitTest(1)
+    frame:SetLayerLevel(100);
+
+    local bg = frame:CreateOrGetControl("groupbox", "bg", 5, 5, 1210, 720)
+    AUTO_CAST(bg)
+    bg:SetSkinName("chat_window")
+    bg:SetTextTooltip("左クリックでフレームを閉じます。{nl}Left-click to close the frame.")
+    bg:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
+
+    local logdelete = frame:CreateOrGetControl("button", "logdelete", 1130, 730, 80, 30)
+    AUTO_CAST(logdelete)
+    logdelete:SetTextTooltip("ログを削除します。{nl}Delete logs.")
+    logdelete:SetText(market_voucher_lang("{ol}Log Delete"))
+    logdelete:SetEventScript(ui.LBUTTONUP, "market_voucher_clear")
+
+    local close = frame:CreateOrGetControl("button", "close", 1185, 5, 30, 30)
+    AUTO_CAST(close)
+    -- close:SetTextTooltip("ログを削除します。{nl}Delete logs.")
+    close:SetText("×")
+    close:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
+
+    g.sumtotal_amount = 0
+
+    local total_amount_sum_eng = 0
+
+    table.sort(g.settings, function(a, b)
+        local tokenA = StringSplit(a, '/')
+        local tokenB = StringSplit(b, '/')
+        local dateA = tokenA[1]
+        local dateB = tokenB[1]
+        -- dateA と dateB を比較して降順に並び替えるロジック
+        return dateA > dateB
+    end)
+
+    -- printTable(g.settings)
+    -- 
+    -- textview:SetText(tostring(logText))
+
+    local count = #g.settings
+
+    local startdate = ""
+    local enddate = ""
+
+    local logEntries = {} -- 新しいテーブルを用意
+    local x = 5
+    for i = 1, count do
+        local token = StringSplit(g.settings[i], '/')
+        if i == 1 then
+            local originalString = token[1]
+            local startIndex = string.find(originalString, ":") + 1 -- ":"の次の位置を取得
+            local endIndex = startIndex + 10 -- ":"の次から10文字分を取得
+            startdate = string.sub(originalString, startIndex, endIndex)
+        end
+
+        if i == #g.settings then
+            local originalString = token[1]
+            local startIndex = string.find(originalString, ":") + 1 -- ":"の次の位置を取得
+            local endIndex = startIndex + 10 -- ":"の次から10文字分を取得
+            enddate = string.sub(originalString, startIndex, endIndex)
+        end
+
+        local entry = {
+            date = "{ol}" .. token[1],
+            name = "{ol}" .. token[2],
+            item = "{ol}" .. (string.find(token[3], "?") ~= nil and string.gsub(token[3], "?", "-") or token[3]),
+            quantity = "{ol}" .. token[4],
+            show_unit_price = "{ol}" .. token[7],
+            show_total_amount = "{ol}" .. token[8]
+        }
+        table.insert(logEntries, entry) -- 新しいテーブルに要素を追加
+
+        local unit_price = token[5]
+        local total_amount = token[6]
+        g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount)
+
+        local logText = bg:CreateOrGetControl("richtext", "logtext" .. i, 1190, 20)
+
+        for _, entry in ipairs(logEntries) do
+            logText = entry.date .. " , " .. entry.name .. " , " .. entry.item .. " , " .. entry.quantity .. " , " ..
+                          entry.show_unit_price .. " , " .. entry.show_total_amount
+        end
+        local textview = bg:CreateOrGetControl("richtext", "textview" .. i, 5, x)
+        AUTO_CAST(textview)
+        textview:SetText(logText)
+        x = x + 20
+    end
+
+    local sumtotal_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 880, 740, 100, 30)
+    local roundednumber = market_voucher_round(g.sumtotal_amount / 1000000)
+
+    sumtotal_amount_text:SetText(market_voucher_lang("{ol}{#FF0000}Total Sales:") ..
+                                     GET_COMMAED_STRING(g.sumtotal_amount) .. "(" .. roundednumber .. "M)")
+    sumtotal_amount_text:ShowWindow(1)
+
+    local date_text = frame:CreateOrGetControl("richtext", "date_text", 600, 740, 100, 30)
+    date_text:SetText(market_voucher_lang("{ol}Period:") .. enddate .. "～" .. startdate)
+
+    frame:ShowWindow(1)
+    frame:RunUpdateScript("market_voucher_auto_close", 0.5);
+
+    -- textview:ShowWindow(1)
+    -- market_voucher_set_textview(textview, logText)
+end
+
+--[[function market_voucher_print(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("market_voucher")
     frame:SetSkinName("downbox")
     frame:ShowTitleBar(0);
@@ -293,11 +404,12 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
                       show_unit_price .. " , " .. show_total_amount .. "{nl}"
         textview:SetText(logText)
         g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount)
-        -- print(tostring(logText))
+        print(tostring(logText))
     end
-
+    print(tostring(logText))
     -- print(tostring(startdate))
     -- print(tostring(enddate))
+    -- market_voucher_frame_init(frame)
 
     local sumtotal_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 880, 740, 100, 30)
     local roundednumber = market_voucher_round(g.sumtotal_amount / 1000000)
@@ -314,7 +426,7 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
 
     textview:ShowWindow(1)
     -- market_voucher_set_textview(textview, logText)
-end
+end]]
 
 function market_voucher_auto_close(frame)
     local marketframe = ui.GetFrame("market_cabinet")
@@ -329,7 +441,7 @@ function market_voucher_auto_close(frame)
 
 end
 
-function printTable(table, indent)
+--[[function printTable(table, indent)
     indent = indent or 0
     for k, v in pairs(table) do
         if type(v) == "table" then
@@ -339,15 +451,15 @@ function printTable(table, indent)
             print(string.rep("  ", indent) .. k .. ": " .. tostring(v))
         end
     end
-end
+end]]
 
-function market_voucher_set_textview(textview, logText)
+--[[function market_voucher_set_textview(textview, logText)
     -- print(tostring(logText))
     textview:SetText(logText)
     textview:SetFontName("white_16_ol")
 
     textview:ShowWindow(1)
-end
+end]]
 function market_voucher_round(number)
     return math.floor(number + 0.5)
 end
