@@ -23,10 +23,11 @@
 -- v1.2.3 レイド消化一覧機能が重いので、使うか選べる様に。
 -- v1.2.4 バグ修正
 -- v1.2.5 月曜日初期化処理の見直し修正。
+-- v1.2.6 レイド消化一覧機能削除
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.4"
+local ver = "1.2.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -196,13 +197,13 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             indunpanel_minimized_pvpmine_shop_init()
 
         end
-        if g.settings.is_raid_count_checked == nil or g.settings.is_raid_count_checked == 0 then
+        --[[if g.settings.is_raid_count_checked == nil or g.settings.is_raid_count_checked == 0 then
             g.settings.is_raid_count_checked = 0
             addon:RegisterMsg('GAME_START', "indun_panel_raid_reset_time")
             addon:RegisterMsg('GAME_START_3SEC', "indun_panel_sweep_count_get")
             indun_panel_save_settings()
             -- indun_panel_load_settings()
-        end
+        end]]
 
     else
         indun_panel_autozoom_init()
@@ -1315,7 +1316,7 @@ function indun_panel_init(ipframe)
     minebtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
     minebtn:SetTextTooltip("{@st59}傭兵団のコイン商店。{nl}Mercenary Coin Shop.")
 
-    if g.settings.is_raid_count_checked == 0 then
+    --[[if g.settings.is_raid_count_checked == 0 then
         local raid_count = ipframe:CreateOrGetControl('button', 'raid_count', 230, 5, 35, 35)
         AUTO_CAST(raid_count)
         raid_count:SetSkinName("None")
@@ -1333,7 +1334,7 @@ function indun_panel_init(ipframe)
     raid_count_check:SetCheck(g.settings.is_raid_count_checked)
     raid_count_check:SetEventScript(ui.LBUTTONUP, "indun_panel_stop_raid_count")
     raid_count_check:SetTextTooltip(
-        "{@st59}チェックすると、レイド回数検索機能を全て停止します。重い場合はチェックしてください。{nl}If checked, raid count search Stops all functions. Check if heavy.")
+        "{@st59}チェックすると、レイド回数検索機能を全て停止します。重い場合はチェックしてください。{nl}If checked, raid count search Stops all functions. Check if heavy.")]]
 
     local configbtn = ipframe:CreateOrGetControl('button', 'configbtn', 315, 5, 35, 35)
     AUTO_CAST(configbtn)
@@ -2392,9 +2393,9 @@ function indun_panel_autosweep(frame, ctrl, argStr, argNum)
         ui.SysMsg("Does not have a sweeping buff")
         -- return
     end
-    if g.settings.is_raid_count_checked == 0 or nil then
+    --[[if g.settings.is_raid_count_checked == 0 or nil then
         ReserveScript("indun_panel_sweep_count_get()", 1.5)
-    end
+    end]]
 end
 
 function indun_panel_velnice_buyuse()
@@ -3285,132 +3286,4 @@ end
 function indun_panel_enter_falo_solo()
     ReqRaidSoloUIOpen(677)
     ReqMoveToIndun(1, 0)
-end
-
-function indun_panel_autosweep_falo()
-    local indun_classid = tonumber(676);
-    local fBuffID = 80017
-    local sweepcount = 0
-    sweepcount = indun_panel_sweep_count(fBuffID)
-    if sweepcount >= 1 then
-        ReqUseRaidAutoSweep(indun_classid);
-
-        return
-    else
-
-        ui.SysMsg("Does not have a sweeping buff")
-        return
-    end
-
 end]]
-
---[[function indun_panel_enter_roze_hard()
-
-    local indunType = 681
-    if g.roze_hard_flag == false then
-        INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
-        g.roze_hard_flag = true
-        ReserveScript("indun_panel_enter_roze_hard()", 0.5)
-
-    elseif g.roze_hard_flag == true then
-
-        local frame = ui.GetFrame("indunenter")
-        frame:ShwWindow(1)
-        SHOW_INDUNENTER_DIALOG(indunType, isAlreadyPlaying, enableAutoMatch, enableEnterRight, enablePartyMatch)
-        g.roze_hard_flag = false
-        -- ReqMoveToIndun(3, 1)
-        return
-    end
-end
-
-function indun_panel_enter_roze_auto()
-    ReqRaidAutoUIOpen(679)
-    local topFrame = ui.GetFrame("indunenter")
-
-    local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
-    local indunType = topFrame:GetUserValue('INDUN_TYPE');
-    local indunCls = GetClassByType('Indun', indunType);
-    local indunMinPCRank = TryGetProp(indunCls, 'PCRank')
-    local totaljobcount = session.GetPcTotalJobGrade()
-
-    if indunMinPCRank ~= nil then
-        if indunMinPCRank > totaljobcount and indunMinPCRank ~= totaljobcount then
-            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indunMinPCRank))
-            return;
-        end
-    end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
-
-end
-
-function indun_panel_enter_roze_solo()
-    ReqRaidSoloUIOpen(680)
-    ReqMoveToIndun(1, 0)
-end
-
-function indun_panel_autosweep_roze()
-    local indun_classid = tonumber(679);
-
-    local rBuffID = 80015 -- 対象のバフID
-    local sweepcount = 0
-    sweepcount = indun_panel_sweep_count(rBuffID)
-    if sweepcount >= 1 then
-        ReqUseRaidAutoSweep(indun_classid);
-
-        return
-    else
-        ui.SysMsg("Does not have a sweeping buff")
-        return
-    end
-
-end]]
-
---[[function indun_panel_enter_challenge480()
-    ReqChallengeAutoUIOpen(645)
-    ReqMoveToIndun(1, 0)
-end
-
-function indun_panel_enter_challengept()
-    ReqChallengeAutoUIOpen(646)
-    local topFrame = ui.GetFrame("indunenter")
-    -- CHAT_SYSTEM(tostring(topFrame:GetName()))
-    local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
-    local indunType = topFrame:GetUserValue('INDUN_TYPE');
-    local indunCls = GetClassByType('Indun', indunType);
-    local indunMinPCRank = TryGetProp(indunCls, 'PCRank')
-    local totaljobcount = session.GetPcTotalJobGrade()
-
-    if indunMinPCRank ~= nil then
-        if indunMinPCRank > totaljobcount and indunMinPCRank ~= totaljobcount then
-            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indunMinPCRank))
-            return;
-        end
-    end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
-
-end
-
-function indun_panel_enter_challengeexpert()
-    ReqChallengeAutoUIOpen(647)
-    local topFrame = ui.GetFrame("indunenter")
-    local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
-    local indunType = topFrame:GetUserValue('INDUN_TYPE');
-    local indunCls = GetClassByType('Indun', indunType);
-    local indunMinPCRank = TryGetProp(indunCls, 'PCRank')
-    local totaljobcount = session.GetPcTotalJobGrade()
-
-    if indunMinPCRank ~= nil then
-        if indunMinPCRank > totaljobcount and indunMinPCRank ~= totaljobcount then
-            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indunMinPCRank))
-            return;
-        end
-    end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
-
-end]]
-
---[[function indun_panel_enter_challenge460()
-    ReqChallengeAutoUIOpen(644)
-    ReqMoveToIndun(1, 0)
-end]]
-
