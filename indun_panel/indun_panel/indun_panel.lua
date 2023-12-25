@@ -348,6 +348,7 @@ function indun_panel_raid_reset_time()
         g.settings.raid_reset_time = 1702846800
 
     end
+    -- g.settings.raid_reset_time = 1702846800
     -- 月曜日の朝6時の日時を計算
     local mondayAM6 = os.time({
         year = os.date("%Y", currentTime),
@@ -367,6 +368,8 @@ function indun_panel_raid_reset_time()
     -- local nextreset = 280000
     if secondsSinceMondayAM6 > nextreset then
         g.settings.raid_reset_time = mondayAM6
+        indun_panel_save_settings()
+        indun_panel_load_settings()
         indun_panel_raid_reset()
 
     else
