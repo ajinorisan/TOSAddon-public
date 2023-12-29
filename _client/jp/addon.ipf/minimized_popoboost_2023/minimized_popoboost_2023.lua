@@ -1,30 +1,44 @@
+local POPOBOOST_DEALY_TIME = 0;
 function MINIMIZED_POPOBOOST_2023_ON_INIT(addon, frame)
 	addon:RegisterMsg('GAME_START', 'MINIMIZED_POPOBOOST_BUTTON_OPEN_CHECK');
 	addon:RegisterMsg('GAME_START', 'POPOBOOST_ALRET');
 	addon:RegisterMsg('POPOBOOST_ALREST_RESET', 'POPOBOOST_ALRET');
 end
 
+
 function MINIMIZED_POPOBOOST_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
+    if IS_POPOBOOST_END() == true then
+        frame:ShowWindow(0);
+        return;
+    end
     local pc = GetMyPCObject();
     if pc == nil then
         return ; 
     end
+
     local etc = GetMyEtcObject(pc);
     if etc == nil then
         return ;
     end
+
     local acc = GetMyAccountObj(pc);
     if acc == nil then
         return;
     end
-    local popoProp = TryGetProp(acc,"EVENT_2023_POPOBOOST","None");
+    local AccProp = GET_POPOBOOST_ACCPROP();
+    if AccProp == "None" then
+        frame:ShowWindow(0);
+        return;
+    end
+    local popoProp = TryGetProp(acc,AccProp, -1);
     if popoProp == 0 or popoProp == 2 then
         frame:ShowWindow(1);
         return ;
     end
     
-    local isParticipate = TryGetProp(etc, "popoboost_2023_participate");
-    if isParticipate == 0 then
+    local etcProp = GET_POPOBOOST_ETCPROP();
+    local isParticipate = TryGetProp(etc, etcProp, -1);
+    if isParticipate <= 0 then
         frame:ShowWindow(0);
     else
         frame:ShowWindow(1);
@@ -32,6 +46,9 @@ function MINIMIZED_POPOBOOST_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
 end
 
 function MINIMIZED_POPOBOOST_BUTTON_CLICK(parent, ctrl)
+    if IS_POPOBOOST_END() == true then
+        return;
+    end
 	local popoboost = ui.GetFrame('popoboost');
     popoboost:ShowWindow(1);
 end

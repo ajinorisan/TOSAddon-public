@@ -1033,9 +1033,13 @@ function OPEN_TRADE_SELECT_ITEM_STIRNG_SPLIT(invItem)
 
 	for i = 1, index do
 		local itemName = TryGetProp(cls, "SelectItemClsMsg_"..i)
-		
+		local conditionfunction = nil;
+		if itemobj.StringArg2 == "popo_special_box" then
+			conditionfunction = SET_SELECT_CONDITION_POPOBOOST
+		end
+
 		if itemName ~= 'None' and itemName ~= nil then
-			y = TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, i, itemName, itemobj.ClassName);	
+			y = TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, i, itemName, itemobj.ClassName, conditionfunction);	
 			y = y + 5
 		end
 	end
@@ -1142,6 +1146,30 @@ function REQUEST_TRADE_SELECT_ITEM_STIRNG_SPLIT(frame, ctrl, argStr, argNum)
 
 	frame = frame:GetTopParentFrame();
 	frame:ShowWindow(0);
+end
+
+function SET_SELECT_CONDITION_POPOBOOST(index)
+	local job = info.GetJob(session.GetMyHandle());
+    local etc = GetMyEtcObject();
+    if etc.RepresentationClassID ~= 'None' then
+        local repreJobCls = GetClassByType('Job', etc.RepresentationClassID);
+        if repreJobCls ~= nil then
+            job = repreJobCls.ClassID;
+        end
+    end
+
+	local jobList = {'Char1', 'Char2', 'Char3', 'Char4', 'Char5'}
+
+    local gender = info.GetGender(session.GetMyHandle());
+    local jobCls = GetClassByType("Job", job);
+	local jobClassName = TryGetProp(jobCls, "ClassName");
+	if string.find(jobClassName, jobList[index]) ~= nil then
+		return false;
+	else
+		return true;
+	end
+
+	return true;
 end
 
 function REQUEST_TRADE_ITEM_STRING_SPLIT_WARNINGYES(argStr)

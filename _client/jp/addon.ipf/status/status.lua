@@ -176,6 +176,7 @@ function TOKEN_ON_MSG(frame, msg, argStr, argNum)
     STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 11, "{img teamcabinet_image %d %d}","TeamWarehouseEnable");
     STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 12, "{img worldmaptoken_image %d %d}","CanUseWorldMapToken");
 
+
 --    local ctrlSet = tokenList:CreateControlSet("tokenDetail", "CTRLSET_" .. 12, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
 --    local prop = ctrlSet:GetChild("prop");
 --    local imag = string.format("{img 1plus_image %d %d}", 55, 45)
@@ -1430,7 +1431,7 @@ function STATUS_HIDDEN_JOB_UNLOCK_VIEW(pc, opc, frame, gboxctrl, y)
                     y = y + 25
                 end
                 
-                if UQ_GET_JOB_SETTING_JOB(jobIES.ClassName) ~= nil then
+                if UQ_GET_JOB_SETTING_JOB(jobIES.ClassName) ~= nil or jobIES.SpecialJob =="YES" then
                     if aObj["UnlockQuest_" .. jobIES.ClassName] ~= nil then
                         if flag == true and((aObj["UnlockQuest_" .. jobIES.ClassName] == 1 and jobIES.PreFunction ~= 'None' ) or IS_KOR_TEST_SERVER()) then
                             local hidden_job = gboxctrl:CreateControl('richtext', 'HIDDEN_JOB_' .. jobIES.ClassName, 10, y, 100, 25);
@@ -2388,7 +2389,7 @@ function STATUS_ACHIEVE_INIT()
 			local itemString = string.format("{@st42b}%s{/}", cls.Name);
 			useableTitleList:AddItem(i, itemString);
 			myAchieveCount = myAchieveCount + 1;
-			if cls.PeriodAchieve ~= "YES" then
+			if TryGetProp(cls, 'PeriodAchieve', 'None') ~= "YES" then
 				myAchieveCount_ExceptPeriod = myAchieveCount_ExceptPeriod + 1
 			end
         end
@@ -2992,6 +2993,7 @@ end
 function HUD_SKIN_INIT(frame)
     if frame == nil then return; end
     local list_hud_skin = GET_CHILD_RECURSIVELY(frame, "list_hud_skin", "ui::CDropList");
+    local selectItemIndex = 0;
     if list_hud_skin ~= nil then
         list_hud_skin:EnableHitTest(1);
         list_hud_skin:ClearItems();
@@ -3001,43 +3003,43 @@ function HUD_SKIN_INIT(frame)
         list_hud_skin:AddItem(item_index, default_text, -1);
         item_index = item_index + 1;
         -- skin item
-        local count = hud_skin.GetHudGradeCount();        
+        local count = hud_skin.GetHudGradeCount(); 
+        local select_grade_name = hud_skin.GetSelectHudGradeName();
         for i = 0, count - 1 do
             local grade_name = hud_skin.GetHudGradeNameByIndex(i);
             if grade_name ~= "" and grade_name ~= "None" then
                 local msg = ClMsg(grade_name);
                 list_hud_skin:AddItem(item_index, msg, i);
+                if select_grade_name ~= "None" then
+                    if select_grade_name == grade_name then
+                        list_hud_skin:SelectItem(item_index - 1);   
+                        selectItemIndex = i;          
+                    end
+                end
                 item_index = item_index + 1;
             end
         end
         -- select skin
-        local select_grade_name = hud_skin.GetSelectHudGradeName();
-        if select_grade_name ~= "None" then
-            local index = list_hud_skin:GetSelItemKey();
-            if index ~= "None" then
-                list_hud_skin:SelectItem(index);                
-            end
-            HUD_SKIN_APPLY(frame, nil, select_grade_name, nil);
-        end
+        HUD_SKIN_APPLY(frame, nil, select_grade_name, selectItemIndex);
     end
 end
 
 -- select
 function SELECT_HUD_SKIN(frame)
-    if frame == nil then return; end
+if frame == nil then return; end
     local list_hud_skin = GET_CHILD_RECURSIVELY(frame, "list_hud_skin");
     if list_hud_skin ~= nil then
         local item_value = list_hud_skin:GetSelItemValue();
         if item_value < 0 then
             -- 스킨 제거.
-            HUD_SKIN_APPLY(frame, nil, "Default", nil)    
+            HUD_SKIN_APPLY(frame, nil, "Default", 0)    
             addon.BroadMsg("HUD_SKIN_APPLY","Default",0);
  
         elseif item_value >= 0 then
             -- 등급별 스킨 적용.
             local grade_name = hud_skin.GetHudGradeNameByIndex(item_value);
-            HUD_SKIN_APPLY(frame, nil, grade_name, nil);
-            addon.BroadMsg("HUD_SKIN_APPLY", grade_name,0);
+            HUD_SKIN_APPLY(frame, nil, grade_name, item_value);
+            addon.BroadMsg("HUD_SKIN_APPLY", item_value, 0);
         end
         addon.BroadMsg("STAT_UPDATE", "",0);
 
@@ -3047,10 +3049,14 @@ end
 -- apply
 function HUD_SKIN_APPLY(frame, msg, arg_str, arg_num)
     if frame == nil or arg_str == nil then return; end
+    if arg_num == nil then
+        return;
+    end
     local grade_name = arg_str;
     if grade_name ~= "" and grade_name ~= "None" then
-        hud_skin.ApplyHudSkin(grade_name);
+        hud_skin.ApplyHudSkin(arg_num);
     end
+    HUD_SKIN_TIME_INFO_UPDATE(frame, arg_num)
 end
 
 function STATUS_RESET_LBTN(parent,self)
@@ -3062,4 +3068,48 @@ end
 
 function STATUS_RESET_EXEC()
     pc.ReqExecuteTx_Item("SCR_USE_STAT_RESET", '0', '')
+end
+
+function HUD_SKIN_TIME_INFO_UPDATE(frame, index)
+    local hudskin_slot = GET_CHILD_RECURSIVELY(frame, "hudskin_slot", "ui::CSlot");
+
+    if hudskin_slot ~= nil then
+        hudskin_slot:ClearIcon();
+        hudskin_slot:SetFrontImage('None');
+
+        local HUD_SKIN_Cls = GetClassByIndex('hud_skin_list', index);
+        local iconName = TryGetProp(HUD_SKIN_Cls, "IconName", "None")
+        local AccProp = TryGetProp(HUD_SKIN_Cls, "AccountProperty", "None");
+        if iconName ~= "None" then
+
+            hudskin_slot:EnableHitTest(1);
+            SET_SLOT_ICON(hudskin_slot, iconName);
+            local icon = hudskin_slot:GetIcon();
+            local pc = GetMyPCObject();
+            if pc == nil then
+                return;
+            end
+            local acc = GetMyAccountObj(pc);
+            if acc == nil then
+                return;
+            end
+            if acc ~= nil then
+                local SkinDate = TryGetProp(acc, AccProp, "None");
+                if SkinDate ~= nil and SkinDate ~= "None" then
+
+                    local sysTime = geTime.GetServerSystemTime();
+                    local endTime = imcTime.GetSysTimeByStr(SkinDate);
+                    local difSec = imcTime.GetDifSec(endTime, sysTime);
+
+                    hudskin_slot:SetFrontImage('clock_inven');
+                    icon:SetDrawLifeTimeText(0);
+                    icon:SetUserValue("REMAINSEC", difSec);
+                    icon:SetUserValue("STARTSEC", imcTime.GetAppTime());
+                    icon:SetDrawLifeTimeText(1);
+                    icon:SetOnLifeTimeUpdateScp('ICON_UPDATE_CHATBALLOON_REMAIN_LIFETIME');                   
+                end
+            end
+        end
+    end
+
 end

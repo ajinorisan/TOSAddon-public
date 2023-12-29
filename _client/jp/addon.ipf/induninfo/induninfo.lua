@@ -406,13 +406,15 @@ function INDUNINFO_CREATE_CATEGORY(frame, selectIndun, first)
 
         local dungeonType = TryGetProp(cls, "DungeonType", "None")
         local selectCls = GetClass("Indun", selectIndun)
-
+        local dungeonClassName = TryGetProp(cls, "ClassName", "None")
         if selectIndun == dungeonType then -- MythicDungeon_Auto  이 경우는 이것밖에 없음
             firstBtn = btn;
         elseif selectIndun ~= nil then
             if TryGetProp(selectCls, "GroupID", "None") == TryGetProp(cls, "GroupID", "None") then
                 firstBtn = btn
             end
+        elseif selectIndun == dungeonClassName then
+            firstBtn = btn;
         end
     end
     local isFavorite = function(groupID)

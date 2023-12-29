@@ -5,7 +5,6 @@ function CLIENT_ENCHANTCHIP(invItem)
 	if nil == mapCls then
 		return;
 	end
-
 	if 'City' ~= mapCls.MapType then
 		ui.SysMsg(ClMsg("AllowedInTown"));
 		return;
@@ -27,9 +26,17 @@ function CLIENT_ENCHANTCHIP(invItem)
 	end
 
 	HAIRENCHANT_UI_RESET();
+	HIGH_HAIRENCHANT_UI_RESET();
+	
+	local grade = shared_enchant_special_option.get_enchant_item_grade(obj);
 	local itemHaveCount = GET_INV_ITEM_COUNT_BY_CLASSID(obj.ClassID);
 
-	local enchantFrame = ui.GetFrame("hairenchant");
+	local enchantFrame = nil ; 
+	if grade == "None" then
+		enchantFrame = ui.GetFrame("hairenchant");;
+	else
+		enchantFrame = ui.GetFrame("high_hairenchant");;
+	end
 	local invframe = ui.GetFrame("inventory");
 	invframe:ShowWindow(1);
 	enchantFrame:ShowWindow(1);
@@ -61,6 +68,13 @@ function CLIENT_ENCHANTCHIP(invItem)
 		local text1 = GET_CHILD_RECURSIVELY(enchantFrame, "richtext_1")
 		tolua.cast(text1, "ui::CRichText");
 		text1:SetText(obj.Name);
+		if text1:GetWidth() < text1:GetTextWidth() then
+			text1:EnableSlideShow(1)
+			text1:SetCompareTextWidthBySlideShow(true);
+		else
+			text1:EnableSlideShow(0)
+			text1:SetCompareTextWidthBySlideShow(false);
+		end
 
 		-- 마법 부여 스크롤(거래불가) 부분 처리
 		local bg = GET_CHILD_RECURSIVELY(enchantFrame, "bg");
@@ -118,7 +132,11 @@ function CLIENT_ENCHANTCHIP(invItem)
 
 	ui.GuideMsg("DropItemPlz");
 	CHANGE_MOUSE_CURSOR("MORU", "MORU_UP", "CURSOR_CHECK_ENCHANTCHIP");
-	INVENTORY_SET_CUSTOM_RBTNDOWN("ENCHANTCHIP_INV_RBTN");
+	if grade == "None" then
+		INVENTORY_SET_CUSTOM_RBTNDOWN("ENCHANTCHIP_INV_RBTN");
+	else
+		INVENTORY_SET_CUSTOM_RBTNDOWN("HIGH_ENCHANTCHIP_INV_RBTN");
+	end
 end
 
 
@@ -168,7 +186,7 @@ end
 
 function ENCHANTCHIP_INV_RBTN(itemObj, slot)
 	local enchantFrame = ui.GetFrame("hairenchant");
-
+	
 	local icon = slot:GetIcon();
 	local iconInfo = icon:GetInfo();
 	local invItem = GET_PC_ITEM_BY_GUID(iconInfo:GetIESID());
@@ -177,4 +195,19 @@ function ENCHANTCHIP_INV_RBTN(itemObj, slot)
 	enchantslot = tolua.cast(enchantslot, 'ui::CSlot');
 
 	HAIRENCHANT_DRAW_HIRE_ITEM(enchantslot, invItem);
+end
+
+function HIGH_ENCHANTCHIP_INV_RBTN(itemObj, slot)
+	local enchantFrame = ui.GetFrame("high_hairenchant");
+
+	local icon = slot:GetIcon();
+	local iconInfo = icon:GetInfo();
+	local invItem = GET_PC_ITEM_BY_GUID(iconInfo:GetIESID());
+
+	local bg = GET_CHILD(enchantFrame, "bg");
+	local gbox = GET_CHILD(bg, "gbox");
+	local pic_bg = GET_CHILD(gbox, "pic_bg");
+	local enchantslot = GET_CHILD(pic_bg, "slot");
+	enchantslot = tolua.cast(enchantslot, 'ui::CSlot');
+	HIGH_HAIRENCHANT_DRAW_HIRE_ITEM(enchantslot, invItem);
 end

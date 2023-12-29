@@ -15,10 +15,24 @@ end
 
 
 
+--이번 시즌에 해당하는 프로그래스를 넘긴다.
 local function POPOBOOSET_GET_PROGRESS_INFORMATION(index)
     local list, cnt = GetClassList("popoboost_inforamation");
-	local cls = GetClassByIndexFromList(list,index);
-    return cls;
+    local AccountProp = GET_POPOBOOST_ACCPROP();
+    local count = 0;
+    for i = 0, cnt - 1 do
+        local cls = GetClassByIndexFromList(list,i);
+        if cls ~= nil then
+            local seasonprop = TryGetProp(cls, "SeasonProperty", "None")
+            if seasonprop == AccountProp then
+                if count == index then
+                    return cls;
+                end
+                count = count + 1;
+            end
+        end
+    end
+    return nil;
 end
 
 local function POPOBOOST_GET_REWARD_INFO(pc, index)
@@ -52,9 +66,11 @@ local function POPOBOOST_CHECK_EVENT_PARTICIPATE()
     if etc == nil then
         return false;
     end
-    
-    local participate = TryGetProp(aobj, 'EVENT_2023_POPOBOOST');
-    local isParticipatePC = TryGetProp(etc, "popoboost_2023_participate");    
+    local AccProp = GET_CURRENT_SEASCON_POPOBOST_INFO();
+    local participate = TryGetProp(aobj, AccProp, 0);
+
+    local etcProp = GET_POPOBOOST_ETCPROP();
+    local isParticipatePC = TryGetProp(etc, etcProp, 0);    
     --pc_etc에서 참가 캐릭터인지도 체크를 해줘야한다.
     if (participate == 1 or participate == 3) and isParticipatePC == 1 then
         return true;
@@ -64,7 +80,7 @@ end
 
 
 local function POPOBOOST_GET_PROGRESS()
-    return currentIndex;
+    return tonumber(currentIndex);
 end
 
 local function POPOBOOST_IS_PREMIUM()
@@ -76,7 +92,9 @@ local function POPOBOOST_IS_PREMIUM()
     if aobj == nil then
         return false;
     end
-    local premium = TryGetProp(aobj, 'EVENT_2023_POPOBOOST');
+    local AccProp = GET_POPOBOOST_ACCPROP();
+
+    local premium = TryGetProp(aobj, AccProp, 0);
     if premium >= 2 then
         return true;
     end
@@ -94,7 +112,8 @@ local function POPOBOOST_CHECK_PARTICIPATE(frame, pc)
     if acc == nil then
         return;
     end
-    local popoProp = TryGetProp(acc,"EVENT_2023_POPOBOOST","None");
+    local AccProp = GET_POPOBOOST_ACCPROP();
+    local popoProp = TryGetProp(acc, AccProp, "None");
 
     if popoProp == 0 or popoProp == 2 then
         previewBox:ShowWindow(1);
@@ -182,13 +201,13 @@ local function POPOBOOST_SET_GUIDE_TEXT(frame)
 end
 
 local function POPOBOOST_SET_PREMIUM_BOX(frame)
-    local premiumRewardUnActive = GET_CHILD_RECURSIVELY(frame,"premiumRewardUnActive");
+    local RewardGBox = GET_CHILD_RECURSIVELY(frame,"RewardGBox");
+    local premiumRewardUnActive = GET_CHILD_RECURSIVELY(RewardGBox,"premiumRewardUnActive");
     if premiumRewardUnActive == nil then
         return ;
     end
 
     local isPremium = POPOBOOST_IS_PREMIUM();
-
     if isPremium == true then
         premiumRewardUnActive:ShowWindow(0);
     else
@@ -234,8 +253,11 @@ local function POPOBOOST_GEARSCORE_BTN_SET(frame)
         gearscoreBtn:SetEventScript(ui.LBUTTONUP,"POPOBOOST_REWARD_CHANGE_BY_GEARSCORE");
 		gearscoreBtn:SetEventScriptArgNumber(ui.LBUTTONUP, i);
 
-
-        local propName = string.format("POPOBOOST_PROGRESS%d",i)
+        local ProgressProp = GET_POPOBOOST_PROGRESPROP();
+        if ProgressProp == "None" then
+            return;
+        end
+        local propName = string.format("%s%d",ProgressProp,i)
         local progress = TryGetProp(acc,propName,-2);
         local isPremium = POPOBOOST_IS_PREMIUM();
 
@@ -271,7 +293,7 @@ local function POPOBOOST_IS_OVER_GEARSCORE()
     local rewardClass = POPOBOOSET_GET_PROGRESS_INFORMATION(Progress);
     local gearscore = POPOBOOST_GET_MAX_GEARSCORE(pc);
     local destScore = TryGetProp(rewardClass,"RewardScore","30000");
-    if gearscore >= destScore then
+    if tonumber(gearscore) >= tonumber(destScore) then
         return true;
     end
     return false;
@@ -324,8 +346,8 @@ local function POPOBOOST_SET_BANNER(frame)
 			local showtype = TryGetProp(banner, "ShowType", "None");
 
             local start_date_time = TryGetProp(bannerCls, 'StartDateTime', 'None')
-            local end_date_time = TryGetProp(bannerCls, 'EndDateTime', 'None')
             
+            local end_date_time = TryGetProp(bannerCls, 'EndDateTime', 'None')
             local start_ret_time = nil
             local end_ret_time = nil
             if start_date_time ~= 'None' and end_date_time ~= 'None' then
@@ -349,12 +371,10 @@ local function POPOBOOST_SET_BANNER(frame)
                     local ImagePath = TryGetProp(bannerCls, 'ImagePath', 'None');
                     bannerImg:SetImage(ImagePath);
                 end
-
             end
         end
     end
 end
-
 
 -------- main function
 
@@ -389,6 +409,7 @@ function OPEN_POPOBOOST()
     --서버에서 가져와야하는거 아닌가??
 
     POPOBOOST_RESET_ITEM_REWARD(frame)
+    --POPO_GUIDE_QUEST_RED_DOT(frame)
 end
 
 ----- 기어스코어 게이지 업데이트
@@ -482,15 +503,16 @@ function POPOBOOST_EVENT_START(frame,arg,arg1,arg2)
     if acc == nil then
         return;
     end
-    local popoProp = TryGetProp(acc,"EVENT_2023_POPOBOOST","None");
+    local AccProp = GET_POPOBOOST_ACCPROP();
+    local popoProp = TryGetProp(acc,AccProp,"None");
 
     local tx = TxBegin(pc)
     if tx == nil then return end
 
     if popoProp == 2 then
-        TxSetIESProp(tx, acc, "EVENT_2023_POPOBOOST", 3)
+        TxSetIESProp(tx, acc, AccProp, 3)
     else
-        TxSetIESProp(tx, acc, "EVENT_2023_POPOBOOST", 1)
+        TxSetIESProp(tx, acc, AccProp, 1)
     end
     
     local ret = TxCommit(tx)
@@ -549,7 +571,11 @@ function POPOBOOST_SET_REWARD(frame, name)
     rewardBG:RemoveAllChild();
 
     local index = POPOBOOST_GET_PROGRESS();
-    local propName = string.format("POPOBOOST_PROGRESS%d", index);
+    local ProgressProp = GET_POPOBOOST_PROGRESPROP();
+    if ProgressProp == "None" then
+        return;
+    end
+    local propName = string.format("%s%d", ProgressProp,index);
     local progress = TryGetProp(acc,propName,-2);
     local isRecieve = false;
     if name == "normalReward" and (progress == 1 or progress == 3)then
@@ -563,7 +589,6 @@ function POPOBOOST_SET_REWARD(frame, name)
         local targetItem = GetClass("Item", k);
         local ctrlName = string.format("%sset%d",name,value);
         local rewards = rewardBG:CreateOrGetControlSet('popoboost_reward',ctrlName, i * offsetX + offset, j * offsetY + defaultOffset);
-
         POPOBOOST_SET_REWARD_ICON(frame,rewards,targetItem,targetItem.Icon,v,isRecieve)
         i = i + 1;
         if i == maxitem then
@@ -629,9 +654,8 @@ function POPOBOOST_OPEN_INDUN_SHORTCUT(frame,msg,argStr,argNum)
     local ShortcutParam = TryGetProp(popo_info_cls,"ShortcutParam", 0);
 
     local script = _G[ShortcutScriptName];
-
     if progress == 0 then
-        script(nil,nil,nil,ShortcutParam);
+        --script(nil,nil,nil,ShortcutParam);
     else
         script(ShortcutParam,0,1,1,0)
     end
@@ -651,6 +675,19 @@ end
 
 --popoboost premium state apply  item  use
 function POPOBOOST_PREMIUM_APPLY_ITEM_CLEINT_SCRIPT(invItem)
+    local popobannerlist, cnt = GetClassList("popoboost_banner");
+    if popobannerlist == nil then
+        return;
+    end
+    if IS_POPOBOOST_END() == true then
+        --기간이 지났을 경우 아이템 수령 로직.
+        local itemIES = invItem:GetIESID();
+        local itemobj = GetIES(invItem:GetObject());
+        local className = itemobj.ClassName;
+        pc.ReqExecuteTx_Item("POPOBOOST_PREMIUN_APPLY",itemIES, className);
+        return;
+    end
+
     local itemIES = invItem:GetIESID();
     local itemobj = GetIES(invItem:GetObject());
     local className = itemobj.ClassName;
@@ -679,7 +716,11 @@ function GET_POPOBOOST_MINIMIZED_HIGHLIGHT()
         local rewardClass = POPOBOOSET_GET_PROGRESS_INFORMATION(i);
         local score = TryGetProp(rewardClass,"RewardScore", 300000);
 
-        local propName = string.format("POPOBOOST_PROGRESS%d",i)
+        local ProgressProp = GET_POPOBOOST_PROGRESPROP();
+        if ProgressProp == "None" then
+            return IsMinimizeHighlight;
+        end    
+        local propName = string.format("%s%d",ProgressProp,i)
         local progress = TryGetProp(acc,propName,-2);
         local isPremium = POPOBOOST_IS_PREMIUM();
         if gearscore >= score then
@@ -696,4 +737,25 @@ function GET_POPOBOOST_MINIMIZED_HIGHLIGHT()
         end
     end
     return IsMinimizeHighlight;
+end
+
+function POPO_GUIDE_QUEST_OPEN(parent, ctrl, argStr, argNum)
+    ON_POPOBOOST_EVENT_STAMP_TOUR_UI_OPEN_COMMAND();
+    local frame = ui.GetFrame('popoboost');
+    if frame ~= nil then
+        frame:ShowWindow(0)
+    end
+end
+
+function POPO_GUIDE_QUEST_RED_DOT(frame)
+	local point = EVENT_STAMP_GET_RECEIVABLE_REWARD_COUNT_POPOBOOST(GetMyAccountObj())
+
+	local notice = GET_CHILD_RECURSIVELY(frame, 'notice_bg')    
+
+	if point > 0 then
+		notice:ShowWindow(1)
+        -- SYSMENU_NOTICE_TEXT_RESIZE(notice, point)
+	elseif point == 0 then
+		notice:ShowWindow(0)
+	end
 end

@@ -9,7 +9,8 @@
 	<script OpenScp="WEEKLYBOSSREWARD_OPEN" CloseScp="WEEKLYBOSSREWARD_CLOSE"/>
 	<userconfig RANK_FORMAT_1="{@st43}{s18}%s위" RANK_FORMAT_2="{@st43}{s18}%s위 ~ %s위" ABSOLUTED_FORMAT="{@st43}{s18}%s" OFFSET_SMALL="5" OFFSET_MIDDLE="10"/>
 	<controls>
-		<richtext name="title_text" rect="0 0 120 22" margin="0 29 0 0" layout_gravity="center top" caption="{@st43}{s22}보상 목록" fontname="white_20_ol_ds"/>
+		<richtext name="title_text" rect="0 0 120 22" margin="0 24 0 0" layout_gravity="center top" caption="{@st43}{s22}보상 목록" fontname="white_20_ol_ds"/>
+		<richtext name="warning" rect="0 0 120 22" margin="0 50 0 0" layout_gravity="center top" caption="{@st43}{#FF0000}{s15}※스킨은 지난주차 보상에서만 획득할 수 있습니다." />
 		<button name="closeBtn" rect="0 0 50 50" margin="0 22 20 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;weeklyboss_reward&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
 		<labelline name="labelline" rect="0 0 448 2" margin="0 68 0 0" layout_gravity="center top" skin="labelline_def_2"/>
 		<groupbox name="rewardgb" rect="0 0 458 570" margin="0 80 0 0" layout_gravity="center top" skin="test_frame_midle" draw="true" hittestbox="false"/>

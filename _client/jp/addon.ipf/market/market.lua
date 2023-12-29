@@ -700,7 +700,18 @@ function MARKET_DRAW_CTRLSET_EQUIP(frame, isShowSocket)
 			local propName = "HatPropName_"..i;
 			local propValue = "HatPropValue_"..i;
 			if itemObj[propValue] ~= 0 and itemObj[propName] ~= "None" then
-				local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(itemObj[propName]));
+				local opName
+				if string.find(itemObj[propName], 'ALLSKILL_') == nil then
+					opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(itemObj[propName]));
+				else
+					local token = StringSplit(itemObj[propName], '_')
+					local job = token[2]
+					if job == 'ShadowMancer' then
+						job = 'Shadowmancer'
+					end
+					opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(job) .. ' ' ..  ScpArgMsg('skill_lv_up_by_count') );					
+				end
+
 				local strInfo = ABILITY_DESC_PLUS(opName, itemObj[propValue]);
 				SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
 			end
@@ -1127,6 +1138,16 @@ function MARKET_DRAW_CTRLSET_ACCESSORY(frame)
 			local propValue = "HatPropValue_"..j;
 			if itemObj[propValue] ~= 0 and itemObj[propName] ~= "None" then
 				enchantOption = ScpArgMsg(itemObj[propName]);
+
+				if string.find(itemObj[propName], 'ALLSKILL_') ~= nil then
+					local job = StringSplit(itemObj[propName], '_')[2]
+					if job == 'ShadowMancer' then
+						job = 'Shadowmancer'
+					end
+					enchantOption = ScpArgMsg(job) .. ' ' .. ScpArgMsg('skill_lv_up_by_count')
+				end
+
+
 				if j == 1 then
 					strInfo = strInfo .. ABILITY_DESC_PLUS(enchantOption, itemObj[propValue]);
 				else
@@ -1593,7 +1614,16 @@ function MARKET_DRAW_CTRLSET_OPTMISC(frame)
 				local propName = "HatPropName_"..i;
 				local propValue = "HatPropValue_"..i;
 				if itemObj[propValue] ~= 0 and itemObj[propName] ~= "None" then
-					local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(itemObj[propName]));
+					local opName
+					if string.find(itemObj[propName], 'ALLSKILL_') == nil then
+						opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(itemObj[propName]));
+					else
+						local job = StringSplit(itemObj[propName], '_')[2]
+						if job == 'ShadowMancer' then
+							job = 'Shadowmancer'
+						end
+						opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(job) .. ' ' .. ScpArgMsg('skill_lv_up_by_count'));
+					end
 					local strInfo = ABILITY_DESC_PLUS(opName, itemObj[propValue]);
 					SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
 				end

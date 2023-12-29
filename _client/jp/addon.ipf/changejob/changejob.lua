@@ -605,6 +605,7 @@ function UPDATE_CHANGEJOB(frame)
 	local BUTTON_IMG_HIDDEN_JOB = frame:GetUserConfig('BUTTON_IMG_HIDDEN_JOB');
 	local BUTTON_IMG_DEFAULT = frame:GetUserConfig('BUTTON_IMG_DEFAULT');
 	local BUTTON_IMG_HAD_HIDDEN_JOB = frame:GetUserConfig('BUTTON_IMG_HAD_HIDDEN_JOB');
+	local BUTTON_IMG_SPECIAL_JOB = frame:GetUserConfig('BUTTON_IMG_SPECIAL_JOB');
 
 	local groupbox_sub_newjob = groupbox_main:CreateOrGetControlSet('groupbox_sub', 'groupbox_sub_newjob', 0, 0);
 	local cjobGbox = GET_CHILD(groupbox_sub_newjob, 'changeJobGbox');
@@ -618,7 +619,6 @@ function UPDATE_CHANGEJOB(frame)
 	local labelline = GET_CHILD_RECURSIVELY(frame, 'labelline');
 	labelline:SetGravity(ui.LEFT, ui.TOP);
 	labelline:SetOffset(30, changeJob_richtext:GetHeight() + 18);
-
 	local totalHeight = 0;
 	for i = 1, #jobInfos do
 		local info = jobInfos[i];
@@ -629,12 +629,13 @@ function UPDATE_CHANGEJOB(frame)
 		local jobCls = GetClassByType('Job', info.JobClassID);
 		local subClassCtrl = cjobGbox:CreateOrGetControlSet('jobinfo', 'JOB_INFO_'..jobCls.ClassName , x, y);
 		local button = GET_CHILD(subClassCtrl, "button");
-		
 		if info.IsHave == true then
 		    local preFuncName = TryGetProp(jobCls, 'PreFunction', 'None')
 			if jobCls.HiddenJob == 'YES' and preFuncName ~= 'None' then
 				local jobname = TryGetProp(jobCls, 'JobName', 'None')
 				if jobname == 'Appraiser' or jobname == 'NakMuay' or jobname == 'Shinobi' or jobname == 'Miko' or name == 'RuneCaster' then
+					button:SetImage(BUTTON_IMG_HAD_HIDDEN_JOB);
+				elseif jobCls.SpecialJob == 'YES' then
 					button:SetImage(BUTTON_IMG_HAD_HIDDEN_JOB);
 				else
 					button:SetImage(BUTTON_IMG_HAVE_JOB);
@@ -644,6 +645,8 @@ function UPDATE_CHANGEJOB(frame)
 			end
 		elseif info.IsSatisfiedHiddenQuest == false then
 			button:SetImage(BUTTON_IMG_HIDDEN_JOB);
+		elseif jobCls.SpecialJob == 'YES' then
+			button:SetImage(BUTTON_IMG_SPECIAL_JOB);
 		else
 			button:SetImage(BUTTON_IMG_DEFAULT);
 		end

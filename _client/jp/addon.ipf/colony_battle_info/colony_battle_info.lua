@@ -557,6 +557,9 @@ function COLONY_BATTLE_BUILD_ICON_UPDATE()
         local buildingCountValue = GET_CHILD_RECURSIVELY(colonyFrame, buildingCountValueName)
 
         local colonyRuleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_Default')
+        if config.GetServiceNation() == 'PAPAYA' then
+            colonyRuleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
         local maxCountProp = 'GuildColony_' .. viewBuildGroupList[i] .. '_Object_MaxCount'
         local maxCount = colonyRuleCls[maxCountProp]
 

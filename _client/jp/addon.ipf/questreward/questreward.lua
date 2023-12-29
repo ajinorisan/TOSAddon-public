@@ -17,7 +17,6 @@ function QUESTREWARD_ON_INIT(addon, frame)
 end
 
 function QUESTREWARD_ON_MSG(frame, msg, argStr, argNum)
-
 	if  msg == 'QUESTREWARD_LEFT' or msg == 'QUESTREWARD_RIGHT' then
 		if QUESTREWARD_SELECT == 0 then
 			QUESTREWARD_SELECT = 1;
@@ -1072,7 +1071,7 @@ function CREATE_QUEST_REWARE_CTRL_DIFF_COUNT(box, y, index, ItemName, itemCnt, N
 end
 
 
-function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectitemClassName)
+function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectitemClassName, conditionfunction)
 
 	local isOddCol = 0;
 	if math.floor((index - 1) % 2) == 1 then
@@ -1093,6 +1092,7 @@ function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectite
 	if callFunc == 'DIALOGSELECT_QUEST_REWARD_ADD' then
 	ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
 	end
+
 
 	local itemCls = ClMsg(ItemName)
 	local slot = ctrlSet:GetChild("slot");
@@ -1116,6 +1116,14 @@ function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectite
 	
 	ctrlSet:Resize(box:GetWidth() - 30, ctrlSet:GetHeight());
 
+	if conditionfunction ~= nil then
+		local disable_shadow = ctrlSet:GetChild("disable_shadow");
+		disable_shadow = tolua.cast(disable_shadow, 'ui::CGroupBox');	
+		if conditionfunction(index) == true then
+			disable_shadow:EnableDrawFrame(1)
+			ctrlSet:SetEnableSelect(0)
+		end
+	end
 	y = y + ctrlSet:GetHeight();
 	return y;
 
@@ -1185,7 +1193,7 @@ function ON_QUEST_ITEM_SELECT(frame, msg, str, num)
 	local expamount = cls.ExpAmount;
 	
     local pc = GetMyPCObject();
-    
+
 	if pc.Lv < PC_MAX_LEVEL and expamount > 0 then
 		local fixexp  = math.floor(expamount * ( 100 + obj.Step24 ) / 100);
 		y = BOX_CREATE_RICHTEXT(box, "t_successExp", y, 20, ScpArgMsg("Auto_{@st41}KyeongHeomChi_:_") .."{s20}{ol}{#FFFF00}"..  fixexp.."{/}");

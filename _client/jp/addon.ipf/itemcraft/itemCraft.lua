@@ -1968,6 +1968,8 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
 	elseif itemName == 'Event_2304_ARBOR_DAY_coin' then --?대깽??肄붿씤??
 		CRAFT_ITEM_ALL(itemSet, btn)
 		return;
+	elseif itemName == "Piece_Of_Memory_Snigo" then
+		CRAFT_ITEM_ALL(itemSet, btn)
 	end
 
     if propName == nil then

@@ -196,7 +196,11 @@ function REROLL_ITEM_MAKE_SELECT_LIST(frame, item_obj, reroll_index, reroll_str)
 			local prop_name = 'RandomOption_' .. i
 			local prop_value = 'RandomOptionValue_' .. i
 
-			local ret = shared_item_goddess_icor.is_able_to_reroll(item_obj, i)			
+			local ret = true
+			if TryGetProp(item_obj, 'GroupName', 'None') == 'Icor' then
+				ret = shared_item_goddess_icor.is_able_to_reroll(item_obj, i)		
+			end			
+
 			if ret == true and item_obj[prop_value] ~= 0 and item_obj[prop_name] ~= 'None' then				
 				_MAKE_REROLL_OPTION_CTRL(currentGbox_inner, item_obj, item_obj[group_name], item_obj[prop_name], item_obj[prop_value], i, i, y_adj, 1)
 			end

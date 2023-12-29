@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<uiframe name="hairenchant" x="0" y="0" width="360" height="560">
+<uiframe name="hairenchant" x="0" y="0" width="360" height="600">
 	<frame fullheight="false" fasthide="true" layout_gravity="right center" margin="0 65 0 0"/>
 	<skin frameskin="none"/>
 	<draw drawtitlebar="false"/>
@@ -10,7 +10,7 @@
 	<effect open="character_item_window_open" close="character_item_window_close"/>
 	<script CloseScp="CANCEL_ENCHANTCHIP"/>
 	<controls>
-	<groupbox name="bg" rect="0 0 350 540" margin="3 5 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_Item_tooltip_equip"/>
+	<groupbox name="bg" rect="0 0 350 640" margin="3 5 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_Item_tooltip_equip"/>
 		<button name="button_1" margin="0 0 0 35" rect="0 0 160 50" skin="test_red_button" layout_gravity="center bottom" caption="{@st41b}마법 부여" LBtnUpScp="HAIRENCHANT_OK_BTN"/>
 		<richtext name="richtext_1" margin="0 14 0 0" rect="0 0 280 30" caption="{@st41b}마법 부여 스크롤{/}" textalign="center center" resizebytext="true" spacey="0" maxwidth="280" fontname="white_18_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>
 		<button name="close" rect="0 0 70 70" margin="10 8 0 0" layout_gravity="left top" LBtnUpScp="CANCEL_ENCHANTCHIP" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="sys_popup_open_2" image="testclose_button" oversound="button_over" texttooltip="{@st59}마법 부여 스크롤 창을 닫습니다.{/}"/>
@@ -25,6 +25,7 @@
 		<richtext name="HatPropName_1" margin="40 305 0 0" rect="0 0 120 24" format="{@st66}%s{/}" param1="value" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
 		<richtext name="HatPropName_2" margin="40 335 0 0" rect="0 0 120 24" format="{@st66}%s{/}" param1="value" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
 		<richtext name="HatPropName_3" margin="40 365 0 0" rect="0 0 120 24" format="{@st66}%s{/}" param1="value" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
+		<richtext name="rank_up_count" margin="20 400 0 0" rect="0 0 120 24" format="%s" param1="value" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
 		<richtext name="scrollCnt" margin="0 0 0 129" rect="0 0 120 24" format="{@st42b}현재 스크롤 보유 개수 : %s개{/}" param1="value" textalign="center top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom"/>
 	</controls>
 </uiframe>

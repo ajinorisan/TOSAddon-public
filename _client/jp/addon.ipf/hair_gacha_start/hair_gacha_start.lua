@@ -64,7 +64,7 @@ function CLIENT_GACHA_SCP(invItem)
 
 	local itemobj = GetIES(invItem:GetObject());
     local gachaDetail = GetClass("GachaDetail", itemobj.ClassName);
-    
+
 	if gachaDetail.PreCheckScp ~= "None" then
 		local scp = _G[gachaDetail.PreCheckScp];
 		if scp() == "NO" then
@@ -81,7 +81,7 @@ function GACHA_START(gachaDetail)
 	end
 
 	local cnt = gachaDetail.Count;
-	if cnt ~= 1 and cnt ~= 11 then
+	if cnt ~= 1 and cnt ~= 11 and cnt ~= 10 then
 		return;
 	end
 
@@ -122,6 +122,11 @@ function GACHA_START(gachaDetail)
 			if aObj ~= nil then
 				local countText = GET_CHILD_RECURSIVELY(frame, 'count_text');
 				local count = TryGetProp(aObj, 'HAIRACC_CUBE_OPEN_COUNT', 0)
+				local RewardGroup = TryGetProp(gachaDetail, "RewardGroup", "None")
+				if RewardGroup == "Gacha_Memory_of_Snigo_CUBE_001" then
+					count = TryGetProp(aObj, 'EVENT_2312_8TH_GACHA_COUNT', 0)
+					hairText:SetText(ClMsg("snigo_gahca_open_warring"));
+				end
 				countText:SetTextByKey('count', count)
 			end
 		else
@@ -139,7 +144,7 @@ function GACHA_START(gachaDetail)
 		hairText:SetVisible(0);
 		costumeText:SetVisible(1);
 	end
-
+	
 	frame:ShowWindow(1)
 end
 

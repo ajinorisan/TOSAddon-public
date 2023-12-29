@@ -485,7 +485,7 @@ function REQ_TOKEN_ITEM(parent, ctrl)
 								'Event_indunReset_Team_5','Event_indunReset_Team_6','Event_indunReset_Team_7','Event_indunReset_Team_8','Event_indunReset_Team_9','Event_indunReset_Team_10',
 								'Event_indunReset_Team_11', 'Tuto_indunReset_Team', 'Event_indunReset_Team_12', 'Event_indunReset_Team_13', 'Event_indunReset_Team_14','Event_indunReset_Team_15',
 								'Event_indunReset_Team_16','Event_indunReset_Team_17','Event_indunReset_Team_18','Event_indunReset_Team_18','Event_indunReset_Team_19','Event_indunReset_Team_205',
-								'Event_indunReset_Team_25','Event_indunReset_Team_30','Event_indunReset_Team_31','Event_indunReset_Team_32','Event_indunReset_Team_33','Event_indunReset_Team_34',
+								'Event_indunReset_Team_25','Event_indunReset_Team_30','Event_indunReset_Team_31','Event_indunReset_Team_32','Event_indunReset_Team_33','Event_indunReset_Team_34','Event_indunReset_Team_36',
 								'Event_indunReset_Team_37','Event_indunReset_Team_38','Event_indunReset_Team_39','Event_indunReset_Team_41','Event_indunReset_limit',
 								'Event_indunReset_limit_1','Event_indunReset_limit_2','SEASONLETICIA_Premium_indunReset_TA','Event_indunReset_limit_renew'}		
 	if table.find(indunResetItemList,argList) ~= 0 then

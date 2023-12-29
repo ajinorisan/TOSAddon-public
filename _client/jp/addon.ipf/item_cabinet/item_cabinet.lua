@@ -2073,10 +2073,15 @@ function ITEM_CABINET_ICOR_SECTION(frame, self, entry_cls)
 	if category == 'Accessory' then		
 		cost = GET_ACC_CABINET_COST(entry_cls, GetMyAccountObj())
 	end
-
 	if IS_SEASON_SERVER() == 'YES' then
 		cost = cost * 0.01
 	end
+	if IS_POPOBOOST_PARTICIPATE_CHARACTER(pc) == true then
+		if category == "Weapon" or category =="Armor" then
+			cost = 1
+		end
+	end
+	
 	local price = cost
 	if cost > 100 then
 		price = GET_COMMA_SEPARATED_STRING_FOR_HIGH_VALUE(cost);	

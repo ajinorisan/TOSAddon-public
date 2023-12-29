@@ -43,7 +43,10 @@ local g_account_prop_shop_table =
     {
         ['coinName'] = 'Event_2304_ARBOR_DAY_coin'
     },
-}
+    ['EVENT_2312_8TH_ANNIVERSARY'] = 
+    {
+        ['coinName'] = 'Piece_Of_Memory_Snigo'
+    }}
 --------------------------------------------------------------------------------------------------------------------------
 
 local shop_list = {}
@@ -195,14 +198,12 @@ end
 function EARTHTOWERSHOP_BUY_ITEM_RESULT(frame, msg, argStr, argNum)
     local token = StringSplit(argStr, '/')
     local shopType = token[1]
-    
     if g_account_prop_shop_table[shopType] == nil then
         return
     end
 
     local coinName = g_account_prop_shop_table[shopType]["coinName"]
     local propName = g_account_prop_shop_table[shopType]["propName"]
-    
     if shopType == "PVPMine" then
         ui.SysMsg(ScpArgMsg("RESULT_MISC_PVP_MINE2", "count1", GET_COMMAED_STRING(token[2]), "count2", GET_COMMAED_STRING(token[3])));
 
@@ -271,6 +272,40 @@ function EARTHTOWERSHOP_BUY_ITEM_RESULT(frame, msg, argStr, argNum)
         propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))   
 
     elseif shopType == "EVENT_2304_ARBOR_DAY_SHOP" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+    elseif shopType == "EVENT_2310_KLAPEDA_GHOST_SHOP" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+    elseif shopType == "EVENT_2310_KLAPEDA_GHOST_SHOP_W" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+        
+    elseif shopType == "EVENT_2312_8TH_ANNIVERSARY" then
         local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
         local itemCls = GetClass('Item', coinName)
 
@@ -1276,6 +1311,10 @@ function EXCHANGE_CREATE_TREE_NODE_CTRL(ctrlset, cls, shopType)
         exchangeCountTextFlag = 1
     end
     
+    if recipecls.ShopType == "EVENT_2312_8TH_ANNIVERSARY" then
+        exchangeCountTextFlag = 0
+    end
+
     if exchangeCountTextFlag == 0 then
         height = height + 20;
         lableLine:SetVisible(0);

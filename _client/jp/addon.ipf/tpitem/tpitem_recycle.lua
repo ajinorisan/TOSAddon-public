@@ -1,9 +1,9 @@
 
 function RECYCLE_SHOW_TO_MEDAL(parent, ctrl, str, num)
 	if ctrl ~= nil then
-	ctrl:SetSkinName("baseyellow_btn");
-	local rcycle_group2 = GET_CHILD_RECURSIVELY(parent,"rcycle_group2");	
-	rcycle_group2:SetSkinName("base_btn");
+		ctrl:SetSkinName("baseyellow_btn");
+		local rcycle_group2 = GET_CHILD_RECURSIVELY(parent,"rcycle_group2");	
+		rcycle_group2:SetSkinName("base_btn");
 	end
 
 	local frame = ui.GetFrame('tpitem')
@@ -51,7 +51,7 @@ function RECYCLE_SHOW_TO_ITEM(parent, ctrl, str, num)
 	rcycle_mainSellText:ShowWindow(0)
 
 	frame:SetUserValue('RECYCLE_SELECTED_CATEGORY', 'TotalTabName')
-
+	
 	UPDATE_RECYCLE_BASKET_MONEY(frame,"buy");	
 	RECYCLE_CREATE_BUY_LIST();
 	RECYCLE_CATE_SELECT(frame, true);
@@ -231,7 +231,10 @@ function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)
 	local isHot_mark = GET_CHILD_RECURSIVELY(itemcset,"isHot_mark");
 	isHot_mark:SetVisible(0);	
 	local isSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isSale_mark");
-    isSale_mark:SetVisible(0);	
+	isSale_mark:SetVisible(0);	
+	local isSpecial_mark = GET_CHILD_RECURSIVELY(itemcset, 'isLimit_mark')
+	isSpecial_mark:SetVisible(0)
+	
 
 	local itemName = itemobj.Name;
 	local itemclsID = itemobj.ClassID;
@@ -244,6 +247,10 @@ function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)
 
 	if TryGetProp(obj, 'Sale', 'None') == 'YES' then
 		isSale_mark:SetVisible(1)
+	end
+
+	if TryGetProp(obj, 'Special', 'None') == 'YES' then
+		isSpecial_mark:SetVisible(1)
 	end
 
 	local price;
@@ -923,13 +930,12 @@ function _EXEC_BUY_RECYCLE_ITEM(itemListStr)
     pc.ReqExecuteTx_NumArgs("SCR_TX_RECYCLE_BUY", itemListStr);	
 	
 	local frame = ui.GetFrame("tpitem");
-	frame:ShowWindow(0);
-	TPITEM_CLOSE(frame);
+	--frame:ShowWindow(0);
+	TPITEM_RESET(frame);
 end
 
 function EXEC_SELL_RECYCLE_ITEM()
 	session.ResetItemList();
-	
 	local slotsetname = nil
 	local itemListStr = ""
 	
@@ -995,8 +1001,8 @@ function CONFIRM_SELL_RECYCLE_ITEM()
 	item.DialogTransaction("RECYCLE_SHOP_SELL", resultlist);
 	
 	local frame = ui.GetFrame("tpitem");
-	frame:ShowWindow(0);
-	TPITEM_CLOSE(frame);
+	--frame:ShowWindow(0);
+	TPITEM_RESET(frame);
 end
 
 function RECYCLE_MAKE_TREE(frame)
@@ -1005,7 +1011,7 @@ function RECYCLE_MAKE_TREE(frame)
 	recycleCateTree:SetFitToChild(true,10);
 	DESTROY_CHILD_BYNAME(recycleCateTree, 'CATEGORY_');
 	recycleCateTree:CloseNodeAll();
-
+	
 	-- TODO: 추후 카테고리를 늘릴 때에는 여기 아래를 수정하면 됨. 지금은 고정된 것들만 하기로 하였음
 	local firstItem = RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'TotalTabName');
 	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Equipmisc');

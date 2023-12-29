@@ -86,7 +86,6 @@ function GODDESS_ROULETTE_STATE_UPDATE(frame, msg, argStr)
 	local frame = ui.GetFrame("goddess_roulette");
 
 	local strlist = StringSplit(argStr, ";");
-	
 	local roulette_board = GET_CHILD_RECURSIVELY(frame, "roulette_board");
 	roulette_board:SetImage(strlist[1]);
 	roulette_board:ShowWindow(1);

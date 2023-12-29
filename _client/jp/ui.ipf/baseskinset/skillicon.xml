@@ -204,6 +204,27 @@
 		<image name="icon_cler_DivinePunishment_Upgrade_1" file="\icon\skill\wizard\icon_cler_DivinePunishment_Upgrade_1.png" imgrect="0 0 128 128" CMM_Caption="천형부 강화"/>
 		<image name="icon_cler_EnergyWave_Upgrade_1" file="\icon\skill\wizard\icon_cler_EnergyWave_Upgrade_1.png" imgrect="0 0 128 128" CMM_Caption="강화부 강화"/>
 		<image name="icon_wiz_FlameRadiation_Upgrade_1" file="\icon\skill\wizard\icon_wiz_FlameRadiation_Upgrade_1.png" imgrect="0 0 128 128" CMM_Caption="멸화부 강화"/>
+		<image name="icon_wizar_Enervation2" file="\icon\skill\wizard\icon_wizar_Enervation2.png" imgrect="0 0 128 128" CMM_Caption="에너베이션 II"/>	
+		<image name="icon_wizrd_BlessOfBlood" file="\icon\skill\wizard\icon_wizrd_BlessOfBlood.png" imgrect="0 0 128 128" CMM_Caption="블레스 오브 블러드"/>		
+		<image name="icon_wizrd_ngadhundi2" file="\icon\skill\wizard\icon_wizrd_ngadhundi2.png" imgrect="0 0 128 128" CMM_Caption="은가둔디 II"/>
+		<image name="icon_wizrd_BloodPass" file="\icon\skill\wizard\icon_wizrd_BloodPass.png" imgrect="0 0 128 128" CMM_Caption="블러디 패스"/>
+		<image name="icon_wizrd_Kundela2" file="\icon\skill\wizard\icon_wizrd_Kundela2.png" imgrect="0 0 128 128" CMM_Caption="쿤델라 II"/>
+		<image name="icon_wizrd_Bloodburst" file="\icon\skill\wizard\icon_wizrd_Bloodburst.png" imgrect="0 0 128 128" CMM_Caption="블러드 버스트"/>
+		<image name="icon_wizrd_BloodSwamp" file="\icon\skill\wizard\icon_wizrd_BloodSwamp.png" imgrect="0 0 128 128" CMM_Caption="블러드 스웜프"/>
+		<image name="icon_wizrd_CurseOfPlague" file="\icon\skill\wizard\icon_wizrd_CurseOfPlague.png" imgrect="0 0 128 128" CMM_Caption="커스 오브 플레그"/>
+		<image name="ability_Wizard_Kadiatcha1" file="\icon\icon_ability_wizard10.tga" imgrect="128 0 128 128" CMM_Caption="블러드 팽: 강화"/>
+		<image name="ability_Wizard_Kadiatcha2" file="\icon\icon_ability_wizard10.tga" imgrect="384 0 128 128" CMM_Caption="[아츠] 블러드 팽: 상급 강화"/>
+		<image name="ability_Wizard_Kadiatcha3" file="\icon\icon_ability_wizard10.tga" imgrect="256 0 128 128" CMM_Caption="블러드 팽: 강화"/>
+		<image name="ability_Wizard_Kadiatcha4" file="\icon\icon_ability_wizard10.tga" imgrect="512 0 128 128" CMM_Caption="[아츠] 블러드 팽: 상급 강화"/>
+		<image name="ability_Wizard_Kadiatcha5" file="\icon\icon_ability_wizard10.tga" imgrect="640 0 128 128" CMM_Caption="블러드 코멧: 강화"/>
+		<image name="ability_Wizard_Kadiatcha6" file="\icon\icon_ability_wizard10.tga" imgrect="0 128 128 128" CMM_Caption="[아츠] 블러드 코멧: 상급 강화"/>
+		<image name="ability_Wizard_Kadiatcha7" file="\icon\icon_ability_wizard10.tga" imgrect="768 0 128 128" CMM_Caption="블러디 버스트: 강화"/>
+		<image name="ability_Wizard_Kadiatcha8" file="\icon\icon_ability_wizard10.tga" imgrect="128 128 128 128" CMM_Caption="[아츠] 블러디 버스트: 상급 강화"/>
+		<image name="ability_Wizard_Kadiatcha9" file="\icon\icon_ability_wizard10.tga" imgrect="896 0 128 128" CMM_Caption="블러드 스웜프 강화"/>
+		<image name="ability_Wizard_Kadiatcha10" file="\icon\icon_ability_wizard10.tga" imgrect="256 128 128 128" CMM_Caption="[아츠] 블러드 스웜프: 상급 강화"/>
+		<image name="ability_Wizard_Kadiatcha11" file="\icon\icon_ability_wizard10.tga" imgrect="512 128 128 128" CMM_Caption="[아츠] 블러드 팽: 출혈"/>
+		<image name="ability_Wizard_Kadiatcha12" file="\icon\icon_ability_wizard10.tga" imgrect="384 128 128 128" CMM_Caption="[아츠] 블러드 코멧: 부패"/>
+		<image name="ability_Wizard_Kadiatcha13" file="\icon\icon_ability_wizard10.tga" imgrect="768 128 128 128" CMM_Caption="[아츠] 커스 오브 플레이그: 업보"/>
 	</imagelist>
 	<imagelist category="archer_skillicon">
 		<image name="icon_arch_doubleShot" file="\icon\skill\archer\icon_arch_doubleShot.png" imgrect="0 0 128 128" CMM_Caption="멀티샷"/>
@@ -623,6 +644,13 @@
 		<image name="icon_cler_Suddenkick" file="\icon\skill\cleric\icon_cler_Suddenkick.png" imgrect="0 0 128 128" CMM_Caption="기습차기"/>
 		<image name="icon_cler_Flyingkick_Suddenkick" file="\icon\skill\cleric\icon_cler_Flyingkick_Suddenkick.png" imgrect="0 0 128 128" CMM_Caption="날아차기,기습차기"/>
 		<image name="icon_cler_Endlessattacks" file="\icon\skill\cleric\icon_cler_Endlessattacks.png" imgrect="0 0 128 128" CMM_Caption="연격"/>
+		<image name="icon_cler_Missa" file="\icon\skill\cleric\icon_cler_missa.png" imgrect="0 0 128 128" CMM_Caption="미사"/>
+		<image name="icon_cler_Evilburn" file="\icon\skill\cleric\icon_cler_evilburn.png" imgrect="0 0 128 128" CMM_Caption="이블번"/>
+		<image name="icon_cler_Atonement" file="\icon\skill\cleric\icon_cler_atonement.png" imgrect="0 0 128 128" CMM_Caption="어톤먼트"/>
+		<image name="icon_cler_Evangelism" file="\icon\skill\cleric\icon_cler_evangelism.png" imgrect="0 0 128 128" CMM_Caption="에반젤리즘"/>
+		<image name="icon_cler_Gospel" file="\icon\skill\cleric\icon_cler_gospel.png" imgrect="0 0 128 128" CMM_Caption="가스펠"/>
+		<image name="icon_cler_Didache" file="\icon\skill\cleric\icon_cler_didache.png" imgrect="0 0 128 128" CMM_Caption="디타케: 면죄"/>
+		<image name="icon_buff_sin" file="\icon\skill\cleric\icon_buff_sin.png" imgrect="0 0 128 128" CMM_Caption="Sin"/>		
 	</imagelist>
 	<imagelist category="warrior_skillicon">
 		<image name="icon_warri_thrust" file="\icon\skill\warrior\icon_warri_thrust.png" imgrect="0 0 128 128" CMM_Caption="쓰러스트"/>
@@ -3517,6 +3545,20 @@
 		<image name="ability_cleric_Priest50" file="\icon\icon_ability_cleric09.tga" imgrect="128 768 128 128" CMM_Caption="[아츠] 사크라멘트: 상급 강화"/>
 		<image name="ability_cleric_Kabbalist43" file="\icon\icon_ability_cleric09.tga" imgrect="256 768 128 128" CMM_Caption="아나그라마: 강화"/>
 		<image name="ability_cleric_Kabbalist44" file="\icon\icon_ability_cleric09.tga" imgrect="384 768 128 128" CMM_Caption="[아츠] 아나그라마: 상급 강화"/>
+		<image name="ability_cleric_Pontifex01" file="\icon\icon_ability_cleric09.tga" imgrect="0 895 128 128" CMM_Caption="미사: 찬송"/>
+		<image name="ability_cleric_Pontifex02" file="\icon\icon_ability_cleric09.tga" imgrect="640 640 128 128" CMM_Caption="면죄"/>
+		<image name="ability_cleric_Pontifex03" file="\icon\icon_ability_cleric09.tga" imgrect="384 895 128 128" CMM_Caption="어톤먼트: 형벌"/>
+		<image name="ability_cleric_Pontifex04" file="\icon\icon_ability_cleric09.tga" imgrect="896 895 128 128" CMM_Caption="이블번: 강화"/>
+		<image name="ability_cleric_Pontifex05" file="\icon\icon_ability_cleric09.tga" imgrect="128 895 128 128" CMM_Caption="어톤먼트: 강화"/>
+		<image name="ability_cleric_Pontifex06" file="\icon\icon_ability_cleric09.tga" imgrect="512 895 128 128" CMM_Caption="에반젤리즘: 강화"/>
+		<image name="ability_cleric_Pontifex07" file="\icon\icon_ability_cleric09.tga" imgrect="640 767 128 128" CMM_Caption="디다케: 면죄: 강화"/>
+		<image name="ability_cleric_Pontifex08" file="\icon\icon_ability_cleric09.tga" imgrect="897 768 128 128" CMM_Caption="[아츠] 디다케: 종말"/>
+		<image name="ability_cleric_Pontifex09" file="\icon\icon_ability_cleric09.tga" imgrect="513 768 128 128" CMM_Caption="[아츠] 가스펠: 찬송"/>
+		<image name="ability_cleric_Pontifex10" file="\icon\icon_ability_cleric09.tga" imgrect="767 896 128 128" CMM_Caption="[아츠] 에반젤리즘: 종속"/>
+		<image name="ability_cleric_Pontifex11" file="\icon\icon_ability_cleric10.tga" imgrect="0 0 128 128" CMM_Caption="[아츠] 이블번: 상급 강화"/>
+		<image name="ability_cleric_Pontifex12" file="\icon\icon_ability_cleric09.tga" imgrect="256 896 128 128" CMM_Caption="[아츠] 어톤먼트: 상급 강화"/>
+		<image name="ability_cleric_Pontifex13" file="\icon\icon_ability_cleric09.tga" imgrect="640 896 128 128" CMM_Caption="[아츠] 에반젤리즘: 상급 강화"/>
+		<image name="ability_cleric_Pontifex14" file="\icon\icon_ability_cleric09.tga" imgrect="897 768 128 128" CMM_Caption="[아츠] 디다케: 면죄: 상급 강화"/>
 	</imagelist>
 	<imagelist category="abilityicon_common">
 		<image name="ability_common_DaggerMastery" file="\icon\icon_ability_common.tga" imgrect="0 0 128 128" CMM_Caption="단검 마스터리"/>

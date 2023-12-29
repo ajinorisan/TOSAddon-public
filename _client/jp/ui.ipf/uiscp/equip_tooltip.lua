@@ -292,7 +292,9 @@ function DRAW_EQUIP_COMMON_TOOLTIP(tooltipframe, invitem, mainframename, isForge
 	local item_bg = GET_CHILD(equipCommonCSet, "item_bg", "ui::CPicture");
 	local needAppraisal = TryGetProp(invitem, "NeedAppraisal");
 	local needRandomOption = TryGetProp(invitem, "NeedRandomOption")
-	local gradeBGName = GET_ITEM_BG_PICTURE_BY_GRADE(invitem.ItemGrade, needAppraisal, needRandomOption)
+	
+	local grade = GET_ITEM_GRADE(invitem)
+	local gradeBGName = GET_ITEM_BG_PICTURE_BY_GRADE(grade, needAppraisal, needRandomOption)
 	item_bg:SetImage(gradeBGName);
 	-- 아이템 이미지
 	local itemPicture = GET_CHILD(equipCommonCSet, "itempic", "ui::CPicture");
@@ -486,7 +488,8 @@ function DRAW_EQUIP_COMMON_TOOLTIP_SMALL_IMG(tooltipframe, invitem, mainframenam
 	local item_bg = GET_CHILD(equipCommonCSet, "item_bg", "ui::CPicture");
 	local needAppraisal = TryGetProp(invitem, "NeedAppraisal");
 	local needRandomOption = TryGetProp(invitem, "NeedRandomOption")
-	local gradeBGName = GET_ITEM_BG_PICTURE_BY_GRADE(invitem.ItemGrade, needAppraisal, needRandomOption)
+	local grade = GET_ITEM_GRADE(invitem)
+	local gradeBGName = GET_ITEM_BG_PICTURE_BY_GRADE(grade, needAppraisal, needRandomOption)
 	item_bg:SetImage(gradeBGName);
 	-- 아이템 이미지
 	local itemPicture = GET_CHILD(equipCommonCSet, "itempic", "ui::CPicture");
@@ -1107,16 +1110,36 @@ function DRAW_EQUIP_HAIR_ENCHANT(invitem, property_gbox, inner_yPos)
     for i = 1, 3 do
         local propName = "HatPropName_"..i;
         local propValue = "HatPropValue_"..i;
-        if invitem[propValue] ~= 0 and invitem[propName] ~= "None" then
-            local opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(invitem[propName]));
+		if invitem[propValue] ~= 0 and invitem[propName] ~= "None" then
+			local opName
+			if string.find(invitem[propName], 'ALLSKILL_') == nil then
+				opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(invitem[propName]));
+			else
+				local job = StringSplit(invitem[propName], '_')[2]
+				if job == 'ShadowMancer' then
+					job = 'Shadowmancer'
+				end
+				opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(job) .. ' ' .. ScpArgMsg('skill_lv_up_by_count'));
+			end
+            
             local strInfo = ABILITY_DESC_PLUS(opName, invitem[propValue]);
-            inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
+            inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);			
         end
     end
 
     if init_yPos < inner_yPos then
         inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, " ", 0, inner_yPos);
     end
+	
+	if shared_enchant_special_option.is_hair_acc(invitem) == true then
+		local rank = shared_enchant_special_option.get_item_rank(invitem)	
+		local a, b = shared_enchant_special_option.get_item_rank_up_count(invitem)
+		local add_text = ScpArgMsg('hair_item_grade', 'grade', rank) 		
+		if b > 0 then
+			add_text = add_text .. '{nl}' .. ScpArgMsg('hair_item_grade_insurance', 'num1', a, 'num2', b)
+		end
+		inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, add_text, 0, inner_yPos);	
+	end
 
     return inner_yPos
 end

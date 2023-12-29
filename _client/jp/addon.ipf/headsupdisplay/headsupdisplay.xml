@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
-<uiframe name="headsupdisplay" x="10" y="30" width="500" height="130" hud="true">
+<uiframe name="headsupdisplay" x="10" y="30" width="530" height="150" hud="true">
 	<frame layout_gravity="left top" scale_align="center top" keyboardselectframe="false"/>
 	<input maxwidth="1280" moveable="true" hittestframe="true" moveintitlebar="false"/>
 	<layer layerlevel="60"/>
@@ -8,36 +8,42 @@
 	<draw drawnotitlebar="false" drawtitlebar="false" drawframe="false"/>
 	<animation frameOpenAnim="dialog_start2" frameCloseAnim="dialog_end"/>
 	<script LBtnUpScp="HEADSUPDISPLAY_LBTN_UP"/>
-	<userconfig STAR_SIZE="15" LEFT_IMAGE_DEFAULT="myhpspleft" RIGHT_IMAGE_DEFAULT="myhpspright" LEFT_IMAGE_RELIC="hud_min_relic_left" RIGHT_IMAGE_RELIC="hud_min_relic_right" RIGHT_HEIGHT_DEF="79" RIGHT_HEIGHT_RP="91" RIGHT_MARGIN_TOP_DEF="26" RIGHT_MARGIN_TOP_RP="18"/>
+	<userconfig STAR_SIZE="15" LEFT_IMAGE_DEF="myhpspleft" RIGHT_IMAGE_DEF="myhpspright" LEFT_IMAGE_RP="hud_min_relic_left" RIGHT_IMAGE_RP="hud_min_relic_right" RIGHT_HEIGHT_DEF="88" RIGHT_HEIGHT_RP="88" RIGHT_MARGIN_TOP_DEF="26" RIGHT_MARGIN_TOP_RP="18" RIGHT_HEIGHT_SKIN="145" RIGHT_MARGIN_TOP_SKIN="-10"/>
 	<controls>
-		<picture name="myclasspic1" rect="0 0 97 92" margin="7 18 0 0" layout_gravity="left top" hittest="true" image="myhpspleft" stretch="true"/>
-		<picture name="myclasspic" rect="0 0 92 94" margin="19 12 0 0" layout_gravity="left top" hittest="true" stretch="true"/>
-		<picture name="jobPic" rect="0 0 60 60" parent="myclasspic" margin="0 8 0 0" layout_gravity="center center" image="" stretch="true" hittest="false"/>
+		<!-- frame image -->
+		<!-- default -->
+		<!-- <picture name="myclasspic1" rect="0 0 116 145" margin="-2 0 0 0" layout_gravity="left top" hittest="true" image="myhpspleft" stretch="true"/> -->
+		<picture name="myclasspic" rect="0 0 114 145" margin="3 0 0 0" layout_gravity="left top" hittest="true" image="weekboss_default_hud_L" stretch="true"/>
 		<button name="campBtn" rect="0 0 15 15" margin="0 70 0 0" layout_gravity="left top" image="btn_foothold" LBtnUpScp="HEDADSUPDISPLAY_CAMP_BTN_CLICK" texttooltip="거점 이동을 할 수 있습니다."/>
-		<picture name="Isleader" rect="0 0 32 20" margin="50 25 0 0" layout_gravity="left top" hittest="false" image="party_leader_mark" stretch="true"/>
-		<picture name="myhpspleft" rect="0 0 104 90" margin="0 24 0 0" layout_gravity="left top" hittest="false" stretch="true"/>
-		<picture name="myhpspright" rect="0 0 39 79" margin="0 26 59 0" layout_gravity="right top" hittest="false" image="" stretch="true"/>
-		<groupbox name="soulCrystalGbox" rect="0 0 87 130" margin="0 0 0 0" layout_gravity="right center" draw="false" resizebyparent="false" changecursor="false" scrollbar="false" hittest="false"/>
-		<picture name="soulCrystal_bg" rect="0 0 84 86" margin="0 0 0 0" parent="soulcrystalGbox" layout_gravity="left center" hittest="false" image="indun_soulcrystal_bg" stretch="false"/>
-		<richtext name="soulCrystalCount" rect="0 0 60 20" margin="-6 0 0 34" parent="soulcrystalGbox" layout_gravity="center bottom" textalign="center center" format=" {@st43b}{s16}{#ff2c2c}%s{@st43b}{s16}/%s" param1="curCount" param1_def="5" param2="maxCount" param2_def="5" hittest="false"/>
+		<picture name="Isleader" rect="0 0 32 20" margin="62 30 0 0" layout_gravity="left top" hittest="false" image="party_leader_mark" stretch="true"/>
+		<picture name="myhpspleft" rect="0 0 114 145" margin="0 24 0 0" layout_gravity="left top" hittest="false" stretch="true"/>
+		<picture name="myhpspright" rect="0 0 54 145" margin="413 0 38 0" layout_gravity="left top" hittest="false" image="weekboss_default_hud_R" stretch="true"/>
+		<groupbox name="soulCrystalGbox" rect="0 0 87 130" margin="0 3 16 0" layout_gravity="right center" draw="false" resizebyparent="false" changecursor="false" scrollbar="false" hittest="false"/>
+		<picture name="soulCrystal_bg" rect="0 0 84 86" margin="0 0 0 0" parent="soulcrystalGbox" layout_gravity="left center" hittest="false" image="weekboss_default_hud_soulCrystal_bg" stretch="false"/>
+		<richtext name="soulCrystalCount" rect="0 0 60 20" margin="-6 0 0 34" parent="soulcrystalGbox" layout_gravity="center bottom" textalign="center center" format=" {@st43b}{s16}{#ff2c2c}%s{@st43b}{s16}/%s" param1="curCount" param1_def="5" param2="maxCount" param2_def="5" hittest="false"/>		
+
+		<picture name="jobPic" rect="0 0 60 60" parent="myclasspic" margin="17 6 0 0" layout_gravity="center center" image="" stretch="true" hittest="false"/>
+
+		<!-- gauge images -->
 		<!-- relic_unequip -->
-		<groupbox name="gaugebg_default" rect="0 0 300 92" margin="3 0 0 0" layout_gravity="center center" draw="false" scrollbar="false"/>
-		<gauge name="hp" parent="gaugebg_default" rect="0 0 300 33" margin="0 5 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_HP_min" text1="{s14}%v{s14}/%m{/}" text2="{s14}HP{s14}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 4" textoffset2="4 4" hittest="false"/>
-		<gauge name="sp" parent="gaugebg_default" rect="0 0 300 24" margin="0 38 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_SP_min" text1="{s14}%v{s14}/%m{/}" text2="{s14}SP{s14}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 0" textoffset2="4 0" hittest="false"/>
-		<gauge name="sta1" parent="gaugebg_default" rect="0 0 298 27" margin="1 62 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_STA_min" text1="{s12}%v{s12}/%m{/}" text2="{s12}STA{s12}{/}" textalign1="center top" textalign2="left top" textfont1="mygauge" textfont2="mygauge" textoffset1="0 1" textoffset2="4 1" hittest="false"/>
-		<picture name="gaugelight1" parent="gaugebg_default" rect="0 0 156 15" margin="1 13 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
-		<picture name="gaugelight2" parent="gaugebg_default" rect="0 0 156 15" margin="1 37 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
-		<!-- relic_equip -->
-		<groupbox name="gaugebg_relic" rect="0 0 300 88" margin="3 0 0 0" layout_gravity="center center" draw="false" scrollbar="false"/>
-		<gauge name="hp_relic" parent="gaugebg_relic" rect="0 0 300 28" margin="0 -3 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_HP_min_relic" text1="{s12}%v{s12}/%m{/}" text2="{s12}HP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 5" textoffset2="4 5" hittest="false"/>
-		<gauge name="sp_relic" parent="gaugebg_relic" rect="0 0 300 17" margin="0 25 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_SP_min_relic" text1="{s12}%v{s12}/%m{/}" text2="{s12}SP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 0" textoffset2="4 0" hittest="false"/>
-		<gauge name="sta1_relic" parent="gaugebg_relic" rect="0 0 300 17" margin="0 42 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_STA_min_relic" text1="{s11}%v{s11}/%m{/}" text2="{s11}STA{s11}{/}" textalign1="center top" textalign2="left top" textfont1="mygauge" textfont2="mygauge" textoffset1="0 1" textoffset2="4 1" hittest="false"/>
-		<gauge name="rp" parent="gaugebg_relic" rect="0 0 300 29" margin="0 59 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_RP_min_relic" text1="{s12}%v{s12}/%m{/}" text2="{s12}RP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 -6" textoffset2="4 -6" hittest="false"/>
-		<picture name="gaugelight1_relic" parent="gaugebg_relic" rect="0 0 156 15" margin="1 5 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
-		<picture name="gaugelight2_relic" parent="gaugebg_relic" rect="0 0 156 15" margin="1 23 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
+		<groupbox name="gaugebg_default" rect="0 0 300 145" margin="114 0 0 0" layout_gravity="left center" draw="false" scrollbar="false"/>
+		<gauge name="hp" parent="gaugebg_default" rect="0 0 300 67" margin="0 -3 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="weekboss_normal_hud_HP" text1="{s12}%v{s12}/%m{/}" text2="{s12}HP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 24" textoffset2="4 24" hittest="false"/>
+		<gauge name="sp" parent="gaugebg_default" rect="0 0 300 33" margin="0 62 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="weekboss_normal_hud_SP" text1="{s12}%v{s12}/%m{/}" text2="{s12}SP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 0" textoffset2="4 0" hittest="false"/>
+		<gauge name="sta" parent="gaugebg_default" rect="0 0 300 48" margin="0 87 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="weekboss_normal_hud_STA" text1="{s11}%v{s11}/%m{/}" text2="{s11}STA{s11}{/}" textalign1="center top" textalign2="left top" textfont1="mygauge" textfont2="mygauge" textoffset1="0 5" textoffset2="4 5" hittest="false"/>
+		<picture name="gaugelight1" parent="gaugebg_default" rect="0 0 156 15" margin="1 44 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
+		<picture name="gaugelight2" parent="gaugebg_default" rect="0 0 156 15" margin="1 68 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
+		<!-- relich_equip-->
+		<groupbox name="gaugebg_relic" rect="0 0 300 145" margin="114 -3 0 0" layout_gravity="left center" draw="false" scrollbar="false"/>
+		<gauge name="hp_relic" parent="gaugebg_relic" rect="0 0 300 61" margin="0 0 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="weekboss_normal_hud_HP" text1="{s12}%v{s12}/%m{/}" text2="{s12}HP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 23" textoffset2="4 23" hittest="false"/>
+		<gauge name="sp_relic" parent="gaugebg_relic" rect="0 0 300 16" margin="0 61 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="weekboss_normal_hud_SP" text1="{s12}%v{s12}/%m{/}" text2="{s12}SP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 1" textoffset2="4 1" hittest="false"/>
+		<gauge name="sta_relic" parent="gaugebg_relic" rect="0 0 300 16" margin="0 77 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="weekboss_normal_hud_STA" text1="{s11}%v{s11}/%m{/}" text2="{s11}STA{s11}{/}" textalign1="center top" textalign2="left top" textfont1="mygauge" textfont2="mygauge" textoffset1="0 3" textoffset2="4 3" hittest="false"/>
+		<gauge name="rp" parent="gaugebg_relic" rect="0 0 300 52" margin="0 93 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="hud_RP_min_relic" text1="{s12}%v{s12}/%m{/}" text2="{s12}RP{s12}{/}" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 -16" textoffset2="4 -16" hittest="false"/>
+		<picture name="gaugelight1_relic" parent="gaugebg_relic" rect="0 0 156 15" margin="1 45 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
+		<picture name="gaugelight2_relic" parent="gaugebg_relic" rect="0 0 156 15" margin="1 62 0 0" layout_gravity="left top" hittest="false" image="gaugelight" stretch="true"/>
+
 		<!-- gauge end -->
-		<richtext name="level_text" rect="0 0 70 20" margin="34 108 0 0" layout_gravity="left top" caption="0" fixwidth="true" fontname="white_16_b" hittest="false" spacey="0"/>
-		<richtext name="name_text" rect="0 0 310 20" margin="105 108 0 0" layout_gravity="left top" caption="name" fixwidth="true" fontname="white_16_b" hittest="true" spacey="0" texttooltip="더블 클릭하면 프레임을 고정할 수 있는 체크 박스가 나타납니다."/>
+		<richtext name="level_text" rect="0 0 200 20" margin="115 113 0 0" layout_gravity="left top" caption="0" fixwidth="true" fontname="white_16_b" hittest="false" spacey="0" textalign="left top"/>
+		<richtext name="name_text"  rect="0 0 200 20" margin="185 113 0 0" layout_gravity="left top" caption="name" fixwidth="true" fontname="white_16_b" hittest="true" spacey="0" texttooltip="더블 클릭하면 프레임을 고정할 수 있는 체크 박스가 나타납니다." textalign="left top"/>
 		<checkbox name="fix_pos" rect="0 0 50 50" margin="7 94 0 0" layout_gravity="left top" LBtnUpScp="CLICK_FIX_HEADSUPDISPLAY_BUTTON" format="%s" param1="option_name" param1_def="" resizebytext="true" fontname="white_16_b" omitbywidth="true" ellipsistexttooltip="true" clicksound="button_click_big" oversound="button_over" texttooltip="프레임을 고정합니다."/>
 	</controls>
 </uiframe>

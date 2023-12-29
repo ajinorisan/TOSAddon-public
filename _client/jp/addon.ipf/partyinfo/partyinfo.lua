@@ -8,6 +8,7 @@ function PARTYINFO_ON_INIT(addon, frame)
 	addon:RegisterMsg("GAME_START", "PARTYINFO_CONTROL_INIT");
 	addon:RegisterMsg("PARTY_MEMBER_INTERACTION_SUCCESS", "PARTYINFO_INTERACTION_SUCCESS_EFFECT");
 	addon:RegisterMsg("PARTY_MEMBER_INTERACTION_END", "PARTYINFO_INTERACTION_END");
+	addon:RegisterMsg("PARTY_SKIN_REQUEST", "ON_PARTY_SKIN_REQUEST");
 end
 
 function PARTYINFO_CONTROL_INIT()
@@ -166,6 +167,8 @@ function ON_PARTYINFO_UPDATE(frame, msg, argStr, argNum)
 				leaderMark:SetImage('party_leader_mark');
 			end
 		end
+		local handle = partyMemberInfo:GetHandle();
+		SetPartyInfoHudSkin(handle);
 	end	
 
 	for i = 0, frame:GetChildCount() - 1 do
@@ -1121,4 +1124,8 @@ function PARTYINFO_INTERACTION_END(frame, msg, arg_str, arg_num)
 			ctrl_set:StopUIEffect("interaction_success_effect", true, 0.5);
 		end
 	end
+end
+
+function ON_PARTY_SKIN_REQUEST()
+	hud_skin.ApplyCurrentHudSkin(2)
 end

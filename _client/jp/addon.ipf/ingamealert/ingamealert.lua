@@ -4,6 +4,7 @@ function INGAMEALERT_ON_INIT(addon, frame)
 	addon:RegisterMsg("INDUN_ASK_PARTY_MATCH_AUTO_CHALLENGE", "ON_INDUN_ASK_PARTY_MATCH_AUTO_CHALLENGE");
 	addon:RegisterMsg("SOLD_ITEM_NOTICE", "ON_SOLD_ITEM_NOTICE")
 	addon:RegisterMsg("RECEIVABLE_SILVER_NOTICE", "ON_RECEIVABLE_SILVER_NOTICE")
+	addon:RegisterMsg("RECEIVABLE_COIN_NOTICE", "ON_RECEIVABLE_COIN_NOTICE")
 	addon:RegisterMsg("RECEIVABLE_TAX_PAYMENT_NOTICE", "ON_RECEIVABLE_TAX_PAYMENT_NOTICE")
 	addon:RegisterMsg("FIELD_BOSS_WORLD_EVENT_RECEIVABLE_ITEM_NOTICE", "ON_FIELD_BOSS_WORLD_EVENT_RECEIVABLE_ITEM_NOTICE")	
 	addon:RegisterMsg("FIELD_BOSS_WORLD_EVENT_RECEIVABLE_SILVER_NOTICE", "ON_FIELD_BOSS_WORLD_EVENT_RECEIVABLE_SILVER_NOTICE")	
@@ -14,6 +15,7 @@ function INGAMEALERT_ON_INIT(addon, frame)
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "Party")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "SoldItem")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "ReceivableSilver")
+	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "ReceivableCoin")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "TaxPayment")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "WorldEventReceivableItem")
 	INGAMEALERT_CREATE_ELEM_BY_TYPE(frame, "WorldEventReceivableSilver")
@@ -230,6 +232,17 @@ function ON_RECEIVABLE_SILVER_NOTICE(frame, msg, argStr, argNum)
 	
 	local text = GET_CHILD(ctrlset, "text")
 	local askMsg = ScpArgMsg("ReceivableSilverNotice")
+	text:SetText(askMsg)
+
+	INGAMEALERT_RESIZE_ELEM(ctrlset)
+	INGAMEALERT_SET_MARGIN_BY_CHAT_FRAME(frame)
+end
+
+function ON_RECEIVABLE_COIN_NOTICE(frame, msg, argStr, argNum)
+	local ctrlset = INGAMEALERT_GET_ELEM_BY_TYPE(frame, "ReceivableCoin")
+	
+	local text = GET_CHILD(ctrlset, "text")
+	local askMsg = ScpArgMsg("ReceivableCoinNotice")
 	text:SetText(askMsg)
 
 	INGAMEALERT_RESIZE_ELEM(ctrlset)

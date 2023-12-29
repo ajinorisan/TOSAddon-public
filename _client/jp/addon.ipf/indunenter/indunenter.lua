@@ -984,7 +984,7 @@ function INDUNENTER_MAKE_COUNT_BOX(frame, noPicBox, indunCls)
             nowCount = GET_CURRENT_ENTERANCE_COUNT(resetGroupID);
         end
 
-        local is_use_count2 = resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 832;
+        local is_use_count2 = resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 832 or resetGroupID == 837;
         if is_use_count2 == true then
                 nowCount = GET_CURRENT_ENTERANCE_COUNT(resetGroupID); 
             countData2:SetTextByKey("now", nowCount);

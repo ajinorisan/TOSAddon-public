@@ -321,7 +321,7 @@ function SET_SLOT_COUNT_TEXT(slot, cnt, font, hor, ver, stateX, stateY)
 		slot:SetText(font..cnt, 'count', hor, ver, stateX, stateY);
 end
 
-function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAppraisal_Flag, itemReinforce_Flag, isInventory, is_barrack)
+function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAppraisal_Flag, itemReinforce_Flag, isInventory, is_barrack)		
 	if slot == nil then
 		return
 	end
@@ -333,17 +333,21 @@ function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAp
 	if itemGrade_Flag == nil or itemGrade_Flag == 1 then
 		if isInventory ~= nil and isInventory == 1 and config.GetXMLConfig("ViewGradeStyle") == 0 then
 			
-		else
+		else						
 			SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
 		end
 	end
-
+	
 	if itemLevel_Flag == nil or itemLevel_Flag == 1 then
 		if isInventory ~= nil and isInventory == 1 and config.GetXMLConfig("ViewTranscendStyle") == 0 then
 		
 		else
 			SET_SLOT_TRANSCEND_LEVEL(slot, TryGetProp(itemCls, 'Transcend'))
 		end
+	end
+
+	if shared_enchant_special_option.is_hair_acc(itemCls) == true then
+		SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
 	end
 
 	local needAppraisal = nil
@@ -418,7 +422,7 @@ function SET_SLOT_TRANSCEND_LEVEL(slot, transcendLv)
 	
 end
 
-function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
+function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)	
 	local skinName = "invenslot_nomal"
 	if slot == nil then
 		return
@@ -430,6 +434,8 @@ function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
 	end
 
 	local itemgrade = TryGetProp(itemCls, 'ItemGrade', 0)
+	itemgrade = GET_ITEM_GRADE(itemCls)
+	
 	if itemgrade == nil or itemgrade == 0 or itemgrade == 1 or itemgrade == "None" then
 		slot:SetSkinName(skinName)
 		return

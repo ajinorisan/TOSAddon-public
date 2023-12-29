@@ -224,7 +224,7 @@ function TPITEM_OPEN(frame)
 	COSTUME_EXCHANGE_MAKE_TREE(frame);
 	NEWBIE_MAKE_TREE(frame);
     RETURNUSER_MAKE_TREE(frame);
-    
+
     -- 해외 UI 세팅
     if (config.GetServiceNation() ~= "KOR") then
         TPSHOP_GLOBAL_UI_SETTING(frame)
@@ -251,7 +251,7 @@ function TPSHOP_TAB_VIEW(frame, curtabIndex)
 	if session.world.IsIntegrateServer() == true then
 		return
 	end
-	
+
 	local frame = ui.GetFrame("tpitem");
 	local rightFrame = frame:GetChild('rightFrame');
 	local rightgbox = rightFrame:GetChild('rightgbox');
@@ -587,7 +587,7 @@ function TP_SHOP_DO_OPEN(frame, msg, shopName, argNum)
 		local ncReflashbtn = GET_CHILD_RECURSIVELY(frame,"ncReflashbtn");	
 		ncReflashbtn:ShowWindow(0);
 	end
-	
+
 	MAKE_CATEGORY_TREE();
 	
 	frame:SetUserValue("CASHINVEN_PAGENUMBER", 1);
@@ -722,6 +722,7 @@ function ON_TPSHOP_BUY_SUCCESS(frame)
 	UPDATE_RECYCLE_BASKET_MONEY(frame,"sell")	
 	UPDATE_RECYCLE_BASKET_MONEY(frame,"buy")
 	UPDATE_COSTUME_EXCHANGE_BASKET_MONEY(frame)
+	TPITEM_RESET(frame)
 end
 
 function ON_TPSHOP_RESET_PREVIEWMODEL()
@@ -975,6 +976,69 @@ function TPITEM_CLOSE(frame)
 	ui.CloseFrame('packagelist');
 end
 
+function TPITEM_RESET(frame)
+	local tpSubgbox = GET_CHILD_RECURSIVELY(frame,"tpSubgbox");	
+	tpSubgbox:StopUpdateScript("_PROCESS_ROLLING_SPECIALGOODS");
+
+	if (1 == IsMyPcGM_FORNISMS()) and (config.GetServiceNation() == "KOR") then
+		local banner = GET_CHILD_RECURSIVELY(frame,"banner");	
+		banner:SetUserValue("URL_BANNER", "");
+		banner:SetUserValue("NUM_BANNER", 0);
+		banner:StopUpdateScript("_PROCESS_ROLLING_BANNER");
+	elseif (config.GetServiceNation() == "THI") then
+		local banner = GET_CHILD_RECURSIVELY(frame,"banner");	
+		banner:SetUserValue("URL_BANNER", "");
+		banner:SetUserValue("NUM_BANNER", 0);
+		banner:StopUpdateScript("_PROCESS_ROLLING_BANNER");
+	elseif (config.GetServiceNation() == "GLOBAL") or (config.GetServiceNation() == "GLOBAL_JP") or config.GetServiceNation() == 'GLOBAL_KOR' then
+		frame:SetUserValue("is_RequestUsedMedal", 0);
+	end
+	
+	--SET_TOPMOST_FRAME_SHOWFRAME(1);
+	session.ui.Clear_NISMS_ItemList();
+	--ui.OpenAllClosedUI();
+
+	session.ui.Clear_NISMS_CashInven_ItemList();	
+
+	local timer = GET_CHILD_RECURSIVELY(frame, "eventUserRemainTimer")
+	tolua.cast(timer, "ui::CAddOnTimer");
+	timer:Stop();
+
+	ui.CloseFrame("recycleshop_popupmsg");
+	ui.CloseFrame("costume_exchangeshop_popupmsg")
+	ui.CloseFrame("tpitem_popupmsg");
+	ui.CloseFrame('packagelist');
+
+
+	local btn1 = GET_CHILD_RECURSIVELY(frame,"ncReflashbtn")
+	local btn2 = GET_CHILD_RECURSIVELY(frame,"ncChargebtn")
+	if btn1 ~= nil and btn2 ~= nil then
+		btn1:SetEnable(0)
+		btn2:SetEnable(0)		
+	end
+
+	RECYCLE_MAKE_TREE(frame);
+	COSTUME_EXCHANGE_MAKE_TREE(frame);
+	NEWBIE_MAKE_TREE(frame);
+    RETURNUSER_MAKE_TREE(frame);
+	local rcycle_group1 = GET_CHILD_RECURSIVELY(frame,"rcycle_group1")
+	local rcycle_group2 = GET_CHILD_RECURSIVELY(frame,"rcycle_group2")
+	if rcycle_group1:GetSkinName() == "baseyellow_btn" then
+		RECYCLE_CREATE_SELL_LIST();	
+	end
+	if rcycle_group2:GetSkinName() == "baseyellow_btn" then
+		RECYCLE_CREATE_BUY_LIST();
+	end
+
+
+	-- 해외 UI 세팅
+    if (config.GetServiceNation() ~= "KOR") then
+        TPSHOP_GLOBAL_UI_SETTING(frame)
+	end
+
+
+end
+
 -- 분류에 따라 항목의 아이템들을 그리기 설정
 function CHECK_SUBCATEGORY_N_DRAW_ITEMS(frame, value, initDraw, isSub)
 	if value ~= nil  then
@@ -1000,7 +1064,6 @@ end
 
 -- 노드 선택에 따른 작동 분류 (버튼색과 아이템 그리기)
 function TPITEM_SELECT_TREENODE(tnode)
-
 	local frame = ui.GetFrame("tpitem");
 	local categorySubGbox = GET_CHILD_RECURSIVELY(frame, "categorySubGbox");
 	local tree = GET_CHILD_RECURSIVELY(frame, "tpitemtree");
@@ -1015,21 +1078,21 @@ function TPITEM_SELECT_TREENODE(tnode)
 		local gBox = obj:GetChild("group");
 		gBox:SetSkinName("baseyellow_btn");
 		tree:OpenNode(tnode, true, true);
-
 	elseif obj ~= nil then
 		-- 상위항목 클릭시에 대한 그의 하위항목들의 모든 아이템들을 그리기
 		local cnt = tnode:GetChildNodeCount();
-		
 		for i = 0, cnt - 1 do
 			local tnodeChild = tnode:GetChildNodeByIndex(i);	
 			if tnodeChild ~= nil then 	
-				if i == 0 then
-					if tnodeChild:GetValue() == "None" then
-						CHECK_SUBCATEGORY_N_DRAW_ITEMS(frame, tnodeChild:GetValue(), 1, 0);
-					else
-						CHECK_SUBCATEGORY_N_DRAW_ITEMS(frame, tnodeChild:GetValue(), 1, 1);	
-					end	
+				local lastsel = tree:GetUserValue("LastSelect")
+				if lastsel == tnodeChild:GetValue() then
+					CHECK_SUBCATEGORY_N_DRAW_ITEMS(frame, tnodeChild:GetValue(), 1, 1);	
 					tree:Select(tree:FindByValue(tnodeChild:GetValue()));
+				elseif lastsel == "None" then
+					if i == 0 then
+						CHECK_SUBCATEGORY_N_DRAW_ITEMS(frame, tnodeChild:GetValue(), 1, 0);
+						tree:Select(tree:FindByValue(tnodeChild:GetValue()));
+					end
 				end
 			end;
 		end;
@@ -1052,6 +1115,7 @@ function TPITEM_SELECT_TREENODE(tnode)
 				-- 하위항목 클릭시에 대한 그의 모든 아이템들을 그리기
 				local selValue = tnode:GetValue();
 				CHECK_SUBCATEGORY_N_DRAW_ITEMS(frame, selValue, 1, 1);
+				tree:SetUserValue("LastSelect",selValue)
 			end
 		end
 		
@@ -1241,6 +1305,7 @@ function TPITEM_DRAW_ITEM_WITH_CATEGORY(frame, category, subcategory, initdraw, 
 			local searchFortext = input:GetText();
 			if string.len(searchFortext) > 0 then
 				filter = input:GetText();
+				filter = string.lower(filter)
 			end
 			mainText:ClearText();
 		end
@@ -1283,11 +1348,13 @@ function TPITEM_DRAW_ITEM_WITH_CATEGORY(frame, category, subcategory, initdraw, 
 			  if config.GetServiceNation() ~= "KOR" and config.GetServiceNation() ~= "GLOBAL_KOR" then
 				  targetItemName = dic.getTranslatedStr(targetItemName);				
 			  end
+			  targetItemName = string.lower(targetItemName)
 			  local startNum, endNum = string.find(targetItemName, filter);
 			  if (startNum ~= nil) or (endNum ~= nil) then
 			  	isFounded = true;					
 			  end
 		  end
+		  
           local itemcset = nil;
 		      if (allFlag == nil) then	
 			      if CHECK_TPITEM_ENABLE_VIEW(obj) == true and CHECK_USEDTPITEM_ENABLE_VIEW(obj, isFounded) == true then
@@ -2020,7 +2087,7 @@ local frame, alignTypeList, typeIndex, mainSubGbox
 function TPSHOP_SORT_LIST(a, b)
 	local itemcset1 = mainSubGbox:GetControlSet('tpshop_item', 'eachitem_'..a);
 	local itemcset2 = mainSubGbox:GetControlSet('tpshop_item', 'eachitem_'..b);
-	if (itemcset1 == nil) or  (itemcset2 == nil)then
+	if (itemcset1 == nil) or (itemcset2 == nil)then
 		return false;
 	end
 	
@@ -2041,14 +2108,13 @@ function TPSHOP_SORT_LIST(a, b)
 	if (obj1 == nil) or (obj2 == nil) then
 		return false;
 	end
-	
+
 	local itemobj1 = GetClass("Item", obj1.ItemClassName);
 	local itemobj2 = GetClass("Item", obj2.ItemClassName);
 	if (itemobj1 == nil) or (itemobj2 == nil) then
 		return false;
 	end
 		
-
 	if typeIndex == 5 then	
 		return itemobj1.Name < itemobj2.Name;
 	elseif typeIndex == 6 then
@@ -2087,10 +2153,12 @@ function TPSHOP_SORT_LIST(a, b)
 
 			return d1 < d2;
 		elseif typeIndex == 0 then
+			if obj1.Itemdate == obj2.Itemdate then
+				return obj1.ClassID < obj2.ClassID; 
+			end
 			return obj1.Itemdate > obj2.Itemdate;
 		end
-	end;
-
+	end
 	
 	return false;
 end
@@ -2105,6 +2173,7 @@ function TPSHOP_TPITEM_ALIGN_LIST(cnt)
 	frame = ui.GetFrame("tpitem");
 	alignTypeList = GET_CHILD_RECURSIVELY(frame,"alignTypeList");	
 	typeIndex = alignTypeList:GetSelItemIndex();
+
 	mainSubGbox = GET_CHILD_RECURSIVELY(frame,"mainSubGbox");
 	
 	table.sort(srcTable, TPSHOP_SORT_LIST);
@@ -2178,7 +2247,7 @@ function TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_ma
 		if founded_info.bRecommandNO == true then
 			bisEvent = 1;
 		end
-	end;
+	end
 
 	isNew_mark:SetVisible(bisNew);
 	isHot_mark:SetVisible(bisHot);		
@@ -2201,6 +2270,10 @@ function TPITEM_SET_SPECIALMARK(isNew_mark, isHot_mark, isEvent_mark, isLimit_ma
 	if TryGetProp(GetClassByType(id_space, classID), 'MarkType', 'None') == 'Sale' then
 		bisSale = 0
 		cubeSale = 1
+	end
+
+	if TryGetProp(GetClassByType(id_space, classID), 'MarkType', 'None') == 'Recommand' then
+		isEvent_mark:SetVisible(1);
 	end
 
 	isSale_mark:SetVisible(bisSale)
@@ -2301,7 +2374,7 @@ function TPSHOP_SELECTED_TOP5(parent, control, tpitemname, classid)
 end
 
 function TPSHOP_AUTOSELECTED_TREEITEM(category, subcategory)
-	
+
 	MAKE_CATEGORY_TREE();	
 	
 	local frame = ui.GetFrame("tpitem");
@@ -2333,6 +2406,8 @@ function TPSHOP_ITEMSEARCH_ENTER(parent, control, strArg, intArg)
 	local frame = ui.GetFrame("tpitem");
 	local input = GET_CHILD_RECURSIVELY(frame, "input");
 	local searchFortext = input:GetText();
+	
+	searchFortext = string.lower(searchFortext)
 	
 	MAKE_CATEGORY_TREE();	
 
@@ -3273,8 +3348,8 @@ function EXEC_BUY_MARKET_ITEM()
 	
 	if IS_ENABLE_BUY_TP_ITEM() == false then
 		local frame = ui.GetFrame("tpitem");
-		frame:ShowWindow(0);
-		TPITEM_CLOSE(frame);
+		--frame:ShowWindow(0);
+		TPITEM_RESET(frame);
 		return;
 	end
 
@@ -3282,8 +3357,8 @@ function EXEC_BUY_MARKET_ITEM()
 	btn:SetEnable(1);
 		
 	local frame = ui.GetFrame("tpitem");
-	frame:ShowWindow(0);
-	TPITEM_CLOSE(frame);
+	--frame:ShowWindow(0);
+	TPITEM_RESET(frame);
 end
 --///////////////////////////////////////////////////////////////////////////////////////////구매 Code end
 
@@ -4198,7 +4273,7 @@ function GETBANNERURL(webUrl)
 	
 	local url = config.GetBannerImgURL();	
 	local urlStr = string.format("%s%s.png", url,webUrl );
-	print(url,webUrl,urlStr)
+	
 	return urlStr;
 end
 
@@ -4339,19 +4414,25 @@ function GET_TPITEMID_BY_ITEM_NAME(itemName)
 end
 
 function CHECK_ALREADY_IN_LIMIT_ITEM(frame, tpItem)
-	local limit = GET_LIMITATION_TO_BUY(tpItem.ClassID);
+	local limit, limit_count = GET_LIMITATION_TO_BUY(tpItem.ClassID);
 	if limit == 'NO' then
 		return true;
 	end
 
+	local basket_count = 0;
 	local basketslotset = GET_CHILD_RECURSIVELY(frame, 'basketslotset');
 	local slotCnt = basketslotset:GetSlotCount();
 	for i = 0, slotCnt - 1 do
 		local slot = basketslotset:GetSlotByIndex(i);
 		if slot:GetUserValue('TPITEMNAME') == tpItem.ClassName then
-			return false;		
+			basket_count = basket_count + 1;
 		end	
 	end
+	
+	if basket_count >= limit_count then
+		return false;
+	end
+
 	return true;
 end
 

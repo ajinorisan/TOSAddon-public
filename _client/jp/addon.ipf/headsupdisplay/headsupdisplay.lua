@@ -48,10 +48,7 @@ function UPDATE_REPRESENTATION_CLASS_ICON(frame, msg, argStr, argNum)
 end
 
 function CANT_RUN_ALARM(frame, msg, argStr, argNum)
-	local gauge_name = 'sta1'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		gauge_name = 'sta1_relic'
-	end
+	local gauge_name = hud.GetHeadGuageName(2)
 
 	local staGauge = GET_CHILD_RECURSIVELY(frame, gauge_name, 'ui::CGauge')
 	staGauge:SetGrayStyle(0);
@@ -134,7 +131,7 @@ function CONTEXT_MY_INFO(frame, ctrl)
 	ui.OpenContextMenu(context);
 end
 
-function HEADSUPDISPLAY_ON_MSG(frame, msg, argStr, argNum)    
+function HEADSUPDISPLAY_ON_MSG(frame, msg, argStr, argNum)	
 	if msg == 'GAME_START' then
 		local equip = 1
 		local relic_item = session.GetEquipItemBySpot(item.GetEquipSpotNum('RELIC'))
@@ -147,19 +144,16 @@ function HEADSUPDISPLAY_ON_MSG(frame, msg, argStr, argNum)
 		HEADSUPDISPLAY_UPDATE_RP_VISIBLE(frame, equip)
 	end
 
-	local hp_name = 'hp'
-	local sp_name = 'sp'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		hp_name = 'hp_relic'
-		sp_name = 'sp_relic'
-	end
+	local hp_name = hud.GetHeadGuageName(0)
+	local sp_name = hud.GetHeadGuageName(1)
+
 	local hpGauge = GET_CHILD_RECURSIVELY(frame, hp_name, 'ui::CGauge')
 	local spGauge = GET_CHILD_RECURSIVELY(frame, sp_name, 'ui::CGauge')
-	if msg == 'STANCE_CHANGE' or msg == 'NAME_UPDATE' or msg == 'LEVEL_UPDATE' or msg == 'GAME_START' or msg == 'CHANGE_COUNTRY' or msg == 'MYPC_CHANGE_SHAPE' then        
+	if msg == 'STANCE_CHANGE' or msg == 'NAME_UPDATE' or msg == 'LEVEL_UPDATE' or msg == 'GAME_START' or msg == 'CHANGE_COUNTRY' or msg == 'MYPC_CHANGE_SHAPE' then
 		local levelRichText = GET_CHILD(frame, "level_text", "ui::CRichText");
 		local level = GETMYPCLEVEL();
-        levelRichText:SetText('{@st41}Lv. '..level);
-
+		levelRichText:SetText('{@st41}Lv. '..level);
+		
 		local MySession = session.GetMyHandle()
 		local CharName = info.GetFamilyName(MySession);
 		local nameRichText = GET_CHILD(frame, "name_text", "ui::CRichText");
@@ -170,7 +164,7 @@ function HEADSUPDISPLAY_ON_MSG(frame, msg, argStr, argNum)
         local MyJobNum = TryGetProp(etc, 'RepresentationClassID', 'None')
         if MyJobNum == 'None' or tonumber(MyJobNum) == 0 then
             MyJobNum = info.GetJob(MySession);
-        end        
+        end
 
 		local JobCtrlType = GetClassString('Job', MyJobNum, 'CtrlType');
 		config.SetConfig("LastJobCtrltype", JobCtrlType);
@@ -185,23 +179,23 @@ function HEADSUPDISPLAY_ON_MSG(frame, msg, argStr, argNum)
  		
 	end
 
-	if msg == 'LEVEL_UPDATE' or msg == 'STAT_UPDATE' or msg == 'TAKE_DAMAGE' or msg == 'TAKE_HEAL' or msg == 'GAME_START' or msg == 'CHANGE_COUNTRY' then
+	if msg == 'LEVEL_UPDATE' or msg == 'STAT_UPDATE' or msg == 'TAKE_DAMAGE' or msg == 'TAKE_HEAL' or msg == 'GAME_START' or msg == 'CHANGE_COUNTRY' then		
 		local stat = info.GetStat(session.GetMyHandle());
 		if stat ~= nil then
-		local beforeVal = hpGauge:GetCurPoint();
-		if beforeVal > 0 and stat.HP < beforeVal then
-			UI_PLAYFORCE(hpGauge, "gauge_damage");
-		end		
+			local beforeVal = hpGauge:GetCurPoint();
+			if beforeVal > 0 and stat.HP < beforeVal then
+				UI_PLAYFORCE(hpGauge, "gauge_damage");
+			end
 
-		hpGauge:SetMaxPointWithTime(stat.HP, stat.maxHP, 0.1, 0.5);
-		spGauge:SetMaxPointWithTime(stat.SP, stat.maxSP, 0.1, 0.5);
+			hpGauge:SetMaxPointWithTime(stat.HP, stat.maxHP, 0.1, 0.5);
+			spGauge:SetMaxPointWithTime(stat.SP, stat.maxSP, 0.1, 0.5);
 
-		local hpRatio = stat.HP / stat.maxHP;
-		if hpRatio <= 0.3 and hpRatio > 0 then
-            --hpGauge:SetBlink(0.0, 1.0, 0xffff3333); -- (duration, 주기, 색상) -- 게이지 양 끝에 점멸되는 버그 잡고 써야함.
-		else
-			hpGauge:ReleaseBlink();
-		end
+			local hpRatio = stat.HP / stat.maxHP;
+			if hpRatio <= 0.3 and hpRatio > 0 then
+				--hpGauge:SetBlink(0.0, 1.0, 0xffff3333); -- (duration, 주기, 색상) -- 게이지 양 끝에 점멸되는 버그 잡고 써야함.
+			else
+				hpGauge:ReleaseBlink();
+			end
 
 		end
 		frame:Invalidate();
@@ -220,9 +214,10 @@ function HUD_SET_EMBLEM(frame, jobClassID, isChangeMainClass)
     if jobIcon == nil then
         return;
     end    
+	
     local mySession = session.GetMySession();
     local jobPic = GET_CHILD_RECURSIVELY(frame, 'jobPic');
-    jobPic:SetImage(jobIcon);
+	jobPic:SetImage(jobIcon);	
     UPDATE_MY_JOB_TOOLTIP(jobClassID, jobPic, jobCls, isChangeMainClass);
     HEADSUPDISPLAY_SET_CAMP_BTN(frame);
 end
@@ -230,32 +225,29 @@ end
 function STAMINA_UPDATE(frame, msg, argStr, argNum)
 	session.UpdateMaxStamina();
 
-	local sta_name = 'sta1'
-	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
-		sta_name = 'sta1_relic'
-	end
+	local sta_name = hud.GetHeadGuageName(2)
 
 	local stGauge = GET_CHILD_RECURSIVELY(frame, sta_name, 'ui::CGauge')
 	stGauge:ShowWindow(1)
 	
-	local stat 		= info.GetStat(session.GetMyHandle());
+	local stat = info.GetStat(session.GetMyHandle());
 	if stat ~= nil then
-	stGauge:StopTimeProcess();
-	local stamanaValue = stat.Stamina;
+		stGauge:StopTimeProcess();
+		local stamanaValue = stat.Stamina;
 
-	if stamanaValue > 0 then
-		stamanaValue = stamanaValue + 999;		-- ui에서 0인데 실제로는 아직 sta가 남아있어서 ui출력할때 999더해서 출력함. 1000으로하면 max보다 올라가므로 999로.
+		if stamanaValue > 0 then
+			stamanaValue = stamanaValue + 999;		-- ui에서 0인데 실제로는 아직 sta가 남아있어서 ui출력할때 999더해서 출력함. 1000으로하면 max보다 올라가므로 999로.
+		end
+
+		stGauge:SetPoint( math.floor(stamanaValue / 1000), stat.MaxStamina / 1000);
+
+		local staRatio = stat.Stamina / stat.MaxStamina;
+		if staRatio <= 0.3 and staRatio > 0 then
+			stGauge:SetBlink(0.0, 1.0, 0xffffffff);
+		else
+			stGauge:ReleaseBlink();
+		end
 	end
-        
-	stGauge:SetPoint( math.floor(stamanaValue / 1000), stat.MaxStamina / 1000);	
-    	
-	local staRatio = stat.Stamina / stat.MaxStamina;
-	if staRatio <= 0.3 and staRatio > 0 then
-		stGauge:SetBlink(0.0, 1.0, 0xffffffff);
-	else
-		stGauge:ReleaseBlink();
-	end
-end
 end
 
 function CAUTION_DAMAGE_INFO(damage)
@@ -264,8 +256,8 @@ function CAUTION_DAMAGE_INFO(damage)
 	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
 		hp_name = 'hp_relic'
 	end
-
 	local hpGauge = GET_CHILD_RECURSIVELY(frame, hp_name, 'ui::CGauge')
+
 
 	hpGauge:SetCautionBlink(damage, 1.0, 0xffffffff);
 end
@@ -509,49 +501,13 @@ end
 
 function HEADSUPDISPLAY_UPDATE_RP_VISIBLE(frame, type)
 	HEADSUPDISPLAY_OPTION['relic_equip'] = type
-	local bg_default = GET_CHILD_RECURSIVELY(frame, 'gaugebg_default')
-	local bg_relic = GET_CHILD_RECURSIVELY(frame, 'gaugebg_relic')
-	local myclasspic1 = GET_CHILD_RECURSIVELY(frame, 'myclasspic1')
-	local myhpspright = GET_CHILD_RECURSIVELY(frame, 'myhpspright')
+
 	local jopicon = GET_CHILD_RECURSIVELY(frame, 'jobPic');
-	if type == 1 then
-		bg_default:ShowWindow(0)
-		bg_relic:ShowWindow(1)
-		local left_image = frame:GetUserConfig('LEFT_IMAGE_RELIC')
-		myclasspic1:SetImage(left_image)
-		local right_image = frame:GetUserConfig('RIGHT_IMAGE_RELIC')
-		myhpspright:SetImage(right_image)
 
-		local right_height = frame:GetUserConfig('RIGHT_HEIGHT_RP')
-		local right_margin = myhpspright:GetMargin()
-		local margin_top = frame:GetUserConfig('RIGHT_MARGIN_TOP_RP')
+	STAMINA_UPDATE(frame)
+	HEADSUPDISPLAY_UPDATE_RP_GAUGE(frame)
 
-		myhpspright:Resize(myhpspright:GetWidth(), right_height)
-		myhpspright:SetMargin(right_margin.left, margin_top, right_margin.right, right_margin.bottom)
-		jopicon:SetMargin(0, 5, 0, 0)
-		
-		HEADSUPDISPLAY_UPDATE_RP_GAUGE(frame)
 
-		STAMINA_UPDATE(frame)
-	else
-		bg_relic:ShowWindow(0)
-		bg_default:ShowWindow(1)
-		local left_image = frame:GetUserConfig('LEFT_IMAGE_DEFAULT')
-		myclasspic1:SetImage(left_image)
-		local right_image = frame:GetUserConfig('RIGHT_IMAGE_DEFAULT')
-		myhpspright:SetImage(right_image)
-
-		local right_height = frame:GetUserConfig('RIGHT_HEIGHT_DEF')
-		local right_margin = myhpspright:GetMargin()
-		local margin_top = frame:GetUserConfig('RIGHT_MARGIN_TOP_DEF')
-
-		myhpspright:Resize(myhpspright:GetWidth(), right_height)
-		myhpspright:SetMargin(right_margin.left, margin_top, right_margin.right, right_margin.bottom)
-
-		jopicon:SetMargin(0, 8, 0, 0)
-
-		STAMINA_UPDATE(frame)
-	end
 end
 
 function HEADSUPDISPLAY_UPDATE_RELIC_EQUIP(frame, msg, argStr, argNum)
@@ -562,8 +518,8 @@ function HEADSUPDISPLAY_UPDATE_RP_GAUGE(frame)
 	if HEADSUPDISPLAY_OPTION.relic_equip == 0 then
 		return
 	end
-
-	local rpGauge = GET_CHILD_RECURSIVELY(frame, 'rp', 'ui::CGauge')
+	local rpname =  hud.GetHeadGuageName(3);
+	local rpGauge = GET_CHILD_RECURSIVELY(frame, rpname, 'ui::CGauge')
 	rpGauge:ShowWindow(1)
 	
 	rpGauge:StopTimeProcess()

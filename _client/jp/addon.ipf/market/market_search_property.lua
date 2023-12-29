@@ -114,7 +114,11 @@ local MARKET_OPTION_GROUP_PROP_LIST = {
 		"ice_orb",
 		"gravitation_spear",
 		"carnage_scythe",
-		"ice_arrow"		
+		"ice_arrow",
+		"walking_recover_sta",
+		"reduce_rsp_time",
+		"secret_medicine_time",
+		"ignore_deadremove",
 	}
 };
 

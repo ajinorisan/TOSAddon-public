@@ -253,7 +253,7 @@ function CTRLSET_CREATE(frame, handle, buff, buffCls, buffIndex, buffID)
 		end
 
 		if buff.over > 1 then
-			slot:SetText('{s13}{ol}{b}'..buff.over, 'count', ui.RIGHT, ui.BOTTOM, -5, -3);
+			slot:SetText('{s24}{ol}{b}'..buff.over, 'count', ui.RIGHT, ui.BOTTOM, -5, -3);
 		else
 			slot:SetText("");
 		end

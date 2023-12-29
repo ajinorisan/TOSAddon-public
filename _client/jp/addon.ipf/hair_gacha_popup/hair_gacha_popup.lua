@@ -36,7 +36,7 @@ function INIT_HAIR_GACHA_RET_TABLE(itemliststr)
 			table.insert(itemranktable, grade )
 		end 
 	end
-	if #itemcnttable ~= 11 then
+	if #itemcnttable ~= 10 and #itemcnttable ~= 11 then
 		return false;
 	end
 	
@@ -48,7 +48,7 @@ function INIT_HAIR_GACHA_RET_TABLE(itemliststr)
 
 	local defsmallpoptime = 0
 
-	for i = 1, 11 do
+	for i = 1, #itemcnttable do
 		g_hairgacharresult[i] = {}
 		g_hairgacharresult[i]["name"] = itemnametable[i]
 		g_hairgacharresult[i]["cnt"] = itemcnttable[i]
@@ -56,39 +56,70 @@ function INIT_HAIR_GACHA_RET_TABLE(itemliststr)
 		g_hairgacharresult[i]["grade"] = itemranktable[i]
 		defsmallpoptime = defsmallpoptime + 0.1
 	end
+	if #itemcnttable == 11 then
+		g_hairgacharresult[1]["xindex"] = -2
+		g_hairgacharresult[1]["yindex"] = -1
 
-	g_hairgacharresult[1]["xindex"] = -2
-	g_hairgacharresult[1]["yindex"] = -1
+		g_hairgacharresult[2]["xindex"] = -1
+		g_hairgacharresult[2]["yindex"] = -1
 
-	g_hairgacharresult[2]["xindex"] = -1
-	g_hairgacharresult[2]["yindex"] = -1
+		g_hairgacharresult[3]["xindex"] = 0
+		g_hairgacharresult[3]["yindex"] = -1
 
-	g_hairgacharresult[3]["xindex"] = 0
-	g_hairgacharresult[3]["yindex"] = -1
+		g_hairgacharresult[4]["xindex"] = 1
+		g_hairgacharresult[4]["yindex"] = -1
 
-	g_hairgacharresult[4]["xindex"] = 1
-	g_hairgacharresult[4]["yindex"] = -1
+		g_hairgacharresult[5]["xindex"] = 2
+		g_hairgacharresult[5]["yindex"] = -1
 
-	g_hairgacharresult[5]["xindex"] = 2
-	g_hairgacharresult[5]["yindex"] = -1
+		g_hairgacharresult[6]["xindex"] = -2.5
+		g_hairgacharresult[6]["yindex"] = 0
 
-	g_hairgacharresult[6]["xindex"] = -2.5
-	g_hairgacharresult[6]["yindex"] = 0
+		g_hairgacharresult[7]["xindex"] = -1.5
+		g_hairgacharresult[7]["yindex"] = 0
 
-	g_hairgacharresult[7]["xindex"] = -1.5
-	g_hairgacharresult[7]["yindex"] = 0
+		g_hairgacharresult[8]["xindex"] = -0.5
+		g_hairgacharresult[8]["yindex"] = 0
 
-	g_hairgacharresult[8]["xindex"] = -0.5
-	g_hairgacharresult[8]["yindex"] = 0
+		g_hairgacharresult[9]["xindex"] = 0.5
+		g_hairgacharresult[9]["yindex"] = 0
 
-	g_hairgacharresult[9]["xindex"] = 0.5
-	g_hairgacharresult[9]["yindex"] = 0
+		g_hairgacharresult[10]["xindex"] = 1.5
+		g_hairgacharresult[10]["yindex"] = 0
 
-	g_hairgacharresult[10]["xindex"] = 1.5
-	g_hairgacharresult[10]["yindex"] = 0
-
-	g_hairgacharresult[11]["xindex"] = 2.5
-	g_hairgacharresult[11]["yindex"] = 0
+		g_hairgacharresult[11]["xindex"] = 2.5
+		g_hairgacharresult[11]["yindex"] = 0
+	elseif #itemcnttable == 10 then
+		g_hairgacharresult[1]["xindex"] = -2
+		g_hairgacharresult[1]["yindex"] = -1
+			
+		g_hairgacharresult[2]["xindex"] = -1
+		g_hairgacharresult[2]["yindex"] = -1
+			
+		g_hairgacharresult[3]["xindex"] = 0
+		g_hairgacharresult[3]["yindex"] = -1
+			
+		g_hairgacharresult[4]["xindex"] = 1
+		g_hairgacharresult[4]["yindex"] = -1
+			
+		g_hairgacharresult[5]["xindex"] = 2
+		g_hairgacharresult[5]["yindex"] = -1
+			
+		g_hairgacharresult[6]["xindex"] = -2
+		g_hairgacharresult[6]["yindex"] = 0
+			
+		g_hairgacharresult[7]["xindex"] = -1
+		g_hairgacharresult[7]["yindex"] = 0
+			
+		g_hairgacharresult[8]["xindex"] = 0
+		g_hairgacharresult[8]["yindex"] = 0
+			
+		g_hairgacharresult[9]["xindex"] = 1
+		g_hairgacharresult[9]["yindex"] = 0
+			
+		g_hairgacharresult[10]["xindex"] =2
+		g_hairgacharresult[10]["yindex"] =0
+	end
 
 	return true;
 
@@ -106,7 +137,6 @@ function GACHA_POPUP_MSG(frame, msg, itemname, itemcnt)
 	fulldark:SetUserValue('GACHA_COUNT', 0);
 	
 	frame:SetUserValue('IS_LETICIA', isLeticia);
-
 	if msg == "HAIR_GACHA_POPUP" or msg == "HAIR_GACHA_POPUP_10"  then
 		type = "hair"
 	elseif msg == "RBOX_GACHA_POPUP" or  msg == "RBOX_GACHA_POPUP_10" or isLeticia == 1 then
@@ -175,12 +205,14 @@ function SHOW_GACHA_10(isLeticia, itemliststr, type)
 	if INIT_HAIR_GACHA_RET_TABLE(itemliststr) == false then
 		return;
 	end
+	local myTable = itemliststr:split("&")
+	local itemCount = (#myTable - 1)/2;
 
-	for i = 1, 11 do 
+	for i = 1, itemCount do 
 		HAIR_GACHA_RESERVE_POP_SMALL_FRAME(i, type)
 	end
 
-	local reserveScp = string.format('DARK_FRAME_DO_OPEN(%d, %d)', isLeticia, 11);
+	local reserveScp = string.format('DARK_FRAME_DO_OPEN(%d, %d)', isLeticia, itemCount);
 	ReserveScript(reserveScp , 1.5);
 	ReserveScript( string.format("HAIR_GACHA_POP_BIG_FRAME(%d, '%s', %d)", 1, type, isLeticia), 1.5);
 end
@@ -477,10 +509,17 @@ function OPEN_COUNT_REWARD_POP_BIG_FRAME(openCount, itemGrade, itemClassName, it
 
 	local bonusimg = GET_CHILD_RECURSIVELY(bigframe, "bonusimg")
 	bigframe:ShowWindow(1);
-
+	local itemcount = GET_CHILD_RECURSIVELY(bigframe,"itemcount")
+	itemcount:ShowWindow(0);
+	
 	local posX = ui.GetSceneWidth() / 2;
 	local posY = ui.GetSceneHeight() / 2;
-	
+
+	if itemClassName == "Piece_Of_Memory_Snigo" then
+		bonusimg:ShowWindow(0)
+		itemcount:ShowWindow(1);
+		itemcount:SetTextByKey("count", itemCount)
+	end
 	if itemGrade == "S" then
 		bonusimg:SetImage("bonus_rank_S");
 		movie.PlayUIEffect(bigframe:GetUserConfig("GACHA_EFT_1"), posX, posY, tonumber(bigframe:GetUserConfig("GACHA_EFT_SCALE_1")));

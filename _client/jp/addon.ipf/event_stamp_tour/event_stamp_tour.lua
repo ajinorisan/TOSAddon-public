@@ -19,6 +19,12 @@ function ON_EVENT_STAMP_TOUR_UI_OPEN_COMMAND()
 	frame:ShowWindow(1)
 end
 
+function ON_POPOBOOST_EVENT_STAMP_TOUR_UI_OPEN_COMMAND()
+	local frame = ui.GetFrame("event_stamp_tour")
+	frame:SetUserValue("GROUP_NAME","POPO_EVENT_STAMP_2312")
+	frame:ShowWindow(1)
+end
+
 -- controlset 초기화
 function EVENT_STAMP_TOUR_CREATE_PAGE(frame)
 	local groupName = frame:GetUserValue("GROUP_NAME")
@@ -37,13 +43,11 @@ function EVENT_STAMP_TOUR_CREATE_PAGE(frame)
 			label_tab:AddItem("", true, "EVENT_STAMP_TOUR_SET_PAGE", image, image.."_cursoron", image.."_clicked", cls.TypeName, false);
 		end
 	end
-	
 	-- 미션 내용 control 생성
 	local misson_gb = GET_CHILD_RECURSIVELY(frame, 'misson_gb');
 	local DESC_OFFSET_Y = frame:GetUserConfig('DESC_OFFSET_Y');
 	misson_gb:RemoveAllChild();
 	local misson_gb_y = 0;
-
 	for i = 1, 3 do
 		local controlsetName = 'event_stamp_tour_mission_block'
 		if groupName == "EVENT_STAMP_TOUR_SUMMER" then
@@ -64,20 +68,31 @@ function EVENT_STAMP_TOUR_CREATE_PAGE(frame)
 
 end
 
-function EVENT_STAMP_TOUR_SET_PAGE(frame)
+function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 
 	local REWARD_TEXT_FONT = frame:GetUserConfig('REWARD_TEXT_FONT');
 	local REWARD_CLEAR_BG_ALPHA = frame:GetUserConfig('REWARD_CLEAR_BG_ALPHA');
 	local REWARD_CHECK_BG_ALPHA = frame:GetUserConfig('REWARD_CHECK_BG_ALPHA');
 	local REWARD_DESC_OFFSET_Y = frame:GetUserConfig('REWARD_DESC_OFFSET_Y');
+	local Prev_Page = frame:GetUserIValue("PrevPage")
 
 	local misson_gb = GET_CHILD_RECURSIVELY(frame, 'misson_gb');
 	local label_tab = GET_CHILD_RECURSIVELY(frame, 'label_tab');
-
+	--misson_gb:RemoveAllChild();
 	local currentpage = label_tab:GetSelectItemIndex();
 	local groupName = frame:GetUserValue("GROUP_NAME")
-	local missionCls = EVENT_STAMP_GET_CURRENT_MISSION(groupName,currentpage)
+	local missionCls = EVENT_STAMP_GET_CURRENT_MISSION(groupName, currentpage)
 	
+	if groupName == "POPO_EVENT_STAMP_2312" then
+		local maxpopoboostpage = 7;
+		local popoboost_stamp_value = EVENT_STAMP_TOUR_POPOBOOST_CLEAR_CHECK(groupName, currentpage);
+		if popoboost_stamp_value == false and currentpage ~= maxpopoboostpage then
+			label_tab:ChangeTab(Prev_Page)
+			ui.SysMsg(ClMsg('popoboostguidequestblock'));
+			return;
+		end
+	end
+
 	local typename_text = GET_CHILD_RECURSIVELY(frame, 'typename_text');
 	typename_text:SetTextByKey('value', missionCls.NoteName);
 
@@ -86,16 +101,20 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 	for i = 1, 3 do
 		local clearprop = TryGetProp(missionCls, "ClearProp"..i, 'None');
 		local clear = TryGetProp(accObj, clearprop, 'false');
-
 		local ctrlSet = GET_CHILD_RECURSIVELY(misson_gb, 'MISSIONBLOCK_'..i);
 		ctrlSet = tolua.cast(ctrlSet, 'ui::CControlSet');
+		--포포 가이드 퀘스트 시 desc이 없이 생성하기.
+		local groupName = frame:GetUserValue("GROUP_NAME")
 		if TryGetProp(missionCls,"Desc"..i,'None') == 'None' then
 			for j = i,3 do
-				ctrlSet:ShowWindow(0)
+				local unCtrlSet = GET_CHILD_RECURSIVELY(misson_gb, 'MISSIONBLOCK_'..j);
+				unCtrlSet:ShowWindow(0)
 			end
 			break
-		end
+		end	
+
 		ctrlSet:ShowWindow(1)
+		
 		-- 난이도
 		local missionName = TryGetProp(missionCls,"Name"..i,'None')
 		local levet_text = GET_CHILD_RECURSIVELY(ctrlSet, 'levet_text');
@@ -111,6 +130,9 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 		local missiontext = dic.getTranslatedStr(TryGetProp(missionCls, "Desc"..i, ""));
 		local delimeter = string.find(missiontext,'::')
 
+		if missiontext == "None" then
+			missiontext = ""
+		end
 		-- 툴팁으로 자세한 미션 내용 출력
 		if delimeter ~= nil then
 			local mainText = string.sub(missiontext,1,delimeter-1)
@@ -134,7 +156,7 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 		local proplist = StringSplit(checkprop, "/");
 		local propname = proplist[1];
 		local goalcnt = proplist[2];
-		local curcnt = TryGetProp(accObj, propname, 0);
+		local curcnt = TryGetProp(accObj, propname, -1);
 
 		local gauge = GET_CHILD_RECURSIVELY(ctrlSet, 'gauge');
 		gauge:SetPoint(curcnt, goalcnt);
@@ -208,7 +230,17 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 		if helpType == nil or helpType == 0 then
 			if helpType == 0 and helpText ~="None" then
 				helpBtn:SetEventScript(ui.LBUTTONUP, "None");
-				helpBtn:SetTextTooltip(helpDesc.."{nl} {nl}"..helpText)
+				--포포 가이드 퀘스트 시 상황 고려
+				local groupName = frame:GetUserValue("GROUP_NAME")
+				if groupName ~= "POPO_EVENT_STAMP_2312" then
+					helpBtn:SetextTooltip(helpDesc.."{nl} {nl}"..helpText)
+				else
+					if helpDesc == nil or helpDesc == "null" then
+						helpBtn:SetTextTooltip(helpText)
+					else
+						helpBtn:SetTextTooltip(helpDesc.."{nl} {nl}"..helpText)
+					end
+				end
 			else
 				helpBtn:SetEnable(0)
 			end
@@ -224,6 +256,10 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 			local go_btn = GET_CHILD_RECURSIVELY(ctrlSet,'go_btn')
 			go_btn:SetEnable(0)
 			helpBtn:SetEnable(0)
+			local groupName = frame:GetUserValue("GROUP_NAME")
+			if groupName == "POPO_EVENT_STAMP_2312" then
+				clear_Pic:ShowWindow(0);
+			end		
 		end
 		local weekNum = TryGetProp(missionCls, "ArgNum"..i, 0);
 		local comingsoon_Pic = GET_CHILD_RECURSIVELY(ctrlSet, 'comingsoon_Pic');
@@ -239,7 +275,7 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 				else
 					time = imcTime.GetSysTimeByStr(time)
 					isHidden = EVENT_STAMP_IS_VALID_WEEK_SUMMER(weekNum, time) == false or EVENT_STAMP_IS_HIDDEN_SUMMER(accObj,(3 * currentpage) + i) == true
-				end				
+				end			
 			elseif groupName == "EVENT_STAMP_TOUR_CHRISTMAS" then
 				isHidden = EVENT_STAMP_IS_VALID_CHRISTMAS(weekNum) == false
 			end
@@ -258,6 +294,34 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame)
 			end
 		end
 	end
+	frame:SetUserValue("PrevPage", currentpage)
+end
+
+function EVENT_STAMP_TOUR_POPOBOOST_CLEAR_CHECK(propName, count)
+	local pc = GetMyPCObject();
+    if pc == nil then
+		return false;
+    end
+    local acc = GetMyAccountObj(pc);
+	if acc == nil then
+		return false;
+	end
+
+	local num = (count) * 3;
+
+	for i = 1, num do
+		local Name, maxValue, week = EVENT_STAMP_GET_INFO_BY_NAME(i, propName)
+		if maxValue ~= nil then
+			local curValue = TryGetProp(acc, Name, -1)
+			if curValue == -1 then
+				return false;
+			end
+			if curValue < maxValue then
+				return false;
+			end
+		end
+	end
+	return true;
 end
 
 function EVENT_STAMP_TOUR_MISSION_CLEAR_CHECK(frame, ctrl, nameSpace, argNum)
@@ -310,7 +374,7 @@ function EVENT_STAMP_TOUR_MISSION_CLEAR_CHECK(frame, ctrl, nameSpace, argNum)
 	if GODDESS_ROULETTE_COIN_MAX_COUNT <= nowCount then
 		maxCnt = true;
 	end
-	
+
 	if isTradable == true and maxCnt == false then
 		EVENT_STAMP_TOUR_MISSION_CLEAR(groupName, numvalue)
 	else
@@ -381,6 +445,11 @@ function ON_EVENT_STAMP_TOUR_REWARD_GET(frame, msg, argstr, argnum)
 	local go_btn = GET_CHILD_RECURSIVELY(ctrlSet,'go_btn')
 	go_btn:SetEnable(0)
 
+	local groupName = frame:GetUserValue("GROUP_NAME")
+	if groupName == "POPO_EVENT_STAMP_2312" then
+		clear_Pic:ShowWindow(0);
+	end
+
 	label_tab:EnableHitTest(0);
 	local funcName = string.format("HOLDTABUI_UNFREEZE('%s')",frame:GetName())
 	ReserveScript(funcName, 2.5);
@@ -422,7 +491,7 @@ function ON_EVENT_STAMP_TOUR_GO_BUTTON_CLICK(parent,ctrl,argStr,argNum)
 		pc.ReqExecuteTx("SCR_EVENT_STAMP_TOUR_SHORTCUT", argList);
 	elseif type == 'scp' then
 		local Script = _G[argList[2]]
-		Script()
+		Script(tonumber(param1))
 	end
 end
 
@@ -458,6 +527,10 @@ function SCR_EVENT_STAMP_OPEN_GODDESS_SOCKET_UI()
 	SCR_EVENT_STAMP_OPEN_GODDESS_MANAGER_UI(2)
 end
 
+function SCR_EVENT_STAMP_OPEN_GODDES_INHERITANCE_UI()
+	SCR_EVENT_STAMP_OPEN_GODDESS_MANAGER_UI(4)
+end
+
 function SCR_EVENT_STAMP_OPEN_CABINET_UI(index)
 	local frame = ui.GetFrame('item_cabinet')
 	frame:ShowWindow(1)
@@ -482,6 +555,12 @@ end
 function SCR_EVENT_STAMP_OPEN_SKILL_GEM_CABINET_UI()
 	SCR_EVENT_STAMP_OPEN_CABINET_UI(4)
 end
+
+function SCR_EVENT_STAMP_OPEN_POPOBOOST()
+	local frame = ui.GetFrame('popoboost')
+	frame:ShowWindow(1)
+end
+
 
 function SCR_EVENT_STAMP_OPEN_ADVENTURE_BOOK_MAP()
 	local frame = ui.GetFrame('adventure_book')
@@ -512,12 +591,40 @@ function SCR_EVENT_STAMP_OPEN_INDUNINFO_CHALLENGE()
 	INDUNINFO_UI_OPEN(frame, 1, "Challenge_Auto_Hard_Party")
 end
 
+function SCR_EVENT_STAMP_OPEN_DELMORE_AUTO()
+	local frame = ui.GetFrame("induninfo")
+	frame:ShowWindow(1)
+	INDUNINFO_UI_OPEN(frame, 2, "Goddess_Raid_Delmore_Solo")
+end
+
+
+function SCR_EVENT_STAMP_OPEN_SPREADER_AUTO()
+	local frame = ui.GetFrame("induninfo")
+	frame:ShowWindow(1)
+	INDUNINFO_UI_OPEN(frame, 2, "Goddess_Raid_Spreader_Auto")
+end
+
+function SCR_EVENT_STAMP_OPEN_FALOUROS_AUTO()
+	local frame = ui.GetFrame("induninfo")
+	frame:ShowWindow(1)
+	INDUNINFO_UI_OPEN(frame, 2, "Goddess_Raid_Falouros_Auto")
+end
+
+
+function SCR_EVENT_STAMP_OPEN_ROZE_AUTO()
+	local frame = ui.GetFrame("induninfo")
+	frame:ShowWindow(1)
+	INDUNINFO_UI_OPEN(frame, 2, "Goddess_Raid_Roze_Auto")
+end
+
+
+
 function SCR_EVENT_STAMP_OPEN_INDUNINFO_MYSTIC()
 	local frame = ui.GetFrame("induninfo")
 	frame:ShowWindow(1)
 	local pattern_info = mythic_dungeon.GetPattern(mythic_dungeon.GetCurrentSeason())
 	local mapCls = GetClassByType("Map",pattern_info.mapID)
-	INDUNINFO_UI_OPEN(frame, 2, TryGetProp(mapCls,"ClassName"))
+	INDUNINFO_UI_OPEN(frame, 2, TryGtProp(mapCls,"ClassNaeme"))
 end
 
 function SCR_EVENT_STAMP_OPEN_INDUNINFO_TOSHERO()

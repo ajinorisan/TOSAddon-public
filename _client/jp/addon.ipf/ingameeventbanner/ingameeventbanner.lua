@@ -13,7 +13,7 @@ end
 function EVENTBANNER_FRAME_OPEN(frame)
 	ui.OpenFrame("ingameeventbanner")
 	UPDATE_EVENTBANNER_UI(frame)
-	UPDATE_EVENTBANNER_RANKINGS(frame)
+	UPDATE_EVENTBANNER_RANKINGS(frame)	
 	
 	--solodungeon & usertype
 	control.CustomCommand("REQ_EVENTBANNER_INFO", 0);
@@ -30,8 +30,8 @@ end
 function SHOW_REMAIN_BANNER_TIME(ctrl)
 	local curIndex = ctrl:GetUserIValue("curIndex")
 	local banner = GetClassByIndex('event_banner', curIndex)
-	local remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.EndTimeYYYYMM, banner.EndTimeDDHHMM)	
-	local remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.ExchangeTimeYYYYMM, banner.ExchangeTimeDDHHMM)
+	local remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(TryGetProp(banner, 'EndTimeYYYYMM', 'None'), TryGetProp(banner,'EndTimeDDHHMM', 'None'))
+	local remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(TryGetProp(banner,'ExchangeTimeYYYYMM', 'None'), TryGetProp(banner,'ExchangeTimeDDHHMM', 'None'))
 	
 	local end_date_time = TryGetProp(banner, 'EndDateTime', 'None')	
 	local end_ret_time = nil
@@ -310,9 +310,9 @@ function UPDATE_EVENTBANNER_UI(frame)
 		if banner_nation == 'None' or banner_nation == config.GetServiceNation() then
 			local showtype = TryGetProp(banner, "ShowType", "None");
 			if GET_ENABLE_SHOW_BANNER(showtype) == true then
-				local bannerCtrl = bannerBox:CreateOrGetControlSet('ingame_event_banner', 'event_banner_' .. bannerCtrlIndex, 0, eventUserBannerHeight + (180 * bannerCtrlIndex + bannerUserCommandIndex * 30));
+				local bannerCtrl = bannerBox:CreateOrGetControlSet('ingame_event_banner', 'event_banner_' .. bannerCtrlIndex, 0, eventUserBannerHeight + (185 * bannerCtrlIndex + bannerUserCommandIndex * 30));
 				bannerCtrl:SetUserValue("bannerIndex", i)
-			
+
 				local bannerImage = GET_CHILD_RECURSIVELY(bannerCtrl, 'banner');
 				bannerImage = tolua.cast(bannerImage, "ui::CPicture");
 				bannerImage:SetImage(banner.ImagePath)
@@ -335,7 +335,7 @@ function UPDATE_EVENTBANNER_UI(frame)
 				
 				local use_start_date_time = false
 
-				local remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.StartTimeYYYYMM, banner.StartTimeDDHHMM)				
+				local remainStartTime = CHECK_EVENTBANNER_REMAIN_TIME(TryGetProp(banner, 'StartTimeYYYYMM', 'None'), TryGetProp(banner, 'StartTimeDDHHMM', 'None'))				
 				local start_date_time = TryGetProp(banner, 'StartDateTime', 'None')
 				local end_date_time = TryGetProp(banner, 'EndDateTime', 'None')
 				
@@ -365,10 +365,10 @@ function UPDATE_EVENTBANNER_UI(frame)
 					local remainExchangeTime = nil
 
 					if use_start_date_time == false then
-						remainNewTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.NewTimeYYYYMM, banner.NewTimeDDHHMM)
-						remainDeadlineTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.DeadlineTimeYYYYMM, banner.DeadlineTimeDDHHMM)
-						remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.EndTimeYYYYMM, banner.EndTimeDDHHMM)
-						remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(banner.ExchangeTimeYYYYMM, banner.ExchangeTimeDDHHMM)
+						remainNewTime = CHECK_EVENTBANNER_REMAIN_TIME(TryGetProp(banner,'NewTimeYYYYMM', 'None'), TryGetProp(banner, 'NewTimeDDHHMM', 'None'))
+						remainDeadlineTime = CHECK_EVENTBANNER_REMAIN_TIME(TryGetProp(banner, 'DeadlineTimeYYYYMM', 'None'), TryGetProp(banner, 'DeadlineTimeDDHHMM', 'None'))
+						remainEndTime = CHECK_EVENTBANNER_REMAIN_TIME(TryGetProp(banner, 'EndTimeYYYYMM', 'None'), TryGetProp(banner, 'EndTimeDDHHMM', 'None'))
+						remainExchangeTime = CHECK_EVENTBANNER_REMAIN_TIME(TryGetProp(banner,'ExchangeTimeYYYYMM', 'None'), TryGetProp(banner, 'ExchangeTimeDDHHMM', 'None'))
 					else
 						remainNewTime = CHECK_EVENTBANNER_REMAIN_TIME(string.format('%04d%02d', start_ret_time['year'], start_ret_time['month']), 
 						string.format('%02d%02d%02d', start_ret_time['day'], start_ret_time['hour'], start_ret_time['min']))

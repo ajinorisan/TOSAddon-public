@@ -89,6 +89,10 @@ function ON_CABINET_ITEM_LIST(frame)
             typeText:SetTextByKey('type', ClMsg('SquadModeReward'));
         elseif whereFrom == 'fishing_statue' then
             typeText:SetTextByKey('type', ClMsg('fishing_statue'));
+        elseif whereFrom == 'high_bid' then
+            typeText:SetTextByKey('type', ClMsg('high_bid'));
+        elseif whereFrom == 'black_market' then
+            typeText:SetTextByKey('type', ClMsg('black_market'));            
         end
         
         -- item picture and name

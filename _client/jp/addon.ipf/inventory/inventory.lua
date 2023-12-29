@@ -40,8 +40,8 @@ function CHECK_INVENTORY_OPTION_EQUIP(itemCls)
 	if itemCls == nil then
 		return 0
 	end
-
-	local itemGrade = itemCls.ItemGrade
+	
+	local itemGrade = itemCls.ItemGrade	
 	local optionConfig = 1
 	if itemGrade == 1 then
 		optionConfig = config.GetXMLConfig("InvOption_Equip_Normal")
@@ -2870,10 +2870,13 @@ function SET_VISIBLE_DYE_BTN_BY_VISIBLE(frame, IsVisible)
 			-- HAIR slot의 아이템 오브젝트의 카테고리 알아냄
 			-- Name == Helmet인 헬맷 착용중 - item_Eqip.xml Category = "Helmet" 참조
 			local equipSpotItem = session.GetEquipItemBySpot(ES_HELMET);
-		
-			if equipSpotItem.type ~= 10000 then 
-				hairColorBtn:ShowWindow(0);
-			-- Name != Helmet인 무언가가 있다. (Icon이 null이 아니므로 무언가 착용 중 인것.)
+			if equipSpotIte ~= nil then
+				if equipSpotItem.type ~= 10000 then 
+					hairColorBtn:ShowWindow(0);
+				-- Name != Helmet인 무언가가 있다. (Icon이 null이 아니므로 무언가 착용 중 인것.)
+				else
+					CHANGE_HAIR_DYE_ICON_VISIBLITY(frame, hairColorBtn);
+				end
 			else		
 				CHANGE_HAIR_DYE_ICON_VISIBLITY(frame, hairColorBtn);
 			end
@@ -3091,7 +3094,7 @@ end
 function _INV_EQUIP_LIST_SET_ICON(slot, icon, equipItem)    
 	local frame = slot:GetTopParentFrame();
 	ICON_SET_EQUIPITEM_TOOLTIP(icon, equipItem, frame:GetName());
-	if frame:GetName() ~= "compare" then
+	if frame:GetName() ~= "compare" then		
 		icon:SetDumpScp('STATUS_DUMP_SLOT_SET');
 		slot:SetEventScript(ui.LBUTTONDOWN, 'CHECK_EQP_LBTN');
 		slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, equipItem.equipSpot);
@@ -3140,7 +3143,7 @@ function _INV_EQUIP_LIST_SET_ICON(slot, icon, equipItem)
 	end	
 end
 
-function SET_EQUIP_SLOT_ITEMGRADE_BG(frame, slot, obj)
+function SET_EQUIP_SLOT_ITEMGRADE_BG(frame, slot, obj)		
 	local slotSkinName = ""
 	local slot_bg_name = slot:GetName() .. "_bg"
 	local slot_bg = GET_CHILD_RECURSIVELY(frame, slot_bg_name)
@@ -3148,7 +3151,7 @@ function SET_EQUIP_SLOT_ITEMGRADE_BG(frame, slot, obj)
 	if topParent:GetName() == "compare" then
 		topParent = frame
 	end
-	local itemgrade = obj.ItemGrade
+	local itemgrade = GET_ITEM_GRADE(obj)		
 	if itemgrade ~= nil and itemgrade ~= 0 and itemgrade ~= 1 and itemgrade ~= "None" then
 		if itemgrade == 2 then
 			slotSkinName = topParent:GetUserConfig("EQUIPSLOT_PIC_MAGIC")
@@ -5213,6 +5216,50 @@ function BEFORE_APPLIED_CAHT_BALLOON_YESSCP_OPEN(invItem)
 	return;
 end
 
+function BEFORE_APPLIED_HUF_SKIN_YESSCP_OPEN(invItem)
+	if invItem == nil then
+		return;
+	end
+	
+	local invFrame = ui.GetFrame("inventory");	
+	local itemobj = GetIES(invItem:GetObject());
+	if itemobj == nil then
+		return;
+	end
+	invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
+	
+	local strLang = TryGetProp(itemobj , 'StringArg')
+	local numLang = TryGetProp(itemobj , 'NumberArg1')
+	if strLang ~='None' then
+		local textmsg = string.format("[ %s ]{nl}", itemobj.Name);
+		
+		local skinData = session.chatballoonskin.GetChatBalloonSkinDataByClassName(strLang);
+		if skinData ~= nil then
+			if skinData.endTime.wYear ~= 2999 then
+				-- 기간제인 해당 말풍선 스킨 보유
+				if numLang ~= 0 then
+					-- 기간제 아이템 사용
+					textmsg = textmsg .. ScpArgMsg("HUDSkin_YESSCP_message2");
+				else
+					-- 무제한 아이템 사용
+					textmsg = textmsg .. ScpArgMsg("HUDSkin_YESSCP_message4");
+				end
+			else
+				-- 무제한인 해당 말풍선 스킨 보유
+				ui.SysMsg(ScpArgMsg("HUDSkin_YESSCP_message3"));
+				return;
+			end
+		else
+			-- 보유하지 않은 말풍선 스킨 아이템 사용
+			textmsg = textmsg .. ScpArgMsg("HUDSkin_YESSCP_message1");
+		end
+		
+		textmsg = textmsg .. ScpArgMsg("HUDSkin_YESSCP_message5");
+    	ui.MsgBox_NonNested(textmsg, itemobj.Name, 'REQUEST_SUMMON_BOSS_TX', "None");
+    end
+	return;
+end
+
 -- 다수 특성 포인트 사용
 local multiple_ability_item_id = '0'
 
@@ -5396,6 +5443,25 @@ function BEFORE_APPLIED_SILVER_GACHA_OPEN(invItem)
 	
 	if itemobj.Script == 'SCR_USE_STRING_GIVE_ITEM_NUMBER_SPLIT' then
 		local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("SilverGacha_check_Use"));
+		ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
+		return;
+	end
+end
+
+function BEFORE_USE_CONSUMABLE_PACKAGE_ITEM(invItem)	
+	if invItem == nil then
+		return;
+	end
+
+	local invFrame = ui.GetFrame("inventory");	
+	local itemobj = GetIES(invItem:GetObject());
+	if itemobj == nil then
+		return;
+	end
+	invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
+	local itemName = itemobj.Name
+	if itemobj.Script == 'SCR_USE_STRING_GIVE_ITEM_NUMBER_SPLIT' then
+		local textmsg = string.format("%s", ScpArgMsg("CheckConsumablePackageItem{ITEM}","ITEM",itemName));
 		ui.MsgBox_NonNested(textmsg, itemobj.Name, "REQUEST_SUMMON_BOSS_TX", "None");
 		return;
 	end

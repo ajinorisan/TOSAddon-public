@@ -43,6 +43,7 @@ function DARK_FRAME_DO_OPEN(isLeticia, itemCount)
 
 	local darkframe = ui.GetFrame("fulldark");
     darkframe:SetUserValue('IS_LETICIA', isLeticia);
+	darkframe:SetUserValue("GACHA_FRAME_MAX_INDEX", itemCount);
     darkframe:SetLayerLevel(97);
 	darkframe:ShowWindow(1);
 end

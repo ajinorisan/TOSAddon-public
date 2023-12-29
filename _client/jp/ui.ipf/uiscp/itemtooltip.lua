@@ -356,7 +356,7 @@ end
 function GET_ITEM_TOOLTIP_DESC(obj, desc)
 
 	local invDesc = GET_ITEM_DESC_BY_TOOLTIP_VALUE(obj);	
-	local byDescColumn = obj.Desc;
+	local byDescColumn = TryGetProp(obj, 'Desc', 'None');
 	if byDescColumn == 'None' then
 		byDescColumn = "";
 	end
@@ -918,7 +918,11 @@ function DRAW_SPECIAL_RANDOM_OPTION(item, desc)
 		local name = TryGetProp(item, op_name, 'None')		
 		local cls = GetClass('goddess_set_option', name)
 		if cls ~= nil then
+			local max = TryGetProp(cls, 'MaxSet', 0)
 			local exprop_value = get_goddess_set_option_exprop(name)
+			if exprop_value > max then
+				exprop_value = max;
+			end
 			-- if exprop_value > 1 then
 				desc = desc .. ' {nl}{img tooltip_attribute5} ' .. ScpArgMsg(name) .. '{nl}'
 			-- end
@@ -929,7 +933,7 @@ function DRAW_SPECIAL_RANDOM_OPTION(item, desc)
 			if exprop_value == 0 then
 				exprop_value = 1
 			end
-			local max = TryGetProp(cls, 'MaxSet', 0)
+			
 			for k = exprop_value + 1, max do
 				local desc_name = string.format('%s_set%d_desc', name, k)
 				desc = desc .. ScpArgMsg(desc_name) .. '{nl}'

@@ -38,7 +38,7 @@ function ITEM_TOOLTIP_ETC(tooltipframe, invitem, argStr, usesubframe)
 	end
 end
 
-function DRAW_ETC_COMMON_TOOLTIP(tooltipframe, invitem, mainframename, from)
+function DRAW_ETC_COMMON_TOOLTIP(tooltipframe, invitem, mainframename, from)		
     local gBox = GET_CHILD(tooltipframe, mainframename,'ui::CGroupBox')
 	gBox:RemoveAllChild()
 	--스킨 세팅
@@ -97,11 +97,17 @@ function DRAW_ETC_COMMON_TOOLTIP(tooltipframe, invitem, mainframename, from)
 			fullname = string.gsub(fullname,"%[.*%]",function(w) return color..w.."{/}" end)
 		end
 	end
-
-	nameChild:SetText(fullname);
-	nameChild:AdjustFontSizeByWidth(nameChild:GetWidth());
+	
+	nameChild:SetText(fullname);	
 	nameChild:SetTextAlign("center","center");
-    
+    if nameChild:GetWidth() < nameChild:GetTextWidth() then
+		nameChild:EnableSlideShow(1)
+		nameChild:SetCompareTextWidthBySlideShow(true);
+	else
+		nameChild:EnableSlideShow(0)
+		nameChild:SetCompareTextWidthBySlideShow(false);
+	end	
+	
     -- 쿨타임 등 세팅 옮김
 	local invDesc = GET_ITEM_DESC_BY_TOOLTIP_VALUE(invitem);
 	local propRichtext= GET_CHILD(CSet,'prop_text','ui::CRichText')

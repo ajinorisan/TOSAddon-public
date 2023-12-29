@@ -42,6 +42,22 @@ local function MULTIPLE_CLASS_SELECTOR_GET_JOB_LIST(baseJobID)
 	return retTable;
 end
 
+function DUPLICATION_CHECK_SPECIALCLASS(job_list,selected_id_table)
+    for i=1, #selected_id_table do
+        local cls  = GetClassByType("Job",selected_id_table[i])
+        local specialGroup = TryGetProp(cls,"SpecialGroup","None")
+        if specialGroup~="None" then 
+            for j = 1, #job_list do
+                if job_list[j].ClassID ~= selected_id_table[i] and TryGetProp(job_list[j],"SpecialGroup") == specialGroup  then
+                    table.insert(selected_id_table,job_list[j].ClassID)
+                end
+            end
+        end
+    end 
+
+    return selected_id_table
+end
+
 function MULTIPLE_CLASS_SELECTOR_FILL_CLASS(jobID)
     local frame = ui.GetFrame('multiple_class_selector');
 	local classList = GET_CHILD_RECURSIVELY(frame, "classList");
@@ -50,6 +66,8 @@ function MULTIPLE_CLASS_SELECTOR_FILL_CLASS(jobID)
     bantable = GET_CURRENT_CLASS_LIST()
     local cnt = 0;
     local selected_id_table = GET_SELECTED_ID_LIST()
+    -- duplication check about specialclass
+    selected_id_table = DUPLICATION_CHECK_SPECIALCLASS(job_list,selected_id_table)
     for k,v in pairs(selected_id_table) do
         if table.find(bantable,v) == 0 then
             table.insert(bantable,v) 
@@ -129,6 +147,14 @@ function MULTIPLE_CLASS_SELECTOR_FILL_CLASS(jobID)
 end
 
 function MULTIPLE_CLASS_SELECT_BTN(parent, ctrl, argStr, jobID)
+    local jobList = GetJobHistoryList(GetMyPCObject())
+    local ret = IS_ABLE_TO_CHANGE_CLASS(GetMyPCObject(), jobList[CTRLINDEX + 1], jobID)
+    
+    if ret == false then
+        ui.SysMsg(ClMsg('IsAleadyExistSpecialClassGroup'))
+        return        
+    end
+
     local frame = parent:GetTopParentFrame()
     MULTIPLE_CLASS_CHANGE_SELECT_DEST(CTRLINDEX,jobID)
     ui.CloseFrame("multiple_class_selector");
