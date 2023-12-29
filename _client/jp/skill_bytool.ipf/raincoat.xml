@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<ToolSkill>
+	<Skill Name="raincoat_paddle">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+				<Str Str="SCR_SKL_CHECK_BATTLESTATE"/>
+			</ToolScp>
+			<ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+				<Str Str="SCR_SKL_CHECK_BATTLESTATE_C"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<HitList>
+				<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="99799" Type="FAN" Width="30"/>
+			</HitList>
+			<EtcList>
+				<Scp Client="YES" Scp="C_SHOW_PARTS_MODEL" Time="0" UseSleep="NO">
+					<Str Str="RH"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="YES" Scp="C_SHOW_PARTS_MODEL" Time="0" UseSleep="NO">
+					<Str Str="LH"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="0" UseSleep="NO">
+					<Str Str="ep13raincoat"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="4000" UseSleep="NO">
+					<Str Str="SCR_USE_SKILL_SET_BATTLE_STATE_ZERO"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+</ToolSkill>

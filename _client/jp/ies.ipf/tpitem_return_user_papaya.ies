@@ -1,0 +1,4 @@
+ClassID,Price,JobGrade,Itemdate,AccountLimitCount,AccountLimitCustomCount,BonusItemCnt,ClassName,Category,SubCategory,ItemClassName,Job,AccountLimitCustomCountProperty,SellStartTime,SellEndTime,WarningMsg,BonusItemName,BonusOnlySeasonServer
+1,390,0,210506,0,1,0,"ClassName1","TP_Premium","TP_Package","newbie_and_returner_pack_1","","AccountLimitCustomCountProperty_1","2022-01-01 09:00:00","2023-01-01 06:00:00","NO","","NO"
+2,20,0,210504,1,0,0,"ClassName2","TP_Premium","TP_Package","202204package_C_newbie","","","2022-03-31 09:00:00","2022-04-14 06:00:00","NO","","NO"
+10,49,0,181213,1,0,0,"ClassName10","TP_Premium","TP_Useable","PremiumToken_New_Return","","","","","NO","",""

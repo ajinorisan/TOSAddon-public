@@ -1,0 +1,10 @@
+ClassID,Level,ClassName,Type,Calc,Desc
+1,480,"stun_res","DEF","Add","극의: 혼절 저항(지속시간 감소%)"
+2,480,"high_fire_res","DEF","Add","극의: 멸화 저항(지속시간 감소%)"
+3,480,"high_freezing_res","DEF","Add","극의: 한랭 저항(지속시간 감소%)"
+4,480,"high_lighting_res","DEF","Add","극의: 과전하 저항(지속시간 감소%)"
+5,480,"high_poison_res","DEF","Add","극의: 극성 맹독 저항(지속시간 감소%)"
+6,480,"high_laceration_res","DEF","Add","극의: 과다 출혈 저항(지속시간 감소%)"
+7,480,"portion_expansion","DEF","Add","포션 광역화(회복량%)"
+8,480,"perfection","ATK","Add","완벽함"
+9,480,"revenge","ATK","Add","복수(방어도의 25%만큼 공격력 증가)"

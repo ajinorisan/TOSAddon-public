@@ -1,0 +1,785 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="LEGEND_RAID_GILTINE_SOLO" minLv="0" maxLv="0" mapName="raid_giltine_AutoGuild" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="Start">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="MongoLog">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_SOUL_CRISTAL_LIMIT" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="LEGEND_RAID_GILTINE_SOLO"/>
+                                <Str Str="StageStart"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Success" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_GIVE_ADVENTURE_BOOK_CLEAR_POINT" Client="NO" UseSleep="NO">
+                        <Str Str="Legend_Raid_Giltine_Solo"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 성공!{nl}60초 뒤, 입장한 곳으로 돌아갑니다."/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_DM_ICON" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 성공!{nl}60초 뒤, 입장한 곳으로 돌아갑니다."/>
+                        <Str Str="Clear"/>
+                        <Num Num="5"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList>
+                    <Obj Type="Monster" MonType="160065" Pos="474.39#23.86#2494.69" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Return_Zone">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="60"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER_END" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="30Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="30"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="30초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="20Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="40"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="20초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="10Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="50"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Reward_Cube">
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_REVIVE" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="EXEC_DUNGEON_GIVE_TAKE_SOBJ_ACHIEVE_TX" Client="NO" UseSleep="NO">
+                                <Str Str="Legend_Raid_Giltine_Solo"/>
+                                <Str Str="None"/>
+                                <Str Str="59735"/>
+                                <Str Str="Legend_Raid_Giltine_Solo"/>
+                                <Str Str="NO"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="LEGEND_RAID_GILTINE_SOLO"/>
+                                <Str Str="MinigameSuccess"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="CreateExitPortal">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Success/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Fail" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 실패!{nl}30초 뒤, 입장한 곳으로 돌아갑니다."/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="Raid_Stop">
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER_END" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="LEGEND_RAID_GILTINE_SOLO"/>
+                                <Str Str="StageFail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_RAID_END_STOP_DEBUFF_MON"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="20Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="20초 후 입장 지역으로 돌아갑니다."/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="10Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="20"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Return_Zone">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="30"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Fail_Check" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="9Min">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="548"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="레이드 종료까지 9분 남았습니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="3Min">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="908"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="레이드 종료까지 3분 남았습니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="TimeOver">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1088"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="제한 시간 18분이 경과되어 레이드에 실패하였습니다.{nl}30초 후 입장 지역으로 이동됩니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_FAIL_CHECK_LOG" Client="NO" UseSleep="NO">
+                                <Str Str="LEGEND_RAID_GILTINE_SOLO"/>
+                                <Str Str="TimeOut"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="RankResetPoint">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="PointSetting">
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RANK_RESET_POINT_AND_LOG" Client="NO" UseSleep="NO">
+                                <Num Num="35"/>
+                                <Str Str="LegendRaid: Legend_Raid_Giltine_Solo"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="STAGE_MANAGER">
+                <ObjList>
+                    <Obj Type="Monster" MonType="160040" Pos="473.10#23.86#1880.78" angle="-84" genCount="1" genTime="20000" autoGen="0" objectKey="0" propList="&apos;Scale&apos; &apos;1.0&apos; &apos;Dialog&apos; &apos;SOLO_GILTINE_RAID&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="GILTINE_START">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="STAGE_MANAGER/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="GILTINE_RAGE">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="20"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Str Str="SCR_GILTINE_AVATARAS_RAGE"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Boss_Giltine" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59735" Pos="477.03#23.86#2401.37" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="59734" Pos="2834.21#27.08#-3029.40" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Pattern_Start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="Giltine_Pattern_Start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="ElectricEel"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="SummonShadowGiltine"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="Giltine_Pattern_Start"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="DarkBlade"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="AvatarasPreSetting">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="40"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Boss_Giltine/1"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="AvatarasInfoSharing">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="40"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Str Str="SCR_AUTO_GILTINE_TRANSFORM_AVATARAS_INFO_SHARING"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="AvatarasTransformPreCheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="10"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Str Str="SCR_GILTINE_TRANSFORM_AVATARAS_PRE_MSG"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="AvatarasTransform">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="10"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="event_start_avatarastrasnform"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Str Str="SCR_AUTO_GILTINE_TRANSFORM_AVATARAS_REMOVE_GILTINE"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DIRECTION" Client="NO" UseSleep="NO">
+                                <Str Str="GILTINE_RAID_CHANGE_BOSS_TRACK"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="Pattern_End"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="AvatarasDirectionCheck"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="Stage_Clear"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="AvatarasDirectionCheck" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_DIRECTION_PLAYING_CHECK" Client="NO" UseSleep="NO">
+                                <Str Str="GILTINE_RAID_CHANGE_BOSS_TRACK"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Str Str="SCR_GILTINE_TRANSFORM_AVATARAS"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="Avataras_Pattern_Start"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event eventName="EnterDirectionCheck" execWithStart="0">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Boss_Giltine/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="Giltine_Pattern_Start"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="Giltine_Timer_Start"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EXEC_ACTORSCP_MAIN" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_GILTINE_RAID_PC_MOVE"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Pattern_End" execWithStart="0">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="ElectricEel"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="SummonShadowGiltine"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="DarkBlade"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="SummonShadowAvataras"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="SignOfDeath"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="ElectricEel_Ava"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Stage_Clear" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Success"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="timer_berserk">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="Giltine_Timer_Start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER" Client="NO" UseSleep="NO">
+                                <Num Num="1080"/>
+                                <Str Str="RAID_END_TIME_MSG"/>
+                                <Str Str="Yellow"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Fail_Check_Start">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail_Check"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Avataras_Pattern_Start" execWithStart="0" isEnabled="0">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="ElectricEel_Ava"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="SummonShadowAvataras"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="SummonShadowGiltine" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="step1_precheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="70"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="step1" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="100"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="10"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Str Str="SCR_GILTINE_SUMMON_SHADOW"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="ElectricEel" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="step1_precheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="98"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="step1" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="40"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="110"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Str Str="SCR_GILTINE_ELECTRIC_EEL_START"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="DarkBlade" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="step1_precheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="68"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="step1" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Num Num="10"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="75"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/0"/>
+                                <Str Str="SCR_GILTINE_DARK_BLADE"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="SummonShadowAvataras" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="step1_prechek">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="70"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step2_prechek"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="step1" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="20"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="80"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Str Str="SCR_AVATARAS_SUMMON_SHADOW"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="step2_prechek">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="20"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_EVT_OFF_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step2"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="step2" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="45"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Str Str="SCR_AVATARAS_SUMMON_SHADOW"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="ElectricEel_Ava" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="step3_precheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="97"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="step3"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="step3" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONHP_ACCURATE" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Num Num="20"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                                <Str Str="OVER"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="110"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Boss_Giltine/1"/>
+                                <Str Str="SCR_GILTINE_ELECTRIC_EEL_START"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+        <EnterList>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_RELIC_SPEND_RP_DOWN_ADDBUFF"/>
+            </ToolScp>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_GILTINE_BGM_SETTING"/>
+            </ToolScp>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_GILTINE_SOLO_MODE_ENTER"/>
+            </ToolScp>
+        </EnterList>
+        <WorldInitList>
+            <ToolScp Scp="MGAME_INIT_CHANGE_VIEW" Client="NO" UseSleep="NO">
+                <Num Num="1500"/>
+            </ToolScp>
+        </WorldInitList>
+    </Game>
+</GameList>

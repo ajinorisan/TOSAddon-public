@@ -1,0 +1,10 @@
+ClassID,ClassName,Category,Icon,StringCoin,IsNowSeason,InvIcon
+1,"MISC_PVP_MINE2","coin","icon_item_pvpmine_2","YES","NO",""
+2,"VakarineCertificate","old_coin","icon_item_season_coin_vakarine","YES","NO","inventory_coin_vakarine_pic"
+3,"GabijaCertificate","old_coin","icon_item_season_coin_gabia","YES","NO","inventory_coin_gabia_pic"
+4,"CONTENTS_TOTAL_POINT","POINT","icon_item_silver_gacha_ticket","NO","NO",""
+5,"Mileage_SilverGacha","POINT","icon_item_demon_point","NO","NO",""
+6,"REPUTATION_COIN_EP13","coin","icon_item_Reputation_coin_01","NO","NO",""
+8,"TeamBattleCoin","coin","icon_item_pvpmine_2_gold","YES","NO",""
+9,"EVENT_TOS_WHOLE_TOTAL_COIN","coin","icon_item_Tos_Event_Coin","YES","NO",""
+10,"RadaCertificate","coin","icon_item_season_coin_Rada","YES","YES","inventory_coin_rada_pic"

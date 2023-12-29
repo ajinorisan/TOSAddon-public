@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<GameList>
+	<Game Name="MYTHIC_CASTLE_MINI_AUTO_HARD" minLv="0" maxLv="0" mapName="Mythic_castle" playerCountCheckDestroy="1" startWaitSec="76">
+		<StageList>
+			<Stage Name="Stage1">
+				<ObjList>
+					<Obj Type="Monster" MonType="910702" Pos="-1081.47#142.04#-635.18" angle="11" genCount="1" genTime="20000" objectKey="20" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="-1076.27#142.04#-579.84" angle="24" genCount="1" genTime="20000" objectKey="21" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910703" Pos="-1518.41#225.72#-617.20" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1437.74#225.72#-603.51" genCount="1" genTime="20000" objectKey="35" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="-1575.87#227.83#-659.24" genCount="1" genTime="20000" objectKey="36" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="-1421.57#228.37#-255.13" genCount="1" genTime="20000" objectKey="37" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1604.57#228.37#-251.35" genCount="1" genTime="20000" objectKey="41" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="-1614.86#225.72#-604.03" genCount="1" genTime="20000" objectKey="42" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1453.86#228.37#-666.92" genCount="1" genTime="20000" objectKey="43" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1552.06#228.37#-329.51" genCount="1" genTime="20000" objectKey="44" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1462.67#226.37#-334.77" genCount="1" genTime="20000" objectKey="45" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1514.87#228.37#-686.97" genCount="1" genTime="20000" objectKey="46" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1505.56#228.37#-284.72" angle="24" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1555.47#228.37#-559.14" angle="24" genCount="1" genTime="20000" objectKey="52" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1500.74#228.37#-376.03" genCount="1" genTime="20000" objectKey="55" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1483.56#228.37#-550.03" genCount="1" genTime="20000" objectKey="56" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1384.06#228.37#-50.36" angle="-103" genCount="1" genTime="20000" objectKey="61" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1376.59#228.37#5.86" angle="-89" genCount="1" genTime="20000" objectKey="64" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1564.90#228.37#76.63" angle="-90" genCount="1" genTime="20000" objectKey="70" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1464.69#228.37#171.09" angle="-90" genCount="1" genTime="20000" objectKey="72" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1563.30#228.37#176.68" angle="-90" genCount="1" genTime="20000" objectKey="74" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1646.46#228.37#27.22" angle="-97" genCount="1" genTime="20000" objectKey="86" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1645.36#228.37#-26.65" angle="-97" genCount="1" genTime="20000" objectKey="91" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910712" Pos="-1515.80#228.37#126.21" angle="-97" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1606.01#228.37#136.77" angle="-97" genCount="1" genTime="20000" objectKey="95" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1741.79#228.37#-436.37" angle="-165" genCount="1" genTime="20000" objectKey="4" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1697.28#226.45#-493.41" angle="-165" genCount="1" genTime="20000" objectKey="9" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1686.13#228.37#-404.25" angle="-165" genCount="1" genTime="20000" objectKey="14" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910701" Pos="-1287.65#228.99#-570.37" angle="-168" genCount="1" genTime="20000" objectKey="19" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910701" Pos="-1288.07#228.91#-635.05" angle="-168" genCount="1" genTime="20000" objectKey="22" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910713" Pos="-785.08#93.15#-616.51" angle="139" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910703" Pos="-836.50#89.70#-690.60" angle="124" genCount="1" genTime="20000" objectKey="6" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910704" Pos="-467.65#93.15#-787.79" angle="173" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910703" Pos="-736.25#85.83#-681.73" angle="124" genCount="1" genTime="20000" objectKey="0" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910703" Pos="-712.85#93.15#-571.19" angle="124" genCount="1" genTime="20000" objectKey="1" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910703" Pos="-837.89#93.20#-563.09" angle="124" genCount="1" genTime="20000" objectKey="2" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910713" Pos="-547.33#93.15#-826.69" angle="179" genCount="1" genTime="20000" objectKey="3" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910712" Pos="-463.71#93.15#-869.20" angle="-173" genCount="1" genTime="20000" objectKey="8" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910712" Pos="-441.16#90.74#-715.97" angle="-173" genCount="1" genTime="20000" objectKey="15" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910712" Pos="-398.52#93.15#-823.58" angle="-173" genCount="1" genTime="20000" objectKey="16" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910713" Pos="-539.47#85.83#-723.02" angle="179" genCount="1" genTime="20000" objectKey="17" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910704" Pos="-445.70#93.15#-515.90" angle="173" genCount="1" genTime="20000" objectKey="11" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910711" Pos="-529.64#93.15#-551.15" angle="174" genCount="1" genTime="20000" objectKey="10" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910711" Pos="-421.59#93.61#-448.52" angle="174" genCount="1" genTime="20000" objectKey="12" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910711" Pos="-444.51#92.92#-574.49" angle="174" genCount="1" genTime="20000" objectKey="13" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910711" Pos="-527.33#93.73#-465.13" angle="174" genCount="1" genTime="20000" objectKey="18" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910711" Pos="-380.68#93.15#-523.04" angle="174" genCount="1" genTime="20000" objectKey="23" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="802.35#92.44#-1077.15" angle="-178" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="1257.72#165.15#-1067.44" angle="-104" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="1330.44#165.15#-1112.57" angle="-112" genCount="1" genTime="20000" objectKey="24" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="1325.07#165.15#-1049.24" angle="-112" genCount="1" genTime="20000" objectKey="25" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="644.00#92.44#-1073.87" angle="-117" genCount="1" genTime="20000" objectKey="26" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="1287.06#165.15#-1004.33" angle="-117" genCount="1" genTime="20000" objectKey="27" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910710" Pos="1287.69#165.15#-1133.11" angle="-117" genCount="1" genTime="20000" objectKey="28" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="793.44#92.44#-1164.54" angle="-178" genCount="1" genTime="20000" objectKey="29" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="811.94#92.44#-987.62" angle="-178" genCount="1" genTime="20000" objectKey="30" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="883.45#92.44#-1078.39" angle="-178" genCount="1" genTime="20000" objectKey="31" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="1021.52#92.44#-1040.75" angle="-117" genCount="1" genTime="20000" objectKey="32" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="721.22#92.44#-1020.43" angle="-117" genCount="1" genTime="20000" objectKey="33" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="392.82#91.95#-1067.96" angle="168" genCount="1" genTime="20000" objectKey="34" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="458.34#91.95#-1037.01" angle="168" genCount="1" genTime="20000" objectKey="38" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="456.14#91.95#-1111.42" angle="168" genCount="1" genTime="20000" objectKey="39" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1595.48#228.37#-21.41" angle="-97" genCount="1" genTime="20000" objectKey="40" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-1325.08#228.37#-5.95" angle="-103" genCount="1" genTime="20000" objectKey="47" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910702" Pos="-1469.48#228.37#69.77" angle="-90" genCount="1" genTime="20000" objectKey="48" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910706" Pos="-1426.54#228.37#112.05" angle="-97" genCount="1" genTime="20000" objectKey="5" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="164.81#93.15#-1273.92" angle="173" genCount="1" genTime="20000" objectKey="7" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="169.68#93.15#-1149.26" angle="173" genCount="1" genTime="20000" objectKey="49" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910708" Pos="220.24#93.15#-1219.58" angle="124" genCount="1" genTime="20000" objectKey="999" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="296.74#94.75#-1229.28" angle="179" genCount="1" genTime="20000" objectKey="50" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="248.60#94.08#-1132.95" angle="179" genCount="1" genTime="20000" objectKey="53" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="239.90#93.15#-1300.03" angle="179" genCount="1" genTime="20000" objectKey="54" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="714.53#92.44#-1122.59" angle="-117" genCount="1" genTime="20000" objectKey="57" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="1025.39#92.44#-1091.50" angle="-117" genCount="1" genTime="20000" objectKey="58" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-345.93#93.15#-1015.57" genCount="1" genTime="20000" objectKey="51" IsIncludeAchievementRate="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-333.31#93.15#-926.37" genCount="1" genTime="20000" objectKey="59" IsIncludeAchievementRate="1"/>
+					<Obj Type="Monster" MonType="910705" Pos="-292.56#93.15#-982.27" genCount="1" genTime="20000" objectKey="60" IsIncludeAchievementRate="1"/>
+				</ObjList>
+			</Stage>
+			<Stage Name="Boss1">
+				<ObjList>
+					<Obj Type="Monster" MonType="910714" Pos="-29.54#105.32#-1224.26" angle="-172" genCount="1" genTime="20000" objectKey="0" IsIncludeAchievementRate="1" tendency="1"/>
+				</ObjList>
+			</Stage>
+			<Stage Name="Boss2">
+				<ObjList>
+					<Obj Type="Monster" MonType="910715" Pos="1532.34#165.15#-1097.62" angle="-78" genCount="1" genTime="20000" objectKey="0" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="1438.32#165.15#-1221.72" angle="-105" genCount="1" genTime="20000" objectKey="1" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910708" Pos="1443.43#165.15#-964.51" angle="-129" genCount="1" genTime="20000" objectKey="5" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="1512.14#165.15#-1172.71" angle="-110" genCount="1" genTime="20000" objectKey="7" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="1640.60#165.15#-1099.65" angle="-105" genCount="1" genTime="20000" objectKey="2" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910708" Pos="1599.83#165.15#-1179.88" angle="-129" genCount="1" genTime="20000" objectKey="3" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910707" Pos="1516.18#165.15#-1010.63" angle="-110" genCount="1" genTime="20000" objectKey="4" IsIncludeAchievementRate="1" tendency="1"/>
+					<Obj Type="Monster" MonType="910709" Pos="1600.97#165.15#-1028.36" angle="-105" genCount="1" genTime="20000" objectKey="6" IsIncludeAchievementRate="1" tendency="1"/>
+				</ObjList>
+			</Stage>
+			<Stage Name="READY">
+				<ObjList>
+					<Obj Type="Monster" MonType="20053" Pos="-1504.81#261.46#428.54" genCount="1" genTime="20000" objectKey="0"/>
+					<Obj Type="Monster" MonType="20026" Pos="-1505.75#298.23#733.52" genCount="1" genTime="20000" objectKey="1" propList="&apos;Range&apos; &apos;650&apos; &apos;SimpleAI&apos; &apos;MYTHIC_GO_TO_START_POINT&apos; "/>
+				</ObjList>
+				<StageEvents>
+				    <Event execCount="1" eventName="MongoLog">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="10"/>
+							</ToolScp>
+						</condList>
+                        <execList>
+                            <ToolScp Scp="MYTHIC_MONGOLOG_FROM_MGAME_EVENT" Client="NO" UseSleep="NO">
+                                <Str Str="MythicDungeon_Auto_Hard"/>
+                                <Str Str="Join"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+					<Event execCount="1" eventName="10">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="10"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+								<Str Str="10초 후에 시작합니다"/>
+								<Num Num="5"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="start">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="20"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+								<Str Str="Start"/>
+								<Num Num="1"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+								<Str Str="시작!"/>
+								<Num Num="5"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+								<MGameObjPtr List="READY/0"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+								<Str Str="READY"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+								<Str Str="TIMER"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+								<Str Str="READY"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="startcheckdead" execWithStart="0">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_PCCNT" Client="NO" UseSleep="NO">
+								<Num Num="0"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+			<Stage Name="TIMER" AutoStart="0">
+				<ObjList/>
+				<StageEvents>
+					<Event execCount="1" eventName="타이머 세팅">
+						<execList>
+							<ToolScp Scp="MGAME_EVT_SCRIPT_ARG" Client="NO" UseSleep="NO">
+								<Str Str="SCR_MYTHIC_DUNGEON_TIMER_START"/>
+								<Str Str="None"/>
+								<Num Num="900"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+								<Str Str="MYTHIC_DUNGEON_HUD_UI_OPEN_FOR_ALL"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="pccheck">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_NO_CONNECTED_PC" Client="NO" UseSleep="NO"/>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+			<Stage Name="TIME">
+				<ObjList/>
+				<StageEvents>
+					<Event execCount="1" eventName="시간 제한">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_SCRIPT" Client="NO" UseSleep="NO">
+								<Str Str="SCR_MYTHIC_DUNGEON_REMAIN_TIME_CHECK"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+								<Str Str="START_TIME"/>
+								<Str Str="OVER"/>
+								<Num Num="1"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+								<Str Str="SCR_MYTHIC_DUNGEON_STOPDEBUFF_MON"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+								<Str Str="제한 시간이 경과되어 실패했습니다.{nl}잠시 후 입장했던 곳으로 돌아갑니다."/>
+								<Str Str="!"/>
+								<Num Num="5"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+								<Str Str="END"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="인던 삭제">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="3660"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="종료 5분 전 메시지">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_SCRIPT" Client="NO" UseSleep="NO">
+								<Str Str="SCR_MYTHIC_DUNGEON_TIME_REMAINING_ALARM_CHECK"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+								<Str Str="START_TIME"/>
+								<Str Str="OVER"/>
+								<Num Num="1"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+								<Str Str="제한 시간 5분 남았습니다!!"/>
+								<Num Num="5"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="monkillpercent">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+								<Str Str="MGAME_MON_KILL_COUNT_CALC"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+			<Stage Name="SUCCESS">
+				<ObjList>
+					<Obj Type="Monster" MonType="160085" Pos="1726.72#165.15#-1095.96" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+					<Obj Type="Monster" MonType="160065" Pos="1680.52#165.15#-1207.74" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
+				</ObjList>
+				<StageEvents>
+					<Event execCount="1" eventName="Clear">
+						<condList>
+							<ToolScp Scp="SCR_MGAME_VALUE_CHECK_2" Client="NO" UseSleep="NO">
+								<Str Str="MonKillPercent"/>
+								<Str Str="EQ"/>
+								<Num Num="100"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EXEC_REVIVE" Client="NO" UseSleep="NO"/>
+							<ToolScp Scp="MGAME_EXEC_SETPOS" Client="NO" UseSleep="NO">
+								<AbsPosRange X="1660.1985" Y="165.15172" Z="-1103.0411"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_RAID_AUTO_SWEEP_BUFF_APPLY"/>
+                            </ToolScp>
+							<ToolScp Scp="MGAME_EVT_MULTIPLE_REWARD" Client="NO" UseSleep="NO">
+								<Str Str="Multiple_Token_MythicHARD"/>
+								<Str Str="MythicDungeon_Auto_Hard"/>
+								<Str Str="MYTHIC_DUNGEON_CLEAR_MULTIPLE"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+								<Str Str="잠시 후 입장했던 곳으로 돌아갑니다."/>
+								<Str Str="Clear"/>
+								<Num Num="5"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_RANK_RESET_POINT_SETTING" Client="NO" UseSleep="NO">
+								<Num Num="30"/>
+								<Str Str="MythicDungeon_Auto_Hard"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+								<Str Str="EVENT_2101_SUPPLY"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+								<Str Str="MYTHIC_DUNGEON_CLEAR"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+								<Str Str="TIME"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+								<Str Str="END"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+								<MGameObjIndex List="SUCCESS/0/SUCCESS/1"/>
+								<Num Num="1"/>
+								<Num Num="0"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="EVENT_2101_SUPPLY" execWithStart="0" isEnabled="0">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="3"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+								<Str Str="EVENT_2101_SUPPLY"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+								<Str Str="SUCCESS"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+			<Stage Name="END" AutoStart="0">
+				<StartScpList>
+					<ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+						<Str Str="잠시 후에 입구로 돌아갑니다"/>
+					</ToolScp>
+				</StartScpList>
+				<ObjList/>
+				<StageEvents>
+					<Event execCount="1" eventName="존으로돌아가기">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="60"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+							<ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO"/>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="패턴 정지">
+						<execList>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+								<Str Str="Pattern"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+			<Stage Name="Pattern">
+				<ObjList/>
+				<StageEvents>
+					<Event execCount="1" eventName="pattern_set">
+						<execList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_SET" Client="NO" UseSleep="NO">
+								<Num Num="4"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="pattern_1">
+						<condList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_COND" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_USESKILL" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="pattern_2">
+						<condList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_COND" Client="NO" UseSleep="NO">
+								<Num Num="2"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_USESKILL" Client="NO" UseSleep="NO">
+								<Num Num="2"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="pattern_3">
+						<condList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_COND" Client="NO" UseSleep="NO">
+								<Num Num="3"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_USESKILL" Client="NO" UseSleep="NO">
+								<Num Num="3"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="pattern_4">
+						<condList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_COND" Client="NO" UseSleep="NO">
+								<Num Num="4"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_USESKILL" Client="NO" UseSleep="NO">
+								<Num Num="4"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="pattern_mon_set">
+						<execList>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_USESKILL_SELECT_PATTERN_MON" Client="NO" UseSleep="NO">
+								<MGameObj List="Stage1/999"/>
+								<Str Str="MYTHIC_PATTERN_MON"/>
+								<Num Num="1"/>
+							</ToolScp>
+							<ToolScp Scp="SCR_MYTHIC_PATTERN_USESKILL_SELECT_PATTERN_MON" Client="NO" UseSleep="NO">
+								<MGameObj List="Boss2/0/Boss1/0"/>
+								<Str Str="MYTHIC_PATTERN_MON"/>
+								<Num Num="1"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+		</StageList>
+		<EnterList>
+			<ToolScp Scp="MGAME_ZONE_ENTER_ADD_BUFF_OF_MVALNAME" Client="NO" UseSleep="NO">
+				<Str Str="Mythic_Zone_Enter_Pattern"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Scp="MGAME_ZONE_ENTER_SELECT_BUFF_SOLO_LOCK" Client="NO" UseSleep="NO">
+				<Num Num="60"/>
+				<Str Str="AUTO_MATCHING2_TANKER_BUFF/1"/>
+				<Str Str="AUTO_MATCHING2_DAMAGE_BUFF/0"/>
+				<Str Str="AUTO_MATCHING2_BLOW_HEAL_BUFF/1"/>
+				<Str Str="AUTO_MATCHING2_HEALER_BUFF/0"/>
+				<Str Str="None"/>
+				<Num Num="2"/>
+			</ToolScp>
+			<ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+				<Num Num="2"/>
+				<Str Str="SCR_MYTHIC_PLAYER_ENTER"/>
+			</ToolScp>
+			<ToolScp Scp="MYTHIC_DUNGEON_HUD_UI_OPEN" Client="NO" UseSleep="YES"/>
+		</EnterList>
+		<WorldInitList>
+			<ToolScp Scp="SCR_MYTHIC_DIFFICULTY_SET" Client="NO" UseSleep="NO">
+				<Num Num="2"/>
+			</ToolScp>
+			<ToolScp Scp="MGAME_INIT_CHANGE_VIEW" Client="NO" UseSleep="NO">
+				<Num Num="1000"/>
+			</ToolScp>
+		</WorldInitList>
+	</Game>
+</GameList>

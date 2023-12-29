@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="Goddess_Raid_Delmore_Solo" minLv="0" maxLv="0" mapName="raId_castle_ep14" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="Start">
+                <ObjList>
+                    <Obj Type="Monster" MonType="150287" Pos="-8.43#0.30#-1587.06" angle="-87" genCount="1" genTime="20000" objectKey="0" propList="&apos;Dialog&apos; &apos;GODDESS_RAID_DELMORE_START&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="MongoLog">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_SOUL_CRISTAL_LIMIT" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="Goddess_Raid_Delmore_Solo"/>
+                                <Str Str="StageStart"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="InitSetting">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SET_RAID_MODE_BY_CMD"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="catapult_active"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Success" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_GIVE_ADVENTURE_BOOK_CLEAR_POINT" Client="NO" UseSleep="NO">
+                        <Str Str="Goddess_Raid_Delmore_Solo"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 성공!{nl}60초 뒤, 입장한 곳으로 돌아갑니다."/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_DM_ICON" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 성공!{nl}60초 뒤, 입장한 곳으로 돌아갑니다."/>
+                        <Str Str="Clear"/>
+                        <Num Num="5"/>
+                    </ToolScp>
+                    <ToolScp Scp="RAID_CLEAR_TIME_RECORD" Client="NO" UseSleep="NO"/>
+                </StartScpList>
+                <ObjList>
+                    <Obj Type="Monster" MonType="160085" Pos="-59.87#0.60#-717.21" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="160065" Pos="65.50#0.60#-650.50" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Quest_ClearCheck">
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP14_F_CASTLE_5_RAID_2_QUESTPROP_ADD"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="Return_Zone">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="60"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="Goddess_Raid_Delmore_Solo"/>
+                                <Str Str="MinigameSuccess"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="30Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="30"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="30초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="20Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="40"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="20초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="10Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="50"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Reward_Cube">
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_REVIVE" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_EVT_MULTIPLE_REWARD" Client="NO" UseSleep="NO">
+                                <Str Str="Multiple_Token_RevivalPaulius_Auto"/>
+                                <Str Str="Goddess_Raid_Delmore_Auto"/>
+                                <Str Str="SCR_GODDESS_RAID_DELMORE_REWARD_MULTIPLE"/>
+                            </ToolScp>
+                            <ToolScp Scp="EXEC_DUNGEON_GIVE_TAKE_SOBJ_ACHIEVE_TX" Client="NO" UseSleep="NO">
+                                <Str Str="Goddess_Raid_Delmore_Solo"/>
+                                <Str Str="None"/>
+                                <Str Str="59722"/>
+                                <Str Str="Goddess_Raid_Delmore_Solo"/>
+                                <Str Str="NO"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="CreateExitPortal">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Success/1"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Success/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Fail" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 실패!{nl}30초 뒤, 입장한 곳으로 돌아갑니다."/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="Raid_Stop">
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER_END" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="Goddess_Raid_Delmore_Solo"/>
+                                <Str Str="StageFail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_RAID_END_STOP_DEBUFF_MON"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="20Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="20초 후 입장 지역으로 돌아갑니다."/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="10Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="20"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Return_Zone">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="30"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Fail_Check" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="5min">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1320"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="추가 시간까지 5분 남았습니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="1min">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1560"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="추가 시간까지 1분 남았습니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="time_over">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1800"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="제한 시간 30분이 경과되어 레이드에 실패하였습니다.{nl}30초 후 입장 지역으로 이동됩니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_FAIL_CHECK_LOG" Client="NO" UseSleep="NO">
+                                <Str Str="Goddess_Raid_Delmore_Solo"/>
+                                <Str Str="TimeOut"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="RankResetPoint">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="PointSetting">
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RANK_RESET_POINT_AND_LOG" Client="NO" UseSleep="NO">
+                                <Num Num="35"/>
+                                <Str Str="GoddessRaid: Goddess_Raid_Delmore_Solo"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Phase_Manager" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="Phase1_Start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_OVER" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="DelmoreCastleGate_Manager"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="DelmoreCastleGate"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_GODDESS_RAID_DELMORE_MOVE_PC"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Phase1_ClearCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_delmore_catle_gate"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_OVER" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="DelmoreCastleGate_Manager"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="DelmoreCastleGate"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="DelmoreCastleGate_Manager" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="Pattern_Start">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="FlightPattern"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="SummonSlave"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Pattern_End">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_delmore_catle_gate"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_OVER" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="FlightPattern"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="SummonSlave"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="DelmoreCastleGate" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59722" Pos="-2.00#0.30#-459.00" angle="-89" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="500002" Pos="127.00#0.30#-1038.00" angle="101" genCount="1" genTime="20000" autoGen="0" objectKey="1" propList="&apos;NumArg2&apos; &apos;2&apos; "/>
+                    <Obj Type="Monster" MonType="500002" Pos="-128.00#0.30#-1082.00" angle="78" genCount="1" genTime="20000" autoGen="0" objectKey="2" propList="&apos;NumArg2&apos; &apos;1&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="DelmoreCastleGate_Born">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="DelmoreCastleGate/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_delmore_catle_gate"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="_SCR_DELMORE_CASTLE_GATE_BGM_SETTING"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_GRESME_RAVEN_CREATE"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_INIT_RAID_MODE"/>
+                            </ToolScp>
+                            <ToolScp Scp="SCR_RAID_CLEAR_TIME_START_SETTING" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="DelmoreCastleGate_Object_Born">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="DelmoreCastleGate/1/DelmoreCastleGate/2"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="timer_start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIMER_REMAIN_TIME"/>
+                                <Str Str="OVER"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIMER_CHANGE"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER" Client="NO" UseSleep="NO">
+                                <Num Num="1800"/>
+                                <Str Str="RemainTime"/>
+                                <Str Str="Yellow"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail_Check"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="timer_reset">
+                        <condList>
+                            <ToolScp Scp="SCR_RAID_TIMER_CHANGE_CHECK" Client="NO" UseSleep="NO"/>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIMER_START_TIME"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="timer_end">
+                        <condList>
+                            <ToolScp Scp="SCR_RAID_TIMER_CHANGE_CHECK" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER" Client="NO" UseSleep="NO">
+                                <Num Num="180"/>
+                                <Str Str="GraceTime"/>
+                                <Str Str="Red"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execMS="1000" eventName="GresmeRavenHideCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_GRESME_RAVEN_HIDE_BY_CMD"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="FlightPattern" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event eventName="FlightReady">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="flight_pattern_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_FLIGHT_PATTERN_RIDE_OBJECT_INIT_SETTING"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="WideAreaAttack">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="flight_pattern_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="wide_area_limit"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_FLIGHT_PATTERN_START"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="BossAttack">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="flight_pattern_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="start_boss_attack"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_FLIGHT_ATTACK_BOSS"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="RideInteractionSuccessCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="flight_pattern_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="end_wide_area_attack"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_FLIGHT_PATTERN_SUCCESS_CHECK"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_FLIGHT_PATTERN_END"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="flight_pattern_start"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="FlightEnd">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="flight_pattern_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="end_wide_area_attack"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_FLIGHT_PATTERN_END"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="end_wide_area_attack"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="flight_pattern_start"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="SummonSlave" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event eventName="BossUseProtectSkill">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="delmore_raid_phase"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="summon_slave_pattern_start"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="summon_slave_use_protect_skill"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DelmoreCastleGate/0"/>
+                                <Str Str="SCR_DELMORE_CASTLE_GATE_SUMMON_SLAVE_PROTECT_SKILL_USE"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+        <WorldInitList>
+            <ToolScp Scp="MGAME_INIT_CHANGE_VIEW" Client="NO" UseSleep="NO">
+                <Num Num="1500"/>
+            </ToolScp>
+            <ToolScp Scp="MGAME_CHANGE_FOG_DIST" Client="NO" UseSleep="NO">
+                <Num Num="10000"/>
+                <Num Num="100000"/>
+            </ToolScp>
+        </WorldInitList>
+    </Game>
+</GameList>

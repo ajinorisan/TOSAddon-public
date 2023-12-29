@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EARRING_RAID_Extreme" minLv="0" maxLv="0" mapName="Earring_d_firetower_45" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="Start" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="154064" Pos="839.11#254.27#2293.15" genCount="1" genTime="20000" objectKey="0"/>
+                    <Obj Type="Monster" MonType="20025" Pos="670.67#254.27#2431.43" genCount="1" genTime="20000" objectKey="1"/>
+                    <Obj Type="Monster" MonType="20025" Pos="662.47#254.27#2231.21" genCount="1" genTime="20000" objectKey="2"/>
+                    <Obj Type="Monster" MonType="20025" Pos="812.96#254.27#2103.40" genCount="1" genTime="20000" objectKey="3"/>
+                    <Obj Type="Monster" MonType="20025" Pos="1006.09#267.80#2207.14" genCount="1" genTime="20000" objectKey="4"/>
+                    <Obj Type="Monster" MonType="20025" Pos="1014.00#254.27#2381.76" genCount="1" genTime="20000" objectKey="5"/>
+                    <Obj Type="Monster" MonType="20025" Pos="857.87#254.27#2499.38" genCount="1" genTime="20000" objectKey="6"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="EarringRaidStart">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_earring_raid"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SCR_EARRING_RAID_START"/>
+                            </ToolScp>
+                            <ToolScp Scp="SCR_RAID_CLEAR_TIME_START_SETTING" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="ReadyWave">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_earring_raid"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SCR_EARRING_RAID_READY"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Update">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_earring_raid"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_wave"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SCR_EARRING_RAID_UPDATE"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="GabiaEnergyUpdate">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_earring_raid"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_wave"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SCR_EARRING_RAID_GABIA_ENERGY_PERIOD_CHECK"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="DeadCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_earring_raid"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start_wave"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_IMMEDIATELY" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_FAIL_CHECK_LOG" Client="NO" UseSleep="NO">
+                                <Str Str="EARRING_RAID_Extreme"/>
+                                <Str Str="AllPCDead"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Success" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_GIVE_ADVENTURE_BOOK_CLEAR_POINT" Client="NO" UseSleep="NO">
+                        <Str Str="EARRING_RAID_Extreme"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 성공!{nl}30초 뒤, 입장한 곳으로 돌아갑니다."/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_DM_ICON" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 성공!{nl}30초 뒤, 입장한 곳으로 돌아갑니다."/>
+                        <Str Str="Clear"/>
+                        <Num Num="5"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList>
+                    <Obj Type="Monster" MonType="160065" Pos="839.11#254.27#2293.15" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Reward">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_OVER" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_success_raid"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_time_over"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EARRING_RAID_Extreme"/>
+                                <Str Str="MinigameSuccess"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Start"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_RAID_END_STOP_DEBUFF_MON"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SCR_EARRING_RAID_END"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SCR_EARRING_RAID_REWARD"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="RegisterSquadRank">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EARRING_RAID_TB_RANK_REGISTER"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Return_Zone">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="30"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EARRING_RAID_TB_RESET"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="20Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="20초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="10Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="20"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Create_EXit">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_OVER" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_success_raid"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_time_over"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Success/1"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Fail" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="레이드 실패!{nl}15초 후, 입장한 곳으로 돌아갑니다."/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList>
+                    <Obj Type="Monster" MonType="160065" Pos="839.11#254.27#2293.15" genCount="1" genTime="20000" objectKey="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Stop">
+                        <execList>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER_END" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EARRING_RAID_Extreme"/>
+                                <Str Str="StageFail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_RAID_END_STOP_DEBUFF_MON"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_RAID_END_STOP_DEBUFF_PC"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Start/0"/>
+                                <Str Str="SCR_EARRING_RAID_END"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="4Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="4"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EARRING_RAID_REMOVE_ALL_MONSTER"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="5Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Return_Zone">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="15"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="SetReady">
+                <ObjList>
+                    <Obj Type="Monster" MonType="160118" Pos="853.24#254.30#2391.37" angle="-106" genCount="1" genTime="20000" objectKey="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="PC_Ready"/>
+                    <Event execCount="1" eventName="EarringRaidReady">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EARRING_RAID_UI_OPEN"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+        <EnterList>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_EARRING_RAID_RESTART"/>
+            </ToolScp>
+        </EnterList>
+    </Game>
+</GameList>

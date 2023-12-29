@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP13_F_SIAULIAI_1_MQ_04_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="1115225210">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59578" Pos="137.79#79.77#1186.63" angle="-80" genCount="7" maxStackCount="1" genTime="5000" objectKey="0" searchRange="500" tendency="1">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_1_MQ_04"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="5"/>
+                                </ToolScp>
+                                <ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                                    <Str Str="SCR_EP13_F_SIAULIAI_1_MQ_04_DEADSCR"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59577" Pos="75.05#79.77#1219.13" angle="-62" genCount="7" maxStackCount="1" genTime="5000" objectKey="1" searchRange="500" tendency="1">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_1_MQ_04"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="5"/>
+                                </ToolScp>
+                                <ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                                    <Str Str="SCR_EP13_F_SIAULIAI_1_MQ_04_DEADSCR"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59577" Pos="115.23#79.77#1273.96" angle="-73" genCount="6" maxStackCount="1" genTime="5000" objectKey="2" searchRange="500" tendency="1">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_1_MQ_04"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="5"/>
+                                </ToolScp>
+                                <ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                                    <Str Str="SCR_EP13_F_SIAULIAI_1_MQ_04_DEADSCR"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59577" Pos="251.52#79.77#1211.35" angle="-100" genCount="7" maxStackCount="1" genTime="5000" objectKey="3" searchRange="500" tendency="1">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_1_MQ_04"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="5"/>
+                                </ToolScp>
+                                <ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                                    <Str Str="SCR_EP13_F_SIAULIAI_1_MQ_04_DEADSCR"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59578" Pos="192.29#79.77#1255.33" angle="-84" genCount="7" maxStackCount="1" genTime="5000" objectKey="4" searchRange="500" tendency="1">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_1_MQ_04"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="5"/>
+                                </ToolScp>
+                                <ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                                    <Str Str="SCR_EP13_F_SIAULIAI_1_MQ_04_DEADSCR"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                </ObjList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

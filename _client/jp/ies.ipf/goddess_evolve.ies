@@ -1,0 +1,4 @@
+ClassID,MaterialItemCnt_1,MaterialItemCnt_2,MaterialItemCnt_3,MaterialItemCnt_4,ClassName,MaterialItem_1,MaterialItem_2,MaterialItem_3,MaterialItem_4
+1,1,50,100,10000,"Evolve_460","misc_Evolve_misc_460_NoTrade","misc_vasilisa_NoTrade","Premium_item_transcendence_Stone","GabijaCertificate"
+2,1,300,1500,250000,"Evolve_480","misc_Evolve_misc_480_NoTrade","misc_high_transmutationSpreader_NoTrade","misc_BlessedStone","VakarineCertificate"
+3,1,500,1500,500000,"Evolve_500","misc_Evolve_misc_500_NoTrade","misc_slogutis_fragments_NoTrade","misc_BlessedStone_1","RadaCertificate"

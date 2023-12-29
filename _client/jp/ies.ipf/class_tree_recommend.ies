@@ -1,0 +1,11 @@
+ClassID,CtrlType,Tree_1,Tree_2,Tree_3,ClassName,Name,Concept,Desc,ClassCompImage,ClassCharImage,Movie
+1001,1001,1004,1009,1022,"1001","SelectClass_StringName_1001","SelectClass_StringConcept_1001","SelectClass_StringDesc_1001","js_classicon_warrior01","js_cha_warrior_%s01","select_class_1001.avi"
+1002,1001,1004,1007,1017,"1002","SelectClass_StringName_1002","SelectClass_StringConcept_1002","SelectClass_StringDesc_1002","js_classicon_warrior02","js_cha_warrior_%s02","select_class_1002.avi"
+2001,2001,2008,2021,2024,"2001","SelectClass_StringName_2001","SelectClass_StringConcept_2001","SelectClass_StringDesc_2001","js_classicon_wizard01","js_cha_wizard_%s01","select_class_2001.avi"
+2002,2001,2008,2020,2021,"2002","SelectClass_StringName_2002","SelectClass_StringConcept_2002","SelectClass_StringDesc_2002","js_classicon_wizard02","js_cha_wizard_%s02","select_class_2002.avi"
+3001,3001,3013,3017,3105,"3001","SelectClass_StringName_3001","SelectClass_StringConcept_3001","SelectClass_StringDesc_3001","js_classicon_archer01","js_cha_archer_%s01","select_class_3001.avi"
+3002,3001,3003,3103,3105,"3002","SelectClass_StringName_3002","SelectClass_StringConcept_3002","SelectClass_StringDesc_3002","js_classicon_archer02","js_cha_archer_%s02","select_class_3002.avi"
+4001,4001,4006,4021,4022,"4001","SelectClass_StringName_4001","SelectClass_StringConcept_4001","SelectClass_StringDesc_4001","js_classicon_cleric02","js_cha_cleric_%s02","select_class_4001.avi"
+4002,4001,4002,4008,4018,"4002","SelectClass_StringName_4002","SelectClass_StringConcept_4002","SelectClass_StringDesc_4002","js_classicon_cleric01","js_cha_cleric_%s01","select_class_4002.avi"
+5001,5001,5006,5008,5016,"5001","SelectClass_StringName_5001","SelectClass_StringConcept_5001","SelectClass_StringDesc_5001","js_classicon_scout02","js_cha_scout_%s02","select_class_5001.avi"
+5002,5001,5007,5008,5011,"5002","SelectClass_StringName_5002","SelectClass_StringConcept_5002","SelectClass_StringDesc_5002","js_classicon_scout01","js_cha_scout_%s01","select_class_5002.avi"

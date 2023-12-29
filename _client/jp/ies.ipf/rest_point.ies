@@ -1,0 +1,2 @@
+ClassID,PointPerMin,MaxPoint,ClassName,Name,PointProp,EnableFunc
+1,1,3000,"REPUTATION_REST_POINT","명성 휴식 포인트","REPUTATION_REST_POINT","IS_REPUTATION_EP13_OPEN"

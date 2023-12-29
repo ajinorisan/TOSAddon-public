@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP13_F_SIAULIAI_1_SQ_04_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59578" Pos="-19.49#25.55#-1144.82" range="190" genCount="1" genTime="1" autoGen="0" objectKey="0" tendency="1">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="1000"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_1_SQ_04"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="Gen1">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="DefGroup/0"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="DefGroup/0"/>
+                                <Num Num="8"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="npc">
+                <ObjList>
+                    <Obj Type="Monster" MonType="154120" Pos="-71.09#25.35#-910.62" angle="-75" genCount="1" genTime="20000" objectKey="0">
+                        <SelfAI UpdateMS="3000" ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                                    <Str Str="PAYAUTA_EP13_SUB_ACT_TRAK"/>
+                                </ToolScp>
+                            </List>
+                            <StartList>
+                                <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                                    <Str Str="EP13_F_SIAULIAI_1_SQ_04_TRACK_AI_START"/>
+                                </ToolScp>
+                                <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Set"/>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

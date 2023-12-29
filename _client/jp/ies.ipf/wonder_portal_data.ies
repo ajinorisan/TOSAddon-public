@@ -1,0 +1,3 @@
+ClassID,next_portal_delay_sec,diff_sec,min_makeCount,max_makeCount,max_channel,ClassName,map_check_func,make_boss_func
+1,7200,7200,3,5,1,"costume_boss","costume_boss_map_check","MAKE_WONDER_PORTAL_FIELD_BOSS"
+2,14400,7200,1,1,3,"ep14_field_boss","ep14_field_boss_map_check","MAKE_WONDER_PORTAL_EP14_FIELD_BOSS"

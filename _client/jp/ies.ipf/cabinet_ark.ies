@@ -1,0 +1,8 @@
+ClassID,Upgrade,MakeCostSilver,MaxUpgrade,Basic,Category,ClassName,GetItemFunc,RegisterFunc,MakeFunc,AccountProperty,UpgradeAccountProperty,Name
+1,0,100000,1,0,"Ark","Ark_thunderbolt","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_MAKE_CABINET_ITEM","Ark_thunderbolt_cabinet","","아크 - 낙뢰"
+2,0,100000,1,0,"Ark","Ark_dispersion","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_MAKE_CABINET_ITEM","Ark_dispersion_cabinet","","아크 - 분산"
+3,0,100000,1,0,"Ark","Ark_overpower","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_MAKE_CABINET_ITEM","Ark_overpower_cabinet","","아크 - 제압"
+4,0,100000,1,0,"Ark","Ark_wind","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_MAKE_CABINET_ITEM","Ark_wind_cabinet","","아크 - 질풍"
+5,0,100000,1,0,"Ark","Ark_punishment","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_MAKE_CABINET_ITEM","Ark_punishment_cabinet","","아크 - 천벌"
+6,0,100000,1,0,"Ark","Ark_healingwave","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_MAKE_CABINET_ITEM","Ark_healingwave_cabinet","","아크 - 치유의 물결"
+7,0,100000,1,0,"Ark","Ark_storm","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_MAKE_CABINET_ITEM","Ark_storm_cabinet","","아크 - 폭풍"

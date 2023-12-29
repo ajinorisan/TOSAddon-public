@@ -1,0 +1,4 @@
+ClassID,RankupD,RankupC,RankupB,ClassName
+1,30000,5000,1400,"Rankup_high"
+2,6000,1000,280,"Rankup_low"
+3,25,150,535,"Rankup_count"

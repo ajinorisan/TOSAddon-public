@@ -1,0 +1,13 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+101,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander13","UNLOCK_ABIL_SKILL","Highlander_WagonWheel","수레바퀴 1레벨 이상","ABIL_REINFORCE_PRICE"
+401,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander15","UNLOCK_ABIL_SKILL","Highlander_CrossGuard","크로스 가드 3레벨 이상","ABIL_REINFORCE_PRICE"
+501,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander14","UNLOCK_ABIL_SKILL","Highlander_Moulinet","뮬리넷 1레벨 이상","ABIL_REINFORCE_PRICE"
+601,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander29","UNLOCK_ABIL_SKILL","Highlander_SkyLiner","스카이 라이너 1레벨 이상","ABIL_REINFORCE_PRICE"
+701,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander30","UNLOCK_ABIL_SKILL","Highlander_CrossCut","크로스컷 1레벨 이상","ABIL_REINFORCE_PRICE"
+702,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander34","UNLOCK_ABIL_SKILL","Highlander_CrossCut","크로스컷 1레벨 이상","ABIL_ABOVE_NORMAL_PRICE"
+703,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander44","UNLOCK_ABIL_SKILL","Highlander_Defiance","디파이언스 1레벨 이상","ABIL_REINFORCE_PRICE"
+802,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander42","UNLOCK_ABIL_JOB_LEVEL","Char1_2","하이랜더 클래스 45레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+901,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander36","UNLOCK_ABIL_OTHERABILITY","Highlander13","[수레 바퀴: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+904,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander39","UNLOCK_ABIL_OTHERABILITY","Highlander14","[뮬리넷: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+905,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander40","UNLOCK_ABIL_OTHERABILITY","Highlander29","[스카이라이너: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+906,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Highlander41","UNLOCK_ABIL_OTHERABILITY","Highlander30","[크로스컷: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

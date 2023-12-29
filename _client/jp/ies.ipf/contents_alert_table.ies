@@ -1,0 +1,10 @@
+ClassID,Level,GearScore,SilverMulti,MoveForce,AccProp,ContentsName,Reward,MapName,Position,ShowIndunInfo,ShowNpcInfo,IndunName
+1,400,4500,5,1,"ContentsAlert1","Lv 400 레벨 던전","Drung_Box_Elixer_Event_3/5;Event_indunReset_Team_30/5;Event_dungeoncount_30/10;","c_Klaipe","-323;241;883","Indun","경비병 리엔","Indun_Dummy"
+2,440,3657,5,0,"ContentsAlert2","챌린지 모드 1인 입장(460LV)","Event_Coin_Ticket_5000/2;","c_Klaipe","-185;149;76","Challenge_Auto_Normal_Party","",""
+3,460,5187,5,0,"ContentsAlert3","챌린지 모드 1인 입장(480LV)","Event_ChallengeModeReset_30/10;","c_Klaipe","-185;149;76","Challenge_Normal_Solo","",""
+4,458,5063,5,0,"ContentsAlert4","성물 레이드 자동매칭(Nomal)","Ticket_Mythic_Auto_Hard_Ev_1/3;Multiple_Token_MythicHARD_Event34/3;","c_Klaipe","-185;149;76","MythicDungeon_Auto","","Mythic_startower_Auto"
+5,440,5100,5,1,"ContentsAlert5","텔하르샤","SoloRaidCntReset_Team_Event_4/10;","d_irredians_113_1","17;4;-547","Raid_boss_TelHarsha","텔하르샤",""
+6,458,5310,5,0,"ContentsAlert6","마신의 성소 자동매칭","Ticket_Giltine_Auto_Premium_Ev_1/3;","c_Klaipe","-185;149;76","Legend_Raid_Giltine_Auto","",""
+7,460,5310,5,0,"ContentsAlert7","챌린지 모드 자동매칭(파티)","Event_ChallengeModeReset_30/20;","c_Klaipe","-185;149;76","Challenge_Auto_Hard_Party","",""
+8,460,5557,5,0,"ContentsAlert8","분열 특이점 자동 매칭","ChallengeExpertModeCountUp_Ev_1/5;","c_Klaipe","-185;149;76","Challenge_Division_Auto_1","",""
+9,460,5460,5,0,"ContentsAlert9","성자의 기도소 1인","Ticket_Vasilissa_Party_Enter_NoTrade_Event34/3;","c_Klaipe","-185;149;76","Goddess_Raid_Vasilissa_Solo","",""

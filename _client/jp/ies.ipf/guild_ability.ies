@@ -1,0 +1,4 @@
+ClassID,MaxLevel,ClassName,Name,Icon,SkillName,Desc
+1,15,"MemberExtend","최대 인원 증가","guild_info_6","","최대 길드원 수 +3"
+2,5,"Taming","테이밍","guild_info_7","","최대 컴패니언 수 +3"
+3,5,"Farming","농사","guild_info_8","","최대 작물 수 +3"

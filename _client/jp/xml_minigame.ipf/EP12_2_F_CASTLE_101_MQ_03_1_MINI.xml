@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP12_2_F_CASTLE_101_MQ_03_1_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="150232" Pos="579.89#52.93#67.15" angle="-41" genCount="1" maxStackCount="1" objectKey="0"/>
+                    <Obj Type="Monster" MonType="150233" Pos="590.06#52.93#-21.94" genCount="1" maxStackCount="1" objectKey="1" propList="&apos;NumArg1&apos; &apos;1&apos; &apos;NumArg3&apos; &apos;1&apos; &apos;NumArg2&apos; &apos;1&apos; &apos;NumArg4&apos; &apos;1&apos; &apos;Dialog&apos; &apos;EP12_2_F_CASTLE_101_MQ03_1_LEFT&apos; &apos;SimpleAI&apos; &apos;SCR_THREECOLOREFFECT_AI&apos; &apos;Name&apos; &apos;UnvisibleName&apos; "/>
+                    <Obj Type="Monster" MonType="150233" Pos="676.75#52.93#58.24" angle="-89" genCount="1" maxStackCount="1" objectKey="2" propList="&apos;Dialog&apos; &apos;EP12_2_F_CASTLE_101_MQ03_1_RIGHT&apos; &apos;SimpleAI&apos; &apos;SCR_THREECOLOREFFECT_AI&apos; &apos;Name&apos; &apos;UnvisibleName&apos; "/>
+                    <Obj Type="Monster" MonType="150234" Pos="652.62#52.93#-2.11" angle="-108" genCount="1" maxStackCount="1" objectKey="3" propList="&apos;Faction&apos; &apos;Neutral&apos; &apos;Dialog&apos; &apos;EP12_2_F_CASTLE_101_MQ03_1_MID&apos; &apos;Name&apos; &apos;UnvisibleName&apos; &apos;SimpleAI&apos; &apos;SCR_THREECOLOREFFECT_AI&apos; "/>
+                    <Obj Type="Monster" MonType="150235" Pos="641.65#52.93#53.57" angle="-81" genCount="1" maxStackCount="1" objectKey="4" propList="&apos;SimpleAI&apos; &apos;EP12_2_F_CASTLE_101_BLACKSTONE_AI&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="ClearValueSet">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="MQ03_1_MINI_VALUE_01"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Start"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Show_BalloonText_Rule_01">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SHOWBALLOONTEXT" Client="NO" UseSleep="NO">
+                                <Str Str="EP12_2_F_CASTLE_101_MQ03_1_RULE_01"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Show_BalloonText_Rule_02">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5.5"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SHOWBALLOONTEXT" Client="NO" UseSleep="NO">
+                                <Str Str="EP12_2_F_CASTLE_101_MQ03_1_RULE_02"/>
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Show_BalloonText_Rule_03">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="16"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SHOWBALLOONTEXT" Client="NO" UseSleep="NO">
+                                <Str Str="EP12_2_F_CASTLE_101_MQ03_1_RULE_03"/>
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Clear" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="Q_Clear">
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
+                                <Str Str="SSN_EP12_2_F_CASTLE_101_MQ03_1"/>
+                                <Str Str="QuestInfoValue1"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Fail" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event eventName="FailSetandReStart">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="MQ03_1_MINI_VALUE_01"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="마력석이 초기화되었습니다."/>
+                                <Str Str="!"/>
+                                <Num Num="3"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_03_01_MINI_FAIL_SET_NUMARG"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="MonGen"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="MonGen" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59523" Pos="646.07#52.93#-129.48" angle="73" genCount="1" maxStackCount="1" autoGen="0" objectKey="0" autoDestroy="0" searchRange="50" tendency="1"/>
+                    <Obj Type="Monster" MonType="59523" Pos="714.11#52.93#-99.43" angle="115" genCount="1" maxStackCount="1" autoGen="0" objectKey="1" autoDestroy="0" searchRange="50" tendency="1"/>
+                    <Obj Type="Monster" MonType="59523" Pos="765.42#52.93#-49.34" angle="163" genCount="1" maxStackCount="1" autoGen="0" objectKey="2" autoDestroy="0" searchRange="50" tendency="1"/>
+                    <Obj Type="Monster" MonType="59523" Pos="789.84#52.93#20.49" angle="-157" genCount="1" maxStackCount="1" autoGen="0" objectKey="3" autoDestroy="0" searchRange="50" tendency="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="GoStart">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="MQ03_1_MINI_VALUE_01"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="MonGen/0/MonGen/1/MonGen/2/MonGen/3"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_ADD_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="MQ03_1_MINI_VALUE_01"/>
+                                <Num Num="-1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP12_2_F_CASTLE_101_MQ03_1_RANGDAMASTER_CHAT"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Start"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execMS="3000" execCount="1" eventName="AfterChat" execWithStart="0">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP12_2_F_CASTLE_101_MQ03_1_RANGDAMASTER_CHAT02"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Start">
+                <ObjList/>
+                <StageEvents>
+                    <Event eventName="FailCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="MQ03_1_MINI_VALUE_01"/>
+                                <Str Str="EQ"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="ClearCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="MQ03_1_MINI_VALUE_01"/>
+                                <Str Str="=="/>
+                                <Num Num="2"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Clear"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

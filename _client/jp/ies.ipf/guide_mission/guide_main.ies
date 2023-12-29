@@ -1,0 +1,9 @@
+ClassID,Mission_Group,Order,ClassName,AccProp,Description,Reward_Item,Reward_Coin
+1,1,1,"Step1","GUIDE_STEP1","주요 메뉴들을 둘러보고 필요한 기능들을 학습해 봅시다.","Ability_Point_Stone_30000/1;QuestReward_repairPotion/50;",""
+2,2,2,"Step2","GUIDE_STEP2","주요 에피소드를 진행하고 기본적인 장비 시스템을 적용해 봅시다.","Ability_Point_Stone_30000/1;RestartCristal/10;Legend_ExpPotion_2_460_complete/80;misc_Enchant_460_NoTrade/4;",""
+3,3,3,"Step3","GUIDE_STEP3","다음 에피소드를 진행하고, 더 심화된 성장 시스템들을 학습해 봅시다.","Ability_Point_Stone_30000/1;selectbox_Gem_Relic_Black/3;Relic_exp_token_refine/20;misc_Ectonite/100;",""
+4,4,4,"Step4","GUIDE_STEP4","어시스터와 성물 시스템에 대해 학습해 봅시다.","Ability_Point_Stone_30000/1;SelectBox_Goddess_MainWeapon_25/1;SelectBox_Goddess_SubWeapon_25/1;Premium_Mystic_Glass/15;Premium_Sandra_Glass/30;Premium_Sandra_Glass_1line/30;",""
+5,5,5,"Step5","GUIDE_STEP5","새로운 무기 세트를 장착하고 각종 돋보기의 효과를 체험해 봅시다.","Ability_Point_Stone_30000/1;misc_pvp_mine2_NotLimit_10000/1;misc_vasilisa_NoTrade/50;",""
+6,6,6,"Step6","GUIDE_STEP6","장비 외에도 강해질 수 있는 방법은 생각보다 많습니다. 그 중 하나인 각종 강화 효과들에 대해 학습해 봅시다.","Ability_Point_Stone_30000/1;misc_Telharsha_neck/50;misc_luferium_NoTrade/1;",""
+7,7,7,"Step7","GUIDE_STEP7","자동 매칭을 통해 본격적으로 다른 유저들과 함께 콘텐츠를 즐기고, 보유한 액세서리 세트를 업그레이드 해봅시다.","Ability_Point_Stone_30000/1;misc_reinforce_percentUp_460/30;QuestReward_repairPotion/50;RestartCristal/10;",""
+8,8,8,"Step8","GUIDE_STEP8","더 높은 난이도의 콘텐츠에 도전하고, 바이보라와 여신/마신 방어구 업그레이드를 위한 여정을 시작해 봅시다.","Ability_Point_Stone_30000/1;misc_pvp_mine2_NotLimit_10000/3;GabijaCertificateCoin_10000p/3;Relic_exp_token_refine/100;",""

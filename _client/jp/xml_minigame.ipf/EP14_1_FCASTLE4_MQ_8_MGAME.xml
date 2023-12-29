@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+	<Game Name="EP14_1_FCASTLE4_MQ_8_MGAME" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="6291456">
+		<StageList>
+			<Stage Name="DefGroup">
+				<ObjList>
+					<Obj Type="Monster" MonType="59702" Pos="-117.78#58.68#2051.16" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="0" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-83.17#58.68#1892.71" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="1" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59703" Pos="117.70#58.68#1976.67" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="2" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="107.47#58.68#2058.71" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="3" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59703" Pos="17.58#58.68#2313.15" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="4" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-28.95#58.68#2407.89" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="5" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="56.20#58.68#2150.29" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="6" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59703" Pos="-43.69#58.68#2163.50" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="7" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="7.16#58.68#2042.31" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="8" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="4.95#58.68#1926.36" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="9" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-194.27#58.68#1952.71" angle="-92" genCount="1" genTime="20000" autoGen="0" objectKey="10" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="123.33#58.68#2324.22" genCount="1" genTime="20000" autoGen="0" objectKey="11" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="165.15#58.68#2263.55" genCount="1" genTime="20000" autoGen="0" objectKey="12" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="160.52#58.68#2187.61" genCount="1" genTime="20000" autoGen="0" objectKey="13" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="150.88#58.68#2138.02" genCount="1" genTime="20000" autoGen="0" objectKey="14" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="75.86#58.68#1895.88" genCount="1" genTime="20000" autoGen="0" objectKey="15" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="72.32#58.68#1832.87" genCount="1" genTime="20000" autoGen="0" objectKey="16" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="-0.00#58.68#1826.85" genCount="1" genTime="20000" autoGen="0" objectKey="17" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150290" Pos="-29.28#58.68#1874.98" genCount="1" genTime="20000" autoGen="0" objectKey="18" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="150287" Pos="73.29#58.68#2240.95" angle="-166" genCount="1" genTime="20000" autoGen="0" objectKey="19" searchRange="1000" propList="&apos;Faction&apos; &apos;Our_Forces&apos; &apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Lv&apos; &apos;470&apos; &apos;HitProof&apos; &apos;NO&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="157115" Pos="21.96#58.68#1886.13" angle="167" genCount="1" genTime="20000" autoGen="0" objectKey="20" searchRange="1000" propList="&apos;BTree&apos; &apos;BasicMonster_ATK&apos; &apos;Faction&apos; &apos;Our_Forces&apos; &apos;Lv&apos; &apos;470&apos; &apos;Level&apos; &apos;470&apos; " tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59704" Pos="-72.40#58.68#2278.00" genCount="1" genTime="20000" autoGen="0" objectKey="21" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59704" Pos="-45.65#58.68#1964.72" genCount="1" genTime="20000" autoGen="0" objectKey="22" searchRange="300" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-485.16#58.68#2029.88" genCount="1" genTime="20000" objectKey="23" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-485.58#58.68#2303.06" genCount="1" genTime="20000" objectKey="24" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-282.70#58.68#2306.04" genCount="1" genTime="20000" objectKey="25" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-306.74#58.68#2005.81" genCount="1" genTime="20000" objectKey="26" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59702" Pos="-202.29#58.68#2143.28" genCount="1" genTime="20000" objectKey="27" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59703" Pos="-243.02#58.68#2230.30" genCount="1" genTime="20000" objectKey="28" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59703" Pos="-231.57#58.68#2075.42" genCount="1" genTime="20000" objectKey="29" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59703" Pos="-379.22#58.68#1993.34" genCount="1" genTime="20000" objectKey="30" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59703" Pos="-371.75#58.68#2316.28" genCount="1" genTime="20000" objectKey="31" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59704" Pos="-439.26#58.68#1962.52" genCount="1" genTime="20000" objectKey="32" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59704" Pos="-213.91#58.68#1991.43" genCount="1" genTime="20000" objectKey="33" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59704" Pos="-219.97#58.68#2325.08" genCount="1" genTime="20000" objectKey="34" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59704" Pos="-470.87#58.68#2405.56" genCount="1" genTime="20000" objectKey="35" searchRange="1000" tendency="1">
+						<SelfAI ActiveMessageMapInBattle="1">
+							<List>
+								<ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+									<Num Num="500"/>
+								</ToolScp>
+							</List>
+							<StartList>
+								<ToolScp Scp="S_AI_SET_TENDENCY_RANGE" Client="NO" UseSleep="NO">
+									<Num Num="1000"/>
+								</ToolScp>
+								<ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+									<Str Str="Attack"/>
+								</ToolScp>
+								<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+							</StartList>
+						</SelfAI>
+					</Obj>
+					<Obj Type="Monster" MonType="59705" Pos="-502.21#58.68#2134.74" genCount="1" maxStackCount="1" genTime="20000" objectKey="36" tendency="1"/>
+				</ObjList>
+				<StageEvents>
+					<Event eventName="MON_gen">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_MONHP" Client="NO" UseSleep="NO">
+								<MGameObj List="DefGroup/36"/>
+								<Num Num="45"/>
+								<Str Str="UNDER"/>
+								<Num Num="1"/>
+								<Str Str="OVER"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+								<MGameObjIndex List="DefGroup/0/DefGroup/1/DefGroup/8/DefGroup/9/DefGroup/10/DefGroup/22/DefGroup/2/DefGroup/3/DefGroup/6/DefGroup/7/DefGroup/21/DefGroup/4/DefGroup/5"/>
+								<Num Num="1"/>
+								<Num Num="0"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+						</execList>
+					</Event>
+					<Event eventName="Our_Gen">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_MONHP" Client="NO" UseSleep="NO">
+								<MGameObj List="DefGroup/36"/>
+								<Num Num="40"/>
+								<Str Str="UNDER"/>
+								<Num Num="1"/>
+								<Str Str="OVER"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+								<MGameObjIndex List="DefGroup/11/DefGroup/12/DefGroup/13/DefGroup/14/DefGroup/19/DefGroup/16/DefGroup/17/DefGroup/18/DefGroup/20/DefGroup/15"/>
+								<Num Num="1"/>
+								<Num Num="0"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+								<Str Str="라민 대장군과 파야우타의 별동대가 도착했습니다!"/>
+								<Str Str="scroll"/>
+								<Num Num="5"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+						</execList>
+					</Event>
+					<Event eventName="Add_buff">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_MONCNT_OVER" Client="NO" UseSleep="NO">
+								<MGameObj List="DefGroup/19"/>
+								<Num Num="1"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+								<MGameObj List="DefGroup/19"/>
+								<Str Str="SCR_EP14_1_TRACKNPC_ADD_BUFF"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+						</execList>
+					</Event>
+					<Event eventName="Add_buff2">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_MONCNT_OVER" Client="NO" UseSleep="NO">
+								<MGameObj List="DefGroup/20"/>
+								<Num Num="1"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+								<MGameObj List="DefGroup/20"/>
+								<Str Str="SCR_EP14_1_TRACKNPC_ADD_BUFF"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+						</execList>
+					</Event>
+					<Event eventName="ClearCheck">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="2"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+								<MGameObj List="DefGroup/36"/>
+								<Num Num="0"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
+								<Str Str="SSN_EP14_1_FCASTLE4_MQ_8"/>
+								<Str Str="QuestInfoValue1"/>
+								<Num Num="1"/>
+							</ToolScp>
+							<ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+						</execList>
+					</Event>
+					<Event eventName="FailCheck">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_PCCNT_IMMEDIATELY" Client="NO" UseSleep="NO">
+								<Num Num="0"/>
+							</ToolScp>
+						</condList>
+						<listSet>
+							<ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+						</listSet>
+						<listExec>
+							<ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+								<Str Str="SCR_EP14_MGAME_DEAD"/>
+								<Num Num="0"/>
+							</ToolScp>
+						</listExec>
+					</Event>
+				</StageEvents>
+			</Stage>
+		</StageList>
+	</Game>
+</GameList>

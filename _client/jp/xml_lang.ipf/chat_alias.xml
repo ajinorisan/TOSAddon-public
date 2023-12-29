@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<idspace id="ChatAlias">
+	<Category>
+		<Class ClassID="1" ClassName="/s" Alias="/ㄴ" ConvertWhenSend="0"/>
+		<Class ClassID="2" ClassName="/w" Alias="/ㅈ" ConvertWhenSend="0"/>
+		<Class ClassID="3" ClassName="/y" Alias="/ㅛ" ConvertWhenSend="0"/>
+		<Class ClassID="4" ClassName="/p" Alias="/ㅔ" ConvertWhenSend="0"/>
+		<Class ClassID="5" ClassName="/cardbattle" Alias="/카드대전" ConvertWhenSend="1"/>
+		<Class ClassID="6" ClassName="/r" Alias="/ㄱ" ConvertWhenSend="0"/>
+		<Class ClassID="7" ClassName="/party" Alias="/파티초대" ConvertWhenSend="1"/>
+		<Class ClassID="8" ClassName="/friend" Alias="/친구추가" ConvertWhenSend="1"/>
+		<Class ClassID="9" ClassName="/block" Alias="/차단" ConvertWhenSend="1"/>
+		<Class ClassID="10" ClassName="/indun" Alias="/인던" ConvertWhenSend="1"/>
+		<Class ClassID="11" ClassName="/guild" Alias="/길드초대" ConvertWhenSend="1"/>
+		<Class ClassID="12" ClassName="/g" Alias="/ㅎ" ConvertWhenSend="0"/>
+		<Class ClassID="14" ClassName="/uicallscp_test" Alias="/테스트" ConvertWhenSend="1"/>
+		<Class ClassID="15" ClassName="/cpattack" Alias="/자동공격" ConvertWhenSend="1"/>
+		<Class ClassID="16" ClassName="/comeon" Alias="/이리와" ConvertWhenSend="1"/>
+		<Class ClassID="17" ClassName="/PHousePoint" Alias="/개인하우징" ConvertWhenSend="1"/>
+		<Class ClassID="18" ClassName="/event1912_4th_coin" Alias="/이벤트주화" ConvertWhenSend="1"/>
+		<Class ClassID="25" ClassName="/uicallscp_ctrltypereset" Alias="/계열변경기간" ConvertWhenSend="1"/>
+		<Class ClassID="26" ClassName="/uicallscp_newcharactersub1" Alias="/몬스터처치" ConvertWhenSend="1"/>
+		<Class ClassID="27" ClassName="/uicallscp_newcharactersub2" Alias="/레이드클리어" ConvertWhenSend="1"/>
+		<Class ClassID="28" ClassName="/uicallscp_event1810guildquest" Alias="/길드퀘스트" ConvertWhenSend="1"/>
+		<Class ClassID="29" ClassName="/uicallscp_event1916coin" Alias="/주화" ConvertWhenSend="1"/>
+		<Class ClassID="31" ClassName="/uicallscp_event1909coin" Alias="/조각" ConvertWhenSend="1"/>
+		<Class ClassID="32" ClassName="/note" Alias="/수첩" ConvertWhenSend="1"/>
+		<Class ClassID="33" ClassName="/grimoire" Alias="/그리모어" ConvertWhenSend="1"/>
+		<Class ClassID="34" ClassName="/candy" Alias="/사탕" ConvertWhenSend="1"/>
+		<Class ClassID="35" ClassName="/totalPoint" Alias="/통합" ConvertWhenSend="1"/>
+		<Class ClassID="36" ClassName="/pot" Alias="/항아리" ConvertWhenSend="1"/>
+		<Class ClassID="37" ClassName="/expedition" Alias="/토벌대" ConvertWhenSend="1"/>
+		<Class ClassID="38" ClassName="/escape" Alias="/탈출" ConvertWhenSend="1"/>
+		<Class ClassID="39" ClassName="/coin" Alias="/코인" ConvertWhenSend="1"/>
+		<Class ClassID="40" ClassName="/fishing" Alias="/낚시" ConvertWhenSend="1"/>
+		<Class ClassID="41" ClassName="/candy_klaipeda" Alias="/화이트데이 클라페다" ConvertWhenSend="1"/>
+		<Class ClassID="42" ClassName="/candy_orsha" Alias="/화이트데이 오르샤" ConvertWhenSend="1"/>
+		<Class ClassID="43" ClassName="/candy_fedimian" Alias="/화이트데이 페디미안" ConvertWhenSend="1"/>
+		<Class ClassID="44" ClassName="/guildmileage" Alias="/길드마일리지" ConvertWhenSend="1"/>
+		<Class ClassID="45" ClassName="/sow" Alias="/식목일" ConvertWhenSend="1"/>
+		<Class ClassID="46" ClassName="/badge" Alias="/뱃지" ConvertWhenSend="1"/>
+		<!-- <Class ClassID="47" ClassName="/snowwitch" Alias="/하얀마녀" ConvertWhenSend="1"/> -->
+		<Class ClassID="48" ClassName="/jewel" Alias="/보석" ConvertWhenSend="1"/>
+		<!--<Class ClassID="25" ClassName="/uicallscp_event1810guildquest" Alias="/길드퀘스트" ConvertWhenSend="1"/>-->
+		<Class ClassID="52" ClassName="/mercenary" Alias="/용병단증표" ConvertWhenSend="1"/>
+		<Class ClassID="50" ClassName="/summer" Alias="/여름" ConvertWhenSend="1"/>
+		<Class ClassID="51" ClassName="/watermelon" Alias="/수박" ConvertWhenSend="1"/>
+		<!-- <Class ClassID="53" ClassName="/tcance" Alias="/트캉스" ConvertWhenSend="1"/> -->
+		<!-- <Class ClassID="54" ClassName="/gold" Alias="/골드" ConvertWhenSend="1"/> -->
+		<Class ClassID="49" ClassName="/bamboo" Alias="/죽엽" ConvertWhenSend="1"/>
+		<Class ClassID="55" ClassName="/ticket" Alias="/티켓" ConvertWhenSend="1"/>
+		<Class ClassID="56" ClassName="/tokenwarp" Alias="/토큰이동" ConvertWhenSend="1"/>
+		<Class ClassID="57" ClassName="/matsuri" Alias="/마츠리" ConvertWhenSend="1"/>
+		<!-- <Class ClassID="58" ClassName="/maxLevel" Alias="/만렙" ConvertWhenSend="1"/> -->
+		<Class ClassID="59" ClassName="/rice" Alias="/찹쌀" ConvertWhenSend="1"/>
+		<Class ClassID="60" ClassName="/vote" Alias="/투표" ConvertWhenSend="1"/>
+		<Class ClassID="61" ClassName="/master" Alias="/마스터" ConvertWhenSend="1"/>
+		<Class ClassID="62" ClassName="/chusok" Alias="/추석" ConvertWhenSend="1"/>
+		<Class ClassID="63" ClassName="/cat" Alias="/고양이" ConvertWhenSend="1"/>
+		<Class ClassID="65" ClassName="/moonlight" Alias="/달빛" ConvertWhenSend="1"/>
+		<Class ClassID="68" ClassName="/ragana" Alias="/라가나" ConvertWhenSend="1"/>
+		<Class ClassID="67" ClassName="/moon" Alias="/달맞이" ConvertWhenSend="1"/>
+		<Class ClassID="69" ClassName="/fihingcat" Alias="/꽁치" ConvertWhenSend="1"/>
+		<!-- <Class ClassID="70" ClassName="/5th" Alias="/5주년" ConvertWhenSend="1"/> -->
+		<Class ClassID="72" ClassName="/episode" Alias="/에피소드" ConvertWhenSend="1"/>
+		<Class ClassID="73" ClassName="/harvest" Alias="/수확제" ConvertWhenSend="1"/>
+		<Class ClassID="76" ClassName="/reputation" Alias="/명성" ConvertWhenSend="1"/>
+		<Class ClassID="74" ClassName="/giltine" Alias="/길티네" ConvertWhenSend="1"/>
+		<Class ClassID="75" ClassName="/YAK" Alias="/야크맘보" ConvertWhenSend="1"/>
+		<!-- <Class ClassID="77" ClassName="/newyear" Alias="/신년" ConvertWhenSend="1"/> -->
+		<Class ClassID="78" ClassName="/supply" Alias="/보급" ConvertWhenSend="1"/>
+		<Class ClassID="79" ClassName="/seollal" Alias="/설날" ConvertWhenSend="1"/>
+		<Class ClassID="80" ClassName="/choco" Alias="/발렌타인" ConvertWhenSend="1"/>
+		<Class ClassID="83" ClassName="/lucky" Alias="/럭키" ConvertWhenSend="1"/>
+		<Class ClassID="82" ClassName="/gift" Alias="/선물" ConvertWhenSend="1"/>
+		<!-- <Class ClassID="84" ClassName="/daycheck" Alias="/출석" ConvertWhenSend="1"/> -->
+		<Class ClassID="85" ClassName="/theif" Alias="/도둑" ConvertWhenSend="1"/>
+		<Class ClassID="88" ClassName="/check" Alias="/체크" ConvertWhenSend="1"/>
+		<Class ClassID="89" ClassName="/camping" Alias="/캠핑" ConvertWhenSend="1"/>
+		<!-- <Class ClassID="92" ClassName="/watermelon" Alias="/수박깨기" ConvertWhenSend="1"/> -->
+		<Class ClassID="93" ClassName="/weekendcheck" Alias="/주말출석" ConvertWhenSend="1"/>
+		<Class ClassID="94" ClassName="/flex" Alias="/플렉스" ConvertWhenSend="1"/>
+		<Class ClassID="95" ClassName="/explorer" Alias="/개척자" ConvertWhenSend="1"/>
+		<Class ClassID="96" ClassName="/next" Alias="/개편" ConvertWhenSend="1"/>
+		<Class ClassID="97" ClassName="/fishingcat" Alias="/수박" ConvertWhenSend="1"/>
+		<Class ClassID="98" ClassName="/fishingcheck" Alias="/주말접속" ConvertWhenSend="1"/>
+		<Class ClassID="99" ClassName="/goldfish" Alias="/황금낚시" ConvertWhenSend="1"/>
+		<Class ClassID="100" ClassName="/relic" Alias="/유물" ConvertWhenSend="1"/>
+		<Class ClassID="101" ClassName="/festival" Alias="/전야제" ConvertWhenSend="1"/>
+		<Class ClassID="102" ClassName="/halloween" Alias="/할로윈" ConvertWhenSend="1"/>
+		<Class ClassID="103" ClassName="/winter" Alias="/고구마" ConvertWhenSend="1"/>
+		<Class ClassID="104" ClassName="/roulette" Alias="/룰렛" ConvertWhenSend="1"/>
+		<Class ClassID="105" ClassName="/harmony" Alias="/화합" ConvertWhenSend="1"/>
+		<Class ClassID="106" ClassName="/event" Alias="/이벤트" ConvertWhenSend="1"/>
+		<Class ClassID="107" ClassName="/attendance" Alias="/출석" ConvertWhenSend="1"/>
+	</Category>
+</idspace>

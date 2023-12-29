@@ -1,0 +1,6 @@
+ClassID,SquadType,ClassName,Name,Category,Desc
+1,0,"TOSHero","영웅담","TOSHero","주간"
+2,1,"Goddess_Raid_Delmore_Extreme","델무어 격전지: 가디스(순례자)","","주간"
+3,0,"EARRING_RAID_Extreme","여신의 전언: 불꽃의 기억(순례자)","","주간"
+4,2,"Goddess_Raid_Jellyzele_Extreme","가라앉는 나포선: 가디스(순례자)","Tribuation","주간"
+5,3,"Goddess_Raid_Spreader_Extreme","변질의 전파자: 가디스(순례자)","Tribuation","주간"

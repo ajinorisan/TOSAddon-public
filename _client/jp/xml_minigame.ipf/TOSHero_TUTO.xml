@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="TOSHero_TUTO" minLv="0" maxLv="0" mapName="TOSHero_Straight" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="ON_EFFECT">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHERO_ON_OTHER_PC_EFFECT"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Fail_Check">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_IMMEDIATELY" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="TOSHERO_SHOW_SCOREBOARD" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="Exit"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DESTROY" Client="NO" UseSleep="NO">
+                                <Str Str="Stage1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DESTROY" Client="NO" UseSleep="NO">
+                                <Str Str="BossStage1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DESTROY" Client="NO" UseSleep="NO">
+                                <Str Str="Ready"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_END_FAIL_1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="Exit" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHERO_MGAME_REMOVE_TUTO"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="QuestProp_SET">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP2"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Ready">
+                <ObjList>
+                    <Obj Type="Monster" MonType="150250" Pos="-881.64#1.00#-993.77" genCount="1" genTime="20000" objectKey="0" propList="&apos;Dialog&apos; &apos;TOSHERO_TUTO_NPC_02&apos; "/>
+                    <Obj Type="Monster" MonType="20040" Pos="190.35#3.00#80.72" angle="-75" genCount="1" genTime="1" objectKey="1" propList="&apos;Range&apos; &apos;800&apos; &apos;Enter&apos; &apos;TOSHERO_TUTO_DONT_OUT&apos; "/>
+                    <Obj Type="Monster" MonType="20040" Pos="1194.19#3.00#1093.93" angle="-75" genCount="1" genTime="1" objectKey="2" propList="&apos;Range&apos; &apos;800&apos; &apos;Enter&apos; &apos;TOSHERO_TUTO_DONT_OUT&apos; "/>
+                    <Obj Type="Monster" MonType="150256" Pos="-957.00#3.00#-919.22" angle="-62" genCount="1" genTime="20000" objectKey="3" propList="&apos;Dialog&apos; &apos;TOSHERO_TUTO_NPC_03&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="StageSet">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="StagePlace"/>
+                                <Str Str="EQ"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="StagePlace"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="ReadyCheck">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Ready/0"/>
+                                <Str Str="StageRuning_TUTO"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Ready_Release">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="Ready/1"/>
+                                <Str Str="STATE_RELEASE_RUN_TUTO"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="이야기꾼과 대화하세요"/>
+                                <Str Str="scroll"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="RemoveStageBuff">
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="REMOVE_STAGEBUFF_RUN_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="StageBuffSet">
+                        <execList>
+                            <ToolScp Scp="TOSHERO_STAGEBUFF_RAN_SET" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="TOSHERO_ATTRIBUTE_RAN_SET" Client="NO" UseSleep="NO">
+                                <Str Str="NO"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Refresh_UI_Clean">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_PROGRESS_SET_TUTO"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="ResurrectUnLock">
+                        <execList>
+                            <ToolScp Scp="TOSHERO_ResurrectUnLock" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Stage1" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_CUSTOM_OPTION_CHECK" Client="NO" UseSleep="NO">
+                        <Num Num="0"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_STYLE_INFO" Client="NO" UseSleep="NO">
+                        <Str Str="Stage1_mission"/>
+                        <Str Str="text"/>
+                        <Str Str="모든 몬스터 처치"/>
+                        <Num Num="1"/>
+                        <Num Num="1"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList>
+                    <Obj Type="Monster" MonType="59642" Pos="-674.00#1.00#-790.00" angle="-135" genCount="1" genTime="20000" objectKey="0"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-649.00#1.00#-815.00" angle="-135" genCount="1" genTime="20000" objectKey="1"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-628.80#3.00#-834.46" angle="-135" genCount="1" genTime="20000" objectKey="2"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-697.19#3.00#-767.95" angle="-135" genCount="1" genTime="20000" objectKey="3"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-719.69#3.00#-748.55" angle="-135" genCount="1" genTime="20000" objectKey="4"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-682.39#3.00#-737.58" angle="-135" genCount="1" genTime="20000" objectKey="5"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-630.81#3.00#-786.85" angle="-135" genCount="1" genTime="20000" objectKey="6"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-637.22#3.00#-659.83" angle="-135" genCount="1" genTime="20000" objectKey="7"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-559.76#3.00#-737.85" angle="-135" genCount="1" genTime="20000" objectKey="8"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-607.39#3.00#-683.97" angle="-135" genCount="1" genTime="20000" objectKey="9"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-581.94#3.00#-710.81" angle="-135" genCount="1" genTime="20000" objectKey="10"/>
+                    <Obj Type="Monster" MonType="150256" Pos="-820.16#3.00#-929.78" angle="-37" genCount="1" genTime="20000" autoGen="0" objectKey="11" propList="&apos;Dialog&apos; &apos;TOSHERO_TUTO_NPC_03&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="StageCheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Stage1/0/Stage1/1/Stage1/2/Stage1/3/Stage1/4/Stage1/5/Stage1/6/Stage1/7/Stage1/8/Stage1/9/Stage1/10"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Str Str="=="/>
+                                <Num Num="2"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="BossStage1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Stage1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="Stage1/11"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="SummonPCList">
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_SETPOS" Client="NO" UseSleep="NO">
+                                <AbsPosRange X="-959.9823" Y="3" Z="-1065.592"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="ReadyEnd">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="2"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Ready"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="Ready/0/Ready/3"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="StageBuff_Attri">
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_BUFF_ADD_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execMS="0" eventName="mission_Success_check">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Stage1/0/Stage1/1/Stage1/2/Stage1/3/Stage1/4/Stage1/5/Stage1/6/Stage1/7/Stage1/8/Stage1/9/Stage1/10"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHERO_MISSION_ADDPOINT_TUTO"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Show_UI">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="Stage1_mission"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_START_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event eventName="Show_UI_REFRESH">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_PROGRESS_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="MSG">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="모든 적을 처치하세요!"/>
+                                <Str Str="timestart"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Summon_talker">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Stage1/0/Stage1/1/Stage1/2/Stage1/3/Stage1/4/Stage1/5/Stage1/6/Stage1/7/Stage1/8/Stage1/9/Stage1/10"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Stage1/11"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Stage1/11"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_ADD_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP2"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="이야기꾼과 대화하세요"/>
+                                <Str Str="Clear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="BallonText1">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SHOWBALLOONTEXT" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHERO_TUTO_01_DLG_09"/>
+                                <Num Num="8"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="BallonText2">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="18"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SHOWBALLOONTEXT" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHERO_TUTO_01_DLG_10"/>
+                                <Num Num="8"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Stage2" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59642" Pos="-674.00#1.00#-790.00" angle="-135" genCount="1" genTime="20000" objectKey="0"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-649.00#1.00#-815.00" angle="-135" genCount="1" genTime="20000" objectKey="1"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-630.00#3.00#-838.00" angle="-135" genCount="1" genTime="20000" objectKey="2"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-699.00#1.00#-765.00" angle="-135" genCount="1" genTime="20000" objectKey="3"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-724.00#1.00#-740.00" angle="-135" genCount="1" genTime="20000" objectKey="4"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-532.63#3.00#-645.67" angle="-135" genCount="1" genTime="20000" objectKey="5"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-505.70#1.00#-671.20" angle="-135" genCount="1" genTime="20000" objectKey="6"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-486.00#3.00#-694.00" angle="-135" genCount="1" genTime="20000" objectKey="7"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-555.70#1.00#-621.20" angle="-135" genCount="1" genTime="20000" objectKey="8"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-580.70#1.00#-596.20" angle="-135" genCount="1" genTime="20000" objectKey="9"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-357.40#1.00#-472.40" angle="-135" genCount="1" genTime="20000" objectKey="10"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-332.40#1.00#-497.40" angle="-135" genCount="1" genTime="20000" objectKey="11"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-312.00#3.00#-520.00" angle="-135" genCount="1" genTime="20000" objectKey="12"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-382.40#1.00#-447.40" angle="-135" genCount="1" genTime="20000" objectKey="13"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-407.40#1.00#-422.40" angle="-135" genCount="1" genTime="20000" objectKey="14"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-184.10#1.00#-298.60" angle="-135" genCount="1" genTime="20000" objectKey="15"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-159.10#1.00#-323.60" angle="-135" genCount="1" genTime="20000" objectKey="16"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-139.00#3.00#-347.00" angle="-135" genCount="1" genTime="20000" objectKey="17"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-209.10#1.00#-273.60" angle="-135" genCount="1" genTime="20000" objectKey="18"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-234.10#1.00#-248.60" angle="-135" genCount="1" genTime="20000" objectKey="19"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-10.80#1.00#-124.80" angle="-135" genCount="1" genTime="20000" objectKey="20"/>
+                    <Obj Type="Monster" MonType="59642" Pos="14.20#1.00#-149.80" angle="-135" genCount="1" genTime="20000" objectKey="21"/>
+                    <Obj Type="Monster" MonType="59642" Pos="35.00#3.00#-173.00" angle="-135" genCount="1" genTime="20000" objectKey="22"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-35.80#1.00#-99.80" angle="-135" genCount="1" genTime="20000" objectKey="23"/>
+                    <Obj Type="Monster" MonType="59642" Pos="-60.80#1.00#-74.80" angle="-135" genCount="1" genTime="20000" objectKey="24"/>
+                    <Obj Type="Monster" MonType="59642" Pos="162.50#1.00#49.00" angle="-135" genCount="1" genTime="20000" objectKey="25"/>
+                    <Obj Type="Monster" MonType="59642" Pos="187.50#1.00#24.00" angle="-135" genCount="1" genTime="20000" objectKey="26"/>
+                    <Obj Type="Monster" MonType="59642" Pos="208.00#3.00#0.00" angle="-135" genCount="1" genTime="20000" objectKey="27"/>
+                    <Obj Type="Monster" MonType="59642" Pos="137.50#1.00#74.00" angle="-135" genCount="1" genTime="20000" objectKey="28"/>
+                    <Obj Type="Monster" MonType="59642" Pos="120.18#3.00#88.70" angle="-135" genCount="1" genTime="20000" objectKey="29"/>
+                    <Obj Type="Monster" MonType="59642" Pos="335.80#1.00#222.80" angle="-135" genCount="1" genTime="20000" objectKey="30"/>
+                    <Obj Type="Monster" MonType="59642" Pos="360.80#1.00#197.80" angle="-135" genCount="1" genTime="20000" objectKey="31"/>
+                    <Obj Type="Monster" MonType="59642" Pos="381.00#3.00#173.00" angle="-135" genCount="1" genTime="20000" objectKey="32"/>
+                    <Obj Type="Monster" MonType="59642" Pos="310.80#1.00#247.80" angle="-135" genCount="1" genTime="20000" objectKey="33"/>
+                    <Obj Type="Monster" MonType="59642" Pos="285.80#1.00#272.80" angle="-135" genCount="1" genTime="20000" objectKey="34"/>
+                    <Obj Type="Monster" MonType="59642" Pos="509.10#1.00#396.60" angle="-135" genCount="1" genTime="20000" objectKey="35"/>
+                    <Obj Type="Monster" MonType="59642" Pos="534.10#1.00#371.60" angle="-135" genCount="1" genTime="20000" objectKey="36"/>
+                    <Obj Type="Monster" MonType="59642" Pos="555.00#3.00#347.00" angle="-135" genCount="1" genTime="20000" objectKey="37"/>
+                    <Obj Type="Monster" MonType="59642" Pos="484.10#1.00#421.60" angle="-135" genCount="1" genTime="20000" objectKey="38"/>
+                    <Obj Type="Monster" MonType="59642" Pos="459.10#1.00#446.60" angle="-135" genCount="1" genTime="20000" objectKey="39"/>
+                    <Obj Type="Monster" MonType="59642" Pos="682.40#1.00#570.40" angle="-135" genCount="1" genTime="20000" objectKey="40"/>
+                    <Obj Type="Monster" MonType="59642" Pos="707.40#1.00#545.40" angle="-135" genCount="1" genTime="20000" objectKey="41"/>
+                    <Obj Type="Monster" MonType="59642" Pos="728.00#3.00#520.00" angle="-135" genCount="1" genTime="20000" objectKey="42"/>
+                    <Obj Type="Monster" MonType="59642" Pos="657.40#1.00#595.40" angle="-135" genCount="1" genTime="20000" objectKey="43"/>
+                    <Obj Type="Monster" MonType="59642" Pos="632.40#1.00#620.40" angle="-135" genCount="1" genTime="20000" objectKey="44"/>
+                    <Obj Type="Monster" MonType="59642" Pos="855.70#1.00#744.20" angle="-135" genCount="1" genTime="20000" objectKey="45"/>
+                    <Obj Type="Monster" MonType="59642" Pos="880.70#1.00#719.20" angle="-135" genCount="1" genTime="20000" objectKey="46"/>
+                    <Obj Type="Monster" MonType="59642" Pos="902.00#3.00#694.00" angle="-135" genCount="1" genTime="20000" objectKey="47"/>
+                    <Obj Type="Monster" MonType="59642" Pos="830.70#1.00#769.20" angle="-135" genCount="1" genTime="20000" objectKey="48"/>
+                    <Obj Type="Monster" MonType="59642" Pos="805.70#1.00#794.20" angle="-135" genCount="1" genTime="20000" objectKey="49"/>
+                    <Obj Type="Monster" MonType="59642" Pos="999.00#1.00#888.00" angle="-135" genCount="1" genTime="20000" objectKey="50"/>
+                    <Obj Type="Monster" MonType="59642" Pos="1024.00#1.00#863.00" angle="-135" genCount="1" genTime="20000" objectKey="51"/>
+                    <Obj Type="Monster" MonType="59642" Pos="1046.00#3.00#838.00" angle="-135" genCount="1" genTime="20000" objectKey="52"/>
+                    <Obj Type="Monster" MonType="59642" Pos="974.00#1.00#913.00" angle="-135" genCount="1" genTime="20000" objectKey="53"/>
+                    <Obj Type="Monster" MonType="59642" Pos="949.00#1.00#938.00" angle="-135" genCount="1" genTime="20000" objectKey="54"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-682.39#3.00#-737.58" angle="-135" genCount="1" genTime="20000" objectKey="55"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-630.81#3.00#-786.85" angle="-135" genCount="1" genTime="20000" objectKey="56"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-529.58#1.00#-591.29" angle="-135" genCount="1" genTime="20000" objectKey="57"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-480.06#1.00#-638.48" angle="-135" genCount="1" genTime="20000" objectKey="58"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-356.57#1.00#-425.58" angle="-135" genCount="1" genTime="20000" objectKey="59"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-312.55#1.00#-469.63" angle="-135" genCount="1" genTime="20000" objectKey="60"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-185.55#1.00#-248.13" angle="-135" genCount="1" genTime="20000" objectKey="61"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-136.17#1.00#-296.68" angle="-135" genCount="1" genTime="20000" objectKey="62"/>
+                    <Obj Type="Monster" MonType="59643" Pos="36.65#1.00#-121.85" angle="-135" genCount="1" genTime="20000" objectKey="63"/>
+                    <Obj Type="Monster" MonType="59643" Pos="-11.54#1.00#-75.77" angle="-135" genCount="1" genTime="20000" objectKey="64"/>
+                    <Obj Type="Monster" MonType="59643" Pos="212.05#3.00#47.78" angle="-135" genCount="1" genTime="20000" objectKey="65"/>
+                    <Obj Type="Monster" MonType="59643" Pos="160.44#1.00#97.81" angle="-135" genCount="1" genTime="20000" objectKey="66"/>
+                    <Obj Type="Monster" MonType="59643" Pos="335.32#1.00#271.85" angle="-135" genCount="1" genTime="20000" objectKey="67"/>
+                    <Obj Type="Monster" MonType="59643" Pos="385.13#1.00#224.55" angle="-135" genCount="1" genTime="20000" objectKey="68"/>
+                    <Obj Type="Monster" MonType="59643" Pos="508.03#1.00#445.37" angle="-135" genCount="1" genTime="20000" objectKey="69"/>
+                    <Obj Type="Monster" MonType="59643" Pos="556.85#1.00#398.30" angle="-135" genCount="1" genTime="20000" objectKey="70"/>
+                    <Obj Type="Monster" MonType="59643" Pos="684.41#3.00#620.62" angle="-135" genCount="1" genTime="20000" objectKey="71"/>
+                    <Obj Type="Monster" MonType="59643" Pos="732.18#1.00#573.66" angle="-135" genCount="1" genTime="20000" objectKey="72"/>
+                    <Obj Type="Monster" MonType="59643" Pos="903.83#1.00#745.31" angle="-135" genCount="1" genTime="20000" objectKey="73"/>
+                    <Obj Type="Monster" MonType="59643" Pos="854.06#1.00#793.88" angle="-135" genCount="1" genTime="20000" objectKey="74"/>
+                    <Obj Type="Monster" MonType="59643" Pos="1041.41#3.00#888.41" angle="-135" genCount="1" genTime="20000" objectKey="75"/>
+                    <Obj Type="Monster" MonType="59643" Pos="993.78#3.00#934.77" angle="-135" genCount="1" genTime="20000" objectKey="76"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-642.53#3.00#-679.56" angle="-135" genCount="1" genTime="20000" objectKey="77"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-567.57#3.00#-751.94" angle="-135" genCount="1" genTime="20000" objectKey="78"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-593.57#3.00#-627.93" angle="-135" genCount="1" genTime="20000" objectKey="79"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-519.38#3.00#-702.71" angle="-135" genCount="1" genTime="20000" objectKey="80"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-408.89#1.00#-597.15" angle="-135" genCount="1" genTime="20000" objectKey="81"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-483.69#1.00#-522.92" angle="-135" genCount="1" genTime="20000" objectKey="82"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-321.71#1.00#-347.22" angle="-135" genCount="1" genTime="20000" objectKey="83"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-274.23#1.00#-392.28" angle="-135" genCount="1" genTime="20000" objectKey="84"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-232.41#1.00#-433.72" angle="-135" genCount="1" genTime="20000" objectKey="85"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-139.48#1.00#-177.62" angle="-135" genCount="1" genTime="20000" objectKey="86"/>
+                    <Obj Type="Monster" MonType="59621" Pos="-66.23#1.00#-250.78" angle="-135" genCount="1" genTime="20000" objectKey="87"/>
+                    <Obj Type="Monster" MonType="59621" Pos="26.19#3.00#-5.26" angle="-135" genCount="1" genTime="20000" objectKey="88"/>
+                    <Obj Type="Monster" MonType="59621" Pos="100.52#3.00#-76.39" angle="-135" genCount="1" genTime="20000" objectKey="89"/>
+                    <Obj Type="Monster" MonType="59621" Pos="191.50#1.00#167.35" angle="-135" genCount="1" genTime="20000" objectKey="90"/>
+                    <Obj Type="Monster" MonType="59621" Pos="233.76#1.00#125.81" angle="-135" genCount="1" genTime="20000" objectKey="91"/>
+                    <Obj Type="Monster" MonType="59621" Pos="280.65#1.00#81.19" angle="-135" genCount="1" genTime="20000" objectKey="92"/>
+                    <Obj Type="Monster" MonType="59621" Pos="372.85#1.00#334.40" angle="-135" genCount="1" genTime="20000" objectKey="93"/>
+                    <Obj Type="Monster" MonType="59621" Pos="443.74#1.00#261.22" angle="-135" genCount="1" genTime="20000" objectKey="94"/>
+                    <Obj Type="Monster" MonType="59621" Pos="542.34#1.00#506.43" angle="-135" genCount="1" genTime="20000" objectKey="95"/>
+                    <Obj Type="Monster" MonType="59621" Pos="617.04#1.00#430.52" angle="-135" genCount="1" genTime="20000" objectKey="96"/>
+                    <Obj Type="Monster" MonType="59621" Pos="731.99#1.00#709.00" angle="-135" genCount="1" genTime="20000" objectKey="97"/>
+                    <Obj Type="Monster" MonType="59621" Pos="780.23#1.00#664.98" angle="-135" genCount="1" genTime="20000" objectKey="98"/>
+                    <Obj Type="Monster" MonType="59621" Pos="821.91#1.00#623.33" angle="-135" genCount="1" genTime="20000" objectKey="99"/>
+                    <Obj Type="Monster" MonType="59621" Pos="893.38#3.00#865.14" angle="-135" genCount="1" genTime="20000" objectKey="100"/>
+                    <Obj Type="Monster" MonType="59621" Pos="970.17#3.00#789.87" angle="-135" genCount="1" genTime="20000" objectKey="101"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-363.41#1.00#-545.09" angle="-135" genCount="1" genTime="20000" objectKey="102"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-437.82#1.00#-472.97" angle="-135" genCount="1" genTime="20000" objectKey="103"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-207.62#1.00#-409.46" angle="-135" genCount="1" genTime="20000" objectKey="104"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-253.75#1.00#-363.72" angle="-135" genCount="1" genTime="20000" objectKey="105"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-297.51#1.00#-321.77" angle="-135" genCount="1" genTime="20000" objectKey="106"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-19.51#1.00#-201.80" angle="-135" genCount="1" genTime="20000" objectKey="107"/>
+                    <Obj Type="Monster" MonType="59622" Pos="-90.32#1.00#-128.81" angle="-135" genCount="1" genTime="20000" objectKey="108"/>
+                    <Obj Type="Monster" MonType="59622" Pos="76.50#1.00#39.13" angle="-135" genCount="1" genTime="20000" objectKey="109"/>
+                    <Obj Type="Monster" MonType="59622" Pos="148.05#1.00#-34.22" angle="-135" genCount="1" genTime="20000" objectKey="110"/>
+                    <Obj Type="Monster" MonType="59622" Pos="307.29#1.00#100.31" angle="-135" genCount="1" genTime="20000" objectKey="111"/>
+                    <Obj Type="Monster" MonType="59622" Pos="255.47#1.00#146.74" angle="-135" genCount="1" genTime="20000" objectKey="112"/>
+                    <Obj Type="Monster" MonType="59622" Pos="207.02#1.00#195.74" angle="-135" genCount="1" genTime="20000" objectKey="113"/>
+                    <Obj Type="Monster" MonType="59622" Pos="492.90#1.00#306.37" angle="-135" genCount="1" genTime="20000" objectKey="114"/>
+                    <Obj Type="Monster" MonType="59622" Pos="417.11#1.00#383.85" angle="-135" genCount="1" genTime="20000" objectKey="115"/>
+                    <Obj Type="Monster" MonType="59622" Pos="660.09#1.00#476.89" angle="-135" genCount="1" genTime="20000" objectKey="116"/>
+                    <Obj Type="Monster" MonType="59622" Pos="592.08#1.00#546.89" angle="-135" genCount="1" genTime="20000" objectKey="117"/>
+                    <Obj Type="Monster" MonType="59622" Pos="852.38#1.00#647.91" angle="-135" genCount="1" genTime="20000" objectKey="118"/>
+                    <Obj Type="Monster" MonType="59622" Pos="800.41#1.00#691.35" angle="-135" genCount="1" genTime="20000" objectKey="119"/>
+                    <Obj Type="Monster" MonType="59622" Pos="752.05#1.00#735.23" angle="-135" genCount="1" genTime="20000" objectKey="120"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1011.62#3.00#831.32" angle="-135" genCount="1" genTime="20000" objectKey="121"/>
+                    <Obj Type="Monster" MonType="59622" Pos="936.70#3.00#906.67" angle="-135" genCount="1" genTime="20000" objectKey="122"/>
+                    <Obj Type="Monster" MonType="59623" Pos="1094.32#1.00#1092.22" angle="-135" genCount="1" genTime="20000" objectKey="123"/>
+                    <Obj Type="Monster" MonType="59623" Pos="1195.50#1.00#989.62" angle="-135" genCount="1" genTime="20000" objectKey="124"/>
+                    <Obj Type="Monster" MonType="59623" Pos="1198.52#1.00#1196.96" angle="-135" genCount="1" genTime="20000" objectKey="125"/>
+                    <Obj Type="Monster" MonType="59623" Pos="1300.20#1.00#1096.79" angle="-135" genCount="1" genTime="20000" objectKey="126"/>
+                    <Obj Type="Monster" MonType="59621" Pos="1125.08#1.00#1061.67" angle="-135" genCount="1" genTime="20000" objectKey="127"/>
+                    <Obj Type="Monster" MonType="59621" Pos="1157.30#1.00#1032.54" angle="-135" genCount="1" genTime="20000" objectKey="128"/>
+                    <Obj Type="Monster" MonType="59621" Pos="1232.15#1.00#1026.28" angle="-135" genCount="1" genTime="20000" objectKey="129"/>
+                    <Obj Type="Monster" MonType="59621" Pos="1125.69#1.00#1132.56" angle="-135" genCount="1" genTime="20000" objectKey="130"/>
+                    <Obj Type="Monster" MonType="59621" Pos="1153.53#1.00#1161.35" angle="-135" genCount="1" genTime="20000" objectKey="131"/>
+                    <Obj Type="Monster" MonType="59621" Pos="1256.42#1.00#1057.38" angle="-135" genCount="1" genTime="20000" objectKey="132"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1170.36#1.00#1094.61" angle="-135" genCount="1" genTime="20000" objectKey="133"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1192.57#1.00#1067.40" angle="-135" genCount="1" genTime="20000" objectKey="134"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1198.41#1.00#1120.22" angle="-135" genCount="1" genTime="20000" objectKey="135"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1221.57#1.00#1096.39" angle="-135" genCount="1" genTime="20000" objectKey="136"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1220.06#1.00#1148.38" angle="-135" genCount="1" genTime="20000" objectKey="137"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1247.79#1.00#1118.22" angle="-135" genCount="1" genTime="20000" objectKey="138"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1243.06#1.00#1168.93" angle="-135" genCount="1" genTime="20000" objectKey="139"/>
+                    <Obj Type="Monster" MonType="59622" Pos="1268.89#1.00#1139.32" angle="-135" genCount="1" genTime="20000" objectKey="140"/>
+                    <Obj Type="Monster" MonType="59623" Pos="1282.31#1.00#1016.34" angle="-135" genCount="1" genTime="20000" objectKey="141"/>
+                    <Obj Type="Monster" MonType="59623" Pos="1108.94#1.00#1181.35" angle="-135" genCount="1" genTime="20000" objectKey="142"/>
+                    <Obj Type="Monster" MonType="59623" Pos="1115.73#1.00#1009.36" angle="-135" genCount="1" genTime="20000" objectKey="143"/>
+                    <Obj Type="Monster" MonType="59616" Pos="-582.14#3.00#-687.98" angle="-134" genCount="1" maxStackCount="1" genTime="1" objectKey="144"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="StageCheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Stage2/0/Stage2/1/Stage2/2/Stage2/3/Stage2/4/Stage2/5/Stage2/6/Stage2/7/Stage2/8/Stage2/9/Stage2/10/Stage2/11/Stage2/12/Stage2/13/Stage2/14/Stage2/15/Stage2/16/Stage2/17/Stage2/18/Stage2/19/Stage2/20/Stage2/21/Stage2/22/Stage2/23/Stage2/24/Stage2/25/Stage2/26/Stage2/27/Stage2/28/Stage2/29/Stage2/30/Stage2/31/Stage2/32/Stage2/33/Stage2/34/Stage2/35/Stage2/36/Stage2/37/Stage2/38/Stage2/39/Stage2/40/Stage2/41/Stage2/42/Stage2/43/Stage2/44/Stage2/45/Stage2/46/Stage2/47/Stage2/48/Stage2/49/Stage2/50/Stage2/51/Stage2/52/Stage2/53/Stage2/54/Stage2/55/Stage2/56/Stage2/57/Stage2/58/Stage2/59/Stage2/60/Stage2/61/Stage2/62/Stage2/63/Stage2/64/Stage2/65/Stage2/66/Stage2/67/Stage2/68/Stage2/69/Stage2/70/Stage2/71/Stage2/72/Stage2/73/Stage2/74/Stage2/75/Stage2/76/Stage2/77/Stage2/78/Stage2/79/Stage2/80/Stage2/81/Stage2/82/Stage2/83/Stage2/84/Stage2/85/Stage2/86/Stage2/87/Stage2/88/Stage2/89/Stage2/90/Stage2/91/Stage2/92/Stage2/93/Stage2/94/Stage2/95/Stage2/96/Stage2/97/Stage2/98/Stage2/99/Stage2/100/Stage2/101/Stage2/102/Stage2/103/Stage2/104/Stage2/105/Stage2/106/Stage2/107/Stage2/108/Stage2/109/Stage2/110/Stage2/111/Stage2/112/Stage2/113/Stage2/114/Stage2/115/Stage2/116/Stage2/117/Stage2/118/Stage2/119/Stage2/120/Stage2/121/Stage2/122/Stage2/123/Stage2/124/Stage2/125/Stage2/126/Stage2/127/Stage2/128/Stage2/129/Stage2/130/Stage2/131/Stage2/132/Stage2/133/Stage2/134/Stage2/135/Stage2/136/Stage2/137/Stage2/138/Stage2/139/Stage2/140/Stage2/141/Stage2/142/Stage2/143/Stage2/144"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="BossStage2"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Stage2"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="SummonPCList">
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_SETPOS" Client="NO" UseSleep="NO">
+                                <AbsPosRange X="-958.79816" Y="3" Z="-1068.9236"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="ReadyEnd">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Ready"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="Ready/2/Ready/1/Ready/0/Ready/3"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="StageBuff_Attri">
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_BUFF_ADD_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="Show_UI">
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_START_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event eventName="Show_UI_REFRESH">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_PROGRESS_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="BossStage1" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59620" Pos="-881.40#3.00#-996.79" angle="41" genCount="1" genTime="20000" objectKey="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execMS="0" eventName="EndCheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage1/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Str Str="=="/>
+                                <Num Num="3"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_ADD_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="StagePlace"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_RESTART" Client="NO" UseSleep="NO">
+                                <Str Str="Ready"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="BossStage1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execMS="0" execCount="1" eventName="BOSSKILLCHECK">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage1/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_ADD_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="MSG">
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="보스 몬스터를 처치하세요!"/>
+                                <Str Str="BossAppear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="BossStage2" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59620" Pos="1195.57#3.00#1094.79" angle="-134" genCount="1" genTime="20000" objectKey="0" propList="&apos;Faction&apos; &apos;Neutral&apos; "/>
+                    <Obj Type="Monster" MonType="150256" Pos="1056.15#3.00#1251.83" angle="-69" genCount="1" genTime="20000" objectKey="1" propList="&apos;Dialog&apos; &apos;TOSHERO_TUTO_NPC_03&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event execMS="0" eventName="EndCheck">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage2/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Str Str="=="/>
+                                <Num Num="6"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHERO_MGAME_REMOVE"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Show_UI_END">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage2/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="BossStage2/1"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_END_SUCCESS_1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="ValuOn">
+                        <execList>
+                            <ToolScp Scp="TOSHERO_ATTRIBUTE_SEL_SET" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage2/0"/>
+                                <Str Str="TOSHero_Chaos"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_FACTION" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage2/0"/>
+                                <Str Str="Neutral"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="Ready/0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="ValuOn2">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Str Str="=="/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_FACTION" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage2/0"/>
+                                <Str Str="Monster"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="BossStage2/1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="보스 몬스터를 처치하세요!"/>
+                                <Str Str="BossAppear"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event eventName="Show_UI_REFRESH">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE_SHOWUI_PROGRESS_TUTO"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="STEP2+1">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_ADD_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP2"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="BuffCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="4"/>
+                            </ToolScp>
+                        </condList>
+                        <listSet>
+                            <ToolScp Scp="MGAME_LIST_PC_ALL" Client="NO" UseSleep="NO"/>
+                        </listSet>
+                        <listExec>
+                            <ToolScp Scp="MLIST_E_RUNSCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_TOSHERO_TUTO_CHECK_HIDDENBUFF_RUN"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </listExec>
+                    </Event>
+                    <Event execCount="1" eventName="Chat">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TOSHero_TUTO_STEP"/>
+                                <Str Str="UNDER"/>
+                                <Num Num="4"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="BossStage2/0"/>
+                                <Str Str="SCR_TOSHERO_TUTO_LASTBOSS_RUN"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="이야기꾼과 대화하세요"/>
+                                <Str Str="scroll"/>
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+        <EnterList>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="EnterTOSHero"/>
+            </ToolScp>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="GIVE_TRADE_POINT_TUTO"/>
+            </ToolScp>
+        </EnterList>
+        <WorldInitList>
+            <ToolScp Scp="MGAME_INIT_CHANGE_VIEW" Client="NO" UseSleep="NO">
+                <Num Num="3500"/>
+            </ToolScp>
+        </WorldInitList>
+    </Game>
+</GameList>

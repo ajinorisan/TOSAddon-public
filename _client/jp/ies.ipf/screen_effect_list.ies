@@ -1,0 +1,4 @@
+ClassID,EffectSize,ClassName,EffectName,SoundName,LoopSound
+0,200,"Hold","I_screen_danger_chain","skl_eff_screen_danger_chain","YES"
+1,200,"Petrify","I_screen_danger_stone2","skl_eff_screen_danger_stone2","YES"
+2,200,"Freeze","I_screen_danger_frozen3","skl_eff_screen_danger_frozen3","YES"

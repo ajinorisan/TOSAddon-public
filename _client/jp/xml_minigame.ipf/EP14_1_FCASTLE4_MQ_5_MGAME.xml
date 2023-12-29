@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP14_1_FCASTLE4_MQ_5_MGAME" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="6291456">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59702" Pos="202.84#58.84#151.83" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="0" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59703" Pos="79.87#58.84#163.65" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="1" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59702" Pos="350.22#58.84#134.37" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="2" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59703" Pos="178.36#58.84#227.82" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="3" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59702" Pos="84.43#58.84#33.42" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="4" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59702" Pos="274.40#58.84#99.26" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="5" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59702" Pos="121.78#58.84#94.55" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="6" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59703" Pos="336.91#58.84#31.87" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="7" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59704" Pos="276.35#58.84#177.64" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="8" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59704" Pos="106.01#58.84#216.76" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="9" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59702" Pos="33.57#58.84#107.15" angle="-100" genCount="1" maxStackCount="1" genTime="20000" objectKey="10" searchRange="1000" tendency="1"/>
+                </ObjList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

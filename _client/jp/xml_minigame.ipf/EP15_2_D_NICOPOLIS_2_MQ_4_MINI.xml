@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP15_2_D_NICOPOLIS_2_MQ_4_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59784" Pos="933.33#1.00#-288.01" angle="-67" genCount="1" genTime="7000" objectKey="0" propList="&apos;HPCount&apos; &apos;30&apos; &apos;SkillType&apos; &apos;None&apos; &apos;StatType&apos; &apos;None&apos; "/>
+                    <Obj Type="Monster" MonType="59809" Pos="879.43#1.00#-369.49" angle="-113" genCount="1" autoGen="0" genTime="7000" objectKey="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="59809" Pos="1037.11#1.00#-348.17" angle="-113" genCount="1" autoGen="0" genTime="7000" objectKey="2" tendency="1"/>
+                    <Obj Type="Monster" MonType="59809" Pos="966.30#1.00#-418.86" angle="-113" genCount="1" autoGen="0" genTime="7000" objectKey="3" tendency="1"/>
+                    <Obj Type="Monster" MonType="59809" Pos="855.73#1.00#-254.97" angle="-113" genCount="1" autoGen="0" genTime="7000" objectKey="4" tendency="1"/>
+                    <Obj Type="Monster" MonType="59809" Pos="994.45#1.00#-243.71" angle="-113" genCount="1" autoGen="0" genTime="7000" objectKey="5" tendency="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="Mon_Gen">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

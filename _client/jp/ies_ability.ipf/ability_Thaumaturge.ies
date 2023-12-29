@@ -1,0 +1,9 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+101,100,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge2","UNLOCK_BASE_LEVEL","","캐릭터 100레벨 이상","ABIL_COMMON_PRICE_100LV"
+102,300,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge4","UNLOCK_BASE_LEVEL","","캐릭터 300레벨 이상","ABIL_COMMON_PRICE_300LV"
+301,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge15","UNLOCK_ABIL_SKILL","Thaumaturge_SwellBrain","스웰 브레인 1레벨 이상","ABIL_REINFORCE_PRICE"
+702,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge19","UNLOCK_ABIL_SKILL","Thaumaturge_SwellHands","스웰 핸즈 1레벨 이상","ABIL_REINFORCE_PRICE"
+703,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge24","UNLOCK_ABIL_SKILL","Thaumaturge_Transmute","트랜스뮤트 1레벨 이상","ABIL_REINFORCE_PRICE"
+801,45,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge20","UNLOCK_ABIL_JOB_LEVEL","Char5_7","쏘마터지 클래스 45레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+802,45,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge21","UNLOCK_ABIL_JOB_LEVEL","Char5_7","쏘마터지 클래스 45레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+803,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Thaumaturge25","UNLOCK_ABIL_OTHERABILITY","Thaumaturge24","[트랜스뮤트: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

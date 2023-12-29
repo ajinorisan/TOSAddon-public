@@ -1,0 +1,5 @@
+ClassID,TotalCount,ClassName,GroupID,CategoryType,DungeonType,RaidType,SubType,IncludeIndunClassName,IncludeIndunPictrue,DungeonRestrictTooltip
+1,2,"TurbulentCore_Solo","TurbulentCore","RaidTypeMerge","Raid","Solo","Casual","Goddess_Raid_Spreader_Solo/Goddess_Raid_Falouros_Solo/","bosspselect_bosspreview04/bosspselect_bosspreview05/bosspselect_bosspreview06","raid_type_merge_restrict"
+2,2,"TurbulentCore_Auto","TurbulentCore","RaidTypeMerge","Raid","AutoNormal","Auto","Goddess_Raid_Spreader_Auto/Goddess_Raid_Falouros_Auto/","bosspselect_bosspreview04/bosspselect_bosspreview05/bosspselect_bosspreview06","raid_type_merge_restrict"
+3,2,"TurbulentCore_Party","TurbulentCore","RaidTypeMerge","Raid","PartyNormal","Hard","Goddess_Raid_Spreader_Party/Goddess_Raid_Falouros_Party/","bosspselect_bosspreview04/bosspselect_bosspreview05/bosspselect_bosspreview06","raid_type_merge_restrict"
+4,2,"TurbulentCore_Extreme","TurbulentCore","RaidTypeMerge","Raid","PartyExtreme","Pilgrim","Goddess_Raid_Spreader_Extreme/None/","bosspselect_bosspreview04/bosspselect_lock02/","raid_type_merge_restrict"

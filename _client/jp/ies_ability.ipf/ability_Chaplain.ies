@@ -1,0 +1,10 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+2,300,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain24","UNLOCK_BASE_LEVEL","","캐릭터 300레벨 이상","ABIL_COMMON_PRICE_300LV"
+101,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain13","UNLOCK_ABIL_SKILL","Chaplain_LastRites","종부성사 1레벨 이상","ABIL_REINFORCE_PRICE"
+201,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain12","UNLOCK_ABIL_SKILL","Chaplain_Aspergillum","아스페르길룸 1레벨 이상","ABIL_REINFORCE_PRICE"
+301,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain14","UNLOCK_ABIL_SKILL","Chaplain_Binatio","비나시오 1레벨 이상","ABIL_REINFORCE_PRICE"
+401,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain15","UNLOCK_ABIL_SKILL","Chaplain_BuildCappella","카펠라 설치 1레벨 이상","ABIL_REINFORCE_PRICE"
+501,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain21","UNLOCK_ABIL_JOB_LEVEL","Char4_12","채플린 클래스 45 레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+502,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain18","UNLOCK_ABIL_JOB_LEVEL","Char4_12","채플린 클래스 45 레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+601,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain19","UNLOCK_ABIL_OTHERABILITY","Chaplain12","[아스페르길룸: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+602,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Chaplain22","UNLOCK_ABIL_OTHERABILITY","Chaplain14","[비나시오: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

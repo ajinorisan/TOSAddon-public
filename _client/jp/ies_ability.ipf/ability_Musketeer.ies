@@ -1,0 +1,13 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+2,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Schwarzereiter1","UNLOCK_BASE_LEVEL","","캐릭터 1레벨 이상","ABIL_COMMON_PRICE_1LV"
+101,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer2","UNLOCK_ABIL_SKILL","Musketeer_CoveringFire","커버링 파이어 1레벨 이상","ABIL_REINFORCE_PRICE"
+301,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer4","UNLOCK_ABIL_SKILL","Musketeer_Snipe","스나이프 1레벨 이상","ABIL_REINFORCE_PRICE"
+401,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer5","UNLOCK_ABIL_SKILL","Musketeer_PenetrationShot","페네트레이션 샷 1레벨 이상","ABIL_REINFORCE_PRICE"
+701,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer11","UNLOCK_ABIL_SKILL","Musketeer_Volleyfire","발리 파이어 1레벨 이상","ABIL_REINFORCE_PRICE"
+1101,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer27","UNLOCK_BASE_LEVEL","","캐릭터 1레벨 이상","ABIL_COMMON_PRICE_1LV"
+1102,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer39","UNLOCK_BASE_LEVEL","","캐릭터 1레벨 이상","ABIL_COMMON_PRICE_1LV"
+1202,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer38","UNLOCK_ABIL_SKILL","Musketeer_Snipe","스나이프 1레벨 이상","HIDDENABIL_PRICE_COND_JOBLEVEL"
+1301,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer32","UNLOCK_ABIL_OTHERABILITY","Musketeer2","[커버링 파이어: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+1303,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer34","UNLOCK_ABIL_OTHERABILITY","Musketeer4","[스나이프: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+1304,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer35","UNLOCK_ABIL_OTHERABILITY","Musketeer5","[페네트레이션 샷: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+1305,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Musketeer36","UNLOCK_ABIL_OTHERABILITY","Musketeer11","[발리 파이어: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

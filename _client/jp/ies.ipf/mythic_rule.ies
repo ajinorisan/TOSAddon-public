@@ -1,0 +1,6 @@
+ClassID,ClientStartHour,ClientEndHour,StartHour,EndHour,ClassName
+1,22,1,22,1,"myrhic_hard"
+2,22,1,22,1,"myrhic_hard_steam_1001"
+3,22,1,16,19,"myrhic_hard_steam_1003"
+4,22,1,9,12,"myrhic_hard_steam_1004"
+5,22,1,19,22,"myrhic_hard_steam_1005"

@@ -1,0 +1,3 @@
+ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,AnchorCount,UP_ReturnRange,P_MaxDialog,ClassType,Name,UniqueName,QuestName,Tag,Tactics,BTree,SimpleAI,Dialog,Enter,Leave,Save,OnlyPCCheck,SmartGen,Faction,ArgStr1,ArgStr2,ArgStr3,Tendency
+1,1,1,80,1,1,1,0,0,0,0,0,0,"noshadow_npc","UnvisibleName","","","","","","","","GIVEHOLYTHING_Q_1_TRACK","","NO","YES","NO","Neutral","","","",""
+2,2,1,40,1,1,1,2,0,0,0,0,0,"Warp_arrow","라이마의 성소","","","","","","","","WARP_C_KLAIPE_CATHEDRAL_MEDIUM","","NO","YES","NO","Neutral","","","",""

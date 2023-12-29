@@ -1,0 +1,11 @@
+ClassID,Price,PriceRatio,StampCount,ClassName,Category,Gender,ItemClassName,EquipType,JobOnly,SellStartTime,SellEndTime,PackageList,IsPremium,TAG,ItemAddDate,BuyMessage
+11,-1,0,0,"EP13_costume_Com_036","","M","EP13_costume_Com_036","costume","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+12,-1,0,0,"EP13_costume_Com_038","","M","EP13_costume_Com_038","costume","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+21,-1,0,0,"EP13_costume_Com_037","","F","EP13_costume_Com_037","costume","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+22,-1,0,0,"EP13_costume_Com_039","","F","EP13_costume_Com_039","costume","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+31,-1,0,0,"EP13_Artefact_008","","","EP13_Artefact_008","weapon","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+32,-1,0,0,"EP13_Artefact_009","","","EP13_Artefact_009","weapon","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+33,-1,0,0,"EP13_Artefact_010","","","EP13_Artefact_010","weapon","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+34,-1,0,0,"EP13_Artefact_011","","","EP13_Artefact_011","weapon","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+71,-1,0,0,"EP13_Hat_008","","","EP13_Hat_008","hair_costume","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"
+72,-1,0,0,"EP13_Hat_009","","","EP13_Hat_009","hair_costume","","2021-03-01 00:00:00","2021-03-15 17:59:59","","NO","","","NotBuy_Thema3"

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP15_1_F_ABBEY2_4_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59777" Pos="-1270.34#74.90#1416.89" angle="-179" genCount="1" genTime="20000" objectKey="0" tendency="1"/>
+                    <Obj Type="Monster" MonType="59777" Pos="-1285.95#74.90#1464.39" angle="-156" genCount="1" genTime="20000" objectKey="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="59777" Pos="-1310.64#74.90#1519.15" angle="-143" genCount="1" genTime="20000" objectKey="2" tendency="1"/>
+                    <Obj Type="Monster" MonType="59780" Pos="-1331.68#74.90#1413.42" angle="-162" genCount="1" genTime="20000" objectKey="3" tendency="1"/>
+                    <Obj Type="Monster" MonType="59780" Pos="-1349.36#74.90#1461.61" angle="-171" genCount="1" genTime="20000" objectKey="4" tendency="1"/>
+                    <Obj Type="Monster" MonType="59780" Pos="-1377.58#74.90#1505.18" angle="-132" genCount="1" genTime="20000" objectKey="5" tendency="1"/>
+                    <Obj Type="Monster" MonType="153119" Pos="-1424.18#74.90#1400.38" angle="-17" genCount="1" genTime="20000" objectKey="6"/>
+                    <Obj Type="Monster" MonType="160144" Pos="-1419.88#74.90#1421.23" genCount="1" genTime="20000" objectKey="7"/>
+                    <Obj Type="Monster" MonType="160145" Pos="-1501.64#74.90#1557.64" angle="-101" genCount="1" genTime="20000" objectKey="8"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="Clear_Check">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="DefGroup/0/DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
+                                <Str Str="SSN_EP15_1_F_ABBEY2_4"/>
+                                <Str Str="QuestInfoValue1"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="부베를 모두 처치했습니다.{nl}로제와 이야기하세요."/>
+                                <Str Str="Clear"/>
+                                <Num Num="3"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON_CMD" Client="NO" UseSleep="NO">
+                                <MGameObj List="DefGroup/6"/>
+                                <Str Str="SCR_BORN_ep15_Roze"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

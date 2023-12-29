@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<GameList>
+	<Game Name="F_NICOPOLIS_UNIQUE_MQ1_MGAME" minLv="0" maxLv="0" mapName="id_Nicopolis_01" playerCountCheckDestroy="1" startWaitSec="-1">
+		<StageList>
+			<Stage Name="START">
+				<ObjList>
+					<Obj Type="Monster" MonType="147455" Pos="1065.14#36.22#-1605.34" genCount="1" genTime="20000" objectKey="0"/>
+				</ObjList>
+				<StageEvents>
+					<Event execCount="1" eventName="stageTimer">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="3"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+								<Str Str="5초 후 시작합니다"/>
+								<Num Num="5"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="start">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="8"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+								<Str Str="웨이스트럴을 처치하세요!"/>
+								<Num Num="5"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EXEC_SETPOS" Client="NO" UseSleep="NO">
+								<AbsPosRange X="587.17963" Y="312.17957" Z="-417.3941"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event eventName="MgameClose">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+							<ToolScp Scp="MGAME_EVT_COND_PCCNT" Client="NO" UseSleep="NO">
+								<Num Num="0"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+								<Str Str="END"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+			<Stage Name="BOSS">
+				<ObjList>
+					<Obj Type="Monster" MonType="59679" Pos="392.81#295.34#-219.48" angle="-43" genCount="1" genTime="20000" objectKey="0" tendency="1"/>
+				</ObjList>
+				<StageEvents>
+					<Event execCount="1" eventName="OPEN_END">
+						<condList>
+							<ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+								<MGameObj List="BOSS/0"/>
+								<Num Num="0"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+								<Str Str="END"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+			<Stage Name="END" AutoStart="0">
+				<ObjList/>
+				<StageEvents>
+					<Event execCount="1" eventName="END_10Sec_msg">
+						<execList>
+							<ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+								<Str Str="10초 후 던전이 종료됩니다."/>
+								<Num Num="5"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="END">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="10"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+							<ToolScp Scp="GAME_EVT_ON_BYNAME" Client="NO" UseSleep="NO">
+								<Str Str="MgameEND"/>
+							</ToolScp>
+						</execList>
+					</Event>
+					<Event execCount="1" eventName="MgameEND" execWithStart="0" isEnabled="0">
+						<condList>
+							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+								<Num Num="10"/>
+							</ToolScp>
+						</condList>
+						<execList>
+							<ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+								<Num Num="1"/>
+							</ToolScp>
+						</execList>
+					</Event>
+				</StageEvents>
+			</Stage>
+		</StageList>
+	</Game>
+</GameList>

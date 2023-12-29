@@ -1,0 +1,6 @@
+ClassID,ClassName,Name,SkinName,AccountProperty
+1,"DmgFont_0001","기본 폰트","Normal","dmg_font_001"
+2,"DmgFont_0002","흰 꽃잎","WhiteFlower","dmg_font_002"
+3,"DmgFont_0003","외곽선","OutLine","dmg_font_003"
+4,"DmgFont_0004","펑크","Punk","dmg_font_004"
+5,"DmgFont_0005","파란 폰트","Blue","dmg_font_005"

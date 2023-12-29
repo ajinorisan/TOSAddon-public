@@ -1,0 +1,2 @@
+ClassID,GearScore,AbilityScore,WorldPVPType,GroupID,Level,StartHour,StartMin,EndHour,EndMin,GlobalStartHour,GlobalStartMin,GlobalEndHour,GlobalEndMin,ClassName,Name,Category,DungeonType,MapImage,Day
+3,0,80,1,700,500,21,30,24,0,22,0,24,0,"Indun_teamBattle","팀 배틀 리그(3vs3)","팀 배틀 리그","teamBattle","Map_Pvp_Tournament","day"

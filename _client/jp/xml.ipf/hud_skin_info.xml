@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by tachyon (EMBRACE) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- SkinName  +  parts = Real Skin Name  -->
+<!-- check hud_skin_list and hud_skin_apply_list -->
+<SkinList>
+	<SkinInfo SkinID="0" SkinName="weekboss_default_hud" SkinType="Default" ApplyFrames="headsupdisplay;charbaseinfo1_my;charbaseinfo1;PartyInfo"/>
+	<SkinInfo SkinID="1" SkinName="weekboss_normal_hud" SkinType="NormalGrade" ApplyFrames="headsupdisplay;charbaseinfo1_my;charbaseinfo1;PartyInfo"/>
+	<SkinInfo SkinID="2" SkinName="weekboss_magic_hud" SkinType="MagicGrade" ApplyFrames="headsupdisplay;charbaseinfo1_my;charbaseinfo1;PartyInfo"/>
+	<SkinInfo SkinID="3" SkinName="weekboss_unique_hud" SkinType="UniqueGrade" ApplyFrames="headsupdisplay;charbaseinfo1_my;charbaseinfo1;PartyInfo"/>
+	<SkinInfo SkinID="4" SkinName="weekboss_legend_hud" SkinType="LegendGrade" ApplyFrames="headsupdisplay;charbaseinfo1_my;charbaseinfo1;PartyInfo"/>
+	<SkinInfo SkinID="5" SkinName="weekboss_goddess_hud" SkinType="GoddessGrade" ApplyFrames="headsupdisplay;charbaseinfo1_my;charbaseinfo1;PartyInfo"/>
+</SkinList>

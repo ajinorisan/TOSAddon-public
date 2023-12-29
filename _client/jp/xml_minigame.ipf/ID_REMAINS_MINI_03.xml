@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="ID_REMAINS_MINI_03" rankScript="RAID_RANK_SCP" minLv="0" maxLv="0" mapName="id_remains3" playerCountCheckDestroy="1" startWaitSec="765157384">
+        <StageList>
+            <Stage Name="START">
+                <ObjList>
+                    <Obj Type="Monster" MonType="147455" Pos="-1570.03#989.25#-2650.79" genCount="1" genTime="20000" objectKey="0"/>
+                    <Obj Type="Monster" MonType="147455" Pos="-1495.30#989.25#-2617.76" genCount="1" genTime="20000" objectKey="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="20초">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="20"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_GIVE_INDUN_POWERUP_BUFF"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="START/0/START/1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="시작!!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="10초">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 시작 합니다!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="20"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE2"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="STAGE3"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="BOSS"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="LASTBOSS"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="Door_check"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="STAGE1" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="58262" Pos="-1300.26#989.25#-2174.02" angle="-179" genCount="1" genTime="20000" objectKey="0" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-1253.39#989.25#-2209.65" angle="179" genCount="1" genTime="20000" objectKey="1" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-1262.74#989.25#-2143.61" angle="179" genCount="1" genTime="20000" objectKey="3" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-1226.55#989.25#-2179.49" angle="179" genCount="1" genTime="20000" objectKey="4" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-1038.41#989.25#-2276.59" angle="-179" genCount="1" genTime="20000" objectKey="6" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-1098.83#989.25#-2071.40" angle="-179" genCount="1" genTime="20000" objectKey="7" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-1016.65#989.25#-2237.88" angle="179" genCount="1" genTime="20000" objectKey="8" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-1039.70#989.25#-2198.88" angle="179" genCount="1" genTime="20000" objectKey="9" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-1040.92#989.25#-2043.15" angle="179" genCount="1" genTime="20000" objectKey="12" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-914.79#989.25#-2369.22" angle="-179" genCount="1" genTime="20000" objectKey="15" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-885.17#989.25#-2421.28" angle="-179" genCount="1" genTime="20000" objectKey="16" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-919.55#989.25#-2410.09" angle="179" genCount="1" genTime="20000" objectKey="17" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-845.54#989.25#-2244.63" angle="179" genCount="1" genTime="20000" objectKey="19" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-727.59#989.25#-2269.35" angle="179" genCount="1" genTime="20000" objectKey="20" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-775.37#989.25#-2209.05" angle="179" genCount="1" genTime="20000" objectKey="21" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-791.25#989.25#-2253.04" angle="-179" genCount="1" genTime="20000" objectKey="22" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-782.00#989.25#-2091.36" angle="179" genCount="1" genTime="20000" objectKey="24" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-791.78#989.25#-1980.69" angle="179" genCount="1" genTime="20000" objectKey="25" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-737.88#989.25#-2041.01" angle="179" genCount="1" genTime="20000" objectKey="26" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-786.36#989.25#-2043.29" angle="-179" genCount="1" genTime="20000" objectKey="27" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-701.25#990.37#-2472.85" angle="-179" genCount="1" genTime="20000" objectKey="29" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-643.38#990.41#-2430.25" angle="-179" genCount="1" genTime="20000" objectKey="30" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-496.43#989.55#-2283.48" angle="169" genCount="1" genTime="20000" objectKey="34" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-585.17#989.25#-2242.20" angle="166" genCount="1" genTime="20000" objectKey="36" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-683.03#989.68#-2423.29" angle="179" genCount="1" genTime="20000" objectKey="37" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-434.93#989.25#-2150.13" angle="179" genCount="1" genTime="20000" objectKey="38" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-382.44#989.25#-2210.69" angle="179" genCount="1" genTime="20000" objectKey="39" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-388.12#989.25#-2109.96" angle="179" genCount="1" genTime="20000" objectKey="40" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="-340.86#989.25#-2169.69" angle="-179" genCount="1" genTime="20000" objectKey="41" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-388.54#989.25#-2164.99" angle="169" genCount="1" genTime="20000" objectKey="47" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="-58.51#1022.73#-2291.06" angle="-179" genCount="1" genTime="20000" objectKey="48" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-144.67#989.25#-2264.49" angle="148" genCount="1" genTime="20000" objectKey="49" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="-140.46#992.91#-2217.77" angle="178" genCount="1" genTime="20000" objectKey="52" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="-76.52#1018.96#-2222.14" angle="-179" genCount="1" genTime="20000" objectKey="53" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="148.29#1077.40#-2253.99" angle="-167" genCount="1" genTime="20000" objectKey="56" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="172.84#1077.40#-2302.70" angle="-167" genCount="1" genTime="20000" objectKey="58" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="172.93#1077.40#-2212.33" angle="-168" genCount="1" genTime="20000" objectKey="60" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="559.24#1113.98#-2276.16" angle="153" genCount="1" genTime="20000" objectKey="63" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="487.01#1112.60#-2206.27" angle="97" genCount="1" genTime="20000" objectKey="66" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58262" Pos="559.74#1113.98#-2233.95" angle="166" genCount="1" genTime="20000" objectKey="67" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="507.81#1113.98#-2241.59" angle="172" genCount="1" genTime="20000" objectKey="72" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="342.84#1090.03#-2268.77" angle="-165" genCount="1" genTime="20000" objectKey="110" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="348.64#1091.25#-2218.95" angle="-172" genCount="1" genTime="20000" objectKey="111" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="-534.72#989.25#-2211.89" angle="-179" genCount="1" genTime="20000" objectKey="112" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="-922.50#989.25#-2453.00" angle="-179" genCount="1" genTime="20000" objectKey="113" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="-565.96#989.25#-2316.88" angle="-179" genCount="1" genTime="20000" objectKey="114" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58264" Pos="474.54#1032.58#-1869.59" angle="-77" genCount="1" genTime="20000" objectKey="117" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58264" Pos="521.38#1029.85#-1864.31" angle="-88" genCount="1" genTime="20000" objectKey="119" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58264" Pos="498.51#1028.08#-1459.32" angle="-90" genCount="1" genTime="20000" objectKey="120" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="498.70#1027.99#-1827.93" angle="-86" genCount="1" genTime="20000" objectKey="121" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58263" Pos="513.34#1021.04#-1709.09" angle="-81" genCount="1" genTime="20000" objectKey="122" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58264" Pos="470.63#1017.81#-1676.78" angle="-90" genCount="1" genTime="20000" objectKey="123" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58264" Pos="534.87#1014.68#-1501.26" angle="-90" genCount="1" genTime="20000" objectKey="124" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58264" Pos="548.83#1017.70#-1678.95" angle="-90" genCount="1" genTime="20000" objectKey="126" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58264" Pos="467.89#1017.94#-1493.56" angle="-90" genCount="1" genTime="20000" objectKey="127" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="468.33#1061.05#-1990.69" angle="-67" genCount="1" genTime="20000" objectKey="128" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="526.35#1062.18#-1994.08" angle="-82" genCount="1" genTime="20000" objectKey="129" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58265" Pos="499.72#1071.33#-2025.21" angle="-89" genCount="1" genTime="20000" objectKey="130" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="40090" Pos="884.60#1056.92#-2235.10" genCount="1" genTime="20000" objectKey="2" propList="&apos;Range&apos; &apos;100&apos; &apos;Dialog&apos; &apos;ID_REMAINS3&apos; "/>
+                </ObjList>
+            </Stage>
+            <Stage Name="STAGE2" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="58266" Pos="480.16#1035.67#-1277.34" angle="-87" genCount="1" genTime="20000" objectKey="12" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="749.41#1035.66#-1330.87" angle="-90" genCount="1" genTime="20000" objectKey="13" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="872.48#1035.66#-1151.40" angle="-87" genCount="1" genTime="20000" objectKey="16" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="832.67#1035.66#-1189.34" angle="-137" genCount="1" genTime="20000" objectKey="17" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="815.34#1035.66#-1115.37" angle="-87" genCount="1" genTime="20000" objectKey="18" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="400.85#1035.67#-1066.97" angle="-101" genCount="1" genTime="20000" objectKey="19" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="776.70#1035.66#-910.98" angle="-101" genCount="1" genTime="20000" objectKey="29" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="851.19#1035.66#-908.52" angle="-101" genCount="1" genTime="20000" objectKey="30" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="812.59#1035.66#-857.86" angle="-101" genCount="1" genTime="20000" objectKey="31" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="455.04#1035.67#-809.81" angle="-101" genCount="1" genTime="20000" objectKey="34" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="514.38#1035.67#-864.90" angle="-101" genCount="1" genTime="20000" objectKey="35" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="565.60#1035.66#-818.28" angle="-101" genCount="1" genTime="20000" objectKey="36" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="516.99#1074.88#-687.02" angle="-101" range="80" genCount="1" genTime="20000" objectKey="44" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="531.37#1089.87#-649.12" angle="-106" genCount="1" genTime="20000" objectKey="46" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="472.67#1096.46#-648.49" angle="-101" genCount="1" genTime="20000" objectKey="47" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="493.61#1123.16#-421.10" angle="-106" genCount="1" genTime="20000" objectKey="49" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="550.94#1123.16#-387.16" angle="-106" genCount="1" genTime="20000" objectKey="51" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="506.09#1123.16#-443.64" angle="-101" genCount="1" genTime="20000" objectKey="55" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="492.62#1123.98#-108.92" angle="-101" genCount="1" genTime="20000" objectKey="57" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="566.73#1123.98#-115.96" angle="-101" genCount="1" genTime="20000" objectKey="58" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="536.44#1123.98#-80.14" angle="-106" genCount="1" genTime="20000" objectKey="60" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="457.71#1123.07#102.93" angle="-106" genCount="1" genTime="20000" objectKey="61" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="555.68#1122.93#105.50" angle="-106" genCount="1" genTime="20000" objectKey="63" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="513.38#1121.98#142.03" angle="-106" genCount="1" genTime="20000" objectKey="64" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="511.21#1123.43#100.22" angle="-106" genCount="1" genTime="20000" objectKey="65" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="488.06#1165.17#329.15" angle="-101" genCount="1" genTime="20000" objectKey="67" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="607.79#1173.39#329.41" angle="-101" genCount="1" genTime="20000" objectKey="69" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="544.58#1173.63#344.68" angle="-108" genCount="1" genTime="20000" objectKey="70" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="427.09#1035.67#-1301.65" angle="-64" genCount="1" genTime="20000" objectKey="4" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="542.69#1035.66#-1320.88" angle="-64" genCount="1" genTime="20000" objectKey="6" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="399.37#1035.67#-1136.95" angle="-64" genCount="1" genTime="20000" objectKey="7" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="691.71#1035.66#-1324.71" angle="-64" genCount="1" genTime="20000" objectKey="8" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="719.42#1035.66#-1295.73" angle="-84" genCount="1" genTime="20000" objectKey="9" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="474.66#1027.86#-1115.71" angle="-89" genCount="1" genTime="20000" objectKey="21" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="512.93#1035.67#-814.03" angle="-87" genCount="1" genTime="20000" objectKey="38" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="622.92#1021.37#-1045.97" angle="-80" genCount="1" genTime="20000" objectKey="0" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; "/>
+                    <Obj Type="Monster" MonType="58267" Pos="699.20#1028.83#-1050.72" angle="-80" genCount="1" genTime="20000" objectKey="1" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; "/>
+                    <Obj Type="Monster" MonType="58267" Pos="655.80#1035.66#-991.16" angle="-80" genCount="1" genTime="20000" objectKey="2" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; "/>
+                </ObjList>
+            </Stage>
+            <Stage Name="STAGE3" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="58270" Pos="448.64#1177.81#405.32" angle="-99" genCount="1" genTime="20000" objectKey="0" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="522.05#1177.89#425.49" angle="-99" genCount="1" genTime="20000" objectKey="2" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="676.31#1178.06#535.03" angle="-99" genCount="1" genTime="20000" objectKey="3" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="614.91#1178.06#559.59" angle="-99" genCount="1" genTime="20000" objectKey="4" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="610.23#1178.06#393.29" angle="-99" genCount="1" genTime="20000" objectKey="5" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="661.10#1179.91#340.66" angle="-99" genCount="1" genTime="20000" objectKey="6" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="433.05#1178.06#574.99" angle="-132" genCount="1" genTime="20000" objectKey="8" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="487.82#1178.06#568.70" angle="-122" genCount="1" genTime="20000" objectKey="11" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="467.84#1178.06#629.42" angle="-123" genCount="1" genTime="20000" objectKey="12" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="799.44#1178.06#593.12" angle="-122" genCount="1" genTime="20000" objectKey="13" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="619.44#1178.06#713.81" angle="-98" genCount="1" genTime="20000" objectKey="14" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="741.53#1178.10#453.54" angle="-122" genCount="1" genTime="20000" objectKey="15" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58270" Pos="784.47#1178.06#426.12" angle="-122" genCount="1" genTime="20000" objectKey="16" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="787.35#1178.06#470.99" angle="-123" genCount="1" genTime="20000" objectKey="17" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="805.75#1178.06#634.25" angle="-133" genCount="1" genTime="20000" objectKey="20" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="603.34#1178.06#762.20" angle="-95" genCount="1" genTime="20000" objectKey="27" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="408.76#1178.06#843.16" angle="-81" genCount="1" genTime="20000" objectKey="29" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="847.87#1178.06#576.07" angle="-133" genCount="1" genTime="20000" objectKey="30" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="669.19#1178.06#706.81" angle="-89" genCount="1" genTime="20000" objectKey="31" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="328.26#1178.06#860.29" angle="-87" genCount="1" genTime="20000" objectKey="38" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="456.31#1178.06#853.36" angle="-89" genCount="1" genTime="20000" objectKey="39" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="412.37#1178.06#786.47" angle="-89" genCount="1" genTime="20000" objectKey="40" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="642.37#1178.06#509.51" angle="-100" genCount="1" genTime="20000" objectKey="43" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="489.71#1177.76#384.87" angle="-90" genCount="1" genTime="20000" objectKey="46" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="623.34#1178.81#341.89" angle="-107" genCount="1" genTime="20000" objectKey="47" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="1032.61#1101.43#512.12" angle="-173" genCount="1" genTime="20000" objectKey="51" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="1038.79#1104.87#566.35" angle="-173" genCount="1" genTime="20000" objectKey="52" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="988.55#1124.48#533.65" angle="-178" genCount="1" genTime="20000" objectKey="54" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="91.69#1342.81#1511.92" angle="-50" genCount="1" genTime="20000" objectKey="62" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="33.16#1356.53#1802.29" angle="-104" genCount="1" genTime="20000" objectKey="63" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="291.26#1370.25#1583.34" angle="128" genCount="1" genTime="20000" objectKey="64" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="504.82#1377.32#1598.83" angle="-47" genCount="1" genTime="20000" objectKey="66" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="333.86#1416.87#1821.85" angle="-57" genCount="1" genTime="20000" objectKey="67" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="346.32#1237.12#1062.71" angle="-125" genCount="1" genTime="20000" objectKey="68" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="393.39#1232.99#1064.22" angle="-103" genCount="1" genTime="20000" objectKey="69" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="314.11#1298.27#1321.67" angle="-53" genCount="1" genTime="20000" objectKey="71" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="261.75#1306.47#1365.89" angle="-49" genCount="1" genTime="20000" objectKey="72" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="237.06#1301.00#1298.67" angle="-53" genCount="1" genTime="20000" objectKey="73" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="97.18#1346.48#1567.12" angle="-49" genCount="1" genTime="20000" objectKey="76" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="142.75#1342.89#1548.65" angle="-50" genCount="1" genTime="20000" objectKey="77" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="42.83#1354.93#1846.55" angle="-121" genCount="1" genTime="20000" objectKey="78" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="87.44#1358.86#1787.63" angle="-141" genCount="1" genTime="20000" objectKey="79" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="297.95#1370.45#1546.47" angle="136" genCount="1" genTime="20000" objectKey="84" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="328.94#1370.40#1577.71" angle="138" genCount="1" genTime="20000" objectKey="85" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="443.52#1384.64#1612.96" angle="-46" genCount="1" genTime="20000" objectKey="90" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="493.58#1386.77#1657.17" angle="-55" genCount="1" genTime="20000" objectKey="91" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="285.42#1420.01#1842.10" angle="-46" genCount="1" genTime="20000" objectKey="94" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="345.07#1419.30#1860.37" angle="-46" genCount="1" genTime="20000" objectKey="95" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="333.25#1413.59#1775.44" angle="-55" genCount="1" genTime="20000" objectKey="96" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="389.33#1413.18#1805.28" angle="-55" genCount="1" genTime="20000" objectKey="97" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58271" Pos="255.99#1178.06#672.67" genCount="1" genTime="20000" objectKey="1" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; "/>
+                    <Obj Type="Monster" MonType="58271" Pos="261.43#1178.06#764.52" angle="-32" genCount="1" genTime="20000" objectKey="7" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; "/>
+                    <Obj Type="Monster" MonType="58271" Pos="305.87#1178.06#713.26" angle="-32" genCount="1" genTime="20000" objectKey="9" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; "/>
+                </ObjList>
+            </Stage>
+            <Stage Name="BOSS" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="58273" Pos="1483.46#1094.28#558.66" angle="-172" genCount="1" genTime="20000" objectKey="0" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="1476.21#1094.28#445.42" angle="174" genCount="1" genTime="20000" objectKey="1" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58272" Pos="1495.48#1094.28#668.96" angle="174" genCount="1" genTime="20000" objectKey="4" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="1550.40#1094.28#507.33" angle="-170" genCount="1" genTime="20000" objectKey="7" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="1534.51#1094.28#662.86" angle="-170" genCount="1" genTime="20000" objectKey="2" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="1531.61#1094.28#458.13" angle="-167" genCount="1" genTime="20000" objectKey="3" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="1558.70#1094.28#581.01" angle="-170" genCount="1" genTime="20000" objectKey="10" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="1409.46#1094.28#511.56" angle="177" genCount="1" genTime="20000" objectKey="11" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="1421.35#1094.28#587.16" angle="177" genCount="1" genTime="20000" objectKey="15" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                </ObjList>
+            </Stage>
+            <Stage Name="LASTBOSS" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="58274" Pos="567.22#1428.59#3151.70" angle="-92" genCount="1" genTime="20000" objectKey="0" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="483.39#1426.84#2946.65" angle="-103" genCount="1" genTime="20000" objectKey="3" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58268" Pos="688.94#1426.84#2944.82" angle="-92" genCount="1" genTime="20000" objectKey="4" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="742.91#1426.98#2932.12" angle="-109" genCount="1" genTime="20000" objectKey="12" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="427.46#1426.84#2944.90" angle="-86" genCount="1" genTime="20000" objectKey="14" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58267" Pos="553.44#1426.84#2945.63" angle="-80" genCount="1" genTime="20000" objectKey="15" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="538.82#1426.84#2858.35" angle="-95" genCount="1" genTime="20000" objectKey="20" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58269" Pos="610.14#1426.84#2850.76" angle="-100" genCount="1" genTime="20000" objectKey="21" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="58266" Pos="627.07#1426.84#2947.73" angle="-110" genCount="1" genTime="20000" objectKey="26" propList="&apos;Level&apos; &apos;@GET_MON_RANK_LV_NORMAL1&apos; " IsIncludeAchievementRate="1" tendency="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="LASTBOSS/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="END"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="END" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                        <Str Str="10초 후 입구로 돌아갑니다."/>
+                    </ToolScp>                    <ToolScp Scp="MGAME_GIVE_ADVENTURE_BOOK_CLEAR_POINT" Client="NO" UseSleep="NO">
+                        <Str Str="Indun_Remains3"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="클리어">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="DOOR">
+                <ObjList>
+                    <Obj Type="Monster" MonType="47092" Pos="378.00#-0.99#-116.00" angle="-94" genCount="1" genTime="20000" objectKey="1" propList="&apos;OBB&apos; &apos;YES&apos; &apos;OBBSize&apos; &apos;100;100;200&apos; &apos;Name&apos; &apos;관문&apos; "/>
+                    <Obj Type="Monster" MonType="20044" Pos="359.00#-0.99#-214.00" genCount="1" genTime="20000" objectKey="2"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="관문">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="BOSS/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="SCR_MGAME_VALUE_CHECK_2" Client="NO" UseSleep="NO">
+                                <Str Str="Door_check"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="DOOR/1/DOOR/2"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="비석로로 가는 문이 열렸습니다"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Time">
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="종료 5분전">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3300"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG" Client="YES" UseSleep="NO">
+                                <Str Str="던전 종료 5분전 입니다!!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="시간 제한">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3600"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="인던 삭제">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3610"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="PercentUI">
+                <ObjList/>
+                <StageEvents>
+                    <Event>
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="MGAME_MON_KILL_COUNT_CALC"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="UPDATE_INDUN_POWERUP_BUFF"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+        <EnterList>
+            <ToolScp Scp="MGAME_CHECK_INDUN" Client="NO" UseSleep="YES">
+                <Str Str="Indun_Remains3"/>
+            </ToolScp>
+        </EnterList>
+    </Game>
+</GameList>
