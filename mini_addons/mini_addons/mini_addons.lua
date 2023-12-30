@@ -5,10 +5,11 @@
 -- v1.0.4 パーティーバフ非表示機能
 -- v1.0.5 コインアイテムを取得時に自動使用機能追加
 -- v1.0.6 コインアイテム自動使用を街だけに。女神ガチャ時は使用しない様に。レイド入場時装備チェック機能。
+-- v1.0.7 女神ガチャ時は使用しない様にしたつもりが出来てなかったのを修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -85,9 +86,11 @@ function MINI_ADDONS_ON_INIT(addon, frame)
             g.settings.coin_use = 1
             MINI_ADDONS_SAVE_SETTINGS()
             addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
+            addon:RegisterMsg('INV_ITEM_REMOVE', 'MINI_ADDONS_INV_ICON_USE')
         end
         if g.settings.coin_use == 1 then
             addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
+            addon:RegisterMsg('INV_ITEM_REMOVE', 'MINI_ADDONS_INV_ICON_USE')
         end
     end
 
@@ -209,7 +212,7 @@ local coin_item = {869001, 11200303, 11200302, 11200301, 11200300, 11200299, 112
 -- 傭兵団コイン、女神コイン、王国再建団コインを取得時、自動で使用
 function MINI_ADDONS_INV_ICON_USE()
 
-    local currentTime = os.time()
+    --[[local currentTime = os.time()
 
     local AM0Time = os.time({
         year = os.date("%Y", currentTime),
@@ -228,6 +231,12 @@ function MINI_ADDONS_INV_ICON_USE()
     if (currentTime >= daytime_start and currentTime <= daytime_end) or
         (currentTime >= nighttime_start and currentTime <= nighttime_end) then
         return
+    end]]
+    local frame = ui.GetFrame('godprotection')
+    -- CHAT_SYSTEM("test")
+    if frame:IsVisible() == 1 then
+        -- print("mieteru")
+        return
     end
 
     local invItemList = session.GetInvItemList()
@@ -244,7 +253,7 @@ function MINI_ADDONS_INV_ICON_USE()
 
                 ReserveScript(string.format("item.UseByGUID(%d)", invItem:GetIESID()), 1.5)
 
-                -- break -- 使ったらループを抜ける
+                break -- 使ったらループを抜ける
             end
         end
 
