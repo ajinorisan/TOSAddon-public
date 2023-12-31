@@ -24,7 +24,7 @@ https://twitter.com/ToSJP_rada
 
 　
 
-v1.0.1 月曜日の初期化に対応
+v1.0.1 月曜日の初期化に対応。ebisukeさん作のInstantCCを入れているとそのデータを利用してキャラを並べ替えてくれます。
 
 　
 
