@@ -15,8 +15,22 @@ Twitter
 https://twitter.com/ToSJP_rada
 
 ----
+　
+　
+　
+### Indun List Viewer
 
+レイドの消化状況を一覧表示します。街でしか動きません。
 
+　
+
+v1.0.1 月曜日の初期化に対応
+
+　
+
+アドオンマネージャー登録済
+
+----
 
 ### Auto Pet Summon
 
@@ -29,6 +43,8 @@ v1.0.0 とりあえず公開
 　
 
 アドオンマネージャー登録済
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7d82d3f-1571-4e36-abb0-3d22e022d497)
 
 ----
 

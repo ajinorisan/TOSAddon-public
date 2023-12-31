@@ -6,10 +6,11 @@
 -- v1.0.5 コインアイテムを取得時に自動使用機能追加
 -- v1.0.6 コインアイテム自動使用を街だけに。女神ガチャ時は使用しない様に。レイド入場時装備チェック機能。
 -- v1.0.7 女神ガチャ時は使用しない様にしたつもりが出来てなかったのを修正。
+-- v1.0.8 ブラックマーケットのお知らせ削除
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -57,6 +58,12 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     g.SetupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
 
+    g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
+
+    g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
+
+    -- addon:RegisterMsg('NOTICE_Dm_Global_Shout', 'MINI_ADDONS_NOTICE_ON_MSG');
+
     if g.settings.equip_info == nil then
         g.settings.equip_info = 1
         MINI_ADDONS_SAVE_SETTINGS()
@@ -67,9 +74,11 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     --[[acutil.setupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
 
-    acutil.setupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")]]
+    acutil.setupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
 
-    -- acutil.setupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    acutil.setupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
+    
+    acutil.setupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")]]
 
     --[[acutil.setupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
 
@@ -130,6 +139,42 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     MINI_ADDONS_NEW_FRAME_INIT()
 
 end
+function MINI_ADDONS_NOTICE_ON_MSG(frame, msg, argStr, argNum)
+    -- print(msg)
+    -- print(argStr)
+    if g.settings.chat_system == 1 then
+        if string.find(argStr, "StartBlackMarketBetween") then
+            return
+        end
+    end
+    -- NOTICE_ON_MSG_OLD(frame, msg, argStr, argNum)
+    base["NOTICE_ON_MSG"](frame, msg, argStr, argNum)
+end
+
+function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
+
+    if msg == nil then
+        return
+    end
+
+    if g.settings.chat_system == 1 then
+        -- print(msg)
+        if string.find(msg, "StartBlackMarketBetween") then
+            return
+        end
+    end
+
+    local fontStyle = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_LINK")
+    local resultStr = string.gsub(msg, "({#%x+}){img", fontStyle .. "{img")
+    -- 모션 이모티콘 채팅창에서는 이미지 이모티콘으로 출력
+    if config.GetXMLConfig("EnableChatFrameMotionEmoticon") == 0 and string.find(resultStr, "{spine motion_") ~= nil then
+        resultStr = string.gsub(msg, "{spine motion_", "{img ")
+    end
+
+    return resultStr
+
+end
+
 if not g.loaded then
     g.settings = {
         reword_x = 1100,
@@ -419,9 +464,9 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
 
         local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, 105)
-        chat_system:SetText("{ol}{#FFFFFF}Perfect effect is not displayed in system chat")
+        chat_system:SetText("{ol}{#FFFFFF}Perfect and Black Market notices not displayed in chat")
         chat_system:SetTextTooltip(
-            "{@st59}パーフェクト効果をシステムチャットに表示しない{nl}시스템 채팅에 퍼펙트 효과를 표시하지 않음")
+            "{@st59}パーフェクトとブラックマーケットのお知らせをチャットに表示しない{nl}퍼펙트 및 블랙마켓 공지사항을 채팅에 표시하지 않습니다.")
 
         local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 10, 100, 25, 25)
         AUTO_CAST(chat_system_checkbox)
@@ -951,9 +996,11 @@ end
 function MINI_ADDONS_CHAT_SYSTEM(msg, color)
 
     if g.settings.chat_system == 1 then
-        if msg == "@dicID_^*$ETC_20220830_069434$*^" or msg == "@dicID_^*$ETC_20220830_069435$*^" or msg ==
-            "[__m2util] is loaded" or msg == "[adjustlayer] is loaded" or msg == "[extendcharinfo] is loaded" or msg ==
-            "[ICC]Attempt to CC." then
+        if msg == "&lt;완벽함&gt; 효과가 사라졌습니다." or msg ==
+            "&lt;완벽함&gt; 효과가 발동되었습니다." or msg == "@dicID_^*$ETC_20220830_069434$*^" or msg ==
+            "@dicID_^*$ETC_20220830_069435$*^" or msg == "[__m2util] is loaded" or msg == "[adjustlayer] is loaded" or
+            msg == "[extendcharinfo] is loaded" or msg == "[ICC]Attempt to CC." or
+            string.find(msg, "StartBlackMarketBetween") then
             return
         end
     end

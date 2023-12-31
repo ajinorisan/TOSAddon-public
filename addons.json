@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Indun List Viewer",
+		"file" : "indun_list_viewer",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.1",
+		"releaseTag" : "indun_list_viewer",
+		"unicode" : "⛄",
+		"description" : "レイドの消化状況を一覧表示します。Lists raid digests.레이드 소화 상태를 나열합니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Boss Direction",
 		"file" : "boss_direction",
 		"extension" : "ipf",
