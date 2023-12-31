@@ -10,6 +10,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.logpath = string.format('../addons/%s/log.txt', addonNameLower)
 
 local acutil = require("acutil")
 local os = require("os")
@@ -39,11 +40,77 @@ function indun_list_viewer_load_settings()
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
+
     if not settings then
         settings = g.settings
     end
 
     g.settings = settings
+
+    -- end
+
+    if _G["ADDONS"]["ebisuke"]["INSTANTCC"] then
+        indun_list_viewer_instantcc()
+    end
+
+end
+
+function indun_list_viewer_instantcc()
+    local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
+    ic.settingsFileLoc = string.format('../addons/%s/settings.json', "instantcc")
+    local ic_settings = acutil.loadJSON(ic.settingsFileLoc, ic.settings)
+
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+    local charactors = ic.settings.charactors
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+        local pcSettings = g.settings[pcName]
+
+        if pcSettings then
+            pcSettings.layer = 0
+            pcSettings.order = 0
+
+            for _, icCharData in pairs(charactors) do
+                if pcName == icCharData.name then
+                    pcSettings.layer = icCharData.layer
+                    pcSettings.order = icCharData.order
+                    break
+                end
+            end
+
+            -- デバッグ用
+            -- print(tostring(pcName) .. ":layer:" .. tostring(pcSettings.layer) .. ":order:" .. tostring(pcSettings.order))
+        end
+    end
+    indun_list_viewer_save_settings()
+    --[[local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+        if g.settings[pcName].layer ~= nil then
+            g.settings[pcName].layer = 0
+        end
+        if g.settings[pcName].order ~= nil then
+            g.settings[pcName].order = 0
+        end
+        for pcName, charData in pairs(g.settings) do
+            for _, icCharData in pairs(ic.settings.charactors) do
+                if pcName == icCharData.name then
+
+                    g.settings[pcName].layer = icCharData.layer
+                    g.settings[pcName].order = icCharData.order
+
+                    print(tostring(pcName) .. ":layer:" .. tostring(g.settings[pcName].layer) .. ":order:" ..
+                              tostring(g.settings[pcName].order))
+                end
+            end
+        end
+
+    end]]
 
 end
 
@@ -51,6 +118,35 @@ if not g.loaded then
     g.settings = {
         raid_reset_time = 1702846800
     }
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+        if g.settings[pcName] == nil then
+            g.settings[pcName] = {}
+        end
+        -- print(pcName)
+        g.settings[pcName] = {
+            raid_count = {
+                SlogutisH = 0,
+                SlogutisN = 0,
+                UpinisH = 0,
+                UpinisN = 0,
+                RozeH = 0,
+                RozeN = 0,
+                TurbulentH = 0,
+                TurbulentN = 0
+            },
+            buffid = {},
+            memo = "",
+            check = 0,
+            layer = 0,
+            order = 0
+        }
+    end
+    -- indun_list_viewer_load_settings()
 end
 
 function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
@@ -61,9 +157,16 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     if not g.loaded then
         g.loaded = true
     end
+    -- g.loded = false
 
     indun_list_viewer_load_settings()
 
+    -- addon:RegisterMsg('BARRACK_SELECTCHARACTER', "indun_list_viewer_barrack_character")
+    -- acutil.setupEvent(addon, "CREATE_SCROLL_CHAR_LIST", "indun_list_viewer_CREATE_SCROLL_CHAR_LIST")
+    -- acutil.setupHook(indun_list_viewer_CREATE_SCROLL_CHAR_LIST, "CREATE_SCROLL_CHAR_LIST");
+    -- addon:RegisterMsg("BARRACK_SELECTCHARACTER", "indun_list_viewer_SELECTTEAM_ON_MSG");
+    -- addon:RegisterMsg("BARRACK_SELECT_BTN", "indun_list_viewer_SELECTTEAM_ON_MSG");
+    -- ReserveScript(string.format("indun_list_viewer_CREATE_SCROLL_CHAR_LIST('%s','%s')", frame, actor), 0.1)
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
@@ -71,51 +174,131 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
         addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_raid_reset_time") -- !!
         addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
-        addon:RegisterMsg("BUFF_ADD", "indun_list_viewer_autosweep_save");
-        addon:RegisterMsg("BUFF_UPDATE", "indun_list_viewer_autosweep_save");
-        addon:RegisterMsg("BUFF_REMOVE", "indun_list_viewer_autosweep_save");
+
+        -- addon:RegisterMsg("BUFF_UPDATE", "indun_list_viewer_autosweep_save");
+        -- addon:RegisterMsg("BUFF_REMOVE", "indun_list_viewer_autosweep_save");
         -- addon:RegisterMsg("FPS_UPDATE", "indun_list_viewer_autosweep_save");
 
     end
 
 end
 
-function indun_list_viewer_autosweep_save(frame, msg, argStr, argNum)
-    local buffid = tostring(argNum)
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-    if buffid ~= (tostring(80015) or tostring(80016) or tostring(80017) or tostring(80030) or tostring(80031)) then
-        -- print(tostring(argNum .. "owata"))
-        return
+local ilv_layer = 1
+
+function indun_list_viewer_CREATE_SCROLL_CHAR_LIST(frame, actor)
+    CREATE_SCROLL_CHAR_LIST_OLD(frame, actor)
+    if ilv_layer <= 4 then
+        for i = 1, 4 do
+            -- ReserveScript("barrack.SelectBarrackLayer(i)"";
+            if i == 4 then
+                ReserveScript("barrack.SelectBarrackLayer(1)", 0.1)
+            end
+            ReserveScript("barrack.SelectBarrackLayer(i)", 0.1)
+            local current_layer = i
+            local fd = io.open(g.logpath, "a")
+            -- fd:write(tostring(actor) .. "\n")
+            fd:write(tostring(current_layer) .. "\n")
+            fd:flush()
+            fd:close()
+            ilv_layer = ilv_layer + 1
+        end
     end
-    if msg == "BUFF_UPDATE" then
-        local handle = session.GetMyHandle()
-        local buffframe = ui.GetFrame("buff")
-        local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
-        local buffslotcount = buffslotset:GetChildCount()
-        local sweepcount = 0
+
+end
+
+function indun_list_viewer_autosweep_save()
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+    -- indun_list_viewer_raid_count_update(LoginName)
+    indun_list_viewer_sweep_count_update(LoginName)
+end
+
+function indun_list_viewer_sweep_count_update(pcName)
+    -- print(pcName)
+    local handle = session.GetMyHandle()
+    local buffframe = ui.GetFrame("buff")
+    local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
+    local buffslotcount = buffslotset:GetChildCount()
+
+    local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
+    for _, buffid in ipairs(sweepbuff_table) do
+        local iconcount = 0
         for i = 0, buffslotcount - 1 do
+            local achild = buffslotset:GetChildByIndex(i)
+            local aicon = achild:GetIcon()
+            local aiconinfo = aicon:GetInfo()
+            local abuff = info.GetBuff(handle, aiconinfo.type)
+            -- print(tostring(abuff))
+            -- print(tostring(aiconinfo.type))
+            if abuff ~= nil then
+                iconcount = iconcount + 1
+            end
+        end
+        -- print(tostring(buffslotcount))
+        -- print(tostring(iconcount))
+        local sweepcount = 0
+
+        for i = 0, iconcount - 1 do
             local child = buffslotset:GetChildByIndex(i)
             local icon = child:GetIcon()
             local iconinfo = icon:GetInfo()
-            if buffid == tostring(iconinfo.Type) then
-                local buff = info.GetBuff(handle, iconinfo.type)
+            local buff = info.GetBuff(handle, iconinfo.type)
+
+            if tostring(buff.buffID) == tostring(buffid) then
 
                 sweepcount = buff.over
-                print(tostring(g.settings[LoginName].buffid[tostring(buffid)]))
-                print(sweepcount)
-                g.settings[LoginName].buffid[tostring(buffid)] = sweepcount
 
             end
 
         end
-        indun_list_viewer_save_settings()
-        indun_list_viewer_load_settings()
-    elseif msg == "BUFF_REMOVE" then
-        local sweepcount = 0
-        g.settings[LoginName].buffid[tostring(buffid)] = sweepcount
-        indun_list_viewer_save_settings()
-        indun_list_viewer_load_settings()
+
+        if tonumber(g.settings[pcName].buffid[tostring(buffid)]) ~= tonumber(sweepcount) then
+            g.settings[pcName].buffid[tostring(buffid)] = sweepcount
+        end
+
     end
+
+    indun_list_viewer_raid_count_update(pcName)
+end
+
+function indun_list_viewer_raid_count_update(pcName)
+    for key, value in pairs(g.settings[pcName].raid_count) do
+        -- print("test")
+        if key == "SlogutisH" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 690).PlayPerResetType)
+        elseif key == "SlogutisN" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 688).PlayPerResetType)
+        elseif key == "UpinisH" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 687).PlayPerResetType)
+        elseif key == "UpinisN" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 685).PlayPerResetType)
+        elseif key == "RozeH" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 681).PlayPerResetType)
+        elseif key == "RozeN" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 679).PlayPerResetType)
+        elseif key == "TurbulentH" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 678).PlayPerResetType)
+        elseif key == "TurbulentN" then
+            g.settings[pcName].raid_count[key] = GET_CURRENT_ENTERANCE_COUNT(
+                GetClassByType("Indun", 676).PlayPerResetType)
+        end
+
+    end
+    indun_list_viewer_save_settings()
+    indun_list_viewer_load_settings()
+
+    --[[local frame = ui.GetFrame("icframe")
+    if frame:IsVisible() == 1 then
+        frame:ShowWindow(0)
+
+    end]]
 
 end
 
@@ -136,9 +319,10 @@ function indun_list_viewer_frame_init()
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_sys 35 35}")
     btn:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_title_frame_open")
-    btn:SetTextTooltip("{ol}キャラ毎のレイド回数表示{nl}Raid count display per character{nl}" ..
-                           "{@st45r14}※掃討はキャラ毎の最終ログイン時の値なので、期限切れなどで実際とは異なる場合があります。{nl}" ..
-                           "{@st45r14}※The AutoClear is the value at the last login for each character and may differ{nl}from the actual value due to expiration or other reasons.") -- !!
+    btn:SetTextTooltip(
+        "{ol}Indun List Viewer{nl}キャラ毎のレイド回数表示{nl}Raid count display per character{nl}" ..
+            "{@st45r14}※掃討はキャラ毎の最終ログイン時の値なので、期限切れなどで実際とは異なる場合があります。{nl}" ..
+            "{@st45r14}※The AutoClear is the value at the last login for each character{nl}and may differ from the actual value due to expiration or other reasons.") -- !!
 
 end
 
@@ -172,6 +356,7 @@ function indun_list_viewer_raid_reset_time()
     print("indun_list_viewer 月曜日の朝6時から現在までの経過時間（秒）: " .. secondsSinceMondayAM6)
 
     local nextreset = 604800 -- 次の月曜日の6時までの秒数
+    -- local nextreset = 295500 -- 次の月曜日の6時までの秒数
 
     if secondsSinceMondayAM6 > nextreset then
         g.settings.raid_reset_time = mondayAM6
@@ -199,7 +384,7 @@ function indun_list_viewer_raid_reset()
 
     indun_list_viewer_save_settings()
     indun_list_viewer_load_settings()
-
+    ui.SysMsg("Raid counts were initialized.{nl}" .. "レイドの回数を初期化しました。")
     indun_list_viewer_get_raid_count()
 
 end
@@ -221,7 +406,7 @@ function indun_list_viewer_get_raid_count()
             g.settings[pcName] = {}
         end
 
-        if g.settings[pcName].raid_count == nil then
+        if g.settings[pcName].raid_count == nil or next(g.settings[pcName].raid_count) == nil then
             g.settings[pcName].raid_count = {
                 SlogutisH = 0,
                 SlogutisN = 0,
@@ -344,6 +529,9 @@ function indun_list_viewer_get_sweep_count()
 end
 
 function indun_list_viewer_title_frame_open()
+
+    indun_list_viewer_autosweep_save()
+    -- print("test")
     local icframe = ui.CreateNewFrame("notice_on_pc", "icframe", 0, 0, 10, 10)
     AUTO_CAST(icframe)
     icframe:RemoveAllChild()
@@ -424,7 +612,7 @@ function indun_list_viewer_title_frame_open()
     icframe:SetPos(x, 10)
     titlegb:Resize(925, 60)
     titlegb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
-    titlegb:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
+    -- titlegb:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
 
     local close = titlegb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
@@ -759,7 +947,7 @@ function indun_list_viewer_memo_save(frame, ctrl, argStr, argNum)
     local text = ctrl:GetText()
     local pcName = argStr
 
-    if g.settings[pcName].memo == nil then
+    if g.settings[pcName].memo == nil or g.settings[pcName].memo ~= text then
         g.settings[pcName].memo = text
     end
 
