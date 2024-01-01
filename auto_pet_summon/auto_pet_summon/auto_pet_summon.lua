@@ -1,8 +1,9 @@
 -- v1.0.0 キャラが最後に使ってたペットをCC時に召喚。街だけで動きます。
+-- v1.0.1 呼び出し安定しなかったのでディレイ見直し、ペットアイコンを画面上部に設置
 local addonName = "AUTO_PET_SUMMON"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -26,15 +27,20 @@ end
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
+-- if not g.loded then
 g.settings = {
 
     pet = {},
     pet_classid = {}
 }
-
+-- end
 function AUTO_PET_SUMMON_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
+
+    --[[if not g.loded then
+        g.loded = true
+    end]]
 
     AUTO_PET_SUMMON_LOAD_SETTINGS()
 
@@ -43,7 +49,8 @@ function AUTO_PET_SUMMON_ON_INIT(addon, frame)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
         -- addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_PET_INIT")
-        ReserveScript("AUTO_PET_SUMMON_PET_INIT()", 1.0)
+        ReserveScript("AUTO_PET_SUMMON_PET_INIT()", 3.0)
+
     end
     addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_PET_FRAME_INIT")
 
@@ -131,9 +138,11 @@ function AUTO_PET_SUMMON_PET_INIT()
     if summonedPet == nil then
         if g.pet_classid ~= nil and g.pet ~= nil then
 
-            ReserveScript(string.format("HOTKEY_SUMMON_COMPANION(%d,%d)", g.pet_classid, g.pet), 1.0)
+            ReserveScript(string.format("HOTKEY_SUMMON_COMPANION(%d,%d)", g.pet_classid, g.pet), 3.0)
+            ReserveScript("AUTO_PET_SUMMON_CONFIRMATION()", 3.5)
             return
         else
+            ReserveScript("AUTO_PET_SUMMON_CONFIRMATION()", 3.5)
             return
         end
     else
@@ -141,14 +150,63 @@ function AUTO_PET_SUMMON_PET_INIT()
         -- print(tostring(petguid))
         if tostring(petguid) ~= tostring(g.pet) then
             control.SummonPet(0, 0, 0)
-            ReserveScript(string.format("HOTKEY_SUMMON_COMPANION(%d,%d)", g.pet_classid, g.pet), 1.0)
+            ReserveScript(string.format("HOTKEY_SUMMON_COMPANION(%d,%d)", g.pet_classid, g.pet), 3.0)
+            ReserveScript("AUTO_PET_SUMMON_CONFIRMATION()", 3.5)
             return
         else
+            ReserveScript("AUTO_PET_SUMMON_CONFIRMATION()", 3.5)
             return
         end
     end
 end
 
+function AUTO_PET_SUMMON_CONFIRMATION()
+    local petframe = ui.CreateNewFrame("notice_on_pc", "auto_pet_summon_iconframe", 0, 0, 20, 20)
+    AUTO_CAST(petframe)
+    petframe:SetSkinName("None")
+    petframe:SetPos(700, 7)
+    petframe:SetLayerLevel(10);
+
+    local slot = petframe:CreateOrGetControl("slot", "slot", 0, 0, 20, 20)
+    AUTO_CAST(slot)
+    slot:SetSkinName("None");
+    slot:EnablePop(0)
+    slot:EnableDrop(0)
+    slot:EnableDrag(0)
+
+    local summonedPet = session.pet.GetSummonedPet();
+    -- local petguid = tostring(summonedPet:GetStrGuid())
+    local obj = summonedPet:GetObject();
+    local classobj = GetIES(obj)
+
+    if classobj ~= nil then
+
+        local icon = CreateIcon(slot);
+        AUTO_CAST(icon)
+
+        icon:SetImage(classobj.Icon)
+
+        petframe:ShowWindow(1)
+
+    end
+
+end
+
+--[[local function child_name()
+    local frame = ui.GetFrame("pet_info")
+    local bg_icon = GET_CHILD_RECURSIVELY(frame, "item_0")
+    local childNames = {}
+    local childCount = bg_icon:GetChildCount()
+    for i = 0, childCount - 1 do
+        local child = bg_icon:GetChildByIndex(i)
+        table.insert(childNames, child:GetName())
+    end
+
+    for i, name in ipairs(childNames) do
+        print(name)
+    end
+end
+-- child_name()]]
 function AUTO_PET_SUMMON_SAVE_SETTINGS()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);

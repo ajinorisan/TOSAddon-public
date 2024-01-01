@@ -30,6 +30,8 @@ v1.0.1 月曜日の初期化に対応。ebisukeさん作のInstantCCを入れて
 
 アドオンマネージャー登録済
 
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7d82d3f-1571-4e36-abb0-3d22e022d497)
+
 ----
 
 ### Auto Pet Summon
@@ -37,6 +39,7 @@ v1.0.1 月曜日の初期化に対応。ebisukeさん作のInstantCCを入れて
 キャラ毎に最後に連れていたペットを自動で召喚します。街でしか動きません。
 
 　
+v1.0.1 安定しなかったのでディレイ見直し。画面上部にペットアイコンを出すように。
 
 v1.0.0 とりあえず公開
 
@@ -44,7 +47,7 @@ v1.0.0 とりあえず公開
 
 アドオンマネージャー登録済
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7d82d3f-1571-4e36-abb0-3d22e022d497)
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/4b60df27-6c56-4c4b-91df-b93bf9bdac12)
 
 ----
 
