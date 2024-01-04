@@ -42,7 +42,7 @@
 		"name" : "Mini Addons",
 		"file" : "mini_addons",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.8",
+		"fileVersion" : "v1.0.9",
 		"releaseTag" : "mini_addons",
 		"unicode" : "⛄",
 		"description" : "細かいアドオンの詰合せ。Free From Trivial Stressの上位互換版です。競合するので本アドオンを使う場合抜いてください。MINI MAP左下ボタンから各機能のON OFF切り替えします。Assortment of fine add-ons.This is an upward compatible version of Free From Trivial Stress. Please remove this add-on when you use this add-on because it conflicts with Free From Trivial Stress. Turn ON/OFF each function by pressing the lower left button on the MINI MAP.Free From Trivial Stress.다양한 부가 기능의 모음집.의 상위 호환 버전입니다. 충돌이 발생하므로 본 애드온을 사용할 경우 빼주세요. MINI MAP 왼쪽 하단 버튼으로 각 기능의 ON/OFF를 전환합니다.",
@@ -105,10 +105,10 @@
 		"name" : "Monster Card Change",
 		"file" : "monstercard_change",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.4",
+		"fileVersion" : "v1.0.5",
 		"releaseTag" : "monstercard_change",
 		"unicode" : "⛄",
-		"description" : "モンスターカードプリセットを使いやすくします。カード自動搬出入、自動着脱機能付き。カード3枚セットで運用に変更。Easy to use monster card preset. Includes automatic card loading/unloading and automatic card insertion/removal functions. Changed to operation with 3 card set.몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함. 카드 3장 세트로 운영으로 변경.",
+		"description" : "モンスターカードプリセットを使いやすくします。カード自動搬出入、自動着脱機能付き。Easy to use monster card preset. Includes automatic card loading/unloading and automatic card insertion/removal functions.몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함.",
 		"tags" : []
 	},
 {
