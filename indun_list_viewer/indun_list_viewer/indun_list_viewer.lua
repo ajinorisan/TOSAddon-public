@@ -1,9 +1,10 @@
 -- v1.0.0 indun_panelから機能独立
 -- v1.0.1 作り直し。instantccと連携、instantcc入れてたらバラック順に並び替え。
+-- v1.0.2 CCボタン追加。クローズボタンの位置調整。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -539,8 +540,15 @@ function indun_list_viewer_title_frame_open()
     local close = titlegb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetGravity(ui.LEFT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
+
+    local ccbtn = titlegb:CreateOrGetControl('button', 'ccbtn', 40, 5, 30, 30)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    -- ccbtn:SetGravity(ui.LEFTT, ui.TOP)
+    ccbtn:SetText("{img barrack_button_normal 30 30}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
     local memo_text = titlegb:CreateOrGetControl("richtext", "memo_text", 650, 35)
     memo_text:SetText("{ol}Memo")
