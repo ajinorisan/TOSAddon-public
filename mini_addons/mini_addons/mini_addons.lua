@@ -8,10 +8,11 @@
 -- v1.0.7 女神ガチャ時は使用しない様にしたつもりが出来てなかったのを修正。
 -- v1.0.8 ブラックマーケットのお知らせ削除
 -- v1.0.9 クエストリスト非表示機能。オートマッチ中のフレームのレイヤー下げる機能。
+-- v1.1.0 クエストリスト非表示機能。インベントリ開けたら表示されていたのを修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -83,7 +84,11 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.quest_hide == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_QUESTINFO_HIDE")
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
+        acutil.setupEvent(addon, "INVENTORY_OPEN", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE");
+        acutil.setupEvent(addon, "INVENTORY_CLOSE", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE");
+        -- elseif g.settings.quest_hide == 0 then
+        -- addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_QUESTINFO_SHOW")
     end
     -- acutil.setupHook(MINI_ADDONS_CHASEINFO_SHOW_QUEST_TOGGLE, "CHASEINFO_SHOW_QUEST_TOGGLE")
     -- acutil.setupHook(MINI_ADDONS_CHASEINFO_SHOW_ACHIEVE_TOGGLE, "CHASEINFO_SHOW_ACHIEVE_TOGGLE")
@@ -157,14 +162,42 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
 end
 
-function MINI_ADDONS_QUESTINFO_HIDE()
+function MINI_ADDONS_QUESTINFO_SHOW()
     local frame = ui.GetFrame("questinfoset_2")
-    frame:ShowWindow(0)
+    frame:Resize(400, 500)
+    frame:ShowWindow(1)
     local chaseinfoframe = ui.GetFrame("chaseinfo")
     local name_quest = GET_CHILD_RECURSIVELY(chaseinfoframe, "name_quest")
-    name_quest:ShowWindow(0)
-    -- print("test")
+    name_quest:Resize(220, 30)
+    name_quest:ShowWindow(1)
+    local name_achieve = GET_CHILD_RECURSIVELY(chaseinfoframe, "name_achieve")
+    name_achieve:Resize(220, 30)
+    name_achieve:ShowWindow(1)
+end
 
+function MINI_ADDONS_QUESTINFO_HIDE_RESERVE()
+    local frame = ui.GetFrame("questinfoset_2")
+    frame:Resize(0, 0)
+    frame:RunUpdateScript("MINI_ADDONS_QUESTINFO_HIDE", 0.1);
+
+end
+
+function MINI_ADDONS_QUESTINFO_HIDE(frame)
+    if frame:IsVisible() == 1 then
+        frame:ShowWindow(0)
+        local chaseinfoframe = ui.GetFrame("chaseinfo")
+        local name_quest = GET_CHILD_RECURSIVELY(chaseinfoframe, "name_quest")
+        name_quest:Resize(0, 0)
+        name_quest:ShowWindow(0)
+        local name_achieve = GET_CHILD_RECURSIVELY(chaseinfoframe, "name_achieve")
+        name_achieve:Resize(0, 0)
+        name_achieve:ShowWindow(0)
+
+        return 1
+
+    end
+
+    return 1
 end
 
 function MINI_ADDONS_INDUNENTER_AUTOMATCH_TYPE()

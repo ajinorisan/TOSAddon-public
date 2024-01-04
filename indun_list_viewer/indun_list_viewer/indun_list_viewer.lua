@@ -536,11 +536,12 @@ function indun_list_viewer_title_frame_open()
     titlegb:Resize(800, 55)
 
     titlegb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
+    titlegb:SetTextTooltip("右クリックで閉じます。{nl}Right-click to close.")
 
     local close = titlegb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
-    close:SetGravity(ui.LEFT, ui.TOP)
+    close:SetGravity(ui.RIGHT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
 
     local ccbtn = titlegb:CreateOrGetControl('button', 'ccbtn', 40, 5, 30, 30)
