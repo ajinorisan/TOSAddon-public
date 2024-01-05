@@ -32,10 +32,10 @@
 		"name" : "Auto Pet Summon",
 		"file" : "auto_pet_summon",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.2",
 		"releaseTag" : "auto_pet_summon",
 		"unicode" : "⛄",
-		"description" : "キャラ毎に最後に連れていたペットを自動で召喚します。安定しなかったのでディレイ見直し。Each character automatically summons the last pet they had with them.Delay review because it was not stable.각 캐릭터마다 마지막으로 데리고 있던 펫을 자동으로 소환합니다.안정적이지 못해서 딜레이 재검토.",
+		"description" : "キャラ毎に最後に連れていたペットを自動で召喚します。ペット入れ替え時のアイコン表示切替修正。Automatic summoning of the last pet taken by each character. Fixed switching of icon display when replacing pets.캐릭터마다 마지막으로 키우던 펫을 자동으로 소환합니다. 펫 교체 시 아이콘 표시 전환 수정.",
 		"tags" : []
 	},
 	{
