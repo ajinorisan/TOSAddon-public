@@ -18,6 +18,21 @@ https://twitter.com/ToSJP_rada
 　
 　
 　
+### Always Status
+
+選択したステータスを好きな場所に常に表示します。えびすけさんのstatview_ex_rの現状対応版。
+
+　
+v1.0.0 公開。バグ報告お願いします。
+　
+
+アドオンマネージャー登録済
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b5d09d78-911e-440d-9a3d-f1cd5357d736)
+
+----
+
+　
 ### Indun List Viewer
 
 レイドの消化状況を一覧表示します。街でしか動きません。
