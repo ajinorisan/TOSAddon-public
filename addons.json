@@ -12,7 +12,7 @@
 		"name" : "Always Status",
 		"file" : "always_status",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "always_status",
 		"unicode" : "⛄",
 		"description" : "選択したステータスを好きな場所に常に表示します。えびすけさんのstatview_ex_rの現状対応版。Always display the selected status in the desired location. Currently supported version of Ebisuke's statview_ex_r.선택한 상태를 원하는 위치에 항상 표시합니다. 에비스케님의 statview_ex_r의 현황 대응 버전입니다.",

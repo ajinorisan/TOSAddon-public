@@ -1,8 +1,9 @@
 -- v1.0.0 ebisukeさんのstatview_ex_rがバグってたので新たに作った。
+-- v1.0.1 表示が永遠に増えていくバグ直したつもり
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -165,7 +166,7 @@ function always_status_load_settings()
         end
 
     end
-    -- print("test")
+    -- g.settings = settings
     local loginCID = info.GetCID(session.GetMyHandle())
 
     if g.settings[loginCID] == nil then
@@ -177,18 +178,18 @@ function always_status_load_settings()
     always_status_save_settings() -- ここで保存
 
     -- print(tostring(g.settings[loginCID].no))
+    local loginCID = info.GetCID(session.GetMyHandle())
     for i = 1, 10 do
-        local loginCID = info.GetCID(session.GetMyHandle())
 
         if g.settings[loginCID].no == i then
             local noKey = "no_" .. i
-            g.settings.no = g.settings[noKey]
+            g.no = g.settings[noKey]
         end
     end
 
-    --[[for key, value in pairs(g.settings.no) do
+    for key, value in pairs(g.no) do
         print(key .. ":" .. value)
-    end]]
+    end
     always_status_frame_init()
 
 end
@@ -197,7 +198,7 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-
+    -- always_status_original_frame_reductio()
     addon:RegisterMsg("GAME_START", "always_status_original_frame_reduction")
     addon:RegisterMsg("GAME_START", "always_status_load_settings")
 
@@ -207,15 +208,18 @@ end
 
 function always_status_memo_save(frame, ctrl, argStr, argNum)
     local text = ctrl:GetText()
-    -- print(tostring(text))
+    local loginCID = info.GetCID(session.GetMyHandle())
+    g.settings[loginCID].no = argNum
+
     argNum = "no_" .. argNum
-    -- print(tostring(argNum))
+
     g.settings[argNum].memo = text
-    -- print(tostring(g.settings[argNum].memo))
+
     ui.SysMsg("MEMO registered.")
 
     always_status_save_settings()
-    always_status_load_settings()
+
+    -- always_status_load_settings()
     always_status_info_setting(frame, ctrl, argStr, argNum)
 end
 
@@ -356,7 +360,7 @@ function always_status_info_setting(frame, ctrl, argStr, argNum)
     local yohaku = setting_gb:CreateOrGetControl("richtext", "yohaku", 20, y)
     yohaku:SetText("{s16}{ol} ")
     for _, status in ipairs(status_list) do
-        for key, value in pairs(g.settings.no) do
+        for key, value in pairs(g.no) do
             -- print(tostring(status .. ":" .. key))
             if key == status then
                 local check = GET_CHILD_RECURSIVELY(setting_gb, "check" .. status)
@@ -387,16 +391,19 @@ function always_status_checkbox(frame, ctrl, argStr, argNum)
     end
     -- print(name)
     -- print(ischeck)
+    -- print(argNum)
     for _, status in ipairs(status_list) do
 
         if tostring("check" .. status) == ctrl:GetName() then
-            g.settings.no[status] = ischeck
+
             g.settings[argNum][status] = ischeck
+            always_status_save_settings()
+            g.no[status] = ischeck
             -- print(tostring(g.settings[argNum][status]))
         end
 
     end
-    always_status_save_settings()
+
     always_status_frame_init()
 end
 
@@ -474,7 +481,7 @@ function always_status_frame_init()
     local sorted = {}
     local i = 1
     for _, status in ipairs(status_list) do
-        for key, value in pairs(g.settings.no) do
+        for key, value in pairs(g.no) do
             if key == status then
                 sorted[key] = i
                 i = i + 1
@@ -487,7 +494,7 @@ function always_status_frame_init()
     for key, _ in pairs(sorted) do
         table.insert(sortedSettings, {
             key = key,
-            value = g.settings.no[key]
+            value = g.no[key]
         })
     end
     table.sort(sortedSettings, function(a, b)
