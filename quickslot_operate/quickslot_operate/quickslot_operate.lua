@@ -1,8 +1,9 @@
 -- v1.0.0 レイド毎に憤怒ポーション切替
+-- v1.0.1　加護ポーションも対応
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -42,12 +43,20 @@ local potion_list = {
     Forester = 640500
 }
 
+local down_potion_list = {
+    Velnias = 640373,
+    Klaida = 640375,
+    Paramune = 640374,
+    Widling = 640377,
+    Forester = 640376
+}
+
 function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
 
-    acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "test_norisan_SHOW_INDUNENTER_DIALOG");
+    acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
 
 end
 
@@ -58,9 +67,12 @@ function quickslot_operate_SHOW_INDUNENTER_DIALOG()
     local group_name = quickslot_operate_GetGroupName(induntype)
 
     local potion_id = potion_list[group_name]
+
+    local down_potion_id = down_potion_list[group_name]
+
     if potion_id then
 
-        quickslot_operate_get_potion(potion_id)
+        quickslot_operate_get_potion(potion_id, down_potion_id)
 
     end
 end
@@ -76,7 +88,7 @@ function quickslot_operate_GetGroupName(induntype)
     return
 end
 
-function quickslot_operate_get_potion(potion_id)
+function quickslot_operate_get_potion(potion_id, down_potion_id)
     -- local iteminfo = session.GetInvItemByType(potion_id);
 
     local invItemList = session.GetInvItemList()
@@ -93,7 +105,7 @@ function quickslot_operate_get_potion(potion_id)
             local frame = ui.GetFrame("inventory");
             local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot")
 
-            quickslot_operate_check_all_slots(potion_id)
+            quickslot_operate_check_all_slots(potion_id, down_potion_id)
             session.ResetItemList()
 
             return
@@ -103,13 +115,17 @@ function quickslot_operate_get_potion(potion_id)
 
 end
 
-function quickslot_operate_check_all_slots(potion_id)
+function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
     local potion_info = session.GetInvItemByType(potion_id);
     local potion_iesid = potion_info:GetIESID()
     local potion_item = GET_PC_ITEM_BY_GUID(potion_info:GetIESID())
     local potion_obj = GetIES(potion_item:GetObject())
-    -- print(tostring(potion_obj.ClassName))
+
+    local down_potion_info = session.GetInvItemByType(down_potion_id);
+    local down_potion_iesid = down_potion_info:GetIESID()
+    local down_potion_item = GET_PC_ITEM_BY_GUID(down_potion_info:GetIESID())
+    local down_potion_obj = GetIES(potion_item:GetObject())
 
     local frame = ui.GetFrame("quickslotnexpbar")
     if not frame then
@@ -133,7 +149,17 @@ function quickslot_operate_check_all_slots(potion_id)
 
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, potion_iesid, 0, true, true)
 
-                        return
+                        -- return
+
+                    end
+                end
+                for group, id in pairs(down_potion_list) do
+                    if id == classid then
+
+                        SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, down_potion_iesid, 0, true,
+                            true)
+
+                        -- return
 
                     end
                 end
