@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Quickslot Operate",
+		"file" : "quickslot_operate",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "quickslot_operate",
+		"unicode" : "⛄",
+		"description" : "レイド毎に憤怒ポーションを切替えます。Switch rage potions for each raid.레이드마다 분노 물약을 바꿔가며 사용할 수 있습니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Always Status",
 		"file" : "always_status",
 		"extension" : "ipf",
