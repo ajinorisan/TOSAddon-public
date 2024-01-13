@@ -1,10 +1,11 @@
 -- v1.0.0 ebisukeさんのstatview_ex_rがバグってたので新たに作った。
 -- v1.0.1 表示が永遠に増えていくバグ直したつもり
 -- v1.0.2 loadがバグってたのを修正
+-- v1.0.3 更にバグ修正。くるしい。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -167,9 +168,9 @@ function always_status_load_settings()
         end
 
     end
-    -- g.settings = settings
+    g.settings = settings
     local loginCID = info.GetCID(session.GetMyHandle())
-
+    print(tostring(g.settings[loginCID]))
     if g.settings[loginCID] == nil then
 
         g.settings[loginCID] = 1
@@ -199,7 +200,7 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
     g.frame = frame
     -- always_status_original_frame_reductio()
     addon:RegisterMsg("GAME_START", "always_status_original_frame_reduction")
-    addon:RegisterMsg("GAME_START", "always_status_load_settings")
+    addon:RegisterMsg("GAME_START_3SEC", "always_status_load_settings")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
 
