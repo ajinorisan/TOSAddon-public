@@ -1,10 +1,12 @@
 -- v1.0.0 indun_panelから機能独立
 -- v1.0.1 作り直し。instantccと連携、instantcc入れてたらバラック順に並び替え。
 -- v1.0.2 CCボタン追加。クローズボタンの位置調整。
+-- v1.0.3 クローズボタンを戻した。ツールチップ追加。
+-- v1.0.4 ゲームスタート時の不可軽減
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -163,7 +165,7 @@ function indun_list_viewer_instantcc()
     table.sort(g.settings.charactors, sortCharactors)
 
     indun_list_viewer_save_settings()
-    indun_list_viewer_load_settings()
+    -- indun_list_viewer_load_settings()
 
 end
 
@@ -184,8 +186,8 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
 
         addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
-        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_raid_reset_time")
-        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_raid_count")
+        addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
+        addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
         addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_count_loginname")
         if _G["ADDONS"]["ebisuke"]["INSTANTCC"] then
             addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_instantcc")
@@ -292,7 +294,7 @@ function indun_list_viewer_raid_reset_time()
     if secondsSinceMondayAM6 > nextreset then
         g.settings.raid_reset_time = mondayAM6
         indun_list_viewer_save_settings()
-        indun_list_viewer_load_settings()
+        -- indun_list_viewer_load_settings()
         indun_list_viewer_raid_reset()
 
         return
@@ -327,7 +329,7 @@ function indun_list_viewer_raid_reset()
     end
 
     indun_list_viewer_save_settings()
-    indun_list_viewer_load_settings()
+    -- indun_list_viewer_load_settings()
     ui.SysMsg("Raid counts were initialized.{nl}" .. "レイドの回数を初期化しました。")
     indun_list_viewer_get_raid_count()
 
@@ -352,7 +354,7 @@ function indun_list_viewer_get_raid_count()
         end
     end
     indun_list_viewer_save_settings()
-    indun_list_viewer_load_settings()
+    -- indun_list_viewer_load_settings()
 
     indun_list_viewer_get_sweep_count()
 
@@ -423,7 +425,7 @@ function indun_list_viewer_get_sweep_count()
     end
 
     indun_list_viewer_save_settings()
-    indun_list_viewer_load_settings()
+    -- indun_list_viewer_load_settings()
 end
 
 function indun_list_viewer_frame_init()
@@ -847,7 +849,7 @@ function indun_list_viewer_display_save(frame, ctrl, argStr, argNum)
     end
 
     indun_list_viewer_save_settings()
-    indun_list_viewer_load_settings()
+    -- indun_list_viewer_load_settings()
 end
 
 function indun_list_viewer_memo_save(frame, ctrl, argStr, argNum)
@@ -862,7 +864,7 @@ function indun_list_viewer_memo_save(frame, ctrl, argStr, argNum)
     ui.SysMsg("MEMO registered.")
 
     indun_list_viewer_save_settings()
-    indun_list_viewer_load_settings()
+    -- indun_list_viewer_load_settings()
 
 end
 
