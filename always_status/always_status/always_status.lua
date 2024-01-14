@@ -2,10 +2,11 @@
 -- v1.0.1 表示が永遠に増えていくバグ直したつもり
 -- v1.0.2 loadがバグってたのを修正
 -- v1.0.3 更にバグ修正。くるしい。
+-- v1.0.4 もうバグに疲れた。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -75,6 +76,85 @@ color_attribute['high_poison_res'] = 'high_poison_res_status'
 color_attribute['high_laceration_res'] = 'high_laceration_res_status'
 color_attribute['portion_expansion'] = 'portion_expansion_status'
 
+--[[if not g.loded then
+    g.settings = {}
+    g.settings.frame_X = 600
+    g.settings.frame_Y = 300
+    g.settings.enable = 1
+    for i = 0, 10 do
+        local key = "no_" .. i
+        g.settings[key] = {
+            memo = "free memo " .. i,
+            STR = 1,
+            INT = 1,
+            CON = 0,
+            MNA = 0,
+            DEX = 0,
+            gear_score = 0,
+            ability_point_score = 0,
+            PATK = 1,
+            MATK = 1,
+            HEAL_PWR = 0,
+            SR = 0,
+            HR = 1,
+            BLK_BREAK = 1,
+            CRTATK = 1,
+            CRTMATK = 1,
+            CRTHR = 1,
+            DEF = 0,
+            MDEF = 0,
+            SDR = 0,
+            DR = 1,
+            BLK = 0,
+            CRTDR = 1,
+            MSPD = 1,
+            CastingSpeed = 1,
+            Add_Damage_Atk = 0,
+            ResAdd_Damage = 0,
+            Aries_Atk = 0,
+            Slash_Atk = 0,
+            Strike_Atk = 0,
+            Arrow_Atk = 0,
+            Cannon_Atk = 0,
+            Gun_Atk = 0,
+            Magic_Melee_Atk = 0,
+            Magic_Fire_Atk = 0,
+            Magic_Ice_Atk = 0,
+            Magic_Lightning_Atk = 0,
+            Magic_Earth_Atk = 0,
+            Magic_Poison_Atk = 0,
+            Magic_Dark_Atk = 0,
+            Magic_Holy_Atk = 0,
+            Magic_Soul_Atk = 0,
+            BOSS_ATK = 1,
+            Cloth_Atk = 0,
+            Leather_Atk = 0,
+            Iron_Atk = 0,
+            Ghost_Atk = 0,
+            MiddleSize_Def = 1,
+            Cloth_Def = 0,
+            Leather_Def = 1,
+            Iron_Def = 0,
+            stun_res = 0,
+            high_fire_res = 0,
+            high_freezing_res = 0,
+            high_lighting_res = 0,
+            high_poison_res = 0,
+            high_laceration_res = 0,
+            portion_expansion = 0,
+            Forester_Atk = 0,
+            Widling_Atk = 0,
+            Klaida_Atk = 0,
+            Paramune_Atk = 0,
+            Velnias_Atk = 0,
+            perfection = 1,
+            revenge = 0
+        }
+        always_status_save_settings()
+    end
+
+end]]
+
 function always_status_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -90,14 +170,17 @@ function always_status_load_settings()
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
 
+    local loginCID = info.GetCID(session.GetMyHandle())
+
     if not settings then
-        g.settings = {}
-        g.settings.frame_X = 600
-        g.settings.frame_Y = 300
-        g.settings.enable = 1
+
+        settings = {}
+        settings.frame_X = 600
+        settings.frame_Y = 300
+        settings.enable = 1
         for i = 0, 10 do
             local key = "no_" .. i
-            g.settings[key] = {
+            settings[key] = {
                 memo = "free memo " .. i,
                 STR = 1,
                 INT = 1,
@@ -164,16 +247,19 @@ function always_status_load_settings()
                 perfection = 1,
                 revenge = 0
             }
-
+            -- 
         end
+        g.settings = settings
 
-    end
-    g.settings = settings
-    local loginCID = info.GetCID(session.GetMyHandle())
-    print(tostring(g.settings[loginCID]))
-    if g.settings[loginCID] == nil then
+        if g.settings[loginCID] == nil then
+            g.settings[loginCID] = 1
+        end
+    else
+        g.settings = settings
 
-        g.settings[loginCID] = 1
+        if g.settings[loginCID] == nil then
+            g.settings[loginCID] = 1
+        end
 
     end
 
@@ -181,13 +267,15 @@ function always_status_load_settings()
 
         if g.settings[loginCID] == i then
             local noKey = "no_" .. i
-            -- print(g.settings[loginCID])
+
             g.no = g.settings[noKey]
-            --  print(noKey)
+
         end
     end
+
     always_status_save_settings()
     always_status_frame_init()
+
     --[[for key, value in pairs(g.no) do
         print(key .. ":" .. value)
     end]]
@@ -198,12 +286,16 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+    --[[if not g.loded then
+        g.loded = true
+    end]]
+
     -- always_status_original_frame_reductio()
     addon:RegisterMsg("GAME_START", "always_status_original_frame_reduction")
     addon:RegisterMsg("GAME_START_3SEC", "always_status_load_settings")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
-
+    print("test")
 end
 
 function always_status_memo_save(frame, ctrl, argStr, argNum)
@@ -252,6 +344,7 @@ function always_status_info_setting_load(number)
 
             if status == "STR" then
                 control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("STR"))
+                -- control:SetText("{#FFFF00}" .. control:GetText());
             elseif status == "INT" then
                 control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("INT"))
             elseif status == "CON" then
