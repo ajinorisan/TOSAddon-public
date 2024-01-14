@@ -178,6 +178,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     -- acutil.setupHook(indun_list_viewer_CREATE_SCROLL_CHAR_LIST, "CREATE_SCROLL_CHAR_LIST");
 
     local pc = GetMyPCObject();
+
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
