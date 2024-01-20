@@ -12,10 +12,10 @@
 		"name" : "Quickslot Operate",
 		"file" : "quickslot_operate",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
+		"fileVersion" : "v1.0.2",
 		"releaseTag" : "quickslot_operate",
 		"unicode" : "⛄",
-		"description" : "レイド毎に女神ポーションを切替えます。Switch goddess potions for each id.이드마다 여신 물약을 교체합니다.",
+		"description" : "MAP入場時に作動に変更。レイド毎に女神ポーションを切替えます。Changed to activated upon MAP entry.Switch goddess potions for each id.MAP 입장 시 작동으로 변경.이드마다 여신 물약을 교체합니다.",
 		"tags" : []
 	},
 	{

@@ -1,9 +1,10 @@
 -- v1.0.0 レイド毎に憤怒ポーション切替
--- v1.0.1　加護ポーションも対応
+-- v1.0.1 加護ポーションも対応
+-- v1.0.2 クイックスロットがセーブされてなくてレイドで元のポーションに戻る場合があるので、MAPに入った時に動かす様に修正
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -51,6 +52,18 @@ local down_potion_list = {
     Forester = 640376
 }
 
+local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyForest", "Raid_AbyssalObserver",
+                   "raid_Jellyzele", "raId_castle_ep14", "raid_giltine_AutoGuild", "raid_dcapital_108"}
+
+-- raid_Rosethemisterable roze
+-- raid_castle_ep14_2 ファロプロゲ
+-- Raid_DreamyForest　蝶々
+-- Raid_AbyssalObserver　スロガ
+-- raid_Jellyzele　クラゲ
+-- raId_castle_ep14　デルムーア
+-- raid_giltine_AutoGuild　ギルティネ
+-- raid_dcapital_108　レジェンドギルティネ
+
 function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -58,6 +71,28 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
 
+    local currentZone = GetZoneName()
+    -- print(currentZone)
+    for _, zone in ipairs(zone_list) do
+        if zone == currentZone then
+            ReserveScript("quickslot_operate_change_potion()", 5.0)
+            break
+        end
+
+    end
+
+end
+
+function quickslot_operate_change_potion()
+    -- CHAT_SYSTEM("quickslot_operate_change_potion")
+    local group_name = quickslot_operate_GetGroupName(tonumber(g.induntype))
+    g.induntype = 0
+    -- print(tostring(group_name))
+    local potion_id = potion_list[group_name]
+
+    local down_potion_id = down_potion_list[group_name]
+    -- print(tostring(group_name) .. ":" .. tostring(potion_id) .. ":" .. tostring(down_potion_id))
+    quickslot_operate_get_potion(potion_id, down_potion_id)
 end
 
 function quickslot_operate_SHOW_INDUNENTER_DIALOG()
@@ -72,7 +107,7 @@ function quickslot_operate_SHOW_INDUNENTER_DIALOG()
 
     if potion_id then
 
-        quickslot_operate_get_potion(potion_id, down_potion_id)
+        -- quickslot_operate_get_potion(potion_id, down_potion_id)
 
     end
 end
@@ -81,6 +116,8 @@ function quickslot_operate_GetGroupName(induntype)
     for group, indun_list in pairs(raid_list) do
         for _, indun_id in ipairs(indun_list) do
             if indun_id == induntype then
+                -- print(indun_id .. ":" .. type(indun_id))
+                g.induntype = indun_id
                 return group
             end
         end
@@ -149,7 +186,7 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, potion_iesid, 0, true, true)
 
-                        -- return
+                        break
 
                     end
                 end
@@ -159,7 +196,7 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, down_potion_iesid, 0, true,
                             true)
 
-                        -- return
+                        break
 
                     end
                 end
