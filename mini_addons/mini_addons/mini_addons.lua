@@ -9,10 +9,11 @@
 -- v1.0.8 ブラックマーケットのお知らせ削除
 -- v1.0.9 クエストリスト非表示機能。オートマッチ中のフレームのレイヤー下げる機能。
 -- v1.1.0 クエストリスト非表示機能。インベントリ開けたら表示されていたのを修正。
+-- v1.1.1 左上の名前をキャラクター名に変更
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -154,12 +155,26 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
     end
 
+    if g.settings.pc_name == 1 then
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PCNAME_REPLACE")
+    end
+
     if g.settings.auto_cast == 1 then
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
 
     MINI_ADDONS_NEW_FRAME_INIT()
 
+end
+
+function MINI_ADDONS_PCNAME_REPLACE()
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+    -- print(tostring(LoginName))
+    local frame = ui.GetFrame("headsupdisplay")
+    local name_text = GET_CHILD_RECURSIVELY(frame, "name_text")
+    name_text:SetText("{ol}{s17}" .. LoginName)
+    name_text:SetFontName('white_16_b_ol')
 end
 
 function MINI_ADDONS_QUESTINFO_SHOW()
@@ -269,7 +284,8 @@ if not g.loaded then
         coin_use = 1,
         equip_info = 1,
         automatch_layer = 1,
-        quest_hide = 1
+        quest_hide = 1,
+        pc_name = 1
 
     }
 
@@ -479,7 +495,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     -- frame:SetSkinName("test_frame_low")
     frame:SetSkinName("bg")
     frame:SetLayerLevel(93)
-    frame:Resize(710, 500)
+    frame:Resize(710, 530)
     frame:SetPos(1150, 400)
     frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
@@ -687,7 +703,19 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     quest_hide_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local description = frame:CreateOrGetControl("richtext", "description", 140, 465)
+    local pc_name = frame:CreateOrGetControl("richtext", "pc_name", 40, 465)
+    pc_name:SetText("{ol}{#FFFFFF}Change the upper left display to the character's name.")
+    pc_name:SetTextTooltip(
+        "{@st59}左上の表示をキャラクター名に変更します。{nl}왼쪽 상단의 표시를 캐릭터 이름으로 변경합니다.")
+
+    local pc_name_checkbox = frame:CreateOrGetControl('checkbox', 'pc_name_checkbox', 10, 460, 25, 25)
+    AUTO_CAST(pc_name_checkbox)
+
+    pc_name_checkbox:SetCheck(g.settings.pc_name)
+    pc_name_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    pc_name_checkbox:SetTextTooltip("{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+
+    local description = frame:CreateOrGetControl("richtext", "description", 140, 495)
     description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
     description:SetTextTooltip(
         "{@st59}一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です。{nl}일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다.")
@@ -796,6 +824,16 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked();
     local ctrlname = ctrl:GetName()
     -- quest_hide
+
+    if ischeck == 1 and ctrlname == "pc_name_checkbox" then
+        g.settings.pc_name = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    elseif ischeck == 0 and ctrlname == "pc_name_checkbox" then
+        g.settings.pc_name = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_LOAD_SETTINGS()
+    end
 
     if ischeck == 1 and ctrlname == "quest_hide_checkbox" then
         g.settings.quest_hide = 1
@@ -991,7 +1029,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
             coin_use = 1,
             equip_info = 1,
             automatch_layer = 1,
-            quest_hide = 1
+            quest_hide = 1,
+            pc_name = 1
 
         }
         MINI_ADDONS_SAVE_SETTINGS()
@@ -1000,6 +1039,12 @@ function MINI_ADDONS_LOAD_SETTINGS()
     end
 
     g.settings = settings
+
+    if g.settings.pc_name == nil then
+        g.settings.pc_name = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+
+    end
 
     if g.settings.quest_hide == nil then
         g.settings.quest_hide = 1
