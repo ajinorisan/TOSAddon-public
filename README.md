@@ -608,10 +608,31 @@ v1.0.2 ボルタ廃止、ドラグーン追加。
 
 ----
 
+### warehousemanager
+
+Charbonさんが作ってebisukeさんが改装した倉庫アドオンを改造します。
+
+　
+
+v3.0.0 基本倉庫に入れ過ぎで詰まるバグ修正したつもり。
+
+Maintain ebisuke's warehouse modification add-on.
+
+The author of this addon is Charbonさん
+
+　
+
+アドオンマネージャー登録済
+
+----
 
 ### yaaccountinventory
 
 ebisukeさんの倉庫改造アドオンを保守します。
+
+　
+
+v1.0.2 warehousemanagerアドオンの詰まりバグを直すために両方表示に変更。気持ち悪いね。そうだね。
 
 Maintain ebisuke's warehouse modification add-on.
 
