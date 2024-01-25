@@ -1,10 +1,11 @@
 -- v1.0.0 レイド毎に憤怒ポーション切替
 -- v1.0.1 加護ポーションも対応
 -- v1.0.2 クイックスロットがセーブされてなくてレイドで元のポーションに戻る場合があるので、MAPに入った時に動かす様に修正
+-- v1.0.3 レイド選んだ時と中でももう1回チェックのハイブリッドに。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -107,7 +108,7 @@ function quickslot_operate_SHOW_INDUNENTER_DIALOG()
 
     if potion_id then
 
-        -- quickslot_operate_get_potion(potion_id, down_potion_id)
+        quickslot_operate_get_potion(potion_id, down_potion_id)
 
     end
 end
@@ -190,17 +191,20 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
                     end
                 end
+                -- quickslot.RequestRefresh();
                 for group, id in pairs(down_potion_list) do
                     if id == classid then
 
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, down_potion_iesid, 0, true,
                             true)
-
+                        -- quickslot.RequestRefresh();
                         break
 
                     end
                 end
+                ReserveScript("quickslot.RequestRefresh()", 2.0);
             end
+
         end
     end
 

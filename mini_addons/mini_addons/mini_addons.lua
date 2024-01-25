@@ -10,6 +10,7 @@
 -- v1.0.9 クエストリスト非表示機能。オートマッチ中のフレームのレイヤー下げる機能。
 -- v1.1.0 クエストリスト非表示機能。インベントリ開けたら表示されていたのを修正。
 -- v1.1.1 左上の名前をキャラクター名に変更
+-- v1.1.2 GAME_START_3SECが重すぎる様になったので3.5SECに
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -156,11 +157,16 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.pc_name == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PCNAME_REPLACE")
+        -- ReserveScript("MINI_ADDONS_PCNAME_REPLACE()", 0.1)
+        -- return
+        addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_PCNAME_REPLACE")
+        -- local frame = ui.GetFrame("headsupdisplay")
+        ---ifframe:RunUpdateScript("MINI_ADDONS_PCNAME_REPLACE", 1.0)
     end
 
     if g.settings.auto_cast == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
+        ReserveScript("MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()", 3.5)
+        -- addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
 
     MINI_ADDONS_NEW_FRAME_INIT()
@@ -168,13 +174,16 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 end
 
 function MINI_ADDONS_PCNAME_REPLACE()
-
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-    -- print(tostring(LoginName))
     local frame = ui.GetFrame("headsupdisplay")
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
     local name_text = GET_CHILD_RECURSIVELY(frame, "name_text")
-    name_text:SetText("{ol}{s17}" .. LoginName)
-    name_text:SetFontName('white_16_b_ol')
+
+    name_text:SetText("")
+    name_text:SetText("{ol}{s17}" .. tostring(LoginName))
+
+    return
+
 end
 
 function MINI_ADDONS_QUESTINFO_SHOW()
