@@ -1,3 +1,5 @@
+-- v3.0.1 倉庫のタブ毎のアイテム数が1桁の場合動かないのを修正
+-- v3.0.0 入庫時に引っかかるのを直した。
 -- 애드온 이름
 local addonName = 'WarehouseManager'
 local addonNameUpper = string.upper(addonName)
@@ -10,7 +12,7 @@ local authorLower = string.lower(author)
 
 -- 버전
 local baseversion = '1.1.7'
-local version = '3.0.0'
+local version = '3.0.1'
 
 -- 전역 변수 설정
 _G['ADDONS'] = _G['ADDONS'] or {}
@@ -441,32 +443,46 @@ function WarehouseManager_get_valid_index(i)
 
     if i == 1 then
         WarehouseManager.slot_per_tab_right_1 = WarehouseManager.slot_per_tab_right_0 + 70 -- 右側の数字を取得
+        if length == 14 then
+            WarehouseManager.slot_per_tab_left_1 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+        else
+            WarehouseManager.slot_per_tab_left_1 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+        end
 
-        WarehouseManager.slot_per_tab_left_1 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 +
-                                                   WarehouseManager.slot_per_tab_right_0 -- 左側の数字を取得
-        -- print(WarehouseManager.slot_per_tab_right_1)
-        -- print(WarehouseManager.slot_per_tab_left_1)
     elseif i == 2 then
         WarehouseManager.slot_per_tab_right_2 = WarehouseManager.slot_per_tab_right_0 + 140 -- 右側の数字を取得
+        if length == 14 then
+            WarehouseManager.slot_per_tab_left_2 = WarehouseManager.slot_per_tab_right_0 + 70 +
+                                                       string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+        else
+            WarehouseManager.slot_per_tab_left_2 = WarehouseManager.slot_per_tab_right_0 + 70 +
+                                                       string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+        end
 
-        WarehouseManager.slot_per_tab_left_2 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 +
-                                                   WarehouseManager.slot_per_tab_right_0 + 70 -- 左側の数字を取得
         -- print(WarehouseManager.slot_per_tab_right_2)
         -- print(WarehouseManager.slot_per_tab_left_2)
     elseif i == 3 then
         WarehouseManager.slot_per_tab_right_3 = WarehouseManager.slot_per_tab_right_0 + 210 -- 右側の数字を取得
-
-        WarehouseManager.slot_per_tab_left_3 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 +
-                                                   WarehouseManager.slot_per_tab_right_0 + 140 -- 左側の数字を取得
+        if length == 14 then
+            WarehouseManager.slot_per_tab_left_3 = WarehouseManager.slot_per_tab_right_0 + 140 +
+                                                       string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+        else
+            WarehouseManager.slot_per_tab_left_3 = WarehouseManager.slot_per_tab_right_0 + 140 +
+                                                       string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+        end
         -- print(WarehouseManager.slot_per_tab_right_3)
         -- print(WarehouseManager.slot_per_tab_left_3)
     elseif i == 4 then
         WarehouseManager.slot_per_tab_right_4 = WarehouseManager.slot_per_tab_right_0 + 280 -- 右側の数字を取得
-
-        WarehouseManager.slot_per_tab_left_4 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 +
-                                                   WarehouseManager.slot_per_tab_right_0 + 210 -- 左側の数字を取得
-        -- print(WarehouseManager.slot_per_tab_right_4)
-        -- print(WarehouseManager.slot_per_tab_left_4)
+        if length == 14 then
+            WarehouseManager.slot_per_tab_left_4 = WarehouseManager.slot_per_tab_right_0 + 210 +
+                                                       string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+        else
+            WarehouseManager.slot_per_tab_left_4 = WarehouseManager.slot_per_tab_right_0 + 210 +
+                                                       string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+        end
+        -- print(WarehouseManager.slot_per_tab_right_3)
+        -- print(WarehouseManager.slot_per_tab_left_3)
     end
 
 end
@@ -501,11 +517,17 @@ function WarehouseManager.DepositItems(self)
     local itemcnt = GET_CHILD(gbox, "itemcnt")
     local length = #itemcnt:GetText()
     WarehouseManager.slot_per_tab_right_0 = string.sub(itemcnt:GetText(), length - 4, length - 3) * 1 -- 右側の数字を取得
-    WarehouseManager.slot_per_tab_left_0 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+    if length == 14 then
+        WarehouseManager.slot_per_tab_left_0 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+    else
+        WarehouseManager.slot_per_tab_left_0 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+    end
+
     -- print(WarehouseManager.slot_per_tab_right_0)
     -- print(WarehouseManager.slot_per_tab_left_0)
 
     for i = 1, 4 do
+        -- print("test" .. i)
         WarehouseManager_get_valid_index(i);
         -- print(goal_index .. ":" .. "itemqty")
     end
@@ -974,11 +996,26 @@ end
 function WAREHOUSEMANAGER_OPEN()
     WarehouseManager:UpdateFrame()
     WarehouseManager.Frame:ShowWindow(1)
+
+    local frame = ui.GetFrame("accountwarehouse")
+    ACCOUNTWAREHOUSE_CLOSE(frame)
+    --[[if ADDONS.ebisuke.YAACCOUNTINVENTORY ~= nil then
+        -- local frame = ui.GetFrame("yaaccountinventory");
+        ReserveScript("YAI_ONLY_CLOSE_OVERLAP()", 1.0)
+
+        frame:EnablePop(true)
+        return
+
+        -- 
+    end]]
+    UI_TOGGLE_INVENTORY()
+    return
 end
 
 -- 애드온 UI 닫기
 function WAREHOUSEMANAGER_CLOSE()
     WarehouseManager.Frame:ShowWindow(0)
+    INVENTORY_CLOSE()
 end
 
 -- 자동 입금 설정 이벤트
@@ -1018,24 +1055,31 @@ function WAREHOUSEMANAGER_DROP_COMMON_ITEM(parent, ctrl)
     local invItem = session.GetInvItemByGuid(iconInfo:GetIESID())
     local itemObj = invItem and GetIES(invItem:GetObject())
 
-    if itemObj then
-        local maxStack = TryGetProp(itemObj, 'MaxStack', 1)
+    local iconParentFrame = liftIcon:GetTopParentFrame();
+    -- print(iconParentFrame:GetName())
+    local slotindex = ctrl:GetSlotIndex()
 
-        -- 소비 아이템은 인벤토리에 남길 개수 설정
-        if maxStack > 1 then
-            INPUT_NUMBER_BOX(WarehouseManager.Frame, WarehouseManager:GetLangText('Message.ConsumeItemCount'),
-                'WAREHOUSEMANAGER_INSERT_COMMON_CONSUME_ITEM', 0, 0, maxStack, itemType)
+    if iconParentFrame:GetName() == "inventory" then
+        if itemObj then
+            local maxStack = TryGetProp(itemObj, 'MaxStack', 1)
 
-            -- 이외의 아이템은 0개로 설정
-        else
-            WarehouseManager:InsertCommonItem(itemType, 0)
-            WarehouseManager:UpdateFrame()
+            -- 소비 아이템은 인벤토리에 남길 개수 설정
+            if maxStack > 1 then
+                INPUT_NUMBER_BOX(WarehouseManager.Frame, WarehouseManager:GetLangText('Message.ConsumeItemCount'),
+                    'WAREHOUSEMANAGER_INSERT_COMMON_CONSUME_ITEM', 0, 0, maxStack, itemType)
+
+                -- 이외의 아이템은 0개로 설정
+            else
+                WarehouseManager:InsertCommonItem(itemType, 0)
+                WarehouseManager:UpdateFrame()
+            end
         end
     end
 end
 
 function WAREHOUSEMANAGER_DROP_PERSONAL_ITEM(parent, ctrl)
     local liftIcon = ui.GetLiftIcon()
+
     local iconInfo = liftIcon:GetInfo()
     local itemType = iconInfo.type
     local invItem = session.GetInvItemByGuid(iconInfo:GetIESID())
@@ -1059,7 +1103,7 @@ end
 
 function WAREHOUSEMANAGER_INSERT_COMMON_CONSUME_ITEM(frame, count, inputFrame)
     local itemType = inputFrame:GetValue()
-
+    -- print(tostring(slotindex))
     inputFrame:ShowWindow(0)
     WarehouseManager:InsertCommonItem(itemType, count)
     WarehouseManager:UpdateFrame()
@@ -1078,9 +1122,10 @@ function WAREHOUSEMANAGER_POP_COMMON_ITEM(parent, ctrl)
     local liftIcon = ui.GetLiftIcon()
     local iconInfo = liftIcon:GetInfo()
     local itemType = iconInfo.type
-
+    -- return
     WarehouseManager:DeleteCommonItem(itemType)
     WarehouseManager:UpdateFrame()
+
 end
 
 function WAREHOUSEMANAGER_POP_PERSONAL_ITEM(parent, ctrl)

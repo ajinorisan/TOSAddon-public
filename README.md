@@ -614,6 +614,8 @@ Charbonさんが作ってebisukeさんが改装した倉庫アドオンを改造
 
 　
 
+v3.0.1 元の倉庫のタブ毎のアイテム数が1桁の場合バグってたのを修正。フレーム開けたら倉庫閉まる様に挙動変更。
+
 v3.0.0 基本倉庫に入れ過ぎで詰まるバグ修正したつもり。
 
 Maintain ebisuke's warehouse modification add-on.
@@ -631,6 +633,8 @@ The author of this addon is Charbonさん
 ebisukeさんの倉庫改造アドオンを保守します。
 
 　
+
+v1.0.3 やっぱり元の表示に戻した。元の倉庫閉じずに被せたら良かったんや。天才か？
 
 v1.0.2 warehousemanagerアドオンの詰まりバグを直すために両方表示に変更。気持ち悪いね。そうだね。
 

@@ -12,7 +12,7 @@
 		"name" : "Warehouse Manager 2024",
 		"file" : "WarehouseManager",
 		"extension" : "ipf",
-		"fileVersion" : "v3.0.0",
+		"fileVersion" : "v3.0.1",
 		"releaseTag" : "WarehouseManager",
 		"unicode" : "⛄",
 		"description" : "基本倉庫が詰まるのを修正。Fixed basic warehouse getting clogged.기본 창고가 막히는 것을 수정.",
@@ -112,10 +112,10 @@
         "name": "Yet Another Account Inventory",
         "file": "yaaccountinventory",
         "extension": "ipf",
-        "fileVersion": "v1.0.2",
+        "fileVersion": "v1.0.3",
         "releaseTag": "yaaccountinventory",
         "unicode": "📖",
-        "description": "ebisukeさん作成のチーム倉庫魔改造アドオン、元の倉庫も表示します。Also displays the original warehouse, a team warehouse remodeling add-on created by ebisuke.ebisuke씨 작성의 팀 창고 마 개조 애드온, 원래의 창고도 표시합니다.",
+        "description": "ebisukeさん作成のチーム倉庫魔改造アドオン、元の倉庫に切替え可能。Team warehouse magic modification add-on created by ebisuke, switchable to the original warehouse. ebisuke 님이 만든 팀 창고마 개조 애드온, 원래의 창고로 전환 가능.",
         "tags": [
             "storage",
             "inventory"
