@@ -66,12 +66,12 @@ function WAREHOUSE_KEEPER_ON_INIT(addon, frame)
     if not g.loded then
         g.loded = true
     end
-    addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'warehouse_keeper_arrange')
+    addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'warehouse_keeper_reserve')
     ReserveScript('warehouse_keeper_4sec()', 4.0)
 
 end
 
-local function get_valid_index(i)
+function warehouse_keeper_get_valid_index(i)
     local max_slot_per_tab = account_warehouse.get_max_slot_per_tab()
 
     print("test")
@@ -107,16 +107,16 @@ local function get_valid_index(i)
     return index
 end
 
-function warehouse_keeper_arrange()
-    ReserveScript('warehouse_keeper_arrange_silver()', 0.5)
+function warehouse_keeper_reserve()
+    for i = 0, 4 do
+        local goal_index = warehouse_keeper_get_valid_index(i)
+        -- print(goal_index)
+    end
+    ReserveScript('warehouse_keeper_silver()', 0.5)
 end
 
-function warehouse_keeper_arrange_silver()
+function warehouse_keeper_silver()
 
-    for i = 0, 4 do
-        local goal_index = get_valid_index(i);
-        print(goal_index)
-    end
     local silveritem = session.GetInvItemByName(MONEY_NAME)
     local warehouseFrame = ui.GetFrame('accountwarehouse')
     local handle = warehouseFrame:GetUserIValue('HANDLE')
