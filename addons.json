@@ -141,6 +141,16 @@
 		"description" : "モンスターカードプリセットを使いやすくします。カード自動搬出入、自動着脱機能付き。Easy to use monster card preset. Includes automatic card loading/unloading and automatic card insertion/removal functions.몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함.",
 		"tags" : []
 	},
+	{
+		"name" : "Pyktis Notice",
+		"file" : "pyktis_notice",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "pyktis_notice",
+		"unicode" : "⛄",
+		"description" : "ネビルティスピクティスバフをお知らせ。Nevirtis Piketis buffs to be notified.네빌티스팩티스 버프를 알려드립니다.",
+		"tags" : []
+	},
 {
 		"name" : "Let's Go Home",
 		"file" : "lets_go_home",
