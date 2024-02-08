@@ -7,7 +7,7 @@ local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
 local ver = "1.0.6"
-
+-- 11200365 LV.510緊急修理キット QuestReward_repairPotion_510
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
