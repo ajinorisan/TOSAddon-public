@@ -3,24 +3,25 @@
 -- v1.0.4 23.09.05patch対応。修理キット買うコード変えてやがった許せねえ。
 -- v1.0.5 数量設定を可能に
 -- v1.0.6 イベント修理キットと緊急修理キットを先に使うように設定('EVENT_2005_repairPotion')と('Premium_repairPotion')それ以外持ってない
+-- v1.0.7 510修理キットに対応。500修理キットも余ってたら使う様にした。 
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
--- 11200365 LV.510緊急修理キット QuestReward_repairPotion_510
+local ver = "1.0.7"
+
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.settingsFileLoc = string.format('../addons/%s/new_settings.json', addonNameLower)
 
 local acutil = require("acutil")
 
-g.settings = {
+--[[g.settings = {
     buyquantity = 50,
     msgquantity = 20
-}
+}]]
 
 local base = {}
 
@@ -33,42 +34,31 @@ function g.SetupHook(func, baseFuncName)
     end
     base[baseFuncName] = _G[replacementName]
 end
-
+-- 11200365 [LV.510]緊急修理キット QuestReward_repairPotion_510
+-- 11200313 [Lv.500]緊急修理キット QuestReward_repairPotion_500
 function AUTO_REPAIR_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    -- g.settingframe = ui.CreateNewFrame("chat_memberlist", "setting");
-    -- g.settingframe:ShowWindow(0)
-    -- CHAT_SYSTEM(addonNameLower .. " loaded")
-    -- acutil.setupHook(AUTO_REPAIR_IS_DUR_UNDER_10PER, "IS_DUR_UNDER_10PER")
-    -- g.SetupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
-    acutil.setupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
-    -- g.SetupHook(AUTO_REPAIR_ACCOUNT_EXCHANGE_CREATE_TREE_NODE_CTRL, "EXCHANGE_CREATE_TREE_NODE_CTRL")
-    --[[
-    ['VakarineCertificate'] = 
-    {
-        ['coinName'] = 'dummy_VakarineCertificate',
-        ['propName'] = 'VakarineCertificate',
-    }
-]] -- 11200243
-    acutil.addSysIcon("auto_repair", "sysmenu_sys", "Auto Repair", "AUTO_REPAIR_SETTING_FRAME_INIT")
+
+    g.SetupHook(AUTO_REPAIR_DURNOTIFY_UPDATE, "DURNOTIFY_UPDATE")
+    acutil.addSysIcon("auto_repair", "sysmenu_mac", "Auto Repair", "AUTO_REPAIR_SETTING_FRAME_INIT")
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
 
-        local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_500')
+        AUTO_REPAIR_LOADSETTINGS()
+
+        local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_510')
 
         if autorepair_item ~= nil then
             local repairCount = autorepair_item.count
-
             if repairCount < g.settings.msgquantity then
-
                 addon:RegisterMsg("GAME_START_3SEC", "AUTO_REPAIR_FRAME_INIT")
             end
         else
-
             addon:RegisterMsg("GAME_START_3SEC", "AUTO_REPAIR_FRAME_INIT")
         end
 
@@ -83,8 +73,8 @@ function AUTO_REPAIR_SETTING_FRAME_INIT()
     frame:Resize(490, 120)
     local text1 = frame:CreateOrGetControl('richtext', 'text1', 20, 10)
     AUTO_CAST(text1)
-    text1:SetText("{s20}{ol}[Lv.500] Urgent Repair Kit Setting")
-    text1:SetTextTooltip("[Lv.500]緊急修理キット")
+    text1:SetText("{s20}{ol}[Lv.510] Urgent Repair Kit Setting")
+    text1:SetTextTooltip("[Lv.510]緊急修理キット")
 
     local text2 = frame:CreateOrGetControl('richtext', 'text2', 10, 50)
     AUTO_CAST(text2)
@@ -103,7 +93,6 @@ function AUTO_REPAIR_SETTING_FRAME_INIT()
     AUTO_CAST(text3)
     text3:SetText("{s20}{ol}Message with less than input quantity")
     text3:SetTextTooltip("入力数量以下でメッセージ")
-    -- text1:SetText("{s20}{ol}a")
     frame:ShowWindow(1)
 
     local edit2 = frame:CreateOrGetControl('edit', 'edit2', 410, 80, 60, 30)
@@ -130,13 +119,12 @@ function AUTO_REPAIR_SETTING(frame, ctrl)
         ui.SysMsg("Buy quantity set to " .. value)
         g.settings.buyquantity = value
         AUTO_REPAIR_SAVE_SETTINGS()
-        AUTO_REPAIR_LOAD_SETTINGS()
 
     elseif tonumber(value) ~= tonumber(g.settings.msgquantity) and ctrlname == tostring("edit2") then
         ui.SysMsg("Msg quantity set to " .. value)
         g.settings.msgquantity = value
         AUTO_REPAIR_SAVE_SETTINGS()
-        AUTO_REPAIR_LOAD_SETTINGS()
+
     else
         return
     end
@@ -155,20 +143,16 @@ function AUTO_REPAIR_FRAME_INIT()
     frame:SetSkinName("bg")
     frame:ShowTitleBar(0)
     frame:SetTitleName("{s20}{ol}Auto Repair")
+
     local text1 = frame:CreateOrGetControl('richtext', 'text1', 55, 20)
     AUTO_CAST(text1)
-    text1:SetText("{s20}{ol}[LV.500]緊急修理キット{nl}残り少ないですが補充しますか？")
+    text1:SetText("{s20}{ol}[LV.510]緊急修理キット{nl}残り少ないですが補充しますか？")
     text1:SetTextAlign("center", "center")
-    --[[local text2 = frame:CreateOrGetControl('richtext', 'text2', 25, 30)
-    AUTO_CAST(text2)
-    text2:SetText("{s20}{ol}残り少ないですが補充しますか？")]]
+
     local text3 = frame:CreateOrGetControl('richtext', 'text3', 25, 70)
     AUTO_CAST(text3)
-    text3:SetText("{s18}{ol}[Lv.500] Urgent Repair Kit{nl}Do you want to replenish the few remaining?")
+    text3:SetText("{s18}{ol}[Lv.510] Urgent Repair Kit{nl}Do you want to replenish the few remaining?")
     text3:SetTextAlign("center", "center")
-    --[[local text4 = frame:CreateOrGetControl('richtext', 'text4', 25, 80)
-    AUTO_CAST(text4)
-    text4:SetText("{s18}{ol}Do you want to replenish the few remaining?")]]
 
     local yesbtn = frame:CreateOrGetControl('button', 'yes', 115, 120, 80, 40)
     yesbtn:SetSkinName("test_red_button")
@@ -181,7 +165,6 @@ function AUTO_REPAIR_FRAME_INIT()
     nobtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_CLOSE")
 
     frame:ShowWindow(1)
-
     ReserveScript("AUTO_REPAIR_CLOSE()", 5.0)
 
 end
@@ -193,16 +176,10 @@ end
 
 function AUTO_REPAIR_BUY()
 
-    -- local frame = ui.GetFrame('earthtowershop')
-    -- local shopType = "VakarineCertificate"
-    -- ui.CloseFrame('earthtowershop')
-    -- control.CustomCommand('REQ_SEASON_COIN_SHOP_OPEN', 0);
-
-    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_500')
+    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_510')
     if autorepair_item ~= nil then
         local repairCount = autorepair_item.count
 
-        -- CHAT_SYSTEM(repeatCount)
         local cnt = g.settings.buyquantity - repairCount
 
         local shopType = "RadaCertificate"
@@ -254,6 +231,7 @@ function AUTO_REPAIR_DURNOTIFY_UPDATE(frame, notOpenFrame)
     local someflag = 1
     for i = 0, equiplist:Count() - 1 do
         local equipItem = equiplist:GetEquipItemByIndex(i);
+        local spot = item.GetEquipSpotName(equipItem.equipSpot)
         local slotcnt = imcSlot:GetFilledSlotCount(slotSet);
         local tempobj = equipItem:GetObject()
         if tempobj ~= nil then
@@ -262,8 +240,9 @@ function AUTO_REPAIR_DURNOTIFY_UPDATE(frame, notOpenFrame)
                 local colorTone = "FF999900";
                 if someflag < 2 then
                     someflag = 2
-                    AUTO_REPAIR_ITEM_USE(obj)
-                    -- ReserveScript(string.format("AUTO_REPAIR_ITEM_USE(\"%s\")", obj), 1.0)
+                    local type = equipItem.type
+                    AUTO_REPAIR_ITEM_USE(obj, spot)
+
                 end
                 if IS_DUR_ZERO(obj) == true then
                     colorTone = "FF990000";
@@ -302,14 +281,14 @@ function AUTO_REPAIR_DURNOTIFY_UPDATE(frame, notOpenFrame)
     end
 end
 
-function AUTO_REPAIR_ITEM_USE(obj)
+function AUTO_REPAIR_ITEM_USE(obj, spot)
+
     session.ResetItemList()
     local autorepair_item_normal = session.GetInvItemByName('Premium_repairPotion')
     local autorepair_item_event = session.GetInvItemByName('EVENT_2005_repairPotion')
-    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_500')
-
+    local autorepair_item = session.GetInvItemByName('QuestReward_repairPotion_510')
     if autorepair_item_event ~= nil then
-        CHAT_SYSTEM("autorepair_item_event")
+
         local repeatCount = math.min(autorepair_item_event.count, 4)
         if autorepair_item_event.isLockState ~= true then
             for i = 0, repeatCount - 1 do
@@ -323,7 +302,7 @@ function AUTO_REPAIR_ITEM_USE(obj)
         end
 
     elseif autorepair_item_normal ~= nil then
-        CHAT_SYSTEM("autorepair_item_normal")
+
         local repeatCount = math.min(autorepair_item_normal.count, 4)
         if autorepair_item_normal.isLockState ~= true then
             for i = 0, repeatCount - 1 do
@@ -337,7 +316,7 @@ function AUTO_REPAIR_ITEM_USE(obj)
         end
 
     elseif autorepair_item ~= nil then
-        CHAT_SYSTEM("autorepair_item")
+
         local repeatCount = math.min(autorepair_item.count, 4)
         if autorepair_item.isLockState ~= true then
             for i = 0, repeatCount - 1 do
@@ -350,38 +329,73 @@ function AUTO_REPAIR_ITEM_USE(obj)
             end
         end
     else
-        CHAT_SYSTEM("Not have a repair kit.")
+        -- ui.SysMsg("Not have a repair kit.")
         return
     end
+    --[[local autorepair_item_500 = session.GetInvItemByName('QuestReward_repairPotion_500')
+    local autorepair_item_490 = session.GetInvItemByName('QuestReward_repairPotion_490')
+    local autorepair_item_480 = session.GetInvItemByName('QuestReward_repairPotion_480')
+    local autorepair_item_470 = session.GetInvItemByName('QuestReward_repairPotion_470')
+    -- BELT=470 SHOULDER=480
+    if autorepair_item_470 ~= nil and spot == "BELT" then
 
-    --[[if autorepair_item == nil then
+        local repeatCount = math.min(autorepair_item_470.count, 4)
+        if autorepair_item_470.isLockState ~= true then
+            for i = 0, repeatCount - 1 do
+                if obj.Dur / obj.MaxDur < 0.9 then
+                    item.UseByGUID(autorepair_item_470:GetIESID())
 
-        CHAT_SYSTEM('[Lv.500]緊急修理キットがありません')
-        CHAT_SYSTEM('[Lv.500] Urgent Repair Kit is not available.')
-        return
-    elseif autorepair_item.isLockState == true then
-        CHAT_SYSTEM(ClMsg('MaterialItemIsLock'))
-        return
-    else
-        local repeatCount = math.min(autorepair_item.count, 4)
-
-        for i = 0, repeatCount - 1 do
-            if obj.Dur / obj.MaxDur < 0.9 then
-                item.UseByGUID(autorepair_item:GetIESID())
-
-            else
-                break
+                else
+                    break
+                end
             end
         end
-    end]]
+    elseif autorepair_item_480 ~= nil and spot == "SHOULDER" then
 
-    -- ReserveScript(string.format("AUTO_REPAIR_ITEM_USE(\"%s\")", obj), 1.0)
+        local repeatCount = math.min(autorepair_item_480.count, 4)
+        if autorepair_item_480.isLockState ~= true then
+            for i = 0, repeatCount - 1 do
+                if obj.Dur / obj.MaxDur < 0.9 then
+                    item.UseByGUID(autorepair_item_480:GetIESID())
+
+                else
+                    break
+                end
+            end
+        end
+    elseif autorepair_item_490 ~= nil then
+        if spot == "SHOULDER" or spot == "BELT" then
+
+            local repeatCount = math.min(autorepair_item_490.count, 4)
+            if autorepair_item_490.isLockState ~= true then
+                for i = 0, repeatCount - 1 do
+                    if obj.Dur / obj.MaxDur < 0.9 then
+                        item.UseByGUID(autorepair_item_490:GetIESID())
+
+                    else
+                        break
+                    end
+                end
+            end
+        end
+        elseif autorepair_item_500 ~= nil and spot ~= "RING1" and spot ~= "RING2" and spot ~= "NECK" then
+
+        local repeatCount = math.min(autorepair_item_500.count, 4)
+        if autorepair_item_500.isLockState ~= true then
+            for i = 0, repeatCount - 1 do
+                if obj.Dur / obj.MaxDur < 0.9 then
+                    item.UseByGUID(autorepair_item_500:GetIESID())
+
+                else
+                    break
+                end
+            end
+        end]]
 
 end
 
 function AUTO_REPAIR_SAVE_SETTINGS()
-    -- CHAT_SYSTEM("save")
-    -- ui.SysMsg("Registered.")
+
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 
 end
@@ -394,8 +408,16 @@ function AUTO_REPAIR_LOADSETTINGS()
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
+
     if not settings then
-        settings = g.settings
+
+        g.settings = {
+            buyquantity = 50,
+            msgquantity = 20
+        }
+
+        AUTO_REPAIR_SAVE_SETTINGS()
+
     end
 
     g.settings = settings

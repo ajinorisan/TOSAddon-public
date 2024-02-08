@@ -145,7 +145,7 @@
 		"name" : "Pyktis Notice",
 		"file" : "pyktis_notice",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "pyktis_notice",
 		"unicode" : "⛄",
 		"description" : "ネビルティスピクティスバフをお知らせ。Nevirtis Piketis buffs to be notified.네빌티스팩티스 버프를 알려드립니다.",
@@ -226,10 +226,10 @@
 		"name" : "Auto Repair",
 		"file" : "auto_repair",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.6",
+		"fileVersion" : "v1.0.7",
 		"releaseTag" : "auto_repair",
 		"unicode" : "⛄",
-		"description" : "右下のAddonsで設定機能追加。装備の耐久を監視して30%未満になると「[Lv.500]緊急修理キット」を使用して自動で修理します。Additional configuration functions are available in Addons in the lower right corner.Monitors the equipment's durability and automatically repairs it using the '[Lv.500] Urgent Repair Kit' when it falls below 30%. 우측 하단의 Addons에서 설정 기능 추가.장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.500] 긴급 수리 키트'를 사용하여 자동으로 수리한다.",
+		"description" : "LV510対応。右下のAddonsで設定機能追加。装備の耐久を監視して30%未満になると「[Lv.510]緊急修理キット」を使用して自動で修理します。LV510 compatible.Additional configuration functions are available in Addons in the lower right corner.Monitors the equipment's durability and automatically repairs it using the '[Lv.510] Urgent Repair Kit' when it falls below 30%. LV510 대응.우측 하단의 Addons에서 설정 기능 추가.장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.510] 긴급 수리 키트'를 사용하여 자동으로 수리한다.",
 		"tags" : []
 	},
 {

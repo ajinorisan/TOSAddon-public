@@ -1,7 +1,8 @@
+-- v1.0.1 エフェクトがでかすぎたのを修正。MAXの時に通常攻撃を使わずにいるとうるさかったのを修正。
 local addonName = "PYKTIS_NOTICE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -35,6 +36,7 @@ function PYKTIS_NOTICE_BUFF_ADD(frame, msg, buffIndex, buffType)
         AUTO_CAST(gauge)
         gauge:ShowWindow(1)
         g.buffup = 1
+        g.buffmax = 0
     end
 
 end
@@ -45,7 +47,12 @@ function PYKTIS_NOTICE_BUFF_REMOVE(frame, msg, buffIndex, buffType)
         local gauge = frame:GetChildRecursively('gauge');
         AUTO_CAST(gauge)
         gauge:ShowWindow(0)
+        local myHandle = session.GetMyHandle();
+        local actor = world.GetActor(myHandle)
+        local effectName = "F_archere_magicarrow_gruond_loop2"
+        effect.DetachActorEffect(actor, effectName, 0);
         g.buffup = 1
+        g.buffmax = 0
     end
 
 end
@@ -121,18 +128,21 @@ function PYKTIS_NOTICE_SET_GAUGE(frame)
 
     if (buff ~= nil and buff:GetHandle() == session.GetMyHandle()) then
         gauge:SetPoint(buff.over, 30);
-        if (buff.over == 30) then
+
+        if (buff.over == 30) and g.buffmax == 0 then
             if (IsBattleState(GetMyPCObject()) == 1) then
 
-                effect.AddActorEffectByOffset(actor, effectName, 5.0, "MID", true, true);
+                effect.AddActorEffectByOffset(actor, effectName, 3.0, "MID", true, true);
                 effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
 
             end
             gauge:SetSkinName("test_gauge_barrack_defence");
-
             gauge:SetColorTone("FFFF0000");
-            g.buffup = 0
+            g.buffmax = 1
 
+        elseif (buff.over == 30) and g.buffmax == 1 then
+            gauge:SetSkinName("test_gauge_barrack_defence");
+            gauge:SetColorTone("FFFF0000");
         else
             effect.DetachActorEffect(actor, effectName, 0);
             gauge:SetSkinName("test_gauge_barrack_defence");
