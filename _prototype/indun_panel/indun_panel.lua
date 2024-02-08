@@ -375,7 +375,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
         name = "challenge",
         text = "Challenge"
     }, {
-        name = "challengeex",
+        name = "singularity",
         text = "Singularity"
     }, {
         name = "slogutis",
@@ -489,7 +489,7 @@ function indun_panel_FIELD_BOSS_TIME_TAB_SETTING(frame)
         end
         local hour_str = string.format("%02d:00", hour)
         sub_tab:AddItem("{@st42b}{s16}" .. hour_str, true, "", "cooperation_war_time_btn",
-                        "cooperation_war_time_btn_cursoron", "cooperation_war_time_btn_clicked", "", false)
+            "cooperation_war_time_btn_cursoron", "cooperation_war_time_btn_clicked", "", false)
         if hour > now_time.wHour then
             hour_tab_idx = i
         end
@@ -598,72 +598,103 @@ function indun_panel_FIELD_BOSS_ENTER_TIMER_SETTING(ctrl_set)
 end
 
 local induntype = {
-    challenge = {
-        s460 = 644,
-        s480 = 645,
-        pt = 646
+
+    [1] = {
+        challenge = {
+            s460 = 644,
+            s480 = 645,
+            pt = 646
+        }
     },
-    singularity = {
-        normal = 647,
-        ex = 691
+    [2] = {
+        singularity = {
+            normal = 647,
+            ex = 691
+        }
     },
-    slogutis = {
-        s = 689,
-        a = 688,
-        h = 690,
-        ac = 80031
+    [3] = {
+        slogutis = {
+            s = 689,
+            a = 688,
+            h = 690,
+            ac = 80031
+        }
     },
-    upinis = {
-        s = 686,
-        a = 685,
-        h = 687,
-        ac = 80030
+    [4] = {
+        upinis = {
+            s = 686,
+            a = 685,
+            h = 687,
+            ac = 80030
+        }
     },
-    roze = {
-        s = 680,
-        a = 679,
-        h = 681,
-        ac = 80015
+    [5] = {
+        roze = {
+            s = 680,
+            a = 679,
+            h = 681,
+            ac = 80015
+        }
     },
-    falouros = {
-        s = 677,
-        a = 676,
-        h = 678,
-        ac = 80017
+    [6] = {
+        falouros = {
+            s = 677,
+            a = 676,
+            h = 678,
+            ac = 80017
+        }
     },
-    spreader = {
-        s = 674,
-        a = 673,
-        h = 675,
-        ac = 80016
+    [7] = {
+        spreader = {
+            s = 674,
+            a = 673,
+            h = 675,
+            ac = 80016
+        }
     },
-    jellyzele = {
-        s = 672,
-        a = 671,
-        h = 670
+    [8] = {
+        jellyzele = {
+            s = 672,
+            a = 671,
+            h = 670
+        }
     },
-    delmore = {
-        s = 667,
-        a = 666,
-        h = 665
+    [9] = {
+        delmore = {
+            s = 667,
+            a = 666,
+            h = 665
+        }
     },
-    telharsha = 623,
-    velnice = 201,
-    giltine = {
-        s = 669,
-        a = 635,
-        h = 628
+    [10] = {
+        telharsha = 623
     },
-    earring = {
-        s = 661,
-        a = 662,
-        h = 663
+    [11] = {
+        velnice = 201
     },
-    cemetery = {
-        c490 = 684,
-        c500 = 693
+    [12] = {
+        giltine = {
+            s = 669,
+            a = 635,
+            h = 628
+        }
     },
-    jsr = 0
+    [13] = {
+        earring = {
+            s = 661,
+            a = 662,
+            h = 663
+        }
+    },
+    [14] = {
+        cemetery = {
+            c490 = 684,
+            c500 = 693
+        }
+    },
+    [15] = {
+        jsr = 0
+    }
 }
 
 -- パネル展開
@@ -742,6 +773,17 @@ function indun_panel_init(ipframe)
     pvpminecount:SetText(string.format("{ol}{#FFD900}{s20}%s", GET_COMMAED_STRING(indun_panel_pvpmaine_count())))
 
     local y = 45
+
+    local count = #induntype
+    --[[for i = 1, count do
+        local entry = induntype[i]
+        for key, value in pairs(entry) do
+            print("Key:", key)
+            for subkey, subvalue in pairs(value) do
+                print("\tSubkey:", subkey, "Subvalue:", subvalue)
+            end
+        end
+    end]]
 
     for key, value in pairs(induntype) do
         if g.settings[key .. "_checkbox"] == 1 then
@@ -858,7 +900,7 @@ function indun_panel_update_frame(frame)
 
         end
 
-        if g.settings.challengeex_checkbox == 1 then
+        if g.settings.singularity_checkbox == 1 then
 
             local sin_ticketcount = GET_CHILD_RECURSIVELY(frame, "sin_ticketcount")
             local sin_normal_count = GET_CHILD_RECURSIVELY(frame, "sin_normal_count")
@@ -897,15 +939,15 @@ function indun_panel_update_frame(frame)
                             elseif subKey == "s" then
                                 count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                   GET_CURRENT_ENTERANCE_COUNT(
-                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                   GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             elseif subKey == "h" then
                                 counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                       GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             end
                         end
 
@@ -918,15 +960,15 @@ function indun_panel_update_frame(frame)
                             if subKey == "s" then
                                 count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                   GET_CURRENT_ENTERANCE_COUNT(
-                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                   GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             elseif subKey == "h" then
                                 counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                       GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             end
                         end
 
@@ -1059,7 +1101,7 @@ function indun_panel_singularity_frame(ipframe, key, subKey, subValue, y)
     local sin_ticket = ipframe:CreateOrGetControl('button', 'sin_ticket', 335, y, 80, 30)
     sin_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
     sin_ticket:SetTextTooltip("{@st59}" .. INDUN_PANEL_LANG(
-                                  "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
+        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
     sin_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     sin_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
@@ -1114,7 +1156,7 @@ function indun_panel_challenge_frame(ipframe, key, subKey, subValue, y)
     local cha_ticket = ipframe:CreateOrGetControl('button', 'cha_ticket', 435, y, 80, 30)
     cha_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
     cha_ticket:SetTextTooltip("{@st59}" .. INDUN_PANEL_LANG(
-                                  "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
+        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
     cha_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
@@ -1300,7 +1342,7 @@ function indun_panel_INDUN_ALREADY_PLAYING_dilay()
 
         ui.CloseFrame("indunenter")
         ReserveScript(string.format("indun_panel_enter_challenge_pt('%s','%s','%s', %d)", topFrame, _, _, indunType),
-                      0.3)
+            0.3)
 
         return
     else
@@ -1472,13 +1514,13 @@ function indun_panel_item_use(frame, ctrl, argStr, argNum)
 
         local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
         if dcount == 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
-            indun_panel_challengeex_buyuse()
+            indun_panel_singularity_buyuse()
             return
         end
 
         local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
         if wcount >= 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
-            indun_panel_challengeex_buyuse()
+            indun_panel_singularity_buyuse()
             return
         end
 
@@ -1549,7 +1591,7 @@ function indun_panel_item_use(frame, ctrl, argStr, argNum)
 
 end
 
-function indun_panel_challengeex_buyuse()
+function indun_panel_singularity_buyuse()
 
     local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
     local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
@@ -1880,7 +1922,7 @@ function indun_panel_load_settings()
             ischecked = 0,
             zoom = 336,
             challenge_checkbox = 1,
-            challengeex_checkbox = 1,
+            singularity_checkbox = 1,
             slogutis_checkbox = 1,
             upinis_checkbox = 1,
             roze_checkbox = 1,
@@ -1893,7 +1935,8 @@ function indun_panel_load_settings()
             giltine_checkbox = 1,
             earring_checkbox = 1,
             cemetery_checkbox = 1,
-            singularity_chec = 0
+            jsr_checkbox = 1,
+            singularity_check = 0
 
         }
         settings = g.settings
