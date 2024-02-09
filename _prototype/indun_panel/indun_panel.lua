@@ -489,7 +489,7 @@ function indun_panel_FIELD_BOSS_TIME_TAB_SETTING(frame)
         end
         local hour_str = string.format("%02d:00", hour)
         sub_tab:AddItem("{@st42b}{s16}" .. hour_str, true, "", "cooperation_war_time_btn",
-            "cooperation_war_time_btn_cursoron", "cooperation_war_time_btn_clicked", "", false)
+                        "cooperation_war_time_btn_cursoron", "cooperation_war_time_btn_clicked", "", false)
         if hour > now_time.wHour then
             hour_tab_idx = i
         end
@@ -726,7 +726,7 @@ function indun_panel_init(ipframe)
     AUTO_CAST(invbtn)
     invbtn:SetSkinName("None")
     invbtn:SetText("{img sysmenu_inv 35 35}")
-    invbtn:SetEventScript(ui.LBUTTONUP, "INDUN_PANEL_INVENTORY_OPEN")
+    invbtn:SetEventScript(ui.LBUTTONUP, "UI_TOGGLE_INVENTORY")
     invbtn:SetSkinName("test_pvp_btn")
     invbtn:SetTextTooltip("{@st59}インベントリを開きます。{nl}Open inventory.")
 
@@ -784,47 +784,49 @@ function indun_panel_init(ipframe)
             end
         end
     end]]
+    local count = #induntype
+    for i = 1, count do
+        local entry = induntype[i]
+        for key, value in pairs(entry) do
+            if g.settings[key .. "_checkbox"] == 1 then
+                if type(value) == "table" then
+                    if key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or key == "spreader" then
+                        for subKey, subValue in pairs(value) do
+                            indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y)
+                        end
 
-    for key, value in pairs(induntype) do
-        if g.settings[key .. "_checkbox"] == 1 then
-            if type(value) == "table" then
-                if key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or key == "spreader" then
-                    for subKey, subValue in pairs(value) do
-                        indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y)
+                    elseif key == "jellyzele" or key == "delmore" or key == "giltine" or key == "earring" then
+                        for subKey, subValue in pairs(value) do
+                            indun_panel_create_frame(ipframe, key, subKey, subValue, y)
+                        end
+
+                    elseif key == "challenge" then
+                        -- for subKey, subValue in pairs(value) do
+                        indun_panel_challenge_frame(ipframe, key, y)
+                        -- end
+                    elseif key == "singularity" then
+                        -- for subKey, subValue in pairs(value) do
+                        indun_panel_singularity_frame(ipframe, key, y)
+                        -- end
+                    elseif key == "cemetery" then
+                        -- for subKey, subValue in pairs(value) do
+                        indun_panel_cemetery_frame(ipframe, key, y)
+                        -- end
                     end
 
-                elseif key == "jellyzele" or key == "delmore" or key == "giltine" or key == "earring" then
-                    for subKey, subValue in pairs(value) do
-                        indun_panel_create_frame(ipframe, key, subKey, subValue, y)
-                    end
-
-                elseif key == "challenge" then
-                    for subKey, subValue in pairs(value) do
-                        indun_panel_challenge_frame(ipframe, key, subKey, subValue, y)
-                    end
-                elseif key == "singularity" then
-                    for subKey, subValue in pairs(value) do
-                        indun_panel_singularity_frame(ipframe, key, subKey, subValue, y)
-                    end
-                elseif key == "cemetery" then
-                    for subKey, subValue in pairs(value) do
-                        indun_panel_cemetery_frame(ipframe, key, subKey, subValue, y)
+                else
+                    if key == "telharsha" then
+                        indun_panel_telharsha_frame(ipframe, key, y)
+                    elseif key == "velnice" then
+                        indun_panel_velnice_frame(ipframe, key, y)
+                    elseif key == "jsr" then
+                        indun_panel_jsr_frame(ipframe, key, y)
                     end
                 end
-
-            else
-                if key == "telharsha" then
-                    indun_panel_telharsha_frame(ipframe, value, y)
-                elseif key == "velnice" then
-                    indun_panel_velnice_frame(ipframe, value, y)
-                elseif key == "jsr" then
-                    indun_panel_jsr_frame(ipframe, value, y)
-                end
+                y = y + 40
             end
-            y = y + 40
         end
     end
-
     ipframe:SetLayerLevel(90)
     ipframe:Resize(600, y + 5)
     ipframe:SetSkinName("bg")
@@ -939,19 +941,19 @@ function indun_panel_update_frame(frame)
                             elseif subKey == "s" then
                                 count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                   GET_CURRENT_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                   GET_INDUN_MAX_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             elseif subKey == "h" then
                                 counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                       GET_INDUN_MAX_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             end
                         end
 
-                    elseif key == "jellyzele" or key == "delmore" or key == "giltine" or key == "earring" then
+                    elseif key == "jellyzele" or key == "delmore" then
 
                         local count = GET_CHILD_RECURSIVELY(frame, key .. "count")
                         local counthard = GET_CHILD_RECURSIVELY(frame, key .. "counthard")
@@ -960,15 +962,31 @@ function indun_panel_update_frame(frame)
                             if subKey == "s" then
                                 count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                   GET_CURRENT_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                   GET_INDUN_MAX_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             elseif subKey == "h" then
                                 counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                       GET_INDUN_MAX_ENTERANCE_COUNT(
-                                        GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                            end
+                        end
+                    elseif key == "giltine" or key == "earring" then
+
+                        local count = GET_CHILD_RECURSIVELY(frame, key .. "count")
+                        local counthard = GET_CHILD_RECURSIVELY(frame, key .. "counthard")
+                        for subKey, subValue in pairs(value) do
+
+                            if subKey == "s" then
+                                count:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                                  GET_CURRENT_ENTERANCE_COUNT(
+                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                            elseif subKey == "h" then
+                                counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                                      GET_CURRENT_ENTERANCE_COUNT(
+                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                             end
                         end
 
@@ -987,9 +1005,9 @@ function indun_panel_update_frame(frame)
 
 end
 
-function indun_panel_jsr_frame(ipframe, value, y)
+function indun_panel_jsr_frame(ipframe, key, y)
     local jsr = ipframe:CreateOrGetControl("richtext", "jsr", 15, y)
-    jsr:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}JS Raid"))
+    jsr:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     jsr:AdjustFontSizeByWidth(120)
     local jsrbutton = ipframe:CreateOrGetControl('button', 'jsrbutton', 135, y, 80, 30)
     jsrbutton:SetText("{ol}JSR")
@@ -1000,9 +1018,9 @@ function indun_panel_jsr_frame(ipframe, value, y)
 
 end
 
-function indun_panel_velnice_frame(ipframe, value, y)
+function indun_panel_velnice_frame(ipframe, key, y)
     local vel = ipframe:CreateOrGetControl("richtext", "vel", 15, y)
-    vel:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Velnice"))
+    vel:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     vel:AdjustFontSizeByWidth(120)
     local velbutton = ipframe:CreateOrGetControl('button', 'velbutton', 135, y, 80, 30)
     velbutton:SetText("{ol}IN")
@@ -1017,7 +1035,10 @@ function indun_panel_velnice_frame(ipframe, value, y)
     local velbuyuse = ipframe:CreateOrGetControl('button', 'velbuyuse', 265, y, 80, 30)
     AUTO_CAST(velbuyuse)
     velbuyuse:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    velbuyuse:SetEventScript(ui.LBUTTONUP, "indun_panel_vel_buyuse")
+    velbuyuse:SetEventScript(ui.LBUTTONUP, "indun_panel_buyuse")
+    velbuyuse:SetEventScriptArgString(ui.LBUTTONUP, "PVP_MINE_52")
+    velbuyuse:SetEventScriptArgNumber(ui.LBUTTONUP, 201)
+
     local velexchangecount = ipframe:CreateOrGetControl("richtext", "velexchangecount", 350, y + 5, 60, 30)
 
     local vexchangecount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52")
@@ -1038,9 +1059,9 @@ function indun_panel_velnice_frame(ipframe, value, y)
     end
 end
 
-function indun_panel_telharsha_frame(ipframe, value, y)
+function indun_panel_telharsha_frame(ipframe, key, y)
     local tel = ipframe:CreateOrGetControl("richtext", "tel", 15, y)
-    tel:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}TelHarsha"))
+    tel:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     tel:AdjustFontSizeByWidth(120)
 
     local telbutton = ipframe:CreateOrGetControl('button', 'telbutton', 135, y, 80, 30)
@@ -1056,9 +1077,9 @@ function indun_panel_telharsha_frame(ipframe, value, y)
 
 end
 
-function indun_panel_cemetery_frame(ipframe, key, subKey, subValue, y)
+function indun_panel_cemetery_frame(ipframe, key, y)
     local cem = ipframe:CreateOrGetControl("richtext", "cem", 15, y)
-    cem:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Wailing"))
+    cem:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     cem:AdjustFontSizeByWidth(120)
     local cembutton = ipframe:CreateOrGetControl('button', 'cembutton', 135, y, 80, 30)
     cembutton:SetText("{ol}490")
@@ -1077,10 +1098,10 @@ function indun_panel_cemetery_frame(ipframe, key, subKey, subValue, y)
                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 693).PlayPerResetType) .. ")")
 end
 
-function indun_panel_singularity_frame(ipframe, key, subKey, subValue, y)
+function indun_panel_singularity_frame(ipframe, key, y)
 
     local sin = ipframe:CreateOrGetControl("richtext", "sin", 15, y)
-    sin:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Singularity"))
+    sin:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     sin:AdjustFontSizeByWidth(120)
 
     local sin_normal = ipframe:CreateOrGetControl('button', 'sin_normal', 135, y, 80, 30)
@@ -1100,8 +1121,8 @@ function indun_panel_singularity_frame(ipframe, key, subKey, subValue, y)
 
     local sin_ticket = ipframe:CreateOrGetControl('button', 'sin_ticket', 335, y, 80, 30)
     sin_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    sin_ticket:SetTextTooltip("{@st59}" .. INDUN_PANEL_LANG(
-        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
+    sin_ticket:SetTextTooltip("{ol}" .. INDUN_PANEL_LANG(
+                                  "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
     sin_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     sin_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
@@ -1114,7 +1135,7 @@ function indun_panel_singularity_frame(ipframe, key, subKey, subValue, y)
     local sin_check = ipframe:CreateOrGetControl("checkbox", "sin_check", 505, y, 25, 25)
     AUTO_CAST(sin_check)
     sin_check:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    sin_check:SetTextTooltip("{チェックをすると自動マッチングボタンを押しません。{nl}}" ..
+    sin_check:SetTextTooltip("{ol}{チェックをすると自動マッチングボタンを押しません。{nl}}" ..
                                  "If checked, the automatic matching button will not be pressed.")
     if g.settings.singularity_check == nil then
         g.settings.singularity_check = 0
@@ -1125,9 +1146,9 @@ function indun_panel_singularity_frame(ipframe, key, subKey, subValue, y)
 
 end
 
-function indun_panel_challenge_frame(ipframe, key, subKey, subValue, y)
+function indun_panel_challenge_frame(ipframe, key, y)
     local cha = ipframe:CreateOrGetControl("richtext", "cha", 15, y)
-    cha:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}Challenge"))
+    cha:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     cha:AdjustFontSizeByWidth(120)
 
     local cha460 = ipframe:CreateOrGetControl('button', 'cha460', 135, y, 80, 30)
@@ -1155,8 +1176,8 @@ function indun_panel_challenge_frame(ipframe, key, subKey, subValue, y)
 
     local cha_ticket = ipframe:CreateOrGetControl('button', 'cha_ticket', 435, y, 80, 30)
     cha_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    cha_ticket:SetTextTooltip("{@st59}" .. INDUN_PANEL_LANG(
-        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
+    cha_ticket:SetTextTooltip("{ol}" .. INDUN_PANEL_LANG(
+                                  "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
     cha_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
@@ -1168,7 +1189,7 @@ end
 
 function indun_panel_create_frame(ipframe, key, subKey, subValue, y)
     local text = ipframe:CreateOrGetControl("richtext", key, 15, y)
-    text:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}" .. key))
+    text:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     text:AdjustFontSizeByWidth(120)
 
     local solo = ipframe:CreateOrGetControl('button', key .. "solo", 135, y, 80, 30)
@@ -1185,31 +1206,54 @@ function indun_panel_create_frame(ipframe, key, subKey, subValue, y)
     end
     hard:SetText("{ol}{#FF0000}HARD")
 
-    if subKey == "s" then
-        count:SetText("{ol}{#FFFFFF}{s16}(" ..
-                          GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
-                          GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
-        solo:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
-        solo:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
-    elseif subKey == "a" then
-        auto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_auto")
-        auto:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
+    if key == "giltine" or key == "earring" then
+        if subKey == "s" then
+            count:SetText("{ol}{#FFFFFF}{s16}(" ..
+                              GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+            solo:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
+            solo:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
+        elseif subKey == "a" then
+            auto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_auto")
+            auto:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
 
-    elseif subKey == "h" then
-        counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
+        elseif subKey == "h" then
+            counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                  GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+            hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
+            hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
+            if key ~= "earring" then
+                hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+            end
+        end
+
+    else
+
+        if subKey == "s" then
+            count:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                               GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
-        hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
-        hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
-        if key ~= "earring" then
+            solo:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
+            solo:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
+        elseif subKey == "a" then
+            auto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_auto")
+            auto:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
+
+        elseif subKey == "h" then
+            counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                  GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                  GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) ..
+                                  ")")
+            hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
+            hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
             hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+
         end
     end
 end
 
 function indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y)
     local text = ipframe:CreateOrGetControl("richtext", key, 15, y)
-    text:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG("{s20}" .. key))
+    text:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
     text:AdjustFontSizeByWidth(120)
     local solo = ipframe:CreateOrGetControl('button', key .. "solo", 135, y, 80, 30)
     local auto = ipframe:CreateOrGetControl('button', key .. "auto", 220, y, 80, 30)
@@ -1248,64 +1292,38 @@ function indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y)
 
 end
 
--- ハード入場時の二度押し回避
 function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
-
     local frame = ui.GetFrame("indun_panel")
     local indunCls = GetClassByType('Indun', indunType)
-    local dungeonType = TryGetProp(indunCls, "DungeonType", "None");
-    local btnInfoCls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeonType);
+    local dungeonType = TryGetProp(indunCls, "DungeonType", "None")
+    local btnInfoCls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeonType)
 
     if dungeonType == "Raid" then
-
-        btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls);
-
+        btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls)
     end
 
     local redButtonScp = TryGetProp(btnInfoCls, "RedButtonScp")
-    local redButton -- 変数の宣言を条件分岐の外に移動
-
     if redButtonScp ~= 'None' then
+        local buttonMap = {
+            [665] = "delmorehard",
+            [670] = "jellyzelehard",
+            [675] = "spreaderhard",
+            [678] = "falohard",
+            [681] = "rozehard",
+            [628] = "giltinehard",
+            [687] = "upinishard",
+            [690] = "slogutishard"
+        }
 
-        if indunType == 665 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "Delmorehard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-
-        elseif indunType == 670 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "jellyzelehard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-        elseif indunType == 675 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "spreaderhard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-        elseif indunType == 678 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "falohard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-        elseif indunType == 681 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "rozehard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-        elseif indunType == 628 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "giltinehard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-        elseif indunType == 687 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "upinishard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-        elseif indunType == 690 then
-            redButton = GET_CHILD_RECURSIVELY(frame, "slogutishard")
-            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
-            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
-        else
-            return;
+        local buttonName = buttonMap[indunType]
+        if buttonName then
+            local redButton = GET_CHILD_RECURSIVELY(frame, buttonName)
+            if redButton then
+                redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID)
+                redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+            end
         end
-
     end
-
 end
 
 -- ヴェルニケ処理
@@ -1339,10 +1357,9 @@ function indun_panel_INDUN_ALREADY_PLAYING_dilay()
         -- 646＝チャレPT 647＝分裂普通　691＝分裂EX
         indunType = tonumber(indunType)
         AnsGiveUpPrevPlayingIndun(1)
-
         ui.CloseFrame("indunenter")
         ReserveScript(string.format("indun_panel_enter_challenge_pt('%s','%s','%s', %d)", topFrame, _, _, indunType),
-            0.3)
+                      0.5)
 
         return
     else
@@ -1434,284 +1451,29 @@ function indun_panel_enter_hard(frame, ctrl, argStr, argNum)
 end
 
 function indun_panel_autosweep(frame, ctrl, argStr, argNum)
-    local indun_classid = tonumber(argNum);
-    local BuffID = 0
+    local indun_classid = tonumber(argNum)
+    local buffIDs = {
+        [673] = 80016, -- スプレッダー
+        [676] = 80017, -- ファロウス
+        [679] = 80015, -- ロゼ
+        [685] = 80030, -- 蝶々
+        [688] = 80031 -- スロガ
+    }
 
-    if argNum == 673 then -- プロパゲオート
-        BuffID = 80016
-    elseif argNum == 676 then -- ファロオート
-        BuffID = 80017
-    elseif argNum == 679 then -- ロゼオート
-        BuffID = 80015
-    elseif argNum == 685 then -- 蝶々
-        BuffID = 80030
-    elseif argNum == 688 then -- スロガ
-        BuffID = 80031
+    local buffID = buffIDs[indun_classid]
 
-    end
-
-    local sweepcount = 0
-    sweepcount = indun_panel_sweep_count(BuffID)
-    if sweepcount >= 1 then
-        ReqUseRaidAutoSweep(indun_classid);
-
-    else
-        ui.SysMsg("Does not have a sweeping buff")
-
-    end
-
-end
-
-function indun_panel_velnice_buyuse()
-
-    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 201).PlayPerResetType) == 1 then
-        local recipeName = "PVP_MINE_52"
-        INDUN_PANEL_ITEM_BUY_USE(recipeName)
-    else
-        ui.SysMsg("The number of remains")
-        return
-    end
-
-end
-
-function indun_panel_item_use(frame, ctrl, argStr, argNum)
-
-    session.ResetItemList()
-    local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList();
-    local cnt = guidList:Count();
-
-    -- TOSコイン分裂券＝10820018
-    -- 1日券＝11030067
-    -- トレード不可＝11030021
-    -- トレード可＝11030017
-    if argNum == 647 then
-
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
-
-            if life_time ~= nil then
-
-                if classid == 10820018 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) ==
-                    0 and tonumber(life_time) < 86400 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-
-                if classid == 11030067 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) ==
-                    0 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-            end
-        end
-
-        local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-        if dcount == 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
-            indun_panel_singularity_buyuse()
-            return
-        end
-
-        local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
-        if wcount >= 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
-            indun_panel_singularity_buyuse()
-            return
-        end
-
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-
-            if classid == 10820018 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            end
-
-        end
-
-        return
-
-    elseif argNum == 644 then
-
-        -- TOSコイン＝10820019
-        -- 【A】チャレンジモード入場券(1回)＝641963　売れるヤツ
-        -- 【B】チャレンジモード入場券(1回) (1日)＝641954　傭兵団のヤツ
-        -- 【A】チャレンジモード入場券(1回)＝641987　多分売れへんヤツ
-        -- 【A】チャレンジモード入場券(1回)＝641953　多分売れへんヤツ
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
-
-            if life_time ~= nil then
-                if classid == 10820019 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) ==
-                    1 and tonumber(life_time) < 86400 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-
-                if classid == 641954 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) == 1 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-            end
-        end
-
-        local count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
-        if count >= 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) == 1 then
-            indun_panel_challenge_buyuse()
-            return
-        end
-
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-            if classid == 10820019 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            end
-        end
-
-        return
-    end
-
-end
-
-function indun_panel_singularity_buyuse()
-
-    local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-    local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
-    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
-        if dcount == 0 then
-            local recipeName = "PVP_MINE_42"
-            INDUN_PANEL_ITEM_BUY_USE(recipeName)
+    if buffID then
+        local sweepcount = indun_panel_sweep_count(buffID)
+        if sweepcount >= 1 then
+            ReqUseRaidAutoSweep(indun_classid)
         else
-            g.ex = 1
-            local recipeName = "PVP_MINE_41"
-            INDUN_PANEL_ITEM_BUY_USE(recipeName)
-
+            ui.SysMsg("Does not have a sweeping buff")
         end
     else
-        ui.SysMsg("The number Challenge EX remains")
+        ui.SysMsg("No corresponding buff ID found")
     end
 end
 
-function indun_panel_challenge_buyuse()
-
-    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) == 1 then
-        local recipeName = "PVP_MINE_40"
-        INDUN_PANEL_ITEM_BUY_USE(recipeName)
-    else
-        ui.SysMsg("The number of challenge remains")
-    end
-end
-
-function INDUN_PANEL_ITEM_BUY_USE(recipeName)
-
-    local vrecipecls = GetClass('ItemTradeShop', "PVP_MINE_52");
-    local voverbuy_max = TryGetProp(vrecipecls, 'MaxOverBuyCount', 0)
-
-    local count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
-    if voverbuy_max >= 1 and recipeName == "PVP_MINE_52" then
-        indun_panel_item_overbuy_use(vrecipecls)
-        return
-
-    elseif count <= 0 then
-        ui.SysMsg("No trade count.")
-        return
-    end
-
-    local recipeCls = GetClass("ItemTradeShop", recipeName)
-    session.ResetItemList()
-    session.AddItemID(tostring(0), 1)
-    local itemlist = session.GetItemIDList()
-    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
-    item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
-
-    local itemCls = GetClass("Item", recipeCls.TargetItem)
-    ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID), 1)
-    return
-
-end
-
-function indun_panel_item_overbuy_use(recipeCls)
-
-    session.ResetItemList()
-    session.AddItemID(tostring(0), 1)
-    local itemlist = session.GetItemIDList()
-    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
-    item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
-
-    local itemCls = GetClass("Item", recipeCls.TargetItem)
-    ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID), 1)
-    return
-end
-
--- 傭兵コインショップをパネル上から開く
-function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
-    local frame = ui.GetFrame('earthtowershop')
-    if frame:IsVisible() == 1 then
-        ui.CloseFrame('earthtowershop')
-    end
-    local invframe = ui.GetFrame('inventory')
-    INDUN_PANEL_INVENTORY_OPEN(invframe)
-
-    pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
-    local strArg = "Entrance_Ticket"
-
-    ReserveScript(string.format("DRAW_EXCHANGE_SHOP_IETMS('%s')", strArg), 0.2)
-    return
-
-end
-
--- インベントリをパネル上から開く
-function INDUN_PANEL_INVENTORY_OPEN(frame)
-
-    local frame = ui.GetFrame("inventory")
-    frame:ShowWindow(1)
-    frame:SetUserValue("MONCARDLIST_OPENED", 0);
-
-    ui.Chat("/requpdateequip"); -- 내구도 회복 유료템 때문에 정확한 값을 지금 알아야 함.
-    session.inventory.ReqTrustPoint();
-
-    local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS");
-    if savedPos == 'None' then
-        savedPos = '0'
-    end
-
-    local tree_box = GET_CHILD_RECURSIVELY(frame, 'treeGbox_All')
-    tree_box:SetScrollPos(tonumber(savedPos));
-
-    session.CheckOpenInvCnt();
-    ui.CloseFrame('layerscore');
-    MAKE_WEAPON_SWAP_BUTTON();
-    local questInfoSetFrame = ui.GetFrame('questinfoset_2');
-    if questInfoSetFrame:IsVisible() == 1 then
-        questInfoSetFrame:ShowWindow(0);
-    end
-
-    INV_HAT_VISIBLE_STATE(frame);
-    INV_HAIR_WIG_VISIBLE_STATE(frame);
-
-    local minimapFrame = ui.GetFrame('minimap');
-    minimapFrame:ShowWindow(0);
-end
-
--- オート掃討の数をキャラのバフ欄から取得して返す
 function indun_panel_sweep_count(buffid)
 
     local handle = session.GetMyHandle()
@@ -1746,6 +1508,177 @@ function indun_panel_sweep_count(buffid)
     end
 
     return sweepcount
+
+end
+
+function indun_panel_item_use(frame, ctrl, argStr, argNum)
+
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+
+    local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", argNum).PlayPerResetType)
+
+    if argNum == 647 then
+
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+
+            if life_time ~= nil then
+
+                if classid == 10820018 and count == 0 and tonumber(life_time) < 86400 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+
+                if classid == 11030067 and count == 0 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+            end
+        end
+
+        local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+        if dcount == 1 and count == 0 then
+            indun_panel_buyuse(frame, ctrl, "PVP_MINE_41", argNum)
+            return
+        end
+
+        local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+        if wcount >= 1 and count == 0 then
+            g.ex = 1
+            indun_panel_buyuse(frame, ctrl, "PVP_MINE_42", argNum)
+            return
+        end
+
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+
+            if classid == 10820018 and count == 0 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            end
+
+        end
+
+    elseif argNum == 644 then
+
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+
+            if life_time ~= nil then
+                if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+
+                if classid == 641954 and count == 1 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+            end
+        end
+
+        local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+        if trade_count >= 1 and count == 1 then
+            indun_panel_buyuse(frame, ctrl, "PVP_MINE_40", argNum)
+            return
+        end
+
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+            if classid == 10820019 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            end
+        end
+
+    end
+
+end
+
+function indun_panel_buyuse(frame, ctrl, recipeName, indunType)
+
+    if indunType == 201 then
+        local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
+        local trade_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
+        if count == 1 and trade_count == 1 then
+
+            INDUN_PANEL_ITEM_BUY_USE(recipeName)
+
+        elseif count == 1 and trade_count == 0 then
+            local vel_recipecls = GetClass('ItemTradeShop', recipeName);
+            local vel_overbuy_max = TryGetProp(vel_recipecls, 'MaxOverBuyCount', 0)
+
+            if vel_overbuy_max >= 1 then
+                INDUN_PANEL_ITEM_BUY_USE(recipeName)
+
+                return
+            else
+                ui.SysMsg("No trade count.")
+                return
+            end
+        end
+    elseif indunType == 647 then
+
+        INDUN_PANEL_ITEM_BUY_USE(recipeName)
+
+    elseif indunType == 646 then
+
+        INDUN_PANEL_ITEM_BUY_USE(recipeName)
+
+    end
+
+end
+
+function INDUN_PANEL_ITEM_BUY_USE(recipeName)
+
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    session.ResetItemList()
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
+    item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
+
+    -- local itemCls = GetClass("Item", recipeCls.TargetItem)
+    ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", recipeCls.ClassID), 1)
+    return
+
+end
+
+-- 傭兵コインショップをパネル上から開く
+function INDUN_PANEL_MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK(parent, ctrl)
+    local frame = ui.GetFrame('earthtowershop')
+    if frame:IsVisible() == 1 then
+        ui.CloseFrame('earthtowershop')
+    end
+    local invframe = ui.GetFrame('inventory')
+    INDUN_PANEL_INVENTORY_OPEN(invframe)
+
+    pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+    local strArg = "Entrance_Ticket"
+
+    ReserveScript(string.format("DRAW_EXCHANGE_SHOP_IETMS('%s')", strArg), 0.2)
+    return
 
 end
 
@@ -2636,4 +2569,323 @@ function indun_panel_checkbox_toggle()
         indun_panel_save_settings()
     end
 
-end]]
+end
+-- ハード入場時の二度押し回避
+function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+
+    local frame = ui.GetFrame("indun_panel")
+    local indunCls = GetClassByType('Indun', indunType)
+    local dungeonType = TryGetProp(indunCls, "DungeonType", "None");
+    local btnInfoCls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeonType);
+
+    if dungeonType == "Raid" then
+
+        btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls);
+
+    end
+
+    local redButtonScp = TryGetProp(btnInfoCls, "RedButtonScp")
+    local redButton -- 変数の宣言を条件分岐の外に移動
+
+    if redButtonScp ~= 'None' then
+
+        if indunType == 665 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "delmorehard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+
+        elseif indunType == 670 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "jellyzelehard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 675 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "spreaderhard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 678 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "falohard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 681 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "rozehard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 628 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "giltinehard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 687 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "upinishard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        elseif indunType == 690 then
+            redButton = GET_CHILD_RECURSIVELY(frame, "slogutishard")
+            redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID);
+            redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)
+        else
+            return;
+        end
+
+    end
+
+end
+function indun_panel_autosweep(frame, ctrl, argStr, argNum)
+    local indun_classid = tonumber(argNum);
+    local BuffID = 0
+
+    if argNum == 673 then -- プロパゲオート
+        BuffID = 80016
+    elseif argNum == 676 then -- ファロオート
+        BuffID = 80017
+    elseif argNum == 679 then -- ロゼオート
+        BuffID = 80015
+    elseif argNum == 685 then -- 蝶々
+        BuffID = 80030
+    elseif argNum == 688 then -- スロガ
+        BuffID = 80031
+
+    end
+
+    local sweepcount = 0
+    sweepcount = indun_panel_sweep_count(BuffID)
+    if sweepcount >= 1 then
+        ReqUseRaidAutoSweep(indun_classid);
+
+    else
+        ui.SysMsg("Does not have a sweeping buff")
+
+    end
+
+end
+function indun_panel_item_use(frame, ctrl, argStr, argNum)
+
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+
+    -- TOSコイン分裂券＝10820018
+    -- 1日券＝11030067
+    -- トレード不可＝11030021
+    -- トレード可＝11030017
+    if argNum == 647 then
+
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+
+            if life_time ~= nil then
+
+                if classid == 10820018 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) ==
+                    0 and tonumber(life_time) < 86400 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+
+                if classid == 11030067 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) ==
+                    0 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+            end
+        end
+
+        local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+        if dcount == 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
+            indun_panel_singularity_buyuse()
+            return
+        end
+
+        local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+        if wcount >= 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
+            indun_panel_singularity_buyuse()
+            return
+        end
+
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+
+            if classid == 10820018 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            end
+
+        end
+
+        return
+
+    elseif argNum == 644 then
+
+        -- TOSコイン＝10820019
+        -- 【A】チャレンジモード入場券(1回)＝641963　売れるヤツ
+        -- 【B】チャレンジモード入場券(1回) (1日)＝641954　傭兵団のヤツ
+        -- 【A】チャレンジモード入場券(1回)＝641987　多分売れへんヤツ
+        -- 【A】チャレンジモード入場券(1回)＝641953　多分売れへんヤツ
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+
+            if life_time ~= nil then
+                if classid == 10820019 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) ==
+                    1 and tonumber(life_time) < 86400 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+
+                if classid == 641954 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) == 1 then
+
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+            end
+        end
+
+        local count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+        if count >= 1 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) == 1 then
+            indun_panel_challenge_buyuse()
+            return
+        end
+
+        for i = 0, cnt - 1 do
+            local guid = guidList:Get(i);
+            local invItem = invItemList:GetItemByGuid(guid)
+            local itemobj = GetIES(invItem:GetObject())
+            local classid = itemobj.ClassID
+            if classid == 10820019 and GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 644).PlayPerResetType) == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            end
+        end
+
+        return
+    end
+
+end
+
+function indun_panel_velnice_buyuse()
+
+    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 201).PlayPerResetType) == 1 then
+        local recipeName = "PVP_MINE_52"
+        INDUN_PANEL_ITEM_BUY_USE(recipeName)
+    else
+        ui.SysMsg("The number of remains")
+        return
+    end
+
+end
+
+function indun_panel_singularity_buyuse()
+
+    local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+    local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) == 0 then
+        if dcount == 0 then
+            local recipeName = "PVP_MINE_42"
+            INDUN_PANEL_ITEM_BUY_USE(recipeName)
+        else
+            g.ex = 1
+            local recipeName = "PVP_MINE_41"
+            INDUN_PANEL_ITEM_BUY_USE(recipeName)
+
+        end
+    else
+        ui.SysMsg("The number Challenge EX remains")
+    end
+end
+
+function indun_panel_challenge_buyuse()
+
+    if GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) == 1 then
+        local recipeName = "PVP_MINE_40"
+        INDUN_PANEL_ITEM_BUY_USE(recipeName)
+    else
+        ui.SysMsg("The number of challenge remains")
+    end
+end
+
+function INDUN_PANEL_ITEM_BUY_USE(recipeName)
+
+    local vrecipecls = GetClass('ItemTradeShop', "PVP_MINE_52");
+    local voverbuy_max = TryGetProp(vrecipecls, 'MaxOverBuyCount', 0)
+
+    local count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
+    if voverbuy_max >= 1 and recipeName == "PVP_MINE_52" then
+        indun_panel_item_overbuy_use(vrecipecls)
+        return
+
+    elseif count <= 0 then
+        ui.SysMsg("No trade count.")
+        return
+    end
+
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    session.ResetItemList()
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
+    item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
+
+    local itemCls = GetClass("Item", recipeCls.TargetItem)
+    ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID), 1)
+    return
+
+end
+
+function indun_panel_item_overbuy_use(recipeCls)
+
+    session.ResetItemList()
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
+    item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
+
+    local itemCls = GetClass("Item", recipeCls.TargetItem)
+    ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID), 1)
+    return
+end
+
+-- インベントリをパネル上から開く
+function INDUN_PANEL_INVENTORY_OPEN(frame)
+
+    local frame = ui.GetFrame("inventory")
+    frame:ShowWindow(1)
+    frame:SetUserValue("MONCARDLIST_OPENED", 0);
+
+    ui.Chat("/requpdateequip"); -- 내구도 회복 유료템 때문에 정확한 값을 지금 알아야 함.
+    session.inventory.ReqTrustPoint();
+
+    local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS");
+    if savedPos == 'None' then
+        savedPos = '0'
+    end
+
+    local tree_box = GET_CHILD_RECURSIVELY(frame, 'treeGbox_All')
+    tree_box:SetScrollPos(tonumber(savedPos));
+
+    session.CheckOpenInvCnt();
+    ui.CloseFrame('layerscore');
+    MAKE_WEAPON_SWAP_BUTTON();
+    local questInfoSetFrame = ui.GetFrame('questinfoset_2');
+    if questInfoSetFrame:IsVisible() == 1 then
+        questInfoSetFrame:ShowWindow(0);
+    end
+
+    INV_HAT_VISIBLE_STATE(frame);
+    INV_HAIR_WIG_VISIBLE_STATE(frame);
+
+    local minimapFrame = ui.GetFrame('minimap');
+    minimapFrame:ShowWindow(0);
+end
+]]
