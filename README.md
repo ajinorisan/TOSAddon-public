@@ -645,7 +645,7 @@ The author of this addon is Charbonさん
 
 ----
 
-### yaaccountinventory
+### Yet Another Account Inventory
 
 ebisukeさんの倉庫改造アドオンを保守します。
 
