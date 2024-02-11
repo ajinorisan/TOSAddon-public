@@ -26,6 +26,7 @@
 -- v1.2.6 レイド消化一覧機能削除
 -- v1.2.7 協同ボスレイド追加。チャレンジと分裂を連続で入れる様に。分裂の自動マッチングボタンを押すのを切替出来る様に。英語モードを選べる様に。
 -- v1.2.8 メレジナ追加。週ボスのとこ修正。めっちゃコード変えた。ChatGPTありがとう。
+-- v1.2.9 海外バージョンバグってたの修正。INDUN_PANEL_LANG関数ミスってた。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -183,10 +184,10 @@ function INDUN_PANEL_LANG(str)
         if str == tostring("ACLEAR") then
             str = "掃蕩"
         end
-        return {"s20"} .. str
+        return "{s20}" .. str
     end
 
-    return {"s20"} .. str
+    return "{s20}" .. str
 end
 
 function INDUN_PANEL_ON_INIT(addon, frame)
@@ -208,8 +209,6 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             addon:RegisterMsg('GAME_START_3SEC', "indun_panel_FIELD_BOSS_TIME_TAB_SETTING")
         end
 
-        g.SetupHook(indun_panel_INDUN_ALREADY_PLAYING, "INDUN_ALREADY_PLAYING")
-
         if g.settings.checkbox == 1 then
             indun_panel_frame_init()
 
@@ -223,6 +222,7 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             indunpanel_minimized_pvpmine_shop_init()
 
         end
+        g.SetupHook(indun_panel_INDUN_ALREADY_PLAYING, "INDUN_ALREADY_PLAYING")
 
     else
         indun_panel_autozoom_init()
