@@ -3,12 +3,13 @@
 -- v1.0.1 倉庫閉めた後のインベントリ操作のバグ修正
 -- v1.0.2 別で表示する様に。倉庫整理も出来るからね。
 -- v1.0.3 やっぱり元の仕様に。通常の倉庫にも切替可能に。
+-- v1.0.4 tos側のバグで動かなくなるの修正。倉庫開かなかった場合、0.5秒後に再度呼び出すように。
 local addonName = "YAACCOUNTINVENTORY"
 local addonNameLower = string.lower(addonName)
 -- 作者名
 local author = 'ebisuke'
 local basever = "0.4.6"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 -- アドオン内で使用する領域を作成。以下、ファイル内のスコープではグローバル変数gでアクセス可
 _G['ADDONS'] = _G['ADDONS'] or {}
@@ -289,15 +290,6 @@ function YAACCOUNTINVENTORY_ON_INIT(addon, frame)
     }
 end
 
---[[function YAI_CLOSE_UI(frame, ctrl, numsttr, numarg)
-    YAI_DEACTIVATE_MOUSEBUTTON()
-    ui.CloseFrame(addonNameLower)
-    base["CLOSE_UI"](frame, ctrl, numsttr, numarg)
-
-end]]
---[[function YAI_SHOW()
-    ui.GetFrame(g.framename):ShowWindow(1)
-end]]
 function YAI_GAME_START()
     LS = LIBSTORAGEHELPERV1_3
     -- ! libsearch = LIBITEMSEARCHER_V1_0
@@ -308,12 +300,6 @@ function YAI_3SEC()
 
     else
         g.maxtabs = 1
-
-    end
-end
-function YAI_ON_TIMER()
-    if (ui.GetFrame("accountwarehouse"):IsVisible() == 1) then
-        YAI_ACTIVATE_MOUSEBUTTON()
 
     end
 end
@@ -362,15 +348,7 @@ function YAI_ACCOUNTWAREHOUSE_CLOSE(frame)
     YAI_DEACTIVATE_MOUSEBUTTON()
     local overlap = ui.GetFrame(addonNameLower)
     overlap:ShowWindow(0)
-    --[[local gbox = overlap:GetChildRecursively("inventoryGbox")
-    AUTO_CAST(gbox)
-    gbox:ShowWindow(0)
 
-    local gbox2 = overlap:GetChildRecursively("inventoryitemGbox")
-    AUTO_CAST(gbox2)
-    gbox2:ShowWindow(0)]]
-
-    -- !ACCOUNTWAREHOUSE_CLOSE_OLD(frame)
     base["ACCOUNTWAREHOUSE_CLOSE"](frame)
 
 end
@@ -485,176 +463,6 @@ end
 function YAI_UPGRADE_PERSONALSETTINGS()
     local upgraded = false
     return upgraded
-end
-
-function YAI_COUNT()
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    local guidlist = itemList:GetSortedGuidList();
-    local cnt = itemList:Count();
-    local rcnt = 0
-    for i = 0, cnt - 1 do
-        local guid = guidlist:Get(i);
-        local invItem = itemList:GetItemByGuid(guid)
-        local invItem_obj = GetIES(invItem:GetObject());
-        if invItem_obj.ClassName ~= MONEY_NAME then
-            rcnt = rcnt + 1
-        end
-    end
-    -- print(rcnt .. "rcnt")
-    return rcnt
-end
-
-function YAI_get_exist_item_index(insertItem)
-    local ret1 = false
-    local ret2 = -1
-
-    if geItemTable.IsStack(insertItem.ClassID) == 1 then
-        local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-        local sortedGuidList = itemList:GetGuidList();
-        local sortedCnt = sortedGuidList:Count();
-
-        for i = 0, sortedCnt - 1 do
-            local guid = sortedGuidList:Get(i);
-            local invItem = itemList:GetItemByGuid(guid)
-            local invItem_obj = GetIES(invItem:GetObject());
-            if insertItem.ClassID == invItem_obj.ClassID then
-                ret1 = true
-                ret2 = invItem.invIndex
-                break
-            end
-        end
-        return ret1, ret2
-    else
-        return false, -1
-    end
-end
-function YAI_get_valid_index()
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    local guidList = itemList:GetGuidList();
-    local sortedGuidList = itemList:GetGuidList();
-    local sortedCnt = sortedGuidList:Count();
-    local account = session.barrack.GetMyAccount();
-    local slotCount = account:GetAccountWarehouseSlotCount();
-    local start_index = 0
-    local last_index = YAI_SLOT_LIMIT_FIRSTTAB() - 1
-    local itemCnt = 0;
-    local guidList = itemList:GetGuidList();
-    local cnt = guidList:Count();
-    local offset = 0
-    for i = 0, cnt - 1 do
-        local guid = guidList:Get(i);
-        local invItem = itemList:GetItemByGuid(guid);
-    end
-    local __set = {}
-    local inc = 0
-    local money_offset = 0
-    for i = 0, sortedCnt - 1 do
-        local guid = sortedGuidList:Get(i)
-        local invItem = itemList:GetItemByGuid(guid)
-        local obj = GetIES(invItem:GetObject());
-
-        if obj.ClassName ~= MONEY_NAME then
-            __set[invItem.invIndex] = {
-                item = invItem,
-                obj = obj,
-                mode = 1
-            }
-
-        else
-            -- __set[invItem.invIndex] = {item = invItem, obj = obj, mode = 2}
-            money_offset = 1
-        end
-    end
-    local first = 0
-    for i = 0, slotCount do
-        if (__set[i] ~= nil) then
-            first = first + 1
-
-        end
-    end
-    -- -1 is preventaion tos bug
-    DBGOUT(string.format("prevent %d/%d", first, slotCount - 1))
-    if (first >= (slotCount - 1)) then
-
-        for i = 0, g.countpertab do
-            __set[i] = {
-                mode = 1
-            }
-        end
-    end
-    -- prevent tos bug
-    for i = 1, g.maxtabs do
-        local count = 0
-        for j = g.countpertab * i, g.countpertab * (i + 1) - 1 do
-            if (__set[j] ~= nil and __set[j].mode == 1) then
-                count = count + 1
-
-            end
-        end
-        if (count >= (g.countpertab - 1)) then
-            for j = g.countpertab * i, g.countpertab * (i + 1) - 1 do
-                __set[j] = {
-                    mode = 1
-                }
-            end
-        end
-    end
-
-    local index = start_index
-
-    for k = start_index, last_index + 1 do
-        index = k
-        if __set[k] == nil then
-            offset = offset - 1
-            if (offset <= 0) then
-                break
-            end
-        end
-    end
-
-    DBGOUT("idx" .. index)
-    return index
-end
-function YAI_ACCOUNT_WAREHOUSE_MAKE_TAB(frame)
-    ACCOUNT_WAREHOUSE_MAKE_TAB_POST(true)
-    GetAccountWarehouseTitle('YAI_callback_get_account_warehouse_title')
-end
-function YAI_callback_get_account_warehouse_title(code, ret_json)
-    EBI_try_catch {
-        try = function()
-            EBI_try_catch {
-                try = function()
-                    callback_get_account_warehouse_title(code, ret_json)
-                end,
-                catch = function(error)
-                    ERROUT(error)
-                end
-            }
-
-            local parsed_json = json.decode(ret_json)
-            local list = parsed_json['list']
-            local count = 1
-            for k, v in pairs(list) do
-                count = count + 1
-                if v['title'] ~= '' then
-                    local index = tonumber(v['index'])
-
-                end
-            end
-            DBGOUT("maxtabs")
-            if (true == session.loginInfo.IsPremiumState(ITEM_TOKEN)) then
-                g.maxtabs = 5
-
-            else
-                g.maxtabs = 1
-
-            end
-            -- YAI_UPDATE_STATUS()
-        end,
-        catch = function(error)
-            ERROUT(error)
-        end
-    }
 end
 
 function YAI_ACCOUNTWAREHOUSE_OPEN(frame)
@@ -939,10 +747,6 @@ function YAI_CHECKITEM(invItem, silent)
     return true
 end
 
-function YAI_ON_OPEN_ACCOUNTWAREHOUSE_RESERVE()
-    ReserveScript("YAI_ON_OPEN_ACCOUNTWAREHOUSE()", 0.5)
-end
-
 function YAI_ONLY_CLOSE_OVERLAP()
     local overlap = ui.GetFrame("yaaccountinventory")
     overlap:ShowWindow(0)
@@ -961,39 +765,47 @@ end
 function YAI_COUNT_UPDATE()
 
     local awframe = ui.GetFrame("accountwarehouse")
-    local overlap = ui.GetFrame(addonNameLower)
-    -- print(tostring(awframe:IsVisible()))
+    local overlap = ui.GetFrame("yaaccountinventory")
+    -- print(overlap:IsVisible())
     if awframe:IsVisible() == 1 then
+        local maxcount = 0
+        local accountObj = GetMyAccountObj();
 
-        local frame = ui.GetFrame("accountwarehouse")
-        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-        local accountwarehouse_tab = GET_CHILD_RECURSIVELY(frame, "accountwarehouse_tab")
-        local tab_index = accountwarehouse_tab:GetSelectItemIndex();
-        if tab_index == 0 then
-            local itemcnt = GET_CHILD(gbox, "itemcnt")
-            local length = #itemcnt:GetText()
-            -- print(tostring(string.sub(itemcnt:GetText(), length - 4, length - 3)))
-            if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
-                g.count = string.sub(itemcnt:GetText(), length - 4, length - 3) * 1 + 280
-            else
-                g.count = string.sub(itemcnt:GetText(), length - 4, length - 3) * 1
-            end
+        if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
+            maxcount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                           accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                           ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+        else
+            maxcount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                           accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                           ADDITIONAL_SLOT_COUNT_BY_TOKEN
         end
-
+        -- print(tostring(maxcount))
         local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-        local guidlist = itemList:GetSortedGuidList();
-        local cnt = itemList:Count();
-        -- print(tostring(cnt .. "cnt"))
-        local invItemCount = YAI_COUNT()
+        local guidList = itemList:GetGuidList();
+        local sortedGuidList = itemList:GetSortedGuidList();
+        local invItemCount = sortedGuidList:Count();
+        -- print(tostring(invItemCount))
 
         local count_text = overlap:CreateOrGetControl("richtext", "count_text", 290, 80, 200, 50)
         count_text:SetText("")
-        count_text:SetText("{@st42}{ol}" .. invItemCount .. " / " .. g.count .. "{/}")
+        count_text:SetText("{@st42}{ol}" .. invItemCount .. " / " .. maxcount .. "{/}")
         return 1
     else
+
+        return 0
+
+    end
+
+end
+
+function YAI_OPEN_RETRY()
+    local overlap = ui.GetFrame(addonNameLower)
+    if overlap:IsVisible() == 0 then
+        overlap:ShowWindow(1)
         return 0
     end
-    -- print(invItemCount .. "/" .. count)
+    return 0
 end
 
 function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
@@ -1015,13 +827,6 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
             -- overlap:SetTitleBarSkin("mainframe_03")
             overlap:ShowWindow(1)
 
-            -- hide_tabe:SetSkinName("test_frame_low")
-            --[[local title = overlap:CreateOrGetControl("groupbox", "title", 10, 10, overlap:GetWidth() - 20, 60)
-            title:SetSkinName("test_frame_top")
-            local title_text = title:CreateOrGetControl("richtext", "count_text", 0, 10, 500, 40)
-            title_text:SetText("{ol}{s22}Another Account Inventory")
-            title_text:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT);
-            title_text:SetOffset(0, 0);]]
             g.debug = false
             g.debug_show = true
             if (g.debug_show) then
@@ -1031,8 +836,7 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
                 local close = overlap:CreateOrGetControl("button", "close", 10, 70, 80, 30)
                 AUTO_CAST(close)
                 close:SetText("{ol}YAI CLOSE")
-                -- close:SetImage("testclose_button")
-                -- close:SetGravity(ui.RIGHT, ui.TOP)
+
                 close:SetEventScript(ui.LBUTTONUP, "YAI_ONLY_CLOSE_OVERLAP")
                 -- タブ非表示
                 frame:GetChildRecursively("accountwarehouse_tab"):ShowWindow(1)
@@ -1040,6 +844,7 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
                 frame:GetChildRecursively("slotset"):ShowWindow(1)
                 frame:GetChildRecursively("receiveitem"):ShowWindow(1)
                 frame:RunUpdateScript("YAI_COUNT_UPDATE", 2.0);
+                frame:RunUpdateScript("YAI_OPEN_RETRY", 1.0);
                 -- YAI_COUNT_UPDATE()
             else
                 overlap:SetOffset(10, 200)
@@ -1745,96 +1550,6 @@ function YAI_INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls, typeS
     -- slotset:EnableSelection(1)
 end
 
-function YAI_UPDATE_STATUS(inc)
-    local awframe = ui.GetFrame("accountwarehouse")
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    local guidList = itemList:GetGuidList();
-    local sortedGuidList = itemList:GetSortedGuidList();
-    local isShowMap = {};
-    local sortedCnt = sortedGuidList:Count();
-
-    local invItemCount = YAI_COUNT();
-    -- スロット残数を表示
-    local itemcntold = GET_CHILD_RECURSIVELY(awframe, "itemcnt");
-    itemcntold:ShowWindow(0)
-    local extendbtn = GET_CHILD_RECURSIVELY(awframe, "extend");
-    extendbtn:ShowWindow(0)
-    local richtext_1 = GET_CHILD_RECURSIVELY(awframe, "richtext_1");
-    richtext_1:ShowWindow(0)
-    local itemcnt
-    local gauge
-    if (InstalledAWW()) then
-        local fillgbox = awframe:CreateOrGetControl("groupbox", "fill", 0, 0, 0, 0);
-        AUTO_CAST(fillgbox)
-        -- print(tostring(fillgbox:GetName()))
-        fillgbox:SetOffset(0, 0)
-        fillgbox:Resize(awframe:GetWidth(), 100)
-        fillgbox:SetSkinName("bg")
-        fillgbox:EnableHittestGroupBox(0)
-
-        local closebtn = fillgbox:CreateOrGetControl("button", "close", 0, 0, 0, 0);
-        AUTO_CAST(closebtn)
-        -- print(tostring(closebtn:GetName()))
-        closebtn:CloneFrom(awframe:GetChildRecursively("close"))
-        -- print(tostring("test"))
-        closebtn:SetGravity(ui.RIGHT, ui.TOP)
-        closebtn:SetOffset(36, 28)
-        closebtn:SetEventScript(ui.LBUTTONUP, "YAI_ACCOUNTWAREHOUSE_CLOSE_FROM_YAI")
-        itemcnt = fillgbox:CreateOrGetControl("richtext", "itemcnt222", 30, 20, 100, 24);
-        gauge = fillgbox:CreateOrGetControl("gauge", "gaugecnt", 30, 46, 560, 8);
-    else
-        itemcnt = itemcntold:GetParent():CreateOrGetControl("richtext", "itemcnt222", 30, itemcntold:GetY() - 20, 100,
-            24);
-        gauge = itemcntold:GetParent():CreateOrGetControl("gauge", "gaugecnt", 30, itemcntold:GetY() + 16, 560, 8);
-    end
-
-    AUTO_CAST(itemcnt)
-    AUTO_CAST(gauge)
-    itemcnt:EnableHitTest(1)
-    itemcnt:SetTextTooltip(L_("Click here to expand one basic slot."))
-    itemcnt:SetEventScript(ui.LBUTTONUP, "ACCOUNT_WAREHOUSE_EXTEND")
-
-    gauge:EnableHitTest(0)
-    itemcnt:ShowWindow(1)
-
-    gauge:ShowWindow(1)
-
-    -- if (inc) then
-    --     local prevcnt = tonumber(itemcnt:GetTextByKey("cnt"))
-    --     prevcnt = prevcnt + inc
-    --     --itemcnt:SetTextByKey('cnt', invItemCount);
-    -- else
-    --     --itemcnt:SetTextByKey('cnt', invItemCount);
-    -- end
-    local account = session.barrack.GetMyAccount();
-    local slotCount = account:GetAccountWarehouseSlotCount();
-    local aObj = GetMyAccountObj();
-    if nil == aObj then
-        return;
-    end
-
-    local price = GET_ACCOUNT_WAREHOUSE_EXTEND_PRICE(aObj, GET_COLONY_TAX_RATE_CURRENT_MAP())
-    local expandable
-    if price == nil then -- 추가 창고 슬롯 맥스
-        expandable = "{s16}(" .. L_("Basic Slots") .. ":" .. slotCount .. " *" .. L_("Reached to maximum.") .. ")"
-
-    else
-        expandable = "{s16}(" .. L_("Basic Slots") .. ":" .. slotCount .. " " .. L_("Expandable By") ..
-                         ":'{img icon_item_silver 24 24} " .. GET_COMMAED_STRING(price) .. ")"
-
-    end
-
-    -- itemcnt:SetTextByKey('slotmax', YAI_SLOT_LIMIT_FIRSTTAB());
-    itemcnt:SetText("{@st42}{s24}" .. L_("Item Count") .. " " .. invItemCount .. "/" .. LS.storagesize() .. expandable);
-    gauge:SetPoint(invItemCount, LS.storagesize());
-    -- itemcnt:UpdateFormat()
-end
-function YAI_ACCOUNTWAREHOUSE_CLOSE_FROM_YAI()
-    local frame = ui.GetFrame("accountwarehouse")
-    -- ui.CloseFrame('accountwarehouse')
-    YAI_ACCOUNTWAREHOUSE_CLOSE(frame)
-end
-
 function YAI_WITHDRAW_BY_CATEGORY(titlename)
     EBI_try_catch {
         try = function()
@@ -1991,3 +1706,277 @@ function YAI_ON_RBUTTON(frame, slot, argstr, argnum)
         end
     }
 end
+
+--[[function YAI_ON_TIMER()
+    if (ui.GetFrame("accountwarehouse"):IsVisible() == 1) then
+        YAI_ACTIVATE_MOUSEBUTTON()
+
+    end
+end]]
+--[[function YAI_CLOSE_UI(frame, ctrl, numsttr, numarg)
+    YAI_DEACTIVATE_MOUSEBUTTON()
+    ui.CloseFrame(addonNameLower)
+    base["CLOSE_UI"](frame, ctrl, numsttr, numarg)
+
+end]]
+--[[function YAI_SHOW()
+    ui.GetFrame(g.framename):ShowWindow(1)
+end]]
+--[[function YAI_COUNT()
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidlist = itemList:GetSortedGuidList();
+    local cnt = itemList:Count();
+    local rcnt = 0
+    for i = 0, cnt - 1 do
+        local guid = guidlist:Get(i);
+        local invItem = itemList:GetItemByGuid(guid)
+        local invItem_obj = GetIES(invItem:GetObject());
+        if invItem_obj.ClassName ~= MONEY_NAME then
+            rcnt = rcnt + 1
+        end
+    end
+    -- print(rcnt .. "rcnt")
+    return rcnt
+end
+
+function YAI_get_exist_item_index(insertItem)
+    local ret1 = false
+    local ret2 = -1
+
+    if geItemTable.IsStack(insertItem.ClassID) == 1 then
+        local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+        local sortedGuidList = itemList:GetGuidList();
+        local sortedCnt = sortedGuidList:Count();
+
+        for i = 0, sortedCnt - 1 do
+            local guid = sortedGuidList:Get(i);
+            local invItem = itemList:GetItemByGuid(guid)
+            local invItem_obj = GetIES(invItem:GetObject());
+            if insertItem.ClassID == invItem_obj.ClassID then
+                ret1 = true
+                ret2 = invItem.invIndex
+                break
+            end
+        end
+        return ret1, ret2
+    else
+        return false, -1
+    end
+end
+function YAI_get_valid_index()
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetGuidList();
+    local sortedCnt = sortedGuidList:Count();
+    local account = session.barrack.GetMyAccount();
+    local slotCount = account:GetAccountWarehouseSlotCount();
+    local start_index = 0
+    local last_index = YAI_SLOT_LIMIT_FIRSTTAB() - 1
+    local itemCnt = 0;
+    local guidList = itemList:GetGuidList();
+    local cnt = guidList:Count();
+    local offset = 0
+    for i = 0, cnt - 1 do
+        local guid = guidList:Get(i);
+        local invItem = itemList:GetItemByGuid(guid);
+    end
+    local __set = {}
+    local inc = 0
+    local money_offset = 0
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        local obj = GetIES(invItem:GetObject());
+
+        if obj.ClassName ~= MONEY_NAME then
+            __set[invItem.invIndex] = {
+                item = invItem,
+                obj = obj,
+                mode = 1
+            }
+
+        else
+            -- __set[invItem.invIndex] = {item = invItem, obj = obj, mode = 2}
+            money_offset = 1
+        end
+    end
+    local first = 0
+    for i = 0, slotCount do
+        if (__set[i] ~= nil) then
+            first = first + 1
+
+        end
+    end
+    -- -1 is preventaion tos bug
+    DBGOUT(string.format("prevent %d/%d", first, slotCount - 1))
+    if (first >= (slotCount - 1)) then
+
+        for i = 0, g.countpertab do
+            __set[i] = {
+                mode = 1
+            }
+        end
+    end
+    -- prevent tos bug
+    for i = 1, g.maxtabs do
+        local count = 0
+        for j = g.countpertab * i, g.countpertab * (i + 1) - 1 do
+            if (__set[j] ~= nil and __set[j].mode == 1) then
+                count = count + 1
+
+            end
+        end
+        if (count >= (g.countpertab - 1)) then
+            for j = g.countpertab * i, g.countpertab * (i + 1) - 1 do
+                __set[j] = {
+                    mode = 1
+                }
+            end
+        end
+    end
+
+    local index = start_index
+
+    for k = start_index, last_index + 1 do
+        index = k
+        if __set[k] == nil then
+            offset = offset - 1
+            if (offset <= 0) then
+                break
+            end
+        end
+    end
+
+    DBGOUT("idx" .. index)
+    return index
+end
+function YAI_ACCOUNT_WAREHOUSE_MAKE_TAB(frame)
+    ACCOUNT_WAREHOUSE_MAKE_TAB_POST(true)
+    GetAccountWarehouseTitle('YAI_callback_get_account_warehouse_title')
+end
+function YAI_callback_get_account_warehouse_title(code, ret_json)
+    EBI_try_catch {
+        try = function()
+            EBI_try_catch {
+                try = function()
+                    callback_get_account_warehouse_title(code, ret_json)
+                end,
+                catch = function(error)
+                    ERROUT(error)
+                end
+            }
+
+            local parsed_json = json.decode(ret_json)
+            local list = parsed_json['list']
+            local count = 1
+            for k, v in pairs(list) do
+                count = count + 1
+                if v['title'] ~= '' then
+                    local index = tonumber(v['index'])
+
+                end
+            end
+            DBGOUT("maxtabs")
+            if (true == session.loginInfo.IsPremiumState(ITEM_TOKEN)) then
+                g.maxtabs = 5
+
+            else
+                g.maxtabs = 1
+
+            end
+            -- YAI_UPDATE_STATUS()
+        end,
+        catch = function(error)
+            ERROUT(error)
+        end
+    }
+end]]
+--[[function YAI_UPDATE_STATUS(inc)
+    local awframe = ui.GetFrame("accountwarehouse")
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local isShowMap = {};
+    local sortedCnt = sortedGuidList:Count();
+
+    local invItemCount = YAI_COUNT();
+    -- スロット残数を表示
+    local itemcntold = GET_CHILD_RECURSIVELY(awframe, "itemcnt");
+    itemcntold:ShowWindow(0)
+    local extendbtn = GET_CHILD_RECURSIVELY(awframe, "extend");
+    extendbtn:ShowWindow(0)
+    local richtext_1 = GET_CHILD_RECURSIVELY(awframe, "richtext_1");
+    richtext_1:ShowWindow(0)
+    local itemcnt
+    local gauge
+    if (InstalledAWW()) then
+        local fillgbox = awframe:CreateOrGetControl("groupbox", "fill", 0, 0, 0, 0);
+        AUTO_CAST(fillgbox)
+        -- print(tostring(fillgbox:GetName()))
+        fillgbox:SetOffset(0, 0)
+        fillgbox:Resize(awframe:GetWidth(), 100)
+        fillgbox:SetSkinName("bg")
+        fillgbox:EnableHittestGroupBox(0)
+
+        local closebtn = fillgbox:CreateOrGetControl("button", "close", 0, 0, 0, 0);
+        AUTO_CAST(closebtn)
+        -- print(tostring(closebtn:GetName()))
+        closebtn:CloneFrom(awframe:GetChildRecursively("close"))
+        -- print(tostring("test"))
+        closebtn:SetGravity(ui.RIGHT, ui.TOP)
+        closebtn:SetOffset(36, 28)
+        closebtn:SetEventScript(ui.LBUTTONUP, "YAI_ACCOUNTWAREHOUSE_CLOSE_FROM_YAI")
+        itemcnt = fillgbox:CreateOrGetControl("richtext", "itemcnt222", 30, 20, 100, 24);
+        gauge = fillgbox:CreateOrGetControl("gauge", "gaugecnt", 30, 46, 560, 8);
+    else
+        itemcnt = itemcntold:GetParent():CreateOrGetControl("richtext", "itemcnt222", 30, itemcntold:GetY() - 20, 100,
+            24);
+        gauge = itemcntold:GetParent():CreateOrGetControl("gauge", "gaugecnt", 30, itemcntold:GetY() + 16, 560, 8);
+    end
+
+    AUTO_CAST(itemcnt)
+    AUTO_CAST(gauge)
+    itemcnt:EnableHitTest(1)
+    itemcnt:SetTextTooltip(L_("Click here to expand one basic slot."))
+    itemcnt:SetEventScript(ui.LBUTTONUP, "ACCOUNT_WAREHOUSE_EXTEND")
+
+    gauge:EnableHitTest(0)
+    itemcnt:ShowWindow(1)
+
+    gauge:ShowWindow(1)
+
+    -- if (inc) then
+    --     local prevcnt = tonumber(itemcnt:GetTextByKey("cnt"))
+    --     prevcnt = prevcnt + inc
+    --     --itemcnt:SetTextByKey('cnt', invItemCount);
+    -- else
+    --     --itemcnt:SetTextByKey('cnt', invItemCount);
+    -- end
+    local account = session.barrack.GetMyAccount();
+    local slotCount = account:GetAccountWarehouseSlotCount();
+    local aObj = GetMyAccountObj();
+    if nil == aObj then
+        return;
+    end
+
+    local price = GET_ACCOUNT_WAREHOUSE_EXTEND_PRICE(aObj, GET_COLONY_TAX_RATE_CURRENT_MAP())
+    local expandable
+    if price == nil then -- 추가 창고 슬롯 맥스
+        expandable = "{s16}(" .. L_("Basic Slots") .. ":" .. slotCount .. " *" .. L_("Reached to maximum.") .. ")"
+
+    else
+        expandable = "{s16}(" .. L_("Basic Slots") .. ":" .. slotCount .. " " .. L_("Expandable By") ..
+                         ":'{img icon_item_silver 24 24} " .. GET_COMMAED_STRING(price) .. ")"
+
+    end
+
+    -- itemcnt:SetTextByKey('slotmax', YAI_SLOT_LIMIT_FIRSTTAB());
+    itemcnt:SetText("{@st42}{s24}" .. L_("Item Count") .. " " .. invItemCount .. "/" .. LS.storagesize() .. expandable);
+    gauge:SetPoint(invItemCount, LS.storagesize());
+    -- itemcnt:UpdateFormat()
+end
+function YAI_ACCOUNTWAREHOUSE_CLOSE_FROM_YAI()
+    local frame = ui.GetFrame("accountwarehouse")
+    -- ui.CloseFrame('accountwarehouse')
+    YAI_ACCOUNTWAREHOUSE_CLOSE(frame)
+end]]

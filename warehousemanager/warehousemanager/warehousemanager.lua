@@ -1,3 +1,4 @@
+-- v3.0.2 tos側のバグで動かなくなるの修正
 -- v3.0.1 倉庫のタブ毎のアイテム数が1桁の場合動かないのを修正
 -- v3.0.0 入庫時に引っかかるのを直した。
 -- 애드온 이름
@@ -12,7 +13,7 @@ local authorLower = string.lower(author)
 
 -- 버전
 local baseversion = '1.1.7'
-local version = '3.0.1'
+local version = '3.0.2'
 
 -- 전역 변수 설정
 _G['ADDONS'] = _G['ADDONS'] or {}
@@ -430,65 +431,107 @@ function WarehouseManager.WithdrawSilver(self)
 end
 -- 4=350 3=273 0=52
 
-function WarehouseManager_get_valid_index(i)
-
+function WarehouseManager_get_valid_index()
     local frame = ui.GetFrame("accountwarehouse")
-    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
     local tab = GET_CHILD(frame, "accountwarehouse_tab");
-
-    tab:SelectTab(i)
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
     local itemcnt = GET_CHILD(gbox, "itemcnt")
     local length = #itemcnt:GetText()
-    -- print(tostring(itemcnt:GetText()))
+    local index = 0
+    local accountObj = GetMyAccountObj();
+    local right0 = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                       accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                       ADDITIONAL_SLOT_COUNT_BY_TOKEN
 
-    if i == 1 then
-        WarehouseManager.slot_per_tab_right_1 = WarehouseManager.slot_per_tab_right_0 + 70 -- 右側の数字を取得
-        if length == 14 then
-            WarehouseManager.slot_per_tab_left_1 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-        else
-            WarehouseManager.slot_per_tab_left_1 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-        end
+    local maxcnt = right0 + 280
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local invItemCount = sortedGuidList:Count();
+    print(tostring(invItemCount))
 
-    elseif i == 2 then
-        WarehouseManager.slot_per_tab_right_2 = WarehouseManager.slot_per_tab_right_0 + 140 -- 右側の数字を取得
-        if length == 14 then
-            WarehouseManager.slot_per_tab_left_2 = WarehouseManager.slot_per_tab_right_0 + 70 +
-                                                       string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-        else
-            WarehouseManager.slot_per_tab_left_2 = WarehouseManager.slot_per_tab_right_0 + 70 +
-                                                       string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-        end
+    if invItemCount < maxcnt then
+        for i = 4, 0, -1 do
+            -- print("i")
+            if i == 4 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left4 = 0
 
-        -- print(WarehouseManager.slot_per_tab_right_2)
-        -- print(WarehouseManager.slot_per_tab_left_2)
-    elseif i == 3 then
-        WarehouseManager.slot_per_tab_right_3 = WarehouseManager.slot_per_tab_right_0 + 210 -- 右側の数字を取得
-        if length == 14 then
-            WarehouseManager.slot_per_tab_left_3 = WarehouseManager.slot_per_tab_right_0 + 140 +
-                                                       string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-        else
-            WarehouseManager.slot_per_tab_left_3 = WarehouseManager.slot_per_tab_right_0 + 140 +
-                                                       string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                if length == 14 then
+                    left4 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left4 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left4 < 70 then
+                    index = right0 + 280
+                    return index
+                end
+            elseif i == 3 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left3 = 0
+
+                if length == 14 then
+                    left3 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left3 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left3 < 70 then
+                    index = right0 + 210
+                    return index
+                end
+            elseif i == 2 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left2 = 0
+
+                if length == 14 then
+                    left2 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left2 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left2 < 70 then
+                    index = right0 + 140
+                    return index
+                end
+            elseif i == 1 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left1 = 0
+
+                if length == 14 then
+                    left1 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left1 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left1 < 70 then
+                    index = right0 + 70
+                    return index
+                end
+            elseif i == 0 then
+                tab:SelectTab(0)
+
+                return index
+            end
         end
-        -- print(WarehouseManager.slot_per_tab_right_3)
-        -- print(WarehouseManager.slot_per_tab_left_3)
-    elseif i == 4 then
-        WarehouseManager.slot_per_tab_right_4 = WarehouseManager.slot_per_tab_right_0 + 280 -- 右側の数字を取得
-        if length == 14 then
-            WarehouseManager.slot_per_tab_left_4 = WarehouseManager.slot_per_tab_right_0 + 210 +
-                                                       string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-        else
-            WarehouseManager.slot_per_tab_left_4 = WarehouseManager.slot_per_tab_right_0 + 210 +
-                                                       string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-        end
-        -- print(WarehouseManager.slot_per_tab_right_3)
-        -- print(WarehouseManager.slot_per_tab_left_3)
+    else
+        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
+        return
     end
 
 end
 
 -- 인벤토리 아이템 넣기
-function WarehouseManager.DepositItems(self)
+--[[function WarehouseManager.DepositItems(self)
     -- 팀 창고가 열려 있지 않은 경우
     if not self:IsWarehouseVisible() then
         return self.RET_WAREHOUSE_CLOSED
@@ -536,7 +579,6 @@ function WarehouseManager.DepositItems(self)
     local guidList = itemList:GetGuidList();
     local sortedGuidList = itemList:GetSortedGuidList();
     local sortedCnt = sortedGuidList:Count();
-    -- print(sortedCnt .. ":cnt")
 
     for i = 0, sortedCnt - 1 do
         local guid = sortedGuidList:Get(i)
@@ -549,10 +591,9 @@ function WarehouseManager.DepositItems(self)
             local classid = itemobj.ClassID
             local classname = itemobj.ClassName
             if tostring(classname) == obj.ClassName then
-                -- print(tostring(classname) .. ":" .. obj.ClassName)
-                -- print(tostring(depositItem.ItemGuid))
+
                 item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, depositItem.ItemGuid, depositItem.Count, handle)
-                -- break
+
             end
         end
     end
@@ -584,6 +625,56 @@ function WarehouseManager.DepositItems(self)
 
     -- item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, depositItem.ItemGuid, depositItem.Count, handle, depositItem.Index)
     -- item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, depositItem.ItemGuid, depositItem.Count, handle, goal_index)
+    return self.RET_KEEP_DEPOSIT, depositItem
+end]]
+
+function WarehouseManager.DepositItems(self)
+    -- 팀 창고가 열려 있지 않은 경우
+    if not self:IsWarehouseVisible() then
+        return self.RET_WAREHOUSE_CLOSED
+    end
+
+    -- 넣을 아이템이 없을 경우
+    if not self:IsExistDepositItemList() then
+        return self.RET_NO_NEED_DEPOSIT
+    end
+
+    -- 아이템을 모두 넣었을 경우
+    if not self:IsRemainDepositItemList() then
+        self:SetDepositItemList(nil)
+        return self.RET_SUCCESS
+    end
+
+    -- 인벤토리 아이템 넣기
+    local depositItem = self:DequeueDepositItemList()
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local handle = warehouseFrame:GetUserIValue('HANDLE')
+
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local sortedCnt = sortedGuidList:Count();
+
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i)
+
+        local invItem = itemList:GetItemByGuid(guid)
+        local obj = GetIES(invItem:GetObject());
+        if obj.ClassName ~= MONEY_NAME then
+            local Item = session.GetInvItemByGuid(depositItem.ItemGuid);
+            local itemobj = GetIES(Item:GetObject());
+            local classid = itemobj.ClassID
+            local classname = itemobj.ClassName
+            if tostring(classname) == obj.ClassName then
+
+                item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, depositItem.ItemGuid, depositItem.Count, handle)
+
+            end
+        end
+    end
+    local index = WarehouseManager_get_valid_index()
+    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, depositItem.ItemGuid, depositItem.Count, handle, index)
+
     return self.RET_KEEP_DEPOSIT, depositItem
 end
 

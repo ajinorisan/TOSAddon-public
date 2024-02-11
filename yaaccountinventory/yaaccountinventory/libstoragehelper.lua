@@ -213,7 +213,8 @@ function p.storagesize()
         local account = session.barrack.GetMyAccount();
         local slotCount = account:GetAccountWarehouseSlotCount();
 
-        return (slotCount - 1) + (p.gettabcount() - 1) * (p.getcountpertab() - 1)
+        -- return (slotCount - 1) + (p.gettabcount() - 1) * (p.getcountpertab() - 1)
+        return (slotCount) + (p.gettabcount() - 1) * (p.getcountpertab())
     elseif (p.target == IT_WAREHOUSE) then
         local etc = GetMyEtcObject();
         return etc.MaxWarehouseCount;
@@ -320,6 +321,117 @@ function p.get_valid_index_2(i)
 
 end
 
+function p.get_goal_index()
+    local frame = ui.GetFrame("accountwarehouse")
+    local tab = GET_CHILD(frame, "accountwarehouse_tab");
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+    local itemcnt = GET_CHILD(gbox, "itemcnt")
+    local length = #itemcnt:GetText()
+    local index = 0
+    local accountObj = GetMyAccountObj();
+    local right0 = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                       accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                       ADDITIONAL_SLOT_COUNT_BY_TOKEN
+    tab:SelectTab(0)
+    --[[print(length)
+
+    print(tostring(accountObj.BasicAccountWarehouseSlotCount))
+    print(tostring(accountObj.MaxAccountWarehouseCount))
+    print(tostring(accountObj.AccountWareHouseExtend))
+    print(tostring(accountObj.AccountWareHouseExtendByItem))
+    print(tostring(ADDITIONAL_SLOT_COUNT_BY_TOKEN))
+
+    -- right0 = string.sub(itemcnt:GetText(), length - 4, length - 3) * 1]]
+
+    local maxcnt = right0 + 280
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local invItemCount = sortedGuidList:Count();
+    -- local invItemCount = YAI_COUNT()
+    print(tostring(invItemCount))
+    print(tostring(maxcnt))
+
+    if invItemCount < maxcnt then
+        for i = 4, 0, -1 do
+            -- print("i")
+            if i == 4 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left4 = 0
+
+                if length == 14 then
+                    left4 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left4 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left4 < 70 then
+                    index = right0 + 280
+                    return index
+                end
+            elseif i == 3 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left3 = 0
+
+                if length == 14 then
+                    left3 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left3 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left3 < 70 then
+                    index = right0 + 210
+                    return index
+                end
+            elseif i == 2 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left2 = 0
+
+                if length == 14 then
+                    left2 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left2 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left2 < 70 then
+                    index = right0 + 140
+                    return index
+                end
+            elseif i == 1 then
+                tab:SelectTab(i)
+                itemcnt = GET_CHILD(gbox, "itemcnt")
+                length = #itemcnt:GetText()
+                local left1 = 0
+
+                if length == 14 then
+                    left1 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left1 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left1 < 70 then
+                    index = right0 + 70
+                    return index
+                end
+            elseif i == 0 then
+                tab:SelectTab(0)
+
+                return index
+            end
+        end
+    else
+        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
+        return
+    end
+
+end
+
 -- put item
 -- if count is nil,will use totalcount
 -- return if succeeded true ,else false 
@@ -340,96 +452,7 @@ function p.putitem(iesid, count, slient)
 
                 if (ret == false) then
 
-                    local frame = ui.GetFrame("accountwarehouse")
-                    local tab = GET_CHILD(frame, "accountwarehouse_tab");
-                    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-                    local tab_left_count_text_0 = 0
-                    local tab_right_count_text_0 = 0
-                    local tab_left_count_text_1 = 0
-                    local tab_right_count_text_1 = 0
-                    local tab_left_count_text_2 = 0
-                    local tab_right_count_text_2 = 0
-                    local tab_left_count_text_3 = 0
-                    local tab_right_count_text_3 = 0
-                    local tab_left_count_text_4 = 0
-                    local tab_right_count_text_4 = 0
-                    -- {@st42}%s/%s{/}　itemcntはこの形
-
-                    for i = 0, 4 do
-                        tab:SelectTab(i)
-                        local itemcnt = GET_CHILD(gbox, "itemcnt")
-                        local length = #itemcnt:GetText()
-                        if i == 0 then
-                            tab_right_count_text_0 = string.sub(itemcnt:GetText(), length - 4, length - 3) * 1
-                            if length == 14 then
-                                tab_left_count_text_0 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                            else
-                                tab_left_count_text_0 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                            end
-                            -- print(tostring(tab_left_count_text_0) .. "/" .. tostring(tab_right_count_text_0))
-                        elseif i == 1 then
-                            tab_right_count_text_1 = tab_right_count_text_0 + 70
-                            if length == 14 then
-                                tab_left_count_text_1 = tab_right_count_text_0 +
-                                                            string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                            else
-                                tab_left_count_text_1 = tab_right_count_text_0 +
-                                                            string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                            end
-                            -- print(tostring(tab_left_count_text_1) .. "/" .. tostring(tab_right_count_text_1))
-                        elseif i == 2 then
-                            tab_right_count_text_2 = tab_right_count_text_0 + 140
-                            if length == 14 then
-                                tab_left_count_text_2 = tab_right_count_text_0 + 70 +
-                                                            string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                            else
-                                tab_left_count_text_2 = tab_right_count_text_0 + 70 +
-                                                            string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                            end
-                            -- print(tostring(tab_left_count_text_2) .. "/" .. tostring(tab_right_count_text_2))
-                        elseif i == 3 then
-                            tab_right_count_text_3 = tab_right_count_text_0 + 210
-                            if length == 14 then
-                                tab_left_count_text_3 = tab_right_count_text_0 + 140 +
-                                                            string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                            else
-                                tab_left_count_text_3 = tab_right_count_text_0 + 140 +
-                                                            string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                            end
-                            -- print(tostring(tab_left_count_text_3) .. "/" .. tostring(tab_right_count_text_3))
-                        elseif i == 4 then
-                            tab_right_count_text_4 = tab_right_count_text_0 + 280
-                            if length == 14 then
-                                tab_left_count_text_4 = tab_right_count_text_0 + 210 +
-                                                            string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                            else
-                                tab_left_count_text_4 = tab_right_count_text_0 + 210 +
-                                                            string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                            end
-                            -- print(tostring(tab_left_count_text_4) .. "/" .. tostring(tab_right_count_text_4))
-                        end
-
-                    end
-
-                    if tab_left_count_text_4 ~= tab_right_count_text_4 then
-                        tab:SelectTab(4)
-                        idx = tab_left_count_text_4
-                    elseif tab_left_count_text_3 ~= tab_right_count_text_3 then
-                        tab:SelectTab(3)
-                        idx = tab_left_count_text_3
-                    elseif tab_left_count_text_2 ~= tab_right_count_text_2 then
-                        tab:SelectTab(2)
-                        idx = tab_left_count_text_2
-                    elseif tab_left_count_text_1 ~= tab_right_count_text_1 then
-                        tab:SelectTab(1)
-                        idx = tab_left_count_text_1
-                    elseif tab_left_count_text_0 ~= tab_right_count_text_0 then
-                        tab:SelectTab(0)
-                        idx = tab_left_count_text_0
-                    else
-                        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
-
-                    end
+                    idx = p.get_goal_index()
                 end
                 -- print(tostring(idx))
                 if (idx) then
