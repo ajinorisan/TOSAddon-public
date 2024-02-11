@@ -12,7 +12,7 @@
 		"name" : "Battle Spirit",
 		"file" : "battlespirit",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "battlespirit",
 		"unicode" : "⛄",
 		"description" : "フサリアバフをお知らせ。Notify Fusariah Buff.후사리아 버프를 알려드립니다",

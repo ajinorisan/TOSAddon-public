@@ -1,8 +1,7 @@
--- v1.0.1 エフェクトがでかすぎたのを修正。MAXの時に通常攻撃を使わずにいるとうるさかったのを修正。
 local addonName = "BATTLESPIRIT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -78,9 +77,10 @@ end
 function BATTLESPIRIT_FRAME_INIT(frame)
     local pc = GetMyPCObject();
     local nowjobName = pc.JobName;
-    print(tostring(nowjobName))
+
     local nowjobID = GetClass("Job", nowjobName).ClassID;
-    if nowjobID == 1025 then
+
+    if nowjobID >= 1001 and nowjobID <= 1025 then
         local frame = ui.GetFrame("battlespirit")
 
         frame:SetSkinName("None");
