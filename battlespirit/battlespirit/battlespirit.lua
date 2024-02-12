@@ -1,8 +1,8 @@
--- v1.0.1 いつも通りバグってたの修正。
+-- v1.0.2 音選べる様に。
 local addonName = "BATTLESPIRIT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -44,7 +44,7 @@ function BATTLESPIRIT_BUFF_ADD(frame, msg, buffIndex, buffType)
         effect.DetachActorEffect(actor, effectName, 0);
         gauge:SetColorTone("FFFFFF00");
         gauge:ShowWindow(1)
-        g.buffup = 1
+
         g.buffmax = 0
     end
 
@@ -63,7 +63,7 @@ function BATTLESPIRIT_BUFF_REMOVE(frame, msg, buffIndex, buffType)
         local gauge = frame:GetChildRecursively('gauge');
         AUTO_CAST(gauge)
         gauge:ShowWindow(0)
-        g.buffup = 1
+
         g.buffmax = 0
     end
 
@@ -97,7 +97,9 @@ function BATTLESPIRIT_FRAME_INIT(frame)
 
         local text = frame:CreateOrGetControl("richtext", "text", 5, 0, 200, 20)
         AUTO_CAST(text)
-        text:SetText("{ol}battle spirt")
+        text:SetText("{ol}battle spirit")
+        text:SetEventScript(ui.RBUTTONUP, "BATTLESPIRIT_CONTEXTMENU")
+        text:SetTextTooltip("Right-click Sound Setting")
 
         local gauge = frame:CreateOrGetControl("gauge", "gauge", 5, 20, 190, 20);
         AUTO_CAST(gauge)
@@ -110,6 +112,75 @@ function BATTLESPIRIT_FRAME_INIT(frame)
 
 end
 
+function BATTLESPIRIT_CONTEXTMENU()
+
+    local handlelist = {
+        [1] = "premium_enchantchip",
+        [2] = "system_craft_potion_succes",
+        [3] = 'sys_confirm',
+        [4] = 'sys_cube_open_normal',
+        [5] = 'sys_cube_open_jackpot',
+        [6] = 'sys_tp_box_3',
+        [7] = 'sys_tp_box_4'
+
+    }
+
+    local context = ui.CreateContextMenu("SOUND_SETTING", "Sound Setting", 0, 0, 100, 100);
+
+    local handle = ""
+    local scp
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[1])
+    ui.AddContextMenuItem(context, "Cancel");
+    ui.AddContextMenuItem(context, "-------------------");
+    ui.AddContextMenuItem(context, "8+ levels of setting");
+    ui.AddContextMenuItem(context, "--------------------");
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[1])
+    ui.AddContextMenuItem(context, "premium_enchantchip", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[2])
+    ui.AddContextMenuItem(context, "sys_jam_barguage", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[3])
+    ui.AddContextMenuItem(context, "sys_confirm", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[4])
+    ui.AddContextMenuItem(context, "sys_cube_open_normal", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[5])
+    ui.AddContextMenuItem(context, "sys_cube_open_jackpot", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[6])
+    ui.AddContextMenuItem(context, "sys_tp_box_3", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT('%s')", handlelist[7])
+    ui.AddContextMenuItem(context, "sys_tp_box_4", scp);
+
+    ui.AddContextMenuItem(context, "---------------------");
+    ui.AddContextMenuItem(context, "10 levels of setting");
+    ui.AddContextMenuItem(context, "----------------------");
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT_TENLV('%s')", handlelist[1])
+    ui.AddContextMenuItem(context, " premium_enchantchip", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT_TENLV('%s')", handlelist[2])
+    ui.AddContextMenuItem(context, " sys_jam_barguage", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT_TENLV('%s')", handlelist[3])
+    ui.AddContextMenuItem(context, " sys_confirm", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT_TENLV('%s')", handlelist[4])
+    ui.AddContextMenuItem(context, " sys_cube_open_normal", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT_TENLV('%s')", handlelist[5])
+    ui.AddContextMenuItem(context, " sys_cube_open_jackpot", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT_TENLV('%s')", handlelist[6])
+    ui.AddContextMenuItem(context, " sys_tp_box_3", scp);
+    scp = string.format("BATTLESPIRIT_SOUND_SELECT_TENLV('%s')", handlelist[7])
+    ui.AddContextMenuItem(context, " sys_tp_box_4", scp);
+    ui.OpenContextMenu(context);
+end
+
+function BATTLESPIRIT_SOUND_SELECT_TENLV(handle)
+    imcSound.PlaySoundEvent(handle);
+    g.settings.tensound = handle
+    BATTLESPIRIT_SAVE_SETTINGS()
+end
+
+function BATTLESPIRIT_SOUND_SELECT(handle)
+    imcSound.PlaySoundEvent(handle);
+    g.settings.sound = handle
+    BATTLESPIRIT_SAVE_SETTINGS()
+end
+
 function BATTLESPIRIT_LOAD_SETTINGS()
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
     if err then
@@ -120,12 +191,15 @@ function BATTLESPIRIT_LOAD_SETTINGS()
 
         g.settings = {
             X = 400,
-            Y = 400
+            Y = 400,
+            sound = "premium_enchantchip",
+            tensound = "sys_tp_box_3"
         }
 
         BATTLESPIRIT_SAVE_SETTINGS()
 
     end
+
     g.settings = settings
 end
 
@@ -147,38 +221,48 @@ function BATTLESPIRIT_SET_GAUGE(frame)
         if (buff.over >= 8 and buff.over <= 9) and g.buffmax == 0 then
 
             if (IsBattleState(GetMyPCObject()) == 1) then
-                -- print("test")
-                effect.AddActorEffectByOffset(actor, effectName, 1.0, "MID", true, true);
-                effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
+
+                effect.AddActorEffectByOffset(actor, effectName, 1.5, "MID", true, true);
+                if g.settings.sound == nil then
+                    g.settings.sound = "premium_enchantchip"
+                    BATTLESPIRIT_SAVE_SETTINGS()
+                end
+                imcSound.PlaySoundEvent(g.settings.sound);
 
             end
             gauge:SetSkinName("None");
+
             gauge:SetSkinName("test_gauge_barrack_defence");
-            -- gauge:SetColorTone("FF800080");
-            gauge:SetColorTone("FFEE82EE");
-            -- g.buffmax = 1
+            gauge:SetSkinName("gauge");
+            gauge:SetColorTone("FFFF6666");
+
         elseif (buff.over == 10) and g.buffmax == 0 then
             if (IsBattleState(GetMyPCObject()) == 1) then
 
-                effect.AddActorEffectByOffset(actor, effectName, 1.5, "MID", true, true);
-                effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
+                effect.AddActorEffectByOffset(actor, effectName, 2.0, "MID", true, true);
+                -- effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
+                if g.settings.tensound == nil then
+                    g.settings.tensound = "sys_tp_box_3"
+                    BATTLESPIRIT_SAVE_SETTINGS()
+                end
+                imcSound.PlaySoundEvent(g.settings.tensound);
 
             end
             gauge:SetSkinName("test_gauge_barrack_defence");
+            gauge:SetSkinName("gauge");
             gauge:SetColorTone("FFFF0000");
             g.buffmax = 1
 
         elseif (buff.over == 10) and g.buffmax == 1 then
             gauge:SetSkinName("test_gauge_barrack_defence");
+            gauge:SetSkinName("gauge");
             gauge:SetColorTone("FFFF0000");
         else
+
             effect.DetachActorEffect(actor, effectName, 0);
             gauge:SetSkinName("test_gauge_barrack_defence");
-            if g.buffup == 1 then
-                gauge:SetColorTone("FFFFFF00");
-            else
-                gauge:SetColorTone("FF0000FF");
-            end
+            gauge:SetSkinName("gauge");
+
         end
 
     end
