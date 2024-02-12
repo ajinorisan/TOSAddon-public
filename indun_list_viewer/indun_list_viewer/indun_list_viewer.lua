@@ -3,10 +3,11 @@
 -- v1.0.2 CCボタン追加。クローズボタンの位置調整。
 -- v1.0.3 クローズボタンを戻した。ツールチップ追加。
 -- v1.0.4 ゲームスタート時の不可軽減
+-- v1.0.5 ゲーム立ち上げ時の初期化処理がバグってたのを修正。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -169,6 +170,7 @@ function indun_list_viewer_instantcc()
 
 end
 
+g.first = 0
 function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -178,7 +180,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
     -- acutil.setupEvent(addon, "CREATE_SCROLL_CHAR_LIST", "indun_list_viewer_CREATE_SCROLL_CHAR_LIST")
     -- acutil.setupHook(indun_list_viewer_CREATE_SCROLL_CHAR_LIST, "CREATE_SCROLL_CHAR_LIST");
-
+    g.first = g.first + 1
     local pc = GetMyPCObject();
 
     local curMap = GetZoneName(pc)
@@ -194,6 +196,14 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
         end
 
     end
+    -- print(g.first)
+    --[[local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+        print(tostring(pcName))
+    end]]
 
 end
 
@@ -285,14 +295,25 @@ function indun_list_viewer_raid_reset_time()
         sec = 0
     })
 
+    if g.settings.raid_reset == nil then
+        g.settings.raid_reset = false
+    end
+    local secondsSinceMondayAM6 = 0
     -- 月曜日からの経過秒数を計算
-    local secondsSinceMondayAM6 = currentTime - g.settings.raid_reset_time
-    -- local secondsSinceMondayAM6 = currentTime - 1702846800
-    print("indun_list_viewer 月曜日の朝6時から現在までの経過時間（秒）: " .. secondsSinceMondayAM6)
+    if g.settings.raid_reset_time == 1707685200 and g.settings.raid_reset == false and g.first >= 2 then
+        -- local secondsSinceMondayAM6 = currentTime - g.settings.raid_reset_time
+        -- print("false")
+        secondsSinceMondayAM6 = currentTime - 1702846800
+        g.settings.raid_reset = true
+        indun_list_viewer_save_settings()
+    else
+        secondsSinceMondayAM6 = currentTime - g.settings.raid_reset_time
+    end
+    -- print("indun_list_viewer 月曜日の朝6時から現在までの経過時間（秒）: " .. secondsSinceMondayAM6)
 
     local nextreset = 604800 -- 次の月曜日の6時までの秒数
 
-    if secondsSinceMondayAM6 > nextreset then
+    if secondsSinceMondayAM6 > nextreset and g.first >= 2 then
         g.settings.raid_reset_time = mondayAM6
         indun_list_viewer_save_settings()
         -- indun_list_viewer_load_settings()
@@ -311,7 +332,7 @@ function indun_list_viewer_raid_reset()
     for i = 0, cnt - 1 do
         local pcInfo = accountInfo:GetBarrackPCByIndex(i)
         local pcName = pcInfo:GetName()
-        print(tostring(pcName))
+        -- print(tostring(pcName))
         for _, charData in pairs(g.settings.charactors) do
             if charData.name == pcName then
                 charData.raid_count = {

@@ -1,7 +1,8 @@
+-- v1.0.1 いつも通りバグってたの修正。
 local addonName = "BATTLESPIRIT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
