@@ -195,7 +195,7 @@
 		"name" : "Indun Panel",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.2.9",
+		"fileVersion" : "v1.3.0",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "チャレンジやレイドに入る支援パネルを設置します。アイテムを購入して使う機能追加。Establish a support panel to enter challenges and raids. Add the ability to purchase and use items.챌린지 및 레이드 진입을 위한 지원 패널을 설치합니다. 아이템 구매 및 사용 기능 추가.",
