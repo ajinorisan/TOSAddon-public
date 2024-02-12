@@ -287,6 +287,7 @@ function indun_list_viewer_raid_reset_time()
 
     -- 月曜日からの経過秒数を計算
     local secondsSinceMondayAM6 = currentTime - g.settings.raid_reset_time
+    -- local secondsSinceMondayAM6 = currentTime - 1702846800
     print("indun_list_viewer 月曜日の朝6時から現在までの経過時間（秒）: " .. secondsSinceMondayAM6)
 
     local nextreset = 604800 -- 次の月曜日の6時までの秒数
@@ -310,6 +311,7 @@ function indun_list_viewer_raid_reset()
     for i = 0, cnt - 1 do
         local pcInfo = accountInfo:GetBarrackPCByIndex(i)
         local pcName = pcInfo:GetName()
+        print(tostring(pcName))
         for _, charData in pairs(g.settings.charactors) do
             if charData.name == pcName then
                 charData.raid_count = {
