@@ -1,0 +1,7 @@
+ClassID,ShieldRatio,IconOffsetY,UpdateTime,Range,NumArg1,NumArg2,ClassName,RangeType,AtkType,AtkKind,StrArg1,StrArg2
+1,0.300000,40,0,0,0.300000,0,"ep16_1_leader_carapace","Born","Self","Def","",""
+2,0.300000,40,0,0,0.300000,0,"ep16_1_leader_canceril","Born","Self","Atk","",""
+3,0.450000,40,5000,150,0.350000,0,"ep16_1_leader_velniamonkey","Interval","Buff","Elite","",""
+4,0.450000,40,5000,150,0.350000,0,"ep16_1_leader_golem","Interval","Buff","Def","",""
+5,0.600000,-40,10000,100,10000,6000,"ep16_1_leader_durahan","Interval","DeBuff","Bleeding","",""
+6,0.600000,-40,10000,120,0,3000,"ep16_1_leader_unicorn","Interval","DeBuff","Freeze","",""

@@ -227,6 +227,8 @@
 		<Class ClassID="1190" ClassName="SoloMode" Data="1인"/>
 		<Class ClassID="1191" ClassName="enable_inheritance" Data="계승 가능"/>
 		<Class ClassID="1192" ClassName="use_goddess_equipment" Data="메뉴 - 아이템 - 가디스 장비 - 계승 이용"/>
+		<Class ClassID="1193" ClassName="GoddessNoblePhantasm" Data="여신의 보구"/>
+		<Class ClassID="1194" ClassName="absorbamount" Data="남은 흡수량 : {num}"/>
 		<Class ClassID="1195" ClassName="secret_medicine_ignore_deadremove" Data="사망시 비약 유지효과가 적용되었습니다."/>
 		</Category>
 	<Category Name="Reinforce">
@@ -394,6 +396,7 @@
 		<Class ClassID="2163" ClassName="lv480_aether_lvup_scroll" Data="[Lv.480] 에테르젬 레벨업 스크롤"/>
 		<Class ClassID="2164" ClassName="cant_use_more_than_lvup_point" Data="스크롤보다 더 높은 레벨의 아이템에는 사용할 수 없습니다."/>
 		<Class ClassID="2165" ClassName="lv500_rada_option_rescale_scroll" Data="[Lv.500] 라다 옵션 리셋 스크롤"/>
+		<Class ClassID="2166" ClassName="lv500_aether_lvup_scroll" Data="[Lv.500] 에테르젬 레벨업 스크롤"/>
 	</Category>
 	<Category Name="ItemContents">
 		<Class ClassID="2200" ClassName="ClickSocketTargetItem" Data="소켓을 추가 할 아이템을 선택해주세요"/>
@@ -633,6 +636,9 @@
 		<Class ClassID="2457" ClassName="vakarine_coin_shop" Data="여신의 증표(바카리네) 상점"/>
 		<Class ClassID="2458" ClassName="RadaOptionReScaleScrollWarning" Data="아이템 변경사항 안내{nl} {nl} - 라다 옵션의 수치가 변경됩니다. {#FF0000}이는 기존의 수치보다 낮아질 수 있습니다.{/}"/>		
 		<Class ClassID="2459" ClassName="ImpossibleInheritanceYet" Data="아직 계승할 수 없는 장비입니다."/>		
+		<Class ClassID="2460" ClassName="Need25Reinforcement" Data="+25강 이상의 아이템만 가능합니다."/>
+		<Class ClassID="2461" ClassName="COMMON_ACC_UPGRADE_MSG" Data="장신구 업그레이드"/>
+		<Class ClassID="2462" ClassName="AlreadyMaxGrade" Data="최고 등급에 도달하였습니다."/>
 	</Category>
 	<Category Name="ClassContents">
 		<Class ClassID="2500" ClassName="FullWeeklyGainClassResetExp" Data="주간 획득 가능한 클래스 변경 포인트를 모두 달성하였습니다."/>
@@ -1472,6 +1478,7 @@
 		<Class ClassID="4622" ClassName="CheckConsumablePackageItem{ITEM}" Data="{@st66d_y}{s20}'{ITEM}'{/}{/} 는 [마켓] 에서 거래가 가능합니다.{nl} {nl} 상자 개봉 시 '신비한 화염불꽃 귀걸이 파편'을 제외한 나머지 구성품은 마켓 거래가 불가능하며 팀이나 개인 귀속으로 적용됩니다.{nl} 계속하시겠습니까?"/>
 		<Class ClassID="4623" ClassName="MagicStop" Data="정지"/>
 		<Class ClassID="4624" ClassName="MagicAutoRankUpMessage" Data="아이템의 등급이 올랐습니다."/>
+		<Class ClassID="4625" ClassName="YESSCP_ALL_OPEN_GACHABOX_MSG" Data="{nl} {nl}사용시 {@st41}{#33FF33}[{num}]{/}{/}개의 아이템이 모두 사용되며, 사용으로 획득한 아이템은 되돌릴 수 없습니다.{nl}{@st66d_y}{s20}{nl} {nl}정말 사용하시겠습니까?"/>
 	</Category>
 	<Category Name="ItemTooltip">
 		<Class ClassID="5001" ClassName="CoolDown : {Sec} Sec" Data="재사용 대기시간 : {Sec}초"/>
@@ -1727,7 +1734,7 @@
 		<Class ClassID="5253" ClassName="tooltip_Fancier" Data=" - 헌터 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}비스트 마스터{nl} - 동행 중인 컴패니언의 최대 HP 25% 증가{nl} - 동행 중인 컴패니언이 전투불능 상태가 되면 즉시 최대 HP의 50%를 회복하고 전투에 합류함(재사용 대기시간 40초)"/>
 		<Class ClassID="5254" ClassName="tooltip_Fancier_Lv4" Data="{nl} {nl}{@st66d}{s15} - 헌터 공격 스킬 최종 대미지 {img green_up_arrow 16 16}30%"/>
 		<Class ClassID="5255" ClassName="vakarine_skill_desc" Data="레벨{img green_up_arrow 16 16}{level}"/>
-		<Class ClassID="5256" ClassName="vakarine_npc_skill_socket" Data="{@st47}{s15}{#00FFFF}[스킬 연성 도우미] 큐폴{/}{/}{/}을 통해 이용 가능합니다."/>
+		<Class ClassID="5256" ClassName="vakarine_npc_skill_socket" Data="{@st47}{s15}{#00FFFF}[장비 연성 도우미] 큐폴{/}{/}{/}을 통해 이용 가능합니다."/>
 		<Class ClassID="5257" ClassName="tooltip_DragonAndTiger" Data=" - 신극 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}용호상박{nl} - [태세 전환]으로 선택된 태세에 따른 지속 강화 효과 부여{nl} - [속] 태세: 찌르기 스킬 대미지 10% 증가{nl} - [광] 태세: 베기 스킬 대미지 10% 증가"/>
 		<Class ClassID="5258" ClassName="tooltip_DragonAndTiger_Lv4" Data="{nl} {nl}{@st66d}{s15} - 신극 공격 스킬 최종 대미지 {img green_up_arrow 16 16}20%"/>
 		<Class ClassID="5259" ClassName="tooltip_MaxPower" Data=" - 엔지니어 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}최대 출력{nl}  *모든 터렛의 지속시간 20% 증가{nl}  *킹메카의 쿨타임 10초 감소"/>
@@ -1741,6 +1748,10 @@
 		<Class ClassID="5267" ClassName="rada_speedup" Data="- 이동속도 {#8000FF}{level}{/}증가{#FFFFFF}[{min}-{max}]{/}"/>
 		<Class ClassID="5270" ClassName="tooltip_OriginalSin" Data=" - 폰티펙스 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl}  - Sin 버프 획득시 2중첩을 획득할 확률 {img green_up_arrow 16 16}350%, 3중첩을 획득할 확률 발생(10%) "/>
 		<Class ClassID="5271" ClassName="tooltip_OriginalSin_Lv4" Data="{nl} {nl}{@st66d}{s15} - 디다케: 면죄 최종 대미지 {img green_up_arrow 16 16}100%"/>
+		<Class ClassID="5272" ClassName="tooltip_Dream" Data=" - 일루저니스트 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}호접몽{nl}* 환영검 사용시 환영 1개 생성{nl}"/>
+		<Class ClassID="5273" ClassName="tooltip_Dream_Lv4" Data="{nl} {nl}{@st66d}{s15} - 일루저니스트의 최종 스킬 대미지{img green_up_arrow 16 16}20%"/>
+		<Class ClassID="5274" ClassName="tooltip_PowerOfGod" Data=" - 윙드후사르 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl}  - 전장의 기백 특성 효과에 모든 클래스의 스킬 공격이 낮은 확률로 {@st66_y}{#22B14C}[전장의 기백]{/}{/}을 생성하는 효과가 추가됩니다."/>
+		<Class ClassID="5275" ClassName="tooltip_PowerOfGod_Lv4" Data="{nl} {nl}{@st66d}{s15} - 익스플로전 스피어스 최종 대미지 {img green_up_arrow 16 16}100%"/>
 	</Category>
 	<Category Name="PeriodicTitle">
 		<Class ClassID="6001" ClassName="TournamentChampion" Data="토너먼트 챔피언"/>
@@ -1831,6 +1842,18 @@
 		<Class ClassID="6087" ClassName="fireMage_bless_1_set4_desc" Data="4개 장착 : 방어력 +60,000"/>
 		<Class ClassID="6088" ClassName="fireMage_bless_1_set5_desc" Data="5개 장착 : {@st47}{s15}{#66b3ff}화염진{/}{/}{/}"/>
 		<Class ClassID="6089" ClassName="fireMage_bless_1_set5_desc2" Data="{@st47}{s15}{#66b3ff}[화염진]{/}{/}{/}  공격시 일정 확률로 공격자 주변에 화염진이 생성됩니다. 화염진에 접촉하면 최대 HP의 10%를 회복하며 [멜린의 은총] 버프를 얻습니다. 계속 화염진에 접촉하여 버프를 중첩시키면 중첩에 따라 공격력(+3,000)이 증가합니다. 최대 중첩은 5 입니다."/>
+		<Class ClassID="6090" ClassName="tooltip_EP16_NECK_02" Data=" {nl} 착용시 다음의 능력치들이 아이템의 공격력에 비례하여 추가적으로 증가합니다.{nl} - 방어력 {img green_up_arrow 16 16}{a}{nl}- 치명타 저항 {img green_up_arrow 16 16}{b}{nl}- 블록 {img green_up_arrow 16 16}{c}{nl}- 치유력 {img green_up_arrow 16 16}{d}{nl} {nl}또한 20초마다 250범위내 파티원과 적에게 일정 효과를 부여합니다. 이 효과는 아이템의 공격력에 비례하여 증가합니다.{nl} {nl}파티원 : {ol}{#00cc00}[솔리드 스킨]{/}{/} 지속시간 16초{nl} - 공격력{img green_up_arrow 16 16}{e}{nl} {nl}적 : {ol}{#ff0055}[러스트 웨폰]{/}{/} 지속 시간 4초{nl} - 치명타 발생 {img green_down_arrow 16 16}{f}{nl} - 추가 대미지 {img green_down_arrow 16 16}{g}{nl} - 이동 속도 {img green_down_arrow 16 16}{h}{nl} - 하나의 대상은 하나의 디버프만 가질 수 있습니다.{nl} {nl}드래곤의 기운 2단계 효과(모든 부위 착용 시 활성화){nl} - 효과 적용 주기 5초 감소 {nl} {nl}{#0000FF}[솔리드 스킨]은 [샛별의 비호] 효과와 동시에 적용되지 않습니다.{/}"/>
+		<Class ClassID="6091" ClassName="tooltip_EP16_NECK_01" Data=" {nl} 착용시 {ol}{#00cc00}[뇌격 충전]{/}{/} 가능 시간 {c}초 감소 {nl} {nl} 공격 적중 시 2초마다 {ol}{#00cc00}[뇌격 충전]{/}{/} 효과를 얻습니다. {ol}{#00cc00}[뇌격 충전]{/}{/}효과가 {ol}{#00bbbb}30{/}{/}중첩에 도달하면, {ol}{#00bbbb}기본 공격{/}{/}을 통해 피해를 입힌 단일 대상에게 낙인을 찍어 {ol}{#cc00ff}[뇌격]{/}{/}효과를 발동시킵니다. {nl} {nl}{ol}{#cc00ff}[뇌격]{/}{/} {nl}- 0.5초마다 250범위내 낙인 대상에게 공격력이 +8,000 추가된 {a}%의 무속성 피해를 최대 30회 입힙니다. {ol}{#cc00ff}[뇌격]{/}{/}효과 중엔 {ol}{#00cc00}[뇌격 충전]{/}{/}이 되지 않습니다. {nl} - 발동 효과에 의한 추가 타격을 제외한 모든 공격이 {ol}{#00cc00}[뇌격 충전]{/}{/}효과를 얻습니다.{nl} - [드래곤의 기운] 2단계 효과(모든 부위 착용 시 활성화){nl}피해 계수 {b}%{nl}- PvP 지역에서는 절반의 계수로 적용됩니다."/>
+		<Class ClassID="6092" ClassName="tooltip_EP16_NECK_03" Data=" {nl} 착용시 {ol}{#00cc00}[수옥 충전]{/}{/} 가능 시간 {c}초 감소 {nl} {nl} 피해를 입거나, 공격 적중 시 1.5초마다 {ol}{#00cc00}[수옥 충전]{/}{/} 효과를 얻습니다. {ol}{#00cc00}[수옥 충전]{/}{/}효과가 {ol}{#00bbbb}100{/}{/}중첩에 도달하면, 30초동안 유지되는 {ol}{#cc00ff}[수옥]{/}{/} 효과가 발동됩니다.{nl} {nl}{ol}{#cc00ff}[수옥]{/}{/} {nl}- 최대 HP만큼 피해를 흡수하는 보호막이 생성됩니다.{nl}- 3초마다 주변의 최대 3명의 대상에게 공격력이 +8,000 추가된 {a}%의 무속성 피해를 입힙니다. {ol}{#cc00ff}[수옥]{/}{/}효과 중엔 {ol}{#00cc00}[수옥 충전]{/}{/}이 되지 않습니다.{nl} - 발동 효과에 의한 추가 타격을 제외한 모든 공격이 {ol}{#00cc00}[수옥 충전]{/}{/}효과를 얻습니다.{nl} - [드래곤의 기운] 2단계 효과(모든 부위 착용 시 활성화){nl}피해 계수 {b}%{nl}- PvP 지역에서는 절반의 계수로 적용됩니다."/>
+		<Class ClassID="6093" ClassName="tooltip_EP16_NECK_04" Data=" {nl} 착용시 {ol}{#00cc00}[염무 충전]{/}{/} 가능 시간 {c}초 감소 {nl} {nl} 공격 적중 시 2초마다 {ol}{#00cc00}[염무 충전]{/}{/} 효과를 얻습니다. {ol}{#00cc00}[염무 충전]{/}{/}효과가 {ol}{#00bbbb}5{/}{/}중첩에 도달하면, 다음 공격 적중 시 주변 최대 3명의 대상에게 피해를 입힙니다.. {nl} {nl}{ol}{#cc00ff}[염무]{/}{/} {nl}- 대상에게 공격력이 +8,000 추가된 {a}%의 무속성 피해를 입힙니다. {nl} - 발동 효과에 의한 추가 타격을 제외한 모든 공격이 {ol}{#00cc00}[염무 충전]{/}{/}효과를 얻습니다.{nl} - [드래곤의 기운] 2단계 효과(모든 부위 착용 시 활성화){nl}피해 계수 {b}%{nl}- PvP 지역에서는 절반의 계수로 적용됩니다."/>
+		<Class ClassID="6094" ClassName="enable_acc_upgrade_msg1" Data="{@st47}{s15}{#00FFFF}[장비 연성 도우미] 큐폴{/}{/}{/}을 통해 무속성 피해 계수를 상승시킬 수 있습니다." />
+		<Class ClassID="6095" ClassName="enable_acc_upgrade_msg2" Data="{@st47}{s15}{#00FFFF}[장비 연성 도우미] 큐폴{/}{/}{/}을 통해 {ol}{#00cc00}[솔리드 스킨]{/}{/}의 공격력 증가 효과를 상승시킬 수 있습니다." />
+		<Class ClassID="6096" ClassName="EP16_EFFECT_NAME01" Data="{#00cc00}[뇌격]{/}" />
+		<Class ClassID="6097" ClassName="EP16_EFFECT_NAME02" Data="{#00cc00}[솔리드 스킨]{/}" />
+		<Class ClassID="6098" ClassName="EP16_EFFECT_NAME03" Data="{#00cc00}[수옥]{/}" />
+		<Class ClassID="6099" ClassName="EP16_EFFECT_NAME04" Data="{#00cc00}[염무]{/}" />
+		<Class ClassID="6100" ClassName="EP16_EFFECT_NAME05" Data="{#00FFFF}[드래곤의 기운]{/}" />
+
 	</Category>
 	<Category Name="QuestGuide">
 		<Class ClassID="7001" ClassName="HPUnder{Auto_1}Percent!_UseItem" Data="위험 HP: {Auto_1}% 회복아이템 사용!"/>
@@ -2949,6 +2972,7 @@
 		<Class ClassID="21481" ClassName="NotExistNextGradeAetherGem" Data="해당 에테르 젬의 다음 등급 에테르 젬이 존재하지 않아 강화레벨을 이전할 수 없습니다."/>
 		<Class ClassID="21482" ClassName="RequireNextGradeAetherGem" Data="다음 등급의 에테르 젬을 등록해주세요."/>
 		<Class ClassID="21483" ClassName="NewEpisodeLockMsg_Episode_15_2" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode15-2]{/}의 퀘스트 시작은 {#FFFF00}오르샤{/}의 {#FFFF00}네링가{/}로부터 시작할 수 있습니다."/>
+		<Class ClassID="21484" ClassName="PAPAYA_Attendance_infoText_1" Data="* The rewards received will be found in your Inventory (F2)"/>
 	</Category>
 	<Category Name="ChatText">
 		<Class ClassID="22001" ClassName="Guard" Data="방어"/>
@@ -10915,6 +10939,17 @@
 		<Class ClassID="92264" ClassName="CARE_POPOBOOST_MSG4" Data="복구 작업이 완료되었습니다."/>
 		<Class ClassID="92265" ClassName="BridgeWailing_Dimension_Party" Data="통곡의 묘지 - 이공간"/>
 		<Class ClassID="92266" ClassName="GACHA_SITEM_GET_ALLMSG_8th" Data="{s24}축하드립니다!{nl}{PC} 님이 스니고의 기억에서{nl}{ITEMNAME} 를(을) 획득하셨습니다!"/>
+		<Class ClassID="92267" ClassName="EP16_1_CATHEDRAL_MEDIUM_MQ2_MSG" Data="진실은?"/>
+		<Class ClassID="92268" ClassName="EP16_1_SIAULIAI_WEST_MQ3_MSG" Data="나침반이 필요하다고 말한다."/>
+		<Class ClassID="92269" ClassName="EP16_1_CORAL_32_1_MQ4_Kill_MSG" Data="몬스터 무리를 처치했습니다."/>
+		<Class ClassID="92270" ClassName="EP16_1_CORAL_32_1_MQ5_SELECT_1" Data="나침반을 보여 준다."/>
+		<Class ClassID="92271" ClassName="EP16_1_PILGRIM_36_2_MQ10_SELECT_1" Data="나침반을 보여 주며 도움을 요청한다."/>
+		<Class ClassID="92272" ClassName="EP16_1_PILGRIM_36_2_MQ11_MSG1" Data="자성이 섞인 가루 채집"/>
+		<Class ClassID="92273" ClassName="Goddess_Raid_DespairIsland_Party" Data="절망의 섬: 가디스 레이드 (파티)"/>
+		<Class ClassID="92274" ClassName="Goddess_Raid_DespairIsland_Auto" Data="절망의 섬: 가디스 레이드 (자동매칭)"/>
+		<Class ClassID="92275" ClassName="Goddess_Raid_DespairIsland_Solo" Data="절망의 섬: 가디스 레이드 (1인)"/>
+		<Class ClassID="92277" ClassName="Raid_DespairIsland_ActiveObjectMsg" Data="1번만 사용 가능합니다."/>
+		<Class ClassID="92278" ClassName="Raid_DespairIsland_UnActiveObjectMsg" Data="활성화 상태가 아닙니다."/>
 	</Category>
 	<Category Name="BattleText">
 		<Class ClassID="100001" ClassName="ADD_DAMAGE_{Auto_1}!" Data="추가 대미지 {Auto_1}!"/>
@@ -16723,6 +16758,13 @@
 		<Class ClassID="302817" ClassName="snigo_gahca_open_warring" Data="{@st66b}개봉 시 스팀 커뮤니티에 안내한 확률에 따라{nl}아이템을 획득할 수 있습니다."/>
 		<Class ClassID="302818" ClassName="DATE_INFO_TIME" Data="오전 06:00"/>
 		<Class ClassID="302819" ClassName="DATE_INFO_PAPAYA_TIME" Data="오후 05:30"/>
+		<Class ClassID="302820" ClassName="EVENT_2401_NEWYEAR" Data="[2024 신년] 교환 상점"/>
+		<Class ClassID="302821" ClassName="EVENT_2312_8TH_SNIGO_SHOP" Data="{@st66d_y}{#FFFF00}※ 교환을 통해 획득하는 아이템은{nl}팀 창고 이동만 가능합니다."/>
+		<Class ClassID="302822" ClassName="EVENT_2401_NEW_YEAR_01" Data="[이벤트 던전] 신년 이벤트 던전 입장"/>
+		<Class ClassID="302823" ClassName="EVENT_2401_NEWYEAR_ANNOCUNCE{DG_CNT}{COIN_CNT}{TIME}" Data="[2024 신년 이벤트]{nl}[이벤트 던전] 신년 이벤트 던전 입장 횟수 ({DG_CNT}/6)회{nl}[주간] 이벤트 주화 획득량({COIN_CNT}/600)개{nl}{#3366FF}※ 이벤트 던전 입장횟수와 코인 획득량은 매주 {TIME}에 초기화됩니다.{/}"/>
+		<Class ClassID="302824" ClassName="EVENT_2402_NEWYEAR" Data="[이벤트] 설날 상점"/>
+		<Class ClassID="302825" ClassName="EVENT_2402_NEWYEAR_ANNOCUNCE{COIN_CNT}{TIME}" Data="[풍성한 설날]{nl}[일일] 이벤트 주화 획득량 : ({#0066FF}{COIN_CNT}{/}/100){nl}{#0066FF}※ 일일 이벤트 주화 획득량은 매일 {TIME}에 초기화됩니다.{/}"/>
+		<Class ClassID="302826" ClassName="EVENT_2402_NEWYEAR_ANNOCUNCE_MON_LEADER_GEN" Data="대장 몬스터가 출현했습니다!"/>
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>
@@ -17682,6 +17724,8 @@
 		<Class ClassID="560078" ClassName="emoticonItem_summer_popo_2" Data="{nl} {nl}사용 시 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
 		<Class ClassID="560079" ClassName="emoticonItem_2312_164" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
 		<Class ClassID="560080" ClassName="emoticonItem_2312_165" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560081" ClassName="emoticonItem_2402_1" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560082" ClassName="emoticonItem_2402_2" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
 	</Category>
 	<Category Name="Gesture">
 		<Class ClassID="570000" ClassName="Already_Gesture" Data="이미 보유한 제스처입니다."/>
@@ -18930,6 +18974,8 @@
 		<Class ClassID="1050091" ClassName="trade_select_item_set_m_tw_ep15riding01" Data="승마복 (남)"/>
 		<Class ClassID="1050092" ClassName="trade_select_item_set_f_tw_ep15riding01" Data="승마복 (여)"/>
 		<Class ClassID="1050093" ClassName="popoboost_2312_special_equipment_box" Data="포포 스페셜 장비 상자"/>
+		<Class ClassID="1050094" ClassName="trade_select_item_set_m_ep15niancostume" Data="년수 인형탈 코스튬 (남)"/>
+		<Class ClassID="1050095" ClassName="trade_select_item_set_f_ep15niancostume" Data="년수 인형탈 코스튬 (여)"/>
 	</Category>
 	<Category Name="UnlockQuest">
 		<Class ClassID="1060001" ClassName="UnlockQuest_SysMsg_1" Data="{#FFFF00}{s20}{QuestInfoName}{/}{/}{nl}퀘스트 목표를 갱신합니다"/>
@@ -19124,6 +19170,7 @@
 		<Class ClassID="1106097" ClassName="QuarrelShooter" Data="쿼렐슈터"/>
 		<Class ClassID="1106098" ClassName="Engineer" Data="엔지니어"/>
 		<Class ClassID="1106099" ClassName="Pontifex" Data="폰티펙스"/>
+		<Class ClassID="1106100" ClassName="Illusionist" Data="일루저니스트"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>

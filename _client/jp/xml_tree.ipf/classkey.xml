@@ -9950,6 +9950,58 @@
         <Key Name="IndunWeeklyEnteredCount_902" Value="114497"/>
         <Key Name="Kill_event_boss_pbeta" Value="114490"/>
         <Key Name="Kill_event_boss_snigo" Value="114496"/>
+        <Key Name="HiddenJob_Char2_25" Value="114521"/>
+        <Key Name="InDunCountType_903" Value="114562"/>
+        <Key Name="IndunWeeklyEnteredCount_903" Value="114560"/>
+        <Key Name="Kill_event_2024_newyear_boss_pbeta" Value="114561"/>
+        <Key Name="Kill_event_2024_newyear_boss_snigo" Value="114563"/>
+        <Key Name="EP16_1_CORAL_32_1_MQ4_TRACK" Value="114618"/>
+        <Key Name="EP16_1_CORAL_32_1_MQ6_TRACK" Value="114636"/>
+        <Key Name="EP16_1_CORAL_32_1_MQ7_TRACK" Value="114621"/>
+        <Key Name="EP16_1_NICOPOLIS_81_1_MQ1_TRACK" Value="114630"/>
+        <Key Name="EP16_1_PILGRIM_36_2_MQ13_TRACK" Value="114632"/>
+        <Key Name="EP16_1_ROKAS_36_1_MQ8_TRACK" Value="114635"/>
+        <Key Name="EP16_1_ROKAS_36_1_MQ9_TRACK" Value="114619"/>
+        <Key Name="EVIL_ARMOR_POWER_TIME2" Value="114730"/>
+        <Key Name="HaveEmoticon_166" Value="114733"/>
+        <Key Name="HaveEmoticon_167" Value="114734"/>
+        <Key Name="HiddenJob_Char1_25" Value="114602"/>
+        <Key Name="Hide_3437" Value="114615"/>
+        <Key Name="Hide_3438" Value="114634"/>
+        <Key Name="Hide_3439" Value="114617"/>
+        <Key Name="Hide_3440" Value="114628"/>
+        <Key Name="Hide_3441" Value="114622"/>
+        <Key Name="InDunCountType_838" Value="114698"/>
+        <Key Name="InDunCountType_839" Value="114694"/>
+        <Key Name="IndunWeeklyEnteredCount_838" Value="114695"/>
+        <Key Name="IndunWeeklyEnteredCount_839" Value="114693"/>
+        <Key Name="Kill_boss_Grimreaper_D1" Value="114624"/>
+        <Key Name="Kill_boss_Grimreaper_Q2" Value="114614"/>
+        <Key Name="Kill_boss_Velmosquy_D1" Value="114626"/>
+        <Key Name="Kill_boss_Velmosquy_Q1" Value="114612"/>
+        <Key Name="Kill_boss_merregina_despair" Value="114699"/>
+        <Key Name="Kill_boss_merregina_despair_Auto" Value="114697"/>
+        <Key Name="Kill_boss_merregina_despair_D1" Value="114613"/>
+        <Key Name="Kill_boss_merregina_despair_Q1" Value="114629"/>
+        <Key Name="Kill_boss_merregina_despair_Solo" Value="114696"/>
+        <Key Name="Kill_boss_necrovanter_D1" Value="114627"/>
+        <Key Name="Kill_boss_necrovanter_Q4" Value="114616"/>
+        <Key Name="Kill_ep16_1_leader_canceril" Value="114631"/>
+        <Key Name="Kill_ep16_1_leader_carapace" Value="114625"/>
+        <Key Name="Kill_ep16_1_leader_durahan" Value="114623"/>
+        <Key Name="Kill_ep16_1_leader_golem" Value="114620"/>
+        <Key Name="Kill_ep16_1_leader_unicorn" Value="114633"/>
+        <Key Name="Kill_ep16_1_leader_velniamonkey" Value="114611"/>
+        <Key Name="LvelUpReward_501" Value="114604"/>
+        <Key Name="LvelUpReward_502" Value="114603"/>
+        <Key Name="LvelUpReward_503" Value="114609"/>
+        <Key Name="LvelUpReward_504" Value="114608"/>
+        <Key Name="LvelUpReward_505" Value="114610"/>
+        <Key Name="LvelUpReward_506" Value="114607"/>
+        <Key Name="LvelUpReward_507" Value="114601"/>
+        <Key Name="LvelUpReward_508" Value="114600"/>
+        <Key Name="LvelUpReward_509" Value="114605"/>
+        <Key Name="LvelUpReward_510" Value="114606"/>
     </KeyIDSpc>
     <KeyIDSpc Name="Guild">
         <Key Name="STEAM_NEW_GUILD_QUEST_TOTAL_SUCCESS_COUNT" Value="105307"/>
@@ -10584,6 +10636,7 @@
         <Key Name="Frame" Value="112068"/>
         <Key Name="CaptionRatio4" Value="113846"/>
         <Key Name="maxChargeTime" Value="114012"/>
+        <Key Name="EngNamAe" Value="114532"/>
     </KeyIDSpc>
     <KeyIDSpc Name="Monster">
         <Key Name="PrevTSName" Value="6525"/>
@@ -11643,6 +11696,8 @@
         <Key Name="EnchantItemRank" Value="114375"/>
         <Key Name="EnchantItemRankCount" Value="114374"/>
         <Key Name="RepairPricFRatio" Value="114498"/>
+        <Key Name="CustomOptDescFunc" Value="114659"/>
+        <Key Name="UpgradeRank" Value="114660"/>
     </KeyIDSpc>
     <KeyIDSpc Name="SessionObject">
         <Key Name="ROKAS31_SUB_01" Value="2534"/>
@@ -19554,6 +19609,31 @@
         <Key Name="MG_Last_Event2023_Moon_Rabbit" Value="114292"/>
         <Key Name="MG_Last_BridgeWailing_Dimension_Party" Value="114394"/>
         <Key Name="MG_Last_EVENT_2023_SNIGO_DUNGEON" Value="114469"/>
+        <Key Name="MG_Last_EVENT_2024_NEW_YEAR_DUNGEON" Value="114564"/>
+        <Key Name="EP16_1_CATHEDRAL_MQ2" Value="114639"/>
+        <Key Name="EP16_1_CORAL_32_1_MQ4" Value="114646"/>
+        <Key Name="EP16_1_CORAL_32_1_MQ5" Value="114645"/>
+        <Key Name="EP16_1_CORAL_32_1_MQ6" Value="114652"/>
+        <Key Name="EP16_1_CORAL_32_1_MQ7" Value="114647"/>
+        <Key Name="EP16_1_NICOPOLIS_81_1_MQ1" Value="114657"/>
+        <Key Name="EP16_1_PILGRIM_36_2_MQ10" Value="114648"/>
+        <Key Name="EP16_1_PILGRIM_36_2_MQ11" Value="114640"/>
+        <Key Name="EP16_1_PILGRIM_36_2_MQ12" Value="114649"/>
+        <Key Name="EP16_1_PILGRIM_36_2_MQ13" Value="114650"/>
+        <Key Name="EP16_1_PILGRIM_36_2_MQ14" Value="114656"/>
+        <Key Name="EP16_1_PILGRIM_36_2_MQ15" Value="114641"/>
+        <Key Name="EP16_1_REMAINS_37_MQ15" Value="114644"/>
+        <Key Name="EP16_1_ROKAS_36_1_MQ8" Value="114643"/>
+        <Key Name="EP16_1_ROKAS_36_1_MQ9" Value="114638"/>
+        <Key Name="EP16_1_SIAULIAI_WEST_MQ3" Value="114658"/>
+        <Key Name="MG_Last_EP16_1_CORAL_32_1_MQ4_MINI" Value="114655"/>
+        <Key Name="MG_Last_EP16_1_CORAL_32_1_MQ6_MINI" Value="114642"/>
+        <Key Name="MG_Last_EP16_1_PILGRIM_36_2_MQ13_MINI" Value="114653"/>
+        <Key Name="MG_Last_EP16_1_ROKAS_36_1_MQ8_MINI" Value="114651"/>
+        <Key Name="MG_Last_EP16_1_ROKAS_36_1_MQ9_MINI" Value="114654"/>
+        <Key Name="MG_Last_Goddess_Raid_DespairIsland_Auto" Value="114661"/>
+        <Key Name="MG_Last_Goddess_Raid_DespairIsland_Party" Value="114662"/>
+        <Key Name="MG_Last_Goddess_Raid_DespairIsland_Solo" Value="114663"/>
     </KeyIDSpc>
     <KeyIDSpc Name="GuildMember">
         <Key Name="Name" Value="9011"/>
@@ -28130,6 +28210,142 @@
         <Key Name="sniego_sword_cabinet" Value="114508"/>
         <Key Name="sniego_thmace_cabinet" Value="114507"/>
         <Key Name="ContentsTotalShop_2312_1" Value="114520"/>
+        <Key Name="AchieveReward_WEEKLY_BOSS_RANK_CLASS_98" Value="114530"/>
+        <Key Name="EVENT_2401_NEWYEAR_1" Value="114542"/>
+        <Key Name="EVENT_2401_NEWYEAR_10" Value="114540"/>
+        <Key Name="EVENT_2401_NEWYEAR_11" Value="114534"/>
+        <Key Name="EVENT_2401_NEWYEAR_12" Value="114541"/>
+        <Key Name="EVENT_2401_NEWYEAR_13" Value="114533"/>
+        <Key Name="EVENT_2401_NEWYEAR_14" Value="114546"/>
+        <Key Name="EVENT_2401_NEWYEAR_15" Value="114545"/>
+        <Key Name="EVENT_2401_NEWYEAR_16" Value="114547"/>
+        <Key Name="EVENT_2401_NEWYEAR_17" Value="114536"/>
+        <Key Name="EVENT_2401_NEWYEAR_18" Value="114548"/>
+        <Key Name="EVENT_2401_NEWYEAR_19" Value="114556"/>
+        <Key Name="EVENT_2401_NEWYEAR_2" Value="114550"/>
+        <Key Name="EVENT_2401_NEWYEAR_20" Value="114554"/>
+        <Key Name="EVENT_2401_NEWYEAR_21" Value="114557"/>
+        <Key Name="EVENT_2401_NEWYEAR_22" Value="114559"/>
+        <Key Name="EVENT_2401_NEWYEAR_23" Value="114555"/>
+        <Key Name="EVENT_2401_NEWYEAR_24" Value="114558"/>
+        <Key Name="EVENT_2401_NEWYEAR_25" Value="114552"/>
+        <Key Name="EVENT_2401_NEWYEAR_3" Value="114549"/>
+        <Key Name="EVENT_2401_NEWYEAR_4" Value="114537"/>
+        <Key Name="EVENT_2401_NEWYEAR_5" Value="114535"/>
+        <Key Name="EVENT_2401_NEWYEAR_6" Value="114538"/>
+        <Key Name="EVENT_2401_NEWYEAR_7" Value="114544"/>
+        <Key Name="EVENT_2401_NEWYEAR_8" Value="114543"/>
+        <Key Name="EVENT_2401_NEWYEAR_9" Value="114539"/>
+        <Key Name="EVENT_2401_NEWYEAR_WEEKLY_COIN_CNT" Value="114565"/>
+        <Key Name="GEM_Illusionist_Flood" Value="114529"/>
+        <Key Name="GEM_Illusionist_IllusionArmor" Value="114528"/>
+        <Key Name="GEM_Illusionist_IllusionBlast" Value="114526"/>
+        <Key Name="GEM_Illusionist_IllusionSword" Value="114523"/>
+        <Key Name="GEM_Illusionist_MagicalIllusion" Value="114522"/>
+        <Key Name="GEM_Illusionist_Nightmare" Value="114531"/>
+        <Key Name="InDunCountType_903" Value="114551"/>
+        <Key Name="IndunWeeklyEnteredCount_903" Value="114553"/>
+        <Key Name="TSF04_129_12_cabinet" Value="114524"/>
+        <Key Name="TSF04_129_12_cabinet_upgrade" Value="114525"/>
+        <Key Name="UnlockQuest_Char2_25" Value="114527"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Auto_1" Value="114689"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Auto_2" Value="114679"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Auto_3" Value="114682"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Auto_4" Value="114683"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Party_1" Value="114687"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Party_2" Value="114681"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Party_3" Value="114691"/>
+        <Key Name="AchieveReward_Goddess_Raid_DespairIsland_Party_4" Value="114685"/>
+        <Key Name="AchieveReward_QA15_ep16_1_remains_37" Value="114701"/>
+        <Key Name="AchieveReward_Raid_DespairIsland_bronze" Value="114666"/>
+        <Key Name="AchieveReward_Raid_DespairIsland_gold" Value="114680"/>
+        <Key Name="AchieveReward_Raid_DespairIsland_silver" Value="114675"/>
+        <Key Name="AchieveReward_WEEKLY_BOSS_RANK_CLASS_99" Value="114729"/>
+        <Key Name="EP14_goddess_noble_1_FOOT_cabinet" Value="114598"/>
+        <Key Name="EP14_goddess_noble_1_FOOT_cabinet_upgrade" Value="114586"/>
+        <Key Name="EP14_goddess_noble_1_HAND_cabinet" Value="114599"/>
+        <Key Name="EP14_goddess_noble_1_HAND_cabinet_upgrade" Value="114582"/>
+        <Key Name="EP14_goddess_noble_1_LEG_cabinet" Value="114570"/>
+        <Key Name="EP14_goddess_noble_1_LEG_cabinet_upgrade" Value="114590"/>
+        <Key Name="EP14_goddess_noble_1_TOP_cabinet" Value="114593"/>
+        <Key Name="EP14_goddess_noble_1_TOP_cabinet_upgrade" Value="114575"/>
+        <Key Name="EP14_goddess_noble_2_FOOT_cabinet" Value="114597"/>
+        <Key Name="EP14_goddess_noble_2_FOOT_cabinet_upgrade" Value="114576"/>
+        <Key Name="EP14_goddess_noble_2_HAND_cabinet" Value="114571"/>
+        <Key Name="EP14_goddess_noble_2_HAND_cabinet_upgrade" Value="114587"/>
+        <Key Name="EP14_goddess_noble_2_LEG_cabinet" Value="114583"/>
+        <Key Name="EP14_goddess_noble_2_LEG_cabinet_upgrade" Value="114585"/>
+        <Key Name="EP14_goddess_noble_2_TOP_cabinet" Value="114592"/>
+        <Key Name="EP14_goddess_noble_2_TOP_cabinet_upgrade" Value="114578"/>
+        <Key Name="EP14_goddess_noble_3_FOOT_cabinet" Value="114574"/>
+        <Key Name="EP14_goddess_noble_3_FOOT_cabinet_upgrade" Value="114584"/>
+        <Key Name="EP14_goddess_noble_3_HAND_cabinet" Value="114594"/>
+        <Key Name="EP14_goddess_noble_3_HAND_cabinet_upgrade" Value="114591"/>
+        <Key Name="EP14_goddess_noble_3_LEG_cabinet" Value="114569"/>
+        <Key Name="EP14_goddess_noble_3_LEG_cabinet_upgrade" Value="114589"/>
+        <Key Name="EP14_goddess_noble_3_TOP_cabinet" Value="114588"/>
+        <Key Name="EP14_goddess_noble_3_TOP_cabinet_upgrade" Value="114579"/>
+        <Key Name="EVENT_2402_NEWYEAR_1" Value="114726"/>
+        <Key Name="EVENT_2402_NEWYEAR_10" Value="114706"/>
+        <Key Name="EVENT_2402_NEWYEAR_11" Value="114718"/>
+        <Key Name="EVENT_2402_NEWYEAR_12" Value="114702"/>
+        <Key Name="EVENT_2402_NEWYEAR_13" Value="114724"/>
+        <Key Name="EVENT_2402_NEWYEAR_14" Value="114720"/>
+        <Key Name="EVENT_2402_NEWYEAR_2" Value="114716"/>
+        <Key Name="EVENT_2402_NEWYEAR_3" Value="114714"/>
+        <Key Name="EVENT_2402_NEWYEAR_4" Value="114703"/>
+        <Key Name="EVENT_2402_NEWYEAR_5" Value="114709"/>
+        <Key Name="EVENT_2402_NEWYEAR_6" Value="114725"/>
+        <Key Name="EVENT_2402_NEWYEAR_7" Value="114717"/>
+        <Key Name="EVENT_2402_NEWYEAR_8" Value="114705"/>
+        <Key Name="EVENT_2402_NEWYEAR_9" Value="114722"/>
+        <Key Name="EVENT_2402_NEWYEAR_DAILY_COIN_CNT" Value="114713"/>
+        <Key Name="EVENT_PAPAYA_2401_ATTENDANCE_REWARD" Value="114700"/>
+        <Key Name="EVENT_TOS_WHOLE_SHOP_56" Value="114732"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91211" Value="114637"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91212" Value="114684"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91213" Value="114677"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91214" Value="114665"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91215" Value="114668"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91216" Value="114690"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91217" Value="114673"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91218" Value="114664"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91219" Value="114670"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91220" Value="114678"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91221" Value="114672"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91222" Value="114692"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91223" Value="114667"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91224" Value="114686"/>
+        <Key Name="FirstQuestClear_Episode_16_1_91225" Value="114671"/>
+        <Key Name="GEM_WingedHussars_BattleSpirit_cabinet" Value="114577"/>
+        <Key Name="GEM_WingedHussars_CircleWings_cabinet" Value="114567"/>
+        <Key Name="GEM_WingedHussars_ExplosionSpears_cabinet" Value="114568"/>
+        <Key Name="GEM_WingedHussars_GiantWings_cabinet" Value="114595"/>
+        <Key Name="GEM_WingedHussars_ImpulseSpears_cabinet" Value="114596"/>
+        <Key Name="GEM_WingedHussars_RisingWings_cabinet" Value="114581"/>
+        <Key Name="GEM_WingedHussars_WindPulse_cabinet" Value="114572"/>
+        <Key Name="HaveEmoticon_166" Value="114736"/>
+        <Key Name="HaveEmoticon_167" Value="114735"/>
+        <Key Name="InDunCountType_838" Value="114669"/>
+        <Key Name="InDunCountType_839" Value="114676"/>
+        <Key Name="IndunWeeklyEnteredCount_838" Value="114688"/>
+        <Key Name="IndunWeeklyEnteredCount_839" Value="114674"/>
+        <Key Name="PAPAYA_RETURN_REWARD_ONCE" Value="114728"/>
+        <Key Name="RidePet_26" Value="114712"/>
+        <Key Name="RidePet_27" Value="114710"/>
+        <Key Name="RidePet_28" Value="114719"/>
+        <Key Name="RidePet_29" Value="114711"/>
+        <Key Name="RidePet_30" Value="114704"/>
+        <Key Name="RidePet_31" Value="114727"/>
+        <Key Name="RidePet_32" Value="114708"/>
+        <Key Name="RidePet_33" Value="114715"/>
+        <Key Name="RidePet_34" Value="114721"/>
+        <Key Name="RidePet_35" Value="114723"/>
+        <Key Name="RidePet_36" Value="114707"/>
+        <Key Name="TSP04_129_1_cabinet" Value="114573"/>
+        <Key Name="TSP04_129_1_cabinet_upgrade" Value="114566"/>
+        <Key Name="UnlockQuest_Char1_25" Value="114580"/>
+        <Key Name="wingedhussar_thspear_cabinet" Value="114731"/>
     </KeyIDSpc>
     <KeyIDSpc Name="PartyMember">
         <Key Name="Auth_Survey" Value="7222"/>

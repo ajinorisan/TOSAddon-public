@@ -1361,7 +1361,14 @@ function DRAW_EQUIP_FIXED_ICHOR(invitem, inheritanceItem, property_gbox, inner_y
 
     -- 고정 아이커 옵션
     if invitem.OptDesc ~= nil and invitem.OptDesc ~= 'None' and TryGetProp(invitem, 'StringArg', 'None') ~= 'Vibora' then
+		local CustomOptDescFunc = TryGetProp(invitem, 'CustomOptDescFunc', 'None')
+		if CustomOptDescFunc == 'None' then
 		inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, invitem.OptDesc, 0, inner_yPos);
+		else
+			CustomOptDescFunc = _G[CustomOptDescFunc]
+			local opt_desc = CustomOptDescFunc(invitem)
+			inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, opt_desc, 0, inner_yPos);
+		end
     end
 
     -- 고정 아이커 옵션 (바이보라)

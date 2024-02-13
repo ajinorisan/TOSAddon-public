@@ -570,6 +570,7 @@ function EliteMonster_ENTER(actor, obj, buff)
 end
 
 function EliteMonster_LEAVE(actor, obj, buff)
+    actor:SetAuraInfo("None");
 end
 
 function Mythic_Boosting_Morale_ENTER(actor, obj, buff)
@@ -1517,6 +1518,18 @@ end
 
 function DOLL_LITTLE_GLAICIER_BUFF_LEAVE(actor, obj, buff)
 	SCR_REMOVE_FAIRY(actor:GetHandleVal(), "doll_little_glacier");
+end
+
+-- boruta
+function BORUTA_BUFF_ENTER(actor, obj, buff)
+end
+
+function BORUTA_BUFF_UPDATE(actor, obj, buff)
+	SCR_CREATE_FAIRY(actor:GetHandleVal(), "doll_boruta");
+end
+
+function BORUTA_BUFF_LEAVE(actor, obj, buff)
+	SCR_REMOVE_FAIRY(actor:GetHandleVal(), "doll_boruta");
 end
 
 function XMAS_EFFECT_2019_ENTER(actor, obj, buff)

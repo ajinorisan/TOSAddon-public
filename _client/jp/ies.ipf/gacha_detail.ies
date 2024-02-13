@@ -1,6 +1,6 @@
 ClassID,Count,Price,ClassName,ItemClassName,Group,GachaType,RewardGroup,PreCheckScp,GachaLog,MsgItem,ConsumeType,OpenCountAllow,ConsumeItem,ConsumeItemCnt
 1,1,999,"Gacha_TP_001","Gacha_TP_001","CUBE","rbox","GACHA_TP_001","","HAIR_GACHA","1","CUBE","NO","",""
-2,11,999,"Gacha_TP_010","Gacha_TP_010","CUBE","rbox","GACHA_TP_001","","HAIR_GACHA","1","CUBE","NO","",""
+2,11,999,"Gacha_TP_010","Gacha_TP_010","CUBE","rbox","Gacha_TP2_001","","HAIR_GACHA","1","CUBE","NO","",""
 3,1,999,"Gacha_TP_100","Gacha_TP_100","CUBE","rbox","GACHA_TP_001","","HAIR_GACHA","1","CUBE","NO","",""
 4,1,999,"Gacha_HairAcc_001_event14d","Gacha_HairAcc_001_event14d","CUBE","hair","GACHA_HAIRACC_001","","HAIR_GACHA","1","CUBE","NO","",""
 5,1,999,"Gacha_HairAcc_001","Gacha_HairAcc_001","CUBE","hair","GACHA_HAIRACC_001","","RANDOM_BOX","1","CUBE","NO","",""
@@ -200,3 +200,5 @@ ClassID,Count,Price,ClassName,ItemClassName,Group,GachaType,RewardGroup,PreCheck
 234,11,370,"Gacha_Halloween_Animals_Resale_010","Gacha_Halloween_Animals_Resale_010","CUBE","hair","Gacha_Halloween_Animals_Resale_001","","Gacha_Halloween_Animals_Resale_001","1","CUBE","YES","",""
 235,1,37,"Gacha_Memory_of_Snigo_CUBE_001","Gacha_Memory_of_Snigo_CUBE_001","CUBE","hair","Gacha_Memory_of_Snigo_CUBE_001","","Gacha_Memory_of_Snigo_CUBE_001","1","CUBE","YES","",""
 236,10,370,"Gacha_Memory_of_Snigo_CUBE_010","Gacha_Memory_of_Snigo_CUBE_010","CUBE","hair","Gacha_Memory_of_Snigo_CUBE_001","","Gacha_Memory_of_Snigo_CUBE_001","1","CUBE","YES","",""
+237,1,999,"GACHA_HAIRACC_ReSale_2024_001_TWN","GACHA_HAIRACC_ReSale_2024_001_TWN","CUBE","hair","GACHA_HAIRACC_ReSale_2024_001_TWN","","GACHA_HAIRACC_ReSale_2024_001_TWN","1","CUBE","YES","",""
+238,11,999,"GACHA_HAIRACC_ReSale_2024_010_TWN","GACHA_HAIRACC_ReSale_2024_010_TWN","CUBE","hair","GACHA_HAIRACC_ReSale_2024_001_TWN","","GACHA_HAIRACC_ReSale_2024_001_TWN","1","CUBE","YES","",""

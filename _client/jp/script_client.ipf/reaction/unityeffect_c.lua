@@ -16,8 +16,21 @@ function C_UNITY_EFFECT_POS(actor, obj, eftName, effect_scale, x, y, z, lifeTime
 end
 
 --@Desc: 대상의 부위(노드)에 이팩트 붙이기
--- 현재 행렬곱 노드에 이팩트 붙여서 앵글 곱하는거 문제있음
-function C_UNITY_EFFECT_NODE(actor, obj, effect_name, effect_scale, lifeTime, deg_angle_x, deg_angle_y, deg_angle_z, node_name, monster_key)
+function C_UNITY_EFFECT_NODE(actor, obj, effect_name, effect_scale, lifeTime, deg_angle_x, deg_angle_y, deg_angle_z, node_name, monster_key, off_set)
+    -- default settings start --
+    if lifeTime ==nil then lifeTime = 0 end
+    if deg_angle_x ==nil then deg_angle_x = 0 end
+    if deg_angle_y ==nil then deg_angle_y = 0 end
+    if deg_angle_z ==nil then deg_angle_z = 0 end
+    if node_name ==nil then node_name = "None" end
+    if monster_key ==nil then monster_key = "None" end
+    if off_set == nil then off_set = 'None' end
+    -- default settings end --
+
+    effect.PlayUnityEffectNode(actor, effect_name, effect_scale,lifeTime, deg_angle_x, deg_angle_y, deg_angle_z, node_name, monster_key, off_set);
+end
+
+function C_UNITY_EFFECT_NODE_ABIL(actor, obj, effect_name, effect_scale, lifeTime, deg_angle_x, deg_angle_y, deg_angle_z, node_name, monster_key,abilName)
     -- default settings start --
     if lifeTime ==nil then lifeTime = 0 end
     if deg_angle_x ==nil then deg_angle_x = 0 end
@@ -26,12 +39,7 @@ function C_UNITY_EFFECT_NODE(actor, obj, effect_name, effect_scale, lifeTime, de
     if node_name ==nil then node_name = "None" end
     if monster_key ==nil then monster_key = "None" end
     -- default settings end --
-
-    effect.PlayUnityEffectNode(actor, effect_name, effect_scale,lifeTime, deg_angle_x, deg_angle_y, deg_angle_z, node_name, monster_key);
-end
-
-function C_UNITY_EFFECT_NODE_ABIL(actor, obj, effect_name, effect_scale, lifeTime, deg_angle_x, deg_angle_y, deg_angle_z, node_name, monster_key,abilName)
-	if abilName ~= nil and type(abilName) == 'string' and abilName ~= 'None' then
+    if abilName ~= nil and type(abilName) == 'string' and abilName ~= 'None' then
 		local abil = session.GetAbilityByName(abilName);
 		if abil ~= nil then
 			local abilObj = GetIES(abil:GetObject());
@@ -44,8 +52,6 @@ function C_UNITY_EFFECT_NODE_ABIL(actor, obj, effect_name, effect_scale, lifeTim
         end
     end
 end
-
-
 
 --@Desc: 대상 모델에 대략적인 높이 위치에서 오프셋/회전값 만큼을 증감하여 이팩트 붙이기
 --(param desc) start_height_offset : TOP/MID/BOT(default) 중 택 1
@@ -62,6 +68,29 @@ function C_UNITY_EFFECT_ATTACH(actor, obj, effect_name, effect_scale, deg_angle_
     if duplicate ==1 then duplicate = true end
     -- default settings end --
     effect.AttachUnityEffect(actor, effect_name, effect_scale, deg_angle_x, deg_angle_y, deg_angle_z, start_height_offset, offset_x,offset_y,offset_z, duplicate);
+end
+
+function C_UNITY_EFFECT_ATTACH_ABIL(actor, obj, effect_name, effect_scale, deg_angle_x, deg_angle_y, deg_angle_z, start_height_offset, offset_x,offset_y,offset_z, duplicate,abilName)
+    -- default settings start --
+    if deg_angle_x ==nil then deg_angle_x = 0 end
+    if deg_angle_y ==nil then deg_angle_y = 0 end
+    if deg_angle_z ==nil then deg_angle_z = 0 end
+    if start_height_offset ==nil then start_height_offset = "BOT" end
+    if offset_x ==nil then offset_x = 0 end
+    if offset_y ==nil then offset_y = 0 end
+    if offset_z ==nil then offset_z = 0 end
+    if duplicate ==nil or duplicate==0 then duplicate = false end
+    if duplicate ==1 then duplicate = true end
+    -- default settings end --
+    if abilName ~= nil and type(abilName) == 'string' and abilName ~= 'None' then
+		local abil = session.GetAbilityByName(abilName);
+		if abil ~= nil then
+			local abilObj = GetIES(abil:GetObject());
+			if abilObj.ActiveState == 1 then
+                effect.AttachUnityEffect(actor, effect_name, effect_scale, deg_angle_x, deg_angle_y, deg_angle_z, start_height_offset, offset_x,offset_y,offset_z, duplicate);
+            end
+        end
+    end
 end
 
 --@Desc: world 내 동일명의 타겟 이팩트 모두 제거

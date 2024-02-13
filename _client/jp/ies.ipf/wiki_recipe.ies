@@ -1276,6 +1276,7 @@ ClassID,WikiPoint,TeachPoint,AutoGet,ClassName,TargetClassName,TargetMapName,Ill
 50215,10,5,0,"R_Dungeon_Key01_1","R_Dungeon_Key01_1","","icon_item_recipe_misc1","제작서 - [라다] 레이드 포탈 스톤(10개)","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
 50216,10,5,0,"R_Ticket_DreamyForest_Auto_Enter_NoTrade","R_Ticket_DreamyForest_Auto_Enter_NoTrade","","icon_item_recipe_misc1","제작서 - 몽환의 숲(자동 매칭, 1인) 1회 입장권(거래불가)","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
 50217,10,5,0,"R_Ticket_AbyssalObserver_Auto_Enter_NoTrade","R_Ticket_AbyssalObserver_Auto_Enter_NoTrade","","icon_item_recipe_misc1","제작서 - 심연의 관찰자(자동 매칭, 1인) 1회 입장권(거래불가)","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
+50218,10,5,0,"R_Ticket_DespairIsland_Auto_Enter_NoTrade","R_Ticket_DespairIsland_Auto_Enter_NoTrade","","icon_item_recipe_misc1","제작서 - 절망의 섬(자동 매칭, 1인) 1회 입장권(거래불가)","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
 100000,0,0,0,"R_HIDDEN_BULLETMARKER_ITEM1","R_HIDDEN_BULLETMARKER_ITEM1","","icon_item_recipe_misc1","제작서 - 냉기탄","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
 100001,0,0,0,"R_HIDDEN_BULLETMARKER_ITEM2","R_HIDDEN_BULLETMARKER_ITEM2","","icon_item_recipe_misc1","제작서 - 화염탄","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
 100002,0,0,0,"R_HIDDEN_BULLETMARKER_ITEM3","R_HIDDEN_BULLETMARKER_ITEM3","","icon_item_recipe_misc1","제작서 - 전기탄","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"

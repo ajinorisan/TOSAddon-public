@@ -27,3 +27,18 @@ function C_PAD_DELAY_UNITY_EFFECT_FORCE(actor, obj, pad_guid, eft_name, eft_scal
 		effect.PlayPadDelayForceUnityEffect(owner, eft_name, eft_scale, eft_rot_x, eft_rot_y, eft_rot_z, fix_height, pad_guid, delay);
 	end
 end
+
+--@Desc: 대상 지점(위치)에 이팩트 재생
+function C_PAD_UNITY_EFFECT_POS(actor, obj,pad_guid, eftName, effect_scale, x, y, z, lifeTime, key, deg_angle_x, deg_angle_y, deg_angle_z, delaySec)
+    ----------------------------------------------------
+    -- default settings start --
+    if key == nil then key = "None" end
+    if lifeTime ==nil then lifeTime = 0 end
+    if deg_angle_x ==nil then deg_angle_x = 0 end
+    if deg_angle_y ==nil then deg_angle_y = 0 end
+    if deg_angle_z ==nil then deg_angle_z = 0 end
+    if delaySec ==nil then delaySec = 0 end
+    -- default settings end --
+
+    effect.PlayGroundUnityEffect(actor,eftName, effect_scale, x, y, z,lifeTime, key, deg_angle_x, deg_angle_y, deg_angle_z, delaySec)
+end

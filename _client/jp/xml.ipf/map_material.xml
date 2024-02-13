@@ -772,24 +772,28 @@
 			<Particle From="I_warrior_dash_run" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>
 			<Sound From="walk_left" To="step_soil"/>
 		</Anim>
+		<Anim Name="DASH_RUN">
+			<Particle From="I_warrior_dash_run" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
+			<Sound From="walk_left" To="step_soil"/>
+		</Anim>
 		<Anim Name="WALK_RIDE">
 			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>
 			<Sound From="walk_left" To="step_soil"/>
 		</Anim>
 		<Anim Name="ARUN_RIDE">
-			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>
+			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
 			<Sound From="walk_left" To="step_soil"/>
 		</Anim>
 		<Anim Name="RUN_RIDE">
-			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>
+			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
 			<Sound From="walk_left" To="step_soil"/>
 		</Anim>
 		<Anim Name="RUN_DASH_RIDE">
-			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>
+			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
 			<Sound From="walk_left" To="step_soil"/>
 		</Anim>
 		<Anim Name="RUN_NOBLEPOPO">
-			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>
+			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
 		</Anim>
 		<Anim Name="RUN_EP13ANIMAL">
 			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>

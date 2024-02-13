@@ -76,3 +76,6 @@ ClassID,Grade_Ratio,Count,NeedCoin,ClassName,Grade,Limit_Level,CoinType,CoinName
 10074,1,1,50000,"motion_dionyscon01_2","C","","AccountProp","RadaCertificate","NO","2021-11-01 09:00:00","2024-11-11 09:00:00"
 10075,5,1,230000,"EVENT_halloweenwolf_black_m_2","S","30","AccountProp","RadaCertificate","NO","2021-11-01 09:00:00","2024-11-11 09:00:00"
 10076,30,30,3000,"Boruta_Drug_RedApple20","C","","AccountProp","RadaCertificate","YES","2021-11-01 09:00:00","2024-11-11 09:00:00"
+10077,15,1,158000,"misc_reinforce_percentUp_510_NoTrade_30ea_achieve","A","15","AccountProp","RadaCertificate","YES","2021-11-01 09:00:00","2024-11-11 09:00:00"
+10078,7,1,79000,"misc_reinforce_percentUp_510_NoTrade_15ea_achieve","B","15","AccountProp","RadaCertificate","YES","2021-11-01 09:00:00","2024-11-11 09:00:00"
+10079,7,1,47000,"misc_reinforce_percentUp_510_NoTrade_10ea_achieve","B","20","AccountProp","RadaCertificate","YES","2021-11-01 09:00:00","2024-11-11 09:00:00"

@@ -51,3 +51,4 @@ ClassID,ClassName,Type,Scp
 50,"Squire_Arrest","Skill","SCR_DYNCAST_SKILL_Squire_Arrest"
 51,"Common_Oracle_Foretell","Skill","SCR_DYNCAST_SKILL_Common_Oracle_Foretell"
 52,"Common_RuneCaster_Algiz","Skill","SCR_DYNCAST_SKILL_Common_RuneCaster_Algiz"
+53,"Illusionist_Flood","Skill","SCR_DYNCAST_SKILL_Illusionist_Flood"

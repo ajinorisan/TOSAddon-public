@@ -101,7 +101,9 @@
 		<image name="c_wizard_kadiatcha" file="\icon\class_wizard.tga" imgrect="100 400 100 100" CMM_Caption="카디앗차"/>
 		<image name="c_cleric_lama" file="\icon\class_cleric.tga" imgrect="0 400 100 100" CMM_Caption="라마"/>
 		<image name="c_scout_jaguar" file="\icon\class_scout.tga" imgrect="304 105 100 100" CMM_Caption="재규어"/>
-		<image name="c_warrior_SpearMaster" file="\icon\class_warrior.tga" imgrect="299 400 100 100" CMM_Caption="신극"/>		
+		<image name="c_warrior_SpearMaster" file="\icon\class_warrior.tga" imgrect="299 400 100 100" CMM_Caption="신극"/>	
+		<image name="c_wizard_illusionist" file="\icon\class_wizard.tga" imgrect="200 400 100 100" CMM_Caption="일루저니스트"/>
 		<image name="c_cleric_Pontifex" file="\icon\class_cleric.tga" imgrect="99 401 100 100" CMM_Caption="폰티펙스"/>
+		<image name="c_warrior_WingedHussar" file="\icon\class_warrior.tga" imgrect="400 400 100 100" CMM_Caption="윙드후사르"/>		
 	</imagelist>
 </skinset>

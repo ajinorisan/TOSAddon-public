@@ -2,6 +2,7 @@
 
 function PETLIST_ON_INIT(addon, frame)
 	addon:RegisterMsg('UPDATE_PETLIST', 'UPDATE_RIDE_PETLIST')
+	addon:RegisterMsg('REFRESH_WING_NODE', 'REFRESH_WING_NODE_POS')
 end
 
 function PETLIST_OPEN(petinfo_frame)
@@ -169,4 +170,18 @@ function PETLIST_REQ_CD_SET(frame, icon)
     icon:SetUserValue("_CUSTOM_CD_START", frame:GetUserValue("_CUSTOM_CD_START"));
     icon:SetUserValue("_CUSTOM_CD", RIDEPET_SELECT_REQUEST_WAIT_TIME+1);
     icon:SetOnCoolTimeUpdateScp('_ICON_CUSTOM_COOLDOWN');
+end
+function REFRESH_WING_NODE_POS(frame, msg, argstr)
+	local equiplist = session.GetEquipItemList();
+	for i = 0, equiplist:Count() - 1 do
+		local equipItem = equiplist:GetEquipItemByIndex(i);
+		local tempobj = equipItem:GetObject()
+		local obj = GetIES(tempobj);
+		local nodeName = TryGetProp(obj,"NodeName","None")
+		if nodeName == "Dummy_wing2" then
+			local handle = session.GetMyHandle();
+			local actor = world.GetActor(handle);
+			actor:ChangeEquipNode(EmAttach.eWing,argstr)
+		end
+	end
 end

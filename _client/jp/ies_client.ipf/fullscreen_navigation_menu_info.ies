@@ -21,7 +21,6 @@ ClassID,Page,GroupIndex,SortIndex,ClassName,Category,CategoryName,OpenScp,MenuIc
 307,1,4,5,"ViboraCoinShop","Shop","상점","REQ_DAILY_REWARD_SHOP_1_OPEN","icon_fullscreen_menu_vibora","바이보라의 날개 주화 상점","바이보라의 날개 주화를 사용하여 구매 가능한 상품을 확인합니다.","YES","","","NO","NO",""
 308,1,4,6,"BeautyShop","Shop","상점","UI_TOGGLE_TPITEM_BEUTYSHOP_GO_SHOP","icon_fullscreen_menu_beautyshop","뷰티샵","외형 변경이나 전용 의상을 구입할 수 있습니다.{nl}주요 도시 내에서만 이용할 수 있습니다.","YES","","","NO","NO",""
 309,1,4,7,"LeticiaSecretCube","Shop","상점","","icon_fullscreen_menu_letica","레티샤의 시크릿 큐브","월 별로 특별 판매되는 한정 상품입니다.{nl}주요 도시 내에서만 이용할 수 있습니다.","YES","c_Klaipe/c_orsha/c_fedimian","LETICIA_CUBE_AI/LETICIA_CUBE_AI/LETICIA_CUBE_AI","NO","YES",""
-310,1,4,8,"GoddessBlessing","Shop","상점","","icon_fullscreen_menu_goddessblessing","여신의 축복","하나의 테마를 주제로 기간 한정으로 판매되는 의상 상품입니다.{nl}주요 도시 내에서만 이용할 수 있습니다.","YES","c_Klaipe/c_orsha/c_fedimian","BLESSED_CUBE/BLESSED_CUBE/BLESSED_CUBE","NO","YES",""
 401,1,1,0,"ContentsBoard","Challenge","도전","UI_TOGGLE_INDUN","icon_fullscreen_menu_contentsboard","콘텐츠 현황판","다양한 콘텐츠에 대한 정보를 한눈에 확인하고 입장할 수 있습니다.","YES","","","NO","NO",""
 501,1,1,0,"Quest","Adventure","여정","UI_TOGGLE_QUEST","icon_fullscreen_menu_quest","퀘스트","에피소드 별 퀘스트를 확인합니다.{nl}에피소드 완료 보상은 계정당 1 회만 획득 가능합니다.","YES","","","NO","NO",""
 502,1,1,1,"Achieve","Adventure","여정","UI_TOGGLE_JOURNAL","icon_fullscreen_menu_achieve","업적","유형별 업적 현황을 확인하고 각종 보상을 획득합니다.","YES","","","NO","NO",""

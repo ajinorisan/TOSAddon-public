@@ -6,6 +6,7 @@
 	<ReadXml Name="item_goddess_reinforce_480"/>
 	<ReadXml Name="item_goddess_reinforce_490"/>
 	<ReadXml Name="item_goddess_reinforce_500"/>
+	<ReadXml Name="item_goddess_reinforce_510"/>
 	<ReadXml Name="pharmacy_material_type"/>	
 	<ReadXml Name="skill_Simony"/>
 	<ReadXml Name="archeology_property"/>
@@ -424,4 +425,8 @@
 	<ReadXml Name="enchant_special_option_ratio_low"/>		
 	<ReadXml Name="enchant_special_option_ratio"/>	
 	<ReadXml Name="auction\black_market_schedule"/>		
+	<ReadXml Name="auction\black_market_schedule_TAIWAN"/>
+	<ReadXml Name="auction\black_market_schedule_PAPAYA"/>
+	<ReadXml Name="monster_leader_info"/>
+	<ReadXml Name="reward_tp2"/>
 </Category>

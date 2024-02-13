@@ -4163,6 +4163,16 @@
 			</Creation>
 		</Layer>
 	</ItemList>
+	<ItemList ItemClassName="wing_illusionist">
+		<Layer effect="BodyAura_Light_Purple_01" TargetNode="Dummy_wing" scale="0.5" offset="0;0">
+			<Creation>
+				<Property PlayMoment="None">
+					<Option ReinforceValue="0" UseAttach="YES" Use2DEffect="NO" IgnoreAnimEventEffect="NO" SubWeaponPistol="NO" UnityEffect="YES"/>
+					<Sound SoundName="None" SoundVolume="1"/>
+				</Property>
+			</Creation>
+		</Layer>
+	</ItemList>
 	<ItemList ItemClassName="wing_roze">
 		<Layer effect="F_light223_pink_loop" TargetNode="Dummy_body" scale="0.6" offset="0;0">
 			<Creation>

@@ -6,7 +6,7 @@ ClassID,AppearRatio_D,AppearRatio_C,AppearRatio_B,AppearRatio_A,ClassName,MergeT
 5,0,0,5,8,"ignore_deadremove","enchant_special_option","ignore_deadremove"
 100,0,0,0,5,"MSPD","enchant_special_option","MSPD"
 101,500,500,500,500,"CRTHR","enchant_special_option","CRTHR"
-102,2000,1700,1500,1400,"CRTDR","enchant_special_option","CRTDR"
+102,500,500,500,500,"CRTDR","enchant_special_option","CRTDR"
 103,2000,1700,1500,1400,"ADD_DEF","enchant_special_option","ADD_DEF"
 104,2000,1700,1500,1400,"ADD_MDEF","enchant_special_option","ADD_MDEF"
 105,300,300,300,300,"ADD_MATK","enchant_special_option","ADD_MATK"

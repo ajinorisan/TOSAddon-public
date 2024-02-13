@@ -290,6 +290,12 @@
 			<richtext name="event_coin" margin="10 280 0 0" rect="0 0 380 24" format="TOS 주화 획득량 {img green_up_arrow 14 14}150%" param1="value" param1_def="" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="brown_16" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
 			<richtext name="remaintime" margin="10 220 0 0" rect="0 0 380 24" format="남은 시간 : {#FF0000}%s{/}" param1="value" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="brown_16" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
 		</controls>
+	</tooltip>	
+	<tooltip name="Water_jewel_Buff" x="0" y="0" fixwidth="true" width="200" height="100" moveable="true" frameskin="downbox" UpdateScp="UPDATE_Water_jewel_Buff_TOOLTIP">
+		<controls>
+			<richtext name="name" rect="5 12 160 20" fixwidth="false" updateparent="true"/>
+			<richtext name="comment" rect="5 45 160 100" fixwidth="false" updateparent="true"/>
+		</controls>
 	</tooltip>
 	<tooltip name="reinforceitem" x="0" y="0" fixwidth="false" width="1640" height="0" moveable="false" frameskin="None" UpdateScp="UPDATE_REINFORCE_ITEM_TOOLTIP" draw="false">
 		<userconfig BOTTOM_MARGIN="10"/>

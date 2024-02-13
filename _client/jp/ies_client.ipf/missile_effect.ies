@@ -14,5 +14,6 @@ ClassID,EffectScale,FinishEffectScale,ClassName,EffectName,Sound,FinishEffectNam
 1013,1.200000,1.200000,"Goddess_Slogutis_BlockOrb","I_sphere009_violet","","F_explosion050_fire_violet",""
 1014,0.700000,0.700000,"RE_boss_solcomm_rize","I_force018_trail_rize_green_800","arrow_cast","F_rize016_hit_green","arrow_blow"
 2001,0.700000,2.800000,"Jellyzele_Missile","F_light206_bubble_loop","","F_explosion98_water","mon_move_jellyzele_skl7_bubble_boom"
+2002,0.700000,0.700000,"IllusionSword","Projectile_SpinningIllusionSword","arrow_cast","F_rize016_hit_green","arrow_blow"
 3001,0.200000,3,"Goddess_DarkLash","I_force018_trail_chain","skl_eff_whip_1","F_explosion123_dark",""
 3002,0.200000,3,"Goddess_CarnageScythe","I_force018_trail_chain","skl_eff_Archer_Caltrop","F_explosion123_red",""

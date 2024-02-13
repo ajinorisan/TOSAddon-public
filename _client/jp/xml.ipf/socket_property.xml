@@ -3119,6 +3119,30 @@
 		<Level Level="0" PropList_TopLeg="OptDesc/리페어 키트 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/리페어 키트 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
 		<Level Level="1" PropList_TopLeg="OptDesc/리페어 키트 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/리페어 키트 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
 	</Item>
+	<Item Name="GEM_Illusionist_IllusionSword">
+		<Level Level="1" PropList_TopLeg="OptDesc/환영검 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/환영검 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="0" PropList_TopLeg="OptDesc/환영검 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/환영검 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Illusionist_IllusionBlast">
+		<Level Level="0" PropList_TopLeg="OptDesc/환영 폭파 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/환영 폭파 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/환영 폭파 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/환영 폭파 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Illusionist_MagicalIllusion">
+		<Level Level="0" PropList_TopLeg="OptDesc/마법 환영 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/마법 환영 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/마법 환영 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/마법 환영 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Illusionist_Flood">
+		<Level Level="0" PropList_TopLeg="OptDesc/쇄도 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/쇄도 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/쇄도 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/쇄도 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Illusionist_Nightmare">
+		<Level Level="0" PropList_TopLeg="OptDesc/악몽 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/악몽 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/악몽 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/악몽 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Illusionist_IllusionArmor">
+		<Level Level="0" PropList_TopLeg="OptDesc/환영 갑옷 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/환영 갑옷 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/환영 갑옷 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/환영 갑옷 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
     <Item Name="GEM_Pontifex_Missa">
     	<Level Level="0" PropList_TopLeg="OptDesc/미사 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/미사 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
     	<Level Level="1" PropList_TopLeg="OptDesc/미사 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/미사 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
@@ -3143,4 +3167,32 @@
 		<Level Level="0" PropList_TopLeg="OptDesc/디다케: 면죄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/디다케: 면죄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
 		<Level Level="1" PropList_TopLeg="OptDesc/디다케: 면죄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/디다케: 면죄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
 	</Item>
+  <Item Name="GEM_WingedHussars_CircleWings">
+    <Level Level="0" PropList_TopLeg="OptDesc/서클 윙스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/서클 윙스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/서클 윙스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/서클 윙스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_WingedHussars_RisingWings">
+    <Level Level="0" PropList_TopLeg="OptDesc/라이징 윙스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/라이징 윙스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/라이징 윙스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/라이징 윙스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_WingedHussars_GiantWings">
+    <Level Level="0" PropList_TopLeg="OptDesc/자이언트 윙스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/자이언트 윙스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/자이언트 윙스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/자이언트 윙스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_WingedHussars_WindPulse">
+    <Level Level="0" PropList_TopLeg="OptDesc/윈드 펄스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/윈드 펄스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/윈드 펄스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/윈드 펄스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_WingedHussars_ImpulseSpears">
+    <Level Level="0" PropList_TopLeg="OptDesc/임펄스 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/임펄스 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/임펄스 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/임펄스 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_WingedHussars_BattleSpirit">
+    <Level Level="0" PropList_TopLeg="OptDesc/배틀 스피릿 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/배틀 스피릿 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/배틀 스피릿 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/배틀 스피릿 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_WingedHussars_ExplosionSpears">
+    <Level Level="0" PropList_TopLeg="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
 </SocketProperty>

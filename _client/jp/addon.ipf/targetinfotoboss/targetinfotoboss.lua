@@ -1,4 +1,4 @@
-function TARGETINFOTOBOSS_ON_INIT(addon, frame)
+﻿function TARGETINFOTOBOSS_ON_INIT(addon, frame)
 	addon:RegisterMsg('TARGET_SET_BOSS', 'TARGETINFOTOBOSS_TARGET_SET');
 	addon:RegisterMsg('TARGET_BUFF_UPDATE', 'TARGETINFOTOBOSS_ON_MSG');
 	addon:RegisterMsg('TARGET_CLEAR_BOSS', 'TARGETINFOTOBOSS_ON_MSG');
@@ -109,6 +109,8 @@ function TARGETINFOTOBOSS_TARGET_SET(frame, msg, argStr, argNum)
 	end
 
 	-- shield
+	local boss_shield_update_from_server = frame:GetUserIValue("boss_shield_update_from_server");
+	if boss_shield_update_from_server == 0 then
 	local shield = stat:GetShieldStr();
 	if shield ~= nil and shield ~= "None" and shield ~= "0" then
 		local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
@@ -119,6 +121,7 @@ function TARGETINFOTOBOSS_TARGET_SET(frame, msg, argStr, argNum)
 	else
 		local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
 		shield_gauge:ShowWindow(0);		
+	end
 	end
 	frame:ShowWindow(1);
 	frame:Invalidate();
@@ -150,6 +153,8 @@ function TARGETINFOTOBOSS_ON_MSG(frame, msg, argStr, argNum)
 			local hpText = frame:GetChild('hpText');
             hpText:SetText(strHPValue);
 			-- shield
+			local boss_shield_update_from_server = frame:GetUserIValue("boss_shield_update_from_server");
+			if boss_shield_update_from_server == 0 then
 			local shield = stat:GetShieldStr();
 			if shield ~= nil and shield ~= "None" and shield ~= "0" then
 				local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
@@ -160,6 +165,7 @@ function TARGETINFOTOBOSS_ON_MSG(frame, msg, argStr, argNum)
 			else
 				local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
 				shield_gauge:ShowWindow(0);		
+			end
 			end
 			if frame:IsVisible() == 0 then
 				frame:ShowWindow(1)
@@ -229,6 +235,36 @@ function UPDATE_MISSCHECK_ICON_REMOVE(frame, timer, argStr, argNum, time)
 			if boss_misscheck:IsBlinking() == 0 then
 				boss_misscheck:SetBlink(600000, 1.0, "55FFFFFF", 1);
 			end
+		end
+	end
+end
+
+function TARGETINFOTOBOSS_UPDATE_SHIELD(data)
+	if data ~= nil and data ~= "None" then
+		local frame = ui.GetFrame("targetinfotoboss");
+		if frame ~= nil then
+			if data == "shield_remove" then
+				frame:SetUserValue("boss_shield_update_from_server", 0);
+				local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+				if shield_gauge ~= nil then
+					shield_gauge:ShowWindow(0);		
+				end
+			else
+				frame:SetUserValue("boss_shield_update_from_server", 1);
+				local data_list = StringSplit(data, '/');
+				if #data_list > 0 then
+					local shield = data_list[1];
+					local mhp = tonumber(data_list[2]);
+					print(shield, mhp);
+					local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+					if shield_gauge ~= nil then
+						shield_gauge:ShowWindow(1);
+						shield_gauge:SetShieldPoint(shield, mhp);
+					end
+				end
+			end
+			frame:ShowWindow(1);
+			frame:Invalidate();
 		end
 	end
 end

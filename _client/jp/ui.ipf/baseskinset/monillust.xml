@@ -387,6 +387,7 @@
 		<image name="BW_boss_Skiaclipse" file="\icon\monster\boss\BW_boss_Skiaclipse.png" imgrect="0 0 80 80"/>
 		<image name="BW_boss_Vasilissa" file="\icon\monster\boss\BW_boss_Vasilissa.png" imgrect="0 0 80 80"/>
 		<image name="boss_snigo" file="\icon\monster\boss\boss_snigo.png" imgrect="0 0 80 80"/>
+		<image name="boss_merregina_despair" file="\icon\monster\boss\boss_merregina_despair.png" imgrect="0 0 80 80"/>
 	</imagelist>
 	<imagelist category="Monster_icon_nor_01">
 		<image name="mon_onion" file="\icon\monster\mon\mon_onion.png" imgrect="0 0 80 80"/>

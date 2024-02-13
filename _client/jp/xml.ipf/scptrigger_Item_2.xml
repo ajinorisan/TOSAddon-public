@@ -8250,4 +8250,784 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
+
+	<SpcItem Name="EP14_goddess_noble_1_TOP">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_LEG">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_FOOT">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_HAND">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_TOP_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_LEG_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_FOOT_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_HAND_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_TOP_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_LEG_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_FOOT_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_1_HAND_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	
+	<SpcItem Name="EP14_goddess_noble_2_TOP">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_LEG">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_FOOT">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_HAND">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_TOP_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_LEG_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_FOOT_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_HAND_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_TOP_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_LEG_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_FOOT_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_2_HAND_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_EVIL_ARMOR_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+
+	<SpcItem Name="EP14_goddess_noble_3_TOP">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_LEG">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_FOOT">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_HAND">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_TOP_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_LEG_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_FOOT_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_HAND_Lv2">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv2" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv2" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_TOP_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_LEG_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_FOOT_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP14_goddess_noble_3_HAND_Lv3">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="equip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>          
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_gabija_casting_stack_Lv3" Client="NO" UseSleep="NO"/>
+					<ToolScp Scp="unequip_ep16_dalia_leather_Lv3" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>	
+	
+	<SpcItem Name="EP16_NECK_01">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_NECK_01" Client="NO" UseSleep="NO" />
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_NECK_01" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_BRC_01">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_BRC_01" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_BRC_01" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_NECK_02">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_NECK_02" Client="NO" UseSleep="NO" />
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_NECK_02" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_BRC_02">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_BRC_02" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_BRC_02" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_NECK_03">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_NECK_03" Client="NO" UseSleep="NO" />
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_NECK_03" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_BRC_03">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_BRC_03" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_BRC_03" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>	
+	<SpcItem Name="EP16_NECK_04">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_NECK_04" Client="NO" UseSleep="NO" />
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_NECK_04" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_BRC_04">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_EP16_BRC_04" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_EP16_BRC_04" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>	
 </SpcItemList>

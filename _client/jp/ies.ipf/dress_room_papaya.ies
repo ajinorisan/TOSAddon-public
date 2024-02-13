@@ -47,3 +47,7 @@ ClassID,ClassName,Thema,ItemClassName,Group
 46,"dress_cherryblossom_jp_4","cherryblossom_jp_thema","EP13_costume_Com_051_JP","dress_room_old"
 47,"dress_cherryblossom_jp_5","cherryblossom_jp_thema","EP13_costume_Com_052_JP","dress_room_old"
 48,"dress_cherryblossom_jp_6","cherryblossom_jp_thema","EP13_costume_Com_053_JP","dress_room_old"
+139,"dress_costume_sniego01_m","costume_sniego_theme","costume_sniego01_m","dress_room_blessed_cube"
+140,"dress_costume_sniego01_f","costume_sniego_theme","costume_sniego01_f","dress_room_blessed_cube"
+141,"dress_costume_sniego02_m","costume_sniego_theme","costume_sniego02_m","dress_room_blessed_cube"
+142,"dress_costume_sniego02_f","costume_sniego_theme","costume_sniego02_f","dress_room_blessed_cube"

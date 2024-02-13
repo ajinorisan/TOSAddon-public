@@ -164,7 +164,7 @@ function SHOW_TOKEN_REMAIN_TIME_IN_BUFF_TOOLTIP(ctrl)
     return 1;
 end
 
-function UPDATE_BUFF_TOOLTIP(frame, handle, numarg1, numarg2)		
+function UPDATE_BUFF_TOOLTIP(frame, handle, numarg1, numarg2)			
 	local buff = nil;    
     if tonumber(numarg2) > 0 then
         buff = info.GetBuff(handle, numarg1, numarg2);
@@ -360,4 +360,62 @@ function BUFF_TOOLTIP_EVENT_2210_KLAPEDA_GHOST_COSTUME_BUFF(buff, cls)
 	local costumeCls = GetClass("Item", costumeName)
 	
 	return ScpArgMsg("EVENT_2210_HALLOWEEN_BUFF_TOOLTIP", "NAME", costumeCls.Name), cls.Name
+end
+
+function UPDATE_Water_jewel_Buff_TOOLTIP(frame, handle, numarg1, numarg2)
+	
+	local buff = nil;    
+    if tonumber(numarg2) > 0 then
+        buff = info.GetBuff(handle, numarg1, numarg2);
+    else
+        buff = info.GetBuff(handle, numarg1);
+    end
+
+	local buffOver;
+	local buffTime;
+	if buff ~= nil then
+		buffOver = buff.over;
+		buffTime = buff.time;
+	else
+		buffOver = 0;
+		buffTime = 0.0;
+	end
+
+	local cls = GetClassByType('Buff', numarg1);
+	local name = frame:GetChild("name");
+	local nametxt = cls.Name;
+	if buffOver > 1 then
+		nametxt = nametxt .. " X " .. buffOver;
+	end
+
+	local comment = frame:GetChild("comment");
+
+	local tooltipfunc = _G["BUFF_TOOLTIP_" .. cls.ClassName];	
+	local tooltip = "";
+	if tooltipfunc == nil then
+		tooltip = cls.ToolTip;
+	else
+		local newName;
+		tooltip, newName = tooltipfunc(buff, cls);		
+		if newName ~= nil then
+			nametxt = newName;
+		end
+	end
+	
+	local dmg = GET_COMMAED_STRING(numarg2)
+		local str = ScpArgMsg('absorbamount', 'num', dmg)
+	if buffTime == 0.0 then
+		
+		comment:SetText("{@st59}".. tooltip .. '{nl}' .. str);
+	else
+		local txt = tooltip  .. '{nl}' .. str
+		..
+		"{nl}"
+		.. ScpArgMsg("Auto_NameunSiKan_:_") .. GET_BUFF_TIME_TXT(buffTime, 1);
+		
+		comment:SetText("{@st59}"..txt);		
+	end
+	
+	frame:Resize(frame:GetOriginalWidth(), frame:GetOriginalHeight());
+	name:SetText("{@st41}".. nametxt);		
 end

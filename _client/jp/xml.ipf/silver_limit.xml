@@ -9,7 +9,7 @@
 		<Info TrustPoint="4" MarketLimit="3000000000" InvenLimit="3000000000" AccountWareHouseLimit="6000000000"/>
 		<Info TrustPoint="5" MarketLimit="5000000000" InvenLimit="5000000000" AccountWareHouseLimit="10000000000"/>
 	</LimitInfo>
-	<QuestInfo Name="Quest_Goddess" Desc="계시 퀘스트" TrustPoint="2" TrustPoint_global="1" CompleteCount="8">
+	<QuestInfo Name="Quest_Goddess" Desc="계시 퀘스트" TrustPoint="2" TrustPoint_global="2" CompleteCount="8">
 		<Info ClassName="CMINE6_TO_KATYN7_2" Desc="정체불명의 석판(2)"/>
 		<Info ClassName="CHAPLE577_MQ_10" Desc="숨겨진 성소의 계시(1)"/>
 		<Info ClassName="HUEVILLAGE_58_4_MQ11" Desc="왕릉으로 가는길"/>

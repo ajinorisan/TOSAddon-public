@@ -1,39 +1,22 @@
 -- notice_raid_pc
+local s_ui_normal_icon_msg_list = { 
+    "NOTICE_GILTINE_FIND_COLOR_RED", "NOTICE_GILTINE_FIND_COLOR_YELLOW", "NOTICE_GILTINE_DEMONICS_LANCE", "NOTICE_GILTINE_DEMONICS_PRANK", "NOTICE_SOLO_BUFF_SEELCT_ICON", "NOTICE_DELMORE_BULLET_ICON", 
+    "NOTICE_SHOW_WEEKLY_RAID_ICON", "NOTICE_INCARCERATION_ICON", "NOTICE_DAMAGE_LING_ICON", "NOTICE_ROZE_INCAPACITATE_ROCKFALL_ICON", "NOTICE_ROZE_STONE_STATUE_ICON", "NOTICE_MON_LEADER_ICON", "NOTICE_DESPAIR_MARK_REMOVE_ICON"
+};
+
 function NOTICE_RAID_PC_ON_INIT(addon, frame)
     addon:RegisterMsg("NOTICE_GLACIER_COLD_BALST", "ON_NOTICE_RAID_TO_UI");
     addon:RegisterMsg("NOTICE_GLACIER_ENCHANTMENT", "ON_NOTICE_RAID_TO_UI");
     addon:RegisterMsg("NOTICE_GLACIER_ENCHANTMENT_LEGEND", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_DEMONICS_LANCE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_DEMONICS_PRANK", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_FIND_COLOR_RED", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_FIND_COLOR_YELLOW", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_DEMONICS_LANCE_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_DEMONICS_PRANK_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_FIND_COLOR_RED_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_GILTINE_FIND_COLOR_YELLOW_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_SOLO_BUFF_SEELCT_ICON", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_SOLO_BUFF_SEELCT_ICON_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_DELMORE_BULLET_ICON", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_DELMORE_BULLET_ICON_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_SHOW_WEEKLY_RAID_ICON", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_SHOW_WEEKLY_RAID_ICON_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_INCARCERATION_ICON", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_INCARCERATION_ICON_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_DAMAGE_LING_ICON", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_DAMAGE_LING_ICON_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_ROZE_INCAPACITATE_ROCKFALL_ICON", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_ROZE_INCAPACITATE_ROCKFALL_ICON_REMOVE", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_ROZE_STONE_STATUE_ICON", "ON_NOTICE_RAID_TO_UI");
-    addon:RegisterMsg("NOTICE_ROZE_STONE_STATUE_ICON_REMOVE", "ON_NOTICE_RAID_TO_UI");    
+    for i = 1, #s_ui_normal_icon_msg_list do
+        -- create
+        local addon_msg = s_ui_normal_icon_msg_list[i];
+        addon:RegisterMsg(addon_msg, "ON_NOTICE_RAID_TO_UI");
+        -- remove
+        local remove_addon_msg = addon_msg.."_REMOVE";
+        addon:RegisterMsg(remove_addon_msg, "ON_NOTICE_RAID_TO_UI");
+    end
 end
-
-local s_ui_normal_icon_msg_list = { 
-    "NOTICE_GILTINE_FIND_COLOR_RED", "NOTICE_GILTINE_FIND_COLOR_YELLOW", "NOTICE_GILTINE_DEMONICS_LANCE", "NOTICE_GILTINE_DEMONICS_PRANK", 
-    "NOTICE_SOLO_BUFF_SEELCT_ICON", "NOTICE_DELMORE_BULLET_ICON", 
-    "NOTICE_SHOW_WEEKLY_RAID_ICON", "NOTICE_INCARCERATION_ICON",
-    "NOTICE_DAMAGE_LING_ICON", "NOTICE_ROZE_INCAPACITATE_ROCKFALL_ICON",
-    "NOTICE_ROZE_STONE_STATUE_ICON" 
-};
 
 function ON_NOTICE_RAID_TO_UI(frame, msg, argStr, argNum)
     if msg == "NOTICE_GLACIER_COLD_BALST" then
@@ -74,7 +57,7 @@ function ON_NOTICE_RAID_TO_UI(frame, msg, argStr, argNum)
     end
 end
 
-function NOTICE_RAID_PC_UI_CREATE(uiName, msg, iconName, handle, curTime, isGaugeIcon, isNormalIcon)
+function NOTICE_RAID_PC_UI_CREATE(uiName, msg, iconName, handle, curTime, isGaugeIcon, isNormalIcon, offset_y)
     local frame = ui.GetFrame(uiName);
     if frame == nil then
         frame = ui.CreateNewFrame("notice_raid_pc", tostring(uiName));
@@ -84,6 +67,7 @@ function NOTICE_RAID_PC_UI_CREATE(uiName, msg, iconName, handle, curTime, isGaug
     if gbox == nil then return; end
 
     frame:SetUserValue("NOTICE_RAID_UI_NAME", uiName);
+    frame:SetUserValue("NOTICE_RAID_UI_OFFSET_Y", offset_y);
 
     if isNormalIcon == true then
         local width = 0;
@@ -209,10 +193,16 @@ function UPDATE_NOTICE_RAID_ICON_POS(frame, num)
     if tonumber(handle) == 0 then
         return 0;
     end
-    
+
 	local point = info.GetPositionInUI(handle, 2);
 	local x = point.x - frame:GetWidth() / 2;
-	local y = point.y - frame:GetHeight() - 40;
+    local y = point.y - frame:GetHeight() - 40;
+
+    local offset_y = frame:GetUserIValue("NOTICE_RAID_UI_OFFSET_Y");
+    if offset_y > 0 then
+        y = y + offset_y;
+    end
+
     frame:MoveFrame(x, y);
 	return 1;
 end
@@ -252,4 +242,30 @@ function UPDATE_TIME_NOTICE_RAID_ICON_POS(frame, total_elapsed_time, elapsed_tim
 		return 2;
 	end
     return 1;
+end
+
+function NOTICE_RAID_MON_LEADER(handle, icon_name, offset_y, remove)
+    local frame = ui.GetFrame("notice_raid_pc");
+    if frame ~= nil then
+        local msg = "NOTICE_MON_LEADER_ICON";
+        if remove == false then
+            frame:SetUserValue("SUFFIX", handle);
+            local ui_name = "notice_raid_mon_leader"..frame:GetUserValue("SUFFIX");
+            NOTICE_RAID_PC_UI_CREATE(ui_name, msg, icon_name, handle, 0, false, true, offset_y);
+        else
+            local find_frame = ui.GetFrame("notice_raid_mon_leader"..handle);
+            if find_frame ~= nil then
+                local gbox = GET_CHILD_RECURSIVELY(find_frame, "gbox");
+                if gbox ~= nil then
+                    local ctrl = GET_CHILD_RECURSIVELY(gbox, msg);
+                    if ctrl ~= nil then
+                        ctrl:SetVisible(0);
+                        ctrl:ShowWindow(0);
+                        ctrl:Resize(0, 0);
+                        gbox:RemoveChild(ctrl:GetName());
+                    end
+                end
+            end
+        end
+    end
 end

@@ -1970,6 +1970,10 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
 		return;
 	elseif itemName == "Piece_Of_Memory_Snigo" then
 		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName == "EVENT_2401_Newyear_Coin" then
+		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName =="EVENT_2404_Old_Newyear_Coin" then
+		CRAFT_ITEM_ALL(itemSet, btn)
 	end
 
     if propName == nil then

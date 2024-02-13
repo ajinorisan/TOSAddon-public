@@ -62,6 +62,25 @@ function C_PAD_EFFECT_POS_ANGLE(actor, obj, padGuid, eftName, scl, x, y, z, life
 	end
 end
 
+function C_PAD_EFFECT_POS_LOCAL(actor, obj, padGuid, eftName, scl, x, y, z, lifeTime, activeEffect, activeEffect_arg, isEnablePositionCompensation, ignoreVisibleOption, delayTime)	
+	-- actor 는 nil 일 수도 있다.
+	if isEnablePositionCompensation == nil then
+		isEnablePositionCompensation = 1;
+	end
+
+	if ignoreVisibleOption == nil then
+		ignoreVisibleOption = 0;
+	end
+
+	if delayTime == nil then
+		delayTime = 0
+	end
+
+	if GetMyActor() == actor then
+		effect.PlayPadEffect(actor, eftName, scl, x, y, z, lifeTime, activeEffect, padGuid, isEnablePositionCompensation, ignoreVisibleOption, delayTime);
+	end
+end
+
 function C_FORM_PAD_CHANGE_ACTIVE_EFFECT(actor, obj, padGuid, index, activeEffect)
 	-- actor 는 nil 일 수도 있다.
 	effect.ChangeFormationPadActiveEffect(index, activeEffect, padGuid);

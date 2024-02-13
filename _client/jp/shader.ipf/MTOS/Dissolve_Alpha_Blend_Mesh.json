@@ -1,0 +1,17 @@
+{
+    "Name": ["MTOS/Dissolve/Alpha Blend (Mesh)", "MTOS/Dissolve/Alpha Blend_Mesh"],
+    "Properties": {
+        "_TintColor": { "Type": "Color", "Default": [0.5, 0.5, 0.5, 1] },
+        "_MainTex": { "Type": "2D", "Default": "white" },
+        "_DissolveTex": { "Type": "2D", "Default": "white" },
+        "_DissolveFactor": { "Type": "Float", "Default": 0 },
+        "_DissolveDoyoung": { "Type": "Float", "Default": 10 }
+    },
+    "Queue": "Transparent",
+    "Blend": "SrcAlpha OneMinusSrcAlpha",
+    "BlendOp": "Add, Max",
+    "Cull": "Off",
+    "VertexFunction": "vert",
+    "FragmentFunction": "frag",
+    "Keywords": ["USE2DSHADER"]
+}

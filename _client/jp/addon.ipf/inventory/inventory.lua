@@ -5963,6 +5963,27 @@ function BEFORE_APPLIED_YESSCP_ALL_OPEN_RELIC_CUBE_MSG(invItem)
 	return;
 end
 
+function BEFORE_APPLIED_YESSCP_ALL_OPEN_GACHABOX_MSG(invItem)
+	if invItem == nil then
+		return;
+	end
+	
+	local invFrame = ui.GetFrame("inventory");	
+	local itemobj = GetIES(invItem:GetObject());
+	if itemobj == nil then
+		return;
+	end
+	invFrame:SetUserValue("REQ_USE_ITEM_GUID", invItem:GetIESID());
+	
+	local num = session.GetInvItemCountByType(itemobj.ClassID)
+	if num > 300 then
+		num = 300
+	end
+	local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("YESSCP_ALL_OPEN_GACHABOX_MSG", 'num', num));
+	ui.MsgBox_NonNested(textmsg, itemobj.Name, 'REQUEST_SUMMON_BOSS_TX', "None");	
+	return;
+end
+
 -- 다수의 SCR_USE_STRING_GIVE_ITEM_NUMBER_SPLIT 아이템 사용
 local multiple_string_give_item_number_split_id = '0'
 

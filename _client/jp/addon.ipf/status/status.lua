@@ -1395,6 +1395,18 @@ function STATUS_ATTRIBUTE_VALUE_RANGE_NEW(pc, opc, frame, gboxctrl, attributeNam
     else
         stat:SetText(value);
     end
+    
+    if GetExProp(pc, 'event_atk') > 0 then
+        value = GetExProp(pc, 'event_atk')
+        if minName == 'MINPATK' or minName == 'MINMATK' then
+            stat:SetText(value);
+        end
+
+        if minName == 'MAXPATK' or minName == 'MAXMATK' then
+            stat:SetText(value);
+        end
+    end
+    
 
     controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
     return y + controlSet:GetHeight();
@@ -1619,7 +1631,7 @@ function GET_SPECIAL_OPTION_VALUE(pc, name)
     return value, tooltip_text
 end
 
-function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)           
+function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)               
     local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', attributeName, 0, y);
     tolua.cast(controlSet, "ui::CControlSet");
     local title = GET_CHILD(controlSet, "title", "ui::CRichText");
@@ -1631,7 +1643,7 @@ function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)
     
     local s_value, s_tooltip = 0, nil
 
-    if special_option_list[attributeName] ~= nil then
+    if special_option_list[attributeName] ~= nil then        
         s_value, s_tooltip = GET_SPECIAL_OPTION_VALUE(pc, attributeName)
     end
 

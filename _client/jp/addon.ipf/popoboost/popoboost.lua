@@ -409,7 +409,7 @@ function OPEN_POPOBOOST()
     --서버에서 가져와야하는거 아닌가??
 
     POPOBOOST_RESET_ITEM_REWARD(frame)
-    --POPO_GUIDE_QUEST_RED_DOT(frame)
+    POPO_GUIDE_QUEST_RED_DOT(frame)
 end
 
 ----- 기어스코어 게이지 업데이트
@@ -680,6 +680,10 @@ function POPOBOOST_PREMIUM_APPLY_ITEM_CLEINT_SCRIPT(invItem)
         return;
     end
     if IS_POPOBOOST_END() == true then
+        local popo_server = GET_POPOBOOST_SERVER();
+        if popo_server == 1 then
+            return;
+        end    
         --기간이 지났을 경우 아이템 수령 로직.
         local itemIES = invItem:GetIESID();
         local itemobj = GetIES(invItem:GetObject());
@@ -687,7 +691,6 @@ function POPOBOOST_PREMIUM_APPLY_ITEM_CLEINT_SCRIPT(invItem)
         pc.ReqExecuteTx_Item("POPOBOOST_PREMIUN_APPLY",itemIES, className);
         return;
     end
-
     local itemIES = invItem:GetIESID();
     local itemobj = GetIES(invItem:GetObject());
     local className = itemobj.ClassName;

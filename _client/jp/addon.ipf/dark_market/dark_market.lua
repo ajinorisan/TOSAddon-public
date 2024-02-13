@@ -277,6 +277,12 @@ end
 function SET_BM_SCHEDULE(frame)
     local scheduleGbox = frame:GetChild("scheduleGbox");
     local schedule, cnt = GetClassList("black_market_schedule")
+    if config.GetServiceNation() == 'TAIWAN' then
+        schedule, cnt = GetClassList("black_market_schedule_TAIWAN")
+    end
+    if config.GetServiceNation() == 'PAPAYA' then
+        schedule, cnt = GetClassList("black_market_schedule_PAPAYA")
+    end
     if scheduleGbox == nil then
         return;
     end 

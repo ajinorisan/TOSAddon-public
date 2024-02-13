@@ -216,6 +216,9 @@ function SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, buffIndex,
 	elseif TryGetProp(class, 'StringArg', 'None') == 'Ref_Account_datetime' then
 		icon:SetTooltipType('premium_boost')		
 		icon:SetTooltipArg(handle, buffType, buff.arg1);		
+	elseif class.ClassName == 'Water_jewel_complete_Buff' then
+		icon:SetTooltipType('Water_jewel_Buff')		
+		icon:SetTooltipArg(handle, buffType, buff.arg1);		
 	else
 	    icon:SetTooltipType('buff');
 	    if buffIndex ~= nil then

@@ -610,9 +610,13 @@ function ITEM_CABINET_CREATE_LIST(frame)
 	local relicTab = GET_CHILD_RECURSIVELY(frame,"relic_tab")
 
 	local equipTab = GET_CHILD_RECURSIVELY(frame, "equipment_tab");
+	local armor_tab = GET_CHILD_RECURSIVELY(frame, "armor_tab");
 	local edit = GET_CHILD_RECURSIVELY(frame, "ItemSearch");
 	local cap = edit:GetText();
 	local filtering_List ={}; --filtering list for skillgem 
+
+	local tuto_icon_1 = GET_CHILD_RECURSIVELY(frame, "UITUTO_ICON_1")
+	local tuto_icon_2 = GET_CHILD_RECURSIVELY(frame, "UITUTO_ICON_2")
 
 	local aObj = GetMyAccountObj();
 	
@@ -651,73 +655,51 @@ function ITEM_CABINET_CREATE_LIST(frame)
 	--삽입된 achievement_table UI 표기 갱신
 	ITEM_CABINET_UPDATE_GEM_COLLECTION_ACHIEVEMENT(frame,achievement_table)
 
-	if category == "Weapon" or category == "Armor" then
-		equipTab:ShowWindow(1);
-		jobTab:ShowWindow(0);
-		jobbox:ShowWindow(0);
-		relicTab:ShowWindow(0);
-		local equipTabIndex = equipTab:GetSelectItemIndex();
-		if category == "Weapon" then
-			if equipTabIndex == 0 then		
-				group = "VIBORA";
-			end
-			equipTab:ChangeCaptionOnly(0,"{@st66b}{s16}"..ClMsg("Vibora"),false)
-			
-			-- tutorial
-			do
-				local tuto_icon_1 = GET_CHILD_RECURSIVELY(frame, "UITUTO_ICON_1")
-				local tuto_icon_2 = GET_CHILD_RECURSIVELY(frame, "UITUTO_ICON_2")
-				local Is_UITUTO_Prog1 = GetUITutoProg("UITUTO_EQUIPCACABINET1")
-				if Is_UITUTO_Prog1 == 100 then
-					tuto_icon_1:ShowWindow(0);
-				else
-					tuto_icon_1:ShowWindow(1);
-				end
-				local Is_UITUTO_Prog3 = GetUITutoProg("UITUTO_EQUIPCACABINET3")
-				if Is_UITUTO_Prog3 == 100 then
-					tuto_icon_2:ShowWindow(0);
-				else
-					tuto_icon_2:ShowWindow(1);
-				end
-		 	end
-		elseif category == "Armor" then
-			if equipTabIndex == 0 then		
-				group = "GODDESS_EVIL";
-			end
-			equipTab:ChangeCaptionOnly(0,"{@st66b}{s16}"..ClMsg("GoddessEvil"),false)
+	armor_tab:ShowWindow(0)
+	equipTab:ShowWindow(0);		
+	jobTab:ShowWindow(0);
+	jobbox:ShowWindow(0);
+	relicTab:ShowWindow(0);
+	tuto_icon_1:ShowWindow(0);
+	tuto_icon_2:ShowWindow(0);
 
-			-- tutorial
-			do
-				local tuto_icon_1 = GET_CHILD_RECURSIVELY(frame, "UITUTO_ICON_1")
-				local tuto_icon_2 = GET_CHILD_RECURSIVELY(frame, "UITUTO_ICON_2")
-				tuto_icon_1:ShowWindow(0);
-				local Is_UITUTO_Prog2 = GetUITutoProg("UITUTO_EQUIPCACABINET2")
-				if Is_UITUTO_Prog2 == 100 then
-					tuto_icon_2:ShowWindow(0);
-				else
-					tuto_icon_2:ShowWindow(1);
-				end
-			end
+	if category == "Weapon" then
+		equipTab:ShowWindow(1);		
+		
+		local equipTabIndex = equipTab:GetSelectItemIndex();
+		if equipTabIndex == 0 then		
+			group = "VIBORA";
 		end
+		equipTab:ChangeCaptionOnly(0,"{@st66b}{s16}"..ClMsg("Vibora"),false)
+		local Is_UITUTO_Prog1 = GetUITutoProg("UITUTO_EQUIPCACABINET1")
+		if Is_UITUTO_Prog1 ~= 100 then					
+			tuto_icon_1:ShowWindow(1);
+		end
+		local Is_UITUTO_Prog3 = GetUITutoProg("UITUTO_EQUIPCACABINET3")
+		if Is_UITUTO_Prog3 ~= 100 then					
+			tuto_icon_2:ShowWindow(1);
+		end
+	elseif category == 'Armor' then
+		armor_tab:ShowWindow(1)
+		local equipTabIndex = armor_tab:GetSelectItemIndex();				
+		if equipTabIndex == 0 then		
+			group = "GODDESS_EVIL";
+		elseif equipTabIndex == 1 then
+			group = 'NoblePhantasm'
+		end
+		
+		
 	elseif category=="Skillgem" then
 		ITEM_CABINET_SKILLGEM_REGISTRATION_SUPPORT(frame,category)
-		group = "SKILLGEM";
-		equipTab:ShowWindow(0);
+		group = "SKILLGEM";		
 		jobTab:ShowWindow(1); 
-		jobbox:ShowWindow(1);
-		relicTab:ShowWindow(0);
+		jobbox:ShowWindow(1);		
 	elseif category =="Relicgem" then
 
 		group = "RELICGEM";
-		equipTab:ShowWindow(0);
-		jobTab:ShowWindow(0); 
-		jobbox:ShowWindow(0);
 		relicTab:ShowWindow(1);
 	else
-		equipTab:ShowWindow(0);
-		jobTab:ShowWindow(0);
-		jobbox:ShowWindow(0);
-		relicTab:ShowWindow(0);
+
 	end
 	local unavailabeList = {};
 	local ctrlIndex = 0;
@@ -754,7 +736,7 @@ function ITEM_CABINET_CREATE_LIST(frame)
 			local listCls = GetClassByIndexFromList(itemList, i);
 			local available = TryGetProp(aObj, listCls.AccountProperty, 0);
 			local itemGroup = TryGetProp(listCls,"TabGroup","None"); --
-						
+			-- print(listCls.Name, group , itemGroup)
 			if group == itemGroup or (group == "None" and itemGroup == "None") then
 				if ITEM_CABINET_MATCH_NAME(listCls, cap) then
 					if available == 1 then
@@ -852,7 +834,7 @@ function ITEM_CABINET_ITEM_TAB_INIT(listCls, itemTabCtrl)
 	
 	local itemClsName = get_name_func(listCls, GetMyAccountObj());	
 	
-	if itemClsName == 'None' then return; end
+	if itemClsName == 'None' then return; end	
 	local itemCls = GetClass('Item', itemClsName);
 	if itemCls == nil then return; end
 	
@@ -1992,10 +1974,10 @@ function ITEM_CABINET_SELECT_ITEM(parent, self)
 			tab = GET_CHILD_RECURSIVELY(frame, "upgrade_relicgem_tab"); 
 		end
 	end
-
+	
 	local aObj = GetMyAccountObj();							
 	local index = tab:GetSelectItemIndex();
-	local itemType = parent:GetUserIValue("ITEM_TYPE"); 
+	local itemType = parent:GetUserIValue("ITEM_TYPE"); 	
 	local itemCls = GetClassByType("cabinet_"..string.lower(category), itemType);
 	local itemName = itemCls.ClassName; 
 	local curLv = TryGetProp(aObj, itemCls.UpgradeAccountProperty, 0);

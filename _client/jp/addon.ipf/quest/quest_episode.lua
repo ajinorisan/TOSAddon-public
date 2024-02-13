@@ -47,13 +47,14 @@ function DRAW_EPISODE_QUEST_CTRL(bgCtrl, titleInfo_episodeName, titleInfo_name, 
 		elseif episodeState == geQuest.episode.eClear then
 			colorTone = titleCtrlSet:GetUserConfig("CLEAR_COLORTONE");
 		end
-
 		
 		if episodeState == geQuest.episode.eLocked then
 			textToolTip = ScpArgMsg("EpisodeLockMsg")
 		elseif episodeState == geQuest.episode.eNew then
-			local Msg = '_'..titleInfo_episodeName
-			textToolTip = ScpArgMsg("NewEpisodeLockMsg"..Msg)
+			if titleInfo_episodeName ~= "Episode_16_1" then
+				local Msg = '_'..titleInfo_episodeName
+				textToolTip = ScpArgMsg("NewEpisodeLockMsg"..Msg);
+			end
 		elseif episodeState == geQuest.episode.eNext then
 			textToolTip = ScpArgMsg("NextEpisodeLockMsg")
 		elseif episodeState == geQuest.episode.eClear then
@@ -92,7 +93,7 @@ function DRAW_EPISODE_QUEST_CTRL(bgCtrl, titleInfo_episodeName, titleInfo_name, 
 			clearMark:SetEventScriptArgString(ui.LBUTTONUP, titleInfo_episodeName); -- episode name
 			clearMark:SetEventScript(ui.LBUTTONUP, 'CLICK_EPISODE_REWARD');
 			clearMark:EnableHitTest(1);
-			if textToolTip ~= nil then
+			if textToolTip ~= nil then				
 				clearMark:SetTextTooltip(textToolTip)
 			end
 		end

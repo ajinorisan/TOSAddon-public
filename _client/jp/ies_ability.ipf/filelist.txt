@@ -40,6 +40,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_abi
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Hoplite.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Hunter.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Hwarang.ies
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Illusionist.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Inquisitor.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Jaguar.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Kabbalist.ies
@@ -94,6 +95,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_abi
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_TigerHunter.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Warlock.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Warrior.ies
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_WingedHussars.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Wizard.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Wugushi.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Zealot.ies

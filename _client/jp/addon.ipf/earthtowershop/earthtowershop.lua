@@ -46,7 +46,16 @@ local g_account_prop_shop_table =
     ['EVENT_2312_8TH_ANNIVERSARY'] = 
     {
         ['coinName'] = 'Piece_Of_Memory_Snigo'
-    }}
+    },
+    ['EVENT_2401_NEWYEAR'] =
+    {
+        ['coinName'] = "EVENT_2401_Newyear_Coin"
+    },
+    ['EVENT_2402_NEWYEAR'] =
+    {
+        ['coinName'] = "EVENT_2404_Old_Newyear_Coin"
+    }
+}
 --------------------------------------------------------------------------------------------------------------------------
 
 local shop_list = {}
@@ -306,6 +315,28 @@ function EARTHTOWERSHOP_BUY_ITEM_RESULT(frame, msg, argStr, argNum)
         propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
         
     elseif shopType == "EVENT_2312_8TH_ANNIVERSARY" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+    elseif shopType == "EVENT_2401_NEWYEAR" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+    elseif shopType == "EVENT_2402_NEWYEAR" then
         local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
         local itemCls = GetClass('Item', coinName)
 
@@ -635,6 +666,11 @@ function REQ_COMMON_SKILL_ENCHANT_UI_OPEN()
     ui.OpenFrame('common_skill_enchant');
 end
 
+function REQ_COMMON_ACC_UPGRADE_UI_OPEN()
+    ui.OpenFrame('common_acc_upgrade');
+end
+
+
 function REQ_EVENT_SHOP_OPEN_COMMON(shopType)
     ui.CloseFrame('earthtowershop');
 
@@ -882,6 +918,16 @@ function EARTH_TOWER_INIT(frame, shopType)
     elseif string.find(shopType, 'Archeology_') ~= nil then
         title:SetText('{@st43}'..ScpArgMsg(shopType));
         close:SetTextTooltip(ScpArgMsg('ui_close'));
+    elseif shopType == "EVENT_2312_8TH_ANNIVERSARY" then
+        if resetDatetime ~= nil then
+            resetDatetime:SetText(ClMsg('EVENT_2312_8TH_SNIGO_SHOP'))
+            resetDatetime:ShowWindow(1)
+        end
+        title:SetText('{@st43}'..ScpArgMsg(shopType));
+        if g_account_prop_shop_table[shopType]~=nil then
+            EARTH_TOWER_SET_PROPERTY_COUNT(propertyRemain, g_account_prop_shop_table[shopType]['coinName'], "Event")
+        end
+        close:SetTextTooltip(ScpArgMsg('CloseUI{NAME}', 'NAME', ScpArgMsg("EventShop")));
     else
         title:SetText('{@st43}'..ScpArgMsg(shopType));
         if g_account_prop_shop_table[shopType]~=nil then
@@ -1133,6 +1179,9 @@ function EXCHANGE_CREATE_TREE_NODE_CTRL(ctrlset, cls, shopType)
             itemIcon:SetTooltipStrArg('team_belonging') -- 팀 귀속용 str arg
         elseif TryGetProp(recipecls, 'BelongingType', 'None') == 'Character' then
             itemIcon:SetTooltipStrArg('char_belonging') -- 캐릭터 귀속용 str arg
+        end
+        if shopType == "EVENT_2312_8TH_ANNIVERSARY" then
+            itemIcon:SetTooltipStrArg('team_belonging') -- 팀 귀속용 str arg
         end
     end
     

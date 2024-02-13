@@ -6,4 +6,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5,5,1,23,1,60000,1,1,0,0,0,0,0,"npc_henryswyn","[헤어 디자이너]{nl}헨리 스윈","","","","","","","BEAUTY_SHOP_HAIR_M","","","NO","YES","NO","Neutral","","","",""
 6,6,1,23,1,60000,1,1,0,0,0,0,0,"npc_Kastytis","[패션 디자이너]{nl}카스티스","","","","","","","BEAUTY_SHOP_FASHION","","","NO","YES","NO","Neutral","","","",""
 7,7,1,1,1,60000,1,1,0,0,0,0,0,"dressroom_curtain","UnvisibleName","","","","","","","","","","NO","YES","NO","Neutral","","","",""
-8,8,1,60,1,60000,1,1,0,0,0,0,0,"gacha_machine","여신의 축복","","","","","","","BLESSED_CUBE","","","NO","YES","NO","Neutral","","","",""
