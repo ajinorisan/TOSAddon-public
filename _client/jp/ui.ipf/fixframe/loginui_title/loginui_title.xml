@@ -10,7 +10,7 @@
 	<userconfig FRAME_WIDTH="2000" FRAME_WIDTH_WIDE="2640"/>
 	<controls>
 		<picture name="bgbg" rect="0 0 6000 3000" margin="0 0 0 0" layout_gravity="center center" image="bg_w" stretch="true"/>
-		<picture name="login_img" rect="0 0 2560 1080" margin="0 0 0 0" layout_gravity="center center" image="login_img" stretch="false">
+		<picture name="login_img" rect="0 0 2560 1080" margin="0 0 0 0" layout_gravity="center center" image="login_img" stretch="true">
 			<!-- <uieffect effect="I_screen_logo019_levitation_red2" scale="4.5" sound="None" offset="200 -150" playtime="2" duration="0" conditon="Always" event="None"/>
 			<uieffect effect="I_screen_logo019_levitation_red2" scale="4.5" sound="None" offset="180 400" playtime="2" duration="0" conditon="Always" event="None"/>
 			<uieffect effect="I_screen_logo019_levitation_red2" scale="4.5" sound="None" offset="-300 350" playtime="2" duration="0" conditon="Always" event="None"/>

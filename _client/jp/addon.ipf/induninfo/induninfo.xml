@@ -185,7 +185,7 @@
 		<controlset name="monster_attr4" parent="info_gb" rect="0 0 350 23" margin="0 119 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
 		<controlset name="monster_attr5" parent="info_gb" rect="0 0 350 23" margin="0 143 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
 		<controlset name="monster_attr6" parent="info_gb" rect="0 0 350 23" margin="0 167 15 0" type="adventure_book_monster_attribute" layout_gravity="right top" hittestbox="false" scrollbar="false"/>
-		<button name="monster_attr_map" parent="info_gb" rect="0 0 31 31" margin="25 150 0 0" layout_gravity="left top" image="indun_map_info_btn" LBtnUpScp="BOSS_PATTERN_UI_OPEN" stretch="false" texttooltip="주간 패턴 정보를 표시합니다."/>
+		<button name="monster_attr_map" parent="info_gb" rect="0 0 31 31" margin="25 150 0 0" layout_gravity="left top" image="indun_map_info_btn" LBtnUpScp="BOSS_PATTERN_UI_OPEN" stretch="false" texttooltip="패턴 정보를 표시합니다."/>
 		<picture name="battle_info" parent="info_gb" rect="0 0 469 41" margin="0 197 0 0" layout_gravity="center top" draw="true" image="adventure_info_title" stretch="true"/>
 		<richtext name="battle_info_text" parent="battle_info" rect="0 0 120 40" margin="0 0 0 0" layout_gravity="center center" caption="전투 정보" fontname="white_20_ol_ds"/>
 		<controlset name="battle_info_attr" parent="info_gb" rect="0 0 350 130" margin="0 242 0 0" type="content_status_board_battle_attribute" layout_gravity="center top" hittestbox="false" scrollbar="false"/>

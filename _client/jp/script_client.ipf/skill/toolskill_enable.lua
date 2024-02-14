@@ -1013,3 +1013,23 @@ function CHECK_Pontifex_Atonement_C(actor, skl)
 
     return 1
 end
+
+function SCR_CHECK_USE_DECOY_C(actor, skl)
+    local pc = GetMyPCObject()
+    local is_use_decoy = GetExProp(pc,"IS_USE_DECOY")
+    if is_use_decoy > 0 then
+        return 0
+    end
+
+    return 1
+end
+
+function SCR_CHECK_ILLUSION_COUNT_C(actor, skl)
+    local pc = GetMyPCObject()
+    local illusion_count = GetExProp(pc,"ILLUSIONCOUNT")
+    if illusion_count > 0 then
+        return 1
+    end
+
+    return 0
+end

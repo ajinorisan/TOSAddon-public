@@ -143,6 +143,10 @@ function SCR_BARRACK_CREATE_FAIRY_LITTLE_GRAICIER(handle)
 	SCR_CREATE_FAIRY(handle, "doll_little_glacier");
 end
 
+function SCR_BARRACK_CREATE_FAIRY_BORUTA(handle)
+	SCR_CREATE_FAIRY(handle, "doll_boruta");
+end
+
 -- wing item effect offset
 function SCR_USE_COMPANION_OFFSET(handle)
 	local obj = world.GetActor(handle);

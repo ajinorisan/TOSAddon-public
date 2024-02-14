@@ -1,4 +1,4 @@
-﻿<!-- edited with XMLSpy v2021 (x64) (http://www.altova.com) by sevin (IMCGAMES) -->
+<!-- edited with XMLSpy v2021 (x64) (http://www.altova.com) by sevin (IMCGAMES) -->
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (IMCGames Co., Ltd) -->
 <PlayList>
 	<BGM PlayListName="Login_Barrack" Volume="90" FileName1="tos_Kevin_TOS_Carol_2017.mp3" FileName2="tos_Tree_of_Savior_Piano.mp3" FileName3="tos_SFA_Openup_Po10.mp3"/>
@@ -30,7 +30,7 @@
 	<BGM PlayListName="f_whitetrees_2" Volume="90" FileName1="tos_Kevin_Milagro_Tierra.mp3" FileName2="tos_Kevin_Synphonia.mp3"/>
 	<BGM PlayListName="f_nicopolis" Volume="100" FileName1="tos_Kevin_Mayor_Higher.mp3" FileName2="tos_SFA_Groove_of_the_Sea.mp3" FileName3="tos_SFA_Seven_Cloudy_Drive.mp3" FileName4="tos_7Clouds_DayDream.mp3"/>
 	<BGM PlayListName="c_barber_dress" Volume="90" FileName1="tos_SFA_Comida_Timar.mp3"/>
-	<BGM PlayListName="c_Klaipe" Volume="80" FileName1="tos_SFA_Don't_Cry_for_Christmas.mp3" FileName2="tos_SFA_No_Matter_Christmas.mp3" FileName3="tos_SFA_Snow_in_Wonderland.mp3" FileName4="tos_Kevin_Carol_of_the_Bells.mp3"/>
+	<BGM PlayListName="c_Klaipe" Volume="80" FileName1="tos_SFA_Triste.mp3" FileName2="tos_SFA_Whisper_of_Moment.mp3" FileName3="tos_SFA_April_Town.mp3" FileName4="tos_SFA_Open_Up_Po10_inst.mp3"/>
 	<BGM PlayListName="c_summer_klaipe" Volume="80" FileName1="tos_SFA_Summer_breeze.mp3" FileName2="tos_Initium_Verano_lluvia.mp3"/>
 	<BGM PlayListName="event_halloween" Volume="90" FileName1="tos_SoundTeMP_Ymix_Red_and_the_Black.mp3"/>
 	<BGM PlayListName="event_halloween_2" Volume="90" FileName1="tos_Kevin_Halloween_City.mp3"/>
@@ -133,6 +133,8 @@
 	<BGM PlayListName="master_Spear_Master" Volume="130" FileName1="tos_SFA_Spears_of_God.mp3"/>
 	<BGM PlayListName="master_Engineer" Volume="130" FileName1="tos_Initium_Springtime_of_Salvation.mp3"/>
 	<BGM PlayListName="master_Pontifex" Volume="130" FileName1="tos_SFA_Dusk.mp3"/>
+	<BGM PlayListName="master_ Illusionist" Volume="130" FileName1="tos_7clouds_Illuminator.mp3"/>
+	<BGM PlayListName="master_Wingedhussar" Volume="130" FileName1="tos_SFA_Day_in_Glasgow.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE01" Volume="120" FileName1="Orgel_No_Matter_Christmas.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE02" Volume="120" FileName1="Orgel_Dont_Cry.mp3"/>
 	<BGM PlayListName="raid_velcoffer" Volume="120" FileName1="tos_Drogo_Uno_Impetu.mp3" FileName2="tos_Drogo_Velvet_Penetration.mp3" FileName3="tos_Gaudium_Wrong_Theory.mp3"/>
@@ -176,6 +178,7 @@
 	<BGM PlayListName="raid_bridge" Volume="130" FileName1="tos_SFA_Maurcien.mp3"/>
 	<BGM PlayListName="raid_dreamyforest" Volume="130" FileName1="tos_SFA_Bring_It_Down.mp3"/>
 	<BGM PlayListName="raid_abyssalobserver" Volume="130" FileName1="tos_SFA_Scappato.mp3"/>
+	<BGM PlayListName="raid_kivotos_island" Volume="130" FileName1="tos_Cinenote_Genocide201.mp3"/>
 	<BGM PlayListName="boss_spreader" Volume="130" FileName1="tos_Cinenote_Action7_Spreader.mp3"/>
 	<BGM PlayListName="boss_falouros" Volume="130" FileName1="tos_Cinenote_Battle3_Falouros.mp3"/>
 	<BGM PlayListName="track" Volume="90" FileName1="track.mp3"/>

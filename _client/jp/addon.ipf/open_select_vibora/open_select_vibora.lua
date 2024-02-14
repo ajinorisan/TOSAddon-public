@@ -124,7 +124,7 @@ function OPEN_SELECT_CABINET_VIBORA(invItem)
 	end
 
 	if index == 1 then
-		ui.SysMsg(ClMsg('CabinetAllClose'))
+		ui.SysMsg(ClMsg('CabinetAllOpen'))
 		return
 	end
 
@@ -306,13 +306,13 @@ function OPEN_SELECT_CABINET_GODDESS(invItem)
 	local clsList, cnt = GetClassList('cabinet_armor');
     for i = 0, cnt - 1 do
 		local cls = GetClassByIndexFromList(clsList, i);
-		if TryGetProp(cls, 'Upgrade', 0) == 1 then
+		if TryGetProp(cls, 'Upgrade', 0) == 1 and TryGetProp(cls, 'TabGroup', 'None') ~= 'NoblePhantasm' then
 			local prop = TryGetProp(cls, 'AccountProperty', 'None')			
-			local upgrade_prop = TryGetProp(cls, 'UpgradeAccountProperty', 'None')			
+			local upgrade_prop = TryGetProp(cls, 'UpgradeAccountProperty', 'None')						
 			if TryGetProp(acc, prop, 0) == 0 or TryGetProp(acc, upgrade_prop, 0) < item_lv then				
 				local item_func_name = TryGetProp(cls, 'GetItemFunc', 'None')
 				local get_item_func = _G[item_func_name]
-				local item_name = get_item_func(cls, acc)
+				local item_name = get_item_func(cls, acc)				
 				y = CREATE_CLOSED_GODDESS_ITEM_LIST(box, y, index, TryGetProp(cls, 'ClassID', 0), GetClass('Item', item_name), TryGetProp(acc, prop, 0), item_lv);
 				y = y + 5
 				index = index + 1
@@ -321,7 +321,7 @@ function OPEN_SELECT_CABINET_GODDESS(invItem)
 	end
 
 	if index == 1 then
-		ui.SysMsg(ClMsg('CabinetAllClose'))
+		ui.SysMsg(ClMsg('CabinetAllOpen'))
 		return
 	end
 

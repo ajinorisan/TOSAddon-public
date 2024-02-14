@@ -1,0 +1,16 @@
+{
+    "Name": "MTOS/DS/Particle Additive",
+    "Properties": {
+        "_TintColor": { "Type": "Color", "Default": [0.5, 0.5, 0.5, 0.5] },
+        "_MainTex": { "Type": "2D", "Default": "white" },
+        "_DissolveTex": { "Type": "2D", "Default": "white" }
+    },
+    "Queue": "Transparent",
+    "Blend": "SrcAlpha One",
+    "ColorMask": "RGB",
+    "Cull": "Off",
+    "ZWrite": "Off",
+    "VertexFunction": "vert",
+    "FragmentFunction": "frag",
+    "Keywords": ["USE2DSHADER"]
+}

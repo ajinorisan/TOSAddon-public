@@ -3907,6 +3907,8 @@ function ON_RIDING_VEHICLE(onoff)
 		if ret == false then
 			return;
 		end
+
+		CHANGE_WING_NODE_RIDE(onoff)
 	else
 		if onoff == 1 then
 			if cartHandle ~= 0 then
@@ -4462,4 +4464,23 @@ function IS_ACHIEVE_HAIR_COLOR(color)
 		return true;
 	end
 	return false;
+end
+
+function CHANGE_WING_NODE_RIDE(input)
+	local actor = GetMyActor();
+	local equiplist = session.GetEquipItemList();
+	for i = 0, equiplist:Count() - 1 do
+		local equipItem = equiplist:GetEquipItemByIndex(i);
+		local obj = GetIES(equipItem:GetObject());
+		if obj ~= nil then
+			local nodeName = TryGetProp(obj,"NodeName")
+			if nodeName == "Dummy_wing2" then
+				if input == 0 then
+					actor:ChangeEquipNode(EmAttach.eWing,"Dummy_wing2")
+				else
+					actor:ChangeEquipNode(EmAttach.eWing,"Dummy_wing2_ride")
+				end
+			end
+		end
+	end
 end

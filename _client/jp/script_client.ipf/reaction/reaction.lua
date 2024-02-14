@@ -88,7 +88,7 @@ function C_EFFECT_BY_BUFF(actor, obj, effectName1, scale1, effectName2, scale2, 
     end
 end
 
-function C_EFFECT(actor, obj, effectName, scale, nodeName, lifeTime)
+function C_EFFECT(actor, obj, effectName, scale, nodeName, lifeTime)    
     if lifeTime == nil then
         lifeTime = 0;
     end
@@ -175,7 +175,46 @@ function C_EFFECT_POS(actor, obj, eftName, scl, x, y, z, lifeTime, key, radAngle
     effect.PlayGroundEffect(actor, eftName, scl, x, y, z, lifeTime, key, radAngle, delaySec);
 end
 
-function C_EFFECT_ATTACH(actor, obj, eftName, scl, scl2, x, y, z, autoDetach, angle)
+function C_EFFECT_ATTACH(actor, obj, eftName, scl, scl2, x, y, z, autoDetach, angle)            
+	if angle == nil then
+		angle = -1;
+	end
+    if x == nil then
+        effect.AddActorEffect(actor, eftName, scl * scl2, 0, 0, 0, angle);
+    else        
+        effect.AddActorEffect(actor, eftName, scl * scl2, x, y, z, angle);
+    end
+
+	-- 헬 파이어처럼 스킬에 따로 ScpArgMsg("Auto_iPegTeuTteKi")를 넣을수없을때 사용하면 됨
+    if autoDetach == 1 then
+        actor:GetEffect():AddAutoDetachEffect(eftName);
+    end
+end
+
+function C_ADD_UNITY_EFFECT(actor, obj, eftName, scl, scl2, x, y, z, autoDetach, angle_x, angle_y, angle_z, life_time)
+	if angle_x == nil then
+		angle_x = 0;
+	end
+    if angle_y == nil then
+		angle_y = 0;
+	end
+    if angle_z == nil then
+		angle_z = 0;
+	end
+    
+    if x == nil then
+        effect.AddActorUnityEffect(actor, eftName, scl * scl2, 0, 0, 0, angle_x, angle_y, angle_z, life_time);
+    else        
+        effect.AddActorUnityEffect(actor, eftName, scl * scl2, x, y, z, angle_x, angle_y, angle_z, life_time);
+    end
+
+	-- 헬 파이어처럼 스킬에 따로 ScpArgMsg("Auto_iPegTeuTteKi")를 넣을수없을때 사용하면 됨
+    if autoDetach == 1 then
+        actor:GetEffect():AddAutoDetachEffect(eftName);
+    end
+end
+
+function C_EFFECT_ATTACH_FOR_TOOLSCP(actor, obj, dik, eftName, scl, scl2, x, y, z, autoDetach, angle)            
 	if angle == nil then
 		angle = -1;
 	end
@@ -217,7 +256,7 @@ function C_EFFECT_DETACH_OOBE(actor, obj, eftName, scl, hideTime)
     end
 end
 
-function C_EFFECT_DETACH(actor, obj, eftName, scl, hideTime)
+function C_EFFECT_DETACH(actor, obj, eftName, scl, hideTime)    
     if hideTime == nil then
         hideTime = 0
     end
@@ -228,8 +267,22 @@ function C_EFFECT_DETACH_ALL(actor, obj, eftName, scl, hideTime)
     effect.DetachActorEffect_FindName(actor, eftName, hideTime);
 end
 
-function C_SOUND(actor, obj, soundName)    
-    actor:GetEffect():PlaySound(soundName);
+function C_SOUND(actor, obj, soundName)  
+    if actor == 'None' or actor == nil then
+        GetMyActor():GetEffect():PlaySound(soundName);        
+    else
+        actor:GetEffect():PlaySound(soundName);
+    end
+end
+
+function C_SOUND_POS(actor, obj, soundName, x, y, z)    
+    movie.PlaySoundPos(soundName, x, y, z)
+end
+
+
+function C_SOUND_DELAY(actor, obj, soundName,delay)
+    local func = string.format("C_SOUND('None', '', '%s')", soundName)
+    ReserveScript(func, delay)
 end
 
 function C_SOUND_STOP_RESERVE(actor, obj, soundName, delay)
@@ -278,12 +331,69 @@ function C_VOICE_SOUND(actor, obj, maleVoice, femaleVoice)
     end
 end
 
+function PLAY_VOICE_ACTIVE_ABIL(actor, obj, maleVoice, femaleVoice, abilName)    
+    local abil = session.GetAbilityByName(abilName);    
+    if abil ~= nil then        
+        local abilObj = GetIES(abil:GetObject());
+        if abilObj.ActiveState == 1 then
+            local gender = customize.GetGender( actor:GetHandleVal() );    
+            local isMyPC = true;
+            if actor:IsMyPC() == 0 then
+                isMyPC = false;
+            end
+
+            if gender == 0 then
+                return;
+            elseif gender == 1 then
+                actor:GetEffect():PlaySound(maleVoice, -1, false, isMyPC);
+            else
+                actor:GetEffect():PlaySound(femaleVoice, -1, false, isMyPC);
+            end
+        end
+    end    
+end
+
+function PLAY_VOICE_ACTIVE_ABIL_TOOLSCP(actor, obj, _, maleVoice, femaleVoice, abilName)
+    local abil = session.GetAbilityByName(abilName);
+    if abil ~= nil then        
+        local abilObj = GetIES(abil:GetObject());
+        if abilObj.ActiveState == 1 then
+            local gender = customize.GetGender( actor:GetHandleVal() );    
+            local isMyPC = true;
+            if actor:IsMyPC() == 0 then
+                isMyPC = false;
+            end
+
+            if gender == 0 then
+                return;
+            elseif gender == 1 then
+                actor:GetEffect():PlaySound(maleVoice, -1, false, isMyPC);
+            else
+                actor:GetEffect():PlaySound(femaleVoice, -1, false, isMyPC);
+            end
+        end
+    end    
+end
+
+function C_SOUND_ACTIVE_ABIL_TOOLSCP(actor, obj, _, soundName, abilName)  
+    local abil = session.GetAbilityByName(abilName);
+    if abil ~= nil then        
+        local abilObj = GetIES(abil:GetObject());
+        if abilObj.ActiveState == 1 then
+            if actor == 'None' or actor == nil then
+                GetMyActor():GetEffect():PlaySound(soundName);        
+            else
+                actor:GetEffect():PlaySound(soundName);
+            end
+        end
+    end    
+end
+
 function MONSKL_C_PLAY_ANIM(actor, skill, animName, spd, freezeAnim, cancelByHit)
     local _cancelByHit = false;
     if cancelByHit == 1 then    
         _cancelByHit = true;
     end
-
     actor:GetAnimation():ResetAnim();
     actor:GetAnimation():PlayFixAnim(animName, spd, freezeAnim, 0, 0, 0, true, 0, _cancelByHit);
 end
@@ -408,6 +518,25 @@ function MONSKL_C_CASTING_ANIM(actor, skill, animName, moveAnimName, spd, freeze
     end
     
     actor:GetAnimation():SetCastingAnim(animName, moveAnimName, spd, freezeAnim);   
+end
+
+function MONSKL_C_CASTING_ANIM_ABIL(actor, skill, animName, moveAnimName, spd, freezeAnim, buffName, buffAnimName, abilName)
+    if abilName ~= nil and type(abilName) == 'string' and abilName ~= 'None' then
+		local abil = session.GetAbilityByName(abilName);
+		if abil ~= nil then
+            local abilObj = GetIES(abil:GetObject());
+            if abilObj.ActiveState == 1 then
+                if buffName ~= nil and buffName ~= 'None' then
+                    local handle = actor:GetHandleVal();
+                    local buff = info.GetBuffByName(handle, buffName);
+                    if buff ~= nil then
+                        animName = buffAnimName;
+                    end
+                end
+                actor:GetAnimation():SetCastingAnim(animName, moveAnimName, spd, freezeAnim);   
+            end
+        end
+    end
 end
 
 function MONSKL_C_RESET_CASTING_ANIM(actor, skill)

@@ -307,9 +307,9 @@ function DRT_C_HIDE_MY_CHAR(pc, cmd, isHide)
 		movie.ShowModel(pc:GetHandleVal(), 1)
 	else
 		movie.ShowModel(pc:GetHandleVal(), 0)
-	end;
-	
+	end
 end
+
 function DRT_FUNC_RUNSCRIPT_C(pc, cmd, funcName)
 	local func = _G[funcName];
 	func(pc ,cmd);

@@ -7,12 +7,12 @@ end
 
 --- 클라에서 레티샤 날짜 가져오기
 function C_get_leticia_start_and_end_time()
-	local startTime = TryGetProp(GetClassByType('leticia_date', 1), "StartTime", "None")
-	local endTime = TryGetProp(GetClassByType('leticia_date', 1), "EndTime", "None")
+	local startTime = TryGetProp(GetClassByType('reward_tp', 1), "StartTime", "None")
+	local endTime = TryGetProp(GetClassByType('reward_tp', 1), "EndTime", "None")
 	
 	if config.GetServiceNation() == 'PAPAYA' then
-		startTime = TryGetProp(GetClassByType('leticia_date', 10), "StartTime", "None")
-		endTime = TryGetProp(GetClassByType('leticia_date', 10), "EndTime", "None")
+		startTime = TryGetProp(GetClassByType('reward_tp', 10), "StartTime", "None")
+		endTime = TryGetProp(GetClassByType('reward_tp', 10), "EndTime", "None")
 	end
 
 	return startTime, endTime
@@ -149,7 +149,7 @@ function UPDATE_MINIMIZED_LETICIA_TIME_CTRL(ctrl, remainsec, now, StartTime, End
 
 	-- 레티샤 종료 후 다음 시작까지 남은시간, 다음 시작일은 다음달 1일로 고정
 	if date_time.is_later_than(now, EndTime) then
-		local ori_start_time = TryGetProp(GetClassByType('leticia_date', 1), "StartTime", "None")
+		local ori_start_time = TryGetProp(GetClassByType('reward_tp', 1), "StartTime", "None")
 		local year = string.sub(ori_start_time, 1,4)
 		local month = string.sub(ori_start_time, 6,7)
 		local month_num = tonumber(month) + 1

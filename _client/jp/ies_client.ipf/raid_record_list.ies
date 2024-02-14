@@ -23,3 +23,6 @@ ClassID,ClassName,ButtonScp
 22,"Goddess_Raid_AbyssalObserver_Auto","RAID_RECORD_OPEN"
 23,"Goddess_Raid_AbyssalObserver_Solo","RAID_RECORD_OPEN"
 24,"Goddess_Raid_AbyssalObserver_Party","RAID_RECORD_OPEN"
+25,"Goddess_Raid_DespairIsland_Auto","RAID_RECORD_OPEN"
+26,"Goddess_Raid_DespairIsland_Solo","RAID_RECORD_OPEN"
+27,"Goddess_Raid_DespairIsland_Party","RAID_RECORD_OPEN"

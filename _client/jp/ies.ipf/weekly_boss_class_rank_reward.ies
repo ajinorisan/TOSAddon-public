@@ -90,3 +90,5 @@ ClassID,reward_id,class_id,Desc,rank_1
 89,1,1024,"신극","Item_Achieve_SpearMaster/1;"
 90,1,3106,"엔지니어","Item_Achieve_Enginner/1;"
 91,1,4023,"폰티펙스","Item_Achieve_Pontifex/1;"
+92,1,2025,"일루저니스트","Item_Achieve_plate_Illusionist/1;"
+93,1,1025,"일루저니스트","Item_Achieve_plate_WingedHussar/1;"

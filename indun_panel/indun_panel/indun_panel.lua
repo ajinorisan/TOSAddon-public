@@ -27,6 +27,7 @@
 -- v1.2.7 協同ボスレイド追加。チャレンジと分裂を連続で入れる様に。分裂の自動マッチングボタンを押すのを切替出来る様に。英語モードを選べる様に。
 -- v1.2.8 メレジナ追加。週ボスのとこ修正。めっちゃコード変えた。ChatGPTありがとう。
 -- v1.2.9 海外バージョンバグってたの修正。INDUN_PANEL_LANG関数ミスってた。
+-- v1.3.0 ギルティネとイヤリングとファロウロスハードバグってたの修正
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -39,8 +40,8 @@ local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/new_settings.json', addonNameLower)
 
---[[function indun_panel_get_indunid()
-    --新ダンジョン追加時に重宝。セッティングボタン右クリでも良さそう。
+--[[unction indun_panel_get_indunid()
+    -- 新ダンジョン追加時に重宝。セッティングボタン右クリでも良さそう。
     -- ダンジョンフレームの新ダンジョンを選択して実行すれば調べられる。なんかボタンにセットして使おう
     local frame = ui.GetFrame("induninfo")
     local redButton = GET_CHILD_RECURSIVELY(frame, 'RedButton')
@@ -1299,11 +1300,19 @@ function indun_panel_create_frame(ipframe, key, subKey, subValue, y)
             auto:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
 
         elseif subKey == "h" then
-            counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
-                                  GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
-            hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
-            hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
-            if key ~= "earring" then
+            if key == "giltine" then
+                counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
+                                      GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) ..
+                                      ")")
+                -- print(tostring(subValue))
+                hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
+                hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
+                hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+            end
+            if key == "earring" then
+                -- hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+                hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
+                hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
                 hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
             end
         end
@@ -1374,7 +1383,50 @@ function indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y)
 
 end
 
+function INDUN_PANEL_SET_BUTTONS_FIND_CLASS(indunCls, subTypeCompare)
+    local btnInfoCls = nil;
+    if indunCls ~= nil then
+        local dungeonType = TryGetProp(indunCls, "DungeonType", "None");
+        local subType = TryGetProp(indunCls, "SubType", "None");
+        if dungeonType == nil or subType == nil then
+            return nil;
+        end
+
+        local list, cnt = GetClassList("IndunInfoButton");
+        if list ~= nil then
+            for i = 0, cnt - 1 do
+                local cls = GetClassByIndexFromList(list, i);
+                if cls ~= nil then
+                    local dungeon_type = TryGetProp(cls, "DungeonType", "None");
+                    if dungeon_type == "MoveEnterNPC" and dungeon_type == "Raid_MoveEnterNPC" then
+                        dungeon_type = "Raid";
+                    end
+
+                    if dungeon_type ~= nil and dungeon_type ~= "None" and
+                        (dungeon_type == dungeonType or subType == "MoveEnterNPC" or dungeonType == "GTower") then
+                        local sub_type = TryGetProp(cls, "SubType", "None");
+                        if sub_type ~= nil and sub_type ~= "None" and sub_type == subType then
+                            btnInfoCls = cls;
+                            break
+                        end
+                    end
+
+                    if subTypeCompare == true then
+                        local sub_type = TryGetProp(cls, "SubType", "None");
+                        if dungeon_type == dungeonType and sub_type == subType then
+                            btnInfoCls = cls;
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return btnInfoCls;
+end
+
 function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
+    -- print(tostring(indunType))
     local frame = ui.GetFrame("indun_panel")
     local indunCls = GetClassByType('Indun', indunType)
     local dungeonType = TryGetProp(indunCls, "DungeonType", "None")
@@ -1385,21 +1437,25 @@ function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
     end
 
     local redButtonScp = TryGetProp(btnInfoCls, "RedButtonScp")
+    -- print(tostring(redButtonScp))
     if redButtonScp ~= 'None' then
         local buttonMap = {
             [665] = "delmorehard",
             [670] = "jellyzelehard",
             [675] = "spreaderhard",
-            [678] = "falohard",
+            [678] = "falouroshard",
             [681] = "rozehard",
             [628] = "giltinehard",
             [687] = "upinishard",
-            [690] = "slogutishard"
+            [690] = "slogutishard",
+            [663] = "earringhard"
         }
 
         local buttonName = buttonMap[indunType]
+
         if buttonName then
             local redButton = GET_CHILD_RECURSIVELY(frame, buttonName)
+
             if redButton then
                 redButton:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID)
                 redButton:SetEventScript(ui.LBUTTONUP, redButtonScp)

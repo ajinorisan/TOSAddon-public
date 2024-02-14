@@ -42,3 +42,4 @@ ClassID,Upgrade,MakeCostSilver,MaxUpgrade,Basic,Category,ClassName,GetItemFunc,R
 41,0,10000,1,0,"Artefact","sniego_crossbow","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","sniego_crossbow_cabinet","","스니고 크로스보우"
 42,0,10000,1,0,"Artefact","sniego_thmace","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","sniego_thmace_cabinet","","스니고 투 핸드 메이스"
 43,0,10000,1,0,"Artefact","sniego_pistol","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","sniego_pistol_cabinet","","스니고 피스톨"
+44,0,10000,1,0,"Artefact","wingedhussar_thspear","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","wingedhussar_thspear_cabinet","","윙드후사르의 파이크"

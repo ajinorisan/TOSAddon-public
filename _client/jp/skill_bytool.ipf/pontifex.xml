@@ -834,15 +834,17 @@
                             <Pos Angle="0" Dist="0" Height="-100" />
                             <Num Num="0"/>
                             <Str Str="None"/>
-                        </Scp>                
-                        <Scp Client="NO" Scp="PLAY_EFFECT_Pontifex_Didache_wing" UseSleep="NO" Time="500" >
-                            <Pos Angle="0" Dist="0" Height="0" />
-                            <Str_Arg Arg="3" Str="eff_luxuryitem_guardianknight_of_gabia_jump_01"/>                    
-                            <Num Num="0"/>
-                            <Num Num="120"/>
-                            <Num Num="0"/>
-                            <Str Str="Dummy_wing"/>
                         </Scp>
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="500" UseSleep="NO">
+                            <Str_Arg Arg="3" Str="eff_luxuryitem_guardianknight_of_gabia_jump_01#Dummy_wing" />
+                            <Num Num="1" />
+                            <Pos Angle="0" Dist="0" Height="-12" />
+                            <Num Num="1" />
+                            <Num Num="90" />
+                            <Num Num="180" />
+                            <Num Num="160" />
+                            <Num Num="1" />
+                        </Scp>	
                         <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="500">
                             <Str Str="skl_eff_boom_l_1"/>
                         </Scp>                        

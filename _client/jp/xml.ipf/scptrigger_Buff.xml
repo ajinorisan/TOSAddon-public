@@ -132,4 +132,13 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
+	<SpcItem Name="Illusionist_Cloaking">
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SCR_CHECK_Illusionist_Cloaking" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
 </SpcItemList>

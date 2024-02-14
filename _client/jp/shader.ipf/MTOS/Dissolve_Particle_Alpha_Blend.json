@@ -1,0 +1,18 @@
+{
+    "Name": "MTOS/Dissolve/Particle Alpha Blend",
+    "Properties": {
+        "_TintColor": { "Type": "Color", "Default": [0.5, 0.5, 0.5, 1] },
+        "_MainTex": { "Type": "2D", "Default": "white" },
+        "_DissolveTex": { "Type": "2D", "Default": "white" },
+        "_DissolveDoyoung": { "Type": "Float", "Default": 10.0 }
+    },
+    "Queue": "Transparent",
+    "Blend": "SrcAlpha OneMinusSrcAlpha",
+    "BlendOp": "Add, Max",
+    "ColorMask": "RGB",
+    "Cull": "Off",
+    "ZWrite": "Off",
+    "VertexFunction": "vert",
+    "FragmentFunction": "frag",
+    "Keywords": ["USE2DSHADER"]
+}

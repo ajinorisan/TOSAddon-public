@@ -1,5 +1,245 @@
 <?xml version='1.0' encoding='utf-8'?>
 <ToolSkill>
+    <Skill Name="Mon_pc_summon_boss_merregina_despair_Skill_3">
+        <MainSkl ScrLock="None" JumpFlee="YES" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl11" Speed="1"/>
+                <Scp Scp="EFT_AND_HIT_RANGE_PREVIEW" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="0">
+                    <Pos Angle="0" Dist="32.894077"/>
+                    <Num Num="1000"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_ElectricCrush_Purple_01" Arg="0.60000002"/>
+                    <Num Num="60"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="1000">
+                    <Str Str="skl_eff_hit_ground_poison_bubble"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_RANGE_PREVIEW" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="2500">
+                    <Pos Angle="0" Dist="32.894077"/>
+                    <Num Num="1000"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_WaterPillar_Purple_02" Arg="0.80000001"/>
+                    <Num Num="100"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="3000">
+                    <Str Str="skl_eff_hit_ground_poison_bubble"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_ARROW_RANGE_PREVIEW" Client="NO" UseSleep="YES" Time="3000">
+                    <Pos Angle="0" Dist="200"/>
+                    <Pos Angle="1.5707964" Dist="200"/>
+                    <Num Num="30"/>
+                    <Num Num="500"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_LavaCrack_Purple_01" Arg="0.40000001"/>
+                    <Num Num="30"/>
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_ARROW_RANGE_PREVIEW" Client="NO" UseSleep="YES" Time="3000">
+                    <Pos Angle="1.5707964" Dist="200"/>
+                    <Pos Angle="3.1415927" Dist="200"/>
+                    <Num Num="30"/>
+                    <Num Num="500"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_LavaCrack_Purple_01" Arg="0.40000001"/>
+                    <Num Num="30"/>
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_ARROW_RANGE_PREVIEW" Client="NO" UseSleep="YES" Time="3000">
+                    <Pos Angle="3.1415927" Dist="200"/>
+                    <Pos Angle="-1.5707964" Dist="200"/>
+                    <Num Num="30"/>
+                    <Num Num="500"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_LavaCrack_Purple_01" Arg="0.40000001"/>
+                    <Num Num="30"/>
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_ARROW_RANGE_PREVIEW" Client="NO" UseSleep="YES" Time="3000">
+                    <Pos Angle="-1.5707964" Dist="200"/>
+                    <Pos Angle="0" Dist="200"/>
+                    <Num Num="30"/>
+                    <Num Num="500"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_LavaCrack_Purple_01" Arg="0.40000001"/>
+                    <Num Num="30"/>
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Scp="S_R_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                    <Num Num="3"/>
+                    <Num Num="0"/>
+                    <Num Num="230"/>
+                    <Num Num="40"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="3"/>
+                    <Num Num="1"/>
+                    <Str Str="SCR_RAID_BOSS_SUPER_KNOCK_BACK_END"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_pc_summon_boss_merregina_despair_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="YES" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="500" Anim="skl7" Speed="1"/>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="600">
+                    <Str Str="mon_gesti_skl1"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="1000">
+                    <Str Str="skl_eff_electriccurrent_off"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_ARROW_RANGE_PREVIEW" Client="NO" UseSleep="YES" Time="1000">
+                    <Pos Angle="-1.0995574" Dist="95"/>
+                    <Pos Angle="0" Dist="250"/>
+                    <Num Num="30"/>
+                    <Num Num="1500"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_ElectricCrush_Cyan_01" Arg="0.40000001"/>
+                    <Num Num="30"/>
+                    <Num Num="100"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="1300">
+                    <Str Str="skl_eff_electriccurrent_off"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_ARROW_RANGE_PREVIEW" Client="NO" UseSleep="YES" Time="1300">
+                    <Pos Angle="1.0995574" Dist="95"/>
+                    <Pos Angle="0" Dist="250"/>
+                    <Num Num="30"/>
+                    <Num Num="1200"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_ElectricCrush_Cyan_01" Arg="0.40000001"/>
+                    <Num Num="30"/>
+                    <Num Num="100"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="2000">
+                    <Str Str="skl_eff_rlareshot_boom_far"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT_ARROW_RANGE_PREVIEW" Client="NO" UseSleep="YES" Time="2000">
+                    <Pos Angle="0" Dist="40"/>
+                    <Pos Angle="0" Dist="250"/>
+                    <Num Num="40"/>
+                    <Num Num="500"/>
+                    <Num Num="101"/>
+                    <Str_Arg Str="GroundImpact_ElectricCrush_Cyan_01" Arg="0.40000001"/>
+                    <Num Num="30"/>
+                    <Num Num="100"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Scp="S_R_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                    <Num Num="4"/>
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="40"/>
+                    <Num Num="0"/>
+                    <Num Num="2"/>
+                    <Num Num="2"/>
+                    <Num Num="1"/>
+                    <Str Str="SCR_RAID_BOSS_SUPER_KNOCK_DOWN_END"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_pc_summon_boss_merregina_despair_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="YES" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="900">
+                    <Str Str="mon_gesti_skl2_cast"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="1400">
+                    <Str Str="skl_eff_crash_ground_l_2"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="1400">
+                    <Str Str="skl_eff_waterburstup"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1600">
+                    <Pos Angle="-0.0063294824" Dist="176.81964"/>
+                    <Str_Arg Str="None" Arg="0.80000001"/>
+                    <Num Num="1000"/>
+                    <Str_Arg Str="GroundImpact_WaterPillar_Cyan_02" Arg="0.60000002"/>
+                    <Num Num="80"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="SKL_EFFECT_POS" Client="NO" UseSleep="NO" Time="2000">
+                    <Str_Arg Str="GroundImpact_ElectricCrush_Cyan_01" Arg="0.80000001"/>
+                    <Pos Angle="0" Dist="176.81964"/>
+                    <Num Num="1"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
     <Skill Name="Mon_pc_summon_boss_upinis_Skill_1">
         <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
             <HitList>

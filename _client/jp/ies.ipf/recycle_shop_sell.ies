@@ -1663,3 +1663,7 @@ ClassID,BuyPrice,SellPrice,ClassName,Category,SubCategory,PackageList
 11665,0,100,"UnlockQuest_OverAchieveClear_Char3_23_Costume","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 11666,0,17,"wing_pontifex","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 11667,0,17,"Hat_pontifex","Recyle_Shop_Sell","Recyle_Shop_Sell",""
+11668,0,17,"Hat_628403","Recyle_Shop_Sell","Recyle_Shop_Sell",""
+11669,0,17,"wing_illusionist","Recyle_Shop_Sell","Recyle_Shop_Sell",""
+11670,0,17,"illusionist_thsword","Recyle_Shop_Sell","Recyle_Shop_Sell",""
+11671,0,17,"illusionist_staff","Recyle_Shop_Sell","Recyle_Shop_Sell",""

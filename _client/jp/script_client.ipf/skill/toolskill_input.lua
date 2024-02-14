@@ -5,7 +5,6 @@ function SKL_KEY_DYNAMIC_CASTING(actor, obj, dik,
 	isVisivle, isFullCharge, effectName, scale, nodeName, 
 	lifeTime, shockwave, intensity, time, frequency, 
 	angle, quickCast, hitCancel, buffName, abilName)
-	
 
 	if buffName ~= nil and type(buffName) == 'string' and buffName ~= 'None' then
 		local buff = info.GetBuffByName(session.GetMyHandle(), buffName);

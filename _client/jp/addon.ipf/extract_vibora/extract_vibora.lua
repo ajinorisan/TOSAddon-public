@@ -240,7 +240,7 @@ function OPEN_EXTRACT_SELECT_CABINET_GODDESS(invItem)
 	local clsList, cnt = GetClassList('cabinet_armor');
     for i = 0, cnt - 1 do
 		local cls = GetClassByIndexFromList(clsList, i);
-		if TryGetProp(cls, 'Upgrade', 0) == 1 then
+		if TryGetProp(cls, 'Upgrade', 0) == 1 and TryGetProp(cls, 'TabGroup', 'None') ~= 'NoblePhantasm' then
 			local prop = TryGetProp(cls, 'AccountProperty', 'None')			
 			if TryGetProp(acc, prop, 0) ~= 0 then
 				local upgrade_prop = TryGetProp(cls, 'UpgradeAccountProperty', 'None')

@@ -8,9 +8,9 @@ function LETICIA_CUBE_OPEN(frame)
     if svrNation ~= "TAIWAN" then
 	    local button = ui.GetFrame('minimized_leticia_button')
 	    local lua_endTime = button:GetUserIValue('lua_endTime')
-        local cls = TryGetProp(GetClassByType('leticia_date', 1), "EndTime", "None")    
+        local cls = TryGetProp(GetClassByType('reward_tp', 1), "EndTime", "None")    
         if svrNation == 'PAPAYA' then
-            cls = TryGetProp(GetClassByType('leticia_date', 10), "EndTime", "None")    
+            cls = TryGetProp(GetClassByType('reward_tp', 10), "EndTime", "None")    
         end
 	    local lua_endTime = date_time.get_lua_datetime_from_str(cls)
 	    local lua_now = date_time.get_lua_now_datetime()
@@ -195,8 +195,13 @@ function LETICIA_CUBE_ITEM_LIST_BUTTON()
         return
     end
 
-	local textmsg = string.format("[ %s ]{nl}%s", '{@st66d_y}'..ClMsg('ContainWarningItem2')..'{/}{/}', '{nl} {nl}'..ScpArgMsg("ContainWarningItem_URL"))
-	ui.MsgBox(textmsg, 'LETICIA_CUBE_ITEM_LIST_BUTTON_URL', "None")
+    if string.find(config.GetServiceNation(), 'GLOBAL') ~= nil then
+        local ret = GET_LETICIA_PROBABILITY()        
+        return ret;
+    else
+        local textmsg = string.format("[ %s ]{nl}%s", '{@st66d_y}'..ClMsg('ContainWarningItem2')..'{/}{/}', '{nl} {nl}'..ScpArgMsg("ContainWarningItem_URL"))
+        ui.MsgBox(textmsg, 'LETICIA_CUBE_ITEM_LIST_BUTTON_URL', "None")
+    end
 end
 
 function LETICIA_CUBE_ITEM_LIST_BUTTON_URL()
@@ -205,7 +210,7 @@ function LETICIA_CUBE_ITEM_LIST_BUTTON_URL()
     end
 
     if config.GetServiceNation() == 'PAPAYA' then
-        login.OpenURL('https://tos.papayaplay.com/tos.do?tp=news.view&postid=4807');
+        login.OpenURL('https://tos.papayaplay.com/tos.do?tp=news.view&postid=4859');
     else
         login.OpenURL('https://steamcommunity.com/games/2178420/announcements/detail/3866965910201898614')
     end

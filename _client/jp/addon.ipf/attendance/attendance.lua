@@ -61,6 +61,9 @@ function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 	if attendanceID == 3 then
 		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2")..'{nl}'..ScpArgMsg("Attendance_infoText_3");
 		newCharInfoStr = ScpArgMsg("Attendance_infoText_4");
+	elseif attendanceID == 145 then
+		dateStr = ScpArgMsg("PAPAYA_Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2");
+		newCharInfoStr = "";
 	else
 		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2");
 		newCharInfoStr = "";

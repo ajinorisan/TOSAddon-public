@@ -35,3 +35,7 @@ ClassID,ClassName,Category,Icon,Spot_Name,Desc,MsgType
 1034,"1034","BridgeWailing_Dimension_Party","","사망 제어","사망시에 남은 시간이 감소합니다.",""
 1035,"1035","BridgeWailing_Dimension_Party","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
 1036,"1036","BridgeWailing_Dimension_Party","","성물 제어","성물에 대한 효과가 감소되며, 성물 해방 사용을 1회로 제한합니다.",""
+1037,"1037","Goddess_Raid_DespairIsland_Solo","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1038,"1038","Goddess_Raid_DespairIsland_Auto","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1039,"1039","Goddess_Raid_DespairIsland_Party","","사망 제어","DeathCountLimit{count}","DeathCount"
+1040,"1040","Goddess_Raid_DespairIsland_Party","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""

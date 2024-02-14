@@ -30938,6 +30938,224 @@ return 3 + obj.Level * 0.5"/>
             </ToolScp>
         </updateEvent>
     </PadSkill>
+    <PadSkill Name="merregina_skl3_center_pad" CheckerType="0" PadHeight="5" Range="80" ApplyFlyMon="1" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="4000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_FUNC_UPDATE_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_SKL3_PAD_CREATE"/>
+            </ToolScp>
+        </createEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_FUNC_UPDATE_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_SKL3_PAD_DESTROY"/>
+            </ToolScp>
+        </destroyEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-500"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="merregina_skl3_shoot_pad" CheckerType="0" Range="40" AutoPos="1" AutoDir="1" ApplyFlyMon="1" AllowOverlap="1" EnableSearch="0" IsMineType="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="999999"/>
+                <Num Num="999999"/>
+            </ToolScp>
+        </createEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_FUNC_UPDATE_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_SKL3_SHOT_PAD_DESTROY"/>
+            </ToolScp>
+        </destroyEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="merregina_skl4_pad" CheckerType="0" PadHeight="1" Range="80" UpdateTerm="1000" ApplyFlyMon="1" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="4000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="GroundAura_DemonicEnergy_Purple_01" Arg="0.6"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_SKL4_PAD_ENTER"/>
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="merregina_skl6_pad" CheckerType="0" PadHeight="1" Range="50" UpdateTerm="1000" ApplyFlyMon="1" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="5000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="GroundAura_Swamp_Cyan_01" Arg="0.5"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_SKL6_PAD_ENTER"/>
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="merregina_skl13_pad" CheckerType="0" PadHeight="1" Range="50" UpdateTerm="1000" ApplyFlyMon="1" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="5000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="GroundAura_Swamp_Purple_01" Arg="0.5"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_SKL6_PAD_ENTER"/>
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="merregina_despair_mark_pad" CheckerType="0" PadHeight="1" Range="60" UpdateTerm="1000" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="20000"/>
+                <Num Num="1000"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="GroundAura_DemonicEnergy_Purple_01" Arg="0.6"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_FUNC_UPDATE_RUNSCRIPT" Client="NO" UseSleep="NO">
+                <Str_Arg Str="SCR_MERREGINA_DESPAIR_MARK_PAD_UPDATE" Arg="7.4968616e-38"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="merregina_despair_helm_pad" CheckerType="0" PadHeight="1" Range="80" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="30000"/>
+                <Num Num="1000"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="MagicCircle_Restriction_Purple_01" Arg="0.45"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_FUNC_UPDATE_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_DESPAIR_HELM_PAD_DESTROY"/>
+            </ToolScp>
+        </destroyEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_MERREGINA_DESPAIR_HELM_PAD_ENTER"/>
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_FUNC_UPDATE_RUNSCRIPT" Client="NO" UseSleep="NO">
+                <Str_Arg Str="SCR_MERREGINA_DESPAIR_HELM_PAD_UPDATE" Arg="7.4968616e-38"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-500"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
 	<PadSkill Name="VIBORA_ArousalCharm_Fire_Pad" CheckerType="0" deadProcess="1" Dist="5.1272907" Angle="1.6337266" Range="25" UpdateTerm="550" AutoDir="1" ApplyFlyMon="1" AllowOverlap="1">
 		<createEvent>
 			<ToolScp Scp="PAD_CONCURRENT_USE_COUNT" Client="NO" UseSleep="NO">
@@ -39565,7 +39783,7 @@ end"/>
             </ToolScp>
         </destroyEvent>
     </PadSkill> 
-        <PadSkill Name="fire_master_bless_pad" CheckerType="0" Range="20" UpdateTerm="500" ApplyFlyMon="1">
+    <PadSkill Name="fire_master_bless_pad" CheckerType="0" Range="20" UpdateTerm="500" ApplyFlyMon="1">
         <createEvent>
             <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
                 <Num Num="7000"/>
@@ -39666,6 +39884,125 @@ end"/>
             </ToolScp>
         </updateEvent>
     </PadSkill>
+    <!-- Illusionist Work Area Start -->
+    <!-- TODO : 이펙트와 같이 봐야 됨 (임시 이펙트 삽입) -->
+    <PadSkill Name="ShootPad_IllusionSword" CheckerType="0" ApplyFlyMon="1" Range="30" UpdateTerm="200" AllowOverlap="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="1000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_FORCE" Client="YES" UseSleep="NO">
+                <Str_Arg Str="I_force009_fire" Arg="1.5"/>
+                <Num Num="30"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_CONCURRENT_USE_COUNT" Client="NO" UseSleep="NO">
+                <Num Num="8" UseFunc="1" FuncTxt="local value = 8
+                if IsPVPField(self) == 1 and value &gt; 2 then
+                value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+                end
+                return value"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_USEABLE_RELATION_ENEMY" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_DAMAGE" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-200"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="MONSKL_PAD_FRONT_MSL_PAD" Client="NO" UseSleep="YES">
+                <Pos Angle="0" Dist="0"/>
+                <Str Str="Illusionist_IllusionSword_return"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="200"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </destroyEvent>
+    </PadSkill>
+    <PadSkill Name="Illusionist_IllusionSword_return" CheckerType="0" deadProcess="1" Range="30" UpdateTerm="100" ApplyFlyMon="1" AllowOverlap="1" EnableSearch="0" IsMagicType="0" IsMineType="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="1000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_FORCE" Client="YES" UseSleep="NO">
+                <Str_Arg Str="I_force009_fire" Arg="1.5"/>
+                <Num Num="30"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_CONCURRENT_USE_COUNT" Client="NO" UseSleep="NO">
+                <Num Num="8" UseFunc="1" FuncTxt="local value = 8
+                if IsPVPField(self) == 1 and value &gt; 2 then
+                value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+                end
+                return value"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_USEABLE_RELATION_ENEMY" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <destroyEvent>
+        </destroyEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_DAMAGE" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_MOVE_PAD_OWNER" Client="NO" UseSleep="NO">
+                <Num Num="500"/>
+                <Num Num="350"/>
+                <Num Num="100"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-100"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+<!-- TODO -->
+    <PadSkill Name="Illusionist_Flood_Pad" CheckerType="1" Range="0" UpdateTerm="100" AllowOverlap="1" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="100"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_FORCE" Client="YES" UseSleep="NO">
+                <Str_Arg Str="I_wizard_magneticforce_cast_rize" Arg="0.60000002"/>
+                <Num Num="15"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_USEABLE_RELATION_ENEMY" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_FLOOD_SET_TARGET" Client="NO" UseSleep="NO">
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="30"/>
+                <Num Num="1" UseFunc="1" FuncTxt="local cnt = 15 return cnt "/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-100"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <!-- Illusionist Work Area End-->
+
     <PadSkill Name="Pontifex_Evangelism_pad" CheckerType="0" Range="80" UpdateTerm="2000" ApplyFlyMon="1">
         <createEvent>
             <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
@@ -39795,4 +40132,365 @@ end"/>
             </ToolScp>
         </updateEvent>        
     </PadSkill>
+    <PadSkill Name="ep16_hogma_sorcerer_lethargy" CheckerType="0" Dist="3.3052464e-10" Angle="1.6480041e-10" Range="30" UpdateTerm="500" Relation="2">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="5000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="F_summon_ground_red2" Arg="1"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+            </ToolScp>
+        </createEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_DESTROY_EFFECT_BLENDTIME" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+            </ToolScp>
+        </destroyEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_BUFF" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="UC_debrave"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="100"/>
+            </ToolScp>
+        </enterEvent>
+        <leaveEvent>
+            <ToolScp Scp="PAD_TGT_BUFF_REMOVE" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="UC_debrave"/>
+            </ToolScp>
+        </leaveEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-500"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="ShootPad_IllusionSword" CheckerType="0" ApplyFlyMon="1" Range="50" UpdateTerm="200" AllowOverlap="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="2000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_FORCE_UNITY_EFFECT" Client="YES" UseSleep="NO">
+                <Str_Arg Str="Projectile_SpinningIllusionSword" Arg="0.8"/>
+                <Str Str="90/0/0"/>
+                <Num Num="30"/>
+            </ToolScp>
+
+            <ToolScp Scp="PAD_SET_USE_CNT_USING_BY_EXPROP" Client="NO" UseSleep="NO">
+                <Num Num="1" UseFunc="1" FuncTxt="local cnt = SCR_GET_Illusionist_IllusionSword_Ratio(obj) return cnt;"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_SET_ILLUSION_CREATABLE_COUNT_EXPROP" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_SELFBUFF" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_ACTIVATION" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_CRE_ILLUSION" Client="NO" UseSleep="NO"/>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-200"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    <destroyEvent>
+            <Scp Scp="MONSKL_PAD_FRONT_MSL_ILLUSION_SWORD_PAD" Client="NO" UseSleep="YES" Time="500">
+                <Pos Angle="0" Dist="0"/>
+                <Str Str="Illusionist_IllusionSword_return"/> 
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="200"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+            </Scp>
+            <ToolScp Scp="PAD_ILLUSIONIST_DESTROY_EFFECT" Client="NO" UseSleep="NO"/>
+        </destroyEvent>
+    </PadSkill>
+    <PadSkill Name="Illusionist_IllusionSword_return" CheckerType="0" deadProcess="1" Range="50" UpdateTerm="100" ApplyFlyMon="1" AllowOverlap="1" EnableSearch="0" IsMagicType="0" IsMineType="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="500"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_FORCE_UNITY_EFFECT" Client="YES" UseSleep="NO">
+                <Str_Arg Str="Projectile_SpinningIllusionSword" Arg="0.8"/>
+                <Str Str="90/0/0"/>
+                <Num Num="30"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_SET_USE_CNT_USING_BY_EXPROP" Client="NO" UseSleep="NO">
+                <Num Num="1" UseFunc="1" FuncTxt="local cnt = SCR_GET_Illusionist_IllusionSword_Ratio(obj) return cnt;"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_SELFBUFF" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_ILLUSIONIST_DESTROY_EFFECT" Client="NO" UseSleep="NO"/>
+        </destroyEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_ACTIVATION" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_CRE_ILLUSION" Client="NO" UseSleep="NO"/>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_MOVE_PAD_OWNER" Client="NO" UseSleep="NO">
+                <Num Num="500"/>
+                <Num Num="350"/>
+                <Num Num="50"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-100"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="ShootPad_IllusionSword_Jump" CheckerType="0" ApplyFlyMon="1" Range="50" UpdateTerm="200" AllowOverlap="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="2000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_SET_USE_CNT_USING_BY_EXPROP" Client="NO" UseSleep="NO">
+                <Num Num="1" UseFunc="1" FuncTxt="local cnt = SCR_GET_Illusionist_IllusionSword_Ratio(obj) return cnt;"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_SELFBUFF" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_SET_ILLUSIONIST_SHOOT_RANGE_POS" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_SET_ILLUSION_CREATABLE_COUNT_EXPROP" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_ACTIVATION" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_CRE_ILLUSION" Client="NO" UseSleep="NO"/>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-200"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="MONSKL_PAD_FRONT_MSL_PAD" Client="NO" UseSleep="YES">
+                <Pos Angle="0" Dist="-10"/>
+                <Str Str="Illusionist_IllusionSword_return"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="350"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </destroyEvent>
+    </PadSkill>
+    <PadSkill Name="ShootPad_IllusionSword_Illusionist31" CheckerType="1" Range="130" UpdateTerm="1000" ApplyFlyMon="1" IgnoreDistanceInterval="1" IsMagicType="0" IsMineType="0" >
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="10000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_USEABLE_RELATION_ENEMY" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ILLUSIONSWORD_ILLUSIONIST31_SET_TARGET" Client="NO" UseSleep="NO">
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="30"/>
+                <Num Num="1" UseFunc="1" FuncTxt="local cnt = 15 return cnt "/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+        </destroyEvent>
+    </PadSkill>
+    <PadSkill Name="Illusionist_Nightmare_Default_Pad" CheckerType="0" Range="120" UpdateTerm="500" AllowOverlap="1" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="12000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_USEABLE_RELATION_ENEMY" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <enterEvent>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ILLUSIONIST_SET_ENEMY_TARGET" Client="NO" UseSleep="NO">
+                <Num Num="1" UseFunc="1" FuncTxt="local cnt = SCR_GET_Illusionist_Nightmare_Ratio(obj) return cnt;"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ILLUSIONIST_DAMAGE_ENEMY_TARGETED" Client="NO" UseSleep="NO" />
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_ACTIVATION" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_ILLUSIONIST_EFFECT_RUN_CHECK" Client="NO" UseSleep="NO" />
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-500"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_DESTROY_ILLUSIONIST_EFFECT" Client="NO" UseSleep="NO" />
+            <ToolScp Scp="PAD_ILLUSIONIST_FINAL_EFFECT_RUN" Client="NO" UseSleep="NO" />
+        </destroyEvent>
+    </PadSkill>
+    <PadSkill Name="Illusionist_Nightmare_Casting_Pad" CheckerType="0" Range="120" UpdateTerm="500" AllowOverlap="1" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="12000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_USEABLE_RELATION_ENEMY" Client="NO" UseSleep="NO"/>
+        </createEvent>
+        <enterEvent>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ILLUSIONIST_SET_ENEMY_TARGET" Client="NO" UseSleep="NO">
+                <Num Num="1" UseFunc="1" FuncTxt="local cnt = SCR_GET_Illusionist_Nightmare_Ratio(obj) return cnt;"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_ILLUSIONIST_DAMAGE_ENEMY_TARGETED" Client="NO" UseSleep="NO" />
+            <ToolScp Scp="PAD_ILLUSIONIST_SKILLS_ACTIVATION" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_ILLUSIONIST_EFFECT_RUN_CHECK" Client="NO" UseSleep="NO" />
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-500"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_DESTROY_ILLUSIONIST_EFFECT" Client="NO" UseSleep="NO" />
+            <ToolScp Scp="PAD_ILLUSIONIST_FINAL_EFFECT_RUN" Client="NO" UseSleep="NO" />
+        </destroyEvent>
+    </PadSkill>
+    <!-- Illusionist Work Area End-->
+    <PadSkill Name="wingedhussars_battle_spirit_pad1" CheckerType="0" Range="20" UpdateTerm="1000" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="15000"/>
+                <Num Num="99999"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_POS_LOCAL" Client="YES" UseSleep="NO">
+                <Str_Arg Str="Projectile_MagicKey_Red_01" Arg="0.2"/>
+                <Pos Angle="0" Dist="0" Height="20"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+            </ToolScp>            
+        </createEvent>        
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_DESTROY_wingedhussars_battle_spirit_pad" Client="NO" UseSleep="NO" />            
+        </destroyEvent>
+    </PadSkill>    
+    <PadSkill Name="wingedhussars_battle_spirit_pad2" CheckerType="0" Range="20" UpdateTerm="1000" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="15000"/>
+                <Num Num="99999"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_POS_LOCAL" Client="YES" UseSleep="NO">
+                <Str_Arg Str="Projectile_MagicKey_Green_01" Arg="0.1"/>
+                <Pos Angle="0" Dist="0" Height="20"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+            </ToolScp>            
+        </createEvent>        
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_DESTROY_wingedhussars_battle_spirit_pad" Client="NO" UseSleep="NO" />            
+        </destroyEvent>
+    </PadSkill>    
+    <PadSkill Name="wingedhussars_battle_spirit_pad3" CheckerType="0" Range="20" UpdateTerm="1000" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="15000"/>
+                <Num Num="99999"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_POS_LOCAL" Client="YES" UseSleep="NO">
+                <Str_Arg Str="Projectile_MagicKey_Blue_01" Arg="0.1"/>
+                <Pos Angle="0" Dist="0" Height="20"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+            </ToolScp>            
+        </createEvent>        
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_DESTROY_wingedhussars_battle_spirit_pad" Client="NO" UseSleep="NO" />            
+        </destroyEvent>
+    </PadSkill>
+    <PadSkill Name="wingedhussars_InfinitySpears_pad" CheckerType="0" Range="20" UpdateTerm="100" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="8100"/>
+                <Num Num="99999"/>
+            </ToolScp>                   
+        </createEvent>        
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-100"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="SCR_UPDATE_wingedhussars_InfinitySpears_pad" Client="NO" UseSleep="NO">                
+            </ToolScp>
+        </updateEvent>
+        <destroyEvent>
+            <ToolScp Scp="SCR_DESTORY_wingedhussars_InfinitySpears_pad" Client="NO" UseSleep="NO"/>
+        </destroyEvent>
+    </PadSkill>
+    <PadSkill Name="wingedhussars_ExplosionSpears_pad" CheckerType="0" Range="20" UpdateTerm="300" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="2500"/>
+                <Num Num="99999"/>
+            </ToolScp>                   
+        </createEvent>        
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-300"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="SCR_UPDATE_wingedhussars_ExplosionSpears_pad" Client="NO" UseSleep="NO">                
+            </ToolScp>
+        </updateEvent>        
+    </PadSkill>
 </PadSkills>
+    

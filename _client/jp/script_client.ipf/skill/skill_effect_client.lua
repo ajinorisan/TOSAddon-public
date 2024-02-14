@@ -1,34 +1,59 @@
 -- skill_effect_client.lua
 
-function C_PLAY_EFFECT_UNLIMITED_SPEAR(actor, obj, x, y, z)
-    local eftName = 'eff_ark_subdue_01' -- 검은색 폭발
-    local scl = 1.3
-    local lifeTime = 2
-    local delay = 0
-    effect.PlayGroundEffect(actor, eftName, scl, x, y, z, lifeTime, "None", 0.0, delay);
+function Illusionist_IllusionSword_Sound(actor, obj, name, after)    
+    local handle = actor:GetHandleVal()
+    local func = string.format('Illusionist_play_sound(%d, "%s")', handle, name)    
 
-    eftName = 'eff_ark_judgment_02'
-    scl = 1.2
-    lifeTime = 1
-    delay = 1.5    
-    effect.PlayGroundUnityEffect(actor, eftName, scl, x, y + 200, z, lifeTime, "None", 180, 0, 0, delay);
+    local time = 0
+    for i = 1, 10, 1 do
+        time = (0.1 * (i - 1))
+        ReserveScript(func, time)
+    end
 
-    delay = delay + 1
-    local count = 20
-    local count_2 = 5
-    local time = 4000
-    local tick = time / count / 1000 / count_2
-    
-    eftName = 'eff_ark_judgment_01'        
-    scl = 0.3
-    lifeTime = 0
-    
-    for i = 1, count do
-        for j = 1, count_2 do
-            local x1, y1, z1 = GetRandomPosInRange(nil, x, y, z, 20, 100)            
-            delay = delay + tick
-            effect.PlayGroundEffect(actor, eftName, scl, x1, y1, z1, lifeTime, "None", 0.0, delay);
-        end
+    name = 'arrow_mid_3'
+    local func = string.format('Illusionist_play_sound(%d, "%s")', handle, name)
+    ReserveScript(func, time + after)
+end
+
+
+function Illusionist_play_sound(handle, name)    
+    local actor = world.GetActor(handle);
+    if actor ~= nil then
+        actor:GetEffect():PlaySound(name);    
     end
 end
 
+function Illusionist_Nightmare_Sound(actor, obj, name, start)
+    local handle = actor:GetHandleVal()
+    local func = string.format('Illusionist_play_sound(%d, "%s")', handle, name)    
+
+    local pivot = start
+    local time = 0
+    for i = 1, 28, 1 do
+        time = pivot + (0.3 * (i - 1))        
+        ReserveScript(func, time)
+    end
+    name = 'skl_eff_katon_no_jutsu_hit'
+    func = string.format('Illusionist_play_sound(%d, "%s")', handle, name)    
+    ReserveScript(func, time - 0.5)
+
+    name = 'skl_eff_kasiwade_hit'
+    func = string.format('Illusionist_play_sound(%d, "%s")', handle, name)    
+    ReserveScript(func, time)
+end
+
+function Illusionist_Nightmare_Sound_2(actor, obj, name, start)
+    local handle = actor:GetHandleVal()
+    local func = string.format('Illusionist_play_sound(%d, "%s")', handle, name)    
+
+    local pivot = start
+    local time = 0
+    for i = 1, 9, 1 do
+        time = pivot + (0.1 * (i - 1))        
+        ReserveScript(func, time)
+    end
+
+    name = 'skl_eff_kasiwade_hit'
+    func = string.format('Illusionist_play_sound(%d, "%s")', handle, name)    
+    ReserveScript(func, time)
+end

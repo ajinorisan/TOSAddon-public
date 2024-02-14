@@ -86,11 +86,13 @@
 		<tab name="upgrade_tab" parent="gbox" margin="0 60 15 0" rect="0 0 485 40" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnDownScp="ITEM_CABINET_UPGRADE_TAB" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
 		<tabitem name="tab_enchant" parent="upgrade_tab" caption="" width="240" layout_gravity="left top"/>
 		<tabitem name="tab_register" parent="upgrade_tab" caption="" width="240" layout_gravity="left top"/>
+
 		<tab name="equipment_tab" parent="gbox" margin="55 60 0 0" rect="0 0 485 40" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnDownScp="ITEM_CABINET_CHANGE_TAB" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
 		<picture name="UITUTO_ICON_1" parent="equipment_tab" rect="0 0 30 30" margin="200 0 0 0" layout_gravity="left center" hittest="true" image="equipment_info_exclamation_mark" stretch="true" texttooltip="바이보라 튜토리얼을 진행할 수 있습니다."/>
 		<picture name="UITUTO_ICON_2" parent="equipment_tab" rect="0 0 30 30" margin="440 0 0 0" layout_gravity="left center" hittest="true" image="equipment_info_exclamation_mark" stretch="true" texttooltip="갈리미베 튜토리얼을 진행할 수 있습니다."/>
 		<tabitem name="tab_equipment" parent="equipment_tab" caption="" width="240" layout_gravity="left top"/>
 		<tabitem name="tab_etc" parent="equipment_tab" caption="{@st66b}{s16}기타" width="240" layout_gravity="left top"/>
+
 		<groupbox name="itemgbox" parent="gbox" rect="0 0 490 564" margin="50 140 0 0" layout_gravity="left top" draw="true" scrollbar="true" hittestbox="false" resizebyparent="false" skin="test_frame_midle"/>
 		<groupbox name="upgradegbox" parent="gbox" rect="0 0 490 520" margin="0 100 15 0" layout_gravity="right top" draw="true" scrollbar="true" hittestbox="false" resizebyparent="false" skin="test_frame_midle"/>
 		<slot name="slot" margin="265 130 0 0" rect="0 0 160 160" movepop="true" dropsound="icon_get_down" picksound="icon_pick_up" DropScp="ITEM_CABINET_ADD_ITEM_DROP" skin="invenslot2" RBtnUpScp="ITEM_CABINET_CLEAR_SLOT" layout_gravity="center top"/>
@@ -136,7 +138,13 @@
 		<tabitem name="cyan"  parent="relic_tab" caption="{@st66b}{s16}시안" width="160" layout_gravity="left top" texttooltip="시안"/>
 		<tabitem name="magenta"  parent="relic_tab" caption="{@st66b}{s16}마젠타" width="160" layout_gravity="left top"  texttooltip="마젠타"/>
 		<tabitem name="black"  parent="relic_tab" caption="{@st66b}{s16}블랙" width="160" layout_gravity="left top" texttooltip="블랙"/>
-	`
+	
+		<!--Armor 보관함 전용 색인 탭-->
+		<tab name="armor_tab" parent="gbox" margin="50 60 0 0" rect="0 0 485 40" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnDownScp="ITEM_CABINET_CHANGE_TAB" fixwidth="true" itemspc="2" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="armor_goddess"  parent="armor_tab" caption="{@st66b}{s16}여신/마신" width="160" layout_gravity="left top" texttooltip="여신/마신"/>
+		<tabitem name="armor_noble"  parent="armor_tab" caption="{@st66b}{s16}여신의 보구" width="160" layout_gravity="left top"  texttooltip="여신의 보구"/>
+		<tabitem name="armor_etc"  parent="armor_tab" caption="{@st66b}{s16}기타" width="160" layout_gravity="left top" texttooltip="기타"/>
+
 		<!--2022/03 collection achievement-->
 		<groupbox name="achievementBox" parent="gbox" rect="0 0 490 40" margin="50 0 0 15" layout_gravity="left bottom" draw="true" scrollbar="true" hittestbox="false" resizebyparent="false" skin="test_edit_skin"/>
 		<richtext name="achievementTextLeft" parent="achievementBox" hittest="false" rect="0 0 145 30" margin="15 0 0 0" layout_gravity="left center" textalign="center center" caption="★수집 달성도★" drawbackground="false" fixwidth="true" fixheight="true" autofontsizebywidth="145" fontname="yellow_18_ol" spacey="0" />

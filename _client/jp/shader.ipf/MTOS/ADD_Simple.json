@@ -1,0 +1,17 @@
+{
+    "Name": "PAShader/Effect/Particle/ADD_Simple",
+    "Properties": {
+        "_TintColor": {"Type": "Color", "Default": [0.5,0.5,0.5,0.5]},
+        "_MainTex": {"Type": "2D", "Default": "white"},
+        "_InvFade": {"Type": "Float", "Default": 1.0},
+        "_BackfaceCull": {"Type": "Float", "Default": 0},
+        "_SoftParticles": {"Type": "Float", "Default": 0}
+    },
+    "Queue": "Transparent",
+    "Blend": "SrcAlpha One",
+    "ColorMask": "RGB",
+    "Cull": "Off",
+    "ZWrite": "Off",
+    "ZTest": "LEqual",
+    "Keywords": ["USE2DSHADER", "_BACKFACECULL_ON"]
+}
