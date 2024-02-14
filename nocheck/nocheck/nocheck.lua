@@ -2,10 +2,11 @@
 -- v1.0.6 帰属解除スキップのバグ修正
 -- v1.0.7 チャンネルチェンジバグ修正
 -- v1.0.8 継承とか入れるのをスキップ
+-- v1.0.9 「今すぐこわす」をセット
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -35,13 +36,38 @@ function NOCHECK_ON_INIT(addon, frame)
     -- g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
     -- acutil.setupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
     g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
-    -- CHAT_SYSTEM("NOCHECK loaded")
-    -- NOCHECK_FRAME_INIT()
+    -- g.SetupHook(NOCHECK_WARNINGMSGBOX_FRAME_OPEN_DELETE_ITEM, "WARNINGMSGBOX_FRAME_OPEN_DELETE_ITEM")
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
+    end
 
 end
 
-function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
+function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()
+    -- print("test")
+    local frame = ui.GetFrame("warningmsgbox")
+    if frame:IsVisible() == 0 then
+        return
+    else
+        local warningText = GET_CHILD_RECURSIVELY(frame, "warningtext")
+        local langCode = option.GetCurrentCountry()
+        local msg = ClMsg("destory_now")
+        if langCode ~= "Korean" then
+            msg = dictionary.ReplaceDicIDInCompStr(msg)
+        end
+        if string.find(warningText:GetText(), msg) ~= nil then
+            local input_frame = GET_CHILD_RECURSIVELY(frame, "input")
+            input_frame:SetText(msg)
+        end
 
+    end
+end
+
+function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
+    -- print("test")
     local arg_list = SCR_STRING_CUT(argStr, ';')
     if arg_list == nil or #arg_list <= 0 then
         return
