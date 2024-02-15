@@ -3,10 +3,11 @@
 -- v1.0.2 loadがバグってたのを修正
 -- v1.0.3 更にバグ修正。くるしい。
 -- v1.0.4 もうバグに疲れた。
+-- v1.0.5 キャラ毎に表示非表示切替機能追加。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -14,6 +15,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.settingsFileLoc_use = string.format('../addons/%s/settings_use.json', addonNameLower)
 
 local acutil = require("acutil")
 local os = require("os")
@@ -158,6 +160,7 @@ end]]
 function always_status_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
+    acutil.saveJSON(g.settingsFileLoc_use, g.settings_use);
 
 end
 
@@ -254,6 +257,7 @@ function always_status_load_settings()
         if g.settings[loginCID] == nil then
             g.settings[loginCID] = 1
         end
+
     else
         g.settings = settings
 
@@ -271,6 +275,25 @@ function always_status_load_settings()
             g.no = g.settings[noKey]
 
         end
+    end
+
+    local settings_use, err_use = acutil.loadJSON(g.settingsFileLoc_use, g.settings_use)
+
+    if err_use then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    end
+    g.settings_use = g.settings_use or {}
+
+    if g.settings_use[loginCID] == nil then
+        g.settings_use[loginCID] = {
+            use = 1
+        }
+    end
+
+    for loginCID, data in pairs(settings_use) do
+
+        g.settings_use[loginCID].use = data.use
     end
 
     always_status_save_settings()
@@ -295,7 +318,7 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
     addon:RegisterMsg("GAME_START_3SEC", "always_status_load_settings")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
-    print("test")
+    -- print("test")
 end
 
 function always_status_memo_save(frame, ctrl, argStr, argNum)
@@ -405,7 +428,7 @@ function always_status_info_setting_load(number)
         check:SetCheck(g.settings[number][key])
     end
     always_status_save_settings()
-    always_status_load_settings()
+    -- always_status_load_settings()
 
     -- always_status_frame_init()
 
@@ -557,10 +580,22 @@ function always_status_update()
     return 1
 end
 
-function always_status_frame_init()
-    -- print(g.settings.enable)
-    local frame = ui.GetFrame(addonNameLower)
+function always_status_frame_toggle(frame, ctrl)
+    local loginCID = info.GetCID(session.GetMyHandle())
+    if g.settings_use[loginCID].use == 1 then
+        g.settings_use[loginCID].use = 0
+    else
+        g.settings_use[loginCID].use = 1
 
+    end
+    always_status_save_settings()
+    always_status_frame_init()
+end
+
+function always_status_frame_init()
+    -- print("test")
+    local frame = ui.GetFrame(addonNameLower)
+    frame:RemoveAllChild()
     frame:EnableHitTest(1)
     frame:EnableMove(g.settings.enable)
 
@@ -569,137 +604,170 @@ function always_status_frame_init()
     frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
     frame:SetTitleBarSkin("None")
     frame:SetSkinName("None")
-    frame:SetLayerLevel(31)
+    frame:SetLayerLevel(10)
 
     frame:SetEventScript(ui.LBUTTONUP, "always_status_frame_move")
     frame:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
 
-    local as_text = frame:CreateOrGetControl("richtext", "as_text", 10, 5)
+    -- print("test")
+    local as_text = frame:CreateOrGetControl("richtext", "as_text", 20, 5)
     as_text:SetText("{ol}{S10}Always Status")
     as_text:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
     as_text:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
 
-    local y = 20
-    local pc = GetMyPCObject();
-    local statframe = ui.GetFrame("status")
-    local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
+    local loginCID = info.GetCID(session.GetMyHandle())
+    if g.settings_use[loginCID].use ~= 1 then
+        local plus_slot = frame:CreateOrGetControl("slot", "plus_slot", 0, 3, 15, 15)
+        AUTO_CAST(plus_slot)
+        plus_slot:SetSkinName("None")
+        plus_slot:EnablePop(0)
+        plus_slot:EnableDrop(0)
+        plus_slot:EnableDrag(0);
+        plus_slot:SetEventScript(ui.LBUTTONUP, "always_status_frame_toggle")
+        local icon = CreateIcon(plus_slot);
+        AUTO_CAST(icon)
+        icon:SetImage("btn_plus");
+        icon:SetTextTooltip("{ol}キャラクター毎に表示非表示を切り替えます。{nl}" ..
+                                "Display and hide for each character.");
+        frame:Resize(150, 20)
+        frame:ShowWindow(1)
+        return
+    else
 
-    local sorted = {}
-    local i = 1
-    for _, status in ipairs(status_list) do
-        for key, value in pairs(g.no) do
-            if key == status then
-                sorted[key] = i
-                i = i + 1
+        local minus_slot = frame:CreateOrGetControl("slot", "minus_slot", 0, 3, 15, 15)
+        AUTO_CAST(minus_slot)
+        minus_slot:SetSkinName("None")
+        minus_slot:EnablePop(0)
+        minus_slot:EnableDrop(0)
+        minus_slot:EnableDrag(0);
+        minus_slot:SetEventScript(ui.LBUTTONUP, "always_status_frame_toggle")
+        local icon = CreateIcon(minus_slot);
+        AUTO_CAST(icon)
+        icon:SetImage("btn_minus");
+        icon:SetTextTooltip("{ol}キャラクター毎に表示非表示を切り替えます。{nl}" ..
+                                "Display and hide for each character.");
+
+        local y = 20
+        local pc = GetMyPCObject();
+        local statframe = ui.GetFrame("status")
+        local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
+
+        local sorted = {}
+        local i = 1
+        for _, status in ipairs(status_list) do
+            for key, value in pairs(g.no) do
+                if key == status then
+                    sorted[key] = i
+                    i = i + 1
+                end
             end
         end
-    end
 
-    -- iの昇順にソート
-    local sortedSettings = {}
-    for key, _ in pairs(sorted) do
-        table.insert(sortedSettings, {
-            key = key,
-            value = g.no[key]
-        })
-    end
-    table.sort(sortedSettings, function(a, b)
-        return sorted[a.key] < sorted[b.key]
-    end)
+        -- iの昇順にソート
+        local sortedSettings = {}
+        for key, _ in pairs(sorted) do
+            table.insert(sortedSettings, {
+                key = key,
+                value = g.no[key]
+            })
+        end
+        table.sort(sortedSettings, function(a, b)
+            return sorted[a.key] < sorted[b.key]
+        end)
 
-    local len = 0
+        local len = 0
 
-    for _, entry in ipairs(sortedSettings) do
-        -- for key, value in pairs(g.settings) do
-        local key = tostring(entry.key)
+        for _, entry in ipairs(sortedSettings) do
+            -- for key, value in pairs(g.settings) do
+            local key = tostring(entry.key)
 
-        if entry.value == 1 then
+            if entry.value == 1 then
 
-            local title = frame:CreateOrGetControl("richtext", key, 10, y)
-            AUTO_CAST(title)
-            title:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
-            title:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
+                local title = frame:CreateOrGetControl("richtext", key, 10, y)
+                AUTO_CAST(title)
+                title:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
+                title:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
 
-            if color_attribute[key] ~= nil then
+                if color_attribute[key] ~= nil then
 
-                title:SetText("{s16}{ol}" .. ScpArgMsg(color_attribute[key]))
-                title:AdjustFontSizeByWidth(150)
-                if string.len(title:GetText()) > len then
-                    len = string.len(title:GetText())
-                end
+                    title:SetText("{s16}{ol}" .. ScpArgMsg(color_attribute[key]))
+                    title:AdjustFontSizeByWidth(150)
+                    if string.len(title:GetText()) > len then
+                        len = string.len(title:GetText())
+                    end
 
-            else
-                if key == "STR" then
-                    title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("STR"))
-
-                elseif key == "INT" then
-                    title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("INT"))
-                elseif key == "CON" then
-                    title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("CON"))
-                elseif key == "MNA" then
-                    title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("MNA"))
-                elseif key == "DEX" then
-                    title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("DEX"))
-                end
-                if key == "gear_score" then
-                    title:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("EquipedItemGearScore"))
-                elseif key == "ability_point_score" then
-                    title:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("AbilityPointScore"))
                 else
-                    title:SetText("{s16}{ol}{#FF6600}" .. ScpArgMsg(key))
-                end
-                title:AdjustFontSizeByWidth(150)
-                if string.len(title:GetText()) > len then
-                    len = string.len(title:GetText())
-                end
-            end
-            y = y + 20
-            -- break
-        end
+                    if key == "STR" then
+                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("STR"))
 
-    end
-    y = 20
-    for _, entry in ipairs(sortedSettings) do
-        -- for key, value in pairs(g.settings) do
-        local key = tostring(entry.key)
-        if entry.value == 1 then
-            local stat = frame:CreateOrGetControl("richtext", "stat" .. key, len * 3 + 5, y)
-            AUTO_CAST(stat)
-            stat:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
-            stat:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
-            if key ~= "STR" and key ~= "INT" and key ~= "CON" and key ~= "MNA" and key ~= "DEX" then
-                local controlset = GET_CHILD_RECURSIVELY(box, key)
-                local status = GET_CHILD_RECURSIVELY(controlset, "stat")
-
-                stat:SetText("{ol}{s16}: " .. status:GetText())
-                if key == "gear_score" then
-                    stat:AdjustFontSizeByWidth(60);
-                elseif key == "ability_point_score" then
-                    stat:AdjustFontSizeByWidth(80);
-                end
-            else
-                for i = 0, 4 do
-                    local typeStr = GetStatTypeStr(i);
-
-                    if key == typeStr then
-                        local totalValue = pc[typeStr] + session.GetUserConfig(typeStr .. "_UP");
-                        stat:SetText("{ol}{s16}: " .. totalValue)
-                        -- print(typeStr .. totalValue)
-                        break
-
+                    elseif key == "INT" then
+                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("INT"))
+                    elseif key == "CON" then
+                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("CON"))
+                    elseif key == "MNA" then
+                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("MNA"))
+                    elseif key == "DEX" then
+                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("DEX"))
+                    end
+                    if key == "gear_score" then
+                        title:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("EquipedItemGearScore"))
+                    elseif key == "ability_point_score" then
+                        title:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("AbilityPointScore"))
+                    else
+                        title:SetText("{s16}{ol}{#FF6600}" .. ScpArgMsg(key))
+                    end
+                    title:AdjustFontSizeByWidth(150)
+                    if string.len(title:GetText()) > len then
+                        len = string.len(title:GetText())
                     end
                 end
+                y = y + 20
+                -- break
             end
-            y = y + 20
-            -- break
+
         end
+        y = 20
+        for _, entry in ipairs(sortedSettings) do
+            -- for key, value in pairs(g.settings) do
+            local key = tostring(entry.key)
+            if entry.value == 1 then
+                local stat = frame:CreateOrGetControl("richtext", "stat" .. key, len * 3 + 5, y)
+                AUTO_CAST(stat)
+                stat:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
+                stat:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
+                if key ~= "STR" and key ~= "INT" and key ~= "CON" and key ~= "MNA" and key ~= "DEX" then
+                    local controlset = GET_CHILD_RECURSIVELY(box, key)
+                    local status = GET_CHILD_RECURSIVELY(controlset, "stat")
 
+                    stat:SetText("{ol}{s16}: " .. status:GetText())
+                    if key == "gear_score" then
+                        stat:AdjustFontSizeByWidth(60);
+                    elseif key == "ability_point_score" then
+                        stat:AdjustFontSizeByWidth(80);
+                    end
+                else
+                    for i = 0, 4 do
+                        local typeStr = GetStatTypeStr(i);
+
+                        if key == typeStr then
+                            local totalValue = pc[typeStr] + session.GetUserConfig(typeStr .. "_UP");
+                            stat:SetText("{ol}{s16}: " .. totalValue)
+                            -- print(typeStr .. totalValue)
+                            break
+
+                        end
+                    end
+                end
+                y = y + 20
+                -- break
+            end
+
+        end
+        -- print(len)
+        frame:Resize(300, y + 10)
+        frame:ShowWindow(1)
+        frame:RunUpdateScript("always_status_update", 0.5);
     end
-    -- print(len)
-    frame:Resize(300, y + 10)
-    frame:ShowWindow(1)
-    frame:RunUpdateScript("always_status_update", 0.5);
-
 end
 
 function always_status_frame_close(frame)

@@ -28,10 +28,11 @@
 -- v1.2.8 メレジナ追加。週ボスのとこ修正。めっちゃコード変えた。ChatGPTありがとう。
 -- v1.2.9 海外バージョンバグってたの修正。INDUN_PANEL_LANG関数ミスってた。
 -- v1.3.0 ギルティネとイヤリングとファロウロスハードバグってたの修正
+-- v1.3.1 レイヤー見直した。やっぱり前までが良いよね。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.8"
+local ver = "1.3.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -748,7 +749,7 @@ function indun_panel_init(ipframe)
             end
         end
     end
-    ipframe:SetLayerLevel(32)
+    ipframe:SetLayerLevel(80)
     ipframe:Resize(600, y + 5)
     ipframe:SetSkinName("bg")
     ipframe:EnableHitTest(1);

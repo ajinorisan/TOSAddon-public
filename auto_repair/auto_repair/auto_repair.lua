@@ -3,11 +3,12 @@
 -- v1.0.4 23.09.05patch対応。修理キット買うコード変えてやがった許せねえ。
 -- v1.0.5 数量設定を可能に
 -- v1.0.6 イベント修理キットと緊急修理キットを先に使うように設定('EVENT_2005_repairPotion')と('Premium_repairPotion')それ以外持ってない
--- v1.0.7 510修理キットに対応。500修理キットも余ってたら使う様にした。 
+-- v1.0.7 510修理キットに対応。
+-- v1.0.8 フレームの場所変更 
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -135,11 +136,11 @@ function AUTO_REPAIR_SETTING_FRAME_CLOSE(frame)
     ui.CloseFrame("auto_repair_setting")
 
 end
-
+-- AUTO_REPAIR_FRAME_INIT()
 function AUTO_REPAIR_FRAME_INIT()
     local frame = ui.GetFrame("auto_repair")
     frame:Resize(450, 180)
-    frame:SetPos(650, 300)
+    frame:SetPos(680, 660)
     frame:SetSkinName("bg")
     frame:ShowTitleBar(0)
     frame:SetTitleName("{s20}{ol}Auto Repair")
@@ -165,7 +166,7 @@ function AUTO_REPAIR_FRAME_INIT()
     nobtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_CLOSE")
 
     frame:ShowWindow(1)
-    ReserveScript("AUTO_REPAIR_CLOSE()", 5.0)
+    ReserveScript("AUTO_REPAIR_CLOSE()", 7.0)
 
 end
 

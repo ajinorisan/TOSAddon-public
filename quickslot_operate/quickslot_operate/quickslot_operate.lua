@@ -2,10 +2,11 @@
 -- v1.0.1 加護ポーションも対応
 -- v1.0.2 クイックスロットがセーブされてなくてレイドで元のポーションに戻る場合があるので、MAPに入った時に動かす様に修正
 -- v1.0.3 レイド選んだ時と中でももう1回チェックのハイブリッドに。
+-- v1.0.4 加護ポ持ってない時に切り替わらないバグ修正。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -34,7 +35,7 @@ local raid_list = {
     Klaida = {686, 685, 687},
     Velnias = {689, 688, 690, 669, 635, 628},
     Forester = {672, 671, 670},
-    Widling = {677, 676, 678}
+    Widling = {677, 676, 678, 696, 695, 697}
 }
 
 local potion_list = {
@@ -73,7 +74,7 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
     acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
 
     local currentZone = GetZoneName()
-    -- print(currentZone)
+
     for _, zone in ipairs(zone_list) do
         if zone == currentZone then
             ReserveScript("quickslot_operate_change_potion()", 5.0)
@@ -85,14 +86,14 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 end
 
 function quickslot_operate_change_potion()
-    -- CHAT_SYSTEM("quickslot_operate_change_potion")
+
     local group_name = quickslot_operate_GetGroupName(tonumber(g.induntype))
     g.induntype = 0
-    -- print(tostring(group_name))
+
     local potion_id = potion_list[group_name]
 
     local down_potion_id = down_potion_list[group_name]
-    -- print(tostring(group_name) .. ":" .. tostring(potion_id) .. ":" .. tostring(down_potion_id))
+
     quickslot_operate_get_potion(potion_id, down_potion_id)
 end
 
@@ -127,7 +128,6 @@ function quickslot_operate_GetGroupName(induntype)
 end
 
 function quickslot_operate_get_potion(potion_id, down_potion_id)
-    -- local iteminfo = session.GetInvItemByType(potion_id);
 
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList();
@@ -155,30 +155,36 @@ end
 
 function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
-    local potion_info = session.GetInvItemByType(potion_id);
-    local potion_iesid = potion_info:GetIESID()
-    local potion_item = GET_PC_ITEM_BY_GUID(potion_info:GetIESID())
-    local potion_obj = GetIES(potion_item:GetObject())
-
-    local down_potion_info = session.GetInvItemByType(down_potion_id);
-    local down_potion_iesid = down_potion_info:GetIESID()
-    local down_potion_item = GET_PC_ITEM_BY_GUID(down_potion_info:GetIESID())
-    local down_potion_obj = GetIES(potion_item:GetObject())
-
     local frame = ui.GetFrame("quickslotnexpbar")
     if not frame then
         return
     end
 
+    local potion_info = session.GetInvItemByType(potion_id);
+    if potion_info ~= nil then
+        local potion_iesid = potion_info:GetIESID()
+        local potion_item = GET_PC_ITEM_BY_GUID(potion_info:GetIESID())
+        local potion_obj = GetIES(potion_item:GetObject())
+    end
+
+    local down_potion_info = session.GetInvItemByType(down_potion_id);
+    if down_potion_info ~= nil then
+        local down_potion_iesid = down_potion_info:GetIESID()
+        local down_potion_item = GET_PC_ITEM_BY_GUID(down_potion_info:GetIESID())
+        local down_potion_obj = GetIES(down_potion_item:GetObject())
+    end
     local slotCount = 40
 
     for i = 0, slotCount - 1 do
         local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
         local quickSlotInfo = quickslot.GetInfoByIndex(i);
-        if slot and slot:GetIcon() then
+
+        if slot:GetIcon() ~= nil then
             local iconInfo = slot:GetIcon():GetInfo()
             local invItem = GET_PC_ITEM_BY_GUID(iconInfo:GetIESID())
-            if invItem then
+
+            if invItem ~= nil then
+
                 local obj = GetIES(invItem:GetObject())
                 local classid = obj.ClassID
 
@@ -186,23 +192,24 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
                     if id == classid then
 
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, potion_iesid, 0, true, true)
-
+                        ReserveScript("quickslot.RequestRefresh()", 0.1);
                         break
 
                     end
                 end
-                -- quickslot.RequestRefresh();
+
                 for group, id in pairs(down_potion_list) do
                     if id == classid then
 
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, down_potion_iesid, 0, true,
                             true)
+                        ReserveScript("quickslot.RequestRefresh()", 0.1);
                         -- quickslot.RequestRefresh();
                         break
 
                     end
                 end
-                ReserveScript("quickslot.RequestRefresh()", 2.0);
+
             end
 
         end
