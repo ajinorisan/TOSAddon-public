@@ -1,8 +1,12 @@
 -- v1.0.0 ebisukeさんのstatview_ex_rがバグってたので新たに作った。
+-- v1.0.1 表示が永遠に増えていくバグ直したつもり
+-- v1.0.2 loadがバグってたのを修正
+-- v1.0.3 更にバグ修正。くるしい。
+-- v1.0.4 もうバグに疲れた。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -31,8 +35,8 @@ local status_list = {"STR", "INT", "CON", "MNA", "DEX", "gear_score", "ability_p
                      "MSPD", "CastingSpeed", "Add_Damage_Atk", "ResAdd_Damage", "Aries_Atk", "Slash_Atk", "Strike_Atk",
                      "Arrow_Atk", "Cannon_Atk", "Gun_Atk", "Magic_Melee_Atk", "Magic_Fire_Atk", "Magic_Ice_Atk",
                      "Magic_Lightning_Atk", "Magic_Earth_Atk", "Magic_Poison_Atk", "Magic_Dark_Atk", "Magic_Holy_Atk",
-                     "Magic_Soul_Atk", "BOSS_ATK", "MiddleSize_Def", "Cloth_Atk", "Leather_Atk", "Iron_Atk",
-                     "Ghost_Atk", "Cloth_Def", "Leather_Def", "Iron_Def", "stun_res", "high_fire_res",
+                     "Magic_Soul_Atk", "BOSS_ATK", "Cloth_Atk", "Leather_Atk", "Iron_Atk", "Ghost_Atk",
+                     "MiddleSize_Def", "Cloth_Def", "Leather_Def", "Iron_Def", "stun_res", "high_fire_res",
                      "high_freezing_res", "high_lighting_res", "high_poison_res", "high_laceration_res",
                      "portion_expansion", "Forester_Atk", "Widling_Atk", "Klaida_Atk", "Paramune_Atk", "Velnias_Atk",
                      "perfection", "revenge"}
@@ -72,6 +76,85 @@ color_attribute['high_poison_res'] = 'high_poison_res_status'
 color_attribute['high_laceration_res'] = 'high_laceration_res_status'
 color_attribute['portion_expansion'] = 'portion_expansion_status'
 
+--[[if not g.loded then
+    g.settings = {}
+    g.settings.frame_X = 600
+    g.settings.frame_Y = 300
+    g.settings.enable = 1
+    for i = 0, 10 do
+        local key = "no_" .. i
+        g.settings[key] = {
+            memo = "free memo " .. i,
+            STR = 1,
+            INT = 1,
+            CON = 0,
+            MNA = 0,
+            DEX = 0,
+            gear_score = 0,
+            ability_point_score = 0,
+            PATK = 1,
+            MATK = 1,
+            HEAL_PWR = 0,
+            SR = 0,
+            HR = 1,
+            BLK_BREAK = 1,
+            CRTATK = 1,
+            CRTMATK = 1,
+            CRTHR = 1,
+            DEF = 0,
+            MDEF = 0,
+            SDR = 0,
+            DR = 1,
+            BLK = 0,
+            CRTDR = 1,
+            MSPD = 1,
+            CastingSpeed = 1,
+            Add_Damage_Atk = 0,
+            ResAdd_Damage = 0,
+            Aries_Atk = 0,
+            Slash_Atk = 0,
+            Strike_Atk = 0,
+            Arrow_Atk = 0,
+            Cannon_Atk = 0,
+            Gun_Atk = 0,
+            Magic_Melee_Atk = 0,
+            Magic_Fire_Atk = 0,
+            Magic_Ice_Atk = 0,
+            Magic_Lightning_Atk = 0,
+            Magic_Earth_Atk = 0,
+            Magic_Poison_Atk = 0,
+            Magic_Dark_Atk = 0,
+            Magic_Holy_Atk = 0,
+            Magic_Soul_Atk = 0,
+            BOSS_ATK = 1,
+            Cloth_Atk = 0,
+            Leather_Atk = 0,
+            Iron_Atk = 0,
+            Ghost_Atk = 0,
+            MiddleSize_Def = 1,
+            Cloth_Def = 0,
+            Leather_Def = 1,
+            Iron_Def = 0,
+            stun_res = 0,
+            high_fire_res = 0,
+            high_freezing_res = 0,
+            high_lighting_res = 0,
+            high_poison_res = 0,
+            high_laceration_res = 0,
+            portion_expansion = 0,
+            Forester_Atk = 0,
+            Widling_Atk = 0,
+            Klaida_Atk = 0,
+            Paramune_Atk = 0,
+            Velnias_Atk = 0,
+            perfection = 1,
+            revenge = 0
+        }
+        always_status_save_settings()
+    end
+
+end]]
+
 function always_status_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -87,18 +170,21 @@ function always_status_load_settings()
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
 
+    local loginCID = info.GetCID(session.GetMyHandle())
+
     if not settings then
-        g.settings = {}
-        g.settings.frame_X = 300
-        g.settings.frame_Y = 300
-        g.settings.enable = 1
-        for i = 1, 10 do
+
+        settings = {}
+        settings.frame_X = 600
+        settings.frame_Y = 300
+        settings.enable = 1
+        for i = 0, 10 do
             local key = "no_" .. i
-            g.settings[key] = {
+            settings[key] = {
                 memo = "free memo " .. i,
                 STR = 1,
                 INT = 1,
-                CON = 1,
+                CON = 0,
                 MNA = 0,
                 DEX = 0,
                 gear_score = 0,
@@ -107,19 +193,19 @@ function always_status_load_settings()
                 MATK = 1,
                 HEAL_PWR = 0,
                 SR = 0,
-                HR = 0,
-                BLK_BREAK = 0,
-                CRTATK = 0,
-                CRTMATK = 0,
-                CRTHR = 0,
+                HR = 1,
+                BLK_BREAK = 1,
+                CRTATK = 1,
+                CRTMATK = 1,
+                CRTHR = 1,
                 DEF = 0,
                 MDEF = 0,
                 SDR = 0,
-                DR = 0,
+                DR = 1,
                 BLK = 0,
-                CRTDR = 0,
-                MSPD = 0,
-                CastingSpeed = 0,
+                CRTDR = 1,
+                MSPD = 1,
+                CastingSpeed = 1,
                 Add_Damage_Atk = 0,
                 ResAdd_Damage = 0,
                 Aries_Atk = 0,
@@ -137,14 +223,14 @@ function always_status_load_settings()
                 Magic_Dark_Atk = 0,
                 Magic_Holy_Atk = 0,
                 Magic_Soul_Atk = 0,
-                BOSS_ATK = 0,
-                MiddleSize_Def = 0,
+                BOSS_ATK = 1,
                 Cloth_Atk = 0,
                 Leather_Atk = 0,
                 Iron_Atk = 0,
                 Ghost_Atk = 0,
+                MiddleSize_Def = 1,
                 Cloth_Def = 0,
-                Leather_Def = 0,
+                Leather_Def = 1,
                 Iron_Def = 0,
                 stun_res = 0,
                 high_fire_res = 0,
@@ -158,38 +244,47 @@ function always_status_load_settings()
                 Klaida_Atk = 0,
                 Paramune_Atk = 0,
                 Velnias_Atk = 0,
-                perfection = 0,
+                perfection = 1,
                 revenge = 0
             }
+            -- 
+        end
+        g.settings = settings
 
+        if g.settings[loginCID] == nil then
+            g.settings[loginCID] = 1
+        end
+        if g.settings[loginCID].use == nil then
+            g.settings[loginCID].use = 1
+        end
+    else
+        g.settings = settings
+
+        if g.settings[loginCID] == nil then
+            g.settings[loginCID] = 1
+        end
+        if g.settings[loginCID].use == nil then
+            g.settings[loginCID].use = 1
         end
 
     end
-    -- print("test")
-    local loginCID = info.GetCID(session.GetMyHandle())
 
-    if g.settings[loginCID] == nil then
-        g.settings[loginCID] = {}
-        g.settings[loginCID].no = 1
-
-    end
-
-    always_status_save_settings() -- ここで保存
-
-    -- print(tostring(g.settings[loginCID].no))
-    local loginCID = info.GetCID(session.GetMyHandle())
     for i = 1, 10 do
 
-        if g.settings[loginCID].no == i then
+        if g.settings[loginCID] == i then
             local noKey = "no_" .. i
+
             g.no = g.settings[noKey]
+
         end
     end
 
-    for key, value in pairs(g.no) do
-        print(key .. ":" .. value)
-    end
+    always_status_save_settings()
     always_status_frame_init()
+
+    --[[for key, value in pairs(g.no) do
+        print(key .. ":" .. value)
+    end]]
 
 end
 
@@ -197,18 +292,22 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+    --[[if not g.loded then
+        g.loded = true
+    end]]
 
+    -- always_status_original_frame_reductio()
     addon:RegisterMsg("GAME_START", "always_status_original_frame_reduction")
-    addon:RegisterMsg("GAME_START", "always_status_load_settings")
+    addon:RegisterMsg("GAME_START_3SEC", "always_status_load_settings")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
-
+    -- print("test")
 end
 
 function always_status_memo_save(frame, ctrl, argStr, argNum)
     local text = ctrl:GetText()
     local loginCID = info.GetCID(session.GetMyHandle())
-    g.settings[loginCID].no = argNum
+    g.settings[loginCID] = argNum
 
     argNum = "no_" .. argNum
 
@@ -224,96 +323,12 @@ end
 
 function always_status_info_setting_load(number)
     local frame = ui.GetFrame(addonNameLower .. "new_frame")
+
     local gb = GET_CHILD_RECURSIVELY(frame, "gb")
-    for i = 1, 10 do
-        local memo = GET_CHILD_RECURSIVELY(gb, "memo" .. i)
-        if i == number then
-            memo:ShowWindow(1)
-        else
-            memo:ShowWindow(0)
-        end
-    end
-
-    local loginCID = info.GetCID(session.GetMyHandle())
-    g.settings[loginCID].no = number
-    number = "no_" .. number
-
-    for _, key in ipairs(status_list) do
-
-        local check = GET_CHILD_RECURSIVELY(frame, "check" .. key)
-        check:SetCheck(g.settings[number][key])
-    end
-    always_status_save_settings()
-    always_status_load_settings()
-
-    -- always_status_frame_init()
-
-end
-
-function always_status_info_setting(frame, ctrl, argStr, argNum)
-    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "new_frame", 0, 0, 70, 30)
-    AUTO_CAST(frame)
-    frame:EnableHittestFrame(1);
-    frame:EnableHitTest(1)
-    frame:Resize(340, 900)
-    frame:SetPos(10, 10)
-    frame:RemoveAllChild()
-    frame:ShowWindow(1)
-    local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 10, frame:GetWidth() - 10, frame:GetHeight() - 10)
-    AUTO_CAST(gb)
-    gb:SetSkinName("test_frame_midle_light")
-    -- gb:SetEventScript(ui.LBUTTONDOWN, "always_status_info_setting")
-    local title = gb:CreateOrGetControl("richtext", "title", 10, 40)
-    title:SetText("{s18}{ol}{#FFFFFF}Display Setting")
-    -- gb:SetEventScript(ui.RBUTTONDOWN, "always_status_frame_close")
-    local close = gb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "always_status_frame_close")
-
-    local dropList = gb:CreateOrGetControl('droplist', 'setting_DropList', 80, 10, 180, 20)
-    AUTO_CAST(dropList)
-    dropList:SetSkinName('droplist_normal');
-    dropList:EnableHitTest(1);
-    dropList:SetTextAlign("center", "center");
-
-    for i = 1, 10 do
-        local num = "no_" .. i
-        if g.settings[num].memo == "free memo " .. i then
-            dropList:AddItem(i, tostring("Data ") .. i, 0, "always_status_info_setting_load(" .. i .. ")");
-        else
-            dropList:AddItem(i, g.settings[num].memo, 0, "always_status_info_setting_load(" .. i .. ")");
-        end
-        local memo = gb:CreateOrGetControl('edit', 'memo' .. i, 155, 35, 125, 30)
-        AUTO_CAST(memo)
-        memo:SetEventScript(ui.ENTERKEY, "always_status_memo_save")
-        memo:SetEventScriptArgNumber(ui.ENTERKEY, i)
-        memo:SetFontName("white_16_ol")
-        memo:SetTextAlign("center", "center")
-
-        memo:SetText(g.settings[num].memo)
-        memo:ShowWindow(0)
-    end
-    local loginCID = info.GetCID(session.GetMyHandle())
-    dropList:SelectItem(tonumber(g.settings[loginCID].no) - 1)
-    local memo = GET_CHILD_RECURSIVELY(gb, "memo" .. tonumber(g.settings[loginCID].no))
-    -- print(memo:GetName())
-    memo:ShowWindow(1)
-
-    local enablecheck = gb:CreateOrGetControl("checkbox", "enablecheck", 285, 40, 20, 20)
-    AUTO_CAST(enablecheck)
-    enablecheck:SetEventScript(ui.LBUTTONUP, "always_status_checkbox")
-    enablecheck:SetTextTooltip("チェックするとフレームが固定されます。{nl}" ..
-                                   "If checked, the frame is fixed.")
-    if g.settings.enable == 0 then
-        enablecheck:SetCheck(1)
-    else
-        enablecheck:SetCheck(0)
-    end
 
     local setting_gb = gb:CreateOrGetControl("groupbox", "setting_gb", 10, 70, gb:GetWidth() - 10, gb:GetHeight() - 80)
     AUTO_CAST(setting_gb)
+
     frame:SetLayerLevel(150)
     setting_gb:SetSkinName("test_frame_midle_light")
     -- setting_gb:SetEventScript(ui.RBUTTONDOWN, "always_status_frame_close")
@@ -322,9 +337,9 @@ function always_status_info_setting(frame, ctrl, argStr, argNum)
     for _, status in ipairs(status_list) do
         local check = setting_gb:CreateOrGetControl("checkbox", "check" .. status, 260, y, 20, 20)
         AUTO_CAST(check)
-        local Data = tonumber(dropList:GetSelItemKey())
+
         check:SetEventScript(ui.LBUTTONUP, "always_status_checkbox")
-        check:SetEventScriptArgNumber(ui.LBUTTONUP, Data);
+        check:SetEventScriptArgNumber(ui.LBUTTONUP, number);
         local control = setting_gb:CreateOrGetControl("richtext", status, 20, y)
         AUTO_CAST(control)
         if color_attribute[status] ~= nil then
@@ -335,6 +350,7 @@ function always_status_info_setting(frame, ctrl, argStr, argNum)
 
             if status == "STR" then
                 control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("STR"))
+                -- control:SetText("{#FFFF00}" .. control:GetText());
             elseif status == "INT" then
                 control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("INT"))
             elseif status == "CON" then
@@ -370,11 +386,108 @@ function always_status_info_setting(frame, ctrl, argStr, argNum)
         end
 
     end
+    -- print(tostring(number) .. "aru")
+
+    -- local frame = ui.GetFrame(addonNameLower .. "new_frame")
+
+    -- local gb = GET_CHILD_RECURSIVELY(frame, "gb")
+    for i = 1, 10 do
+        local memo = GET_CHILD_RECURSIVELY(gb, "memo" .. i)
+        if i == number then
+            memo:ShowWindow(1)
+        else
+            memo:ShowWindow(0)
+        end
+    end
+
+    local loginCID = info.GetCID(session.GetMyHandle())
+    g.settings[loginCID] = number
+    -- g.no = {}
+    number = "no_" .. number
+    -- g.no = g.settings[number]
+    for _, key in ipairs(status_list) do
+
+        local check = GET_CHILD_RECURSIVELY(frame, "check" .. key)
+        check:SetCheck(g.settings[number][key])
+    end
+    always_status_save_settings()
+    always_status_load_settings()
+
+    -- always_status_frame_init()
+
+end
+
+function always_status_info_setting(frame, ctrl, argStr, argNum)
+    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "new_frame", 0, 0, 70, 30)
+    AUTO_CAST(frame)
+    frame:EnableHittestFrame(1);
+    frame:EnableHitTest(1)
+    frame:Resize(340, 900)
+    frame:SetPos(10, 10)
+    frame:RemoveAllChild()
+    frame:ShowWindow(1)
+    local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 10, frame:GetWidth() - 10, frame:GetHeight() - 10)
+    AUTO_CAST(gb)
+    gb:SetSkinName("test_frame_midle_light")
+    -- gb:SetEventScript(ui.LBUTTONDOWN, "always_status_info_setting")
+    local title = gb:CreateOrGetControl("richtext", "title", 10, 40)
+    title:SetText("{s18}{ol}{#FFFFFF}Display Setting")
+    -- gb:SetEventScript(ui.RBUTTONDOWN, "always_status_frame_close")
+    local close = gb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "always_status_frame_close")
+
+    local loginCID = info.GetCID(session.GetMyHandle())
+    -- print(g.settings[loginCID])
+
+    local dropList = gb:CreateOrGetControl('droplist', 'setting_DropList', 80, 10, 180, 20)
+    AUTO_CAST(dropList)
+    dropList:SetSkinName('droplist_normal');
+    dropList:EnableHitTest(1);
+    dropList:SetTextAlign("center", "center");
+    for i = 1, 10 do
+        local num = "no_" .. i
+        if g.settings[num].memo == "free memo " .. i then
+            dropList:AddItem(i, tostring("Data ") .. i, 0, "always_status_info_setting_load(" .. i .. ")");
+        else
+            dropList:AddItem(i, g.settings[num].memo, 0, "always_status_info_setting_load(" .. i .. ")");
+        end
+        local memo = gb:CreateOrGetControl('edit', 'memo' .. i, 155, 35, 125, 30)
+        AUTO_CAST(memo)
+        memo:SetEventScript(ui.ENTERKEY, "always_status_memo_save")
+        memo:SetEventScriptArgNumber(ui.ENTERKEY, i)
+        memo:SetFontName("white_16_ol")
+        memo:SetTextAlign("center", "center")
+
+        memo:SetText(g.settings[num].memo)
+        memo:ShowWindow(0)
+    end
+    dropList:SelectItem(tonumber(g.settings[loginCID]) - 1)
+    local memo = GET_CHILD_RECURSIVELY(gb, "memo" .. tonumber(g.settings[loginCID]))
+    memo:ShowWindow(1)
+
+    -- print(memo:GetName())
+
+    local enablecheck = gb:CreateOrGetControl("checkbox", "enablecheck", 285, 40, 20, 20)
+    AUTO_CAST(enablecheck)
+    enablecheck:SetEventScript(ui.LBUTTONUP, "always_status_checkbox")
+    enablecheck:SetTextTooltip("チェックするとフレームが固定されます。{nl}" ..
+                                   "If checked, the frame is fixed.")
+    if g.settings.enable == 0 then
+        enablecheck:SetCheck(1)
+    else
+        enablecheck:SetCheck(0)
+    end
+    always_status_info_setting_load(tonumber(g.settings[loginCID]))
 end
 
 function always_status_checkbox(frame, ctrl, argStr, argNum)
 
     argNum = "no_" .. argNum
+    -- g.no = g.settings[argNum]
+
     local ischeck = ctrl:IsChecked()
     local name = ctrl:GetName()
     if name == "enablecheck" then
@@ -388,21 +501,21 @@ function always_status_checkbox(frame, ctrl, argStr, argNum)
             asframe:EnableMove(1)
         end
     end
-    print(name)
-    print(ischeck)
-    print(argNum)
+
     for _, status in ipairs(status_list) do
 
         if tostring("check" .. status) == ctrl:GetName() then
 
             g.settings[argNum][status] = ischeck
             always_status_save_settings()
+            -- g.no = g.settings[argNum]
             g.no[status] = ischeck
             -- print(tostring(g.settings[argNum][status]))
         end
 
     end
 
+    -- always_status_load_settings()
     always_status_frame_init()
 end
 
@@ -505,6 +618,7 @@ function always_status_frame_init()
     for _, entry in ipairs(sortedSettings) do
         -- for key, value in pairs(g.settings) do
         local key = tostring(entry.key)
+
         if entry.value == 1 then
 
             local title = frame:CreateOrGetControl("richtext", key, 10, y)
