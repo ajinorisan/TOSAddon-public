@@ -11,10 +11,12 @@
 -- v1.1.0 クエストリスト非表示機能。インベントリ開けたら表示されていたのを修正。
 -- v1.1.1 左上の名前をキャラクター名に変更
 -- v1.1.2 GAME_START_3SECが重すぎる様になったので3.5SECに
+-- v1.1.3 メレジナダイアログ制御。おまけで死んだときに出るダイアログで「近くで復活」にマウスが合うように
+-- v1.1.4 チャンネルインフォを作った。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -65,6 +67,8 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
 
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
+
+    acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
 
     -- addon:RegisterMsg('NOTICE_Dm_Global_Shout', 'MINI_ADDONS_NOTICE_ON_MSG');
 
@@ -169,8 +173,107 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         -- addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
 
+    local frame = ui.GetFrame(addonNameLower)
+    if g.settings.channel_info == nil then
+        g.settings.channel_info = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        MINI_ADDONS_POPUP_CHANNEL_LIST()
+
+        frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
+    elseif g.settings.channel_info == 1 then
+        MINI_ADDONS_POPUP_CHANNEL_LIST()
+        frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
+    end
+
     MINI_ADDONS_NEW_FRAME_INIT()
 
+end
+
+function MINI_ADDONS_POPUP_CHANNEL_LIST()
+    -- print("MINI_ADDONS_POPUP_CHANNEL_LIST")
+    local frame = ui.CreateNewFrame("notice_on_pc", "mini_addons_channel", 10, 10, 10, 10)
+    AUTO_CAST(frame)
+    frame:RemoveAllChild();
+    frame:SetSkinName('None')
+    frame:SetTitleBarSkin("None")
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+    if g.settings.frame_X == nil then
+        g.settings.frame_X = 1500
+    end
+    if g.settings.frame_Y == nil then
+        g.settings.frame_Y = 395
+    end
+    MINI_ADDONS_SAVE_SETTINGS()
+    frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
+    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_frame_move")
+    local title = frame:CreateOrGetControl("richtext", "title", 5, 0)
+    title:SetText("{ol}{s12}channel info")
+    local zoneInsts = session.serverState.GetMap();
+    local cnt = zoneInsts:GetZoneInstCount();
+    for i = 0, cnt - 1 do
+        local zoneInst = zoneInsts:GetZoneInstByIndex(i);
+        local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+        if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
+            local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+            str, gaugeString = GET_CHANNEL_STRING(zoneInst, true, suffix);
+
+            local String = string.match(str, "%((%d+)")
+
+            if String then
+                local startIndex = 9
+                local endIndex = 17
+                local subString = string.sub(str, startIndex, endIndex)
+
+                local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
+                AUTO_CAST(btn)
+                btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+                btn:SetEventScriptArgString(ui.LBUTTONUP, i)
+                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}" .. subString .. "{nl}{s16}" .. String
+                btn:SetText(text)
+
+            end
+
+        end
+    end
+    frame:Resize(cnt * 50 + 20, 60)
+    frame:ShowWindow(1)
+    return 1
+end
+
+function MINI_ADDONS_CH_CHANGE(frame, ctrl, argStr, argNum)
+    -- print(argStr)
+    local channelID = tonumber(argStr) -- 0が1chらしい
+    local channelnum = session.loginInfo.GetChannel() + 1;
+    if channelnum ~= 1 then
+        -- CHAT_SYSTEM(channelnum)
+        RUN_GAMEEXIT_TIMER("Channel", channelID);
+    end
+end
+
+function MINI_ADDONS_frame_move(frame)
+
+    if g.settings.frame_X ~= frame:GetX() or g.settings.frame_Y ~= frame:GetY() then
+        g.settings.frame_X = frame:GetX()
+        g.settings.frame_Y = frame:GetY()
+        MINI_ADDONS_SAVE_SETTINGS()
+
+    end
+end
+
+--[[ DialogSelect_index = 2;
+local btn2 = GET_CHILD_RECURSIVELY(frame, 'item2Btn')
+local x, y = GET_SCREEN_XY(btn2)
+mouse.SetPos(x + 190, y);]]
+function MINI_ADDONS_RESTART_CONTENTS_ON_HERE()
+    local frame = ui.GetFrame("restart_contents")
+
+    local ItemBtn = GET_CHILD_RECURSIVELY(frame, "btn_restart_" .. 1);
+    local itemWidth = ItemBtn:GetWidth();
+
+    local x, y = GET_SCREEN_XY(ItemBtn, itemWidth / 2.5);
+    mouse.SetPos(x, y);
+    DialogSelect_index = 1;
 end
 
 function MINI_ADDONS_PCNAME_REPLACE()
@@ -349,10 +452,10 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
 
 end
 
-local coin_item = {869001, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161, 11200160,
-                   11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212, 11030211,
-                   11030210, 11030201, 11035673, 11035670, 11035668, 11030394, 11030240, 646076, 11035672, 11035669,
-                   11035667, 11035457, 11035426, 11035409}
+local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161,
+                   11200160, 11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212,
+                   11030211, 11030210, 11030201, 11035673, 11035670, 11035668, 11030394, 11030240, 646076, 11035672,
+                   11035669, 11035667, 11035457, 11035426, 11035409}
 
 -- 傭兵団コイン、女神コイン、王国再建団コインを取得時、自動で使用
 function MINI_ADDONS_INV_ICON_USE()
@@ -504,7 +607,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     -- frame:SetSkinName("test_frame_low")
     frame:SetSkinName("bg")
     frame:SetLayerLevel(93)
-    frame:Resize(710, 530)
+    frame:Resize(710, 560)
     frame:SetPos(1150, 400)
     frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
@@ -724,7 +827,19 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     pc_name_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     pc_name_checkbox:SetTextTooltip("{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local description = frame:CreateOrGetControl("richtext", "description", 140, 495)
+    local channel_info = frame:CreateOrGetControl("richtext", "channel_info", 40, 495)
+    channel_info:SetText("{ol}{#FFFFFF}Displays the channel switching frame.")
+    channel_info:SetTextTooltip(
+        "{@st59}チャンネル切替フレームを表示します。{nl}채널 전환 프레임을 표시합니다.")
+
+    local channel_info_checkbox = frame:CreateOrGetControl('checkbox', 'channel_info_checkbox', 10, 490, 25, 25)
+    AUTO_CAST(channel_info_checkbox)
+    channel_info_checkbox:SetCheck(g.settings.channel_info)
+    channel_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    channel_info_checkbox:SetTextTooltip(
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+
+    local description = frame:CreateOrGetControl("richtext", "description", 140, 525)
     description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
     description:SetTextTooltip(
         "{@st59}一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です。{nl}일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다.")
@@ -829,171 +944,36 @@ function MINI_ADDONS_BUFFLIST_FRAME_CLOSE()
 end
 
 function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
-
-    local ischeck = ctrl:IsChecked();
+    local ischeck = ctrl:IsChecked()
     local ctrlname = ctrl:GetName()
-    -- quest_hide
+    local settingNames = {
+        channel_info = "channel_info_checkbox",
+        pc_name = "pc_name_checkbox",
+        quest_hide = "quest_hide_checkbox",
+        automatch_layer = "automatch_layer_checkbox",
+        equip_info = "equip_info_checkbox",
+        under_staff = "under_staff_checkbox",
+        raid_record = "raid_record_checkbox",
+        party_buff = "party_buff_checkbox",
+        chat_system = "chat_system_checkbox",
+        channel_display = "channel_display_checkbox",
+        mini_btn = "mini_btn_checkbox",
+        market_display = "market_display_checkbox",
+        restart_move = "restart_move_checkbox",
+        pet_init = "pet_init_checkbox",
+        dialog_ctrl = "dialog_ctrl_checkbox",
+        auto_cast = "auto_cast_checkbox",
+        coin_use = "coin_use_checkbox"
+    }
 
-    if ischeck == 1 and ctrlname == "pc_name_checkbox" then
-        g.settings.pc_name = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "pc_name_checkbox" then
-        g.settings.pc_name = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
+    for settingName, checkboxName in pairs(settingNames) do
+        if ctrlname == checkboxName then
+            g.settings[settingName] = ischeck
+            MINI_ADDONS_SAVE_SETTINGS()
+            MINI_ADDONS_LOAD_SETTINGS()
+            break
+        end
     end
-
-    if ischeck == 1 and ctrlname == "quest_hide_checkbox" then
-        g.settings.quest_hide = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "quest_hide_checkbox" then
-        g.settings.quest_hide = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "automatch_layer_checkbox" then
-        g.settings.automatch_layer = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "automatch_layer_checkbox" then
-        g.settings.automatch_layer = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "equip_info_checkbox" then
-        g.settings.equip_info = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "equip_info_checkbox" then
-        g.settings.equip_info = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "under_staff_checkbox" then
-        g.settings.under_staff = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "under_staff_checkbox" then
-        g.settings.under_staff = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "raid_record_checkbox" then
-        g.settings.raid_record = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "raid_record_checkbox" then
-        g.settings.raid_record = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "party_buff_checkbox" then
-        g.settings.party_buff = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "party_buff_checkbox" then
-        g.settings.party_buff = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "chat_system_checkbox" then
-        g.settings.chat_system = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "chat_system_checkbox" then
-        g.settings.chat_system = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "channel_display_checkbox" then
-        g.settings.channel_display = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "channel_display_checkbox" then
-        g.settings.channel_display = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "mini_btn_checkbox" then
-        g.settings.mini_btn = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "mini_btn_checkbox" then
-        g.settings.mini_btn = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "market_display_checkbox" then
-        g.settings.market_display = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "market_display_checkbox" then
-        g.settings.market_display = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "restart_move_checkbox" then
-        g.settings.restart_move = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "restart_move_checkbox" then
-        g.settings.restart_move = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "pet_init_checkbox" then
-        g.settings.pet_init = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "pet_init_checkbox" then
-        g.settings.pet_init = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "dialog_ctrl_checkbox" then
-        g.settings.dialog_ctrl = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "dialog_ctrl_checkbox" then
-        g.settings.dialog_ctrl = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "auto_cast_checkbox" then
-        g.settings.auto_cast = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "auto_cast_checkbox" then
-        g.settings.auto_cast = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    if ischeck == 1 and ctrlname == "coin_use_checkbox" then
-        g.settings.coin_use = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    elseif ischeck == 0 and ctrlname == "coin_use_checkbox" then
-        g.settings.coin_use = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
 end
 
 function MINI_ADDONS_SAVE_SETTINGS()
@@ -1532,12 +1512,14 @@ end
 function MINI_ADDONS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
     local frame = ui.GetFrame("dialogselect")
     local dframe = ui.GetFrame("dialog")
-    -- CHAT_SYSTEM(argStr)
+
+    -- MGame_EndPortal_Msg レイドの終わりのポータル触った時のメッセージ
+
     -- 倉庫
     if argStr == tostring("WAREHOUSE_DLG") or argStr == tostring("ORSHA_WAREHOUSE_DLG") or argStr ==
         tostring("WAREHOUSE_FEDIMIAN_DLG") and msg == ("DIALOG_CHANGE_SELECT") then
         -- CHAT_SYSTEM(msg)
-        local frame = ui.GetFrame("dialogselect")
+        -- local frame = ui.GetFrame("dialogselect")
         session.SetSelectDlgList()
         ui.OpenFrame("dialogselect")
         DialogSelect_index = 2;
@@ -1571,14 +1553,15 @@ function MINI_ADDONS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
         mouse.SetPos(x + 190, y);
         return
     end
+
     -- 各種レイド
-    -- CHAT_SYSTEM(argStr)
-    -- print(argStr)
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
-    if argStr == "Goddess_Raid_Rozethemiserable_Start_Npc_Dlg" or argStr == "Goddess_Raid_Spreader_Start_Npc_DLG1" or
-        argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" or
-        (argStr == "Legend_Raid_Giltine_ENTER_MSG" and curMap == "raid_dcapital_108") then
+    if (argStr == "Goddess_Raid_Rozethemiserable_Start_Npc_Dlg" or argStr == "Goddess_Raid_Spreader_Start_Npc_DLG1" or
+        argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" or argStr ==
+        "Goddess_Raid_Despairlsland_Start_Npc_Dlg" or
+        (argStr == "Legend_Raid_Giltine_ENTER_MSG" and curMap == "raid_dcapital_108")) then
 
         session.SetSelectDlgList()
         ui.CloseFrame("dialog")
@@ -1590,6 +1573,17 @@ function MINI_ADDONS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
         return
 
     end
+    --[[if argStr == "NPC_JUNK_SHOP_MAIN_ORSHA" then
+        print("test")
+        session.SetSelectDlgList()
+        ui.CloseFrame("dialog")
+        ui.OpenFrame("dialogselect")
+        DialogSelect_index = 1
+        local btn = GET_CHILD_RECURSIVELY(frame, 'item1Btn')
+        local x, y = GET_SCREEN_XY(btn)
+        mouse.SetPos(x + 190, y);
+        return
+    end]]
 end
 
 function MINI_ADDONS_CLOSE_COMPANIONLIST()
