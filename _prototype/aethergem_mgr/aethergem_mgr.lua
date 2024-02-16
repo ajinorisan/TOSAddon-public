@@ -1,19 +1,35 @@
 -- v1.0.3 waitの時間見直し
 -- v1.0.4 チーム倉庫開いている時の挙動見直し
--- ｖ1.0.5　インベ表示微修正
+-- v1.0.5　インベ表示微修正
+-- v1.0.6 ディレイタイム設定機能
+-- v1.0.7 CC_helper 連携強化
+-- v1.0.8 SetupHookの競合修正
+-- v1.0.9 23.09.05patch対応。LV500エーテルジェム対応。
+-- v1.1.0 右クリックで着け外し機能削除
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.settingsFileLoc = string.format('../addons/%s/settings_2402.json', addonNameLower)
 
 local acutil = require("acutil")
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
 
 if not g.loaded then
     g.settings = {
@@ -23,12 +39,12 @@ if not g.loaded then
     }
 end
 
-function AETHERGEM_MGR_SAVE_SETTINGS(gemid)
+function AETHERGEM_MGR_SAVE_SETTINGS()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings)
 end
 
-function AETHERGEM_MGR_LOADSETTINGS(gemid)
+function AETHERGEM_MGR_LOADSETTINGS()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
@@ -38,170 +54,264 @@ function AETHERGEM_MGR_LOADSETTINGS(gemid)
     end
 
     if not settings then
-
-        settings = g.settings
+        g.settings = {
+            delay = 0.6
+        }
+    else
+        g.settings = settings
     end
 
-    local loginCharID = info.GetCID(session.GetMyHandle())
+    local CID = info.GetCID(session.GetMyHandle())
 
-    if g.settings.pctbl == nil then
-        g.settings.pctbl = {}
-    end
-
-    if settings.pctbl[tostring(loginCharID)] ~= gemid and gemid ~= nil then
-        local newTable = {
-            [tostring(loginCharID)] = gemid
+    if g.settings[CID] == nil then
+        g.settings[CID] = {
+            gemid = 0
         }
 
-        -- 新しいテーブルの内容をg.settings.pctblにマージする
-        for k, v in pairs(newTable) do
-            settings.pctbl[k] = v
-        end
-
-        AETHERGEM_MGR_SAVE_SETTINGS()
     end
-
-    g.gemid = nil
-    for charID, id in pairs(g.settings.pctbl) do
-        if charID == tostring(loginCharID) then
-
-            g.gemid = id
-
-            break
-        end
-    end
-
-    g.delay = g.settings.delay
     AETHERGEM_MGR_SAVE_SETTINGS()
-end
-
-function AETHERGEM_MGR_DELAY_FRAME_INIT()
-    local delayframe = ui.CreateNewFrame("notice_on_pc", "delayframe", 0, 0, 110, 50)
-    AUTO_CAST(delayframe)
-    delayframe:SetSkinName('None')
-    delayframe:Resize(60, 180)
-    delayframe:ShowTitleBar(0)
-    delayframe:EnableHitTest(1)
-    delayframe:SetLayerLevel(100)
-    local screenWidth = ui.GetClientInitialWidth()
-    local offsetX = screenWidth - 80
-    local screenHeight = ui.GetClientInitialHeight()
-    local offsetY = 170
-    delayframe:SetOffset(offsetX, offsetY)
-    local closebtn = delayframe:CreateOrGetControl("button", "closebtn", 30, 0, 30, 30)
-    AUTO_CAST(closebtn)
-    closebtn:SetText("×")
-    closebtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_AGMFRAME_CLOSE")
-    local input = delayframe:CreateOrGetControl("edit", "input", 0, 0, 100, 30)
-    delayframe:ShowWindow(1)
-    --[[
-    editElement:SetMargin(0, -43, 0, 0)
-    editElement:Resize(290, 36)
-    editElement:SetFontName("white_22_ol")
-    editElement:SetTextAlign("center", "top")
-    editElement:SetNumberMode(false)
-    editElement:SetTextByKey("maxlen", "8")
-    editElement:SetDrawBackground(false)
-    editElement:SetClickSound("button_click_big")
-    editElement:SetOverSound("button_over")
-    ]]
 end
 
 function AETHERGEM_MGR_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    -- CHAT_SYSTEM(addonNameLower .. " loaded")
-    acutil.setupHook(AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN, "GODDESS_MGR_SOCKET_INV_RBTN")
-    -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_RBDC_ITEMUSE, "INVENTORY_RBDC_ITEMUSE")
-    -- acutil.setupHook(AETHERGEM_MGR_INVENTORY_ON_MSG, "INVENTORY_ON_MSG")
-    -- acutil.setupHook(AETHERGEM_MGR_test, "GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP")
-
-    local loginCharID = info.GetCID(session.GetMyHandle())
-    g.gemid = nil
-    AETHERGEM_MGR_LOADSETTINGS(gemid)
-    for charID, id in pairs(g.settings.pctbl) do
-        if charID == tostring(loginCharID) then
-            g.gemid = id
-            break
-        end
-    end
-
-    g.RH = nil
-    g.LH = nil
-    g.RH_SUB = nil
-    g.LH_SUB = nil
-
-    g.rh_icon = nil
-    g.lh_icon = nil
-    g.rh_sub_icon = nil
-    g.lh_sub_icon = nil
-
-    g.rh_icon_info = nil
-    g.rh_guid = nil
-
-    g.lh_icon_info = nil
-    g.lh_guid = nil
-
-    g.rh_sub_icon_info = nil
-    g.rh_sub_guid = nil
-
-    g.lh_sub_icon_info = nil
-    g.lh_sub_guid = nil
-
-    -- local channel = ui.GetFrame("channel")
-    -- local channeltext = GET_CHILD_RECURSIVELY(channel, "curchannel")
-    -- channeltext:SetOffset(50, 0)
+    AETHERGEM_MGR_LOADSETTINGS()
     AETHERGEM_MGR_FRAME_INIT()
 
 end
 
-function AETHERGEM_MGR_GET_EQUIP()
-    local eqpframe = ui.GetFrame("inventory")
-    local equipItemList = session.GetEquipItemList();
+function AETHERGEM_MGR_FRAME_INIT()
+    local invframe = ui.GetFrame('inventory')
+    local inventoryGbox = invframe:GetChild("inventoryGbox")
 
-    -- CHAT_SYSTEM("GETSTART")
+    local buttonX = inventoryGbox:GetWidth() - 28
+    local buttonY = inventoryGbox:GetHeight() - 614
 
-    g.RH = GET_CHILD_RECURSIVELY(eqpframe, "RH")
-    g.LH = GET_CHILD_RECURSIVELY(eqpframe, "LH")
-    g.RH_SUB = GET_CHILD_RECURSIVELY(eqpframe, "RH_SUB")
-    g.LH_SUB = GET_CHILD_RECURSIVELY(eqpframe, "LH_SUB")
+    local setbtn = inventoryGbox:CreateOrGetControl("button", "setbtn", buttonX, buttonY, 20, 20)
+    AUTO_CAST(setbtn)
+    setbtn:SetSkinName("None")
+    setbtn:SetImage("config_button_normal")
+    setbtn:Resize(30, 30)
+    setbtn:SetTextTooltip("{ol}LeftClick:Gem Settings RightClick:Delay settings{nl}" ..
+                              "左クリック:ジェム設定 右クリック:ディレイ設定")
+    setbtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_GEM_SETTING")
+    setbtn:SetEventScript(ui.RBUTTONUP, "AETHERGEM_MGR_DELAY_FRAME_INIT")
 
-    g.rh_icon = g.RH:GetIcon()
-    if g.rh_icon ~= nil then
-        -- g.rh_icon_name = g.rh_icon:GetName()
-        g.rh_icon_info = g.rh_icon:GetInfo()
-        g.rh_guid = g.rh_icon_info:GetIESID()
+    local rmbuttonX = inventoryGbox:GetWidth() - 70
+    local rmbuttonY = inventoryGbox:GetHeight() - 614
+    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 40, 30)
+    AUTO_CAST(rmeqbutton)
+    rmeqbutton:SetText("{s14}AGM")
+    rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
 
-    end
-
-    g.lh_icon = g.LH:GetIcon()
-    if g.lh_icon ~= nil then
-        g.lh_icon_info = g.lh_icon:GetInfo()
-        g.lh_guid = g.lh_icon_info:GetIESID()
-
-    end
-
-    g.rh_sub_icon = g.RH_SUB:GetIcon()
-    if g.rh_sub_icon ~= nil then
-        g.rh_sub_icon_info = g.rh_sub_icon:GetInfo()
-        g.rh_sub_guid = g.rh_sub_icon_info:GetIESID()
-
-    end
-
-    g.lh_sub_icon = g.LH_SUB:GetIcon()
-    if g.lh_sub_icon ~= nil then
-        g.lh_sub_icon_info = g.lh_sub_icon:GetInfo()
-        g.lh_sub_guid = g.lh_sub_icon_info:GetIESID()
-
-    end
-    -- CHAT_SYSTEM("GETEND")
-    AETHERGEM_MGR_UNEQUIP()
 end
 
-function AETHERGEM_MGR_UNEQUIP()
+function AETHERGEM_MGR_GEM_SETTING(frame)
 
-    local eqpframe = ui.GetFrame("inventory")
+    local handlelist = {
+        [1] = "480[STR]",
+        [2] = "480[INT]",
+        [3] = "480[CON]",
+        [4] = "480[SPR]",
+        [5] = "480[DEX]",
+        [6] = "500[STR]",
+        [7] = "500[INT]",
+        [8] = "500[CON]",
+        [9] = "500[SPR]",
+        [10] = "500[DEX]"
+
+    }
+
+    local context = ui.CreateContextMenu("AETHERGEM_SETTING", "Aethegem Setting", 0, 0, 100, 100);
+
+    local scp = ""
+    ui.AddContextMenuItem(context, "Cancel");
+    ui.AddContextMenuItem(context, " ");
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[1])
+    ui.AddContextMenuItem(context, handlelist[1], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[2])
+    ui.AddContextMenuItem(context, handlelist[2], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[3])
+    ui.AddContextMenuItem(context, handlelist[3], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[4])
+    ui.AddContextMenuItem(context, handlelist[4], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[5])
+    ui.AddContextMenuItem(context, handlelist[5], scp);
+    ui.AddContextMenuItem(context, "  ");
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[6])
+    ui.AddContextMenuItem(context, handlelist[6], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[7])
+    ui.AddContextMenuItem(context, handlelist[7], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[8])
+    ui.AddContextMenuItem(context, handlelist[8], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[9])
+    ui.AddContextMenuItem(context, handlelist[9], scp);
+    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[10])
+    ui.AddContextMenuItem(context, handlelist[10], scp);
+    ui.OpenContextMenu(context);
+
+end
+
+function AETHERGEM_MGR_SELECTED(handle)
+
+    local CID = info.GetCID(session.GetMyHandle())
+
+    if handle == '480[STR]' then
+
+        local gemid = 850006
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.480]エーテルジェム-力を登録しました。{nl}[Lv.480] Aether Gem - STR set on this character.")
+
+    elseif handle == '480[INT]' then
+        local gemid = 850007
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.480]エーテルジェム-知能を登録しました。{nl}[Lv.480] Aether Gem - INT set on this character.")
+
+    elseif handle == '480[CON]' then
+        local gemid = 850010
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.480]エーテルジェム-体力を登録しました。{nl}[Lv.480] Aether Gem - CON set on this character.")
+
+    elseif handle == '480[SPR]' then
+        local gemid = 850009
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.480]エーテルジェム-精神を登録しました。{nl}[Lv.480] Aether Gem - SPR set on this character.")
+
+    elseif handle == '480[DEX]' then
+        local gemid = 850008
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.480]エーテルジェム-敏捷を登録しました。{nl}[Lv.480] Aether Gem - DEX set on this character.")
+
+    elseif handle == '500[STR]' then
+        local gemid = 850011
+        g.settings[CID].gemid = gemid
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-力を登録しました。{nl}[Lv.500] Aether Gem - STR set on this character.")
+
+    elseif handle == '500[INT]' then
+        local gemid = 850012
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-知能を登録しました。{nl}[Lv.500] Aether Gem - INT set on this character.")
+
+    elseif handle == '500[CON]' then
+        local gemid = 850015
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-体力を登録しました。{nl}[Lv.500] Aether Gem - CON set on this character.")
+
+    elseif handle == '500[SPR]' then
+        local gemid = 850014
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-精神を登録しました。{nl}[Lv.500] Aether Gem - SPR set on this character.")
+
+    elseif handle == '500[DEX]' then
+        local gemid = 850013
+        g.settings[CID].gemid = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-敏捷を登録しました。{nl}[Lv.500] Aether Gem - DEX set on this character.")
+
+    end
+    AETHERGEM_MGR_SAVE_SETTINGS()
+
+end
+
+function AETHERGEM_MGR_DELAY_FRAME_INIT()
+
+    local delayframe = ui.CreateNewFrame("notice_on_pc", "delayframe", 0, 0, 0, 0)
+    AUTO_CAST(delayframe)
+    if delayframe:IsVisible() == 1 then
+        delayframe:ShowWindow(0)
+        return
+    end
+    delayframe:SetSkinName('None')
+    delayframe:ShowTitleBar(0)
+    delayframe:Resize(70, 40)
+    delayframe:SetLayerLevel(100)
+    delayframe:RemoveAllChild()
+    local delay = delayframe:CreateOrGetControl('edit', 'delay', 5, 5, 60, 30)
+    AUTO_CAST(delay)
+    delay:SetText("{ol}" .. g.settings.delay)
+
+    delay:SetFontName("white_16_ol")
+    delay:SetTextAlign("center", "center")
+    delay:SetEventScript(ui.ENTERKEY, "AETHERGEM_MGR_DELAY_SAVE")
+    delay:SetTextTooltip(
+        "動作のディレイ時間を設定します。デフォルトは0.6秒。早過ぎると失敗が多発します。{nl}" ..
+            "Sets the delay time for the operation. Default is 0.6 seconds. Too early and many failures will occur.")
+
+end
+
+function AETHERGEM_MGR_DELAY_SAVE(frame, ctrl, argStr, argNum)
+
+    frame:ShowWindow(0)
+    local delay = tonumber(ctrl:GetText())
+    if delay > 0.3 and delay < 0.8 then
+        ui.SysMsg("Delay time is now set to " .. delay .. " seconds")
+        g.settings.delay = delay
+    else
+        ui.SysMsg("Set between 0.3 and 0.8 seconds.")
+        return
+    end
+    AETHERGEM_MGR_SAVE_SETTINGS()
+
+end
+
+function AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK()
+
+    local frame = ui.GetFrame('goddess_equip_manager')
+
+    AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
+end
+
+function AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
+
+    if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
+        ui.SysMsg(ClMsg('CanUseAfterTutorialClear'))
+        frame:ShowWindow(0)
+        return
+    end
+
+    ui.CloseFrame('rareoption')
+    ui.CloseFrame('item_cabinet')
+    for i = 1, #revertrandomitemlist do
+        local revert_name = revertrandomitemlist[i]
+        local revert_frame = ui.GetFrame(revert_name)
+        if revert_frame ~= nil and revert_frame:IsVisible() == 1 then
+            ui.CloseFrame(revert_name)
+        end
+    end
+
+    ui.OpenFrame('goddess_equip_manager')
+    local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
+    main_tab:SelectTab(2)
+
+    AETHERGEM_MGR_GET_EQUIP()
+
+end
+
+function AETHERGEM_MGR_GET_EQUIP()
+    local frame = ui.GetFrame("inventory")
+    local equipItemList = session.GetEquipItemList();
+
+    local invTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
+    invTab:SelectTab(1)
 
     if true == BEING_TRADING_STATE() then
         return;
@@ -212,129 +322,176 @@ function AETHERGEM_MGR_UNEQUIP()
     if session.GetInvItemList():Count() < MAX_INV_COUNT then
         isEmptySlot = true;
     end
-
-    local frame = ui.GetFrame("goddess_equip_manager")
-    local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
-    main_tab:SelectTab(2)
-
     if isEmptySlot == true then
 
         if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-            DO_WEAPON_SLOT_CHANGE(eqpframe, 1)
+            DO_WEAPON_SLOT_CHANGE(frame, 1)
         else
-            DO_WEAPON_SWAP(eqpframe, 1)
+            DO_WEAPON_SWAP(frame, 1)
         end
 
-        if g.lh_sub_icon ~= nil then
-            local lhlh_sub = 31
+        local RH = GET_CHILD_RECURSIVELY(frame, "RH")
+        local LH = GET_CHILD_RECURSIVELY(frame, "LH")
+        local RH_SUB = GET_CHILD_RECURSIVELY(frame, "RH_SUB")
+        local LH_SUB = GET_CHILD_RECURSIVELY(frame, "LH_SUB")
 
-            -- CHAT_SYSTEM("lh_sub_icon")
+        local lh_sub_icon = LH_SUB:GetIcon()
+        if lh_sub_icon ~= nil then
+            local lh_sub_icon_info = lh_sub_icon:GetInfo()
+            g.lh_sub_guid = lh_sub_icon_info:GetIESID()
+            local lhlh_sub = 31
 
             imcSound.PlaySoundEvent('inven_unequip');
             item.UnEquip(tonumber(lhlh_sub));
 
-            g.lh_sub_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+            ReserveScript("AETHERGEM_MGR_GET_EQUIP()", g.settings.delay)
+            return
+        end
 
-            -- ReserveScript("AETHERGEM_MGR_REMOVE_OR_EQUIP()", 0.2)
-            -- return
+        local rh_sub_icon = RH_SUB:GetIcon()
+        if rh_sub_icon ~= nil then
+            local rh_sub_icon_info = rh_sub_icon:GetInfo()
+            g.rh_sub_guid = rh_sub_icon_info:GetIESID()
 
-        elseif g.lh_icon ~= nil then
+        end
+
+        local lh_icon = LH:GetIcon()
+        if lh_icon ~= nil then
+            local lh_icon_info = lh_icon:GetInfo()
+            g.lh_guid = lh_icon_info:GetIESID()
+
             local lh = 9
 
             imcSound.PlaySoundEvent('inven_unequip');
             item.UnEquip(tonumber(lh));
-            g.lh_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
-        elseif g.rh_icon ~= nil then
+            ReserveScript("AETHERGEM_MGR_GET_EQUIP()", g.settings.delay)
+            return
+        end
+
+        local rh_icon = RH:GetIcon()
+        if rh_icon ~= nil then
+            local rh_icon_info = rh_icon:GetInfo()
+            g.rh_guid = rh_icon_info:GetIESID()
+
             local rh = 8
 
             imcSound.PlaySoundEvent('inven_unequip');
             item.UnEquip(tonumber(rh));
-            g.rh_icon = nil
-            ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
 
-        else
-            if g.rh_guid ~= nil and g.lh_guid ~= nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon ==
-                nil and g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
-                local inv_item = session.GetInvItemByGuid(g.rh_guid)
-                if inv_item == nil then
-
-                    return
-                end
-                local item_obj = GetIES(inv_item:GetObject())
-                if item_obj == nil then
-
-                    return
-                end
-                GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
-                -- AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                -- AETHERGEM_MGR_REMOVE_AETHERGEM()
-                AETHERGEM_MGR_REMOVE_OR_EQUIP()
-
-            elseif g.rh_guid == nil and g.lh_guid ~= nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon ==
-                nil and g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
-                local inv_item = session.GetInvItemByGuid(g.lh_guid)
-                if inv_item == nil then
-
-                    return
-                end
-                local item_obj = GetIES(inv_item:GetObject())
-                if item_obj == nil then
-
-                    return
-                end
-                GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
-                -- AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                -- AETHERGEM_MGR_REMOVE_AETHERGEM()
-                AETHERGEM_MGR_REMOVE_OR_EQUIP()
-
-            elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon ==
-                nil and g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
-                local inv_item = session.GetInvItemByGuid(g.rh_sub_guid)
-                if inv_item == nil then
-
-                    return
-                end
-                local item_obj = GetIES(inv_item:GetObject())
-                if item_obj == nil then
-
-                    return
-                end
-                GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
-                -- AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                -- AETHERGEM_MGR_REMOVE_AETHERGEM()
-                AETHERGEM_MGR_REMOVE_OR_EQUIP()
-
-            elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid == nil and g.lh_sub_guid ~= nil and g.rh_icon ==
-                nil and g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
-                local inv_item = session.GetInvItemByGuid(g.lh_sub_guid)
-                if inv_item == nil then
-
-                    return
-                end
-                local item_obj = GetIES(inv_item:GetObject())
-                if item_obj == nil then
-
-                    return
-                end
-                GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
-                -- AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-                -- AETHERGEM_MGR_REMOVE_AETHERGEM()
-                AETHERGEM_MGR_REMOVE_OR_EQUIP()
-
-                -- return;
-            else
-                return;
-            end
+            ReserveScript("AETHERGEM_MGR_GET_EQUIP()", g.settings.delay)
+            return
         end
+
+        AETHERGEM_MGR_REG_ITEM()
     else
         ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."))
+        return
+    end
+end
+
+function AETHERGEM_MGR_REG_ITEM()
+
+    local frame = ui.GetFrame('goddess_equip_manager')
+    if g.rh_guid ~= nil then
+        local inv_item = session.GetInvItemByGuid(g.rh_guid)
+        if inv_item == nil then
+
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        if item_obj == nil then
+
+            return
+        end
+        GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
+        GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
+        AETHERGEM_MGR_REMOVE_OR_EQUIP()
+
+    elseif g.lh_guid ~= nil then
+        local inv_item = session.GetInvItemByGuid(g.lh_guid)
+        if inv_item == nil then
+
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        if item_obj == nil then
+
+            return
+        end
+        GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
+        GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
+        AETHERGEM_MGR_REMOVE_OR_EQUIP()
+
+    elseif g.rh_sub_guid ~= nil then
+        local inv_item = session.GetInvItemByGuid(g.rh_sub_guid)
+        if inv_item == nil then
+
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        if item_obj == nil then
+
+            return
+        end
+        GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
+        GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
+        AETHERGEM_MGR_REMOVE_OR_EQUIP()
+
+    elseif g.lh_sub_guid ~= nil then
+        local inv_item = session.GetInvItemByGuid(g.lh_sub_guid)
+        if inv_item == nil then
+
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        if item_obj == nil then
+
+            return
+        end
+        GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
+        GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
+        AETHERGEM_MGR_REMOVE_OR_EQUIP()
+
+    else
+        GODDESS_EQUIP_MANAGER_CLOSE(frame)
+        ui.SysMsg("[AGM]end of operation")
+        return;
+    end
+
+end
+
+function AETHERGEM_MGR_REMOVE_OR_EQUIP()
+    local eqpframe = ui.GetFrame("inventory")
+    local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
+    invTab:SelectTab(6)
+
+    local frame = ui.GetFrame("goddess_equip_manager")
+    local am_aether_cover_bg = GET_CHILD_RECURSIVELY(frame, 'aether_cover_bg')
+    local am_socket = GET_CHILD_RECURSIVELY(frame, "socket_slot")
+    local am_aether_inner_bg = GET_CHILD_RECURSIVELY(frame, 'aether_inner_bg')
+    local am_ctrlset = GET_CHILD(am_aether_inner_bg, 'AETHER_CSET_0')
+    local am_do_remove = GET_CHILD(am_ctrlset, "do_remove")
+    if am_aether_cover_bg:IsVisible() == 1 then
+
+        return;
+    end
+
+    local isClickable = am_do_remove:IsEnable()
+    if isClickable == 1 then
+
+        local am_guid = am_socket:GetUserValue('ITEM_GUID')
+        local am_tx_name = 'GODDESS_SOCKET_AETHER_GEM_UNEQUIP'
+        local am_index = 2
+
+        pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
+        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", g.delay)
+        -- ReserveScript("AETHERGEM_MGR_REMOVE_OR_EQUIP()", 0.8)
+    else
+        -- ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.5)
+        AETHERGEM_MGR_ITEM_PREPARATION()
+        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", g.delay)
+
     end
 
 end
@@ -354,7 +511,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.rh_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
     elseif g.rh_guid == nil and g.lh_guid ~= nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -370,7 +527,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.lh_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
     elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid ~= nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -386,7 +543,7 @@ function AETHERGEM_MGR_SET_EQUIP()
         frame:Invalidate();
         g.rh_sub_guid = nil
 
-        ReserveScript("AETHERGEM_MGR_UNEQUIP()", 0.6)
+        ReserveScript("AETHERGEM_MGR_UNEQUIP()", g.delay)
 
     elseif g.rh_guid == nil and g.lh_guid == nil and g.rh_sub_guid == nil and g.lh_sub_guid ~= nil and g.rh_icon == nil and
         g.lh_icon == nil and g.rh_icon_sub == nil and g.lh_icon_sub == nil then
@@ -409,10 +566,10 @@ function AETHERGEM_MGR_SET_EQUIP()
             gemframe:ShowWindow(0)
             -- ui.CloseFrame("goddess_equip_manager")
             GODDESS_EQUIP_MANAGER_CLOSE(gemframe)
-            ui.SysMsg("[AGM]end")
+            ui.SysMsg("[AGM]end of operation")
             return
         else
-            ui.SysMsg("[AGM]end")
+            ui.SysMsg("[AGM]end of operation")
             return
         end
 
@@ -432,38 +589,6 @@ function AETHERGEM_MGR_SET_EQUIP()
 end
 
 function AETHERGEM_MGR_CLOSE_FRAME()
-
-end
-
-function AETHERGEM_MGR_REMOVE_OR_EQUIP()
-    -- CHAT_SYSTEM("AETHERGEM_MGR_REMOVE_OR_EQUIP")
-    local frame = ui.GetFrame("goddess_equip_manager")
-    local am_aether_cover_bg = GET_CHILD_RECURSIVELY(frame, 'aether_cover_bg')
-    local am_socket = GET_CHILD_RECURSIVELY(frame, "socket_slot")
-    local am_aether_inner_bg = GET_CHILD_RECURSIVELY(frame, 'aether_inner_bg')
-    local am_ctrlset = GET_CHILD(am_aether_inner_bg, 'AETHER_CSET_0')
-    local am_do_remove = GET_CHILD(am_ctrlset, "do_remove")
-    if am_aether_cover_bg:IsVisible() == 1 then
-
-        return;
-    end
-
-    local isClickable = am_do_remove:IsEnable()
-    if isClickable == 1 then
-
-        local am_guid = am_socket:GetUserValue('ITEM_GUID')
-        local am_tx_name = 'GODDESS_SOCKET_AETHER_GEM_UNEQUIP'
-        local am_index = 2
-
-        pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
-        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.6)
-        -- ReserveScript("AETHERGEM_MGR_REMOVE_OR_EQUIP()", 0.8)
-    else
-        -- ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.5)
-        AETHERGEM_MGR_ITEM_PREPARATION()
-        ReserveScript("AETHERGEM_MGR_SET_EQUIP()", 0.6)
-
-    end
 
 end
 
@@ -498,7 +623,7 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 
         pc.ReqExecuteTx_Item(am_tx_name, am_guid, am_index)
         local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
-        invTab:SelectTab(1)
+        invTab:SelectTab(6)
 
         -- local frame = am_gem_slot:GetTopParentFrame()
 
@@ -506,8 +631,8 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 
         -- CHAT_SYSTEM("押せる")
     else
-        -- local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
-        -- invTab:SelectTab(6)
+        local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
+        invTab:SelectTab(6)
 
         -- AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP()
         AETHERGEM_MGR_ITEM_PREPARATION()
@@ -516,45 +641,9 @@ function AETHERGEM_MGR_REMOVE_AETHERGEM()
 end
 
 function AETHERGEM_MGR_GODDESS_MGR_SOCKET_INV_RBTN(item_obj, slot, guid)
-    GODDESS_MGR_SOCKET_INV_RBTN_OLD(item_obj, slot, guid)
+    base["GODDESS_MGR_SOCKET_INV_RBTN"](item_obj, slot, guid)
 
     AETHERGEM_MGR_REMOVE_AETHERGEM()
-end
-
-function AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK()
-    -- print("rmequipボタンがクリックされました")
-    local frame = ui.GetFrame('goddess_equip_manager')
-
-    AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
-end
-
-function AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
-
-    if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
-        ui.SysMsg(ClMsg('CanUseAfterTutorialClear'))
-        frame:ShowWindow(0)
-        return
-    end
-
-    ui.CloseFrame('rareoption')
-    ui.CloseFrame('item_cabinet')
-    for i = 1, #revertrandomitemlist do
-        local revert_name = revertrandomitemlist[i]
-        local revert_frame = ui.GetFrame(revert_name)
-        if revert_frame ~= nil and revert_frame:IsVisible() == 1 then
-            ui.CloseFrame(revert_name)
-        end
-    end
-
-    ui.OpenFrame('goddess_equip_manager')
-    local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
-    main_tab:SelectTab(2)
-
-    -- CLEAR_GODDESS_EQUIP_MANAGER(frame)
-    -- GODDESS_MGR_SOCKET_OPEN(frame)
-
-    AETHERGEM_MGR_GET_EQUIP()
-
 end
 
 function AETHERGEM_MGR_ITEM_PREPARATION()
@@ -649,33 +738,6 @@ function AETHERGEM_MGR_GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(parent, slot, gem_ite
 
 end
 
-function AETHERGEM_MGR_FRAME_INIT()
-    local invframe = ui.GetFrame('inventory')
-    local inventoryGbox = invframe:GetChild("inventoryGbox")
-
-    -- ボタンの配置位置
-    local buttonX = inventoryGbox:GetWidth() - 28
-    local buttonY = inventoryGbox:GetHeight() - 614
-
-    local eqbutton = inventoryGbox:CreateOrGetControl("button", "eqbutton", buttonX, buttonY, 20, 20)
-    -- eqbutton:SetText("AG_SET")
-    AUTO_CAST(eqbutton)
-    eqbutton:SetSkinName("None")
-    eqbutton:SetImage("config_button_normal")
-    eqbutton:Resize(30, 30)
-
-    local rmbuttonX = inventoryGbox:GetWidth() - 70
-    local rmbuttonY = inventoryGbox:GetHeight() - 614
-
-    local rmeqbutton = inventoryGbox:CreateOrGetControl("button", "rmeqbutton", rmbuttonX, rmbuttonY, 40, 30)
-    rmeqbutton:SetText("{s14}AGM")
-
-    eqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
-    eqbutton:SetEventScript(ui.RBUTTONUP, "AETHERGEM_MGR_DELAY_FRAME_INIT")
-    rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
-    -- rmeqbutton:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_EQUIP_BUTTON_CLICK")
-end
-
 function AETHERGEM_MGR_AGMFRAME_CLOSE()
     local agmframe = ui.GetFrame("aethergem_mgr")
     agmframe = ui.CloseFrame("aethergem_mgr")
@@ -686,13 +748,67 @@ function AETHERGEM_MGR_AGMFRAME_CLOSE()
 end
 
 function AETHERGEM_MGR_ON_BUTTON_SELECTED(frame, ctrl, argStr, argNum)
-    -- CHAT_SYSTEM("ボタンが押されました: " .. argStr)
+    CHAT_SYSTEM("ボタンが押されました: " .. argStr)
     local STR_guid = 850006
     local INT_guid = 850007
     local DEX_guid = 850008
     local SPR_guid = 850009
     local CON_guid = 850010
-    -- 選択されたラジオボタンの処理を記述
+
+    local STR_guid_500 = 850011
+    local INT_guid_500 = 850012
+    local DEX_guid_500 = 850013
+    local SPR_guid_500 = 850014
+    local CON_guid_500 = 850015
+
+    if argStr == '500STR' then
+        frame:ShowWindow(0)
+        local gemid = STR_guid_500
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-力を登録しました。{nl}[Lv.500] Aether Gem - STR set on this character.")
+
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500INT' then
+        frame:ShowWindow(0)
+        local gemid = INT_guid_500
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-知能を登録しました。{nl}[Lv.500] Aether Gem - INT set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500CON' then
+        frame:ShowWindow(0)
+        local gemid = CON_guid
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-体力を登録しました。{nl}[Lv.500] Aether Gem - CON set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500SPR' then
+        frame:ShowWindow(0)
+        local gemid = SPR_guid
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-精神を登録しました。{nl}[Lv.500] Aether Gem - SPR set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    elseif argStr == '500DEX' then
+        frame:ShowWindow(0)
+        local gemid = DEX_guid
+        g.settings.pctbl[info.GetCID(session.GetMyHandle())] = gemid
+
+        ui.SysMsg(
+            "[Lv.500]エーテルジェム-敏捷を登録しました。{nl}[Lv.500] Aether Gem - DEX set on this character.")
+        AETHERGEM_MGR_LOADSETTINGS(gemid)
+
+    end
+
     if argStr == 'STR' then
         frame:ShowWindow(0)
         local gemid = STR_guid
@@ -751,19 +867,19 @@ function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
         agmframe:ShowWindow(0)
         return
     end
-    agmframe:SetSkinName('None')
-    agmframe:Resize(60, 180)
+    agmframe:SetSkinName('bg')
+    agmframe:Resize(215, 190)
     agmframe:ShowTitleBar(0)
     agmframe:EnableHitTest(1)
     agmframe:SetLayerLevel(100)
     local screenWidth = ui.GetClientInitialWidth()
-    local offsetX = screenWidth - 80
+    local offsetX = screenWidth - 230
     local screenHeight = ui.GetClientInitialHeight()
     local offsetY = 170
     agmframe:SetOffset(offsetX, offsetY)
     agmframe:RemoveAllChild()
 
-    local closeBtn = agmframe:CreateOrGetControl("button", "closeBtn", 30, 0, 30, 30)
+    local closeBtn = agmframe:CreateOrGetControl("button", "closeBtn", 180, 0, 30, 30)
     AUTO_CAST(closeBtn)
     closeBtn:SetText("×")
     closeBtn:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_AGMFRAME_CLOSE")
@@ -772,35 +888,65 @@ function AETHERGEM_MGR_EQUIP_BUTTON_CLICK()
     -- AUTO_CAST(titleText)
     -- titleText:SetText("{s16}{#00FFFF}AG SELECT")
 
-    local strbtn = agmframe:CreateOrGetControl('button', 'strbtn', 0, 30, 60, 30)
+    local strbtn = agmframe:CreateOrGetControl('button', 'strbtn', 110, 30, 100, 30)
     AUTO_CAST(strbtn)
-    strbtn:SetText("{s16}{#F00000}STR")
+    strbtn:SetText("{s16}{#F00000}480[STR]")
     strbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     strbtn:SetEventScriptArgString(ui.LBUTTONUP, "STR") -- ボタンが押されたことを示す文字列を渡す
 
-    local intbtn = agmframe:CreateOrGetControl('button', 'intbtn', 0, 60, 60, 30)
+    local intbtn = agmframe:CreateOrGetControl('button', 'intbtn', 110, 60, 100, 30)
     AUTO_CAST(intbtn)
-    intbtn:SetText("{s16}{#00FFFF}INT")
+    intbtn:SetText("{s16}{#00FFFF}480[INT]")
     intbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     intbtn:SetEventScriptArgString(ui.LBUTTONUP, "INT") -- ボタンが押されたことを示す文字列を渡す
 
-    local conbtn = agmframe:CreateOrGetControl('button', 'conbtn', 0, 90, 60, 30)
+    local conbtn = agmframe:CreateOrGetControl('button', 'conbtn', 110, 90, 100, 30)
     AUTO_CAST(conbtn)
-    conbtn:SetText("{s16}{#FFFFFF}CON")
+    conbtn:SetText("{s16}{#FFFFFF}480[CON]")
     conbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     conbtn:SetEventScriptArgString(ui.LBUTTONUP, "CON") -- ボタンが押されたことを示す文字列を渡す
 
-    local sprbtn = agmframe:CreateOrGetControl('button', 'sprbtn', 0, 120, 60, 30)
+    local sprbtn = agmframe:CreateOrGetControl('button', 'sprbtn', 110, 120, 100, 30)
     AUTO_CAST(sprbtn)
-    sprbtn:SetText("{s16}{#F0F000}SPR")
+    sprbtn:SetText("{s16}{#F0F000}480[SPR]")
     sprbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     sprbtn:SetEventScriptArgString(ui.LBUTTONUP, "SPR") -- ボタンが押されたことを示す文字列を渡す
 
-    local dexbtn = agmframe:CreateOrGetControl('button', 'dexbtn', 0, 150, 60, 30)
+    local dexbtn = agmframe:CreateOrGetControl('button', 'dexbtn', 110, 150, 100, 30)
     AUTO_CAST(dexbtn)
-    dexbtn:SetText("{s16}{#00F000}DEX")
+    dexbtn:SetText("{s16}{#00F000}480[DEX]")
     dexbtn:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
     dexbtn:SetEventScriptArgString(ui.LBUTTONUP, "DEX") -- ボタンが押されたことを示す文字列を渡す
+
+    local strbtn2 = agmframe:CreateOrGetControl('button', 'strbtn2', 5, 30, 100, 30)
+    AUTO_CAST(strbtn2)
+    strbtn2:SetText("{s16}{#F00000}500[STR]")
+    strbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    strbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500STR") -- ボタンが押されたことを示す文字列を渡す
+
+    local intbtn2 = agmframe:CreateOrGetControl('button', 'intbtn2', 5, 60, 100, 30)
+    AUTO_CAST(intbtn2)
+    intbtn2:SetText("{s16}{#00FFFF}500[INT]")
+    intbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    intbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500INT") -- ボタンが押されたことを示す文字列を渡す
+
+    local conbtn2 = agmframe:CreateOrGetControl('button', 'conbtn2', 5, 90, 100, 30)
+    AUTO_CAST(conbtn2)
+    conbtn2:SetText("{s16}{#FFFFFF}500[CON]")
+    conbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    conbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500CON") -- ボタンが押されたことを示す文字列を渡す
+
+    local sprbtn2 = agmframe:CreateOrGetControl('button', 'sprbtn2', 5, 120, 100, 30)
+    AUTO_CAST(sprbtn2)
+    sprbtn2:SetText("{s16}{#F0F000}500[SPR]")
+    sprbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    sprbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500SPR") -- ボタンが押されたことを示す文字列を渡す
+
+    local dexbtn2 = agmframe:CreateOrGetControl('button', 'dexbtn2', 5, 150, 100, 30)
+    AUTO_CAST(dexbtn2)
+    dexbtn2:SetText("{s16}{#00F000}500[DEX]")
+    dexbtn2:SetEventScript(ui.LBUTTONUP, 'AETHERGEM_MGR_ON_BUTTON_SELECTED')
+    dexbtn2:SetEventScriptArgString(ui.LBUTTONUP, "500DEX") -- ボタンが押されたことを示す文字列を渡す
 
     agmframe:ShowWindow(1)
 end

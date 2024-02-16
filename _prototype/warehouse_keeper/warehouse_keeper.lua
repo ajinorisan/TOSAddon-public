@@ -90,12 +90,11 @@ function warehouse_keeper_get_goal_index(frame)
     local itemcnt = GET_CHILD(gbox, "itemcnt")
     local length = #itemcnt:GetText()
     print(itemcnt:GetText())
-    right0 = string.sub(itemcnt:GetText(), length - 4, length - 3) * 1 -- 左側の数字を取得
-    if length == 14 then
-        left0 = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-    else
-        left0 = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-    end
+    local accountObj = GetMyAccountObj();
+
+    right0 = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                 accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                 ADDITIONAL_SLOT_COUNT_BY_TOKEN
 
     for i = 4, 0, -1 do
         print("i")
@@ -340,7 +339,7 @@ function warehouse_keeper_frame_drop(frame, ctrl, argStr, argNum)
             g.iesid = guid
 
             INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.', "warehouse_keeper_consume_item", 0,
-                0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+                             0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
             g.iesid = ""
 
