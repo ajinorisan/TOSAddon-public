@@ -13,10 +13,11 @@
 -- v1.1.2 GAME_START_3SECが重すぎる様になったので3.5SECに
 -- v1.1.3 メレジナダイアログ制御。おまけで死んだときに出るダイアログで「近くで復活」にマウスが合うように
 -- v1.1.4 チャンネルインフォを作った。
+-- v1.1.5 チャンネルインフォのバグ修正。フレーム作る前にrunupdateしてた。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -117,6 +118,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
+    --print(tostring(mapCls.MapType))
 
     if mapCls.MapType == "City" then
         if g.settings.coin_use == nil then
@@ -173,19 +175,23 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         -- addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
     end
 
-    local frame = ui.GetFrame(addonNameLower)
+    MINI_ADDONS_NEW_FRAME_INIT()
+
+    local frame = ui.GetFrame("mini_addons")
     if g.settings.channel_info == nil then
         g.settings.channel_info = 1
         MINI_ADDONS_SAVE_SETTINGS()
+        --addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
         MINI_ADDONS_POPUP_CHANNEL_LIST()
 
         frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     elseif g.settings.channel_info == 1 then
+        --addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
         MINI_ADDONS_POPUP_CHANNEL_LIST()
         frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     end
 
-    MINI_ADDONS_NEW_FRAME_INIT()
+   
 
 end
 
@@ -210,6 +216,7 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     local title = frame:CreateOrGetControl("richtext", "title", 5, 0)
     title:SetText("{ol}{s12}channel info")
     local zoneInsts = session.serverState.GetMap();
+    --print("zoneInsts:"..tostring(zoneInsts))
     local cnt = zoneInsts:GetZoneInstCount();
     for i = 0, cnt - 1 do
         local zoneInst = zoneInsts:GetZoneInstByIndex(i);
