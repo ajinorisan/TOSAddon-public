@@ -5,10 +5,12 @@
 -- v1.0.4 もうバグに疲れた。
 -- v1.0.5 キャラ毎に表示非表示切替機能追加。
 -- v1.0.6 再度バグ発生したので修正。セットフレームをちょっとズラした。
+-- v1.0.7 やっぱりバグってた。くるしい。
+-- v1.0.8 多分直った。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -251,8 +253,9 @@ function always_status_load_settings()
                 perfection = 1,
                 revenge = 0
             }
-            -- 
+
         end
+        always_status_save_settings()
         g.settings = settings
 
         if g.settings[loginCID] == nil then
@@ -282,18 +285,22 @@ function always_status_load_settings()
 
     if err_use then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files use", addonNameLower))
     end
-    g.settings_use = g.settings_use or {}
+
+    if not settings_use then
+        g.settings_use = {}
+    end
 
     if g.settings_use[loginCID] == nil then
         g.settings_use[loginCID] = {
             use = 1
         }
+        always_status_save_settings()
     end
 
-    for loginCID, data in pairs(settings_use) do
-
+    for loginCID, data in pairs(g.settings_use) do
+        -- print(tostring(data.use))
         g.settings_use[loginCID].use = data.use
     end
 
@@ -538,6 +545,7 @@ function always_status_checkbox(frame, ctrl, argStr, argNum)
 end
 
 function always_status_update()
+
     local frame = ui.GetFrame(addonNameLower)
     local statframe = ui.GetFrame("status")
     local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
@@ -578,6 +586,8 @@ function always_status_update()
 
         end
     end
+    -- print("minus4")
+    frame:ShowWindow(1)
     return 1
 end
 
@@ -594,7 +604,7 @@ function always_status_frame_toggle(frame, ctrl)
 end
 
 function always_status_frame_init()
-    -- print("test")
+
     local frame = ui.GetFrame(addonNameLower)
     frame:RemoveAllChild()
     frame:EnableHitTest(1)
@@ -618,6 +628,7 @@ function always_status_frame_init()
 
     local loginCID = info.GetCID(session.GetMyHandle())
     if g.settings_use[loginCID].use ~= 1 then
+        -- print("plus")
         local plus_slot = frame:CreateOrGetControl("slot", "plus_slot", 0, 3, 15, 15)
         AUTO_CAST(plus_slot)
         plus_slot:SetSkinName("None")
@@ -727,6 +738,7 @@ function always_status_frame_init()
             end
 
         end
+
         y = 20
         for _, entry in ipairs(sortedSettings) do
             -- for key, value in pairs(g.settings) do
@@ -764,7 +776,7 @@ function always_status_frame_init()
             end
 
         end
-        -- print(len)
+
         frame:Resize(300, y + 10)
         frame:ShowWindow(1)
         frame:RunUpdateScript("always_status_update", 0.5);
