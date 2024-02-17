@@ -14,6 +14,7 @@
 -- v1.1.3 メレジナダイアログ制御。おまけで死んだときに出るダイアログで「近くで復活」にマウスが合うように
 -- v1.1.4 チャンネルインフォを作った。
 -- v1.1.5 チャンネルインフォのバグ修正。フレーム作る前にrunupdateしてた。
+-- v1.1.6 チャンネルインフォ昨日1chだと動かなかったの修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -50,7 +51,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         g.loaded = true
     end
 
-    -- acutil.addSysIcon("mini_addons", "sysmenu_mac", "Mini Addons", "MINI_ADDONS_SETTING_FRAME_INIT")
     MINI_ADDONS_LOAD_SETTINGS()
     -- CHAT_SYSTEM("test")
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
@@ -70,8 +70,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
 
     acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
-
-    -- addon:RegisterMsg('NOTICE_Dm_Global_Shout', 'MINI_ADDONS_NOTICE_ON_MSG');
 
     if g.settings.equip_info == nil then
         g.settings.equip_info = 1
@@ -94,31 +92,13 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
         acutil.setupEvent(addon, "INVENTORY_OPEN", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE");
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE");
-        -- elseif g.settings.quest_hide == 0 then
-        -- addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_QUESTINFO_SHOW")
+
     end
-    -- acutil.setupHook(MINI_ADDONS_CHASEINFO_SHOW_QUEST_TOGGLE, "CHASEINFO_SHOW_QUEST_TOGGLE")
-    -- acutil.setupHook(MINI_ADDONS_CHASEINFO_SHOW_ACHIEVE_TOGGLE, "CHASEINFO_SHOW_ACHIEVE_TOGGLE")
-    -- acutil.setupHook(MINI_ADDONS_CHASEINFO_UPDATE, "CHASEINFO_UPDATE")
-    -- acutil.setupHook(MINI_ADDONS_CHASEINFO_TOGGLE_ACHIEVE_INFOSET_FOLDE, "CHASEINFO_TOGGLE_ACHIEVE_INFOSET_FOLDE")
-    --[[acutil.setupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
-
-    acutil.setupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
-
-    acutil.setupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
-    
-    acutil.setupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")]]
-
-    --[[acutil.setupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
-
-    acutil.setupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
-
-    acutil.setupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")]]
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
-    --print(tostring(mapCls.MapType))
+    -- print(tostring(mapCls.MapType))
 
     if mapCls.MapType == "City" then
         if g.settings.coin_use == nil then
@@ -163,16 +143,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.pc_name == 1 then
-        -- ReserveScript("MINI_ADDONS_PCNAME_REPLACE()", 0.1)
-        -- return
+
         addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_PCNAME_REPLACE")
-        -- local frame = ui.GetFrame("headsupdisplay")
-        ---ifframe:RunUpdateScript("MINI_ADDONS_PCNAME_REPLACE", 1.0)
+
     end
 
     if g.settings.auto_cast == 1 then
         ReserveScript("MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()", 3.5)
-        -- addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
+
     end
 
     MINI_ADDONS_NEW_FRAME_INIT()
@@ -181,17 +159,22 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     if g.settings.channel_info == nil then
         g.settings.channel_info = 1
         MINI_ADDONS_SAVE_SETTINGS()
-        --addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
-        MINI_ADDONS_POPUP_CHANNEL_LIST()
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
+        -- ReserveScript("MINI_ADDONS_GAME_START_4SEC()", 4.0)
 
         frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     elseif g.settings.channel_info == 1 then
-        --addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
-        MINI_ADDONS_POPUP_CHANNEL_LIST()
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
+        -- ReserveScript("MINI_ADDONS_GAME_START_4SEC()", 4.0)
+
         frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     end
 
-   
+end
+
+function MINI_ADDONS_GAME_START_4SEC()
+
+    MINI_ADDONS_POPUP_CHANNEL_LIST()
 
 end
 
@@ -215,15 +198,20 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_frame_move")
     local title = frame:CreateOrGetControl("richtext", "title", 5, 0)
     title:SetText("{ol}{s12}channel info")
+
     local zoneInsts = session.serverState.GetMap();
-    --print("zoneInsts:"..tostring(zoneInsts))
+
     local cnt = zoneInsts:GetZoneInstCount();
+
     for i = 0, cnt - 1 do
         local zoneInst = zoneInsts:GetZoneInstByIndex(i);
         local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+
         if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
-            local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-            str, gaugeString = GET_CHANNEL_STRING(zoneInst, true, suffix);
+            -- CHAT_SYSTEM(tostring(GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)))
+            -- local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+            -- print(tostring(suffix))
+            -- str, gaugeString = GET_CHANNEL_STRING(zoneInst, true, suffix);
 
             local String = string.match(str, "%((%d+)")
 
@@ -235,6 +223,7 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
                 local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
                 AUTO_CAST(btn)
                 btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+
                 btn:SetEventScriptArgString(ui.LBUTTONUP, i)
                 local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}" .. subString .. "{nl}{s16}" .. String
                 btn:SetText(text)
@@ -249,13 +238,11 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
 end
 
 function MINI_ADDONS_CH_CHANGE(frame, ctrl, argStr, argNum)
-    -- print(argStr)
+
     local channelID = tonumber(argStr) -- 0が1chらしい
-    local channelnum = session.loginInfo.GetChannel() + 1;
-    if channelnum ~= 1 then
-        -- CHAT_SYSTEM(channelnum)
-        RUN_GAMEEXIT_TIMER("Channel", channelID);
-    end
+
+    RUN_GAMEEXIT_TIMER("Channel", channelID);
+
 end
 
 function MINI_ADDONS_frame_move(frame)

@@ -1,6 +1,7 @@
 -- v1.0.1 1chが満員の場合にエラーになるのでギルドイベント地域に飛んでからチャンネルチェンジ
 -- v1.0.2 23.09.05patch対応。ボルタからドラグーンに変更
 -- v1.0.3 TPショップ開くと消えるのを修正
+-- v1.0.4 UI気に食わなかったので修正
 local addonName = "GUILDEVENTWARP"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -33,8 +34,8 @@ function GUILDEVENTWARP_ON_INIT(addon, frame)
 
     local frame = ui.GetFrame('guildeventwarp')
     frame:SetSkinName('None')
-    frame:Resize(95, 30)
-    frame:SetPos(1790, 5)
+    frame:Resize(100, 30)
+    frame:SetPos(1785, 4)
     frame:SetTitleBarSkin("None")
 
     GUILDEVENTWARP_FRAME_INIT(frame)
@@ -72,13 +73,29 @@ end
 function GUILDEVENTWARP_FRAME_INIT(frame)
 
     -- ボルタボタン
-    local borutabutton = frame:CreateOrGetControl('button', 'boruta', 5, 0, 30, 30)
+    --[[local borutabutton = frame:CreateOrGetControl('button', 'boruta', 5, 0, 30, 30)
     AUTO_CAST(borutabutton)
     borutabutton:SetSkinName("test_red_button")
     borutabutton:SetText("D")
     borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")
     borutabutton:SetTextTooltip("{@st59}Guild events, move to the Dragoon map.{nl}" ..
+                                    "{@st59}ギルドイベント、ドラグーンのマップに移動します。{/}")]]
+    frame:RemoveAllChild()
+
+    local dragoon_slot = frame:CreateOrGetControl("slot", "dragoon_slot", 0, 0, 28, 28)
+    AUTO_CAST(dragoon_slot)
+    dragoon_slot:EnablePop(0)
+    dragoon_slot:EnableDrop(0)
+    dragoon_slot:EnableDrag(0)
+    dragoon_slot:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")
+    local dragoon_monCls = GetClass("Monster", "guild_boss_dragoon_ex")
+    local dragoon_icon = CreateIcon(dragoon_slot);
+    AUTO_CAST(dragoon_icon)
+    dragoon_icon:SetImage(dragoon_monCls.Icon)
+    dragoon_icon:SetTextTooltip("{@st59}Guild events, move to the Dragoon map.{nl}" ..
                                     "{@st59}ギルドイベント、ドラグーンのマップに移動します。{/}")
+    -- SET_SLOT_IMG(dragoon_slot, dragoon_monCls.Icon);
+
     --[[local monClsName = 'boss_dragoon_ex'
     local monCls = GetClass("Monster", monClsName)
     borutabutton:SetImage(monCls.Icon)
@@ -86,20 +103,50 @@ function GUILDEVENTWARP_FRAME_INIT(frame)
     borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")]]
 
     -- ギルティネボタン
-    local giltinebutton = frame:CreateOrGetControl('button', 'giltine', 35, 0, 30, 30)
+    --[[local giltinebutton = frame:CreateOrGetControl('button', 'giltine', 35, 0, 30, 30)
     giltinebutton:SetSkinName("test_red_button")
     giltinebutton:SetText("G")
     giltinebutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_GILTINE_CLICK")
     giltinebutton:SetTextTooltip("{@st59}Guild events, move to the Guiltine map.{nl}" ..
-                                     "{@st59}ギルドイベント、ギルティネのマップに移動します。{/}")
+                                     "{@st59}ギルドイベント、ギルティネのマップに移動します。{/}")]]
+
+    local giltine_slot = frame:CreateOrGetControl("slot", "giltine_slot", 35, 0, 28, 28)
+    AUTO_CAST(giltine_slot)
+    giltine_slot:EnablePop(0)
+    giltine_slot:EnableDrop(0)
+    giltine_slot:EnableDrag(0)
+    giltine_slot:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_GILTINE_CLICK")
+
+    local giltine_monCls = GetClass("Monster", "Legend_Boss_Giltine_Guild")
+    local giltine_icon = CreateIcon(giltine_slot);
+    AUTO_CAST(giltine_icon)
+    giltine_icon:SetImage(giltine_monCls.Icon)
+    giltine_icon:SetTextTooltip("{@st59}Guild events, move to the Guiltine map.{nl}" ..
+                                    "{@st59}ギルドイベント、ギルティネのマップに移動します。{/}")
+    -- SET_SLOT_IMG(giltine_slot, giltine_monCls.Icon);
 
     -- バウバスボタン
-    local baubasbutton = frame:CreateOrGetControl('button', 'baubas', 65, 0, 30, 30)
+    --[[local baubasbutton = frame:CreateOrGetControl('button', 'baubas', 65, 0, 30, 30)
     baubasbutton:SetSkinName("test_red_button")
     baubasbutton:SetText("B")
     baubasbutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BAUBAS_CLICK")
     baubasbutton:SetTextTooltip("{@st59}Guild event, move to the Baubus map.{nl}" ..
-                                    "{@st59}ギルドイベント、バウバスのマップに移動します。{/}")
+                                    "{@st59}ギルドイベント、バウバスのマップに移動します。{/}")]]
+
+    local baubas_slot = frame:CreateOrGetControl("slot", "baubas_slot", 70, 0, 28, 28)
+    AUTO_CAST(baubas_slot)
+    baubas_slot:EnablePop(0)
+    baubas_slot:EnableDrop(0)
+    baubas_slot:EnableDrag(0)
+    baubas_slot:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BAUBAS_CLICK")
+
+    local baubas_monCls = GetClass("Monster", "GuildEvent_npc_baubas2")
+    local baubas_icon = CreateIcon(baubas_slot);
+    AUTO_CAST(baubas_icon)
+    baubas_icon:SetImage(baubas_monCls.Icon)
+    baubas_icon:SetTextTooltip("{@st59}Guild event, move to the Baubus map.{nl}" ..
+                                   "{@st59}ギルドイベント、バウバスのマップに移動します。{/}")
+    -- SET_SLOT_IMG(baubas_slot, baubas_monCls.Icon);
 
     frame:ShowWindow(1)
 end

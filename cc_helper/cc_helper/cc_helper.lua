@@ -1,8 +1,9 @@
 -- v1.1.4 コード大幅見直し。ヘアアクセバグ修正。失敗した時にリトライ昨日追加。
+-- v1.1.5 登録したカードと別のカードが付いていると無限ループに陥る問題修正
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1021,6 +1022,9 @@ function cc_helper_unequip_card(legtrue)
             legtrue = 1
             ReserveScript(string.format("cc_helper_unequip_card(%d)", legtrue), g.settings.delay * 3)
             return
+        elseif cardInfo ~= nil and tostring(cardid) ~= tostring(g.settings[g.LOGINCID].leg_clsid) then
+            legtrue = 1
+            ReserveScript(string.format("cc_helper_unequip_card(%d)", legtrue), g.settings.delay * 3)
         end
     end
     if g.settings[g.LOGINCID].god_clsid ~= 0 then
@@ -1040,7 +1044,9 @@ function cc_helper_unequip_card(legtrue)
     if ui.GetFrame("monstercardslot"):IsVisible() == 1 then
 
         ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay * 3 + g.settings.delay)
-        ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
+        if GETMYCARD_INFO(12) == 0 and GETMYCARD_INFO(13) == 0 then
+            -- ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
+        end
     else
 
         ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
@@ -1466,16 +1472,19 @@ function cc_helper_equip_reserve()
         if spot == "LEGCARD" and g.check == 0 then
             local slot_index = 13
             local cardid = GETMYCARD_INFO(slot_index - 1)
+            -- print(tostring(cardid))
             if cardid == 0 then
 
                 MONSTERCARDSLOT_FRAME_OPEN()
                 ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
                 delay = delay + g.settings.delay * 3
-                ReserveScript("MONSTERCARDSLOT_CLOSE()", delay)
+                -- ReserveScript("MONSTERCARDSLOT_CLOSE()", delay)
             end
         end
     end
-    ReserveScript("MONSTERCARDSLOT_CLOSE()", delay + 0.5)
+    if GETMYCARD_INFO(12) ~= 0 and GETMYCARD_INFO(13) ~= 0 then
+        -- ReserveScript("MONSTERCARDSLOT_CLOSE()", delay + 0.5)
+    end
     ReserveScript("cc_helper_end_operation()", delay + 1.0)
 
 end
@@ -1563,7 +1572,7 @@ function cc_helper_end_operation()
         if g.settings[g.LOGINCID].leg_iesid ~= "" and g.check == 0 then
             local slot_index = 13
             local cardid = GETMYCARD_INFO(slot_index - 1)
-            if cardid ~= 0 then
+            if cardid ~= 0 and g.settings[g.LOGINCID].leg_iesid == tostring(cardid) then
                 ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
                 return
             end
@@ -1577,7 +1586,7 @@ function cc_helper_end_operation()
         if g.settings[g.LOGINCID].god_iesid ~= "" then
             local slot_index = 14
             local cardid = GETMYCARD_INFO(slot_index - 1)
-            if cardid ~= 0 then
+            if cardid ~= 0 and g.settings[g.LOGINCID].god_iesid == tostring(cardid) then
                 ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
                 return
             end
@@ -1763,6 +1772,8 @@ function cc_helper_end_operation()
     local allTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     allTab:SelectTab(0)
 
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
+
     if ADDONS.norisan.monstercard_change ~= nil and g.check == 0 and g.settings[g.LOGINCID].mcc_use == 1 then
 
         local msgframe = ui.CreateNewFrame("chat_memberlist", "monstercardchange_msg");
@@ -1834,7 +1845,7 @@ function cc_helper_end_operation()
 
     end
 
-    function cc_helper_monstercard_change(frame, ctrl)
+    --[[function cc_helper_monstercard_change(frame, ctrl)
 
         if tostring(ctrl:GetName()) == "cancel_btn" then
             frame:ShowWindow(0)
@@ -1857,7 +1868,7 @@ function cc_helper_end_operation()
             return
         end
 
-    end
+    end]]
 
     if g.agm == 1 then
         if ADDONS.norisan.AETHERGEM_MGR ~= nil and g.check == 0 and g.settings[g.LOGINCID].agm_use == 1 then

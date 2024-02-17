@@ -4,10 +4,11 @@
 -- v1.0.3 更にバグ修正。くるしい。
 -- v1.0.4 もうバグに疲れた。
 -- v1.0.5 キャラ毎に表示非表示切替機能追加。
+-- v1.0.6 再度バグ発生したので修正。セットフレームをちょっとズラした。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -428,7 +429,7 @@ function always_status_info_setting_load(number)
         check:SetCheck(g.settings[number][key])
     end
     always_status_save_settings()
-    -- always_status_load_settings()
+    always_status_load_settings()
 
     -- always_status_frame_init()
 
@@ -440,7 +441,7 @@ function always_status_info_setting(frame, ctrl, argStr, argNum)
     frame:EnableHittestFrame(1);
     frame:EnableHitTest(1)
     frame:Resize(340, 900)
-    frame:SetPos(10, 10)
+    frame:SetPos(250, 10)
     frame:RemoveAllChild()
     frame:ShowWindow(1)
     local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 10, frame:GetWidth() - 10, frame:GetHeight() - 10)
