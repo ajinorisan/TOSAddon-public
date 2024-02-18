@@ -24,7 +24,7 @@
 		"extension" : "ipf",
 		"fileVersion" : "v3.0.2",
 		"releaseTag" : "WarehouseManager",
-		"unicode" : "⛄",
+		"unicode" : "📖",
 		"description" : "基本倉庫が詰まるのを修正。Fixed basic warehouse getting clogged.기본 창고가 막히는 것을 수정.",
 		"tags" : []
 	},
