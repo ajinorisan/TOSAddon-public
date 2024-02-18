@@ -122,7 +122,7 @@
         "name": "Yet Another Account Inventory",
         "file": "yaaccountinventory",
         "extension": "ipf",
-        "fileVersion": "v1.0.4",
+        "fileVersion": "v1.0.5",
         "releaseTag": "yaaccountinventory",
         "unicode": "📖",
         "description": "ebisukeさん作成のチーム倉庫魔改造アドオン、元の倉庫に切替え可能。Team warehouse magic modification add-on created by ebisuke, switchable to the original warehouse. ebisuke 님이 만든 팀 창고마 개조 애드온, 원래의 창고로 전환 가능.",
