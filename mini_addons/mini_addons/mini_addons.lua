@@ -16,10 +16,11 @@
 -- v1.1.5 チャンネルインフォのバグ修正。フレーム作る前にrunupdateしてた。
 -- v1.1.6 チャンネルインフォ昨日1chだと動かなかったの修正。
 -- v1.1.7 メレジナのダイアログ直した。
+-- v1.1.8 他人のエフェクトの設定がバグっているらしいので、直した気もする。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.7"
+local ver = "1.1.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -71,6 +72,15 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
 
     acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
+
+    if g.settings.other_effect == nil then
+
+        g.settings.other_effect = 1
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_OTHER_EFFECT_SETTING")
+    elseif g.settings.other_effect == 1 then
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_OTHER_EFFECT_SETTING")
+
+    end
 
     if g.settings.equip_info == nil then
         g.settings.equip_info = 1
@@ -171,6 +181,19 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     end
 
+end
+
+function MINI_ADDONS_OTHER_EFFECT_SETTING()
+
+    EFFECT_TRANSPARENCY_ON()
+    local other_effect = config.GetOtherEffectTransparency()
+    if g.settings.other_effect_value ~= nil then
+        config.SetOtherEffectTransparency(g.settings.other_effect_value)
+    else
+        config.SetOtherEffectTransparency(other_effect)
+    end
+    -- CHAT_SYSTEM(other_effect)
+    print(tostring(g.settings.other_effect_value))
 end
 
 function MINI_ADDONS_GAME_START_4SEC()
@@ -600,7 +623,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         return
     end
     -- frame:SetSkinName("test_frame_low")
-    frame:SetSkinName("bg")
+    frame:SetSkinName("test_frame_midle_light")
     frame:SetLayerLevel(93)
     frame:Resize(710, 560)
     frame:SetPos(1150, 400)
@@ -618,44 +641,48 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     -- frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_FRAME_CLOSE");
     -- frame:SetTextTooltip("{ol}右クリックで閉じます。{nl}Right-click to close.")
-
-    local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, 15)
-    under_staff:SetText("{ol}{#FFFFFF}Skip confirmation for admission of 4 or less people")
+    local x = 10
+    local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, x + 5)
+    under_staff:SetText("{ol}{#FF4500}Skip confirmation for admission of 4 or less people")
     under_staff:SetTextTooltip(
         "{@st59}4人以下入場時の確認をスキップ{nl}4인 이하 입장 시 확인 생략")
 
-    local under_staff_checkbox = frame:CreateOrGetControl('checkbox', 'under_staff_checkbox', 10, 10, 25, 25)
+    local under_staff_checkbox = frame:CreateOrGetControl('checkbox', 'under_staff_checkbox', 10, x, 25, 25)
     AUTO_CAST(under_staff_checkbox)
     under_staff_checkbox:SetCheck(g.settings.under_staff)
     under_staff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     under_staff_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, 45)
-    raid_record:SetText("{ol}{#FFFFFF}Raid records movable and resizable")
+    x = x + 30
+
+    local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, x + 5)
+    raid_record:SetText("{ol}{#FF4500}Raid records movable and resizable")
     raid_record:SetTextTooltip(
         "{@st59}レイドレコードを移動可能にしてサイズを変更{nl}레이드 레코드의 이동 및 크기 변경 가능")
 
-    local raid_record_checkbox = frame:CreateOrGetControl('checkbox', 'raid_record_checkbox', 10, 40, 25, 25)
+    local raid_record_checkbox = frame:CreateOrGetControl('checkbox', 'raid_record_checkbox', 10, x, 25, 25)
     AUTO_CAST(raid_record_checkbox)
     raid_record_checkbox:SetCheck(g.settings.raid_record)
     raid_record_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     raid_record_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 40, 75)
-    party_buff:SetText("{ol}{#FFFFFF}Hide buffs for party members.")
+    x = x + 30
+
+    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 40, x + 5)
+    party_buff:SetText("{ol}{#FF4500}Hide buffs for party members.")
     party_buff:SetTextTooltip(
         "{@st59}パーティーメンバーのバフを非表示にします。{nl}파티원의 버프를 숨깁니다.")
 
-    local party_buff_checkbox = frame:CreateOrGetControl('checkbox', 'party_buff_checkbox', 10, 70, 25, 25)
+    local party_buff_checkbox = frame:CreateOrGetControl('checkbox', 'party_buff_checkbox', 10, x, 25, 25)
     AUTO_CAST(party_buff_checkbox)
     party_buff_checkbox:SetCheck(g.settings.party_buff)
     party_buff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     party_buff_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local party_buff_btn = frame:CreateOrGetControl("button", "party_buff_btn", 280, 70, 80, 30)
+    local party_buff_btn = frame:CreateOrGetControl("button", "party_buff_btn", 280, x, 80, 30)
     AUTO_CAST(party_buff_btn)
     party_buff_btn:SetText("{ol}{#FFFFFF}bufflist")
     party_buff_btn:SetTextTooltip(
@@ -663,133 +690,154 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     party_buff_btn:SetSkinName("test_red_button")
     party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
 
-    local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, 105)
-    chat_system:SetText("{ol}{#FFFFFF}Perfect and Black Market notices not displayed in chat")
+    x = x + 30
+
+    local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, x + 5)
+    chat_system:SetText("{ol}{#FF4500}Perfect and Black Market notices not displayed in chat")
     chat_system:SetTextTooltip(
         "{@st59}パーフェクトとブラックマーケットのお知らせをチャットに表示しない{nl}퍼펙트 및 블랙마켓 공지사항을 채팅에 표시하지 않습니다.")
 
-    local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 10, 100, 25, 25)
+    local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 10, x, 25, 25)
     AUTO_CAST(chat_system_checkbox)
     chat_system_checkbox:SetCheck(g.settings.chat_system)
     chat_system_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     chat_system_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, 135)
-    channel_display:SetText("{ol}{#FFFFFF}Fixed channel display misalignment")
+    x = x + 30
+
+    local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, x + 5)
+    channel_display:SetText("{ol}{#FF4500}Fixed channel display misalignment")
     channel_display:SetTextTooltip(
         "{@st59}チャンネル表示のズレを修正{nl}채널 표시가 어긋나는 현상 수정")
 
-    local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, 130, 25, 25)
+    local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, x, 25, 25)
     AUTO_CAST(channel_display_checkbox)
     channel_display_checkbox:SetCheck(g.settings.channel_display)
     channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     channel_display_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, 165)
-    mini_btn:SetText("{ol}{#FFFFFF}Hide mini-button in upper right corner during raid")
+    x = x + 30
+
+    local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, x + 5)
+    mini_btn:SetText("{ol}{#FF4500}Hide mini-button in upper right corner during raid")
     mini_btn:SetTextTooltip(
         "{@st59}レイド時右上のミニボタン非表示{nl}레이드 시 오른쪽 상단 미니 버튼 숨기기")
 
-    local mini_btn_checkbox = frame:CreateOrGetControl('checkbox', 'mini_btn_checkbox', 10, 160, 25, 25)
+    local mini_btn_checkbox = frame:CreateOrGetControl('checkbox', 'mini_btn_checkbox', 10, x, 25, 25)
     AUTO_CAST(mini_btn_checkbox)
     mini_btn_checkbox:SetCheck(g.settings.mini_btn)
     mini_btn_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     mini_btn_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, 195)
+    x = x + 30
+
+    local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, x + 5)
     market_display:SetText(
-        "{ol}{#FFFFFF}When moving into town, the list of stores in the upper right corner should be open.")
+        "{ol}{#FF4500}When moving into town, the list of stores in the upper right corner should be open.")
     market_display:SetTextTooltip(
         "{@st59}街に移動時、右上の商店一覧を開けた状態にします。{nl}거리로 이동할 때, 오른쪽 상단의 상점 목록이 열린 상태로 만듭니다.")
 
-    local market_display_checkbox = frame:CreateOrGetControl('checkbox', 'market_display_checkbox', 10, 190, 25, 25)
+    local market_display_checkbox = frame:CreateOrGetControl('checkbox', 'market_display_checkbox', 10, x, 25, 25)
     AUTO_CAST(market_display_checkbox)
     market_display_checkbox:SetCheck(g.settings.market_display)
     market_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     market_display_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, 225)
-    restart_move:SetText("{ol}{#FFFFFF}Enable to move the choice frame at restart. For colony visits.")
+    x = x + 30
+
+    local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, x + 5)
+    restart_move:SetText("{ol}{#FF4500}Enable to move the choice frame at restart. For colony visits.")
     restart_move:SetTextTooltip(
         "{@st59}リスタート時の選択肢フレームを動かせる様にします。コロニー見学用。{nl}재시작 시 선택 프레임을 움직일 수 있도록 합니다. 식민지 견학용.")
 
-    local restart_move_checkbox = frame:CreateOrGetControl('checkbox', 'restart_move_checkbox', 10, 220, 25, 25)
+    local restart_move_checkbox = frame:CreateOrGetControl('checkbox', 'restart_move_checkbox', 10, x, 25, 25)
     AUTO_CAST(restart_move_checkbox)
     restart_move_checkbox:SetCheck(g.settings.restart_move)
     restart_move_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     restart_move_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, 255)
-    pet_init:SetText("{ol}{#FFFFFF}Ability to display a pet summoning frame.")
+    x = x + 30
+
+    local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, x + 5)
+    pet_init:SetText("{ol}{#FF4500}Ability to display a pet summoning frame.")
     pet_init:SetTextTooltip(
         "{@st59}ペット召喚フレームを表示する機能。{nl}애완동물 소환 프레임을 표시하는 기능.")
 
-    local pet_init_checkbox = frame:CreateOrGetControl('checkbox', 'pet_init_checkbox', 10, 250, 25, 25)
+    local pet_init_checkbox = frame:CreateOrGetControl('checkbox', 'pet_init_checkbox', 10, x, 25, 25)
     AUTO_CAST(pet_init_checkbox)
     pet_init_checkbox:SetCheck(g.settings.pet_init)
     pet_init_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     pet_init_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, 285)
-    dialog_ctrl:SetText("{ol}{#FFFFFF}Controls various dialogs.")
+    x = x + 30
+
+    local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, x + 5)
+    dialog_ctrl:SetText("{ol}{#FF4500}Controls various dialogs.")
     dialog_ctrl:SetTextTooltip(
         "{@st59}各種ダイアログをコントロールします。{nl}각종 대화 상자를 제어합니다.")
 
-    local dialog_ctrl_checkbox = frame:CreateOrGetControl('checkbox', 'dialog_ctrl_checkbox', 10, 280, 25, 25)
+    local dialog_ctrl_checkbox = frame:CreateOrGetControl('checkbox', 'dialog_ctrl_checkbox', 10, x, 25, 25)
     AUTO_CAST(dialog_ctrl_checkbox)
     dialog_ctrl_checkbox:SetCheck(g.settings.dialog_ctrl)
     dialog_ctrl_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     dialog_ctrl_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local auto_cast = frame:CreateOrGetControl("richtext", "auto_cast", 40, 315)
-    auto_cast:SetText("{ol}{#FFFFFF}Autocasting is set up for each character.")
+    x = x + 30
+
+    local auto_cast = frame:CreateOrGetControl("richtext", "auto_cast", 40, x + 5)
+    auto_cast:SetText("{ol}{#FF4500}Autocasting is set up for each character.")
     auto_cast:SetTextTooltip(
         "{@st59}オートキャスティングをキャラ毎に設定。{nl}자동 캐스팅을 캐릭터별로 설정합니다.")
 
-    local auto_cast_checkbox = frame:CreateOrGetControl('checkbox', 'auto_cast_checkbox', 10, 310, 25, 25)
+    local auto_cast_checkbox = frame:CreateOrGetControl('checkbox', 'auto_cast_checkbox', 10, x, 25, 25)
     AUTO_CAST(auto_cast_checkbox)
     auto_cast_checkbox:SetCheck(g.settings.auto_cast)
     auto_cast_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     auto_cast_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local coin_use = frame:CreateOrGetControl("richtext", "coin_use", 40, 345)
-    coin_use:SetText("{ol}{#FFFFFF}Automatically used when acquiring coin items.Works only in town.")
+    x = x + 30
+
+    local coin_use = frame:CreateOrGetControl("richtext", "coin_use", 40, x + 5)
+    coin_use:SetText("{ol}{#FF4500}Automatically used when acquiring coin items.Works only in town.")
     coin_use:SetTextTooltip(
         "{@st59}傭兵団コイン、シーズンコイン、王国再建団コインを取得時に自動で使用します。街でのみ動作します。{nl}코인 아이템 획득 시 자동으로 사용됩니다.도시에서만 작동합니다.")
 
-    local coin_use_checkbox = frame:CreateOrGetControl('checkbox', 'coin_use_checkbox', 10, 340, 25, 25)
+    local coin_use_checkbox = frame:CreateOrGetControl('checkbox', 'coin_use_checkbox', 10, x, 25, 25)
     AUTO_CAST(coin_use_checkbox)
     coin_use_checkbox:SetCheck(g.settings.coin_use)
     coin_use_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     coin_use_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local equip_info = frame:CreateOrGetControl("richtext", "equip_info", 40, 375)
-    equip_info:SetText("{ol}{#FFFFFF}Notification of forgetting to equip ark and emblem upon entry to the hard raid.")
+    x = x + 30
+    local equip_info = frame:CreateOrGetControl("richtext", "equip_info", 40, x + 5)
+    equip_info:SetText("{ol}{#FF4500}Notification of forgetting to equip ark and emblem upon entry to the hard raid.")
     equip_info:SetTextTooltip(
         "{@st59}ハードレイド入場時にアークやエンブレムの装備忘れをお知らせします。{nl}하드 레이드 입장 시 아크와 엠블럼을 잊어버린 것을 알려드립니다.")
 
-    local equip_info_checkbox = frame:CreateOrGetControl('checkbox', 'equip_info_checkbox', 10, 370, 25, 25)
+    local equip_info_checkbox = frame:CreateOrGetControl('checkbox', 'equip_info_checkbox', 10, x, 25, 25)
     AUTO_CAST(equip_info_checkbox)
     equip_info_checkbox:SetCheck(g.settings.equip_info)
     equip_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     equip_info_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local automatch_layer = frame:CreateOrGetControl("richtext", "automatch_layer", 40, 405)
-    automatch_layer:SetText("{ol}{#FFFFFF}Lower the layer level of the frame when auto-matching.")
+    x = x + 30
+
+    local automatch_layer = frame:CreateOrGetControl("richtext", "automatch_layer", 40, x + 5)
+    automatch_layer:SetText("{ol}{#FF4500}Lower the layer level of the frame when auto-matching.")
     automatch_layer:SetTextTooltip(
         "{@st59}オートマッチ時のフレームのレイヤーレベルを下げます。{nl}오토매치 시 프레임의 레이어 레벨을 낮춥니다.")
 
-    local automatch_layer_checkbox = frame:CreateOrGetControl('checkbox', 'automatch_layer_checkbox', 10, 400, 25, 25)
+    local automatch_layer_checkbox = frame:CreateOrGetControl('checkbox', 'automatch_layer_checkbox', 10, x, 25, 25)
     AUTO_CAST(automatch_layer_checkbox)
 
     automatch_layer_checkbox:SetCheck(g.settings.automatch_layer)
@@ -797,12 +845,14 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     automatch_layer_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local quest_hide = frame:CreateOrGetControl("richtext", "quest_hide", 40, 435)
-    quest_hide:SetText("{ol}{#FFFFFF}Hide the quest list.")
+    x = x + 30
+
+    local quest_hide = frame:CreateOrGetControl("richtext", "quest_hide", 40, x + 5)
+    quest_hide:SetText("{ol}{#FF4500}Hide the quest list.")
     quest_hide:SetTextTooltip(
         "{@st59}クエストリストを非表示にします。{nl}퀘스트 목록을 숨깁니다.")
 
-    local quest_hide_checkbox = frame:CreateOrGetControl('checkbox', 'quest_hide_checkbox', 10, 430, 25, 25)
+    local quest_hide_checkbox = frame:CreateOrGetControl('checkbox', 'quest_hide_checkbox', 10, x, 25, 25)
     AUTO_CAST(quest_hide_checkbox)
 
     quest_hide_checkbox:SetCheck(g.settings.quest_hide)
@@ -810,34 +860,86 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     quest_hide_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local pc_name = frame:CreateOrGetControl("richtext", "pc_name", 40, 465)
-    pc_name:SetText("{ol}{#FFFFFF}Change the upper left display to the character's name.")
+    x = x + 30
+
+    local pc_name = frame:CreateOrGetControl("richtext", "pc_name", 40, x + 5)
+    pc_name:SetText("{ol}{#FF4500}Change the upper left display to the character's name.")
     pc_name:SetTextTooltip(
         "{@st59}左上の表示をキャラクター名に変更します。{nl}왼쪽 상단의 표시를 캐릭터 이름으로 변경합니다.")
 
-    local pc_name_checkbox = frame:CreateOrGetControl('checkbox', 'pc_name_checkbox', 10, 460, 25, 25)
+    local pc_name_checkbox = frame:CreateOrGetControl('checkbox', 'pc_name_checkbox', 10, x, 25, 25)
     AUTO_CAST(pc_name_checkbox)
 
     pc_name_checkbox:SetCheck(g.settings.pc_name)
     pc_name_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     pc_name_checkbox:SetTextTooltip("{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local channel_info = frame:CreateOrGetControl("richtext", "channel_info", 40, 495)
-    channel_info:SetText("{ol}{#FFFFFF}Displays the channel switching frame.")
+    x = x + 30
+
+    local channel_info = frame:CreateOrGetControl("richtext", "channel_info", 40, x + 5)
+    channel_info:SetText("{ol}{#FF4500}Displays the channel switching frame.")
     channel_info:SetTextTooltip(
         "{@st59}チャンネル切替フレームを表示します。{nl}채널 전환 프레임을 표시합니다.")
 
-    local channel_info_checkbox = frame:CreateOrGetControl('checkbox', 'channel_info_checkbox', 10, 490, 25, 25)
+    local channel_info_checkbox = frame:CreateOrGetControl('checkbox', 'channel_info_checkbox', 10, x, 25, 25)
     AUTO_CAST(channel_info_checkbox)
     channel_info_checkbox:SetCheck(g.settings.channel_info)
     channel_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     channel_info_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
 
-    local description = frame:CreateOrGetControl("richtext", "description", 140, 525)
+    x = x + 30
+
+    local other_effect = frame:CreateOrGetControl("richtext", "other_effect", 40, x + 5)
+    other_effect:SetText("{ol}{#FF4500}Adjusts the effect of others. 1~100, recommended 75.")
+    other_effect:SetTextTooltip(
+        "{@st59}他人のエフェクトを調整します。1~100。おすすめは75。{nl}다른 사람의 효과를 1에서 100까지 조정할 수 있으며, 권장치는 75입니다.")
+
+    local other_effect_checkbox = frame:CreateOrGetControl('checkbox', 'other_effect_checkbox', 10, x, 25, 25)
+    AUTO_CAST(other_effect_checkbox)
+    other_effect_checkbox:SetCheck(g.settings.other_effect)
+    other_effect_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    other_effect_checkbox:SetTextTooltip(
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+
+    local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', 460, x, 60, 25)
+    AUTO_CAST(other_effect_edit)
+    other_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_OTHER_EFFECT_EDIT")
+    other_effect_edit:SetTextTooltip("{@st59}1~100")
+    other_effect_edit:SetFontName("white_16_ol")
+    other_effect_edit:SetTextAlign("center", "center")
+    local other_effect = config.GetOtherEffectTransparency()
+    -- print(tostring(other_effect))
+    local num = math.floor(other_effect * 0.392156862745 + 0.5)
+    other_effect_edit:SetText(num)
+    -- (tonumber(other_effect))
+
+    x = x + 30
+
+    local description = frame:CreateOrGetControl("richtext", "description", 140, x + 5)
     description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
     description:SetTextTooltip(
         "{@st59}一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です。{nl}일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다.")
+
+    x = x + 30
+    frame:Resize(710, x)
+
+end
+
+function MINI_ADDONS_OTHER_EFFECT_EDIT(frame, ctrl)
+    local other_effect = tonumber(ctrl:GetText())
+    if other_effect <= 100 and other_effect >= 1 then
+        local num = math.floor(other_effect / 0.392156862745 + 0.5)
+        -- print(num)
+        g.settings.other_effect_value = num
+        MINI_ADDONS_SAVE_SETTINGS()
+        config.SetOtherEffectTransparency(num)
+        ui.SysMsg("other effect changed.")
+    else
+        ui.SysMsg("Not a valid value.")
+        return
+    end
+    -- print(other_effect)
 
 end
 
@@ -942,6 +1044,7 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
     local ctrlname = ctrl:GetName()
     local settingNames = {
+        other_effect = "other_effect_checkbox",
         channel_info = "channel_info_checkbox",
         pc_name = "pc_name_checkbox",
         quest_hide = "quest_hide_checkbox",

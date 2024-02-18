@@ -9,10 +9,11 @@
 -- v1.0.8 多分直った。
 -- v1.0.9 めちゃ簡単なトコでハマった。これで大丈夫のはず。
 -- v1.1.0 JSONファイル同時保存はエラーになるという学びを得た。
+-- v1.1.1 リロード画面の効果音消去、爆速表示に変更
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -288,7 +289,7 @@ function always_status_load_settings()
         end
     end
     always_status_save_settings()
-    ReserveScript("always_status_load_settings_use()", 0.5)
+    ReserveScript("always_status_load_settings_use()", 1.0)
     -- always_status_frame_init()
 end
 
@@ -346,8 +347,10 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
     end]]
 
     -- always_status_original_frame_reductio()
-    addon:RegisterMsg("GAME_START", "always_status_original_frame_reduction")
-    addon:RegisterMsg("GAME_START_3SEC", "always_status_load_settings")
+    ReserveScript("always_status_original_frame_reduction()", 1.0)
+    ReserveScript("always_status_load_settings()", 2.0)
+    -- addon:RegisterMsg("GAME_START", "always_status_original_frame_reduction")
+    -- addon:RegisterMsg("GAME_START_3SEC", "always_status_load_settings")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
     -- print("test")
@@ -821,11 +824,20 @@ function always_status_STATUS_ONLOAD()
 end
 
 function always_status_original_frame_reduction()
+    local volume = config.GetSoundVolume()
+    -- print(volume)
+    config.SetSoundVolume(0)
     local frame = ui.GetFrame("status")
 
     frame:ShowWindow(1)
     frame:Resize(0, 0)
+    ReserveScript(string.format("always_status_original_frame_sound_config(%d)", volume), 3.0)
+    return
+end
 
+function always_status_original_frame_sound_config(volume)
+    -- print(volume)
+    config.SetSoundVolume(volume)
 end
 
 function always_status_frame_move(frame)
