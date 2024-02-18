@@ -8,10 +8,11 @@
 -- v1.0.7 やっぱりバグってた。くるしい。
 -- v1.0.8 多分直った。
 -- v1.0.9 めちゃ簡単なトコでハマった。これで大丈夫のはず。
+-- v1.1.0 JSONファイル同時保存はエラーになるという学びを得た。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -164,6 +165,11 @@ end]]
 function always_status_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
+
+end
+
+function always_status_save_settings_use()
+
     acutil.saveJSON(g.settingsFileLoc_use, g.settings_use);
 
 end
@@ -281,30 +287,39 @@ function always_status_load_settings()
 
         end
     end
+    always_status_save_settings()
+    ReserveScript("always_status_load_settings_use()", 0.5)
+    -- always_status_frame_init()
+end
 
-    local settings_use, err_use = acutil.loadJSON(g.settingsFileLoc_use, g.settings_use)
+function always_status_load_settings_use()
 
-    if err_use then
+    local settings, err = acutil.loadJSON(g.settingsFileLoc_use, g.settings_use)
+
+    if err then
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files use", addonNameLower))
     end
 
-    if not settings_use then
+    local loginCID = info.GetCID(session.GetMyHandle())
+    -- print(tostring(settings))
+    if not settings then
         g.settings_use = {}
+        always_status_save_settings_use()
     end
 
-    g.settings_use = settings_use
-
-    if g.settings_use[loginCID] == nil then
+    g.settings_use = settings
+    -- print(tostring(g.settings_use))
+    if not g.settings_use[loginCID] then
         g.settings_use[loginCID] = {
             use = 1
         }
         -- print(loginCID)
-        always_status_save_settings()
+        always_status_save_settings_use()
 
     end
 
-    for CID, data in pairs(settings_use) do
+    for CID, data in pairs(settings) do
         if CID == loginCID then
 
             g.settings_use[loginCID].use = data.use
@@ -313,7 +328,7 @@ function always_status_load_settings()
         end
     end
 
-    always_status_save_settings()
+    always_status_save_settings_use()
     always_status_frame_init()
 
     --[[for key, value in pairs(g.no) do
