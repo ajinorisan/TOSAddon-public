@@ -7,6 +7,7 @@
 -- v1.0.6 再度バグ発生したので修正。セットフレームをちょっとズラした。
 -- v1.0.7 やっぱりバグってた。くるしい。
 -- v1.0.8 多分直った。
+-- v1.0.9 めちゃ簡単なトコでハマった。これで大丈夫のはず。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -292,16 +293,24 @@ function always_status_load_settings()
         g.settings_use = {}
     end
 
+    g.settings_use = settings_use
+
     if g.settings_use[loginCID] == nil then
         g.settings_use[loginCID] = {
             use = 1
         }
+        -- print(loginCID)
         always_status_save_settings()
+
     end
 
-    for loginCID, data in pairs(g.settings_use) do
-        -- print(tostring(data.use))
-        g.settings_use[loginCID].use = data.use
+    for CID, data in pairs(settings_use) do
+        if CID == loginCID then
+
+            g.settings_use[loginCID].use = data.use
+
+            break
+        end
     end
 
     always_status_save_settings()
