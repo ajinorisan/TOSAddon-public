@@ -684,7 +684,7 @@ v1.0.2 ボルタ廃止、ドラグーン追加。
 
 ----
 
-### Warehouse Manager 2024
+### Warehouse Manager Reloaded
 
 Charbonさんが作ってebisukeさんが改装した倉庫アドオンを改造します。
 
