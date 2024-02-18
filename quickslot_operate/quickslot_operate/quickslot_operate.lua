@@ -3,10 +3,11 @@
 -- v1.0.2 クイックスロットがセーブされてなくてレイドで元のポーションに戻る場合があるので、MAPに入った時に動かす様に修正
 -- v1.0.3 レイド選んだ時と中でももう1回チェックのハイブリッドに。
 -- v1.0.4 加護ポ持ってない時に切り替わらないバグ修正。
+-- v1.0.5 メレジナ野獣になってたの悪魔に修正。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -33,9 +34,9 @@ end
 local raid_list = {
     Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681},
     Klaida = {686, 685, 687},
-    Velnias = {689, 688, 690, 669, 635, 628},
+    Velnias = {689, 688, 690, 669, 635, 628, 696, 695, 697},
     Forester = {672, 671, 670},
-    Widling = {677, 676, 678, 696, 695, 697}
+    Widling = {677, 676, 678}
 }
 
 local potion_list = {
@@ -77,7 +78,7 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     for _, zone in ipairs(zone_list) do
         if zone == currentZone then
-            ReserveScript("quickslot_operate_change_potion()", 5.0)
+            ReserveScript("quickslot_operate_change_potion()", 6.0)
             break
         end
 
@@ -142,7 +143,7 @@ function quickslot_operate_get_potion(potion_id, down_potion_id)
         if tostring(itemobj.ClassID) == tostring(potion_id) then
             local frame = ui.GetFrame("inventory");
             local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot")
-
+            -- AUTO_CAST(slot)
             quickslot_operate_check_all_slots(potion_id, down_potion_id)
             session.ResetItemList()
 
@@ -177,6 +178,7 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
     for i = 0, slotCount - 1 do
         local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
+        -- AUTO_CAST(slot)
         local quickSlotInfo = quickslot.GetInfoByIndex(i);
 
         if slot:GetIcon() ~= nil then

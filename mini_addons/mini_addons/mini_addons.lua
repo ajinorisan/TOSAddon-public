@@ -15,10 +15,11 @@
 -- v1.1.4 チャンネルインフォを作った。
 -- v1.1.5 チャンネルインフォのバグ修正。フレーム作る前にrunupdateしてた。
 -- v1.1.6 チャンネルインフォ昨日1chだと動かなかったの修正。
+-- v1.1.7 メレジナのダイアログ直した。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.1.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1552,10 +1553,21 @@ function MINI_ADDONS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
-    if (argStr == "Goddess_Raid_Rozethemiserable_Start_Npc_Dlg" or argStr == "Goddess_Raid_Spreader_Start_Npc_DLG1" or
+    if argStr == "Goddess_Raid_Rozethemiserable_Start_Npc_Dlg" or argStr == "Goddess_Raid_Spreader_Start_Npc_DLG1" or
         argStr == "Goddess_Raid_Jellyzele_Start_Npc_DLG1" or argStr == "EP14_Raid_Delmore_NPC_DLG1" or argStr ==
-        "Goddess_Raid_Despairlsland_Start_Npc_Dlg" or
-        (argStr == "Legend_Raid_Giltine_ENTER_MSG" and curMap == "raid_dcapital_108")) then
+        "Goddess_Raid_DespairIsland_Start_Npc_Dlg" then
+
+        session.SetSelectDlgList()
+        ui.CloseFrame("dialog")
+        ui.OpenFrame("dialogselect")
+        DialogSelect_index = 2
+        local btn = GET_CHILD_RECURSIVELY(frame, 'item2Btn')
+        local x, y = GET_SCREEN_XY(btn)
+        mouse.SetPos(x + 190, y);
+        return
+
+    end
+    if (argStr == "Legend_Raid_Giltine_ENTER_MSG" and curMap == "raid_dcapital_108") then
 
         session.SetSelectDlgList()
         ui.CloseFrame("dialog")
