@@ -45,7 +45,8 @@ function warehouse_keeper_load_settings()
     if not settings then
         g.settings = {
             silver = 1000000,
-            items = {}
+            items = {},
+            warehouse_items = {}
         }
         warehouse_keeper_save_settings()
     else
@@ -68,10 +69,21 @@ function WAREHOUSE_KEEPER_ON_INIT(addon, frame)
     g.frame = frame
     g.logincid = info.GetCID(session.GetMyHandle())
 
-    addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'warehouse_keeper_reserve')
-    warehouse_keeper_load_settings()
-    ReserveScript('warehouse_keeper_4sec()', 4.0)
+    if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
+        addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'warehouse_keeper_reserve')
+        addon:RegisterMsg("GAME_START", "warehouse_keeper_4sec")
+        addon:RegisterMsg("GAME_START", "warehouse_keeper_load_settings")
 
+        local accountObj = GetMyAccountObj();
+        g.max_count = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                          ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+    end
+end
+
+function warehouse_keeper_4sec()
+
+    ReserveScript("warehouse_keeper_warehouseframe_setting()", 4.0)
 end
 
 function warehouse_keeper_reserve()
@@ -251,11 +263,6 @@ function warehouse_keeper_silver()
 
     end
 
-end
-
-function warehouse_keeper_4sec()
-    print("4sec")
-    warehouse_keeper_warehouseframe_setting()
 end
 
 -- Deposit --Withdraw
