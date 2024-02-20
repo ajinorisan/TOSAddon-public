@@ -120,15 +120,27 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
 
     local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
     local guidList = itemList:GetGuidList();
-    local sortedGuidList = itemList:GetSortedGuidList();
-    for i = 0, sortedGuidList:Count() - 1 do
-        local guid = sortedGuidList:Get(i)
-        local item = session.GetEtcItemByGuid(guid)
-        local obj = GetIES(item:GetObject())
-        local itemName = obj.Name
-        -- print("Sorted Item GUID:" .. guid .. "Item Name:" .. itemName)
-    end
+    local cnt = guidList:Count();
+    for i = 0, cnt - 1 do
+        local guid = guidList:Get(i);
+        local invItem = itemList:GetItemByGuid(guid);
+        local obj = GetIES(invItem:GetObject()); -- invItem.invIndex --invItem.count
+        local Iesid = invItem:GetIESID()
+        local itemName = obj.ClassName
+        local itemID = obj.ClassID
+        local invIndex = invItem.invIndex
+        local invCount = invItem.count
 
+        g.settings.warehouse_items[i] = {
+            iesid = Iesid,
+            name = itemName,
+            clsid = itemID,
+            index = invIndex,
+            count = invCount
+        }
+
+    end
+    warehouse_keeper_save_settings()
     return
 
 end
@@ -404,7 +416,7 @@ function warehouse_keeper_frame_drop(frame, ctrl, argStr, argNum)
             g.iesid = guid
 
             INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.', "warehouse_keeper_consume_item", 0,
-                0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+                             0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
             g.iesid = ""
 
