@@ -69,16 +69,88 @@ function WAREHOUSE_KEEPER_ON_INIT(addon, frame)
     g.frame = frame
     g.logincid = info.GetCID(session.GetMyHandle())
 
-    if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
-        addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'warehouse_keeper_reserve')
-        addon:RegisterMsg("GAME_START", "warehouse_keeper_4sec")
-        addon:RegisterMsg("GAME_START", "warehouse_keeper_load_settings")
+    -- if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
 
-        local accountObj = GetMyAccountObj();
-        g.max_count = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
-                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
-                          ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+    addon:RegisterMsg('OPEN_DLG_ACCOUNTWAREHOUSE', 'warehouse_keeper_reserve')
+    addon:RegisterMsg("GAME_START", "warehouse_keeper_4sec")
+    addon:RegisterMsg("GAME_START", "warehouse_keeper_load_settings")
+    -- acutil.setupHook(warehouse_keeper_account_warehouse_make_tab, "ACCOUNT_WAREHOUSE_MAKE_TAB")
+    acutil.setupEvent(addon, "ACCOUNT_WAREHOUSE_ON_CHANGE_TAB", "warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB");
+
+    local accountObj = GetMyAccountObj();
+    g.max_count = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                      accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                      ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+    -- print(accountObj.BasicAccountWarehouseSlotCount)
+    -- print(accountObj.MaxAccountWarehouseCount)
+    -- print(accountObj.AccountWareHouseExtend)
+    -- print(accountObj.AccountWareHouseExtendByItem)
+    -- print(ADDITIONAL_SLOT_COUNT_BY_TOKEN)
+    -- end
+end
+-- local current_tab_index = 0
+function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
+
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    -- local accountwarehouse_tab = GET_CHILD_RECURSIVELY(warehouseFrame, "accountwarehouse_tab");
+    local gbox = GET_CHILD_RECURSIVELY(warehouseFrame, "gbox")
+    local itemcnt = GET_CHILD(gbox, "itemcnt")
+    local length = #itemcnt:GetText()
+    local text = string.sub(itemcnt:GetText(), length - 4, length - 3) * 1 -- 右側の数字を取得
+
+    local slotgbox = GET_CHILD_RECURSIVELY(warehouseFrame, "slotgbox");
+    slotgbox:RemoveAllChild()
+    local slotset = slotgbox:CreateOrGetControl('slotset', 'slotset', 20, 0, 0, 0)
+    AUTO_CAST(slotset);
+    slotset:SetSlotSize(60, 60) -- スロットの大きさ
+    slotset:EnablePop(0)
+    slotset:EnableDrag(0)
+    slotset:EnableDrop(1)
+    slotset:SetColRow(10, 7) -- スロットの配置と個数
+    slotset:SetSpc(1, 1)
+
+    if text < 70 then
+        slotset:SetSlotCount(g.max_count - 280)
+    else
+        slotset:SetSlotCount(70)
     end
+
+    slotset:SetSkinName('invenslot2')
+    slotset:CreateSlots();
+
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    for i = 0, sortedGuidList:Count() - 1 do
+        local guid = sortedGuidList:Get(i)
+        local item = session.GetEtcItemByGuid(guid)
+        local obj = GetIES(item:GetObject())
+        local itemName = obj.Name
+        -- print("Sorted Item GUID:" .. guid .. "Item Name:" .. itemName)
+    end
+
+    return
+
+end
+
+function warehouse_keeper_warehouseframe_setting()
+    -- print("setting")
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local deposit = GET_CHILD_RECURSIVELY(warehouseFrame, "Deposit")
+    local withdraw = GET_CHILD_RECURSIVELY(warehouseFrame, "Withdraw")
+    deposit:SetMargin(0, 0, 130, 0)
+    withdraw:SetMargin(0, 0, 30, 0)
+
+    local setting = warehouseFrame:CreateOrGetControl("button", "setting", 630, 775, 25, 25)
+    AUTO_CAST(setting)
+    setting:SetSkinName("None")
+    setting:SetText("{img config_button_normal 25 25}")
+    setting:SetEventScript(ui.LBUTTONUP, "warehouse_keeper_frame_init")
+
+end
+
+function warehouse_keeper_get_index()
+
 end
 
 function warehouse_keeper_4sec()
@@ -89,7 +161,7 @@ end
 function warehouse_keeper_reserve()
 
     ReserveScript('warehouse_keeper_silver()', 0.5)
-    ReserveScript('warehouse_keeper_item()', 1.0)
+    -- ReserveScript('warehouse_keeper_item()', 1.0)
 end
 
 function warehouse_keeper_get_goal_index(frame)
@@ -101,7 +173,7 @@ function warehouse_keeper_get_goal_index(frame)
     tab:SelectTab(0)
     local itemcnt = GET_CHILD(gbox, "itemcnt")
     local length = #itemcnt:GetText()
-    print(itemcnt:GetText())
+    -- print(itemcnt:GetText())
     local accountObj = GetMyAccountObj();
 
     right0 = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
@@ -109,7 +181,7 @@ function warehouse_keeper_get_goal_index(frame)
                  ADDITIONAL_SLOT_COUNT_BY_TOKEN
 
     for i = 4, 0, -1 do
-        print("i")
+        -- print("i")
         if i == 4 then
             tab:SelectTab(i)
             itemcnt = GET_CHILD(gbox, "itemcnt")
@@ -197,11 +269,11 @@ function warehouse_keeper_item()
     if frame:IsVisible() == 1 then
         -- print("test")
         local goal_index = warehouse_keeper_get_goal_index(frame)
-
+        print(goal_index)
         for key, value in pairs(g.settings.items) do
             -- print("Key:" .. key)
             for k, v in pairs(value) do
-                print("  " .. k .. ":" .. v)
+                -- print("  " .. k .. ":" .. v)
                 local invItemList = session.GetInvItemList()
                 local guidList = invItemList:GetGuidList();
                 local cnt = guidList:Count();
@@ -219,7 +291,7 @@ function warehouse_keeper_item()
 
                     if tostring(iesid) == tostring(v) then
                         -- print(tostring(invItem.count))
-                        print(count .. "aaa")
+                        -- print(count .. "aaa")
                         item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
                         session.ResetItemList()
                         ReserveScript("warehouse_keeper_item()", 0.3)
@@ -247,6 +319,7 @@ function warehouse_keeper_silver()
     end
 
     local silver = charsilver - tonumber(g.settings.silver)
+    print(silver)
 
     -- print(silver)
     if silver == 0 then
@@ -266,21 +339,6 @@ function warehouse_keeper_silver()
 end
 
 -- Deposit --Withdraw
-function warehouse_keeper_warehouseframe_setting()
-    print("setting")
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local deposit = GET_CHILD_RECURSIVELY(warehouseFrame, "Deposit")
-    local withdraw = GET_CHILD_RECURSIVELY(warehouseFrame, "Withdraw")
-    deposit:SetMargin(0, 0, 130, 0)
-    withdraw:SetMargin(0, 0, 30, 0)
-
-    local setting = warehouseFrame:CreateOrGetControl("button", "setting", 630, 775, 25, 25)
-    AUTO_CAST(setting)
-    setting:SetSkinName("None")
-    setting:SetText("{img config_button_normal 25 25}")
-    setting:SetEventScript(ui.LBUTTONUP, "warehouse_keeper_frame_init")
-
-end
 
 function warehouse_keeper_close(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
@@ -296,9 +354,9 @@ function warehouse_keeper_frame_drop(frame, ctrl, argStr, argNum)
     local itemcls = GetClassByType("Item", type)
 
     for key, value in pairs(g.settings.items) do
-        print("Key:" .. key)
+        -- print("Key:" .. key)
         for k, v in pairs(value) do
-            print("  " .. k .. ":" .. v .. ":" .. type)
+            -- print("  " .. k .. ":" .. v .. ":" .. type)
             if tostring(type) == tostring(v) then
                 ui.SysMsg("Already registered.")
                 return
@@ -346,7 +404,7 @@ function warehouse_keeper_frame_drop(frame, ctrl, argStr, argNum)
             g.iesid = guid
 
             INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.', "warehouse_keeper_consume_item", 0,
-                             0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+                0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
             g.iesid = ""
 
@@ -373,10 +431,10 @@ function warehouse_keeper_consume_item(frame, count, inputFrame)
     local frame = ui.GetFrame("warehouse_keeper")
     local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. index)
 
-    print(tostring(type))
-    print(tostring(index))
+    -- print(tostring(type))
+    -- print(tostring(index))
 
-    print(count)
+    -- print(count)
     if g.settings.items[tostring(index)] == nil then
         g.settings.items[tostring(index)] = {
             clsid = tostring(type),
@@ -440,7 +498,7 @@ function warehouse_keeper_frame_init(frame, ctrl, argStr, argNum)
     AUTO_CAST(amount_edit)
     amount_edit:SetFontName("white_16_ol")
     amount_edit:SetTextAlign("center", "center")
-    print(tostring(g.settings.silver))
+    -- print(tostring(g.settings.silver))
     amount_edit:SetText(GET_COMMAED_STRING(tonumber(g.settings.silver)))
 
     local team_text = frame:CreateOrGetControl("richtext", "team_text", 25, 70, 0, 0)
