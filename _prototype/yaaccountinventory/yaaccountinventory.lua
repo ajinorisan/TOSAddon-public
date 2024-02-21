@@ -3,12 +3,14 @@
 -- v1.0.1 倉庫閉めた後のインベントリ操作のバグ修正
 -- v1.0.2 別で表示する様に。倉庫整理も出来るからね。
 -- v1.0.3 やっぱり元の仕様に。通常の倉庫にも切替可能に。
+-- v1.0.4 tos側のバグで動かなくなるの修正。倉庫開かなかった場合、0.5秒後に再度呼び出すように。
+-- v1.0.5 コンフィグ出来なかったのを修正。1行10列に。キリのいい数字好き。
 local addonName = "YAACCOUNTINVENTORY"
 local addonNameLower = string.lower(addonName)
 -- 作者名
 local author = 'ebisuke'
 local basever = "0.4.6"
-local ver = "1.0.3"
+local ver = "1.0.5"
 
 -- アドオン内で使用する領域を作成。以下、ファイル内のスコープではグローバル変数gでアクセス可
 _G['ADDONS'] = _G['ADDONS'] or {}
@@ -789,6 +791,11 @@ function YAI_COUNT_UPDATE()
         local count_text = overlap:CreateOrGetControl("richtext", "count_text", 290, 80, 200, 50)
         count_text:SetText("")
         count_text:SetText("{@st42}{ol}" .. invItemCount .. " / " .. maxcount .. "{/}")
+
+        local name_text = overlap:CreateOrGetControl("richtext", "name_text", 120, 80, 200, 50)
+        local LoginName = session.GetMySession():GetPCApc():GetName()
+        name_text:SetText("")
+        name_text:SetText("{@st42}{ol}" .. LoginName .. "{/}")
         return 1
     else
 
@@ -1450,6 +1457,44 @@ function YAI_DRAW_ITEM(invItem, slot)
 
 end
 
+function YAI_MAKE_INVEN_SLOTSET(tree, name)
+    local frame = ui.GetFrame('yaaccountinventory');
+    -- local slotsize = frame:GetUserConfig("TREE_SLOT_SIZE");
+    -- local colcount = frame:GetUserConfig("TREE_COL_COUNT");
+    local slotsize = 54
+    local colcount = 10
+
+    local newslotset = tree:CreateOrGetControl('slotset', name, 0, 0, 0, 0)
+    tolua.cast(newslotset, "ui::CSlotSet");
+
+    newslotset:EnablePop(1)
+    newslotset:EnableDrag(1)
+    newslotset:EnableDrop(1)
+    newslotset:SetMaxSelectionCount(999)
+    newslotset:SetSlotSize(slotsize, slotsize);
+    newslotset:SetColRow(colcount, 1)
+    newslotset:SetSpc(0, 0)
+    newslotset:SetSkinName('invenslot')
+    newslotset:EnableSelection(0)
+    newslotset:CreateSlots();
+    ui.inventory.AddInvenSlotSetName(name);
+    return newslotset;
+end
+
+function YAI_MAKE_INVEN_SLOTSET_AND_TITLE(tree, treegroup, slotsetname, baseidcls)
+    local slotsettitle = 'ssettitle_' .. baseidcls.ClassName;
+    if baseidcls.MergedTreeTitle ~= "NO" then
+        slotsettitle = 'ssettitle_' .. baseidcls.MergedTreeTitle
+    end
+
+    local newSlotsname = MAKE_INVEN_SLOTSET_NAME(tree, slotsettitle, baseidcls.TreeSSetTitle)
+    local newSlots = YAI_MAKE_INVEN_SLOTSET(tree, slotsetname)
+    tree:Add(treegroup, newSlotsname, slotsettitle);
+    local slotHandle = tree:Add(treegroup, newSlots, slotsetname);
+    local slotNode = tree:GetNodeByTreeItem(slotHandle);
+    slotNode:SetUserValue("IS_ITEM_SLOTSET", 1);
+end
+
 function YAI_INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls, typeStr)
     -- 그룹 없으면 만들기
     local treegroupname = baseidcls.TreeGroup
@@ -1480,8 +1525,8 @@ function YAI_INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls, typeS
             treegroupcaption = newSlotsname:GetText():gsub("%(.*%)", ""),
             slotsetname = slotsetname
         }
-
-        MAKE_INVEN_SLOTSET_AND_TITLE(tree, treegroup, slotsetname, baseidcls);
+        YAI_MAKE_INVEN_SLOTSET_AND_TITLE(tree, treegroup, slotsetname, baseidcls);
+        -- MAKE_INVEN_SLOTSET_AND_TITLE(tree, treegroup, slotsetname, baseidcls);
         INVENTORY_CATEGORY_OPENOPTION_CHECK(tree:GetName(), baseidcls.ClassName);
     end
     local slotset = GET_CHILD_RECURSIVELY(tree, slotsetname, 'ui::CSlotSet');
