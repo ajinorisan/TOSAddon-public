@@ -25,6 +25,9 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
+local new_add_item = {}
+local new_stack_add_item = {}
+
 function warehouse_keeper_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -109,6 +112,7 @@ local function is_stack_new_item(class_id)
     end
     return false
 end
+
 -- local current_tab_index = 0
 function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
 
@@ -164,6 +168,7 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
         -- アイテム情報をテーブルに追加または更新
         if obj.ClassName ~= MONEY_NAME then
             -- print(invIndex .. ":" .. itemName)
+            local k = 0
             if accountwarehouse_tab:GetSelectItemIndex() == 0 then
                 for i = 1, g.max_count - 280 do
                     local slot = GET_CHILD_RECURSIVELY(slotset, "slot" .. i)
@@ -173,7 +178,11 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
 
                         local iconImg = GET_ITEM_ICON_IMAGE(itemCls);
 
-                        slot:SetHeaderImage('None')
+                        if is_new_item(invItem:GetIESID()) == true or is_stack_new_item(obj.ClassID) then
+                            slot:SetHeaderImage('new_inventory_icon_s')
+                        else
+                            slot:SetHeaderImage('None')
+                        end
 
                         SET_SLOT_IMG(slot, iconImg)
                         SET_SLOT_COUNT(slot, invItem.count)
@@ -194,8 +203,13 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
                         end
                         -- 아이커 종류 표시
                         SET_SLOT_ICOR_CATEGORY(slot, itemCls);
+                        local iconInfo = icon:GetInfo()
+                        if iconInfo ~= nil then
+                            k = k + 1
+                        end
                     end
                 end
+                itemcnt:SetText("{@st42}" .. k .. "/" .. (g.max_count - 280) .. "{/}")
             elseif accountwarehouse_tab:GetSelectItemIndex() == 1 then
 
                 local count = g.max_count - 280 + 70
@@ -211,7 +225,11 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
 
                         local iconImg = GET_ITEM_ICON_IMAGE(itemCls);
 
-                        slot:SetHeaderImage('None')
+                        if is_new_item(invItem:GetIESID()) == true or is_stack_new_item(obj.ClassID) then
+                            slot:SetHeaderImage('new_inventory_icon_s')
+                        else
+                            slot:SetHeaderImage('None')
+                        end
 
                         SET_SLOT_IMG(slot, iconImg)
                         SET_SLOT_COUNT(slot, invItem.count)
@@ -232,9 +250,14 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
                         end
                         -- 아이커 종류 표시
                         SET_SLOT_ICOR_CATEGORY(slot, itemCls);
+                        local iconInfo = icon:GetInfo()
+                        if iconInfo ~= nil then
+                            k = k + 1
+                        end
                     end
                     j = j + 1
                 end
+                itemcnt:SetText("{@st42}" .. k .. "/70" .. "{/}")
             elseif accountwarehouse_tab:GetSelectItemIndex() == 2 then
 
                 local count = g.max_count - 280 + 140
@@ -250,7 +273,11 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
 
                         local iconImg = GET_ITEM_ICON_IMAGE(itemCls);
 
-                        slot:SetHeaderImage('None')
+                        if is_new_item(invItem:GetIESID()) == true or is_stack_new_item(obj.ClassID) then
+                            slot:SetHeaderImage('new_inventory_icon_s')
+                        else
+                            slot:SetHeaderImage('None')
+                        end
 
                         SET_SLOT_IMG(slot, iconImg)
                         SET_SLOT_COUNT(slot, invItem.count)
@@ -271,9 +298,14 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
                         end
                         -- 아이커 종류 표시
                         SET_SLOT_ICOR_CATEGORY(slot, itemCls);
+                        local iconInfo = icon:GetInfo()
+                        if iconInfo ~= nil then
+                            k = k + 1
+                        end
                     end
                     j = j + 1
                 end
+                itemcnt:SetText("{@st42}" .. k .. "/70" .. "{/}")
             elseif accountwarehouse_tab:GetSelectItemIndex() == 3 then
 
                 local count = g.max_count - 280 + 210
@@ -289,8 +321,11 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
 
                         local iconImg = GET_ITEM_ICON_IMAGE(itemCls);
 
-                        slot:SetHeaderImage('None')
-
+                        if is_new_item(invItem:GetIESID()) == true or is_stack_new_item(obj.ClassID) then
+                            slot:SetHeaderImage('new_inventory_icon_s')
+                        else
+                            slot:SetHeaderImage('None')
+                        end
                         SET_SLOT_IMG(slot, iconImg)
                         SET_SLOT_COUNT(slot, invItem.count)
 
@@ -310,9 +345,14 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
                         end
                         -- 아이커 종류 표시
                         SET_SLOT_ICOR_CATEGORY(slot, itemCls);
+                        local iconInfo = icon:GetInfo()
+                        if iconInfo ~= nil then
+                            k = k + 1
+                        end
                     end
                     j = j + 1
                 end
+                itemcnt:SetText("{@st42}" .. k .. "/70" .. "{/}")
             elseif accountwarehouse_tab:GetSelectItemIndex() == 4 then
 
                 local count = g.max_count - 280 + 280
@@ -328,7 +368,11 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
 
                         local iconImg = GET_ITEM_ICON_IMAGE(itemCls);
 
-                        slot:SetHeaderImage('None')
+                        if is_new_item(invItem:GetIESID()) == true or is_stack_new_item(obj.ClassID) then
+                            slot:SetHeaderImage('new_inventory_icon_s')
+                        else
+                            slot:SetHeaderImage('None')
+                        end
 
                         SET_SLOT_IMG(slot, iconImg)
                         SET_SLOT_COUNT(slot, invItem.count)
@@ -349,9 +393,14 @@ function warehouse_keeper_ACCOUNT_WAREHOUSE_ON_CHANGE_TAB()
                         end
                         -- 아이커 종류 표시
                         SET_SLOT_ICOR_CATEGORY(slot, itemCls);
+                        local iconInfo = icon:GetInfo()
+                        if iconInfo ~= nil then
+                            k = k + 1
+                        end
                     end
                     j = j + 1
                 end
+                itemcnt:SetText("{@st42}" .. k .. "/70" .. "{/}")
             end
 
         end
@@ -386,7 +435,9 @@ function warehouse_keeper_4sec()
 end
 
 function warehouse_keeper_reserve()
-    -- warehouse_keeper_load_settings()
+    new_add_item = {}
+    new_stack_add_item = {}
+
     ReserveScript('warehouse_keeper_silver()', 0.5)
     ReserveScript('warehouse_keeper_item()', 1.0)
 end
@@ -525,6 +576,13 @@ function warehouse_keeper_item()
                         -- break
                         return
                     end
+
+                    local insertItem = GetObjectByGuid(iesid);
+                    new_add_item[#new_add_item + 1] = invItem:GetIESID()
+                    if geItemTable.IsStack(insertItem.ClassID) == 1 then
+                        new_stack_add_item[#new_stack_add_item + 1] = insertItem.ClassID
+                    end
+
                     -- 
                 end
             end
@@ -631,7 +689,7 @@ function warehouse_keeper_frame_drop(frame, ctrl, argStr, argNum)
             g.iesid = guid
 
             INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.', "warehouse_keeper_consume_item", 0,
-                0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+                             0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
             g.iesid = ""
 
