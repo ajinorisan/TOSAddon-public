@@ -17,10 +17,11 @@
 -- v1.1.6 チャンネルインフォ昨日1chだと動かなかったの修正。
 -- v1.1.7 メレジナのダイアログ直した。
 -- v1.1.8 他人のエフェクトの設定がバグっているらしいので、直した気もする。
+-- v1.1.9 チャンネルインフォの表示バグの原因っぽいところを修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.8"
+local ver = "1.1.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -170,15 +171,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     if g.settings.channel_info == nil then
         g.settings.channel_info = 1
         MINI_ADDONS_SAVE_SETTINGS()
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_GAME_START_4SEC")
         -- ReserveScript("MINI_ADDONS_GAME_START_4SEC()", 4.0)
 
-        frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     elseif g.settings.channel_info == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_POPUP_CHANNEL_LIST")
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_GAME_START_4SEC")
         -- ReserveScript("MINI_ADDONS_GAME_START_4SEC()", 4.0)
 
-        frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
+        -- frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     end
 
 end
@@ -193,13 +193,14 @@ function MINI_ADDONS_OTHER_EFFECT_SETTING()
         config.SetOtherEffectTransparency(other_effect)
     end
     -- CHAT_SYSTEM(other_effect)
-    print(tostring(g.settings.other_effect_value))
+    -- print(tostring(g.settings.other_effect_value))
 end
 
-function MINI_ADDONS_GAME_START_4SEC()
+function MINI_ADDONS_GAME_START_4SEC(frame)
 
-    MINI_ADDONS_POPUP_CHANNEL_LIST()
-
+    ReserveScript("MINI_ADDONS_POPUP_CHANNEL_LIST()", 1.0)
+    frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
+    return
 end
 
 function MINI_ADDONS_POPUP_CHANNEL_LIST()
@@ -258,6 +259,7 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     end
     frame:Resize(cnt * 50 + 20, 60)
     frame:ShowWindow(1)
+    -- print("test")
     return 1
 end
 
