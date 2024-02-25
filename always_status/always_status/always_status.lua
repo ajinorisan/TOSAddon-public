@@ -10,10 +10,11 @@
 -- v1.0.9 めちゃ簡単なトコでハマった。これで大丈夫のはず。
 -- v1.1.0 JSONファイル同時保存はエラーになるという学びを得た。
 -- v1.1.1 リロード画面の効果音消去、爆速表示に変更
+-- v1.1.2 リロードでバグった場合に効果音が消去されたままだったのを修正
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -337,11 +338,12 @@ function always_status_load_settings_use()
     end]]
 
 end
-
+g.volume = config.GetSoundVolume()
 function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+
     --[[if not g.loded then
         g.loded = true
     end]]
@@ -837,7 +839,7 @@ end
 
 function always_status_original_frame_sound_config(volume)
     -- print(volume)
-    config.SetSoundVolume(volume)
+    config.SetSoundVolume(g.volume)
 end
 
 function always_status_frame_move(frame)

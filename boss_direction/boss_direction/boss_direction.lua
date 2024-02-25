@@ -1,9 +1,10 @@
 -- v1.0.1 BOSS倒したら矢印速攻消える様に。サイズ控え目に。
 -- v1.0.2 角度調整
+-- v1.0.3 レイヤー修正。スキルショートカットより低く設定。
 local addonName = "BOSS_DIRECTION"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -41,40 +42,52 @@ function BOSS_DIRECTION_ON_INIT(addon, frame)
         addon:RegisterMsg('TARGET_BUFF_UPDATE', 'BOSS_DIRECTION_ON_MSG');
         addon:RegisterMsg('TARGET_CLEAR_BOSS', 'BOSS_DIRECTION_ON_MSG');
         addon:RegisterMsg('TARGET_UPDATE', 'BOSS_DIRECTION_ON_MSG');
-        -- local frame = ui.GetFrame(g.framename)
+
         local headsup = ui.GetFrame("headsupdisplay");
         headsup:RunUpdateScript("BOSS_DIRECTION_ON_MSG", 0.1)
+        --[[local frame = ui.GetFrame("boss_direction")
+
+        local timer = frame:GetChild("addontimer");
+        tolua.cast(timer, "ui::CAddOnTimer");
+        timer:SetUpdateScript("BOSS_DIRECTION_ON_MSG");
+        timer:Start(0.1);]]
     end
 
 end
 
 function BOSS_DIRECTION_ON_MSG(frame, msg, argStr, argNum)
+    local frame = ui.GetFrame("boss_direction")
+
+    --[[if msg == "TARGET_CLEAR_BOSS" then
+        ReserveScript("BOSS_DIRECTION_TARGET_CLEAR()", 3.0)
+        return 1
+    end]]
     local handle = session.GetTargetBossHandle();
     local targetinfo = info.GetTargetInfo(handle);
-    local frame = ui.GetFrame(g.framename)
-    if msg == "TARGET_CLEAR_BOSS" then
+    --[[if nil == targetinfo then
+        session.ResetTargetBossHandle();
         frame:ShowWindow(0)
-        return 0
-    end
+        return 1
+    end]]
+    -- CHAT_SYSTEM(tostring(targetinfo.TargetWindow))
 
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
 
     frame:Resize(130, 130);
-    frame:SetLayerLevel(91)
+    frame:SetLayerLevel(89)
 
-    -- if (IsBattleState(GetMyPCObject()) == 1) then
     local arrow = frame:GetChild("arrow");
     if arrow == nil then
         arrow = frame:CreateOrGetControl("picture", "arrow", 0, 0, 80, 80);
         tolua.cast(arrow, "ui::CPicture");
-        -- arrow:SetImage("gold_arrow_right");
+
         arrow:SetImage("class_tree_arrow")
-        -- arrow:SetImage("effect_circle1")
 
         arrow:SetEnableStretch(1);
         arrow:EnableHitTest(0);
         arrow:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT);
+        -- frame:ShowWindow(1);
     end
     if handle ~= 0 then
         -- arrow:SetAngle(info.GetAngle(handle) - 30);
@@ -84,9 +97,6 @@ function BOSS_DIRECTION_ON_MSG(frame, msg, argStr, argNum)
         FRAME_AUTO_POS_TO_OBJ(frame, handle, -frame:GetWidth() / 2, -frame:GetHeight() / 2, 0, 0);
         frame:ShowWindow(1);
     end
-    -- else
-    -- frame:ShowWindow(0);
-    -- end
 
     return 1
 

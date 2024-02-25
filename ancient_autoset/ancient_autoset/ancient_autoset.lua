@@ -1,10 +1,11 @@
 -- v1.0.3 セット解除機能
 -- v1.0.4 セット解除機能の挙動がおかしいのを修正
 -- v1.0.5 カードスロットの1番目が入ってない場合、バグってたのを修正。お知らせを少し派手に。
+-- v1.0.6 アドマネから入れたらバグってたの修正
 local addonName = "ANCIENT_AUTOSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -15,7 +16,7 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
 -- g.loaded = true
-if not g.loaded then
+--[[if not g.loaded then
     g.settings = {
         pctbl = {
             slot1 = nil,
@@ -24,7 +25,7 @@ if not g.loaded then
             slot4 = nil
         }
     }
-end
+end]]
 
 function ANCIENT_AUTOSET_SAVE_SETTINGS()
 
@@ -39,45 +40,79 @@ function ANCIENT_AUTOSET_LOAD_SETTINGS()
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
+    if not settings then
+        settings = {
+            pctbl = {
+                slot1 = nil,
+                slot2 = nil,
+                slot3 = nil,
+                slot4 = nil
+            }
+        }
+
+    end
+    g.settings = settings
+
+    ANCIENT_AUTOSET_SAVE_SETTINGS()
 
     local loginCharID = info.GetCID(session.GetMyHandle())
 
-    local pctbl = g.settings.pctbl[loginCharID]
-    if pctbl ~= nil then
-
+    if g.settings.pctbl[loginCharID] == nil then
+        g.settings.pctbl[loginCharID] = {}
         ANCIENT_AUTOSET_ON_SETTINGS()
     else
-        CHAT_SYSTEM("[AAS]このキャラクターはアシスターセットの登録を行っていません")
-        CHAT_SYSTEM("AAS]This character is not registered as an assister.")
-        return
-
+        ANCIENT_AUTOSET_ON_SETTINGS()
     end
+end
+
+function ANCIENT_AUTOSET_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+
+    --[[if not g.loaded then
+        g.loaded = true
+    end]]
+
+    local origframe = ui.GetFrame("ancient_card_list")
+    local btn2 = origframe:GetChildRecursively("topbg"):CreateOrGetControl("button", "btn_aas", 0, 0, 90, 33)
+    AUTO_CAST(btn2)
+    btn2:SetGravity(ui.LEFT, ui.BOTTOM)
+    btn2:SetMargin(470, 0, 0, 0)
+    btn2:SetSkinName("None")
+    btn2:SetImage("config_button_normal")
+    btn2:Resize(33, 33)
+
+    btn2:SetEventScript(ui.LBUTTONUP, "ANCIENT_SETTING_MSG")
+    btn2:SetEventScript(ui.RBUTTONUP, "ANCIENT_SETTING_MSG_RELEASE")
+    btn2:SetTextTooltip(
+        "Ancient Aoto Set{nl}LeftButton:Setting RightButton:ReSetting{nl}左クリック:設定 右クリック:設定解除")
+
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        addon:RegisterMsg("GAME_START_3SEC", "ANCIENT_AUTOSET_LOAD_SETTINGS")
+    else
+
+        return;
+    end
+
 end
 
 function ANCIENT_AUTOSET_ON_SETTINGS()
     local loginCharID = info.GetCID(session.GetMyHandle())
     local pctbl = g.settings.pctbl[loginCharID]
 
-    if IS_ANCIENT_ENABLE_MAP() == "YES" then
-        addon.BroadMsg("NOTICE_Dm_!", ClMsg("ImpossibleInCurrentMap"), 3);
-        return
-    end
-
     local slot1 = tonumber(pctbl.slot1)
     local slot2 = tonumber(pctbl.slot2)
     local slot3 = tonumber(pctbl.slot3)
     local slot4 = tonumber(pctbl.slot4)
+
     local card1 = session.ancient.GetAncientCardBySlot(0)
-    -- print(tostring())
     local card2 = session.ancient.GetAncientCardBySlot(1)
     local card3 = session.ancient.GetAncientCardBySlot(2)
     local card4 = session.ancient.GetAncientCardBySlot(3)
-
-    --[[if slot1 == nil and card1 ~= nil then
-        ReqSwapAncientCard("None", 0)
-        ReserveScript("ANCIENT_AUTOSET_ON_SETTINGS()", 0.3)
-        return
-    end]]
 
     if slot1 ~= nil and card1 == nil then
         ReqSwapAncientCard(slot1, 0)
@@ -141,41 +176,6 @@ function ANCIENT_AUTOSET_ON_SETTINGS()
 
 end
 
-function ANCIENT_AUTOSET_ON_INIT(addon, frame)
-
-    g.addon = addon
-    g.frame = frame
-
-    if not g.loaded then
-        g.loaded = true
-    end
-
-    local origframe = ui.GetFrame("ancient_card_list")
-    local btn2 = origframe:GetChildRecursively("topbg"):CreateOrGetControl("button", "btn_aas", 0, 0, 90, 33)
-    AUTO_CAST(btn2)
-    btn2:SetGravity(ui.LEFT, ui.BOTTOM)
-    btn2:SetMargin(470, 0, 0, 0)
-    btn2:SetSkinName("None")
-    btn2:SetImage("config_button_normal")
-    btn2:Resize(33, 33)
-
-    btn2:SetEventScript(ui.LBUTTONUP, "ANCIENT_SETTING_MSG")
-    btn2:SetEventScript(ui.RBUTTONUP, "ANCIENT_SETTING_MSG_RELEASE")
-    btn2:SetTextTooltip(
-        "Ancient Aoto Set{nl}LeftButton:Setting RightButton:ReSetting{nl}左クリック:設定 右クリック:設定解除")
-
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
-        addon:RegisterMsg("GAME_START_3SEC", "ANCIENT_AUTOSET_LOAD_SETTINGS")
-    else
-
-        return;
-    end
-
-end
-
 function ANCIENT_SETTING_MSG_RELEASE()
     local msg =
         "Do you want to remove the assister set for this character?{nl}このキャラクターに設定したアシスターセットを解除しますか？"
@@ -192,16 +192,6 @@ function ANCIENT_SETTING_RELEASE()
 
     local loginCharID = info.GetCID(session.GetMyHandle())
 
-    -- g.settings.pctbl が存在しない場合は初期化
-    if g.settings.pctbl == nil then
-        g.settings.pctbl = {}
-    end
-
-    -- loginCharID が存在しない場合は終了
-    if g.settings.pctbl[loginCharID] == nil then
-        return
-    end
-
     for index = 0, 3 do
         local slotName = "slot" .. (index + 1)
         g.settings.pctbl[loginCharID][slotName] = nil
@@ -211,7 +201,7 @@ function ANCIENT_SETTING_RELEASE()
     ui.SysMsg("[AAS]Canceled.")
 
     ANCIENT_AUTOSET_SAVE_SETTINGS()
-    -- ANCIENT_AUTOSET_LOAD_SETTINGS()
+
 end
 
 function ANCIENT_SETTING_MSG()
@@ -231,16 +221,6 @@ function ANCIENT_SETTING_REG()
     tab:SelectTab(0)
 
     local loginCharID = info.GetCID(session.GetMyHandle())
-
-    -- g.settings.pctbl が存在しない場合は初期化
-    if g.settings.pctbl == nil then
-        g.settings.pctbl = {}
-    end
-
-    -- pctbl が存在しないか、loginCharID が異なる場合は新たに登録
-    if g.settings.pctbl[loginCharID] == nil then
-        g.settings.pctbl[loginCharID] = {}
-    end
 
     for index = 0, 3 do
         local card = session.ancient.GetAncientCardBySlot(index)
@@ -264,10 +244,8 @@ function ANCIENT_AUTOSET_FRAME_INIT()
     frame:SetLayerLevel(31)
     frame:ShowTitleBar(0)
     frame:EnableHitTest(1)
-    -- local screenWidth = ui.GetClientInitialWidth()
 
     local offsetX = 1100
-    -- local screenHeight = ui.GetClientInitialHeight()
 
     local offsetY = 30
     frame:SetOffset(offsetX, offsetY)
@@ -306,14 +284,14 @@ end
 
 function ANCIENT_AUTOSET_SET_ANCIENT_CARD_SLOT(ctrlSet, card, index)
     local font = "{@st42b}{s14}"
-    -- print(tostring(card))
-    -- slot image
+
     local slot = ctrlSet:GetSlotByIndex(index);
     AUTO_CAST(slot)
     -- print(tostring(slot))
     local icon = CreateIcon(slot);
     local monCls = GetClass("Monster", card:GetClassName());
-    local iconName = "misc_slogutis_fragments"
+    -- print(tostring(monCls.Icon))
+    local iconName = monCls.Icon
     icon:SetImage(iconName)
     -- star drawing
     local starText = slot:CreateOrGetControl("richtext", "starText", 10, 40, 15, 15)
@@ -329,97 +307,8 @@ function ANCIENT_AUTOSET_SET_ANCIENT_CARD_SLOT(ctrlSet, card, index)
     local level = xpInfo.level
     local lvText = slot:CreateOrGetControl("richtext", "lvText", 3, 0, 40, 10)
     lvText:SetText(font .. "Lv. " .. level .. "{/}")
-    -- set lv and name
-    --[[local nameText = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_name")
-    local cls = GetClass("Monster", card:GetClassName())
 
-    nameText:SetText(font .. cls.Name .. "{/}")
-
-    -- exp gauge
-   local ancient_card_gauge = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_gauge")
-    AUTO_CAST(ancient_card_gauge)
-    local totalExp = xpInfo.totalExp - xpInfo.startExp;
-    local curExp = exp - xpInfo.startExp;
-    ancient_card_gauge:SetPoint(curExp, totalExp);
-
-    -- type
-    local racetypeDic = {
-        Klaida = "insect",
-        Widling = "wild",
-        Velnias = "devil",
-        Forester = "plant",
-        Paramune = "variation",
-        None = "melee"
-    }
-
-    local type1Text = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_type1_text")
-    type1Text:SetText(font .. ScpArgMsg("MonInfo_RaceType_" .. cls.RaceType) .. "{/}")
-    local type1Pic = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_type1_pic")
-    local type1Icon = CreateIcon(type1Pic)
-    type1Icon:SetImage("monster_" .. racetypeDic[cls.RaceType])
-
-    local type2Text = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_type2_text")
-    type2Text:SetText(font .. ScpArgMsg("MonInfo_Attribute_" .. cls.Attribute) .. "{/}")
-    local type2Pic = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_type2_pic")
-    local type2Icon = CreateIcon(type2Pic)
-    type2Icon:SetImage("attribute_" .. cls.Attribute)
-
-    ctrlSet:SetUserValue("ANCIENT_GUID", card:GetGuid())
-    -- tooltip
-    ctrlSet:SetTooltipType("ancient_card")
-    ctrlSet:SetTooltipStrArg(card:GetGuid())
-    icon:SetTooltipType("ancient_card")
-    icon:SetTooltipStrArg(card:GetGuid())
-
-    local ancientCls = GetClass("Ancient_Info", monCls.ClassName)
-    local rarity = ancientCls.Rarity
-    -- hide
-    local background = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_background")
-    AUTO_CAST(background)
-    if rarity == 1 then
-        background:SetImage("normal_card")
-    elseif rarity == 2 then
-        background:SetImage("rare_card")
-    elseif rarity == 3 then
-        background:SetImage("unique_card")
-    elseif rarity == 4 then
-        background:SetImage("legend_card")
-    end
-
-    local groupbox = ctrlSet:GetChild("ancient_card_gbox")
-    groupbox:SetVisible(1)
-    SET_CARD_LOCK_MODE(ctrlSet, isLockMode)
-    if card.isLock == true then
-        local lock = slot:CreateOrGetControlSet('inv_itemlock', "itemlock", 0, 0);
-        lock:SetGravity(ui.RIGHT, ui.TOP);
-    end]]
 end
-
---[[function ANCIENT_AUTOSET_CTRL_INIT(frame, slotset)
-
-    for i = 0, 3 do
-
-        local toslot = slotset:GetSlotByIndex(i)
-        AUTO_CAST(toslot)
-
-        local card = session.ancient.GetAncientCardBySlot(i)
-
-        if card ~= nil then
-
-            local monCls = GetClass("Monster", card:GetClassName());
-            -- local monClsID = GetClassByType("Monster", card:GetIESID());
-
-            local iconName = TryGetProp(monCls, "Icon");
-
-            local toicon = CreateIcon(toslot);
-            toicon:SetImage(iconName)
-
-        end
-
-    end
-
-    ReserveScript("ANCIENT_AUTOSET_CLOSE()", 3.0)
-end]]
 
 function ANCIENT_AUTOSET_CLOSE()
     local frame = ui.CloseFrame("ancient_autoset")
