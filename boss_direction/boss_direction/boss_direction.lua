@@ -1,10 +1,11 @@
 -- v1.0.1 BOSS倒したら矢印速攻消える様に。サイズ控え目に。
 -- v1.0.2 角度調整
 -- v1.0.3 レイヤー修正。スキルショートカットより低く設定。
+-- v1.0.4 バグ修正
 local addonName = "BOSS_DIRECTION"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -45,31 +46,22 @@ function BOSS_DIRECTION_ON_INIT(addon, frame)
 
         local headsup = ui.GetFrame("headsupdisplay");
         headsup:RunUpdateScript("BOSS_DIRECTION_ON_MSG", 0.1)
-        --[[local frame = ui.GetFrame("boss_direction")
-
-        local timer = frame:GetChild("addontimer");
-        tolua.cast(timer, "ui::CAddOnTimer");
-        timer:SetUpdateScript("BOSS_DIRECTION_ON_MSG");
-        timer:Start(0.1);]]
     end
 
 end
 
 function BOSS_DIRECTION_ON_MSG(frame, msg, argStr, argNum)
-    local frame = ui.GetFrame("boss_direction")
-
-    --[[if msg == "TARGET_CLEAR_BOSS" then
-        ReserveScript("BOSS_DIRECTION_TARGET_CLEAR()", 3.0)
-        return 1
-    end]]
     local handle = session.GetTargetBossHandle();
     local targetinfo = info.GetTargetInfo(handle);
-    --[[if nil == targetinfo then
-        session.ResetTargetBossHandle();
+    local frame = ui.GetFrame(g.framename)
+    --[[if targetinfo == nil then
         frame:ShowWindow(0)
-        return 1
+        return 0
     end]]
-    -- CHAT_SYSTEM(tostring(targetinfo.TargetWindow))
+    if msg == "TARGET_CLEAR_BOSS" then
+        frame:ShowWindow(0)
+        return 0
+    end
 
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
@@ -79,20 +71,18 @@ function BOSS_DIRECTION_ON_MSG(frame, msg, argStr, argNum)
 
     local arrow = frame:GetChild("arrow");
     if arrow == nil then
-        arrow = frame:CreateOrGetControl("picture", "arrow", 0, 0, 80, 80);
+        arrow = frame:CreateOrGetControl("picture", "arrow", 0, 0, 70, 70);
         tolua.cast(arrow, "ui::CPicture");
 
         arrow:SetImage("class_tree_arrow")
-
         arrow:SetEnableStretch(1);
         arrow:EnableHitTest(0);
         arrow:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT);
-        -- frame:ShowWindow(1);
     end
     if handle ~= 0 then
         -- arrow:SetAngle(info.GetAngle(handle) - 30);
         arrow:SetAngle(info.GetAngle(handle) - 23);
-        arrow:Resize(100, 100);
+        arrow:Resize(70, 70);
         arrow:SetColorTone("FFFF0000");
         FRAME_AUTO_POS_TO_OBJ(frame, handle, -frame:GetWidth() / 2, -frame:GetHeight() / 2, 0, 0);
         frame:ShowWindow(1);

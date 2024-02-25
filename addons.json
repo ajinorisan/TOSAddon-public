@@ -62,7 +62,7 @@
 		"name" : "Boss Direction",
 		"file" : "boss_direction",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.3",
+		"fileVersion" : "v1.0.4",
 		"releaseTag" : "boss_direction",
 		"unicode" : "⛄",
 		"description" : "ボスが向いている方向を矢印でお知らせ。The direction the boss is facing is indicated by an arrow.보스가 향하고 있는 방향을 화살표로 알려준다.",
