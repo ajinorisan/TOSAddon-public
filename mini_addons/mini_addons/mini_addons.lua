@@ -18,10 +18,11 @@
 -- v1.1.7 メレジナのダイアログ直した。
 -- v1.1.8 他人のエフェクトの設定がバグっているらしいので、直した気もする。
 -- v1.1.9 チャンネルインフォの表示バグの原因っぽいところを修正。
+-- v1.2.0 英語圏のstrの取得方法間違ってたの修正。今いるチャンネルが分かる様にした。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.9"
+local ver = "1.2.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -233,27 +234,38 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
         local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
 
         if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
-            -- CHAT_SYSTEM(tostring(GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)))
+
             -- local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
             -- print(tostring(suffix))
-            -- str, gaugeString = GET_CHANNEL_STRING(zoneInst, true, suffix);
-
+            -- print(tostring(zoneInst.channel + 1))
             local String = string.match(str, "%((%d+)")
 
-            if String then
+            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
+            AUTO_CAST(btn)
+            btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+            local channelnum = session.loginInfo.GetChannel();
+            if i == channelnum then
+                btn:SetSkinName("test_pvp_btn");
+            end
+            btn:SetEventScriptArgString(ui.LBUTTONUP, i)
+            if tonumber(String) >= 50 then
+                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FF0000}" .. String
+                btn:SetText(text)
+            elseif tonumber(String) < 20 then
+                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
+                btn:SetText(text)
+            else
+                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
+                btn:SetText(text)
+            end
+            --[[if String then
                 local startIndex = 9
                 local endIndex = 17
                 local subString = string.sub(str, startIndex, endIndex)
 
-                local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
-                AUTO_CAST(btn)
-                btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+              
 
-                btn:SetEventScriptArgString(ui.LBUTTONUP, i)
-                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}" .. subString .. "{nl}{s16}" .. String
-                btn:SetText(text)
-
-            end
+            end]]
 
         end
     end
