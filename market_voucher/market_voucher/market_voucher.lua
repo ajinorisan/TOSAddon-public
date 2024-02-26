@@ -101,7 +101,7 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
 
             -- local itemName = itemObj.ClassName
             local langCode = option.GetCurrentCountry()
-
+            -- if (option.GetCurrentCountry() == "Japanese") then
             if langCode ~= "Korean" then
 
                 itemName = dictionary.ReplaceDicIDInCompStr(itemObj.Name)
