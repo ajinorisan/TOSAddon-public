@@ -1,6 +1,7 @@
 -- v1.0.0 キャラが最後に使ってたペットをCC時に召喚。街だけで動きます。
 -- v1.0.1 呼び出し安定しなかったのでディレイ見直し、ペットアイコンを画面上部に設置
 -- v1.0.2 動いてたのが不思議なくらい雑なコードだったので見直し。ペット入れ替えた時のアイコン表示修正。
+-- v1.0.3 コンパニオンフレームの呼び出しを更に遅延
 local addonName = "AUTO_PET_SUMMON"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -56,7 +57,7 @@ end
 
 function AUTO_PET_SUMMON_RESERVE_COMPANIONLIST()
     if g.first == 0 then
-        ReserveScript("AUTO_PET_SUMMON_COMPANIONLIST()", 3.5)
+        ReserveScript("AUTO_PET_SUMMON_COMPANIONLIST()", 5.0)
     else
         ReserveScript("AUTO_PET_SUMMON_COMPANIONLIST()", 0.5)
     end

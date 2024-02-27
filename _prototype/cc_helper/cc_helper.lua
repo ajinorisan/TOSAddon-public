@@ -1,7 +1,9 @@
+-- v1.1.4 コード大幅見直し。ヘアアクセバグ修正。失敗した時にリトライ昨日追加。
+-- v1.1.5 登録したカードと別のカードが付いていると無限ループに陥る問題修正
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -203,7 +205,7 @@ function cc_helper_accountwarehouse_init()
         g.yai = 1
     end
 
-    -- cc_helper_invframe_init()
+    cc_helper_invframe_init()
 end
 
 function cc_helper_ACCOUNTWAREHOUSE_CLOSE(frame)
@@ -259,9 +261,7 @@ function cc_helper_setting_frame_init()
     frame:EnableHitTest(1)
 
     if frame:IsVisible() == 0 then
-
         frame:ShowWindow(1)
-
     else
         frame:ShowWindow(0)
     end
@@ -270,7 +270,6 @@ function cc_helper_setting_frame_init()
 
     local title = frame:CreateOrGetControl("richtext", "title", 40, 15)
     title:SetText("{ol}{s18}CC Helper " .. "{s16}" .. ver)
-    -- title:SetText("{ol}Character Change Helper")
 
     local mcc_title = frame:CreateOrGetControl("richtext", "mcc_title", 10, 250)
     mcc_title:SetText("{ol}mcc")
@@ -340,7 +339,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].seal_iesid,
-        image = g.settings[g.LOGINCID].seal_image
+        image = g.settings[g.LOGINCID].seal_image,
+        index = 2
     }, {
         name = "ark_slot",
         x = 210,
@@ -352,7 +352,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].ark_iesid,
-        image = g.settings[g.LOGINCID].ark_image
+        image = g.settings[g.LOGINCID].ark_image,
+        index = 3
     }, {
         name = "agem_slot",
         x = 210,
@@ -364,7 +365,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].gem_clsid,
-        image = g.settings[g.LOGINCID].gem_image
+        image = g.settings[g.LOGINCID].gem_image,
+        index = 5
     }, {
         name = "legcard_slot",
         x = 10,
@@ -376,7 +378,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].leg_iesid,
-        image = g.settings[g.LOGINCID].leg_image
+        image = g.settings[g.LOGINCID].leg_image,
+        index = 1
     }, {
         name = "godcard_slot",
         x = 110,
@@ -388,7 +391,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].god_iesid,
-        image = g.settings[g.LOGINCID].god_image
+        image = g.settings[g.LOGINCID].god_image,
+        index = 9
     }, {
         name = "crown_slot",
         x = 210,
@@ -400,7 +404,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].crown_iesid,
-        image = g.settings[g.LOGINCID].crown_image
+        image = g.settings[g.LOGINCID].crown_image,
+        index = 4
     }, {
         name = "hair_slot1",
         x = 10,
@@ -412,7 +417,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].hair1_iesid,
-        image = g.settings[g.LOGINCID].hair1_image
+        image = g.settings[g.LOGINCID].hair1_image,
+        index = 6
     }, {
         name = "hair_slot2",
         x = 70,
@@ -424,7 +430,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].hair2_iesid,
-        image = g.settings[g.LOGINCID].hair2_image
+        image = g.settings[g.LOGINCID].hair2_image,
+        index = 7
     }, {
         name = "hair_slot3",
         x = 130,
@@ -436,7 +443,8 @@ function cc_helper_setting_frame_init()
         dropHandler = "cc_helper_frame_drop",
         cancelHandler = "cc_helper_cancel",
         iesid = g.settings[g.LOGINCID].hair3_iesid,
-        image = g.settings[g.LOGINCID].hair3_image
+        image = g.settings[g.LOGINCID].hair3_image,
+        index = 8
     }}
 
     for _, info in ipairs(slotInfo) do
@@ -879,12 +887,20 @@ function cc_helper_in_btn_agm()
     cchframe:ShowWindow(0)
     g.agm = 0
     AETHERGEM_MGR_GET_EQUIP()
-    ReserveScript("cc_helper_in_btn_start()", 5.0)
+
+    local a = ADDONS.norisan.AETHERGEM_MGR
+
+    local delay = a.settings.delay
+
+    ReserveScript("cc_helper_in_btn_start()", delay * 10)
 
 end
 
 function cc_helper_in_btn_start()
+    -- print("cc_helper_in_btn_start")
     g.monstercard = 1
+    g.unequip = 1
+    g.equip = 0
     local frame = ui.GetFrame("inventory")
 
     if true == BEING_TRADING_STATE() then
@@ -914,85 +930,94 @@ function cc_helper_in_btn_start()
 end
 
 function cc_helper_unequip()
-    local frame = ui.GetFrame("inventory")
-    local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
-    eqpTab:SelectTab(1)
-    local equip_tbl = {"SEAL", "RELIC", "ARK", "HAT", "HAT_L", "HAT_T"}
-
-    for _, equip_type in ipairs(equip_tbl) do
-        local slot = GET_CHILD_RECURSIVELY(frame, equip_type)
-        local icon = slot:GetIcon()
-        if icon ~= nil then
-            local icon_info = icon:GetInfo()
-
-            if icon_info ~= nil then
-                local iesid = icon_info:GetIESID()
-
-                if equip_type == "SEAL" then
-
-                    if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].seal_iesid then
-
-                        local index = 25
-                        item.UnEquip(index)
-                        ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                        return
-                    end
-                end
-                if equip_type == "RELIC" then
-
-                    if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].crown_iesid then
-                        local index = 29 -- スロットインデックスを適切な値に設定する必要があります
-                        item.UnEquip(index)
-                        ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                        return
-                    end
-                end
-                if equip_type == "ARK" then
-
-                    if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].ark_iesid then
-                        local index = 27 -- スロットインデックスを適切な値に設定する必要があります
-                        item.UnEquip(index)
-                        ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                        return
-
-                    end
-                end
-                if equip_type == "HAT" then
-
-                    if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair1_iesid then
-                        local index = 0 -- スロットインデックスを適切な値に設定する必要があります
-                        item.UnEquip(index)
-                        ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                        return
-                    end
-                end
-                if equip_type == "HAT_T" then
-
-                    if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair2_iesid then
-
-                        local index = 20 -- スロットインデックスを適切な値に設定する必要があります
-                        item.UnEquip(index)
-                        ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                        return
-                    end
-                end
-                if equip_type == "HAT_L" then
-
-                    if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair3_iesid then
-
-                        local index = 1 -- スロットインデックスを適切な値に設定する必要があります
-                        item.UnEquip(index)
-                        ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                        return
-                    end
-                end
-            end
-        end
-
-    end
 
     local legtrue = 0
     cc_helper_unequip_card(legtrue)
+
+    local frame = ui.GetFrame("inventory")
+    local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
+    eqpTab:SelectTab(1)
+    local equip_tbl = {
+        [1] = "SEAL",
+        [3] = "RELIC",
+        [2] = "ARK",
+        [4] = "HAT",
+        [5] = "HAT_L",
+        [6] = "HAT_T"
+    }
+    for i = 1, 6 do
+        for key, value in pairs(equip_tbl) do
+            local slot = GET_CHILD_RECURSIVELY(frame, value)
+            local icon = slot:GetIcon()
+            if icon ~= nil then
+                local icon_info = icon:GetInfo()
+
+                if icon_info ~= nil then
+                    local iesid = icon_info:GetIESID()
+
+                    if value == "SEAL" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].seal_iesid then
+
+                            local index = 25
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "RELIC" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].crown_iesid then
+                            local index = 29 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "ARK" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].ark_iesid then
+                            local index = 27 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+
+                        end
+                    end
+                    if value == "HAT" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair1_iesid then
+                            local index = 0 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "HAT_T" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair2_iesid then
+
+                            local index = 20 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "HAT_L" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair3_iesid then
+
+                            local index = 1 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                end
+            end
+
+        end
+    end
 
 end
 
@@ -1012,6 +1037,9 @@ function cc_helper_unequip_card(legtrue)
             legtrue = 1
             ReserveScript(string.format("cc_helper_unequip_card(%d)", legtrue), g.settings.delay * 3)
             return
+        elseif cardInfo ~= nil and tostring(cardid) ~= tostring(g.settings[g.LOGINCID].leg_clsid) then
+            legtrue = 1
+            ReserveScript(string.format("cc_helper_unequip_card(%d)", legtrue), g.settings.delay * 3)
         end
     end
     if g.settings[g.LOGINCID].god_clsid ~= 0 then
@@ -1031,7 +1059,9 @@ function cc_helper_unequip_card(legtrue)
     if ui.GetFrame("monstercardslot"):IsVisible() == 1 then
 
         ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay * 3 + g.settings.delay)
-        ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
+        if GETMYCARD_INFO(12) == 0 and GETMYCARD_INFO(13) == 0 then
+            -- ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
+        end
     else
 
         ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
@@ -1073,7 +1103,7 @@ function cc_helper_get_goal_index()
                 end
 
                 if left4 < 70 then
-                    index = right0 + 280
+                    index = right0 + 210 + left4 - 1
                     return index
                 end
             elseif i == 3 then
@@ -1089,7 +1119,7 @@ function cc_helper_get_goal_index()
                 end
 
                 if left3 < 70 then
-                    index = right0 + 210
+                    index = right0 + 140 + left3 - 1
                     return index
                 end
             elseif i == 2 then
@@ -1105,7 +1135,7 @@ function cc_helper_get_goal_index()
                 end
 
                 if left2 < 70 then
-                    index = right0 + 140
+                    index = right0 + 70 + left2 - 1
                     return index
                 end
             elseif i == 1 then
@@ -1121,13 +1151,23 @@ function cc_helper_get_goal_index()
                 end
 
                 if left1 < 70 then
-                    index = right0 + 70
+                    index = right0 + left1 - 1
                     return index
                 end
             elseif i == 0 then
-                tab:SelectTab(0)
+                tab:SelectTab(i)
+                local j = 1
+                for j = 1, right0 do
+                    local slotset = GET_CHILD_RECURSIVELY(frame, "slotset");
+                    local slot = GET_CHILD(slotset, "slot" .. j)
+                    local icon = slot:GetIcon()
+                    local iconInfo = icon:GetInfo();
+                    if iconInfo == nil then
+                        index = j
+                        return index
+                    end
+                end
 
-                return index
             end
         end
     else
@@ -1249,7 +1289,10 @@ end
 
 -- takeitem
 function cc_helper_out_btn_start()
+    -- print("cc_helper_out_btn_start")
     g.monstercard = 0
+    g.unequip = 0
+    g.equip = 1
     local iesids = {{
         id = g.settings[g.LOGINCID].crown_iesid,
         type = "crown",
@@ -1417,6 +1460,22 @@ function cc_helper_equip_reserve()
         GODCARD = g.settings[g.LOGINCID].god_iesid
     }
     local delay = 0
+
+    for spot, iesid in pairs(iesids) do
+        if spot == "GODCARD" then
+            local slot_index = 14
+            local cardid = GETMYCARD_INFO(slot_index - 1)
+
+            if cardid == 0 then
+
+                MONSTERCARDSLOT_FRAME_OPEN()
+                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
+                delay = delay + g.settings.delay * 1.5
+
+            end
+        end
+    end
+
     for spot, iesid in pairs(iesids) do
         local item = session.GetInvItemByGuid(tonumber(iesid))
 
@@ -1436,34 +1495,22 @@ function cc_helper_equip_reserve()
     end
 
     for spot, iesid in pairs(iesids) do
-        if spot == "GODCARD" then
-            local slot_index = 14
-            local cardid = GETMYCARD_INFO(slot_index - 1)
-
-            if cardid == 0 then
-
-                MONSTERCARDSLOT_FRAME_OPEN()
-                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
-                delay = delay + g.settings.delay * 3
-
-            end
-        end
-    end
-
-    for spot, iesid in pairs(iesids) do
         if spot == "LEGCARD" and g.check == 0 then
             local slot_index = 13
             local cardid = GETMYCARD_INFO(slot_index - 1)
+            -- print(tostring(cardid))
             if cardid == 0 then
 
                 MONSTERCARDSLOT_FRAME_OPEN()
                 ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
                 delay = delay + g.settings.delay * 3
-                ReserveScript("MONSTERCARDSLOT_CLOSE()", delay)
+                -- ReserveScript("MONSTERCARDSLOT_CLOSE()", delay)
             end
         end
     end
-    ReserveScript("MONSTERCARDSLOT_CLOSE()", delay + 0.5)
+    if GETMYCARD_INFO(12) ~= 0 and GETMYCARD_INFO(13) ~= 0 then
+        -- ReserveScript("MONSTERCARDSLOT_CLOSE()", delay + 0.5)
+    end
     ReserveScript("cc_helper_end_operation()", delay + 1.0)
 
 end
@@ -1497,9 +1544,261 @@ end
 -- 終了処理
 function cc_helper_end_operation()
 
+    if g.unequip == 1 then
+        if g.settings[g.LOGINCID].seal_iesid ~= "" then
+
+            local seal = session.GetInvItemByGuid(g.settings[g.LOGINCID].seal_iesid)
+
+            if seal ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+        if g.settings[g.LOGINCID].ark_iesid ~= "" then
+            local ark = session.GetInvItemByGuid(g.settings[g.LOGINCID].ark_iesid)
+
+            if ark ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+
+        if g.settings[g.LOGINCID].hair1_iesid ~= "" then
+            local hair1 = session.GetInvItemByGuid(g.settings[g.LOGINCID].hair1_iesid)
+
+            if hair1 ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+        if g.settings[g.LOGINCID].hair2_iesid ~= "" then
+            local hair2 = session.GetInvItemByGuid(g.settings[g.LOGINCID].hair2_iesid)
+
+            if hair2 ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+        if g.settings[g.LOGINCID].hair3_iesid ~= "" then
+            local hair3 = session.GetInvItemByGuid(g.settings[g.LOGINCID].hair3_iesid)
+
+            if hair3 ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+        if g.settings[g.LOGINCID].crown_iesid ~= "" then
+            local crown = session.GetInvItemByGuid(g.settings[g.LOGINCID].crown_iesid)
+
+            if crown ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+        if g.settings[g.LOGINCID].leg_iesid ~= "" and g.check == 0 then
+            local slot_index = 13
+            local cardid = GETMYCARD_INFO(slot_index - 1)
+            if cardid ~= 0 and g.settings[g.LOGINCID].leg_iesid == tostring(cardid) then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+            local leg = session.GetInvItemByGuid(g.settings[g.LOGINCID].leg_iesid)
+
+            if leg ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+        if g.settings[g.LOGINCID].god_iesid ~= "" then
+            local slot_index = 14
+            local cardid = GETMYCARD_INFO(slot_index - 1)
+            if cardid ~= 0 and g.settings[g.LOGINCID].god_iesid == tostring(cardid) then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+            local god = session.GetInvItemByGuid(g.settings[g.LOGINCID].god_iesid)
+
+            if god ~= nil then
+                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+                return
+            end
+        end
+
+        g.unequip = 0
+
+    end
+
+    if g.equip == 1 then
+        local frame = ui.GetFrame("inventory")
+        if g.settings[g.LOGINCID].seal_iesid ~= "" then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].seal_iesid)
+
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+
+                local slot = GET_CHILD_RECURSIVELY(frame, "SEAL")
+
+                local icon = slot:GetIcon()
+
+                if icon == nil then
+                    local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].seal_iesid)
+
+                    if Item ~= nil then
+
+                        ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                        return
+                    end
+                end
+
+            end
+        end
+        if g.settings[g.LOGINCID].ark_iesid ~= "" then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].ark_iesid)
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+                local slot = GET_CHILD_RECURSIVELY(frame, "ARK")
+                local icon = slot:GetIcon()
+
+                if icon == nil then
+                    local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].ark_iesid)
+
+                    if Item ~= nil then
+                        ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                        return
+                    end
+                end
+            end
+        end
+        if g.settings[g.LOGINCID].hair1_iesid ~= "" then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].hair1_iesid)
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+                local slot = GET_CHILD_RECURSIVELY(frame, "HAT")
+                local icon = slot:GetIcon()
+
+                if icon == nil then
+                    local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].hair1_iesid)
+
+                    if Item ~= nil then
+                        ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                        return
+                    end
+                end
+            end
+        end
+        if g.settings[g.LOGINCID].hair2_iesid ~= "" then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].hair2_iesid)
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+                local slot = GET_CHILD_RECURSIVELY(frame, "HAT_T")
+                local icon = slot:GetIcon()
+
+                if icon == nil then
+                    local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].hair2_iesid)
+
+                    if Item ~= nil then
+                        ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                        return
+                    end
+                end
+            end
+        end
+        if g.settings[g.LOGINCID].hair3_iesid ~= "" then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].hair3_iesid)
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+                local slot = GET_CHILD_RECURSIVELY(frame, "HAT_L")
+                local icon = slot:GetIcon()
+
+                if icon == nil then
+                    local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].hair3_iesid)
+
+                    if Item ~= nil then
+                        ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                        return
+                    end
+                end
+            end
+        end
+        if g.settings[g.LOGINCID].crown_iesid ~= "" then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].crown_iesid)
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+                local slot = GET_CHILD_RECURSIVELY(frame, "RELIC")
+                local icon = slot:GetIcon()
+                if icon == nil then
+                    local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].crown_iesid)
+
+                    if Item ~= nil then
+                        ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                        return
+                    end
+                end
+            end
+        end
+        if g.settings[g.LOGINCID].god_iesid ~= "" then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].god_iesid)
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+                local slot_index = 14
+                local cardid = GETMYCARD_INFO(slot_index - 1)
+                local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].god_iesid)
+
+                if g.settings[g.LOGINCID].god_iesid == tostring(cardid) then
+                    ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                    return
+                end
+            end
+
+        end
+        if g.settings[g.LOGINCID].leg_iesid ~= "" and g.check == 0 then
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+            local invItem = itemList:GetItemByGuid(g.settings[g.LOGINCID].leg_iesid)
+            if invItem ~= nil then
+                ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                return
+            else
+                local slot_index = 13
+                local cardid = GETMYCARD_INFO(slot_index - 1)
+                local Item = session.GetInvItemByGuid(g.settings[g.LOGINCID].leg_iesid)
+
+                if g.settings[g.LOGINCID].leg_iesid == tostring(cardid) then
+                    ReserveScript("cc_helper_out_btn_start()", g.settings.delay)
+                    return
+                end
+            end
+        end
+
+        g.equip = 0
+
+    end
+
     local frame = ui.GetFrame("inventory")
     local allTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     allTab:SelectTab(0)
+
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
 
     if ADDONS.norisan.monstercard_change ~= nil and g.check == 0 and g.settings[g.LOGINCID].mcc_use == 1 then
 
@@ -1572,7 +1871,7 @@ function cc_helper_end_operation()
 
     end
 
-    function cc_helper_monstercard_change(frame, ctrl)
+    --[[function cc_helper_monstercard_change(frame, ctrl)
 
         if tostring(ctrl:GetName()) == "cancel_btn" then
             frame:ShowWindow(0)
@@ -1595,7 +1894,7 @@ function cc_helper_end_operation()
             return
         end
 
-    end
+    end]]
 
     if g.agm == 1 then
         if ADDONS.norisan.AETHERGEM_MGR ~= nil and g.check == 0 and g.settings[g.LOGINCID].agm_use == 1 then
