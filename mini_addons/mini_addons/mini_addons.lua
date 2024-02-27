@@ -19,10 +19,11 @@
 -- v1.1.8 他人のエフェクトの設定がバグっているらしいので、直した気もする。
 -- v1.1.9 チャンネルインフォの表示バグの原因っぽいところを修正。
 -- v1.2.0 英語圏のstrの取得方法間違ってたの修正。今いるチャンネルが分かる様にした。
+-- v1.2.1 英語版の再修正。これで無理ならもう無理や。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.0"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -231,43 +232,29 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
 
     for i = 0, cnt - 1 do
         local zoneInst = zoneInsts:GetZoneInstByIndex(i);
-        local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+        -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
 
-        if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
+        local String = zoneInst.pcCount
 
-            -- local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-            -- print(tostring(suffix))
-            -- print(tostring(zoneInst.channel + 1))
-            local String = string.match(str, "%((%d+)")
-
-            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
-            AUTO_CAST(btn)
-            btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
-            local channelnum = session.loginInfo.GetChannel();
-            if i == channelnum then
-                btn:SetSkinName("test_pvp_btn");
-            end
-            btn:SetEventScriptArgString(ui.LBUTTONUP, i)
-            if tonumber(String) >= 50 then
-                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FF0000}" .. String
-                btn:SetText(text)
-            elseif tonumber(String) < 20 then
-                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
-                btn:SetText(text)
-            else
-                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
-                btn:SetText(text)
-            end
-            --[[if String then
-                local startIndex = 9
-                local endIndex = 17
-                local subString = string.sub(str, startIndex, endIndex)
-
-              
-
-            end]]
-
+        local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
+        AUTO_CAST(btn)
+        btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+        local channelnum = session.loginInfo.GetChannel();
+        if i == channelnum then
+            btn:SetSkinName("test_pvp_btn");
         end
+        btn:SetEventScriptArgString(ui.LBUTTONUP, i)
+        if tonumber(String) >= 50 then
+            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FF0000}" .. String
+            btn:SetText(text)
+        elseif tonumber(String) < 20 then
+            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
+            btn:SetText(text)
+        else
+            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
+            btn:SetText(text)
+        end
+
     end
     frame:Resize(cnt * 50 + 20, 60)
     frame:ShowWindow(1)

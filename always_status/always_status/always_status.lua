@@ -11,10 +11,11 @@
 -- v1.1.0 JSONファイル同時保存はエラーになるという学びを得た。
 -- v1.1.1 リロード画面の効果音消去、爆速表示に変更
 -- v1.1.2 リロードでバグった場合に効果音が消去されたままだったのを修正
+-- v1.1.3 ギルメンの要望に応えて日本鯖だけ別処理
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -572,6 +573,59 @@ function always_status_checkbox(frame, ctrl, argStr, argNum)
     -- always_status_load_settings()
     always_status_frame_init()
 end
+local str_tbl = {
+    ["{s16}{ol}{#FF6600}物理クリティカル攻撃力"] = "{ol}{s16}{#FF6600}物理クリ攻",
+    ["{s16}{ol}{#FF6600}魔法クリティカル攻撃力"] = "{ol}{s16}{#FF6600}魔法クリ攻",
+    ["{s16}{ol}{#FF6600}クリティカル発生"] = "{ol}{s16}{#FF6600}クリ発",
+    ["{s16}{ol}{#FF6600}クリティカル抵抗"] = "{ol}{s16}{#FF6600}クリ抵",
+    ["{s16}{ol}{#FF6600}キャスティング時間比率"] = "{ol}{s1}{#FF6600}キャス時間比率",
+    ["{s16}{ol}{#66b3ff}追加ダメージ抵抗"] = "{s16}{ol}{#66b3ff}追加ダメ抵抗",
+    ["{s16}{ol}{#FF6600}突ダメージアップ"] = "{s16}{ol}{#FF6600}突アップ",
+    ["{s16}{ol}{#FF6600}斬ダメージアップ"] = "{s16}{ol}{#FF6600}斬アップ",
+    ["{s16}{ol}{#FF6600}打ダメージアップ"] = "{s16}{ol}{#FF6600}打アップ",
+    ["{s16}{ol}{#FF6600}弓矢のダメージアップ"] = "{s16}{ol}{#FF6600}弓アップ",
+    ["{s16}{ol}{#FF6600}キャノンダメージアップ"] = "{s16}{ol}{#FF6600}キャノアップ",
+    ["{s16}{ol}{#FF6600}銃器ダメージアップ"] = "{s16}{ol}{#FF6600}銃器アップ",
+    ["{s16}{ol}{#FF6600}無属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}無属性アップ",
+    ["{s16}{ol}{#FF6600}炎属性追加ダメージアップ"] = "{s16}{ol}{#FF6600}炎属性アップ",
+    ["{s16}{ol}{#FF6600}氷属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}氷属性アップ",
+    ["{s16}{ol}{#FF6600}雷属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}雷属性アップ",
+    ["{s16}{ol}{#FF6600}地属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}地属性アップ",
+    ["{s16}{ol}{#FF6600}毒属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}毒属性アップ",
+    ["{s16}{ol}{#FF6600}闇属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}闇属性アップ",
+    ["{s16}{ol}{#FF6600}聖属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}聖属性アップ",
+    ["{s16}{ol}{#FF6600}念属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}念属性アップ",
+    ["{s16}{ol}{#ff4040}ボス対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}ボス対象攻撃力",
+    ["{s16}{ol}{#ff4040}クロース防具対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}クロース対象",
+    ["{s16}{ol}{#ff4040}レザー防具対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}レザー対象",
+    ["{s16}{ol}{#ff4040}プレート防具対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}プレート対象",
+    ["{s16}{ol}{#ff4040}アストラル防御対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}アストラル対象",
+    ["{s16}{ol}{#66b3ff}中型対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}中型相殺",
+    ["{s16}{ol}{#66b3ff}クロース対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}クロース相殺",
+    ["{s16}{ol}{#66b3ff}レザー対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}レザー相殺",
+    ["{s16}{ol}{#66b3ff}プレート対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}プレート相殺",
+    ["{s16}{ol}{#66b3ff}極：強劇性の猛毒抵抗"] = "{s16}{ol}{#FF6600}{#66b3ff}極：猛毒抵抗",
+    ["{s16}{ol}{#66b3ff}HP回復のエリクサー広域化"] = "{s16}{ol}{#FF6600}{#66b3ff}エリクサー広域",
+    ["{s16}{ol}{#ff4040}植物型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}植物対象攻撃力",
+    ["{s16}{ol}{#ff4040}野獣型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}野獣対象攻撃力",
+    ["{s16}{ol}{#ff4040}昆虫型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}昆虫対象攻撃力",
+    ["{s16}{ol}{#ff4040}変異型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}変異対象攻撃力",
+    ["{s16}{ol}{#ff4040}悪魔型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}悪魔対象攻撃力",
+    ["{s16}{ol}{#ff4040}パーフェクト効果"] = "{s16}{ol}{#FF6600}{#ff4040}パーフェクト",
+    ["{s16}{ol}{#ff4040}復讐効果"] = "{s16}{ol}{#FF6600}{#ff4040}復讐"
+}
+function always_status_lang(str)
+    -- print(tostring(str))
+    for key, value in pairs(str_tbl) do
+
+        if tostring(key) == tostring(str) then
+
+            return "{ol}{s16}" .. value
+
+        end
+    end
+    return "{ol}{s16}" .. str
+end
 
 function always_status_update()
 
@@ -585,12 +639,13 @@ function always_status_update()
         if as_title ~= nil then
             local as_stat = GET_CHILD_RECURSIVELY(frame, "stat" .. status)
             local as_stat_text = string.gsub(as_stat:GetText(), ": ", "")
-            -- print(as_stat_text)
+
             if status ~= "STR" and status ~= "INT" and status ~= "CON" and status ~= "MNA" and status ~= "DEX" then
                 local controlset = GET_CHILD_RECURSIVELY(box, status)
                 local title = GET_CHILD_RECURSIVELY(controlset, "title")
-
+                -- print(tostring(title:GetText()))
                 local stat = GET_CHILD_RECURSIVELY(controlset, "stat")
+                -- print(tostring(stat:GetText()))
 
                 if tostring(as_stat_text) ~= tostring("{ol}{s16}" .. stat:GetText()) then
                     -- print("test")
@@ -640,8 +695,11 @@ function always_status_frame_init()
     frame:EnableMove(g.settings.enable)
 
     frame:RemoveAllChild()
-
-    frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
+    if g.settings.frame_Y >= 0 then
+        frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
+    else
+        frame:SetPos(g.settings.frame_X, 10)
+    end
     frame:SetTitleBarSkin("None")
     frame:SetSkinName("None")
     frame:SetLayerLevel(10)
@@ -762,6 +820,11 @@ function always_status_frame_init()
                         len = string.len(title:GetText())
                     end
                 end
+                if (option.GetCurrentCountry() == "Japanese") then
+                    -- print(title:GetText())
+                    title:SetText(always_status_lang(title:GetText()))
+                    title:AdjustFontSizeByWidth(150)
+                end
                 y = y + 20
                 -- break
             end
@@ -800,13 +863,22 @@ function always_status_frame_init()
                         end
                     end
                 end
+                if (option.GetCurrentCountry() == "Japanese") then
+                    -- print(title:GetText())
+                    stat:SetOffset(125, y)
+
+                end
                 y = y + 20
                 -- break
+
             end
 
         end
-
-        frame:Resize(300, y + 10)
+        if (option.GetCurrentCountry() == "Japanese") then
+            frame:Resize(260, y + 10)
+        else
+            frame:Resize(300, y + 10)
+        end
         frame:ShowWindow(1)
         frame:RunUpdateScript("always_status_update", 0.5);
     end
