@@ -1,7 +1,8 @@
+-- v1.0.0 とりあえず作った。自動デリートは隠しコードにしよかな
 local addonName = "no_heal"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.1"
+local ver = "1.0.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -35,7 +36,10 @@ function NO_HEAL_ON_INIT(addon, frame)
     addon:RegisterMsg("GAME_START", "no_heal_load_settings")
     addon:RegisterMsg("GAME_START", "no_heal_frame_init")
     addon:RegisterMsg('BUFF_ADD', 'no_heal_delete_buff');
-    -- acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "test_norisan_SHOW_INDUNENTER_DIALOG");
+    addon:RegisterMsg('BUFF_ADD', 'no_heal_notice_buff');
+    addon:RegisterMsg('BUFF_UPDATE', 'no_heal_notice_buff');
+    addon:RegisterMsg('BUFF_REMOVE', 'no_heal_notice_buff');
+    acutil.setupEvent(addon, 'SET_BUFF_SLOT', "no_heal_bufficon_lbtn")
 
 end
 
@@ -66,6 +70,47 @@ function no_heal_load_settings()
     no_heal_save_settings()
 end
 
+function no_heal_notice_buff(frame, msg, argStr, argNum)
+    if g.settings.use == 0 then
+        return
+    else
+        local noticeframe = ui.CreateNewFrame("shadow_box", "noticeframe", 0, 0, 10, 10)
+        AUTO_CAST(noticeframe)
+        noticeframe:ShowWindow(1)
+        noticeframe:EnableHitTest(1)
+        noticeframe:EnableMove(1)
+        noticeframe:Resize(#g.settings.buffid * 40 + 10, 50)
+        noticeframe:SetAlpha(30)
+        noticeframe:SetLayerLevel(89)
+        noticeframe:SetTitleBarSkin("shadow_box")
+        noticeframe:RemoveAllChild();
+        -- noticeframe:SetPos(400, 100)
+
+        local slotset = noticeframe:CreateOrGetControl("slotset", "slotset", 0, 0, 0, 0)
+        AUTO_CAST(slotset)
+
+        slotset:SetMaxSelectionCount(1)
+        local buffid = argNum
+        for i = 1, #g.settings.buffid do
+            for _, id in ipairs(g.settings.buffid) do
+                if id == buffid then
+                    local buff = GetClassByType("Buff", id);
+                    slotset:SetColRow(i, 1)
+                    slotset:SetSlotSize(40, 40)
+                    slotset:SetSkinName("slot");
+                    slotset:CreateSlots()
+                    local slot = slotset:GetSlotByIndex(i - 1);
+                    slot:SetImage(buff.Icon)
+                    slot:SetEventScript(ui.RBUTTONUP, "no_heal_delete_buff")
+                    slot:SetEventScriptArgNumber(ui.RBUTTONUP, id)
+                end
+
+            end
+        end
+
+    end
+end
+
 function no_heal_frame_init(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("no_heal")
     local btn = frame:CreateOrGetControl("button", "btn", 5, 5, 50, 30)
@@ -93,9 +138,6 @@ function no_heal_frame_init(frame, ctrl, argStr, argNum)
 
     if MUTEKI2_SET_BUFFICON_LBTNCLICK then
         acutil.setupHook(no_heal_MUTEKI2_ADD_BUFFID, "MUTEKI2_ADD_BUFFID")
-        acutil.setupEvent(addon, 'SET_BUFF_SLOT', "no_heal_bufficon_lbtn")
-    else
-        acutil.setupEvent(addon, 'SET_BUFF_SLOT', "no_heal_bufficon_lbtn")
 
     end
     frame:ShowWindow(1)
@@ -115,26 +157,37 @@ function no_heal_setting_frame()
     local close = setframe:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
-    -- close:SetGravity(ui.RIGHT, ui.TOP)
-    -- close:SetEventScript(ui.LBUTTONUP, "no_heal_setframe_close")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "no_heal_setframe_close")
 
     local y = 10
     for i, id in ipairs(g.settings.buffid) do
         local slot = setframe:CreateOrGetControl("slot", "slot" .. i, 10, y, 50, 50)
         AUTO_CAST(slot)
+        slot:EnablePop(0)
+        slot:EnableDrop(0)
+        slot:EnableDrag(0)
+        slot:SetSkinName('invenslot2');
         local buffname = setframe:CreateOrGetControl("slot", "buffname" .. i, 60, y, 150, 25)
         AUTO_CAST(buffname)
         local buffidControl = setframe:CreateOrGetControl("slot", "buffid" .. i, 60, y + 25, 150, 25)
         AUTO_CAST(buffidControl)
         local delete = setframe:CreateOrGetControl("button", "delete" .. i, 220, y + 10, 30, 30)
         AUTO_CAST(delete)
-        slot:SetSkinName('invenslot2');
 
         local buff = GetClassByType("Buff", id);
-        local imageName = GET_BUFF_ICON_NAME(buff);
+        -- local imageName = GET_BUFF_ICON_NAME(buff);
+        -- SET_SLOT_ICON(slot, imageName)
         local icon = CreateIcon(slot)
-        SET_SLOT_ICON(slot, imageName)
-        icon:SetTextTooltip(buff.Name)
+        AUTO_CAST(icon)
+        icon:SetImage(buff.Icon)
+        icon:SetTooltipType('buff');
+        -- local bicon = slot:GetIcon();
+        -- local handle = bicon:GetTooltipStrArg();
+        ---local buffType = bicon:GetTooltipNumArg();
+        icon:SetTooltipArg(buff.Name, id, 0);
+        slot:Invalidate();
+        -- icon:SetTextTooltip(buff.Name)
         buffname:SetText("{ol}" .. buff.Name)
         buffname:AdjustFontSizeByWidth(150)
         buffidControl:SetText("{ol}" .. id)
@@ -153,7 +206,7 @@ function no_heal_setting_frame()
 end
 
 function no_heal_remove_table(frame, ctrl, argStr, argNum)
-    print(argNum)
+
     for i, id in ipairs(g.settings.buffid) do
         if id == argNum then
             table.remove(g.settings.buffid, i)
