@@ -1,8 +1,9 @@
--- v1.0.0 とりあえず作った。自動デリートは隠しコードにしよかな
+-- v1.0.0 とりあえず作った。
+-- v1.0.1 いつものバグ修正。BUFF_REMOVEの際の挙動修正。
 local addonName = "no_heal"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -36,6 +37,7 @@ function NO_HEAL_ON_INIT(addon, frame)
     addon:RegisterMsg("GAME_START", "no_heal_load_settings")
     addon:RegisterMsg("GAME_START", "no_heal_frame_init")
     addon:RegisterMsg('BUFF_ADD', 'no_heal_delete_buff');
+    addon:RegisterMsg('BUFF_UPDATE', 'no_heal_delete_buff');
     addon:RegisterMsg('BUFF_ADD', 'no_heal_notice_buff');
     addon:RegisterMsg('BUFF_UPDATE', 'no_heal_notice_buff');
     addon:RegisterMsg('BUFF_REMOVE', 'no_heal_notice_buff');
@@ -61,6 +63,8 @@ function no_heal_load_settings()
             use = 0,
             x = 500,
             y = 30,
+            fx = 500,
+            fy = 400,
             buffid = {}
         } -- 新しく追加
     else
@@ -71,44 +75,74 @@ function no_heal_load_settings()
 end
 
 function no_heal_notice_buff(frame, msg, argStr, argNum)
-    if g.settings.use == 0 then
+
+    if g.settings.use ~= 1 then
         return
-    else
-        local noticeframe = ui.CreateNewFrame("shadow_box", "noticeframe", 0, 0, 10, 10)
-        AUTO_CAST(noticeframe)
-        noticeframe:ShowWindow(1)
-        noticeframe:EnableHitTest(1)
-        noticeframe:EnableMove(1)
-        noticeframe:Resize(#g.settings.buffid * 40 + 10, 50)
-        noticeframe:SetAlpha(30)
-        noticeframe:SetLayerLevel(89)
-        noticeframe:SetTitleBarSkin("shadow_box")
-        noticeframe:RemoveAllChild();
-        -- noticeframe:SetPos(400, 100)
+    end
 
-        local slotset = noticeframe:CreateOrGetControl("slotset", "slotset", 0, 0, 0, 0)
-        AUTO_CAST(slotset)
+    local buffid = argNum
 
-        slotset:SetMaxSelectionCount(1)
-        local buffid = argNum
-        for i = 1, #g.settings.buffid do
-            for _, id in ipairs(g.settings.buffid) do
-                if id == buffid then
-                    local buff = GetClassByType("Buff", id);
-                    slotset:SetColRow(i, 1)
-                    slotset:SetSlotSize(40, 40)
-                    slotset:SetSkinName("slot");
-                    slotset:CreateSlots()
-                    local slot = slotset:GetSlotByIndex(i - 1);
-                    slot:SetImage(buff.Icon)
-                    slot:SetEventScript(ui.RBUTTONUP, "no_heal_delete_buff")
-                    slot:SetEventScriptArgNumber(ui.RBUTTONUP, id)
-                end
+    local noticeframe = ui.CreateNewFrame("chat_memberlist", "noticeframe", 0, 0, 10, 10)
+    AUTO_CAST(noticeframe)
 
-            end
-        end
+    noticeframe:SetSkinName("shadow_box")
+    noticeframe:SetTitleBarSkin("None")
+    noticeframe:SetAlpha(50)
+    noticeframe:SetLayerLevel(89)
+    noticeframe:EnableHitTest(1)
+    noticeframe:EnableMove(1)
+
+    noticeframe:SetPos(g.settings.fx, g.settings.fy)
+    noticeframe:SetEventScript(ui.LBUTTONUP, "no_heal_noticeframe_move")
+
+    local slotset = GET_CHILD_RECURSIVELY(noticeframe, "slotset")
+
+    if slotset == nil then
+        slotset = noticeframe:CreateOrGetControl("slotset", "slotset", 0, 10, 0, 0)
 
     end
+    AUTO_CAST(slotset)
+    -- slotset:ClearIconAll()
+    slotset:SetMaxSelectionCount(1)
+    -- CHAT_SYSTEM(msg)
+    if msg == "BUFF_REMOVE" then
+        for i, id in ipairs(g.settings.buffid) do
+            if id == buffid then
+                local slot = slotset:GetSlotByIndex(i - 1)
+                AUTO_CAST(slot)
+                if slot ~= nil then
+                    local slotName = slot:GetName()
+                    no_heal_delete_buff(noticeframe, slot, slotName, id)
+
+                end
+            end
+        end
+    end
+
+    for i, id in ipairs(g.settings.buffid) do
+        if id == buffid then
+            local buff = GetClassByType("Buff", id)
+            slotset:SetMaxSelectionCount(1)
+            slotset:SetColRow(i, 1)
+            slotset:SetSlotSize(30, 30)
+            slotset:SetSkinName("None")
+            slotset:CreateSlots()
+            local slot = slotset:GetSlotByIndex(i - 1)
+            AUTO_CAST(slot)
+            if slot ~= nil then
+
+                slot:SetEventScript(ui.RBUTTONUP, "no_heal_delete_buff")
+                slot:SetEventScriptArgNumber(ui.RBUTTONUP, id)
+                slot:SetEventScriptArgString(ui.RBUTTONUP, slot:GetName())
+            end
+            local imageName = GET_BUFF_ICON_NAME(buff)
+            SET_SLOT_ICON(slot, imageName)
+
+        end
+    end
+    noticeframe:Resize(#g.settings.buffid * 40 + 10, 50)
+    noticeframe:ShowWindow(1)
+
 end
 
 function no_heal_frame_init(frame, ctrl, argStr, argNum)
@@ -128,16 +162,30 @@ function no_heal_frame_init(frame, ctrl, argStr, argNum)
         btn:SetText("{ol}{s14}ON")
         btn:SetEventScript(ui.LBUTTONUP, "no_heal_toggle");
         btn:SetEventScriptArgNumber(ui.LBUTTONUP, g.settings.use);
-    else
+        btn:SetTextTooltip("{ol}Noheal suspended{nl}" ..
+                               "Left-click on a buff attached to you with ON to register it.{nl}" ..
+                               "Right-click to setting")
+    elseif g.settings.use == 1 then
         btn:SetSkinName("test_red_button")
         btn:SetText("{ol}{s14}OFF")
         btn:SetEventScript(ui.LBUTTONUP, "no_heal_toggle");
         btn:SetEventScriptArgNumber(ui.LBUTTONUP, g.settings.use);
+        btn:SetTextTooltip("{ol}Noheal in operation{nl}" ..
+                               "Left-click on a buff attached to you with ON to register it.{nl}" ..
+                               "Right-click to setting")
+    else
+        btn:SetSkinName("baseyellow_btn")
+        btn:SetText(btn:GetText())
+        btn:SetEventScript(ui.LBUTTONUP, "no_heal_toggle");
+        btn:SetEventScriptArgNumber(ui.LBUTTONUP, g.settings.use);
+        btn:SetTextTooltip("{ol}Noheal in auto operation{nl}" ..
+                               "Left-click on a buff attached to you with ON to register it.{nl}" ..
+                               "Right-click to setting")
     end
     btn:SetEventScript(ui.RBUTTONUP, "no_heal_setting_frame");
 
     if MUTEKI2_SET_BUFFICON_LBTNCLICK then
-        acutil.setupHook(no_heal_MUTEKI2_ADD_BUFFID, "MUTEKI2_ADD_BUFFID")
+        g.SetupHook(no_heal_MUTEKI2_ADD_BUFFID, "MUTEKI2_ADD_BUFFID")
 
     end
     frame:ShowWindow(1)
@@ -147,20 +195,61 @@ function no_heal_setframe_close(frame)
     frame:ShowWindow(0)
 end
 
+function no_heal_auto_check(frame)
+    local check = frame:CreateOrGetControl("checkbox", "check", 200, 5, 20, 20)
+    AUTO_CAST(check)
+    check:SetEventScript(ui.LBUTTONUP, "no_heal_auto")
+
+    if g.settings.use == 9 then
+        check:SetCheck(1)
+    else
+        check:SetCheck(0)
+    end
+
+    -- g.settings.use = 9
+    -- no_heal_save_settings()
+end
+
+function no_heal_auto(frame, ctrl)
+    local ischeck = ctrl:IsChecked()
+    local nhframe = ui.GetFrame("no_heal")
+    local btn = GET_CHILD_RECURSIVELY(nhframe, "btn")
+    local text = btn:GetText()
+
+    if ischeck == 1 then
+        g.settings.use = 9
+        btn:SetSkinName("baseyellow_btn")
+        btn:SetText(btn:GetText())
+        btn:SetEventScript(ui.LBUTTONUP, "no_heal_toggle");
+        btn:SetEventScriptArgNumber(ui.LBUTTONUP, g.settings.use);
+        btn:SetTextTooltip("{ol}Noheal in auto operation")
+
+    elseif ischeck == 0 and text == "{ol}{s14}OFF" then
+
+        g.settings.use = 1
+        btn:SetSkinName("test_red_button")
+    elseif ischeck == 0 and text == "{ol}{s14}ON" then
+
+        g.settings.use = 0
+        btn:SetSkinName("test_gray_button")
+    end
+    no_heal_save_settings()
+end
+
 function no_heal_setting_frame()
 
     local setframe = ui.CreateNewFrame("chat_memberlist", "setframe", 0, 0, 10, 10)
     AUTO_CAST(setframe)
     setframe:RemoveAllChild();
     setframe:SetPos(400, 100)
-
+    setframe:SetEventScript(ui.RBUTTONUP, "no_heal_auto_check")
     local close = setframe:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
     close:SetGravity(ui.RIGHT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "no_heal_setframe_close")
 
-    local y = 10
+    local y = 30
     for i, id in ipairs(g.settings.buffid) do
         local slot = setframe:CreateOrGetControl("slot", "slot" .. i, 10, y, 50, 50)
         AUTO_CAST(slot)
@@ -172,22 +261,20 @@ function no_heal_setting_frame()
         AUTO_CAST(buffname)
         local buffidControl = setframe:CreateOrGetControl("slot", "buffid" .. i, 60, y + 25, 150, 25)
         AUTO_CAST(buffidControl)
-        local delete = setframe:CreateOrGetControl("button", "delete" .. i, 220, y + 10, 30, 30)
+        local delete = setframe:CreateOrGetControl("button", "delete" .. i, 220, y + 15, 30, 30)
         AUTO_CAST(delete)
 
         local buff = GetClassByType("Buff", id);
-        -- local imageName = GET_BUFF_ICON_NAME(buff);
-        -- SET_SLOT_ICON(slot, imageName)
+        local imageName = GET_BUFF_ICON_NAME(buff);
+        SET_SLOT_ICON(slot, imageName)
         local icon = CreateIcon(slot)
         AUTO_CAST(icon)
-        icon:SetImage(buff.Icon)
+
         icon:SetTooltipType('buff');
-        -- local bicon = slot:GetIcon();
-        -- local handle = bicon:GetTooltipStrArg();
-        ---local buffType = bicon:GetTooltipNumArg();
+
         icon:SetTooltipArg(buff.Name, id, 0);
         slot:Invalidate();
-        -- icon:SetTextTooltip(buff.Name)
+
         buffname:SetText("{ol}" .. buff.Name)
         buffname:AdjustFontSizeByWidth(150)
         buffidControl:SetText("{ol}" .. id)
@@ -197,7 +284,7 @@ function no_heal_setting_frame()
         delete:SetEventScriptArgNumber(ui.LBUTTONUP, id)
         y = y + 55
     end
-    if y == 10 then
+    if y == 30 then
         setframe:Resize(260, y + 60)
     else
         setframe:Resize(260, y + 5)
@@ -210,6 +297,7 @@ function no_heal_remove_table(frame, ctrl, argStr, argNum)
     for i, id in ipairs(g.settings.buffid) do
         if id == argNum then
             table.remove(g.settings.buffid, i)
+            no_heal_save_settings()
             no_heal_setting_frame()
             return
         end
@@ -253,6 +341,7 @@ function no_heal_MUTEKI2_ADD_BUFFID(frame, control, argStr, buffid)
             table.insert(g.settings.buffid, buffid)
             ui.SysMsg(argStr .. " Registered.")
             no_heal_save_settings()
+            no_heal_setting_frame()
             return
         end
         for _, id in ipairs(g.settings.buffid) do
@@ -260,6 +349,7 @@ function no_heal_MUTEKI2_ADD_BUFFID(frame, control, argStr, buffid)
                 table.insert(g.settings.buffid, buffid)
                 ui.SysMsg(argStr .. " Registered.")
                 no_heal_save_settings()
+                no_heal_setting_frame()
                 return
             end
         end
@@ -278,18 +368,57 @@ function no_heal_toggle(frame, ctrl, argStr, argNum)
 end
 
 function no_heal_delete_buff(frame, msg, argStr, argNum)
+
     if g.settings.use == 0 then
         return
-    else
+    elseif g.settings.use == 1 then
         local buffid = argNum
+
         for _, id in ipairs(g.settings.buffid) do
 
-            if id == buffid then
+            if tostring(id) == tostring(buffid) then
+                -- print(id .. ":" .. argNum)
+
+                local noticeframe = ui.GetFrame("noticeframe")
+                local slot = GET_CHILD_RECURSIVELY(noticeframe, argStr)
+
+                if slot ~= nil then
+                    REMOVE_BUF(frame, _, argStr, buffid)
+                    ReserveScript(string.format("no_heal_icon_clear('%s')", argStr), 0.3)
+                end
+                -- return
+            end
+        end
+    elseif g.settings.use == 9 then
+        local buffid = argNum
+
+        for _, id in ipairs(g.settings.buffid) do
+
+            if tostring(id) == tostring(buffid) then
+                -- print(id .. ":" .. argNum)
                 REMOVE_BUF(frame, _, argStr, buffid)
-                return
+
             end
         end
     end
+end
+
+function no_heal_icon_clear(argStr)
+    local noticeframe = ui.GetFrame("noticeframe")
+    local slot = GET_CHILD_RECURSIVELY(noticeframe, argStr)
+    -- print(tostring(argStr))
+    slot:ClearIcon()
+end
+
+function no_heal_noticeframe_move(frame)
+
+    if g.settings.fx ~= frame:GetX() or g.settings.fy ~= frame:GetY() then
+        g.settings.fx = frame:GetX()
+        g.settings.fy = frame:GetY()
+        no_heal_save_settings()
+        return
+    end
+
 end
 
 function no_heal_frame_move(frame)
@@ -298,6 +427,7 @@ function no_heal_frame_move(frame)
         g.settings.x = frame:GetX()
         g.settings.y = frame:GetY()
         no_heal_save_settings()
+        return
     end
 end
 
