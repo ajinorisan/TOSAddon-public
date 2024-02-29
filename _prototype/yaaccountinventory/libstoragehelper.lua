@@ -454,16 +454,16 @@ function p.putitem(iesid, count, slient)
 
                     idx = p.get_goal_index()
                 end
-                -- print(tostring(idx))
+
                 if (idx) then
                     item.PutItemToWarehouse(p.target, iesid, tostring(math.min(count or invItem.count, invItem.count)),
-                        p.frame():GetUserIValue("HANDLE"), idx)
+                                            p.frame():GetUserIValue("HANDLE"), idx)
                     return true
                 end
             elseif (p.target == IT_WAREHOUSE) then
 
                 item.PutItemToWarehouse(p.target, iesid, tostring(math.min(count or invItem.count, invItem.count)),
-                    p.frame():GetUserIValue("HANDLE"))
+                                        p.frame():GetUserIValue("HANDLE"))
                 return true
             end
 

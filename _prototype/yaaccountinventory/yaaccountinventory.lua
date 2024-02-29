@@ -19,8 +19,6 @@ _G['ADDONS'][author][addonName] = _G['ADDONS'][author][addonName] or {}
 local g = _G['ADDONS'][author][addonName]
 local acutil = require('acutil')
 local json = require "json_imc"
--- !local libsearch
--- !libsearch = libsearch or LIBITEMSEARCHER_V1_0 -- dummy
 
 g.version = 1
 g.settings = g.settings or {}
@@ -138,11 +136,11 @@ c.action = {{
     needvalue = false,
     depositfunc = function(invItem, value)
         INPUT_NUMBER_BOX(ui.GetFrame(g.framename), L_('How many put items?'), 'YAI_EXEC_PUTITEM', invItem.count, 1,
-            invItem.count, nil, invItem:GetIESID(), 1)
+                         invItem.count, nil, invItem:GetIESID(), 1)
     end,
     withdrawfunc = function(invItem, value)
         INPUT_NUMBER_BOX(ui.GetFrame(g.framename), L_('How many take items?'), 'YAI_EXEC_TAKEITEM', invItem.count, 1,
-            invItem.count, nil, invItem:GetIESID(), 1)
+                         invItem.count, nil, invItem:GetIESID(), 1)
     end
 }, {
     name = "LOCK",
@@ -163,9 +161,6 @@ c.action = {{
 
 g.constants = c
 
--- ライブラリ読み込み
--- CHAT_SYSTEM("[YAI]loaded")
-local acutil = require('acutil')
 function EBI_try_catch(what)
     local status, result = pcall(what.try)
     if not status then
@@ -244,7 +239,7 @@ end
 function YAACCOUNTINVENTORY_ON_INIT(addon, frame)
     EBI_try_catch {
         try = function()
-            frame = ui.GetFrame(g.framename)
+
             g.addon = addon
             g.frame = frame
 
@@ -260,7 +255,7 @@ function YAACCOUNTINVENTORY_ON_INIT(addon, frame)
             addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_CHANGE_COUNT", "YAI_ON_MSG");
             addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_IN", "YAI_ON_MSG");
             addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "YAI_ON_OPEN_ACCOUNTWAREHOUSE");
-            -- addon:RegisterMsg("FPS_UPDATE", "YAI_SHOW");
+
             addon:RegisterMsg("GAME_START", "YAI_GAME_START");
             addon:RegisterMsg("GAME_START_3SEC", "YAI_3SEC");
             addon:RegisterMsg("YAI_UPDATED_CONFIG", "YAI_ON_MSG");
@@ -269,21 +264,11 @@ function YAACCOUNTINVENTORY_ON_INIT(addon, frame)
             g.SetupHook(YAI_ACCOUNTWAREHOUSE_OPEN, "ACCOUNTWAREHOUSE_OPEN")
             g.SetupHook(YAI_ACCOUNTWAREHOUSE_CLOSE, "ACCOUNTWAREHOUSE_CLOSE")
             g.SetupHook(YAI_ON_ACCOUNT_WAREHOUSE_ITEM_LIST, "ON_ACCOUNT_WAREHOUSE_ITEM_LIST")
-            -- g.SetupHook(YAI_CLOSE_UI, "CLOSE_UI")
-            addon:RegisterMsg('ESCAPE_PRESSED', 'YAI_ACCOUNTWAREHOUSE_CLOSE');
-            -- addon:RegisterMsg('INVENTORY_CLOSE', 'YAI_CLOSE_UI');
-            acutil.setupEvent(addon, 'INVENTORY_CLOSE', "YAI_ACCOUNTWAREHOUSE_CLOSE")
-            -- CLOSE_UI(frame, ctrl, numsttr, numarg)
-            -- !acutil.setupHook(YAI_ACCOUNTWAREHOUSE_OPEN, "ACCOUNTWAREHOUSE_OPEN")
-            -- !acutil.setupHook(YAI_ACCOUNTWAREHOUSE_CLOSE, "ACCOUNTWAREHOUSE_CLOSE")
-            -- acutil.setupHook(YAI_ACCOUNT_WAREHOUSE_MAKE_TAB, "ACCOUNT_WAREHOUSE_MAKE_TAB")
-            -- !acutil.setupHook(YAI_ON_ACCOUNT_WAREHOUSE_ITEM_LIST, "ON_ACCOUNT_WAREHOUSE_ITEM_LIST")
-            -- local timer = GET_CHILD(frame, "addontimer", "ui::CAddOnTimer");
-            -- timer:SetUpdateScript("YAI_ON_TIMER");
-            -- timer:Start(1.2);
 
+            addon:RegisterMsg('ESCAPE_PRESSED', 'YAI_ACCOUNTWAREHOUSE_CLOSE');
+            acutil.setupEvent(addon, 'INVENTORY_CLOSE', "YAI_ACCOUNTWAREHOUSE_CLOSE")
             YAI_INIT()
-            -- g.frame:ShowWindow(1)
+
         end,
         catch = function(error)
             ERROUT(error)
@@ -293,7 +278,7 @@ end
 
 function YAI_GAME_START()
     LS = LIBSTORAGEHELPERV1_3
-    -- ! libsearch = LIBITEMSEARCHER_V1_0
+
 end
 function YAI_3SEC()
     if (true == g.maxtabs) then
@@ -308,8 +293,7 @@ end
 function YAI_INIT(frame)
     EBI_try_catch {
         try = function()
-            -- frame = ui.GetFrame(g.framename)
-            -- frame:ShowWindow(1)
+
             if (true == session.loginInfo.IsPremiumState(ITEM_TOKEN)) then
                 g.maxtabs = 5
 
@@ -340,6 +324,7 @@ function YAI_ACTIVATE_MOUSEBUTTON()
 
     end
 end
+
 function YAI_DEACTIVATE_MOUSEBUTTON()
     INVENTORY_SET_CUSTOM_RBTNDOWN("None")
     SET_INV_LBTN_FUNC(ui.GetFrame("inventory"), "None");
@@ -347,7 +332,7 @@ end
 
 function YAI_ACCOUNTWAREHOUSE_CLOSE(frame)
     YAI_DEACTIVATE_MOUSEBUTTON()
-    local overlap = ui.GetFrame(addonNameLower)
+    local overlap = ui.GetFrame("yaaccountinventory")
     overlap:ShowWindow(0)
 
     base["ACCOUNTWAREHOUSE_CLOSE"](frame)
@@ -404,18 +389,20 @@ function YAI_DEFAULTSETTINGS()
         }}
     }
 end
+
 function YAI_DEFAULTPERSONALSETTINGS()
     return {
         version = g.version
     }
 end
+
 function YAI_SAVE_SETTINGS()
     DBGOUT("SAVE_SETTINGS")
 
     acutil.saveJSON(g.settingsFileLoc, g.settings)
     -- for debug
     g.personalsettingsFileLoc = string.format('../addons/%s/settings_%s.json', addonNameLower,
-        tostring(session.GetMySession():GetCID()))
+                                              tostring(session.GetMySession():GetCID()))
     DBGOUT("psn" .. g.personalsettingsFileLoc)
     acutil.saveJSON(g.personalsettingsFileLoc, g.personalsettings)
 end
@@ -457,10 +444,12 @@ function YAI_LOAD_SETTINGS()
         YAI_SAVE_SETTINGS()
     end
 end
+
 function YAI_UPGRADE_SETTINGS()
     local upgraded = false
     return upgraded
 end
+
 function YAI_UPGRADE_PERSONALSETTINGS()
     local upgraded = false
     return upgraded
@@ -471,7 +460,7 @@ function YAI_ACCOUNTWAREHOUSE_OPEN(frame)
         try = function()
             local invframe = ui.GetFrame("inventory")
             base["ACCOUNTWAREHOUSE_OPEN"](frame)
-            -- !ACCOUNTWAREHOUSE_OPEN_OLD(frame)
+
             YAI_ACTIVATE_MOUSEBUTTON()
         end,
         catch = function(error)
@@ -479,12 +468,13 @@ function YAI_ACCOUNTWAREHOUSE_OPEN(frame)
         end
     }
 end
+
 function YAI_HANDLE_ACTION(invItem, btntype, towarehouse)
 
     EBI_try_catch {
         try = function()
             local awframe = ui.GetFrame("accountwarehouse");
-            local frame = ui.GetFrame(g.framename);
+            local frame = ui.GetFrame("yaaccountinventory")
             local detaillevel = -1
             local keybind = nil
             for k, v in ipairs(g.settings.keybinds) do
@@ -543,7 +533,7 @@ function YAI_DEPOSIT_BY_CATEGORY(category)
 
             end
             ui.SysMsg(string.format(L_("Put by Category:%s.{nl}Do not perform any other operations while in progress."),
-                category))
+                                    category))
 
             local delay = 1
             local limit = g.settings.stacklimit
@@ -655,6 +645,7 @@ function YAI_EXEC_ACCOUNT_WAREHOUSE_INV_LBTN(iesid)
         end
     }
 end
+
 function YAI_EXEC_ACCOUNT_WAREHOUSE_INV_RBTN(awframe, numberString, inputFrame)
 
     local itemID = inputFrame:GetUserValue("ArgString");
@@ -767,7 +758,7 @@ function YAI_COUNT_UPDATE()
 
     local awframe = ui.GetFrame("accountwarehouse")
     local overlap = ui.GetFrame("yaaccountinventory")
-    -- print(overlap:IsVisible())
+
     if awframe:IsVisible() == 1 then
         local maxcount = 0
         local accountObj = GetMyAccountObj();
@@ -781,12 +772,11 @@ function YAI_COUNT_UPDATE()
                            accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
                            ADDITIONAL_SLOT_COUNT_BY_TOKEN
         end
-        -- print(tostring(maxcount))
+
         local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
         local guidList = itemList:GetGuidList();
         local sortedGuidList = itemList:GetSortedGuidList();
         local invItemCount = sortedGuidList:Count();
-        -- print(tostring(invItemCount))
 
         local count_text = overlap:CreateOrGetControl("richtext", "count_text", 290, 80, 200, 50)
         count_text:SetText("")
@@ -806,7 +796,7 @@ function YAI_COUNT_UPDATE()
 end
 
 function YAI_OPEN_RETRY()
-    local overlap = ui.GetFrame(addonNameLower)
+    local overlap = ui.GetFrame("yaaccountinventory")
     if overlap:IsVisible() == 0 then
         overlap:ShowWindow(1)
         return 0
@@ -823,20 +813,15 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
             local richtext_1 = GET_CHILD_RECURSIVELY(frame, "richtext_1")
             richtext_1:SetMargin(30, 133) --  margin="30 73 0 0"
 
-            -- print(tostring(tab_index))
+            local overlap = ui.GetFrame("yaaccountinventory")
 
-            -- gbox:Resize(660, 750)
-            -- gbox:SetOffset(0, 0)
-            local overlap = ui.GetFrame(addonNameLower)
-            -- overlap:SetSkinName("test_frame_low")
             overlap:SetSkinName("None")
-            -- overlap:SetTitleBarSkin("mainframe_03")
             overlap:ShowWindow(1)
 
             g.debug = false
             g.debug_show = true
             if (g.debug_show) then
-                -- overlap:SetOffset(10, 600)
+
                 overlap:SetOffset(0, 100)
                 overlap:Resize(670, g.h + 100)
                 local close = overlap:CreateOrGetControl("button", "close", 10, 70, 80, 30)
@@ -851,7 +836,7 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
                 frame:GetChildRecursively("receiveitem"):ShowWindow(1)
                 frame:RunUpdateScript("YAI_COUNT_UPDATE", 2.0);
                 frame:RunUpdateScript("YAI_OPEN_RETRY", 1.0);
-                -- YAI_COUNT_UPDATE()
+
             else
                 overlap:SetOffset(10, 200)
                 -- タブ非表示
@@ -863,11 +848,11 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
 
             overlap:EnableHitTest(1)
             overlap:EnableHittestFrame(1)
-            -- fix height
+
             g.h = frame:GetHeight() - 1080 + 570
             local w = g.w -- 510
             local h = g.h -- 570
-            -- overlap:Resize(w + 15, h + 20)
+
             frame:SetLayerLevel(94)
             overlap:EnableHittestFrame(false)
 
@@ -888,40 +873,6 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
             AUTO_CAST(btn)
             btn:SetText("{ol}" .. L_("YAI Config"))
             btn:SetEventScript(ui.LBUTTONUP, "YAI_OPEN_CONFIG")
-            -- gbox2:SetFrameScrollBarOffset(0, -200)
-
-            -- search gbox
-            --[[
-                <groupbox name="searchSkin" parent="searchGbox" rect="0 0 350 30" margin="5 0 0 5" layout_gravity="right bottom" draw="true" hittestbox="true" resizebyparent="false" scrollbar="false" skin="test_edit_skin"/>
-                <edit name="ItemSearch" parent="searchSkin" rect="0 0 270 26" margin="2 0 0 0" layout_gravity="left center" OffsetForDraw="0 -1" clicksound="button_click_big" drawbackground="false" fontname="white_18_ol" maxlen="40" oversound="button_over" skin="None" textalign="left top" typingscp="SEARCH_ITEM_INVENTORY_KEY" typingsound="chat_typing"/>
-                <button name="inventory_serch" parent="searchSkin" rect="0 0 60 38" margin="0 0 0 0" layout_gravity="right center" LBtnUpArgNum="" LBtnUpScp="SEARCH_ITEM_INVENTORY" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="inven_s" oversound="button_over" stretch="true" texttooltip="{@st59}입력한 이름으로 검색합니다{/}"/>
-                
-                
-            ]]
-            --[[!local searchgbox = overlap:CreateOrGetControl("groupbox", "searchGbox", 10, h - 35, w, 35)
-
-            local searchSkin = searchgbox:CreateOrGetControl("groupbox", "searchSkin", 0, 5, w, 30)
-            AUTO_CAST(searchgbox)
-            AUTO_CAST(searchSkin)
-            searchSkin:SetSkinName("test_edit_skin")
-            local ItemSearch = searchSkin:CreateOrGetControl("edit", "ItemSearch", 0, 0, w - 60, 30)
-            AUTO_CAST(ItemSearch)
-            ItemSearch:SetFontName("white_18_ol")
-            ItemSearch:SetTypingSound("chat_typing")
-            ItemSearch:SetOverSound("button_over")
-            ItemSearch:SetSkinName("None")
-            ItemSearch:SetEventScript(ui.ENTERKEY, "YAI_ON_ENTER_SEARCH")
-            local inventory_serch = searchSkin:CreateOrGetControl("button", "inventory_serch", w - 58, -2, 60, 30)
-            AUTO_CAST(inventory_serch)
-            inventory_serch:SetOverSound("button_over")
-            inventory_serch:SetClickSound("button_click_big")
-            inventory_serch:SetImage("inven_s")
-            inventory_serch:EnableImageStretch(true)
-            inventory_serch:SetEventScript(ui.LBUTTONUP, "YAI_ON_SEARCH")]]
-            -- YAI config
-
-            -- !g.searcher = libsearch.Searcher()
-            -- !g.suggester = libsearch.SuggestLister():init(g.searcher, ItemSearch, "yaisearch")
 
             YAI_UPDATE()
 
@@ -931,33 +882,20 @@ function YAI_ON_OPEN_ACCOUNTWAREHOUSE()
         end
     }
 end
---[[!function YAI_ON_ENTER_SEARCH()
-    if g.suggester:isShown() then
-        g.suggester:determine()
-    else
-        -- 一定時間遅延させる
-        DebounceScript("YAI_ON_SEARCH", 1)
-    end
-end
-function YAI_ON_SEARCH()
-    local overlap = ui.GetFrame("yaireplacement")
-    local edit = overlap:GetChildRecursively("ItemSearch")
-    local text = edit
 
-    YAI_UPDATE()
-end]]
 function YAI_OPEN_CONFIG()
     ui.ToggleFrame("yaiconfig")
 end
+
 function YAI_FIND_ACTIVEGBOX()
     return EBI_try_catch {
         try = function()
-            local frame = ui.GetFrame(addonNameLower)
+            local frame = ui.GetFrame("yaaccountinventory")
 
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(frame, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     if (tree_box:IsVisible() == 1) then
 
                         return tree_box
@@ -972,6 +910,7 @@ function YAI_FIND_ACTIVEGBOX()
         end
     }
 end
+
 function YAI_UPDATE()
     return EBI_try_catch {
         try = function()
@@ -979,11 +918,11 @@ function YAI_UPDATE()
             g.tree = {}
 
             local invenTypeStr = nil
-            local overlap = ui.GetFrame(addonNameLower)
+            local overlap = ui.GetFrame("yaaccountinventory")
             local gbox2 = overlap:GetChildRecursively("inventoryitemGbox")
             AUTO_CAST(gbox2)
 
-            local frame = ui.GetFrame(addonNameLower)
+            local frame = ui.GetFrame("yaaccountinventory")
             local invframe = ui.GetFrame("inventory")
             local awframe = ui.GetFrame("accountwarehouse")
             local blinkcolor = frame:GetUserConfig("TREE_SEARCH_BLINK_COLOR");
@@ -1010,9 +949,9 @@ function YAI_UPDATE()
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     if (invenTypeStr == nil or invenTypeStr == g_invenTypeStrList[typeNo] or typeNo == 1) then
                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                            'ui::CGroupBox')
+                                                               'ui::CGroupBox')
                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                            'ui::CTreeControl')
+                                                           'ui::CTreeControl')
 
                         local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT");
                         local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH");
@@ -1023,28 +962,6 @@ function YAI_UPDATE()
                         tree:SetFontName(groupfontname);
                         tree:SetTabWidth(tabwidth);
 
-                        -- local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
-                        -- for i = 1, slotSetNameListCnt do
-                        --    local slotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
-                        --    ui.inventory.RemoveInvenSlotSetName(slotSetName);
-                        -- end
-
-                        -- local groupNameListCnt = ui.inventory.GetInvenGroupNameCount();
-                        -- for i = 1, groupNameListCnt do
-                        --     local groupName = ui.inventory.GetInvenGroupNameByIndex(i - 1);
-                        --     ui.inventory.RemoveInvenGroupName(groupName);
-                        -- end
-
-                        -- local customFunc = nil;
-                        -- local scriptName = invframe:GetUserValue("CUSTOM_ICON_SCP");
-                        -- local scriptArg = nil;
-                        -- if scriptName ~= nil then
-                        --     customFunc = _G[scriptName];
-                        --     local getArgFunc = _G[invframe:GetUserValue("CUSTOM_ICON_ARG_SCP")];
-                        --     if getArgFunc ~= nil then
-                        --         scriptArg = getArgFunc();
-                        --     end
-                        -- end
                     end
                 end
             end
@@ -1054,7 +971,7 @@ function YAI_UPDATE()
             if invenTitleName == nil then
                 invenTitleName = {}
                 for i = 1, baseidcnt do
-                    -- local baseid = GetInvenBaseID(itemObj.ClassID)
+
                     local baseidcls = GetClassByIndexFromList(baseidclslist, i - 1)
                     local tempTitle = baseidcls.ClassName
                     if baseidcls.MergedTreeTitle ~= "NO" then
@@ -1067,9 +984,6 @@ function YAI_UPDATE()
                 end
             end
 
-            --[[!local filter = g.suggester:getFilter()
-            g.searcher:clearItems()]]
-
             for i = 0, invItemCount - 1 do
                 local invItem = itemList:GetItemByGuid(sortedGuidList:Get(i));
                 if invItem ~= nil then
@@ -1077,15 +991,7 @@ function YAI_UPDATE()
                     local obj = GetIES(invItem:GetObject())
                     local class = GetClassByType("Item", obj.ClassID)
                     local realname = dictionary.ReplaceDicIDInCompStr(class.Name)
-                    --[[if #filter > 0 then
 
-                        for _, v in ipairs(filter) do
-                            if not libsearch.utf8lib.find(realname, v) then
-                                pass = false
-                            end
-                        end
-                    end]]
-                    -- g.searcher:addItem(realname, invItem)
                     if pass then
                         invItem.index = index_count
                         invItemList[index_count] = invItem
@@ -1156,7 +1062,7 @@ function YAI_UPDATE()
                                             local tree_box =
                                                 GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr, 'ui::CGroupBox')
                                             local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                'ui::CTreeControl')
+                                                                               'ui::CTreeControl')
                                             YAI_INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls, typeStr);
 
                                         end
@@ -1164,7 +1070,7 @@ function YAI_UPDATE()
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl')
+                                                                               'ui::CTreeControl')
                                         YAI_INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls, typeStr);
 
                                     end
@@ -1180,18 +1086,18 @@ function YAI_UPDATE()
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                        'ui::CTreeControl');
+                                                       'ui::CTreeControl');
                     tree_box:Resize(g.w - 48, g.h)
                 end
             end
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                        'ui::CTreeControl');
+                                                       'ui::CTreeControl');
                     local slotset
 
                     -- 아이템 없는 빈 슬롯은 숨겨라
@@ -1215,7 +1121,7 @@ function YAI_UPDATE()
                         slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, 'ui::CSlotSet');
 
                         local slotsetnode = tree:FindByValue(getSlotSetName);
-                        -- if setpos == 'setpos' then
+
                         local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS");
                         if savedPos == 'None' then
                             savedPos = 0
@@ -1223,7 +1129,6 @@ function YAI_UPDATE()
 
                         tree_box:SetScrollPos(tonumber(savedPos))
 
-                        -- end
                     end
                 end
 
@@ -1231,17 +1136,15 @@ function YAI_UPDATE()
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                        'ui::CTreeControl');
+                                                       'ui::CTreeControl');
 
                     AUTO_CAST(tree)
                     tree:Resize(g.w - 48, tree:GetHeight())
 
                 end
             end
-            -- スロット残数を表示
-            -- YAI_UPDATE_STATUS()
 
         end,
         catch = function(error)
@@ -1251,12 +1154,6 @@ function YAI_UPDATE()
     }
 end
 
-function YAI_SLOT_LIMIT_FIRSTTAB()
-    local account = session.barrack.GetMyAccount();
-    local slotCount = account:GetAccountWarehouseSlotCount();
-
-    return (slotCount - 1) + (g.maxtabs - 1) * (g.countpertab - 1)
-end
 function YAI_GET_SLOTSET_NAME(baseidcls)
     local cls = baseidcls
     if cls == nil then
@@ -1269,6 +1166,7 @@ function YAI_GET_SLOTSET_NAME(baseidcls)
         return 'sset_' .. className
     end
 end
+
 function YAI_ON_MSG(frame, msg, argStr, argNum)
 
     if msg == 'ACCOUNT_WAREHOUSE_ITEM_LIST' then
@@ -1299,16 +1197,18 @@ function YAI_INVENTORY_ON_MSG()
         YAI_UPDATE()
     end
 end
+
 function YAI_ON_ACCOUNT_WAREHOUSE_ITEM_LIST(frame, msg, argStr, argNum, tab_index)
     -- disabled function for lightweight
     if (g.debug_show == true) then
-        -- ON_ACCOUNT_WAREHOUSE_ITEM_LIST_OLD(frame, msg, argStr, argNum, tab_index)
+
         base["ON_ACCOUNT_WAREHOUSE_ITEM_LIST"](frame, msg, argStr, argNum, tab_index)
     end
     if (ON_ACCOUNT_WAREHOUSE_ITEM_LIST_OVERRIDE ~= nil) then
         ON_ACCOUNT_WAREHOUSE_ITEM_LIST_OVERRIDE(frame, msg, argStr, argNum, tab_index)
     end
 end
+
 function YAI_GET_SLOTSET_NAME_BY_ITEMGUID(itemGUID)
     local invItem = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, itemGUID) or session.GetInvItemByGuid(itemGUID)
     local itemObj = GetIES(invItem:GetObject())
@@ -1327,11 +1227,12 @@ function YAI_GET_SLOTSET_NAME_BY_ITEMGUID(itemGUID)
     return slotsetname
 
 end
+
 function YAI_ADD_TARGETED(itemguid)
     EBI_try_catch {
         try = function()
             DBGOUT("ADD")
-            local frame = ui.GetFrame(addonNameLower)
+            local frame = ui.GetFrame("yaaccountinventory")
             local invItem = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, itemguid) or
                                 session.GetInvItemByGuid(itemguid)
             local slotsetname = YAI_GET_SLOTSET_NAME_BY_ITEMGUID(itemguid)
@@ -1351,12 +1252,13 @@ function YAI_ADD_TARGETED(itemguid)
         end
     }
 end
+
 function YAI_UPDATE_TARGETED(itemguid)
     EBI_try_catch {
         try = function()
 
             DBGOUT("UPDATE")
-            local frame = ui.GetFrame(addonNameLower)
+            local frame = ui.GetFrame("yaaccountinventory")
             local invItem = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, itemguid);
             local slotsetname = YAI_GET_SLOTSET_NAME_BY_ITEMGUID(itemguid)
             DBGOUT(slotsetname)
@@ -1374,12 +1276,13 @@ function YAI_UPDATE_TARGETED(itemguid)
         end
     }
 end
+
 function YAI_REMOVE_TARGETED(itemguid)
     EBI_try_catch {
         try = function()
 
             DBGOUT("REMOVE")
-            local frame = ui.GetFrame(addonNameLower)
+            local frame = ui.GetFrame("yaaccountinventory")
 
             YAI_REMOVERECURSE_GUID(frame, itemguid)
         end,
@@ -1388,6 +1291,7 @@ function YAI_REMOVE_TARGETED(itemguid)
         end
     }
 end
+
 function YAI_REMOVERECURSE_GUID(parent, guid)
     EBI_try_catch {
         try = function()
@@ -1459,8 +1363,7 @@ end
 
 function YAI_MAKE_INVEN_SLOTSET(tree, name)
     local frame = ui.GetFrame('yaaccountinventory');
-    -- local slotsize = frame:GetUserConfig("TREE_SLOT_SIZE");
-    -- local colcount = frame:GetUserConfig("TREE_COL_COUNT");
+
     local slotsize = 54
     local colcount = 10
 
@@ -1637,13 +1540,14 @@ function YAI_WITHDRAW_BY_CATEGORY(titlename)
                 end
             end
             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                awframe:GetUserIValue("HANDLE"));
+                                            awframe:GetUserIValue("HANDLE"));
         end,
         catch = function(error)
             ERROUT(error)
         end
     }
 end
+
 function YAI_WITHDRAW_BY_CLSID(clsid)
     EBI_try_catch {
         try = function()
@@ -1683,13 +1587,14 @@ function YAI_WITHDRAW_BY_CLSID(clsid)
             end
 
             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                awframe:GetUserIValue("HANDLE"));
+                                            awframe:GetUserIValue("HANDLE"));
         end,
         catch = function(error)
             ERROUT(error)
         end
     }
 end
+
 function YAI_TAKE_ITEM(iesid)
     EBI_try_catch {
         try = function()
@@ -1698,13 +1603,14 @@ function YAI_TAKE_ITEM(iesid)
             session.ResetItemList();
             session.AddItemID(iesid, invItem.count);
             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                awframe:GetUserIValue("HANDLE"));
+                                            awframe:GetUserIValue("HANDLE"));
         end,
         catch = function(error)
             ERROUT(error)
         end
     }
 end
+
 function YAI_ON_LBUTTON(frame, slot, argstr, argnum)
     EBI_try_catch {
         try = function()
@@ -1727,6 +1633,7 @@ function YAI_ON_LBUTTON(frame, slot, argstr, argnum)
         end
     }
 end
+
 function YAI_ON_RBUTTON(frame, slot, argstr, argnum)
     EBI_try_catch {
         try = function()
@@ -2023,4 +1930,10 @@ function YAI_ACCOUNTWAREHOUSE_CLOSE_FROM_YAI()
     local frame = ui.GetFrame("accountwarehouse")
     -- ui.CloseFrame('accountwarehouse')
     YAI_ACCOUNTWAREHOUSE_CLOSE(frame)
+end
+function YAI_SLOT_LIMIT_FIRSTTAB()
+    local account = session.barrack.GetMyAccount();
+    local slotCount = account:GetAccountWarehouseSlotCount();
+
+    return (slotCount - 1) + (g.maxtabs - 1) * (g.countpertab - 1)
 end]]

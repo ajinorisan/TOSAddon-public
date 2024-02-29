@@ -138,11 +138,11 @@ c.action = {{
     needvalue = false,
     depositfunc = function(invItem, value)
         INPUT_NUMBER_BOX(ui.GetFrame(g.framename), L_('How many put items?'), 'YAI_EXEC_PUTITEM', invItem.count, 1,
-            invItem.count, nil, invItem:GetIESID(), 1)
+                         invItem.count, nil, invItem:GetIESID(), 1)
     end,
     withdrawfunc = function(invItem, value)
         INPUT_NUMBER_BOX(ui.GetFrame(g.framename), L_('How many take items?'), 'YAI_EXEC_TAKEITEM', invItem.count, 1,
-            invItem.count, nil, invItem:GetIESID(), 1)
+                         invItem.count, nil, invItem:GetIESID(), 1)
     end
 }, {
     name = "LOCK",
@@ -260,7 +260,7 @@ function YAACCOUNTINVENTORY_ON_INIT(addon, frame)
             addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_CHANGE_COUNT", "YAI_ON_MSG");
             addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_IN", "YAI_ON_MSG");
             addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "YAI_ON_OPEN_ACCOUNTWAREHOUSE");
-            -- addon:RegisterMsg("FPS_UPDATE", "YAI_SHOW");
+
             addon:RegisterMsg("GAME_START", "YAI_GAME_START");
             addon:RegisterMsg("GAME_START_3SEC", "YAI_3SEC");
             addon:RegisterMsg("YAI_UPDATED_CONFIG", "YAI_ON_MSG");
@@ -269,21 +269,11 @@ function YAACCOUNTINVENTORY_ON_INIT(addon, frame)
             g.SetupHook(YAI_ACCOUNTWAREHOUSE_OPEN, "ACCOUNTWAREHOUSE_OPEN")
             g.SetupHook(YAI_ACCOUNTWAREHOUSE_CLOSE, "ACCOUNTWAREHOUSE_CLOSE")
             g.SetupHook(YAI_ON_ACCOUNT_WAREHOUSE_ITEM_LIST, "ON_ACCOUNT_WAREHOUSE_ITEM_LIST")
-            -- g.SetupHook(YAI_CLOSE_UI, "CLOSE_UI")
-            addon:RegisterMsg('ESCAPE_PRESSED', 'YAI_ACCOUNTWAREHOUSE_CLOSE');
-            -- addon:RegisterMsg('INVENTORY_CLOSE', 'YAI_CLOSE_UI');
-            acutil.setupEvent(addon, 'INVENTORY_CLOSE', "YAI_ACCOUNTWAREHOUSE_CLOSE")
-            -- CLOSE_UI(frame, ctrl, numsttr, numarg)
-            -- !acutil.setupHook(YAI_ACCOUNTWAREHOUSE_OPEN, "ACCOUNTWAREHOUSE_OPEN")
-            -- !acutil.setupHook(YAI_ACCOUNTWAREHOUSE_CLOSE, "ACCOUNTWAREHOUSE_CLOSE")
-            -- acutil.setupHook(YAI_ACCOUNT_WAREHOUSE_MAKE_TAB, "ACCOUNT_WAREHOUSE_MAKE_TAB")
-            -- !acutil.setupHook(YAI_ON_ACCOUNT_WAREHOUSE_ITEM_LIST, "ON_ACCOUNT_WAREHOUSE_ITEM_LIST")
-            -- local timer = GET_CHILD(frame, "addontimer", "ui::CAddOnTimer");
-            -- timer:SetUpdateScript("YAI_ON_TIMER");
-            -- timer:Start(1.2);
 
+            addon:RegisterMsg('ESCAPE_PRESSED', 'YAI_ACCOUNTWAREHOUSE_CLOSE');
+            acutil.setupEvent(addon, 'INVENTORY_CLOSE', "YAI_ACCOUNTWAREHOUSE_CLOSE")
             YAI_INIT()
-            -- g.frame:ShowWindow(1)
+
         end,
         catch = function(error)
             ERROUT(error)
@@ -293,7 +283,7 @@ end
 
 function YAI_GAME_START()
     LS = LIBSTORAGEHELPERV1_3
-    -- ! libsearch = LIBITEMSEARCHER_V1_0
+
 end
 function YAI_3SEC()
     if (true == g.maxtabs) then
@@ -415,7 +405,7 @@ function YAI_SAVE_SETTINGS()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
     -- for debug
     g.personalsettingsFileLoc = string.format('../addons/%s/settings_%s.json', addonNameLower,
-        tostring(session.GetMySession():GetCID()))
+                                              tostring(session.GetMySession():GetCID()))
     DBGOUT("psn" .. g.personalsettingsFileLoc)
     acutil.saveJSON(g.personalsettingsFileLoc, g.personalsettings)
 end
@@ -543,7 +533,7 @@ function YAI_DEPOSIT_BY_CATEGORY(category)
 
             end
             ui.SysMsg(string.format(L_("Put by Category:%s.{nl}Do not perform any other operations while in progress."),
-                category))
+                                    category))
 
             local delay = 1
             local limit = g.settings.stacklimit
@@ -957,7 +947,7 @@ function YAI_FIND_ACTIVEGBOX()
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(frame, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     if (tree_box:IsVisible() == 1) then
 
                         return tree_box
@@ -1010,9 +1000,9 @@ function YAI_UPDATE()
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     if (invenTypeStr == nil or invenTypeStr == g_invenTypeStrList[typeNo] or typeNo == 1) then
                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                            'ui::CGroupBox')
+                                                               'ui::CGroupBox')
                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                            'ui::CTreeControl')
+                                                           'ui::CTreeControl')
 
                         local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT");
                         local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH");
@@ -1156,7 +1146,7 @@ function YAI_UPDATE()
                                             local tree_box =
                                                 GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr, 'ui::CGroupBox')
                                             local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                'ui::CTreeControl')
+                                                                               'ui::CTreeControl')
                                             YAI_INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls, typeStr);
 
                                         end
@@ -1164,7 +1154,7 @@ function YAI_UPDATE()
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl')
+                                                                               'ui::CTreeControl')
                                         YAI_INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls, typeStr);
 
                                     end
@@ -1180,18 +1170,18 @@ function YAI_UPDATE()
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                        'ui::CTreeControl');
+                                                       'ui::CTreeControl');
                     tree_box:Resize(g.w - 48, g.h)
                 end
             end
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                        'ui::CTreeControl');
+                                                       'ui::CTreeControl');
                     local slotset
 
                     -- 아이템 없는 빈 슬롯은 숨겨라
@@ -1231,9 +1221,9 @@ function YAI_UPDATE()
             for typeNo = 1, #g_invenTypeStrList do
                 if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo],
-                        'ui::CGroupBox');
+                                                           'ui::CGroupBox');
                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                        'ui::CTreeControl');
+                                                       'ui::CTreeControl');
 
                     AUTO_CAST(tree)
                     tree:Resize(g.w - 48, tree:GetHeight())
@@ -1637,7 +1627,7 @@ function YAI_WITHDRAW_BY_CATEGORY(titlename)
                 end
             end
             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                awframe:GetUserIValue("HANDLE"));
+                                            awframe:GetUserIValue("HANDLE"));
         end,
         catch = function(error)
             ERROUT(error)
@@ -1683,7 +1673,7 @@ function YAI_WITHDRAW_BY_CLSID(clsid)
             end
 
             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                awframe:GetUserIValue("HANDLE"));
+                                            awframe:GetUserIValue("HANDLE"));
         end,
         catch = function(error)
             ERROUT(error)
@@ -1698,7 +1688,7 @@ function YAI_TAKE_ITEM(iesid)
             session.ResetItemList();
             session.AddItemID(iesid, invItem.count);
             item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                awframe:GetUserIValue("HANDLE"));
+                                            awframe:GetUserIValue("HANDLE"));
         end,
         catch = function(error)
             ERROUT(error)
