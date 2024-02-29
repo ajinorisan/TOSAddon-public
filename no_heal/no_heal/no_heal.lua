@@ -37,11 +37,15 @@ function NO_HEAL_ON_INIT(addon, frame)
 
     addon:RegisterMsg("GAME_START", "no_heal_load_settings")
     addon:RegisterMsg("GAME_START", "no_heal_frame_init")
+
     addon:RegisterMsg('BUFF_ADD', 'no_heal_delete_buff');
     addon:RegisterMsg('BUFF_UPDATE', 'no_heal_delete_buff');
+
     addon:RegisterMsg('BUFF_ADD', 'no_heal_notice_buff');
     addon:RegisterMsg('BUFF_UPDATE', 'no_heal_notice_buff');
     addon:RegisterMsg('BUFF_REMOVE', 'no_heal_notice_buff');
+    -- addon:RegisterMsg('FPS_UPDATE', 'no_heal_notice_buff');
+
     acutil.setupEvent(addon, 'SET_BUFF_SLOT', "no_heal_bufficon_lbtn")
 
 end
@@ -75,13 +79,83 @@ function no_heal_load_settings()
     no_heal_save_settings()
 end
 
+function no_heal_get_buff()
+    -- buffslot
+    -- buffcountslot
+    -- buffcountslot_sub
+    local handle = session.GetMyHandle()
+    local buffframe = ui.GetFrame("buff")
+
+    local buffslot = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
+    local buffslotcount = buffslot:GetChildCount()
+
+    local bufftbl = {}
+    local cnt = 0
+    for i = 0, buffslotcount - 1 do
+        local child = buffslot:GetChildByIndex(i)
+        local icon = child:GetIcon()
+        local iconinfo = icon:GetInfo()
+        local clsid = iconinfo.type
+        if clsid == 0 then
+            break
+        end
+        for _, id in ipairs(g.settings.buffid) do
+            if tostring(clsid) == tostring(id) then
+                cnt = cnt + 1
+                table.insert(bufftbl, id)
+            end
+        end
+    end
+
+    local buffcountslot = GET_CHILD_RECURSIVELY(buffframe, "buffcountslot")
+    local buffcountslotcount = buffcountslot:GetChildCount()
+
+    for i = 0, buffcountslotcount - 1 do
+        local child = buffcountslot:GetChildByIndex(i)
+        local icon = child:GetIcon()
+        local iconinfo = icon:GetInfo()
+        local clsid = iconinfo.type
+        if clsid == 0 then
+            break
+        end
+        for _, id in ipairs(g.settings.buffid) do
+            -- print(tostring(clsid) .. ":" .. tostring(id))
+            if tostring(clsid) == tostring(id) then
+                cnt = cnt + 1
+                table.insert(bufftbl, id)
+            end
+        end
+    end
+
+    local buffcountslot_sub = GET_CHILD_RECURSIVELY(buffframe, "buffcountslot_sub")
+    local buffcountslotsubcount = buffcountslot_sub:GetChildCount()
+
+    for i = 0, buffcountslotsubcount - 1 do
+        local child = buffcountslot_sub:GetChildByIndex(i)
+        local icon = child:GetIcon()
+        local iconinfo = icon:GetInfo()
+        local clsid = iconinfo.type
+        if clsid == 0 then
+            break
+        end
+        for _, id in ipairs(g.settings.buffid) do
+            if tostring(clsid) == tostring(id) then
+                cnt = cnt + 1
+                table.insert(bufftbl, id)
+            end
+        end
+    end
+    return bufftbl, cnt
+
+end
+
 function no_heal_notice_buff(frame, msg, argStr, argNum)
 
     if g.settings.use ~= 1 then
         return
     end
 
-    local buffid = argNum
+    local bufftbl, cnt = no_heal_get_buff()
 
     local noticeframe = ui.CreateNewFrame("chat_memberlist", "noticeframe", 0, 0, 10, 10)
     AUTO_CAST(noticeframe)
@@ -96,52 +170,38 @@ function no_heal_notice_buff(frame, msg, argStr, argNum)
     noticeframe:SetPos(g.settings.fx, g.settings.fy)
     noticeframe:SetEventScript(ui.LBUTTONUP, "no_heal_noticeframe_move")
 
-    local slotset = GET_CHILD_RECURSIVELY(noticeframe, "slotset")
-
-    if slotset == nil then
-        slotset = noticeframe:CreateOrGetControl("slotset", "slotset", 0, 10, 0, 0)
-
-    end
+    local slotset = noticeframe:CreateOrGetControl("slotset", "slotset", 0, 10, 0, 0)
     AUTO_CAST(slotset)
-    -- slotset:ClearIconAll()
-    slotset:SetMaxSelectionCount(1)
-    -- CHAT_SYSTEM(msg)
-    if msg == "BUFF_REMOVE" then
-        for i, id in ipairs(g.settings.buffid) do
-            if id == buffid then
-                local slot = slotset:GetSlotByIndex(i - 1)
-                AUTO_CAST(slot)
-                if slot ~= nil then
-                    local slotName = slot:GetName()
-                    no_heal_delete_buff(noticeframe, slot, slotName, id)
 
-                end
-            end
-        end
+    slotset:ClearIconAll()
+    slotset:SetMaxSelectionCount(1)
+    slotset:SetSlotSize(30, 30)
+    slotset:SetSkinName("None")
+    slotset:SetColRow(cnt, 1)
+    slotset:CreateSlots()
+
+    if cnt == 0 then
+        return
     end
 
-    for i, id in ipairs(g.settings.buffid) do
-        if id == buffid then
+    for i = 1, cnt do
+        local slot = GET_CHILD(slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        if slot ~= nil then
+            local id = bufftbl[i] -- ループごとに異なるバフIDを取得する
             local buff = GetClassByType("Buff", id)
-            slotset:SetMaxSelectionCount(1)
-            slotset:SetColRow(i, 1)
-            slotset:SetSlotSize(30, 30)
-            slotset:SetSkinName("None")
-            slotset:CreateSlots()
-            local slot = slotset:GetSlotByIndex(i - 1)
-            AUTO_CAST(slot)
-            if slot ~= nil then
-
+            if buff ~= nil then
                 slot:SetEventScript(ui.RBUTTONUP, "no_heal_delete_buff")
                 slot:SetEventScriptArgNumber(ui.RBUTTONUP, id)
                 slot:SetEventScriptArgString(ui.RBUTTONUP, slot:GetName())
-            end
-            local imageName = GET_BUFF_ICON_NAME(buff)
-            SET_SLOT_ICON(slot, imageName)
 
+                local imageName = GET_BUFF_ICON_NAME(buff)
+                SET_SLOT_ICON(slot, imageName)
+
+            end
         end
     end
-    noticeframe:Resize(#g.settings.buffid * 40 + 10, 50)
+    noticeframe:Resize(cnt * 40 + 10, 50)
     noticeframe:ShowWindow(1)
 
 end
@@ -157,6 +217,7 @@ function no_heal_frame_init(frame, ctrl, argStr, argNum)
     frame:EnableMove(1)
     frame:SetLayerLevel(61)
     frame:SetEventScript(ui.LBUTTONUP, "no_heal_frame_move")
+    frame:SetEventScript(ui.RBUTTONUP, "no_heal_test")
 
     local btn = frame:CreateOrGetControl("button", "btn", 5, 5, 50, 30)
     AUTO_CAST(btn)
@@ -392,7 +453,8 @@ function no_heal_delete_buff(frame, msg, argStr, argNum)
 
                 if slot ~= nil then
                     REMOVE_BUF(frame, _, argStr, buffid)
-                    ReserveScript(string.format("no_heal_icon_clear('%s')", argStr), 0.3)
+                    ReserveScript("no_heal_notice_buff()", 0.3)
+                    -- ReserveScript(string.format("no_heal_icon_clear('%s')", argStr), 0.3)
                     return
                 end
 
