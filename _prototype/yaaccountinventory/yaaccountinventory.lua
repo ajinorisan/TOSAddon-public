@@ -159,6 +159,47 @@ c.action = {{
     end
 }}
 
+local function putitem(iesid, count, slient)
+
+    return EBI_try_catch {
+        try = function()
+
+            if (not p.checkvalid(iesid, slient)) then
+
+                return false
+            end
+
+            local invItem, invObj = p.itemandobj(iesid)
+            if (p.target == IT_ACCOUNT_WAREHOUSE) then
+
+                local ret, idx = p.get_exist_item_index(invObj)
+
+                if (ret == false) then
+
+                    idx = p.get_goal_index()
+                end
+
+                if (idx) then
+                    item.PutItemToWarehouse(p.target, iesid, tostring(math.min(count or invItem.count, invItem.count)),
+                                            p.frame():GetUserIValue("HANDLE"), idx)
+                    return true
+                end
+            elseif (p.target == IT_WAREHOUSE) then
+
+                item.PutItemToWarehouse(p.target, iesid, tostring(math.min(count or invItem.count, invItem.count)),
+                                        p.frame():GetUserIValue("HANDLE"))
+                return true
+            end
+
+            return false
+        end,
+        catch = function(e)
+            ERROUT(e)
+        end
+    }
+
+end
+
 g.constants = c
 
 function EBI_try_catch(what)
