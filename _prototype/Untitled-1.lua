@@ -49,11 +49,4 @@ function MINI_ADDONS_GP_AUTOSTART()
     local auto_btn = GET_CHILD_RECURSIVELY(frame, "auto_btn")
     GODPROTECTION_AUTO_START_BTN_CLICK(parent, auto_btn)
 
-    if auto_btn:IsEnable() == 1 then
-        ReserveScript("MINI_ADDONS_GP_AUTOSTART()", 1.0)
-        return
-    else
-        return
-    end
-
 end
