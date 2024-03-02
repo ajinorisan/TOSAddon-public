@@ -20,10 +20,12 @@
 -- v1.1.9 チャンネルインフォの表示バグの原因っぽいところを修正。
 -- v1.2.0 英語圏のstrの取得方法間違ってたの修正。今いるチャンネルが分かる様にした。
 -- v1.2.1 英語版の再修正。これで無理ならもう無理や。
+-- v1.2.2 バフリスト表示されないバグ修正。
+-- v1.2.3 女神ガチャ自動化。錬成アイテム装備入れたら嵌まる様に。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.1"
+local ver = "1.2.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -142,6 +144,30 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         end
     end
 
+    if g.settings.skill_enchant == nil then
+        g.settings.skill_enchant = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        acutil.setupEvent(addon, "COMMON_SKILL_ENCHANT_MAT_SET", "MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET");
+        acutil.setupEvent(addon, "SUCCESS_COMMON_SKILL_ENCHANT", "MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT");
+
+    elseif g.settings.skill_enchant == 1 then
+
+        acutil.setupEvent(addon, "COMMON_SKILL_ENCHANT_MAT_SET", "MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET");
+        acutil.setupEvent(addon, "SUCCESS_COMMON_SKILL_ENCHANT", "MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT");
+    end
+
+    if mapCls.MapType == "City" then
+        if g.settings.auto_gacha == nil then
+            g.settings.auto_gacha = 1
+            MINI_ADDONS_SAVE_SETTINGS()
+            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN');
+
+        elseif g.settings.auto_gacha == 1 then
+
+            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN');
+        end
+    end
+
     if g.settings.restart_move == 1 then
         addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
         addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
@@ -182,6 +208,95 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
         -- frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     end
+
+end
+
+function MINI_ADDONS_GP_DO_OPEN()
+    ReserveScript("GODPROTECTION_DO_OPEN()", 2.0);
+    ReserveScript("MINI_ADDONS_GP_AUTOSTART()", 4.0)
+    return
+end
+-- MINI_ADDONS_GP_DO_OPEN()
+
+function MINI_ADDONS_GP_AUTOSTART()
+    local frame = ui.GetFrame("godprotection")
+
+    local multiple_count = 20
+    local multiple_count_edit = GET_CHILD_RECURSIVELY(frame, 'multiple_count_edit')
+    multiple_count_edit:SetText(multiple_count);
+    -- GODPROTECTION_MULTI_COUNT_UPDATE(frame, multiple_count)
+
+    local edit = GET_CHILD_RECURSIVELY(frame, "auto_edit");
+    local count = 99999999
+    local next_count = count - 1;
+    edit:SetText(next_count);
+
+    local parent = GET_CHILD_RECURSIVELY(frame, "auto_gb");
+    local auto_btn = GET_CHILD_RECURSIVELY(frame, "auto_btn")
+    local auto_text = GET_CHILD_RECURSIVELY(frame, "auto_text");
+    auto_text:ShowWindow(0);
+    GODPROTECTION_AUTO_START_BTN_CLICK(parent, auto_btn)
+
+end
+
+function MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET(frame, msg)
+    local itemObj = acutil.getEventArgs(msg)
+    local frame = ui.GetFrame('common_skill_enchant')
+
+    ReserveScript("MINI_ADDONS_COMMON_SKILL_ENCHANT_ADD_MAT()", 0.2)
+    return
+end
+
+function MINI_ADDONS_COMMON_SKILL_ENCHANT_ADD_MAT(parent, ctrl)
+    local frame = ui.GetFrame('common_skill_enchant')
+    if frame == nil then
+        return
+    end
+
+    local invItemList = session.GetInvItemList();
+    local bottom_bg = GET_CHILD_RECURSIVELY(frame, "bottom_Bg")
+    local cnt = bottom_bg:GetChildCount();
+    local set_ready_count = 0;
+    for i = 1, cnt - 1 do
+        local ctrlSet = bottom_bg:GetChildByIndex(i)
+
+        local mat_slot = GET_CHILD_RECURSIVELY(ctrlSet, "mat_slot")
+        local plus = GET_CHILD_RECURSIVELY(ctrlSet, "plus")
+        plus:ShowWindow(1)
+        local mat_name = GET_CHILD_RECURSIVELY(ctrlSet, "mat_name")
+        local cnt_in_my_bag = GET_CHILD_RECURSIVELY(ctrlSet, "cnt_in_my_bag")
+
+        local val_1 = GET_NOT_COMMAED_NUMBER(mat_name:GetTextByKey('value2'))
+        local val_2 = GET_NOT_COMMAED_NUMBER(cnt_in_my_bag:GetTextByKey('value'))
+        val_1 = tonumber(val_1)
+        val_2 = tonumber(val_2)
+        if val_1 <= val_2 then
+            local icon = mat_slot:GetIcon()
+            icon:SetColorTone('FFFFFFFF')
+            plus:ShowWindow(0);
+            set_ready_count = set_ready_count + 1;
+        else
+            local msg = string.format("<%s> %s", mat_name:GetTextByKey('value'), ClMsg("NotEnoughMaterial"))
+            ui.SysMsg(msg)
+        end
+    end
+
+    if set_ready_count == (cnt - 1) then
+        frame:SetUserValue("IS_READY", "TRUE")
+        GET_CHILD_RECURSIVELY(frame, "do_enchant"):SetEnable(1)
+    else
+        frame:SetUserValue("IS_READY", "FALSE")
+    end
+end
+
+function MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT(frame, msg)
+    local msg, arg_str, arg_num = acutil.getEventArgs(msg)
+    local frame = ui.GetFrame('common_skill_enchant')
+    print(tostring(msg))
+    print(tostring(arg_str))
+    print(tostring(arg_num))
+
+    ReserveScript("MINI_ADDONS_COMMON_SKILL_ENCHANT_ADD_MAT()", 0.9)
 
 end
 
@@ -416,12 +531,15 @@ if not g.loaded then
         equip_info = 1,
         automatch_layer = 1,
         quest_hide = 1,
-        pc_name = 1
+        pc_name = 1,
+        auto_gacha = 1,
+        skill_enchant = 1
 
     }
 
 end
-
+-- g.settings.auto_gacha
+-- g.settings.skill_enchant
 function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
     local frame = ui.GetFrame('indunenter');
     local indunType = frame:GetUserValue('INDUN_TYPE', indunType)
@@ -627,7 +745,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     frame:SetSkinName("test_frame_midle_light")
     frame:SetLayerLevel(93)
     frame:Resize(710, 560)
-    frame:SetPos(1150, 400)
+    frame:SetPos(1210, 345)
     frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
     frame:EnableHide(0)
@@ -917,6 +1035,32 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     x = x + 30
 
+    local auto_gacha = frame:CreateOrGetControl("richtext", "auto_gacha", 40, x + 5)
+    auto_gacha:SetText("{ol}{#FF4500}Automate the Goddess Protection Gacha.")
+    auto_gacha:SetTextTooltip(
+        "{@st59}女神の加護ガチャを自動化します。{nl}여신의 가호 가챠를 자동화합니다.")
+
+    local auto_gacha_checkbox = frame:CreateOrGetControl('checkbox', 'auto_gacha_checkbox', 10, x, 25, 25)
+    AUTO_CAST(auto_gacha_checkbox)
+    auto_gacha_checkbox:SetCheck(g.settings.auto_gacha)
+    auto_gacha_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    auto_gacha_checkbox:SetTextTooltip(
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    x = x + 30
+
+    local skill_enchant = frame:CreateOrGetControl("richtext", "skill_enchant", 40, x + 5)
+    skill_enchant:SetText("{ol}{#FF4500}Automatically sets items for skill refining.")
+    skill_enchant:SetTextTooltip(
+        "{@st59}スキル錬成のアイテムを自動でセットします。{nl}스킬 연성 아이템을 자동으로 설정합니다.")
+
+    local skill_enchant_checkbox = frame:CreateOrGetControl('checkbox', 'skill_enchant_checkbox', 10, x, 25, 25)
+    AUTO_CAST(skill_enchant_checkbox)
+    skill_enchant_checkbox:SetCheck(g.settings.skill_enchant)
+    skill_enchant_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    skill_enchant_checkbox:SetTextTooltip(
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    x = x + 30
+
     local description = frame:CreateOrGetControl("richtext", "description", 140, x + 5)
     description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
     description:SetTextTooltip(
@@ -947,6 +1091,7 @@ end
 function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     local bufflistframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_bufflist", 0, 0, 10, 10)
     AUTO_CAST(bufflistframe)
+    bufflistframe:SetSkinName("bg")
     bufflistframe:Resize(500, 1060)
     bufflistframe:SetPos(10, 10)
     bufflistframe:SetLayerLevel(121)
@@ -954,14 +1099,14 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     -- bufflistframe:SetTitleBarSkin("None")
     -- CHAT_SYSTEM("test")
 
-    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 5, 490, 1040)
+    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1040)
     -- local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 5, 490, 400)
     -- bg:SetSkinName("test_frame_midle_light")
     bg:SetSkinName("bg")
     bg:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
     bg:SetTextTooltip("{ol}右クリックで閉じます。{nl}Right-click to close.")
 
-    local closeBtn = bg:CreateOrGetControl('button', 'closeBtn', 430, 5, 30, 30)
+    local closeBtn = bufflistframe:CreateOrGetControl('button', 'closeBtn', 450, 5, 30, 30)
     closeBtn:SetSkinName("test_red_button")
     closeBtn:SetText("{s25}×")
     closeBtn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
@@ -980,7 +1125,7 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     table.sort(sortedBuffIDs)
 
     -- ヘッダー
-    local bufflisttext = bg:CreateOrGetControl('richtext', 'bufflisttext', 90, 10, 200, 30)
+    local bufflisttext = bufflistframe:CreateOrGetControl('richtext', 'bufflisttext', 90, 10, 200, 30)
     AUTO_CAST(bufflisttext)
     bufflisttext:SetText("{ol}BUFF LIST")
 
@@ -990,17 +1135,22 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     local checkcount = 0
     for _, buffID in ipairs(sortedBuffIDs) do
         -- 以下のコードは先ほどの簡略化したコードをそのまま利用
-        local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 40, 30, 30)
+        local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
         AUTO_CAST(buffslot)
         local buffCls = GetClassByType("Buff", buffID);
         SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
 
-        local buffname = bg:CreateOrGetControl('richtext', 'buffname' .. i, 45, y + 45, 30, 30)
+        local icon = CreateIcon(buffslot)
+        AUTO_CAST(icon)
+        icon:SetTooltipType('buff');
+        icon:SetTooltipArg(buffCls.Name, buffID, 0);
+
+        local buffname = bg:CreateOrGetControl('richtext', 'buffname' .. i, 45, y + 10, 30, 30)
         AUTO_CAST(buffname)
         buffname:SetText("{ol}" .. buffCls.Name)
         buffname:SetTextTooltip("{ol}ClassID : " .. buffCls.ClassID)
 
-        local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 440, y + 40, 30, 30)
+        local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 440, y + 5, 30, 30)
         AUTO_CAST(buffcheck)
         local check = g.settings.buffid[tostring(buffID)] or 0
         buffcheck:SetCheck(check)
@@ -1062,7 +1212,9 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         pet_init = "pet_init_checkbox",
         dialog_ctrl = "dialog_ctrl_checkbox",
         auto_cast = "auto_cast_checkbox",
-        coin_use = "coin_use_checkbox"
+        coin_use = "coin_use_checkbox",
+        auto_gacha = "auto_gacha_checkbox",
+        skill_enchant = "skill_enchant_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
@@ -1118,7 +1270,9 @@ function MINI_ADDONS_LOAD_SETTINGS()
             equip_info = 1,
             automatch_layer = 1,
             quest_hide = 1,
-            pc_name = 1
+            pc_name = 1,
+            auto_gacha = 1,
+            skill_enchant = 1
 
         }
         MINI_ADDONS_SAVE_SETTINGS()
