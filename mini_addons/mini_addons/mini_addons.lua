@@ -23,10 +23,12 @@
 -- v1.2.2 バフリスト表示されないバグ修正。
 -- v1.2.3 女神ガチャ自動化。錬成アイテム装備入れたら嵌まる様に。
 -- v1.2.4 女神ガチャ機能デフォルトONをOFFに変更
+-- v1.2.5 女神ガチャ制御強化
+-- v1.2.6 女神ガチャ切り替え後にCCしないと、自動ガチャ機能OFFにならなかったの修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.4"
+local ver = "1.2.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -236,7 +238,9 @@ function MINI_ADDONS_GP_AUTOSTART()
     local auto_btn = GET_CHILD_RECURSIVELY(frame, "auto_btn")
     local auto_text = GET_CHILD_RECURSIVELY(frame, "auto_text");
     auto_text:ShowWindow(0);
-    GODPROTECTION_AUTO_START_BTN_CLICK(parent, auto_btn)
+    if g.settings.auto_gacha_start == 1 and g.settings.auto_gacha == 1 then
+        GODPROTECTION_AUTO_START_BTN_CLICK(parent, auto_btn)
+    end
 
 end
 
@@ -534,7 +538,8 @@ if not g.loaded then
         quest_hide = 1,
         pc_name = 1,
         auto_gacha = 0,
-        skill_enchant = 1
+        skill_enchant = 1,
+        auto_gacha_start = 0
 
     }
 
@@ -1047,6 +1052,33 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     auto_gacha_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     auto_gacha_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+
+    local auto_gacha_btn = frame:CreateOrGetControl('button', 'auto_gacha_btn', 370, x, 50, 30)
+    AUTO_CAST(auto_gacha_btn)
+    local auto_gacha_text = frame:CreateOrGetControl("richtext", "auto_gacha_text", 430, x + 5)
+    AUTO_CAST(auto_gacha_text)
+    auto_gacha_text:SetText("{ol}{#FF4500}Auto-gacha in operation.")
+    if g.settings.auto_gacha_start == 0 or g.settings.auto_gacha_start == nil then
+        auto_gacha_btn:SetText("{ol}{#FFFFFF}OFF")
+        auto_gacha_btn:SetSkinName("test_gray_button");
+        g.settings.auto_gacha_start = 0
+        auto_gacha_text:ShowWindow(0)
+        MINI_ADDONS_SAVE_SETTINGS()
+    else
+        auto_gacha_btn:SetText("{ol}{#FFFFFF}ON")
+        auto_gacha_btn:SetSkinName("test_red_button")
+        auto_gacha_text:ShowWindow(1)
+
+    end
+    auto_gacha_btn:SetTextTooltip(
+        "{@st59}ONにすると自動でガチャスタートします。{nl}When turned on, the gacha starts automatically.{nl}ON으로 설정하면 자동으로 가챠가 시작됩니다.")
+
+    auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
+
+    if g.settings.auto_gacha ~= 1 then
+        -- auto_gacha_btn:ShowWindow(0)
+        auto_gacha_text:ShowWindow(0)
+    end
     x = x + 30
 
     local skill_enchant = frame:CreateOrGetControl("richtext", "skill_enchant", 40, x + 5)
@@ -1070,6 +1102,28 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     x = x + 30
     frame:Resize(710, x)
 
+end
+
+function MINI_ADDONS_GP_AUTOSTART_OPERATION(frame, ctrl)
+    local text = ctrl:GetText()
+    local auto_gacha_text = GET_CHILD_RECURSIVELY(frame, "auto_gacha_text")
+    AUTO_CAST(auto_gacha_text)
+    -- print(tostring(text))
+    if text == "{ol}{#FFFFFF}OFF" then
+        ctrl:SetText("{ol}{#FFFFFF}ON")
+        ctrl:SetSkinName("test_red_button")
+        g.settings.auto_gacha_start = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+        auto_gacha_text:ShowWindow(1)
+        -- frame:Invalidate()
+    else
+        ctrl:SetText("{ol}{#FFFFFF}OFF")
+        ctrl:SetSkinName("test_gray_button");
+        g.settings.auto_gacha_start = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        auto_gacha_text:ShowWindow(0)
+        -- frame:Invalidate()
+    end
 end
 
 function MINI_ADDONS_OTHER_EFFECT_EDIT(frame, ctrl)
@@ -1100,7 +1154,7 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     -- bufflistframe:SetTitleBarSkin("None")
     -- CHAT_SYSTEM("test")
 
-    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1020)
+    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1015)
     -- local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 5, 490, 400)
     -- bg:SetSkinName("test_frame_midle_light")
     bg:SetSkinName("bg")
