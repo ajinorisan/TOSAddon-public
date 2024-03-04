@@ -12,10 +12,11 @@
 -- v1.1.1 リロード画面の効果音消去、爆速表示に変更
 -- v1.1.2 リロードでバグった場合に効果音が消去されたままだったのを修正
 -- v1.1.3 ギルメンの要望に応えて日本鯖だけ別処理
+-- v1.1.4 まれに効果音が0のままで固定される不具合修正
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -911,7 +912,11 @@ end
 
 function always_status_original_frame_sound_config(volume)
     -- print(volume)
-    config.SetSoundVolume(g.volume)
+    if volume == g.volume then
+        config.SetSoundVolume(g.volume)
+    else
+        config.SetSoundVolume(volume)
+    end
 end
 
 function always_status_frame_move(frame)
