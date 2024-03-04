@@ -22,10 +22,11 @@
 -- v1.2.1 英語版の再修正。これで無理ならもう無理や。
 -- v1.2.2 バフリスト表示されないバグ修正。
 -- v1.2.3 女神ガチャ自動化。錬成アイテム装備入れたら嵌まる様に。
+-- v1.2.4 女神ガチャ機能デフォルトONをOFFに変更
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.3"
+local ver = "1.2.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -158,7 +159,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     if mapCls.MapType == "City" then
         if g.settings.auto_gacha == nil then
-            g.settings.auto_gacha = 1
+            g.settings.auto_gacha = 0
             MINI_ADDONS_SAVE_SETTINGS()
             addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN');
 
@@ -532,7 +533,7 @@ if not g.loaded then
         automatch_layer = 1,
         quest_hide = 1,
         pc_name = 1,
-        auto_gacha = 1,
+        auto_gacha = 0,
         skill_enchant = 1
 
     }
@@ -1099,7 +1100,7 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     -- bufflistframe:SetTitleBarSkin("None")
     -- CHAT_SYSTEM("test")
 
-    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1040)
+    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1020)
     -- local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 5, 490, 400)
     -- bg:SetSkinName("test_frame_midle_light")
     bg:SetSkinName("bg")
@@ -1271,7 +1272,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
             automatch_layer = 1,
             quest_hide = 1,
             pc_name = 1,
-            auto_gacha = 1,
+            auto_gacha = 0,
             skill_enchant = 1
 
         }
