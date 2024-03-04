@@ -4,10 +4,11 @@
 -- v1.0.3 レイド選んだ時と中でももう1回チェックのハイブリッドに。
 -- v1.0.4 加護ポ持ってない時に切り替わらないバグ修正。
 -- v1.0.5 メレジナ野獣になってたの悪魔に修正。
+-- v1.0.6 コード見直し
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -108,7 +109,7 @@ function quickslot_operate_SHOW_INDUNENTER_DIALOG()
 
     local down_potion_id = down_potion_list[group_name]
 
-    if potion_id then
+    if potion_id ~= nil then
 
         quickslot_operate_get_potion(potion_id, down_potion_id)
 
@@ -143,7 +144,7 @@ function quickslot_operate_get_potion(potion_id, down_potion_id)
         if tostring(itemobj.ClassID) == tostring(potion_id) then
             local frame = ui.GetFrame("inventory");
             local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot")
-            -- AUTO_CAST(slot)
+
             quickslot_operate_check_all_slots(potion_id, down_potion_id)
             session.ResetItemList()
 
@@ -163,14 +164,14 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
     local potion_info = session.GetInvItemByType(potion_id);
     if potion_info ~= nil then
-        local potion_iesid = potion_info:GetIESID()
+
         local potion_item = GET_PC_ITEM_BY_GUID(potion_info:GetIESID())
         local potion_obj = GetIES(potion_item:GetObject())
     end
 
     local down_potion_info = session.GetInvItemByType(down_potion_id);
     if down_potion_info ~= nil then
-        local down_potion_iesid = down_potion_info:GetIESID()
+
         local down_potion_item = GET_PC_ITEM_BY_GUID(down_potion_info:GetIESID())
         local down_potion_obj = GetIES(down_potion_item:GetObject())
     end
@@ -180,9 +181,10 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
         local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
         -- AUTO_CAST(slot)
         local quickSlotInfo = quickslot.GetInfoByIndex(i);
+        local icon = slot:GetIcon()
 
-        if slot:GetIcon() ~= nil then
-            local iconInfo = slot:GetIcon():GetInfo()
+        if icon ~= nil then
+            local iconInfo = icon:GetInfo()
             local invItem = GET_PC_ITEM_BY_GUID(iconInfo:GetIESID())
 
             if invItem ~= nil then
@@ -192,9 +194,9 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
                 for group, id in pairs(potion_list) do
                     if id == classid then
-
+                        local potion_iesid = potion_info:GetIESID()
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, potion_iesid, 0, true, true)
-                        ReserveScript("quickslot.RequestRefresh()", 0.1);
+                        icon:SetDumpArgNum(i);
                         break
 
                     end
@@ -202,11 +204,10 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
                 for group, id in pairs(down_potion_list) do
                     if id == classid then
-
+                        local down_potion_iesid = down_potion_info:GetIESID()
                         SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, down_potion_iesid, 0, true,
-                            true)
-                        ReserveScript("quickslot.RequestRefresh()", 0.1);
-                        -- quickslot.RequestRefresh();
+                                       true)
+                        icon:SetDumpArgNum(i);
                         break
 
                     end
