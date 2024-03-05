@@ -25,6 +25,16 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
+g.first = 0 -- バラックを選ぶために一度0から始める。
+
+-- hidelogin
+local frame = ui.GetFrame("barrack_charlist")
+if frame ~= nil then
+    local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
+    hidelogin:SetCheck(1);
+
+end
+
 function OTHER_CHARACTER_ITEMLIST_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -75,7 +85,9 @@ function other_character_itemlist_lord_settings()
 
     local LoginName = session.GetMySession():GetPCApc():GetName()
     local cid_settings = {
-        NAME = LoginName,
+        layer = 9,
+        index = 99,
+        name = LoginName,
         SHIRT = {
             iesid = "",
             skillName = "",
@@ -126,6 +138,7 @@ end
 function other_character_itemlist_frame_open(frame, ctrl, argStr, argNum)
     frame:SetSkinName("None")
     frame:Resize(600, 800)
+    frame:SetLayerLevel(65)
     ctrl:ShowWindow(0)
 
     local gbox = frame:CreateOrGetControl("groupbox", "gbox", 40, 5, 550, 790)
@@ -138,13 +151,20 @@ function other_character_itemlist_frame_open(frame, ctrl, argStr, argNum)
     close:SetEventScript(ui.LBUTTONUP, "other_character_itemlist_frame_close")
 end
 
-function other_character_itemlist_frame_close(frame, ctrl, argStr, argNum)
+function other_character_itemlist_enchant_preview(frame, ctrl, argStr, argNum)
 
-    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-    gbox:ShowWindow(0)
+end
+
+function other_character_itemlist_frame_close(frame, ctrl, argStr, argNum)
+    local frame = ui.GetFrame(addonNameLower)
+    print(tostring(frame:GetName()))
+    -- local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+    -- gbox:ShowWindow(0)
+    print("test")
     local btn = GET_CHILD_RECURSIVELY(frame, "btn")
     btn:ShowWindow(1)
     frame:Resize(35, 35)
+    btn:ShowWindow(1)
 end
 
 function other_character_itemlist_frame_init()
