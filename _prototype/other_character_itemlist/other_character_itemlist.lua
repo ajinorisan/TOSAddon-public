@@ -36,15 +36,27 @@ function OTHER_CHARACTER_ITEMLIST_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-        addon:RegisterMsg("GAME_START", "other_character_itemlist_4sec")
-
+        addon:RegisterMsg("GAME_START", "other_character_itemlist_2sec")
+        acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_INVENTORY_OPEN")
+        acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_INVENTORY_CLOSE")
         return;
     end
 
 end
-function other_character_itemlist_4sec()
-    ReserveScript("other_character_itemlist_frame_init()", 4.0)
-    ReserveScript("other_character_itemlist_lord_settings()", 4.0)
+-- other_character_itemlist_save_enchant()
+
+function other_character_INVENTORY_OPEN()
+    other_character_itemlist_save_enchant()
+end
+
+function other_character_INVENTORY_CLOSE()
+    other_character_itemlist_save_enchant()
+end
+
+function other_character_itemlist_2sec()
+
+    ReserveScript("other_character_itemlist_frame_init()", 2.0)
+    ReserveScript("other_character_itemlist_lord_settings()", 2.0)
 
 end
 
@@ -114,6 +126,7 @@ end
 function other_character_itemlist_frame_open(frame, ctrl, argStr, argNum)
     frame:SetSkinName("None")
     frame:Resize(600, 800)
+    ctrl:ShowWindow(0)
 
     local gbox = frame:CreateOrGetControl("groupbox", "gbox", 40, 5, 550, 790)
     AUTO_CAST(gbox)
@@ -122,7 +135,16 @@ function other_character_itemlist_frame_open(frame, ctrl, argStr, argNum)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
     close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "other_character_itemlist_frame_init")
+    close:SetEventScript(ui.LBUTTONUP, "other_character_itemlist_frame_close")
+end
+
+function other_character_itemlist_frame_close(frame, ctrl, argStr, argNum)
+
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+    gbox:ShowWindow(0)
+    local btn = GET_CHILD_RECURSIVELY(frame, "btn")
+    btn:ShowWindow(1)
+    frame:Resize(35, 35)
 end
 
 function other_character_itemlist_frame_init()
@@ -138,12 +160,11 @@ function other_character_itemlist_frame_init()
     AUTO_CAST(btn)
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_friend 35 35}")
-    -- btn:SetEventScript(ui.LBUTTONDOWN, "other_character_itemlist_frame_open")
-    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_itemlist_test")
+    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_itemlist_frame_open")
 
 end
 
-function other_character_itemlist_test()
+function other_character_itemlist_save_enchant()
     local equipItemList = session.GetEquipItemList();
     local count = equipItemList:Count();
 

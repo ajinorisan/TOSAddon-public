@@ -1,52 +1,21 @@
--- 錬成アイテムセット
-acutil.setupEvent(addon, "COMMON_SKILL_ENCHANT_MAT_SET", "MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET");
-acutil.setupEvent(addon, "SUCCESS_COMMON_SKILL_ENCHANT", "MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT");
+g.first = 0 -- バラックを選ぶために一度0から始める。
 
-function MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET(frame, msg)
-    local itemObj = acutil.getEventArgs(msg)
-    local frame = ui.GetFrame('common_skill_enchant')
-
-    ReserveScript(string.format("COMMON_SKILL_ENCHANT_ADD_MAT('%s')", frame), 0.2)
+-- hidelogin
+local frame = ui.GetFrame("barrack_charlist")
+if frame == nil then
+    return;
 end
 
-function MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT(frame, msg)
-    local msg, arg_str, arg_num = acutil.getEventArgs(msg)
-    local frame = ui.GetFrame('common_skill_enchant')
-    print(tostring(msg))
-    print(tostring(arg_str))
-    print(tostring(arg_num))
+local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
+hidelogin:SetCheck(1);
 
-    ReserveScript(string.format("COMMON_SKILL_ENCHANT_ADD_MAT('%s')", frame), 0.9)
+-- ON_INIT
+acutil.setupEvent(addon, "SELECT_BARRACK_LAYER", "ADDONNAME_SELECT_BARRACK_LAYER") -- 強制的に選択時に呼び出し
 
-end
+function ADDONNAME_SELECT_BARRACK_LAYER(frame, msg)
 
--- 加護ガチャ
-local mapprop = session.GetCurrentMapProp();
-local mapCls = GetClassByType("Map", mapprop.type);
-if IS_GODPROTECTION_MAP(mapCls) ~= false then
-
-    addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN');
-
-end
-function MINI_ADDONS_GP_DO_OPEN()
-    ReserveScript("GODPROTECTION_DO_OPEN()", 2.0);
-    ReserveScript("MINI_ADDONS_GP_AUTOSTART()", 3.0)
-    return
-end
-
-function MINI_ADDONS_GP_AUTOSTART()
-    local frame = ui.GetFrame("godprotection")
-
-    local multiple_count = 20
-    GODPROTECTION_MULTI_COUNT_UPDATE(frame, multiple_count)
-
-    local edit = GET_CHILD_RECURSIVELY(frame, "auto_edit");
-    local count = 99999999
-    local next_count = count - 1;
-    edit:SetText(next_count);
-
-    local parent = GET_CHILD_RECURSIVELY(frame, "auto_gb");
-    local auto_btn = GET_CHILD_RECURSIVELY(frame, "auto_btn")
-    GODPROTECTION_AUTO_START_BTN_CLICK(parent, auto_btn)
+    local frame = ui.GetFrame("barrack_charlist")
+    local ctrl, arg, layer = acutil.getEventArgs(msg)
+    local before = frame:GetUserValue("SelectBarrackLayer")
 
 end
