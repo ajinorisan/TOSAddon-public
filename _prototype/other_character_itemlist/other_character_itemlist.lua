@@ -12,7 +12,6 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
-
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
@@ -25,13 +24,41 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
-g.first = 0 -- バラックを選ぶために一度0から始める。
+local first = 0
+g.settings = g.settings or {}
 
--- hidelogin
-local frame = ui.GetFrame("barrack_charlist")
-if frame ~= nil then
-    local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
-    hidelogin:SetCheck(1);
+acutil.setupEvent(_G["ADDONS"][author][addonName], "APPS_TRY_MOVE_BARRACK",
+                  "other_character_itemlist_APPS_TRY_MOVE_BARRACK")
+
+function other_character_itemlist_APPS_TRY_MOVE_BARRACK(frame, msg)
+    -- local slot, capt, class, buffType = acutil.getEventArgs(msg)
+    if first == 0 then
+        local frame = ui.GetFrame('barrack_charlist')
+        local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
+        hidelogin:SetCheck(1);
+        first = 1
+        other_character_itemlist_get_charindex(frame)
+    end
+
+end
+
+function other_character_itemlist_get_charindex(frame)
+    local scrollBox = frame:GetChild("scrollBox");
+    for i = 0, scrollBox:GetChildCount() - 1 do
+        local child = scrollBox:GetChildByIndex(i);
+        if string.find(child:GetName(), 'char_') ~= nil and child:GetName() ~= 'char_add' then
+            local list = StringSplit(child:GetName(), "_");
+            if g.settings[list[2]] == nil then
+                g.settings[list[2]] = {}
+            end
+            if #list == 2 then
+                local Name = list[2]:GetName()
+                g.settings[list[2]].index = i
+                g.settings[list[2]].name = Name
+            end
+        end
+    end
+    other_character_itemlist_save_settings()
 
 end
 
@@ -39,7 +66,7 @@ function OTHER_CHARACTER_ITEMLIST_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    g.settings = g.settings or {}
+
     g.CID = info.GetCID(session.GetMyHandle())
 
     local pc = GetMyPCObject();
@@ -47,19 +74,19 @@ function OTHER_CHARACTER_ITEMLIST_ON_INIT(addon, frame)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
         addon:RegisterMsg("GAME_START", "other_character_itemlist_2sec")
-        acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_INVENTORY_OPEN")
-        acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_INVENTORY_CLOSE")
+        acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_itemlist_INVENTORY_OPEN")
+        acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_itemlist_INVENTORY_CLOSE")
         return;
     end
 
 end
 -- other_character_itemlist_save_enchant()
 
-function other_character_INVENTORY_OPEN()
+function other_character_itemlist_INVENTORY_OPEN()
     other_character_itemlist_save_enchant()
 end
 
-function other_character_INVENTORY_CLOSE()
+function other_character_itemlist_INVENTORY_CLOSE()
     other_character_itemlist_save_enchant()
 end
 

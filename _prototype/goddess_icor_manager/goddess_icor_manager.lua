@@ -789,7 +789,7 @@ function goddess_icor_manager_language(str)
             str = "HPエリクサー広域化"
         end
 
-        if str == "rada_bless_1" then
+        --[[if str == "rada_bless_1" then
             str = "ラダの恩恵(+1)"
         end
         if str == "dievdirbys_bless_1" then
@@ -806,6 +806,55 @@ function goddess_icor_manager_language(str)
         end
         if str == "saule_bless_1" then
             str = "サウレの恩恵(+1)"
+        end]]
+
+        if str == "rada_bless_1" then
+            str = ClMsg("rada_bless_1")
+        end
+        if str == "gabija_bless_1" then
+            str = ClMsg("gabija_bless_1")
+        end
+        if str == "vakarine_bless_1" then
+            str = ClMsg("vakarine_bless_1")
+        end
+        if str == "jurate_bless_1" then
+            str = ClMsg("jurate_bless_1")
+        end
+        if str == "saule_bless_1" then
+            str = ClMsg("saule_bless_1")
+        end
+        if str == "payawoota_bless_1" then
+            str = ClMsg("payawoota_bless_1")
+        end
+        if str == "zemyna_bless_1" then
+            str = ClMsg("zemyna_bless_1")
+        end
+        if str == "cleric_bless_1" then
+            str = ClMsg("cleric_bless_1")
+        end
+        if str == "priest_bless_1" then
+            str = ClMsg("priest_bless_1")
+        end
+        if str == "dievdirbys_bless_1" then
+            str = ClMsg("dievdirbys_bless_1")
+        end
+        if str == "chaplain_bless_1" then
+            str = ClMsg("chaplain_bless_1")
+        end
+        if str == "retiarii_bless_1" then
+            str = ClMsg("retiarii_bless_1")
+        end
+        if str == "appraiser_bless_1" then
+            str = ClMsg("appraiser_bless_1")
+        end
+        if str == "plagueDoctor_bless_1" then
+            str = ClMsg("plagueDoctor_bless_1")
+        end
+        if str == "fireMage_bless_1" then
+            str = ClMsg("fireMage_bless_1")
+        end
+        if str == "dalia_bless_1" then
+            str = ClMsg("dalia_bless_1")
         end
 
         if str == " 500Advanced" then
@@ -1174,20 +1223,50 @@ function goddess_icor_manager_language(str)
         if str == "rada_bless_1" then
             str = ClMsg("rada_bless_1")
         end
-        if str == "dievdirbys_bless_1" then
-            str = ClMsg("dievdirbys_bless_1")
+        if str == "gabija_bless_1" then
+            str = ClMsg("gabija_bless_1")
         end
-        if str == "zemyna_bless_1" then
-            str = ClMsg("zemyna_bless_1")
+        if str == "vakarine_bless_1" then
+            str = ClMsg("vakarine_bless_1")
+        end
+        if str == "jurate_bless_1" then
+            str = ClMsg("jurate_bless_1")
+        end
+        if str == "saule_bless_1" then
+            str = ClMsg("saule_bless_1")
         end
         if str == "payawoota_bless_1" then
             str = ClMsg("payawoota_bless_1")
         end
+        if str == "zemyna_bless_1" then
+            str = ClMsg("zemyna_bless_1")
+        end
+        if str == "cleric_bless_1" then
+            str = ClMsg("cleric_bless_1")
+        end
+        if str == "priest_bless_1" then
+            str = ClMsg("priest_bless_1")
+        end
+        if str == "dievdirbys_bless_1" then
+            str = ClMsg("dievdirbys_bless_1")
+        end
+        if str == "chaplain_bless_1" then
+            str = ClMsg("chaplain_bless_1")
+        end
+        if str == "retiarii_bless_1" then
+            str = ClMsg("retiarii_bless_1")
+        end
+        if str == "appraiser_bless_1" then
+            str = ClMsg("appraiser_bless_1")
+        end
+        if str == "plagueDoctor_bless_1" then
+            str = ClMsg("plagueDoctor_bless_1")
+        end
         if str == "fireMage_bless_1" then
             str = ClMsg("fireMage_bless_1")
         end
-        if str == "saule_bless_1" then
-            str = ClMsg("saule_bless_1")
+        if str == "dalia_bless_1" then
+            str = ClMsg("dalia_bless_1")
         end
 
         if str == " 500Advanced" then
