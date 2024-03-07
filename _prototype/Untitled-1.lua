@@ -19,3 +19,18 @@ function ADDONNAME_SELECT_BARRACK_LAYER(frame, msg)
     local before = frame:GetUserValue("SelectBarrackLayer")
 
 end
+
+local accountInfo = session.barrack.GetMyAccount();
+local cnt = accountInfo:GetPCCount();
+for i = 0, cnt - 1 do
+    local pcInfo = accountInfo:GetPCByIndex(i);
+    local pcCid = pcInfo:GetCID();
+    local pcApc = pcInfo:GetApc();
+    local pcName = pcApc:GetName()
+    --[[local pcApc = pcInfo:GetApc();
+    local pcCid = pcInfo:GetCID();
+    if pcCid ~= cid and pcApc:GetName() == changedName then
+        ui.SysMsg(ClMsg("AlreadyorImpossibleName"));
+        return;
+    end]]
+end
