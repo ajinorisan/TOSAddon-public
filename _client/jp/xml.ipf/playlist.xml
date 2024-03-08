@@ -1,5 +1,5 @@
 <!-- edited with XMLSpy v2021 (x64) (http://www.altova.com) by sevin (IMCGAMES) -->
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (IMCGames Co., Ltd) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <PlayList>
 	<BGM PlayListName="Login_Barrack" Volume="90" FileName1="tos_Kevin_TOS_Carol_2017.mp3" FileName2="tos_Tree_of_Savior_Piano.mp3" FileName3="tos_SFA_Openup_Po10.mp3"/>
 	<BGM PlayListName="NoMusic" Volume="90" FileName1="tos_mute_1minute.mp3"/>
@@ -133,8 +133,9 @@
 	<BGM PlayListName="master_Spear_Master" Volume="130" FileName1="tos_SFA_Spears_of_God.mp3"/>
 	<BGM PlayListName="master_Engineer" Volume="130" FileName1="tos_Initium_Springtime_of_Salvation.mp3"/>
 	<BGM PlayListName="master_Pontifex" Volume="130" FileName1="tos_SFA_Dusk.mp3"/>
-	<BGM PlayListName="master_ Illusionist" Volume="130" FileName1="tos_7clouds_Illuminator.mp3"/>
+	<BGM PlayListName="master_Illusionist" Volume="130" FileName1="tos_7clouds_Illuminator.mp3"/>
 	<BGM PlayListName="master_Wingedhussar" Volume="130" FileName1="tos_SFA_Day_in_Glasgow.mp3"/>
+	<BGM PlayListName="master_bowmaster" Volume="130" FileName1="tos_Cinenote_The_Dance_of_Wolves.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE01" Volume="120" FileName1="Orgel_No_Matter_Christmas.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE02" Volume="120" FileName1="Orgel_Dont_Cry.mp3"/>
 	<BGM PlayListName="raid_velcoffer" Volume="120" FileName1="tos_Drogo_Uno_Impetu.mp3" FileName2="tos_Drogo_Velvet_Penetration.mp3" FileName3="tos_Gaudium_Wrong_Theory.mp3"/>

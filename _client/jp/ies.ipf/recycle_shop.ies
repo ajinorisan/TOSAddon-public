@@ -74,7 +74,7 @@ ClassID,BuyPrice,SellPrice,ClassName,Category,SubCategory,PackageList
 815,350,0,"extract_ticket_cabinet_vibora_Recycle","Recyle_Shop_Buy","Recyle_Shop_Reset",""
 816,350,0,"extract_ticket_cabinet_goddess_Recycle","Recyle_Shop_Buy","Recyle_Shop_Reset",""
 819,75,0,"unlock_belt_team_belonging_scroll_470_Recycle","Recyle_Shop_Buy","Recyle_Shop_Reset",""
-820,66,0,"ExchangeACC_Book_490","Recyle_Shop_Buy","Recyle_Shop_Reset",""
+820,66,0,"ExchangeACC_Book_510","Recyle_Shop_Buy","Recyle_Shop_Reset",""
 821,66,0,"Exchange_Weapon_Book_500","Recyle_Shop_Buy","Recyle_Shop_Reset",""
 822,200,0,"unlock_acc_belonging_scroll_490_Recycle","Recyle_Shop_Buy","Recyle_Shop_Reset",""
 823,375,0,"unlock_acc_belonging_scroll_490_Recycle_3ea","Recyle_Shop_Buy","Recyle_Shop_Reset",""

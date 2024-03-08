@@ -399,6 +399,8 @@ ClassID,HitCount,ClassName
 398,4,"WingedHussars_GiantWings"
 399,3,"WingedHussars_ExplosionSpears"
 400,3,"WingedHussars_WindPulse"
+401,3,"BowMaster_ScatterShot"
+402,5,"BowMaster_GodArrow"
 403,2,"Illusionist_IllusionSword"
 404,10,"IllusionSword_Illusion31"
 405,2,"Illusionist_Nightmare"

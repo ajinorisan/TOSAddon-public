@@ -452,7 +452,13 @@
 		<image name="icon_archer_Turret_Debuff" file="\icon\skill\archer\icon_archer_flameturret_03.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
 		<image name="icon_archer_Turret_Buff_Protection" file="\icon\skill\archer\icon_archer_flameturret_04.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
 		<image name="icon_archer_Turret_Inner_Cooltime" file="\icon\skill\archer\icon_archer_buffturret2.png" imgrect="0 0 128 128" CMM_Caption="리페어 키트"/>		
-	
+		<image name="icon_arch_DodgeFire" file="\icon\skill\archer\icon_arch_DodgeFire.png" imgrect="0 0 128 128" CMM_Caption="회피 사격"/>
+		<image name="icon_arch_FocusFire" file="\icon\skill\archer\icon_arch_FocusFire.png" imgrect="0 0 128 128" CMM_Caption="집중 사격"/>
+		<image name="icon_arch_SkyBow" file="\icon\skill\archer\icon_arch_SkyBow.png" imgrect="0 0 128 128" CMM_Caption="천궁"/>
+		<image name="icon_arch_Hyunmoo" file="\icon\skill\archer\icon_arch_Hyunmoo.png" imgrect="0 0 128 128" CMM_Caption="현무"/>
+		<image name="icon_arch_ScatterShot" file="\icon\skill\archer\icon_arch_ScatterShot.png" imgrect="0 0 128 128" CMM_Caption="산탄 사격"/>
+		<image name="icon_arch_GodArrow" file="\icon\skill\archer\icon_arch_GodArrow.png" imgrect="0 0 128 128" CMM_Caption="신의화살"/>
+		<image name="icon_buff_chargearrow" file="\icon\skill\archer\icon_buff_chargearrow.png" imgrect="0 0 128 128" CMM_Caption="차지 애로우"/>										
 	</imagelist>
 	<imagelist category="cleric_skillicon">
 		<image name="icon_cler_Heal" file="\icon\skill\cleric\icon_cler_Heal.png" imgrect="0 0 128 128" CMM_Caption="힐"/>
@@ -3032,6 +3038,25 @@
 		<image name="ability_archer_engineer23" file="\icon\icon_ability_archer10.tga" imgrect="128 896 128 128" CMM_Caption="킹 메카V: 화염"/>
 		<image name="ability_archer_engineer24" file="\icon\icon_ability_archer10.tga" imgrect="256 896 128 128" CMM_Caption="킹 메카V: 전격"/>
 		<image name="ability_archer_engineer25" file="\icon\icon_ability_archer10.tga" imgrect="512 896 128 128" CMM_Caption="킹 메카V: 빙결"/>
+		<image name="ability_archer_bowmaster1" file="\icon\icon_ability_archer10.tga" imgrect="639 896 128 128" CMM_Caption="집중 사격: 강화"/>
+		<image name="ability_archer_bowmaster2" file="\icon\icon_ability_archer10.tga" imgrect="769 896 128 128" CMM_Caption="[아츠] 집중 사격: 상급 강화"/>
+		<image name="ability_archer_bowmaster3" file="\icon\icon_ability_archer10.tga" imgrect="897 896 128 128" CMM_Caption="[아츠] 집중 사격: 관통 화살"/>
+		<image name="ability_archer_bowmaster4" file="\icon\icon_ability_archer11.tga" imgrect="0 0 128 128" CMM_Caption="회피 사격: 강화"/>
+		<image name="ability_archer_bowmaster5" file="\icon\icon_ability_archer11.tga" imgrect="128 0 128 128" CMM_Caption="[아츠] 회피 사격: 상급 강화"/>
+		<image name="ability_archer_bowmaster6" file="\icon\icon_ability_archer11.tga" imgrect="256 0 128 128" CMM_Caption="회피 사격: 고속이동"/>
+		<image name="ability_archer_bowmaster7" file="\icon\icon_ability_archer11.tga" imgrect="384 0 128 128" CMM_Caption="천궁: 강화"/>
+		<image name="ability_archer_bowmaster8" file="\icon\icon_ability_archer11.tga" imgrect="512 0 128 128" CMM_Caption="[아츠] 천궁: 상급 강화"/>
+		<image name="ability_archer_bowmaster9" file="\icon\icon_ability_archer11.tga" imgrect="640 0 128 128" CMM_Caption="산탄 사격: 강화"/>
+		<image name="ability_archer_bowmaster10" file="\icon\icon_ability_archer11.tga" imgrect="768 0 128 128" CMM_Caption="[아츠] 산탄 사격: 상급 강화"/>
+		<image name="ability_archer_bowmaster11" file="\icon\icon_ability_archer11.tga" imgrect="896 0 128 128" CMM_Caption="[아츠] 산탄 사격: 폭열탄"/>
+		<image name="ability_archer_bowmaster12" file="\icon\icon_ability_archer11.tga" imgrect="0 128 128 128" CMM_Caption="현무: 강화"/>
+		<image name="ability_archer_bowmaster13" file="\icon\icon_ability_archer11.tga" imgrect="128 128 128 128" CMM_Caption="[아츠] 현무: 상급 강화"/>
+		<image name="ability_archer_bowmaster14" file="\icon\icon_ability_archer11.tga" imgrect="256 128 128 128" CMM_Caption="현무: 반동억제"/>
+		<image name="ability_archer_bowmaster15" file="\icon\icon_ability_archer11.tga" imgrect="384 128 128 128" CMM_Caption="신의 화살: 강화"/>
+		<image name="ability_archer_bowmaster16" file="\icon\icon_ability_archer11.tga" imgrect="512 128 128 128" CMM_Caption="[아츠] 신의 화살: 상급 강화"/>
+		<image name="ability_archer_bowmaster17" file="\icon\icon_ability_archer11.tga" imgrect="640 128 128 128" CMM_Caption="차지 애로우"/>
+		<image name="ability_archer_bowmaster18" file="\icon\icon_ability_archer11.tga" imgrect="768 128 128 128" CMM_Caption="[아츠] 신의 화살: 신속함"/>
+		<image name="ability_archer_bowmaster19" file="\icon\icon_ability_archer11.tga" imgrect="896 128 128 128" CMM_Caption="[아츠] 속사"/>								
 	</imagelist>
 	<imagelist category="abilityicon_cleric">
 		<image name="ability_cleric_Cleric1" file="\icon\icon_ability_cleric01.tga" imgrect="0 0 128 128" CMM_Caption="큐어-도트시간감소"/>

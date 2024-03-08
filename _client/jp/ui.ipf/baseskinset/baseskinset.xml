@@ -14771,6 +14771,7 @@
 		<image name="Dlg_port_PontifexMaster" file="\npcimg\Pontifex_Master.png" imgrect="0 0 800 989" CMM_Caption="폰티펙스"/>
 		<image name="Dlg_port_IllusionistMaster" file="\npcimg\Illusionist_Master.png" imgrect="0 0 800 946" CMM_Caption="일루저니스트"/>
 		<image name="Dlg_port_WingedhussarMaster" file="\npcimg\Wingedhussar_Master.png" imgrect="0 0 726 1000" CMM_Caption="윙드후사르"/>
+		<image name="Dlg_port_bowmaster" file="\npcimg\bowmaster_master.png" imgrect="0 0 1000 1159" CMM_Caption="신궁"/>
 	</imagelist>
 	<imagelist category="Dlg_boss">
 		<image name="balloon_Skiaclipse" file="\skin\monster_Dlg.tga" imgrect="0 0 220 260" CMM_Caption="스키아클립스"/>
@@ -16403,6 +16404,8 @@
 		<image name="plate_achieve_Illusionist" file="\skin\user_title_skin2.tga" imgrect="642 136 214 34" CMM_Caption="일루저니스트 칭호"/>
 		<image name="plate_achieve_WingedHussar_weekraid" file="\skin\user_title_skin2.tga" imgrect="428 170 214 34" CMM_Caption="윙드후사르 주보레 칭호"/>
 		<image name="plate_achieve_WingedHussar" file="\skin\user_title_skin2.tga" imgrect="642 170 214 34" CMM_Caption="윙드후사르 칭호"/>
+		<image name="plate_achieve_BowMaster_weekraid" file="\skin\user_title_skin2.tga" imgrect="856 170 214 34" CMM_Caption="신궁 주보레 칭호"/>
+		<image name="plate_achieve_BowMaster" file="\skin\user_title_skin2.tga" imgrect="1070 170 214 34" CMM_Caption="신궁 칭호"/>
 		<image name="plate_achieve_DespairIsland_gold" file="\skin\user_title_skin2.tga" imgrect="856 136 214 34"/>
 		<image name="plate_achieve_DespairIsland_silver" file="\skin\user_title_skin2.tga" imgrect="1070 136 214 34"/>
 		<image name="plate_achieve_DespairIsland_bronze" file="\skin\user_title_skin2.tga" imgrect="0 170 214 34"/>

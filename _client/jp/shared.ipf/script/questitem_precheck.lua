@@ -9378,3 +9378,75 @@ function SCR_PRE_EP15_2_D_NICOPOLIS_1_MQ_4_ITEM_01(self, argstring, argnum1, arg
     end
     return 0
 end
+
+-- EP16_1_SIAULIAI_WEST_MQ3_ITEM
+function SCR_PRE_EP16_1_SIAULIAI_WEST_MQ3_ITEM(self, argObj, argstring, argnum1, argnum2)
+    --[[ local result = SCR_QUEST_CHECK(self, 'CASTLE65_1_MQ02')
+    local quest_ssn = GetSessionObject(self, "SSN_CASTLE65_1_MQ02")
+    if result == "PROGRESS" then
+        if GetZoneName(self) == 'f_castle_65_1' then
+            if GetLayer(self) == 0 then
+                local list, cnt = SelectObject(self, 50, 'ALL', 1)
+                local i
+                for i = 1, cnt do
+                    if list[i].ClassName ~= 'PC' then
+                        if list[i].ClassName == 'rokas_pot3_small' or list[i].ClassName == 'rokas_pots'then
+                            if IsServerSection(self) == 1 then
+                                if list[i].Dialog == 'CASTLE651_MQ_02_1' then
+                                    if quest_ssn.Step1 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                elseif list[i].Dialog == 'CASTLE651_MQ_02_2' then
+                                    if quest_ssn.Step2 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                elseif list[i].Dialog == 'CASTLE651_MQ_02_3' then
+                                    return GetHandle(list[i])
+                                elseif list[i].Dialog == 'CASTLE651_MQ_02_4' then
+                                    if quest_ssn.Step3 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                elseif list[i].Dialog == 'CASTLE651_MQ_02_5' then
+                                    if quest_ssn.Step4 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                end
+                            else
+                                if GetDialogByObject(list[i]) == 'CASTLE651_MQ_02_1' then
+                                    if quest_ssn.Step1 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                elseif GetDialogByObject(list[i]) == 'CASTLE651_MQ_02_2' then
+                                    if quest_ssn.Step2 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                elseif GetDialogByObject(list[i]) == 'CASTLE651_MQ_02_3' then
+                                    return GetHandle(list[i])
+                                elseif GetDialogByObject(list[i]) == 'CASTLE651_MQ_02_4' then
+                                    if quest_ssn.Step3 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                elseif GetDialogByObject(list[i]) == 'CASTLE651_MQ_02_5' then
+                                    if quest_ssn.Step4 ~= 1 then
+                                        return GetHandle(list[i])
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end ]]
+    return 0
+end
+
+-- EP16_1_CORAL_32_1_MQ7
+function SCR_PRE_EP16_1_CORAL_32_1_MQ7_ITEM(self, argObj, argstring, argnum1, argnum2)
+    return 0;
+end
+
+-- EP16_1_ROKAS_36_1_MQ9
+function SCR_PRE_EP16_1_ROKAS_36_1_MQ9_ITEM(self, argObj, argstring, argnum1, argnum2)
+    return 0;
+end

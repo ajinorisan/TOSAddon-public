@@ -9,6 +9,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_abi
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Barbarian.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_BlossomBlader.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Bokor.ies
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_BowMaster.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Bulletmarker.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Cannoneer.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Cataphract.ies

@@ -92,3 +92,4 @@ ClassID,minLv,maxLv,dropRatio,ClassName,Name,ServerMsg,EventCompositon,Dropable,
 93,420,450,2,"TMAC04_119_1","바이보라 비전 - 원죄","NO","NO","YES","Pontifex"
 91,420,450,2,"TSF04_129_12","바이보라 비전 - 호접몽","NO","NO","YES","Illusionist"
 94,420,450,2,"TSP04_129_1","바이보라 비전 - 신의 위세","NO","NO","YES","WingedHussars"
+96,420,450,2,"TBW04_126_8","바이보라 비전 - 원기회복","NO","NO","YES","BowMaster"

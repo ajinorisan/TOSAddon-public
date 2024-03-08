@@ -3358,6 +3358,29 @@ function JOB_JAGUAR_PRE_CHECK(pc, jobCount)
     return 'NO'
 end
 
+function JOB_ILLUSIONIST_PRE_CHECK(pc, jobCount)
+    if jobCount == nil then
+        jobCount = GetTotalJobCount(pc);
+    end
+    if jobCount >= 2 then
+        local aObj
+        if IsServerSection() == 0 then
+            aObj = GetMyAccountObj();
+        else
+            aObj = GetAccountObj(pc);
+        end
+        
+        if aObj ~= nil then
+            local value = TryGetProp(aObj, 'UnlockQuest_Char2_25', 0)
+            if value == 1 or IS_KOR_TEST_SERVER() == true then
+                return 'YES'
+            end
+        end 
+    end
+
+    return 'NO'
+end
+
 function JOB_SPEARMASTER_PRE_CHECK(pc, jobCount)
     local aObj
     if IsServerSection() == 0 then
@@ -3500,6 +3523,44 @@ function JOB_SHINOBI_PRE_CHECK(pc, jobCount)
 
     return 'NO'
 end
+
+function JOB_WingedHussars_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char1_25', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_BowMaster_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char3_24', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+
 
 function GET_ACCOUNT_WAREHOUSE_EXTEND_PRICE(aObj, taxRate)
     local slotDiff = aObj.AccountWareHouseExtend;
@@ -4301,7 +4362,7 @@ function DELETE_ITEM_OPEN_WARNINGBOX_MSG(itemCls)
 		return 1
 	end
 
-	if itemCls.MarketCategory == 'Card_CardLeg' then
+	if itemCls.MarketCategory == 'Card_CardLeg' or itemCls.MarketCategory == "Gem_High_Color" then
 		return 1
     end
     
@@ -4576,56 +4637,87 @@ function CHECK_TOSW_EVENT_RESTRICT_TIME(indun_class_name)
         time = geTime.GetServerSystemTime();
     end
 
-    if indun_class_name ~= "Evnet2023_SnigoDungeon" then
+    if indun_class_name ~= "Evnet2023_SnigoDungeon" and indun_class_name ~= "Evnet2024_NewYear" then
         return true;
+    end
+    
+    local TimeCheckFunc = function(day, hour, min, EndDay, EndHour, EndMin)
+        if day > EndDay then
+            return false;
+        elseif day == EndDay then
+            if hour > EndHour then
+                return false;
+            elseif hour == EndHour then
+                if min >= EndMin then
+                    return false;
+                end
+                return true;
+            end
+            return true;
+        else
+            return true;
+        end
     end
 
     if time ~= nil then
         local year = time.wYear;
         local month = time.wMonth;
-        if year == 2024 and month == 1 then
-            local day = time.wDay;
-            local hour = time.wHour;
-            local min = time.wMin;
-            local nation = GetServerNation();
-            if nation == "GLOBAL" then
-                if day >= 22 then
-                    if hour >= 6 then
-                        return false;
-                    end
-                    return true;
+        if indun_class_name == "Evnet2023_SnigoDungeon" then
+            if year == 2024 and month == 1 then
+                local day = time.wDay;
+                local hour = time.wHour;
+                local min = time.wMin;
+                local nation = GetServerNation();
+                if nation == "GLOBAL" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 22, 6, 0);
+                    return TimeBoolean;
+                elseif nation == "GLOBAL_JP" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 22, 6, 0);
+                    return TimeBoolean;
+                elseif nation == "GLOBAL_KOR" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 22, 6, 0);
+                    return TimeBoolean;
+                elseif nation =="PAPAYA" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 23, 17, 30);
+                    return TimeBoolean;
+                elseif nation == "TWN" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 29, 6, 0);
+                    return TimeBoolean;
                 end
-            elseif nation == "GLOBAL_JP" then
-                if day >= 22 then
-                    if hour >= 6 then
-                        return false;
-                    end
-                    return true;
-                end
-            elseif nation == "GLOBAL_KOR" then
-                if day >= 22 then
-                    if hour >= 6 then
-                        return false;
-                    end
-                    return true;
-                end
-            elseif nation =="PAPAYA" then
-                if day >= 23 then
-                    if hour == 17 then
-                        if min >= 30 then
+            end
+        elseif indun_class_name == "Evnet2024_NewYear" then
+            if year == 2024 and month == 2 then
+                local day = time.wDay;
+                local hour = time.wHour;
+                local min = time.wMin;
+                local nation = GetServerNation();
+                if nation == "GLOBAL" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 5, 6, 0);
+                    return TimeBoolean;
+                elseif nation == "GLOBAL_JP" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 5, 6, 0);
+                    return TimeBoolean;
+                elseif nation == "GLOBAL_KOR" then
+                    local TimeBoolean = TimeCheckFunc(day, hour, min, 5, 6, 0);
+                    return TimeBoolean;
+                elseif nation =="PAPAYA" then
+                    --[[ if day >= 23 then
+                        if hour == 17 then
+                            if min >= 30 then
+                                return false;
+                            end
+                        elseif hour > 17 then
                             return false;
                         end
-                    elseif hour > 17 then
-                        return false;
-                    end
-                    return true;
-                end
-            elseif nation == "TWN" then
-                if day >= 29 then
-                    if hour >= 6 then
-                        return false;
-                    end
-                    return true;
+                        return true;
+                    end ]]
+                elseif nation == "TWN" then
+                    --[[ if day >= 29 then
+                        if hour >= 6 then
+                            return false;
+                        end
+                        return true;
+                    end ]]
                 end
             end
         end

@@ -5442,3 +5442,20 @@ function SCR_GET_STATUS_BY_ITEM(self, statString)
     
     return math.floor(value);
 end
+
+
+function GET_ITEM_ATK(item)
+    local min, max = GET_BASIC_ATK(item)
+    local add = GET_REINFORCE_ADD_VALUE_ATK(item, 0, 0, 'ATK')
+    min = min + add
+    max = max + add
+    return min, max
+end
+
+function GET_ITEM_MATK(item)
+    local min, max = GET_BASIC_MATK(item)
+    local add = GET_REINFORCE_ADD_VALUE_ATK(item, 0, 0, 'ATK')
+    min = min + add
+    max = max + add
+    return min, max
+end

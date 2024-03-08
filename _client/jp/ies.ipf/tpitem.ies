@@ -32,7 +32,7 @@ ClassID,Price,JobGrade,Itemdate,AccountLimitCount,BonusItemCnt,AccountLimitWeekl
 121,43,0,210712,0,0,0,"ClassName121","TP_Premium","TP_Useable","EngraveSlotExtension_Ticket_60d","","","","NO","","NO","","",""
 122,58,0,210713,0,0,0,"ClassName122","TP_Premium","TP_Useable","EngraveSlotExtension_Ticket_90d","","","","NO","","NO","","",""
 123,33,0,210617,0,0,0,"ClassName123","TP_Premium","TP_Useable","Exchange_Weapon_Book_500","","","","NO","","NO","","",""
-124,33,0,210617,0,0,0,"ClassName124","TP_Premium","TP_Useable","ExchangeACC_Book_490","","","","NO","","NO","","",""
+124,33,0,210617,0,0,0,"ClassName124","TP_Premium","TP_Useable","ExchangeACC_Book_510","","","","NO","","NO","","",""
 302,160,0,231101,0,0,0,"ClassName302","TP_Premium","TP_Consume","Premium_Enchantchip_high_20","","","","NO","","NO","","",""
 303,3,0,210123,0,0,0,"ClassName303","TP_Premium","TP_Consume","Premium_repairPotion","","","","NO","","NO","","",""
 304,2,0,210122,0,0,0,"ClassName304","TP_Premium","TP_Consume","RestartCristal","","","","NO","","NO","","",""

@@ -74,6 +74,13 @@
                             </ToolScp>
                         </execList>
                     </Event>
+                    <Event execCount="1" eventName="SaveAllPCAid">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_FIELD_BOSS_RAID_SAVE_PC_AIDX"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
                 </StageEvents>
             </Stage>
             <Stage Name="TIMER" AutoStart="0">
@@ -306,6 +313,10 @@
             <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
                 <Num Num="2"/>
                 <Str Str="SCR_FIELD_BOSS_DPS_START"/>
+            </ToolScp>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_FIELD_BOSS_RAID_CHECK_REENTER_PC"/>
             </ToolScp>
         </EnterList>
         <LeaveList>

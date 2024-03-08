@@ -259,6 +259,10 @@ function DRAW_SEALED_SKILL_GEM_INFO(invitem, desc)
 		end
 	end
 
+	if TryGetProp(invitem, 'StringArg', 'None') == 'SkillGem' then
+		desc = desc .. '{nl}' .. ClMsg('SkillGemDecompositionMsg')
+	end
+
 	return desc
 end
 

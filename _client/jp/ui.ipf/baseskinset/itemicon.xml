@@ -964,6 +964,12 @@
 		<image name="icon_item_warrior_wingedhussar_f" file="\icon\equip\icon_item_warrior_wingedhussar_f.png" imgrect="0 0 256 256" CMM_Caption="윙드후사르 코스튬"/>
 		<image name="icon_leticia_wingedhussar_unlockbox" file="\icon\payment\icon_leticia_wingedhussar_unlockbox.png" imgrect="0 0 256 256" CMM_Caption="소드맨 계열 - 윙드후사르 스페셜 클래스 해금권 상자"/>
 		<image name="icon_item_Unlock_wingedhussar" file="\icon\payment\icon_item_Unlock_wingedhussar.png" imgrect="0 0 256 256" CMM_Caption="소드맨 계열 - 윙드후사르 스페셜 클래스 해금권"/>
+		<image name="icon_leticia_bowmaster_unlockbox" file="\icon\payment\icon_leticia_bowmaster_unlockbox.png" imgrect="0 0 256 256" CMM_Caption="아쳐 계열 - 신궁 스페셜 클래스 해금권 상자"/>
+		<image name="icon_item_Unlock_bowmaster" file="\icon\payment\icon_item_Unlock_bowmaster.png" imgrect="0 0 256 256" CMM_Caption="아처 계열 - 신궁 스페셜 클래스 해금권"/>
+		<image name="icon_item_ep15viking_selectbox01" file="\icon\payment\icon_item_ep15viking_selectbox01.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 코스튬 선택 상자"/>
+		<image name="icon_item_ep15viking_selectbox02" file="\icon\payment\icon_item_ep15viking_selectbox02.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 머리장식 선택 상자"/>
+		<image name="icon_item_archer_bowmaster_m" file="\icon\equip\icon_item_archer_bowmaster_m.png" imgrect="0 0 256 256" CMM_Caption="신궁 코스튬(남)"/>
+		<image name="icon_item_archer_bowmaster_f" file="\icon\equip\icon_item_archer_bowmaster_f.png" imgrect="0 0 256 256" CMM_Caption="신궁 코스튬(여)"/>
 	</imagelist>
 	<imagelist category="256_costume_icons">
 		<image name="icon_item_Alchemist_f" file="\icon\equip\Alchemist_f_icon.png" imgrect="0 0 256 256" CMM_Caption="알케미스트"/>
@@ -5529,7 +5535,7 @@
 		<image name="icon_item_lv3_misc_goddess_noble_2" file="icon\item\icon_item_lv3_misc_goddess_noble_2.png" imgrect="0 0 128 128" CMM_Caption=""/>
 		<image name="icon_item_lv1_misc_goddess_noble_3" file="icon\item\icon_item_lv1_misc_goddess_noble_3.png" imgrect="0 0 128 128" CMM_Caption=""/>
 		<image name="icon_item_lv2_misc_goddess_noble_3" file="icon\item\icon_item_lv2_misc_goddess_noble_3.png" imgrect="0 0 128 128" CMM_Caption=""/>
-		<image name="icon_item_lv3_misc_goddess_noble_3" file="icon\item\icon_item_lv3_misc_goddess_noble_3.png" imgrect="0 0 128 128" CMM_Caption=""/>		
+		<image name="icon_item_lv3_misc_goddess_noble_3" file="icon\item\icon_item_lv3_misc_goddess_noble_3.png" imgrect="0 0 128 128" CMM_Caption=""/>
 		<image name="icon_item_part1" file="icon\item\icon_item_part1.png" imgrect="0 0 128 128" CMM_Caption="수정광산_정화장치부품1"/>
 		<image name="icon_item_part2" file="icon\item\icon_item_part2.png" imgrect="0 0 128 128" CMM_Caption="수정광산_정화장치부품2"/>
 		<image name="icon_item_part3" file="icon\item\icon_item_part3.png" imgrect="0 0 128 128" CMM_Caption="수정광산_정화장치부품3"/>
@@ -9943,6 +9949,15 @@
 		<image name="icon_itempet_peacock" file="\icon\payment\icon_itempet_peacock.png" imgrect="0 0 256 256" CMM_Caption="공작새 탈것"/>
 		<image name="icon_item_wing_wingedhussar" file="\icon\payment\icon_item_wing_wingedhussar.png" imgrect="0 0 256 256" CMM_Caption="윙드후사르 날개"/>
 		<image name="icon_item_wingedhussar_thspear" file="\icon\equip\icon_item_wingedhussar_thspear.png" imgrect="0 0 256 256" CMM_Caption="윙드후사르 파이크"/>
+		<image name="icon_item_costume_ep15viking01_m" file="\icon\payment\icon_item_costume_ep15viking01_m.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 코스튬 (남)"/>
+		<image name="icon_item_costume_ep15viking01_f" file="\icon\payment\icon_item_costume_ep15viking01_f.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 코스튬 (여)"/>
+		<image name="icon_item_helmet_ep15viking01_m" file="\icon\payment\icon_item_helmet_ep15viking01_m.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 헬멧 (남)"/>
+		<image name="icon_item_helmet_ep15viking01_f" file="\icon\payment\icon_item_helmet_ep15viking01_f.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 헬멧 (여)"/>
+		<image name="icon_item_shield_ep15viking" file="\icon\weapon\icon_item_shield_ep15viking.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 쉴드"/>
+		<image name="icon_item_wing_ep15viking" file="\icon\payment\icon_item_wing_ep15viking.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 등 장식"/>
+		<image name="icon_item_hairacc_bowmaster" file="\icon\hairacc\icon_item_hairacc_bowmaster.png" imgrect="0 0 256 256" CMM_Caption="신궁의 머리장식"/>
+		<image name="icon_item_bow_bowmaster" file="\icon\weapon\icon_item_bow_bowmaster.png" imgrect="0 0 256 256" CMM_Caption="신궁의 보우"/>
+		<image name="icon_item_wing_bowmaster" file="\icon\payment\icon_item_wing_bowmaster.png" imgrect="0 0 256 256" CMM_Caption="신궁의 등 장식"/>
 	</imagelist>
 	<imagelist category="seal">
 		<image name="icon_seal_yellow_cc_A1" file="\icon\seal\seal_yellow_cc_A1.tga" imgrect="0 0 80 80"/>

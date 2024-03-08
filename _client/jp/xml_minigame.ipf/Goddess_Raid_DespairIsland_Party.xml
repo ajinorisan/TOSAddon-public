@@ -767,6 +767,10 @@
                 <Num Num="2"/>
                 <Str Str="SCR_MERREGINA_JOIN_PENALTY_CHECK"/>
             </ToolScp>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_MERREGINA_SHIELD_ADD_DAMAGE_BUFF_APPLY_ZONE_ENTER"/>
+            </ToolScp>
         </EnterList>
         <WorldInitList>
             <ToolScp Scp="MGAME_INIT_CHANGE_VIEW" Client="NO" UseSleep="NO">

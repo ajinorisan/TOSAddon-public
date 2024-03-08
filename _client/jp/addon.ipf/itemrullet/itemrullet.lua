@@ -209,7 +209,7 @@ local function _UPDATE_PRICE(frame)
 	local targetSeal, targetSealObj = s_reinforceSeal.TargetSeal:GetItemInfo();
 	local materialSeal, materialSealObj = s_reinforceSeal.MaterialSeal:GetItemInfo();
 	local additionalItem, additionalItemCount = _GET_ADDITIONAL_ITEM(frame);
-	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_SEAL_PRICE(targetSealObj, materialSealObj, additionalItem, additionalItemCount, GET_COLONY_TAX_RATE_CURRENT_MAP())));
+	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_SEAL_PRICE(GetMyPCObject(), targetSealObj, materialSealObj, additionalItem, additionalItemCount, GET_COLONY_TAX_RATE_CURRENT_MAP())));
 end
 
 local function _INIT_ADDITIONAL_ITEM(frame)
@@ -376,7 +376,7 @@ function RESET_REINFORCE_SEAL(parent, ctrl)
 
 	local costBox = GET_CHILD_RECURSIVELY(frame, 'costBox');
 	local priceText = GET_CHILD_RECURSIVELY(costBox, 'priceText');
-	priceText:SetTextByKey('price', GET_SEAL_PRICE());
+	priceText:SetTextByKey('price', GET_SEAL_PRICE(GetMyPCObject()));
 	costBox:ShowWindow(1);
 end
 

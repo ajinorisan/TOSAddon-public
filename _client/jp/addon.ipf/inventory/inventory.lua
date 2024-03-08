@@ -3094,7 +3094,7 @@ end
 function _INV_EQUIP_LIST_SET_ICON(slot, icon, equipItem)    
 	local frame = slot:GetTopParentFrame();
 	ICON_SET_EQUIPITEM_TOOLTIP(icon, equipItem, frame:GetName());
-	if frame:GetName() ~= "compare" then		
+	if frame:GetName() ~= "compare" then	
 		icon:SetDumpScp('STATUS_DUMP_SLOT_SET');
 		slot:SetEventScript(ui.LBUTTONDOWN, 'CHECK_EQP_LBTN');
 		slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, equipItem.equipSpot);
@@ -4775,9 +4775,9 @@ function ON_UPDATE_TRUST_POINT(frame, msg, argStr, trustPoint)
 	trustPointText:SetTextByKey("trustPoint", "{img icon_credit_grade_" .. trustPoint .." 25 29}".." "..trustPoint - 1);
 	trustPointGbox:SetTooltipType('trust_point');
 	trustPointGbox:SetTooltipOverlap(1);
-	if config.GetServiceNation() == "GLOBAL" then
+	--[[ if config.GetServiceNation() == "GLOBAL" then
 		trustPointGbox:SetTooltipType("trust_point_global");
-	end
+	end ]]
 end
 
 function SELECT_INVENTORY_TAB(frame, tabIndex)

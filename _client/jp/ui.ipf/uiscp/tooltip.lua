@@ -48,16 +48,16 @@ function TRY_PARSE_PROPERTY(obj, nextObj, caption)
         if tagEnd ~= nil then
             local tagText = string.sub(caption, tagStart + 2, tagStart + tagEnd);
             local beforeStr = string.sub(caption, 1, tagStart - 1);
-            local endStr = string.sub(caption, tagStart + tagEnd + 3, string.len(caption));
+            local endStr = string.sub(caption, tagStart + tagEnd + 3, string.len(caption));            
 
-            local propValue;
+            local propValue;            
             if string.sub(tagText, 1, 1) == "1" then
-                local propName = string.sub(tagText, 2, string.len(tagText));
+                local propName = string.sub(tagText, 2, string.len(tagText));                
                 propValue = nextObj[propName];
             else
                 propValue = nextObj[tagText]
             end
-
+            
             if propValue % 1 ~= 0 then
                 propValue = string.format("%.1f", propValue);
             end
@@ -68,7 +68,7 @@ function TRY_PARSE_PROPERTY(obj, nextObj, caption)
     return caption, 0;
 end
 
-function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)    
+function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)       
     caption = dictionary.ReplaceDicIDInCompStr(caption);
     local obj;  
     local parsed = 0;
@@ -92,7 +92,7 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
     if obj == nil then
         return caption;
     end
-
+    
     local addCaption = ""
     local skillValueType = TryGetProp(obj,"ValueType")
     if skillValueType ~= nil then
@@ -194,8 +194,8 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
     else
         nextObj = CloneIES_UseCP(obj);
     end
-
-    while 1 do
+    
+    while 1 do        
         caption, parsed = TRY_PARSE_TOOLTIPCOND(obj, caption);
         if parsed == 0 then
             break;
@@ -230,14 +230,14 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
     local lvStart, lvEnd = string.find(caption, "Lv.");
     if lvStart ~= nil then
         local beforeText = string.sub(lvCaption, 1, lvStart - 1);        
-        local afterText  = string.sub(lvCaption, lvEnd+1, string.len(lvCaption));        
+        local afterText  = string.sub(lvCaption, lvEnd+1, string.len(lvCaption));
         lvCaption = beforeText .. "ch."..afterText;        
     end
     
     while 1 do
-        lvStart, lvEnd = string.find(lvCaption, "Lv.");                
+        lvStart, lvEnd = string.find(lvCaption, "Lv.");               
         if lvStart ~= nil then
-            local propStart = string.find(caption, "#{");
+            local propStart = string.find(caption, "#{");            
             if propStart ~= nil then
                 if lvStart < propStart then
                     beforeText = string.sub(lvCaption, 1, lvStart - 1);
@@ -265,6 +265,24 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
             break;
         end
     end
+    
+    if TryGetProp(obj, 'ClassName', 'None') == 'WingedHussars_BattleSpirit' then        
+        local token = StringSplit(caption, '{nl}')
+        local cat_list = {}
+        for k, v in pairs(token) do
+            local len = string.len(v)
+            local suffix = string.sub(v, len - 1, len)
+            if suffix ~= '0%' then            
+                table.insert(cat_list, v)
+            end
+        end
+
+        caption = ''
+        for i = 1, #cat_list do
+            caption = caption .. cat_list[i] .. '{nl}'
+        end
+    end
+
     DestroyIES(obj);
     DestroyIES(nextObj);
     return caption;
@@ -307,12 +325,12 @@ function UPDATE_ABILITY_TOOLTIP(frame, strarg, numarg1, numarg2)
     local ypos = descCtrl:GetY() + descCtrl:GetHeight();
 
     local originalText = ""
-    local translatedData2 = dictionary.ReplaceDicIDInCompStr(obj.Desc2);
-    if obj.Desc2 ~= translatedData2 then
-        originalText = obj.Desc2
+    local translatedData2 = dictionary.ReplaceDicIDInCompStr(TryGetProp(obj, 'Desc2', ''));
+    if TryGetProp(obj, 'Desc2', '') ~= translatedData2 then
+        originalText = TryGetProp(obj, 'Desc2', '')
     end
 
-    local skillLvDesc = PARSE_TOOLTIP_CAPTION(obj, obj.Desc2, true);
+    local skillLvDesc = PARSE_TOOLTIP_CAPTION(obj, TryGetProp(obj, 'Desc2', ''), true);
 
     local lvDescStart, lvDescEnd = string.find(skillLvDesc, "Lv.");
 
@@ -831,7 +849,7 @@ function UPDATE_SKILL_TOOLTIP(frame, strarg, numarg1, numarg2, userData, obj)
         func_name_decrease_heal = string.format('get_decrease_heal_debuff_tooltip_%s', skill_class_name)
     end
     --------------------------------------------------------------------
-
+    
     local currLvCtrlSet = nil            
     if totalLevel == 0 and lvDescStart ~= nil then  -- no have skill case        
         skillLvDesc = string.sub(skillLvDesc, lvDescEnd + 2, string.len(skillLvDesc));

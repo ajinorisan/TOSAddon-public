@@ -381,4 +381,12 @@ function get_decrease_heal_debuff_tooltip_Sorcerer_SummonFamiliar(lv)
     return msg
 end
 
+-- 윙드 후사르 - 임펄스 스피어스
+function get_decrease_heal_debuff_tooltip_WingedHussars_ImpulseSpears(lv)
+    local arg2 = 1 * tonumber(lv) * 1000
+    local bfTime = 10000
 
+    arg2 = math.min(100000, arg2)
+    local msg = string.format('DecreaseHeal_Debuff/%.2f/%.2f/%d/1/100/-1/0/0', arg2, arg2, bfTime)
+    return msg
+end

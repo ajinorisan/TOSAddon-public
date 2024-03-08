@@ -1,5 +1,19 @@
 -- shared_cabinet_item.lua
 
+local function replace(text, to_be_replaced, replace_with)
+	local retText = text
+	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
+    if strFindStart ~= nil then
+		local nStringCnt = string.len(text)		
+		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
+    else
+        retText = text
+	end
+	
+    return retText
+end
+
+
 g_cabinet_required_item_list = nil -- 보관함 등록 및 업그레이드시에 필요한 재료 목록
 
 local luciferi_return_item_list = nil
@@ -84,7 +98,25 @@ local function make_cabinet_required_item_list()
                 end
                 local lv = 1
 
-                if TryGetProp(item_cls, 'StringArg', 'None') == 'goddess' or TryGetProp(item_cls, 'StringArg', 'None') == 'evil' then                
+                if string.find(TryGetProp(item_cls, 'StringArg2', 'None'), 'goddess_noble') ~= nil then
+                    for lv = 1, max_lv do
+                        if g_cabinet_required_item_list['Armor'][item_name][lv] == nil then
+                            g_cabinet_required_item_list['Armor'][item_name][lv] = {}  -- 레벨별 재료
+                        end
+                        
+                        local misc = TryGetProp(item_cls, 'StringArg2', 'None')
+                        if lv == 1 then
+                            g_cabinet_required_item_list['Armor'][item_name][lv][misc] = 10
+                        elseif lv == 2 then
+                            misc = replace(misc, 'lv1_', 'lv2_')
+                            g_cabinet_required_item_list['Armor'][item_name][lv][misc] = 10
+                        elseif lv == 3 then
+                            misc = replace(misc, 'lv1_', 'lv3_')
+                            g_cabinet_required_item_list['Armor'][item_name][lv][misc] = 10
+                        end
+
+                    end
+                elseif TryGetProp(item_cls, 'StringArg', 'None') == 'goddess' or TryGetProp(item_cls, 'StringArg', 'None') == 'evil' then                
                     for lv = 1, max_lv do
                         if g_cabinet_required_item_list['Armor'][item_name][lv] == nil then
                             g_cabinet_required_item_list['Armor'][item_name][lv] = {}  -- 레벨별 재료

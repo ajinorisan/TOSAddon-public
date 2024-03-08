@@ -619,7 +619,7 @@
 		<Class ClassID="2437" ClassName="ReallyOverWriteSkillScroll" Data="{s20}이미 사용된 슬롯에 다시 인챈트를 시도 할 경우{nl}{nl} {#ffd800}연성에 사용된 재료는 돌려 받지 못하며{/} {nl}{#fe7e00}[인챈트된 연성 주문서]{/}만 {#fe7e00}회수{/}됩니다.{nl} 계속 하시겠습니까?{/}"/>
 		<Class ClassID="2438" ClassName="COMMON_SKILL_ENCHANT_MSG1" Data="스킬 연성"/>
 		<Class ClassID="2439" ClassName="Need20Reinforcement" Data="+20강의 아이템만 가능합니다."/>
-		<Class ClassID="2440" ClassName="GoddessInheritanceMsg" Data="{@sti1c}{s17}※계승 가능 조건{nl} * Lv.460 이상 가디스 등급 장비 - 20강 이상 {nl}* 성장 가디스 장비(수호자 시리즈) - 20강  {nl} {nl}※계승 시 이전되는 옵션 및 수치{nl} * Lv.440 레전드 등급 액세서리, Lv.460 이상 가디스 등급 장비 - 20강 이상{nl}   {#FF0000}**[강화] 50% 이전{/}{nl}* 성장 가디스 장비(수호자 시리즈) - 20강{nl}   {#FF0000}**[강화] 이전되지 않음{/} {nl} {nl}{@sti1c}{s17}{#FF0000}무기의 종류가 같다면 외형변경 효과도 계승됩니다.{/}{/}{/}"/>
+		<Class ClassID="2440" ClassName="GoddessInheritanceMsg" Data="{@sti1c}{s17}※계승 가능 조건{nl} * Lv.460 가디스 등급 장비{nl}* Lv.461 이상 가디스 등급 장비 - 20강 이상 {nl}* 성장 가디스 장비(수호자 시리즈) - 20강  {nl} {nl}※계승 시 이전되는 옵션 및 수치{nl} * Lv.440 레전드 등급 액세서리, Lv.460 가디스 등급 장비, Lv.461 이상 가디스 등급 장비 - 20강 이상{nl}   {#FF0000}**[강화] 50% 이전{/}{nl}* 성장 가디스 장비(수호자 시리즈) - 20강{nl}   {#FF0000}**[강화] 이전되지 않음{/} {nl} {nl}{@sti1c}{s17}{#FF0000}무기의 종류가 같다면 외형변경 효과도 계승됩니다.{/}{/}{/}"/>
 		<Class ClassID="2442" ClassName="OnlyEquipColorGem" Data="컬러 젬만 장착 가능합니다."/>
 		<Class ClassID="2443" ClassName="OnlyEquipSkillGem" Data="스킬 젬만 장착 가능합니다."/>		
 		<Class ClassID="2444" ClassName="EVENT_TREEDAY_GROW" Data="[식목일] 비료 사용"/>
@@ -639,6 +639,7 @@
 		<Class ClassID="2460" ClassName="Need25Reinforcement" Data="+25강 이상의 아이템만 가능합니다."/>
 		<Class ClassID="2461" ClassName="COMMON_ACC_UPGRADE_MSG" Data="장신구 업그레이드"/>
 		<Class ClassID="2462" ClassName="AlreadyMaxGrade" Data="최고 등급에 도달하였습니다."/>
+		<Class ClassID="2463" ClassName="SkillGemDecompositionMsg" Data="{@st66d}{s15}[장비 보관함] - [스킬 젬]{/}{/} 메뉴를 통해 등록하여 사용할 수 있습니다.{nl} {nl}{#0000ff}페디미안 11시 방향 - {@st66d}{s15}나우요베스 NPC{/}{/}의 [스킬 젬 합성]을 통해 불필요한 스킬 젬을 합성하여 다른 종류의 스킬 젬을 획득할 수 있습니다.{/}"/>
 	</Category>
 	<Category Name="ClassContents">
 		<Class ClassID="2500" ClassName="FullWeeklyGainClassResetExp" Data="주간 획득 가능한 클래스 변경 포인트를 모두 달성하였습니다."/>
@@ -1752,6 +1753,8 @@
 		<Class ClassID="5273" ClassName="tooltip_Dream_Lv4" Data="{nl} {nl}{@st66d}{s15} - 일루저니스트의 최종 스킬 대미지{img green_up_arrow 16 16}20%"/>
 		<Class ClassID="5274" ClassName="tooltip_PowerOfGod" Data=" - 윙드후사르 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl}  - 전장의 기백 특성 효과에 모든 클래스의 스킬 공격이 낮은 확률로 {@st66_y}{#22B14C}[전장의 기백]{/}{/}을 생성하는 효과가 추가됩니다."/>
 		<Class ClassID="5275" ClassName="tooltip_PowerOfGod_Lv4" Data="{nl} {nl}{@st66d}{s15} - 익스플로전 스피어스 최종 대미지 {img green_up_arrow 16 16}100%"/>
+		<Class ClassID="5276" ClassName="tooltip_Recharge" Data=" - 신궁 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} - [산탄 사격][현무][신의 화살] 사용 시 25% 확률로 소모한 {@st66_y}{#22B14C}[차지 애로우]{/}{/}를 획득"/>
+		<Class ClassID="5277" ClassName="tooltip_Recharge_Lv4" Data="{nl} {nl}{@st66d}{s15} - [신의 화살] 최종 대미지{img green_up_arrow 16 16}100%"/>
 	</Category>
 	<Category Name="PeriodicTitle">
 		<Class ClassID="6001" ClassName="TournamentChampion" Data="토너먼트 챔피언"/>
@@ -1853,7 +1856,7 @@
 		<Class ClassID="6098" ClassName="EP16_EFFECT_NAME03" Data="{#00cc00}[수옥]{/}" />
 		<Class ClassID="6099" ClassName="EP16_EFFECT_NAME04" Data="{#00cc00}[염무]{/}" />
 		<Class ClassID="6100" ClassName="EP16_EFFECT_NAME05" Data="{#00FFFF}[드래곤의 기운]{/}" />
-
+		<Class ClassID="6101" ClassName="enable_acc_upgrade_msg3" Data="{@st47}{s15}{#00FFFF}[메뉴-아이템-가디스 장비-계승]{/}{/}{/}을 통해 다음 세대 장비로 계승할 수 있습니다." />
 	</Category>
 	<Category Name="QuestGuide">
 		<Class ClassID="7001" ClassName="HPUnder{Auto_1}Percent!_UseItem" Data="위험 HP: {Auto_1}% 회복아이템 사용!"/>
@@ -2973,6 +2976,7 @@
 		<Class ClassID="21482" ClassName="RequireNextGradeAetherGem" Data="다음 등급의 에테르 젬을 등록해주세요."/>
 		<Class ClassID="21483" ClassName="NewEpisodeLockMsg_Episode_15_2" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode15-2]{/}의 퀘스트 시작은 {#FFFF00}오르샤{/}의 {#FFFF00}네링가{/}로부터 시작할 수 있습니다."/>
 		<Class ClassID="21484" ClassName="PAPAYA_Attendance_infoText_1" Data="* The rewards received will be found in your Inventory (F2)"/>
+		<Class ClassID="21485" ClassName="NewEpisodeLockMsg_Episode_16_1" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode16-1]{/}의 퀘스트 시작은 {#FFFF00}스타리타운{/}의 {#FFFF00}스타리 시계 탑 광장 근처{/}로부터 시작할 수 있습니다."/>
 	</Category>
 	<Category Name="ChatText">
 		<Class ClassID="22001" ClassName="Guard" Data="방어"/>
@@ -17180,12 +17184,12 @@
 		<Class ClassID="510329" ClassName="FISH_RUBBING_NO" Data="그만 둔다"/>
 		<Class ClassID="510330" ClassName="FishRubbingScoreTopRankin" Data="탁본 랭킹 1위에 등록되었습니다!"/>
 		<Class ClassID="510331" ClassName="FishRubbingScoreRankin" Data="탁본 랭킹에 등록되었습니다!"/>
-		<Class ClassID="510332" ClassName="FISHING_STATUE_WORSHIP" Data="루팅 찬스 100 증가(30분): {@st66d}{needSilver}실버{/}"/>
+		<Class ClassID="510332" ClassName="FISHING_STATUE_WORSHIP" Data="최종 대미지 1% 증가(30분): {@st66d}{needSilver}실버{/}"/>
 		<Class ClassID="510333" ClassName="FISHING_STATUE_OWNER_WORSHIP" Data="탁본 1위 동상 버프 ({serverBuffCount}/1)"/>
-		<Class ClassID="510334" ClassName="FISHING_STATUE_OWNER_WORSHIP_1" Data="서버 전체 루팅 찬스 100 증가(120분)"/>
-		<Class ClassID="510335" ClassName="FISHING_STATUE_OWNER_WORSHIP_2" Data="서버 전체 루팅 찬스 300 증가(40분)"/>
-		<Class ClassID="510336" ClassName="FISHING_STATUE_OWNER_WORSHIP_3" Data="서버 전체 루팅 찬스 500 증가(20분)"/>
-		<Class ClassID="510337" ClassName="{Name}FishRubbingBuff" Data="{Name}님이 황금 동상 버프를 사용하셨습니다!{nl}{Time}분동안 루팅 찬스 {LootingChance} 증가됩니다."/>
+		<Class ClassID="510334" ClassName="FISHING_STATUE_OWNER_WORSHIP_1" Data="서버 전체 최종 대미지 1% 증가(120분)"/>
+		<Class ClassID="510335" ClassName="FISHING_STATUE_OWNER_WORSHIP_2" Data="서버 전체 최종 대미지 1.5% 증가(40분)"/>
+		<Class ClassID="510336" ClassName="FISHING_STATUE_OWNER_WORSHIP_3" Data="서버 전체 최종 대미지 2% 증가(20분)"/>
+		<Class ClassID="510337" ClassName="{Name}FishRubbingBuff" Data="{Name}님이 황금 동상 버프를 사용하셨습니다!{nl}{Time}분동안 최종 대미지가 {LootingChance}% 증가됩니다."/>
 		<Class ClassID="510338" ClassName="YouAlreadyUseStatueBuff" Data="오늘은 더 이상 사용할 수 없습니다."/>
 		<Class ClassID="510339" ClassName="FISHING_MANAGER_RUBBING_MSG_1" Data="탁본을 여러 번 뜬다"/>
 		<Class ClassID="510340" ClassName="FISHING_MANAGER_RUBBING_MSG_2" Data="한 마리만 탁본을 뜬다"/>
@@ -19171,6 +19175,8 @@
 		<Class ClassID="1106098" ClassName="Engineer" Data="엔지니어"/>
 		<Class ClassID="1106099" ClassName="Pontifex" Data="폰티펙스"/>
 		<Class ClassID="1106100" ClassName="Illusionist" Data="일루저니스트"/>
+		<Class ClassID="1106101" ClassName="WingedHussars" Data="윙드후사르"/>
+		<Class ClassID="1106102" ClassName="BowMaster" Data="신궁"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>

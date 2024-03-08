@@ -235,6 +235,7 @@
                 </StartScpList>
                 <ObjList>
                     <Obj Type="Monster" MonType="160065" Pos="-162.22#5.74#152.87" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="160166" Pos="-193.89#6.82#99.03" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
                 </ObjList>
                 <StageEvents>
                     <Event execCount="1" eventName="Return_Zone">
@@ -299,6 +300,11 @@
                             </ToolScp>
                             <ToolScp Scp="MGAME_EXEC_REVIVE" Client="NO" UseSleep="NO"/>
                             <ToolScp Scp="SCR_BRIDGE_WAILING_DIMENSION_TIMER_END" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_EVT_MULTIPLE_REWARD" Client="NO" UseSleep="NO">
+                                <Str Str="Multiple_Token_BridgeWailing_Dimension_Party"/>
+                                <Str Str="BridgeWailing_Dimension_Party"/>
+                                <Str Str="SCR_BRIDGE_WAILING_DIMENSION_REWARD_MULTIPLE"/>
+                            </ToolScp>
                             <ToolScp Scp="EXEC_DUNGEON_GIVE_TAKE_SOBJ_ACHIEVE_TX" Client="NO" UseSleep="NO">
                                 <Str Str="BridgeWailing_Dimension_Party"/>
                                 <Str Str="None"/>
@@ -324,6 +330,11 @@
                                 <Num Num="1"/>
                                 <Num Num="0"/>
                             </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Success_Section1/1"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
                         </execList>
                     </Event>
                 </StageEvents>
@@ -344,6 +355,7 @@
                 </StartScpList>
                 <ObjList>
                     <Obj Type="Monster" MonType="160065" Pos="-162.22#5.74#152.87" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="160166" Pos="-193.89#6.82#99.03" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
                 </ObjList>
                 <StageEvents>
                     <Event execCount="1" eventName="Return_Zone">
@@ -408,6 +420,11 @@
                             </ToolScp>
                             <ToolScp Scp="MGAME_EXEC_REVIVE" Client="NO" UseSleep="NO"/>
                             <ToolScp Scp="SCR_BRIDGE_WAILING_DIMENSION_TIMER_END" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_EVT_MULTIPLE_REWARD" Client="NO" UseSleep="NO">
+                                <Str Str="Multiple_Token_BridgeWailing_Dimension_Party"/>
+                                <Str Str="BridgeWailing_Dimension_Party"/>
+                                <Str Str="SCR_BRIDGE_WAILING_DIMENSION_REWARD_MULTIPLE"/>
+                            </ToolScp>
                             <ToolScp Scp="EXEC_DUNGEON_GIVE_TAKE_SOBJ_ACHIEVE_TX" Client="NO" UseSleep="NO">
                                 <Str Str="BridgeWailing_Dimension_Party"/>
                                 <Str Str="None"/>
@@ -433,6 +450,11 @@
                                 <Num Num="1"/>
                                 <Num Num="0"/>
                             </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Success_Section2/1"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
                         </execList>
                     </Event>
                 </StageEvents>
@@ -453,6 +475,7 @@
                 </StartScpList>
                 <ObjList>
                     <Obj Type="Monster" MonType="160065" Pos="-162.22#5.74#152.87" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="160166" Pos="-193.89#6.82#99.03" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
                 </ObjList>
                 <StageEvents>
                     <Event execCount="1" eventName="Return_Zone">
@@ -517,6 +540,11 @@
                             </ToolScp>
                             <ToolScp Scp="MGAME_EXEC_REVIVE" Client="NO" UseSleep="NO"/>
                             <ToolScp Scp="SCR_BRIDGE_WAILING_DIMENSION_TIMER_END" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_EVT_MULTIPLE_REWARD" Client="NO" UseSleep="NO">
+                                <Str Str="Multiple_Token_BridgeWailing_Dimension_Party"/>
+                                <Str Str="BridgeWailing_Dimension_Party"/>
+                                <Str Str="SCR_BRIDGE_WAILING_DIMENSION_REWARD_MULTIPLE"/>
+                            </ToolScp>
                             <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
                                 <Str Str="SCR_BRIDGE_WAILING_DIMENSION_THIRD_SECTION_CLEAR"/>
                             </ToolScp>
@@ -555,6 +583,11 @@
                         <execList>
                             <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
                                 <MGameObjIndex List="Success/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Success/1"/>
                                 <Num Num="1"/>
                                 <Num Num="0"/>
                             </ToolScp>

@@ -417,8 +417,8 @@ function GET_GEAR_SCORE(item, pc)
                     add_acc = 80
                 elseif grade >= 6 and use_lv >= 470 then
                     add_acc = 100 + math.max(0, (use_lv - 470) * 20)
-                    if use_lv > 490 then
-                        add_acc = 100 + math.max(0, (use_lv - 470) * 15)
+                    if use_lv > 490 then                        
+                        add_acc = 100 + math.max(0, (use_lv - 470) * 18)
                     end
                 elseif TryGetProp(item, 'StringArg', 'None') == 'Acc_EP12' then
                     add_acc = 70
@@ -494,7 +494,7 @@ function GET_GEAR_SCORE(item, pc)
     return 0
 end
 
-function GET_PLAYER_GEAR_SCORE(pc)        
+function GET_PLAYER_GEAR_SCORE(pc)
     local total = 14
     local score = 0
 

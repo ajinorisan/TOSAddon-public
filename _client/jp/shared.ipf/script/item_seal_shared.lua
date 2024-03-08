@@ -122,7 +122,7 @@ function GET_MAX_SEAL_ADDIONAL_ITEM_COUNT(targetSeal, materialSeal)
 end
 
 -- 인장 강화 가격 --
-function GET_SEAL_PRICE(targetSeal, materialSeal, additionalItem, additionalItemCount, taxRate)
+function GET_SEAL_PRICE(pc, targetSeal, materialSeal, additionalItem, additionalItemCount, taxRate)    
     if targetSeal == nil then
         return 0;
     end
@@ -133,6 +133,10 @@ function GET_SEAL_PRICE(targetSeal, materialSeal, additionalItem, additionalItem
 
     local price = math.floor((grade ^ (reinforceValue / 2) * itemlv * 500) / 1000)
     price = price * 1000
+    
+    if IsBuffApplied(pc, 'EVENT_SEAL_REWARD_BOOST') == 'YES' then
+        price = price * (1 - 0.3)
+    end
 
     if taxRate ~= nil then
         price = tonumber(CALC_PRICE_WITH_TAX_RATE(price, taxRate))

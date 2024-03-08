@@ -1086,6 +1086,20 @@
 				<Node2 ClassID="1239" ClassName="Hair155" Face="head92" Hair="Hair155" Name="엘프 헤어 B(남)" EngName="long_down_blue" Color="오렌지" EngColor="orange" UseableBarrack="NO" ItemClassName="HAIR_M_154" IsJiggleBoneHair="YES"/>
 				<Node2 ClassID="1240" ClassName="Hair155" Face="head92" Hair="Hair155" Name="엘프 헤어 B(남)" EngName="long_down_blue" Color="브라운" EngColor="brown" UseableBarrack="NO" ItemClassName="HAIR_M_154" IsJiggleBoneHair="YES"/>
 				<Node2 ClassID="1241" ClassName="Hair155" Face="head92" Hair="Hair155" Name="엘프 헤어 B(남)" EngName="long_down_blue" Color="미드나이트 블루" EngColor="midnightblue" UseableBarrack="NO" ItemClassName="HAIR_M_154" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1256" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="기본" EngColor="default" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1257" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="검은색" EngColor="black" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1258" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="파란색" EngColor="blue" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1259" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="분홍색" EngColor="pink" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1260" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="흰색" EngColor="white" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1261" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="애쉬 블론드" EngColor="blond" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1262" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="루비 와인" EngColor="red" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1263" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="파스텔 그린" EngColor="green" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1264" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="애쉬 그레이" EngColor="gray" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1265" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="라이트 살몬" EngColor="lightsalmon" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1266" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="바이올렛" EngColor="purple" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1267" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="오렌지" EngColor="orange" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1268" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="브라운" EngColor="brown" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1269" ClassName="Hair157" Face="head92" Hair="Hair157" Name="바이킹의 머리장식 (남)" EngName="helmet_m_ep15viking" Color="미드나이트 블루" EngColor="midnightblue" UseableBarrack="NO" ItemClassName="helmet_m_ep15viking" IsJiggleBoneHair="YES"/>
 			</Node1>
 			<Node1 ClassID="2" ClassName="FEMALE">
 				<Node2 ClassID="1" ClassName="Hair01" Face="head" Hair="hair" Name="숏 컷" EngName="Shortcut" Color="기본" EngColor="default" UseableBarrack="YES" IsJiggleBoneHair="NO"/>
@@ -2276,6 +2290,20 @@
 				<Node2 ClassID="1253" ClassName="Hair156" Face="head93" Hair="Hair156" Name="엘프 헤어 B(여)" EngName="ep15elf01_f_blue" Color="오렌지" EngColor="orange" UseableBarrack="NO" ItemClassName="HAIR_F_154" IsJiggleBoneHair="YES"/>
 				<Node2 ClassID="1254" ClassName="Hair156" Face="head93" Hair="Hair156" Name="엘프 헤어 B(여)" EngName="ep15elf01_f_blue" Color="브라운" EngColor="brown" UseableBarrack="NO" ItemClassName="HAIR_F_154" IsJiggleBoneHair="YES"/>
 				<Node2 ClassID="1255" ClassName="Hair156" Face="head93" Hair="Hair156" Name="엘프 헤어 B(여)" EngName="ep15elf01_f_blue" Color="미드나이트 블루" EngColor="midnightblue" UseableBarrack="NO" ItemClassName="HAIR_F_154" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1270" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="기본" EngColor="default" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1271" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="검은색" EngColor="black" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1272" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="파란색" EngColor="blue" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1273" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="분홍색" EngColor="pink" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1274" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="흰색" EngColor="white" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1275" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="애쉬 블론드" EngColor="blond" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1276" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="루비 와인" EngColor="red" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1277" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="파스텔 그린" EngColor="green" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1278" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="애쉬 그레이" EngColor="gray" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1279" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="라이트 살몬" EngColor="lightsalmon" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1280" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="바이올렛" EngColor="purple" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1281" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="오렌지" EngColor="orange" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1282" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="브라운" EngColor="brown" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
+				<Node2 ClassID="1283" ClassName="Hair158" Face="head93" Hair="Hair158" Name="바이킹의 머리장식 (여)" EngName="helmet_f_ep15viking" Color="미드나이트 블루" EngColor="midnightblue" UseableBarrack="NO" ItemClassName="helmet_f_ep15viking" IsJiggleBoneHair="YES"/>
 			</Node1>
 		</Class>
 	</Category>

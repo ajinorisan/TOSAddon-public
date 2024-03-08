@@ -3195,4 +3195,28 @@
     <Level Level="0" PropList_TopLeg="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
     <Level Level="1" PropList_TopLeg="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
+  <Item Name="GEM_BowMaster_FocusFire">
+    <Level Level="0" PropList_TopLeg="OptDesc/집중 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/집중 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/집중 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/집중 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_BowMaster_DodgeFire">
+    <Level Level="0" PropList_TopLeg="OptDesc/회피 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/회피 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/회피 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/회피 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_BowMaster_SkyBow">
+    <Level Level="0" PropList_TopLeg="OptDesc/천궁 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/천궁 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/천궁 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/천궁 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_BowMaster_ScatterShot">
+    <Level Level="0" PropList_TopLeg="OptDesc/산탄 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/산탄 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/산탄 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/산탄 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_BowMaster_Hyunmoo">
+    <Level Level="0" PropList_TopLeg="OptDesc/현무 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/현무 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/현무 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/현무 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_BowMaster_GodArrow">
+    <Level Level="0" PropList_TopLeg="OptDesc/신의 화살 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/신의 화살 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/신의 화살 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/신의 화살 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
 </SocketProperty>

@@ -51,10 +51,8 @@ function DRAW_EPISODE_QUEST_CTRL(bgCtrl, titleInfo_episodeName, titleInfo_name, 
 		if episodeState == geQuest.episode.eLocked then
 			textToolTip = ScpArgMsg("EpisodeLockMsg")
 		elseif episodeState == geQuest.episode.eNew then
-			if titleInfo_episodeName ~= "Episode_16_1" then
-				local Msg = '_'..titleInfo_episodeName
-				textToolTip = ScpArgMsg("NewEpisodeLockMsg"..Msg);
-			end
+			local Msg = '_'..titleInfo_episodeName
+			textToolTip = ScpArgMsg("NewEpisodeLockMsg"..Msg);
 		elseif episodeState == geQuest.episode.eNext then
 			textToolTip = ScpArgMsg("NextEpisodeLockMsg")
 		elseif episodeState == geQuest.episode.eClear then

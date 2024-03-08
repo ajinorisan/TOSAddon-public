@@ -430,8 +430,6 @@ ClassID,SellRate,Count,Price,ShopName,IDSpace,ItemName,Description,NeedProperty,
 6100,1,1,1,"job_2_thaumaturge_master","Item","misc_EnchantedPowder","","","",""
 6200,1,1,1,"ONMYOJI_MASTER","Item","misc_paperdoll","","","",""
 6300,1,1,1,"RETIARII_MASTER","Item","Retiarii_Net","","","",""
-6400,1,1,1,"Teliavelis","Item","Extract_kit","","","",""
-6401,1,1,1,"Teliavelis","Item","Dirbtumas_kit","","","",""
 6402,1,1,1,"Teliavelis","Item","EP12_enrich_Vibora_misc_recipe","","","",""
 6403,1,1,1,"Teliavelis","Item","EP12_enrich_Goddess_misc_recipe","","","",""
 6500,1,1,1,"Master_QuarrelShooter","Item","arrow_stone","","","",""

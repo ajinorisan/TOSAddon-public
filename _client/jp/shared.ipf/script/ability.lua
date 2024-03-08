@@ -1,5 +1,5 @@
 function PC_PCAA(pc)
-    local jobHistory = GetJobHistorySting(pc)
+    local jobHistory = GetJobHistoryString(pc)
         print(jobHistory)
     end
     
@@ -4107,20 +4107,266 @@ function SCR_ABIL_SpearMaster20_INACTIVE(self, ability)
     end
 end
 
-function SCR_ABIL_Pontifex1_ACTIVE(self, ability)
-    local list, cnt = GetPartyMemberList(self, PARTY_NORMAL)
-    local caster = self
-    for i = 1, cnt do
-        RemoveBuffByCaster(list[i], caster, 'Missa_Buff') 
+function SCR_ABIL_Illusionist21_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionSword");
+    if skill ~= nil then
+        skill.CastingCategory = "cast"
+        local mulfactor = 0
+        SetExProp(self, "IllusionSword_Illusionist21", mulfactor);
+        SendPCExProp(self, "IllusionSword_Illusionist21", mulfactor);
+        SetExProp(self, "Illusionist21", 1);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
     end
 end
 
-function SCR_ABIL_Pontifex1_INACTIVE(self, ability)
-    local list, cnt = GetPartyMemberList(self, PARTY_NORMAL)
-    local caster = self
-    for i = 1, cnt do
-        RemoveBuffByCaster(list[i], caster, 'Missa_Buff') 
+function SCR_ABIL_Illusionist21_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionSword");
+    if skill ~= nil then
+        if skill.CastingCategory == "cast" then 
+        skill.CastingCategory = "instant"
+        end
+        SetExProp(self, "Illusionist21", 0);
+        SetExProp(self, "IllusionSword_Illusionist21", 0);
+        SendPCExProp(self, "IllusionSword_Illusionist21", 0);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
     end
+end
+
+-- [아츠] 환영검: 잔류
+function SCR_ABIL_Illusionist31_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionSword");
+    local Illusionist31_ShootTime = 1200
+    local Illusionist31_CancelTime = 1200
+    AddInstSkill(self, "IllusionSword_Illusion31", 1);
+    if skill ~= nil then
+        skill.CastingCategory = "instant"
+        SetSkillShootTime(self, skill, Illusionist31_ShootTime);
+        SetSkillCancelTime(self, skill, Illusionist31_CancelTime);
+        SetExProp(self, "Illusionist31", 1);
+        SendSkillProperty(self, skill);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+    end
+end
+
+function SCR_ABIL_Illusionist31_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionSword");
+    local defaultShootTime = 400    
+    local defaultCancelTime = 300
+    RemoveInstSkill(self, "IllusionSword_Illusion31");
+    if skill ~= nil then
+        skill.CastingCategory = "instant"
+        SetSkillShootTime(self, skill, defaultShootTime);
+        SetSkillCancelTime(self, skill, defaultCancelTime);
+        SetExProp(self, "Illusionist31", 0);
+        SendSkillProperty(self, skill);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+    end
+end
+
+-- 마법 환영: 검
+function SCR_ABIL_Illusionist24_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_MagicalIllusion");
+    if skill ~= nil then
+        AddInstSkill(self, "Illusionist_Illusion_Slash", 1);
+        AddInstSkill(self, "Illusionist_Illusion_Swing", 1);
+        SetExProp(self, "Illusionist24", 1);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+    end
+end
+
+function SCR_ABIL_Illusionist24_INACTIVE(self,abilty)
+    RemoveInstSkill(self, "Illusionist_Illusion_Slash");
+    RemoveInstSkill(self, "Illusionist_Illusion_Swing");
+    SetExProp(self, "Illusionist24", 0);
+    InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+end
+
+-- 환영 폭파: 트라우마
+function SCR_ABIL_Illusionist22_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionBlast");
+    if skill ~= nil then
+        skill.CastingCategory = "cast"
+
+        local mulfactor = 0
+        SetExProp(self, "IllusionBlast_Illusionist22", mulfactor);
+        SendPCExProp(self, "IllusionBlast_Illusionist22", mulfactor);
+        SetExProp(self, "Illusionist22", 1);
+        
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+function SCR_ABIL_Illusionist22_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionBlast");
+    if skill ~= nil then
+        if skill.CastingCategory == "cast" then
+            skill.CastingCategory = "instant"
+        end
+        SetExProp(self, "IllusionBlast_Illusionist22", 0);
+        SendPCExProp(self, "IllusionBlast_Illusionist22", 0);
+        SetExProp(self, "Illusionist22", 0);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName","None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+-- 환영 폭파: 채널링
+function SCR_ABIL_Illusionist23_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionBlast");
+    if skill ~= nil then
+        skill.CastingCategory = "channeling"
+        skill.ShootTime = 9999
+        skill.CancelTime = 9999
+        SetExProp(self, "Illusionist23", 1);
+        
+        local mulfactor = -20
+        SetExProp(self, "IllusionBlast_Illusionist23", mulfactor);
+        SendPCExProp(self, "IllusionBlast_Illusionist23", mulfactor);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+function SCR_ABIL_Illusionist23_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_IllusionBlast");
+    if skill ~= nil then
+        if skill.CastingCategory == "channeling" then
+            skill.CastingCategory = "instant"
+        end
+        local defaultShootTime = SCR_GET_Illusionist_IllusionBlast_Ratio_Time(skill)
+        skill.ShootTime = defaultShootTime
+        skill.CancelTime = defaultShootTime
+        SetExProp(self, "Illusionist23", 0);
+        SetExProp(self, "IllusionBlast_Illusionist23", 0);
+        SendPCExProp(self, "IllusionBlast_Illusionist23", 0);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+-- 쇄도 : 채널링
+function SCR_ABIL_Illusionist25_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Flood");
+    -- 디폴트 상태로 돌아가 있어야지 시작
+    if skill ~= nil  then
+        skill.CastingCategory = "channeling"
+        skill.ShootTime = 9999
+        skill.CancelTime = 9999
+        SetExProp(self, "Illusionist25", 1);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+function SCR_ABIL_Illusionist25_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Flood");
+    if skill ~= nil  then
+        if skill.CastingCategory == "channeling" then
+            skill.CastingCategory = "dynamic_casting"
+        end
+            local defaultShootTime = SCR_GET_Illusionist_Flood_Ratio_Time(skill)
+            skill.ShootTime = defaultShootTime
+            skill.CancelTime = defaultShootTime
+        SetExProp(self, "Illusionist25", 0);
+            InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"));
+            SendSkillProperty(self, skill);
+        end
+end
+
+-- 쇄도 몰이 : 매 타격 시, 피격 대상 뒤로 밀려남
+function SCR_ABIL_Illusionist26_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Flood");
+    if skill ~= nil then
+        SetExProp(self, "Illusionist26", 1);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+    end
+end
+
+function SCR_ABIL_Illusionist26_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Flood");
+    if skill ~= nil then
+        SetExProp(self, "Illusionist26", 0);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+    end
+end
+
+-- 악몽 : 몽상
+function SCR_ABIL_Illusionist27_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Nightmare");
+    if skill ~= nil  then
+        skill.CastingCategory = "cast"
+        SetExProp(self, "Illusionist27", 1);
+        local mulfactor = 0
+        SetExProp(self, "Nightmaret_Illusionist27", mulfactor);
+        SendPCExProp(self, "Nightmare_Illusionist27", mulfactor);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+function SCR_ABIL_Illusionist27_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Nightmare");
+    if skill ~= nil  then
+        if skill.CastingCategory == "cast" then
+            skill.CastingCategory = "instant"
+        end
+        SetExProp(self, "Illusionist27", 0);
+        SetExProp(self, "Nightmaret_Illusionist27", 0);
+        SendPCExProp(self, "Nightmare_Illusionist27", 0);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+-- 악몽 : 채널링
+function SCR_ABIL_Illusionist28_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Nightmare");
+    -- 디폴트 상태로 돌아가 있어야지 시작
+    if skill ~= nil then
+        skill.CastingCategory = "channeling"
+        skill.ShootTime = 9999
+        skill.CancelTime = 9999
+        SetExProp(self, "Illusionist28", 1);
+        local mulfactor = 0
+        SetExProp(self, "Nightmaret_Illusionist28", mulfactor);
+        SendPCExProp(self, "Nightmare_Illusionist28", mulfactor);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"))
+        SendSkillProperty(self, skill);
+    end
+end
+
+function SCR_ABIL_Illusionist28_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Illusionist_Nightmare");
+    if skill ~= nil then
+        if skill.CastingCategory == "channeling" then
+        skill.CastingCategory = "instant"
+    end
+        local defaultShootTime = SCR_GET_Illusionist_Nightmare_Ratio_Time(skill)
+        skill.ShootTime = defaultShootTime
+        skill.CancelTime = defaultShootTime
+        SetExProp(self, "Illusionist28", 0);
+        SetExProp(self, "Nightmaret_Illusionist28", 0);
+        SendPCExProp(self, "Nightmare_Illusionist28", 0);
+        InvalidateSkill(self, TryGetProp(skill, "ClassName", "None"));
+        SendSkillProperty(self, skill);
+    end
+end
+
+function SCR_ABIL_Illusionist29_ACTIVE(self,abilty)
+    RemoveBuff(self, "IllusionArmor_Buff");
+end
+
+function SCR_ABIL_Illusionist29_INACTIVE(self, ability)
+
+end
+
+function SCR_ABIL_Illusionist30_ACTIVE(self,abilty)
+    RemoveBuff(self, "IllusionArmor_Buff");
+end
+
+function SCR_ABIL_Illusionist29_INACTIVE(self, ability)
+
 end
 
 function SCR_ABIL_Pontifex2_ACTIVE(self, ability)

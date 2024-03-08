@@ -44,4 +44,4 @@ ClassID,TotalNumberDays,ClassName,Name,AttendancePass,StartTime,EndTime
 143,30,"PAPAYA_Event_2305_Vertigo_OPEN_Attendance","Papaya Launch Login Event","NO","2023-05-30 09:00:00","2023-08-22 18:00:00"
 144,30,"Event_2310_HALLOWEEN_Attendance","할로윈 기념 이벤트","NO","2023-10-24 06:00:00","2023-11-01 06:00:00"
 145,30,"PAPAYA_Event_2401_Vertigo_Access_Reward","Grand ComeBack Celebration","NO","",""
-146,30,"PAPAYA_Event_All_Vertigo_Comback_Reward","ComeBack Celebration","NO","",""
+146,30,"PAPAYA_Event_All_Vertigo_Comback_Reward","New/Returnee Rewards","NO","",""

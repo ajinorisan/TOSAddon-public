@@ -726,6 +726,7 @@ end
 
 --아이템 타입 및 무게
 function DRAW_ITEM_TYPE_N_WEIGHT(tooltipframe, invitem, yPos, mainframename)
+	
 	local gBox = GET_CHILD(tooltipframe, mainframename,'ui::CGroupBox')
 
 	-- 아이템 타입 설정
@@ -1202,8 +1203,6 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
 			clientMessage = 'ItemRandomOptionGroupSTAT'
 		elseif propItem[propGroupName] == 'SPECIAL' then
 			clientMessage = 'ItemRandomOptionGroupSPECIAL'		
-		elseif propItem[propGroupName] == 'SPECIAL' then
-			clientMessage = 'ItemRandomOptionGroupSPECIAL'		
         end
         
         if propItem[propValue] ~= 0 and propItem[propName] ~= "None" then
@@ -1255,6 +1254,16 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
         end
     end
 
+	if TryGetProp(invitem, 'StringArg', 'None') == 'Goddess_Vasilisa' then
+		local CustomOptDescFunc = TryGetProp(invitem, 'CustomOptDescFunc', 'None')
+		if CustomOptDescFunc ~= 'None' then
+			CustomOptDescFunc = _G[CustomOptDescFunc]
+			local opt_desc = CustomOptDescFunc(invitem)
+			inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, " ", 0, inner_yPos);
+			inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, opt_desc, 0, inner_yPos);
+		end
+	end
+	 
     if init_yPos < inner_yPos then
         inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, " ", 0, inner_yPos);
     end
@@ -2293,6 +2302,7 @@ end
 
 function DRAW_COLLECTION_INFO(invitem, desc)
 	local item_name = TryGetProp(invitem, 'ClassName', 'None')
+
 	if is_collection_item(item_name) == false then
 		return desc
 	end
@@ -2417,6 +2427,10 @@ function DRAW_CANNOT_REINFORCE(tooltipframe, invitem, yPos, mainframename)
 	end
 
 	local character_belonging = TryGetProp(invitem, 'CharacterBelonging', 0)
+
+	if character_belonging == 1 and (TryGetProp(invitem, 'StringArg', 'None') == 'Legenda') then
+		decomposeAble_flag = 1
+	end
 
 	if reinforce_flag == 0 and transcend_flag == 0 and extract_flag == 0 and socket_flag == 0 and briquet_flag == 0 and exchange_flag == 0 and awaken_flag == 0 and decomposeAble_flag == 0 and enchant_flag == 0 and arklvup_flag == 0 and character_belonging == 0 then
 		return yPos
@@ -3782,6 +3796,7 @@ function DRAW_GODDESS_ICOR_PROPERTY(tooltipframe, invitem, inheritanceItem, yPos
 	gBox:Resize(gBox:GetWidth(),gBox:GetHeight() + tooltip_equip_property_CSet:GetHeight())
 	return tooltip_equip_property_CSet:GetHeight() + tooltip_equip_property_CSet:GetY();
 end
+
 
 -- BELT , SHOULDER
 function DRAW_EQUIP_BELT(invitem, property_gbox, inner_yPos)		

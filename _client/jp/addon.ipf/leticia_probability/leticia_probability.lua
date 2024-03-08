@@ -2,6 +2,11 @@ function LETICIA_PROBABILITY_ON_INIT(addon, frame)
 end
 
 function EXTERN_OPEN_LETICIA_PROBABILITY()
+    if config.GetServiceNation() == 'PAPAYA' then
+        local textmsg = string.format("[ %s ]{nl}%s", '{@st66d_y}'..ClMsg('ContainWarningItem2')..'{/}{/}', '{nl} {nl}'..ScpArgMsg("ContainWarningItem_URL"))
+        ui.MsgBox(textmsg, 'LETICIA_CUBE_ITEM_LIST_BUTTON_URL', "None")
+        return
+    end
     ui.ToggleFrame("leticia_probability")
 end
 
@@ -44,7 +49,7 @@ end
 
 function LETICIA_PROBABILITY_SEARCH_CLICK(parent, ctrl, argStr, argNum)
 	ctrl:ClearText();
-    local frame = parent:GetTopParentFrame();
+local frame = parent:GetTopParentFrame();
     local managerTab = GET_CHILD(frame, "managerTab");
     local SlotTab = GET_CHILD(managerTab,"SlotTab")
     local leticia_table = LETICIA_CUBE_ITEM_LIST_BUTTON();

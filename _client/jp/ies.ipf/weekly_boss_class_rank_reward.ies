@@ -92,3 +92,4 @@ ClassID,reward_id,class_id,Desc,rank_1
 91,1,4023,"폰티펙스","Item_Achieve_Pontifex/1;"
 92,1,2025,"일루저니스트","Item_Achieve_plate_Illusionist/1;"
 93,1,1025,"일루저니스트","Item_Achieve_plate_WingedHussar/1;"
+94,1,3107,"신궁","Item_Achieve_plate_BowMaster/1;"

@@ -12,26 +12,16 @@ function popoboost_table()
     item_list["Normal0"] = {}
     item_list["Normal0"]['Ability_Point_Stone_100000'] = 20
     item_list["Normal0"]['HiddenAbility_MasterPiece_Fragment_Event'] = 120
-    if IsPAPAYA == 1 then
-        item_list["Normal0"]['Ability_Point_Stone_100000'] = 1
-        item_list["Normal0"]['HiddenAbility_MasterPiece_Fragment_Event'] = 20
-        item_list["Normal0"]['open_ticket_cabinet_vibora_lv1'] = 1
-        item_list["Normal0"]['open_ticket_cabinet_goddess_lv1'] = 1
-    else
-        item_list["Normal0"]['Event_JobexpCard_BOX'] = 1
-        item_list["Normal0"]['open_ticket_cabinet_vibora_lv4'] = 1
-        item_list["Normal0"]['open_ticket_cabinet_goddess_lv3'] = 4
-    end
+    item_list["Normal0"]['Event_JobexpCard_BOX'] = 1
+    item_list["Normal0"]['open_ticket_cabinet_vibora_lv4'] = 1
+    item_list["Normal0"]['open_ticket_cabinet_goddess_lv3'] = 4
+    
 
     item_list["Normal1"] = {}
     item_list["Normal1"]['misc_RevivalPaulius_NoTrade'] = 100
     item_list["Normal1"]['Ticket_RevivalPaulius_Auto_Enter_NoTrade'] = 4
     item_list["Normal1"]['Event_ChallengeModeReset_6'] = 5
     item_list["Normal1"]['SEASONLETICIA_GabijaCertificateCoin_50000p'] = 1
-    if IsPAPAYA == 1 then
-        item_list["Normal1"]['misc_RevivalPaulius_NoTrade'] = 100
-        item_list["Normal1"]['Event_ChallengeModeReset_6'] = 3
-    end
     
     
     item_list["Normal2"] = {}
@@ -41,12 +31,6 @@ function popoboost_table()
     item_list["Normal2"]['Relic_exp_token_refine_event'] = 4930
     item_list["Normal2"]['SEASONLETICIA_GabijaCertificateCoin_50000p'] = 2
 
-    if IsPAPAYA == 1 then
-        item_list["Normal2"]['misc_RevivalPaulius_NoTrade'] = 100
-        item_list["Normal2"]['Ticket_RevivalPaulius_Auto_Enter_NoTrade'] = 3
-        item_list["Normal2"]['Event_ChallengeModeReset_6'] = 3
-        item_list["Normal2"]['SEASONLETICIA_GabijaCertificateCoin_50000p'] = 1        
-    end
 
     item_list["Normal3"] = {}
     item_list["Normal3"]['misc_RevivalPaulius_NoTrade'] = 150
@@ -55,26 +39,16 @@ function popoboost_table()
     item_list["Normal3"]['selectbox_Gem_Relic_Magenta'] = 1
     item_list["Normal3"]['selectbox_Gem_Relic_Black'] = 1
     item_list["Normal3"]['VakarineCertificateCoin_50000p'] = 1
-
-    if IsPAPAYA == 1 then
-        item_list["Normal3"]['misc_RevivalPaulius_NoTrade'] = 100
-    else
-        item_list["Normal3"]['misc_transmutationSpreader_NoTrade'] = 350
-    end
+    item_list["Normal3"]['misc_transmutationSpreader_NoTrade'] = 350
+    
 
     item_list["Normal4"] = {}
     item_list["Normal4"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 5
     item_list["Normal4"]['Event_ChallengeModeReset_6'] = 5
     item_list["Normal4"]['VakarineCertificateCoin_50000p'] = 2
     item_list["Normal4"]['relicgem_lvup_scroll_lv7'] = 3
-
-    if IsPAPAYA == 1 then
-        item_list["Normal4"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 3
-        item_list["Normal4"]['Event_ChallengeModeReset_6'] = 3
-        item_list["Normal4"]['VakarineCertificateCoin_50000p'] = 1;
-    else
-        item_list["Normal4"]['misc_leatherFalouros_NoTrade'] = 350
-    end
+    item_list["Normal4"]['misc_leatherFalouros_NoTrade'] = 350
+    
 
     item_list["Normal5"] = {}
     item_list["Normal5"]['misc_ribbonRoze_NoTrade'] = 100
@@ -82,14 +56,8 @@ function popoboost_table()
     item_list["Normal5"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 10
     item_list["Normal5"]['VakarineCertificateCoin_50000p'] = 2
     item_list["Normal5"]['misc_transmutationSpreader_NoTrade'] = 250
+    item_list["Normal5"]['misc_leatherFalouros_NoTrade'] = 250
     
-    if IsPAPAYA == 1 then
-        item_list["Normal5"]['Ticket_Rozethemisterable_Auto_Enter_NoTrade'] = 3
-        item_list["Normal5"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 3
-        item_list["Normal5"]['VakarineCertificateCoin_50000p'] = 1
-    else
-        item_list["Normal5"]['misc_leatherFalouros_NoTrade'] = 250
-    end
     item_list["Normal6"] = {}
     item_list["Normal6"]['EVENT_2312_8th_anniversary'] = 1
     item_list["Normal6"]['Event_Roulette_Coin_PoPo_2312'] = 5
@@ -97,11 +65,7 @@ function popoboost_table()
     item_list["Normal6"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 10
     item_list["Normal6"]['Ticket_Rozethemisterable_Party_Enter_NoTrade'] = 10
     item_list["Normal6"]['ChallengeExpertModeCountUp_Ev_1'] = 10
-    if IsPAPAYA == 1 then
-        item_list["Normal6"]['RadaCertificateCoin_50000p'] = 2
-        item_list["Normal6"]['Ticket_TurbulentCore_Party_Enter_NoTrade'] = 3
-        item_list["Normal6"]['ChallengeExpertModeCountUp_Ev_1'] = 5
-    end
+
     
     -- 프리미엄 보상
 
@@ -110,65 +74,45 @@ function popoboost_table()
     item_list["Premium0"]['selectbox_Gem_High_480'] = 2
     item_list["Premium0"]['lv480_aether_lvup_scroll_lv100'] = 2
     item_list["Premium0"]['emoticonItem_2312_popo'] = 1
-    if IsPAPAYA == 1 then
-        item_list["Normal0"]['open_ticket_cabinet_vibora_lv1'] = 1
-        item_list["Premium0"]['lv480_aether_lvup_scroll_lv100'] = 1
-    else
-        item_list["Premium0"]['class_unlock_achievement_select'] = 1
-        item_list["Premium0"]['open_ticket_cabinet_vibora_lv4'] = 2
-    end
+    item_list["Premium0"]['class_unlock_achievement_select'] = 1
+    item_list["Premium0"]['open_ticket_cabinet_vibora_lv4'] = 2
+    
 
     item_list["Premium1"] = {}
     item_list["Premium1"]['misc_RevivalPaulius_NoTrade'] = 100
     item_list["Premium1"]['Event_ChallengeModeReset_6'] = 5
     item_list["Premium1"]['RadaCertificateCoin_50000p'] = 1
-    if IsPAPAYA == 1 then
-    else
-        item_list["Premium1"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    end
-
+    item_list["Premium1"]['misc_reinforce_percentUp_500_NoTrade'] = 50
+    
     item_list["Premium2"] = {}
     item_list["Premium2"]['misc_RevivalPaulius_NoTrade'] = 150
     item_list["Premium2"]['Event_ChallengeModeReset_6'] = 5
     item_list["Premium2"]['misc_reinforce_percentUp_500_NoTrade'] = 50
     item_list["Premium2"]['RadaCertificateCoin_50000p'] = 2
 
-    if IsPAPAYA == 1 then
-        item_list["Premium2"]['RadaCertificateCoin_50000p'] = 1
-    end
 
     item_list["Premium3"] = {}
     item_list["Premium3"]['Event_ChallengeModeReset_6'] = 5
     item_list["Premium3"]['RadaCertificateCoin_50000p'] = 1
-    if IsPAPAYA == 1 then
-    else
-        item_list["Premium3"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-        item_list["Premium3"]['misc_transmutationSpreader_NoTrade'] = 150
-    end
+    item_list["Premium3"]['misc_reinforce_percentUp_500_NoTrade'] = 50
+    item_list["Premium3"]['misc_transmutationSpreader_NoTrade'] = 150
+    
 
     item_list["Premium4"] = {}
     item_list["Premium4"]['Event_ChallengeModeReset_6'] = 5
     item_list["Premium4"]['RadaCertificateCoin_50000p'] = 2
+    item_list["Premium4"]['misc_leatherFalouros_NoTrade'] = 150
+    item_list["Premium4"]['misc_reinforce_percentUp_500_NoTrade'] = 50
     
-    if IsPAPAYA == 1 then
-        item_list["Premium4"]['RadaCertificateCoin_50000p'] = 1
-    else
-        item_list["Premium4"]['misc_leatherFalouros_NoTrade'] = 150
-        item_list["Premium4"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    end
 
     item_list["Premium5"] = {}
     item_list["Premium5"]['misc_ribbonRoze_NoTrade'] = 100
     item_list["Premium5"]['Ticket_Rozethemisterable_Auto_Enter_NoTrade'] = 5
     item_list["Premium5"]['misc_leatherFalouros_NoTrade'] = 150
     item_list["Premium5"]['RadaCertificateCoin_50000p'] = 2
-
-    if IsPAPAYA == 1 then
-        item_list["Premium5"]['RadaCertificateCoin_50000p'] = 1        
-    else
-        item_list["Premium5"]['misc_transmutationSpreader_NoTrade'] = 150
-        item_list["Premium5"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    end
+    item_list["Premium5"]['misc_transmutationSpreader_NoTrade'] = 150
+    item_list["Premium5"]['misc_reinforce_percentUp_500_NoTrade'] = 50
+    
 
     item_list["Premium6"] = {}
     item_list["Premium6"]['Event_Roulette_Coin_PoPo_2312'] = 5
@@ -177,11 +121,6 @@ function popoboost_table()
     item_list["Premium6"]['Ticket_Rozethemisterable_Party_Enter_NoTrade'] = 2
     item_list["Premium6"]['ChallengeExpertModeCountUp_Ev_1'] = 10
     item_list["Premium6"]['piece_GabijaEarring_select_job_NoTrade_Belonging'] = 1
-
-    if IsPAPAYA == 1 then
-        item_list["Premium6"]['RadaCertificateCoin_50000p'] = 2
-        item_list["Premium6"]['Ticket_TurbulentCore_Party_Enter_NoTrade'] = 3        
-    end
     
     return item_list
 end
@@ -191,7 +130,6 @@ function GET_TICKET_ITEM_LIST()
         ticket_item_list = {}
     end
 
-    local IsPAPAYA = GET_POPOBOOST_SERVER();
 
     ticket_item_list["EVENT_2023_POPOBOOST"] ={}
     ticket_item_list["EVENT_2023_POPOBOOST"]["emoticonItem_summer_popo_1"] = 1
@@ -210,16 +148,6 @@ end
 
 
 function POPOBOOST_CHECK_ELIGIBILITY(lv, gearscore)
-    if IsServerSection() == 1 then        
-        if GetServiceNation() == "PAPAYA" then
-            return true;
-        end
-    else
-        if config.GetServiceNation() == "PAPAYA" then
-            return true;
-        end
-    end
-    
     if lv >= 10 then
         return false;
     end
@@ -240,6 +168,7 @@ function POPOBOOST_SET_MAX_GEARSCORE(pc)
     local maxprop = GET_POPOBOOST_MAXPROP();
 	local maxGearScore = TryGetProp(etc,maxprop,0);
     local currentGearScore = POPOBOOST_GET_GEARSCORE(pc);
+
     if IsServerSection(pc) ~= 1 then
         return;
     end
@@ -304,23 +233,15 @@ function POPOBOOST_GET_MAX_GEARSCORE(pc)
 end
 
 function POPOBOOST_GET_GEARSCORE(pc)
-    local IsPAPAYA = GET_POPOBOOST_SERVER();
-
-    if IsPAPAYA ~= 1 then
-        local score = GET_PLAYER_POPOBOOST_GEAR_SCORE(pc);
-        return score;
-    else
-        local score = GET_PLAYER_GEAR_SCORE(pc);
-        return score;
-    end
-    return 0;
+    local score = GET_PLAYER_POPOBOOST_GEAR_SCORE(pc);
+    return score;
 end
 
 function POPOBOOST_POPOBUFF_REMINE_TIME(pc)
     if IS_SEASON_SERVER(pc) == 'YES' then
         return false
     end
-    local IsPAPAYA = GET_POPOBOOST_SERVER();
+    -- local IsPAPAYA = GET_POPOBOOST_SERVER();
 
     local end_time = GET_POPOBOOST_END_TIME();
     local gearscore = POPOBOOST_GET_MAX_GEARSCORE(pc);
@@ -419,6 +340,9 @@ function GET_CURRENT_SEASCON_POPOBOST_INFO()
             elseif IsPAPAYA == 2 then
                 startprop = "TAIWANStartTime"
                 endprop = "TAIWANTEndTime"
+            elseif IsPAPAYA == 3 then
+                startprop = "GlobalStartTime"
+                endprop = "GlobalEndTime"
             else
                 startprop = "StartTime"
                 endprop = "EndTime"
@@ -467,7 +391,7 @@ function GET_POPOBOOST_ITEMPROP()
         return 0
     end
     local prop = TryGetProp(cls, "ItemPropValue", 0);
-    return prop;
+    return tonumber(prop);
 end
 
 function GET_POPOBOOST_PROGRESPROP()
@@ -520,7 +444,7 @@ function IS_POPOBOOST_PARTICIPATE_ACCOUNT(pc)
     local accprop = GET_POPOBOOST_ACCPROP()
     
     local isParticipate = TryGetProp(acc, accprop, -1);
-    if isParticipate > 0 then
+    if isParticipate == 1 or isParticipate == 3 then
         return true;
     end
 
@@ -536,6 +460,8 @@ function GET_POPOBOOST_SERVER()
             return 1;
         elseif GetServiceNation() == "TAIWAN" then
             return 2
+        elseif GetServiceNation() =="GLOBAL" then
+            return 3;
         else
             return 0;
         end
@@ -544,6 +470,8 @@ function GET_POPOBOOST_SERVER()
             return 1;
         elseif config.GetServiceNation() == "TAIWAN" then
             return 2
+        elseif config.GetServiceNation() =="GLOBAL" then
+            return 3;
         else
             return 0;
         end

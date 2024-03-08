@@ -40492,5 +40492,160 @@ end"/>
             </ToolScp>
         </updateEvent>        
     </PadSkill>
+
+    <PadSkill Name="shootpad_FocusFire" CheckerType="0" Range="20" ApplyFlyMon="1" AllowOverlap="1" UpdateTerm="350" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="350"/>
+                <Num Num="1"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER" Client="YES" UseSleep="NO">
+                <Str_Arg Str="eff_fellow_fencer_stab_02" Arg="0.25"/>                
+                <Num Num="16"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>            
+            <ToolScp Scp="PAD_TGT_DAMAGE_SDR" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="-99"/>
+            </ToolScp>            
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-350"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>    
+    <PadSkill Name="shootpad_FocusFire2" CheckerType="0" Range="20" ApplyFlyMon="1" AllowOverlap="1" UpdateTerm="350" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="350"/>
+                <Num Num="9999"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER" Client="YES" UseSleep="NO">
+                <Str_Arg Str="eff_fellow_fencer_stab_02" Arg="0.25"/>                
+                <Num Num="16"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>            
+            <ToolScp Scp="PAD_TGT_DAMAGE_SDR" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="-99"/>
+            </ToolScp>            
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-350"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>    
+    <PadSkill Name="shootpad_DodgeFire" CheckerType="0" Range="20" ApplyFlyMon="1" AllowOverlap="1" UpdateTerm="350" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="350"/>
+                <Num Num="1"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER" Client="YES" UseSleep="NO">
+                <Str_Arg Str="eff_fellow_fencer_stab_02" Arg="0.25"/>                
+                <Num Num="20"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>            
+            <ToolScp Scp="PAD_TGT_DAMAGE_SDR" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="-99"/>
+            </ToolScp>            
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-350"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>   
+    <PadSkill Name="shootpad_ScatterShot" CheckerType="0" Range="15" ApplyFlyMon="1" AllowOverlap="1" UpdateTerm="350" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="400"/>
+                <Num Num="1"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER" Client="YES" UseSleep="NO">
+                <Str_Arg Str="Projectile_LaserGroundBurn_Red_01" Arg="0.25"/>
+                <Num Num="20"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>            
+            <ToolScp Scp="PAD_ScatterShot_Enter" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>                
+            </ToolScp>               
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-350"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>    
+    <PadSkill Name="shootpad_GodArrow" CheckerType="0" Range="25" ApplyFlyMon="1" UpdateTerm="200" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="3100"/>
+                <Num Num="300"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER" Client="YES" UseSleep="NO">
+                <Str_Arg Str="eff_monster_velclipse_sealed_map_projectile_01" Arg="0.25"/>
+                <Num Num="20"/>                
+            </ToolScp>
+        </createEvent>
+        <enterEvent>            
+            <ToolScp Scp="PAD_GodArrow_Enter" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>                
+            </ToolScp>            
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-200"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="update_effect_god_arrow_feather" Client="NO" UseSleep="NO">
+                <Str Str="AerialExplosion_AngelFeather_White_01"/>
+                <Num Num="0.6"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="20"/>
+            </ToolScp>            
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="BowMaster_SkyBow_pad" CheckerType="0" Range="20" UpdateTerm="400" ApplyFlyMon="1">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="3100"/>
+                <Num Num="99999"/>
+            </ToolScp>                   
+        </createEvent>        
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-400"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="SCR_UPDATE_BowMaster_SkyBow_pad" Client="NO" UseSleep="NO">                
+            </ToolScp>
+        </updateEvent>        
+    </PadSkill>
 </PadSkills>
     

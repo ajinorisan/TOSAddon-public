@@ -221,7 +221,7 @@ ClassID,MHP,ATK,DEF,MDEF,AVERAGE_DEF,ReinforceWeapon,TranscendWeapon,ReinforceAr
 2303,200000,770,4015,4015,2,30,10,30,10,100,0,0,1300,400,250,400,100,450,0,2,"RE_boss_helga","","Legend","Legend"
 2304,200000,770,4015,4015,2,30,10,30,10,100,0,0,1300,400,250,400,100,450,0,2,"RE_boss_gresmetruth","","Legend","Legend"
 2305,200000,330,4015,4015,2,30,10,30,10,100,0,0,1000,300,150,200,100,100,0,2,"RE_boss_zawra_dummy","","Legend","Legend"
-2400,200000,770,4015,4015,2,30,10,30,10,100,0,0,1300,400,250,400,100,450,0,2,"boss_merregina_despair","","Legend","Legend"
+2400,200000,770,4015,4015,2,30,10,30,10,100,0,0,1690,520,325,400,130,450,0,2,"boss_merregina_despair","","Legend","Legend"
 2401,200000,385,4015,4015,2,30,10,30,10,100,0,0,1000,300,150,250,100,100,0,2,"boss_merregina_despair_Auto","","Legend","Legend"
 2402,200000,330,4015,4015,2,30,10,30,10,100,0,0,1000,300,150,200,100,100,0,2,"boss_merregina_despair_Solo","","Legend","Legend"
 2403,200000,770,1204,1204,2,30,10,30,10,100,0,0,1300,400,250,400,100,450,0,2,"boss_merregina_despair_pattern_obj","","Legend","Legend"

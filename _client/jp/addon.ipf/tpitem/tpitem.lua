@@ -924,8 +924,16 @@ function CREATE_TPITEM_TREE(obj, tpitemtree, i, firstTreeItem)
 	local hsubtreeitem = tpitemtree:FindByCaption("{@st42b}"..ScpArgMsg(subcategory));
 
 	if tpitemtree:IsExist(hsubtreeitem) == 0 and subcategory ~= "None" then
-
-		local added = tpitemtree:Add(htreeitem, "{@st66}"..ScpArgMsg(subcategory), category.."#"..subcategory, "{#000000}");
+		local added = nil
+		if config.GetServiceNation() == 'PAPAYA' then
+			if subcategory == 'TP_Package' then
+				added = tpitemtree:Add(htreeitem, "{@st66}".. 'New/Limited', category.."#"..subcategory, "{#000000}");
+			else
+				added = tpitemtree:Add(htreeitem, "{@st66}"..ScpArgMsg(subcategory), category.."#"..subcategory, "{#000000}");
+			end
+		else
+			added = tpitemtree:Add(htreeitem, "{@st66}"..ScpArgMsg(subcategory), category.."#"..subcategory, "{#000000}");
+		end
 
 		tpitemtree:SetFitToChild(true,10);
 		tpitemtree:SetFoldingScript(htreeitem, "KEYCONFIG_UPDATE_FOLDING");
@@ -1291,12 +1299,31 @@ function TPITEM_DRAW_ITEM_WITH_CATEGORY(frame, category, subcategory, initdraw, 
 		frame:SetUserValue("LAST_OPEN_CATEGORY", category);
 		frame:SetUserValue("LAST_OPEN_SUB_CATEGORY", "None");	
 	elseif isSub == 1 then
+		if config.GetServiceNation() == 'PAPAYA' then
+			if subcategory == 'TP_Package' then
+				mainText:SetText(ScpArgMsg(category).." > ".. 'New/Limited')
+			else
 		mainText:SetText(ScpArgMsg(category).." > "..ScpArgMsg(subcategory))
+			end
+		else
+			mainText:SetText(ScpArgMsg(category).." > "..ScpArgMsg(subcategory))
+		end
+		
 		frame:SetUserValue("LAST_OPEN_CATEGORY", category);
 		frame:SetUserValue("LAST_OPEN_SUB_CATEGORY", subcategory);	
 	elseif isSub == 2 then
 		if subcategory ~= "None" then
+			if config.GetServiceNation() == 'PAPAYA' then
+				if subcategory == 'TP_Package' then
+					mainText:SetText(ScpArgMsg(category).." > ".. 'New/Limited');
+				else
 			mainText:SetText(ScpArgMsg(category).." > "..ScpArgMsg(subcategory));
+				end
+				
+			else
+				mainText:SetText(ScpArgMsg(category).." > "..ScpArgMsg(subcategory));
+			end
+			
 		elseif category ~= "None" then
 			mainText:SetText(ScpArgMsg(category));
 			bPass = true;

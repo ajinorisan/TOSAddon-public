@@ -24,12 +24,10 @@
  end
 
 function TARGETINFOTOBOSS_UPDATE_SDR(frame, msg, argStr, SDR)
-
 	local imagename = "dice_" .. SDR;
 	local animpic = GET_CHILD(frame, "spl", "ui::CAnimPicture");
 	animpic:SetFixImage(imagename);
 	animpic:PlayAnimation();
-
 end
 
 function TARGETINFOTOBOSS_BUFF_UPDATE(frame, msg, argStr, argNum)
@@ -123,6 +121,24 @@ function TARGETINFOTOBOSS_TARGET_SET(frame, msg, argStr, argNum)
 		shield_gauge:ShowWindow(0);		
 	end
 	end
+
+	-- faint
+	local cur_faint = targetinfo.cur_faint;
+	local max_faint = targetinfo.max_faint;
+	if cur_faint > 0 and max_faint > 0 then
+		local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+		if faint_gauge ~= nil then
+			local diff_faint = max_faint - cur_faint;
+			faint_gauge:ShowWindow(1);
+			faint_gauge:SetShieldPoint(diff_faint, max_faint);
+		end
+	else
+		local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+		if faint_gauge ~= nil then
+			faint_gauge:ShowWindow(0);
+		end
+	end
+
 	frame:ShowWindow(1);
 	frame:Invalidate();
 	frame:SetValue(argNum);	-- argNum 가 핸들임
@@ -166,6 +182,22 @@ function TARGETINFOTOBOSS_ON_MSG(frame, msg, argStr, argNum)
 				local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
 				shield_gauge:ShowWindow(0);		
 			end
+			end
+			-- faint
+			local cur_faint = stat.cur_faint;
+			local max_faint = stat.max_faint;
+			if cur_faint > 0 and max_faint > 0 then
+				local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+				if faint_gauge ~= nil then
+					local diff_faint = max_faint - cur_faint;
+					faint_gauge:ShowWindow(1);
+					faint_gauge:SetShieldPoint(diff_faint, max_faint);
+				end
+			else
+				local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+				if faint_gauge ~= nil then
+					faint_gauge:ShowWindow(0);
+				end
 			end
 			if frame:IsVisible() == 0 then
 				frame:ShowWindow(1)
@@ -250,12 +282,23 @@ function TARGETINFOTOBOSS_UPDATE_SHIELD(data)
 					shield_gauge:ShowWindow(0);		
 				end
 			else
+				-- HP 설정.
+				local stat = info.GetStat(session.GetTargetBossHandle());	
+				if stat ~= nil then
+					-- hp
+					local hp_gauge = GET_CHILD(frame, "hp", "ui::CGauge");
+					hp_gauge:SetPoint(stat.HP, stat.maxHP);
+					-- hp text
+					local str_hp_value = TARGETINFO_TRANS_HP_VALUE(session.GetTargetBossHandle(), stat.HP, frame:GetUserConfig("HPTEXT_STYLESHEET"));
+					local hp_text = frame:GetChild('hpText');
+					hp_text:SetText(str_hp_value);
+				end
+				-- 실드 설정.
 				frame:SetUserValue("boss_shield_update_from_server", 1);
 				local data_list = StringSplit(data, '/');
 				if #data_list > 0 then
 					local shield = data_list[1];
 					local mhp = tonumber(data_list[2]);
-					print(shield, mhp);
 					local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
 					if shield_gauge ~= nil then
 						shield_gauge:ShowWindow(1);

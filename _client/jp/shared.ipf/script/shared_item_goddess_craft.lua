@@ -46,10 +46,13 @@ function make_parameter_list()
 
 	parameter_list[470] = {} -- 
 	parameter_list[470]['Acc'] = 490 -- 이시다비 -> 바우드
-
+	
 	parameter_list[480] = {}
 	parameter_list[480]['Weapon'] = 500
 	parameter_list[480]['Armor'] = 500
+
+	parameter_list[490] = {} -- 
+	parameter_list[490]['Acc'] = 500 -- 바우드 -> EP16
 end
 make_parameter_list()
 
@@ -279,6 +282,22 @@ function setting_lv490_acc_inherit_target_list(list_by_lv)
 	}
 end
 
+function setting_lv500_acc_inherit_target_list(list_by_lv)
+	list_by_lv[500]['Neck'] = {
+		'EP16_NECK_01',
+		'EP16_NECK_02',
+		'EP16_NECK_03',
+		'EP16_NECK_04',
+	}
+
+	list_by_lv[500]['Ring'] = {
+		'EP16_BRC_01',
+		'EP16_BRC_02',	
+		'EP16_BRC_03',	
+		'EP16_BRC_04',	
+	}
+end
+
 
 function make_goddess_inherit_target_list()
 	item_goddess_inherit_target_list = {}
@@ -330,8 +349,11 @@ function make_goddess_inherit_target_list()
 
 	list_by_lv[500]['Weapon'] = {}
 	list_by_lv[500]['Armor'] = {}	
-
 	setting_lv500_inherit_target_list(list_by_lv)
+
+	list_by_lv[500]['Neck'] = {}
+	list_by_lv[500]['Ring'] = {}
+	setting_lv500_acc_inherit_target_list(list_by_lv)
 
 	for lv, _ in pairs(item_goddess_inherit_target_list) do
 		if list_by_lv[lv]['Weapon'] ~= nil then
@@ -427,6 +449,10 @@ item_goddess_craft.check_enable_inherit_item = function(item)
 				return false, 'NeedGoddessGrade'			
 			end
 			if grade == 6 and use_lv >= 460 then
+				if TryGetProp(item, 'StringArg', 'None') == 'Goddess_Vasilisa' then
+					return true, 'None'
+				end
+
 				if TryGetProp(item, 'Reinforce_2', 0) < 20 then				
 					return false, 'Require20Reinforce'
 				end
@@ -442,6 +468,10 @@ item_goddess_craft.check_enable_inherit_item = function(item)
 		end
 
 		if grade == 6 and use_lv >= 460 then
+			if TryGetProp(item, 'StringArg', 'None') == 'Goddess_Vasilisa' then
+				return true, 'None'
+			end
+
 			if TryGetProp(item, 'Reinforce_2', 0) < 20 then				
 				return false, 'Require20Reinforce'
 			end

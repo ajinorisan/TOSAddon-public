@@ -428,7 +428,7 @@ function MONSKL_C_PLAY_ANIM_BOW_CTRL(actor, skill, anim, speed, freeze_anim, can
     local _cancelbyhit = false;
     if cancelbyhit == 1 then _cancelbyhit = true; end
     local use_bow_control = true;
-    actor:GetAnimation():ResetAnim();
+    actor:GetAnimation():ResetAnim();    
     actor:GetAnimation():PlayFixAnim(anim, speed, freeze_anim, 0, 0, 0, true, 0, _cancelbyhit, use_bow_control);
 end
 
@@ -492,8 +492,12 @@ function MONSKL_C_CLEAR_RESERVE_ANIM(actor, skill)
     actor:GetAnimation():ClearReservedAnim();
 end
 
-function MONSKL_C_RESERVE_ANIM(actor, skill, animName, spd, freezeAnim)
-    actor:GetAnimation():ReserveAnim(animName, spd, freezeAnim);
+function MONSKL_C_RESERVE_ANIM(actor, skill, animName, spd, freezeAnim, bow_control)
+    if bow_control == nil then
+        bow_control = 0
+    end
+    
+    actor:GetAnimation():ReserveAnim(animName, spd, freezeAnim, 0, bow_control);
 end
 
 function C_NEXT_SKILL_RESERVE_RESETANIM(actor)

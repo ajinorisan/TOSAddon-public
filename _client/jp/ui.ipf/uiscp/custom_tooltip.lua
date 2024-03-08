@@ -184,3 +184,9 @@ function tooltip_EP16_BRC_04(item)
 
     return msg, optionname
 end
+
+
+function tooltip_Vasilisa(item)
+    local msg = ScpArgMsg('enable_acc_upgrade_msg3')
+    return msg, 'None'
+end

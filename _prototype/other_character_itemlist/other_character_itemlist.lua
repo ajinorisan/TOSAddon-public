@@ -9,9 +9,11 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.logpath = string.format('../addons/%s/log.txt', addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
+local os = require("os")
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
@@ -25,21 +27,38 @@ function g.SetupHook(func, baseFuncName)
 end
 
 local first = 0
-g.settings = g.settings or {}
 
-acutil.setupEvent(_G["ADDONS"][author][addonName], "APPS_TRY_MOVE_BARRACK",
-                  "other_character_itemlist_APPS_TRY_MOVE_BARRACK")
+function other_character_itemlist_BARRACK_START_FRAME_OPEN(frame)
+    local newframe = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "new_frame", 0, 0, 70, 30)
+    AUTO_CAST(newframe)
+    newframe:Resize(70, 30)
+    newframe:SetPos(1370, 30)
+    -- newframe:SetOffset(1375, 15)
+    newframe:ShowWindow(1)
+    newframe:SetSkinName("None")
+    local btn = newframe:CreateOrGetControl("button", "btn1", 0, 0, 30, 30)
+    AUTO_CAST(btn)
+    btn:SetSkinName("None")
+    btn:SetText("{img config_button_normal 30 30}")
+    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_itemlist_console_init")
+    btn:SetTextTooltip("{@st59}open console{/}")
 
-function other_character_itemlist_APPS_TRY_MOVE_BARRACK(frame, msg)
-    -- local slot, capt, class, buffType = acutil.getEventArgs(msg)
-    if first == 0 then
-        local frame = ui.GetFrame('barrack_charlist')
-        local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
-        hidelogin:SetCheck(1);
-        first = 1
-        other_character_itemlist_get_charindex(frame)
+    local frame = ui.GetFrame('barrack_charlist')
+    local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
+    hidelogin:SetCheck(1);
+
+    other_character_itemlist_get_charindex(frame)
+end
+
+function other_character_itemlist_console_init()
+
+    local console = ui.GetFrame("developerconsole")
+    if console:IsVisible() == 0 then
+        console:ShowWindow(1)
+
+    else
+        console:ShowWindow(0)
     end
-
 end
 
 function other_character_itemlist_get_charindex(frame)
@@ -48,6 +67,12 @@ function other_character_itemlist_get_charindex(frame)
         local child = scrollBox:GetChildByIndex(i);
         if string.find(child:GetName(), 'char_') ~= nil and child:GetName() ~= 'char_add' then
             local list = StringSplit(child:GetName(), "_");
+            --[[local result = tostring(list[1] .. ":" .. list[2])
+            local fd = io.open(g.logpath, "a")
+            fd:write(result .. "\n")
+            fd:flush()
+            fd:close()]]
+            -- print(tostring(list[1] .. ":" .. list[2]))
             if g.settings[list[2]] == nil then
                 g.settings[list[2]] = {}
             end
@@ -64,9 +89,10 @@ end
 
 function OTHER_CHARACTER_ITEMLIST_ON_INIT(addon, frame)
 
+    print(tostring(addon))
     g.addon = addon
     g.frame = frame
-
+    g.settings = g.settings or {}
     g.CID = info.GetCID(session.GetMyHandle())
 
     local pc = GetMyPCObject();
@@ -76,6 +102,7 @@ function OTHER_CHARACTER_ITEMLIST_ON_INIT(addon, frame)
         addon:RegisterMsg("GAME_START", "other_character_itemlist_2sec")
         acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_itemlist_INVENTORY_OPEN")
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_itemlist_INVENTORY_CLOSE")
+        acutil.setupHook(other_character_itemlist_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
         return;
     end
 

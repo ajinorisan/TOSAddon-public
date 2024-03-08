@@ -4338,15 +4338,6 @@ function SCR_GET_Limacon_Ratio(skill)
     return math.floor(value)
 end
 
--- 리마콘
--- done , 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_Limacon_Ratio2(skill)
-    local pc = GetSkillOwner(skill);
-    local value = 240 + ((skill.Level - 1) * 26.1);
-    value = value * SCR_REINFORCEABILITY_TOOLTIP(skill);
-    return math.floor(value)
-end
-
 -- done , 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_Limacon_BuffTime(skill)
     local value = skill.Level * 20
@@ -6716,21 +6707,6 @@ function SCR_GET_BuildCappella_Ratio2(skill)
     local value = skill.Level * 2.5
     value = value * SCR_REINFORCEABILITY_TOOLTIP(skill)
     return value
-end
-
--- done , 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_Binatio_Ratio(skill)
-    local value = 55 + skill.Level * 15;
-    value = value * SCR_REINFORCEABILITY_TOOLTIP(skill)
-    return math.floor(value)
-end
-
--- done , 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_Binatio_Ratio2(skill)
-    local value = 87.1 + ((skill.Level - 1) * 14.5);
-    value = value * SCR_REINFORCEABILITY_TOOLTIP(skill)
-    
-    return math.floor(value)
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
@@ -15818,8 +15794,9 @@ function SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
         basicCoolDown = 5000
     end
     
-    -- 재사용 대기시간이 없는 스킬은 제외
-    if IsExpertSkill(TryGetProp(skill, 'ClassName', 'None')) == 1 and basicCoolDown > 0 and basicCoolDown < 1000 then
+    -- 재사용 대기시간이 없는 스킬은 제외(스킬 쿨다운이 0초가 되는 이유는 쿨다운 custom funciton에서 ret = math.floor(ret) * 1000 로 floor 하기 때문임)
+    local class_name = TryGetProp(skill, 'ClassName', 'None')
+    if class_name ~= 'BowMaster_FocusFire' and IsExpertSkill(class_name) == 1 and basicCoolDown > 0 and basicCoolDown < 1000 then
         basicCoolDown = 1000
     end
 
@@ -20038,9 +20015,218 @@ function SCR_GET_SKL_COOLDOWN_Common_MovingForward(skill)
     return basicCoolDown
 end
 
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_Cloaking_Time(skill)
+    local pc = GetSkillOwner(skill)
+    local value = 5
+    
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_IllusionSword_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_IllusionBlast_Ratio(skill)
+    local pc = GetSkillOwner(skill)
+    local value = 15; 
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Illusion_Bolt(skill)
+    local value = 100
+    local pc = GetSkillOwner(skill)
+    local MagicalIllusion = GetSkill(pc, 'Illusionist_MagicalIllusion')
+
+    if MagicalIllusion ~= nil then
+        value = math.floor(TryGetProp(MagicalIllusion, 'SkillFactor', 100)) 
+    end
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Illusion_Slash(skill)
+    local value = 100
+    local pc = GetSkillOwner(skill)
+    local MagicalIllusion = GetSkill(pc, 'Illusionist_MagicalIllusion')
+
+    if MagicalIllusion ~= nil then
+        value = math.floor(TryGetProp(MagicalIllusion, 'SkillFactor', 100) * 1.2)
+    end
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Illusion_Swing(skill)
+    local value = 100
+    local pc = GetSkillOwner(skill)
+    local MagicalIllusion = GetSkill(pc, 'Illusionist_MagicalIllusion')
+
+    if MagicalIllusion ~= nil then
+        value = math.floor(TryGetProp(MagicalIllusion, 'SkillFactor', 100)) * 2.0
+    end
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_Flood_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_Nightmare_Ratio(skill)
+    local pc = GetSkillOwner(skill)
+    local value = 15; 
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_IllusionArmor_Illusionist29(skill)
+    local pc = GetSkillOwner(skill)
+    local value = 7; 
+    
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_IllusionArmor_DeActivate_Time(skill)
+    local pc = GetSkillOwner(skill)
+    local value = 18000; 
+    local abil_Illusionist29 = GetAbility(pc, 'Illusionist29')
+    local abil_Illusionist30 = GetAbility(pc, 'Illusionist30')
+    if abil_Illusionist29 ~= nil and TryGetProp(abil_Illusionist29, 'ActiveState', 0 ) == 1 then
+        value = 25000; 
+    end
+
+    if abil_Illusionist30 ~= nil and TryGetProp(abil_Illusionist30, 'ActiveState', 0 ) == 1 then
+        value = 25000; 
+    end
+
+    local subVal = 1000;
+    local lv = TryGetProp(skill, "Level", 1)
+    if lv > 10 then lv = 10 end
+    value = value - subVal * lv
+    value = value * 0.001
+    value = math.floor(value)
+    
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_IllusionArmor_Illusionist30(skill)
+    local pc = GetSkillOwner(skill)
+    local value = 10000; 
+    
+    return value;
+end
 
 
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_Flood_Ratio_Time(skill)
+    local value = 900; 
+    return value;
+end
 
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_IllusionBlast_Ratio_Time(skill)
+    local value = 400; 
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_Nightmare_Ratio_Time(skill)
+    local value = 1000; 
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Illusionist_Nightmare_Ratio2(skill)
+    local value = 12; 
+    local pc = GetSkillOwner(skill)
+    local abil_Illusionist28 = GetAbility(pc, 'Illusionist28')
+    if abil_Illusionist28 ~= nil and TryGetProp(abil_Illusionist28, 'ActiveState', 0 ) == 1 then
+        value = 5 
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Reinforce_Ability_Flood(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    local pc = GetSkillOwner(skill)
+    
+    local abil_Illusionist25 = GetAbility(pc, 'Illusionist25')
+    if abil_Illusionist25 ~= nil and TryGetProp(abil_Illusionist25, 'ActiveState', 0 ) == 1 then
+        value = value * 0.3 
+    end
+    value = math.floor(value)
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Reinforce_Ability_IllusionBlast(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    local pc = GetSkillOwner(skill)
+    local Illusionist22_factor = GetExProp(pc,"IllusionBlast_Illusionist22")
+    local Illusionist23_factor = GetExProp(pc,"IllusionBlast_Illusionist23")
+    local mulfactor = 1
+    if Illusionist22_factor ~= 0 then
+        mulfactor = mulfactor + (Illusionist22_factor * 0.01)
+    end
+    
+    if Illusionist23_factor ~= 0 then
+        mulfactor = mulfactor + (Illusionist23_factor * 0.01)
+    end
+
+    value = value * mulfactor
+    value = math.floor(value)
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Reinforce_Ability_Nightmare(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    local pc = GetSkillOwner(skill)
+    local abil_Illusionist28 = GetAbility(pc, 'Illusionist28')
+    if abil_Illusionist28 ~= nil and TryGetProp(abil_Illusionist28, 'ActiveState', 0 ) == 1 then
+        value = value * 2.4 * 1.5
+    end
+    value = math.floor(value)
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_IllusionSword_Illusion31(skill)
+    local value = 100
+    local pc = GetSkillOwner(skill)
+    local IllusionSword = GetSkill(pc, 'Illusionist_IllusionSword')
+
+    if IllusionSword ~= nil then
+        value = math.floor(TryGetProp(IllusionSword, 'SkillFactor', 100) * 0.1 ) 
+    end
+    return value
+end
 -------------------------- 폰티펙스(Pontifex)
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_Missa_Ratio(skill)
@@ -20101,11 +20287,23 @@ function SCR_GET_Gospel_Ratio(skill)
     local pc = GetSkillOwner(skill)    
     local abil = GetAbility(pc, 'Pontifex51');
     if abil ~= nil and 1 == TryGetProp(abil, "ActiveState", 0) then
-        -- 특성이 활성화 되었다면 0.25
-        ratio = 0.25
+        -- 특성이 활성화 되었다면 0.2
+        ratio = 0.2
     end
 
     local value = 5 + (level * TryGetProp(skill, 'SklFactor', 0) * 0.01)
     value = value * ratio
     return value
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Matador_CorridaFinale_Hidden(skill)
+    local pc = GetSkillOwner(skill)
+
+    local s = GetSkill(pc, 'Matador_CorridaFinale')
+    local factor = 100
+    if s ~= nil then
+        factor = s.SkillFactor
+    end
+    
+    return factor
 end

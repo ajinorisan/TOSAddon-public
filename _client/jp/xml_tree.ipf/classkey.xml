@@ -10002,6 +10002,7 @@
         <Key Name="LvelUpReward_508" Value="114600"/>
         <Key Name="LvelUpReward_509" Value="114605"/>
         <Key Name="LvelUpReward_510" Value="114606"/>
+        <Key Name="HiddenJob_Char3_24" Value="114737"/>
     </KeyIDSpc>
     <KeyIDSpc Name="Guild">
         <Key Name="STEAM_NEW_GUILD_QUEST_TOTAL_SUCCESS_COUNT" Value="105307"/>
@@ -28346,6 +28347,21 @@
         <Key Name="TSP04_129_1_cabinet_upgrade" Value="114566"/>
         <Key Name="UnlockQuest_Char1_25" Value="114580"/>
         <Key Name="wingedhussar_thspear_cabinet" Value="114731"/>
+        <Key Name="AchieveReward_WEEKLY_BOSS_RANK_CLASS_100" Value="114748"/>
+        <Key Name="ContentsTotalShop_2402_1" Value="114749"/>
+        <Key Name="GEM_BowMaster_DodgeFire_cabinet" Value="114745"/>
+        <Key Name="GEM_BowMaster_FocusFire_cabinet" Value="114740"/>
+        <Key Name="GEM_BowMaster_GodArrow_cabinet" Value="114744"/>
+        <Key Name="GEM_BowMaster_Hyunmoo_cabinet" Value="114738"/>
+        <Key Name="GEM_BowMaster_ScatterShot_cabinet" Value="114741"/>
+        <Key Name="GEM_BowMaster_SkyBow_cabinet" Value="114743"/>
+        <Key Name="TBW04_126_8_cabinet" Value="114742"/>
+        <Key Name="TBW04_126_8_cabinet_upgrade" Value="114739"/>
+        <Key Name="UnlockQuest_Char3_24" Value="114746"/>
+        <Key Name="bowmaster_bow_cabinet" Value="114747"/>
+        <Key Name="dress_costume_ep15viking_f" Value="114751"/>
+        <Key Name="dress_costume_ep15viking_m" Value="114752"/>
+        <Key Name="ep15viking_theme" Value="114750"/>
     </KeyIDSpc>
     <KeyIDSpc Name="PartyMember">
         <Key Name="Auth_Survey" Value="7222"/>

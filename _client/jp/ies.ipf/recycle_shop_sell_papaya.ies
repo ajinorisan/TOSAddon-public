@@ -117,8 +117,6 @@ ClassID,BuyPrice,SellPrice,ClassName,Category,SubCategory,PackageList
 10116,0,17,"misc_gemExpStone_5000_TA","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 10117,0,15,"Drug_MSPD2_1h_TA","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 10118,0,15,"Premium_repairPotion_TA","Recyle_Shop_Sell","Recyle_Shop_Sell",""
-10119,0,5,"Drug_RedApple100_TA","Recyle_Shop_Sell","Recyle_Shop_Sell",""
-10120,0,10,"Drug_BlueApple100_TA","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 10121,0,17,"Hat_628022","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 10122,0,17,"Hat_628112","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 10123,0,17,"Wing_Balloon","Recyle_Shop_Sell","Recyle_Shop_Sell",""

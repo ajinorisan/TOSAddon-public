@@ -1882,6 +1882,26 @@ function PyeonJeonClientScp_LEAVE(actor, obj, buff)
     actor:SetAlwaysBattleState(false);
 end
 
+function BowMaster_FocusFire_Buff_ENTER(actor, obj, buff)
+    actor:GetAnimation():SetSTDAnim("skl_PyeonJeon_loop");
+    actor:GetAnimation():SetRUNAnim("skl_PyeonJeon_move");
+    actor:GetAnimation():SetWLKAnim("skl_PyeonJeon_move");
+    actor:GetAnimation():SetTURNAnim("None");
+    actor:SetAlwaysBattleState(true);    
+    actor:GetEffect():ActorColorBlend(1, 163/255, 73/255, 164/255, 1, 0);        
+end
+
+function BowMaster_FocusFire_Buff_LEAVE(actor, obj, buff)
+    actor:GetAnimation():ResetSTDAnim();
+    actor:GetAnimation():ResetRUNAnim();
+    actor:GetAnimation():ResetWLKAnim();
+    actor:GetAnimation():ResetTURNAnim();
+    actor:SetAlwaysBattleState(false);
+    actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
+end
+
+
+
 function DOLL_LAIMA_BUFF_ENTER(actor, obj, buff)
 end
 

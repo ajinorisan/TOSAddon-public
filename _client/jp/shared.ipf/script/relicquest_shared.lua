@@ -22,26 +22,12 @@ function GET_RELICQUEST_MAP_LIST_RESULT(pc, group)
     end
 
     local fieldTB13 = {"ep13_f_siauliai_1", "ep13_f_siauliai_2", "ep13_f_siauliai_3", "ep13_f_siauliai_4", "ep13_f_siauliai_5", "ep13_2_d_prison_1", "ep13_2_d_prison_2", "ep13_2_d_prison_3"}
-    local fieldTB14 = {
-        'ep14_1_f_castle_1',
-        'ep14_1_f_castle_2',
-        'ep14_1_f_castle_3',
-        'ep14_1_f_castle_4',
-        'ep14_1_f_castle_5',
-        'ep14_2_d_castle_1',
-        'ep14_2_d_castle_2',
-        'ep14_2_d_castle_3'}
-    local fieldTB15 = {
-        'ep15_1_f_abbey_1',
-        'ep15_1_f_abbey_2',
-        'ep15_1_f_abbey_3',
-        'ep15_2_d_nicopolis_1',
-        'ep15_2_d_nicopolis_2'
-    }
+    local fieldTB14 = { 'ep14_1_f_castle_1', 'ep14_1_f_castle_2', 'ep14_1_f_castle_3', 'ep14_1_f_castle_4', 'ep14_1_f_castle_5',
+        'ep14_2_d_castle_1', 'ep14_2_d_castle_2', 'ep14_2_d_castle_3' }
+    local fieldTB15 = { 'ep15_1_f_abbey_1', 'ep15_1_f_abbey_2', 'ep15_1_f_abbey_3', 'ep15_2_d_nicopolis_1', 'ep15_2_d_nicopolis_2'}
+    local fieldTB16 = { "f_coral_32_1", "f_rokas_36_1", "f_pilgrimroad_36_2" }
 
-    local indunTypeTB13 = {"MythicDungeon_Auto", "MythicDungeon_Auto_Hard", "Challenge_Auto",
-                            "Raid", "UniqueRaid", "FieldBossRaid", "MissionIndun", "DefenceMission"
-                        }
+    local indunTypeTB13 = {"MythicDungeon_Auto", "MythicDungeon_Auto_Hard", "Challenge_Auto", "Raid", "UniqueRaid", "FieldBossRaid", "MissionIndun", "DefenceMission" }
 
     if table.find(fieldTB13, NowZone) > 0 then
         return true;
@@ -50,6 +36,9 @@ function GET_RELICQUEST_MAP_LIST_RESULT(pc, group)
         return true;
     end
     if table.find(fieldTB15, NowZone) > 0 then
+        return true;
+    end
+    if table.find(fieldTB16, NowZone) > 0 then
         return true;
     end
     local indunCls = GetClassByStrProp("Indun", "MapName", NowZone);

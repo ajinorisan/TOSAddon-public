@@ -1,3 +1,11 @@
+local function is_leticia_in_progress()
+	local StartTime, EndTime = C_get_leticia_start_and_end_time()
+	local getnow = geTime.GetServerSystemTime()
+	local nowstr = string.format("%04d-%02d-%02d %02d:%02d:%02d", getnow.wYear, getnow.wMonth, getnow.wDay, getnow.wHour, getnow.wMinute, getnow.wSecond)
+	local ret = date_time.is_this_time_between_time(StartTime, nowstr, EndTime)
+	return ret
+end
+
 function C_Leticia_diff_sec(str_end, str_start)
     local end_time = date_time.get_lua_datetime_from_str(str_end)
     local start_time = date_time.get_lua_datetime_from_str(str_start)
@@ -27,10 +35,10 @@ function MINIMIZED_LETICIA_BUTTON_CHECK(frame)
 	if frame == nil then return end
 
 	local openLeticiaBtn = GET_CHILD_RECURSIVELY(frame, 'openLeticiaBtn')
-	if config.GetServiceNation() ~= 'GLOBAL_KOR' then
+	if true or config.GetServiceNation() ~= 'GLOBAL_KOR' then
 		openLeticiaBtn:SetEnable(0)
 		frame:ShowWindow(0)
-		return
+		return	
 	end
 
 	local mapprop = session.GetCurrentMapProp()
