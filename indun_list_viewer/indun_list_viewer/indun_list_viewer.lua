@@ -4,10 +4,11 @@
 -- v1.0.3 クローズボタンを戻した。ツールチップ追加。
 -- v1.0.4 ゲームスタート時の不可軽減
 -- v1.0.5 ゲーム立ち上げ時の初期化処理がバグってたのを修正。
+-- v1.0.6 メレジナオート足した。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -46,6 +47,16 @@ function indun_list_viewer_load_settings()
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
 
+    if settings then
+        for _, charData in ipairs(settings.charactors) do
+            -- 既存のキーが存在するかどうかをチェック
+            if not charData.raid_count.MerreginaN then
+                -- 既存のキーが存在しない場合のみ新しいキーを追加
+                charData.raid_count.MerreginaN = "-" -- 新しいキーを追加
+            end
+        end
+    end
+
     if not settings then
         settings = {
             raid_reset_time = 1702846800,
@@ -70,7 +81,8 @@ function indun_list_viewer_load_settings()
                     RozeH = "-",
                     RozeN = "-",
                     TurbulentH = "-",
-                    TurbulentN = "-"
+                    TurbulentN = "-",
+                    MerreginaN = "-"
                 },
                 buffid = {},
                 memo = "",
@@ -111,7 +123,8 @@ function indun_list_viewer_load_settings()
                         RozeH = "-",
                         RozeN = "-",
                         TurbulentH = "-",
-                        TurbulentN = "-"
+                        TurbulentN = "-",
+                        MerreginaN = "-"
                     },
                     buffid = {},
                     memo = "",
@@ -221,7 +234,8 @@ function indun_list_viewer_get_count_loginname()
                 RozeH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType),
                 RozeN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType),
                 TurbulentH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType),
-                TurbulentN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType)
+                TurbulentN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType),
+                MerreginaN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 695).PlayPerResetType)
             }
 
             local handle = session.GetMyHandle()
@@ -241,7 +255,7 @@ function indun_list_viewer_get_count_loginname()
                 end
             end
 
-            local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
+            local sweepbuff_table = {80015, 80016, 80017, 80030, 80031, 80032}
 
             for _, buffid in ipairs(sweepbuff_table) do
                 local found = false
@@ -344,8 +358,8 @@ function indun_list_viewer_raid_reset()
                     RozeH = "-",
                     RozeN = "-",
                     TurbulentH = "-",
-                    TurbulentN = "-"
-
+                    TurbulentN = "-",
+                    MerreginaN = "-"
                 } -- 対応する要素のraid_countを初期化
             end
         end
@@ -372,7 +386,8 @@ function indun_list_viewer_get_raid_count()
                 RozeH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType),
                 RozeN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType),
                 TurbulentH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType),
-                TurbulentN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType)
+                TurbulentN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType),
+                MerreginaN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 695).PlayPerResetType)
             }
         end
     end
@@ -392,7 +407,7 @@ function indun_list_viewer_get_sweep_count()
         local pcName = pcInfo:GetName()
         local LoginName = session.GetMySession():GetPCApc():GetName()
 
-        local sweepbuff_table = {80015, 80016, 80017, 80030, 80031}
+        local sweepbuff_table = {80015, 80016, 80017, 80030, 80031, 80032}
 
         for _, charData in pairs(g.settings.charactors) do
             if charData.name == LoginName then
@@ -497,8 +512,9 @@ function indun_list_viewer_title_frame_open()
 
     local icon_table = {"icon_item_misc_boss_Slogutis", "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze",
                         "icon_item_misc_high_falouros", "icon_item_misc_high_transmutationSpreader",
-                        "icon_item_misc_boss_Slogutis", "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze",
-                        "icon_item_misc_falouros", "icon_item_misc_transmutationSpreader"}
+                        "icon_item_misc_merregina_blackpearl", "icon_item_misc_boss_Slogutis",
+                        "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze", "icon_item_misc_falouros",
+                        "icon_item_misc_transmutationSpreader"}
 
     local y = 175
     for i = 1, 5 do
@@ -518,8 +534,8 @@ function indun_list_viewer_title_frame_open()
         y = y + 30
     end
     y = 350
-    for i = 6, 10 do
-        if i <= 8 then
+    for i = 6, 11 do
+        if i <= 9 then
             local slot = titlegb:CreateOrGetControl("slot", "slot" .. i, y + 10, 30, 25, 25)
             AUTO_CAST(slot)
 
@@ -553,13 +569,13 @@ function indun_list_viewer_title_frame_open()
 
     local mapframe = ui.GetFrame('worldmap2_mainmap')
     local screenWidth = mapframe:GetWidth()
-    local frameWidth = 800
+    local frameWidth = 800 + 70
     -- local x = (screenWidth - frameWidth) / 2
 
     icframe:SetSkinName("bg")
     -- icframe:SetPos(x, 5)
     icframe:SetPos(665, 5)
-    titlegb:Resize(800, 55)
+    titlegb:Resize(800 + 70, 55)
 
     titlegb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
     titlegb:SetTextTooltip("右クリックで閉じます。{nl}Right-click to close.")
@@ -577,9 +593,9 @@ function indun_list_viewer_title_frame_open()
     ccbtn:SetText("{img barrack_button_normal 30 30}")
     ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
-    local memo_text = titlegb:CreateOrGetControl("richtext", "memo_text", 650, 35)
+    local memo_text = titlegb:CreateOrGetControl("richtext", "memo_text", 650 + 70, 35)
     memo_text:SetText("{ol}Memo")
-    local display_text = titlegb:CreateOrGetControl("richtext", "display_text", 720, 35)
+    local display_text = titlegb:CreateOrGetControl("richtext", "display_text", 720 + 70, 35)
     display_text:SetText("{ol}Display")
     display_text:SetTextTooltip(
         "チェックしたキャラはレイド回数非表示{nl}Checked characters hide raid count")
@@ -616,7 +632,7 @@ function indun_list_viewer_frame_open(icframe)
 
         name:SetText("{ol}" .. pcName)
 
-        local line = gb:CreateOrGetControl("labelline", "line" .. pcName, 30, x - 7, 750, 2)
+        local line = gb:CreateOrGetControl("labelline", "line" .. pcName, 30, x - 7, 750 + 70, 2)
         line:SetSkinName("labelline_def_3")
         if charData.check == 0 then
             local Slogutis_hard = gb:CreateOrGetControl("richtext", "Slogutis_hard" .. pcName, 175, x)
@@ -671,7 +687,40 @@ function indun_list_viewer_frame_open(icframe)
                 Turbulent_hard:SetColorTone("FFFFFFFF");
             end
 
-            local Slogutis_auto = gb:CreateOrGetControl("richtext", "Slogutis_auto" .. pcName, 350, x)
+            local Merregina_auto = gb:CreateOrGetControl("richtext", "Merregina" .. pcName, 350, x)
+            Merregina_auto:SetText("{ol}{s14}( " .. charData.raid_count.MerreginaN .. " ) /")
+            Merregina_auto:SetTextTooltip("Auto Raid Weekly Entry Count 2 times per character{nl}" ..
+                                              "自動レイド週間入場回数1キャラ2回")
+            if type(charData.raid_count.MerreginaN) == "number" then
+                if tonumber(charData.raid_count.MerreginaN) == 2 then
+                    Merregina_auto:SetColorTone("FF990000");
+                elseif tonumber(charData.raid_count.MerreginaN) == 1 then
+                    SMerregina_auto:SetColorTone("FF999900");
+                else
+                    Merregina_auto:SetColorTone("FFFFFFFF");
+                end
+            else
+                Merregina_auto:SetColorTone("FFFFFFFF");
+            end
+
+            local Merregina_buff = gb:CreateOrGetControl("richtext", "Merregina_buff" .. pcName, 385, x)
+            local Merregina_buff_count = 0
+            for buffid, v in pairs(charData.buffid) do
+                if buffid == tostring(80032) then
+                    Merregina_buff_count = v
+
+                end
+            end
+
+            Merregina_buff:SetText("{ol}{s14}( " .. Merregina_buff_count .. " )")
+            Merregina_buff:SetTextTooltip("Number of Auto Clear Buff remaining{nl}" .. "自動掃討残り回数")
+            if type(Merregina_buff_count) == "number" then
+                if tonumber(Merregina_buff_count) >= 1 then -- or type(Slogutis_buff_count) ~= "string"
+                    Merregina_buff:SetColorTone("FF999900")
+                end
+            end
+
+            local Slogutis_auto = gb:CreateOrGetControl("richtext", "Slogutis_auto" .. pcName, 350 + 70, x)
             Slogutis_auto:SetText("{ol}{s14}( " .. charData.raid_count.SlogutisN .. " ) /")
             Slogutis_auto:SetTextTooltip("Auto Raid Weekly Entry Count 2 times per character{nl}" ..
                                              "自動レイド週間入場回数1キャラ2回")
@@ -687,7 +736,7 @@ function indun_list_viewer_frame_open(icframe)
                 Slogutis_auto:SetColorTone("FFFFFFFF");
             end
 
-            local Slogutis_buff = gb:CreateOrGetControl("richtext", "Slogutis_buff" .. pcName, 385, x)
+            local Slogutis_buff = gb:CreateOrGetControl("richtext", "Slogutis_buff" .. pcName, 385 + 70, x)
             local Slogutis_buff_count = 0
             for buffid, v in pairs(charData.buffid) do
                 if buffid == tostring(80031) then
@@ -704,7 +753,7 @@ function indun_list_viewer_frame_open(icframe)
                 end
             end
 
-            local Upinis_auto = gb:CreateOrGetControl("richtext", "Upinis_auto" .. pcName, 420, x)
+            local Upinis_auto = gb:CreateOrGetControl("richtext", "Upinis_auto" .. pcName, 420 + 70, x)
             Upinis_auto:SetText("{ol}{s14}( " .. charData.raid_count.UpinisN .. " ) /")
             Upinis_auto:SetTextTooltip("Auto Raid Weekly Entry Count 2 times per character{nl}" ..
                                            "自動レイド週間入場回数1キャラ2回")
@@ -720,7 +769,7 @@ function indun_list_viewer_frame_open(icframe)
                 Upinis_auto:SetColorTone("FFFFFFFF");
             end
 
-            local Upinis_buff = gb:CreateOrGetControl("richtext", "Upinis_buff" .. pcName, 455, x)
+            local Upinis_buff = gb:CreateOrGetControl("richtext", "Upinis_buff" .. pcName, 455 + 70, x)
             local Upinis_buff_count = 0
             for buffid, v in pairs(charData.buffid) do
                 if buffid == tostring(80030) then
@@ -737,7 +786,7 @@ function indun_list_viewer_frame_open(icframe)
                 end
             end
 
-            local Roze_auto = gb:CreateOrGetControl("richtext", "Roze_auto" .. pcName, 490, x)
+            local Roze_auto = gb:CreateOrGetControl("richtext", "Roze_auto" .. pcName, 490 + 70, x)
             Roze_auto:SetText("{ol}{s14}( " .. charData.raid_count.RozeN .. " ) /")
             Roze_auto:SetTextTooltip("Auto Raid Weekly Entry Count 2 times per character{nl}" ..
                                          "自動レイド週間入場回数1キャラ2回")
@@ -753,7 +802,7 @@ function indun_list_viewer_frame_open(icframe)
                 Roze_auto:SetColorTone("FFFFFFFF");
             end
 
-            local Roze_buff = gb:CreateOrGetControl("richtext", "Roze_buff" .. pcName, 525, x)
+            local Roze_buff = gb:CreateOrGetControl("richtext", "Roze_buff" .. pcName, 525 + 70, x)
             local Roze_buff_count = 0
             for buffid, v in pairs(charData.buffid) do
                 if buffid == tostring(80015) then
@@ -770,7 +819,7 @@ function indun_list_viewer_frame_open(icframe)
                 end
             end
 
-            local Turbulent_auto = gb:CreateOrGetControl("richtext", "Turbulent_auto" .. pcName, 560, x)
+            local Turbulent_auto = gb:CreateOrGetControl("richtext", "Turbulent_auto" .. pcName, 560 + 70, x)
             Turbulent_auto:SetText("{ol}{s14}( " .. charData.raid_count.TurbulentN .. " ) /")
             Turbulent_auto:SetTextTooltip("Auto Raid Weekly Entry Count 4 times per character{nl}" ..
                                               "自動レイド週間入場回数1キャラ4回")
@@ -787,7 +836,7 @@ function indun_list_viewer_frame_open(icframe)
                 Turbulent_auto:SetColorTone("FFFFFFFF");
             end
 
-            local Turbulent_buff = gb:CreateOrGetControl("richtext", "Turbulent_buff" .. pcName, 595, x)
+            local Turbulent_buff = gb:CreateOrGetControl("richtext", "Turbulent_buff" .. pcName, 595 + 70, x)
             local Falouros_buff_count = 0
             for buffid, v in pairs(charData.buffid) do
                 if buffid == tostring(80017) then
@@ -822,10 +871,14 @@ function indun_list_viewer_frame_open(icframe)
                 end
             end
         end
-        local memo = gb:CreateOrGetControl('edit', 'memo' .. pcName, 630, x - 5, 100, 25)
+        local memo = gb:CreateOrGetControl('edit', 'memo' .. pcName, 630 + 70 + 5, x - 5, 100, 25)
         AUTO_CAST(memo)
-        memo:SetFontName("white_16_ol")
-        memo:SetTextAlign("center", "center")
+        memo:SetFontName("white_14_ol")
+        memo:SetTextAlign("left", "center")
+        -- memo:SetOffsetXForDraw(20);
+        -- memo:SetOffsetYForDraw(0);
+        memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
+        -- memo:SetColorTone("#FFFFFF")
         memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
         memo:SetEventScriptArgString(ui.ENTERKEY, pcName)
 
@@ -833,7 +886,7 @@ function indun_list_viewer_frame_open(icframe)
 
         memo:SetText(memoData)
 
-        local display = gb:CreateOrGetControl('checkbox', 'display' .. pcName, 740, x - 5, 25, 25)
+        local display = gb:CreateOrGetControl('checkbox', 'display' .. pcName, 740 + 70, x - 5, 25, 25)
         AUTO_CAST(display)
         display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
         display:SetEventScriptArgString(ui.LBUTTONUP, pcName)
@@ -847,8 +900,8 @@ function indun_list_viewer_frame_open(icframe)
     local cnt = #g.settings.charactors
     local framex = cnt * 25
 
-    icframe:Resize(800, framex + 70)
-    gb:Resize(800, framex + 15)
+    icframe:Resize(800 + 70, framex + 70)
+    gb:Resize(800 + 70, framex + 15)
     gb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
     gb:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
 
@@ -890,4 +943,3 @@ function indun_list_viewer_memo_save(frame, ctrl, argStr, argNum)
     -- indun_list_viewer_load_settings()
 
 end
-
