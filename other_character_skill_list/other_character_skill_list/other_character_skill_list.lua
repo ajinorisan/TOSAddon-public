@@ -161,6 +161,7 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
 
     end
     g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+    print("layer:" .. g.layer)
 end
 
 function other_character_skill_list_INVENTORY_OPEN()
@@ -171,10 +172,56 @@ function other_character_skill_list_INVENTORY_CLOSE()
     other_character_skill_list_save_enchant()
 end
 
+function other_character_skill_list_instantcc()
+
+    local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
+    ic.settingsFileLoc = string.format('../addons/%s/settings.json', "instantcc")
+    ic.settings = acutil.loadJSON(ic.settingsFileLoc, ic.settings)
+
+    for gChar, _ in pairs(g.settings) do
+        print(tostring(gChar))
+        local found = false
+
+        for _, icChar in ipairs(ic.settings.charactors) do
+            if icChar.name == gChar then
+                -- 同じ名前が見つかった場合、上書き
+                g.settings[gChar].layer = icChar.layer
+                g.settings[gChar].index = icChar.order
+                found = true
+                break
+            end
+        end
+
+        if not found then
+            -- 見つからない場合、デフォルトの値を代入
+            gChar.layer = 9
+            gChar.order = 99
+        end
+    end
+    local function sortCharactors(a, b)
+        if a.layer == b.layer then
+            return a.order < b.order
+        else
+            return a.layer < b.layer
+        end
+    end
+
+    -- ソートを実行
+    table.sort(g.settings, sortCharactors)
+
+    other_character_skill_list_save_settings()
+    -- indun_list_viewer_load_settings()
+
+end
+
 function other_character_skill_list_2sec()
 
     ReserveScript("other_character_skill_list_frame_init()", 2.0)
     ReserveScript("other_character_skill_list_lord_settings()", 2.0)
+    if _G["ADDONS"]["ebisuke"]["INSTANTCC"] then
+        ReserveScript("other_character_skill_list_instantcc()", 2.0)
+
+    end
 
 end
 
@@ -215,26 +262,29 @@ function other_character_skill_list_save_settings()
 end
 
 function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
-    local accountInfo = session.barrack.GetMyAccount();
-    local cnt = accountInfo:GetPCCount();
+    -- other_character_skill_list_instantcc()
+    if not _G["ADDONS"]["ebisuke"]["INSTANTCC"] then
+        local accountInfo = session.barrack.GetMyAccount();
+        local cnt = accountInfo:GetPCCount();
+        -- print(cnt)
+        if g.layer ~= nil then
+            for i = 0, cnt - 1 do
+                local pcInfo = accountInfo:GetPCByIndex(i);
+                local pcApc = pcInfo:GetApc();
+                local pcName = pcApc:GetName()
+                for k, v in pairs(g.settings) do
 
-    if g.layer ~= nil then
-        for i = 0, cnt - 1 do
-            local pcInfo = accountInfo:GetPCByIndex(i);
-            local pcApc = pcInfo:GetApc();
-            local pcName = pcApc:GetName()
-            for k, v in pairs(g.settings) do
+                    if tostring(k) == tostring(pcName) then
+                        g.settings[k].layer = g.layer
+                        g.settings[k].index = i
+                    end
 
-                if tostring(k) == tostring(pcName) then
-                    g.settings[k].layer = g.layer
-                    g.settings[k].index = i
                 end
-
             end
-        end
 
+        end
+        other_character_skill_list_save_settings()
     end
-    other_character_skill_list_save_settings()
 
     frame:SetSkinName("None")
     frame:Resize(990, 300)

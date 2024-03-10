@@ -18,7 +18,16 @@
 		"description" : "音選べる様に。フサリアバフをお知らせ。To be able to choose the sound.Notify Fusariah Buff.소리를 선택할 수 있도록.",
 		"tags" : []
 	},
-	
+	{
+		"name" : "Other Character Skill List",
+		"file" : "other_character_skill_list",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "other_character_skill_list",
+		"unicode" : "⛄",
+		"description" : "各キャラの錬成スキルを一覧表示。一度、該当キャラでログインしてインベントリを開ける必要があります。Lists the armour enchant skills of each character. Once you log in with the relevant character, you need to open your inventory.각 캐릭터의 방어구 인챈트 스킬이 나열됩니다. 해당 캐릭터로 로그인한 후 인벤토리를 열어야 합니다.",
+		"tags" : []
+	},
 	{
 		"name" : "Warehouse Manager Reloaded",
 		"file" : "warehousemanager",

@@ -20,8 +20,7 @@ https://twitter.com/ToSJP_rada
 　
 ### Other Character Skill List
 
-錬成スキルを一覧表示。インスタントCCを入れているとバラック2以降のキャラ順が狂う場合があります。
-その時はreturn to barracを使って一度手作業でログインしてください。k
+錬成スキルを一覧表示。
 
 　
 
