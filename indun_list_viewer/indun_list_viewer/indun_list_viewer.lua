@@ -5,10 +5,11 @@
 -- v1.0.4 ゲームスタート時の不可軽減
 -- v1.0.5 ゲーム立ち上げ時の初期化処理がバグってたのを修正。
 -- v1.0.6 メレジナオート足した。
+-- v1.0.7 アップデートだと正常に動くけどクリーンインストールだとおそらく動かなかったのを修正。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -45,16 +46,6 @@ function indun_list_viewer_load_settings()
     if err then
         -- 設定ファイル読み込み失敗時処理
         CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
-
-    if settings then
-        for _, charData in ipairs(settings.charactors) do
-            -- 既存のキーが存在するかどうかをチェック
-            if not charData.raid_count.MerreginaN then
-                -- 既存のキーが存在しない場合のみ新しいキーを追加
-                charData.raid_count.MerreginaN = "-" -- 新しいキーを追加
-            end
-        end
     end
 
     if not settings then
@@ -136,6 +127,15 @@ function indun_list_viewer_load_settings()
                 -- 一時的な変数を settings.charactors に挿入
                 table.insert(settings.charactors, newCharData)
             end
+
+            for _, charData in ipairs(settings.charactors) do
+                -- 既存のキーが存在するかどうかをチェック
+                if not charData.raid_count.MerreginaN then
+                    -- 既存のキーが存在しない場合のみ新しいキーを追加
+                    charData.raid_count.MerreginaN = "-" -- 新しいキーを追加
+                end
+            end
+
         end
     end
 

@@ -161,7 +161,7 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
 
     end
     g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
-    print("layer:" .. g.layer)
+    -- print("layer:" .. g.layer)
 end
 
 function other_character_skill_list_INVENTORY_OPEN()
@@ -179,7 +179,7 @@ function other_character_skill_list_instantcc()
     ic.settings = acutil.loadJSON(ic.settingsFileLoc, ic.settings)
 
     for gChar, _ in pairs(g.settings) do
-        print(tostring(gChar))
+        -- print(tostring(gChar))
         local found = false
 
         for _, icChar in ipairs(ic.settings.charactors) do
