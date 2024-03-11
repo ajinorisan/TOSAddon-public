@@ -14,6 +14,8 @@ Twitter
 
 https://twitter.com/ToSJP_rada
 
+#基本的に酔っぱらいながら作っているので、バグは多めかもしれません。
+
 ----
 　
 　
