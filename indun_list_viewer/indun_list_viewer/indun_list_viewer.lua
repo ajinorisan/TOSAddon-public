@@ -6,6 +6,7 @@
 -- v1.0.5 ゲーム立ち上げ時の初期化処理がバグってたのを修正。
 -- v1.0.6 メレジナオート足した。
 -- v1.0.7 アップデートだと正常に動くけどクリーンインストールだとおそらく動かなかったのを修正。
+-- v1.0.8 メレジナ掃討の誤字修正。仕方ない人間だもの。のりお
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -612,6 +613,9 @@ function indun_list_viewer_frame_open(icframe)
     gb:SetSkinName("bg")
     gb:SetColorTone("FF000000");
 
+    -- icframe:Resize(800 + 70, 1000 + 70)
+    -- gb:Resize(800 + 70, 1000 + 15)
+
     local x = 6
 
     for _, charData in ipairs(g.settings.charactors) do
@@ -695,7 +699,7 @@ function indun_list_viewer_frame_open(icframe)
                 if tonumber(charData.raid_count.MerreginaN) == 2 then
                     Merregina_auto:SetColorTone("FF990000");
                 elseif tonumber(charData.raid_count.MerreginaN) == 1 then
-                    SMerregina_auto:SetColorTone("FF999900");
+                    Merregina_auto:SetColorTone("FF999900");
                 else
                     Merregina_auto:SetColorTone("FFFFFFFF");
                 end
@@ -707,6 +711,7 @@ function indun_list_viewer_frame_open(icframe)
             local Merregina_buff_count = 0
             for buffid, v in pairs(charData.buffid) do
                 if buffid == tostring(80032) then
+                    -- print(tostring(type(Merregina_buff_count)))
                     Merregina_buff_count = v
 
                 end
