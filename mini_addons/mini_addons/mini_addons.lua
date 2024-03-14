@@ -25,10 +25,11 @@
 -- v1.2.4 女神ガチャ機能デフォルトONをOFFに変更
 -- v1.2.5 女神ガチャ制御強化
 -- v1.2.6 女神ガチャ切り替え後にCCしないと、自動ガチャ機能OFFにならなかったの修正。
+-- v1.2.7 女神ガチャフルベットボタンつけた。女神ガチャ中CCやチャンネル移動でフレーム表示されてたの1回目のみに修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.6"
+local ver = "1.2.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -164,11 +165,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
             g.settings.auto_gacha = 0
             MINI_ADDONS_SAVE_SETTINGS()
             addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN');
-
+            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_END', 'MINI_ADDONS_FIELD_BOSS_WORLD_EVENT_END');
         elseif g.settings.auto_gacha == 1 then
 
             addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN');
+            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_END', 'MINI_ADDONS_FIELD_BOSS_WORLD_EVENT_END');
+
         end
+        MINI_ADDONS_GP_FULL_BET()
     end
 
     if g.settings.restart_move == 1 then
@@ -213,17 +217,40 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
 end
+g.first = 0
+function MINI_ADDONS_FIELD_BOSS_WORLD_EVENT_END(frame)
+    g.first = 0
+    return
+end
+-- MINI_ADDONS_GP_FULL_BET()
+function MINI_ADDONS_GP_FULL_BET()
+    local frame = ui.GetFrame("godprotection")
+    local auto_gb = GET_CHILD_RECURSIVELY(frame, "auto_gb")
+    local fbbtn = auto_gb:CreateOrGetControl("button", "fbbtn", 200, 30, 100, 40)
+    fbbtn:SetSkinName("None")
+    fbbtn:SetText("{img login_test_button 95 35}")
+    fbbtn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_FULL_BET_START")
 
+    local fbtext = fbbtn:CreateOrGetControl("button", "fbtext", 0, 0, 100, 40)
+    fbtext:SetSkinName("None")
+    fbtext:SetText("{ol}Full Bet")
+    fbtext:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_FULL_BET_START")
+    -- frame:ShowWindow(1)
+end
+-- MINI_ADDONS_GP_FULL_BET()
 function MINI_ADDONS_GP_DO_OPEN()
-    ReserveScript("GODPROTECTION_DO_OPEN()", 2.0);
-    ReserveScript("MINI_ADDONS_GP_AUTOSTART()", 4.0)
+
+    if g.first == 0 or g.first == nil then
+        ReserveScript("GODPROTECTION_DO_OPEN()", 2.0);
+        ReserveScript("MINI_ADDONS_GP_AUTOSTART()", 4.0)
+    end
+
     return
 end
 -- MINI_ADDONS_GP_DO_OPEN()
+function MINI_ADDONS_GP_FULL_BET_START(frame, ctrl, argStr, argNum)
 
-function MINI_ADDONS_GP_AUTOSTART()
     local frame = ui.GetFrame("godprotection")
-
     local multiple_count = 20
     local multiple_count_edit = GET_CHILD_RECURSIVELY(frame, 'multiple_count_edit')
     multiple_count_edit:SetText(multiple_count);
@@ -238,8 +265,33 @@ function MINI_ADDONS_GP_AUTOSTART()
     local auto_btn = GET_CHILD_RECURSIVELY(frame, "auto_btn")
     local auto_text = GET_CHILD_RECURSIVELY(frame, "auto_text");
     auto_text:ShowWindow(0);
-    if g.settings.auto_gacha_start == 1 and g.settings.auto_gacha == 1 then
+    -- print("test")
+    GODPROTECTION_AUTO_START_BTN_CLICK(parent, auto_btn)
+
+end
+
+function MINI_ADDONS_GP_AUTOSTART()
+    g.first = 1
+    local frame = ui.GetFrame("godprotection")
+    if g.settings.auto_gacha_start == 1 then
+        local multiple_count = 20
+        local multiple_count_edit = GET_CHILD_RECURSIVELY(frame, 'multiple_count_edit')
+        multiple_count_edit:SetText(multiple_count);
+        -- GODPROTECTION_MULTI_COUNT_UPDATE(frame, multiple_count)
+
+        local edit = GET_CHILD_RECURSIVELY(frame, "auto_edit");
+        local count = 99999999
+        local next_count = count - 1;
+        edit:SetText(next_count);
+
+        local parent = GET_CHILD_RECURSIVELY(frame, "auto_gb");
+        local auto_btn = GET_CHILD_RECURSIVELY(frame, "auto_btn")
+        local auto_text = GET_CHILD_RECURSIVELY(frame, "auto_text");
+        auto_text:ShowWindow(0);
+
         GODPROTECTION_AUTO_START_BTN_CLICK(parent, auto_btn)
+    else
+        return
     end
 
 end
