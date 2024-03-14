@@ -683,6 +683,15 @@ v1.0.2 ディレイ時間設定機能
 
 v1.2.7 女神ガチャに単純にFULLBETボタンつけた。開けるのは手作業。開始時のキャラ以外では自動で開かない様に。
 
+![キャプチャ3](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/6fe17bc0-1921-42f9-98f3-f12cc58ebf25)
+この状態だとガチャにFullBetボタンつくだけ。押したら全力で回す。
+
+![キャプチャ1](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/fa200ab2-5448-4410-9171-579a80171db0)
+この状態はガチャ画面自動で開けてフルベット状態にするけどガチャは開始しない。
+
+![キャプチャ2](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/843a0e6f-becb-4733-99b8-16ed2041f63c)
+この状態はガチャ画面自動で開けてフルベット状態にして全力で回す。。
+
 v1.2.6 女神ガチャON OFF機能のところを微修正。
 
 v1.2.5 女神ガチャを自動で回すかを選択出来るように。OFFの場合、回数セットまで。
