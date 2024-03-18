@@ -185,7 +185,26 @@ function SKILL_NOTICE_ON_INIT(addon, frame)
     skill_notice_load_settings()
 end
 
-function skill_notice_set_gauge(frame, myHandle, buffType, text, index, max)
+function skill_notice_buff_update(frame, msg, buffIndex, buffType)
+
+    local fram = ui.GetFrame("skill_notice")
+    local myHandle = session.GetMyHandle()
+
+    for index, buffData in ipairs(bufftbl) do
+        if tostring(buffType) == tostring(buffData.id) then
+            local text = buffData.text
+            local max = buffData.max
+            local buff = info.GetBuff(myHandle, buffType);
+
+            if buff ~= nil then
+                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.text)
+                -- skill_notice_set_gauge(frame, myHandle, buffType, text, index, max)
+            end
+        end
+    end
+end
+
+--[[function skill_notice_set_gauge(frame, myHandle, buffType, text, index, max)
 
     local gauge = frame:CreateOrGetControl("gauge", "gauge" .. index, 5, 5, 180, 20);
     AUTO_CAST(gauge)
@@ -263,28 +282,7 @@ function skill_notice_set_gauge(frame, myHandle, buffType, text, index, max)
     end
 end
 
-function skill_notice_buff_update(frame, msg, buffIndex, buffType)
-
-    -- print(frame:GetName())
-    -- print(msg)
-    -- print(buffIndex)
-    -- print(buffType)
-    local myHandle = session.GetMyHandle()
-    local effectName = ""
-
-    for index, buffData in ipairs(bufftbl) do
-        if tostring(buffType) == tostring(buffData.id) then
-            local text = buffData.text
-            local max = buffData.max
-            local buff = info.GetBuff(myHandle, buffType);
-
-            if buff ~= nil then
-
-                skill_notice_set_gauge(frame, myHandle, buffType, text, index, max)
-            end
-        end
-    end
-end
+]]
 
 function skill_notice_frame_init(frame)
 
@@ -310,6 +308,7 @@ function skill_notice_frame_init(frame)
     text:SetTextTooltip("Right-Click Settings")
 
     local buffgb = frame:CreateOrGetControl('groupbox', "buffgb", 0, 0, 200, 25);
+    buffgb:RemoveAllChild()
 
     local y = 0
     local colortone = ""
@@ -323,18 +322,18 @@ function skill_notice_frame_init(frame)
         if g.settings[LoginName][buffData.name] == nil then
             g.settings[LoginName][buffData.name] = 1
             skill_notice_save_settings()
-            local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buffData.name, 5, 5, 180, 20);
+            local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buffData.text, 5, y * 25 + 5, 180, 20);
             AUTO_CAST(gauge)
             y = y + 1
         elseif g.settings[LoginName][buffData.name] == 1 then
-            local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buffData.name, 5, 5, 180, 20);
+            local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buffData.text, 5, y * 25 + 5, 180, 20);
             AUTO_CAST(gauge)
             y = y + 1
 
         end
 
     end
-    buffgb:Resize(200, y * 25)
+    buffgb:Resize(200, y * 25 + 10)
     frame:ShowWindow(1);
 end
 
@@ -494,6 +493,7 @@ function skill_notice_ischeck(frame, ctrl, argStr, argNum)
     g.settings[LoginName][argStr] = ischeck
     -- print(tostring(ctrlname) .. ":" .. tostring(ischeck))
     skill_notice_save_settings()
+    skill_notice_frame_init(frame)
 end
 
 function skill_notice_effect_size(frame, ctrl, argStr, argNum)
