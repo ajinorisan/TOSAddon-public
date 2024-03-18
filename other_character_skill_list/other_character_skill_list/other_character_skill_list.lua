@@ -1,7 +1,8 @@
+-- v1.0.1 skillnameがNoneの場合に表示バグってたの修正
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -377,25 +378,31 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 shirt_slot:SetSkinName('invenslot2');
 
                 local character_settings = g.settings[character.name]
+
                 if character_settings and character_settings.SHIRT then
+
                     local shirt_skill = GetClassByNameFromList(skill_list, g.settings[character.name].SHIRT.skillName)
-                    local shirt_sklCls = GetClassByType("Skill", shirt_skill.ClassID);
+                    if shirt_skill ~= nil then
 
-                    local shirt_imageName = 'icon_' .. shirt_sklCls.Icon;
-                    SET_SLOT_ICON(shirt_slot, shirt_imageName)
-                    local shirt_name = gbox:CreateOrGetControl("richtext", "shirt_name" .. character.name, 195, x, 140,
-                        20)
+                        local shirt_sklCls = GetClassByType("Skill", shirt_skill.ClassID);
+                        -- print(tostring("cls" .. shirt_sklCls))
+                        local shirt_imageName = 'icon_' .. shirt_sklCls.Icon;
+                        SET_SLOT_ICON(shirt_slot, shirt_imageName)
+                        local shirt_name = gbox:CreateOrGetControl("richtext", "shirt_name" .. character.name, 195, x,
+                            140, 20)
 
-                    local shirt_lv = gbox:CreateOrGetControl("richtext", "shirt_lv" .. character.name, 160, x, 30, 20)
-                    shirt_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].SHIRT.skillLv)
+                        local shirt_lv = gbox:CreateOrGetControl("richtext", "shirt_lv" .. character.name, 160, x, 30,
+                            20)
+                        shirt_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].SHIRT.skillLv)
 
-                    for k2, v2 in pairs(langtbl) do
+                        for k2, v2 in pairs(langtbl) do
 
-                        if tostring(k2) == tostring(g.settings[character.name].SHIRT.skillName) then
-                            shirt_name:SetText("{ol}{s14}" .. v2)
-                            shirt_name:AdjustFontSizeByWidth(140)
+                            if tostring(k2) == tostring(g.settings[character.name].SHIRT.skillName) then
+                                shirt_name:SetText("{ol}{s14}" .. v2)
+                                shirt_name:AdjustFontSizeByWidth(140)
+                            end
+
                         end
-
                     end
                 end
 
@@ -416,23 +423,25 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 local character_settings = g.settings[character.name]
                 if character_settings and character_settings.PANTS then
                     local pants_skill = GetClassByNameFromList(skill_list, g.settings[character.name].PANTS.skillName)
-                    local pants_sklCls = GetClassByType("Skill", pants_skill.ClassID);
+                    if pants_skill ~= nil then
+                        local pants_sklCls = GetClassByType("Skill", pants_skill.ClassID);
 
-                    local pants_imageName = 'icon_' .. pants_sklCls.Icon;
-                    SET_SLOT_ICON(pants_slot, pants_imageName)
-                    local pants_name = gbox:CreateOrGetControl("richtext", "pants_name" .. character.name, 195 + 195, x,
-                        140, 20)
+                        local pants_imageName = 'icon_' .. pants_sklCls.Icon;
+                        SET_SLOT_ICON(pants_slot, pants_imageName)
+                        local pants_name = gbox:CreateOrGetControl("richtext", "pants_name" .. character.name,
+                            195 + 195, x, 140, 20)
 
-                    local pants_lv = gbox:CreateOrGetControl("richtext", "pants_lv" .. character.name, 160 + 195, x, 30,
-                        20)
-                    pants_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].PANTS.skillLv)
-                    for k2, v2 in pairs(langtbl) do
+                        local pants_lv = gbox:CreateOrGetControl("richtext", "pants_lv" .. character.name, 160 + 195, x,
+                            30, 20)
+                        pants_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].PANTS.skillLv)
+                        for k2, v2 in pairs(langtbl) do
 
-                        if tostring(k2) == tostring(g.settings[character.name].PANTS.skillName) then
-                            pants_name:SetText("{ol}{s14}" .. v2)
-                            pants_name:AdjustFontSizeByWidth(140)
+                            if tostring(k2) == tostring(g.settings[character.name].PANTS.skillName) then
+                                pants_name:SetText("{ol}{s14}" .. v2)
+                                pants_name:AdjustFontSizeByWidth(140)
+                            end
+
                         end
-
                     end
                 end
 
@@ -454,23 +463,25 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 local character_settings = g.settings[character.name]
                 if character_settings and character_settings.GLOVES then
                     local gloves_skill = GetClassByNameFromList(skill_list, g.settings[character.name].GLOVES.skillName)
-                    local gloves_sklCls = GetClassByType("Skill", gloves_skill.ClassID);
+                    if gloves_skill ~= nil then
+                        local gloves_sklCls = GetClassByType("Skill", gloves_skill.ClassID);
 
-                    local gloves_imageName = 'icon_' .. gloves_sklCls.Icon;
-                    SET_SLOT_ICON(gloves_slot, gloves_imageName)
-                    local gloves_name = gbox:CreateOrGetControl("richtext", "gloves_name" .. character.name,
-                        195 + 195 + 195, x, 140, 20)
+                        local gloves_imageName = 'icon_' .. gloves_sklCls.Icon;
+                        SET_SLOT_ICON(gloves_slot, gloves_imageName)
+                        local gloves_name = gbox:CreateOrGetControl("richtext", "gloves_name" .. character.name,
+                            195 + 195 + 195, x, 140, 20)
 
-                    local gloves_lv = gbox:CreateOrGetControl("richtext", "gloves_lv" .. character.name,
-                        160 + 195 + 195, x, 30, 20)
-                    gloves_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].GLOVES.skillLv)
-                    for k2, v2 in pairs(langtbl) do
+                        local gloves_lv = gbox:CreateOrGetControl("richtext", "gloves_lv" .. character.name,
+                            160 + 195 + 195, x, 30, 20)
+                        gloves_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].GLOVES.skillLv)
+                        for k2, v2 in pairs(langtbl) do
 
-                        if tostring(k2) == tostring(g.settings[character.name].GLOVES.skillName) then
-                            gloves_name:SetText("{ol}{s14}" .. v2)
-                            gloves_name:AdjustFontSizeByWidth(140)
+                            if tostring(k2) == tostring(g.settings[character.name].GLOVES.skillName) then
+                                gloves_name:SetText("{ol}{s14}" .. v2)
+                                gloves_name:AdjustFontSizeByWidth(140)
+                            end
+
                         end
-
                     end
                 end
 
@@ -491,23 +502,26 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 local character_settings = g.settings[character.name]
                 if character_settings and character_settings.BOOTS then
                     local boots_skill = GetClassByNameFromList(skill_list, g.settings[character.name].BOOTS.skillName)
-                    local boots_sklCls = GetClassByType("Skill", boots_skill.ClassID);
+                    if boots_skill ~= nil then
+                        local boots_sklCls = GetClassByType("Skill", boots_skill.ClassID);
 
-                    local boots_imageName = 'icon_' .. boots_sklCls.Icon;
-                    SET_SLOT_ICON(boots_slot, boots_imageName)
-                    local boots_name = gbox:CreateOrGetControl("richtext", "boots_name" .. character.name,
-                        195 + 195 + 195 + 195, x, 140, 20)
+                        local boots_imageName = 'icon_' .. boots_sklCls.Icon;
+                        SET_SLOT_ICON(boots_slot, boots_imageName)
+                        local boots_name = gbox:CreateOrGetControl("richtext", "boots_name" .. character.name,
+                            195 + 195 + 195 + 195, x, 140, 20)
 
-                    local boots_lv = gbox:CreateOrGetControl("richtext", "boots_lv" .. character.name,
-                        160 + 195 + 195 + 195, x, 30, 20)
-                    boots_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].BOOTS.skillLv)
-                    for k2, v2 in pairs(langtbl) do
+                        local boots_lv = gbox:CreateOrGetControl("richtext", "boots_lv" .. character.name,
+                            160 + 195 + 195 + 195, x, 30, 20)
+                        boots_lv:SetText("{ol}{s14}Lv:" .. g.settings[character.name].BOOTS.skillLv)
+                        for k2, v2 in pairs(langtbl) do
 
-                        if tostring(k2) == tostring(g.settings[character.name].BOOTS.skillName) then
-                            boots_name:SetText("{ol}{s14}" .. v2)
-                            boots_name:AdjustFontSizeByWidth(140)
+                            if tostring(k2) == tostring(g.settings[character.name].BOOTS.skillName) then
+
+                                boots_name:SetText("{ol}{s14}" .. v2)
+                                boots_name:AdjustFontSizeByWidth(140)
+                            end
+
                         end
-
                     end
                 end
 
@@ -518,6 +532,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
         x = x + 25
 
     end
+
     frame:Resize(990, x + 50)
     gbox:Resize(940, x + 10)
 end
@@ -545,6 +560,7 @@ function other_character_skill_list_frame_init()
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_friend 35 35}")
     btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_frame_open")
+    btn:SetTextTooltip("Other Character Skill List")
 
 end
 
