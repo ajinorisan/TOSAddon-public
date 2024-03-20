@@ -3,10 +3,11 @@
 -- v1.0.0 とりあえず公開
 -- v1.0.1 英語対応、装備裏表切替対応
 -- v1.0.2 必要ステータス表示
+-- v1.0.3 表示切替機能。インベントリにボタン付けた。
 local addonName = "GODDESS_ICOR_MANAGER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -789,7 +790,7 @@ function goddess_icor_manager_language(str)
             str = "HPエリクサー広域化"
         end
 
-        if str == "rada_bless_1" then
+        --[[if str == "rada_bless_1" then
             str = "ラダの恩恵(+1)"
         end
         if str == "dievdirbys_bless_1" then
@@ -806,6 +807,55 @@ function goddess_icor_manager_language(str)
         end
         if str == "saule_bless_1" then
             str = "サウレの恩恵(+1)"
+        end]]
+
+        if str == "rada_bless_1" then
+            str = ClMsg("rada_bless_1")
+        end
+        if str == "gabija_bless_1" then
+            str = ClMsg("gabija_bless_1")
+        end
+        if str == "vakarine_bless_1" then
+            str = ClMsg("vakarine_bless_1")
+        end
+        if str == "jurate_bless_1" then
+            str = ClMsg("jurate_bless_1")
+        end
+        if str == "saule_bless_1" then
+            str = ClMsg("saule_bless_1")
+        end
+        if str == "payawoota_bless_1" then
+            str = ClMsg("payawoota_bless_1")
+        end
+        if str == "zemyna_bless_1" then
+            str = ClMsg("zemyna_bless_1")
+        end
+        if str == "cleric_bless_1" then
+            str = ClMsg("cleric_bless_1")
+        end
+        if str == "priest_bless_1" then
+            str = ClMsg("priest_bless_1")
+        end
+        if str == "dievdirbys_bless_1" then
+            str = ClMsg("dievdirbys_bless_1")
+        end
+        if str == "chaplain_bless_1" then
+            str = ClMsg("chaplain_bless_1")
+        end
+        if str == "retiarii_bless_1" then
+            str = ClMsg("retiarii_bless_1")
+        end
+        if str == "appraiser_bless_1" then
+            str = ClMsg("appraiser_bless_1")
+        end
+        if str == "plagueDoctor_bless_1" then
+            str = ClMsg("plagueDoctor_bless_1")
+        end
+        if str == "fireMage_bless_1" then
+            str = ClMsg("fireMage_bless_1")
+        end
+        if str == "dalia_bless_1" then
+            str = ClMsg("dalia_bless_1")
         end
 
         if str == " 500Advanced" then
@@ -1304,7 +1354,7 @@ function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-
+    g.settings = g.settings or {}
     -- addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "test_norisan_ON_PARTYINFO_BUFFLIST_UPDATE");
     -- g.SetupHook(test_norisan_ON_PARTYINFO_BUFFLIST_UPDATE, "PARTY_BUFFLIST_UPDATE")
     -- acutil.setupHook(goddess_icor_manager_GODDESS_MGR_RANDOMOPTION_APPLY_EXEC, "_GODDESS_MGR_RANDOMOPTION_APPLY_EXEC")
@@ -1313,8 +1363,10 @@ function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
+        -- goddess_icor_manager_load_settings()
 
         goddess_icor_manager_frame_init()
+        addon:RegisterMsg("GAME_START", "goddess_icor_manager_load_settings");
         return;
     end
 
@@ -1328,23 +1380,37 @@ function goddess_icor_manager_frame_init()
     listbtn:SetText("{ol}list")
     listbtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
 
+    local invframe = ui.GetFrame('inventory')
+    local inventoryGbox = invframe:GetChild("inventoryGbox")
+    local icor_btn = invframe:CreateOrGetControl("button", "icor_btn", 420, 345, 30, 30)
+    AUTO_CAST(icor_btn)
+    icor_btn:SetText("{img sysmenu_skill 30 30}")
+    icor_btn:SetSkinName("test_red_button")
+    icor_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
+    icor_btn:SetTextTooltip("{ol}Goddes Icor Manager Frame Open")
 end
 
-function goddess_icor_manager_list_init()
+function goddess_icor_manager_list_init(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("goddess_icor_manager")
-    frame:Resize(1430, 1000)
-    frame:SetOffset(0, 20)
+    frame:Resize(1430, 1060) -- 1000
+    frame:SetOffset(0, 10) -- 0,20
     frame:ShowWindow(1)
     frame:SetLayerLevel(121)
     frame:ShowTitleBar(0);
     frame:SetSkinName("test_frame_midle_light")
-
+    frame:RemoveAllChild()
     goddess_icor_manager_newframe_init()
-    goddess_icor_manager_list_gb_init(frame)
+    if argNum == 0 then
+        goddess_icor_manager_list_gb_init(frame, _, _, _)
+    else
+        goddess_icor_manager_list_gb_init(frame, argNum)
+    end
+
 end
 
-function goddess_icor_manager_list_gb_init(frame)
-
+function goddess_icor_manager_list_gb_init(frame, argNum)
+    -- print(tostring(argNum))
+    -- 
     local acc = GetMyAccountObj()
     local etc = GetMyEtcObject()
     local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
@@ -1358,138 +1424,320 @@ function goddess_icor_manager_list_gb_init(frame)
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
     end
     -- print(tostring(page_max))
-    for i = 1, page_max do
+    --[[for i = 1, page_max do
         local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
         if bg ~= nil then
             frame:RemoveChild("bg" .. i)
         end
-    end
-    local Y = 10
-    local YY = 10
+    end]]
+    if g.settings.check == 0 then
+        local right_btn = frame:CreateOrGetControl("button", "right_btn", 740, 1020, 30, 30)
+        AUTO_CAST(right_btn)
+        right_btn:SetText("{img white_right_arrow 18 18}")
+        right_btn:SetSkinName("brown_3patch_btn")
+        right_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
+        right_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 2)
 
-    for i = 1, page_max do
-        if i <= 5 then
+        local left_btn = frame:CreateOrGetControl("button", "left_btn", 690, 1020, 30, 30)
+        AUTO_CAST(left_btn)
+        left_btn:SetText("{img white_left_arrow 18 18}")
+        left_btn:SetSkinName("brown_3patch_btn")
+        left_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
+        left_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
 
-            local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 490)
-            AUTO_CAST(bg)
-            -- bg:SetOffset(0, 10)
-            bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-            bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
-            local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
-            AUTO_CAST(pagename_text)
-            local pagename = goddess_icor_manager_get_pagename(i)
-            Y = Y + 283
+        local Y = 10
+        local YY = 10
 
-            if remain_time == 0 and tonumber(max_page) < i then
-                pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
-            else
-                pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
-            end
-            -- pagename_text:SetText(pagename)
-            bg:SetSkinName("bg")
-            bg:ShowWindow(1)
+        -- for i = 1, page_max do
+        -- if i <= 5 then
+        -- frame:RemoveAllChild()
+        if argNum ~= 2 then
+            for i = 1, 5 do
+                local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 1010) -- 490
+                AUTO_CAST(bg)
+                bg:RemoveAllChild()
+                -- bg:SetOffset(0, 10)
 
-            local manage_X = 0
-            for j = 1, #managed_list do
-                local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
-                manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
-                local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
+                bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
+                AUTO_CAST(pagename_text)
 
-                manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
-                -- manage_bg:SetSkinName("chat_window_2");
-                -- manage_bg:SetSkinName("digitnotice_bg");
-                manage_bg:SetSkinName("test_frame_midle_light");
-                manage_X = manage_X + 122
-                -- end
-                local parts1 = {}
-                local parts2 = {}
-                local parts3 = {}
+                local pagename = goddess_icor_manager_get_pagename(i)
+                -- print(tostring("pagename"))
+                Y = Y + 283
 
-                local option_prop, group_prop, value_prop, is_goddess_option =
-                    goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
-
-                if option_prop ~= nil then
-
-                    for part in option_prop:gmatch("([^/]+)") do
-                        table.insert(parts1, part)
-                    end
-
-                    for part in group_prop:gmatch("([^/]+)") do
-                        table.insert(parts2, part)
-                    end
-
-                    for part in value_prop:gmatch("([^/]+)") do
-                        table.insert(parts3, part)
-                    end
-
-                    goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
-
+                if remain_time == 0 and tonumber(max_page) < i then
+                    pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
+                else
+                    pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
                 end
-            end
+                -- pagename_text:SetText(pagename)
+                bg:SetSkinName("bg")
+                bg:ShowWindow(1)
 
-        elseif i >= 6 then
-            local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, YY, 500, 281, 490)
-            AUTO_CAST(bg)
-            bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-            bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
-            if remain_time == 0 and max_page < i then
+                local manage_X = 0
+                for j = 1, #managed_list do
+                    local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
+                    manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
 
-            end
-            YY = YY + 283
-            local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
-            AUTO_CAST(pagename_text)
-            local pagename = goddess_icor_manager_get_pagename(i)
+                    manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+                    -- manage_bg:SetSkinName("chat_window_2");
+                    -- manage_bg:SetSkinName("digitnotice_bg");
+                    manage_bg:SetSkinName("test_frame_midle_light");
+                    manage_X = manage_X + 122
+                    -- end
+                    local parts1 = {}
+                    local parts2 = {}
+                    local parts3 = {}
 
-            if remain_time == 0 and tonumber(max_page) < i then
-                pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
-            else
-                pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
-            end
-            bg:SetSkinName("bg")
-            bg:ShowWindow(1)
+                    local option_prop, group_prop, value_prop, is_goddess_option =
+                        goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
 
-            local manage_X = 0
-            for j = 1, #managed_list do
-                local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
-                manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    if option_prop ~= nil then
 
-                local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
-                manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+                        for part in option_prop:gmatch("([^/]+)") do
+                            table.insert(parts1, part)
+                        end
 
-                manage_bg:SetSkinName("test_frame_midle_light");
+                        for part in group_prop:gmatch("([^/]+)") do
+                            table.insert(parts2, part)
+                        end
 
-                manage_X = manage_X + 122
-                -- end
-                local parts1 = {}
-                local parts2 = {}
-                local parts3 = {}
+                        for part in value_prop:gmatch("([^/]+)") do
+                            table.insert(parts3, part)
+                        end
 
-                local option_prop, group_prop, value_prop, is_goddess_option =
-                    goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
-                -- print(tostring(option_prop))
-                if option_prop ~= nil then
-                    for part in option_prop:gmatch("([^/]+)") do
-                        table.insert(parts1, part)
+                        goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
+
                     end
-
-                    for part in group_prop:gmatch("([^/]+)") do
-                        table.insert(parts2, part)
-                    end
-
-                    for part in value_prop:gmatch("([^/]+)") do
-                        table.insert(parts3, part)
-                    end
-
-                    goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
                 end
+                -- frame:Invalidate()
+            end
+        else
+            -- end
+
+            -- if i >= 6 and argNum == 2 then
+            for i = 6, page_max do
+                local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 1010) -- 490
+                AUTO_CAST(bg)
+                bg:RemoveAllChild()
+                bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
+                AUTO_CAST(pagename_text)
+                local pagename = goddess_icor_manager_get_pagename(i)
+                Y = Y + 283
+
+                if remain_time == 0 and tonumber(max_page) < i then
+                    pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
+                else
+                    pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
+                end
+                -- pagename_text:SetText(pagename)
+                bg:SetSkinName("bg")
+                bg:ShowWindow(1)
+                -- print(tostring(argNum))
+                local manage_X = 0
+                for j = 1, #managed_list do
+                    local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
+                    manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+
+                    local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
+                    manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+
+                    manage_bg:SetSkinName("test_frame_midle_light");
+
+                    manage_X = manage_X + 122
+                    -- end
+                    local parts1 = {}
+                    local parts2 = {}
+                    local parts3 = {}
+
+                    local option_prop, group_prop, value_prop, is_goddess_option =
+                        goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
+                    -- print(tostring(option_prop))
+                    if option_prop ~= nil then
+                        for part in option_prop:gmatch("([^/]+)") do
+                            table.insert(parts1, part)
+                        end
+
+                        for part in group_prop:gmatch("([^/]+)") do
+                            table.insert(parts2, part)
+                        end
+
+                        for part in value_prop:gmatch("([^/]+)") do
+                            table.insert(parts3, part)
+                        end
+
+                        goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
+                    end
+                end
+                -- frame:Invalidate()
             end
         end
+    else
+        local Y = 10
+        local YY = 10
+
+        for i = 1, page_max do
+            if i <= 5 then
+
+                local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 490)
+                AUTO_CAST(bg)
+                -- bg:SetOffset(0, 10)
+                bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+
+                local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
+                AUTO_CAST(pagename_text)
+                local pagename = goddess_icor_manager_get_pagename(i)
+                Y = Y + 283
+
+                if remain_time == 0 and tonumber(max_page) < i then
+                    pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
+                else
+                    pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
+                end
+                -- pagename_text:SetText(pagename)
+                bg:SetSkinName("bg")
+                bg:ShowWindow(1)
+
+                local manage_X = 0
+                for j = 1, #managed_list do
+                    local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
+                    manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
+
+                    manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+                    -- manage_bg:SetSkinName("chat_window_2");
+                    -- manage_bg:SetSkinName("digitnotice_bg");
+                    manage_bg:SetSkinName("test_frame_midle_light");
+                    manage_X = manage_X + 122
+                    -- end
+                    local parts1 = {}
+                    local parts2 = {}
+                    local parts3 = {}
+
+                    local option_prop, group_prop, value_prop, is_goddess_option =
+                        goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
+
+                    if option_prop ~= nil then
+
+                        for part in option_prop:gmatch("([^/]+)") do
+                            table.insert(parts1, part)
+                        end
+
+                        for part in group_prop:gmatch("([^/]+)") do
+                            table.insert(parts2, part)
+                        end
+
+                        for part in value_prop:gmatch("([^/]+)") do
+                            table.insert(parts3, part)
+                        end
+
+                        goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
+
+                    end
+
+                end
+
+                -- print(savedPos .. "savea")
+
+            elseif i >= 6 then
+                local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, YY, 500, 281, 490)
+                AUTO_CAST(bg)
+                bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                if remain_time == 0 and max_page < i then
+
+                end
+                YY = YY + 283
+                local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
+                AUTO_CAST(pagename_text)
+                local pagename = goddess_icor_manager_get_pagename(i)
+
+                if remain_time == 0 and tonumber(max_page) < i then
+                    pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
+                else
+                    pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
+                end
+                bg:SetSkinName("bg")
+                bg:ShowWindow(1)
+
+                local manage_X = 0
+                for j = 1, #managed_list do
+                    local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
+                    manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+
+                    local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
+                    manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+
+                    manage_bg:SetSkinName("test_frame_midle_light");
+
+                    manage_X = manage_X + 122
+                    -- end
+                    local parts1 = {}
+                    local parts2 = {}
+                    local parts3 = {}
+
+                    local option_prop, group_prop, value_prop, is_goddess_option =
+                        goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
+                    -- print(tostring(option_prop))
+                    if option_prop ~= nil then
+                        for part in option_prop:gmatch("([^/]+)") do
+                            table.insert(parts1, part)
+                        end
+
+                        for part in group_prop:gmatch("([^/]+)") do
+                            table.insert(parts2, part)
+                        end
+
+                        for part in value_prop:gmatch("([^/]+)") do
+                            table.insert(parts3, part)
+                        end
+
+                        goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
+                    end
+                end
+
+            end
+
+        end
+
+        frame:Resize(1430, 1000)
     end
+    -- end
     goddess_icor_manager_check()
+    if g.settings.check == 1 then
+        goddess_icor_manager_set_pos(frame, page_max)
+    end
 end
 
+function goddess_icor_manager_set_pos(frame, page_max)
+
+    for i = 1, page_max do
+
+        local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+        AUTO_CAST(bg)
+
+        local pos = tonumber(g.settings[tostring(i)])
+
+        bg:SetScrollPos(0);
+        if pos ~= 0 then
+            bg:EnableScrollBar(1);
+            bg:EnableDrawFrame(1);
+            bg:SetScrollPos(pos);
+        end
+
+    end
+
+end
 function goddess_icor_manager_check()
     -- print(i)
     local frame = ui.GetFrame("goddess_icor_manager")
@@ -1529,10 +1777,10 @@ function goddess_icor_manager_check()
                 icor_text = icor_text:gsub("{[^}]+}", "")
 
                 if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
-                    local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 20, 20)
+                    local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
                     -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
-                    star:SetText("{img monster_card_starmark 20 20}")
-                    star:SetOffset(235, 0)
+                    star:SetText("{img monster_card_starmark 25 25}")
+                    star:SetOffset(230, 0)
                 elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
                     local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
                     AUTO_CAST(equip_button)
@@ -1550,9 +1798,10 @@ end
 function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
 
     local frame = ui.GetFrame('goddess_equip_manager')
-    if frame == nil then
+    frame:ShowWindow(1)
+    --[[if frame == nil then
         return
-    end
+    end]]
     GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame)
     session.ResetItemList()
 
@@ -1774,6 +2023,37 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
     return "FF000000"
 end
 
+function goddess_icor_manager_check_save(frame, ctrl, argStr, argNum)
+    local ischeck = ctrl:IsChecked()
+    g.settings.check = ischeck
+    goddess_icor_manager_save_settings()
+    -- print(ischeck)
+end
+
+function goddess_icor_manager_load_settings()
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+
+    if err then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    end
+
+    if not settings then
+
+        settings = g.settings
+
+    end
+    g.settings = settings
+    goddess_icor_manager_save_settings()
+end
+
+function goddess_icor_manager_save_settings()
+
+    acutil.saveJSON(g.settingsFileLoc, g.settings);
+
+end
+
 function goddess_icor_manager_newframe_init()
 
     local newframe = ui.CreateNewFrame("notice_on_pc", "goddess_icor_manager_newframe", 0, 0, 0, 0)
@@ -1786,6 +2066,17 @@ function goddess_icor_manager_newframe_init()
     newframe:SetLayerLevel(121)
     newframe:RemoveAllChild();
 
+    local change_check = newframe:CreateOrGetControl('checkbox', 'change_check', 60, 20, 30, 30)
+    AUTO_CAST(change_check)
+    change_check:SetTextTooltip(
+        "チェックを入れると10種類表示に切り替えます。{nl}10 preset displays when checked.")
+    change_check:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_check_save")
+    change_check:SetCheck(g.settings.check)
+
+    local change_text = newframe:CreateOrGetControl("richtext", 'change_text', 90, 30, 0, 40)
+    AUTO_CAST(change_text)
+    change_text:SetText("{ol}Check to switchbetween 5 or 10 types of displays")
+    change_text:AdjustFontSizeByWidth(350)
     --[[local close_bg = newframe:CreateOrGetControl("groupbox", "close_bg", 290, 10, 200, 60)
     AUTO_CAST(close_bg)
     -- close_bg:SetSkinName("test_frame_midle_light");
@@ -1795,7 +2086,7 @@ function goddess_icor_manager_newframe_init()
     local closebtn = newframe:CreateOrGetControl("button", "closebtn", 445, 10, 40, 45)
     closebtn:SetText("{img testclose_button 40 40}")
     AUTO_CAST(closebtn)
-    closebtn:SetSkinName("test_pvp_btn")
+    closebtn:SetSkinName("None")
     closebtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
     closebtn:SetTextTooltip("Frame Close.")
 
@@ -2282,6 +2573,33 @@ function goddess_icor_manager_list_close(frame)
     newframe:ShowWindow(0)
     statusframe:ShowWindow(0)
     icorframe:ShowWindow(0)
+    if g.settings.check == 1 then
+        local acc = GetMyAccountObj()
+        local etc = GetMyEtcObject()
+        local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
+
+        local max_page = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+        local page_max = 0
+        if tonumber(remain_time) == 0 then
+
+            page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+        else
+            page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+        end
+
+        for i = 1, page_max do
+            local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+            AUTO_CAST(bg)
+            local curpos = bg:GetScrollCurPos();
+            if curpos == 514 then
+                curpos = 0
+            end
+            g.settings[tostring(i)] = curpos
+            goddess_icor_manager_save_settings()
+            -- bg:SetUserValue("SAVE_POS", curpos);
+
+        end
+    end
 end
 
 function goddess_icor_manager_get_pagename(index)

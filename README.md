@@ -20,6 +20,21 @@ https://twitter.com/ToSJP_rada
 　
 　
 　
+### Skill Notice
+
+ピクティス、バトルスピリット、チャージアロー、リロードバフをお知らせ
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/bfe69b6d-22c6-4103-bc72-78c70462d77c)
+
+----
+
+　
 ### Other Character Skill List
 
 錬成スキルを一覧表示。
@@ -38,7 +53,7 @@ v1.0.0 公開。
 　
 ### Battle Spirit
 
-フサリアバフをお知らせ。。
+フサリアバフをお知らせ。
 
 　
 
@@ -54,7 +69,7 @@ v1.0.0 公開。ゲージとエフェクトと音でお知らせ。8段階と10�
 　
 ### Pyktis Notice
 
-ネビルティスピクティスバフをお知らせ。。
+ネビルティスピクティスバフをお知らせ。
 
 　
 

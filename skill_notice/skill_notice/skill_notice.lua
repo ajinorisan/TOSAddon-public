@@ -1,7 +1,7 @@
 local addonName = "SKILL_NOTICE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.1"
+local ver = "1.0.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -180,118 +180,248 @@ function SKILL_NOTICE_ON_INIT(addon, frame)
     g.frame = frame
 
     skill_notice_load_settings()
-    -- addon:RegisterMsg('BUFF_UPDATE', 'skill_notice_buff_update');
-    -- addon:RegisterMsg('BUFF_ADD', 'skill_notice_buff_add');
-    -- addon:RegisterMsg('BUFF_REMOVE', 'skill_notice_buff_remove');
+    addon:RegisterMsg('BUFF_UPDATE', 'skill_notice_buff_update');
+    addon:RegisterMsg('BUFF_ADD', 'skill_notice_buff_add');
+    addon:RegisterMsg('BUFF_REMOVE', 'skill_notice_buff_remove');
     addon:RegisterMsg('GAME_START', "skill_notice_frame_init")
 
+    g.pyktismax = 0
+    g.battlespirit8max = 0
+    g.battlespirit10max = 0
+    g.chargearrow = 0
+    g.reload = 0
 end
+function skill_notice_buff_remove(frame, msg, argStr, argNum)
+    local frame = ui.GetFrame("skill_notice")
+    local myHandle = session.GetMyHandle()
+    local actor = world.GetActor(myHandle)
+    local bufftype = argNum
 
-function skill_notice_buff_update(frame, msg, buffIndex, buffType)
+    for index, buffData in ipairs(bufftbl) do
+        if tostring(bufftype) == tostring(buffData.id) then
+            local text = buffData.text
+            local max = buffData.max
+
+            local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.name)
+            AUTO_CAST(gauge)
+            gauge:RemoveAllChild()
+            gauge:SetPoint(0, max);
+            -- gauge:AddStat("");
+            -- gauge:AddStat('{ol}{s20}%v/%m');
+            gauge:SetStatFont(0, 'quickiconfont');
+            gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+            gauge:EnableHitTest(0)
+
+            -- pyktis
+            if bufftype == 1158 then
+                if g.settings.pyktis.effect ~= "None" then
+                    effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
+                end
+                gauge:SetColorTone(g.settings.pyktis.color);
+                g.pyktismax = 0
+            elseif bufftype == 1164 then
+                if g.settings.chargearrow.effect ~= "None" then
+                    effect.DetachActorEffect(actor, g.settings.chargearrow.effect, 0);
+                end
+                gauge:SetColorTone(g.settings.chargearrow.color);
+                g.chargearrow = 0
+            elseif bufftype == 1112 then
+                if g.settings.reload.effect ~= "None" then
+                    effect.DetachActorEffect(actor, g.settings.reload.effect, 0);
+                end
+                gauge:SetColorTone(g.settings.reload.color);
+                g.reload = 0
+            elseif bufftype == 1163 then
+                if g.settings.battlespirit8.effect ~= "None" then
+                    effect.DetachActorEffect(actor, g.settings.battlespirit8.effect, 0);
+                end
+                if g.settings.battlespirit10.effect ~= "None" then
+                    effect.DetachActorEffect(actor, g.settings.battlespirit10.effect, 0);
+                end
+                gauge:SetColorTone(g.settings.battlespirit10.color);
+
+            end
+
+        end
+    end
+end
+function skill_notice_buff_add(frame, msg, argStr, argNum)
+    local frame = ui.GetFrame("skill_notice")
+    local myHandle = session.GetMyHandle()
+    local actor = world.GetActor(myHandle)
+    local bufftype = argNum
+
+    for index, buffData in ipairs(bufftbl) do
+        if tostring(bufftype) == tostring(buffData.id) then
+            local text = buffData.text
+            local max = buffData.max
+            local buff = info.GetBuff(myHandle, buffData.id);
+
+            if buff ~= nil then
+                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.name)
+                AUTO_CAST(gauge)
+                gauge:RemoveAllChild()
+                gauge:SetPoint(buff.over, max);
+                -- gauge:AddStat("");
+                -- gauge:AddStat('{ol}{s20}%v/%m');
+                gauge:SetStatFont(0, 'quickiconfont');
+                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                gauge:EnableHitTest(0)
+
+            end
+
+        end
+    end
+end
+function skill_notice_buff_update(frame, msg, argStr, argNum)
 
     local frame = ui.GetFrame("skill_notice")
     local myHandle = session.GetMyHandle()
+    local actor = world.GetActor(myHandle)
+    local bufftype = argNum
 
     for index, buffData in ipairs(bufftbl) do
-        if tostring(buffType) == tostring(buffData.id) then
+        if tostring(bufftype) == tostring(buffData.id) then
             local text = buffData.text
             local max = buffData.max
-            local buff = info.GetBuff(myHandle, buffType);
+            local buff = info.GetBuff(myHandle, buffData.id);
 
             if buff ~= nil then
-                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.text)
-                -- skill_notice_set_gauge(frame, myHandle, buffType, text, index, max)
+                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.name)
+                AUTO_CAST(gauge)
+                gauge:RemoveAllChild()
+                gauge:SetPoint(buff.over, max);
+                -- gauge:AddStat("");
+                -- gauge:AddStat('{ol}{s20}%v/%m');
+                gauge:SetStatFont(0, 'quickiconfont');
+                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                gauge:EnableHitTest(0)
+
+                -- pyktis
+                if bufftype == 1158 and buff.over == buffData.max and g.pyktismax == 0 then
+                    if g.settings.pyktis.effect ~= "None" then
+                        effect.AddActorEffectByOffset(actor, g.settings.pyktis.effect, g.settings.pyktis.size, "MID",
+                            true, true);
+                    end
+                    if g.settings.pyktis.sound ~= "None" then
+                        imcSound.PlaySoundEvent(g.settings.pyktis.sound);
+                    end
+                    gauge:SetColorTone("FFFF0000");
+                    g.pyktismax = 1
+                elseif bufftype == 1158 and buff.over == buffData.max then
+                    if g.settings.pyktis.effect ~= "None" then
+                        effect.AddActorEffectByOffset(actor, g.settings.pyktis.effect, g.settings.pyktis.size, "MID",
+                            true, true);
+                    end
+                    gauge:SetColorTone("FFFF0000");
+                elseif bufftype == 1158 and buff.over ~= buffData.max then
+                    if g.settings.pyktis.effect ~= "None" then
+                        effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
+                    end
+                    gauge:SetColorTone(g.settings.pyktis.color);
+                    g.pyktismax = 0
+                end
+
+                -- chargearrow
+                if bufftype == 1164 and buff.over == buffData.max and g.chargearrow == 0 then
+                    if g.settings.chargearrow.effect ~= "None" then
+                        effect.AddActorEffectByOffset(actor, g.settings.chargearrow.effect, g.settings.chargearrow.size,
+                            "MID", true, true);
+                    end
+                    if g.settings.chargearrow.sound ~= "None" then
+                        imcSound.PlaySoundEvent(g.settings.chargearrow.sound);
+                    end
+                    gauge:SetColorTone("FFFF0000");
+                    g.chargearrow = 1
+                elseif bufftype == 1164 and buff.over == buffData.max then
+                    if g.settings.chargearrow.effect ~= "None" then
+                        effect.AddActorEffectByOffset(actor, g.settings.chargearrow.effect, g.settings.chargearrow.size,
+                            "MID", true, true);
+                    end
+                    gauge:SetColorTone("FFFF0000");
+                elseif bufftype == 1164 and buff.over ~= buffData.max then
+                    if g.settings.chargearrow.effect ~= "None" then
+                        effect.DetachActorEffect(actor, g.settings.chargearrow.effect, 0);
+                    end
+
+                    gauge:SetColorTone(g.settings.chargearrow.color);
+                    g.chargearrow = 0
+                end
+
+                -- reload
+                if bufftype == 1112 and buff.over == buffData.max and g.reload == 0 then
+                    if (IsBattleState(GetMyPCObject()) == 1) then
+                        if g.settings.reload.effect ~= "None" then
+                            effect.AddActorEffectByOffset(actor, g.settings.reload.effect, g.settings.reload.size,
+                                "MID", true, true);
+                        end
+                        if g.settings.reload.sound ~= "None" then
+                            imcSound.PlaySoundEvent(g.settings.reload.sound);
+                        end
+                    end
+                    gauge:SetColorTone("FFFF0000");
+                    g.reload = 1
+                elseif bufftype == 1112 and buff.over == buffData.max then
+                    if (IsBattleState(GetMyPCObject()) == 1) then
+                        if g.settings.reload.effect ~= "None" then
+                            effect.AddActorEffectByOffset(actor, g.settings.reload.effect, g.settings.reload.size,
+                                "MID", true, true);
+                        end
+                    end
+                    gauge:SetColorTone("FFFF0000");
+                elseif bufftype == 1112 and buff.over ~= buffData.max then
+                    if g.settings.reload.effect ~= "None" then
+                        effect.DetachActorEffect(actor, g.settings.reload.effect, 0);
+                    end
+                    gauge:SetColorTone(g.settings.reload.color);
+                    g.reload = 0
+                end
+
+                -- battlespirit
+                if bufftype == 1163 and buff.over == 8 then
+                    if g.settings.battlespirit8.effect ~= "None" then
+                        effect.AddActorEffectByOffset(actor, g.settings.battlespirit8.effect,
+                            g.settings.battlespirit8.size, "MID", true, true);
+                    end
+                    if g.settings.battlespirit8.sound ~= "None" then
+                        imcSound.PlaySoundEvent(g.settings.battlespirit8.sound);
+                    end
+                elseif bufftype == 1163 and buff.over == 10 then
+                    if g.settings.battlespirit8.effect ~= "None" then
+                        effect.DetachActorEffect(actor, g.settings.battlespirit8.effect, 0);
+                    end
+                    if g.settings.battlespirit10.effect ~= "None" then
+                        effect.AddActorEffectByOffset(actor, g.settings.battlespirit10.effect,
+                            g.settings.battlespirit10.size, "MID", true, true);
+                    end
+                    if g.settings.battlespirit10.sound ~= "None" then
+                        imcSound.PlaySoundEvent(g.settings.battlespirit10.sound);
+                    end
+                    gauge:SetColorTone("FFFF0000");
+
+                elseif bufftype == 1163 and buff.over < 8 then
+                    if g.settings.battlespirit8.effect ~= "None" then
+                        effect.DetachActorEffect(actor, g.settings.battlespirit8.effect, 0);
+                    end
+                    if g.settings.battlespirit10.effect ~= "None" then
+                        effect.DetachActorEffect(actor, g.settings.battlespirit10.effect, 0);
+                    end
+                    gauge:SetColorTone(g.settings.battlespirit10.color);
+
+                end
+
             end
+
         end
     end
 end
-
---[[function skill_notice_set_gauge(frame, myHandle, buffType, text, index, max)
-
-    local gauge = frame:CreateOrGetControl("gauge", "gauge" .. index, 5, 5, 180, 20);
-    AUTO_CAST(gauge)
-    local colortone = ""
-    local sound = "None"
-    local effect = "None"
-    local size = 0
-    if text == "Pyktis" then
-        colortone = g.settings.pyktis.color
-        sound = g.settings.pyktis.sound
-        effect = g.settings.pyktis.effect
-        size = g.settings.pyktis.size
-    elseif text == "Battle Spirit 8" then
-        colortone = g.settings.battlespirit8.color
-        sound = g.settings.battlespirit8.sound
-        effect = g.settings.battlespirit8.effect
-        size = g.settings.battlespirit8.size
-
-    elseif text == "Battle Spirit 10" then
-        colortone = g.settings.battlespirit10.color
-        sound = g.settings.battlespirit10.sound
-        effect = g.settings.battlespirit10.effect
-        size = g.settings.battlespirit10.size
-
-    elseif text == "Charge Arrow" then
-        colortone = g.settings.chargearrow.color
-        sound = g.settings.chargearrow.sound
-        effect = g.settings.chargearrow.effect
-        size = g.settings.chargearrow.size
-
-    elseif text == "Reload" then
-        colortone = g.settings.reload.color
-        sound = g.settings.reload.sound
-        effect = g.settings.reload.effect
-        size = g.settings.reload.size
-
-    end
-
-    local actor = world.GetActor(myHandle)
-    local buff = info.GetBuff(myHandle, buffType)
-
-    gauge:SetSkinName("gauge");
-    gauge:SetColorTone(colortone);
-    gauge:SetPoint(buff.over, max);
-    gauge:AddStat('{ol}{s20}%v/%m');
-    gauge:SetStatFont(0, 'quickiconfont');
-    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
-
-    if (buff ~= nil and buff:GetHandle() == session.GetMyHandle()) then
-
-        if (buff.over == 30) and g.buffmax == 0 then
-            if (IsBattleState(GetMyPCObject()) == 1) then
-
-                effect.AddActorEffectByOffset(actor, effectName, 3.0, "MID", true, true);
-                effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
-
-            end
-            gauge:SetSkinName("test_gauge_barrack_defence");
-            gauge:SetColorTone("FFFF0000");
-            g.buffmax = 1
-
-        elseif (buff.over == 30) and g.buffmax == 1 then
-            gauge:SetSkinName("test_gauge_barrack_defence");
-            gauge:SetColorTone("FFFF0000");
-        else
-            effect.DetachActorEffect(actor, effectName, 0);
-            gauge:SetSkinName("test_gauge_barrack_defence");
-            if g.buffup == 1 then
-                gauge:SetColorTone("FFFFFF00");
-            else
-                gauge:SetColorTone("FF0000FF");
-            end
-        end
-
-    end
-end
-
-]]
 
 function skill_notice_frame_init(frame)
-    print("frame_init")
+
     local frame = ui.GetFrame("skill_notice")
     frame:RemoveAllChild()
     frame:SetSkinName("chat_window");
-    frame:SetAlpha(50);
+    frame:SetAlpha(10);
     frame:SetTitleBarSkin("None")
     frame:EnableMove(1);
     frame:EnableHitTest(1)
@@ -299,14 +429,19 @@ function skill_notice_frame_init(frame)
     frame:Resize(200, 400);
     frame:SetEventScript(ui.LBUTTONUP, "skill_notice_end_drag")
     frame:SetEventScript(ui.RBUTTONUP, "skill_notice_setting")
-    -- frame:SetPos(500, 500)
 
     frame:SetPos(g.settings.x, g.settings.y)
-    -- frame:SetTextTooltip("Right-Click Settings")
 
-    local text = frame:CreateOrGetControl("richtext", "text", 0, 5, 250, 15)
-    AUTO_CAST(text)
-    text:SetText("{ol}{s12}Skill Notice")
+    local setting = frame:CreateOrGetControl("button", "setting", 220, 5, 20, 20)
+    AUTO_CAST(setting)
+    setting:SetSkinName("None");
+    setting:SetText("{img config_button_normal 20 20}")
+    setting:SetEventScript(ui.LBUTTONUP, "skill_notice_setting")
+    setting:SetTextTooltip("Skill Notice{nl}Left-Click Settings")
+
+    -- local text = frame:CreateOrGetControl("richtext", "text", 0, 5, 250, 15)
+    -- AUTO_CAST(text)
+    -- text:SetText("{ol}{s12}Skill Notice")
     -- text:SetEventScript(ui.RBUTTONUP, "skill_notice_setting")
     -- text:SetTextTooltip("Right-Click Settings")
 
@@ -350,17 +485,22 @@ function skill_notice_frame_init(frame)
                 local myHandle = session.GetMyHandle()
                 local actor = world.GetActor(myHandle)
                 local buff = info.GetBuff(myHandle, buffData.id)
-                print(tostring(buff))
+
                 gauge:SetSkinName("gauge");
                 gauge:SetColorTone(colortone);
                 if buff ~= nil then
                     gauge:SetPoint(buff.over, max);
+                    gauge:AddStat('{ol}{s20}%v/%m');
+                    gauge:SetStatFont(0, 'quickiconfont');
+                    gauge:SetStatOffset(0, 40, 0);
+                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 else
                     gauge:SetPoint(0, max);
+                    gauge:AddStat('{ol}{s20}%v/%m');
+                    gauge:SetStatFont(0, 'quickiconfont');
+                    gauge:SetStatOffset(0, 40, 0);
+                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 end
-                gauge:AddStat('{ol}{s20}%v/%m');
-                gauge:SetStatFont(0, 'quickiconfont');
-                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
 
                 local bufftext = buffgb:CreateOrGetControl("richtext", "bufftext" .. buffData.name, 0, y * 25 + 10, 230,
                     20)
@@ -389,7 +529,7 @@ end
 
 function skill_notice_end_drag(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("skill_notice")
-    print("test")
+
     g.settings.x = frame:GetX();
     g.settings.y = frame:GetY();
     skill_notice_save_settings()
@@ -399,10 +539,17 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
     local newframe = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "_new", 0, 0, 200, 400)
     AUTO_CAST(newframe)
     newframe:SetSkinName("test_frame_midle_light")
-    newframe:SetPos(g.settings.x, g.settings.y + 20)
+    newframe:SetPos(200, 300)
     newframe:SetLayerLevel(61);
     newframe:Resize(540, 440)
     newframe:RemoveAllChild()
+
+    local text = newframe:CreateOrGetControl("richtext", "text", 50, 5, 200, 20)
+    AUTO_CAST(text)
+    text:SetText("{ol}Skill Notice Setting")
+    -- text:SetEventScript(ui.RBUTTONUP, "skill_notice_setting")
+    -- text:SetTextTooltip("Right-Click Settings")
+
     local close = newframe:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
@@ -498,7 +645,7 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
 
             local displaycheck = newframe:CreateOrGetControl("checkbox", "displaycheck" .. index, 500, y + 30, 200, 20)
             AUTO_CAST(displaycheck)
-            displaycheck:SetTextTooltip("Check to display")
+            displaycheck:SetTextTooltip("Check to display{nl}Settings for each character")
             local LoginName = session.GetMySession():GetPCApc():GetName()
             displaycheck:SetCheck(g.settings[LoginName][buffData.name])
 
@@ -539,8 +686,7 @@ function skill_notice_ischeck(frame, ctrl, argStr, argNum)
 end
 
 function skill_notice_effect_size(frame, ctrl, argStr, argNum)
-    print(argStr)
-    print(tonumber(ctrl:GetText()))
+
     local size = tonumber(ctrl:GetText())
 
     if argStr == "Pyktis" then
@@ -569,25 +715,30 @@ function skill_notice_effect_test_size(argStr, size)
     local myHandle = session.GetMyHandle();
     local actor = world.GetActor(myHandle)
     local effectName
+    local sound
     if argStr == "Pyktis" then
 
         effectName = g.settings.pyktis.effect
-
+        sound = g.settings.pyktis.sound
     elseif argStr == "Battle Spirit 8" then
         effectName = g.settings.battlespirit8.effect
-
+        sound = g.settings.battlespirit8.sound
     elseif argStr == "Battle Spirit 10" then
         effectName = g.settings.battlespirit10.effect
-
+        sound = g.settings.battlespirit10.sound
     elseif argStr == "Charge Arrow" then
         effectName = g.settings.chargearrow.effect
-
+        sound = g.settings.chargearrow.sound
     elseif argStr == "Reload" then
         effectName = g.settings.reload.effect
-
+        sound = g.settings.reload.sound
     end
+
     effect.AddActorEffectByOffset(actor, effectName, size, "MID", true, true);
-    effect.DetachActorEffect(actor, effectName, 7.0);
+    effect.DetachActorEffect(actor, effectName, 5.0);
+    if sound ~= "None" then
+        imcSound.PlaySoundEvent(sound);
+    end
 
 end
 
@@ -607,39 +758,53 @@ end
 function skill_notice_effect_setting(argStr, effect)
 
     local effectName = tostring(effect)
-
-    -- effect.AddActorEffectByOffset(actor, effectName, 3.0, "MID", true, true);
+    local size = 0
+    local sound
 
     if argStr == "Pyktis" then
-        -- print(tostring(effectName) .. 1)
-        -- effect.AddActorEffectByOffset(actor, effectName, tonumber(g.settings.pyktis.size), "MID", true, true);
+
         g.settings.pyktis.effect = effect
+        size = g.settings.pyktis.size
+        sound = g.settings.pyktis.sound
 
     elseif argStr == "Battle Spirit 8" then
         g.settings.battlespirit8.effect = effect
-        -- effect.AddActorEffectByOffset(actor, effectName, 3.0, "MID", true, true);
+        size = g.settings.battlespirit8.size
+        sound = g.settings.battlespirit8.sound
+
     elseif argStr == "Battle Spirit 10" then
         g.settings.battlespirit10.effect = effect
-        -- effect.AddActorEffectByOffset(actor, effectName, g.settings.battlespirit10.size, "MID", true, true);
+        size = g.settings.battlespirit10.size
+        sound = g.settings.battlespirit10.sound
+
     elseif argStr == "Charge Arrow" then
         g.settings.chargearrow.effect = effect
-        -- effect.AddActorEffectByOffset(actor, effectName, g.settings.chargearrow.size, "MID", true, true);
+        size = g.settings.chargearrow.size
+        sound = g.settings.chargearrow.sound
+
     elseif argStr == "Reload" then
         g.settings.reload.effect = effect
-        -- effect.AddActorEffectByOffset(actor, effectName, g.settings.reload.size, "MID", true, true);
+        size = g.settings.reload.size
+        sound = g.settings.reload.sound
+
     end
     skill_notice_save_settings()
-    ReserveScript(string.format("skill_notice_effect_test('%s')", effectName), 0.1)
+    ReserveScript(string.format("skill_notice_effect_test('%s','%s',%d)", effectName, sound, size), 0.1)
 
 end
 
-function skill_notice_effect_test(effectName)
+function skill_notice_effect_test(effectName, sound, size)
+
     local myHandle = session.GetMyHandle();
     local actor = world.GetActor(myHandle)
-    effect.AddActorEffectByOffset(actor, effectName, tonumber(g.settings.pyktis.size), "MID", true, true);
-    effect.DetachActorEffect(actor, effectName, 7.0);
-    -- ReserveScript(string.format("skill_notice_effect_test_close('%s')", effectName), 3.0)
-    -- print(effectName)
+
+    effect.AddActorEffectByOffset(actor, effectName, tonumber(size), "MID", true, true);
+    effect.DetachActorEffect(actor, effectName, 5.0);
+
+    if sound ~= "None" then
+        imcSound.PlaySoundEvent(sound);
+    end
+
 end
 
 -- local myHandle = session.GetMyHandle();
