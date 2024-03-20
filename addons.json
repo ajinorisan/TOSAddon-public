@@ -45,7 +45,7 @@
 		"fileVersion" : "v3.0.2",
 		"releaseTag" : "warehousemanager",
 		"unicode" : "📖",
-		"description" : "基本倉庫が詰まるのを修正。Fixed basic warehouse getting clogged.기본 창고가 막히는 것을 수정.",
+		"description" : "Charbonさん作成。シルバーやアイテムを自動で搬出入。基本倉庫が詰まるのを修正。Created by Charbon. Automatic loading and unloading of silver and items. Fixed basic warehouse clogging. Charbon님이 작성했습니다. 실버와 아이템을 자동으로 반출입. 기본 창고가 막히는 것을 수정.",
 		"tags" : []
 	},
 	{
