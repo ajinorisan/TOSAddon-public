@@ -4,10 +4,12 @@
 -- v1.0.1 英語対応、装備裏表切替対応
 -- v1.0.2 必要ステータス表示
 -- v1.0.3 表示切替機能。インベントリにボタン付けた。
+-- v1.0.4 装備ボタンが非表示になるバグ修正。細かいところ色々変更
+-- v1.0.5 2ページ表示の場合に設定が即時反映されないバグ修正
 local addonName = "GODDESS_ICOR_MANAGER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1367,6 +1369,7 @@ function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
         goddess_icor_manager_frame_init()
         addon:RegisterMsg("GAME_START", "goddess_icor_manager_load_settings");
+        addon:RegisterMsg('ESCAPE_PRESSED', 'goddess_icor_manager_list_close');
         return;
     end
 
@@ -1391,6 +1394,7 @@ function goddess_icor_manager_frame_init()
 end
 
 function goddess_icor_manager_list_init(frame, ctrl, argStr, argNum)
+
     local frame = ui.GetFrame("goddess_icor_manager")
     frame:Resize(1430, 1060) -- 1000
     frame:SetOffset(0, 10) -- 0,20
@@ -1409,8 +1413,7 @@ function goddess_icor_manager_list_init(frame, ctrl, argStr, argNum)
 end
 
 function goddess_icor_manager_list_gb_init(frame, argNum)
-    -- print(tostring(argNum))
-    -- 
+
     local acc = GetMyAccountObj()
     local etc = GetMyEtcObject()
     local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
@@ -1423,13 +1426,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
     else
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
     end
-    -- print(tostring(page_max))
-    --[[for i = 1, page_max do
-        local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
-        if bg ~= nil then
-            frame:RemoveChild("bg" .. i)
-        end
-    end]]
+
     if g.settings.check == 0 then
         local right_btn = frame:CreateOrGetControl("button", "right_btn", 740, 1020, 30, 30)
         AUTO_CAST(right_btn)
@@ -1464,7 +1461,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 AUTO_CAST(pagename_text)
 
                 local pagename = goddess_icor_manager_get_pagename(i)
-                -- print(tostring("pagename"))
+
                 Y = Y + 283
 
                 if remain_time == 0 and tonumber(max_page) < i then
@@ -1539,7 +1536,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 -- pagename_text:SetText(pagename)
                 bg:SetSkinName("bg")
                 bg:ShowWindow(1)
-                -- print(tostring(argNum))
+
                 local manage_X = 0
                 for j = 1, #managed_list do
                     local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
@@ -1559,7 +1556,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
 
                     local option_prop, group_prop, value_prop, is_goddess_option =
                         goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
-                    -- print(tostring(option_prop))
+
                     if option_prop ~= nil then
                         for part in option_prop:gmatch("([^/]+)") do
                             table.insert(parts1, part)
@@ -1579,6 +1576,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 -- frame:Invalidate()
             end
         end
+        goddess_icor_manager_check()
     else
         local Y = 10
         local YY = 10
@@ -1646,8 +1644,6 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
 
                 end
 
-                -- print(savedPos .. "savea")
-
             elseif i >= 6 then
                 local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, YY, 500, 281, 490)
                 AUTO_CAST(bg)
@@ -1688,7 +1684,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
 
                     local option_prop, group_prop, value_prop, is_goddess_option =
                         goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
-                    -- print(tostring(option_prop))
+
                     if option_prop ~= nil then
                         for part in option_prop:gmatch("([^/]+)") do
                             table.insert(parts1, part)
@@ -1709,11 +1705,11 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
             end
 
         end
-
+        goddess_icor_manager_check()
         frame:Resize(1430, 1000)
     end
     -- end
-    goddess_icor_manager_check()
+
     if g.settings.check == 1 then
         goddess_icor_manager_set_pos(frame, page_max)
     end
@@ -1739,57 +1735,167 @@ function goddess_icor_manager_set_pos(frame, page_max)
 
 end
 function goddess_icor_manager_check()
-    -- print(i)
+
     local frame = ui.GetFrame("goddess_icor_manager")
     local equipframe = ui.GetFrame("goddess_icor_manager_newframe")
     local acc = GetMyAccountObj()
-    local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
-    local page_min = GET_MAX_ENGARVE_SLOT_COUNT(acc)
 
-    for i = 1, page_min do
-        local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
-        -- print(pagename_text:GetText())
-        local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
-        for j = 1, 8 do
-            local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
+    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
 
-            local equip_textcount = new_bg:GetChildCount() - 2
-            -- print(tostring(equip_textcount))
-            local equip_text = ""
-            for k = 1, equip_textcount do
-                local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
-                equip_text = equip_text .. text
+    local page_max = 0
+    if tonumber(remain_time) ~= 0 then
+
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+    else
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+
+    end
+
+    if g.settings.check ~= 0 then
+        for i = 1, page_max do
+            local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
+
+            local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+            for j = 1, 8 do
+                local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
+
+                local equip_textcount = new_bg:GetChildCount() - 2
+
+                local equip_text = ""
+                for k = 1, equip_textcount do
+                    local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
+                    equip_text = equip_text .. text
+                end
+                equip_text = equip_text:gsub("{[^}]+}", "")
+
+                local icor_text = ""
+                local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
+                if manage_bg ~= nil then
+                    local bg_textcount = manage_bg:GetChildCount() - 2
+
+                    for k = 1, bg_textcount do
+                        local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
+                        icor_text = icor_text .. text
+
+                    end
+                    icor_text = icor_text:gsub("{[^}]+}", "")
+
+                    if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
+                        local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
+                        -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
+                        star:SetText("{img monster_card_starmark 25 25}")
+                        star:SetOffset(230, 0)
+                    elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
+                        local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
+                        AUTO_CAST(equip_button)
+                        equip_button:SetText("{ol}{s14}E")
+                        equip_button:SetSkinName("test_red_button")
+                        equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
+                        equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
+                        equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                    end
+                end
             end
-            equip_text = equip_text:gsub("{[^}]+}", "")
+        end
+    else
+        local pagename_text1 = GET_CHILD_RECURSIVELY(frame, "pagename_text1")
 
-            -- print(tostring(equip_text))
+        if pagename_text1 ~= nil then
+            local page = math.min(5, page_max)
+            for i = 1, page do
+                local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
 
-            local icor_text = ""
-            local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
-            if manage_bg ~= nil then
-                local bg_textcount = manage_bg:GetChildCount() - 2
+                local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+                for j = 1, 8 do
+                    local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
 
-                for k = 1, bg_textcount do
-                    local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
-                    icor_text = icor_text .. text
+                    local equip_textcount = new_bg:GetChildCount() - 2
 
+                    local equip_text = ""
+                    for k = 1, equip_textcount do
+                        local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
+                        equip_text = equip_text .. text
+                    end
+                    equip_text = equip_text:gsub("{[^}]+}", "")
+
+                    local icor_text = ""
+                    local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
+                    if manage_bg ~= nil then
+                        local bg_textcount = manage_bg:GetChildCount() - 2
+
+                        for k = 1, bg_textcount do
+                            local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
+                            icor_text = icor_text .. text
+
+                        end
+                        icor_text = icor_text:gsub("{[^}]+}", "")
+
+                        if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
+                            local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
+                            -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
+                            star:SetText("{img monster_card_starmark 25 25}")
+                            star:SetOffset(230, 0)
+                        elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
+
+                            local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
+                            AUTO_CAST(equip_button)
+                            equip_button:SetText("{ol}{s14}E")
+                            equip_button:SetSkinName("test_red_button")
+                            equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
+                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
+                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+
+                        end
+                    end
                 end
-                icor_text = icor_text:gsub("{[^}]+}", "")
 
-                if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
-                    local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
-                    -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
-                    star:SetText("{img monster_card_starmark 25 25}")
-                    star:SetOffset(230, 0)
-                elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
-                    local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
-                    AUTO_CAST(equip_button)
-                    equip_button:SetText("{ol}{s14}E")
-                    equip_button:SetSkinName("test_red_button")
-                    equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
-                    equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
-                    equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+            end
+        else
+            for i = 6, page_max do
+                local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
+
+                local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+                for j = 1, 8 do
+                    local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
+
+                    local equip_textcount = new_bg:GetChildCount() - 2
+
+                    local equip_text = ""
+                    for k = 1, equip_textcount do
+                        local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
+                        equip_text = equip_text .. text
+                    end
+                    equip_text = equip_text:gsub("{[^}]+}", "")
+
+                    local icor_text = ""
+                    local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
+                    if manage_bg ~= nil then
+                        local bg_textcount = manage_bg:GetChildCount() - 2
+
+                        for k = 1, bg_textcount do
+                            local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
+                            icor_text = icor_text .. text
+
+                        end
+                        icor_text = icor_text:gsub("{[^}]+}", "")
+
+                        if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
+                            local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
+                            -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
+                            star:SetText("{img monster_card_starmark 25 25}")
+                            star:SetOffset(230, 0)
+                        elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
+                            local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
+                            AUTO_CAST(equip_button)
+                            equip_button:SetText("{ol}{s14}E")
+                            equip_button:SetSkinName("test_red_button")
+                            equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
+                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
+                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                        end
+                    end
                 end
+
             end
         end
     end
@@ -1837,9 +1943,9 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
             end
             local slot = GET_CHILD(ctrlset, 'slot')
             AUTO_CAST(slot)
-            -- print(tostring(slot))
+
             local guid = slot:GetUserValue('ITEM_GUID')
-            -- print(tostring(guid))
+
             if guid ~= 'None' then
                 session.AddItemID(guid, 1)
                 arg_list:Add(slot_info.SlotName)
@@ -1863,12 +1969,33 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
     item.DialogTransaction('ICOR_PRESET_ENGRAVE_APPLY', result_list, '', arg_list)
 
     local icorframe = ui.GetFrame("goddess_icor_manager")
-    icorframe:RemoveAllChild()
+    -- icorframe:RemoveAllChild()
     local icornewframe = ui.GetFrame("goddess_icor_manager_newframe")
-    icornewframe:RemoveAllChild()
-    ui.CloseFrame("goddess_icor_manager")
-    ui.CloseFrame("goddess_icor_manager_newframe")
+    -- icornewframe:RemoveAllChild()
+    local acc = GetMyAccountObj()
+    local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+
+    -- goddess_icor_manager_set_pos(icorframe, page_max)
+    -- ui.CloseFrame("goddess_icor_manager")
+    -- ui.CloseFrame("goddess_icor_manager_newframe")
+    if g.settings.check == 1 then
+        for i = 1, page_max do
+            local bg = GET_CHILD_RECURSIVELY(icorframe, "bg" .. i)
+            AUTO_CAST(bg)
+            local curpos = bg:GetScrollCurPos();
+            if curpos == 514 then
+                curpos = 0
+            end
+            g.settings[tostring(i)] = curpos
+            goddess_icor_manager_save_settings()
+            -- bg:RemoveChild()
+        end
+    end
+    -- icorframe:Invalidate()
+    -- icornewframe:Invalidate()
+    -- ReserveScript(" goddess_icor_manager_check()", 0.3)
     ReserveScript("goddess_icor_manager_list_init()", 0.5)
+    -- goddess_icor_manager_list_init()
     -- goddess_icor_manager_check()
 end
 function goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
@@ -2027,7 +2154,10 @@ function goddess_icor_manager_check_save(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
     g.settings.check = ischeck
     goddess_icor_manager_save_settings()
-    -- print(ischeck)
+    local frame = ui.GetFrame("goddess_icor_manager")
+
+    ReserveScript("goddess_icor_manager_list_init()", 0.5)
+
 end
 
 function goddess_icor_manager_load_settings()
@@ -2136,9 +2266,7 @@ function goddess_icor_manager_newframe_init()
         local item_obj = GetIES(inv_item:GetObject())
         local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
         local size = item_dic["Size"]
-        -- print(tostring(size))
-        -- print(tostring(item_obj.ClassID))
-        -- return
+
         local jx = 25
         if size ~= 0 then
             for j = 1, size do
@@ -2157,13 +2285,12 @@ function goddess_icor_manager_newframe_init()
                 local color = goddess_icor_manager_color(tostring(group))
                 -- option:SetText("{ol}" .. color .. goddess_icor_manager_language(parts1[k]) .. "{ol}{#FFFFFF} : " ..
                 --                   "{ol}{#FFFFFF}" .. parts3[k])
-                -- print(tostring(ClMsg(option)))
+
                 text:SetText("{ol}" .. color .. goddess_icor_manager_language(option) .. "{#FFFFFF} : " .. value) -- aa
                 -- text:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
                 -- text:SetTextTooltip(goddess_icor_manager_language(option) .. " : " .. value)
                 jx = jx + 20
 
-                -- print(formatted)
             end
             local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
             local colortone = goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
@@ -2199,12 +2326,12 @@ function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str
 
     if language == "Japanese" then
         local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
-        -- print(tostring(child_title))
+
         local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 30 - 20)
         titletext:SetText("{ol}" .. child_title)
 
         local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
-        -- print(tostring(child_stat))
+
         local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 240, index * 30 - 20)
 
         if index <= 4 or (index >= 9 and index <= 13) then
@@ -2219,12 +2346,12 @@ function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str
         end
     else
         local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
-        -- print(tostring(child_title))
+
         local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 45 - 30)
         titletext:SetText("{ol}" .. child_title)
 
         local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
-        -- print(tostring(child_stat))
+
         local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 200, index * 45 - 10)
 
         local line = status_bg:CreateOrGetControl("labelline", "line" .. index, 10, index * 45 + 7, 455, 5)
@@ -2333,7 +2460,7 @@ function goddess_icor_manager_equip()
 end
 
 function goddess_icor_manager_unequip(frame, num)
-    -- print(num)
+
     local invTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     invTab:SelectTab(1)
     if true == BEING_TRADING_STATE() then
@@ -2370,8 +2497,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
-                    -- slot:SetText("")
+
                     if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
 
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
@@ -2392,8 +2518,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
-                    -- slot:SetText("")
+
                     if string.find(text, " LV500") == nil then
 
                         slot:SetText(text .. "{ol} LV500")
@@ -2414,8 +2539,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
-                    -- slot:SetText("")
+
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
 
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
@@ -2436,8 +2560,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
-                    -- slot:SetText("")
+
                     if string.find(text, " LV480") == nil then
 
                         slot:SetText(text .. "{ol} LV480")
@@ -2459,7 +2582,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
+
                     if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
                     end
@@ -2479,7 +2602,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
+
                     if string.find(text, " LV500") == nil then
                         slot:SetText(text .. "{ol} LV500")
                     end
@@ -2499,7 +2622,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
+
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
                     end
@@ -2519,7 +2642,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-                    -- print(tostring(text))
+
                     if string.find(text, " LV480") == nil then
                         slot:SetText(text .. "{ol} LV480")
                     end
@@ -2561,8 +2684,6 @@ function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
 
     return option_prop, group_prop, value_prop, is_goddess_option
 end
-
--- print(tostring(ClMsg("ADD_MATK")))
 
 function goddess_icor_manager_list_close(frame)
     local frame = ui.GetFrame("goddess_icor_manager")
