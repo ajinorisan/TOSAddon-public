@@ -26,6 +26,8 @@ https://twitter.com/ToSJP_rada
 
 　
 
+v1.0.1 エフェクト重ね掛けになるバグ修正。
+
 v1.0.0 公開。
 　
 

@@ -1,7 +1,8 @@
+-- v1.0.1 エフェクト重ね掛けバグ修正
 local addonName = "SKILL_NOTICE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -239,7 +240,7 @@ function skill_notice_buff_remove(frame, msg, argStr, argNum)
                     effect.DetachActorEffect(actor, g.settings.battlespirit10.effect, 0);
                 end
                 gauge:SetColorTone(g.settings.battlespirit10.color);
-
+                g.battlespirit10max = 0
             end
 
         end
@@ -300,6 +301,7 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                 -- pyktis
                 if bufftype == 1158 and buff.over == buffData.max and g.pyktismax == 0 then
                     if g.settings.pyktis.effect ~= "None" then
+                        -- effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
                         effect.AddActorEffectByOffset(actor, g.settings.pyktis.effect, g.settings.pyktis.size, "MID",
                             true, true);
                     end
@@ -308,12 +310,13 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                     end
                     gauge:SetColorTone("FFFF0000");
                     g.pyktismax = 1
-                elseif bufftype == 1158 and buff.over == buffData.max then
+                    --[[elseif bufftype == 1158 and buff.over == buffData.max then
                     if g.settings.pyktis.effect ~= "None" then
+                        effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
                         effect.AddActorEffectByOffset(actor, g.settings.pyktis.effect, g.settings.pyktis.size, "MID",
                             true, true);
                     end
-                    gauge:SetColorTone("FFFF0000");
+                    gauge:SetColorTone("FFFF0000");]]
                 elseif bufftype == 1158 and buff.over ~= buffData.max then
                     if g.settings.pyktis.effect ~= "None" then
                         effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
@@ -325,6 +328,7 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                 -- chargearrow
                 if bufftype == 1164 and buff.over == buffData.max and g.chargearrow == 0 then
                     if g.settings.chargearrow.effect ~= "None" then
+
                         effect.AddActorEffectByOffset(actor, g.settings.chargearrow.effect, g.settings.chargearrow.size,
                             "MID", true, true);
                     end
@@ -333,12 +337,12 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                     end
                     gauge:SetColorTone("FFFF0000");
                     g.chargearrow = 1
-                elseif bufftype == 1164 and buff.over == buffData.max then
+                    --[[elseif bufftype == 1164 and buff.over == buffData.max then
                     if g.settings.chargearrow.effect ~= "None" then
                         effect.AddActorEffectByOffset(actor, g.settings.chargearrow.effect, g.settings.chargearrow.size,
                             "MID", true, true);
                     end
-                    gauge:SetColorTone("FFFF0000");
+                    gauge:SetColorTone("FFFF0000");]]
                 elseif bufftype == 1164 and buff.over ~= buffData.max then
                     if g.settings.chargearrow.effect ~= "None" then
                         effect.DetachActorEffect(actor, g.settings.chargearrow.effect, 0);
@@ -352,6 +356,7 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                 if bufftype == 1112 and buff.over == buffData.max and g.reload == 0 then
                     if (IsBattleState(GetMyPCObject()) == 1) then
                         if g.settings.reload.effect ~= "None" then
+
                             effect.AddActorEffectByOffset(actor, g.settings.reload.effect, g.settings.reload.size,
                                 "MID", true, true);
                         end
@@ -361,14 +366,15 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                     end
                     gauge:SetColorTone("FFFF0000");
                     g.reload = 1
-                elseif bufftype == 1112 and buff.over == buffData.max then
+                    --[[elseif bufftype == 1112 and buff.over == buffData.max then
                     if (IsBattleState(GetMyPCObject()) == 1) then
                         if g.settings.reload.effect ~= "None" then
+                           
                             effect.AddActorEffectByOffset(actor, g.settings.reload.effect, g.settings.reload.size,
                                 "MID", true, true);
                         end
                     end
-                    gauge:SetColorTone("FFFF0000");
+                    gauge:SetColorTone("FFFF0000");]]
                 elseif bufftype == 1112 and buff.over ~= buffData.max then
                     if g.settings.reload.effect ~= "None" then
                         effect.DetachActorEffect(actor, g.settings.reload.effect, 0);
@@ -386,7 +392,7 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                     if g.settings.battlespirit8.sound ~= "None" then
                         imcSound.PlaySoundEvent(g.settings.battlespirit8.sound);
                     end
-                elseif bufftype == 1163 and buff.over == 10 then
+                elseif bufftype == 1163 and buff.over == 10 and g.battlespirit10max == 0 then
                     if g.settings.battlespirit8.effect ~= "None" then
                         effect.DetachActorEffect(actor, g.settings.battlespirit8.effect, 0);
                     end
@@ -398,6 +404,7 @@ function skill_notice_buff_update(frame, msg, argStr, argNum)
                         imcSound.PlaySoundEvent(g.settings.battlespirit10.sound);
                     end
                     gauge:SetColorTone("FFFF0000");
+                    g.battlespirit10max = 1
 
                 elseif bufftype == 1163 and buff.over < 8 then
                     if g.settings.battlespirit8.effect ~= "None" then
