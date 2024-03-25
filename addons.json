@@ -72,10 +72,10 @@
 		"name" : "Indun List Viewer",
 		"file" : "indun_list_viewer",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.8",
+		"fileVersion" : "v1.0.9",
 		"releaseTag" : "indun_list_viewer",
 		"unicode" : "⛄",
-		"description" : "週初めの処理バグってたの修正。レイドの消化状況を一覧表示します。スタート時の負荷軽減。Fixed a processing bug at the beginning of the week.Lists raid digests.Reduction of load at the start.주초 처리 버그 수정.레이드 소화 상태를 나열합니다.시동 시 부하 감소.",
+		"description" : "レイドの消化状況を一覧表示します。instantccアドオンを入れていると職アイコンクリックでCCします。List raid digests. cc by clicking on the job icon if you have the instantcc add-on.레이드 소화 현황을 나열하며, instantcc 애드온을 넣었다면 직업 아이콘 클릭으로 CC를 합니다.",
 		"tags" : []
 	},
 	{
