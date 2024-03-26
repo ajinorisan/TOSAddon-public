@@ -1,8 +1,9 @@
 -- v1.0.1 エフェクト重ね掛けバグ修正
+-- v1.0.2 ゲージ短くした。サイズ入力の時に空白とか文字入れたらバグってたの修正。
 local addonName = "SKILL_NOTICE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -15,7 +16,7 @@ local acutil = require("acutil")
 local json = require('json')
 
 local base = {}
--- icon_guild_boss_dragoon_ex
+
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
@@ -428,7 +429,7 @@ function skill_notice_frame_init(frame)
     local frame = ui.GetFrame("skill_notice")
     frame:RemoveAllChild()
     frame:SetSkinName("chat_window");
-    frame:SetAlpha(10);
+    frame:SetAlpha(20);
     frame:SetTitleBarSkin("None")
     frame:EnableMove(1);
     frame:EnableHitTest(1)
@@ -439,7 +440,7 @@ function skill_notice_frame_init(frame)
 
     frame:SetPos(g.settings.x, g.settings.y)
 
-    local setting = frame:CreateOrGetControl("button", "setting", 220, 5, 20, 20)
+    local setting = frame:CreateOrGetControl("button", "setting", 150, 5, 20, 20)
     AUTO_CAST(setting)
     setting:SetSkinName("None");
     setting:SetText("{img config_button_normal 20 20}")
@@ -452,7 +453,7 @@ function skill_notice_frame_init(frame)
     -- text:SetEventScript(ui.RBUTTONUP, "skill_notice_setting")
     -- text:SetTextTooltip("Right-Click Settings")
 
-    local buffgb = frame:CreateOrGetControl('groupbox', "buffgb", 0, 20, 250, 25);
+    local buffgb = frame:CreateOrGetControl('groupbox', "buffgb", 0, 20, 190, 25);
     buffgb:SetSkinName("None");
     buffgb:RemoveAllChild()
 
@@ -472,7 +473,7 @@ function skill_notice_frame_init(frame)
 
         if index ~= 2 then
             if g.settings[LoginName][buffData.name] == 1 then
-                local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buffData.name, 10, y * 25 + 10, 230, 20);
+                local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buffData.name, 10, y * 25 + 10, 160, 20);
                 AUTO_CAST(gauge)
 
                 if buffData.text == "Pyktis" then
@@ -499,17 +500,17 @@ function skill_notice_frame_init(frame)
                     gauge:SetPoint(buff.over, max);
                     gauge:AddStat('{ol}{s20}%v/%m');
                     gauge:SetStatFont(0, 'quickiconfont');
-                    gauge:SetStatOffset(0, 40, 0);
+                    gauge:SetStatOffset(0, 20, 0);
                     gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 else
                     gauge:SetPoint(0, max);
                     gauge:AddStat('{ol}{s20}%v/%m');
                     gauge:SetStatFont(0, 'quickiconfont');
-                    gauge:SetStatOffset(0, 40, 0);
+                    gauge:SetStatOffset(0, 20, 0);
                     gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 end
 
-                local bufftext = buffgb:CreateOrGetControl("richtext", "bufftext" .. buffData.name, 0, y * 25 + 10, 230,
+                local bufftext = buffgb:CreateOrGetControl("richtext", "bufftext" .. buffData.name, 0, y * 25 + 10, 160,
                     20)
                 AUTO_CAST(bufftext)
 
@@ -528,8 +529,8 @@ function skill_notice_frame_init(frame)
         end
     end
 
-    buffgb:Resize(250, y * 25 + 30)
-    frame:Resize(250, y * 25 + 30)
+    buffgb:Resize(180, y * 25 + 30)
+    frame:Resize(180, y * 25 + 30)
     frame:ShowWindow(1);
 
 end
@@ -695,6 +696,10 @@ end
 function skill_notice_effect_size(frame, ctrl, argStr, argNum)
 
     local size = tonumber(ctrl:GetText())
+    if size == nil then
+        ui.SysMsg("The entered text is not numeric.{nl}入力された文字が数値ではないです。")
+        return
+    end
 
     if argStr == "Pyktis" then
 
