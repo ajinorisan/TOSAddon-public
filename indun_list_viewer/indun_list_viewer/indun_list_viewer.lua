@@ -8,10 +8,11 @@
 -- v1.0.7 アップデートだと正常に動くけどクリーンインストールだとおそらく動かなかったのを修正。
 -- v1.0.8 メレジナ掃討の誤字修正。仕方ない人間だもの。のりお
 -- v1.0.9 ICC入れてる時に職アイコンでCC出来る様に。自前でキャラ順並べる様に。
+-- v1.1.0 ICCあるなし判定バグってたの修正
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -19,7 +20,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-g.settingsFileLoc_new = string.format('../addons/%s/settings_new.json', addonNameLower)
+
 g.logpath = string.format('../addons/%s/log.txt', addonNameLower)
 
 local acutil = require("acutil")
@@ -205,17 +206,20 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
 
         addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
+
         addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
+
         addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
+
         addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_count_loginname")
-        if _G["ADDONS"]["ebisuke"]["INSTANTCC"] then
+
+        local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+        if type(_G[functionName]) == "function" then
+            -- print(functionName .. " 関数は定義されています。")
+
             addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_instantcc")
         else
-
-            --[[if g.layer == nil then
-                g.layer = 9
-            end]]
-
+            -- print(functionName .. " 関数は定義されていません。")
             g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
 
             local accountInfo = session.barrack.GetMyAccount();
@@ -237,17 +241,10 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
                 end
             end
             indun_list_viewer_save_settings()
+
         end
 
     end
-    -- print(g.first)
-    --[[local accountInfo = session.barrack.GetMyAccount()
-    local cnt = accountInfo:GetBarrackPCCount()
-    for i = 0, cnt - 1 do
-        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
-        local pcName = pcInfo:GetName()
-        print(tostring(pcName))
-    end]]
 
 end
 
@@ -392,7 +389,7 @@ function indun_list_viewer_raid_reset()
     for i = 0, cnt - 1 do
         local pcInfo = accountInfo:GetBarrackPCByIndex(i)
         local pcName = pcInfo:GetName()
-        -- print(tostring(pcName))
+
         for _, charData in pairs(g.settings.charactors) do
             if charData.name == pcName then
                 charData.raid_count = {
@@ -652,8 +649,7 @@ function indun_list_viewer_title_frame_open()
 end
 
 function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
-    -- print("CID:" .. cid)
-    -- print("Layer:" .. layer)
+
     local frame = ui.GetFrame("indun_list_viewer")
     frame:ShowWindow(0)
     INSTANTCC_DO_CC(cid, layer)
@@ -687,17 +683,22 @@ function indun_list_viewer_frame_open(icframe)
     for _, charData in ipairs(g.settings.charactors) do
 
         local pcName = charData.name
+
         local jobList, level, lastJobID = GetJobListFromAdventureBookCharData(pcName);
         local lastJobCls = GetClassByType("Job", lastJobID);
         local lastJobIcon = TryGetProp(lastJobCls, "Icon");
         local jobslot = gb:CreateOrGetControl("slot", "jobslot" .. pcName, 5, x - 4, 25, 25)
         AUTO_CAST(jobslot)
         jobslot:SetSkinName("None");
+        jobslot:EnableHitTest(1)
+        jobslot:EnablePop(0)
 
         local jobicon = CreateIcon(jobslot);
         jobicon:SetImage(lastJobIcon)
 
-        if _G["ADDONS"]["ebisuke"]["INSTANTCC"] then
+        local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+        if type(_G[functionName]) == "function" then
+
             local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
             ic.settingsFileLoc = string.format('../addons/%s/settings.json', "instantcc")
             ic.settings = acutil.loadJSON(ic.settingsFileLoc, ic.settings)
@@ -705,41 +706,28 @@ function indun_list_viewer_frame_open(icframe)
 
             for _, char in pairs(charactors) do
                 if char.name == pcName then
-                    jobslot:EnableHitTest(1)
-                    jobslot:EnablePop(0)
-                    --[[print("Job:" .. char.job)
-                print("Gender:" .. char.gender)
-                print("Level:" .. char.level)
-                print("Order:" .. char.order)
-                print("--------------")]]
+
                     jobicon:SetTextTooltip(
                         "Click on the icon to change the character.{nl}アイコンクリックでキャラクターチェンジします")
                     jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
-                    -- print("Name:" .. char.name)
-                    jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, char.cid)
-                    -- print("CID:" .. char.cid)
-                    jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, char.layer)
 
-                    -- print("Layer:" .. char.layer)
-                    -- return
+                    jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, char.cid)
+
+                    jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, char.layer)
                 end
             end
-            --[[ for i = 1, #ic.settings.charactors do
-                jobicon:SetEventScript(ui.LBUTTONUP, "INSTANTCC_DO_CC")
-                jobicon:SetEventScriptArgString(ui.LBUTTONUP, char.cid)
-                jobicon:SetEventScriptArgNumber(ui.LBUTTONUP, char.layer)
-            end]]
+
         end
 
         local name = gb:CreateOrGetControl("richtext", charData.name, 35, x)
         AUTO_CAST(name)
-        -- for _, char in pairs(charactors) do
+
         if myCharName == pcName then
             name:SetText("{ol}{#FF4500}" .. pcName)
         else
             name:SetText("{ol}" .. pcName)
         end
-        -- end
+
         local line = gb:CreateOrGetControl("labelline", "line" .. pcName, 30, x - 7, 750 + 70, 2)
         line:SetSkinName("labelline_def_3")
         if charData.check == 0 then
