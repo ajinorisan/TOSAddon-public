@@ -9,10 +9,11 @@
 -- v1.0.8 メレジナ掃討の誤字修正。仕方ない人間だもの。のりお
 -- v1.0.9 ICC入れてる時に職アイコンでCC出来る様に。自前でキャラ順並べる様に。
 -- v1.1.0 ICCあるなし判定バグってたの修正
+-- v1.1.1 一部のユーザーで開く時重いの修正したい。僕はならない。なんでや。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -148,6 +149,22 @@ function indun_list_viewer_load_settings()
     indun_list_viewer_save_settings()
 end
 
+local function sortByLayerAndOrder(a, b)
+    if a.layer ~= b.layer then
+        return a.layer < b.layer
+    else
+        return a.order < b.order
+    end
+end
+
+--[[local function sortCharactors(a, b)
+    if a.layer == b.layer then
+        return a.order < b.order
+    else
+        return a.layer < b.layer
+    end
+end]]
+
 function indun_list_viewer_instantcc()
     local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
     ic.settingsFileLoc = string.format('../addons/%s/settings.json', "instantcc")
@@ -161,6 +178,7 @@ function indun_list_viewer_instantcc()
                 -- 同じ名前が見つかった場合、上書き
                 gChar.layer = icChar.layer
                 gChar.order = icChar.order
+                gChar.cid = icChar.cid
                 found = true
                 break
             end
@@ -172,16 +190,9 @@ function indun_list_viewer_instantcc()
             gChar.order = 99
         end
     end
-    local function sortCharactors(a, b)
-        if a.layer == b.layer then
-            return a.order < b.order
-        else
-            return a.layer < b.layer
-        end
-    end
 
     -- ソートを実行
-    table.sort(g.settings.charactors, sortCharactors)
+    table.sort(g.settings.charactors, sortByLayerAndOrder)
 
     indun_list_viewer_save_settings()
     -- indun_list_viewer_load_settings()
@@ -206,11 +217,8 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
 
         addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
-
         addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
-
         addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
-
         addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_count_loginname")
 
         local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
@@ -232,6 +240,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
                 for index, charData in ipairs(g.settings.charactors) do
 
                     if charData.name == pcName then
+                        g.settings.charactors[index].cid = pcCid
                         -- print(pcName .. ":" .. charData.layer .. ":" .. charData.order)
                         g.settings.charactors[index].order = i
                         if g.layer ~= nil and g.layer ~= g.settings.charactors[index].layer then
@@ -240,6 +249,8 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
                     end
                 end
             end
+
+            table.sort(g.settings.charactors, sortByLayerAndOrder)
             indun_list_viewer_save_settings()
 
         end
@@ -637,8 +648,11 @@ function indun_list_viewer_title_frame_open()
     ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
     local memo_text = titlegb:CreateOrGetControl("richtext", "memo_text", 650 + 70, 35)
+    AUTO_CAST(memo_text)
     memo_text:SetText("{ol}Memo")
+
     local display_text = titlegb:CreateOrGetControl("richtext", "display_text", 720 + 70, 35)
+    AUTO_CAST(display_text)
     display_text:SetText("{ol}Display")
     display_text:SetTextTooltip(
         "チェックしたキャラはレイド回数非表示{nl}Checked characters hide raid count")
@@ -665,16 +679,8 @@ function indun_list_viewer_frame_open(icframe)
 
     -- icframe:Resize(800 + 70, 1000 + 70)
     -- gb:Resize(800 + 70, 1000 + 15)
-    local function sortByLayerAndOrder(a, b)
-        if a.layer ~= b.layer then
-            return a.layer < b.layer
-        else
-            return a.order < b.order
-        end
-    end
 
     -- g.settings.charactorsをlayerとorderで昇順にソートする
-    table.sort(g.settings.charactors, sortByLayerAndOrder)
 
     local myHandle = session.GetMyHandle();
     local myCharName = info.GetName(myHandle)
@@ -699,23 +705,23 @@ function indun_list_viewer_frame_open(icframe)
         local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
 
-            local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
+            --[[local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
             ic.settingsFileLoc = string.format('../addons/%s/settings.json', "instantcc")
             ic.settings = acutil.loadJSON(ic.settingsFileLoc, ic.settings)
-            local charactors = ic.settings.charactors
+            local charactors = ic.settings.charactors]]
 
-            for _, char in pairs(charactors) do
-                if char.name == pcName then
+            -- for _, char in pairs(charactors) do
+            if charData.name == pcName then
 
-                    jobicon:SetTextTooltip(
-                        "Click on the icon to change the character.{nl}アイコンクリックでキャラクターチェンジします")
-                    jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
+                jobicon:SetTextTooltip(
+                    "Click on the icon to change the character.{nl}アイコンクリックでキャラクターチェンジします")
+                jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
 
-                    jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, char.cid)
+                jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, charData.cid)
 
-                    jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, char.layer)
-                end
+                jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, charData.layer)
             end
+            -- end
 
         end
 
