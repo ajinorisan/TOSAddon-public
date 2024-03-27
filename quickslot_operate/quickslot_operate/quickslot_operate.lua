@@ -5,10 +5,11 @@
 -- v1.0.4 加護ポ持ってない時に切り替わらないバグ修正。
 -- v1.0.5 メレジナ野獣になってたの悪魔に修正。
 -- v1.0.6 コード見直し
+-- v1.0.7 クイックスロットにアイコン入ってたら変わる様に設定。今回は失敗しないハズ。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -57,7 +58,8 @@ local down_potion_list = {
 }
 
 local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyForest", "Raid_AbyssalObserver",
-                   "raid_Jellyzele", "raId_castle_ep14", "raid_giltine_AutoGuild", "raid_dcapital_108"}
+                   "raid_Jellyzele", "raId_castle_ep14", "raid_giltine_AutoGuild", "raid_dcapital_108",
+                   "raid_kivotos_island"}
 
 -- raid_Rosethemisterable roze
 -- raid_castle_ep14_2 ファロプロゲ
@@ -93,7 +95,6 @@ function quickslot_operate_change_potion()
     g.induntype = 0
 
     local potion_id = potion_list[group_name]
-
     local down_potion_id = down_potion_list[group_name]
 
     quickslot_operate_get_potion(potion_id, down_potion_id)
@@ -109,9 +110,9 @@ function quickslot_operate_SHOW_INDUNENTER_DIALOG()
 
     local down_potion_id = down_potion_list[group_name]
 
-    if potion_id ~= nil then
+    if potion_id ~= nil or down_potion_id ~= nil then
 
-        quickslot_operate_get_potion(potion_id, down_potion_id)
+        ReserveScript(string.format("quickslot_operate_get_potion(%d, %d)", potion_id, down_potion_id), 0.5)
 
     end
 end
@@ -130,7 +131,7 @@ function quickslot_operate_GetGroupName(induntype)
 end
 
 function quickslot_operate_get_potion(potion_id, down_potion_id)
-
+    -- print(potion_id .. ":" .. down_potion_id)
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList();
     local cnt = guidList:Count();
@@ -148,7 +149,7 @@ function quickslot_operate_get_potion(potion_id, down_potion_id)
             quickslot_operate_check_all_slots(potion_id, down_potion_id)
             session.ResetItemList()
 
-            return
+            -- return
         end
         -- 
     end
@@ -162,7 +163,7 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
         return
     end
 
-    local potion_info = session.GetInvItemByType(potion_id);
+    --[[local potion_info = session.GetInvItemByType(potion_id);
     if potion_info ~= nil then
 
         local potion_item = GET_PC_ITEM_BY_GUID(potion_info:GetIESID())
@@ -174,45 +175,38 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
         local down_potion_item = GET_PC_ITEM_BY_GUID(down_potion_info:GetIESID())
         local down_potion_obj = GetIES(down_potion_item:GetObject())
-    end
+    end]]
     local slotCount = 40
 
     for i = 0, slotCount - 1 do
         local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
         -- AUTO_CAST(slot)
         local quickSlotInfo = quickslot.GetInfoByIndex(i);
+
         local icon = slot:GetIcon()
-
         if icon ~= nil then
-            local iconInfo = icon:GetInfo()
-            local invItem = GET_PC_ITEM_BY_GUID(iconInfo:GetIESID())
+            local iconinfo = icon:GetInfo()
 
-            if invItem ~= nil then
+            local classid = iconinfo.type
 
-                local obj = GetIES(invItem:GetObject())
-                local classid = obj.ClassID
+            for group, id in pairs(potion_list) do
+                if id == classid then
+                    local potion_iesid = iconinfo:GetIESID()
+                    SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, _, 0, true, true)
+                    icon:SetDumpArgNum(i);
+                    break
 
-                for group, id in pairs(potion_list) do
-                    if id == classid then
-                        local potion_iesid = potion_info:GetIESID()
-                        SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, potion_iesid, 0, true, true)
-                        icon:SetDumpArgNum(i);
-                        break
-
-                    end
                 end
+            end
 
-                for group, id in pairs(down_potion_list) do
-                    if id == classid then
-                        local down_potion_iesid = down_potion_info:GetIESID()
-                        SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, down_potion_iesid, 0, true,
-                                       true)
-                        icon:SetDumpArgNum(i);
-                        break
+            for group, id in pairs(down_potion_list) do
+                if id == classid then
+                    local down_potion_iesid = iconinfo:GetIESID()
+                    SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, _, 0, true, true)
+                    icon:SetDumpArgNum(i);
+                    break
 
-                    end
                 end
-
             end
 
         end

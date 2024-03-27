@@ -52,10 +52,10 @@
 		"name" : "Quickslot Operate",
 		"file" : "quickslot_operate",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.6",
+		"fileVersion" : "v1.0.7",
 		"releaseTag" : "quickslot_operate",
 		"unicode" : "⛄",
-		"description" : "メレジナ対応。レイド選択時とMAP入場時のハイブリッド動作に。レイド毎に女神ポーションを切替えます。Merezina support.Hybrid behavior when selecting a raid and entering a MAP.Switch goddess potions for each id.MAP 멜레지나 대응.레이드 선택시와 MAP 입장시의 하이브리드 동작에.이드마다 여신 물약을 교체합니다.",
+		"description" : "レイド毎に女神ポーションを切替えます。ver1.0.7で失敗しにくくなったハズ。Switch goddess potions for each raid. ver1.0.7 should make it harder to fail.레이드마다 여신 물약이 바뀌는데, ver1.0.7에서는 실패 확률이 낮아진 것 같습니다.",
 		"tags" : []
 	},
 	{
