@@ -39,9 +39,10 @@ v1.0.0 公開。
 　
 ### Other Character Skill List
 
-錬成スキルを一覧表示。
+錬成スキルを一覧表示。記録のために各キャラ一度インベントリを開ける必要があります。
 
 　
+v1.0.2 エンブレムやレジェンドカード、ゴッデスカードの装備状況も表示
 
 v1.0.1 バグ修正
 
@@ -49,6 +50,7 @@ v1.0.0 公開。
 　
 
 アドオンマネージャー登録済
+![TreeOfSavior_20240327_170950](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c6ebb908-e3c4-40e5-affe-f546c1a788ca)
 
 ----
 
