@@ -26,10 +26,11 @@
 -- v1.2.5 女神ガチャ制御強化
 -- v1.2.6 女神ガチャ切り替え後にCCしないと、自動ガチャ機能OFFにならなかったの修正。
 -- v1.2.7 女神ガチャフルベットボタンつけた。女神ガチャ中CCやチャンネル移動でフレーム表示されてたの1回目のみに修正。
+-- v1.2.8 パーティーインフォフレームの表示切替
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.7"
+local ver = "1.2.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -216,7 +217,50 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         -- frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     end
 
+    if g.settings.party_info == nil then
+        g.settings.party_info = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+    elseif g.settings.party_info == 1 then
+        local piframe = ui.GetFrame('partyinfo')
+        local tooltip = piframe:CreateOrGetControl("richtext", "tooltip", 0, 0, 170, 60)
+        AUTO_CAST(tooltip)
+        tooltip:SetText("{s30}                             ")
+        tooltip:SetMargin(0, -30)
+        tooltip:SetTextTooltip("{ol}Right-click to switch display for mouse mode")
+
+        acutil.setupEvent(addon, "SET_PARTYINFO_ITEM", "MINI_ADDONS_SET_PARTYINFO_ITEM");
+    end
 end
+
+function MINI_ADDONS_SET_PARTYINFO_ITEM(frame, msg)
+
+    local frame = ui.GetFrame('partyinfo')
+    frame:SetLayerLevel(50)
+    local list = session.party.GetPartyMemberList(PARTY_NORMAL);
+    local count = list:Count() - 1;
+    if frame:GetWidth() == 700 then
+        frame:Resize(560, count * 100 + 60);
+    end
+
+    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_PARTYINFO_RESIZE")
+
+    return
+
+end
+
+function MINI_ADDONS_PARTYINFO_RESIZE(frame, ctrl, argStr, argNum)
+
+    local list = session.party.GetPartyMemberList(PARTY_NORMAL);
+    local count = list:Count() - 1;
+
+    if frame:GetWidth() == 80 then
+        frame:Resize(560, count * 100 + 60);
+    else
+
+        frame:Resize(80, count * 100 + 60)
+    end
+end
+
 g.first = 0
 function MINI_ADDONS_FIELD_BOSS_WORLD_EVENT_END(frame)
     g.first = 0
@@ -349,9 +393,9 @@ end
 function MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT(frame, msg)
     local msg, arg_str, arg_num = acutil.getEventArgs(msg)
     local frame = ui.GetFrame('common_skill_enchant')
-    print(tostring(msg))
-    print(tostring(arg_str))
-    print(tostring(arg_num))
+    -- print(tostring(msg))
+    -- print(tostring(arg_str))
+    -- print(tostring(arg_num))
 
     ReserveScript("MINI_ADDONS_COMMON_SKILL_ENCHANT_ADD_MAT()", 0.9)
 
@@ -591,8 +635,9 @@ if not g.loaded then
         pc_name = 1,
         auto_gacha = 0,
         skill_enchant = 1,
-        auto_gacha_start = 0
-
+        auto_gacha_start = 0,
+        party_info = 0
+        -- !
     }
 
 end
@@ -1145,6 +1190,19 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     skill_enchant_checkbox:SetTextTooltip(
         "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
     x = x + 30
+    -- !
+    local party_info = frame:CreateOrGetControl("richtext", "party_info", 40, x + 5)
+    party_info:SetText("{ol}{#FF4500}Switching the display of the party info frame. For mouse mode.")
+    party_info:SetTextTooltip(
+        "{@st59}パーティーフレームの表示切替。マウスモード用。{nl}파티 인포 프레임의 표시 전환. 마우스 모드용.")
+
+    local party_info_checkbox = frame:CreateOrGetControl('checkbox', 'party_info_checkbox', 10, x, 25, 25)
+    AUTO_CAST(party_info_checkbox)
+    party_info_checkbox:SetCheck(g.settings.party_info)
+    party_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    party_info_checkbox:SetTextTooltip(
+        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    x = x + 30
 
     local description = frame:CreateOrGetControl("richtext", "description", 140, x + 5)
     description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
@@ -1321,7 +1379,9 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         auto_cast = "auto_cast_checkbox",
         coin_use = "coin_use_checkbox",
         auto_gacha = "auto_gacha_checkbox",
-        skill_enchant = "skill_enchant_checkbox"
+        skill_enchant = "skill_enchant_checkbox",
+        party_info = "party_info_checkbox"
+        -- !
     }
 
     for settingName, checkboxName in pairs(settingNames) do
@@ -1379,7 +1439,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
             quest_hide = 1,
             pc_name = 1,
             auto_gacha = 0,
-            skill_enchant = 1
+            skill_enchant = 1,
+            party_info = 0
 
         }
         MINI_ADDONS_SAVE_SETTINGS()
