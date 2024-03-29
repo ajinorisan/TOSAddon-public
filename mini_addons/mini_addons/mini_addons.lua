@@ -27,10 +27,11 @@
 -- v1.2.6 女神ガチャ切り替え後にCCしないと、自動ガチャ機能OFFにならなかったの修正。
 -- v1.2.7 女神ガチャフルベットボタンつけた。女神ガチャ中CCやチャンネル移動でフレーム表示されてたの1回目のみに修正。
 -- v1.2.8 パーティーインフォフレームの表示切替
+-- v1.2.9 パーティーインフォフレーム。いつものバグ修正
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.8"
+local ver = "1.2.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -218,31 +219,46 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.party_info == nil then
-        g.settings.party_info = 0
+        g.settings.party_info = 1
         MINI_ADDONS_SAVE_SETTINGS()
+        local piframe = ui.GetFrame('partyinfo')
+        local tooltip = piframe:CreateOrGetControl("richtext", "tooltip", 0, 0, 170, 60)
+        AUTO_CAST(tooltip)
+        tooltip:SetText("{s30}                             ")
+        -- tooltip:SetMargin(0, -30)
+        tooltip:SetTextTooltip("{ol}Right-click to switch display for mouse mode")
+
+        acutil.setupEvent(addon, "SET_PARTYINFO_ITEM", "MINI_ADDONS_SET_PARTYINFO_ITEM");
+        g.partyinfo = 0
     elseif g.settings.party_info == 1 then
         local piframe = ui.GetFrame('partyinfo')
         local tooltip = piframe:CreateOrGetControl("richtext", "tooltip", 0, 0, 170, 60)
         AUTO_CAST(tooltip)
         tooltip:SetText("{s30}                             ")
-        tooltip:SetMargin(0, -30)
+        -- tooltip:SetMargin(0, -30)
         tooltip:SetTextTooltip("{ol}Right-click to switch display for mouse mode")
 
         acutil.setupEvent(addon, "SET_PARTYINFO_ITEM", "MINI_ADDONS_SET_PARTYINFO_ITEM");
+        g.partyinfo = 0
     end
 end
 
 function MINI_ADDONS_SET_PARTYINFO_ITEM(frame, msg)
 
     local frame = ui.GetFrame('partyinfo')
-    frame:SetLayerLevel(50)
+
     local list = session.party.GetPartyMemberList(PARTY_NORMAL);
     local count = list:Count() - 1;
-    if frame:GetWidth() == 700 then
-        frame:Resize(560, count * 100 + 60);
-    end
-
     frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_PARTYINFO_RESIZE")
+    if g.partyinfo == 1 then
+        frame:Resize(80, count * 100 + 60)
+        frame:SetLayerLevel(0)
+
+    elseif g.partyinfo == 0 then
+        frame:Resize(560, count * 100 + 60);
+        frame:SetLayerLevel(50)
+
+    end
 
     return
 
@@ -255,9 +271,10 @@ function MINI_ADDONS_PARTYINFO_RESIZE(frame, ctrl, argStr, argNum)
 
     if frame:GetWidth() == 80 then
         frame:Resize(560, count * 100 + 60);
+        g.partyinfo = 0
     else
-
         frame:Resize(80, count * 100 + 60)
+        g.partyinfo = 1
     end
 end
 
@@ -636,7 +653,7 @@ if not g.loaded then
         auto_gacha = 0,
         skill_enchant = 1,
         auto_gacha_start = 0,
-        party_info = 0
+        party_info = 1
         -- !
     }
 
@@ -1168,7 +1185,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     end
     auto_gacha_btn:SetTextTooltip(
-        "{@st59}ONにすると自動でガチャスタートします。{nl}When turned on, the gacha starts automatically.{nl}ON으로 설정하면 자동으로 가챠가 시작됩니다.")
+        "{@st59}ONにすると自動でガチャスタートします。切替にCC必要です。{nl}When turned on, the gacha starts automatically.CC required for switching.{nl}ON으로 설정하면 자동으로 가챠가 시작됩니다.전환에 CC가 필요합니다.")
 
     auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
 
@@ -1192,7 +1209,8 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     x = x + 30
     -- !
     local party_info = frame:CreateOrGetControl("richtext", "party_info", 40, x + 5)
-    party_info:SetText("{ol}{#FF4500}Switching the display of the party info frame. For mouse mode.")
+    party_info:SetText(
+        "{ol}{#FF4500}Switching the display of the party info frame. For mouse mode.Party info right-click.")
     party_info:SetTextTooltip(
         "{@st59}パーティーフレームの表示切替。マウスモード用。{nl}파티 인포 프레임의 표시 전환. 마우스 모드용.")
 
@@ -1440,7 +1458,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
             pc_name = 1,
             auto_gacha = 0,
             skill_enchant = 1,
-            party_info = 0
+            party_info = 1
 
         }
         MINI_ADDONS_SAVE_SETTINGS()
