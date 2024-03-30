@@ -8,7 +8,7 @@
 		"description" : "未知の聖域にも対応。フィールドで倒したモンスターをカウント。Support for unknown sanctuaries. Counting monsters defeated in the field.미지의 성역에도 대응. 필드에서 처치한 몬스터를 카운트",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Skill Notice",
 		"file" : "skill_notice",
 		"extension" : "ipf",
@@ -17,18 +17,8 @@
 		"unicode" : "⛄",
 		"description" : "ピクティス、バトルスピリット、チャージアロー、リロードバフをお知らせ。Informs about the pyktis, battle spirit, charge arrow, and reload buffs.픽티스, 배틀 스피릿, 차지 애로우, 재장전 버프를 알려드립니다.",
 		"tags" : []
-	},
-	{
-		"name" : "Battle Spirit",
-		"file" : "battlespirit",
-		"extension" : "ipf",
-		"fileVersion" : "v1.0.2",
-		"releaseTag" : "battlespirit",
-		"unicode" : "⛄",
-		"description" : "音選べる様に。フサリアバフをお知らせ。To be able to choose the sound.Notify Fusariah Buff.소리를 선택할 수 있도록.",
-		"tags" : []
-	},
-	{
+	},	
+{
 		"name" : "Other Character Skill List",
 		"file" : "other_character_skill_list",
 		"extension" : "ipf",
@@ -38,7 +28,7 @@
 		"description" : "各キャラの錬成スキルを一覧表示。エンブレムやレジェンドカード、ゴッデスカードなどの装備状況も表示します。一度、該当キャラでログインしてインベントリを開ける必要があります。Lists the alchemy skills of each character. It also displays the equipment status of emblems, legend cards, goddess cards, etc. You must log in once with the relevant character to open the inventory.각 캐릭터의 연성 스킬을 나열합니다. 엠블럼, 레전드 카드, 갓데스 카드 등의 장비 상태도 표시됩니다. 해당 캐릭터로 로그인하여 인벤토리를 열어야 합니다.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Warehouse Manager Reloaded",
 		"file" : "warehousemanager",
 		"extension" : "ipf",
@@ -48,7 +38,7 @@
 		"description" : "Charbonさん作成。シルバーやアイテムを自動で搬出入。基本倉庫が詰まるのを修正。Created by Charbon. Automatic loading and unloading of silver and items. Fixed basic warehouse clogging. Charbon님이 작성했습니다. 실버와 아이템을 자동으로 반출입. 기본 창고가 막히는 것을 수정.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Quickslot Operate",
 		"file" : "quickslot_operate",
 		"extension" : "ipf",
@@ -58,7 +48,7 @@
 		"description" : "レイド毎に女神ポーションを切替えます。ver1.0.7で失敗しにくくなったハズ。Switch goddess potions for each raid. ver1.0.7 should make it harder to fail.레이드마다 여신 물약이 바뀌는데, ver1.0.7에서는 실패 확률이 낮아진 것 같습니다.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Always Status",
 		"file" : "always_status",
 		"extension" : "ipf",
@@ -68,7 +58,7 @@
 		"description" : "キャラ毎に閉じるか選べる様に。選択したステータスを好きな場所に常に表示します。えびすけさんのstatview_ex_rの現状対応版。To be able to choose to close it for each character.Always display the selected status in the desired location. Currently supported version of Ebisuke's statview_ex_r.캐릭터별로 닫을지 선택할 수 있도록.선택한 상태를 원하는 위치에 항상 표시합니다. 에비스케님의 statview_ex_r의 현황 대응 버전입니다.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Indun List Viewer",
 		"file" : "indun_list_viewer",
 		"extension" : "ipf",
@@ -78,7 +68,7 @@
 		"description" : "レイドの消化状況を一覧表示します。instantccアドオンを入れていると職アイコンクリックでCCします。List raid digests. cc by clicking on the job icon if you have the instantcc add-on.레이드 소화 현황을 나열하며, instantcc 애드온을 넣었다면 직업 아이콘 클릭으로 CC를 합니다.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Boss Direction",
 		"file" : "boss_direction",
 		"extension" : "ipf",
@@ -88,17 +78,17 @@
 		"description" : "ボスが向いている方向を矢印でお知らせ。The direction the boss is facing is indicated by an arrow.보스가 향하고 있는 방향을 화살표로 알려준다.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Auto Pet Summon",
 		"file" : "auto_pet_summon",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.2",
+		"fileVersion" : "v1.0.3",
 		"releaseTag" : "auto_pet_summon",
 		"unicode" : "⛄",
 		"description" : "キャラ毎に最後に連れていたペットを自動で召喚します。ペット入れ替え時のアイコン表示切替修正。Automatic summoning of the last pet taken by each character. Fixed switching of icon display when replacing pets.캐릭터마다 마지막으로 키우던 펫을 자동으로 소환합니다. 펫 교체 시 아이콘 표시 전환 수정.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Mini Addons",
 		"file" : "mini_addons",
 		"extension" : "ipf",
@@ -108,7 +98,7 @@
 		"description" : "MINI MAP左下ボタンを押すと機能説明とON OFF機能があります。Free From Trivial Stressの上位互換版です。競合するのでアンインストールしてください。MINI MAP lower left button for function description and ON/OFF function. upward compatible version of Free From Trivial Stress. Please uninstall it as it conflicts with Free From Trivial Stress.MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 기능이 있으며, Free From Trivial Stress의 상위 호환 버전입니다. 충돌이 발생하므로 제거하시기 바랍니다.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Goddess Icor Manager",
 		"file" : "goddess_icor_manager",
 		"extension" : "ipf",
@@ -118,7 +108,7 @@
 		"description" : "インベントリにボタン追加。表示切替機能追加。イコルのオプション付与を一覧表示して簡易化します。Added a button to inventory. Added display switching function. Simplification of option granting of ichor by displaying a list.인벤토리에 버튼 추가. 표시 전환 기능 추가. 이퀄의 옵션 부여를 목록으로 표시하여 간소화합니다.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "Market Voucher",
 		"file" : "market_voucher",
 		"extension" : "ipf",
@@ -128,7 +118,7 @@
 		"description" : "マーケットの販売履歴表示(シルバー受け取った時に記録)。表示バグ修正。Market sales history display (recorded when silver received). Display bug fixed. 마켓의 판매 내역 표시(실버 수령 시 기록). 표시 버그 수정.",
 		"tags" : []
 	},
-	{
+{
 		"name" : "dungeonrpcharger",
 		"file" : "dungeonrpcharger",
 		"extension" : "ipf",
@@ -138,19 +128,6 @@
 		"description" : "meldavyさん作成のアドオン保守。女神コインのレリックも使用出来ます。Add-on maintenance created by meldavy. Relic of Goddess Coin can also be used. meldavy 님이 만든 애드온 유지보수. 여신 코인 유물도 사용할 수 있습니다.",
 		"tags" : []
 	},
-	{
-        "name": "Yet Another Account Inventory",
-        "file": "yaaccountinventory",
-        "extension": "ipf",
-        "fileVersion": "v1.0.5",
-        "releaseTag": "yaaccountinventory",
-        "unicode": "⛄",
-        "description": "ebisukeさん作成のチーム倉庫魔改造アドオン、元の倉庫に切替え可能。Team warehouse magic modification add-on created by ebisuke, switchable to the original warehouse. ebisuke 님이 만든 팀 창고마 개조 애드온, 원래의 창고로 전환 가능.",
-        "tags": [
-            "storage",
-            "inventory"
-        ]
-    },
 {
 		"name" : "Job Change Helper",
 		"file" : "job_change_helper",
@@ -171,16 +148,6 @@
 		"description" : "モンスターカードプリセットを使いやすくします。カード自動搬出入、自動着脱機能付き。Easy to use monster card preset. Includes automatic card loading/unloading and automatic card insertion/removal functions.몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함.",
 		"tags" : []
 	},
-	{
-		"name" : "Pyktis Notice",
-		"file" : "pyktis_notice",
-		"extension" : "ipf",
-		"fileVersion" : "v1.0.1",
-		"releaseTag" : "pyktis_notice",
-		"unicode" : "⛄",
-		"description" : "ネビルティスピクティスバフをお知らせ。Nevirtis Piketis buffs to be notified.네빌티스팩티스 버프를 알려드립니다.",
-		"tags" : []
-	},
 {
 		"name" : "Let's Go Home",
 		"file" : "lets_go_home",
@@ -195,7 +162,7 @@
 		"name" : "Character Change Helper",
 		"file" : "cc_helper",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.5",
+		"fileVersion" : "v1.1.6",
 		"releaseTag" : "cc_helper",
 		"unicode" : "⛄",
 		"description" : "v1.1.4以上はYet Another Account Inventory1.0.2以上でないと動かないです。各国版クライアント対応。ヘアコスチューム対応。各種装備をワンボタンで倉庫から出し入れして装備の着脱をします。事前設定必要です。シルバーの掛からない装備のみの簡易モードに切り替え可能です。Yet Another Account Inventory1.0.2 for v1.1.4 and above.Support for clients in various country editions.Hair costume support. Various equipment can be moved in and out of the warehouse with one button to put on and take off the equipment. Pre-setting required. It is possible to switch to the simple mode of only equipment that does not cost silver.v1.1.4 이상은 Yet Another Account Inventory1.0.2각국 버전 클라이언트 지원.헤어 코스튬 대응. 각종 장비를 버튼 하나로 창고에서 꺼내거나 탈착할 수 있다. 사전 설정이 필요합니다. 실버가 걸리지 않는 장비만 간이 모드로 전환 가능합니다.",
@@ -239,17 +206,6 @@
 		"releaseTag" : "ancient_autoset",
 		"unicode" : "⛄",
 		"description" : "Assister Plusと被るのを回避、他ちょいと修正。アシスターセットをキャラ毎に自動で付け替えます。事前登録必要です。街でしか動きません。 Assister sets will be automatically replaced for each character. Pre-registration required. Only works in city. 캐릭터마다 어시스터 세트를 자동으로 교체합니다. 사전 등록이 필요합니다. 도시에서만 움직입니다.",
-		"tags" : []
-	},
-
- {
-		"name" : "GT sysmsg",
-		"file" : "gtsysmsg",
-		"extension" : "ipf",
-		"fileVersion" : "v1.0.7",
-		"releaseTag" : "gtsysmsg",
-		"unicode" : "⛄",
-		"description" : "追従者が出たらシステムチャットトニコニコチャットでお知らせ。音も鳴るよ。曲も変わるよ。 When a follower appears, you will be notified by the system chat and the Nico Nico chat. A sound will also be played.  팔로워가 생기면 시스템 채팅과 니코니코챗으로 알려줘요. 소리도 울려요.",
 		"tags" : []
 	},
 {
@@ -319,5 +275,15 @@
 		"tags" : [
 		           "item"
 		]
+	},
+	{
+		"name" : "Another Warehouse",
+		"file" : "another_warehouse",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "another_warehouse",
+		"unicode" : "⛄",
+		"description" : "ebisukeさん作成のチーム倉庫改造アドオンYet Another Account Inventoryのシンプル版。競合するのでYAAIをアンインストールしてください。今後YAAIは保守しないのでこちらへの切替をオススメします。Simple version of Yet Another Account Inventory, a team warehouse modification add-on created by ebisuke. Please uninstall YAAI as it conflicts with it. We will not maintain YAAI in the future and recommend switching to this version.ebisuke님이 만든 팀 창고 개조 애드온 Yet Another Account Inventory의 심플 버전입니다. 충돌하므로 YAAI를 제거해 주세요. 향후 YAAI는 유지보수를 하지 않으므로 이쪽으로 전환을 추천합니다.",
+		"tags" : []
 	}
 ]
