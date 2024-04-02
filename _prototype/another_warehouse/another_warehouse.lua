@@ -257,7 +257,7 @@ function another_warehouse_item_tooltip_close()
 end
 
 function another_warehouse_item()
-
+    print("test")
     local warehouseFrame = ui.GetFrame('accountwarehouse')
     local handle = warehouseFrame:GetUserIValue('HANDLE')
 
@@ -268,9 +268,11 @@ function another_warehouse_item()
 
     local itemProcessed = false -- アイテムが処理されたかどうかを示すフラグ
 
+    local itemtbl = {}
+
     for k, v in pairs(g.settings.items) do
         local clsID = v.clsid
-
+        local count = v.count
         for i = 0, cnt - 1 do
             local guid = guidList:Get(i)
             local invItem = invItemList:GetItemByGuid(guid)
@@ -280,9 +282,9 @@ function another_warehouse_item()
             local itemCls = GetClassByType('Item', invClsID)
 
             if clsID == invClsID then
-                local count = v.count
 
                 -- !ここにMAXSLOTの処理を書く必要ありそう
+                another_warehouse_checkvalid(iesid)
                 local exist, index = another_warehouse_get_exist_item_index(itemobj)
                 local goal_index = another_warehouse_get_goal_index()
 
@@ -291,9 +293,9 @@ function another_warehouse_item()
                 end
 
                 if count == 0 then
-                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(invItem.count), handle, goal_index)
+
                     if warehouseFrame:IsVisible() == 1 then
-                        print(itemobj.ClassName)
+                        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(invItem.count), handle, goal_index)
                         another_warehouse_item_tooltip(itemCls, invItem)
                         ReserveScript("another_warehouse_item()", 0.3)
                         itemProcessed = true -- アイテムが処理されたことをフラグに記録
@@ -309,20 +311,22 @@ function another_warehouse_item()
 
                     if invItem.count > count then
 
-                        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(item_count), handle, goal_index)
                         if warehouseFrame:IsVisible() == 1 then
-                            print(itemobj.ClassName)
+                            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(item_count), handle, goal_index)
+
                             another_warehouse_item_tooltip(itemCls, invItem)
                             ReserveScript("another_warehouse_item()", 0.3)
-
+                            itemProcessed = true -- アイテムが処理されたことをフラグに記録
                             break -- 内側のループを抜ける
                         else
                             return
                         end
                     elseif invItem.count < count then
                         if warehouseFrame:IsVisible() == 1 then
-                            another_warehouse_item_take(guid, item_count)
+                            itemtbl[clsID] = -item_count
+                            -- ReserveScript(string.format("another_warehouse_item_take(%d)", item_count), 0.3)
                             ReserveScript("another_warehouse_item()", 0.3)
+                            itemProcessed = true -- アイテムが処理されたことをフラグに記録
                             break -- 内側のループを抜ける
                         else
                             return
@@ -337,27 +341,75 @@ function another_warehouse_item()
             break -- 外側のループも抜ける
         end
     end
+    if warehouseFrame:IsVisible() == 1 then
+        -- local item_count = 0
 
-    another_warehouse_item_take()
+        -- another_warehouse_item_take(itemtbl)
+    end
+
 end
 
-function another_warehouse_item_take(guid, item_count)
-
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
-
+function another_warehouse_item_take(itemtbl)
+    function another_warehouse_item_take(temptbl)
+        for key, value in pairs(temptbl) do
+            print(key .. ":" .. value)
+        end
+    end
     local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    local invItem = itemList:GetItemByGuid(iesid)
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local sortedCnt = sortedGuidList:Count();
+    local fromframe = ui.GetFrame("accountwarehouse")
 
-    session.ResetItemList();
-    session.AddItemID(guid, tostring(-item_count))
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+    for key, value in pairs(itemtbl) do
+        for i = 0, sortedCnt - 1 do
+            local guid = sortedGuidList:Get(i)
+            local invItem = itemList:GetItemByGuid(guid)
+            local type = invItem.type
 
-    return
+            local iesid = invItem:GetIESID()
+
+            if (tostring(key) == tostring(type)) then
+
+                session.ResetItemList()
+                session.AddItemID(tonumber(iesid), value)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+
+                break
+
+            end
+        end
+    end
+
+    for k, v in pairs(g.settings.items) do
+        local clsID = v.clsid
+        local count = v.count
+
+        for i = 0, sortedCnt - 1 do
+            local guid = sortedGuidList:Get(i)
+            local invItem = itemList:GetItemByGuid(guid)
+            local type = invItem.type
+
+            local iesid = invItem:GetIESID()
+
+            if (tostring(clsID) == tostring(type)) and count ~= 0 then
+
+                session.ResetItemList()
+                session.AddItemID(tonumber(iesid), count)
+                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                    fromframe:GetUserIValue("HANDLE"))
+
+                break
+            end
+
+        end
+    end
+
 end
 
 function another_warehouse_silver()
-    print("another_warehouse_silver()")
+
     local silveritem = session.GetInvItemByName(MONEY_NAME)
     local warehouseFrame = ui.GetFrame('accountwarehouse')
     local handle = warehouseFrame:GetUserIValue('HANDLE')
@@ -780,6 +832,7 @@ function another_warehouse_setting_icon_clear(frame, ctrl, argStr, argNum)
             break
         end
     end
+    another_warehouse_setting_frame_init(_, _, _, _)
 end
 
 function another_warehouse_setting_item_count(frame, count, inputFrame)
