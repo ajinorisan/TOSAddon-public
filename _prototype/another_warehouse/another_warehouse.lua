@@ -268,8 +268,8 @@ function another_warehouse_item()
     local guidList = invItemList:GetGuidList();
     local cnt = guidList:Count();
 
-    local putitemtbl = {} -- アイテム情報を格納するテーブル
-    local takeitemtbl = {}
+    g.putitemtbl = {} -- アイテム情報を格納するテーブル
+    g.takeitemtbl = {}
     -- another_warehouse_load_settings()
     for k, v in pairs(g.settings.items) do
         local clsID = v.clsid
@@ -313,14 +313,14 @@ function another_warehouse_item()
         end
     end
 
-    another_warehouse_item_put(putitemtbl, takeitemtbl)
+    another_warehouse_item_put()
 
 end
 
-function another_warehouse_item_put(putitemtbl, takeitemtbl)
+function another_warehouse_item_put()
 
     local delay = 0
-    for clsID, itemData in pairs(putitemtbl) do
+    for clsID, itemData in pairs(g.putitemtbl) do
 
         local iesid = itemData.iesid
         local count = itemData.count
@@ -344,12 +344,12 @@ function another_warehouse_item_put(putitemtbl, takeitemtbl)
 
         ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count), delay - 0.1)
         ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d)", iesid, count, handle, goal_index),
-            delay)
+                      delay)
         delay = delay + 1.0
 
     end
 
-    another_warehouse_item_take(takeitemtbl)
+    ReserveScript("another_warehouse_item_take()", delay)
 end
 function another_warehouse_item_put_to(iesid, count, handle, goal_index)
 
@@ -358,7 +358,7 @@ function another_warehouse_item_put_to(iesid, count, handle, goal_index)
     -- return
 end
 
-function another_warehouse_item_take(takeitemtbl)
+function another_warehouse_item_take()
 
     local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
     local guidList = itemList:GetGuidList();
@@ -380,10 +380,10 @@ function another_warehouse_item_take(takeitemtbl)
             local iesid = invItem:GetIESID()
 
             if clsid == type then
-                for k, v in pairs(takeitemtbl) do
+                for k, v in pairs(g.takeitemtbl) do
                     print(tostring(k))
                 end
-                takeitemtbl[clsid] = nil
+                g.takeitemtbl[clsid] = nil
                 print(tostring(iesid))
                 ReserveScript(string.format("another_warehouse_item_take_to('%s',%d)", iesid, count), delay)
 
@@ -717,7 +717,7 @@ function another_warehouse_setting_rbtn(itemObj, slot)
     if tonumber(itemcls.MaxStack) > 1 then
 
         INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.', "another_warehouse_setting_item_count",
-            0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+                         0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
     else
 
         if g.settings.items[tostring(index)] == nil then
@@ -817,7 +817,8 @@ function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
         if tonumber(itemcls.MaxStack) > 1 then
 
             INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.',
-                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+                             "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type,
+                             tostring(index), nil)
         else
 
             if g.settings.items[tostring(index)] == nil then
@@ -1126,7 +1127,7 @@ function another_warehouse_putitem(iesid, count)
     local frame = ui.GetFrame("accountwarehouse")
 
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
-        frame:GetUserIValue("HANDLE"), goal_index)
+                            frame:GetUserIValue("HANDLE"), goal_index)
 
 end
 
@@ -1161,7 +1162,7 @@ function another_warehouse_inv_lbtn(frame, invItem, dumm)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(frame, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", maxCnt, 1, maxCnt,
-                nil, tostring(invItem:GetIESID()));
+                             nil, tostring(invItem:GetIESID()));
         else
             another_warehouse_putitem(iesid, 10)
         end
@@ -1197,7 +1198,7 @@ function another_warehouse_inv_rbtn(itemObj, slot)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(frame, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", maxCnt, 1, maxCnt,
-                nil, tostring(invItem:GetIESID()));
+                             nil, tostring(invItem:GetIESID()));
         else
             another_warehouse_putitem(iesid, invItem.count)
         end
@@ -1525,7 +1526,7 @@ function another_warehouse_on_lbutton(frame, slot, argstr, argnum)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(awframe, ScpArgMsg("InputCount"), "another_warehouse_take_item_from_warehouse", maxCnt, 1,
-                maxCnt, nil, iesid);
+                             maxCnt, nil, iesid);
         else
             another_warehouse_takeitem(awframe, iesid, 1)
 
@@ -1581,7 +1582,7 @@ function another_warehouse_on_rbutton(frame, slot, argstr, argnum)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(awframe, ScpArgMsg("InputCount"), "another_warehouse_take_item_from_warehouse", maxCnt, 1,
-                maxCnt, nil, iesid);
+                             maxCnt, nil, iesid);
         else
             another_warehouse_takeitem(awframe, iesid, 1)
 
@@ -1632,7 +1633,7 @@ function another_warehouse_frame_update()
                 local tree_box =
                     GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox')
                 local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                    'ui::CTreeControl')
+                                                   'ui::CTreeControl')
 
                 local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT");
                 local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH");
@@ -1738,11 +1739,11 @@ function another_warehouse_frame_update()
                                 g.tree[typeStr] = g.tree[typeStr] or {}
                                 if invenTypeStr == nil or invenTypeStr == typeStr then
                                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                        'ui::CGroupBox')
+                                                                           'ui::CGroupBox')
                                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                        'ui::CTreeControl')
+                                                                       'ui::CTreeControl')
                                     another_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, baseidcls,
-                                        typeStr);
+                                                                          typeStr);
 
                                 end
 
@@ -1750,7 +1751,7 @@ function another_warehouse_frame_update()
                                 local tree_all =
                                     GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All', 'ui::CTreeControl')
                                 another_warehouse_insert_item_to_tree(frame, tree_all, invItem, itemCls, baseidcls,
-                                    typeStr);
+                                                                      typeStr);
 
                             end
                         end
