@@ -79,7 +79,7 @@ function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
-
+    another_warehouse_load_settings()
     -- ReserveScript("another_warehouse_accountwarehouse_init()", 5.0)
     addon:RegisterMsg("GAME_START_3SEC", "another_warehouse_accountwarehouse_init");
 end
@@ -88,7 +88,7 @@ function another_warehouse_accountwarehouse_init()
 
     CHAT_SYSTEM(tostring(session.loginInfo.IsPremiumState(ITEM_TOKEN)))
     if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
-        another_warehouse_load_settings()
+
         local addon = g.addon
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE");
         addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_on_msg");
@@ -203,23 +203,24 @@ end
 function another_warehouse_keeper_reserve()
     if g.settings.maney_check == 1 then
         ReserveScript('another_warehouse_silver()', 0.1)
-        return
+
     end
 
     if g.settings.item_check == 1 then
-        ReserveScript('another_warehouse_item()', 0.2)
-        return
+        ReserveScript('another_warehouse_item()', 0.5)
+
     end
 
     return
 end
 
-function another_warehouse_item_tooltip(itemCls, invItem)
+function another_warehouse_item_tooltip(Name, iconName, Count)
 
     local tooltip_frame = ui.CreateNewFrame("notice_on_pc", "another_warehouse_tooltip", 0, 0, 10, 10)
     AUTO_CAST(tooltip_frame)
+
     tooltip_frame:SetSkinName("None")
-    tooltip_frame:SetPos(710, 300)
+    tooltip_frame:SetPos(680, 400)
     tooltip_frame:SetLayerLevel(100)
     tooltip_frame:Resize(350, 64)
     -- tooltip_frame:RemoveAllChild()
@@ -236,19 +237,20 @@ function another_warehouse_item_tooltip(itemCls, invItem)
     AUTO_CAST(tooltip_text)
     tooltip_text:Resize(265, 22)
     -- tooltip_text:AdjustFontSizeByWidth(265)
-    tooltip_text:SetText("{ol}" .. itemCls.Name)
+
+    tooltip_text:SetText("{ol}" .. Name)
 
     local tooltip_count = tooltip_gb:CreateOrGetControl("richtext", "tooltip_count", 75, 37, 265, 22)
     AUTO_CAST(tooltip_count)
     tooltip_count:Resize(265, 22)
     -- tooltip_count:AdjustFontSizeByWidth(265)
-    tooltip_count:SetText("{ol}" .. invItem.count .. " Pieces in warehouse")
 
-    local iconName = GET_ITEM_ICON_IMAGE(itemCls);
+    tooltip_count:SetText("{ol}" .. Count .. " Pieces in warehouse")
+
     SET_SLOT_ICON(tooltip_slot, iconName)
     tooltip_frame:ShowWindow(1)
 
-    return
+    -- return
 end
 
 function another_warehouse_item_tooltip_close()
@@ -257,6 +259,7 @@ function another_warehouse_item_tooltip_close()
 end
 
 function another_warehouse_item()
+
     local warehouseFrame = ui.GetFrame('accountwarehouse')
     local handle = warehouseFrame:GetUserIValue('HANDLE')
 
@@ -267,7 +270,7 @@ function another_warehouse_item()
 
     local putitemtbl = {} -- アイテム情報を格納するテーブル
     local takeitemtbl = {}
-
+    -- another_warehouse_load_settings()
     for k, v in pairs(g.settings.items) do
         local clsID = v.clsid
         local count = v.count
@@ -292,7 +295,7 @@ function another_warehouse_item()
                         if invItem.count > count then
                             putitemtbl[clsID] = {
                                 iesid = guid,
-                                count = invItem.count,
+                                count = item_count,
                                 handle = handle,
                                 invItem = invItem
                             }
@@ -310,13 +313,15 @@ function another_warehouse_item()
         end
     end
 
-    another_warehouse_item_put(putitemtbl)
+    another_warehouse_item_put(putitemtbl, takeitemtbl)
 
 end
 
-function another_warehouse_item_put(putitemtbl)
+function another_warehouse_item_put(putitemtbl, takeitemtbl)
 
+    local delay = 0
     for clsID, itemData in pairs(putitemtbl) do
+
         local iesid = itemData.iesid
         local count = itemData.count
         local handle = itemData.handle
@@ -330,17 +335,30 @@ function another_warehouse_item_put(putitemtbl)
         if exist == true and index >= 0 then
             goal_index = index
         end
-        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
-        another_warehouse_item_tooltip(itemCls, invItem)
+
+        putitemtbl[clsID] = nil
+
+        local iconName = GET_ITEM_ICON_IMAGE(itemCls);
+        local Name = itemCls.Name
+        local Count = invItem.count
+
+        ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count), delay - 0.1)
+        ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d)", iesid, count, handle, goal_index),
+            delay)
+        delay = delay + 1.0
 
     end
+
+    another_warehouse_item_take(takeitemtbl)
+end
+function another_warehouse_item_put_to(iesid, count, handle, goal_index)
+
+    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
+    ReserveScript("another_warehouse_item_tooltip_close()", 0.9)
+    -- return
 end
 
-function another_warehouse_item_take(itemtbl)
-
-    for key, value in pairs(temptbl) do
-        print(key .. ":" .. value)
-    end
+function another_warehouse_item_take(takeitemtbl)
 
     local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
     local guidList = itemList:GetGuidList();
@@ -348,7 +366,12 @@ function another_warehouse_item_take(itemtbl)
     local sortedCnt = sortedGuidList:Count();
     local fromframe = ui.GetFrame("accountwarehouse")
 
-    for key, value in pairs(itemtbl) do
+    local delay = 0.3
+
+    for key, value in pairs(takeitemtbl) do
+        local clsid = key
+        local count = -value.count
+        local iesid = value.iesid
         for i = 0, sortedCnt - 1 do
             local guid = sortedGuidList:Get(i)
             local invItem = itemList:GetItemByGuid(guid)
@@ -356,20 +379,20 @@ function another_warehouse_item_take(itemtbl)
 
             local iesid = invItem:GetIESID()
 
-            if (tostring(key) == tostring(type)) then
-
-                session.ResetItemList()
-                session.AddItemID(tonumber(iesid), value)
-                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
-
-                break
+            if clsid == type then
+                for k, v in pairs(takeitemtbl) do
+                    print(tostring(k))
+                end
+                takeitemtbl[clsid] = nil
+                print(tostring(iesid))
+                ReserveScript(string.format("another_warehouse_item_take_to('%s',%d)", iesid, count), delay)
 
             end
+            delay = delay + 0.3
         end
     end
 
-    for k, v in pairs(g.settings.items) do
+    --[[for k, v in pairs(g.settings.items) do
         local clsID = v.clsid
         local count = v.count
 
@@ -385,14 +408,24 @@ function another_warehouse_item_take(itemtbl)
                 session.ResetItemList()
                 session.AddItemID(tonumber(iesid), count)
                 item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                                fromframe:GetUserIValue("HANDLE"))
+                    fromframe:GetUserIValue("HANDLE"))
 
                 break
             end
 
         end
-    end
+    end]]
 
+end
+
+function another_warehouse_item_take_to(iesid, count)
+    print("test2")
+    local fromframe = ui.GetFrame("accountwarehouse")
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    session.ResetItemList()
+    session.AddItemID(tonumber(iesid), count)
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
+    -- return
 end
 
 function another_warehouse_silver()
@@ -409,16 +442,10 @@ function another_warehouse_silver()
 
     local silver = charsilver - tonumber(g.settings.silver)
 
-    if silver == 0 then
-        if g.settings.amount_check == 1 then
-            ReserveScript("another_warehouse_fraction()", 0.25)
-        else
-            ReserveScript('another_warehouse_item()', 0.5)
-        end
-        return
-    elseif silver > 0 then
+    if silver > 0 then
 
         item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(silver), handle)
+
     elseif silver < 0 then
 
         session.ResetItemList()
@@ -429,7 +456,6 @@ function another_warehouse_silver()
 
     if g.settings.amount_check == 1 then
         ReserveScript("another_warehouse_fraction()", 0.25)
-        return
 
     end
 end
@@ -691,7 +717,7 @@ function another_warehouse_setting_rbtn(itemObj, slot)
     if tonumber(itemcls.MaxStack) > 1 then
 
         INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.', "another_warehouse_setting_item_count",
-                         0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+            0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
     else
 
         if g.settings.items[tostring(index)] == nil then
@@ -791,8 +817,7 @@ function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
         if tonumber(itemcls.MaxStack) > 1 then
 
             INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.',
-                             "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type,
-                             tostring(index), nil)
+                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
 
             if g.settings.items[tostring(index)] == nil then
@@ -1101,7 +1126,7 @@ function another_warehouse_putitem(iesid, count)
     local frame = ui.GetFrame("accountwarehouse")
 
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
-                            frame:GetUserIValue("HANDLE"), goal_index)
+        frame:GetUserIValue("HANDLE"), goal_index)
 
 end
 
@@ -1136,7 +1161,7 @@ function another_warehouse_inv_lbtn(frame, invItem, dumm)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(frame, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", maxCnt, 1, maxCnt,
-                             nil, tostring(invItem:GetIESID()));
+                nil, tostring(invItem:GetIESID()));
         else
             another_warehouse_putitem(iesid, 10)
         end
@@ -1172,7 +1197,7 @@ function another_warehouse_inv_rbtn(itemObj, slot)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(frame, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", maxCnt, 1, maxCnt,
-                             nil, tostring(invItem:GetIESID()));
+                nil, tostring(invItem:GetIESID()));
         else
             another_warehouse_putitem(iesid, invItem.count)
         end
@@ -1500,7 +1525,7 @@ function another_warehouse_on_lbutton(frame, slot, argstr, argnum)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(awframe, ScpArgMsg("InputCount"), "another_warehouse_take_item_from_warehouse", maxCnt, 1,
-                             maxCnt, nil, iesid);
+                maxCnt, nil, iesid);
         else
             another_warehouse_takeitem(awframe, iesid, 1)
 
@@ -1556,7 +1581,7 @@ function another_warehouse_on_rbutton(frame, slot, argstr, argnum)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(awframe, ScpArgMsg("InputCount"), "another_warehouse_take_item_from_warehouse", maxCnt, 1,
-                             maxCnt, nil, iesid);
+                maxCnt, nil, iesid);
         else
             another_warehouse_takeitem(awframe, iesid, 1)
 
@@ -1607,7 +1632,7 @@ function another_warehouse_frame_update()
                 local tree_box =
                     GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox')
                 local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                                                   'ui::CTreeControl')
+                    'ui::CTreeControl')
 
                 local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT");
                 local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH");
@@ -1713,11 +1738,11 @@ function another_warehouse_frame_update()
                                 g.tree[typeStr] = g.tree[typeStr] or {}
                                 if invenTypeStr == nil or invenTypeStr == typeStr then
                                     local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                                                           'ui::CGroupBox')
+                                        'ui::CGroupBox')
                                     local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                                       'ui::CTreeControl')
+                                        'ui::CTreeControl')
                                     another_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, baseidcls,
-                                                                          typeStr);
+                                        typeStr);
 
                                 end
 
@@ -1725,7 +1750,7 @@ function another_warehouse_frame_update()
                                 local tree_all =
                                     GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All', 'ui::CTreeControl')
                                 another_warehouse_insert_item_to_tree(frame, tree_all, invItem, itemCls, baseidcls,
-                                                                      typeStr);
+                                    typeStr);
 
                             end
                         end
