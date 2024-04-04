@@ -638,7 +638,273 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     char_slotset:SetColRow(17, 1) -- スロットの配置と個数
     char_slotset:SetSpc(0, 0)
     char_slotset:SetSkinName('slot')
+    char_slotset:SetEventScript(ui.DROP, "another_warehouse_setting_drop")
+    char_slotset:SetEventScript(ui.RBUTTONUP, "another_warehouse_setting_icon_clear")
     char_slotset:CreateSlots()
+
+    local LoginCID = info.GetCID(session.GetMyHandle())
+    local char_slotcount = char_slotset:GetSlotCount()
+
+    for i = 1, char_slotcount do
+        local slot = GET_CHILD_RECURSIVELY(char_slotset, "slot" .. i)
+        local str_index = tostring(i)
+        for key, value in pairs(g.settings[LoginCID].items) do
+            if key == str_index then
+                for k, v in pairs(value) do
+
+                    local itemcls = GetClassByType("Item", v)
+
+                    SET_SLOT_ITEM_CLS(slot, itemcls)
+
+                    if k == "count" and v ~= 0 then
+
+                        SET_SLOT_COUNT_TEXT(slot, v)
+                    end
+                end
+
+            end
+        end
+    end
+
+end
+
+function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
+
+    local lifticon = ui.GetLiftIcon();
+    local fromframe = lifticon:GetTopParentFrame();
+    local fromslot = lifticon:GetParent();
+    local iconinfo = lifticon:GetInfo();
+    local type = iconinfo.type
+    local itemcls = GetClassByType("Item", type)
+    local slot_icon = ctrl:GetIcon();
+
+    local guid = iconinfo:GetIESID();
+    local item = GET_ITEM_BY_GUID(guid);
+    local obj = GetIES(item:GetObject());
+    local index = string.gsub(ctrl:GetName(), "slot", "") * 1
+
+    local LoginCID = info.GetCID(session.GetMyHandle())
+
+    if fromframe:GetName() == "inventory" and slot_icon == nil then
+        if true == item.isLockState then
+            ui.SysMsg(ClMsg("MaterialItemIsLock"));
+            return;
+        end
+
+        if itemcls.ItemType == 'Quest' then
+            ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
+            return;
+        end
+
+        local enableTeamTrade = TryGetProp(itemcls, "TeamTrade");
+        if enableTeamTrade ~= nil and enableTeamTrade == "NO" then
+            ui.SysMsg(ClMsg("ItemIsNotTradable"));
+            return;
+        end
+
+        local belongingCount = TryGetProp(obj, 'BelongingCount', 0)
+        if belongingCount > 0 and belongingCount >= item.count then
+            ui.SysMsg(ClMsg("ItemIsNotTradable"));
+            return;
+        end
+
+        if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
+            ui.SysMsg(ClMsg("ItemIsNotTradable"));
+            return;
+        end
+    end
+
+    if fromframe:GetName() == "inventory" and tostring(ctrl:GetParent():GetName()) == "team_slotset" then
+
+        for key, value in pairs(g.settings.items) do
+            local clsid = value.clsid
+
+            if tostring(type) == tostring(clsid) then
+                ui.SysMsg("Already registered.")
+                return
+            end
+
+        end
+
+        ctrl:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_drop")
+
+        if tonumber(itemcls.MaxStack) > 1 then
+            local frame = ui.GetFrame("another_warehouse_setting")
+            frame:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
+
+            INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.',
+                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+        else
+
+            if g.settings.items[tostring(index)] == nil then
+                g.settings.items[tostring(index)] = {
+                    clsid = tonumber(type),
+                    count = 0
+                }
+            end
+            SET_SLOT_ITEM_CLS(ctrl, itemcls)
+            another_warehouse_save_settings()
+        end
+    elseif fromframe:GetName() == "inventory" and tostring(ctrl:GetParent():GetName()) == "char_slotset" then
+
+        for key, value in pairs(g.settings[LoginCID].items) do
+            local clsid = value.clsid
+            print(tostring(clsid))
+            if tostring(type) == tostring(clsid) then
+                ui.SysMsg("Already registered.")
+                return
+            end
+
+        end
+
+        ctrl:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_drop")
+        if tonumber(itemcls.MaxStack) > 1 then
+            local frame = ui.GetFrame("another_warehouse_setting")
+            frame:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
+            INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.',
+                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
+        else
+
+            if g.settings[LoginCID].items[tostring(index)] == nil then
+                g.settings[LoginCID].items[tostring(index)] = {
+                    clsid = tonumber(type),
+                    count = 0
+                }
+            end
+            SET_SLOT_ITEM_CLS(ctrl, itemcls)
+            another_warehouse_save_settings()
+        end
+    end
+
+    if fromframe:GetName() == "another_warehouse_setting" and tostring(ctrl:GetParent():GetName()) == "team_slotset" then
+
+        local lifticon = ui.GetLiftIcon();
+        local iconinfo = lifticon:GetInfo();
+        local type = iconinfo.type
+        print(tostring(iconinfo.type))
+        local fromslot = lifticon:GetParent();
+        local fromframe = fromslot:GetParent():GetName()
+
+        local fromindex = string.gsub(fromslot:GetName(), "slot", "") * 1
+        local toindex = string.gsub(ctrl:GetName(), "slot", "") * 1
+        print(fromframe)
+
+        if g.settings.items[tostring(toindex)] == nil and fromframe == "char_slotset" then
+
+            for key, value in pairs(g.settings.items) do
+                local clsid = value.clsid
+                -- print(tostring(clsid) .. ":" .. type)
+                if tostring(type) == tostring(clsid) then
+                    ui.SysMsg("Already registered.")
+                    return
+                end
+
+            end
+
+            g.settings.items[tostring(toindex)] = {
+                clsid = g.settings[LoginCID].items[tostring(fromindex)].clsid,
+                count = g.settings[LoginCID].items[tostring(fromindex)].count
+            }
+            print(g.settings.items[tostring(toindex)].clsid)
+            print(g.settings.items[tostring(toindex)].count .. 3)
+
+        elseif g.settings.items[tostring(toindex)] == nil and fromframe == "team_slotset" then
+
+            print(tostring(g.settings.items[tostring(fromindex)].clsid) .. ":" ..
+                      tostring(g.settings.items[tostring(fromindex)].count))
+            g.settings.items[tostring(toindex)] = {
+                clsid = g.settings.items[tostring(fromindex)].clsid,
+                count = g.settings.items[tostring(fromindex)].count
+            }
+
+            g.settings.items[tostring(fromindex)] = nil
+            another_warehouse_save_settings()
+            another_warehouse_setting_frame_init(_, _, _, _)
+
+        end
+
+    elseif fromframe:GetName() == "another_warehouse_setting" and tostring(ctrl:GetParent():GetName()) == "char_slotset" then
+        local fromslot = lifticon:GetParent();
+        local fromframe = fromslot:GetParent():GetName()
+        print(fromframe .. 2)
+        local fromindex = string.gsub(fromslot:GetName(), "slot", "") * 1
+        local toindex = string.gsub(ctrl:GetName(), "slot", "") * 1
+        ctrl:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_drop")
+        for key, value in pairs(g.settings[LoginCID].items) do
+            local clsid = value.clsid
+            print(tostring(clsid))
+            if tostring(type) == tostring(clsid) then
+                ui.SysMsg("Already registered.")
+                return
+            end
+
+        end
+
+        if g.settings[LoginCID].items[tostring(toindex)] == nil and fromframe == "team_slotset" then
+            print(tostring("test"))
+            g.settings[LoginCID].items[tostring(toindex)] = {
+                clsid = g.settings.items[tostring(fromindex)].clsid,
+                count = g.settings.items[tostring(fromindex)].count
+            }
+            print(g.settings[LoginCID].items[tostring(toindex)].clsid .. 1)
+            print(g.settings[LoginCID].items[tostring(toindex)].count .. 1)
+            g.settings[LoginCID].items[tostring(fromindex)] = nil
+            another_warehouse_save_settings()
+            another_warehouse_setting_frame_init(_, _, _, _)
+        end
+
+        if g.settings[LoginCID].items[tostring(toindex)] == nil then
+            print("est")
+            g.settings[LoginCID].items[tostring(toindex)] = {
+                clsid = g.settings[LoginCID].items[tostring(fromindex)].clsid,
+                count = g.settings[LoginCID].items[tostring(fromindex)].count
+
+            }
+
+            g.settings[LoginCID].items[tostring(fromindex)] = nil
+
+        end
+        another_warehouse_save_settings()
+        another_warehouse_setting_frame_init(_, _, _, _)
+    end
+
+end
+
+function another_warehouse_setting_item_count(frame, count, inputFrame)
+
+    local type = inputFrame:GetValue()
+    local index = inputFrame:GetUserValue("ArgString");
+    local itemcls = GetClassByType("Item", type)
+    local user_value = frame:GetUserValue("SLOT_NAME")
+    print(tostring(user_value))
+    local LoginCID = info.GetCID(session.GetMyHandle())
+    if user_value == "team_slotset" then
+        local slotset = GET_CHILD_RECURSIVELY(frame, user_value)
+        local slot = GET_CHILD_RECURSIVELY(slotset, "slot" .. index)
+        if g.settings.items[tostring(index)] == nil then
+            g.settings.items[tostring(index)] = {
+                clsid = tonumber(type),
+                count = tonumber(count)
+            }
+        end
+        SET_SLOT_ITEM_CLS(slot, itemcls)
+        another_warehouse_save_settings()
+
+        inputFrame:ShowWindow(0)
+        another_warehouse_setting_frame_init(_, _, _, _)
+    elseif user_value == "char_slotset" then
+        local slotset = GET_CHILD_RECURSIVELY(frame, user_value)
+        local slot = GET_CHILD_RECURSIVELY(slotset, "slot" .. index)
+        print(tostring(index))
+        if g.settings[LoginCID].items[tostring(index)] == nil then
+            g.settings[LoginCID].items[tostring(index)] = {
+                clsid = tonumber(type),
+                count = tonumber(count)
+            }
+        end
+        SET_SLOT_ITEM_CLS(slot, itemcls)
+        another_warehouse_save_settings()
+    end
 
 end
 
@@ -726,7 +992,8 @@ function another_warehouse_setting_rbtn(itemObj, slot)
     ctrl:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_drop")
 
     if tonumber(itemcls.MaxStack) > 1 then
-
+        local frame = ui.GetFrame("another_warehouse_setting")
+        frame:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
         INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.', "another_warehouse_setting_item_count",
             0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
     else
@@ -745,143 +1012,33 @@ function another_warehouse_setting_rbtn(itemObj, slot)
 
 end
 
-function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
-
-    local lifticon = ui.GetLiftIcon();
-    local fromframe = lifticon:GetTopParentFrame();
-    local fromslot = lifticon:GetParent();
-    local iconinfo = lifticon:GetInfo();
-    local type = iconinfo.type
-    local itemcls = GetClassByType("Item", type)
-
-    local slot_icon = ctrl:GetIcon();
-    if fromframe:GetName() == "inventory" then
-        for key, value in pairs(g.settings.items) do
-
-            if tostring(ctrl:GetParent():GetName()) == "team_slotset" then
-                for k, v in pairs(value) do
-
-                    if tostring(type) == tostring(v) then
-                        ui.SysMsg("Already registered.")
-                        return
-                    end
-                end
-            elseif tostring(ctrl:GetParent():GetName()) == "char_slotset" then
-                print(tostring(ctrl:GetParent():GetName()))
-            end
-        end
-    elseif fromframe:GetName() == "another_warehouse_setting" then
-        local fromindex = string.gsub(fromslot:GetName(), "slot", "") * 1
-        local toindex = string.gsub(ctrl:GetName(), "slot", "") * 1
-        local Itemcls = GetClassByType("Item", g.settings.items[tostring(fromindex)].clsid)
-
-        if g.settings.items[tostring(toindex)] == nil then
-
-            g.settings.items[tostring(toindex)] = {
-                clsid = g.settings.items[tostring(fromindex)].clsid,
-                count = g.settings.items[tostring(fromindex)].count
-            }
-            g.settings.items[tostring(fromindex)] = nil
-
-        end
-        another_warehouse_save_settings()
-        another_warehouse_setting_frame_init(_, _, _, _)
-        -- SET_SLOT_ITEM_CLS(ctrl, Itemcls)
-        -- frame:Invalidate()
-        another_warehouse_save_settings()
-    else
-        return
-    end
-
-    local clsid = tostring(itemcls.ClassID)
-    local index = string.gsub(ctrl:GetName(), "slot", "") * 1
-
-    local guid = iconinfo:GetIESID();
-    local item = GET_ITEM_BY_GUID(guid);
-    local obj = GetIES(item:GetObject());
-
-    if fromframe:GetName() == "inventory" and slot_icon == nil then
-        if true == item.isLockState then
-            ui.SysMsg(ClMsg("MaterialItemIsLock"));
-            return;
-        end
-
-        if itemcls.ItemType == 'Quest' then
-            ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
-            return;
-        end
-
-        local enableTeamTrade = TryGetProp(itemcls, "TeamTrade");
-        if enableTeamTrade ~= nil and enableTeamTrade == "NO" then
-            ui.SysMsg(ClMsg("ItemIsNotTradable"));
-            return;
-        end
-
-        local belongingCount = TryGetProp(obj, 'BelongingCount', 0)
-        if belongingCount > 0 and belongingCount >= item.count then
-            ui.SysMsg(ClMsg("ItemIsNotTradable"));
-            return;
-        end
-
-        if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
-            ui.SysMsg(ClMsg("ItemIsNotTradable"));
-            return;
-        end
-
-        ctrl:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_drop")
-        if tonumber(itemcls.MaxStack) > 1 then
-
-            INPUT_NUMBER_BOX(frame, 'Enter the number to be left in the inventory.',
-                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
-        else
-
-            if g.settings.items[tostring(index)] == nil then
-                g.settings.items[tostring(index)] = {
-                    clsid = tonumber(type),
-                    count = 0
-                }
-            end
-            SET_SLOT_ITEM_CLS(ctrl, itemcls)
-            another_warehouse_save_settings()
-        end
-
-    else
-        return
-    end
-end
-
 function another_warehouse_setting_icon_clear(frame, ctrl, argStr, argNum)
-    local str_index = string.gsub(ctrl:GetName(), "slot", "")
-    for key, value in pairs(g.settings.items) do
-        if key == str_index then
-            ctrl:ClearIcon();
-            g.settings.items[str_index] = nil
-            another_warehouse_save_settings()
-            break
+    print(frame:GetName())
+    local LoginCID = info.GetCID(session.GetMyHandle())
+    if frame:GetName() == "team_slotset" then
+        local str_index = string.gsub(ctrl:GetName(), "slot", "")
+        for key, value in pairs(g.settings.items) do
+            if key == str_index then
+                ctrl:ClearIcon();
+                g.settings.items[str_index] = nil
+                another_warehouse_save_settings()
+                break
+            end
         end
+    elseif frame:GetName() == "char_slotset" then
+        local str_index = string.gsub(ctrl:GetName(), "slot", "")
+        for key, value in pairs(g.settings[LoginCID].items) do
+            if key == str_index then
+                ctrl:ClearIcon();
+                g.settings[LoginCID].items[str_index] = nil
+                another_warehouse_save_settings()
+                break
+            end
+        end
+    else
+        return
     end
     another_warehouse_setting_frame_init(_, _, _, _)
-end
-
-function another_warehouse_setting_item_count(frame, count, inputFrame)
-    local type = inputFrame:GetValue()
-    local index = inputFrame:GetUserValue("ArgString");
-    local itemcls = GetClassByType("Item", type)
-    local frame = ui.GetFrame("another_warehouse_setting")
-    local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. index)
-
-    if g.settings.items[tostring(index)] == nil then
-        g.settings.items[tostring(index)] = {
-            clsid = tonumber(type),
-            count = tonumber(count)
-        }
-    end
-    another_warehouse_save_settings()
-    SET_SLOT_ITEM_CLS(slot, itemcls)
-
-    inputFrame:ShowWindow(0)
-    another_warehouse_setting_frame_init(_, _, _, _)
-
 end
 
 function another_warehouse_setting_close(frame, ctrl, argStr, argNum)
