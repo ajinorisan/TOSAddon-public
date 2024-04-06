@@ -32,7 +32,9 @@ v1.0.0 公開。
 　
 
 アドオンマネージャー登録済
-https://github.com/ajinorisan/TOSAddon-public/assets/128560971/48486416-780b-4691-ad9a-e45655a6ec6c
+
+![TreeOfSavior_20240327_170950](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c6ebb908-e3c4-40e5-affe-f546c1a788ca)
+
 
 ----
 
