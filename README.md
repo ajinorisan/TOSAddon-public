@@ -33,7 +33,8 @@ v1.0.0 公開。
 
 アドオンマネージャー登録済
 
-![TreeOfSavior_20240327_170950](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c6ebb908-e3c4-40e5-affe-f546c1a788ca)
+![TreeOfSavior_20240406_095855](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/7170084a-c06c-405e-8db6-e340b69f84a0)
+![TreeOfSavior_20240406_095858](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/f285650f-7d8a-440c-923f-b8f103851868)
 
 
 ----
