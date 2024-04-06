@@ -26,10 +26,13 @@ ebisukeさん作成のチーム倉庫改造アドオンYet Another Account Inven
 
 　
 
+v1.0.1 自動入出金、入出庫機能つけた。
+
 v1.0.0 公開。
 　
 
 アドオンマネージャー登録済
+https://github.com/ajinorisan/TOSAddon-public/assets/128560971/48486416-780b-4691-ad9a-e45655a6ec6c
 
 ----
 
@@ -822,7 +825,7 @@ v1.0.2 ボルタ廃止、ドラグーン追加。
 
 ### Warehouse Manager Reloaded
 
-Charbonさんが作ってebisukeさんが改装した倉庫アドオンを改造します。
+Charbonさんが作ってebisukeさんが改装した倉庫アドオンを改造します。Another Warehouseに機能を付け替えたので保守終了。
 
 　
 
@@ -838,7 +841,6 @@ The author of this addon is Charbonさん
 
 　
 
-アドオンマネージャー登録済
 
 ----
 
