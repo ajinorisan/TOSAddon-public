@@ -1,9 +1,10 @@
 -- v1.0.0 Yet Another Account Inventoryの焼き直し。保守しやすい様、自分用にシンプルにした。
 -- v1.0.1 アイテム、シルバーの自動搬出入機能追加
+-- v1.0.2 搬入搬出高速化。ログ機能追加。設定画面閉じてもマウスカスタムファンクション保持していたバグ修正。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -158,7 +159,11 @@ function another_warehouse_lang(str)
         if str == "Setting slot: right mouse click to clear settings" then
             str = "設定スロット:マウス右クリックで設定消去"
         end
+        -- "Delivered to warehouse"
 
+        if str == "Item to warehousing" then
+            str = "倉庫に格納しました"
+        end
     end
 
     return str
@@ -311,7 +316,7 @@ function another_warehouse_keeper_reserve()
         end
 
         if g.settings.item_check == 1 then
-            ReserveScript('another_warehouse_item()', 0.3)
+            ReserveScript('another_warehouse_item()', 0.4)
 
         end
     end
@@ -505,8 +510,8 @@ function another_warehouse_item()
             return
         end
     end
-
-    another_warehouse_item_put()
+    another_warehouse_item_take()
+    -- another_warehouse_item_put()
     --[[for k, v in pairs(g.takeitemtbl) do
         print("takeKey:" .. k)
         print("takeValue:" .. v)
@@ -516,73 +521,17 @@ function another_warehouse_item()
         print("putValue:" .. v.count)
     end]]
 
-    --[[local LoginCID = info.GetCID(session.GetMyHandle())
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
-    local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList()
-    local cnt = guidList:Count()
-
-    g.putitemtbl = {}
-    g.takeitemtbl = {}
-
-    local function processItem(clsID, count)
-        if count ~= 0 then
-            g.takeitemtbl[clsID] = count
-        end
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i)
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local invClsID = itemobj.ClassID
-            if clsID == invClsID then
-                local item_count = invItem.count - count
-                if count == 0 then
-                    g.putitemtbl[clsID] = {
-                        iesid = guid,
-                        count = invItem.count,
-                        handle = handle,
-                        invItem = invItem
-                    }
-                else
-                    if invItem.count > count then
-                        g.putitemtbl[clsID] = {
-                            iesid = guid,
-                            count = item_count,
-                            handle = handle,
-                            invItem = invItem
-                        }
-                        g.takeitemtbl[clsID] = 0
-                    elseif invItem.count < count then
-                        g.takeitemtbl[clsID] = -item_count
-                    else
-                        g.takeitemtbl[clsID] = 0
-                    end
-                end
-                break
-            end
-        end
-    end
-
-    for k, v in pairs(g.settings.items) do
-        processItem(v.clsid, v.count)
-    end
-
-    for k, v in pairs(g.settings[LoginCID].items) do
-        processItem(v.clsid, v.count)
-    end
-
-    another_warehouse_item_put()]]
-
 end
 
 function another_warehouse_item_put()
 
     local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local flag = false
 
-    local delay = 0
+    local delay = 0.5
     for clsID, itemData in pairs(g.putitemtbl) do
         if warehouseFrame:IsVisible() == 1 then
+            flag = true
             local iesid = itemData.iesid
             local Count = itemData.count
 
@@ -604,16 +553,12 @@ function another_warehouse_item_put()
             local Name = itemCls.Name
 
             -- print(tostring(Name))
-            if delay == 0 then
-                ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),
-                    delay)
-            else
-                ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),
-                    delay - 0.45)
-            end
 
-            ReserveScript(
-                string.format("another_warehouse_item_put_to('%s',%d,%d,%d)", iesid, Count, handle, goal_index), delay)
+            ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),
+                delay - 0.45)
+
+            ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s')", iesid, Count, handle,
+                goal_index, Name), delay)
             delay = delay + 0.5
         else
             g.putitemtbl = nil
@@ -622,10 +567,19 @@ function another_warehouse_item_put()
         end
     end
 
-    ReserveScript("another_warehouse_item_take()", delay)
+    if flag == true then
+        ReserveScript("another_warehouse_end()", delay)
+    end
+    return
+    -- ReserveScript("another_warehouse_item_take()", delay)
 end
-function another_warehouse_item_put_to(iesid, count, handle, goal_index)
 
+function another_warehouse_end()
+    ui.SysMsg("[AWH]End of Operation")
+end
+function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name)
+    CHAT_SYSTEM(another_warehouse_lang("Item to warehousing") .. "：[" .. "{#EE82EE}" .. Name .. "{#FFFF00}]×" ..
+                    "{#EE82EE}" .. count)
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
     ReserveScript("another_warehouse_item_tooltip_close()", 0.45)
     return
@@ -641,8 +595,7 @@ function another_warehouse_item_take()
     local sortedCnt = sortedGuidList:Count();
     local fromframe = ui.GetFrame("accountwarehouse")
 
-    local delay = 0.5
-
+    g.take = {}
     for key, value in pairs(g.takeitemtbl) do
         if warehouseFrame:IsVisible() == 1 then
             for i = 0, sortedCnt - 1 do
@@ -657,9 +610,11 @@ function another_warehouse_item_take()
                     count = math.min(count, invItem.count)
                     -- print(count .. "min")
                     g.takeitemtbl[type] = nil
+                    -- another_warehouse_item_take_to(iesid, count)
+                    g.take[iesid] = count
 
-                    ReserveScript(string.format("another_warehouse_item_take_to('%s',%d)", iesid, count), delay)
-                    delay = delay + 0.5
+                    -- ReserveScript(string.format("another_warehouse_item_take_to('%s',%d)", iesid, count), delay)
+                    -- delay = delay + 0.5
                     break
                 elseif key == type and value == 0 then
                     g.takeitemtbl[type] = nil
@@ -669,16 +624,24 @@ function another_warehouse_item_take()
             end
         end
     end
-
+    another_warehouse_item_take_to()
 end
 
-function another_warehouse_item_take_to(iesid, count)
+function another_warehouse_item_take_to()
 
     local fromframe = ui.GetFrame("accountwarehouse")
     local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
     session.ResetItemList()
-    session.AddItemID(tonumber(iesid), count)
+
+    for iesid, count in pairs(g.take) do
+        session.AddItemID(tonumber(iesid), count)
+    end
+
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
+    g.take = nil
+
+    ReserveScript("another_warehouse_item_put()", 0.2)
+
     return
 end
 
@@ -709,7 +672,7 @@ function another_warehouse_silver()
     end
 
     if g.settings.amount_check == 1 then
-        ReserveScript("another_warehouse_fraction()", 0.25)
+        ReserveScript("another_warehouse_fraction()", 0.2)
 
     end
 end
@@ -743,10 +706,10 @@ function another_warehouse_fraction()
     session.AddItemIDWithAmount("0", tostring(awsilver))
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
 
-    if g.settings.item_check == 1 then
+    --[[if g.settings.item_check == 1 then
         ReserveScript('another_warehouse_item()', 0.1)
         return
-    end
+    end]]
 
 end
 
@@ -1390,6 +1353,9 @@ end
 
 function another_warehouse_setting_close(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+    SET_INV_LBTN_FUNC(ui.GetFrame("inventory"), "None");
+    -- !
 end
 
 function another_warehouse_notice()
