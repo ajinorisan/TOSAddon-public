@@ -1,10 +1,11 @@
 -- v1.0.0 Yet Another Account Inventoryの焼き直し。保守しやすい様、自分用にシンプルにした。
 -- v1.0.1 アイテム、シルバーの自動搬出入機能追加
 -- v1.0.2 搬入搬出高速化。ログ機能追加。設定画面閉じてもマウスカスタムファンクション保持していたバグ修正。
+-- v1.0.3 warehousemanagerの設定ファイルをコピー出来る様に。自動設定をキャラ毎に。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -44,9 +45,9 @@ function another_warehouse_load_settings()
     if not settings or next(settings) == nil then
         g.settings = {
             silver = 1000000,
-            maney_check = 1,
-            item_check = 1,
+
             amount_check = 0,
+            transfer = 0,
             items = {}
 
         }
@@ -61,9 +62,11 @@ function another_warehouse_load_settings()
     -- g.settings[g.logincid]がnilの場合は初期設定を使用する
     if not g.settings[LoginCID] then
         g.settings[LoginCID] = {
-            use = 1,
+            maney_check = 1,
+            item_check = 1,
             name = LoginName,
-            items = {}
+            items = {},
+            transfer = 0
         }
         another_warehouse_save_settings()
     end
@@ -95,16 +98,17 @@ function another_warehouse_lang(str)
             str = "自動入出金"
         end
 
-        if str == "When checked, silver is automatically deposited and withdrawn from the warehouse." then
-            str = "チェックを入れると、自動入出金有効化。"
+        if str ==
+            "When checked, silver is automatically deposited and withdrawn from the warehouse.Set up for each character." then
+            str = "チェックを入れると、自動入出金有効化。各キャラクター毎に設定。"
         end
 
         if str == "Automatic item receipt and dispatch" then
             str = "自動搬出入"
         end
 
-        if str == "When checked, items are automatically moved in and out of the warehouse." then
-            str = "チェックを入れると、自動搬出入有効化。"
+        if str == "When checked, items are automatically moved in and out of the warehouse.Set up for each character." then
+            str = "チェックを入れると、自動搬出入有効化。各キャラクター毎に設定。"
         end
 
         if str == "deposit and withdrawal amount" then
@@ -137,6 +141,12 @@ function another_warehouse_lang(str)
             str =
                 "[Yet Another Account Inventory]アドオンがインストールされている為、正常に機能しません。"
         end
+
+        if str == "[Warehouse Manager] add-on is installed and will not function properly." then
+            str =
+                "[Warehouse Manager]アドオンがインストールされている為、正常に機能しません。"
+        end
+
         if str == "team setting" then
             str = "チーム倉庫の自動搬出入設定"
         end
@@ -164,6 +174,23 @@ function another_warehouse_lang(str)
         if str == "Item to warehousing" then
             str = "倉庫に格納しました"
         end
+
+        if str == "Data copy" then
+            str = "データコピー"
+        end
+
+        if str == "Data copy from [Wrehouse Manager]" then
+            str = "[Wrehouse Manager]からデータをコピーします"
+        end
+
+        if str == "Do you want to copy data from{nl}[Wrehouse Manager]?" then
+            str = "[Wrehouse Manager]からデータをコピーしますか？"
+        end
+
+        if str == "Data copy completed." then
+            str = "データコピー完了"
+        end
+
     end
 
     return str
@@ -210,13 +237,29 @@ function another_warehouse_accountwarehouse_init()
 
         local functionName = "YAACCOUNTINVENTORY_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
-            addon:RegisterMsg("GAME_START_3SEC", "another_warehouse_notice");
+            another_warehouse_notice()
+
+        end
+
+        local functionName = "WAREHOUSEMANAGER_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+        if type(_G[functionName]) == "function" then
+
+            another_warehouse_notice2()
 
         end
     else
         ui.SysMsg(another_warehouse_lang("[Another warehouse] is not available because the token has not been applied."))
         return
     end
+end
+
+function another_warehouse_notice2()
+    local msg = another_warehouse_lang("Notice from [another warehouse]")
+
+    NICO_CHAT("{@st55_a}" .. msg)
+    local msg2 = another_warehouse_lang("[Warehouse Manager] add-on is installed and will not function properly.")
+    NICO_CHAT("{@st55_a}" .. msg2)
+
 end
 
 function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
@@ -309,17 +352,18 @@ end
 
 function another_warehouse_keeper_reserve()
     local LoginCID = info.GetCID(session.GetMyHandle())
-    if g.settings[LoginCID].use == 1 then
-        if g.settings.maney_check == 1 then
-            ReserveScript('another_warehouse_silver()', 0.1)
 
-        end
+    if g.settings[LoginCID].maney_check == 1 then
 
-        if g.settings.item_check == 1 then
-            ReserveScript('another_warehouse_item()', 0.4)
+        ReserveScript('another_warehouse_silver()', 0.1)
 
-        end
     end
+
+    if g.settings[LoginCID].item_check == 1 then
+        ReserveScript('another_warehouse_item()', 0.4)
+
+    end
+
     return
 end
 
@@ -463,7 +507,7 @@ function another_warehouse_item()
 
                 if char_clsID == invClsID then
                     local item_count = invItem.count - char_count
-                    -- print("item_count:" .. item_count)
+
                     if char_count == 0 then
 
                         g.putitemtbl[char_clsID] = {
@@ -494,7 +538,6 @@ function another_warehouse_item()
                             break
                         elseif item_count == 0 then
                             g.takeitemtbl[char_clsID] = 0
-                            -- print(tostring(g.putitemtbl[char_clsID]))
 
                             g.putitemtbl[char_clsID] = nil
 
@@ -511,15 +554,6 @@ function another_warehouse_item()
         end
     end
     another_warehouse_item_take()
-    -- another_warehouse_item_put()
-    --[[for k, v in pairs(g.takeitemtbl) do
-        print("takeKey:" .. k)
-        print("takeValue:" .. v)
-    end
-    for k, v in pairs(g.putitemtbl) do
-        print("putKey:" .. k)
-        print("putValue:" .. v.count)
-    end]]
 
 end
 
@@ -551,8 +585,6 @@ function another_warehouse_item_put()
 
             local iconName = GET_ITEM_ICON_IMAGE(itemCls);
             local Name = itemCls.Name
-
-            -- print(tostring(Name))
 
             ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),
                 delay - 0.45)
@@ -608,7 +640,7 @@ function another_warehouse_item_take()
 
                     local count = value
                     count = math.min(count, invItem.count)
-                    -- print(count .. "min")
+
                     g.takeitemtbl[type] = nil
                     -- another_warehouse_item_take_to(iesid, count)
                     g.take[iesid] = count
@@ -756,9 +788,9 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     local maney_check = settingframe:CreateOrGetControl('checkbox', 'maney_check', 25, 65, 25, 25)
     AUTO_CAST(maney_check);
     maney_check:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
-    maney_check:SetCheck(g.settings.maney_check)
+    maney_check:SetCheck(g.settings[LoginCID].maney_check)
     maney_check:SetTextTooltip(another_warehouse_lang(
-        "When checked, silver is automatically deposited and withdrawn from the warehouse."))
+        "When checked, silver is automatically deposited and withdrawn from the warehouse.Set up for each character."))
 
     local item_text = settingframe:CreateOrGetControl("richtext", "item_text", 55, 95, 0, 0)
     AUTO_CAST(item_text);
@@ -767,9 +799,9 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     local item_check = settingframe:CreateOrGetControl('checkbox', 'item_check', 25, 95, 25, 25)
     AUTO_CAST(item_check);
     item_check:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
-    item_check:SetCheck(g.settings.item_check)
+    item_check:SetCheck(g.settings[LoginCID].item_check)
     item_check:SetTextTooltip(another_warehouse_lang(
-        "When checked, items are automatically moved in and out of the warehouse."))
+        "When checked, items are automatically moved in and out of the warehouse.Set up for each character."))
 
     local amount_text = settingframe:CreateOrGetControl("richtext", "amount_text", 400, 65, 0, 0)
     AUTO_CAST(amount_text);
@@ -795,14 +827,14 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     amount_edit:SetTextAlign("center", "center") -- print(tostring(g.settings.silver))
     amount_edit:SetText(GET_COMMAED_STRING(tonumber(g.settings.silver)))
 
-    local char_use_check = settingframe:CreateOrGetControl('checkbox', "char_use_check", 660, 95, 25, 25)
+    --[[local char_use_check = settingframe:CreateOrGetControl('checkbox', "char_use_check", 660, 95, 25, 25)
     AUTO_CAST(char_use_check);
     char_use_check:SetTextTooltip(another_warehouse_lang("Unchecking the checkbox stops the{nl}" ..
                                                              " automatic receipt/issuance and{nl}" ..
                                                              "automatic deposit/withdrawal functions.{nl}" ..
                                                              "This is a per-character setting."))
     char_use_check:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
-    char_use_check:SetCheck(g.settings[LoginCID].use) -- g.settings[LoginCID].use
+    char_use_check:SetCheck(g.settings[LoginCID].use) -- g.settings[LoginCID].use]]
 
     local team_text = settingframe:CreateOrGetControl("richtext", "team_text", 25, 125, 0, 0)
     AUTO_CAST(team_text);
@@ -839,7 +871,6 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
             if key == str_index then
                 local clsid = value.clsid
                 local count = value.count
-                -- print("clsid" .. clsid)
 
                 local itemcls = GetClassByType("Item", clsid)
                 slot:SetUserValue("ITEM_CLSID", clsid)
@@ -881,7 +912,6 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
             if key == str_index then
                 local clsid = value.clsid
                 local count = value.count
-                -- print("clsid" .. clsid)
 
                 local itemcls = GetClassByType("Item", clsid)
                 slot:SetUserValue("ITEM_CLSID", clsid)
@@ -894,6 +924,137 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
 
             end
         end
+    end
+
+    local WHM_SettingsFileLoc = string.format('../addons/%s/settings.json', 'warehousemanager')
+    local WHM_settings = {}
+
+    local err = acutil.loadJSON(WHM_SettingsFileLoc, WHM_settings)
+
+    if err == nil then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'warehousemanager'))
+        return
+    end
+
+    if g.settings.transfer ~= 1 or g.settings[LoginCID].transfer ~= 1 then
+        local transfer = settingframe:CreateOrGetControl('button', "transfer", 610, 125, 100, 25)
+        AUTO_CAST(transfer);
+        transfer:SetSkinName("test_red_button")
+        transfer:SetText("{ol}" .. another_warehouse_lang("Data copy"))
+        transfer:SetTextTooltip(another_warehouse_lang("Data copy from [Wrehouse Manager]"))
+        transfer:SetEventScript(ui.LBUTTONUP, "another_warehouse_data_transfer_confirmation")
+    end
+
+end
+
+function another_warehouse_data_transfer_confirmation(frame, ctrl, argStr, argNum)
+    local yesScp = string.format("another_warehouse_data_transfer()");
+
+    local str = another_warehouse_lang("Do you want to copy data from{nl}[Wrehouse Manager]?")
+    ui.MsgBox(str, yesScp, "None");
+    return;
+
+end
+
+function another_warehouse_data_transfer()
+
+    -- 'WarehouseManager''Charbon'
+    if g.settings.transfer ~= 1 then
+        local WHM_SettingsFileLoc = string.format('../addons/%s/settings.json', 'warehousemanager')
+        local WHM_settings = {}
+
+        local settings, err = acutil.loadJSON(WHM_SettingsFileLoc, WHM_settings)
+        if err then
+            -- 設定ファイル読み込み失敗時処理
+            CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'warehousemanager'))
+        end
+
+        local clsid = 0
+        local count = 0
+        -- settingsがnilまたは空の場合は初期設定を使用する
+        if settings then
+            for key, value in pairs(settings) do
+
+                if key == "ItemList" then
+                    g.settings.items = {}
+                    for key2, value2 in pairs(value) do
+                        g.settings.items[tostring(key2)] = {}
+                        for key3, value3 in pairs(value2) do
+
+                            if key3 == "ItemType" then
+                                g.settings.items[tostring(key2)].clsid = value3
+                            elseif key3 == "Count" then
+                                g.settings.items[tostring(key2)].count = value3
+                            end
+
+                        end
+                    end
+
+                end
+            end
+        end
+        g.settings.transfer = 1
+        another_warehouse_save_settings()
+        another_warehouse_setting_frame_init(_, _, _, _)
+        ReserveScript("another_warehouse_data_transfer_char()", 0.2)
+    else
+        another_warehouse_data_transfer_char()
+    end
+
+end
+
+function another_warehouse_data_transfer_char()
+
+    local LoginCID = info.GetCID(session.GetMyHandle())
+
+    if g.settings[tostring(LoginCID)].transfer ~= 1 then
+
+        local WHM_char_SettingsFileLoc = string.format("../addons/%s/%s.json", 'warehousemanager', LoginCID)
+        -- print(tostring(WHM_char_SettingsFileLoc))
+        local WHM_char_settings = {}
+
+        local settings, err = acutil.loadJSON(WHM_char_SettingsFileLoc, WHM_char_settings)
+        if err then
+            -- 設定ファイル読み込み失敗時処理
+            -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'WarehouseManagerキャラ設定'))
+        end
+
+        local clsid = 0
+        local count = 0
+        -- settingsがnilまたは空の場合は初期設定を使用する
+        -- print(tostring(settings))
+        if settings then
+
+            for key, value in pairs(settings) do
+
+                if key == "ItemList" then
+                    g.settings[tostring(LoginCID)].items = {}
+                    for key2, value2 in pairs(value) do
+                        g.settings[tostring(LoginCID)].items[tostring(key2)] = {}
+                        for key3, value3 in pairs(value2) do
+
+                            if key3 == "ItemType" then
+                                g.settings[tostring(LoginCID)].items[tostring(key2)].clsid = value3
+                            elseif key3 == "Count" then
+                                g.settings[tostring(LoginCID)].items[tostring(key2)].count = value3
+                            end
+
+                        end
+                    end
+
+                end
+            end
+        end
+
+        g.settings[tostring(LoginCID)].transfer = 1
+        another_warehouse_save_settings()
+        another_warehouse_setting_frame_init(_, _, _, _)
+        ui.SysMsg(another_warehouse_lang("Data copy completed."))
+    else
+
+        ui.SysMsg(another_warehouse_lang("Data copy completed."))
+        return
     end
 
 end
@@ -981,7 +1142,6 @@ function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
         for key, value in pairs(g.settings[LoginCID].items) do
             local clsid = value.clsid
 
-            -- print(tostring(clsid))
             if tostring(type) == tostring(clsid) then
                 ui.SysMsg(another_warehouse_lang("Already registered."))
                 return
@@ -1015,14 +1175,13 @@ function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
 
         local fromindex = string.gsub(fromslot:GetName(), "slot", "") * 1
         local toindex = string.gsub(ctrl:GetName(), "slot", "") * 1
-        -- print(fromframe)
 
         if g.settings.items[tostring(toindex)] == nil and fromframe == "char_slotset" then
             local type = fromslot:GetUserIValue("ITEM_CLSID")
 
             for key, value in pairs(g.settings.items) do
                 local clsid = value.clsid
-                -- print(tostring(clsid) .. ":" .. type)
+
                 if tostring(type) == tostring(clsid) then
                     ui.SysMsg(another_warehouse_lang("Already registered."))
                     return
@@ -1061,7 +1220,7 @@ function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
             for key, value in pairs(g.settings[LoginCID].items) do
                 local type = fromslot:GetUserIValue("ITEM_CLSID")
                 local clsid = value.clsid
-                -- print(tostring(clsid))
+
                 if tostring(type) == tostring(clsid) then
                     ui.SysMsg(another_warehouse_lang("Already registered."))
                     return
@@ -1099,10 +1258,10 @@ function another_warehouse_setting_check(frame, ctrl, argStr, argNum)
 
     local ctrlName = ctrl:GetName()
 
-    if ctrlName ~= "char_use_check" then
-        g.settings[ctrlName] = ischeck
+    if ctrlName == "amount_check" then
+        g.settings[tostring(ctrlName)] = ischeck
     else
-        g.settings[LoginCID].use = ischeck
+        g.settings[LoginCID][tostring(ctrlName)] = ischeck
     end
     another_warehouse_save_settings()
 end
@@ -1360,12 +1519,11 @@ end
 
 function another_warehouse_notice()
     local msg = another_warehouse_lang("Notice from [another warehouse]")
-    NICO_CHAT(msg)
+    NICO_CHAT("{@st55_a}" .. msg)
     local msg2 = another_warehouse_lang(
         "[Yet Another Account Inventory] add-on is installed and will not function properly.")
-    NICO_CHAT(msg2)
-    --[[ui.SysMsg(
-        "Notice from [another warehouse]{nl}The [Yet Another Account Inventory] add-on is installed and will not function properly.")]]
+    NICO_CHAT("{@st55_a}" .. msg2)
+
 end
 
 function another_warehouse_accountwarehouse_close()
@@ -1433,7 +1591,7 @@ function another_warehouse_checkvalid(iesid)
     local maxcount = another_warehouse_get_maxcount()
 
     if maxcount <= itemcnt then
-        -- print("maxslot")
+
         ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
         return;
     end
@@ -1587,7 +1745,7 @@ function another_warehouse_get_goal_index()
             end
         end
     else
-        -- print("maxslot2")
+
         ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
         return
     end
