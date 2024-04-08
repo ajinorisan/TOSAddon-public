@@ -448,7 +448,7 @@ function WarehouseManager_get_valid_index()
     local guidList = itemList:GetGuidList();
     local sortedGuidList = itemList:GetSortedGuidList();
     local invItemCount = sortedGuidList:Count();
-    -- print(tostring(invItemCount))
+    print(tostring(invItemCount))
 
     if invItemCount < maxcnt then
         for i = 4, 0, -1 do
@@ -1090,7 +1090,15 @@ function WAREHOUSEMANAGER_OPEN()
 
     local frame = ui.GetFrame("accountwarehouse")
     ACCOUNTWAREHOUSE_CLOSE(frame)
+    --[[if ADDONS.ebisuke.YAACCOUNTINVENTORY ~= nil then
+        -- local frame = ui.GetFrame("yaaccountinventory");
+        ReserveScript("YAI_ONLY_CLOSE_OVERLAP()", 1.0)
 
+        frame:EnablePop(true)
+        return
+
+        -- 
+    end]]
     UI_TOGGLE_INVENTORY()
     return
 end
@@ -1149,7 +1157,7 @@ function WAREHOUSEMANAGER_DROP_COMMON_ITEM(parent, ctrl)
             -- 소비 아이템은 인벤토리에 남길 개수 설정
             if maxStack > 1 then
                 INPUT_NUMBER_BOX(WarehouseManager.Frame, WarehouseManager:GetLangText('Message.ConsumeItemCount'),
-                                 'WAREHOUSEMANAGER_INSERT_COMMON_CONSUME_ITEM', 0, 0, maxStack, itemType)
+                    'WAREHOUSEMANAGER_INSERT_COMMON_CONSUME_ITEM', 0, 0, maxStack, itemType)
 
                 -- 이외의 아이템은 0개로 설정
             else
@@ -1174,7 +1182,7 @@ function WAREHOUSEMANAGER_DROP_PERSONAL_ITEM(parent, ctrl)
         -- 소비 아이템은 인벤토리에 남길 개수 설정
         if maxStack > 1 then
             INPUT_NUMBER_BOX(WarehouseManager.Frame, WarehouseManager:GetLangText('Message.ConsumeItemCount'),
-                             'WAREHOUSEMANAGER_INSERT_PERSONAL_CONSUME_ITEM', 0, 0, maxStack, itemType)
+                'WAREHOUSEMANAGER_INSERT_PERSONAL_CONSUME_ITEM', 0, 0, maxStack, itemType)
 
             -- 이외의 아이템은 0개로 설정
         else
@@ -1272,7 +1280,7 @@ function WAREHOUSEMANAGER_ON_ARRANGE_ITEM()
         local itemCls = GetClassByType('Item', depositItem.ItemType)
         local iconImg = GET_ITEM_ICON_IMAGE(itemCls, 'Icon')
         WarehouseManager:Log('Normal', 'Message.ItemDeposited', iconImg, itemCls.Name,
-                             GET_COMMAED_STRING(depositItem.Count))
+            GET_COMMAED_STRING(depositItem.Count))
         return
 
         -- 아이템을 모두 넣었을 경우
@@ -1286,7 +1294,7 @@ function WAREHOUSEMANAGER_ON_ARRANGE_ITEM()
             local itemCls = GetClassByType('Item', withdrawItem.ItemType)
             local iconImg = GET_ITEM_ICON_IMAGE(itemCls, 'Icon')
             WarehouseManager:Log('Normal', 'Message.ItemWithdrawn', iconImg, itemCls.Name,
-                                 GET_COMMAED_STRING(withdrawItem.Count))
+                GET_COMMAED_STRING(withdrawItem.Count))
         end
     end
 end
