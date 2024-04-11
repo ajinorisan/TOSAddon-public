@@ -13,10 +13,11 @@
 -- v1.1.2 リロードでバグった場合に効果音が消去されたままだったのを修正
 -- v1.1.3 ギルメンの要望に応えて日本鯖だけ別処理
 -- v1.1.4 まれに効果音が0のままで固定される不具合修正
+-- v1.1.5 効果音のバグ再修正。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -340,7 +341,7 @@ function always_status_load_settings_use()
     end]]
 
 end
-g.volume = config.GetSoundVolume()
+
 function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -350,14 +351,41 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
         g.loded = true
     end]]
 
-    -- always_status_original_frame_reductio()
     ReserveScript("always_status_original_frame_reduction()", 1.0)
-    ReserveScript("always_status_load_settings()", 2.0)
-    -- addon:RegisterMsg("GAME_START", "always_status_original_frame_reduction")
-    -- addon:RegisterMsg("GAME_START_3SEC", "always_status_load_settings")
+    ReserveScript("always_status_load_settings()", 1.5)
+
+    addon:RegisterMsg("GAME_START_3SEC", "always_status_original_frame_sound_config")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
-    -- print("test")
+    g.SetupHook(always_status_CONFIG_SOUNDVOL, "CONFIG_SOUNDVOL")
+
+end
+
+function always_status_original_frame_sound_config()
+
+    local volume = config.GetSoundVolume()
+    if g.settings.volume == nil then
+        if volume == g.volume then
+            config.SetSoundVolume(g.volume)
+        else
+            config.SetSoundVolume(volume)
+        end
+    else
+        config.SetSoundVolume(g.settings.volume)
+    end
+end
+
+function always_status_CONFIG_SOUNDVOL(frame, ctrl, str, num)
+    tolua.cast(ctrl, "ui::CSlideBar");
+    config.SetSoundVolume(ctrl:GetLevel());
+    -- print(tostring(ctrl:GetLevel()))
+    SET_SLIDE_VAL(frame, "soundVol", "soundVol_text", config.GetSoundVolume());
+    if g.settings.volume == nil then
+        g.settings.volume = tonumber(ctrl:GetLevel())
+
+    end
+    g.settings.volume = tonumber(ctrl:GetLevel())
+    always_status_save_settings()
 end
 
 function always_status_memo_save(frame, ctrl, argStr, argNum)
@@ -899,24 +927,14 @@ function always_status_STATUS_ONLOAD()
 end
 
 function always_status_original_frame_reduction()
-    local volume = config.GetSoundVolume()
-    -- print(volume)
+    g.volume = config.GetSoundVolume()
     config.SetSoundVolume(0)
     local frame = ui.GetFrame("status")
 
     frame:ShowWindow(1)
     frame:Resize(0, 0)
-    ReserveScript(string.format("always_status_original_frame_sound_config(%d)", volume), 3.0)
-    return
-end
 
-function always_status_original_frame_sound_config(volume)
-    -- print(volume)
-    if volume == g.volume then
-        config.SetSoundVolume(g.volume)
-    else
-        config.SetSoundVolume(volume)
-    end
+    return
 end
 
 function always_status_frame_move(frame)

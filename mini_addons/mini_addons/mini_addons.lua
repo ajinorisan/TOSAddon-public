@@ -663,13 +663,14 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         auto_gacha_btn:SetSkinName("test_gray_button");
         g.settings.auto_gacha_start = 0
         -- auto_gacha_text:ShowWindow(0)
-        MINI_ADDONS_SAVE_SETTINGS()
+
     else
         auto_gacha_btn:SetText("{ol}{#FFFFFF}ON")
         auto_gacha_btn:SetSkinName("test_red_button")
         -- auto_gacha_text:ShowWindow(1)
 
     end
+    MINI_ADDONS_SAVE_SETTINGS()
     auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
         "When turned on, the gacha starts automatically.CC required for switching"))
 
@@ -677,7 +678,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     if g.settings.auto_gacha ~= 1 then
         -- auto_gacha_btn:ShowWindow(0)
-        auto_gacha_text:ShowWindow(0)
+        -- auto_gacha_text:ShowWindow(0)
     end
     x = x + 30
 
@@ -1615,22 +1616,25 @@ end
 
 function MINI_ADDONS_GP_AUTOSTART_OPERATION(frame, ctrl)
     local text = ctrl:GetText()
-    local auto_gacha_text = GET_CHILD_RECURSIVELY(frame, "auto_gacha_text")
-    AUTO_CAST(auto_gacha_text)
+    -- local auto_gacha_text = GET_CHILD_RECURSIVELY(frame, "auto_gacha_text")
+    -- AUTO_CAST(auto_gacha_text)
     -- print(tostring(text))
     if text == "{ol}{#FFFFFF}OFF" then
         ctrl:SetText("{ol}{#FFFFFF}ON")
         ctrl:SetSkinName("test_red_button")
         g.settings.auto_gacha_start = 1
+        ui.SysMsg("Automatically turn the Goddess Protection Gacha.")
         MINI_ADDONS_SAVE_SETTINGS()
-        auto_gacha_text:ShowWindow(1)
-        -- frame:Invalidate()
+        ReserveScript(string.format("APPS_TRY_LEAVE('%s')", "Barrack"), 1.0)
+
     else
         ctrl:SetText("{ol}{#FFFFFF}OFF")
         ctrl:SetSkinName("test_gray_button");
         g.settings.auto_gacha_start = 0
+        ui.SysMsg("Turned off the automatic Goddess Protection gacha function.")
         MINI_ADDONS_SAVE_SETTINGS()
-        auto_gacha_text:ShowWindow(0)
+        ReserveScript(string.format("APPS_TRY_LEAVE('%s')", "Barrack"), 1.0)
+        -- auto_gacha_text:ShowWindow(0)
         -- frame:Invalidate()
     end
 end
