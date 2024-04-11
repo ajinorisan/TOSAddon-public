@@ -2,10 +2,11 @@
 -- v1.0.1 アイテム、シルバーの自動搬出入機能追加
 -- v1.0.2 搬入搬出高速化。ログ機能追加。設定画面閉じてもマウスカスタムファンクション保持していたバグ修正。
 -- v1.0.3 warehousemanagerの設定ファイルをコピー出来る様に。自動設定をキャラ毎に。
+-- v1.0.4 トークンの判定が環境によって安定しないためディレイを5秒に変更。入庫のディレイも設定できるように変更。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -48,7 +49,8 @@ function another_warehouse_load_settings()
 
             amount_check = 0,
             transfer = 0,
-            items = {}
+            items = {},
+            delay = 0.5
 
         }
         another_warehouse_save_settings()
@@ -190,7 +192,21 @@ function another_warehouse_lang(str)
         if str == "Data copy completed." then
             str = "データコピー完了"
         end
+        -- Put delay time
+        if str == "Put delay time" then
+            str = "入庫遅延設定"
+        end
 
+        -- Set the delay time in case of failure {nl}in warehouse entry. Basic is 0.5 sec.
+        if str == "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec." then
+            str =
+                "倉庫入庫に失敗する場合、時間を長めに設定してください。デフォルトは0.5秒です。"
+        end
+
+        -- ui.SysMsg(another_warehouse_lang("The entered text is not numeric."){nl}入力された文字が数値ではないです。")
+        if str == "Please enter numerical values." then
+            str = "数値で入力してください。"
+        end
     end
 
     return str
@@ -214,7 +230,15 @@ function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
     g.settings = g.settings or {}
     another_warehouse_load_settings()
     -- ReserveScript("another_warehouse_accountwarehouse_init()", 5.0)
-    addon:RegisterMsg("GAME_START_3SEC", "another_warehouse_accountwarehouse_init");
+    addon:RegisterMsg("GAME_START_3SEC", "another_warehouse_accountwarehouse_init_reserve");
+end
+
+function another_warehouse_accountwarehouse_init_reserve()
+    if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
+        another_warehouse_accountwarehouse_init()
+    else
+        ReserveScript("another_warehouse_accountwarehouse_init()", 2.0)
+    end
 end
 
 function another_warehouse_accountwarehouse_init()
@@ -402,7 +426,7 @@ function another_warehouse_item_tooltip(Name, iconName, Count)
 
     SET_SLOT_ICON(tooltip_slot, iconName)
     tooltip_frame:ShowWindow(1)
-
+    ReserveScript("another_warehouse_item_tooltip_close()", 0.45)
     -- return
 end
 
@@ -562,7 +586,13 @@ function another_warehouse_item_put()
     local warehouseFrame = ui.GetFrame('accountwarehouse')
     local flag = false
 
-    local delay = 0.5
+    if g.settings.delay == nil then
+        g.settings.delay = 0.5
+        another_warehouse_save_settings()
+    end
+
+    local delay = g.settings.delay
+
     for clsID, itemData in pairs(g.putitemtbl) do
         if warehouseFrame:IsVisible() == 1 then
             flag = true
@@ -586,11 +616,11 @@ function another_warehouse_item_put()
             local iconName = GET_ITEM_ICON_IMAGE(itemCls);
             local Name = itemCls.Name
 
-            ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),
-                delay - 0.45)
+            -- local tooldelay = delay - (delay - 0.05)
+            -- ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),               delay + 0.05)
 
-            ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s')", iesid, Count, handle,
-                goal_index, Name), delay)
+            ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s','%s')", iesid, Count, handle,
+                goal_index, Name, iconName), delay)
             delay = delay + 0.5
         else
             g.putitemtbl = nil
@@ -609,11 +639,13 @@ end
 function another_warehouse_end()
     ui.SysMsg("[AWH]End of Operation")
 end
-function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name)
+
+function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name, iconName)
     CHAT_SYSTEM(another_warehouse_lang("Item to warehousing") .. "：[" .. "{#EE82EE}" .. Name .. "{#FFFF00}]×" ..
                     "{#EE82EE}" .. count)
+    another_warehouse_item_tooltip(Name, iconName, count)
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
-    ReserveScript("another_warehouse_item_tooltip_close()", 0.45)
+
     return
 end
 
@@ -826,7 +858,8 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     amount_edit:SetFontName("white_16_ol")
     amount_edit:SetTextAlign("center", "center") -- print(tostring(g.settings.silver))
     amount_edit:SetText(GET_COMMAED_STRING(tonumber(g.settings.silver)))
-
+    amount_edit:SetEventScript(ui.ENTERKEY, 'another_warehouse_setting_edit')
+    -- amount_edit:SetEventScriptArgString(ui.ENTERKEY, yes_arg))
     --[[local char_use_check = settingframe:CreateOrGetControl('checkbox', "char_use_check", 660, 95, 25, 25)
     AUTO_CAST(char_use_check);
     char_use_check:SetTextTooltip(another_warehouse_lang("Unchecking the checkbox stops the{nl}" ..
@@ -946,6 +979,43 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
         transfer:SetEventScript(ui.LBUTTONUP, "another_warehouse_data_transfer_confirmation")
     end
 
+    local delay_edit = settingframe:CreateOrGetControl('edit', 'delay_edit', 400, 120, 100, 25)
+    AUTO_CAST(delay_edit)
+    delay_edit:SetFontName("white_16_ol")
+    delay_edit:SetTextAlign("center", "center") -- print(tostring(g.settings.silver))
+    if g.settings.delay == nil then
+        g.settings.delay = 0.5
+        another_warehouse_save_settings()
+    end
+    delay_edit:SetTextTooltip(another_warehouse_lang(
+        "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec."))
+    delay_edit:SetText(tonumber(g.settings.delay))
+    delay_edit:SetEventScript(ui.ENTERKEY, 'another_warehouse_setting_edit')
+
+    local delay_text = settingframe:CreateOrGetControl("richtext", "delay_text", 505, 125, 100, 0)
+    AUTO_CAST(delay_text);
+    delay_text:SetText("{ol}" .. another_warehouse_lang("Put delay time"))
+
+end
+
+function another_warehouse_setting_edit(frame, ctrl, argStr, argNum)
+
+    local ctrlnum = tonumber(ctrl:GetText())
+
+    if ctrlnum == nil then
+        ui.SysMsg(another_warehouse_lang("Please enter numerical values."))
+        return
+    end
+
+    local ctrlName = tostring(ctrl:GetName())
+
+    if ctrlName == "amount_edit" then
+        g.settings.silver = ctrlnum
+    elseif ctrlName == "delay_edit" then
+        g.settings.delay = ctrlnum
+    end
+    another_warehouse_save_settings()
+    another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
 end
 
 function another_warehouse_data_transfer_confirmation(frame, ctrl, argStr, argNum)

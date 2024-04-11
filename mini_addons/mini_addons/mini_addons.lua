@@ -28,10 +28,11 @@
 -- v1.2.7 女神ガチャフルベットボタンつけた。女神ガチャ中CCやチャンネル移動でフレーム表示されてたの1回目のみに修正。
 -- v1.2.8 パーティーインフォフレームの表示切替
 -- v1.2.9 パーティーインフォフレーム。いつものバグ修正
+-- v1.3.0 プレイヤーゲージにレリック追加。スロガウピニス回ってる時の確認機能。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.9"
+local ver = "1.3.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -136,7 +137,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.mini_btn == 1 then
-        -- 右上のミニボタンを消したりする機能
 
         if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
             addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
@@ -218,6 +218,16 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         -- frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     end
 
+    if g.settings.relic_gauge == 1 then
+        addon:RegisterMsg("GAME_START", "MINI_ADDONS_CHARBASE_RELIC")
+        addon:RegisterMsg("RP_UPDATE", "MINI_ADDONS_CHARBASE_RELIC")
+
+    end
+
+    if g.settings.raid_check == 1 then
+        acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "MINI_ADDONS_CHECK_DREAMY_ABYSS")
+    end
+
     if g.settings.party_info == nil then
         g.settings.party_info = 1
         MINI_ADDONS_SAVE_SETTINGS()
@@ -243,338 +253,425 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 end
 
+function MINI_ADDONS_LANG(str)
+
+    local langcode = option.GetCurrentCountry()
+
+    if langcode == "Japanese" then
+        if str == "Skip confirmation for admission of 4 or less people" then
+            str = "4人以下入場時の確認をスキップ"
+        end
+
+        if str == "Raid records movable and resizable" then
+            str = "レイドレコードを移動可能にしてサイズを変更"
+        end
+
+        if str == "Hide buffs for party members" then
+            str = "パーティーメンバーのバフを非表示にします"
+        end
+
+        if str == "You can choose which buffs to display" then
+            str = "表示するバフを選べます"
+        end
+
+        if str == "Perfect and Black Market notices not displayed in chat" then
+            str =
+                "パーフェクトとブラックマーケットのお知らせをチャットに表示しない様にします"
+        end
+
+        if str == "Fixed channel display misalignment" then
+            str = "チャンネル表示のズレを修正"
+        end
+
+        if str == "Hide mini-button in upper right corner during raid" then
+            str = "レイド時右上のミニボタン非表示"
+        end
+
+        if str == "When moving into town, the list of stores in the upper right corner should be open" then
+            str = "街に移動時、右上の商店一覧を開けた状態にします"
+        end
+
+        if str == "Enable to move the choice frame at restart. For colony visits" then
+            str = "リスタート時の選択肢フレームを動かせる様にします。コロニー見学用"
+        end
+
+        if str == "Automatic display of pet summon frame" then
+            str = "ペット召喚フレームを自動表示"
+        end
+
+        if str == "Controls various dialogs" then
+            str = "各種ダイアログをコントロールします"
+        end
+
+        if str == "Autocasting is set up for each character" then
+            str = "オートキャスティングをキャラ毎に設定"
+        end
+
+        if str == "Automatically used when acquiring coin items" then
+            str =
+                "傭兵団コイン、シーズンコイン、王国再建団コインを取得時に自動で使用します"
+        end
+
+        if str == "Notification of forgetting to equip ark and emblem upon entry to the hard raid" then
+            str = "ハードレイド入場時にアークやエンブレムの装備忘れをお知らせします"
+        end
+
+        if str == "Lower the layer level of the frame when auto-matching" then
+            str = "オートマッチ時のフレームのレイヤーレベルを下げます"
+        end
+
+        if str == "Hide the quest list" then
+            str = "クエストリストを非表示にします"
+        end
+
+        if str == "Change the upper left display to the character's name" then
+            str = "左上の表示をキャラクター名に変更します"
+        end
+
+        if str == "Displays the channel switching frame" then
+            str = "チャンネル切替フレームを表示します"
+        end
+
+        if str == "Adjusts the effect of others. 1~100, recommended 75" then
+            str = "他人のエフェクトを調整します。1~100。おすすめは75"
+        end
+
+        if str == "Automate the display of the Goddess Protection gacha frame" then
+            str = "女神の加護ガチャフレーム表示を自動化します"
+        end
+
+        if str == "When turned on, the gacha starts automatically.CC required for switching" then
+            str = "ONにすると自動でガチャスタートします。切替にCC必要です"
+        end
+
+        if str == "Automatically sets items for skill refining" then
+            str = "スキル錬成のアイテムを自動でセットします"
+        end
+
+        if str == "Add a Relic to the character's gauge" then
+            str = "キャラクターゲージにレリックを追加します"
+        end
+
+        if str == "Prevents character change mistakes during the hard raid on the Dreamy& Abyss" then
+            str = "夢幻＆深淵のハードレイド時のキャラクターチェンジミスを防ぎます"
+        end
+
+        if str == "Switching the display of the party info frame. For mouse mode.Party info right-click" then
+            str =
+                "パーティーフレームの表示切替。右クリックで小さくします。マウスモード用"
+        end
+
+        if str == "Check to enable" then
+            str = "チェックすると有効化"
+        end
+
+        if str == "※Character change is required to enable or disable some functions" then
+            str = "※一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です"
+        end
+
+    end
+    return str
+end
+
 function MINI_ADDONS_SETTING_FRAME_INIT()
+
     local frame = ui.GetFrame("mini_addons")
-    local closebtn = GET_CHILD_RECURSIVELY(frame, "close")
+    --[[local closebtn = GET_CHILD_RECURSIVELY(frame, "close")
     if frame:IsVisible() == 1 and closebtn ~= nil then
         frame:ShowWindow(0)
         return
-    end
-    -- frame:SetSkinName("test_frame_low")
+    end]]
+    -- frame:SetSkinName("chat_window")
     frame:SetSkinName("test_frame_midle_light")
-    frame:SetLayerLevel(93)
-    frame:Resize(710, 560)
-    frame:SetPos(1210, 345)
+    frame:SetLayerLevel(93) -- クイックスロットが91やから
+
     frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
     frame:EnableHide(0)
     frame:EnableHitTest(1)
     frame:SetAlpha(100)
     frame:RemoveAllChild()
-    frame:ShowWindow(1)
 
-    local close = frame:CreateOrGetControl("button", "close", 670, 10, 25, 25)
-    close:SetText("{ol}{#FFFFFF}×")
+    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
+
+    local close = frame:CreateOrGetControl("button", "close", 615, 5, 30, 30)
+    AUTO_CAST(close)
+    -- close:SetText("{ol}{#FFFFFF}×")
+    close:SetSkinName("None")
+    close:SetText("{img testclose_button 30 30}")
+
+    -- close:SetGravity(ui.RIGHT, ui.TOP);
     close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
 
-    -- frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_FRAME_CLOSE");
-    -- frame:SetTextTooltip("{ol}右クリックで閉じます。{nl}Right-click to close.")
     local x = 10
     local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, x + 5)
-    under_staff:SetText("{ol}{#FF4500}Skip confirmation for admission of 4 or less people")
-    under_staff:SetTextTooltip(
-        "{@st59}4人以下入場時の確認をスキップ{nl}4인 이하 입장 시 확인 생략")
+    under_staff:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Skip confirmation for admission of 4 or less people"))
+    under_staff:SetTextTooltip("{ol}4인 이하 입장 시 확인 생략")
 
     local under_staff_checkbox = frame:CreateOrGetControl('checkbox', 'under_staff_checkbox', 10, x, 25, 25)
     AUTO_CAST(under_staff_checkbox)
     under_staff_checkbox:SetCheck(g.settings.under_staff)
     under_staff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    under_staff_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    under_staff_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, x + 5)
-    raid_record:SetText("{ol}{#FF4500}Raid records movable and resizable")
-    raid_record:SetTextTooltip(
-        "{@st59}レイドレコードを移動可能にしてサイズを変更{nl}레이드 레코드의 이동 및 크기 변경 가능")
+    raid_record:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Raid records movable and resizable"))
+    raid_record:SetTextTooltip("레이드 레코드의 이동 및 크기 변경 가능")
 
     local raid_record_checkbox = frame:CreateOrGetControl('checkbox', 'raid_record_checkbox', 10, x, 25, 25)
     AUTO_CAST(raid_record_checkbox)
     raid_record_checkbox:SetCheck(g.settings.raid_record)
     raid_record_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    raid_record_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
-
+    raid_record_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
-    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 40, x + 5)
-    party_buff:SetText("{ol}{#FF4500}Hide buffs for party members.")
-    party_buff:SetTextTooltip(
-        "{@st59}パーティーメンバーのバフを非表示にします。{nl}파티원의 버프를 숨깁니다.")
+    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 110, x + 5, 80, x + 5)
+    party_buff:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide buffs for party members"))
+    party_buff:SetTextTooltip("파티원의 버프를 숨깁니다.")
 
     local party_buff_checkbox = frame:CreateOrGetControl('checkbox', 'party_buff_checkbox', 10, x, 25, 25)
     AUTO_CAST(party_buff_checkbox)
     party_buff_checkbox:SetCheck(g.settings.party_buff)
     party_buff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    party_buff_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    party_buff_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
-    local party_buff_btn = frame:CreateOrGetControl("button", "party_buff_btn", 280, x, 80, 30)
+    local party_buff_btn = frame:CreateOrGetControl("button", "party_buff_btn", 40, x, 40, 30)
     AUTO_CAST(party_buff_btn)
     party_buff_btn:SetText("{ol}{#FFFFFF}bufflist")
-    party_buff_btn:SetTextTooltip(
-        "{@st59}表示するバフを選べます。{nl}You can choose which buffs to display.{nl}표시할 버프를 선택할 수 있습니다.")
+    party_buff_btn:SetTextTooltip(MINI_ADDONS_LANG("You can choose which buffs to display"))
     party_buff_btn:SetSkinName("test_red_button")
     party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
 
     x = x + 30
 
     local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, x + 5)
-    chat_system:SetText("{ol}{#FF4500}Perfect and Black Market notices not displayed in chat")
-    chat_system:SetTextTooltip(
-        "{@st59}パーフェクトとブラックマーケットのお知らせをチャットに表示しない{nl}퍼펙트 및 블랙마켓 공지사항을 채팅에 표시하지 않습니다.")
+    chat_system:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Perfect and Black Market notices not displayed in chat"))
+    chat_system:SetTextTooltip("퍼펙트 및 블랙마켓 공지사항을 채팅에 표시하지 않습니다.")
 
     local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 10, x, 25, 25)
     AUTO_CAST(chat_system_checkbox)
     chat_system_checkbox:SetCheck(g.settings.chat_system)
     chat_system_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    chat_system_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
-
+    chat_system_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
     local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, x + 5)
-    channel_display:SetText("{ol}{#FF4500}Fixed channel display misalignment")
-    channel_display:SetTextTooltip(
-        "{@st59}チャンネル表示のズレを修正{nl}채널 표시가 어긋나는 현상 수정")
+    channel_display:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Fixed channel display misalignment"))
+    channel_display:SetTextTooltip("채널 표시가 어긋나는 현상 수정")
 
     local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, x, 25, 25)
     AUTO_CAST(channel_display_checkbox)
     channel_display_checkbox:SetCheck(g.settings.channel_display)
     channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    channel_display_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
-
+    channel_display_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
     local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, x + 5)
-    mini_btn:SetText("{ol}{#FF4500}Hide mini-button in upper right corner during raid")
-    mini_btn:SetTextTooltip(
-        "{@st59}レイド時右上のミニボタン非表示{nl}레이드 시 오른쪽 상단 미니 버튼 숨기기")
+    mini_btn:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide mini-button in upper right corner during raid"))
+    mini_btn:SetTextTooltip("레이드 시 오른쪽 상단 미니 버튼 숨기기")
 
     local mini_btn_checkbox = frame:CreateOrGetControl('checkbox', 'mini_btn_checkbox', 10, x, 25, 25)
     AUTO_CAST(mini_btn_checkbox)
     mini_btn_checkbox:SetCheck(g.settings.mini_btn)
     mini_btn_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    mini_btn_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    mini_btn_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, x + 5)
-    market_display:SetText(
-        "{ol}{#FF4500}When moving into town, the list of stores in the upper right corner should be open.")
+    market_display:SetText("{ol}{#FF4500}" ..
+                               MINI_ADDONS_LANG(
+            "When moving into town, the list of stores in the upper right corner should be open"))
     market_display:SetTextTooltip(
-        "{@st59}街に移動時、右上の商店一覧を開けた状態にします。{nl}거리로 이동할 때, 오른쪽 상단의 상점 목록이 열린 상태로 만듭니다.")
+        "{거리로 이동할 때, 오른쪽 상단의 상점 목록이 열린 상태로 만듭니다.")
 
     local market_display_checkbox = frame:CreateOrGetControl('checkbox', 'market_display_checkbox', 10, x, 25, 25)
     AUTO_CAST(market_display_checkbox)
     market_display_checkbox:SetCheck(g.settings.market_display)
     market_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    market_display_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    market_display_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, x + 5)
-    restart_move:SetText("{ol}{#FF4500}Enable to move the choice frame at restart. For colony visits.")
+    restart_move:SetText("{ol}{#FF4500}" ..
+                             MINI_ADDONS_LANG("Enable to move the choice frame at restart. For colony visits"))
     restart_move:SetTextTooltip(
-        "{@st59}リスタート時の選択肢フレームを動かせる様にします。コロニー見学用。{nl}재시작 시 선택 프레임을 움직일 수 있도록 합니다. 식민지 견학용.")
+        "재시작 시 선택 프레임을 움직일 수 있도록 합니다. 식민지 견학용.")
 
     local restart_move_checkbox = frame:CreateOrGetControl('checkbox', 'restart_move_checkbox', 10, x, 25, 25)
     AUTO_CAST(restart_move_checkbox)
     restart_move_checkbox:SetCheck(g.settings.restart_move)
     restart_move_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    restart_move_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    restart_move_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, x + 5)
-    pet_init:SetText("{ol}{#FF4500}Ability to display a pet summoning frame.")
-    pet_init:SetTextTooltip(
-        "{@st59}ペット召喚フレームを表示する機能。{nl}애완동물 소환 프레임을 표시하는 기능.")
+    pet_init:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automatic display of pet summon frame"))
+    pet_init:SetTextTooltip("펫 소환 프레임 자동 표시")
 
     local pet_init_checkbox = frame:CreateOrGetControl('checkbox', 'pet_init_checkbox', 10, x, 25, 25)
     AUTO_CAST(pet_init_checkbox)
     pet_init_checkbox:SetCheck(g.settings.pet_init)
     pet_init_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    pet_init_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
-
+    pet_init_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
     local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, x + 5)
-    dialog_ctrl:SetText("{ol}{#FF4500}Controls various dialogs.")
-    dialog_ctrl:SetTextTooltip(
-        "{@st59}各種ダイアログをコントロールします。{nl}각종 대화 상자를 제어합니다.")
+    dialog_ctrl:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Controls various dialogs"))
+    dialog_ctrl:SetTextTooltip("각종 대화 상자를 제어합니다")
 
     local dialog_ctrl_checkbox = frame:CreateOrGetControl('checkbox', 'dialog_ctrl_checkbox', 10, x, 25, 25)
     AUTO_CAST(dialog_ctrl_checkbox)
     dialog_ctrl_checkbox:SetCheck(g.settings.dialog_ctrl)
     dialog_ctrl_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    dialog_ctrl_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    dialog_ctrl_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local auto_cast = frame:CreateOrGetControl("richtext", "auto_cast", 40, x + 5)
-    auto_cast:SetText("{ol}{#FF4500}Autocasting is set up for each character.")
-    auto_cast:SetTextTooltip(
-        "{@st59}オートキャスティングをキャラ毎に設定。{nl}자동 캐스팅을 캐릭터별로 설정합니다.")
+    auto_cast:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Autocasting is set up for each character"))
+    auto_cast:SetTextTooltip("자동 캐스팅을 캐릭터별로 설정합니다.")
 
     local auto_cast_checkbox = frame:CreateOrGetControl('checkbox', 'auto_cast_checkbox', 10, x, 25, 25)
     AUTO_CAST(auto_cast_checkbox)
     auto_cast_checkbox:SetCheck(g.settings.auto_cast)
     auto_cast_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    auto_cast_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    auto_cast_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local coin_use = frame:CreateOrGetControl("richtext", "coin_use", 40, x + 5)
-    coin_use:SetText("{ol}{#FF4500}Automatically used when acquiring coin items.Works only in town.")
+    coin_use:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automatically used when acquiring coin items"))
     coin_use:SetTextTooltip(
-        "{@st59}傭兵団コイン、シーズンコイン、王国再建団コインを取得時に自動で使用します。街でのみ動作します。{nl}코인 아이템 획득 시 자동으로 사용됩니다.도시에서만 작동합니다.")
+        "용병단 코인, 시즌 코인, 왕국 재건단 코인 획득 시 자동으로 사용됩니다")
 
     local coin_use_checkbox = frame:CreateOrGetControl('checkbox', 'coin_use_checkbox', 10, x, 25, 25)
     AUTO_CAST(coin_use_checkbox)
     coin_use_checkbox:SetCheck(g.settings.coin_use)
     coin_use_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    coin_use_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    coin_use_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
     local equip_info = frame:CreateOrGetControl("richtext", "equip_info", 40, x + 5)
-    equip_info:SetText("{ol}{#FF4500}Notification of forgetting to equip ark and emblem upon entry to the hard raid.")
+    equip_info:SetText("{ol}{#FF4500}" ..
+                           MINI_ADDONS_LANG(
+            "Notification of forgetting to equip ark and emblem upon entry to the hard raid"))
     equip_info:SetTextTooltip(
-        "{@st59}ハードレイド入場時にアークやエンブレムの装備忘れをお知らせします。{nl}하드 레이드 입장 시 아크와 엠블럼을 잊어버린 것을 알려드립니다.")
+        "하드 레이드 입장 시 아크와 엠블럼을 잊어버린 것을 알려드립니다.")
 
     local equip_info_checkbox = frame:CreateOrGetControl('checkbox', 'equip_info_checkbox', 10, x, 25, 25)
     AUTO_CAST(equip_info_checkbox)
     equip_info_checkbox:SetCheck(g.settings.equip_info)
     equip_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    equip_info_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
-
+    equip_info_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
     local automatch_layer = frame:CreateOrGetControl("richtext", "automatch_layer", 40, x + 5)
-    automatch_layer:SetText("{ol}{#FF4500}Lower the layer level of the frame when auto-matching.")
-    automatch_layer:SetTextTooltip(
-        "{@st59}オートマッチ時のフレームのレイヤーレベルを下げます。{nl}오토매치 시 프레임의 레이어 레벨을 낮춥니다.")
+    automatch_layer:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Lower the layer level of the frame when auto-matching"))
+    automatch_layer:SetTextTooltip("오토매치 시 프레임의 레이어 레벨을 낮춥니다.")
 
     local automatch_layer_checkbox = frame:CreateOrGetControl('checkbox', 'automatch_layer_checkbox', 10, x, 25, 25)
     AUTO_CAST(automatch_layer_checkbox)
 
     automatch_layer_checkbox:SetCheck(g.settings.automatch_layer)
     automatch_layer_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    automatch_layer_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
-
+    automatch_layer_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
     local quest_hide = frame:CreateOrGetControl("richtext", "quest_hide", 40, x + 5)
-    quest_hide:SetText("{ol}{#FF4500}Hide the quest list.")
-    quest_hide:SetTextTooltip(
-        "{@st59}クエストリストを非表示にします。{nl}퀘스트 목록을 숨깁니다.")
+    quest_hide:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide the quest list"))
+    quest_hide:SetTextTooltip("퀘스트 목록을 숨깁니다.")
 
     local quest_hide_checkbox = frame:CreateOrGetControl('checkbox', 'quest_hide_checkbox', 10, x, 25, 25)
     AUTO_CAST(quest_hide_checkbox)
 
     quest_hide_checkbox:SetCheck(g.settings.quest_hide)
     quest_hide_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    quest_hide_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    quest_hide_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local pc_name = frame:CreateOrGetControl("richtext", "pc_name", 40, x + 5)
-    pc_name:SetText("{ol}{#FF4500}Change the upper left display to the character's name.")
-    pc_name:SetTextTooltip(
-        "{@st59}左上の表示をキャラクター名に変更します。{nl}왼쪽 상단의 표시를 캐릭터 이름으로 변경합니다.")
+    pc_name:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Change the upper left display to the character's name"))
+    pc_name:SetTextTooltip("왼쪽 상단의 표시를 캐릭터 이름으로 변경합니다.")
 
     local pc_name_checkbox = frame:CreateOrGetControl('checkbox', 'pc_name_checkbox', 10, x, 25, 25)
     AUTO_CAST(pc_name_checkbox)
 
     pc_name_checkbox:SetCheck(g.settings.pc_name)
     pc_name_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    pc_name_checkbox:SetTextTooltip("{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    pc_name_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
     x = x + 30
 
     local channel_info = frame:CreateOrGetControl("richtext", "channel_info", 40, x + 5)
-    channel_info:SetText("{ol}{#FF4500}Displays the channel switching frame.")
-    channel_info:SetTextTooltip(
-        "{@st59}チャンネル切替フレームを表示します。{nl}채널 전환 프레임을 표시합니다.")
+    channel_info:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Displays the channel switching frame"))
+    channel_info:SetTextTooltip("채널 전환 프레임을 표시합니다.")
 
     local channel_info_checkbox = frame:CreateOrGetControl('checkbox', 'channel_info_checkbox', 10, x, 25, 25)
     AUTO_CAST(channel_info_checkbox)
     channel_info_checkbox:SetCheck(g.settings.channel_info)
     channel_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    channel_info_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
-
+    channel_info_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
-    local other_effect = frame:CreateOrGetControl("richtext", "other_effect", 40, x + 5)
-    other_effect:SetText("{ol}{#FF4500}Adjusts the effect of others. 1~100, recommended 75.")
+    local other_effect = frame:CreateOrGetControl("richtext", "other_effect", 110, x + 5)
+    other_effect:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Adjusts the effect of others. 1~100, recommended 75"))
     other_effect:SetTextTooltip(
-        "{@st59}他人のエフェクトを調整します。1~100。おすすめは75。{nl}다른 사람의 효과를 1에서 100까지 조정할 수 있으며, 권장치는 75입니다.")
+        "다른 사람의 효과를 1에서 100까지 조정할 수 있으며, 권장치는 75입니다.")
 
     local other_effect_checkbox = frame:CreateOrGetControl('checkbox', 'other_effect_checkbox', 10, x, 25, 25)
     AUTO_CAST(other_effect_checkbox)
     other_effect_checkbox:SetCheck(g.settings.other_effect)
     other_effect_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    other_effect_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    other_effect_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
-    local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', 460, x, 60, 25)
+    local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', 40, x, 60, 25)
     AUTO_CAST(other_effect_edit)
     other_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_OTHER_EFFECT_EDIT")
     other_effect_edit:SetTextTooltip("{@st59}1~100")
     other_effect_edit:SetFontName("white_16_ol")
     other_effect_edit:SetTextAlign("center", "center")
     local other_effect = config.GetOtherEffectTransparency()
-    -- print(tostring(other_effect))
+
     local num = math.floor(other_effect * 0.392156862745 + 0.5)
     other_effect_edit:SetText(num)
-    -- (tonumber(other_effect))
 
     x = x + 30
 
-    local auto_gacha = frame:CreateOrGetControl("richtext", "auto_gacha", 40, x + 5)
-    auto_gacha:SetText("{ol}{#FF4500}Automate the Goddess Protection Gacha.")
-    auto_gacha:SetTextTooltip(
-        "{@st59}女神の加護ガチャを自動化します。{nl}여신의 가호 가챠를 자동화합니다.")
+    local auto_gacha = frame:CreateOrGetControl("richtext", "auto_gacha", 100, x + 5)
+    auto_gacha:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automate the display of the Goddess Protection gacha frame"))
+    auto_gacha:SetTextTooltip("여신의 가호 가챠 프레임 표시를 자동화합니다")
 
     local auto_gacha_checkbox = frame:CreateOrGetControl('checkbox', 'auto_gacha_checkbox', 10, x, 25, 25)
     AUTO_CAST(auto_gacha_checkbox)
     auto_gacha_checkbox:SetCheck(g.settings.auto_gacha)
     auto_gacha_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    auto_gacha_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    auto_gacha_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
 
-    local auto_gacha_btn = frame:CreateOrGetControl('button', 'auto_gacha_btn', 370, x, 50, 30)
+    local auto_gacha_btn = frame:CreateOrGetControl('button', 'auto_gacha_btn', 40, x, 50, 30)
     AUTO_CAST(auto_gacha_btn)
-    local auto_gacha_text = frame:CreateOrGetControl("richtext", "auto_gacha_text", 430, x + 5)
+    --[[local auto_gacha_text = frame:CreateOrGetControl("richtext", "auto_gacha_text", 430, x + 5)
     AUTO_CAST(auto_gacha_text)
-    auto_gacha_text:SetText("{ol}{#FF4500}Auto-gacha in operation.")
+    auto_gacha_text:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Auto-gacha in operation"))]]
     if g.settings.auto_gacha_start == 0 or g.settings.auto_gacha_start == nil then
         auto_gacha_btn:SetText("{ol}{#FFFFFF}OFF")
         auto_gacha_btn:SetSkinName("test_gray_button");
         g.settings.auto_gacha_start = 0
-        auto_gacha_text:ShowWindow(0)
+        -- auto_gacha_text:ShowWindow(0)
         MINI_ADDONS_SAVE_SETTINGS()
     else
         auto_gacha_btn:SetText("{ol}{#FFFFFF}ON")
         auto_gacha_btn:SetSkinName("test_red_button")
-        auto_gacha_text:ShowWindow(1)
+        -- auto_gacha_text:ShowWindow(1)
 
     end
-    auto_gacha_btn:SetTextTooltip(
-        "{@st59}ONにすると自動でガチャスタートします。切替にCC必要です。{nl}When turned on, the gacha starts automatically.CC required for switching.{nl}ON으로 설정하면 자동으로 가챠가 시작됩니다.전환에 CC가 필요합니다.")
+    auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
+        "When turned on, the gacha starts automatically.CC required for switching"))
 
     auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
 
@@ -585,39 +682,383 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     x = x + 30
 
     local skill_enchant = frame:CreateOrGetControl("richtext", "skill_enchant", 40, x + 5)
-    skill_enchant:SetText("{ol}{#FF4500}Automatically sets items for skill refining.")
-    skill_enchant:SetTextTooltip(
-        "{@st59}スキル錬成のアイテムを自動でセットします。{nl}스킬 연성 아이템을 자동으로 설정합니다.")
+    skill_enchant:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automatically sets items for skill refining"))
+    skill_enchant:SetTextTooltip("스킬 연성 아이템을 자동으로 설정합니다.")
 
     local skill_enchant_checkbox = frame:CreateOrGetControl('checkbox', 'skill_enchant_checkbox', 10, x, 25, 25)
     AUTO_CAST(skill_enchant_checkbox)
     skill_enchant_checkbox:SetCheck(g.settings.skill_enchant)
     skill_enchant_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    skill_enchant_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    skill_enchant_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
+    x = x + 30
+
+    local relic_gauge = frame:CreateOrGetControl("richtext", "relic_gauge", 40, x + 5)
+    relic_gauge:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Add a Relic to the character's gauge"))
+    relic_gauge:SetTextTooltip("캐릭터의 게이지에 유물을 추가합니다.")
+
+    local relic_gauge_checkbox = frame:CreateOrGetControl('checkbox', 'relic_gauge_checkbox', 10, x, 25, 25)
+    AUTO_CAST(relic_gauge_checkbox)
+    relic_gauge_checkbox:SetCheck(g.settings.relic_gauge)
+    relic_gauge_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    relic_gauge_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
+    x = x + 30
+
+    local raid_check = frame:CreateOrGetControl("richtext", "raid_check", 40, x + 5)
+    raid_check:SetText("{ol}{#FF4500}" ..
+                           MINI_ADDONS_LANG(
+            "Prevents character change mistakes during the hard raid on the Dreamy& Abyss"))
+    raid_check:SetTextTooltip("몽환 & 심연의 하드 레이드 시 캐릭터 변경 실수를 방지합니다.")
+
+    local raid_check_checkbox = frame:CreateOrGetControl('checkbox', 'raid_check_checkbox', 10, x, 25, 25)
+    AUTO_CAST(raid_check_checkbox)
+    raid_check_checkbox:SetCheck(g.settings.raid_check)
+    raid_check_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    raid_check_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
     -- !
     local party_info = frame:CreateOrGetControl("richtext", "party_info", 40, x + 5)
-    party_info:SetText(
-        "{ol}{#FF4500}Switching the display of the party info frame. For mouse mode.Party info right-click.")
-    party_info:SetTextTooltip(
-        "{@st59}パーティーフレームの表示切替。マウスモード用。{nl}파티 인포 프레임의 표시 전환. 마우스 모드용.")
+    party_info:SetText("{ol}{#FF4500}" ..
+                           MINI_ADDONS_LANG(
+            "Switching the display of the party info frame. For mouse mode.Party info right-click"))
+    party_info:SetTextTooltip("파티 인포 프레임의 표시 전환. 마우스 모드용")
 
     local party_info_checkbox = frame:CreateOrGetControl('checkbox', 'party_info_checkbox', 10, x, 25, 25)
     AUTO_CAST(party_info_checkbox)
     party_info_checkbox:SetCheck(g.settings.party_info)
     party_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    party_info_checkbox:SetTextTooltip(
-        "{@st59}チェックすると有効化{nl}Check to enable{nl}체크하면 활성화")
+    party_info_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
-    local description = frame:CreateOrGetControl("richtext", "description", 140, x + 5)
-    description:SetText("{ol}{#FFA500}※Character change is required to enable or disable some functions.")
-    description:SetTextTooltip(
-        "{@st59}一部の機能の有効化、無効化の切替はキャラクターチェンジが必要です。{nl}일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다.")
+    local description = frame:CreateOrGetControl("richtext", "description", 40, x + 5)
+    description:SetText("{ol}{#FFA500}" ..
+                            MINI_ADDONS_LANG("※Character change is required to enable or disable some functions"))
+    description:SetTextTooltip("일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다")
 
     x = x + 30
-    frame:Resize(710, x)
+
+    local langcode = option.GetCurrentCountry()
+
+    if langcode ~= "Japanese" then
+        frame:Resize(720, x)
+        close:SetOffset(70, 0)
+    else
+        frame:Resize(650, x)
+    end
+
+    local screenWidth = ui.GetClientInitialWidth() -- 画面の幅
+    local screenHeight = ui.GetClientInitialHeight() -- 画面の高さ
+    local frameWidth = frame:GetWidth() -- フレームの幅
+    local frameHeight = frame:GetHeight() -- フレームの高さ
+
+    -- 画面の中央にフレームを配置する
+    frame:SetPos((screenWidth - frameWidth) / 2, (screenHeight - frameHeight) / 2)
+
+    frame:ShowWindow(1)
+
+end
+
+function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
+    local ischeck = ctrl:IsChecked()
+    local ctrlname = ctrl:GetName()
+    local settingNames = {
+        other_effect = "other_effect_checkbox",
+        channel_info = "channel_info_checkbox",
+        pc_name = "pc_name_checkbox",
+        quest_hide = "quest_hide_checkbox",
+        automatch_layer = "automatch_layer_checkbox",
+        equip_info = "equip_info_checkbox",
+        under_staff = "under_staff_checkbox",
+        raid_record = "raid_record_checkbox",
+        party_buff = "party_buff_checkbox",
+        chat_system = "chat_system_checkbox",
+        channel_display = "channel_display_checkbox",
+        mini_btn = "mini_btn_checkbox",
+        market_display = "market_display_checkbox",
+        restart_move = "restart_move_checkbox",
+        pet_init = "pet_init_checkbox",
+        dialog_ctrl = "dialog_ctrl_checkbox",
+        auto_cast = "auto_cast_checkbox",
+        coin_use = "coin_use_checkbox",
+        auto_gacha = "auto_gacha_checkbox",
+        skill_enchant = "skill_enchant_checkbox",
+        party_info = "party_info_checkbox",
+        relic_gauge = "relic_gauge_checkbox",
+        raid_check = "raid_check_checbox"
+        -- !
+    }
+
+    for settingName, checkboxName in pairs(settingNames) do
+        if ctrlname == checkboxName then
+            g.settings[settingName] = ischeck
+            MINI_ADDONS_SAVE_SETTINGS()
+            MINI_ADDONS_LOAD_SETTINGS()
+            break
+        end
+    end
+end
+
+if not g.loaded then
+    local loginCharID = info.GetCID(session.GetMyHandle())
+    g.settings = {
+
+        reword_x = 1100,
+        reword_y = 100,
+        charid = {
+            [loginCharID] = 0
+        },
+        allcall = 0,
+        under_staff = 1,
+        raid_record = 1,
+        party_buff = 1,
+        chat_system = 1,
+        channel_display = 1,
+        mini_btn = 1,
+        market_display = 1,
+        restart_move = 1,
+        pet_init = 1,
+        dialog_ctrl = 1,
+        auto_cast = 1,
+        auto_casting = {},
+        buffid = {},
+        coin_use = 1,
+        equip_info = 1,
+        automatch_layer = 1,
+        quest_hide = 1,
+        pc_name = 1,
+        auto_gacha = 0,
+        skill_enchant = 1,
+        auto_gacha_start = 0,
+        party_info = 1,
+        relic_gauge = 1,
+        raid_check = 1
+
+        -- !
+    }
+
+end
+
+function MINI_ADDONS_LOAD_SETTINGS()
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+
+    if err then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    end
+
+    local loginCharID = info.GetCID(session.GetMyHandle())
+
+    if not settings then
+        g.settings = {
+
+            reword_x = 1100,
+            reword_y = 100,
+            charid = {
+                [loginCharID] = 0
+            },
+            allcall = 0,
+            under_staff = 1,
+            raid_record = 1,
+            party_buff = 1,
+            chat_system = 1,
+            channel_display = 1,
+            mini_btn = 1,
+            market_display = 1,
+            restart_move = 1,
+            pet_init = 1,
+            dialog_ctrl = 1,
+            auto_cast = 1,
+            auto_casting = {},
+            buffid = {},
+            coin_use = 1,
+            equip_info = 1,
+            automatch_layer = 1,
+            quest_hide = 1,
+            pc_name = 1,
+            auto_gacha = 0,
+            skill_enchant = 1,
+            party_info = 1,
+            relic_gauge = 1,
+            raid_check = 1
+
+        }
+        MINI_ADDONS_SAVE_SETTINGS()
+
+        settings = g.settings
+    end
+
+    g.settings = settings
+
+    if g.settings.raid_check == nil then
+        g.settings.raid_check = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    if g.settings.relic_gauge == nil then
+        g.settings.relic_gauge = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    if g.settings.pc_name == nil then
+        g.settings.pc_name = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+
+    end
+
+    if g.settings.quest_hide == nil then
+        g.settings.quest_hide = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+
+    end
+
+    if next(g.settings.auto_casting) == nil then
+
+        g.settings.auto_casting[loginCharID] = 1
+        MINI_ADDONS_SAVE_SETTINGS()
+
+    end
+
+    for CharID, v in pairs(g.settings.auto_casting) do
+        if g.settings.auto_casting[loginCharID] ~= nil then
+
+            g.settings.auto_casting[loginCharID] = 1
+            MINI_ADDONS_SAVE_SETTINGS()
+
+        end
+    end
+
+    if next(g.settings.charid) == nil then
+        g.settings.charid[loginCharID] = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+
+    end
+
+    for CharID, v in pairs(g.settings.charid) do
+        if g.settings.charid[loginCharID] ~= nil then
+            g.settings.charid[loginCharID] = 0
+            MINI_ADDONS_SAVE_SETTINGS()
+
+        end
+    end
+
+    -- キャラクターIDごとに設定をチェック
+    for CharID, v in pairs(g.settings.charid) do
+        if CharID == loginCharID then
+            g.settings.charid[loginCharID] = v -- キャラクターIDに対応する値を取得
+            if v == 1 then
+                g.check = 1
+
+            else
+                g.check = 0
+
+            end
+        end
+    end
+
+    g.buffid = {}
+
+    for key, value in pairs(g.settings.buffid) do
+        if value == 1 then
+            g.buffid[key] = g.buffid[key] or {}
+            -- 新しいエントリを追加
+            table.insert(g.buffid, tonumber(key))
+        end
+    end
+    -- MINI_ADDONS_LOAD_SETTINGS()
+    -- g.buffid の中身を表示
+    --[[for key, value in pairs(g.buffid) do
+        print(key .. ":" .. value)
+    end]]
+    -- ReserveScript("MINI_ADDONS_CHECK_DREAMY_ABYSS()", 5.0)
+end
+-- s690 u687
+function MINI_ADDONS_CHECK_DREAMY_ABYSS()
+    local slogutis = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType)
+    local upinis = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType)
+
+    local langcode = option.GetCurrentCountry()
+
+    if slogutis ~= upinis then
+        if langcode == "Japanese" then
+            if slogutis ~= 1 then
+
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
+                    5.0)
+            elseif upinis ~= 1 then
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}ウピニスまだやってへんで？", 5.0)
+            end
+        else
+            if slogutis ~= 1 then
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}I haven't done Abyss yet, okay?", 5.0)
+            elseif upinis ~= 1 then
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}I haven't done Dreamy yet, okay?", 5.0)
+            end
+        end
+    end
+
+end
+
+HEADSUPDISPLAY_OPTION = {}
+
+function MINI_ADDONS_CHARBASE_RELIC()
+    -- CHAT_SYSTEM("RP_UPDATE")
+    if HEADSUPDISPLAY_OPTION.relic_equip == 0 then
+        return
+    end
+
+    local frame = ui.GetFrame("charbaseinfo1_my")
+    local pcRelicGauge = frame:CreateOrGetControl("gauge", "pcRelicGauge", -1, 54, 104, 11)
+    AUTO_CAST(pcRelicGauge)
+    local pcRelic_text = pcRelicGauge:CreateOrGetControl("richtext", "pcRelic_text", 0, 0, 50, 0)
+    AUTO_CAST(pcRelic_text)
+
+    -- pcRelicGauge:RemoveAllChild()
+    pcRelicGauge:SetGravity(ui.CENTER_HORZ, ui.TOP);
+    pcRelicGauge:EnableHitTest(0);
+    pcRelicGauge:SetSkinName("pcinfo_gauge_rp_relic")
+
+    pcRelicGauge:StopTimeProcess()
+
+    -- ui.CENTER_VERT
+    local pc = GetMyPCObject()
+    local cur_rp, max_rp = shared_item_relic.get_rp(pc)
+    -- print(tostring(cur_rp .. ":" .. max_rp))
+
+    pcRelic_text:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT);
+    pcRelic_text:SetText("{ol}{s10}" .. cur_rp)
+
+    pcRelicGauge:SetPoint(cur_rp / 10, max_rp / 10)
+
+    --[[local rpRatio = cur_rp / max_rp
+    if rpRatio <= 0.3 and rpRatio > 0 then
+        pcRelicGauge:SetBlink(0.0, 1.0, 0xffffffff)
+    else
+        pcRelicGauge:ReleaseBlink()
+    end]]
+
+end
+
+function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
+
+    if msg == nil then
+        return
+    end
+
+    if g.settings.chat_system == 1 then
+        -- print(msg)
+        if string.find(msg, "StartBlackMarketBetween") then
+            return
+        end
+    end
+
+    local fontStyle = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_LINK")
+    local resultStr = string.gsub(msg, "({#%x+}){img", fontStyle .. "{img")
+    -- 모션 이모티콘 채팅창에서는 이미지 이모티콘으로 출력
+    if config.GetXMLConfig("EnableChatFrameMotionEmoticon") == 0 and string.find(resultStr, "{spine motion_") ~= nil then
+        resultStr = string.gsub(msg, "{spine motion_", "{img ")
+    end
+
+    return resultStr
 
 end
 
@@ -976,66 +1417,6 @@ function MINI_ADDONS_NOTICE_ON_MSG(frame, msg, argStr, argNum)
     base["NOTICE_ON_MSG"](frame, msg, argStr, argNum)
 end
 
-function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
-
-    if msg == nil then
-        return
-    end
-
-    if g.settings.chat_system == 1 then
-        -- print(msg)
-        if string.find(msg, "StartBlackMarketBetween") then
-            return
-        end
-    end
-
-    local fontStyle = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_LINK")
-    local resultStr = string.gsub(msg, "({#%x+}){img", fontStyle .. "{img")
-    -- 모션 이모티콘 채팅창에서는 이미지 이모티콘으로 출력
-    if config.GetXMLConfig("EnableChatFrameMotionEmoticon") == 0 and string.find(resultStr, "{spine motion_") ~= nil then
-        resultStr = string.gsub(msg, "{spine motion_", "{img ")
-    end
-
-    return resultStr
-
-end
-
-if not g.loaded then
-    local loginCharID = info.GetCID(session.GetMyHandle())
-    g.settings = {
-
-        reword_x = 1100,
-        reword_y = 100,
-        charid = {
-            [loginCharID] = 0
-        },
-        allcall = 0,
-        under_staff = 1,
-        raid_record = 1,
-        party_buff = 1,
-        chat_system = 1,
-        channel_display = 1,
-        mini_btn = 1,
-        market_display = 1,
-        restart_move = 1,
-        pet_init = 1,
-        dialog_ctrl = 1,
-        auto_cast = 1,
-        auto_casting = {},
-        buffid = {},
-        coin_use = 1,
-        equip_info = 1,
-        automatch_layer = 1,
-        quest_hide = 1,
-        pc_name = 1,
-        auto_gacha = 0,
-        skill_enchant = 1,
-        auto_gacha_start = 0,
-        party_info = 1
-        -- !
-    }
-
-end
 -- g.settings.auto_gacha
 -- g.settings.skill_enchant
 function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
@@ -1374,172 +1755,9 @@ function MINI_ADDONS_BUFFLIST_FRAME_CLOSE()
     frame:ShowWindow(0)
 end
 
-function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
-    local ischeck = ctrl:IsChecked()
-    local ctrlname = ctrl:GetName()
-    local settingNames = {
-        other_effect = "other_effect_checkbox",
-        channel_info = "channel_info_checkbox",
-        pc_name = "pc_name_checkbox",
-        quest_hide = "quest_hide_checkbox",
-        automatch_layer = "automatch_layer_checkbox",
-        equip_info = "equip_info_checkbox",
-        under_staff = "under_staff_checkbox",
-        raid_record = "raid_record_checkbox",
-        party_buff = "party_buff_checkbox",
-        chat_system = "chat_system_checkbox",
-        channel_display = "channel_display_checkbox",
-        mini_btn = "mini_btn_checkbox",
-        market_display = "market_display_checkbox",
-        restart_move = "restart_move_checkbox",
-        pet_init = "pet_init_checkbox",
-        dialog_ctrl = "dialog_ctrl_checkbox",
-        auto_cast = "auto_cast_checkbox",
-        coin_use = "coin_use_checkbox",
-        auto_gacha = "auto_gacha_checkbox",
-        skill_enchant = "skill_enchant_checkbox",
-        party_info = "party_info_checkbox"
-        -- !
-    }
-
-    for settingName, checkboxName in pairs(settingNames) do
-        if ctrlname == checkboxName then
-            g.settings[settingName] = ischeck
-            MINI_ADDONS_SAVE_SETTINGS()
-            MINI_ADDONS_LOAD_SETTINGS()
-            break
-        end
-    end
-end
-
 function MINI_ADDONS_SAVE_SETTINGS()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
-
-end
-
-function MINI_ADDONS_LOAD_SETTINGS()
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
-
-    local loginCharID = info.GetCID(session.GetMyHandle())
-
-    if not settings then
-        g.settings = {
-
-            reword_x = 1100,
-            reword_y = 100,
-            charid = {
-                [loginCharID] = 0
-            },
-            allcall = 0,
-            under_staff = 1,
-            raid_record = 1,
-            party_buff = 1,
-            chat_system = 1,
-            channel_display = 1,
-            mini_btn = 1,
-            market_display = 1,
-            restart_move = 1,
-            pet_init = 1,
-            dialog_ctrl = 1,
-            auto_cast = 1,
-            auto_casting = {},
-            buffid = {},
-            coin_use = 1,
-            equip_info = 1,
-            automatch_layer = 1,
-            quest_hide = 1,
-            pc_name = 1,
-            auto_gacha = 0,
-            skill_enchant = 1,
-            party_info = 1
-
-        }
-        MINI_ADDONS_SAVE_SETTINGS()
-
-        settings = g.settings
-    end
-
-    g.settings = settings
-
-    if g.settings.pc_name == nil then
-        g.settings.pc_name = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-
-    end
-
-    if g.settings.quest_hide == nil then
-        g.settings.quest_hide = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-
-    end
-
-    if next(g.settings.auto_casting) == nil then
-
-        g.settings.auto_casting[loginCharID] = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    for CharID, v in pairs(g.settings.auto_casting) do
-        if not g.settings.auto_casting[loginCharID] then
-
-            g.settings.auto_casting[loginCharID] = 1
-            MINI_ADDONS_SAVE_SETTINGS()
-            MINI_ADDONS_LOAD_SETTINGS()
-            return
-        end
-    end
-
-    if next(g.settings.charid) == nil then
-        g.settings.charid[loginCharID] = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-    -- print(tostring(next(g.settings.charid)))
-    for CharID, v in pairs(g.settings.charid) do
-        if not g.settings.charid[loginCharID] then
-            g.settings.charid[loginCharID] = 0
-            MINI_ADDONS_SAVE_SETTINGS()
-            MINI_ADDONS_LOAD_SETTINGS()
-            return
-        end
-    end
-
-    -- キャラクターIDごとに設定をチェック
-    for CharID, v in pairs(g.settings.charid) do
-        if CharID == loginCharID then
-            g.settings.charid[loginCharID] = v -- キャラクターIDに対応する値を取得
-            if v == 1 then
-                g.check = 1
-
-            else
-                g.check = 0
-
-            end
-        end
-    end
-
-    g.buffid = {}
-
-    for key, value in pairs(g.settings.buffid) do
-        if value == 1 then
-            g.buffid[key] = g.buffid[key] or {}
-            -- 新しいエントリを追加
-            table.insert(g.buffid, tonumber(key))
-        end
-    end
-    -- MINI_ADDONS_LOAD_SETTINGS()
-    -- g.buffid の中身を表示
-    --[[for key, value in pairs(g.buffid) do
-        print(key .. ":" .. value)
-    end]]
 
 end
 
