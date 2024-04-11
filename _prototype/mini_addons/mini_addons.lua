@@ -28,7 +28,7 @@
 -- v1.2.7 女神ガチャフルベットボタンつけた。女神ガチャ中CCやチャンネル移動でフレーム表示されてたの1回目のみに修正。
 -- v1.2.8 パーティーインフォフレームの表示切替
 -- v1.2.9 パーティーインフォフレーム。いつものバグ修正
--- v1.3.0 プレイヤーノゲージにレリック追加
+-- v1.3.0 プレイヤーゲージにレリック追加。スロガウピニス回ってる時の確認機能。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -137,7 +137,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.mini_btn == 1 then
-        -- 右上のミニボタンを消したりする機能
 
         if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
             addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
@@ -374,28 +373,32 @@ function MINI_ADDONS_LANG(str)
 end
 
 function MINI_ADDONS_SETTING_FRAME_INIT()
+
     local frame = ui.GetFrame("mini_addons")
-    local closebtn = GET_CHILD_RECURSIVELY(frame, "close")
+    --[[local closebtn = GET_CHILD_RECURSIVELY(frame, "close")
     if frame:IsVisible() == 1 and closebtn ~= nil then
         frame:ShowWindow(0)
         return
-    end
+    end]]
     frame:SetSkinName("chat_window")
     -- frame:SetSkinName("test_frame_midle_light")
-    frame:SetLayerLevel(93)
-    -- frame:Resize(510, 560)
-    frame:SetPos(1210, 265)
+    frame:SetLayerLevel(93) -- クイックスロットが91やから
+
     frame:ShowTitleBar(0);
     frame:EnableHittestFrame(1)
     frame:EnableHide(0)
     frame:EnableHitTest(1)
     frame:SetAlpha(100)
     frame:RemoveAllChild()
-    frame:ShowWindow(1)
 
-    local close = frame:CreateOrGetControl("button", "close", ui.RIGHT, ui.TOP, 25, 25)
+    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
+
+    local close = frame:CreateOrGetControl("button", "close", 615, 5, 30, 30)
+    AUTO_CAST(close)
     -- close:SetText("{ol}{#FFFFFF}×")
-    close:SetSkinName("testclose_button")
+    close:SetSkinName("None")
+    close:SetText("{img testclose_button 30 30}")
+
     -- close:SetGravity(ui.RIGHT, ui.TOP);
     close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
 
@@ -479,7 +482,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, x + 5)
     market_display:SetText("{ol}{#FF4500}" ..
                                MINI_ADDONS_LANG(
-            "When moving into town, the list of stores in the upper right corner should be open"))
+                                   "When moving into town, the list of stores in the upper right corner should be open"))
     market_display:SetTextTooltip(
         "{거리로 이동할 때, 오른쪽 상단의 상점 목록이 열린 상태로 만듭니다.")
 
@@ -555,7 +558,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     local equip_info = frame:CreateOrGetControl("richtext", "equip_info", 40, x + 5)
     equip_info:SetText("{ol}{#FF4500}" ..
                            MINI_ADDONS_LANG(
-            "Notification of forgetting to equip ark and emblem upon entry to the hard raid"))
+                               "Notification of forgetting to equip ark and emblem upon entry to the hard raid"))
     equip_info:SetTextTooltip(
         "하드 레이드 입장 시 아크와 엠블럼을 잊어버린 것을 알려드립니다.")
 
@@ -667,7 +670,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     end
     auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
-        "When turned on, the gacha starts automatically.CC required for switching"))
+                                      "When turned on, the gacha starts automatically.CC required for switching"))
 
     auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
 
@@ -713,7 +716,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     local party_info = frame:CreateOrGetControl("richtext", "party_info", 40, x + 5)
     party_info:SetText("{ol}{#FF4500}" ..
                            MINI_ADDONS_LANG(
-            "Switching the display of the party info frame. For mouse mode.Party info right-click"))
+                               "Switching the display of the party info frame. For mouse mode.Party info right-click"))
     party_info:SetTextTooltip("파티 인포 프레임의 표시 전환. 마우스 모드용")
 
     local party_info_checkbox = frame:CreateOrGetControl('checkbox', 'party_info_checkbox', 10, x, 25, 25)
@@ -730,6 +733,15 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     x = x + 30
     frame:Resize(650, x)
+    local screenWidth = ui.GetClientInitialWidth() -- 画面の幅
+    local screenHeight = ui.GetClientInitialHeight() -- 画面の高さ
+    local frameWidth = frame:GetWidth() -- フレームの幅
+    local frameHeight = frame:GetHeight() -- フレームの高さ
+
+    -- 画面の中央にフレームを配置する
+    frame:SetPos((screenWidth - frameWidth) / 2, (screenHeight - frameHeight) / 2)
+
+    frame:ShowWindow(1)
 
 end
 
@@ -891,31 +903,29 @@ function MINI_ADDONS_LOAD_SETTINGS()
 
         g.settings.auto_casting[loginCharID] = 1
         MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
+
     end
 
     for CharID, v in pairs(g.settings.auto_casting) do
-        if not g.settings.auto_casting[loginCharID] then
+        if g.settings.auto_casting[loginCharID] ~= nil then
 
             g.settings.auto_casting[loginCharID] = 1
             MINI_ADDONS_SAVE_SETTINGS()
-            MINI_ADDONS_LOAD_SETTINGS()
-            return
+
         end
     end
 
     if next(g.settings.charid) == nil then
         g.settings.charid[loginCharID] = 0
         MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
+
     end
-    -- print(tostring(next(g.settings.charid)))
+
     for CharID, v in pairs(g.settings.charid) do
-        if not g.settings.charid[loginCharID] then
+        if g.settings.charid[loginCharID] ~= nil then
             g.settings.charid[loginCharID] = 0
             MINI_ADDONS_SAVE_SETTINGS()
-            MINI_ADDONS_LOAD_SETTINGS()
-            return
+
         end
     end
 
@@ -961,7 +971,7 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
             if slogutis ~= 1 then
 
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
-                    5.0)
+                                     5.0)
             elseif upinis ~= 1 then
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}ウピニスまだやってへんで？", 5.0)
             end
@@ -1420,7 +1430,8 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 if tostring(spotName) == "SEAL" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                            "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？", 3.0)
+                                             "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？",
+                                             3.0)
                         -- ui.SysMsg("{#FF8C00}エンブレム装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Emblem?")
@@ -1430,7 +1441,8 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 elseif tostring(spotName) == "ARK" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                            "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?", 3.0)
+                                             "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?",
+                                             3.0)
                         -- ui.SysMsg("{st55_a}{#FF8C00}アーク装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Ark?")
@@ -2121,7 +2133,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
