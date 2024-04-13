@@ -28,11 +28,12 @@
 -- v1.2.7 女神ガチャフルベットボタンつけた。女神ガチャ中CCやチャンネル移動でフレーム表示されてたの1回目のみに修正。
 -- v1.2.8 パーティーインフォフレームの表示切替
 -- v1.2.9 パーティーインフォフレーム。いつものバグ修正
--- v1.3.0 プレイヤーゲージにレリック追加。スロガウピニス回ってる時の確認機能。
+-- v1.3.1 プレイヤーゲージにレリック追加。スロガウピニス回ってる時の確認機能。
+-- v1.3.2 キャラ毎のオートキャスティング修正。ペットフレーム呼び出し機能OFF
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.0"
+local ver = "1.3.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -66,7 +67,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     MINI_ADDONS_LOAD_SETTINGS()
-    -- CHAT_SYSTEM("test")
+
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
 
     g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
@@ -77,7 +78,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
 
-    g.SetupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
+    -- g.SetupHook(MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING, "CONFIG_ENABLE_AUTO_CASTING")
 
     g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
 
@@ -182,10 +183,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
     end
 
-    if g.settings.pet_init == 1 then
+    --[[if g.settings.pet_init == 1 then
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETLIST_FRAME_INIT")
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETINFO")
-    end
+    end]]
 
     if g.settings.dialog_ctrl == 1 then
         addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
@@ -197,8 +198,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     end
 
+    acutil.setupEvent(addon, "CONFIG_ENABLE_AUTO_CASTING", "MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING");
     if g.settings.auto_cast == 1 then
-        ReserveScript("MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()", 3.5)
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
+        -- ReserveScript("MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()", 3.5)
 
     end
 
@@ -509,7 +512,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     x = x + 30
 
-    local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, x + 5)
+    --[[local pet_init = frame:CreateOrGetControl("richtext", "pet_init", 40, x + 5)
     pet_init:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automatic display of pet summon frame"))
     pet_init:SetTextTooltip("펫 소환 프레임 자동 표시")
 
@@ -518,7 +521,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     pet_init_checkbox:SetCheck(g.settings.pet_init)
     pet_init_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
     pet_init_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
+    x = x + 30]]
 
     local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, x + 5)
     dialog_ctrl:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Controls various dialogs"))
@@ -804,9 +807,7 @@ if not g.loaded then
 
         reword_x = 1100,
         reword_y = 100,
-        charid = {
-            [loginCharID] = 0
-        },
+
         allcall = 0,
         under_staff = 1,
         raid_record = 1,
@@ -854,9 +855,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
 
             reword_x = 1100,
             reword_y = 100,
-            charid = {
-                [loginCharID] = 0
-            },
+
             allcall = 0,
             under_staff = 1,
             raid_record = 1,
@@ -912,48 +911,14 @@ function MINI_ADDONS_LOAD_SETTINGS()
 
     end
 
-    if next(g.settings.auto_casting) == nil then
-
-        g.settings.auto_casting[loginCharID] = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-
+    if g.settings.auto_casting == nil then
+        g.settings.auto_casting = {}
+        -- print("test")
     end
+    -- print(tostring(g.settings.auto_casting[tostring(loginCharID)]))
 
-    for CharID, v in pairs(g.settings.auto_casting) do
-        if g.settings.auto_casting[loginCharID] ~= nil then
-
-            g.settings.auto_casting[loginCharID] = 1
-            MINI_ADDONS_SAVE_SETTINGS()
-
-        end
-    end
-
-    if next(g.settings.charid) == nil then
-        g.settings.charid[loginCharID] = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-
-    end
-
-    for CharID, v in pairs(g.settings.charid) do
-        if g.settings.charid[loginCharID] ~= nil then
-            g.settings.charid[loginCharID] = 0
-            MINI_ADDONS_SAVE_SETTINGS()
-
-        end
-    end
-
-    -- キャラクターIDごとに設定をチェック
-    for CharID, v in pairs(g.settings.charid) do
-        if CharID == loginCharID then
-            g.settings.charid[loginCharID] = v -- キャラクターIDに対応する値を取得
-            if v == 1 then
-                g.check = 1
-
-            else
-                g.check = 0
-
-            end
-        end
+    if g.settings.charid ~= nil then
+        g.settings.charid = nil
     end
 
     g.buffid = {}
@@ -965,6 +930,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
             table.insert(g.buffid, tonumber(key))
         end
     end
+    MINI_ADDONS_SAVE_SETTINGS()
     -- MINI_ADDONS_LOAD_SETTINGS()
     -- g.buffid の中身を表示
     --[[for key, value in pairs(g.buffid) do
@@ -1477,30 +1443,10 @@ local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 112
 -- 傭兵団コイン、女神コイン、王国再建団コインを取得時、自動で使用
 function MINI_ADDONS_INV_ICON_USE()
 
-    --[[local currentTime = os.time()
-
-    local AM0Time = os.time({
-        year = os.date("%Y", currentTime),
-        month = os.date("%m", currentTime),
-        day = os.date("%d", currentTime),
-        hour = 0,
-        min = 0,
-        sec = 0
-    })
-    local daytime_start = tonumber(AM0Time) + 43200 + 840
-    local daytime_end = tonumber(AM0Time) + 43200 + 1320
-    local nighttime_start = tonumber(AM0Time) + 79200 + 840
-    local nighttime_end = tonumber(AM0Time) + 79200 + 840
-    -- 43200+840昼のガチャ始まり　43200+1320昼のガチャ終わり　79200+840夜のガチャ始まり　79200+1320夜のガチャ終わり
-
-    if (currentTime >= daytime_start and currentTime <= daytime_end) or
-        (currentTime >= nighttime_start and currentTime <= nighttime_end) then
-        return
-    end]]
     local frame = ui.GetFrame('godprotection')
-    -- CHAT_SYSTEM("test")
+
     if frame:IsVisible() == 1 then
-        -- print("mieteru")
+
         return
     end
 
@@ -1526,64 +1472,28 @@ function MINI_ADDONS_INV_ICON_USE()
 end
 
 -- オートキャスティング制御
-function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(parent, ctrl)
+function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(frame, msg)
+
+    local parent, ctrl = acutil.getEventArgs(msg);
 
     local loginCharID = info.GetCID(session.GetMyHandle())
     local enable = ctrl:IsChecked()
 
-    if g.settings.auto_cast == 1 then
-        -- CHAT_SYSTEM("test" .. ":1")
-        -- CHAT_SYSTEM(tostring(enable))
-        g.settings.auto_casting[loginCharID] = enable
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-        config.SetEnableAutoCasting(enable)
-        config.SaveConfig()
-    else
-        -- CHAT_SYSTEM("test" .. ":0")
-        g.settings.auto_casting[loginCharID] = enable
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-        config.SetEnableAutoCasting(enable)
-        config.SaveConfig()
-    end
+    g.settings.auto_casting[loginCharID] = enable
+    MINI_ADDONS_SAVE_SETTINGS()
+
 end
 
 function MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()
     local systemoption_frame = ui.GetFrame("systemoption")
 
-    MINI_ADDONS_SET_ENABLE_AUTO_CASTING(systemoption_frame)
-end
-
-function MINI_ADDONS_SET_ENABLE_AUTO_CASTING(frame)
-    local systemoption_frame = ui.GetFrame("systemoption")
     local Check_EnableAutoCasting =
         GET_CHILD_RECURSIVELY(systemoption_frame, "Check_EnableAutoCasting", "ui::CCheckBox")
     local loginCharID = info.GetCID(session.GetMyHandle())
-
-    for CharID, v in pairs(g.settings.auto_casting) do
-
-        if CharID == loginCharID then
-            g.settings.auto_casting[loginCharID] = v -- キャラクターIDに対応する値を取得
-            if v == 1 then
-                if Check_EnableAutoCasting ~= nil then
-                    Check_EnableAutoCasting:SetCheck(tostring(v))
-                end
-                local enable = Check_EnableAutoCasting:IsChecked()
-                config.SetEnableAutoCasting(enable)
-                config.SaveConfig()
-                -- CHAT_SYSTEM("test" .. tostring(enable))
-            else
-                if Check_EnableAutoCasting ~= nil then
-                    Check_EnableAutoCasting:SetCheck(tostring(v))
-                end
-                local enable = Check_EnableAutoCasting:IsChecked()
-                config.SetEnableAutoCasting(enable)
-                config.SaveConfig()
-                -- CHAT_SYSTEM("test" .. tostring(enable))
-            end
-        end
-    end
+    Check_EnableAutoCasting:SetCheck(tostring(g.settings.auto_casting[loginCharID]))
+    local enable = Check_EnableAutoCasting:IsChecked()
+    config.SetEnableAutoCasting(enable)
+    config.SaveConfig()
 
 end
 
@@ -2008,7 +1918,7 @@ end
 
 end]]
 
-function MINI_ADDONS_PETINFO()
+--[[function MINI_ADDONS_PETINFO()
 
     local summonedPet = session.pet.GetSummonedPet();
     if g.settings.allcall == 1 then
@@ -2113,7 +2023,7 @@ function MINI_ADDONS_CHECK_PET_AUTO(frame)
         MINI_ADDONS_SAVE_SETTINGS()
         MINI_ADDONS_LOAD_SETTINGS()
     end
-end
+end]]
 
 -- 4人以下制御
 function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
