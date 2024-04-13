@@ -42,10 +42,10 @@
 		"name" : "Always Status",
 		"file" : "always_status",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.5",
+		"fileVersion" : "v1.1.6",
 		"releaseTag" : "always_status",
 		"unicode" : "⛄",
-		"description" : "キャラ毎に閉じるか選べる様に。選択したステータスを好きな場所に常に表示します。えびすけさんのstatview_ex_rの現状対応版。To be able to choose to close it for each character.Always display the selected status in the desired location. Currently supported version of Ebisuke's statview_ex_r.캐릭터별로 닫을지 선택할 수 있도록.선택한 상태를 원하는 위치에 항상 표시합니다. 에비스케님의 statview_ex_r의 현황 대응 버전입니다.",
+		"description" : "v1.1.6は設定一度消えます('ω')色選べる様に。キャラ毎に閉じるか選べる様に。選択したステータスを好きな場所に常に表示します。v1.1.6 will disappear once the settings are set. To be able to choose the color. You can choose to close the window for each character. Always display the selected status in the desired location.v1.1.6은 설정 한번에 사라집니다. 색상 선택할 수 있도록. 캐릭터별로 닫을지 선택할 수 있도록. 선택한 상태를 원하는 위치에 항상 표시합니다.",
 		"tags" : []
 	},
 {

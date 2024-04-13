@@ -144,6 +144,8 @@ v1.0.0 レイド毎に憤怒ポーションを入れ替える機能だけ。な�
 選択したステータスを好きな場所に常に表示します。えびすけさんのstatview_ex_rの現状対応版。
 
 　
+v1.1.6 色が選べる様に。設定一度消えます( ;∀;)
+![TreeOfSavior_20240413_155248](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/e298d483-af49-4acd-b3d1-0aabaef96a0d)
 
 v1.1.5 効果音バグ再修正。
 
@@ -178,7 +180,6 @@ v1.0.0 公開。
 
 アドオンマネージャー登録済
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b5d09d78-911e-440d-9a3d-f1cd5357d736)
 
 ----
 

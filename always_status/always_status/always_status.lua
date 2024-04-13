@@ -14,10 +14,11 @@
 -- v1.1.3 ギルメンの要望に応えて日本鯖だけ別処理
 -- v1.1.4 まれに効果音が0のままで固定される不具合修正
 -- v1.1.5 効果音のバグ再修正。
+-- v1.1.6 色選べる様に。コード書き直した。もちろん設定ファイルは初期化される。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.1.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -25,22 +26,10 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-g.settingsFileLoc_use = string.format('../addons/%s/settings_use.json', addonNameLower)
 
 local acutil = require("acutil")
 local os = require("os")
 local json = require("json")
-
-local base = {}
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName];
-        _G[baseFuncName] = func
-    end
-    base[baseFuncName] = _G[replacementName]
-end
 
 local status_list = {"STR", "INT", "CON", "MNA", "DEX", "gear_score", "ability_point_score", "PATK", "MATK", "HEAL_PWR",
                      "SR", "HR", "BLK_BREAK", "CRTATK", "CRTMATK", "CRTHR", "DEF", "MDEF", "SDR", "DR", "BLK", "CRTDR",
@@ -53,129 +42,120 @@ local status_list = {"STR", "INT", "CON", "MNA", "DEX", "gear_score", "ability_p
                      "portion_expansion", "Forester_Atk", "Widling_Atk", "Klaida_Atk", "Paramune_Atk", "Velnias_Atk",
                      "perfection", "revenge"}
 
-local color_attribute = {}
-color_attribute['Cloth_Def'] = 'Cloth_Def_status'
-color_attribute['Leather_Def'] = 'Leather_Def_status'
-color_attribute['Iron_Def'] = 'Iron_Def_status'
-color_attribute['MiddleSize_Def'] = 'MiddleSize_Def_status'
-color_attribute['AllMaterialType_Def'] = 'AllMaterialType_Def_status'
-color_attribute['ResAdd_Damage'] = 'ResAdd_Damage_status'
+local str_tbl = {
+    ["物理クリティカル攻撃力"] = "物理クリ攻撃",
+    ["魔法クリティカル攻撃力"] = "魔法クリ攻撃",
+    ["クリティカル発生"] = "クリ発生",
+    ["クリティカル抵抗"] = "クリ抵抗",
+    ["キャスティング時間比率"] = "キャス時間比率",
+    ["追加ダメージ抵抗"] = "追加ダメ抵抗",
+    ["突ダメージアップ"] = "突アップ",
+    ["斬ダメージアップ"] = "斬アップ",
+    ["打ダメージアップ"] = "打アップ",
+    ["弓矢のダメージアップ"] = "弓アップ",
+    ["キャノンダメージアップ"] = "キャノアップ",
+    ["銃器ダメージアップ"] = "銃器アップ",
+    ["無属性魔法ダメージアップ"] = "無属性アップ",
+    ["炎属性追加ダメージアップ"] = "炎属性アップ",
+    ["氷属性魔法ダメージアップ"] = "氷属性アップ",
+    ["雷属性魔法ダメージアップ"] = "雷属性アップ",
+    ["地属性魔法ダメージアップ"] = "地属性アップ",
+    ["毒属性魔法ダメージアップ"] = "毒属性アップ",
+    ["闇属性魔法ダメージアップ"] = "闇属性アップ",
+    ["聖属性魔法ダメージアップ"] = "聖属性アップ",
+    ["念属性魔法ダメージアップ"] = "念属性アップ",
+    ["ボス対象攻撃力"] = "ボス対象攻撃力",
+    ["クロース防御対象攻撃力"] = "クロース対象",
+    ["レザー防御対象攻撃力"] = "レザー対象",
+    ["プレート防御対象攻撃力"] = "プレート対象",
+    ["アストラル防御対象攻撃力"] = "アストラル対象",
+    ["中型対象攻撃力相殺"] = "中型相殺",
+    ["クロース対象攻撃力相殺"] = "クロース相殺",
+    ["レザー対象攻撃力相殺"] = "レザー相殺",
+    ["プレート対象攻撃力相殺"] = "プレート相殺",
+    ["極：強劇性の猛毒抵抗"] = "極：猛毒抵抗",
+    ["HP回復のエリクサー広域化"] = "エリクサー広域",
+    ["植物型対象攻撃力"] = "植物対象攻撃力",
+    ["野獣型対象攻撃力"] = "野獣対象攻撃力",
+    ["昆虫型対象攻撃力"] = "昆虫対象攻撃力",
+    ["変異型対象攻撃力"] = "変異対象攻撃力",
+    ["悪魔型対象攻撃力"] = "悪魔対象攻撃力",
+    ["パーフェクト効果"] = "パーフェクト",
+    ["復讐効果"] = "復讐"
+}
 
-color_attribute['SmallSize_Atk'] = 'SmallSize_Atk_status'
-color_attribute['MiddleSize_Atk'] = 'MiddleSize_Atk_status'
-color_attribute['LargeSize_Atk'] = 'LargeSize_Atk_status'
-color_attribute['Cloth_Atk'] = 'Cloth_Atk_status'
-color_attribute['Leather_Atk'] = 'Leather_Atk_status'
-color_attribute['Iron_Atk'] = 'Iron_Atk_status'
-color_attribute['Forester_Atk'] = 'Forester_Atk_status'
-color_attribute['Widling_Atk'] = 'Widling_Atk_status'
-color_attribute['Klaida_Atk'] = 'Klaida_Atk_status'
-color_attribute['Paramune_Atk'] = 'Paramune_Atk_status'
-color_attribute['Velnias_Atk'] = 'Velnias_Atk_status'
-color_attribute['Ghost_Atk'] = 'Ghost_Atk_status'
-color_attribute['Add_Damage_Atk'] = 'Add_Damage_Atk_status'
-color_attribute['BOSS_ATK'] = 'BOSS_ATK_status'
-color_attribute['AllMaterialType_Atk'] = 'AllMaterialType_Atk_status'
-color_attribute['AllSize_Atk'] = 'AllSize_Atk_status'
-color_attribute['AllRace_Atk'] = 'AllRace_Atk_status'
-color_attribute['perfection'] = 'perfection_status'
-color_attribute['revenge'] = 'revenge_status'
-color_attribute['stun_res'] = 'stun_res_status'
-color_attribute['high_fire_res'] = 'high_fire_res_status'
-color_attribute['high_freezing_res'] = 'high_freezing_res_status'
-color_attribute['high_lighting_res'] = 'high_lighting_res_status'
-color_attribute['high_poison_res'] = 'high_poison_res_status'
-color_attribute['high_laceration_res'] = 'high_laceration_res_status'
-color_attribute['portion_expansion'] = 'portion_expansion_status'
+local colortbl = {
+    [0] = "FFFFFF", -- 白
+    [1] = "FF6600", -- オレンジ
+    [2] = "FF4040", -- 赤
+    [3] = '66B3FF', -- 青
+    [4] = '00FF00', -- 緑
+    [5] = 'FF0000', -- RED
+    [6] = 'FF00FF', -- マゼンタピンク
+    [7] = 'FFFF00', -- 黄色
+    [8] = "ADFF2F", -- 黄緑
+    [9] = "00FFFF" -- シアン青
+}
 
---[[if not g.loded then
-    g.settings = {}
-    g.settings.frame_X = 600
-    g.settings.frame_Y = 300
-    g.settings.enable = 1
-    for i = 0, 10 do
-        local key = "no_" .. i
-        g.settings[key] = {
-            memo = "free memo " .. i,
-            STR = 1,
-            INT = 1,
-            CON = 0,
-            MNA = 0,
-            DEX = 0,
-            gear_score = 0,
-            ability_point_score = 0,
-            PATK = 1,
-            MATK = 1,
-            HEAL_PWR = 0,
-            SR = 0,
-            HR = 1,
-            BLK_BREAK = 1,
-            CRTATK = 1,
-            CRTMATK = 1,
-            CRTHR = 1,
-            DEF = 0,
-            MDEF = 0,
-            SDR = 0,
-            DR = 1,
-            BLK = 0,
-            CRTDR = 1,
-            MSPD = 1,
-            CastingSpeed = 1,
-            Add_Damage_Atk = 0,
-            ResAdd_Damage = 0,
-            Aries_Atk = 0,
-            Slash_Atk = 0,
-            Strike_Atk = 0,
-            Arrow_Atk = 0,
-            Cannon_Atk = 0,
-            Gun_Atk = 0,
-            Magic_Melee_Atk = 0,
-            Magic_Fire_Atk = 0,
-            Magic_Ice_Atk = 0,
-            Magic_Lightning_Atk = 0,
-            Magic_Earth_Atk = 0,
-            Magic_Poison_Atk = 0,
-            Magic_Dark_Atk = 0,
-            Magic_Holy_Atk = 0,
-            Magic_Soul_Atk = 0,
-            BOSS_ATK = 1,
-            Cloth_Atk = 0,
-            Leather_Atk = 0,
-            Iron_Atk = 0,
-            Ghost_Atk = 0,
-            MiddleSize_Def = 1,
-            Cloth_Def = 0,
-            Leather_Def = 1,
-            Iron_Def = 0,
-            stun_res = 0,
-            high_fire_res = 0,
-            high_freezing_res = 0,
-            high_lighting_res = 0,
-            high_poison_res = 0,
-            high_laceration_res = 0,
-            portion_expansion = 0,
-            Forester_Atk = 0,
-            Widling_Atk = 0,
-            Klaida_Atk = 0,
-            Paramune_Atk = 0,
-            Velnias_Atk = 0,
-            perfection = 1,
-            revenge = 0
-        }
-        always_status_save_settings()
+local base = {}
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
     end
+    base[baseFuncName] = _G[replacementName]
+end
 
-end]]
+function ALWAYS_STATUS_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+
+    ReserveScript("always_status_original_frame_reduction()", 1.0)
+    ReserveScript("always_status_load_settings()", 1.5)
+
+    addon:RegisterMsg("GAME_START_3SEC", "always_status_original_frame_sound_config")
+
+    acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
+    acutil.setupEvent(addon, "CONFIG_SOUNDVOL", "always_status_CONFIG_SOUNDVOL");
+
+end
+
+function always_status_original_frame_sound_config()
+
+    config.SetSoundVolume(g.settings.volume)
+
+end
+
+function always_status_original_frame_reduction()
+
+    config.SetSoundVolume(0)
+    local frame = ui.GetFrame("status")
+    frame:ShowWindow(1)
+    frame:Resize(0, 0)
+    return
+end
+
+function always_status_CONFIG_SOUNDVOL(frame, msg)
+    local frame, ctrl, str, num = acutil.getEventArgs(msg)
+    AUTO_CAST(ctrl)
+
+    local volume = tonumber(num)
+    g.settings.volume = volume
+    always_status_save_settings()
+end
+
+function always_status_STATUS_ONLOAD()
+    local frame = ui.GetFrame("status")
+    frame:Resize(500, 1080)
+    frame:ShowWindow(1)
+end
 
 function always_status_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
-
-end
-
-function always_status_save_settings_use()
-
-    acutil.saveJSON(g.settingsFileLoc_use, g.settings_use);
 
 end
 
@@ -189,24 +169,27 @@ function always_status_load_settings()
     end
 
     local loginCID = info.GetCID(session.GetMyHandle())
+    local volume = config.GetSoundVolume()
+    -- print(tostring(settings["color"]) .. ":color")
 
-    if not settings then
+    if not settings or settings["color"] == nil then
 
         settings = {}
-        settings.frame_X = 600
-        settings.frame_Y = 300
+        settings.frame_X = 1400
+        settings.frame_Y = 500
         settings.enable = 1
-        for i = 0, 10 do
-            local key = "no_" .. i
-            settings[key] = {
+        settings.volume = volume
+        for i = 1, 10 do
+
+            settings[tostring(i)] = {
                 memo = "free memo " .. i,
                 STR = 1,
                 INT = 1,
                 CON = 0,
                 MNA = 0,
                 DEX = 0,
-                gear_score = 0,
-                ability_point_score = 0,
+                gear_score = 1,
+                ability_point_score = 1,
                 PATK = 1,
                 MATK = 1,
                 HEAL_PWR = 0,
@@ -267,310 +250,121 @@ function always_status_load_settings()
             }
 
         end
-        always_status_save_settings()
+        settings["color"] = {
+            STR = "{#00FF00}",
+            INT = "{#00FF00}",
+            CON = "{#00FF00}",
+            MNA = "{#00FF00}",
+            DEX = "{#00FF00}",
+            gear_score = "{#00FF00}",
+            ability_point_score = "{#00FF00}",
+            PATK = "{#FF6600}",
+            MATK = "{#FF6600}",
+            HEAL_PWR = "{#FF6600}",
+            SR = "{#FF6600}",
+            HR = "{#FF6600}",
+            BLK_BREAK = "{#FF6600}",
+            CRTATK = "{#FF6600}",
+            CRTMATK = "{#FF6600}",
+            CRTHR = "{#FF6600}",
+            DEF = "{#FF6600}",
+            MDEF = "{#FF6600}",
+            SDR = "{#FF6600}",
+            DR = "{#FF6600}",
+            BLK = "{#FF6600}",
+            CRTDR = "{#FF6600}",
+            MSPD = "{#FF6600}",
+            CastingSpeed = "{#FF6600}",
+            Add_Damage_Atk = "{#FF4040}",
+            ResAdd_Damage = "{#66B3FF}",
+            Aries_Atk = "{#FF4040}",
+            Slash_Atk = "{#FF4040}",
+            Strike_Atk = "{#FF4040}",
+            Arrow_Atk = "{#FF4040}",
+            Cannon_Atk = "{#FF4040}",
+            Gun_Atk = "{#FF4040}",
+            Magic_Melee_Atk = "{#FF4040}",
+            Magic_Fire_Atk = "{#FF4040}",
+            Magic_Ice_Atk = "{#FF4040}",
+            Magic_Lightning_Atk = "{#FF4040}",
+            Magic_Earth_Atk = "{#FF4040}",
+            Magic_Poison_Atk = "{#FF4040}",
+            Magic_Dark_Atk = "{#FF4040}",
+            Magic_Holy_Atk = "{#FF4040}",
+            Magic_Soul_Atk = "{#FF4040}",
+            BOSS_ATK = "{#FF4040}",
+            Cloth_Atk = "{#FF4040}",
+            Leather_Atk = "{#FF4040}",
+            Iron_Atk = "{#FF4040}",
+            Ghost_Atk = "{#FF4040}",
+            MiddleSize_Def = "{#66B3FF}",
+            Cloth_Def = "{#66B3FF}",
+            Leather_Def = "{#66B3FF}",
+            Iron_Def = "{#66B3FF}",
+            stun_res = "{#66B3FF}",
+            high_fire_res = "{#66B3FF}",
+            high_freezing_res = "{#66B3FF}",
+            high_lighting_res = "{#66B3FF}",
+            high_poison_res = "{#66B3FF}",
+            high_laceration_res = "{#66B3FF}",
+            portion_expansion = "{#66B3FF}",
+            Forester_Atk = "{#FF4040}",
+            Widling_Atk = "{#FF4040}",
+            Klaida_Atk = "{#FF4040}",
+            Paramune_Atk = "{#FF4040}",
+            Velnias_Atk = "{#FF4040}",
+            perfection = "{#FF4040}",
+            revenge = "{#FF4040}"
+        }
         g.settings = settings
-
-        if g.settings[loginCID] == nil then
-            g.settings[loginCID] = 1
-        end
 
     else
         g.settings = settings
 
-        if g.settings[loginCID] == nil then
-            g.settings[loginCID] = 1
-        end
-
     end
 
-    for i = 1, 10 do
-
-        if g.settings[loginCID] == i then
-            local noKey = "no_" .. i
-
-            g.no = g.settings[noKey]
-
-        end
-    end
-    always_status_save_settings()
-    ReserveScript("always_status_load_settings_use()", 1.0)
-    -- always_status_frame_init()
-end
-
-function always_status_load_settings_use()
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc_use, g.settings_use)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files use", addonNameLower))
-    end
-
-    local loginCID = info.GetCID(session.GetMyHandle())
-    -- print(tostring(settings))
-    if not settings then
-        g.settings_use = {}
-        always_status_save_settings_use()
-    end
-
-    g.settings_use = settings
-    -- print(tostring(g.settings_use))
-    if not g.settings_use[loginCID] then
-        g.settings_use[loginCID] = {
+    -- print(tostring(type(g.settings[loginCID])) .. ":key")
+    if g.settings[loginCID] == nil or type(g.settings[loginCID]) == "number" then
+        g.settings[loginCID] = {
+            key = 1,
             use = 1
         }
-        -- print(loginCID)
-        always_status_save_settings_use()
 
     end
 
-    for CID, data in pairs(settings) do
-        if CID == loginCID then
+    always_status_save_settings()
 
-            g.settings_use[loginCID].use = data.use
-
-            break
-        end
-    end
-
-    always_status_save_settings_use()
     always_status_frame_init()
-
-    --[[for key, value in pairs(g.no) do
-        print(key .. ":" .. value)
-    end]]
-
 end
 
-function ALWAYS_STATUS_ON_INIT(addon, frame)
+function always_status_language(str)
+    if option.GetCurrentCountry() == "Japanese" then
+        if str == "Right-click to set display" then
+            str = "右クリックで表示設定"
 
-    g.addon = addon
-    g.frame = frame
-
-    --[[if not g.loded then
-        g.loded = true
-    end]]
-
-    ReserveScript("always_status_original_frame_reduction()", 1.0)
-    ReserveScript("always_status_load_settings()", 1.5)
-
-    addon:RegisterMsg("GAME_START_3SEC", "always_status_original_frame_sound_config")
-
-    acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
-    g.SetupHook(always_status_CONFIG_SOUNDVOL, "CONFIG_SOUNDVOL")
-
-end
-
-function always_status_original_frame_sound_config()
-
-    local volume = config.GetSoundVolume()
-    if g.settings.volume == nil then
-        if volume == g.volume then
-            config.SetSoundVolume(g.volume)
-        else
-            config.SetSoundVolume(volume)
         end
-    else
-        config.SetSoundVolume(g.settings.volume)
-    end
-end
+        if str == "Display and hide for each character" then
+            str = "キャラクター毎に表示非表示を切り替えます"
 
-function always_status_CONFIG_SOUNDVOL(frame, ctrl, str, num)
-    tolua.cast(ctrl, "ui::CSlideBar");
-    config.SetSoundVolume(ctrl:GetLevel());
-    -- print(tostring(ctrl:GetLevel()))
-    SET_SLIDE_VAL(frame, "soundVol", "soundVol_text", config.GetSoundVolume());
-    if g.settings.volume == nil then
-        g.settings.volume = tonumber(ctrl:GetLevel())
-
-    end
-    g.settings.volume = tonumber(ctrl:GetLevel())
-    always_status_save_settings()
-end
-
-function always_status_memo_save(frame, ctrl, argStr, argNum)
-    local text = ctrl:GetText()
-    local loginCID = info.GetCID(session.GetMyHandle())
-    g.settings[loginCID] = argNum
-
-    argNum = "no_" .. argNum
-
-    g.settings[argNum].memo = text
-
-    ui.SysMsg("MEMO registered.")
-
-    always_status_save_settings()
-
-    -- always_status_load_settings()
-    always_status_info_setting(frame, ctrl, argStr, argNum)
-end
-
-function always_status_info_setting_load(number)
-    local frame = ui.GetFrame(addonNameLower .. "new_frame")
-
-    local gb = GET_CHILD_RECURSIVELY(frame, "gb")
-
-    local setting_gb = gb:CreateOrGetControl("groupbox", "setting_gb", 10, 70, gb:GetWidth() - 10, gb:GetHeight() - 80)
-    AUTO_CAST(setting_gb)
-
-    frame:SetLayerLevel(150)
-    setting_gb:SetSkinName("test_frame_midle_light")
-    -- setting_gb:SetEventScript(ui.RBUTTONDOWN, "always_status_frame_close")
-
-    local y = 20 -- 初期のY座標
-    for _, status in ipairs(status_list) do
-        local check = setting_gb:CreateOrGetControl("checkbox", "check" .. status, 260, y, 20, 20)
-        AUTO_CAST(check)
-
-        check:SetEventScript(ui.LBUTTONUP, "always_status_checkbox")
-        check:SetEventScriptArgNumber(ui.LBUTTONUP, number);
-        local control = setting_gb:CreateOrGetControl("richtext", status, 20, y)
-        AUTO_CAST(control)
-        if color_attribute[status] ~= nil then
-
-            control:SetText("{s16}{ol}" .. ScpArgMsg(color_attribute[status]))
-            control:AdjustFontSizeByWidth(250)
-        else
-
-            if status == "STR" then
-                control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("STR"))
-                -- control:SetText("{#FFFF00}" .. control:GetText());
-            elseif status == "INT" then
-                control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("INT"))
-            elseif status == "CON" then
-                control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("CON"))
-            elseif status == "MNA" then
-                control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("MNA"))
-            elseif status == "DEX" then
-                control:SetText("{s16}{ol}{#00FF00}" .. ClMsg("DEX"))
-            end
-            if status == "gear_score" then
-                control:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("EquipedItemGearScore"))
-            elseif status == "ability_point_score" then
-                control:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("AbilityPointScore"))
-            else
-                control:SetText("{s16}{ol}{#FF6600}" .. ScpArgMsg(status))
-            end
-            -- print(tostring(control:GetWidth()))
-            control:AdjustFontSizeByWidth(250)
         end
-        y = y + 30 -- 次のラベルのY座標を調整
-    end
-    local yohaku = setting_gb:CreateOrGetControl("richtext", "yohaku", 20, y)
-    yohaku:SetText("{s16}{ol} ")
-    for _, status in ipairs(status_list) do
-        for key, value in pairs(g.no) do
-            -- print(tostring(status .. ":" .. key))
-            if key == status then
-                local check = GET_CHILD_RECURSIVELY(setting_gb, "check" .. status)
-                -- print(value)
-                check:SetCheck(value)
-                break
-            end
+        if str == "If checked, the frame is fixed" then
+            str = "チェックするとフレームが固定されます"
+
         end
 
-    end
-    -- print(tostring(number) .. "aru")
+        if str == "Display Setting" then
+            str = "表示設定"
 
-    -- local frame = ui.GetFrame(addonNameLower .. "new_frame")
-
-    -- local gb = GET_CHILD_RECURSIVELY(frame, "gb")
-    for i = 1, 10 do
-        local memo = GET_CHILD_RECURSIVELY(gb, "memo" .. i)
-        if i == number then
-            memo:ShowWindow(1)
-        else
-            memo:ShowWindow(0)
         end
+        return str
     end
 
-    local loginCID = info.GetCID(session.GetMyHandle())
-    g.settings[loginCID] = number
-    -- g.no = {}
-    number = "no_" .. number
-    -- g.no = g.settings[number]
-    for _, key in ipairs(status_list) do
-
-        local check = GET_CHILD_RECURSIVELY(frame, "check" .. key)
-        check:SetCheck(g.settings[number][key])
-    end
-    always_status_save_settings()
-    always_status_load_settings()
-
-    -- always_status_frame_init()
-
-end
-
-function always_status_info_setting(frame, ctrl, argStr, argNum)
-    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "new_frame", 0, 0, 70, 30)
-    AUTO_CAST(frame)
-    frame:EnableHittestFrame(1);
-    frame:EnableHitTest(1)
-    frame:Resize(340, 900)
-    frame:SetPos(250, 10)
-    frame:RemoveAllChild()
-    frame:ShowWindow(1)
-    local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 10, frame:GetWidth() - 10, frame:GetHeight() - 10)
-    AUTO_CAST(gb)
-    gb:SetSkinName("test_frame_midle_light")
-    -- gb:SetEventScript(ui.LBUTTONDOWN, "always_status_info_setting")
-    local title = gb:CreateOrGetControl("richtext", "title", 10, 40)
-    title:SetText("{s18}{ol}{#FFFFFF}Display Setting")
-    -- gb:SetEventScript(ui.RBUTTONDOWN, "always_status_frame_close")
-    local close = gb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "always_status_frame_close")
-
-    local loginCID = info.GetCID(session.GetMyHandle())
-    -- print(g.settings[loginCID])
-
-    local dropList = gb:CreateOrGetControl('droplist', 'setting_DropList', 80, 10, 180, 20)
-    AUTO_CAST(dropList)
-    dropList:SetSkinName('droplist_normal');
-    dropList:EnableHitTest(1);
-    dropList:SetTextAlign("center", "center");
-    for i = 1, 10 do
-        local num = "no_" .. i
-        if g.settings[num].memo == "free memo " .. i then
-            dropList:AddItem(i, tostring("Data ") .. i, 0, "always_status_info_setting_load(" .. i .. ")");
-        else
-            dropList:AddItem(i, g.settings[num].memo, 0, "always_status_info_setting_load(" .. i .. ")");
-        end
-        local memo = gb:CreateOrGetControl('edit', 'memo' .. i, 155, 35, 125, 30)
-        AUTO_CAST(memo)
-        memo:SetEventScript(ui.ENTERKEY, "always_status_memo_save")
-        memo:SetEventScriptArgNumber(ui.ENTERKEY, i)
-        memo:SetFontName("white_16_ol")
-        memo:SetTextAlign("center", "center")
-
-        memo:SetText(g.settings[num].memo)
-        memo:ShowWindow(0)
-    end
-    dropList:SelectItem(tonumber(g.settings[loginCID]) - 1)
-    local memo = GET_CHILD_RECURSIVELY(gb, "memo" .. tonumber(g.settings[loginCID]))
-    memo:ShowWindow(1)
-
-    -- print(memo:GetName())
-
-    local enablecheck = gb:CreateOrGetControl("checkbox", "enablecheck", 285, 40, 20, 20)
-    AUTO_CAST(enablecheck)
-    enablecheck:SetEventScript(ui.LBUTTONUP, "always_status_checkbox")
-    enablecheck:SetTextTooltip("チェックするとフレームが固定されます。{nl}" ..
-                                   "If checked, the frame is fixed.")
-    if g.settings.enable == 0 then
-        enablecheck:SetCheck(1)
-    else
-        enablecheck:SetCheck(0)
-    end
-    always_status_info_setting_load(tonumber(g.settings[loginCID]))
+    return str
 end
 
 function always_status_checkbox(frame, ctrl, argStr, argNum)
 
-    argNum = "no_" .. argNum
-    -- g.no = g.settings[argNum]
+    local number = argNum
 
     local ischeck = ctrl:IsChecked()
     local name = ctrl:GetName()
@@ -590,126 +384,177 @@ function always_status_checkbox(frame, ctrl, argStr, argNum)
 
         if tostring("check" .. status) == ctrl:GetName() then
 
-            g.settings[argNum][status] = ischeck
-            always_status_save_settings()
-            -- g.no = g.settings[argNum]
-            g.no[status] = ischeck
-            -- print(tostring(g.settings[argNum][status]))
+            g.settings[tostring(number)][status] = ischeck
+            break
         end
 
     end
-
-    -- always_status_load_settings()
+    always_status_save_settings()
+    always_status_info_setting_load(number)
     always_status_frame_init()
 end
-local str_tbl = {
-    ["{s16}{ol}{#FF6600}物理クリティカル攻撃力"] = "{ol}{s16}{#FF6600}物理クリ攻",
-    ["{s16}{ol}{#FF6600}魔法クリティカル攻撃力"] = "{ol}{s16}{#FF6600}魔法クリ攻",
-    ["{s16}{ol}{#FF6600}クリティカル発生"] = "{ol}{s16}{#FF6600}クリ発",
-    ["{s16}{ol}{#FF6600}クリティカル抵抗"] = "{ol}{s16}{#FF6600}クリ抵",
-    ["{s16}{ol}{#FF6600}キャスティング時間比率"] = "{ol}{s1}{#FF6600}キャス時間比率",
-    ["{s16}{ol}{#66b3ff}追加ダメージ抵抗"] = "{s16}{ol}{#66b3ff}追加ダメ抵抗",
-    ["{s16}{ol}{#FF6600}突ダメージアップ"] = "{s16}{ol}{#FF6600}突アップ",
-    ["{s16}{ol}{#FF6600}斬ダメージアップ"] = "{s16}{ol}{#FF6600}斬アップ",
-    ["{s16}{ol}{#FF6600}打ダメージアップ"] = "{s16}{ol}{#FF6600}打アップ",
-    ["{s16}{ol}{#FF6600}弓矢のダメージアップ"] = "{s16}{ol}{#FF6600}弓アップ",
-    ["{s16}{ol}{#FF6600}キャノンダメージアップ"] = "{s16}{ol}{#FF6600}キャノアップ",
-    ["{s16}{ol}{#FF6600}銃器ダメージアップ"] = "{s16}{ol}{#FF6600}銃器アップ",
-    ["{s16}{ol}{#FF6600}無属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}無属性アップ",
-    ["{s16}{ol}{#FF6600}炎属性追加ダメージアップ"] = "{s16}{ol}{#FF6600}炎属性アップ",
-    ["{s16}{ol}{#FF6600}氷属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}氷属性アップ",
-    ["{s16}{ol}{#FF6600}雷属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}雷属性アップ",
-    ["{s16}{ol}{#FF6600}地属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}地属性アップ",
-    ["{s16}{ol}{#FF6600}毒属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}毒属性アップ",
-    ["{s16}{ol}{#FF6600}闇属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}闇属性アップ",
-    ["{s16}{ol}{#FF6600}聖属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}聖属性アップ",
-    ["{s16}{ol}{#FF6600}念属性魔法ダメージアップ"] = "{s16}{ol}{#FF6600}念属性アップ",
-    ["{s16}{ol}{#ff4040}ボス対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}ボス対象攻撃力",
-    ["{s16}{ol}{#ff4040}クロース防具対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}クロース対象",
-    ["{s16}{ol}{#ff4040}レザー防具対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}レザー対象",
-    ["{s16}{ol}{#ff4040}プレート防具対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}プレート対象",
-    ["{s16}{ol}{#ff4040}アストラル防御対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}アストラル対象",
-    ["{s16}{ol}{#66b3ff}中型対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}中型相殺",
-    ["{s16}{ol}{#66b3ff}クロース対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}クロース相殺",
-    ["{s16}{ol}{#66b3ff}レザー対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}レザー相殺",
-    ["{s16}{ol}{#66b3ff}プレート対象攻撃力相殺"] = "{s16}{ol}{#FF6600}{#66b3ff}プレート相殺",
-    ["{s16}{ol}{#66b3ff}極：強劇性の猛毒抵抗"] = "{s16}{ol}{#FF6600}{#66b3ff}極：猛毒抵抗",
-    ["{s16}{ol}{#66b3ff}HP回復のエリクサー広域化"] = "{s16}{ol}{#FF6600}{#66b3ff}エリクサー広域",
-    ["{s16}{ol}{#ff4040}植物型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}植物対象攻撃力",
-    ["{s16}{ol}{#ff4040}野獣型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}野獣対象攻撃力",
-    ["{s16}{ol}{#ff4040}昆虫型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}昆虫対象攻撃力",
-    ["{s16}{ol}{#ff4040}変異型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}変異対象攻撃力",
-    ["{s16}{ol}{#ff4040}悪魔型対象攻撃力"] = "{s16}{ol}{#FF6600}{#ff4040}悪魔対象攻撃力",
-    ["{s16}{ol}{#ff4040}パーフェクト効果"] = "{s16}{ol}{#FF6600}{#ff4040}パーフェクト",
-    ["{s16}{ol}{#ff4040}復讐効果"] = "{s16}{ol}{#FF6600}{#ff4040}復讐"
-}
-function always_status_lang(str)
-    -- print(tostring(str))
-    for key, value in pairs(str_tbl) do
 
-        if tostring(key) == tostring(str) then
+function always_status_color_select(frame, ctrl, argStr, argNum)
 
-            return "{ol}{s16}" .. value
+    local parent = ctrl:GetParent()
+    local status_name = string.gsub(parent:GetName(), "colorbox", "")
+    g.settings["color"][status_name] = "{#" .. argStr .. "}"
+    always_status_save_settings()
 
-        end
-    end
-    return "{ol}{s16}" .. str
+    always_status_info_setting(frame, ctrl, argStr, argNum)
+    always_status_frame_init()
+
 end
 
-function always_status_update()
+function always_status_info_setting_load(number)
 
-    local frame = ui.GetFrame(addonNameLower)
-    local statframe = ui.GetFrame("status")
-    local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
+    local frame = ui.GetFrame(addonNameLower .. "new_frame")
+    local gb = GET_CHILD_RECURSIVELY(frame, "gb")
+    local setting_gb = gb:CreateOrGetControl("groupbox", "setting_gb", 10, 70, gb:GetWidth() - 20, gb:GetHeight() - 80)
+    AUTO_CAST(setting_gb)
+    local memo = GET_CHILD_RECURSIVELY(frame, "memo")
+    memo:SetText(g.settings[tostring(number)].memo)
 
-    local pc = GetMyPCObject();
+    frame:SetLayerLevel(150)
+    setting_gb:SetSkinName("test_frame_midle_light")
+
+    local y = 10 -- 初期のY座標
     for _, status in ipairs(status_list) do
-        local as_title = GET_CHILD_RECURSIVELY(frame, status)
-        if as_title ~= nil then
-            local as_stat = GET_CHILD_RECURSIVELY(frame, "stat" .. status)
-            local as_stat_text = string.gsub(as_stat:GetText(), ": ", "")
+        local check = setting_gb:CreateOrGetControl("checkbox", "check" .. status, 470, y, 20, 20)
+        AUTO_CAST(check)
 
-            if status ~= "STR" and status ~= "INT" and status ~= "CON" and status ~= "MNA" and status ~= "DEX" then
-                local controlset = GET_CHILD_RECURSIVELY(box, status)
-                local title = GET_CHILD_RECURSIVELY(controlset, "title")
-                -- print(tostring(title:GetText()))
-                local stat = GET_CHILD_RECURSIVELY(controlset, "stat")
-                -- print(tostring(stat:GetText()))
+        check:SetEventScript(ui.LBUTTONUP, "always_status_checkbox")
+        check:SetEventScriptArgNumber(ui.LBUTTONUP, number);
+        check:SetCheck(g.settings[tostring(number)][status])
 
-                if tostring(as_stat_text) ~= tostring("{ol}{s16}" .. stat:GetText()) then
-                    -- print("test")
-                    as_stat:SetText("{ol}{s16}: " .. stat:GetText())
-                    if status == "gear_score" then
-                        as_stat:AdjustFontSizeByWidth(60);
-                    elseif status == "ability_point_score" then
-                        as_stat:AdjustFontSizeByWidth(80);
-                    end
-                end
-            else
-                for i = 0, 4 do
-                    local typeStr = GetStatTypeStr(i);
+        local colorbox = setting_gb:CreateOrGetControl('groupbox', "colorbox" .. status, 255, y, 200, 20);
+        AUTO_CAST(colorbox)
 
-                    if status == typeStr then
-                        local totalValue = pc[typeStr] + session.GetUserConfig(typeStr .. "_UP");
-                        as_stat:SetText("{ol}{s16}: " .. totalValue)
+        for j = 0, 9 do
+            local colorCls = colortbl[j]
 
-                    end
-                end
-            end
+            local color = colorbox:CreateOrGetControl("picture", "color" .. j, 20 * j, 0, 20, 20);
+            AUTO_CAST(color)
+            color:SetImage("chat_color");
+
+            color:SetColorTone("FF" .. colorCls)
+            color:SetEventScript(ui.LBUTTONUP, "always_status_color_select")
+            color:SetEventScriptArgString(ui.LBUTTONUP, colorCls)
+            -- color:SetEventScriptArgNumber(ui.LBUTTONUP, buffData.id)
 
         end
+
+        local control = setting_gb:CreateOrGetControl("richtext", status, 20, y)
+        AUTO_CAST(control)
+        if status == "STR" or status == "INT" or status == "CON" or status == "MNA" or status == "DEX" then
+            control:SetText(g.settings["color"][status] .. "{s16}{ol}" .. ClMsg(status))
+
+        elseif status == "gear_score" then
+            control:SetText(g.settings["color"][status] .. "{s16}{ol}" .. ScpArgMsg("EquipedItemGearScore"))
+        elseif status == "ability_point_score" then
+            control:SetText(g.settings["color"][status] .. "{s16}{ol}" .. ScpArgMsg("AbilityPointScore"))
+        else
+            control:SetText(g.settings["color"][status] .. "{s16}{ol}" .. ScpArgMsg(status))
+        end
+
+        control:AdjustFontSizeByWidth(250)
+
+        y = y + 25 -- 次のラベルのY座標を調整
     end
-    -- print("minus4")
+    local loginCID = info.GetCID(session.GetMyHandle())
+    -- print(number)
+    g.settings[loginCID].key = number
+    always_status_save_settings()
+
+    always_status_frame_init()
+
+end
+
+function always_status_frame_close(frame)
+
+    local frame = ui.GetFrame(addonNameLower .. "new_frame")
+
+    frame:ShowWindow(0)
+
+end
+
+function always_status_info_setting(frame, ctrl, argStr, argNum)
+    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "new_frame", 0, 0, 70, 30)
+    AUTO_CAST(frame)
+    frame:EnableHittestFrame(1);
+    frame:EnableHitTest(1)
+    frame:Resize(555, 900)
+    frame:SetPos(250, 10)
+    frame:RemoveAllChild()
     frame:ShowWindow(1)
-    return 1
+    local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 10, frame:GetWidth() - 10, frame:GetHeight() - 10)
+    AUTO_CAST(gb)
+    gb:SetSkinName("test_frame_low")
+
+    local title = gb:CreateOrGetControl("richtext", "title", 30, 40)
+    title:SetText("{s18}{ol}{#FFFFFF}" .. always_status_language("Display Setting"))
+
+    local close = gb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "always_status_frame_close")
+
+    local loginCID = info.GetCID(session.GetMyHandle())
+
+    local dropList = gb:CreateOrGetControl('droplist', 'setting_DropList', 165, 10, 200, 20)
+    AUTO_CAST(dropList)
+    dropList:SetSkinName('droplist_normal');
+    dropList:EnableHitTest(1);
+    dropList:SetTextAlign("center", "center");
+    for i = 1, 10 do
+
+        if g.settings[tostring(i)].memo == "free memo " .. i then
+            dropList:AddItem(i - 1, tostring("Data ") .. i, 0, "always_status_info_setting_load(" .. i .. ")");
+        else
+            dropList:AddItem(i - 1, g.settings[tostring(i)].memo, 0, "always_status_info_setting_load(" .. i .. ")");
+        end
+
+    end
+    dropList:SelectItem(tonumber(g.settings[loginCID].key) - 1)
+    local memo = gb:CreateOrGetControl('edit', 'memo', 215, 35, 200, 30)
+    AUTO_CAST(memo)
+    memo:SetEventScript(ui.ENTERKEY, "always_status_memo_save")
+    memo:SetFontName("white_16_ol")
+    memo:SetTextAlign("center", "center")
+
+    local enablecheck = gb:CreateOrGetControl("checkbox", "enablecheck", 510, 40, 20, 20)
+    AUTO_CAST(enablecheck)
+    enablecheck:SetEventScript(ui.LBUTTONUP, "always_status_checkbox")
+    enablecheck:SetTextTooltip(always_status_language("If checked, the frame is fixed"))
+    if g.settings.enable == 0 then
+        enablecheck:SetCheck(1)
+    else
+        enablecheck:SetCheck(0)
+    end
+    always_status_info_setting_load(tonumber(g.settings[loginCID].key))
+end
+
+function always_status_memo_save(frame, ctrl, argStr, argNum)
+    local text = ctrl:GetText()
+
+    local loginCID = info.GetCID(session.GetMyHandle())
+
+    g.settings[tostring(g.settings[loginCID].key)].memo = text
+
+    ui.SysMsg("MEMO registered.")
+
+    always_status_save_settings()
+
+    always_status_info_setting(frame, ctrl, argStr, argNum)
 end
 
 function always_status_frame_toggle(frame, ctrl)
     local loginCID = info.GetCID(session.GetMyHandle())
-    if g.settings_use[loginCID].use == 1 then
-        g.settings_use[loginCID].use = 0
+    if g.settings[loginCID].use == 1 then
+        g.settings[loginCID].use = 0
     else
-        g.settings_use[loginCID].use = 1
+        g.settings[loginCID].use = 1
 
     end
     always_status_save_settings()
@@ -719,44 +564,37 @@ end
 function always_status_frame_init()
 
     local frame = ui.GetFrame(addonNameLower)
+
     frame:RemoveAllChild()
     frame:EnableHitTest(1)
     frame:EnableMove(g.settings.enable)
-
-    frame:RemoveAllChild()
-    if g.settings.frame_Y >= 0 then
-        frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
-    else
-        frame:SetPos(g.settings.frame_X, 10)
-    end
+    frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
     frame:SetTitleBarSkin("None")
     frame:SetSkinName("None")
-    frame:SetLayerLevel(10)
+    frame:SetLayerLevel(11)
+    frame:SetEventScript(ui.LBUTTONUP, "always_status_frame_move") -- !
+    frame:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting") -- !
 
-    frame:SetEventScript(ui.LBUTTONUP, "always_status_frame_move")
-    frame:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
-
-    -- print("test")
     local as_text = frame:CreateOrGetControl("richtext", "as_text", 20, 5)
     as_text:SetText("{ol}{S10}Always Status")
     as_text:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
-    as_text:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
+    as_text:SetTextTooltip(always_status_language("Right-click to set display"))
 
     local loginCID = info.GetCID(session.GetMyHandle())
-    if g.settings_use[loginCID].use ~= 1 then
-        -- print("plus")
+
+    if g.settings[loginCID].use ~= 1 then
+
         local plus_slot = frame:CreateOrGetControl("slot", "plus_slot", 0, 3, 15, 15)
         AUTO_CAST(plus_slot)
         plus_slot:SetSkinName("None")
         plus_slot:EnablePop(0)
         plus_slot:EnableDrop(0)
         plus_slot:EnableDrag(0);
-        plus_slot:SetEventScript(ui.LBUTTONUP, "always_status_frame_toggle")
+        plus_slot:SetEventScript(ui.LBUTTONUP, "always_status_frame_toggle") -- !
         local icon = CreateIcon(plus_slot);
         AUTO_CAST(icon)
         icon:SetImage("btn_plus");
-        icon:SetTextTooltip("{ol}キャラクター毎に表示非表示を切り替えます。{nl}" ..
-                                "Display and hide for each character.");
+        icon:SetTextTooltip(always_status_language("Display and hide for each character"))
         frame:Resize(150, 20)
         frame:ShowWindow(1)
         return
@@ -769,172 +607,159 @@ function always_status_frame_init()
         minus_slot:EnableDrop(0)
         minus_slot:EnableDrag(0);
         minus_slot:SetEventScript(ui.LBUTTONUP, "always_status_frame_toggle")
+
         local icon = CreateIcon(minus_slot);
         AUTO_CAST(icon)
         icon:SetImage("btn_minus");
-        icon:SetTextTooltip("{ol}キャラクター毎に表示非表示を切り替えます。{nl}" ..
-                                "Display and hide for each character.");
+        icon:SetTextTooltip(always_status_language("Display and hide for each character"))
 
         local y = 20
         local pc = GetMyPCObject();
         local statframe = ui.GetFrame("status")
         local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
+        local key = 0
 
-        local sorted = {}
-        local i = 1
+        for i = 1, 10 do
+            if g.settings[loginCID].key == i then
+                key = i
+                break
+            end
+        end
+
         for _, status in ipairs(status_list) do
-            for key, value in pairs(g.no) do
-                if key == status then
-                    sorted[key] = i
-                    i = i + 1
-                end
-            end
-        end
 
-        -- iの昇順にソート
-        local sortedSettings = {}
-        for key, _ in pairs(sorted) do
-            table.insert(sortedSettings, {
-                key = key,
-                value = g.no[key]
-            })
-        end
-        table.sort(sortedSettings, function(a, b)
-            return sorted[a.key] < sorted[b.key]
-        end)
+            for k, v in pairs(g.settings[tostring(key)]) do
 
-        local len = 0
+                if status == k then
 
-        for _, entry in ipairs(sortedSettings) do
-            -- for key, value in pairs(g.settings) do
-            local key = tostring(entry.key)
+                    if v == 1 then
 
-            if entry.value == 1 then
+                        local title = frame:CreateOrGetControl("richtext", "title" .. k, 10, y)
+                        AUTO_CAST(title)
 
-                local title = frame:CreateOrGetControl("richtext", key, 10, y)
-                AUTO_CAST(title)
-                title:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
-                title:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
+                        local stat = frame:CreateOrGetControl("richtext", "stat" .. k, 165, y)
+                        AUTO_CAST(stat)
+                        -- stat:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
+                        -- stat:SetTextTooltip(always_status_language("Right-click to set display"))
 
-                if color_attribute[key] ~= nil then
+                        if status == "STR" or status == "INT" or status == "CON" or status == "MNA" or status == "DEX" then
+                            for i = 0, 4 do
+                                local typeStr = GetStatTypeStr(i);
 
-                    title:SetText("{s16}{ol}" .. ScpArgMsg(color_attribute[key]))
-                    title:AdjustFontSizeByWidth(150)
-                    if string.len(title:GetText()) > len then
-                        len = string.len(title:GetText())
-                    end
-
-                else
-                    if key == "STR" then
-                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("STR"))
-
-                    elseif key == "INT" then
-                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("INT"))
-                    elseif key == "CON" then
-                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("CON"))
-                    elseif key == "MNA" then
-                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("MNA"))
-                    elseif key == "DEX" then
-                        title:SetText("{s16}{ol}{#00FF00}" .. ClMsg("DEX"))
-                    end
-                    if key == "gear_score" then
-                        title:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("EquipedItemGearScore"))
-                    elseif key == "ability_point_score" then
-                        title:SetText("{s16}{ol}{#00FF00}" .. ScpArgMsg("AbilityPointScore"))
-                    else
-                        title:SetText("{s16}{ol}{#FF6600}" .. ScpArgMsg(key))
-                    end
-                    title:AdjustFontSizeByWidth(150)
-                    if string.len(title:GetText()) > len then
-                        len = string.len(title:GetText())
-                    end
-                end
-                if (option.GetCurrentCountry() == "Japanese") then
-                    -- print(title:GetText())
-                    title:SetText(always_status_lang(title:GetText()))
-                    title:AdjustFontSizeByWidth(150)
-                end
-                y = y + 20
-                -- break
-            end
-
-        end
-
-        y = 20
-        for _, entry in ipairs(sortedSettings) do
-            -- for key, value in pairs(g.settings) do
-            local key = tostring(entry.key)
-            if entry.value == 1 then
-                local stat = frame:CreateOrGetControl("richtext", "stat" .. key, len * 3 + 5, y)
-                AUTO_CAST(stat)
-                stat:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
-                stat:SetTextTooltip("右クリックで表示設定{nl}" .. "Right-click to set display")
-                if key ~= "STR" and key ~= "INT" and key ~= "CON" and key ~= "MNA" and key ~= "DEX" then
-                    local controlset = GET_CHILD_RECURSIVELY(box, key)
-                    local status = GET_CHILD_RECURSIVELY(controlset, "stat")
-
-                    stat:SetText("{ol}{s16}: " .. status:GetText())
-                    if key == "gear_score" then
-                        stat:AdjustFontSizeByWidth(60);
-                    elseif key == "ability_point_score" then
-                        stat:AdjustFontSizeByWidth(80);
-                    end
-                else
-                    for i = 0, 4 do
-                        local typeStr = GetStatTypeStr(i);
-
-                        if key == typeStr then
-                            local totalValue = pc[typeStr] + session.GetUserConfig(typeStr .. "_UP");
-                            stat:SetText("{ol}{s16}: " .. totalValue)
-                            -- print(typeStr .. totalValue)
+                                if status == typeStr then
+                                    title:SetText("{ol}{s16}" .. g.settings["color"][status] .. ClMsg(status))
+                                    local totalValue = pc[typeStr] + session.GetUserConfig(typeStr .. "_UP");
+                                    stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. totalValue)
+                                    if (option.GetCurrentCountry() == "Japanese") then
+                                        stat:SetPos(125, y)
+                                    end
+                                    break
+                                end
+                            end
+                            y = y + 20
                             break
+                        end
+                        local controlset = GET_CHILD_RECURSIVELY(box, status)
+
+                        local orig_status = GET_CHILD_RECURSIVELY(controlset, "stat")
+
+                        if status == "gear_score" then
+                            title:SetText("{ol}{s16}" .. g.settings["color"][status] ..
+                                              ScpArgMsg("EquipedItemGearScore"))
+                            local text = string.gsub(orig_status:GetText(), "{@sti8}", "")
+                            stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
+
+                        elseif status == "ability_point_score" then
+                            title:SetText("{ol}{s16}" .. g.settings["color"][status] .. ScpArgMsg("AbilityPointScore"))
+                            local text = string.gsub(orig_status:GetText(), "{@sti8}", "")
+                            stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
+
+                        else
+                            title:SetText("{ol}{s16}" .. g.settings["color"][status] .. ScpArgMsg(status))
+                            local text = string.gsub(orig_status:GetText(), "{#ff4040}", "")
+                            text = string.gsub(text, "{#66b3ff}", "")
+                            stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
 
                         end
+                        if (option.GetCurrentCountry() == "Japanese") then
+                            local text = string.gsub(title:GetText(), "{ol}{s16}" .. g.settings["color"][status], "")
+                            title:SetText("{ol}{s16}" .. g.settings["color"][status] .. always_status_lang(text))
+                            stat:SetPos(125, y)
+
+                        end
+                        y = y + 20
+                        title:AdjustFontSizeByWidth(150)
+                        break
                     end
-                end
-                if (option.GetCurrentCountry() == "Japanese") then
-                    -- print(title:GetText())
-                    stat:SetOffset(125, y)
 
                 end
-                y = y + 20
-                -- break
-
             end
-
         end
+
         if (option.GetCurrentCountry() == "Japanese") then
             frame:Resize(260, y + 10)
         else
             frame:Resize(300, y + 10)
         end
+
         frame:ShowWindow(1)
         frame:RunUpdateScript("always_status_update", 0.5);
     end
 end
 
-function always_status_frame_close(frame)
-    -- print(tostring(frame:GetName()))
-    local frame = ui.GetFrame(addonNameLower .. "new_frame")
+function always_status_update()
 
-    frame:ShowWindow(0)
+    local frame = ui.GetFrame(addonNameLower)
+    local statframe = ui.GetFrame("status")
+    local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
 
-end
+    local pc = GetMyPCObject();
+    for _, status in ipairs(status_list) do
+        local as_stat = GET_CHILD_RECURSIVELY(frame, "stat" .. status)
+        local controlset = GET_CHILD_RECURSIVELY(box, status)
 
-function always_status_STATUS_ONLOAD()
-    local frame = ui.GetFrame("status")
-    frame:Resize(500, 1080)
-end
+        if controlset == nil then
 
-function always_status_original_frame_reduction()
-    g.volume = config.GetSoundVolume()
-    config.SetSoundVolume(0)
-    local frame = ui.GetFrame("status")
+            if status == "STR" or status == "INT" or status == "CON" or status == "MNA" or status == "DEX" then
+                for i = 0, 4 do
+                    local typeStr = GetStatTypeStr(i);
 
-    frame:ShowWindow(1)
-    frame:Resize(0, 0)
+                    if status == typeStr then
 
-    return
+                        local totalValue = pc[typeStr] + session.GetUserConfig(typeStr .. "_UP");
+                        if as_stat ~= nil then
+                            as_stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. totalValue)
+                            break
+                        end
+                    end
+                end
+
+            end
+        else
+
+            local orig_status = GET_CHILD_RECURSIVELY(controlset, "stat")
+            if as_stat ~= nil then
+                if status == "gear_score" then
+
+                    local text = string.gsub(orig_status:GetText(), "{@sti8}", "")
+                    as_stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
+
+                elseif status == "ability_point_score" then
+                    local text = string.gsub(orig_status:GetText(), "{@sti8}", "")
+                    as_stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
+
+                else
+
+                    local text = string.gsub(orig_status:GetText(), "{#ff4040}", "")
+                    text = string.gsub(text, "{#66b3ff}", "")
+                    as_stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
+
+                end
+            end
+        end
+    end
+
+    return 1
 end
 
 function always_status_frame_move(frame)
@@ -946,61 +771,13 @@ function always_status_frame_move(frame)
     end
 end
 
---[[function always_status_save_settings_reserve(frame, ctrl, argStr, argNum)
+function always_status_lang(str)
 
-    local dropList = GET_CHILD_RECURSIVELY(frame, "setting_DropList")
-    print(tostring(dropList:GetName()))
-    local Data = tonumber(dropList:GetSelItemKey())
-    print(Data)
-    local loginCID = info.GetCID(session.GetMyHandle())
-    Data = "no_" .. Data
-    g.settings[loginCID] = Data
+    for key, value in pairs(str_tbl) do
 
-    for _, status in ipairs(status_list) do
-        local check = GET_CHILD_RECURSIVELY(frame, "check" .. status)
-        print(check:IsChecked())
-        for key, value in pairs(g.settings[Data]) do
-            print(key .. value)
-            g.settings[Data][status] = check:IsChecked()
+        if tostring(key) == tostring(str) then
+            return value
         end
     end
-    -- g.settings.no = argNum
-    local yes = "always_status_save_settings()"
-    ui.MsgBox("このキャラに登録しますか？", yes, "None")
+    return str
 end
-function always_status_newframe_init()
-
-    local newframe = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "new_frame", 0, 0, 70, 30)
-    AUTO_CAST(newframe)
-    newframe:Resize(70, 30)
-    newframe:SetPos(600, 30)
-    -- newframe:SetOffset(1375, 15)
-    newframe:ShowWindow(1)
-    newframe:SetSkinName("None")
-    local btn = newframe:CreateOrGetControl("button", "btn1", 0, 0, 30, 30)
-    AUTO_CAST(btn)
-    btn:SetSkinName("None")
-    btn:SetText("{img config_button_normal 30 30}")
-    btn:SetEventScript(ui.LBUTTONDOWN, "always_status_update")
-
-end
-
-function always_status_info()
-    print("always_status_info")
-    local frame = ui.GetFrame("status")
-    local box = GET_CHILD_RECURSIVELY(frame, "internalstatusBox")
-
-    for _, status in ipairs(status_list) do
-
-        if status ~= "STR" and status ~= "INT" and status ~= "CON" and status ~= "MNA" and status ~= "DEX" then
-
-            local controlset = GET_CHILD_RECURSIVELY(box, status)
-            local title = GET_CHILD_RECURSIVELY(controlset, "title")
-            local stat = GET_CHILD_RECURSIVELY(controlset, "stat")
-            -- print(tostring(title:GetText()) .. ":" .. tostring(stat:GetText()))
-
-        end
-
-    end
-
-end]]
