@@ -3,10 +3,11 @@
 -- v1.0.2 搬入搬出高速化。ログ機能追加。設定画面閉じてもマウスカスタムファンクション保持していたバグ修正。
 -- v1.0.3 warehousemanagerの設定ファイルをコピー出来る様に。自動設定をキャラ毎に。
 -- v1.0.4 トークンの判定が環境によって安定しないためディレイを5秒に変更。入庫のディレイも設定できるように変更。
+-- v1.0.5 セット出庫機能追加。設定スロット増設。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -207,9 +208,67 @@ function another_warehouse_lang(str)
         if str == "Please enter numerical values." then
             str = "数値で入力してください。"
         end
+
+        -- Warehouse items right-click to setting
+        if str == "Warehouse items right-click to setting" then
+            str = "倉庫アイテム右クリックで設定"
+        end
+        -- ui.SysMsg("Set name changed.")
+        if str == "Set name changed." then
+            str = "セット名変更しました。"
+        end
+
+        if str == "Name already registered." then
+            str = "既に登録済の名前です。"
+        end
+        -- ui.SysMsg("Name already registered.")
+        -- The set is taken out of the warehouse.
+        if str == "The set is taken out of the warehouse." then
+            str = "倉庫からセットで搬出します。"
+        end
+
+        if str == "Inventory: right mouse click to Carry in all items" then
+            str = "インベントリ:アイコン右クリックで全数搬入"
+        end
+
+        if str == "Inventory: left mouse click to Carry in 10 items" then
+            str = "インベントリ:アイコン左クリックで10個搬入"
+        end
+
+        if str == "Inventory: left SHIFT+mouse right click to Carry in Input quantity items" then
+            str = "インベントリ:左SHIFT+アイコン右クリックで入力数量搬入"
+        end
+
+        if str == "Warehouse: right mouse click to Carry out all items" then
+            str = "チーム倉庫:アイコン右クリックで全数搬出"
+        end
+
+        if str == "Warehouse: left mouse click to Carry out 10 items" then
+            str = "チーム倉庫:アイコン左クリックで10個搬出"
+        end
+
+        if str == "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items" then
+            str = "チーム倉庫:左SHIFT+アイコン右クリックで入力数量搬出"
+        end
+
     end
 
     return str
+end
+
+function another_warehouse_help()
+    -- tree:SetTextTooltip("Left click 10 each{nl}Right click all{nl}Hold Left Shift to specify quantity")
+    local context = ui.CreateContextMenu("CONTEXT", "          [Anothe Warehouse]Help", 30, 0, 100, 100)
+    ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: right mouse click to Carry in all items"), "None")
+    ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: left mouse click to Carry in 10 items"), "None")
+    ui.AddContextMenuItem(context, another_warehouse_lang(
+        "Inventory: left SHIFT+mouse right click to Carry in Input quantity items"), "None")
+    ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: right mouse click to Carry out all items"), "None")
+    ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: left mouse click to Carry out 10 items"), "None")
+    ui.AddContextMenuItem(context, another_warehouse_lang(
+        "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items"), "None")
+
+    ui.OpenContextMenu(context)
 end
 
 function another_warehouse_setting_help()
@@ -286,6 +345,268 @@ function another_warehouse_notice2()
 
 end
 
+function another_warehouse_set_item_close(frame, ctrl, argStr, argNum)
+    frame = ui.GetFrame("another_warehouse_set_items")
+    frame:ShowWindow(0)
+end
+
+function another_warehouse_set_item_take(frame, ctrl, argStr, argNum)
+
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local sortedCnt = sortedGuidList:Count();
+    local fromframe = ui.GetFrame("accountwarehouse")
+
+    local take = {}
+    for key, value in pairs(g.settings.setitems[tostring(argStr)]) do
+        if warehouseFrame:IsVisible() == 1 then
+            for i = 0, sortedCnt - 1 do
+                local guid = sortedGuidList:Get(i)
+                local invItem = itemList:GetItemByGuid(guid)
+                local type = invItem.type
+                local iesid = invItem:GetIESID()
+
+                if value == type then
+
+                    local count = invItem.count
+                    take[iesid] = count
+                    break
+                end
+            end
+        end
+    end
+
+    session.ResetItemList()
+    for iesid, count in pairs(take) do
+        session.AddItemID(tonumber(iesid), count)
+    end
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
+    another_warehouse_set_item_close(frame, ctrl, argStr, argNum)
+
+    local dropList = GET_CHILD_RECURSIVELY(warehouseFrame, 'dropList')
+    AUTO_CAST(dropList)
+
+    dropList:SelectItem(0)
+end
+
+function another_warehouse_set_name_edit(frame, ctrl, argStr, argNum)
+
+    for i, handle in ipairs(g.settings.handlelist) do
+        local newtext = string.gsub(ctrl:GetText(), "{ol}", "")
+        if newtext == tostring(handle) then
+            ui.SysMsg(another_warehouse_lang("Name already registered."))
+
+            return
+        end
+    end
+
+    for i, handle in ipairs(g.settings.handlelist) do
+        -- print(handle .. ":" .. ctrl:GetText())
+        local newtext = string.gsub(ctrl:GetText(), "{ol}", "")
+        if newtext ~= tostring(handle) then
+            g.settings.handlelist[argNum] = tostring(newtext)
+            another_warehouse_save_settings()
+            ui.SysMsg(another_warehouse_lang("Set name changed."))
+            -- index = i
+            -- str = newtext
+            break
+
+        end
+
+    end
+    -- another_warehouse_set_items_setting(index, str)
+end
+
+function another_warehouse_set_items_setting(number, handle)
+
+    local frame = ui.CreateNewFrame("notice_on_pc", "another_warehouse_set_items", 0, 0, 10, 10)
+    AUTO_CAST(frame)
+    frame:SetSkinName("test_frame_low")
+    frame:SetPos(680, 170)
+    frame:SetLayerLevel(100)
+    frame:Resize(270, 310)
+    frame:SetUserValue("NUMBER", number)
+    frame:RemoveAllChild()
+
+    local close = frame:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetOffset(230, 5)
+    close:SetEventScript(ui.LBUTTONUP, "another_warehouse_set_item_close")
+
+    local set_gb = frame:CreateOrGetControl("groupbox", "set_gb" .. number, 10, 50, 380, 380)
+    AUTO_CAST(set_gb)
+    set_gb:SetSkinName("test_frame_midle_light")
+    set_gb:Resize(250, 250)
+    frame:ShowWindow(1)
+
+    local out = frame:CreateOrGetControl("button", "out", 0, 0, 100, 43)
+    AUTO_CAST(out)
+    out:SetText("{@st66b}TAKE ITEM")
+    out:SetMargin(10, 5, 100, 0)
+    out:SetSkinName("test_pvp_btn")
+    out:SetTextTooltip(another_warehouse_lang("Warehouse items right-click to setting"))
+    out:SetEventScript(ui.LBUTTONUP, "another_warehouse_set_item_take")
+    out:SetEventScriptArgString(ui.LBUTTONUP, number)
+
+    --[[local warehouseFrame = ui.GetFrame("accountwarehouse")
+    local dropList = GET_CHILD_RECURSIVELY(warehouseFrame, 'dropList')
+    AUTO_CAST(dropList)
+    print(tostring(dropList:GetText()))]]
+
+    local name_edit = frame:CreateOrGetControl("edit", "name_edit", 115, 13, 110, 30)
+    AUTO_CAST(name_edit)
+    name_edit:SetFontName("white_16_ol")
+    name_edit:SetTextAlign("center", "center")
+    name_edit:SetText("{ol}" .. handle)
+    name_edit:SetEventScript(ui.ENTERKEY, "another_warehouse_set_name_edit")
+    name_edit:SetEventScriptArgNumber(ui.ENTERKEY, number)
+
+    local set_slotset = set_gb:CreateOrGetControl('slotset', 'set_slotset', 0, 0, 0, 0)
+    AUTO_CAST(set_slotset);
+    set_slotset:SetSlotSize(50, 50) -- スロットの大きさ
+    set_slotset:EnablePop(1)
+    set_slotset:EnableDrag(1)
+    set_slotset:EnableDrop(1)
+    -- set_slotset:SetNumberMode(1)
+    set_slotset:SetColRow(5, 5) -- スロットの配置と個数
+    set_slotset:SetSpc(0, 0)
+    set_slotset:SetSkinName('slot')
+    -- set_slotset:SetEventScript(ui.DROP, "another_warehouse_setting_drop")
+
+    set_slotset:CreateSlots()
+    local slotcount = set_slotset:GetSlotCount()
+
+    for i = 1, slotcount do
+        local slot = GET_CHILD_RECURSIVELY(set_slotset, "slot" .. i)
+        local icon = slot:GetIcon()
+        if icon == nil then
+            slot:SetTextTooltip(another_warehouse_lang("Warehouse items right-click to setting"))
+        end
+        local str_index = tostring(i)
+        for key, value in pairs(g.settings.setitems[tostring(number)]) do
+            if key == str_index then
+                local clsid = value
+
+                local itemcls = GetClassByType("Item", clsid)
+                -- slot:SetUserValue("ITEM_CLSID", clsid)
+                slot:SetEventScript(ui.RBUTTONUP, "another_warehouse_set_clear_item")
+                slot:SetEventScriptArgString(ui.RBUTTONUP, number)
+                slot:SetEventScriptArgNumber(ui.RBUTTONUP, clsid)
+                SET_SLOT_ITEM_CLS(slot, itemcls)
+
+            end
+        end
+    end
+
+end
+
+function another_warehouse_takeitem(frame, iesid, count)
+
+    local setframe = ui.GetFrame("another_warehouse_set_items")
+
+    if setframe == nil or setframe:IsVisible() == 0 then
+
+        local invItem = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid);
+
+        session.ResetItemList();
+        session.AddItemID(iesid, count);
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), frame:GetUserIValue("HANDLE"));
+
+    elseif setframe:IsVisible() == 1 then
+
+        local invItem = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid);
+
+        local obj = GetIES(invItem:GetObject());
+        local type = tonumber(obj.ClassID)
+        local itemcls = GetClassByType("Item", type)
+
+        local set_slotset = GET_CHILD_RECURSIVELY(setframe, "set_slotset")
+        local slotcount = set_slotset:GetSlotCount()
+        local index = 1
+
+        for i = 1, slotcount do
+            local awslot = GET_CHILD_RECURSIVELY(set_slotset, "slot" .. i)
+            local slot_icon = awslot:GetIcon();
+            if slot_icon == nil then
+                index = i
+                break
+            end
+        end
+        if g.settings.setitems == nil then
+            g.settings.setitems = {}
+            another_warehouse_save_settings()
+
+        end
+        local number = setframe:GetUserIValue("NUMBER")
+        -- print(number .. "value")
+        if g.settings.setitems[tostring(number)] == nil then
+            g.settings.setitems[tostring(number)] = {}
+            another_warehouse_save_settings()
+
+        end
+
+        local ctrl = GET_CHILD_RECURSIVELY(set_slotset, "slot" .. index)
+        ctrl:SetEventScript(ui.RBUTTONUP, "another_warehouse_set_clear_item")
+        ctrl:SetEventScriptArgString(ui.RBUTTONUP, number)
+        ctrl:SetEventScriptArgNumber(ui.RBUTTONUP, type)
+
+        if g.settings.setitems[tostring(number)][tostring(index)] == nil then
+            g.settings.setitems[tostring(number)][tostring(index)] = tonumber(type)
+
+        end
+
+        SET_SLOT_ITEM_CLS(ctrl, itemcls)
+        another_warehouse_save_settings()
+
+    end
+end
+
+function another_warehouse_set_clear_item(frame, ctrl, argStr, argNum)
+
+    for k, v in pairs(g.settings.setitems[argStr]) do
+        if v == argNum then
+            ctrl:ClearIcon();
+            g.settings.setitems[argStr][k] = nil
+
+            another_warehouse_save_settings()
+            break
+        end
+    end
+
+    -- another_warehouse_set_items_setting(g.number)
+end
+
+function another_warehouse_take_context(frame, ctrl, argStr, argNum)
+    local context = ui.CreateContextMenu("TAKE_SETTING", "Take items", 0, 20, 100, 100)
+    -- g.settings.handlelist = nil
+    if g.settings.handlelist == nil then
+
+        g.settings.handlelist = {
+            [1] = "Take Items 1",
+            [2] = "Take Items 2",
+            [3] = "Take Items 3",
+            [4] = "Take Items 4",
+            [5] = "Take Items 5",
+            [6] = "Take Items 6",
+            [7] = "Take Items 7",
+            [8] = "Take Items 8"
+        }
+        another_warehouse_save_settings()
+    end
+
+    for i, handle in ipairs(g.settings.handlelist) do
+
+        local scp = string.format("another_warehouse_set_items_setting(%d,'%s')", tonumber(i), handle)
+        ui.AddContextMenuItem(context, handle, scp)
+    end
+
+    ui.OpenContextMenu(context)
+end
+
 function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
 
     local msframe = ui.GetFrame("monstercardslot")
@@ -310,10 +631,52 @@ function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
     AUTO_CAST(awsetting)
     awsetting:SetText("{img config_button_normal 30 30}")
     awsetting:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_frame_init")
-    awsetting:SetMargin(115, 60, 0, 0)
+    awsetting:SetMargin(145, 60, 0, 0)
     awsetting:SetSkinName("None")
     awsetting:SetTextTooltip(another_warehouse_lang("[Another Warehouse]{nl}Automatic warehousing setup"))
-    -- awsetting:ShowWindow(1)
+    awsetting:ShowWindow(1)
+
+    local help = grupbox:CreateOrGetControl('button', "help", 0, 0, 30, 30)
+    AUTO_CAST(help);
+    -- help:SetSkinName("None")
+    help:SetText("{ol}{img question_mark 20 20}")
+    help:SetMargin(115, 67, 0, 0)
+    help:SetTextTooltip("[Another Warehouse]{nl}help")
+    help:SetSkinName("test_pvp_btn")
+    help:SetEventScript(ui.LBUTTONUP, "another_warehouse_help")
+
+    local take = grupbox:CreateOrGetControl("button", "take", 10, 0, 100, 43)
+    AUTO_CAST(take)
+    take:SetText("{@st66b}TAKE SET")
+    take:SetEventScript(ui.LBUTTONUP, "another_warehouse_take_context")
+    take:SetMargin(310, 60, 0, 0)
+    take:SetSkinName("test_pvp_btn")
+    take:SetTextTooltip(another_warehouse_lang("The set is taken out of the warehouse."))
+    take:ShowWindow(1)
+
+    --[[local dropList = grupbox:CreateOrGetControl('droplist', 'dropList', 150, 70, 120, 20)
+    AUTO_CAST(dropList)
+    dropList:SetSkinName('droplist_normal');
+    dropList:EnableHitTest(1);
+    dropList:SetTextAlign("center", "center");
+
+    for i = 0, 9 do
+        if i == 0 then
+            dropList:AddItem(i, (""), 0, "another_warehouse_set_item_close()");
+        end
+        print(tostring(g.settings.setitems[tostring(i)]))
+        if g.settings.setitems[tostring(i)] == nil then
+            dropList:AddItem(i, tostring("Take Items ") .. i, 0, "another_warehouse_set_items_setting(" .. i .. ")");
+        else
+            if g.settings.setitems[tostring(i)].memo == nil then
+                dropList:AddItem(i, tostring("Take Items ") .. i, 0, "another_warehouse_set_items_setting(" .. i .. ")");
+            else
+                dropList:AddItem(i, g.settings.setitems[tostring(i)].memo, 0,
+                    "another_warehouse_set_items_setting(" .. i .. ")");
+            end
+        end
+    end
+    dropList:SelectItem(0)]]
 
     local count_text = grupbox:CreateOrGetControl("richtext", "count_text", 0, 0, 200, 24)
     AUTO_CAST(count_text)
@@ -794,7 +1157,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
 
     settingframe:RemoveAllChild()
     settingframe:SetPos(670, 70)
-    settingframe:Resize(740, 670)
+    settingframe:Resize(740, 830)
     settingframe:SetLayerLevel(96)
     settingframe:SetSkinName("test_frame_low")
     settingframe:ShowWindow(1)
@@ -873,11 +1236,11 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     AUTO_CAST(team_text);
     team_text:SetText("{ol}" .. another_warehouse_lang("team setting"))
 
-    local char_text = settingframe:CreateOrGetControl("richtext", "char_text", 25, 575, 0, 0)
+    local char_text = settingframe:CreateOrGetControl("richtext", "char_text", 25, 695, 0, 0)
     AUTO_CAST(char_text);
     char_text:SetText("{ol}" .. another_warehouse_lang("character setting"))
 
-    local team_gb = settingframe:CreateOrGetControl("groupbox", "team_gb", 20, 145, settingframe:GetWidth() - 40, 420)
+    local team_gb = settingframe:CreateOrGetControl("groupbox", "team_gb", 20, 145, settingframe:GetWidth() - 40, 540)
     team_gb:SetSkinName("test_frame_low")
     AUTO_CAST(team_gb);
 
@@ -888,7 +1251,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     team_slotset:EnableDrag(1)
     team_slotset:EnableDrop(1)
     -- team_slotset:SetNumberMode(1)
-    team_slotset:SetColRow(17, 10) -- スロットの配置と個数
+    team_slotset:SetColRow(17, 13) -- スロットの配置と個数
     team_slotset:SetSpc(0, 0)
     team_slotset:SetSkinName('slot')
     team_slotset:SetEventScript(ui.DROP, "another_warehouse_setting_drop")
@@ -918,7 +1281,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
         end
     end
 
-    local char_gb = settingframe:CreateOrGetControl("groupbox", "char_gb", 20, 595, settingframe:GetWidth() - 40, 60)
+    local char_gb = settingframe:CreateOrGetControl("groupbox", "char_gb", 20, 715, settingframe:GetWidth() - 40, 100)
     char_gb:SetSkinName("test_frame_low")
     AUTO_CAST(char_gb);
 
@@ -928,7 +1291,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     char_slotset:EnablePop(1)
     char_slotset:EnableDrag(1)
     char_slotset:EnableDrop(1)
-    char_slotset:SetColRow(17, 1) -- スロットの配置と個数
+    char_slotset:SetColRow(17, 2) -- スロットの配置と個数
     char_slotset:SetSpc(0, 0)
     char_slotset:SetSkinName('slot')
     char_slotset:SetEventScript(ui.DROP, "another_warehouse_setting_drop")
@@ -1605,6 +1968,9 @@ function another_warehouse_accountwarehouse_close()
     local overlap = ui.GetFrame("another_warehouse")
     overlap:ShowWindow(0)
 
+    local setframe = ui.GetFrame("another_warehouse_set_items")
+    setframe:ShowWindow(0)
+
 end
 
 --[[function another_warehouse_accountwarehouse_save()
@@ -2030,6 +2396,13 @@ function another_warehouse_frame_close(frame, ctrl)
 
     local count_text = GET_CHILD_RECURSIVELY(awframe, "count_text")
     count_text:ShowWindow(0)
+
+    local awsetting = GET_CHILD_RECURSIVELY(awframe, "awsetting")
+    awsetting:ShowWindow(0)
+
+    local take = GET_CHILD_RECURSIVELY(awframe, "take")
+    take:ShowWindow(0)
+
     another_warehouse_deactive_mousebutton()
     INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
 end
@@ -2253,16 +2626,6 @@ function another_warehouse_on_lbutton(frame, slot, argstr, argnum)
     end
     -- another_warehouse_put_account_item_to_warehouse(frame, slot)
     -- another_warehouse_takeitem(awframe, iesid, 10)
-
-end
-
-function another_warehouse_takeitem(frame, iesid, count)
-
-    local invItem = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid);
-
-    session.ResetItemList();
-    session.AddItemID(iesid, count);
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), frame:GetUserIValue("HANDLE"));
 
 end
 
@@ -2535,7 +2898,7 @@ function another_warehouse_frame_update()
             if tree:GetWidth() ~= (650 - 38) then
                 tree:Resize(650 - 38, height - 5)
             end
-            tree:SetTextTooltip("Left click 10 each{nl}Right click all{nl}Hold Left Shift to specify quantity")
+            -- 
         end
     end
 

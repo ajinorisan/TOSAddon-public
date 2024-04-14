@@ -1489,9 +1489,15 @@ function MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()
 
     local Check_EnableAutoCasting =
         GET_CHILD_RECURSIVELY(systemoption_frame, "Check_EnableAutoCasting", "ui::CCheckBox")
+
     local loginCharID = info.GetCID(session.GetMyHandle())
+
+    if g.settings.auto_casting[loginCharID] == nil then
+        g.settings.auto_casting[loginCharID] = 1
+    end
     Check_EnableAutoCasting:SetCheck(tostring(g.settings.auto_casting[loginCharID]))
     local enable = Check_EnableAutoCasting:IsChecked()
+
     config.SetEnableAutoCasting(enable)
     config.SaveConfig()
 
