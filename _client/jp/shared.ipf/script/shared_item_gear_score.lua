@@ -162,7 +162,7 @@ function GET_BELT_GEAR_SCORE(item)
 end
 
 function GET_GEAR_SCORE(item, pc)     
-    if TryGetProp(item, 'StringArg', 'None') == 'WoodCarving' then 
+    if TryGetProp(item, 'StringArg', 'None') == 'WoodCarving' or TryGetProp(item, 'StringArg', 'None') == 'Moru_goddess' then 
         return 0
     end
 
@@ -494,7 +494,7 @@ function GET_GEAR_SCORE(item, pc)
     return 0
 end
 
-function GET_PLAYER_GEAR_SCORE(pc)
+function GET_PLAYER_GEAR_SCORE(pc)    
     local total = 14
     local score = 0
 

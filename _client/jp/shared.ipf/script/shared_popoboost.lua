@@ -9,127 +9,113 @@ function popoboost_table()
 
     local IsPAPAYA = GET_POPOBOOST_SERVER();
 
-    item_list["Normal0"] = {}
-    item_list["Normal0"]['Ability_Point_Stone_100000'] = 20
-    item_list["Normal0"]['HiddenAbility_MasterPiece_Fragment_Event'] = 120
-    item_list["Normal0"]['Event_JobexpCard_BOX'] = 1
-    item_list["Normal0"]['open_ticket_cabinet_vibora_lv4'] = 1
-    item_list["Normal0"]['open_ticket_cabinet_goddess_lv3'] = 4
-    
+    item_list['Normal0'] = {}
+    item_list['Normal0']['Event_JobexpCard_BOX'] = 1
+    item_list['Normal0']['Ability_Point_Stone_100000'] = 20
+    item_list['Normal0']['HiddenAbility_MasterPiece_Fragment_Event'] = 120
+    item_list['Normal0']['open_ticket_cabinet_vibora_lv4'] = 1
+    item_list['Normal0']['open_ticket_cabinet_goddess_lv3'] = 4
 
-    item_list["Normal1"] = {}
-    item_list["Normal1"]['misc_RevivalPaulius_NoTrade'] = 100
-    item_list["Normal1"]['Ticket_RevivalPaulius_Auto_Enter_NoTrade'] = 4
-    item_list["Normal1"]['Event_ChallengeModeReset_6'] = 5
-    item_list["Normal1"]['SEASONLETICIA_GabijaCertificateCoin_50000p'] = 1
-    
-    
-    item_list["Normal2"] = {}
-    item_list["Normal2"]['misc_RevivalPaulius_NoTrade'] = 200
-    item_list["Normal2"]['Ticket_RevivalPaulius_Auto_Enter_NoTrade'] = 7
-    item_list["Normal2"]['Event_ChallengeModeReset_6'] = 5
-    item_list["Normal2"]['Relic_exp_token_refine_event'] = 4930
-    item_list["Normal2"]['SEASONLETICIA_GabijaCertificateCoin_50000p'] = 2
+    item_list['Normal1'] = {}
+    item_list['Normal1']['misc_transmutationSpreader_NoTrade'] = 50
+    item_list['Normal1']['misc_leatherFalouros_NoTrade'] = 50
+    item_list['Normal1']['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 2
+    item_list['Normal1']['selectbox_Gem_Relic_Cyan'] = 1
+    item_list['Normal1']['selectbox_Gem_Relic_Magenta'] = 1
+    item_list['Normal1']['selectbox_Gem_Relic_Black'] = 1
+    item_list['Normal1']['VakarineCertificateCoin_50000p'] = 2
 
+    item_list['Normal2'] = {}
+    item_list['Normal2']['misc_transmutationSpreader_NoTrade'] = 350
+    item_list['Normal2']['misc_leatherFalouros_NoTrade'] = 350
+    item_list['Normal2']['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 5
+    item_list['Normal2']['Event_ChallengeModeReset_6'] = 5
+    item_list['Normal2']['relicgem_lvup_scroll_lv7'] = 3
+    item_list['Normal2']['VakarineCertificateCoin_50000p'] = 2
 
-    item_list["Normal3"] = {}
-    item_list["Normal3"]['misc_RevivalPaulius_NoTrade'] = 150
-    item_list["Normal3"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 5
-    item_list["Normal3"]['selectbox_Gem_Relic_Cyan'] = 1
-    item_list["Normal3"]['selectbox_Gem_Relic_Magenta'] = 1
-    item_list["Normal3"]['selectbox_Gem_Relic_Black'] = 1
-    item_list["Normal3"]['VakarineCertificateCoin_50000p'] = 1
-    item_list["Normal3"]['misc_transmutationSpreader_NoTrade'] = 350
-    
+    item_list['Normal3'] = {}
+    item_list['Normal3']['misc_transmutationSpreader_NoTrade'] = 700
+    item_list['Normal3']['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 5
+    item_list['Normal3']['Event_ChallengeModeReset_6'] = 5
+    item_list['Normal3']['VakarineCertificateCoin_50000p'] = 2
 
-    item_list["Normal4"] = {}
-    item_list["Normal4"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 5
-    item_list["Normal4"]['Event_ChallengeModeReset_6'] = 5
-    item_list["Normal4"]['VakarineCertificateCoin_50000p'] = 2
-    item_list["Normal4"]['relicgem_lvup_scroll_lv7'] = 3
-    item_list["Normal4"]['misc_leatherFalouros_NoTrade'] = 350
-    
+    item_list['Normal4'] = {}
+    item_list['Normal4']['misc_leatherFalouros_NoTrade'] = 700
+    item_list['Normal4']['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 5
+    item_list['Normal4']['Event_ChallengeModeReset_6'] = 5
+    item_list['Normal4']['VakarineCertificateCoin_50000p'] = 2
 
-    item_list["Normal5"] = {}
-    item_list["Normal5"]['misc_ribbonRoze_NoTrade'] = 100
-    item_list["Normal5"]['Ticket_Rozethemisterable_Auto_Enter_NoTrade'] = 5
-    item_list["Normal5"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 10
-    item_list["Normal5"]['VakarineCertificateCoin_50000p'] = 2
-    item_list["Normal5"]['misc_transmutationSpreader_NoTrade'] = 250
-    item_list["Normal5"]['misc_leatherFalouros_NoTrade'] = 250
-    
-    item_list["Normal6"] = {}
-    item_list["Normal6"]['EVENT_2312_8th_anniversary'] = 1
-    item_list["Normal6"]['Event_Roulette_Coin_PoPo_2312'] = 5
-    item_list["Normal6"]['RadaCertificateCoin_50000p'] = 4
-    item_list["Normal6"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 10
-    item_list["Normal6"]['Ticket_Rozethemisterable_Party_Enter_NoTrade'] = 10
-    item_list["Normal6"]['ChallengeExpertModeCountUp_Ev_1'] = 10
+    item_list['Normal5'] = {}
+    item_list['Normal5']['misc_ribbonRoze_NoTrade'] = 600
+    item_list['Normal5']['Ticket_Rozethemisterable_Auto_Enter_NoTrade'] = 5
+    item_list['Normal5']['Event_ChallengeModeReset_6'] = 5
+    item_list['Normal5']['VakarineCertificateCoin_50000p'] = 2
+
+    item_list['Normal6'] = {}
+    item_list['Normal6']['Event_Roulette_Coin_PoPo_2404'] = 5
+    item_list['Normal6']['piece_fierce_shoulder_high_NoTrade_Belonging'] = 1
+    item_list['Normal6']['piece_penetration_belt_high_Belonging'] = 1
+    item_list['Normal6']['ChallengeExpertModeCountUp_Ev_1'] = 5
+    item_list['Normal6']['RadaCertificateCoin_50000p'] = 4
+    item_list['Normal6']['damage_font_skin_cherryblossom'] = 1
 
     
     -- 프리미엄 보상
 
-    item_list["Premium0"] = {}
-    item_list["Premium0"]['misc_Ether_Gem_Socket_480_NoTrade'] = 2
-    item_list["Premium0"]['selectbox_Gem_High_480'] = 2
-    item_list["Premium0"]['lv480_aether_lvup_scroll_lv100'] = 2
-    item_list["Premium0"]['emoticonItem_2312_popo'] = 1
-    item_list["Premium0"]['class_unlock_achievement_select'] = 1
-    item_list["Premium0"]['open_ticket_cabinet_vibora_lv4'] = 2
+    item_list['Premium0']={}
+    item_list['Premium0']['emoticonItem_2404_popo'] = 1
+    item_list['Premium0']['class_unlock_achievement_select'] = 1
+    item_list['Premium0']['open_ticket_cabinet_vibora_lv4'] = 2
+    item_list['Premium0']['misc_Ether_Gem_Socket_480_NoTrade'] = 4
+    item_list['Premium0']['selectbox_Gem_High_480'] = 4
+    item_list['Premium0']['lv480_aether_lvup_scroll_lv100'] = 4
+
+    item_list['Premium1']={}
+    item_list['Premium1']['misc_transmutationSpreader_NoTrade'] = 50
+    item_list['Premium1']['misc_leatherFalouros_NoTrade'] = 50
+    item_list['Premium1']['Multiple_Token_ChallengeMode_Auto_NoTrade'] = 5
+    item_list['Premium1']['misc_reinforce_percentUp_500_NoTrade'] = 50
+    item_list['Premium1']['RadaCertificateCoin_50000p'] = 2
+    item_list['Premium2']={}
+    item_list['Premium2']['misc_transmutationSpreader_NoTrade'] = 100
+    item_list['Premium2']['misc_leatherFalouros_NoTrade'] = 100
+    item_list['Premium2']['Multiple_Token_ChallengeMode_Auto_NoTrade'] = 5
+    item_list['Premium2']['misc_reinforce_percentUp_500_NoTrade'] = 50
+    item_list['Premium2']['RadaCertificateCoin_50000p'] = 2
+
+    item_list['Premium3']={}
+    item_list['Premium3']['misc_transmutationSpreader_NoTrade'] = 200
+    item_list['Premium3']['Multiple_Token_ChallengeMode_Auto_NoTrade'] = 5
+    item_list['Premium3']['misc_reinforce_percentUp_500_NoTrade'] = 50
+    item_list['Premium3']['RadaCertificateCoin_50000p'] = 2
+
+    item_list['Premium4']={}
+    item_list['Premium4']['misc_leatherFalouros_NoTrade'] = 200
+    item_list['Premium4']['Multiple_Token_ChallengeMode_Auto_NoTrade'] = 5
+    item_list['Premium4']['misc_reinforce_percentUp_500_NoTrade'] = 50
+    item_list['Premium4']['RadaCertificateCoin_50000p'] = 2
+
+    item_list['Premium5']={}
+    item_list['Premium5']['misc_ribbonRoze_NoTrade'] = 200
+    item_list['Premium5']['Multiple_Token_Rozethemisterable_Solo_NoTrade'] = 5
+    item_list['Premium5']['misc_reinforce_percentUp_500_NoTrade'] = 50
+    item_list['Premium5']['RadaCertificateCoin_50000p'] = 2
+
+    item_list['Premium6']={}
+    item_list['Premium6']['Event_Roulette_Coin_PoPo_2404'] = 5
+    item_list['Premium6']['EVENT_2404_dream_of_a_popolion'] = 1
+    item_list['Premium6']['piece_GabijaEarring_select_job_NoTrade_Belonging'] = 1
+    item_list['Premium6']['EP12_EXPERT_MODE_MULTIPLE_NoTrade'] = 5
+    item_list['Premium6']['RadaCertificateCoin_50000p'] = 4
     
-
-    item_list["Premium1"] = {}
-    item_list["Premium1"]['misc_RevivalPaulius_NoTrade'] = 100
-    item_list["Premium1"]['Event_ChallengeModeReset_6'] = 5
-    item_list["Premium1"]['RadaCertificateCoin_50000p'] = 1
-    item_list["Premium1"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    
-    item_list["Premium2"] = {}
-    item_list["Premium2"]['misc_RevivalPaulius_NoTrade'] = 150
-    item_list["Premium2"]['Event_ChallengeModeReset_6'] = 5
-    item_list["Premium2"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    item_list["Premium2"]['RadaCertificateCoin_50000p'] = 2
-
-
-    item_list["Premium3"] = {}
-    item_list["Premium3"]['Event_ChallengeModeReset_6'] = 5
-    item_list["Premium3"]['RadaCertificateCoin_50000p'] = 1
-    item_list["Premium3"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    item_list["Premium3"]['misc_transmutationSpreader_NoTrade'] = 150
-    
-
-    item_list["Premium4"] = {}
-    item_list["Premium4"]['Event_ChallengeModeReset_6'] = 5
-    item_list["Premium4"]['RadaCertificateCoin_50000p'] = 2
-    item_list["Premium4"]['misc_leatherFalouros_NoTrade'] = 150
-    item_list["Premium4"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    
-
-    item_list["Premium5"] = {}
-    item_list["Premium5"]['misc_ribbonRoze_NoTrade'] = 100
-    item_list["Premium5"]['Ticket_Rozethemisterable_Auto_Enter_NoTrade'] = 5
-    item_list["Premium5"]['misc_leatherFalouros_NoTrade'] = 150
-    item_list["Premium5"]['RadaCertificateCoin_50000p'] = 2
-    item_list["Premium5"]['misc_transmutationSpreader_NoTrade'] = 150
-    item_list["Premium5"]['misc_reinforce_percentUp_500_NoTrade'] = 50
-    
-
-    item_list["Premium6"] = {}
-    item_list["Premium6"]['Event_Roulette_Coin_PoPo_2312'] = 5
-    item_list["Premium6"]['RadaCertificateCoin_50000p'] = 4
-    item_list["Premium6"]['Ticket_TurbulentCore_Auto_Enter_NoTrade'] = 10
-    item_list["Premium6"]['Ticket_Rozethemisterable_Party_Enter_NoTrade'] = 2
-    item_list["Premium6"]['ChallengeExpertModeCountUp_Ev_1'] = 10
-    item_list["Premium6"]['piece_GabijaEarring_select_job_NoTrade_Belonging'] = 1
     
     return item_list
 end
 
-function GET_TICKET_ITEM_LIST()
+function GET_TICKET_ITEM_LIST(AccProp)
     if ticket_item_list == nil then
         ticket_item_list = {}
     end
-
 
     ticket_item_list["EVENT_2023_POPOBOOST"] ={}
     ticket_item_list["EVENT_2023_POPOBOOST"]["emoticonItem_summer_popo_1"] = 1
@@ -139,6 +125,22 @@ function GET_TICKET_ITEM_LIST()
     ticket_item_list["EVENT_2023_POPOBOOST"]["selectbox_Gem_High_480"] = 2
     ticket_item_list["EVENT_2023_POPOBOOST"]["lv480_aether_lvup_scroll_lv100"] = 2
 
+    ticket_item_list["EVENT_2312_POPOBOOST"] ={}
+    ticket_item_list["EVENT_2312_POPOBOOST"]["emoticonItem_2312_popo"] = 1
+    ticket_item_list["EVENT_2312_POPOBOOST"]["class_unlock_achievement_select"] = 1
+    ticket_item_list["EVENT_2312_POPOBOOST"]["open_ticket_cabinet_vibora_lv4"] = 2
+    ticket_item_list["EVENT_2312_POPOBOOST"]["misc_Ether_Gem_Socket_480_NoTrade"] = 2
+    ticket_item_list["EVENT_2312_POPOBOOST"]["selectbox_Gem_High_480"] = 2
+    ticket_item_list["EVENT_2312_POPOBOOST"]["lv480_aether_lvup_scroll_lv100"] = 2
+
+    ticket_item_list["EVENT_2404_POPOBOOST"] ={}
+    ticket_item_list["EVENT_2404_POPOBOOST"]["emoticonItem_2404_popo"] = 1
+    ticket_item_list["EVENT_2404_POPOBOOST"]["class_unlock_achievement_select"] = 1
+    ticket_item_list["EVENT_2404_POPOBOOST"]["open_ticket_cabinet_vibora_lv4"] = 4
+    ticket_item_list["EVENT_2404_POPOBOOST"]["misc_Ether_Gem_Socket_480_NoTrade"] = 4
+    ticket_item_list["EVENT_2404_POPOBOOST"]["selectbox_Gem_High_480"] = 4
+    ticket_item_list["EVENT_2404_POPOBOOST"]["lv480_aether_lvup_scroll_lv100"] = 4
+    
     return ticket_item_list;
 end
 
@@ -204,7 +206,7 @@ function POPOBOOST_SET_MAX_GEARSCORE(pc)
         end
     end
     if itemcnt >= 11 then
-        RunScript("TX_EVENT_STAMP_TOUR_PROP_SET_POPOBOOST",pc,5,1,"POPO_EVENT_STAMP_2312")
+        RunScript("TX_EVENT_STAMP_TOUR_PROP_SET_POPOBOOST",pc,5,1,"POPO_EVENT_STAMP")
     end
 
 end
@@ -403,6 +405,7 @@ function GET_POPOBOOST_PROGRESPROP()
     return prop;
 end
 
+----0 이상일 경우 참가 한 캐릭터
 function IS_POPOBOOST_PARTICIPATE_CHARACTER(pc)
     if pc== nil then
         return false;
@@ -427,6 +430,10 @@ function IS_POPOBOOST_PARTICIPATE_CHARACTER(pc)
     return false;
 end
 
+-- 0 : 미참여
+-- 1 : 참여
+-- 2 : 프리미엄 티켓만 구매 (미참여)
+-- 3 : 프리티엄 티켓 구매 참여
 function IS_POPOBOOST_PARTICIPATE_ACCOUNT(pc)
     if pc== nil then
         return false;

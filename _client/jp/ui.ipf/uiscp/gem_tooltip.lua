@@ -972,7 +972,12 @@ function DRAW_AETHER_GEM_DESC_TOOLTIP(tooltip_frame, inv_item, ypos, main_frame_
 		if ctrl_set ~= nil then
 			local desc_text = GET_CHILD_RECURSIVELY(ctrl_set, "desc_text", "ui::CRichText");
 			if desc_text ~= nil then
-				desc_text:SetText(inv_item.Desc);
+				local desc = inv_item.Desc				
+				if TryGetProp(inv_item, 'ItemGrade', 0) == 0 and is_max_aether_gem_level(inv_item) == true then
+					desc = desc .. '{nl} {nl}' .. ClMsg('EnableUpgradeAetherGem')
+				end
+				
+				desc_text:SetText(desc);
 				tolua.cast(ctrl_set, "ui::CControlSet");
 				local bottom_margin = ctrl_set:GetUserConfig("BOTTOM_MARGIN");
 				ctrl_set:Resize(ctrl_set:GetWidth(), desc_text:GetHeight() + bottom_margin);

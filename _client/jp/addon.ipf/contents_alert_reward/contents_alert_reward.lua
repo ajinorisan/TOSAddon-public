@@ -3,7 +3,7 @@ end
 
 
 function CREATE_REWARD_CTRL(box, y, index, ItemName, itemCnt)
-	local isOddCol = 0;
+	--[[ local isOddCol = 0;
 	if math.floor((index - 1) % 2) == 1 then
 		isOddCol = 0;
 	end
@@ -41,11 +41,11 @@ function CREATE_REWARD_CTRL(box, y, index, ItemName, itemCnt)
 	ctrlSet:Resize(box:GetWidth() - 30, ctrlSet:GetHeight());
 
 	y = y + ctrlSet:GetHeight();
-	return y;
+	return y; ]]
 end
 
 function OPEN_CONTENTS_ALERT_REWARD(argNum)
-	local frame = ui.GetFrame("contents_alert_reward")
+	--[[ local frame = ui.GetFrame("contents_alert_reward")
 	local box = GET_CHILD(frame, "box")
 	local itemText = GET_CHILD(frame, "itemText")
 	local warning = GET_CHILD(frame, "warning")
@@ -66,5 +66,5 @@ function OPEN_CONTENTS_ALERT_REWARD(argNum)
 		y = y + 5
 	end
 
-	frame:ShowWindow(1)
+	frame:ShowWindow(1) ]]
 end

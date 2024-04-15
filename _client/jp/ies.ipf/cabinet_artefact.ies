@@ -44,3 +44,6 @@ ClassID,Upgrade,MakeCostSilver,MaxUpgrade,Basic,Category,ClassName,GetItemFunc,R
 43,0,10000,1,0,"Artefact","sniego_pistol","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","sniego_pistol_cabinet","","스니고 피스톨"
 44,0,10000,1,0,"Artefact","wingedhussar_thspear","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","wingedhussar_thspear_cabinet","","윙드후사르의 파이크"
 45,0,10000,1,0,"Artefact","bowmaster_bow","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","bowmaster_bow_cabinet","","신궁의 보우"
+46,0,10000,1,0,"Artefact","desperado_revolver","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","desperado_revolver_cabinet","","데스페라도의 복수자"
+47,0,10000,1,0,"Artefact","desperado_sword","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","desperado_sword_cabinet","","데스페라도의 붉은선혈"
+48,0,10000,1,0,"Artefact","ep16yongyong_thstaff","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16yongyong_thstaff_cabinet","","용용이 스테프"

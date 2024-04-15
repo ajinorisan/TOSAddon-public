@@ -875,6 +875,7 @@ function PVP_MINE_MISC_BOOST_DESC(item)
 	return clmsg
 end
 
+
 function ITEM_TOOLTIP_ETCSEAL(tooltipframe, invitem, argStr, usesubframe)	
 	tolua.cast(tooltipframe, "ui::CTooltipFrame");
 
@@ -924,4 +925,62 @@ function ITEM_TOOLTIP_ETCSEAL(tooltipframe, invitem, argStr, usesubframe)
 	
 	ypos = CSet:GetHeight() + CSet:GetY();
 	ypos = DRAW_EQUIP_TRADABILITY(tooltipframe, invitem, ypos, mainframename);	
+end
+
+
+function attendance_gift_box_DESC(item)	
+	local str = TryGetProp(item, 'StringArg', 'None')
+	local list = StringSplit(str, ';')
+
+	local desc = ''
+	for i = 1, #list do
+		local token = StringSplit(list[i], '/')
+		local cls = GetClass('Item', token[1])		
+		local msg = '- ' .. ScpArgMsg('get_item{name}{count}', 'name', dic.getTranslatedStr(cls.Name), 'count', token[2])
+		desc = desc .. msg .. '{nl}'		
+	end
+	
+	return desc
+end
+
+function attendance_gift_box_DESC_LIST(item)	
+	local str = TryGetProp(item, 'StringArg', 'None')
+	local list = StringSplit(str, ';')
+
+	local desc = ''
+	for i = 1, #list do
+		local token = StringSplit(list[i], '/')
+		local cls = GetClass('Item', token[1])		
+		local msg = ScpArgMsg('get_item{name}{count}', 'name', dic.getTranslatedStr(cls.Name), 'count', token[2])
+		if i == #list then
+			desc = desc .. msg
+		else
+			desc = desc .. msg .. ', '		
+		end
+	end
+	
+	return desc
+end
+
+function trade_select_item_DESC(item)
+	local name = TryGetProp(item, 'ClassName', 'None')
+	local select_cls = GetClass('TradeSelectItem', name)
+	local desc = ''
+	if select_cls == nil then
+		return desc
+	end
+
+	for i = 1, 50 do
+		local item_name = TryGetProp(select_cls, 'SelectItemName_' .. i, 'None')
+		local count = TryGetProp(select_cls, 'SelectItemCount_' .. i, 0)
+		if item_name == 'None' or count == 0 then
+			break
+		end
+
+		local cls = GetClass('Item', item_name)
+		local msg = '- ' .. ScpArgMsg('get_item{name}{count}', 'name', dic.getTranslatedStr(cls.Name), 'count', count)
+		desc = desc .. msg .. '{nl}'		
+	end
+
+	return desc
 end

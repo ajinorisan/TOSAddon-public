@@ -169,7 +169,7 @@
                     <Event execCount="1" eventName="Return_Zone">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="60"/>
+                                <Num Num="5"/>
                             </ToolScp>
                         </condList>
                         <execList>
@@ -179,58 +179,15 @@
                             <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
                         </execList>
                     </Event>
-                    <Event execCount="1" eventName="30Sec">
+                    <Event execCount="1" eventName="3Sec">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="30"/>
-                            </ToolScp>
-                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
-                                <Str Str="is_kill_boss_state"/>
-                                <Str Str="=="/>
-                                <Num Num="1"/>
+                                <Num Num="3"/>
                             </ToolScp>
                         </condList>
                         <execList>
                             <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
-                                <Str Str="30초 후 입장 지역으로 돌아갑니다."/>
-                                <Str Str="!"/>
-                                <Num Num="5"/>
-                            </ToolScp>
-                        </execList>
-                    </Event>
-                    <Event execCount="1" eventName="20Sec">
-                        <condList>
-                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="40"/>
-                            </ToolScp>
-                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
-                                <Str Str="is_kill_boss_state"/>
-                                <Str Str="=="/>
-                                <Num Num="1"/>
-                            </ToolScp>
-                        </condList>
-                        <execList>
-                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
-                                <Str Str="20초 후 입장 지역으로 돌아갑니다."/>
-                                <Str Str="!"/>
-                                <Num Num="5"/>
-                            </ToolScp>
-                        </execList>
-                    </Event>
-                    <Event execCount="1" eventName="10Sec">
-                        <condList>
-                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="50"/>
-                            </ToolScp>
-                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
-                                <Str Str="is_kill_boss_state"/>
-                                <Str Str="=="/>
-                                <Num Num="1"/>
-                            </ToolScp>
-                        </condList>
-                        <execList>
-                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
-                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="3초 후 입장 지역으로 돌아갑니다."/>
                                 <Str Str="!"/>
                                 <Num Num="5"/>
                             </ToolScp>

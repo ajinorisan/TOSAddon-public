@@ -247,4 +247,5 @@
 	<Word Msg="WingedHussars"/>
 	<Word Msg="Hussars"/>
 	<Word Msg="conqueror"/>
+	<Word Msg="icon_item_misc_transmutationSpreader_NoTrade"/>	
 </Exception>

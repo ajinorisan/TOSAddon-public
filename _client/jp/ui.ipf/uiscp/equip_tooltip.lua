@@ -1472,7 +1472,8 @@ function DRAW_EQUIP_DESC(tooltipframe, invitem, yPos, mainframename)
 	desc = GET_ITEM_TOOLTIP_DESC(invitem, desc);	
 	desc = DRAW_REROLL_INFOMATION(invitem, desc)	
 	desc = DRAW_COLLECTION_INFO(invitem, desc)
-
+	desc = DRAW_popoboost_INFO(invitem, desc)
+	
 	if desc == "" or desc == " " then -- 일단 그릴 설명이 있는지 검사. 없으면 컨트롤 셋 자체를 안만듬
 		return yPos
 	end
@@ -1485,7 +1486,7 @@ function DRAW_EQUIP_DESC(tooltipframe, invitem, yPos, mainframename)
 	local tooltip_equip_property_CSet = gBox:CreateOrGetControlSet('tooltip_equip_desc', 'tooltip_equip_desc', 0, yPos - 2);
 	local property_gbox = GET_CHILD(tooltip_equip_property_CSet,'property_gbox','ui::CGroupBox')
 		
-	local inner_yPos = 0;
+	local inner_yPos = 0;	
 	inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, desc, 0, inner_yPos);
 
 	local BOTTOM_MARGIN = tooltipframe:GetUserConfig("BOTTOM_MARGIN"); -- 맨 아랫쪽 여백
@@ -1493,6 +1494,21 @@ function DRAW_EQUIP_DESC(tooltipframe, invitem, yPos, mainframename)
 
 	gBox:Resize(gBox:GetWidth(),gBox:GetHeight() + tooltip_equip_property_CSet:GetHeight())
 	return tooltip_equip_property_CSet:GetHeight() + tooltip_equip_property_CSet:GetY();
+end
+
+function DRAW_popoboost_INFO(invitem, desc)
+	local popo_count = TryGetProp(invitem, 'popoboost', 0)
+
+	if popo_count == 0 then
+		return desc
+	end
+
+	local text = '{@st41b}{#00ee00}'	
+	text = text .. ScpArgMsg('desc_popoboost_item', 'count', popo_count)
+
+	desc = desc .. '{nl} {nl}' .. text
+
+	return desc
 end
 
 -- 아크 tooltip_equip_desc
@@ -2307,11 +2323,21 @@ function DRAW_COLLECTION_INFO(invitem, desc)
 		return desc
 	end
 
-	local text = '{@st41b}{#00ee00}'	
+	local text = '{@st41b}{#00ee00}'
 	local col_list = get_collection_name_by_item(item_name)
 
+	local is_collection = false
 	for k, v in pairs(col_list) do
 		text = text .. k .. '{nl}'
+		is_collection = true
+	end
+
+	text = text .. '{/}{/}'
+
+	if is_collection == true then		
+		if TryGetProp(invitem, 'StringArg', 'None') == 'Moru_goddess' then
+			text = '{@st58}{#dd1122}' .. text .. '(' .. ClMsg('notice_goddess_moru_item') .. ')' .. '{/}{/}'
+		end
 	end
 
 	desc = desc .. '{nl} {nl}' .. text

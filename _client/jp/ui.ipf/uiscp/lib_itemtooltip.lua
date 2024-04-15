@@ -734,12 +734,12 @@ function SET_BUFF_TEXT(gBox, invitem, yPos, strarg)
 		end
 
 		local text = string.format("{#004123}".."- "..ScpArgMsg(clientTxt));
-		content:SetTextByKey("text", text);
+		content:SetTextByKey("text", text);		
+		
+		local content2 = gBox:CreateOrGetControl('richtext', "UPVALUE", 0, yPos, gBox:GetWidth() - 30, 20);		
+		content2:SetGravity(ui.RIGHT, ui.TOP)
 
-
-		local content2 = gBox:CreateOrGetControl('richtext', "UPVALUE", 350, yPos, gBox:GetWidth() - 30, 20);
-
-		local upValue = string.format("{#004123}"..ScpArgMsg("PropUp") .. "%d", invitem.BuffValue);
+		local upValue = string.format("{#004123}"..ScpArgMsg("PropUp") .. "%d  ", invitem.BuffValue);
 		content2:SetTextByKey("upValue", upValue);
 
 		yPos = yPos + content:GetHeight();
@@ -747,7 +747,7 @@ function SET_BUFF_TEXT(gBox, invitem, yPos, strarg)
 		
 		local casterInfo = gBox:CreateOrGetControl('richtext', "CASTERINFO", 20, yPos, gBox:GetWidth() - 30, 20);
 		content = tolua.cast(casterInfo, "ui::CRichText");
-		casterInfo:SetTextFixWidth(1);
+		casterInfo:SetTextFixWidth(1);		
 		casterInfo:SetFormat("%s %s");
 		casterInfo:AddParamInfo("caster", "");
 		casterInfo:AddParamInfo("count", "");
@@ -757,6 +757,7 @@ function SET_BUFF_TEXT(gBox, invitem, yPos, strarg)
 
 
 		local casterInfo2 = gBox:CreateOrGetControl('richtext', "COUNT", 300, yPos, gBox:GetWidth() - 30, 20);
+		casterInfo2:SetGravity(ui.RIGHT, ui.TOP)
 		casterInfo2:SetUserValue("BuffUseCount", invitem.BuffUseCount);
 		casterInfo2:SetUserValue("BuffCount", invitem.BuffCount);
 		casterInfo2:RunUpdateScript("SHOW_REMAIN_BUFF_COUNT");
@@ -821,7 +822,7 @@ end
 function SHOW_REMAIN_BUFF_COUNT(ctrl)
 	local buffUseCount = ctrl:GetUserValue("BuffUseCount");
 	local buffCount = ctrl:GetUserValue("BuffCount");
-	local timeTxt = string.format("{img gemtooltip_sword 16 16}".."%d/%d", buffUseCount, buffCount)
+	local timeTxt = string.format("{img gemtooltip_sword 16 16}".."%d/%d  ", buffUseCount, buffCount)
 	ctrl:SetTextByKey("count", "{#004123}"..timeTxt);
 	return 1;
 end

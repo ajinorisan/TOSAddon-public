@@ -16,3 +16,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 19,19,1,40,1,60000,1,0,0,0,0,0,0,"pub_book","","","","","","","","EP15_1_F_ABBEY_3_SQ1_BOOK1","","","NO","YES","NO","Netural","","","",""
 21,21,1,40,1,60000,1,0,0,0,0,0,0,"pub_book","","","","","","","","EP15_1_F_ABBEY_3_SQ1_BOOK2","","","NO","YES","NO","Neutral","","","",""
 22,22,1,40,1,60000,1,0,0,0,0,0,0,"pub_book","","","","","","","","EP15_1_F_ABBEY_3_SQ2_BOOK1","","","NO","YES","NO","","","","",""
+23,23,1,40,1,60000,1,1,0,0,0,0,0,"ep15_edmonda","에드문다스","","","","","","","EP15_1_F_ABBEY3_AD3","","","NO","YES","NO","Netural","","","",""

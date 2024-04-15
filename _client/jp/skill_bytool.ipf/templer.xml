@@ -1641,6 +1641,23 @@
                             <Str Str="voice_war_atk_short"/>
                             <Str Str="voice_atk_short_war_f"/>
                         </Scp>
+                        <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="200">
+                            <Pos Angle="0" Dist="0" PosType="3"/>
+                            <Num Num="80"/>
+                            <Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_Retribution_Ratio(obj)"/>
+                            <Num Num="2"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="260">
+                            <Str Str="Stun"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                            <Num Num="2000"/>
+                            <Num Num="1"/>
+                            <Num Num="100"/>
+                            <Num Num="0"/>
+                        </Scp>
                         <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="400">
                             <Str Str="voice_war_atk_medium"/>
                             <Str Str="voice_atk_medium_war_f"/>
@@ -1672,26 +1689,9 @@
                             <Num Num="0"/>
                             <Str Str="None"/>
                         </Scp>
-                        <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1100">
-                            <Pos Angle="0" Dist="0" PosType="3"/>
-                            <Num Num="80"/>
-                            <Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_Retribution_Ratio(obj)"/>
-                            <Num Num="2"/>
-                            <Num Num="0"/>
-                            <Num Num="0"/>
-                        </Scp>
                         <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1100">
                             <Num Num="1"/>
                             <Num Num="0"/>
-                            <Num Num="0"/>
-                        </Scp>
-                        <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="260">
-                            <Str Str="Stun"/>
-                            <Num Num="1"/>
-                            <Num Num="0"/>
-                            <Num Num="2000"/>
-                            <Num Num="1"/>
-                            <Num Num="100"/>
                             <Num Num="0"/>
                         </Scp>
                         <Scp Scp="MONSKL_CRE_PAD" Client="NO" UseSleep="NO" Time="1100">

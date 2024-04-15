@@ -136,6 +136,7 @@
 	<BGM PlayListName="master_Illusionist" Volume="130" FileName1="tos_7clouds_Illuminator.mp3"/>
 	<BGM PlayListName="master_Wingedhussar" Volume="130" FileName1="tos_SFA_Day_in_Glasgow.mp3"/>
 	<BGM PlayListName="master_bowmaster" Volume="130" FileName1="tos_Cinenote_The_Dance_of_Wolves.mp3"/>
+	<BGM PlayListName="master_Desperado" Volume="130" FileName1="tos_Drogo_Rocking_the_Roll.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE01" Volume="120" FileName1="Orgel_No_Matter_Christmas.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE02" Volume="120" FileName1="Orgel_Dont_Cry.mp3"/>
 	<BGM PlayListName="raid_velcoffer" Volume="120" FileName1="tos_Drogo_Uno_Impetu.mp3" FileName2="tos_Drogo_Velvet_Penetration.mp3" FileName3="tos_Gaudium_Wrong_Theory.mp3"/>
@@ -180,6 +181,7 @@
 	<BGM PlayListName="raid_dreamyforest" Volume="130" FileName1="tos_SFA_Bring_It_Down.mp3"/>
 	<BGM PlayListName="raid_abyssalobserver" Volume="130" FileName1="tos_SFA_Scappato.mp3"/>
 	<BGM PlayListName="raid_kivotos_island" Volume="130" FileName1="tos_Cinenote_Genocide201.mp3"/>
+	<BGM PlayListName="season_earring_raid" Volume="130" FileName1="tos_SFA_The_Pledge.mp3"/>
 	<BGM PlayListName="boss_spreader" Volume="130" FileName1="tos_Cinenote_Action7_Spreader.mp3"/>
 	<BGM PlayListName="boss_falouros" Volume="130" FileName1="tos_Cinenote_Battle3_Falouros.mp3"/>
 	<BGM PlayListName="track" Volume="90" FileName1="track.mp3"/>

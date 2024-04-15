@@ -370,7 +370,7 @@ function QUESTDETAIL_MAKE_REWARD_MONEY_CTRL(gbBody, x, y, questIES)
 	if count > 0 then
 		local is_multi = false
 		local multiple_rate = 1
-		local acc_obj = GetMyAccountObj()
+		--[[ local acc_obj = GetMyAccountObj()
 		local ep_cls = GetClassByNumProp('Episode_Quest', 'QuestID', questIES.ClassID)
 		if acc_obj ~= nil and ep_cls ~= nil then
 			local ep_name = TryGetProp(ep_cls, 'EpisodeName', 'None')
@@ -382,7 +382,7 @@ function QUESTDETAIL_MAKE_REWARD_MONEY_CTRL(gbBody, x, y, questIES)
 				count = count * multiple_rate
 				is_multi = true
 			end
-		end
+		end ]]
 
 		height = height + QUESTDETAIL_MAKE_ITEM_TAG_TEXT_CTRL(gbBody, x, y + height, "reward_item", 'Vis', count, 1, nil, is_multi, multiple_rate);
 	end

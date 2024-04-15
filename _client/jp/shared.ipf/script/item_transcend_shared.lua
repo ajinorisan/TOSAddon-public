@@ -997,6 +997,12 @@ function IS_TRANSCEND_SCROLL_ABLE_ITEM(itemObj, scrollType, scrollTranscend)
     local itemType = TryGetProp(itemObj, "ClassType", "None")       -- Check Accessory
     local potential = TryGetProp(itemObj, "PR") -- Check potential
 
+
+    local str_arg = TryGetProp(itemObj, 'StringArg', 'None')
+    if string.find(str_arg, 'Growth_By_Reinforce') ~= nil then
+        return 0
+    end
+
     if scrollType == "transcend_Set" then
         if SCR_TARGET_TRANSCEND_CHECK(itemObj, scrollTranscend) == 1 and IS_TRANSCEND_ABLE_ITEM(itemObj) == 1 then
             return 1;

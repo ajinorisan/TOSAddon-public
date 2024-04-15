@@ -40,7 +40,7 @@ function TRY_PARSE_TOOLTIPCOND(obj, caption)
 
 end
 
-function TRY_PARSE_PROPERTY(obj, nextObj, caption)
+function TRY_PARSE_PROPERTY(obj, nextObj, caption)    
     local tagStart = string.find(caption, "#{");
     if tagStart ~= nil then
         local nextStr = string.sub(caption, tagStart + 2, string.len(caption));
@@ -52,15 +52,16 @@ function TRY_PARSE_PROPERTY(obj, nextObj, caption)
 
             local propValue;            
             if string.sub(tagText, 1, 1) == "1" then
-                local propName = string.sub(tagText, 2, string.len(tagText));                
+                local propName = string.sub(tagText, 2, string.len(tagText));                     
                 propValue = nextObj[propName];
             else
                 propValue = nextObj[tagText]
             end
             
             if propValue % 1 ~= 0 then
-                propValue = string.format("%.1f", propValue);
+                propValue = string.format("%.1f", propValue);            
             end
+
             return (beforeStr .. propValue .. endStr), 1;
         end
 
@@ -68,7 +69,7 @@ function TRY_PARSE_PROPERTY(obj, nextObj, caption)
     return caption, 0;
 end
 
-function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)       
+function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)           
     caption = dictionary.ReplaceDicIDInCompStr(caption);
     local obj;  
     local parsed = 0;
@@ -258,29 +259,32 @@ function PARSE_TOOLTIP_CAPTION(_obj, caption, predictSkillPoint)
         end
 
         -- current level        
-        caption, parsed = TRY_PARSE_PROPERTY(obj, nextObj, caption);        
-        -- next level
-        lvCaption, parsed = TRY_PARSE_PROPERTY(obj, nextObj, lvCaption);      
+        caption, parsed = TRY_PARSE_PROPERTY(obj, nextObj, caption);             
+        -- next level        
+        lvCaption, parsed = TRY_PARSE_PROPERTY(obj, nextObj, lvCaption);              
         if parsed == 0 then
             break;
         end
     end
+       
     
-    if TryGetProp(obj, 'ClassName', 'None') == 'WingedHussars_BattleSpirit' then        
+    if TryGetProp(obj, 'ClassName', 'None') == 'WingedHussars_BattleSpirit' then
         local token = StringSplit(caption, '{nl}')
-        local cat_list = {}
+        local cat_list = {}               
         for k, v in pairs(token) do
-            local len = string.len(v)
-            local suffix = string.sub(v, len - 1, len)
-            if suffix ~= '0%' then            
+            local token2 = StringSplit(v, ' ')
+            local check = token2[#token2]
+            local len = string.len(check)
+            local suffix = string.sub(check, 1, len-1)    
+            if suffix ~= '0' then
                 table.insert(cat_list, v)
             end
         end
-
+        
         caption = ''
         for i = 1, #cat_list do
             caption = caption .. cat_list[i] .. '{nl}'
-        end
+        end                
     end
 
     DestroyIES(obj);

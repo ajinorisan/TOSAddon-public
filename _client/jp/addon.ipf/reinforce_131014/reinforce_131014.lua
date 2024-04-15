@@ -55,6 +55,7 @@ end
 function REINFORCE_131014_UPDATE_MORU_COUNT(frame)
 	local fromItem, fromMoru = REINFORCE_131014_GET_ITEM(frame);
 	local hitCountDesc = frame:GetChild("hitCountDesc");
+	local reinf_successrate = frame:GetChild('reinf_successrate')
 	local hitPriceDesc = GET_CHILD(frame, "hitPriceDesc", "ui::CRichText")
 	local fromPRTxt = GET_CHILD_RECURSIVELY(frame, "t_fromItemPR", "ui::CRichText")
 	if fromItem == nil or fromMoru == nil then
@@ -73,7 +74,8 @@ function REINFORCE_131014_UPDATE_MORU_COUNT(frame)
 	local toItemObj = GetIES(fromMoru:GetObject());
 	local hitCount = GET_REINFORCE_HITCOUNT(fromItemObj, toItemObj);
 	hitCountDesc:SetTextByKey("hitcount", hitCount);
-
+	local success = GET_REINFORCE_131014_SUCCESS_RATE(fromItemObj);
+	reinf_successrate:SetTextByKey("success", success)
 	local fromItemPR = TryGetProp(fromItemObj, 'PR', 0)
 	local prColor = '#00c4c6'
 	if fromItemPR == 0 then
@@ -82,6 +84,18 @@ function REINFORCE_131014_UPDATE_MORU_COUNT(frame)
 	fromPRTxt:SetTextByKey('color', prColor)
 	fromPRTxt:SetTextByKey('value', ClMsg("PR").." "..fromItemPR)
 	REINFORCE_SKIP_OPTION_DRAW(frame, 1);
+
+	local box = GET_CHILD_RECURSIVELY(frame, 'skipCouponInfo')
+	local txt = GET_CHILD_RECURSIVELY(frame, 'skipCouponInfoText')
+	if TryGetProp(fromItemObj, 'StringArg', 'None') == 'Moru_goddess' then
+		box:ShowWindow(0)
+		txt:ShowWindow(0)
+	else
+		local box = GET_CHILD_RECURSIVELY(frame, 'skipCouponInfo')
+		local txt = GET_CHILD_RECURSIVELY(frame, 'skipCouponInfoText')
+		box:ShowWindow(1)
+		txt:ShowWindow(1)
+	end
 
 	-- Event_LuckyBreak
 	-- if ENABLE_EVENT_LUCKYBREAK_REINFOCE(fromItemObj, TryGetProp(moruObj, "StringArg", "None")) == true then
@@ -117,7 +131,7 @@ function REINFORCE_131014_UPDATE_MORU_COUNT(frame)
 --	    msg = msg..ScpArgMsg('EVENT_REINFORCE_DISCOUNT_MSG1')
 --	end
     
-    local retPrice, retCouponList = SCR_REINFORCE_COUPON_PRECHECK(pc, price)
+    local retPrice, retCouponList = SCR_REINFORCE_COUPON_PRECHECK(pc, price, moruObj, fromItemObj)
     
     if price == retPrice then
     	hitPriceDesc:SetTextByKey("price", msg);
@@ -177,10 +191,19 @@ function REINFORCE_131014_MSGBOX(frame)
 	local pc = GetMyPCObject();
 
 	local price = GET_REINFORCE_PRICE(fromItemObj, moruObj, pc)	
-    local retPrice, retCouponList = SCR_REINFORCE_COUPON_PRECHECK(pc, price)
-	if IsGreaterThanForBigNumber(retPrice, GET_TOTAL_MONEY_STR()) == 1 then
-		ui.AddText("SystemMsgFrame", ScpArgMsg('NotEnoughMoney'));
-		return;
+    local retPrice, retCouponList = SCR_REINFORCE_COUPON_PRECHECK(pc, price, moruObj, fromItemObj)
+
+	if is_goddess_moru(moruObj) == false then
+		if IsGreaterThanForBigNumber(retPrice, GET_TOTAL_MONEY_STR()) == 1 then
+			ui.AddText("SystemMsgFrame", ScpArgMsg('NotEnoughMoney'));
+			return;
+		end
+	else
+		local coin = TryGetProp(moruObj, 'StringArg', 'None')		
+		if IsGreaterThanForBigNumber(retPrice, TryGetProp(GetMyAccountObj(), coin, '0')) == 1 then
+			ui.AddText("SystemMsgFrame", ScpArgMsg('NotEnoughMoney'));
+			return;
+		end
 	end
 	
 	local classType = TryGetProp(fromItemObj,"ClassType");

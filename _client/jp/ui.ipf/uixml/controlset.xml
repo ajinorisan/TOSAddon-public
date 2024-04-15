@@ -7013,14 +7013,29 @@
 			<picture name="gearscorePic" rect="0 0 98 30" margin="5 0 0 15" layout_gravity="left bottom" image="" LBtnUpScp=""/>
 			<groupbox name="highlight" rect="0 0 20 20" margin="20 5 0 0" layout_gravity="center top" hittest="false" skin="digitnotice_bg"/>
 		</controls>
-	</controlset>	
-	<controlset name="blackmarket_schedule" hittest="true" width="1100" height="200" hittestset="false" draw="true" skin="" stateskin="false">
+	</controlset>
+	<controlset name="cupole_slot" hittest="true" width="110" height="110" hittestset="false">
 		<controls>
-			<groupbox name="schedule" rect="0 0 1000 110" margin="-13 0 0 0" layout_gravity="center center" draw="true" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_low"/>
-				<slot name="pic" parent="schedule" margin="5 0 0 0" rect="0 0 100 100" hittest="true" skin="invenslot2" stretch="true" changecursor="false" layout_gravity="left center"/>
-				<richtext name="name" parent="schedule" rect="0 0 500 50" margin="120 10  0 0" layout_gravity="left top" format="{@st43}{s22}%s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="left center" />
-				<richtext name="duration" parent="schedule" rect="0 0 700 100" margin="0 0 0 -20" layout_gravity="center bottom" format="{@st43}{s22}%s ~ %s" param1="start" param1_def="None" param2="end" param2_def="None" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center"/>
-				<richtext name="remain" parent="schedule" rect="-20 0 380 50" margin="0 10 0 0" layout_gravity="right top" format="{@st43}{s22}{#FFFF00}시작까지 %s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="false" textalign="right center" />
+			<groupbox name="gb_slot" rect="0 0 102 102" margin="0 4 0 0" layout_gravity="center top" draw="true" hittest="true" hittestbox="false" LBtnUpScp="" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_slot"/>
+			<slot name="cupole_slot" rect="0 0 102 102" margin="0 0 0 0" layout_gravity="center center" changecursor="false" hittest="true" draw="true" enabledrag="false" LBtnUpScp="" skin="cupole_ui_slot" enableselect="true"/>
+			<picture name="gb" rect="0 0 110 110" margin="0 0 0 0" layout_gravity="left top" draw="true" hittest="true" hittestbox="true" LBtnUpScp="" resizebyparent="false" scrollbar="false" stretch="true" image="cupole_grade_frame_R"/>
+			<picture name="equip_img" rect="0 0 35 35" margin="0 0 0 0" layout_gravity="right top" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" image="deco_triangle_edge" draw="true"/>
+				<richtext name="equip" parent="equip_img" margin="5 0 0 0" rect="0 0 25 25" caption="E" textalign="center center" resizebytext="true" spacey="0" maxwidth="280" fontname="white_18_b_ds_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="right top"/>
+			<groupbox name="disable_shadow" rect="0 0 110 110" margin="0 0 0 0" layout_gravity="left top" draw="false" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
+		</controls>
+	</controlset>
+	<controlset name="cupole_mini_slot" hittest="true" width="80" height="80" hittestset="false">
+		<controls>
+			<groupbox name="gb_slot" rect="0 0 75 75" margin="0 4 0 0" layout_gravity="center top" draw="true" hittest="true" hittestbox="false" LBtnUpScp="" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_slot"/>
+			<slot name="cupole_slot" rect="0 0 75 75" margin="0 0 0 0" layout_gravity="center center" changecursor="false" hittest="true" draw="true" enabledrag="false" LBtnUpScp="" skin="cupole_ui_slot" enableselect="true"/>
+			<picture name="gb" rect="0 0 80 80" margin="0 0 0 0" layout_gravity="left top" draw="true" hittest="true" hittestbox="true" LBtnUpScp="" resizebyparent="false" scrollbar="false" stretch="true" image="cupole_grade_frame_R"/>
+			<picture name="equip_img" rect="0 0 35 35" margin="0 0 0 0" layout_gravity="right top" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" image="deco_triangle_edge" draw="true"/>
+				<richtext name="equip" parent="equip_img" margin="5 0 0 0" rect="0 0 25 25" caption="E" textalign="center center" resizebytext="true" spacey="0" maxwidth="280" fontname="white_18_b_ds_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="right top"/>
+		</controls>
+	</controlset>
+	<controlset name="cupole_skil" hittest="true" width="40" height="40" hittestset="false">
+		<controls>
+			<picture name="SkillIcon" rect="0 0 40 40" margin="0 0 0 0" layout_gravity="left top" draw="true" hittest="true" hittestbox="true" LBtnUpScp="" resizebyparent="false" scrollbar="false" stretch="true" image="cupole_grade_frame_SR"/>
 		</controls>
 	</controlset>
 	<controlset name="themashop_recycle" hittest="true" width="286" height="350" hittestset="true" draw="true" skin="test_skin_01_btn" stateskin="false">
@@ -7055,6 +7070,22 @@
 			<richtext name="itemprice" margin="150 40 0 0" rect="0 0 210 40" caption="ZZZZZZZZZZZ" textalign="right center" resizebytext="true" spacey="0" maxwidth="280" fontname="brown_16_b" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>
 		</controls>
 	</controlset>
+	<controlset name="blackmarket_schedule" hittest="true" width="1100" height="200" hittestset="false" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="schedule" rect="0 0 1000 110" margin="-13 0 0 0" layout_gravity="center center" draw="true" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_low"/>
+				<slot name="pic" parent="schedule" margin="5 0 0 0" rect="0 0 100 100" hittest="true" skin="invenslot2" stretch="true" changecursor="false" layout_gravity="left center"/>
+				<richtext name="name" parent="schedule" rect="0 0 500 50" margin="120 10  0 0" layout_gravity="left top" format="{@st43}{s22}%s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="left center" />
+				<richtext name="duration" parent="schedule" rect="0 0 700 100" margin="0 0 0 -20" layout_gravity="center bottom" format="{@st43}{s22}%s ~ %s" param1="start" param1_def="None" param2="end" param2_def="None" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center"/>
+				<richtext name="remain" parent="schedule" rect="-20 0 380 50" margin="0 10 0 0" layout_gravity="right top" format="{@st43}{s22}{#FFFF00}시작까지 %s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="false" textalign="right center" />
+		</controls>
+	</controlset>
+	<controlset name="mat_required_cupole" hittest="true"  width="110" height="140" hittestset="true">
+		<controls>
+			<groupbox name="mat_required" rect="0 0 110 140" 	margin="0 0 0 0" 	layout_gravity="center top"	  draw="true" skin="relic_frame_inner" stretch="false" scrollbar="false"/>	
+			<slot		name="mat_slot"	 rect="0 0 100 100"  margin="0 5 0 0"   layout_gravity="center top" hittest="true" parent="mat_required" movepop="false" enabledrag="false" dropsound="icon_get_down" picksound="icon_pick_up" DropScp="" skin="invenslot2" LBtnUpScp ="" RBtnUpScp="" texttooltip="{@st59}재료 아이템을 올립니다.{/}" />
+			<richtext	name="cnt_in_my_bag" rect="0 0 100 30" margin="0 0 0 10 " layout_gravity="center bottom"    parent="mat_required" fixwidth="true" hittest="false" fontname="brown_16_b" format="%s/%s" param1="value" param1_def="0" param2="maxvalue" param2_def="0" textalign="center center"/>
+		</controls>
+	</controlset>
 	<controlset name="leticia_probability_slot" hittest="true" width="610" height="100" hittestset="false" draw="true" skin="" stateskin="false">
 		<controls>
 			<groupbox name="maintab" rect="0 0 610 75" margin="0 0 0 0" layout_gravity="center center" draw="true" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_low"/>
@@ -7063,6 +7094,35 @@
 				<richtext name="name" parent="maintab" rect="0 0 325 50" margin="125 0  0 0" layout_gravity="left center" format="{@st43}{s16}%s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="left center" />
 				<richtext name="cnt" parent="maintab" rect="0 0 100 75" margin="435 0 0 0" layout_gravity="left center" format="{@st43}{s16}%s개" param1="value" param1_def="Cnt" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center"/>
 				<richtext name="percente" parent="maintab" rect="0 0 100 75" margin="500 0 0 0" layout_gravity="left center" format="{@st43}{s16}%s%" param1="value" param1_def="percente" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center"/>
+		</controls>
+	</controlset>
+	<controlset name="gacha_kupole" hittest="true"  width="200" height="237" hittestset="true" frameOpenAnim="popup_start_up">
+		<controls>
+			<groupbox name="Gacha_GroupBox" rect="0 0 200 237" 	margin="0 0 0 0" 	layout_gravity="left top"	  draw="true" skin="relic_frame_inner" stretch="false" scrollbar="false" LBtnUpScp="" LBtnUpArgStr="1"/>	
+				<picture name="Character" parent="Gacha_GroupBox" rect="0 0 200 237" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" resizebyparent="false" scrollbar="false" image="cupole_1" stretch="true" TargetTexture="true" LBtnUpScp="SCR_GACHA_CUPOLE_CLICK" LBtnUpArgStr="2"/>
+				<richtext name="Name" parent="Gacha_GroupBox" rect="0 0 100 75" margin="0 0 0 0" layout_gravity="center bottom" format="{@st43}{s16}%s" param1="Name" param1_def="Name" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center" LBtnUpScp="" LBtnUpArgStr="3"/>
+			<picture name="Gacha_BackBox" rect="0 0 200 237" 	margin="0 0 0 0" 	layout_gravity="left top"	draw="true" image="icon_item_WhiteDay_Candy_Card" stretch="true" scrollbar="false" LBtnUpScp="SCR_GACHA_OPEN_CLICK" LBtnUpArgStr="1"/>	
+				<animpicture name="animpic_slot" parent="Gacha_BackBox" blend="50" texelx="0" texely="0" texelwidth="400" texelheight="400" spacex="1" spacey="0" loop="false" ticktime="0.06" animcount="9" layout_gravity="center top" rect="0 0 400 400" margin="0 30 0 0" image="cube_ani" hittest="false" playanim="true" stretch="true" hideAnimEnd="true" visible="false"/>
+		</controls>
+	</controlset>
+	<controlset name="cupole_pickup_list" hittest="true"  width="700" height="160" hittestset="true">
+		<controls>
+			<groupbox name="Gacha_GroupBox" rect="0 0 700 160" 	margin="0 0 0 0" layout_gravity="left top"	  draw="true" skin="relic_frame_inner" stretch="false" scrollbar="false"/>	
+			<picture name="Banner" parent="Gacha_GroupBox" rect="0 0 700 160" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" resizebyparent="false" scrollbar="false" image="cupole_1" stretch="true"/>
+			<groupbox name="disable_shadow" rect="0 0 700 160" 	margin="0 0 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
+		</controls>
+	</controlset>
+	<controlset name="friend_invite_item_list" hittest="true" width="535" height="100" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="InfoBg" rect="0 0 535 100" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_frame_low" hittestset="true" />
+				<slot name="PicBg" parent="InfoBg" rect="0 0 140 90" margin="0 0 0 0" layout_gravity="left center" draw="true" skin="invenslot2" hittestset="true" />
+					<slot name="Pic2" parent="PicBg" margin="50 0 0 0" rect="0 0 90 90" layout_gravity="left center" hittest="true" stretch="true" />
+					<slot name="Pic1" parent="PicBg" margin="5 0 0 0" rect="0 0 90 90" layout_gravity="left center" hittest="true" stretch="true" />
+					<richtext name="count" parent="PicBg" rect="0 0 25 25" margin="0 0 2 0" layout_gravity="right bottom" format="{@st43}{s18}X%s" param1="count" param1_def="0" drawbackground="false" fixwidth="false" fontname="white_18_ol" textalign="right center" />
+				<richtext name="Mission" parent="InfoBg" rect="0 0 230 40" margin="150 0 0 0" layout_gravity="left center" format="{@st43}{s20}%s" param1="explain" param1_def="explain" drawbackground="false" fixwidth="true" fontname="white_18_ol" resizebytext="true" textalign="left center" omitbywidth="false"/>
+				<button name="Recv" rect="0 0 100 70" margin="0 0 10 0" parent="InfoBg"  layout_gravity="right center" skin="rank_btn" scrollbar="false" hittest="true" caption="{@st43}{s16}보상받기"/>
+					<picture name="Check" rect="0 0 44 44" margin="0 0 0 0" parent="Recv"  layout_gravity="center center" image="target_questmon"/>
+			<groupbox name="disable_shadow" rect="0 0 535 100" 	margin="0 0 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
 		</controls>
 	</controlset>
 </controlsetlist>

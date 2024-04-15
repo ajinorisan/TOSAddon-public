@@ -116,20 +116,22 @@ function ATTENDANCE_INIT_REWARD(frame, attendanceID)
 			end
 
             -- item info
-            local itemName = itemList[1];
-            local itemCls = GetClass('Item', itemList[1]); -- 일단 한 개만 줄거라고 하셔서 이렇게 처리함            
-            local itemPic = GET_CHILD(ctrlSet, 'itemPic');
-            itemPic:SetImage(itemCls.Icon);
-
-			if string.find(itemName, 'Enchant_Jewel') ~= nil then
-				local rewardClassName = attendanceClassData:GetRewardClassName();
-				if rewardClassName ~= nil then
-					SET_ITEM_TOOLTIP_BY_CLASSID(itemPic, itemName, 'RewardAttendance', rewardClassName);
+			local itemName = itemList[1];
+			local itemCls = GetClass('Item', itemList[1]); -- 일단 한 개만 줄거라고 하셔서 이렇게 처리함            
+			if itemCls ~= nil then
+				local itemPic = GET_CHILD(ctrlSet, 'itemPic');
+				itemPic:SetImage(itemCls.Icon);
+	
+				if string.find(itemName, 'Enchant_Jewel') ~= nil then
+					local rewardClassName = attendanceClassData:GetRewardClassName();
+					if rewardClassName ~= nil then
+						SET_ITEM_TOOLTIP_BY_CLASSID(itemPic, itemName, 'RewardAttendance', rewardClassName);
+					end
+				elseif itemName ~= MONEY_NAME then
+					SET_ITEM_TOOLTIP_BY_NAME(itemPic, itemName);
 				end
-			elseif itemName ~= MONEY_NAME then
-				SET_ITEM_TOOLTIP_BY_NAME(itemPic, itemName);
+				itemPic:SetTooltipOverlap(1);
 			end
-			itemPic:SetTooltipOverlap(1);
 
             local cntText = GET_CHILD(ctrlSet, 'cntText');
             cntText:SetTextByKey('cnt', cntList[1]);

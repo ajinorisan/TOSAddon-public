@@ -970,6 +970,15 @@
 		<image name="icon_scout_WildClaw" file="\icon\skill\scout\icon_scout_Wildclaw.png" imgrect="0 0 128 128" CMM_Caption="와일드 클로"/>
 		<image name="icon_scout_AdaptabilityOfWildness" file="\icon\skill\scout\icon_scout_Adaptability.png" imgrect="0 0 128 128" CMM_Caption="야생의 적응력"/>
 		<image name="icon_scout_jaguarbuff" file="\icon\skill\scout\icon_scout_jaguarbuff.png" imgrect="0 0 128 128" CMM_Caption="야성"/>
+		<image name="icon_scout_BadGuy" file="\icon\skill\scout\icon_scout_BadGuy.png" imgrect="0 0 128 128" CMM_Caption="배드가이"/>
+		<image name="icon_scout_Equilibrium" file="\icon\skill\scout\icon_scout_Equilibrium.png" imgrect="0 0 128 128" CMM_Caption="이퀼리브리엄"/>
+		<image name="icon_scout_Revenged" file="\icon\skill\scout\icon_scout_Revenged.png" imgrect="0 0 128 128" CMM_Caption="리밴지드"/>
+		<image name="icon_scout_DeadlyFire" file="\icon\skill\scout\icon_scout_DeadlyFire.png" imgrect="0 0 128 128" CMM_Caption="데들리 파이어"/>
+		<image name="icon_scout_RussianRoulette" file="\icon\skill\scout\icon_scout_RussianRoulette.png" imgrect="0 0 128 128" CMM_Caption="러시안 룰렛"/>
+		<image name="icon_scout_LastManStanding" file="\icon\skill\scout\icon_scout_LastManStanding.png" imgrect="0 0 128 128" CMM_Caption="라스트 맨 스탠딩"/>
+		<image name="icon_scout_Sunset" file="\icon\skill\scout\icon_scout_Sunset.png" imgrect="0 0 128 128" CMM_Caption="루나틱 재 발동 대기"/>
+		<image name="icon_scout_deathIncoming" file="\icon\skill\scout\icon_scout_deathIncoming.png" imgrect="0 0 128 128" CMM_Caption="죽음이 다가온다"/>
+		<image name="icon_scout_Violent" file="\icon\skill\scout\icon_scout_Violent.png" imgrect="0 0 128 128" CMM_Caption="바이올렌트"/>
 	</imagelist>
 	<imagelist category="summon_skillicon">
 		<image name="icon_summon_Common_ForcedAttack" file="\icon\skill\summon\icon_summon_Common_ForcedAttack.png" imgrect="0 0 128 128" CMM_Caption="소환수 강제 공격"/>
@@ -3930,6 +3939,23 @@
 		<image name="ability_scout_Jaguar19" file="\icon\icon_ability_scout05.tga" imgrect="128 128 128 128" CMM_Caption="[아츠] 와일드 클로: 상급 강화"/>
 		<image name="ability_scout_Jaguar20" file="\icon\icon_ability_scout05.tga" imgrect="640 256 128 128" CMM_Caption="재규어 스탠스: 강화"/>
 		<image name="ability_scout_Jaguar21" file="\icon\icon_ability_scout05.tga" imgrect="768 256 128 128" CMM_Caption="[아츠] 재규어 스탠스: 상급 강화"/>
+		<image name="ability_scout_Desperado1" file="\icon\icon_ability_scout05.tga" imgrect="384 896 128 128" CMM_Caption="이퀼리브리엄: 강화"/>
+		<image name="ability_scout_Desperado2" file="\icon\icon_ability_scout05.tga" imgrect="640 768 128 128" CMM_Caption="리벤지드: 강화"/>
+		<image name="ability_scout_Desperado3" file="\icon\icon_ability_scout05.tga" imgrect="128 896 128 128" CMM_Caption="데들리 파이어: 강화"/>
+		<image name="ability_scout_Desperado4" file="\icon\icon_ability_scout05.tga" imgrect="640 896 128 128" CMM_Caption="러시안 룰렛: 강화"/>
+		<image name="ability_scout_Desperado5" file="\icon\icon_ability_scout05.tga" imgrect="896 768 128 128" CMM_Caption="라스트 맨 스탠딩: 강화"/>
+		<image name="ability_scout_Desperado11" file="\icon\icon_ability_scout05.tga" imgrect="512 896 128 128" CMM_Caption="[아츠] 이퀼리브리엄: 상급 강화"/>
+		<image name="ability_scout_Desperado12" file="\icon\icon_ability_scout05.tga" imgrect="768 768 128 128" CMM_Caption="[아츠] 리벤지드: 상급 강화"/>
+		<image name="ability_scout_Desperado13" file="\icon\icon_ability_scout05.tga" imgrect="256 896 128 128" CMM_Caption="[아츠] 데들리 파이어: 상급 강화"/>
+		<image name="ability_scout_Desperado14" file="\icon\icon_ability_scout05.tga" imgrect="768 896 128 128" CMM_Caption="[아츠] 러시안 룰렛: 상급 강화"/>
+		<image name="ability_scout_Desperado15" file="\icon\icon_ability_scout05.tga" imgrect="0 896 128 128" CMM_Caption="[아츠] 라스트 맨 스탠딩: 상급 강화"/>
+		<image name="ability_scout_Desperado20" file="\icon\icon_ability_scout05.tga" imgrect="512 640 128 128" CMM_Caption="배드가이: 죽음이 다가온다"/>
+		<image name="ability_scout_Desperado21" file="\icon\icon_ability_scout05.tga" imgrect="640 640 128 128" CMM_Caption="[아츠] 배드가이: 죽음이 기다린다"/>
+		<image name="ability_scout_Desperado22" file="\icon\icon_ability_scout05.tga" imgrect="768 640 128 128" CMM_Caption="리벤지드: 죽음의 궤적"/>
+		<image name="ability_scout_Desperado23" file="\icon\icon_ability_scout05.tga" imgrect="896 640 128 128" CMM_Caption="데들리 파이어: 죽음의 무게"/>
+		<image name="ability_scout_Desperado24" file="\icon\icon_ability_scout05.tga" imgrect="0 768 128 128" CMM_Caption="러시안 룰렛: 죽음의 충동"/>
+		<image name="ability_scout_Desperado25" file="\icon\icon_ability_scout05.tga" imgrect="128 768 128 128" CMM_Caption="[아츠] 라스트 맨 스탠딩: 죽음의 선고"/>
+		<image name="ability_scout_Desperado26" file="\icon\icon_ability_scout04.tga" imgrect="0 512 128 128" CMM_Caption="이퀼리브리엄: 거리유지"/>
 	</imagelist>
 	<imagelist category="abilityicon">
 		<image name="icon_abil_1_1" file="\icon\ability_icon.tga" imgrect="0 0 64 64" CMM_Caption="절단"/>

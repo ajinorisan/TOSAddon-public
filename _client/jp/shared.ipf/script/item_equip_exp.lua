@@ -106,6 +106,7 @@ function GET_MORE_EVENT_EXP(pc)
 --	sumExp = sumExp + IsBuffAppliedEXP(pc, 'EVENT1909_FULLMOON_BUFF_EXP_5'); --[보름달 키우기 대작전] 경험치 획득량 증가 5단계
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_Expup_50'); --burning_event
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_Expup_100'); --burning_event
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_Expup_100_vertigo'); --vertigo exp_event
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'STM_PIZZA_BUFF'); --피자
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'NEWUSER_PARTY_BUFF') -- 신규/복귀 유저 파티 버프
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'EVENT_2002_CHOCO_BUFF1'); -- 더 달콤한 발렌타인 초콜릿 1단계

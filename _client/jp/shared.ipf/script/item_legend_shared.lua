@@ -828,6 +828,10 @@ end
 
 
 function IS_DECOMPOSABLE_ARK(item)
+    if true then
+        return false, 'TemporarilyUnavailable_1'
+    end
+
     if TryGetProp(item, 'ClassType', 'None') ~= 'Ark' then
         return false, 'decomposeCant'
 	end

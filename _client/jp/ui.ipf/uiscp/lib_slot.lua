@@ -183,34 +183,51 @@ function SET_SLOT_STAR_TEXT(slot, invItem)
 	local starIconProp = TryGetProp(invItem, 'StarIcon', 'None');
 	local controlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
 	if (TryGetProp(invItem, "StringArg", "None") == "SkillGem" and TryGetProp(invItem, "RandomOption_1", "None") ~= "None") then
-		local grade = GET_CHILD(controlset, "grade")
-		grade:SetText("{img star_mark 18 18}")
-		controlset:ShowWindow(1)
-		controlset:SetGravity(ui.RIGHT, ui.TOP)
+		local grade = GET_CHILD(controlset, "grade");
+		grade:SetText("{img star_mark 18 18}");
+		controlset:ShowWindow(1);
+		controlset:SetGravity(ui.RIGHT, ui.TOP);
 	elseif starIconProp ~= 'None' then
 		local grade = GET_CHILD(controlset, "grade")
-		local name = string.format("{img %s 18 18}", starIconProp)
-		grade:SetText(name)
-		controlset:ShowWindow(1)
-		controlset:SetGravity(ui.RIGHT, ui.TOP)		
+		if starIconProp == "star_number" then
+			local starIconNumber = TryGetProp(invItem, "StarIconNumber", 0);
+			if starIconNumber > 0 then
+				local name = string.format("{@st70_m_16}%s", starIconNumber);
+				grade:SetText(name);
+			end
+		else
+			local name = string.format("{img %s 18 18}", starIconProp);
+			grade:SetText(name);
+		end
+		controlset:ShowWindow(1);
+		controlset:SetGravity(ui.RIGHT, ui.TOP);
 	else
-		controlset:ShowWindow(0)
+		controlset:ShowWindow(0);
 	end
 end
 
 function SET_SLOT_STAR_TEXT_BY_ITEM_NAME(slot, item_name)
 	local item_cls = GetClassByStrProp("Item", "Name", item_name);
 	if item_cls ~= nil then
+		local star_icon = TryGetProp(item_cls, 'StarIcon', 'None');
 		local ctrlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
 		if (TryGetProp(item_cls, "StringArg", "None") == "SkillGem" and TryGetProp(item_cls, "RandomOption_1", "None") ~= "None") then
 			local grade = GET_CHILD(ctrlset, "grade")
 			grade:SetText("{img star_mark 18 18}")
 			ctrlset:ShowWindow(1)
 			ctrlset:SetGravity(ui.RIGHT, ui.TOP)
-		elseif TryGetProp(item_cls, 'StarIcon', 'None') ~= 'None' then
+		elseif star_icon ~= 'None' then
 			local grade = GET_CHILD(ctrlset, "grade")
-			local name = string.format("{img %s 18 18}", TryGetProp(item_cls, 'StarIcon', 'None'))
-			grade:SetText(name)
+			if star_icon == "star_number" then
+				local star_icon_number = TryGetProp(item_cls, "StarIconNumber", 0);
+				if star_icon_number > 0 then
+					local name = string.format("{@st70_m_16}%s", star_icon_number);
+					grade:SetText(name);
+				end
+			else
+				local name = string.format("{img %s 18 18}", star_icon)
+				grade:SetText(name)
+			end
 			ctrlset:ShowWindow(1)
 			ctrlset:SetGravity(ui.RIGHT, ui.TOP)
 		else

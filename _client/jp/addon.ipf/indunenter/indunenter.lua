@@ -534,7 +534,7 @@ function INDUNENTER_MAKE_MONLIST(frame, indunCls)
     local is_mythic_dungeon = string.find(dungeonType, "MythicDungeon") == 1
     local is_toshero_dungeon = string.find(dungeonType, "TOSHero") == 1
     local is_solo_dungeon = dungeonType == "Solo_dungeon";
-    local is_earring_dungeon = string.find(dungeonType, "EarringRaid") == 1;
+    local is_earring_dungeon = string.find(dungeonType, "EarringRaid") == 1 or dungeonType == "SeasonEarringRaid";
     if scoreBtn ~= nil then
         if is_toshero_dungeon then 
             scoreBtn:ShowWindow(1)
@@ -542,23 +542,12 @@ function INDUNENTER_MAKE_MONLIST(frame, indunCls)
             scoreBtn:ShowWindow(0)
         end
     end
-     -- 챌린지 모드 자동매칭 분열 위치 표시 처리
-    if indunCls ~= nil and TryGetProp(indunCls, "PlayPerResetType") == 816 then
-        if frame:GetName() == "induninfo" then
-            INDUNENTER_MAKE_CHALLENGE_DIVISION_HELP_TEXT(frame, indunCls);
-            return;
-        else
-            INDUNENTER_SHOW_WINDOW_MONBOX(frame, 1);
-        end
-	else
-		INDUNENTER_SHOW_WINDOW_MONBOX(frame, 1);
-		local dungeonType = TryGetProp(indunCls,"DungeonType","None")
-		local is_mythic_dungeon = string.find(dungeonType,"MythicDungeon") == 1
-		local is_four_buttons = false;
+    
+    local is_four_buttons = false
 		local buttonCls = GetClass("IndunInfoButton",dungeonType)
 		if buttonCls ~= nil then
-			if (TryGetProp(buttonCls,"RedButtonText","None") ~= "None" or TryGetProp(buttonCls,"Button3Text","None") ~= "None") and
-					(TryGetProp(buttonCls,"Button2Text","None") ~= "None" or TryGetProp(buttonCls,"Button1Text","None") ~= "None") then
+        if (TryGetProp(buttonCls,"RedButtonText","None") ~= "None" or TryGetProp(buttonCls,"Button3Text","None") ~= "None") 
+        and (TryGetProp(buttonCls,"Button2Text","None") ~= "None" or TryGetProp(buttonCls,"Button1Text","None") ~= "None") then
 				is_four_buttons = true
 			end
 		end
@@ -569,7 +558,6 @@ function INDUNENTER_MAKE_MONLIST(frame, indunCls)
         else
             INDUNENTER_SHOW_WINDOW_REWARDBOX(frame, BoolToNumber(is_mythic_dungeon == false and is_toshero_dungeon == false and is_four_buttons == false and is_solo_dungeon == false));
         end
-    end
 
     INDUNENTER_SHOW_WINDOW_MAPINFO(frame, indunCls, BoolToNumber(is_toshero_dungeon))
 
@@ -984,7 +972,9 @@ function INDUNENTER_MAKE_COUNT_BOX(frame, noPicBox, indunCls)
             nowCount = GET_CURRENT_ENTERANCE_COUNT(resetGroupID);
         end
 
-        local is_use_count2 = resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 832 or resetGroupID == 837;
+        local is_season_challenge = resetGroupID == 904 or resetGroupID == 905 or resetGroupID == 906 or resetGroupID == 907 or resetGroupID == 908;
+
+        local is_use_count2 = is_season_challenge == true or resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 832 or resetGroupID == 837 or resetGroupID == 909 or resetGroupID == 910;
         if is_use_count2 == true then
                 nowCount = GET_CURRENT_ENTERANCE_COUNT(resetGroupID); 
             countData2:SetTextByKey("now", nowCount);

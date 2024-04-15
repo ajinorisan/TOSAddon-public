@@ -39,3 +39,5 @@ ClassID,ClassName,Category,Icon,Spot_Name,Desc,MsgType
 1038,"1038","Goddess_Raid_DespairIsland_Auto","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
 1039,"1039","Goddess_Raid_DespairIsland_Party","","사망 제어","DeathCountLimit{count}","DeathCount"
 1040,"1040","Goddess_Raid_DespairIsland_Party","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1041,"1041","SeasonEarringRaid_Normal","","성물","모든 마력 소모량이 100% 증가합니다.",""
+1042,"1042","SeasonEarringRaid_Hard","","성물","모든 마력 소모량이 100% 증가합니다.",""

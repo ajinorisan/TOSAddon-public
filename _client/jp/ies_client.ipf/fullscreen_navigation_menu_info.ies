@@ -28,7 +28,6 @@ ClassID,Page,GroupIndex,SortIndex,ClassName,Category,CategoryName,OpenScp,MenuIc
 601,1,2,0,"GuildInfo","Guild","길드","UI_TOGGLE_GUILD","icon_fullscreen_menu_guildinfo","길드 정보","소속 중인 길드 페이지를 불러냅니다.","YES","","","NO","NO",""
 602,1,2,1,"GuildPublicityBard","Guild","길드","GUILD_RANK_INFO_TOGGLE","icon_fullscreen_menu_guildpublicity","홍보 게시판","각 길드의 홍보 게시물을 확인합니다.","YES","","","NO","NO",""
 701,1,3,0,"Friend","Community","커뮤니티","UI_TOGGLE_FRIEND","icon_fullscreen_menu_friend","친구","친구 목록을 확인하고, 새로운 친구를 추가하거나 프라이버시를 설정합니다.","YES","","","NO","NO",""
-702,1,3,1,"PilgrimInfo","Community","커뮤니티","MINIMIZED_PILGRIM_MODE_CLICK","icon_fullscreen_menu_pilgrim","순례자 정보","도전적인 난이도에서 기록 경쟁을 위한 동료들을 모아 팀을 결성하세요.","YES","","","NO","NO",""
 703,1,3,2,"CreateParty","Community","커뮤니티","UI_TOGGLE_PARTY","icon_fullscreen_menu_party","파티 생성 / 정보","동료들과 함께 콘텐츠를 즐기기 위한 파티를 결성합니다.{nl}또는, 이미 결성 중인 파티의 정보를 확인합니다.","YES","","","NO","NO",""
 704,1,3,3,"FindParty","Community","커뮤니티","MINIMIZED_PARTY_BOARD_CLICK","icon_fullscreen_menu_findparty","파티 찾기","원하는 파티를 찾거나, 모집 등록을 합니다.","YES","","","NO","NO",""
 705,1,3,4,"Mecro","Community","커뮤니티","UI_TOGGLE_POSE_MACRO","icon_fullscreen_menu_mecro","매크로","특정 단축키에 감정 표현이나 텍스트를 할당합니다.","YES","","","NO","NO",""

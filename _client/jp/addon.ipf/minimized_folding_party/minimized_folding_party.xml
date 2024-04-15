@@ -2,7 +2,7 @@
 <!-- edited with XMLSpy v2006 U (http://www.altova.com) by 박선우 (EMBRACE) -->
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="minimized_folding_party" x="0" y="0" width="185" height="50">
-	<frame fullheight="false" fasthide="false" layout_gravity="right top" margin="0 225 380 0"/>
+	<frame fullheight="false" fasthide="false" layout_gravity="right top" margin="0 225 330 0"/>
 	<layer layerlevel="31"/>
 	<draw drawtitlebar="false" drawframe="false"/>
 	<option visible="false" hideable="false" autoopen="false" closebutton="false"/>

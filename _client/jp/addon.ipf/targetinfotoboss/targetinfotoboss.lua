@@ -283,13 +283,14 @@ function TARGETINFOTOBOSS_UPDATE_SHIELD(data)
 				end
 			else
 				-- HP 설정.
-				local stat = info.GetStat(session.GetTargetBossHandle());	
+				local target_boss_handle = session.GetTargetBossHandle();
+				local stat = info.GetStat(target_boss_handle);	
 				if stat ~= nil then
 					-- hp
 					local hp_gauge = GET_CHILD(frame, "hp", "ui::CGauge");
 					hp_gauge:SetPoint(stat.HP, stat.maxHP);
 					-- hp text
-					local str_hp_value = TARGETINFO_TRANS_HP_VALUE(session.GetTargetBossHandle(), stat.HP, frame:GetUserConfig("HPTEXT_STYLESHEET"));
+					local str_hp_value = TARGETINFO_TRANS_HP_VALUE(target_boss_handle, stat.HP, frame:GetUserConfig("HPTEXT_STYLESHEET"));
 					local hp_text = frame:GetChild('hpText');
 					hp_text:SetText(str_hp_value);
 				end

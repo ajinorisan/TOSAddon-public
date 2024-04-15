@@ -970,6 +970,10 @@
 		<image name="icon_item_ep15viking_selectbox02" file="\icon\payment\icon_item_ep15viking_selectbox02.png" imgrect="0 0 256 256" CMM_Caption="바이킹의 머리장식 선택 상자"/>
 		<image name="icon_item_archer_bowmaster_m" file="\icon\equip\icon_item_archer_bowmaster_m.png" imgrect="0 0 256 256" CMM_Caption="신궁 코스튬(남)"/>
 		<image name="icon_item_archer_bowmaster_f" file="\icon\equip\icon_item_archer_bowmaster_f.png" imgrect="0 0 256 256" CMM_Caption="신궁 코스튬(여)"/>
+		<image name="icon_item_scoutCos_desperado_m" file="\icon\equip\icon_item_scoutCos_desperado_m.png" imgrect="0 0 256 256" CMM_Caption="데스페라도 코스튬(남)"/>
+		<image name="icon_item_scoutCos_desperado_f" file="\icon\equip\icon_item_scoutCos_desperado_f.png" imgrect="0 0 256 256" CMM_Caption="데스페라도 코스튬(여)"/>
+		<image name="icon_item_Unlock_desperado" file="\icon\payment\icon_item_Unlock_desperado.png" imgrect="0 0 256 256" CMM_Caption="스카우트 계열 - 데스페라도 스페셜 클래스 해금권"/>
+		<image name="icon_leticia_desperado_unlockbox" file="\icon\payment\icon_leticia_desperado_unlockbox.png" imgrect="0 0 256 256" CMM_Caption="스카우트 계열 - 데스페라도 스페셜 클래스 해금권 상자"/>
 	</imagelist>
 	<imagelist category="256_costume_icons">
 		<image name="icon_item_Alchemist_f" file="\icon\equip\Alchemist_f_icon.png" imgrect="0 0 256 256" CMM_Caption="알케미스트"/>
@@ -3715,6 +3719,9 @@
 		<image name="icon_item_misc_reinforce_percentUp_540_10plus1" file="\icon\payment\icon_item_misc_reinforce_percentUp_540_10plus1.png" imgrect="0 0 256 256" CMM_Caption=""/>
 		<image name="icon_item_misc_reinforce_percentUp_550_10plus1" file="\icon\payment\icon_item_misc_reinforce_percentUp_550_10plus1.png" imgrect="0 0 256 256" CMM_Caption=""/>
 		<image name="icon_item_enrich_powder1_misc_recipe" file="\icon\item\icon_item_enrich_powder1_misc_recipe.png" imgrect="0 0 256 256" CMM_Caption="리티스 ㅡ> 뉴클 가루 변환서"/>
+		<image name="icon_item_litis_siera_misc_recipe" file="\icon\item\icon_item_litis_siera_misc_recipe.png" imgrect="0 0 256 256" CMM_Caption=""/>
+		<image name="icon_item_misc_BlessedStone_1_recipe_2" file="\icon\item\icon_item_misc_BlessedStone_1_recipe_2.png" imgrect="0 0 256 256" CMM_Caption=""/>
+		<image name="icon_item_aether_convert_scroll_500" file="\icon\item\icon_item_aether_convert_scroll_500.png" imgrect="0 0 256 256" CMM_Caption=""/>
 		<image name="icon_item_slogutis_bow" file="\icon\weapon\icon_item_slogutis_bow.png" imgrect="0 0 256 256"/>
 		<image name="icon_item_slogutis_dagger" file="\icon\weapon\icon_item_slogutis_dagger.png" imgrect="0 0 256 256"/>
 		<image name="icon_item_slogutis_mace" file="\icon\weapon\icon_item_slogutis_mace.png" imgrect="0 0 256 256"/>
@@ -7096,6 +7103,8 @@
 		<image name="icon_item_gabija_energy" file="\icon\item\icon_item_gabija_energy.png" imgrect="0 0 128 128" CMM_Caption="가비야의 기운"/>
 		<image name="icon_item_holy_power" file="\icon\item\icon_item_holy_power.png" imgrect="0 0 128 128" CMM_Caption="신성한 힘"/>
 		<image name="icon_item_earring_raid_Enter" file="\icon\item\icon_item_earring_raid_Enter.png" imgrect="0 0 256 256" CMM_Caption="여신의 전언: 불꽃의 기억 콘텐츠 1회 입장권"/>
+		<image name="icon_item_season_earring_raid_normal_enter" file="\icon\item\icon_item_season_earring_raid_normal_enter.png" imgrect="0 0 256 256" CMM_Caption="시즌 여신의 전언: 파티(Normal) 1회 입장권"/>
+		<image name="icon_item_season_earring_raid_hard_enter" file="\icon\item\icon_item_season_earring_raid_hard_enter.png" imgrect="0 0 256 256" CMM_Caption="시즌 여신의 전언: 파티(hard) 1회 입장권"/>
 		<image name="icon_item_Delmore_Auto_Enter" file="\icon\item\icon_item_Delmore_Auto_Enter.png" imgrect="0 0 256 256" CMM_Caption="에픽레이드_오토"/>
 		<image name="icon_item_Delmore_Party_Enter" file="\icon\item\icon_item_Delmore_Party_Enter.png" imgrect="0 0 256 256" CMM_Caption="에픽레이드_파티"/>
 		<image name="icon_item_gift_box_06" file="\icon\item\icon_item_gift_box_06.png" imgrect="0 0 256 256" CMM_Caption="특판상자 01_5종"/>
@@ -7232,6 +7241,7 @@
 		<image name="icon_item_wing_Spreader_backboard" file="\icon\item\icon_wing_Spreader_backboard.png" imgrect="0 0 256 256" CMM_Caption="변질의 전파자 등판"/>
 		<image name="icon_item_skill_conversion_stone" file="\icon\item\icon_item_skill_conversion_stone.png" imgrect="0 0 128 128" CMM_Caption="스킬 쥬얼"/>
 		<image name="icon_item_skill_conversion_scroll" file="\icon\item\icon_item_skill_conversion_scroll.png" imgrect="0 0 128 128" CMM_Caption="스킬 쥬얼 제작서"/>	
+		<image name="icon_item_special_common_conversion_scroll" file="\icon\item\icon_item_special_common_conversion_scroll.png" imgrect="0 0 128 128" CMM_Caption="특별한 제작서 공용 아이콘"/>
 		<image name="icon_item_honormedal_Engineer_Costume" file="\icon\item\icon_item_honormedal_Engineer_Costume.png" imgrect="0 0 256 256" CMM_Caption="명예 훈장 - 엔지니어 코스튬 업적"/>
 		<image name="icon_item_honormedal_Engineer_Job" file="\icon\item\icon_item_honormedal_Engineer_Job.png" imgrect="0 0 256 256" CMM_Caption="명예 훈장 - 엔지니어 클래스 업적"/>
 		<image name="icon_item_Unlock_Engineer" file="\icon\item\icon_item_Unlock_Engineer.png" imgrect="0 0 256 256" CMM_Caption="아처 계열 - 엔지니어 클래스 해금권"/>
@@ -9706,6 +9716,8 @@
 		<image name="icon_item_jaguar_complete_class_pack" file="\icon\payment\icon_item_jaguar_complete_class_pack.png" imgrect="0 0 256 256" CMM_Caption="재규어 컴플리트 패키지"/>
 		<image name="icon_item_MultipleToken_Auto_Raid_Ep14_2" file="\icon\item\icon_item_MultipleToken_Auto_Raid_Ep14_2.png" imgrect="0 0 256 256" />
 		<image name="icon_item_MultipleToken_earring_raid" file="\icon\item\icon_item_MultipleToken_earring_raid.png" imgrect="0 0 256 256" />
+		<image name="icon_Multiple_Token_season_earring_raid_normal" file="\icon\item\icon_Multiple_Token_season_earring_raid_normal.png" imgrect="0 0 256 256"/>
+		<image name="icon_Multiple_Token_season_earring_raid_hard" file="\icon\item\icon_Multiple_Token_season_earring_raid_hard.png" imgrect="0 0 256 256"/>
 		<image name="icon_item_MultipleToken_Challenge" file="\icon\item\icon_item_MultipleToken_Challenge.png" imgrect="0 0 256 256" />
 		<image name="icon_item_MultipleToken_Auto_Raid_Jellyzele" file="\icon\item\icon_item_MultipleToken_Auto_Raid_Jellyzele.png" imgrect="0 0 256 256" />
 		<image name="icon_item_MultipleToken_Auto_Raid_RevivalPaulius" file="\icon\item\icon_item_MultipleToken_Auto_Raid_RevivalPaulius.png" imgrect="0 0 256 256" />
@@ -9958,6 +9970,42 @@
 		<image name="icon_item_hairacc_bowmaster" file="\icon\hairacc\icon_item_hairacc_bowmaster.png" imgrect="0 0 256 256" CMM_Caption="신궁의 머리장식"/>
 		<image name="icon_item_bow_bowmaster" file="\icon\weapon\icon_item_bow_bowmaster.png" imgrect="0 0 256 256" CMM_Caption="신궁의 보우"/>
 		<image name="icon_item_wing_bowmaster" file="\icon\payment\icon_item_wing_bowmaster.png" imgrect="0 0 256 256" CMM_Caption="신궁의 등 장식"/>
+		<image name="icon_item_hairacc_desperado" file="\icon\hairacc\icon_item_hairacc_desperado.png" imgrect="0 0 256 256" CMM_Caption="데스페라도의 복면"/>
+		<image name="icon_item_revolver_desperado" file="\icon\weapon\icon_item_revolver_desperado.png" imgrect="0 0 256 256" CMM_Caption="데스페라도의 복수자"/>
+		<image name="icon_item_sword_desperado" file="\icon\weapon\icon_item_sword_desperado.png" imgrect="0 0 256 256" CMM_Caption="데스페라도의 붉은선혈"/>
+		<image name="icon_item_wing_desperado" file="\icon\payment\icon_item_wing_desperado.png" imgrect="0 0 256 256" CMM_Caption="데스페라도의 붉은 머플러"/>
+		<image name="icon_Challenge_ExpertMode_CountUp" file="\icon\payment\icon_Challenge_ExpertMode_CountUp.png" imgrect="0 0 256 256" CMM_Caption="챌린지 모드 파티 EX 1회 입장권"/>
+		<image name="icon_Multiple_Token_Challenge_ExpertMode" file="\icon\payment\icon_Multiple_Token_Challenge_ExpertMode.png" imgrect="0 0 256 256" CMM_Caption="챌린지 모드 파티 EX 추가 보상권"/>
+		<image name="icon_item_wing_ep16yongyong_m" file="\icon\payment\icon_item_wing_ep16yongyong_m.png" imgrect="0 0 256 256" CMM_Caption="용용이의 꼬리 장식 (남)"/>
+		<image name="icon_item_wing_ep16yongyong_f" file="\icon\payment\icon_item_wing_ep16yongyong_f.png" imgrect="0 0 256 256" CMM_Caption="용용이의 꼬리 장식 (여)"/>
+		<image name="icon_item_costume_ep16yongyong_m" file="\icon\payment\icon_item_costume_ep16yongyong_m.png" imgrect="0 0 256 256" CMM_Caption="용용이의 코스튬 (남)"/>
+		<image name="icon_item_costume_ep16yongyong_f" file="\icon\payment\icon_item_costume_ep16yongyong_f.png" imgrect="0 0 256 256" CMM_Caption="용용이의 코스튬 (여)"/>
+		<image name="icon_item_thstaff_ep16yongyong" file="\icon\weapon\icon_item_thstaff_ep16yongyong.png" imgrect="0 0 256 256" CMM_Caption="용용이의 스태프"/>
+		<image name="icon_item_ep16yongyong_selectbox01" file="\icon\payment\icon_item_ep16yongyong_selectbox01.png" imgrect="0 0 256 256" CMM_Caption="용용이의 코스튬 선택 상자"/>
+		<image name="icon_item_ep16yongyong_selectbox02" file="\icon\payment\icon_item_ep16yongyong_selectbox02.png" imgrect="0 0 256 256" CMM_Caption="용용이의 꼬리 장식 선택 상자"/>
+		<image name="icon_item_random_cashbox2" file="\icon\payment\icon_item_random_cashbox2.png" imgrect="0 0 256 256" CMM_Caption="랜덤 캐시 상자 2"/>
+<image name="damage_font_goddess" file="\icon\payment\damage_font_goddess.png" imgrect="0 0 256 256" CMM_Caption="데미지 폰트 스킨 - 여신"/>
+		<image name="damage_font_cherryblossom" file="\icon\payment\damage_font_cherryblossom.png" imgrect="0 0 256 256" CMM_Caption="데미지 폰트 스킨 - 벚꽃"/>
+		<image name="damage_font_devil" file="\icon\payment\damage_font_devilt.png" imgrect="0 0 256 256" CMM_Caption="데미지 폰트 스킨 - 마신"/>
+		<image name="damage_font_slash" file="\icon\payment\damage_font09_slash.png" imgrect="0 0 256 256" CMM_Caption="데미지 폰트 스킨 - 슬래시"/>
+		<image name="icon_item_tosw_selectbox01" file="\icon\payment\icon_item_tosw_selectbox01.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 기념 코스튬 선택상자"/>
+		<image name="icon_item_tosw_selectbox01_1" file="\icon\payment\icon_item_tosw_selectbox01_1.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라이마 코스튬 선택상자"/>
+		<image name="icon_item_costume_tosw_white_m" file="\icon\payment\icon_item_costume_tosw_white_m.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라이마 코스튬 (남)"/>
+		<image name="icon_item_costume_tosw_white_f" file="\icon\payment\icon_item_costume_tosw_white_f.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라이마 코스튬 (여)"/>
+		<image name="icon_item_tosw_selectbox01_2" file="\icon\payment\icon_item_tosw_selectbox01_2.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 길티네 코스튬 선택상자"/>
+		<image name="icon_item_costume_tosw_black_m" file="\icon\payment\icon_item_costume_tosw_black_m.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 길티네 코스튬 (남)"/>
+		<image name="icon_item_costume_tosw_black_f" file="\icon\payment\icon_item_costume_tosw_black_f.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 길티네 코스튬 (여)"/>
+		<image name="icon_item_tosw_selectbox01_3" file="\icon\payment\icon_item_tosw_selectbox01_3.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라마 코스튬 선택상자"/>
+		<image name="icon_item_costume_tosw_green_m" file="\icon\payment\icon_item_costume_tosw_green_m.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라마 코스튬 (남)"/>
+		<image name="icon_item_costume_tosw_green_f" file="\icon\payment\icon_item_costume_tosw_green_f.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라마 코스튬 (여)"/>
+		<image name="icon_item_tosw_selectbox02" file="\icon\payment\icon_item_tosw_selectbox02.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 기념 날개 선택상자"/>
+		<image name="icon_item_wing_tosw_white" file="\icon\payment\icon_item_wing_tosw_white.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라이마 날개"/>
+		<image name="icon_item_wing_tosw_black" file="\icon\payment\icon_item_wing_tosw_black.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 길티네 날개"/>
+		<image name="icon_item_wing_tosw_green" file="\icon\payment\icon_item_wing_tosw_green.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 라다 날개"/>
+		<image name="icon_item_tosw_selectbox03" file="\icon\payment\icon_item_tosw_selectbox03.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 기념 이펙트 선택상자"/>
+		<image name="icon_item_effect_tosw_green" file="\icon\payment\icon_item_effect_tosw_green.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 반짝반짝 (그린)"/>
+		<image name="icon_item_effect_tosw_orange" file="\icon\payment\icon_item_effect_tosw_orange.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 반짝반짝 (앰버)"/>
+		<image name="icon_item_effect_tosw_yellow" file="\icon\payment\icon_item_effect_tosw_yellow.png" imgrect="0 0 256 256" CMM_Caption="W 통합 1주년 반짝반짝 (옐로)"/>
 	</imagelist>
 	<imagelist category="seal">
 		<image name="icon_seal_yellow_cc_A1" file="\icon\seal\seal_yellow_cc_A1.tga" imgrect="0 0 80 80"/>

@@ -21,6 +21,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_abi
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Corsair.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Crusader.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Daoshi.ies
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Desperado.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Dievdirbys.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Doppelsoeldner.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Dragoon.ies

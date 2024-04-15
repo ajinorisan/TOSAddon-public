@@ -5104,11 +5104,10 @@ function SCR_Get_HEAL_PWR_VER2(self)
 
     value = value * (1 + sum_of_heal_power)
 
-    -- HealControl 레이드 체크
-    -- if IsHealControlMap(self) == 1 then
-    --     local by_rate_raid = GET_HEAL_CTRL_RAID_HEAL_PWR_RATE_BM(self);
-    --     value = value * (1 + by_rate_raid)
-    -- end
+    if IsPVPServer(self) == 1 or IsPVPField(self) == 1 or IsJoinColonyWarMap(self) == 1 then
+        local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP / 100
+        value = value * (1 - reduce_ratio)
+    end
 
     if value < 1 then
     	value = 1;
@@ -5149,6 +5148,11 @@ function GET_SHOW_HEAL_PWR(self, real_value)
     real_value = real_value * (1 + sum_of_heal_power) 
     
     real_value = real_value * (1 + byRateBuff)
+
+    if IsPVPServer() == 1 or IsPVPField() == 1 or IsJoinColonyWarMap() == 1 then
+        local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP / 100
+        real_value = real_value * (1 - reduce_ratio)
+    end
 
     if real_value < 1 then
     	real_value = 1;

@@ -258,9 +258,16 @@ item_goddess_reinforce.get_final_reinforce_prop = function(target_item, add_perc
 	local base = item_goddess_reinforce.get_basic_prop(use_lv, goal_lv)
 	local fail_prop = item_goddess_reinforce.get_current_fail_revision_prop(target_item) -- 실패한 보정확률	
 
-	if fail_prop + base >= 100000 then
+	-- 	포포부스트
+	
+	if TryGetProp(target_item, 'popoboost', 0) == GET_POPOBOOST_ITEMPROP() and use_lv <= 490 then
+		base = base * 2	
+	end
+
+	if fail_prop + base >= 100000 then		
+		base = math.min(base, 100000)
 		return base, 0, 0
-	else
+	else		
 		local ret_add = 0
 		local ret_premium_add = 0
 
@@ -1338,7 +1345,7 @@ end
 make_item_goddess_reinforce_material_list()
 
 -- 해당 강화로 가는데 필요한 재료 목록을 가져온다(실버, 주화, 다 포함)
-item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv)
+item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv, IsEventItem)
 	if item_goddess_reinforce_material_list[use_lv] == nil then
 		return nil
 	end
@@ -1346,7 +1353,18 @@ item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv)
 	if item_goddess_reinforce_material_list[use_lv][class_type] == nil then
 		return nil
 	end
-	
+
+	-- 포포 부스트 이벤트 아이템일 경우 (이벤트 기간중인 아이템) 축조, 뉴클/시에라 없이 강화 가능하게 한다.
+	if IsEventItem == GET_POPOBOOST_ITEMPROP() and use_lv <= 490 then
+		local TempPopoboost_Material_List = {}
+		for k,v in pairs(item_goddess_reinforce_material_list[use_lv][class_type][goal_lv]) do
+			if k ~= "misc_BlessedStone" and k ~= "misc_ore22" and k ~= "misc_ore23" then
+				TempPopoboost_Material_List[k] = v;
+			end
+		end
+		return TempPopoboost_Material_List;
+	end
+
 	return item_goddess_reinforce_material_list[use_lv][class_type][goal_lv]
 end
 
@@ -1611,9 +1629,9 @@ function GET_EVOLVE_MAT_LIST(lv)
 	return list
 end
 
-function IS_EVOLVED_ITEM(item)
+function IS_EVOLVED_ITEM(item)		
 	local use_lv = TryGetProp(item, 'UseLv', 0)
-	local evolved_lv = TryGetProp(item, 'EvolvedItemLv', 0)
+	local evolved_lv = TryGetProp(item, 'EvolvedItemLv', 0)	
 	if evolved_lv > use_lv then
 		return true
 	else

@@ -24,7 +24,7 @@ g_pvpIndunCategoryList = {600, 700, 900};
     카테고리 안의 탭들(디테일 컨트롤)에 주/일 횟수를 표시하고 싶다면
     ㄴ> Difficulty에 값을 넣어주면 됨(스트링); 난이도나 모드, 간결화된 이름을 넣길 권장;
 ]]
-g_indunCategoryList = {"Indun","Uphill","Solo_dungeon","Challenge","Unique","Unique_Solo","Gtower","Velcoffer","BridgeWailing"};
+g_indunCategoryList = {"Indun","Uphill","Solo_dungeon","Challenge","Unique","Unique_Solo","Gtower","Velcoffer","BridgeWailing","SeasonChallenge", "SeasonEarring"};
 
 --[[
     프던 보스 카운트 및 챌린지 모드 정보 표시하려고 추가함
@@ -136,7 +136,6 @@ function INDUNINFO_UI_OPEN(frame, index, selectIndun)
         pvpCharacterRegistBtn:ShowWindow(0);
     end
     
-
     INDUNINFO_RESET_USERVALUE(frame);
     INDUNINFO_CREATE_CATEGORY(frame,selectIndun, true);
     INDUNINFO_CREATE_CATEGORY(frame,selectIndun, false);
@@ -337,7 +336,7 @@ function INDUNINFO_CREATE_CATEGORY(frame, selectIndun, first)
     local favorite_indunlist = INDUNINFO_GET_FAVORITE_INDUN_LIST();
 
     local enableCreate = function(dungeonType)
-        local isRaid = (dungeonType == 'UniqueRaid' or string.find(dungeonType, 'Raid') ~= nil or dungeonType == 'GTower' or dungeonType == "MythicDungeon_Auto" or dungeonType == "MythicDungeon_Auto_Hard" or dungeonType == "MythicDungeon" or dungeonType == "EarringRaid");
+    local isRaid = (dungeonType == 'UniqueRaid' or string.find(dungeonType, 'Raid') ~= nil or dungeonType == 'GTower' or dungeonType == "MythicDungeon_Auto" or dungeonType == "MythicDungeon_Auto_Hard" or dungeonType == "MythicDungeon" or dungeonType == "EarringRaid" or dungeonType == "SeasonEarringRaid");
         return ((isRaid == true and isRaidTab == true) or (isRaid == false and isRaidTab == false) or isFavoriteTab == true)
     end
     -- 카테고리 버튼 생성 함수
@@ -903,7 +902,7 @@ function GET_CURRENT_ENTERANCE_COUNT(resetGroupID)
         if indunCls.UnitPerReset == 'PC' then
             return(etc['IndunWeeklyEnteredCount_'..resetGroupID]) --매주 남은 횟수
         else     
-            if indunCls.DungeonType == "EarringRaid" and indunCls.ClassName ~= 'EarringRaid_Extreme' then
+            if (indunCls.DungeonType == "EarringRaid" and indunCls.ClassName ~= 'EarringRaid_Extreme') or indunCls.DungeonType == "SeasonEarringRaid" then
                 return acc_obj[TryGetProp(indunCls, "CheckCountName", "None")];
             end            
             return(acc_obj['IndunWeeklyEnteredCount_'..resetGroupID]) --매주 남은 횟수
@@ -911,7 +910,7 @@ function GET_CURRENT_ENTERANCE_COUNT(resetGroupID)
     else 
         if indunCls.UnitPerReset == 'PC' then
             return etc['InDunCountType_'..resetGroupID]; --매일 남은 횟수
-        else -- 'ACCOUNT'            
+        else -- 'ACCOUNT'
             if TryGetProp(indunCls, 'CheckCountName', 'None') ~= 'None' then
                 return acc_obj[TryGetProp(indunCls, 'CheckCountName', 'None')]
             end
@@ -1048,7 +1047,7 @@ function GET_RESET_CYCLE_PIC_TYPE(cls,postFix)
             cyclePicType = "week";
         elseif string.find(dungeonType, "TOSHero") ~= nil then
             cyclePicType = "None";
-        elseif string.find(dungeonType, "EarringRaid") ~= nil then
+        elseif string.find(dungeonType, "EarringRaid") ~= nil or dungeonType == "SeasonEarringRaid" then
             cyclePicType = "None";
         end
     elseif idSpace == 'PVPIndun' then
@@ -1282,7 +1281,7 @@ function INDUNINFO_MAKE_PATTERN_BOX(frame,indunCls)
 	
 	patternBox:ShowWindow(1)
 	
-	local pattern_list = GET_INDUN_PATTERN_ID_LIST(indunCls)
+    local pattern_list = GET_INDUN_PATTERN_ID_LIST(indunCls)
 	if #pattern_list == 0 then
 		patternBox:ShowWindow(0)
 		return
@@ -1756,7 +1755,7 @@ function INDUNINFO_SET_ENTERANCE_COUNT(frame, resetGroupID, indunClassID)
     local countData2 = GET_CHILD_RECURSIVELY(frame, 'countData2');
     
     local indun = GetClassByType('Indun', indunClassID)
-
+   
     if resetGroupID == -101 or resetGroupID == 816 or resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 820 then
         countData2:SetTextByKey('now', GET_CURRENT_ENTERANCE_COUNT(resetGroupID))
         countData:ShowWindow(0)
@@ -1974,6 +1973,8 @@ function INDUNINFO_SET_BUTTONS(frame, indunCls)
         recordBtn:ShowWindow(0);
     elseif (dungeonType == "Indun" or dungeonType == "MissionIndun") and indunCls.SubType == "Level" then
         btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls);
+    elseif dungeonType == "Challenge_Auto" and indunCls.SubType == "Party" then
+        btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls, true);
     end
 
     local auto_sweep_enable = TryGetProp(indunCls, "AutoSweepEnable", "None");
@@ -2157,6 +2158,10 @@ function INDUNINFO_SORT_BY_LEVEL(parent, ctrl)
         if is_raid_tab == true and groupID ~= "Gtower" then
             table.sort(g_selectedIndunTable, SORT_RAID_BY_RAID_TYPE);
         end
+
+        if groupID == "SeasonChallenge" then
+            table.sort(g_selectedIndunTable, SORT_BY_CLASS_ID);
+        end
     else
         table.sort(g_selectedIndunTable, SORT_BY_LEVEL_REVERSE);
     end
@@ -2256,6 +2261,10 @@ function SORT_RAID_BY_RAID_TYPE(a, b)
     local difficulty_a = substitution_raid_type(TryGetProp(a, "RaidType", "None"));
     local difficulty_b = substitution_raid_type(TryGetProp(b, "RaidType", "None"));
     return difficulty_a < difficulty_b;
+end
+
+function SORT_BY_CLASS_ID(a, b)
+    return TryGetProp(a, "ClassID", 0) < TryGetProp(b, "ClassID", 0);
 end
 
 function INDUNINFO_OPEN_INDUN_MAP(parent, ctrl)
@@ -4167,7 +4176,7 @@ function REQ_CHALLENGE_AUTO_UI_OPEN(frame, ctrl)
     local indunClsID = tonumber(ctrl:GetUserValue('MOVE_INDUN_CLASSID'))
     local indunCls = GetClassByType('Indun', indunClsID)
     local dungeonType = TryGetProp(indunCls, 'DungeonType', 'None');
-    if dungeonType ~= "Challenge_Auto" and dungeonType ~= "Challenge_Solo" then
+    if dungeonType ~= "Challenge_Auto" and dungeonType ~= "Challenge_Solo" and dungeonType ~= "SeasonChallenge" then
         return;
     end
     ui.CloseFrame('induninfo');
@@ -4392,7 +4401,7 @@ function REQ_EARRING_RAID_UI_OPEN(frame, ctrl)
     local indun_cls = GetClassByType("Indun", indun_classid);
     local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None");
     local sub_type = TryGetProp(indun_cls, "SubType", "None");
-    if dungeon_type ~= "EarringRaid" then
+    if dungeon_type ~= "EarringRaid" and dungeon_type ~= "SeasonEarringRaid" then
         return;
     end
 

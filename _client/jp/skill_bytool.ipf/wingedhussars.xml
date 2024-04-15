@@ -619,13 +619,13 @@
                     <Num Num="0"/>
                     <Num Num="1"/>
                 </Scp>  
-                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="200" UseSleep="NO">
+                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="100" UseSleep="NO">
                     <Str Str="SKL_WEAK_PIERCE"/>
                     <Num Num="5"/>
                     <Num Num="0"/>
                     <Num Num="0"/>
                 </Scp>                
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="250" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="150" UseSleep="NO">
                     <Str_Arg Arg="2" Str="eff_fellow_fencer_slash_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -635,24 +635,7 @@
                     <Num Num="0" />
                     <Num Num="0.5" />
                 </Scp>
-                <Scp Client="NO" Scp="DMG_WingedHussars_ImpulseSpears_1" Time="500" UseSleep="NO">
-                    <Num Num="20"/>
-                    <Num Num="90"/>
-                    <Num Num="1"/>
-                    <Str Str="None"/>
-                    <Num Num="0"/>
-                    <Str Str="None"/>
-                    <Num Num="0"/>
-                    <Num Num="0"/>
-                    <Num Num="2"/>
-                </Scp>    
-                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="400" UseSleep="NO">
-                    <Str Str="SKL_STRONG_PIERCE_RIDE"/>
-                    <Num Num="0.1"/>
-                    <Num Num="0"/>
-                    <Num Num="0"/>
-                </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="300" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="200" UseSleep="NO">
                     <Str_Arg Arg="1" Str="eff_fellow_fencer_septetoiles_battement_hit_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -662,7 +645,8 @@
                     <Num Num="0" />
                     <Num Num="0.2" />
                 </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="300" UseSleep="NO">
+                
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="200" UseSleep="NO">
                     <Str_Arg Arg="1" Str="eff_fellow_fencer_cast_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -672,7 +656,7 @@
                     <Num Num="0" />
                     <Num Num="0.2" />
                 </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="300" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="200" UseSleep="NO">
                     <Str_Arg Arg="2.5" Str="Projectile_LightFlare_Purple_01#Dummy_L_HAND" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="10" />
@@ -682,7 +666,24 @@
                     <Num Num="0" />
                     <Num Num="1.5" />
                 </Scp>                
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="550" UseSleep="NO">
+                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="300" UseSleep="NO">
+                    <Str Str="SKL_STRONG_PIERCE_RIDE"/>
+                    <Num Num="0.1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Client="NO" Scp="DMG_WingedHussars_ImpulseSpears_1" Time="400" UseSleep="NO">
+                    <Num Num="20"/>
+                    <Num Num="90"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="2"/>
+                </Scp>                   
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="450" UseSleep="NO">
                     <Str_Arg Arg="1.5" Str="eff_fellow_fencer_septetoiles_battement_hit_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -692,7 +693,7 @@
                     <Num Num="0" />
                     <Num Num="0.2" />
                 </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="550" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="450" UseSleep="NO">
                     <Str_Arg Arg="1.5" Str="eff_fellow_fencer_cast_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -702,7 +703,7 @@
                     <Num Num="0" />
                     <Num Num="0.2" />
                 </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="800" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="500" UseSleep="NO">
                     <Str_Arg Arg="3" Str="eff_fellow_fencer_septetoiles_battement_hit_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -712,7 +713,7 @@
                     <Num Num="0" />
                     <Num Num="0.2" />
                 </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="800" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="500" UseSleep="NO">
                     <Str_Arg Arg="3" Str="eff_fellow_fencer_cast_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -722,7 +723,7 @@
                     <Num Num="0" />
                     <Num Num="0.2" />
                 </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="900" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="600" UseSleep="NO">
                     <Str_Arg Arg="2" Str="eff_flash_normal_purple_end_01#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -732,14 +733,14 @@
                     <Num Num="0" />
                     <Num Num="0.2" />
                 </Scp>
-                <Scp Client="YES" Scp="MONSKL_C_STOP_ANIM" Time="900" UseSleep="NO"/>
-                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="910" UseSleep="NO">
+                <Scp Client="YES" Scp="MONSKL_C_STOP_ANIM" Time="600" UseSleep="NO"/>
+                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="610" UseSleep="NO">
                     <Str Str="SKL_NORMAL_PIERCE"/>
                     <Num Num="8"/>
                     <Num Num="0"/>
                     <Num Num="0"/>
                 </Scp>
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="950" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="650" UseSleep="NO">
                     <Str_Arg Arg="3" Str="eff_fellow_fencer_cast_02#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="20" Height="0" />
@@ -749,7 +750,7 @@
                     <Num Num="0" />
                     <Num Num="0.5" />
                 </Scp>                
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="950" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="650" UseSleep="NO">
                     <Str_Arg Arg="2" Str="eff_fellow_fencer_cast_02#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="50" Height="0" />
@@ -759,7 +760,7 @@
                     <Num Num="0" />
                     <Num Num="0.5" />
                 </Scp>                
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="950" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="650" UseSleep="NO">
                     <Str_Arg Arg="1" Str="eff_fellow_fencer_cast_02#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="80" Height="0" />
@@ -769,7 +770,7 @@
                     <Num Num="0" />
                     <Num Num="0.5" />
                 </Scp>                
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="950" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="650" UseSleep="NO">
                     <Str_Arg Arg="2.3" Str="eff_fellow_fencer_stab_02#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -779,7 +780,7 @@
                     <Num Num="0" />
                     <Num Num="0.5" />
                 </Scp>
-                <Scp Client="NO" Scp="DMG_WingedHussars_ImpulseSpears_1" Time="1200" UseSleep="NO">
+                <Scp Client="NO" Scp="DMG_WingedHussars_ImpulseSpears_1" Time="800" UseSleep="NO">
                     <Num Num="20"/>
                     <Num Num="150"/>
                     <Num Num="2"/>
@@ -790,7 +791,7 @@
                     <Num Num="150"/>
                     <Num Num="3"/>
                 </Scp>    
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="1200" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="800" UseSleep="NO">
                     <Str_Arg Arg="1.5" Str="BodyAura_OneWingedAngel_Red_01#Dummy_wing" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="5" />
@@ -800,13 +801,13 @@
                     <Num Num="0" />
                     <Num Num="1.5" />
                 </Scp>   
-                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="1200" UseSleep="NO">
+                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="800" UseSleep="NO">
                     <Str Str="SKL_STRONG_PIERCE_RIDE"/>
                     <Num Num="10"/>
                     <Num Num="1"/>
                     <Num Num="0"/>
                 </Scp>                
-                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="1200" UseSleep="NO">
+                <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="800" UseSleep="NO">
                     <Str_Arg Arg="1.5" Str="Shoot_DemonicEnergy_Red_02#Dummy_emitter" />
                     <Num Num="1" />
                     <Pos Angle="0" Dist="0" Height="0" />
@@ -816,7 +817,7 @@
                     <Num Num="0" />
                     <Num Num="0.3" />
                 </Scp>
-                <Scp Scp="C_UNITY_EFFECT_POS" Client="YES" Time="1200" UseSleep="NO">
+                <Scp Scp="C_UNITY_EFFECT_POS" Client="YES" Time="800" UseSleep="NO">
                     <Str_Arg Str="AerialExplosion_DemonicEnergy_Red_01" Arg="0.6"/>
                     <Pos Angle="0" Dist="100" Height="30"/>
                     <Num Num="1"/>
@@ -826,7 +827,7 @@
                     <Num Num="0"/>
                     <Num Num="1"/>
                 </Scp>
-                <Scp Scp="C_UNITY_EFFECT_POS" Client="YES" Time="1200" UseSleep="NO">
+                <Scp Scp="C_UNITY_EFFECT_POS" Client="YES" Time="800" UseSleep="NO">
                     <Str_Arg Str="MagicCircle_Restriction_Red_01" Arg="0.32"/>
                     <Pos Angle="0" Dist="100"/>
                     <Num Num="0.5"/>
@@ -836,7 +837,7 @@
                     <Num Num="0"/>
                     <Num Num="1"/>
                 </Scp>                
-                <Scp Client="NO" Scp="DMG_WingedHussars_ImpulseSpears_1" Time="1500" UseSleep="NO">
+                <Scp Client="NO" Scp="DMG_WingedHussars_ImpulseSpears_1" Time="800" UseSleep="YES">
                     <Num Num="35"/>
                     <Num Num="180"/>
                     <Num Num="3"/>
@@ -846,6 +847,7 @@
                     <Num Num="500"/>
                     <Num Num="300"/>
                     <Num Num="4"/>
+                    <Num Num="300"/>
                 </Scp>
 			</EtcList>
             <ResultList>
@@ -1092,16 +1094,6 @@
                             <Str Str="voice_war_atk_long_cast"/>
                             <Str Str="voice_atk_long_cast_f"/>
                         </Scp>
-                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="200" UseSleep="NO">
-                            <Str_Arg Arg="1.5" Str="eff_pc_highlander_verticalslash_ground_01#Dummy_L_HAND" />
-                            <Num Num="1" />
-                            <Pos Angle="0" Dist="0" Height="15" />
-                            <Num Num="1" />
-                            <Num Num="90" />
-                            <Num Num="90" />
-                            <Num Num="90" />
-                            <Num Num="0.5" />
-                        </Scp>
                         <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="0" UseSleep="NO">
                             <Str_Arg Arg="1.5" Str="eff_buff_monster_defense_buffon_02#Dummy_emitter" />
                             <Num Num="1" />
@@ -1112,7 +1104,17 @@
                             <Num Num="0" />
                             <Num Num="1" />
                         </Scp>		
-                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="300" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="50" UseSleep="NO">
+                            <Str_Arg Arg="1.5" Str="eff_pc_highlander_verticalslash_ground_01#Dummy_L_HAND" />
+                            <Num Num="1" />
+                            <Pos Angle="0" Dist="0" Height="15" />
+                            <Num Num="1" />
+                            <Num Num="90" />
+                            <Num Num="90" />
+                            <Num Num="90" />
+                            <Num Num="0.5" />
+                        </Scp>                        
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="50" UseSleep="NO">
                             <Str_Arg Arg="2" Str="eff_buff_monster_defense_buffon_02#Dummy_emitter" />
                             <Num Num="1" />
                             <Pos Angle="0" Dist="0" Height="-15" />
@@ -1122,7 +1124,7 @@
                             <Num Num="0" />
                             <Num Num="1" />
                         </Scp>		
-                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="400" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="150" UseSleep="NO">
                             <Str_Arg Arg="1.5" Str="eff_pc_highlander_verticalslash_ground_01#Dummy_L_HAND" />
                             <Num Num="1" />
                             <Pos Angle="0" Dist="0" Height="15" />
@@ -1132,7 +1134,7 @@
                             <Num Num="90" />
                             <Num Num="0.5" />
                         </Scp>
-                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="600" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="150" UseSleep="NO">
                             <Str_Arg Arg="2" Str="eff_buff_monster_defense_buffon_02#Dummy_emitter" />
                             <Num Num="1" />
                             <Pos Angle="0" Dist="0" Height="-15" />
@@ -1142,7 +1144,7 @@
                             <Num Num="0" />
                             <Num Num="0.6" />
                         </Scp>
-                        <Scp Scp="C_UNITY_EFFECT_POS" Client="YES" Time="900" UseSleep="NO">
+                        <Scp Scp="C_UNITY_EFFECT_POS" Client="YES" Time="200" UseSleep="NO">
                             <Str_Arg Str="eff_fellow_highlander_catastroke_launch_01" Arg="1.2"/>
                             <Pos Angle="0" Dist="130"/>
                             <Num Num="1"/>
@@ -1155,14 +1157,14 @@
                         <Scp Client="YES" Scp="C_SOUND" Time="0" UseSleep="NO">
                             <Str Str="skl_eff_wingedhussars_explosionspears2_ground"/>
                         </Scp>                        
-                        <Scp Client="YES" Scp="MONSKL_C_STOP_ANIM" Time="1000" UseSleep="NO"/>
-                        <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="1000" UseSleep="NO">
+                        <Scp Client="YES" Scp="MONSKL_C_STOP_ANIM" Time="250" UseSleep="NO"/>
+                        <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="250" UseSleep="NO">
                             <Str Str="SKL_THROW"/>
                             <Num Num="4"/>
                             <Num Num="1"/>
                             <Num Num="0"/>
                         </Scp>
-                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="1000" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="350" UseSleep="NO">
                             <Str_Arg Arg="1.5" Str="eff_monster_velclipse_skill09_cast_01#Dummy_emitter" />
                             <Num Num="1" />
                             <Pos Angle="0" Dist="0" Height="10" />
@@ -1172,7 +1174,7 @@
                             <Num Num="0" />
                             <Num Num="1" />
                         </Scp>		
-                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="1000" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="500" UseSleep="NO">
                             <Str_Arg Arg="3" Str="eff_monster_zesty_skill04_cast_01#Dummy_L_HAND" />
                             <Num Num="1" />
                             <Pos Angle="0" Dist="0" Height="10" />
@@ -1182,17 +1184,17 @@
                             <Num Num="0" />
                             <Num Num="1" />
                         </Scp>		
-                        <Scp Client="YES" Scp="C_EFFECT" Time="1000" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_EFFECT" Time="500" UseSleep="NO">
                             <Str_Arg Arg="1" Str="BodyAura_Electric_Blue_01"/>
                             <Str Str="Dummy_emitter"/>
                             <Num Num="9"/>
                         </Scp>
-                        <Scp Client="YES" Scp="C_EFFECT" Time="1000" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_EFFECT" Time="500" UseSleep="NO">
                             <Str_Arg Arg="1.5" Str="BodyAura_Electric_Blue_01"/>
                             <Str Str="Dummy_emitter"/>
                             <Num Num="9"/>
                         </Scp>                        
-                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="1200" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_ADD_UNITY_EFFECT" Time="600" UseSleep="NO">
                             <Str_Arg Arg="3" Str="BodyAura_FireWing_Blue_01#Dummy_wing" />
                             <Num Num="1" />
                             <Pos Angle="0" Dist="0" Height="15" />
@@ -1202,32 +1204,32 @@
                             <Num Num="0" />
                             <Num Num="1" />
                         </Scp>
-                        <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="1485">
+                        <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="785">
                             <Str_Arg Str="BodyAura_AbsorbEnergyBall_Blue_01" Arg="1.5"/>
                             <Pos Angle="0" Dist="130" Height="30"/>
                             <Num Num="2"/>
                             <Str Str="None"/>
                         </Scp>                        
-                        <Scp Client="YES" Scp="C_SHOCKWAVE" Time="1485" UseSleep="NO">
+                        <Scp Client="YES" Scp="C_SHOCKWAVE" Time="785" UseSleep="NO">
                             <Num Num="8"/>
                             <Num Num="0.40000001"/>
                             <Num Num="55"/>
                             <Num Num="999"/>
                         </Scp>
-                        <Scp Scp="C_PLAY_EFFECT_INFINITY_SPEARS" Client="YES" UseSleep="NO" Time="1500">
+                        <Scp Scp="C_PLAY_EFFECT_INFINITY_SPEARS" Client="YES" UseSleep="NO" Time="750">
                             <Pos Angle="0" Dist="130" PosType="0"/>
                         </Scp>                                             
-                        <Scp Scp="SCR_CREATE_PAD_INFINITY_SPEARS" Client="NO" UseSleep="NO" Time="1500">
+                        <Scp Scp="SCR_CREATE_PAD_INFINITY_SPEARS" Client="NO" UseSleep="NO" Time="750">
                             <Pos Angle="0" Dist="130" PosType="0"/>
                         </Scp>
-                        <Scp Client="YES" Scp="MONSKL_C_STOP_ANIM" Time="1500" UseSleep="NO"/>
-                        <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="1500" UseSleep="NO">
+                        <Scp Client="YES" Scp="MONSKL_C_STOP_ANIM" Time="750" UseSleep="NO"/>
+                        <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="750" UseSleep="NO">
                             <Str Str="std"/>
                             <Num Num="1"/>
                             <Num Num="0"/>
                             <Num Num="0"/>
                         </Scp>    
-                        <Scp Client="NO" Scp="SCR_REMOVE_BattleSpirit_Buff" Time="1500" UseSleep="NO" />                            
+                        <Scp Client="NO" Scp="SCR_REMOVE_BattleSpirit_Buff" Time="750" UseSleep="NO" />                            
                     </EtcList>
                 </Skill>
             </SubSkl>

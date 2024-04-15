@@ -73,7 +73,7 @@ function INDUNINFO_CHAR_UI_OPEN(frame, msg, argStr, argNum)
                         end
                         
                         local dungeonType = TryGetProp(indunCls, "DungeonType", "None");
-                        if dungeonType == "MythicDungeon_Auto_Hard" or dungeonType == "MythicDungeon" or string.find(indunCls.ClassName, "Challenge_Division_Auto") ~= nil or indunCls.PlayPerResetType == 807 then
+                        if dungeonType == "MythicDungeon_Auto_Hard" or dungeonType == "MythicDungeon" or string.find(indunCls.ClassName, "Challenge_Division_Auto") ~= nil or indunCls.PlayPerResetType == 807 or indunCls.PlayPerResetType == 816 then
                             indunCntLabel:SetText("{@st42b}" .. entranceCount .. "/" .. "{img infinity_text 20 10}");
                         elseif dungeonType == "BridgeWailing" then
                             indunCntLabel:SetText("{@st42b}" .. ScpArgMsg("ChallengeMode_HardMode_Count", "Count", entranceCount));

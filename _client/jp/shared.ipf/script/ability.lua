@@ -2290,8 +2290,8 @@ end
 function SCR_ABIL_Monk34_ACTIVE(self, ability)
     local skill = GetSkill(self, "Monk_PalmStrike");
     if skill ~= nil then
-        SetSkillOverHeat(self, skill.ClassName, 2);
-        RequestResetOverHeat(self, "PalmStrike_OH")
+--        SetSkillOverHeat(self, skill.ClassName, 2);
+--        RequestResetOverHeat(self, "PalmStrike_OH")
 
         local shootTime = TryGetProp(skill, "ShootTime", "None")
         local cancelTime = TryGetProp(skill, "CancelTime", "None")
@@ -2310,8 +2310,8 @@ end
 function SCR_ABIL_Monk34_INACTIVE(self, ability)
     local skill = GetSkill(self, "Monk_PalmStrike");
     if skill ~= nil then
-        SetSkillOverHeat(self, skill.ClassName, 3);
-        RequestResetOverHeat(self, "PalmStrike_OH")
+        --SetSkillOverHeat(self, skill.ClassName, 3);
+        --RequestResetOverHeat(self, "PalmStrike_OH")
 
         local shootTime = GetExProp(ability, "Monk34_ShootTime")
         local cancelTime = GetExProp(ability, "Monk34_CancelTime")
@@ -2364,23 +2364,23 @@ function SCR_ABIL_Sage27_INACTIVE(self, ability)
 end
 
 function SCR_ABIL_Kriwi29_ACTIVE(self, ability)
-    local skl = GetSkill(self, "Kriwi_Zaibas")
-    if skl ~= nil then
-        SetSkillOverHeat(self, skl.ClassName, 0)
-        RequestResetOverHeat(self, "Zaibas_OH")
-        InvalidateSkill(self, skl.ClassName);
-        SendSkillProperty(self, skl);
-    end
+    -- local skl = GetSkill(self, "Kriwi_Zaibas")
+    -- if skl ~= nil then
+    --     SetSkillOverHeat(self, skl.ClassName, 0)
+    --     RequestResetOverHeat(self, "Zaibas_OH")
+    --     InvalidateSkill(self, skl.ClassName);
+    --     SendSkillProperty(self, skl);
+    -- end
 end
 
 function SCR_ABIL_Kriwi29_INACTIVE(self, ability)
-    local skl = GetSkill(self, "Kriwi_Zaibas")
-    if skl ~= nil then
-        SetSkillOverHeat(self, skl.ClassName, 3)
-        RequestResetOverHeat(self, "Zaibas_OH")
-        InvalidateSkill(self, skl.ClassName);
-        SendSkillProperty(self, skl);
-    end
+    -- local skl = GetSkill(self, "Kriwi_Zaibas")
+    -- if skl ~= nil then
+    --     SetSkillOverHeat(self, skl.ClassName, 3)
+    --     RequestResetOverHeat(self, "Zaibas_OH")
+    --     InvalidateSkill(self, skl.ClassName);
+    --     SendSkillProperty(self, skl);
+    -- end
 end
 
 function SCR_ABIL_Necromancer35_ACTIVE(self, ability)
@@ -4376,3 +4376,126 @@ end
 function SCR_ABIL_Pontifex2_INACTIVE(self, ability)
 
 end
+
+-- 배드가이: 죽음이 다가온다
+function SCR_ABIL_Desperado20_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_BadGuy");
+    if skill ~= nil then
+        SetExProp(self, "Desperado20", 1);
+        SendPCExProp(self, "Desperado20", 1);
+    end
+end
+
+function SCR_ABIL_Desperado20_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_BadGuy");
+    if skill ~= nil then
+        SetExProp(self, "Desperado20", 0);
+        SendPCExProp(self, "Desperado20", 0);
+    end
+end
+
+-- [아츠] 배드가이: 죽음이 기다린다
+function SCR_ABIL_Desperado21_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_BadGuy");
+    if skill ~= nil then
+        SetExProp(self, "Desperado21", 1);
+        SendPCExProp(self, "Desperado21", 1);
+    end
+end
+
+function SCR_ABIL_Desperado21_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_BadGuy");
+    if skill ~= nil then
+        SetExProp(self, "Desperado21", 0);
+        SendPCExProp(self, "Desperado21", 0);
+    end
+end
+
+-- 리벤지드 : 죽음의 궤적
+function SCR_ABIL_Desperado22_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_Revenged");
+    if skill ~= nil then
+        SetExProp(self, "Desperado22", 1);
+        SendPCExProp(self, "Desperado22", 1);
+    end
+end
+
+function SCR_ABIL_Desperado22_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_Revenged");
+    if skill ~= nil then
+        SetExProp(self, "Desperado22", 0);
+        SendPCExProp(self, "Desperado22", 0);
+    end
+end
+
+-- 데들리 파이어: 죽음의 무게
+function SCR_ABIL_Desperado23_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_DeadlyFire");
+    if skill ~= nil then
+        SetExProp(self, "Desperado23", 1);
+        SendPCExProp(self, "Desperado23", 1);
+    end
+end
+
+function SCR_ABIL_Desperado23_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_DeadlyFire");
+    if skill ~= nil then
+        SetExProp(self, "Desperado23", 0);
+        SendPCExProp(self, "Desperado23", 0);
+    end
+end
+
+-- 러시안 룰렛: 죽음의 충동
+function SCR_ABIL_Desperado24_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_RussianRoulette");
+    if skill ~= nil then
+        SetExProp(self, "Desperado24", 1);
+        SendPCExProp(self, "Desperado24", 1);
+    end
+end
+
+function SCR_ABIL_Desperado24_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_RussianRoulette");
+    if skill ~= nil then
+        SetExProp(self, "Desperado24", 0);
+        SendPCExProp(self, "Desperado24", 0);
+    end
+end
+
+-- [아츠] 라스트 맨 스탠딩: 죽음의 선고
+function SCR_ABIL_Desperado25_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_LastManStanding");
+    if skill ~= nil then
+        SetExProp(self, "Desperado25", 1);
+        SendPCExProp(self, "Desperado25", 1);
+    end
+end
+
+function SCR_ABIL_Desperado25_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_LastManStanding");
+    if skill ~= nil then
+        SetExProp(self, "Desperado25", 0);
+        SendPCExProp(self, "Desperado25", 0);
+    end 
+end
+
+-- 이퀼리브리엄 : 거리유지
+function SCR_ABIL_Desperado26_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_Equilibrium");
+    if skill ~= nil then
+        SetExProp(self, "Desperado26", 1);
+        SendPCExProp(self, "Desperado26", 1);
+    end
+end
+
+function SCR_ABIL_Desperado26_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Desperado_Equilibrium");
+    if skill ~= nil then
+        SetExProp(self, "Desperado26", 0);
+        SendPCExProp(self, "Desperado26", 0);
+    end 
+end
+
+
+
+

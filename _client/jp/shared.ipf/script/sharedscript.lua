@@ -5,6 +5,14 @@ local json = require('json')
 SEASON_COIN_NAME = 'RadaCertificate'
 SEASON_COIN_PREFIX_NAME = 'RadaCertificateCoin'
 
+function is_goddess_moru(item)
+    if string.find(TryGetProp(item, 'StringArg', 'None'), 'Certificate') ~= nil and TryGetProp(item, 'NumberArg1', 0) > 0 then
+        return true
+    end
+
+    return false
+end
+
 function shuffle(tbl)
     local ret = {}
     for k, v in pairs(tbl) do
@@ -2562,7 +2570,8 @@ function GET_COMMA_SEPARATED_STRING_FOR_HIGH_VALUE(num)
     local retStr = "";
     local numValue = num;
 
-	for i = 1, 1000 do	-- 무한루프 방지용 --
+    for i = 1, 1000 do
+        -- 무한루프 방지용 --
         local tempValue = numValue % 1000;
         if string.len(tempValue) < 3 then
             for j = 1, 3 - string.len(tempValue) do
@@ -2593,8 +2602,9 @@ end
 
 -- 이 함수는 이제 사용하지 말 것 --
 -- 그래도 혹시 어디서 참조할지 몰라서 남겨두긴 함 --
-function GET_COMMAED_STRING(num) -- unsigned long 범위내에서 가능하게 수정함
-    if num == nil then
+function GET_COMMAED_STRING(num)    
+    -- unsigned long 범위내에서 가능하게 수정함
+    if num == nil or num == 'None' then
         return "0";
     end
     local retStr = "";
@@ -2723,10 +2733,15 @@ function SCR_REINFORCE_COUPON()
     return couponList
 end
 
-function SCR_REINFORCE_COUPON_PRECHECK(pc, price)
+function SCR_REINFORCE_COUPON_PRECHECK(pc, price, moruItem, target_item)
     local retCouponList = { };
     local couponList = SCR_REINFORCE_COUPON()
     local couponValueList = { }
+    
+    if is_goddess_moru(moruItem) == true or TryGetProp(target_item, 'StringArg', 'None') == 'Moru_goddess' then    
+        return price, retCouponList
+    end
+
     for i = 1, #couponList do
         local itemIES = GetClass('Item', couponList[i])
         if itemIES ~= nil then
@@ -3349,6 +3364,29 @@ function JOB_JAGUAR_PRE_CHECK(pc, jobCount)
         
         if aObj ~= nil then
             local value = TryGetProp(aObj, 'UnlockQuest_Char5_18', 0)
+            if value == 1 or IS_KOR_TEST_SERVER() == true then
+                return 'YES'
+            end
+        end 
+    end
+
+    return 'NO'
+end
+
+function JOB_DESPERADO_PRE_CHECK(pc, jobCount)
+    if jobCount == nil then
+        jobCount = GetTotalJobCount(pc);
+    end
+    if jobCount >= 2 then
+        local aObj
+        if IsServerSection() == 0 then
+            aObj = GetMyAccountObj();
+        else
+            aObj = GetAccountObj(pc);
+        end
+        
+        if aObj ~= nil then
+            local value = TryGetProp(aObj, 'UnlockQuest_Char5_19', 0)
             if value == 1 or IS_KOR_TEST_SERVER() == true then
                 return 'YES'
             end

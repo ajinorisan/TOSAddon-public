@@ -255,21 +255,27 @@ function ARK_LVUP_SCROLL_UI_INIT()
 	local desc_msg = "None"
 	local btn_msg = "None"
 	local btn_scp = "None"
+	local text_title = GET_CHILD(frame, "text_title");
 	if scrollType == "ArkLVUPScroll" then
 		title_msg = "ark_lvup_scroll"
 		desc_msg = ScpArgMsg("ArkLvUpTo{Level}", "Level", TryGetProp(scrollObj, 'NumberArg1', 0))
 		btn_msg = "Reinforce_2"
 		btn_scp = "ARK_LVUP_SCROLL_EXEC_ASK_AGAIN"
+		text_title:SetTextByKey("value", ClMsg(title_msg));
 	elseif scrollType == "ArkConvertScroll" then
 		title_msg = "ark_convert_scroll"
 		desc_msg = ClMsg("ArkConvertTo")
 		btn_msg = "convert"
 		btn_scp = "ARK_CONVERT_SCROLL_EXEC_ASK_AGAIN"
+		text_title:SetTextByKey("value", ClMsg(title_msg));
+	else
+		title_msg = dic.getTranslatedStr(TryGetProp(scrollObj, 'Name', 'None'))
+		text_title:SetTextByKey("value", title_msg);
+		desc_msg = ClMsg("AetherConvertTo")
+		btn_msg = "convert"
+		btn_scp = "AETHER_CONVERT_SCROLL_EXEC_ASK_AGAIN"
 	end
-	
-	local text_title = GET_CHILD(frame, "text_title");
-	text_title:SetTextByKey("value", ClMsg(title_msg));
-	
+		
 	local button_close = GET_CHILD(frame, "button_close");	
 	button_close:ShowWindow(1);
 	
@@ -361,6 +367,8 @@ function ARK_LVUP_SCROLL_SET_TARGET_ITEM(invframe, invItem)
 	local ret, msg = IS_VALID_ARK_LVUP_BY_SCROLL(itemObj, scrollObj)	
 	if scrollType == "ArkConvertScroll" then
 		ret, msg = shared_item_ark.is_able_to_convert(itemObj, scrollObj)
+	elseif scrollType == 'AetherConvertScroll' then
+		ret, msg = IS_ABLE_TO_CONVERT_AETHER_GEM(itemObj, scrollObj)
 	end
 	if ret == false then				
 		ui.SysMsg(ClMsg(msg));
@@ -384,6 +392,10 @@ function ARK_LVUP_SCROLL_SET_TARGET_ITEM(invframe, invItem)
 		local convert_list = GET_CHILD_RECURSIVELY(frame, "convert_list");
 		_MAKE_CONVERTABLE_ARK_LIST(frame, convert_list);
 		convert_list:ShowWindow(1)
+	elseif scrollType == "AetherConvertScroll" then
+		local convert_list = GET_CHILD_RECURSIVELY(frame, "convert_list");
+		_MAKE_CONVERTABLE_AETHER_LIST(frame, convert_list);
+		convert_list:ShowWindow(1)
 	end
 
 	frame:SetUserValue("EnableTranscendButton", 1);	
@@ -406,6 +418,27 @@ function ARK_LVUP_SCROLL_CHECK_TARGET_ITEM(slot)-- _CHECK_MORU_TARGET_ITEM
 		if scrollType == "ArkConvertScroll" then
 			ret, msg = shared_item_ark.is_able_to_convert(obj, scrollObj)
 		end
+		if ret == true then
+			slot:GetIcon():SetGrayStyle(0);
+		else			
+			slot:GetIcon():SetGrayStyle(1);
+		end
+	end
+end
+
+function AETHER_LVUP_SCROLL_CHECK_TARGET_ITEM(slot)
+	local frame = ui.GetFrame("ark_lvup_scroll");	
+	local scrollType = frame:GetUserValue("ScrollType")
+	local item = GET_SLOT_ITEM(slot);
+	if item ~= nil then
+		local obj = GetIES(item:GetObject());
+		local scrollGuid = frame:GetUserValue("ScrollGuid")
+    	local scrollInvItem = session.GetInvItemByGuid(scrollGuid);
+    	if scrollInvItem == nil then
+    		return;
+    	end
+		local scrollObj = GetIES(scrollInvItem:GetObject());
+		local ret, msg = IS_ABLE_TO_CONVERT_AETHER_GEM(obj, scrollObj)
 		if ret == true then
 			slot:GetIcon():SetGrayStyle(0);
 		else			
@@ -460,10 +493,19 @@ function ARK_LVUP_SCROLL_SELECT_TARGET_ITEM(scrollItem)
 		
 	local tab = gbox:GetChild("inventype_Tab");	
 	tolua.cast(tab, "ui::CTabControl");
-	tab:SelectTab(1);
+	
+	
+	if scrollType ~= 'AetherConvertScroll' then
+		tab:SelectTab(1);
+		SET_SLOT_APPLY_FUNC(invframe, "ARK_LVUP_SCROLL_CHECK_TARGET_ITEM", nil, "Equip");
 
-	SET_SLOT_APPLY_FUNC(invframe, "ARK_LVUP_SCROLL_CHECK_TARGET_ITEM", nil, "Equip");
+	else		
+		tab:SelectTab(6);
+		SET_SLOT_APPLY_FUNC(invframe, "AETHER_LVUP_SCROLL_CHECK_TARGET_ITEM", nil, 'Gem');
+	end
+	
 	INVENTORY_SET_CUSTOM_RBTNDOWN("ARK_LVUP_SCROLL_INV_RBTN");
+	
 end
 
 function _MAKE_CONVERTABLE_ARK_LIST(frame, drop_list)
@@ -596,3 +638,101 @@ function ARK_CONVERT_SCROLL_CHANGE_TOOLTIP()
 		icon:SetTooltipArg("", 0, invItem:GetIESID());
 	end
 end
+
+
+
+
+function _MAKE_CONVERTABLE_AETHER_LIST(frame, drop_list)
+	local slot = GET_CHILD_RECURSIVELY(frame, 'slot')
+	local aether_item = GET_SLOT_ITEM(slot)
+	if aether_item == nil then return end
+
+	local aether_obj = GetIES(aether_item:GetObject())
+	
+	local list = {'Gem_High_STR_500', 'Gem_High_INT_500', 'Gem_High_DEX_500', 'Gem_High_MNA_500', 'Gem_High_CON_500'}
+
+	drop_list:ClearItems()
+	for i = 1, #list do		
+		if TryGetProp(aether_obj, 'ClassName', 'None') ~= list[i] then
+			local cls = GetClass('Item', list[i])
+			if cls ~= nil then
+				local clsID = TryGetProp(cls, 'ClassID', 0)
+				local name = dic.getTranslatedStr(TryGetProp(cls, 'Name', 'None'))
+				drop_list:AddItem(clsID, name)
+			end
+		end
+    end
+
+    drop_list:SelectItemByKey("")
+end
+
+
+function AETHER_CONVERT_SCROLL_EXEC_ASK_AGAIN(frame, btn)	
+	local scrollType = frame:GetUserValue("ScrollType")
+	if scrollType ~= "AetherConvertScroll" then return end
+
+	local clickable = frame:GetUserValue("EnableTranscendButton")
+	if tonumber(clickable) ~= 1 then
+		return;
+	end
+
+	local slot = GET_CHILD(frame, "slot");
+	local invItem = GET_SLOT_ITEM(slot);
+	if invItem == nil then
+		ui.MsgBox(ScpArgMsg("DropItemPlz"));
+		imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"));
+		return;
+	end
+
+	local itemObj = GetIES(invItem:GetObject());
+	
+	local scrollGuid = frame:GetUserValue("ScrollGuid")
+	local scrollInvItem = session.GetInvItemByGuid(scrollGuid);
+	if scrollInvItem == nil then
+		ui.SysMsg(ScpArgMsg('TranscendScrollNotExist'));
+		return;
+	end
+
+	if true == invItem.isLockState or true == scrollInvItem.isLockState then
+		ui.SysMsg(ClMsg("MaterialItemIsLock"));
+		return;
+	end
+
+	local convert_list = GET_CHILD_RECURSIVELY(frame, 'convert_list');	
+	local convert_cls = GetClassByType('Item', convert_list:GetSelItemKey())
+	if convert_cls == nil then return end
+
+	local cur_name = dic.getTranslatedStr(TryGetProp(itemObj, 'Name', 'None'))
+	local convert_name = dic.getTranslatedStr(TryGetProp(convert_cls, 'Name', 'None'))
+	local clmsg = ScpArgMsg("ArkConvertScrollWarning{Before}{After}", "Before", cur_name, "After", convert_name)
+	imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OK_SOUND"));
+	ui.MsgBox_NonNested(clmsg, frame:GetName(), "AETHER_CONVERT_SCROLL_EXEC", "None");
+end
+
+function AETHER_CONVERT_SCROLL_EXEC()
+	local frame = ui.GetFrame("ark_lvup_scroll");
+	imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_EVENT_EXEC"));
+	frame:SetUserValue("EnableTranscendButton", 0);
+	
+	local slot = GET_CHILD(frame, "slot");
+	local targetItem = GET_SLOT_ITEM(slot);
+	local scrollGuid = frame:GetUserValue("ScrollGuid");
+
+	local convert_list = GET_CHILD_RECURSIVELY(frame, "convert_list");
+	local selected = convert_list:GetSelItemKey();
+	
+	session.ResetItemList();
+
+	session.AddItemID(targetItem:GetIESID());
+	session.AddItemID(scrollGuid);
+	
+	local arglist = NewStringList();
+	arglist:Add(selected);
+	
+	local resultlist = session.GetItemIDList();
+
+	item.DialogTransaction("CONVERT_AETHER", resultlist, "", arglist);
+	
+	imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_CAST"));
+end
+

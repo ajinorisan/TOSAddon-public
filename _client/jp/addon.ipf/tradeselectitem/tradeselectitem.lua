@@ -1039,7 +1039,11 @@ function OPEN_TRADE_SELECT_ITEM_STIRNG_SPLIT(invItem)
 		end
 
 		if itemName ~= 'None' and itemName ~= nil then
-			y = TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, i, itemName, itemobj.ClassName, conditionfunction);	
+			local icon_name = itemobj.ClassName
+			if TryGetProp(cls, 'ItemIcon', 'None') == 'YES' then
+				icon_name = itemName
+			end
+			y = TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, i, itemName, icon_name , conditionfunction);	
 			y = y + 5
 		end
 	end

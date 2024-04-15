@@ -57,3 +57,4 @@ ClassID,DefaultLearn,NextPoseCount,PoseLevel,RewardCheckCount,ClassName,Name,Fil
 57,0,0,0,1,"CLOCKWORKDANCE","시계추 댄스","pc_pose_lean01","icon_gesture_ClockworkDance","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_17"
 58,0,0,0,1,"LUCHADOR","히어로 등장","pc_pose_lean01","icon_gesture_Luchador","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_18"
 59,0,0,0,1,"FLOWERSCENT","꽃향기","pc_pose_lean01","icon_gesture_flower_scent","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_19"
+60,0,0,0,1,"QUEENCARD","퀸카킹카","pc_pose_lean01","icon_gesture_queencard","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_20"

@@ -106,5 +106,6 @@
 		<image name="c_cleric_Pontifex" file="\icon\class_cleric.tga" imgrect="99 401 100 100" CMM_Caption="폰티펙스"/>
 		<image name="c_warrior_WingedHussar" file="\icon\class_warrior.tga" imgrect="400 400 100 100" CMM_Caption="윙드후사르"/>
 		<image name="c_archer_BowMaster" file="\icon\class_archer.tga" imgrect="400 400 100 100" CMM_Caption="신궁"/>				
+		<image name="c_scout_Desperado" file="\icon\class_scout.tga" imgrect="400 100 100 100" CMM_Caption="데스페라도"/>
 	</imagelist>
 </skinset>

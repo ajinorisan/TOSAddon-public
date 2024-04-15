@@ -60,9 +60,9 @@ function SCR_BURNING_EVENT_LIST_LOAD(inputType, isServer)
 end
 
 
-function SCR_BURNING_EVENT_BUFF_CHECK(self, isServer)
+function SCR_BURNING_EVENT_BUFF_CHECK(self, isServer)    
     if IsServerSection() == 1 then
-        if IS_SEASON_SERVER(self) == 'YES' then
+        if IS_SEASON_SERVER(self) == 'YES' or GetServiceNation() ~= 'PAPAYA' then
             return
         end
         

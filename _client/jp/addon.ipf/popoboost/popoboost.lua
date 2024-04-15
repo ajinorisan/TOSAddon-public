@@ -263,7 +263,7 @@ local function POPOBOOST_GEARSCORE_BTN_SET(frame)
 
         IsMinimizeHighlight = false;
         if gearscore >= score then
-            local imageName = string.format("popoboost_gearscore_reach_%d",i);
+            local imageName = string.format("popoboost_gearscore_reach_%d",i + 2);
             gearscorePic:SetImage(imageName);
             if progress == 1 and isPremium == true then
                 highlight:ShowWindow(1);
@@ -277,7 +277,7 @@ local function POPOBOOST_GEARSCORE_BTN_SET(frame)
             end
     
         else
-            local imageName = string.format("popoboost_gearscore_%d",i);
+            local imageName = string.format("popoboost_gearscore_%d",i + 2);
             gearscorePic:SetImage(imageName);
         end
 
@@ -420,13 +420,15 @@ function POPOBOOST_GEARSCOREGAUGE_UPDATE(frame)
     end
     local GearScoreGauge = GET_CHILD_RECURSIVELY(frame,"GearScoreGauge");
     local currentScore = POPOBOOST_GET_MAX_GEARSCORE(pc);
-    local maxScore = 19000; 
-    local startScore = 14000;
-    if currentScore <= startScore then
-        local percente = (currentScore) / (startScore) * 0.16;
+    local maxScore = 21200; 
+    local threshold_value = 16000;
+    if currentScore <= threshold_value then
+        local percente = (currentScore) / (threshold_value) * 0.16;
         GearScoreGauge:SetPoint(percente, 1);
     else
-        GearScoreGauge:SetPoint(currentScore - 13047, maxScore - 13047);
+        local StartPer = 0.16;
+        local percente = (currentScore - threshold_value) / (maxScore - threshold_value) * 0.84;
+        GearScoreGauge:SetPoint(StartPer + percente, 1);
     end 
 end
 
@@ -655,7 +657,7 @@ function POPOBOOST_OPEN_INDUN_SHORTCUT(frame,msg,argStr,argNum)
 
     local script = _G[ShortcutScriptName];
     if progress == 0 then
-        --script(nil,nil,nil,ShortcutParam);
+        script(nil,nil,nil,ShortcutParam);
     else
         script(ShortcutParam,0,1,1,0)
     end
@@ -697,7 +699,6 @@ function POPOBOOST_PREMIUM_APPLY_ITEM_CLEINT_SCRIPT(invItem)
     local str = ScpArgMsg("popoboost_premium_apply");
     local yesScp = string.format("pc.ReqExecuteTx_Item(\"%s\",\"%s\",\"%s\")", "POPOBOOST_PREMIUN_APPLY", itemIES, className);
     ui.MsgBox(str, yesScp, "None");
-
 end
 
 

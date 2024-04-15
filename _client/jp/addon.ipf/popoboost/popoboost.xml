@@ -6,7 +6,8 @@
 		<script OpenScp="OPEN_POPOBOOST" CloseScp=""/>
 		<draw drawtitlebar="false"/>
 		<skin frameskin="None"/>
-		<layer topmostlayer="false" layerlevel="80"/>
+		<layer topmostlayer="false" layerlevel="92"/>
+		<input moveable="true" hittestframe="true" moveintitlebar="false"/>
     <controls>
 		<groupbox name="gFrame" rect="0 0 1280 780" margin="0 0 0 0" layout_gravity="left center" skin="relic_frame_bg" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
 		<groupbox name="MainBox" rect="0 0 1280 780" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin=""/>

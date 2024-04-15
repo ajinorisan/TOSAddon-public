@@ -8,6 +8,14 @@ function SKL_CHECK_ISJUMPING_C(actor, skl)
     return 1;
 end
 
+function SKL_CHECK_JUMPING_STATE_C(actor, skl)
+    if 1 == actor:IsOnGround() then
+        return 1;
+    end
+
+    return 0;
+end
+
 function SKL_CHK_OOBE_C(actor, skl)
 
     local oobeActor = geMCC.GetOOBEActor();

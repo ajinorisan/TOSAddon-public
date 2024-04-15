@@ -799,7 +799,9 @@ function GODDESS_MGR_REINFORCE_MAT_UPDATE(frame)
 		local use_lv = TryGetProp(item_obj, 'UseLv', 1)
 		local class_type = TryGetProp(item_obj, 'ClassType', 'None')
 		local reinf_value = TryGetProp(item_obj, 'Reinforce_2', 0)
-		local dic = item_goddess_reinforce.get_material_list(use_lv, class_type, reinf_value + 1)
+		local popoboost_item_prop = TryGetProp(item_obj, 'popoboost', 0)
+		
+		local dic = item_goddess_reinforce.get_material_list(use_lv, class_type, reinf_value + 1, popoboost_item_prop)
 		if dic == nil then
 			if item_goddess_growth.is_goddess_growth_item(item_obj) == true then
 				local _max = false

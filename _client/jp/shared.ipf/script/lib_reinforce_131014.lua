@@ -126,6 +126,20 @@ function REINFORCE_ABLE_131014(item, moru_item)
         return 0;
     end
 
+    if moru_item ~= nil then
+        local str = TryGetProp(moru_item, 'StringArg', 'None')
+        local item_str = TryGetProp(item, 'StringArg', 'None')    
+        if item_str == 'Moru_goddess' and string.find(str, 'Certificate') == nil then
+            return 0
+        end
+
+        if string.find(str, 'Certificate') ~= nil then        
+            if TryGetProp(moru_item, 'NumberArg1', 0) < TryGetProp(item, 'UseLv', 0) then
+                return 0
+            end
+        end
+    end
+
     return 1;
 end
 
@@ -189,7 +203,7 @@ function GET_REINFORCE_PRICE(fromItem, moruItem, pc)
         return 0;
     end
     
-    local gradeRatio = SCR_GET_ITEM_GRADE_RATIO(grade, "ReinforceCostRatio");
+    local gradeRatio = SCR_GET_ITEM_GRADE_RATIO(grade, "ReinforceCostRatio");    
     
     local lv = TryGetProp(fromItem, "UseLv");
     if lv == nil then
@@ -236,6 +250,10 @@ function GET_REINFORCE_PRICE(fromItem, moruItem, pc)
         return 0;
     end
 
+    if is_goddess_moru(moruItem) == true then
+        lv = 500
+        priceRatio = 1.0
+    end
     
     value = math.floor((500 + (lv ^ 1.1 * (5 + (reinforcecount * 2.5)))) * (2 + (math.max(0, reinforcecount - 9) * 0.5))) * priceRatio * gradeRatio;
     value_diamond = math.floor((500 + (lv ^ 1.1 * (5 + (reinforcecount_diamond * 2.5)))) * (2 + (math.max(0, reinforcecount - 9) * 0.5))) * priceRatio * gradeRatio;
@@ -294,6 +312,10 @@ function GET_REINFORCE_PRICE(fromItem, moruItem, pc)
         value = value * 0.5    
     end
 
+    if is_goddess_moru(moruItem) == true then
+        value = value * 0.04
+    end
+    
     return SyncFloor(value);
 
 end
@@ -314,4 +336,58 @@ function ENABLE_EVENT_LUCKYBREAK_REINFOCE(invItem, moruType)
 	-- end
 
 	return false;
+end
+
+function GET_REINFORCE_131014_SUCCESS_RATE(fromItem, moru)
+	local curReinf = TryGetProp(fromItem, 'Reinforce_2', 0)
+	local successRatio = 0;
+	local classType = TryGetProp(fromItem , "ClassType", 'None')
+
+    if TryGetProp(fromItem, 'StringArg', 'None') == 'Moru_goddess' then
+        if curReinf < 5 then
+    		return 100;
+    	else
+    	    successRatio = 100 - (curReinf - 4) * 4;
+    	    successRatio = (successRatio / 100) ^ 3;
+    	    successRatio = successRatio * 100;
+    	    
+    	    if successRatio < 51.2 then
+    	        return 51.2;
+    	    else
+    	        return successRatio;
+    	    end
+    	end
+    end
+
+	if fromItem.GroupName == 'Weapon' or (fromItem.GroupName == 'SubWeapon' and  classType ~='Shield') then
+    	if curReinf < 5 then
+    		return 100;
+    	else
+    	    successRatio = 100 - (curReinf - 4) * 4;
+    	    successRatio = (successRatio / 100) ^ 3;
+    	    successRatio = successRatio * 100;
+    	    
+    	    if successRatio < 51.2 then
+    	        return 51.2;
+    	    else
+    	        return successRatio;
+    	    end
+    	end
+	else
+		if curReinf < 5 then
+    		return 100;
+    	else
+    	    successRatio = 100 - (curReinf - 2) * 4;
+    	    successRatio = (successRatio / 100) ^ 3;
+    	    successRatio = successRatio * 100;
+    	    
+    	    if successRatio < 51.2 then
+    	        return 51.2;
+    	    else
+    	        return successRatio;
+    	    end
+		end
+	end
+
+	return 51.2;
 end

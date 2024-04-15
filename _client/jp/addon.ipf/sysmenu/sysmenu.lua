@@ -840,8 +840,8 @@ function CHECK_SYSMENU_INVENTORY_WEAPON_BOX_NOTICE()
 	item_1 = GetIES(item_1:GetObject())
 	local item_2 = session.GetEquipItemBySpot(ES_RH)
 	item_2 = GetIES(item_2:GetObject())	
+	local noticeBallon = ui.GetFrame("NoticeStartWeaponBOX");
 	if item.IsNoneItem(item_1.ClassID) ~= 1 or item.IsNoneItem(item_2.ClassID) ~= 1 then
-		local noticeBallon = ui.GetFrame("NoticeStartWeaponBOX");
 		if noticeBallon ~= nil then
 			noticeBallon:ShowWindow(0);
 		end	
@@ -849,6 +849,12 @@ function CHECK_SYSMENU_INVENTORY_WEAPON_BOX_NOTICE()
 		local frame = ui.GetFrame("sysmenu")
 		frame:StopUpdateScript('CHECK_SYSMENU_INVENTORY_WEAPON_BOX_NOTICE')		
 		return 0
+	end
+
+	if IS_HIDE_BALLOON_STATE() == false then
+		if noticeBallon ~= nil then
+			noticeBallon:ShowWindow(1);
+		end	
 	end
 
 	return 1
@@ -1035,7 +1041,7 @@ end
 
 function IS_HIDE_BALLOON_STATE()	
 	local name_list = {'petlist', 'induninfo','market', 'market_sell', 'market_cabinet', 'tpitem', 'inventory', 'skillability', 'adventure_book', 'companionlist'}
-	local hide_frame = {'NoticeStartWeaponBOX', 'NoticeReinforceMaterial', 'NoticedInheritance', 'CanEquipArk', 'CanEquipRelic', 'CanEquipEarring'}
+	local hide_frame = {'NoticeStartWeaponBOX', 'NoticeReinforceMaterial', 'NoticedInheritance', 'CanEquipArk', 'CanEquipRelic', 'CanEquipEarring', 'NoticeStartSkill'}
 
 	for i = 1, #name_list do
 		local frame = ui.GetFrame(name_list[i])		
@@ -1140,3 +1146,48 @@ function UPDATE_LOCK_EQUIPMENT()
 	return 1
 end
 
+
+function SYSMENU_SKILL_NOTICE()
+	local frame = ui.GetFrame("sysmenu");
+	if frame == nil then
+		return;
+	end
+
+	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
+	if parentCtrl == nil then
+		return;
+	end
+
+	local notice_frame = ui.GetFrame("NoticeStartWeaponBOX");
+	make_balloon_frame_by('inven', "NoticeStartSkill", notice_frame:GetHeight())
+	frame:RunUpdateScript('CHECK_SYSMENU_SKILL_NOTICE', 1, 0)
+end
+
+function CHECK_SYSMENU_SKILL_NOTICE()	
+	local skillList	= session.GetSkillList();
+	local skillCount = skillList:Count();
+	local noticeBallon = ui.GetFrame("NoticeStartSkill");
+	for i = 0, skillCount -1 do
+		local skill = skillList:Element(i)
+		local cls = session.GetSkill(skill.type)
+		local obj = GetIES(cls:GetObject());
+		
+		if TryGetProp(obj, 'Job', 'None') ~= 'None' then			
+			if obj.Level > 0 then				
+				if noticeBallon ~= nil then
+					noticeBallon:ShowWindow(0);
+				end	
+
+				return 0
+			end
+		end
+	end
+
+	if IS_HIDE_BALLOON_STATE() == false then
+		if noticeBallon ~= nil then
+			noticeBallon:ShowWindow(1);
+		end	
+	end
+
+	return 1
+end

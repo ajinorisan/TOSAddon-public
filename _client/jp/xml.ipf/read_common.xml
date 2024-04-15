@@ -429,4 +429,5 @@
 	<ReadXml Name="auction\black_market_schedule_PAPAYA"/>
 	<ReadXml Name="monster_leader_info"/>
 	<ReadXml Name="reward_tp2"/>
+	<ReadXml Name="friend_invite"/>	
 </Category>

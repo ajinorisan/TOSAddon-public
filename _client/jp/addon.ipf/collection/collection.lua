@@ -1,6 +1,103 @@
 -- collection.lua
 REMOVE_ITEM_SKILL = 7
 
+local reinf_item_list = nil
+local collection_item_info_list = nil
+
+local function make_collection_item_info_list()
+	if collection_item_info_list == nil then
+		collection_item_info_list = {}
+
+		local list, cnt = GetClassList('Collection')
+		for i = 0, cnt - 1 do
+			local cls = GetClassByIndexFromList(list, i)
+			if TryGetProp(cls, 'IsReinfoCol', 0) == 1 then
+				local type = TryGetProp(cls, 'ClassID', 0)
+				for j = 1, 10 do
+					local name = TryGetProp(cls, 'ItemName_' .. j, 'None')
+					if name ~= 'None' then
+						local reinfo = TryGetProp(cls, 'Reinforce_' .. j, 0)
+						if collection_item_info_list[name] == nil then
+							collection_item_info_list[name] = {}
+						end						
+						collection_item_info_list[name][type] = reinfo
+					else
+						break
+					end
+				end
+			end
+		end
+	end
+end
+
+local function make_reinf_item_list()
+	if reinf_item_list == nil then
+		reinf_item_list = {}
+		local inv_item_list = session.GetInvItemList()		
+		local inv_guid_list = inv_item_list:GetGuidList();
+		local count = inv_guid_list:Count();
+		for i = 0 , count - 1 do
+			local guid = inv_guid_list:Get(i)
+			local inv_item = inv_item_list:GetItemByGuid(guid)
+			if inv_item ~= nil and inv_item:GetObject() ~= nil then
+				local obj = GetIES(inv_item:GetObject())
+				local name = TryGetProp(obj, 'ClassName', 'None')
+				local tbl = collection_item_info_list[name] 
+				
+				if tbl ~= nil then -- 컬렉션 아이템이면
+					if reinf_item_list[name] == nil then
+						reinf_item_list[name] = {}
+					end
+
+					local rein = TryGetProp(obj, 'Reinforce_2', 0)
+					if reinf_item_list[name][rein] == nil then
+						reinf_item_list[name][rein] = 0
+					end
+
+					reinf_item_list[name][rein] = reinf_item_list[name][rein] + 1
+				end
+			end
+		end
+	end
+end
+
+
+local function update_reinf_item_list(name, rein, add)
+	if reinf_item_list[name] == nil or reinf_item_list[name][rein] == nil then
+		reinf_item_list = nil
+		make_reinf_item_list()
+		return
+	end
+
+	reinf_item_list[name][rein] = reinf_item_list[name][rein] + add	
+	if reinf_item_list[name][rein] < 0 then
+		reinf_item_list = nil
+		make_reinf_item_list()
+		return
+	end
+
+end
+
+local function get_inv_itemlist_by_name_and_reinforce(itemName, reinforce)
+	local ret = {}
+	
+	local inv_item_list = session.GetInvItemList()
+	local inv_guid_list = inv_item_list:GetGuidList()
+	local count = inv_guid_list:Count()
+	for j = 0, count - 1 do
+		local guid = inv_guid_list:Get(j)
+		local inv_item = inv_item_list:GetItemByGuid(guid)
+		if inv_item ~= nil and inv_item:GetObject() ~= nil then
+			local obj = GetIES(inv_item:GetObject())
+			if itemName == TryGetProp(obj, 'ClassName', 0) and TryGetProp(obj, 'Reinforce_2', 0) == reinforce then
+				table.insert(ret, obj)	
+			end
+		end
+	end
+	
+	return ret
+end
+
 local collectionStatus = {
     isNormal = 0,			-- 기본
 	isNew  = 1,				-- 새로등록됨
@@ -36,12 +133,14 @@ local collectionViewCount = {
 function COLLECTION_ON_INIT(addon, frame)
 	addon:RegisterMsg("ADD_COLLECTION", "ON_ADD_COLLECTION");
 	addon:RegisterMsg("COLLECTION_ITEM_CHANGE", "ON_COLLECTION_ITEM_CHANGE");
+	addon:RegisterMsg("INV_ITEM_REMOVE", "ON_COLLECTION_ITEM_CHANGE");	
 	addon:RegisterOpenOnlyMsg("INV_ITEM_ADD", "ON_COLLECTION_ITEM_CHANGE");
 	addon:RegisterOpenOnlyMsg("INV_ITEM_IN", "ON_COLLECTION_ITEM_CHANGE");
 	addon:RegisterOpenOnlyMsg("INV_ITEM_POST_REMOVE", "ON_COLLECTION_ITEM_CHANGE");
 	addon:RegisterOpenOnlyMsg("INV_ITEM_CHANGE_COUNT", "ON_COLLECTION_ITEM_CHANGE");
 	addon:RegisterMsg("UPDATE_READ_COLLECTION_COUNT", "ON_COLLECTION_ITEM_CHANGE");
 	addon:RegisterMsg('COLLECTION_UI_OPEN', 'COLLECTION_DO_OPEN');
+	addon:RegisterMsg("COLLECTION_ITEM_REINFORCE", "ON_COLLECTION_ITEM_REINFORCE");
 end
 
 function COLLECTION_DO_OPEN(frame)	
@@ -72,6 +171,8 @@ function COLLECTION_FIRST_OPEN(frame)
 	showAlignTypeList:AddItem("2",  ClMsg("AlignStatus"), 0);
 	showAlignTypeList:SelectItem(0);
 
+	make_collection_item_info_list()
+	make_reinf_item_list()
 	UPDATE_COLLECTION_LIST(frame);
 end
 
@@ -88,7 +189,56 @@ function ON_ADD_COLLECTION(frame, msg)
 	end
 
 function ON_COLLECTION_ITEM_CHANGE(frame, msg, str, type, removeType)
+	
+	make_collection_item_info_list()
+	make_reinf_item_list()
+	if msg == 'INV_ITEM_IN' or msg == 'INV_ITEM_ADD' then		
+		local inv_item_list = session.GetInvItemList()		
+		local inv_item = inv_item_list:GetItemByGuid(str);
+		if inv_item ~= nil and inv_item:GetObject() ~= nil then
+			local obj = GetIES(inv_item:GetObject())
+			local name = TryGetProp(obj, 'ClassName', 'None')			
+			if collection_item_info_list[name] == nil then
+				return
+			end
+			
+			local reinforce = TryGetProp(obj, 'Reinforce_2', 0)
+			update_reinf_item_list(name, reinforce, 1)
+		end
+	elseif msg == 'INV_ITEM_REMOVE' then		
+		local inv_item_list = session.GetInvItemList()		
+		local inv_item = inv_item_list:GetItemByGuid(str);
+		local obj = GetIES(inv_item:GetObject())
+		local name = TryGetProp(obj, 'ClassName', 'None')
+		local reinforce = TryGetProp(obj, 'Reinforce_2', 0)
+		
+		update_reinf_item_list(name, reinforce, -1)		
+		return
+	end
+
 	UPDATE_COLLECTION_LIST(frame, str, removeType);
+end
+
+function ON_COLLECTION_ITEM_REINFORCE(frame, msg, guid, result)		
+	local inv_item_list = session.GetInvItemList()		
+	local inv_item = inv_item_list:GetItemByGuid(guid);
+
+	if inv_item ~= nil then
+		local obj = GetIES(inv_item:GetObject())
+		local name = TryGetProp(obj, 'ClassName', 'None')
+		local reinforce = TryGetProp(obj, 'Reinforce_2', 0)		
+
+		if result == 1 then			
+			local before = reinforce - 1
+			update_reinf_item_list(name, before, -1)
+			update_reinf_item_list(name, reinforce, 1)
+
+		elseif result == 0 then	
+			local before = reinforce + 1
+			update_reinf_item_list(name, before, -1)
+			update_reinf_item_list(name, reinforce, 1)
+		end
+	end
 end
 
 -- 컬렉션 정렬 드롭다운리스트 갱신
@@ -105,31 +255,51 @@ function COLLECTION_TYPE_CHANGE(frame, ctrl)
 	end
 end
 
-function SET_COLLECTION_PIC(frame, slotSet, itemCls, coll, type,drawitemset)
 
+
+function SET_COLLECTION_PIC(index, frame, slotSet, itemCls, coll, type,drawitemset, reinforce, IsReinfoCol)		
 	local colorTone = nil;
 	local slot = GET_CHILD(slotSet,"slot","ui::CSlot");
 	local btn = GET_CHILD(slotSet, "btn", "ui::CButton");
 	local icon = CreateIcon(slot);
 	slot:SetUserValue("COLLECTION_TYPE",type);
+	slot:SetUserValue("index", index)
+	slot:SetUserValue('Reinforce', reinforce)
 	icon:SetImage(itemCls.Icon);
 	icon:SetTooltipOverlap(0);
+	if reinforce > 0 then
+		slot:SetText('{s20}{ol}{#FFFFFF}+'..reinforce, 'count', ui.RIGHT, ui.TOP, 0, 2)		
+	end
 
 	-- # 기본 아이템 툴팁을 넣음. 아래는 이전부터 있던 주석.
 	-- 세션 컬렉션에 오브젝트 정보가 존재하고 이를 바탕으로 하면 item오브젝트의 옵션을 살린 툴팁도 생성 가능하다. 가령 박아넣은 젬의 경험치라던가.
 	-- 허나 지금 슬롯 지정하여 꺼내는 기능이 없기 때문에 무의미. 정확한 툴팁을 넣으려면 COLLECTION_TAKE를 type이 아니라 guid 기반으로 바꿔야함
-	SET_ITEM_TOOLTIP_ALL_TYPE(icon, nil, itemCls.ClassName, 'collection', type, itemCls.ClassID);
+	local tool_str = 'collection'
+	if reinforce > 0 then		
+		tool_str = 'copy_prop:Reinforce_2' .. '/' .. tostring(reinforce) .. ';'
+	end
+
+	SET_ITEM_TOOLTIP_ALL_TYPE(icon, nil, itemCls.ClassName, tool_str, itemCls.ClassID, itemCls.ClassID);
 	
 	-- 우선 안보이도록 처리
 	slot:ShowWindow(0);
 	btn:ShowWindow(0);
 
-
 	-- 공통 처리부분.
 	local invcount = session.GetInvItemCountByType(itemCls.ClassID);
+	
+	if IsReinfoCol == 1 or reinforce > 0 then
+		if reinf_item_list[itemCls.ClassName] ~= nil and reinf_item_list[itemCls.ClassName][reinforce] ~= nil then
+			invcount = reinf_item_list[itemCls.ClassName][reinforce]			
+		else
+			invcount = 0
+	end
+	
+	end
+	
 	local totalcount = invcount;
 	local showedcount = 0
-
+	
 	if drawitemset[itemCls.ClassID] ~= nil then
 		showedcount = drawitemset[itemCls.ClassID]
 	end
@@ -153,7 +323,7 @@ function SET_COLLECTION_PIC(frame, slotSet, itemCls, coll, type,drawitemset)
 	end
 
 	-- 공통 처리
-	-- 2. 꼽으면 되는 것들
+	-- 2. 꼽으면 되는 것들		
 	if totalcount > showedcount then
 		if drawitemset[itemCls.ClassID] == nil then
 			drawitemset[itemCls.ClassID] = 1
@@ -166,7 +336,7 @@ function SET_COLLECTION_PIC(frame, slotSet, itemCls, coll, type,drawitemset)
 		if coll ~= nil then
 			btn:ShowWindow(1);
 			btn:SetTooltipOverlap(0);
-			SET_ITEM_TOOLTIP_ALL_TYPE(btn, nil, itemCls.ClassName, 'collection', type, itemCls.ClassID); 
+			SET_ITEM_TOOLTIP_ALL_TYPE(btn, nil, itemCls.ClassName, tool_str, itemCls.ClassID, itemCls.ClassID); 				
 		end
 	else
 		colorTone = frame:GetUserConfig("BLANK_ITEM_COLOR");
@@ -179,7 +349,6 @@ function SET_COLLECTION_PIC(frame, slotSet, itemCls, coll, type,drawitemset)
 end
 
 function GET_COLLECTION_COUNT(type, coll)
-
 	local curCount = 0;
 	if coll ~= nil then
 		curCount = coll:GetItemCount();
@@ -216,11 +385,19 @@ function GET_COLLECT_ABLE_ITEM_COUNT(coll, type)
 	local curCount, maxCount = GET_COLLECTION_COUNT(type, coll);
 	local numCnt= 0;
 
+
+	local inv_item_list = session.GetInvItemList();
+	local inv_guid_list = inv_item_list:GetGuidList();
+	local count = inv_guid_list:Count();
+
+	local IsReinfoCol = TryGetProp(cls, 'IsReinfoCol', 0)
+
 	-- 한번돌면서 itemList를 채운다.
 	local itemList = {};
 	local itemCount = {};
+	
 	for i = 1 , maxCount do
-		local itemName = TryGetProp(cls,"ItemName_" .. i);
+		local itemName = TryGetProp(cls,"ItemName_" .. i, 'None');
 		if itemName == nil or itemName == "None" then
 			numCnt= 0;
 			break;
@@ -233,34 +410,59 @@ function GET_COLLECT_ABLE_ITEM_COUNT(coll, type)
 		end
 
 		local collecount = 0; -- coll이 nil일때의 기본값.
-		if coll ~= nil then
-			collecount = coll:GetItemCountByType(itemCls.ClassID);    -- 해당 아이템이 해당컬렉션에서 몇개가 들어있는지
-		end
-		local invcount = session.GetInvItemCountByType(itemCls.ClassID); -- 해당 아이템을 인벤에 몇개나 들고 있는지.
-		
-		-- 같은 ClassID의 아이템의 개수를 증가시킨다.
-		if itemList[itemCls.ClassID] ~= nil then
-			itemList[itemCls.ClassID] = itemList[itemCls.ClassID] +1;
-		else
-			itemList[itemCls.ClassID] = 1;
-		end
+		local invcount = 0
 
-		-- 모아진 컬렉션 아이템 개수보다 필요한 개수가 많을때
-		if itemList[itemCls.ClassID] > collecount then
-			-- 해당 아이템 클래스에 카운터가 nil이면 0으로 초기화
-		    if itemCount[itemCls.ClassID] == nil then
-				itemCount[itemCls.ClassID]  = 0;
+		if IsReinfoCol == 0 then
+			if coll ~= nil then
+				collecount = coll:GetItemCountByType(itemCls.ClassID);    -- 해당 아이템이 해당컬렉션에서 몇개가 들어있는지
 			end
-
-			-- 인벤개수 - 카운터가 0보다 크면 실제 총 필요개수를 증가하고, 사용의 의미로 해당 카운터는 증가
-			if invcount - itemCount[itemCls.ClassID] > 0 then
-				numCnt = numCnt +1;
-				itemCount[itemCls.ClassID]  = itemCount[itemCls.ClassID] +1;
+			invcount = session.GetInvItemCountByType(itemCls.ClassID); -- 해당 아이템을 인벤에 몇개나 들고 있는지.
+			
+			-- 같은 ClassID의 아이템의 개수를 증가시킨다.
+			if itemList[itemCls.ClassID] ~= nil then
+				itemList[itemCls.ClassID] = itemList[itemCls.ClassID] +1;
+			else
+				itemList[itemCls.ClassID] = 1;
+			end
+	
+			-- 모아진 컬렉션 아이템 개수보다 필요한 개수가 많을때
+			if itemList[itemCls.ClassID] > collecount then
+				-- 해당 아이템 클래스에 카운터가 nil이면 0으로 초기화
+				if itemCount[itemCls.ClassID] == nil then
+					itemCount[itemCls.ClassID]  = 0;
+				end
+	
+				-- 인벤개수 - 카운터가 0보다 크면 실제 총 필요개수를 증가하고, 사용의 의미로 해당 카운터는 증가
+				if invcount - itemCount[itemCls.ClassID] > 0 then
+					numCnt = numCnt +1;
+					itemCount[itemCls.ClassID]  = itemCount[itemCls.ClassID] +1;
+				end
 			end
 		end
 	end
+
+	if IsReinfoCol == 1 and coll ~= nil then
+				for i = 1 , maxCount do
+					local itemName = TryGetProp(cls,"ItemName_" .. i, 'None');
+						local itemCls = GetClass("Item", itemName);
+			local reinforce = TryGetProp(cls, 'Reinforce_' .. i, 0) -- 요구 강화
+						local collecount = 1
+						if coll ~= nil then
+							collecount = coll:GetItemCountByType(itemCls.ClassID);    -- 해당 아이템이 해당컬렉션에서 몇개가 들어있는지											
+						end
+					
+			if reinf_item_list == nil then
+				make_collection_item_info_list()
+				make_reinf_item_list()
+					end					
+
+			if collecount == 0 and reinf_item_list[itemName] ~= nil and reinf_item_list[itemName][reinforce] ~= nil then				
+				numCnt = numCnt + reinf_item_list[itemName][reinforce]
+				end
+			end
+		end
 	
-	return numCnt;
+	return numCnt; -- 몇개 등록할 수 있는지 개수
 end
 
 function SET_COLLECTION_SET(frame, ctrlSet, type, coll, posY)
@@ -335,7 +537,8 @@ function SET_COLLECTION_SET(frame, ctrlSet, type, coll, posY)
 
 	-- 등록가능 숫자 표시
 	if visibleAddNum == true then
-		local numCnt= GET_COLLECT_ABLE_ITEM_COUNT(coll,type);
+		local numCnt = 0		
+		numCnt= GET_COLLECT_ABLE_ITEM_COUNT(coll,type);
 		-- cnt가 0보다 크면 num아이콘활성화
 		if numCnt > 0 then
 			if visibleAddNumFont ~= nil then
@@ -430,8 +633,7 @@ function SET_COLLECTION_SET(frame, ctrlSet, type, coll, posY)
 	return newposY;
 end
 
-function UPDATE_COLLECTION_LIST(frame, addType, removeType)
-	
+function UPDATE_COLLECTION_LIST(frame, addType, removeType, target_cls)	
 	-- frame이 활성중이 아니면 return
 	if frame:IsVisible() == 0 then
 		return;
@@ -515,9 +717,10 @@ function UPDATE_COLLECTION_LIST(frame, addType, removeType)
 	
 	-- 컬렉션 항목 입력
 	local posY = 0;
-	for index , v in pairs(collectionInfoList) do
+	for index , v in pairs(collectionInfoList) do		
 		local ctrlSet = col:CreateOrGetControlSet('collection_deck', "DECK_" .. index, 0, posY );
-		ctrlSet:ShowWindow(1);
+		ctrlSet:SetUserValue('type', v.cls.ClassID)
+		ctrlSet:ShowWindow(1);				
 		posY = SET_COLLECTION_SET(frame, ctrlSet, v.cls.ClassID, v.coll, posY) 
 		posY = posY - tonumber(frame:GetUserConfig("DECK_SPACE")); -- 가까이 붙이기 위해 좀더 위쪽으로땡김
 	end
@@ -598,7 +801,6 @@ function OPEN_DECK_DETAIL(parent, ctrl)
 	imcSound.PlaySoundEvent('cllection_inven_open');
 	local type = parent:GetUserValue("COLLECTION_TYPE");
 	local cls = GetClassByType("Collection", type);
-
 	local frame = parent:GetTopParentFrame();
 	if frame == nil then
 	 return 
@@ -631,7 +833,7 @@ function OPEN_DECK_DETAIL(parent, ctrl)
 			frame:SetUserValue("DETAIL_VIEW_TYPE", nil);
 	end
 
-	UPDATE_COLLECTION_LIST(frame);
+	UPDATE_COLLECTION_LIST(frame, nil, nil, cls);
 end
 
 
@@ -758,7 +960,8 @@ function DETAIL_UPDATE(frame, coll, detailView ,type, posY ,playEffect, isUnknow
 		for i = 1 , lineCnt do -- 
 			for j= 1, 7 do -- 1줄에 7개그림
 				local itemName = TryGetProp(cls,"ItemName_" .. num);
-			  
+				local reinforce = TryGetProp(cls, 'Reinforce_' .. num, 0)
+				local IsReinfoCol = TryGetProp(cls, 'IsReinfoCol', 0)
 				if itemName == nil or itemName == "None" then
 					brk = 1;
 					break;
@@ -770,10 +973,9 @@ function DETAIL_UPDATE(frame, coll, detailView ,type, posY ,playEffect, isUnknow
 				local x = marginX + col * (slotWidth + space);
 				local y = marginY + (row - 1) * (slotHeight + space);
 
-
 				local slotSet = detailView:CreateOrGetControlSet('collection_slot', "SLOT_" .. num, x,y );
 
-				SET_COLLECTION_PIC(frame, slotSet, itemCls, coll,type,drawitemset);
+				SET_COLLECTION_PIC(j, frame, slotSet, itemCls, coll,type, drawitemset, reinforce, IsReinfoCol);
 
 				num = num+1;
 			end -- loop j
@@ -808,20 +1010,19 @@ function GET_COLLECTION_SEARCH_TEXT(frame)
 	return nil;
 end
 
-function EXEC_PUT_COLLECTION(itemID, type)	
+function EXEC_PUT_COLLECTION(itemID, type, index)	
 	session.ResetItemList();
 	session.AddItemID(itemID);
 	local resultlist = session.GetItemIDList();
-	item.DialogTransaction("PUT_COLLECTION", resultlist, type);
+	item.DialogTransaction("PUT_COLLECTION", resultlist, type .. ' ' .. index);
 	imcSound.PlaySoundEvent("cllection_weapon_epuip");
-
 end
 
-function COLLECTION_ADD(collectionType, itemType, itemIesID)
-	if collectionType == nil or itemType == nil or itemIesID == nil then
+function COLLECTION_ADD(index, collectionType, itemType, itemIesID)
+	if index == nil or collectionType == nil or itemType == nil or itemIesID == nil then
 		return;
 	end
-
+	
 	local inv_item = session.GetInvItemByGuid(itemIesID)
 	local item_obj = GetIES(inv_item:GetObject())
 	local groupName = TryGetProp(item_obj,"GroupName","None")
@@ -837,15 +1038,24 @@ function COLLECTION_ADD(collectionType, itemType, itemIesID)
 			return
 		end
 	end
+	
+	local cls = GetClassByType('Collection', collectionType)	
+	local reinforce = TryGetProp(cls, 'Reinforce_' .. index, 0)
+	if reinforce > 0 then
+		if TryGetProp(item_obj, 'Reinforce_2', 0) ~= reinforce then
+			return
+		end
+	end
+
 	local colls = session.GetMySession():GetCollection();
 	local coll = colls:Get(collectionType);
 	local nowcnt = coll:GetItemCountByType(itemType)
 	local colinfo = geCollectionTable.Get(collectionType);
 	local needcnt = colinfo:GetNeedItemCount(itemType)
-
+	
 	if nowcnt < needcnt then
 		imcSound.PlaySoundEvent('sys_popup_open_1');
-		local yesScp = string.format("EXEC_PUT_COLLECTION(\"%s\", %d)", itemIesID, collectionType);
+		local yesScp = string.format("EXEC_PUT_COLLECTION(\"%s\", %d, %d)", itemIesID, collectionType, index);
 		ui.MsgBox(ScpArgMsg("CollectionIsSharedToTeamAndCantTakeBackItem_Continue?"), yesScp, "None");
 	end
 end
@@ -864,18 +1074,30 @@ function COLLECTION_TAKE(parent, ctrl)
 	end
 	
 	local collectionType = slot:GetUserIValue("COLLECTION_TYPE");
+	local reinforce = slot:GetUserIValue("Reinforce");	
+	local index = slot:GetUserIValue('index')		
 	local icon = slot:GetIcon();
 	local itemType = icon:GetTooltipIESID(); -- icon에 입력된 클래스 ID를 가져옴(문자열)
 
-	-- 가장 가치가 없는 아이템을 가져옴.
-	local invItemlist = GET_ONLY_PURE_INVITEMLIST(tonumber(itemType));
-	if #invItemlist < 1 or invItemlist == nil then
-		return;
+	local iesID = 0
+	if reinforce == 0 then
+		-- 가장 가치가 없는 아이템을 가져옴.
+		local invItemlist = GET_ONLY_PURE_INVITEMLIST(tonumber(itemType));
+		if #invItemlist < 1 or invItemlist == nil then
+			return;
+		end
+		iesID = invItemlist[1]:GetIESID();	
+	else
+		local cls = GetClassByType('Item', itemType)
+		local ret_list = get_inv_itemlist_by_name_and_reinforce(cls.ClassName, reinforce)
+		if #ret_list == 0 then
+			return
+		end
+		iesID = GetIESID(ret_list[1])
+
 	end
-
-	local iesID = invItemlist[1]:GetIESID();
-
-	COLLECTION_ADD(collectionType,itemType,iesID);
+	
+	COLLECTION_ADD(index, collectionType,itemType,iesID);
 
 end
 
@@ -896,8 +1118,10 @@ function COLLECTION_DROP(parent, ctrl)
 	local iesID = liftIcon:GetIESID();
 	local itemType = liftIcon.type;
 	local collectionType = slot:GetUserIValue("COLLECTION_TYPE");
+	local reinforce = slot:GetUserIValue("Reinforce");
+	local index = slot:GetUserIValue('index')
 
-	COLLECTION_ADD(collectionType,itemType,iesID);
+	COLLECTION_ADD(index, collectionType,itemType,iesID);
 end
 
 function SEARCH_COLLECTION_NAME(parent, ctrl)

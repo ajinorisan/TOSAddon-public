@@ -68,3 +68,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5500,5500,1,60,1,60000,1,2,0,0,0,0,0,"Tos_Event_Coin_NPC","TOS 주화 안내원","","","","","","","EVENT_TOS_WHOLE_NPC","","","NO","YES","NO","Neutral","","","",""
 5501,5501,1,40,1,60000,1,2,0,0,0,0,0,"Tos_Coin_Shop_NPC","[오래된 여신의 증표 상점]{nl}큐폴","","","","","","","PREVIOUS_COIN_SHOP","","","NO","YES","NO","Netural","","","",""
 5502,5502,1,40,1,60000,1,2,0,0,0,0,0,"npc_auctioneer","[블랙 마켓]{nl}경매인","","","","","","BLACK_MARKET_AI","BLACK_MARKET","","","NO","YES","NO","Neutral","","","",""
+5503,5503,1,40,1,60000,1,1,0,0,0,0,0,"npc_desperado","[데스페라도 마스터]{nl}가브리엘레","","","","","","","NPC_DESPERADO","","","NO","YES","NO","Neutral","","","",""

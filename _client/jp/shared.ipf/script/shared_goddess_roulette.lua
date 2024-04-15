@@ -41,7 +41,7 @@ function GET_ROULETTE_COIN_CLASSNAME(type)
         ["GODDESS_ROULETTE"] = "Event_Roulette_Coin_3",
         ["GODDESS_COSTUME_ROULETTE"] = "Event_Roulette_Coin_4",
         ["GODDESS_RAINBOW_ROULETTE"] = "Event_Roulette_Coin_5",
-        ["POPO_ROULETTE"] = "Event_Roulette_Coin_PoPo_2312"
+        ["POPO_ROULETTE"] = "Event_Roulette_Coin_PoPo_2404"
     }
 
 	return table[type];

@@ -23,6 +23,7 @@ ClassID,ClassName,Job,Script,UnEquipScript
 51109,"Bulletmarker_TracerBullet","Char5_12","SCR_SKILL_PASSIVE_Bulletmarker_TracerBullet",""
 51404,"Rangda_Penyerapan","Char5_15","SCR_SKILL_PASSIVE_Rangda_Penyerapan",""
 51703,"Jaguar_TargetOfHunt","Char5_18","SCR_SKILL_PASSIVE_Jaguar_TargetOfHunt",""
+51708,"Desperado_BadGuy","Char5_19","SCR_SKILL_PASSIVE_Desperado_BadGuy",""
 141009,"Common_Highlander_Defiance","Common","SCR_SKILL_PASSIVE_Highlander_Defiance","SCR_UNEQUIP_PASSIVE_Highlander_Defiance"
 141010,"Common_Barbarian_Frenzy","Common","SCR_SKILL_PASSIVE_Barbarian_Frenzy",""
 141042,"Common_Enchanter_EnchantLightning","Common","SCR_SKILL_PASSIVE_Enchanter_EnchantLightning","SCR_UNEQUIP_PASSIVE_Enchanter_EnchantLightning"

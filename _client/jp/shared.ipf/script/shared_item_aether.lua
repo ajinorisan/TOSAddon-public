@@ -331,6 +331,24 @@ function IS_ABLE_TO_USE_AETHER_LVUP_SCROLL(item, scroll)
 	return false, 'DontUseItem'
 end
 
+
+function IS_ABLE_TO_CONVERT_AETHER_GEM(aether, scroll)
+    if TryGetProp(aether, 'NumberArg1', 0) ~= TryGetProp(scroll, 'NumberArg1', 0) then
+        return false, 'NotValidItem'
+    end
+    
+    if TryGetProp(aether, 'GemType', 'None') ~= 'Gem_High_Color' then
+        return false, 'NotValidItem'
+    end
+
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'AetherConvertScroll' then
+        return false, 'NotValidItem'
+    end
+
+    return true, 'None'
+end
+
+
 -- 테스트
 function test_reset_aether_gem_reinforce_count(self)
     exprop_set_aether_gem_reinforce_max_count(self, 5);

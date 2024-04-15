@@ -824,7 +824,7 @@ function MAKE_BASIC_REWARD_MONEY_CTRL_WITH_BONUS(box, cls, y)
 	if count > 0 then
 		local is_multi = false
 		local multiple_rate = 1
-		local acc_obj = GetMyAccountObj()
+		--[[ local acc_obj = GetMyAccountObj()
 		local ep_cls = GetClassByNumProp('Episode_Quest', 'QuestID', cls.ClassID)
 		if acc_obj ~= nil and ep_cls ~= nil then
 			local ep_name = TryGetProp(ep_cls, 'EpisodeName', 'None')
@@ -837,7 +837,7 @@ function MAKE_BASIC_REWARD_MONEY_CTRL_WITH_BONUS(box, cls, y)
 				count = count * multiple_rate
 				is_multi = true
 			end
-		end
+		end ]]
 
         y = MAKE_ITEM_TAG_TEXT_CTRL(y, box, "reward_item", 'Vis', count, 1, is_multi, multiple_rate);
     end

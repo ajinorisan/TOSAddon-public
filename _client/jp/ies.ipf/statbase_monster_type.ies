@@ -151,6 +151,8 @@ ClassID,MHP,ATK,DEF,MDEF,AVERAGE_DEF,ReinforceWeapon,TranscendWeapon,ReinforceAr
 1205,150000,500,2300,2300,1,30,10,30,10,100,0,0,800,350,150,150,100,250,0,1,"BountyHunt_Boss_NPC","","Legend","Legend"
 1301,50000,170,500,500,1,16,10,16,10,100,0,0,300,400,150,150,100,100,0,1,"Earring_Normal","","Legend","Legend"
 1302,30000,250,700,700,1,30,10,30,10,100,0,0,500,500,150,150,100,100,0,1,"Earring_Boss","","Legend","Legend"
+1303,80000,170,500,500,1,16,10,16,10,100,0,0,300,400,150,150,100,100,0,1,"Season_Earring_Normal","","Legend","Legend"
+1304,100000,250,700,700,1,30,10,30,10,100,0,0,500,500,150,150,100,100,0,1,"Season_Earring_Boss","","Legend","Legend"
 1401,200000,520,1320,1320,2,16,10,16,10,100,0,0,300,400,150,150,100,100,0,2,"boss_RevivalPaulius_Extreme","","Legend","Legend"
 1402,200000,465,1320,1320,2,30,10,30,10,100,0,0,900,500,150,150,100,100,0,2,"boss_RevivalPaulius_Party","","Legend","Legend"
 1403,190000,500,2550,2550,2,30,10,30,10,100,0,0,900,300,150,150,100,100,0,2,"boss_RevivalPaulius_Summon","","Legend","Legend"

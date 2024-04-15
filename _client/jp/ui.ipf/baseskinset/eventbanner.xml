@@ -67,6 +67,11 @@
 		<image name="Guardian_news" file="\event_banner\Guardian_news.jpg" imgrect="0 0 480 180"/>
 		<image name="tpmedal_news_480x180" file="\event_banner\tpmedal_news_480x180.jpg" imgrect="0 0 480 180"/>
 		<image name="LuckySpring_News_480x180" file="\event_banner\LuckySpring_News_480x180.jpg" imgrect="0 0 480 180"/>
+		<image name="tos_ingame" file="\event_banner\tos_ingame.png" imgrect="0 0 480 180"/>
+		<image name="20bonus_news_480X180" file="\event_banner\20bonus_news_480X180.jpg" imgrect="0 0 480 180"/>
+		<image name="TPMEDAL_In-game_News_480x180" file="\event_banner\TPMEDAL_In-game_News_480x180.jpg" imgrect="0 0 480 180"/>
+		<image name="Easter_In-game_News_480x180" file="\event_banner\Easter_In-game_News_480x180.jpg" imgrect="0 0 480 180"/>
+		<image name="240401_Cube" file="\event_banner\240401_Cube.jpg" imgrect="0 0 480 180"/>
 		<!-- TP Banner -->
 		<image name="1031_Ingame_TP_Sop_banner" file="\event_banner\1031_Ingame_TP_Sop_banner.png" imgrect="0 0 520 250"/>
 		<image name="1107Costume_TPShop" file="\event_banner\1107Costume_TPShop.png" imgrect="0 0 520 250"/>
@@ -81,7 +86,11 @@
 		<image name="0206_In_game_TP_Shop_banner" file="\event_banner\0206_In_game_TP_Shop_banner.png" imgrect="0 0 520 250"/>
 		<image name="0213_In_game_TP_shop_banner" file="\event_banner\0213_In_game_TP_shop_banner.png" imgrect="0 0 520 250"/>
 		<image name="tpmedal_tp_520x250" file="\event_banner\tpmedal_tp_520x250.png" imgrect="0 0 520 250"/>
+		<image name="240401_Cube_TP" file="\event_banner\240401_Cube_TP.png" imgrect="0 0 520 250"/>
 		<!-- 해외 JPN/STM 전용 이미지 고정 경로 터치 금지 끝 -->
+		<image name="event2404_leticia" file="\event_banner\event2404_leticia.png" imgrect="0 0 480 180"/>
+		<image name="event2404_friends" file="\event_banner\event2404_friends.png" imgrect="0 0 480 180"/>
+		<image name="event2404_5tp" file="\event_banner\event2404_5tp.png" imgrect="0 0 480 180"/>
 		<image name="event2403_leticia" file="\event_banner\event2403_leticia.png" imgrect="0 0 480 180"/>
 		<image name="event2402_leticia" file="\event_banner\event2402_leticia.png" imgrect="0 0 480 180"/>
 		<image name="package2402_newyear" file="\event_banner\package2402_newyear.png" imgrect="0 0 480 180"/>
@@ -509,5 +518,8 @@
 		<image name="popoboost_banner_2024_TAI" file="\popoboost_banner\popo_TWN_2024.png" imgrect="0 0 1200 150"/>
 		<image name="popoboost_banner_2023_PAPAYA" file="\popoboost_banner\popo_PAPAYA.png" imgrect="0 0 1200 150"/>
 		<image name="popoboost_banner_2401_PAPAYA" file="\popoboost_banner\popo_PAPAYA2.png" imgrect="0 0 1200 200"/>
+		<image name="popoboost_banner_2404_KOR" file="\popoboost_banner\popo_KR3.png" imgrect="0 0 1200 200"/>
+		<image name="popoboost_banner_2404_GLOBAL" file="\popoboost_banner\popo_GLO3.png" imgrect="0 0 1200 200"/>
+		<image name="popoboost_banner_2404_JP" file="\popoboost_banner\popo_JP3.png" imgrect="0 0 1200 200"/>
 	</imagelist>
 </skinset>

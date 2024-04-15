@@ -311,6 +311,17 @@ function GET_CHILD_RECURSIVELY(frame, name)
 
 end
 
+function GET_CHILD_RECURSIVELY_NAME(frame, childName)
+	local child = frame;
+	for name in string.gmatch(childName, "[^/]+") do
+        child = GET_CHILD(child, name)
+        if child == nil then 
+			return nil; 
+    	end
+	end
+	return child;
+end
+
 function AUTO_CAST(ctrl)
 	ctrl = tolua.cast(ctrl, ctrl:GetClassString());
 	return ctrl;

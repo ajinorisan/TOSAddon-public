@@ -1,4 +1,64 @@
 ﻿-- util
+
+-- 필드 몬스터 방어력 일괄 조정
+local function revise_mon_def(self, def)
+    if GetExProp(self, 'IsChallengeModeMon') == 1 or GetExProp(self, 'IsChallengeModeMon_HardMode') == 1 or GetExProp(self, 'IS_SUMMONED_MONSTER') == 1 then
+        return def
+    end
+
+    local zone_name = GetZoneName(self)
+    local cls = GetClass('Map', zone_name)
+    if cls == nil then
+        return def
+    end
+
+    local MapType = TryGetProp(cls, 'MapType', 'None')
+    local lv = TryGetProp(cls, "QuestLevel", 1)
+    local mon_lv = TryGetProp(self, "Lv", 1)
+    if lv >= 460 or mon_lv >= 490 then
+        return def
+    end
+    local is_boss = TryGetProp(self, 'MonType', 'None') == 'Boss'
+    if MapType == 'Field' then
+        def = def * 1.1
+    end
+    return def
+end
+
+local function revise_mon_hp(self, hp)
+    if GetExProp(self, 'IsChallengeModeMon') == 1 or GetExProp(self, 'IsChallengeModeMon_HardMode') == 1 or GetExProp(self, 'IS_SUMMONED_MONSTER') == 1 then
+        return hp
+    end
+    
+    local zone_name = GetZoneName(self)
+
+    if zone_name == 'onehour_test1' then
+        return hp
+    end
+
+    local cls = GetClass('Map', zone_name)
+    if cls == nil then
+        return hp
+    end
+    local MapType = TryGetProp(cls, 'MapType', 'None')
+    local lv = TryGetProp(cls, "QuestLevel", 1)
+
+    local mon_lv = TryGetProp(self, "Lv", 1)    
+    if lv >= 460 or mon_lv >= 490 then        
+        return hp
+    end
+    local is_boss = TryGetProp(self, 'MonType', 'None') == 'Boss'
+    if MapType == 'Field' then
+        if is_boss == true then
+            hp = hp * 7
+        else
+            hp = hp * 3.5
+        end        
+    end
+    
+    return hp
+end
+
 function GET_MON_STAT(self, lv, statStr)
     -- Sum MaxStat --
     local allStatMax = 10 + (lv * 2);
@@ -246,10 +306,12 @@ function SCR_Get_MON_MHP(self)
     local zone_name = GetZoneName(self)
     if zone_name ~= nil then
         local prefix = 'field_monster_status_' .. zone_name
-        local spec_cls = GetClass(prefix, self.ClassName)
-        if spec_cls ~= nil and GetExProp(self, 'IsChallengeModeMon') == 0 then
-            if TryGetProp(spec_cls, 'MHP', 0) > 0 then
-                return TryGetProp(spec_cls, 'MHP', 0) 
+        if GetExProp(self, 'IsChallengeModeMon') == 0 then
+            local spec_cls = GetClass(prefix, self.ClassName)
+            if spec_cls ~= nil then
+                return revise_mon_hp(self, TryGetProp(spec_cls, 'MHP', 0));
+            else
+                return revise_mon_hp(self, math.floor(value));
             end
         end
     end    
@@ -443,13 +505,15 @@ function SCR_Get_MON_DEF(self)
     end
     
     local zone_name = GetZoneName(self)
-    local prefix = 'field_monster_status_' .. zone_name
-    local spec_cls = GetClass(prefix, self.ClassName)
-        if spec_cls ~= nil and GetExProp(self, 'IsChallengeModeMon') == 0 then
-        if TryGetProp(spec_cls, 'DEF', 0) > 0 then
-            return TryGetProp(spec_cls, 'DEF', 0) 
+    local prefix = 'field_monster_status_' .. zone_name    
+    if GetExProp(self, 'IsChallengeModeMon') == 0 then
+        local spec_cls = GetClass(prefix, self.ClassName)
+        if spec_cls ~= nil then
+            return revise_mon_def(self, TryGetProp(spec_cls, 'DEF', 0));
+        else
+            return revise_mon_def(self, math.floor(value));
         end
-    end
+    end    
 
     return math.floor(value)
 end
@@ -551,10 +615,12 @@ function SCR_Get_MON_MDEF(self)
     
     local zone_name = GetZoneName(self)
     local prefix = 'field_monster_status_' .. zone_name
-    local spec_cls = GetClass(prefix, self.ClassName)
-    if spec_cls ~= nil and GetExProp(self, 'IsChallengeModeMon') == 0 then
-        if TryGetProp(spec_cls, 'MDEF', 0) > 0 then
-            return TryGetProp(spec_cls, 'MDEF', 0) 
+    if GetExProp(self, 'IsChallengeModeMon') == 0 then
+        local spec_cls = GetClass(prefix, self.ClassName)
+        if spec_cls ~= nil then
+            return revise_mon_def(self, TryGetProp(spec_cls, 'MDEF', 0));
+        else
+            return revise_mon_def(self, math.floor(value));
         end
     end
     

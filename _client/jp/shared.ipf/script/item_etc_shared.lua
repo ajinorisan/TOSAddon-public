@@ -43,6 +43,11 @@ function GET_LIMITATION_TO_BUY(tpItemID)
         return 'CUSTOM', customCount
     end
 
+    local dailyCount = TryGetProp(tpItemObj, "AccountLimitDailyCount", 0);
+    if dailyCount > 0 then
+        return 'DAILY', dailyCount;
+    end
+
     return 'NO', 0;
 end
 
@@ -90,6 +95,11 @@ function GET_LIMITATION_TO_BUY_WITH_SHOPTYPE(tpItemID, shopType)
     local customCount = TryGetProp(tpItemObj, 'AccountLimitCustomCount', 0)    
     if customCount > 0 then
         return 'CUSTOM', customCount
+    end
+
+    local dailyCount = TryGetProp(tpItemObj, "AccountLimitDailyCount", 0);
+    if dailyCount > 0 then
+        return 'DAILY', dailyCount;
     end
 
     return 'NO', 0;

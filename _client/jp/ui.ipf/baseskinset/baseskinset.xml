@@ -9578,6 +9578,7 @@
 		<image name="Map_Ep15_2_Raid_2" file="\skin\indunmap\Map_Raid_Slogutis.png" imgrect="0 0 295 450" CMM_Caption="심연의 관찰자"/>
 		<image name="Map_Bridge_Wailing_Dimension" file="\skin\indunmap\Map_Bridge_Wailing_Dimension.png" imgrect="0 0 295 450" CMM_Caption="통곡의 다리 - 이공간"/>
 		<image name="Map_Raid_Kivotos_Island" file="\skin\indunmap\Map_Raid_Kivotos_Island.png" imgrect="0 0 295 450" CMM_Caption="절망의 섬"/>
+		<image name="Map_SeasonEarringRaid" file="\skin\indunmap\Map_SeasonEarringRaid.png" imgrect="0 0 295 450" CMM_Caption="시즌 여신의 전언: 운명의 여흔"/>
 	</imagelist>
 	<imagelist category="jootest_image">
 		<image name="market_hairacc" file="\skin\market_skin.tga" imgrect="1927 447 60 60" CMM_Caption="마켓_헤어악세사리"/>
@@ -13422,6 +13423,8 @@
 		<image name="emoticonItem_2312_165" file="\icon\emoticon\snigo_no.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2402_1" file="\icon\emoticon\snigo_acha.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2402_2" file="\icon\emoticon\snigo_chear.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2404_168" file="\icon\emoticon\snigo_yami.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2404_169" file="\icon\emoticon\snigo_box.png" imgrect="0 0 128 128"/>
 	</imagelist>
 	<imagelist category="itemtooltip_image">
 		<image name="circle_gem" file="\skin\tooltip_skin_3.tga" imgrect="805 228 30 30"/>
@@ -14047,6 +14050,7 @@
 		<image name="icon_gesture_RustleDance" file="\icon\social.tga" imgrect="244 730 80 80"/>
 		<image name="icon_gesture_Luchador" file="\icon\social.tga" imgrect="325 730 80 80"/>
 		<image name="icon_gesture_flower_scent" file="\icon\social.tga" imgrect="405 730 80 80"/>
+		<image name="icon_gesture_queencard" file="\icon\social.tga" imgrect="1 811 80 80"/>
 	</imagelist>
 	<imagelist>
 		<image name="chat_page_arrow_left" file="\skin\mainframe_A.tga" imgrect="766 943 40 40"/>
@@ -14772,6 +14776,7 @@
 		<image name="Dlg_port_IllusionistMaster" file="\npcimg\Illusionist_Master.png" imgrect="0 0 800 946" CMM_Caption="일루저니스트"/>
 		<image name="Dlg_port_WingedhussarMaster" file="\npcimg\Wingedhussar_Master.png" imgrect="0 0 726 1000" CMM_Caption="윙드후사르"/>
 		<image name="Dlg_port_bowmaster" file="\npcimg\bowmaster_master.png" imgrect="0 0 1000 1159" CMM_Caption="신궁"/>
+		<image name="Dlg_port_desperado" file="\npcimg\desperado_master.png" imgrect="0 0 800 874" CMM_Caption="데스페라도"/>
 	</imagelist>
 	<imagelist category="Dlg_boss">
 		<image name="balloon_Skiaclipse" file="\skin\monster_Dlg.tga" imgrect="0 0 220 260" CMM_Caption="스키아클립스"/>
@@ -15039,6 +15044,7 @@
 		<image name="icon_reinforce_discount" file="\icon\buff_icon2.tga" imgrect="256 1664 128 128" CMM_Caption="강화 50% 할인"/>
 		<image name="icon_healhsp_speedup" file="\icon\buff_icon2.tga" imgrect="384 1664 128 128" CMM_Caption="이동 속도증가,HP,SP회복"/>
 		<image name="icon_ability_archer_TigerHunter9" file="\icon\buff_icon2.tga" imgrect="512 1664 128 128" CMM_Caption="산포 버프 아이콘"/>
+		<image name="icon_ability_archer_bowmaster11" file="\icon\icon_ability_archer11.tga" imgrect="896 0 128 128" CMM_Caption=""/>
 		<image name="icon_pet_sparrow_buff" file="\icon\buff_icon2.tga" imgrect="640 1664 128 128" CMM_Caption="참새 버프"/>
 		<image name="icon_Ancient_Fire_Buff" file="\icon\buff_icon2.tga" imgrect="768 1664 128 128" CMM_Caption="불속성"/>
 		<image name="icon_Ancient_Ice_Buff" file="\icon\buff_icon2.tga" imgrect="896 1664 128 128" CMM_Caption="얼음속성"/>
@@ -15557,7 +15563,7 @@
 		<image name="icon_Spreader_falloutism" file="\icon\buff_icon6.tga" imgrect="256 1664 128 128" CMM_Caption="변질의 전파자 순례자 - 낙석주의"/>
 		<image name="icon_Spreader_transition_Crystal" file="\icon\buff_icon6.tga" imgrect="384 1664 128 128" CMM_Caption="변질의 전파자 순례자 - 변이의 수정"/>
 		<image name="icon_Spreader_Intrusion" file="\icon\buff_icon6.tga" imgrect="512 1664 128 128" CMM_Caption="변질의 전파자 순례자 - 난입"/>
-		<image name="icon_Spreader_Broken_Crystal" file="\icon\buff_icon6.tga" imgrect="512 1664 128 128" CMM_Caption="변질의 전파자 순례자 - 부서진 수정"/>
+		<image name="icon_Spreader_Broken_Crystal" file="\icon\buff_icon6.tga" imgrect="640 1664 128 128" CMM_Caption="변질의 전파자 순례자 - 부서진 수정"/>
 		<image name="icon_Jellyzele_Poison_Puddle" file="\icon\buff_icon6.tga" imgrect="768 1664 128 128" CMM_Caption="변질의 전파자 순례자 - 맹독 물웅덩이"/>
 		<image name="icon_Jellyzele_Petulance" file="\icon\buff_icon6.tga" imgrect="896 1664 128 128" CMM_Caption="젤리젤 순례자 - 짜증을 잘내는 젤리젤"/>
 		<image name="icon_Jellyzele_Pollution_Sea" file="\icon\buff_icon6.tga" imgrect="0 1792 128 128" CMM_Caption="젤리젤 순례자 - 부식된 바다"/>
@@ -15596,6 +15602,18 @@
 		<image name="icon_raid_despairisland_auto_clear" file="\icon\buff_icon7.tga" imgrect="256 256 128 128" CMM_Caption="절망의 섬 자동 소탕 버프"/>
 		<image name="icon_buff_ridepet_peacock" file="\icon\buff_icon7.tga" imgrect="384 256 128 128" CMM_Caption="공작새"/>
 		<image name="icon_buff_ridepet_bluedragon" file="\icon\buff_icon7.tga" imgrect="512 256 128 128" CMM_Caption="푸른 용"/>
+		<image name="icon_buff_ridepet_ep16yongyong" file="\icon\buff_icon7.tga" imgrect="640 256 128 128" CMM_Caption="용용이"/>
+		<image name="icon_buff_SuperBossSkill_1" file="\icon\buff_icon7.tga" imgrect="768 256 128 128" CMM_Caption="광선 충격"/>
+		<image name="icon_buff_SuperBossSkill_2" file="\icon\buff_icon7.tga" imgrect="896 256 128 128" CMM_Caption="전방위 광선 충격"/>
+		<image name="icon_buff_SuperBossSkill_3" file="\icon\buff_icon7.tga" imgrect="0 384 128 128" CMM_Caption="용암 분출"/>
+		<image name="icon_buff_SuperBossSkill_4" file="\icon\buff_icon7.tga" imgrect="128 384 128 128" CMM_Caption="광선 낙하"/>
+		<image name="icon_buff_SuperBossSkill_5" file="\icon\buff_icon7.tga" imgrect="256 384 128 128" CMM_Caption="암흑 공명진"/>
+		<image name="icon_buff_SuperBossSkill_6" file="\icon\buff_icon7.tga" imgrect="384 384 128 128" CMM_Caption="거미줄"/>
+		<image name="icon_buff_SuperBossSkill_8" file="\icon\buff_icon7.tga" imgrect="512 384 128 128" CMM_Caption="암흑 오라"/>
+		<image name="icon_buff_SuperBossSkill_7" file="\icon\buff_icon7.tga" imgrect="640 384 128 128" CMM_Caption="암흑 포격"/>
+		<image name="icon_buff_SuperBossSkill_9" file="\icon\buff_icon7.tga" imgrect="768 384 128 128" CMM_Caption="피의 마법진"/>
+		<image name="icon_buff_SuperBossSkill_10" file="\icon\buff_icon7.tga" imgrect="896 384 128 128" CMM_Caption="감전 고리"/>
+		<image name="icon_buff_SuperBossSkill_11" file="\icon\buff_icon7.tga" imgrect="0 512 128 128" CMM_Caption="암흑 고리"/>
 	</imagelist>
 	<imagelist category="housing_bufficon">
 		<image name="icon_Weapon_Klaida" file="\icon\icon_hosing_buff.tga" imgrect="0 0 128 128"/>
@@ -16410,7 +16428,10 @@
 		<image name="plate_achieve_DespairIsland_silver" file="\skin\user_title_skin2.tga" imgrect="1070 136 214 34"/>
 		<image name="plate_achieve_DespairIsland_bronze" file="\skin\user_title_skin2.tga" imgrect="0 170 214 34"/>
 		<image name="plate_achieve_DespairIsland_achivement" file="\skin\user_title_skin2.tga" imgrect="214 170 214 34" CMM_Caption="절망의 섬 업적 칭호"/>
-		</imagelist>
+		<image name="plate_achieve_Dream_of_a_Popolion" file="\skin\user_title_skin2.tga" imgrect="0 204 214 34" CMM_Caption="절망의 섬 업적 칭호"/>
+		<image name="plate_achieve_Desperado_weekraid" file="\skin\user_title_skin2.tga" imgrect="214 204 214 34" CMM_Caption="데스페라도 주보레 칭호"/>
+		<image name="plate_achieve_Desperado" file="\skin\user_title_skin2.tga" imgrect="428 204 214 34" CMM_Caption="데스페라도 칭호"/>
+	</imagelist>
 	<imagelist category="skin_hair">
 		<image name="icon_skintone_01_m01" file="\skin\skinhair\icon_skintone_01_m01.png" imgrect="0 0 80 80" CMM_Caption="남성 01"/>
 		<image name="icon_skintone_01_m02" file="\skin\skinhair\icon_skintone_01_m02.png" imgrect="0 0 80 80" CMM_Caption=""/>
@@ -16570,6 +16591,7 @@
 		<image name="ridepet_snigo" file="\icon\ridepet.tga" imgrect="480 160 80 80" CMM_Caption="형상기억 스니고"/>
 		<image name="ridepet_peacock" file="\icon\ridepet.tga" imgrect="560 160 80 80" CMM_Caption="공작새"/>
 		<image name="ridepet_bluedragon" file="\icon\ridepet.tga" imgrect="0 240 80 80" CMM_Caption="푸른 용"/>
+		<image name="ridepet_ep16yongyong" file="\icon\ridepet.tga" imgrect="80 240 80 80" CMM_Caption="용용이"/>
 	</imagelist>
 	<effectimagelist category="effectlist">
 		<image name="blue_orb" file="\icon\blue_orb.tga" imgrect="0 0 256 256"/>
@@ -16705,9 +16727,6 @@
 		<image name="popoboost_guide_frame_image" file="\skin\popoboost_event_skin.tga" imgrect="650 125 500 400"/>
 		<image name="popoboost_reward_frame_image2" file="\skin\popoboost_event_skin.tga" imgrect="350 650 350 155"/>
 		<image name="popoboost_reward_frame_image3" file="\skin\popoboost_event_skin.tga" imgrect="350 805 350 155"/>
-		<!-- <image name="popoboost_gearscore_button" file="\skin\popoboost_event_skin.tga" imgrect="0 280 138 54"/>
-		<image name="popoboost_gearscore_button_cursoron" file="\skin\popoboost_event_skin.tga" imgrect="0 334 138 54"/>
-		<image name="popoboost_gearscore_button_clicked" file="\skin\popoboost_event_skin.tga" imgrect="0 334 138 54"/> -->
 		<image name="popoboost_minimized_button" file="\skin\popoboost_event_skin.tga" imgrect="0 388 72 72"/>
 		<image name="popoboost_minimized_button_cursoron" file="\skin\popoboost_event_skin.tga" imgrect="72 388 72 72"/>
 		<image name="popoboost_minimized_button_clicked" file="\skin\popoboost_event_skin.tga" imgrect="72 388 72 72"/>
@@ -16721,6 +16740,8 @@
 		<image name="popoboost_gearscore_4" file="\skin\popoboost_event_skin.tga" imgrect="573 585 80 28"/>
 		<image name="popoboost_gearscore_5" file="\skin\popoboost_event_skin.tga" imgrect="733 585 80 28"/>
 		<image name="popoboost_gearscore_6" file="\skin\popoboost_event_skin.tga" imgrect="893 585 80 28"/>
+		<image name="popoboost_gearscore_7" file="\skin\popoboost_event_skin.tga" imgrect="1053 585 80 28"/>
+		<image name="popoboost_gearscore_8" file="\skin\popoboost_event_skin.tga" imgrect="0 613 80 28"/>
 		<image name="popoboost_gearscore_reach_0" file="\skin\popoboost_event_skin.tga" imgrect="0 585 93 28"/>
 		<image name="popoboost_gearscore_reach_1" file="\skin\popoboost_event_skin.tga" imgrect="173 585 80 28"/>
 		<image name="popoboost_gearscore_reach_2" file="\skin\popoboost_event_skin.tga" imgrect="333 585 80 28"/>
@@ -16728,6 +16749,8 @@
 		<image name="popoboost_gearscore_reach_4" file="\skin\popoboost_event_skin.tga" imgrect="653 585 80 28"/>
 		<image name="popoboost_gearscore_reach_5" file="\skin\popoboost_event_skin.tga" imgrect="813 585 80 28"/>
 		<image name="popoboost_gearscore_reach_6" file="\skin\popoboost_event_skin.tga" imgrect="973 585 80 28"/>
+		<image name="popoboost_gearscore_reach_7" file="\skin\popoboost_event_skin.tga" imgrect="1133 585 80 28"/>
+		<image name="popoboost_gearscore_reach_8" file="\skin\popoboost_event_skin.tga" imgrect="80 613 80 28"/>
 		<image name="popoboost_banner" file="\skin\popoboost\popoboost_banner.png" imgrect="0 0 512 64"/>
 		<image name="popoboost_poporion" file="\skin\popoboost\popoboost_poporion.png" imgrect="0 0 250 150"/>
 		<image name="popoboost_guideImage0" file="\skin\popoboost\popoboost_guideImage0.png" imgrect="0 0 300 400"/>
@@ -16767,7 +16790,6 @@
 	</imagelist>
 	<imagelist category="cupole">
 		<image name="cupole_ui_head" file="\skin\cupole_hud.tga" imgrect="1 1 590 76"/>
-
 		<image name="cupole_1" file="\skin\cupole_bg\cupole_base.png" imgrect="0 0 400 1080"/>
 		<image name="cupole_2" file="\skin\cupole_bg\cupole_base.png" imgrect="198 0 198 102"/>
 		<image name="cupole_3" file="\skin\cupole_bg\cupole_base.png" imgrect="396 0 198 102"/>
@@ -16775,5 +16797,7 @@
 		<image name="cupole_5" file="\skin\cupole_bg\cupole_base.png" imgrect="984 0 198 102"/>
 		<image name="cupole_7" file="\skin\cupole_bg\cupole_base.png" imgrect="1176 0 198 102"/>
 	</imagelist>
-
+	<imagelist category="friendinvite">
+		<image name="friendletter" file="\skin\friendinvite.png" imgrect="0 0 72 72"/>
+	</imagelist>
 </skinset>

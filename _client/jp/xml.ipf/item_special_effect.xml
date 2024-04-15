@@ -4173,6 +4173,16 @@
 			</Creation>
 		</Layer>
 	</ItemList>
+	<ItemList ItemClassName="wing_desperado">
+		<Layer effect="BodyAura_FloatingAsh_Red_01" TargetNode="Dummy_wing2" scale="1.0" offset="0;0">
+			<Creation>
+				<Property PlayMoment="None">
+					<Option ReinforceValue="0" UseAttach="YES" Use2DEffect="NO" IgnoreAnimEventEffect="NO" SubWeaponPistol="NO" UnityEffect="YES"/>
+					<Sound SoundName="None" SoundVolume="1"/>
+				</Property>
+			</Creation>
+		</Layer>
+	</ItemList>
 	<ItemList ItemClassName="wing_bowmaster">
 		<Layer effect="BodyAura_Light_White_01" TargetNode="Dummy_wing" scale="1" offset="-7;5">
 			<Creation>

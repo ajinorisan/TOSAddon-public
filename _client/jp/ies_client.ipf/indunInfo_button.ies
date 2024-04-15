@@ -24,3 +24,5 @@ ClassID,ClassName,DungeonType,SubType,RedButtonText,RedButtonScp,Button1Text,But
 24,"LevelDungeonPeriodic","MissionIndun","Level","입장하기","REQ_LEVEL_DUNGEON_UI_OPEN","","","","","",""
 25,"RaidHardMode","Raid","Hard","입장하기","INDUNINFO_MOVE_TO_ENTER_HARD","","","","","",""
 26,"BridgeWailingParty","BridgeWailing","Party","입장하기","REQ_BRIDGE_WAILING_ENTER","","","","","",""
+27,"SeasonChallenge","SeasonChallenge","Party","입장하기","REQ_CHALLENGE_AUTO_UI_OPEN","","","","","",""
+28,"SeasonEarringRaid","SeasonEarringRaid","Party","입장하기","REQ_EARRING_RAID_UI_OPEN","","","","","",""

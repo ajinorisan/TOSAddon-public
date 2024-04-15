@@ -4299,7 +4299,7 @@ function SCR_Get_SkillFactor_DoubleBullet(skill)
     local DoubleBulletSkill = GetSkill(pc, "Schwarzereiter_DoubleBullet")
     local value = 0
     if DoubleBulletSkill ~= nil then
-        value = DoubleBulletSkill.SklFactor + DoubleBulletSkill.SklFactorByLevel * (DoubleBulletSkill.Level - 1)
+        value = SCR_Get_SkillFactor_Reinforce_Ability(DoubleBulletSkill)
     end
     
     return math.floor(value)
@@ -15921,7 +15921,7 @@ end
 function SCR_Get_SkillFactor_Vibora_Granada(skill)
     local pc = GetSkillOwner(skill)
     local Granada = GetSkill(pc, "Arditi_Granata")
-    local value = TryGetProp(Granada, "SkillFactor", 0)
+    local value = TryGetProp(Granada, "SkillFactor", 0) * 6
 
     value = value * 0.5
 
@@ -15934,7 +15934,7 @@ function SCR_Get_SkillFactor_Vibora_KnifeThrow(skill)
     local Knife = GetSkill(pc, "Rogue_KnifeThrowing")
     local value = TryGetProp(Knife, "SkillFactor", 0)
     
-    value = value * 0.6
+    value = value * 2 * 0.6
     
     return value
 end
@@ -16639,19 +16639,19 @@ function SCR_Get_SkillFactor_Tempest(skill)
     local sklFactor_4 = 0
     
     if skl1 ~= nil then
-        sklFactor_1 = TryGetProp(skl1, "SkillFactor", 0) * 2
+        sklFactor_1 = TryGetProp(skl1, "SkillFactor", 0) * 4
     end
     
     if skl2 ~= nil then
-        sklFactor_2 = TryGetProp(skl2, "SkillFactor", 0) * 2
+        sklFactor_2 = TryGetProp(skl2, "SkillFactor", 0) * 4
     end
     
     if skl3 ~= nil then
-        sklFactor_3 = TryGetProp(skl3, "SkillFactor", 0)
+        sklFactor_3 = TryGetProp(skl3, "SkillFactor", 0) * 2
     end
     
     if skl4 ~= nil then
-        sklFactor_4 = TryGetProp(skl4, "SkillFactor", 0)
+        sklFactor_4 = TryGetProp(skl4, "SkillFactor", 0) * 2
     end
     
     
@@ -16750,12 +16750,12 @@ function SCR_Get_SkillFactor_Priest_MassHeal(skill)
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_SkillFactor_Clown_Knife(skill)
+function SCR_Get_SkillFactor_Clown_Knife(skill) -- 포켓 나이프
     local pc = GetSkillOwner(skill);
     local value = 1000
     local GuidedShotSkill = GetSkill(pc, 'Clown_Replica');
     if GuidedShotSkill ~= nil then
-        value = TryGetProp(GuidedShotSkill, "SkillFactor", 1000) * 0.4
+        value = TryGetProp(GuidedShotSkill, "SkillFactor", 1000)
     end
 
     return value
@@ -17146,7 +17146,7 @@ end
 function SCR_Get_SkillFactor_Vibora_Assassin(skill)
     local pc = GetSkillOwner(skill)
     local skl = GetSkill(pc, "Assassin_PiercingHeart")
-    local value = math.floor(TryGetProp(skl, "SkillFactor", 0))
+    local value = math.floor(TryGetProp(skl, "SkillFactor", 0)) * 2
     return value
 end
 
@@ -19151,7 +19151,7 @@ function SCR_Get_SkillFactor_Retribution_Residue(skill)
     local pc = GetSkillOwner(skill)
     local retributionSkl = GetSkill(pc, 'Templer_Retribution')
     if retributionSkl ~= nil then
-        value = math.floor(TryGetProp(retributionSkl, 'SkillFactor', 100) * 0.5) * 0.1
+        value = math.floor(TryGetProp(retributionSkl, 'SkillFactor', 100) * 0.1)
     end
     return value
 end
@@ -20307,3 +20307,162 @@ function SCR_Get_SkillFactor_Matador_CorridaFinale_Hidden(skill)
     
     return factor
 end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_BadGuy_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 0
+    if pc ~= nil then 
+        local lv = TryGetProp(skill, 'Level', 0)   
+        value = 5 * lv;
+        value = value * SCR_REINFORCEABILITY_TOOLTIP(skill)
+    end
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_BadGuy_Ratio2(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 0
+    if pc ~= nil then 
+        local lv = TryGetProp(skill, 'Level', 0)   
+        value = 0.2 * lv;
+    end
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_BadGuy_Ratio3(skill)
+    local pc = GetSkillOwner(skill);
+    local value = SCR_GET_BadGuy_Ratio2(skill)
+    value = value * 5
+    return value
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Revenged_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 12;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Equilibrium_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 12;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_DeadlyFire_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_LastManStanding_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Violent_ConsumeRatio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 10;
+    if skill == nil then return value end
+    local clsName = TryGetProp(skill, 'ClassName', 'None')
+    if clsName == "Desperado_Equilibrium" then
+        value = 1
+    elseif clsName == "Desperado_Revenged" then
+        value = 2
+    elseif clsName == "Desperado_DeadlyFire" then
+        value = 3
+    elseif clsName == "Desperado_LastManStanding" then
+        value = 6
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_RussianRoulette_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 1
+    local Desperado24 = GetExProp(pc,"Desperado24")
+    if pc ~= nil  then 
+        local lv = TryGetProp(skill, 'Level', 0)   
+        local mulfactor = 1
+        if Desperado24 == 1 then
+            mulfactor = 2
+        end
+        value = 2 * lv * mulfactor;
+        value = value * SCR_REINFORCEABILITY_TOOLTIP(skill)
+    end
+
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_SKL_COOLDOWN_RussianRoulette(skill)
+    local pc = GetSkillOwner(skill);
+    local basicCoolDown = skill.BasicCoolDown;
+    local abilAddCoolDown = GetAbilityAddSpendValue(pc, skill.ClassName, "CoolDown");
+    basicCoolDown = basicCoolDown + abilAddCoolDown;
+    
+    local coolDownClassify, zoneAddCoolDown = SCR_GET_SKILL_RESTRICT_ARG(pc, skill)
+
+    basicCoolDown = SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
+    local ret = math.floor(basicCoolDown) / 1000
+    ret = math.floor(ret) * 1000;
+    if coolDownClassify == "Fix" then
+        ret = zoneAddCoolDown;
+    elseif coolDownClassify == "Add" then
+        ret = zoneAddCoolDown + ret
+    end
+    
+    return math.floor(ret);
+end
+
+-- [아츠] 졸리 로저: 지원 포격
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Corsair_Bombardments(skill)
+    local pc = GetSkillOwner(skill)
+    local skl = GetSkill(pc, 'Corsair_HexenDropper')
+
+    if skl == nil then
+        skl = skill
+    end
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skl)
+    value = (value * 7) * 0.5
+    value = math.floor(value)    
+    return value
+end
+
+-- [아츠] 최루: 살상 가스
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Rogue_Lachrymator(skill)
+    local pc = GetSkillOwner(skill)
+    local skl = GetSkill(pc, 'Rogue_Backstab')
+
+    if skl == nil then
+        skl = skill
+    end
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skl)
+    value = (value * 2) * 0.5
+    value = math.floor(value)    
+    return value
+end
+

@@ -1,7 +1,6 @@
 ClassID,Price,PriceRatio,StampCount,ClassName,Category,Gender,ItemClassName,EquipType,JobOnly,SellStartTime,SellEndTime,PackageList,IsPremium,TAG,ItemAddDate,BuyMessage
-1,-1,0,0,"helmet_m_ep15viking","Preview_Helmet_M","M","helmet_m_ep15viking","wig","","","","","NO","","","NotBuy_Thema"
-101,-1,0,0,"helmet_f_ep15viking","Preview_Helmet_F","F","helmet_f_ep15viking","wig","","","","","NO","","","NotBuy_Thema"
-1001,-1,0,0,"costume_ep15viking_m","Preview_Costume_M","M","costume_ep15viking_m","costume","","","","","NO","","","NotBuy_Thema"
-2001,-1,0,0,"costume_ep15viking_f","Preview_Costume_F","F","costume_ep15viking_f","costume","","","","","NO","","","NotBuy_Thema"
-5001,-1,0,0,"ep15viking_shield","Preview_Weapon","","ep15viking_shield","weapon","","","","","NO","","","NotBuy_Thema"
-6001,-1,0,0,"wing_ep15viking","Preview_Wing","","wing_ep15viking","wing","","","","","NO","","","NotBuy_Thema"
+1001,-1,0,0,"costume_ep16yongyong_m","Preview_Costume_M","M","costume_ep16yongyong_m","costume","","","","","NO","","","NotBuy_Thema"
+2001,-1,0,0,"costume_ep16yongyong_f","Preview_Costume_F","F","costume_ep16yongyong_f","costume","","","","","NO","","","NotBuy_Thema"
+5001,-1,0,0,"ep16yongyong_thstaff","Preview_Weapon","","ep16yongyong_thstaff","weapon","","","","","NO","","","NotBuy_Thema"
+6001,-1,0,0,"wing_ep16yongyong01","Preview_Wing","M","wing_ep16yongyong01","wing","","","","","NO","","","NotBuy_Thema"
+6002,-1,0,0,"wing_ep16yongyong02","Preview_Wing","F","wing_ep16yongyong02","wing","","","","","NO","","","NotBuy_Thema"

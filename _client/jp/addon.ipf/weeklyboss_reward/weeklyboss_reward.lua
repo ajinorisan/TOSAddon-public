@@ -323,7 +323,7 @@ function RANKSYSTEM_RANK_REWARD_UPDATE(frame, retlist,argStr, recieved)
         
         local alreadyGet = session.rank.IsReceivedReward();
         local contentsNum = frame:GetUserIValue("CONTENTS_NUM")
-        local isPrevSeason = season_num < tonumber(session.rank.GetPrevSeason(contentsNum, 0))
+        local isPrevSeason = season_num <= tonumber(session.rank.GetPrevSeason(contentsNum, 0))
         if myrank <= retlist[i].end_rank and myrank >= retlist[i].start_rank then
             if alreadyGet==true or recieved == true then
                 WEEKLYBOSSREWARD_ITEM_BUTTON_SET(ctrl,4)

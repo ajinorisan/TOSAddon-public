@@ -56,12 +56,7 @@
                     <Str Str="voice_scout_m_fireblindly_cast"/>
                     <Str Str="voice_scout_f_fireblindly_cast"/>
                 </Scp>
-            </EtcList>
-            <ResultList>
-                <ToolScp Scp="S_R_COND_SCRIPT" Client="NO" UseSleep="NO">
-                    <Str Str="ADD_DEBUFF_MANGLEANDFIREBLINDLY"/>
-                </ToolScp>
-            </ResultList>
+            </EtcList>            
         </MainSkl>
     </Skill>
     <Skill Name="OutLaw_Bully">
@@ -411,8 +406,8 @@
         <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
             <HitList>
                 <Frame Type="SQUARE" Time="0" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="0.17453292" AniTime="0" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
-                <Frame Type="SQUARE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
-                <Frame Type="SQUARE" Time="1000" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="0.17453292" AniTime="1200" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="200" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="0.17453292" AniTime="1200" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
             </HitList>
             <EtcList>
                 <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
@@ -446,9 +441,9 @@
                 <Skill JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
                     <HitList>
                         <Frame Type="SQUARE" Time="0" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="0" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
-                        <Frame Type="SQUARE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
-                        <Frame Type="SQUARE" Time="1000" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="1200" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
-                        <Frame Type="SQUARE" Time="1050" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="1250" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                        <Frame Type="SQUARE" Time="150" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                        <Frame Type="SQUARE" Time="300" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="1200" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                        <Frame Type="SQUARE" Time="450" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="1250" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
                     </HitList>
                     <EtcList>
                         <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">

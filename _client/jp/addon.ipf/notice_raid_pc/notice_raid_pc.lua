@@ -194,14 +194,10 @@ function UPDATE_NOTICE_RAID_ICON_POS(frame, num)
         return 0;
     end
 
+    local offset_y = frame:GetUserIValue("NOTICE_RAID_UI_OFFSET_Y");
 	local point = info.GetPositionInUI(handle, 2);
 	local x = point.x - frame:GetWidth() / 2;
-    local y = point.y - frame:GetHeight() - 40;
-
-    local offset_y = frame:GetUserIValue("NOTICE_RAID_UI_OFFSET_Y");
-    if offset_y > 0 then
-        y = y + offset_y;
-    end
+    local y = point.y - frame:GetHeight() - 40 + offset_y;
 
     frame:MoveFrame(x, y);
 	return 1;

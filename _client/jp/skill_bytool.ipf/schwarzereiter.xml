@@ -146,7 +146,7 @@
                     <Num Num="-1"/>
                 </ToolScp>
                 <ToolScp Scp="S_R_COND_ABILITY" Client="NO" UseSleep="NO">
-                    <Str Str="Schwarzereiter17"/>
+                    <Str Str="Schwarzereiter17"/> <!--확산-->
                 </ToolScp>
                 <ToolScp Scp="S_R_SET_FORCE_DAMAGE" Client="NO" UseSleep="NO">
                     <Num Num="0.5"/>

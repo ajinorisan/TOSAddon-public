@@ -94,5 +94,6 @@
 		<Class ClassID="105" ClassName="/harmony" Alias="/화합" ConvertWhenSend="1"/>
 		<Class ClassID="106" ClassName="/event" Alias="/이벤트" ConvertWhenSend="1"/>
 		<Class ClassID="107" ClassName="/attendance" Alias="/출석" ConvertWhenSend="1"/>
+		<Class ClassID="108" ClassName="/invite" Alias="/초대" ConvertWhenSend="1"/>
 	</Category>
 </idspace>

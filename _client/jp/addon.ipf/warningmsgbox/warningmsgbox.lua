@@ -238,6 +238,8 @@ function NOT_ROASTING_GEM_EQUIP_WARNINGMSGBOX_FRAME_OPEN(itemGuid, argNum)
 
 	yesBtn:SetEventScript(ui.LBUTTONUP, '_NOT_ROASTING_GEM_EQUIP_WARNINGMSGBOX_FRAME_OPEN_YES');
 	yesBtn:SetEventScriptArgNumber(ui.LBUTTONUP, argNum);
+	yesBtn:SetEventScript(ui.ENTERKEY, '_NOT_ROASTING_GEM_EQUIP_WARNINGMSGBOX_FRAME_OPEN_YES');
+	yesBtn:SetEventScriptArgNumber(ui.ENTERKEY, argNum);
 
 	local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
 	tolua.cast(noBtn, "ui::CButton");
@@ -303,6 +305,7 @@ function WARNINGMSGBOX_FRAME_OPEN_REBUILDPOPUP()
 	local okBtn = GET_CHILD_RECURSIVELY(frame, "ok")
 	tolua.cast(okBtn, "ui::CButton");
 	okBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_REBUILDPOPUP_YES');
+	okBtn:SetEventScript(ui.ENTERKEY, '_WARNINGMSGBOX_FRAME_OPEN_REBUILDPOPUP_YES');
 
 	yesBtn:ShowWindow(0);
 	noBtn:ShowWindow(0);
@@ -377,6 +380,8 @@ function WARNINGMSGBOX_FRAME_OPEN_NONNESTED(clmsg, enablehide, type, yesScp, noS
 	tolua.cast(okBtn, "ui::CButton");
 	okBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_NONNESTED_OK');
 	okBtn:SetEventScriptArgNumber(ui.LBUTTONUP, msgtype);	
+	okBtn:SetEventScript(ui.ENTERKEY, '_WARNINGMSGBOX_FRAME_OPEN_NONNESTED_OK');
+	okBtn:SetEventScriptArgNumber(ui.ENTERKEY, msgtype);	
 	if msgtype == 1 then
 		okBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp.."/"..noScp);
 	end
@@ -461,6 +466,8 @@ function WARNINGMSGBOX_FRAME_OPEN_WITH_CHECK(clmsg, yesScp, noScp)
 
 	yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_YES');
 	yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
+	yesBtn:SetEventScript(ui.ENTERKEY, '_WARNINGMSGBOX_FRAME_OPEN_YES');
+	yesBtn:SetEventScriptArgString(ui.ENTERKEY, yesScp);
 	
 	local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
 	tolua.cast(noBtn, "ui::CButton");
@@ -505,6 +512,8 @@ function WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM(clmsg, yesScp, noScp, itemGuid)
 
 	yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM_YES');
 	yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
+	yesBtn:SetEventScript(ui.ENTERKEY, '_WARNINGMSGBOX_FRAME_OPEN_TRANSFER_ITEM_YES');
+	yesBtn:SetEventScriptArgString(ui.ENTERKEY, yesScp);
 
 	local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
 	tolua.cast(noBtn, "ui::CButton");
@@ -693,6 +702,8 @@ function WARNINGMSGBOX_FRAME_OPEN_EXCHANGE_RECYCLE(clmsg, yesScp, noScp, itemGui
 
 	yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_EXCHANGE_RECYCLE_YES');
 	yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
+	yesBtn:SetEventScript(ui.ENTERKEY, '_WARNINGMSGBOX_FRAME_OPEN_EXCHANGE_RECYCLE_YES');
+	yesBtn:SetEventScriptArgString(ui.ENTERKEY, yesScp);
 
 	local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
 	tolua.cast(noBtn, "ui::CButton");

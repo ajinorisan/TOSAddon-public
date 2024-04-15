@@ -3075,6 +3075,16 @@ function TPSHOP_ITEM_TO_BASKET_PREPROCESSOR(parent, control, tpitemname, tpitem_
 		else
 			ui.MsgBox(ScpArgMsg("SelectPurchaseRestrictedItemByWeekly","Value", obj.AccountLimitWeeklyCount, "Value2", obj.AccountLimitWeeklyCount - curBuyCount), string.format("TPSHOP_ITEM_TO_BASKET('%s', %d)", tpitemname, classid), "None");			
 		end
+	elseif limit == "DAILY" then
+		local prop = TryGetProp(obj, "AccountLimitDailyCountProperty", "None");
+		local accObj = GetMyAccountObj(pc);
+		local curBuyCount = TryGetProp(accObj, prop, 0);
+		if curBuyCount >= obj.AccountLimitDailyCount then
+			ui.MsgBox_OneBtnScp(ScpArgMsg("PurchaseItemExceeded", "Value", obj.AccountLimitDailyCount), "")
+            return false;
+		else
+			ui.MsgBox(ScpArgMsg("SelectPurchaseRestrictedItemByDaily", "Value", obj.AccountLimitDailyCount, "Value2", obj.AccountLimitDailyCount - curBuyCount), string.format("TPSHOP_ITEM_TO_BASKET('%s', %d)", tpitemname, classid), "None");
+		end
 	elseif limit == 'CUSTOM' then
 		local prop = TryGetProp(obj, 'AccountLimitCustomCountProperty', 'None')
 		local accObj = GetMyAccountObj(pc)
@@ -4376,6 +4386,15 @@ function TPITEM_SET_ENABLE_BY_LIMITATION(buyBtn, tpitemCls)
 		local accObj = GetMyAccountObj(pc)
 		local curBuyCount = TryGetProp(accObj, prop, 0)		
 		if curBuyCount >= tpitemCls.AccountLimitWeeklyCount then
+			buyBtn:SetSkinName('test_gray_button');
+			buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
+			buyBtn:EnableHitTest(0)
+		end
+	elseif limit == "DAILY" then
+		local prop = TryGetProp(tpitemCls, 'AccountLimitDailyCountProperty', 'None')		
+		local accObj = GetMyAccountObj(pc)
+		local curBuyCount = TryGetProp(accObj, prop, 0)		
+		if curBuyCount >= tpitemCls.AccountLimitDailyCount then
 			buyBtn:SetSkinName('test_gray_button');
 			buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
 			buyBtn:EnableHitTest(0)

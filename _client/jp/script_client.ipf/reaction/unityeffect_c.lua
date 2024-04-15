@@ -116,3 +116,10 @@ function C_UNITY_EFFECT_DETACH(actor,obj, eftName)
 end
 
 
+function C_PAD_GROUND_EFFECT(actor, obj, pad_guid, eft_name, eft_scale, fix_height)
+    if fix_height == nil then
+        fix_height = 0
+    end
+	
+	effect.PlayPadForceUnityEffect(actor, eft_name, eft_scale, 0, 0, 0, fix_height, pad_guid);
+end

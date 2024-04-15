@@ -34,6 +34,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_b
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\custom.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\daoshi.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\dash.xml
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\desperado.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\dessert.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\dievdirbys.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\disnai.xml
@@ -206,6 +207,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_b
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_duckey.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_dumaro.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_dynamite.xml
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_earring.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_echad.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_egnome.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_elder.xml
@@ -364,6 +366,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_b
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_lapindion.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_lapinel.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_large.xml
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_leader.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_leaf.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_leafly.xml
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\skill_bytool.ipf\mon_leafnut.xml

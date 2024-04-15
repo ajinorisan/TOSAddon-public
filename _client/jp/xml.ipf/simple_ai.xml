@@ -19063,22 +19063,35 @@ if self.HP == 0 then return 1; else return 0; end;">
             </ToolScp>
         </StartList>
     </AI>
-    <AI Name="SHOP_NPC_RAGANA_CITY_AI" ActiveMessageMapInBattle="1">
-        <StartList>
-            <ToolScp Scp="S_AI_EFFECT_ATTACH" Client="NO" UseSleep="NO">
-                <Num Num="0"/>
-                <Str_Arg Str="I_smoke_red2_loop" Arg="3"/>
-                <Str Str="BOT"/>
-            </ToolScp>
-            <ToolScp Scp="S_AI_CHANGE_COLOR" Client="NO" UseSleep="NO">
-                <Num Num="255"/>
-                <Num Num="255"/>
-                <Num Num="255"/>
-                <Num Num="95"/>
-                <Num Num="1"/>
-            </ToolScp>
-        </StartList>
-    </AI>
+	<AI Name="SHOP_NPC_RAGANA_CITY_AI" ActiveMessageMapInBattle="1">
+		<StartList>
+			<ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+				<Str Str="SCR_RAGANA_CITY_BORN"/>
+			</ToolScp>			
+			<ToolScp Scp="S_AI_EFFECT_ATTACH" Client="NO" UseSleep="NO">
+				<Num Num="0"/>
+				<Str_Arg Str="I_smoke_red2_loop" Arg="3"/>
+				<Str Str="BOT"/>
+			</ToolScp>
+			<ToolScp Scp="S_AI_CHANGE_COLOR" Client="NO" UseSleep="NO">
+				<Num Num="255"/>
+				<Num Num="255"/>
+				<Num Num="255"/>
+				<Num Num="95"/>
+				<Num Num="1"/>
+			</ToolScp>			
+		</StartList>
+		<List>
+			<ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+				<Str Str="SCR_RAGANA_CITY_UPDATE"/>
+			</ToolScp>
+		</List>
+		<DeadList>
+			<ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+				<Str Str="SCR_RAGANA_CITY_LEAVE"/>
+			</ToolScp>
+		</DeadList>	
+	</AI>
     <AI Name="SIAU11RE_MQ_03_ITEM_RUN" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">

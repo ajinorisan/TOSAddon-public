@@ -45,6 +45,8 @@ function ACCOUNTPROP_INVENTORY_UPDATE(frame)
         local cls = GetClassByIndexFromList(clsList, i);
         if cls ~= nil then
             local Category = cls.Category;            
+            local _c = TryGetProp(GetMyAccountObj(), cls.ClassName, '0')            
+            if math.is_larger_than(_c, '0') == 1 or TryGetProp(cls, 'Type', 'None') == 'essential' then
             if _category[Category] == nil then
                 _category[Category] = 1;
             end
@@ -83,6 +85,7 @@ function ACCOUNTPROP_INVENTORY_UPDATE(frame)
             local height = (cnt * ctrlset:GetHeight()) + frame:GetUserConfig("TREE_GROUP_BOX_MARGIN");
             groupbox:Resize(groupbox:GetWidth(), height);
         end
+    end
     end
 
     for k, v in pairs(_category) do 

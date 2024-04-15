@@ -16269,6 +16269,78 @@ return value"/>
 			</ToolScp>
 		</updateEvent>
 	</PadSkill>
+    <PadSkill Name="season_earring_jellyzele_puddle_pad" CheckerType="0" Range="60" UpdateTerm="1000" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_USEABLE_PC" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="8000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="F_water010_blue" Arg="1"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_FUNC_UPDATE_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_SEASON_EARRING_RAID_JELLYZELE_PUDDLE_PAD_DESTROY"/>
+            </ToolScp>
+        </destroyEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="99999"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="season_earring_jellyzele_puddle_pad_red" CheckerType="0" Range="60" UpdateTerm="1000" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_USEABLE_PC" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="8000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="F_water010_red" Arg="1"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <destroyEvent>
+            <ToolScp Scp="PAD_FUNC_UPDATE_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_SEASON_EARRING_RAID_JELLYZELE_PUDDLE_PAD_DESTROY"/>
+            </ToolScp>
+        </destroyEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="99999"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_DAMAGE_ENEMY" Client="NO" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
     <PadSkill Name="Jellyzele_puddle_poison_pad" CheckerType="0" Range="60" UpdateTerm="1000" AllowOverlap="1" EnableSearch="0">
         <createEvent>
             <ToolScp Scp="PAD_USEABLE_PC" Client="NO" UseSleep="NO"/>
@@ -16341,6 +16413,70 @@ return value"/>
 			</ToolScp>
 		</updateEvent>
 	</PadSkill>
+    <PadSkill Name="season_earring_jellyzele_sticky_pad" CheckerType="0" Range="65" UpdateTerm="1000" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_USEABLE_PC" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="8000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="F_ground229_water_bubble_loop" Arg="4"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_SEASON_EARRING_RAID_JELLYZELE_STICKY_PAD_ENTER"/>
+            </ToolScp>
+        </enterEvent>
+        <leaveEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_SEASON_EARRING_RAID_JELLYZELE_STICKY_PAD_LEAVE"/>
+            </ToolScp>
+        </leaveEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="99999"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="season_earring_jellyzele_sticky_pad_red" CheckerType="0" Range="65" UpdateTerm="1000" AllowOverlap="1" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_USEABLE_PC" Client="NO" UseSleep="NO"/>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="8000"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="F_ground229_water_bubble_loop_red" Arg="4"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_SEASON_EARRING_RAID_JELLYZELE_STICKY_PAD_ENTER"/>
+            </ToolScp>
+        </enterEvent>
+        <leaveEvent>
+            <ToolScp Scp="PAD_TGT_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_SEASON_EARRING_RAID_JELLYZELE_STICKY_PAD_LEAVE"/>
+            </ToolScp>
+        </leaveEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-1000"/>
+                <Num Num="99999"/>
+            </ToolScp>
+        </updateEvent>
+    </PadSkill>
 	<PadSkill Name="Jellyzele_throw_pad" CheckerType="0" Dist="173.94244" Angle="-1.9889972" Range="80" AllowOverlap="1" EnableSearch="0">
 		<createEvent>
 			<ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
@@ -38088,6 +38224,28 @@ return SR"/>
 			</ToolScp>
 		</enterEvent>
 	</PadSkill>
+    <PadSkill Name="shootpad_Leader_Sparnanman" CheckerType="0" Range="40" UpdateTerm="100" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="10000"/>
+                <Num Num="99990"/>
+            </ToolScp>
+            <ToolScp Scp="C_PAD_EFFECT_POS" Client="YES" UseSleep="NO">
+                <Str_Arg Str="F_spread_in032_dark_loop2" Arg="0.80000000"/>
+                <Pos Angle="0" Dist="0"/>
+                <Num Num="10"/>
+                <Str_Arg Str="None" Arg="1"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_TGT_DAMAGE" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </enterEvent>
+    </PadSkill>
 	<PadSkill Name="shootpad_Unknocker" CheckerType="0" Range="10" UpdateTerm="100" EnableSearch="0">
 		<createEvent>
 			<ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
@@ -40388,7 +40546,7 @@ end"/>
     <PadSkill Name="wingedhussars_battle_spirit_pad1" CheckerType="0" Range="20" UpdateTerm="1000" ApplyFlyMon="1">
         <createEvent>
             <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
-                <Num Num="15000"/>
+                <Num Num="30500"/>
                 <Num Num="99999"/>
             </ToolScp>            
             <ToolScp Scp="C_PAD_EFFECT_POS_LOCAL" Client="YES" UseSleep="NO">
@@ -40412,7 +40570,7 @@ end"/>
     <PadSkill Name="wingedhussars_battle_spirit_pad2" CheckerType="0" Range="20" UpdateTerm="1000" ApplyFlyMon="1">
         <createEvent>
             <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
-                <Num Num="15000"/>
+                <Num Num="30500"/>
                 <Num Num="99999"/>
             </ToolScp>            
             <ToolScp Scp="C_PAD_EFFECT_POS_LOCAL" Client="YES" UseSleep="NO">
@@ -40436,7 +40594,7 @@ end"/>
     <PadSkill Name="wingedhussars_battle_spirit_pad3" CheckerType="0" Range="20" UpdateTerm="1000" ApplyFlyMon="1">
         <createEvent>
             <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
-                <Num Num="15000"/>
+                <Num Num="30500"/>
                 <Num Num="99999"/>
             </ToolScp>            
             <ToolScp Scp="C_PAD_EFFECT_POS_LOCAL" Client="YES" UseSleep="NO">
@@ -40646,6 +40804,54 @@ end"/>
             <ToolScp Scp="SCR_UPDATE_BowMaster_SkyBow_pad" Client="NO" UseSleep="NO">                
             </ToolScp>
         </updateEvent>        
+    </PadSkill>
+    <PadSkill Name="Mon_SuperBossSkill_5_pad" CheckerType="0" Range="40" ApplyFlyMon="1" UpdateTerm="500" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="60100"/>
+                <Num Num="1"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_GROUND_EFFECT" Client="YES" UseSleep="NO">
+                <Str_Arg Str="eff_monster_upinis_vacuum_01" Arg="1.2"/>
+                <Num Num="-40"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_Mon_SuperBossSkill_5_pad_ENTER" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>                
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-500"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_Mon_SuperBossSkill_5_pad_UPDATE" Client="NO" UseSleep="NO"/>
+        </updateEvent>
+    </PadSkill>
+    <PadSkill Name="Mon_SuperBossSkill_6_pad" CheckerType="0" Range="50" ApplyFlyMon="1" UpdateTerm="500" EnableSearch="0">
+        <createEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="9100"/>
+                <Num Num="9999"/>
+            </ToolScp>            
+            <ToolScp Scp="C_PAD_GROUND_EFFECT" Client="YES" UseSleep="NO">
+                <Str_Arg Str="eff_monster_throneweaver_skill02_launch_01" Arg="0.6"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </createEvent>
+        <enterEvent>
+            <ToolScp Scp="PAD_Mon_SuperBossSkill_6_pad_ENTER" Client="NO" UseSleep="NO">
+                <Str Str="ENEMY"/>
+            </ToolScp>
+        </enterEvent>
+        <updateEvent>
+            <ToolScp Scp="PAD_ADD_LIFE" Client="NO" UseSleep="NO">
+                <Num Num="-500"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="PAD_Mon_SuperBossSkill_6_pad_UPDATE" Client="NO" UseSleep="NO"/>
+        </updateEvent>
     </PadSkill>
 </PadSkills>
     

@@ -79,6 +79,10 @@ function PACKAGELIST_EDIT_ON_TYPING(parent, ctrl)
 			textEdit:SetText(tpItemCls.AccountLimitWeeklyCount);
 			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitWeeklyCount));
 			return;
+		elseif limit == 'DAILY' and curCount + 1 > tpItemCls.AccountLimitDailyCount then
+			textEdit:SetText(tpItemCls.AccountLimitDailyCount);
+			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitDailyCount));
+			return;
 		elseif limit == 'CUSTOM' and curCount + 1 > tpItemCls.AccountLimitWeeklyCount then
 			textEdit:SetText(tpItemCls.AccountLimitCustomCount);
 			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitCustomCount));
@@ -120,6 +124,10 @@ function PACKAGELIST_UP_BTN_CLICK(parent, ctrl)
 		elseif limit == 'WEEKLY' and curCount + 1 > tpItemCls.AccountLimitWeeklyCount then
 			textEdit:SetText(tpItemCls.AccountLimitWeeklyCount);
 			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitWeeklyCount));
+			return;
+		elseif limit == 'DAILY' and curCount + 1 > tpItemCls.AccountLimitDailyCount then
+			textEdit:SetText(tpItemCls.AccountLimitDailyCount);
+			ui.SysMsg(ScpArgMsg("PurchaseItemExceeded", "Value", tpItemCls.AccountLimitDailyCount));
 			return;
 		end
 	end

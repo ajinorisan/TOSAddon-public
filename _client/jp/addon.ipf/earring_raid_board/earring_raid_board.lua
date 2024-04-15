@@ -16,6 +16,9 @@ end
 function ON_EARRING_RAID_BOARD_TITLE(frame, msg, arg_str, arg_num)
     if frame == nil then return; end
     frame:ShowWindow(1);
+    if arg_str == "SeasonMode" then
+        ON_EARRING_RAID_BOARD_SEASON_MODE(frame);
+    end
     local type = tonumber(arg_num);
     local indun_cls = GetClassByType("Indun", type);
     if indun_cls ~= nil then
@@ -362,10 +365,13 @@ function ON_EARRING_RAID_BOARD_PROGRESS(frame, msg, arg_str, arg_num)
     end
 end
 
-function EARRING_RAID_BOARD_GBOX_ALIGN(frame)
+function EARRING_RAID_BOARD_GBOX_ALIGN(frame, offset_y)
     if frame == nil then return; end
     local y = 10;
     local gbox_addy = 50;
+    if offset_y ~= nil then
+        gbox_addy = gbox_addy + offset_y;
+    end
     local spacey = 0;
     local bg = GET_CHILD_RECURSIVELY(frame, "bg");
     local count = bg:GetChildCount();
@@ -413,4 +419,17 @@ function ON_PLAY_LUCKY_REWARD_EFFECT(frame, msg, item_name, count)
 	movie.PlayUIEffect(bg_frame:GetUserConfig('BLACKSMITH_RESULT_EFFECT'), screenWidth / 2, screenHeight / 2, tonumber(bg_frame:GetUserConfig('BLACKSMITH_RESULT_EFFECT_SCALE')))	
 	local duration = 3
 	bg_frame:SetDuration(duration)	
+end
+
+function ON_EARRING_RAID_BOARD_SEASON_MODE(frame)
+    local wavetime_box = GET_CHILD_RECURSIVELY(frame, "wavetime_box");
+    if wavetime_box ~= nil then
+        wavetime_box:RemoveAllChild();
+        wavetime_box:Resize(0, 0);
+    end
+    local skill_box = GET_CHILD_RECURSIVELY(frame, "skill_box");
+    if skill_box ~= nil then
+        skill_box:RemoveAllChild();
+    end
+    EARRING_RAID_BOARD_GBOX_ALIGN(frame, -120);
 end

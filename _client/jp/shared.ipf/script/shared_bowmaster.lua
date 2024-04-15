@@ -7,7 +7,7 @@ function SCR_GET_SKL_COOLDOWN_FocusFire(skill)
     
     local active = GetExProp(pc, 'bowmaster_fast')        
     if active > 0 then
-        basicCoolDown = 1000
+        basicCoolDown = 800
     end
 
     local abilAddCoolDown = GetAbilityAddSpendValue(pc, skill.ClassName, "CoolDown");
@@ -217,15 +217,8 @@ end
 
 
 function C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER(actor, obj, pad_guid, eft_name, eft_scale, fix_height)
-    if actor ~= nil then
-        local eft_rot_x, eft_rot_y, eft_rot_z;	
-        local dir = actor:GetDir()		
-        local angle = DirToAngle(dir.x, dir.y)
-        eft_rot_x = 90 - angle
-        eft_rot_y = 0
-        eft_rot_z = 90 - angle    		
-
-        effect.PlayPadForceUnityEffect(actor, eft_name, eft_scale, eft_rot_x, eft_rot_y, eft_rot_z, fix_height, pad_guid);
+    if actor ~= nil then        
+        effect.AddForceProjectileUnityEffect(actor, eft_name, eft_scale, fix_height, pad_guid);
     end
 end
 
@@ -242,22 +235,22 @@ function CHECK_BowMaster_ChargeArrow_Buff_C(actor, skl, buffName, over)
 end
 function get_bowmaster_casting_time(skill)
     local self = GetSkillOwner(skill)        
-    local value = 3
+    local value = 2.4
     if GetExProp(self, 'BowMaster14') == 1 then
-        value = 1.5
+        value = 1.2
     end    
     return value
 end
 function get_godarrow_casting_time(self, obj)
-    local value = 3
+    local value = 2.4
     local abil = session.GetAbilityByName('BowMaster14');
     if abil ~= nil then
         local abilObj = GetIES(abil:GetObject());
         if abilObj.ActiveState == 1 then
-            value = 1.5
+            value = 1.2
         end
     else
-        value = 3
+        value = 2.4
     end                    
     return value
 end

@@ -274,7 +274,7 @@ function GET_OPEN_PUMP_COLLECTION_LIST(itemType)
 
 	for k,v in pairs(PUMP_COLLECTION_INFO_LIST) do
 		for item_k,item_v in  pairs(v.infoList) do
-			if item_v.itemID == itemType and item_v.isCollected == false then
+			if item_v.itemID == itemType and item_v.isCollected == false and item_v.Reinforce_2 == 0 then
 				openCollectionList[openCollectionCount] = v;
 				openCollectionCount = openCollectionCount +1;
 				break;
@@ -344,7 +344,7 @@ function GET_COLLECTION_ITEM_INFO(collectionClass, collection)
 		end
 
 		local itemCls = GetClass("Item", itemName);
-		local itemData = GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet);
+		local itemData = GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet, TryGetProp(cls, 'Reinforce_' .. index, 0));
 
 		resultItemDatas[index] = itemData;
 		index = index +1;
@@ -353,7 +353,7 @@ function GET_COLLECTION_ITEM_INFO(collectionClass, collection)
 	return resultItemDatas;
 end
 
-function GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet)
+function GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet, reinforce)
 	local showedcount = 0;
 	if collectedItemSet[itemCls.ClassID] ~= nil then
 		showedcount = collectedItemSet[itemCls.ClassID];
@@ -372,13 +372,15 @@ function GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet)
 		-- 이미 수집한 아이템.
 		return { 
 				itemID = itemCls.ClassID,
-				isCollected = true
+				Reinforce_2 = reinforce,
+				isCollected = true				
 			   };
 	end
 
 	-- 아직 수집하지 않은 아이템.
 	return { 
 				itemID = itemCls.ClassID,
+				Reinforce_2 = reinforce,
 				isCollected = false
 			};
 end

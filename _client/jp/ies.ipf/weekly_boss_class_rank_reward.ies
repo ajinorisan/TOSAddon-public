@@ -93,3 +93,4 @@ ClassID,reward_id,class_id,Desc,rank_1
 92,1,2025,"일루저니스트","Item_Achieve_plate_Illusionist/1;"
 93,1,1025,"일루저니스트","Item_Achieve_plate_WingedHussar/1;"
 94,1,3107,"신궁","Item_Achieve_plate_BowMaster/1;"
+95,1,5019,"데스페라도","Item_Achieve_plate_Desperado/1;"

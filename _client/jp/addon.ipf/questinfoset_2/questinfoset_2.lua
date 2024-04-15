@@ -388,13 +388,13 @@ function CHEAK_QUEST_MONSTER(questIES)
     end
     
 	for i = 1 , QUEST_MAX_MON_CHECK do
-		local monname = questIES["Succ_MonKillName" .. i];
+		local monname = TryGetProp(questIES, "Succ_MonKillName" .. i, 'None')
 		if monname == "None" then
 			break;
 		end
 		
 		if questIES.Succ_Check_MonKill > 0 then
-    		if quest_sObj ~= nil and quest_sObj['KillMonster'..i] < questIES["Succ_MonKillCount" .. i] then
+    		if quest_sObj ~= nil and quest_sObj['KillMonster'..i] < TryGetProp(questIES, "Succ_MonKillCount" .. i, 0)  then
         		ADD_QUEST_CHECK_MONSTER(questIES.ClassID, monname);
         	else
         	    local cutStr = SCR_STRING_CUT(monname);
@@ -408,8 +408,11 @@ function CHEAK_QUEST_MONSTER(questIES)
         	end
         else
 --            local invIndex = tonumber(string.gsub(questIES["Succ_MonKill_ItemGive" .. i], 'Succ_InvItemName', ''))
-            local itemClassName = questIES[questIES["Succ_MonKill_ItemGive" .. i]]
-            local needCount = questIES[questIES["Succ_MonKill_ItemGiveCount" .. i]]
+
+			local item_give = TryGetProp(questIES, "Succ_MonKill_ItemGive" .. i, 'None')
+			local item_give_count = TryGetProp(questIES, "Succ_MonKill_ItemGiveCount" .. i, 'None')
+            local itemClassName = TryGetProp(questIES, item_give, 'None')
+            local needCount = TryGetProp(questIES, item_give_count, 0)
             if itemClassName ~= nil then
                 local nowCount = GetInvItemCount(pc, itemClassName)
                 if nowCount < needCount then
@@ -428,14 +431,13 @@ function CHEAK_QUEST_MONSTER(questIES)
         end
 	end
 	for i = 1 , QUEST_MAX_INVITEM_CHECK do
-		local questItem = questIES["Succ_InvItemName" .. i];
+		local questItem = TryGetProp(questIES, "Succ_InvItemName" .. i, 'None')
 		if questItem == 'None' then
 			break;
 		end
 
-		local needcnt = questIES["Succ_InvItemCount" .. i];
-
-		local itemcnt = SCR_QUEST_GET_INVITEM_COUNT(questItem);
+		-- local needcnt = questIES["Succ_InvItemCount" .. i];
+		-- local itemcnt = SCR_QUEST_GET_INVITEM_COUNT(questItem);
 	end
 	
 	if pc ~= nil then
@@ -482,7 +484,7 @@ function CHEAK_QUEST_MONSTER(questIES)
 	
 	
 	for i = 1 , QUEST_MAX_MON_CHECK do
-		local monname = questIES["Succ_Journal_MonKillName" .. i];
+		local monname = TryGetProp(questIES, "Succ_Journal_MonKillName" .. i, 'None')
 		if monname == "None" then
 			break;
 		end
@@ -494,7 +496,7 @@ function CHEAK_QUEST_MONSTER(questIES)
             if monID ~= nil and IsExistMonsterInAdevntureBook(pc, monID) == 'YES' then
                 killCount = GetMonKillCount(pc, monID);
             end
-            if killCount ~= nil and killCount < questIES["Succ_Journal_MonKillCount" .. i] then
+            if killCount ~= nil and killCount < TryGetProp(questIES, "Succ_Journal_MonKillCount" .. i, 0) then
                 ADD_QUEST_CHECK_MONSTER(questIES.ClassID, monname);
             else
                 quest.RemoveCheckQuestMonsterList(questIES.ClassID, monname)

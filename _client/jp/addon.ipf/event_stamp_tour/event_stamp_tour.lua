@@ -21,7 +21,7 @@ end
 
 function ON_POPOBOOST_EVENT_STAMP_TOUR_UI_OPEN_COMMAND()
 	local frame = ui.GetFrame("event_stamp_tour")
-	frame:SetUserValue("GROUP_NAME","POPO_EVENT_STAMP_2312")
+	frame:SetUserValue("GROUP_NAME","POPO_EVENT_STAMP")
 	frame:ShowWindow(1)
 end
 
@@ -69,6 +69,10 @@ function EVENT_STAMP_TOUR_CREATE_PAGE(frame)
 end
 
 function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
+	local pc = GetMyPCObject();
+    if pc == nil then
+		return false;
+    end
 
 	local REWARD_TEXT_FONT = frame:GetUserConfig('REWARD_TEXT_FONT');
 	local REWARD_CLEAR_BG_ALPHA = frame:GetUserConfig('REWARD_CLEAR_BG_ALPHA');
@@ -83,7 +87,7 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 	local groupName = frame:GetUserValue("GROUP_NAME")
 	local missionCls = EVENT_STAMP_GET_CURRENT_MISSION(groupName, currentpage)
 	
-	if groupName == "POPO_EVENT_STAMP_2312" then
+	if groupName == "POPO_EVENT_STAMP" then
 		local maxpopoboostpage = 7;
 		local popoboost_stamp_value = EVENT_STAMP_TOUR_POPOBOOST_CLEAR_CHECK(groupName, currentpage);
 		if popoboost_stamp_value == false and currentpage ~= maxpopoboostpage then
@@ -232,7 +236,7 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 				helpBtn:SetEventScript(ui.LBUTTONUP, "None");
 				--포포 가이드 퀘스트 시 상황 고려
 				local groupName = frame:GetUserValue("GROUP_NAME")
-				if groupName ~= "POPO_EVENT_STAMP_2312" then
+				if groupName ~= "POPO_EVENT_STAMP" then
 					helpBtn:SetextTooltip(helpDesc.."{nl} {nl}"..helpText)
 				else
 					if helpDesc == nil or helpDesc == "null" then
@@ -257,7 +261,7 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 			go_btn:SetEnable(0)
 			helpBtn:SetEnable(0)
 			local groupName = frame:GetUserValue("GROUP_NAME")
-			if groupName == "POPO_EVENT_STAMP_2312" then
+			if groupName == "POPO_EVENT_STAMP" then
 				clear_Pic:ShowWindow(0);
 			end		
 		end
@@ -446,7 +450,7 @@ function ON_EVENT_STAMP_TOUR_REWARD_GET(frame, msg, argstr, argnum)
 	go_btn:SetEnable(0)
 
 	local groupName = frame:GetUserValue("GROUP_NAME")
-	if groupName == "POPO_EVENT_STAMP_2312" then
+	if groupName == "POPO_EVENT_STAMP" then
 		clear_Pic:ShowWindow(0);
 	end
 
