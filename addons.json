@@ -12,7 +12,7 @@
 		"name" : "Skill Notice",
 		"file" : "skill_notice",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.2",
+		"fileVersion" : "v1.0.3",
 		"releaseTag" : "skill_notice",
 		"unicode" : "⛄",
 		"description" : "ピクティス、バトルスピリット、チャージアロー、リロードバフをお知らせ。Informs about the pyktis, battle spirit, charge arrow, and reload buffs.픽티스, 배틀 스피릿, 차지 애로우, 재장전 버프를 알려드립니다.",
