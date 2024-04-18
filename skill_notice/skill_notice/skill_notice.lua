@@ -1,9 +1,10 @@
 -- v1.0.1 エフェクト重ね掛けバグ修正
 -- v1.0.2 ゲージ短くした。サイズ入力の時に空白とか文字入れたらバグってたの修正。
+-- v1.0.3 バイオレントバフをデカめに表示機能追加。
 local addonName = "SKILL_NOTICE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -168,8 +169,30 @@ function skill_notice_load_settings()
         skill_notice_save_settings()
 
     end
+
     g.settings = settings
 
+    if g.settings.new_x == nil then
+        g.settings.new_x = 1000
+
+    end
+
+    if g.settings.new_y == nil then
+        g.settings.new_y = 500
+    end
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+    if g.settings[LoginName] == nil then
+        g.settings[LoginName] = {}
+    end
+
+    if g.settings[LoginName].new_check == nil then
+        g.settings[LoginName].new_check = {
+            use = 1
+        }
+
+    end
+    skill_notice_save_settings()
 end
 
 function skill_notice_save_settings()
@@ -457,14 +480,11 @@ function skill_notice_frame_init(frame)
     buffgb:SetSkinName("None");
     buffgb:RemoveAllChild()
 
+    local LoginName = session.GetMySession():GetPCApc():GetName()
     local y = 0
     local colortone = ""
     local max = 0
     for index, buffData in ipairs(bufftbl) do
-        local LoginName = session.GetMySession():GetPCApc():GetName()
-        if g.settings[LoginName] == nil then
-            g.settings[LoginName] = {}
-        end
 
         if g.settings[LoginName][buffData.name] == nil then
             g.settings[LoginName][buffData.name] = 1
@@ -533,13 +553,25 @@ function skill_notice_frame_init(frame)
     frame:Resize(180, y * 25 + 30)
     frame:ShowWindow(1);
 
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+    if g.settings[LoginName].new_check.use == 1 then
+        frame:RunUpdateScript("skill_notice_new_buff_frame", 0.1);
+
+    end
+
 end
 
 function skill_notice_end_drag(frame, ctrl, argStr, argNum)
-    local frame = ui.GetFrame("skill_notice")
 
-    g.settings.x = frame:GetX();
-    g.settings.y = frame:GetY();
+    if frame:GetName() == "notice_frame" then
+        g.settings.new_x = frame:GetX();
+        g.settings.new_y = frame:GetY();
+    else
+        local frame = ui.GetFrame("skill_notice")
+
+        g.settings.x = frame:GetX();
+        g.settings.y = frame:GetY();
+    end
     skill_notice_save_settings()
 end
 
@@ -552,11 +584,28 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
     newframe:Resize(540, 440)
     newframe:RemoveAllChild()
 
-    local text = newframe:CreateOrGetControl("richtext", "text", 50, 5, 200, 20)
+    local text = newframe:CreateOrGetControl("richtext", "text", 20, 5, 200, 20)
     AUTO_CAST(text)
     text:SetText("{ol}Skill Notice Setting")
-    -- text:SetEventScript(ui.RBUTTONUP, "skill_notice_setting")
-    -- text:SetTextTooltip("Right-Click Settings")
+
+    local new_check = newframe:CreateOrGetControl("checkbox", "new_check", 480, 10, 20, 20)
+    AUTO_CAST(new_check)
+    new_check:SetTextTooltip("Check to new buff frame display{nl}Settings for each character")
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
+    if g.settings[LoginName].new_check == nil then
+        g.settings[LoginName].new_check = {
+            use = 1
+        }
+        skill_notice_save_settings()
+    end
+    new_check:SetCheck(g.settings[LoginName].new_check.use)
+    new_check:SetEventScript(ui.LBUTTONUP, "skill_notice_ischeck")
+
+    local new_display = newframe:CreateOrGetControl("richtext", "new_display", 210, 10, 200, 20)
+    AUTO_CAST(new_display)
+    new_display:SetText("{ol}Toggle display of new buff frame")
 
     local close = newframe:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
@@ -683,12 +732,88 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
     skill_notice_frame_init(frame)
 end
 
+function skill_notice_new_buff_frame()
+
+    local noticeframe = ui.CreateNewFrame("chat_memberlist", "notice_frame", 0, 0, 10, 10)
+    AUTO_CAST(noticeframe)
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
+    if g.settings[LoginName].new_check.use == 0 then
+        noticeframe:ShowWindow(0)
+        return 0
+    else
+        noticeframe:ShowWindow(1)
+    end
+
+    noticeframe:SetSkinName("chat_window")
+    noticeframe:SetTitleBarSkin("None")
+    noticeframe:SetAlpha(30)
+    noticeframe:SetLayerLevel(61)
+    noticeframe:EnableHitTest(1)
+    noticeframe:EnableMove(1)
+
+    noticeframe:SetPos(g.settings.new_x, g.settings.new_y)
+    noticeframe:RemoveAllChild()
+    noticeframe:SetEventScript(ui.LBUTTONUP, "skill_notice_end_drag")
+
+    local slotset = noticeframe:CreateOrGetControl("slotset", "slotset", 0, 10, 0, 0)
+    AUTO_CAST(slotset)
+
+    local bufftable = {2461}
+
+    local cnt = #bufftable
+
+    slotset:ClearIconAll()
+    slotset:SetMaxSelectionCount(1)
+    slotset:SetSlotSize(50, 50)
+    slotset:SetSkinName("None")
+    slotset:SetColRow(1, 1)
+    slotset:CreateSlots()
+
+    local slot = GET_CHILD(slotset, "slot1")
+    AUTO_CAST(slot)
+
+    local buff = GetClassByType("Buff", bufftable[1])
+    local imageName = GET_BUFF_ICON_NAME(buff)
+    SET_SLOT_ICON(slot, imageName)
+
+    local frame = ui.GetFrame("buff_visibility")
+    local Violent_stack_value = GET_CHILD_RECURSIVELY(frame, "Violent_stack_value")
+    if Violent_stack_value ~= nil then
+        local value = string.gsub(Violent_stack_value:GetText(), "{@st41b}{s14}", "")
+        local count = slot:CreateOrGetControl("richtext", "count", 12, 0, 40, 40)
+        AUTO_CAST(count)
+        count:SetText("{ol}{s40}" .. value)
+    else
+        local count = slot:CreateOrGetControl("richtext", "count", 12, 0, 40, 40)
+        AUTO_CAST(count)
+        count:SetText("{ol}{s40}0")
+    end
+
+    noticeframe:Resize(cnt * 50 + 10, 60)
+    noticeframe:ShowWindow(1)
+
+    return 1
+
+end
+
 function skill_notice_ischeck(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
     local ctrlname = ctrl:GetName()
     local LoginName = session.GetMySession():GetPCApc():GetName()
-    g.settings[LoginName][argStr] = ischeck
-    -- print(tostring(ctrlname) .. ":" .. tostring(ischeck))
+
+    if ctrlname == "new_check" then
+        g.settings[LoginName].new_check.use = ischeck
+        if ischeck == 1 then
+            skill_notice_new_buff_frame()
+
+        end
+    else
+        g.settings[LoginName][argStr] = ischeck
+        -- print(tostring(ctrlname) .. ":" .. tostring(ischeck))
+
+    end
     skill_notice_save_settings()
     skill_notice_frame_init(frame)
 end

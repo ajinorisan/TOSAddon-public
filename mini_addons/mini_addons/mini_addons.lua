@@ -30,10 +30,11 @@
 -- v1.2.9 パーティーインフォフレーム。いつものバグ修正
 -- v1.3.1 プレイヤーゲージにレリック追加。スロガウピニス回ってる時の確認機能。
 -- v1.3.2 キャラ毎のオートキャスティング修正。ペットフレーム呼び出し機能OFF
+-- v1.3.3 女神証商店のコインの限界値を99999に変更。スロガウピニスのお知らせを派手に。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.2"
+local ver = "1.3.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -58,6 +59,74 @@ end
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
+function MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE(ctrlset, change)
+    if g.settings.coin_count ~= 1 then
+        base["EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE"](ctrlset, change)
+        return
+    end
+    local recipecls = GetClass('ItemTradeShop', ctrlset:GetName());
+
+    local edit_itemcount = GET_CHILD_RECURSIVELY(ctrlset, "itemcount");
+    local countText = tonumber(edit_itemcount:GetText());
+    if countText == nil then
+        countText = 0
+    end
+    countText = countText + change
+
+    local target_acc = TryGetProp(recipecls, 'TargetAccountProperty', 'None')
+    local max_target_acc = TryGetProp(recipecls, 'MaxTargetAccountProperty', 99999)
+    -- print(max_target_acc)
+    if target_acc ~= 'None' then
+        local now = TryGetProp(GetMyAccountObj(), target_acc, 0)
+        if now + countText > max_target_acc then
+            countText = countText - 1
+        end
+    end
+
+    if countText < 0 then
+        countText = 0
+    elseif countText > 99999 then
+        countText = 99999
+    end
+
+    if recipecls.NeedProperty ~= 'None' then
+        local sObj = GetSessionObject(GetMyPCObject(), "ssn_shop");
+        local sCount = TryGetProp(sObj, recipecls.NeedProperty);
+        if sCount < countText then
+            countText = sCount
+        end
+    end
+    if recipecls.AccountNeedProperty ~= 'None' then
+        local aObj = GetMyAccountObj()
+        local sCount = TryGetProp(aObj, recipecls.AccountNeedProperty);
+        --        --EVENT_1906_SUMMER_FESTA
+        --        local time = geTime.GetServerSystemTime()
+        --        time = time.wYear..time.wMonth..time.wDay
+        --        if time < '2019725' then
+        --            if recipecls.ClassName == 'EventTotalShop1906_25' or recipecls.ClassName == 'EventTotalShop1906_26' then
+        --                sCount = sCount - 2
+        --            end
+        --        end
+
+        local frame = ui.GetFrame("earthtowershop");
+        local shopType = frame:GetUserValue("SHOP_TYPE");
+        if IS_OVERBUY_ITEM(shopType, recipecls, aObj) == true then
+            sCount = countText
+            if IS_EXCEED_OVERBUY_COUNT(shopType, aObj, recipecls, 1) == true then
+                sCount = 0
+            end
+            countText = TryGetProp(recipecls, 'MaxOverBuyCount', 100) -
+                            TryGetProp(aObj, TryGetProp(recipecls, 'OverBuyProperty', 'None'), 0)
+        end
+
+        if sCount < countText then
+            countText = sCount
+        end
+    end
+    edit_itemcount:SetText(countText);
+    return countText;
+end
+
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -67,6 +136,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     MINI_ADDONS_LOAD_SETTINGS()
+    g.SetupHook(MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE, "EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE")
 
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
 
@@ -362,6 +432,11 @@ function MINI_ADDONS_LANG(str)
         if str == "Switching the display of the party info frame. For mouse mode.Party info right-click" then
             str =
                 "パーティーフレームの表示切替。右クリックで小さくします。マウスモード用"
+        end
+
+        -- The maximum coin limit for each store is raised to 99999.
+        if str == "The maximum coin limit for each store is raised to 99999" then
+            str = "各商店のコインの上限を99999に引き上げます"
         end
 
         if str == "Check to enable" then
@@ -733,6 +808,17 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     party_info_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
     x = x + 30
 
+    local coin_count = frame:CreateOrGetControl("richtext", "coin_count", 40, x + 5)
+    coin_count:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("The maximum coin limit for each store is raised to 99999"))
+    coin_count:SetTextTooltip("각 상점의 코인 한도를 99999로 상향 조정합니다")
+
+    local coin_count_checkbox = frame:CreateOrGetControl('checkbox', 'coin_count_checkbox', 10, x, 25, 25)
+    AUTO_CAST(coin_count_checkbox)
+    coin_count_checkbox:SetCheck(g.settings.coin_count)
+    coin_count_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+    coin_count_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
+    x = x + 30
+
     local description = frame:CreateOrGetControl("richtext", "description", 40, x + 5)
     description:SetText("{ol}{#FFA500}" ..
                             MINI_ADDONS_LANG("※Character change is required to enable or disable some functions"))
@@ -787,7 +873,8 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         skill_enchant = "skill_enchant_checkbox",
         party_info = "party_info_checkbox",
         relic_gauge = "relic_gauge_checkbox",
-        raid_check = "raid_check_checbox"
+        raid_check = "raid_check_checbox",
+        coin_count = "coin_count_checkbox"
         -- !
     }
 
@@ -832,7 +919,8 @@ if not g.loaded then
         auto_gacha_start = 0,
         party_info = 1,
         relic_gauge = 1,
-        raid_check = 1
+        raid_check = 1,
+        coin_count = 0
 
         -- !
     }
@@ -879,7 +967,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
             skill_enchant = 1,
             party_info = 1,
             relic_gauge = 1,
-            raid_check = 1
+            raid_check = 1,
+            coin_count = 0
 
         }
         MINI_ADDONS_SAVE_SETTINGS()
@@ -888,6 +977,11 @@ function MINI_ADDONS_LOAD_SETTINGS()
     end
 
     g.settings = settings
+
+    if g.settings.coin_count == nil then
+        g.settings.coin_count = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
 
     if g.settings.raid_check == nil then
         g.settings.raid_check = 1
@@ -948,16 +1042,21 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
     if slogutis ~= upinis then
         if langcode == "Japanese" then
             if slogutis ~= 1 then
-
+                imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
                     5.0)
+                NICO_CHAT("{@st55_a}スローガティスまだやってへんで？")
             elseif upinis ~= 1 then
+                imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}ウピニスまだやってへんで？", 5.0)
+                NICO_CHAT("{@st55_a}ウピニスまだやってへんで？")
             end
         else
             if slogutis ~= 1 then
+                imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}I haven't done Abyss yet, okay?", 5.0)
             elseif upinis ~= 1 then
+                imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}I haven't done Dreamy yet, okay?", 5.0)
             end
         end
