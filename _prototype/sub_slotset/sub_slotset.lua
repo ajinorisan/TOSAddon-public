@@ -1,7 +1,7 @@
 local addonName = "SUB_SLOTSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "0.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -11,6 +11,8 @@ local g = _G["ADDONS"][author][addonName]
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
+local os = require("os")
+local json = require("json")
 
 local base = {}
 
@@ -28,6 +30,7 @@ function MARKET_SELLLIST_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+    g.settings = g.settings or {}
 
     -- addon:RegisterMsg("GAME_START", "market_voucher_init_frame")
     -- acutil.setupEvent(addon, "CABINET_GET_ITEM", "market_voucher_CABINET_GET_ITEM");
