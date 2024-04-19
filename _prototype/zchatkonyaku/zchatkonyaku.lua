@@ -1,3 +1,4 @@
+-- v2.0.0 別フレームにてチャット表示に変更。
 -- ******************************************************
 -- zchatextendより遅くに読み込む必要あるのでz始まり
 -- ******************************************************
@@ -7,6 +8,8 @@ local addonNameLower = string.lower(addonName);
 -- 作者名
 local author = "mamao";
 
+local originalVer = "0.0.1"
+local Ver = "2.0.0"
 -- アドオン内で使用する領域を作成。以下、ファイル内のスコープではグローバル変数gでアクセス可
 _G["ADDONS"] = _G["ADDONS"] or {};
 _G["ADDONS"][author] = _G["ADDONS"][author] or {};
@@ -24,6 +27,7 @@ g.SAVE_DIR = "../release/screenshot";
 
 -- 設定ファイル保存先
 g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
+-- local TranslaterExe = string.format("..\\addons\\%s\\%s\\%s", addonNameLower, "zchatkonyaku", "start.bat");
 
 -- ライブラリ読み込み
 local acutil = require('acutil');
@@ -35,26 +39,32 @@ end
 -- 読み込みフラグ
 g.loaded = false
 
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
+
 -- lua読み込み時のメッセージ
-CHAT_SYSTEM(string.format("%s.lua is loaded", addonName));
+-- CHAT_SYSTEM(string.format("%s.lua is loaded", addonName));
 
 -- マップ読み込み時処理（1度だけ）
 function ZCHATKONYAKU_ON_INIT(addon, frame)
-    -- https://github-wiki-see.page/m/meldavy/ipf-documentation/wiki/Async-Logic#fps_update
-    -- ReserveScript("hookaleady()", 5);
-    -- RunUpdateScript
 
-    --	acutil.slashCommand("/mos", KONYAKU_PROCESS_COMMAND);
-
-    CHAT_SYSTEM("Chat Konyaku init");
-
+    g.addon = addon;
+    g.frame = frame;
     -- 初期設定項目は1度だけ行う
     if not g.loaded then
-        g.addon = addon;
-        g.frame = frame;
 
-        -- ScpArgMsg("ChatType_1")を使うと文字になってくれない…
-        -- だからchatextendsも自前で変換してたのかな
+        frame:Resize(0, 0)
+        frame:SetPos(0, 0)
+
         g.MSG_PATTERN = {};
         g.MSG_PATTERN[#g.MSG_PATTERN + 1] = "一般";
         g.MSG_PATTERN[#g.MSG_PATTERN + 1] = "シャウト";
@@ -67,33 +77,194 @@ function ZCHATKONYAKU_ON_INIT(addon, frame)
         g.MSG_PATTERN[#g.MSG_PATTERN + 1] = "強調";
 
         g.loaded = true;
+
     end
 
-    -- 翻訳準備（マップロードの度にコールすれば翻訳切断時にリログで復帰できる）
+    local frame = ui.GetFrame("zchatkonyaku")
+    frame:RunUpdateScript("KONYAKU_TRANSLATE_RECV", 0.1)
+    acutil.setupEvent(addon, "DRAW_CHAT_MSG", "KONYAKU_CHAT_HOOK");
+    addon:RegisterMsg('ESCAPE_PRESSED', 'KONYAKU_FRAME_CLOSE');
+    addon:RegisterMsg("GAME_START_3SEC", "KONYAKU_FRAME_INIT")
+    g.lastPrintedMsg = ""
+    g.childCount = 0
+
     g.pipe = true;
     KONYAKU_TRANSLATE_START();
 
-    -- タイマー準備
-    --	local __timer = frame:CreateOrGetControl("timer", "addontimer2", 10, 10);
-    --	AUTO_CAST(timer);
-    local timer_frame = frame:GetChild("addontimer");
-    local timer = tolua.cast(timer_frame, "ui::CAddOnTimer");
+end
 
-    if timer ~= nil then
-        timer:Stop();
-        timer:SetUpdateScript("KONYAKU_TRANSLATE_RECV");
-        timer:Start(1.0);
-        CHAT_SYSTEM("翻訳受信タイマー起動完了");
-    else
-        CHAT_SYSTEM("翻訳受信タイマー無効");
+function KONYAKU_CHAT_FORMAT(str, msgString)
+
+    local res = msgString:gsub("{.-}", "")
+
+    if res == " " then
+
+        return
     end
 
-    -- drawイベントを拾って翻訳
-    acutil.setupEvent(addon, "DRAW_CHAT_MSG", "KONYAKU_CHAT_HOOK");
+    local result = str:gsub("{.-}", "") -- {}に囲まれた部分を削除する
+    result = dictionary.ReplaceDicIDInCompStr(result)
 
-    print(tostring(g.MSG_PATTERN))
-    -- CHAT_SYSTEM("発言フックOK");
+    if result == " " then
+        return
+    end
+    local maxLength = 50 -- 一行の最大半角文字数
+    local strTable = {} -- 文字列を格納するテーブル
 
+    -- 文字列を60文字ごとに分割してテーブルに格納する
+    for i = 0, #result, maxLength do
+        table.insert(strTable, result:sub(i, i + maxLength - 1))
+    end
+
+    return strTable
+    -- テーブルを出力
+    --[[for _, str in ipairs(strTable) do
+        print(str)
+    end]]
+end
+
+function KONYAKU_CHAT_SYSTEM(groupboxname, msg)
+
+    local mainchatFrame = ui.GetFrame("chatframe")
+    local groupbox = GET_CHILD(mainchatFrame, groupboxname)
+    local size = session.ui.GetMsgInfoSize(groupboxname)
+    local lastmsginfo = session.ui.GetChatMsgInfo(groupboxname, size - 1)
+
+    -- local msgString = lastmsginfo:GetMsg()
+    local msgString = tostring(msg)
+
+    if msgString == g.lastPrintedMsg then
+        return
+    end
+
+    local timestr = lastmsginfo:GetTimeStr()
+    local cmdName = lastmsginfo:GetCommanderName();
+    local msgtype = lastmsginfo:GetMsgType()
+
+    local typetbl = {
+
+        Shout = "[シャウト]",
+        Normal = "[一般]",
+        Party = "[PT]",
+        Guild = "[ギルド]",
+        System = "[システム]"
+    }
+
+    local frame = ui.GetFrame("zchatkonyaku")
+    local gbox = GET_CHILD(frame, "gbox")
+    local string = ""
+    if msgString ~= g.lastPrintedMsg then
+
+        g.lastPrintedMsg = msgString -- 前回プリントしたメッセージを更新
+        local count = 0
+        local text = GET_CHILD(gbox, "text" .. g.childCount .. count)
+        if text == nil then
+            for key, str in pairs(typetbl) do
+                if tostring(key) == msgtype then
+                    msgtype = str
+                    break
+                end
+            end
+
+            -- local strTable = removeBrackets(cmdName .. ":" .. msgString, msgString)
+            local strTable = KONYAKU_CHAT_FORMAT(msgString, msgString)
+
+            for _, str in ipairs(strTable) do
+
+                local text = gbox:CreateOrGetControl("richtext", "text" .. g.childCount .. count, 25, g.childCount * 25,
+                    frame:GetWidth() - 90, 20)
+
+                if count == 0 and msgtype == "[PT]" then
+                    text:SetText("{ol}{#86E57F}" .. msgtype .. str)
+
+                elseif count ~= 0 and msgtype == "[PT]" then
+                    text:SetText("{ol}{#86E57F}" .. str)
+
+                elseif count == 0 and msgtype == "[シャウト]" then
+                    text:SetText("{ol}{#da6e0f}" .. msgtype .. str)
+
+                elseif count ~= 0 and msgtype == "[シャウト]" then
+                    text:SetText("{ol}{#da6e0f}" .. str)
+
+                elseif count == 0 and msgtype == "[一般]" then
+                    text:SetText("{ol}{#FFFFFF}" .. msgtype .. str)
+
+                elseif count ~= 0 and msgtype == "[一般]" then
+                    text:SetText("{ol}{#FFFFFF}" .. str)
+
+                elseif count == 0 and msgtype == "[ギルド]" then
+                    text:SetText("{ol}{#A566FF}" .. msgtype .. str)
+
+                elseif count ~= 0 and msgtype == "[ギルド]" then
+                    text:SetText("{ol}{#A566FF}" .. str)
+
+                elseif count == 0 and msgtype == "[システム]" then
+                    text:SetText("{ol}{#FFE400}" .. msgtype .. string.gsub(str, "System", ""))
+
+                elseif count ~= 0 and msgtype == "[システム]" then
+                    text:SetText("{ol}{#FFE400}" .. str)
+
+                elseif count == 0 then
+                    text:SetText("{ol}{#FFFFFF}" .. msgtype .. str)
+
+                elseif count ~= 0 then
+                    text:SetText("{ol}{#FFFFFF}" .. str)
+
+                end
+                local time = gbox:CreateOrGetControl("richtext", "time" .. g.childCount .. count, frame:GetWidth() - 85,
+                    g.childCount * 25, 80, 20)
+                time:SetText("{ol}{s14}" .. timestr)
+
+                count = count + 1
+                g.childCount = g.childCount + 1
+            end
+
+        end
+
+        gbox:SetScrollPos(99999)
+    end
+
+    return
+
+end
+
+function KONYAKU_FRAME_OPEN(frame, ctrl, argStr, argNum)
+    local frame = ui.GetFrame("zchatkonyaku")
+    if frame:IsVisible() == 0 then
+        frame:ShowWindow(1)
+    else
+        KONYAKU_FRAME_CLOSE(frame, ctrl, argStr, argNum)
+    end
+end
+
+function KONYAKU_FRAME_CLOSE(frame, ctrl, argStr, argNum)
+    local frame = ui.GetFrame("zchatkonyaku")
+    frame:ShowWindow(0)
+end
+
+function KONYAKU_FRAME_INIT(frame, ctrl, argStr, argNum)
+    local chatframe = ui.GetFrame("chatframe")
+    local tabgbox = GET_CHILD_RECURSIVELY(chatframe, "tabgbox")
+    local trans = tabgbox:CreateOrGetControl("button", "trans", 270, -3, 30, 30)
+    AUTO_CAST(trans)
+    trans:SetSkinName("test_red_button")
+    trans:SetText("{ol}{s14}{#FFFFFF}翻")
+    trans:SetEventScript(ui.LBUTTONUP, "KONYAKU_FRAME_OPEN")
+    trans:SetTextTooltip("翻訳チャットウインドウを開閉します。")
+    local chatframeWidth, chatframeHeight = chatframe:GetWidth(), chatframe:GetHeight()
+
+    frame:SetSkinName("chat_window_2")
+    frame:Resize(chatframeWidth, chatframeHeight / 2) -- 幅は chatframe と同じに設定
+
+    local clientWidth, clientHeight = option.GetClientWidth(), option.GetClientHeight()
+    local frameY = clientHeight - chatframeHeight
+
+    frame:SetPos(0, frameY + chatframeHeight / 2 - 70)
+
+    frame:ShowWindow(1)
+    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 0, 0, frame:GetWidth(), frame:GetHeight())
+    -- gbox:RemoveAllChild()
+    -- ui.Chat("/p 오늘 챌 잡몹 피가 1이에요 여러분 챌도세요")
 end
 
 -- =================================
@@ -106,38 +277,35 @@ function KONYAKU_TRANSLATE_START()
         return;
     end
 
-    CHAT_SYSTEM("翻訳通信準備 開始");
-
-    -- 翻訳通信パイプを用意する
     if g.P1 == nil then
         -- 送信用
         g.P1 = io.open('\\\\.\\pipe\\tos_pipe1', 'w+');
         if g.P1 ~= nil then
-            CHAT_SYSTEM("送信－接続OK");
+            -- CHAT_SYSTEM("送信－接続OK");
         else
-            CHAT_SYSTEM("送信－接続できません");
+            -- CHAT_SYSTEM("送信－接続できません");
             ret = false;
         end
     else
-        CHAT_SYSTEM("送信－接続中");
+        -- CHAT_SYSTEM("送信－接続中");
     end
     if g.P2 == nil then
         -- 受信用
         g.P2 = io.open('\\\\.\\pipe\\tos_pipe2', 'r');
         if g.P2 ~= nil then
-            CHAT_SYSTEM("受信－接続OK");
+            -- CHAT_SYSTEM("受信－接続OK");
         else
-            CHAT_SYSTEM("受信－接続できません");
+            -- CHAT_SYSTEM("受信－接続できません");
             ret = false;
         end
     else
-        CHAT_SYSTEM("受信－接続中");
+        -- CHAT_SYSTEM("受信－接続中");
     end
 
     if ret then
         CHAT_SYSTEM("翻訳通信準備 完了");
     else
-        CHAT_SYSTEM("翻訳しません");
+        -- CHAT_SYSTEM("翻訳しません");
         -- 一度失敗したらマップロードのタイミングまで翻訳フラグはoff
         if g.P1 ~= nil then
             g.P1:close();
@@ -158,22 +326,18 @@ function KONYAKU_CHAT_HOOK(frame, msg)
     local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
     local size = session.ui.GetMsgInfoSize(groupboxname);
 
-    -- 再描画とかで開始インデックスが0以下なら終了
     if startindex <= 0 then
         return;
     end
 
-    -- メインのチャットフレームの文言のみ
     if chatframe ~= ui.GetFrame("chatframe") then
         return;
     end
 
-    -- メインの全体発言のみ
     if groupboxname ~= "chatgbox_TOTAL" then
         return;
     end
 
-    -- グループボックスが取れなかったら処理しない
     local groupbox = GET_CHILD(chatframe, groupboxname);
     if groupbox == nil then
         return;
@@ -189,29 +353,13 @@ function KONYAKU_CHAT_HOOK(frame, msg)
         local chat_id = msg:GetMsgInfoID();
         local tempMsg = msg:GetMsg();
         local cmdName = msg:GetCommanderName();
+        g.msgtype = msg:GetMsgType()
 
-        -- print("msg7 " .. g.chat_id .. '/' .. tempMsg);
-        -- 翻訳アプリへ送信
-        KONYAKU_TRANSLATE_SEND(cmdName, tempMsg, chat_id);
+        if g.msgtype ~= "System" then
+            KONYAKU_TRANSLATE_SEND(cmdName, tempMsg, chat_id);
+            break
+        end
 
-        --[[
-		--temp_file(tempMsg, "1");
-
-		local clustername = "cluster_" .. chat_id;
-		local chatCtrl = GET_CHILD(groupbox, clustername);
-		--とらハムさんのchatextends判定
-		if ADDONS.torahamu ~= nil then
-			if ADDONS.torahamu.CHATEXTENDS ~= nil then
-				if ADDONS.torahamu.CHATEXTENDS.settings.BALLON_FLG then
-					--吹き出しモードだとgroupboxが間に入る
-					chatCtrl = GET_CHILD(chatCtrl, "bg", "ui::CGroupBox");
-				end
-			end
-		end
-		--]]
-        -- local txt = GET_CHILD(chatCtrl, "text", "ui::CRichText");
-        -- local text = txt:GetText();
-        -- temp_file(text, "2");
     end
 
     return;
@@ -222,18 +370,15 @@ end
 -- =================================
 function KONYAKU_TRANSLATE_SEND(cmd_nm, msg, chat_id)
 
-    -- メッセージなしはなにもしない
     if msg == "" then
         return;
     end
 
-    -- 翻訳通信パイプ（念のため切断されていたら接続）
     if io.type(g.P1) == "closed file" or io.type(g.P1) == nil then
         g.P1 = nil;
         KONYAKU_TRANSLATE_START();
     end
 
-    -- 翻訳できない時はなにもしない
     if g.P1 == nil or g.P2 == nil then
         return;
     end
@@ -241,21 +386,37 @@ function KONYAKU_TRANSLATE_SEND(cmd_nm, msg, chat_id)
     local ch = WITH_HANGLE(cmd_nm);
     local mh = WITH_HANGLE(msg);
     if mh or ch then
-        -- 名前かメッセージどちらかがハングルなら送信
+
         msg = cmd_nm .. "\t" .. msg;
 
-        -- 文字数
         local bt = string.format("%04d", #msg + 0);
-        -- chat_id
+
         bt = bt .. acutil.leftPad(chat_id, 8, ' ');
-        -- 文字列
+
         bt = bt .. msg;
 
-        -- 送信
-        -- CHAT_SYSTEM( bt );
         g.P1:write(bt);
         g.P1:flush();
+        return
     end
+
+    --[[local en_chat = HAS_ENGLISH_CHARS(cmd_nm)
+    local en_msg = HAS_ENGLISH_CHARS(msg)
+
+    if en_chat or en_msg then
+
+        msg = cmd_nm .. "\t" .. msg;
+
+        local bt = string.format("%04d", #msg + 0);
+
+        bt = bt .. acutil.leftPad(chat_id, 8, ' ');
+        print(tostring(bt))
+        bt = bt .. msg;
+        print(tostring(bt))
+        g.P1:write(bt);
+        g.P1:flush();
+        return
+    end]]
 end
 
 -- =================================
@@ -263,228 +424,92 @@ end
 -- =================================
 function KONYAKU_TRANSLATE_RECV(frame)
 
-    -- print("recv");
-
-    -- メッセージ置き換え準備
     local chatframe = ui.GetFrame("chatframe");
     local groupboxname = "chatgbox_TOTAL";
     if chatframe == nil then
-        -- print("frame is null");
-        return;
-    end
-    local groupbox = GET_CHILD(chatframe, groupboxname);
-    if groupbox == nil then
-        -- print("groupbox is null");
-        return;
+
+        return 1;
     end
 
-    -- 翻訳通信パイプチェック（念のため切断されていたら接続）
+    local groupbox = GET_CHILD(chatframe, groupboxname);
+    if groupbox == nil then
+
+        return 1;
+    end
+
     if io.type(g.P2) == "closed file" or io.type(g.P2) == nil then
         g.P2 = nil;
         KONYAKU_TRANSLATE_START();
     end
 
-    -- 翻訳できない時はなにもしない
     if g.P1 == nil or g.P2 == nil then
-        return;
+        return 1;
     end
 
     local cnt = 0;
-    -- １回につき最大１０件まで処理
-    while cnt < 10 do
 
-        -- print("recv loop");
+    -- while cnt < 10 do
 
-        -- luaのパイプioはseekするとバッファ残数が取れるようだ
-        local len = g.P2:seek("end");
-        -- print("end:" .. len);
+    local len = g.P2:seek("end");
 
-        if len <= 13 then
-            -- 長さ13以下なら翻訳メッセージなしとみなす
-            break
-        else
-            -- 翻訳メッセージあり
+    if len <= 1 then
 
-            -- メッセージ表現スタイル取り出し
-            local ms = g.P2:read(1) + 0;
-            -- print("ms:" .. ms);
+        return 1
+    else
 
-            -- 文字数取り出し
-            local len = g.P2:read(4) + 0;
-            -- print("length:" .. len);
+        local ms = g.P2:read(1) + 0;
 
-            -- chat_id（これは数値変換不要）
-            local chat_id = g.P2:read(8);
-            chat_id = TRIM(chat_id);
-            -- print ( chat_id );
+        local len = g.P2:read(4) + 0;
 
-            -- 文字列取り出し
-            local cmd_nm = "";
-            local msg = g.P2:read(len);
-            -- print ( msg );
+        local chat_id = g.P2:read(8);
+        chat_id = TRIM(chat_id);
 
-            local msga = SPLIT(msg, "\t");
-            -- print ( "array:" .. #msga );
-            if #msga > 1 then
-                -- １行目＝名前
-                -- ２行目＝メッセージ
-                cmd_nm = msga[1];
-                msg = msga[2];
-                -- print("cmd_nm " .. cmd_nm);
-                -- print("msg " .. msg);
+        local cmd_nm = "";
+        local msg = g.P2:read(len);
 
-                -- システムメッセージでは名前は省略
-                if cmd_nm == "System" then
-                    cmd_nm = "";
-                end
+        local msga = SPLIT(msg, "\t");
+
+        if #msga > 1 then
+
+            cmd_nm = msga[1];
+            msg = msga[2];
+
+            if cmd_nm == "System" then
+                cmd_nm = "";
             end
 
-            -- 翻訳先のメッセージを探す
-            local clustername = "cluster_" .. chat_id;
-            -- print("debug:" .. clustername);
+            local delaytime = 20
+            -- /r グループ　/yシャウト　/pパーティー /gギルド　/s一般
+            if g.msgtype ~= "System" or g.msgtype ~= "Partymem" or g.msgtype ~= "guildmem" then
+                msg = cmd_nm .. ":" .. msg
+                KONYAKU_CHAT_SYSTEM(groupboxname, msg)
+                --[[if g.msgtype == "Shout" then
+                    NICO_CHAT("{@st64}{#da6e0f}{ol}" .. "[" .. g.msgtype .. "]" .. cmd_nm .. ":" .. msg)
 
-            -- 発言者枠（吹き出しモード時使用）
-            local cmdn = nil;
+                elseif g.msgtype == "Normal" then
+                    NICO_CHAT("{@st64}{#FFFFFF}{ol}" .. "[" .. g.msgtype .. "]" .. cmd_nm .. ":" .. msg)
 
-            local chatCtrl = GET_CHILD(groupbox, clustername);
-            -- 枠が見つかり翻訳文字があるならば処理
-            if chatCtrl ~= nil and msg ~= ' ' then
-                -- print("chatCtrl found");
+                elseif g.msgtype == "Party" then
+                    NICO_CHAT("{@st64}{#86E57F}{ol}" .. "[" .. g.msgtype .. "]" .. cmd_nm .. ":" .. msg)
 
-                local is_baloon = false;
+                elseif g.msgtype == "Guild" then
+                    NICO_CHAT("{@st64}{#A566FF}{ol}" .. "[" .. g.msgtype .. "]" .. cmd_nm .. ":" .. msg)
 
-                -- とらハムさんのchatextends判定
-                if ADDONS.torahamu ~= nil then
-                    -- print("torahamu found.");
-                    if ADDONS.torahamu.CHATEXTENDS ~= nil then
-                        -- print("chatextends found.");
-                        if ADDONS.torahamu.CHATEXTENDS.settings.BALLON_FLG then
-                            -- print("chatextends ballon mode.");
-                            -- 名前枠取得
-                            cmdn = GET_CHILD(chatCtrl, "name", "ui::CRichText");
-                            -- 吹き出しモードだとgroupboxが間に入る
-                            chatCtrl = GET_CHILD(chatCtrl, "bg", "ui::CGroupBox");
-                            is_baloon = true;
-                        end
-                    end
-                end
-
-                local txt = GET_CHILD(chatCtrl, "text", "ui::CRichText");
-                if txt ~= nil then
-                    -- print("txt is null");
-
-                    -- 翻訳先発見
-                    local text = txt:GetText();
-                    -- print("text:" .. text);
-                    -- temp_file(text, "2");
-
-                    -- 吹き出しモードでないなら色変え
-                    if not is_baloon then
-                        msg = msg:gsub("{#0000FF}{img ", "{#FFFF00}{img ");
-                    end
-
-                    if ms == 0 then
-                        -- APPEND
-
-                        -- 追記
-                        if is_baloon then
-
-                            if cmd_nm ~= "" and cmdn ~= nil then
-                                local cmt = cmdn:GetText();
-                                cmt = cmt:gsub('^(.*)({/})$', '%1（' .. cmd_nm .. '）%2');
-                                cmdn:SetText(cmt);
-                            end
-                            -- 吹き出しモードならnlを含まない
-                            text = text:gsub('^(.*)({/}{/})$', '%1（' .. msg .. '）%2');
-
-                        else
-                            if cmd_nm ~= "" then
-                                msg = cmd_nm .. ' : ' .. msg;
-                            end
-
-                            -- 通常チャットならnl含む
-                            text = text:gsub('^(.*)({nl}{/}{/}{nl}{/})$', '%1{#999999}（' .. msg .. '）{/}%2');
-                            text = text:gsub('^(.*)({nl}{/}{/}{nl})$', '%1{#999999}（' .. msg .. '）{/}%2');
-                            text = text:gsub('^(.*)({nl}{/}{/})$', '%1{#999999}（' .. msg .. '）{/}%2');
-                        end
-                        txt:SetTextByKey("text", text);
-
-                    else
-                        -- REPLACE
-
-                        -- print("text:" .. text);
-                        -- temp_file(text, "2");
-
-                        if is_baloon then
-
-                            if cmd_nm ~= "" and cmdn ~= nil then
-                                cmdn:SetText('{@st61}' .. cmd_nm .. '{/}');
-                            end
-                            text = text:gsub('^({.-}{.-}{.-})(.*)({/}{/})$', '%1 {#FF0000}◆{/}(' .. msg .. ')%3');
-
-                        else
-
-                            if cmd_nm ~= "" then
-                                msg = cmd_nm .. ' : ' .. msg;
-                            end
-
-                            -- 書き換え
-                            for i = 1, #g.MSG_PATTERN do
-                                local type_pat = "%[" .. g.MSG_PATTERN[i] .. "%]";
-                                -- print(type_pat);
-
-                                if text:match(type_pat) then
-                                    -- print("match " .. i);
-
-                                    if is_baloon then
-                                        -- 吹き出しモードならnlを含まない
-                                        text = text:gsub('^(.*)(' .. type_pat .. ')(.*)({/}{/})$',
-                                                         '%1%2 {#FF0000}◆{/}(' .. msg .. ')%4');
-                                    else
-                                        text = text:gsub('^(.*)(' .. type_pat .. ')(.*)({nl}{/}{/}{nl}{/})$',
-                                                         '%1%2 {#FF0000}◆{/}(' .. msg .. ')%4');
-                                        text = text:gsub('^(.*)(' .. type_pat .. ')(.*)({nl}{/}{/}{nl})$',
-                                                         '%1%2 {#FF0000}◆{/}(' .. msg .. ')%4');
-                                        text = text:gsub('^(.*)(' .. type_pat .. ')(.*)({nl}{/}{/})$',
-                                                         '%1%2 {#FF0000}◆{/}(' .. msg .. ')%4');
-                                    end
-
-                                    break
-                                end
-                            end
-
-                        end
-                        txt:SetTextByKey("text", text);
-
-                    end
-
-                    -- できたかな？
-                    -- text = txt:GetText();
-                    -- print("chat update " .. text);
                 else
-                    -- print("target text nil");
-                end
-            else
-                -- print("target chat nil");
+                    NICO_CHAT("{@st64}{#FFFFFF}{ol}" .. "[" .. g.msgtype .. "]" .. cmd_nm .. ":" .. msg)
+                end]]
+
+                return 1
+
             end
+            return 1
+
         end
-        cnt = cnt + 1;
+        return 1;
+
     end
+    return 1;
 
-    -- できれば対象のグループだけredrawしたいが引数がわからん
-    -- [RedrawGroupChat] = cfunc(?)
-    --	ui.RedrawGroupChat(groupbox);
-    --	ui.RedrawGroupChat(groupboxname);
-
-    -- これで更新できるようだが全部redrawは効率悪そう
-    if cnt > 0 then
-        ui.ReDrawAllChatMsg();
-    end
-
-end
-
--- チャットコマンド処理（acutil使用時）
-function KONYAKU_PROCESS_COMMAND(command)
 end
 
 function temp_file(msg, file)
@@ -578,4 +603,15 @@ function WITH_HANGLE(str)
         code = 0;
     end
     return false;
+end
+
+function HAS_ENGLISH_CHARS(str)
+    local size = #str;
+    for i = 1, size do
+        local charCode = string.byte(str, i);
+        if (charCode >= 65 and charCode <= 90) or (charCode >= 97 and charCode <= 122) then
+            return true; -- English character found
+        end
+    end
+    return false; -- No English characters found
 end
