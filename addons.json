@@ -8,6 +8,16 @@
 		"description" : "未知の聖域にも対応。フィールドで倒したモンスターをカウント。Support for unknown sanctuaries. Counting monsters defeated in the field.미지의 성역에도 대응. 필드에서 처치한 몬스터를 카운트",
 		"tags" : []
 	},
+	{
+		"name" : "Relic Change",
+		"file" : "relic_change",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "relic_change",
+		"unicode" : "⛄",
+		"description" : "レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。Simplify the replacement of Relic Gems. A button is created at the top centre of the screen.유물 젬 교체가 간소화됩니다. 화면 중앙 상단에 버튼이 생성됩니다.",
+		"tags" : []
+	},	
 {
 		"name" : "Skill Notice",
 		"file" : "skill_notice",

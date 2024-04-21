@@ -12,20 +12,9 @@ GC.Run ("chrome.exe --incognito -url https://translate.google.co.jp/?sl=auto&tl=
 objWshShell.AppActivate "chrome.exe"
 WScript.Sleep 4000
 
-' 翻訳結果を取得
-Dim translatedText
-translatedText = GetTranslatedText()
+' JavaScript を使用して翻訳結果を取得
+Dim jsCode
+jsCode = "(function() { var text = ''; var interval = setInterval(function() { var translationElement = document.getElementsByClassName('translation')[0]; if (translationElement && translationElement.innerText.trim() !== '') { text = translationElement.innerText; clearInterval(interval); WScript.Echo(text); } }, 5000); })();"
+translatedText = objWshShell.Exec("cmd.exe /c chrome.exe --headless --disable-gpu --dump-dom javascript:" & jsCode).StdOut.ReadAll
 
-
-Function GetTranslatedText()
-    ' 翻訳結果を取得するXPath
-    Dim resultXPath
-    resultXPath = ".//span[contains(@class, 'result-text')]//span"
-MsgBox "翻訳結果: " & translatedText
-    ' 翻訳結果を取得
-    Dim translatedText
-    translatedText = chrome.FindElement(By.XPath(resultXPath)).Text
-
-    ' 翻訳結果を返す
-    Set GetTranslatedText = translatedText
-End Function
+MsgBox translatedText

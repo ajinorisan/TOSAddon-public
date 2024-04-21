@@ -20,6 +20,21 @@ https://twitter.com/ToSJP_rada
 　
 　
 　
+### Relic Change
+
+レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+
+
+----
+
+　
 ### Another Warehouse
 
 ebisukeさん作成のチーム倉庫改造アドオンYet Another Account Inventoryのシンプル版。保守しやすいように改造。今後はYAAI保守しないので乗り換え推奨。
