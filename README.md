@@ -31,6 +31,7 @@ v1.0.0 公開。
 
 アドオンマネージャー登録済
 
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/bfc1ce11-d1ae-4c00-8f32-4f779a985596)
 
 ----
 
