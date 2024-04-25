@@ -4,10 +4,11 @@
 -- v1.0.3 warehousemanagerの設定ファイルをコピー出来る様に。自動設定をキャラ毎に。
 -- v1.0.4 トークンの判定が環境によって安定しないためディレイを5秒に変更。入庫のディレイも設定できるように変更。
 -- v1.0.5 セット出庫機能追加。設定スロット増設。
+-- v1.0.6 キャラ毎設定スロット増設。入庫時のツールチップ修正
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -386,10 +387,12 @@ function another_warehouse_set_item_take(frame, ctrl, argStr, argNum)
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
     another_warehouse_set_item_close(frame, ctrl, argStr, argNum)
 
-    local dropList = GET_CHILD_RECURSIVELY(warehouseFrame, 'dropList')
-    AUTO_CAST(dropList)
-
-    dropList:SelectItem(0)
+    ACCOUNTWAREHOUSE_CLOSE(warehouseFrame)
+    warehouseFrame:ShowWindow(0)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+    SET_INV_LBTN_FUNC(ui.GetFrame("inventory"), "None");
+    UI_TOGGLE_INVENTORY()
+    return
 end
 
 function another_warehouse_set_name_edit(frame, ctrl, argStr, argNum)
@@ -747,20 +750,22 @@ function another_warehouse_keeper_reserve()
     end
 
     if g.settings[LoginCID].item_check == 1 then
-        ReserveScript('another_warehouse_item()', 0.4)
+        ReserveScript('another_warehouse_item()', 0.6)
 
     end
 
     return
 end
 
-function another_warehouse_item_tooltip(Name, iconName, Count)
+function another_warehouse_item_tooltip(Name, iconName, Count, tooltipcount)
 
-    local tooltip_frame = ui.CreateNewFrame("notice_on_pc", "another_warehouse_tooltip", 0, 0, 10, 10)
+    print(tostring(tooltipcount) .. "a")
+
+    local tooltip_frame = ui.CreateNewFrame("notice_on_pc", "another_warehouse_tooltip" .. tooltipcount, 0, 0, 10, 10)
     AUTO_CAST(tooltip_frame)
 
     tooltip_frame:SetSkinName("None")
-    tooltip_frame:SetPos(680, 400)
+    tooltip_frame:SetPos(680, 300 + tooltipcount * 55)
     tooltip_frame:SetLayerLevel(100)
     tooltip_frame:Resize(350, 64)
     -- tooltip_frame:RemoveAllChild()
@@ -789,13 +794,14 @@ function another_warehouse_item_tooltip(Name, iconName, Count)
 
     SET_SLOT_ICON(tooltip_slot, iconName)
     tooltip_frame:ShowWindow(1)
-    ReserveScript("another_warehouse_item_tooltip_close()", 0.45)
+    ReserveScript(string.format("another_warehouse_item_tooltip_close(%d)", tooltipcount), 1.5)
     -- return
 end
 
-function another_warehouse_item_tooltip_close()
-    local tooltip_frame = ui.GetFrame("another_warehouse_tooltip")
+function another_warehouse_item_tooltip_close(count)
+    local tooltip_frame = ui.GetFrame("another_warehouse_tooltip" .. count)
     tooltip_frame:ShowWindow(0)
+
 end
 
 function another_warehouse_item()
@@ -955,6 +961,7 @@ function another_warehouse_item_put()
     end
 
     local delay = g.settings.delay
+    local tooltip_count = 0
 
     for clsID, itemData in pairs(g.putitemtbl) do
         if warehouseFrame:IsVisible() == 1 then
@@ -982,14 +989,31 @@ function another_warehouse_item_put()
             -- local tooldelay = delay - (delay - 0.05)
             -- ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),               delay + 0.05)
 
-            ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s','%s')", iesid, Count, handle,
-                goal_index, Name, iconName), delay)
+            ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s','%s',%d)", iesid, Count,
+                handle, goal_index, Name, iconName, tooltip_count), delay)
             delay = delay + 0.5
-        else
-            g.putitemtbl = nil
-            g.takeitemtbl = nil
-            return
+            if tooltip_count >= 4 then
+                tooltip_count = tooltip_count - 4
+            else
+                tooltip_count = tooltip_count + 1
+            end
         end
+
+        -- g.putitemtbl = nil
+        -- g.takeitemtbl = nil
+        -- return
+    end
+
+    -- print(tostring(next(g.putitemtbl)) .. "b")
+    if next(g.putitemtbl) ~= nil then
+
+        ReserveScript("another_warehouse_item_put()", delay)
+        return
+    else
+        -- print("nil")
+        --[[else
+        g.putitemtbl = nil
+        g.takeitemtbl = nil]]
     end
 
     if flag == true then
@@ -1003,12 +1027,12 @@ function another_warehouse_end()
     ui.SysMsg("[AWH]End of Operation")
 end
 
-function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name, iconName)
+function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name, iconName, tooltip_count)
     CHAT_SYSTEM(another_warehouse_lang("Item to warehousing") .. "：[" .. "{#EE82EE}" .. Name .. "{#FFFF00}]×" ..
                     "{#EE82EE}" .. count)
-    another_warehouse_item_tooltip(Name, iconName, count)
-    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
 
+    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
+    another_warehouse_item_tooltip(Name, iconName, count, tooltip_count)
     return
 end
 
@@ -1157,7 +1181,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
 
     settingframe:RemoveAllChild()
     settingframe:SetPos(670, 70)
-    settingframe:Resize(740, 830)
+    settingframe:Resize(740, 910)
     settingframe:SetLayerLevel(96)
     settingframe:SetSkinName("test_frame_low")
     settingframe:ShowWindow(1)
@@ -1281,7 +1305,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
         end
     end
 
-    local char_gb = settingframe:CreateOrGetControl("groupbox", "char_gb", 20, 715, settingframe:GetWidth() - 40, 100)
+    local char_gb = settingframe:CreateOrGetControl("groupbox", "char_gb", 20, 715, settingframe:GetWidth() - 40, 180)
     char_gb:SetSkinName("test_frame_low")
     AUTO_CAST(char_gb);
 
@@ -1291,7 +1315,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     char_slotset:EnablePop(1)
     char_slotset:EnableDrag(1)
     char_slotset:EnableDrop(1)
-    char_slotset:SetColRow(17, 2) -- スロットの配置と個数
+    char_slotset:SetColRow(17, 4) -- スロットの配置と個数
     char_slotset:SetSpc(0, 0)
     char_slotset:SetSkinName('slot')
     char_slotset:SetEventScript(ui.DROP, "another_warehouse_setting_drop")
