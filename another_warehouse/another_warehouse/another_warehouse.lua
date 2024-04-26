@@ -5,10 +5,11 @@
 -- v1.0.4 トークンの判定が環境によって安定しないためディレイを5秒に変更。入庫のディレイも設定できるように変更。
 -- v1.0.5 セット出庫機能追加。設定スロット増設。
 -- v1.0.6 キャラ毎設定スロット増設。入庫時のツールチップ修正
+-- v1.0.7 設定スロットを999個に。アイコンクリック時の仕様変更。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -232,8 +233,12 @@ function another_warehouse_lang(str)
             str = "インベントリ:アイコン右クリックで全数搬入"
         end
 
-        if str == "Inventory: left mouse click to Carry in 10 items" then
-            str = "インベントリ:アイコン左クリックで10個搬入"
+        if str == "Inventory: left mouse click to Carry in 1 items" then
+            str = "インベントリ:アイコン左クリックで1個搬入"
+        end
+
+        if str == "Inventory: left SHIFT+mouse left click to Carry in 10 items" then
+            str = "インベントリ:左SHIFT+アイコン左クリックで10個搬入"
         end
 
         if str == "Inventory: left SHIFT+mouse right click to Carry in Input quantity items" then
@@ -244,8 +249,12 @@ function another_warehouse_lang(str)
             str = "チーム倉庫:アイコン右クリックで全数搬出"
         end
 
-        if str == "Warehouse: left mouse click to Carry out 10 items" then
-            str = "チーム倉庫:アイコン左クリックで10個搬出"
+        if str == "Warehouse: left mouse click to Carry out 1 items" then
+            str = "チーム倉庫:アイコン左クリックで1個搬出"
+        end
+
+        if str == "Warehouse: left SHIFT+mouse left click to Carry out 10 items" then
+            str = "チーム倉庫:左SHIFT+アイコン左クリックで10個搬出"
         end
 
         if str == "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items" then
@@ -261,13 +270,19 @@ function another_warehouse_help()
     -- tree:SetTextTooltip("Left click 10 each{nl}Right click all{nl}Hold Left Shift to specify quantity")
     local context = ui.CreateContextMenu("CONTEXT", "          [Anothe Warehouse]Help", 30, 0, 100, 100)
     ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: right mouse click to Carry in all items"), "None")
-    ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: left mouse click to Carry in 10 items"), "None")
+    ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: left mouse click to Carry in 1 items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang(
         "Inventory: left SHIFT+mouse right click to Carry in Input quantity items"), "None")
+    ui.AddContextMenuItem(context,
+        another_warehouse_lang("Inventory: left SHIFT+mouse left click to Carry in 10 items"), "None")
+
     ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: right mouse click to Carry out all items"), "None")
-    ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: left mouse click to Carry out 10 items"), "None")
+    ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: left mouse click to Carry out 1 items"), "None")
+
     ui.AddContextMenuItem(context, another_warehouse_lang(
         "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items"), "None")
+    ui.AddContextMenuItem(context,
+        another_warehouse_lang("Warehouse: left SHIFT+mouse left click to Carry out 10 items"), "None")
 
     ui.OpenContextMenu(context)
 end
@@ -1180,8 +1195,8 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     AUTO_CAST(settingframe)
 
     settingframe:RemoveAllChild()
-    settingframe:SetPos(670, 70)
-    settingframe:Resize(740, 910)
+    settingframe:SetPos(670, 10)
+    settingframe:Resize(740, 1060)
     settingframe:SetLayerLevel(96)
     settingframe:SetSkinName("test_frame_low")
     settingframe:ShowWindow(1)
@@ -1264,7 +1279,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     AUTO_CAST(char_text);
     char_text:SetText("{ol}" .. another_warehouse_lang("character setting"))
 
-    local team_gb = settingframe:CreateOrGetControl("groupbox", "team_gb", 20, 145, settingframe:GetWidth() - 40, 540)
+    local team_gb = settingframe:CreateOrGetControl("groupbox", "team_gb", 20, 145, settingframe:GetWidth() - 25, 540)
     team_gb:SetSkinName("test_frame_low")
     AUTO_CAST(team_gb);
 
@@ -1275,7 +1290,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     team_slotset:EnableDrag(1)
     team_slotset:EnableDrop(1)
     -- team_slotset:SetNumberMode(1)
-    team_slotset:SetColRow(17, 13) -- スロットの配置と個数
+    team_slotset:SetColRow(17, 58) -- スロットの配置と個数
     team_slotset:SetSpc(0, 0)
     team_slotset:SetSkinName('slot')
     team_slotset:SetEventScript(ui.DROP, "another_warehouse_setting_drop")
@@ -1305,7 +1320,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
         end
     end
 
-    local char_gb = settingframe:CreateOrGetControl("groupbox", "char_gb", 20, 715, settingframe:GetWidth() - 40, 180)
+    local char_gb = settingframe:CreateOrGetControl("groupbox", "char_gb", 20, 715, settingframe:GetWidth() - 25, 330)
     char_gb:SetSkinName("test_frame_low")
     AUTO_CAST(char_gb);
 
@@ -1315,7 +1330,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     char_slotset:EnablePop(1)
     char_slotset:EnableDrag(1)
     char_slotset:EnableDrop(1)
-    char_slotset:SetColRow(17, 4) -- スロットの配置と個数
+    char_slotset:SetColRow(17, 58) -- スロットの配置と個数
     char_slotset:SetSpc(0, 0)
     char_slotset:SetSkinName('slot')
     char_slotset:SetEventScript(ui.DROP, "another_warehouse_setting_drop")
@@ -2251,7 +2266,7 @@ function another_warehouse_inv_lbtn(frame, invItem, dumm)
 
     if keyboard.IsKeyPressed("LSHIFT") == 1 then
 
-        local frame = ui.GetFrame("accountwarehouse")
+        --[[local frame = ui.GetFrame("accountwarehouse")
         local obj = GetIES(invItem:GetObject())
 
         local maxCnt = invItem.count;
@@ -2267,10 +2282,13 @@ function another_warehouse_inv_lbtn(frame, invItem, dumm)
             INPUT_NUMBER_BOX(frame, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", maxCnt, 1, maxCnt,
                 nil, tostring(invItem:GetIESID()));
         else
-            another_warehouse_putitem(iesid, 10)
-        end
+            another_warehouse_putitem(iesid, 1)
+        end]]
+        local count = math.min(10, invItem.count)
+        another_warehouse_putitem(iesid, count)
+
     else
-        another_warehouse_putitem(iesid, 10)
+        another_warehouse_putitem(iesid, 1)
     end
 end
 
@@ -2625,7 +2643,7 @@ function another_warehouse_on_lbutton(frame, slot, argstr, argnum)
     local obj = GetIES(invItem:GetObject())
 
     if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        local belongingCount = TryGetProp(obj, 'BelongingCount', 0)
+        --[[local belongingCount = TryGetProp(obj, 'BelongingCount', 0)
         local maxCnt = invItem.count;
         if belongingCount > 0 then
             maxCnt = invItem.count - obj.BelongingCount;
@@ -2640,13 +2658,16 @@ function another_warehouse_on_lbutton(frame, slot, argstr, argnum)
         else
             another_warehouse_takeitem(awframe, iesid, 1)
 
-        end
+        end]]
+        local count = math.min(10, invItem.count)
+        another_warehouse_takeitem(awframe, iesid, count)
     else
-        if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
+        --[[if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             another_warehouse_takeitem(awframe, iesid, 10)
         else
-            another_warehouse_takeitem(awframe, iesid, 1)
-        end
+           
+        end]]
+        another_warehouse_takeitem(awframe, iesid, 1)
     end
     -- another_warehouse_put_account_item_to_warehouse(frame, slot)
     -- another_warehouse_takeitem(awframe, iesid, 10)
