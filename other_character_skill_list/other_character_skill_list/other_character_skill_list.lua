@@ -1,9 +1,10 @@
 -- v1.0.1 skillnameがNoneの場合に表示バグってたの修正
 -- v1.0.2 UI少し変更。CC時のカードやエンブレムの装備取り忘れ確認機能。
+-- v1.0.3 読み込み早くしたつもり。自分では何も感じない。回線のせいか？
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -157,13 +158,15 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-        addon:RegisterMsg("GAME_START", "other_character_skill_list_2sec")
+        other_character_skill_list_lord_settings()
+        addon:RegisterMsg("GAME_START", "other_character_skill_list_frame_init")
+        addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_3sec")
         acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_skill_list_INVENTORY_OPEN")
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_skill_list_INVENTORY_CLOSE")
 
     end
     g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
-    -- print("layer:" .. g.layer)
+
 end
 
 function other_character_skill_list_INVENTORY_OPEN()
@@ -250,18 +253,15 @@ function other_character_skill_list_instantcc()
 
 end
 
-function other_character_skill_list_2sec()
-
-    ReserveScript("other_character_skill_list_frame_init()", 2.0)
-    ReserveScript("other_character_skill_list_lord_settings()", 2.0)
+function other_character_skill_list_3sec()
 
     local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
     if type(_G[functionName]) == "function" then
-        -- if _G["ADDONS"]["ebisuke"]["INSTANTCC"] then
-        ReserveScript("other_character_skill_list_instantcc()", 2.0)
-
+        other_character_skill_list_instantcc()
+        return
     else
-        ReserveScript("other_character_skill_list_sort()", 2.0)
+        other_character_skill_list_sort()
+        return
     end
 
 end
@@ -319,6 +319,7 @@ function other_character_skill_list_sort()
 
 end
 function other_character_skill_list_lord_settings()
+
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
     if err then
@@ -423,6 +424,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
         langtbl = entbl
     end
     local yy = 155
+
     for _, character in ipairs(g.characters) do
 
         local name_text = gbox:CreateOrGetControl("richtext", "timer_text" .. character.name, 10, x, 145, 20)
@@ -702,6 +704,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
             end
 
         end
+
         local itemCls = nil
         for k, v in pairs(g.settings) do
 
