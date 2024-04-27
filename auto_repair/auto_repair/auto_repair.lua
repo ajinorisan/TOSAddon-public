@@ -5,10 +5,11 @@
 -- v1.0.6 イベント修理キットと緊急修理キットを先に使うように設定('EVENT_2005_repairPotion')と('Premium_repairPotion')それ以外持ってない
 -- v1.0.7 510修理キットに対応。
 -- v1.0.8 フレームの場所変更 
+-- v1.0.9 フレーム動かせて記憶する様に。表示最適化
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -67,22 +68,50 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
 
 end
 
+function AUTO_REPAIR_END_DRAG(frame, ctrl, argStr, argNum)
+
+    local Name = frame:GetName()
+    if Name == "auto_repair_notice" then
+        g.settings.x = frame:GetX();
+        g.settings.y = frame:GetY();
+    elseif Name == "auto_repair_setting" then
+        g.settings.setx = frame:GetX();
+        g.settings.sety = frame:GetY();
+    end
+    AUTO_REPAIR_SAVE_SETTINGS()
+end
+
 function AUTO_REPAIR_SETTING_FRAME_INIT()
 
     local frame = ui.CreateNewFrame("chat_memberlist", "auto_repair_setting");
-    frame:SetPos(900, 730)
-    frame:Resize(490, 120)
-    local text1 = frame:CreateOrGetControl('richtext', 'text1', 20, 10)
+    if g.settings.setx == nil or g.settings.sety == nil then
+        frame:SetPos(900, 730)
+    else
+        frame:SetPos(g.settings.setx, g.settings.sety)
+    end
+    frame:EnableHitTest(1)
+
+    frame:SetSkinName("chat_window")
+    frame:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_END_DRAG")
+    local text1 = frame:CreateOrGetControl('richtext', 'text1', 10, 10)
     AUTO_CAST(text1)
-    text1:SetText("{s20}{ol}[Lv.510] Urgent Repair Kit Setting")
-    text1:SetTextTooltip("[Lv.510]緊急修理キット")
+    local itemCls = GetClassByType('Item', 11200365)
+    local Name = itemCls.Name
+    text1:SetText("{ol}{s18}" .. Name .. AUTO_REPAIR_LANG(" Purchase Settings"))
 
     local text2 = frame:CreateOrGetControl('richtext', 'text2', 10, 50)
     AUTO_CAST(text2)
-    text2:SetText("{s20}{ol}Number of automatic purchases")
-    text2:SetTextTooltip("自動購入数")
+    local txt2 = AUTO_REPAIR_LANG("Number of automatic purchases")
+    text2:SetText("{s18}{ol}" .. txt2)
 
-    local edit1 = frame:CreateOrGetControl('edit', 'edit1', 410, 50, 60, 30)
+    local text3 = frame:CreateOrGetControl('richtext', 'text3', 10, 80)
+    AUTO_CAST(text3)
+    local txt3 = AUTO_REPAIR_LANG("Message with less than input quantity")
+    text3:SetText("{s18}{ol}" .. txt3)
+
+    local width = math.max(text2:GetWidth(), text3:GetWidth())
+
+    local edit1 = frame:CreateOrGetControl('edit', 'edit1', width + 20, 45, 60, 30)
     AUTO_CAST(edit1)
     edit1:SetText("{ol}" .. g.settings.buyquantity)
     edit1:SetFontName("white_16_ol")
@@ -90,13 +119,7 @@ function AUTO_REPAIR_SETTING_FRAME_INIT()
     edit1:SetEventScript(ui.ENTERKEY, "AUTO_REPAIR_SETTING")
     edit1:SetTextTooltip("エンターキー押下で登録{nl}Register by pressing enter key")
 
-    local text3 = frame:CreateOrGetControl('richtext', 'text3', 10, 80)
-    AUTO_CAST(text3)
-    text3:SetText("{s20}{ol}Message with less than input quantity")
-    text3:SetTextTooltip("入力数量以下でメッセージ")
-    frame:ShowWindow(1)
-
-    local edit2 = frame:CreateOrGetControl('edit', 'edit2', 410, 80, 60, 30)
+    local edit2 = frame:CreateOrGetControl('edit', 'edit2', width + 20, 75, 60, 30)
     AUTO_CAST(edit2)
     edit2:SetText("{ol}" .. g.settings.msgquantity)
     edit2:SetFontName("white_16_ol")
@@ -104,10 +127,14 @@ function AUTO_REPAIR_SETTING_FRAME_INIT()
     edit2:SetEventScript(ui.ENTERKEY, "AUTO_REPAIR_SETTING")
     edit2:SetTextTooltip("エンターキー押下で登録{nl}Register by pressing enter key")
 
-    local closebtn = frame:CreateOrGetControl("button", "closebtn", 450, 10, 30, 30)
+    local closebtn = frame:CreateOrGetControl("button", "closebtn", text1:GetWidth() + 20, 0, 30, 30)
     AUTO_CAST(closebtn)
-    closebtn:SetText("{ol}×")
+    closebtn:SetSkinName("None")
+    closebtn:SetImage("testclose_button")
     closebtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_SETTING_FRAME_CLOSE")
+
+    frame:Resize(text1:GetWidth() + 60, 115)
+    frame:ShowWindow(1)
     return
 
 end
@@ -136,42 +163,86 @@ function AUTO_REPAIR_SETTING_FRAME_CLOSE(frame)
     ui.CloseFrame("auto_repair_setting")
 
 end
+
+function AUTO_REPAIR_LANG(str)
+    local language = option.GetCurrentCountry()
+    if language == "Japanese" then
+        if str == " Purchase Settings" then
+            str = " 購入設定"
+        end
+
+        if str == "Number of automatic purchases" then
+            str = "自動購入数入力"
+        end
+
+        if str == "Message with less than input quantity" then
+            str = "入力数以下で補充メッセージ"
+        end
+
+        if str == "Do you want to replenish the few remaining?" then
+            str = "残り少ないですが補充しますか？"
+        end
+
+    end
+    return str
+
+end
+
 -- AUTO_REPAIR_FRAME_INIT()
 function AUTO_REPAIR_FRAME_INIT()
-    local frame = ui.GetFrame("auto_repair")
-    frame:Resize(450, 180)
-    frame:SetPos(680, 660)
-    frame:SetSkinName("bg")
-    frame:ShowTitleBar(0)
-    frame:SetTitleName("{s20}{ol}Auto Repair")
+    -- local frame = ui.GetFrame("auto_repair")
+    local frame = ui.CreateNewFrame("chat_memberlist", "auto_repair_notice");
 
-    local text1 = frame:CreateOrGetControl('richtext', 'text1', 55, 20)
+    if g.settings.x == nil or g.settings.y == nil then
+        frame:SetPos(680, 660)
+    else
+        frame:SetPos(g.settings.x, g.settings.y)
+    end
+
+    frame:SetSkinName("chat_window")
+
+    frame:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_END_DRAG")
+
+    local itemCls = GetClassByType('Item', 11200365)
+    local Name = itemCls.Name
+
+    local text1 = frame:CreateOrGetControl('richtext', 'text1', 10, 10)
     AUTO_CAST(text1)
-    text1:SetText("{s20}{ol}[LV.510]緊急修理キット{nl}残り少ないですが補充しますか？")
+    local txt1 = Name .. "{nl}" .. AUTO_REPAIR_LANG("Do you want to replenish the few remaining?")
+    text1:SetText("{s18}{ol}" .. txt1)
     text1:SetTextAlign("center", "center")
 
-    local text3 = frame:CreateOrGetControl('richtext', 'text3', 25, 70)
-    AUTO_CAST(text3)
-    text3:SetText("{s18}{ol}[Lv.510] Urgent Repair Kit{nl}Do you want to replenish the few remaining?")
-    text3:SetTextAlign("center", "center")
+    --[[ local tx1 = AUTO_REPAIR_LANG("Do you want to replenish the few remaining?")
+    local width = tx1:GetWidth()
+    print(width)]]
 
-    local yesbtn = frame:CreateOrGetControl('button', 'yes', 115, 120, 80, 40)
+    local yesbtn = frame:CreateOrGetControl('button', 'yes', 50, 65, 80, 40)
     yesbtn:SetSkinName("test_red_button")
     yesbtn:SetText("{ol}YES")
     yesbtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_BUY")
 
-    local nobtn = frame:CreateOrGetControl('button', 'no', 215, 120, 80, 40)
+    local nobtn = frame:CreateOrGetControl('button', 'no', 140, 65, 80, 40)
     nobtn:SetSkinName("test_gray_button")
     nobtn:SetText("{ol}NO")
     nobtn:SetEventScript(ui.LBUTTONUP, "AUTO_REPAIR_CLOSE")
 
+    local language = option.GetCurrentCountry()
+    if language == "Japanese" then
+        frame:Resize(290, 110)
+    else
+        frame:Resize(420, 110)
+        yesbtn:SetMargin(115, 65, 80, 40)
+        nobtn:SetMargin(205, 65, 80, 40)
+    end
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1);
     frame:ShowWindow(1)
     ReserveScript("AUTO_REPAIR_CLOSE()", 7.0)
 
 end
 
 function AUTO_REPAIR_CLOSE()
-    local frame = ui.GetFrame("auto_repair")
+    local frame = ui.GetFrame("auto_repair_notice")
     frame:ShowWindow(0)
 end
 
@@ -414,7 +485,11 @@ function AUTO_REPAIR_LOADSETTINGS()
 
         g.settings = {
             buyquantity = 50,
-            msgquantity = 20
+            msgquantity = 20,
+            setx = 900,
+            sety = 730,
+            x = 680,
+            y = 660
         }
 
         AUTO_REPAIR_SAVE_SETTINGS()
