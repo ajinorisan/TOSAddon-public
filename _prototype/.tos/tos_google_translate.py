@@ -1,4 +1,3 @@
-
 import json
 import time
 import os
@@ -14,25 +13,30 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-exe_path = sys.executable
-exe_dir = os.path.dirname(exe_path)
+#exe_path = sys.executable
+#exe_dir = os.path.dirname(exe_path)
 
-# settings.json ファイルへの絶対パスを計算する
-filename = os.path.join(exe_dir, "settings.json")
 # exeファイルの場所を取得する
 
 #Tree of Savior (Kor) 韓国版
 #TreeOfSavior　Papaya
 #filename = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Tree of Savior (Japanese Ver.)\\addons\\tos_google_trans\\settings.json"
 def load_settings(filename):
-    with open(filename, "r", encoding="utf-8") as file:
-        settings = json.load(file)
-    return settings
+    try:
+        with open(filename, "r", encoding="utf-8") as file:
+            settings = json.load(file)
+        return settings
+    except FileNotFoundError:
+        print(f"File not found: {filename}")
+        return {}  # 空の辞書を返すか、エラー処理を行う
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return {}  # 空の辞書を返すか、エラー処理を行う
 
 def translate_text(text):
     settings = load_settings(filename)
     lang=settings["lang"]
-    #print(lang)
+    print(lang)
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--incognito')
@@ -50,8 +54,67 @@ def translate_text(text):
 def message_box(text):
     ctypes.windll.user32.MessageBoxW(0, text, "google翻訳", 0)
 
-print(exe_dir)
-  
+if __name__ == "__main__":
+    current_id = "0"  # current_idを初期化
+    exe_dir = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(exe_dir, "settings.json")
+    output_file = os.path.join(exe_dir, "output.json")
+    names_file = os.path.join(exe_dir, "names.json")     
+    
+    while True:
+              
+        settings = load_settings(filename)
+        
+        # 新しい設定からIDを取得
+        if 'chat_id' in settings:
+            new_id = settings['chat_id']
+            org_text = settings.get("trans_text", "")  # "trans_text" キーが存在しない場合は空文字列を返す
+            org_name = settings.get("name", "")  # "name" キーが存在しない場合は空文字列を返す
+        else:
+            print("Error: 'chat_id' key not found in settings.")
+            continue
+       
+        if new_id != current_id or current_id is None:  # idが変更されたか、current_idが設定されていない場合
+           
+            print(str(new_id)+str(current_id))
+            translated_text = translate_text(str(new_id) + "@@" + org_name + "@@" + org_text)
+            print(translated_text)
+            converted_text = translated_text.replace("＠＠", "@@")
+            
+            print(converted_text)
+            splitted_text = converted_text.split("@@")
+            chat_id = splitted_text[0]
+            name = splitted_text[1]
+            trans_text = splitted_text[2]
+
+            # 結果を output.json ファイルに書き込む
+            if os.path.exists(output_file):
+                with open(output_file, "r", encoding="utf-8") as f:
+                    existing_output = json.load(f)
+            else:
+                existing_output = {}
+
+            #convert_id=chat_id.replace(" ", "")
+            existing_output[str(new_id)] = trans_text
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(existing_output, f, ensure_ascii=False, indent=4)
+
+            # names.jsonファイルに新しい名前を追加する
+            if os.path.exists(names_file):
+                with open(names_file, "r", encoding="utf-8") as f:
+                    existing_names = json.load(f)
+            else:
+                existing_names = {}
+
+            converted_name = name.replace(" ", "")
+            existing_names[org_name] = converted_name 
+            with open(names_file, "w", encoding="utf-8") as f:
+                json.dump(existing_names, f, ensure_ascii=False, indent=4)
+
+            current_id = new_id
+            
+            time.sleep(5)
+
 def monitor_process():
     # Client_tos_x64.exe のプロセスIDを取得
     process_id = None
@@ -73,71 +136,11 @@ def monitor_process():
         return
         #print("tos_google_trans.py も終了しました。")
 
-output_file = os.path.join(exe_dir, "output.json")
-names_file = os.path.join(exe_dir, "names.json")
+
 
 def monitor_process_thread():
     monitor_process()
 
 # monitor_process()関数を別スレッドで実行する
 monitor_thread = threading.Thread(target=monitor_process_thread)
-monitor_thread.start()
-
-if __name__ == "__main__":
-
-    settings = load_settings(filename)
-    initial_text = settings["0"].get("trans_text", "")
-    print(initial_text)
-    
-    current_text = initial_text
-   
-    while True:
-        # 新しい設定を読み込む
-        new_settings = load_settings(filename)
-        
-        # 新しい設定からIDを取得
-        new_id = "0"
-        
-        # 新しいテキストを取得
-        new_text = new_settings[new_id].get("trans_text", "")
-        new_name = new_settings[new_id].get("name", "")
-        
-        
-        if new_text != current_text:  # テキストが変更されたら翻訳する
-            translated_text = translate_text(new_id + "@@" + new_name + "@@" + new_text)
-   
-            converted_text = translated_text.replace("＠＠", "@@")
-            #print(converted_text)
-            print(converted_text)
-            splitted_text = converted_text.split("@@")
-            chat_id = splitted_text[0]
-            name = splitted_text[1]
-            trans_text = splitted_text[2]
-
-            # 結果を output.json ファイルに書き込む
-            if os.path.exists(output_file):
-                with open(output_file, "r", encoding="utf-8") as f:
-                    existing_output = json.load(f)
-            else:
-                existing_output = {}
-
-            existing_output[new_id].trans_text = trans_text
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(existing_output, f, ensure_ascii=False, indent=4)
-
-            # names.jsonファイルに新しい名前を追加する
-            if os.path.exists(names_file):
-                with open(names_file, "r", encoding="utf-8") as f:
-                    existing_names = json.load(f)
-            else:
-                existing_names = {}
-
-            converted_name = name.replace(" ", "")
-            existing_names[new_name].name = converted_name 
-            with open(names_file, "w", encoding="utf-8") as f:
-                json.dump(existing_names, f, ensure_ascii=False, indent=4)
-
-            current_text = new_text
-
-        time.sleep(0.5)
-
+#monitor_thread.start()
