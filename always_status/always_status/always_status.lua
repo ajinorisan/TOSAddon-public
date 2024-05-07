@@ -15,10 +15,11 @@
 -- v1.1.4 まれに効果音が0のままで固定される不具合修正
 -- v1.1.5 効果音のバグ再修正。
 -- v1.1.6 色選べる様に。コード書き直した。もちろん設定ファイルは初期化される。
+-- v1.1.7 ギアスコアの反映を見直し。フレーム表示のタイミングも見直し
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.6"
+local ver = "1.1.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -115,12 +116,12 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     ReserveScript("always_status_original_frame_reduction()", 1.0)
     ReserveScript("always_status_load_settings()", 1.5)
-
+    addon:RegisterMsg("GAME_START", "always_status_frame_init")
     addon:RegisterMsg("GAME_START_3SEC", "always_status_original_frame_sound_config")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
     acutil.setupEvent(addon, "CONFIG_SOUNDVOL", "always_status_CONFIG_SOUNDVOL");
-
+    acutil.setupEvent(addon, "ITEM_EQUIP", "always_status_CONFIG_SOUNDVOL")
 end
 
 function always_status_original_frame_sound_config()
@@ -334,7 +335,6 @@ function always_status_load_settings()
 
     always_status_save_settings()
 
-    always_status_frame_init()
 end
 
 function always_status_language(str)
@@ -740,9 +740,9 @@ function always_status_update()
             local orig_status = GET_CHILD_RECURSIVELY(controlset, "stat")
             if as_stat ~= nil then
                 if status == "gear_score" then
-
+                    local score = GET_PLAYER_GEAR_SCORE(pc)
                     local text = string.gsub(orig_status:GetText(), "{@sti8}", "")
-                    as_stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
+                    as_stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. score)
 
                 elseif status == "ability_point_score" then
                     local text = string.gsub(orig_status:GetText(), "{@sti8}", "")
