@@ -3,6 +3,7 @@
 -- v1.0.7 チャンネルチェンジバグ修正
 -- v1.0.8 継承とか入れるのをスキップ
 -- v1.0.9 「今すぐこわす」をセット
+-- v1.1.0 とりあえずmsgをインプットする系は全部セットする様に
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -29,41 +30,108 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
     g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
     g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+                "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
-    -- g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
-    -- acutil.setupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
+
     g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
-    -- g.SetupHook(NOCHECK_WARNINGMSGBOX_FRAME_OPEN_DELETE_ITEM, "WARNINGMSGBOX_FRAME_OPEN_DELETE_ITEM")
-    local pc = GetMyPCObject();
+
+    g.SetupHook(NOCHECK_WARNINGMSGBOX_FRAME_OPEN, "WARNINGMSGBOX_FRAME_OPEN")
+    --[[local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
         addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
-    end
+    end]]
 
 end
 
-function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()
-    -- print("test")
-    local frame = ui.GetFrame("warningmsgbox")
-    if frame:IsVisible() == 0 then
-        return
-    else
-        local warningText = GET_CHILD_RECURSIVELY(frame, "warningtext")
-        local langCode = option.GetCurrentCountry()
-        local msg = ClMsg("destory_now")
-        if langCode ~= "Korean" then
-            msg = dictionary.ReplaceDicIDInCompStr(msg)
-        end
-        if string.find(warningText:GetText(), msg) ~= nil then
-            local input_frame = GET_CHILD_RECURSIVELY(frame, "input")
-            input_frame:SetText(msg)
-        end
+local local_item_grade = nil
+function NOCHECK_WARNINGMSGBOX_FRAME_OPEN(clmsg, yesScp, noScp, itemGuid, title)
+    ui.OpenFrame("warningmsgbox")
 
+    local frame = ui.GetFrame('warningmsgbox')
+    frame:EnableHide(1);
+
+    local warningText = GET_CHILD_RECURSIVELY(frame, "warningtext")
+    warningText:SetText(clmsg)
+
+    local input_frame = GET_CHILD_RECURSIVELY(frame, "input")
+    input_frame:ShowWindow(1)
+    input_frame:SetText(clmsg)
+    input_frame:Focus()
+
+    local showTooltipCheck = GET_CHILD_RECURSIVELY(frame, "cbox_showTooltip")
+    if itemGuid ~= nil then
+        frame:SetUserValue("ITEM_GUID", itemGuid)
+        WARNINGMSGBOX_CREATE_TOOLTIP(frame);
+        showTooltipCheck:ShowWindow(1)
+    else
+        showTooltipCheck:ShowWindow(0)
     end
+
+    if itemGuid ~= nil then
+        local item = session.GetInvItemByGuid(itemGuid)
+        if item ~= nil then
+            local_item_grade = GetIES(item:GetObject()).ItemGrade
+            if GetIES(item:GetObject()).StringArg == "Growth_Item_Legend" then
+                local_item_grade = 0
+            end
+        else
+            local_item_grade = 0
+        end
+    else
+        local_item_grade = 0
+    end
+
+    if title ~= nil then
+        local warningtitle = GET_CHILD_RECURSIVELY(frame, "warningtitle")
+        warningtitle:SetText(title)
+    else
+        local warningtitle = GET_CHILD_RECURSIVELY(frame, "warningtitle")
+        warningtitle:SetText(ScpArgMsg('WarningTitle'))
+    end
+
+    local yesBtn = GET_CHILD_RECURSIVELY(frame, "yes")
+    tolua.cast(yesBtn, "ui::CButton");
+
+    if local_item_grade < 3 then
+        input_frame:ShowWindow(0)
+    end
+
+    yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_YES');
+    yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
+    yesBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_YES');
+    yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
+
+    local noBtn = GET_CHILD_RECURSIVELY(frame, "no")
+    tolua.cast(noBtn, "ui::CButton");
+
+    noBtn:SetEventScript(ui.LBUTTONUP, '_WARNINGMSGBOX_FRAME_OPEN_NO');
+    noBtn:SetEventScriptArgString(ui.LBUTTONUP, noScp)
+
+    local buttonMargin = noBtn:GetMargin()
+    local warningbox = GET_CHILD_RECURSIVELY(frame, 'warningbox')
+    local totalHeight =
+        warningbox:GetY() + warningText:GetY() + warningText:GetHeight() + showTooltipCheck:GetHeight() +
+            noBtn:GetHeight() + 2 * buttonMargin.bottom + input_frame:GetHeight()
+    if itemGuid == nil or local_item_grade < 3 then
+        totalHeight = warningbox:GetY() + warningText:GetY() + warningText:GetHeight() + showTooltipCheck:GetHeight() +
+                          noBtn:GetHeight() + 2 * buttonMargin.bottom
+    end
+
+    local okBtn = GET_CHILD_RECURSIVELY(frame, "ok")
+    tolua.cast(okBtn, "ui::CButton");
+
+    yesBtn:ShowWindow(1);
+    noBtn:ShowWindow(1);
+    okBtn:ShowWindow(0);
+
+    local bg = GET_CHILD_RECURSIVELY(frame, 'bg')
+    warningbox:Resize(warningbox:GetWidth(), totalHeight)
+    bg:Resize(bg:GetWidth(), totalHeight)
+    frame:Resize(frame:GetWidth(), totalHeight)
 end
 
 function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)

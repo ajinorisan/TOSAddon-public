@@ -1,10 +1,11 @@
 -- v1.0.1 skillnameがNoneの場合に表示バグってたの修正
 -- v1.0.2 UI少し変更。CC時のカードやエンブレムの装備取り忘れ確認機能。
 -- v1.0.3 読み込み早くしたつもり。自分では何も感じない。回線のせいか？
+-- v1.0.4 3回目以降のCCはキャラクターリストを読み込まない様に変更
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -135,6 +136,12 @@ local entbl = {
 function other_character_skill_list_BARRACK_TO_GAME()
     local frame = ui.GetFrame("barrack_charlist")
     local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
+    if g.layer == nil then
+        g.load = 0
+    end
+    if g.layer ~= layer then
+        g.load = 0
+    end
     g.layer = layer
 
     local gsframe = ui.GetFrame("barrack_gamestart")
@@ -147,12 +154,15 @@ function other_character_skill_list_BARRACK_TO_GAME()
     base["BARRACK_TO_GAME"]()
 end
 
+g.load = 0
+g.first = 0
 function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
     g.CID = info.GetCID(session.GetMyHandle())
+    g.first = g.first + 1
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -160,13 +170,23 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         other_character_skill_list_lord_settings()
         addon:RegisterMsg("GAME_START", "other_character_skill_list_frame_init")
-        addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_3sec")
+        if g.load == 0 then
+            addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_3sec")
+        end
         acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_skill_list_INVENTORY_OPEN")
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_skill_list_INVENTORY_CLOSE")
 
     end
     g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+    acutil.setupEvent(addon, "SELECTCHARINFO_CHANGELAYER_CHARACTER", "other_character_skill_list_switching");
+    acutil.setupEvent(addon, "UP_SWAP_CHARACTER_SLOT", "other_character_skill_list_switching");
+    acutil.setupEvent(addon, "DOWN_SWAP_CHARACTER_SLOT", "other_character_skill_list_switching");
+    acutil.setupEvent(addon, "BARRACK_GO_CREATE", "other_character_skill_list_switching");
+    barrack.SetHideLogin(1);
+end
 
+function other_character_skill_list_switching()
+    g.load = 0
 end
 
 function other_character_skill_list_INVENTORY_OPEN()
@@ -258,9 +278,15 @@ function other_character_skill_list_3sec()
     local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
     if type(_G[functionName]) == "function" then
         other_character_skill_list_instantcc()
+        if g.first > 1 then
+            g.load = 1
+        end
         return
     else
         other_character_skill_list_sort()
+        if g.first > 1 then
+            g.load = 1
+        end
         return
     end
 
@@ -318,6 +344,7 @@ function other_character_skill_list_sort()
     table.sort(g.characters, sortCharacters)
 
 end
+
 function other_character_skill_list_lord_settings()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
@@ -477,11 +504,11 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                         local shirt_imageName = 'icon_' .. shirt_sklCls.Icon;
                         SET_SLOT_ICON(shirt_slot, shirt_imageName)
                         local shirt_name = gbox:CreateOrGetControl("richtext", "shirt_name" .. character.name, yy + 60,
-                            x, 140, 20)
+                                                                   x, 140, 20)
 
                         -- local shirt_lv = gbox:CreateOrGetControl("richtext", "shirt_lv" .. character.name, yy + 60, x,30, 20)
                         shirt_slot:SetText('{s14}{ol}{#FFFF00}' .. g.settings[character.name].SHIRT.skillLv, 'count',
-                            ui.RIGHT, ui.BOTTOM, -2, -2)
+                                           ui.RIGHT, ui.BOTTOM, -2, -2)
 
                         local icon = shirt_slot:GetIcon()
                         icon:SetTooltipType('skill');
@@ -507,7 +534,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
 
             if tostring(k) == tostring(character.name) then
                 local pants_slot = gbox:CreateOrGetControl("slot", "pants_slot" .. character.name, yy + 225 + 30, x, 25,
-                    24)
+                                                           24)
                 AUTO_CAST(pants_slot)
                 pants_slot:EnablePop(0)
                 pants_slot:EnableDrop(0)
@@ -547,10 +574,10 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                         local pants_imageName = 'icon_' .. pants_sklCls.Icon;
                         SET_SLOT_ICON(pants_slot, pants_imageName)
                         local pants_name = gbox:CreateOrGetControl("richtext", "pants_name" .. character.name,
-                            yy + 225 + 60, x, 140, 20)
+                                                                   yy + 225 + 60, x, 140, 20)
 
                         pants_slot:SetText('{s14}{ol}{#FFFF00}' .. g.settings[character.name].PANTS.skillLv, 'count',
-                            ui.RIGHT, ui.BOTTOM, -2, -2)
+                                           ui.RIGHT, ui.BOTTOM, -2, -2)
 
                         local icon = pants_slot:GetIcon()
                         icon:SetTooltipType('skill');
@@ -575,7 +602,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
 
             if tostring(k) == tostring(character.name) then
                 local gloves_slot = gbox:CreateOrGetControl("slot", "gloves_slot" .. character.name, yy + 225 * 2 + 30,
-                    x, 25, 24)
+                                                            x, 25, 24)
                 AUTO_CAST(gloves_slot)
                 gloves_slot:EnablePop(0)
                 gloves_slot:EnableDrop(0)
@@ -583,7 +610,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 gloves_slot:SetSkinName('invenslot2');
 
                 local gloves_equip = gbox:CreateOrGetControl("slot", "gloves_equip" .. character.name, yy + 225 * 2, x,
-                    25, 24)
+                                                             25, 24)
                 AUTO_CAST(gloves_equip)
 
                 gloves_equip:EnablePop(0)
@@ -614,10 +641,10 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                         local gloves_imageName = 'icon_' .. gloves_sklCls.Icon;
                         SET_SLOT_ICON(gloves_slot, gloves_imageName)
                         local gloves_name = gbox:CreateOrGetControl("richtext", "gloves_name" .. character.name,
-                            yy + 225 * 2 + 60, x, 140, 20)
+                                                                    yy + 225 * 2 + 60, x, 140, 20)
 
                         gloves_slot:SetText('{s16}{ol}{#FFFF00}' .. g.settings[character.name].GLOVES.skillLv, 'count',
-                            ui.RIGHT, ui.BOTTOM, -2, -2)
+                                            ui.RIGHT, ui.BOTTOM, -2, -2)
 
                         local icon = gloves_slot:GetIcon()
                         icon:SetTooltipType('skill');
@@ -641,7 +668,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
 
             if tostring(k) == tostring(character.name) then
                 local boots_slot = gbox:CreateOrGetControl("slot", "boots_slot" .. character.name, yy + 225 * 3 + 30, x,
-                    25, 24)
+                                                           25, 24)
                 AUTO_CAST(boots_slot)
                 boots_slot:EnablePop(0)
                 boots_slot:EnableDrop(0)
@@ -649,7 +676,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 boots_slot:SetSkinName('invenslot2');
 
                 local boots_equip = gbox:CreateOrGetControl("slot", "boots_equip" .. character.name, yy + 225 * 3, x,
-                    25, 24)
+                                                            25, 24)
                 AUTO_CAST(boots_equip)
 
                 boots_equip:EnablePop(0)
@@ -680,10 +707,10 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                         local boots_imageName = 'icon_' .. boots_sklCls.Icon;
                         SET_SLOT_ICON(boots_slot, boots_imageName)
                         local boots_name = gbox:CreateOrGetControl("richtext", "boots_name" .. character.name,
-                            yy + 225 * 3 + 60, x, 140, 20)
+                                                                   yy + 225 * 3 + 60, x, 140, 20)
 
                         boots_slot:SetText('{s14}{ol}{#FFFF00}' .. g.settings[character.name].BOOTS.skillLv, 'count',
-                            ui.RIGHT, ui.BOTTOM, -2, -2)
+                                           ui.RIGHT, ui.BOTTOM, -2, -2)
 
                         local icon = boots_slot:GetIcon()
                         icon:SetTooltipType('skill');
@@ -724,11 +751,11 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                     local icon = leg_slot:GetIcon()
                     icon:SetTextTooltip(itemCls.Name);
                     leg_slot:SetText('{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}' .. g.settings[k].leglv, 'count',
-                        ui.RIGHT, ui.BOTTOM, 0, 0);
+                                     ui.RIGHT, ui.BOTTOM, 0, 0);
                 end
 
                 local god_slot = gbox:CreateOrGetControl("slot", "god_slot" .. character.name, yy + 225 * 4 + 30, x, 25,
-                    24)
+                                                         24)
                 AUTO_CAST(god_slot)
                 god_slot:EnablePop(0)
                 god_slot:EnableDrop(0)
@@ -742,11 +769,11 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                     local icon = god_slot:GetIcon()
                     icon:SetTextTooltip(itemCls.Name);
                     god_slot:SetText('{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}' .. g.settings[k].godlv, 'count',
-                        ui.RIGHT, ui.BOTTOM, 0, 0);
+                                     ui.RIGHT, ui.BOTTOM, 0, 0);
                 end
 
                 local seal_slot = gbox:CreateOrGetControl("slot", "seal_slot" .. character.name, yy + 225 * 4 + 60, x,
-                    25, 24)
+                                                          25, 24)
                 AUTO_CAST(seal_slot)
                 seal_slot:EnablePop(0)
                 seal_slot:EnableDrop(0)
@@ -763,7 +790,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 end
 
                 local ark_slot = gbox:CreateOrGetControl("slot", "ark_slot" .. character.name, yy + 225 * 4 + 90, x, 25,
-                    24)
+                                                         24)
                 AUTO_CAST(ark_slot)
                 ark_slot:EnablePop(0)
                 ark_slot:EnableDrop(0)
@@ -780,7 +807,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                 end
 
                 local relic_slot = gbox:CreateOrGetControl("slot", "relic_slot" .. character.name, yy + 225 * 4 + 120,
-                    x, 25, 24)
+                                                           x, 25, 24)
                 AUTO_CAST(relic_slot)
                 relic_slot:EnablePop(0)
                 relic_slot:EnableDrop(0)
@@ -794,7 +821,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                     local icon = relic_slot:GetIcon()
                     icon:SetTextTooltip(itemCls.Name);
                     relic_slot:SetText('{s12}{ol}{#FFFF00}+' .. g.settings[k].reliclv, 'count', ui.RIGHT, ui.BOTTOM, 0,
-                        0);
+                                       0);
                 end
 
             end
