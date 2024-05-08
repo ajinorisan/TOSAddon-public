@@ -76,7 +76,7 @@ end
 
 function tos_google_translate_restart()
     ui.SysMsg(tos_google_translate_lang(
-        "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once"))
+                  "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once"))
     --[[local batch_file = "../addons/tos_google_translate/restart.bat"
     os.execute(batch_file)]]
 
@@ -84,6 +84,41 @@ function tos_google_translate_restart()
 end
 
 function tos_google_translate_msg_del()
+
+    if #g.settings["chat"] == 0 then
+
+        return
+    end
+    -- local recv_file_path = string.format('../addons/%s/recv.json', addonNameLower)
+    local recv_file_path = "C:\Users\TOYOC-304\Desktop\GitHub\TOSAddon-public\_prototype\tos_google_translate"
+    local recv_file = io.open(recv_file_path, "r")
+    if recv_file == nil then
+        return
+    else
+        recv_file:close()
+    end
+
+    local send_json = json.encode(g.settings["chat"])
+
+    g.settings["chat"] = {}
+    tos_google_translate_save_settings()
+
+    local send_file_path = string.format('../addons/%s/send.json', addonNameLower)
+    local send_file = io.open(send_file_path, "w")
+
+    send_file:write(send_json) -- エンコードされたJSONデータをファイルに書き込む
+    send_file:close() -- ファイルを閉じる
+
+    local success, message = os.remove(recv_file_path)
+    if success then
+        print("recvファイルが削除されました。")
+    else
+        print("recvファイルが削除されませんでした。" .. message)
+    end
+
+end
+
+--[[function tos_google_translate_msg_del()
 
     if #g.settings["chat"] == 0 then
         -- print("nai")
@@ -129,7 +164,7 @@ function tos_google_translate_msg_del()
 
             end
 
-        end]]
+        end
         local newtable = {}
         local send_file_path = string.format('../addons/%s/send.json', addonNameLower)
         local file = io.open(send_file_path, "r")
@@ -235,7 +270,7 @@ function tos_google_translate_msg_del()
             file:close()
         end]]
 
-        --[[local file = io.open(g.tempFileLoc, "a") -- 追記モードでファイルを開く
+--[[local file = io.open(g.tempFileLoc, "a") -- 追記モードでファイルを開く
         if file then
 
             if existingContent ~= "[]" then
@@ -254,7 +289,7 @@ function tos_google_translate_msg_del()
             -- local newtable_str = json.encode(newtable):sub(2)
             file:write(existingContent) -- 新しいテーブルを書き込む
             file:close()
-        end]]
+        end
 
         -- 元のテーブルを空にする
         -- g.settings["chat"] = {}
@@ -262,7 +297,7 @@ function tos_google_translate_msg_del()
         -- 設定を保存する
         -- tos_google_translate_save_settings()
     end
-end
+end]]
 
 function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
@@ -389,7 +424,7 @@ function tos_google_translate_gbox()
             print(commnderNameUIText)
 
             local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
-                marginRight, 1)
+                                                        marginRight, 1)
             local label = chatCtrl:GetChild('bg')
             local txt = GET_CHILD(chatCtrl, "text")
             local timeCtrl = GET_CHILD(chatCtrl, "time")
@@ -836,3 +871,7 @@ end
 
     return false -- ハングルの文字が含まれない
 end]]
+
+local function test()
+print("test")
+end
