@@ -48,6 +48,7 @@ function NOCHECK_ON_INIT(addon, frame)
 end
 
 local local_item_grade = nil
+
 function NOCHECK_WARNINGMSGBOX_FRAME_OPEN(clmsg, yesScp, noScp, itemGuid, title)
     ui.OpenFrame("warningmsgbox")
 
