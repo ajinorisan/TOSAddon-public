@@ -9,8 +9,11 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-g.namesFileLoc = string.format('../addons/%s/names.json', addonNameLower)
-g.outputFileLoc = string.format('../addons/%s/output.json', addonNameLower)
+g.namesFileLoc = string.format('../addons/%s/%s/names.json', addonNameLower, addonNameLower)
+g.outputFileLoc = string.format('../addons/%s/%s/output.json', addonNameLower, addonNameLower)
+g.tempFileLoc = string.format('../addons/%s/%s/temp.json', addonNameLower, addonNameLower)
+g.sendFileLoc = string.format('../addons/%s/%s/send.json', addonNameLower, addonNameLower)
+g.restartFileLoc = string.format('../addons/%s/restart.bat', addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
@@ -37,24 +40,189 @@ function TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
     g.lastmsg = ""
     g.ypos = 0
     g.gbox = true
-
-    if not g.loaded then
-        g.output = {}
-        acutil.saveJSON(g.outputFileLoc, g.output)
-
-    end
+    g.extractedTexts = g.extractedTexts or {} -- 抽出したテキストを格納するテーブル
 
     tos_google_translate_load_settings()
+    acutil.slashCommand("/tos_google_translate", tos_google_translate_restart);
+    acutil.slashCommand("/tgt", tos_google_translate_restart);
+    g.SetupHook(tos_google_translate_REQ_TRANSLATE_TEXT, "REQ_TRANSLATE_TEXT")
+
+end
+
+function tos_google_translate_REQ_TRANSLATE_TEXT(frameName, gbName, ctrlName)
+    local frame = ui.GetFrame(frameName)
+    local gb = GET_CHILD_RECURSIVELY(frame, gbName)
+    if frame == nil or gb == nil then
+        return
+    end
+
+    if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
+        return
+    end
+
+    local size = session.ui.GetMsgInfoSize(gbName)
+    local cutting_table = SCR_STRING_CUT(ctrlName, '_')
+    local MsgId = cutting_table[#cutting_table]
+    local gb_index = -1;
+    local pc = GetMyPCObject();
+    local curr_lang_code = item_etc_shared.get_language_translate_code()
+
+    if pc == nil then
+        return
+    end
+    local inputStr = ""
+    for i = 0, size - 1 do
+        local clusterinfo = session.ui.GetChatMsgInfo(gbName, i)
+        if clusterinfo == nil then
+            return 0
+        end
+        if tostring(MsgId) == clusterinfo:GetMsgInfoID() then
+            inputStr = clusterinfo:GetMsg()
+            if pc.Name == clusterinfo:GetCommanderName() then
+                ui.SysMsg(ClMsg('CanNotTranslateMyChat'))
+                return
+            end
+            if string.len(inputStr) > MAX_CHAT_LEN_TRANSLATE then
+                ui.SysMsg(ClMsg('TooLongTextToTranslate'))
+                return
+            end
+
+            local isLinkItemTxt, replacedText = item_etc_shared.Is_Contain_LinkItem(inputStr)
+            if isLinkItemTxt == true then
+                ui.SysMsg(ClMsg('CannotTlsWithLinkItemText'))
+                return
+            end
+
+            gb_index = i
+            if "" ~= clusterinfo:GetTranslateMsg() then
+                ui.SysMsg(ClMsg('AleadyTranslated'))
+                return
+            end
+            local langCode = clusterinfo:GetLanguageCode()
+            if curr_lang_code == langCode and langCode == "None" then
+                ui.SysMsg(ClMsg('SrcAndTgtIsSame'))
+                return
+            end
+
+            if replacedText ~= nil then
+                item_etc_shared.SavePartyLinkFormat(inputStr)
+            end
+        end
+    end
+    if g.settings.use == 0 then
+        if gb_index >= 0 then
+            ui.ReqTranslateChat(frameName, gbName, gb_index, curr_lang_code)
+        end
+    else
+        ui.SysMsg(tos_google_translate_lang("Tos Google Translate frame must be closed before you can translate."))
+        return
+    end
+end
+
+function tos_google_translate_lang(str)
+
+    local langCode = option.GetCurrentCountry()
+    if langCode == "Japanese" then
+
+        if str == "[Tos Google Translate]{nl}" ..
+            "/addons/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" .. "cannot be found. Exit." then
+            str = "[Tos Google Translate]{nl}" ..
+                      "/addons/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" ..
+                      "が見つけられません。終了します。"
+        end
+
+        if str ==
+            "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once" then
+            str =
+                "Tree Of Savior'-'addons'-'tos_google_translateフォルダにあるrestart.batを管理者権限で実行してからバラックに一度戻ってください。"
+        end
+
+        if str == "Tos Google Translate frame must be closed before you can translate." then
+            str = "Tos Google Translate フレームを閉じてから翻訳してください。"
+        end
+        return str
+    elseif langCode == "Korean" then
+
+        if str == "[Tos Google Translate]{nl}" ..
+            "/addons/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" .. "cannot be found. Exit." then
+            str = "[Tos Google Translate]{nl}" ..
+                      "/addons/tos_google_translate/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" ..
+                      "를 찾을 수 없습니다. 종료합니다."
+        end
+
+        if str ==
+            "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once" then
+            str =
+                "Tree Of Savior'-'addons'-'tos_google_translate 폴더에 있는 restart.bat를 관리자 권한으로 실행한 후, 다시 한번 Barracks로 돌아와주세요."
+        end
+        if str == "Tos Google Translate frame must be closed before you can translate." then
+            str = "Tos Google Translate 프레임을 닫은 후 번역하세요."
+        end
+        return str
+    else
+        return str
+    end
+
+end
+
+function tos_google_translate_restart()
+    ui.SysMsg(tos_google_translate_lang(
+        "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once"))
+    local batch_script = [[
+                @echo off
+                :: コマンドを管理者権限で実行するためのバッチファイル
+                
+                taskkill /F /IM tos_google_translate.exe
+                ]]
+
+    -- バッチファイルを作成する
+    local file = io.open(g.restartFileLoc, "w")
+    file:write(batch_script)
+    file:close()
+
+    g.loaded = false
+end
+
+function tos_google_translate_msg_del()
+    -- 元のsend_file内の内容を読み込む
+    local send_data = {}
+    local send_file = io.open(g.sendFileLoc, "r")
+    local send_json = send_file:read("*a")
+    send_data = json.decode(send_json)
+    send_file:close()
+
+    -- g.settings["chat"]と元のsend_file内の内容を組み合わせて1つの配列にする
+    local combined_data = {}
+    for _, entry in ipairs(send_data) do
+        table.insert(combined_data, entry)
+    end
+
+    for _, entry in ipairs(g.settings["chat"]) do
+        table.insert(combined_data, entry)
+    end
+    -- エンコードされたJSONデータをファイルに書き込む
+    local combined_json = json.encode(combined_data)
+    -- g.settings["chat"]を空にする
+    g.settings["chat"] = {}
+    tos_google_translate_save_settings()
+
+    -- エンコードされたJSONデータをファイルに書き込む
+    local send_file = io.open(g.sendFileLoc, "w")
+    send_file:write(combined_json)
+    send_file:close() -- ファイルを閉じる
 
 end
 
 function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
+
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "tos_google_translate_DRAW_CHAT_MSG");
+
     local chatframe = ui.GetFrame("chatframe")
     local tabgbox = GET_CHILD_RECURSIVELY(chatframe, "tabgbox")
     local trans = tabgbox:CreateOrGetControl("button", "trans", 270, -3, 30, 30)
     AUTO_CAST(trans)
     trans:SetSkinName("test_red_button")
+
     trans:SetText("{ol}{s14}{#FFFFFF}" .. g.settings["lang"])
     trans:SetEventScript(ui.LBUTTONUP, "tos_google_translate_frame_open")
     trans:SetTextTooltip("Open and close the translation chat window.")
@@ -81,6 +249,7 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
     else
         return
     end
+    -- print(test)
 end
 
 local function WITH_HANGLE(str)
@@ -130,92 +299,98 @@ function tos_google_translate_gbox()
     local gbox = GET_CHILD(frame, "gbox")
     AUTO_CAST(gbox)
 
-    for org_name, ts_name in pairs(g.names) do
-
-        if ts_name == "" then
-            g.names[org_name] = nil -- キーを削除する
-        end
-        if ts_name == "---" then
-
-            g.names[org_name] = nil -- キーを削除する
-        end
-        if WITH_HANGLE(org_name) then
-            if ts_name == org_name then
-                g.names[org_name] = nil -- キーを削除する
-            end
-        end
-    end
-    acutil.saveJSON(g.namesFileLoc, g.names)
-
-    local sorted_keys = {}
-
-    for k in pairs(g.output) do
-        table.insert(sorted_keys, tonumber(k))
-
-    end
-    table.sort(sorted_keys)
-
     local trans_name = ""
     local translate_text = ""
-
+    local org_name = ""
+    local trans_text = ""
+    local msgtype = ""
+    local time = ""
+    local chat_id = ""
+    local output = acutil.loadJSON(g.outputFileLoc, g.output)
+    g.output = output
     g.ypos = 0
-    for _, k in ipairs(sorted_keys) do
+    for i, entry in ipairs(g.output) do
+        -- print("Entry " .. i .. ":")
+        for key, value in pairs(entry) do
+            -- print(key .. ":" .. value)
+            org_name = entry.org_name
+            trans_text = entry.trans_text
+            msgtype = entry.msgtype
+            time = entry.time
+            chat_id = entry.chat_id
+            local replaced_name = g.names[org_name] or org_name
 
-        if k == 0 then
-            return
+            local clustername = "cluster_" .. chat_id
+            local marginLeft = 20
+            local marginRight = 0
+
+            local commnderNameUIText = replaced_name .. " : " .. trans_text
+            for i, extractedTexts in pairs(g.extractedTexts) do
+                if chat_id == i then
+                    for j, extractedText in ipairs(extractedTexts) do
+                        -- print("抽出したテキスト[" .. i .. "][" .. j .. "]:" .. extractedText)
+                        commnderNameUIText = commnderNameUIText .. extractedText
+                    end
+                end
+            end
+            --[[local tblid = tonumber(g.extractedTexts[1])
+            local tblcount = #g.extractedTexts
+
+            if tblcount ~= 1 and chat_id == tblid then
+                for i = 2, tblcount do
+                    commnderNameUIText = commnderNameUIText .. g.extractedTexts[i]
+                    g.output["trans_text"] = g.output["trans_text"] .. g.extractedTexts[i]
+
+                end
+                acutil.saveJSON(g.outputFileLoc, g.output)
+                -- g.extractedTexts = {}
+            end]]
+            -- print(commnderNameUIText)
+
+            local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
+                marginRight, 1)
+            local label = chatCtrl:GetChild('bg')
+            local txt = GET_CHILD(chatCtrl, "text")
+            local timeCtrl = GET_CHILD(chatCtrl, "time")
+
+            local msgFront = ""
+            local msgString = ""
+            local fontStyle = nil
+
+            label:SetAlpha(0)
+
+            if msgtype == "Normal" then
+                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
+                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
+
+            elseif msgtype == "Shout" then
+                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
+                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
+
+            elseif msgtype == "Party" then
+                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
+                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
+
+            elseif msgtype == "Guild" then
+                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
+                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
+            elseif msgtype == "System" then
+                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
+                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_7"), trans_text)
+            end
+            local fontSize = GET_CHAT_FONT_SIZE()
+            txt:SetTextByKey("font", fontStyle)
+            txt:SetTextByKey("size", fontSize)
+            txt:SetTextByKey("text", msgFront)
+            timeCtrl:SetTextByKey("time", time)
+
+            local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
+
+            tos_google_translate_chat_ctrl(gbox, chatCtrl, label, txt, timeCtrl, offsetX)
+            break
         end
-        local v = g.output[tostring(k)]
-
-        local org_name = v.org_name
-        local trans_text = v.trans_text
-        local msgtype = v.msgtype
-
-        local time = v.time
-
-        local replaced_name = g.names[org_name] or org_name
-
-        local clustername = "cluster_" .. k
-        local marginLeft = 20
-        local marginRight = 0
-        local commnderNameUIText = replaced_name .. " : " .. trans_text
-        local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
-            marginRight, 1)
-        local label = chatCtrl:GetChild('bg')
-        local txt = GET_CHILD(chatCtrl, "text")
-        local timeCtrl = GET_CHILD(chatCtrl, "time")
-
-        local msgFront = ""
-        local msgString = ""
-        local fontStyle = nil
-
-        label:SetAlpha(0)
-
-        if msgtype == "Normal" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
-
-        elseif msgtype == "Shout" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
-
-        elseif msgtype == "Party" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
-
-        elseif msgtype == "Guild" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
-        end
-        local fontSize = GET_CHAT_FONT_SIZE()
-        txt:SetTextByKey("font", fontStyle)
-        txt:SetTextByKey("size", fontSize)
-        txt:SetTextByKey("text", msgFront)
-        timeCtrl:SetTextByKey("time", time)
-
-        local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
-        -- print(commnderNameUIText)
-        tos_google_translate_chat_ctrl(gbox, chatCtrl, label, txt, timeCtrl, offsetX)
     end
+
 end
 
 function tos_google_translate_chat_ctrl(groupbox, chatCtrl, label, txt, timeCtrl, offsetX)
@@ -228,9 +403,178 @@ function tos_google_translate_chat_ctrl(groupbox, chatCtrl, label, txt, timeCtrl
     g.ypos = g.ypos + label:GetHeight()
 
     groupbox:SetScrollPos(99999)
-    local childCount = groupbox:GetChildCount() - 1
 
-    return 0
+    return 1
+end
+
+function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
+
+    local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
+    local size = session.ui.GetMsgInfoSize(groupboxname);
+    local msg = session.ui.GetChatMsgInfo(groupboxname, size - 1)
+
+    if g.settings.use == 0 then
+        return
+    end
+
+    local cmdName = msg:GetCommanderName();
+    local tempMsg = msg:GetMsg();
+    local lastmsg = cmdName .. ":" .. tempMsg
+    if g.lastmsg == lastmsg then
+
+        return
+    else
+
+        g.lastmsg = lastmsg
+    end
+
+    local MsgType = msg:GetMsgType()
+
+    if MsgType ~= "Normal" and MsgType ~= "Shout" and MsgType ~= "Party" and MsgType ~= "Guild" then
+
+        return
+
+    end
+
+    local output = acutil.loadJSON(g.outputFileLoc, g.output)
+    if next(output) == nil then
+        g.count = 0
+    else
+
+        g.count = #output
+    end
+
+    local chat_id = msg:GetMsgInfoID();
+    local color = "#FFFF00"
+    local pattern = "(@dicID)"
+    local modifiedString = tempMsg:gsub(pattern, "{%1"):gsub("%$%*%^", "%1}")
+    local startIndex, endIndex = string.find(modifiedString, "{img link_party 24 24}")
+    if startIndex and endIndex then
+
+        modifiedString = modifiedString:sub(1, endIndex) .. "{" .. modifiedString:sub(endIndex + 1)
+
+        local substring = modifiedString:sub(endIndex + 1) -- {img link_party 24 24} の後ろの文字列を取得
+        local nextIndex = string.find(substring, "{%/%}{%/%}") -- 次の {/}{/} の位置を取得
+        if nextIndex then
+
+            modifiedString = modifiedString:sub(1, endIndex + nextIndex - 1) .. "}" ..
+                                 modifiedString:sub(endIndex + nextIndex)
+
+        end
+
+    end
+    modifiedString = modifiedString:gsub("{#0000FF}", "{#FFFF00}")
+
+    local cleanedText, extractedTexts = tos_google_translate_extractAndCleanText(modifiedString, chat_id)
+    -- print("clean:" .. cleanedText)
+    --[[if cleanedText == " " then
+        return
+    elseif cleanedText == "" then
+        return
+    end]]
+
+    local time = msg:GetTimeStr()
+    cmdName = msg:GetCommanderName();
+    -- local input = "あじのり [W サーバー]"
+    cmdName = cmdName:gsub("%[.*%]", ""):gsub("^%s*(.-)%s*$", "%1")
+
+    tos_google_translate_save_settings()
+    local count = #g.settings.chat + 1
+
+    g.settings.chat[count] = {
+        chat_id = tostring(chat_id),
+        msgtype = MsgType,
+        trans_text = cleanedText, -- これは後で翻訳されたテキストに置き換えられる可能性があります
+        time = time,
+        name = cmdName,
+        lang = g.settings.lang
+
+    }
+    tos_google_translate_save_settings()
+    tos_google_translate_msg_del()
+    local frame = ui.GetFrame("tos_google_translate")
+    frame:RunUpdateScript("tos_google_translate_receive", 2.0)
+    frame:SetUserValue("")
+    -- local frame = ui.GetFrame("tos_google_translate")
+    -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
+    -- print(g.count)
+
+end
+
+function tos_google_translate_receive(frame)
+    -- print("test")
+
+    g.gbox = false
+    local count
+    local output = acutil.loadJSON(g.outputFileLoc, g.output)
+    if next(output) == nil then
+        count = 0
+    else
+
+        count = #output
+    end
+
+    if count == g.count then
+        return 1
+    else
+        tos_google_translate_load_names()
+        tos_google_translate_gbox()
+        return 1
+    end
+
+end
+
+function tos_google_translate_extractAndCleanText(text, id)
+    --[[local langCode = option.GetCurrentCountry()
+    -- if (option.GetCurrentCountry() == "Japanese") then
+    if langCode ~= "Korean" then
+
+        text = dictionary.ReplaceDicIDInCompStr(text)
+        text = string.gsub(text, "{/}", "")
+
+        local function replaceAll(text, pattern, replacement)
+            local result = text
+            local startPos, endPos = string.find(pattern)
+            while startPos do
+                result = result:sub(1, startPos - 1) .. replacement .. result:sub(endPos + 1)
+                startPos, endPos = string.find(pattern, endPos + 1)
+            end
+            return result
+        end
+
+        local replacedText = replaceAll(text, "%(", "{")
+        replacedText = replaceAll(replacedText, "%)", "}")
+        --[[local start, finish = string.find(text, "%(")
+        if start then
+            text = text:sub(1, start - 1) .. "{" .. text:sub(start + 1)
+            local next_brace_start = string.find(text, "%{", finish + 1)
+            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
+            next_brace_start = string.find(text, "%)", finish + 1)
+            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
+        else
+            print("aru")
+        end
+    end]]
+
+    -- print(text)
+
+    local front = string.find(text, "{") -- マッチした文字列の直前の位置を取得
+    while front do
+        local back = string.find(text, "}", front) + 1 -- マッチした文字列の直後の位置を取得し、追加の5文字分を加える
+        local extractedText = string.sub(text, front, back - 1) -- マッチした部分の文字列を抽出
+        g.extractedTexts[id] = g.extractedTexts[id] or {} -- 新しいテーブルを作成するか既存のテーブルを取得する
+        table.insert(g.extractedTexts[id], extractedText)
+        text = string.sub(text, 1, front - 1) .. string.sub(text, back) -- 不要な部分を削除した文字列を更新
+        front = string.find(text, "{") -- 次のマッチを探す
+    end
+
+    --[[for i, extractedTexts in pairs(g.extractedTexts) do
+        for j, extractedText in ipairs(extractedTexts) do
+            print("抽出したテキスト[" .. i .. "][" .. j .. "]:" .. extractedText)
+        end
+    end]]
+
+    return text, g.extractedTexts -- 抽出したテキストを含むテーブルを返す
 end
 
 function tos_google_translate_frame_open(frame, ctrl, argStr, argNum)
@@ -250,185 +594,171 @@ function tos_google_translate_frame_close(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
 end
 
-function tos_google_translate_extractAndCleanText(text)
-    local extractedTexts = {} -- 抽出したテキストを格納するテーブル
-
-    local front = string.find(text, "{") -- マッチした文字列の直前の位置を取得
-    while front do
-        local back = string.find(text, "}", front) + 1 -- マッチした文字列の直後の位置を取得し、追加の5文字分を加える
-        local extractedText = string.sub(text, front, back - 1) -- マッチした部分の文字列を抽出
-        table.insert(extractedTexts, extractedText)
-
-        text = string.sub(text, 1, front - 1) .. string.sub(text, back) -- 不要な部分を削除した文字列を更新
-
-        front = string.find(text, "({)") -- 次のマッチを探す
-    end
-    --[[for i, extractedText in ipairs(extractedTexts) do
-        print("抽出したテキスト[" .. i .. "]:" .. extractedText)
-    end]]
-
-    return text, extractedTexts -- 抽出したテキストを含むテーブルを返す
-end
-
-function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
-
-    local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
-    local size = session.ui.GetMsgInfoSize(groupboxname);
-    local msg = session.ui.GetChatMsgInfo(groupboxname, size - 1)
-
-    if g.settings.use == 0 then
-        return
-    end
-
-    local tempMsg = msg:GetMsg();
-    if g.lastmsg == tempMsg then
-
-        return
-    else
-
-        g.lastmsg = tempMsg
-    end
-    local MsgType = msg:GetMsgType()
-
-    if MsgType ~= "Normal" and MsgType ~= "Shout" and MsgType ~= "Party" and MsgType ~= "Guild" then
-        return
-    end
-
-    local cleanedText, extractedTexts = tos_google_translate_extractAndCleanText(tempMsg)
-    if cleanedText == " " then
-        return
-    end
-
-    local chat_id = msg:GetMsgInfoID();
-    local time = msg:GetTimeStr()
-    local cmdName = msg:GetCommanderName();
-
-    local langCode = option.GetCurrentCountry()
-    if langCode == "Japanese" then
-        langCode = "ja"
-    elseif langCode == "Korean" then
-        langCode = "ko"
-    else
-        langCode = "en"
-    end
-    local use = g.settings.use
-
-    g.settings = {
-        chat_id = tostring(chat_id),
-        msgtype = MsgType,
-        trans_text = cleanedText, -- これは後で翻訳されたテキストに置き換えられる可能性があります
-        time = time,
-        name = cmdName,
-        lang = langCode,
-        use = use
-
-    }
-    tos_google_translate_save_settings()
-
-    tos_google_translate_load_output()
-    local keys = {}
-
-    for k in pairs(g.output) do
-        if k ~= "0" then
-            table.insert(keys, tonumber(k))
-        end
-    end
-    g.size = #keys
-    local frame = ui.GetFrame("tos_google_translate")
-    frame:RunUpdateScript("tos_google_translate_receive", 1.0)
-    return
-end
-
-function tos_google_translate_receive()
-
-    g.gbox = false
-    tos_google_translate_load_output()
-    local keys = {}
-
-    for k in pairs(g.output) do
-        if k ~= "0" then
-            table.insert(keys, tonumber(k))
-        end
-    end
-    local size = #keys
-
-    if size == 1 then
-        if g.output["0"] ~= nil then
-            g.output["0"] = nil
-            acutil.saveJSON(g.outputFileLoc, g.output)
-
-            -- ReserveScript("tos_google_translate_receive()", 5.0)
-            return 1
-        end
-    end
-    if g.size == size then
-        -- ReserveScript("tos_google_translate_receive()", 5.0)
-        return 1
-    else
-        tos_google_translate_load_names()
-        tos_google_translate_gbox()
-
-    end
-    -- tos_google_translate_load_names()
-    -- tos_google_translate_gbox()
-
-end
-
 function tos_google_translate_start(frame, msg, argStr, argNum)
-    local exe_path = "../addons/tos_google_translate/tos_google_translate.exe" -- 実行したいPythonスクリプトのパス
-    -- local exe_path = "../addons/tos_google_translate/tos_google_translate.py" -- 実行したいPythonスクリプトのパス
-    -- os.remove(exe_path)
-    if not g.loaded then
-        local command = string.format('start "" "%s"', exe_path)
-        os.execute(command)
-        g.loaded = true
-        print("start")
+    local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate.exe" -- 実行したいPythonスクリプトのパス
+
+    local file = io.open(exe_path, "r")
+    if file then
+        if not g.loaded then
+            local command = string.format('start "" "%s"', exe_path)
+            os.execute(command)
+            g.loaded = true
+
+        end
+        file:close()
+        tos_google_translate_frame_init()
+    else
+        ui.SysMsg(tos_google_translate_lang("[Tos Google Translate]{nl}" ..
+                                                "/addons/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" ..
+                                                "cannot be found. Exit."))
+        return
     end
-    tos_google_translate_frame_init()
 
 end
 
 function tos_google_translate_load_settings()
 
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local settings = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    local langCode = option.GetCurrentCountry()
+    if langCode == "Japanese" then
+        langCode = "ja"
+        -- langCode = "ko"
+    elseif langCode == "Korean" then
+        langCode = "ko"
+    else
+        langCode = "en"
     end
+
     if not settings then
         -- 設定ファイルが存在しない場合、デフォルトの設定を作成
-        g.settings = {
-            lang = "ja",
-            chat_id = "0",
-            name = "",
-            trans_text = "",
-            msgtype = "",
-            time = "",
-            use = 1
+        settings = {
+            chat = {},
+            use = 1,
+            lang = langCode
         }
-    else
-        -- 設定ファイルが存在する場合、その内容を使用
-        g.settings = settings
+
+        local file = io.open(g.settingsFileLoc, "w")
+        local s = json.encode(settings)
+        file:write(s)
+        file:close()
     end
 
-    -- 設定を保存
-    tos_google_translate_save_settings()
+    if not g.loaded then
+        local use = settings.use
+        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
+        settings = {
+            chat = {},
+            use = use,
+            lang = langCode
+        }
 
-    ReserveScript("tos_google_translate_load_names()", 0.5)
+        local file = io.open(g.settingsFileLoc, "w")
+        local s = json.encode(settings)
+        file:write(s)
+        file:close()
+
+    end
+
+    if settings then
+        local file = io.open(g.settingsFileLoc, "w")
+        local s = json.encode(settings)
+        file:write(s)
+        file:close()
+    end
+    g.settings = settings
+    ReserveScript("tos_google_translate_load_output()", 0.2)
 
     return
+end
 
+function tos_google_translate_load_output()
+    local output = acutil.loadJSON(g.outputFileLoc, g.output)
+
+    if not output then
+
+        output = {}
+
+        local file = io.open(g.outputFileLoc, "w")
+        local s = json.encode(output)
+        file:write(s)
+        file:close()
+
+    elseif not g.loaded then
+        output = {}
+
+        local file = io.open(g.outputFileLoc, "w")
+        local s = json.encode(output)
+        file:write(s)
+        file:close()
+
+    end
+    g.output = output
+    if g.gbox then
+        ReserveScript("tos_google_translate_load_temp()", 0.2)
+    end
+end
+
+function tos_google_translate_load_temp()
+    local temp = acutil.loadJSON(g.tempFileLoc, g.temp)
+
+    if not temp then
+        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
+        temp = {}
+
+        local file = io.open(g.tempFileLoc, "w")
+        local s = json.encode(temp)
+        file:write(s)
+        file:close()
+
+    elseif not g.loaded then
+        temp = {}
+
+        local file = io.open(g.tempFileLoc, "w")
+        local s = json.encode(temp)
+        file:write(s)
+        file:close()
+    elseif temp then
+        local file = io.open(g.tempFileLoc, "w")
+        local s = json.encode(temp)
+        file:write(s)
+        file:close()
+    end
+    ReserveScript("tos_google_translate_load_send()", 0.2)
+end
+
+function tos_google_translate_load_send()
+    local send = acutil.loadJSON(g.sendFileLoc, g.send)
+
+    if not send then
+        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
+        send = {}
+
+        local file = io.open(g.sendFileLoc, "w")
+        local s = json.encode(send)
+        file:write(s)
+        file:close()
+
+    elseif not g.loaded then
+        send = {}
+
+        local file = io.open(g.sendFileLoc, "w")
+        local s = json.encode(send)
+        file:write(s)
+        file:close()
+    elseif send then
+        local file = io.open(g.sendFileLoc, "w")
+        local s = json.encode(send)
+        file:write(s)
+        file:close()
+    end
+    ReserveScript("tos_google_translate_load_names()", 0.2)
 end
 
 function tos_google_translate_load_names()
 
-    local names, err = acutil.loadJSON(g.namesFileLoc, g.names)
+    local names = acutil.loadJSON(g.namesFileLoc, g.names)
 
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
     local mySession = session.GetMyHandle();
     local myTeamName = info.GetFamilyName(mySession);
     if not names then
@@ -440,40 +770,255 @@ function tos_google_translate_load_names()
         -- 設定ファイルが存在する場合、その内容を使用
         g.names = names
     end
-    acutil.saveJSON(g.namesFileLoc, g.names)
+
     if g.gbox then
-        ReserveScript("tos_google_translate_load_output()", 0.5)
-    end
-end
+        for org_name, ts_name in pairs(g.names) do
 
-function tos_google_translate_load_output()
+            if ts_name == "" then
+                g.names[org_name] = nil -- キーを削除する
+            end
+            if ts_name == "---" then
 
-    local output, err = acutil.loadJSON(g.outputFileLoc, g.output)
+                g.names[org_name] = nil -- キーを削除する
+            end
+            if WITH_HANGLE(org_name) then
+                if ts_name == org_name then
+                    g.names[org_name] = nil -- キーを削除する
+                end
 
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+            end
+            if WITH_HANGLE(ts_name) then
+
+                g.names[org_name] = nil -- キーを削除する
+
+            end
+        end
+        acutil.saveJSON(g.namesFileLoc, g.names)
+
+        ReserveScript("tos_google_translate_start()", 0.2)
     end
-    if not output or next(output) == nil then
-        g.output = {}
-        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
-        g.output["0"] = {
-            name = "",
-            trans_text = "",
-            msgtype = "",
-            time = ""
-        }
-    else
-        -- 設定ファイルが存在する場合、その内容を使用
-        g.output = output
-    end
-    acutil.saveJSON(g.outputFileLoc, g.output)
-    if g.gbox then
-        ReserveScript("tos_google_translate_start()", 0.5)
-    end
-    return
 end
 
 function tos_google_translate_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
 end
+--[[local function WITH_HANGLE(str)
+    local size = #str
+    local i = 1
+
+    while i <= size do
+        local byt = string.byte(str, i)
+        local inc = 1
+
+        if (byt & 0x80) == 0x00 then
+            inc = 1
+        elseif (byt & 0xE0) == 0xC0 then
+            inc = 2
+        elseif (byt & 0xF0) == 0xE0 then
+            inc = 3
+        elseif (byt & 0xF8) == 0xF0 then
+            inc = 4
+        elseif (byt & 0xFC) == 0xF8 then
+            inc = 5
+        elseif (byt & 0xFE) == 0xFC then
+            inc = 6
+        end
+
+        local code = byt & (0xFF >> (inc + 1)) -- コードポイントの計算
+
+        if inc > 1 then
+            for j = 2, inc do
+                byt = string.byte(str, i + j - 1)
+                code = (code << 6) | (byt & 0x3F)
+            end
+        end
+
+        if code >= 0xAC00 and code <= 0xD7A3 then
+            return true -- ハングルの範囲に含まれる
+        end
+
+        i = i + inc
+    end
+
+    return false -- ハングルの文字が含まれない
+end]]
+--[[function tos_google_translate_msg_del()
+
+    if #g.settings["chat"] == 0 then
+        -- print("nai")
+        return
+    else
+
+        local newtable = {}
+        --[[local recv_file_path = string.format('../addons/%s/recv.json', addonNameLower)
+        local file = io.open(recv_file_path, "r")
+
+        if file then
+            -- JSONデータをテーブルに変換
+            local file_data = file:read("*all") -- ファイルの内容を変数に保存
+            file:close() -- ファイルを閉じる
+            local data = json.decode(file_data)
+            if #data ~= 0 then
+                -- JSONデータをテーブルに変換
+
+                for j, entry in ipairs(g.settings["chat"]) do
+                    for i, e in ipairs(data) do
+                        if e.chat_id ~= entry.chat_id then
+                            table.insert(newtable, entry)
+                            print(e.chat_id)
+
+                            break
+                        end
+                    end
+
+                end
+                g.settings["chat"] = {}
+                tos_google_translate_save_settings()
+            else
+                for i, entry in ipairs(g.settings["chat"]) do
+                    table.insert(newtable, entry)
+                    print(i)
+                end
+
+            end
+        else
+            for i, entry in ipairs(g.settings["chat"]) do
+
+                table.insert(newtable, entry)
+
+            end
+
+        end
+        local newtable = {}
+        local send_file_path = string.format('../addons/%s/send.json', addonNameLower)
+        local file = io.open(send_file_path, "r")
+
+        if file then
+            -- JSONデータをテーブルに変換
+            local file_data = file:read("*all")
+            file:close() -- ファイルを閉じる
+            local data = json.decode(file_data)
+            print(#data)
+            for i, e in ipairs(data) do
+                print(e.chat_id)
+            end
+
+        end
+
+        for i, entry in ipairs(g.settings["chat"]) do
+
+            table.insert(newtable, entry)
+
+        end
+        local send_table = {} -- 新しいテーブルを作成
+        for key, value in ipairs(newtable) do
+            local chat_id = value.chat_id -- 値を直接取得して代入
+            local trans_text = value.trans_text -- 値を直接取得して代入
+            local name = value.name -- 値を直接取得して代入
+            local lang = value.lang -- 値を直接取得して代入
+            local msgtype = value.msgtype
+            local time = value.time
+
+            -- 新しいテーブルに値を追加
+            table.insert(send_table, {
+                chat_id = chat_id,
+                trans_text = trans_text,
+                name = name,
+                lang = lang,
+                msgtype = msgtype,
+                time = time
+            })
+        end
+
+        local send_json = json.encode(send_table)
+        print(send_json)
+        local send_file_path = string.format('../addons/%s/send.json', addonNameLower)
+
+        local send_file = io.open(send_file_path, "w")
+        if send_file then
+            send_file:write(send_json) -- エンコードされたJSONデータをファイルに書き込む
+            send_file:close() -- ファイルを閉じる
+        end
+
+        local success, message = os.remove(recv_file_path)
+        if success then
+            print("recvファイルが削除されました。")
+        else
+            -- print("recvファイルの削除中にエラーが発生しました:" .. message)
+        end
+        --[[ print(tostring(send_table))
+        -- 新しいテーブルをJSON形式に変換して出力
+        local send_json = json.encode({
+            send = send_table
+        })
+        -- print(send_json)
+
+        local file = io.open(g.ttempFileLoc, "r")
+        local existingContent = ""
+
+        existingContent = file:read("*all")
+        file:close()
+        -- print(existingContent)
+        -- print(next(g.ttemp["send"]) .. "next")
+
+        -- local pattern = tostring('"send":[]')
+        existingContent = string.gsub('"send":[]', '"send":' .. newtable)
+        local file = io.open(g.ttempFileLoc, "r")
+
+        local file = io.open(g.ttempFileLoc, "r")
+        local existingContent = ""
+
+        local notice_file_path = string.format('../addons/%s/notice.txt', addonNameLower)
+        if not file_exists(notice_file_path) then
+            local notice_file = io.open(notice_file_path, "w")
+            if notice_file then
+                notice_file:close()
+            end
+        end
+
+        --[[if existingContent == "[]" then
+            local file = io.open(g.ttempFileLoc, "w")
+            existingContent = json.encode(newtable)
+            file:write(existingContent) -- 新しいテーブルを書き込む
+            file:close()
+        else
+            local file = io.open(g.temptFileLoc, "w")
+            existingContent = existingContent:gsub("]", ",")
+
+            newtable = json.encode(newtable)
+            newtable = newtable:gsub("^%[", "")
+
+            existingContent = existingContent .. newtable
+            print(tostring(existingContent))
+            file:write(existingContent) -- 新しいテーブルを書き込む
+            file:close()
+        end]]
+
+--[[local file = io.open(g.tempFileLoc, "a") -- 追記モードでファイルを開く
+        if file then
+
+            if existingContent ~= "[]" then
+                -- 既存の内容がある場合、末尾の "]" を削除してから新しいテーブルを追記
+                existingContent = existingContent:gsub("]", "") -- 末尾の "]" を削除
+
+                file:write(existingContent .. ",") -- 既存の内容を書き込む
+
+                -- file:write(",") -- 既存の内容がある場合、カンマで区切る
+            else
+                print("[]")
+                existingContent = existingContent:gsub("[]", "")
+                existingContent = json.encode(newtable)
+            end
+            print(tostring(existingContent))
+            -- local newtable_str = json.encode(newtable):sub(2)
+            file:write(existingContent) -- 新しいテーブルを書き込む
+            file:close()
+        end
+
+        -- 元のテーブルを空にする
+        -- g.settings["chat"] = {}
+
+        -- 設定を保存する
+        -- tos_google_translate_save_settings()
+    end
+end]]
