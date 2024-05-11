@@ -29,6 +29,8 @@ https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate#%E6
 ![tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c1fa8e68-548e-431b-b8c0-a4697c1fa413)
 　
 
+v0.9.1 重くなり過ぎたの修正。ボタン右クリックで強制的に再描画機能追加。
+
 v0.9.0 公開。
 　
 
