@@ -24,10 +24,14 @@ https://twitter.com/ToSJP_rada
 
 自動でチャットを翻訳します。アドオン単体では動作しません。下記の場所の導入説明を読んでください。
 
+##※v0.9.2以降exeファイルも更新しています。再ダウンロードの上、所定の場所に解凍してください。
+
 https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate#%E6%97%A5%E6%9C%AC%E8%AA%9E%E8%AA%AC%E6%98%8E
 
 ![tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c1fa8e68-548e-431b-b8c0-a4697c1fa413)
 　
+
+v0.9.2 重いのを再修正。PTインフォも翻訳後の名前が表示される様に。
 
 v0.9.1 重くなり過ぎたの修正。ボタン右クリックで強制的に再描画機能追加。
 
