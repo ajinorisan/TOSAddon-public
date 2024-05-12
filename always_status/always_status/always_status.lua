@@ -113,19 +113,20 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-
+    always_status_load_settings()
     ReserveScript("always_status_original_frame_reduction()", 1.0)
-    ReserveScript("always_status_load_settings()", 1.5)
-    addon:RegisterMsg("GAME_START", "always_status_frame_init")
+    -- ReserveScript("", 1.5)
+
+    addon:RegisterMsg("GAME_START_3SEC", "always_status_frame_init")
     addon:RegisterMsg("GAME_START_3SEC", "always_status_original_frame_sound_config")
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
     acutil.setupEvent(addon, "CONFIG_SOUNDVOL", "always_status_CONFIG_SOUNDVOL");
-    acutil.setupEvent(addon, "ITEM_EQUIP", "always_status_CONFIG_SOUNDVOL")
+    -- acutil.setupEvent(addon, "ITEM_EQUIP", "always_status_CONFIG_SOUNDVOL")
 end
 
 function always_status_original_frame_sound_config()
-
+    -- CHAT_SYSTEM("ALWAYS_STATUS_ON_INIT")
     config.SetSoundVolume(g.settings.volume)
 
 end
@@ -146,9 +147,11 @@ function always_status_CONFIG_SOUNDVOL(frame, msg)
     local volume = tonumber(num)
     g.settings.volume = volume
     always_status_save_settings()
+
 end
 
 function always_status_STATUS_ONLOAD()
+
     local frame = ui.GetFrame("status")
     frame:Resize(500, 1080)
     frame:ShowWindow(1)
@@ -617,6 +620,7 @@ function always_status_frame_init()
         local pc = GetMyPCObject();
         local statframe = ui.GetFrame("status")
         local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
+
         local key = 0
 
         for i = 1, 10 do
@@ -675,12 +679,14 @@ function always_status_frame_init()
                             stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
 
                         else
+
                             title:SetText("{ol}{s16}" .. g.settings["color"][status] .. ScpArgMsg(status))
                             local text = string.gsub(orig_status:GetText(), "{#ff4040}", "")
                             text = string.gsub(text, "{#66b3ff}", "")
                             stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
 
                         end
+
                         if (option.GetCurrentCountry() == "Japanese") then
                             local text = string.gsub(title:GetText(), "{ol}{s16}" .. g.settings["color"][status], "")
                             title:SetText("{ol}{s16}" .. g.settings["color"][status] .. always_status_lang(text))
@@ -708,16 +714,16 @@ function always_status_frame_init()
 end
 
 function always_status_update()
-
+    -- print("test")
     local frame = ui.GetFrame(addonNameLower)
     local statframe = ui.GetFrame("status")
     local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
 
     local pc = GetMyPCObject();
     for _, status in ipairs(status_list) do
-        local as_stat = GET_CHILD_RECURSIVELY(frame, "stat" .. status)
-        local controlset = GET_CHILD_RECURSIVELY(box, status)
 
+        local controlset = GET_CHILD_RECURSIVELY(box, status)
+        local as_stat = GET_CHILD_RECURSIVELY(frame, "stat" .. status)
         if controlset == nil then
 
             if status == "STR" or status == "INT" or status == "CON" or status == "MNA" or status == "DEX" then
@@ -738,9 +744,12 @@ function always_status_update()
         else
 
             local orig_status = GET_CHILD_RECURSIVELY(controlset, "stat")
+
+            -- print(tostring(as_stat))
             if as_stat ~= nil then
                 if status == "gear_score" then
                     local score = GET_PLAYER_GEAR_SCORE(pc)
+
                     local text = string.gsub(orig_status:GetText(), "{@sti8}", "")
                     as_stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. score)
 

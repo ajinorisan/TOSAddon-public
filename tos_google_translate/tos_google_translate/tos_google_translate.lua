@@ -1,7 +1,9 @@
+-- v0.9.0 とりあえず公開
+-- v0.9.1 重すぎたので手動更新を付けた。
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.1"
+local ver = "0.9.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -120,9 +122,19 @@ function tos_google_translate_REQ_TRANSLATE_TEXT(frameName, gbName, ctrlName)
 end
 
 function tos_google_translate_lang(str)
-
+    --[["Left click: Opens and closes the translation chat window.{nl}" ..
+    "Automatic translation stops while it is not open.{nl}" ..
+    "Right click: Force reload of the translation chat window."]]
     local langCode = option.GetCurrentCountry()
     if langCode == "Japanese" then
+
+        if str == "Left click: Opens and closes the translation chat window.{nl}" ..
+            "Automatic translation stops while it is not open.{nl}" ..
+            "Right click: Force reload of the translation chat window." then
+            str = "左クリック：翻訳チャットウィンドウを開いたり閉じたりします。{nl}" ..
+                      "開いてない間は自動翻訳停止します。{nl}" ..
+                      "右クリック：強制的に翻訳チャットウィンドウを再読み込みします。"
+        end
 
         if str == "[Tos Google Translate]{nl}" ..
             "/addons/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" .. "cannot be found. Exit." then
@@ -142,6 +154,14 @@ function tos_google_translate_lang(str)
         end
         return str
     elseif langCode == "Korean" then
+
+        if str == "Left click: Opens and closes the translation chat window.{nl}" ..
+            "Automatic translation stops while it is not open.{nl}" ..
+            "Right click: Force reload of the translation chat window." then
+            str = "왼쪽 클릭: 번역 채팅 창을 열거나 닫습니다.{nl}" ..
+                      " 열려있지 않은 상태에서는 자동 번역이 중지됩니다.{nl}" ..
+                      "오른쪽 클릭: 번역 채팅창을 강제로 다시 불러옵니다."
+        end
 
         if str == "[Tos Google Translate]{nl}" ..
             "/addons/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" .. "cannot be found. Exit." then
@@ -179,7 +199,7 @@ function tos_google_translate_restart()
     local file = io.open(g.restartFileLoc, "w")
     file:write(batch_script)
     file:close()
-
+    g.extractedTexts = {}
     g.loaded = false
 end
 
@@ -225,7 +245,10 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
     trans:SetText("{ol}{s14}{#FFFFFF}" .. g.settings["lang"])
     trans:SetEventScript(ui.LBUTTONUP, "tos_google_translate_frame_open")
-    trans:SetTextTooltip("Open and close the translation chat window.")
+    trans:SetEventScript(ui.RBUTTONUP, "tos_google_translate_gbox")
+    trans:SetTextTooltip(tos_google_translate_lang("Left click: Opens and closes the translation chat window.{nl}" ..
+                                                       "Automatic translation stops while it is not open.{nl}" ..
+                                                       "Right click: Force reload of the translation chat window."))
     local chatframeWidth, chatframeHeight = chatframe:GetWidth(), chatframe:GetHeight()
 
     if g.settings.use == 1 then
@@ -245,7 +268,7 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
         AUTO_CAST(gbox)
 
         gbox:SetLeftScroll(1)
-        tos_google_translate_gbox()
+        tos_google_translate_gbox(frame)
     else
         return
     end
@@ -291,12 +314,12 @@ local function WITH_HANGLE(str)
     return false;
 end
 
-function tos_google_translate_gbox()
+function tos_google_translate_gbox(frame)
 
     local mainchatFrame = ui.GetFrame("chatframe")
 
-    local frame = ui.GetFrame("tos_google_translate")
-    local gbox = GET_CHILD(frame, "gbox")
+    local tgtframe = ui.GetFrame("tos_google_translate")
+    local gbox = GET_CHILD(tgtframe, "gbox")
     AUTO_CAST(gbox)
 
     local trans_name = ""
@@ -386,14 +409,14 @@ function tos_google_translate_gbox()
 
             local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
 
-            tos_google_translate_chat_ctrl(gbox, chatCtrl, label, txt, timeCtrl, offsetX)
+            tos_google_translate_chat_ctrl(frame, gbox, chatCtrl, label, txt, timeCtrl, offsetX)
             break
         end
     end
 
 end
 
-function tos_google_translate_chat_ctrl(groupbox, chatCtrl, label, txt, timeCtrl, offsetX)
+function tos_google_translate_chat_ctrl(frame, groupbox, chatCtrl, label, txt, timeCtrl, offsetX)
 
     local chatWidth = groupbox:GetWidth()
     txt:SetTextMaxWidth(groupbox:GetWidth() - 100)
@@ -403,8 +426,8 @@ function tos_google_translate_chat_ctrl(groupbox, chatCtrl, label, txt, timeCtrl
     g.ypos = g.ypos + label:GetHeight()
 
     groupbox:SetScrollPos(99999)
-
-    return 1
+    frame:SetUserValue("RETURN", 0)
+    return
 end
 
 function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
@@ -493,8 +516,8 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
     tos_google_translate_save_settings()
     tos_google_translate_msg_del()
     local frame = ui.GetFrame("tos_google_translate")
-    frame:RunUpdateScript("tos_google_translate_receive", 2.0)
-    frame:SetUserValue("")
+    frame:RunUpdateScript("tos_google_translate_receive", 3.0)
+    frame:SetUserValue("RETURN", 1)
     -- local frame = ui.GetFrame("tos_google_translate")
     -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
     -- print(g.count)
@@ -502,7 +525,8 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
 end
 
 function tos_google_translate_receive(frame)
-    -- print("test")
+    local value = frame:GetUserIValue("RETURN")
+    -- print(value)
 
     g.gbox = false
     local count
@@ -514,12 +538,12 @@ function tos_google_translate_receive(frame)
         count = #output
     end
 
-    if count == g.count then
-        return 1
+    if g.count == count then
+        return value
     else
         tos_google_translate_load_names()
-        tos_google_translate_gbox()
-        return 1
+        tos_google_translate_gbox(frame)
+        return value
     end
 
 end
