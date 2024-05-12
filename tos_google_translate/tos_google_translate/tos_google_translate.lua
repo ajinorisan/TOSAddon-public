@@ -1,9 +1,10 @@
 -- v0.9.0 とりあえず公開
 -- v0.9.1 重すぎたので手動更新を付けた。
+-- v0.9.2 重すぎるの直した。パーティーインフォも翻訳後の名前になる様に変更
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.9.1"
+local ver = "0.9.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -15,6 +16,7 @@ g.namesFileLoc = string.format('../addons/%s/%s/names.json', addonNameLower, add
 g.outputFileLoc = string.format('../addons/%s/%s/output.json', addonNameLower, addonNameLower)
 g.tempFileLoc = string.format('../addons/%s/%s/temp.json', addonNameLower, addonNameLower)
 g.sendFileLoc = string.format('../addons/%s/%s/send.json', addonNameLower, addonNameLower)
+g.noticeFileLoc = string.format('../addons/%s/%s/notice.json', addonNameLower, addonNameLower)
 g.restartFileLoc = string.format('../addons/%s/restart.bat', addonNameLower)
 
 local acutil = require("acutil")
@@ -48,6 +50,21 @@ function TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
     acutil.slashCommand("/tos_google_translate", tos_google_translate_restart);
     acutil.slashCommand("/tgt", tos_google_translate_restart);
     g.SetupHook(tos_google_translate_REQ_TRANSLATE_TEXT, "REQ_TRANSLATE_TEXT")
+    g.SetupHook(tos_google_translate_SET_PARTYINFO_ITEM, "SET_PARTYINFO_ITEM")
+
+    --[[local functionName = _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Switch_NamePlate
+    if functionName ~= nil and type(functionName) == "function" then
+
+        local pc = GetMyPCObject();
+        local curMap = GetZoneName(pc)
+        local mapCls = GetClass("Map", curMap)
+        if mapCls.MapType ~= "City" then
+            _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Switch_NamePlate()
+        else
+            _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Restore_NamePlate()
+        end
+
+    end]]
 
 end
 
@@ -192,7 +209,7 @@ function tos_google_translate_restart()
                 @echo off
                 :: コマンドを管理者権限で実行するためのバッチファイル
                 
-                taskkill /F /IM tos_google_translate.exe
+                taskkill /F /IM tos_google_translate-v1.0.0.exe
                 ]]
 
     -- バッチファイルを作成する
@@ -236,7 +253,7 @@ end
 function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "tos_google_translate_DRAW_CHAT_MSG");
-
+    g.addon:RegisterMsg("FPS_UPDATE", "tos_google_translate_receive");
     local chatframe = ui.GetFrame("chatframe")
     local tabgbox = GET_CHILD_RECURSIVELY(chatframe, "tabgbox")
     local trans = tabgbox:CreateOrGetControl("button", "trans", 270, -3, 30, 30)
@@ -426,7 +443,7 @@ function tos_google_translate_chat_ctrl(frame, groupbox, chatCtrl, label, txt, t
     g.ypos = g.ypos + label:GetHeight()
 
     groupbox:SetScrollPos(99999)
-    frame:SetUserValue("RETURN", 0)
+    os.remove(g.noticeFileLoc)
     return
 end
 
@@ -459,13 +476,13 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
 
     end
 
-    local output = acutil.loadJSON(g.outputFileLoc, g.output)
+    --[[local output = acutil.loadJSON(g.outputFileLoc, g.output)
     if next(output) == nil then
         g.count = 0
     else
 
         g.count = #output
-    end
+    end]]
 
     local chat_id = msg:GetMsgInfoID();
     local color = "#FFFF00"
@@ -515,36 +532,78 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
     }
     tos_google_translate_save_settings()
     tos_google_translate_msg_del()
-    local frame = ui.GetFrame("tos_google_translate")
-    frame:RunUpdateScript("tos_google_translate_receive", 3.0)
-    frame:SetUserValue("RETURN", 1)
+    -- local frame = ui.GetFrame("tos_google_translate")
+
+    -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
+    -- frame:SetUserValue("RETURN", 1)
     -- local frame = ui.GetFrame("tos_google_translate")
     -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
     -- print(g.count)
 
 end
+--[[local function test()
+    local selectedObjects, selectedObjectsCount = SelectObject(GetMyPCObject(), 1000, "ALL");
+    for i = 1, selectedObjectsCount do
+        local handle = GetHandle(selectedObjects[i]);
+        if handle ~= nil then
+            if info.IsPC(handle) == 1 then
+                local FrameName = "charbaseinfo1_" .. handle;
+                local pcTxtFrame = ui.GetFrame(FrameName);
+                if pcTxtFrame ~= nil then
+                    local frameFamilyName = pcTxtFrame:GetChild("familyName");
+                    AUTO_CAST(frameFamilyName)
+                    local fName = frameFamilyName:GetText()
+                    local result = fName:gsub("{.-}", "") -- {}で囲まれた部分を削除
 
+                    for key, value in pairs(g.names) do
+
+                        if key == result then
+                            local frameGivenName = pcTxtFrame:GetChild("givenName");
+                            AUTO_CAST(frameGivenName)
+                            if nil ~= frameGivenName then
+                                frameGivenName:SetText("");
+
+                            end
+                            frameFamilyName:SetText(value)
+                            local BeforeMargin = frameFamilyName:GetMargin();
+
+                            frameFamilyName:SetMargin(150, BeforeMargin.top, 0, 0);
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+end]]
 function tos_google_translate_receive(frame)
-    local value = frame:GetUserIValue("RETURN")
-    -- print(value)
+    -- test()
+    -- local value = frame:GetUserIValue("RETURN")
+    if g.settings.use == 0 then
+        return
+    end
 
     g.gbox = false
-    local count
+    local file = io.open(g.noticeFileLoc, "r")
+    if file then
+        file:close()
+        tos_google_translate_load_names()
+        tos_google_translate_gbox(frame)
+
+        return
+    else
+        return
+    end
+
+    --[[local count
     local output = acutil.loadJSON(g.outputFileLoc, g.output)
     if next(output) == nil then
         count = 0
     else
 
         count = #output
-    end
-
-    if g.count == count then
-        return value
-    else
-        tos_google_translate_load_names()
-        tos_google_translate_gbox(frame)
-        return value
-    end
+    end]]
 
 end
 
@@ -619,7 +678,7 @@ function tos_google_translate_frame_close(frame, ctrl, argStr, argNum)
 end
 
 function tos_google_translate_start(frame, msg, argStr, argNum)
-    local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate.exe" -- 実行したいPythonスクリプトのパス
+    local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.0.exe" -- 実行したいPythonスクリプトのパス
 
     local file = io.open(exe_path, "r")
     if file then
@@ -816,6 +875,9 @@ function tos_google_translate_load_names()
                 g.names[org_name] = nil -- キーを削除する
 
             end
+            if string.match(org_name, "[%a%d]+") then
+                g.names[org_name] = org_name
+            end
         end
         acutil.saveJSON(g.namesFileLoc, g.names)
 
@@ -825,6 +887,157 @@ end
 
 function tos_google_translate_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
+end
+
+function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, count, makeLogoutPC, leaderFID,
+    isCorsairType, ispipui, partyID)
+
+    if partyID ~= nil and partyMemberInfo ~= nil and partyID ~= partyMemberInfo:GetPartyID() then
+        return nil;
+    end
+    -- test()
+    local partyinfoFrame = ui.GetFrame('partyinfo')
+    local FAR_MEMBER_FACE_COLORTONE = partyinfoFrame:GetUserConfig("FAR_MEMBER_FACE_COLORTONE")
+    local NEAR_MEMBER_FACE_COLORTONE = partyinfoFrame:GetUserConfig("NEAR_MEMBER_FACE_COLORTONE")
+    local FAR_MEMBER_NAME_FONT_COLORTAG = partyinfoFrame:GetUserConfig("FAR_MEMBER_NAME_FONT_COLORTAG")
+    local NEAR_MEMBER_NAME_FONT_COLORTAG = partyinfoFrame:GetUserConfig("NEAR_MEMBER_NAME_FONT_COLORTAG")
+
+    local mapName = geMapTable.GetMapName(partyMemberInfo:GetMapID());
+    local partyMemberName = partyMemberInfo:GetName();
+    for key, value in pairs(g.names) do
+        if key == partyMemberName then
+            partyMemberName = value
+
+            break
+        end
+    end
+
+    local myHandle = session.GetMyHandle();
+    local ctrlName = 'PTINFO_' .. partyMemberInfo:GetAID();
+    if mapName == 'None' and makeLogoutPC == false then
+        frame:RemoveChild(ctrlName);
+        return nil;
+    end
+
+    local partyInfoCtrlSet = frame:CreateOrGetControlSet('partyinfo', ctrlName, 10, count * 100);
+
+    UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo);
+
+    local leaderMark = GET_CHILD(partyInfoCtrlSet, "leader_img", "ui::CPicture");
+    leaderMark:SetImage('None_Mark');
+    leaderMark:ShowWindow(0)
+    -- 머리
+    local jobportraitImg = GET_CHILD(partyInfoCtrlSet, "jobportrait_bg", "ui::CPicture");
+    local nameObj = partyInfoCtrlSet:GetChild('name_text');
+    local nameRichText = tolua.cast(nameObj, "ui::CRichText");
+    local hpGauge = GET_CHILD(partyInfoCtrlSet, "hp", "ui::CGauge");
+    local spGauge = GET_CHILD(partyInfoCtrlSet, "sp", "ui::CGauge");
+
+    if jobportraitImg ~= nil then
+        local jobIcon = GET_CHILD(jobportraitImg, "jobportrait", "ui::CPicture");
+        local iconinfo = partyMemberInfo:GetIconInfo();
+        local jobCls = GetClassByType("Job", iconinfo.repre_job)
+        if nil ~= jobCls then
+            jobIcon:SetImage(jobCls.Icon);
+        end
+
+        local partyMemberCID = partyInfoCtrlSet:GetUserValue("partyMemberCID")
+        if partyMemberCID ~= nil and partyMemberCID ~= 0 and partyMemberCID ~= "None" then
+            local jobportraitImg = GET_CHILD(partyInfoCtrlSet, "jobportrait_bg", "ui::CPicture");
+            if jobportraitImg ~= nil then
+                local jobIcon = GET_CHILD(jobportraitImg, "jobportrait", "ui::CPicture");
+                local partyinfoFrame = ui.GetFrame("partyinfo");
+                PARTY_JOB_TOOLTIP(partyinfoFrame, partyMemberCID, jobIcon, jobCls, 1);
+
+                local partyFrame = ui.GetFrame('party');
+                local gbox = partyFrame:GetChild("gbox");
+                local memberlist = gbox:GetChild("memberlist");
+                PARTY_JOB_TOOLTIP(memberlist, partyMemberCID, jobIcon, jobCls, 1);
+            end
+        end
+
+        local tooltipID = jobIcon:GetTooltipIESID();
+        if nil == tooltipID then
+            local jobName = GET_JOB_NAME(jobCls, iconinfo.gender);
+            jobIcon:SetTextTooltip(jobName);
+        end
+
+        local stat = partyMemberInfo:GetInst();
+        local pos = stat:GetPos();
+
+        local dist = info.GetDestPosDistance(pos.x, pos.y, pos.z, myHandle);
+        local sharedcls = GetClass("SharedConst", 'PARTY_SHARE_RANGE');
+
+        local mymapname = session.GetMapName();
+
+        local partymembermapName = GetClassByType("Map", partyMemberInfo:GetMapID()).ClassName;
+        local partymembermapUIName = GetClassByType("Map", partyMemberInfo:GetMapID()).Name;
+
+        if ispipui == true then
+            partyMemberName = ScpArgMsg("PartyMemberMapNChannel", "Name", partyMemberName, "Mapname",
+                partymembermapUIName, "ChNo", partyMemberInfo:GetChannel() + 1)
+        end
+
+        if dist < sharedcls.Value and mymapname == partymembermapName then
+            jobportraitImg:SetColorTone(NEAR_MEMBER_FACE_COLORTONE)
+            partyMemberName = NEAR_MEMBER_NAME_FONT_COLORTAG .. partyMemberName;
+            nameRichText:SetTextByKey("name", partyMemberName);
+            hpGauge:SetColorTone(NEAR_MEMBER_FACE_COLORTONE);
+            spGauge:SetColorTone(NEAR_MEMBER_FACE_COLORTONE);
+        else
+            jobportraitImg:SetColorTone(FAR_MEMBER_FACE_COLORTONE)
+            partyMemberName = FAR_MEMBER_NAME_FONT_COLORTAG .. partyMemberName;
+            nameRichText:SetTextByKey("name", partyMemberName);
+            hpGauge:SetColorTone(FAR_MEMBER_FACE_COLORTONE);
+            spGauge:SetColorTone(FAR_MEMBER_FACE_COLORTONE);
+        end
+
+    end
+
+    partyInfoCtrlSet:SetEventScript(ui.RBUTTONUP, "CONTEXT_PARTY");
+    partyInfoCtrlSet:SetEventScriptArgString(ui.RBUTTONUP, partyMemberInfo:GetAID());
+
+    if partyMemberInfo:GetAID() == leaderFID then
+        leaderMark:ShowWindow(1)
+        if isCorsairType == true then
+            leaderMark:SetImage('party_corsair_mark');
+        else
+            leaderMark:SetImage('party_leader_mark');
+        end
+    end
+
+    partyInfoCtrlSet:SetUserValue("MEMBER_NAME", partyMemberName);
+
+    if hpGauge:GetStat() == 0 then
+        hpGauge:AddStat("%v / %m");
+        hpGauge:SetStatOffset(0, 0, -1);
+        hpGauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+        hpGauge:SetStatFont(0, 'white_12_ol');
+    end
+
+    if spGauge:GetStat() == 0 then
+        spGauge:AddStat("%v / %m");
+        spGauge:SetStatOffset(0, 0, -1);
+        spGauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+        spGauge:SetStatFont(0, 'white_12_ol');
+    end
+
+    -- 파티원 레벨 표시 -- 
+    local lvbox = partyInfoCtrlSet:GetChild('lvbox');
+    local levelObj = partyInfoCtrlSet:GetChild('lvbox');
+    local levelRichText = tolua.cast(levelObj, "ui::CRichText");
+    local level = partyMemberInfo:GetLevel();
+    levelRichText:SetTextByKey("lv", level);
+    levelRichText:SetColorTone(NEAR_MEMBER_FACE_COLORTONE);
+    lvbox:Resize(levelRichText:GetWidth(), lvbox:GetHeight());
+
+    if frame:GetName() == 'partyinfo' then
+        frame:Resize(frame:GetOriginalWidth(), count * partyInfoCtrlSet:GetHeight());
+    else
+        frame:Resize(frame:GetOriginalWidth(), frame:GetOriginalHeight());
+    end
+    -- print(partyMemberName)
+    return 1;
 end
 --[[local function WITH_HANGLE(str)
     local size = #str
