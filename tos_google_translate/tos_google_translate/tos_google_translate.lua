@@ -1,10 +1,11 @@
 -- v0.9.0 とりあえず公開
 -- v0.9.1 重すぎたので手動更新を付けた。
 -- v0.9.2 重すぎるの直した。パーティーインフォも翻訳後の名前になる様に変更
+-- v0.9.3 時間経過と共に重くなっていく原因わかった。20チャット制限で過去は消していくようにした。
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.9.2"
+local ver = "0.9.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -65,6 +66,66 @@ function TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
         end
 
     end]]
+
+end
+
+function tos_google_translate_koja()
+
+    local kojaFileLoc = string.format('../addons/%s/MemoriseData.dat', "koja_name_translater")
+    local koja = io.open(kojaFileLoc, "r")
+    local content = koja:read("*all")
+    koja:close()
+    tos_google_translate_load_names()
+    -- 各行を配列の要素として分割
+    local lines = {}
+    for line in content:gmatch("[^\r\n]+") do
+        for org_name, ts_name in pairs(g.names) do
+            if string.find(line, "	") ~= nil then
+
+                local split = SCR_STRING_CUT(line, "	")
+                local front = split[1]
+                if front == org_name then
+                    local back = split[2]
+                    back = ts_name
+                    line = front .. "	" .. back
+                    table.insert(lines, line)
+                    break
+                end
+
+            end
+            if string.find(line, "	") ~= nil then
+
+                local split = SCR_STRING_CUT(line, "	")
+                local front = split[1]
+                if front == org_name then
+
+                    local back = split[2]
+                    back = ts_name
+                    line = front .. "	" .. back
+                    table.insert(lines, line)
+                    break
+                end
+
+            end
+            table.insert(lines, line)
+        end
+
+    end
+
+    for _, line in ipairs(lines) do
+        print(line)
+    end
+
+    local koja = io.open(kojaFileLoc, "w") -- 書き込みモードでファイルを開く
+    if koja then
+        for _, line in ipairs(lines) do
+            koja:write(line .. "\n") -- ファイルに1行ずつ書き込む
+        end
+        koja:close() -- ファイルを閉じる
+        print("ファイルを正常に上書きしました。")
+    else
+        print("ファイルのオープンに失敗しました。")
+    end
 
 end
 
@@ -139,9 +200,7 @@ function tos_google_translate_REQ_TRANSLATE_TEXT(frameName, gbName, ctrlName)
 end
 
 function tos_google_translate_lang(str)
-    --[["Left click: Opens and closes the translation chat window.{nl}" ..
-    "Automatic translation stops while it is not open.{nl}" ..
-    "Right click: Force reload of the translation chat window."]]
+
     local langCode = option.GetCurrentCountry()
     if langCode == "Japanese" then
 
@@ -220,6 +279,27 @@ function tos_google_translate_restart()
     g.loaded = false
 end
 
+function tos_google_translate_extractAndCleanText(text, id)
+
+    local front = string.find(text, "{") -- マッチした文字列の直前の位置を取得
+    while front do
+        local back = string.find(text, "}", front) + 1 -- マッチした文字列の直後の位置を取得し、追加の5文字分を加える
+        local extractedText = string.sub(text, front, back - 1) -- マッチした部分の文字列を抽出
+        g.extractedTexts[id] = g.extractedTexts[id] or {} -- 新しいテーブルを作成するか既存のテーブルを取得する
+        table.insert(g.extractedTexts[id], extractedText)
+        text = string.sub(text, 1, front - 1) .. string.sub(text, back) -- 不要な部分を削除した文字列を更新
+        front = string.find(text, "{") -- 次のマッチを探す
+    end
+
+    --[[for i, extractedTexts in pairs(g.extractedTexts) do
+        for j, extractedText in ipairs(extractedTexts) do
+            print("抽出したテキスト[" .. i .. "][" .. j .. "]:" .. extractedText)
+        end
+    end]]
+
+    return text, g.extractedTexts -- 抽出したテキストを含むテーブルを返す
+end
+
 function tos_google_translate_msg_del()
     -- 元のsend_file内の内容を読み込む
     local send_data = {}
@@ -247,6 +327,152 @@ function tos_google_translate_msg_del()
     local send_file = io.open(g.sendFileLoc, "w")
     send_file:write(combined_json)
     send_file:close() -- ファイルを閉じる
+
+end
+
+function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
+
+    if g.settings.use == 0 then
+        return
+    end
+
+    local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
+    local size = session.ui.GetMsgInfoSize(groupboxname);
+    local msg = session.ui.GetChatMsgInfo(groupboxname, size - 1)
+
+    local MsgType = msg:GetMsgType()
+    if MsgType ~= "Normal" and MsgType ~= "Shout" and MsgType ~= "Party" and MsgType ~= "Guild" then
+
+        return
+
+    end
+
+    local frame = ui.GetFrame("chatframe")
+    local index = tonumber(frame:GetUserValue("BTN_INDEX")) + 1
+
+    local optionframe = ui.GetFrame("chat_option")
+    local tabgbox = GET_CHILD_RECURSIVELY(optionframe, "tabgbox" .. index)
+    local btn_general_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_general_pic")
+    local btn_shout_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_shout_pic")
+    local btn_party_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_party_pic")
+    local btn_guild_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_guild_pic")
+
+    if btn_general_pic:IsVisible() == 0 and MsgType == "Normal" then
+        return
+    end
+
+    if btn_shout_pic:IsVisible() == 0 and MsgType == "Shout" then
+        return
+    end
+
+    if btn_party_pic:IsVisible() == 0 and MsgType == "Party" then
+
+        return
+    end
+
+    if btn_guild_pic:IsVisible() == 0 and MsgType == "Guild" then
+        return
+    end
+
+    local cmdName = msg:GetCommanderName();
+    local tempMsg = msg:GetMsg();
+    local lastmsg = cmdName .. ":" .. tempMsg
+    if g.lastmsg == lastmsg then
+
+        return
+    else
+
+        g.lastmsg = lastmsg
+    end
+    for i = startindex, size - 1 do
+        local chat_id = msg:GetMsgInfoID();
+
+        local color = "#FFFF00"
+        local pattern = "(@dicID)"
+        local modifiedString = tempMsg:gsub(pattern, "{%1"):gsub("%$%*%^", "%1}")
+        local startIndex, endIndex = string.find(modifiedString, "{img link_party 24 24}")
+        if startIndex and endIndex then
+
+            modifiedString = modifiedString:sub(1, endIndex) .. "{" .. modifiedString:sub(endIndex + 1)
+
+            local substring = modifiedString:sub(endIndex + 1) -- {img link_party 24 24} の後ろの文字列を取得
+            local nextIndex = string.find(substring, "{%/%}{%/%}") -- 次の {/}{/} の位置を取得
+            if nextIndex then
+
+                modifiedString = modifiedString:sub(1, endIndex + nextIndex - 1) .. "}" ..
+                                     modifiedString:sub(endIndex + nextIndex)
+
+            end
+
+        end
+        modifiedString = modifiedString:gsub("{#0000FF}", "{#FFFF00}")
+
+        local cleanedText, extractedTexts = tos_google_translate_extractAndCleanText(modifiedString, chat_id)
+
+        local time = msg:GetTimeStr()
+        cmdName = msg:GetCommanderName();
+        -- local input = "あじのり [W サーバー]"
+        cmdName = cmdName:gsub("%[.*%]", ""):gsub("^%s*(.-)%s*$", "%1")
+
+        tos_google_translate_save_settings()
+        local count = #g.settings.chat + 1
+
+        g.settings.chat[count] = {
+            chat_id = tostring(chat_id),
+            msgtype = MsgType,
+            trans_text = cleanedText, -- これは後で翻訳されたテキストに置き換えられる可能性があります
+            time = time,
+            name = cmdName,
+            lang = g.settings.lang
+
+        }
+        tos_google_translate_save_settings()
+        tos_google_translate_msg_del()
+        local output = io.open(g.outputFileLoc, "r")
+        local content = output:read("*all")
+        output:close()
+        g.output = json.decode(content)
+        g.count = #g.output
+
+        -- local frame = ui.GetFrame("tos_google_translate")
+        -- frame:RunUpdateScript("tos_google_translate_receive", 2.0);
+    end
+
+end
+
+function tos_google_translate_receive(frame)
+
+    if g.settings.use == 0 then
+        return 0
+    end
+
+    local output = io.open(g.outputFileLoc, "r")
+    local content = output:read("*all")
+    output:close()
+    local json = json.decode(content)
+    local count = #json
+
+    if g.count ~= count then
+        -- g.count = g.count + 1
+        -- print("g.count:" .. g.count .. ":" .. "count:" .. count)
+        g.gbox = false
+        g.output = json
+        -- tos_google_translate_load_names()
+        tos_google_translate_gbox(frame)
+
+        -- テーブルの要素数が30以上の場合、最初の1個目を削除する
+        if #g.output >= 20 then
+            table.remove(g.output, 1)
+        else
+            g.count = g.count + 1
+        end
+        acutil.saveJSON(g.outputFileLoc, g.output)
+        -- tos_google_translate_save_settings()
+        return 0
+
+    else
+        return 1
+    end
 
 end
 
@@ -289,46 +515,25 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
     else
         return
     end
-    -- print(test)
+
 end
 
-local function WITH_HANGLE(str)
-    local size = #str;
-    local byt = 0; -- byt
-    local code = 0; -- 文字コード
-    local inc = 1; -- 1文字のバイト数
-    local i = 1;
+function tos_google_translate_rbtn()
+    local file = io.open(g.noticeFileLoc, "r")
+    if file then
+        -- ファイルが存在する場合の処理
+        file:close()
 
-    byt = string.byte(str, i);
-    while i <= size do
-        if (byt & 0x80) == 0x00 then
-            inc = 1;
-        elseif (byt & 0xE0) == 0xC0 then
-            inc = 2;
-        elseif (byt & 0xF0) == 0xE0 then
-            inc = 3;
-        elseif (byt & 0xF8) == 0xF0 then
-            inc = 4;
-        elseif (byt & 0xFC) == 0xF8 then
-            inc = 5;
-        elseif (byt & 0xFE) == 0xFC then
-            inc = 6;
+    else
+        -- ファイルが存在しない場合の処理
+        local newFile = io.open(g.noticeFileLoc, "w")
+        if newFile then
+            newFile:close()
+            local frame = ui.GetFrame("tos_google_translate")
+            tos_google_translate_receive(frame)
+
         end
-
-        for j = 1, inc do
-            code = code + (byt * (256 ^ (inc - j)));
-
-            i = i + 1;
-            byt = string.byte(str, i);
-        end
-
-        if code >= 0xEAB080 and code <= 0xED9EA3 then
-            -- ハングル
-            return true;
-        end
-        code = 0;
     end
-    return false;
 end
 
 function tos_google_translate_gbox(frame)
@@ -346,8 +551,7 @@ function tos_google_translate_gbox(frame)
     local msgtype = ""
     local time = ""
     local chat_id = ""
-    local output = acutil.loadJSON(g.outputFileLoc, g.output)
-    g.output = output
+
     g.ypos = 0
     for i, entry in ipairs(g.output) do
         -- print("Entry " .. i .. ":")
@@ -373,19 +577,6 @@ function tos_google_translate_gbox(frame)
                     end
                 end
             end
-            --[[local tblid = tonumber(g.extractedTexts[1])
-            local tblcount = #g.extractedTexts
-
-            if tblcount ~= 1 and chat_id == tblid then
-                for i = 2, tblcount do
-                    commnderNameUIText = commnderNameUIText .. g.extractedTexts[i]
-                    g.output["trans_text"] = g.output["trans_text"] .. g.extractedTexts[i]
-
-                end
-                acutil.saveJSON(g.outputFileLoc, g.output)
-                -- g.extractedTexts = {}
-            end]]
-            -- print(commnderNameUIText)
 
             local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
                 marginRight, 1)
@@ -443,226 +634,15 @@ function tos_google_translate_chat_ctrl(frame, groupbox, chatCtrl, label, txt, t
     g.ypos = g.ypos + label:GetHeight()
 
     groupbox:SetScrollPos(99999)
+    -- g.count = g.count + 1
     os.remove(g.noticeFileLoc)
     return
-end
-
-function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
-
-    local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
-    local size = session.ui.GetMsgInfoSize(groupboxname);
-    local msg = session.ui.GetChatMsgInfo(groupboxname, size - 1)
-
-    if g.settings.use == 0 then
-        return
-    end
-
-    local cmdName = msg:GetCommanderName();
-    local tempMsg = msg:GetMsg();
-    local lastmsg = cmdName .. ":" .. tempMsg
-    if g.lastmsg == lastmsg then
-
-        return
-    else
-
-        g.lastmsg = lastmsg
-    end
-
-    local MsgType = msg:GetMsgType()
-
-    if MsgType ~= "Normal" and MsgType ~= "Shout" and MsgType ~= "Party" and MsgType ~= "Guild" then
-
-        return
-
-    end
-
-    --[[local output = acutil.loadJSON(g.outputFileLoc, g.output)
-    if next(output) == nil then
-        g.count = 0
-    else
-
-        g.count = #output
-    end]]
-
-    local chat_id = msg:GetMsgInfoID();
-    local color = "#FFFF00"
-    local pattern = "(@dicID)"
-    local modifiedString = tempMsg:gsub(pattern, "{%1"):gsub("%$%*%^", "%1}")
-    local startIndex, endIndex = string.find(modifiedString, "{img link_party 24 24}")
-    if startIndex and endIndex then
-
-        modifiedString = modifiedString:sub(1, endIndex) .. "{" .. modifiedString:sub(endIndex + 1)
-
-        local substring = modifiedString:sub(endIndex + 1) -- {img link_party 24 24} の後ろの文字列を取得
-        local nextIndex = string.find(substring, "{%/%}{%/%}") -- 次の {/}{/} の位置を取得
-        if nextIndex then
-
-            modifiedString = modifiedString:sub(1, endIndex + nextIndex - 1) .. "}" ..
-                                 modifiedString:sub(endIndex + nextIndex)
-
-        end
-
-    end
-    modifiedString = modifiedString:gsub("{#0000FF}", "{#FFFF00}")
-
-    local cleanedText, extractedTexts = tos_google_translate_extractAndCleanText(modifiedString, chat_id)
-    -- print("clean:" .. cleanedText)
-    --[[if cleanedText == " " then
-        return
-    elseif cleanedText == "" then
-        return
-    end]]
-
-    local time = msg:GetTimeStr()
-    cmdName = msg:GetCommanderName();
-    -- local input = "あじのり [W サーバー]"
-    cmdName = cmdName:gsub("%[.*%]", ""):gsub("^%s*(.-)%s*$", "%1")
-
-    tos_google_translate_save_settings()
-    local count = #g.settings.chat + 1
-
-    g.settings.chat[count] = {
-        chat_id = tostring(chat_id),
-        msgtype = MsgType,
-        trans_text = cleanedText, -- これは後で翻訳されたテキストに置き換えられる可能性があります
-        time = time,
-        name = cmdName,
-        lang = g.settings.lang
-
-    }
-    tos_google_translate_save_settings()
-    tos_google_translate_msg_del()
-    -- local frame = ui.GetFrame("tos_google_translate")
-
-    -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
-    -- frame:SetUserValue("RETURN", 1)
-    -- local frame = ui.GetFrame("tos_google_translate")
-    -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
-    -- print(g.count)
-
-end
---[[local function test()
-    local selectedObjects, selectedObjectsCount = SelectObject(GetMyPCObject(), 1000, "ALL");
-    for i = 1, selectedObjectsCount do
-        local handle = GetHandle(selectedObjects[i]);
-        if handle ~= nil then
-            if info.IsPC(handle) == 1 then
-                local FrameName = "charbaseinfo1_" .. handle;
-                local pcTxtFrame = ui.GetFrame(FrameName);
-                if pcTxtFrame ~= nil then
-                    local frameFamilyName = pcTxtFrame:GetChild("familyName");
-                    AUTO_CAST(frameFamilyName)
-                    local fName = frameFamilyName:GetText()
-                    local result = fName:gsub("{.-}", "") -- {}で囲まれた部分を削除
-
-                    for key, value in pairs(g.names) do
-
-                        if key == result then
-                            local frameGivenName = pcTxtFrame:GetChild("givenName");
-                            AUTO_CAST(frameGivenName)
-                            if nil ~= frameGivenName then
-                                frameGivenName:SetText("");
-
-                            end
-                            frameFamilyName:SetText(value)
-                            local BeforeMargin = frameFamilyName:GetMargin();
-
-                            frameFamilyName:SetMargin(150, BeforeMargin.top, 0, 0);
-                            break
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-end]]
-function tos_google_translate_receive(frame)
-    -- test()
-    -- local value = frame:GetUserIValue("RETURN")
-    if g.settings.use == 0 then
-        return
-    end
-
-    g.gbox = false
-    local file = io.open(g.noticeFileLoc, "r")
-    if file then
-        file:close()
-        tos_google_translate_load_names()
-        tos_google_translate_gbox(frame)
-
-        return
-    else
-        return
-    end
-
-    --[[local count
-    local output = acutil.loadJSON(g.outputFileLoc, g.output)
-    if next(output) == nil then
-        count = 0
-    else
-
-        count = #output
-    end]]
-
-end
-
-function tos_google_translate_extractAndCleanText(text, id)
-    --[[local langCode = option.GetCurrentCountry()
-    -- if (option.GetCurrentCountry() == "Japanese") then
-    if langCode ~= "Korean" then
-
-        text = dictionary.ReplaceDicIDInCompStr(text)
-        text = string.gsub(text, "{/}", "")
-
-        local function replaceAll(text, pattern, replacement)
-            local result = text
-            local startPos, endPos = string.find(pattern)
-            while startPos do
-                result = result:sub(1, startPos - 1) .. replacement .. result:sub(endPos + 1)
-                startPos, endPos = string.find(pattern, endPos + 1)
-            end
-            return result
-        end
-
-        local replacedText = replaceAll(text, "%(", "{")
-        replacedText = replaceAll(replacedText, "%)", "}")
-        --[[local start, finish = string.find(text, "%(")
-        if start then
-            text = text:sub(1, start - 1) .. "{" .. text:sub(start + 1)
-            local next_brace_start = string.find(text, "%{", finish + 1)
-            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
-            next_brace_start = string.find(text, "%)", finish + 1)
-            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
-        else
-            print("aru")
-        end
-    end]]
-
-    -- print(text)
-
-    local front = string.find(text, "{") -- マッチした文字列の直前の位置を取得
-    while front do
-        local back = string.find(text, "}", front) + 1 -- マッチした文字列の直後の位置を取得し、追加の5文字分を加える
-        local extractedText = string.sub(text, front, back - 1) -- マッチした部分の文字列を抽出
-        g.extractedTexts[id] = g.extractedTexts[id] or {} -- 新しいテーブルを作成するか既存のテーブルを取得する
-        table.insert(g.extractedTexts[id], extractedText)
-        text = string.sub(text, 1, front - 1) .. string.sub(text, back) -- 不要な部分を削除した文字列を更新
-        front = string.find(text, "{") -- 次のマッチを探す
-    end
-
-    --[[for i, extractedTexts in pairs(g.extractedTexts) do
-        for j, extractedText in ipairs(extractedTexts) do
-            print("抽出したテキスト[" .. i .. "][" .. j .. "]:" .. extractedText)
-        end
-    end]]
-
-    return text, g.extractedTexts -- 抽出したテキストを含むテーブルを返す
 end
 
 function tos_google_translate_frame_open(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("tos_google_translate")
     if frame:IsVisible() == 0 then
+        frame:ShowWindow(1)
         tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
         g.settings.use = 1
     else
@@ -836,6 +816,45 @@ function tos_google_translate_load_send()
         file:close()
     end
     ReserveScript("tos_google_translate_load_names()", 0.2)
+end
+
+local function WITH_HANGLE(str)
+    local size = #str;
+    local byt = 0; -- byt
+    local code = 0; -- 文字コード
+    local inc = 1; -- 1文字のバイト数
+    local i = 1;
+
+    byt = string.byte(str, i);
+    while i <= size do
+        if (byt & 0x80) == 0x00 then
+            inc = 1;
+        elseif (byt & 0xE0) == 0xC0 then
+            inc = 2;
+        elseif (byt & 0xF0) == 0xE0 then
+            inc = 3;
+        elseif (byt & 0xF8) == 0xF0 then
+            inc = 4;
+        elseif (byt & 0xFC) == 0xF8 then
+            inc = 5;
+        elseif (byt & 0xFE) == 0xFC then
+            inc = 6;
+        end
+
+        for j = 1, inc do
+            code = code + (byt * (256 ^ (inc - j)));
+
+            i = i + 1;
+            byt = string.byte(str, i);
+        end
+
+        if code >= 0xEAB080 and code <= 0xED9EA3 then
+            -- ハングル
+            return true;
+        end
+        code = 0;
+    end
+    return false;
 end
 
 function tos_google_translate_load_names()
@@ -1039,6 +1058,38 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
     -- print(partyMemberName)
     return 1;
 end
+--[[local langCode = option.GetCurrentCountry()
+    -- if (option.GetCurrentCountry() == "Japanese") then
+    if langCode ~= "Korean" then
+
+        text = dictionary.ReplaceDicIDInCompStr(text)
+        text = string.gsub(text, "{/}", "")
+
+        local function replaceAll(text, pattern, replacement)
+            local result = text
+            local startPos, endPos = string.find(pattern)
+            while startPos do
+                result = result:sub(1, startPos - 1) .. replacement .. result:sub(endPos + 1)
+                startPos, endPos = string.find(pattern, endPos + 1)
+            end
+            return result
+        end
+
+        local replacedText = replaceAll(text, "%(", "{")
+        replacedText = replaceAll(replacedText, "%)", "}")
+        --[[local start, finish = string.find(text, "%(")
+        if start then
+            text = text:sub(1, start - 1) .. "{" .. text:sub(start + 1)
+            local next_brace_start = string.find(text, "%{", finish + 1)
+            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
+            next_brace_start = string.find(text, "%)", finish + 1)
+            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
+        else
+            print("aru")
+        end
+    end]]
+
+-- print(text)
 --[[local function WITH_HANGLE(str)
     local size = #str
     local i = 1
@@ -1078,6 +1129,43 @@ end
     end
 
     return false -- ハングルの文字が含まれない
+end]]
+
+--[[local function test()
+    local selectedObjects, selectedObjectsCount = SelectObject(GetMyPCObject(), 1000, "ALL");
+    for i = 1, selectedObjectsCount do
+        local handle = GetHandle(selectedObjects[i]);
+        if handle ~= nil then
+            if info.IsPC(handle) == 1 then
+                local FrameName = "charbaseinfo1_" .. handle;
+                local pcTxtFrame = ui.GetFrame(FrameName);
+                if pcTxtFrame ~= nil then
+                    local frameFamilyName = pcTxtFrame:GetChild("familyName");
+                    AUTO_CAST(frameFamilyName)
+                    local fName = frameFamilyName:GetText()
+                    local result = fName:gsub("{.-}", "") -- {}で囲まれた部分を削除
+
+                    for key, value in pairs(g.names) do
+
+                        if key == result then
+                            local frameGivenName = pcTxtFrame:GetChild("givenName");
+                            AUTO_CAST(frameGivenName)
+                            if nil ~= frameGivenName then
+                                frameGivenName:SetText("");
+
+                            end
+                            frameFamilyName:SetText(value)
+                            local BeforeMargin = frameFamilyName:GetMargin();
+
+                            frameFamilyName:SetMargin(150, BeforeMargin.top, 0, 0);
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+
 end]]
 --[[function tos_google_translate_msg_del()
 
