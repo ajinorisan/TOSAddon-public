@@ -139,9 +139,7 @@ function tos_google_translate_REQ_TRANSLATE_TEXT(frameName, gbName, ctrlName)
 end
 
 function tos_google_translate_lang(str)
-    --[["Left click: Opens and closes the translation chat window.{nl}" ..
-    "Automatic translation stops while it is not open.{nl}" ..
-    "Right click: Force reload of the translation chat window."]]
+
     local langCode = option.GetCurrentCountry()
     if langCode == "Japanese" then
 
@@ -204,7 +202,7 @@ end
 
 function tos_google_translate_restart()
     ui.SysMsg(tos_google_translate_lang(
-        "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once"))
+                  "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once"))
     local batch_script = [[
                 @echo off
                 :: コマンドを管理者権限で実行するためのバッチファイル
@@ -221,38 +219,6 @@ function tos_google_translate_restart()
 end
 
 function tos_google_translate_extractAndCleanText(text, id)
-    --[[local langCode = option.GetCurrentCountry()
-    -- if (option.GetCurrentCountry() == "Japanese") then
-    if langCode ~= "Korean" then
-
-        text = dictionary.ReplaceDicIDInCompStr(text)
-        text = string.gsub(text, "{/}", "")
-
-        local function replaceAll(text, pattern, replacement)
-            local result = text
-            local startPos, endPos = string.find(pattern)
-            while startPos do
-                result = result:sub(1, startPos - 1) .. replacement .. result:sub(endPos + 1)
-                startPos, endPos = string.find(pattern, endPos + 1)
-            end
-            return result
-        end
-
-        local replacedText = replaceAll(text, "%(", "{")
-        replacedText = replaceAll(replacedText, "%)", "}")
-        --[[local start, finish = string.find(text, "%(")
-        if start then
-            text = text:sub(1, start - 1) .. "{" .. text:sub(start + 1)
-            local next_brace_start = string.find(text, "%{", finish + 1)
-            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
-            next_brace_start = string.find(text, "%)", finish + 1)
-            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
-        else
-            print("aru")
-        end
-    end]]
-
-    -- print(text)
 
     local front = string.find(text, "{") -- マッチした文字列の直前の位置を取得
     while front do
@@ -313,6 +279,43 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
         return
     end
 
+    local MsgType = msg:GetMsgType()
+    if MsgType ~= "Normal" and MsgType ~= "Shout" and MsgType ~= "Party" and MsgType ~= "Guild" then
+
+        return
+
+    end
+
+    local optionframe = ui.GetFrame("chat_option")
+    local parenttab = 0
+    local tabgbox1 = GET_CHILD_RECURSIVELY(optionframe, "tabgbox1")
+    local tabgbox2 = GET_CHILD_RECURSIVELY(optionframe, "tabgbox2")
+    local tabgbox3 = GET_CHILD_RECURSIVELY(optionframe, "tabgbox3")
+    local btn_general_pic = GET_CHILD_RECURSIVELY(optionframe, "btn_general_pic")
+    local btn_shout_pic = GET_CHILD_RECURSIVELY(optionframe, "btn_shout_pic")
+    local btn_party_pic = GET_CHILD_RECURSIVELY(optionframe, "btn_party_pic")
+    local btn_guild_pic = GET_CHILD_RECURSIVELY(optionframe, "btn_guild_pic")
+
+    if btn_general_pic:IsVisible() == 0 and MsgType == "Normal" then
+        btn_general_pic:ShowWindow(1)
+    end
+
+    if btn_shout_pic:IsVisible() == 0 and MsgType == "Normal" then
+        btn_general_pic:ShowWindow(1)
+    end
+
+    if IMCAnd(CHAT_TAB_TYPE_PARTY, value) ~= 0 then
+        btn_party_pic:ShowWindow(1)
+    else
+        btn_party_pic:ShowWindow(0)
+    end
+
+    if IMCAnd(CHAT_TAB_TYPE_GUILD, value) ~= 0 then
+        btn_guild_pic:ShowWindow(1)
+    else
+        btn_guild_pic:ShowWindow(0)
+    end
+
     local cmdName = msg:GetCommanderName();
     local tempMsg = msg:GetMsg();
     local lastmsg = cmdName .. ":" .. tempMsg
@@ -322,14 +325,6 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
     else
 
         g.lastmsg = lastmsg
-    end
-
-    local MsgType = msg:GetMsgType()
-
-    if MsgType ~= "Normal" and MsgType ~= "Shout" and MsgType ~= "Party" and MsgType ~= "Guild" then
-
-        return
-
     end
 
     --[[local output = acutil.loadJSON(g.outputFileLoc, g.output)
@@ -388,48 +383,13 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
     }
     tos_google_translate_save_settings()
     tos_google_translate_msg_del()
-    -- local frame = ui.GetFrame("tos_google_translate")
 
-    -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
-    -- frame:SetUserValue("RETURN", 1)
-    -- local frame = ui.GetFrame("tos_google_translate")
-    -- frame:RunUpdateScript("tos_google_translate_receive", 3.0)
-    -- print(g.count)
+    local frame = ui.GetFrame("tos_google_translate")
+    frame:RunUpdateScript("tos_google_translate_receive", 2.0);
 
 end
 
 function tos_google_translate_receive(frame)
-    --[[local frame = ui.GetFrame("tos_google_translate")
-    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-    local childCount = gbox:GetChildCount()
-    print(childCount)
-    if childCount >= 10 then
-        for i = 0, childCount - 1 do
-            local child = gbox:GetChildByIndex(i)
-            local parent = child:GetParent()
-            AUTO_CAST(child)
-            -- print(parent:GetName())
-            gbox:RemoveChild(child:GetName()) -- 最初の子要素を削除
-            break
-        end
-
-        local file = io.open(g.outputFileLoc, "r")
-        if file then
-            local content = file:read("*all")
-            file:close()
-            local chatData = json.decode(content)
-
-            -- table.remove(chatData, 1)
-
-            local newContent = json.encode(chatData)
-            local newFile = io.open(g.outputFileLoc, "w")
-            if newFile then
-                newFile:write(newContent)
-                newFile:close()
-
-            end
-        end
-    end]]
 
     if g.settings.use == 0 then
         return
@@ -441,28 +401,23 @@ function tos_google_translate_receive(frame)
         file:close()
         tos_google_translate_load_names()
         tos_google_translate_gbox(frame)
-        local output = acutil.loadJSON(g.outputFileLoc, g.output)
-        g.output = output
-        return
+
+        local output = io.open(g.outputFileLoc, "r")
+        local content = output:read("*all")
+        output:close()
+        g.output = json.decode(content)
+
+        return 0
     else
-        return
+        return 1
     end
-
-    --[[local count
-    local output = acutil.loadJSON(g.outputFileLoc, g.output)
-    if next(output) == nil then
-        count = 0
-    else
-
-        count = #output
-    end]]
 
 end
 
 function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "tos_google_translate_DRAW_CHAT_MSG");
-    g.addon:RegisterMsg("FPS_UPDATE", "tos_google_translate_receive");
+    -- g.addon:RegisterMsg("FPS_UPDATE", "tos_google_translate_receive");
     local chatframe = ui.GetFrame("chatframe")
     local tabgbox = GET_CHILD_RECURSIVELY(chatframe, "tabgbox")
     local trans = tabgbox:CreateOrGetControl("button", "trans", 270, -3, 30, 30)
@@ -557,7 +512,7 @@ function tos_google_translate_gbox(frame)
             -- print(commnderNameUIText)
 
             local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
-                marginRight, 1)
+                                                        marginRight, 1)
             local label = chatCtrl:GetChild('bg')
             local txt = GET_CHILD(chatCtrl, "text")
             local timeCtrl = GET_CHILD(chatCtrl, "time")
@@ -885,7 +840,7 @@ function tos_google_translate_save_settings()
 end
 
 function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, count, makeLogoutPC, leaderFID,
-    isCorsairType, ispipui, partyID)
+                                                 isCorsairType, ispipui, partyID)
 
     if partyID ~= nil and partyMemberInfo ~= nil and partyID ~= partyMemberInfo:GetPartyID() then
         return nil;
@@ -970,7 +925,7 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
 
         if ispipui == true then
             partyMemberName = ScpArgMsg("PartyMemberMapNChannel", "Name", partyMemberName, "Mapname",
-                partymembermapUIName, "ChNo", partyMemberInfo:GetChannel() + 1)
+                                        partymembermapUIName, "ChNo", partyMemberInfo:GetChannel() + 1)
         end
 
         if dist < sharedcls.Value and mymapname == partymembermapName then
@@ -1034,6 +989,38 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
     -- print(partyMemberName)
     return 1;
 end
+--[[local langCode = option.GetCurrentCountry()
+    -- if (option.GetCurrentCountry() == "Japanese") then
+    if langCode ~= "Korean" then
+
+        text = dictionary.ReplaceDicIDInCompStr(text)
+        text = string.gsub(text, "{/}", "")
+
+        local function replaceAll(text, pattern, replacement)
+            local result = text
+            local startPos, endPos = string.find(pattern)
+            while startPos do
+                result = result:sub(1, startPos - 1) .. replacement .. result:sub(endPos + 1)
+                startPos, endPos = string.find(pattern, endPos + 1)
+            end
+            return result
+        end
+
+        local replacedText = replaceAll(text, "%(", "{")
+        replacedText = replaceAll(replacedText, "%)", "}")
+        --[[local start, finish = string.find(text, "%(")
+        if start then
+            text = text:sub(1, start - 1) .. "{" .. text:sub(start + 1)
+            local next_brace_start = string.find(text, "%{", finish + 1)
+            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
+            next_brace_start = string.find(text, "%)", finish + 1)
+            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
+        else
+            print("aru")
+        end
+    end]]
+
+-- print(text)
 --[[local function WITH_HANGLE(str)
     local size = #str
     local i = 1
