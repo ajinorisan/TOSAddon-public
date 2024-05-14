@@ -107,13 +107,9 @@ function tos_google_translate_koja()
                 end
 
             end
-            table.insert(lines, line)
+
         end
-
-    end
-
-    for _, line in ipairs(lines) do
-        print(line)
+        table.insert(lines, line)
     end
 
     local koja = io.open(kojaFileLoc, "w") -- 書き込みモードでファイルを開く
