@@ -31,6 +31,8 @@ https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate#%E6
 ![tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c1fa8e68-548e-431b-b8c0-a4697c1fa413)
 　
 
+v0.9.4 韓国語バージョンはKoreanじゃなくてkrだった。衝撃の事実。今までの他のアドオンの韓国語訳全部英語表示されてたんやろな。
+
 v0.9.3 20チャットで削除する様にして重たくなくなった。割と正式版。
 
 v0.9.2 重いのを再修正。PTインフォも翻訳後の名前が表示される様に。
