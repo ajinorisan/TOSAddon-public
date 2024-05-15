@@ -2,13 +2,13 @@
 
 ※ごめんなさい。ZIPファイルの名前間違ってたので再度解凍かリネームしてください。to"d"_google_toranslateでは無くto"s"_google_translateは正解です。
 
-　この場所に置いているZIPファイルは修正しました。後、韓国語にも対応しました。アドオンのバージョンはv0.9.4です。
+　この場所に置いているZIPファイルは修正しました。後、韓国語にも対応しました。アドオンのバージョンはv0.9.5です。
 
 ※バージョン0.9.2からexeファイルが新しくなっていますので、古いexeファイルをお持ちの方は再ダウウンロードの上解凍してください。
 
-　exeファイルのバージョンは1.0.0です。アドオンの最新版は0.9.3です。それ以前は動作重たいです。
+　exeファイルのバージョンは1.0.0です。アドオンの最新版は0.9.5です。それ以前は動作重たいです。
 
-アドオンマネージャーから Tos Google Translate v0.9.3 をインストールします。
+アドオンマネージャーから Tos Google Translate v0.9.5 をインストールします。
 
 このフォルダにある tos_google_translate.zip をダウンロードします。
 
@@ -40,13 +40,13 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\add
 
 Sorry, the name of the zip file was wrong, please unzip or rename it again. to “s”_google_translate is correct, not to “d”_google_toranslate.
 
-　The ZIP file in this location has been modified. Also, Korean is now supported. The add-on version is v0.9.4.
+　The ZIP file in this location has been modified. Also, Korean is now supported. The add-on version is v0.9.5.
 
 If you have the old exe file, please re-download and unzip it.
 
-　The version of the exe file is 1.0.0.The latest version of the add-on is 0.9.4. Earlier versions are slow.
+　The version of the exe file is 1.0.0.The latest version of the add-on is 0.9.5. Earlier versions are slow.
 
-Install “Tos Google Translate v0.9.3” from the Add-ons Manager.
+Install “Tos Google Translate v0.9.5” from the Add-ons Manager.
 
 Download “tos_google_translate.zip” in this folder.
 
@@ -78,13 +78,13 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior\addons\tos_google_t
 
 죄송합니다. ZIP 파일 이름이 잘못되어 다시 압축을 풀거나 이름을 바꾸어주세요. to“d”_google_toranslate가 아니라 to“s”_google_translate가 맞습니다.
 
-　이 위치에 있는 ZIP 파일은 수정했습니다. 이후 한국어도 지원하게 되었습니다. 애드온 버전은 v0.9.4입니다.
+　이 위치에 있는 ZIP 파일은 수정했습니다. 이후 한국어도 지원하게 되었습니다. 애드온 버전은 v0.9.5입니다.
 
 0.9.4 버전부터 exe 파일이 새롭게 변경되었으므로, 기존 exe 파일을 가지고 계신 분은 다시 다운로드 후 압축을 풀어주시기 바랍니다.
 
-　exe 파일의 버전은 1.0.0입니다.애드온의 최신 버전은 0.9.3입니다. 그 이전에는 동작이 무겁습니다.
+　exe 파일의 버전은 1.0.0입니다.애드온의 최신 버전은 0.9.5입니다. 그 이전에는 동작이 무겁습니다.
 
-애드온 관리자에서 Tos Google Translate v0.9.3 를 설치합니다.
+애드온 관리자에서 Tos Google Translate v0.9.5 를 설치합니다.
 
 이 폴더에 있는 tos_google_translate.zip을 다운로드합니다.
 

@@ -2,10 +2,12 @@
 -- v0.9.1 重すぎたので手動更新を付けた。
 -- v0.9.2 重すぎるの直した。パーティーインフォも翻訳後の名前になる様に変更
 -- v0.9.3 時間経過と共に重くなっていく原因わかった。20チャット制限で過去は消していくようにした。
+-- v0.9.4 韓国鯖の判定"Korean"だったのを"kr"に変更。マジか。
+-- v0.9.5 チャットオプションの表示非表示を切り替えたら激重になるのを修正
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.9.3"
+local ver = "0.9.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -52,6 +54,7 @@ function TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
     acutil.slashCommand("/tgt", tos_google_translate_restart);
     g.SetupHook(tos_google_translate_REQ_TRANSLATE_TEXT, "REQ_TRANSLATE_TEXT")
     g.SetupHook(tos_google_translate_SET_PARTYINFO_ITEM, "SET_PARTYINFO_ITEM")
+    g.SetupHook(tos_google_translate_CHAT_TAB_BTN_CLICK, "CHAT_TAB_BTN_CLICK")
 
     --[[local functionName = _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Switch_NamePlate
     if functionName ~= nil and type(functionName) == "function" then
@@ -67,6 +70,24 @@ function TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
 
     end]]
 
+end
+
+function tos_google_translate_CHAT_TAB_BTN_CLICK(parent, ctrl)
+    if g.settings.use ~= 0 then
+
+        ui.SysMsg(tos_google_translate_lang("Tos Google Translate frame must be closed to switch."))
+        return
+    end
+    local name = ctrl:GetName()
+    if string.find(name, "_pic") ~= nil then
+        ctrl:ShowWindow(0)
+    else
+        local pic = GET_CHILD_RECURSIVELY(parent, name .. "_pic")
+        pic:ShowWindow(1)
+    end
+
+    local frame = parent:GetTopParentFrame()
+    CHAT_TAB_OPTION_SAVE(frame)
 end
 
 function tos_google_translate_koja()
@@ -196,9 +217,13 @@ function tos_google_translate_REQ_TRANSLATE_TEXT(frameName, gbName, ctrlName)
 end
 
 function tos_google_translate_lang(str)
-
+    -- "Tos Google Translate frame must be closed to switch."
     local langCode = option.GetCurrentCountry()
     if langCode == "Japanese" then
+
+        if str == "Tos Google Translate frame must be closed to switch." then
+            str = "Tos Google Translateのフレームを閉じないと切替出来ません。"
+        end
 
         if str == "Left click: Opens and closes the translation chat window.{nl}" ..
             "Automatic translation stops while it is not open.{nl}" ..
@@ -225,7 +250,11 @@ function tos_google_translate_lang(str)
             str = "Tos Google Translate フレームを閉じてから翻訳してください。"
         end
         return str
-    elseif langCode == "Korean" then
+    elseif langCode == "kr" then
+
+        if str == "Tos Google Translate frame must be closed to switch." then
+            str = "Tos Google Translate의 프레임을 닫지 않으면 전환할 수 없습니다."
+        end
 
         if str == "Left click: Opens and closes the translation chat window.{nl}" ..
             "Automatic translation stops while it is not open.{nl}" ..
@@ -457,7 +486,7 @@ function tos_google_translate_receive(frame)
         tos_google_translate_gbox(frame)
 
         -- テーブルの要素数が30以上の場合、最初の1個目を削除する
-        if #g.output >= 20 then
+        if #g.output > 30 then
             table.remove(g.output, 1)
         else
             g.count = g.count + 1
@@ -638,9 +667,10 @@ end
 function tos_google_translate_frame_open(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("tos_google_translate")
     if frame:IsVisible() == 0 then
-        frame:ShowWindow(1)
-        tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
         g.settings.use = 1
+        -- frame:ShowWindow(1)
+        tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
+
     else
         tos_google_translate_frame_close(frame, ctrl, argStr, argNum)
         g.settings.use = 0
@@ -683,7 +713,7 @@ function tos_google_translate_load_settings()
     if langCode == "Japanese" then
         langCode = "ja"
         -- langCode = "ko"
-    elseif langCode == "Korean" then
+    elseif langCode == "kr" then
         langCode = "ko"
     else
         langCode = "en"
