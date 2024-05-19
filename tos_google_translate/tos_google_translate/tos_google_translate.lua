@@ -5,10 +5,11 @@
 -- v0.9.4 韓国鯖の判定"Korean"だったのを"kr"に変更。マジか。
 -- v0.9.5 チャットオプションの表示非表示を切り替えたら激重になるのを修正
 -- v0.9.6 多分出来た。一旦安定版
+-- v0.9.7 再起動系のところバグってたの修正
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.9.6"
+local ver = "0.9.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -425,31 +426,6 @@ function tos_google_translate_lang(str)
 
 end
 
-function tos_google_translate_restart()
-    ui.SysMsg(tos_google_translate_lang("Tos Google Translate initialize. Please return to the barracks."))
-    local frame = ui.GetFrame("tos_google_translate")
-    frame:RemoveAllChild()
-
-    local file = io.open(g.restartFileLoc, "w")
-    file:write("restart")
-    file:close()
-
-    g.extractedTexts = {}
-    local file = io.open(g.noticeFileLoc, "w")
-    file:write("")
-    file:close()
-    local file = io.open(g.sendFileLoc, "w")
-    file:write("")
-    file:close()
-    local file = io.open(g.tempFileLoc, "w")
-    file:write("")
-    file:close()
-
-    g.size = 0
-    tos_google_translate_frame_init()
-    g.loaded = false
-end
-
 function tos_google_translate_extractAndCleanText(text, id)
 
     local front = string.find(text, "{") -- マッチした文字列の直前の位置を取得
@@ -820,28 +796,88 @@ function tos_google_translate_frame_close(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
 end
 
+function tos_google_translate_restart()
+    ui.SysMsg(tos_google_translate_lang("Tos Google Translate initialize. Please return to the barracks."))
+    local frame = ui.GetFrame("tos_google_translate")
+
+    local file = io.open(g.restartFileLoc, "w")
+    file:write("restart")
+    file:close()
+
+    g.extractedTexts = {}
+
+    --[[local file = io.open(g.sendFileLoc, "w")
+    file:write("")
+    file:close()
+    local file = io.open(g.tempFileLoc, "w")
+    file:write("")
+    file:close()]]
+    g.loaded = false
+    g.size = 0
+    frame:RemoveAllChild()
+    tos_google_translate_frame_init()
+    local file = io.open(g.noticeFileLoc, "w")
+    if file then
+        file:write("")
+        file:close()
+    end
+
+end
+
 function tos_google_translate_start()
+
+    if not g.loaded then
+        local restart = io.open(g.restartFileLoc, "r")
+        if restart then
+            restart:close() -- ファイルを閉じる
+            os.remove(g.restartFileLoc) -- ファイルを削除する
+
+        end
+        local new_entry = string.format(
+            '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}', "1", "System",
+            "Tos Google Translate 0.9.7 Startup Test", "", "", "en")
+
+        local send = io.open(g.sendFileLoc, "w")
+        if send then
+            send:write("[" .. new_entry .. "]")
+            send:close()
+
+        end
+
+        local tempFileLoc = string.format('../addons/%s/%s/temp.json', addonNameLower, addonNameLower)
+
+        local temp = io.open(tempFileLoc, "w")
+        if temp then
+
+            temp:write("[]")
+            temp:close()
+
+        end
+
+        DebounceScript("tos_google_translate_exe_start", 1.0)
+
+    end
+
+end
+
+function tos_google_translate_exe_start()
     local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe" -- 実行したいPythonスクリプトのパス
 
     local file = io.open(exe_path, "r")
     if file then
         file:close()
+        local command = string.format('start "" "%s"', exe_path)
+        os.execute(command)
 
-        if not g.loaded then
-
-            local command = string.format('start "" "%s"', exe_path)
-            os.execute(command)
-
-            g.loaded = true
-        end
+        g.loaded = true
         tos_google_translate_frame_init()
+
     else
         ui.SysMsg(tos_google_translate_lang("[Tos Google Translate]{nl}" ..
                                                 "/addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe{nl}" ..
                                                 "cannot be found. Exit."))
         return
     end
-
 end
 
 function tos_google_translate_load_settings()
