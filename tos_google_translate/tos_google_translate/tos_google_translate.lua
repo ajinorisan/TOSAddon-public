@@ -4,10 +4,11 @@
 -- v0.9.3 時間経過と共に重くなっていく原因わかった。20チャット制限で過去は消していくようにした。
 -- v0.9.4 韓国鯖の判定"Korean"だったのを"kr"に変更。マジか。
 -- v0.9.5 チャットオプションの表示非表示を切り替えたら激重になるのを修正
+-- v0.9.6 多分出来た。一旦安定版
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.9.5"
+local ver = "0.9.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -15,12 +16,10 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-g.namesFileLoc = string.format('../addons/%s/%s/names.json', addonNameLower, addonNameLower)
-g.outputFileLoc = string.format('../addons/%s/%s/output.json', addonNameLower, addonNameLower)
-g.tempFileLoc = string.format('../addons/%s/%s/temp.json', addonNameLower, addonNameLower)
+g.namesFileLoc = string.format('../addons/%s/%s/names.dat', addonNameLower, addonNameLower)
 g.sendFileLoc = string.format('../addons/%s/%s/send.json', addonNameLower, addonNameLower)
-g.noticeFileLoc = string.format('../addons/%s/%s/notice.json', addonNameLower, addonNameLower)
-g.restartFileLoc = string.format('../addons/%s/restart.bat', addonNameLower)
+g.noticeFileLoc = string.format('../addons/%s/%s/notice.dat', addonNameLower, addonNameLower)
+g.restartFileLoc = string.format('../addons/%s/%s/restart.dat', addonNameLower, addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
@@ -46,32 +45,115 @@ function TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
     g.frame = frame
     g.lastmsg = ""
     g.ypos = 0
-    g.gbox = true
+
     g.extractedTexts = g.extractedTexts or {} -- 抽出したテキストを格納するテーブル
 
     tos_google_translate_load_settings()
+
     acutil.slashCommand("/tos_google_translate", tos_google_translate_restart);
     acutil.slashCommand("/tgt", tos_google_translate_restart);
     g.SetupHook(tos_google_translate_REQ_TRANSLATE_TEXT, "REQ_TRANSLATE_TEXT")
     g.SetupHook(tos_google_translate_SET_PARTYINFO_ITEM, "SET_PARTYINFO_ITEM")
     g.SetupHook(tos_google_translate_CHAT_TAB_BTN_CLICK, "CHAT_TAB_BTN_CLICK")
+    acutil.setupHook(tos_google_translate_DAMAGE_METER_GAUGE_SET, "DAMAGE_METER_GAUGE_SET")
+    addon:RegisterMsg("GAME_START_3SEC", "tos_google_translate_name_trans");
 
-    --[[local functionName = _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Switch_NamePlate
-    if functionName ~= nil and type(functionName) == "function" then
+    local pattern = "^[a-zA-Z0-9%-_@#%$%%&%*]+$"
 
-        local pc = GetMyPCObject();
-        local curMap = GetZoneName(pc)
-        local mapCls = GetClass("Map", curMap)
-        if mapCls.MapType ~= "City" then
-            _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Switch_NamePlate()
+    local function updateMemoriseData()
+        local dataFileLoc = "../addons/koja_name_translater/MemoriseData.dat"
+        local updatedLines = {}
+        local seenKeys = {}
+
+        -- ファイルを読み込む
+        local file = io.open(dataFileLoc, "r")
+        if file then
+            for line in file:lines() do
+                local key, value = line:match("^(.-)\t(.-)$")
+                if key and value then
+                    -- キーが重複している場合、その行をスキップ
+                    if seenKeys[key] then
+                        print("重複したキーをスキップ: " .. key)
+                    else
+                        -- キーを追跡し、条件に基づいて値を更新
+                        seenKeys[key] = true
+                        if g.names[key] then
+                            value = g.names[key]
+                        end
+                        -- パターンに一致する場合、右側の値をキーで上書き
+                        if key:match(pattern) then
+                            value = key
+                        end
+                        table.insert(updatedLines, key .. "\t" .. value)
+                    end
+                else
+                    table.insert(updatedLines, line)
+                end
+            end
+            file:close()
+
+            -- ファイルに書き戻す
+            file = io.open(dataFileLoc, "w")
+            if file then
+                for _, updatedLine in ipairs(updatedLines) do
+                    file:write(updatedLine .. "\n")
+                end
+                file:close()
+            else
+                print("ファイルの書き込みに失敗しました。")
+            end
         else
-            _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Restore_NamePlate()
+            print("ファイルを開くことができませんでした。")
         end
+    end
 
-    end]]
+    if _G['ADDONS'] and _G['ADDONS']['TOUKIBI'] and _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'] and
+        _G['ADDONS']['TOUKIBI']['KoJa_Name_Translater'].Switch_NamePlate then
+
+        updateMemoriseData()
+
+    end
 
 end
 
+function tos_google_translate_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
+    local leftText = GET_CHILD_RECURSIVELY(ctrl, 'leftText')
+    -- {} 内の内容を保管するテーブル
+    local brackets_content = {}
+
+    -- {} 内の内容を抽出して保管
+    for content in leftStr:gmatch("{(.-)}") do
+        table.insert(brackets_content, content)
+    end
+
+    -- {} 内の内容を削除して名前を抽出
+    local name_only = leftStr:gsub("{.-}", "")
+
+    -- 前後の空白を削除
+    name_only = name_only:match("^%s*(.-)%s*$")
+
+    -- 名前を g.names から探して変更
+    local translated_name = g.names[name_only] or name_only
+
+    -- 新しい文字列を作成
+    local new_str = ""
+    for _, content in ipairs(brackets_content) do
+        new_str = new_str .. "{" .. content .. "}"
+    end
+    new_str = new_str .. translated_name
+    -- print(tostring(leftStr) .. ":" .. new_str)
+    -- leftText に新しい文字列を設定
+    leftText:SetTextByKey('value', new_str)
+
+    -- rightText に rightStr を設定
+    local rightText = GET_CHILD_RECURSIVELY(ctrl, 'rightText')
+    rightText:SetTextByKey('value', rightStr)
+
+    -- ゲージの設定
+    local gauge = GET_CHILD_RECURSIVELY(ctrl, 'gauge')
+    gauge:SetPoint(point, 100)
+    gauge:SetSkinName(skin)
+end
 function tos_google_translate_CHAT_TAB_BTN_CLICK(parent, ctrl)
     if g.settings.use ~= 0 then
 
@@ -90,13 +172,65 @@ function tos_google_translate_CHAT_TAB_BTN_CLICK(parent, ctrl)
     CHAT_TAB_OPTION_SAVE(frame)
 end
 
+function tos_google_translate_name_trans()
+    local temp_names = {}
+
+    local selectedObjects, selectedObjectsCount = SelectObject(GetMyPCObject(), 1000, "ALL")
+    for i = 1, selectedObjectsCount do
+
+        local handle = GetHandle(selectedObjects[i])
+        if handle ~= nil then
+
+            if info.IsPC(handle) == 1 then
+
+                local strHandle = tostring(handle)
+                local FrameName = "charbaseinfo1_" .. strHandle
+                local pcTxtFrame = ui.GetFrame(FrameName)
+                if pcTxtFrame ~= nil then
+
+                    local frameFamilyName = pcTxtFrame:GetChild("familyName")
+                    if frameFamilyName ~= nil then
+
+                        local familyName = frameFamilyName:GetText()
+
+                        local cleanName = familyName:gsub("{.-}", ""):match("^%s*(.-)%s*$")
+
+                        if g.names[cleanName] == nil then
+                            -- print(tostring(cleanName))
+                            table.insert(temp_names, cleanName)
+                        end
+                    end
+                end
+
+            end
+        end
+    end
+
+    -- temp_namesをtempname.datに書き込む
+    local tempnameFileLoc = string.format('../addons/%s/%s/tempname.dat', addonNameLower, addonNameLower)
+    local file = io.open(tempnameFileLoc, "w")
+    if file then
+        local lang = g.settings.lang
+        for _, name in ipairs(temp_names) do
+            file:write(name .. " : " .. lang .. "\n")
+        end
+        file:close()
+        g.tempname_tame = 1
+    else
+        print("tempname.datファイルの作成に失敗しました。")
+    end
+end
+
 function tos_google_translate_koja()
 
     local kojaFileLoc = string.format('../addons/%s/MemoriseData.dat', "koja_name_translater")
     local koja = io.open(kojaFileLoc, "r")
-    local content = koja:read("*all")
-    koja:close()
+    if koja then
+        local content = koja:read("*all")
+        koja:close()
+    end
     tos_google_translate_load_names()
+
     -- 各行を配列の要素として分割
     local lines = {}
     for line in content:gmatch("[^\r\n]+") do
@@ -226,11 +360,10 @@ function tos_google_translate_lang(str)
         end
 
         if str == "Left click: Opens and closes the translation chat window.{nl}" ..
-            "Automatic translation stops while it is not open.{nl}" ..
-            "Right click: Force reload of the translation chat window." then
-            str = "左クリック：翻訳チャットウィンドウを開いたり閉じたりします。{nl}" ..
-                      "開いてない間は自動翻訳停止します。{nl}" ..
-                      "右クリック：強制的に翻訳チャットウィンドウを再読み込みします。"
+            "Stops automatic translation while not open.{nl}" .. "Right click: Initialize." then
+            str = "左クリック： 翻訳チャットウィンドウを開閉します。{nl}" ..
+                      "開いていない間は自動翻訳を停止します。{nl}" ..
+                      "右クリック：初期化します。"
         end
 
         if str == "[Tos Google Translate]{nl}" ..
@@ -249,6 +382,10 @@ function tos_google_translate_lang(str)
         if str == "Tos Google Translate frame must be closed before you can translate." then
             str = "Tos Google Translate フレームを閉じてから翻訳してください。"
         end
+        -- "Tos Google Translate initialization."
+        if str == "Tos Google Translate initialize. Please return to the barracks." then
+            str = "Tos Google Translate 初期化します。一度バラックに戻ってください。"
+        end
         return str
     elseif langCode == "kr" then
 
@@ -257,11 +394,10 @@ function tos_google_translate_lang(str)
         end
 
         if str == "Left click: Opens and closes the translation chat window.{nl}" ..
-            "Automatic translation stops while it is not open.{nl}" ..
-            "Right click: Force reload of the translation chat window." then
-            str = "왼쪽 클릭: 번역 채팅 창을 열거나 닫습니다.{nl}" ..
-                      " 열려있지 않은 상태에서는 자동 번역이 중지됩니다.{nl}" ..
-                      "오른쪽 클릭: 번역 채팅창을 강제로 다시 불러옵니다."
+            "Stops automatic translation while not open.{nl}" .. "Right click: Initialize." then
+            str = "왼쪽 클릭: 번역 채팅 창을 열고 닫습니다.{nl}" ..
+                      "열지 않은 상태에서는 자동 번역을 중지합니다.{nl}" ..
+                      "오른쪽 클릭: 초기화합니다."
         end
 
         if str == "[Tos Google Translate]{nl}" ..
@@ -279,6 +415,9 @@ function tos_google_translate_lang(str)
         if str == "Tos Google Translate frame must be closed before you can translate." then
             str = "Tos Google Translate 프레임을 닫은 후 번역하세요."
         end
+        if str == "Tos Google Translate initialize. Please return to the barracks." then
+            str = "Tos Google Translate 초기화합니다. 일단 막사로 돌아가십시오."
+        end
         return str
     else
         return str
@@ -287,20 +426,27 @@ function tos_google_translate_lang(str)
 end
 
 function tos_google_translate_restart()
-    ui.SysMsg(tos_google_translate_lang(
-        "Please run the restart.bat file in the Tree Of Savior'-'addons'-'tos_google_translate' folder with administrator privileges and then go back to the barracks once"))
-    local batch_script = [[
-                @echo off
-                :: コマンドを管理者権限で実行するためのバッチファイル
-                
-                taskkill /F /IM tos_google_translate-v1.0.0.exe
-                ]]
+    ui.SysMsg(tos_google_translate_lang("Tos Google Translate initialize. Please return to the barracks."))
+    local frame = ui.GetFrame("tos_google_translate")
+    frame:RemoveAllChild()
 
-    -- バッチファイルを作成する
     local file = io.open(g.restartFileLoc, "w")
-    file:write(batch_script)
+    file:write("restart")
     file:close()
+
     g.extractedTexts = {}
+    local file = io.open(g.noticeFileLoc, "w")
+    file:write("")
+    file:close()
+    local file = io.open(g.sendFileLoc, "w")
+    file:write("")
+    file:close()
+    local file = io.open(g.tempFileLoc, "w")
+    file:write("")
+    file:close()
+
+    g.size = 0
+    tos_google_translate_frame_init()
     g.loaded = false
 end
 
@@ -323,36 +469,6 @@ function tos_google_translate_extractAndCleanText(text, id)
     end]]
 
     return text, g.extractedTexts -- 抽出したテキストを含むテーブルを返す
-end
-
-function tos_google_translate_msg_del()
-    -- 元のsend_file内の内容を読み込む
-    local send_data = {}
-    local send_file = io.open(g.sendFileLoc, "r")
-    local send_json = send_file:read("*a")
-    send_data = json.decode(send_json)
-    send_file:close()
-
-    -- g.settings["chat"]と元のsend_file内の内容を組み合わせて1つの配列にする
-    local combined_data = {}
-    for _, entry in ipairs(send_data) do
-        table.insert(combined_data, entry)
-    end
-
-    for _, entry in ipairs(g.settings["chat"]) do
-        table.insert(combined_data, entry)
-    end
-    -- エンコードされたJSONデータをファイルに書き込む
-    local combined_json = json.encode(combined_data)
-    -- g.settings["chat"]を空にする
-    g.settings["chat"] = {}
-    tos_google_translate_save_settings()
-
-    -- エンコードされたJSONデータをファイルに書き込む
-    local send_file = io.open(g.sendFileLoc, "w")
-    send_file:write(combined_json)
-    send_file:close() -- ファイルを閉じる
-
 end
 
 function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
@@ -439,66 +555,106 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
         -- local input = "あじのり [W サーバー]"
         cmdName = cmdName:gsub("%[.*%]", ""):gsub("^%s*(.-)%s*$", "%1")
 
-        tos_google_translate_save_settings()
-        local count = #g.settings.chat + 1
+        local new_entry = string.format(
+            '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}', tostring(chat_id),
+            MsgType, cleanedText, time, cmdName, g.settings.lang)
 
-        g.settings.chat[count] = {
-            chat_id = tostring(chat_id),
-            msgtype = MsgType,
-            trans_text = cleanedText, -- これは後で翻訳されたテキストに置き換えられる可能性があります
-            time = time,
-            name = cmdName,
-            lang = g.settings.lang
+        local send_file = io.open(g.sendFileLoc, "r")
+        local content = ""
 
-        }
-        tos_google_translate_save_settings()
-        tos_google_translate_msg_del()
-        local output = io.open(g.outputFileLoc, "r")
-        local content = output:read("*all")
-        output:close()
-        g.output = json.decode(content)
-        g.count = #g.output
+        if send_file then
+            content = send_file:read("*all")
+            send_file:close()
+        end
+
+        if content == "" then
+            -- ファイルが空または存在しない場合、新しいエントリだけを追加
+            send_file = io.open(g.sendFileLoc, "w")
+            send_file:write("[" .. new_entry .. "]")
+        else
+            -- ファイルが存在する場合、新しいエントリを追加
+            -- 既存の内容が '[]' だけの場合を考慮
+            if content == "[]" then
+                content = "[" .. new_entry .. "]"
+            else
+                content = content:sub(1, -2) -- 最後の"]"を削除
+                content = content .. "," .. new_entry .. "]"
+            end
+            send_file = io.open(g.sendFileLoc, "w")
+            send_file:write(content)
+        end
+
+        send_file:close()
+        local file = io.open(g.noticeFileLoc, "r")
+        g.size = 0
+        if file then
+            file:seek("end") -- ファイルポインタを末尾に移動
+            g.size = file:seek() -- 現在のファイルポインタの位置を取得（これがファイルサイズ）
+            file:close() -- ファイルを閉じる
+        end
 
         -- local frame = ui.GetFrame("tos_google_translate")
-        -- frame:RunUpdateScript("tos_google_translate_receive", 2.0);
+        -- frame:RunUpdateScript("tos_google_translate_receive", 1)
     end
 
 end
 
-function tos_google_translate_receive(frame)
-
+function tos_google_translate_receive()
+    -- test()
     if g.settings.use == 0 then
         return 0
     end
-
-    local output = io.open(g.outputFileLoc, "r")
-    local content = output:read("*all")
-    output:close()
-    local json = json.decode(content)
-    local count = #json
-
-    if g.count ~= count then
-        -- g.count = g.count + 1
-        -- print("g.count:" .. g.count .. ":" .. "count:" .. count)
-        g.gbox = false
-        g.output = json
-        -- tos_google_translate_load_names()
-        tos_google_translate_gbox(frame)
-
-        -- テーブルの要素数が30以上の場合、最初の1個目を削除する
-        if #g.output > 30 then
-            table.remove(g.output, 1)
-        else
-            g.count = g.count + 1
+    local tempnameFileLoc = string.format('../addons/%s/%s/tempname.dat', addonNameLower, addonNameLower)
+    local file = io.open(tempnameFileLoc, "r")
+    if not file then
+        if g.tempname_tame == 1 then
+            tos_google_translate_load_names_table()
+            g.tempname_tame = 0
         end
-        acutil.saveJSON(g.outputFileLoc, g.output)
-        -- tos_google_translate_save_settings()
-        return 0
+    else
+        file:close() -- ファイルを閉じる
+    end
 
+    local file = io.open(g.noticeFileLoc, "r")
+    local size = 0
+    if file then
+        file:seek("end") -- ファイルポインタを末尾に移動
+        size = file:seek() -- 現在のファイルポインタの位置を取得（これがファイルサイズ）
+        file:close() -- ファイルを閉じる
+    end
+
+    local output = {}
+    if g.size ~= size then
+        -- notice.dat ファイルを開く
+        local file = io.open(g.noticeFileLoc, "r")
+        if file then
+            -- ファイルの内容を1行ずつ読み込む
+
+            for line in file:lines() do
+                local chat_id, org_name, trans_text, msgtype, time = line:match(
+                    '^"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"$')
+                if chat_id and org_name and trans_text and msgtype and time then
+                    -- g.output にインサート
+                    table.insert(output, {
+                        chat_id = chat_id,
+                        name = org_name,
+                        trans_text = trans_text,
+                        msgtype = msgtype,
+                        time = time
+                    })
+                end
+
+            end
+            file:close()
+
+            -- g.output に格納
+
+        end
+        tos_google_translate_gbox(output)
+        return 0
     else
         return 1
     end
-
 end
 
 function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
@@ -513,10 +669,10 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
     trans:SetText("{ol}{s14}{#FFFFFF}" .. g.settings["lang"])
     trans:SetEventScript(ui.LBUTTONUP, "tos_google_translate_frame_open")
-    trans:SetEventScript(ui.RBUTTONUP, "tos_google_translate_gbox")
+    trans:SetEventScript(ui.RBUTTONUP, "tos_google_translate_restart")
     trans:SetTextTooltip(tos_google_translate_lang("Left click: Opens and closes the translation chat window.{nl}" ..
-                                                       "Automatic translation stops while it is not open.{nl}" ..
-                                                       "Right click: Force reload of the translation chat window."))
+                                                       "Stops automatic translation while not open.{nl}" ..
+                                                       "Right click: Initialize."))
     local chatframeWidth, chatframeHeight = chatframe:GetWidth(), chatframe:GetHeight()
 
     if g.settings.use == 1 then
@@ -543,113 +699,95 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
 end
 
-function tos_google_translate_rbtn()
-    local file = io.open(g.noticeFileLoc, "r")
-    if file then
-        -- ファイルが存在する場合の処理
-        file:close()
-
-    else
-        -- ファイルが存在しない場合の処理
-        local newFile = io.open(g.noticeFileLoc, "w")
-        if newFile then
-            newFile:close()
-            local frame = ui.GetFrame("tos_google_translate")
-            tos_google_translate_receive(frame)
-
-        end
-    end
-end
-
-function tos_google_translate_gbox(frame)
+function tos_google_translate_gbox(output)
 
     local mainchatFrame = ui.GetFrame("chatframe")
-
     local tgtframe = ui.GetFrame("tos_google_translate")
     local gbox = GET_CHILD(tgtframe, "gbox")
     AUTO_CAST(gbox)
 
-    local trans_name = ""
-    local translate_text = ""
-    local org_name = ""
+    -- gbox のすべての子要素をクリア
+    -- gbox:RemoveAllChild()
+
+    local chat_id = ""
+    local name = ""
     local trans_text = ""
     local msgtype = ""
     local time = ""
-    local chat_id = ""
 
     g.ypos = 0
-    for i, entry in ipairs(g.output) do
-        -- print("Entry " .. i .. ":")
-        for key, value in pairs(entry) do
-            -- print(key .. ":" .. value)
-            org_name = entry.org_name
-            trans_text = entry.trans_text
-            msgtype = entry.msgtype
-            time = entry.time
-            chat_id = entry.chat_id
-            local replaced_name = g.names[org_name] or org_name
 
-            local clustername = "cluster_" .. chat_id
-            local marginLeft = 20
-            local marginRight = 0
+    for i, entry in ipairs(output) do
+        chat_id = entry.chat_id
+        name = entry.name
+        trans_text = entry.trans_text
+        msgtype = entry.msgtype
+        time = entry.time
 
-            local commnderNameUIText = replaced_name .. " : " .. trans_text
-            for i, extractedTexts in pairs(g.extractedTexts) do
-                if chat_id == i then
-                    for j, extractedText in ipairs(extractedTexts) do
-                        -- print("抽出したテキスト[" .. i .. "][" .. j .. "]:" .. extractedText)
-                        commnderNameUIText = commnderNameUIText .. extractedText
-                    end
+        -- デバッグメッセージを追加して、各エントリの内容を確認
+        --[[print(string.format("Entry %d: chat_id = %s, name = %s, trans_text = %s, msgtype = %s, time = %s", i,
+            tostring(chat_id), tostring(name), tostring(trans_text), tostring(msgtype), tostring(time)))]]
+
+        local clustername = "cluster_" .. chat_id
+        local marginLeft = 20
+        local marginRight = 0
+
+        local commnderNameUIText = name .. " : " .. trans_text
+        for i, extractedTexts in pairs(g.extractedTexts) do
+            if chat_id == i then
+                for j, extractedText in ipairs(extractedTexts) do
+                    -- print("抽出したテキスト[" .. i .. "][" .. j .. "]:" .. extractedText)
+                    commnderNameUIText = commnderNameUIText .. extractedText
                 end
             end
-
-            local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
-                marginRight, 1)
-            local label = chatCtrl:GetChild('bg')
-            local txt = GET_CHILD(chatCtrl, "text")
-            local timeCtrl = GET_CHILD(chatCtrl, "time")
-
-            local msgFront = ""
-            local msgString = ""
-            local fontStyle = nil
-
-            label:SetAlpha(0)
-
-            if msgtype == "Normal" then
-                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
-                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
-
-            elseif msgtype == "Shout" then
-                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
-                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
-
-            elseif msgtype == "Party" then
-                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
-                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
-
-            elseif msgtype == "Guild" then
-                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
-                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
-            elseif msgtype == "System" then
-                fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
-                msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_7"), trans_text)
-            end
-            local fontSize = GET_CHAT_FONT_SIZE()
-            txt:SetTextByKey("font", fontStyle)
-            txt:SetTextByKey("size", fontSize)
-            txt:SetTextByKey("text", msgFront)
-            timeCtrl:SetTextByKey("time", time)
-
-            local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
-
-            tos_google_translate_chat_ctrl(frame, gbox, chatCtrl, label, txt, timeCtrl, offsetX)
-            break
         end
+
+        local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
+            marginRight, 1)
+        local label = chatCtrl:GetChild('bg')
+        local txt = GET_CHILD(chatCtrl, "text")
+        local timeCtrl = GET_CHILD(chatCtrl, "time")
+
+        local msgFront = ""
+        local msgString = ""
+        local fontStyle = nil
+
+        label:SetAlpha(0)
+
+        if msgtype == "Normal" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
+
+        elseif msgtype == "Shout" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
+
+        elseif msgtype == "Party" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
+
+        elseif msgtype == "Guild" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
+        elseif msgtype == "System" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_7"), trans_text)
+        end
+        local fontSize = GET_CHAT_FONT_SIZE()
+        txt:SetTextByKey("font", fontStyle)
+        txt:SetTextByKey("size", fontSize)
+        txt:SetTextByKey("text", msgFront)
+        timeCtrl:SetTextByKey("time", time)
+
+        local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
+
+        tos_google_translate_chat_ctrl(gbox, chatCtrl, label, txt, timeCtrl, offsetX)
+
     end
 
 end
 
-function tos_google_translate_chat_ctrl(frame, groupbox, chatCtrl, label, txt, timeCtrl, offsetX)
+function tos_google_translate_chat_ctrl(groupbox, chatCtrl, label, txt, timeCtrl, offsetX)
 
     local chatWidth = groupbox:GetWidth()
     txt:SetTextMaxWidth(groupbox:GetWidth() - 100)
@@ -659,8 +797,7 @@ function tos_google_translate_chat_ctrl(frame, groupbox, chatCtrl, label, txt, t
     g.ypos = g.ypos + label:GetHeight()
 
     groupbox:SetScrollPos(99999)
-    -- g.count = g.count + 1
-    os.remove(g.noticeFileLoc)
+
     return
 end
 
@@ -683,22 +820,24 @@ function tos_google_translate_frame_close(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
 end
 
-function tos_google_translate_start(frame, msg, argStr, argNum)
-    local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.0.exe" -- 実行したいPythonスクリプトのパス
+function tos_google_translate_start()
+    local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe" -- 実行したいPythonスクリプトのパス
 
     local file = io.open(exe_path, "r")
     if file then
+        file:close()
+
         if not g.loaded then
+
             local command = string.format('start "" "%s"', exe_path)
             os.execute(command)
-            g.loaded = true
 
+            g.loaded = true
         end
-        file:close()
         tos_google_translate_frame_init()
     else
         ui.SysMsg(tos_google_translate_lang("[Tos Google Translate]{nl}" ..
-                                                "/addons/tos_google_translate/tos_google_translate/tos_google_translate.exe{nl}" ..
+                                                "/addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe{nl}" ..
                                                 "cannot be found. Exit."))
         return
     end
@@ -722,126 +861,24 @@ function tos_google_translate_load_settings()
     if not settings then
         -- 設定ファイルが存在しない場合、デフォルトの設定を作成
         settings = {
-            chat = {},
             use = 1,
             lang = langCode
         }
-
-        local file = io.open(g.settingsFileLoc, "w")
-        local s = json.encode(settings)
-        file:write(s)
-        file:close()
-    end
-
-    if not g.loaded then
-        local use = settings.use
-        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
-        settings = {
-            chat = {},
-            use = use,
-            lang = langCode
-        }
-
-        local file = io.open(g.settingsFileLoc, "w")
-        local s = json.encode(settings)
-        file:write(s)
-        file:close()
+    else
+        g.settings = settings
 
     end
-
-    if settings then
-        local file = io.open(g.settingsFileLoc, "w")
-        local s = json.encode(settings)
-        file:write(s)
+    if g.loaded == false then
+        local file = io.open(g.noticeFileLoc, "w")
+        file:write("")
         file:close()
+        -- g.loaded = true
     end
-    g.settings = settings
-    ReserveScript("tos_google_translate_load_output()", 0.2)
+
+    tos_google_translate_save_settings()
+    ReserveScript("tos_google_translate_load_names()", 0.2)
 
     return
-end
-
-function tos_google_translate_load_output()
-    local output = acutil.loadJSON(g.outputFileLoc, g.output)
-
-    if not output then
-
-        output = {}
-
-        local file = io.open(g.outputFileLoc, "w")
-        local s = json.encode(output)
-        file:write(s)
-        file:close()
-
-    elseif not g.loaded then
-        output = {}
-
-        local file = io.open(g.outputFileLoc, "w")
-        local s = json.encode(output)
-        file:write(s)
-        file:close()
-
-    end
-    g.output = output
-    if g.gbox then
-        ReserveScript("tos_google_translate_load_temp()", 0.2)
-    end
-end
-
-function tos_google_translate_load_temp()
-    local temp = acutil.loadJSON(g.tempFileLoc, g.temp)
-
-    if not temp then
-        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
-        temp = {}
-
-        local file = io.open(g.tempFileLoc, "w")
-        local s = json.encode(temp)
-        file:write(s)
-        file:close()
-
-    elseif not g.loaded then
-        temp = {}
-
-        local file = io.open(g.tempFileLoc, "w")
-        local s = json.encode(temp)
-        file:write(s)
-        file:close()
-    elseif temp then
-        local file = io.open(g.tempFileLoc, "w")
-        local s = json.encode(temp)
-        file:write(s)
-        file:close()
-    end
-    ReserveScript("tos_google_translate_load_send()", 0.2)
-end
-
-function tos_google_translate_load_send()
-    local send = acutil.loadJSON(g.sendFileLoc, g.send)
-
-    if not send then
-        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
-        send = {}
-
-        local file = io.open(g.sendFileLoc, "w")
-        local s = json.encode(send)
-        file:write(s)
-        file:close()
-
-    elseif not g.loaded then
-        send = {}
-
-        local file = io.open(g.sendFileLoc, "w")
-        local s = json.encode(send)
-        file:write(s)
-        file:close()
-    elseif send then
-        local file = io.open(g.sendFileLoc, "w")
-        local s = json.encode(send)
-        file:write(s)
-        file:close()
-    end
-    ReserveScript("tos_google_translate_load_names()", 0.2)
 end
 
 local function WITH_HANGLE(str)
@@ -885,51 +922,45 @@ end
 
 function tos_google_translate_load_names()
 
-    local names = acutil.loadJSON(g.namesFileLoc, g.names)
+    g.names = {}
+    local file = io.open(g.namesFileLoc, "r")
+    if file then
+        local textData = file:read("*all")
+        file:close()
 
-    local mySession = session.GetMyHandle();
-    local myTeamName = info.GetFamilyName(mySession);
-    if not names then
-        -- 設定ファイルが存在しない場合、デフォルトの設定を作成
-        g.names = {
-            myTeamName = myTeamName
-        }
-    else
-        -- 設定ファイルが存在する場合、その内容を使用
-        g.names = names
-    end
-
-    if g.gbox then
-        for org_name, ts_name in pairs(g.names) do
-
-            if ts_name == "" then
-                g.names[org_name] = nil -- キーを削除する
-            end
-            if ts_name == "---" then
-
-                g.names[org_name] = nil -- キーを削除する
-            end
-            if WITH_HANGLE(org_name) then
-                if ts_name == org_name then
-                    g.names[org_name] = nil -- キーを削除する
+        -- テキストデータを行ごとに処理
+        for line in textData:gmatch("[^\r\n]+") do
+            local key, value = line:match('^"%s*(.-)%s*"%s*:%s*"%s*(.-)%s*"$')
+            if key and value then
+                if not WITH_HANGLE(value) then
+                    g.names[key] = value
                 end
-
-            end
-            if WITH_HANGLE(ts_name) then
-
-                g.names[org_name] = nil -- キーを削除する
-
-            end
-            if string.match(org_name, "[%a%d]+") then
-                g.names[org_name] = org_name
             end
         end
-        acutil.saveJSON(g.namesFileLoc, g.names)
-
-        ReserveScript("tos_google_translate_start()", 0.2)
     end
+
+    ReserveScript("tos_google_translate_start()", 0.2)
+
 end
 
+function tos_google_translate_load_names_table()
+    g.names = {}
+    local file = io.open(g.namesFileLoc, "r")
+    if file then
+        local textData = file:read("*all")
+        file:close()
+
+        -- テキストデータを行ごとに処理
+        for line in textData:gmatch("[^\r\n]+") do
+            local key, value = line:match('^"%s*(.-)%s*"%s*:%s*"%s*(.-)%s*"$')
+            if key and value then
+                if not WITH_HANGLE(value) then
+                    g.names[key] = value
+                end
+            end
+        end
+    end
+end
 function tos_google_translate_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
 end
@@ -948,14 +979,15 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
     local NEAR_MEMBER_NAME_FONT_COLORTAG = partyinfoFrame:GetUserConfig("NEAR_MEMBER_NAME_FONT_COLORTAG")
 
     local mapName = geMapTable.GetMapName(partyMemberInfo:GetMapID());
-    local partyMemberName = partyMemberInfo:GetName();
-    for key, value in pairs(g.names) do
-        if key == partyMemberName then
-            partyMemberName = value
+    local partyMemberName = partyMemberInfo:GetName()
 
-            break
-        end
+    -- tos_google_translate_load_names_table()
+
+    if g.names[partyMemberName] then
+        partyMemberName = g.names[partyMemberName]
     end
+
+    -- g.tempparty の中身を表示（デバッグ用）
 
     local myHandle = session.GetMyHandle();
     local ctrlName = 'PTINFO_' .. partyMemberInfo:GetAID();
@@ -1084,292 +1116,4 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
     -- print(partyMemberName)
     return 1;
 end
---[[local langCode = option.GetCurrentCountry()
-    -- if (option.GetCurrentCountry() == "Japanese") then
-    if langCode ~= "Korean" then
 
-        text = dictionary.ReplaceDicIDInCompStr(text)
-        text = string.gsub(text, "{/}", "")
-
-        local function replaceAll(text, pattern, replacement)
-            local result = text
-            local startPos, endPos = string.find(pattern)
-            while startPos do
-                result = result:sub(1, startPos - 1) .. replacement .. result:sub(endPos + 1)
-                startPos, endPos = string.find(pattern, endPos + 1)
-            end
-            return result
-        end
-
-        local replacedText = replaceAll(text, "%(", "{")
-        replacedText = replaceAll(replacedText, "%)", "}")
-        --[[local start, finish = string.find(text, "%(")
-        if start then
-            text = text:sub(1, start - 1) .. "{" .. text:sub(start + 1)
-            local next_brace_start = string.find(text, "%{", finish + 1)
-            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
-            next_brace_start = string.find(text, "%)", finish + 1)
-            text = text:sub(1, next_brace_start - 1) .. text:sub(next_brace_start + 1)
-        else
-            print("aru")
-        end
-    end]]
-
--- print(text)
---[[local function WITH_HANGLE(str)
-    local size = #str
-    local i = 1
-
-    while i <= size do
-        local byt = string.byte(str, i)
-        local inc = 1
-
-        if (byt & 0x80) == 0x00 then
-            inc = 1
-        elseif (byt & 0xE0) == 0xC0 then
-            inc = 2
-        elseif (byt & 0xF0) == 0xE0 then
-            inc = 3
-        elseif (byt & 0xF8) == 0xF0 then
-            inc = 4
-        elseif (byt & 0xFC) == 0xF8 then
-            inc = 5
-        elseif (byt & 0xFE) == 0xFC then
-            inc = 6
-        end
-
-        local code = byt & (0xFF >> (inc + 1)) -- コードポイントの計算
-
-        if inc > 1 then
-            for j = 2, inc do
-                byt = string.byte(str, i + j - 1)
-                code = (code << 6) | (byt & 0x3F)
-            end
-        end
-
-        if code >= 0xAC00 and code <= 0xD7A3 then
-            return true -- ハングルの範囲に含まれる
-        end
-
-        i = i + inc
-    end
-
-    return false -- ハングルの文字が含まれない
-end]]
-
---[[local function test()
-    local selectedObjects, selectedObjectsCount = SelectObject(GetMyPCObject(), 1000, "ALL");
-    for i = 1, selectedObjectsCount do
-        local handle = GetHandle(selectedObjects[i]);
-        if handle ~= nil then
-            if info.IsPC(handle) == 1 then
-                local FrameName = "charbaseinfo1_" .. handle;
-                local pcTxtFrame = ui.GetFrame(FrameName);
-                if pcTxtFrame ~= nil then
-                    local frameFamilyName = pcTxtFrame:GetChild("familyName");
-                    AUTO_CAST(frameFamilyName)
-                    local fName = frameFamilyName:GetText()
-                    local result = fName:gsub("{.-}", "") -- {}で囲まれた部分を削除
-
-                    for key, value in pairs(g.names) do
-
-                        if key == result then
-                            local frameGivenName = pcTxtFrame:GetChild("givenName");
-                            AUTO_CAST(frameGivenName)
-                            if nil ~= frameGivenName then
-                                frameGivenName:SetText("");
-
-                            end
-                            frameFamilyName:SetText(value)
-                            local BeforeMargin = frameFamilyName:GetMargin();
-
-                            frameFamilyName:SetMargin(150, BeforeMargin.top, 0, 0);
-                            break
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-end]]
---[[function tos_google_translate_msg_del()
-
-    if #g.settings["chat"] == 0 then
-        -- print("nai")
-        return
-    else
-
-        local newtable = {}
-        --[[local recv_file_path = string.format('../addons/%s/recv.json', addonNameLower)
-        local file = io.open(recv_file_path, "r")
-
-        if file then
-            -- JSONデータをテーブルに変換
-            local file_data = file:read("*all") -- ファイルの内容を変数に保存
-            file:close() -- ファイルを閉じる
-            local data = json.decode(file_data)
-            if #data ~= 0 then
-                -- JSONデータをテーブルに変換
-
-                for j, entry in ipairs(g.settings["chat"]) do
-                    for i, e in ipairs(data) do
-                        if e.chat_id ~= entry.chat_id then
-                            table.insert(newtable, entry)
-                            print(e.chat_id)
-
-                            break
-                        end
-                    end
-
-                end
-                g.settings["chat"] = {}
-                tos_google_translate_save_settings()
-            else
-                for i, entry in ipairs(g.settings["chat"]) do
-                    table.insert(newtable, entry)
-                    print(i)
-                end
-
-            end
-        else
-            for i, entry in ipairs(g.settings["chat"]) do
-
-                table.insert(newtable, entry)
-
-            end
-
-        end
-        local newtable = {}
-        local send_file_path = string.format('../addons/%s/send.json', addonNameLower)
-        local file = io.open(send_file_path, "r")
-
-        if file then
-            -- JSONデータをテーブルに変換
-            local file_data = file:read("*all")
-            file:close() -- ファイルを閉じる
-            local data = json.decode(file_data)
-            print(#data)
-            for i, e in ipairs(data) do
-                print(e.chat_id)
-            end
-
-        end
-
-        for i, entry in ipairs(g.settings["chat"]) do
-
-            table.insert(newtable, entry)
-
-        end
-        local send_table = {} -- 新しいテーブルを作成
-        for key, value in ipairs(newtable) do
-            local chat_id = value.chat_id -- 値を直接取得して代入
-            local trans_text = value.trans_text -- 値を直接取得して代入
-            local name = value.name -- 値を直接取得して代入
-            local lang = value.lang -- 値を直接取得して代入
-            local msgtype = value.msgtype
-            local time = value.time
-
-            -- 新しいテーブルに値を追加
-            table.insert(send_table, {
-                chat_id = chat_id,
-                trans_text = trans_text,
-                name = name,
-                lang = lang,
-                msgtype = msgtype,
-                time = time
-            })
-        end
-
-        local send_json = json.encode(send_table)
-        print(send_json)
-        local send_file_path = string.format('../addons/%s/send.json', addonNameLower)
-
-        local send_file = io.open(send_file_path, "w")
-        if send_file then
-            send_file:write(send_json) -- エンコードされたJSONデータをファイルに書き込む
-            send_file:close() -- ファイルを閉じる
-        end
-
-        local success, message = os.remove(recv_file_path)
-        if success then
-            print("recvファイルが削除されました。")
-        else
-            -- print("recvファイルの削除中にエラーが発生しました:" .. message)
-        end
-        --[[ print(tostring(send_table))
-        -- 新しいテーブルをJSON形式に変換して出力
-        local send_json = json.encode({
-            send = send_table
-        })
-        -- print(send_json)
-
-        local file = io.open(g.ttempFileLoc, "r")
-        local existingContent = ""
-
-        existingContent = file:read("*all")
-        file:close()
-        -- print(existingContent)
-        -- print(next(g.ttemp["send"]) .. "next")
-
-        -- local pattern = tostring('"send":[]')
-        existingContent = string.gsub('"send":[]', '"send":' .. newtable)
-        local file = io.open(g.ttempFileLoc, "r")
-
-        local file = io.open(g.ttempFileLoc, "r")
-        local existingContent = ""
-
-        local notice_file_path = string.format('../addons/%s/notice.txt', addonNameLower)
-        if not file_exists(notice_file_path) then
-            local notice_file = io.open(notice_file_path, "w")
-            if notice_file then
-                notice_file:close()
-            end
-        end
-
-        --[[if existingContent == "[]" then
-            local file = io.open(g.ttempFileLoc, "w")
-            existingContent = json.encode(newtable)
-            file:write(existingContent) -- 新しいテーブルを書き込む
-            file:close()
-        else
-            local file = io.open(g.temptFileLoc, "w")
-            existingContent = existingContent:gsub("]", ",")
-
-            newtable = json.encode(newtable)
-            newtable = newtable:gsub("^%[", "")
-
-            existingContent = existingContent .. newtable
-            print(tostring(existingContent))
-            file:write(existingContent) -- 新しいテーブルを書き込む
-            file:close()
-        end]]
-
---[[local file = io.open(g.tempFileLoc, "a") -- 追記モードでファイルを開く
-        if file then
-
-            if existingContent ~= "[]" then
-                -- 既存の内容がある場合、末尾の "]" を削除してから新しいテーブルを追記
-                existingContent = existingContent:gsub("]", "") -- 末尾の "]" を削除
-
-                file:write(existingContent .. ",") -- 既存の内容を書き込む
-
-                -- file:write(",") -- 既存の内容がある場合、カンマで区切る
-            else
-                print("[]")
-                existingContent = existingContent:gsub("[]", "")
-                existingContent = json.encode(newtable)
-            end
-            print(tostring(existingContent))
-            -- local newtable_str = json.encode(newtable):sub(2)
-            file:write(existingContent) -- 新しいテーブルを書き込む
-            file:close()
-        end
-
-        -- 元のテーブルを空にする
-        -- g.settings["chat"] = {}
-
-        -- 設定を保存する
-        -- tos_google_translate_save_settings()
-    end
-end]]
