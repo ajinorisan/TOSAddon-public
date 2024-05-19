@@ -1,14 +1,14 @@
 ## 日本語説明
 
 
-※バージョン0.9.7からexeファイルが新しくなっていますので、古いexeファイルをお持ちの方は再ダウウンロードの上解凍してください。
+※バージョン0.9.6からexeファイルが新しくなっていますので、古いexeファイルをお持ちの方は再ダウウンロードの上解凍してください。
 
-　exeファイルのバージョンは1.0.1です。アドオンの最新版は0.9.7です。それ以前は動作重たいです。
+　exeファイルのバージョンは1.0.1です。アドオンの最新版は0.9.8です。それ以前は動作重たいです。
 
 
 ### 導入方法
 
-アドオンマネージャーから Tos Google Translate v0.9.7 をインストールします。
+アドオンマネージャーから Tos Google Translate v0.9.8 をインストールします。
 
 この場所にある tos_google_translate.zip をダウンロードします。
 
@@ -41,14 +41,14 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\add
 ## English explanation
 
 
-The exe file is new since version 0.9.7. If you have the old exe file, please re-download and unzip it.
+The exe file is new since version 0.9.6. If you have the old exe file, please re-download and unzip it.
 
-　The latest version of the exe file is 1.0.1. The latest version of the add-on is 0.9.7. Earlier versions are slow.
+　The latest version of the exe file is 1.0.1. The latest version of the add-on is 0.9.8. Earlier versions are slow.
 
 
 ### How to install
 
-Install Tos Google Translate v0.9.7 from Add-on Manager.
+Install Tos Google Translate v0.9.8 from Add-on Manager.
 
 Download tos_google_translate.zip at this location.
 
@@ -81,14 +81,14 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\add
 ## 한국어 설명
 
 
-0.9.7 버전부터 exe 파일이 새로워졌으므로, 기존 exe 파일을 가지고 계신 분은 다시 다운로드 후 압축을 풀어주시기 바랍니다.
+0.9.6 버전부터 exe 파일이 새로워졌으므로, 기존 exe 파일을 가지고 계신 분은 다시 다운로드 후 압축을 풀어주시기 바랍니다.
 
-　exe 파일의 최신 버전은 1.0.1입니다. 애드온의 최신 버전은 0.9.7입니다. 그 이전 버전은 작동이 무겁습니다.
+　exe 파일의 최신 버전은 1.0.1입니다. 애드온의 최신 버전은 0.9.8입니다. 그 이전 버전은 작동이 무겁습니다.
 
 
 ### 도입 방법
 
-애드온 관리자에서 Tos Google Translate v0.9.7을 설치합니다.
+애드온 관리자에서 Tos Google Translate v0.9.8을 설치합니다.
 
 이 곳에 있는 tos_google_translate.zip을 다운로드합니다.
 

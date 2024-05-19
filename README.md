@@ -31,6 +31,8 @@ https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate#%E6
 ![tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c1fa8e68-548e-431b-b8c0-a4697c1fa413)
 　
 
+v0.9.8 フレーム表示のところバグってたの修正
+
 v0.9.7 再起動系の所がバグってたのを修正 
 
 v0.9.6 JSONファイルでのやり取り重たすぎたのでdatファイルでのテキストのやり取りに変更。めちゃ軽くなった。

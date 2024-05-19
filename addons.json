@@ -22,10 +22,10 @@
 		"name" : "Tos Google Translate",
 		"file" : "tos_google_translate",
 		"extension" : "ipf",
-		"fileVersion" : "v0.9.7",
+		"fileVersion" : "v0.9.8",
 		"releaseTag" : "tos_google_translate",
 		"unicode" : "⛄",
-		"description" : "exe file storage[https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate] 動作軽量化済。チャットを自動翻訳します。アドオン単体では動作しません。右上のGitHubのページのtos_google_translate内のREADMEを読んでご使用ください。Lightweighted operation.Automatically translates chats. The add-on does not work by itself. Please read the README in tos_google_translate on the GitHub page on the upper right.동작 경량화 완료.채팅을 자동 번역합니다. 애드온 단독으로는 작동하지 않습니다. 우측 상단의 GitHub 페이지 tos_google_translate 내 README를 읽고 사용하시기 바랍니다.",
+		"description" : "exe file storage[https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate]チャットを自動翻訳します。アドオン単体では動作しません。右上のGitHubのページのtos_google_translate内のREADMEを読んでご使用ください。Automatically translates chats. The add-on does not work by itself. Please read the README in tos_google_translate on the GitHub page on the upper right. 애드온 단독으로는 작동하지 않습니다. 우측 상단의 GitHub 페이지 tos_google_translate 내 README를 읽고 사용하시기 바랍니다.",
 		"tags" : []
 	},		
 {

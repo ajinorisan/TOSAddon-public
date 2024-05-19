@@ -6,6 +6,7 @@
 -- v0.9.5 チャットオプションの表示非表示を切り替えたら激重になるのを修正
 -- v0.9.6 多分出来た。一旦安定版
 -- v0.9.7 再起動系のところバグってたの修正
+-- v0.9.8 フレーム消えてたの修正
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -835,7 +836,7 @@ function tos_google_translate_start()
         end
         local new_entry = string.format(
             '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}', "1", "System",
-            "Tos Google Translate 0.9.7 Startup Test", "", "", "en")
+            "Tos Google Translate Version 0.9.8 Startup Test", "", "", "en")
 
         local send = io.open(g.sendFileLoc, "w")
         if send then
@@ -857,6 +858,7 @@ function tos_google_translate_start()
         DebounceScript("tos_google_translate_exe_start", 1.0)
 
     end
+    tos_google_translate_frame_init()
 
 end
 
@@ -870,7 +872,7 @@ function tos_google_translate_exe_start()
         os.execute(command)
 
         g.loaded = true
-        tos_google_translate_frame_init()
+        -- tos_google_translate_frame_init()
 
     else
         ui.SysMsg(tos_google_translate_lang("[Tos Google Translate]{nl}" ..
