@@ -42,7 +42,7 @@
 		"name" : "Other Character Skill List",
 		"file" : "other_character_skill_list",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.3",
+		"fileVersion" : "v1.0.5",
 		"releaseTag" : "other_character_skill_list",
 		"unicode" : "⛄",
 		"description" : "各キャラの錬成スキルを一覧表示。エンブレムやレジェンドカード、ゴッデスカードなどの装備状況も表示します。一度、該当キャラでログインしてインベントリを開ける必要があります。Lists the alchemy skills of each character. It also displays the equipment status of emblems, legend cards, goddess cards, etc. You must log in once with the relevant character to open the inventory.각 캐릭터의 연성 스킬을 나열합니다. 엠블럼, 레전드 카드, 갓데스 카드 등의 장비 상태도 표시됩니다. 해당 캐릭터로 로그인하여 인벤토리를 열어야 합니다.",
