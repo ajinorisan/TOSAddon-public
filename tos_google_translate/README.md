@@ -60,7 +60,7 @@ If tos_google_translate-v1.0.1.exe is created in the following location, it was 
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior\addons\tos_google_translate\tos_google_translate\tos_google _translate-v1.0.1.exe
 
-! [240519-1tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b364c215-c92c-4b8e-8bfa-1a6f4e5801b1)
+![240519-1tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b364c215-c92c-4b8e-8bfa-1a6f4e5801b1)
 
 Start ToS.
 
@@ -100,7 +100,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Kor)\addons\tos_go
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (kor)\addons\tos_google_translate\tos_google_translate\tos_google _translate-v1.0.1.exe
 
-! [240519-1tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b364c215-c92c-4b8e-8bfa-1a6f4e5801b1)
+![240519-1tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b364c215-c92c-4b8e-8bfa-1a6f4e5801b1)
 
 ToS를 실행합니다.
 
