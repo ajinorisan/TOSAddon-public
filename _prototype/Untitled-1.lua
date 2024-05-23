@@ -1,36 +1,36 @@
-g.first = 0 -- バラックを選ぶために一度0から始める。
+acutil.setupEvent(addon, "ON_OPEN_ACCOUNTWAREHOUSE", "another_warehouse_get_itemlist")
 
--- hidelogin
-local frame = ui.GetFrame("barrack_charlist")
-if frame == nil then
-    return;
-end
+function another_warehouse_get_itemlist()
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local sortedCnt = sortedGuidList:Count();
+    local temp_warehouse = {}
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i);
+        local Item = itemList:GetItemByGuid(guid);
+        local obj = GetIES(Item:GetObject())
+        if obj.ClassName == MONEY_NAME then
+            temp_warehouse[0] = {
+                clsid = obj.ClassID,
+                clsname = obj.ClassName,
+                count = Item.count,
+                iesid = Item:GetIESID()
+            }
+        else
+            temp_warehouse[i + 1] = {
+                clsid = obj.ClassID,
+                clsname = obj.ClassName,
+                count = Item.count,
+                iesid = Item:GetIESID()
+            }
+        end
+    end
 
-local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
-hidelogin:SetCheck(1);
+    -- temp_warehouseの中身を表示する
+    for index, item in pairs(temp_warehouse) do
+        print(string.format("Index: %d, ClassID: %d, ClassName: %s, Count: %d, IESID: %s", index, item.clsid,
+                            item.clsname, item.count, item.iesid))
+    end
 
--- ON_INIT
-acutil.setupEvent(addon, "SELECT_BARRACK_LAYER", "ADDONNAME_SELECT_BARRACK_LAYER") -- 強制的に選択時に呼び出し
-
-function ADDONNAME_SELECT_BARRACK_LAYER(frame, msg)
-
-    local frame = ui.GetFrame("barrack_charlist")
-    local ctrl, arg, layer = acutil.getEventArgs(msg)
-    local before = frame:GetUserValue("SelectBarrackLayer")
-
-end
-
-local accountInfo = session.barrack.GetMyAccount();
-local cnt = accountInfo:GetPCCount();
-for i = 0, cnt - 1 do
-    local pcInfo = accountInfo:GetPCByIndex(i);
-    local pcCid = pcInfo:GetCID();
-    local pcApc = pcInfo:GetApc();
-    local pcName = pcApc:GetName()
-    --[[local pcApc = pcInfo:GetApc();
-    local pcCid = pcInfo:GetCID();
-    if pcCid ~= cid and pcApc:GetName() == changedName then
-        ui.SysMsg(ClMsg("AlreadyorImpossibleName"));
-        return;
-    end]]
 end
