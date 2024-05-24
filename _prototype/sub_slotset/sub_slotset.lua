@@ -26,7 +26,7 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
-function MARKET_SELLLIST_ON_INIT(addon, frame)
+function SUB_SLOTSET_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
