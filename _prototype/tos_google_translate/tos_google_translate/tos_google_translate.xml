@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<uiframe name="tos_google_translate" x="0" y="0" width="10" height="10" create="open">
-  
-  <timer name="addontimer" rect="0 0 10 10" margin="0 0 0 0" layout_gravity="left top"/>
-  <option visible="true" closebutton="false" autoopen="true" hideable="false"/>
-  <input moveable="true" hittestframe="true"/>
-  <controls>
-  </controls>
-</uiframe>
