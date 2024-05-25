@@ -8,10 +8,11 @@
 -- v0.9.7 再起動系のところバグってたの修正
 -- v0.9.8 フレーム消えてたの修正
 -- v0.9.9 置き換えモード追加
+-- v1.0.0 パーティーメンバーの翻訳が上手くいかなかったのを修正
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.9.9"
+local ver = "1.0.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1185,8 +1186,7 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
     local mapName = geMapTable.GetMapName(partyMemberInfo:GetMapID());
     local partyMemberName = partyMemberInfo:GetName()
 
-    -- tos_google_translate_load_names_table()
-
+    tos_google_translate_load_names_table()
     if g.names[partyMemberName] then
         partyMemberName = g.names[partyMemberName]
     end

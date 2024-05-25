@@ -3,10 +3,11 @@
 -- v1.0.3 読み込み早くしたつもり。自分では何も感じない。回線のせいか？
 -- v1.0.4 3回目以降のCCはキャラクターリストを読み込まない様に変更
 -- v1.0.5 書き直した。高速化したはず。
+-- v1.0.6 instantcc使ってたら順番バグるの修正。フレーム開ける時に読み込みに変更。
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -146,12 +147,12 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
 
         -- other_character_skill_list_load_settings()
-        addon:RegisterMsg("GAME_START", "other_character_skill_list_load_settings")
+        -- addon:RegisterMsg("GAME_START", "other_character_skill_list_load_settings")
         addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_frame_init")
         -- addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_sort")
         acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_skill_list_INVENTORY_OPEN")
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_skill_list_INVENTORY_CLOSE")
-        addon:RegisterMsg("BARRACK_SELECTCHARACTER", "other_character_skill_list_SELECTTEAM_ON_MSG");
+        -- addon:RegisterMsg("BARRACK_SELECTCHARACTER", "other_character_skill_list_SELECTTEAM_ON_MSG");
         g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
 
     end
@@ -326,7 +327,8 @@ function other_character_skill_list_sort()
     table.sort(characterList, sortByLayerAndOrder)
 
     g.characters = characterList
-
+    g.layer = nil
+    other_character_skill_list_frame_open()
     -- g.characters の中身を表示
     --[[for i, charData in ipairs(g.characters) do
         print(string.format("Character %d:", i))
@@ -466,7 +468,9 @@ function other_character_skill_list_frame_init()
     AUTO_CAST(btn)
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_friend 35 35}")
-    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_frame_open")
+
+    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_load_settings")
+    -- btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_frame_open")
     btn:SetTextTooltip("Other Character Skill List")
 
 end
