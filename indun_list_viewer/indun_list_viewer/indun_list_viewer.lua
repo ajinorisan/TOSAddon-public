@@ -10,10 +10,11 @@
 -- v1.0.9 ICC入れてる時に職アイコンでCC出来る様に。自前でキャラ順並べる様に。
 -- v1.1.0 ICCあるなし判定バグってたの修正
 -- v1.1.1 一部のユーザーで開く時重いの修正したい。僕はならない。なんでや。
+-- v1.1.2 スクロールモードを選べる様に。職アイコンを代表キャラに。フレーム閉じた時にボタン消えるバグ修正。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -199,6 +200,24 @@ function indun_list_viewer_instantcc()
 
 end
 
+function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
+    -- print(tostring(selectedKey))
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+    -- print(LoginName)
+    for _, charData in ipairs(g.settings.charactors) do
+        if charData.name == LoginName then
+            -- nameが一致する場合にjobidを更新
+            charData.jobid = tonumber(selectedKey)
+            -- print(string.format("Updated jobid for character '%s' to %d", charData.name, selectedKey))
+            indun_list_viewer_save_settings()
+            break
+        end
+    end
+
+    ChangeRepresentationClass(selectedKey);
+    -- base["STATUS_SELET_REPRESENTATION_CLASS"](selectedIndex, selectedKey)
+end
+
 g.first = 0
 function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
@@ -220,7 +239,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
         addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
         addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
         addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_count_loginname")
-
+        g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
         local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
             -- print(functionName .. " 関数は定義されています。")
@@ -546,7 +565,8 @@ function indun_list_viewer_title_frame_open()
     AUTO_CAST(icframe)
     icframe:RemoveAllChild()
 
-    icframe:SetLayerLevel(107);
+    icframe:SetLayerLevel(99);
+
     local titlegb = icframe:CreateOrGetControl("groupbox", "titlegb", 0, 0, 10, 10)
     AUTO_CAST(titlegb)
     titlegb:SetSkinName("bg")
@@ -623,13 +643,20 @@ function indun_list_viewer_title_frame_open()
 
     local mapframe = ui.GetFrame('worldmap2_mainmap')
     local screenWidth = mapframe:GetWidth()
-    local frameWidth = 800 + 70
+    local frameWidth = 900 + 70
     -- local x = (screenWidth - frameWidth) / 2
 
     icframe:SetSkinName("bg")
-    -- icframe:SetPos(x, 5)
-    icframe:SetPos(665, 5)
-    titlegb:Resize(800 + 70, 55)
+    if g.settings.mode == nil then
+        g.settings.mode = 0
+    end
+    -- icframe:SetSkinName("chat_window")
+    if g.settings.mode == 1 then
+        icframe:SetPos(665, 35)
+    else
+        icframe:SetPos(665, 5)
+    end
+    titlegb:Resize(900 + 70, 55)
 
     titlegb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
     titlegb:SetTextTooltip("右クリックで閉じます。{nl}Right-click to close.")
@@ -647,11 +674,19 @@ function indun_list_viewer_title_frame_open()
     ccbtn:SetText("{img barrack_button_normal 30 30}")
     ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
-    local memo_text = titlegb:CreateOrGetControl("richtext", "memo_text", 650 + 70, 35)
+    local mode_check = titlegb:CreateOrGetControl('checkbox', 'mode_check', 80, 5, 30, 30)
+    AUTO_CAST(mode_check)
+
+    mode_check:SetCheck(g.settings.mode)
+    mode_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
+    mode_check:SetTextTooltip(
+        "チェックを入れるとスクロールモードに切替{nl}Switch to scroll mode when checked")
+
+    local memo_text = titlegb:CreateOrGetControl("richtext", "memo_text", 700 + 70, 35)
     AUTO_CAST(memo_text)
     memo_text:SetText("{ol}Memo")
 
-    local display_text = titlegb:CreateOrGetControl("richtext", "display_text", 720 + 70, 35)
+    local display_text = titlegb:CreateOrGetControl("richtext", "display_text", 820 + 70, 35)
     AUTO_CAST(display_text)
     display_text:SetText("{ol}Display")
     display_text:SetTextTooltip(
@@ -660,6 +695,13 @@ function indun_list_viewer_title_frame_open()
     icframe:ShowWindow(1)
 
     indun_list_viewer_frame_open(icframe)
+end
+
+function indun_list_viewer_modechange(frame, ctrl, argStr, argNum)
+    local ischeck = ctrl:IsChecked()
+    g.settings.mode = ischeck
+
+    indun_list_viewer_save_settings()
 end
 
 function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
@@ -676,53 +718,56 @@ function indun_list_viewer_frame_open(icframe)
     AUTO_CAST(gb)
     gb:SetSkinName("bg")
     gb:SetColorTone("FF000000");
-
-    -- icframe:Resize(800 + 70, 1000 + 70)
-    -- gb:Resize(800 + 70, 1000 + 15)
-
-    -- g.settings.charactorsをlayerとorderで昇順にソートする
+    -- gb:SetSkinName("chat_window")
 
     local myHandle = session.GetMyHandle();
     local myCharName = info.GetName(myHandle)
     local x = 6
 
     for _, charData in ipairs(g.settings.charactors) do
-
         local pcName = charData.name
+        local cid = charData.cid
 
-        local jobList, level, lastJobID = GetJobListFromAdventureBookCharData(pcName);
-        local lastJobCls = GetClassByType("Job", lastJobID);
-        local lastJobIcon = TryGetProp(lastJobCls, "Icon");
+        local lastJobCls
+        -- 初期のジョブ情報を取得
+        local jobList, level, lastJobID = GetJobListFromAdventureBookCharData(pcName)
+        if charData.jobid == nil then
+            lastJobCls = GetClassByType("Job", lastJobID)
+        else
+            lastJobCls = GetClassByType("Job", charData.jobid)
+        end
+        local jobname = TryGetProp(lastJobCls, "Name")
+        -- jobname = GET_JOB_NAME(lastJobCls, gender) -- ジョブ名を更新
+
+        local lastJobIcon = TryGetProp(lastJobCls, "Icon")
+
+        -- jobslotを作成
         local jobslot = gb:CreateOrGetControl("slot", "jobslot" .. pcName, 5, x - 4, 25, 25)
         AUTO_CAST(jobslot)
-        jobslot:SetSkinName("None");
+        jobslot:SetSkinName("None")
         jobslot:EnableHitTest(1)
         jobslot:EnablePop(0)
 
-        local jobicon = CreateIcon(jobslot);
+        -- jobslotにアイコンを設定
+        local jobicon = CreateIcon(jobslot)
         jobicon:SetImage(lastJobIcon)
 
         local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
 
-            --[[local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
-            ic.settingsFileLoc = string.format('../addons/%s/settings.json', "instantcc")
-            ic.settings = acutil.loadJSON(ic.settingsFileLoc, ic.settings)
-            local charactors = ic.settings.charactors]]
-
-            -- for _, char in pairs(charactors) do
             if charData.name == pcName then
 
                 jobicon:SetTextTooltip(
-                    "Click on the icon to change the character.{nl}アイコンクリックでキャラクターチェンジします")
+                    "Click on the icon to change the character.{nl}アイコンクリックでキャラクターチェンジします" ..
+                        "{nl} {nl}" .. "{ol}" .. jobname)
                 jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
 
                 jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, charData.cid)
 
                 jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, charData.layer)
             end
-            -- end
-
+        else
+            jobicon:SetTextTooltip("{ol}" .. jobname)
         end
 
         local name = gb:CreateOrGetControl("richtext", charData.name, 35, x)
@@ -734,7 +779,7 @@ function indun_list_viewer_frame_open(icframe)
             name:SetText("{ol}" .. pcName)
         end
 
-        local line = gb:CreateOrGetControl("labelline", "line" .. pcName, 30, x - 7, 750 + 70, 2)
+        local line = gb:CreateOrGetControl("labelline", "line" .. pcName, 30, x - 7, 850 + 60, 2)
         line:SetSkinName("labelline_def_3")
         if charData.check == 0 then
             local Slogutis_hard = gb:CreateOrGetControl("richtext", "Slogutis_hard" .. pcName, 175, x)
@@ -974,7 +1019,7 @@ function indun_list_viewer_frame_open(icframe)
                 end
             end
         end
-        local memo = gb:CreateOrGetControl('edit', 'memo' .. pcName, 630 + 70 + 5, x - 5, 100, 25)
+        local memo = gb:CreateOrGetControl('edit', 'memo' .. pcName, 630 + 70 + 5, x - 5, 200, 25)
         AUTO_CAST(memo)
         memo:SetFontName("white_14_ol")
         memo:SetTextAlign("left", "center")
@@ -989,7 +1034,7 @@ function indun_list_viewer_frame_open(icframe)
 
         memo:SetText(memoData)
 
-        local display = gb:CreateOrGetControl('checkbox', 'display' .. pcName, 740 + 70, x - 5, 25, 25)
+        local display = gb:CreateOrGetControl('checkbox', 'display' .. pcName, 840 + 70, x - 5, 25, 25)
         AUTO_CAST(display)
         display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
         display:SetEventScriptArgString(ui.LBUTTONUP, pcName)
@@ -1003,17 +1048,24 @@ function indun_list_viewer_frame_open(icframe)
     local cnt = #g.settings.charactors
     local framex = cnt * 25
 
-    icframe:Resize(800 + 70, framex + 70)
-    gb:Resize(800 + 70, framex + 15)
+    -- icframe:Resize(900 + 70, framex + 70)
+    icframe:Resize(900 + 70, framex + 70)
+    gb:Resize(900 + 70, framex + 15)
     gb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
     gb:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
-
+    if g.settings.mode == 1 then
+        icframe:Resize(900 + 70, framex / 2 + 70 + 185)
+        gb:Resize(900 + 70, framex / 2 + 15 + 175)
+    else
+        gb:Resize(900 + 70, framex + 15)
+    end
     icframe:ShowWindow(1)
 
 end
 
 function indun_list_viewer_close(frame)
-    local topframe = frame:GetTopParentFrame();
+    -- local icframe = ui.GetFrame("icframe")
+    local topframe = ui.GetFrame("icframe")
     topframe:ShowWindow(0)
 
 end
