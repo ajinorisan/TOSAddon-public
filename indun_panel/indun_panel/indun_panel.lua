@@ -31,10 +31,11 @@
 -- v1.3.1 レイヤー見直した。やっぱり前までが良いよね。
 -- v1.3.2 メレジナハード、シーズンチャレンジ追加
 -- v1.3.3 チャレンジ券と分裂券と真摯に向き合った。優先順位とか変更した。
+-- v1.3.4 メレジナ、スロガ、ウピニスの自動チケットを使うボタンを付けた。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.3"
+local ver = "1.3.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -145,6 +146,10 @@ function INDUN_PANEL_LANG(str)
             str = "優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}" ..
                       "3.期限のないイベントチケット{nl}4.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います){nl}" ..
                       "5.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}{img pvpmine_shop_btn_total 20 20}このチケットで分裂券作れるで!"
+        end
+        -- "There are no ticket items in inventory."
+        if str == tostring("There are no ticket items in inventory.") then
+            str = "(自動マッチング/1人)入場券を持っていません。"
         end
         return "{s16}" .. str
     end
@@ -668,17 +673,17 @@ function indun_panel_init(ipframe)
 
     end
 
-    local checkbox = ipframe:CreateOrGetControl('checkbox', 'checkbox', 585, 5, 30, 30)
+    local checkbox = ipframe:CreateOrGetControl('checkbox', 'checkbox', 665, 5, 30, 30)
     tolua.cast(checkbox, 'ui::CCheckBox')
     checkbox:SetCheck(g.settings.checkbox)
     checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
     checkbox:SetTextTooltip("チェックすると常時展開{nl}IsCheck AlwaysOpen")
 
-    local pvpmine = ipframe:CreateOrGetControl("richtext", "pvpmine", 440, 10)
+    local pvpmine = ipframe:CreateOrGetControl("richtext", "pvpmine", 520, 10)
     pvpmine:SetText("{img pvpmine_shop_btn_total 25 25}")
     pvpmine:SetTextTooltip("傭兵団コイン数量 Mercenary Badge count")
 
-    local pvpminecount = ipframe:CreateOrGetControl("richtext", "pvpminecount", 470, 10)
+    local pvpminecount = ipframe:CreateOrGetControl("richtext", "pvpminecount", 550, 10)
     pvpminecount:SetText(string.format("{ol}{#FFD900}{s20}%s", GET_COMMAED_STRING(indun_panel_pvpmaine_count())))
 
     local y = 45
@@ -744,7 +749,7 @@ function indun_panel_init(ipframe)
         end
     end
     ipframe:SetLayerLevel(80)
-    ipframe:Resize(x + 490, y + 5)
+    ipframe:Resize(x + 570, y + 5)
     -- ipframe:SetSkinName("bg")
     ipframe:SetSkinName("chat_window_2")
 
@@ -1271,6 +1276,7 @@ function indun_panel_create_frame(ipframe, key, subKey, subValue, y)
 
     else
 
+        -- print("test")
         if subKey == "s" then
             count:SetText("{ol}{#FFFFFF}{s16}(" ..
                               GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
@@ -1294,6 +1300,36 @@ function indun_panel_create_frame(ipframe, key, subKey, subValue, y)
     end
 end
 
+function indun_panel_raid_itemuse(frame, ctrl, argStr, argNum)
+    -- print(argNum)
+    local raidTable = {
+        [695] = {11200356, 11200355, 11200354},
+        [688] = {11200290, 10820036, 11200289, 11200288},
+        [685] = {11200281, 10820035, 11200280, 11200279}
+    }
+
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
+    local targetItems = raidTable[argNum]
+
+    if targetItems then
+        for _, targetClassID in ipairs(targetItems) do
+            for i = 0, cnt - 1 do
+                local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+                local classid = itemobj.ClassID
+
+                if classid == targetClassID then
+                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    return
+                end
+            end
+        end
+    end
+    ui.SysMsg(INDUN_PANEL_LANG("There are no ticket items in inventory."))
+end
+
 function indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y, x)
 
     local solo = ipframe:CreateOrGetControl('button', key .. "solo", x, y, 80, 30)
@@ -1303,6 +1339,36 @@ function indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y, x)
     local counthard = ipframe:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5, 50, 30)
     local sweep = ipframe:CreateOrGetControl('button', key .. "sweep", x + 355, y, 80, 30)
     local sweepcount = ipframe:CreateOrGetControl("richtext", key .. "sweepcount", x + 440, y + 5, 50, 30)
+    -- 695 メレジナ -- 688 スロガ -- 685 ウピ
+    if subValue == 695 or subValue == 688 or subValue == 685 then
+        -- print(key .. ":" .. subValue)
+        local use = ipframe:CreateOrGetControl('button', key .. "use", x + 480, y, 80, 30)
+        AUTO_CAST(use)
+        use:SetText("{ol}{#EE7800}USE")
+        if subValue == 695 then
+            local itemClass = GetClassByType('Item', 11200355)
+            local icon = itemClass.Icon
+
+            use:SetTextTooltip("{img " .. icon .. " 25 25 } Use")
+            use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
+            use:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
+        elseif subValue == 688 then
+            local itemClass = GetClassByType('Item', 11200289)
+            local icon = itemClass.Icon
+
+            use:SetTextTooltip("{img " .. icon .. " 25 25 } Use")
+            use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
+            use:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
+        elseif subValue == 685 then
+            local itemClass = GetClassByType('Item', 11200280)
+            local icon = itemClass.Icon
+
+            use:SetTextTooltip("{img " .. icon .. " 25 25 } Use")
+            use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
+            use:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
+        end
+
+    end
 
     solo:SetText("{ol}SOLO")
     auto:SetText("{ol}{#FFD900}AUTO")

@@ -9,10 +9,11 @@
 -- v0.9.8 フレーム消えてたの修正
 -- v0.9.9 置き換えモード追加
 -- v1.0.0 パーティーメンバーの翻訳が上手くいかなかったのを修正
+-- v1.0.1 別フレームモードバグ修正
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -984,7 +985,7 @@ function tos_google_translate_chat_ctrl(groupbox, chatCtrl, label, txt, timeCtrl
     txt:SetText(txt:GetText())
     label:Resize(chatWidth - offsetX, txt:GetHeight())
     chatCtrl:Resize(chatWidth, label:GetHeight())
-    -- g.ypos = g.ypos + label:GetHeight()
+    g.ypos = g.ypos + label:GetHeight()
     local scrollend = tos_google_translate_get_curline()
     if scrollend then
         groupbox:SetScrollPos(99999)
