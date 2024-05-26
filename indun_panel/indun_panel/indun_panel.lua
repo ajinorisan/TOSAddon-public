@@ -30,10 +30,11 @@
 -- v1.3.0 ギルティネとイヤリングとファロウロスハードバグってたの修正
 -- v1.3.1 レイヤー見直した。やっぱり前までが良いよね。
 -- v1.3.2 メレジナハード、シーズンチャレンジ追加
+-- v1.3.3 チャレンジ券と分裂券と真摯に向き合った。優先順位とか変更した。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.2"
+local ver = "1.3.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -133,10 +134,17 @@ function INDUN_PANEL_LANG(str)
         if str == tostring("season") then
             str = "シーズンチャレンジ"
         end
-        if str == tostring(
-            "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due") then
-            str =
-                "優先順位{nl}1.24時間以内の期限付きチケット{nl}2.傭兵団コインチケット(コインで買って使います){nl}3.期限付きチケット"
+        if str == tostring("priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                               "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))") then
+            str = "優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}" ..
+                      "3.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}4.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います)"
+        end
+        if str == tostring("priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                               "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
+                               "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))") then
+            str = "優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}" ..
+                      "3.期限のないイベントチケット{nl}4.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います){nl}" ..
+                      "5.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}{img pvpmine_shop_btn_total 20 20}このチケットで分裂券作れるで!"
         end
         return "{s16}" .. str
     end
@@ -736,7 +744,7 @@ function indun_panel_init(ipframe)
         end
     end
     ipframe:SetLayerLevel(80)
-    ipframe:Resize(x + 480, y + 5)
+    ipframe:Resize(x + 490, y + 5)
     -- ipframe:SetSkinName("bg")
     ipframe:SetSkinName("chat_window_2")
 
@@ -881,8 +889,14 @@ function indun_panel_update_frame(frame)
         if g.settings.challenge_checkbox == 1 then
             local cha_ticketcount = GET_CHILD_RECURSIVELY(frame, "cha_ticketcount")
             local cha_count = GET_CHILD_RECURSIVELY(frame, "cha_count")
-            cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}(" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") .. "/" ..
-                                        INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_40") .. ")")
+
+            --[[cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
+                                        INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") .. "/" ..
+                                        INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_40") .. ")")]]
+            cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
+                                        INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") ..
+                                        " {img icon_item_Tos_Event_Coin 20 20}" ..
+                                        INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28") .. ")")
             cha_count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                   GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) .. "/" ..
                                   GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) .. ")")
@@ -893,8 +907,14 @@ function indun_panel_update_frame(frame)
 
             local sin_ticketcount = GET_CHILD_RECURSIVELY(frame, "sin_ticketcount")
             local sin_normal_count = GET_CHILD_RECURSIVELY(frame, "sin_normal_count")
-            sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}(d:" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") ..
-                                        "/w:" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") .. ")")
+            --[[sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}(d:" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") ..
+                                        "/w:" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") .. ")")]]
+
+            sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}d:" ..
+                                        INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. " w:" ..
+                                        INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") ..
+                                        " {img icon_item_Tos_Event_Coin 20 20}" ..
+                                        INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_27") .. ")")
             sin_normal_count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                          GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 647).PlayPerResetType) ..
                                          "" .. ")")
@@ -1119,8 +1139,12 @@ function indun_panel_singularity_frame(ipframe, key, y)
 
     local sin_ticket = ipframe:CreateOrGetControl('button', 'sin_ticket', 335, y, 80, 30)
     sin_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    sin_ticket:SetTextTooltip("{ol}" .. INDUN_PANEL_LANG(
-        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
+    --[[sin_ticket:SetTextTooltip("{ol}" .. INDUN_PANEL_LANG(
+        "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))"))]]
+    sin_ticket:SetTextTooltip("{ol}" ..
+                                  INDUN_PANEL_LANG(
+            "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))"))
     sin_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     sin_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
@@ -1129,10 +1153,13 @@ function indun_panel_singularity_frame(ipframe, key, y)
                                 INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") .. "/max:" ..
                                 (INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_41") +
                                     INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_42")) .. ")")]]
-    sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}(d:" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. "/w:" ..
-                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") .. ")")
+    sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}d:" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. " w:" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") ..
+                                " {img icon_item_Tos_Event_Coin 20 20}" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_27") .. ")")
 
-    local sin_check = ipframe:CreateOrGetControl("checkbox", "singularity_check", 500, y, 25, 25)
+    local sin_check = ipframe:CreateOrGetControl("checkbox", "singularity_check", 560, y, 25, 25)
     AUTO_CAST(sin_check)
     sin_check:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
     sin_check:SetTextTooltip("{ol}{チェックをすると自動マッチングボタンを押しません。{nl}}" ..
@@ -1163,20 +1190,29 @@ function indun_panel_challenge_frame(ipframe, key, y)
     chapt:SetEventScriptArgNumber(ui.LBUTTONUP, 646)
 
     local cha_count = ipframe:CreateOrGetControl("richtext", "cha_count", 390, y + 5, 40, 30)
+
     cha_count:SetText("{ol}{#FFFFFF}{s16}(" ..
                           GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) .. "/" ..
                           GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", 646).PlayPerResetType) .. ")")
 
     local cha_ticket = ipframe:CreateOrGetControl('button', 'cha_ticket', 435, y, 80, 30)
     cha_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    cha_ticket:SetTextTooltip("{ol}" .. INDUN_PANEL_LANG(
-        "Priority{nl}1. tickets due within 24 hours {nl}2. mercenary coin store tickets (buy and use) {nl}3. tickets due"))
+    cha_ticket:SetTextTooltip("{ol}" ..
+                                  INDUN_PANEL_LANG(
+            "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
+                "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))"))
     cha_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
     local cha_ticketcount = ipframe:CreateOrGetControl("richtext", "cha_ticketcount", 520, y + 5, 40, 30)
-    cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}(" .. INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") .. "/" ..
-                                INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_40") .. ")")
+    cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") ..
+                                " {img icon_item_Tos_Event_Coin 20 20}" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28") .. ")")
+    --[[cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") .. "/" ..
+                                INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT("PVP_MINE_40") .. ")")]]
 
 end
 
@@ -1565,7 +1601,332 @@ function indun_panel_sweep_count(buffid)
 
 end
 
+-- MAP切り替え時オートズーム
+function indun_panel_autozoom()
+    if g.settings.zoom ~= 0 then
+        camera.CustomZoom(tonumber(g.settings.zoom))
+    end
+end
+
+-- 起動時に当日分裂チケットが0の場合一度だけ作動
+function indunpanel_minimized_pvpmine_shop_init()
+
+    pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+    g.ex = 1
+
+    local frame = ui.GetFrame('earthtowershop')
+    frame:RunUpdateScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART", 0.5)
+
+end
+
+-- 当日分の分裂チケット更新のため、一度開く必要があるのでAM5時から6時の間で作動
+function indun_panel_time_update(frame)
+
+    local time = os.date("*t")
+    local hour = time.hour
+    local min = time.min
+
+    if hour >= 5 and hour <= 6 and g.ex == 1 then
+        pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
+
+        ReserveScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART()", 1.5)
+        g.ex = 2
+
+        return 0
+    end
+    return 1
+end
+
+function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART()
+    local shopframe = ui.GetFrame('earthtowershop')
+    if shopframe:IsVisible() == 1 then
+        ui.CloseFrame("earthtowershop")
+        return 0
+    else
+        return 1
+    end
+end
+
+function indun_panel_save_settings()
+
+    acutil.saveJSON(g.settingsFileLoc, g.settings);
+
+end
+
+function indun_panel_load_settings()
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+
+    if err then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    end
+    if not settings then
+        g.settings = {
+            checkbox = 0,
+            zoom = 336,
+            challenge_checkbox = 1,
+            singularity_checkbox = 1,
+            merregina_checkbox = 1,
+            slogutis_checkbox = 1,
+            upinis_checkbox = 1,
+            roze_checkbox = 1,
+            falouros_checkbox = 1,
+            spreader_checkbox = 1,
+            jellyzele_checkbox = 1,
+            delmore_checkbox = 1,
+            telharsha_checkbox = 1,
+            velnice_checkbox = 1,
+            giltine_checkbox = 1,
+            earring_checkbox = 1,
+            cemetery_checkbox = 1,
+            jsr_checkbox = 1,
+            singularity_check = 0,
+            en_ver = 0,
+            season_checkbox = 1
+
+        }
+        settings = g.settings
+        indun_panel_save_settings()
+    end
+
+    g.settings = settings
+
+end
+
 function indun_panel_item_use(frame, ctrl, argStr, argNum)
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
+
+    local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", argNum).PlayPerResetType)
+
+    if argNum == 647 then
+        indun_panel_handle_indun_647(invItemList, guidList, cnt, count, frame, ctrl, argNum)
+    elseif argNum == 644 then
+        indun_panel_handle_indun_644(invItemList, guidList, cnt, count, frame, ctrl, argNum)
+    end
+end
+
+function indun_panel_handle_indun_647(invItemList, guidList, cnt, count, frame, ctrl, argNum)
+    for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
+        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+
+        if life_time ~= nil then
+            if classid == 10820018 and count == 0 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030067 and count == 0 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 10820018 and count == 0 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            end
+        end
+    end
+
+    local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+    if dcount == 1 and count == 0 then
+        indun_panel_buyuse(frame, ctrl, "PVP_MINE_41", argNum)
+        return
+    end
+
+    local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+    if wcount >= 1 and count == 0 then
+        g.ex = 1
+        indun_panel_buyuse(frame, ctrl, "PVP_MINE_42", argNum)
+        return
+    end
+
+    local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
+    if mcount >= 1 and count == 0 then
+
+        indun_panel_buyuse(frame, ctrl, "EVENT_TOS_WHOLE_SHOP_28", argNum)
+        return
+    end
+
+    for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
+
+        if classid == 10000470 and count == 0 then
+            local msg = "It has no expiration date.{nl}Do you want to use it?"
+            local yesscp = string.format("INV_ICON_USE(session.GetInvItemByType(%d))", classid)
+            local msgbox = ui.MsgBox(msg, yesscp, '')
+
+            return
+
+        elseif classid == 11030021 and count == 0 then
+            local msg = "It has no expiration date.{nl}Do you want to use it?"
+            local yesscp = string.format("INV_ICON_USE(session.GetInvItemByType(%d))", classid)
+            local msgbox = ui.MsgBox(msg, yesscp, '')
+
+            return
+        elseif classid == 11030017 and count == 0 then
+            local msg = "It has no expiration date.{nl}Do you want to use it?"
+            local yesscp = string.format("INV_ICON_USE(session.GetInvItemByType(%d))", classid)
+            local msgbox = ui.MsgBox(msg, yesscp, '')
+
+            return
+        end
+    end
+end
+
+function indun_panel_handle_indun_644(invItemList, guidList, cnt, count, frame, ctrl, argNum)
+    for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
+        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+
+        if life_time ~= nil then
+            if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030080 and count == 1 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 641954 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030080 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 10820019 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            end
+        end
+        if classid == 10000073 and count == 1 then
+            INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+            return
+        end
+    end
+
+    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
+    if event_trade_count >= 1 and count == 1 then
+        indun_panel_buyuse(frame, ctrl, "EVENT_TOS_WHOLE_SHOP_28", argNum)
+        return
+    end
+
+    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+    if trade_count >= 1 and count == 1 then
+        indun_panel_buyuse(frame, ctrl, "PVP_MINE_40", argNum)
+        return
+    end
+end
+
+function indun_panel_buyuse(frame, ctrl, recipeName, indunType)
+    local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
+    local trade_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
+
+    if indunType == 201 then
+        if count == 1 and trade_count == 1 then
+            INDUN_PANEL_ITEM_BUY_USE(recipeName)
+        elseif count == 1 and trade_count == 0 then
+            local vel_recipecls = GetClass('ItemTradeShop', recipeName)
+            local vel_overbuy_max = TryGetProp(vel_recipecls, 'MaxOverBuyCount', 0)
+
+            if vel_overbuy_max >= 1 then
+                INDUN_PANEL_ITEM_BUY_USE(recipeName)
+                return
+            else
+                ui.SysMsg("No trade count.")
+                return
+            end
+        end
+    elseif indunType == 647 or indunType == 644 then
+        INDUN_PANEL_ITEM_BUY_USE(recipeName)
+    end
+end
+
+function INDUN_PANEL_ITEM_BUY_USE(recipeName)
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    session.ResetItemList()
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
+
+    if string.find(recipeName, "EVENT_TOS") then
+        item.DialogTransaction("EVENT_TOS_WHOLE_SHOP", itemlist, cntText)
+    else
+        item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
+    end
+
+    local itemCls = GetClass("Item", recipeCls.TargetItem)
+    ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID), 1)
+end
+
+function indun_panel_pvpmaine_count()
+    local aObj = GetMyAccountObj()
+    local coincount = TryGetProp(aObj, "MISC_PVP_MINE2", '0')
+    if coincount == 'None' then
+        coincount = '0'
+    end
+    return coincount
+end
+
+function indun_panel_overbuy_count()
+    local aObj = GetMyAccountObj()
+    local recipecls = GetClass('ItemTradeShop', "PVP_MINE_52")
+    local overbuy_max = TryGetProp(recipecls, 'MaxOverBuyCount', 0)
+    local overbuy_prop = TryGetProp(recipecls, 'OverBuyProperty', 'None')
+    local overbuy_count = TryGetProp(aObj, overbuy_prop, 0)
+    return tonumber(overbuy_max) - tonumber(overbuy_count)
+end
+
+function indun_panel_overbuy_amount()
+    local aObj = GetMyAccountObj()
+    local recipecls = GetClass('ItemTradeShop', "PVP_MINE_52")
+    local overbuy_count = TryGetProp(aObj, TryGetProp(recipecls, 'OverBuyProperty', 'None'), 0)
+    if INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_52") == 1 and overbuy_count == 0 then
+        return 1000
+    elseif overbuy_count >= 0 then
+        return overbuy_count * 50 + 1050
+    end
+    return 0
+end
+
+function INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    if recipeCls.NeedProperty ~= "None" and recipeCls.NeedProperty ~= "" then
+        local sCount = TryGetProp(GetSessionObject(GetMyPCObject(), "ssn_shop"), recipeCls.NeedProperty)
+        if sCount then
+            return sCount
+        end
+    end
+
+    if recipeCls.AccountNeedProperty ~= "None" and recipeCls.AccountNeedProperty ~= "" then
+        local sCount = TryGetProp(GetMyAccountObj(), recipeCls.AccountNeedProperty)
+        if sCount then
+            return sCount
+        end
+    end
+    return nil
+end
+
+function INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT(recipeName)
+    local recipeCls = GetClass("ItemTradeShop", recipeName)
+    local accountCls = GetClassByType("Account", 1)
+    if recipeCls.NeedProperty ~= "None" and recipeCls.NeedProperty ~= "" then
+        local sCount = TryGetProp(accountCls, recipeCls.NeedProperty)
+        if sCount then
+            return sCount
+        end
+    end
+
+    if recipeCls.AccountNeedProperty ~= "None" and recipeCls.AccountNeedProperty ~= "" then
+        local sCount = TryGetProp(accountCls, recipeCls.AccountNeedProperty)
+        if sCount then
+            return sCount
+        end
+    end
+    return nil
+end
+--[[function indun_panel_item_use(frame, ctrl, argStr, argNum)
 
     session.ResetItemList()
     local invItemList = session.GetInvItemList()
@@ -1577,100 +1938,112 @@ function indun_panel_item_use(frame, ctrl, argStr, argNum)
     if argNum == 647 then
 
         for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
+        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
 
-            if life_time ~= nil then
-
-                if classid == 10820018 and count == 0 and tonumber(life_time) < 86400 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-
-                if classid == 11030067 and count == 0 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-            end
-        end
-
-        local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-        if dcount == 1 and count == 0 then
-            indun_panel_buyuse(frame, ctrl, "PVP_MINE_41", argNum)
-            return
-        end
-
-        local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
-        if wcount >= 1 and count == 0 then
-            g.ex = 1
-            indun_panel_buyuse(frame, ctrl, "PVP_MINE_42", argNum)
-            return
-        end
-
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-
-            if classid == 10820018 and count == 0 then
+        if life_time ~= nil then
+            if classid == 10820018 and count == 0 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030067 and count == 0 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 10820018 and count == 0 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                 return
             end
-
         end
+    end
 
+    local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+    if dcount == 1 and count == 0 then
+        indun_panel_buyuse(frame, ctrl, "PVP_MINE_41", argNum)
+        return
+    end
+
+    local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+    if wcount >= 1 and count == 0 then
+        g.ex = 1
+        indun_panel_buyuse(frame, ctrl, "PVP_MINE_42", argNum)
+        return
+    end
+
+    local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
+    if mcount >= 1 and count == 0 then
+
+        indun_panel_buyuse(frame, ctrl, "EVENT_TOS_WHOLE_SHOP_28", argNum)
+        return
+    end
+
+    for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
+
+        if classid == 10000470 and count == 0 then
+            local msg = "It has no expiration date.{nl}Do you want to use it?"
+            local yesscp = string.format("INV_ICON_USE(session.GetInvItemByType(%d))", classid)
+            local msgbox = ui.MsgBox(msg, yesscp, '')
+
+            return
+
+        elseif classid == 11030021 and count == 0 then
+            local msg = "It has no expiration date.{nl}Do you want to use it?"
+            local yesscp = string.format("INV_ICON_USE(session.GetInvItemByType(%d))", classid)
+            local msgbox = ui.MsgBox(msg, yesscp, '')
+
+            return
+        elseif classid == 11030017 and count == 0 then
+            local msg = "It has no expiration date.{nl}Do you want to use it?"
+            local yesscp = string.format("INV_ICON_USE(session.GetInvItemByType(%d))", classid)
+            local msgbox = ui.MsgBox(msg, yesscp, '')
+
+            return
+        end
+    end
     elseif argNum == 644 then
 
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-            local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+         for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
+        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
 
-            if life_time ~= nil then
-                if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-
-                if classid == 641954 and count == 1 then
-
-                    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                    return
-                end
-            end
-            if classid == 10000073 and count == 1 then
+        if life_time ~= nil then
+            if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030080 and count == 1 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 641954 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030080 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 10820019 and count == 1 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                 return
             end
         end
-
-        local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
-        if trade_count >= 1 and count == 1 then
-            -- print(tostring(argNum))
-            indun_panel_buyuse(frame, ctrl, "PVP_MINE_40", argNum)
+        if classid == 10000073 and count == 1 then
+            INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
             return
         end
+    end
 
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i);
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local classid = itemobj.ClassID
-            if classid == 10820019 and count == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            end
-        end
+    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
+    if event_trade_count >= 1 and count == 1 then
+        indun_panel_buyuse(frame, ctrl, "EVENT_TOS_WHOLE_SHOP_28", argNum)
+        return
+    end
 
+    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+    if trade_count >= 1 and count == 1 then
+        indun_panel_buyuse(frame, ctrl, "PVP_MINE_40", argNum)
+        return
+    end
+       
     end
 
 end
@@ -1821,98 +2194,4 @@ function INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT(recipeName)
         end
     end
     return nil
-end
-
--- MAP切り替え時オートズーム
-function indun_panel_autozoom()
-    if g.settings.zoom ~= 0 then
-        camera.CustomZoom(tonumber(g.settings.zoom))
-    end
-end
-
--- 起動時に当日分裂チケットが0の場合一度だけ作動
-function indunpanel_minimized_pvpmine_shop_init()
-
-    pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
-    g.ex = 1
-
-    local frame = ui.GetFrame('earthtowershop')
-    frame:RunUpdateScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART", 0.5)
-
-end
-
--- 当日分の分裂チケット更新のため、一度開く必要があるのでAM5時から6時の間で作動
-function indun_panel_time_update(frame)
-
-    local time = os.date("*t")
-    local hour = time.hour
-    local min = time.min
-
-    if hour >= 5 and hour <= 6 and g.ex == 1 then
-        pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
-
-        ReserveScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART()", 1.5)
-        g.ex = 2
-
-        return 0
-    end
-    return 1
-end
-
-function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART()
-    local shopframe = ui.GetFrame('earthtowershop')
-    if shopframe:IsVisible() == 1 then
-        ui.CloseFrame("earthtowershop")
-        return 0
-    else
-        return 1
-    end
-end
-
-function indun_panel_save_settings()
-
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
-
-end
-
-function indun_panel_load_settings()
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
-    if not settings then
-        g.settings = {
-            checkbox = 0,
-            zoom = 336,
-            challenge_checkbox = 1,
-            singularity_checkbox = 1,
-            merregina_checkbox = 1,
-            slogutis_checkbox = 1,
-            upinis_checkbox = 1,
-            roze_checkbox = 1,
-            falouros_checkbox = 1,
-            spreader_checkbox = 1,
-            jellyzele_checkbox = 1,
-            delmore_checkbox = 1,
-            telharsha_checkbox = 1,
-            velnice_checkbox = 1,
-            giltine_checkbox = 1,
-            earring_checkbox = 1,
-            cemetery_checkbox = 1,
-            jsr_checkbox = 1,
-            singularity_check = 0,
-            en_ver = 0,
-            season_checkbox = 1
-
-        }
-        settings = g.settings
-        indun_panel_save_settings()
-    end
-
-    g.settings = settings
-
-end
-
+end]]
