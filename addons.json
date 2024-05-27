@@ -192,7 +192,7 @@
 		"name" : "Indun Panel",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.3.5",
+		"fileVersion" : "v1.3.6",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "チャレンジやレイドに入る支援パネルを設置します。1.3.5以降レイドチケットを使う挙動を最適化しました。Support panels to enter challenges and raids. optimized the behavior of using raid tickets since 1.3.5.1.3.5 이후 레이드 티켓 사용 시 레이드 입장 지원 패널을 추가하고, 레이드 티켓을 사용하는 동작을 최적화했습니다.",
