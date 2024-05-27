@@ -33,10 +33,11 @@
 -- v1.3.3 チャレンジ券と分裂券と真摯に向き合った。優先順位とか変更した。
 -- v1.3.4 メレジナ、スロガ、ウピニスの自動チケットを使うボタンを付けた。
 -- v1.3.5 掃討バフある場合、自動でアイテム使って掃討する様に変更
+-- v1.3.6 TOSショップの分裂を好感したいのにチャレンジ券交換していたバグ修正。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.5"
+local ver = "1.3.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1866,10 +1867,10 @@ function indun_panel_handle_indun_647(invItemList, guidList, cnt, count, frame, 
         return
     end
 
-    local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
+    local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_27")
     if mcount >= 1 and count == 0 then
 
-        indun_panel_buyuse(frame, ctrl, "EVENT_TOS_WHOLE_SHOP_28", argNum)
+        indun_panel_buyuse(frame, ctrl, "EVENT_TOS_WHOLE_SHOP_27", argNum)
         return
     end
 
