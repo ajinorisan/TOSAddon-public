@@ -32,10 +32,11 @@
 -- v1.3.2 メレジナハード、シーズンチャレンジ追加
 -- v1.3.3 チャレンジ券と分裂券と真摯に向き合った。優先順位とか変更した。
 -- v1.3.4 メレジナ、スロガ、ウピニスの自動チケットを使うボタンを付けた。
+-- v1.3.5 掃討バフある場合、自動でアイテム使って掃討する様に変更
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.4"
+local ver = "1.3.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1300,6 +1301,35 @@ function indun_panel_create_frame(ipframe, key, subKey, subValue, y)
     end
 end
 
+function indun_panel_raid_itemuse_sweep(argNum)
+    local buffIDs = {
+        [673] = 80016, -- スプレッダー
+        [676] = 80017, -- ファロウス
+        [679] = 80015, -- ロゼ
+        [685] = 80030, -- 蝶々
+        [688] = 80031, -- スロガ
+        [695] = 80032 -- メレジ
+    }
+
+    local buffID = buffIDs[argNum]
+
+    if buffID then
+        local sweepcount = indun_panel_sweep_count(buffID)
+        if sweepcount >= 1 then
+            ReqUseRaidAutoSweep(argNum)
+            local ipframe = ui.GetFrame(g.framename)
+            indun_panel_init(ipframe)
+            return
+        else
+            local ipframe = ui.GetFrame(g.framename)
+            indun_panel_init(ipframe)
+            return
+        end
+
+    end
+
+end
+
 function indun_panel_raid_itemuse(frame, ctrl, argStr, argNum)
     -- print(argNum)
     local raidTable = {
@@ -1322,6 +1352,7 @@ function indun_panel_raid_itemuse(frame, ctrl, argStr, argNum)
 
                 if classid == targetClassID then
                     INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                    ReserveScript(string.format("indun_panel_raid_itemuse_sweep(%d)", argNum), 0.2)
                     return
                 end
             end
@@ -1340,30 +1371,57 @@ function indun_panel_create_frame_onsweep(ipframe, key, subKey, subValue, y, x)
     local sweep = ipframe:CreateOrGetControl('button', key .. "sweep", x + 355, y, 80, 30)
     local sweepcount = ipframe:CreateOrGetControl("richtext", key .. "sweepcount", x + 440, y + 5, 50, 30)
     -- 695 メレジナ -- 688 スロガ -- 685 ウピ
+    local raidTable = {
+        [695] = {11200356, 11200355, 11200354},
+        [688] = {11200290, 10820036, 11200289, 11200288},
+        [685] = {11200281, 10820035, 11200280, 11200279}
+    }
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
+
     if subValue == 695 or subValue == 688 or subValue == 685 then
         -- print(key .. ":" .. subValue)
         local use = ipframe:CreateOrGetControl('button', key .. "use", x + 480, y, 80, 30)
         AUTO_CAST(use)
         use:SetText("{ol}{#EE7800}USE")
+
+        local targetItems = raidTable[subValue]
+        local count = 0
+        if targetItems then
+            for _, targetClassID in ipairs(targetItems) do
+                for i = 0, cnt - 1 do
+                    local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+                    local guid = guidList:Get(i)
+                    local invItem = invItemList:GetItemByGuid(guid)
+                    local classid = itemobj.ClassID
+                    if classid == targetClassID then
+                        count = count + invItem.count
+                    end
+                end
+            end
+        end
+
         if subValue == 695 then
             local itemClass = GetClassByType('Item', 11200355)
             local icon = itemClass.Icon
 
-            use:SetTextTooltip("{img " .. icon .. " 25 25 } Use")
+            use:SetTextTooltip("{ol}{img " .. icon .. " 25 25 } Use it?{nl} Quantity in Inventory(" .. count .. ")")
             use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
             use:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
         elseif subValue == 688 then
             local itemClass = GetClassByType('Item', 11200289)
             local icon = itemClass.Icon
 
-            use:SetTextTooltip("{img " .. icon .. " 25 25 } Use")
+            use:SetTextTooltip("{ol}{img " .. icon .. " 25 25 } Use it?{nl} Quantity in Inventory(" .. count .. ")")
             use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
             use:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
         elseif subValue == 685 then
             local itemClass = GetClassByType('Item', 11200280)
             local icon = itemClass.Icon
 
-            use:SetTextTooltip("{img " .. icon .. " 25 25 } Use")
+            use:SetTextTooltip("{ol}{img " .. icon .. " 25 25 } Use it?{nl} Quantity in Inventory(" .. count .. ")")
             use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
             use:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
         end
