@@ -10,10 +10,11 @@
 -- v0.9.9 置き換えモード追加
 -- v1.0.0 パーティーメンバーの翻訳が上手くいかなかったのを修正
 -- v1.0.1 別フレームモードバグ修正
+-- v1.0.2 チャットが貯まってくると重たくなっていたの修正
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -446,6 +447,7 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
         local color = "#FFFF00"
         local pattern = "(@dicID)"
         local modifiedString = tempMsg:gsub(pattern, "{%1"):gsub("%$%*%^", "%1}")
+
         local startIndex, endIndex = string.find(modifiedString, "{img link_party 24 24}")
         if startIndex and endIndex then
 
@@ -462,6 +464,8 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
 
         end
         modifiedString = modifiedString:gsub("{#0000FF}", "{#FFFF00}")
+        modifiedString = string.gsub(modifiedString, "%(", "{")
+        modifiedString = string.gsub(modifiedString, "%)", "")
 
         local cleanedText, extractedTexts = tos_google_translate_extractAndCleanText(modifiedString, chat_id)
         -- print(cleanedText)
@@ -777,15 +781,162 @@ local function remove_unwanted_braces(input_str)
             i = i + 1
         end
     end
+
     return result
 end
 
---[[ テスト
-local test_str = -- "{a SLI 1537409313462701|# 11200289}{#FFFF00}{img icon_item_Boss_Slogutis_Auto_Enter 30 30}{深淵の観測者(自動マッチング/1人)1回入場券(取引不可)}{/}{/}"
-"{a SLP 1537984839025915}{#FFFF00}{img link_party 24 24}{夢幻深淵ハード}{/}{/}"
-print(remove_unwanted_braces(test_str))]]
-
 function tos_google_translate_gbox(output)
+    local mainchatFrame = ui.GetFrame("chatframe")
+    local frame = ui.GetFrame("tos_google_translate")
+    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 0, 0, frame:GetWidth(), frame:GetHeight())
+    AUTO_CAST(gbox)
+    gbox:SetLeftScroll(1)
+
+    local ypos = 0
+    local max_chat_id = nil -- 最大の chat_id を格納する変数
+
+    g.ypos = 0
+
+    -- 事前に最大の chat_id を算出
+    for i, entry in ipairs(output) do
+        local chat_id = tonumber(entry.chat_id)
+        if chat_id and (max_chat_id == nil or chat_id > max_chat_id) then
+            max_chat_id = chat_id
+        end
+    end
+
+    for i, entry in ipairs(output) do
+        local chat_id = entry.chat_id
+        local name = entry.name
+        local trans_text = entry.trans_text
+        local msgtype = entry.msgtype
+        local time = entry.time
+
+        local clustername = "cluster_" .. chat_id
+        local marginLeft = 20
+        local marginRight = 0
+
+        local commnderNameUIText = name .. " : " .. trans_text
+
+        for i, extractedTexts in pairs(g.extractedTexts) do
+            if chat_id == i then
+                for j, extractedText in ipairs(extractedTexts) do
+                    extractedText = remove_unwanted_braces(extractedText)
+
+                    commnderNameUIText = commnderNameUIText .. extractedText
+                end
+            end
+        end
+
+        -- {img icon_item_GabijaEarring 30 30} の存在を確認
+        local img_start, img_end = string.find(commnderNameUIText, "{img icon_item_GabijaEarring 30 30}")
+
+        if img_start and img_end then
+            -- すべての { の位置をリストアップ
+            local positions = {}
+            local current_pos = 1
+            while true do
+                local start_pos = string.find(commnderNameUIText, "{", current_pos, true)
+                if not start_pos then
+                    break
+                end
+                table.insert(positions, start_pos)
+                current_pos = start_pos + 1
+            end
+
+            -- 後ろから3個目と2個目の { の位置を取得
+            local third_last_pos = positions[#positions - 2]
+
+            if third_last_pos then
+                -- 後ろから3個目の { を ( に置き換え
+                commnderNameUIText = string.sub(commnderNameUIText, 1, third_last_pos - 1) .. "" ..
+                                         string.sub(commnderNameUIText, third_last_pos + 1)
+
+            end
+        end
+        if g.settings.use == 2 then
+            commnderNameUIText = commnderNameUIText .. "{#FF0000}_{/}"
+        end
+        -- print(commnderNameUIText)
+        local msgFront = ""
+        local fontStyle = nil
+        if msgtype == "Normal" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
+        elseif msgtype == "Shout" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
+        elseif msgtype == "Party" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
+        elseif msgtype == "Guild" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
+        elseif msgtype == "System" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_7"), commnderNameUIText)
+        end
+
+        if g.settings.use == 1 then
+            local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
+                marginRight, 1)
+            local label = chatCtrl:GetChild('bg')
+            local txt = GET_CHILD(chatCtrl, "text")
+            local timeCtrl = GET_CHILD(chatCtrl, "time")
+
+            label:SetAlpha(0)
+
+            local fontSize = GET_CHAT_FONT_SIZE()
+
+            txt:SetTextByKey("font", fontStyle)
+            txt:SetTextByKey("size", fontSize)
+            txt:SetTextByKey("text", msgFront)
+            timeCtrl:SetTextByKey("time", time)
+
+            local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
+            tos_google_translate_chat_ctrl(gbox, chatCtrl, label, txt, timeCtrl, offsetX)
+
+        elseif g.settings.use == 2 then
+            local chatCtrl = GET_CHILD_RECURSIVELY(mainchatFrame, clustername)
+            if chatCtrl ~= nil then
+                local groupboxname = chatCtrl:GetParent():GetName()
+                local groupbox = GET_CHILD_RECURSIVELY(mainchatFrame, groupboxname)
+
+                local label = chatCtrl:GetChild('bg')
+                local txt = GET_CHILD(chatCtrl, "text")
+                local timeCtrl = GET_CHILD(chatCtrl, "time")
+
+                label:SetAlpha(0)
+
+                local fontSize = GET_CHAT_FONT_SIZE()
+
+                txt:SetTextByKey("font", fontStyle)
+                txt:SetTextByKey("size", fontSize)
+                txt:SetTextByKey("text", msgFront)
+                timeCtrl:SetTextByKey("time", time)
+
+                local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
+                local chatWidth = groupbox:GetWidth()
+                txt:SetTextMaxWidth(chatWidth - 100)
+                txt:SetText(txt:GetText())
+                label:Resize(chatWidth - offsetX, txt:GetHeight())
+                chatCtrl:Resize(chatWidth, label:GetHeight())
+
+                if chat_id == max_chat_id then
+                    ypos = chatCtrl:GetY() + chatCtrl:GetHeight()
+                    chatCtrl:SetOffset(marginLeft, ypos)
+                end
+
+                if groupbox:GetLineCount() == groupbox:GetCurLine() + groupbox:GetVisibleLineCount() then
+                    groupbox:SetScrollPos(99999)
+                end
+            end
+
+        end
+    end
+
+end
+--[[function tos_google_translate_gbox(output)
 
     local mainchatFrame = ui.GetFrame("chatframe")
     local frame = ui.GetFrame("tos_google_translate")
@@ -815,7 +966,7 @@ function tos_google_translate_gbox(output)
         --[[print(string.format("Entry %d: chat_id = %s, name = %s, trans_text = %s, msgtype = %s, time = %s", i,
             tostring(chat_id), tostring(name), tostring(trans_text), tostring(msgtype), tostring(time)))]]
 
-        local clustername = "cluster_" .. chat_id
+--[[local clustername = "cluster_" .. chat_id
         local marginLeft = 20
         local marginRight = 0
 
@@ -964,7 +1115,7 @@ function tos_google_translate_gbox(output)
 
     end
 
-end
+end]]
 
 function tos_google_translate_get_curline()
     local frame = ui.GetFrame("tos_google_translate")
