@@ -31,10 +31,11 @@
 -- v1.3.1 プレイヤーゲージにレリック追加。スロガウピニス回ってる時の確認機能。
 -- v1.3.2 キャラ毎のオートキャスティング修正。ペットフレーム呼び出し機能OFF
 -- v1.3.3 女神証商店のコインの限界値を99999に変更。スロガウピニスのお知らせを派手に。
+-- v1.3.4 クローズボタンの場所修正。TP商店開いた時にフレーム消えてたの修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.3"
+local ver = "1.3.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -474,7 +475,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     local close = frame:CreateOrGetControl("button", "close", 615, 5, 30, 30)
     AUTO_CAST(close)
-    -- close:SetText("{ol}{#FFFFFF}×")
+    close:SetGravity(ui.RIGHT, ui.TOP);
     close:SetSkinName("None")
     close:SetText("{img testclose_button 30 30}")
 
@@ -830,7 +831,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
     if langcode ~= "Japanese" then
         frame:Resize(720, x)
-        close:SetOffset(70, 0)
+        -- close:SetOffset(685, 5)
     else
         frame:Resize(650, x)
     end
@@ -1316,9 +1317,11 @@ function MINI_ADDONS_OTHER_EFFECT_SETTING()
     -- print(tostring(g.settings.other_effect_value))
 end
 
-function MINI_ADDONS_GAME_START_4SEC(frame)
+function MINI_ADDONS_GAME_START_4SEC()
 
-    ReserveScript("MINI_ADDONS_POPUP_CHANNEL_LIST()", 1.0)
+    MINI_ADDONS_POPUP_CHANNEL_LIST()
+
+    local frame = ui.GetFrame("mini_addons")
     frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
     return
 end
@@ -1627,6 +1630,19 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     btn:SetEventScript(ui.LBUTTONDOWN, "MINI_ADDONS_SETTING_FRAME_INIT")
 
     newframe:ShowWindow(1)
+    g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
+end
+
+function MINI_ADDONS_FPS_UPDATE()
+    local newframe = ui.GetFrame("mini_addons_new")
+    if newframe:IsVisible() == 1 then
+        return
+    else
+        MINI_ADDONS_NEW_FRAME_INIT()
+        if g.settings.channel_info == 1 then
+            MINI_ADDONS_GAME_START_4SEC()
+        end
+    end
 end
 
 function MINI_ADDONS_GP_AUTOSTART_OPERATION(frame, ctrl)

@@ -56,11 +56,14 @@ function market_watcher_start()
         icon:SetTooltipType('wholeitem');
         icon:SetTooltipArg("None", g.settings.clsid, g.settings.iesidiesid);
 
+        g.count = 0
+
         local timer = frame:CreateOrGetControl("timer", "addontimer", 10, 10);
         AUTO_CAST(timer);
         timer:Stop();
         timer:SetUpdateScript("market_watcher_search_item");
-        timer:Start(10);
+        timer:Start(30);
+
     else
         return
     end
@@ -74,8 +77,8 @@ function market_watcher_search_item()
         searchEdit:Focus()
         searchEdit:SetText(g.settings.search)
         MARKET_FIND_PAGE(frame, 0);
-        frame:SetUserValue("PAGE", 0)
-        frame:SetUserValue("TOTAL_COUNT", 0)
+        -- frame:SetUserValue("PAGE", 0)
+        -- frame:SetUserValue("TOTAL_COUNT", 0)
         market_watcher_get_itemlist()
         return
     end
@@ -85,51 +88,60 @@ end
 function market_watcher_get_itemlist()
 
     local frame = ui.GetFrame("market")
-    local page = frame:GetUserIValue("PAGE")
-    local t_count = frame:GetUserIValue("TOTAL_COUNT")
+    -- local page = frame:GetUserIValue("PAGE")
+    -- local t_count = frame:GetUserIValue("TOTAL_COUNT")
     local total_count = session.market.GetTotalCount()
-    if t_count == 0 or t_count ~= total_count then
-        frame:SetUserValue("TOTAL_COUNT", total_count)
+    if g.count == 0 or g.count ~= total_count then
+
         local category, _category, _subCategory = GET_CATEGORY_STRING(frame);
         local itemCntPerPage = GET_MARKET_SEARCH_ITEM_COUNT(_category);
         local maxPage = math.ceil(session.market.GetTotalCount() / itemCntPerPage);
         local curPage = session.market.GetCurPage();
         local count = session.market.GetItemCount();
         local mwframe = ui.GetFrame("market_watcher")
-
+        -- print(maxPage .. ":" .. curPage)
         if count == 0 then
 
             mwframe:RunUpdateScript("market_watcher_get_itemlist", 0.5)
             return 1
         else
+
             mwframe:StopUpdateScript("market_watcher_get_itemlist")
             for i = 0, count - 1 do
+                --[[local itemlist = GET_CHILD_RECURSIVELY(frame, "itemListGbox");
+                local ctrlSet = GET_CHILD_RECURSIVELY(itemlist, "ITEM_EQUIP_" .. i)
+                local pic = GET_CHILD_RECURSIVELY(ctrlSet, "pic");
+                local icon = pic:GetIcon()
+                print(tostring(icon))
+                local iconInfo = icon:GetInfo();
+                print(tostring(iconInfo))]]
+
                 local marketItem = session.market.GetItemByIndex(i);
+
                 local market_iesid = marketItem:GetMarketGuid()
+                print(tostring(market_iesid))
+                -- print(market_iesid .. "=" .. g.settings.iesid)
                 if market_iesid == g.settings.iesid then
+                    print("deteru")
                     imcSound.PlayMusicQueueLocal('colonywar_win')
                     local msg = ""
                     market_watcher_NICO_CHAT(string.format("{@st55_a}%s", msg))
                     return
                 end
             end
-            if maxPage > page + 1 then
-                frame:SetUserValue("PAGE", page + 1)
-                MARKET_FIND_PAGE(frame, page + 1);
+            if maxPage > curPage + 1 then
+                print(maxPage .. ":" .. curPage + 1)
+                frame:SetUserValue("PAGE", curPage + 1)
+                MARKET_FIND_PAGE(frame, curPage + 1);
                 mwframe:RunUpdateScript("market_watcher_get_itemlist", 0.5)
                 return 1
+            else
+                print(maxPage .. ":" .. curPage + 1)
+                MARKET_FIND_PAGE(frame, 0);
+                g.count = total_count
+                return 0
             end
 
-        end
-
-    else
-        local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet');
-        if market_search ~= nil and market_search:IsVisible() == 1 then
-            local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit');
-            searchEdit:Focus()
-            searchEdit:SetText("")
-
-            return
         end
 
     end
@@ -168,33 +180,33 @@ end
 function market_watcher_SLI(frame, msg)
     local props, clsID = acutil.getEventArgs(msg)
     local linkInfo = session.link.CreateOrGetGCLinkObject(clsID, props)
-    local newobj = GetIES(linkInfo:GetObject())
+    print(tostring(linkInfo))
+    -- local newobj = GetIES(linkInfo:GetObject())
     local itemObj = GetIES(linkInfo:GetObject())
-    local itemName = GET_FULL_NAME(newobj);
-    if TryGetProp(newobj, 'ClassType', 'None') == 'Earring' then
-        local rune_grade = shared_item_earring.get_earring_grade(newobj)
+    print(tostring(itemObj.Name))
+    local itemName = GET_FULL_NAME(itemObj);
+    if TryGetProp(itemObj, 'ClassType', 'None') == 'Earring' then
+        local rune_grade = shared_item_earring.get_earring_grade(itemObj)
 
-        itemName = itemName .. '(' .. rune_grade .. ClMsg('Grade') .. ')'
-        print(itemName)
         for i = 1, shared_item_earring.get_max_special_option_count(TryGetProp(itemObj, 'ItemLv', 0)) do
             local ctrl = TryGetProp(itemObj, 'EarringSpecialOption_' .. i, 'None')
             if ctrl ~= 'None' then
                 local cls = GetClass('Job', ctrl)
-                local ctrl = TryGetProp(cls, 'Name', 'None')
-                print(ctrl)
-                local rank = TryGetProp(itemObj, 'EarringSpecialOptionRankValue_' .. i, 0)
+                itemName = TryGetProp(cls, 'Name', 'None')
+
+                --[[local rank = TryGetProp(itemObj, 'EarringSpecialOptionRankValue_' .. i, 0)
                 local lv = TryGetProp(itemObj, 'EarringSpecialOptionLevelValue_' .. i, 0)
                 local text = ScpArgMsg('EarringSpecialOption{ctrl}{rank}{lv}', 'ctrl', ctrl, 'rank', rank, 'lv', lv)
-                print(text)
+                print(text)]]
             end
         end
     end
-
+    print(itemName)
     local fullName = dictionary.ReplaceDicIDInCompStr(itemName)
     print(fullName)
-    local truncatedName = string.sub(fullName, 1, 75)
+    local truncatedName = string.sub(fullName, 1, 60)
 
-    local iesid = GetIESID(newobj)
+    local iesid = GetIESID(itemObj)
     g.settings.iesid = iesid
     g.settings.search = truncatedName
     g.settings.clsid = clsID
