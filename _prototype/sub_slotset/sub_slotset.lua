@@ -36,3 +36,6 @@ function SUB_SLOTSET_ON_INIT(addon, frame)
     -- acutil.setupEvent(addon, "CABINET_GET_ITEM", "market_voucher_CABINET_GET_ITEM");
     -- g.SetupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST");
 end
+
+function ---a()
+end

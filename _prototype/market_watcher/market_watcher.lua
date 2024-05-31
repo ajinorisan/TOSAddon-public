@@ -34,20 +34,12 @@ function MARKET_WATCHER_ON_INIT(addon, frame)
     market_watcher_load_settings()
     acutil.setupEvent(addon, "SLI", "market_watcher_SLI")
     addon:RegisterMsg("OPEN_DLG_MARKET", "market_watcher_start");
-    frame = ui.GetFrame("market_watcher")
-    -- frame:RunUpdateScript("market_watcher_get_itemlist", 10);
+
 end
 
 function market_watcher_start()
     local frame = ui.GetFrame("market")
-    local timer = frame:CreateOrGetControl("timer", "addontimer", 10, 10);
-    AUTO_CAST(timer);
-    timer:Stop();
-    timer:SetUpdateScript("market_watcher_search_item");
-    timer:Start(10);
-
     if g.settings.iesid ~= nil then
-        print("test2")
         local slot = frame:CreateOrGetControl("slot", "slot", 620, 100, 50, 50);
         AUTO_CAST(slot)
         slot:SetSkinName("invenslot2")
@@ -56,75 +48,93 @@ function market_watcher_start()
         slot:EnableDrop(0)
         local itemCls = GetClassByType('Item', g.settings.clsid);
         local imageName = GET_ITEM_ICON_IMAGE(itemCls);
-        print(imageName)
         SET_SLOT_IMG(slot, imageName);
         SET_SLOT_IESID(slot, g.settings.iesid);
+
+        local icon = slot:GetIcon()
+
+        icon:SetTooltipType('wholeitem');
+        icon:SetTooltipArg("None", g.settings.clsid, g.settings.iesidiesid);
+
+        local timer = frame:CreateOrGetControl("timer", "addontimer", 10, 10);
+        AUTO_CAST(timer);
+        timer:Stop();
+        timer:SetUpdateScript("market_watcher_search_item");
+        timer:Start(10);
+    else
+        return
     end
 end
 
-function market_watcher_search_item(frame, ctrl, argStr, argNum)
-
+function market_watcher_search_item()
+    local frame = ui.GetFrame("market")
     local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet');
-
     if market_search ~= nil and market_search:IsVisible() == 1 then
-
         local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit');
         searchEdit:Focus()
         searchEdit:SetText(g.settings.search)
         MARKET_FIND_PAGE(frame, 0);
-        market_watcher_get_itemlist(frame)
-
-    end
-end
-
-function market_watcher_get_itemlist(frame)
-    local market = {}
-
-    local frame = ui.GetFrame("market")
-    local category, _category, _subCategory = GET_CATEGORY_STRING(frame);
-    local itemCntPerPage = GET_MARKET_SEARCH_ITEM_COUNT(_category);
-    local maxPage = math.ceil(session.market.GetTotalCount() / itemCntPerPage);
-    local curPage = session.market.GetCurPage();
-    -- print(maxPage)
-    local gbox = GET_CHILD_RECURSIVELY(frame, "itemListGbox")
-    local count = gbox:GetChildCount()
-    -- print(count .. "a")
-    -- for j = 0, maxPage - 1 do
-    -- MARKET_FIND_PAGE(frame, j);
-    -- local count = session.market.GetItemCount()
-    if count == 0 then
-        market_watcher_get_itemlist(frame)
+        frame:SetUserValue("PAGE", 0)
+        frame:SetUserValue("TOTAL_COUNT", 0)
+        market_watcher_get_itemlist()
         return
     end
-    for j = 0, maxPage - 1 do
-        MARKET_FIND_PAGE(frame, j)
-        gbox = GET_CHILD_RECURSIVELY(frame, "itemListGbox")
-        count = gbox:GetChildCount()
-        -- print(count .. "a")
-        for i = 0, count - 1 do
-            print("test")
-            local marketItem = session.market.GetItemByIndex(i);
-            if marketItem ~= nil then
 
+end
+
+function market_watcher_get_itemlist()
+
+    local frame = ui.GetFrame("market")
+    local page = frame:GetUserIValue("PAGE")
+    local t_count = frame:GetUserIValue("TOTAL_COUNT")
+    local total_count = session.market.GetTotalCount()
+    if t_count == 0 or t_count ~= total_count then
+        frame:SetUserValue("TOTAL_COUNT", total_count)
+        local category, _category, _subCategory = GET_CATEGORY_STRING(frame);
+        local itemCntPerPage = GET_MARKET_SEARCH_ITEM_COUNT(_category);
+        local maxPage = math.ceil(session.market.GetTotalCount() / itemCntPerPage);
+        local curPage = session.market.GetCurPage();
+        local count = session.market.GetItemCount();
+        local mwframe = ui.GetFrame("market_watcher")
+
+        if count == 0 then
+
+            mwframe:RunUpdateScript("market_watcher_get_itemlist", 0.5)
+            return 1
+        else
+            mwframe:StopUpdateScript("market_watcher_get_itemlist")
+            for i = 0, count - 1 do
+                local marketItem = session.market.GetItemByIndex(i);
                 local market_iesid = marketItem:GetMarketGuid()
-
-                if market_iesid ~= g.settings.iesid then
-
-                    local frame = ui.GetFrame("market")
-                    local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet');
-                    local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit');
-                    searchEdit:Focus()
-                    searchEdit:SetText("")
-                else
+                if market_iesid == g.settings.iesid then
                     imcSound.PlayMusicQueueLocal('colonywar_win')
-                    local msg = "買いたい商品出品されてるで！！"
+                    local msg = ""
                     market_watcher_NICO_CHAT(string.format("{@st55_a}%s", msg))
+                    return
                 end
+            end
+            if maxPage > page + 1 then
+                frame:SetUserValue("PAGE", page + 1)
+                MARKET_FIND_PAGE(frame, page + 1);
+                mwframe:RunUpdateScript("market_watcher_get_itemlist", 0.5)
+                return 1
             end
 
         end
+
+    else
+        local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet');
+        if market_search ~= nil and market_search:IsVisible() == 1 then
+            local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit');
+            searchEdit:Focus()
+            searchEdit:SetText("")
+
+            return
+        end
+
     end
 end
+
 function market_watcher_NICO_CHAT(msg)
 
     local x = ui.GetClientInitialWidth();
@@ -142,10 +152,10 @@ function market_watcher_NICO_CHAT(msg)
     change_client_size(frame)
     local name = UI_EFFECT_GET_NAME(frame, "NICO_");
     local ctrl = frame:CreateControl("richtext", name, x, y, 200, 20);
-
+    AUTO_CAST(ctrl)
     frame:ShowWindow(1);
     frame:SetLayerLevel(999)
-    ctrl = tolua.cast(ctrl, "ui::CRichText");
+
     ctrl:EnableResizeByText(1);
     ctrl:SetText("{@st64}" .. msg);
     ctrl:RunUpdateScript("NICO_MOVING");
@@ -154,20 +164,6 @@ function market_watcher_NICO_CHAT(msg)
     ctrl:ShowWindow(1);
     frame:RunUpdateScript("INVALIDATE_NICO");
 end
-
---[[ print(tostring(marketItem:GetMarketGuid()))
-        local iesid = tostring(marketItem:GetIESID())
-
-        local marketItem = session.market.GetItemByIndex(i);
-        -- print(g.settings.iesid)
-        local saveobj = GetObjectByGuid(g.settings.iesid);
-        -- print(tostring(saveobj.ClassID))
-        local itemObj = GetIES(marketItem:GetObject());
-
-        -- local iesid = tostring(marketItem:GetIESID())
-
-        -- print(tostring(GET_FULL_NAME(itemObj)))
-        table.insert(market, itemObj)]]
 
 function market_watcher_SLI(frame, msg)
     local props, clsID = acutil.getEventArgs(msg)
