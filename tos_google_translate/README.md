@@ -69,13 +69,13 @@ If tos_google_translate-v1.0.1.exe is created in the following location, it was 
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons\tos_google_translate\tos_google_translate\tos_google _translate\tos_google_translate-v1.0.1.exe
 
-! [captcha](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/92cff339-a945-4160-99c4-b1d417a69679)
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/92cff339-a945-4160-99c4-b1d417a69679)
 
 Start ToS.
 
 The following command window will open, minimize it. If you close it, the add-on will not work.
 
-! [captcha 111](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/36b444ab-1195-44cb-ab13-b6ccbfece680)
+![キャプチャ111](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/36b444ab-1195-44cb-ab13-b6ccbfece680)
 
 ### How to change the translated name
 
@@ -98,9 +98,9 @@ Translated with www.DeepL.com/Translator (free version)
 ## 한국어 설명
 
 
-애드온 버전 1.0.3에서 최초 설정에서 exe 파일 위치가 잘못되었을 경우 영구적으로 동작하지 않던 문제를 수정하였습니다.
+애드온 버전 1.0.3에서 최초 설정에서 exe 파일 위치를 잘못 설정하면 영구적으로 동작하지 않던 문제를 수정하였습니다.
 
-0.9.6 버전부터 exe 파일이 새로워졌으므로, 기존 exe 파일을 가지고 계신 분들은 다시 다운로드 후 압축을 풀어주시기 바랍니다.
+버전 0.9.6부터 exe 파일이 새로워졌으니, 기존 exe 파일을 가지고 계신 분들은 다시 다운로드 후 압축을 풀어주세요.
 
 　exe 파일의 버전은 1.0.1입니다. 애드온의 최신 버전은 1.0.3입니다. 그 이전 버전은 동작이 무겁습니다.
 
@@ -119,13 +119,13 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\add
 
 C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\addons\tos_google_translate\tos_google_translate\tos_google _translate\tos_google_translate-v1.0.1.exe
 
-! [캡쳐](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/92cff339-a945-4160-99c4-b1d417a69679)
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/92cff339-a945-4160-99c4-b1d417a69679)
 
 ToS를 실행합니다.
 
 아래와 같은 명령어 화면이 열리지만 최소화합니다. 닫으면 애드온이 동작하지 않습니다.
 
-! [캡쳐111](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/36b444ab-1195-44cb-ab13-b6ccbfece680)
+![キャプチャ111](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/36b444ab-1195-44cb-ab13-b6ccbfece680)
 
 ### 번역된 이름 변경 방법
 
