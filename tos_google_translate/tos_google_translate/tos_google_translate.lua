@@ -11,10 +11,11 @@
 -- v1.0.0 パーティーメンバーの翻訳が上手くいかなかったのを修正
 -- v1.0.1 別フレームモードバグ修正
 -- v1.0.2 チャットが貯まってくると重たくなっていたの修正
+-- v1.0.3 exeファイル置く場所間違ったらsettings消すまで永久に使えなかった問題修正。
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1180,9 +1181,49 @@ function tos_google_translate_start()
     tos_google_translate_frame_init()
 
 end
+function copy_exe_file()
+    local src_path =
+        "../addons/tos_google_translate/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
+    local dest_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
+    local src_file = io.open(src_path, "rb")
+
+    if not src_file then
+        ui.SysMsg("Source file not found: " .. src_path)
+        return
+    end
+
+    local dest_file = io.open(dest_path, "wb")
+    if not dest_file then
+        ui.SysMsg("Failed to create destination file: " .. dest_path)
+        src_file:close()
+        return
+    end
+
+    local content = src_file:read("*all")
+    dest_file:write(content)
+
+    src_file:close()
+    dest_file:close()
+
+    ui.SysMsg("File copied successfully from " .. src_path .. " to " .. dest_path)
+end
 
 function tos_google_translate_exe_start()
-    local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe" -- 実行したいPythonスクリプトのパス
+    copy_exe_file()
+    local function delete_folder(path)
+        -- Windows環境でコマンドを実行してディレクトリを削除
+        local command = string.format('rmdir /S /Q "%s"', path)
+        os.execute(command)
+    end
+
+    local folder_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate"
+
+    delete_folder(folder_path)
+    local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
+    -- local default_exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe" -- デフォルトの実行パス
+
+    -- exe_pathがnilの場合、デフォルトパスを設定
+    -- exe_path = exe_path or default_exe_path
 
     local file = io.open(exe_path, "r")
     if file then
@@ -1192,15 +1233,13 @@ function tos_google_translate_exe_start()
 
         g.loaded = true
         -- tos_google_translate_frame_init()
-
     else
-        ui.SysMsg(tos_google_translate_lang("[Tos Google Translate]{nl}" ..
-                                                "/addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe{nl}" ..
+        ui.SysMsg(tos_google_translate_lang("[Tos Google Translate]{nl}" .. exe_path .. "{nl}" ..
                                                 "cannot be found. Exit."))
         return
     end
 end
-
+-- g.settings = nil
 function tos_google_translate_load_settings()
 
     local settings = acutil.loadJSON(g.settingsFileLoc, g.settings)
@@ -1215,16 +1254,20 @@ function tos_google_translate_load_settings()
         langCode = "en"
     end
 
+    if settings == nil then
+        -- ファイルが`null`のみを含む場合、ファイルを削除
+        os.remove(g.settingsFileLoc)
+    end
+
     if not settings then
         -- 設定ファイルが存在しない場合、デフォルトの設定を作成
         settings = {
             use = 1,
             lang = langCode
         }
-    else
-        g.settings = settings
 
     end
+    g.settings = settings
     if g.loaded == false then
         local file = io.open(g.noticeFileLoc, "w")
         file:write("")
