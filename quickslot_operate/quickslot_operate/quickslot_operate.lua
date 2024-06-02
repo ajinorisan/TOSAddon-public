@@ -6,10 +6,11 @@
 -- v1.0.5 メレジナ野獣になってたの悪魔に修正。
 -- v1.0.6 コード見直し
 -- v1.0.7 クイックスロットにアイコン入ってたら変わる様に設定。今回は失敗しないハズ。
+-- v1.0.8 手動入替えスロット付けた。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -76,6 +77,7 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
     g.frame = frame
 
     acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
+    addon:RegisterMsg('GAME_START_3SEC', 'quickslot_operate_set_script')
 
     local currentZone = GetZoneName()
 
@@ -100,7 +102,44 @@ function quickslot_operate_change_potion()
     quickslot_operate_get_potion(potion_id, down_potion_id)
 end
 
+function quickslot_operate_set_script()
+    local frame = ui.GetFrame("quickslotnexpbar")
+    if not frame then
+        return
+    end
+
+    local slotCount = 40
+
+    for i = 0, slotCount - 1 do
+        local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
+        -- AUTO_CAST(slot)
+        local quickSlotInfo = quickslot.GetInfoByIndex(i);
+
+        local icon = slot:GetIcon()
+        if icon ~= nil then
+            local iconinfo = icon:GetInfo()
+            local classid = iconinfo.type
+            for _, id in pairs(potion_list) do
+                if id == classid then
+                    slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion");
+
+                    break
+
+                end
+            end
+
+        end
+    end
+end
+
+function quickslot_operate_frame_close()
+    local frame = ui.GetFrame("quickslot_operate")
+    frame:ShowWindow(0)
+    return 0
+end
+
 function quickslot_operate_SHOW_INDUNENTER_DIALOG()
+
     local frame = ui.GetFrame('indunenter')
     local induntype = tonumber(frame:GetUserValue("INDUN_TYPE")) -- Ensure it's a number
 
@@ -141,17 +180,13 @@ function quickslot_operate_get_potion(potion_id, down_potion_id)
         local invItem = invItemList:GetItemByGuid(guid)
         local itemobj = GetIES(invItem:GetObject())
         local iesid = invItem:GetIESID()
+        local class_id = itemobj.ClassID
 
-        if tostring(itemobj.ClassID) == tostring(potion_id) then
-            local frame = ui.GetFrame("inventory");
-            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot")
-
-            quickslot_operate_check_all_slots(potion_id, down_potion_id)
+        if class_id == potion_id or class_id == down_potion_id then
             session.ResetItemList()
-
-            -- return
+            quickslot_operate_check_all_slots(potion_id, down_potion_id)
+            break
         end
-        -- 
     end
 
 end
@@ -163,19 +198,6 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
         return
     end
 
-    --[[local potion_info = session.GetInvItemByType(potion_id);
-    if potion_info ~= nil then
-
-        local potion_item = GET_PC_ITEM_BY_GUID(potion_info:GetIESID())
-        local potion_obj = GetIES(potion_item:GetObject())
-    end
-
-    local down_potion_info = session.GetInvItemByType(down_potion_id);
-    if down_potion_info ~= nil then
-
-        local down_potion_item = GET_PC_ITEM_BY_GUID(down_potion_info:GetIESID())
-        local down_potion_obj = GetIES(down_potion_item:GetObject())
-    end]]
     local slotCount = 40
 
     for i = 0, slotCount - 1 do
@@ -186,12 +208,10 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
         local icon = slot:GetIcon()
         if icon ~= nil then
             local iconinfo = icon:GetInfo()
-
             local classid = iconinfo.type
-
             for group, id in pairs(potion_list) do
                 if id == classid then
-                    local potion_iesid = iconinfo:GetIESID()
+
                     SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, _, 0, true, true)
                     icon:SetDumpArgNum(i);
                     break
@@ -201,7 +221,7 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
             for group, id in pairs(down_potion_list) do
                 if id == classid then
-                    local down_potion_iesid = iconinfo:GetIESID()
+
                     SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, _, 0, true, true)
                     icon:SetDumpArgNum(i);
                     break
@@ -213,3 +233,62 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
     end
 
 end
+
+function quickslot_operate_choice_potion(frame, ctrl, str, num)
+    local slot = ctrl
+    slot:RunUpdateScript("quickslot_operate_frame_close", 5);
+
+    local frame = ui.GetFrame("quickslot_operate")
+    frame:Resize(150, 30)
+    frame:SetPos(720, 810)
+    frame:SetTitleBarSkin("None")
+    frame:SetSkinName("chat_window")
+    frame:SetLayerLevel(150);
+
+    local slotset = frame:CreateOrGetControl('slotset', 'slotset', 0, 0, 0, 0)
+    AUTO_CAST(slotset);
+    slotset:SetSlotSize(30, 30) -- スロットの大きさ
+    slotset:EnablePop(0)
+    slotset:EnableDrag(0)
+    slotset:EnableDrop(0)
+    slotset:SetColRow(5, 1)
+    slotset:SetSpc(0, 0)
+    slotset:SetSkinName('slot')
+    slotset:CreateSlots()
+    local slotcount = slotset:GetSlotCount()
+
+    local index = 1
+    for _, id in pairs(potion_list) do
+        if index <= slotcount then
+            local slot = slotset:GetSlotByIndex(index - 1)
+            slot:SetEventScript(ui.LBUTTONDOWN, "quickslot_operate_set_potion")
+            slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, id)
+            local class = GetClassByType('Item', id)
+            SET_SLOT_ITEM_CLS(slot, class)
+            index = index + 1
+        end
+    end
+    frame:ShowWindow(1)
+
+end
+
+function quickslot_operate_set_potion(frame, ctrl, str, clasid)
+    local matched_key = nil
+    for key, value in pairs(potion_list) do
+        if value == clasid then
+            matched_key = key
+            break
+        end
+    end
+
+    if matched_key then
+        local down_potion_id = down_potion_list[matched_key]
+        if down_potion_id then
+            quickslot_operate_check_all_slots(clasid, down_potion_id)
+            local frame = ui.GetFrame("quickslot_operate")
+            frame:ShowWindow(0)
+        end
+
+    end
+end
+

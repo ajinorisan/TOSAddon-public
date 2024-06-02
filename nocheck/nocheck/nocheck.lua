@@ -4,10 +4,12 @@
 -- v1.0.8 継承とか入れるのをスキップ
 -- v1.0.9 「今すぐこわす」をセット
 -- v1.1.0 とりあえずmsgをインプットする系は全部セットする様に出来たと思うけど知らん
+-- v1.1.1 ラダコレクション連続強化するように。速すぎてミス注意。
+-- v1.1.2 継承とか入力出来なかったの修正。テストコードそのまま放置してたのが原因
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -35,7 +37,7 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
     -- addon:RegisterMsg("DO_OPEN_WARNINGMSGBOX_EX_UI", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN");
-    g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
+    -- g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
     -- acutil.setupEvent(addon, "WARNINGMSGBOX_EX_FRAME_OPEN", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN");
 
     -- g.SetupHook(NOCHECK_WARNINGMSGBOX_FRAME_OPEN, "WARNINGMSGBOX_FRAME_OPEN")
@@ -45,12 +47,49 @@ function NOCHECK_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
         addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
         addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
+        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_reinforce_frame")
     end
 
 end
 
+function NOCHECK_reinforce_frame()
+    local frame = ui.GetFrame("reinforce_131014")
+    if frame:IsVisible() == 0 then
+
+        return
+    else
+        local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
+        skipOver5:SetCheck(1)
+        NOCHECK_REINFORCE_131014_MSGBOX(frame)
+
+    end
+
+end
+
+function NOCHECK_REINFORCE_131014_MSGBOX(frame)
+    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame);
+
+    local fromItemObj = GetIES(fromItem:GetObject());
+
+    local moruObj = GetIES(fromMoru:GetObject());
+
+    if moruObj.ClassName == "Moru_goddess_500" then
+
+        session.ResetItemList();
+        session.AddItemID(fromItem:GetIESID());
+        session.AddItemID(fromMoru:GetIESID());
+        local resultlist = session.GetItemIDList();
+        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist);
+
+        REINFORCE_131014_UPDATE_MORU_COUNT(frame)
+
+    else
+        REINFORCE_131014_EXEC()
+    end
+end
+
 function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()
-    -- print("test")
+
     local frame = ui.GetFrame("warningmsgbox")
     if frame:IsVisible() == 0 then
         return
@@ -70,7 +109,7 @@ function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()
 end
 
 function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS()
-
+    -- print("test")
     local frame = ui.GetFrame('warningmsgbox_ex')
     if frame:IsVisible() == 0 then
         return
@@ -99,7 +138,7 @@ function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS()
 
 end
 
-function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
+--[[function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
     -- print("test")
     local arg_list = SCR_STRING_CUT(argStr, ';')
     if arg_list == nil or #arg_list <= 0 then
@@ -211,7 +250,7 @@ function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
     warningbox:Resize(warningbox:GetWidth(), totalHeight)
     bg:Resize(bg:GetWidth(), totalHeight)
     frame:Resize(frame:GetWidth(), totalHeight)
-end
+end]]
 
 -- カードブック使用時の確認削除
 function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)

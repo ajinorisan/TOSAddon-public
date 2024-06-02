@@ -278,7 +278,7 @@
 		"name" : "No check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.1",
+		"fileVersion" : "v1.1.2",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
 		"description" : "ラダコレクションの強化を支援します。Ch移動確認消します。欠片アイテムを確認無しで使用、カードの付け外し、エーテルジェムの確認も消します。ゴッデス装備の帰属解除の際の手間を省きます。Help strengthen the Rada collection. Remove the confirmation of the use of shard items without confirmation, the attachment and removal of cards, and the ether gem. Eliminates the time and effort required to unattribute Goddess equipment. 라다 컬렉션 강화를 지원하며, Ch 이동 확인을 지웁니다. 조각 아이템 확인 없이 사용, 카드 탈부착, 에테르 젬 확인도 사라집니다. 갓데스 장비의 귀속 해제 시 번거로움을 덜어줍니다.",
