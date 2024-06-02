@@ -52,10 +52,10 @@
 		"name" : "Quickslot Operate",
 		"file" : "quickslot_operate",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.7",
+		"fileVersion" : "v1.0.8",
 		"releaseTag" : "quickslot_operate",
 		"unicode" : "⛄",
-		"description" : "レイド毎に女神ポーションを切替えます。ver1.0.7で失敗しにくくなったハズ。Switch goddess potions for each raid. ver1.0.7 should make it harder to fail.레이드마다 여신 물약이 바뀌는데, ver1.0.7에서는 실패 확률이 낮아진 것 같습니다.",
+		"description" : "レイド毎に女神ポーションを切替えます。ver1.0.8 手動入替え機能追加。Switch goddess potions for each raid. ver1.0.8 Manual switching function added.레이드마다 여신 물약을 교체할 수 있습니다.ver1.0.8 수동 교체 기능 추가.",
 		"tags" : []
 	},
 {
