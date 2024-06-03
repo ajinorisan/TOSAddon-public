@@ -1,9 +1,10 @@
 -- v2.0.2 変数スコープの見直し、メンテの挙動見直し
 -- v2.0.3 SetupHookの修正、メンテの挙動見直し
+-- v2.0.4 全体的に見直し
 local addonName = "EASYBUFF"
 local addonNameLower = string.lower(addonName)
 local author = "Kiicchan"
-local version = "2.0.3"
+local version = "2.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -11,12 +12,6 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName];
 
 g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
-
-g.settings = {
-    useHook = 1
-}
-g.buffIndex = 0;
-g.foodIndex = 0;
 
 local base = {}
 
@@ -33,307 +28,250 @@ function g.SetupHook(func, baseFuncName)
 end
 
 function EASYBUFF_ON_INIT(addon, frame)
-    -- CHAT_SYSTEM("EASYBUFF loaded")
 
     g.addon = addon
     g.frame = frame
 
-    if not g.loaded then
-        local t, err = acutil.loadJSON(g.settingsFileLoc, g.settings);
-        if err then
-            -- 設定ファイル読み込み失敗時処理
-            CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonName))
-        else
-            -- 設定ファイル読み込み成功時処理
-            g.settings = t;
-        end
-        g.loaded = true
-    end
+    EASYBUFF_LOAD_SETTINGS()
 
-    EASYBUFF_SAVESETTINGS();
-
-    addon:RegisterMsg("GAME_START_3SEC", "EASYBUFF_FOOD_TABLE_FRAME_INIT")
-    g.SetupHook(EASYBUFF_TARGET_BUFF_AUTOSELL_LIST, "TARGET_BUFF_AUTOSELL_LIST")
     g.SetupHook(EASYBUFF_OPEN_FOOD_TABLE_UI, "OPEN_FOOD_TABLE_UI")
     g.SetupHook(EASYBUFF_ITEMBUFF_REPAIR_UI_COMMON, "ITEMBUFF_REPAIR_UI_COMMON")
-    g.SetupHook(EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL, "SQUIRE_BUFF_EQUIP_CTRL")
+    g.SetupHook(EASYBUFF_TARGET_BUFF_AUTOSELL_LIST, "TARGET_BUFF_AUTOSELL_LIST")
+    acutil.setupEvent(addon, "SQUIRE_BUFF_EQUIP_CTRL", "EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL");
 
     acutil.slashCommand("/easybuff", EASYBUFF_CMD);
     acutil.slashCommand("/esbf", EASYBUFF_CMD);
-end
 
-function EASYBUFF_FOOD_TABLE_FRAME_INIT()
-
-    local frame = ui.GetFrame("foodtable_ui")
-    local btn = frame:CreateOrGetControl("button", "clearfood", 10, 50, 80, 30)
-    btn:SetSkinName("test_red_button")
-    btn:SetText("{ol}foodclear")
-    btn:SetEventScript(ui.LBUTTONUP, "EASYBUFF_FOODCLEAR")
-
-    local btn2 = frame:CreateOrGetControl("button", "myButton2", 140, 50, 80, 30)
-    btn2:SetText("{ol}4foodonly")
-    btn2:SetEventScript(ui.LBUTTONUP, "EASYBUFF_4FOODONLY")
-
-    local btn3 = frame:CreateOrGetControl("button", "myButton3", 240, 50, 80, 30)
-    btn3:SetText("{ol}5foodonly")
-    btn3:SetEventScript(ui.LBUTTONUP, "EASYBUFF_5FOODONLY")
-
-    local btn4 = frame:CreateOrGetControl("button", "myButton4", 340, 50, 80, 30)
-    btn4:SetText("{ol}allfood")
-    btn4:SetEventScript(ui.LBUTTONUP, "EASYBUFF_ALLFOOD")
+    -- acutil.setupHook(EASYBUFF_TARGET_BUFF_AUTOSELL_LIST, "TARGET_BUFF_AUTOSELL_LIST")
+    -- acutil.setupHook(EASYBUFF_OPEN_FOOD_TABLE_UI, "OPEN_FOOD_TABLE_UI")
+    -- acutil.setupHook(EASYBUFF_ITEMBUFF_REPAIR_UI_COMMON, "ITEMBUFF_REPAIR_UI_COMMON")
 
 end
 
-function EASYBUFF_SAVESETTINGS()
+function EASYBUFF_LOAD_SETTINGS()
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings);
+    if err then
+        -- 設定ファイル読み込み失敗時処理
+        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonName))
+    end
+    -- 設定ファイル読み込み成功時処理
+    if not settings then
+        settings = {
+            useHook = 1
+        }
+    end
+
+    g.settings = settings
+
+    EASYBUFF_SAVE_SETTINGS()
+end
+
+function EASYBUFF_SAVE_SETTINGS()
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 end
 
 function EASYBUFF_CMD(command)
+
     if g.settings.useHook == 1 then
         g.settings.useHook = 0
-        EASYBUFF_SAVESETTINGS();
-        CHAT_SYSTEM("Auto buff off")
+        EASYBUFF_SAVE_SETTINGS()
+        ui.SysMsg("Auto buff off")
     else
         g.settings.useHook = 1
-        EASYBUFF_SAVESETTINGS();
-        CHAT_SYSTEM("Auto buff on")
+        EASYBUFF_SAVE_SETTINGS()
+        ui.SysMsg("Auto buff on")
     end
-    return;
+
 end
 
 -- メンテ処理
+function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL_DELAY()
+    local frame = ui.GetFrame("itembuffopen")
+    local checkall = GET_CHILD_RECURSIVELY(frame, 'checkall')
+    AUTO_CAST(checkall)
+    checkall:SetCheck(1)
 
--- local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
+    SQUIRE_BUFF_EQUIP_SELECT_ALL(frame, checkall)
+    local ctrl = GET_CHILD_RECURSIVELY(frame, "btn_excute")
 
-function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL(frame)
-    base["SQUIRE_BUFF_EQUIP_CTRL"](frame)
+    SQUIRE_BUFF_EXCUTE(frame, ctrl)
+    ui.SysMsg("{ol}Equipment buffs being automatically granted{nl}Use the Cancel button to cancel.")
+
+end
+
+function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL()
 
     if g.settings.useHook ~= 1 then
+
         return
     end
-    local handle = frame:GetUserIValue("HANDLE")
-    local skillName = frame:GetUserValue("SKILLNAME")
+    ReserveScript("EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL_DELAY()", 0.5)
 
-    -- 그럼 이것은 판매자
-    if handle == session.GetMyHandle() then
-        if "Squire_Repair" == skillName then
-            SQUIRE_REPAIR_CANCEL()
-            return
-        end
-    end
-
-    local gboxctrl = GET_CHILD_RECURSIVELY(frame, "repair")
-    gboxctrl:ShowWindow(1)
-    local gboxctrl = GET_CHILD_RECURSIVELY(frame, "log")
-    gboxctrl:ShowWindow(0)
-    --[[
-    local myshop = false;
-    if session.GetMySession():GetCID() == sellerCID then
-        myshop = true;
-    end
-
-    if myshop then
-        return;
-    end
-    ]]
-    -- <button name="btn_excute" parent="repair" rect="0 0 140 55" margin="-80 0 0 65" layout_gravity="center bottom" LBtnUpScp="SQUIRE_BUFF_EXCUTE" caption="{@st42}확 인" skin="test_red_button"/>
-
-    local iboframe = ui.GetFrame("itembuffopen")
-    local parent = GET_CHILD_RECURSIVELY(iboframe, "repair")
-    -- local checkall = GET_CHILD_RECURSIVELY(iboframe, 'checkall')
-    local ctrl = GET_CHILD_RECURSIVELY(iboframe, "btn_excute")
-    -- checkall:SetCheck(1)
-    EASYBUFF_SQUIRE_BUFF_EXCUTE(parent, ctrl)
-
-end
-
-function EASYBUFF_OPERATION_CANCEL()
-
-    local cancelframe = ui.CreateNewFrame("notice_on_pc", "cancelframe", 0, 0, 0, 0)
-    AUTO_CAST(cancelframe)
-    -- CHAT_SYSTEM("EASYBUFF_OPERATION_CANCEL")
-    cancelframe:Resize(170, 70)
-    local screenWidth = ui.GetClientInitialWidth()
-    local offsetX = screenWidth / 2
-    local screenHeight = ui.GetClientInitialHeight()
-    local offsetY = screenHeight / 2
-    cancelframe:SetOffset(offsetX, offsetY)
-
-    local cancelbtn = cancelframe:CreateOrGetControl("button", "cancelbtn", 0, 0, 170, 70)
-    AUTO_CAST(cancelbtn)
-    cancelbtn:SetText("Operation Cancel")
-    cancelbtn:SetSkinName("test_red_button")
-
-    cancelbtn:SetEventScript(ui.LBUTTONUP, "EASYBUFF_SQUIRE_BUFF_CANCEL_CHECK")
-    cancelframe:ShowWindow(1)
-end
-
-function EASYBUFF_SQUIRE_BUFF_CANCEL_CHECK(cancelframe)
-    local frame = ui.GetFrame("itembuffopen")
-    local handle = frame:GetUserIValue("HANDLE")
-    local skillName = frame:GetUserValue("SKILLNAME")
-
-    -- 그럼 이것은 판매자
-    if handle == session.GetMyHandle() then
-        if "Squire_Repair" == skillName then
-            SQUIRE_REPAIR_CANCEL()
-            return
-        end
-    end
-
-    -- 유저
-    session.autoSeller.BuyerClose(AUTO_SELL_SQUIRE_BUFF, handle)
-    cancelframe:ShowWindow(0)
-end
-
-local enable_slot_list = {"RH", "LH", "RH_SUB", "LH_SUB", "SHIRT", "PANTS", "GLOVES", "BOOTS"}
-
-function EASYBUFF_SQUIRE_BUFF_EXCUTE(parent, ctrl)
-    local frame = ui.GetFrame("itembuffopen")
-    local handle = frame:GetUserValue("HANDLE")
-    local skillName = frame:GetUserValue("SKILLNAME")
-
-    local checkall = GET_CHILD_RECURSIVELY(frame, 'checkall')
-    checkall:SetCheck(1)
-    session.ResetItemList()
-
-    local cnt = 0
-    for i = 1, #enable_slot_list do
-        local slot_name = enable_slot_list[i]
-        local ctrlset = GET_CHILD_RECURSIVELY(frame, 'ITEMBUFF_CTRL_' .. slot_name)
-        if ctrlset ~= nil then
-            local checkbox = GET_CHILD(ctrlset, 'checkbox')
-            checkbox:SetCheck(1)
-            if checkbox:IsChecked() == 1 then
-                local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-                if inv_item ~= nil then
-                    session.AddItemID(inv_item:GetIESID())
-                    cnt = cnt + 1
-                end
-            end
-        end
-    end
-
-    if cnt <= 0 then
-        ui.MsgBox(ScpArgMsg("SelectBuffItemPlz"))
-        return
-    end
-    EASYBUFF_OPERATION_CANCEL()
-    -- frame:ShowWindow(0)
-    ui.SysMsg("{#FFFFFF}{ol}Equipment Maintenance in progress." .. "{#FFFFFF}{ol}To cancel, use the Cancel button.")
-    -- ui.SysMsg("{#FFFFFF}To cancel, use the Cancel button.")
-    -- ui.SysMsg("{#FFFFFF}装備メンテナンス中 キャンセルは取消ボタンで!")
-    session.autoSeller.BuyItems(handle, AUTO_SELL_SQUIRE_BUFF, session.GetItemIDList(), skillName)
-
-    SQUIRE_TARGET_UI_CLOSE()
-    ReserveScript("EASYBUFF_SQUIRE_TARGET_UI_CLOSE()", 5.5)
-    return
-end
-
-function EASYBUFF_SQUIRE_TARGET_UI_CLOSE()
-    local cancelframe = ui.GetFrame("cancelframe")
-
-    cancelframe:ShowWindow(0)
 end
 
 -- フード処理
+g.foodflag = false
+g.foodindex = 0
 function EASYBUFF_OPEN_FOOD_TABLE_UI(groupName, sellType, handle, sellerCID, arg_num)
-    base["OPEN_FOOD_TABLE_UI"](groupName, sellType, handle, sellerCID, arg_num)
 
     if g.settings.useHook ~= 1 then
-        return;
+        base["OPEN_FOOD_TABLE_UI"](groupName, sellType, handle, sellerCID, arg_num)
+        -- OPEN_FOOD_TABLE_UI_OLD(groupName, sellType, handle, sellerCID, arg_num)
+        return
     end
+    local pc = GetMyPCObject()
+    local obj = world.GetActor(handle);
+    local actorPos = obj:GetPos();
+    local x, y, z = GetPos(pc)
+
+    local dis = math.sqrt((actorPos.x - x) ^ 2 + ((actorPos.z - z) ^ 2))
+    if dis > 30 then
+        ui.SysMsg(ClMsg('FarFromFoodTable'))
+        return
+    end
+
+    local frame = ui.GetFrame("foodtable_ui");
+    if groupName == 'None' then
+        frame:ShowWindow(0);
+        return;
+    else
+        frame:ShowWindow(1);
+    end
+
+    frame:SetUserValue('GroupName', groupName);
+    frame:SetUserValue('SELLTYPE', sellType);
+    frame:SetUserValue('HANDLE', handle);
+    frame:SetUserValue('SHARED', arg_num);
+
+    REGISTERR_LASTUIOPEN_POS(frame);
 
     local myTable = false;
     if session.GetMySession():GetCID() == sellerCID then
         myTable = true;
     end
 
-    if myTable then
+    local gbox = frame:GetChild("gbox");
+    local gbox_table = gbox:GetChild("gbox_table");
+    gbox_table:RemoveAllChild();
+
+    local cnt = session.autoSeller.GetCount(groupName);
+    for i = 0, cnt - 1 do
+        local info = session.autoSeller.GetByIndex(groupName, i);
+        local ctrlSet = gbox_table:CreateControlSet('camp_food_item', "FOOD" .. i, 0, 0);
+        ctrlSet:SetUserValue('INDEX', i)
+        local cls = GetClassByType("FoodTable", info.classID);
+        local abil = GetOtherAbility(GetMyPCObject(), cls.Ability);
+        if myTable == true then
+            abil = GetAbility(GetMyPCObject(), cls.Ability);
+        end
+        local abilLevel = TryGetProp(abil, 'Level', 0)
+        SET_FOOD_TABLE_BASE_INFO(ctrlSet, cls, info.level, abilLevel);
+        local itemcount = GET_CHILD(ctrlSet, "itemcount");
+        itemcount:SetTextByKey("value", info.remainCount);
+    end
+
+    GBOX_AUTO_ALIGN(gbox_table, 15, 3, 10, true, false);
+
+    local tabVisible = true
+
+    local tab = gbox:GetChild("itembox");
+    if nil == tab then
         return;
     end
+    -- gbox_table
+    tolua.cast(tab, 'ui::CTabControl');
+    local index = tab:GetIndexByName("tab_normal")
+    tab:SetTabVisible(index + 1, tabVisible);
+    tab:SelectTab(index);
+    tab:ShowWindow(1);
 
-end
-
-function EASYBUFF_4FOODONLY()
-    local frame = ui.GetFrame("foodtable_ui")
-    local handle = frame:GetUserIValue("HANDLE");
-    local sellType = frame:GetUserIValue("SELLTYPE");
-
-    if g.foodIndex < 4 then
-        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
-        g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format("EASYBUFF_4FOODONLY()"), 0.6)
+    local button_1 = GET_CHILD_RECURSIVELY(frame, "button_1")
+    if frame:GetUserIValue("HANDLE") ~= session.GetMyHandle() then
+        button_1:ShowWindow(0)
     else
-        -- g.foodIndex = 0
-        EASYBUFF_END_FOOD()
+        button_1:ShowWindow(1)
+    end
+
+    EASYBUFF_FOOD_TABLE_FRAME_INIT()
+
+    if g.foodflag == false then
+        local myHandle = session.GetMyHandle()
+        local foodBuffs = {4021, 4022, 4023, 4024, 4087, 4136}
+        for _, buffID in ipairs(foodBuffs) do
+            local buff = info.GetBuff(myHandle, buffID)
+            if buff ~= nil then
+                local msg = "Do you clear food buffs?"
+                local scp = string.format("EASYBUFF_FOODCLEAR()")
+                ui.MsgBox(msg, scp, "None")
+
+            end
+        end
     end
 end
 
-function EASYBUFF_5FOODONLY()
-    local frame = ui.GetFrame("foodtable_ui")
-    local handle = frame:GetUserIValue("HANDLE");
-    local sellType = frame:GetUserIValue("SELLTYPE");
+function EASYBUFF_FOODCLEAR()
+    local myHandle = session.GetMyHandle()
+    local foodBuffs = {4021, 4022, 4023, 4024, 4087, 4136}
 
-    if g.foodIndex < 5 then
-        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
-        g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format("EASYBUFF_5FOODONLY()"), 0.6)
-    else
-        EASYBUFF_END_FOOD()
+    for _, buffID in ipairs(foodBuffs) do
+        local buff = info.GetBuff(myHandle, buffID)
+        if buff ~= nil then
+            packet.ReqRemoveBuff(buffID)
+            ReserveScript("EASYBUFF_FOODCLEAR()", 0.3)
+            return
+        end
     end
+    g.foodflag = true
+    ui.SysMsg("{#FFFFFF}{ol}Food buff cleared.")
+
 end
 
-function EASYBUFF_ALLFOOD()
-    local frame = ui.GetFrame("foodtable_ui")
-    local handle = frame:GetUserIValue("HANDLE");
-    local sellType = frame:GetUserIValue("SELLTYPE");
+function EASYBUFF_FOOD_TABLE_FRAME_INIT()
 
-    if g.foodIndex <= 5 then
-        session.autoSeller.Buy(handle, g.foodIndex, 1, sellType);
-        g.foodIndex = g.foodIndex + 1;
-        ReserveScript(string.format("EASYBUFF_ALLFOOD()"), 0.6)
+    local frame = ui.GetFrame("foodtable_ui")
+
+    local btn = frame:CreateOrGetControl("button", "btn", 210, 50, 80, 30)
+    btn:SetText("{ol}4food")
+    btn:SetEventScript(ui.LBUTTONUP, "EASYBUFF_FOOD")
+    btn:SetEventScriptArgNumber(ui.LBUTTONUP, 4);
+
+    local btn2 = frame:CreateOrGetControl("button", "btn2", 295, 50, 80, 30)
+    btn2:SetText("{ol}5food")
+    btn2:SetEventScript(ui.LBUTTONUP, "EASYBUFF_FOOD")
+    btn2:SetEventScriptArgNumber(ui.LBUTTONUP, 5);
+
+    local btn3 = frame:CreateOrGetControl("button", "btn3", 380, 50, 80, 30)
+    btn3:SetText("{ol}allfood")
+    btn3:SetEventScript(ui.LBUTTONUP, "EASYBUFF_FOOD")
+    btn3:SetEventScriptArgNumber(ui.LBUTTONUP, 6);
+
+end
+
+function EASYBUFF_FOOD(frame, ctrl, str, num)
+    local frame = ui.GetFrame("foodtable_ui")
+    local handle = frame:GetUserIValue("HANDLE")
+    local sellType = frame:GetUserIValue("SELLTYPE")
+
+    if g.foodindex < num then
+        session.autoSeller.Buy(handle, g.foodindex, 1, sellType)
+        g.foodindex = g.foodindex + 1
+        ReserveScript(string.format("EASYBUFF_FOOD('%s','%s','%s',%d)", frame, ctrl, str, num), 0.6)
     else
         EASYBUFF_END_FOOD()
     end
 end
 
 function EASYBUFF_END_FOOD()
-    g.foodIndex = 0;
-    ui.CloseFrame("foodtable_ui");
-end
 
-function EASYBUFF_FOODCLEAR()
-    local myhandle = session.GetMyHandle()
-    local bufftable = {
-        [4022] = true,
-        [4023] = true,
-        [4024] = true,
-        [4021] = true,
-        [4087] = true,
-        [4136] = true
-    }
-
-    local shouldReserveScript = false
-    for buffID, _ in pairs(bufftable) do
-        local buff = info.GetBuff(myhandle, buffID)
-        if buff ~= nil then
-
-            packet.ReqRemoveBuff(buffID)
-            shouldReserveScript = true
-        end
-    end
-
-    if shouldReserveScript then
-        ReserveScript(string.format("EASYBUFF_FOODCLEAR()"), 0.3)
-    else
-        ui.SysMsg("{#FFFFFF}food buffs have disappeared")
-        return;
-    end
+    ui.CloseFrame("foodtable_ui")
+    g.foodflag = false
+    g.foodindex = 0
 end
 
 -- バフ屋
-function EASYBUFF_ONBUTTON()
+g.buffIndex = 0;
+function EASYBUFF_ON_BUFF()
     local frame = ui.GetFrame("buffseller_target");
     local handle = frame:GetUserIValue("HANDLE");
     local groupName = frame:GetUserValue("GROUPNAME");
@@ -341,7 +279,7 @@ function EASYBUFF_ONBUTTON()
     local cnt = session.autoSeller.GetCount(groupName);
     local itemInfo = session.autoSeller.GetByIndex(groupName, 0);
     if itemInfo == nil then
-        CHAT_SYSTEM("No buff info")
+        ui.SysMsg("No buff info")
         return;
     end
     g.buffIndex = 0;
@@ -354,13 +292,14 @@ function EASYBUFF_BUY(handle, sellType, cnt)
         g.buffIndex = g.buffIndex + 1;
         ReserveScript(string.format("EASYBUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.6)
     else
-        CHAT_SYSTEM("Buff completed");
+
         EASYBUFF_END()
     end
 end
 
 function EASYBUFF_TARGET_BUFF_AUTOSELL_LIST(groupName, sellType, handle)
     base["TARGET_BUFF_AUTOSELL_LIST"](groupName, sellType, handle)
+    -- TARGET_BUFF_AUTOSELL_LIST_OLD(groupName, sellType, handle)
     if g.settings.useHook ~= 1 then
         return;
     end
@@ -369,7 +308,7 @@ function EASYBUFF_TARGET_BUFF_AUTOSELL_LIST(groupName, sellType, handle)
     if frame ~= nil then
         local sellType = frame:GetUserIValue("SELL_TYPE");
         if sellType == AUTO_SELL_BUFF and g.buffIndex == 0 then
-            EASYBUFF_ONBUTTON()
+            EASYBUFF_ON_BUFF()
         end
     end
 end
@@ -380,7 +319,7 @@ function EASYBUFF_END()
 end
 
 -- Repair buff
-function EASYBUFF_ONBUTTON_REPAIR()
+function EASYBUFF_ON_REPAIR()
     session.ResetItemList();
 
     local frame = ui.GetFrame("itembuffrepair");
@@ -424,9 +363,6 @@ function EASYBUFF_ITEMBUFF_REPAIR_UI_COMMON(groupName, sellType, handle)
     end
     local frame = ui.GetFrame("itembuffrepair");
     if frame ~= nil then
-        EASYBUFF_ONBUTTON_REPAIR()
+        EASYBUFF_ON_REPAIR()
     end
 end
-
--- メンテ屋local function
-
