@@ -2,10 +2,14 @@
 -- v1.0.6 帰属解除スキップのバグ修正
 -- v1.0.7 チャンネルチェンジバグ修正
 -- v1.0.8 継承とか入れるのをスキップ
+-- v1.0.9 「今すぐこわす」をセット
+-- v1.1.0 とりあえずmsgをインプットする系は全部セットする様に出来たと思うけど知らん
+-- v1.1.1 ラダコレクション連続強化するように。速すぎてミス注意。
+-- v1.1.2 継承とか入力出来なかったの修正。テストコードそのまま放置してたのが原因
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -32,16 +36,136 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
+    -- addon:RegisterMsg("DO_OPEN_WARNINGMSGBOX_EX_UI", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN");
     -- g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
-    -- acutil.setupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
-    g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
-    -- CHAT_SYSTEM("NOCHECK loaded")
-    -- NOCHECK_FRAME_INIT()
+    -- acutil.setupEvent(addon, "WARNINGMSGBOX_EX_FRAME_OPEN", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN");
+
+    -- g.SetupHook(NOCHECK_WARNINGMSGBOX_FRAME_OPEN, "WARNINGMSGBOX_FRAME_OPEN")
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
+        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
+
+        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_REINFORCE_131014_CANCEL")
+        acutil.setupEvent(addon, "MORU_LBTN_CLICK", "NOCHECK_MORU_LBTN_CLICK");
+    end
 
 end
 
-function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
+function NOCHECK_REINFORCE_131014_CANCEL()
 
+    CANCEL_MORU()
+
+end
+
+function NOCHECK_MORU_LBTN_CLICK()
+
+    local invframe = ui.GetFrame("inventory");
+    local frame = ui.GetFrame("reinforce_131014")
+    local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
+    skipOver5:SetCheck(1)
+
+    invframe:RunUpdateScript("NOCHECK_REINFORCE_131014_CHECK_VISIBILITY", 1.0);
+end
+
+function NOCHECK_REINFORCE_131014_CHECK_VISIBILITY()
+
+    local frame = ui.GetFrame("reinforce_131014")
+    if frame:IsVisible() == 0 then
+        local fromItemSlot = GET_CHILD(frame, "fromItemSlot", "ui::CSlot");
+        local fromMoruSlot = GET_CHILD(frame, "fromMoruSlot", "ui::CSlot");
+        CLEAR_SLOT_ITEM_INFO(fromItemSlot);
+        CLEAR_SLOT_ITEM_INFO(fromMoruSlot);
+
+        REINFORCE_131014_UPDATE_MORU_COUNT(frame);
+
+        return 0
+    else
+        print("aru")
+        NOCHECK_REINFORCE_131014_MSGBOX()
+        return 1
+    end
+
+end
+
+function NOCHECK_REINFORCE_131014_MSGBOX()
+
+    local frame = ui.GetFrame("reinforce_131014")
+    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame);
+    local fromItemObj = GetIES(fromItem:GetObject());
+    local moruObj = GetIES(fromMoru:GetObject());
+
+    if moruObj.ClassName == "Moru_goddess_500" then
+        local button = GET_CHILD_RECURSIVELY(frame, "exec")
+        button:ShowWindow(0)
+
+        session.ResetItemList();
+        session.AddItemID(fromItem:GetIESID());
+        session.AddItemID(fromMoru:GetIESID());
+        local resultlist = session.GetItemIDList();
+        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist);
+
+        REINFORCE_131014_UPDATE_MORU_COUNT(frame)
+        return 1
+    else
+        REINFORCE_131014_EXEC()
+    end
+end
+
+function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()
+
+    local frame = ui.GetFrame("warningmsgbox")
+    if frame:IsVisible() == 0 then
+        return
+    else
+        local warningText = GET_CHILD_RECURSIVELY(frame, "warningtext")
+        local langCode = option.GetCurrentCountry()
+        local msg = ClMsg("destory_now")
+        if langCode ~= "Korean" then
+            msg = dictionary.ReplaceDicIDInCompStr(msg)
+        end
+        if string.find(warningText:GetText(), msg) ~= nil then
+            local input_frame = GET_CHILD_RECURSIVELY(frame, "input")
+            input_frame:SetText(msg)
+        end
+
+    end
+end
+
+function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS()
+    -- print("test")
+    local frame = ui.GetFrame('warningmsgbox_ex')
+    if frame:IsVisible() == 0 then
+        return
+    else
+        local compareText = GET_CHILD_RECURSIVELY(frame, "comparetext")
+        local start, finish = string.find(compareText:GetText(), "nl%}%[")
+
+        if start and finish then
+            local nextSubstring = compareText:GetText():sub(finish + 1)
+            local nextStart, nextFinish = string.find(nextSubstring, "%]")
+            if nextStart and nextFinish then
+                local desiredText = nextSubstring:sub(1, nextStart - 1)
+                local input_frame = GET_CHILD_RECURSIVELY(frame, "input")
+                input_frame:SetText(desiredText)
+
+                -- print("次の部分文字列:" .. desiredText)
+            else
+                -- print("次の']'が見つかりませんでした")
+                return
+            end
+        else
+            -- print("次のパターンが見つかりませんでした")
+            return
+        end
+    end
+
+end
+
+--[[function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
+    -- print("test")
     local arg_list = SCR_STRING_CUT(argStr, ';')
     if arg_list == nil or #arg_list <= 0 then
         return
@@ -152,7 +276,7 @@ function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
     warningbox:Resize(warningbox:GetWidth(), totalHeight)
     bg:Resize(bg:GetWidth(), totalHeight)
     frame:Resize(frame:GetWidth(), totalHeight)
-end
+end]]
 
 -- カードブック使用時の確認削除
 function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)
