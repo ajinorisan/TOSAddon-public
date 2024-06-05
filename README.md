@@ -31,6 +31,8 @@ https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate#%E6
 ![tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c1fa8e68-548e-431b-b8c0-a4697c1fa413)
 　
 
+v1.0.4 exeファイルのお知らせ削除。コマンド画面を最小化で起動する様に。
+
 v1.0.3 最初のexeファイルの置き場所ミスったら恒久的に動かなかった問題修正。
 
 v1.0.2 当社比1/10以下まで軽量化。チャット貯まってると重たかった現象解消。
