@@ -34,10 +34,11 @@
 -- v1.3.4 メレジナ、スロガ、ウピニスの自動チケットを使うボタンを付けた。
 -- v1.3.5 掃討バフある場合、自動でアイテム使って掃討する様に変更
 -- v1.3.6 TOSショップの分裂を好感したいのにチャレンジ券交換していたバグ修正。
+-- v1.3.7 メレジナハードに入れなかった問題修正。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.6"
+local ver = "1.3.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1523,7 +1524,8 @@ function INDUN_PANEL_INDUNINFO_SET_BUTTONS(indunType)
             [628] = "giltinehard",
             [687] = "upinishard",
             [690] = "slogutishard",
-            [663] = "earringhard"
+            [663] = "earringhard",
+            [697] = "merreginahard"
         }
 
         local buttonName = buttonMap[indunType]

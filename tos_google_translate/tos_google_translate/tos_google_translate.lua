@@ -12,10 +12,11 @@
 -- v1.0.1 別フレームモードバグ修正
 -- v1.0.2 チャットが貯まってくると重たくなっていたの修正
 -- v1.0.3 exeファイル置く場所間違ったらsettings消すまで永久に使えなかった問題修正。
+-- v1.0.4 スタート時に要らないお知らせ出るの削除。py最小化して起動するように。
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -476,8 +477,8 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
         cmdName = cmdName:gsub("%[.*%]", ""):gsub("^%s*(.-)%s*$", "%1")
 
         local new_entry = string.format(
-            '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}', tostring(chat_id),
-            MsgType, cleanedText, time, cmdName, g.settings.lang)
+                              '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}',
+                              tostring(chat_id), MsgType, cleanedText, time, cmdName, g.settings.lang)
 
         local send_file = io.open(g.sendFileLoc, "r")
         local content = ""
@@ -566,7 +567,7 @@ function tos_google_translate_receive()
 
             for line in file:lines() do
                 local chat_id, org_name, trans_text, msgtype, time = line:match(
-                    '^"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"$')
+                                                                         '^"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"$')
                 if chat_id and org_name and trans_text and msgtype and time then
                     -- g.output にインサート
                     table.insert(output, {
@@ -711,7 +712,7 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
             for line in file:lines() do
                 local chat_id, org_name, trans_text, msgtype, time = line:match(
-                    '^"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"$')
+                                                                         '^"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"$')
                 if chat_id and org_name and trans_text and msgtype and time then
 
                     table.insert(output, {
@@ -736,7 +737,7 @@ function tos_google_translate_frame_init(frame, ctrl, argStr, argNum)
 
             for line in file:lines() do
                 local chat_id, org_name, trans_text, msgtype, time = line:match(
-                    '^"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"$')
+                                                                         '^"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"%s*:%s*"(.-)"$')
                 if chat_id and org_name and trans_text and msgtype and time then
                     -- g.output にインサート
                     table.insert(output, {
@@ -880,7 +881,7 @@ function tos_google_translate_gbox(output)
 
         if g.settings.use == 1 then
             local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
-                marginRight, 1)
+                                                        marginRight, 1)
             local label = chatCtrl:GetChild('bg')
             local txt = GET_CHILD(chatCtrl, "text")
             local timeCtrl = GET_CHILD(chatCtrl, "time")
@@ -1155,8 +1156,8 @@ function tos_google_translate_start()
 
         end
         local new_entry = string.format(
-            '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}', "1", "System",
-            "Tos Google Translate Version " .. ver .. " Startup Test", "", "", "en")
+                              '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}',
+                              "1", "System", "Tos Google Translate Version " .. ver .. " Startup Test", "", "", "en")
 
         local send = io.open(g.sendFileLoc, "w")
         if send then
@@ -1181,20 +1182,21 @@ function tos_google_translate_start()
     tos_google_translate_frame_init()
 
 end
-function copy_exe_file()
+
+function tos_google_translate_copy_exe_file()
     local src_path =
         "../addons/tos_google_translate/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
     local dest_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
     local src_file = io.open(src_path, "rb")
 
     if not src_file then
-        ui.SysMsg("Source file not found: " .. src_path)
+        -- ui.SysMsg("Source file not found: " .. src_path)
         return
     end
 
     local dest_file = io.open(dest_path, "wb")
     if not dest_file then
-        ui.SysMsg("Failed to create destination file: " .. dest_path)
+        -- ui.SysMsg("Failed to create destination file: " .. dest_path)
         src_file:close()
         return
     end
@@ -1205,11 +1207,12 @@ function copy_exe_file()
     src_file:close()
     dest_file:close()
 
-    ui.SysMsg("File copied successfully from " .. src_path .. " to " .. dest_path)
+    -- ui.SysMsg("File copied successfully from " .. src_path .. " to " .. dest_path)
 end
 
 function tos_google_translate_exe_start()
-    copy_exe_file()
+    tos_google_translate_copy_exe_file()
+
     local function delete_folder(path)
         -- Windows環境でコマンドを実行してディレクトリを削除
         local command = string.format('rmdir /S /Q "%s"', path)
@@ -1220,15 +1223,11 @@ function tos_google_translate_exe_start()
 
     delete_folder(folder_path)
     local exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
-    -- local default_exe_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe" -- デフォルトの実行パス
-
-    -- exe_pathがnilの場合、デフォルトパスを設定
-    -- exe_path = exe_path or default_exe_path
 
     local file = io.open(exe_path, "r")
     if file then
         file:close()
-        local command = string.format('start "" "%s"', exe_path)
+        local command = string.format('start "" /min "%s"', exe_path)
         os.execute(command)
 
         g.loaded = true
@@ -1239,7 +1238,7 @@ function tos_google_translate_exe_start()
         return
     end
 end
--- g.settings = nil
+
 function tos_google_translate_load_settings()
 
     local settings = acutil.loadJSON(g.settingsFileLoc, g.settings)
@@ -1366,12 +1365,12 @@ function tos_google_translate_save_settings()
 end
 
 function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, count, makeLogoutPC, leaderFID,
-    isCorsairType, ispipui, partyID)
+                                                 isCorsairType, ispipui, partyID)
 
     if partyID ~= nil and partyMemberInfo ~= nil and partyID ~= partyMemberInfo:GetPartyID() then
         return nil;
     end
-    -- test()
+
     local partyinfoFrame = ui.GetFrame('partyinfo')
     local FAR_MEMBER_FACE_COLORTONE = partyinfoFrame:GetUserConfig("FAR_MEMBER_FACE_COLORTONE")
     local NEAR_MEMBER_FACE_COLORTONE = partyinfoFrame:GetUserConfig("NEAR_MEMBER_FACE_COLORTONE")
@@ -1385,8 +1384,6 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
     if g.names[partyMemberName] then
         partyMemberName = g.names[partyMemberName]
     end
-
-    -- g.tempparty の中身を表示（デバッグ用）
 
     local myHandle = session.GetMyHandle();
     local ctrlName = 'PTINFO_' .. partyMemberInfo:GetAID();
@@ -1451,7 +1448,7 @@ function tos_google_translate_SET_PARTYINFO_ITEM(frame, msg, partyMemberInfo, co
 
         if ispipui == true then
             partyMemberName = ScpArgMsg("PartyMemberMapNChannel", "Name", partyMemberName, "Mapname",
-                partymembermapUIName, "ChNo", partyMemberInfo:GetChannel() + 1)
+                                        partymembermapUIName, "ChNo", partyMemberInfo:GetChannel() + 1)
         end
 
         if dist < sharedcls.Value and mymapname == partymembermapName then
