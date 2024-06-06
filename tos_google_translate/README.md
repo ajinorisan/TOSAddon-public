@@ -4,12 +4,12 @@
 
 ※バージョン0.9.6からexeファイルが新しくなっていますので、古いexeファイルをお持ちの方は再ダウウンロードの上解凍してください。
 
-　exeファイルのバージョンは1.0.1です。アドオンの最新版は1.0.3です。それ以前は動作重たいです。
+　exeファイルのバージョンは1.0.1です。アドオンの最新版は1.0.4です。それ以前は動作重たいです。
 
 
 ### 導入方法
 
-アドオンマネージャーから Tos Google Translate v1.0.3 をインストールします。
+アドオンマネージャーから Tos Google Translate v1.0.4 をインストールします。
 
 この場所にある tos_google_translate.zip をダウンロードします。
 
@@ -52,12 +52,12 @@ Fixed a problem in which the add-on did not work permanently if the exe file was
 
 If you have the old exe file, please re-download and unzip it.
 
-　The version of the exe file is 1.0.1. The latest version of the add-on is 1.0.3. Earlier versions are slow.
+　The version of the exe file is 1.0.1. The latest version of the add-on is 1.0.4. Earlier versions are slow.
 
 
 ### How to install
 
-Install Tos Google Translate v1.0.3 from Add-ons Manager.
+Install Tos Google Translate v1.0.4 from Add-ons Manager.
 
 Download tos_google_translate.zip at this location.
 
@@ -102,12 +102,12 @@ Translated with www.DeepL.com/Translator (free version)
 
 버전 0.9.6부터 exe 파일이 새로워졌으니, 기존 exe 파일을 가지고 계신 분들은 다시 다운로드 후 압축을 풀어주세요.
 
-　exe 파일의 버전은 1.0.1입니다. 애드온의 최신 버전은 1.0.3입니다. 그 이전 버전은 동작이 무겁습니다.
+　exe 파일의 버전은 1.0.1입니다. 애드온의 최신 버전은 1.0.4입니다. 그 이전 버전은 동작이 무겁습니다.
 
 
 ### 도입 방법
 
-애드온 관리자에서 Tos Google Translate v1.0.3을 설치합니다.
+애드온 관리자에서 Tos Google Translate v1.0.4을 설치합니다.
 
 이 곳에 있는 tos_google_translate.zip을 다운로드합니다.
 
