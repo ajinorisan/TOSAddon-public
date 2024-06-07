@@ -37,3 +37,4 @@ function SUB_SLOTSET_ON_INIT(addon, frame)
     -- g.SetupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST");
 end
 
+
