@@ -4,12 +4,12 @@
 
 ※バージョン0.9.6からexeファイルが新しくなっていますので、古いexeファイルをお持ちの方は再ダウウンロードの上解凍してください。
 
-　exeファイルのバージョンは1.0.2です。アドオンの最新版は1.0.5です。exeファイルの1.0.1でも動くのは動きますが更新をオススメします。
+　exeファイルのバージョンは1.0.2です。アドオンの最新版は1.0.6です。exeファイルの1.0.1でも動くのは動きますが更新をオススメします。
 
 
 ### 導入方法
 
-アドオンマネージャーから Tos Google Translate v1.0.5 をインストールします。
+アドオンマネージャーから Tos Google Translate v1.0.6 をインストールします。
 
 この場所にある tos_google_translate.zip をダウンロードします。
 
@@ -47,12 +47,12 @@ C:\Program Files (x86)\Steam\steamapps\common\Tree of Savior (Japanese Ver.)\add
 
 If you have the old exe file, please re-download and unzip it.
 
-　The version of the exe file is 1.0.2. The latest version of the add-on is 1.0.5. 1.0.1 of the exe file also works, but we recommend updating it.
+　The version of the exe file is 1.0.2. The latest version of the add-on is 1.0.6. 1.0.1 of the exe file also works, but we recommend updating it.
 
 
 ### How to install
 
-Install Tos Google Translate v1.0.5 from the Add-ons Manager.
+Install Tos Google Translate v1.0.6 from the Add-ons Manager.
 
 Download tos_google_translate.zip at this location.
 
@@ -90,12 +90,12 @@ or “/tgt” in the in-game chat
 
 버전 0.9.6부터 exe 파일이 새로워졌으니, 기존 exe 파일을 가지고 계신 분들은 다시 다운로드 후 압축을 풀어주세요.
 
-　exe 파일의 버전은 1.0.2입니다. 애드온의 최신 버전은 1.0.5이며, exe 파일 1.0.1에서도 작동하지만 업데이트를 권장합니다.
+　exe 파일의 버전은 1.0.2입니다. 애드온의 최신 버전은 1.0.6이며, exe 파일 1.0.1에서도 작동하지만 업데이트를 권장합니다.
 
 
 ### 도입 방법
 
-애드온 관리자에서 Tos Google Translate v1.0.5를 설치합니다.
+애드온 관리자에서 Tos Google Translate v1.0.6를 설치합니다.
 
 이 곳에 있는 tos_google_translate.zip을 다운로드합니다.
 

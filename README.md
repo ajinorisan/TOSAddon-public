@@ -31,6 +31,8 @@ https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate#%E6
 ![tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c1fa8e68-548e-431b-b8c0-a4697c1fa413)
 　
 
+v1.0.6 exe1.0.2の自動起動失敗してたので修正。
+
 v1.0.5 速度上げたかった。表示バグるの修正。exeファイルを1.0.2に上げた。1.0.1でも動くのは動く。
 
 v1.0.4 exeファイルのお知らせ削除。コマンド画面を最小化で起動する様に。

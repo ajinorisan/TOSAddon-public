@@ -14,10 +14,12 @@
 -- v1.0.3 exeファイル置く場所間違ったらsettings消すまで永久に使えなかった問題修正。
 -- v1.0.4 スタート時に要らないお知らせ出るの削除。py最小化して起動するように。
 -- v1.0.5 バグ修正。exe1.0.2対応
+-- v1.0.6 exe1.0.2が正しく起動しなかったの修正。
 local addonName = "TOS_GOOGLE_TRANSLATE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
+local exe = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -61,9 +63,9 @@ function TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
 
     acutil.slashCommand("/tos_google_translate", tos_google_translate_restart);
     acutil.slashCommand("/tgt", tos_google_translate_restart);
-    --g.SetupHook(tos_google_translate_REQ_TRANSLATE_TEXT, "REQ_TRANSLATE_TEXT")
+    -- g.SetupHook(tos_google_translate_REQ_TRANSLATE_TEXT, "REQ_TRANSLATE_TEXT")
     g.SetupHook(tos_google_translate_SET_PARTYINFO_ITEM, "SET_PARTYINFO_ITEM")
-   -- g.SetupHook(tos_google_translate_CHAT_TAB_BTN_CLICK, "CHAT_TAB_BTN_CLICK")
+    -- g.SetupHook(tos_google_translate_CHAT_TAB_BTN_CLICK, "CHAT_TAB_BTN_CLICK")
     g.SetupHook(tos_google_translate_DAMAGE_METER_GAUGE_SET, "DAMAGE_METER_GAUGE_SET")
     addon:RegisterMsg("GAME_START", "tos_google_translate_koja");
     addon:RegisterMsg("GAME_START_3SEC", "tos_google_translate_name_trans");
@@ -433,7 +435,7 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
 
     local cmdName = chat:GetCommanderName();
     local tempMsg = chat:GetMsg();
-   
+
     local lastmsg = cmdName .. ":" .. tempMsg
     if g.lastmsg == lastmsg then
 
@@ -493,7 +495,7 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
 
         -- cleanedTextの置き換え処理
         cleanedText = replace_special_chars(cleanedText)
-        --print(tempMsg)
+        -- print(tempMsg)
         local new_entry = string.format(
             '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}', tostring(chat_id),
             MsgType, cleanedText, time, cmdName, g.settings.lang)
@@ -878,11 +880,10 @@ function tos_google_translate_gbox(output)
             commnderNameUIText = commnderNameUIText .. "{#FF0000}_{/}"
         end
 
-        
         commnderNameUIText = commnderNameUIText:gsub("{s18", "")
         commnderNameUIText = commnderNameUIText:gsub("}{a SLI", "{a SLI")
         commnderNameUIText = commnderNameUIText:gsub("{/}{/{", "{/}{/}{")
-        --print(commnderNameUIText)
+        -- print(commnderNameUIText)
         local msgFront = ""
         local fontStyle = nil
         if msgtype == "Normal" then
@@ -946,7 +947,7 @@ function tos_google_translate_gbox(output)
                 local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
                 local chatWidth = groupbox:GetWidth()
                 txt:SetTextMaxWidth(chatWidth - 100)
-                 txt:SetText(txt:GetText())
+                txt:SetText(txt:GetText())
                 label:Resize(chatWidth - offsetX, txt:GetHeight())
                 chatCtrl:Resize(chatWidth, label:GetHeight())
 
@@ -1003,7 +1004,7 @@ function tos_google_translate_start()
         end
         local new_entry = string.format(
             '{"chat_id":"%s","msgtype":"%s","trans_text":"%s","time":"%s","name":"%s","lang":"%s"}', "1", "System",
-            "Tos Google Translate Version " .. ver .. " Startup Test", "", "", "en")
+            "Tos Google Translate AddonVersion" .. ver .. " ExeVersion" .. exe .. " Startup Test", "", "", "en")
 
         local send = io.open(g.sendFileLoc, "w")
         if send then
@@ -1030,9 +1031,29 @@ function tos_google_translate_start()
 end
 
 function tos_google_translate_copy_exe_file()
-    local src_path =
-        "../addons/tos_google_translate/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
-    local dest_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate-v1.0.1.exe"
+    -- ファイルパスを設定
+    local base_path = "../addons/tos_google_translate/tos_google_translate/tos_google_translate/"
+    local file_name_1_0_2 = "tos_google_translate-v1.0.2.exe"
+    local file_name_1_0_1 = "tos_google_translate-v1.0.1.exe"
+    local src_path, dest_path
+
+    -- コピー先のファイルパス（仮に異なるディレクトリへのコピーとする）
+    dest_path = "../addons/tos_google_translate/tos_google_translate/" -- 例: バックアップ用のディレクトリ
+    -- os.execute("mkdir " .. dest_path) -- ディレクトリを作成
+
+    -- 1.0.2が存在するか確認
+    local src_file_1_0_2 = io.open(base_path .. file_name_1_0_2, "rb")
+
+    if src_file_1_0_2 then
+        src_path = base_path .. file_name_1_0_2
+        dest_path = dest_path .. file_name_1_0_2
+        src_file_1_0_2:close()
+    else
+        -- 1.0.2が存在しない場合、1.0.1を使用
+        src_path = base_path .. file_name_1_0_1
+        dest_path = dest_path .. file_name_1_0_1
+    end
+
     local src_file = io.open(src_path, "rb")
 
     if not src_file then
@@ -1077,6 +1098,7 @@ function tos_google_translate_exe_start()
     -- 新しいバージョンが存在するかチェック
     local file_v2 = io.open(exe_path_v2, "r")
     if file_v2 then
+        -- ui.SysMsg("exe ver 1.0.2")
         file_v2:close()
     else
         -- 新しいバージョンが無い場合、古いバージョンを使用
@@ -1086,8 +1108,8 @@ function tos_google_translate_exe_start()
             file_v1:close()
         else
             -- 両方のファイルが存在しない場合はエラーメッセージを表示
-            ui.SysMsg(tos_google_translate_lang("[Tos Google Translate]{nl}" .. exe_path_v2 .. "{nl}" ..
-                                                "and " .. exe_path_v1 .. " cannot be found. Exit."))
+            ui.SysMsg("[Tos Google Translate]{nl}" .. exe_path_v2 .. "{nl}" .. "and " .. exe_path_v1 ..
+                          " cannot be found. Exit.")
             return
         end
     end
@@ -1099,7 +1121,6 @@ function tos_google_translate_exe_start()
     g.loaded = true
     -- tos_google_translate_frame_init()
 end
-
 
 function tos_google_translate_load_settings()
 
