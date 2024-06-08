@@ -6,10 +6,11 @@
 -- v1.0.3 表示切替機能。インベントリにボタン付けた。
 -- v1.0.4 装備ボタンが非表示になるバグ修正。細かいところ色々変更
 -- v1.0.5 2ページ表示の場合に設定が即時反映されないバグ修正
+-- v1.0.6 2ページ目のイコル付け替えた際に1ページ目に戻るの修正。イコルのLV表示取りやめ。
 local addonName = "GODDESS_ICOR_MANAGER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -792,25 +793,6 @@ function goddess_icor_manager_language(str)
             str = "HPエリクサー広域化"
         end
 
-        --[[if str == "rada_bless_1" then
-            str = "ラダの恩恵(+1)"
-        end
-        if str == "dievdirbys_bless_1" then
-            str = "テスラの恩恵(+1)"
-        end
-        if str == "zemyna_bless_1" then
-            str = "ジェミナの恩恵(+1)"
-        end
-        if str == "payawoota_bless_1" then
-            str = "パヤウタの恩恵(+1)"
-        end
-        if str == "fireMage_bless_1" then
-            str = "メリンの恩恵(+1)"
-        end
-        if str == "saule_bless_1" then
-            str = "サウレの恩恵(+1)"
-        end]]
-
         if str == "rada_bless_1" then
             str = ClMsg("rada_bless_1")
         end
@@ -897,197 +879,7 @@ function goddess_icor_manager_language(str)
         end
 
         return str
-        --[[else
-        if str == "STR" then
-            str = ClMsg("STR")
-        end
-        if str == "DEX" then
-            str = ClMsg("DEX")
-        end
-        if str == "INT" then
-            str = ClMsg("INT")
-        end
-        if str == "CON" then
-            str = ClMsg("CON")
-        end
-        if str == "MNA" then
-            str = ClMsg("MNA")
-        end
 
-        if str == "BLK" then
-            str = ClMsg("BLK")
-        end
-        if str == "BLK_BREAK" then
-            str = ClMsg("BLK_BREAK")
-        end
-        if str == "ADD_HR" then
-            str = ClMsg("ADD_HR")
-        end
-        if str == "ADD_DR" then
-            str = ClMsg("ADD_DR")
-        end
-        if str == "CRTHR" then
-            str = ClMsg("CRTHR")
-        end
-        if str == "CRTDR" then
-            str = ClMsg("CRTDR")
-        end
-        if str == "RHP" then
-            str = ClMsg("RHP")
-        end
-        if str == "RSP" then
-            str = ClMsg("RSP")
-        end
-
-        if str == "Leather_Def" then
-            str = ClMsg("Leather_Def")
-        end
-        if str == "Cloth_Def" then
-            str = ClMsg("Cloth_Def")
-        end
-        if str == "Iron_Def" then
-            str = ClMsg("Iron_Def")
-        end
-        if str == "MiddleSize_Def" then
-            str = ClMsg("MiddleSize_Def")
-        end
-
-        if str == "ADD_LEATHER" then
-            str = ClMsg("ADD_LEATHER")
-        end
-        if str == "ADD_IRON" then
-            str = ClMsg("ADD_IRON")
-        end
-        if str == "ADD_CLOTH" then
-            str = ClMsg("ADD_CLOTH")
-        end
-        if str == "ADD_GHOST" then
-            str = ClMsg("ADD_GHOST")
-        end
-        if str == "ADD_SMALLSIZE" then
-            str = ClMsg("ADD_SMALLSIZE")
-        end
-        if str == "ADD_MIDDLESIZE" then
-            str = ClMsg("ADD_MIDDLESIZE")
-        end
-        if str == "ADD_LARGESIZE" then
-            str = ClMsg("ADD_LARGESIZE")
-        end
-        if str == "ADD_FORESTER" then
-            str = ClMsg("ADD_FORESTER")
-        end
-        if str == "ADD_WIDLING" then
-            str = ClMsg("ADD_WIDLING")
-        end
-        if str == "ADD_VELIAS" then
-            str = ClMsg("ADD_VELIAS")
-        end
-        if str == "ADD_PARAMUNE" then
-            str = ClMsg("ADD_PARAMUNE")
-        end
-        if str == "ADD_KLAIDA" then
-            str = ClMsg("ADD_KLAIDA")
-        end
-
-        if str == "Add_Damage_Atk" then
-            str = ClMsg("Add_Damage_Atk")
-        end
-        if str == "ResAdd_Damage" then
-            str = ClMsg("ResAdd_Damage")
-        end
-
-        if str == "AllRace_Atk" then
-            str = ClMsg("AllRace_Atk")
-        end
-        if str == "AllMaterialType_Atk" then
-            str = ClMsg("AllMaterialType_Atk")
-        end
-
-        if str == "perfection" then
-            str = ClMsg("perfection")
-        end
-        if str == "revenge" then
-            str = ClMsg("revenge")
-        end
-
-        if str == "stun_res" then
-            str = ClMsg("stun_res")
-        end
-        if str == "high_fire_res" then
-            str = ClMsg("high_fire_res")
-        end
-        if str == "high_freezing_res" then
-            str = ClMsg("high_freezing_res")
-        end
-        if str == "high_lighting_res" then
-            str = ClMsg("high_lighting_res")
-        end
-        if str == "high_poison_res" then
-            str = ClMsg("high_poison_res")
-        end
-        if str == "high_laceration_res" then
-            str = ClMsg("high_laceration_res")
-        end
-        if str == "portion_expansion" then
-            str = ClMsg("portion_expansion")
-        end
-
-        if str == "rada_bless_1" then
-            str = ClMsg("rada_bless_1")
-        end
-        if str == "dievdirbys_bless_1" then
-            str = ClMsg("dievdirbys_bless_1")
-        end
-        if str == "zemyna_bless_1" then
-            str = ClMsg("zemyna_bless_1")
-        end
-        if str == "payawoota_bless_1" then
-            str = ClMsg("payawoota_bless_1")
-        end
-        if str == "fireMage_bless_1" then
-            str = ClMsg("fireMage_bless_1")
-        end
-        if str == "saule_bless_1" then
-            str = ClMsg("saule_bless_1")
-        end
-
-        if str == " 500Advanced" then
-            str = " LV500 Advanced"
-        end
-        if str == " 480Advanced" then
-            str = " LV480 Advanced"
-        end
-
-        --[[if str == " disabled" then
-            str = " 使用不可"
-        end
-
-        if str == "RH" then
-            str = ClMsg("RH")
-        end
-        if str == "LH" then
-            str = ClMsg("LH")
-        end
-        if str == "RH_SUB" then
-            str = ClMsg("RH_SUB")
-        end
-        if str == "LH_SUB" then
-            str = ClMsg("LH_SUB")
-        end
-        if str == "SHIRT" then
-            str = ClMsg("Shirt")
-        end
-        if str == "PANTS" then
-            str = ClMsg("Pants")
-        end
-        if str == "GLOVES" then
-            str = ClMsg("GLOVES")
-        end
-        if str == "BOOTS" then
-            str = ClMsg("BOOTS")
-        end
-
-        return str]]
     else
         if str == "STR" then
             str = "STR"
@@ -1226,20 +1018,50 @@ function goddess_icor_manager_language(str)
         if str == "rada_bless_1" then
             str = ClMsg("rada_bless_1")
         end
-        if str == "dievdirbys_bless_1" then
-            str = ClMsg("dievdirbys_bless_1")
+        if str == "gabija_bless_1" then
+            str = ClMsg("gabija_bless_1")
         end
-        if str == "zemyna_bless_1" then
-            str = ClMsg("zemyna_bless_1")
+        if str == "vakarine_bless_1" then
+            str = ClMsg("vakarine_bless_1")
+        end
+        if str == "jurate_bless_1" then
+            str = ClMsg("jurate_bless_1")
+        end
+        if str == "saule_bless_1" then
+            str = ClMsg("saule_bless_1")
         end
         if str == "payawoota_bless_1" then
             str = ClMsg("payawoota_bless_1")
         end
+        if str == "zemyna_bless_1" then
+            str = ClMsg("zemyna_bless_1")
+        end
+        if str == "cleric_bless_1" then
+            str = ClMsg("cleric_bless_1")
+        end
+        if str == "priest_bless_1" then
+            str = ClMsg("priest_bless_1")
+        end
+        if str == "dievdirbys_bless_1" then
+            str = ClMsg("dievdirbys_bless_1")
+        end
+        if str == "chaplain_bless_1" then
+            str = ClMsg("chaplain_bless_1")
+        end
+        if str == "retiarii_bless_1" then
+            str = ClMsg("retiarii_bless_1")
+        end
+        if str == "appraiser_bless_1" then
+            str = ClMsg("appraiser_bless_1")
+        end
+        if str == "plagueDoctor_bless_1" then
+            str = ClMsg("plagueDoctor_bless_1")
+        end
         if str == "fireMage_bless_1" then
             str = ClMsg("fireMage_bless_1")
         end
-        if str == "saule_bless_1" then
-            str = ClMsg("saule_bless_1")
+        if str == "dalia_bless_1" then
+            str = ClMsg("dalia_bless_1")
         end
 
         if str == " 500Advanced" then
@@ -1317,49 +1139,11 @@ local managed_slot_list = {{
     ClMsg = 'LH_SUB'
 }}
 
---[[local color_attribute = {}
-color_attribute['Cloth_Def'] = 'Cloth_Def_status'
-color_attribute['Leather_Def'] = 'Leather_Def_status'
-color_attribute['Iron_Def'] = 'Iron_Def_status'
-color_attribute['MiddleSize_Def'] = 'MiddleSize_Def_status'
-color_attribute['AllMaterialType_Def'] = 'AllMaterialType_Def_status'
-color_attribute['ResAdd_Damage'] = 'ResAdd_Damage_status'
-
-color_attribute['SmallSize_Atk'] = 'SmallSize_Atk_status'
-color_attribute['MiddleSize_Atk'] = 'MiddleSize_Atk_status'
-color_attribute['LargeSize_Atk'] = 'LargeSize_Atk_status'
-color_attribute['Cloth_Atk'] = 'Cloth_Atk_status'
-color_attribute['Leather_Atk'] = 'Leather_Atk_status'
-color_attribute['Iron_Atk'] = 'Iron_Atk_status'
-color_attribute['Forester_Atk'] = 'Forester_Atk_status'
-color_attribute['Widling_Atk'] = 'Widling_Atk_status'
-color_attribute['Klaida_Atk'] = 'Klaida_Atk_status'
-color_attribute['Paramune_Atk'] = 'Paramune_Atk_status'
-color_attribute['Velnias_Atk'] = 'Velnias_Atk_status'
-color_attribute['Ghost_Atk'] = 'Ghost_Atk_status'
-color_attribute['Add_Damage_Atk'] = 'Add_Damage_Atk_status'
-color_attribute['BOSS_ATK'] = 'BOSS_ATK_status'
-color_attribute['AllMaterialType_Atk'] = 'AllMaterialType_Atk_status'
-color_attribute['AllSize_Atk'] = 'AllSize_Atk_status'
-color_attribute['AllRace_Atk'] = 'AllRace_Atk_status'
-color_attribute['perfection'] = 'perfection_status'
-color_attribute['revenge'] = 'revenge_status'
-color_attribute['stun_res'] = 'stun_res_status'
-color_attribute['high_fire_res'] = 'high_fire_res_status'
-color_attribute['high_freezing_res'] = 'high_freezing_res_status'
-color_attribute['high_lighting_res'] = 'high_lighting_res_status'
-color_attribute['high_poison_res'] = 'high_poison_res_status'
-color_attribute['high_laceration_res'] = 'high_laceration_res_status'
-color_attribute['portion_expansion'] = 'portion_expansion_status']]
-
 function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
-    -- addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "test_norisan_ON_PARTYINFO_BUFFLIST_UPDATE");
-    -- g.SetupHook(test_norisan_ON_PARTYINFO_BUFFLIST_UPDATE, "PARTY_BUFFLIST_UPDATE")
-    -- acutil.setupHook(goddess_icor_manager_GODDESS_MGR_RANDOMOPTION_APPLY_EXEC, "_GODDESS_MGR_RANDOMOPTION_APPLY_EXEC")
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -1404,10 +1188,13 @@ function goddess_icor_manager_list_init(frame, ctrl, argStr, argNum)
     frame:SetSkinName("test_frame_midle_light")
     frame:RemoveAllChild()
     goddess_icor_manager_newframe_init()
-    if argNum == 0 then
-        goddess_icor_manager_list_gb_init(frame, _, _, _)
+    if argNum == 2 then
+        g.num = 2
+        goddess_icor_manager_list_gb_init(frame, 2)
+
     else
-        goddess_icor_manager_list_gb_init(frame, argNum)
+        g.num = 1
+        goddess_icor_manager_list_gb_init(frame, 1)
     end
 
 end
@@ -1428,12 +1215,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
     end
 
     if g.settings.check == 0 then
-        local right_btn = frame:CreateOrGetControl("button", "right_btn", 740, 1020, 30, 30)
-        AUTO_CAST(right_btn)
-        right_btn:SetText("{img white_right_arrow 18 18}")
-        right_btn:SetSkinName("brown_3patch_btn")
-        right_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
-        right_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 2)
+        local Y = 10
 
         local left_btn = frame:CreateOrGetControl("button", "left_btn", 690, 1020, 30, 30)
         AUTO_CAST(left_btn)
@@ -1442,81 +1224,15 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
         left_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
         left_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
 
-        local Y = 10
-        local YY = 10
+        local right_btn = frame:CreateOrGetControl("button", "right_btn", 740, 1020, 30, 30)
+        AUTO_CAST(right_btn)
+        right_btn:SetText("{img white_right_arrow 18 18}")
+        right_btn:SetSkinName("brown_3patch_btn")
+        right_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
+        right_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 2)
 
-        -- for i = 1, page_max do
-        -- if i <= 5 then
-        -- frame:RemoveAllChild()
-        if argNum ~= 2 then
-            for i = 1, 5 do
-                local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 1010) -- 490
-                AUTO_CAST(bg)
-                bg:RemoveAllChild()
-                -- bg:SetOffset(0, 10)
+        if argNum == 2 then
 
-                bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
-                local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
-                AUTO_CAST(pagename_text)
-
-                local pagename = goddess_icor_manager_get_pagename(i)
-
-                Y = Y + 283
-
-                if remain_time == 0 and tonumber(max_page) < i then
-                    pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
-                else
-                    pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
-                end
-                -- pagename_text:SetText(pagename)
-                bg:SetSkinName("bg")
-                bg:ShowWindow(1)
-
-                local manage_X = 0
-                for j = 1, #managed_list do
-                    local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
-                    manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
-                    local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
-
-                    manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
-                    -- manage_bg:SetSkinName("chat_window_2");
-                    -- manage_bg:SetSkinName("digitnotice_bg");
-                    manage_bg:SetSkinName("test_frame_midle_light");
-                    manage_X = manage_X + 122
-                    -- end
-                    local parts1 = {}
-                    local parts2 = {}
-                    local parts3 = {}
-
-                    local option_prop, group_prop, value_prop, is_goddess_option =
-                        goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
-
-                    if option_prop ~= nil then
-
-                        for part in option_prop:gmatch("([^/]+)") do
-                            table.insert(parts1, part)
-                        end
-
-                        for part in group_prop:gmatch("([^/]+)") do
-                            table.insert(parts2, part)
-                        end
-
-                        for part in value_prop:gmatch("([^/]+)") do
-                            table.insert(parts3, part)
-                        end
-
-                        goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
-
-                    end
-                end
-                -- frame:Invalidate()
-            end
-        else
-            -- end
-
-            -- if i >= 6 and argNum == 2 then
             for i = 6, page_max do
                 local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 1010) -- 490
                 AUTO_CAST(bg)
@@ -1575,9 +1291,77 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 end
                 -- frame:Invalidate()
             end
+
+        elseif argNum == 1 then
+
+            for i = 1, 5 do
+                local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 1010) -- 490
+                AUTO_CAST(bg)
+                bg:RemoveAllChild()
+
+                bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
+                AUTO_CAST(pagename_text)
+
+                local pagename = goddess_icor_manager_get_pagename(i)
+
+                Y = Y + 283
+
+                if remain_time == 0 and tonumber(max_page) < i then
+                    pagename_text:SetText("{ol}{#FF4500}" .. pagename .. goddess_icor_manager_language(" disabled"))
+                else
+                    pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
+                end
+
+                bg:SetSkinName("bg")
+                bg:ShowWindow(1)
+
+                local manage_X = 0
+                for j = 1, #managed_list do
+                    local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
+                    manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
+
+                    manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+                    -- manage_bg:SetSkinName("chat_window_2");
+                    -- manage_bg:SetSkinName("digitnotice_bg");
+                    manage_bg:SetSkinName("test_frame_midle_light");
+                    manage_X = manage_X + 122
+                    -- end
+                    local parts1 = {}
+                    local parts2 = {}
+                    local parts3 = {}
+
+                    local option_prop, group_prop, value_prop, is_goddess_option =
+                        goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
+
+                    if option_prop ~= nil then
+
+                        for part in option_prop:gmatch("([^/]+)") do
+                            table.insert(parts1, part)
+                        end
+
+                        for part in group_prop:gmatch("([^/]+)") do
+                            table.insert(parts2, part)
+                        end
+
+                        for part in value_prop:gmatch("([^/]+)") do
+                            table.insert(parts3, part)
+                        end
+
+                        goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
+
+                    end
+                end
+            end
         end
         goddess_icor_manager_check()
-    else
+    end
+
+    if g.settings.check == 1 then
+
         local Y = 10
         local YY = 10
 
@@ -1707,12 +1491,96 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
         end
         goddess_icor_manager_check()
         frame:Resize(1430, 1000)
-    end
-    -- end
-
-    if g.settings.check == 1 then
         goddess_icor_manager_set_pos(frame, page_max)
     end
+
+end
+
+function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
+
+    local frame = ui.GetFrame('goddess_equip_manager')
+    frame:ShowWindow(1)
+
+    GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame)
+    session.ResetItemList()
+
+    local arg_list = NewStringList()
+
+    local apply_cnt = 0
+    for i = 1, #managed_slot_list do
+        local slot_info = managed_slot_list[i]
+        local ctrlset = GET_CHILD_RECURSIVELY(frame, 'rand_slot_' .. slot_info.SlotName)
+        local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.SlotName))
+        local checkbox = GET_CHILD(ctrlset, 'checkbox')
+        if tonumber(argStr) == 1 and i == 1 then
+            checkbox:SetCheck(1);
+        elseif tonumber(argStr) == 2 and i == 2 then
+            checkbox:SetCheck(1);
+        elseif tonumber(argStr) == 3 and i == 3 then
+            checkbox:SetCheck(1);
+        elseif tonumber(argStr) == 4 and i == 4 then
+            checkbox:SetCheck(1);
+        elseif tonumber(argStr) == 5 and i == 5 then
+            checkbox:SetCheck(1);
+        elseif tonumber(argStr) == 6 and i == 6 then
+            checkbox:SetCheck(1);
+        elseif tonumber(argStr) == 7 and i == 7 then
+            checkbox:SetCheck(1);
+        elseif tonumber(argStr) == 8 and i == 8 then
+            checkbox:SetCheck(1);
+        end
+        if tgt_item ~= nil and checkbox:IsChecked() == 1 then
+            if tgt_item.isLockState == true then
+                ui.SysMsg(ClMsg('MaterialItemIsLock'))
+                return
+            end
+            local slot = GET_CHILD(ctrlset, 'slot')
+            AUTO_CAST(slot)
+
+            local guid = slot:GetUserValue('ITEM_GUID')
+
+            if guid ~= 'None' then
+                session.AddItemID(guid, 1)
+                arg_list:Add(slot_info.SlotName)
+                apply_cnt = apply_cnt + 1
+            end
+        end
+    end
+
+    if apply_cnt == 0 then
+        ui.SysMsg(ClMsg('NoSelectedItem'))
+        return
+    end
+
+    local randomoption_bg = GET_CHILD_RECURSIVELY(frame, 'randomoption_bg')
+
+    local index = argNum
+
+    arg_list:Add(index)
+
+    local result_list = session.GetItemIDList()
+    item.DialogTransaction('ICOR_PRESET_ENGRAVE_APPLY', result_list, '', arg_list)
+
+    local acc = GetMyAccountObj()
+    local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+
+    if g.settings.check == 1 then
+        for i = 1, page_max do
+            local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+            AUTO_CAST(bg)
+            local curpos = bg:GetScrollCurPos();
+            if curpos == 514 then
+                curpos = 0
+            end
+            g.settings[tostring(i)] = curpos
+            goddess_icor_manager_save_settings()
+
+        end
+    end
+
+    local argNum = g.num
+    ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", argNum), 0.5)
+
 end
 
 function goddess_icor_manager_set_pos(frame, page_max)
@@ -1901,103 +1769,6 @@ function goddess_icor_manager_check()
     end
 end
 
-function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
-
-    local frame = ui.GetFrame('goddess_equip_manager')
-    frame:ShowWindow(1)
-    --[[if frame == nil then
-        return
-    end]]
-    GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame)
-    session.ResetItemList()
-
-    local arg_list = NewStringList()
-
-    local apply_cnt = 0
-    for i = 1, #managed_slot_list do
-        local slot_info = managed_slot_list[i]
-        local ctrlset = GET_CHILD_RECURSIVELY(frame, 'rand_slot_' .. slot_info.SlotName)
-        local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.SlotName))
-        local checkbox = GET_CHILD(ctrlset, 'checkbox')
-        if tonumber(argStr) == 1 and i == 1 then
-            checkbox:SetCheck(1);
-        elseif tonumber(argStr) == 2 and i == 2 then
-            checkbox:SetCheck(1);
-        elseif tonumber(argStr) == 3 and i == 3 then
-            checkbox:SetCheck(1);
-        elseif tonumber(argStr) == 4 and i == 4 then
-            checkbox:SetCheck(1);
-        elseif tonumber(argStr) == 5 and i == 5 then
-            checkbox:SetCheck(1);
-        elseif tonumber(argStr) == 6 and i == 6 then
-            checkbox:SetCheck(1);
-        elseif tonumber(argStr) == 7 and i == 7 then
-            checkbox:SetCheck(1);
-        elseif tonumber(argStr) == 8 and i == 8 then
-            checkbox:SetCheck(1);
-        end
-        if tgt_item ~= nil and checkbox:IsChecked() == 1 then
-            if tgt_item.isLockState == true then
-                ui.SysMsg(ClMsg('MaterialItemIsLock'))
-                return
-            end
-            local slot = GET_CHILD(ctrlset, 'slot')
-            AUTO_CAST(slot)
-
-            local guid = slot:GetUserValue('ITEM_GUID')
-
-            if guid ~= 'None' then
-                session.AddItemID(guid, 1)
-                arg_list:Add(slot_info.SlotName)
-                apply_cnt = apply_cnt + 1
-            end
-        end
-    end
-
-    if apply_cnt == 0 then
-        ui.SysMsg(ClMsg('NoSelectedItem'))
-        return
-    end
-
-    local randomoption_bg = GET_CHILD_RECURSIVELY(frame, 'randomoption_bg')
-    -- local index = randomoption_bg:GetUserValue('PRESET_INDEX')
-    local index = argNum
-
-    arg_list:Add(index)
-
-    local result_list = session.GetItemIDList()
-    item.DialogTransaction('ICOR_PRESET_ENGRAVE_APPLY', result_list, '', arg_list)
-
-    local icorframe = ui.GetFrame("goddess_icor_manager")
-    -- icorframe:RemoveAllChild()
-    local icornewframe = ui.GetFrame("goddess_icor_manager_newframe")
-    -- icornewframe:RemoveAllChild()
-    local acc = GetMyAccountObj()
-    local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
-
-    -- goddess_icor_manager_set_pos(icorframe, page_max)
-    -- ui.CloseFrame("goddess_icor_manager")
-    -- ui.CloseFrame("goddess_icor_manager_newframe")
-    if g.settings.check == 1 then
-        for i = 1, page_max do
-            local bg = GET_CHILD_RECURSIVELY(icorframe, "bg" .. i)
-            AUTO_CAST(bg)
-            local curpos = bg:GetScrollCurPos();
-            if curpos == 514 then
-                curpos = 0
-            end
-            g.settings[tostring(i)] = curpos
-            goddess_icor_manager_save_settings()
-            -- bg:RemoveChild()
-        end
-    end
-    -- icorframe:Invalidate()
-    -- icornewframe:Invalidate()
-    -- ReserveScript(" goddess_icor_manager_check()", 0.3)
-    ReserveScript("goddess_icor_manager_list_init()", 0.5)
-    -- goddess_icor_manager_list_init()
-    -- goddess_icor_manager_check()
-end
 function goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
 
     for k = 1, #parts1 do
@@ -2006,8 +1777,7 @@ function goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage
         local color = goddess_icor_manager_color(tostring(parts2[k]))
         option:SetText("{ol}" .. color .. goddess_icor_manager_language(parts1[k]) .. "{ol}{#FFFFFF} : " ..
                            "{ol}{#FFFFFF}" .. parts3[k])
-        --[[option:SetTextTooltip(goddess_icor_manager_language(parts1[k]) .. " : " ..
-                                  goddess_icor_manager_language(parts3[k]))]]
+
         local colortone = goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3, manage_text)
 
         manage_bg:SetColorTone(colortone)
@@ -2029,11 +1799,11 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
                     -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
 
-                    local text = manage_text:GetText()
+                    --[[local text = manage_text:GetText()
                     if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
 
-                    end
+                    end]]
                     return "FFFFD700"
                 end
             end
@@ -2044,10 +1814,10 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+                    --[[ local text = manage_text:GetText()
                     if string.find(text, " LV500") == nil then
                         manage_text:SetText(text .. "{ol} LV500")
-                    end
+                    end]]
                     return "FFDAA520"
                 end
             end
@@ -2059,11 +1829,11 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             for j = 1, #parts1 do
 
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+                    --[[local text = manage_text:GetText()
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
 
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2075,10 +1845,10 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             for j = 1, #parts1 do
 
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+                    --[[local text = manage_text:GetText()
                     if string.find(text, " LV480") == nil then
                         manage_text:SetText(text .. "{ol} LV480")
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2091,11 +1861,11 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             for j = 1, #parts1 do
 
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+                    --[[local text = manage_text:GetText()
                     if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
 
-                    end
+                    end]]
                     return "FFFFD700"
                 end
             end
@@ -2106,10 +1876,10 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+                    --[[ local text = manage_text:GetText()
                     if string.find(text, " LV500") == nil then
                         manage_text:SetText(text .. "{ol} LV500")
-                    end
+                    end]]
                     return "FFDAA520"
                     -- return "AAC0C0C0"
                 end
@@ -2122,11 +1892,11 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             for j = 1, #parts1 do
 
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+                    --[[local text = manage_text:GetText()
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
                         manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
 
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2138,10 +1908,10 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             for j = 1, #parts1 do
 
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    local text = manage_text:GetText()
+                    --[[local text = manage_text:GetText()
                     if string.find(text, " LV480") == nil then
                         manage_text:SetText(text .. "{ol} LV480")
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2498,10 +2268,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
 
-                    if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
+                    --[[if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
 
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-                    end
+                    end]]
                     return "FFFFD700"
                 end
             end
@@ -2517,12 +2287,12 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    local text = slot:GetText()
+                    --[[local text = slot:GetText()
 
                     if string.find(text, " LV500") == nil then
 
                         slot:SetText(text .. "{ol} LV500")
-                    end
+                    end]]
                     return "FFDAA520"
                 end
             end
@@ -2538,12 +2308,12 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    local text = slot:GetText()
+                    --[[local text = slot:GetText()
 
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
 
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2559,12 +2329,12 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    local text = slot:GetText()
+                    --[[local text = slot:GetText()
 
                     if string.find(text, " LV480") == nil then
 
                         slot:SetText(text .. "{ol} LV480")
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2581,11 +2351,11 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    local text = slot:GetText()
+                    --[[local text = slot:GetText()
 
                     if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-                    end
+                    end]]
                     return "FFFFD700"
                 end
             end
@@ -2601,11 +2371,11 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    local text = slot:GetText()
+                    --[[local text = slot:GetText()
 
                     if string.find(text, " LV500") == nil then
                         slot:SetText(text .. "{ol} LV500")
-                    end
+                    end]]
                     return "FFDAA520"
                 end
             end
@@ -2621,11 +2391,11 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    local text = slot:GetText()
+                    --[[local text = slot:GetText()
 
                     if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
                         slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2641,11 +2411,11 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    local text = slot:GetText()
+                    --[[local text = slot:GetText()
 
                     if string.find(text, " LV480") == nil then
                         slot:SetText(text .. "{ol} LV480")
-                    end
+                    end]]
                     return "FF808080"
                 end
             end
@@ -2738,19 +2508,3 @@ function goddess_icor_manager_get_pagename(index)
 
 end
 
---[[function goddess_icor_manager_GODDESS_ENGRAVE_APPLY_CHECK(frame, ctrlset)
-    local etc = GetMyEtcObject()
-    if etc == nil then
-        return false, 'None'
-    end
-
-    local randomoption_bg = GET_CHILD_RECURSIVELY(frame, 'randomoption_bg')
-    local index = randomoption_bg:GetUserValue('PRESET_INDEX')
-
-    local slot = GET_CHILD(ctrlset, 'slot')
-    local guid = slot:GetUserValue('ITEM_GUID')
-    if guid == 'None' then
-        return false, 'None'
-    end
-
-    local spot_name = slot:GetUserValue('EQUIP]]

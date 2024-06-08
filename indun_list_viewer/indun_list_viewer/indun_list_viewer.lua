@@ -11,10 +11,11 @@
 -- v1.1.0 ICCあるなし判定バグってたの修正
 -- v1.1.1 一部のユーザーで開く時重いの修正したい。僕はならない。なんでや。
 -- v1.1.2 スクロールモードを選べる様に。職アイコンを代表キャラに。フレーム閉じた時にボタン消えるバグ修正。
+-- v1.1.3 キャラ削除に対応。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -45,13 +46,23 @@ function indun_list_viewer_save_settings()
 
 end
 
+-- 設定を保存する関数
+--[[function indun_list_viewer_save_settings()
+    local result, err = pcall(acutil.saveJSON, g.settingsFileLoc, g.settings)
+    if not result then
+        print(string.format("[%s] Error saving setting files: %s", addonNameLower, err))
+    else
+        print(string.format("[%s] Settings saved successfully", addonNameLower))
+    end
+end]]
+
 function indun_list_viewer_load_settings()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
     if err then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
 
     if not settings then
@@ -164,7 +175,7 @@ end
     else
         return a.layer < b.layer
     end
-end]]
+end
 
 function indun_list_viewer_instantcc()
     local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
@@ -198,7 +209,7 @@ function indun_list_viewer_instantcc()
     indun_list_viewer_save_settings()
     -- indun_list_viewer_load_settings()
 
-end
+end]]
 
 function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
     -- print(tostring(selectedKey))
@@ -240,42 +251,66 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
         addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
         addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_count_loginname")
         g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
-        local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+        --[[local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
             -- print(functionName .. " 関数は定義されています。")
 
             addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_instantcc")
-        else
-            -- print(functionName .. " 関数は定義されていません。")
-            g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+        else]]
+        -- print(functionName .. " 関数は定義されていません。")
+        g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
 
-            local accountInfo = session.barrack.GetMyAccount();
-            local cnt = accountInfo:GetPCCount();
-            for i = 0, cnt - 1 do
-                local pcInfo = accountInfo:GetPCByIndex(i);
-                local pcApc = pcInfo:GetApc();
-                local pcName = pcApc:GetName()
-                local pcCid = pcInfo:GetCID();
-                for index, charData in ipairs(g.settings.charactors) do
+        local accountInfo = session.barrack.GetMyAccount();
+        local cnt = accountInfo:GetPCCount();
+        for i = 0, cnt - 1 do
+            local pcInfo = accountInfo:GetPCByIndex(i);
+            local pcApc = pcInfo:GetApc();
+            local pcName = pcApc:GetName()
+            local pcCid = pcInfo:GetCID();
+            for index, charData in ipairs(g.settings.charactors) do
 
-                    if charData.name == pcName then
-                        g.settings.charactors[index].cid = pcCid
-                        -- print(pcName .. ":" .. charData.layer .. ":" .. charData.order)
-                        g.settings.charactors[index].order = i
-                        if g.layer ~= nil and g.layer ~= g.settings.charactors[index].layer then
-                            g.settings.charactors[index].layer = g.layer
-                        end
+                if charData.name == pcName then
+                    g.settings.charactors[index].cid = pcCid
+                    -- print(pcName .. ":" .. charData.layer .. ":" .. charData.order)
+                    g.settings.charactors[index].order = i
+                    if g.layer ~= nil and g.layer ~= g.settings.charactors[index].layer then
+                        g.settings.charactors[index].layer = g.layer
                     end
                 end
             end
-
-            table.sort(g.settings.charactors, sortByLayerAndOrder)
-            indun_list_viewer_save_settings()
-
         end
+
+        table.sort(g.settings.charactors, sortByLayerAndOrder)
+        indun_list_viewer_save_settings()
+
+        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_removing_character")
+        -- end
 
     end
 
+end
+
+function indun_list_viewer_removing_character()
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+    local currentCharacters = {}
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+        -- print(pcName)
+        currentCharacters[pcName] = true
+    end
+
+    -- settings.charactors から存在しないキャラクターを削除
+    for i = #g.settings.charactors, 1, -1 do
+        local charData = g.settings.charactors[i]
+        if not currentCharacters[charData.name] then
+            -- print(string.format("[%s] Removing character: %s", addonNameLower, charData.name))
+            table.remove(g.settings.charactors, i)
+        end
+    end
+    indun_list_viewer_save_settings()
 end
 
 function indun_list_viewer_BARRACK_TO_GAME()
