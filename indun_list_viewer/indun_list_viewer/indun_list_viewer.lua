@@ -13,10 +13,11 @@
 -- v1.1.2 スクロールモードを選べる様に。職アイコンを代表キャラに。フレーム閉じた時にボタン消えるバグ修正。
 -- v1.1.3 キャラ削除に対応。
 -- v1.1.4 スロットアイコンからinstantCCを使ってキャラチェンした場合に順番バグるの修正。
+-- v1.1.5 まれにsettingsが初期化されるのを直したと思うけどわからん。挙動見直しボタン押した時に情報集める様に。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -228,7 +229,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    indun_list_viewer_load_settings()
+    -- indun_list_viewer_load_settings()
 
     -- acutil.setupEvent(addon, "CREATE_SCROLL_CHAR_LIST", "indun_list_viewer_CREATE_SCROLL_CHAR_LIST")
     -- acutil.setupHook(indun_list_viewer_CREATE_SCROLL_CHAR_LIST, "CREATE_SCROLL_CHAR_LIST");
@@ -238,11 +239,11 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-
+        addon:RegisterMsg('GAME_START', "indun_list_viewer_load_settings")
         addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
         addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
         addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
-        addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_count_loginname")
+        -- addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_count_loginname")
         g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
         --[[local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
@@ -253,31 +254,8 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
         -- print(functionName .. " 関数は定義されていません。")
         g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
 
-        local accountInfo = session.barrack.GetMyAccount();
-        local cnt = accountInfo:GetPCCount();
-        for i = 0, cnt - 1 do
-            local pcInfo = accountInfo:GetPCByIndex(i);
-            local pcApc = pcInfo:GetApc();
-            local pcName = pcApc:GetName()
-            local pcCid = pcInfo:GetCID();
-            for index, charData in ipairs(g.settings.charactors) do
-
-                if charData.name == pcName then
-                    g.settings.charactors[index].cid = pcCid
-                    -- print(pcName .. ":" .. charData.layer .. ":" .. charData.order)
-                    g.settings.charactors[index].order = i
-                    if g.layer ~= nil and g.layer ~= g.settings.charactors[index].layer then
-                        g.settings.charactors[index].layer = g.layer
-                    end
-                end
-            end
-        end
-
-        table.sort(g.settings.charactors, sortByLayerAndOrder)
-        indun_list_viewer_save_settings()
-
     end
-    addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_removing_character")
+    -- addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_removing_character")
     -- end
 
 end
@@ -587,6 +565,33 @@ function indun_list_viewer_frame_init()
 end
 
 function indun_list_viewer_title_frame_open()
+
+    local accountInfo = session.barrack.GetMyAccount();
+    local cnt = accountInfo:GetPCCount();
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetPCByIndex(i);
+        local pcApc = pcInfo:GetApc();
+        local pcName = pcApc:GetName()
+        local pcCid = pcInfo:GetCID();
+        for index, charData in ipairs(g.settings.charactors) do
+
+            if charData.name == pcName then
+                g.settings.charactors[index].cid = pcCid
+                -- print(pcName .. ":" .. charData.layer .. ":" .. charData.order)
+                g.settings.charactors[index].order = i
+                if g.layer ~= nil and g.layer ~= g.settings.charactors[index].layer then
+                    g.settings.charactors[index].layer = g.layer
+                end
+            end
+        end
+    end
+
+    table.sort(g.settings.charactors, sortByLayerAndOrder)
+
+    indun_list_viewer_removing_character()
+    indun_list_viewer_save_settings()
+
+    indun_list_viewer_get_count_loginname()
 
     local icframe = ui.CreateNewFrame("notice_on_pc", "icframe", 0, 0, 10, 10)
     AUTO_CAST(icframe)

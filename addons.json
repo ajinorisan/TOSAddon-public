@@ -72,7 +72,7 @@
 		"name" : "Indun List Viewer",
 		"file" : "indun_list_viewer",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.4",
+		"fileVersion" : "v1.1.5",
 		"releaseTag" : "indun_list_viewer",
 		"unicode" : "⛄",
 		"description" : "レイドの消化状況を一覧表示します。instantccアドオンを入れていると職アイコンクリックでCCします。List raid digests. cc by clicking on the job icon if you have the instantcc add-on.레이드 소화 현황을 나열하며, instantcc 애드온을 넣었다면 직업 아이콘 클릭으로 CC를 합니다.",
