@@ -12,10 +12,11 @@
 -- v1.1.1 一部のユーザーで開く時重いの修正したい。僕はならない。なんでや。
 -- v1.1.2 スクロールモードを選べる様に。職アイコンを代表キャラに。フレーム閉じた時にボタン消えるバグ修正。
 -- v1.1.3 キャラ削除に対応。
+-- v1.1.4 スロットアイコンからinstantCCを使ってキャラチェンした場合に順番バグるの修正。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -45,16 +46,6 @@ function indun_list_viewer_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 
 end
-
--- 設定を保存する関数
---[[function indun_list_viewer_save_settings()
-    local result, err = pcall(acutil.saveJSON, g.settingsFileLoc, g.settings)
-    if not result then
-        print(string.format("[%s] Error saving setting files: %s", addonNameLower, err))
-    else
-        print(string.format("[%s] Settings saved successfully", addonNameLower))
-    end
-end]]
 
 function indun_list_viewer_load_settings()
 
@@ -169,15 +160,7 @@ local function sortByLayerAndOrder(a, b)
     end
 end
 
---[[local function sortCharactors(a, b)
-    if a.layer == b.layer then
-        return a.order < b.order
-    else
-        return a.layer < b.layer
-    end
-end
-
-function indun_list_viewer_instantcc()
+--[[function indun_list_viewer_instantcc()
     local ic = _G["ADDONS"]["ebisuke"]["INSTANTCC"]
     ic.settingsFileLoc = string.format('../addons/%s/settings.json', "instantcc")
     ic.settings = acutil.loadJSON(ic.settingsFileLoc, ic.settings)
@@ -213,13 +196,23 @@ end]]
 
 function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
     -- print(tostring(selectedKey))
+
     local LoginName = session.GetMySession():GetPCApc():GetName()
     -- print(LoginName)
     for _, charData in ipairs(g.settings.charactors) do
         if charData.name == LoginName then
-            -- nameが一致する場合にjobidを更新
-            charData.jobid = tonumber(selectedKey)
-            -- print(string.format("Updated jobid for character '%s' to %d", charData.name, selectedKey))
+            local mainSession = session.GetMainSession();
+            local pcJobInfo = mainSession:GetPCJobInfo();
+            local jobCount = pcJobInfo:GetJobCount();
+            charData.jobid = ""
+            for i = 0, jobCount - 1 do
+                local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
+                charData.jobid = charData.jobid .. "/" .. tonumber(jobInfo.jobID)
+                -- local jobCls = GetClassByType('Job', jobInfo.jobID);
+                -- ui.AddDropListItem(jobCls.Name, nil, jobCls.ClassID);
+            end
+            charData.president_jobid = tonumber(selectedKey)
+
             indun_list_viewer_save_settings()
             break
         end
@@ -283,10 +276,9 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
         table.sort(g.settings.charactors, sortByLayerAndOrder)
         indun_list_viewer_save_settings()
 
-        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_removing_character")
-        -- end
-
     end
+    addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_removing_character")
+    -- end
 
 end
 
@@ -744,7 +736,7 @@ function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
     local frame = ui.GetFrame("indun_list_viewer")
     frame:ShowWindow(0)
     INSTANTCC_DO_CC(cid, layer)
-
+    g.layer = nil
 end
 
 function indun_list_viewer_frame_open(icframe)
@@ -769,14 +761,11 @@ function indun_list_viewer_frame_open(icframe)
         if charData.jobid == nil then
             lastJobCls = GetClassByType("Job", lastJobID)
         else
-            lastJobCls = GetClassByType("Job", charData.jobid)
+            lastJobCls = GetClassByType("Job", charData.president_jobid)
         end
-        local jobname = TryGetProp(lastJobCls, "Name")
-        -- jobname = GET_JOB_NAME(lastJobCls, gender) -- ジョブ名を更新
 
         local lastJobIcon = TryGetProp(lastJobCls, "Icon")
 
-        -- jobslotを作成
         local jobslot = gb:CreateOrGetControl("slot", "jobslot" .. pcName, 5, x - 4, 25, 25)
         AUTO_CAST(jobslot)
         jobslot:SetSkinName("None")
@@ -787,24 +776,96 @@ function indun_list_viewer_frame_open(icframe)
         local jobicon = CreateIcon(jobslot)
         jobicon:SetImage(lastJobIcon)
 
-        local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
-        if type(_G[functionName]) == "function" then
+        local id1, id2, id3, id4
+        local jobName1, jobName2, jobName3, jobName4
 
-            if charData.name == pcName then
+        if charData.jobid ~= nil then
+            -- jobid をスラッシュでスプリット
+            local index = 1
+            for part in charData.jobid:gmatch("[^/]+") do
+                if index == 1 then
+                    id1 = part
+                elseif index == 2 then
+                    id2 = part
+                elseif index == 3 then
+                    id3 = part
+                elseif index == 4 then
+                    id4 = part
+                else
+                    break
+                end
+                index = index + 1
+            end
 
-                jobicon:SetTextTooltip(
-                    "Click on the icon to change the character.{nl}アイコンクリックでキャラクターチェンジします" ..
-                        "{nl} {nl}" .. "{ol}" .. jobname)
-                jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
+            local function get_job_name(id)
+                if id then
+                    local jobClass = GetClassByType("Job", tonumber(id))
+                    if jobClass then
+                        return TryGetProp(jobClass, "Name", "Unknown Job")
+                    end
+                end
+                return nil
+            end
 
-                jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, charData.cid)
+            -- ジョブ名を取得
+            jobName1 = get_job_name(id1)
+            jobName2 = get_job_name(id2)
+            jobName3 = get_job_name(id3)
+            jobName4 = get_job_name(id4)
 
-                jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, charData.layer)
+            -- ジョブIDが一致するか確認
+            local highlight_color = "{#FF0000}" -- 一致した場合の色
+            local function color_if_match(jobName, jobId)
+                if jobId and tonumber(jobId) == tonumber(charData.president_jobid) then
+                    return highlight_color .. jobName .. "{/}"
+                else
+                    return jobName
+                end
+            end
+
+            -- ツールチップテキストを作成
+            local tooltipText = "{ol}"
+            if jobName1 then
+                tooltipText = tooltipText .. color_if_match(jobName1, id1) .. "{nl}"
+            end
+            if jobName2 then
+                tooltipText = tooltipText .. color_if_match(jobName2, id2) .. "{nl}"
+            end
+            if jobName3 then
+                tooltipText = tooltipText .. color_if_match(jobName3, id3) .. "{nl}"
+            end
+            if jobName4 then
+                tooltipText = tooltipText .. color_if_match(jobName4, id4) .. "{nl}"
+            end
+
+            local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定
+            if type(_G[functionName]) == "function" then
+                if charData.name == pcName then
+                    jobicon:SetTextTooltip(tooltipText .. "{nl} {nl}{#FF4500}" ..
+                                               "Click on the icon to change the character.")
+                    jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
+                    jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, charData.cid)
+                    jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, charData.layer)
+                end
+            else
+                jobicon:SetTextTooltip(tooltipText)
             end
         else
-            jobicon:SetTextTooltip("{ol}" .. jobname)
+            local jobname = TryGetProp(lastJobCls, "Name")
+            -- print(jobname)
+            local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+            if type(_G[functionName]) == "function" then
+                if charData.name == pcName then
+                    jobicon:SetTextTooltip("{ol}" .. jobname .. "{nl} {nl}{#FF4500}" ..
+                                               "Click on the icon to change the character.")
+                    jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
+                    jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, charData.cid)
+                    jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, charData.layer)
+                end
+            else
+                jobicon:SetTextTooltip("{ol}" .. jobname)
+            end
         end
-
         local name = gb:CreateOrGetControl("richtext", charData.name, 35, x)
         AUTO_CAST(name)
 
