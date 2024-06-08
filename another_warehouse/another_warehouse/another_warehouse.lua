@@ -6,10 +6,11 @@
 -- v1.0.5 セット出庫機能追加。設定スロット増設。
 -- v1.0.6 キャラ毎設定スロット増設。入庫時のツールチップ修正
 -- v1.0.7 設定スロットを999個に。アイコンクリック時の仕様変更。
+-- v1.0.8 アイテム出庫を早くした。他の昨日はまだ。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -774,7 +775,7 @@ end
 
 function another_warehouse_item_tooltip(Name, iconName, Count, tooltipcount)
 
-    print(tostring(tooltipcount) .. "a")
+    -- print(tostring(tooltipcount) .. "a")
 
     local tooltip_frame = ui.CreateNewFrame("notice_on_pc", "another_warehouse_tooltip" .. tooltipcount, 0, 0, 10, 10)
     AUTO_CAST(tooltip_frame)
@@ -965,10 +966,9 @@ function another_warehouse_item()
 
 end
 
-function another_warehouse_item_put()
+function another_warehouse_item_put(flag)
 
     local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local flag = false
 
     if g.settings.delay == nil then
         g.settings.delay = 0.5
@@ -980,7 +980,7 @@ function another_warehouse_item_put()
 
     for clsID, itemData in pairs(g.putitemtbl) do
         if warehouseFrame:IsVisible() == 1 then
-            flag = true
+
             local iesid = itemData.iesid
             local Count = itemData.count
 
@@ -1014,28 +1014,145 @@ function another_warehouse_item_put()
             end
         end
 
-        -- g.putitemtbl = nil
-        -- g.takeitemtbl = nil
-        -- return
     end
+    -- print(flag .. ":" .. delay)
+    if flag == 0 then
+        flag = 1
+        ReserveScript(string.format("another_warehouse_reitem_put(%d)", flag, delay))
 
-    -- print(tostring(next(g.putitemtbl)) .. "b")
-    if next(g.putitemtbl) ~= nil then
-
-        ReserveScript("another_warehouse_item_put()", delay)
         return
     else
-        -- print("nil")
-        --[[else
-        g.putitemtbl = nil
-        g.takeitemtbl = nil]]
+        ReserveScript("another_warehouse_end()", delay)
+        return
     end
 
-    if flag == true then
-        ReserveScript("another_warehouse_end()", delay)
+end
+
+function another_warehouse_reitem_put(flag)
+    -- print(flag)
+    local LoginCID = info.GetCID(session.GetMyHandle())
+
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local handle = warehouseFrame:GetUserIValue('HANDLE')
+
+    local ivframe = ui.GetFrame("inventory");
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList();
+    local cnt = guidList:Count();
+
+    g.putitemtbl = {} -- アイテム情報を格納するテーブル
+
+    for k, v in pairs(g.settings.items) do
+        local clsID = v.clsid
+        local count = v.count
+
+        if warehouseFrame:IsVisible() == 1 then
+
+            for i = 0, cnt - 1 do
+                local guid = guidList:Get(i)
+                local invItem = invItemList:GetItemByGuid(guid)
+                local itemobj = GetIES(invItem:GetObject())
+                local invClsID = itemobj.ClassID
+
+                if clsID == invClsID then
+                    if count == 0 then
+
+                        g.putitemtbl[clsID] = {
+                            iesid = guid,
+                            count = invItem.count,
+                            handle = handle,
+                            invItem = invItem
+                        }
+
+                        break
+                    else
+                        local item_count = invItem.count - count
+                        if invItem.count > count then
+                            g.putitemtbl[clsID] = {
+                                iesid = guid,
+                                count = item_count,
+                                handle = handle,
+                                invItem = invItem
+                            }
+                        end
+                    end
+
+                end
+            end
+
+        else
+
+            return
+        end
     end
-    return
-    -- ReserveScript("another_warehouse_item_take()", delay)
+
+    for k2, v2 in pairs(g.settings[LoginCID].items) do
+        local char_clsID = v2.clsid
+        local char_count = v2.count
+
+        g.putitemtbl[char_clsID] = nil
+
+    end
+
+    for k2, v2 in pairs(g.settings[LoginCID].items) do
+        local char_clsID = v2.clsid
+        local char_count = v2.count
+
+        if warehouseFrame:IsVisible() == 1 then
+
+            for i = 0, cnt - 1 do
+                local guid = guidList:Get(i)
+                local invItem = invItemList:GetItemByGuid(guid)
+                local itemobj = GetIES(invItem:GetObject())
+                local invClsID = itemobj.ClassID
+
+                if char_clsID == invClsID then
+                    local item_count = invItem.count - char_count
+
+                    if char_count == 0 then
+
+                        g.putitemtbl[char_clsID] = {
+                            iesid = guid,
+                            count = invItem.count,
+                            handle = handle,
+                            invItem = invItem
+                        }
+
+                        break
+                    else
+
+                        if invItem.count > char_count then
+                            g.putitemtbl[char_clsID] = {
+                                iesid = guid,
+                                count = item_count,
+                                handle = handle,
+                                invItem = invItem
+                            }
+
+                            break
+                        elseif invItem.count < char_count then
+
+                            if g.putitemtbl[char_clsID] then
+                                g.putitemtbl[char_clsID] = nil
+                            end
+                            break
+                        elseif item_count == 0 then
+
+                            g.putitemtbl[char_clsID] = nil
+
+                            break
+                        end
+                    end
+
+                end
+            end
+
+        else
+
+            return
+        end
+    end
+    another_warehouse_item_put(flag)
 end
 
 function another_warehouse_end()
@@ -1090,6 +1207,7 @@ function another_warehouse_item_take()
             end
         end
     end
+
     another_warehouse_item_take_to()
 end
 
@@ -1106,7 +1224,8 @@ function another_warehouse_item_take_to()
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
     g.take = nil
 
-    ReserveScript("another_warehouse_item_put()", 0.2)
+    local flag = 0
+    ReserveScript(string.format("another_warehouse_item_put(%d)", flag, 0.2))
 
     return
 end
