@@ -3,10 +3,11 @@
 -- v2.0.4 全体的に見直し
 -- v2.0.5 食事の時バグってたの修正。
 -- v2.0.6 修正したと思ったけど修正出来てなかったのを修正
+-- v2.0.7 バフ屋も付与時確認追加。
 local addonName = "EASYBUFF"
 local addonNameLower = string.lower(addonName)
 local author = "Kiicchan"
-local version = "2.0.6"
+local version = "2.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -38,9 +39,10 @@ function EASYBUFF_ON_INIT(addon, frame)
 
     g.SetupHook(EASYBUFF_OPEN_FOOD_TABLE_UI_DELAY, "OPEN_FOOD_TABLE_UI")
     g.SetupHook(EASYBUFF_ITEMBUFF_REPAIR_UI_COMMON, "ITEMBUFF_REPAIR_UI_COMMON")
-    g.SetupHook(EASYBUFF_TARGET_BUFF_AUTOSELL_LIST, "TARGET_BUFF_AUTOSELL_LIST")
+    -- g.SetupHook(EASYBUFF_TARGET_BUFF_AUTOSELL_LIST, "TARGET_BUFF_AUTOSELL_LIST")
     acutil.setupEvent(addon, "SQUIRE_BUFF_EQUIP_CTRL", "EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL");
     acutil.setupEvent(addon, "SQUIRE_TARGET_UI_CLOSE", "EASYBUFF_SQUIRE_TARGET_UI_CLOSE");
+    acutil.setupEvent(addon, "TARGET_BUFF_AUTOSELL_LIST", "EASYBUFF_TARGET_BUFF_AUTOSELL_LIST");
 
     acutil.slashCommand("/easybuff", EASYBUFF_CMD);
     acutil.slashCommand("/esbf", EASYBUFF_CMD);
@@ -102,10 +104,14 @@ function EASYBUFF_LANG(str)
         if str == "{#FFFFFF}{ol}Remove food buffs?" then
             str = "{#FFFFFF}{ol}フードバフ削除しますか？"
         end
---{#FFFFFF}{ol}Food buff removed.
-if str == "{#FFFFFF}{ol}Food buff removed." then
-    str = "{#FFFFFF}{ol}フードバフを削除しました。"
-end
+        -- {#FFFFFF}{ol}Food buff removed.
+        if str == "{#FFFFFF}{ol}Food buff removed." then
+            str = "{#FFFFFF}{ol}フードバフを削除しました。"
+        end
+        -- "{#FFFFFF}{ol}Do you want to re-buff it?"
+        if str == "{#FFFFFF}{ol}Do you want to re-buff it?" then
+            str = "{#FFFFFF}{ol}バフをかけ直しますか？"
+        end
     end
     return str
 
@@ -115,6 +121,9 @@ end
 
 function EASYBUFF_SQUIRE_TARGET_UI_CLOSE()
     packet.StopTimeAction(1)
+    local frame = ui.GetFrame("itembuffopen")
+    frame:ShowWindow(0)
+    return 0
 end
 
 function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL_DELAY()
@@ -129,7 +138,7 @@ function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL_DELAY()
     SQUIRE_BUFF_EXCUTE(frame, ctrl)
     ui.SysMsg(EASYBUFF_LANG(
         "{#FFFFFF}{ol}Equipment maintenance automatic grant is in progress.{nl}Canceled when frame is closed."))
-
+    frame:RunUpdateScript("EASYBUFF_SQUIRE_TARGET_UI_CLOSE", 5.5);
 end
 
 function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL()
@@ -139,7 +148,7 @@ function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL()
         return
     end
     ReserveScript("EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL_DELAY()", 0.5)
-
+    return
 end
 
 -- フード処理
@@ -248,52 +257,72 @@ function EASYBUFF_END_FOOD(frame)
 end
 
 -- バフ屋
-g.buffIndex = 0;
-function EASYBUFF_ON_BUFF()
-    local frame = ui.GetFrame("buffseller_target");
-    local handle = frame:GetUserIValue("HANDLE");
-    local groupName = frame:GetUserValue("GROUPNAME");
-    local sellType = frame:GetUserIValue("SELLTYPE");
-    local cnt = session.autoSeller.GetCount(groupName);
-    local itemInfo = session.autoSeller.GetByIndex(groupName, 0);
-    if itemInfo == nil then
-        ui.SysMsg("No buff info")
-        return;
-    end
-    g.buffIndex = 0;
-    EASYBUFF_BUY(handle, sellType, cnt)
-end
+local msgcount = 0
+function EASYBUFF_TARGET_BUFF_AUTOSELL_LIST(frame, msg)
+    local groupName, sellType, handle = acutil.getEventArgs(msg)
 
-function EASYBUFF_BUY(handle, sellType, cnt)
-    if g.buffIndex < cnt then
-        session.autoSeller.Buy(handle, g.buffIndex, 1, sellType);
-        g.buffIndex = g.buffIndex + 1;
-        ReserveScript(string.format("EASYBUFF_BUY(%d, %d, %d)", handle, sellType, cnt), 0.6)
-    else
-
-        EASYBUFF_END()
-    end
-end
-
-function EASYBUFF_TARGET_BUFF_AUTOSELL_LIST(groupName, sellType, handle)
-    base["TARGET_BUFF_AUTOSELL_LIST"](groupName, sellType, handle)
-    -- TARGET_BUFF_AUTOSELL_LIST_OLD(groupName, sellType, handle)
     if g.settings.useHook ~= 1 then
         return;
     end
 
-    local frame = ui.GetFrame("buffseller_target");
-    if frame ~= nil then
-        local sellType = frame:GetUserIValue("SELL_TYPE");
-        if sellType == AUTO_SELL_BUFF and g.buffIndex == 0 then
-            EASYBUFF_ON_BUFF()
+    if sellType == 0 then
+
+        local itemInfo = session.autoSeller.GetByIndex(groupName, 0);
+
+        if itemInfo ~= nil then
+            local boxmsg = EASYBUFF_LANG("{#FFFFFF}{ol}Do you want to re-buff it?")
+            local cnt = session.autoSeller.GetCount(groupName);
+            local buffcount = 0
+
+            local myHandle = session.GetMyHandle()
+            local Buffs = {358, 359, 360, 370}
+
+            for _, buffID in ipairs(Buffs) do
+                local buff = info.GetBuff(myHandle, buffID)
+                if buff == nil and msgcount == 0 then
+                    msgcount = 1
+                    EASYBUFF_BUY(handle, sellType, cnt, buffcount)
+
+                    return
+                end
+            end
+
+            local yesscp = string.format("EASYBUFF_BUY(%d, %d, %d,%d)", handle, sellType, cnt, buffcount)
+            local noscp = string.format("EASYBUFF_END()")
+
+            if msgcount == 0 then
+                msgcount = 1
+                ui.MsgBox(boxmsg, yesscp, noscp)
+            end
+
+        else
+            ui.SysMsg("No buff item")
+            return;
         end
+    else
+        return
+    end
+end
+
+function EASYBUFF_BUY(handle, sellType, cnt, buffcount)
+
+    if buffcount < cnt then
+
+        session.autoSeller.Buy(handle, buffcount, 1, sellType);
+        buffcount = buffcount + 1;
+        ReserveScript(string.format("EASYBUFF_BUY(%d, %d, %d,%d)", handle, sellType, cnt, buffcount), 0.6)
+        return
+    else
+        EASYBUFF_END()
     end
 end
 
 function EASYBUFF_END()
-    g.buffIndex = 0;
-    ui.CloseFrame("buffseller_target");
+    local frame = ui.GetFrame("buffseller_target");
+    frame:ShowWindow(0)
+    msgcount = 0
+    return
+
 end
 
 -- Repair buff

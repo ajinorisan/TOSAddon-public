@@ -7,10 +7,11 @@
 -- v1.0.4 装備ボタンが非表示になるバグ修正。細かいところ色々変更
 -- v1.0.5 2ページ表示の場合に設定が即時反映されないバグ修正
 -- v1.0.6 2ページ目のイコル付け替えた際に1ページ目に戻るの修正。イコルのLV表示取りやめ。
+-- v1.0.7 settingsファイルが無い状態で読み込んだらバグってたの修正。ツールチップ併記取りやめ。
 local addonName = "GODDESS_ICOR_MANAGER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -877,7 +878,26 @@ function goddess_icor_manager_language(str)
         if str == "BOOTS" then
             str = "靴"
         end
-
+        -- "ボタン左クリックでイコル装備します。{nl}Equip the icor with a left click of the button"
+        if str == "Equip the icor with a left click of the button." then
+            str = "ボタン左クリックでイコル装備します。"
+        end
+        -- "チェックを入れると一括表示に切り替えます。{nl}10 preset displays when checked.")
+        if str == "Check the box to switch to batch display." then
+            str = "チェックを入れると一括表示に切り替えます。"
+        end
+        -- "{ol}Check box to switch display number"
+        if str == "{ol}Check box to switch display number" then
+            str = "{ol}チェックボックスで表示数切替"
+        end
+        -- Right click to close.
+        if str == "Right click to close." then
+            str = "右クリックで閉じます。"
+        end
+        -- "Swap the reverse side of the weapon."
+        if str == "Swap the reverse side of the weapon." then
+            str = "武器の裏表を切り替えます。"
+        end
         return str
 
     else
@@ -1102,6 +1122,7 @@ function goddess_icor_manager_language(str)
 
         return str
     end
+    return str
 end
 
 local managed_list = {'RH', 'LH', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS', 'RH_SUB', 'LH_SUB'}
@@ -1214,6 +1235,10 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
     end
 
+    if g.settings.check == nil then
+        g.settings.check = 0
+    end
+
     if g.settings.check == 0 then
         local Y = 10
 
@@ -1238,7 +1263,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 AUTO_CAST(bg)
                 bg:RemoveAllChild()
                 bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
                 local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
                 AUTO_CAST(pagename_text)
                 local pagename = goddess_icor_manager_get_pagename(i)
@@ -1257,7 +1282,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 for j = 1, #managed_list do
                     local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
                     manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    manage_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
 
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
@@ -1300,7 +1325,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 bg:RemoveAllChild()
 
                 bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
                 local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
                 AUTO_CAST(pagename_text)
 
@@ -1321,7 +1346,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 for j = 1, #managed_list do
                     local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
                     manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    manage_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
 
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
@@ -1336,7 +1361,9 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
 
                     local option_prop, group_prop, value_prop, is_goddess_option =
                         goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
-
+                    -- print(tostring(option_prop))
+                    -- print(tostring(group_prop))
+                    -- print(tostring(value_prop))
                     if option_prop ~= nil then
 
                         for part in option_prop:gmatch("([^/]+)") do
@@ -1372,7 +1399,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 AUTO_CAST(bg)
                 -- bg:SetOffset(0, 10)
                 bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
 
                 local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
                 AUTO_CAST(pagename_text)
@@ -1392,7 +1419,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 for j = 1, #managed_list do
                     local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
                     manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    manage_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
 
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
@@ -1432,7 +1459,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, YY, 500, 281, 490)
                 AUTO_CAST(bg)
                 bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
                 if remain_time == 0 and max_page < i then
 
                 end
@@ -1453,7 +1480,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                 for j = 1, #managed_list do
                     local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
                     manage_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                    manage_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+                    manage_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
 
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
@@ -1493,7 +1520,8 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
         frame:Resize(1430, 1000)
         goddess_icor_manager_set_pos(frame, page_max)
     end
-
+    frame:ShowWindow(1)
+    frame:Invalidate()
 end
 
 function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
@@ -1661,6 +1689,8 @@ function goddess_icor_manager_check()
                         equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
                         equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
                         equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                        equip_button:SetTextTooltip(goddess_icor_manager_language(
+                            "Equip the icor with a left click of the button."))
                     end
                 end
             end
@@ -1712,6 +1742,8 @@ function goddess_icor_manager_check()
                             equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
                             equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
                             equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                            equip_button:SetTextTooltip(goddess_icor_manager_language(
+                                "Equip the icor with a left click of the button."))
 
                         end
                     end
@@ -1760,6 +1792,8 @@ function goddess_icor_manager_check()
                             equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
                             equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
                             equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                            equip_button:SetTextTooltip(goddess_icor_manager_language(
+                                "Equip the icor with a left click of the button."))
                         end
                     end
                 end
@@ -1926,7 +1960,7 @@ function goddess_icor_manager_check_save(frame, ctrl, argStr, argNum)
     goddess_icor_manager_save_settings()
     local frame = ui.GetFrame("goddess_icor_manager")
 
-    ReserveScript("goddess_icor_manager_list_init()", 0.5)
+    ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", 1), 0.5)
 
 end
 
@@ -1941,8 +1975,9 @@ function goddess_icor_manager_load_settings()
 
     if not settings then
 
-        settings = g.settings
-
+        settings = {
+            check = 0
+        }
     end
     g.settings = settings
     goddess_icor_manager_save_settings()
@@ -1968,14 +2003,13 @@ function goddess_icor_manager_newframe_init()
 
     local change_check = newframe:CreateOrGetControl('checkbox', 'change_check', 60, 20, 30, 30)
     AUTO_CAST(change_check)
-    change_check:SetTextTooltip(
-        "チェックを入れると10種類表示に切り替えます。{nl}10 preset displays when checked.")
+    change_check:SetTextTooltip(goddess_icor_manager_language("Check the box to switch to batch display."))
     change_check:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_check_save")
     change_check:SetCheck(g.settings.check)
 
     local change_text = newframe:CreateOrGetControl("richtext", 'change_text', 90, 30, 0, 40)
     AUTO_CAST(change_text)
-    change_text:SetText("{ol}Check to switchbetween 5 or 10 types of displays")
+    change_text:SetText(goddess_icor_manager_language("{ol}Check box to switch display number"))
     change_text:AdjustFontSizeByWidth(350)
     --[[local close_bg = newframe:CreateOrGetControl("groupbox", "close_bg", 290, 10, 200, 60)
     AUTO_CAST(close_bg)
@@ -1995,7 +2029,7 @@ function goddess_icor_manager_newframe_init()
     AUTO_CAST(swapbtn)
     swapbtn:SetSkinName("test_pvp_btn")
     swapbtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_swap_weapon")
-    swapbtn:SetTextTooltip("武器の裏表を入れ替えます。{nl}Swap the reverse side of the weapon.")
+    swapbtn:SetTextTooltip(goddess_icor_manager_language("Swap the reverse side of the weapon."))
 
     local x = 50
     local xx = 50
@@ -2007,7 +2041,7 @@ function goddess_icor_manager_newframe_init()
             new_bg:SetSkinName("test_frame_midle_light");
             new_bg:RemoveAllChild();
             new_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-            new_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+            new_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
             x = x + 131
 
         elseif i <= 6 or i >= 3 then
@@ -2016,7 +2050,7 @@ function goddess_icor_manager_newframe_init()
             new_bg:SetSkinName("test_frame_midle_light");
             new_bg:RemoveAllChild();
             new_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-            new_bg:SetTextTooltip("右クリックで閉じます。{nl}Right click to close.")
+            new_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
             xx = xx + 131
         end
     end
@@ -2222,8 +2256,8 @@ function goddess_icor_manager_equip()
         return
 
     else
-
-        ReserveScript("goddess_icor_manager_list_init()", 0.5)
+        local gimframe = ui.GetFrame("goddess_icor_manager")
+        ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", gimframe, "", "", 1), 0.5)
         return
     end
 
