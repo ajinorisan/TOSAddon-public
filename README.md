@@ -362,7 +362,7 @@ v1.0.4 時間降順に並べ替え機能追加
 
 ----
 
-### Goddes icor manager
+### Goddess Icor Manager
 
 ランダムオプションを一覧表示、そのまま装備も出来るよ。
 
