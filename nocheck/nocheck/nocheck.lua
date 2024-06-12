@@ -6,10 +6,11 @@
 -- v1.1.0 とりあえずmsgをインプットする系は全部セットする様に出来たと思うけど知らん
 -- v1.1.1 ラダコレクション連続強化するように。速すぎてミス注意。
 -- v1.1.2 継承とか入力出来なかったの修正。テストコードそのまま放置してたのが原因
+-- v1.1.3 コレクション強化の際に節目の強化値で一度確認する様に変更。WARNINGBOXの一部がバグるらしいので一時無効化コマンド追加
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -36,56 +37,157 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
-    -- addon:RegisterMsg("DO_OPEN_WARNINGMSGBOX_EX_UI", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN");
-    -- g.SetupHook(NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN, "WARNINGMSGBOX_EX_FRAME_OPEN")
-    -- acutil.setupEvent(addon, "WARNINGMSGBOX_EX_FRAME_OPEN", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN");
 
-    -- g.SetupHook(NOCHECK_WARNINGMSGBOX_FRAME_OPEN, "WARNINGMSGBOX_FRAME_OPEN")
+    acutil.slashCommand("/nocheck", NOCHECK_COMMAND);
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
-        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
-        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_reinforce_frame")
+        if g.nocheck == 0 then
+            addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
+            addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
+        end
+
+        acutil.setupEvent(addon, "MORU_LBTN_CLICK", "NOCHECK_MORU_LBTN_CLICK");
     end
 
 end
 
-function NOCHECK_reinforce_frame()
+function NOCHECK_COMMAND()
+    if g.nocheck == nil then
+        g.nocheck = 1
+        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
+
+    elseif g.nocheck == 0 then
+        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
+        g.nocheck = 1
+
+    else
+        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
+        g.nocheck = 0
+
+    end
+
+end
+
+local FIRST_REINFORCE = true -- 初回強化フラグ
+
+function NOCHECK_MORU_LBTN_CLICK(frame, msg)
+    local invframe, invItem = acutil.getEventArgs(msg)
+
+    --[[local frame = ui.GetFrame("reinforce_131014")
+    g.timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0)
+    AUTO_CAST(g.timer)
+    g.timer:Stop()
+    g.timer:SetUpdateScript("NOCHECK_REINFORCE_131014_MSGBOX")
+    g.timer:Start(2)]]
+    FIRST_REINFORCE = true -- 初回強化フラグをtrueに
+    NOCHECK_REINFORCE_131014_MSGBOX()
+
+end
+
+function NOCHECK_REINFORCE_131014_MSGBOX()
     local frame = ui.GetFrame("reinforce_131014")
     if frame:IsVisible() == 0 then
 
+        SET_MOUSE_FOLLOW_BALLOON(nil);
+        ui.RemoveGuideMsg("SelectItem");
+        SET_MOUSE_FOLLOW_BALLOON();
+        ui.SetEscapeScp("");
+        local invframe = ui.GetFrame("inventory");
+        -- SET_SLOT_APPLY_FUNC(invframe, "None");
+        SET_INV_LBTN_FUNC(invframe, "None");
+        RESET_MOUSE_CURSOR();
+
         return
-    else
-        local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
-        skipOver5:SetCheck(1)
-        NOCHECK_REINFORCE_131014_MSGBOX(frame)
-
     end
+    local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
+    skipOver5:SetCheck(1)
 
-end
+    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
+    local fromItemObj = GetIES(fromItem:GetObject())
+    local moruObj = GetIES(fromMoru:GetObject())
 
-function NOCHECK_REINFORCE_131014_MSGBOX(frame)
-    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame);
-
-    local fromItemObj = GetIES(fromItem:GetObject());
-
-    local moruObj = GetIES(fromMoru:GetObject());
+    local exec = GET_CHILD_RECURSIVELY(frame, "exec")
 
     if moruObj.ClassName == "Moru_goddess_500" then
-
-        session.ResetItemList();
-        session.AddItemID(fromItem:GetIESID());
-        session.AddItemID(fromMoru:GetIESID());
-        local resultlist = session.GetItemIDList();
-        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist);
-
-        REINFORCE_131014_UPDATE_MORU_COUNT(frame)
-
+        exec:ShowWindow(0)
+        NOCHECK_REINFORCE_131014_EXEC(frame, fromItemObj)
     else
-        REINFORCE_131014_EXEC()
+        exec:ShowWindow(1)
     end
+end
+
+local REINFORCE_LEVEL_CHECKED = false
+
+function NOCHECK_REINFORCE_131014_EXEC(frame, fromItemObj)
+    local curReinforce = fromItemObj.Reinforce_2
+
+    local found = false
+    for _, level in ipairs({7, 10, 15, 20}) do
+        if tonumber(curReinforce) == level then
+            found = true
+            break
+        end
+    end
+
+    if found then
+        if FIRST_REINFORCE then -- 初回強化の場合
+            NOCHECK_REINFORCE_131014_CONTINUE()
+
+        else
+            if not REINFORCE_LEVEL_CHECKED then
+                local msg = "Continue to reinforce?"
+                local yes = string.format("NOCHECK_REINFORCE_131014_CONTINUE()")
+                local no = string.format("NOCHECK_REINFORCE_131014_CANCEL()")
+                ui.MsgBox(msg, yes, no)
+                REINFORCE_LEVEL_CHECKED = true
+            end
+        end
+    else
+        -- 確認条件に合致しない場合は続行
+        NOCHECK_REINFORCE_131014_CONTINUE()
+        for _, level in ipairs({1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19}) do
+            if tonumber(curReinforce) == level then
+                REINFORCE_LEVEL_CHECKED = false
+                FIRST_REINFORCE = false -- 初回強化フラグをfalseに
+                break
+            end
+        end
+    end
+end
+
+function NOCHECK_REINFORCE_131014_CONTINUE()
+    local frame = ui.GetFrame("reinforce_131014")
+    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
+    session.ResetItemList()
+    session.AddItemID(fromItem:GetIESID())
+    session.AddItemID(fromMoru:GetIESID())
+    local resultlist = session.GetItemIDList()
+    item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
+
+    REINFORCE_131014_UPDATE_MORU_COUNT(frame)
+    ReserveScript("NOCHECK_REINFORCE_131014_MSGBOX()", 2.0)
+    return
+    -- REINFORCE_LEVEL_CHECKED = false
+end
+
+function NOCHECK_REINFORCE_131014_CANCEL()
+
+    local frame = ui.GetFrame("reinforce_131014")
+    frame:ShowWindow(0)
+    REINFORCE_LEVEL_CHECKED = false
+
+    SET_MOUSE_FOLLOW_BALLOON(nil);
+    ui.RemoveGuideMsg("SelectItem");
+    SET_MOUSE_FOLLOW_BALLOON();
+    ui.SetEscapeScp("");
+    local invframe = ui.GetFrame("inventory");
+    -- SET_SLOT_APPLY_FUNC(invframe, "None");
+    SET_INV_LBTN_FUNC(invframe, "None");
+    RESET_MOUSE_CURSOR();
+
 end
 
 function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()

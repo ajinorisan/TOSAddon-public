@@ -278,10 +278,10 @@
 		"name" : "No check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.2",
+		"fileVersion" : "v1.1.3",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
-		"description" : "ラダコレクションの強化を支援します。Ch移動確認消します。欠片アイテムを確認無しで使用、カードの付け外し、エーテルジェムの確認も消します。ゴッデス装備の帰属解除の際の手間を省きます。Help strengthen the Rada collection. Remove the confirmation of the use of shard items without confirmation, the attachment and removal of cards, and the ether gem. Eliminates the time and effort required to unattribute Goddess equipment. 라다 컬렉션 강화를 지원하며, Ch 이동 확인을 지웁니다. 조각 아이템 확인 없이 사용, 카드 탈부착, 에테르 젬 확인도 사라집니다. 갓데스 장비의 귀속 해제 시 번거로움을 덜어줍니다.",
+		"description" : "各種確認を消します。ラダコレクションの強化を支援します。チャットで/nocheckでWARNINGBOXの自動入力機能停止します。Erase various checks. Help enhance Rada collection. Stop the automatic input function of WARNINGBOX by /nocheck in the chat. (Some bugs are addressed.)각종 확인을 지웁니다. 라다 컬렉션 강화를 지원합니다. 채팅에서 /nocheck에서 WARNINGBOX 자동입력 기능 중지합니다. (일부 버그 대응)",
 		"tags" : [
 		           "item"
 		]
