@@ -33,7 +33,7 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
     g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
     g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+                "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
@@ -98,27 +98,33 @@ function NOCHECK_REINFORCE_131014_MSGBOX()
     end
 end
 
-function NOCHECK_REINFORCE_131014_EXEC(frame, potential)
-
+function NOCHECK_REINFORCE_131014_EXEC()
+    local frame = ui.GetFrame("reinforce_131014")
     REINFORCE_131014_UPDATE_MORU_COUNT(frame)
 
     local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
     local fromItemObj = GetIES(fromItem:GetObject())
     local curReinforce = fromItemObj.Reinforce_2
-
-    for _, level in ipairs({7, 10, 15, 20}) do
-        if curReinforce == level then
-            local msg = "Continue to reinforce?"
-            local yes = string.format("NOCHECK_REINFORCE_131014_CONTINUE()")
-            local no = string.format("NOCHECK_REINFORCE_131014_CANCEL()")
-            ui.MsgBox(msg, yes, no)
-            return
+    local monbframe = ui.GetFrame("monb_" .. session.GetTargetHandle());
+    if monbframe == nil then
+        for _, level in ipairs({7, 10, 15, 20}) do
+            if curReinforce == level then
+                local msg = "Continue to reinforce?"
+                local yes = string.format("NOCHECK_REINFORCE_131014_CONTINUE()")
+                local no = string.format("NOCHECK_REINFORCE_131014_CANCEL()")
+                ui.MsgBox(msg, yes, no)
+                return
+            end
         end
+        NOCHECK_REINFORCE_131014_CONTINUE()
+    else
+        NOCHECK_REINFORCE_131014_CONTINUE()
     end
-    NOCHECK_REINFORCE_131014_CONTINUE()
+
 end
 
 function NOCHECK_REINFORCE_131014_CONTINUE()
+
     local frame = ui.GetFrame("reinforce_131014")
     if frame:IsVisible() == 0 then
 
@@ -136,28 +142,20 @@ function NOCHECK_REINFORCE_131014_CONTINUE()
 
     local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
 
-    local monbframe = ui.GetFrame("monb_" .. session.GetTargetHandle());
-    if monbframe == nil then
-        session.ResetItemList()
-        session.AddItemID(fromItem:GetIESID())
-        session.AddItemID(fromMoru:GetIESID())
-        local resultlist = session.GetItemIDList()
-        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
-        ReserveScript("NOCHECK_REINFORCE_131014_CONTINUE()", 2.0)
-        return;
-    else
-        print("aru")
-        ReserveScript("NOCHECK_REINFORCE_131014_EXEC()", 2.0)
+    session.ResetItemList()
+    session.AddItemID(fromItem:GetIESID())
+    session.AddItemID(fromMoru:GetIESID())
+    local resultlist = session.GetItemIDList()
+    item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
+    ReserveScript("NOCHECK_REINFORCE_131014_EXEC()", 2.0)
+    return;
 
-        return
-    end
 end
 
 function NOCHECK_REINFORCE_131014_CANCEL()
 
     local frame = ui.GetFrame("reinforce_131014")
     frame:ShowWindow(0)
-    REINFORCE_LEVEL_CHECKED = false
 
     SET_MOUSE_FOLLOW_BALLOON(nil);
     ui.RemoveGuideMsg("SelectItem");
