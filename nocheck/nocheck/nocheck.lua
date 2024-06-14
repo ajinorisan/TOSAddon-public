@@ -7,10 +7,11 @@
 -- v1.1.1 ラダコレクション連続強化するように。速すぎてミス注意。
 -- v1.1.2 継承とか入力出来なかったの修正。テストコードそのまま放置してたのが原因
 -- v1.1.3 コレクション強化の際に節目の強化値で一度確認する様に変更。WARNINGBOXの一部がバグるらしいので一時無効化コマンド追加
+-- v1.1.4 コレクション強化の挙動安定してなかったの直したハズ。むずかった
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -71,23 +72,62 @@ function NOCHECK_COMMAND()
 
 end
 
-local FIRST_REINFORCE = true -- 初回強化フラグ
-
 function NOCHECK_MORU_LBTN_CLICK(frame, msg)
     local invframe, invItem = acutil.getEventArgs(msg)
+    local obj = GetIES(invItem:GetObject())
 
-    --[[local frame = ui.GetFrame("reinforce_131014")
-    g.timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0)
-    AUTO_CAST(g.timer)
-    g.timer:Stop()
-    g.timer:SetUpdateScript("NOCHECK_REINFORCE_131014_MSGBOX")
-    g.timer:Start(2)]]
-    FIRST_REINFORCE = true -- 初回強化フラグをtrueに
+    -- local pr = obj.PR
+
     NOCHECK_REINFORCE_131014_MSGBOX()
 
 end
 
 function NOCHECK_REINFORCE_131014_MSGBOX()
+    local frame = ui.GetFrame("reinforce_131014")
+    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
+    local fromItemObj = GetIES(fromItem:GetObject())
+    local moruObj = GetIES(fromMoru:GetObject())
+    local exec = GET_CHILD_RECURSIVELY(frame, "exec")
+
+    if moruObj.ClassName == "Moru_goddess_500" then
+        local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
+        skipOver5:SetCheck(1)
+        exec:ShowWindow(0)
+        NOCHECK_REINFORCE_131014_CONTINUE()
+    else
+        exec:ShowWindow(1)
+    end
+end
+
+function NOCHECK_REINFORCE_131014_EXEC()
+    local frame = ui.GetFrame("reinforce_131014")
+    REINFORCE_131014_UPDATE_MORU_COUNT(frame)
+
+    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
+    local fromItemObj = GetIES(fromItem:GetObject())
+    local curReinforce = fromItemObj.Reinforce_2
+    local monbframe = ui.GetFrame("monb_" .. session.GetTargetHandle());
+    if monbframe == nil then
+        print("nai" .. curReinforce)
+        for _, level in ipairs({7, 10, 15, 20}) do
+            if curReinforce == level then
+                local msg = "Continue to reinforce?"
+                local yes = string.format("NOCHECK_REINFORCE_131014_CONTINUE()")
+                local no = string.format("NOCHECK_REINFORCE_131014_CANCEL()")
+                ui.MsgBox(msg, yes, no)
+                return
+            end
+        end
+        NOCHECK_REINFORCE_131014_CONTINUE()
+    else
+        -- print("test")
+        NOCHECK_REINFORCE_131014_CONTINUE()
+    end
+
+end
+
+function NOCHECK_REINFORCE_131014_CONTINUE()
+
     local frame = ui.GetFrame("reinforce_131014")
     if frame:IsVisible() == 0 then
 
@@ -102,82 +142,37 @@ function NOCHECK_REINFORCE_131014_MSGBOX()
 
         return
     end
-    local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
-    skipOver5:SetCheck(1)
 
     local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
-    local fromItemObj = GetIES(fromItem:GetObject())
-    local moruObj = GetIES(fromMoru:GetObject())
-
-    local exec = GET_CHILD_RECURSIVELY(frame, "exec")
-
-    if moruObj.ClassName == "Moru_goddess_500" then
-        exec:ShowWindow(0)
-        NOCHECK_REINFORCE_131014_EXEC(frame, fromItemObj)
+    local monbframe = ui.GetFrame("monb_" .. session.GetTargetHandle());
+    if monbframe == nil then
+        session.ResetItemList()
+        session.AddItemID(fromItem:GetIESID())
+        session.AddItemID(fromMoru:GetIESID())
+        local resultlist = session.GetItemIDList()
+        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
+        ReserveScript("NOCHECK_REINFORCE_131014_EXEC()", 0.5)
+        return
     else
-        exec:ShowWindow(1)
+        ReserveScript("NOCHECK_REINFORCE_131014_EXEC()", 0.5)
+        return
     end
+
 end
 
-local REINFORCE_LEVEL_CHECKED = false
-
-function NOCHECK_REINFORCE_131014_EXEC(frame, fromItemObj)
-    local curReinforce = fromItemObj.Reinforce_2
-
-    local found = false
-    for _, level in ipairs({7, 10, 15, 20}) do
-        if tonumber(curReinforce) == level then
-            found = true
-            break
-        end
-    end
-
-    if found then
-        if FIRST_REINFORCE then -- 初回強化の場合
-            NOCHECK_REINFORCE_131014_CONTINUE()
-
-        else
-            if not REINFORCE_LEVEL_CHECKED then
-                local msg = "Continue to reinforce?"
-                local yes = string.format("NOCHECK_REINFORCE_131014_CONTINUE()")
-                local no = string.format("NOCHECK_REINFORCE_131014_CANCEL()")
-                ui.MsgBox(msg, yes, no)
-                REINFORCE_LEVEL_CHECKED = true
-            end
-        end
+function NOCHECK_REINFORCE_MONB_FRAME()
+    local monbframe = ui.GetFrame("monb_" .. session.GetTargetHandle());
+    if monbframe == nil then
+        print("nai")
     else
-        -- 確認条件に合致しない場合は続行
-        NOCHECK_REINFORCE_131014_CONTINUE()
-        for _, level in ipairs({1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19}) do
-            if tonumber(curReinforce) == level then
-                REINFORCE_LEVEL_CHECKED = false
-                FIRST_REINFORCE = false -- 初回強化フラグをfalseに
-                break
-            end
-        end
+        print("aru")
     end
-end
-
-function NOCHECK_REINFORCE_131014_CONTINUE()
-    local frame = ui.GetFrame("reinforce_131014")
-    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
-    session.ResetItemList()
-    session.AddItemID(fromItem:GetIESID())
-    session.AddItemID(fromMoru:GetIESID())
-    local resultlist = session.GetItemIDList()
-    item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
-
-    REINFORCE_131014_UPDATE_MORU_COUNT(frame)
-    ReserveScript("NOCHECK_REINFORCE_131014_MSGBOX()", 2.0)
-    return
-    -- REINFORCE_LEVEL_CHECKED = false
 end
 
 function NOCHECK_REINFORCE_131014_CANCEL()
 
     local frame = ui.GetFrame("reinforce_131014")
     frame:ShowWindow(0)
-    REINFORCE_LEVEL_CHECKED = false
 
     SET_MOUSE_FOLLOW_BALLOON(nil);
     ui.RemoveGuideMsg("SelectItem");
