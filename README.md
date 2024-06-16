@@ -1040,17 +1040,19 @@ The author of this addon is meldavyさん
 
 ----
 
-### muteki2ex
+### Muteki2ex
 
-既存の動作にオーバーロードレイドのクールダウンゲージを付けました。色は選べません。
+既存の動作にオーバーロードレイドのクールダウンゲージを付けました。
 
-WithEffectではなく、パーティーチャットでIgotとかいうタイプに変更
+FFFF0000=赤　FF00FF00=緑　FF0000FF=青　FFFFFFFF=白　FFFF6666=オレンジ
 
-Overload Raid cooldown gauge attached to existing operation. Color is not selectable.
+v2.0.1 アイコン表示モード、オーバーロードレイド管理、PTチャットお知らせ。
+
+　
+
+アドオンマネージャー登録済
 
 The author of this addon is WRITさん
-
-Register in AddonManager(v1.0.0にダウングレードすることになります)
 
 
 ----
