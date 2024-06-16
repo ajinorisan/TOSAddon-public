@@ -4,10 +4,11 @@
 -- v1.0.4 3回目以降のCCはキャラクターリストを読み込まない様に変更
 -- v1.0.5 書き直した。高速化したはず。
 -- v1.0.6 instantcc使ってたら順番バグるの修正。フレーム開ける時に読み込みに変更。
+-- v1.0.7 順番バグってたの再修正
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -135,7 +136,7 @@ local entbl = {
 }
 -- g.tempFileLoc = string.format('../addons/%s/temp.dat', addonNameLower)
 -- g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
-g.loaded = false
+-- g.loaded = false
 function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -146,20 +147,84 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
 
-        -- other_character_skill_list_load_settings()
-        -- addon:RegisterMsg("GAME_START", "other_character_skill_list_load_settings")
+        other_character_skill_list_load_settings()
+
         addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_frame_init")
-        -- addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_sort")
+
         acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_skill_list_INVENTORY_OPEN")
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_skill_list_INVENTORY_CLOSE")
-        -- addon:RegisterMsg("BARRACK_SELECTCHARACTER", "other_character_skill_list_SELECTTEAM_ON_MSG");
+
         g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+
+        local accountInfo = session.barrack.GetMyAccount()
+        local cnt = accountInfo:GetPCCount()
+        -- print(g.layer)
+        for i = 0, cnt - 1 do
+
+            local pcInfo = accountInfo:GetPCByIndex(i)
+            local pcApc = pcInfo:GetApc()
+            local pcName = pcApc:GetName()
+
+            for name, charData in pairs(g.settings.character) do
+
+                if charData.name == pcName then
+                    g.settings.character[name].index = i
+
+                    if g.layer ~= nil and g.layer ~= g.settings.character[name].layer then
+                        g.settings.character[name].layer = g.layer
+
+                    end
+                end
+            end
+        end
+        g.layer = nil
+        other_character_skill_list_save_settings()
 
     end
 
 end
 
 function other_character_skill_list_load_settings()
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+
+    -- settings が nil または settings.character が空の場合に初期化処理を実行
+    if not settings or not settings.character or next(settings.character) == nil then
+        local accountInfo = session.barrack.GetMyAccount()
+        local barrackPCCount = accountInfo:GetBarrackPCCount()
+
+        settings = {
+            character = {}
+        }
+
+        for i = 1, barrackPCCount do -- Lua の配列は 1 から始めるのが一般的です
+            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i - 1) -- 0 インデックスの補正
+            local barrackPCName = barrackPCInfo:GetName()
+
+            settings.character[barrackPCName] = {
+                SHIRT = {},
+                PANTS = {},
+                GLOVES = {},
+                BOOTS = {},
+                SEAL = {},
+                ARK = {},
+                RELIC = {},
+                LEG = {},
+                GOD = {},
+                index = i,
+                layer = 9,
+                name = barrackPCName
+            }
+        end
+        g.settings = settings
+    else
+        g.settings = settings
+    end
+
+    other_character_skill_list_save_settings()
+end
+
+--[[function other_character_skill_list_load_settings()
 
     local tempFilePath = string.format('../addons/%s/temp.json', addonNameLower)
 
@@ -284,33 +349,10 @@ function other_character_skill_list_load_settings()
 
     end
     other_character_skill_list_sort()
-end
+end]]
 
 function other_character_skill_list_sort()
 
-    local accountInfo = session.barrack.GetMyAccount()
-    local cnt = accountInfo:GetPCCount()
-    -- print("layer: " .. tostring(g.layer))
-
-    for i = 0, cnt - 1 do
-
-        local pcInfo = accountInfo:GetPCByIndex(i)
-        local pcApc = pcInfo:GetApc()
-        local pcName = pcApc:GetName()
-
-        for name, charData in pairs(g.settings.character) do
-
-            if charData.name == pcName then
-                g.settings.character[name].index = i
-
-                if g.layer ~= nil and g.layer ~= g.settings.character[name].layer then
-                    g.settings.character[name].layer = g.layer
-                    -- print(string.format("Updating layer for %s to %d", name, g.layer))
-                end
-            end
-        end
-    end
-    other_character_skill_list_save_settings()
     local function sortByLayerAndOrder(a, b)
         if a.layer ~= b.layer then
             return a.layer < b.layer
@@ -468,9 +510,9 @@ function other_character_skill_list_frame_init()
     AUTO_CAST(btn)
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_friend 35 35}")
-
-    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_load_settings")
-    -- btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_frame_open")
+    -- other_character_skill_list_sort()
+    -- btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_load_settings")
+    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_sort")
     btn:SetTextTooltip("Other Character Skill List")
 
 end
