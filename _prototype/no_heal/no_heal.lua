@@ -80,7 +80,9 @@ function no_heal_load_settings()
 end
 
 function no_heal_get_buff()
-
+    -- buffslot
+    -- buffcountslot
+    -- buffcountslot_sub
     local handle = session.GetMyHandle()
     local buffframe = ui.GetFrame("buff")
 
@@ -303,7 +305,7 @@ function no_heal_setting_frame()
     AUTO_CAST(setframe)
     setframe:RemoveAllChild();
     setframe:SetPos(400, 100)
-    setframe:SetEventScript(ui.RBUTTONUP, "no_heal_auto_check")
+    -- setframe:SetEventScript(ui.RBUTTONUP, "no_heal_auto_check")
 
     local close = setframe:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
