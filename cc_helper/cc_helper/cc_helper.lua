@@ -2,10 +2,11 @@
 -- v1.1.5 登録したカードと別のカードが付いていると無限ループに陥る問題修正
 -- v1.1.6 多分もう少しだけ失敗しにくく
 -- v1.1.7 入庫時のシステムチャットつけた。出庫時と装備の順番固定。多分早くなった。
+-- v1.1.8 設定のコピー機能付けた。なんかダサイけど仕方ない。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.7"
+local ver = "1.1.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -13,6 +14,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings_new.json', addonNameLower)
+g.setFileLoc = string.format('../addons/%s/set.json', addonNameLower)
 
 local acutil = require("acutil")
 local os = require("os")
@@ -240,6 +242,211 @@ function cc_helper_monstercard_change(frame, ctrl)
 
 end
 
+function cc_helper_set_load(characterName)
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
+    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
+
+    g.set = set
+
+    local characterData = {}
+
+    -- キャラクターデータを検索
+    for key, data in pairs(g.set) do
+        -- print(string.format("確認中 CharacterName: %s", characterName))
+        if type(data) == "table" and key == characterName then
+            characterData = data
+            break
+        end
+    end
+
+    --[[ `characterData` の中身を表示
+    print("characterData の中身:")
+    for key, value in pairs(characterData) do
+        print(string.format("%s: %s", key, tostring(value)))
+    end]]
+
+    if characterData then
+        g.settings[g.LOGINCID] = characterData
+        g.settings[g.LOGINCID].name = LoginName
+        -- print(g.settings[g.LOGINCID].name)
+        cc_helper_save_settings()
+        local frame = ui.GetFrame("cc_helper")
+        frame:ShowWindow(0)
+        ReserveScript("cc_helper_setting_frame_init()", 0.5)
+        return
+    end
+end
+
+function cc_helper_context(frame, ctr, str, num)
+
+    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
+    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "set load", 0, 0, 0, 0);
+    ui.AddContextMenuItem(context, "-----", "")
+    for characterName, data in pairs(set) do
+
+        local jobidStr = "" -- jobid を格納する変数
+
+        -- data 内の jobid をすべて取得して連結する
+        for key, value in pairs(data) do
+            if key:match("^job_%d+$") then -- "job_" で始まるキーをチェック
+                local jobClass = GetClassByType("Job", tonumber(value))
+
+                local jobname = TryGetProp(jobClass, "Name", "None")
+                local start_index, end_index = string.find(jobname, '@dicID')
+
+                if start_index == 1 then
+                    jobname = dic.getTranslatedStr(TryGetProp(jobClass, "Name", "None"))
+                end
+
+                if jobidStr == "" then
+
+                    jobidStr = tostring(jobname)
+                else
+                    jobidStr = jobidStr .. ", " .. tostring(jobname)
+                end
+            end
+        end
+
+        -- jobid を characterName に連結
+        local displayText = characterName
+        if jobidStr ~= "" then
+            displayText = characterName .. " (" .. jobidStr .. ")"
+        end
+
+        local scp =
+            ui.AddContextMenuItem(context, displayText, string.format("cc_helper_set_load('%s')", characterName))
+    end
+    ui.OpenContextMenu(context);
+
+end
+
+function cc_helper_set_delete(characterName)
+
+    g.set[characterName] = nil
+    ui.SysMsg("Deleted set.")
+    acutil.saveJSON(g.setFileLoc, g.set)
+
+end
+
+function cc_helper_delete_context(frame, ctr, str, num)
+
+    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
+    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "set delete", 0, 0, 100, 100);
+
+    ui.AddContextMenuItem(context, "-----", "")
+
+    for characterName, data in pairs(set) do
+        local jobidStr = "" -- jobid を格納する変数
+
+        -- data 内の jobid をすべて取得して連結する
+        for key, value in pairs(data) do
+            if key:match("^job_%d+$") then -- "job_" で始まるキーをチェック
+                local jobClass = GetClassByType("Job", tonumber(value))
+
+                local jobname = TryGetProp(jobClass, "Name", "None")
+                local start_index, end_index = string.find(jobname, '@dicID')
+
+                if start_index == 1 then
+                    jobname = dic.getTranslatedStr(TryGetProp(jobClass, "Name", "None"))
+                end
+
+                if jobidStr == "" then
+
+                    jobidStr = tostring(jobname)
+                else
+                    jobidStr = jobidStr .. ", " .. tostring(jobname)
+                end
+            end
+        end
+
+        -- jobid を characterName に連結
+        local displayText = characterName
+        if jobidStr ~= "" then
+            displayText = characterName .. " (" .. jobidStr .. ")"
+        end
+
+        local scp = ui.AddContextMenuItem(context, displayText,
+            string.format("cc_helper_set_delete('%s')", characterName))
+    end
+    ui.OpenContextMenu(context);
+
+end
+
+function cc_helper_set_save(frame, ctr, str, num)
+    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
+
+    if err then
+        -- 設定ファイル読み込み失敗時処理
+        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    end
+
+    if not set then
+        set = {}
+    end
+
+    local jobtbl = {}
+    local mainSession = session.GetMainSession();
+    local pcJobInfo = mainSession:GetPCJobInfo();
+    local jobCount = pcJobInfo:GetJobCount();
+    for i = 0, jobCount - 1 do
+        local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
+        local jobid = tonumber(jobInfo.jobID)
+        table.insert(jobtbl, jobid) -- jobtbl に jobid を追加
+    end
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
+    set[LoginName] = {
+        seal_iesid = g.settings[g.LOGINCID].seal_iesid,
+        seal_clsid = g.settings[g.LOGINCID].seal_clsid,
+        seal_image = g.settings[g.LOGINCID].seal_image,
+
+        ark_iesid = g.settings[g.LOGINCID].ark_iesid,
+        ark_clsid = g.settings[g.LOGINCID].ark_clsid,
+        ark_image = g.settings[g.LOGINCID].ark_image,
+
+        gem_clsid = g.settings[g.LOGINCID].gem_clsid,
+        gem_image = g.settings[g.LOGINCID].gem_image,
+
+        leg_iesid = g.settings[g.LOGINCID].leg_iesid,
+        leg_clsid = g.settings[g.LOGINCID].leg_clsid,
+        leg_image = g.settings[g.LOGINCID].leg_image,
+
+        god_iesid = g.settings[g.LOGINCID].god_iesid,
+        god_clsid = g.settings[g.LOGINCID].god_clsid,
+        god_image = g.settings[g.LOGINCID].god_image,
+
+        hair1_image = g.settings[g.LOGINCID].hair1_image,
+        hair1_iesid = g.settings[g.LOGINCID].hair1_iesid,
+        hair1_clsid = g.settings[g.LOGINCID].hair1_clsid,
+
+        hair2_image = g.settings[g.LOGINCID].hair2_image,
+        hair2_iesid = g.settings[g.LOGINCID].hair2_iesid,
+        hair2_clsid = g.settings[g.LOGINCID].hair2_clsid,
+
+        hair3_image = g.settings[g.LOGINCID].hair3_image,
+        hair3_iesid = g.settings[g.LOGINCID].hair3_iesid,
+        hair3_clsid = g.settings[g.LOGINCID].hair3_clsid,
+
+        crown_image = g.settings[g.LOGINCID].crown_image,
+        crown_iesid = g.settings[g.LOGINCID].crown_iesid,
+        crown_clsid = g.settings[g.LOGINCID].crown_clsid,
+
+        mcc_use = g.settings[g.LOGINCID].mcc_use,
+        agm_use = g.settings[g.LOGINCID].agm_use
+
+    }
+    for index, jobid in ipairs(jobtbl) do
+        local key = string.format("job_%d", index) -- ユニークなキーを作成
+        set[LoginName][key] = jobid
+    end
+
+    g.set = set
+    ui.SysMsg("Saved set.")
+    acutil.saveJSON(g.setFileLoc, g.set)
+end
+
 -- settingframe
 function cc_helper_setting_frame_init()
     local awhframe = ui.GetFrame("accountwarehouse")
@@ -261,10 +468,25 @@ function cc_helper_setting_frame_init()
         frame:ShowWindow(0)
     end
 
+    local load = frame:CreateOrGetControl('button', 'load', 40, 10, 40, 30)
+    AUTO_CAST(load)
+    load:SetText("load")
+    load:SetEventScript(ui.LBUTTONUP, "cc_helper_context")
+
+    local save = frame:CreateOrGetControl('button', 'save', 90, 10, 40, 30)
+    AUTO_CAST(save)
+    save:SetText("save")
+    save:SetEventScript(ui.LBUTTONUP, "cc_helper_set_save")
+
+    local delete = frame:CreateOrGetControl('button', 'delete', 140, 10, 60, 30)
+    AUTO_CAST(delete)
+    delete:SetText("delete")
+    delete:SetEventScript(ui.LBUTTONUP, "cc_helper_delete_context")
+
     INVENTORY_SET_CUSTOM_RBTNDOWN("cc_helper_inv_rbtn")
 
-    local title = frame:CreateOrGetControl("richtext", "title", 40, 15)
-    title:SetText("{ol}{s18}CC Helper " .. "{s16}" .. ver)
+    -- local title = frame:CreateOrGetControl("richtext", "title", 40, 15)
+    -- title:SetText("{ol}{s18}CC Helper " .. "{s16}" .. ver)
 
     local mcc_title = frame:CreateOrGetControl("richtext", "mcc_title", 10, 250)
     mcc_title:SetText("{ol}mcc")

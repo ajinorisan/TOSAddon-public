@@ -18,51 +18,58 @@ local acutil = require('acutil')
 local defaultColor = "FFCCCC22"
 
 g.translations = {
-    GLOBAL = {
+    etc = {
         gaugeDescription = '{#000000}Show gauges below specific buff time (in seconds){/}',
-        positionMode = '{#000000)Position Mode{/}',
-        lockText = '{#000000)Lock{/}',
+        positionMode = '{#000000}Position Mode{/}',
+        lockText = '{#000000}Lock{/}',
         layerLvlText = '{#000000}Layer{nl}Level{/}',
-        rotateIcons = '{#000000}Display icon{/}',
+        rotateIcons = '{#000000}Display in icon mode{/}',
         addBuff = 'MUTEKI2 - Added %s in settings',
         deleteBuff = 'MUTEKI2 - Removed %s in settings',
         colorTone = '{#000000}Color Tone{/}',
         hideGauge = 'MUTEKI2 - Hide gauge with remaining time more than %d seconds',
         isNotNotify = "{#000000}Hide with this character{/}",
-        isEffect = "{#000000}Announce to party{/}"
+        isEffect = "{#000000}Notify buffs via PT chat{/}"
     },
-    JP = {
+    Japanese = {
         gaugeDescription = '{#000000}指定されたバフの時間を超えている場合は隠されています{/}',
-        positionMode = '{#000000)ポジションモード{/}',
-        lockText = '{#000000)ロック{/}',
-        layerLvlText = '{#000000}レイヤー{nl}レベル{/}',
-        rotateIcons = '{#000000}アイコンを回転させるだけ{/}',
+        positionMode = '{#000000}ポジションモード{/}',
+        lockText = '{#000000}ロック{/}',
+        layerLvlText = '{#000000}{s14}レイヤー{nl}レベル{/}',
+        rotateIcons = '{#000000}アイコンモードで表示{/}',
         addBuff = 'MUTEKI2に%sを追加しました.',
-        deleteBuff = "MUTEKI2の%sを`削除しました.",
+        deleteBuff = "MUTEKI2の%sを削除しました.",
         colorTone = '{#000000}カラートーン{/}',
         hideGauge = 'MUTEKI2 - %d秒以上のバフは非表示になります',
         isNotNotify = "{#000000}このキャラクターでは表示しない{/}",
-        isEffect = "{#000000}バフの状況をPTメンバーにお知らせする{/}"
+        isEffect = "{#000000}バフをPTチャットでお知らせ{/}"
     },
-    KOR = {
+    kr = {
         gaugeDescription = "{#000000}설정된 초 이상 남은 버프 숨기기{/}",
-        positionMode = "{#000000)버프 표시 모드{/}",
-        lockText = "{#000000)잠금{/}",
+        positionMode = "{#000000}버프 표시 모드{/}",
+        lockText = "{#000000}잠금{/}",
         layerLvlText = "{#000000}레이어{nl}레벨{/}",
-        rotateIcons = "{#000000}아이콘 회전{/}",
+        rotateIcons = "{#000000}아이콘 모드로 표시{/}",
         addBuff = "MUTEKI2 - %s 버프를 추가했습니다.",
         deleteBuff = "MUTEKI2 - %s 버프를 삭제했습니다.",
         colorTone = "{#000000}색상{/}",
         hideGauge = "MUTEKI2 - %d초 이상 남은 버프는 표시하지 않습니다.",
         isNotNotify = "{#000000}이 캐릭터에서 숨기기{/}",
-        isEffect = "{#000000}버프 시 이펙트 표시{/}"
+        isEffect = "{#000000}PT 채팅으로 버프를 알려드립니다{/}"
     }
 }
-local serviceNation = config.GetServiceNation()
+local langCode = option.GetCurrentCountry()
+local function _translate(key)
+
+    local localization = g.translations[langCode] or g.translations["etc"]
+    return localization[key] or "Translation not provided"
+end
+
+--[[local serviceNation = config.GetServiceNation()
 local function _translate(key)
     local localization = g.translations[serviceNation] or g.translations["GLOBAL"]
     return localization[key] or "Translation not provided"
-end
+end]]
 
 function MUTEKI2SETTING_ON_INIT(addon, frame)
     g.settingAddon = addon
@@ -147,7 +154,7 @@ function MUTEKI2_CREATE_SETTING_LIST(frame, gbox, index, buffid, buffSetting)
     tolua.cast(buffPic, 'ui::CPicture')
     buffPic:SetEnableStretch(1)
     if buff and buff.Icon then
-        local buffIcon = CreateIcon(buffSlot)
+        -- local buffIcon = CreateIcon(buffSlot)
         buffPic:SetImage('icon_' .. buff.Icon)
         buffPic:SetTextTooltip(buff.Name)
 
@@ -155,12 +162,14 @@ function MUTEKI2_CREATE_SETTING_LIST(frame, gbox, index, buffid, buffSetting)
         buffnameTxt:SetText('{#000000}' .. buff.Name)
     end
 
-    local buffidEdit = list:CreateOrGetControl('edit', 'buffidEdit', 120, 35, 60, 30)
+    local buffidEdit = list:CreateOrGetControl('edit', 'buffidEdit', 120, 35, 70, 30)
     tolua.cast(buffidEdit, 'ui::CEditControl')
     buffidEdit:SetNumberMode(1)
     buffidEdit:SetUserValue('index', index)
-    buffidEdit:SetOffsetYForDraw(-5)
-    buffidEdit:SetText(buffid or '')
+    buffidEdit:SetOffsetYForDraw(-10)
+
+    buffidEdit:SetTextAlign("center", "center")
+    buffidEdit:SetText("{ol}" .. buffid or '')
     buffidEdit:SetLostFocusingScp('MUTEKI2_CHANGE_BUFFID')
     buffidEdit:SetEventScript(ui.ENTERKEY, 'MUTEKI2_CHANGE_BUFFID')
     buffidEdit:SetEventScriptArgString(ui.ENTERKEY, buffid)
@@ -174,9 +183,11 @@ function MUTEKI2_CREATE_SETTING_LIST(frame, gbox, index, buffid, buffSetting)
     local colorToneEdit = list:CreateOrGetControl('edit', 'colorToneEdit', 380, 35, 100, 30)
     tolua.cast(colorToneEdit, 'ui::CEditControl')
     colorToneEdit:SetUserValue('index', index)
-    colorToneEdit:SetOffsetYForDraw(-5)
+    colorToneEdit:SetOffsetYForDraw(-10)
+    -- colorToneEdit:SetFontName("white_18_ol")
+    colorToneEdit:SetTextAlign("center", "center")
     colorToneEdit:SetMaxLen(8)
-    colorToneEdit:SetText(buffSetting.color and buffSetting.color or defaultColor)
+    colorToneEdit:SetText("{ol}{s16}" .. buffSetting.color and buffSetting.color or defaultColor)
     colorToneEdit:SetLostFocusingScp('MUTEKI2_CHANGE_COLORTONE')
     colorToneEdit:SetEventScriptArgString(15, buffid)
     colorToneEdit:SetEventScript(ui.ENTERKEY, 'MUTEKI2_CHANGE_COLORTONE')
@@ -231,10 +242,16 @@ function MUTEKI2_CHANGE_BUFFID(list, control, oldID, argNum)
 end
 
 function MUTEKI2_DELETE_BUFFID(list, control, buffid, argNum)
+
     g.settings.buffList[buffid] = nil
+
     ui.SysMsg(string.format(_translate('deleteBuff'), GetClassByType('Buff', buffid).Name))
-    g.frame:RemoveChild(g.gauge[buffid]:GetName())
+
+    -- g.frame:RemoveChild(g.gauge[buffid]:GetName())
+    g.frame:RemoveChild(control:GetParent():GetName())
+
     g.gauge[buffid] = nil
+
     MUTEKI2_CREATE_SETTING_FRAME()
 end
 
@@ -258,17 +275,22 @@ function MUTEKI2_CHANGE_CIRCLE_MODE(list, control, isChecked, buffid)
     local buff = GetClassByType('Buff', buffid)
     g.settings.buffList[tostring(buffid)].circleIcon = (control:IsChecked() == 1) and true or false
     MUTEKI2_UPDATE_CONTROL(buffid)
+
     MUTEKI2_SAVE_SETTINGS()
 end
 
 function MUTEKI2_ADD_BUFFID(frame, control, argStr, buffid)
+
     if not g.settings.buffList[tostring(buffid)] then
+
         local buffObj = GetClassByType('Buff', buffid)
         g.settings.buffList[tostring(buffid)] = {
             color = defaultColor,
             isNotNotify = {}
         }
-        ui.SysMsg(string.format(_translate('addBuff'), buffObj.Name))
+
+        local msg = string.format(_translate('addBuff'), buffObj.Name)
+        ui.SysMsg(msg)
         MUTEKI2_UPDATE_POSITIONS()
         MUTEKI2_UPDATE_CONTROL(buffid)
         MUTEKI2_CREATE_SETTING_FRAME()
@@ -295,6 +317,7 @@ end
 function MUTEKI2_SET_BUFFICON_LBTNCLICK(frame, eventMsg)
     local slot, capt, class, buffType = acutil.getEventArgs(eventMsg)
     tolua.cast(slot, 'ui::CSlot')
+
     slot:SetEventScript(ui.LBUTTONUP, 'MUTEKI2_ADD_BUFFID');
     slot:SetEventScriptArgNumber(ui.LBUTTONUP, buffType);
     slot:SetEventScriptArgString(ui.LBUTTONUP, class.Name);
