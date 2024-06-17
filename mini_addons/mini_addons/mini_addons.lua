@@ -131,6 +131,7 @@ end
 
 function MINI_ADDONS_BGM_PLAY()
     BGMPLAYER_OPEN_UI(nil, nil)
+
     local frame = ui.GetFrame("bgmplayer")
     local topFrame = frame
 
@@ -142,7 +143,8 @@ function MINI_ADDONS_BGM_PLAY()
 
     local option = tonumber(topFrame:GetUserValue("MODE_FAVO_LIST"));
 
-    local delayTime = tonumber(topFrame:GetUserConfig("DELAY_TIME"));
+    -- local delayTime = tonumber(topFrame:GetUserConfig("DELAY_TIME"));
+    local delayTime = 0
 
     local playRandom = tonumber(topFrame:GetUserConfig("PLAY_RANDOM"));
 
@@ -162,10 +164,11 @@ function MINI_ADDONS_BGM_PLAY()
             -- return
             -- else
 
-            local selectCtrlSetName = topFrame:GetUserValue("CTRLSET_NAME_SELECTED");
-            if selectCtrlSetName == "None" then
-                selectCtrlSetName = "MUSICINFO_10"
-            end
+            local selectCtrlSetName = g.settings.selectCtrlSetName
+
+            --[[if selectCtrlSetName == "None" then
+                selectCtrlSetName = g.settings.selectCtrlSetName
+            end]]
             -- print(tostring(selectCtrlSetName))
             local selectCtrlSet = GET_CHILD_RECURSIVELY(topFrame, selectCtrlSetName);
             local titleText = nil;
@@ -230,6 +233,18 @@ function MINI_ADDONS_BGM_PLAY()
 
 end
 
+function MINI_ADDONS_BGM_PLAY_LIST()
+    local frame = ui.GetFrame("bgmplayer")
+    if frame:GetUserValue("CTRLSET_NAME_SELECTED") == nil or frame:IsVisible() == 1 or
+        frame:GetUserValue("CTRLSET_NAME_SELECTED") == "None" then
+        return
+    end
+    g.settings.selectCtrlSetName = frame:GetUserValue("CTRLSET_NAME_SELECTED");
+    MINI_ADDONS_SAVE_SETTINGS()
+    return
+    -- print(frame:GetUserValue("CTRLSET_NAME_SELECTED"))
+end
+
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -239,10 +254,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end]]
 
     MINI_ADDONS_LOAD_SETTINGS()
-    if IsBgmPlayerReductionFrameVisible() == 1 then
-
-        ui.CloseFrame("bgmplayer_reduction")
-    end
 
     g.SetupHook(MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE, "EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE")
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
@@ -389,16 +400,23 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         MINI_ADDONS_GP_FULL_BET()
 
         if g.settings.bgm == 1 then
+            addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_BGM_PLAY_LIST")
 
             addon:RegisterMsg("GAME_START", "MINI_ADDONS_BGM_PLAY")
 
         end
+    elseif mapCls.MapType ~= "City" then
+        ui.CloseFrame("bgmplayer_reduction")
+        local max_frame = ui.GetFrame("bgmplayer");
+        local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn");
+        MINIADDONS_BGMPLAYER_PLAY(max_frame, play_btn);
     end
 
     if g.settings.mini_btn == 1 then
         if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
             addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
         end
+
     end
 
     MINI_ADDONS_NEW_FRAME_INIT()
@@ -409,6 +427,22 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end]]
 
     -- local frame = ui.GetFrame("mini_addons")
+
+end
+function MINIADDONS_BGMPLAYER_PLAY(frame, btn)
+
+    local mode = tonumber(frame:GetUserValue("MODE_ALL_LIST"));
+    local option = tonumber(frame:GetUserValue("MODE_FAVO_LIST"));
+    local delayTime = 0
+    local playRandom = tonumber(frame:GetUserConfig("PLAY_RANDOM"));
+
+    local bgmMusicTitle_text = GET_CHILD_RECURSIVELY(frame, "bgm_music_title");
+    if bgmMusicTitle_text ~= nil then
+        local title = bgmMusicTitle_text:GetTextByKey("value");
+        StopBgm(title, delayTime);
+        BGMPLAYER_REDUCTION_SET_PLAYBTN(false);
+        return
+    end
 
 end
 
@@ -978,13 +1012,14 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
                 MINI_ADDONS_SAVE_SETTINGS()
                 MINI_ADDONS_LOAD_SETTINGS()
                 if ischeck == 0 then
-                    local miniframe = ui.GetFrame("bgmplayer_reduction")
-                    if miniframe:IsVisible() == 1 then
-                        local max_frame = ui.GetFrame("bgmplayer");
-                        local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn");
-                        BGMPLAYER_PLAY(max_frame, play_btn);
-                        ui.CloseFrame("bgmplayer_reduction")
-                    end
+                    -- local miniframe = ui.GetFrame("bgmplayer_reduction")
+                    -- if miniframe:IsVisible() == 1 then
+                    local max_frame = ui.GetFrame("bgmplayer");
+                    local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn");
+                    BGMPLAYER_PLAY(max_frame, play_btn);
+                    -- ui.CloseFrame("bgmplayer_reduction")
+                    -- end
+
                 end
                 break
             end
