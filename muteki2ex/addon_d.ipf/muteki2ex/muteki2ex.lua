@@ -1,3 +1,4 @@
+-- v2.0.1 アイコンモード追加。
 -- ##issues##
 -- possition update script  error
 -- check skill remove event
@@ -183,7 +184,7 @@ function MUTEKI2_CONTEXT_MENU(frame, msg, clickedGroupName, argNum)
 
     -- if not g.settings.position.lock then
     ui.AddContextMenuItem(context, g.settings.position.lock and "Release Lock" or "Lock Position",
-        "MUTEKI2_TOGGLE_LOCK()");
+                          "MUTEKI2_TOGGLE_LOCK()");
     -- end
     context:Resize(150, context:GetHeight());
     ui.OpenContextMenu(context);
