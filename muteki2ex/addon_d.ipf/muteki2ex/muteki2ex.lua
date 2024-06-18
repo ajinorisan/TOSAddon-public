@@ -1,4 +1,6 @@
 -- v2.0.1 アイコンモード追加。
+-- v2.0.2 オバロ火の権能対応したか？
+-- v2.0.3 ゲージの色設定やりやすくなったけどアイコンモードで使うという自己矛盾
 -- ##issues##
 -- possition update script  error
 -- check skill remove event
@@ -11,7 +13,7 @@ local addonName = "Muteki2ex";
 local addonNameUpper = string.upper(addonName);
 local addonNameLower = string.lower(addonName);
 local org_ver = "1.2.7"
-local ver = "2.0.1"
+local ver = "2.0.3"
 
 -- 作者名
 local author = "WRIT";
@@ -184,7 +186,7 @@ function MUTEKI2_CONTEXT_MENU(frame, msg, clickedGroupName, argNum)
 
     -- if not g.settings.position.lock then
     ui.AddContextMenuItem(context, g.settings.position.lock and "Release Lock" or "Lock Position",
-                          "MUTEKI2_TOGGLE_LOCK()");
+        "MUTEKI2_TOGGLE_LOCK()");
     -- end
     context:Resize(150, context:GetHeight());
     ui.OpenContextMenu(context);
@@ -384,8 +386,8 @@ function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
 
                     ui.Chat(string.format("/p %s end", buff_name))
                 end
-                if buffid == 4483 then
-                    OVERLOAD_COOLDOWN(4483, control)
+                if buffid == 4483 or buffid == 4757 then
+                    OVERLOAD_COOLDOWN(buffid, control)
                     overcd = 1
                 else
                     MUTEKI2_REMOVE_GAUGE_BUFF(buff, control)
@@ -395,7 +397,7 @@ function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
 
                     ui.Chat(string.format("/p %s start", buff_name))
                 end
-                if buffid == 4483 then
+                if buffid == 4483 or buffid == 4757 then
 
                     OVERLOAD_START(buffid, control, buff)
                     overcd = 0

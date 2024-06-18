@@ -29,7 +29,8 @@ g.translations = {
         colorTone = '{#000000}Color Tone{/}',
         hideGauge = 'MUTEKI2 - Hide gauge with remaining time more than %d seconds',
         isNotNotify = "{#000000}Hide with this character{/}",
-        isEffect = "{#000000}Notify buffs via PT chat{/}"
+        isEffect = "{#000000}Notify buffs via PT chat{/}",
+        functionNotice = "{#FFFFFF}{ol}Register by leftclick on the buff slot{nl}in the upper left corner of the screen.{/}"
     },
     Japanese = {
         gaugeDescription = '{#000000}指定されたバフの時間を超えている場合は隠されています{/}',
@@ -42,7 +43,8 @@ g.translations = {
         colorTone = '{#000000}カラートーン{/}',
         hideGauge = 'MUTEKI2 - %d秒以上のバフは非表示になります',
         isNotNotify = "{#000000}このキャラクターでは表示しない{/}",
-        isEffect = "{#000000}バフをPTチャットでお知らせ{/}"
+        isEffect = "{#000000}バフをPTチャットでお知らせ{/}",
+        functionNotice = "{#FFFFFF}{ol}画面左上バフスロットを{nl}左クリックでも登録出来ます。{/}"
     },
     kr = {
         gaugeDescription = "{#000000}설정된 초 이상 남은 버프 숨기기{/}",
@@ -55,7 +57,8 @@ g.translations = {
         colorTone = "{#000000}색상{/}",
         hideGauge = "MUTEKI2 - %d초 이상 남은 버프는 표시하지 않습니다.",
         isNotNotify = "{#000000}이 캐릭터에서 숨기기{/}",
-        isEffect = "{#000000}PT 채팅으로 버프를 알려드립니다{/}"
+        isEffect = "{#000000}PT 채팅으로 버프를 알려드립니다{/}",
+        functionNotice = "{#FFFFFF}{ol}화면 왼쪽 상단의 버프 슬롯을{nl}왼쪽 클릭으로도 등록할 수 있습니다.{/}"
     }
 }
 local langCode = option.GetCurrentCountry()
@@ -136,6 +139,32 @@ function MUTEKI2_CREATE_SETTING_FRAME()
     MUTEKI2_CREATE_SETTING_LIST(frame, gbox, i, 0, {})
 end
 
+local colortbl = {
+    [1] = 'FFFFFF00', -- 黄色
+    [2] = 'FFFFD700', -- ゴールド
+    [3] = 'FFFF4500', -- オレンジ
+    [4] = 'FF00FF00', -- ライムグリーン
+    [5] = 'FF008000', -- 緑
+    [6] = 'FF00BFFF', -- スカイブルー
+    [7] = 'FF0000FF', -- 青
+    [8] = 'FF800080', -- 紫
+    [9] = "FFFF1493", -- ピンク
+    [10] = "FFFF0000" -- 赤
+}
+
+function MUTEKI2_COLOR_SETTING_SAVE(frame, ctrl, argStr, argNum)
+
+    for buffid, buffSetting in pairs(g.settings.buffList) do
+        if tostring(argNum) == buffid then
+            -- print(argStr)
+            g.settings.buffList[tostring(argNum)].color = argStr
+            break
+        end
+    end
+    MUTEKI2_CREATE_SETTING_FRAME()
+    -- MUTEKI2_SAVE_SETTINGS()
+end
+
 function MUTEKI2_CREATE_SETTING_LIST(frame, gbox, index, buffid, buffSetting)
     local height = 155
     local buff = GetClassByType('Buff', buffid)
@@ -167,18 +196,34 @@ function MUTEKI2_CREATE_SETTING_LIST(frame, gbox, index, buffid, buffSetting)
     buffidEdit:SetNumberMode(1)
     buffidEdit:SetUserValue('index', index)
     buffidEdit:SetOffsetYForDraw(-10)
-
+    buffidEdit:SetTextTooltip(_translate('functionNotice'))
     buffidEdit:SetTextAlign("center", "center")
     buffidEdit:SetText("{ol}" .. buffid or '')
     buffidEdit:SetLostFocusingScp('MUTEKI2_CHANGE_BUFFID')
     buffidEdit:SetEventScript(ui.ENTERKEY, 'MUTEKI2_CHANGE_BUFFID')
     buffidEdit:SetEventScriptArgString(ui.ENTERKEY, buffid)
 
-    local colorTonePic = list:CreateOrGetControl('picture', 'colorTonePic', 320, 10, 55, 55)
-    tolua.cast(colorTonePic, 'ui::CPicture')
+    local colorTonePic = list:CreateOrGetControl('picture', 'colorTonePic', 320, 35, 50, 30)
+    AUTO_CAST(colorTonePic)
     colorTonePic:SetEnableStretch(1)
-    colorTonePic:SetImage('hoge')
+    colorTonePic:SetImage("chat_color");
     colorTonePic:SetColorTone(buffSetting.color or defaultColor)
+
+    local colorbox = list:CreateOrGetControl('groupbox', "colorbox" .. index, 300, 70, 210, 30);
+    AUTO_CAST(colorbox)
+    for i = 0, #colortbl do
+        local colorCls = colortbl[i + 1]
+        if colorCls ~= nil then
+            local color = colorbox:CreateOrGetControl("picture", "color" .. index .. "_" .. i, 20 * i, 0, 20, 20);
+            AUTO_CAST(color)
+            color:SetImage("chat_color");
+            color:SetColorTone(colorCls)
+            color:SetEventScript(ui.LBUTTONUP, "MUTEKI2_COLOR_SETTING_SAVE")
+            color:SetEventScriptArgString(ui.LBUTTONUP, colorCls)
+            color:SetEventScriptArgNumber(ui.LBUTTONUP, buffid)
+
+        end
+    end
 
     local colorToneEdit = list:CreateOrGetControl('edit', 'colorToneEdit', 380, 35, 100, 30)
     tolua.cast(colorToneEdit, 'ui::CEditControl')
