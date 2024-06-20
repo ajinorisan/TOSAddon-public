@@ -8,10 +8,11 @@
 -- v1.1.2 継承とか入力出来なかったの修正。テストコードそのまま放置してたのが原因
 -- v1.1.3 コレクション強化の際に節目の強化値で一度確認する様に変更。WARNINGBOXの一部がバグるらしいので一時無効化コマンド追加
 -- v1.1.4 コレクション強化の挙動安定してなかったの直したハズ。むずかった
+-- v1.1.5 WARNINGBOXバグってたので修正。
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -45,7 +46,7 @@ function NOCHECK_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-        if g.nocheck == 0 then
+        if g.nocheck == 0 or g.nocheck == nil then
             addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
             addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
         end
@@ -108,7 +109,7 @@ function NOCHECK_REINFORCE_131014_EXEC()
     local curReinforce = fromItemObj.Reinforce_2
     local monbframe = ui.GetFrame("monb_" .. session.GetTargetHandle());
     if monbframe == nil then
-        print("nai" .. curReinforce)
+        -- print("nai" .. curReinforce)
         for _, level in ipairs({7, 10, 15, 20}) do
             if curReinforce == level then
                 local msg = "Continue to reinforce?"
@@ -158,15 +159,6 @@ function NOCHECK_REINFORCE_131014_CONTINUE()
         return
     end
 
-end
-
-function NOCHECK_REINFORCE_MONB_FRAME()
-    local monbframe = ui.GetFrame("monb_" .. session.GetTargetHandle());
-    if monbframe == nil then
-        print("nai")
-    else
-        print("aru")
-    end
 end
 
 function NOCHECK_REINFORCE_131014_CANCEL()

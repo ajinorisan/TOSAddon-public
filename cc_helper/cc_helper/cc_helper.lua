@@ -3,10 +3,11 @@
 -- v1.1.6 多分もう少しだけ失敗しにくく
 -- v1.1.7 入庫時のシステムチャットつけた。出庫時と装備の順番固定。多分早くなった。
 -- v1.1.8 設定のコピー機能付けた。なんかダサイけど仕方ない。
+-- v1.1.9 インベと倉庫閉じるチェック付けた。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.8"
+local ver = "1.1.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -189,6 +190,13 @@ function cc_helper_accountwarehouse_init()
     awh_outbtn:SetSkinName("test_pvp_btn")
     awh_outbtn:SetTextTooltip("Character Change Helper{nl}" .. "倉庫から搬出して装備します。{nl}" ..
                                   "It is carried out from the warehouse and equipped.")
+
+    local auto_close = awhframe:CreateOrGetControl("checkbox", "auto_close", 515, 120, 30, 30)
+    AUTO_CAST(auto_close)
+    auto_close:ShowWindow(1)
+    auto_close:SetTextTooltip("After the operation is completed,{nl}the warehouse and inventory are closed.{nl}" ..
+                                  "動作終了後倉庫とインベントリーを閉じます。")
+    auto_close:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
 
     if _G.ADDONS.norisan.monstercard_change ~= nil then
 
@@ -795,6 +803,12 @@ function cc_helper_check_setting(frame, ctrl, argStr, argNum)
             g.check = 0
         else
             g.check = 1
+        end
+    elseif ctrl:GetName() == "auto_close" then
+        if ischeck == 0 then
+            g.settings.auto_close = 0
+        else
+            g.settings.auto_close = 1
         end
     end
     cc_helper_save_settings()
@@ -1991,6 +2005,11 @@ function cc_helper_end_operation()
     ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
 
     ui.SysMsg("[CCH]end of operation")
+    if g.settings.auto_close == 1 and g.settings[g.LOGINCID].agm_use ~= 1 and g.settings[g.LOGINCID].mcc_use ~= 1 then
+        frame:ShowWindow(0)
+        local awframe = ui.GetFrame("accountwarehouse")
+        awframe:ShowWindow(0)
+    end
 
     cc_helper_handle_monstercard_change()
     cc_helper_handle_aether_gem_management()

@@ -6,11 +6,12 @@
 -- v1.0.5 セット出庫機能追加。設定スロット増設。
 -- v1.0.6 キャラ毎設定スロット増設。入庫時のツールチップ修正
 -- v1.0.7 設定スロットを999個に。アイコンクリック時の仕様変更。
--- v1.0.8 アイテム出庫を早くした。他の昨日はまだ。
+-- v1.0.8 アイテム出庫を早くした。他の機能はまだ。
+-- v1.0.9 用意出来たよのお知らせ。1個残すチェック付けた。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -43,7 +44,7 @@ function another_warehouse_load_settings()
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
     if err then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
 
     -- settingsがnilまたは空の場合は初期設定を使用する
@@ -246,6 +247,12 @@ function another_warehouse_lang(str)
             str = "インベントリ:左SHIFT+アイコン右クリックで入力数量搬入"
         end
 
+        -- Warehouse: right mouse click to Carry out Leave 1 piece
+
+        if str == "Warehouse: right mouse click to Carry out Leave 1 piece" then
+            str = "チーム倉庫:アイコン右クリックで1個残して搬出"
+        end
+
         if str == "Warehouse: right mouse click to Carry out all items" then
             str = "チーム倉庫:アイコン右クリックで全数搬出"
         end
@@ -277,6 +284,7 @@ function another_warehouse_help()
     ui.AddContextMenuItem(context,
         another_warehouse_lang("Inventory: left SHIFT+mouse left click to Carry in 10 items"), "None")
 
+    -- ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: right mouse click to Carry out all items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: right mouse click to Carry out all items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: left mouse click to Carry out 1 items"), "None")
 
@@ -322,6 +330,7 @@ function another_warehouse_accountwarehouse_init()
     -- CHAT_SYSTEM(tostring(session.loginInfo.IsPremiumState(ITEM_TOKEN)))
     if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
 
+        ui.SysMsg("[AWH]ready")
         local addon = g.addon
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE");
         addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_on_msg");
@@ -387,8 +396,12 @@ function another_warehouse_set_item_take(frame, ctrl, argStr, argNum)
                 local iesid = invItem:GetIESID()
 
                 if value == type then
-
+                    -- 1個残す
                     local count = invItem.count
+                    if g.settings.leave == 1 then
+                        count = invItem.count - 1
+
+                    end
                     take[iesid] = count
                     break
                 end
@@ -663,6 +676,14 @@ function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
     help:SetTextTooltip("[Another Warehouse]{nl}help")
     help:SetSkinName("test_pvp_btn")
     help:SetEventScript(ui.LBUTTONUP, "another_warehouse_help")
+
+    local leave = grupbox:CreateOrGetControl('checkbox', "leave", 0, 0, 30, 30)
+
+    AUTO_CAST(leave);
+    leave:SetCheck(g.settings.leave or 0)
+    leave:SetMargin(180, 67, 0, 0)
+    leave:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
+    leave:SetTextTooltip("Check leaves one in the warehouse.{nl}チェックすると倉庫に1個残します。")
 
     local take = grupbox:CreateOrGetControl("button", "take", 10, 0, 100, 43)
     AUTO_CAST(take)
@@ -1851,9 +1872,12 @@ function another_warehouse_setting_check(frame, ctrl, argStr, argNum)
 
     if ctrlName == "amount_check" then
         g.settings[tostring(ctrlName)] = ischeck
+    elseif ctrlName == "leave" then
+        g.settings.leave = ischeck
     else
         g.settings[LoginCID][tostring(ctrlName)] = ischeck
     end
+
     another_warehouse_save_settings()
 end
 
@@ -2829,6 +2853,11 @@ function another_warehouse_on_rbutton(frame, slot, argstr, argnum)
         end
     else
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
+            -- 1個残す
+            if g.settings.leave == 1 then
+                count = invItem.count - 1
+
+            end
             another_warehouse_takeitem(awframe, iesid, count)
         else
             another_warehouse_takeitem(awframe, iesid, 1)

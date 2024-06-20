@@ -7,10 +7,11 @@
 -- v1.0.6 コード見直し
 -- v1.0.7 クイックスロットにアイコン入ってたら変わる様に設定。今回は失敗しないハズ。
 -- v1.0.8 手動入替えスロット付けた。
+-- v1.0.9 スロットセットの位置調整
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -240,7 +241,7 @@ function quickslot_operate_choice_potion(frame, ctrl, str, num)
 
     local frame = ui.GetFrame("quickslot_operate")
     frame:Resize(150, 30)
-    frame:SetPos(720, 810)
+    frame:SetPos(720 + 140, 810)
     frame:SetTitleBarSkin("None")
     frame:SetSkinName("chat_window")
     frame:SetLayerLevel(150);
