@@ -35,7 +35,7 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
     g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
     g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+                "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
@@ -75,15 +75,54 @@ end
 
 function NOCHECK_MORU_LBTN_CLICK(frame, msg)
     local invframe, invItem = acutil.getEventArgs(msg)
-    local obj = GetIES(invItem:GetObject())
-
-    -- local pr = obj.PR
 
     NOCHECK_REINFORCE_131014_MSGBOX()
 
 end
 
 function NOCHECK_REINFORCE_131014_MSGBOX()
+    local frame = ui.GetFrame("reinforce_131014")
+    local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
+    local fromItemObj = GetIES(fromItem:GetObject())
+    local moruObj = GetIES(fromMoru:GetObject())
+    local exec = GET_CHILD_RECURSIVELY(frame, "exec")
+
+    if moruObj.ClassName == "Moru_goddess_500" then
+        local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
+        skipOver5:SetCheck(1)
+        exec:ShowWindow(0)
+        NOCHECK_REINFORCE_131014_EXEC()
+    else
+        exec:ShowWindow(1)
+    end
+end
+
+function NOCHECK_REINFORCE_131014_EXEC()
+    local frame = ui.GetFrame("reinforce_131014");
+    local fromItem, fromMoru = REINFORCE_131014_GET_ITEM(frame);
+    if fromItem ~= nil and fromMoru ~= nil and frame:IsVisible() == 1 then
+
+        local fromItemObj = GetIES(fromItem:GetObject());
+
+        session.ResetItemList();
+        session.AddItemID(fromItem:GetIESID());
+        session.AddItemID(fromMoru:GetIESID());
+        local resultlist = session.GetItemIDList();
+        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist);
+        ReserveScript("NOCHECK_REINFORCE_131014_EXEC()", 0.3)
+        -- frame:ShowWindow(0);
+    end
+
+    --[[local fromItemSlot = GET_CHILD(frame, "fromItemSlot", "ui::CSlot");
+    local fromMoruSlot = GET_CHILD(frame, "fromMoruSlot", "ui::CSlot");
+    CLEAR_SLOT_ITEM_INFO(fromItemSlot);
+    CLEAR_SLOT_ITEM_INFO(fromMoruSlot);]]
+
+    REINFORCE_131014_UPDATE_MORU_COUNT(frame);
+
+end
+
+--[[function NOCHECK_REINFORCE_131014_MSGBOX()
     local frame = ui.GetFrame("reinforce_131014")
     local fromItem, fromMoru = GET_REINFORCE_TARGET_AND_MORU(frame)
     local fromItemObj = GetIES(fromItem:GetObject())
@@ -175,7 +214,7 @@ function NOCHECK_REINFORCE_131014_CANCEL()
     SET_INV_LBTN_FUNC(invframe, "None");
     RESET_MOUSE_CURSOR();
 
-end
+end]]
 
 function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()
 
