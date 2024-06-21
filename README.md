@@ -254,6 +254,8 @@ v1.0.0 公開。
 
 　
 
+v1.1.7 バグ修正
+
 v1.1.6 情報の取り方ミスってたので修正。
 
 v1.1.5 まれにsettings初期化されるの直したと思うけどわからん。挙動見直しボタン押した時に情報集める様に変更。
@@ -755,9 +757,11 @@ Special thanks to menimaniさん
 
 モンスターカード使用時のメッセージボックス、チャンネル移動時の確認を消します。
 
+v1.1.6 コレクション強化をやっぱりノーチェックに。
+
 v1.1.5 WARNINGBOXのバグ修正。
 
-v1.1.4 レクション強化の挙動安定してなかったの直したハズ。むずかった。
+v1.1.4 コレクション強化の挙動安定してなかったの直したハズ。むずかった。
 
 v1.1.3 コレクション強化の際に節目の強化値で一度確認する様に変更。WARNINGBOXの一部がバグるらしいので一時無効化コマンド追加。
 
@@ -871,6 +875,8 @@ v1.0.2 ディレイ時間設定機能
 
 　
 
+v1.3.6 小さいBGMプレイヤーをデフォルトでは非表示に
+
 v1.3.5 BGMプレイヤー機能追加。10曲目割とイカれてて好き。
 
 v1.3.4 日本語版以外でクローズボタンの位置バグってたの修正。TPショップ開けた時にフレーム消えてたの修正。
@@ -971,6 +977,17 @@ v1.0.2 ボルタ廃止、ドラグーン追加。
 
 ----
 
+----
+
+### dungeonrpcharger
+
+自動補充するエクトナイトをコイン交換のタイプに変更
+
+Ectonite that automatically refills is changed to a coin-operated type.
+
+The author of this addon is meldavyさん
+
+
 ### Warehouse Manager Reloaded
 
 Charbonさんが作ってebisukeさんが改装した倉庫アドオンを改造します。Another Warehouseに機能を付け替えたので保守終了。
@@ -1010,15 +1027,6 @@ Maintain ebisuke's warehouse modification add-on.
 
 The author of this addon is ebisukeさん
 
-----
-
-### dungeonrpcharger
-
-自動補充するエクトナイトをコイン交換のタイプに変更
-
-Ectonite that automatically refills is changed to a coin-operated type.
-
-The author of this addon is meldavyさん
 
 ----
 

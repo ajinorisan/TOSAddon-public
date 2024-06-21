@@ -33,10 +33,11 @@
 -- v1.3.3 女神証商店のコインの限界値を99999に変更。スロガウピニスのお知らせを派手に。
 -- v1.3.4 クローズボタンの場所修正。TP商店開いた時にフレーム消えてたの修正。
 -- v1.3.5 BGMプレイヤー。割とガチで10曲目イカレてる。
+-- v1.3.6 小さいBGMプレイヤー出さない様に変更
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.5"
+local ver = "1.3.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -227,7 +228,8 @@ function MINI_ADDONS_BGM_PLAY()
                 btn:SetImage(startImageName);
                 btn:SetTooltipArg(ScpArgMsg('BgmPlayer_StartBtnToolTip'));
             end
-            BGMPLAYER_REDUCTION_OPEN_UI(nil, nil)
+            BGMPLAYER_CLOSE_UI()
+            -- BGMPLAYER_REDUCTION_OPEN_UI(nil, nil)
         end
     end
 

@@ -15,10 +15,11 @@
 -- v1.1.4 スロットアイコンからinstantCCを使ってキャラチェンした場合に順番バグるの修正。
 -- v1.1.5 まれにsettingsが初期化されるのを直したと思うけどわからん。挙動見直しボタン押した時に情報集める様に。
 -- v1.1.6 情報集めるポイント修正
+-- v1.1.7 やっぱりFPS_UPDATE使って情報収集
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.6"
+local ver = "1.1.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -245,6 +246,8 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
         addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
         addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
         addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_count_loginname")
+        addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_raid_count")
+        -- acutil.setupEvent(addon, "INDUNINFO_AUTOSWEEP_REQUEST", "indun_list_viewer_get_raid_count");
         g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
         --[[local functionName = "INSTANTCC_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
