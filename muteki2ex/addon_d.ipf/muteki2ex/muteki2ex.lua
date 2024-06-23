@@ -1,6 +1,7 @@
 -- v2.0.1 アイコンモード追加。
 -- v2.0.2 オバロ火の権能対応したか？
 -- v2.0.3 ゲージの色設定やりやすくなったけどアイコンモードで使うという自己矛盾
+-- v2.0.4 アイコン回転モード追加
 -- ##issues##
 -- possition update script  error
 -- check skill remove event
@@ -13,7 +14,7 @@ local addonName = "Muteki2ex";
 local addonNameUpper = string.upper(addonName);
 local addonNameLower = string.lower(addonName);
 local org_ver = "1.2.7"
-local ver = "2.0.3"
+local ver = "2.0.4"
 
 -- 作者名
 local author = "WRIT";
@@ -478,7 +479,9 @@ end
 function MUTEKI2_ADD_CIRCLE_BUFF(buff, frame)
     local image = frame;
     image:ShowWindow(1);
-    -- image:SetAngleLoop(5);
+    if g.settings.rotate_check == 1 then
+        image:SetAngleLoop(5);
+    end
     MUTEKI2_ADD_CIRCLE_BUFF_TIMEUPDATE(buff, image)
 
     MUTEKI2_UPDATE_POSITIONS()

@@ -30,7 +30,8 @@ g.translations = {
         hideGauge = 'MUTEKI2 - Hide gauge with remaining time more than %d seconds',
         isNotNotify = "{#000000}Hide with this character{/}",
         isEffect = "{#000000}Notify buffs via PT chat{/}",
-        functionNotice = "{#FFFFFF}{ol}Register by leftclick on the buff slot{nl}in the upper left corner of the screen.{/}"
+        functionNotice = "{#FFFFFF}{ol}Register by leftclick on the buff slot{nl}in the upper left corner of the screen.{/}",
+        iconrotate = "{#000000}Icon Rotate{/}"
     },
     Japanese = {
         gaugeDescription = '{#000000}指定されたバフの時間を超えている場合は隠されています{/}',
@@ -44,7 +45,9 @@ g.translations = {
         hideGauge = 'MUTEKI2 - %d秒以上のバフは非表示になります',
         isNotNotify = "{#000000}このキャラクターでは表示しない{/}",
         isEffect = "{#000000}バフをPTチャットでお知らせ{/}",
-        functionNotice = "{#FFFFFF}{ol}画面左上バフスロットを{nl}左クリックでも登録出来ます。{/}"
+        functionNotice = "{#FFFFFF}{ol}画面左上バフスロットを{nl}左クリックでも登録出来ます。{/}",
+        iconrotate = "{#000000}アイコン回転{/}"
+        -- iconrotate = "{#000000}Icon Rotate{/}"
     },
     kr = {
         gaugeDescription = "{#000000}설정된 초 이상 남은 버프 숨기기{/}",
@@ -58,7 +61,8 @@ g.translations = {
         hideGauge = "MUTEKI2 - %d초 이상 남은 버프는 표시하지 않습니다.",
         isNotNotify = "{#000000}이 캐릭터에서 숨기기{/}",
         isEffect = "{#000000}PT 채팅으로 버프를 알려드립니다{/}",
-        functionNotice = "{#FFFFFF}{ol}화면 왼쪽 상단의 버프 슬롯을{nl}왼쪽 클릭으로도 등록할 수 있습니다.{/}"
+        functionNotice = "{#FFFFFF}{ol}화면 왼쪽 상단의 버프 슬롯을{nl}왼쪽 클릭으로도 등록할 수 있습니다.{/}",
+        iconrotate = "{#000000}아이콘 회전{/}"
     }
 }
 local langCode = option.GetCurrentCountry()
@@ -91,10 +95,20 @@ function MUTEKI2_FRAME_OPEN(cmd)
     end
 end
 
+function MUTEKI2_ROTATE_SET(frame, ctrl, str, num)
+    local ischeck = ctrl:IsChecked()
+    g.settings.rotate_check = ischeck
+    MUTEKI2_SAVE_SETTINGS();
+    -- print(ischeck)
+
+end
+
 function MUTEKI2_CREATE_SETTING_FRAME()
     MUTEKI2_SAVE_SETTINGS()
     local frame = g.settingFrame
     local buffTimeTxt = AUTO_CAST(frame:GetChild('buffTimeText'))
+    -- buffTimeTxt:SetOffset(20, 0, 0, 0)
+    buffTimeTxt:SetMargin(20, -20, 0, 0)
     buffTimeTxt:SetText(_translate('gaugeDescription'))
 
     local modeTxt = AUTO_CAST(frame:GetChild('modeText'))
@@ -116,6 +130,7 @@ function MUTEKI2_CREATE_SETTING_FRAME()
     buffTimeEdit:SetOffsetXForDraw(10)
     buffTimeEdit:SetText(g.settings.hiddenBuffTime or 0)
     buffTimeEdit:SetEventScript(ui.ENTERKEY, 'MUTEKI2_SET_HIDDEN_BUFF_TIME')
+    buffTimeEdit:SetMargin(495, -20, 0, 0)
 
     local layerLvlTxt = AUTO_CAST(frame:GetChild('layerLvlText'))
     layerLvlTxt:SetText(_translate('layerLvlText'))
@@ -127,6 +142,15 @@ function MUTEKI2_CREATE_SETTING_FRAME()
     layerLvlEdit:SetOffsetXForDraw(10)
     layerLvlEdit:SetText(g.settings.layerLvl or 80)
     layerLvlEdit:SetEventScript(ui.ENTERKEY, 'MUTEKI2_SET_LAYER_LAVEL')
+
+    local icon_rotate = frame:CreateOrGetControl('richtext', 'icon_rotate', 20, 10, 0, 0)
+    AUTO_CAST(icon_rotate) -- icon_rotate:SetText("{#000000}icon rotate")
+    icon_rotate:SetText(_translate('iconrotate'))
+
+    local rotate = frame:CreateOrGetControl('checkbox', 'rotate', 130, 8, 20, 20)
+    AUTO_CAST(rotate)
+    rotate:SetCheck(g.settings.rotate_check or 0)
+    rotate:SetEventScript(ui.LBUTTONUP, "MUTEKI2_ROTATE_SET")
 
     local gbox = frame:GetChild('settingGbox')
     gbox:RemoveAllChild()
