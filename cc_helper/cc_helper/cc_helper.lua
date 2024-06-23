@@ -4,10 +4,11 @@
 -- v1.1.7 入庫時のシステムチャットつけた。出庫時と装備の順番固定。多分早くなった。
 -- v1.1.8 設定のコピー機能付けた。なんかダサイけど仕方ない。
 -- v1.1.9 インベと倉庫閉じるチェック付けた。
+-- v1.2.0 倉庫閉じるチェックボックスのセットチェック漏れてた。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.9"
+local ver = "1.2.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -197,6 +198,7 @@ function cc_helper_accountwarehouse_init()
     auto_close:SetTextTooltip("After the operation is completed,{nl}the warehouse and inventory are closed.{nl}" ..
                                   "動作終了後倉庫とインベントリーを閉じます。")
     auto_close:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+    auto_close:SetCheck(g.settings.auto_close)
 
     if _G.ADDONS.norisan.monstercard_change ~= nil then
 

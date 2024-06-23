@@ -8,6 +8,7 @@
 -- v1.0.7 クイックスロットにアイコン入ってたら変わる様に設定。今回は失敗しないハズ。
 -- v1.0.8 手動入替えスロット付けた。
 -- v1.0.9 スロットセットの位置調整
+-- v1.1.0 ストレートモード追加、キャラ毎のクイックスロット保存呼出機能追加。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -72,6 +73,23 @@ local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyF
 -- raid_giltine_AutoGuild　ギルティネ
 -- raid_dcapital_108　レジェンドギルティネ
 
+function quickslot_operate_save_settings()
+    acutil.saveJSON(g.settingsFileLoc, g.settings)
+end
+
+function quickslot_operate_load_settings()
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+
+    if not settings then
+        settings = {
+            straight = false
+        }
+
+    end
+    g.settings = settings
+    quickslot_operate_save_settings()
+end
+
 function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -79,6 +97,8 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
     addon:RegisterMsg('GAME_START_3SEC', 'quickslot_operate_set_script')
+
+    quickslot_operate_load_settings()
 
     local currentZone = GetZoneName()
 
@@ -88,6 +108,391 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
             break
         end
 
+    end
+    quickslot_operate_frame_init()
+    if g.settings.straight == true then
+        quickslot_operate_start_straight()
+    end
+end
+
+function quickslot_operate_save_icon()
+    local frame = ui.GetFrame("quickslotnexpbar")
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
+    if g.settings[LoginName] == nil then
+        g.settings[LoginName] = {}
+    end
+    local mainSession = session.GetMainSession();
+    local pcJobInfo = mainSession:GetPCJobInfo();
+    local jobCount = pcJobInfo:GetJobCount();
+    for i = 0, jobCount - 1 do
+        local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
+        local jobid = "jobid" .. i + 1
+        g.settings[LoginName][jobid] = tonumber(jobInfo.jobID)
+    end
+    for i = 1, 40 do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+        local icon = slot:GetIcon()
+        if icon ~= nil then
+
+            local iconinfo = icon:GetInfo();
+
+            local category = iconinfo:GetCategory()
+            local type = iconinfo.type
+            local iesid = iconinfo:GetIESID()
+            g.settings[LoginName][tostring(i)] = {
+                ["category"] = category,
+                ["type"] = type,
+                ["iesid"] = iesid
+            }
+        end
+        -- print(category .. ":" .. type .. ":" .. iesid)
+    end
+    ui.SysMsg("Slot contents saved.")
+    quickslot_operate_save_settings()
+end
+
+function quickslot_operate_context_delete(frame, ctr, str, num)
+    local context = ui.CreateContextMenu("DELETE_CONTEXT", "set delete", 0, -500, 0, 0);
+    ui.AddContextMenuItem(context, " ", "")
+    for key, value in pairs(g.settings) do
+        if key ~= "straight" then
+            local jobidStr = "" -- jobid を格納する変数
+            for key2, value2 in pairs(value) do
+                if key2:match("^jobid%d+$") then
+                    local jobClass = GetClassByType("Job", tonumber(value2))
+                    local jobname = TryGetProp(jobClass, "Name", "None")
+                    local start_index, end_index = string.find(jobname, '@dicID')
+                    if start_index == 1 then
+                        jobname = dic.getTranslatedStr(TryGetProp(jobClass, "Name", "None"))
+                    end
+
+                    if jobidStr == "" then
+
+                        jobidStr = tostring(jobname)
+                    else
+                        jobidStr = jobidStr .. ", " .. tostring(jobname)
+                    end
+                end
+
+            end
+            local displayText = key
+            if jobidStr ~= "" then
+                displayText = key .. " (" .. jobidStr .. ")"
+            end
+            local scp = ui.AddContextMenuItem(context, displayText,
+                string.format("quickslot_operate_reverse_set('%s')", key))
+        end
+    end
+
+    ui.OpenContextMenu(context);
+end
+
+function quickslot_operate_reverse_set(characterName)
+    local yesScp = string.format("quickslot_operate_delete_set('%s')", characterName)
+    ui.MsgBox("delete the set registration for the{nl}selected character?", yesScp, "None");
+
+end
+
+function quickslot_operate_delete_set(characterName)
+    g.settings[characterName] = nil
+    quickslot_operate_save_settings()
+end
+
+function quickslot_operate_context(frame, ctr, str, num)
+    local context = ui.CreateContextMenu("CONTEXT", "set load", 0, -500, 0, 0);
+    ui.AddContextMenuItem(context, " ", "")
+    for key, value in pairs(g.settings) do
+        if key ~= "straight" then
+            local jobidStr = "" -- jobid を格納する変数
+            for key2, value2 in pairs(value) do
+                if key2:match("^jobid%d+$") then
+                    local jobClass = GetClassByType("Job", tonumber(value2))
+                    local jobname = TryGetProp(jobClass, "Name", "None")
+                    local start_index, end_index = string.find(jobname, '@dicID')
+                    if start_index == 1 then
+                        jobname = dic.getTranslatedStr(TryGetProp(jobClass, "Name", "None"))
+                    end
+
+                    if jobidStr == "" then
+
+                        jobidStr = tostring(jobname)
+                    else
+                        jobidStr = jobidStr .. ", " .. tostring(jobname)
+                    end
+                end
+
+            end
+            local displayText = key
+            if jobidStr ~= "" then
+                displayText = key .. " (" .. jobidStr .. ")"
+            end
+            local scp = ui.AddContextMenuItem(context, displayText,
+                string.format("quickslot_operate_load_icon('%s')", key))
+        end
+    end
+
+    ui.OpenContextMenu(context);
+end
+
+function quickslot_operate_load_icon(characterName)
+
+    local qsframe = ui.GetFrame("quickslotnexpbar")
+    local slotCount = 40
+    for i = 0, slotCount - 1 do
+        local slot = tolua.cast(qsframe:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
+        local quickSlotInfo = quickslot.GetInfoByIndex(i);
+
+        local icon = slot:GetIcon()
+        if icon ~= nil then
+            local iconinfo = icon:GetInfo()
+            local classid = iconinfo.type
+            for _, id in pairs(potion_list) do
+                if id == classid then
+                    slot:StopUpdateScript("quickslot_operate_frame_close")
+
+                    break
+
+                end
+            end
+
+        end
+    end
+    local slot = GET_CHILD_RECURSIVELY(qsframe, "slot1")
+
+    local frame = ui.GetFrame("quickslot_operate")
+    frame:RemoveAllChild()
+
+    frame:Resize(500, 200)
+    frame:SetPos(slot:GetDrawX(), slot:GetDrawY() - 240)
+    frame:SetTitleBarSkin("None")
+    frame:ShowWindow(1)
+    frame:SetSkinName("chat_window")
+    frame:SetLayerLevel(91);
+    local y = 0
+    local row = 30
+    for num = 1, 4 do
+        local slotset = frame:CreateOrGetControl('slotset', 'slotset' .. num, 0, y, 0, 0)
+        AUTO_CAST(slotset);
+        slotset:SetSlotSize(48, 48) -- スロットの大きさ
+        slotset:EnablePop(0)
+        slotset:EnableDrag(0)
+        slotset:EnableDrop(0)
+        slotset:SetColRow(10, 1)
+        slotset:SetSpc(2, 2)
+        slotset:SetSkinName('quickslot')
+        slotset:CreateSlots()
+        local slotcount = slotset:GetSlotCount()
+
+        local LoginName = session.GetMySession():GetPCApc():GetName()
+
+        for i = 1, slotcount do
+            local slot = GET_CHILD(slotset, "slot" .. i)
+            if g.settings[characterName][tostring(row + i)] ~= nil then
+                local category = g.settings[characterName][tostring(row + i)].category
+                local clsid = g.settings[characterName][tostring(row + i)].type
+
+                if category == "Item" then
+                    local ItemCls = GetClassByType("Item", clsid);
+
+                    SET_SLOT_ITEM_CLS(slot, ItemCls);
+                elseif category == "Skill" then
+                    local sklCls = GetClassByType("Skill", clsid);
+                    SET_SLOT_SKILL(slot, sklCls);
+                elseif category == "Ability" then
+                    local abilClass = GetClassByType("Ability", clsid);
+                    local imageName = abilClass.Icon;
+                    -- 
+                    SET_SLOT_IMG(slot, imageName);
+                    local icon = CreateIcon(slot);
+                    icon:SetTooltipType("ability");
+                    icon:SetTooltipOverlap(1);
+                    icon:SetTooltipStrArg(abilClass.Name);
+                    icon:SetTooltipNumArg(abilClass.ClassID);
+
+                end
+            end
+        end
+        row = row - 10
+        y = y + 50
+    end
+    local yesScp = string.format("quickslot_operate_update_all_slot('%s')", characterName)
+    local noScp = string.format("quickslot_operate_frame_close()")
+    ui.MsgBox("swap quick slots?", yesScp, noScp);
+end
+
+function quickslot_operate_update_all_slot(characterName)
+    local frame = ui.GetFrame('quickslotnexpbar');
+    local sklCnt = frame:GetUserIValue('SKL_MAX_CNT');
+    local slot_count = 20
+    if GET_CHILD_RECURSIVELY(frame, "slot" .. 31):IsVisible() == 1 then
+        slot_count = 40
+    elseif GET_CHILD_RECURSIVELY(frame, "slot" .. 31):IsVisible() == 0 and
+        GET_CHILD_RECURSIVELY(frame, "slot" .. 21):IsVisible() == 1 then
+        slot_count = 30
+    end
+    -- local LoginName = session.GetMySession():GetPCApc():GetName()
+    for i = 0, slot_count - 1 do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot");
+        slot:ReleaseBlink();
+        slot:ClearIcon();
+        quickslot.SetInfo(slot:GetSlotIndex(), 'None', 0, '0');
+        QUICKSLOT_SET_GAUGE_VISIBLE(slot, 0);
+        -- quickslot.RequestRefresh()
+    end
+    for i = 0, slot_count - 1 do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot");
+        if g.settings[characterName][tostring(i + 1)] ~= nil then
+            local category = g.settings[characterName][tostring(i + 1)].category
+            local clsid = g.settings[characterName][tostring(i + 1)].type
+            local iesid = g.settings[characterName][tostring(i + 1)].iesid
+
+            SET_QUICK_SLOT(frame, slot, category, clsid, iesid, 0, true, true);
+        end
+    end
+    --[[for i = 0, slot_count - 1 do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot");
+        local quickSlotInfo = quickslot.GetInfoByIndex(i);
+        print(tostring(quickSlotInfo.type))
+    end]]
+
+    quickslot_operate_frame_close()
+    DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1);
+    -- frame:Invalidate();
+    -- ReserveScript("quickslot.RequestRefresh()", 2.0)
+
+end
+
+function quickslot_operate_frame_init()
+    local frame = ui.GetFrame("quickslotnexpbar")
+    local setting = frame:CreateOrGetControl("button", "setting", 0, 0, 20, 20)
+    AUTO_CAST(setting)
+    setting:SetMargin(-265, 0, 0, 131)
+    setting:SetText("{ol}{s11}M")
+    setting:SetGravity(ui.CENTER_HORZ, ui.BOTTOM);
+    setting:SetTextTooltip("{ol}Change to straight mode.")
+    setting:SetEventScript(ui.LBUTTONUP, "quickslot_operate_straight")
+
+    local save = frame:CreateOrGetControl("button", "save", 0, 0, 20, 20)
+    AUTO_CAST(save)
+    save:SetMargin(-265, 0, 0, 55)
+    save:SetText("{ol}{s11}S")
+    save:SetTextTooltip("{ol}Save the contents of the quick slot.")
+    save:SetGravity(ui.CENTER_HORZ, ui.BOTTOM);
+    save:SetEventScript(ui.LBUTTONUP, "quickslot_operate_save_icon")
+
+    local load = frame:CreateOrGetControl("button", "load", 0, 0, 20, 20)
+    AUTO_CAST(load)
+    load:SetMargin(-240, 0, 0, 55)
+    load:SetText("{ol}{s11}L")
+    load:SetTextTooltip("{ol}LeftClick:Load the contents of the quick slot.{nl}" ..
+                            "RightClick:Delete set registration.")
+    load:SetGravity(ui.CENTER_HORZ, ui.BOTTOM);
+    load:SetEventScript(ui.LBUTTONUP, "quickslot_operate_context")
+    load:SetEventScript(ui.RBUTTONUP, "quickslot_operate_context_delete")
+end
+
+function quickslot_operate_start_straight()
+    local frame = ui.GetFrame("quickslotnexpbar")
+    local margin = -200
+    for i = 11, 20 do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+        AUTO_CAST(slot)
+        slot:SetMargin(margin, 230, 0, 0)
+        margin = margin + 50
+    end
+
+    margin = -200
+    for i = 21, 30 do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+        AUTO_CAST(slot)
+        if slot:IsVisible() == 1 then
+            slot:SetMargin(margin, 180, 0, 0)
+            margin = margin + 50
+        end
+    end
+
+    margin = -200
+    for i = 31, 40 do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+        AUTO_CAST(slot)
+        if slot:IsVisible() == 1 then
+            slot:SetMargin(margin, 130, 0, 0)
+            margin = margin + 50
+        end
+    end
+    QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT()
+    frame:Invalidate();
+end
+
+function quickslot_operate_straight()
+    local frame = ui.GetFrame("quickslotnexpbar")
+
+    if g.settings.straight == false then
+        local margin = -200
+        for i = 11, 20 do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            slot:SetMargin(margin, 230, 0, 0)
+            margin = margin + 50
+        end
+
+        margin = -200
+        for i = 21, 30 do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            if slot:IsVisible() == 1 then
+                slot:SetMargin(margin, 180, 0, 0)
+                margin = margin + 50
+            end
+        end
+
+        margin = -200
+        for i = 31, 40 do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            if slot:IsVisible() == 1 then
+                slot:SetMargin(margin, 130, 0, 0)
+                margin = margin + 50
+            end
+        end
+        QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT()
+        frame:Invalidate();
+        g.settings.straight = true
+        quickslot_operate_save_settings()
+    else
+        local margin = -225
+        for i = 11, 20 do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            slot:SetMargin(margin, 230, 0, 0)
+            margin = margin + 50
+        end
+
+        margin = -250
+        for i = 21, 30 do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            if slot:IsVisible() == 1 then
+                slot:SetMargin(margin, 180, 0, 0)
+                margin = margin + 50
+            end
+        end
+
+        margin = -225
+        for i = 31, 40 do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            if slot:IsVisible() == 1 then
+                slot:SetMargin(margin, 130, 0, 0)
+                margin = margin + 50
+            end
+        end
+        QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT()
+        frame:Invalidate();
+        g.settings.straight = false
+        quickslot_operate_save_settings()
     end
 
 end
@@ -240,6 +645,7 @@ function quickslot_operate_choice_potion(frame, ctrl, str, num)
     slot:RunUpdateScript("quickslot_operate_frame_close", 5);
 
     local frame = ui.GetFrame("quickslot_operate")
+    frame:RemoveAllChild()
     frame:Resize(150, 30)
     frame:SetPos(720 + 140, 810)
     frame:SetTitleBarSkin("None")
