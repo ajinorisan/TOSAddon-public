@@ -9,10 +9,11 @@
 -- v1.0.8 手動入替えスロット付けた。
 -- v1.0.9 スロットセットの位置調整
 -- v1.1.0 ストレートモード追加、キャラ毎のクイックスロット保存呼出機能追加。
+-- v1.1.1 INIT時に余計な読み込みで遅くなってたのを修正。ロードボタン押した時にパースする様に修正。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -20,6 +21,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.frame_settingsFileLoc = string.format('../addons/%s/frame_settings.json', addonNameLower)
 
 local acutil = require("acutil")
 local os = require("os")
@@ -75,25 +77,28 @@ local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyF
 
 function quickslot_operate_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
+
 end
 
 function quickslot_operate_load_settings()
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local frame_settings, err = acutil.loadJSON(g.frame_settingsFileLoc, g.frame_settings)
 
-    if not settings then
-        settings = {
+    if not frame_settings then
+        frame_settings = {
             straight = false
         }
 
     end
-    g.settings = settings
-    quickslot_operate_save_settings()
+    g.frame_settings = frame_settings
+
+    acutil.saveJSON(g.frame_settingsFileLoc, g.frame_settings)
 end
 
 function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+    g.settings = g.settings or {}
 
     acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
     addon:RegisterMsg('GAME_START_3SEC', 'quickslot_operate_set_script')
@@ -110,7 +115,7 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     end
     quickslot_operate_frame_init()
-    if g.settings.straight == true then
+    if g.frame_settings.straight == true then
         quickslot_operate_start_straight()
     end
 end
@@ -270,6 +275,14 @@ function quickslot_operate_load_icon(characterName)
     frame:ShowWindow(1)
     frame:SetSkinName("chat_window")
     frame:SetLayerLevel(91);
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    if settings then
+        g.settings = settings
+    else
+        return
+    end
+
     local y = 0
     local row = 30
     for num = 1, 4 do
@@ -285,7 +298,7 @@ function quickslot_operate_load_icon(characterName)
         slotset:CreateSlots()
         local slotcount = slotset:GetSlotCount()
 
-        local LoginName = session.GetMySession():GetPCApc():GetName()
+        -- local LoginName = session.GetMySession():GetPCApc():GetName()
 
         for i = 1, slotcount do
             local slot = GET_CHILD(slotset, "slot" .. i)
@@ -351,11 +364,6 @@ function quickslot_operate_update_all_slot(characterName)
             SET_QUICK_SLOT(frame, slot, category, clsid, iesid, 0, true, true);
         end
     end
-    --[[for i = 0, slot_count - 1 do
-        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot");
-        local quickSlotInfo = quickslot.GetInfoByIndex(i);
-        print(tostring(quickSlotInfo.type))
-    end]]
 
     quickslot_operate_frame_close()
     DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1);
@@ -429,7 +437,7 @@ end
 function quickslot_operate_straight()
     local frame = ui.GetFrame("quickslotnexpbar")
 
-    if g.settings.straight == false then
+    if g.frame_settings.straight == false then
         local margin = -200
         for i = 11, 20 do
             local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
@@ -459,8 +467,8 @@ function quickslot_operate_straight()
         end
         QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT()
         frame:Invalidate();
-        g.settings.straight = true
-        quickslot_operate_save_settings()
+        g.frame_settings.straight = true
+        acutil.saveJSON(g.frame_settingsFileLoc, g.frame_settings)
     else
         local margin = -225
         for i = 11, 20 do
@@ -491,8 +499,8 @@ function quickslot_operate_straight()
         end
         QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT()
         frame:Invalidate();
-        g.settings.straight = false
-        quickslot_operate_save_settings()
+        g.frame_settings.straight = false
+        acutil.saveJSON(g.frame_settingsFileLoc, g.frame_settings)
     end
 
 end
