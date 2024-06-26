@@ -33,8 +33,31 @@ function SUB_SLOTSET_ON_INIT(addon, frame)
     g.settings = g.settings or {}
 
     addon:RegisterMsg("GAME_START", "sub_slotset_frame_init")
-    -- acutil.setupEvent(addon, "CABINET_GET_ITEM", "market_voucher_CABINET_GET_ITEM");
+    acutil.setupEvent(addon, "CHAT_EMOTICON_MAKELIST", "sub_slotset_CHAT_EMOTICON_MAKELIST");
     -- g.SetupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST");
+end
+
+function sub_slotset_CHAT_EMOTICON_MAKELIST(msg)
+    ReserveScript("sub_slotset_CHAT_EMOTICON_MAKELIST_()", 0.2)
+
+end
+
+function sub_slotset_CHAT_EMOTICON_MAKELIST_()
+    local frame = ui.GetFrame("chat_emoticon")
+    local emoticons = GET_CHILD_RECURSIVELY(frame, "emoticons")
+    local slotCount = emoticons:GetSlotCount();
+    local count = 0
+    for i = 1, slotCount do
+        local slot = GET_CHILD_RECURSIVELY(emoticons, "slot" .. i)
+        local icon = slot:GetIcon()
+        if icon ~= nil then
+            count = count + 1
+        end
+    end
+    emoticons:SetColRow(emoticons:GetCol(), math.ceil(count / 10))
+    emoticons:CreateSlots()
+    -- local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+
 end
 
 function sub_slotset_frame_init()
