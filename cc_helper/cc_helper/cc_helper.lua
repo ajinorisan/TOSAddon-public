@@ -5,10 +5,11 @@
 -- v1.1.8 設定のコピー機能付けた。なんかダサイけど仕方ない。
 -- v1.1.9 インベと倉庫閉じるチェック付けた。
 -- v1.2.0 倉庫閉じるチェックボックスのセットチェック漏れてた。
+-- v1.2.1 ロード処理見直し。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.0"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -96,6 +97,8 @@ function cc_helper_load_settings()
     cc_helper_save_settings()
 end
 
+g.load = false
+
 function CC_HELPER_ON_INIT(addon, frame)
     -- CHAT_SYSTEM("CCHELPER")
     g.addon = addon
@@ -115,8 +118,10 @@ function CC_HELPER_ON_INIT(addon, frame)
         acutil.setupEvent(addon, "INVENTORY_OPEN", "cc_helper_invframe_init");
 
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
-
-        cc_helper_load_settings()
+        if not g.load then
+            g.load = true
+            cc_helper_load_settings()
+        end
     end
 
 end
@@ -463,6 +468,8 @@ function cc_helper_setting_frame_init()
     ACCOUNTWAREHOUSE_CLOSE(awhframe)
     UI_TOGGLE_INVENTORY()
 
+    cc_helper_load_settings()
+
     local frame = ui.GetFrame(addonNameLower)
     frame:SetSkinName("test_frame_low")
     frame:SetLayerLevel(93)
@@ -535,6 +542,10 @@ function cc_helper_setting_frame_init()
     delay:SetTextTooltip(
         "動作のディレイ時間を設定します。デフォルトは0.3秒。早過ぎると失敗が多発します。{nl}" ..
             "Sets the delay time for the operation. Default is 0.3 seconds. Too early and many failures will occur.")
+
+    if g.settings[g.LOGINCID] == nil then
+        g.settings[g.LOGINCID] = {}
+    end
 
     local function createSlot(frame, name, x, y, width, height, skin, text, dropHandler, cancelHandler, image, iesid)
         local slot = frame:CreateOrGetControl("slot", name, x, y, width, height)
@@ -685,6 +696,10 @@ end
 function cc_helper_settings_close(frame)
     local frame = ui.GetFrame("cc_helper")
     frame:ShowWindow(0)
+    --[[if frame:IsVisible() == 1 then
+        frame:ShowWindow(0)
+        cc_helper_load_settings()
+    end]]
 end
 
 function cc_helper_cancel(frame, ctrl, argstr, argnum)
