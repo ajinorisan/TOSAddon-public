@@ -72,6 +72,25 @@ v0.9.0 公開。
 
 　
 
+### Sub Quickslot
+
+サブクイックスロットオマージュ。画面中央上部にボタンが作成されます。
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+
+![TreeOfSavior_20240701_075957](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/ebf8fcbd-57ec-4a0d-b378-593b514c2a29)
+
+　
+
+----
+
+　
+
 ### Relic Change
 
 レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。

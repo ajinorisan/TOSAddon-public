@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Sub Slotset",
+		"file" : "sub_slotset",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "sub_slotset",
+		"unicode" : "⛄",
+		"description" : "SubQuickSlotオマージュ。SubQuickSlot homage.SubQuickSlot 오마주.",
+		"tags" : []
+	},
+	{
 		"name" : "Relic Change",
 		"file" : "relic_change",
 		"extension" : "ipf",

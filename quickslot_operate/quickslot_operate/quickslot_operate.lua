@@ -10,10 +10,11 @@
 -- v1.0.9 スロットセットの位置調整
 -- v1.1.0 ストレートモード追加、キャラ毎のクイックスロット保存呼出機能追加。
 -- v1.1.1 INIT時に余計な読み込みで遅くなってたのを修正。ロードボタン押した時にパースする様に修正。
+-- v1.1.2 ロードボタン押した時のバグ修正
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -204,8 +205,14 @@ function quickslot_operate_delete_set(characterName)
     g.settings[characterName] = nil
     quickslot_operate_save_settings()
 end
-
+-- quickslot_operate_context
 function quickslot_operate_context(frame, ctr, str, num)
+    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    if settings then
+        g.settings = settings
+    else
+        return
+    end
     local context = ui.CreateContextMenu("CONTEXT", "set load", 0, -500, 0, 0);
     ui.AddContextMenuItem(context, " ", "")
     for key, value in pairs(g.settings) do
@@ -275,13 +282,6 @@ function quickslot_operate_load_icon(characterName)
     frame:ShowWindow(1)
     frame:SetSkinName("chat_window")
     frame:SetLayerLevel(91);
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-    if settings then
-        g.settings = settings
-    else
-        return
-    end
 
     local y = 0
     local row = 30
