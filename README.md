@@ -85,8 +85,7 @@ v1.0.0 公開。
 
 ![TreeOfSavior_20240701_075957](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/ebf8fcbd-57ec-4a0d-b378-593b514c2a29)
 
-https://github.com/ajinorisan/TOSAddon-public/assets/128560971/ad7ea13a-3d2b-43d5-9944-c3ad044d8e91
-
+[https://github.com/ajinorisan/TOSAddon-public/assets/128560971/ad7ea13a-3d2b-43d5-9944-c3ad044d8e91](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/ae80b108-208c-4380-a417-d894820118a7)
 　
 
 ----
