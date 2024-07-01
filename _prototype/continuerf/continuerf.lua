@@ -25,8 +25,6 @@ end
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
-g.autoreinforce = 0
-
 function CONTINUERF_SAVE_SETTINGS()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
 end
@@ -55,11 +53,41 @@ function CONTINUERF_ON_INIT(addon, frame)
 
     CONTINUERF_LOAD_SETTINGS()
 
-    -- addon:RegisterMsg('GAME_START_3SEC', 'CONTINUERF_FRAME_INIT')
-    addon:RegisterMsg('OPEN_DLG_GODDESS_EQUIP_MANAGER', 'CONTINUERF_FRAME_INIT')
+    addon:RegisterMsg('GAME_START', 'CONTINUERF_FRAME_INIT')
+    -- addon:RegisterMsg('OPEN_DLG_GODDESS_EQUIP_MANAGER', 'CONTINUERF_FRAME_INIT')
 
     g.SetupHook(CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "_GODDESS_MGR_REFORGE_REINFORCE_EXEC")
-    g.SetupHook(CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN, "GODDESS_MGR_REINFORCE_CLEAR_BTN")
+    acutil.setupEvent(addon, "GODDESS_MGR_REFORGE_REG_ITEM", "CONTINUERF_GODDESS_MGR_REFORGE_REG_ITEM");
+    -- g.SetupHook(CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN, "GODDESS_MGR_REINFORCE_CLEAR_BTN")
+
+end
+
+function CONTINUERF_GODDESS_MGR_REFORGE_REG_ITEM(frame, msg)
+    local inv_item, item_obj = acutil.getEventArgs(msg)
+    local frame = ui.GetFrame('goddess_equip_manager')
+    local reinf_no_msgbox = GET_CHILD_RECURSIVELY(frame, 'reinf_no_msgbox')
+    reinf_no_msgbox:SetCheck(1)
+    local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
+
+    local index = main_tab:GetSelectItemIndex()
+
+    if index == 0 then
+
+        local reinf_main_mat_bg = GET_CHILD_RECURSIVELY(frame, 'reinf_main_mat_bg');
+        if reinf_main_mat_bg == nil then
+            return;
+        end
+        local child_count = reinf_main_mat_bg:GetChildCount();
+        for i = 0, child_count - 1 do
+            local child = reinf_main_mat_bg:GetChildByIndex(i);
+            if child ~= nil and string.find(child:GetName(), "GODDESS_REINF_MAT_") ~= nil then
+                local btn = GET_CHILD_RECURSIVELY(child, "btn");
+                if btn ~= nil then
+                    GODDESS_MGR_REFORGE_REINFORCE_REG_MAT(child, btn);
+                end
+            end
+        end
+    end
 
 end
 
@@ -67,10 +95,6 @@ function CONTINUERF_FRAME_INIT()
 
     local frame = ui.GetFrame('goddess_equip_manager')
 
-    -- local bg = GET_CHILD_RECURSIVELY(frame, 'bg')
-    -- local reforge_bg = GET_CHILD_RECURSIVELY(bg, 'reforge_bg')
-    -- local ref_reinforce_bg = GET_CHILD_RECURSIVELY(reforge_bg, 'ref_reinforce_bg')
-    -- local reinf_left_bg = GET_CHILD_RECURSIVELY(ref_reinforce_bg, 'reinf_left_bg')
     local reinf_left_bg = GET_CHILD_RECURSIVELY(frame, 'reinf_left_bg')
 
     local cancel = reinf_left_bg:CreateOrGetControl("button", "cancel", 0, 647, 100, 70)
@@ -79,9 +103,11 @@ function CONTINUERF_FRAME_INIT()
     cancel:SetSkinName("test_red_button")
     cancel:SetText("{@st41b}{s18}Cancel")
 
-    local setting = reinf_left_bg:CreateOrGetControl("button", "setting", 320, 600, 30, 30)
+    local setting = reinf_left_bg:CreateOrGetControl("button", "setting", 0, 610, 30, 30)
     AUTO_CAST(setting)
-    setting:SetImage("config_button_normal")
+    setting:SetSkinName("None")
+    setting:SetText("{img config_button_normal 30 30}")
+    -- setting:SetImage("config_button_normal")
     setting:SetTextTooltip("{ol}}Left-click delay setting")
     setting:SetEventScript(ui.LBUTTONUP, "CONTINUERF_SETTING_FRAME_INIT")
 
@@ -98,69 +124,10 @@ function CONTINUERF_SETTING_FRAME_INIT()
     for i = 3, 8 do
         local delay = i / 10
         ui.AddContextMenuItem(context, string.format("Set the delay time %.1f", delay),
-                              string.format("CONTINUERF_DELAY_SAVE(%.1f)", delay))
+            string.format("CONTINUERF_DELAY_SAVE(%.1f)", delay))
     end
 
     ui.OpenContextMenu(context)
-
-    --[[local frame = ui.GetFrame('goddess_equip_manager')
-    local reinf_left_bg = GET_CHILD_RECURSIVELY(frame, 'reinf_left_bg')
-    local groupbox = reinf_left_bg:CreateOrGetControl("groupbox", "bg", 270, 647, 96, 70)
-    AUTO_CAST(groupbox)
-
-    if groupbox:IsVisible() == 1 then
-        groupbox:ShowWindow(0)
-        return
-    else
-        groupbox:ShowWindow(1)
-
-    end
-
-    local btn03 = groupbox:CreateOrGetControl("button", "btn03", 0, 0, 30, 33)
-    AUTO_CAST(btn03)
-    btn03:SetText("0.3")
-    btn03:SetTextTooltip("Set the delay time to 0.3 seconds.")
-    btn03:SetEventScript(ui.LBUTTONUP, "CONTINUERF_DELAY_SAVE")
-    btn03:SetEventScriptArgString(ui.LBUTTONUP, "0.3")
-
-    local btn04 = groupbox:CreateOrGetControl("button", "btn04", 32, 0, 30, 33)
-    AUTO_CAST(btn04)
-    btn04:SetText("0.4")
-    btn04:SetTextTooltip("Set the delay time to 0.4 seconds.")
-    btn04:SetEventScript(ui.LBUTTONUP, "CONTINUERF_DELAY_SAVE")
-    btn04:SetEventScriptArgString(ui.LBUTTONUP, "0.4")
-
-    local btn05 = groupbox:CreateOrGetControl("button", "btn05", 64, 0, 30, 33)
-    AUTO_CAST(btn05)
-    btn05:SetText("0.5")
-    btn05:SetTextTooltip("Set the delay time to 0.5 seconds.")
-    btn05:SetEventScript(ui.LBUTTONUP, "CONTINUERF_DELAY_SAVE")
-    btn05:SetEventScriptArgString(ui.LBUTTONUP, "0.5")
-
-    local btn06 = groupbox:CreateOrGetControl("button", "btn06", 0, 37, 30, 33)
-    AUTO_CAST(btn06)
-    btn06:SetText("0.6")
-    btn06:SetTextTooltip("Set the delay time to 0.6 seconds.")
-    btn06:SetEventScript(ui.LBUTTONUP, "CONTINUERF_DELAY_SAVE")
-    btn06:SetEventScriptArgString(ui.LBUTTONUP, "0.6")
-
-    local btn07 = groupbox:CreateOrGetControl("button", "btn07", 32, 37, 30, 33)
-    AUTO_CAST(btn07)
-    btn07:SetText("0.7")
-    btn07:SetTextTooltip("Set the delay time to 0.7 seconds.")
-    btn07:SetEventScript(ui.LBUTTONUP, "CONTINUERF_DELAY_SAVE")
-    btn07:SetEventScriptArgString(ui.LBUTTONUP, "0.7")
-
-    local btn08 = groupbox:CreateOrGetControl("button", "btn08", 64, 37, 30, 33)
-    AUTO_CAST(btn08)
-    btn08:SetText("0.8")
-    btn08:SetTextTooltip("Set the delay time to 0.8 seconds.")
-    btn08:SetEventScript(ui.LBUTTONUP, "CONTINUERF_DELAY_SAVE")
-    btn08:SetEventScriptArgString(ui.LBUTTONUP, "0.8")
-
-    -- groupbox:ShowWindow(1)
-    -- groupbox:SetskinName("None")
-    -- groupbox:SetLayerLevel(100)]]
 
 end
 
@@ -177,20 +144,29 @@ function CONTINUERF_STOP_SCRIPT()
     ui.SysMsg("{ol}Continuous Reinforcement Cancelled")
 
     local frame = ui.GetFrame('goddess_equip_manager')
-    local ref_ok_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_ok_reinforce')
-    ref_ok_reinforce:ShowWindow(0)
-
-    local ref_do_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_do_reinforce')
-    ref_do_reinforce:SetEnable(1)
-    ref_do_reinforce:ShowWindow(1)
-    g.autoreinforce = 0
-    -- GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame)
+    GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame, true)
     return
 end
 
-function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC()
+function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
     local frame = ui.GetFrame('goddess_equip_manager')
+    frame:SetUserValue('REINFORCE_RESULT', "None")
+    local delay = g.settings.delay
+    frame:RunUpdateScript("CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC", 3);
+end
+
+function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC(frame)
     if frame == nil then
+        return
+    end
+
+    -- GODDESS_MGR_REFORGE_REINFORCE_UPDATE(frame)
+    GODDESS_MGR_REINFORCE_RATE_UPDATE(frame)
+
+    local result_str = frame:GetUserValue('REINFORCE_RESULT')
+    print(result_str)
+    if result_str == 'SUCCESS' then
+        GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame, true)
         return
     end
 
@@ -246,12 +222,10 @@ function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC()
     local ref_do_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_do_reinforce')
     ref_do_reinforce:SetEnable(0)
 
-    local delay = g.settings.delay
-    ReserveScript("CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()", delay)
-    return
+    return 1
 end
 
-function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
+--[[function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
     g.autoreinforce = 1
     local frame = ui.GetFrame('goddess_equip_manager')
     if frame == nil then
@@ -328,7 +302,7 @@ function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
         -- CHAT_SYSTEM(g.autoreinforce)
         return
     end
-end
+end]]
 
 function CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN(parent, btn)
     -- return
