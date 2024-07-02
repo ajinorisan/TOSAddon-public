@@ -1,9 +1,10 @@
 -- v1.0.2 ディレイ時間設定
 -- v1.0.3 ボタンの色変更。SetupHookの競合修正
+-- v1.0.4 コード見直し。装備右クリック時に素材もセットする様に変更。
 local addonName = "CONTINUERF"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -54,11 +55,9 @@ function CONTINUERF_ON_INIT(addon, frame)
     CONTINUERF_LOAD_SETTINGS()
 
     addon:RegisterMsg('GAME_START', 'CONTINUERF_FRAME_INIT')
-    -- addon:RegisterMsg('OPEN_DLG_GODDESS_EQUIP_MANAGER', 'CONTINUERF_FRAME_INIT')
 
     g.SetupHook(CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC, "_GODDESS_MGR_REFORGE_REINFORCE_EXEC")
     acutil.setupEvent(addon, "GODDESS_MGR_REFORGE_REG_ITEM", "CONTINUERF_GODDESS_MGR_REFORGE_REG_ITEM");
-    -- g.SetupHook(CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN, "GODDESS_MGR_REINFORCE_CLEAR_BTN")
 
 end
 
@@ -107,7 +106,6 @@ function CONTINUERF_FRAME_INIT()
     AUTO_CAST(setting)
     setting:SetSkinName("None")
     setting:SetText("{img config_button_normal 30 30}")
-    -- setting:SetImage("config_button_normal")
     setting:SetTextTooltip("{ol}}Left-click delay setting")
     setting:SetEventScript(ui.LBUTTONUP, "CONTINUERF_SETTING_FRAME_INIT")
 
@@ -124,7 +122,7 @@ function CONTINUERF_SETTING_FRAME_INIT()
     for i = 3, 8 do
         local delay = i / 10
         ui.AddContextMenuItem(context, string.format("Set the delay time %.1f", delay),
-            string.format("CONTINUERF_DELAY_SAVE(%.1f)", delay))
+                              string.format("CONTINUERF_DELAY_SAVE(%.1f)", delay))
     end
 
     ui.OpenContextMenu(context)
@@ -144,30 +142,61 @@ function CONTINUERF_STOP_SCRIPT()
     ui.SysMsg("{ol}Continuous Reinforcement Cancelled")
 
     local frame = ui.GetFrame('goddess_equip_manager')
+    frame:StopUpdateScript("CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC");
     GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame, true)
+
     return
 end
 
-function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
+function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC(parent, btn)
     local frame = ui.GetFrame('goddess_equip_manager')
-    frame:SetUserValue('REINFORCE_RESULT', "None")
-    local delay = g.settings.delay
-    frame:RunUpdateScript("CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC", 3);
+    local slot = GET_CHILD_RECURSIVELY(frame, 'ref_slot')
+    local icon = slot:GetIcon()
+    if icon == nil or icon:GetInfo() == nil then
+        ui.SysMsg(ClMsg('NotExistTargetItem'))
+        return
+    end
+
+    local mat_bg = GET_CHILD_RECURSIVELY(frame, 'reinf_main_mat_bg')
+    for i = 0, mat_bg:GetChildCount() - 1 do
+        local fdfd = mat_bg:GetChildByIndex(i)
+        local ctrlset = GET_CHILD(mat_bg, 'GODDESS_REINF_MAT_' .. i)
+        if ctrlset ~= nil and ctrlset:GetUserValue('MATERIAL_IS_SELECTED') ~= 'selected' then
+            return
+        end
+    end
+
+    local guid = slot:GetUserValue('ITEM_GUID')
+    local inv_item = session.GetInvItemByGuid(guid)
+    if inv_item == nil then
+        return
+    end
+    local item_obj = GetIES(inv_item:GetObject())
+    local item_name = dic.getTranslatedStr(TryGetProp(item_obj, 'Name', 'None'))
+    local reinf_no_msgbox = GET_CHILD_RECURSIVELY(frame, 'reinf_no_msgbox')
+    if reinf_no_msgbox:IsChecked() == 1 then
+        frame:SetUserValue('REINFORCE_RESULT', "None")
+        local delay = g.settings.delay
+        frame:RunUpdateScript("CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC", 3);
+    else
+        local yesscp = '_GODDESS_MGR_REFORGE_REINFORCE_EXEC()'
+        local msgbox = ui.MsgBox(ScpArgMsg('ReallyDoAetherGemReinforce', 'name', item_name), yesscp,
+                                 'ENABLE_CONTROL_WITH_UI_HOLD(false)')
+        SET_MODAL_MSGBOX(msgbox)
+    end
+
 end
 
 function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC(frame)
     if frame == nil then
-        return
+        return 0
     end
-
-    -- GODDESS_MGR_REFORGE_REINFORCE_UPDATE(frame)
-    GODDESS_MGR_REINFORCE_RATE_UPDATE(frame)
 
     local result_str = frame:GetUserValue('REINFORCE_RESULT')
     print(result_str)
     if result_str == 'SUCCESS' then
         GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame, true)
-        return
+        return 0
     end
 
     session.ResetItemList()
@@ -176,7 +205,7 @@ function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC(frame)
     local icon = slot:GetIcon()
     if icon == nil or icon:GetInfo() == nil then
         ui.SysMsg(ClMsg('NotExistTargetItem'))
-        return
+        return 0
     end
 
     local guid = slot:GetUserValue('ITEM_GUID')
@@ -187,7 +216,7 @@ function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC(frame)
         local ctrlset = GET_CHILD(mat_bg, 'GODDESS_REINF_MAT_' .. i)
         if ctrlset ~= nil then
             if ctrlset:GetUserValue('MATERIAL_IS_SELECTED') ~= 'selected' then
-                return
+                return 0
             end
 
             local mat_name = ctrlset:GetUserValue('ITEM_NAME')
@@ -208,7 +237,7 @@ function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC(frame)
         if cnt > 0 then
             local extra_mat_guid = _slot:GetUserValue('ITEM_GUID')
             if extra_mat_guid == 'None' then
-                return
+                return 0
             end
 
             session.AddItemID(extra_mat_guid, cnt)
@@ -222,254 +251,7 @@ function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC(frame)
     local ref_do_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_do_reinforce')
     ref_do_reinforce:SetEnable(0)
 
+    GODDESS_MGR_REFORGE_REINFORCE_UPDATE(frame)
+
     return 1
-end
-
---[[function CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()
-    g.autoreinforce = 1
-    local frame = ui.GetFrame('goddess_equip_manager')
-    if frame == nil then
-        return
-    end
-
-    local slot = GET_CHILD_RECURSIVELY(frame, 'ref_slot')
-    local icon = slot:GetIcon()
-
-    local ref_do_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_do_reinforce')
-
-    if g.autoreinforce == 1 and ref_do_reinforce:IsEnable() == 0 and (icon ~= nil or icon:GetInfo() ~= nil) then
-
-        local parent = GET_CHILD_RECURSIVELY(frame, 'reinf_left_bg')
-        local btn = GET_CHILD_RECURSIVELY(parent, 'ref_ok_reinforce')
-
-        CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN(parent, btn)
-
-    elseif g.autoreinforce == 1 and ref_do_reinforce:IsEnable() == 1 and (icon ~= nil or icon:GetInfo() ~= nil) then
-
-        session.ResetItemList()
-
-        if icon == nil or icon:GetInfo() == nil then
-            ui.SysMsg(ClMsg('NotExistTargetItem'))
-            return
-        end
-
-        local guid = slot:GetUserValue('ITEM_GUID')
-        session.AddItemID(guid, 1)
-
-        local mat_bg = GET_CHILD_RECURSIVELY(frame, 'reinf_main_mat_bg')
-        for i = 0, mat_bg:GetChildCount() - 1 do
-            local ctrlset = GET_CHILD(mat_bg, 'GODDESS_REINF_MAT_' .. i)
-            if ctrlset ~= nil then
-                if ctrlset:GetUserValue('MATERIAL_IS_SELECTED') ~= 'selected' then
-                    return
-                end
-
-                local mat_name = ctrlset:GetUserValue('ITEM_NAME')
-                if IS_ACCOUNT_COIN(mat_name) == false then
-                    local mat_item = session.GetInvItemByName(mat_name)
-                    local mat_guid = mat_item:GetIESID()
-                    local slot = GET_CHILD(ctrlset, 'slot')
-                    local mat_count = slot:GetEventScriptArgString(ui.DROP)
-                    session.AddItemID(mat_guid, tonumber(mat_count))
-                end
-            end
-        end
-
-        local extra_mat_list = GET_CHILD_RECURSIVELY(frame, 'reinf_extra_mat_list')
-        for i = 0, extra_mat_list:GetSlotCount() - 1 do
-            local _slot = extra_mat_list:GetSlotByIndex(i)
-            local cnt = _slot:GetSelectCount()
-            if cnt > 0 then
-                local extra_mat_guid = _slot:GetUserValue('ITEM_GUID')
-                if extra_mat_guid == 'None' then
-                    return
-                end
-
-                session.AddItemID(extra_mat_guid, cnt)
-            end
-        end
-
-        local result_list = session.GetItemIDList()
-
-        item.DialogTransaction('GODDESS_REINFORCE', result_list)
-
-        ref_do_reinforce:SetEnable(0)
-        ReserveScript("CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()", g.delay)
-        return
-    else
-        g.autoreinforce = 0
-        -- ref_do_reinforce:SetEnable(1)
-        -- CHAT_SYSTEM(g.autoreinforce)
-        return
-    end
-end]]
-
-function CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN(parent, btn)
-    -- return
-
-    local effect_frame = ui.GetFrame('result_effect_ui')
-    effect_frame:ShowWindow(0)
-
-    local frame = parent:GetTopParentFrame()
-
-    local reinforce_value = 0
-    local slot = GET_CHILD_RECURSIVELY(frame, 'ref_slot')
-    local guid = slot:GetUserValue('ITEM_GUID')
-    if guid ~= 'None' then
-        local inv_item = session.GetInvItemByGuid(guid)
-        if inv_item ~= nil then
-            local item_obj = GetIES(inv_item:GetObject())
-            reinforce_value = TryGetProp(item_obj, 'Reinforce_2', 0)
-        end
-    end
-
-    local ref_item_reinf_text = GET_CHILD_RECURSIVELY(frame, 'ref_item_reinf_text')
-    ref_item_reinf_text:SetTextByKey('value', reinforce_value)
-
-    local result_str = frame:GetUserValue('REINFORCE_RESULT')
-    if result_str == 'SUCCESS' then
-        -- CHAT_SYSTEM("ISSUCCESS") -- tasita
-        g.autoreinforce = 0 -- tasita
-        -- ref_do_reinforce:SetEnable(1)
-        GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame, true)
-        return
-    else
-        local ref_ok_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_ok_reinforce')
-        ref_ok_reinforce:SetSkinName("baseyellow_btn")
-        ref_ok_reinforce:ShowWindow(0)
-        local ref_do_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_do_reinforce')
-        ref_do_reinforce:SetEnable(1)
-        ref_do_reinforce:ShowWindow(1)
-        ref_do_reinforce:SetSkinName("relic_btn_purple")
-
-        local clear_flag = false
-        local mat_bg = GET_CHILD_RECURSIVELY(frame, 'reinf_main_mat_bg')
-        for i = 0, mat_bg:GetChildCount() - 1 do
-            local ctrlset = GET_CHILD(mat_bg, 'GODDESS_REINF_MAT_' .. i)
-            if ctrlset ~= nil then
-                local slot = GET_CHILD(ctrlset, 'slot')
-                local mat_name = ctrlset:GetUserValue('ITEM_NAME')
-                local cur_count = '0'
-                if IS_ACCOUNT_COIN(mat_name) == true then
-                    local acc = GetMyAccountObj()
-                    cur_count = TryGetProp(acc, mat_name, '0')
-                    if cur_count == 'None' then
-                        cur_count = '0'
-                    end
-                else
-                    local mat_item = session.GetInvItemByName(mat_name)
-                    if mat_item == nil then
-                        clear_flag = true
-                        break
-                    end
-
-                    cur_count = tostring(mat_item.count)
-                end
-
-                local need_count = slot:GetEventScriptArgString(ui.DROP)
-                if math.is_larger_than(tostring(need_count), cur_count) == 1 then
-                    clear_flag = true
-                    break
-                end
-            end
-        end
-
-        local extra_mat_list = GET_CHILD_RECURSIVELY(frame, 'reinf_extra_mat_list')
-        for i = 0, extra_mat_list:GetSlotCount() - 1 do
-            local slot = extra_mat_list:GetSlotByIndex(i)
-            local cnt = slot:GetSelectCount()
-            if cnt > 0 then
-                local _guid = slot:GetUserValue('ITEM_GUID')
-                local extra_mat = session.GetInvItemByGuid(_guid)
-                if extra_mat == nil then
-                    clear_flag = true
-                    break
-                end
-
-                if extra_mat.count < cnt then
-                    clear_flag = true
-                    break
-                end
-            end
-        end
-
-        if clear_flag == true then
-            -- ref_do_reinforce:SetEnable(1)
-            g.autoreinforce = 0 -- tasita
-            GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame)
-            return
-        else
-            -- CHAT_SYSTEM("TEST3")
-            CONTINUERF_REFORGE_REINFORCE_MAT_COUNT_UPDATE(frame)
-            CONTINUERF_REFORGE_REINFORCE_EXTRA_MAT_COUNT_UPDATE(frame)
-            GODDESS_MGR_REINFORCE_RATE_UPDATE(frame)
-            ReserveScript("CONTINUERF_GODDESS_MGR_REFORGE_REINFORCE_EXEC()", g.delay)
-            return
-        end
-
-    end
-
-    local tuto_prop = frame:GetUserValue('TUTO_PROP')
-    if tuto_prop == 'UITUTO_GODDESSEQUIP1' then
-        local tuto_value = GetUITutoProg(tuto_prop)
-        if tuto_value == 4 then
-            pc.ReqExecuteTx('SCR_UI_TUTORIAL_NEXT_STEP', tuto_prop)
-        end
-    end
-
-end
-
-function CONTINUERF_REFORGE_REINFORCE_MAT_COUNT_UPDATE(frame)
-    local mat_bg = GET_CHILD_RECURSIVELY(frame, 'reinf_main_mat_bg')
-    for i = 0, mat_bg:GetChildCount() - 1 do
-        local ctrlset = GET_CHILD(mat_bg, 'GODDESS_REINF_MAT_' .. i)
-        if ctrlset ~= nil then
-            local slot = GET_CHILD(ctrlset, 'slot')
-            local mat_name = ctrlset:GetUserValue('ITEM_NAME')
-            local cur_count = '0'
-            if IS_ACCOUNT_COIN(mat_name) == true then
-                local acc = GetMyAccountObj()
-                cur_count = TryGetProp(acc, mat_name, '0')
-                if cur_count == 'None' then
-                    cur_count = '0'
-                end
-            else
-                local mat_item = session.GetInvItemByName(mat_name)
-                if mat_item == nil then
-                    cur_count = '0'
-                else
-                    cur_count = tostring(mat_item.count)
-                end
-            end
-
-            local need_count = slot:GetEventScriptArgString(ui.DROP)
-            local inv_count = GET_CHILD_RECURSIVELY(ctrlset, 'invcount')
-            inv_count:SetTextByKey('have', cur_count)
-            inv_count:SetTextByKey('need', need_count)
-        end
-    end
-end
-
-function CONTINUERF_REFORGE_REINFORCE_EXTRA_MAT_COUNT_UPDATE(frame)
-    local slotset = GET_CHILD_RECURSIVELY(frame, 'reinf_extra_mat_list')
-    for i = 0, slotset:GetSlotCount() - 1 do
-        local slot = slotset:GetSlotByIndex(i)
-        local cnt = slot:GetSelectCount()
-        if cnt > 0 then
-            local mat_guid = slot:GetUserValue('ITEM_GUID')
-            local inv_item = session.GetInvItemByGuid(mat_guid)
-            if inv_item ~= nil then
-                local obj = GetIES(inv_item:GetObject())
-                local icon = slot:GetIcon()
-                local slotindex = slot:GetSlotIndex()
-                icon:Set(obj.Icon, 'Item', inv_item.type, slotindex, inv_item:GetIESID(), inv_item.count)
-                slot:SetMaxSelectCount(inv_item.count)
-                SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, inv_item, obj, inv_item.count)
-            end
-        end
-
-        if cnt == 0 then
-            slot:Select(0)
-        end
-    end
 end
