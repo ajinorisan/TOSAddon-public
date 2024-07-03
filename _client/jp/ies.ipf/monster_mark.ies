@@ -63,6 +63,8 @@ ClassID,Radius,AddRadius,Height,ClassName,DirType,Texture,UseShadowRadius
 124,0,60,20,"weekly_boss_roze","DIRTYPE_ETC","texture\\boss_pink.tga","YES"
 125,0,60,20,"weekly_boss_upinis","DIRTYPE_ETC","texture\\boss_sky.tga","YES"
 126,0,35,20,"weekly_boss_slogutis","DIRTYPE_ETC","texture\\boss_violet.tga","YES"
+127,0,35,20,"weekly_boss_spreader","DIRTYPE_ETC","texture\\boss_red.tga","YES"
+128,0,35,20,"weekly_boss_falouros","DIRTYPE_ETC","texture\\boss_red.tga","YES"
 201,0,30,20,"Field_boss_Zawra","DIRTYPE_ETC","texture\\boss_yellow.tga","YES"
 202,0,25,20,"Field_boss_Nuaelle","DIRTYPE_ETC","texture\\boss_yellow.tga","YES"
 203,0,25,20,"Field_boss_Hauberk","DIRTYPE_ETC","texture\\boss_sky.tga","YES"

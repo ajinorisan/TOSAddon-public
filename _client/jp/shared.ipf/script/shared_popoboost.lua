@@ -136,7 +136,7 @@ function GET_TICKET_ITEM_LIST(AccProp)
     ticket_item_list["EVENT_2404_POPOBOOST"] ={}
     ticket_item_list["EVENT_2404_POPOBOOST"]["emoticonItem_2404_popo"] = 1
     ticket_item_list["EVENT_2404_POPOBOOST"]["class_unlock_achievement_select"] = 1
-    ticket_item_list["EVENT_2404_POPOBOOST"]["open_ticket_cabinet_vibora_lv4"] = 4
+    ticket_item_list["EVENT_2404_POPOBOOST"]["open_ticket_cabinet_vibora_lv4"] = 2
     ticket_item_list["EVENT_2404_POPOBOOST"]["misc_Ether_Gem_Socket_480_NoTrade"] = 4
     ticket_item_list["EVENT_2404_POPOBOOST"]["selectbox_Gem_High_480"] = 4
     ticket_item_list["EVENT_2404_POPOBOOST"]["lv480_aether_lvup_scroll_lv100"] = 4
@@ -206,7 +206,7 @@ function POPOBOOST_SET_MAX_GEARSCORE(pc)
         end
     end
     if itemcnt >= 11 then
-        RunScript("TX_EVENT_STAMP_TOUR_PROP_SET_POPOBOOST",pc,5,1,"POPO_EVENT_STAMP")
+        RunScript("TX_EVENT_STAMP_TOUR_PROP_SET_POPOBOOST",pc,5,itemcnt,"POPO_EVENT_STAMP")
     end
 
 end

@@ -31,12 +31,13 @@ function ARK_COMPOSITION_CLOSE(frame)
     ui.CloseFrame('ark_composition');
 end
 
-function CLEAR_ARK_COMPOSITION_UI()
+function CLEAR_ARK_COMPOSITION_UI(frame)
 	if ui.CheckHoldedUI() == true then
 		return;
     end
-    
-    local frame = ui.GetFrame("ark_composition");
+    if frame == nil then
+        frame = ui.GetFrame("ark_composition");
+    end
     ARK_COMPOSITION_CLEAR_ARK_ITEM(frame)
     ARK_COMPOSITION_CLEAR_MATERIAL_ITEM(frame)
     ARK_COMPOSITION_TOGGLE_RESULT_UI(frame, 0)
@@ -87,7 +88,7 @@ function ARK_COMPOSITION_CLEAR_ARK_ITEM(frame)
     local do_btn = GET_CHILD_RECURSIVELY(frame, 'do_btn');
     do_btn:ShowWindow(1);
 
-    local mat_gb = GET_CHILD(frame, "mat_gb");
+    local mat_gb = GET_CHILD_RECURSIVELY(frame, "mat_gb");
     mat_gb:EnableHitTest(1);
 end
 
@@ -329,7 +330,7 @@ function ARK_EXP_UP_MATERIAL_INIT(frame, itemObj)
     local matClassName = shared_item_ark.get_exp_material();    
     ARK_EXP_UP_MATERIAL_INFO(frame, 1, matClassName, remainderexp)
 
-    local medal_gb = GET_CHILD(frame, "medal_gb");
+    local medal_gb = GET_CHILD_RECURSIVELY(frame, "medal_gb");
     medal_gb:ShowWindow(1);
     
     -- 비용
@@ -694,9 +695,10 @@ function ARK_COMPOSITION_LV_UP_SUCCESS(pc, msg, guid)
     COMPOSITION_SUCCESS_EFFECT(frame, itemObj);
 end
 
-function PLAY_ARK_COMPOSITION_EFFECT()
-	local frame = ui.GetFrame("ark_composition");
-
+function PLAY_ARK_COMPOSITION_EFFECT(frame)
+    if frame == nil then
+	    frame = ui.GetFrame("ark_composition");
+    end
 	local COMPOSITION_EFFECT_NAME = frame:GetUserConfig('COMPOSITION_EFFECT_NAME');
 	local COMPOSITION_EFFECT_SCALE = tonumber(frame:GetUserConfig('COMPOSITION_EFFECT_SCALE'));
     local COMPOSITION_EFFECT_DURATION = tonumber(frame:GetUserConfig('COMPOSITION_EFFECT_DURATION'));
@@ -708,7 +710,7 @@ function PLAY_ARK_COMPOSITION_EFFECT()
 	effect_gb:ShowWindow(1);
     effect_gb:PlayUIEffect(COMPOSITION_EFFECT_NAME, COMPOSITION_EFFECT_SCALE, 'COMPOSITION_EFFECT');
     
-    local mat_gb = GET_CHILD(frame, "mat_gb");
+    local mat_gb = GET_CHILD_RECURSIVELY(frame, "mat_gb");
     mat_gb:EnableHitTest(0);
 
     SetCraftState(1);
@@ -722,7 +724,9 @@ function RELEASE_COMPOSITION_UI_HOLD()
 end
 
 function COMPOSITION_SUCCESS_EFFECT(frame, itemObj)
-    local frame = ui.GetFrame("ark_composition");
+    if frame == nil then
+        frame = ui.GetFrame("ark_composition");
+    end
 
 	local RESULT_EFFECT_NAME = frame:GetUserConfig('RESULT_EFFECT_NAME');
 	local RESULT_EFFECT_SCALE = tonumber(frame:GetUserConfig('RESULT_EFFECT_SCALE'));
@@ -733,7 +737,6 @@ function COMPOSITION_SUCCESS_EFFECT(frame, itemObj)
 		return;
     end
 
-	local frame = ui.GetFrame("ark_composition");
     local effect_gb = GET_CHILD_RECURSIVELY(frame, 'effect_gb');
 	effect_gb:StopUIEffect('COMPOSITION_EFFECT', true, 0);
     
@@ -748,24 +751,29 @@ function COMPOSITION_SUCCESS_EFFECT(frame, itemObj)
 end
 
 function  _COMPOSITION_SUCCESS_EFFECT()
-	local frame = ui.GetFrame("ark_composition");
+	local frame = ui.GetFrame("item_cabinet");
 	if frame:IsVisible() == 0 then return; end
     
 	local resultGbox = GET_CHILD_RECURSIVELY(frame, 'resultGbox');
 	resultGbox:StopUIEffect('RESULT_EFFECT', true, 0.5);
+    ARK_COMPOSITION_TOGGLE_RESULT_UI(frame, 0);
     RELEASE_COMPOSITION_UI_HOLD()
+    CLEAR_ARK_COMPOSITION_UI(frame);
 end
 
 function ARK_COMPOSITION_TOGGLE_RESULT_UI(frame, toggle)
-    local ark_gb = GET_CHILD(frame, 'ark_gb');
+    local ark_gb = GET_CHILD_RECURSIVELY(frame, 'ark_gb');
+    if ark_gb == nil then
+        ark_gb = GET_CHILD_RECURSIVELY(frame, 'ark_top_Slot_gb');
+    end 
     ark_gb:ShowWindow(1 - toggle);
 
-    local do_btn = GET_CHILD(frame, 'do_btn');
+    local do_btn = GET_CHILD_RECURSIVELY(frame, 'do_btn');
     do_btn:ShowWindow(1 - toggle);
 
-    local resultGbox = GET_CHILD(frame, 'resultGbox');
+    local resultGbox = GET_CHILD_RECURSIVELY(frame, 'resultGbox');
     resultGbox:ShowWindow(toggle);
 
-    local send_ok = GET_CHILD(frame, 'send_ok');
+    local send_ok = GET_CHILD_RECURSIVELY(frame, 'send_ok');
     send_ok:ShowWindow(toggle);    
 end

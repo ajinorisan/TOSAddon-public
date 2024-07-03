@@ -1271,12 +1271,12 @@ function SCR_GET_SKL_COOLDOWN_SummonFamiliar(skill)
     basicCoolDown = basicCoolDown + abilAddCoolDown;
     
     basicCoolDown = SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
-    
+
     if basicCoolDown < skill.MinCoolDown then
         return skill.MinCoolDown;
     end
     
-    basicCoolDown = basicCoolDown - (skill.Level * 1000)
+    --basicCoolDown = basicCoolDown - (skill.Level * 1000)
     
     return basicCoolDown;
 end
@@ -8864,8 +8864,8 @@ end
 
 -- done , 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_CorpseTower_Ratio3(skill)
-    local value = skill.Level * 13.8
-    return value * SUMMON_ADD_ATK_TRANSFER_RATIO;
+    local value = TryGetProp(skill, 'SkillFactor', 0)    
+    return value;
 end
 
 -- done , 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
@@ -15796,7 +15796,7 @@ function SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
     
     -- 재사용 대기시간이 없는 스킬은 제외(스킬 쿨다운이 0초가 되는 이유는 쿨다운 custom funciton에서 ret = math.floor(ret) * 1000 로 floor 하기 때문임)
     local class_name = TryGetProp(skill, 'ClassName', 'None')
-    if class_name ~= 'BowMaster_FocusFire' and IsExpertSkill(class_name) == 1 and basicCoolDown > 0 and basicCoolDown < 1000 then
+    if TryGetProp(skill, 'CoolDownStartType', 'None') == 'None' and IsExpertSkill(class_name) == 1 and basicCoolDown > 0 and basicCoolDown < 1000 then
         basicCoolDown = 1000
     end
 
@@ -17045,12 +17045,7 @@ end
 function SCR_Get_SkillFactor_Extinction(skill)
     local pc = GetSkillOwner(skill)
     local skl = GetSkill(pc, "Elementalist_ElementalEssence")
-    local rate = 0.04
-    local sklLevel = GetExProp(pc, "Skill_Level_Sum")
-    local value = math.floor(TryGetProp(skl, "SkillFactor", 0))
-    
-    value = value * rate * sklLevel
-
+    local value = math.floor(TryGetProp(skl, "SkillFactor", 0))    
     return value
 end
 
@@ -20005,6 +20000,14 @@ function SCR_Get_SpendSP_Common_MovingForward(skill)
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SpendSP_Common_Activate_Cupole_Skill(skill)
+    local pc = GetSkillOwner(skill)
+    local msp = TryGetProp(pc, 'MSP', 0)
+    local sp = math.floor(msp * 0.07)
+    return 0
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_SKL_COOLDOWN_Common_MovingForward(skill)
     local basicCoolDown = TryGetProp(skill, "BasicCoolDown", 0)
     local pc = GetSkillOwner(skill)
@@ -20014,6 +20017,43 @@ function SCR_GET_SKL_COOLDOWN_Common_MovingForward(skill)
 
     return basicCoolDown
 end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_SKL_COOLDOWN_Kupole_Active_Skill(skill)
+    local basicCoolDown = TryGetProp(skill, "BasicCoolDown", 0)
+    local name = TryGetProp(skill, "ClassName", 0)
+    local RankName = "KupoleRank"..name;
+    local pc = GetSkillOwner(skill)
+    local rank = GetExProp(pc, RankName);
+
+    if IsServerSection() == 0 then    
+        local cls = GET_REPRESENT_CUPOLE_INFO()
+        local Group_ID = TryGetProp(cls, "Group_ID", "None")
+        local sklCls = GetClassByStrProp2("cupole_skill", "Group_ID", Group_ID, "Skill_Type", "Active");
+        local skillname = TryGetProp(sklCls, "Skill_Name", "None")
+        if skill.ClassName == skillname then
+            rank = GET_CUPOLE_RANK_BY_CLS(cls)
+        end
+    end
+
+
+    if IsPVPServer(pc) == 1 or IsPVPField(pc) == 1 or IsJoinColonyWarMap(pc) == 1 then
+        basicCoolDown = basicCoolDown * 2
+    end
+    
+    return basicCoolDown - rank * 5000;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_SKL_COOLDOWN_Common_Activate_Cupole_Skill(skill)
+    local basicCoolDown = TryGetProp(skill, "BasicCoolDown", 0)
+    local pc = GetSkillOwner(skill)
+    if IsPVPServer(pc) == 1 or IsPVPField(pc) == 1 or IsJoinColonyWarMap(pc) == 1 then
+        basicCoolDown = basicCoolDown * 2
+    end
+    return basicCoolDown
+end
+
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_Illusionist_Cloaking_Time(skill)
@@ -20466,3 +20506,39 @@ function SCR_Get_SkillFactor_Rogue_Lachrymator(skill)
     return value
 end
 
+function SCR_GET_Kupole_Rank(skill)
+    local name = TryGetProp(skill, "ClassName", 0)
+    local RankName = "KupoleRank"..name;
+    local pc = GetSkillOwner(skill)
+    local rank = GetExProp(pc, RankName);
+
+    if IsServerSection() == 0 then    
+        local cls = GET_REPRESENT_CUPOLE_INFO()
+        local Group_ID = TryGetProp(cls, "Group_ID", "None")
+        local sklCls = GetClassByStrProp2("cupole_skill", "Group_ID", Group_ID, "Skill_Type", "Active");
+        local skillname = TryGetProp(sklCls, "Skill_Name", "None")
+        if skill.ClassName == skillname then
+            rank = GET_CUPOLE_RANK_BY_CLS(cls)
+        end
+    end
+    
+    return rank;
+end
+
+function SCR_GET_R_Kupole_Ratio(skill)
+    local value = 600
+    local kupoleRank = SCR_GET_Kupole_Rank(skill)
+    
+    value = value + (value * (0.1 * kupoleRank))
+    
+    return value
+end
+
+function SCR_GET_SR_Kupole_Ratio(skill)
+    local value = 900
+    local kupoleRank = SCR_GET_Kupole_Rank(skill)
+    
+    value = value + (value * (0.1 * kupoleRank))
+    
+    return value
+end

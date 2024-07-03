@@ -4385,7 +4385,7 @@ function TPITEM_SET_ENABLE_BY_LIMITATION(buyBtn, tpitemCls)
 		local prop = TryGetProp(tpitemCls, 'AccountLimitWeeklyCountProperty', 'None')		
 		local accObj = GetMyAccountObj(pc)
 		local curBuyCount = TryGetProp(accObj, prop, 0)		
-		if curBuyCount >= tpitemCls.AccountLimitWeeklyCount then
+		if curBuyCount >= TryGetProp(tpitemCls, 'AccountLimitWeeklyCount', 0) then
 			buyBtn:SetSkinName('test_gray_button');
 			buyBtn:SetText(ClMsg('ITEM_IsPurchased0'))
 			buyBtn:EnableHitTest(0)

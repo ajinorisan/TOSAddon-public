@@ -45,7 +45,7 @@ end
 
 function SKL_CHECK_BUFF_STATE_C(actor, skl, buffName)
     local myHandle = session.GetMyHandle();
-    local buff = info.GetBuffByName(myHandle, buffName);
+    local buff = info.GetBuffByName(myHandle, buffName);    
     if nil ~= buff then
         return 1;
     end
@@ -462,8 +462,19 @@ function SKL_CHECK_ACTIVE_ABILITY_C(self, skill, abilName)
     if abil ~= nil then
         local abilObj = GetIES(abil:GetObject());
         if TryGetProp(abilObj, "ActiveState") == 1 then
+            return 1;
+        end
+    end
+
             return 0;
         end
+function SKL_CHECK_INACTIVE_ABILITY_C(self, skill, abilName)
+    local abil = session.GetAbilityByName(abilName);
+    if abil ~= nil then
+        local abilObj = GetIES(abil:GetObject());
+        if TryGetProp(abilObj, "ActiveState") == 1 then
+            return 0;
+    end
     end
 
     return 1;
@@ -998,6 +1009,21 @@ function CHECK_Common_MovingForward_C(actor, skl)
     return 1
 end
 
+function CHECK_USE_CUPOLE_SKILL_C(self, skill)
+    local mymapname = session.GetMapName();
+    local map = GetClass("Map", mymapname);
+    if nil == map then
+        return 0;
+    end
+
+    if 'City' == map.MapType then
+        return 0;
+    end    
+    
+    return 1
+end
+
+
 function CHECK_Pontifex_Atonement_C(actor, skl)
     local handle = session.GetTargetHandle()
     
@@ -1040,4 +1066,14 @@ function SCR_CHECK_ILLUSION_COUNT_C(actor, skl)
     end
 
     return 0
+end
+
+function SKL_CHECK_EXARGPROPERTY_C(actor, skl, prop)
+    local self = GetMyPCObject()
+    local num = GetExProp(self, prop)
+    if num == nil or num == 0 then
+        return 0;
+    end
+    
+    return 1;
 end

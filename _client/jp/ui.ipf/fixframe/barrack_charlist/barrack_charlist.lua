@@ -477,103 +477,6 @@ function SELECT_BARRACK_LAYER(frame, ctrl, arg, layer)
 	AddLuaTimerFunc('reset_moving_barrack_layer', 5000, 0) -- 5초뒤에 강제로 해제.
 end
 
-function BARRACK_GET_CHAR_INDUN_ENTRANCE_COUNT(cid, resetGroupID)
-    local accountInfo = session.barrack.GetMyAccount();
-	local acc_obj = GetMyAccountObj()
-	if resetGroupID < 0 then
-		local contentsClsList, count = GetClassList('contents_info')		
-        local contentsCls = nil;
-        for i = 0, count - 1 do
-            contentsCls = GetClassByIndexFromList(contentsClsList, i);
-            if contentsCls ~= nil and contentsCls.ResetGroupID == resetGroupID and contentsCls.Category ~= 'None' then
-                break;
-            end
-        end
-
-        if contentsCls.UnitPerReset == 'PC' then
-			return accountInfo:GetBarrackCharEtcProp(cid, contentsCls.ResetType);
-        else
-            return acc_obj[contentsCls.ResetType];
-        end
-	end
-	
-    local indunClsList, cnt = GetClassList('Indun');
-    local indunCls = nil;
-    for i = 0, cnt - 1 do
-        indunCls = GetClassByIndexFromList(indunClsList, i);
-        if indunCls ~= nil and indunCls.PlayPerResetType == resetGroupID and indunCls.Category ~= 'None' then
-            break;
-        end
-	end
-	
-	if indunCls.WeeklyEnterableCount ~= nil and indunCls.WeeklyEnterableCount ~= "None" and indunCls.WeeklyEnterableCount ~= 0 then
-		if indunCls.UnitPerReset == 'PC' then
-			return accountInfo:GetBarrackCharEtcProp(cid,'IndunWeeklyEnteredCount_'..resetGroupID)  --매주 남은 횟수
-		else
-			return(acc_obj['IndunWeeklyEnteredCount_'..resetGroupID])   							--매주 남은 횟수
-		end
-        
-	else
-		if indunCls.UnitPerReset == 'PC' then
-			return accountInfo:GetBarrackCharEtcProp(cid, 'InDunCountType_'..resetGroupID);         --매일 남은 횟수
-		else -- 'ACCOUNT'
-			if TryGetProp(indunCls, 'CheckCountName', 'None') ~= 'None' then
-                return acc_obj[TryGetProp(indunCls, 'CheckCountName', 'None')]
-            end
-
-			if indunCls.DungeonType == "Challenge_Auto" or indunCls.DungeonType == "Challenge_Solo" then
-				if string.find(indunCls.ClassName, "Challenge_Division") == nil then
-					-- 챌린지 자동매칭 클리어 횟수
-					return accountInfo:GetBarrackCharEtcProp(cid, "ChallengeModeCompleteCount");				
-				end
-			else			
-				return acc_obj['InDunCountType_'..resetGroupID];
-			end
-		end        
-    end
-end
-
-function BARRACK_GET_INDUN_MAX_ENTERANCE_COUNT(resetGroupID)
-	if resetGroupID < 0 then
-        local contentsClsList, count = GetClassList('contents_info');
-        local contentsCls = nil;
-        for i = 0, count - 1 do
-            contentsCls = GetClassByIndexFromList(contentsClsList, i);
-            if contentsCls ~= nil and contentsCls.ResetGroupID == resetGroupID and contentsCls.Category ~= 'None' then
-                break;
-            end
-        end
-
-        local ret = contentsCls.EnterableCount
-        if ret == 0 then
-            ret = "{img infinity_text 20 10}"
-        end
-        return ret
-	else
-		local indunClsList, cnt = GetClassList('Indun');
-		local indunCls = nil;
-		for i = 0, cnt - 1 do
-			indunCls = GetClassByIndexFromList(indunClsList, i);
-			if indunCls ~= nil and indunCls.PlayPerResetType == resetGroupID and indunCls.Category ~= 'None' then
-				break;
-			end
-		end
-		
-		local infinity = TryGetProp(indunCls, 'EnableInfiniteEnter', 'NO')
-		if indunCls.AdmissionItemName ~= "None" or infinity == 'YES'  then
-			local a = "{img infinity_text 20 10}"
-			return a;
-		end
-		
-		local bonusCount = 0;
-		if indunCls.WeeklyEnterableCount ~= nil and indunCls.WeeklyEnterableCount ~= "None" and indunCls.WeeklyEnterableCount ~= 0 then
-			return indunCls.WeeklyEnterableCount + bonusCount;  --매주 max
-		else
-			return indunCls.PlayPerReset + bonusCount;          --매일 max
-		end
-	end    
-end
-
 local function toint(n)
     local s = tostring(n)
     local i, j = s:find('%.')
@@ -1404,7 +1307,21 @@ function UPDATE_PET_BTN(petCtrl, petInfo, useDetachBtn)
 		end
 	
 		local job = mainBox:GetChild("job");
-		job:SetTextByKey("value", obj.Name);
+		if job ~= nil then
+			AUTO_CAST(job);
+			job:SetTextFixWidthUseSpace(false);
+			job:SetAutoFontSizeByWidth(job:GetWidth());
+			
+			local obj_name = obj.Name;
+			job:SetTextByKey("value", obj_name);
+		end
+		--[[ AUTO_CAST(job);
+		print(obj.Name, job:GetWidth(), job:GetTextWidth());
+		if job:GetWidth() < job:GetTextWidth() then
+			job:SetCompareTextWidthBySlideShow(true);
+			job:EnableSlideShow(1);
+			job:SetTextByKey("value", obj.Name);
+		end ]]
 
 		local detach_btn = GET_CHILD(mainBox, "detach_btn", "ui::CButton");
 		if account ~= myaccount then

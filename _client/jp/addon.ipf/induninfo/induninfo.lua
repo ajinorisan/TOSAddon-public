@@ -2159,7 +2159,7 @@ function INDUNINFO_SORT_BY_LEVEL(parent, ctrl)
             table.sort(g_selectedIndunTable, SORT_RAID_BY_RAID_TYPE);
         end
 
-        if groupID == "SeasonChallenge" then
+        if groupID == "SeasonChallenge" or groupID == "Ancient" then
             table.sort(g_selectedIndunTable, SORT_BY_CLASS_ID);
         end
     else

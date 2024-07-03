@@ -8,8 +8,7 @@
 	<script OpenScp="ITEM_CABINET_OPEN" CloseScp="ITEM_CABINET_CLOSE"/>
 	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
 	<layer layerlevel="94"/>
-	<userconfig DO_RESULT_SOUND="sys_transcend_success" DO_RESULT_EFFECT="UI_item_parts2" DO_SUCCESS_SOUND="sys_transcend_success" DO_SUCCESS_EFFECT="UI_item_parts2_success" DO_FAIL_SOUND="sys_transcend_success" DO_FAIL_EFFECT="UI_item_parts2_fail" EFFECT_SCALE="5" EFFECT_DURATION="3" SUCCESS_EFFECT_SCALE="7" SUCCESS_EFFECT_DURATION="2" FAIL_EFFECT_SCALE="4" FAIL_EFFECT_DURATION="2"/>
-	
+	<userconfig DO_RESULT_SOUND="sys_transcend_success" DO_RESULT_EFFECT="UI_item_parts2" DO_SUCCESS_SOUND="sys_transcend_success" DO_SUCCESS_EFFECT="UI_item_parts2_success" DO_FAIL_SOUND="sys_transcend_success" DO_FAIL_EFFECT="UI_item_parts2_fail" EFFECT_SCALE="5" EFFECT_DURATION="3" SUCCESS_EFFECT_SCALE="7" SUCCESS_EFFECT_DURATION="2" FAIL_EFFECT_SCALE="4" FAIL_EFFECT_DURATION="2" ITEM_NAME_TEXT="합성할 아이템을 올려주세요" COMPOSITION_TYPE_EXP="경험치 증가" COMPOSITION_TYPE_LV="레벨 증가" EXP_MATERIAL_COUNT="1" LV_MATERIAL_COUNT="3" COMPOSITION_EFFECT_NAME="UI_item_parts" COMPOSITION_EFFECT_SCALE="4.6" COMPOSITION_EFFECT_DURATION="2" RESULT_EFFECT_NAME="UI_item_parts2_success" RESULT_EFFECT_SCALE="5" RESULT_EFFECT_DURATION="1" COMPOSITION_SOUND_NAME="UI_icor_reinforce"/>
 	<controls>
 		<groupbox name="gFrame" rect="0 0 1050 720" margin="0 0 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="false"/>
 		<groupbox name="gbox" parent="gFrame" rect="0 0 1050 720" margin="0 0 0 0" layout_gravity="left center" skin="test_frame_low" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
@@ -87,7 +86,60 @@
 		<tabitem name="tab_enchant" parent="upgrade_tab" caption="" width="240" layout_gravity="left top"/>
 		<tabitem name="tab_register" parent="upgrade_tab" caption="" width="240" layout_gravity="left top"/>
 
-		<tab name="equipment_tab" parent="gbox" margin="55 60 0 0" rect="0 0 485 40" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnDownScp="ITEM_CABINET_CHANGE_TAB" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+
+		<!-- 아크 강화 레벨업 탭 따로 생성-->
+		<tab name="upgrade_ark_tab" parent="gbox" margin="0 60 15 0" rect="0 0 485 40" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnDownScp="ITEM_CABINET_UPGRADE_ARK_TAB" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="tab_ark_create" parent="upgrade_ark_tab" caption="" width="160" layout_gravity="left top"/>
+		<tabitem name="tab_ark_upgrade" parent="upgrade_ark_tab" caption="" width="160" layout_gravity="left top"/>
+		<tabitem name="tab_ark_register" parent="upgrade_ark_tab" caption="" width="160" layout_gravity="left top"/>
+
+		<!--아크 강화 BEGIN-->
+		<groupbox name="ark_upgradeBg" parent="gbox" rect="0 0 490 600" margin="0 100 15 0" layout_gravity="right top" draw="false" hittestbox="false" tabname="upgrade_relicgem_tab" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="relic_frame_bg"/>
+
+		<groupbox name="ark_top_gb" parent="ark_upgradeBg" rect="0 0 480 700" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="false" scrollbar="false"/>
+			<groupbox name="ark_top_Slot_gb" parent="ark_top_gb" rect="0 0 480 240" margin="10 5 0 0" layout_gravity="left top" draw="false" hittestbox="false" scrollbar="false"/>
+				<picture  name="ark_top_Slot_pic" parent="ark_top_Slot_gb" rect="0 0 190 208" margin="0 0 0 0" layout_gravity="left top" image="relic_item_frame" stretch="true"/>
+					<slot	  name="ark_slot" parent="ark_top_Slot_pic" rect="0 0 130 130" margin="30 30 0 0" layout_gravity="left top" changecursor="false" movepop="false" enabledrop="false" enabledrag="false" RBtnUpScp="ITEM_CABINET_ARK_ITEM_REMOVE"/>
+		<groupbox name="ark_effect_top_gb" rect="0 0 480 700" margin="270 30 0 0" layout_gravity="center top" draw="false" hittestbox="false" scrollbar="false"/>
+
+		<!-- <groupbox name="ark_top_Info_gb" parent="ark_top_gb" rect="0 0 250 240" margin="0 30 5 0" layout_gravity="right top" draw="false" hittestbox="false" scrollbar="false"/> -->
+			<richtext name="ark_name" parent="ark_top_Slot_gb" rect="0 0 250 24" margin="200 10 0 0" layout_gravity="left top" fontname="brown_18_b" format="%s" param1="value" param1_def="合成するアイテムをください" resizebytext="true" textalign="center center"/>
+			<richtext name="ark_lv_text" parent="ark_top_Slot_gb" rect="0 0 250 24" margin="200 50 0 0" layout_gravity="left top" fontname="brown_20_b" format="%s" param1="value" param1_def="레벨" resizebytext="true" 	textalign="center center"/>
+			<richtext name="ark_lv" parent="ark_top_Slot_gb" rect="0 0 230 24" margin="267 50 0 0" layout_gravity="left top" fontname="brown_20_b" format="%s" param1="value" param1_def="0" resizebytext="true" 	textalign="left center"/>
+			<richtext name="exp_gauge_text" parent="ark_top_Slot_gb" rect="0 0 230 24" margin="200 115 0 0" layout_gsravity="left top" fontname="brown_20_b" format="%s" param1="value" param1_def="경험치" 	resizebytext="true" textalign="center center"/>
+			<gauge name="exp_gauge" parent="ark_top_Slot_gb" rect="0 0 200 34" margin="267 112 0 0" layout_gravity="left top" inverse="false" point="50" skin="gauge_itemtooltip_poten" text1="%v / %m" textalign1="center center" textfont1="white_18_ol" textoffset1="0 -1"/>
+			<richtext name="exp_up_text" parent="ark_top_Slot_gb" rect="0 0 230 24" margin="0 245 37 0" layout_gravity="left top" fontname="yellow_20_ol" format="+ %s" param1="value" param1_def="0" resizebytext="true" textalign="right center"/>
+			<richtext name="type_text" parent ="ark_top_Slot_gb" rect="0 0 230 24" margin="0 385 0 0" layout_gravity="left top" fontname="brown_20_b" format="%s" param1="value" param1_def="경험치 증가" resizebytext="true" textalign="center center"/>
+
+		<!-- mat item -->
+		<groupbox name="ark_top_mat_gb" parent="ark_top_gb" rect="0 0 480 550" margin="5 200 0 0" layout_gravity="left top" draw="false" hittestbox="false" scrollbar="false"/>
+			<groupbox name="mat_gb" parent="ark_top_mat_gb" rect="0 0 430 520" margin="0 0 0 0" layout_gravity="center top" skin=""/>
+				<groupbox name="exp_mat_gb" parent="mat_gb" rect="0 0 430 550" margin="0 15 0 0" layout_gravity="center center" draw="false"/>
+				<controlset name="exp_mat_1" parent="exp_mat_gb" rect="0 0 420 60" margin="0 10 0 0" type="ark_item_cabinet_material" layout_gravity="left top"/>
+				<groupbox name="lv_mat_gb" parent="mat_gb" rect="0 0 430 550" margin="0 15 0 0" layout_gravity="center center" draw="false"/>
+				<controlset name="lv_mat_1" parent="lv_mat_gb" rect="0 0 420 60" margin="0 10 0 0" type="ark_item_cabinet_material" layout_gravity="left top"/>
+				<controlset name="lv_mat_2" parent="lv_mat_gb" rect="0 0 420 60" margin="0 85 0 0" type="ark_item_cabinet_material" layout_gravity="left top"/>
+				<controlset name="lv_mat_3" parent="lv_mat_gb" rect="0 0 420 60" margin="0 160 0 0" type="ark_item_cabinet_material" layout_gravity="left top"/>
+		<!-- silver UI -->
+		<groupbox name="ark_top_medal_gb" parent="ark_top_gb" rect="0 0 480 240" margin="5 440 0 0" layout_gravity="left top" draw="false" hittestbox="false" scrollbar="false"/>
+			<groupbox name="medal_gb" parent="ark_top_medal_gb" rect="0 0 420 80" margin="0 0 0 150" layout_gravity="center bottom" draw="false"/>
+				<groupbox name="decomposegb" parent="medal_gb" rect="0 0 420 38" margin="0 0 0 0" layout_gravity="center top" skin="test_weight_skin"/>
+				<richtext name="decomposecost_text" parent="decomposegb" rect="0 0 120 24"  margin="10 0 0 0" layout_gravity="left center" format="{img icon_item_silver 24 24} {@st41b}%s 비용{/}" param1="value"/>
+				<richtext name="decomposecost" parent="decomposegb" rect="0 0 120 24" margin="0 1 10 0" layout_gravity="right center" caption="0" fontname="white_16_ol" textalign="right center"/>
+				<groupbox name="remainsilvergb" parent="medal_gb" rect="0 0 420 38" margin="0 40 0 0" layout_gravity="center top" skin="test_weight_skin"/>
+				<richtext name="remainsilver_text" parent="remainsilvergb" rect="0 0 120 24" margin="10 0 0 0" layout_gravity="left center" caption="{img icon_item_silver 24 24} {@st41b}예상 잔액{/}"/>
+				<richtext name="remainsilver" parent="remainsilvergb" rect="0 0 120 24" margin="0 1 10 0" layout_gravity="right center" caption="0" fontname="white_16_ol" textalign="right center"/>
+		<!-- effect UI -->
+		<groupbox name="effect_gb" parent="ark_effect_top_gb" rect="0 0 480 265" margin="-135 50 0 0" layout_gravity="left top" draw="false" hittestbox="false" scrollbar="false"/>
+		<groupbox name="resultGbox" parent="ark_effect_top_gb" rect="0 0 440 260" margin="5 30 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" changecursor="false" scrollbar="false" hittest="false" skin="test_socket_topskin"/>
+			<picture name="result_effect_bg" parent="resultGbox" rect="0 0 410 265" margin="0 0 0 0" layout_gravity="center top" hittest="false" image="SUCCESS_gold_bg" oversound="button_cursor_over_3" 	stretch="true"/>
+			<picture name="result_item_pic" parent="resultGbox" rect="0 0 130 130" margin="0 0 0 0" layout_gravity="center center" hittest="false" stretch="true"/>
+
+		<button name="do_btn" parent="ark_top_gb" rect="0 0 160 50" margin="0 0 0 150" layout_gravity="center bottom" caption="{@st41b}{s18}합성" skin="test_red_button" oversound="button_cursor_over_3" clicksound="button_click_big" LBtnUpScp="ITEM_CABINET_BUTTON_CLICK"/>
+		<button name="send_ok" parent="ark_top_gb"  rect="0 0 160 50" margin="0 0 0 75" layout_gravity="center bottom" skin="test_red_button" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="확인" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnUpScp="CLEAR_ARK_COMPOSITION_UI"/>
+
+
+		<tab name="equipment_tab" parent="gbox" margin="55 60 0 0" rect="0 0 485 40" layout_gravity="left top" MouseOffAnim="btn_mo		useoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnDownScp="ITEM_CABINET_CHANGE_TAB" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
 		<picture name="UITUTO_ICON_1" parent="equipment_tab" rect="0 0 30 30" margin="200 0 0 0" layout_gravity="left center" hittest="true" image="equipment_info_exclamation_mark" stretch="true" texttooltip="바이보라 튜토리얼을 진행할 수 있습니다."/>
 		<picture name="UITUTO_ICON_2" parent="equipment_tab" rect="0 0 30 30" margin="440 0 0 0" layout_gravity="left center" hittest="true" image="equipment_info_exclamation_mark" stretch="true" texttooltip="갈리미베 튜토리얼을 진행할 수 있습니다."/>
 		<tabitem name="tab_equipment" parent="equipment_tab" caption="" width="240" layout_gravity="left top"/>

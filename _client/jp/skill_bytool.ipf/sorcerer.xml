@@ -437,7 +437,7 @@ return value"/>
                 <Num Num="1"/>
                 <Num Num="100"/>
             </ToolScp>
-            <ToolScp Client="BOTH" Scp="SKL_CHECK_ACTIVE_ABILITY" UseSleep="NO">
+            <ToolScp Client="BOTH" Scp="SKL_CHECK_INACTIVE_ABILITY" UseSleep="NO">
                 <Str Str="Sorcerer19"/>
             </ToolScp>
         </EnableScripts>

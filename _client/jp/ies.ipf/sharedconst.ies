@@ -192,3 +192,4 @@ ClassID,Value,ClassName,Desc,UseInScript
 15103,80000,"EVENT_COIN_MAX_HOLDINGS_TOKEN","이벤트 코인 최대 보유 가능 수량(토큰)","YES"
 15104,0.500000,"EVENT_COIN_PVP_MINE_BOOST","용병단 증표 부스트 코인 획득 배율","YES"
 15105,1,"EVENT_COIN_WEEKEND_BONUS","주말 보너스 배율","YES"
+16000,15,"CUPOLE_MAX_CNT","큐폴 동시 최대 출력","YES"

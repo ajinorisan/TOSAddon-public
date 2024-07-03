@@ -62,5 +62,3 @@ shared_monster_skill.get_exp_pair = function(current_exp)
     local now_exp = current_exp - shared_monster_skill.get_required_exp_to_lv(lv)
     return now_exp, required_exp
 end
-
-print(shared_monster_skill.get_lv(10),  shared_monster_skill.get_exp_pair(10))

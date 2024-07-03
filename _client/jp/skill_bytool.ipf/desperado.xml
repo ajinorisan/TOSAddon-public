@@ -328,14 +328,14 @@
                 <Scp Client="YES" Scp="C_SOUND" UseSleep="NO" Time="1200">
                     <Str Str="skl_eff_desperado_lastmanstanding_shot"/>
                 </Scp>
-                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="YES" Time="1350">
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="YES" Time="1250">
                     <Str Str="DESPERADO_ACTION_ATTACK"/>
-                </Scp>
-                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2000">
-                    <Str Str="DESPERADO_ACTION_END"/>
                 </Scp>
                 <Scp Scp="C_UNITY_EFFECT_DETACH" Client="YES" UseSleep="NO" Time="1900">
                     <Str Str="BodyAura_Dark_Red_01"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2400">
+                    <Str Str="DESPERADO_ACTION_END"/>
                 </Scp>
             </EtcList>
         </MainSkl>

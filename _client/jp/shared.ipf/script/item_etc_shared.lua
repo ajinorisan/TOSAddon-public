@@ -18,7 +18,7 @@ function GET_LIMITATION_TO_BUY(tpItemID)
     elseif GetServerNation() == 'PAPAYA' then
         tpItemObj = GetClassByType('TPitem_PAPAYA', tpItemID);
     end
-    
+
     if tpItemObj == nil then
         return 'NO', 0;
     end

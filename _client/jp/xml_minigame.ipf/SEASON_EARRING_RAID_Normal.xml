@@ -18,7 +18,7 @@
             </Stage>
             <Stage Name="Start" AutoStart="0">
                 <ObjList>
-                    <Obj Type="Monster" MonType="154064" Pos="11.42#10.56#-21.88" genCount="1" genTime="20000" objectKey="0"/>
+                    <Obj Type="Monster" MonType="160210" Pos="11.42#10.56#-21.88" genCount="1" genTime="20000" objectKey="0"/>
                     <Obj Type="Monster" MonType="20025" Pos="12.58#10.56#233.35" genCount="1" genTime="20000" objectKey="1"/>
                     <Obj Type="Monster" MonType="20025" Pos="14.96#10.56#-257.57" genCount="1" genTime="20000" objectKey="2"/>
                     <Obj Type="Monster" MonType="20025" Pos="241.53#10.56#-7.94" genCount="1" genTime="20000" objectKey="3"/>
@@ -126,7 +126,6 @@
                     <ToolScp Scp="RAID_CLEAR_TIME_RECORD" Client="NO" UseSleep="NO"/>
                 </StartScpList>
                 <ObjList>
-                    <!-- <Obj Type="Monster" MonType="160085" Pos="-5.33#10.56#-53.51" genCount="1" genTime="20000" autoGen="0" objectKey="0"/> -->
                     <Obj Type="Monster" MonType="160065" Pos="32.35#10.56#-15.83" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
                 </ObjList>
                 <StageEvents>
@@ -147,11 +146,6 @@
                             </ToolScp>
                         </condList>
                         <execList>
-                            <!-- <ToolScp Scp="MGAME_EVT_MULTIPLE_REWARD" Client="NO" UseSleep="NO">
-                                <Str Str="Multiple_Token_EarringRaid"/>
-                                <Str Str="EarringRaid"/>
-                                <Str Str="SCR_EARRING_RAID_REWARD_MULTIPLE"/>
-                            </ToolScp> -->
                             <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
                                 <Str Str="SeasonEarringRaid_Normal"/>
                                 <Str Str="MinigameSuccess"/>
@@ -179,11 +173,6 @@
                             </ToolScp>
                         </condList>
                         <execList>
-                            <!-- <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
-                                <MGameObjIndex List="Success/1"/>
-                                <Num Num="1"/>
-                                <Num Num="0"/>
-                            </ToolScp> -->
                             <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
                                 <MGameObjIndex List="Success/0"/>
                                 <Num Num="1"/>
@@ -277,7 +266,7 @@
                             </ToolScp>
                         </execList>
                     </Event>
-                    <!-- <Event execCount="1" eventName="4Sec">
+                    <Event execCount="1" eventName="4Sec">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
                                 <Num Num="4"/>
@@ -288,7 +277,7 @@
                                 <Str Str="SCR_EARRING_RAID_REMOVE_ALL_MONSTER"/>
                             </ToolScp>
                         </execList>
-                    </Event> -->
+                    </Event>
                     <Event execCount="1" eventName="5Sec">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">

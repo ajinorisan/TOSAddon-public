@@ -1,0 +1,6 @@
+ClassID,ClassName,BannerImage,StartTime,EndTime,Always,Nation
+1,"cupole_normal_gacha_banner","cupole_normal_gacha_banner","2024-04-01 01:00:00","2100-09-29 15:00:00","True","GLOBAL_KOR"
+2,"cupole_normal_gacha_banner_jp","cupole_normal_gacha_banner_jp","2024-04-01 01:00:00","2100-09-29 15:00:00","True","GLOBAL_JP"
+3,"cupole_normal_gacha_banner_global","cupole_normal_gacha_banner_eng","2024-04-01 01:00:00","2100-09-29 15:00:00","True","GLOBAL"
+4,"cupole_normal_gacha_banner_taiwan","cupole_normal_gacha_banner","2024-04-01 01:00:00","2100-09-29 15:00:00","True","TAIWAN"
+5,"cupole_normal_gacha_banner_papaya","cupole_normal_gacha_banner_eng","2024-04-01 01:00:00","2100-09-29 15:00:00","True","PAPAYA"

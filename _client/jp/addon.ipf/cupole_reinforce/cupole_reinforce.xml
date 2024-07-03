@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_reinforce" x="0" y="0" width="800" height="700"> 
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_CUPOLE_REINFORCE" CloseScp="CLOSE_CUPOLE_REINFORCE"/>
+	<layer layerlevel="94"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+    <input moveable="true" hittestframe="true" moveintitlebar="false" catchmovepos="true"/>
+    <sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="0 0 0 0"/>
+    <controls>
+    <!-- 관리탭 -->
+		<groupbox name="relicmanager_top" rect="0 0 800 76" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="cupolehalfsquare2" stretch="true"/>
+			<picture name="image1" parent="relicmanager_top" rect="0 0 150 70" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="img_popup_title" Reverse="true"/>
+			<picture name="image2" parent="relicmanager_top" rect="0 0 150 70" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="right top" image="img_popup_title" />
+        <groupbox name="managerTab" rect="0 0 800 600" margin="0 20 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreenroundsquare" />
+			<groupbox name="infoGB" parent="managerTab" rect="0 0 500 450" margin="-50 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="false" skin="" />
+				<!-- <picture name="portrait" parent="infoGB" rect="0 0 128 128" margin="50 70 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="img_popup_title"/> -->
+				<richtext name="CupoleRichText" parent="infoGB" rect="0 0 200 30" margin="0 175 0 0" layout_gravity="center top" format="{#DDC68F}{ol}{s23}%s{/}" param1="value" param1_def="Name" hittest="false" fixwidth="true" textalign="center center"/>
+				<!-- <richtext name="effect" parent="infoGB" rect="0 0 200 30" margin="15 0 0 0" layout_gravity="center center" format="{@st66d}{s23}%효과 : %s" param1="value" param1_def="Name" hittest="false" fixwidth="true" textalign="center center"/> -->
+				<groupbox name="expectBG" parent="infoGB" rect="0 0 500 250" margin="0 220 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="false" skin="" />
+					<picture name="beforefreindly" parent="expectBG" rect="0 0 52 37" margin="-50 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="center top" image="icon_friendly_64" />
+						<richtext name="BeforeText" parent="beforefreindly" rect="0 0 30 30" margin="0 0 0 0" layout_gravity="center center" format="{@st66d}{s20}%s" param1="value" param1_def="1" hittest="false" fixwidth="true" textalign="center center"/>
+
+					<picture name="ar_map" parent="expectBG" rect="0 0 41 42" margin="0 -3 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="center top" image="ar_map"/>
+					<picture name="afterfreindly" parent="expectBG" rect="0 0 52 37" margin="50 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="center top" image="icon_friendly_64"/>
+						<richtext name="AfterText" parent="afterfreindly" rect="0 0 30 30" margin="0 0 0 0" layout_gravity="center center" format="{@st66d}{s20}%s" param1="value" param1_def="1" hittest="false" fixwidth="true" textalign="center center"/>
+
+					<gauge name="exp_gauge" parent="expectBG" margin="0 60 0 0" rect="0 0 200 25" skin="pcbang_point_gauge_s" layout_gravity="center top" inverse="false" point="50" maxpoint="100" text1="%v / %m" textoffset1="0 0" textfont1="white_14_ol" textalign1="center center"/>
+
+					<richtext name="beforeEffect" parent="expectBG" rect="0 0 200 30" margin="0 100 0 0" layout_gravity="center top" format="{@st66d}{s23}%s" param1="value" param1_def="Name" hittest="false" fixwidth="true" textalign="center center"/>
+					<richtext name="afterEffect" parent="expectBG" rect="0 0 200 30" margin="0 175 0 0" layout_gravity="center top" format="{@st66d}{s23}%s" param1="value" param1_def="Name" hittest="false" fixwidth="true" textalign="center center"/>
+
+			<groupbox name="ItemGB" parent="managerTab" rect="0 0 500 600" margin="0 45 -25 0" layout_gravity="right top" draw="true" hittestbox="false" scrollbar="false" skin="" />
+				<groupbox name="ItemList" parent="ItemGB" rect="0 0 360 360" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreensquare" />
+
+        		<!-- <slot name="reinforceItem" parent="ItemGB" rect="0 0 128 128" margin="0 70 0 0" stretch="true" LBtnUpScp="" RBtnUpScp="CUPOLE_REINFORCE_SLOT_ITEM_REMOVE" DropScp="CUPOLE_REINFORCE_INV_ITEM_DROP" resizebyresolution="false" layout_gravity="center top" skin="buff_buy_slot" texttooltip="사용 할 큐폴 아이템을 넣어주세요." enableselect="true"/> -->
+
+
+				<groupbox name="Counter" parent="ItemGB" rect="0 0 500 450" margin="0 0 0 0" layout_gravity="center bottom" draw="true" hittestbox="false" scrollbar="false" skin="" />
+					<edit name="item_count" parent="Counter" rect="0 0 70 30" margin="0 45 0 0" layout_gravity="center center" textalign="center center" fontname="white_18_ol" numbermode="true" skin="test_weight_skin" 		typingscp="CUPOLE_ITEM_COUNT_TEXT_TYPING" EnterKeyScp="None" param1="value" param1_def="0"/>
+					<button name="up_btn" parent="Counter" stretch="true" rect="0 0 35 35" margin="50 45 0 0" layout_gravity="center center" skin="hero_btn_green2" caption="{img button_right_select2 16 16}" 	oversound="button_over" textalign="center center" LBtnUpScp="CUPOLE_ITEM_COUNT_UP_BTN"/>
+					<button name="max_btn" parent="Counter" stretch="true" rect="0 0 35 35" margin="80 45 0 0" layout_gravity="center center" skin="hero_btn_green2" caption="{img button_right_select2 16 16}{img 	button_right_select2 16 16}" oversound="button_over" textalign="center center" LBtnUpScp="CUPOLE_ITEM_COUNT_UP_BTN" LBtnUpArgStr="max"/>
+
+					<button name="down_btn" parent="Counter" stretch="true" rect="0 0 35 35" margin="-50 45 0 0" layout_gravity="center center" skin="hero_btn_green2" caption="{img button_left_select2 16 16}" 	oversound="button_over" textalign="center center" LBtnUpScp="CUPOLE_ITEM_COUNT_DOWN_BTN"/>
+					<button name="min_btn" parent="Counter" stretch="true" rect="0 0 35 35" margin="-80 45 0 0" layout_gravity="center center" skin="hero_btn_green2" caption="{img button_left_select2 16 16}{img button_left_select2 16 16}" oversound="button_over" textalign="center center" LBtnUpScp="CUPOLE_ITEM_COUNT_DOWN_BTN" LBtnUpArgStr="min"/>
+				
+				
+			<button name="Reinforce" parent="managerTab" rect="0 0 150 60" margin="100 0 0 100" layout_gravity="center bottom" LBtnUpScp="EVENT_CUPOLE_GIFTITEM_GIVE_A_ITEM" skin="cupole_greenbtn" stretch="true" caption="{@st66d}{s20}선물 주기" textalign="center top" textoffset="0 13"/>
+			<button name="cancle" parent="managerTab" rect="0 0 150 60" margin="-100 0 0 100" layout_gravity="center bottom" LBtnUpScp="ui.CloseFrame('cupole_reinforce')" skin="cupole_graybtn" stretch="true" caption="{@st66d}{s20}취소" textalign="center top" textoffset="0 13"/>
+    </controls>
+</uiframe>

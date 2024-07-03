@@ -202,3 +202,4 @@ ClassID,Count,Price,ClassName,ItemClassName,Group,GachaType,RewardGroup,PreCheck
 236,10,370,"Gacha_Memory_of_Snigo_CUBE_010","Gacha_Memory_of_Snigo_CUBE_010","CUBE","hair","Gacha_Memory_of_Snigo_CUBE_001","","Gacha_Memory_of_Snigo_CUBE_001","1","CUBE","YES","",""
 237,1,999,"GACHA_HAIRACC_ReSale_2024_001_TWN","GACHA_HAIRACC_ReSale_2024_001_TWN","CUBE","hair","GACHA_HAIRACC_ReSale_2024_001_TWN","","GACHA_HAIRACC_ReSale_2024_001_TWN","1","CUBE","YES","",""
 238,11,999,"GACHA_HAIRACC_ReSale_2024_010_TWN","GACHA_HAIRACC_ReSale_2024_010_TWN","CUBE","hair","GACHA_HAIRACC_ReSale_2024_001_TWN","","GACHA_HAIRACC_ReSale_2024_001_TWN","1","CUBE","YES","",""
+239,1,999,"Gacha_Mini_Medal_Cube","Gacha_Mini_Medal_Cube","CUBE","hair","Gacha_Mini_Medal_Cube_PAPAYA","","Gacha_Mini_Medal_Cube_PAPAYA","1","CUBE","NO","",""

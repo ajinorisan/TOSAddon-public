@@ -1,10 +1,9 @@
 function MINIMIZED_FRIEND_ON_INIT(addon, frame)
-    addon:RegisterMsg('GAME_START', 'MINIMIZED_FRIEND_BUTTON_OPEN_CHECK');
-
+    --addon:RegisterMsg('GAME_START', 'MINIMIZED_FRIEND_BUTTON_OPEN_CHECK');
 end
 
 function MINIMIZED_FRIEND_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
-    frame:ShowWindow(0);
+--[[     frame:ShowWindow(0);
     local pc = GetMyPCObject();
     if pc == nil then
         return ; 
@@ -20,10 +19,10 @@ function MINIMIZED_FRIEND_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
         return;
     end
 
-    frame:ShowWindow(1);
+    frame:ShowWindow(1); ]]
 end
 
 function MINIMIZED_FRIEND_BUTTON_CLICK(parent, ctrl)
-    RequestDialogUI(0);
+    --RequestDialogUI(0);
 end
 

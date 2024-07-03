@@ -424,10 +424,16 @@
 	<ReadXml Name="enchant_rank_up_ratio"/>	
 	<ReadXml Name="enchant_special_option_ratio_low"/>		
 	<ReadXml Name="enchant_special_option_ratio"/>	
-	<ReadXml Name="auction\black_market_schedule"/>		
+	<ReadXml Name="auction\black_market_schedule"/>	
+	<ReadXml Name="cupole_list"/>		
 	<ReadXml Name="auction\black_market_schedule_TAIWAN"/>
 	<ReadXml Name="auction\black_market_schedule_PAPAYA"/>
+	<ReadXml Name="cupole_upgrade"/>
+	<ReadXml Name="cupole_skill"/>
+	<ReadXml Name="cupole_ratio"/>	
+	<ReadXml Name="cupole_auto_potion"/>
 	<ReadXml Name="monster_leader_info"/>
 	<ReadXml Name="reward_tp2"/>
 	<ReadXml Name="friend_invite"/>	
+	<ReadXml Name="cupole_pickuplist"/>
 </Category>

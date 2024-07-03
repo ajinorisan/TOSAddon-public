@@ -208,6 +208,10 @@
                                 <MGameObj List="Section_3/6"/>
                                 <Str Str="SCR_BRIDGE_WAILING_CRYSTAL_TOWER_REMOVE"/>
                             </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="section3_clear"/>
+                                <Num Num="1"/>
+                            </ToolScp>
                         </execList>
                     </Event>
                     <Event eventName="timer">

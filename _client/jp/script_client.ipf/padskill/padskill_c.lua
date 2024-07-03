@@ -9,7 +9,6 @@ function C_PAD_MONSTER(actor, obj, padGuid, monName, scale, animName, aniXmlKey,
 	if lifeTime == nil then
 		lifeTime = 3.0;
 	end
-
 	geClientPadSkill.AddClientMonster(padGuid, monName, scale, animName, aniXmlKey, lifeTime);
 end
 
@@ -133,6 +132,13 @@ function PAD_PLANT_ATTACK_C(actor, obj, padGuid)
 	geClientPadSkill.SetPadPlantAttack(padGuid);
 end
 
+function C_PAD_MON_HOVER_ITEM_EQUIP(actor, obj, pad_guid, xac_head_name, spot, range, speed, height, start_angle, rot_x, rot_y, rot_z, mon_name, mon_scale, anim_name, ani_xml_key, life_time, eft_name, eft_scale)
+	-- actor 는 nil 일 수도 있다.
+	if life_time == nil then 
+		life_time = 3.0; 
+	end
+	geClientPadSkill.AddClientMonsterItemEquip(pad_guid, xac_head_name, spot, range, speed, height, start_angle, rot_x, rot_y, rot_z, mon_name, mon_scale, anim_name, ani_xml_key, life_time, eft_name, eft_scale);
+end
 
 ------ formation
 function CREATE_FORMATION_NUM_BTN(uiName, value)

@@ -3086,7 +3086,7 @@
                     <Str_Arg Str="I_force018_trail_black5#Bip001 L Finger32" Arg="2"/>
                     <Str_Arg Str="F_explosion001_dark_Low" Arg="1.5"/>
                     <Str_Arg Str="I_force003_green" Arg="1"/>
-                    <Pos Angle="0" Dist="0" PosType="8"/>
+                    <Pos Angle="0" Dist="0" PosType="10"/>
                     <Num Num="40"/>
                     <Num Num="0.5"/>
                     <Num Num="0"/>
@@ -3111,7 +3111,7 @@
                     <Str_Arg Str="I_force018_trail_black5#Bip001 L Finger32" Arg="2"/>
                     <Str_Arg Str="F_explosion001_dark_Low" Arg="1.5"/>
                     <Str_Arg Str="I_force003_green" Arg="1"/>
-                    <Pos Angle="0" Dist="0" PosType="8"/>
+                    <Pos Angle="0" Dist="0" PosType="10"/>
                     <Num Num="40"/>
                     <Num Num="0.5"/>
                     <Num Num="0"/>
@@ -3136,7 +3136,7 @@
                     <Str_Arg Str="I_force018_trail_black5#Bip001 L Finger32" Arg="2"/>
                     <Str_Arg Str="F_explosion001_dark_Low" Arg="1.5"/>
                     <Str_Arg Str="I_force003_green" Arg="1"/>
-                    <Pos Angle="0" Dist="0" PosType="8"/>
+                    <Pos Angle="0" Dist="0" PosType="10"/>
                     <Num Num="40"/>
                     <Num Num="0.5"/>
                     <Num Num="0"/>
@@ -3161,7 +3161,7 @@
                     <Str_Arg Str="I_force018_trail_black5#Bip001 L Finger32" Arg="2"/>
                     <Str_Arg Str="F_explosion001_dark_Low" Arg="1.5"/>
                     <Str_Arg Str="I_force003_green" Arg="1"/>
-                    <Pos Angle="0" Dist="0" PosType="8"/>
+                    <Pos Angle="0" Dist="0" PosType="10"/>
                     <Num Num="40"/>
                     <Num Num="0.5"/>
                     <Num Num="0"/>
@@ -3186,7 +3186,7 @@
                     <Str_Arg Str="I_force018_trail_black5#Bip001 L Finger32" Arg="2"/>
                     <Str_Arg Str="F_explosion001_dark_Low" Arg="1.5"/>
                     <Str_Arg Str="I_force003_green" Arg="1"/>
-                    <Pos Angle="0" Dist="0" PosType="8"/>
+                    <Pos Angle="0" Dist="0" PosType="10"/>
                     <Num Num="40"/>
                     <Num Num="0.5"/>
                     <Num Num="0"/>

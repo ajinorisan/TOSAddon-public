@@ -184,22 +184,26 @@ function DRESS_ROOM_IS_ITEM_SET(aObj, rewardCls)
 	return TryGetProp(aObj,rewardCls.ClassName) == 1
 end
 
-function ON_CLICK_DRESS_ROOM_MAKE_ITEM(parent,ctrl)
+function ON_CLICK_DRESS_ROOM_MAKE_ITEM(parent, ctrl)
 	local propName = parent:GetUserValue("DRESS_PROP")
 	if propName == nil or propName == "None" then
 		return
 	end
+
 	local cls = GetClass("dress_room",propName)
 	if config.GetServiceNation() == 'PAYAYA' then
 		cls = GetClass("dress_room_papaya",propName)
 	end
+	
 	if cls == nil then
 		return
 	end
+	
 	local aObj = GetMyAccountObj()
 	if TryGetProp(aObj,propName) == 0 then
 		return
 	end
+	
 	local invItem = session.GetInvItemByName(cls.ItemClassName)
 	if invItem ~= nil then
 		addon.BroadMsg("NOTICE_Dm_!", ClMsg("Auto_iMi_aiTemeul_KaJiKo_issSeupNiDa"), 3);
@@ -216,7 +220,6 @@ function ON_CLICK_DRESS_ROOM_MAKE_ITEM(parent,ctrl)
 			end
 		end
 	end
-
 	dress_room.RequestMakeItemFromDressRoom(propName)
 end
 

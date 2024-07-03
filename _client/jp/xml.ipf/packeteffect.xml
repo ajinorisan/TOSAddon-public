@@ -279,6 +279,8 @@
         <Effect Name="skl_eff_desperado_russianroulette_fail"/>
         <Effect Name="skl_eff_desperado_russianroulette_success"/>
         <Effect Name="skl_eff_desperado_lastmanstanding_target"/>
+        <Effect Name="BodyAura_GalaxyRing_Yellow_01"/>
+        <Effect Name="Shoot_RocketFire_Magenta_01"/>
     </Category>
 	<Category ID="181">
 		<Effect Name="Baubas_Guild_Raid"/>
@@ -1145,6 +1147,24 @@
         <Effect Name="F_explosion086_mint"/>
         <Effect Name="F_spread_in014_circle_mint"/>
         <Effect Name="F_spread_out026_mint"/>
+        <Effect Name="eff_fellow_highlander_crosscut_launch_01"/>
+        <Effect Name="eff_fellow_arinberg_slash_01"/>
+        <Effect Name="skl_eff_vanquisher_fatalsworddance"/>
+        <Effect Name="Cupole_Gabija_cleansing_falme"/>
+        <Effect Name="cupole_saule_daylight"/>
+        <Effect Name="GroundAura_HealingArea_Cyan_02"/>
+        <Effect Name="ShieldSphere_WaterBall_Blue_02"/>
+        <Effect Name="GroundAura_HoneyLand_Yellow_02"/>
+        <Effect Name="GroundAura_FireCircle_Orange_02"/>
+        <Effect Name="GroundAura_SunRayDown_Orange_02"/>
+        <Effect Name="Kupole_saule_daylight"/>
+        <Effect Name="Kupole_Gabija_cleansing_falme"/>
+        <Effect Name="Kupole_vakarine_shelter_for_traverlers"/>
+        <Effect Name="Kupole_Austeja_Pad_Heal"/>
+        <Effect Name="skl_eff_kupole_austeja_shot_01"/>
+        <Effect Name="skl_eff_kupole_gabija_shot_01"/>
+        <Effect Name="skl_eff_kupole_vakarine_shot_01"/>
+        <Effect Name="skl_eff_kupole_saule_shot_01"/>
     </Category>
     <Category ID="70">
         <Effect Name="EVENT_2001_NEWYEAR_INIT_PAD"/>
@@ -1575,6 +1595,22 @@
         <Effect Name="eff_monster_throneweaver_skill04_cast_02"/>
         <Effect Name="Mon_SuperBossSkill_6_pad"/>
         <Effect Name="AerialExplosion_AngelFeather_White_01"/>
+        <Effect Name="eff_impact_normal_red_01"/>
+        <Effect Name="eff_buff_monster_attack_buffon_02"/>
+        <Effect Name="eff_fellow_aurelius_slash_normal_01"/>
+        <Effect Name="eff_fellow_corsair_normal_attack_01"/>
+        <Effect Name="eff_monster_riteris_skill08_launch_01"/>
+        <Effect Name="skl_vanquisher_turnover"/>
+        <Effect Name="shootpad_Vanquisher_FatalSwordDance"/>
+        <Effect Name="eff_impact_normal_blue_01"/>
+        <Effect Name="pad_Vanquisher_sword_buff"/>        
+        <Effect Name="PowerUp_Electric_Blue_02"/>
+        <Effect Name="Death_DarkDisintegration_Orange_01"/>
+        <Effect Name="Death_DarkDisintegration_Blue_02"/>
+        <Effect Name="AerialExplosion_DemonicEnergy_Orange_01"/>
+        <Effect Name="AerialExplosion_DemonicEnergy_Blue_01"/>
+        <Effect Name="GroundImpact_BladeDance_Orange_02"/>
+        <Effect Name="PowerUp_ShieldEmblem_Orange_01"/>
     </Category>
     <Category ID="14">
         <Effect Name="GUILD_COLONY_F_REMAINS_37_1"/>
@@ -12444,6 +12480,27 @@
         <Effect Name="event_skiaclipse_pad_4"/>
         <Effect Name="F_spread_in045_light_dark2"/>
         <Effect Name="master_Desperado"/>
+        <Effect Name="EVENT_2024_W_1TH_ANNI_DUNGEON"/>
+        <Effect Name="event_skiaclipse_pad_1"/>
+        <Effect Name="event_skiaclipse_pad_2"/>
+        <Effect Name="BodyAura_Twinkle_Green_01"/>
+        <Effect Name="BodyAura_Twinkle_Orange_01"/>
+        <Effect Name="BodyAura_Twinkle_Yellow_01"/>
+        <Effect Name="BodyAura_GalaxyRing_Yellow_01"/>
+        <Effect Name="SKL_GOHEI"/>
+        <Effect Name="skill_equip_object"/>
+        <Effect Name="voice_luchador_announce_m_intro"/>
+        <Effect Name="voice_luchador_announce_f_intro"/>
+        <Effect Name="master_vanquisher"/>
+        <Effect Name="master_Vanquisher"/>
+        <Effect Name="F_buff_basic023_green_fire"/>
+        <Effect Name="F_warrior_AdvancedOrders_buff"/>
+        <Effect Name="F_warrior_BattleOrders_buff"/>
+        <Effect Name="Dummy_wing2"/>
+        <Effect Name="Dummy_effect_head4"/>
+        <Effect Name="Bip01 HeadNub"/>
+        <Effect Name="Dummy_head2"/>
+        <Effect Name="BodyAura_AngelicCloud_White_01"/>
     </Category>
     <Category ID="19">
         <Effect Name="I_fallen_statue_atk002_mash"/>

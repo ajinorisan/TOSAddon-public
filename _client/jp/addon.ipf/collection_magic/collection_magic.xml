@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
-
 <uiframe name="collection_magic" x="0" y="" width="350" height="300" create="open" >
 	<frame fullheight="false" fasthide="true" layout_gravity="left top" margin="0 0 0 0"/>
 	<draw drawframe="false" drawtitlebar="false"/>

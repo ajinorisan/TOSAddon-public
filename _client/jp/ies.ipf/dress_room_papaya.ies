@@ -51,3 +51,7 @@ ClassID,ClassName,Thema,ItemClassName,Group
 140,"dress_costume_sniego01_f","costume_sniego_theme","costume_sniego01_f","dress_room_blessed_cube"
 141,"dress_costume_sniego02_m","costume_sniego_theme","costume_sniego02_m","dress_room_blessed_cube"
 142,"dress_costume_sniego02_f","costume_sniego_theme","costume_sniego02_f","dress_room_blessed_cube"
+143,"dress_costume_ep16yongyong_m","ep16yongyong_theme","costume_ep16yongyong_m","dress_room_blessed_cube"
+144,"dress_costume_ep16yongyong_f","ep16yongyong_theme","costume_ep16yongyong_f","dress_room_blessed_cube"
+145,"dress_costume_ep16spacepopori_m","ep16spacepopori_theme","costume_ep16spacepopori_m","dress_room_blessed_cube"
+146,"dress_costume_ep16spacepopori_f","ep16spacepopori_theme","costume_ep16spacepopori_f","dress_room_blessed_cube"

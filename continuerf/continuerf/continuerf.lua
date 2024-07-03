@@ -357,14 +357,14 @@ function CONTINUERF_GODDESS_MGR_REINFORCE_CLEAR_BTN(parent, btn)
                 end
             end
         end
-
+        -- print(tostring(clear_flag))
         if clear_flag == true then
             -- ref_do_reinforce:SetEnable(1)
             g.autoreinforce = 0 -- tasita
             GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame)
             return
         else
-            -- CHAT_SYSTEM("TEST3")
+            -- print("test")
             CONTINUERF_REFORGE_REINFORCE_MAT_COUNT_UPDATE(frame)
             CONTINUERF_REFORGE_REINFORCE_EXTRA_MAT_COUNT_UPDATE(frame)
             GODDESS_MGR_REINFORCE_RATE_UPDATE(frame)

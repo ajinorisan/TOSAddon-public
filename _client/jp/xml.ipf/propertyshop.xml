@@ -224,6 +224,11 @@
 		<Item Script="None" Name="COLLECT_400" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_EP16_75"/>
 		<Item Script="None" Name="COLLECT_401" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_EP16_76"/>
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_20" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2404_1"/>
+		<Item Script="None" Name="DRESS_ROOM_COLLECT_21" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2405_1"/>
+		<Item Script="None" Name="DRESS_ROOM_COLLECT_22" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2406_1"/>
+		<!--
+		<Item Script="None" Name="DRESS_ROOM_COLLECT_23" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2407_1"/>
+		-->
 	</Shop>
 	<Shop Name="CONTENTS_TOTAL_SHOP_PAPAYA" PointScript="GET_CONTENTS_TOTAL_POINT">
 		<Item Script="None" Name="Gesture_CLOCK" Count="1" Price="5000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2109_1"/>
@@ -251,6 +256,7 @@
 		<Item Script="None" Name="piece_EP14_GoddessIcor_Armor_NoTrade" Count="1" Price="3500" DailyBuyLimit="0"/>
 		<Item Script="None" Name="piece_random_skill_gem_480_NoTrade" Count="1" Price="3000" DailyBuyLimit="0"/>		
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_18" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2312_1"/>
+		<Item Script="None" Name="DRESS_ROOM_COLLECT_21" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2405_1"/>
 	</Shop>
 	<Shop Name="SEASONOFF_CONTENTS_TOTAL_SHOP" PointScript="GET_CONTENTS_TOTAL_POINT">
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_1" Count="1" Price="3600" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2009_9"/>

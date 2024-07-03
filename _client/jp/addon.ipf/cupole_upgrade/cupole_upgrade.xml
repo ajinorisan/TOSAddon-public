@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_upgrade" x="0" y="0" width="1980" height="1080">
+	<frame layout_gravity="left top" margin="0 50 0 0" draw="true"/>
+	<script OpenScp="" CloseScp=""/>
+	<layer layerlevel="102"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+	<input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<controls>
+		<!-- 관리탭 -->
+		<!-- <groupbox name="relicmanager_top" rect="0 0 1100 76" margin="-45 120 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="cupolehalfsquare2" stretch="true"/>
+			<picture name="image1" parent="relicmanager_top" rect="0 0 150 70" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="img_popup_title" Reverse="true"/>
+			<picture name="image2" parent="relicmanager_top" rect="0 0 150 70" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="right top" image="img_popup_title" /> -->
+		<groupbox name="managerTab" rect="0 0 1100 650" margin="-45 -25 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreenroundsquare"/>
+			<groupbox name="CupoleBg" parent="managerTab" rect="0 0 1100 150" margin="0 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin=""/>
+				<picture name="plus" rect="0 0 100 100" parent="CupoleBg" margin="-290 0 0 0" layout_gravity="center center" hittest="false" alpha="70" image="itemcraft_btn" stretch="true"/>
+			<groupbox name="SkillBg" parent="managerTab" rect="0 0 1100 389" margin="0 160 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin=""/>
+				<groupbox name="BeforeBG" parent="SkillBg" rect="0 0 450 370" margin="-300 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreensquare"/>
+					<richtext name="WithEffect" parent="BeforeBG" rect="0 0 400 30" layout_gravity="left top" margin="30 30 0 0"  fixwidth="true" format="{@st42b}{s24}{#FFFF00}동행 효과{/}{nl}{@st42b}{s16} - %s" param1="explain" param1_def="default"  />
+					<richtext name="haveEffect" parent="BeforeBG" rect="0 0 400 30" layout_gravity="left top" margin="30 85 0 0"  fixwidth="true" format="{@st42b}{s24}{#FFFF00}보유 효과{/}{nl}{@st42b}{s16} - %s" param1="explain" param1_def="default"  />
+					<richtext name="SkillEffect" parent="BeforeBG" rect="0 0 400 30" layout_gravity="left top" margin="30 160 0 0"  fixwidth="true" format="{@st42b}{s24}{#FFFF00}스킬{/}{nl}{@st42b}{s16} - %s" param1="explain" param1_def="default"  />
+				<groupbox name="AfterBG" parent="SkillBg" rect="0 0 450 370" margin="300 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreensquare"/>
+					<richtext name="WithEffect" parent="AfterBG" rect="0 0 400 30" layout_gravity="left top" margin="30 30 0 0"  fixwidth="true" format="{@st42b}{s24}{#FFFF00}동행 효과{/}{nl}{@st42b}{s16} - %s" param1="explain" param1_def="default"  />
+					<richtext name="haveEffect" parent="AfterBG" rect="0 0 400 30" layout_gravity="left top" margin="30 85 0 0"  fixwidth="true" format="{@st42b}{s24}{#FFFF00}보유 효과{/}{nl}{@st42b}{s16} - %s" param1="explain" param1_def="default"  />
+					<richtext name="SkillEffect" parent="AfterBG" rect="0 0 400 30" layout_gravity="left top" margin="30 160 0 0"  fixwidth="true" format="{@st42b}{s24}{#FFFF00}스킬{/}{nl}{@st42b}{s16} - %s" param1="explain" param1_def="default"  />
+			<button name="Reinforce" parent="managerTab" rect="0 0 150 60" margin="100 0 0 20" layout_gravity="center bottom" LBtnUpScp="EVENT_CUPOLE_RANK_UP_BTN" skin="cupole_greenbtn" stretch="true" caption="{@st66d}{s20}호감도 상승" textalign="center top" textoffset="0 13"/>
+			<button name="cancle" parent="managerTab" rect="0 0 150 60" margin="-100 0 0 20" layout_gravity="center bottom" LBtnUpScp="ui.CloseFrame('cupole_upgrade')" skin="cupole_bluebtn" stretch="true" caption="{@st66d}{s20}취소" textalign="center top" textoffset="0 13"/>
+	</controls>
+</uiframe>

@@ -1788,9 +1788,10 @@ local _itemSet = nil
 local _btn = nil
 
 function CRAFT_ITEM_ALL(itemSet, btn)    
+	local TopParent = itemSet:GetTopParentFrame()
 	_itemSet = itemSet
 	_btn = btn
-	
+
 	local itemname = itemSet:GetUserValue("ClassName")
 	local itemcls = GetClass("Item", itemname);
 	local invItemlist = nil;
@@ -1902,7 +1903,11 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 	end
 
 	if invItemadd == nil then
-		ui.SysMsg(ScpArgMsg('CantCraftCusRestriciton'))
+		if TopParent == "earthtowershop" then
+			ui.SysMsg(ScpArgMsg('CantAlreadyInputItem'))
+		else
+			ui.SysMsg(ScpArgMsg('CantCraftCusRestriciton'))
+		end
 		return
 	end
 	
@@ -1974,9 +1979,13 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
 		CRAFT_ITEM_ALL(itemSet, btn)
 	elseif itemName =="EVENT_2404_Old_Newyear_Coin" then
 		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName == "EVENT_2404_W1th_Coin" then
+		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName == "EVENT_2407_Coin" then
+		CRAFT_ITEM_ALL(itemSet, btn)
 	end
 
-    if propName == nil then
+	if propName == nil then
         return
     end
 

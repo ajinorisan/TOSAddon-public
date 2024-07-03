@@ -889,6 +889,14 @@
 		<image name="icon_warri_impulsespears" file="\icon\skill\warrior\icon_warri_impulsespears.png" imgrect="0 0 128 128" CMM_Caption="임펄스 스피어스"/>
 		<image name="icon_warri_risingwings" file="\icon\skill\warrior\icon_warri_risingwings.png" imgrect="0 0 128 128" CMM_Caption="라이징 윙스"/>
 		<image name="icon_warri_windpulse" file="\icon\skill\warrior\icon_warri_windpulse.png" imgrect="0 0 128 128" CMM_Caption="윈드펄스"/>	
+		<image name="icon_warri_earthcrusher" file="\icon\skill\warrior\icon_warri_earthcrusher.png" imgrect="0 0 128 128" CMM_Caption="대지 분쇄"/>
+		<image name="icon_warri_fatalsworddance" file="\icon\skill\warrior\icon_warri_fatalsworddance.png" imgrect="0 0 128 128" CMM_Caption="죽음의 무도"/>
+		<image name="icon_warri_turnover" file="\icon\skill\warrior\icon_warri_turnover.png" imgrect="0 0 128 128" CMM_Caption="회전 베기"/>
+		<image name="icon_warri_verticalslash_vanquisher" file="\icon\skill\warrior\icon_warri_verticalslash_vanquisher.png" imgrect="0 0 128 128" CMM_Caption="세로 베기"/>
+		<image name="icon_warri_voidslash" file="\icon\skill\warrior\icon_warri_voidslash.png" imgrect="0 0 128 128" CMM_Caption="공허 베기"/>
+		<image name="icon_warri_windslasher" file="\icon\skill\warrior\icon_warri_windslasher.png" imgrect="0 0 128 128" CMM_Caption="공간 베기"/>
+		<image name="icon_warri_vanquisher1" file="\icon\skill\warrior\icon_warri_vanquisher1.png" imgrect="0 0 128 128" CMM_Caption="칼날의 끝"/>
+		<image name="icon_warri_vanquisher2" file="\icon\skill\warrior\icon_warri_vanquisher2.png" imgrect="0 0 128 128" CMM_Caption="춤추는 칼날"/>
 	</imagelist>
 	<imagelist category="scout_skillicon">
 		<image name="icon_scout_aggress" file="\icon\skill\scout\icon_scout_aggress.png" imgrect="0 0 128 128" CMM_Caption="인법뇌둔술"/>
@@ -1804,6 +1812,24 @@
 		<image name="ability_Warrior_WingedHussar15" file="\icon\icon_ability_warrior11.tga" imgrect="128 384 128 128" CMM_Caption="[아츠] 익스플로전 스피어스: 상급 강화"/>
 		<image name="ability_Warrior_WingedHussar16" file="\icon\icon_ability_warrior11.tga" imgrect="256 384 128 128" CMM_Caption="[아츠] 익스플로전 스피어스: 인피니티 스피어스"/>	
 		<image name="ability_Warrior_WingedHussar17" file="\icon\icon_ability_warrior11.tga" imgrect="384 384 128 128" CMM_Caption=""/>	
+		<image name="ability_Warrior_Vanquisher01" file="\icon\icon_ability_warrior11.tga" imgrect="512 384 128 128" CMM_Caption="세로 베기: 강화"/>
+		<image name="ability_Warrior_Vanquisher02" file="\icon\icon_ability_warrior11.tga" imgrect="640 384 128 128" CMM_Caption="[아츠] 세로 베기: 상급 강화"/>
+		<image name="ability_Warrior_Vanquisher03" file="\icon\icon_ability_warrior11.tga" imgrect="896 384 128 128" CMM_Caption="회전 베기: 강화"/>
+		<image name="ability_Warrior_Vanquisher04" file="\icon\icon_ability_warrior11.tga" imgrect="0 512 128 128" CMM_Caption="[아츠] 회전 베기: 상급 강화"/>
+		<image name="ability_Warrior_Vanquisher05" file="\icon\icon_ability_warrior11.tga" imgrect="256 512 128 128" CMM_Caption="공허 베기: 강화"/>
+		<image name="ability_Warrior_Vanquisher06" file="\icon\icon_ability_warrior11.tga" imgrect="384 512 128 128" CMM_Caption="[아츠] 공허 베기: 상급 강화"/>
+		<image name="ability_Warrior_Vanquisher07" file="\icon\icon_ability_warrior11.tga" imgrect="768 512 128 128" CMM_Caption="대지 분쇄: 강화"/>
+		<image name="ability_Warrior_Vanquisher08" file="\icon\icon_ability_warrior11.tga" imgrect="896 512 128 128" CMM_Caption="[아츠] 대지 분쇄: 상급 강화"/>
+		<image name="ability_Warrior_Vanquisher09" file="\icon\icon_ability_warrior11.tga" imgrect="0 640 128 128" CMM_Caption="공간 베기: 강화"/>
+		<image name="ability_Warrior_Vanquisher10" file="\icon\icon_ability_warrior11.tga" imgrect="128 640 128 128" CMM_Caption="[아츠] 공간 베기: 상급 강화"/>
+		<image name="ability_Warrior_Vanquisher11" file="\icon\icon_ability_warrior11.tga" imgrect="256 640 128 128" CMM_Caption="죽음의 무도: 강화"/>
+		<image name="ability_Warrior_Vanquisher12" file="\icon\icon_ability_warrior11.tga" imgrect="384 640 128 128" CMM_Caption="[아츠] 죽음의 무도: 상급 강화"/>
+		<image name="ability_Warrior_Vanquisher13" file="\icon\icon_ability_warrior11.tga" imgrect="512 512 128 128" CMM_Caption="[아츠] 공허 베기: 전반격"/>
+		<image name="ability_Warrior_Vanquisher14" file="\icon\icon_ability_warrior11.tga" imgrect="128 512 128 128" CMM_Caption="회전 베기: 중심점"/>
+		<image name="ability_Warrior_Vanquisher15" file="\icon\icon_ability_warrior11.tga" imgrect="768 384 128 128" CMM_Caption="세로 베기: 관통"/>
+		<image name="ability_Warrior_Vanquisher16" file="\icon\icon_ability_warrior11.tga" imgrect="640 512 128 128" CMM_Caption="공허 베기: 의지"/>
+		<image name="ability_Warrior_Vanquisher17" file="\icon\icon_ability_warrior11.tga" imgrect="512 640 128 128" CMM_Caption="[아츠] 죽음의 무도: 빈틈포착"/>
+		<image name="ability_Warrior_Vanquisher18" file="\icon\icon_ability_warrior11.tga" imgrect="640 640 128 128" CMM_Caption="뱅퀴셔의 칼날"/>
 	</imagelist>
 	<imagelist category="abilityicon_wizard">
 		<image name="ability_Wizard_Wizard1" file="\icon\icon_ability_wizard01.tga" imgrect="0 0 128 128" CMM_Caption="슬리프-단잠"/>
@@ -4048,5 +4074,72 @@
 		<image name="ability_account_Plate_DEF" file="\icon\icon_ability_account.tga" imgrect="256 640 128 128" CMM_Caption="판금 대상 공격력 상쇄"/>
 		<image name="ability_account_AddATK" file="\icon\icon_ability_account.tga" imgrect="384 640 128 128" CMM_Caption="추가 대미지"/>
 		<image name="ability_account_AddDEF" file="\icon\icon_ability_account.tga" imgrect="512 640 128 128" CMM_Caption="추가 대미지 저항"/>
+	</imagelist>
+	<imagelist category="cupole_skill">
+		<image name="icon_kupole_AccuracyBuff" file="\icon\skill\cupole\icon_kupole_AccuracyBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="정확도 버프"/>
+		<image name="icon_kupole_Austeja" file="\icon\skill\cupole\icon_kupole_Austeja.png" imgrect="0 0 128 128" CMM_Caption="아우스테아"/>
+		<image name="icon_kupole_BlockingBuff" file="\icon\skill\cupole\icon_kupole_BlockingBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="블록"/>
+		<image name="icon_kupole_BlockingIgnoreBuff" file="\icon\skill\cupole\icon_kupole_BlockingIgnoreBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="블록 관통"/>
+		<image name="icon_kupole_Dalia" file="\icon\skill\cupole\icon_kupole_Dalia.png" imgrect="0 0 128 128" CMM_Caption="달리아"/>
+		<image name="icon_kupole_DodgeBuff" file="\icon\skill\cupole\icon_kupole_DodgeBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="회피 버프"/>
+		<image name="icon_kupole_Gabija" file="\icon\skill\cupole\icon_kupole_Gabija.png" imgrect="0 0 128 128" CMM_Caption="가비야"/>
+		<image name="icon_kupole_Giltine" file="\icon\skill\cupole\icon_kupole_Giltine.png" imgrect="0 0 128 128" CMM_Caption="길티네"/>
+		<image name="icon_kupole_Hauberk" file="\icon\skill\cupole\icon_kupole_Hauberk.png" imgrect="0 0 128 128" CMM_Caption="하우벅"/>
+		<image name="icon_kupole_Helgasercle" file="\icon\skill\cupole\icon_kupole_Helgasercle.png" imgrect="0 0 128 128" CMM_Caption="헬가 세르클"/>
+		<image name="icon_kupole_Jurate" file="\icon\skill\cupole\icon_kupole_Jurate.png" imgrect="0 0 128 128" CMM_Caption="유라테"/>
+		<image name="icon_kupole_Jurate_UR_Small" file="\icon\skill\cupole\icon_kupole_Jurate_UR_Small.png" imgrect="0 0 128 128" CMM_Caption="유라테 UR"/>
+		<image name="icon_kupole_KupoleHeal_R" file="\icon\skill\cupole\icon_kupole_KupoleHeal_R.png" imgrect="0 0 128 128" CMM_Caption="큐폴 힐"/>
+		<image name="icon_kupole_Lada" file="\icon\skill\cupole\icon_kupole_Lada.png" imgrect="0 0 128 128" CMM_Caption="큐폴 라다"/>
+		<image name="icon_kupole_Laima" file="\icon\skill\cupole\icon_kupole_Laima.png" imgrect="0 0 128 128" CMM_Caption="라이마"/>
+		<image name="icon_kupole_Laima_UR_Small" file="\icon\skill\cupole\icon_kupole_Laima_UR_Small.png" imgrect="0 0 128 128" CMM_Caption="라이마 UR"/>
+		<image name="icon_kupole_Lecifer" file="\icon\skill\cupole\icon_kupole_Lecifer.png" imgrect="0 0 128 128" CMM_Caption="렉시퍼"/>
+		<image name="icon_kupole_Luta_SR" file="\icon\skill\cupole\icon_kupole_Luta_SR.png" imgrect="0 0 128 128" CMM_Caption="루타 SR"/>
+		<image name="icon_kupole_Luta_UR" file="\icon\skill\cupole\icon_kupole_Luta_UR.png" imgrect="0 0 128 128" CMM_Caption="루타 UR"/>
+		<image name="icon_kupole_Marnoks" file="\icon\skill\cupole\icon_kupole_Marnoks.png" imgrect="0 0 128 128" CMM_Caption="마르녹스"/>
+		<image name="icon_kupole_Naktis" file="\icon\skill\cupole\icon_kupole_Naktis.png" imgrect="0 0 128 128" CMM_Caption="나크티스"/>
+		<image name="icon_kupole_Nebulas" file="\icon\skill\cupole\icon_kupole_Nebulas.png" imgrect="0 0 128 128" CMM_Caption="네불라스"/>
+		<image name="icon_kupole_NormalAttackRegenSPBuff_R" file="\icon\skill\cupole\icon_kupole_NormalAttackRegenSPBuff_R.png" imgrect="0 0 128 128" CMM_Caption="SP"/>
+		<image name="icon_kupole_RegenSPBuff_R" file="\icon\skill\cupole\icon_kupole_RegenSPBuff_R.png" imgrect="0 0 128 128" CMM_Caption="SP"/>
+		<image name="icon_kupole_SantaZemyna" file="\icon\skill\cupole\icon_kupole_SantaZemyna.png" imgrect="0 0 128 128" CMM_Caption="제미나"/>
+		<image name="icon_kupole_Saule" file="\icon\skill\cupole\icon_kupole_Saule.png" imgrect="0 0 128 128" CMM_Caption="사울레이"/>
+		<image name="icon_kupole_StudentSaule" file="\icon\skill\cupole\icon_kupole_StudentSaule.png" imgrect="0 0 128 128" CMM_Caption="학생 사울레이"/>
+		<image name="icon_kupole_SummerZesty" file="\icon\skill\cupole\icon_kupole_SummerZesty.png" imgrect="0 0 128 128" CMM_Caption="여름 제스티"/>
+		<image name="icon_kupole_Vakarine" file="\icon\skill\cupole\icon_kupole_Vakarine.png" imgrect="0 0 128 128" CMM_Caption="바카리네"/>
+		<image name="icon_kupole_Zawra" file="\icon\skill\cupole\icon_kupole_Zawra.png" imgrect="0 0 128 128" CMM_Caption="자우라"/>
+		<image name="icon_kupole_Zesty" file="\icon\skill\cupole\icon_kupole_Zesty.png" imgrect="0 0 128 128" CMM_Caption="제스티"/>
+		<image name="icon_Buff_kupole_AccuracyBuff_SR" file="\icon\skill\cupole\Passive\icon_kupole_AccuracyBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="정확도 버프"/>
+		<image name="icon_Buff_kupole_Austeja" file="\icon\skill\cupole\Passive\icon_kupole_Austeja.png" imgrect="0 0 128 128" CMM_Caption="아우스테아"/>
+		<image name="icon_Buff_kupole_BlockingBuff_SR" file="\icon\skill\cupole\Passive\icon_kupole_BlockingBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="블록"/>
+		<image name="icon_Buff_kupole_BlockingIgnoreBuff_SR" file="\icon\skill\cupole\Passive\icon_kupole_BlockingIgnoreBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="블록 관통"/>
+		<image name="icon_Buff_kupole_Dalia" file="\icon\skill\cupole\Passive\icon_kupole_Dalia.png" imgrect="0 0 128 128" CMM_Caption="달리아"/>
+		<image name="icon_Buff_kupole_Dalia_Snare" file="\icon\skill\cupole\Passive\icon_kupole_Dalia_Snare.png" imgrect="0 0 128 128" CMM_Caption="달리아"/>
+		<image name="icon_Buff_kupole_DodgeBuff_SR" file="\icon\skill\cupole\Passive\icon_kupole_DodgeBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="회피 버프"/>
+		<image name="icon_Buff_kupole_Gabija" file="\icon\skill\cupole\Passive\icon_kupole_Gabija.png" imgrect="0 0 128 128" CMM_Caption="가비야"/>
+		<image name="icon_Buff_kupole_Giltine_Debuff" file="\icon\skill\cupole\Passive\icon_kupole_Giltine_Debuff.png" imgrect="0 0 128 128" CMM_Caption="길티네"/>
+		<image name="icon_Buff_kupole_Hauberk" file="\icon\skill\cupole\Passive\icon_kupole_Hauberk.png" imgrect="0 0 128 128" CMM_Caption="하우벅"/>
+		<image name="icon_Buff_kupole_Hauberk_Debuff" file="\icon\skill\cupole\Passive\icon_kupole_Hauberk_Debuff.png" imgrect="0 0 128 128" CMM_Caption="하우벅"/>
+		<image name="icon_Buff_kupole_Helgasercle" file="\icon\skill\cupole\Passive\icon_kupole_Helgasercle.png" imgrect="0 0 128 128" CMM_Caption="헬가 세르클"/>
+		<image name="icon_Buff_kupole_Jurate" file="\icon\skill\cupole\Passive\icon_kupole_Jurate.png" imgrect="0 0 128 128" CMM_Caption="유라테"/>
+		<image name="icon_Buff_kupole_Jurate_UR_Small" file="\icon\skill\cupole\Passive\icon_kupole_Jurate_UR_Small.png" imgrect="0 0 128 128" CMM_Caption="유라테 UR"/>
+		<image name="icon_Buff_kupole_KupoleHeal_R" file="\icon\skill\cupole\Passive\icon_kupole_KupoleHeal_R.png" imgrect="0 0 128 128" CMM_Caption="큐폴 힐"/>
+		<image name="icon_Buff_kupole_Lada" file="\icon\skill\cupole\Passive\icon_kupole_Lada.png" imgrect="0 0 128 128" CMM_Caption="큐폴 라다"/>
+		<image name="icon_Buff_kupole_Laima_UR_Small" file="\icon\skill\cupole\Passive\icon_kupole_Laima_UR_Small.png" imgrect="0 0 128 128" CMM_Caption="라이마"/>
+		<image name="icon_Buff_kupole_LaimaBoostGameMoney" file="\icon\skill\cupole\Passive\icon_kupole_LaimaBoostGameMoney.png" imgrect="0 0 128 128" CMM_Caption="라이마"/>
+		<image name="icon_Buff_kupole_LaimaHpRegen" file="\icon\skill\cupole\Passive\icon_kupole_LaimaHpRegen.png" imgrect="0 0 128 128" CMM_Caption="라이마"/>
+		<image name="icon_Buff_kupole_LaimaSpeedBuff" file="\icon\skill\cupole\Passive\icon_kupole_LaimaSpeedBuff.png" imgrect="0 0 128 128" CMM_Caption="라이마 UR"/>
+		<image name="icon_Buff_kupole_LaimaSpRegen" file="\icon\skill\cupole\Passive\icon_kupole_LaimaSpRegen.png" imgrect="0 0 128 128" CMM_Caption="렉시퍼"/>
+		<image name="icon_Buff_kupole_Lecifer" file="\icon\skill\cupole\Passive\icon_kupole_Lecifer.png" imgrect="0 0 128 128" CMM_Caption="네불라스"/>
+		<image name="icon_Buff_kupole_Marnoks" file="\icon\skill\cupole\Passive\icon_kupole_Marnoks.png" imgrect="0 0 128 128" CMM_Caption="마르녹스"/>
+		<image name="icon_Buff_kupole_Naktis" file="\icon\skill\cupole\Passive\icon_kupole_Naktis.png" imgrect="0 0 128 128" CMM_Caption="나크티스"/>
+		<image name="icon_Buff_kupole_NormalAttackRegenSPBuff_R" file="\icon\skill\cupole\Passive\icon_kupole_NormalAttackRegenSPBuff_R.png" imgrect="0 0 128 128" CMM_Caption="공격 SP 회복"/>
+		<image name="icon_Buff_kupole_RegenSPBuff_R" file="\icon\skill\cupole\Passive\icon_kupole_RegenSPBuff_R.png" imgrect="0 0 128 128" CMM_Caption="SP회복"/>
+		<image name="icon_Buff_kupole_SantaZemyna_Buff" file="\icon\skill\cupole\Passive\icon_kupole_SantaZemyna_Buff.png" imgrect="0 0 128 128" CMM_Caption="산타 제미나"/>
+		<image name="icon_Buff_kupole_SantaZemyna_Buff2" file="\icon\skill\cupole\Passive\icon_kupole_SantaZemyna_Buff2.png" imgrect="0 0 128 128" CMM_Caption="산타 제미나2"/>
+		<image name="icon_Buff_kupole_StudentSaule" file="\icon\skill\cupole\Passive\icon_kupole_StudentSaule.png" imgrect="0 0 128 128" CMM_Caption="학생 사울레이"/>
+		<image name="icon_Buff_kupole_SummerZesty" file="\icon\skill\cupole\Passive\icon_kupole_SummerZesty.png" imgrect="0 0 128 128" CMM_Caption="여름 제스티"/>
+		<image name="icon_Buff_kupole_Vakarine" file="\icon\skill\cupole\Passive\icon_kupole_Vakarine.png" imgrect="0 0 128 128" CMM_Caption="바카리네"/>
+		<image name="icon_Buff_kupole_Zawra" file="\icon\skill\cupole\Passive\icon_kupole_Zawra.png" imgrect="0 0 128 128" CMM_Caption="자우라"/>
+		<image name="icon_Buff_kupole_Zesty" file="\icon\skill\cupole\Passive\icon_kupole_Zesty.png" imgrect="0 0 128 128" CMM_Caption="제스티"/>
+		<image name="icon_Buff_kupole_Saule" file="\icon\skill\cupole\Passive\icon_kupole_Saule.png" imgrect="0 0 128 128" CMM_Caption="사울레"/>
 	</imagelist>
 </skinset>

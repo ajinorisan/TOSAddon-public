@@ -40,7 +40,7 @@ function IS_ENABLE_TO_ENGARVE(item_obj, type)
     if item_goddess_growth.is_goddess_growth_item(item_obj) == true then
         return false, 0
     end
-
+    
     if type == 2 then                
         if TryGetProp(item_obj, 'UseLv', 0) > 460 then
             return false, 0

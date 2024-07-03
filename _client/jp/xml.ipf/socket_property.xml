@@ -3195,6 +3195,30 @@
     <Level Level="0" PropList_TopLeg="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
     <Level Level="1" PropList_TopLeg="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/익스플로전 스피어스 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
+  <Item Name="GEM_Desperado_BadGuy">
+    <Level Level="0" PropList_TopLeg="OptDesc/배드가이 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/배드가이 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/배드가이 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/배드가이 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Desperado_Equilibrium">
+    <Level Level="0" PropList_TopLeg="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Desperado_Revenged">
+    <Level Level="0" PropList_TopLeg="OptDesc/리벤지드 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/리벤지드 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/리벤지드 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/리벤지드 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Desperado_DeadlyFire">
+    <Level Level="0" PropList_TopLeg="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Desperado_RussianRoulette">
+    <Level Level="0" PropList_TopLeg="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Desperado_LastManStanding">
+    <Level Level="0" PropList_TopLeg="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
   <Item Name="GEM_BowMaster_FocusFire">
     <Level Level="0" PropList_TopLeg="OptDesc/집중 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/집중 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
     <Level Level="1" PropList_TopLeg="OptDesc/집중 사격 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/집중 사격 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
@@ -3219,28 +3243,28 @@
     <Level Level="0" PropList_TopLeg="OptDesc/신의 화살 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/신의 화살 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
     <Level Level="1" PropList_TopLeg="OptDesc/신의 화살 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/신의 화살 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
-  <Item Name="GEM_Desperado_BadGuy">
-    <Level Level="0" PropList_TopLeg="OptDesc/배드가이 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/배드가이 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
-    <Level Level="1" PropList_TopLeg="OptDesc/배드가이 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/배드가이 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  <Item Name="GEM_Vanquisher_VerticalSlash">
+    <Level Level="0" PropList_TopLeg="OptDesc/세로 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/세로 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/세로 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/세로 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
-  <Item Name="GEM_Desperado_Equilibrium">
-    <Level Level="0" PropList_TopLeg="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
-    <Level Level="1" PropList_TopLeg="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/이퀼리브리엄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  <Item Name="GEM_Vanquisher_TurnOver">
+    <Level Level="0" PropList_TopLeg="OptDesc/회전 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/회전 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/회전 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/회전 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
-  <Item Name="GEM_Desperado_Revenged">
-    <Level Level="0" PropList_TopLeg="OptDesc/리벤지드 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/리벤지드 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
-    <Level Level="1" PropList_TopLeg="OptDesc/리벤지드 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/리벤지드 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  <Item Name="GEM_Vanquisher_VoidSlash">
+    <Level Level="0" PropList_TopLeg="OptDesc/공허 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/공허 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/공허 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/공허 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
-  <Item Name="GEM_Desperado_DeadlyFire">
-    <Level Level="0" PropList_TopLeg="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
-    <Level Level="1" PropList_TopLeg="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/데들리 파이어 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  <Item Name="GEM_Vanquisher_EarthCrusher">
+    <Level Level="0" PropList_TopLeg="OptDesc/대지 분쇄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/대지 분쇄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/대지 분쇄 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/대지 분쇄 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
-  <Item Name="GEM_Desperado_RussianRoulette">
-    <Level Level="0" PropList_TopLeg="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
-    <Level Level="1" PropList_TopLeg="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/러시안 룰렛 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  <Item Name="GEM_Vanquisher_WindSlasher">
+    <Level Level="0" PropList_TopLeg="OptDesc/공간 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/공간 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/공간 베기 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/공간 베기 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
-  <Item Name="GEM_Desperado_LastManStanding">
-    <Level Level="0" PropList_TopLeg="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
-    <Level Level="1" PropList_TopLeg="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/라스트 맨 스탠딩 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  <Item Name="GEM_Vanquisher_FatalSwordDance">
+    <Level Level="0" PropList_TopLeg="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
 </SocketProperty>

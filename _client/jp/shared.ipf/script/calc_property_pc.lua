@@ -1,5 +1,15 @@
 local PC_MAX_MSPD = 60
 
+
+function GET_PVP_TARGET_COUNT(self, count)
+    if IsPVPField(self) == 1 and count > 2 then
+        count = math.floor((math.max(0, count-2) ^ 0.5)) + math.min(2, count)
+    end
+
+    return count
+end
+
+
 function SCR_GET_JOB_STAT_RATIO(pc, statName)
 	local stat = 0;
 	if statName == nil then
@@ -5462,4 +5472,36 @@ function GET_ITEM_MATK(item)
     min = min + add
     max = max + add
     return min, max
+end
+
+
+function ENABLE_TO_USE_SKILL_STATE(self, skill)
+    if TryGetProp(skill, 'Job', 'None') == 'Vanquisher' then
+        local list = {'RH'}
+        for i = 1, #list do
+            if IsServerSection() == 0 then
+                local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(list[i]))
+                if inv_item ~= nil then
+                    local item_obj = GetIES(inv_item:GetObject())                    
+                    if TryGetProp(item_obj, 'ClassType', 'None') ~= 'THSword' then
+                        return false
+                    end
+
+                else
+                    return false
+                end
+            else
+                local item_obj = GetEquipItemIgnoreDur(self, list[i]);                
+                if TryGetProp(item_obj, 'ClassType', 'None') ~= 'THSword' then
+                    return false
+                end
+            end
+        end
+    end    
+
+	if IsBuffApplied(self, 'VoidSlash_toggle_Buff') == 'YES' and TryGetProp(skill, 'ClassName', 'None') ~= 'Vanquisher_VoidSlash' then
+		return false
+	end
+
+	return true
 end

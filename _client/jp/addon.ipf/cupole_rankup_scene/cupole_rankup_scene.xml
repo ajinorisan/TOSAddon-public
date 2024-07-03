@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_rankup_scene" x="0" y="0" width="1920" height="1080"> 
+	<frame layout_gravity="left top" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_CUPOLE_RANKUP_SCENE" CloseScp="CLOSE_CUPOLE_RANKUP_SCENE"/>
+	<layer layerlevel="104"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+    <input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
+    <sound opensound="sys_card_eff_up" closesound=""/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="" frameCloseAnim="" margin="0 0 0 0"/>
+    <controls>
+    <!-- 관리탭 -->
+        <groupbox name="managerTab" rect="0 0 1920 1080" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin=""/>
+			<picture name="bgimg" parent="managerTab" rect="0 0 1920 1080" margin="0 0 0 0" layout_gravity="left top" stretch="true" draw="true" hittest="true" scrollbar="false" image="kupole_friendshipup"/>
+			<picture name="floor" parent="managerTab" rect="0 0 553 232" margin="0 0 0 100" layout_gravity="center bottom" stretch="true" draw="true" hittest="false" scrollbar="false" image="img_friend_frame_level"/>
+				<richtext name="Name" parent="floor" rect="0 0 250 30" margin="0 100 0 0" layout_gravity="center top" format="{@st66d}{s22}%s" param1="name" param1_def="루타" hittest="false" fixwidth="true" textalign="center center" slideshow="true"/>
+			<picture name="MainCharacter" parent="managerTab" rect="0 0 996 1350" margin="0 -50 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" image="cupole_0" stretch="true" TargetTexture="true"/>
+			<groupbox name="MainEffectBG" parent="managerTab" rect="0 0 1000 1000" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin=""/>
+       		<groupbox name="EffectBG" parent="managerTab" rect="0 0 600 100" margin="0 200 0 0" layout_gravity="center top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin=""/>
+			<button name="skipbtn" parent="managerTab" rect="0 0 150 60" margin="0 0 0 20" layout_gravity="center bottom" LBtnUpScp="PRESS_CLOSE_BTN" skin="cupole_greenbtn" stretch="true" caption="{@st66d}{s20}확인" textalign="center top" textoffset="0 13"/>
+
+    </controls>
+</uiframe>

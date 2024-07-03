@@ -3374,46 +3374,36 @@ function JOB_JAGUAR_PRE_CHECK(pc, jobCount)
 end
 
 function JOB_DESPERADO_PRE_CHECK(pc, jobCount)
-    if jobCount == nil then
-        jobCount = GetTotalJobCount(pc);
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
     end
-    if jobCount >= 2 then
-        local aObj
-        if IsServerSection() == 0 then
-            aObj = GetMyAccountObj();
-        else
-            aObj = GetAccountObj(pc);
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char5_19', 0)
+        if value == 1 then
+            return 'YES'
         end
-        
-        if aObj ~= nil then
-            local value = TryGetProp(aObj, 'UnlockQuest_Char5_19', 0)
-            if value == 1 or IS_KOR_TEST_SERVER() == true then
-                return 'YES'
-            end
-        end 
     end
 
     return 'NO'
 end
 
 function JOB_ILLUSIONIST_PRE_CHECK(pc, jobCount)
-    if jobCount == nil then
-        jobCount = GetTotalJobCount(pc);
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
     end
-    if jobCount >= 2 then
-        local aObj
-        if IsServerSection() == 0 then
-            aObj = GetMyAccountObj();
-        else
-            aObj = GetAccountObj(pc);
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char2_25', 0)
+        if value == 1 then
+            return 'YES'
         end
-        
-        if aObj ~= nil then
-            local value = TryGetProp(aObj, 'UnlockQuest_Char2_25', 0)
-            if value == 1 or IS_KOR_TEST_SERVER() == true then
-                return 'YES'
-            end
-        end 
     end
 
     return 'NO'
@@ -3572,6 +3562,24 @@ function JOB_WingedHussars_PRE_CHECK(pc, jobCount)
     
     if aObj ~= nil then
         local value = TryGetProp(aObj, 'UnlockQuest_Char1_25', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_Vanquisher_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char1_26', 0)
         if value == 1 then
             return 'YES'
         end
@@ -4574,22 +4582,45 @@ function CHECK_TOSW_FISHING_AND_COLONY_RESTRICT_TIME()
     return false;
 end
 
+-- 트오세 W - 베르니케 파편던전 PreCheck 에서 사용.
 function CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME()
-    --[[ local time;
+    --[[ local time = nil;
     if IsServerSection() == 1 then
         time = GetDBTime();
     elseif IsServerSection() ~= 1 then
         time = geTime.GetServerSystemTime(); 
     end
-
     if time ~= nil then
         local month = time.wMonth;
-        if month == 9 then
+        if month == 4 then
             local day = time.wDay;
             local hour = time.wHour;
-            local nation = GetServerNation();
-            if day >= 4 and day <= 5 then
-                if day == 5 and hour > 10 then
+            if day == 29 or day == 30 then
+                if day == 30 and hour > 12 then
+                    return false;
+                end
+                return true;
+            end
+        end
+    end
+    return false; ]]
+end
+
+-- 트오세 W - 주간 보스 레이드 제한.
+function CHECK_TOSW_WEEKLY_BOSS_RAID_RESTRICT_TIME()
+    --[[ local time = nil;
+    if IsServerSection() == 1 then
+        time = GetDBTime();
+    elseif IsServerSection() ~= 1 then
+        time = geTime.GetServerSystemTime(); 
+    end
+    if time ~= nil then
+        local month = time.wMonth;
+        if month == 4 then
+            local day = time.wDay;
+            local hour = time.wHour;
+            if day == 29 or day == 30 then
+                if day == 30 and hour > 12 then
                     return false;
                 end
                 return true;
@@ -4598,6 +4629,7 @@ function CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME()
     end ]]
     return false;
 end
+
 
 -- 트오세 W 통합 제한
 function CHECK_TOSW_RESTRICT_TIME()

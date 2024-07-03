@@ -27,7 +27,6 @@ function ON_DELETE_PET(frame, msg, guid)
 end
 
 function ON_BARRACK_CREATE_PET_BTN(frame)
-
 	local bg = frame:GetChild("bg");
 	bg:RemoveAllChild();	
 	local width = 300;

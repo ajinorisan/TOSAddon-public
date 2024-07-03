@@ -658,6 +658,11 @@ function SUMMON_APPLY_OWNER_ATK_DEF(self, owner, rate, rateList)
     
     self.MHP_BM = self.MHP_BM + math.floor(owner.MHP * mhpRate * rate * mna_Rate - self.MHP)
 
+    -- 해당 부분 일단 임시 처리임. 소환수 그리모어 UI상에 표시되는 HP랑 실제로 다르게 됨.
+    if self.MHP_BM < 0 then
+        self.MHP_BM = 0;
+    end
+
     local ratio = atkRate * rate    
     self.MINPATK_BM = self.MINPATK_BM + math.floor(ownerMATK * 0.9 * ratio - self.MINPATK)
     self.MAXPATK_BM = self.MAXPATK_BM + math.floor(ownerMATK * 1.1 * ratio - self.MAXPATK)

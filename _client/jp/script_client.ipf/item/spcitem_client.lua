@@ -44,6 +44,24 @@ function SCR_REMOVE_FAIRY(ownerHandle, monName)
 	ownerActor:GetClientMonster():DeleteClientMonster(monName, 0.75);
 end
 
+function SCR_CREATE_CUPOLE(ownerHandle, monName)
+	local ownerActor = world.GetActor(ownerHandle);
+	local monActor = ownerActor:GetClientMonster():GetClientMonsterByName(monName);
+	if monActor == nil then
+		local ownerPos = ownerActor:GetPos();
+		ownerActor:GetClientMonster():ClientMonsterToPos(monName, "STD", ownerPos.x, ownerPos.y, ownerPos.z, 0, 0);
+		monActor = ownerActor:GetClientMonster():GetClientMonsterByName(monName);
+		local monHandle = monActor:GetHandleVal();
+		KupoleFollowToActor(monHandle, ownerHandle, "None", -11.5, 1.5, -3.0, 1, 0.1);
+		StartCupoleAnimation(monHandle, ownerHandle);
+	end
+end
+
+function SCR_REMOVE_CUPOLE(ownerHandle, monName)
+	local ownerActor = world.GetActor(ownerHandle);
+	ownerActor:GetClientMonster():DeleteClientMonster(monName, 0);
+end
+
 function SCR_CREATE_FAIRY_GROUND(owner_handle, mon_name)
 	local owner_actor = world.GetActor(owner_handle); 
 	local mon_actor = owner_actor:GetClientMonster():GetClientMonsterByName(mon_name);

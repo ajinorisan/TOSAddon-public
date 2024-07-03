@@ -52,3 +52,6 @@ ClassID,ClassName,Name,ShowEffect,EffectName
 4750,"EP15SNOWKNIGHT_EFFECT_Snowflake","스노우플레이크 눈송이 이펙트","NO","F_pc_ep15snowknight01"
 4751,"EP15_SPRING01_EFFECT","둥실둥실 봄 뽀송이","NO","F_pc_item_wing_spring_loop"
 4752,"EP15_UNICORN_EFFECT","반짝반짝 유니콘 하트","NO","F_pc_item_wing_unicorn_heart_loop"
+4753,"TOSW_GREEN_EFFECT","W 통합 1주년 반짝반짝(그린)","NO","BodyAura_Twinkle_Green_01"
+4754,"TOSW_ORANGE_EFFECT","W 통합 1주년 반짝반짝(엠버)","NO","BodyAura_Twinkle_Orange_01"
+4755,"TOSW_YELLOW_EFFECT","W 통합 1주년 반짝반짝(옐로)","NO","BodyAura_Twinkle_Yellow_01"

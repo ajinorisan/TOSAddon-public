@@ -31,3 +31,4 @@ ClassID,SavePoint,SoulCrystal,MainLayer,GuildTower,StartPoint,ClassName,Type,Ret
 103,0,0,0,0,0,"TOSHero_Grid","Contents","TOSHERO_RESURRECT_BUFF"
 104,0,1,0,0,1,"BridgeWailing_Party","Contents","BRIDGE_WAILING_AUTO_RESURRECT"
 105,0,1,0,0,1,"BridgeWailing_Dimension_Party","Contents","BRIDGE_WAILING_DIMENSION_AUTO_RESURRECT"
+106,0,1,0,0,1,"EVENT_2024_W_1TH_ANNI_DUNGEON","Contents","SCR_EVENT_SKIACLIPSE_RESURRECT"

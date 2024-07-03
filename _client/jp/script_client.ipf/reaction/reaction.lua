@@ -908,3 +908,18 @@ function S_R_TARGET_EFFECT(actor, obj, hit_count, ret, count,
         effect.PlayActorEffect(actor, src_effectName, src_nodeName, src_lifeTime, src_scale);
     end
 end
+
+function MONSKL_C_PLAY_CUPOLE_ANIM(actor, skill, cupole_name, animName, spd, freezeAnim, cancelByHit)
+    local _cancelByHit = false;
+    if cancelByHit == 1 then    
+        _cancelByHit = true;
+    end
+
+	local monActor = actor:GetClientMonster():GetClientMonsterByName(cupole_name);
+    if monActor == nil then
+        return;
+    end
+    local monHandle = monActor:GetHandleVal();
+    
+    CupoleAnimPlay(monHandle, "skill")
+end

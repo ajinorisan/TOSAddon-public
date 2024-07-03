@@ -216,9 +216,9 @@ function BowMaster_ActorBlend(actor, obj, r, g, b, a)
 end
 
 
-function C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER(actor, obj, pad_guid, eft_name, eft_scale, fix_height)
+function C_PAD_EFFECT_FORCE_UNITY_EFFECT_BOWMASTER(actor, obj, pad_guid, eft_name, eft_scale, fix_height, life_time)
     if actor ~= nil then        
-        effect.AddForceProjectileUnityEffect(actor, eft_name, eft_scale, fix_height, pad_guid);
+        effect.AddForceProjectileUnityEffect(actor, eft_name, eft_scale, fix_height, pad_guid, life_time)
     end
 end
 

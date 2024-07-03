@@ -630,3 +630,28 @@ function GET_FIRST_CHILD(obj, class, pred)
 	end
 end
 
+--색 원상복구
+function FRAME_CHILD_COLORTONE_CLEAR(frame)
+    local childcnt = frame:GetChildCount();
+    for i = 0 , childcnt -1 do
+        local slot = frame:GetChildByIndex(i)
+        if slot ~= nil then
+            slot:SetColorTone("FFFFFFFF")
+        end
+    end
+end
+
+--마을 인지 체크하는 클라이언트 함수
+function IS_IN_CITY()
+	local mymapname = session.GetMapName();
+    local map = GetClass("Map", mymapname);
+    if nil == map then
+        return 0;
+    end
+
+    if 'City' == map.MapType then
+        return 1;
+    end    
+    
+    return 0
+end

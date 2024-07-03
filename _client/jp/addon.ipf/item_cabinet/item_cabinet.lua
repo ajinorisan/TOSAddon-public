@@ -9,6 +9,9 @@ function ITEM_CABINET_ON_INIT(addon, frame)
 	addon:RegisterMsg('MSG_END_CABINET_RELIC_GEM_REINFORCE', 'END_CABINET_RELIC_GEM_REINFORCE')
 	addon:RegisterMsg('START_OPEN_ALL_CABINET', 'START_OPEN_ALL_CABINET')	
 	addon:RegisterMsg('END_OPEN_ALL_CABINET', 'END_OPEN_ALL_CABINET')	
+	addon:RegisterMsg("ARK_COMPOSITION_EXP_UP_SUCCESS", 'ITEM_CABINET_ARK_EXP_UP_SUCCESS');
+    addon:RegisterMsg("ARK_COMPOSITION_LV_UP_SUCCESS", 'ITEM_CABINET_ARK_LV_UP_SUCCESS');    
+
 end
 
 function UI_TOGGLE_ITEM_CABINET()
@@ -42,9 +45,11 @@ function ITEM_CABINET_OPEN(frame)
 	GET_CHILD_RECURSIVELY(frame, "job_tab"):SelectTab(0);
 	GET_CHILD_RECURSIVELY(frame, "relic_tab"):SelectTab(0);
 	GET_CHILD_RECURSIVELY(frame, "upgrade_relicgem_tab"):SelectTab(0);	
+	GET_CHILD_RECURSIVELY(frame, "upgrade_ark_tab"):SelectTab(0);	
+
 	local edit = GET_CHILD_RECURSIVELY(frame,"ItemSearch")
 	edit:SetEventScript(ui.LBUTTONUP,"EDIT_CLEAR_TEXT");
-
+    CLEAR_ITEM_CABINET_ARK_UI();
 	ITEM_CABINET_CREATE_LIST(frame);
 	help.RequestAddHelp('TUTO_SHARD_CABINET_1')
 end
@@ -779,9 +784,18 @@ function ITEM_CABINET_SHOW_UPGRADE_UI(frame, isShow)
 		GET_CHILD_RECURSIVELY(frame,"upgrade_tab"):ShowWindow(0);
 		GET_CHILD_RECURSIVELY(frame,"upgrade_relicgem_tab"):ShowWindow(isShow);
 		GET_CHILD_RECURSIVELY(frame,"relic_upgradeBg"):ShowWindow(isShow);
+		GET_CHILD_RECURSIVELY(frame, "upgrade_ark_tab"):ShowWindow(0);
+		GET_CHILD_RECURSIVELY(frame,"ark_upgradeBg"):ShowWindow(0);
+	elseif category =="Ark" then
+		GET_CHILD_RECURSIVELY(frame,"upgrade_tab"):ShowWindow(0);
+		GET_CHILD_RECURSIVELY(frame,"upgrade_relicgem_tab"):ShowWindow(0);	
+		GET_CHILD_RECURSIVELY(frame, "upgrade_ark_tab"):ShowWindow(isShow);
+		GET_CHILD_RECURSIVELY(frame,"ark_upgradeBg"):ShowWindow(isShow);
 	else
 		GET_CHILD_RECURSIVELY(frame,"upgrade_tab"):ShowWindow(isShow);
 		GET_CHILD_RECURSIVELY(frame,"upgrade_relicgem_tab"):ShowWindow(0);	
+		GET_CHILD_RECURSIVELY(frame, "upgrade_ark_tab"):ShowWindow(0);
+		GET_CHILD_RECURSIVELY(frame,"ark_upgradeBg"):ShowWindow(0);
 	end
 	GET_CHILD_RECURSIVELY(frame,"upgradegbox"):ShowWindow(isShow);
 	GET_CHILD_RECURSIVELY(frame,"slot"):ShowWindow(isShow);
@@ -798,6 +812,8 @@ function ITEM_CABINET_SHOW_UPGRADE_UI(frame, isShow)
 	if isShow == 1 then
 		if category=="Relicgem" then
 			ITEM_CABINET_UPGRADE_RELICGEM_TAB(frame);
+		elseif category=="Ark" then
+			ITEM_CABINET_UPGRADE_ARK_TAB(frame);
 		else
 			ITEM_CABINET_UPGRADE_TAB(frame);
 		end
@@ -1973,6 +1989,8 @@ function ITEM_CABINET_SELECT_ITEM(parent, self)
 		else
 			tab = GET_CHILD_RECURSIVELY(frame, "upgrade_relicgem_tab"); 
 		end
+	elseif category == "Ark" then
+		tab = GET_CHILD_RECURSIVELY(frame, "upgrade_ark_tab"); 
 	end
 	
 	local aObj = GetMyAccountObj();							
@@ -2099,6 +2117,16 @@ function ITEM_CABINET_ENCHANT_TEXT_SETTING(frame, category, index)
 			GET_CHILD_RECURSIVELY(frame,"slot"):ShowWindow(0);
 			enchantbtn:SetEventScript(ui.LBUTTONUP, "ITEM_CABINET_EXCUTE_CREATE");
 		end
+	elseif category == "Ark" then
+		local enchantbtn =GET_CHILD_RECURSIVELY(frame,"enchantbtn");
+		local upgrade_ark_tab = GET_CHILD_RECURSIVELY(frame,"upgrade_ark_tab")
+		enchantbtn:SetTextByKey("name",ClMsg("Create"));
+		upgrade_ark_tab:ChangeCaptionOnly(0,"{@st66b}{s16}"..ClMsg("Create"),false)
+		upgrade_ark_tab:ChangeCaptionOnly(1,"{@st66b}{s16}"..ClMsg("Reinforce_2"),false)
+		if index == 0 then
+			GET_CHILD_RECURSIVELY(frame,"slot"):ShowWindow(0);
+			enchantbtn:SetEventScript(ui.LBUTTONUP, "ITEM_CABINET_EXCUTE_CREATE");
+		end
 	else
 		local enchantbtn = GET_CHILD_RECURSIVELY(frame,"enchantbtn");
 		local upgrade_tab = GET_CHILD_RECURSIVELY(frame, 'upgrade_tab');
@@ -2196,6 +2224,77 @@ function ITEM_CABINET_UPGRADE_RELICGEM_TAB(parent,ctrl)
 
 end
 
+function ITEM_CABINET_UPGRADE_ARK_TAB(parent, ctrl)
+	local frame = parent:GetTopParentFrame();
+	local tab = GET_CHILD_RECURSIVELY(frame, "upgrade_ark_tab");
+	local index = tab:GetSelectItemIndex();
+	local category = frame:GetUserValue("CATEGORY");
+	local isAvailableReinforce = frame:GetUserValue("REINFORCE");
+	GET_CHILD_RECURSIVELY(frame,"upgradegbox"):ShowWindow(0); 
+	GET_CHILD_RECURSIVELY(frame,"registerbtn"):ShowWindow(0); 
+	GET_CHILD_RECURSIVELY(frame,"infotxt"):ShowWindow(0);
+	GET_CHILD_RECURSIVELY(frame,"next_item_gb"):ShowWindow(0);
+	GET_CHILD_RECURSIVELY(frame,"acctxt"):ShowWindow(0);
+	GET_CHILD_RECURSIVELY(frame,"belongingtxt"):ShowWindow(0);
+	GET_CHILD_RECURSIVELY(frame,"slot"):ShowWindow(0);
+	GET_CHILD_RECURSIVELY(frame,"slot2"):ShowWindow(0);
+	GET_CHILD_RECURSIVELY(frame,"relic_upgradeBg"):ShowWindow(0);
+	GET_CHILD_RECURSIVELY(frame,"ark_upgradeBg"):ShowWindow(0);
+	CLEAR_ITEM_CABINET_ARK_UI();
+	INVENTORY_SET_CUSTOM_RBTNDOWN("None");
+	if index ==0 then
+		GET_CHILD_RECURSIVELY(frame,"enchantbtn"):ShowWindow(1);
+		GET_CHILD_RECURSIVELY(frame,"pricetxt"):ShowWindow(1);
+		GET_CHILD_RECURSIVELY(frame,"optionGbox"):ShowWindow(1);
+
+		ITEM_CABINET_ENCHANT_TEXT_SETTING(frame, category, index);
+
+		if category == "Weapon" or category == "Armor" or category == "Artefact" then
+			local inven = ui.GetFrame('inventory');
+			if inven:IsVisible() == 0 then inven:ShowWindow(1); end
+
+			GET_CHILD_RECURSIVELY(frame,"slot"):ShowWindow(1);		
+			INVENTORY_SET_CUSTOM_RBTNDOWN("ITEM_CABINET_INV_BTN");
+		else
+			GET_CHILD_RECURSIVELY(frame,"slot2"):ShowWindow(1);
+			GET_CHILD_RECURSIVELY(frame,"belongingtxt"):ShowWindow(1);
+			INVENTORY_SET_CUSTOM_RBTNDOWN("None");
+		end
+
+		ITEM_CABINET_SELECTED_ITEM_CLEAR();
+	elseif index==1 then
+		GET_CHILD_RECURSIVELY(frame,"enchantbtn"):ShowWindow(0); --생성
+		GET_CHILD_RECURSIVELY(frame,"pricetxt"):ShowWindow(0); --생성
+		GET_CHILD_RECURSIVELY(frame,"optionGbox"):ShowWindow(0); --생성
+		GET_CHILD_RECURSIVELY(frame,"ark_upgradeBg"):ShowWindow(1);
+
+		INVENTORY_SET_CUSTOM_RBTNDOWN("ITEM_CABINET_ARK_INV_RBTN");
+
+	elseif index==2 then
+		GET_CHILD_RECURSIVELY(frame,"upgradegbox"):ShowWindow(1); 
+		GET_CHILD_RECURSIVELY(frame,"registerbtn"):ShowWindow(1); 
+		GET_CHILD_RECURSIVELY(frame,"infotxt"):ShowWindow(1);
+		GET_CHILD_RECURSIVELY(frame,"next_item_gb"):ShowWindow(1);
+
+		GET_CHILD_RECURSIVELY(frame,"enchantbtn"):ShowWindow(0); --생성
+		GET_CHILD_RECURSIVELY(frame,"pricetxt"):ShowWindow(0); --생성
+		GET_CHILD_RECURSIVELY(frame,"optionGbox"):ShowWindow(0); --생성
+
+		if category == "Accessory" then
+			GET_CHILD_RECURSIVELY(frame,"acctxt"):ShowWindow(1);
+		end
+
+		local max = GET_CHILD_RECURSIVELY(frame, 'registerbtn'):GetTextByKey("name");	
+
+		if max == "MAX" then
+			GET_CHILD_RECURSIVELY(frame,"next_item_gb"):ShowWindow(0);
+			INVENTORY_SET_CUSTOM_RBTNDOWN("None");
+		else
+			INVENTORY_SET_CUSTOM_RBTNDOWN("ITEM_CABINET_MATERIAL_INV_BTN");
+		end
+	end
+	ITEM_CABINET_CLEAR_SLOT();
+end
 
 function ITEM_CABINET_UPGRADE_TAB(parent, ctrl)
 	local frame = parent:GetTopParentFrame();
@@ -2278,6 +2377,7 @@ function ITEM_CABINET_REGISTER_SECTION(frame, category, itemType, curLv)
 	local registerBtn = GET_CHILD_RECURSIVELY(frame, 'registerbtn');
 	local upgradeTab = GET_CHILD_RECURSIVELY(frame, 'upgrade_tab');
 	local upgrade_relicgem_tab = GET_CHILD_RECURSIVELY(frame,'upgrade_relicgem_tab');
+	local upgrade_ark_tab = GET_CHILD_RECURSIVELY(frame,'upgrade_ark_tab');
 	registerBtn:SetTextByKey("name", "MAX");
 	registerBtn:SetEnable(0);	
 	GET_CHILD_RECURSIVELY(frame, "upgradegbox"):RemoveAllChild(); 
@@ -2291,13 +2391,18 @@ function ITEM_CABINET_REGISTER_SECTION(frame, category, itemType, curLv)
 		if curLv== maxLv and isRegister == 1 then
 			return;
 		end
+	elseif category == "Ark" then
+		upgrade_ark_tab:ChangeCaptionOnly(2,"{@st66b}{s16}"..ClMsg("Register"),false)
+		if isRegister == 1 then
+			return;
+		end
 	else
 		if isRegister == 1 then
 			upgradeTab:ChangeCaptionOnly(1,"{@st66b}{s16}"..ClMsg("Register"),false)
 			return;
 		end
 	end
-	
+
 	registerBtn:SetEnable(1);
 	
 	
@@ -2740,6 +2845,345 @@ function ITEM_CABINET_SET_SLOT_ITEM(slot, isSelect, index)
 		materialCount:SetTextByKey("curCount", 0);	
 		CANCEL_CABINET_SET_SLOT_ITEM(itemID)		
 	end
+end
+
+function ITEM_CABINET_ARK_INV_RBTN(itemObj, Slot)
+	local frame = ui.GetFrame("item_cabinet");
+	if frame == nil then
+		return;
+	end
+
+	if TryGetProp(itemObj, 'EnableArkLvup', 0) == 1 then
+		ui.SysMsg(ClMsg('DO_NOT_EnableArkLvup'))
+		return
+	end 
+
+	local icon = CreateIcon(Slot)
+    local icon_info = icon:GetInfo()
+	local guid = icon_info:GetIESID()
+    local invItem = session.GetInvItemByGuid(guid)
+	if TryGetProp(itemObj, 'StringArg', 'None') == 'Ark' then
+		-- 합성에 사용할 아크 아이템 등록
+        ITEM_CABINET_REG_ARK_ITEM(frame, guid, invItem, itemObj);
+        frame:SetUserValue('goal_lv', itemObj.ArkLevel + 1)        
+    else
+        -- 합성에 사용할 재료 아이템 등록
+        if frame:GetUserValue('TYPE') == 'EXP' then
+            local className = shared_item_ark.get_exp_material(tonumber(frame:GetUserValue('goal_lv')));
+            if itemObj.ClassName == className then
+                ITEM_CABINET_ARK_REG_EXP_MATERIAL_ITEM(frame, guid, invItem, itemObj, className);
+            end
+        elseif frame:GetUserValue('TYPE') == 'LV' then
+            local itemClassNameList = {};            
+            itemClassNameList[1], itemClassNameList[2], itemClassNameList[3] = shared_item_ark.get_require_item_list_for_lv(tonumber(frame:GetUserValue('goal_lv')));
+
+            for i = 1, #itemClassNameList do
+                if itemObj.ClassName == itemClassNameList[i] then
+                    local lv_mat_gb = GET_CHILD_RECURSIVELY(frame, "lv_mat_gb");
+                    local lv_mat = GET_CHILD(lv_mat_gb, "lv_mat_"..i);
+                    if lv_mat == nil then return; end
+                
+                    local mat_slot = GET_CHILD(lv_mat, "mat_slot");
+                    local needCnt = mat_slot:GetUserValue("NEED_COUNT");
+                    ITEM_CABINET_REG_LV_UP_MATERIAL_ITEM(frame, mat_slot, invItem, itemClassNameList[i], needCnt);
+                end
+            end
+        end
+	end
+end
+
+function ITEM_CABINET_ARK_REG_EXP_MATERIAL_ITEM(frame, itemID, invItem, itemObj, itemClassName)
+	if invItem.isLockState == true then
+        ui.SysMsg(ClMsg('MaterialItemIsLock'));
+        return;
+    end
+
+    local itemObj = GetIES(invItem:GetObject());
+    if itemObj.ClassName ~= itemClassName then
+        ui.SysMsg(ClMsg('NotEnoughTarget'));
+        return;
+    end
+    local guid = GetIESID(itemObj);
+
+    local titleText = ScpArgMsg("INPUT_CNT_D_D", "Auto_1", 1, "Auto_2", invItem.count);
+    local inputstringframe = ui.GetFrame("inputstring");
+    inputstringframe:SetUserValue("ITEM_CLASSNAME", itemObj.ClassName);
+    inputstringframe:SetUserValue("SLOT_NUMBER", 1);
+    inputstringframe:SetUserValue("ITEM_GUID", guid);
+    INPUT_NUMBER_BOX(inputstringframe, titleText, "ITEM_CABINET_CHECK_ARK_EXP_UP_MATERIAL_ITEMDROP", 1, 1, invItem.count, 1);
+end
+
+-- 경험치 증가 재료 등록 
+function ITEM_CABINET_CHECK_ARK_EXP_UP_MATERIAL_ITEMDROP(parent, cost)
+    local slotNum = parent:GetUserValue('SLOT_NUMBER');
+    
+    local frame = ui.GetFrame("item_cabinet");
+    local mat_gb = GET_CHILD_RECURSIVELY(frame, "exp_mat_gb");
+    local mat_set = GET_CHILD(mat_gb, "exp_mat_"..slotNum);
+    local mat_slot = GET_CHILD(mat_set, "mat_slot", 'ui::CSlot');
+
+    local strlist = StringSplit(mat_slot:GetText(), ' ');
+    local maxCnt = tonumber(strlist[2]);
+
+    if maxCnt < tonumber(cost) then
+        cost = maxCnt;
+    end
+
+    mat_slot:SetText('{s16}{ol}{b} '..cost, 'count', ui.RIGHT, ui.BOTTOM, -5, -5);
+    
+    local icon = mat_slot:GetIcon();
+    icon:SetColorTone('FFFFFFFF');
+
+    local medal_gb = GET_CHILD_RECURSIVELY(frame, 'medal_gb');
+    local decomposecost = GET_CHILD_RECURSIVELY(medal_gb, "decomposecost");    
+	decomposecost:SetText(cost);
+	
+	-- 예상 잔액
+    local remainsilver = GET_CHILD_RECURSIVELY(medal_gb, "remainsilver");
+    local silver = SumForBigNumberInt64(GET_TOTAL_MONEY_STR(), '-'..cost);
+    remainsilver:SetText(silver);
+    
+    local exp_up_text = GET_CHILD_RECURSIVELY(frame, 'exp_up_text');
+    exp_up_text:ShowWindow(1);
+    exp_up_text:SetTextByKey('value', cost);
+
+    mat_slot:SetUserValue('EXP_UP_MATERIAL_COUNT', cost)
+
+    local guid = parent:GetUserValue('ITEM_GUID');
+    mat_slot:SetUserValue('ITEM_GUID', guid);
+end
+
+-- slot에 레벨 증가 재료 아이템 등록 
+function ITEM_CABINET_REG_LV_UP_MATERIAL_ITEM(frame, slot, invItem, itemClassName, needCnt)
+    if slot == nil then
+        return;
+    end
+    slot = tolua.cast(slot, 'ui::CSlot');
+
+    local itemObj = GetIES(invItem:GetObject());
+    if itemObj.ClassName ~= itemClassName then
+        ui.SysMsg(ClMsg('NotEnoughTarget'));
+        return;
+    end
+    
+    local curcnt = GET_INV_ITEM_COUNT_BY_PROPERTY({
+        {Name = 'ClassName', Value = itemObj.ClassName}
+    }, false);
+
+    if curcnt < tonumber(needCnt) then
+        ui.SysMsg(ClMsg('NotEnoughRecipe'));
+        return;
+    end
+
+    local icon = slot:GetIcon();
+    icon:SetColorTone('FFFFFFFF');
+
+	local guid = GetIESID(itemObj);
+    slot:SetUserValue("ITEM_GUID", guid);
+end
+
+
+function ITEM_CABINET_REG_ARK_ITEM(frame, itemID, invItem, itemObj)
+	if ui.CheckHoldedUI() == true then
+		return;
+    end
+    
+	if invItem.isLockState == true then
+        ui.SysMsg(ClMsg('MaterialItemIsLock'));
+		return;
+    end
+    if TryGetProp(itemObj, 'EnableArkLvup', 0) == 1 then
+		ui.SysMsg(ClMsg('DO_NOT_EnableArkLvup'))
+		return
+	end 
+    local current_lv = TryGetProp(itemObj, 'ArkLevel', -1)
+    local max_lv = TryGetProp(itemObj, 'MaxArkLv', -1)
+
+    if shared_item_ark.is_max_lv(itemObj) == "YES" then
+        ui.SysMsg(ClMsg('CantUseInMaxLv'));
+        return;
+    end
+    
+    local guid = frame:GetUserValue('ARK_ITEM_GUID');
+	if guid == "None" then
+		guid = 0;
+	end
+    SELECT_INV_SLOT_BY_GUID(guid, 0);
+    frame:SetUserValue('ARK_ITEM_GUID', 0);
+
+    local exp_up_text = GET_CHILD_RECURSIVELY(frame, 'exp_up_text');
+    exp_up_text:ShowWindow(0);
+
+	local ark_slot = GET_CHILD_RECURSIVELY(frame, "ark_slot");
+    SET_SLOT_ITEM(ark_slot, invItem);
+
+    local ark_name = GET_CHILD_RECURSIVELY(frame, "ark_name");
+    ark_name:SetTextByKey('value', "");
+    ark_name:SetTextByKey('value', itemObj.Name);
+    
+    local ark_lv_text = GET_CHILD_RECURSIVELY(frame, "ark_lv_text");
+    ark_lv_text:ShowWindow(1);
+
+    local ark_lv = GET_CHILD_RECURSIVELY(frame, "ark_lv");
+    ark_lv:ShowWindow(1);
+    ark_lv:SetTextByKey('value', "");
+    ark_lv:SetTextByKey('value', itemObj.ArkLevel);
+
+    local exp_gauge_text = GET_CHILD_RECURSIVELY(frame, "exp_gauge_text");
+    exp_gauge_text:ShowWindow(1);
+
+    local curExp = TryGetProp(itemObj, 'ArkExp', 0);
+    local valid, require_exp = shared_item_ark.get_next_lv_exp(itemObj);
+	if shared_item_ark.is_max_lv(itemObj) == 'YES' then		-- max 레벨인 경우
+		valid, require_exp = shared_item_ark.get_current_lv_exp(itemObj);
+		curExp = require_exp;
+	end
+    
+    local exp_gauge = GET_CHILD_RECURSIVELY(frame, "exp_gauge");
+    exp_gauge:ShowWindow(1);
+    exp_gauge:SetPoint(curExp, require_exp);
+
+    local typetext = frame:GetUserConfig('COMPOSITION_TYPE_LV');
+    if curExp < require_exp then
+        typetext = frame:GetUserConfig('COMPOSITION_TYPE_EXP');
+    end
+
+    local type_text = GET_CHILD_RECURSIVELY(frame, "type_text");
+    type_text:ShowWindow(1);
+    type_text:SetTextByKey('value', "");
+    type_text:SetTextByKey('value', typetext);
+
+    local decomposecost_text = GET_CHILD_RECURSIVELY(frame, "decomposecost_text");
+    decomposecost_text:SetTextByKey('value', "");
+    decomposecost_text:SetTextByKey('value', typetext);    
+	
+    SELECT_INV_SLOT_BY_GUID(itemID, 1);
+    frame:SetUserValue('ARK_ITEM_GUID', itemID);
+    local medal_gb = GET_CHILD_RECURSIVELY(frame, 'medal_gb');
+    medal_gb:ShowWindow(0);
+
+    if curExp < require_exp then
+        frame:SetUserValue('TYPE', 'EXP');
+        ARK_EXP_UP_MATERIAL_INIT(frame, itemObj);
+    else
+        frame:SetUserValue('TYPE', 'LV');
+        ark_lv:SetTextByKey('value', "");
+        ark_lv:SetTextByKey('value', current_lv.. "   {img white_right_arrow 16 16}   ".. current_lv + 1);
+    
+        ARK_LV_UP_MATERIAL_INIT(frame, itemObj);
+    end
+end
+
+function ITEM_CABINET_BUTTON_CLICK(parent, ctrl)
+    local frame = parent:GetTopParentFrame();
+    local type = frame:GetUserValue('TYPE');
+    local ark_guid = frame:GetUserValue('ARK_ITEM_GUID');
+    if ark_guid == 'None' or ark_guid == '0' then
+        return;
+    end
+    local decomposecost = GET_CHILD_RECURSIVELY(frame, "decomposecost");    
+    if type == 'EXP' and IsGreaterThanForBigNumber(decomposecost:GetText(), GET_TOTAL_MONEY_STR()) == 1 then
+        ui.SysMsg(ClMsg("Auto_SoJiKeumi_BuJogHapNiDa."));
+        return;
+    end
+    if type == 'EXP' then
+        local countList = NewStringList();
+
+        -- 재료 아이템 1개가 모두 등록됬는지 확인
+        for i = 1, 1 do
+            local exp_mat_gb = GET_CHILD_RECURSIVELY(frame, "exp_mat_gb");
+            local exp_mat = GET_CHILD(exp_mat_gb, "exp_mat_"..i);
+            local mat_slot = GET_CHILD(exp_mat, "mat_slot");
+            local guid = mat_slot:GetUserValue('ITEM_GUID');
+            if guid == 'None' then
+                ui.SysMsg(ClMsg('NotEnoughRecipe'));
+                return;
+            end
+
+            local count = mat_slot:GetUserIValue('EXP_UP_MATERIAL_COUNT');
+            if count <= 0 then
+                ui.SysMsg(ClMsg('NotEnoughRecipe'));
+                return;
+            end
+            countList:Add(count);
+        end
+
+        session.ResetItemList();
+        session.AddItemID(ark_guid, 1);
+
+    	local resultlist = session.GetItemIDList()
+        item.DialogTransaction("ARK_COMPOSITION_EXP", resultlist, "", countList)
+
+        PLAY_ARK_COMPOSITION_EFFECT(frame);
+    elseif type == 'LV' then
+        -- 재료 아이템 3개가 모두 등록됬는지 확인
+        for i = 1, 3 do
+            local lv_mat_gb = GET_CHILD_RECURSIVELY(frame, "lv_mat_gb");
+            local lv_mat = GET_CHILD(lv_mat_gb, "lv_mat_"..i);
+            local mat_slot = GET_CHILD(lv_mat, "mat_slot");
+            local guid = mat_slot:GetUserValue('ITEM_GUID');
+            if guid == 'None' then
+                ui.SysMsg(ClMsg('NotEnoughRecipe'));
+                return;
+            end
+        end
+
+	    session.ResetItemList();
+        session.AddItemID(ark_guid, 1);
+
+        local resultlist = session.GetItemIDList();
+	    item.DialogTransaction("ARK_COMPOSITION_LV", resultlist);
+           
+        PLAY_ARK_COMPOSITION_EFFECT(frame);
+    end    
+end
+
+function ITEM_CABINET_ARK_EXP_UP_SUCCESS(pc, msg, guid)
+    local frame = ui.GetFrame("item_cabinet");
+
+    local invItem = session.GetInvItemByGuid(guid)
+    if invItem == nil then
+        return false;
+    end
+
+    local itemObj = GetIES(invItem:GetObject());
+    if itemObj == nil then
+        return false;
+    end
+
+    COMPOSITION_SUCCESS_EFFECT(frame, itemObj);
+end
+
+function ITEM_CABINET_ARK_LV_UP_SUCCESS(pc, msg, guid)
+    local frame = ui.GetFrame("item_cabinet");
+
+    local invItem = session.GetInvItemByGuid(guid)
+    if invItem == nil then
+        return false;
+    end
+
+    local itemObj = GetIES(invItem:GetObject());
+    if itemObj == nil then
+        return false;
+    end
+
+    COMPOSITION_SUCCESS_EFFECT(frame, itemObj);
+end
+
+-- 아크 아이템 등록 취소
+function ITEM_CABINET_ARK_ITEM_REMOVE(frame, icon)
+	frame = frame:GetTopParentFrame();
+	local ark_slot = GET_CHILD_RECURSIVELY(frame, "ark_slot");
+
+    CLEAR_ITEM_CABINET_ARK_UI();
+end
+
+function CLEAR_ITEM_CABINET_ARK_UI()
+    local frame = ui.GetFrame("item_cabinet");
+    ARK_COMPOSITION_CLEAR_ARK_ITEM(frame)
+    ARK_COMPOSITION_CLEAR_MATERIAL_ITEM(frame)
+    ARK_COMPOSITION_TOGGLE_RESULT_UI(frame, 0)
+    frame:SetUserValue("goal_lv", 0)    
 end
 
 function table.removeKey(table, key)

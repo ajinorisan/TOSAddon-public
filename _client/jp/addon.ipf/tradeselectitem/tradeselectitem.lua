@@ -1030,7 +1030,8 @@ function OPEN_TRADE_SELECT_ITEM_STIRNG_SPLIT(invItem)
 			break;
 		end
 	end
-
+	
+	local select_item_icon_use = TryGetProp(cls, "SelectItemIconUse", 0);
 	for i = 1, index do
 		local itemName = TryGetProp(cls, "SelectItemClsMsg_"..i)
 		local conditionfunction = nil;
@@ -1043,7 +1044,12 @@ function OPEN_TRADE_SELECT_ITEM_STIRNG_SPLIT(invItem)
 			if TryGetProp(cls, 'ItemIcon', 'None') == 'YES' then
 				icon_name = itemName
 			end
-			y = TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, i, itemName, icon_name , conditionfunction);	
+
+			local itemClsName = "None";
+			if select_item_icon_use == 1 then
+				itemClsName = TryGetProp(cls, "SelectItemStirngSplit_"..i, "None");
+			end
+			y = TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, i, itemName, icon_name , conditionfunction, itemClsName);	
 			y = y + 5
 		end
 	end

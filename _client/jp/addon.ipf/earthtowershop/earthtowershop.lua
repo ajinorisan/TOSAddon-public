@@ -54,6 +54,14 @@ local g_account_prop_shop_table =
     ['EVENT_2402_NEWYEAR'] =
     {
         ['coinName'] = "EVENT_2404_Old_Newyear_Coin"
+    },
+    ['EVENT_2404_W1TH'] = 
+    {
+        ['coinName'] = "EVENT_2404_W1th_Coin"
+    },
+    ['EVENT_2407_KUPOLE'] = 
+    {
+        ['coinName'] = "EVENT_2407_Coin"
     }
 }
 --------------------------------------------------------------------------------------------------------------------------
@@ -347,6 +355,29 @@ function EARTHTOWERSHOP_BUY_ITEM_RESULT(frame, msg, argStr, argNum)
             count = '0'
         end
         propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+    elseif shopType == "EVENT_2404_W1TH" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+    elseif shopType == "EVENT_2407_KUPOLE" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+        if itemCls ~= nil then
+            propertyRemain:SetTextByKey('icon', ClMsg("EVENT_COIN_MSG"));
+            propertyRemain:SetTextByKey('itemName', "")
+            local count = GetInvItemCount(GetMyPCObject(), coinName)
+            if count == 'None' then
+                count = '0'
+            end
+            propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+        end
     end
 end
 
@@ -943,7 +974,7 @@ function EARTH_TOWER_INIT(frame, shopType)
     AUTO_CAST(showExchangeEnable)
     local checkExchangeEnable = showExchangeEnable:IsChecked();
 
-    if string.find(shopType, "EarthTower") ~= nil or shopType == "DailyRewardShop" or ShopType == 'DailyRewardShop_Season' then
+    if string.find(shopType, "EarthTower") ~= nil or shopType == "DailyRewardShop" or ShopType == 'DailyRewardShop_Season' or shopType == "EVENT_2407_KUPOLE" then
         showExchangeEnable:ShowWindow(0);
         checkExchangeEnable = 0;
     end
@@ -998,6 +1029,13 @@ function EARTH_TOWER_SET_PROPERTY_COUNT(ctrl, itemName, propName)
     if itemName == "Tos_Event_Coin" then
         local clsmsg = ClMsg("REMAIN_COIN_EVENT_TOS_WHOLE_ICON")
         ctrl:SetTextByKey('icon', clsmsg)
+    elseif itemName == "EVENT_2407_Coin" then
+        local clsmsg = ClMsg("EVENT_COIN_MSG");
+        ctrl:SetTextByKey('icon', clsmsg);
+        ctrl:SetTextByKey('itemName', "");
+        ctrl:SetTextByKey('itemCount', GET_COMMAED_STRING(count));
+        ctrl:ShowWindow(1);
+        return;
     else
         ctrl:SetTextByKey('icon', "")  
     end

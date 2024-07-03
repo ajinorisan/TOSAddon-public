@@ -137,6 +137,7 @@
 	<BGM PlayListName="master_Wingedhussar" Volume="130" FileName1="tos_SFA_Day_in_Glasgow.mp3"/>
 	<BGM PlayListName="master_bowmaster" Volume="130" FileName1="tos_Cinenote_The_Dance_of_Wolves.mp3"/>
 	<BGM PlayListName="master_Desperado" Volume="130" FileName1="tos_Drogo_Rocking_the_Roll.mp3"/>
+	<BGM PlayListName="master_Vanquisher" Volume="130" FileName1="tos_SFA_Hit_Last.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE01" Volume="120" FileName1="Orgel_No_Matter_Christmas.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE02" Volume="120" FileName1="Orgel_Dont_Cry.mp3"/>
 	<BGM PlayListName="raid_velcoffer" Volume="120" FileName1="tos_Drogo_Uno_Impetu.mp3" FileName2="tos_Drogo_Velvet_Penetration.mp3" FileName3="tos_Gaudium_Wrong_Theory.mp3"/>

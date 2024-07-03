@@ -16,7 +16,7 @@
 		<picture name="myclasspic" rect="0 0 114 145" margin="3 0 0 0" layout_gravity="left top" hittest="true" image="weekboss_default_hud_L" stretch="true"/>
 		<button name="campBtn" rect="0 0 15 15" margin="0 70 0 0" layout_gravity="left top" image="btn_foothold" LBtnUpScp="HEDADSUPDISPLAY_CAMP_BTN_CLICK" texttooltip="거점 이동을 할 수 있습니다."/>
 		<picture name="Isleader" rect="0 0 32 20" margin="62 30 0 0" layout_gravity="left top" hittest="false" image="party_leader_mark" stretch="true"/>
-		<picture name="myhpspleft" rect="0 0 114 145" margin="0 24 0 0" layout_gravity="left top" hittest="false" stretch="true"/>
+		<picture name="myhpspleft" rect="0 0 114 145" margin="3 24 0 0" layout_gravity="left top" hittest="false" stretch="true"/>
 		<picture name="myhpspright" rect="0 0 54 145" margin="413 0 38 0" layout_gravity="left top" hittest="false" image="weekboss_default_hud_R" stretch="true"/>
 		<groupbox name="soulCrystalGbox" rect="0 0 87 130" margin="0 3 16 0" layout_gravity="right center" draw="false" resizebyparent="false" changecursor="false" scrollbar="false" hittest="false"/>
 		<picture name="soulCrystal_bg" rect="0 0 84 86" margin="0 0 0 0" parent="soulcrystalGbox" layout_gravity="left center" hittest="false" image="weekboss_default_hud_soulCrystal_bg" stretch="false"/>

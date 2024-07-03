@@ -1,6 +1,5 @@
 -- 신비한 돋보기
 function DRESS_ROOM_REGISTER_ON_INIT(addon, frame)
-	addon:RegisterMsg('DRESS_ROOM_SET', 'ON_DRESS_ROOM_REGISTER_COMPLETE')
 end
 
 function DRESS_ROOM_REGISTER_OPEN(frame)
@@ -166,9 +165,4 @@ function _DRESS_ROOM_REGISTER_REG_COSTUME()
 	if inv_item == nil then return end
 
 	pc.ReqExecuteTx_Item('REGISTER_DRESS_ROOM_ITEM', inv_item:GetIESID(), tostring(dress_cls_id))
-end
-
-function ON_DRESS_ROOM_REGISTER_COMPLETE(frame, msg, arg_str, arg_num)
-	print('????')
-	ui.CloseFrame('dress_room_register')
 end

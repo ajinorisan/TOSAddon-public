@@ -17549,6 +17549,138 @@
       </Trigger>
     </TriggerList>
   </SpcItem>
+  <SpcItem Name="GEM_Desperado_BadGuy">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_BadGuy" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_BadGuy" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Desperado_Equilibrium">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_Equilibrium" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_Equilibrium" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Desperado_Revenged">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_Revenged" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_Revenged" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Desperado_DeadlyFire">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_DeadlyFire" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_DeadlyFire" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Desperado_RussianRoulette">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_RussianRoulette" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_RussianRoulette" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Desperado_LastManStanding">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_LastManStanding" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Desperado_LastManStanding" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
   <SpcItem Name="GEM_BowMaster_FocusFire">
     <TriggerList Act="UnEquip">
       <Trigger>
@@ -17681,12 +17813,12 @@
       </Trigger>
     </TriggerList>
   </SpcItem>
-  <SpcItem Name="GEM_Desperado_BadGuy">
+  <SpcItem Name="GEM_Vanquisher_VerticalSlash">
     <TriggerList Act="UnEquip">
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_BadGuy" />
+            <Str Str="Vanquisher_VerticalSlash" />
             <Num Num="-1" />
           </ToolScp>
         </ExecList>
@@ -17696,19 +17828,19 @@
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_BadGuy" />
+            <Str Str="Vanquisher_VerticalSlash" />
             <Num Num="1" />
           </ToolScp>
         </ExecList>
       </Trigger>
     </TriggerList>
   </SpcItem>
-  <SpcItem Name="GEM_Desperado_Equilibrium">
+  <SpcItem Name="GEM_Vanquisher_TurnOver">
     <TriggerList Act="UnEquip">
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_Equilibrium" />
+            <Str Str="Vanquisher_TurnOver" />
             <Num Num="-1" />
           </ToolScp>
         </ExecList>
@@ -17718,19 +17850,19 @@
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_Equilibrium" />
+            <Str Str="Vanquisher_TurnOver" />
             <Num Num="1" />
           </ToolScp>
         </ExecList>
       </Trigger>
     </TriggerList>
   </SpcItem>
-  <SpcItem Name="GEM_Desperado_Revenged">
+  <SpcItem Name="GEM_Vanquisher_VoidSlash">
     <TriggerList Act="UnEquip">
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_Revenged" />
+            <Str Str="Vanquisher_VoidSlash" />
             <Num Num="-1" />
           </ToolScp>
         </ExecList>
@@ -17740,19 +17872,19 @@
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_Revenged" />
+            <Str Str="Vanquisher_VoidSlash" />
             <Num Num="1" />
           </ToolScp>
         </ExecList>
       </Trigger>
     </TriggerList>
   </SpcItem>
-  <SpcItem Name="GEM_Desperado_DeadlyFire">
+  <SpcItem Name="GEM_Vanquisher_EarthCrusher">
     <TriggerList Act="UnEquip">
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_DeadlyFire" />
+            <Str Str="Vanquisher_EarthCrusher" />
             <Num Num="-1" />
           </ToolScp>
         </ExecList>
@@ -17762,19 +17894,19 @@
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_DeadlyFire" />
+            <Str Str="Vanquisher_EarthCrusher" />
             <Num Num="1" />
           </ToolScp>
         </ExecList>
       </Trigger>
     </TriggerList>
   </SpcItem>
-  <SpcItem Name="GEM_Desperado_RussianRoulette">
+  <SpcItem Name="GEM_Vanquisher_WindSlasher">
     <TriggerList Act="UnEquip">
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_RussianRoulette" />
+            <Str Str="Vanquisher_WindSlasher" />
             <Num Num="-1" />
           </ToolScp>
         </ExecList>
@@ -17784,19 +17916,19 @@
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_RussianRoulette" />
+            <Str Str="Vanquisher_WindSlasher" />
             <Num Num="1" />
           </ToolScp>
         </ExecList>
       </Trigger>
     </TriggerList>
   </SpcItem>
-  <SpcItem Name="GEM_Desperado_LastManStanding">
+  <SpcItem Name="GEM_Vanquisher_FatalSwordDance">
     <TriggerList Act="UnEquip">
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_LastManStanding" />
+            <Str Str="Vanquisher_FatalSwordDance" />
             <Num Num="-1" />
           </ToolScp>
         </ExecList>
@@ -17806,7 +17938,7 @@
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Desperado_LastManStanding" />
+            <Str Str="Vanquisher_FatalSwordDance" />
             <Num Num="1" />
           </ToolScp>
         </ExecList>

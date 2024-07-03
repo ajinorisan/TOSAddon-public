@@ -457,7 +457,7 @@ function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
 		slot:SetSkinName(skinName)
 		return
 	end
-		
+	
 	if itemgrade == 2 then
 		skinName = "invenslot_magic"
 	elseif itemgrade == 3 then

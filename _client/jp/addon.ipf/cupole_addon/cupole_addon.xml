@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_addon" x="0" y="0" width="250" height="450"> 
+	<frame layout_gravity="left bottom" margin="500 0 0 200" draw="true"/>
+	<script OpenScp="" CloseScp=""/>
+	<layer layerlevel="102"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+    <input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
+    <sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="dialog_start" frameCloseAnim="dialog_end" margin="0 0 0 0"/>
+    <controls>
+    <!-- 관리탭 -->
+        <groupbox name="managerTab" rect="0 0 250 125" margin="0 10 0 0" layout_gravity="left bottom" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="cupolesquare" />
+			<slot name="atkslot" parent="managerTab" rect="0 0 81 81" margin="25 0 0 0" layout_gravity="left center" skin="alchemist_ui2_slot" stretch="false" LBtnUpScp="CUPOLE_REGISTE_ITEM" LBtnUpArgNum="0" RBtnUpScp="CUPOLE_CLEAR_REGISTE_ITEM"/>
+			<slot name="defslot" parent="managerTab" rect="0 0 81 81" margin="140 0 0 0" layout_gravity="left center" skin="alchemist_ui3_slot" stretch="false" LBtnUpScp="CUPOLE_REGISTE_ITEM" LBtnUpArgNum="1" RBtnUpScp="CUPOLE_CLEAR_REGISTE_ITEM"/>
+		<groupbox name="atkBG" rect="0 0 100 200" margin="15 0 0 125" layout_gravity="left bottom" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="cupolesquare" />
+			<slot name="slot1" parent="atkBG" rect="0 0 81 81" margin="0 50 0 0" layout_gravity="center center" skin="invenslot2" stretch="false" LBtnUpScp="PRESS_CUPOLE_ITEM" LBtnUpArgNum="0"/>
+			<slot name="slot2" parent="atkBG" rect="0 0 81 81" margin="0 -50 0 0" layout_gravity="center center" skin="invenslot2" stretch="false" LBtnUpScp="PRESS_CUPOLE_ITEM" LBtnUpArgNum="0"/>
+
+        <groupbox name="defBG" rect="0 0 100 200" margin="130 0 0 125" layout_gravity="left bottom" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="cupolesquare" />
+			<slot name="slot1" parent="defBG" rect="0 0 81 81" margin="0 50 0 0" layout_gravity="center center" skin="invenslot2" stretch="false" LBtnUpScp="PRESS_CUPOLE_ITEM" LBtnUpArgNum="1"/>
+			<slot name="slot2" parent="defBG" rect="0 0 81 81" margin="0 -50 0 0" layout_gravity="center center" skin="invenslot2" stretch="false" LBtnUpScp="PRESS_CUPOLE_ITEM" LBtnUpArgNum="1"/>
+    </controls>
+</uiframe>

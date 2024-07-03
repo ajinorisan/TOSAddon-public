@@ -539,116 +539,18 @@ function UPDATE_TRUST_POINT_GLOBAL_TOOLTIP(tooltipframe, tree)
 end
 
 function UPDATE_INDUN_INFO_TOOLTIP(tooltipframe, cidStr, param1, param2, actor)
-	actor =	tolua.cast(actor, "CFSMActor")
 	tootltipframe = AUTO_CAST(tooltipframe)
 
-	local indunClsList, indunCount = GetClassList('Indun');
 	local ctrlWidth = tonumber(tooltipframe:GetUserConfig("INDUN_CTRL_WIDTH"))
 	local ctrlHeight = tonumber(tooltipframe:GetUserConfig("INDUN_CTRL_HEIGHT"))
 	local ctrlLeftMargin = tonumber(tooltipframe:GetUserConfig("INDUN_CTRL_LEFT_MARGIN"))
-	local playPerRestTypeTable={}
 
 	local accountInfo = session.barrack.GetMyAccount();
+	local pcInfo = accountInfo:GetByStrCID(cidStr);
+
 	local indunListBox = GET_CHILD_RECURSIVELY(tooltipframe, "indunListBox")
-
 	local indunLabelText = GET_CHILD_RECURSIVELY(tooltipframe, "indunLabelText")
-	indunLabelText:SetText("{@st43}{s20}" ..ClMsg("IndunCountInfo"))
-	local pcInfo = accountInfo:GetByStrCID(cidStr)
-
-	-- 인던 이용 현황 출력
-	for j = 0, indunCount - 1 do
-		local indunCls = GetClassByIndexFromList(indunClsList, j)
-		if indunCls ~= nil and indunCls.Category ~= "None" then
-			local indunGroupBox = indunListBox:CreateOrGetControl("groupbox", "INDUN_CONTROL_".. indunCls.PlayPerResetType, ctrlLeftMargin, 0, ctrlWidth, ctrlHeight)
-			indunGroupBox = tolua.cast(indunGroupBox, "ui::CGroupBox")
-			indunGroupBox:EnableDrawFrame(0)
-			local indunLabel = indunGroupBox:CreateOrGetControl("richtext", "INDUN_NAME_" .. indunCls.PlayPerResetType, 0, 0, ctrlWidth - 60, ctrlHeight)
-			indunLabel = tolua.cast(indunLabel, 'ui::CRichText')
-			indunLabel:SetTextFixWidth(1);
-			indunLabel:SetTextFixHeight(true);
-			indunLabel:SetAutoFontSizeByWidth(indunLabel:GetWidth())
-			indunLabel:SetText('{@st42b}' .. indunCls.Category)
-			indunLabel:SetEnable(0)
-			local difficulty = TryGetProp(indunCls, "Difficulty", "None")
-            if difficulty ~= "None" then
-                indunLabel:SetText('{@st42b}' .. indunCls.Category .. ' - ' .. difficulty)
-            end
-			
-			local indunCntLabel = indunGroupBox:CreateOrGetControl("richtext", "INDUN_COUNT_" .. indunCls.PlayPerResetType, 0, 0, ctrlWidth / 2, ctrlHeight)
-			indunCntLabel:SetGravity(ui.RIGHT, ui.TOP)
-			indunCntLabel:SetEnable(0)
-
-			local entranceCount = BARRACK_GET_CHAR_INDUN_ENTRANCE_COUNT(cidStr, indunCls.PlayPerResetType)
-			if entranceCount ~= nil then
-				if entranceCount == 'None' then
-					entranceCount = 0;
-				else
-					entranceCount = tonumber(entranceCount)
-				end
-
-				local dungeonType = TryGetProp(indunCls, "DungeonType", "None");
-				if dungeonType == "MythicDungeon_Auto_Hard" or string.find(indunCls.ClassName, "Challenge_Division_Auto") ~= nil or indunCls.PlayPerResetType == 807 then
-					indunCntLabel:SetText("{@st42b}" .. entranceCount .. "/" .. "{img infinity_text 20 10}");
-				elseif dungeonType == "BridgeWailing" then
-					indunCntLabel:SetText("{@st42b}" .. ScpArgMsg("ChallengeMode_HardMode_Count", "Count", entranceCount));
-				else
-					indunCntLabel:SetText("{@st42b}" .. entranceCount .. "/" .. BARRACK_GET_INDUN_MAX_ENTERANCE_COUNT(indunCls.PlayPerResetType))
-				end
-			end
-
-			if pcInfo ~= nil then
-				if indunCls.Level <= actor:GetLv() or playPerRestTypeTable["INDUN_COUNT_" .. indunCls.PlayPerResetType]==1 then
-					indunLabel:SetEnable(1)
-					indunCntLabel:SetEnable(1)
-					playPerRestTypeTable["INDUN_COUNT_" .. indunCls.PlayPerResetType]=1
-				end
-			end
-		end
-	end
-
-	-- 챌린지 모드, 프리 던전 보스 이용 현황 출력
-	local contentsClsList, count = GetClassList('contents_info');
-	for i = 0, count - 1 do
-        local contentsCls = GetClassByIndexFromList(contentsClsList, i);
-		if contentsCls ~= nil then
-            local resetGroupID = contentsCls.ResetGroupID;
-			local category = contentsCls.Category;
-			local indunGroupBox = indunListBox:GetChild('INDUN_CONTROL_'..resetGroupID);
-			if category ~= 'None' then
-				local indunGroupBox = indunListBox:CreateOrGetControl("groupbox", "INDUN_CONTROL_".. resetGroupID, ctrlLeftMargin, 0, ctrlWidth, ctrlHeight);
-				indunGroupBox = tolua.cast(indunGroupBox, "ui::CGroupBox");
-				indunGroupBox:EnableDrawFrame(0);
-
-				local indunLabel = indunGroupBox:CreateOrGetControl("richtext", "INDUN_NAME_" .. resetGroupID, 0, 0, ctrlWidth / 2, ctrlHeight);
-				indunLabel = tolua.cast(indunLabel, 'ui::CRichText');
-				indunLabel:SetText('{@st42b}' .. category);
-				indunLabel:SetEnable(0);
-
-				local indunCntLabel = indunGroupBox:CreateOrGetControl("richtext", "INDUN_COUNT_" .. resetGroupID, 0, 0, ctrlWidth / 2, ctrlHeight);
-				indunCntLabel = tolua.cast(indunCntLabel, 'ui::CRichText');
-				indunCntLabel:SetGravity(ui.RIGHT, ui.TOP);
-				indunCntLabel:SetEnable(0);
-
-				local curCount = BARRACK_GET_CHAR_INDUN_ENTRANCE_COUNT(cidStr, resetGroupID);
-				if curCount == nil or curCount == 'None' then
-					curCount = 0;
-				else
-					curCount = tonumber(curCount)
-				end
-
-				local maxCount = BARRACK_GET_INDUN_MAX_ENTERANCE_COUNT(resetGroupID);
-				indunCntLabel:SetText("{@st42b}" .. curCount .. "/" .. maxCount);
-
-				if pcInfo ~= nil then
-					if contentsCls.Level <= actor:GetLv()  or playPerRestTypeTable["INDUN_COUNT_" .. resetGroupID]== 1 then
-						indunLabel:SetEnable(1);
-						indunCntLabel:SetEnable(1);
-						playPerRestTypeTable["INDUN_COUNT_" .. resetGroupID] = 1;
-					end
-				end
-			end
-		end
-	end
+	indunLabelText:SetText("{@st43}{s20}"..ClMsg("IndunInfoToolTipTitle"))
 
 	-- 실버 표시
 	local indunGroupBox = indunListBox:CreateOrGetControl("groupbox", "INDUN_CONTROL_SILVER", ctrlLeftMargin, 0, ctrlWidth, ctrlHeight)

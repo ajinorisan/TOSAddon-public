@@ -5730,6 +5730,59 @@ function RUN_CLIENT_USE_MULTIPLE_USE_STRING_GIVE_ITEM_NUMBER_SPLIT(count)
 end
 -----------------------------------
 
+-----큐폴 여신의 은총 한단계 진화
+function CLIENT_CONSUME_MULTIPLE_ITEMS_TRANSFORM_NEW_ITEM(item_obj)
+	multiple_string_give_item_numbersplit = '0'
+	local item = GetIES(item_obj:GetObject())	
+	
+	if GetCraftState() == 1 then
+		return
+	end
+
+	if true == BEING_TRADING_STATE() then
+		return
+	end
+	
+	local invItem = session.GetInvItemByGuid(item_obj:GetIESID())	
+	if nil == invItem then
+		return
+	end
+	
+	if true == invItem.isLockState then
+		ui.SysMsg(ClMsg("MaterialItemIsLock"))
+		return
+	end
+
+	CHECK_CLIENT_CONSUME_MULTIPLE_ITEMS_TRANSFORM_NEW_ITEM(invItem:GetIESID())
+end
+
+function CHECK_CLIENT_CONSUME_MULTIPLE_ITEMS_TRANSFORM_NEW_ITEM(item_id)
+	local invItem = session.GetInvItemByGuid(tostring(item_id))
+	local itemObj = GetIES(invItem:GetObject())
+	local div = TryGetProp(itemObj, 'NumberArg1', 0)
+	local max = 0;
+	if (invItem.count / div) < 1 then
+		max = 1;
+	else
+		max = (invItem.count / div)
+	end
+
+	local titleText = ScpArgMsg("INPUT_CNT_D_D", "Auto_1", 1, "Auto_2", math.max(1, max))
+	INPUT_NUMBER_BOX(nil, titleText, "RUN_CLIENT_CONSUME_MULTIPLE_ITEMS_TRANSFORM_NEW_ITEM", 1, 1, max)
+	multiple_string_give_item_numbersplit = tostring(item_id)
+
+end
+
+function RUN_CLIENT_CONSUME_MULTIPLE_ITEMS_TRANSFORM_NEW_ITEM(count)
+	session.ResetItemList()
+	session.AddItemID(multiple_string_give_item_numbersplit, count)
+
+    local resultlist = session.GetItemIDList()
+    item.DialogTransaction("MULTIPLE_ITEMS_TRANSFORM_NEW_ITEM", resultlist)
+end
+
+-----
+
 -- 미식별 신비한서 분해
 local multiple_hidden_ability_fragment_item_id = '0'
 function CLIENT_USE_MULTIPLE_HIDDEN_ABILITY_FRAGMENT(item_obj)

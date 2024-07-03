@@ -4,7 +4,7 @@
         <StageList>
             <Stage Name="Start" AutoStart="0">
                 <ObjList>
-                    <Obj Type="Monster" MonType="154064" Pos="839.11#254.27#2293.15" genCount="1" genTime="20000" objectKey="0"/>
+                    <Obj Type="Monster" MonType="160210" Pos="839.11#254.27#2293.15" genCount="1" genTime="20000" objectKey="0"/>
                     <Obj Type="Monster" MonType="20025" Pos="670.67#254.27#2431.43" genCount="1" genTime="20000" objectKey="1"/>
                     <Obj Type="Monster" MonType="20025" Pos="662.47#254.27#2231.21" genCount="1" genTime="20000" objectKey="2"/>
                     <Obj Type="Monster" MonType="20025" Pos="812.96#254.27#2103.40" genCount="1" genTime="20000" objectKey="3"/>

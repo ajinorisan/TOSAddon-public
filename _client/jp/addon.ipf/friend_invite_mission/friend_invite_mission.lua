@@ -1,9 +1,9 @@
 function REQ_FRIEND_INVITE_MISSION()
-    ui.OpenFrame("friend_invite_mission");
+    --ui.OpenFrame("friend_invite_mission");
 end
 
 function OPEN_FRIEND_INVITE_MISSION(frame)
-    local pc = GetMyPCObject();
+    --[[ local pc = GetMyPCObject();
     if pc == nil then
         return ; 
     end
@@ -13,12 +13,11 @@ function OPEN_FRIEND_INVITE_MISSION(frame)
     end
 
     MAKE_FREIND_INVITE_CONTROLSET(frame, acc)
-    SET_FRIEND_INVITE_TEAMNAME(frame, acc)
+    SET_FRIEND_INVITE_TEAMNAME(frame, acc) ]]
 end
 
 function MAKE_FREIND_INVITE_CONTROLSET(frame, acc)
-
-    local ItemInfoBox = GET_CHILD_RECURSIVELY_NAME(frame,"MainGB/ItemInfoBox")
+    --[[ local ItemInfoBox = GET_CHILD_RECURSIVELY_NAME(frame,"MainGB/ItemInfoBox")
 
     local clsList, cnt = GetClassList("friend_invite")
     local x = 0;
@@ -90,11 +89,11 @@ function MAKE_FREIND_INVITE_CONTROLSET(frame, acc)
 
         y = y + 1;
 
-    end
+    end ]]
 end
 
 function SET_FRIEND_INVITE_TEAMNAME(frame, acc)
-    local Inviter = GET_CHILD_RECURSIVELY_NAME(frame,"MainGB/TeamName/inviterName")
+    --[[ local Inviter = GET_CHILD_RECURSIVELY_NAME(frame,"MainGB/TeamName/inviterName")
     local TeamNameInvite = GET_CHILD_RECURSIVELY_NAME(frame,"MainGB/TeamNameInvite")
     local Invitee = GET_CHILD_RECURSIVELY_NAME(frame,"MainGB/TeamNameInvite/inviteeName")
     local Name = TryGetProp(acc, "EVENT_2403_FRIEND_EVENT_INVITER_NAME", "None");
@@ -110,14 +109,13 @@ function SET_FRIEND_INVITE_TEAMNAME(frame, acc)
     else
         TeamNameInvite:ShowWindow(0);
         Inviter:SetTextByKey("Name", myName);
-    end
-
+    end ]]
 end
 
 function REQUEST_GET_INVITE_EVENT_REWARDS(frame, ctrl, argStr, argNum)
-    RequestGetInviteEventReward(argNum)
+    --[[ RequestGetInviteEventReward(argNum)
     local pic = GET_CHILD_RECURSIVELY(ctrl,"Check")
     ctrl:SetEnable(0)
-    pic:ShowWindow(1)
+    pic:ShowWindow(1) ]]
 end
 

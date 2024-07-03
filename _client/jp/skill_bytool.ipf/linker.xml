@@ -563,7 +563,7 @@
                     <Num Num="0.30000001"/>
                     <Str_Arg Arg="1" Str="None"/>
                     <Str Str="swd_blow_cloth2"/>
-                    <Str Str="true"/>
+                    <Str Str="self"/>
                 </Scp>
                 <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
                     <Str Str="voice_wiz_m_umbilicalcord_shot"/>
@@ -632,7 +632,7 @@
                     <Num Num="0.30000001"/>
                     <Str_Arg Arg="1" Str="None"/>
                     <Str Str="swd_blow_cloth2"/>
-                    <Str Str="true"/>
+                    <Str Str="self"/>
                 </Scp>
                 <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
                     <Str Str="voice_wiz_m_umbilicalcord_shot"/>

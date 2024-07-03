@@ -2,7 +2,11 @@
 
 -- 필드 몬스터 방어력 일괄 조정
 local function revise_mon_def(self, def)
-    if GetExProp(self, 'IsChallengeModeMon') == 1 or GetExProp(self, 'IsChallengeModeMon_HardMode') == 1 or GetExProp(self, 'IS_SUMMONED_MONSTER') == 1 then
+    if GetExProp(self, 'IsChallengeModeMon') == 1 
+        or GetExProp(self, 'IsChallengeModeMon_HardMode') == 1 
+        or GetExProp(self, 'IS_SUMMONED_MONSTER') == 1 
+        or GetExProp(self, "EXPROP_SHADOW_INFERNAL") == 1
+    then
         return def
     end
 
@@ -19,19 +23,27 @@ local function revise_mon_def(self, def)
         return def
     end
     local is_boss = TryGetProp(self, 'MonType', 'None') == 'Boss'
+    def = math.min(def, 2000000000)
     if MapType == 'Field' then
         def = def * 1.1
     end
+
+    def = math.min(def, 2000000000)
+
     return def
 end
 
 local function revise_mon_hp(self, hp)
-    if GetExProp(self, 'IsChallengeModeMon') == 1 or GetExProp(self, 'IsChallengeModeMon_HardMode') == 1 or GetExProp(self, 'IS_SUMMONED_MONSTER') == 1 then
+    if GetExProp(self, 'IsChallengeModeMon') == 1 
+        or GetExProp(self, 'IsChallengeModeMon_HardMode') == 1 
+        or GetExProp(self, 'IS_SUMMONED_MONSTER') == 1 
+        or GetExProp(self, "EXPROP_SHADOW_INFERNAL") == 1
+    then
         return hp
     end
     
     local zone_name = GetZoneName(self)
-
+    
     if zone_name == 'onehour_test1' then
         return hp
     end
@@ -50,12 +62,16 @@ local function revise_mon_hp(self, hp)
     local is_boss = TryGetProp(self, 'MonType', 'None') == 'Boss'
     if MapType == 'Field' then
         if is_boss == true then
+            hp = math.min(hp, 280000000)
             hp = hp * 7
         else
+            hp = math.min(hp, 500000000)
             hp = hp * 3.5
         end        
     end
-    
+
+    hp = math.min(hp, 2000000000)
+
     return hp
 end
 

@@ -90,3 +90,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5504,5504,1,40,1,60000,1,2,0,0,0,0,0,"npc_auctioneer","[블랙 마켓]{nl}경매인","","","","","","BLACK_MARKET_AI","BLACK_MARKET","","","NO","YES","NO","Neutral","","","",""
 5506,5506,1,40,1,60000,1,2,0,0,0,0,0,"npc_wingedhussar","[윙드후사르 마스터]{nl}얀 카롤라스","","","","","","","NPC_WINGEDHUSSAR","","","NO","YES","NO","Neutral","","","",""
 5508,5508,1,40,1,60000,1,1,0,0,0,0,0,"npc_bowmaster","[신궁 마스터]{nl}앙겔레 틸러","","","","","","","NPC_BOWMASTER","","","NO","YES","NO","Neutral","","","",""
+5509,5509,1,40,1,60000,1,2,0,0,0,0,0,"npc_kupole_1_event","[이벤트] 큐폴 업데이트 기념 NPC","","","","","","","EVENT_W_KUPOLE_NPC","","","NO","YES","NO","Neutral","","","",""

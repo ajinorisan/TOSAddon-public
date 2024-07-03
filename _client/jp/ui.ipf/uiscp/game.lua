@@ -1005,6 +1005,7 @@ function GET_ITEM_BG_PICTURE_BY_GRADE(rank, needAppraisal, needRandomOption)
 	if needAppraisal == 1 or needRandomOption == 1 then
 		flag = 4
 	end
+
 	if rank == 1 then
 		pic = "one_two_star_item_bg" .. flag;
 	elseif rank == 2 then
@@ -1049,7 +1050,7 @@ function GET_ITEM_PICTURE_RANK(cls)
 	end
 
 	local itemRank = cls.ItemStar;
-
+	
 	if itemRank == 0 then
 		return "None";
 	elseif itemRank == 1 then
@@ -1152,7 +1153,6 @@ function GET_FULL_NAME(item, useNewLine, isEquiped, timeImgSize)
 	if TryGetProp(item, "StringArg", "None") ==	"TOSHeroEquip" or TryGetProp(item, "StringArg", "None") ==	"TOSHeroEquipNeck" then
 		ownName = ClMsg('TOSHeroEquipTooltip_Title')..ownName
 	end
-
 
 	return ownName;
 end

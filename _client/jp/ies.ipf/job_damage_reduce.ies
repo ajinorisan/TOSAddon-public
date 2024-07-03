@@ -18,6 +18,8 @@ ClassID,ReduceRate,ClassName,Name,EngName,CtrlType
 1022,5,"Char1_22","매화검수","BlossomBlader","Warrior"
 1023,10,"Char1_23","루차도르","Luchador","Warrior"
 1024,10,"Char1_24","신극","SpearMaster","Warrior"
+1025,10,"Char1_25","윙드후사르","WingedHussars","Warrior"
+1026,10,"Char1_26","뱅퀴셔","Vanquisher","Warrior"
 2016,5,"Char2_16","페더풋","Featherfoot","Wizard"
 2022,5,"Char2_22","보코르","Bokor","Wizard"
 4003,5,"Char4_3","크리비","Kriwi","Cleric"

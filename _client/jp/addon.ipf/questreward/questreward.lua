@@ -1071,7 +1071,7 @@ function CREATE_QUEST_REWARE_CTRL_DIFF_COUNT(box, y, index, ItemName, itemCnt, N
 end
 
 
-function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectitemClassName, conditionfunction)
+function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectitemClassName, conditionfunction, item_string_split)
 
 	local isOddCol = 0;
 	if math.floor((index - 1) % 2) == 1 then
@@ -1090,21 +1090,38 @@ function TRRADE_SELECT_STRING_SPLIT_CTRL(box, y, index, ItemName, tradeselectite
 	ctrlSet:SetValue(index);
 	
 	if callFunc == 'DIALOGSELECT_QUEST_REWARD_ADD' then
-	ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
+		ctrlSet:Resize(box:GetHeight() + 70,ctrlSet:GetHeight())
 	end
 
-
-	local itemCls = ClMsg(ItemName)
+	local item_cl_msg = ClMsg(ItemName)
 	local slot = ctrlSet:GetChild("slot");
 	tolua.cast(slot, "ui::CSlot");
 
-	local boxitemcls = GetClass('Item', tradeselectitemClassName)
+	local item_cls = nil;
+	if item_string_split ~= nil and item_string_split ~= "None" then
+		local item_info_list = StringSplit(item_string_split, '/');
+		if item_info_list ~= nil and #item_info_list > 0 then
+			local item_cls_name = item_info_list[1];
+			if item_cls_name ~= nil and item_cls_name ~= "None" and item_cls_name ~= "" then
+				item_cls = GetClass("Item", item_cls_name);
+			end
+		end
+	end
 
-	local icon = GET_ITEM_ICON_IMAGE(boxitemcls, GETMYPCGENDER())
-	SET_SLOT_IMG(slot, icon);
+	local boxitemcls = GetClass('Item', tradeselectitemClassName);
+	if item_cls == nil then
+		local icon = GET_ITEM_ICON_IMAGE(boxitemcls, GETMYPCGENDER())
+		SET_SLOT_IMG(slot, icon);
+	else
+		local icon = GET_ITEM_ICON_IMAGE(item_cls, GETMYPCGENDER());
+		SET_SLOT_IMG(slot, icon);
+
+		local item_cls_id = TryGetProp(item_cls, "ClassID", 0);
+		SET_ITEM_TOOLTIP_BY_TYPE(ctrlSet, item_cls_id);
+	end
 
 	local ItemName = ctrlSet:GetChild("ItemName");
-	local itemText = string.format("{@st41b}%s", itemCls);
+	local itemText = string.format("{@st41b}%s", item_cl_msg);
 
 	ItemName:EnableTextOmitByWidth(true);
 	ItemName:SetText(itemText);

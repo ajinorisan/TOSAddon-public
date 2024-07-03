@@ -1,23 +1,31 @@
 -- community.lua --
 
 function SELECT_PC_CONTEXT_MENU(handleList)
-		
-		local context = ui.CreateContextMenu("PC_CONTEXT_MENU", "", 0, 0, 170, 100);
-		local handleCount = #handleList;
-		for i = 1 , handleCount do
-			local handle = handleList[i];
-			local pcObj = world.GetActor(handle);
-			if pcObj ~= nil then
+	local context = ui.CreateContextMenu("PC_CONTEXT_MENU", "", 0, 0, 170, 100);
+	local handleCount = #handleList;
+	for i = 1 , handleCount do
+		local handle = handleList[i];
+		local pcObj = world.GetActor(handle);
+		if pcObj ~= nil then
+			local is_add_enable = true;
+			local cid = info.GetCID(handle);
+			if cid ~= nil and cid ~= "" and cid ~= "None" then
+				local ies_obj = GetPCObjectByCID(cid);
+				if ies_obj ~= nil then
+					if IsBuffApplied(ies_obj, "Illusion_Buff") == "YES" then
+						is_add_enable = false;
+					end
+				end
+			end
+			if is_add_enable == true then
 				ui.AddContextMenuItem(context, pcObj:GetPCApc():GetFamilyName(), string.format("SELECT_PC_CONTEXT_MENU_OK(%d)", handle));
 			end
 		end
-
-		ui.AddContextMenuItem(context, ClMsg("Cancel"), "None");
-		ui.OpenContextMenu(context);
-
-		g_lastContextMenuX = context:GetMargin().left;
-		g_lastContextMenuY = context:GetMargin().top;
-
+	end
+	ui.AddContextMenuItem(context, ClMsg("Cancel"), "None");
+	ui.OpenContextMenu(context);
+	g_lastContextMenuX = context:GetMargin().left;
+	g_lastContextMenuY = context:GetMargin().top;
 end
 
 function SELECT_PC_CONTEXT_MENU_OK(handle)
@@ -41,17 +49,28 @@ function SHOW_PC_CONTEXT_MENU(handle)
 		return;
 	end
 
-	local targetInfo= info.GetTargetInfo(handle);
-	if targetInfo.IsDummyPC == 1 then
-		if targetInfo.isSkillObj == 0 then --유체이탈은 클릭해도 아무반응 없도록 한다.
-			POPUP_DUMMY(handle, targetInfo);
-		end
-		return
-	end
-
 	local pcObj = world.GetActor(handle);
 	if pcObj == nil then
 		return;
+	end
+
+	local targetInfo= info.GetTargetInfo(handle);
+	if targetInfo.IsDummyPC == 1 then
+		--유체이탈 or 환영 클릭해도 아무반응 없도록 한다.
+		local is_enable = true;
+		local cid = info.GetCID(handle);
+		if cid ~= nil and cid ~= "" and cid ~= "None" then
+			local ies_obj = GetPCObjectByCID(cid);
+			if ies_obj ~= nil then
+				if IsBuffApplied(ies_obj, "Illusion_Buff") == "YES" then
+					is_enable = false;
+				end
+			end
+		end
+		if targetInfo.isSkillObj == 0 and is_enable == true then 
+			POPUP_DUMMY(handle, targetInfo);
+		end
+		return
 	end
 
 	if pcObj:IsMyPC() == 1 then

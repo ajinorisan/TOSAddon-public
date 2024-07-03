@@ -1203,70 +1203,70 @@
 			<img name="bottomright" imgrect="1813 234 55 1"/>
 		</skin>
 		<skin name="companion_on" texture="\skin\barrack.tga">
-			<img name="topleft" imgrect="1447 462 1 1"/>
-			<img name="topcore" imgrect="1448 462 330 1 "/>
-			<img name="topright" imgrect="1778 462 1 1"/>
-			<img name="bodyleft" imgrect="1447 463 1 85"/>
-			<img name="bodycore" imgrect="1448 463 330 85"/>
-			<img name="bodyright" imgrect="1777 463 1 85"/>
-			<img name="bottomleft" imgrect="1447 548 1 1"/>
-			<img name="bottomcore" imgrect="1448 548 330 1"/>
-			<img name="bottomright" imgrect="1778 548 1 1"/>
+			<img name="topleft" imgrect="1447 462 0 1"/>
+			<img name="topcore" imgrect="1448 462 382 1"/>
+			<img name="topright" imgrect="1778 462 0 1"/>
+			<img name="bodyleft" imgrect="1447 463 0 85"/>
+			<img name="bodycore" imgrect="1448 463 382 85"/>
+			<img name="bodyright" imgrect="1777 463 0 85"/>
+			<img name="bottomleft" imgrect="1447 548 0 1"/>
+			<img name="bottomcore" imgrect="1448 548 382 1"/>
+			<img name="bottomright" imgrect="1778 548 0 1"/>
 		</skin>
 		<skin name="companion_on_cursoron" texture="\skin\barrack.tga">
-			<img name="topleft" imgrect="1447 548 1 1"/>
-			<img name="topcore" imgrect="1448 548 330 1 "/>
-			<img name="topright" imgrect="1778 548 1 1"/>
-			<img name="bodyleft" imgrect="1447 549 1 85"/>
-			<img name="bodycore" imgrect="1448 549 330 85"/>
-			<img name="bodyright" imgrect="1778 549 1 85"/>
-			<img name="bottomleft" imgrect="1447 634 1 1"/>
-			<img name="bottomcore" imgrect="1448 634 330 1"/>
-			<img name="bottomright" imgrect="1778 634 1 1"/>
+			<img name="topleft" imgrect="1447 548 0 1"/>
+			<img name="topcore" imgrect="1448 548 382 1"/>
+			<img name="topright" imgrect="1778 548 0 1"/>
+			<img name="bodyleft" imgrect="1447 549 0 85"/>
+			<img name="bodycore" imgrect="1448 549 382 85"/>
+			<img name="bodyright" imgrect="1778 549 0 85"/>
+			<img name="bottomleft" imgrect="1447 634 0 1"/>
+			<img name="bottomcore" imgrect="1448 634 382 1"/>
+			<img name="bottomright" imgrect="1778 634 0 1"/>
 		</skin>
 		<skin name="companion_on_clicked" texture="\skin\barrack.tga">
-			<img name="topleft" imgrect="1447 548 1 1"/>
-			<img name="topcore" imgrect="1448 548 330 1 "/>
-			<img name="topright" imgrect="1778 548 1 1"/>
-			<img name="bodyleft" imgrect="1447 549 1 85"/>
-			<img name="bodycore" imgrect="1448 549 330 85"/>
-			<img name="bodyright" imgrect="1778 549 1 85"/>
-			<img name="bottomleft" imgrect="1447 634 1 1"/>
-			<img name="bottomcore" imgrect="1448 634 330 1"/>
-			<img name="bottomright" imgrect="1778 634 1 1"/>
+			<img name="topleft" imgrect="1447 548 0 1"/>
+			<img name="topcore" imgrect="1448 548 382 1 "/>
+			<img name="topright" imgrect="1778 548 0 1"/>
+			<img name="bodyleft" imgrect="1447 549 0 85"/>
+			<img name="bodycore" imgrect="1448 549 382 85"/>
+			<img name="bodyright" imgrect="1778 549 0 85"/>
+			<img name="bottomleft" imgrect="1447 634 0 1"/>
+			<img name="bottomcore" imgrect="1448 634 382 1"/>
+			<img name="bottomright" imgrect="1778 634 0 1"/>
 		</skin>
 		<skin name="companion_off" texture="\skin\barrack.tga">
-			<img name="topleft" imgrect="1447 462 1 1"/>
-			<img name="topcore" imgrect="1448 462 330 1 "/>
-			<img name="topright" imgrect="1778 462 1 1"/>
-			<img name="bodyleft" imgrect="1447 463 1 85"/>
-			<img name="bodycore" imgrect="1448 463 330 85"/>
-			<img name="bodyright" imgrect="1778 463 1 85"/>
-			<img name="bottomleft" imgrect="1447 548 1 1"/>
-			<img name="bottomcore" imgrect="1448 548 330 1"/>
-			<img name="bottomright" imgrect="1778 548 1 1"/>
+			<img name="topleft" imgrect="1447 462 0 1"/>
+			<img name="topcore" imgrect="1448 462 382 1 "/>
+			<img name="topright" imgrect="1778 462 0 1"/>
+			<img name="bodyleft" imgrect="1447 463 0 85"/>
+			<img name="bodycore" imgrect="1448 463 382 85"/>
+			<img name="bodyright" imgrect="1778 463 0 85"/>
+			<img name="bottomleft" imgrect="1447 548 0 1"/>
+			<img name="bottomcore" imgrect="1448 548 382 1"/>
+			<img name="bottomright" imgrect="1778 548 0 1"/>
 		</skin>
 		<skin name="companion_off_cursoron" texture="\skin\barrack.tga">
-			<img name="topleft" imgrect="1447 462 1 1"/>
-			<img name="topcore" imgrect="1448 462 330 1 "/>
-			<img name="topright" imgrect="1778 462 1 1"/>
-			<img name="bodyleft" imgrect="1447 463 1 85"/>
-			<img name="bodycore" imgrect="1448 463 330 85"/>
-			<img name="bodyright" imgrect="1778 463 1 85"/>
-			<img name="bottomleft" imgrect="1447 548 1 1"/>
-			<img name="bottomcore" imgrect="1448 548 330 1"/>
-			<img name="bottomright" imgrect="1778 548 1 1"/>
+			<img name="topleft" imgrect="1447 462 0 1"/>
+			<img name="topcore" imgrect="1448 462 382 1 "/>
+			<img name="topright" imgrect="1778 462 0 1"/>
+			<img name="bodyleft" imgrect="1447 463 0 85"/>
+			<img name="bodycore" imgrect="1448 463 382 85"/>
+			<img name="bodyright" imgrect="1778 463 0 85"/>
+			<img name="bottomleft" imgrect="1447 548 0 1"/>
+			<img name="bottomcore" imgrect="1448 548 382 1"/>
+			<img name="bottomright" imgrect="1778 548 0 1"/>
 		</skin>
 		<skin name="companion_off_clicked" texture="\skin\barrack.tga">
-			<img name="topleft" imgrect="1447 462 1 1"/>
-			<img name="topcore" imgrect="1448 462 330 1 "/>
-			<img name="topright" imgrect="1778 462 1 1"/>
-			<img name="bodyleft" imgrect="1447 463 1 85"/>
-			<img name="bodycore" imgrect="1448 463 330 85"/>
-			<img name="bodyright" imgrect="1778 463 1 85"/>
-			<img name="bottomleft" imgrect="1447 548 1 1"/>
-			<img name="bottomcore" imgrect="1448 548 330 1"/>
-			<img name="bottomright" imgrect="1778 548 1 1"/>
+			<img name="topleft" imgrect="1447 462 0 1"/>
+			<img name="topcore" imgrect="1448 462 382 1 "/>
+			<img name="topright" imgrect="1778 462 0 1"/>
+			<img name="bodyleft" imgrect="1447 463 0 85"/>
+			<img name="bodycore" imgrect="1448 463 382 85"/>
+			<img name="bodyright" imgrect="1778 463 0 85"/>
+			<img name="bottomleft" imgrect="1447 548 0 1"/>
+			<img name="bottomcore" imgrect="1448 548 382 1"/>
+			<img name="bottomright" imgrect="1778 548 0 1"/>
 		</skin>
 		<skin name="character_on" texture="\skin\barrack.tga">
 			<img name="topleft" imgrect="1575 721 1 1"/>
@@ -1628,6 +1628,248 @@
 			<img name="bottomleft" imgrect="124 140 30 30"/>
 			<img name="bottomcore" imgrect="155 140 30 30"/>
 			<img name="bottomright" imgrect="186 140 30 30"/>
+		</skin>
+		<skin name="cupolesquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9 9 10 10"/>
+			<img name="topcore" 	imgrect="20 9 20 10"/>
+			<img name="topright" 	imgrect="49 9 10 10"/>
+			<img name="bodyleft" 	imgrect="9 20 10 10"/>
+			<img name="bodycore" 	imgrect="20 20 20 10"/>
+			<img name="bodyright" 	imgrect="49 20 10 10"/>
+			<img name="bottomleft" 	imgrect="9 49 10 10"/>
+			<img name="bottomcore" 	imgrect="20 49 20 10"/>
+			<img name="bottomright" imgrect="49 49 10 10"/>
+		</skin>
+		<skin name="cupoleroundsquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="69 9 10 10"/>
+			<img name="topcore" 	imgrect="80 9 20 10"/>
+			<img name="topright" 	imgrect="109 9 10 10"/>
+			<img name="bodyleft" 	imgrect="69 20 10 10"/>
+			<img name="bodycore" 	imgrect="80 20 20 10"/>
+			<img name="bodyright" 	imgrect="109 20 10 10"/>
+			<img name="bottomleft" 	imgrect="69 49 10 10"/>
+			<img name="bottomcore" 	imgrect="80 49 20 10"/>
+			<img name="bottomright" imgrect="109 49 10 10"/>
+		</skin>
+		<skin name="cupoleellipseframe" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="129 9 23 40"/>
+			<img name="topcore" 	imgrect="153 9 41 40"/>
+			<img name="topright" 	imgrect="195 9 23 40"/>
+			<img name="bodyleft" 	imgrect="129 49 23 1"/>
+			<img name="bodycore" 	imgrect="153 49 41 1"/>
+			<img name="bodyright" 	imgrect="195 49 23 1"/>
+			<img name="bottomleft" 	imgrect="129 50 23 1"/>
+			<img name="bottomcore" 	imgrect="153 50 41 1"/>
+			<img name="bottomright" imgrect="195 50 23 1"/>
+		</skin>
+		<skin name="cupolegreenroundsquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9 72 10 10"/>
+			<img name="topcore" 	imgrect="20 72 78 10"/>
+			<img name="topright" 	imgrect="99 72 10 10"/>
+			<img name="bodyleft" 	imgrect="9 83 10 10"/>
+			<img name="bodycore" 	imgrect="20 83 78 10"/>
+			<img name="bodyright" 	imgrect="99 83 10 10"/>
+			<img name="bottomleft" 	imgrect="9 102 10 10"/>
+			<img name="bottomcore" 	imgrect="20 102 78 10"/>
+			<img name="bottomright" imgrect="99 102 10 10"/>
+		</skin>
+		<skin name="cupolehalfsquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="117 72 10 10"/>
+			<img name="topcore" 	imgrect="128 72 78 10"/>
+			<img name="topright" 	imgrect="207 72 10 10"/>
+			<img name="bodyleft" 	imgrect="117 83 10 8"/>
+			<img name="bodycore" 	imgrect="128 83 78 8"/>
+			<img name="bodyright" 	imgrect="207 83 10 8"/>
+			<img name="bottomleft" 	imgrect="117 92 10 10"/>
+			<img name="bottomcore" 	imgrect="128 92 78 10"/>
+			<img name="bottomright" imgrect="207 92 10 10"/>
+		</skin>
+		<skin name="cupolehalfsquare2" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="225 72 10 10"/>
+			<img name="topcore" 	imgrect="236 72 78 10"/>
+			<img name="topright" 	imgrect="315 72 10 10"/>
+			<img name="bodyleft" 	imgrect="225 83 10 8"/>
+			<img name="bodycore" 	imgrect="236 83 78 8"/>
+			<img name="bodyright" 	imgrect="315 83 10 8"/>
+			<img name="bottomleft" 	imgrect="225 92 10 10"/>
+			<img name="bottomcore" 	imgrect="236 92 78 10"/>
+			<img name="bottomright" imgrect="315 92 10 10"/>
+		</skin>
+		<skin name="cupoleyellowsquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9 122 10 10"/>
+			<img name="topcore" 	imgrect="20 122 18 10"/>
+			<img name="topright" 	imgrect="39 122 10 10"/>
+			<img name="bodyleft" 	imgrect="9 133 10 10"/>
+			<img name="bodycore" 	imgrect="20 133 18 18"/>
+			<img name="bodyright" 	imgrect="39 133 10 10"/>
+			<img name="bottomleft" 	imgrect="9 152 10 10"/>
+			<img name="bottomcore" 	imgrect="20 152 20 10"/>
+			<img name="bottomright" imgrect="39 152 10 10"/>
+		</skin>
+		<skin name="cupolebrownsquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="52 122 10 10"/>
+			<img name="topcore" 	imgrect="65 122 18 10"/>
+			<img name="topright" 	imgrect="84 122 10 10"/>
+			<img name="bodyleft" 	imgrect="52 133 10 10"/>
+			<img name="bodycore" 	imgrect="65 133 18 18"/>
+			<img name="bodyright" 	imgrect="84 133 10 10"/>
+			<img name="bottomleft" 	imgrect="52 152 10 10"/>
+			<img name="bottomcore" 	imgrect="65 152 20 10"/>
+			<img name="bottomright" imgrect="84 152 10 10"/>
+		</skin>
+		<skin name="cupolegreensquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="99 122 10 10"/>
+			<img name="topcore" 	imgrect="110 122 18 10"/>
+			<img name="topright" 	imgrect="129 122 10 10"/>
+			<img name="bodyleft" 	imgrect="99  133 10 18"/>
+			<img name="bodycore" 	imgrect="110 133 18 18"/>
+			<img name="bodyright" 	imgrect="129 133 10 18"/>
+			<img name="bottomleft" 	imgrect="99  152 10 10"/>
+			<img name="bottomcore" 	imgrect="110 152 18 10"/>
+			<img name="bottomright" imgrect="129 152 10 10"/>
+		</skin>
+		<skin name="cupolegraysquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="144 122 10 10"/>
+			<img name="topcore" 	imgrect="155 122 18 10"/>
+			<img name="topright" 	imgrect="174 122 10 10"/>
+			<img name="bodyleft" 	imgrect="144 133 10 10"/>
+			<img name="bodycore" 	imgrect="155 133 18 18"/>
+			<img name="bodyright" 	imgrect="174 133 10 10"/>
+			<img name="bottomleft" 	imgrect="144 152 10 10"/>
+			<img name="bottomcore" 	imgrect="155 152 18 10"/>
+			<img name="bottomright" imgrect="174 152 10 10"/>
+		</skin>
+		<skin name="cupoleellipseframe2" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="284 172 18 40"/>
+			<img name="topcore" imgrect="304 172 50 40"/>
+			<img name="topright" imgrect="356 172 17 40"/>
+			<img name="bodyleft" imgrect="284 214 23 1"/>
+			<img name="bodycore" imgrect="303 214 41 1"/>
+			<img name="bodyright" imgrect="355 214 23 1"/>
+			<img name="bottomleft" imgrect="284 214 23 1"/>
+			<img name="bottomcore" imgrect="303 214 41 1"/>
+			<img name="bottomright" imgrect="355 214 23 1"/>
+		</skin>
+		<skin name="cupolegreenroundsquare2" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="284 215 9 8"/>
+			<img name="topcore" imgrect="294 215 80 8"/>
+			<img name="topright" imgrect="375 215 9 8"/>
+			<img name="bodyleft" imgrect="284 224 9 22"/>
+			<img name="bodycore" imgrect="294 224 80 22"/>
+			<img name="bodyright" imgrect="375 224 9 22"/>
+			<img name="bottomleft" imgrect="284 247 9 8"/>
+			<img name="bottomcore" imgrect="294 247 80 8"/>
+			<img name="bottomright" imgrect="375 247 9 8"/>
+		</skin>
+		<skin name="cupolehalfgreenroundsquare" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="284 258 9 9"/>
+			<img name="topcore" imgrect="294 258 80 9"/>
+			<img name="topright" imgrect="375 258 9 9"/>
+			<img name="bodyleft" imgrect="284 268 9 10"/>
+			<img name="bodycore" imgrect="294 268 80 10"/>
+			<img name="bodyright" imgrect="375 268 9 10"/>
+			<img name="bottomleft" imgrect="284 279 9 10"/>
+			<img name="bottomcore" imgrect="294 279 80 10"/>
+			<img name="bottomright" imgrect="375 279 9 10"/>
+		</skin>
+		<skin name="cupole_border_gray" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="144 332 10 10"/>
+			<img name="topcore" imgrect="155 332 18 10"/>
+			<img name="topright" imgrect="174 332 10 10"/>
+			<img name="bodyleft" imgrect="144 343 10 18"/>
+			<img name="bodycore" imgrect="155 343 18 18"/>
+			<img name="bodyright" imgrect="174 343 10 18"/>
+			<img name="bottomleft" imgrect="144 362 10 10"/>
+			<img name="bottomcore" imgrect="155 362 18 10"/>
+			<img name="bottomright" imgrect="174 362 10 10"/>
+		</skin>
+		<skin name="cupole_border_brwon" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="54  332 10 10"/>
+			<img name="topcore" imgrect="65 332 18 10"/>
+			<img name="topright" imgrect="84 332 10 10"/>
+			<img name="bodyleft" imgrect="54  343 10 18"/>
+			<img name="bodycore" imgrect="65 343 18 18"/>
+			<img name="bodyright" imgrect="84 343 10 18"/>
+			<img name="bottomleft" imgrect="54  362 10 10"/>
+			<img name="bottomcore" imgrect="65 362 18 10"/>
+			<img name="bottomright" imgrect="84 362 10 10"/>
+		</skin>
+		<skin name="cupole_border_yellow" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="9  332 10 10"/>
+			<img name="topcore" imgrect="20 332 18 10"/>
+			<img name="topright" imgrect="39 332 10 10"/>
+			<img name="bodyleft" imgrect="9  343 10 18"/>
+			<img name="bodycore" imgrect="20 343 18 18"/>
+			<img name="bodyright" imgrect="39 343 10 18"/>
+			<img name="bottomleft" imgrect="9  362 10 10"/>
+			<img name="bottomcore" imgrect="20 362 18 10"/>
+			<img name="bottomright" imgrect="39 362 10 10"/>
+		</skin>
+		<skin name="cupole_border_green" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="99  332 10 10"/>
+			<img name="topcore" imgrect="110 332 18 10"/>
+			<img name="topright" imgrect="129 332 10 10"/>
+			<img name="bodyleft" imgrect="99  343 10 18"/>
+			<img name="bodycore" imgrect="110 343 18 18"/>
+			<img name="bodyright" imgrect="129 343 10 18"/>
+			<img name="bottomleft" imgrect="99  362 10 10"/>
+			<img name="bottomcore" imgrect="110 362 18 10"/>
+			<img name="bottomright" imgrect="129 362 10 10"/>
+		</skin>
+		<skin name="cupole_gold_frame" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="284 291 35 25"/>
+			<img name="topcore" imgrect="320 291 8 25"/>
+			<img name="topright" imgrect="329 291 35 25"/>
+			<img name="bodyleft" imgrect="284 317 13 11"/>
+			<img name="bodycore" imgrect="1320 317 40 11"/>
+			<img name="bodyright" imgrect="329 317 13 11"/>
+			<img name="bottomleft" imgrect="284 326 35 44"/>
+			<img name="bottomcore" imgrect="320 326 8 44"/>
+			<img name="bottomright" imgrect="329 326 35 44"/>
+		</skin>
+		<skin name="cupole_gold_top_frame" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" imgrect="368 317 317 57"/>
+			<img name="topcore" imgrect="686 317 8 57"/>
+			<img name="topright" imgrect="715 317 317 57"/>
+			<img name="bodyleft" imgrect="368 375 317 57"/>
+			<img name="bodycore" imgrect="686  375 8 57"/>
+			<img name="bodyright" imgrect="715 375 317 57"/>
+			<img name="bottomleft" imgrect="368 375 317 57"/>
+			<img name="bottomcore" imgrect="686 375 8 57"/>
+			<img name="bottomright" imgrect="715 375 317 57"/>
+		</skin>
+		<skin name="cupoleellipseframe3" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="387 172 18 40"/>
+			<img name="topcore" 	imgrect="407 172 50 40"/>
+			<img name="topright" 	imgrect="459 172 17 40"/>
+			<img name="bodyleft" 	imgrect="387 214 23 1"/>
+			<img name="bodycore" 	imgrect="407 214 41 1"/>
+			<img name="bodyright" 	imgrect="459 214 23 1"/>
+			<img name="bottomleft" 	imgrect="387 214 23 1"/>
+			<img name="bottomcore" 	imgrect="407 214 41 1"/>
+			<img name="bottomright" imgrect="459 214 23 1"/>
+		</skin>
+		<skin name="cupolegreenroundsquare3" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="387 215 9 8"/>
+			<img name="topcore" 	imgrect="397 215 80 8"/>
+			<img name="topright" 	imgrect="478 215 9 8"/>
+			<img name="bodyleft" 	imgrect="387 224 9 22"/>
+			<img name="bodycore" 	imgrect="397 224 80 22"/>
+			<img name="bodyright" 	imgrect="478 224 9 22"/>
+			<img name="bottomleft" 	imgrect="387 247 9 8"/>
+			<img name="bottomcore" 	imgrect="397 247 80 8"/>
+			<img name="bottomright" imgrect="478 247 9 8"/>
+		</skin>
+		<skin name="cupolehalfgreenroundsquare2" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="387 258 9 9"/>
+			<img name="topcore" 	imgrect="397 258 80 9"/>
+			<img name="topright" 	imgrect="478 258 9 9"/>
+			<img name="bodyleft" 	imgrect="387 268 9 10"/>
+			<img name="bodycore" 	imgrect="397 268 80 10"/>
+			<img name="bodyright" 	imgrect="478 268 9 10"/>
+			<img name="bottomleft" 	imgrect="387 279 9 10"/>
+			<img name="bottomcore" 	imgrect="397 279 80 10"/>
+			<img name="bottomright" imgrect="478 279 9 10"/>
 		</skin>
 	</skinlist>
 	<skinlist category="testjoo_buttons">
@@ -2236,6 +2478,237 @@
 			<img name="bottomcore" imgrect="1780 561 20 10"/>
 			<img name="bottomright" imgrect="1801 561 20 10"/>
 		</skin>
+		<skin name="cupole_bluebtn" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9 172 23 50"/>
+			<img name="topcore" 	imgrect="33 172 35 50"/>
+			<img name="topright" 	imgrect="69 172 23 50"/>
+			<img name="bodyleft" 	imgrect="9  223 23 1"/>
+			<img name="bodycore" 	imgrect="33 223 35 1"/>
+			<img name="bodyright" 	imgrect="69 223 23 1"/>
+			<img name="bottomleft" 	imgrect="9  223 23 1"/>
+			<img name="bottomcore" 	imgrect="33 223 35 1"/>
+			<img name="bottomright" imgrect="69 223 23 1"/>
+		</skin>
+		<skin name="cupole_bluebtn_cursoron" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9  225 23 50"/>
+			<img name="topcore" 	imgrect="33 225 35 50"/>
+			<img name="topright" 	imgrect="69 225 23 50"/>
+			<img name="bodyleft" 	imgrect="9  276 23 1"/>
+			<img name="bodycore" 	imgrect="33 276 35 1"/>
+			<img name="bodyright" 	imgrect="69 276 23 1"/>
+			<img name="bottomleft" 	imgrect="9  276 23 1"/>
+			<img name="bottomcore" 	imgrect="33 276 35 1"/>
+			<img name="bottomright" imgrect="69 276 23 1"/>
+		</skin>
+		<skin name="cupole_bluebtn_clicked" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9  278 23 50"/>
+			<img name="topcore" 	imgrect="33 278 35 50"/>
+			<img name="topright" 	imgrect="69 278 23 50"/>
+			<img name="bodyleft" 	imgrect="9  329 23 1"/>
+			<img name="bodycore" 	imgrect="33 329 35 1"/>
+			<img name="bodyright" 	imgrect="69 329 23 1"/>
+			<img name="bottomleft" 	imgrect="9  329 23 1"/>
+			<img name="bottomcore" 	imgrect="33 329 35 1"/>
+			<img name="bottomright" imgrect="69 329 23 1"/>
+		</skin>
+		<skin name="cupole_greenbtn" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="103 172 23 50"/>
+			<img name="topcore" 	imgrect="127 172 35 50"/>
+			<img name="topright" 	imgrect="163 172 23 50"/>
+			<img name="bodyleft" 	imgrect="103 223 23 1"/>
+			<img name="bodycore" 	imgrect="127 223 35 1"/>
+			<img name="bodyright" 	imgrect="163 223 23 1"/>
+			<img name="bottomleft" 	imgrect="103 223 23 1"/>
+			<img name="bottomcore" 	imgrect="127 223 35 1"/>
+			<img name="bottomright" imgrect="163 223 23 1"/>
+		</skin>
+		<skin name="cupole_greenbtn_cursoron" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="103 225 23 50"/>
+			<img name="topcore" 	imgrect="127 225 35 50"/>
+			<img name="topright" 	imgrect="163 225 23 50"/>
+			<img name="bodyleft" 	imgrect="103 276 23 1"/>
+			<img name="bodycore" 	imgrect="127 276 35 1"/>
+			<img name="bodyright" 	imgrect="163 276 23 1"/>
+			<img name="bottomleft" 	imgrect="103 276 23 1"/>
+			<img name="bottomcore" 	imgrect="127 276 35 1"/>
+			<img name="bottomright" imgrect="163 276 23 1"/>
+		</skin>
+		<skin name="cupole_greenbtn_clicked" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="103 278 23 50"/>
+			<img name="topcore" 	imgrect="127 278 35 50"/>
+			<img name="topright" 	imgrect="163 278 23 50"/>
+			<img name="bodyleft" 	imgrect="103 329 23 1"/>
+			<img name="bodycore" 	imgrect="127 329 35 1"/>
+			<img name="bodyright" 	imgrect="163 329 23 1"/>
+			<img name="bottomleft" 	imgrect="103 329 23 1"/>
+			<img name="bottomcore" 	imgrect="127 329 35 1"/>
+			<img name="bottomright" imgrect="163 329 23 1"/>
+		</skin>
+		<skin name="cupole_graybtn" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="196 172 23 50"/>
+			<img name="topcore" 	imgrect="220 172 35 50"/>
+			<img name="topright" 	imgrect="256 172 23 50"/>
+			<img name="bodyleft" 	imgrect="196 223 23 1"/>
+			<img name="bodycore" 	imgrect="220 223 35 1"/>
+			<img name="bodyright" 	imgrect="256 223 23 1"/>
+			<img name="bottomleft" 	imgrect="196 223 23 1"/>
+			<img name="bottomcore" 	imgrect="220 223 35 1"/>
+			<img name="bottomright" imgrect="256 223 23 1"/>
+		</skin>
+		<skin name="cupole_graybtn_cursoron" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="196 225 23 50"/>
+			<img name="topcore" 	imgrect="220 225 35 50"/>
+			<img name="topright" 	imgrect="256 225 23 50"/>
+			<img name="bodyleft" 	imgrect="196 276 23 1"/>
+			<img name="bodycore" 	imgrect="220 276 35 1"/>
+			<img name="bodyright" 	imgrect="256 276 23 1"/>
+			<img name="bottomleft" 	imgrect="196 276 23 1"/>
+			<img name="bottomcore" 	imgrect="220 276 35 1"/>
+			<img name="bottomright" imgrect="256 276 23 1"/>
+		</skin>
+		<skin name="cupole_graybtn_clicked" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="196 278 23 50"/>
+			<img name="topcore" 	imgrect="220 278 35 50"/>
+			<img name="topright" 	imgrect="256 278 23 50"/>
+			<img name="bodyleft" 	imgrect="196 329 23 1"/>
+			<img name="bodycore" 	imgrect="220 329 35 1"/>
+			<img name="bodyright" 	imgrect="256 329 23 1"/>
+			<img name="bottomleft" 	imgrect="196 329 23 1"/>
+			<img name="bottomcore" 	imgrect="220 329 35 1"/>
+			<img name="bottomright" imgrect="256 329 23 1"/>
+		</skin>
+		<skin name="cupole_btn" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="99 122 10 10"/>
+			<img name="topcore" 	imgrect="110 122 18 10"/>
+			<img name="topright" 	imgrect="129 122 10 10"/>
+			<img name="bodyleft" 	imgrect="99  133 10 18"/>
+			<img name="bodycore" 	imgrect="110 133 18 18"/>
+			<img name="bodyright" 	imgrect="129 133 10 18"/>
+			<img name="bottomleft" 	imgrect="99  152 10 10"/>
+			<img name="bottomcore" 	imgrect="110 152 18 10"/>
+			<img name="bottomright" imgrect="129 152 10 10"/>
+		</skin>
+		<skin name="cupole_btn_cursoron" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="54 122 10 10"/>
+			<img name="topcore" 	imgrect="65 122 18 10"/>
+			<img name="topright" 	imgrect="84 122 10 10"/>
+			<img name="bodyleft" 	imgrect="54 133 10 18"/>
+			<img name="bodycore" 	imgrect="65 133 18 18"/>
+			<img name="bodyright" 	imgrect="84 133 10 18"/>
+			<img name="bottomleft" 	imgrect="54 152 10 10"/>
+			<img name="bottomcore" 	imgrect="65 152 18 10"/>
+			<img name="bottomright" imgrect="84 152 10 10"/>
+		</skin>
+		<skin name="cupole_btn_clicked" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9 122 10 10"/>
+			<img name="topcore" 	imgrect="20 122 18 10"/>
+			<img name="topright" 	imgrect="39 122 10 10"/>
+			<img name="bodyleft" 	imgrect="9  133 10 18"/>
+			<img name="bodycore" 	imgrect="20 133 18 18"/>
+			<img name="bottomleft" 	imgrect="9  152 10 10"/>
+			<img name="bodyright" 	imgrect="39 133 10 18"/>
+			<img name="bottomcore" 	imgrect="20 152 18 10"/>
+			<img name="bottomright" imgrect="39 152 10 10"/>
+		</skin>
+		<skin name="cupole_btn2" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="144 122 10 10"/>
+			<img name="topcore" 	imgrect="155 122 18 10"/>
+			<img name="topright" 	imgrect="174 122 10 10"/>
+			<img name="bodyleft" 	imgrect="144 133 10 18"/>
+			<img name="bodycore" 	imgrect="155 133 18 18"/>
+			<img name="bodyright" 	imgrect="174 133 10 18"/>
+			<img name="bottomleft" 	imgrect="144 152 10 10"/>
+			<img name="bottomcore" 	imgrect="155 152 18 10"/>
+			<img name="bottomright" imgrect="174 152 10 10"/>
+		</skin>
+		<skin name="cupole_btn2_cursoron" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="54 122 10 10"/>
+			<img name="topcore" 	imgrect="65 122 18 10"/>
+			<img name="topright" 	imgrect="84 122 10 10"/>
+			<img name="bodyleft" 	imgrect="54 133 10 18"/>
+			<img name="bodycore" 	imgrect="65 133 18 18"/>
+			<img name="bodyright" 	imgrect="84 133 10 18"/>
+			<img name="bottomleft" 	imgrect="54 152 10 10"/>
+			<img name="bottomcore" 	imgrect="65 152 18 10"/>
+			<img name="bottomright" imgrect="84 152 10 10"/>
+		</skin>
+		<skin name="cupole_btn2_clicked" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9 122 10 10"/>
+			<img name="topcore" 	imgrect="20 122 18 10"/>
+			<img name="topright" 	imgrect="39 122 10 10"/>
+			<img name="bodyleft" 	imgrect="9  133 10 18"/>
+			<img name="bodycore" 	imgrect="20 133 18 18"/>
+			<img name="bodyright" 	imgrect="39 133 10 18"/>
+			<img name="bottomleft" 	imgrect="9  152 10 10"/>
+			<img name="bottomcore" 	imgrect="20 152 18 10"/>
+			<img name="bottomright" imgrect="39 152 10 10"/>
+		</skin>
+		<skin name="cupole_border_btn" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="99  332 10 10"/>
+			<img name="topcore" 	imgrect="110 332 18 10"/>
+			<img name="topright" 	imgrect="129 332 10 10"/>
+			<img name="bodyleft" 	imgrect="99  343 10 18"/>
+			<img name="bodycore" 	imgrect="110 343 18 18"/>
+			<img name="bodyright" 	imgrect="129 343 10 18"/>
+			<img name="bottomleft" 	imgrect="99  362 10 10"/>
+			<img name="bottomcore" 	imgrect="110 362 18 10"/>
+			<img name="bottomright" imgrect="129 362 10 10"/>
+		</skin>
+		<skin name="cupole_border_btn_cursoron" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="54  332 10 10"/>
+			<img name="topcore" 	imgrect="65 332 18 10"/>
+			<img name="topright" 	imgrect="84 332 10 10"/>
+			<img name="bodyleft" 	imgrect="54  343 10 18"/>
+			<img name="bodycore" 	imgrect="65 343 18 18"/>
+			<img name="bodyright" 	imgrect="84 343 10 18"/>
+			<img name="bottomleft" 	imgrect="54  362 10 10"/>
+			<img name="bottomcore" 	imgrect="65 362 18 10"/>
+			<img name="bottomright" imgrect="84 362 10 10"/>
+		</skin>
+		<skin name="cupole_border_btn_clicked" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9  332 10 10"/>
+			<img name="topcore" 	imgrect="20 332 18 10"/>
+			<img name="topright" 	imgrect="39 332 10 10"/>
+			<img name="bodyleft" 	imgrect="9  343 10 18"/>
+			<img name="bodycore" 	imgrect="20 343 18 18"/>
+			<img name="bodyright" 	imgrect="39 343 10 18"/>
+			<img name="bottomleft" 	imgrect="9  362 10 10"/>
+			<img name="bottomcore" 	imgrect="20 362 18 10"/>
+			<img name="bottomright" imgrect="39 362 10 10"/>
+		</skin>
+		<skin name="cupole_border2_btn" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="144 332 10 10"/>
+			<img name="topcore" 	imgrect="155 332 18 10"/>
+			<img name="topright" 	imgrect="174 332 10 10"/>
+			<img name="bodyleft" 	imgrect="144 343 10 18"/>
+			<img name="bodycore" 	imgrect="155 343 18 18"/>
+			<img name="bodyright" 	imgrect="174 343 10 18"/>
+			<img name="bottomleft" 	imgrect="144 362 10 10"/>
+			<img name="bottomcore" 	imgrect="155 362 18 10"/>
+			<img name="bottomright" imgrect="174 362 10 10"/>
+		</skin>
+		<skin name="cupole_border2_btn_cursoron" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="54  332 10 10"/>
+			<img name="topcore" 	imgrect="65 332 18 10"/>
+			<img name="topright" 	imgrect="84 332 10 10"/>
+			<img name="bodyleft" 	imgrect="54  343 10 18"/>
+			<img name="bodycore" 	imgrect="65 343 18 18"/>
+			<img name="bodyright" 	imgrect="84 343 10 18"/>
+			<img name="bottomleft" 	imgrect="54  362 10 10"/>
+			<img name="bottomcore" 	imgrect="65 362 18 10"/>
+			<img name="bottomright" imgrect="84 362 10 10"/>
+		</skin>
+		<skin name="cupole_border2_btn_clicked" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="topleft" 	imgrect="9  332 10 10"/>
+			<img name="topcore" 	imgrect="20 332 18 10"/>
+			<img name="topright" 	imgrect="39 332 10 10"/>
+			<img name="bodyleft" 	imgrect="9  343 10 18"/>
+			<img name="bodycore" 	imgrect="20 343 18 18"/>
+			<img name="bodyright" 	imgrect="39 343 10 18"/>
+			<img name="bottomleft" 	imgrect="9  362 10 10"/>
+			<img name="bottomcore" 	imgrect="20 362 18 10"/>
+			<img name="bottomright" imgrect="39 362 10 10"/>
+		</skin>
 	</skinlist>
 	<skinlist category="testjoo_frames">
 		<skin name="test_frame_top" texture="\skin\pip_test.tga">
@@ -2656,6 +3129,20 @@
 			<img name="topclose" imgrect="1967 64 10 36"/>
 			<img name="centerclose" imgrect="1967 64 10 36"/>
 			<img name="bottomclose" imgrect="1967 64 10 36"/>
+		</skin>
+		<skin name="tab_cupole" texture="\skin\cupole_bg\CupoleSkinSet.tga">
+			<img name="leftopen" imgrect="280 122 10 40"/>
+			<img name="bodyopen" imgrect="291 122 18 40"/>
+			<img name="rightopen" imgrect="310 122 10 40"/>
+			<img name="leftclose" imgrect="190 122 10 40"/>
+			<img name="bodyclose" imgrect="201 122 18 40"/>
+			<img name="rightclose" imgrect="220 122 10 40"/>
+			<img name="topopen" />
+			<img name="centeropen" />
+			<img name="bottomopen" />
+			<img name="topclose" />
+			<img name="centerclose" />
+			<img name="bottomclose" />
 		</skin>
 		<skin name="test_socket_topskin" texture="\skin\pip_test_item.tga">
 			<img name="topleft" imgrect="0 584 180 1"/>
@@ -6614,6 +7101,85 @@
 			<img name="bottomright" imgrect="1162 351 49 102"/>
 		</skin>
 	</skinlist>
+	<skinlist category="episode_guide_skinlist">
+		<skin name="epi_guide_frame_top" texture="\skin\episode_guide.tga">
+			<img name="topleft" imgrect="0 0 334 74"/>
+			<img name="topcore" imgrect="335 0 139 74"/>
+			<img name="topright" imgrect="475 0 334 74"/>
+			<img name="bodyleft" imgrect="0 73 334 1"/>
+			<img name="bodycore" imgrect="335 73 139 1"/>
+			<img name="bodyright" imgrect="475 73 334 1"/>
+			<img name="bottomleft" imgrect="0 73 334 1"/>
+			<img name="bottomcore" imgrect="335 73 139 1"/>
+			<img name="bottomright" imgrect="475 73 334 1"/>
+		</skin>
+		<skin name="epi_guide_frame_bg" texture="\skin\episode_guide.tga">
+			<img name="topleft" imgrect="714 75 28 17"/>
+			<img name="topcore" imgrect="743 75 24 17"/>
+			<img name="topright" imgrect="768 75 28 17"/>
+			<img name="bodyleft" imgrect="714 93 28 12"/>
+			<img name="bodycore" imgrect="743 93 24 12"/>
+			<img name="bodyright" imgrect="768 93 28 12"/>
+			<img name="bottomleft" imgrect="714 106 28 17"/>
+			<img name="bottomcore" imgrect="743 106 24 17"/>
+			<img name="bottomright" imgrect="768 106 28 17"/>
+		</skin>
+		<skin name="epi_guide_frame_1" texture="\skin\episode_guide.tga">
+			<img name="topleft" imgrect="714 125 24 13"/>
+			<img name="topcore" imgrect="739 125 24 13"/>
+			<img name="topright" imgrect="764 125 24 13"/>
+			<img name="bodyleft" imgrect="714 140 24 12"/>
+			<img name="bodycore" imgrect="739 140 24 12"/>
+			<img name="bodyright" imgrect="764 140 24 12"/>
+			<img name="bottomleft" imgrect="714 153 24 13"/>
+			<img name="bottomcore" imgrect="739 153 24 13"/>
+			<img name="bottomright" imgrect="764 153 24 13"/>
+		</skin>
+		<skin name="epi_guide_frame_2" texture="\skin\episode_guide.tga">
+			<img name="topleft" imgrect="714 167 5 5"/>
+			<img name="topcore" imgrect="720 167 6 5"/>
+			<img name="topright" imgrect="726 167 5 5"/>
+			<img name="bodyleft" imgrect="714 172 5 6"/>
+			<img name="bodycore" imgrect="720 172 6 6"/>
+			<img name="bodyright" imgrect="726 172 5 6"/>
+			<img name="bottomleft" imgrect="714 178 5 5"/>
+			<img name="bottomcore" imgrect="720 178 6 5"/>
+			<img name="bottomright" imgrect="726 178 5 5"/>
+		</skin>
+		<skin name="epi_guide_frame_progress" texture="\skin\episode_guide.tga">
+			<img name="topleft" imgrect="232 222 110 48"/>
+			<img name="topcore" imgrect="343 222 147 48"/>
+			<img name="topright" imgrect="491 222 110 48"/>
+			<img name="bodyleft" imgrect="232 221 110 1"/>
+			<img name="bodycore" imgrect="343 221 147 1"/>
+			<img name="bodyright" imgrect="491 221 110 1"/>
+			<img name="bottomleft" imgrect="232 221 110 1"/>
+			<img name="bottomcore" imgrect="343 221 147 1"/>
+			<img name="bottomright" imgrect="491 221 110 1"/>
+		</skin>
+		<skin name="epi_guide_frame_mission" texture="\skin\episode_guide.tga">
+			<img name="topleft" imgrect="232 271 154 58"/>
+			<img name="topcore" imgrect="387 271 175 58"/>
+			<img name="topright" imgrect="563 271 154 58"/>
+			<img name="bodyleft" imgrect="232 271 154 1"/>
+			<img name="bodycore" imgrect="387 271 175 1"/>
+			<img name="bodyright" imgrect="563 271 154 1"/>
+			<img name="bottomleft" imgrect="232 271 154 1"/>
+			<img name="bottomcore" imgrect="387 271 175 1"/>
+			<img name="bottomright" imgrect="563 271 154 1"/>
+		</skin>
+		<skin name="epi_guide_line" texture="\skin\episode_guide.tga">
+			<img name="topleft" imgrect="714 183 4 1"/>
+			<img name="topcore" imgrect="718 183 4 1"/>
+			<img name="topright" imgrect="722 183 4 1"/>
+			<img name="bodyleft" imgrect="714 181 4 1"/>
+			<img name="bodycore" imgrect="718 181 4 1"/>
+			<img name="bodyright" imgrect="722 181 4 1"/>
+			<img name="bottomleft" imgrect="714 183 4 1"/>
+			<img name="bottomcore" imgrect="718 183 4 1"/>
+			<img name="bottomright" imgrect="722 183 4 1"/>
+		</skin>
+	</skinlist>
 	<skinlist category="buttons">
 		<skin name="button_companion" texture="\skin\barrack.tga">
 			<img name="topleft" imgrect="726 0 1 1"/>
@@ -7352,6 +7918,18 @@
 			<img name="mouseon" imgrect="1335 654 58 58"/>
 			<img name="cooltime" imgrect="1335 654 58 58"/>
 			<img name="selected" imgrect="1335 654 58 58"/>
+		</skin>
+		<skin name="cupole_ui3_slot" texture="\skin\glimoire_skin.tga">
+			<img name="slot" imgrect="64 272 67 67"/>
+			<img name="mouseon" imgrect="403 272 67 67"/>
+			<img name="cooltime" imgrect="403 272 67 67"/>
+			<img name="selected" imgrect="403 272 67 67"/>
+		</skin>
+		<skin name="cupole_ui4_slot" texture="\skin\glimoire_skin.tga">
+			<img name="slot" imgrect="131 272 67 67"/>
+			<img name="mouseon" imgrect="403 272 67 67"/>
+			<img name="cooltime" imgrect="403 272 67 67"/>
+			<img name="selected" imgrect="403 272 67 67"/>
 		</skin>
 	</skinlist>
 	<skinlist category="None">
@@ -12720,6 +13298,7 @@
 		<image name="companion_pet_sled_green" file="\icon\companion_Velhider.tga" imgrect="0 480 80 80"/>
 		<image name="companion_pet_jpn3th_fox" file="\icon\companion_Velhider02.tga" imgrect="0 0 80 80"/>
 		<image name="companion_pet_nightrabbit" file="\icon\companion_Velhider.tga" imgrect="80 480 80 80"/>
+		<image name="companion_pet_ep13dessert_pink" file="\icon\companion_Velhider.tga" imgrect="160 480 80 80"/>
 		<image name="bg_w" file="\skin\button.tga" imgrect="252 974 50 50"/>
 		<image name="barrack_signboard" file="\skin\barrack.tga" imgrect="356 0 257 192"/>
 		<image name="barrack_attack_icon" file="\skin\barrack.tga" imgrect="59 720 55 61"/>
@@ -12957,6 +13536,9 @@
 		<image name="repair_info_btn" file="\skin\HUD.tga" imgrect="1858 297 50 50" CMM_Caption="내구도나올때버튼"/>
 		<image name="repair_info_btn_cursoron" file="\skin\HUD.tga" imgrect="1858 349 50 50"/>
 		<image name="repair_info_btn_clicked" file="\skin\HUD.tga" imgrect="1858 349 50 50"/>
+		<image name="sysmenu_cupole_info" file="\skin\HUD.tga" imgrect="784 765 38 44" CMM_Caption="큐폴버튼"/>
+		<image name="sysmenu_cupole_info_cursoron" file="\skin\HUD.tga" imgrect="784 810 38 44"/>
+		<image name="sysmenu_cupole_info_clicked" file="\skin\HUD.tga" imgrect="784 855 38 44"/>
 		<image name="clear_btn" file="\skin\button.tga" imgrect="0 41 320 30" CMM_Caption="투명버튼"/>
 		<image name="clear_btn_cursoron" file="\skin\button.tga" imgrect="0 41 320 30"/>
 		<image name="clear_btn_clicked" file="\skin\button.tga" imgrect="0 41 320 30"/>
@@ -14777,6 +15359,7 @@
 		<image name="Dlg_port_WingedhussarMaster" file="\npcimg\Wingedhussar_Master.png" imgrect="0 0 726 1000" CMM_Caption="윙드후사르"/>
 		<image name="Dlg_port_bowmaster" file="\npcimg\bowmaster_master.png" imgrect="0 0 1000 1159" CMM_Caption="신궁"/>
 		<image name="Dlg_port_desperado" file="\npcimg\desperado_master.png" imgrect="0 0 800 874" CMM_Caption="데스페라도"/>
+		<image name="Dlg_port_vanquisher" file="\npcimg\vanquisher_master.png" imgrect="0 0 1000 1125" CMM_Caption="뱅퀴셔"/>
 	</imagelist>
 	<imagelist category="Dlg_boss">
 		<image name="balloon_Skiaclipse" file="\skin\monster_Dlg.tga" imgrect="0 0 220 260" CMM_Caption="스키아클립스"/>
@@ -15594,6 +16177,7 @@
 		<image name="icon_debuff_disable_movingforward" file="\icon\buff_icon7.tga" imgrect="128 128 128 128" CMM_Caption="전방이동사용불가"/>
 		<image name="icon_buff_ridepet_ep15elf" file="\icon\buff_icon7.tga" imgrect="256 128 128 128" CMM_Caption="요정 여왕의 선물 버프"/>
 		<image name="icon_buff_ridepet_tw_zebra" file="\icon\buff_icon7.tga" imgrect="384 128 128 128" CMM_Caption="얼룩말 버프"/>
+		<image name="icon_buff_ridepet_spreader" file="\icon\buff_icon7.tga" imgrect="512 128 128 128" CMM_Caption="변질되 시체 인형"/>
 		<image name="icon_buff_ridepet_snigo" file="\icon\buff_icon7.tga" imgrect="640 128 128 128" CMM_Caption="형상기억 스니고"/>
 		<image name="icon_merregina_despasir" file="\icon\buff_icon7.tga" imgrect="768 128 128 128" CMM_Caption="절망(머레지나)"/>
 		<image name="icon_merregina_weakness" file="\icon\buff_icon7.tga" imgrect="896 128 128 128" CMM_Caption="나약함(머레지나)"/>
@@ -15614,6 +16198,8 @@
 		<image name="icon_buff_SuperBossSkill_9" file="\icon\buff_icon7.tga" imgrect="768 384 128 128" CMM_Caption="피의 마법진"/>
 		<image name="icon_buff_SuperBossSkill_10" file="\icon\buff_icon7.tga" imgrect="896 384 128 128" CMM_Caption="감전 고리"/>
 		<image name="icon_buff_SuperBossSkill_11" file="\icon\buff_icon7.tga" imgrect="0 512 128 128" CMM_Caption="암흑 고리"/>
+		<image name="icon_buff_ridepet_falouros" file="\icon\buff_icon7.tga" imgrect="128 512 128 128" CMM_Caption="팔로우로스"/>
+		<image name="icon_pet_ep13dessert_pink_buff" file="\icon\buff_icon7.tga" imgrect="256 512 128 128" CMM_Caption="딸기 스위트 펭"/>
 	</imagelist>
 	<imagelist category="housing_bufficon">
 		<image name="icon_Weapon_Klaida" file="\icon\icon_hosing_buff.tga" imgrect="0 0 128 128"/>
@@ -16415,6 +17001,7 @@
 		<image name="plate_achieve_upinis_weekraid" file="\skin\user_title_skin2.tga" imgrect="428 102 214 34" CMM_Caption="우피니스 주보레 칭호"/>
 		<image name="plate_achieve_slogutis_weekraid" file="\skin\user_title_skin2.tga" imgrect="642 102 214 34" CMM_Caption="슬로거티스 주보레 칭호"/>
 		<image name="plate_achieve_spreader_weekraid" file="\skin\user_title_skin2.tga" imgrect="856 102 214 34" CMM_Caption="변질의 전파자 주보레 칭호"/>
+		<image name="plate_achieve_falouros_weekraid" file="\skin\user_title_skin2.tga" imgrect="642 204 214 34" CMM_Caption="팔로우로스 주보레 칭호"/>
 		<image name="plate_achieve_popo_8th_Anni" file="\skin\user_title_skin2.tga" imgrect="214 136 214 34" CMM_Caption="8주년 칭호"/>
         <image name="plate_achieve_Pontifex_weekraid" file="\skin\user_title_skin2.tga" imgrect="0 136 214 34" CMM_Caption="폰티펙스 주보레 칭호"/>
 		<image name="plate_achieve_Pontifex" file="\skin\user_title_skin2.tga" imgrect="1070 102 214 34" CMM_Caption="폰티펙스 칭호"/>
@@ -16431,6 +17018,9 @@
 		<image name="plate_achieve_Dream_of_a_Popolion" file="\skin\user_title_skin2.tga" imgrect="0 204 214 34" CMM_Caption="절망의 섬 업적 칭호"/>
 		<image name="plate_achieve_Desperado_weekraid" file="\skin\user_title_skin2.tga" imgrect="214 204 214 34" CMM_Caption="데스페라도 주보레 칭호"/>
 		<image name="plate_achieve_Desperado" file="\skin\user_title_skin2.tga" imgrect="428 204 214 34" CMM_Caption="데스페라도 칭호"/>
+		<image name="plate_achieve_PerfectPopolion" file="\skin\user_title_skin2.tga" imgrect="856 204 214 34" CMM_Caption="퍼펙트 포포리온 칭호"/>
+		<image name="plate_achieve_Vanquisher_weekraid" file="\skin\user_title_skin2.tga" imgrect="1070 204 214 34" CMM_Caption="뱅퀴셔 주보레 칭호"/>
+		<image name="plate_achieve_Vanquisher" file="\skin\user_title_skin2.tga" imgrect="0 238 214 34" CMM_Caption="뱅퀴셔 칭호"/>
 	</imagelist>
 	<imagelist category="skin_hair">
 		<image name="icon_skintone_01_m01" file="\skin\skinhair\icon_skintone_01_m01.png" imgrect="0 0 80 80" CMM_Caption="남성 01"/>
@@ -16588,10 +17178,12 @@
 		<image name="ridepet_ep15explorer" file="\icon\ridepet.tga" imgrect="160 160 80 80" CMM_Caption="아기 공룡"/>
 		<image name="ridepet_ep15elf" file="\icon\ridepet.tga" imgrect="240 160 80 80" CMM_Caption="요정 여왕의 선물"/>
 		<image name="ridepet_zebra" file="\icon\ridepet.tga" imgrect="320 160 80 80" CMM_Caption="얼룩말"/>
+		<image name="ridepet_spreader" file="\icon\ridepet.tga" imgrect="400 160 80 80" CMM_Caption="변질된 시체 인형"/>
 		<image name="ridepet_snigo" file="\icon\ridepet.tga" imgrect="480 160 80 80" CMM_Caption="형상기억 스니고"/>
 		<image name="ridepet_peacock" file="\icon\ridepet.tga" imgrect="560 160 80 80" CMM_Caption="공작새"/>
 		<image name="ridepet_bluedragon" file="\icon\ridepet.tga" imgrect="0 240 80 80" CMM_Caption="푸른 용"/>
 		<image name="ridepet_ep16yongyong" file="\icon\ridepet.tga" imgrect="80 240 80 80" CMM_Caption="용용이"/>
+		<image name="ridepet_falouros" file="\icon\ridepet.tga" imgrect="160 240 80 80" CMM_Caption="팔로우로스"/>
 	</imagelist>
 	<effectimagelist category="effectlist">
 		<image name="blue_orb" file="\icon\blue_orb.tga" imgrect="0 0 256 256"/>
@@ -16790,13 +17382,125 @@
 	</imagelist>
 	<imagelist category="cupole">
 		<image name="cupole_ui_head" file="\skin\cupole_hud.tga" imgrect="1 1 590 76"/>
-		<image name="cupole_1" file="\skin\cupole_bg\cupole_base.png" imgrect="0 0 400 1080"/>
-		<image name="cupole_2" file="\skin\cupole_bg\cupole_base.png" imgrect="198 0 198 102"/>
-		<image name="cupole_3" file="\skin\cupole_bg\cupole_base.png" imgrect="396 0 198 102"/>
-		<image name="cupole_4" file="\skin\cupole_bg\cupole_base.png" imgrect="792 0 198 102"/>
-		<image name="cupole_5" file="\skin\cupole_bg\cupole_base.png" imgrect="984 0 198 102"/>
-		<image name="cupole_7" file="\skin\cupole_bg\cupole_base.png" imgrect="1176 0 198 102"/>
+		<image name="tree_bg" file="\skin\cupole_bg\tree_bg.png" imgrect="0 0 960 540"/>
+		<image name="tree_bg2" file="\skin\cupole_bg\tree_bg2.png" imgrect="0 0 1920 1080"/>
+		<image name="tree_bg3" file="\skin\cupole_bg\tree_bg3.png" imgrect="0 0 1920 1080"/>
+		<image name="kupole_r_sr" file="\skin\cupole_bg\kupole_r_sr.jpg" imgrect="0 0 1440 720"/>
+		<image name="kupole_ur_devil" file="\skin\cupole_bg\kupole_ur_devil.jpg" imgrect="0 0 1440 720"/>
+		<image name="kupole_ur_goddess" file="\skin\cupole_bg\kupole_ur_goddess.jpg" imgrect="0 0 1440 720"/>
+		<image name="btn_menu_bg" file="\skin\cupole_banner\btn_menu_bg.png" imgrect="0 0 78 78"/>
+		<image name="deco_triangle_edge" file="\skin\cupole_banner\deco_triangle_edge.png" imgrect="0 0 50 50"/>
+		<image name="icon_info" file="\skin\cupole_banner\icon_info.png" imgrect="0 0 24 24"/>
+		<image name="icon_shop_get_btn1" file="\skin\cupole_banner\icon_shop_get_btn1.png" imgrect="0 0 192 115"/>
+		<image name="icon_shop_get_btn2" file="\skin\cupole_banner\icon_shop_get_btn2.png" imgrect="0 0 192 115"/>
+		<image name="img_LootBox_neme" file="\skin\cupole_banner\img_LootBox_neme.png" imgrect="0 0 380 108"/>
+		<image name="img_shop_get_bg" file="\skin\cupole_banner\img_shop_get_bg.png" imgrect="0 0 700 376"/>
+		<image name="img_shop_get_bottom" file="\skin\cupole_banner\img_shop_get_bottom.png" imgrect="0 0 729 142"/>
+		<image name="img_shop_get_center" file="\skin\cupole_banner\img_shop_get_center.png" imgrect="0 0 804 173"/>
+		<image name="img_shop_get_frame" file="\skin\cupole_banner\img_shop_get_frame.png" imgrect="0 0 804 560"/>
+		<image name="img_shop_get_top_frame" file="\skin\cupole_banner\img_shop_get_top_frame.png" imgrect="0 0 804 109"/>
+		<image name="cupole_grade_frame_R" file="\skin\cupole_bg\icon_slot_clothes_grade_r.png" imgrect="0 0 90 90"/>
+		<image name="cupole_grade_frame_SR" file="\skin\cupole_bg\icon_slot_clothes_grade_sr.png" imgrect="0 0 90 90"/>
+		<image name="cupole_grade_frame_UR" file="\skin\cupole_bg\icon_slot_clothes_grade_ur.png" imgrect="0 0 90 90"/>
+		<image name="cupole_grade_R" file="\skin\cupole_bg\icon_slot_grade_clothes_partner_r.png" imgrect="0 0 30 18"/>
+		<image name="cupole_grade_SR" file="\skin\cupole_bg\icon_slot_grade_clothes_partner_sr.png" imgrect="0 0 30 18"/>
+		<image name="cupole_grade_UR" file="\skin\cupole_bg\icon_slot_grade_clothes_partner_ur.png" imgrect="0 0 30 18"/>
+		<image name="cupole_revert_R" file="\skin\cupole_bg\frame_revert_R.png" imgrect="0 0 100 100"/>
+		<image name="cupole_revert_SR" file="\skin\cupole_bg\frame_revert_SR.png" imgrect="0 0 100 100"/>
+		<image name="cupole_revert_UR" file="\skin\cupole_bg\frame_revert_UR.png" imgrect="0 0 100 100"/>
+		<image name="cupole_0" file="\skin\cupole_bg\cupole_base.png" imgrect="0 0 1000 1000"/>
+		<image name="cupole_1" file="\skin\cupole_bg\cupole_base.png" imgrect="0 0 250 250"/>
+		<image name="cupole_2" file="\skin\cupole_bg\cupole_base.png" imgrect="250 0 250 250"/>
+		<image name="cupole_3" file="\skin\cupole_bg\cupole_base.png" imgrect="500 0 250 250"/>
+		<image name="cupole_4" file="\skin\cupole_bg\cupole_base.png" imgrect="750 0 250 250"/>
+		<image name="cupole_5" file="\skin\cupole_bg\cupole_base.png" imgrect="0 250 250 250"/>
+		<image name="cupole_6" file="\skin\cupole_bg\cupole_base.png" imgrect="250 250 250 250"/>
+		<image name="cupole_7" file="\skin\cupole_bg\cupole_base.png" imgrect="500 250 250 250"/>
+		<image name="cupole_8" file="\skin\cupole_bg\cupole_base.png" imgrect="750 250 250 250"/>
+		<image name="cupole_9" file="\skin\cupole_bg\cupole_base.png" imgrect="0 500 250 250"/>
+		<image name="cupole_10" file="\skin\cupole_bg\cupole_base.png" imgrect="250 500 250 250"/>
+		<image name="cupole_11" file="\skin\cupole_bg\cupole_base.png" imgrect="500 500 250 250"/>
+		<image name="cupole_12" file="\skin\cupole_bg\cupole_base.png" imgrect="750 500 250 250"/>
+		<image name="cupole_13" file="\skin\cupole_bg\cupole_base.png" imgrect="0 750 250 250"/>
+		<image name="cupole_14" file="\skin\cupole_bg\cupole_base.png" imgrect="250 750 250 250"/>
+		<image name="cupole_15" file="\skin\cupole_bg\cupole_base.png" imgrect="500 750 250 250"/>
+		<image name="cupole_16" file="\skin\cupole_bg\cupole_base.png" imgrect="750 750 250 250"/>
+		<image name="invopen" file="\skin\transform.tga" imgrect="214 374 40 30"/>
+		<image name="enforceframe" file="\skin\transform.tga" imgrect="0 0 280 374"/>
+		<image name="enforcestar" file="\skin\transform.tga" imgrect="150 374 32 32"/>
+		<image name="unenforcestar" file="\skin\transform.tga" imgrect="182 374 32 32"/>
+		<image name="enforcetab" file="\skin\transform.tga" imgrect="0 374 150 150"/>
+		<image name="herocardframe" file="\skin\transform.tga" imgrect="280 0 400 570"/>
+		<image name="herocard" file="\skin\transform.tga" imgrect="1461 0 384 546"/>
+		<image name="monsterskilcardframe" file="\skin\transform.tga" imgrect="680 0 400 570"/>
+		<image name="monsterskilcard" file="\skin\transform.tga" imgrect="1080 0 384 546"/>
+		<image name="heroskillcooldown" file="\skin\transform.tga" imgrect="214 374 40 40"/>
+		<image name="monsterskilltab" file="\skin\transform.tga" imgrect="1894 0 128 128"/>
+		<image name="cupole_bg_rank" file="\skin\cupole_banner\bg_rank.png" imgrect="0 0 267 51"/>
+		<image name="icon_filter" file="\skin\cupole_banner\icon_filter.png" imgrect="0 0 28 28"/>
+		<image name="icon_filter_cursoron" file="\skin\cupole_banner\icon_filter.png" imgrect="0 0 28 28"/>
+		<image name="icon_filter_clicked" file="\skin\cupole_banner\icon_filter.png" imgrect="0 0 28 28"/>
+		<image name="icon_friendly" file="\skin\cupole_banner\icon_friendly.png" imgrect="0 0 30 21"/>
+		<image name="icon_friendly_64" file="\skin\cupole_banner\icon_friendly_64.png" imgrect="0 0 62 44"/>
+		<image name="icon_gift" file="\skin\cupole_banner\icon_gift.png" imgrect="0 0 50 50"/>
+		<image name="icon_gift_cursoron" file="\skin\cupole_banner\icon_gift.png" imgrect="0 0 50 50"/>
+		<image name="icon_gift_clicked" file="\skin\cupole_banner\icon_gift.png" imgrect="0 0 50 50"/>
+		<image name="img_Star" file="\skin\cupole_banner\img_Star.png" imgrect="0 0 68 64"/>
+		<image name="icon_plus" file="\skin\cupole_banner\icon_plus.png" imgrect="0 0 40 40"/>
+		<image name="icon_plus_cursoron" file="\skin\cupole_banner\icon_plus.png" imgrect="0 0 40 40"/>
+		<image name="icon_plus_clicked" file="\skin\cupole_banner\icon_plus.png" imgrect="0 0 40 40"/>
+		<image name="Ring_white" file="\skin\cupole_banner\Ring_white.png" imgrect="0 0 76 76"/>
+		<image name="icon_cupole_titlebar" file="\skin\cupole_bg\icon_cupole_titlebar.png" imgrect="0 0 30 17"/>
+		<image name="ar_map" file="\skin\cupole_banner\ar_map.png" imgrect="0 0 31 32"/>
+		<image name="icon_arrow" file="\skin\cupole_banner\icon_arrow.png" imgrect="0 0 46 28"/>
+		<image name="icon_arrow_scroll_new" file="\skin\cupole_banner\icon_arrow_scroll_new.png" imgrect="0 0 26 25"/>
+		<image name="img_popup_title" file="\skin\cupole_banner\img_popup_title.png" imgrect="0 0 91 44"/>
+		<image name="icon_smile_down" file="\skin\cupole_banner\icon_smile_down.png" imgrect="0 0 32 32"/>
+		<image name="icon_smile_normal" file="\skin\cupole_banner\icon_smile_normal.png" imgrect="0 0 32 32"/>
+		<image name="icon_smile_up" file="\skin\cupole_banner\icon_smile_up.png" imgrect="0 0 32 32"/>
+		<image name="favorite_inactive" file="\skin\cupole_bg\favorite_inactive.png" imgrect="0 0 45 45"/>
+		<image name="favorite_active" file="\skin\cupole_bg\favorite_active.png" imgrect="0 0 45 45"/>
+		<image name="kupolebackground" file="\skin\cupole_banner\kupolebackground.png" imgrect="0 0 512 512"/>
+		<image name="kupolebackground1" file="\skin\cupole_banner\kupolebackground1.png" imgrect="0 0 512 512"/>
+		<image name="kupolebackground2" file="\skin\cupole_banner\kupolebackground2.png" imgrect="0 0 512 512"/>
+		<image name="kupolebackground3" file="\skin\cupole_banner\kupolebackground3.png" imgrect="0 0 512 512"/>
+		<image name="kupolecardframe" file="\skin\cupole_banner\kupolecardframe.png" imgrect="0 0 512 512"/>
+		<image name="kupolebackground_R" file="\skin\cupole_banner\kupolebackground_R.png" imgrect="0 0 256 256"/>
+		<image name="kupolebackground_SR" file="\skin\cupole_banner\kupolebackground_SR.png" imgrect="0 0 256 256"/>
+		<image name="kupolebackground_UR_Devil" file="\skin\cupole_banner\kupolebackground_UR_Devil.png" imgrect="0 0 256 256"/>
+		<image name="kupolebackground_UR_Goddess" file="\skin\cupole_banner\kupolebackground_UR_Goddess.png" imgrect="0 0 256 256"/>
+		<image name="kupolecardframe_R" file="\skin\cupole_banner\kupolecardframe_R.png" imgrect="0 0 256 256"/>
+		<image name="kupolecardframe_SR" file="\skin\cupole_banner\kupolecardframe_SR.png" imgrect="0 0 256 256"/>
+		<image name="kupolecardframe_UR" file="\skin\cupole_banner\kupolecardframe_UR.png" imgrect="0 0 256 256"/>
+		<image name="back_cacheshop" file="\skin\cupole_bg\back_cacheshop.png" imgrect="0 0 1280 720"/>
+		<image name="potionhud" file="\skin\HUD.tga" imgrect="765 687 26 36"/>
+		<image name="potionhudoff" file="\skin\HUD.tga" imgrect="765 726 26 13"/>
+		<image name="potionhudon" file="\skin\HUD.tga" imgrect="765 742 26 13"/>
+		<image name="kupolechain" file="\skin\cupole_banner\kupolechain.png" imgrect="0 0 512 512"/>
+		<image name="kupolechain_R" file="\skin\cupole_banner\kupolechain_R.png" imgrect="0 0 256 256"/>
+		<image name="kupolechain_SR" file="\skin\cupole_banner\kupolechain_SR.png" imgrect="0 0 256 256"/>
+		<image name="kupolechain_UR" file="\skin\cupole_banner\kupolechain_UR.png" imgrect="0 0 256 256"/>
+		<image name="kupolechainmulti_R" file="\skin\cupole_banner\kupolechainmulti_R.png" imgrect="0 0 256 256"/>
+		<image name="kupolechainmulti_SR" file="\skin\cupole_banner\kupolechainmulti_SR.png" imgrect="0 0 256 256"/>
+		<image name="kupolechainmulti_UR" file="\skin\cupole_banner\kupolechainmulti_UR.png" imgrect="0 0 256 256"/>
+		<image name="img_kupole_frame" file="\skin\cupole_banner\img_kupole_frame.png" imgrect="0 0 397 376"/>
+		<image name="img_FellowBG" file="\skin\cupole_banner\img_FellowBG.png" imgrect="0 0 931 567"/>
+		<image name="box_alpha80_bg" file="\skin\cupole_banner\box_alpha80_bg.png" imgrect="0 0 4 4"/>
+		<image name="deco_item_edge2" file="\skin\cupole_banner\deco_item_edge2.png" imgrect="0 0 24 24"/>
+		<image name="box_List_bg01" file="\skin\cupole_banner\box_List_bg01.png" imgrect="0 0 24 24"/>
+		<image name="Deco_line" file="\skin\cupole_banner\Deco_line.png" imgrect="0 0 80 2"/>
+		<image name="e_li1" file="\skin\cupole_banner\e_li1.png" imgrect="0 0 52 28"/>
+		<image name="frame_popup" file="\skin\cupole_banner\frame_popup.png" imgrect="0 0 65 65"/>
+		<image name="frame_popup_mid" file="\skin\cupole_banner\frame_popup_mid.png" imgrect="0 0 324 59"/>
+		<image name="icon_ch_info" file="\skin\cupole_banner\icon_ch_info.png" imgrect="0 0 48 48"/>
+		<image name="icon_line_item_explain1" file="\skin\cupole_banner\icon_line_item_explain1.png" imgrect="0 0 22 19"/>
+		<image name="icon_mileage" file="\skin\cupole_banner\icon_mileage.png" imgrect="0 0 128 128"/>
+		<image name="img_ring_gradation" file="\skin\cupole_banner\img_ring_gradation.png" imgrect="0 0 64 64"/>
+		<image name="kupole_friendshipup" file="\skin\cupole_bg\kupole_friendshipup.jpg" imgrect="0 0 1440 720"/>
+		<image name="img_friend_friendshipup" file="\skin\cupole_banner\img_friend_friendshipup.png" imgrect="0 0 333 45"/>
+		<image name="img_friend_frame_level" file="\skin\cupole_banner\img_friend_frame_level.png" imgrect="0 0 553 232"/>
 	</imagelist>
+
 	<imagelist category="friendinvite">
 		<image name="friendletter" file="\skin\friendinvite.png" imgrect="0 0 72 72"/>
 	</imagelist>
