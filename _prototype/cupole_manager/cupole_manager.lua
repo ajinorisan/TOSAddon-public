@@ -89,7 +89,7 @@ function CUPOLE_MANAGER_ON_INIT(addon, frame)
         cupole_manager_load_settings()
         addon:RegisterMsg('GAME_START', 'cupole_manager_SET_CUPOLE_SLOTS');
         -- acutil.setupEvent(addon, "CLOSE_CUPOLE_ITEM", "cupole_manager_CLOSE_CUPOLE_ITEM");
-
+        acutil.setupEvent(addon, "RIGHT_CUPOLE_SLOT_SELECT_BTN", "cupole_manager_RIGHT_CUPOLE_SLOT_SELECT_BTN");
         local cid = info.GetCID(session.GetMyHandle())
         g.personalFileLoc = string.format('../addons/%s/%s.json', addonNameLower, cid)
         cupole_manager_personal_load_settings()
@@ -107,6 +107,15 @@ function CUPOLE_MANAGER_ON_INIT(addon, frame)
         -- addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_LOAD_SETTINGS")
         -- addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_PET_FRAME_INIT")
     end
+end
+
+function cupole_manager_RIGHT_CUPOLE_SLOT_SELECT_BTN(frame, msg)
+    local parent, ctrl, argStr, argNum = acutil.getEventArgs(msg)
+    print(tostring(parent:GetName()))
+    print(argNum)
+    local cupole = GET_REPRESENT_CUPOLE_INFO()
+    local clsid = TryGetProp(cupole, "ClassID", 0)
+    print(tostring(clsid))
 end
 
 function cupole_manager_CLOSE_CUPOLE_ITEM(frame, msg)
