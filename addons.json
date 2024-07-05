@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Cupole Manager",
+		"file" : "cupole_manager",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "cupole_manager",
+		"unicode" : "⛄",
+		"description" : "クポルの呼び出しをチーム共通化。未登録キャラでも自動で呼び出します。Team commonization of cupole calls. Even unregistered characters are automatically called.큐폴라 호출의 팀 공용화. 등록되지 않은 캐릭터도 자동으로 호출됩니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Sub Slotset",
 		"file" : "sub_slotset",
 		"extension" : "ipf",
