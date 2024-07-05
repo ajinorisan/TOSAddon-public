@@ -108,6 +108,8 @@ function cupole_manager_OPEN_CUPOLE_ITEM(frame)
 
     GET_CUPOLE_SORT_TYPE_FUNCTION(filter_type)
 
+    local equip_cupole_list = {g.settings["1"].id - 1, g.settings["2"].id - 1, g.settings["3"].id - 1}
+
     local State, ChoosCupoleIndex, SlotIndex = GET_CHOOSE_INIT_CUPOLE(equip_cupole_list);
     frame:SetUserValue("Global_Select_Cupole", ChoosCupoleIndex);
     SET_CUPOLE_SLOTS(frame);
