@@ -6,10 +6,11 @@
 -- v1.1.9 インベと倉庫閉じるチェック付けた。
 -- v1.2.0 倉庫閉じるチェックボックスのセットチェック漏れてた。
 -- v1.2.1 ロード処理見直し。
+-- v1.2.2 エコモードバグってたの修正。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.1"
+local ver = "1.2.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -105,7 +106,6 @@ function CC_HELPER_ON_INIT(addon, frame)
     g.frame = frame
     g.LOGINCID = info.GetCID(session.GetMyHandle())
     g.settings = g.settings or {}
-    g.check = 0 -- ここは後程見直し
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -119,6 +119,7 @@ function CC_HELPER_ON_INIT(addon, frame)
 
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
         if not g.load then
+            g.check = 0 -- ここは後程見直し
             g.load = true
             cc_helper_load_settings()
         end

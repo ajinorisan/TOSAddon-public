@@ -35,6 +35,7 @@
 -- v1.3.5 掃討バフある場合、自動でアイテム使って掃討する様に変更
 -- v1.3.6 TOSショップの分裂を好感したいのにチャレンジ券交換していたバグ修正。
 -- v1.3.7 メレジナハードに入れなかった問題修正。
+-- v1.3.8 チャレ券使用の順番ミスってたので修正。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -1908,6 +1909,7 @@ function indun_panel_handle_indun_644(invItemList, guidList, cnt, count, frame, 
         local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
         local classid = itemobj.ClassID
         local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+        -- 11030080 フィールド狩りで落ちるヤツ。ライフタイム縛りやめる？
 
         if life_time ~= nil then
             if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
@@ -1916,10 +1918,10 @@ function indun_panel_handle_indun_644(invItemList, guidList, cnt, count, frame, 
             elseif classid == 11030080 and count == 1 and tonumber(life_time) < 86400 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                 return
-            elseif classid == 641954 and count == 1 then
+            elseif classid == 11030080 and count == 1 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                 return
-            elseif classid == 11030080 and count == 1 then
+            elseif classid == 641954 and count == 1 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                 return
             elseif classid == 10820019 and count == 1 then

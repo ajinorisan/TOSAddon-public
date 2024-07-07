@@ -2,10 +2,11 @@
 -- v1.0.3 ボタンの色変更。SetupHookの競合修正
 -- v1.0.4 コード見直し。装備右クリック時に素材もセットする様に変更。
 -- v1.0.5 補助剤スロットのエラー修正。
+-- v1.0.6 バグ再修正
 local addonName = "CONTINUERF"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -192,30 +193,43 @@ end
 
 function CONTINUERF_BTN_DISPLAY(frame)
     local frame = ui.GetFrame('goddess_equip_manager')
+    frame:StopUpdateScript("CONTINUERF_BTN_DISPLAY");
     local ref_do_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_do_reinforce')
     local ref_ok_reinforce = GET_CHILD_RECURSIVELY(frame, 'ref_ok_reinforce')
     ref_do_reinforce:ShowWindow(1)
     ref_do_reinforce:SetEnable(1)
 
     ref_ok_reinforce:ShowWindow(0)
-    frame:StopUpdateScript("CONTINUERF_BTN_DISPLAY");
+
     return 0
 end
 
 function CONTINUERF_END_OF_REINFORCE(frame)
     local frame = ui.GetFrame('goddess_equip_manager')
     frame:StopUpdateScript("CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC");
+
     GODDESS_MGR_REFORGE_REINFORCE_CLEAR(frame, true)
+
     GODDESS_MGR_REINFORCE_RATE_UPDATE(frame)
+
     CONTINUERF_REFORGE_REINFORCE_MAT_COUNT_UPDATE(frame)
+
     CONTINUERF_REFORGE_REINFORCE_EXTRA_MAT_COUNT_UPDATE(frame)
+
     local slot = GET_CHILD_RECURSIVELY(frame, 'ref_slot')
+
     local iconInfo = slot:GetIcon():GetInfo()
+
     local guid = iconInfo:GetIESID();
+
     local invItem = GET_ITEM_BY_GUID(guid);
+
     local obj = GetIES(invItem:GetObject());
+
     local ref_item_reinf_text = GET_CHILD_RECURSIVELY(frame, 'ref_item_reinf_text')
+
     ref_item_reinf_text:SetTextByKey('value', TryGetProp(obj, 'Reinforce_2', 0))
+
     local delay = g.settings.delay
     frame:RunUpdateScript("CONTINUERF_BTN_DISPLAY", delay);
 
@@ -402,24 +416,25 @@ function CONTINUERF_REFORGE_REINFORCE_EXTRA_MAT_COUNT_UPDATE(frame)
         local slot = slotset:GetSlotByIndex(i)
         local mat_guid = slot:GetUserValue('ITEM_GUID')
         local inv_item = session.GetInvItemByGuid(mat_guid)
-        local obj = GetIES(inv_item:GetObject())
-        local cnt = slot:GetSelectCount()
-
-        if cnt > 0 then
-            local mat_guid = slot:GetUserValue('ITEM_GUID')
-            local inv_item = session.GetInvItemByGuid(mat_guid)
-            if inv_item ~= nil then
-                local obj = GetIES(inv_item:GetObject())
-                local icon = slot:GetIcon()
-                local slotindex = slot:GetSlotIndex()
-                icon:Set(obj.Icon, 'Item', inv_item.type, slotindex, inv_item:GetIESID(), inv_item.count)
-                slot:SetMaxSelectCount(inv_item.count)
-                SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, inv_item, obj, inv_item.count)
+        if inv_item ~= nil then
+            local obj = GetIES(inv_item:GetObject())
+            local cnt = slot:GetSelectCount()
+            if cnt > 0 then
+                local mat_guid = slot:GetUserValue('ITEM_GUID')
+                local inv_item = session.GetInvItemByGuid(mat_guid)
+                if inv_item ~= nil then
+                    local obj = GetIES(inv_item:GetObject())
+                    local icon = slot:GetIcon()
+                    local slotindex = slot:GetSlotIndex()
+                    icon:Set(obj.Icon, 'Item', inv_item.type, slotindex, inv_item:GetIESID(), inv_item.count)
+                    slot:SetMaxSelectCount(inv_item.count)
+                    SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, inv_item, obj, inv_item.count)
+                end
             end
-        end
 
-        if cnt == 0 then
-            slot:Select(0)
+            if cnt == 0 then
+                slot:Select(0)
+            end
         end
     end
 end

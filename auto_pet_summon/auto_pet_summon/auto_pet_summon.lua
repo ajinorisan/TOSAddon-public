@@ -2,10 +2,11 @@
 -- v1.0.1 呼び出し安定しなかったのでディレイ見直し、ペットアイコンを画面上部に設置
 -- v1.0.2 動いてたのが不思議なくらい雑なコードだったので見直し。ペット入れ替えた時のアイコン表示修正。
 -- v1.0.3 コンパニオンフレームの呼び出しを更に遅延
+-- v1.0.4 なんかクライアント関数だと呼べなくなってたので修正
 local addonName = "AUTO_PET_SUMMON"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -29,31 +30,206 @@ end
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
-if not g.loded then
-    g.settings = {
-
-        pet = {},
-        pet_classid = {}
-    }
-end
 function AUTO_PET_SUMMON_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    if not g.loded then
-        g.loded = true
-    end
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
-    g.first = 0
+
     if mapCls.MapType == "City" then
-        acutil.setupEvent(addon, "control.SummonPet", "AUTO_PET_SUMMON_RESERVE_COMPANIONLIST");
-        addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_LOAD_SETTINGS")
-        addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_PET_FRAME_INIT")
-        -- ReserveScript("AUTO_PET_SUMMON_LOAD_SETTINGS()", 10.0)
+        local loginCharID = info.GetCID(session.GetMyHandle())
+        g.personalFileLoc = string.format('../addons/%s/%s.json', addonNameLower, loginCharID)
+        local settings, err = acutil.loadJSON(g.personalFileLoc, g.personal)
+        if not settings then
+            settings = {
+                pet_iesid = "",
+                pet_clsid = 0
+            }
+        end
+
+        g.personal = settings
+
+        AUTO_PET_SUMMON_PERSONAL_SAVE_SETTINGS()
+
+        addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_COMPANION")
+
+    end
+    acutil.setupEvent(addon, "control.SummonPet", "AUTO_PET_SUMMON_PET_FRAME_INIT");
+    acutil.setupEvent(addon, "HOTKEY_UNSUMMON_COMPANION", "AUTO_PET_SUMMON_PET_RELEASE");
+    acutil.setupEvent(addon, "COMPANIONLIST_OPEN", "AUTO_PET_SUMMON_COMPANIONLIST_OPEN");
+end
+
+function AUTO_PET_SUMMON_COMPANIONLIST_OPEN(frame, msg)
+    local clframe = ui.GetFrame("companionlist");
+    if g.frameW ~= nil then
+        clframe:Resize(g.frameW, g.frameH)
     end
 end
+
+function AUTO_PET_SUMMON_COMPANION(frame)
+
+    if g.personal.pet_clsid ~= 0 then
+        local clframe = ui.GetFrame("companionlist");
+        g.frameW = clframe:GetWidth()
+        g.frameH = clframe:GetHeight();
+        clframe:Resize(0, 0)
+        ON_OPEN_COMPANIONLIST()
+        frame:RunUpdateScript("AUTO_PET_SUMMON_COMPANION_SUMMON", 1.0)
+    else
+        local frame = ui.GetFrame("companionlist")
+        frame:ShowWindow(1)
+        UPDATE_COMPANIONLIST(frame);
+        frame:RunUpdateScript("CLOSE_COMPANIONLIST", 10)
+
+    end
+
+end
+
+function AUTO_PET_SUMMON_COMPANION_SUMMON(frame)
+    local summonedPet = session.pet.GetSummonedPet();
+
+    if summonedPet == nil then
+        local petList = session.pet.GetPetInfoVec();
+
+        for i = 0, petList:size() - 1 do
+
+            local info = petList:at(i);
+            local obj = GetIES(info:GetObject());
+            local id = obj.ClassID
+            local frame = ui.GetFrame("companionlist");
+            local setName = "_CTRLSET_" .. i;
+            local ctrlset = GET_CHILD_RECURSIVELY(frame, setName)
+
+            if ctrlset ~= nil then
+                local slot = GET_CHILD_RECURSIVELY(ctrlset, "slot");
+                local icon = slot:GetIcon()
+                local iconInfo = icon:GetInfo();
+                local petGuidStr = iconInfo:GetIESID();
+                if petGuidStr == g.personal.pet_iesid then
+                    ICON_USE(icon);
+                    CLOSE_COMPANIONLIST()
+                    frame:Resize(g.frameW, g.frameH)
+                    return 1
+                end
+            end
+        end
+
+    else
+        AUTO_PET_SUMMON_PET_FRAME_INIT()
+
+        return 0
+    end
+end
+
+function AUTO_PET_SUMMON_PET_FRAME_INIT()
+    local frame = ui.GetFrame("auto_pet_summon")
+    frame:SetSkinName("None")
+    frame:SetTitleBarSkin("None")
+    frame:Resize(20, 20)
+    frame:SetPos(700, 7)
+    frame:SetLayerLevel(10);
+    frame:ShowWindow(1)
+
+    local slot = frame:CreateOrGetControl("slot", "slot", 0, 0, 20, 20)
+    AUTO_CAST(slot)
+    slot:SetSkinName("None");
+    slot:EnablePop(0)
+    slot:EnableDrop(0)
+    slot:EnableDrag(0)
+    slot:SetEventScript(ui.RBUTTONUP, "AUTO_PET_SUMMON_PET_RELEASE");
+    frame:ShowWindow(1)
+
+    frame:RunUpdateScript("AUTO_PET_SUMMON_CONFIRMATION", 1.0)
+end
+
+function AUTO_PET_SUMMON_CONFIRMATION()
+    local frame = ui.GetFrame("auto_pet_summon")
+    local slot = GET_CHILD(frame, "slot")
+    local summonedPet = session.pet.GetSummonedPet();
+    if summonedPet ~= nil then
+        local obj = summonedPet:GetObject();
+        local classobj = GetIES(obj)
+
+        local icon = CreateIcon(slot);
+        AUTO_CAST(icon)
+
+        icon:SetImage(classobj.Icon)
+        icon:SetTextTooltip("{ol}Right click to return the pet")
+        frame:ShowWindow(1)
+    else
+        slot:ClearIcon()
+    end
+    frame:RunUpdateScript("AUTO_PET_SUMMON_PERSONAL_SAVE_RESERVE", 1.5)
+end
+
+function AUTO_PET_SUMMON_PERSONAL_SAVE_RESERVE(summonedPet)
+
+    local summonedPet = session.pet.GetSummonedPet();
+
+    if summonedPet ~= nil then
+        local loginCharID = info.GetCID(session.GetMyHandle())
+        local pet_iesid = tostring(summonedPet:GetStrGuid())
+        g.personal.pet_iesid = pet_iesid
+        local obj = summonedPet:GetObject();
+        local pet_clsid = GetIES(obj).ClassID;
+        g.personal.pet_clsid = pet_clsid
+
+    else
+
+        g.personal.pet_iesid = ""
+        g.personal.pet_clsid = 0
+
+    end
+    AUTO_PET_SUMMON_PERSONAL_SAVE_SETTINGS()
+end
+
+function AUTO_PET_SUMMON_PERSONAL_SAVE_SETTINGS()
+
+    acutil.saveJSON(g.personalFileLoc, g.personal);
+
+end
+
+function AUTO_PET_SUMMON_PET_RELEASE()
+    control.SummonPet(0, 0, 0);
+
+    local frame = ui.GetFrame("companionlist")
+    frame:ShowWindow(1)
+    UPDATE_COMPANIONLIST(frame);
+    frame:RunUpdateScript("CLOSE_COMPANIONLIST", 10)
+end
+
+--[[
+
+function AUTO_PET_SUMMON_PET_UPDATE()
+
+    AUTO_PET_SUMMON_CONFIRMATION()
+
+end
+function AUTO_PET_SUMMON_ICON_USE(frame, msg)
+    local object, reAction = acutil.getEventArgs(msg)
+    local iconPt = object;
+    local icon = tolua.cast(iconPt, 'ui::CIcon');
+    local iconInfo = icon:GetInfo();
+    print(type(iconInfo.type) .. ":" .. type(iconInfo:GetIESID()))
+end
+function AUTO_PET_SUMMON_COMPANIONLIST()
+    local summonedPet = session.pet.GetSummonedPet();
+
+    if summonedPet == nil then
+
+        local frame = ui.GetFrame("companionlist")
+        frame:ShowWindow(1)
+        UPDATE_COMPANIONLIST(frame);
+
+        ReserveScript("AUTO_PET_SUMMON_PETLIST_CLOSE()", 10)
+        return
+    else
+        AUTO_PET_SUMMON_PET_FRAME_INIT()
+    end
+end
+
 
 function AUTO_PET_SUMMON_RESERVE_COMPANIONLIST()
     if g.first == 0 then
@@ -81,7 +257,7 @@ function AUTO_PET_SUMMON_LOAD_SETTINGS()
 
     if err then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
 
     if not settings then
@@ -94,7 +270,6 @@ function AUTO_PET_SUMMON_LOAD_SETTINGS()
 
         AUTO_PET_SUMMON_SAVE_SETTINGS()
 
-        settings = g.settings
     end
     g.settings = settings
     if g.settings.pet == nil then
@@ -103,8 +278,6 @@ function AUTO_PET_SUMMON_LOAD_SETTINGS()
     if g.settings.pet_classid == nil then
         g.settings.pet_classid = {}
     end
-
-    local loginCharID = info.GetCID(session.GetMyHandle())
 
     if g.settings.pet_classid[loginCharID] == nil then
         g.settings.pet_classid[loginCharID] = 0
@@ -141,48 +314,7 @@ function AUTO_PET_SUMMON_COMPANIONLIST()
     end
 end
 
-function AUTO_PET_SUMMON_COMPANION(pet, pet_classid)
 
-    control.SummonPet(pet_classid, pet, 0);
-    AUTO_PET_SUMMON_PET_FRAME_INIT()
-end
-
-function AUTO_PET_SUMMON_PET_FRAME_INIT()
-    local frame = ui.GetFrame("auto_pet_summon")
-    frame:SetSkinName("None")
-    frame:SetTitleBarSkin("None")
-    frame:Resize(20, 20)
-    frame:SetPos(700, 7)
-    frame:SetLayerLevel(10);
-    frame:RunUpdateScript("AUTO_PET_SUMMON_PET_UPDATE", 0.5)
-    frame:ShowWindow(1)
-
-    local slot = frame:CreateOrGetControl("slot", "slot", 0, 0, 20, 20)
-    AUTO_CAST(slot)
-    slot:SetSkinName("None");
-    slot:EnablePop(0)
-    slot:EnableDrop(0)
-    slot:EnableDrag(0)
-    slot:SetEventScript(ui.RBUTTONUP, "AUTO_PET_SUMMON_PET_RELEASE");
-
-end
-
-function AUTO_PET_SUMMON_PET_UPDATE(frame)
-
-    -- local frame = ui.GetFrame("auto_pet_summon")
-    local summonedPet = session.pet.GetSummonedPet();
-    if summonedPet ~= nil then
-
-        AUTO_PET_SUMMON_PET_SAVE(summonedPet)
-        AUTO_PET_SUMMON_CONFIRMATION(summonedPet)
-        return 0
-    else
-        AUTO_PET_SUMMON_PET_SAVE(summonedPet)
-        AUTO_PET_SUMMON_CONFIRMATION(summonedPet)
-        return 1
-    end
-
-end
 
 function AUTO_PET_SUMMON_PET_SAVE(summonedPet)
 
@@ -233,10 +365,6 @@ function AUTO_PET_SUMMON_CONFIRMATION(summonedPet)
         slot:ClearIcon()
     end
 
-end
-
-function AUTO_PET_SUMMON_PET_RELEASE()
-    control.SummonPet(0, 0, 0);
 end
 
 --[[local function child_name()
