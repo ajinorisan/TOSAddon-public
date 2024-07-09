@@ -316,8 +316,6 @@ function indun_panel_FIELD_BOSS_ENTER_TIMER_SETTING(ctrl_set)
         difftime = time22_5
     end
 
-    -- print(tostring(diff))
-
     local textstr;
     local battle_info_time_text = GET_CHILD_RECURSIVELY(ctrl_set, "battle_info_time_text");
 
