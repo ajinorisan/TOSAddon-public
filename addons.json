@@ -310,7 +310,7 @@
 		"name" : "Another Warehouse",
 		"file" : "another_warehouse",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.0",
+		"fileVersion" : "v1.1.1",
 		"releaseTag" : "another_warehouse",
 		"unicode" : "⛄",
 		"description" : "自動入出庫機能つけた。ebisukeさん作成のチーム倉庫改造アドオンYet Another Account Inventoryのシンプル版。競合するのでYAAIをアンインストールしてください。今後YAAIは保守しないのでこちらへの切替をオススメします。Automatic warehousing function.Simple version of Yet Another Account Inventory, a team warehouse modification add-on created by ebisuke. Please uninstall YAAI as it conflicts with it. We will not maintain YAAI in the future and recommend switching to this version.ebisuke 자동 입출고 기능 추가.님이 만든 팀 창고 개조 애드온 Yet Another Account Inventory의 심플 버전입니다. 충돌하므로 YAAI를 제거해 주세요. 향후 YAAI는 유지보수를 하지 않으므로 이쪽으로 전환을 추천합니다.",
