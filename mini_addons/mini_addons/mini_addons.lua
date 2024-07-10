@@ -34,10 +34,11 @@
 -- v1.3.4 クローズボタンの場所修正。TP商店開いた時にフレーム消えてたの修正。
 -- v1.3.5 BGMプレイヤー。割とガチで10曲目イカレてる。
 -- v1.3.6 小さいBGMプレイヤー出さない様に変更
+-- v1.3.7 チャンネルインフォフレームをレイドなどでは表示しない様に。マーケット出店時の数量バグ修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.6"
+local ver = "1.3.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -265,7 +266,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
     g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
-
+    g.SetupHook(MINI_ADDONS_UPDATE_COUNT_STRING, "UPDATE_COUNT_STRING")
     acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
 
     if g.settings.other_effect == nil then
@@ -431,6 +432,47 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     -- local frame = ui.GetFrame("mini_addons")
 
 end
+
+function MINI_ADDONS_UPDATE_COUNT_STRING(parent, ctrl)
+    MINI_ADDONS_UPDATE_COUNT_STRING_REPLACE(parent, ctrl)
+end
+
+function MINI_ADDONS_UPDATE_COUNT_STRING_REPLACE(parent, ctrl)
+    local frame = parent:GetTopParentFrame();
+    local edit_price = GET_CHILD_RECURSIVELY(frame, "edit_price");
+
+    local itemPrice = edit_price:GetText()
+    itemPrice = string.gsub(itemPrice, ',', '')
+    itemPrice = tonumber(itemPrice)
+
+    local countTxt = ctrl:GetText();
+    if countTxt ~= nil then
+        local count = tonumber(countTxt);
+        if count == nil or countTxt == "" then
+            count = 0;
+        end
+
+        local limitTradeStr = GET_REMAIN_MARKET_TRADE_AMOUNT_STR();
+        if limitTradeStr ~= nil then
+            if IsGreaterThanForBigNumber(tonumber(itemPrice) * count, limitTradeStr) == 1 then
+                ui.SysMsg(ScpArgMsg('MarketMaxSilverLimit{LIMIT}Over', 'LIMIT', GET_COMMAED_STRING(limitTradeStr)));
+            end
+        end
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot_item")
+        local icon = slot:GetIcon()
+        if icon ~= nil then
+            local info = icon:GetInfo();
+            local iesid = info:GetIESID();
+            local invItem = session.GetInvItemByGuid(iesid)
+            if invItem ~= nil then
+                count = invItem.count
+            end
+        end
+        ctrl:SetText(count)
+        UPDATE_FEE_INFO(frame, nil, count, nil)
+    end
+end
+
 function MINIADDONS_BGMPLAYER_PLAY(frame, btn)
 
     local mode = tonumber(frame:GetUserValue("MODE_ALL_LIST"));
@@ -1472,37 +1514,42 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     title:SetText("{ol}{s12}channel info")
 
     local zoneInsts = session.serverState.GetMap();
+    if zoneInsts ~= nil then
 
-    local cnt = zoneInsts:GetZoneInstCount();
+        local cnt = zoneInsts:GetZoneInstCount();
 
-    for i = 0, cnt - 1 do
-        local zoneInst = zoneInsts:GetZoneInstByIndex(i);
-        -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+        for i = 0, cnt - 1 do
+            local zoneInst = zoneInsts:GetZoneInstByIndex(i);
+            -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
 
-        local String = zoneInst.pcCount
+            local String = zoneInst.pcCount
 
-        local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
-        AUTO_CAST(btn)
-        btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
-        local channelnum = session.loginInfo.GetChannel();
-        if i == channelnum then
-            btn:SetSkinName("test_pvp_btn");
+            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
+            AUTO_CAST(btn)
+            btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+            local channelnum = session.loginInfo.GetChannel();
+            if i == channelnum then
+                btn:SetSkinName("test_pvp_btn");
+            end
+            btn:SetEventScriptArgString(ui.LBUTTONUP, i)
+            if tonumber(String) >= 50 then
+                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FF0000}" .. String
+                btn:SetText(text)
+            elseif tonumber(String) < 20 then
+                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
+                btn:SetText(text)
+            else
+                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
+                btn:SetText(text)
+            end
+
         end
-        btn:SetEventScriptArgString(ui.LBUTTONUP, i)
-        if tonumber(String) >= 50 then
-            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FF0000}" .. String
-            btn:SetText(text)
-        elseif tonumber(String) < 20 then
-            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
-            btn:SetText(text)
-        else
-            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
-            btn:SetText(text)
-        end
-
+        frame:Resize(cnt * 50 + 20, 60)
+        frame:ShowWindow(1)
+    else
+        frame:ShowWindow(0)
+        return 0
     end
-    frame:Resize(cnt * 50 + 20, 60)
-    frame:ShowWindow(1)
 
     return 1
 end
