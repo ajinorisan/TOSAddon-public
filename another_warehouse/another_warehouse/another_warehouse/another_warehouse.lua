@@ -9,11 +9,10 @@
 -- v1.0.8 アイテム出庫を早くした。他の機能はまだ。
 -- v1.0.9 用意出来たよのお知らせ。1個残すチェック付けた。
 -- v1.1.0 なんか倉庫に入れるのめちゃ早くなった。なんでや？シルバーインプット付けた。セット取り出しバグ修正。
--- v1.1.2 環境依存してそうなのでディレイを元に戻した。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -503,6 +502,11 @@ function another_warehouse_set_items_setting(number, handle)
     out:SetEventScript(ui.LBUTTONUP, "another_warehouse_set_item_take")
     out:SetEventScriptArgString(ui.LBUTTONUP, number)
 
+    --[[local warehouseFrame = ui.GetFrame("accountwarehouse")
+    local dropList = GET_CHILD_RECURSIVELY(warehouseFrame, 'dropList')
+    AUTO_CAST(dropList)
+    print(tostring(dropList:GetText()))]]
+
     local name_edit = frame:CreateOrGetControl("edit", "name_edit", 115, 13, 110, 30)
     AUTO_CAST(name_edit)
     name_edit:SetFontName("white_16_ol")
@@ -933,17 +937,15 @@ function another_warehouse_keeper_reserve()
     local LoginCID = info.GetCID(session.GetMyHandle())
 
     if g.settings[LoginCID].maney_check == 1 then
-        another_warehouse_silver()
-    elseif g.settings[LoginCID].item_check == 1 then
-        another_warehouse_item()
-        -- ReserveScript('another_warehouse_silver()', 0.1)
+
+        ReserveScript('another_warehouse_silver()', 0.1)
 
     end
 
-    --[[if g.settings[LoginCID].item_check == 1 then
+    if g.settings[LoginCID].item_check == 1 then
         ReserveScript('another_warehouse_item()', 0.6)
 
-    end]]
+    end
 
     return
 end
@@ -1283,71 +1285,97 @@ function another_warehouse_item_take_to()
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
     g.take = nil
 
-    local flag = 0
+    -- local flag = 0
     -- ReserveScript(string.format("another_warehouse_item_put(%d)", flag, 0.2))
-    another_warehouse_item_put(flag)
+    fromframe:RunUpdateScript("another_warehouse_item_put", g.settings.delay)
+    return
 end
 
-function another_warehouse_item_put(flag)
+function another_warehouse_item_put()
 
     local warehouseFrame = ui.GetFrame('accountwarehouse')
-
-    local delay = g.settings.delay
+    if warehouseFrame:IsVisible() == 0 then
+        return 0
+    end
     local tooltip_count = 0
-
+    local delay = g.settings.delay
     for clsID, itemData in pairs(g.putitemtbl) do
-        if warehouseFrame:IsVisible() == 1 then
 
-            local iesid = itemData.iesid
-            local Count = itemData.count
+        local iesid = itemData.iesid
+        local Count = itemData.count
+        local handle = itemData.handle
+        local invItem = itemData.invItem
+        local itemobj = GetIES(invItem:GetObject())
 
-            local handle = itemData.handle
-            local invItem = itemData.invItem
-            local itemobj = GetIES(invItem:GetObject())
-            local itemCls = GetClassByType('Item', clsID)
-
-            another_warehouse_checkvalid(iesid)
-            local exist, index = another_warehouse_get_exist_item_index(itemobj)
-            local goal_index = another_warehouse_get_goal_index()
-            if exist == true and index >= 0 then
-                goal_index = index
-            end
-
-            g.putitemtbl[clsID] = nil
-
-            local iconName = GET_ITEM_ICON_IMAGE(itemCls);
-            local Name = itemCls.Name
-
-            -- local tooldelay = delay - (delay - 0.05)
-            -- ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d)", Name, iconName, Count),               delay + 0.05)
-
-            ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s','%s',%d)", iesid, Count,
-                handle, goal_index, Name, iconName, tooltip_count), delay)
-            delay = delay + 0.5
-            if tooltip_count >= 4 then
-                tooltip_count = tooltip_count - 4
-            else
-                tooltip_count = tooltip_count + 1
-            end
+        another_warehouse_checkvalid(iesid)
+        local exist, index = another_warehouse_get_exist_item_index(itemobj)
+        local goal_index = another_warehouse_get_goal_index()
+        if exist == true and index >= 0 then
+            goal_index = index
         end
 
-    end
-    -- print(flag .. ":" .. delay)
-    if flag == 0 then
-        flag = 1
-        ReserveScript(string.format("another_warehouse_reitem_put(%d)", flag, delay))
+        -- g.putitemtbl[clsID] = nil
+        if tooltip_count >= 10 then
+            tooltip_count = tooltip_count - 10
+        else
+            tooltip_count = tooltip_count + 1
+        end
+        local itemCls = GetClassByType('Item', clsID)
+        local iconName = GET_ITEM_ICON_IMAGE(itemCls);
+        local Name = itemCls.Name
 
-        return
+        CHAT_SYSTEM(another_warehouse_lang("Item to warehousing") .. "：[" .. "{#EE82EE}" .. Name .. "{#FFFF00}]×" ..
+                        "{#EE82EE}" .. Count)
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(Count), handle, goal_index)
+        ReserveScript(string.format("another_warehouse_item_tooltip('%s','%s',%d,%d)", Name, iconName, Count,
+            tooltip_count), delay)
+        delay = delay + 0.2
+        -- another_warehouse_item_put_to(iesid, Count, handle, goal_index, Name, iconName, tooltip_count)
+
+    end
+    -- ReserveScript("another_warehouse_end()", delay)
+    local tooltip_count = 0
+    local delay = 0.2
+    if #g.putitemtbl >= 1 then
+        for clsID, itemData in pairs(g.putitemtbl) do
+            local Count = itemData.count
+            local itemList = session.GetInvItemList();
+            local guidList = itemList:GetGuidList();
+            local cnt = guidList:Count();
+            for i = 0, cnt - 1 do
+                local guid = guidList:Get(i);
+                local invItem = itemList:GetItemByGuid(guid);
+                local itemObj = GetIES(invItem:GetObject());
+                if itemObj.ClassName ~= MONEY_NAME then
+                    local classid = itemObj.ClassID
+                    if clsID == classid then
+                        if math.min(Count, invItem.count) <= Count then
+                            if tooltip_count >= 4 then
+                                tooltip_count = tooltip_count - 4
+                            else
+                                tooltip_count = tooltip_count + 1
+                            end
+                            local itemCls = GetClassByType('Item', clsID)
+                            local iconName = GET_ITEM_ICON_IMAGE(itemCls);
+                            local Name = itemCls.Name
+                            another_warehouse_item_tooltip(Name, iconName, Count, tooltip_count)
+                            g.putitemtbl[clsID] = nil
+                            -- (delay)
+                            return 1
+                        end
+                    end
+                end
+
+                -- print("putitemtbl:" .. clsid .. ":" .. count.count)
+            end
+        end
     else
-        ReserveScript("another_warehouse_end()", delay)
-        return
+        another_warehouse_end()
+        return 0
     end
-
 end
 
 function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name, iconName, tooltip_count)
-    CHAT_SYSTEM(another_warehouse_lang("Item to warehousing") .. "：[" .. "{#EE82EE}" .. Name .. "{#FFFF00}]×" ..
-                    "{#EE82EE}" .. count)
 
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
     another_warehouse_item_tooltip(Name, iconName, count, tooltip_count)
@@ -1593,7 +1621,7 @@ function another_warehouse_get_exist_item_index(itemObj)
     end
 end
 
-function another_warehouse_reitem_put(flag)
+--[[function another_warehouse_reitem_put(flag)
     -- print(flag)
     local LoginCID = info.GetCID(session.GetMyHandle())
 
@@ -1718,7 +1746,7 @@ function another_warehouse_reitem_put(flag)
         end
     end
     another_warehouse_item_put(flag)
-end
+end]]
 
 function another_warehouse_end()
     ui.SysMsg("[AWH]End of Operation")
@@ -1749,12 +1777,10 @@ function another_warehouse_silver()
         item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
 
     end
-    local LoginCID = info.GetCID(session.GetMyHandle())
+
     if g.settings.amount_check == 1 then
-        -- ReserveScript("another_warehouse_fraction()", 0.2)
-        another_warehouse_fraction()
-    elseif g.settings[LoginCID].item_check == 1 then
-        another_warehouse_item()
+        ReserveScript("another_warehouse_fraction()", 0.2)
+
     end
 end
 
@@ -1787,10 +1813,10 @@ function another_warehouse_fraction()
     session.AddItemIDWithAmount("0", tostring(awsilver))
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
 
-    local LoginCID = info.GetCID(session.GetMyHandle())
-    if g.settings[LoginCID].item_check == 1 then
-        another_warehouse_item()
-    end
+    --[[if g.settings.item_check == 1 then
+        ReserveScript('another_warehouse_item()', 0.1)
+        return
+    end]]
 
 end
 
@@ -2026,7 +2052,6 @@ function another_warehouse_setting_edit(frame, ctrl, argStr, argNum)
     if ctrlName == "amount_edit" then
         g.settings.silver = ctrlnum
     elseif ctrlName == "delay_edit" then
-        ui.SysMsg("Set to " .. ctrlnum .. " sec.")
         g.settings.delay = ctrlnum
     end
     another_warehouse_save_settings()
