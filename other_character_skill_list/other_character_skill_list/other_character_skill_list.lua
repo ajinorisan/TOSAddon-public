@@ -6,6 +6,7 @@
 -- v1.0.6 instantcc使ってたら順番バグるの修正。フレーム開ける時に読み込みに変更。
 -- v1.0.7 順番バグってたの再修正
 -- v1.0.8 キャラの装備詳細見れる様にした。でも同一バラックじゃないと無理／(^o^)＼ 他の装備LVも可視化
+-- v1.0.9 バグ修正
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -269,8 +270,8 @@ function other_character_skill_list_load_settings()
 
     local change, err = acutil.loadJSON(g.changeFileLoc, g.change)
 
-    if not change then
-
+    if not change or not next(change) then
+        -- print("Creating new change settings.")
         local accountInfo = session.barrack.GetMyAccount()
         local barrackPCCount = accountInfo:GetBarrackPCCount()
         change = {}
@@ -282,9 +283,10 @@ function other_character_skill_list_load_settings()
             change[barrackPCName] = "0"
         end
         g.change = change
-        acutil.saveJSON(g.changeFileLoc, g.change) -- 変更ファイルの保存
+
     else
         g.change = change
+        -- print("Loaded existing change settings.")
     end
 end
 
@@ -600,7 +602,7 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
     for i = 0, spotCount do
         local eqpObj = bpc:GetEquipObj(i);
         local esName = item.GetEquipSpotName(i);
-        print(esName)
+
         if eqpObj ~= nil then
 
             local obj = GetIES(eqpObj);
