@@ -11,10 +11,11 @@
 -- v1.1.0 なんか倉庫に入れるのめちゃ早くなった。なんでや？シルバーインプット付けた。セット取り出しバグ修正。
 -- v1.1.2 環境依存してそうなのでディレイを元に戻した。
 -- v1.1.3 ディレイ設定消えてたの修正。
+-- v1.1.4 ディレイ設定バグってtの修正。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1884,6 +1885,20 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     char_use_check:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
     char_use_check:SetCheck(g.settings[LoginCID].use) -- g.settings[LoginCID].use]]
 
+    local delay_edit = settingframe:CreateOrGetControl('edit', 'delay_edit', 400, 120, 100, 25)
+    AUTO_CAST(delay_edit)
+    delay_edit:SetFontName("white_16_ol")
+    delay_edit:SetTextAlign("center", "center") -- print(tostring(g.settings.silver))
+
+    delay_edit:SetTextTooltip(another_warehouse_lang(
+        "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec."))
+    delay_edit:SetText(tonumber(g.settings.delay) or 0.5)
+    delay_edit:SetEventScript(ui.ENTERKEY, 'another_warehouse_setting_edit')
+
+    local delay_text = settingframe:CreateOrGetControl("richtext", "delay_text", 505, 125, 100, 0)
+    AUTO_CAST(delay_text);
+    delay_text:SetText("{ol}" .. another_warehouse_lang("Put delay time"))
+
     local team_text = settingframe:CreateOrGetControl("richtext", "team_text", 25, 125, 0, 0)
     AUTO_CAST(team_text);
     team_text:SetText("{ol}" .. another_warehouse_lang("team setting"))
@@ -1993,20 +2008,6 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
         transfer:SetTextTooltip(another_warehouse_lang("Data copy from [Wrehouse Manager]"))
         transfer:SetEventScript(ui.LBUTTONUP, "another_warehouse_data_transfer_confirmation")
     end
-
-    local delay_edit = settingframe:CreateOrGetControl('edit', 'delay_edit', 400, 120, 100, 25)
-    AUTO_CAST(delay_edit)
-    delay_edit:SetFontName("white_16_ol")
-    delay_edit:SetTextAlign("center", "center") -- print(tostring(g.settings.silver))
-
-    delay_edit:SetTextTooltip(another_warehouse_lang(
-        "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec."))
-    delay_edit:SetText(tonumber(g.settings.delay))
-    delay_edit:SetEventScript(ui.ENTERKEY, 'another_warehouse_setting_edit')
-
-    local delay_text = settingframe:CreateOrGetControl("richtext", "delay_text", 505, 125, 100, 0)
-    AUTO_CAST(delay_text);
-    delay_text:SetText("{ol}" .. another_warehouse_lang("Put delay time"))
 
 end
 
