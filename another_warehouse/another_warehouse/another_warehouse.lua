@@ -10,10 +10,11 @@
 -- v1.0.9 用意出来たよのお知らせ。1個残すチェック付けた。
 -- v1.1.0 なんか倉庫に入れるのめちゃ早くなった。なんでや？シルバーインプット付けた。セット取り出しバグ修正。
 -- v1.1.2 環境依存してそうなのでディレイを元に戻した。
+-- v1.1.3 ディレイ設定消えてたの修正。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1247,11 +1248,8 @@ function another_warehouse_item_take()
 
                     g.takeitemtbl[type] = nil
                     -- another_warehouse_item_take_to(iesid, count)
-                    if g.settings.leave == 1 then
-                        g.take[iesid] = count - 1
-                    else
-                        g.take[iesid] = count
-                    end
+
+                    g.take[iesid] = count
 
                     -- ReserveScript(string.format("another_warehouse_item_take_to('%s',%d)", iesid, count), delay)
                     -- delay = delay + 0.5
