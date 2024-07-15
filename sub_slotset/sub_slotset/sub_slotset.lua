@@ -1,8 +1,9 @@
 -- v1.0.1 レイヤー設定追加。再設定機能追加。エモを右クリックでチャット。
+-- v1.0.2 増設したスロットに上手くハマらなかったの修正。
 local addonName = "SUB_SLOTSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -288,6 +289,7 @@ function sub_slotset_slotset_init(frame)
     end
 
     frame:SetLayerLevel(layer)
+    frame:EnableHittestFrame(1)
 
     local slotset = frame:CreateOrGetControl('slotset', 'slotset', 2, 9, 0, 0)
     AUTO_CAST(slotset);
@@ -300,6 +302,17 @@ function sub_slotset_slotset_init(frame)
     slotset:SetSpc(2, 2)
     slotset:SetSkinName('invenslot2')
     slotset:CreateSlots()
+
+    --[[local slot_count = slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        slot:EnableDrop(1)
+
+        slot:SetEventScript(ui.DROP, 'sub_slotset_drop')
+        slot:SetEventScriptArgString(ui.DROP, str)
+
+    end]]
 
     if str == "shared" then
         local titlelabel = frame:CreateOrGetControl('richtext', 'titlelabel', 0, 0, 0, 0)
@@ -418,7 +431,7 @@ function sub_slotset_slotset_init(frame)
 end
 
 function sub_slotset_slotset_update(frame)
-
+    --
     local isnew = frame:GetUserValue("ISNEW")
 
     if isnew == "true" then
@@ -437,7 +450,7 @@ function sub_slotset_slotset_update(frame)
     slotset:EnableDrop(1)
     slotset:EnableHitTest(1);
     local slot_count = slotset:GetSlotCount()
-
+    -- print(tostring(slot_count))
     local clsid = 0
     local category = ""
     local iesid = ""
@@ -447,13 +460,23 @@ function sub_slotset_slotset_update(frame)
         AUTO_CAST(slot)
 
         if belong == "shared" then
-            clsid = g.settings[frame_name][tostring(i)].clsid
-            category = g.settings[frame_name][tostring(i)].category
-            iesid = g.settings[frame_name][tostring(i)].iesid
+            if g.settings[frame_name][tostring(i)] ~= nil then
+                clsid = g.settings[frame_name][tostring(i)].clsid
+                category = g.settings[frame_name][tostring(i)].category
+                iesid = g.settings[frame_name][tostring(i)].iesid
+            else
+                g.settings[frame_name][tostring(i)] = {}
+                sub_slotset_save_settings()
+            end
         elseif belong == "character" then
-            clsid = g.personal[frame_name][tostring(i)].clsid
-            category = g.personal[frame_name][tostring(i)].category
-            iesid = g.personal[frame_name][tostring(i)].iesid
+            if g.personal[frame_name][tostring(i)] ~= nil then
+                clsid = g.personal[frame_name][tostring(i)].clsid
+                category = g.personal[frame_name][tostring(i)].category
+                iesid = g.personal[frame_name][tostring(i)].iesid
+            else
+                g.personal[frame_name][tostring(i)] = {}
+                sub_slotset_personal_save_settings()
+            end
         end
         if clsid == "Normal" then
             clsid = 98
@@ -461,6 +484,7 @@ function sub_slotset_slotset_update(frame)
             clsid = 99
         end
 
+        slot:EnableDrop(1)
         slot:SetEventScript(ui.RBUTTONUP, 'sub_slotset_slot_rbutton');
         slot:SetEventScriptArgNumber(ui.RBUTTONUP, clsid);
         slot:SetEventScriptArgString(ui.RBUTTONUP, category)
