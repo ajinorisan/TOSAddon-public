@@ -11,11 +11,12 @@
 -- v1.1.0 なんか倉庫に入れるのめちゃ早くなった。なんでや？シルバーインプット付けた。セット取り出しバグ修正。
 -- v1.1.2 環境依存してそうなのでディレイを元に戻した。
 -- v1.1.3 ディレイ設定消えてたの修正。
--- v1.1.4 ディレイ設定バグってtの修正。
+-- v1.1.4 ディレイ設定バグってたの修正。
+-- v1.1.5 倉庫にアイテム無い時に搬出バグってたの修正。あと1M未満のシルバー取り出し修正。怒涛の修正つかれたよ。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -933,21 +934,108 @@ end
 
 function another_warehouse_keeper_reserve()
     local LoginCID = info.GetCID(session.GetMyHandle())
+    local delay = g.settings.delay
 
     if g.settings[LoginCID].maney_check == 1 then
         another_warehouse_silver()
-    elseif g.settings[LoginCID].item_check == 1 then
-        another_warehouse_item()
-        -- ReserveScript('another_warehouse_silver()', 0.1)
+    end
+    if g.settings[LoginCID].item_check == 1 then
+        ReserveScript("another_warehouse_item()", delay)
+        return
+    end
+
+end
+
+function another_warehouse_silver()
+
+    local silveritem = session.GetInvItemByName(MONEY_NAME)
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local handle = warehouseFrame:GetUserIValue('HANDLE')
+
+    local charsilver = 0
+    if silveritem ~= nil then
+        charsilver = tonumber(silveritem:GetAmountStr())
+
+    end
+    if g.settings.amount_check == 1 then
+        local gbox = GET_CHILD_RECURSIVELY(warehouseFrame, 'visgBox')
+        local cnt = session.AccountWarehouse.GetCount() - 1
+
+        local ctrlSet = GET_CHILD_RECURSIVELY(warehouseFrame, 'CTRLSET_' .. cnt)
+        local result = ctrlSet:GetChild('result')
+        local value = result:GetTextByKey('value')
+        local cleanedValue = string.gsub(value, "[\r\n,]", "")
+        local numericValue = tonumber(cleanedValue)
+
+        if numericValue <= 999999 then
+
+            charsilver = (math.floor(charsilver / 1000000) * 1000000) - tonumber(g.settings.silver)
+            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(charsilver), handle)
+            return
+        end
+
+        local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+        local guidlist = itemList:GetSortedGuidList()
+        local cnt = itemList:Count()
+
+        for i = 0, cnt - 1 do
+            local guid = guidlist:Get(i)
+            local invItem = itemList:GetItemByGuid(guid)
+
+            if invItem ~= nil then
+                local invItem_obj = GetIES(invItem:GetObject())
+                if invItem_obj.ClassName == MONEY_NAME then
+
+                    local count = invItem.count
+
+                    if count >= 1000000 then
+                        local fraction = count % 1000000 or 0
+
+                        if charsilver + fraction > tonumber(g.settings.silver) + 1000000 then
+                            charsilver = math.floor(charsilver / 1000000) * 1000000
+
+                            fraction = charsilver - fraction - tonumber(g.settings.silver)
+
+                            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(fraction),
+                                handle)
+                            return
+
+                        else
+                            charsilver = tonumber(g.settings.silver) - charsilver
+
+                            if charsilver <= 0 then
+                                return
+                            end
+
+                            charsilver = math.ceil(charsilver / 1000000) * 1000000
+
+                            session.ResetItemList()
+                            session.AddItemIDWithAmount(guid, tostring(charsilver + fraction))
+                            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+                            return
+                        end
+
+                    end
+                end
+            end
+        end
+    else
+        charsilver = charsilver - tonumber(g.settings.silver)
+    end
+
+    if charsilver > 0 then
+
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(charsilver), handle)
+        return
+    elseif charsilver <= 0 then
+
+        session.ResetItemList()
+        session.AddItemIDWithAmount("0", tostring(-charsilver))
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+        return
 
     end
 
-    --[[if g.settings[LoginCID].item_check == 1 then
-        ReserveScript('another_warehouse_item()', 0.6)
-
-    end]]
-
-    return
 end
 
 function another_warehouse_item_tooltip(Name, iconName, Count, tooltipcount)
@@ -1001,26 +1089,58 @@ function another_warehouse_item()
 
     g.takeitemtbl = {}
     g.putitemtbl = {}
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
+
     local LoginCID = info.GetCID(session.GetMyHandle())
 
-    for str_index, items in pairs(g.settings[LoginCID].items) do
-        local clsID = items.clsid
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local handle = warehouseFrame:GetUserIValue('HANDLE')
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
+    local guidList = itemList:GetGuidList();
+    local sortedGuidList = itemList:GetSortedGuidList();
+    local sortedCnt = sortedGuidList:Count();
 
-        local count = items.count
-
-        g.takeitemtbl[clsID] = count
-
-    end
-
-    for str_index, items in pairs(g.settings.items) do
-        local clsID = items.clsid
-        local count = items.count
-        if not g.takeitemtbl[clsID] then
-            g.takeitemtbl[clsID] = count
-
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        local type = invItem.type
+        local itemobj = GetIES(invItem:GetObject())
+        local inv_count = 0
+        if g.settings.leave ~= 1 then
+            inv_count = invItem.count
+        else
+            inv_count = invItem.count - 1
         end
+        for str_index, items in pairs(g.settings[LoginCID].items) do
+
+            local clsID = items.clsid
+            if type == clsID and inv_count >= 0 then
+
+                local count = items.count
+                --[[if itemobj.ClassName == "Potion_Plant_DMG_DOWN" then
+                    print(tostring(itemobj.ClassName) .. ":" .. tostring(count))
+                end]]
+                g.takeitemtbl[clsID] = count
+
+                break
+            end
+        end
+        for str_index, items in pairs(g.settings.items) do
+
+            local clsID = items.clsid
+            if type == clsID and inv_count >= 0 then
+
+                if not g.takeitemtbl[clsID] then
+                    local count = items.count
+                    --[[if itemobj.ClassName == "Potion_Plant_DMG_DOWN" then
+                    print(tostring(itemobj.ClassName) .. ":" .. tostring(count))
+                end]]
+                    g.takeitemtbl[clsID] = count
+
+                    break
+                end
+            end
+        end
+
     end
 
     local invItemList = session.GetInvItemList()
@@ -1034,10 +1154,13 @@ function another_warehouse_item()
         local inv_clsid = inv_obj.ClassID
         if inv_obj.ClassName ~= MONEY_NAME then
             for clsid, count in pairs(g.takeitemtbl) do
-                local take_count = tonumber(count) - inv_Item.count
+                local take_count = 0
+                if tonumber(count) ~= inv_Item.count then
+                    take_count = tonumber(count) - inv_Item.count
+                end
 
                 if clsid == inv_clsid then
-                    -- print(inv_obj.ClassName .. ":" .. take_count)
+                    -- print(tostring(inv_obj.ClassName) .. ":" .. take_count)
                     if take_count < 0 then
                         g.takeitemtbl[clsid] = nil
                         g.putitemtbl[clsid] = {
@@ -1063,165 +1186,9 @@ function another_warehouse_item()
         end
     end
 
-    --[[for clsid, count in pairs(g.takeitemtbl) do
-
-        print("g.takeitemtbl:" .. clsid .. ":" .. count)
-
-    end
-    for clsid, count in pairs(g.putitemtbl) do
-
-        print("g.putitemtbl:" .. clsid .. ":" .. count.count)
-
-    end]]
     another_warehouse_item_take()
 
 end
-
---[[function another_warehouse_item()
-
-    local LoginCID = info.GetCID(session.GetMyHandle())
-
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
-
-    local ivframe = ui.GetFrame("inventory");
-    local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList();
-    local cnt = guidList:Count();
-
-    g.putitemtbl = {} -- アイテム情報を格納するテーブル
-    g.takeitemtbl = {}
-
-    -- another_warehouse_load_settings()
-    for k, v in pairs(g.settings.items) do
-        local clsID = v.clsid
-        local count = v.count
-
-        if warehouseFrame:IsVisible() == 1 then
-            if count ~= 0 then
-                g.takeitemtbl[clsID] = count
-            end
-
-            for i = 0, cnt - 1 do
-                local guid = guidList:Get(i)
-                local invItem = invItemList:GetItemByGuid(guid)
-                local itemobj = GetIES(invItem:GetObject())
-                local invClsID = itemobj.ClassID
-
-                if clsID == invClsID then
-                    if count == 0 then
-
-                        g.putitemtbl[clsID] = {
-                            iesid = guid,
-                            count = invItem.count,
-                            handle = handle,
-                            invItem = invItem
-                        }
-
-                        break
-                    else
-                        local item_count = invItem.count - count
-                        if invItem.count > count then
-                            g.putitemtbl[clsID] = {
-                                iesid = guid,
-                                count = item_count,
-                                handle = handle,
-                                invItem = invItem
-                            }
-                            g.takeitemtbl[clsID] = 0
-                            break
-                        elseif invItem.count < count then
-                            g.takeitemtbl[clsID] = -item_count
-                            break
-                        elseif item_count == 0 then
-                            g.takeitemtbl[clsID] = 0
-                            break
-                        end
-                    end
-
-                end
-            end
-
-        else
-
-            return
-        end
-    end
-
-    for k2, v2 in pairs(g.settings[LoginCID].items) do
-        local char_clsID = v2.clsid
-        local char_count = v2.count
-
-        g.putitemtbl[char_clsID] = nil
-        g.takeitemtbl[char_clsID] = 0
-    end
-
-    for k2, v2 in pairs(g.settings[LoginCID].items) do
-        local char_clsID = v2.clsid
-        local char_count = v2.count
-
-        if warehouseFrame:IsVisible() == 1 then
-            if char_count ~= 0 then
-                g.takeitemtbl[char_clsID] = char_count
-            end
-
-            for i = 0, cnt - 1 do
-                local guid = guidList:Get(i)
-                local invItem = invItemList:GetItemByGuid(guid)
-                local itemobj = GetIES(invItem:GetObject())
-                local invClsID = itemobj.ClassID
-
-                if char_clsID == invClsID then
-                    local item_count = invItem.count - char_count
-
-                    if char_count == 0 then
-
-                        g.putitemtbl[char_clsID] = {
-                            iesid = guid,
-                            count = invItem.count,
-                            handle = handle,
-                            invItem = invItem
-                        }
-
-                        break
-                    else
-
-                        if invItem.count > char_count then
-                            g.putitemtbl[char_clsID] = {
-                                iesid = guid,
-                                count = item_count,
-                                handle = handle,
-                                invItem = invItem
-                            }
-                            g.takeitemtbl[char_clsID] = 0
-                            break
-                        elseif invItem.count < char_count then
-                            -- (char_count)
-                            g.takeitemtbl[char_clsID] = -item_count
-                            if g.putitemtbl[char_clsID] then
-                                g.putitemtbl[char_clsID] = nil
-                            end
-                            break
-                        elseif item_count == 0 then
-                            g.takeitemtbl[char_clsID] = 0
-
-                            g.putitemtbl[char_clsID] = nil
-
-                            break
-                        end
-                    end
-
-                end
-            end
-
-        else
-
-            return
-        end
-    end
-    another_warehouse_item_take()
-
-end]]
 
 function another_warehouse_item_take()
 
@@ -1353,58 +1320,6 @@ function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name, i
     return
 end
 
---[[function another_warehouse_item_put()
-
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    if warehouseFrame:IsVisible() == 0 then
-        return
-    end
-
-    local tooltip_count = 0
-
-    local delay = g.settings.delay
-
-    for clsID, itemData in pairs(g.putitemtbl) do
-
-        local iesid = itemData.iesid
-        local Count = itemData.count
-        local handle = itemData.handle
-        local invItem = itemData.invItem
-        local itemobj = GetIES(invItem:GetObject())
-        local itemCls = GetClassByType('Item', clsID)
-
-        another_warehouse_checkvalid(iesid)
-        local exist, index = another_warehouse_get_exist_item_index(itemobj)
-        local goal_index = another_warehouse_get_goal_index()
-        if exist == true and index >= 0 then
-            goal_index = index
-        end
-
-        g.putitemtbl[clsID] = nil
-
-        local iconName = GET_ITEM_ICON_IMAGE(itemCls);
-        local Name = itemCls.Name
-
-        ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s','%s',%d)", iesid, Count, handle,
-            goal_index, Name, iconName, tooltip_count), delay)
-        -- delay = delay + g.settings.delay
-        delay = delay + 0.2
-        if tooltip_count >= 4 then
-            tooltip_count = tooltip_count - 4
-        else
-            tooltip_count = tooltip_count + 1
-        end
-
-    end
-    for clsid, count in pairs(g.putitemtbl) do
-
-        print("putitemtbl:" .. clsid .. ":" .. count.count)
-
-    end
-    ReserveScript("another_warehouse_end()", delay)
-
-end]]
-
 function another_warehouse_get_goal_index()
     local frame = ui.GetFrame("accountwarehouse")
     local tab = GET_CHILD(frame, "accountwarehouse_tab")
@@ -1460,112 +1375,6 @@ function another_warehouse_get_goal_index()
         end
     end
 end
-
---[[function another_warehouse_get_goal_index()
-    local frame = ui.GetFrame("accountwarehouse")
-    local tab = GET_CHILD(frame, "accountwarehouse_tab");
-    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-
-    local accountObj = GetMyAccountObj();
-    local basecount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
-                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
-                          ADDITIONAL_SLOT_COUNT_BY_TOKEN
-
-    local invItemCount = another_warehouse_item_count()
-    local maxcount = another_warehouse_get_maxcount()
-    local index = 0
-
-    if invItemCount < maxcount then
-        for i = 4, 0, -1 do
-            -- for i = 0, 4 do
-            if i == 4 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + 210 + left + 1
-                    return index
-                end
-            elseif i == 3 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + 140 + left + 1
-                    return index
-                end
-            elseif i == 2 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + 70 + left + 1
-                    return index
-                end
-            elseif i == 1 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + left + 1
-                    return index
-                end
-
-            elseif i == 0 then
-                tab:SelectTab(i)
-                local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
-                for j = 1, basecount do
-                    local slot = slotset:GetSlotByIndex(j)
-                    AUTO_CAST(slot)
-                    local icon = slot:GetIcon()
-                    if icon == nil then
-                        index = j + 1
-                        return index
-                    end
-
-                end
-
-            end
-        end
-    else
-
-        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
-        return
-    end
-
-end]]
 
 function another_warehouse_get_exist_item_index(itemObj)
     local ret1 = false
@@ -1721,76 +1530,6 @@ end
 
 function another_warehouse_end()
     ui.SysMsg("[AWH]End of Operation")
-end
-
-function another_warehouse_silver()
-
-    local silveritem = session.GetInvItemByName(MONEY_NAME)
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
-
-    local charsilver = 0
-    if silveritem ~= nil then
-        charsilver = tonumber(silveritem:GetAmountStr())
-
-    end
-
-    local silver = charsilver - tonumber(g.settings.silver)
-
-    if silver > 0 then
-
-        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(silver), handle)
-
-    elseif silver < 0 then
-
-        session.ResetItemList()
-        session.AddItemIDWithAmount("0", tostring(-silver))
-        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-
-    end
-    local LoginCID = info.GetCID(session.GetMyHandle())
-    if g.settings.amount_check == 1 then
-        -- ReserveScript("another_warehouse_fraction()", 0.2)
-        another_warehouse_fraction()
-    elseif g.settings[LoginCID].item_check == 1 then
-        another_warehouse_item()
-    end
-end
-
-function another_warehouse_fraction()
-
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
-    local awsilver = 0
-
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local guidlist = itemList:GetSortedGuidList();
-    local cnt = itemList:Count();
-
-    for i = 0, cnt - 1 do
-        local guid = guidlist:Get(i);
-        local invItem = itemList:GetItemByGuid(guid)
-        if (invItem ~= nil) then
-            local invItem_obj = GetIES(invItem:GetObject());
-            if invItem_obj.ClassName == MONEY_NAME then
-                awsilver = invItem.count
-                local numRight = 6
-                local fraction = string.sub(tostring(awsilver), -numRight)
-                awsilver = tonumber(fraction)
-                break
-            end
-        end
-    end
-
-    session.ResetItemList()
-    session.AddItemIDWithAmount("0", tostring(awsilver))
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-
-    local LoginCID = info.GetCID(session.GetMyHandle())
-    if g.settings[LoginCID].item_check == 1 then
-        another_warehouse_item()
-    end
-
 end
 
 function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
@@ -3457,3 +3196,144 @@ function another_warehouse_frame_update()
     count_text:SetFontName("white_16_ol")
 
 end
+--[[function another_warehouse_fraction()
+
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local handle = warehouseFrame:GetUserIValue('HANDLE')
+    local awsilver = 0
+    session.ResetItemList()
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local guidlist = itemList:GetSortedGuidList()
+    local cnt = itemList:Count()
+    local iesid = ""
+
+    for i = 0, cnt - 1 do
+        local guid = guidlist:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        if invItem ~= nil then
+            local invItem_obj = GetIES(invItem:GetObject())
+            if invItem_obj.ClassName == MONEY_NAME then
+                local count = invItem.count
+                if count >= 1000000 then
+                    local fraction = count % 1000000
+                    if fraction < 999999 then
+                        awsilver = fraction
+                        print(awsilver)
+                        iesid = guid
+                        break
+                    end
+                end
+            end
+        end
+    end
+
+    session.AddItemIDWithAmount(iesid, tostring(awsilver))
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+
+end]]
+
+--[[function another_warehouse_get_goal_index()
+    local frame = ui.GetFrame("accountwarehouse")
+    local tab = GET_CHILD(frame, "accountwarehouse_tab");
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+
+    local accountObj = GetMyAccountObj();
+    local basecount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                          ADDITIONAL_SLOT_COUNT_BY_TOKEN
+
+    local invItemCount = another_warehouse_item_count()
+    local maxcount = another_warehouse_get_maxcount()
+    local index = 0
+
+    if invItemCount < maxcount then
+        for i = 4, 0, -1 do
+            -- for i = 0, 4 do
+            if i == 4 then
+                tab:SelectTab(i)
+                local itemcnt = GET_CHILD(gbox, "itemcnt")
+                local length = #itemcnt:GetText()
+                local left = 0
+
+                if length == 14 then
+                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left < 70 then
+                    index = basecount + 210 + left + 1
+                    return index
+                end
+            elseif i == 3 then
+                tab:SelectTab(i)
+                local itemcnt = GET_CHILD(gbox, "itemcnt")
+                local length = #itemcnt:GetText()
+                local left = 0
+
+                if length == 14 then
+                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left < 70 then
+                    index = basecount + 140 + left + 1
+                    return index
+                end
+            elseif i == 2 then
+                tab:SelectTab(i)
+                local itemcnt = GET_CHILD(gbox, "itemcnt")
+                local length = #itemcnt:GetText()
+                local left = 0
+
+                if length == 14 then
+                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left < 70 then
+                    index = basecount + 70 + left + 1
+                    return index
+                end
+            elseif i == 1 then
+                tab:SelectTab(i)
+                local itemcnt = GET_CHILD(gbox, "itemcnt")
+                local length = #itemcnt:GetText()
+                local left = 0
+
+                if length == 14 then
+                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
+                else
+                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
+                end
+
+                if left < 70 then
+                    index = basecount + left + 1
+                    return index
+                end
+
+            elseif i == 0 then
+                tab:SelectTab(i)
+                local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
+                for j = 1, basecount do
+                    local slot = slotset:GetSlotByIndex(j)
+                    AUTO_CAST(slot)
+                    local icon = slot:GetIcon()
+                    if icon == nil then
+                        index = j + 1
+                        return index
+                    end
+
+                end
+
+            end
+        end
+    else
+
+        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
+        return
+    end
+
+end]]
