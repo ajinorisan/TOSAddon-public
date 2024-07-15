@@ -1,7 +1,8 @@
+-- v1.0.1 レイヤー設定追加。再設定機能追加。エモを右クリックでチャット。
 local addonName = "SUB_SLOTSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -62,6 +63,7 @@ function sub_slotset_personal_load_settings()
     g.personal = settings
 
     sub_slotset_personal_save_settings()
+
     sub_slotset_frame_init()
 
 end
@@ -92,34 +94,39 @@ end
 
 function sub_slotset_frame_init()
 
-    local frame = ui.GetFrame("sub_slotset")
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        local frame = ui.GetFrame("sub_slotset")
 
-    frame:SetSkinName("None")
-    frame:SetTitleBarSkin("None")
-    frame:Resize(30, 30)
+        frame:SetSkinName("None")
+        frame:SetTitleBarSkin("None")
+        frame:Resize(30, 30)
 
-    frame:SetPos(783, 5)
-    frame:SetLayerLevel(96);
-    frame:ShowWindow(1)
+        frame:SetPos(783, 5)
+        frame:SetLayerLevel(30);
+        frame:ShowWindow(1)
 
-    local slot = frame:CreateOrGetControl('slot', 'slot', 0, 0, 25, 25)
-    AUTO_CAST(slot)
-    slot:SetSkinName("None");
-    slot:EnablePop(0)
-    slot:EnableDrop(0)
-    slot:EnableDrag(0)
-    slot:SetEventScript(ui.LBUTTONUP, "sub_slotset_make_frame");
+        local slot = frame:CreateOrGetControl('slot', 'slot', 0, 0, 25, 25)
+        AUTO_CAST(slot)
+        slot:SetSkinName("None");
+        slot:EnablePop(0)
+        slot:EnableDrop(0)
+        slot:EnableDrag(0)
+        slot:SetEventScript(ui.LBUTTONUP, "sub_slotset_make_frame");
 
-    local icon = CreateIcon(slot);
-    AUTO_CAST(icon)
-    icon:SetImage("btn_plus");
-    icon:SetTextTooltip("Sub SlotSet")
-
+        local icon = CreateIcon(slot);
+        AUTO_CAST(icon)
+        icon:SetImage("btn_plus");
+        icon:SetTextTooltip("Sub SlotSet")
+    end
     sub_slotset_slotset_frame_init("character")
     sub_slotset_slotset_frame_init("shared")
 end
 
 function sub_slotset_slotset_frame_init(belong, isnew)
+
     local slot_frame
     local table = {}
     local index = g.settings.index or 0
@@ -136,18 +143,20 @@ function sub_slotset_slotset_frame_init(belong, isnew)
     local column = g.column or tonumber(3)
     local row = g.row or tonumber(3)
     local size = g.size or tonumber(48)
+    local layer = g.layer or tonumber(90)
 
     if isnew then
 
         slot_frame = ui.CreateNewFrame("notice_on_pc", "sub_slotset_" .. index, 0, 0, 0, 0)
         slot_frame:SetSkinName("chat_window_2")
         slot_frame:SetAlpha(20)
-        slot_frame:SetLayerLevel(96)
+        slot_frame:SetLayerLevel(layer)
         slot_frame:ShowWindow(1)
         slot_frame:EnableHittestFrame(1)
         slot_frame:EnableMove(1)
 
         slot_frame:SetEventScript(ui.RBUTTONUP, "sub_slotset_newframe_rbutton")
+
         slot_frame:SetEventScript(ui.LBUTTONUP, "sub_slotset_newframe_end_drag")
 
         slot_frame:SetPos(X, Y)
@@ -167,12 +176,13 @@ function sub_slotset_slotset_frame_init(belong, isnew)
             slot_frame = ui.CreateNewFrame("notice_on_pc", key, 0, 0, 0, 0)
             slot_frame:SetSkinName("chat_window_2")
             slot_frame:SetAlpha(20)
-            slot_frame:SetLayerLevel(96)
+            slot_frame:SetLayerLevel(layer)
             slot_frame:ShowWindow(1)
             slot_frame:EnableHittestFrame(1)
             slot_frame:EnableMove(1)
 
             slot_frame:SetEventScript(ui.RBUTTONUP, "sub_slotset_newframe_rbutton")
+
             slot_frame:SetEventScript(ui.LBUTTONUP, "sub_slotset_newframe_end_drag")
 
             for k2, v2 in pairs(value) do
@@ -199,6 +209,43 @@ function sub_slotset_slotset_frame_init(belong, isnew)
 
 end
 
+function sub_slotset_newframe_end_drag(frame, ctrl, str, num)
+
+    local belong = frame:GetUserValue("BELONG")
+
+    if belong == "shared" then
+        for key, value in pairs(g.settings[frame:GetName()]) do
+
+            if key == "etc" then
+                for k2, v2 in pairs(value) do
+
+                    g.settings[frame:GetName()]["etc"].X = frame:GetX()
+                    g.settings[frame:GetName()]["etc"].Y = frame:GetY()
+
+                end
+            end
+
+        end
+        sub_slotset_save_settings()
+    elseif belong == "character" then
+        for key, value in pairs(g.personal[frame:GetName()]) do
+
+            if key == "etc" then
+                for k2, v2 in pairs(value) do
+
+                    g.personal[frame:GetName()]["etc"].X = frame:GetX()
+                    g.personal[frame:GetName()]["etc"].Y = frame:GetY()
+
+                end
+            end
+
+        end
+
+        sub_slotset_personal_save_settings()
+    end
+
+end
+
 function sub_slotset_slotset_init(frame)
 
     local str = frame:GetUserValue("BELONG")
@@ -210,22 +257,37 @@ function sub_slotset_slotset_init(frame)
     local column = 0
     local row = 0
     local size = 0
+    local layer = 0
 
     if isnew == "true" then
 
         column = g.column or tonumber(3)
         row = g.row or tonumber(3)
         size = g.size or tonumber(48)
+        layer = g.layer or tonumber(90)
     elseif str == "shared" then
 
         column = g.settings[frame:GetName()]["etc"].column
         row = g.settings[frame:GetName()]["etc"].row
         size = g.settings[frame:GetName()]["etc"].size
+        if g.settings[frame:GetName()]["etc"].layer ~= nil then
+            layer = g.settings[frame:GetName()]["etc"].layer
+        else
+            layer = g.layer or tonumber(90)
+        end
+
     elseif str == "character" then
         column = g.personal[frame:GetName()]["etc"].column
         row = g.personal[frame:GetName()]["etc"].row
         size = g.personal[frame:GetName()]["etc"].size
+        if g.personal[frame:GetName()]["etc"].layer ~= nil then
+            layer = g.personal[frame:GetName()]["etc"].layer
+        else
+            layer = g.layer or tonumber(90)
+        end
     end
+
+    frame:SetLayerLevel(layer)
 
     local slotset = frame:CreateOrGetControl('slotset', 'slotset', 2, 9, 0, 0)
     AUTO_CAST(slotset);
@@ -306,7 +368,8 @@ function sub_slotset_slotset_init(frame)
                 size = size,
                 X = client_Width / 2,
                 Y = client_Height / 2,
-                lock = false
+                lock = false,
+                layer = layer
             }
 
             g.settings[frame:GetName()] = slot_table
@@ -338,7 +401,8 @@ function sub_slotset_slotset_init(frame)
                 size = size,
                 X = client_Width / 2,
                 Y = client_Height / 2,
-                lock = false
+                lock = false,
+                layer = layer
             }
 
             g.personal[frame:GetName()] = slot_table
@@ -351,36 +415,6 @@ function sub_slotset_slotset_init(frame)
     frame:ShowWindow(1)
     frame:SetUserValue("ISNEW", "false")
     frame:RunUpdateScript("sub_slotset_slotset_update", 0.3)
-end
-
-function sub_slotset_pop(frame, ctrl, str, num)
-
-    local index = string.gsub(ctrl:GetName(), "slot", "")
-
-    local frame_name = frame:GetTopParentFrame():GetName()
-
-    if str == "shared" then
-
-        if g.settings[frame_name] and g.settings[frame_name][index] then
-
-            g.settings[frame_name][index].clsid = 0
-            g.settings[frame_name][index].category = ""
-            g.settings[frame_name][index].iesid = ""
-            sub_slotset_save_settings()
-            CLEAR_SLOT_ITEM_INFO(ctrl)
-
-        end
-    elseif str == "character" then
-        if g.personal[frame_name] and g.personal[frame_name][index] then
-
-            g.personal[frame_name][index].clsid = 0
-            g.personal[frame_name][index].category = ""
-            g.personal[frame_name][index].iesid = ""
-            sub_slotset_personal_save_settings()
-            CLEAR_SLOT_ITEM_INFO(ctrl)
-
-        end
-    end
 end
 
 function sub_slotset_slotset_update(frame)
@@ -546,6 +580,36 @@ function sub_slotset_slotset_update(frame)
     return 1
 end
 
+function sub_slotset_pop(frame, ctrl, str, num)
+
+    local index = string.gsub(ctrl:GetName(), "slot", "")
+
+    local frame_name = frame:GetTopParentFrame():GetName()
+
+    if str == "shared" then
+
+        if g.settings[frame_name] and g.settings[frame_name][index] then
+
+            g.settings[frame_name][index].clsid = 0
+            g.settings[frame_name][index].category = ""
+            g.settings[frame_name][index].iesid = ""
+            sub_slotset_save_settings()
+            CLEAR_SLOT_ITEM_INFO(ctrl)
+
+        end
+    elseif str == "character" then
+        if g.personal[frame_name] and g.personal[frame_name][index] then
+
+            g.personal[frame_name][index].clsid = 0
+            g.personal[frame_name][index].category = ""
+            g.personal[frame_name][index].iesid = ""
+            sub_slotset_personal_save_settings()
+            CLEAR_SLOT_ITEM_INFO(ctrl)
+
+        end
+    end
+end
+
 function sub_slotset_drop(frame, slot, str, num)
 
     local liftIcon = ui.GetLiftIcon()
@@ -606,6 +670,468 @@ function sub_slotset_drop(frame, slot, str, num)
 
     sub_slotset_slotset_update(frame)
 
+end
+
+function sub_slotset_make_frame(frame)
+    frame:Resize(225, 200)
+    frame:SetSkinName("None")
+    frame:SetTitleBarSkin("None")
+    frame:SetLayerLevel(90)
+
+    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 35, 0, frame:GetWidth() - 35, frame:GetHeight())
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("test_frame_midle_light")
+
+    local title = gbox:CreateOrGetControl("richtext", "title", 10, 10, 80, 25)
+    AUTO_CAST(title)
+    title:SetText("{ol}{s18}Sub Slotset")
+
+    local column = gbox:CreateOrGetControl("richtext", "column", 10, 40, 80, 25)
+    AUTO_CAST(column)
+    column:SetText("{ol}{s16}Column")
+
+    local column_edit = gbox:CreateOrGetControl('edit', 'column_edit', 10, 65, 80, 25)
+    AUTO_CAST(column_edit)
+    column_edit:SetFontName('white_16_ol')
+    column_edit:SetSkinName('test_weight_skin')
+    column_edit:SetTextAlign('center', 'center')
+    column_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_set_edit");
+    column_edit:SetText(g.column or tonumber(3))
+
+    local row = gbox:CreateOrGetControl("richtext", "row", 100, 40, 80, 25)
+    AUTO_CAST(row)
+    row:SetText("{ol}{s16}Row")
+
+    local row_edit = gbox:CreateOrGetControl('edit', 'row_edit', 100, 65, 80, 25)
+    AUTO_CAST(row_edit)
+    row_edit:SetFontName('white_16_ol')
+    row_edit:SetSkinName('test_weight_skin')
+    row_edit:SetTextAlign('center', 'center')
+    row_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_set_edit");
+    row_edit:SetText(g.row or tonumber(3))
+
+    local size = gbox:CreateOrGetControl("richtext", "size", 10, 100, 80, 25)
+    AUTO_CAST(size)
+    size:SetText("{ol}{s16}Slot Size")
+
+    local size_edit = gbox:CreateOrGetControl('edit', 'size_edit', 10, 125, 80, 25)
+    AUTO_CAST(size_edit)
+    size_edit:SetFontName('white_16_ol')
+    size_edit:SetSkinName('test_weight_skin')
+    size_edit:SetTextAlign('center', 'center')
+    size_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_set_edit");
+    size_edit:SetText(g.size or tonumber(48))
+
+    local layer = gbox:CreateOrGetControl("richtext", "layer", 100, 100, 80, 25)
+    AUTO_CAST(layer)
+    layer:SetText("{ol}{s16}Layer")
+
+    local layer_edit = gbox:CreateOrGetControl('edit', 'layer_edit', 100, 125, 80, 25)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetFontName('white_16_ol')
+    layer_edit:SetSkinName('test_weight_skin')
+    layer_edit:SetTextAlign('center', 'center')
+    layer_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_set_edit");
+    layer_edit:SetText(g.layer or tonumber(90))
+
+    local make = gbox:CreateOrGetControl('button', 'make', 10, 160, 80, 30)
+    AUTO_CAST(make)
+    make:SetSkinName("test_red_button")
+    make:SetText("{ol}{s16}Make")
+    make:SetEventScript(ui.LBUTTONUP, "sub_slotset_make_context");
+
+    local cancel = gbox:CreateOrGetControl('button', 'cancel', 100, 160, 80, 30)
+    AUTO_CAST(cancel)
+    cancel:SetSkinName("test_gray_button")
+    cancel:SetText("{ol}{s16}Cancel")
+    cancel:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_init");
+
+end
+
+function sub_slotset_set_edit(frame, ctrl, str, num)
+    local ctrl_name = ctrl:GetName()
+    local ctrl_type = type(tonumber(ctrl:GetText()))
+    if ctrl_type ~= "number" then
+        ui.SysMsg("Numeric input")
+        return
+    end
+    if tonumber(ctrl:GetText()) > 10 and ctrl_name ~= "size_edit" and ctrl_name ~= "layer_edit" then
+        ui.SysMsg("Enter less than 10")
+        return
+    end
+    if ctrl_name == "column_edit" then
+        ui.SysMsg("Set " .. tonumber(ctrl:GetText()))
+        g.column = tonumber(ctrl:GetText())
+        return
+    elseif ctrl_name == "row_edit" then
+        ui.SysMsg("Set " .. tonumber(ctrl:GetText()))
+        g.row = tonumber(ctrl:GetText())
+        return
+    elseif ctrl_name == "layer_edit" then
+        ui.SysMsg("Set " .. tonumber(ctrl:GetText()))
+        g.layer = tonumber(ctrl:GetText())
+        return
+    end
+    local row_edit = GET_CHILD_RECURSIVELY(frame, "row_edit")
+    local row = tonumber(row_edit:GetText())
+    if row ~= nil then
+        local mapFrame = ui.GetFrame("map");
+        local h = mapFrame:GetHeight()
+        local limit_size = math.floor(tonumber(h) / row)
+
+        if tonumber(ctrl:GetText()) <= limit_size and ctrl_name == "size_edit" then
+            ui.SysMsg("Set " .. tonumber(ctrl:GetText()))
+            g.size = tonumber(ctrl:GetText())
+            return
+        elseif tonumber(ctrl:GetText()) > limit_size and ctrl_name == "size_edit" then
+            ui.SysMsg(string.format("Input is limited to %d or less.", limit_size))
+            ctrl:SetText(48)
+            return
+        end
+    end
+
+end
+
+function sub_slotset_make_context(frame, ctrl, str, num)
+
+    local context = ui.CreateContextMenu("make_context", "Shared or Character", 0, 0, 100, 100);
+    ui.AddContextMenuItem(context, " ", "None");
+    local scp = string.format("sub_slotset_make_slotset_frame('%s')", "shared")
+    ui.AddContextMenuItem(context, "Make team shared slotset", scp);
+    scp = string.format("sub_slotset_make_slotset_frame('%s')", "character")
+    ui.AddContextMenuItem(context, "Make character slotset", scp);
+    ui.OpenContextMenu(context);
+
+end
+
+function sub_slotset_make_slotset_frame(str)
+    sub_slotset_frame_init()
+
+    local client_Width = ui.GetClientInitialWidth() -- 1920
+    local client_Height = ui.GetClientInitialHeight() -- 1080
+
+    g.settings.index = g.settings.index + 1
+    local isnew = true
+    sub_slotset_save_settings()
+    sub_slotset_slotset_frame_init(str, isnew)
+
+end
+
+function sub_slotset_newframe_rbutton(frame, ctrl, str, num)
+    local belong = frame:GetUserValue("BELONG")
+
+    local table = {}
+
+    local context = ui.CreateContextMenu("slotset_context", "ETC Setting", 0, 0, 100, 100);
+    ui.AddContextMenuItem(context, " ", "None");
+    local scp = string.format("sub_slotset_newframe_remove_msg('%s')", tostring(frame:GetName()))
+    ui.AddContextMenuItem(context, "Remove the slotset frame", scp);
+    scp = string.format("sub_slotset_lock_slotset_frame('%s')", tostring(frame:GetName()))
+    ui.AddContextMenuItem(context, "Lock the slotset frame", scp);
+    if belong == "shared" then
+        table = g.settings
+    elseif belong == "character" then
+        table = g.personal
+    end
+    if not table[frame:GetName()]["etc"].lock then
+        scp = string.format("sub_slotset_resetting('%s')", tostring(frame:GetName()))
+        ui.AddContextMenuItem(context, "Slot set re-setting", scp);
+    else
+        ui.AddContextMenuItem(context, "Unlock the frame for re-setting", "None");
+    end
+    ui.AddContextMenuItem(context, "  ", "None");
+    ui.OpenContextMenu(context);
+
+end
+
+function sub_slotset_newframe_remove_msg(frame_name)
+    local scp = string.format("sub_slotset_newframe_remove('%s')", frame_name)
+    ui.MsgBox("remove this frame?", scp, "None")
+end
+
+function sub_slotset_newframe_remove(frame_name)
+
+    local frame = ui.GetFrame(frame_name)
+    local belong = frame:GetUserValue("BELONG")
+
+    if belong == "shared" then
+        if g.settings[frame_name] then
+            g.settings[frame:GetName()] = nil
+        end
+        sub_slotset_save_settings()
+    elseif belong == "character" then
+        if g.personal[frame_name] then
+            g.personal[frame:GetName()] = nil
+
+        end
+
+        sub_slotset_personal_save_settings()
+    end
+
+    ui.DestroyFrame(frame_name);
+end
+
+function sub_slotset_lock_slotset_frame(frame_name)
+    local frame = ui.GetFrame(frame_name)
+    local belong = frame:GetUserValue("BELONG")
+    if belong == "shared" then
+        if g.settings[frame_name] then
+            if g.settings[frame:GetName()]["etc"].lock == nil then
+                g.settings[frame:GetName()]["etc"].lock = true
+            elseif g.settings[frame:GetName()]["etc"].lock == true then
+                g.settings[frame:GetName()]["etc"].lock = false
+            elseif g.settings[frame:GetName()]["etc"].lock == false then
+                g.settings[frame:GetName()]["etc"].lock = true
+            end
+        end
+        sub_slotset_save_settings()
+        sub_slotset_slotset_init(frame)
+    elseif belong == "character" then
+        if g.personal[frame_name] then
+            if g.personal[frame_name]["etc"].lock == nil then
+                g.personal[frame_name]["etc"].lock = true
+            elseif g.personal[frame_name]["etc"].lock == true then
+                g.personal[frame_name]["etc"].lock = false
+            elseif g.personal[frame_name]["etc"].lock == false then
+                g.personal[frame_name]["etc"].lock = true
+            end
+        end
+
+        sub_slotset_personal_save_settings()
+        sub_slotset_slotset_init(frame)
+    end
+
+end
+
+function sub_slotset_resetting(frame_name)
+
+    local frame = ui.GetFrame(frame_name)
+    local belong = frame:GetUserValue("BELONG")
+
+    local table = {}
+    if belong == "shared" then
+        table = g.settings[frame_name]
+
+    elseif belong == "character" then
+        table = g.personal[frame_name]
+
+    end
+
+    local column = 0
+    local row = 0
+    local size = 0
+    local layer = 0
+
+    for key, value in pairs(table) do
+        if key == "etc" then
+
+            column = value.column
+            row = value.row
+            size = value.size
+            layer = value.layer or tonumber(90)
+
+        end
+    end
+
+    local resetting_frame = ui.CreateNewFrame("notice_on_pc", "resetting" .. frame_name, 0, 0, 0, 0)
+
+    AUTO_CAST(resetting_frame)
+
+    resetting_frame:SetLayerLevel(90)
+
+    resetting_frame:Resize(225, 200)
+    resetting_frame:SetSkinName("None")
+    resetting_frame:SetTitleBarSkin("None")
+    local client_Width = ui.GetClientInitialWidth() -- 1920
+    local client_Height = ui.GetClientInitialHeight() -- 1080
+    local X = client_Width / 2
+
+    local Y = client_Height / 2
+    resetting_frame:SetPos(X, Y)
+
+    resetting_frame:ShowWindow(1)
+
+    local gbox = resetting_frame:CreateOrGetControl("groupbox", "gbox", 35, 0, resetting_frame:GetWidth() - 35,
+        resetting_frame:GetHeight())
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("test_frame_midle_light")
+
+    local title = gbox:CreateOrGetControl("richtext", "title", 10, 10, 80, 25)
+    AUTO_CAST(title)
+    title:SetText("{ol}{s18}Re Setting")
+
+    local column_text = gbox:CreateOrGetControl("richtext", "column_text", 10, 40, 80, 25)
+    AUTO_CAST(column_text)
+    column_text:SetText("{ol}{s16}Column")
+
+    local column_edit = gbox:CreateOrGetControl('edit', 'column_edit', 10, 65, 80, 25)
+    AUTO_CAST(column_edit)
+    column_edit:SetFontName('white_16_ol')
+    column_edit:SetSkinName('test_weight_skin')
+    column_edit:SetTextAlign('center', 'center')
+    column_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_reset_edit");
+    column_edit:SetEventScriptArgString(ui.ENTERKEY, belong);
+    column_edit:SetEventScriptArgNumber(ui.ENTERKEY, column);
+    column_edit:SetText(column)
+
+    local row_text = gbox:CreateOrGetControl("richtext", "row_text", 100, 40, 80, 25)
+    AUTO_CAST(row_text)
+    row_text:SetText("{ol}{s16}Row")
+
+    local row_edit = gbox:CreateOrGetControl('edit', 'row_edit', 100, 65, 80, 25)
+    AUTO_CAST(row_edit)
+    row_edit:SetFontName('white_16_ol')
+    row_edit:SetSkinName('test_weight_skin')
+    row_edit:SetTextAlign('center', 'center')
+    row_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_reset_edit");
+    row_edit:SetEventScriptArgString(ui.ENTERKEY, belong);
+    row_edit:SetEventScriptArgNumber(ui.ENTERKEY, row);
+    row_edit:SetText(row)
+
+    local size_text = gbox:CreateOrGetControl("richtext", "size_text", 10, 100, 80, 25)
+    AUTO_CAST(size_text)
+    size_text:SetText("{ol}{s16}Slot Size")
+
+    local size_edit = gbox:CreateOrGetControl('edit', 'size_edit', 10, 125, 80, 25)
+    AUTO_CAST(size_edit)
+    size_edit:SetFontName('white_16_ol')
+    size_edit:SetSkinName('test_weight_skin')
+    size_edit:SetTextAlign('center', 'center')
+    size_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_reset_edit");
+    size_edit:SetEventScriptArgString(ui.ENTERKEY, belong);
+    size_edit:SetEventScriptArgNumber(ui.ENTERKEY, size);
+    size_edit:SetText(size)
+    size_edit:SetTextTooltip("{ol}Default value is 48")
+
+    local layer_text = gbox:CreateOrGetControl("richtext", "layer_text", 100, 100, 80, 25)
+    AUTO_CAST(layer_text)
+    layer_text:SetText("{ol}{s16}Layer")
+
+    local layer_edit = gbox:CreateOrGetControl('edit', 'layer_edit', 100, 125, 80, 25)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetFontName('white_16_ol')
+    layer_edit:SetSkinName('test_weight_skin')
+    layer_edit:SetTextAlign('center', 'center')
+    layer_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_reset_edit");
+    layer_edit:SetEventScriptArgString(ui.ENTERKEY, belong);
+    layer_edit:SetEventScriptArgNumber(ui.ENTERKEY, layer);
+    layer_edit:SetText(layer)
+    layer_edit:SetTextTooltip("{ol}Default value is 90")
+
+    local change = gbox:CreateOrGetControl('button', 'change', 10, 160, 80, 30)
+    AUTO_CAST(change)
+    change:SetSkinName("test_red_button")
+    change:SetText("{ol}{s16}Change")
+    change:SetEventScript(ui.LBUTTONUP, "sub_slotset_change_belong");
+    change:SetEventScriptArgString(ui.LBUTTONUP, belong);
+    change:SetTextTooltip("{ol}Change for team or character per")
+
+    local close = gbox:CreateOrGetControl('button', 'close', 100, 160, 80, 30)
+    AUTO_CAST(close)
+    close:SetSkinName("test_gray_button")
+    close:SetText("{ol}{s16}Close")
+    close:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_destroy")
+    close:SetEventScriptArgString(ui.LBUTTONUP, resetting_frame:GetName())
+
+end
+
+function sub_slotset_reset_edit(frame, ctrl, str, num)
+    local ctrl_name = ctrl:GetName()
+    local ctrl_type = type(tonumber(ctrl:GetText()))
+    if ctrl_type ~= "number" then
+        ui.SysMsg("Numeric input")
+        return
+    end
+    if tonumber(ctrl:GetText()) > 10 and ctrl_name ~= "size_edit" and ctrl_name ~= "layer_edit" then
+        ui.SysMsg("Enter less than 10")
+        return
+    end
+    local frame = ctrl:GetTopParentFrame()
+    local frame_name = string.gsub(frame:GetName(), "resetting", "")
+    local belong = str
+
+    local table = {}
+    if belong == "shared" then
+        table = g.settings[frame_name]["etc"]
+
+    elseif belong == "character" then
+        table = g.personal[frame_name]["etc"]
+
+    end
+
+    local row_edit = GET_CHILD_RECURSIVELY(frame, "row_edit")
+    local row = tonumber(row_edit:GetText())
+    if row ~= nil and ctrl_name == "size_edit" then
+        local mapFrame = ui.GetFrame("map");
+        local h = mapFrame:GetHeight()
+        local limit_size = math.floor(tonumber(h) / row)
+
+        if tonumber(ctrl:GetText()) <= limit_size then
+            table.size = tonumber(ctrl:GetText())
+
+        elseif tonumber(ctrl:GetText()) > limit_size then
+            ui.SysMsg(string.format("Input is limited to %d or less.", limit_size))
+            ctrl:SetText(num)
+            return
+        end
+    end
+    if ctrl_name == "column_edit" then
+        table.column = tonumber(ctrl:GetText())
+
+    elseif ctrl_name == "row_edit" then
+        table.row = tonumber(ctrl:GetText())
+    elseif ctrl_name == "layer_edit" then
+        table.layer = tonumber(ctrl:GetText())
+    end
+
+    if belong == "shared" then
+        g.settings[frame_name]["etc"] = table
+        sub_slotset_save_settings()
+    elseif belong == "character" then
+        g.personal[frame_name]["etc"] = table
+        sub_slotset_personal_save_settings()
+    end
+
+    local slot_frame = ui.GetFrame(frame_name)
+    slot_frame:RemoveAllChild()
+    sub_slotset_slotset_frame_init(belong, false)
+end
+
+function sub_slotset_change_belong(frame, ctrl, belong, num)
+    local frame = ctrl:GetTopParentFrame()
+
+    local frame_name = string.gsub(frame:GetName(), "resetting", "")
+
+    local table = {}
+    if belong == "shared" then
+        if g.settings[frame_name] then
+            table = g.settings[frame_name]
+            g.personal[frame_name] = table
+            g.settings[frame_name] = nil
+            belong = "character"
+        end
+    elseif belong == "character" then
+        if g.personal[frame_name] then
+            table = g.personal[frame_name]
+            g.settings[frame_name] = table
+            g.personal[frame_name] = nil
+            belong = "shared"
+        end
+    end
+    sub_slotset_save_settings()
+    sub_slotset_personal_save_settings()
+
+    local slot_frame = ui.GetFrame(frame_name)
+    slot_frame:RemoveAllChild()
+    sub_slotset_slotset_frame_init(belong, false)
+
+    local resetting_frame_name = frame:GetName()
+
+    ui.DestroyFrame(resetting_frame_name)
+end
+
+function sub_slotset_frame_destroy(frame, ctrl, frame_name, num)
+    ui.DestroyFrame(frame_name)
 end
 
 function sub_slotset_slot_rbutton(frame, slot, category, clsid)
@@ -687,7 +1213,8 @@ function sub_slotset_slot_rbutton(frame, slot, category, clsid)
                     right = right .. " "
                     local resultText = string.format("%s%s%s", left, imgtag, right)
                     SET_CHAT_TEXT_TO_CHATFRAME(resultText)
-
+                    edit:RunEnterKeyScript();
+                    ui.ProcessReturnKey()
                 end
             end
 
@@ -696,29 +1223,6 @@ function sub_slotset_slot_rbutton(frame, slot, category, clsid)
     end
 end
 
-function sub_slotset_set_edit(frame, ctrl, str, num)
-    local ctrl_name = ctrl:GetName()
-    local ctrl_type = type(tonumber(ctrl:GetText()))
-    if ctrl_type ~= "number" then
-        ui.SysMsg("Numeric input")
-        return
-    end
-    if tonumber(ctrl:GetText()) > 10 and ctrl_name ~= "size_edit" then
-        ui.SysMsg("Enter less than 10")
-        return
-    end
-    if ctrl_name == "column_edit" then
-        ui.SysMsg("Set " .. tonumber(ctrl:GetText()))
-        g.column = tonumber(ctrl:GetText())
-    elseif ctrl_name == "row_edit" then
-        ui.SysMsg("Set " .. tonumber(ctrl:GetText()))
-        g.row = tonumber(ctrl:GetText())
-    elseif ctrl_name == "size_edit" then
-        ui.SysMsg("Set " .. tonumber(ctrl:GetText()))
-        g.size = tonumber(ctrl:GetText())
-    end
-
-end
 function sub_slotset_EMO_OPEN(frame, msg)
     local button = acutil.getEventArgs(msg)
 
@@ -827,232 +1331,3 @@ function sub_slotset_questslot_pop(frame, ctrl, str, num)
     g.quest_category = str
 
 end
-
-function sub_slotset_make_frame(frame)
-    frame:Resize(225, 200)
-    frame:SetSkinName("None")
-    frame:SetTitleBarSkin("None")
-    frame:SetLayerLevel(91)
-
-    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 35, 0, frame:GetWidth() - 35, frame:GetHeight())
-    AUTO_CAST(gbox)
-    gbox:SetSkinName("test_frame_midle_light")
-
-    local title = gbox:CreateOrGetControl("richtext", "title", 10, 10, 80, 25)
-    AUTO_CAST(title)
-    title:SetText("{ol}{s18}Sub Slotset")
-
-    local column = gbox:CreateOrGetControl("richtext", "column", 10, 40, 80, 25)
-    AUTO_CAST(column)
-    column:SetText("{ol}{s16}Column")
-
-    local column_edit = gbox:CreateOrGetControl('edit', 'column_edit', 10, 65, 80, 25)
-    AUTO_CAST(column_edit)
-    column_edit:SetFontName('white_16_ol')
-    column_edit:SetSkinName('test_weight_skin')
-    column_edit:SetTextAlign('center', 'center')
-    column_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_set_edit");
-    column_edit:SetText(g.column or tonumber(3))
-
-    local row = gbox:CreateOrGetControl("richtext", "row", 100, 40, 80, 25)
-    AUTO_CAST(row)
-    row:SetText("{ol}{s16}Row")
-
-    local row_edit = gbox:CreateOrGetControl('edit', 'row_edit', 100, 65, 80, 25)
-    AUTO_CAST(row_edit)
-    row_edit:SetFontName('white_16_ol')
-    row_edit:SetSkinName('test_weight_skin')
-    row_edit:SetTextAlign('center', 'center')
-    row_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_set_edit");
-    row_edit:SetText(g.row or tonumber(3))
-
-    local size = gbox:CreateOrGetControl("richtext", "size", 10, 100, 80, 25)
-    AUTO_CAST(size)
-    size:SetText("{ol}{s16}Slot Size")
-
-    local size_edit = gbox:CreateOrGetControl('edit', 'size_edit', 10, 125, 80, 25)
-    AUTO_CAST(size_edit)
-    size_edit:SetFontName('white_16_ol')
-    size_edit:SetSkinName('test_weight_skin')
-    size_edit:SetTextAlign('center', 'center')
-    size_edit:SetEventScript(ui.ENTERKEY, "sub_slotset_set_edit");
-    size_edit:SetText(g.size or tonumber(48))
-
-    local make = gbox:CreateOrGetControl('button', 'make', 10, 160, 80, 30)
-    AUTO_CAST(make)
-    make:SetSkinName("test_red_button")
-    make:SetText("{ol}{s16}Make")
-    make:SetEventScript(ui.LBUTTONUP, "sub_slotset_make_context");
-
-    local cancel = gbox:CreateOrGetControl('button', 'cancel', 100, 160, 80, 30)
-    AUTO_CAST(cancel)
-    cancel:SetSkinName("test_gray_button")
-    cancel:SetText("{ol}{s16}Cancel")
-    cancel:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_init");
-
-end
-
-function sub_slotset_make_context(frame, ctrl, str, num)
-
-    local context = ui.CreateContextMenu("make_context", "Shared or Character", 0, 0, 100, 100);
-    ui.AddContextMenuItem(context, " ", "None");
-    local scp = string.format("sub_slotset_make_slotset_frame('%s')", "shared")
-    ui.AddContextMenuItem(context, "Make team shared slotset", scp);
-    scp = string.format("sub_slotset_make_slotset_frame('%s')", "character")
-    ui.AddContextMenuItem(context, "Make character slotset", scp);
-    ui.OpenContextMenu(context);
-
-end
-
-function sub_slotset_newframe_remove_msg(frame_name)
-    local scp = string.format("sub_slotset_newframe_remove('%s')", frame_name)
-    ui.MsgBox("remove this frame?", scp, "None")
-end
-
-function sub_slotset_newframe_remove(frame_name)
-
-    local frame = ui.GetFrame(frame_name)
-    local belong = frame:GetUserValue("BELONG")
-
-    if belong == "shared" then
-        if g.settings[frame_name] then
-            g.settings[frame:GetName()] = nil
-        end
-        sub_slotset_save_settings()
-    elseif belong == "character" then
-        if g.personal[frame_name] then
-            g.personal[frame:GetName()] = nil
-
-        end
-
-        sub_slotset_personal_save_settings()
-    end
-
-    ui.DestroyFrame(frame_name);
-end
-
-function sub_slotset_lock_slotset_frame(frame_name)
-    local frame = ui.GetFrame(frame_name)
-    local belong = frame:GetUserValue("BELONG")
-    if belong == "shared" then
-        if g.settings[frame_name] then
-            if g.settings[frame:GetName()]["etc"].lock == nil then
-                g.settings[frame:GetName()]["etc"].lock = true
-            elseif g.settings[frame:GetName()]["etc"].lock == true then
-                g.settings[frame:GetName()]["etc"].lock = false
-            elseif g.settings[frame:GetName()]["etc"].lock == false then
-                g.settings[frame:GetName()]["etc"].lock = true
-            end
-        end
-        sub_slotset_save_settings()
-        sub_slotset_slotset_init(frame)
-    elseif belong == "character" then
-        if g.personal[frame_name] then
-            if g.personal[frame_name]["etc"].lock == nil then
-                g.personal[frame_name]["etc"].lock = true
-            elseif g.personal[frame_name]["etc"].lock == true then
-                g.personal[frame_name]["etc"].lock = false
-            elseif g.personal[frame_name]["etc"].lock == false then
-                g.personal[frame_name]["etc"].lock = true
-            end
-        end
-
-        sub_slotset_personal_save_settings()
-        sub_slotset_slotset_init(frame)
-    end
-
-end
-
-function sub_slotset_newframe_rbutton(frame, ctrl, str, num)
-
-    local context = ui.CreateContextMenu("slotset_context", "ETC Setting", 0, 0, 100, 100);
-    ui.AddContextMenuItem(context, " ", "None");
-    local scp = string.format("sub_slotset_newframe_remove_msg('%s')", tostring(frame:GetName()))
-    ui.AddContextMenuItem(context, "Remove the slotset frame", scp);
-    scp = string.format("sub_slotset_lock_slotset_frame('%s')", tostring(frame:GetName()))
-    ui.AddContextMenuItem(context, "Lock the slotset frame", scp);
-    ui.OpenContextMenu(context);
-
-end
-
-function sub_slotset_newframe_end_drag(frame, ctrl, str, num)
-
-    local belong = frame:GetUserValue("BELONG")
-
-    if belong == "shared" then
-        for key, value in pairs(g.settings[frame:GetName()]) do
-
-            if key == "etc" then
-                for k2, v2 in pairs(value) do
-
-                    g.settings[frame:GetName()]["etc"].X = frame:GetX()
-                    g.settings[frame:GetName()]["etc"].Y = frame:GetY()
-
-                end
-            end
-
-        end
-        sub_slotset_save_settings()
-    elseif belong == "character" then
-        for key, value in pairs(g.personal[frame:GetName()]) do
-
-            if key == "etc" then
-                for k2, v2 in pairs(value) do
-
-                    g.personal[frame:GetName()]["etc"].X = frame:GetX()
-                    g.personal[frame:GetName()]["etc"].Y = frame:GetY()
-
-                end
-            end
-
-        end
-
-        sub_slotset_personal_save_settings()
-    end
-
-end
-
-function sub_slotset_make_slotset_frame(str)
-    sub_slotset_frame_init()
-
-    local client_Width = ui.GetClientInitialWidth() -- 1920
-    local client_Height = ui.GetClientInitialHeight() -- 1080
-
-    g.settings.index = g.settings.index + 1
-    local isnew = true
-    sub_slotset_save_settings()
-    sub_slotset_slotset_frame_init(str, isnew)
-
-end
-
---[[function sub_slotset_make_slotset_frame(str)
-    sub_slotset_frame_init()
-
-    local client_Width = ui.GetClientInitialWidth() -- 1920
-    local client_Height = ui.GetClientInitialHeight() -- 1080
-
-    local newframe = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "_" .. g.settings.index, client_Width / 2,
-        client_Height / 2, 0, 0)
-    AUTO_CAST(newframe)
-    g.settings.index = g.settings.index + 1
-    sub_slotset_save_settings()
-    newframe:SetSkinName("chat_window_2")
-    newframe:SetAlpha(20)
-    newframe:SetLayerLevel(96)
-    newframe:ShowWindow(1)
-    newframe:EnableHittestFrame(1)
-    newframe:EnableMove(1)
-    newframe:SetUserValue("BELONG", str)
-    newframe:SetUserValue("ISNEW", "true")
-
-    newframe:SetEventScript(ui.RBUTTONUP, "sub_slotset_newframe_rbutton")
-    newframe:SetEventScript(ui.LBUTTONUP, "sub_slotset_newframe_end_drag")
-
-    local column = g.column or tonumber(3)
-    local row = g.row or tonumber(3)
-    local size = g.size or tonumber(48)
-    newframe:Resize(size * column + 10 + column * 2, size * row + 10 + row * 2)
-    sub_slotset_slotset_init(newframe)
-    -- sub_slotset_slotset_update(newframe)
-end]]
-
