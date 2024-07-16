@@ -35,10 +35,11 @@
 -- v1.3.5 BGMプレイヤー。割とガチで10曲目イカレてる。
 -- v1.3.6 小さいBGMプレイヤー出さない様に変更
 -- v1.3.7 チャンネルインフォフレームをレイドなどでは表示しない様に。マーケット出店時の数量バグ修正。
+-- v1.3.8 マーケット出店時の数量バグ修正のバグ修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.7"
+local ver = "1.3.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -266,8 +267,9 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
     g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
-    g.SetupHook(MINI_ADDONS_UPDATE_COUNT_STRING, "UPDATE_COUNT_STRING")
+
     acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
+    acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM");
 
     if g.settings.other_effect == nil then
         g.settings.other_effect = 1
@@ -424,53 +426,26 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     MINI_ADDONS_NEW_FRAME_INIT()
 
-    --[[if g.settings.pet_init == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETLIST_FRAME_INIT")
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_PETINFO")
-    end]]
-
-    -- local frame = ui.GetFrame("mini_addons")
-
 end
 
-function MINI_ADDONS_UPDATE_COUNT_STRING(parent, ctrl)
-    MINI_ADDONS_UPDATE_COUNT_STRING_REPLACE(parent, ctrl)
-end
+function MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM(frame, msg)
+    local frame = ui.GetFrame('market_sell');
+    local edit_count = GET_CHILD_RECURSIVELY(frame, "edit_count");
+    AUTO_CAST(edit_count)
 
-function MINI_ADDONS_UPDATE_COUNT_STRING_REPLACE(parent, ctrl)
-    local frame = parent:GetTopParentFrame();
-    local edit_price = GET_CHILD_RECURSIVELY(frame, "edit_price");
+    local slot = GET_CHILD_RECURSIVELY(frame, "slot_item")
+    local icon = slot:GetIcon()
+    local count = 0
+    if icon ~= nil then
+        local info = icon:GetInfo();
+        local iesid = info:GetIESID();
+        local invItem = session.GetInvItemByGuid(iesid)
 
-    local itemPrice = edit_price:GetText()
-    itemPrice = string.gsub(itemPrice, ',', '')
-    itemPrice = tonumber(itemPrice)
-
-    local countTxt = ctrl:GetText();
-    if countTxt ~= nil then
-        local count = tonumber(countTxt);
-        if count == nil or countTxt == "" then
-            count = 0;
+        if invItem ~= nil then
+            count = tonumber(invItem.count)
         end
-
-        local limitTradeStr = GET_REMAIN_MARKET_TRADE_AMOUNT_STR();
-        if limitTradeStr ~= nil then
-            if IsGreaterThanForBigNumber(tonumber(itemPrice) * count, limitTradeStr) == 1 then
-                ui.SysMsg(ScpArgMsg('MarketMaxSilverLimit{LIMIT}Over', 'LIMIT', GET_COMMAED_STRING(limitTradeStr)));
-            end
-        end
-        local slot = GET_CHILD_RECURSIVELY(frame, "slot_item")
-        local icon = slot:GetIcon()
-        if icon ~= nil then
-            local info = icon:GetInfo();
-            local iesid = info:GetIESID();
-            local invItem = session.GetInvItemByGuid(iesid)
-            if invItem ~= nil then
-                count = invItem.count
-            end
-        end
-        ctrl:SetText(count)
-        UPDATE_FEE_INFO(frame, nil, count, nil)
     end
+    edit_count:SetText(count)
 end
 
 function MINIADDONS_BGMPLAYER_PLAY(frame, btn)
