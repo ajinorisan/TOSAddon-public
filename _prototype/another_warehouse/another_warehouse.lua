@@ -936,11 +936,12 @@ function another_warehouse_keeper_reserve()
     local LoginCID = info.GetCID(session.GetMyHandle())
     local delay = g.settings.delay
 
-    if g.settings[LoginCID].maney_check == 1 then
+    --[[if g.settings[LoginCID].maney_check == 1 then
         another_warehouse_silver()
-    end
+    end]]
     if g.settings[LoginCID].item_check == 1 then
-        ReserveScript("another_warehouse_item()", delay)
+        another_warehouse_item()
+        -- ReserveScript("another_warehouse_item()", delay)
         return
     end
 
@@ -957,7 +958,8 @@ function another_warehouse_silver()
         charsilver = tonumber(silveritem:GetAmountStr())
 
     end
-    if g.settings.amount_check == 1 then
+
+    --[[if g.settings.amount_check == 1 then
 
         local gbox = GET_CHILD_RECURSIVELY(warehouseFrame, 'visgBox')
         local cnt = session.AccountWarehouse.GetCount() - 1
@@ -982,78 +984,117 @@ function another_warehouse_silver()
         for i = 0, cnt - 1 do
             local guid = guidlist:Get(i)
             local invItem = itemList:GetItemByGuid(guid)
-
             if invItem ~= nil then
                 local invItem_obj = GetIES(invItem:GetObject())
                 if invItem_obj.ClassName == MONEY_NAME then
-
                     local count = invItem.count
-
                     if count >= 1000000 then
-                        local fraction = count % 1000000 or 0
+                        local fraction = count % 1000000
                         local inv_frac = charsilver % 1000000
-                        local sum_ = fraction + inv_frac
 
-                        local silver = tonumber(g.settings.silver) + sum_ - charsilver
-                        print(silver)
-                        if silver == 0 then
-                            return
-                        elseif silver > 0 then
-                            session.ResetItemList()
-                            session.AddItemIDWithAmount(guid, tostring(fraction))
-                            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-                        elseif silver < 0 and sum_ >= tonumber(g.settings.silver) then
-                        end
-                        --[[if charsilver + fraction > tonumber(g.settings.silver) + 1000000 then
-                            charsilver = math.floor(charsilver / 1000000) * 1000000
-
-                            fraction = charsilver - fraction - tonumber(g.settings.silver)
-
-                            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(fraction),
-                                handle)
-                            return
-
-                        elseif charsilver + fraction < tonumber(g.settings.silver) + 1000000 then
-
-                            session.ResetItemList()
-                            session.AddItemIDWithAmount(guid, tostring(tonumber(g.settings.silver) + fraction))
-                            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-                        else
-                            charsilver = tonumber(g.settings.silver) - charsilver
-
-                            if charsilver <= 0 then
+                        if fraction == 0 then
+                            if charsilver < tonumber(g.settings.silver) then
+                                session.ResetItemList()
+                                session.AddItemIDWithAmount(guid, tostring(tonumber(g.settings.silver)))
+                                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
                                 return
+                            elseif charsilver > tonumber(g.settings.silver) then
+                                local put_silver = charsilver - inv_frac
+                                if put_silver < tonumber(g.settings.silver) then
+                                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(),
+                                        tostring(inv_frac), handle)
+                                    return
+                                elseif put_silver > tonumber(g.settings.silver) then
+                                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(),
+                                        tostring(put_silver - tonumber(g.settings.silver)), handle)
+                                    return
+                                end
                             end
-
-                            charsilver = math.ceil(charsilver / 1000000) * 1000000
-
-                            session.ResetItemList()
-                            session.AddItemIDWithAmount(guid, tostring(charsilver + fraction))
-                            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-                            return
-                        end]]
-
+                        else
+                            if charsilver == tonumber(g.settings.silver) then
+                                session.ResetItemList()
+                                session.AddItemIDWithAmount(guid, tostring(fraction))
+                                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+                                return
+                            elseif charsilver < tonumber(g.settings.silver) then
+                                if (charsilver + fraction) < tonumber(g.settings.silver) then
+                                    session.ResetItemList()
+                                    session.AddItemIDWithAmount(guid, tostring(fraction + tonumber(g.settings.silver)))
+                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                        handle)
+                                    return
+                                else
+                                    session.ResetItemList()
+                                    session.AddItemIDWithAmount(guid, tostring(fraction))
+                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                        handle)
+                                    return
+                                end
+                            elseif charsilver > tonumber(g.settings.silver) then
+                                if (inv_frac + fraction) < tonumber(g.settings.silver) then
+                                    session.ResetItemList()
+                                    session.AddItemIDWithAmount(guid, tostring(tonumber(g.settings.silver) + fraction))
+                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                        handle)
+                                    return
+                                else
+                                    session.ResetItemList()
+                                    session.AddItemIDWithAmount(guid, tostring(fraction))
+                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                        handle)
+                                    return
+                                end
+                            end
+                        end
                     end
                 end
             end
         end
-    else
-        charsilver = charsilver - tonumber(g.settings.silver)
     end
+    print(g.settings.amount_check)]]
+    charsilver = charsilver - tonumber(g.settings.silver)
 
-    --[[if charsilver > 0 then
+    if charsilver > 0 then
 
         item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(charsilver), handle)
-        return
+        -- return
     elseif charsilver <= 0 then
 
         session.ResetItemList()
         session.AddItemIDWithAmount("0", tostring(-charsilver))
         item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-        return
+        -- return
 
-    end]]
+    end
+    if g.settings.amount_check == 1 then
+        ReserveScript("another_warehouse_fraction()", g.settings.delay)
+    end
+end
 
+function another_warehouse_fraction()
+
+    local warehouseFrame = ui.GetFrame('accountwarehouse')
+    local handle = warehouseFrame:GetUserIValue('HANDLE')
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local guidlist = itemList:GetSortedGuidList()
+    local cnt = itemList:Count()
+
+    for i = 0, cnt - 1 do
+        local guid = guidlist:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        if invItem ~= nil then
+            local invItem_obj = GetIES(invItem:GetObject())
+            if invItem_obj.ClassName == MONEY_NAME then
+                local count = invItem.count
+                if count >= 1000000 then
+                    local fraction = count % 1000000
+                    session.ResetItemList()
+                    session.AddItemIDWithAmount(guid, tostring(fraction))
+                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+                end
+            end
+        end
+    end
 end
 
 function another_warehouse_item_tooltip(Name, iconName, Count, tooltipcount)
@@ -1323,6 +1364,7 @@ function another_warehouse_item_put(flag)
 
         return
     else
+        another_warehouse_silver()
         ReserveScript("another_warehouse_end()", delay)
         return
     end
