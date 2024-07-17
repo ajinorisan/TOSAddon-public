@@ -398,7 +398,6 @@ function another_warehouse_set_item_take(frame, ctrl, argStr, argNum)
     local guidList = itemList:GetGuidList();
     local sortedGuidList = itemList:GetSortedGuidList();
     local sortedCnt = sortedGuidList:Count();
-    local fromframe = ui.GetFrame("accountwarehouse")
 
     local take = {}
     for key, value in pairs(g.settings.setitems[tostring(argStr)]) do
@@ -436,7 +435,8 @@ function another_warehouse_set_item_take(frame, ctrl, argStr, argNum)
             session.AddItemID(tonumber(iesid), count)
         end
     end
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                    warehouseFrame:GetUserIValue("HANDLE"))
     another_warehouse_set_item_close(frame, ctrl, argStr, argNum)
 
     ACCOUNTWAREHOUSE_CLOSE(warehouseFrame)
@@ -1150,7 +1150,8 @@ function another_warehouse_item_take()
         end
     end
 
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
+                                    warehouseFrame:GetUserIValue("HANDLE"))
 
     local flag = 0
     ReserveScript(string.format("another_warehouse_item_put(%d)", flag), 0.1)
