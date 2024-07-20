@@ -7,17 +7,18 @@
 -- v1.0.7 順番バグってたの再修正
 -- v1.0.8 キャラの装備詳細見れる様にした。でも同一バラックじゃないと無理／(^o^)＼ 他の装備LVも可視化
 -- v1.0.9 バグ修正
+-- v1.1.0 高速化。ギアスコア表示。セーブデータは一旦消えます(´;ω;｀)
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/new_settings.json', addonNameLower)
+g.settingsFileLoc = string.format('../addons/%s/new2_settings.json', addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
@@ -138,6 +139,7 @@ local entbl = {
 }
 
 g.changeFileLoc = string.format('../addons/%s/change.json', addonNameLower)
+
 function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -161,7 +163,8 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
 
         local accountInfo = session.barrack.GetMyAccount()
         local cnt = accountInfo:GetPCCount()
-        -- print(g.layer)
+        local equipments = {"RH", "LH", "RH_SUB", "LH_SUB", "NECK", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES",
+                            "BOOTS", "SEAL", "ARK", "RELIC", "LEG", "GOD"}
         for i = 0, cnt - 1 do
 
             local pcInfo = accountInfo:GetPCByIndex(i)
@@ -176,7 +179,30 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
                     if g.change[name] ~= nil then
                         g.change[name] = pccid
                         acutil.saveJSON(g.changeFileLoc, g.change) -- 変更ファイルの保存
+
                     end
+
+                    g.charFileLoc = string.format('../addons/%s/%s.json', addonNameLower, pccid)
+
+                    local file = io.open(g.charFileLoc, "r")
+                    if not file then
+                        -- ファイルが存在しない場合、新しいテーブルを作成
+                        local cid = {
+                            name = pcName,
+                            gear_score = 0
+                        }
+                        local equipments = {"RH", "LH", "RH_SUB", "LH_SUB", "NECK", "RING1", "RING2", "SHIRT", "PANTS",
+                                            "GLOVES", "BOOTS", "SEAL", "ARK", "RELIC", "LEG", "GOD"}
+                        for _, key in ipairs(equipments) do
+                            cid[key] = {}
+
+                        end
+                        g.cid = cid
+                        acutil.saveJSON(g.charFileLoc, g.cid)
+                    else
+                        file:close()
+                    end
+
                     g.settings.character[name].index = i
 
                     if g.layer ~= nil and g.layer ~= g.settings.character[name].layer then
@@ -197,8 +223,7 @@ function other_character_skill_list_load_settings()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
-    -- settings が nil または settings.character が空の場合に初期化処理を実行
-    if not settings or not settings.character or next(settings.character) == nil then
+    if not settings or next(settings["character"]) == nil then
         local accountInfo = session.barrack.GetMyAccount()
         local barrackPCCount = accountInfo:GetBarrackPCCount()
 
@@ -206,72 +231,28 @@ function other_character_skill_list_load_settings()
             character = {}
         }
 
-        for i = 1, barrackPCCount do -- Lua の配列は 1 から始めるのが一般的です
-            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i - 1) -- 0 インデックスの補正
+        for i = 0, barrackPCCount - 1 do
+            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
             local barrackPCName = barrackPCInfo:GetName()
 
             settings.character[barrackPCName] = {
-                RH = {},
-                LH = {},
-                RH_SUB = {},
-                LH_SUB = {},
-                NECK = {},
-                RING1 = {},
-                RING2 = {},
-                SHIRT = {},
-                PANTS = {},
-                GLOVES = {},
-                BOOTS = {},
-                SEAL = {},
-                ARK = {},
-                RELIC = {},
-                LEG = {},
-                GOD = {},
+
                 index = i,
-                layer = 9,
-                name = barrackPCName
+                layer = 9
 
             }
         end
         g.settings = settings
-    else
-        local accountInfo = session.barrack.GetMyAccount()
-        local barrackPCCount = accountInfo:GetBarrackPCCount()
-        for i = 1, barrackPCCount do -- Lua の配列は 1 から始めるのが一般的です
-            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i - 1) -- 0 インデックスの補正
-            local barrackPCName = barrackPCInfo:GetName()
-            if settings.character[barrackPCName].RH == nil then
-                settings.character[barrackPCName].RH = {}
-            end
-            if settings.character[barrackPCName].LH == nil then
-                settings.character[barrackPCName].LH = {}
-            end
-            if settings.character[barrackPCName].RH_SUB == nil then
-                settings.character[barrackPCName].RH_SUB = {}
-            end
-            if settings.character[barrackPCName].LH_SUB == nil then
-                settings.character[barrackPCName].LH_SUB = {}
-            end
-            if settings.character[barrackPCName].NECK == nil then
-                settings.character[barrackPCName].NECK = {}
-            end
-            if settings.character[barrackPCName].RING1 == nil then
-                settings.character[barrackPCName].RING1 = {}
-            end
-            if settings.character[barrackPCName].RING2 == nil then
-                settings.character[barrackPCName].RING2 = {}
-            end
-        end
-
-        g.settings = settings
     end
+
+    g.settings = settings
 
     other_character_skill_list_save_settings()
 
     local change, err = acutil.loadJSON(g.changeFileLoc, g.change)
 
     if not change or not next(change) then
-        -- print("Creating new change settings.")
+
         local accountInfo = session.barrack.GetMyAccount()
         local barrackPCCount = accountInfo:GetBarrackPCCount()
         change = {}
@@ -286,7 +267,7 @@ function other_character_skill_list_load_settings()
 
     else
         g.change = change
-        -- print("Loaded existing change settings.")
+
     end
 end
 
@@ -302,20 +283,26 @@ function other_character_skill_list_sort()
 
     local characterList = {}
     for name, charData in pairs(g.settings.character) do
-        table.insert(characterList, charData)
+
+        local cid = g.change[name]
+
+        if cid then
+            charData.name = name
+            charData.cid = cid
+            table.insert(characterList, charData)
+
+        end
     end
 
     table.sort(characterList, sortByLayerAndOrder)
-
     g.characters = characterList
-    g.layer = nil
     other_character_skill_list_frame_open()
-    -- g.characters の中身を表示
-    --[[for i, charData in ipairs(g.characters) do
-        print(string.format("Character %d:", i))
-        for key, value in pairs(charData) do
-            print(string.format("  %s: %s", key, tostring(value)))
-        end
+
+    --[[for cid, charData in pairs(characterList) do
+        print(string.format("CID: %s", cid))
+        print(string.format("  Name: %s", charData.name))
+        print(string.format("  Layer: %d", charData.layer))
+        print(string.format("  Index: %d", charData.index))
     end]]
 
 end
@@ -350,22 +337,59 @@ function other_character_skill_list_INVENTORY_CLOSE()
     other_character_skill_list_save_enchant()
 end
 
+local function format_json(data, indent)
+    local indent = indent or 0
+    local formatting = string.rep(" ", indent)
+    local result = ""
+
+    if type(data) == "table" then
+        result = result .. "{\n"
+        local isFirst = true
+        for k, v in pairs(data) do
+            if not isFirst then
+                result = result .. ",\n"
+            end
+            isFirst = false
+            result = result .. formatting .. "  \"" .. tostring(k) .. "\": " .. format_json(v, indent + 2)
+        end
+        result = result .. "\n" .. formatting .. "}"
+    elseif type(data) == "string" then
+        result = result .. "\"" .. data .. "\""
+    else
+        result = result .. tostring(data)
+    end
+
+    return result
+end
+
 function other_character_skill_list_save_enchant()
 
     local ivframe = ui.GetFrame("inventory")
     local pcName = session.GetMySession():GetPCApc():GetName()
     local equipItemList = session.GetEquipItemList()
     local count = equipItemList:Count()
+    local cid = session.GetMySession():GetCID()
 
-    -- キャラクター名に一致する場合の処理をループでまとめる
-    for name, spot in pairs(g.settings.character) do
-        if tostring(name) == tostring(pcName) then
+    local path = string.format('../addons/%s/%s.json', addonNameLower, cid)
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local data = json.decode(content)
+        local characterName = data.name
+
+        -- 名前の比較をループの外で行う
+        if characterName == pcName then
+            local score = 0
             for i = 0, count - 1 do
                 local equipItem = equipItemList:GetEquipItemByIndex(i)
                 local spotName = item.GetEquipSpotName(equipItem.equipSpot)
                 local iesid = tostring(equipItem:GetIESID())
                 local Item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spotName))
                 local obj = GetIES(Item:GetObject())
+                if obj.ClassName ~= "NoRing" then
+                    score = GET_GEAR_SCORE(obj) + score
+                end
 
                 -- 各装備スポットの処理
                 if spotName == "SHIRT" or spotName == "PANTS" or spotName == "GLOVES" or spotName == "BOOTS" then
@@ -377,7 +401,7 @@ function other_character_skill_list_save_enchant()
                         lv = TryGetProp(obj, "Reinforce_2", 0)
                         Name, Level = shared_skill_enchant.get_enchanted_skill(obj, 1)
                         slotcnt = TryGetProp(obj, 'EnchantSkillSlotCount', 0)
-                        g.settings.character[name][spotName] = {
+                        data[spotName] = {
                             clsid = obj.ClassID,
                             lv = lv,
                             iesid = iesid,
@@ -385,7 +409,7 @@ function other_character_skill_list_save_enchant()
                             skillLv = Level
                         }
                     else
-                        g.settings.character[name][spotName] = {}
+                        data[spotName] = {}
                     end
                 elseif spotName == "RH" or spotName == "LH" or spotName == "RH_SUB" or spotName == "LH_SUB" then
                     local slot = GET_CHILD_RECURSIVELY(ivframe, spotName)
@@ -396,15 +420,13 @@ function other_character_skill_list_save_enchant()
                         lv = TryGetProp(obj, "Reinforce_2", 0)
                         -- Name, Level = shared_skill_enchant.get_enchanted_skill(obj, 1)
                         slotcnt = TryGetProp(obj, 'EnchantSkillSlotCount', 0)
-                        g.settings.character[name][spotName] = {
+                        data[spotName] = {
                             clsid = obj.ClassID,
                             lv = lv,
                             iesid = iesid
-
                         }
                     else
-                        g.settings.character[name][spotName] = {}
-
+                        data[spotName] = {}
                     end
                 elseif spotName == "RING1" or spotName == "RING2" or spotName == "NECK" then
                     local slot = GET_CHILD_RECURSIVELY(ivframe, spotName)
@@ -415,14 +437,13 @@ function other_character_skill_list_save_enchant()
                         lv = TryGetProp(obj, "Reinforce_2", 0)
                         -- Name, Level = shared_skill_enchant.get_enchanted_skill(obj, 1)
                         slotcnt = TryGetProp(obj, 'EnchantSkillSlotCount', 0)
-                        g.settings.character[name][spotName] = {
+                        data[spotName] = {
                             clsid = obj.ClassID,
                             lv = lv,
                             iesid = iesid
-
                         }
                     else
-                        g.settings.character[name][spotName] = {}
+                        data[spotName] = {}
                     end
                 elseif spotName == "SEAL" or spotName == "ARK" or spotName == "RELIC" then
                     local slot = GET_CHILD_RECURSIVELY(ivframe, spotName)
@@ -437,36 +458,47 @@ function other_character_skill_list_save_enchant()
                         lv = TryGetProp(obj, 'Relic_LV', 1)
                     end
                     if icon ~= nil then
-                        g.settings.character[name][spotName] = {
+                        data[spotName] = {
                             clsid = obj.ClassID,
                             lv = lv,
                             iesid = iesid
                         }
                     else
-                        g.settings.character[name][spotName] = {}
+                        data[spotName] = {}
                     end
                 end
-
             end
+
+            -- 装備カードの処理
             if equipcard.GetCardInfo(13) ~= nil then
                 local info = equipcard.GetCardInfo(13)
-                g.settings.character[name]["LEG"].clsid = info:GetCardID()
-                g.settings.character[name]["LEG"].lv = info.cardLv
-                -- g.settings.character[name]["LEG"].iesid = iesid
+                data["LEG"].clsid = info:GetCardID()
+                data["LEG"].lv = info.cardLv
             else
-                g.settings.character[name]["LEG"] = {}
-            end
-            if equipcard.GetCardInfo(14) ~= nil then
-                local info = equipcard.GetCardInfo(14)
-                g.settings.character[name]["GOD"].clsid = info:GetCardID()
-                g.settings.character[name]["GOD"].lv = info.cardLv
-            else
-                g.settings.character[name]["GOD"] = {}
+                data["LEG"] = {}
             end
 
-            other_character_skill_list_save_settings()
-            return
+            if equipcard.GetCardInfo(14) ~= nil then
+                local info = equipcard.GetCardInfo(14)
+                data["GOD"].clsid = info:GetCardID()
+                data["GOD"].lv = info.cardLv
+            else
+                data["GOD"] = {}
+            end
+            data.gear_score = score
+
+            -- 更新されたデータをファイルに書き込む
+            local file = io.open(path, "w")
+            local formattedJson = format_json(data, 0)
+            file:write(formattedJson)
+            file:close()
+
+        else
+            print("Character name does not match.")
         end
+
+    else
+        print("File not found or unable to open: " .. path)
     end
 
 end
@@ -566,6 +598,7 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
 
     btn:ShowWindow(1);
     local apc = bpc:GetApc();
+
     local gender = apc:GetGender();
     local jobid = apc:GetJob();
     local level = apc:GetLv()
@@ -591,6 +624,7 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
     local RH_SUB = detail:CreateOrGetControl("slot", "RH_SUB", 138, 214, 55, 55)
     local LH_SUB = detail:CreateOrGetControl("slot", "LH_SUB", 198, 214, 55, 55)
     local mapNameCtrl = GET_CHILD(detail, 'mapName', 'ui::CRichText');
+
     local mapCls = GetClassByType("Map", apc.mapID);
     if mapCls ~= nil then
         local mapName = mapCls.Name;
@@ -651,6 +685,7 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
                 CLEAR_SLOT_ITEM_INFO(eqpSlot);
             else
                 local obj = GetIES(eqpObj);
+
                 local refreshScp = obj.RefreshScp;
                 if refreshScp ~= "None" then
                     refreshScp = _G[refreshScp];
@@ -660,6 +695,7 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
                 if 0 == item.IsNoneItem(obj.ClassID) then
                     CLEAR_SLOT_ITEM_INFO(eqpSlot);
                     SET_SLOT_ITEM_OBJ(eqpSlot, obj, gender, 1);
+
                 else
                     local skin_name = skin_list[esName]
                     if skin_name ~= nil then
@@ -672,6 +708,7 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
             end
         end
     end
+
     -- charCtrl:Resize(charCtrl:GetWidth(), 128);
 
 end
@@ -684,13 +721,11 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
     frame:SetSkinName("test_frame_midle")
     frame:Resize(990, 300)
     frame:SetLayerLevel(103)
-    -- frame:ShowWindow(1)
-    -- ctrl:ShowWindow(0)
 
     local title = frame:CreateOrGetControl("groupbox", "title", 0, 0, 1070, 40)
     AUTO_CAST(title)
     title:SetSkinName("None")
-    -- title:SetSkinName("chat_window")
+
     local close = title:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
@@ -699,7 +734,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
 
     local help = title:CreateOrGetControl('button', "help", 40, 0, 35, 35)
     AUTO_CAST(help);
-    -- help:SetSkinName("None")
+
     help:SetText("{ol}{img question_mark 20 20}")
     help:SetSkinName("test_pvp_btn")
     local language = option.GetCurrentCountry()
@@ -715,7 +750,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
                                 "{ol}Press the name section to see the equipment details of each character{nl}in the same barrack as the login character.")
     end
 
-    local weapon = title:CreateOrGetControl("richtext", "weapon", 155, 10, 100, 20)
+    local weapon = title:CreateOrGetControl("richtext", "weapon", 160, 10, 100, 20)
 
     if language == "Japanese" then
         weapon:SetText("{ol}" .. "武器")
@@ -723,7 +758,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
         weapon:SetText("{ol}" .. "weapons")
     end
 
-    local Accessory = title:CreateOrGetControl("richtext", "Accessory", 265, 10, 100, 20)
+    local Accessory = title:CreateOrGetControl("richtext", "Accessory", 280, 10, 100, 20)
 
     if language == "Japanese" then
         Accessory:SetText("{ol}" .. "アクセ")
@@ -732,7 +767,7 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
     end
 
     weapon:AdjustFontSizeByWidth(100)
-    local y = 345
+    local y = 370
     for i = 0, 4 do
         local equip_text = title:CreateOrGetControl("richtext", "equip_text" .. i, y, 10, 100, 20)
 
@@ -775,148 +810,169 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
     end
 
     local x = 10
-    local yy = 345
+    local yy = 370
     local yyy = 0
     local equips = {"SHIRT", "PANTS", "GLOVES", "BOOTS", "LEG", "GOD", "SEAL", "ARK", "RELIC", "RH", "LH", "RH_SUB",
                     "LH_SUB", "RING1", "RING2", "NECK"}
 
+    local cnt = 0
     for _, character in ipairs(g.characters) do
+        -- print(tostring(character.cid))
+        local path = string.format('../addons/%s/%s.json', addonNameLower, character.cid)
+        local file = io.open(path, "r")
+        if file then
+            local content = file:read("*all")
+            file:close()
+            local data = json.decode(content)
+            local name_text = gbox:CreateOrGetControl("richtext", "name_text" .. character.name, 10, x, 145, 20)
+            AUTO_CAST(name_text)
+            name_text:SetText("{ol}" .. character.name)
+            name_text:AdjustFontSizeByWidth(150)
+            name_text:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report")
+            name_text:SetEventScriptArgString(ui.LBUTTONUP, character.name)
 
-        local name_text = gbox:CreateOrGetControl("richtext", "name_text" .. character.name, 10, x, 145, 20)
-        AUTO_CAST(name_text)
-        name_text:SetText("{ol}" .. character.name)
-        name_text:AdjustFontSizeByWidth(150)
-        name_text:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report")
-        name_text:SetEventScriptArgString(ui.LBUTTONUP, character.name)
-        if language == "Japanese" then
-            name_text:SetTextTooltip("{ol}名前部分を押すと各キャラの装備詳細が見れます。")
-        else
-            name_text:SetTextTooltip("{ol}Press the name part to see the{nl}equipment details of each character.")
-        end
+            local gear_score = data.gear_score
+            local gs_str = ""
 
-        local skill_list = GetClassList("Skill");
-
-        for i, equipType in ipairs(equips) do
-
-            if i <= 4 then
-                local slot = gbox:CreateOrGetControl("slot", "slot" .. equipType .. character.name,
-                    yy + (225 * (i - 1)) + 30, x, 25, 24)
-                AUTO_CAST(slot)
-                slot:EnablePop(0)
-                slot:EnableDrop(0)
-                slot:EnableDrag(0)
-                slot:SetSkinName('invenslot2');
-
-                local equip = gbox:CreateOrGetControl("slot", "equip" .. equipType .. character.name,
-                    yy + (225 * (i - 1)), x, 25, 24)
-                AUTO_CAST(equip)
-                equip:EnablePop(0)
-                equip:EnableDrop(0)
-                equip:EnableDrag(0)
-                equip:SetSkinName('invenslot2');
-
-                local clsID = g.settings["character"][character.name][equipType].clsid
-
-                if clsID ~= nil then
-                    local lv = g.settings["character"][character.name][equipType].lv
-                    local itemCls = GetClassByType("Item", clsID);
-                    local imageName = itemCls.Icon;
-                    SET_SLOT_ICON(equip, imageName)
-
-                    SET_SLOT_BG_BY_ITEMGRADE(equip, itemCls)
-                    equip:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
-                    local icon = equip:GetIcon()
-                    icon:SetTextTooltip(itemCls.Name);
-                end
-
-                local skill = GetClassByNameFromList(skill_list,
-                    g.settings["character"][character.name][equipType].skillName)
-
-                if skill ~= nil then
-                    local sklCls = GetClassByType("Skill", skill.ClassID);
-
-                    local imageName = 'icon_' .. sklCls.Icon;
-                    SET_SLOT_ICON(slot, imageName)
-                    local skill_name = gbox:CreateOrGetControl("richtext", "skill_name" .. equipType .. character.name,
-                        yy + 60 + (225 * (i - 1)), x, 140, 20)
-
-                    slot:SetText('{s14}{ol}{#FFFF00}' .. g.settings["character"][character.name][equipType].skillLv,
-                        'count', ui.RIGHT, ui.BOTTOM, -2, -2)
-
-                    local icon = slot:GetIcon()
-                    icon:SetTooltipType('skill');
-                    icon:SetTooltipArg("Level", skill.ClassID,
-                        g.settings["character"][character.name][equipType].skillLv);
-
-                    for k, v in pairs(langtbl) do
-
-                        if tostring(k) == tostring(g.settings["character"][character.name][equipType].skillName) then
-                            skill_name:SetText("{ol}{s16}" .. v)
-                            skill_name:AdjustFontSizeByWidth(160)
-                        end
-
-                    end
-                end
-            elseif i >= 5 and i <= 9 then
-                local slot = gbox:CreateOrGetControl("slot", "etc_slot" .. equipType .. character.name,
-                    yy + 225 * 4 + yyy, x, 25, 24)
-                AUTO_CAST(slot)
-                slot:EnablePop(0)
-                slot:EnableDrop(0)
-                slot:EnableDrag(0)
-                slot:SetSkinName('invenslot2');
-
-                local text = ""
-                if i >= 5 and i <= 6 then
-                    text = "{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}"
-                else
-                    text = "{s12}{ol}{#FFFF00}+"
-                end
-                local itemCls = GetClassByType("Item", g.settings["character"][character.name][equipType].clsid)
-                if itemCls ~= nil then
-
-                    local imageName = itemCls.Icon;
-                    SET_SLOT_ICON(slot, imageName)
-                    local icon = slot:GetIcon()
-                    icon:SetTextTooltip(itemCls.Name);
-                    slot:SetText(text .. g.settings["character"][character.name][equipType].lv, 'count', ui.RIGHT,
-                        ui.BOTTOM, 0, 0);
-                end
-                yyy = yyy + 30
-            elseif i >= 10 then
-                local slot = gbox:CreateOrGetControl("slot", "slot" .. equipType .. character.name, 155 + 26 * (i - 10),
-                    x, 25, 24)
-                AUTO_CAST(slot)
-                slot:EnablePop(0)
-                slot:EnableDrop(0)
-                slot:EnableDrag(0)
-                slot:SetSkinName('invenslot2');
-
-                local clsID = g.settings["character"][character.name][equipType].clsid
-
-                if clsID ~= nil then
-                    local lv = g.settings["character"][character.name][equipType].lv
-                    local itemCls = GetClassByType("Item", clsID);
-                    local imageName = itemCls.Icon;
-                    SET_SLOT_ICON(slot, imageName)
-
-                    SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
-                    slot:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
-                    local icon = slot:GetIcon()
-                    icon:SetTextTooltip(itemCls.Name);
-                end
+            if gear_score ~= 0 then
+                gs_str = gear_score
+            else
+                gs_str = "NoData"
             end
 
+            if language == "Japanese" then
+                name_text:SetTextTooltip("{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                             "名前部分を押すと各キャラの装備詳細が見れます。")
+            else
+                name_text:SetTextTooltip("{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                             "Press the name part to see the{nl}equipment details of each character.")
+            end
+
+            local skill_list = GetClassList("Skill");
+
+            for i, equipType in ipairs(equips) do
+
+                if i <= 4 then
+                    local slot = gbox:CreateOrGetControl("slot", "slot" .. equipType .. character.name,
+                        yy + (225 * (i - 1)) + 30, x, 25, 24)
+                    AUTO_CAST(slot)
+                    slot:EnablePop(0)
+                    slot:EnableDrop(0)
+                    slot:EnableDrag(0)
+                    slot:SetSkinName('invenslot2');
+
+                    local equip = gbox:CreateOrGetControl("slot", "equip" .. equipType .. character.name,
+                        yy + (225 * (i - 1)), x, 25, 24)
+                    AUTO_CAST(equip)
+                    equip:EnablePop(0)
+                    equip:EnableDrop(0)
+                    equip:EnableDrag(0)
+                    equip:SetSkinName('invenslot2');
+
+                    local clsID = data[equipType].clsid
+
+                    if clsID ~= nil then
+                        local lv = data[equipType].lv
+                        local itemCls = GetClassByType("Item", clsID);
+                        local imageName = itemCls.Icon;
+                        SET_SLOT_ICON(equip, imageName)
+
+                        SET_SLOT_BG_BY_ITEMGRADE(equip, itemCls)
+                        equip:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
+                        local icon = equip:GetIcon()
+                        icon:SetTextTooltip(itemCls.Name);
+                    end
+
+                    local skill = GetClassByNameFromList(skill_list, data[equipType].skillName)
+
+                    if skill ~= nil then
+                        local sklCls = GetClassByType("Skill", skill.ClassID);
+
+                        local imageName = 'icon_' .. sklCls.Icon;
+                        SET_SLOT_ICON(slot, imageName)
+                        local skill_name = gbox:CreateOrGetControl("richtext",
+                            "skill_name" .. equipType .. character.name, yy + 60 + (225 * (i - 1)), x, 140, 20)
+
+                        slot:SetText('{s14}{ol}{#FFFF00}' .. data[equipType].skillLv, 'count', ui.RIGHT, ui.BOTTOM, -2,
+                            -2)
+
+                        local icon = slot:GetIcon()
+                        icon:SetTooltipType('skill');
+                        icon:SetTooltipArg("Level", skill.ClassID, data[equipType].skillLv);
+
+                        for k, v in pairs(langtbl) do
+
+                            if tostring(k) == tostring(data[equipType].skillName) then
+                                skill_name:SetText("{ol}{s16}" .. v)
+                                skill_name:AdjustFontSizeByWidth(160)
+                            end
+
+                        end
+                    end
+                elseif i >= 5 and i <= 9 then
+                    local slot = gbox:CreateOrGetControl("slot", "etc_slot" .. equipType .. character.name,
+                        yy + 225 * 4 + yyy, x, 25, 24)
+                    AUTO_CAST(slot)
+                    slot:EnablePop(0)
+                    slot:EnableDrop(0)
+                    slot:EnableDrag(0)
+                    slot:SetSkinName('invenslot2');
+
+                    local text = ""
+                    if i >= 5 and i <= 6 then
+                        text = "{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}"
+                    else
+                        text = "{s12}{ol}{#FFFF00}+"
+                    end
+                    local itemCls = GetClassByType("Item", data[equipType].clsid)
+                    if itemCls ~= nil then
+
+                        local imageName = itemCls.Icon;
+                        SET_SLOT_ICON(slot, imageName)
+                        local icon = slot:GetIcon()
+                        icon:SetTextTooltip(itemCls.Name);
+                        slot:SetText(text .. data[equipType].lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
+                    end
+                    yyy = yyy + 30
+                elseif i >= 10 then
+                    local slot = gbox:CreateOrGetControl("slot", "slot" .. equipType .. character.name,
+                        155 + 30 * (i - 10), x, 25, 24)
+                    AUTO_CAST(slot)
+                    slot:EnablePop(0)
+                    slot:EnableDrop(0)
+                    slot:EnableDrag(0)
+                    slot:SetSkinName('invenslot2');
+
+                    local clsID = data[equipType].clsid
+
+                    if clsID ~= nil then
+                        local lv = data[equipType].lv
+                        local itemCls = GetClassByType("Item", clsID);
+                        local imageName = itemCls.Icon;
+                        SET_SLOT_ICON(slot, imageName)
+
+                        SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
+                        slot:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
+                        local icon = slot:GetIcon()
+                        icon:SetTextTooltip(itemCls.Name);
+                    end
+                end
+
+            end
+            yyy = 0
+            x = x + 25
+            cnt = cnt + 1
+
+        else
+            print("File not found or unable to open: " .. path)
         end
-        yyy = 0
-        x = x + 25
+
     end
-    local cnt = #g.characters
 
     local framex = cnt * 25
-    frame:Resize(1410, framex + 60)
-    title:Resize(1400, 40)
-    gbox:Resize(1400, framex + 20)
+    frame:Resize(1435, framex + 60)
+    title:Resize(1425, 40)
+    gbox:Resize(1425, framex + 20)
 
     local myw = frame:GetWidth()
     local mapFrame = ui.GetFrame("map");

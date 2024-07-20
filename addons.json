@@ -62,10 +62,10 @@
 		"name" : "Other Character Skill List",
 		"file" : "other_character_skill_list",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.9",
+		"fileVersion" : "v1.1.0",
 		"releaseTag" : "other_character_skill_list",
 		"unicode" : "⛄",
-		"description" : "各キャラの錬成スキルを一覧表示。エンブレムやレジェンドカード、ゴッデスカードなどの装備状況も表示します。一度、該当キャラでログインしてインベントリを開ける必要があります。Lists the alchemy skills of each character. It also displays the equipment status of emblems, legend cards, goddess cards, etc. You must log in once with the relevant character to open the inventory.각 캐릭터의 연성 스킬을 나열합니다. 엠블럼, 레전드 카드, 갓데스 카드 등의 장비 상태도 표시됩니다. 해당 캐릭터로 로그인하여 인벤토리를 열어야 합니다.",
+		"description" : "1.1.0でロード遅くなるの修正。各キャラの錬成スキルを一覧表示。エンブレムやレジェンドカード、ゴッデスカードなどの装備状況も表示します。一度、該当キャラでログインしてインベントリを開ける必要があります。\\n Fixed slow loading ver 1.1.0.Lists the alchemy skills of each character. It also displays the equipment status of emblems, legend cards, goddess cards, etc. You must log in once with the relevant character to open the inventory.\\n ver1.1.0에서 로딩이 느려지는 문제 수정.각 캐릭터의 연성 스킬을 나열합니다. 엠블럼, 레전드 카드, 갓데스 카드 등의 장비 상태도 표시됩니다. 해당 캐릭터로 로그인하여 인벤토리를 열어야 합니다.",
 		"tags" : []
 	},
 {
@@ -310,7 +310,7 @@
 		"name" : "Another Warehouse",
 		"file" : "another_warehouse",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.5",
+		"fileVersion" : "v1.1.7",
 		"releaseTag" : "another_warehouse",
 		"unicode" : "⛄",
 		"description" : "自動入出庫機能つけた。ebisukeさん作成のチーム倉庫改造アドオンYet Another Account Inventoryのシンプル版。競合するのでYAAIをアンインストールしてください。今後YAAIは保守しないのでこちらへの切替をオススメします。Automatic warehousing function.Simple version of Yet Another Account Inventory, a team warehouse modification add-on created by ebisuke. Please uninstall YAAI as it conflicts with it. We will not maintain YAAI in the future and recommend switching to this version.ebisuke 자동 입출고 기능 추가.님이 만든 팀 창고 개조 애드온 Yet Another Account Inventory의 심플 버전입니다. 충돌하므로 YAAI를 제거해 주세요. 향후 YAAI는 유지보수를 하지 않으므로 이쪽으로 전환을 추천합니다.",
