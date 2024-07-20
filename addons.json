@@ -45,7 +45,7 @@
 		"fileVersion" : "v1.0.6",
 		"releaseTag" : "tos_google_translate",
 		"unicode" : "⛄",
-		"description" : "https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate exe file storage<br>チャットを自動翻訳します。アドオン単体では動作しません。右上のGitHubのページのtos_google_translate内のREADMEを読んでご使用ください。<br>Automatically translates chats. The add-on does not work by itself. Please read the README in tos_google_translate on the GitHub page on the upper right.<br>애드온 단독으로는 작동하지 않습니다. 우측 상단의 GitHub 페이지 tos_google_translate 내 README를 읽고 사용하시기 바랍니다.",
+		"description" : "https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate<br>exe file storage<br>チャットを自動翻訳します。アドオン単体では動作しません。右上のGitHubのページのtos_google_translate内のREADMEを読んでご使用ください。<br>Automatically translates chats. The add-on does not work by itself. Please read the README in tos_google_translate on the GitHub page on the upper right.<br>애드온 단독으로는 작동하지 않습니다. 우측 상단의 GitHub 페이지 tos_google_translate 내 README를 읽고 사용하시기 바랍니다.",
 		"tags" : []
 	},		
 {
