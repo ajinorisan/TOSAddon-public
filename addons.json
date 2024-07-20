@@ -5,7 +5,7 @@
 		"fileVersion" : "v1.0.6",
 		"releaseTag" : "klcount",
 		"unicode" : "⛄",
-		"description" : "未知の聖域にも対応。フィールドで倒したモンスターをカウント。Support for unknown sanctuaries. Counting monsters defeated in the field.미지의 성역에도 대응. 필드에서 처치한 몬스터를 카운트",
+		"description" : "未知の聖域にも対応。フィールドで倒したモンスターをカウント。<br>Support for unknown sanctuaries. Counting monsters defeated in the field.<br>미지의 성역에도 대응. 필드에서 처치한 몬스터를 카운트",
 		"tags" : []
 	},
 	{
@@ -15,7 +15,7 @@
 		"fileVersion" : "v1.0.0",
 		"releaseTag" : "cupole_manager",
 		"unicode" : "⛄",
-		"description" : "クポルの呼び出しをチーム共通化。未登録キャラでも自動で呼び出します。Team commonization of cupole calls. Even unregistered characters are automatically called.큐폴라 호출의 팀 공용화. 등록되지 않은 캐릭터도 자동으로 호출됩니다.",
+		"description" : "クポルの呼び出しをチーム共通化。未登録キャラでも自動で呼び出します。<br>Team commonization of cupole calls. Even unregistered characters are automatically called.<br>큐폴라 호출의 팀 공용화. 등록되지 않은 캐릭터도 자동으로 호출됩니다.",
 		"tags" : []
 	},
 	{
@@ -25,7 +25,7 @@
 		"fileVersion" : "v1.0.2",
 		"releaseTag" : "sub_slotset",
 		"unicode" : "⛄",
-		"description" : "SubQuickSlotオマージュ。SubQuickSlot homage.SubQuickSlot 오마주.",
+		"description" : "SubQuickSlotオマージュ。<br>SubQuickSlot homage.<br>SubQuickSlot 오마주.",
 		"tags" : []
 	},
 	{
@@ -35,7 +35,7 @@
 		"fileVersion" : "v1.0.0",
 		"releaseTag" : "relic_change",
 		"unicode" : "⛄",
-		"description" : "レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。Simplify the replacement of Relic Gems. A button is created at the top centre of the screen.유물 젬 교체가 간소화됩니다. 화면 중앙 상단에 버튼이 생성됩니다.",
+		"description" : "レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。<br>Simplify the replacement of Relic Gems. A button is created at the top centre of the screen.<br>유물 젬 교체가 간소화됩니다. 화면 중앙 상단에 버튼이 생성됩니다.",
 		"tags" : []
 	},
 	{
@@ -45,7 +45,7 @@
 		"fileVersion" : "v1.0.6",
 		"releaseTag" : "tos_google_translate",
 		"unicode" : "⛄",
-		"description" : "exe file storage[https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate]チャットを自動翻訳します。アドオン単体では動作しません。右上のGitHubのページのtos_google_translate内のREADMEを読んでご使用ください。Automatically translates chats. The add-on does not work by itself. Please read the README in tos_google_translate on the GitHub page on the upper right. 애드온 단독으로는 작동하지 않습니다. 우측 상단의 GitHub 페이지 tos_google_translate 내 README를 읽고 사용하시기 바랍니다.",
+		"description" : "<a href='https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate' target='_blank'>exe file storage</a><br>チャットを自動翻訳します。アドオン単体では動作しません。右上のGitHubのページのtos_google_translate内のREADMEを読んでご使用ください。<br>Automatically translates chats. The add-on does not work by itself. Please read the README in tos_google_translate on the GitHub page on the upper right.<br>애드온 단독으로는 작동하지 않습니다. 우측 상단의 GitHub 페이지 tos_google_translate 내 README를 읽고 사용하시기 바랍니다.",
 		"tags" : []
 	},		
 {
@@ -55,7 +55,7 @@
 		"fileVersion" : "v1.0.3",
 		"releaseTag" : "skill_notice",
 		"unicode" : "⛄",
-		"description" : "ピクティス、バトルスピリット、チャージアロー、リロードバフをお知らせ。Informs about the pyktis, battle spirit, charge arrow, and reload buffs.픽티스, 배틀 스피릿, 차지 애로우, 재장전 버프를 알려드립니다.",
+		"description" : "ピクティス、バトルスピリット、チャージアロー、リロードバフをお知らせ。<br>Informs about the pyktis, battle spirit, charge arrow, and reload buffs.<br>픽티스, 배틀 스피릿, 차지 애로우, 재장전 버프를 알려드립니다.",
 		"tags" : []
 	},	
 {
