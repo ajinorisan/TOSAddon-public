@@ -2,6 +2,7 @@
 -- v2.0.2 オバロ火の権能対応したか？
 -- v2.0.3 ゲージの色設定やりやすくなったけどアイコンモードで使うという自己矛盾
 -- v2.0.4 アイコン回転モード追加
+-- v2.0.5 with effect機能復活
 -- ##issues##
 -- possition update script  error
 -- check skill remove event
@@ -14,7 +15,7 @@ local addonName = "Muteki2ex";
 local addonNameUpper = string.upper(addonName);
 local addonNameLower = string.lower(addonName);
 local org_ver = "1.2.7"
-local ver = "2.0.4"
+local ver = "2.0.5"
 
 -- 作者名
 local author = "WRIT";
@@ -49,7 +50,7 @@ if not g.loaded then
         hiddenBuffTime = 300,
         version = 1.0,
         layerLvl = 80
-        -- jikan = 0
+
     }
 end
 
@@ -98,7 +99,7 @@ function MUTEKI2EX_ON_INIT(addon, frame)
             -- 設定ファイル読み込み失敗時処理
             local oldSetting, error = acutil.loadJSON(g.oldAddonSettingFileLoc, g.settings)
             if error then
-                CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonName));
+                -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonName));
             else
                 g.settings = oldSetting
             end
@@ -374,6 +375,11 @@ function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
 
                     ui.Chat(string.format("/p %s start", buff_name))
                 end
+                if buffSetting.effect_check == 1 then
+                    local handle = session.GetMyHandle();
+                    local actor = world.GetActor(handle)
+                    pcall(effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0) or nil);
+                end
                 MUTEKI2_ADD_CIRCLE_BUFF(buff, control)
 
                 -- elseif msg == 'BUFF_UPDATE' and buffid ~= 407 then
@@ -397,6 +403,11 @@ function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
                 if buffSetting.isEffect then
 
                     ui.Chat(string.format("/p %s start", buff_name))
+                end
+                if buffSetting.effect_check == 1 then
+                    local handle = session.GetMyHandle();
+                    local actor = world.GetActor(handle)
+                    pcall(effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0) or nil);
                 end
                 if buffid == 4483 or buffid == 4757 then
 
@@ -463,12 +474,25 @@ function _MUTEKI2_ADD_CIRCLE_BUFF_TIMEUPDATE(time)
     local buffid = time:GetUserIValue("BUFF_ID")
     local buff = MUTEKI2_GET_BUFF(buffid)
     local curTime = buff.time
-
-    if curTime <= 0 or curTime >= 60000 then
+    -- print("test")
+    local setting_time = g.settings.hiddenBuffTime * 1000
+    -- print(setting_time)
+    -- "hiddenBuffTime":300
+    if curTime <= 0 or curTime >= setting_time then
         return 0
     else
+        if curTime <= 60000 and curTime >= 10000 then
+            time:SetText(string.format('{@st43}%.1f', curTime / 1000))
+        elseif curTime < 10000 and curTime >= 5000 then
+            time:SetText(string.format('{@st43}{#FF4500}%.1f', curTime / 1000))
+        elseif curTime <= 5000 then
+            time:SetText(string.format('{@st43}{#FF0000}%.1f', curTime / 1000))
+        else
+            local minutes = math.floor(curTime / 60000)
+            time:SetText(string.format("{@st43}%d%s", minutes, "min"))
 
-        time:SetText(string.format('{@st43}%.1f', curTime / 1000))
+        end
+        -- time:SetText(string.format('{@st43}%.1f', curTime / 1000))
         -- time:SetText(string.format('{ol}{S22}%.1f', curTime / 1000))
         time:AdjustFontSizeByWidth(45)
         return 1

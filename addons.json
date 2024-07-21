@@ -222,10 +222,10 @@
 		"name" : "muteki2ex",
 		"file" : "muteki2ex",
 		"extension" : "ipf",
-		"fileVersion" : "v2.0.4",
+		"fileVersion" : "v2.0.5",
 		"releaseTag" : "muteki2ex",
 		"unicode" : "⛄",
-		"description" : "muteki2exの改造版。アイコンモード、オーバーロードレイドのCD管理、パーティーチャットのお知らせ機能追加。<br>Modified version of muteki2ex.Added icon mode, overload raid CD management, and party chat notification.<br>muteki2ex의 개조 버전. 아이콘 모드, 오버로드 레이드 CD 관리, 파티 채팅 알림 기능 추가.",
+		"description" : "WRIT様作成のmuteki2exの改造版。アイコンモード、オーバーロードレイドのCD管理、パーティーチャットのお知らせ機能追加。with effect機能復活。<br>Modified version of muteki2ex created by WRIT. Added icon mode, overload raid CD management, party chat notification function, and with effect function.<br>WRIT님이 만든 muteki2ex의 모드 버전. 아이콘 모드, 오버로드 레이드 CD 관리, 파티 채팅 알림 기능 추가, with effect 기능 부활.",
 		"tags" : []
 	},
 {

@@ -31,10 +31,11 @@ g.translations = {
         isNotNotify = "{#000000}Hide with this character{/}",
         isEffect = "{#000000}Notify buffs via PT chat{/}",
         functionNotice = "{#FFFFFF}{ol}Register by leftclick on the buff slot{nl}in the upper left corner of the screen.{/}",
-        iconrotate = "{#000000}Icon Rotate{/}"
+        iconrotate = "{#000000}Icon Rotate{/}",
+        effect = "{#000000}With effect{/}"
     },
     Japanese = {
-        gaugeDescription = '{#000000}指定されたバフの時間を超えている場合は隠されています{/}',
+        gaugeDescription = '{#000000}指定されたバフの時間を超えている場合は隠されています(秒){/}',
         positionMode = '{#000000}ポジションモード{/}',
         lockText = '{#000000}ロック{/}',
         layerLvlText = '{#000000}{s14}レイヤー{nl}レベル{/}',
@@ -46,8 +47,8 @@ g.translations = {
         isNotNotify = "{#000000}このキャラクターでは表示しない{/}",
         isEffect = "{#000000}バフをPTチャットでお知らせ{/}",
         functionNotice = "{#FFFFFF}{ol}画面左上バフスロットを{nl}左クリックでも登録出来ます。{/}",
-        iconrotate = "{#000000}アイコン回転{/}"
-        -- iconrotate = "{#000000}Icon Rotate{/}"
+        iconrotate = "{#000000}アイコン回転{/}",
+        effect = "{#000000}エフェクト付与{/}"
     },
     kr = {
         gaugeDescription = "{#000000}설정된 초 이상 남은 버프 숨기기{/}",
@@ -62,7 +63,8 @@ g.translations = {
         isNotNotify = "{#000000}이 캐릭터에서 숨기기{/}",
         isEffect = "{#000000}PT 채팅으로 버프를 알려드립니다{/}",
         functionNotice = "{#FFFFFF}{ol}화면 왼쪽 상단의 버프 슬롯을{nl}왼쪽 클릭으로도 등록할 수 있습니다.{/}",
-        iconrotate = "{#000000}아이콘 회전{/}"
+        iconrotate = "{#000000}아이콘 회전{/}",
+        effect = "{#000000}효과 적용{/}"
     }
 }
 local langCode = option.GetCurrentCountry()
@@ -286,6 +288,17 @@ function MUTEKI2_CREATE_SETTING_LIST(frame, gbox, index, buffid, buffSetting)
     isEffect:SetEventScript(ui.LBUTTONDOWN, 'MUTEKI2_CHANGE_EFFECT')
     isEffect:SetEventScriptArgNumber(ui.LBUTTONDOWN, buffid)
     isEffect:SetText(_translate('isEffect'))
+
+    -- local effect_text = list:CreateOrGetControl('richtext', 'effect_text', 375, 120, 200, 35)
+    -- AUTO_CAST(effect_text)
+    -- effect_text:SetText(_translate('effect'))
+
+    local effect_check = list:CreateOrGetControl('checkbox', 'effect_check', 300, 115, 35, 35)
+    AUTO_CAST(effect_check)
+    effect_check:SetCheck(buffSetting.effect_check)
+    effect_check:SetEventScript(ui.LBUTTONDOWN, 'MUTEKI2_CHANGE_EFFECT')
+    effect_check:SetEventScriptArgNumber(ui.LBUTTONDOWN, buffid)
+    effect_check:SetText(_translate('effect'))
 end
 
 function MUTEKI2_CHANGE_BUFFID(list, control, oldID, argNum)
@@ -399,7 +412,13 @@ function MUTEKI2_CHANGE_NOTIFY(list, control, isChecked, buffid)
 end
 
 function MUTEKI2_CHANGE_EFFECT(list, control, isChecked, buffid)
-    g.settings.buffList[tostring(buffid)].isEffect = (control:IsChecked() == 1) and true or false
+    if control:GetName() == "isEffect" then
+        g.settings.buffList[tostring(buffid)].isEffect = (control:IsChecked() == 1) and true or false
+    elseif control:GetName() == "effect_check" then
+        g.settings.buffList[tostring(buffid)].effect_check = control:IsChecked()
+    end
+
+    -- MUTEKI2_LOAD_SETTINGS()
     MUTEKI2_SAVE_SETTINGS()
 end
 
