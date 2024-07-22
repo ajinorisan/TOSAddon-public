@@ -57,114 +57,25 @@ function indun_list_viewer_load_settings()
         g.settings = {
             time = 1702846800,
             reset = false,
-            hide = false,
-            layer = 9,
-            order = 99
+            [g.cid] = {
+
+                name = g.charname,
+                layer = 9,
+                order = 99,
+                hide = false
+            }
         }
         acutil.saveJSON(g.new_settingsFileLoc, g.settings)
     end
 
-    --[[local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    local changeFileLoc = string.format('../addons/%s/change.json', addonNameLower)
+    local changefile = io.open(changeFileLoc, "r")
+    if changefile then
+        local content = changefile:read("*all")
+        file:close()
+        g.change = json.decode(content)
     end
 
-    if not settings then
-        settings = {
-            raid_reset_time = 1702846800,
-            charactors = {} -- 初期化として空のテーブルを設定
-        }
-
-        local accountInfo = session.barrack.GetMyAccount()
-        local cnt = accountInfo:GetBarrackPCCount()
-
-        for i = 0, cnt - 1 do
-            local pcInfo = accountInfo:GetBarrackPCByIndex(i)
-            local pcName = pcInfo:GetName()
-
-            -- 新しいキャラのデータを一時的な変数に作成
-            local newCharData = {
-                name = pcName,
-                raid_count = {
-                    SlogutisH = "-",
-                    SlogutisN = "-",
-                    UpinisH = "-",
-                    UpinisN = "-",
-                    RozeH = "-",
-                    RozeN = "-",
-                    TurbulentH = "-",
-                    TurbulentN = "-",
-                    MerreginaN = "-"
-                },
-                buffid = {},
-                memo = "",
-                check = 0,
-                layer = 9,
-                order = 0
-            }
-
-            -- 一時的な変数を settings.charactors に挿入
-            table.insert(settings.charactors, newCharData)
-        end
-    else
-        -- settings.charactors が存在する場合、名前が一致するか確認して追加
-        local accountInfo = session.barrack.GetMyAccount()
-        local cnt = accountInfo:GetBarrackPCCount()
-
-        for i = 0, cnt - 1 do
-            local pcInfo = accountInfo:GetBarrackPCByIndex(i)
-            local pcName = pcInfo:GetName()
-
-            local found = false
-            for _, charData in ipairs(settings.charactors) do
-                if charData.name == pcName then
-                    found = true
-                    break
-                end
-            end
-
-            if not found then
-                -- 新しいキャラのデータを一時的な変数に作成
-                local newCharData = {
-                    name = pcName,
-                    raid_count = {
-                        SlogutisH = "-",
-                        SlogutisN = "-",
-                        UpinisH = "-",
-                        UpinisN = "-",
-                        RozeH = "-",
-                        RozeN = "-",
-                        TurbulentH = "-",
-                        TurbulentN = "-",
-                        MerreginaN = "-"
-                    },
-                    buffid = {},
-                    memo = "",
-                    check = 0,
-                    layer = 9,
-                    order = 0
-                }
-
-                -- 一時的な変数を settings.charactors に挿入
-                table.insert(settings.charactors, newCharData)
-            end
-
-            for _, charData in ipairs(settings.charactors) do
-                -- 既存のキーが存在するかどうかをチェック
-                if not charData.raid_count.MerreginaN then
-                    -- 既存のキーが存在しない場合のみ新しいキーを追加
-                    charData.raid_count.MerreginaN = "-" -- 新しいキーを追加
-                end
-            end
-
-        end
-    end
-
-    g.settings = settings
-
-    indun_list_viewer_save_settings()]]
 end
 
 g.first = 0
@@ -173,8 +84,10 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
-    -- g.personal = g.personal or {}
+    g.cid = session.GetMySession():GetCID();
+    g.charname = GETMYPCNAME()
     g.lang = option.GetCurrentCountry()
+    g.change = g.change or {}
     g.first = g.first + 1
 
     local pc = GetMyPCObject();
@@ -184,12 +97,33 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
         addon:RegisterMsg('GAME_START', "indun_list_viewer_load_settings")
         addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
-        addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
-        addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
-        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_count_loginname")
-        addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_raid_count")
-        g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
-        g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+        -- addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
+        -- addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
+        -- addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_count_loginname")
+        -- addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_raid_count")
+        -- g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
+        -- g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+        local accountInfo = session.barrack.GetMyAccount()
+        local barrackPCCount = accountInfo:GetBarrackPCCount()
+        for i = 0, barrackPCCount - 1 do
+            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
+            local barrackPCName = barrackPCInfo:GetName()
+
+            local accountInfo = session.barrack.GetMyAccount()
+            local cnt = accountInfo:GetPCCount()
+            for i = 0, cnt - 1 do
+                local pcInfo = accountInfo:GetPCByIndex(i)
+                local pcApc = pcInfo:GetApc()
+                local pcName = pcApc:GetName()
+                local pccid = pcInfo:GetCID()
+                if barrackPCName == pcName then
+                    local changeFileLoc = string.format('../addons/%s/change.json', addonNameLower)
+                    g.change[pcName] = pccid
+                    acutil.saveJSON(changeFileLoc, g.change)
+                end
+            end
+        end
+
     end
 end
 
@@ -260,262 +194,269 @@ function indun_list_viewer_raid_reset()
     indun_list_viewer_get_raid_count()
 end
 
-function indun_list_viewer_frame_init()
-
-    local frame = ui.GetFrame("indun_list_viewer")
-    frame:SetSkinName('None')
-    frame:SetTitleBarSkin("None")
-    frame:Resize(35, 35)
-    frame:SetPos(665, 0)
-
-    local btn = frame:CreateOrGetControl('button', 'btn', 0, 0, 35, 35)
-    btn:SetSkinName("None")
-    btn:SetText("{img sysmenu_sys 35 35}")
-    btn:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_title_frame_open")
-
-    if g.lang == "Japanese" then
-        btn:SetTextTooltip("{ol}Indun List Viewer{nl}キャラ毎のレイド回数表示{nl}" ..
-                               "{@st45r14}※掃討はキャラ毎の最終ログイン時の値なので、期限切れなどで実際とは異なる場合があります")
-    else
-        btn:SetTextTooltip("{ol}Indun List Viewer{nl}Raid count display per character{nl}" ..
-                               "{@st45r14}※The AutoClear is the value at the last login for each character{nl}" ..
-                               "and may differ from the actual value due to expiration or other reasons.")
-    end
-end
-
-local function sortByLayerAndOrder(a, b)
-    if a.layer ~= b.layer then
-        return a.layer < b.layer
-    else
-        return a.order < b.order
-    end
-end
-
-function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
-    -- print(tostring(selectedKey))
-
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-    -- print(LoginName)
-    for _, charData in ipairs(g.settings.charactors) do
-        if charData.name == LoginName then
-            local mainSession = session.GetMainSession();
-            local pcJobInfo = mainSession:GetPCJobInfo();
-            local jobCount = pcJobInfo:GetJobCount();
-            charData.jobid = ""
-            for i = 0, jobCount - 1 do
-                local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
-                charData.jobid = charData.jobid .. "/" .. tonumber(jobInfo.jobID)
-                -- local jobCls = GetClassByType('Job', jobInfo.jobID);
-                -- ui.AddDropListItem(jobCls.Name, nil, jobCls.ClassID);
-            end
-            charData.president_jobid = tonumber(selectedKey)
-
-            indun_list_viewer_save_settings()
-            break
-        end
-    end
-
-    ChangeRepresentationClass(selectedKey);
-    -- base["STATUS_SELET_REPRESENTATION_CLASS"](selectedIndex, selectedKey)
-end
-
-function indun_list_viewer_removing_character()
-    local accountInfo = session.barrack.GetMyAccount()
-    local cnt = accountInfo:GetBarrackPCCount()
-    local currentCharacters = {}
-
-    for i = 0, cnt - 1 do
-        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
-        local pcName = pcInfo:GetName()
-        -- print(pcName)
-        currentCharacters[pcName] = true
-    end
-
-    -- settings.charactors から存在しないキャラクターを削除
-    for i = #g.settings.charactors, 1, -1 do
-        local charData = g.settings.charactors[i]
-        if not currentCharacters[charData.name] then
-            -- print(string.format("[%s] Removing character: %s", addonNameLower, charData.name))
-            table.remove(g.settings.charactors, i)
-        end
-    end
-    indun_list_viewer_save_settings()
-end
-
-function indun_list_viewer_BARRACK_TO_GAME()
-    local frame = ui.GetFrame("barrack_charlist")
-    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
-    g.layer = layer
-
-    local gsframe = ui.GetFrame("barrack_gamestart")
-    local checkbtn = gsframe:GetChildRecursively("hidelogin")
-    AUTO_CAST(checkbtn)
-    checkbtn:SetCheck(1)
-    barrack.SetHideLogin(1);
-
-    -- BARRACK_TO_GAME_OLD()
-    base["BARRACK_TO_GAME"]()
-end
-
-function indun_list_viewer_get_count_loginname()
-
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-
-    for _, charData in pairs(g.settings.charactors) do
-        if charData.name == LoginName then
-            charData.raid_count = {
-                SlogutisH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType),
-                SlogutisN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 688).PlayPerResetType),
-                UpinisH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType),
-                UpinisN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 685).PlayPerResetType),
-                RozeH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType),
-                RozeN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType),
-                TurbulentH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType),
-                TurbulentN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType),
-                MerreginaN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 695).PlayPerResetType)
-            }
-
-            local handle = session.GetMyHandle()
-            local buffframe = ui.GetFrame("buff")
-            local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
-            local buffslotcount = buffslotset:GetChildCount()
-            local iconcount = 0
-
-            for i = 0, buffslotcount - 1 do
-                local achild = buffslotset:GetChildByIndex(i)
-                local aicon = achild:GetIcon()
-                local aiconinfo = aicon:GetInfo()
-                local abuff = info.GetBuff(handle, aiconinfo.type)
-
-                if abuff ~= nil then
-                    iconcount = iconcount + 1
-                end
-            end
-
-            local sweepbuff_table = {80015, 80016, 80017, 80030, 80031, 80032}
-
-            for _, buffid in ipairs(sweepbuff_table) do
-                local found = false
-
-                for i = 0, iconcount - 1 do
-                    local child = buffslotset:GetChildByIndex(i)
-                    local icon = child:GetIcon()
-                    local iconinfo = icon:GetInfo()
-                    local buff = info.GetBuff(handle, iconinfo.type)
-
-                    if tostring(buff.buffID) == tostring(buffid) then
-                        charData.buffid[tostring(buffid)] = buff.over
-                        found = true
-                        break
-                    end
-                end
-
-                if not found then
-                    charData.buffid[tostring(buffid)] = 0
-                end
-            end
-
-            indun_list_viewer_save_settings()
-        end
-    end
-
-end
-
 function indun_list_viewer_get_raid_count()
 
-    local LoginName = session.GetMySession():GetPCApc():GetName()
+    local function createData()
+        local data = {
+            S_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType),
+            S_N = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 688).PlayPerResetType),
+            U_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType),
+            U_N = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 685).PlayPerResetType),
+            R_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType),
+            R_N = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType),
+            T_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType),
+            T_N = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType),
+            M_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 697).PlayPerResetType),
+            M_N = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 695).PlayPerResetType)
+        }
 
-    for _, charData in pairs(g.settings.charactors) do
-        if charData.name == LoginName then
-            charData.raid_count = {
-                SlogutisH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType),
-                SlogutisN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 688).PlayPerResetType),
-                UpinisH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType),
-                UpinisN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 685).PlayPerResetType),
-                RozeH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType),
-                RozeN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType),
-                TurbulentH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType),
-                TurbulentN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType),
-                MerreginaN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 695).PlayPerResetType)
-            }
-        end
+        return data
     end
-    indun_list_viewer_save_settings()
-    -- indun_list_viewer_load_settings()
 
-    indun_list_viewer_get_sweep_count()
+    local function insertbuff()
+        local buffframe = ui.GetFrame("buff")
+        local handle = session.GetMyHandle()
+        local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
+        local buffslotcount = buffslotset:GetChildCount()
 
-end
+        -- 複数のバッファIDをリストとして指定
+        local sweepbuff_table = {
+            R_S = 80015,
+            T_S = {80016, 80017}, -- 複数のバッファIDをリストとして指定
+            U_S = 80030,
+            S_S = 80031,
+            M_S = 80032
+        }
 
-function indun_list_viewer_get_sweep_count()
-    local accountInfo = session.barrack.GetMyAccount()
-    local cnt = accountInfo:GetBarrackPCCount()
+        local buffs = {}
 
-    for i = 0, cnt - 1 do
-        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
-        local pcName = pcInfo:GetName()
-        local LoginName = session.GetMySession():GetPCApc():GetName()
+        for raid in pairs(sweepbuff_table) do
+            buffs[raid] = 0
+        end
 
-        local sweepbuff_table = {80015, 80016, 80017, 80030, 80031, 80032}
+        for i = 0, buffslotcount - 1 do
+            local child = buffslotset:GetChildByIndex(i)
+            local icon = child:GetIcon()
+            local iconinfo = icon:GetInfo()
+            local type = iconinfo.type
+            local buff = info.GetBuff(handle, iconinfo.type)
 
-        for _, charData in pairs(g.settings.charactors) do
-            if charData.name == LoginName then
-                local handle = session.GetMyHandle()
-                local buffframe = ui.GetFrame("buff")
-                local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
-                local buffslotcount = buffslotset:GetChildCount()
-                local iconcount = 0
-
-                for i = 0, buffslotcount - 1 do
-                    local achild = buffslotset:GetChildByIndex(i)
-                    local aicon = achild:GetIcon()
-                    local aiconinfo = aicon:GetInfo()
-                    local abuff = info.GetBuff(handle, aiconinfo.type)
-
-                    if abuff ~= nil then
-                        iconcount = iconcount + 1
-                    end
-                end
-
-                for _, buffid in ipairs(sweepbuff_table) do
-                    local found = false
-
-                    for i = 0, iconcount - 1 do
-                        local child = buffslotset:GetChildByIndex(i)
-                        local icon = child:GetIcon()
-                        local iconinfo = icon:GetInfo()
-                        local buff = info.GetBuff(handle, iconinfo.type)
-
-                        if tostring(buff.buffID) == tostring(buffid) then
-                            charData.buffid[tostring(buffid)] = buff.over
-                            found = true
-                            break
-                        end
-                    end
-
-                    if not found then
-                        charData.buffid[tostring(buffid)] = 0
-                    end
-                end
-            elseif charData.name == pcName then
-
-                -- charData.name が pcName と一致する場合の処理
-                for _, buffid in ipairs(sweepbuff_table) do
-                    local Value = charData.buffid[tostring(buffid)]
-
-                    if Value == nil or type(Value) ~= "number" then
-                        charData.buffid[tostring(buffid)] = "-"
-                    end
+            for raid, buffid in pairs(sweepbuff_table) do
+                if type == buffid or (type == 80016 and raid == "T_S") or (type == 80017 and raid == "T_S") then
+                    buffs[raid] = buff.over
+                    break
                 end
             end
         end
+
+        return buffs
     end
 
-    indun_list_viewer_save_settings()
-    -- indun_list_viewer_load_settings()
+    local path = string.format('../addons/%s/%s.json', addonNameLower, g.cid)
+
+    local file = io.open(path, "r")
+    local data = createData()
+    local buffs = insertbuff()
+
+    -- `data` テーブルに `buffs` を追加
+    for k, v in pairs(buffs) do
+        data[k] = v
+    end
+
+    -- ファイルが存在するかどうかをチェックし、ファイルが存在する場合は閉じる
+    if file then
+        file:close()
+    end
+
+    -- JSON をファイルに保存
+    acutil.saveJSON(path, data)
+
 end
 
 function indun_list_viewer_title_frame_open()
+
+    local function sortByLayerAndOrder(a, b)
+        if a.layer ~= b.layer then
+            return a.layer < b.layer
+        else
+            return a.order < b.order
+        end
+    end
+
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetPCCount()
+    local sort = {}
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetPCByIndex(i)
+        local pcApc = pcInfo:GetApc()
+        local pcName = pcApc:GetName()
+        local pcCid = pcInfo:GetCID()
+        print(tostring(pcName))
+        if g.settings[pcCid] then
+
+            for cid, data in pairs(g.settings[pcCid]) do
+                print(tostring(data.name))
+                if data.name == pcName then
+                    data.order = i
+                    local sortedData = {
+                        name = pcName,
+                        order = i,
+                        layer = g.layer ~= nil and g.layer ~= data.layer and g.layer or data.layer
+                    }
+                    table.insert(sort, sortedData)
+                end
+            end
+        end
+    end
+
+    acutil.saveJSON(g.new_settingsFileLoc, g.settings)
+
+    table.sort(sort, sortByLayerAndOrder)
+    for _, data in ipairs(sort) do
+        print(string.format("Name: %s, Order: %d, Layer: %d", data.name, data.order, data.layer))
+    end
+
+    indun_list_viewer_removing_character()
+    indun_list_viewer_get_count_loginname()
+
+    local icframe = ui.CreateNewFrame("notice_on_pc", "icframe", 0, 0, 10, 10)
+    AUTO_CAST(icframe)
+    icframe:RemoveAllChild()
+
+    icframe:SetLayerLevel(99);
+
+    local titlegb = icframe:CreateOrGetControl("groupbox", "titlegb", 0, 0, 10, 10)
+    AUTO_CAST(titlegb)
+    titlegb:SetSkinName("bg")
+    titlegb:SetColorTone("FF000000");
+
+    local charname = titlegb:CreateOrGetControl("richtext", "charname", 20, 35)
+    AUTO_CAST(charname)
+    charname:SetText("{ol}CharacterName")
+
+    local hard_text = titlegb:CreateOrGetControl("richtext", "hard_text", 200, 5)
+    AUTO_CAST(hard_text)
+    hard_text:SetText("{ol}Hard Count")
+
+    local auto_text = titlegb:CreateOrGetControl("richtext", "auto_text", 360, 5)
+    AUTO_CAST(auto_text)
+    auto_text:SetText("{ol}Auto or Solo Count/ AutoClearBuff Count")
+
+    local icon_table = {"icon_item_misc_boss_Slogutis", "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze",
+                        "icon_item_misc_high_falouros", "icon_item_misc_high_transmutationSpreader",
+                        "icon_item_misc_merregina_blackpearl", "icon_item_misc_boss_Slogutis",
+                        "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze", "icon_item_misc_falouros",
+                        "icon_item_misc_transmutationSpreader"}
+
+    local y = 175
+    for i = 1, 5 do
+        local slot = titlegb:CreateOrGetControl("slot", "slot" .. i, y, 30, 25, 25)
+        AUTO_CAST(slot)
+
+        slot:SetSkinName("None");
+        slot:EnablePop(0)
+        slot:EnableDrop(0)
+        slot:EnableDrag(0)
+
+        local icon = CreateIcon(slot);
+        local iconName = icon_table[i]
+
+        icon:SetImage(iconName)
+
+        y = y + 30
+    end
+    y = 350
+    for i = 6, 11 do
+        if i <= 9 then
+            local slot = titlegb:CreateOrGetControl("slot", "slot" .. i, y + 10, 30, 25, 25)
+            AUTO_CAST(slot)
+
+            slot:SetSkinName("None");
+            slot:EnablePop(0)
+            slot:EnableDrop(0)
+            slot:EnableDrag(0)
+
+            local icon = CreateIcon(slot);
+            local iconName = icon_table[i]
+
+            icon:SetImage(iconName)
+
+            y = y + 70
+        else
+            local slot = titlegb:CreateOrGetControl("slot", "slot" .. i, y, 30, 25, 25)
+            AUTO_CAST(slot)
+
+            slot:SetSkinName("None");
+            slot:EnablePop(0)
+            slot:EnableDrop(0)
+            slot:EnableDrag(0)
+
+            local icon = CreateIcon(slot);
+            local iconName = icon_table[i]
+            icon:SetImage(iconName)
+
+            y = y + 30
+        end
+    end
+
+    local mapframe = ui.GetFrame('worldmap2_mainmap')
+    local screenWidth = mapframe:GetWidth()
+    local frameWidth = 900 + 70
+    -- local x = (screenWidth - frameWidth) / 2
+
+    icframe:SetSkinName("bg")
+    if g.settings.mode == nil then
+        g.settings.mode = 0
+    end
+    -- icframe:SetSkinName("chat_window")
+    if g.settings.mode == 1 then
+        icframe:SetPos(665, 35)
+    else
+        icframe:SetPos(665, 5)
+    end
+    titlegb:Resize(900 + 70, 55)
+
+    titlegb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
+    titlegb:SetTextTooltip("右クリックで閉じます。{nl}Right-click to close.")
+
+    local close = titlegb:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
+
+    local ccbtn = titlegb:CreateOrGetControl('button', 'ccbtn', 40, 5, 30, 30)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    -- ccbtn:SetGravity(ui.LEFTT, ui.TOP)
+    ccbtn:SetText("{img barrack_button_normal 30 30}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+
+    local mode_check = titlegb:CreateOrGetControl('checkbox', 'mode_check', 80, 5, 30, 30)
+    AUTO_CAST(mode_check)
+
+    mode_check:SetCheck(g.settings.mode)
+    mode_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
+    mode_check:SetTextTooltip(
+        "チェックを入れるとスクロールモードに切替{nl}Switch to scroll mode when checked")
+
+    local memo_text = titlegb:CreateOrGetControl("richtext", "memo_text", 700 + 70, 35)
+    AUTO_CAST(memo_text)
+    memo_text:SetText("{ol}Memo")
+
+    local display_text = titlegb:CreateOrGetControl("richtext", "display_text", 820 + 70, 35)
+    AUTO_CAST(display_text)
+    display_text:SetText("{ol}Display")
+    display_text:SetTextTooltip(
+        "チェックしたキャラはレイド回数非表示{nl}Checked characters hide raid count")
+
+    icframe:ShowWindow(1)
+
+    indun_list_viewer_frame_open(icframe)
+end
+
+--[[function indun_list_viewer_title_frame_open()
 
     local accountInfo = session.barrack.GetMyAccount();
     local cnt = accountInfo:GetPCCount();
@@ -678,6 +619,227 @@ function indun_list_viewer_title_frame_open()
     icframe:ShowWindow(1)
 
     indun_list_viewer_frame_open(icframe)
+end]]
+
+function indun_list_viewer_frame_init()
+
+    local frame = ui.GetFrame("indun_list_viewer")
+    frame:SetSkinName('None')
+    frame:SetTitleBarSkin("None")
+    frame:Resize(35, 35)
+    frame:SetPos(665, 0)
+
+    local btn = frame:CreateOrGetControl('button', 'btn', 0, 0, 35, 35)
+    btn:SetSkinName("None")
+    btn:SetText("{img sysmenu_sys 35 35}")
+    btn:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_title_frame_open")
+
+    if g.lang == "Japanese" then
+        btn:SetTextTooltip("{ol}Indun List Viewer{nl}キャラ毎のレイド回数表示{nl}" ..
+                               "{@st45r14}※掃討はキャラ毎の最終ログイン時の値なので、期限切れなどで実際とは異なる場合があります")
+    else
+        btn:SetTextTooltip("{ol}Indun List Viewer{nl}Raid count display per character{nl}" ..
+                               "{@st45r14}※The AutoClear is the value at the last login for each character{nl}" ..
+                               "and may differ from the actual value due to expiration or other reasons.")
+    end
+end
+
+function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
+    -- print(tostring(selectedKey))
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+    -- print(LoginName)
+    for _, charData in ipairs(g.settings.charactors) do
+        if charData.name == LoginName then
+            local mainSession = session.GetMainSession();
+            local pcJobInfo = mainSession:GetPCJobInfo();
+            local jobCount = pcJobInfo:GetJobCount();
+            charData.jobid = ""
+            for i = 0, jobCount - 1 do
+                local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
+                charData.jobid = charData.jobid .. "/" .. tonumber(jobInfo.jobID)
+                -- local jobCls = GetClassByType('Job', jobInfo.jobID);
+                -- ui.AddDropListItem(jobCls.Name, nil, jobCls.ClassID);
+            end
+            charData.president_jobid = tonumber(selectedKey)
+
+            indun_list_viewer_save_settings()
+            break
+        end
+    end
+
+    ChangeRepresentationClass(selectedKey);
+    -- base["STATUS_SELET_REPRESENTATION_CLASS"](selectedIndex, selectedKey)
+end
+
+function indun_list_viewer_removing_character()
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+    local currentCharacters = {}
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+        -- print(pcName)
+        currentCharacters[pcName] = true
+    end
+
+    -- settings.charactors から存在しないキャラクターを削除
+    for i = #g.settings.charactors, 1, -1 do
+        local charData = g.settings.charactors[i]
+        if not currentCharacters[charData.name] then
+            -- print(string.format("[%s] Removing character: %s", addonNameLower, charData.name))
+            table.remove(g.settings.charactors, i)
+        end
+    end
+    indun_list_viewer_save_settings()
+end
+
+function indun_list_viewer_BARRACK_TO_GAME()
+    local frame = ui.GetFrame("barrack_charlist")
+    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
+    g.layer = layer
+
+    local gsframe = ui.GetFrame("barrack_gamestart")
+    local checkbtn = gsframe:GetChildRecursively("hidelogin")
+    AUTO_CAST(checkbtn)
+    checkbtn:SetCheck(1)
+    barrack.SetHideLogin(1);
+
+    -- BARRACK_TO_GAME_OLD()
+    base["BARRACK_TO_GAME"]()
+end
+
+function indun_list_viewer_get_count_loginname()
+
+    local LoginName = session.GetMySession():GetPCApc():GetName()
+
+    for _, charData in pairs(g.settings.charactors) do
+        if charData.name == LoginName then
+            charData.raid_count = {
+                SlogutisH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType),
+                SlogutisN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 688).PlayPerResetType),
+                UpinisH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType),
+                UpinisN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 685).PlayPerResetType),
+                RozeH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 681).PlayPerResetType),
+                RozeN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 679).PlayPerResetType),
+                TurbulentH = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 678).PlayPerResetType),
+                TurbulentN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 676).PlayPerResetType),
+                MerreginaN = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 695).PlayPerResetType)
+            }
+
+            local handle = session.GetMyHandle()
+            local buffframe = ui.GetFrame("buff")
+            local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
+            local buffslotcount = buffslotset:GetChildCount()
+            local iconcount = 0
+
+            for i = 0, buffslotcount - 1 do
+                local achild = buffslotset:GetChildByIndex(i)
+                local aicon = achild:GetIcon()
+                local aiconinfo = aicon:GetInfo()
+                local abuff = info.GetBuff(handle, aiconinfo.type)
+
+                if abuff ~= nil then
+                    iconcount = iconcount + 1
+                end
+            end
+
+            local sweepbuff_table = {80015, 80016, 80017, 80030, 80031, 80032}
+
+            for _, buffid in ipairs(sweepbuff_table) do
+                local found = false
+
+                for i = 0, iconcount - 1 do
+                    local child = buffslotset:GetChildByIndex(i)
+                    local icon = child:GetIcon()
+                    local iconinfo = icon:GetInfo()
+                    local buff = info.GetBuff(handle, iconinfo.type)
+
+                    if tostring(buff.buffID) == tostring(buffid) then
+                        charData.buffid[tostring(buffid)] = buff.over
+                        found = true
+                        break
+                    end
+                end
+
+                if not found then
+                    charData.buffid[tostring(buffid)] = 0
+                end
+            end
+
+            indun_list_viewer_save_settings()
+        end
+    end
+
+end
+
+function indun_list_viewer_get_sweep_count()
+    local accountInfo = session.barrack.GetMyAccount()
+    local cnt = accountInfo:GetBarrackPCCount()
+
+    for i = 0, cnt - 1 do
+        local pcInfo = accountInfo:GetBarrackPCByIndex(i)
+        local pcName = pcInfo:GetName()
+        local LoginName = session.GetMySession():GetPCApc():GetName()
+
+        local sweepbuff_table = {80015, 80016, 80017, 80030, 80031, 80032}
+
+        for _, charData in pairs(g.settings.charactors) do
+            if charData.name == LoginName then
+                local handle = session.GetMyHandle()
+                local buffframe = ui.GetFrame("buff")
+                local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
+                local buffslotcount = buffslotset:GetChildCount()
+                local iconcount = 0
+
+                for i = 0, buffslotcount - 1 do
+                    local achild = buffslotset:GetChildByIndex(i)
+                    local aicon = achild:GetIcon()
+                    local aiconinfo = aicon:GetInfo()
+                    local abuff = info.GetBuff(handle, aiconinfo.type)
+
+                    if abuff ~= nil then
+                        iconcount = iconcount + 1
+                    end
+                end
+
+                for _, buffid in ipairs(sweepbuff_table) do
+                    local found = false
+
+                    for i = 0, iconcount - 1 do
+                        local child = buffslotset:GetChildByIndex(i)
+                        local icon = child:GetIcon()
+                        local iconinfo = icon:GetInfo()
+                        local buff = info.GetBuff(handle, iconinfo.type)
+
+                        if tostring(buff.buffID) == tostring(buffid) then
+                            charData.buffid[tostring(buffid)] = buff.over
+                            found = true
+                            break
+                        end
+                    end
+
+                    if not found then
+                        charData.buffid[tostring(buffid)] = 0
+                    end
+                end
+            elseif charData.name == pcName then
+
+                -- charData.name が pcName と一致する場合の処理
+                for _, buffid in ipairs(sweepbuff_table) do
+                    local Value = charData.buffid[tostring(buffid)]
+
+                    if Value == nil or type(Value) ~= "number" then
+                        charData.buffid[tostring(buffid)] = "-"
+                    end
+                end
+            end
+        end
+    end
+
+    indun_list_viewer_save_settings()
+    -- indun_list_viewer_load_settings()
 end
 
 function indun_list_viewer_modechange(frame, ctrl, argStr, argNum)
