@@ -85,19 +85,33 @@ function indun_list_viewer_load_settings()
                 if not g.settings[pccid] then
                     g.settings[pccid] = {
                         name = pcName,
-                        layer = g.layer or 9,
-                        order = j or 99,
+                        layer = 9,
+                        order = j,
                         hide = false,
-                        memo = ""
+                        memo = "",
+                        president_jobid = "",
+                        jobid = ""
                     }
                 end
+
+                if g.layer ~= nil and g.layer ~= g.settings[pccid].layer then
+                    g.settings[pccid].layer = g.layer
+                end
+
             end
         end
     end
     g.layer = nil
-    -- ループ外で一度だけ呼び出し.
 
     acutil.saveJSON(g.new_settingsFileLoc, g.settings)
+
+    g.sortedSettings = {}
+    for pccid, data in pairs(g.settings) do
+        if type(data) == "table" and data.layer and data.order then
+            data.cid = pccid
+            table.insert(g.sortedSettings, data)
+        end
+    end
 
     local function sortByLayerAndOrder(a, b)
         if a.layer ~= b.layer then
@@ -107,18 +121,10 @@ function indun_list_viewer_load_settings()
         end
     end
 
-    -- ソートの準備
-    g.sortedSettings = {}
-    for pccid, data in pairs(g.settings) do
-        if type(data) == "table" and data.layer and data.order then
-            data.cid = pccid
-            table.insert(g.sortedSettings, data)
-        end
-    end
-
-    -- ソート
     table.sort(g.sortedSettings, sortByLayerAndOrder)
 
+    indun_list_viewer_get_raid_count()
+    indun_list_viewer_frame_init()
     -- 並べ替え後の結果を表示（デバッグ用）
     for _, data in ipairs(g.sortedSettings) do
         print(string.format("Name: %s, Order: %d, Layer: %d", data.name, data.order, data.layer))
@@ -132,10 +138,9 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
-    g.cid = session.GetMySession():GetCID();
-    g.charname = GETMYPCNAME()
-    g.lang = option.GetCurrentCountry()
     g.change = g.change or {}
+    g.cid = session.GetMySession():GetCID();
+    g.lang = option.GetCurrentCountry()
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -143,20 +148,49 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     if mapCls.MapType == "City" then
 
         addon:RegisterMsg('GAME_START', "indun_list_viewer_load_settings")
-        addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
+        -- addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
+        g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
+        acutil.setupEvent(addon, "BARRACK_TO_GAME", "indun_list_viewer_BARRACK_TO_GAME")
+        acutil.setupEvent(addon, "APPS_TRY_LEAVE", "indun_list_viewer_APPS_TRY_LEAVE")
         if g.loaded == true then
             addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
         end
         if g.loaded == false then
             g.loaded = true
         end
-        -- addon:RegisterMsg('GAME_START', "indun_list_viewer_get_raid_count")
-        -- addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_count_loginname")
-        -- addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_raid_count")
-        -- g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
-        -- g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
 
     end
+end
+
+function indun_list_viewer_APPS_TRY_LEAVE(frame, msg)
+    indun_list_viewer_get_raid_count()
+end
+
+function indun_list_viewer_BARRACK_TO_GAME(frame, msg)
+    local frame = ui.GetFrame("barrack_charlist")
+    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
+    g.layer = layer
+    local gsframe = ui.GetFrame("barrack_gamestart")
+    local checkbtn = gsframe:GetChildRecursively("hidelogin")
+    AUTO_CAST(checkbtn)
+    checkbtn:SetCheck(1)
+    barrack.SetHideLogin(1);
+end
+
+function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
+
+    local mainSession = session.GetMainSession();
+    local pcJobInfo = mainSession:GetPCJobInfo();
+    local jobCount = pcJobInfo:GetJobCount();
+    g.settings[g.cid].jobid = ""
+    for i = 0, jobCount - 1 do
+        local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
+        g.settings[g.cid].jobid = g.settings[g.cid].jobid .. "/" .. jobInfo.jobID
+    end
+    g.settings[g.cid].president_jobid = selectedKey
+    acutil.saveJSON(g.new_settingsFileLoc, g.settings)
+    ChangeRepresentationClass(selectedKey);
+
 end
 
 function indun_list_viewer_raid_reset_time()
@@ -165,25 +199,28 @@ function indun_list_viewer_raid_reset_time()
     local currentWeekday = tonumber(os.date("%w", currentTime))
     -- 月曜日からの日数を計算
     local daysUntilMonday = (currentWeekday + 7 - 1) % 7
+    -- 今日の日付から daysUntilMonday を引く
+    local targetDate = os.date("*t", currentTime - (daysUntilMonday * 24 * 60 * 60))
+    targetDate.hour = 6
+    targetDate.min = 0
+    targetDate.sec = 0
     -- 月曜日の朝6時の日時を計算
-    local mondayAM6 = os.time({
-        year = os.date("%Y", currentTime),
-        month = os.date("%m", currentTime),
-        day = os.date("%d", currentTime) - daysUntilMonday,
-        hour = 6,
-        min = 0,
-        sec = 0
-    })
-
+    local mondayAM6 = os.time(targetDate)
+    -- 月曜日が未来の日付の場合、前週の月曜日に変更
+    if mondayAM6 > currentTime then
+        targetDate = os.date("*t", mondayAM6 - (7 * 24 * 60 * 60))
+        mondayAM6 = os.time(targetDate)
+    end
+    -- 経過時間を計算
     local elapsed_time = currentTime - g.settings.time
-    local nextreset = 604800 -- 次の月曜日の6時までの秒数
+    local nextreset = 604800 -- 次の月曜日の6時までの秒数（1週間）
     if elapsed_time > nextreset then
         g.settings.time = mondayAM6
         acutil.saveJSON(g.new_settingsFileLoc, g.settings)
         indun_list_viewer_raid_reset()
         return
     end
-    indun_list_viewer_get_raid_count()
+
 end
 
 function indun_list_viewer_raid_reset()
@@ -219,7 +256,7 @@ function indun_list_viewer_raid_reset()
     else
         ui.SysMsg("Raid counts were initialized.")
     end
-    indun_list_viewer_get_raid_count()
+
 end
 
 function indun_list_viewer_get_raid_count()
@@ -247,10 +284,9 @@ function indun_list_viewer_get_raid_count()
         local buffslotset = GET_CHILD_RECURSIVELY(buffframe, "buffslot")
         local buffslotcount = buffslotset:GetChildCount()
 
-        -- 複数のバッファIDをリストとして指定
         local sweepbuff_table = {
             R_S = 80015,
-            T_S = {80016, 80017}, -- 複数のバッファIDをリストとして指定
+            T_S = {80016, 80017},
             U_S = 80030,
             S_S = 80031,
             M_S = 80032
@@ -283,22 +319,21 @@ function indun_list_viewer_get_raid_count()
     local path = string.format('../addons/%s/%s.json', addonNameLower, g.cid)
 
     local file = io.open(path, "r")
+    if not file then
+        file = io.open(path, "w")
+        file:close()
+    else
+        file:close()
+    end
+
     local data = createData()
     local buffs = insertbuff()
 
-    -- `data` テーブルに `buffs` を追加
     for k, v in pairs(buffs) do
         data[k] = v
     end
 
-    -- ファイルが存在するかどうかをチェックし、ファイルが存在する場合は閉じる
-    if file then
-        file:close()
-    end
-
-    -- JSON をファイルに保存
     acutil.saveJSON(path, data)
-
 end
 
 function indun_list_viewer_frame_init()
@@ -379,7 +414,102 @@ function indun_list_viewer_title_frame_open()
     AUTO_CAST(auto_text)
     auto_text:SetText("{ol}" .. ac_text)
 
-    local icon_table = {"icon_item_misc_boss_Slogutis", "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze",
+    local icon_table = {
+        [1] = {
+            iconName = "icon_item_misc_merregina_blackpearl",
+            hard = 697
+        },
+        [2] = {
+            iconName = "icon_item_misc_boss_Slogutis",
+            hard = 690
+        },
+        [3] = {
+            iconName = "icon_item_misc_boss_Upinis",
+            hard = 687
+        },
+        [4] = {
+            iconName = "icon_item_misc_boss_Roze",
+            hard = 681
+        },
+        [5] = {
+            iconName = "icon_item_misc_high_falouros",
+            hard = 678
+        },
+        [6] = {
+            iconName = "icon_item_misc_high_transmutationSpreader",
+            hard = 675
+        },
+        [7] = {
+            iconName = "icon_item_misc_merregina_blackpearl",
+            solo = 696,
+            auto = 695
+        },
+        [8] = {
+            iconName = "icon_item_misc_boss_Slogutis",
+            solo = 689,
+            auto = 688
+        },
+        [9] = {
+            iconName = "icon_item_misc_boss_Upinis",
+            solo = 686,
+            auto = 685
+        },
+        [10] = {
+            iconName = "icon_item_misc_boss_Roze",
+            solo = 680,
+            auto = 679
+        },
+        [11] = {
+            iconName = "icon_item_misc_falouros",
+            solo = 677,
+            auto = 676
+        },
+        [12] = {
+            iconName = "icon_item_misc_transmutationSpreader",
+            solo = 674,
+            auto = 673
+        }
+    }
+
+    local y = 175
+    for i = 1, 6 do
+        local picture = frame:CreateOrGetControl('picture', "picture" .. i, y, 30, 25, 25);
+        AUTO_CAST(picture)
+        local iconName = icon_table[i].iconName
+        picture:SetImage(iconName)
+        picture:SetEnableStretch(1)
+        picture:EnableHitTest(1)
+        picture:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_enter_hard")
+        picture:SetEventScriptArgNumber(ui.LBUTTONDOWN, icon_table[i].hard)
+        picture:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+        y = y + 30
+    end
+    y = y + 25
+    for i = 7, 12 do
+        if i <= 10 then
+            local picture = frame:CreateOrGetControl('picture', "picture" .. i, y, 30, 25, 25);
+            AUTO_CAST(picture)
+            local iconName = icon_table[i].iconName
+            picture:SetImage(iconName)
+            picture:SetEnableStretch(1)
+            picture:EnableHitTest(1)
+            picture:SetUserValue("SOLO", icon_table[i].solo)
+            picture:SetUserValue("AUTO", icon_table[i].auto)
+            picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
+
+            y = y + 70
+        else
+            local picture = frame:CreateOrGetControl('picture', "picture" .. i, y, 30, 25, 25);
+            AUTO_CAST(picture)
+            local iconName = icon_table[i].iconName
+            picture:SetImage(iconName)
+            picture:SetEnableStretch(1)
+            picture:EnableHitTest(1)
+            y = y + 30
+        end
+    end
+
+    --[[local icon_table = {"icon_item_misc_boss_Slogutis", "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze",
                         "icon_item_misc_high_falouros", "icon_item_misc_high_transmutationSpreader",
                         "icon_item_misc_merregina_blackpearl", "icon_item_misc_boss_Slogutis",
                         "icon_item_misc_boss_Upinis", "icon_item_misc_boss_Roze", "icon_item_misc_falouros",
@@ -434,7 +564,7 @@ function indun_list_viewer_title_frame_open()
 
             y = y + 30
         end
-    end
+    end]]
 
     local mapframe = ui.GetFrame('worldmap2_mainmap')
     local screenWidth = mapframe:GetWidth()
@@ -480,8 +610,78 @@ function indun_list_viewer_title_frame_open()
     display_text:SetTextTooltip("{ol}" .. displaytext)
 
     frame:ShowWindow(1)
-
+    frame:Resize(900 + 70, 55)
     indun_list_viewer_frame_open(frame)
+end
+
+function indun_list_viewer_enter_context(frame, ctrl, str, num)
+    local solo = g.lang == "japanese" and "ソロ" or "SOLO"
+    local auto = g.lang == "japanese" and "自動" or "AUTO"
+    local context = ui.CreateContextMenu("context", "", 0, 0, 0, 0);
+
+    local strScp = string.format("indun_list_viewer_enter_solo(%d')", ctrl:GetUserValue("SOLO"))
+    ui.AddContextMenuItem(context, solo, strScp)
+    strScp = string.format("indun_list_viewer_enter_auto(%d')", ctrl:GetUserValue("AUTO"))
+    ui.AddContextMenuItem(context, auto, strScp)
+    ui.OpenContextMenu(context);
+end
+
+function indun_list_viewer_enter_solo(induntype)
+
+    ReqRaidAutoUIOpen(induntype)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 1, 0), 0.3)
+end
+
+function indun_list_viewer_enter_auto(induntype)
+
+    ReqRaidAutoUIOpen(induntype)
+    local topFrame = ui.GetFrame("indunenter")
+    -- local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
+    local indunType = topFrame:GetUserValue('INDUN_TYPE');
+    local indunCls = GetClassByType('Indun', indunType);
+    local indunMinPCRank = TryGetProp(indunCls, 'PCRank')
+    local totaljobcount = session.GetPcTotalJobGrade()
+
+    if indunMinPCRank ~= nil then
+        if indunMinPCRank > totaljobcount and indunMinPCRank ~= totaljobcount then
+            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indunMinPCRank))
+            return;
+        end
+    end
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
+end
+
+function indun_list_viewer_INDUNINFO_SET_BUTTONS(induntype, ctrl)
+
+    local indunCls = GetClassByType('Indun', induntype)
+    local dungeonType = TryGetProp(indunCls, "DungeonType", "None")
+    local btnInfoCls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeonType)
+
+    if dungeonType == "Raid" then
+        btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls)
+    end
+
+    local redButtonScp = TryGetProp(btnInfoCls, "RedButtonScp")
+
+    ctrl:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID)
+    ctrl:SetEventScript(ui.LBUTTONUP, redButtonScp)
+
+end
+
+function indun_list_viewer_enter_hard(frame, ctrl, str, induntype)
+
+    local indunCls = GetClassByType("Indun", induntype)
+
+    if str == "false" then
+        local frame = ui.GetFrame("induninfo")
+        indun_list_viewer_INDUNINFO_SET_BUTTONS(induntype, ctrl)
+        str = "true"
+        ReserveScript(string.format("indun_list_viewer_enter_hard('%s','%s','%s',%d)", frame, ctrl, str, induntype), 0.3)
+        return
+    else
+        SHOW_INDUNENTER_DIALOG(induntype)
+
+    end
 end
 
 function indun_list_viewer_close(frame)
@@ -491,8 +691,130 @@ function indun_list_viewer_close(frame)
 
 end
 
+function indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, cid)
+    local lastJobCls
+
+    local jobList, level, lastJobID = GetJobListFromAdventureBookCharData(pcname)
+    if jobid == "" then
+        lastJobCls = GetClassByType("Job", lastJobID)
+    else
+        lastJobCls = GetClassByType("Job", president)
+    end
+
+    local lastJobIcon = TryGetProp(lastJobCls, "Icon")
+
+    local gb = GET_CHILD_RECURSIVELY(frame, "gb")
+    local jobslot = gb:CreateOrGetControl("slot", "jobslot" .. pcname, 5, x - 4, 25, 25)
+    AUTO_CAST(jobslot)
+    jobslot:SetSkinName("None")
+    jobslot:EnableHitTest(1)
+    jobslot:EnablePop(0)
+
+    local jobicon = CreateIcon(jobslot)
+    jobicon:SetImage(lastJobIcon)
+
+    local id1, id2, id3, id4
+    local jobName1, jobName2, jobName3, jobName4
+    local cc_text = ""
+    if g.lang == "Japanese" then
+        cc_text = "アイコンをクリックするとキャラクターチェンジします。"
+    else
+        cc_text = "Click on the icon to change the character."
+    end
+
+    local text = ""
+
+    if jobid ~= "" then
+        local index = 1
+        for part in jobid:gmatch("[^/]+") do
+            if index == 1 then
+                id1 = part
+            elseif index == 2 then
+                id2 = part
+            elseif index == 3 then
+                id3 = part
+            elseif index == 4 then
+                id4 = part
+            else
+                break
+            end
+            index = index + 1
+        end
+
+        local function get_job_name(id)
+            if id then
+                local jobClass = GetClassByType("Job", tonumber(id))
+                if jobClass then
+                    return TryGetProp(jobClass, "Name", "Unknown Job")
+                end
+            end
+            return "Unknown Job"
+        end
+
+        jobName1 = get_job_name(id1)
+        jobName2 = get_job_name(id2)
+        jobName3 = get_job_name(id3)
+        jobName4 = get_job_name(id4)
+
+        local highlight_color = "{#FF0000}" -- 一致した場合の色
+        local function color_if_match(jobName, jobId)
+            if jobId and tonumber(jobId) == tonumber(president) then
+                return highlight_color .. jobName .. "{/}"
+            else
+                return jobName
+            end
+        end
+
+        local tooltipText = "{ol}"
+        if jobName1 then
+            tooltipText = tooltipText .. color_if_match(jobName1, id1) .. "{nl}"
+        end
+        if jobName2 then
+            tooltipText = tooltipText .. color_if_match(jobName2, id2) .. "{nl}"
+        end
+        if jobName3 then
+            tooltipText = tooltipText .. color_if_match(jobName3, id3) .. "{nl}"
+        end
+        if jobName4 then
+            tooltipText = tooltipText .. color_if_match(jobName4, id4) .. "{nl}"
+        end
+
+        text = tooltipText
+
+    else
+        local jobname = TryGetProp(lastJobCls, "Name")
+        text = "{ol}" .. jobname
+
+    end
+
+    local functionName = "INSTANTCC_ON_INIT"
+    if type(_G[functionName]) == "function" then
+        jobicon:SetTextTooltip(text .. "{nl} {nl}{#FF4500}" .. cc_text)
+        jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
+        jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, cid)
+        jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
+
+        local name_text = GET_CHILD_RECURSIVELY(frame, cid)
+        name_text:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
+        name_text:SetEventScriptArgString(ui.LBUTTONDOWN, cid)
+        name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
+        name_text:SetTextTooltip("{ol}" .. cc_text)
+    else
+        jobicon:SetTextTooltip(text)
+    end
+end
+
+function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
+
+    indun_list_viewer_get_raid_count()
+    local frame = ui.GetFrame("indun_list_viewer")
+    frame:ShowWindow(0)
+    INSTANTCC_DO_CC(cid, layer)
+    g.layer = nil
+end
+
 function indun_list_viewer_frame_open(frame)
-    -- g.sortedSettings
+
     local gb = frame:CreateOrGetControl("groupbox", "gb", 0, 55, 10, 10)
     AUTO_CAST(gb)
     gb:SetSkinName("bg")
@@ -510,6 +832,11 @@ function indun_list_viewer_frame_open(frame)
     for _, data in ipairs(g.sortedSettings) do
         local pcname = data.name
         local cid = data.cid
+        local jobid = data.jobid
+        local president = data.president_jobid
+        local layer = data.layer
+        indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, cid)
+
         for i = 0, barrackPCCount - 1 do
 
             local path = string.format('../addons/%s/%s.json', addonNameLower, cid)
@@ -661,7 +988,6 @@ function indun_list_viewer_frame_open(frame)
 
                 end
                 x = x + 25
-                break
             end
         end
 
@@ -684,6 +1010,7 @@ function indun_list_viewer_frame_open(frame)
 end
 
 function indun_list_viewer_modechange(frame, ctrl, argStr, argNum)
+
     local ischeck = ctrl:IsChecked()
     g.settings.mode = ischeck
 
@@ -691,19 +1018,21 @@ function indun_list_viewer_modechange(frame, ctrl, argStr, argNum)
 end
 
 function indun_list_viewer_display_save(frame, ctrl, argStr, argNum)
+
     local ischeck = ctrl:IsChecked()
     local tf = true
     for _, data in ipairs(g.sortedSettings) do
         local cid = data.cid
         if cid == argStr then
-            g.settings[cid].hide = ischeck
+            if ischeck == 1 then
+                g.settings[cid].hide = true
+            else
+                g.settings[cid].hide = false
+            end
             acutil.saveJSON(g.new_settingsFileLoc, g.settings)
             break
         end
     end
-
-    indun_list_viewer_save_settings()
-    -- indun_list_viewer_load_settings()
 end
 
 function indun_list_viewer_memo_save(frame, ctrl, argStr, argNum)
@@ -724,35 +1053,7 @@ function indun_list_viewer_memo_save(frame, ctrl, argStr, argNum)
     end
 end
 
-function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
-    -- print(tostring(selectedKey))
-
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-    -- print(LoginName)
-    for _, charData in ipairs(g.settings.charactors) do
-        if charData.name == LoginName then
-            local mainSession = session.GetMainSession();
-            local pcJobInfo = mainSession:GetPCJobInfo();
-            local jobCount = pcJobInfo:GetJobCount();
-            charData.jobid = ""
-            for i = 0, jobCount - 1 do
-                local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
-                charData.jobid = charData.jobid .. "/" .. tonumber(jobInfo.jobID)
-                -- local jobCls = GetClassByType('Job', jobInfo.jobID);
-                -- ui.AddDropListItem(jobCls.Name, nil, jobCls.ClassID);
-            end
-            charData.president_jobid = tonumber(selectedKey)
-
-            indun_list_viewer_save_settings()
-            break
-        end
-    end
-
-    ChangeRepresentationClass(selectedKey);
-    -- base["STATUS_SELET_REPRESENTATION_CLASS"](selectedIndex, selectedKey)
-end
-
-function indun_list_viewer_removing_character()
+--[[function indun_list_viewer_removing_character()
     local accountInfo = session.barrack.GetMyAccount()
     local cnt = accountInfo:GetBarrackPCCount()
     local currentCharacters = {}
@@ -905,13 +1206,5 @@ function indun_list_viewer_get_sweep_count()
 
     indun_list_viewer_save_settings()
     -- indun_list_viewer_load_settings()
-end
-
-function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
-
-    local frame = ui.GetFrame("indun_list_viewer")
-    frame:ShowWindow(0)
-    INSTANTCC_DO_CC(cid, layer)
-    g.layer = nil
-end
+end]]
 
