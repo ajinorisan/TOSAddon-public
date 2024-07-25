@@ -235,11 +235,11 @@ function indun_panel_init(frame)
     checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
     checkbox:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常時展開" or "{ol}IsCheck AlwaysOpen")
 
-    local pvpmine = ipframe:CreateOrGetControl("richtext", "pvpmine", 520, 10)
+    local pvpmine = frame:CreateOrGetControl("richtext", "pvpmine", 520, 10)
     pvpmine:SetText("{img pvpmine_shop_btn_total 25 25}")
     pvpmine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団コイン数量" or "{ol}Mercenary Badge count")
 
-    local pvpminecount = ipframe:CreateOrGetControl("richtext", "pvpminecount", 550, 10)
+    local pvpminecount = frame:CreateOrGetControl("richtext", "pvpminecount", 550, 10)
     pvpminecount:SetText(string.format("{ol}{#FFD900}{s20}%s", GET_COMMAED_STRING(indun_panel_pvpmaine_count())))
 
     if g.settings.season_checkbox == nil then
@@ -250,7 +250,9 @@ function indun_panel_init(frame)
     indun_panel_frame_contents(frame)
 
     frame:SetLayerLevel(80)
-    frame:Resize(x + 570, y + 5)
+    frame:Resize(g.x + 570, g.y + 5)
+    g.x = nil
+    g.y = nil
     frame:SetSkinName("chat_window_2")
     frame:EnableHitTest(1);
     frame:SetAlpha(100)
@@ -435,16 +437,18 @@ function indun_panel_frame_contents(frame)
             end
         end
     end
+    g.x = x
+    g.y = y
 end
 
 function indun_panel_GetEntranceCountText(indunID, index)
     if index == 2 then
         return string.format("{ol}{#FFFFFF}{s16}(%d/%d)",
-                             GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunID).PlayPerResetType),
-                             GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", indunID).PlayPerResetType))
+            GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunID).PlayPerResetType),
+            GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", indunID).PlayPerResetType))
     elseif index == 1 then
         return string.format("{ol}{#FFFFFF}{s16}(%d)",
-                             GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunID).PlayPerResetType))
+            GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunID).PlayPerResetType))
     end
 end
 
@@ -463,6 +467,7 @@ function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
     local cnt = guidList:Count()
 
     if raidTable[subValue] then
+
         local use = frame:CreateOrGetControl('button', key .. "use", x + 480, y, 80, 30)
         AUTO_CAST(use)
         use:SetText("{ol}{#EE7800}USE")
@@ -514,9 +519,9 @@ function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
         hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
         hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
     elseif subKey == "ac" then
+
         sweepcount:SetText("{ol}{#FFFFFF}{s16}(" .. indun_panel_sweep_count(subValue) .. ")")
     end
-
 end
 
 function indun_panel_sweep_count(buffid)
@@ -537,6 +542,7 @@ function indun_panel_sweep_count(buffid)
             return buff.over
         end
     end
+    return 0
 end
 
 function indun_panel_create_frame(frame, key, subKey, subValue, y)
@@ -609,9 +615,9 @@ function indun_panel_challenge_frame(frame, key, y)
     cha_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
     cha_ticket:SetTextTooltip("{ol}" ..
                                   INDUN_PANEL_LANG(
-                                      "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
-                                          "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
-                                          "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))"))
+            "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
+                "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))"))
     cha_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
@@ -641,8 +647,8 @@ function indun_panel_singularity_frame(frame, key, y)
     sin_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
     sin_ticket:SetTextTooltip("{ol}" ..
                                   INDUN_PANEL_LANG(
-                                      "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
-                                          "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))"))
+            "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))"))
     sin_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     sin_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
@@ -1068,15 +1074,15 @@ function indun_panel_update_frame(frame)
                                 elseif subKey == "s" then
                                     count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                       GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 elseif subKey == "h" then
                                     counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                           GET_CURRENT_ENTERANCE_COUNT(
-                                                              GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                           GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                              GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 end
                             end
                         elseif key == "season" then
@@ -1084,7 +1090,7 @@ function indun_panel_update_frame(frame)
                                 local count = GET_CHILD_RECURSIVELY(frame, "count" .. subValue)
                                 count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                   GET_CURRENT_ENTERANCE_COUNT(
-                                                      GetClassByType("Indun", subValue).PlayPerResetType) .. "" .. ")")
+                                        GetClassByType("Indun", subValue).PlayPerResetType) .. "" .. ")")
                             end
                         elseif key == "jellyzele" or key == "delmore" then
 
@@ -1095,15 +1101,15 @@ function indun_panel_update_frame(frame)
                                 if subKey == "s" then
                                     count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                       GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 elseif subKey == "h" then
                                     counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                           GET_CURRENT_ENTERANCE_COUNT(
-                                                              GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                           GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                              GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 end
                             end
                         elseif key == "giltine" then
@@ -1115,13 +1121,13 @@ function indun_panel_update_frame(frame)
                                 if subKey == "s" then
                                     count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. "/" ..
                                                       GET_INDUN_MAX_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 elseif subKey == "h" then
                                     counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                           GET_CURRENT_ENTERANCE_COUNT(
-                                                              GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 end
                             end
                         elseif key == "earring" then
@@ -1133,11 +1139,11 @@ function indun_panel_update_frame(frame)
                                 if subKey == "s" then
                                     count:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                       GET_CURRENT_ENTERANCE_COUNT(
-                                                          GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 elseif subKey == "h" then
                                     counthard:SetText("{ol}{#FFFFFF}{s16}(" ..
                                                           GET_CURRENT_ENTERANCE_COUNT(
-                                                              GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
+                                            GetClassByType("Indun", subValue).PlayPerResetType) .. ")")
                                 end
                             end
 
@@ -1394,7 +1400,7 @@ function indun_panel_INDUN_ALREADY_PLAYING_dilay()
         AnsGiveUpPrevPlayingIndun(1)
         ui.CloseFrame("indunenter")
         ReserveScript(string.format("indun_panel_enter_challenge_pt('%s','%s','%s', %d)", topFrame, _, _, indunType),
-                      0.5)
+            0.5)
 
         return
     else
