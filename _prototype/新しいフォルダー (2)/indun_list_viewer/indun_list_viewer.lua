@@ -16,11 +16,10 @@
 -- v1.1.5 まれにsettingsが初期化されるのを直したと思うけどわからん。挙動見直しボタン押した時に情報集める様に。
 -- v1.1.6 情報集めるポイント修正
 -- v1.1.7 やっぱりFPS_UPDATE使って情報収集
--- v1.1.8 作り直して最適化。資材アイコンからレイド入れる様に。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.8"
+local ver = "1.1.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -157,7 +156,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
         -- addon:RegisterMsg('GAME_START', "indun_list_viewer_frame_init")
         g.SetupHook(indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS, "STATUS_SELET_REPRESENTATION_CLASS")
         g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
-        acutil.setupEvent(addon, "ReqUseRaidAutoSweep", "indun_list_viewer_ReqUseRaidAutoSweep")
+        acutil.setupEvent(addon, "APPS_TRY_LEAVE", "indun_list_viewer_APPS_TRY_LEAVE")
         if g.loaded == true then
             addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
         end
@@ -168,7 +167,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
     end
 end
 
-function indun_list_viewer_ReqUseRaidAutoSweep(frame, msg)
+function indun_list_viewer_APPS_TRY_LEAVE(frame, msg)
     indun_list_viewer_get_raid_count()
 end
 
@@ -189,7 +188,7 @@ function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, sele
     local mainSession = session.GetMainSession();
     local pcJobInfo = mainSession:GetPCJobInfo();
     local jobCount = pcJobInfo:GetJobCount();
-
+    g.settings[g.cid].jobid = ""
     for i = 0, jobCount - 1 do
         local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
         g.settings[g.cid].jobid = g.settings[g.cid].jobid .. "/" .. jobInfo.jobID
@@ -253,6 +252,30 @@ function indun_list_viewer_raid_reset()
         }
         indun_list_viewer_save_settings()
     end
+
+    --[[for i = 0, barrackPCCount - 1 do
+        local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
+        local barrackPCName = barrackPCInfo:GetName()
+        local cid = g.change[barrackPCName]
+        local path = string.format('../addons/%s/%s.json', addonNameLower, cid)
+        local file = io.open(path, "r")
+        if file then
+            file:close()
+            local personal = {
+                S_H = "-",
+                S_N = "-",
+                U_H = "-",
+                U_N = "-",
+                R_H = "-",
+                R_N = "-",
+                T_H = "-",
+                T_N = "-",
+                M_H = "-",
+                M_N = "-"
+            }
+            acutil.saveJSON(path, personal)
+        end
+    end]]
 
     if g.lang == "Japanese" then
         ui.SysMsg("レイドの回数を初期化しました。")
@@ -329,6 +352,20 @@ function indun_list_viewer_get_raid_count()
     g.settings[g.cid]["count"] = data
     indun_list_viewer_save_settings()
 
+    --[[local path = string.format('../addons/%s/%s.json', addonNameLower, g.cid)
+
+    local file = io.open(path, "r")
+    if not file then
+        file = io.open(path, "w")
+        file:close()
+
+    else
+        file:close()
+    end
+
+   
+
+    acutil.saveJSON(path, data)]]
 end
 
 function indun_list_viewer_frame_init()
@@ -356,7 +393,7 @@ end
 
 function indun_list_viewer_title_frame_open()
 
-    -- indun_list_viewer_get_raid_count()
+    indun_list_viewer_get_raid_count()
 
     local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "list_frame", 0, 0, 10, 10)
     AUTO_CAST(frame)
@@ -473,7 +510,6 @@ function indun_list_viewer_title_frame_open()
         local iconName = icon_table[i].iconName
         picture:SetImage(iconName)
         picture:SetEnableStretch(1)
-        picture:SetAngleLoop(5)
         picture:EnableHitTest(1)
         picture:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_enter_hard")
         picture:SetEventScriptArgNumber(ui.LBUTTONDOWN, icon_table[i].hard)
@@ -485,32 +521,40 @@ function indun_list_viewer_title_frame_open()
     end
     y = y + 40
     for i = 7, 12 do
+        if i <= 10 then
+            local picture = frame:CreateOrGetControl('picture', "picture" .. i, y, 30, 25, 25);
+            AUTO_CAST(picture)
+            local iconName = icon_table[i].iconName
+            picture:SetImage(iconName)
+            picture:SetEnableStretch(1)
+            picture:EnableHitTest(1)
+            picture:SetUserValue("SOLO", icon_table[i].solo)
+            picture:SetUserValue("AUTO", icon_table[i].auto)
+            picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
+            picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示" or
+                                       "Left click to display raid screen")
 
-        local picture = frame:CreateOrGetControl('picture', "picture" .. i, y, 30, 25, 25);
-        AUTO_CAST(picture)
-        local iconName = icon_table[i].iconName
-        picture:SetImage(iconName)
-        picture:SetEnableStretch(1)
-        picture:SetAngleLoop(5)
-        picture:EnableHitTest(1)
-        picture:SetUserValue("SOLO", icon_table[i].solo)
-        picture:SetUserValue("AUTO", icon_table[i].auto)
-        picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
-        picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示" or
-                                   "Left click to display raid screen")
-        if i <= 9 then
             y = y + 70
-        elseif i == 10 then
-            y = y + 55
         else
+            local picture = frame:CreateOrGetControl('picture', "picture" .. i, y - 15, 30, 25, 25);
+            AUTO_CAST(picture)
+            local iconName = icon_table[i].iconName
+            picture:SetImage(iconName)
+            picture:SetEnableStretch(1)
+            picture:EnableHitTest(1)
+            picture:SetUserValue("SOLO", icon_table[i].solo)
+            picture:SetUserValue("AUTO", icon_table[i].auto)
+            picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
+            picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示" or
+                                       "Left click to display raid screen")
+
             y = y + 30
         end
-
     end
 
-    --[[local mapframe = ui.GetFrame('worldmap2_mainmap')
+    local mapframe = ui.GetFrame('worldmap2_mainmap')
     local screenWidth = mapframe:GetWidth()
-    local frameWidth = 900 + 70]]
+    local frameWidth = 900 + 70
 
     frame:SetSkinName("bg")
 
@@ -519,7 +563,7 @@ function indun_list_viewer_title_frame_open()
     else
         frame:SetPos(665, 35)
     end
-
+    -- titlegb:Resize(900 + 70, 55)
     titlegb:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_close")
     titlegb:SetTextTooltip("{ol}" .. titlegb_text)
 
@@ -646,11 +690,17 @@ function indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, c
     local lastJobIcon = TryGetProp(lastJobCls, "Icon")
 
     local gb = GET_CHILD_RECURSIVELY(frame, "gb")
-    local jobpicture = frame:CreateOrGetControl('picture', "jobpicture" .. cid, 5, x - 4, 25, 25)
-    AUTO_CAST(jobpicture)
-    jobpicture:EnableHitTest(1)
-    jobpicture:SetImage(lastJobIcon)
+    local jobslot = gb:CreateOrGetControl("slot", "jobslot" .. pcname, 5, x - 4, 25, 25)
+    AUTO_CAST(jobslot)
+    jobslot:SetSkinName("None")
+    jobslot:EnableHitTest(1)
+    jobslot:EnablePop(0)
 
+    local jobicon = CreateIcon(jobslot)
+    jobicon:SetImage(lastJobIcon)
+
+    local id1, id2, id3, id4
+    local jobName1, jobName2, jobName3, jobName4
     local cc_text = ""
     if g.lang == "Japanese" then
         cc_text = "アイコンをクリックするとキャラクターチェンジします。"
@@ -659,27 +709,32 @@ function indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, c
     end
 
     local text = ""
-    local id1, id2, id3, id4 = nil, nil, nil, nil
-    local jobName1, jobName2, jobName3, jobName4
 
-    if jobid ~= "" then
-        local ids = {}
-
-        for part in string.gmatch(jobid, "[^/]+") do
-            table.insert(ids, part)
+    if jobid ~= nil then
+        local index = 1
+        for part in jobid:gmatch("[^/]+") do
+            if index == 1 then
+                id1 = part
+            elseif index == 2 then
+                id2 = part
+            elseif index == 3 then
+                id3 = part
+            elseif index == 4 then
+                id4 = part
+            else
+                break
+            end
+            index = index + 1
         end
 
-        id1, id2, id3, id4 = ids[1], ids[2], ids[3], ids[4]
-
         local function get_job_name(id)
-            if not id then
-                return nil
+            if id then
+                local jobClass = GetClassByType("Job", tonumber(id))
+                if jobClass then
+                    return TryGetProp(jobClass, "Name", "Unknown Job")
+                end
             end
-            local jobClass = GetClassByType("Job", tonumber(id))
-            if jobClass then
-                return TryGetProp(jobClass, "Name", nil)
-            end
-            return nil
+            return "Unknown Job"
         end
 
         jobName1 = get_job_name(id1)
@@ -715,15 +770,15 @@ function indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, c
     else
         local jobname = TryGetProp(lastJobCls, "Name")
         text = "{ol}" .. jobname
-
+        print(tostring(jobname) .. "a")
     end
 
     local functionName = "INSTANTCC_ON_INIT"
     if type(_G[functionName]) == "function" then
-        jobpicture:SetTextTooltip(text .. "{nl} {nl}{#FF4500}" .. cc_text)
-        jobpicture:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
-        jobpicture:SetEventScriptArgString(ui.LBUTTONDOWN, cid)
-        jobpicture:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
+        jobicon:SetTextTooltip(text .. "{nl} {nl}{#FF4500}" .. cc_text)
+        jobslot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
+        jobslot:SetEventScriptArgString(ui.LBUTTONDOWN, cid)
+        jobslot:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
 
         local name_text = GET_CHILD_RECURSIVELY(frame, cid)
         name_text:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
@@ -731,12 +786,13 @@ function indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, c
         name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
         name_text:SetTextTooltip("{ol}" .. cc_text)
     else
-        jobpicture:SetTextTooltip(text)
+        jobicon:SetTextTooltip(text)
     end
 end
 
 function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
 
+    indun_list_viewer_get_raid_count()
     local frame = ui.GetFrame("indun_list_viewer")
     frame:ShowWindow(0)
     INSTANTCC_DO_CC(cid, layer)
@@ -755,190 +811,202 @@ function indun_list_viewer_frame_open(frame)
     local x = 6
     local cnt = 0
 
-    --[[local cid_table = {}
+    local cid_table = {}
     local accountInfo = session.barrack.GetMyAccount()
-    local barrackPCCount = accountInfo:GetBarrackPCCount()]]
+    local barrackPCCount = accountInfo:GetBarrackPCCount()
+    print(barrackPCCount)
 
     local y = 0
+    for i = 0, barrackPCCount - 1 do
+        for _, data in ipairs(g.sortedSettings) do
+            local pcname = data.name
+            local cid = data.cid
 
-    for _, data in ipairs(g.sortedSettings) do
-        local pcname = data.name
-        local cid = data.cid
-        local layer = data.layer
-        local count = data["count"]
+            local layer = data.layer
+            if data.jobid ~= nil then
+                local jobid = data.jobid
+                local president = data.president_jobid
+                indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, cid)
+                print(tostring(data.jobid))
+            end
+            local path = string.format('../addons/%s/%s.json', addonNameLower, cid)
+            local file = io.open(path, "r")
 
-        local jobid = data.jobid
-        local president = data.president_jobid
-        indun_list_viewer_job_slot(frame, pcname, jobid, president, x, layer, cid)
+            if file then
+                y = 175
+                local content = file:read("*all")
+                file:close()
+                local decoded = json.decode(content)
+                cid_table = decoded
+                cnt = cnt + 1
+                local name = gb:CreateOrGetControl("richtext", cid, 35, x)
+                AUTO_CAST(name)
 
-        y = 175
+                if myCharName == pcname then
+                    name:SetText("{ol}{#FF4500}" .. pcname)
+                else
+                    name:SetText("{ol}" .. pcname)
+                end
 
-        cnt = cnt + 1
-        local name = gb:CreateOrGetControl("richtext", cid, 35, x)
-        AUTO_CAST(name)
+                local line = gb:CreateOrGetControl("labelline", "line" .. cid, 30, x - 7, 850 + 60, 2)
+                line:SetSkinName("labelline_def_3")
+                if not data.hide then
 
-        if myCharName == pcname then
-            name:SetText("{ol}{#FF4500}" .. pcname)
-        else
-            name:SetText("{ol}" .. pcname)
-        end
+                    local M_H = gb:CreateOrGetControl("richtext", "M_H" .. cid, y, x)
+                    M_H:SetText("{ol}{s14}( " .. cid_table.M_H .. " )")
+                    if cid_table.M_H == 1 then
+                        M_H:SetColorTone("FF990000");
+                    else
+                        M_H:SetColorTone("FFFFFFFF");
+                    end
 
-        local line = gb:CreateOrGetControl("labelline", "line" .. cid, 30, x - 7, 850 + 60, 2)
-        line:SetSkinName("labelline_def_3")
-        if not data.hide then
+                    y = y + 30
+                    local S_H = gb:CreateOrGetControl("richtext", "S_H" .. cid, y, x)
+                    S_H:SetText("{ol}{s14}( " .. cid_table.S_H .. " )")
+                    if cid_table.S_H == 1 then
+                        S_H:SetColorTone("FF990000");
+                    else
+                        S_H:SetColorTone("FFFFFFFF");
+                    end
 
-            local M_H = gb:CreateOrGetControl("richtext", "M_H" .. cid, y, x)
-            M_H:SetText("{ol}{s14}( " .. count.M_H .. " )")
-            if count.M_H == 1 then
-                M_H:SetColorTone("FF990000");
-            else
-                M_H:SetColorTone("FFFFFFFF");
+                    y = y + 30
+                    local U_H = gb:CreateOrGetControl("richtext", "U_H" .. cid, y, x)
+                    U_H:SetText("{ol}{s14}( " .. cid_table.U_H .. " )")
+                    if cid_table.U_H == 1 then
+                        U_H:SetColorTone("FF990000");
+                    else
+                        U_H:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 30
+                    local R_H = gb:CreateOrGetControl("richtext", "R_H" .. cid, y, x)
+                    R_H:SetText("{ol}{s14}( " .. cid_table.R_H .. " )")
+                    if cid_table.R_H == 1 then
+                        R_H:SetColorTone("FF990000");
+                    else
+                        R_H:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 50
+                    local T_H = gb:CreateOrGetControl("richtext", "T_H" .. cid, y, x)
+                    T_H:SetText("{ol}{s14}( " .. cid_table.T_H .. " )")
+                    if cid_table.T_H == 2 then
+                        T_H:SetColorTone("FF990000");
+                    else
+                        T_H:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 65
+                    local M_N = gb:CreateOrGetControl("richtext", "M_N" .. cid, y, x)
+                    if cid_table.M_N == 2 then
+                        M_N:SetText("{ol}{s14}{#990000}( " .. cid_table.M_N .. " ){/}" .. "{ol}{s14}/")
+                    else
+                        M_N:SetText("{ol}{s14}{#FFFFFF}( " .. cid_table.M_N .. " ){/}" .. "{ol}{s14}/")
+                    end
+
+                    y = y + 35
+                    local M_S = gb:CreateOrGetControl("richtext", "M_S" .. cid, y, x)
+                    M_S:SetText("{ol}{s14}( " .. cid_table.M_S .. " )")
+                    if cid_table.M_S >= 1 then
+                        M_S:SetColorTone("FF990000");
+                    else
+                        M_S:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 35
+                    local S_N = gb:CreateOrGetControl("richtext", "S_N" .. cid, y, x)
+                    if cid_table.S_N == 2 then
+                        S_N:SetText("{ol}{s14}{#990000}( " .. cid_table.S_N .. " ){/}" .. "{ol}{s14}/")
+                    else
+                        S_N:SetText("{ol}{s14}{#FFFFFF}( " .. cid_table.S_N .. " ){/}" .. "{ol}{s14}/")
+                    end
+
+                    y = y + 35
+                    local S_S = gb:CreateOrGetControl("richtext", "S_S" .. cid, y, x)
+                    S_S:SetText("{ol}{s14}( " .. cid_table.S_S .. " )")
+                    if cid_table.S_S >= 1 then
+                        S_S:SetColorTone("FF990000");
+                    else
+                        S_S:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 35
+                    local U_N = gb:CreateOrGetControl("richtext", "U_N" .. cid, y, x)
+                    if cid_table.U_N == 2 then
+                        U_N:SetText("{ol}{s14}{#990000}( " .. cid_table.U_N .. " ){/}" .. "{ol}{s14}/")
+                    else
+                        U_N:SetText("{ol}{s14}{#FFFFFF}( " .. cid_table.U_N .. " ){/}" .. "{ol}{s14}/")
+                    end
+
+                    y = y + 35
+                    local U_S = gb:CreateOrGetControl("richtext", "U_S" .. cid, y, x)
+                    U_S:SetText("{ol}{s14}( " .. cid_table.U_S .. " )")
+                    if cid_table.U_S >= 1 then
+                        U_S:SetColorTone("FF990000");
+                    else
+                        U_S:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 35
+                    local R_N = gb:CreateOrGetControl("richtext", "R_N" .. cid, y, x)
+                    if cid_table.R_N == 2 then
+                        R_N:SetText("{ol}{s14}{#990000}( " .. cid_table.R_N .. " ){/}" .. "{ol}{s14}/")
+                    else
+                        R_N:SetText("{ol}{s14}{#FFFFFF}( " .. cid_table.R_N .. " ){/}" .. "{ol}{s14}/")
+                    end
+
+                    y = y + 35
+                    local R_S = gb:CreateOrGetControl("richtext", "R_S" .. cid, y, x)
+                    R_S:SetText("{ol}{s14}( " .. cid_table.R_S .. " )")
+                    if cid_table.R_S >= 1 then
+                        R_S:SetColorTone("FF990000");
+                    else
+                        R_S:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 35
+                    local T_N = gb:CreateOrGetControl("richtext", "T_N" .. cid, y, x)
+                    if cid_table.T_N == 4 then
+                        T_N:SetText("{ol}{s14}{#990000}( " .. cid_table.T_N .. " ){/}" .. "{ol}{s14}/")
+                    else
+                        T_N:SetText("{ol}{s14}{#FFFFFF}( " .. cid_table.T_N .. " ){/}" .. "{ol}{s14}/")
+                    end
+
+                    y = y + 35
+                    local T_S = gb:CreateOrGetControl("richtext", "T_S" .. cid, y, x)
+                    T_S:SetText("{ol}{s14}( " .. cid_table.T_S .. " )")
+                    if cid_table.T_S >= 1 then
+                        T_S:SetColorTone("FF990000");
+                    else
+                        T_S:SetColorTone("FFFFFFFF");
+                    end
+
+                    y = y + 40
+                    local memo = gb:CreateOrGetControl('edit', 'memo' .. cid, y, x - 5, 200, 25)
+                    AUTO_CAST(memo)
+                    memo:SetFontName("white_14_ol")
+                    memo:SetTextAlign("left", "center")
+                    memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
+                    memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
+                    memo:SetEventScriptArgString(ui.ENTERKEY, cid)
+                    local memoData = data.memo
+                    memo:SetText(memoData)
+
+                    y = y + 205
+                    local display = gb:CreateOrGetControl('checkbox', 'display' .. cid, y, x - 5, 25, 25)
+                    AUTO_CAST(display)
+                    display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+                    display:SetEventScriptArgString(ui.LBUTTONUP, cid)
+                    local check = 1
+                    if not data.hide then
+                        check = 0
+                    end
+                    display:SetCheck(check)
+
+                end
+                x = x + 25
             end
 
-            y = y + 30
-            local S_H = gb:CreateOrGetControl("richtext", "S_H" .. cid, y, x)
-            S_H:SetText("{ol}{s14}( " .. count.S_H .. " )")
-            if count.S_H == 1 then
-                S_H:SetColorTone("FF990000");
-            else
-                S_H:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 30
-            local U_H = gb:CreateOrGetControl("richtext", "U_H" .. cid, y, x)
-            U_H:SetText("{ol}{s14}( " .. count.U_H .. " )")
-            if count.U_H == 1 then
-                U_H:SetColorTone("FF990000");
-            else
-                U_H:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 30
-            local R_H = gb:CreateOrGetControl("richtext", "R_H" .. cid, y, x)
-            R_H:SetText("{ol}{s14}( " .. count.R_H .. " )")
-            if count.R_H == 1 then
-                R_H:SetColorTone("FF990000");
-            else
-                R_H:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 50
-            local T_H = gb:CreateOrGetControl("richtext", "T_H" .. cid, y, x)
-            T_H:SetText("{ol}{s14}( " .. count.T_H .. " )")
-            if count.T_H == 2 then
-                T_H:SetColorTone("FF990000");
-            else
-                T_H:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 65
-            local M_N = gb:CreateOrGetControl("richtext", "M_N" .. cid, y, x)
-            if count.M_N == 2 then
-                M_N:SetText("{ol}{s14}{#990000}( " .. count.M_N .. " ){/}" .. "{ol}{s14}/")
-            else
-                M_N:SetText("{ol}{s14}{#FFFFFF}( " .. count.M_N .. " ){/}" .. "{ol}{s14}/")
-            end
-
-            y = y + 35
-            local M_S = gb:CreateOrGetControl("richtext", "M_S" .. cid, y, x)
-            M_S:SetText("{ol}{s14}( " .. count.M_S .. " )")
-            if count.M_S >= 1 then
-                M_S:SetColorTone("FF990000");
-            else
-                M_S:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 35
-            local S_N = gb:CreateOrGetControl("richtext", "S_N" .. cid, y, x)
-            if count.S_N == 2 then
-                S_N:SetText("{ol}{s14}{#990000}( " .. count.S_N .. " ){/}" .. "{ol}{s14}/")
-            else
-                S_N:SetText("{ol}{s14}{#FFFFFF}( " .. count.S_N .. " ){/}" .. "{ol}{s14}/")
-            end
-
-            y = y + 35
-            local S_S = gb:CreateOrGetControl("richtext", "S_S" .. cid, y, x)
-            S_S:SetText("{ol}{s14}( " .. count.S_S .. " )")
-            if count.S_S >= 1 then
-                S_S:SetColorTone("FF990000");
-            else
-                S_S:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 35
-            local U_N = gb:CreateOrGetControl("richtext", "U_N" .. cid, y, x)
-            if count.U_N == 2 then
-                U_N:SetText("{ol}{s14}{#990000}( " .. count.U_N .. " ){/}" .. "{ol}{s14}/")
-            else
-                U_N:SetText("{ol}{s14}{#FFFFFF}( " .. count.U_N .. " ){/}" .. "{ol}{s14}/")
-            end
-
-            y = y + 35
-            local U_S = gb:CreateOrGetControl("richtext", "U_S" .. cid, y, x)
-            U_S:SetText("{ol}{s14}( " .. count.U_S .. " )")
-            if count.U_S >= 1 then
-                U_S:SetColorTone("FF990000");
-            else
-                U_S:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 35
-            local R_N = gb:CreateOrGetControl("richtext", "R_N" .. cid, y, x)
-            if count.R_N == 2 then
-                R_N:SetText("{ol}{s14}{#990000}( " .. count.R_N .. " ){/}" .. "{ol}{s14}/")
-            else
-                R_N:SetText("{ol}{s14}{#FFFFFF}( " .. count.R_N .. " ){/}" .. "{ol}{s14}/")
-            end
-
-            y = y + 35
-            local R_S = gb:CreateOrGetControl("richtext", "R_S" .. cid, y, x)
-            R_S:SetText("{ol}{s14}( " .. count.R_S .. " )")
-            if count.R_S >= 1 then
-                R_S:SetColorTone("FF990000");
-            else
-                R_S:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 35
-            local T_N = gb:CreateOrGetControl("richtext", "T_N" .. cid, y, x)
-            if count.T_N == 4 then
-                T_N:SetText("{ol}{s14}{#990000}( " .. count.T_N .. " ){/}" .. "{ol}{s14}/")
-            else
-                T_N:SetText("{ol}{s14}{#FFFFFF}( " .. count.T_N .. " ){/}" .. "{ol}{s14}/")
-            end
-
-            y = y + 35
-            local T_S = gb:CreateOrGetControl("richtext", "T_S" .. cid, y, x)
-            T_S:SetText("{ol}{s14}( " .. count.T_S .. " )")
-            if count.T_S >= 1 then
-                T_S:SetColorTone("FF990000");
-            else
-                T_S:SetColorTone("FFFFFFFF");
-            end
-
-            y = y + 40
-            local memo = gb:CreateOrGetControl('edit', 'memo' .. cid, y, x - 5, 200, 25)
-            AUTO_CAST(memo)
-            memo:SetFontName("white_14_ol")
-            memo:SetTextAlign("left", "center")
-            memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
-            memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
-            memo:SetEventScriptArgString(ui.ENTERKEY, cid)
-            local memoData = data.memo
-            memo:SetText(memoData)
-
-            y = y + 205
-            local display = gb:CreateOrGetControl('checkbox', 'display' .. cid, y, x - 5, 25, 25)
-            AUTO_CAST(display)
-            display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
-            display:SetEventScriptArgString(ui.LBUTTONUP, cid)
-            local check = 1
-            if not data.hide then
-                check = 0
-            end
-            display:SetCheck(check)
-
-            x = x + 25
         end
     end
 
@@ -966,8 +1034,8 @@ function indun_list_viewer_modechange(frame, ctrl, argStr, argNum)
 
     local ischeck = ctrl:IsChecked()
     g.settings.mode = ischeck
-    indun_list_viewer_save_settings()
 
+    acutil.saveJSON(g.new_settingsFileLoc, g.settings)
 end
 
 function indun_list_viewer_display_save(frame, ctrl, argStr, argNum)
@@ -982,7 +1050,7 @@ function indun_list_viewer_display_save(frame, ctrl, argStr, argNum)
             else
                 g.settings[cid].hide = false
             end
-            indun_list_viewer_save_settings()
+            acutil.saveJSON(g.new_settingsFileLoc, g.settings)
             break
         end
     end
@@ -995,7 +1063,7 @@ function indun_list_viewer_memo_save(frame, ctrl, argStr, argNum)
         local cid = data.cid
         if cid == argStr then
             g.settings[cid].memo = text
-            indun_list_viewer_save_settings()
+            acutil.saveJSON(g.new_settingsFileLoc, g.settings)
             break
         end
     end
