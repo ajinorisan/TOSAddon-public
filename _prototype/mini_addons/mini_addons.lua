@@ -141,7 +141,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
-    g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
+    -- g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
 
     acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
@@ -255,6 +255,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
             addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
         end
     end
+    print("MINI_ADDONS")
     MINI_ADDONS_NEW_FRAME_INIT()
 end
 
@@ -326,8 +327,7 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 if tostring(spotName) == "SEAL" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                                             "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？",
-                                             3.0)
+                            "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？", 3.0)
                         -- ui.SysMsg("{#FF8C00}エンブレム装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Emblem?")
@@ -337,8 +337,7 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 elseif tostring(spotName) == "ARK" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                                             "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?",
-                                             3.0)
+                            "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?", 3.0)
                         -- ui.SysMsg("{st55_a}{#FF8C00}アーク装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Ark?")
@@ -412,7 +411,7 @@ function MINI_ADDONS_RESTART_CONTENTS_ON_HERE()
     DialogSelect_index = 1;
 end
 
-function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
+--[[function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
 
     if g.settings.chat_system == 1 then
         if string.find(msg, "StartBlackMarketBetween") then
@@ -420,7 +419,7 @@ function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
         end
     end
     base["CHAT_TEXT_LINKCHAR_FONTSET"](frame, msg)
-end
+end]]
 
 function MINI_ADDONS_NOTICE_ON_MSG(frame, msg, argStr, argNum)
     if g.settings.chat_system == 1 then
@@ -484,7 +483,7 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     bg:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
     bg:SetTextTooltip("{ol}右クリックで閉じます。{nl}Right-click to close.")
 
-    local closeBtn = bufflistframe:CreateOrGetControl('button', 'closeBtn', 450, 5, 30, 30)
+    local closeBtn = bufflistframe:CreateOrGetControl('button', 'closeBtn', 450, 0, 30, 30)
     closeBtn:SetImage("testclose_button")
     closeBtn:SetGravity(ui.RIGHT, ui.TOP)
     -- closeBtn:SetSkinName("test_red_button")
@@ -780,7 +779,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
@@ -1224,7 +1223,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, x + 5)
     market_display:SetText("{ol}{#FF4500}" ..
                                MINI_ADDONS_LANG(
-                                   "When moving into town, the list of stores in the upper right corner should be open"))
+            "When moving into town, the list of stores in the upper right corner should be open"))
     market_display:SetTextTooltip(
         "{거리로 이동할 때, 오른쪽 상단의 상점 목록이 열린 상태로 만듭니다.")
 
@@ -1300,7 +1299,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     local equip_info = frame:CreateOrGetControl("richtext", "equip_info", 40, x + 5)
     equip_info:SetText("{ol}{#FF4500}" ..
                            MINI_ADDONS_LANG(
-                               "Notification of forgetting to equip ark and emblem upon entry to the hard raid"))
+            "Notification of forgetting to equip ark and emblem upon entry to the hard raid"))
     equip_info:SetTextTooltip(
         "하드 레이드 입장 시 아크와 엠블럼을 잊어버린 것을 알려드립니다.")
 
@@ -1409,7 +1408,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     end
     MINI_ADDONS_SAVE_SETTINGS()
     auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
-                                      "When turned on, the gacha starts automatically.CC required for switching"))
+        "When turned on, the gacha starts automatically.CC required for switching"))
 
     auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
 
@@ -1440,7 +1439,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     local raid_check = frame:CreateOrGetControl("richtext", "raid_check", 40, x + 5)
     raid_check:SetText("{ol}{#FF4500}" ..
                            MINI_ADDONS_LANG(
-                               "Prevents character change mistakes during the hard raid on the Dreamy& Abyss"))
+            "Prevents character change mistakes during the hard raid on the Dreamy& Abyss"))
     raid_check:SetTextTooltip("몽환 & 심연의 하드 레이드 시 캐릭터 변경 실수를 방지합니다.")
 
     local raid_check_checkbox = frame:CreateOrGetControl('checkbox', 'raid_check_checkbox', 10, x, 25, 25)
@@ -1453,7 +1452,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     local party_info = frame:CreateOrGetControl("richtext", "party_info", 40, x + 5)
     party_info:SetText("{ol}{#FF4500}" ..
                            MINI_ADDONS_LANG(
-                               "Switching the display of the party info frame. For mouse mode.Party info right-click"))
+            "Switching the display of the party info frame. For mouse mode.Party info right-click"))
     party_info:SetTextTooltip("파티 인포 프레임의 표시 전환. 마우스 모드용")
 
     local party_info_checkbox = frame:CreateOrGetControl('checkbox', 'party_info_checkbox', 10, x, 25, 25)
@@ -1584,7 +1583,7 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
             if slogutis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
-                                     5.0)
+                    5.0)
                 NICO_CHAT("{@st55_a}スローガティスまだやってへんで？")
             elseif upinis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
