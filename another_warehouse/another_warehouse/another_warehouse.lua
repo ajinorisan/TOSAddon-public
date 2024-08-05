@@ -15,10 +15,11 @@
 -- v1.1.5 倉庫にアイテム無い時に搬出バグってたの修正。あと1M未満のシルバー取り出し修正。怒涛の修正つかれたよ。
 -- v1.1.6 1M未満修正、倉庫自動搬出入最適化。
 -- v1.1.7 更に最適化。もう無理
+-- v1.1.8 預ける数と引き出す数が一緒でインベントリに無かった場合バグってたの修正。引き出し開始が早すぎて読み込めてなかったの修正。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.7"
+local ver = "1.1.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -206,14 +207,14 @@ function another_warehouse_lang(str)
             str = "データコピー完了"
         end
         -- Put delay time
-        if str == "Put delay time" then
-            str = "入庫遅延設定"
+        if str == "Delay time" then
+            str = "遅延設定"
         end
 
         -- Set the delay time in case of failure {nl}in warehouse entry. Basic is 0.5 sec.
-        if str == "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec." then
+        if str == "If the warehouse entry fails,{nl}set a longer time. Basic is 0.3 sec." then
             str =
-                "倉庫入庫に失敗する場合、時間を長めに設定してください。デフォルトは0.5秒です。"
+                "倉庫入出庫に失敗する場合、時間を長めに設定してください。デフォルトは0.3秒です。"
         end
 
         -- ui.SysMsg(another_warehouse_lang("The entered text is not numeric."){nl}入力された文字が数値ではないです。")
@@ -354,8 +355,8 @@ function another_warehouse_accountwarehouse_init()
 
         addon:RegisterMsg('ESCAPE_PRESSED', 'another_warehouse_accountwarehouse_close');
 
-        addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_accountwarehouse_open");
-        -- acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
+        -- addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_accountwarehouse_open");
+        acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
         acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close")
 
         local functionName = "YAACCOUNTINVENTORY_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
@@ -931,12 +932,12 @@ function another_warehouse_keeper_reserve()
     local delay = g.settings.delay
 
     if g.settings[LoginCID].item_check == 1 then
-        another_warehouse_item()
-        -- ReserveScript("another_warehouse_item()", delay)
+        -- another_warehouse_item()
+        ReserveScript("another_warehouse_item()", delay)
         return
     elseif g.settings[LoginCID].maney_check == 1 then
 
-        ReserveScript("another_warehouse_silver()", delay)
+        ReserveScript("another_warehouse_silver()", delay * 2)
         return
     else
         another_warehouse_end()
@@ -1033,8 +1034,6 @@ function another_warehouse_item()
                 g.putitemtbl[clsID] = {
                     iesid = "",
                     count = count
-                    -- handle = 0,
-                    -- invItem = ""
                 }
             end
             if type == clsID and inv_count > 0 then
@@ -1055,8 +1054,6 @@ function another_warehouse_item()
                 g.putitemtbl[clsID] = {
                     iesid = "",
                     count = count
-                    -- handle = 0,
-                    -- invItem = ""
                 }
             end
             if type == clsID and inv_count > 0 then
@@ -1081,35 +1078,45 @@ function another_warehouse_item()
         local inv_obj = GetIES(inv_Item:GetObject())
         local inv_clsid = inv_obj.ClassID
         if inv_obj.ClassName ~= MONEY_NAME then
-            for clsid, table in pairs(g.takeitemtbl) do
-                if clsid == inv_clsid then
+            for clsID, table in pairs(g.takeitemtbl) do
+                if clsID == inv_clsid then
                     local take_count = table.count - inv_Item.count
+
                     if take_count <= 0 then
-                        g.takeitemtbl[clsid] = nil
+                        g.takeitemtbl[clsID] = nil
                     else
-                        g.takeitemtbl[clsid].count = take_count
+                        g.takeitemtbl[clsID].count = take_count
                     end
                     break
                 end
             end
 
-            for clsid, table in pairs(g.putitemtbl) do
-                if clsid == inv_clsid then
+            for clsID, table in pairs(g.putitemtbl) do
+                if clsID == inv_clsid then
                     local put_count = inv_Item.count - table.count
                     if put_count > 0 then
-                        g.putitemtbl[clsid] = {
+                        g.putitemtbl[clsID] = {
                             iesid = guid,
                             count = put_count,
-                            -- handle = handle,
-                            -- invItem = inv_Item,
                             invcount = inv_Item.count
                         }
+                    elseif put_count == 0 then
+                        g.putitemtbl[clsID] = nil -- 同数の場合、putのみを除外
                     else
-                        g.putitemtbl[clsid] = nil
+                        g.putitemtbl[clsID] = nil
                     end
                     break
                 end
             end
+        end
+    end
+
+    -- 同数のアイテムをチェックして除外
+    for clsID, takeData in pairs(g.takeitemtbl) do
+        local putData = g.putitemtbl[clsID]
+        if putData and takeData.count == putData.count then
+            -- g.takeitemtbl[clsID] = nil
+            g.putitemtbl[clsID] = nil
         end
     end
 
@@ -1125,12 +1132,13 @@ function another_warehouse_item_take()
 
     session.ResetItemList()
     for clsid, table in pairs(g.takeitemtbl) do
+        -- print(clsid)
         local count = table.count
         local iesid = table.iesid
 
         if count ~= 0 then
 
-            session.AddItemID(tonumber(iesid), count)
+            session.AddItemID(iesid, count)
         end
     end
 
@@ -1437,13 +1445,13 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     delay_edit:SetTextAlign("center", "center") -- print(tostring(g.settings.silver))
 
     delay_edit:SetTextTooltip(another_warehouse_lang(
-        "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec."))
-    delay_edit:SetText(tonumber(g.settings.delay) or 0.5)
+        "If the warehouse entry fails,{nl}set a longer time. Basic is 0.3 sec."))
+    delay_edit:SetText(tonumber(g.settings.delay) or 0.3)
     delay_edit:SetEventScript(ui.ENTERKEY, 'another_warehouse_setting_edit')
 
     local delay_text = settingframe:CreateOrGetControl("richtext", "delay_text", 505, 125, 100, 0)
     AUTO_CAST(delay_text);
-    delay_text:SetText("{ol}" .. another_warehouse_lang("Put delay time"))
+    delay_text:SetText("{ol}" .. another_warehouse_lang("Delay time"))
 
     local team_text = settingframe:CreateOrGetControl("richtext", "team_text", 25, 125, 0, 0)
     AUTO_CAST(team_text);

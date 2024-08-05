@@ -310,7 +310,7 @@
 		"name" : "Another Warehouse",
 		"file" : "another_warehouse",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.7",
+		"fileVersion" : "v1.1.8",
 		"releaseTag" : "another_warehouse",
 		"unicode" : "⛄",
 		"description" : "倉庫をインベントリ風に改造します。自動搬出入機能付き。<br>Converts warehouse to inventory style. Includes automatic loading/unloading function.<br>창고를 인벤토리 스타일로 개조합니다. 자동 반입 및 반출 기능 포함.",
