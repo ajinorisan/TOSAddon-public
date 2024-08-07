@@ -16,10 +16,11 @@
 -- v1.1.6 1M未満修正、倉庫自動搬出入最適化。
 -- v1.1.7 更に最適化。もう無理
 -- v1.1.8 預ける数と引き出す数が一緒でインベントリに無かった場合バグってたの修正。引き出し開始が早すぎて読み込めてなかったの修正。
+-- v1.1.9 数量指定アイテムが倉庫に足りなかった場合に引き出さなかったバグ修正。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.8"
+local ver = "1.1.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1129,16 +1130,30 @@ function another_warehouse_item_take()
     if warehouseFrame:IsVisible() == 0 then
         return
     end
-
     session.ResetItemList()
-    for clsid, table in pairs(g.takeitemtbl) do
-        -- print(clsid)
-        local count = table.count
-        local iesid = table.iesid
 
-        if count ~= 0 then
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sortedGuidList = itemList:GetSortedGuidList()
+    local sortedCnt = sortedGuidList:Count()
+    local leave_one = g.settings.leave == 1
 
-            session.AddItemID(iesid, count)
+    for clsid, itemInfo in pairs(g.takeitemtbl) do
+        for i = 0, sortedCnt - 1 do
+            local guid = sortedGuidList:Get(i)
+            local invItem = itemList:GetItemByGuid(guid)
+            local inv_count = leave_one and invItem.count - 1 or invItem.count
+            local inv_obj = GetIES(invItem:GetObject())
+            local count = math.min(itemInfo.count, inv_count)
+            local iesid = invItem:GetIESID()
+
+            if iesid == itemInfo.iesid then
+
+                if count ~= 0 then
+
+                    session.AddItemID(iesid, count)
+                    break
+                end
+            end
         end
     end
 
