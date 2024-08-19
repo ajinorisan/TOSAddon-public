@@ -149,8 +149,43 @@ function cc_helper_in_btn_start()
         local indunenter = ui.GetFrame("indunenter")
         if induninfo:IsVisible() == 0 or indunenter:IsVisible() == 0 then
             g.tooltip_count = 0
-            cc_helper_unequip()
-            return
+            local equip_tbl = {{
+                type = "LEG",
+                iesid_key = "leg_iesid",
+                slot_index = 13
+            }, {
+                type = "SEAL",
+                iesid_key = "seal_iesid",
+                slot_index = 25
+            }, {
+                type = "RELIC",
+                iesid_key = "crown_iesid",
+                slot_index = 29
+            }, {
+                type = "ARK",
+                iesid_key = "ark_iesid",
+                slot_index = 27
+            }, {
+                type = "HAT",
+                iesid_key = "hair1_iesid",
+                slot_index = 0
+            }, {
+                type = "HAT_L",
+                iesid_key = "hair3_iesid",
+                slot_index = 1
+            }, {
+                type = "HAT_T",
+                iesid_key = "hair2_iesid",
+                slot_index = 20
+            }, {
+                type = "GOD",
+                iesid_key = "god_iesid",
+                slot_index = 14
+            }}
+            for _, equip in ipairs(equip_tbl) do
+            frame:RunUpdateScript("cc_helper_unequip", g.settings.delay)
+            end
+           
         end
     else
         ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."))
@@ -162,41 +197,8 @@ function cc_helper_unequip()
     local frame = ui.GetFrame("inventory")
     local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     eqpTab:SelectTab(1)
-    local equip_tbl = {{
-        type = "LEG",
-        iesid_key = "leg_iesid",
-        slot_index = 13
-    }, {
-        type = "SEAL",
-        iesid_key = "seal_iesid",
-        slot_index = 25
-    }, {
-        type = "RELIC",
-        iesid_key = "crown_iesid",
-        slot_index = 29
-    }, {
-        type = "ARK",
-        iesid_key = "ark_iesid",
-        slot_index = 27
-    }, {
-        type = "HAT",
-        iesid_key = "hair1_iesid",
-        slot_index = 0
-    }, {
-        type = "HAT_L",
-        iesid_key = "hair3_iesid",
-        slot_index = 1
-    }, {
-        type = "HAT_T",
-        iesid_key = "hair2_iesid",
-        slot_index = 20
-    }, {
-        type = "GOD",
-        iesid_key = "god_iesid",
-        slot_index = 14
-    }}
 
-    for _, equip in ipairs(equip_tbl) do
+  
         local Type = equip.type
         local save_iesid = g.settings[g.cid][equip.iesid_key]
         local index = equip.slot_index
@@ -256,6 +258,16 @@ function cc_helper_unequip()
                     end
                 end
             end
+        end
+   
+
+    for _, equip in ipairs(equip_tbl) do
+        local save_iesid = g.settings[g.cid][equip.iesid_key]
+        local invItem = session.GetInvItemByGuid(save_iesid)
+        if invItem ~= nil then
+            ReserveScript(string.format("cc_helper_inv_to_warehouse('%s','%s')", save_iesid, equip.type),
+                          g.settings.delay)
+            return
         end
     end
     ReserveScript("cc_helper_end_operation()", g.settings.delay * 2)
@@ -2036,25 +2048,4 @@ function cc_helper_handle_monstercard_change()
             name = "cancel_btn",
             text = "CANCEL",
             tooltip = "",
-            func = "cc_helper_monstercard_change",
-            enable = true,
-            skin = "test_gray_button"
-        }}
-
-        for i, btn in ipairs(buttons) do
-            local button = msgframe:CreateOrGetControl('button', btn.name, 20 + (i - 1) * 85, 45, 80, 30)
-            button:SetText("{ol}" .. btn.text)
-            button:SetTextTooltip(btn.tooltip)
-            button:SetEventScript(ui.LBUTTONUP, btn.func)
-            if btn.enable then
-                button:SetEnable(1)
-            else
-                button:SetEnable(0)
-            end
-            button:SetSkinName(btn.skin)
-        end
-
-        msgframe:ShowWindow(1)
-    end
-end
-
+            func = "cc_hel
