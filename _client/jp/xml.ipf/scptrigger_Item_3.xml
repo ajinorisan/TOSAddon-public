@@ -1405,7 +1405,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="PST04_122_4_Lv2">
+	<SpcItem Name="PST04_122_4_Lv2">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -1451,7 +1451,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="DAG04_123_8_Lv2">
+	<SpcItem Name="DAG04_123_8_Lv2">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -1474,7 +1474,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="SWD04_126_5_Lv2">
+	<SpcItem Name="SWD04_126_5_Lv2">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -1612,7 +1612,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="TSF04_129_9_Lv2">
+	<SpcItem Name="TSF04_129_9_Lv2">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -3439,7 +3439,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-<SpcItem Name="DAG04_123_8_Lv3">
+	<SpcItem Name="DAG04_123_8_Lv3">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -3462,7 +3462,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="SWD04_126_5_Lv3">
+	<SpcItem Name="SWD04_126_5_Lv3">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -3600,7 +3600,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="TSF04_129_9_Lv3">
+	<SpcItem Name="TSF04_129_9_Lv3">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -3623,8 +3623,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-
-<SpcItem Name="TBW04_126_4_Lv3">
+	<SpcItem Name="TBW04_126_4_Lv3">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -5405,7 +5404,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="DAG04_123_8_Lv4">
+	<SpcItem Name="DAG04_123_8_Lv4">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -5428,7 +5427,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="SWD04_126_5_Lv4">
+	<SpcItem Name="SWD04_126_5_Lv4">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -7658,7 +7657,7 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-		<SpcItem Name="TSF04_129_9_Lv4">
+	<SpcItem Name="TSF04_129_9_Lv4">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -8050,7 +8049,8 @@
 				</CondList>
 			</Trigger>
 		</TriggerList>
-	</SpcItem><SpcItem Name="BOW04_126_2_Lv2">
+	</SpcItem>
+	<SpcItem Name="BOW04_126_2_Lv2">
 		<TriggerList Act="UnEquip">
 			<Trigger>
 				<ExecList>
@@ -8119,7 +8119,6 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
-
 	<SpcItem Name="TMAC04_119_1">
 		<TriggerList Act="UnEquip">
 			<Trigger>
@@ -8303,7 +8302,7 @@
 				</CondList>
 			</Trigger>
 		</TriggerList>
-	</SpcItem>	
+	</SpcItem>
 	<SpcItem Name="TBW04_126_8">
 		<TriggerList Act="UnEquip">
 			<Trigger>
@@ -8395,7 +8394,7 @@
 				</CondList>
 			</Trigger>
 		</TriggerList>
-	</SpcItem>	
+	</SpcItem>
 	<SpcItem Name="TSW04_127_1_8">
 		<TriggerList Act="UnEquip">
 			<Trigger>
@@ -8487,5 +8486,803 @@
 				</CondList>
 			</Trigger>
 		</TriggerList>
-	</SpcItem>	
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_SWORD">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_THSWORD">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_STAFF">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_THBOW">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_BOW">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_MACE">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_THMACE">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_SHIELD">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_SPEAR">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_THSPEAR">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_DAGGER">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_THSTAFF">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_PISTOL">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_RAPIER">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_CANNON">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_MUSKET">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_TRINKET">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_weapon" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_CLOTH_TOP">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_CLOTH_LEG">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_CLOTH_FOOT">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_CLOTH_HAND">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_LEATHER_TOP">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_LEATHER_LEG">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_LEATHER_FOOT">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_LEATHER_HAND">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_PLATE_TOP">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_PLATE_LEG">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_PLATE_FOOT">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="EP16_RAID_PLATE_HAND">
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_ep16_goddess_armor" Client="NO" UseSleep="NO">
+          </ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TBW04_126_8">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TBW04_126_8_Lv2">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TBW04_126_8_Lv3">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TBW04_126_8_Lv4">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="MUS04_127_1">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="MUS04_127_1_Lv2">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="MUS04_127_1_Lv3">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="MUS04_127_1_Lv4">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TSF04_127_1">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TSF04_127_1_Lv2">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TSF04_127_1_Lv3">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="TSF04_127_1_Lv4">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="unequip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="equip_vibora" Client="NO" UseSleep="NO"/>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="SkillUsed">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="skillused_vibora" Client="NO" UseSleep="NO"/>
+				</CondList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
 </SpcItemList>

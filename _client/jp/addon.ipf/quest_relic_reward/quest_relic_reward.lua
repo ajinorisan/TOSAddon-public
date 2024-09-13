@@ -78,13 +78,18 @@ function QUEST_RELIC_REWARD_MAKE_REWARD_CTRL(gbBody, x, y, relicRewardIES)
 end
 
 -- 보상 - 아이템
-function QUEST_RELIC_REWARD_MAKE_REWARD_ITEM_CTRL(gbBody, x, y, relicRewardIES)
+function QUEST_RELIC_REWARD_MAKE_REWARD_ITEM_CTRL(gbBody, x, y, relicRewardIES)    
     local height = 0
     local rewardList = SCR_STRING_CUT(relicRewardIES.Reward_1, ';')
     for i = 1, #rewardList do
         local propList = SCR_STRING_CUT(rewardList[i], '/')
         local rewardName = propList[1]
         local rewardCount = propList[2]
+
+        if string.find(rewardName, 'CertificateCoin') ~= nil then
+            local prefix = StringSplit(rewardName, '_')[1]
+            rewardName = replace(rewardName, prefix, SEASON_COIN_PREFIX_NAME)
+        end
 
         if IS_SEASON_SERVER() == 'YES' and rewardName == 'Relic_exp_token' then
             rewardCount = tonumber(rewardCount) * 10

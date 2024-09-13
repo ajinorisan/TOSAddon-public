@@ -12,11 +12,11 @@
 	<animation frameOpenAnim="dialog_start" frameCloseAnim="dialog_end" margin="0 0 0 0"/>
     <controls>
     <!-- 관리탭 -->
-        <groupbox name="MainTab" rect="0 0 500 300" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="cupolegreenroundsquare2" />
+        <groupbox name="MainTab" rect="0 0 500 300" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreenroundsquare2" />
 			<richtext name="MainText" parent="MainTab" rect="0 0 450 100" margin="0 -10 0 0" layout_gravity="center center" format="{@st66d}{s18}%s" param1="text" param1_def="0" hittest="false" fixwidth="true" textalign="center center"/>
 			<button name="confirm" parent="MainTab" rect="0 0 150 60" margin="100 0 0 20" layout_gravity="center bottom" LBtnUpScp="" skin="cupole_greenbtn" stretch="true" caption="{@st66d}{s20}확인" textalign="center top" textoffset="0 13"/>
 			<button name="cancle" parent="MainTab" rect="0 0 150 60" margin="-100 0 0 20" layout_gravity="center bottom" LBtnUpScp="REMESSAGEBOX_CLOSE_BTN" skin="cupole_bluebtn" stretch="true" caption="{@st66d}{s20}취소" textalign="center top" textoffset="0 13"/>
-        <groupbox name="MainTopTab" rect="0 0 500 55" margin="0 -150 0 0" layout_gravity="center center" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="cupolehalfgreenroundsquare" />
+        <groupbox name="MainTopTab" rect="0 0 500 55" margin="0 -150 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolehalfgreenroundsquare" />
 			<picture name="image1" parent="MainTopTab" rect="0 0 115 50" margin="0 2 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="img_popup_title" Reverse="true"/>
 			<picture name="image2" parent="MainTopTab" rect="0 0 115 50" margin="0 2 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="right top" image="img_popup_title" />
 			<richtext name="gachatype0" parent="MainTopTab" rect="0 0 350 100" margin="0 0 0 0" layout_gravity="center center" caption="{@st66d}{s24}알림" hittest="false" fixwidth="true" textalign="center center"/>

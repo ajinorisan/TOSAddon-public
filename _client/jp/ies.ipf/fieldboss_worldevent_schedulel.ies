@@ -8,4 +8,4 @@ ClassID,StartHour_1,StartHour_2,EnteranceDurationSecond,BattleDurationSecond,Cli
 7,10,20,300,500,0,0,"1005","GLOBAL 인 경우, 월드 Index(ClassName으로 가져온다)"
 8,12,22,300,500,0,0,"1101","GLOBAL 인 경우, 월드 Index(ClassName으로 가져온다).qa 서버용 데이터."
 9,12,22,300,500,0,0,"1201","GLOBAL 인 경우, 월드 Index(ClassName으로 가져온다).qa 서버용 데이터."
-10,10,17,300,500,10,17,"PAPAYA",""
+10,13,21,300,500,13,21,"PAPAYA",""

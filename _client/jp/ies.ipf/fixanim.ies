@@ -138,3 +138,6 @@ ClassID,ClassName
 143,"skl14_loop"
 144,"skl15_loop"
 145,"EVENT_DOWN"
+146,"roll_cast"
+147,"roll_loop"
+148,"roll_end"

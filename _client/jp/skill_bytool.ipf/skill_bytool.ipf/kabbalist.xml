@@ -1,0 +1,469 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ToolSkill>
+    <Skill Name="Kabbalist_TheTreeOfSepiroth">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="600" UseSleep="NO">
+                    <Pos Angle="0" Dist="0" PosType="3"/>
+                    <Angle Angle="0"/>
+                    <Str Str="TheTreeOfSepiroth_Pad"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+        <ByCondSkills>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Client="NO" Scp="SKL_SELECT_ACTIVE_ABIL" UseSleep="NO">
+                        <Str Str="Kabbalist38"/>
+                    </ToolScp>
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <EtcList>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="300">
+                            <Str Str="voice_war_atk_short"/>
+                            <Str Str="voice_atk_short_war_f"/>
+                        </Scp>
+                        <Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="600" UseSleep="NO">
+                            <Pos Angle="0" Dist="0" PosType="3"/>
+                            <Angle Angle="0"/>
+                            <Str Str="TheTreeOfSepiroth_Abil_Pad"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+        </ByCondSkills>
+    </Skill>
+    <Skill Name="Kabbalist_Gevura">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_CIRCLE" Time="0" UseSleep="NO">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="150"/>
+                    <Num Num="50"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+                    <Str Str="KABAL_GEVURA"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_cleric_m_Gevura_cast"/>
+                    <Str Str="voice_cleric_Gevura_cast"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="300" UseSleep="NO">
+                    <Str_Arg Arg="1.2" Str="F_lineup022_blue"/>
+                    <Str Str="Dummy_emitter"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_TGT_REMOVE_BUFF" Time="100" UseSleep="NO">
+                    <Str FuncTxt="local func_name = 'get_remove_buff_tooltip_' .. TryGetProp(obj, 'ClassName', 'None')
+               local func = _G[func_name]
+               if func == nil then return end
+               return func(obj.Level)" Str="0" UseFunc="1"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Clone">
+        <EnableScripts>
+            <ToolScp Client="BOTH" Scp="CHECK_IS_NO_CHANGEDROPLIST" UseSleep="NO"/>
+        </EnableScripts>
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_CIRCLE" Time="0" UseSleep="NO">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="50"/>
+                    <Num Num="2"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+                    <Str Str="KABAL_EXEC_MONSTER_COPY"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+                    <Str Str="voice_cleric_m_clone_shot"/>
+                    <Str Str="voice_cleric_f_clone_shot"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="skl_eff_clone_cast"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Merkabah">
+        <KeyInput>
+            <ToolScp Client="YES" Scp="SKL_KEY_GROUND_EVENT" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="200"/>
+                <Num Num="0.1"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Str_Arg Arg="1" Str="None"/>
+                <Str Str="None"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="5"/>
+                <Num Num="1"/>
+                <Num Num="45"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+            </ToolScp>
+        </KeyInput>
+        <KeyInputStart>
+            <ToolScp Client="YES" Scp="C_EFFECT" UseSleep="NO">
+                <Str_Arg Arg="0.89999998" Str="F_cleric_merkabah_ground_loop"/>
+                <Str Str="Dummy_emitter"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Client="YES" Scp="C_EFFECT" UseSleep="NO">
+                <Str_Arg Arg="0.60000002" Str="F_cleric_ausirine_shot_ground"/>
+                <Str Str="Dummy_emitter"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </KeyInputStart>
+        <KeyInputEnd>
+            <ToolScp Client="YES" Scp="C_EFFECT_DETACH" UseSleep="NO">
+                <Str_Arg Arg="1" Str="F_cleric_merkabah_ground_loop"/>
+                <Num Num="0.5"/>
+            </ToolScp>
+            <ToolScp Client="YES" Scp="C_EFFECT" UseSleep="NO">
+                <Str_Arg Arg="1" Str="F_wizard_prominence_shot_lineup"/>
+                <Str Str="Dummy_emitter"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Client="YES" Scp="C_EFFECT_DETACH" UseSleep="NO">
+                <Str_Arg Arg="1" Str="F_cleric_ausirine_shot_ground"/>
+                <Num Num="0.5"/>
+            </ToolScp>
+        </KeyInputEnd>
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" TimeSync="0" UseSleep="NO">
+                    <Str Str="KABBAL_MERKABAH"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_cleric_m_merkabah_shot"/>
+                    <Str Str="voice_cleric_merkabah_shot"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Nachash">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="300" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="0" Type="FAN" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="300" UseSleep="NO">
+                    <Str Str="voice_cleric_m_nachash_shot"/>
+                    <Str Str="voice_cleric_nachash_shot"/>
+                </Scp>
+                <Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="600" UseSleep="NO">
+                    <Pos Angle="0" Dist="0" PosType="3"/>
+                    <Angle Angle="0"/>
+                    <Str Str="Nachash_Pad" UseFunc="1" FuncTxt="local pad_name = &quot;Nachash_Pad&quot;
+                    if GetExProp(self, &quot;ITEM_VIBORA_Ilgesys&quot;) > 0 then
+                        pad_name = &quot;Nachash_Vibora_Pad&quot;
+                    end
+                    return pad_name"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_RevengedSevenfold">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <EtcList>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="150"/>
+                    <Num Num="5"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                    <Str Str="voice_cleric_m_revengedsevenfold_shot"/>
+                    <Str Str="voice_cleric_revengedsevenfold_shot"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="300">
+                    <Str Str="" UseFunc="1" FuncTxt="local buff = &quot;RevengedSevenfold_Buff&quot;
+                    local abil = GetAbility(self, &quot;Kabbalist32&quot;)
+                    if abil ~= nil and TryGetProp(abil, &quot;ActiveState&quot;, 0) == 1 then
+                        buff = &quot;RevengedSevenfold_Abil_Buff&quot;
+                    end
+                    return buff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return obj.Level"/>
+                    <Num Num="0"/>
+                    <Num Num="15000" UseFunc="1" FuncTxt="local value = SCR_GET_RevengedSevenfold_Time(obj) * 1000
+                    return value"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Reduce_Level">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_CIRCLE" Time="0" UseSleep="NO">
+                    <Pos Angle="0" Dist="20"/>
+                    <Num Num="20"/>
+                    <Num FuncTxt=" return 2 + obj.Level * 1" Num="5" UseFunc="1"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+                    <Str Str="KABAL_EXEC_LEVEL_DOWN"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_cleric_m_reducelevel_shot"/>
+                    <Str Str="voice_cleric_f_reducelevel_shot"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="300" UseSleep="NO">
+                    <Str_Arg Arg="1.2" Str="F_lineup022_blue"/>
+                    <Str Str="Dummy_emitter"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Multiple_Hit_Chance">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_CIRCLE" Time="0" UseSleep="NO">
+                    <Pos Angle="0" Dist="20"/>
+                    <Num Num="20"/>
+                    <Num FuncTxt="return 2 + obj.Level * 1;" Num="5" UseFunc="1"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+                    <Str Str="KABAL_EXEC_MULTIPLY_DAMAGE"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_cleric_m_chanceformultiplehits_shot"/>
+                    <Str Str="voice_cleric_f_chanceformultiplehits_shot"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="300" UseSleep="NO">
+                    <Str_Arg Arg="1.2" Str="F_lineup022_mint"/>
+                    <Str Str="Dummy_emitter"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Notarikon">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_CIRCLE" Time="0" UseSleep="NO">
+                    <Pos Angle="0" Dist="20"/>
+                    <Num Num="110"/>
+                    <Num FuncTxt=" return 10 + GET_ABIL_LEVEL(self, 'Kabbalist14')" Num="1" UseFunc="1"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+                    <Str Str="KABAL_SET_DIGIT_AND_CALC_FIRSTEND"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_cleric_m_notarikon_shot"/>
+                    <Str Str="voice_cleric_notarikon_shot"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Ayin_sof">
+        <KeyInput>
+            <ToolScp Scp="SKL_PARTY_TARGET_BY_KEY" Client="YES" UseSleep="NO">
+                <Num Num="1"/>
+            </ToolScp>
+        </KeyInput>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="0">
+                    <Str_Arg Str="F_cleric_Ayin_sof_shot" Arg="3"/>
+                    <Str Str="None"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_SET_TARGET_CLIENT_TARGETTING" Client="NO" UseSleep="NO" Time="0">
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                    <Str Str="voice_cleric_m_ayinsof_shot"/>
+                    <Str Str="voice_cleric_ayinsof_shot"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="500">
+                    <Str Str="Ayin_sof_Buff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return obj.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="0" UseFunc="1" FuncTxt="local buffTime = SCR_GET_Ayin_sof_Time(obj) * 1000 return buffTime;"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="500">
+                    <Str Str="Ayin_sof_Cool_Buff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return obj.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="90000" UseFunc="1" FuncTxt="return SCR_GET_Ayin_sof_Ratio3(obj) * 1000" />
+                    <Num Num="1"/> 
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Gematria">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_CIRCLE" Time="0" UseSleep="NO">
+                    <Pos Angle="0" Dist="20"/>
+                    <Num Num="110"/>
+                    <Num FuncTxt=" return 10 + GET_ABIL_LEVEL(self, 'Kabbalist14')" Num="1" UseFunc="1"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+                    <Str Str="KABAL_SET_DIGIT_AND_CALC_PLUS"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_cleric_m_gematria_shot"/>
+                    <Str Str="voice_cleric_gematria_shot"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Kabbalist_Anagrama">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="EFFECT_POS_ROTATE" Client="NO" UseSleep="NO" Time="0">
+                    <Str_Arg Str="F_cleric_Ayin_sof_active_ground" Arg="1"/>
+                    <Pos Angle="0" Dist="0" PosType="5"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="300">
+                    <Str Str="voice_cleric_m_notarikon_shot"/>
+                    <Str Str="voice_cleric_notarikon_shot"/>
+                </Scp>
+                <Scp Scp="EFFECT_POS_ROTATE" Client="NO" UseSleep="NO" Time="500">
+                    <Str_Arg Str="F_ground207_crack_explosion_blue" Arg="0.69999999"/>
+                    <Pos Angle="0" Dist="0" PosType="5"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="500">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="80"/>
+                    <Num FuncTxt="local value = SCR_GET_Anagrama_Ratio(obj)
+                    return value" Num="10" UseFunc="1"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="500">
+                    <Str Str="Anagrama_Debuff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return obj.Level"/>
+                    <Num Num="0"/>
+                    <Num Num="15000" UseFunc="1" FuncTxt="local value = SCR_GET_Anagrama_Time(obj) * 1000
+                    return value"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Common_Kabbalist_Ayin_sof">
+        <KeyInput>
+            <ToolScp Scp="SKL_PARTY_TARGET_BY_KEY" Client="YES" UseSleep="NO">
+                <Num Num="1"/>
+            </ToolScp>
+        </KeyInput>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="0">
+                    <Str_Arg Str="F_cleric_Ayin_sof_shot" Arg="3"/>
+                    <Str Str="None"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_SET_TARGET_CLIENT_TARGETTING" Client="NO" UseSleep="NO" Time="0">
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                    <Str Str="voice_cleric_m_ayinsof_shot"/>
+                    <Str Str="voice_cleric_ayinsof_shot"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="500">
+                    <Str Str="Ayin_sof_Buff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return obj.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="0" UseFunc="1" FuncTxt="local buffTime = SCR_GET_Ayin_sof_Time(obj) * 1000 return buffTime;"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="500">
+                    <Str Str="Ayin_sof_Cool_Buff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return obj.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="90000" UseFunc="1" FuncTxt="return SCR_GET_Ayin_sof_Ratio3(obj) * 1000" />
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+</ToolSkill>

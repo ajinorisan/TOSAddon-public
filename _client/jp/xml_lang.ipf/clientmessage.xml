@@ -137,6 +137,7 @@
 		<Class ClassID="529" ClassName="RequireEquipmentShield" Data="방패 착용이 필요한 스킬입니다."/>
 		<Class ClassID="530" ClassName="CantUseInRiding" Data="탑승 중에는 사용할 수 없습니다."/>		
 		<Class ClassID="531" ClassName="RequireWeaponEnhancement" Data="무기 강화 상태에서만 사용할 수 있습니다."/>
+		<Class ClassID="532" ClassName="CantResurrection" Data="아직 부활할 수 없습니다."/>
 	</Category>
 	<Category Name="SimpleWords">
 		<Class ClassID="1100" ClassName="ValidTime" Data="지속 시간"/>
@@ -239,6 +240,7 @@
 		<Class ClassID="1202" ClassName="KupoleURExplain" Data="큐폴이 흡수하면 여신의 힘이 더욱 강해지는 보석.{nl}UR등급 큐폴만이 흡수할 수 있다."/>
 		<Class ClassID="1203" ClassName="KupoleURItem" Data="여신의 은총 : UR"/>
 		<Class ClassID="1204" ClassName="KupoleBuffAlreadyApply" Data="이미 동일한 효과의 버프를 보유하고 있습니다."/>
+		<Class ClassID="1205" ClassName="enable_upgrade" Data="{@st42_red}업그레이드 가능{/}"/>
 		</Category>
 	<Category Name="Reinforce">
 		<Class ClassID="2001" ClassName="NotEnoughReinforcePotential" Data="강화에 필요한 포텐셜이 부족합니다"/>
@@ -406,6 +408,17 @@
 		<Class ClassID="2164" ClassName="cant_use_more_than_lvup_point" Data="스크롤보다 더 높은 레벨의 아이템에는 사용할 수 없습니다."/>
 		<Class ClassID="2165" ClassName="lv500_rada_option_rescale_scroll" Data="[Lv.500] 라다 옵션 리셋 스크롤"/>
 		<Class ClassID="2166" ClassName="lv500_aether_lvup_scroll" Data="[Lv.500] 에테르젬 레벨업 스크롤"/>
+		<Class ClassID="2167" ClassName="lv510_belt_option_scroll" Data="빛나는 속성 주문서 - [유라테] 상급 통찰의 허리띠"/>
+		<Class ClassID="2168" ClassName="lv510_shoulder_option_scroll" Data="빛나는 속성 주문서 - [유라테] 상급 맹렬의 어깨보호구"/>
+		<Class ClassID="2169" ClassName="lv420_ark_option_scroll" Data="빛나는 속성 주문서 - 아크"/>
+		<Class ClassID="2170" ClassName="lv510_belt_option_scroll2" Data="빛나는 속성 주문서 II - [유라테] 상급 통찰의 허리띠"/>
+		<Class ClassID="2171" ClassName="lv510_shoulder_option_scroll2" Data="빛나는 속성 주문서 II - [유라테] 상급 맹렬의 어깨보호구"/>
+		<Class ClassID="2172" ClassName="lv420_ark_option_scroll2" Data="빛나는 속성 주문서 II - 아크"/>
+		<Class ClassID="2173" ClassName="lv510_belt_option_reset_scroll" Data="속성 초기화 주문서 - [유라테] 상급 통찰의 허리띠"/>
+		<Class ClassID="2174" ClassName="lv510_shoulder_option_reset_scroll" Data="속성 초기화 주문서 - [유라테] 상급 맹렬의 어깨보호구"/>
+		<Class ClassID="2175" ClassName="lv420_ark_option_reset_scroll" Data="속성 초기화 주문서 - 아크"/>
+		<Class ClassID="2176" ClassName="lv520_jurate_option_reset_scroll" Data="[Lv.520] 유라테의 축복 초기화 스크롤"/>
+		<Class ClassID="2177" ClassName="lv520_jurate_option_scroll" Data="빛나는 속성 주문서 - [유라테의 축복]"/>
 	</Category>
 	<Category Name="ItemContents">
 		<Class ClassID="2200" ClassName="ClickSocketTargetItem" Data="소켓을 추가 할 아이템을 선택해주세요"/>
@@ -597,8 +610,7 @@
 		<Class ClassID="2406" ClassName="{name}dice{num}{max}" Data="[{#33FF33}{name}{/}]님이 주사위를 굴려 [{#33FF33}{num}{/}]이(가) 나왔습니다.(1-{max})"/>
 		<Class ClassID="2407" ClassName="TryRandomOptionPresetApply" Data="각인 부여 시 {#0000ff}기존 옵션은 제거{/}됩니다.{nl}선택된 장비에 대하여 각인 부여를 하시겠습니까?"/>
 		<Class ClassID="2408" ClassName="ReallyDoCraftByConvertArmor{item1}{item2}" Data="{#0001ff}[{item1}]{/}을/를{nl}{#0001ff}[{item2}]{/}로{nl}정말 변경 하시겠습니까?{nl} {nl}{#ff0100}(계열 변경 시 각성, 고정 아이커 옵션이 사라집니다.){/}"/>
-		<Class ClassID="2409" ClassName="Briquetting_Hair_Acc" Data="헤어 코
-		스튬 옵션 이전"/>
+		<Class ClassID="2409" ClassName="Briquetting_Hair_Acc" Data="헤어 코스튬 옵션 이전"/>
 		<Class ClassID="2410" ClassName="WrongLookMaterialItem_HairAcc" Data="헤어 코스튬 옵션 이전 재료로 등록할 수 없는 아이템입니다."/>
 		<Class ClassID="2411" ClassName="Briquetting_Hair_Acc_Result" Data="등록한 아이템이 소모됩니다.{nl}{@st66d_y}[{BEFORE}]{/}  ▶ {@st66d_y}[{AFTER}]{/}{nl} 헤어 코스튬 옵션이 이전됩니다.{nl} {nl}진행하시겠습니까?"/>
 		<Class ClassID="2412" ClassName="NeedGoddessGrade" Data="가디스 등급 이상인 아이템만 가능합니다."/>
@@ -650,6 +662,10 @@
 		<Class ClassID="2461" ClassName="COMMON_ACC_UPGRADE_MSG" Data="장신구 업그레이드"/>
 		<Class ClassID="2462" ClassName="AlreadyMaxGrade" Data="최고 등급에 도달하였습니다."/>
 		<Class ClassID="2463" ClassName="SkillGemDecompositionMsg" Data="{@st66d}{s15}[장비 보관함] - [스킬 젬]{/}{/} 메뉴를 통해 등록하여 사용할 수 있습니다.{nl} {nl}{#0000ff}페디미안 11시 방향 - {@st66d}{s15}나우요베스 NPC{/}{/}의 [스킬 젬 합성]을 통해 불필요한 스킬 젬을 합성하여 다른 종류의 스킬 젬을 획득할 수 있습니다.{/}"/>
+		<Class ClassID="2464" ClassName="COMMON_EQUIP_UPGRADE_MSG" Data="무기/방어구 업그레이드"/>
+		<Class ClassID="2465" ClassName="OptionScrollWarning" Data="아이템 변경사항 안내{nl} {nl} - 아이템에 추가 속성을 부여합니다. {#FF0000}부여된 속성은 되돌릴 수 없습니다.{/}"/>
+		<Class ClassID="2466" ClassName="rada_coin_shop" Data="여신의 증표(라다) 상점"/>
+		<Class ClassID="2467" ClassName="OptionResetScrollWarning" Data="아이템 변경사항 안내{nl} {nl} - {#FF0000}부여된 속성이 사라집니다.{/}"/>
 	</Category>
 	<Category Name="ClassContents">
 		<Class ClassID="2500" ClassName="FullWeeklyGainClassResetExp" Data="주간 획득 가능한 클래스 변경 포인트를 모두 달성하였습니다."/>
@@ -1495,6 +1511,25 @@
 		<Class ClassID="4626" ClassName="get_item{name}{count}" Data="{name} {count}개"/>
 		<Class ClassID="4627" ClassName="cupole_item" Data="큐폴"/>
 		<Class ClassID="4628" ClassName="CantAlreadyInputItem" Data="이미 아이템이 추가되어 있습니다."/>
+		<Class ClassID="4629" ClassName="Result_JurateCertificate" Data="여신의 증표(유라테) : {count1} → {count2}"/>
+		<Class ClassID="4630" ClassName="DoNotEquipAndUnEquipMsg" Data="지금은 장비 장착, 해제가 불가능합니다."/>
+		<Class ClassID="4631" ClassName="EP15_RAID_SWORD" Data="마신의 소드"/>
+		<Class ClassID="4632" ClassName="EP15_RAID_THSWORD" Data="마신의 투 핸드 소드"/>
+		<Class ClassID="4633" ClassName="EP15_RAID_STAFF" Data="마신의 로드"/>
+		<Class ClassID="4634" ClassName="EP15_RAID_THBOW" Data="마신의 보우"/>
+		<Class ClassID="4635" ClassName="EP15_RAID_BOW" Data="마신의 크로스보우"/>
+		<Class ClassID="4636" ClassName="EP15_RAID_THMACE" Data="마신의 투 핸드 메이스"/>
+		<Class ClassID="4637" ClassName="EP15_RAID_SPEAR" Data="마신의 스피어"/>
+		<Class ClassID="4638" ClassName="EP15_RAID_THSPEAR" Data="마신의 파이크"/>
+		<Class ClassID="4639" ClassName="EP15_RAID_THSTAFF" Data="마신의 스태프"/>
+		<Class ClassID="4640" ClassName="EP15_RAID_RAPIER" Data="마신의 레이피어"/>
+		<Class ClassID="4641" ClassName="EP15_RAID_CANNON" Data="마신의 캐논"/>
+		<Class ClassID="4642" ClassName="EP15_RAID_MUSKET" Data="마신의 머스킷"/>
+		<Class ClassID="4643" ClassName="EP15_RAID_TRINKET" Data="마신의 트링킷"/>
+		<Class ClassID="4644" ClassName="EP15_RAID_SHIELD" Data="마신의 실드"/>
+		<Class ClassID="4645" ClassName="EP15_RAID_PISTOL" Data="마신의 피스톨"/>
+		<Class ClassID="4646" ClassName="EP15_RAID_DAGGER" Data="마신의 대거"/>
+		<Class ClassID="4647" ClassName="EP15_RAID_MACE" Data="마신의 메이스"/>
 	</Category>
 	<Category Name="ItemTooltip">
 		<Class ClassID="5001" ClassName="CoolDown : {Sec} Sec" Data="재사용 대기시간 : {Sec}초"/>
@@ -1774,7 +1809,16 @@
 		<Class ClassID="5279" ClassName="tooltip_Sunset_Lv4" Data="{nl} {nl}{@st66d}{s15} - 데스페라도 최종 스킬 대미지{img green_up_arrow 16 16}20%"/>
 		<Class ClassID="5280" ClassName="tooltip_Vanquish" Data=" - 뱅퀴셔 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 대지 분쇄 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 공간 베기 최종 대미지 {img green_up_arrow 16 16}50%"/>
 		<Class ClassID="5281" ClassName="tooltip_Vanquish_Lv4" Data="{nl} {nl}{@st66d}{s15} - 죽음의 무도 최종 대미지{img green_up_arrow 16 16}100%"/>
-        <Class ClassID="5282" ClassName="MiddleSize_Atk_BM" Data="중형 대상 공격력"/>
+		<Class ClassID="5283" ClassName="tooltip_ParticleAccel" Data="{nl} {nl}프로토콜: T8CY{nl}* [입력: 정화] 스킬 사용 시, 지면이 재차 폭파하여 최종 대미지의 50% 만큼의 추가 피해를 가합니다."/>
+		<Class ClassID="5284" ClassName="tooltip_ParticleAccel_Lv4" Data="{nl} {nl}{@st66d}{s15} - [입력: 정화] 재사용 대기시간 4초 {img white_right_arrow 18 18}  3초 로 변경"/>
+		<Class ClassID="5282" ClassName="MiddleSize_Atk_BM" Data="중형 대상 공격력"/>
+		<Class ClassID="5285" ClassName="jurate_option" Data="{@st47}{s15}{#FFFFEE}[유라테의 축복]{/}{/}{/}"/>
+		<Class ClassID="5286" ClassName="jurate_option_end" Data="{@st47}{s15}{#FFFFEE}위의 옵션은 유라테 시즌에서만 유효한 옵션입니다.{/}{/}{/}"/>
+		<Class ClassID="5287" ClassName="jurate_allskillup" Data="- 모든 직업 스킬 레벨{#8000FF}{level}{/}증가"/>
+		<Class ClassID="5288" ClassName="jurate_cooldown" Data="- 재사용 대기시간{#8000FF}{level}%{/}감소"/>
+		<Class ClassID="5289" ClassName="jurate_lostlife" Data="- 잃은 생명력 10%당 받는 피해{#8000FF}{level}%{/}감소(최대 90%)"/>
+		<Class ClassID="5290" ClassName="jurate_criup" Data="- 치명타 발생 확률{#8000FF}{level}%{/}증가"/>
+		<Class ClassID="5291" ClassName="jurate_speedup" Data="- 이동속도{#8000FF}{level}{/}증가"/>
 	</Category>
 	<Category Name="PeriodicTitle">
 		<Class ClassID="6001" ClassName="TournamentChampion" Data="토너먼트 챔피언"/>
@@ -3007,6 +3051,7 @@
 		<Class ClassID="21484" ClassName="PAPAYA_Attendance_infoText_1" Data="* The rewards received will be found in your Inventory (F2)"/>
 		<Class ClassID="21485" ClassName="NewEpisodeLockMsg_Episode_16_1" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode16-1]{/}의 퀘스트 시작은 {#FFFF00}스타리타운{/}의 {#FFFF00}스타리 시계 탑 광장 근처{/}로부터 시작할 수 있습니다."/>
 		<Class ClassID="21486" ClassName="RecipeBox" Data="레시피 상자"/>
+		<Class ClassID="21487" ClassName="NewEpisodeLockMsg_Episode_16_2" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode16-2]{/}의 퀘스트 시작은 {#FFFF00}라이마의 성소{/}의 {#FFFF00}라이마 NPC{/}로부터 시작할 수 있습니다."/>
 	</Category>
 	<Category Name="ChatText">
 		<Class ClassID="22001" ClassName="Guard" Data="방어"/>
@@ -10988,6 +11033,21 @@
 		<Class ClassID="92280" ClassName="GACHA_SITEM_GET_ALLMSG_COUNT_PAPAYA" Data="{s24}Congratulations!{nl}{PC} has obtained a(n) {ITEMNAME} x{COUNT}{nl}from Papaya Cube!"/>
 		<Class ClassID="92281" ClassName="AetherConvertTo" Data="{@st66}사용 시 선택한 에테르 젬으로 변환됩니다.{/}"/>
 		<Class ClassID="92282" ClassName="GlobalBuffUse_ALLMSG2" Data="{s40}라다 여신이 왕국 전역에 축복을 내렸습니다."/>
+		<Class ClassID="92283" ClassName="EP16_2_SELECT_OK_MSG" Data="그동안의 이야기를 전해준다."/>
+		<Class ClassID="92284" ClassName="EP16_2_FANLIB_48_3_MQ3_GET_MSG" Data="바이보라의 성수 획득"/>
+		<Class ClassID="92285" ClassName="EP16_2_FANLIB_48_3_MQ3_GET_COOL_TIME_MSG" Data="잠시 후 획득 가능합니다."/>
+		<Class ClassID="92286" ClassName="EP16_2_PREQUEST_CHECK_MSG" Data="사전 퀘스트를 완료 해야 이동하실 수 있습니다."/>
+		<Class ClassID="92287" ClassName="EP16_2_SELECT_OK_MSG1" Data="마족수감소의 일을 이야기한다."/>		
+		<Class ClassID="92288" ClassName="Goddess_Raid_BlackRevelation_Party" Data="검은 계시의 장: 가디스 레이드 (파티)"/>
+		<Class ClassID="92289" ClassName="Goddess_Raid_BlackRevelation_Auto" Data="검은 계시의 장: 가디스 레이드 (자동매칭)"/>
+		<Class ClassID="92290" ClassName="Goddess_Raid_BlackRevelation_Solo" Data="검은 계시의 장: 가디스 레이드 (1인)"/>
+		<Class ClassID="92291" ClassName="Goddess_Raid_CollapsingMine_Party" Data="무너지는 광산: 가디스 레이드 (파티)"/>
+		<Class ClassID="92292" ClassName="Goddess_Raid_CollapsingMine_Auto" Data="무너지는 광산: 가디스 레이드 (자동매칭)"/>
+		<Class ClassID="92293" ClassName="Goddess_Raid_CollapsingMine_Solo" Data="무너지는 광산: 가디스 레이드 (1인)"/>
+		<Class ClassID="92294" ClassName="BlackRevelation" Data="검은 계시의 장"/>
+		<Class ClassID="92295" ClassName="CollapsingMine" Data="무너지는 광산"/>
+		<Class ClassID="92296" ClassName="EP16_2_FANLIB_48_4_MINI_TIME_MSG" Data="남은 시간 : {sec}초"/>
+		<Class ClassID="92297" ClassName="Goddess_Raid_CollapsingMine_RollingNoticeMsg" Data="수정골렘이 중첩된 가속력만큼 약화 상태에 빠집니다."/>
 	</Category>
 	<Category Name="BattleText">
 		<Class ClassID="100001" ClassName="ADD_DAMAGE_{Auto_1}!" Data="추가 대미지 {Auto_1}!"/>
@@ -11109,9 +11169,9 @@
 		<Class ClassID="100132" ClassName="IsNotEnchantSkillScroll" Data="연성 주문서가 아닌 아이템입니다."/>
 		<Class ClassID="100133" ClassName="PlzDragEnchantScroll" Data="연성 스크롤을 올려주세요."/>
 		<Class ClassID="100134" ClassName="ChooseYourSlot" Data="슬롯 선택"/>
-	
 		<Class ClassID="100135" ClassName="Excnaged_AccountCount_Remind_Month" Data="팀당 월 {COUNT}번 교환 가능 합니다."/>
-		
+		<Class ClassID="100136" ClassName="Kupole_Portion_Tooltip{LIST}" Data="장착 가능한 포션{nl}{LIST}{/}"/>
+		<Class ClassID="100137" ClassName="AlreadyKupole" Data="이미 획득 한 큐폴입니다."/>
 	</Category>
 	<Category Name="Party">
 		<Class ClassID="101001" ClassName="GULID_OUT" Data="길드 탈퇴"/>
@@ -11678,6 +11738,7 @@
 		<Class ClassID="105012" ClassName="AleadyPutInBasket" Data="장바구니에 이미 있는 아이템입니다."/>
 		<Class ClassID="105013" ClassName="NoItemInBasket" Data="장바구니에 담긴 상품이 없습니다."/>
 		<Class ClassID="105014" ClassName="PremiumTabBuyMsg{TP}{HAVE}{BASKET}{RET}" Data="총 {#FF0900}{TP} TP{/}에 위 상품을 구매하시겠습니까?{nl} {nl}- 보유중인 TP {#0050FF}{HAVE}{/}{nl}- 장바구니 TP {#0050FF}{BASKET}{/}{nl}- 구매 후 잔여 TP {#0050FF}{RET}{/}"/>
+		<Class ClassID="105015" ClassName="ReallyBuy?{TICKET}{SELECT}" Data="{@st66d_y}{TICKET}{/} x1을 소모하여 {@st66d_y}{SELECT}{/} 아이템을 구매하시겠습니까?"/>
 	</Category>
 	<Category Name="Market">
 		<Class ClassID="106001" ClassName="Seller" Data="판매자"/>
@@ -12306,6 +12367,9 @@
 		<Class ClassID="112040" ClassName="Hard_Eng" Data="Hard"/>
 		<Class ClassID="112041" ClassName="VeryHard_Eng" Data="Very Hard"/>
 		<Class ClassID="112042" ClassName="USE_Growth_Equip_Box" Data="'[수호자] 무기 선택 상자'는 마을에 위치한 '바이보라의 날개'NPC 에게서도 받을 수 있습니다."/>
+		<Class ClassID="112043" ClassName="EnterZoneNameMsg" Data="Lv.{Lv} {ZoneName} 지역"/>
+		<Class ClassID="112045" ClassName="Episode16_2" Data="(에피소드 16-2)"/>
+		<Class ClassID="112046" ClassName="UnfinishedQuestMsg" Data="해당 지역으로 입장하기 위한 사전 퀘스트가 완료되지 않았습니다."/>
 	</Category>
 	<Category Name="JobCategoryName">
 		<Class ClassID="113001" ClassName="Char1" Data="전사 계열"/>
@@ -16862,6 +16926,19 @@
 		<Class ClassID="302863" ClassName="EVENT_2407_KUPOLE" Data="[큐폴 업데이트 기념] 교환 상점"/>
 		<Class ClassID="302864" ClassName="EVENT_COIN_MSG" Data="이벤트 주화"/>
 		<Class ClassID="302865" ClassName="EVENT_2407_KUPOLE_CHECK_MSG_PAPAYA" Data="{#0066FF}[[이벤트] 2024 주화 획득현황]{/} {nl}주간 획득량 ({#0066FF}{WEEK}{/}/600){nl}총 획득량 ({#0066FF}{TOTAL}{/}/2400){nl}{#c21525}※ 주간 획득량은 매주 월요일 오전 6시에 초기화됩니다.{/}"/>
+		<Class ClassID="302866" ClassName="EVENT_2407_RAINBOW_MESSAGE{TOTAL}{WEEK}" Data="{#3366FF}[이벤트] 여신의 룰렛 현황{/}{nl}총 코인 획득량 ({TOTAL}/60){nl}주간 코인 획득량 ({WEEK}/12){nl}{#FF0000}※여신의 룰렛 코인은 무지개 다리 이벤트를 클리어하여 획득할 수 있습니다.{/}{nl}{#FF0000}※ 주간 획득량은 매주 월요일 오전 6시에 초기화 됩니다.{/}"/>
+		<Class ClassID="302867" ClassName="EVENT_2407_W_RAINBOW_SEL1" Data="여신의 룰렛 코인 획득현황"/>
+		<Class ClassID="302868" ClassName="EVENT_2407_W_RAINBOW_SEL2" Data="이벤트 던전 나가기"/>
+		<Class ClassID="302869" ClassName="EVENT_POPO_ROULETTE_SEL" Data="포포 룰렛 돌리기"/>
+		<Class ClassID="302870" ClassName="EVENT_POPOBOOST_2409_GUIDE_MSG0" Data="위의 보물상자 아이콘을 클릭하면 각 구간별 성장 목표를 확인할 수 있습니다.{nl}{nl}목표를 달성하면 오른쪽 하단의 [보상 받기] 버튼을 클릭하면 보상을 획득할 수 있습니다.{nl}{nl}Premium 보상은 TP상점에서 [부스트 프리미엄 티켓]을 구매하여 해금할 수 있습니다."/>
+		<Class ClassID="302871" ClassName="EVENT_POPOBOOST_2409_GUIDE_MSG1{ITEM}" Data="바이보라 비전은 무기에 부여할 수 있는 특수한 옵션입니다.{nl}인벤토리에 지급된 [{ITEM}] 아이템을 사용하여 장비 보관함에서 해당 옵션을 개방할 수 있습니다."/>
+		<Class ClassID="302872" ClassName="EVENT_POPOBOOST_2409_GUIDE_MSG2" Data="콘텐츠 현황판(F10)을 통해 추천 콘텐츠를 클리어하고 강화 재료를 획득해 보세요.{nl}{nl}가디스 장비는 20강을 달성하면 다음 장비로 계승할 수 있습니다.{nl}장비 강화와 계승은 [인벤토리 - 가디스 장비 관리] UI에서 진행할 수 있습니다."/>
+		<Class ClassID="302878" ClassName="EVENT_2410_MOONRISE" Data="[가을 달맞이] 교환 상점"/>
+		<Class ClassID="302879" ClassName="EVENT_2410_MOONRISE_CHECK_MSG{WEEK}{TOTAL}" Data="[[이벤트] 2024 주화 획득현황]{nl}주간 획득량({WEEK}/600){nl}총 획득량({TOTAL}/3000){nl}{#FF0000}※ 주간 획득량은 매주 월요일 오전 6시에 초기화 됩니다.{nl}"/>
+		<Class ClassID="302880" ClassName="EVENT_2410_MOONRISE_CHAT1" Data="오?! 오오오!!! 지극한 행복의 맛이야 ㅠ~ㅠ"/>
+		<Class ClassID="302881" ClassName="EVENT_2410_MOONRISE_CHAT2" Data="최종 대미지가 올라간 기분이 들어"/>
+		<Class ClassID="302882" ClassName="EVENT_2409_POPOBOOST_ALRET1" Data="{#FF0000}※ 바로가기 버튼을 클릭하여 다음 성장 목표를 확인해 보세요.{/}"/>
+		<Class ClassID="302883" ClassName="EVENT_2409_POPOBOOST_ALRET2" Data="{#FF0000}※ 바로가기 버튼을 클릭하면 장비 보관함 UI로 이동합니다.{/}"/>
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>
@@ -17302,6 +17379,7 @@
 		<Class ClassID="510501" ClassName="FieldBossWillAppearAfter10Min" Data="10분 후 보스 협동전이 시작됩니다."/>
 		<Class ClassID="510502" ClassName="FieldBossCanEnter" Data="잠시 후 보스 협동전이 시작됩니다."/>	
 		<Class ClassID="510503" ClassName="RadaCertificate_shop" Data="여신의 증표(라다) 상점"/>
+		<Class ClassID="510504" ClassName="JurateCertificate_shop" Data="여신의 증표(유라테) 상점"/>
 	</Category>		
 	<Category Name="FishRubbing">
 		<Class ClassID="510600" ClassName="FishRubbingMSG1" Data="그는 좋은 물고기였습니다."/>
@@ -18730,6 +18808,7 @@
 		<Class ClassID="1005009" ClassName="old_coin" Data="오래된 주화"/>
 		<Class ClassID="1005010" ClassName="EVENT_TOS_WHOLE_TOTAL_COIN" Data="TOS 주화"/>
 		<Class ClassID="1005011" ClassName="RadaCertificate" Data="여신의 증표(라다)"/>
+		<Class ClassID="1005012" ClassName="JurateCertificate" Data="여신의 증표(유라테)"/>
 	</Category>
 	<Category Name="reputation">
 		<Class ClassID="1006000" ClassName="DAY_LIMIT_MSG" Data="일간"/>
@@ -19294,13 +19373,17 @@
 		<Class ClassID="1106101" ClassName="WingedHussars" Data="윙드후사르"/>
 		<Class ClassID="1106102" ClassName="BowMaster" Data="신궁"/>
 		<Class ClassID="1106103" ClassName="Desperado" Data="데스페라도"/>
+		<Class ClassID="1106104" ClassName="Vanquisher" Data="뱅퀴셔"/>
+		<Class ClassID="1106105" ClassName="Vulture" Data="벌처"/>
+		<Class ClassID="1106106" ClassName="Vulture[A]" Data="벌처[A]"/>
+		<Class ClassID="1106107" ClassName="Vulture[W]" Data="벌처[W]"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>
 		<Class ClassID="1107002" ClassName="fishing" Data="낚시"/>
 	</Category>
 	<Category Name="PoPoBoost">
-		<Class ClassID="1108000" ClassName="popoboostparticipate" Data="{#ffff00}이벤트 참여 즉시 캐릭터가 480레벨로 점핑되며 13-2까지의 에피소드 퀘스트가 전부 클리어됩니다.{nl}해당 캐릭터는 오르샤 마을의 이네샤 해먼데일 앞으로 이동합니다."/>
+		<Class ClassID="1108000" ClassName="popoboostparticipate" Data="{#ffff00}이벤트 참여 즉시 캐릭터가 500레벨로 점핑되며 13-2까지의 에피소드 퀘스트가 전부 클리어됩니다.{nl}해당 캐릭터는 오르샤 마을의 이네사 해먼데일 앞으로 이동합니다."/>
 		<Class ClassID="1108001" ClassName="CantRollbackEventParticipate" Data="이벤트 진행"/>
 		<Class ClassID="1108002" ClassName="RellayWantParticipatePoPoBoost" Data="{nl}현재 캐릭터로 포포 부스트를 진행하려면{nl}다음 단어를 입력해 주세요.{nl}{nl}"/>
 		<Class ClassID="1108003" ClassName="popoboostguidequestblock" Data="이전 단계의 미션을 전부 클리어하면 확인할 수 있습니다."/>

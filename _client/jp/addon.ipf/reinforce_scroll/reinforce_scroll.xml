@@ -33,5 +33,6 @@
 		<button name="button_transcend" margin="0 0 0 35" rect="0 0 180 50" skin="test_red_button" layout_gravity="center bottom" format="{@st41b}{s20}%s" param1="value" param1_def="강화" LBtnUpScp="REINFORCE_SCROLL_EXEC_ASK_AGAIN"/>
 		<button name="button_close" margin="0 0 0 35" rect="0 0 180 50" skin="test_red_button" layout_gravity="center bottom" caption="{@st41b}{s20}확인" LBtnUpScp="REINFORCE_SCROLL_CLOSE"/>
 		<richtext name="text_itemtranscend" margin="0 280 0 0" rect="0 0 460 45" format="{s20}현재 수치:{#FF0000}%s{/}{/}" param1="value" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top" openAnim="popup_start3" closeAnim="popup_end3"/>
+		<richtext name="text_result" margin="0 280 0 0" rect="0 0 460 45" format="%s" param1="value" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top" openAnim="popup_start3" closeAnim="popup_end3"/>
 	</controls>
 </uiframe>

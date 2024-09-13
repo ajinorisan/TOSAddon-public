@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="cupole_upgrade" x="0" y="0" width="1980" height="1080">
-	<frame layout_gravity="left top" margin="0 50 0 0" draw="true"/>
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
 	<script OpenScp="" CloseScp=""/>
 	<layer layerlevel="102"/>
 	<skin frameskin=" "/>
@@ -14,7 +14,7 @@
 		<!-- <groupbox name="relicmanager_top" rect="0 0 1100 76" margin="-45 120 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="cupolehalfsquare2" stretch="true"/>
 			<picture name="image1" parent="relicmanager_top" rect="0 0 150 70" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="img_popup_title" Reverse="true"/>
 			<picture name="image2" parent="relicmanager_top" rect="0 0 150 70" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="right top" image="img_popup_title" /> -->
-		<groupbox name="managerTab" rect="0 0 1100 650" margin="-45 -25 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreenroundsquare"/>
+		<groupbox name="managerTab" rect="0 0 1100 650" margin="-45 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreenroundsquare"/>
 			<groupbox name="CupoleBg" parent="managerTab" rect="0 0 1100 150" margin="0 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin=""/>
 				<picture name="plus" rect="0 0 100 100" parent="CupoleBg" margin="-290 0 0 0" layout_gravity="center center" hittest="false" alpha="70" image="itemcraft_btn" stretch="true"/>
 			<groupbox name="SkillBg" parent="managerTab" rect="0 0 1100 389" margin="0 160 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin=""/>

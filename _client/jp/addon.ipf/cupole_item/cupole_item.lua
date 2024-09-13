@@ -323,6 +323,8 @@ function SET_CUPOLE_SLOTS(frame)
     slot_gb:SetEventScript(ui.LBUTTONUP,"CUPOLE_SLOT_SELECT_BTN")
     cupole_slot_box:SetUserValue("SlotIndex",0);
     cupole_slot_box:SetUserValue("SEL_CUPOLE_INDEX", -1)
+    slot_gb:SetEventScript(ui.RBUTTONUP,"RBTN_CUPOLE_ITEM_PROGRESS")
+    slot_gb:SetEventScriptArgString(ui.RBUTTONUP,"Main_Cupole_Slot_0")
 
     -- SUMMON_SELECT_LEFT_CUPOLE_SLOT(cupole_slot_box, tonumber(equip_cupole_list[1]))
     SET_SLOT_CUPOLE_INFO(cupole_slot_box, tonumber(equip_cupole_list[1]))
@@ -344,7 +346,8 @@ function SET_CUPOLE_SLOTS(frame)
         local gb = mini_cupole_slot_box:GetChild("gb")
         gb:SetEventScript(ui.LBUTTONUP,"CUPOLE_SLOT_SELECT_BTN")
         mini_cupole_slot_box:SetUserValue("SlotIndex", i);
-        
+        gb:SetEventScript(ui.RBUTTONUP,"RBTN_CUPOLE_ITEM_PROGRESS")
+        gb:SetEventScriptArgString(ui.RBUTTONUP, "Main_Cupole_Slot_"..i)
         -- SUMMON_SELECT_LEFT_CUPOLE_SLOT(mini_cupole_slot_box, tonumber(equip_cupole_list[i + 1]))
         SET_SLOT_CUPOLE_INFO(mini_cupole_slot_box, tonumber(equip_cupole_list[i + 1]))
 
@@ -449,6 +452,9 @@ end
 
 function SET_CUPOLE_STAT_AT_UI(frame, Stat, Value)
     local StatText = ClMsg(Stat)
+    if utf8.len(StatText) > 25 then
+        StatText = "{s12}"..StatText.."{/}";
+    end
     local StatInfoStr = string.format("%s + {#ffcc33}%d{/}", StatText, Value)
     frame:SetTextByKey("value", StatInfoStr)
 end
@@ -1339,7 +1345,7 @@ function TOGGLE_CUPOLE_RANKUP_BTN(frame)
     local grade = TryGetProp(cls, "Grade", "None");
     local rank = GET_CUPOLE_RANK(nil, index)
     local maxrank = shared_cupole.get_max_friendly(grade)
-    if maxrank == rank then
+    if maxrank == rank or rank < 1 then
         btn:ShowWindow(0);
         frame:ShowWindow(0);
     else
@@ -1412,7 +1418,7 @@ function CUPOLE_SPINE_ANIMAITON_SET(frame, name)
     local spinepic = GET_CHILD(frame,"spinepic")
     local spineInfo = geSpine.GetSpineInfo(name);
     if spineInfo ~= nil then
-        spinepic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation());
+        spinepic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied());
         spinepic:SetIsStopAnim(false)
     end	
 end
@@ -1440,13 +1446,15 @@ function SET_CUPOLE_FAVORITE_ICON_STATE(frame, state)
 end
 
 function TOGGLE_CUPOLE_SPECIAL_ADDON(frame, index)
+    local cupole_addon = ui.GetFrame("cupole_addon")
     local cls = GET_CUPOLE_CLASS_BY_INDEX(index)
     local Special = TryGetProp(cls, "Special", "None")
 
     local PotionBG = GET_CHILD_RECURSIVELY(frame, "PotionBG")
 
-    if Special == "None" then
+    if Special == "None" or not Special then
         PotionBG:ShowWindow(0);
+        cupole_addon:ShowWindow(0);
     else
         PotionBG:ShowWindow(1);
     end
@@ -1458,16 +1466,19 @@ function CLOSE_RELEATIVE_FRAMES()
 end
 
 function TOGGLE_POTION_AUTO_USE(parent, ctrl, argStr, argNum)
-    local self = GetMyPCObject();
-    if self == nil then
+    if IS_IN_CITY() == 1 then
+        return;
+    end
+    local player = GetMyPCObject();
+    if player == nil then
         return ; 
     end
-    local value = GetExProp(self, "cupole_auto_potion");
-    if value == 0 then
-        ctrl:SetImage("potionhudoff")
-    else
-        ctrl:SetImage("potionhudon")
-    end
+    local value = GetExProp(player, "cupole_auto_potion");
+    -- SET_POTION_TOGGLE_STATE(parent, value)
+    local external_addon = ui.GetFrame("cupole_external_addon")
+    local cupole_item = ui.GetFrame("cupole_item")
+    SET_POTION_TOGGLE_STATE(external_addon, value)
+    SET_POTION_TOGGLE_STATE(cupole_item, value)
 
     pc.ReqExecuteTx_Item("CUPOLE_PORITON_AUTO_USE_TOGGLE", 0, 0)
 end
@@ -1495,9 +1506,18 @@ function dumptable(o)
 end
 
 function RBTN_CUPOLE_ITEM_EQUIP(parent, ctrl, argStr, argNum)
-
+    RBTN_CUPOLE_EQUIP(parent, ctrl, argNum)
 end
 
-function RBTN_CUPOLE_ITEM_UNEQUIP(parent, ctrl, argStr, argNum)
+function RBTN_CUPOLE_ITEM_PROGRESS(parent, ctrl, argStr, argNum)
+    SELECT_CUPOLE_UNEQUIP(parent, ctrl, argStr, argNum)
+end
 
+function SET_POTION_TOGGLE_STATE(frame, value)
+    local PotionToggle = GET_CHILD_RECURSIVELY(frame, "PotionToggle")
+    if value == 0 then
+        PotionToggle:SetImage("potionhudon")
+    else
+        PotionToggle:SetImage("potionhudoff")
+    end
 end

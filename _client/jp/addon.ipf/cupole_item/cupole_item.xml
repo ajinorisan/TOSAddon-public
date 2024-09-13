@@ -56,8 +56,9 @@
 		<picture name="favorites" parent="InfoBG" rect="0 0 45 45" margin="0 0 0 0" layout_gravity="right top" stretch="true" draw="true" hittest="true" scrollbar="false" image="favorite_inactive" LBtnUpScp="SET_FAVORITE_CUPOLE"/>
 		<!-- <button name="Emotion" parent="InfoBG" rect="0 0 200 60" margin="0 0 0 50" layout_gravity="left bottom" LBtnUpScp="OPEN_EMOTION_BTN" skin="test_gray_button" stretch="true" caption="{@st66d}{s16}감정표현"/> -->
 		<groupbox name="PotionBG" parent="manageBG" rect="0 0 100 100" margin="250 640 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupoleroundsquare"/>
-		<picture name="PotionPic" parent="PotionBG" rect="0 0 40 53" margin="0 10 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhud" LBtnUpScp="TOGGLE_CUPOLE_ADDON_FRAME"/>
-		<picture name="PotionToggle" parent="PotionBG" rect="0 0 60 26" margin="0 65 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhudoff" LBtnUpScp="TOGGLE_POTION_AUTO_USE"/>
+			<picture name="PotionPic" parent="PotionBG" rect="0 0 40 53" margin="0 10 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhud" LBtnUpScp="TOGGLE_CUPOLE_ADDON_FRAME"/>
+			<picture name="PotionToggle" parent="PotionBG" rect="0 0 50 26" margin="0 65 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhudoff" LBtnDownScp="TOGGLE_POTION_AUTO_USE"/>
+			<picture name="question" parent="PotionBG" rect="0 0 33 33" margin="0 0 0 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="{@st59b}포션 자동사용{nl}{@st59s} - 메인 슬롯에 장착한 큐폴만 자동사용 기능 동작.{nl} - 아래 On/Off 버튼 좌클릭 시 작동.{nl} - 활성화 시 재사용 대기시간 마다 자동 사용.{nl} - 마을, 팀 배틀 리그에서는 기능 사용불가{/}"/>
 		<!-- 가챠 결과 화면 -->
 		<groupbox name="gachaBG" parent="managerTab" rect="0 0 1600 800" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp=""/>
 		<groupbox name="gachaResult" parent="gachaBG" rect="0 0 1600 700" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp=""/>

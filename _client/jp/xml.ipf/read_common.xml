@@ -7,6 +7,7 @@
 	<ReadXml Name="item_goddess_reinforce_490"/>
 	<ReadXml Name="item_goddess_reinforce_500"/>
 	<ReadXml Name="item_goddess_reinforce_510"/>
+	<ReadXml Name="item_goddess_reinforce_520"/>
 	<ReadXml Name="pharmacy_material_type"/>	
 	<ReadXml Name="skill_Simony"/>
 	<ReadXml Name="archeology_property"/>
@@ -403,6 +404,7 @@
 	<ReadXml Name="tribulation_system_reward_list"/>
 	<ReadXml Name="class_tree_recommend"/>
 	<ReadXml Name="enchant_skill_list"/>	
+	<ReadXml Name="upgrade_equip_item"/>	
 	<ReadXml Name="guide_mission\guide_main"/>
 	<ReadXml Name="guide_mission\guide_submission"/>
 	<ReadXml Name="tpitem_season"/>		
@@ -436,4 +438,5 @@
 	<ReadXml Name="reward_tp2"/>
 	<ReadXml Name="friend_invite"/>	
 	<ReadXml Name="cupole_pickuplist"/>
+	<ReadXml Name="rerunticket"/>
 </Category>

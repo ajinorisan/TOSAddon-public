@@ -1,4 +1,4 @@
-
+﻿
 function PCBANG_SHOP_ON_INIT(addon, frame)
     addon:RegisterMsg("PCBANG_SHOP_TOGGLE", "ON_PCBANG_SHOP_TOGGLE_MSG");
     addon:RegisterMsg("UPDATE_PCBANG_SHOP_POINT", "ON_UPDATE_PCBANG_SHOP_POINT");
@@ -44,7 +44,6 @@ function ON_PCBANG_SHOP_OPEN(frame)
     if tabName == "pointshop_tab" then
         ON_PCBANG_SHOP_TAB_POINTSHOP(frame);
     end
-
     GET_CHILD_RECURSIVELY(frame,"trust_point_text"):ShowWindow(0);
 end
 
@@ -221,4 +220,26 @@ end
 
 function ON_PCBANG_SHOP_BOUGHTCOUNT_CHANGED(frame, msg, argstr, argnum)
     pcBang.ReqPCBangShopPage("POINTSHOP_HISTORY");
+end
+
+function ON_UPDATE_POPO_TRUST_POINT(frame, msg, argStr, trustPoint)
+    if config.GetServiceNation() ~= "GLOBAL" then return end
+
+	local frame = ui.GetFrame("pcbang_shop")
+	if frame == nil then
+		return
+    end
+    
+    if frame:IsVisible() == 0 then
+        return
+    end
+
+    local checkbox = GET_CHILD_RECURSIVELY(frame, "show_timer_checkbox")
+    local trustText = GET_CHILD_RECURSIVELY(frame, "trust_point_text")
+    
+    if trustPoint < 5 then
+        checkbox:ShowWindow(0)
+        trustText:ShowWindow(1)
+        trustText:SetText("임시 경고 메세지") --ScpArgMsg("PcBangNeedTrustPoint"))
+    end
 end

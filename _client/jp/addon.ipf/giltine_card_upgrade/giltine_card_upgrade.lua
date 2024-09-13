@@ -46,11 +46,16 @@ function GILTINE_CARD_UPGRADE_UPDATE()
     local legendSlot = GET_CHILD_RECURSIVELY(frame, "material_slot_legend")
     local materialSlot = GET_CHILD_RECURSIVELY(frame, "material_item_slot")
 
-    local needItem = session.GetInvItemByName("misc_Guilty_LegCard")
+    local needItem = session.GetInvItemByName("misc_Guilty_LegCard_NoTrade")
     local needItemCount = 0
     
     if needItem ~= nil then
-        needItemCount = needItem.count
+        needItemCount = needItemCount + needItem.count
+    end
+    
+    needItem = session.GetInvItemByName("misc_Guilty_LegCard")
+    if needItem ~= nil then
+        needItemCount = needItemCount + needItem.count
     end
 
     if needItemCount < 10 then

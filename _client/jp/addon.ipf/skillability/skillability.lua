@@ -260,7 +260,6 @@ function SKILLABILITY_FILL_JOB_GB(skillability_job, jobClsName)
     if ctrlset == nil then
         return;
     end
-
     SKILLABILITY_SELECT_SKILL(skilltree_gb, ctrlset)
 end
 
@@ -437,7 +436,6 @@ function SKILLABILITY_SELECT_SKILL(parent, ctrlset)
     infoctrl:SetUserValue("SkillClsName", sklClsName)    
     local info = GET_SKILL_INFO_BY_JOB_CLSNAME(jobClsName, sklTreeClsName, sklClsName);
     SKILLABILITY_FILL_SKILL_INFO(infoctrl, info)
-    
     local linkabil_gb = GET_CHILD_RECURSIVELY(tab_gb, "linkabil_gb");
 	DESTROY_CHILD_BYNAME(linkabil_gb, 'skillability_linkabil_');
 

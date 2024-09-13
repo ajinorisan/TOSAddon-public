@@ -2268,18 +2268,20 @@ function SORT_BY_CLASS_ID(a, b)
 end
 
 function INDUNINFO_OPEN_INDUN_MAP(parent, ctrl)
-    local mapID = parent:GetUserValue('INDUN_START_MAP_ID')
-    local mapName = GetClassByType("Map", mapID).ClassName
-    local episode = GET_EPISODE_BY_MAPNAME(mapName)
- 
-    if episode == nil then
-        return
+    local mapID = parent:GetUserValue('INDUN_START_MAP_ID');
+    local map_cls = GetClassByType("Map", mapID);
+    if map_cls ~= nil then
+        local map_name = TryGetProp(map_cls, "ClassName", "None");
+        local episode = GET_EPISODE_BY_MAPNAME(map_name);
+        if episode == nil then
+            return
+        elseif episode == "EP16_2" then
+            episode = "EP9_2";
+        end
+        ui.OpenFrame("worldmap2_mainmap");
+        WORLDMAP2_OPEN_SUBMAP_FROM_MAINMAP_BY_EPISODE(episode);
+        WORLDMAP2_SUBMAP_ZONE_CHECK(map_name);
     end
-    
-    ui.OpenFrame("worldmap2_mainmap")
-
-    WORLDMAP2_OPEN_SUBMAP_FROM_MAINMAP_BY_EPISODE(episode)
-    WORLDMAP2_SUBMAP_ZONE_CHECK(mapName)
 end
 
 function INDUN_CANNOT_YET(...)

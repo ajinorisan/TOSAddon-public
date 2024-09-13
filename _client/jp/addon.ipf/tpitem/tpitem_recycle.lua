@@ -1,4 +1,4 @@
-
+local force_papaya = false
 function RECYCLE_SHOW_TO_MEDAL(parent, ctrl, str, num)
 	if ctrl ~= nil then
 		ctrl:SetSkinName("baseyellow_btn");
@@ -61,11 +61,10 @@ function RECYCLE_CREATE_BUY_LIST()
 	local frame = ui.GetFrame('tpitem');
 	local rcycle_mainSubGbox = GET_CHILD_RECURSIVELY(frame,"rcycle_mainSubGbox");
 	DESTROY_CHILD_BYNAME(rcycle_mainSubGbox, "eachitem_");
-
 	local mainSubGbox = GET_CHILD_RECURSIVELY(frame,"rcycle_mainSubGbox");
 	mainSubGbox:RemoveAllChild();
 	local clsList, cnt = GetClassList('recycle_shop');	
-	if config.GetServiceNation() == "PAPAYA" then
+	if config.GetServiceNation() == "PAPAYA" or force_papaya == true then
 		clsList, cnt = GetClassList('recycle_shop_papaya');	
 	end
 
@@ -79,7 +78,7 @@ function RECYCLE_CREATE_BUY_LIST()
 		local obj = GetClassByIndexFromList(clsList, i);
 		if obj.BuyPrice ~= 0 then
 			local itemobj = GetClass("Item", obj.ClassName);
-			if season_server_no_sell_item_list[obj.ClassName] == nil then			
+			if season_server_no_sell_item_list[obj.ClassName] == nil and itemobj then			
 				local category = obj.SubCategory;
 				if CHECK_RECYCLE_SHOW_ITEM(frame, itemobj, category) == true then
 					x = ( (showitemcnt-1) % 3) * ui.GetControlSetAttribute("tpshop_recycle", 'width')

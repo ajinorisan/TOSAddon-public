@@ -149,10 +149,10 @@ function FRAGMENTATION_SET_FILTER_SECTION(frame,tabindex)
 		GET_CHILD_RECURSIVELY(frame,"filter_title_text"):SetTextByKey("value1",ClMsg("Belt"));
 		for i=1,MAX_CHECKBOX_CNT_BELT do 
 			local checkbox = GET_CHILD_RECURSIVELY(frame,"belt_grade_"..tostring(i))
-			if checkbox:IsChecked()== 1 then
+			if checkbox:IsChecked()== 1 then				
 				local ies 	 = GetClassByType("Item",tostring(BELT_TYPE+i))
-				local numArg = TryGetProp(ies,"NumberArg1",0) 
-				table.insert(argList,numArg)
+				-- local numArg = TryGetProp(ies,"NumberArg1",0) 				
+				table.insert(argList,i)
 			end
 		end
 	elseif tabindex==2 then
@@ -183,8 +183,8 @@ function FRAGMENTATION_SET_FILTER_SECTION(frame,tabindex)
 			if check_box ~= nil and check_box:IsChecked() == 1 then
 				local shoulder = shoulder_list[i]
 				local ies = GetClassByType("Item",tostring(shoulder))
-				local numArg = TryGetProp(ies, "NumberArg1", 0)  
-				table.insert(argList, numArg);
+				-- local numArg = TryGetProp(ies, "NumberArg1", 0)  
+				table.insert(argList, i);
 			end
 		end
 	end
@@ -216,7 +216,7 @@ function FRAGMENTATION_SHOW_TARGETS_FROM_INV(frame,tabindex,argList)
 	end
 end
 
-function FRAGMENTATION_SHOW_TARGETS_APPLY_FILTER(slotSet, target, argList)
+function FRAGMENTATION_SHOW_TARGETS_APPLY_FILTER(slotSet, target, argList)	
 	local number_of_slot_placed = 0
 	local slot_capacity = slotSet:GetSlotCount()
 	local invItemList 	= session.GetInvItemList()
@@ -258,8 +258,9 @@ function FRAGMENTATION_SHOW_TARGETS_APPLY_FILTER(slotSet, target, argList)
 				for i=1,#argList do 
 					local slotindex = imcSlot:GetEmptySlotIndex(slotSet)
 					local slot = slotSet:GetSlotByIndex(slotindex)
-					local arg = TryGetProp(obj,"NumberArg1",0)
-					if arg == argList[i] then 
+					local arg = TryGetProp(obj,"NumberArg1",0)		
+					local grade = shared_item_belt.get_belt_grade(obj)					
+					if grade == argList[i] then 
 						slot:SetUserValue('FRAGMENTATION_GUID', invItem:GetIESID())
 						SET_SLOT_ITEM(slot,invItem)
 						slot:SetMaxSelectCount(1)
@@ -306,7 +307,8 @@ function FRAGMENTATION_SHOW_TARGETS_APPLY_FILTER(slotSet, target, argList)
 					for i=1,#argList do 
 						local slotindex = imcSlot:GetEmptySlotIndex(slotSet)
 						local slot = slotSet:GetSlotByIndex(slotindex)
-						if arg == argList[i] then 
+						local grade = shared_item_belt.get_belt_grade(obj)					
+						if grade == argList[i] then 
 							slot:SetUserValue('FRAGMENTATION_GUID', invItem:GetIESID())
 							SET_SLOT_ITEM(slot,invItem)
 							slot:SetMaxSelectCount(1)

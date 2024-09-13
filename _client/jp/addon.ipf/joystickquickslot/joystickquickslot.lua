@@ -832,7 +832,7 @@ function JOYSTICK_QUICKSLOT_MY_MONSTER_SKILL(isOn, monName, buffType)
 			local sklName = list:Get(i);
 			local sklCls = GetClass("Skill", sklName);
 			local type = sklCls.ClassID;
-			SET_MON_QUICK_SLOT(frame, slot, "Skill", type)
+			SET_MON_QUICK_SLOT(frame, slot, "Skill", type, i)
 			icon = slot:GetIcon();
 			slot:SetEventScript(ui.RBUTTONUP, 'None');
 		end

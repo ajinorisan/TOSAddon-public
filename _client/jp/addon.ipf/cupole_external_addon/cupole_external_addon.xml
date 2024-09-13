@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_external_addon" x="0" y="0" width="101" height="101"> 
+	<frame layout_gravity="left bottom" margin="550 0 0 50" draw="false"/>
+	<script OpenScp="" CloseScp=""/>
+	<layer layerlevel="80"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+    <sound opensound="" closesound=""/>
+	<option visible="false" closebutton="false" useimageitem="true" autoopen="true" hideable="false"/>
+	<animation frameOpenAnim="dialog_start" frameCloseAnim="dialog_end" margin="0 0 0 0"/>
+    <controls>
+    <!-- 관리탭 -->
+		<groupbox name="PotionBG" rect="0 0 100 100" margin="0 0 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupoleroundsquare" hittest="true" hittestbox="false"/>
+			<picture name="PotionPic" parent="PotionBG" rect="0 0 40 53" margin="0 10 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhud" LBtnUpScp=""/>
+			<picture name="PotionToggle" parent="PotionBG" rect="0 0 50 26" margin="0 65 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhudoff" LBtnDownScp="TOGGLE_POTION_AUTO_USE"/>
+    </controls>
+</uiframe>

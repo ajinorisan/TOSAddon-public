@@ -4319,6 +4319,24 @@
 			</Creation>
 		</Layer>
 	</ItemList>
+	<ItemList ItemClassName="wing_vulture">
+		<Layer effect="Shoot_JetFire_Cyan_01" TargetNode="Dummy_L_effect_wing" scale="1.2" offset="1;6">
+			<Creation>
+				<Property PlayMoment="None">
+					<Option ReinforceValue="0" UseAttach="YES" Use2DEffect="NO" IgnoreAnimEventEffect="NO" SubWeaponPistol="NO" UnityEffect="YES"/>
+					<Sound SoundName="None" SoundVolume="1"/>
+				</Property>
+			</Creation>
+		</Layer>
+		<Layer effect="Shoot_JetFire_Cyan_01" TargetNode="Dummy_R_effect_wing" scale="1.2" offset="-1;6">
+			<Creation>
+				<Property PlayMoment="None">
+					<Option ReinforceValue="0" UseAttach="YES" Use2DEffect="NO" IgnoreAnimEventEffect="NO" SubWeaponPistol="NO" UnityEffect="YES"/>
+					<Sound SoundName="None" SoundVolume="1"/>
+				</Property>
+			</Creation>
+		</Layer>		
+	</ItemList>
 </List>
 <!--프로퍼티 설명
 

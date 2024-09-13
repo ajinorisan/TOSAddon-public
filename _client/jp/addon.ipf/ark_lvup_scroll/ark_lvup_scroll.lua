@@ -394,7 +394,7 @@ function ARK_LVUP_SCROLL_SET_TARGET_ITEM(invframe, invItem)
 		convert_list:ShowWindow(1)
 	elseif scrollType == "AetherConvertScroll" then
 		local convert_list = GET_CHILD_RECURSIVELY(frame, "convert_list");
-		_MAKE_CONVERTABLE_AETHER_LIST(frame, convert_list);
+		_MAKE_CONVERTABLE_AETHER_LIST(frame, convert_list, scrollObj);
 		convert_list:ShowWindow(1)
 	end
 
@@ -642,19 +642,21 @@ end
 
 
 
-function _MAKE_CONVERTABLE_AETHER_LIST(frame, drop_list)
+function _MAKE_CONVERTABLE_AETHER_LIST(frame, drop_list, scrollObj)
+	local lv = TryGetProp(scrollObj, 'NumberArg1', 0)
 	local slot = GET_CHILD_RECURSIVELY(frame, 'slot')
 	local aether_item = GET_SLOT_ITEM(slot)
 	if aether_item == nil then return end
 
 	local aether_obj = GetIES(aether_item:GetObject())
 	
-	local list = {'Gem_High_STR_500', 'Gem_High_INT_500', 'Gem_High_DEX_500', 'Gem_High_MNA_500', 'Gem_High_CON_500'}
+	local list = {'Gem_High_STR_', 'Gem_High_INT_', 'Gem_High_DEX_', 'Gem_High_MNA_', 'Gem_High_CON_'}
 
 	drop_list:ClearItems()
-	for i = 1, #list do		
-		if TryGetProp(aether_obj, 'ClassName', 'None') ~= list[i] then
-			local cls = GetClass('Item', list[i])
+	for i = 1, #list do
+		local gem_name = list[i] .. lv
+		if TryGetProp(aether_obj, 'ClassName', 'None') ~= gem_name then
+			local cls = GetClass('Item', gem_name)
 			if cls ~= nil then
 				local clsID = TryGetProp(cls, 'ClassID', 0)
 				local name = dic.getTranslatedStr(TryGetProp(cls, 'Name', 'None'))

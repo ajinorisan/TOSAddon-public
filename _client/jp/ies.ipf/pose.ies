@@ -58,3 +58,6 @@ ClassID,DefaultLearn,NextPoseCount,PoseLevel,RewardCheckCount,ClassName,Name,Fil
 58,0,0,0,1,"LUCHADOR","히어로 등장","pc_pose_lean01","icon_gesture_Luchador","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_18"
 59,0,0,0,1,"FLOWERSCENT","꽃향기","pc_pose_lean01","icon_gesture_flower_scent","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_19"
 60,0,0,0,1,"QUEENCARD","퀸카킹카","pc_pose_lean01","icon_gesture_queencard","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_20"
+61,0,0,0,0,"DAVID","다비드 포즈","pc_pose_lean01","","Item","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_21"
+62,0,0,0,0,"LIBERTY","자유의 여신상 포즈","pc_pose_lean01","","Item","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_22"
+63,0,0,0,0,"RODIN","로뎅 포즈","pc_pose_lean01","","Item","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_23"

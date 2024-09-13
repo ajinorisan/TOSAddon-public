@@ -41,7 +41,7 @@ function SET_SWAP_LEFT_CUPOLE_SLOT(fromframe, destframe, fromindex, destindex)
     local fromcls = GET_CUPOLE_BY_INDEX_IN_CLASSLIST(fromindex);
     local destcls = GET_CUPOLE_BY_INDEX_IN_CLASSLIST(destindex);
 
-    if fromcls == nil or destcls == nil then
+    if fromcls == nil and destcls == nil then
         return;
     end
     local grand_parent = fromframe:GetTopParentFrame();
@@ -72,6 +72,7 @@ function SET_SLOT_CUPOLE_INFO(frame, cupole_index, isEquip)
     if frame == nil or cupole_index == nil then
         return;
     end
+
     local cupolecls = GET_CUPOLE_BY_INDEX_IN_CLASSLIST(cupole_index);
     local Gb = GET_CHILD(frame,"gb");
     local revert = GET_CHILD_RECURSIVELY(frame, "revert");
@@ -87,6 +88,8 @@ function SET_SLOT_CUPOLE_INFO(frame, cupole_index, isEquip)
 
     if cupolecls ~= nil then
         frame:SetUserValue("SEL_CUPOLE_INDEX", cupole_index)
+    else
+        frame:SetUserValue("SEL_CUPOLE_INDEX", -1)
     end
 
     local Grade = TryGetProp(cupolecls, "Grade", "R");
@@ -104,7 +107,7 @@ function SET_SLOT_CUPOLE_INFO(frame, cupole_index, isEquip)
     if revert ~= nil then
         revert:SetImage(RevertFramaName)
     end
-    
+
     if cupolecls == nil then
         grade_img:SetImage("")
     end
@@ -116,6 +119,8 @@ function SET_SLOT_CUPOLE_INFO(frame, cupole_index, isEquip)
         if IconImage ~= "None" then
             Cupole_Icon:SetImage(IconImage);
         end
+    else
+        Cupole_Icon:SetImage("");
     end
     local index = tonumber(cupole_index)
     if equip_img ~= nil then
@@ -325,12 +330,4 @@ function SET_CUPOLE_BTN_VISIBILITY(parent, visible)
     local DisableBtn = GET_CHILD_RECURSIVELY(parent,"DisableBtn");
     SelectBtn:ShowWindow(visible)
     DisableBtn:ShowWindow(visible)
-
-    if IS_IN_CITY() == 0 then
-        SelectBtn:ShowWindow(0)
-        DisableBtn:ShowWindow(0)
-    else
-        SelectBtn:ShowWindow(1)
-        DisableBtn:ShowWindow(1)
-    end
 end

@@ -1,0 +1,11 @@
+ClassID,Delay,ClassName,TagetAnim,IsLoop
+1,0,"annoying","nono","NO"
+2,0,"celebration","pollen","NO"
+3,0,"curiosity","question","NO"
+4,0,"cute","cute","NO"
+5,0,"defeat","otl","NO"
+6,0,"greeting","bow1","NO"
+7,0,"happy","thanks2","NO"
+8,0,"stretching","outcast","NO"
+9,0,"tsundere","kick","NO"
+10,0,"run","run","NO"

@@ -25,14 +25,20 @@ function MINIMIZED_POPOBOOST_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
     if acc == nil then
         return;
     end
-    local AccProp = GET_POPOBOOST_ACCPROP();
+
+    local AccProp = GET_POPOBOOST_SEASONPROP();
     if AccProp == "None" then
         frame:ShowWindow(0);
         return;
     end
     local popoProp = TryGetProp(acc,AccProp, -1);
     if popoProp == 0 or popoProp == 2 then
-        frame:ShowWindow(1);
+        local lv = TryGetProp(pc,"Lv",0);
+        if POPOBOOST_CHECK_ELIGIBILITY(lv, nil) == false then
+            frame:ShowWindow(0);
+        else
+            frame:ShowWindow(1);
+        end
         return ;
     end
     

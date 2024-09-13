@@ -411,7 +411,7 @@ function DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeChatIDList)
 				spinePic:SetScaleFactor(emoCls.IconSpineScale)
 				spinePic:SetOffsetX(spineInfo:GetOffsetX())
 				spinePic:SetOffsetY(spineInfo:GetOffsetY())
-				spinePic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation())
+				spinePic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied())
 				spinePic:SetUserValue("EMOTICON_CLASSNAME", strlist[2])
 				if startindex == 0 and size ~= 0 then
 					spinePic:SetIsStopAnim(true)	-- 존 이동 시 이전 모션 이모티콘 들은 정지 상태로 변경		
@@ -1191,7 +1191,7 @@ function MOTION_EMOTICON_ON(parent, ctrl)
 								
 	ctrl:SetIsStopAnim(false)
 	ctrl:SetDurationTime(emoCls.IconSpineDurationTime)
-	ctrl:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation())
+	ctrl:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied())
 
 end
 

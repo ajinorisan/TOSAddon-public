@@ -120,9 +120,10 @@ function MULTIPLE_CLASS_SELECTOR_FILL_CLASS(jobID)
                 end
             end
         end
-
+        
         local check_banId =  table.find(bantable, tonumber(job_cls_id))
-        if job_cls ~= nil and job_cls_id ~= nil and check_banId==0  then
+        local ret = IS_ABLE_TO_CHANGE_CLASS(pc, jobID, tonumber(job_cls_id))
+        if ret == true and job_cls ~= nil and job_cls_id ~= nil and check_banId==0  then
             cnt = cnt+1;
             local width = 80;
 			local height = 80;

@@ -217,9 +217,21 @@ function HUD_SET_EMBLEM(frame, jobClassID, isChangeMainClass)
 	
     local mySession = session.GetMySession();
     local jobPic = GET_CHILD_RECURSIVELY(frame, 'jobPic');
+	local myhpspleft = GET_CHILD_RECURSIVELY(frame, 'myhpspleft');
 	jobPic:SetImage(jobIcon);	
     UPDATE_MY_JOB_TOOLTIP(jobClassID, jobPic, jobCls, isChangeMainClass);
     HEADSUPDISPLAY_SET_CAMP_BTN(frame);
+
+	if HEADSUPDISPLAY_OPTION.relic_equip == 1 then
+		jobPic:SetMargin(17, 6, 0, 0);
+	else
+		local select_grade_name = hud_skin.GetSelectHudGradeName();
+		if select_grade_name == "Default" then
+			jobPic:SetMargin(14, 6, 0, 0);
+		else
+		jobPic:SetMargin(16, 6, 0, 0);
+		end
+	end
 end
 
 function STAMINA_UPDATE(frame, msg, argStr, argNum)

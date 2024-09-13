@@ -17945,4 +17945,312 @@
       </Trigger>
     </TriggerList>
   </SpcItem>
+	<SpcItem Name="GEM_Vulture_CombatProtocol_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_CombatProtocol_Archer"/>
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_CombatProtocol_Archer"/>
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+	<SpcItem Name="GEM_Vulture_Decomposition_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Decomposition_Archer"/>
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Decomposition_Archer"/>
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+	<SpcItem Name="GEM_Vulture_GravityField_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_GravityField_Archer"/>
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_GravityField_Archer"/>
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+	<SpcItem Name="GEM_Vulture_Diffusion_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Diffusion_Archer"/>
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Diffusion_Archer"/>
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+	<SpcItem Name="GEM_Vulture_PurificationProtocol_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_PurificationProtocol_Archer"/>
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_PurificationProtocol_Archer"/>
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+	<SpcItem Name="GEM_Vulture_Purification_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Purification_Archer"/>
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Purification_Archer"/>
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+	<SpcItem Name="GEM_Vulture_Devastation_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Devastation_Archer"/>
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Devastation_Archer"/>
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+	<SpcItem Name="GEM_Vulture_CombatProtocol_Wizard">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_CombatProtocol_Wizard"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_CombatProtocol_Wizard"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="GEM_Vulture_Decomposition_Wizard">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Decomposition_Wizard"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Decomposition_Wizard"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="GEM_Vulture_GravityField_Wizard">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_GravityField_Wizard"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_GravityField_Wizard"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="GEM_Vulture_Diffusion_Wizard">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Diffusion_Wizard"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Diffusion_Wizard"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="GEM_Vulture_PurificationProtocol_Wizard">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_PurificationProtocol_Wizard"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_PurificationProtocol_Wizard"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="GEM_Vulture_Purification_Wizard">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Purification_Wizard"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Purification_Wizard"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
+	<SpcItem Name="GEM_Vulture_Devastation_Wizard">
+		<TriggerList Act="UnEquip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Devastation_Wizard"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+		<TriggerList Act="Equip">
+			<Trigger>
+				<ExecList>
+					<ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+						<Str Str="Vulture_Devastation_Wizard"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
 </SpcItemList>

@@ -58,7 +58,7 @@ function GODDESSCARD_SLOT_SET_SPINE(frame,spineName,iconName)
 	cardSpinePic:SetVisible(isSpine)
 	if isSpine == 1 then
 		cardSpinePic:SetScaleFactor(spineInfo:GetScaleFactor());
-		cardSpinePic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation());
+		cardSpinePic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied());
 		cardImage:SetImage(nil)
 	else
 		cardImage:SetImage(iconName)
@@ -218,7 +218,7 @@ function EQUIP_GODDESSCARDSLOT_INFO_OPEN(slotIndex)
 	local spineInfo = geSpine.GetSpineInfo(spineName);
 	if spineInfo ~= nil then
 		card_img:SetScaleFactor(spineInfo:GetScaleFactor());
-		card_img:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation());
+		card_img:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied());
 	end
 
 	local cardStar = GET_CHILD(frame, "cardStar");

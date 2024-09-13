@@ -308,3 +308,4 @@ ClassID,BlendIn,BlendOut,Priority,OffsetValue,ClassName,Main,Loop,Freeze,Additiv
 330,0.300000,0.300000,4,0,"RUN_WEAPON","YES","YES","NO","NO","YES","NO","NO","","YES",""
 331,0.300000,0.300000,4,0,"STD_WEAPON","YES","YES","NO","NO","YES","NO","NO","","YES",""
 332,0.300000,0.300000,4,0,"STUN_WEAPON","YES","YES","NO","NO","YES","NO","NO","","YES",""
+333,0.300000,0.300000,4,0,"ROLL_LOOP","YES","YES","NO","NO","YES","NO","NO","","YES",""

@@ -127,7 +127,10 @@ function SET_CUPOLE_LIST(frame)
         gb:SetEventScript(ui.LBUTTONUP, "RIGHT_CUPOLE_SLOT_SELECT_BTN");
         gb:SetEventScriptArgString(ui.LBUTTONUP, slotName);
         gb:SetEventScriptArgNumber(ui.LBUTTONUP, tonumber(cupole_clsid - 1));
-    
+        gb:SetEventScript(ui.RBUTTONUP, "RBTN_CUPOLE_ITEM_EQUIP");
+        gb:SetEventScriptArgString(ui.RBUTTONUP, slotName);
+        gb:SetEventScriptArgNumber(ui.RBUTTONUP, tonumber(cupole_clsid - 1));
+
         local cupole_icon = cupole_slot:GetIcon();
         if cupole_icon == nil then
             cupole_icon = CreateIcon(cupole_slot);
@@ -221,7 +224,7 @@ function CUPOLE_RIGHT_SLOT_EQUIP(parent, ctrl, argStr, argNum)
     if frame == nil then
         return;
     end
-
+    
     if IS_IN_CITY() == 0 then
         ui.SysMsg(ClMsg('AllowedInTown'));
         return ;
@@ -230,7 +233,6 @@ function CUPOLE_RIGHT_SLOT_EQUIP(parent, ctrl, argStr, argNum)
     local SlotBG = GET_CHILD_RECURSIVELY(frame, "SlotBG")
     local gb_slot = GET_CHILD(SlotBG, "gb_slot")
     local slot_name = gb_slot:GetUserValue("RIGHT_SEL_SLOT");
-
 
     SET_CUPOLE_SLOT_SET_FUNCTION(frame, "left_slotset_cupole_set_func");
     
@@ -271,4 +273,25 @@ function RESET_RIGHT_CUPOLE_SLOTSET(frame)
     rightslotset:SetUserValue("SEL_RIGHT_CUPOLE_IDX", -1);
 
     CUPOLE_SELECT_MODE(frame, 1, "FFFFFFFF");
+end
+
+function RBTN_CUPOLE_EQUIP(parent, frame, index)
+    --현재 선택된 큐폴 정보를가져온다.
+    local cupole = GET_REPRESENT_CUPOLE_INFO()
+    local clsid = TryGetProp(cupole, "ClassID", 0)
+    local grand_parent = parent:GetTopParentFrame();
+    local rightslotset = GET_CHILD_RECURSIVELY(grand_parent, "slotsetBG")
+    local SlotBG = GET_CHILD_RECURSIVELY(grand_parent, "SlotBG")
+    local gb_slot = GET_CHILD(SlotBG, "gb_slot")
+
+    -- 정보 초기화
+    RESET_CUPOLE_UIMODEL_FIX_DIR();
+
+    FRAME_CHILD_COLORTONE_CLEAR(gb_slot)
+    FRAME_CHILD_COLORTONE_CLEAR(rightslotset)
+    gb_slot:SetUserValue("RIGHT_SEL_SLOT",parent:GetName());
+
+    rightslotset:SetUserValue("SEL_RIGHT_CUPOLE_IDX", index)
+
+    CUPOLE_RIGHT_SLOT_EQUIP(frame, frame, "equipment", index);
 end

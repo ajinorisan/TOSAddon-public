@@ -150,8 +150,14 @@ function WORLDMAP2_MINIMAP_DRAW_BASE(frame)
             for i = 1, #dungeonList do
                 local dungeonName = dungeonList[i].MapName
                 local dungeonData = GetClass('Map', dungeonName)
-                
-                minimapDungeonList:AddItem(dungeonName, "       "..dungeonData.Name)
+
+                local dungeon_data_name = dungeonData.Name;
+                local enable_level_text = dungeonList[i].EnableLevelText;
+                if enable_level_text ~= nil and enable_level_text == "YES" then
+                    local level = TryGetProp(dungeonData, "QuestLevel", 0);
+                    dungeon_data_name = ClMsg("Auto_{s16}_LeBel")..level.." "..dungeon_data_name.." ";
+                end
+                minimapDungeonList:AddItem(dungeonName, "       "..dungeon_data_name)
             end
 
             minimapDungeonList:SetVisibleLine(#dungeonList)

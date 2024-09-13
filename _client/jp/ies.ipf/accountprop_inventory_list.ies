@@ -7,4 +7,5 @@ ClassID,ClassName,Category,Type,Icon,StringCoin,IsNowSeason,InvIcon
 6,"REPUTATION_COIN_EP13","coin","essential","icon_item_Reputation_coin_01","NO","NO",""
 8,"TeamBattleCoin","coin","essential","icon_item_pvpmine_2_gold","YES","NO",""
 9,"EVENT_TOS_WHOLE_TOTAL_COIN","coin","essential","icon_item_Tos_Event_Coin","YES","NO",""
-10,"RadaCertificate","coin","essential","icon_item_season_coin_Rada","YES","YES","inventory_coin_rada_pic"
+10,"RadaCertificate","old_coin","essential","icon_item_season_coin_Rada","YES","NO","inventory_coin_rada_pic"
+11,"JurateCertificate","coin","essential","icon_item_season_coin_Jurate","YES","YES","inventory_coin_jurate_pic"

@@ -53,3 +53,4 @@ ClassID,Sleep,FeedCreateTimeMS,FeedDist,ClassName,ComName,Type,PCAnim,ComAnim,Fe
 53,3500,0,0,"53","pet_snigo","Normal","FEED3","FEED","","artefact_ham_set","artefact_carrot_pc.xsm",""
 54,1500,0,0,"54","pet_Armadillo_wingedhussar","Normal","FEED_SIT","FEED","","artefact_ham_set","artefact_ham_std.xsm",""
 55,1500,0,0,"55","pet_ep13strawberry","Normal","FEED2","FEED","","artefact_redfish_set","artefact_redfish_pc.xsm",""
+56,1500,0,0,"56","pet_mermaidpopo","Normal","FEED2","FEED","","artefact_ham_set","artefact_ham_set.xsm",""

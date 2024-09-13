@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<ToolSkill>
+	<Skill Name="Arquebusier_Prediction">
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_GROUND_EVENT_ABIL" Client="YES" UseSleep="NO">
+				<Str Str="Arquebusier23"/>
+				<Num Num="3"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="200"/>
+				<Num Num="0.1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str_Arg Str="None" Arg="1"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="50"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInput>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="Prediction_Buff"/>
+					<Num Num="1" UseFunc="1" FuncTxt="return obj.Level;"/>
+					<Num Num="0"/>
+					<Num Num="1800000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+					<Str Str="voice_arquebusier_m_prediction_shot"/>
+					<Str Str="voice_arquebusier_f_prediction_shot"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="SCR_PREDICTION_Arquebusier23"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Arquebusier_ArquebusierWeapon">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="9999999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="buff"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="Arquebusier_Weapon_Buff"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_SELECT_BUFF" Client="NO" UseSleep="NO">
+						<Str Str="Arquebusier_Weapon_Buff"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Type="FAN" Time="9999799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="9999999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+							<Str Str="Arquebusier_Weapon_Buff"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="buff"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="Arquebusier_PinpointFire">
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str_Arg Str="None" Arg="0"/>
+				<Str Str=""/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str Str=""/>
+				<Str Str=""/>
+			</ToolScp>
+		</KeyInput>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="300" RotAngle="0" ForceATK="1" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="SKL_SPEND_CLEANHIT_Arquebusier_PinpointFire"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="SKL_PINPOINTFIRE"/>
+					<Num Num="1.5"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="250">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+				<Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="250">
+					<Str_Arg Str="I_archer_musket_HeadShot#Dummy_effect_mus_force" Arg="2"/>
+					<Str Str="arrow_cast"/>
+					<Str_Arg Str="F_archer_pistol_hit" Arg="1"/>
+					<Str Str="arrow_blow"/>
+					<Str Str="SLOW"/>
+					<Num Num="500"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Angle_Abs Angle="0"/>
+					<Num Num="0"/>
+					<Num Num="5"/>
+					<Num Num="10"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Str Str="None"/>
+					<PosDist Angle="0" Dist="0"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Arquebusier_LuckyStrike">
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0.5"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+				<Str_Arg Str="None" Arg="0"/>
+				<Str Str=""/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str Str=""/>
+				<Str Str=""/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
+				<Str Str="skl_LuckyStrike_cast"/>
+				<Num Num="0.85"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Scp="C_SOUND" Client="YES" UseSleep="NO">
+				<Str Str="skl_eff_rifle_cast_move"/>
+			</ToolScp>
+			<ToolScp Scp="MONSKL_C_RESERVE_ANIM" Client="YES" UseSleep="NO">
+				<Str Str="skl_LuckyStrike_loop"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Scp="MONSKL_C_CLEAR_RESERVE_ANIM" Client="YES" UseSleep="NO"/>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="9999" RotAngle="0" ForceATK="1" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="MONSKL_PAD_FRONT_MSL" Client="NO" UseSleep="YES" Time="100">
+					<Pos Angle="0" Dist="20"/>
+					<Str Str="shootpad_LuckyStrike"/>
+					<Num Num="250"/>
+					<Num Num="1"/>
+					<Num Num="1000"/>
+					<Num Num="50"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="SCR_SHOT_ARQUEBUS_BARRAGE" Client="NO" UseSleep="YES" Time="0">
+					<Num Num="200"/>
+				</Scp>
+			</EtcList>
+			<ResultList>
+				<ToolScp Scp="SCR_HIT_Arquebusier20" Client="NO" UseSleep="NO"/>
+				<ToolScp Scp="SCR_RUN_ARQUEBUS_BARRAGE_COOLTIME" Client="NO" UseSleep="NO"/>
+			</ResultList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Arquebusier_ArquebusBarrage">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_ArquebusBarrage" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="0" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Length="200" SklAngle="0.61086529" AniTime="150" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="SKL_ARQUEBUSBARRAGE"/>
+					<Num Num="2"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="0">
+					<Str_Arg Str="E_arquebus001" Arg="0.7"/>
+					<Pos Angle="0" Dist="0" PosType="0"/>
+					<Num Num="0"/>
+					<Str Str="None"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="200">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="200">
+					<Num Num="2"/>
+					<Num Num="1"/>
+					<Num Num="60"/>
+					<Num Num="999"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_SELECT_EQUIP_WEAPON" Client="NO" UseSleep="NO">
+						<Str Str="Cannon"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Type="FAN" Time="250" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Length="200" SklAngle="0.61086529" AniTime="450" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="150">
+							<Str_Arg Str="F_fire044_5_yellow" Arg="3"/>
+							<Str Str="Dummy_effect_canon_hit5"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="200">
+							<Str Str="voice_war_atk_medium"/>
+							<Str Str="voice_atk_medium_war_f"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="SKL_ARQUEBUSBARRAGE"/>
+							<Num Num="2"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+						</Scp>
+						<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="0">
+							<Str_Arg Str="E_arquebus002" Arg="0.7"/>
+							<Pos Angle="0" Dist="0" PosType="0"/>
+							<Num Num="0"/>
+							<Str Str="None"/>
+						</Scp>
+						<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="200">
+							<Num Num="2"/>
+							<Num Num="1"/>
+							<Num Num="60"/>
+							<Num Num="999"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="Arquebusier_Salute">
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_GROUND_EVENT" Client="YES" UseSleep="NO">
+				<Num Num="3"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="200"/>
+				<Num Num="0.1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str_Arg Str="None" Arg="1"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="75"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str Str="None"/>
+				<Str Str="None"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputEnd>
+			<ToolScp Scp="SCR_SHOT_ARQUEBUS_BARRAGE" Client="NO" UseSleep="YES">
+				<Num Num="700"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" SklAngle="0.17453292" AniTime="9999" RotAngle="0" ForceATK="1" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="MSL_THROW" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="0">
+					<Str_Arg Str="None" Arg="0.30000001"/>
+					<Str_Arg Str="E_archer_salute2" Arg="1"/>
+					<Str_Arg Str="None" Arg="1"/>
+					<Pos Angle="0" Dist="0" PosType="3"/>
+					<Num Num="75"/>
+					<Num Num="0.5"/>
+					<Num Num="0"/>
+					<Num Num="1000"/>
+					<Num Num="1"/>
+					<Num Num="200"/>
+					<Num Num="1"/>
+					<Str_Arg Str="F_sys_target_pc" Arg="2.6"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+			<ResultList>
+				<ToolScp Scp="SCR_RUN_ARQUEBUS_BARRAGE_COOLTIME" Client="NO" UseSleep="NO"/>
+				<ToolScp Scp="SCR_HIT_SALUTE" Client="NO" UseSleep="NO"/>
+			</ResultList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Arquebusier_DesperateDefense">
+		<KeyInput>
+			<ToolScp Scp="SKL_PARTY_TARGET_BY_KEY" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInput>
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_DesperateDefense" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="SCR_DesperateDefense_SUMMON_MON"/>
+				</Scp>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="skl_eff_arquebusier_desperatedefense"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+					<Str Str="voice_arquebusier_m_desperatedefense_shot"/>
+					<Str Str="voice_arquebusier_f_desperatedefense_shot"/>
+				</Scp>
+				<Scp Scp="MONSKL_CRE_PAD" Client="NO" UseSleep="NO" Time="300">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Arquebusier_DesperateDefense"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Arquebusier_PrecisionFire">
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="2.1"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str_Arg Str="None" Arg="1"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="45"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Str Str="None"/>
+				<Str Str="None"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputEnd>
+			<ToolScp Scp="SCR_SHOT_ARQUEBUS_BARRAGE" Client="NO" UseSleep="YES">
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="999799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="999999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0" LoopTime="700">
+					<Str Str="SKL_PRECISIONFIRE"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="200" LoopTime="710">
+					<Str_Arg Str="I_musketbullet003_red#Dummy_effect_mus_force" Arg="0.69999999"/>
+					<Str Str="arrow_cast"/>
+					<Str_Arg Str="None" Arg="1"/>
+					<Str Str="arrow_blow"/>
+					<Str Str="SLOW"/>
+					<Num Num="500"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Angle_Abs Angle="0"/>
+					<Num Num="0"/>
+					<Num Num="5"/>
+					<Num Num="10"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Str Str="None"/>
+					<PosDist Angle="0" Dist="0"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="MONSKL_PAD_FRONT_MSL" Client="NO" UseSleep="YES" Time="700" LoopTime="710">
+					<Pos Angle="0" Dist="20" Height="30"/>
+					<Str Str="shootpad_PrecisionFire"/>
+					<Num Num="250"/>
+					<Num Num="1"/>
+					<Num Num="800"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+			<ResultList>
+				<ToolScp Scp="SCR_RUN_ARQUEBUS_BARRAGE_COOLTIME" Client="NO" UseSleep="NO"/>
+			</ResultList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="ITEM_VIBORA_Arquebusier"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Type="FAN" Time="999799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="999999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0"/>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0" LoopTime="350">
+							<Str Str="SKL_PRECISIONFIRE"/>
+							<Num Num="2"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="180" LoopTime="360">
+							<Str_Arg Str="I_musketbullet003_red#Dummy_effect_mus_force" Arg="0.69999999"/>
+							<Str Str="arrow_cast"/>
+							<Str_Arg Str="None" Arg="1"/>
+							<Str Str="arrow_blow"/>
+							<Str Str="SLOW"/>
+							<Num Num="500"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Angle_Abs Angle="0"/>
+							<Num Num="0"/>
+							<Num Num="5"/>
+							<Num Num="10"/>
+							<Num Num="0"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Str Str="None"/>
+							<PosDist Angle="0" Dist="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="MONSKL_PAD_FRONT_MSL" Client="NO" UseSleep="YES" Time="350" LoopTime="360">
+							<Pos Angle="0" Dist="20" Height="30"/>
+							<Str Str="shootpad_PrecisionFire"/>
+							<Num Num="250"/>
+							<Num Num="1"/>
+							<Num Num="800"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+					<ResultList>
+						<ToolScp Scp="SCR_RUN_ARQUEBUS_BARRAGE_COOLTIME" Client="NO" UseSleep="NO"/>
+					</ResultList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="Common_Arquebusier_DesperateDefense">
+		<KeyInput>
+			<ToolScp Scp="SKL_PARTY_TARGET_BY_KEY" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInput>
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_DesperateDefense" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="SCR_DesperateDefense_SUMMON_MON"/>
+				</Scp>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="skl_eff_arquebusier_desperatedefense"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+					<Str Str="voice_arquebusier_m_desperatedefense_shot"/>
+					<Str Str="voice_arquebusier_f_desperatedefense_shot"/>
+				</Scp>
+				<Scp Scp="MONSKL_CRE_PAD" Client="NO" UseSleep="NO" Time="300">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Arquebusier_DesperateDefense"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+</ToolSkill>

@@ -2153,7 +2153,6 @@ function GET_QUEST_LOCATION(questIES)
 	local state = CONVERT_STATE(result);
 	local map = questIES[state .. 'Map'];
 	local location = questIES[state .. 'Location'];
-
 	if location ~= '' and location ~= "None" then
 		local strList = SCR_STRING_CUT_SPACEBAR(location)
 		return strList[1];
@@ -2169,11 +2168,13 @@ end
 function SCR_VIEW_QUEST_LOCATION(ctrlSet, ctrl, strArg, numArg)
 	local quest = GetClassByType('QuestProgressCheck', numArg)
     local mapName = GET_QUEST_LOCATION(quest)
-    local episode = GET_EPISODE_BY_MAPNAME(mapName)
-    
+	local episode = GET_EPISODE_BY_MAPNAME(mapName)
     if episode == nil then
         return
-    end
+	end
+	if episode == "EP16_2" then
+		episode = "EP9_2";
+	end
 
     ui.OpenFrame("worldmap2_mainmap")
     

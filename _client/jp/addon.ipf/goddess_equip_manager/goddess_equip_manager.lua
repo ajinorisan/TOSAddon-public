@@ -800,8 +800,9 @@ function GODDESS_MGR_REINFORCE_MAT_UPDATE(frame)
 		local class_type = TryGetProp(item_obj, 'ClassType', 'None')
 		local reinf_value = TryGetProp(item_obj, 'Reinforce_2', 0)
 		local popoboost_item_prop = TryGetProp(item_obj, 'popoboost', 0)
-		
-		local dic = item_goddess_reinforce.get_material_list(use_lv, class_type, reinf_value + 1, popoboost_item_prop)
+		local IsPopoboostClear = IS_POPOBOOST_PROGRESS_ALL_CLEAR(pc);
+
+		local dic = item_goddess_reinforce.get_material_list(use_lv, class_type, reinf_value + 1, popoboost_item_prop, IsPopoboostClear)
 		if dic == nil then
 			if item_goddess_growth.is_goddess_growth_item(item_obj) == true then
 				local _max = false
@@ -968,11 +969,12 @@ function GODDESS_MGR_REINFORCE_RATE_UPDATE(frame)
 		local class_type = TryGetProp(item_obj, 'ClassType', 'None')
 		local reinf_value = TryGetProp(item_obj, 'Reinforce_2', 0)
 		local adjust_rate = item_goddess_reinforce.get_current_fail_revision_prop_percent(item_obj)
-	
+		local IsPopoboostClear = IS_POPOBOOST_PROGRESS_ALL_CLEAR(pc);
+
 		local slotset = GET_CHILD_RECURSIVELY(frame, 'reinf_extra_mat_list')
 		local normal_cnt = slotset:GetUserIValue('NORMAL_MAT_COUNT')
 		local premium_cnt = slotset:GetUserIValue('PREMIUM_MAT_COUNT')
-		local def_rate = item_goddess_reinforce.get_final_reinforce_prop_percent(item_obj, normal_cnt, premium_cnt)
+		local def_rate = item_goddess_reinforce.get_final_reinforce_prop_percent(item_obj, normal_cnt, premium_cnt, IsPopoboostClear)
 		local total_rate = def_rate + adjust_rate
 		def_rate = string.format('%.2f', math.min(tonumber(def_rate), 100))
 		total_rate = string.format('%.2f', math.min(tonumber(total_rate), 100))

@@ -417,6 +417,9 @@ function BTN_HOUSING_DUNGEON_LAB_RESEARCH_USE_GUILD(gbox, btn)
 	local class = GetClass("guild_housing", research_name);
 	if class ~= nil then
 		local silver = "25,000,000"
+		if config.GetServiceNation() == 'PAPAYA' then
+			silver = "10,000,000"
+		end
 		local clmsg = ScpArgMsg("Guild_Housing_Dungon_Lab_Enter", "Name", class.Name, "SILVER", silver);
 		local yes_scp = string.format("SCR_GUILD_HOUSING_RESEARCH_BUFF_GUILD_APPLY_CHECK('%d', '%s')", 1, research_name);
 		local no_scp = string.format("SCR_GUILD_HOUSING_RESEARCH_BUFF_GUILD_APPLY_CHECK('%d')", 0);

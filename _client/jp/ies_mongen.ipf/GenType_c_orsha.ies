@@ -64,7 +64,6 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5207,5207,1,40,1,60000,1,0,0,1,1,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","","","NO","YES","NO","Neutral","","","",""
 5208,5208,1,40,1,1,1,2,0,0,1,0,0,"npc_kupole_7","주거 도우미 큐폴","","","","","","","NPC_PERSONAL_HOUSING_MANAGER","","","NO","YES","NO","Neutral","","","",""
 5209,5209,1,40,1,60000,1,2,0,0,1,0,0,"npc_neringa","네링가","","","","","","","EP12_PRELUDE_NERINGA_ORSHA1","","","NO","YES","NO","Neutral","","","",""
-5214,5214,1,1,1,1,1,0,0,0,0,0,0,"HiddenTrigger","[이벤트] 여신의 룰렛","","","","","","EVENT_GODDESS_ROULETTE_NPC_AI","EVENT_POPO_ROULETTE_NPC","","","NO","YES","NO","Neutral","","","",""
 5218,5218,1,1,1,60000,1,0,0,0,0,0,0,"HiddenTrigger","[이벤트] 큐폴","","","","","","EVENT_FLEX_BOX_NPC_AI","EVENT_FLEX_BOX_NPC","","","NO","YES","NO","Neutral","","","",""
 5231,5231,1,40,1,1,1,2,0,0,1,0,0,"npc_Ragana_shop","[마신의 유혹]{nl}마신 라가나의 환영","","","","","","SHOP_NPC_RAGANA_CITY_AI","SHOP_NPC_RAGANA_CITY_1","","","NO","YES","NO","Neutral","","","",""
 5233,5233,1,150,-1,1,1,0,0,0,0,0,0,"FishingPlace","","","","","","","","","","","NO","YES","NO","Neutral","","","",""
@@ -90,4 +89,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5504,5504,1,40,1,60000,1,2,0,0,0,0,0,"npc_auctioneer","[블랙 마켓]{nl}경매인","","","","","","BLACK_MARKET_AI","BLACK_MARKET","","","NO","YES","NO","Neutral","","","",""
 5506,5506,1,40,1,60000,1,2,0,0,0,0,0,"npc_wingedhussar","[윙드후사르 마스터]{nl}얀 카롤라스","","","","","","","NPC_WINGEDHUSSAR","","","NO","YES","NO","Neutral","","","",""
 5508,5508,1,40,1,60000,1,1,0,0,0,0,0,"npc_bowmaster","[신궁 마스터]{nl}앙겔레 틸러","","","","","","","NPC_BOWMASTER","","","NO","YES","NO","Neutral","","","",""
-5509,5509,1,40,1,60000,1,2,0,0,0,0,0,"npc_kupole_1_event","[이벤트] 큐폴 업데이트 기념 NPC","","","","","","","EVENT_W_KUPOLE_NPC","","","NO","YES","NO","Neutral","","","",""

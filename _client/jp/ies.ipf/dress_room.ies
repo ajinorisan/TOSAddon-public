@@ -97,3 +97,7 @@ ClassID,ClassName,Thema,ItemClassName,Group
 148,"dress_costume_ep16spacepopori_f","ep16spacepopori_theme","costume_ep16spacepopori_f","dress_room_blessed_cube"
 149,"dress_costume_ep16redhood_m","ep16redhood_theme","costume_ep16redhood_m","dress_room_blessed_cube"
 150,"dress_costume_ep16redhood_f","ep16redhood_theme","costume_ep16redhood_f","dress_room_blessed_cube"
+151,"dress_costume_ep16statue01_m","ep16statue_theme","costume_ep16statue01_m","dress_room_blessed_cube"
+152,"dress_costume_ep16statue01_f","ep16statue_theme","costume_ep16statue01_f","dress_room_blessed_cube"
+153,"dress_costume_ep16statue02_m","ep16statue_theme","costume_ep16statue02_m","dress_room_blessed_cube"
+154,"dress_costume_ep16statue02_f","ep16statue_theme","costume_ep16statue02_f","dress_room_blessed_cube"

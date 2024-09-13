@@ -87,15 +87,15 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 	local groupName = frame:GetUserValue("GROUP_NAME")
 	local missionCls = EVENT_STAMP_GET_CURRENT_MISSION(groupName, currentpage)
 	
-	if groupName == "POPO_EVENT_STAMP" then
-		local maxpopoboostpage = 7;
-		local popoboost_stamp_value = EVENT_STAMP_TOUR_POPOBOOST_CLEAR_CHECK(groupName, currentpage);
-		if popoboost_stamp_value == false and currentpage ~= maxpopoboostpage then
-			label_tab:ChangeTab(Prev_Page)
-			ui.SysMsg(ClMsg('popoboostguidequestblock'));
-			return;
-		end
-	end
+	-- if groupName == "POPO_EVENT_STAMP" then
+	-- 	local maxpopoboostpage = 7;
+	-- 	local popoboost_stamp_value = EVENT_STAMP_TOUR_POPOBOOST_CLEAR_CHECK(groupName, currentpage);
+	-- 	if popoboost_stamp_value == false and currentpage ~= maxpopoboostpage then
+	-- 		label_tab:ChangeTab(Prev_Page)
+	-- 		ui.SysMsg(ClMsg('popoboostguidequestblock'));
+	-- 		return;
+	-- 	end
+	-- end
 
 	local typename_text = GET_CHILD_RECURSIVELY(frame, 'typename_text');
 	typename_text:SetTextByKey('value', missionCls.NoteName);

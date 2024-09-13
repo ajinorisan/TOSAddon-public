@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="rerunticket" x="0" y="0" width="1920" height="1080"> 
+	<frame layout_gravity="left top" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_RERUN_TICKET" CloseScp=""/>
+	<layer layerlevel="98"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+    <input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
+    <sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="dialog_start" frameCloseAnim="dialog_end" margin="0 0 0 0"/>
+    <controls>
+    <!-- 관리탭 -->
+		<groupbox name="screenbg" rect="0 0 4096 2048" margin="0 0 0 0" layout_gravity="center center" hittest="true" skin="property_screenbg" stretch="true"/>
+		<groupbox name="maingFrame" rect="0 0 900 1020" margin="50 20 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false"/>
+		<groupbox name="maingbox" parent="maingFrame" rect="0 0 900 950" margin="0 20 0 0" layout_gravity="center center" skin="test_frame_low" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+			<groupbox name="itembox" parent="maingbox" rect="0 0 895 910" margin="0 20 0 0" layout_gravity="left top" skin="None" draw="true" hittestbox="false" resizebyparent="false" scrollbar="true"/>
+		<groupbox name="maintitlegbox" parent="maingFrame" rect="0 0 900 74" margin="0 0 0 0" layout_gravity="center top" skin="TPshop_title" stretch="true"/>
+		<richtext name="mainTitle" parent="maintitlegbox" rect="0 0 200 50" margin="0 0 0 0" layout_gravity="center center" format="{@st43}{s24}%s" param1="group" param1_def="복각"  drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+
+		<button name="closeBtn" parent="maintitlegbox" rect="0 0 44 44" margin="0 20 50 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;rerunticket&apos;)" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}현재 창을 닫습니다.{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover"/>
+    </controls>
+</uiframe>

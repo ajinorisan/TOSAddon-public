@@ -1409,14 +1409,13 @@ function OPEN_TRADE_SELECT_SKILL_GEM(frame)
 	elseif job == 'ShadowMancer' then
 		job = 'Shadowmancer'
 	elseif job == 'Lancer' then
-		job = 'Rancer'
+		job = 'Rancer'	
 	end
 
 	local cls , cnt = GetClassList('SkillTree')
 	for i = 0, cnt -1 do
 		local skltcls = GetClassByIndexFromList(cls, i)
-		local sklname = TryGetProp(skltcls, "SkillName", "None")
-
+		local sklname = TryGetProp(skltcls, "SkillName", "None")		
 		-- 스킬 이름이 job과 매칭되지 않은 사항 처리
 		-- 추가해야 하는 경우는 직접 추가하고, 제거해야 하는 경우는 exceptionCase을 1로 셋팅
 		local exceptionCase = 0
@@ -1432,16 +1431,31 @@ function OPEN_TRADE_SELECT_SKILL_GEM(frame)
 			end
 		end
 		
-		-----------------------------------------------
-
-		if string.find(sklname, job..'_') ~= nil and exceptionCase == 0 then
-			local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
-			if job == 'Hunter' then
-				if string.find(sklname, 'TigerHunter_') == nil then
+		-----------------------------------------------				
+		if string.find(job, '%[') ~= nil and string.find(job, '%]') ~= nil  then
+			local end_num = string.find(job, '%[')
+			local prefix = string.sub(job, 0, end_num - 1)
+			if string.find(job, '[W]') ~= nil then				
+				if string.find(sklname, prefix..'_') ~= nil and string.find(sklname, '_Wizard') ~= nil then
+					local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
 					SkillList[#SkillList + 1] = skillgem_cls
 				end
-			else
-				SkillList[#SkillList + 1] = skillgem_cls
+			elseif string.find(job, '[A]') ~= nil then				
+				if string.find(sklname, prefix..'_') ~= nil and string.find(sklname, '_Archer') ~= nil then					
+					local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
+					SkillList[#SkillList + 1] = skillgem_cls
+				end
+			end
+		else
+			if string.find(sklname, job..'_') ~= nil and exceptionCase == 0 then
+				local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
+				if job == 'Hunter' then
+					if string.find(sklname, 'TigerHunter_') == nil then
+						SkillList[#SkillList + 1] = skillgem_cls
+					end			
+				else
+					SkillList[#SkillList + 1] = skillgem_cls
+				end
 			end
 		end
     end

@@ -94,11 +94,16 @@ function GET_ABILITY_CONDITION_UNLOCK(abilIES, groupClass)
     if groupClass == nil then
         return nil;
     end
-
+    local AdditioanlResult = SET_ADDITOINAL_LOCK_FUNCTION(GetMyPCObject(), groupClass)
 	local unlockFuncName = groupClass.UnlockScr;
 	if unlockFuncName ~= 'None' then
 		local scp = _G[unlockFuncName];
 		local ret = scp(GetMyPCObject(), groupClass.UnlockArgStr, groupClass.UnlockArgNum, abilIES);
+        if AdditioanlResult then
+            if ret == "LOCK_GRADE" then
+                return AdditioanlResult;
+            end
+        end
         return ret;
     end
     return nil;
@@ -571,7 +576,9 @@ end
 function GET_SKILLABILITY_COMMON_SKILL_LIST()
     local skillLvHash = {}
     skillLvHash[1] = {}
+    skillLvHash[2] = {}
     local skillIDList = skillLvHash[1];
+    local skillkupole = skillLvHash[2];
 	local commonSkillCount = session.skill.GetCommonSkillCount();	
     for i=0,commonSkillCount-1 do
 		local skillID = session.skill.GetCommonSkillIDByIndex(i);
@@ -580,8 +587,13 @@ function GET_SKILLABILITY_COMMON_SKILL_LIST()
         local skill_class_name = TryGetProp(sklCls, "ClassName", "None");
 
         local isinsert = true;
+        local isKupole = false;
         if string.find(keyword, "GoddessCardSkill") ~= nil then -- 여신 카드 더미 스킬은 출력 안함
             isinsert = false;
+        end
+
+        if string.find(keyword, "Kupole") ~= nil then -- 큐폴 스킬은 다른 라인에 추가
+            isKupole = true;
         end
 
         if is_spearmaster_atk_skill(skill_class_name) == true then
@@ -589,7 +601,11 @@ function GET_SKILLABILITY_COMMON_SKILL_LIST()
         end
 
         if isinsert == true then
-            skillIDList[#skillIDList+1] = skill_class_name;
+            if isKupole then
+                skillkupole[#skillkupole+1] = skill_class_name;
+            else
+                skillIDList[#skillIDList+1] = skill_class_name;
+            end
         end
     end
     return skillLvHash;
@@ -688,4 +704,25 @@ function GET_JOB_NAME_BY_ENGNAME(name)
             return TryGetProp(cls, "Name", "None");
         end
     end
+end
+
+function SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
+    local max = TryGetProp(groupClass, "Add_UnlockJobNum", -1);
+    if max < 1 then
+        return nil;
+    end
+    local AddStr = "Add_UnlockArgStr"
+    for i = 0, max do
+        local unlockFuncName = groupClass.UnlockScr;
+        local AddProp = AddStr..i;
+        local AddLockArgStr = TryGetProp(groupClass, AddProp, "None");
+        if unlockFuncName ~= 'None' then
+            local scp = _G[unlockFuncName];
+            local ret = scp(pc, AddLockArgStr, groupClass.UnlockArgNum, abilIES);
+            return ret;
+        else
+            return nil;
+        end
+    end
+
 end

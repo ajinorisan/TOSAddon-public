@@ -28,7 +28,7 @@ local function NOTICE_FREE_TRANSFER_CLASS(ctrl)
 	-- noticeBallon:ShowWindow(1);
 end
 
-function CHANGEJOB_OPEN(frame)
+function CHANGEJOB_OPEN(frame)	
 	session.job.ReqClassResetPoint();	
 	CHANGEJOB_SIZE_UPDATE(frame)
 	UPDATE_CHANGEJOB(frame);	
@@ -271,7 +271,7 @@ local function _UPDATE_JOB_STAT_RATIO(frame, jobCls)
 	SetJobStatRatio('DEX', jobCls);
 end
 
-function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid)
+function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid, src_id)
 	frame = frame:GetTopParentFrame();
 	frame:SetUserValue('CUR_SELECT_RIGHT_JOB_ID', jobid);
 
@@ -404,6 +404,11 @@ function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid)
 	if IS_HAD_JOB(jobinfo.ClassID) == true then
 		canChangeJob = false;
 	end
+	
+	if canChangeJob == true and src_id ~= 'None' and src_id ~= nil then		
+		canChangeJob = IS_ABLE_TO_CHANGE_CLASS(pc, src_id, jobinfo.ClassID)
+	end
+
     jobchangebutton:SetEnable(0);
     
     local jobCircleValue = session.GetJobGrade(jobinfo.ClassID);    
@@ -469,7 +474,7 @@ exechangejobid = 0
 
 
 
-local function _EXCHANGE_JOB(frame, destJobID)
+local function _EXCHANGE_JOB(frame, destJobID)	
 	frame = frame:GetTopParentFrame();
 	local scrJob = frame:GetUserIValue('EXCHANGE_SRC_JOB');
     ui.CloseFrame('changejob');
@@ -534,7 +539,7 @@ local function TRANS_BOOLEAN(number)
 	return true;
 end
 
-function UPDATE_CHANGEJOB(frame)
+function UPDATE_CHANGEJOB(frame, src_id)
 	local pc = GetMyPCObject();
 	local pcjobinfo = GetClass('Job', pc.JobName)
 	local pcCtrlType = pcjobinfo.CtrlType
@@ -570,7 +575,7 @@ function UPDATE_CHANGEJOB(frame)
 	local jobList, jobCnt = GetClassList("Job");
 	for i = 0, jobCnt - 1 do
 		local jobCls = GetClassByIndexFromList(jobList, i);
-		if pcCtrlType == jobCls.CtrlType and jobCls.Rank <= JOB_CHANGE_MAX_RANK then			
+		if pcCtrlType == jobCls.CtrlType and jobCls.Rank <= JOB_CHANGE_MAX_RANK then						
 			jobInfos[#jobInfos + 1] = { JobClassID = jobCls.ClassID,
 										IsHave = IS_HAD_JOB(jobCls.ClassID),
 										HotCount = session.GetChangeJobHotRank(jobCls.ClassName),
@@ -629,7 +634,11 @@ function UPDATE_CHANGEJOB(frame)
 		local jobCls = GetClassByType('Job', info.JobClassID);
 		local subClassCtrl = cjobGbox:CreateOrGetControlSet('jobinfo', 'JOB_INFO_'..jobCls.ClassName , x, y);
 		local button = GET_CHILD(subClassCtrl, "button");
-		if info.IsHave == true then
+
+		local flag = true		
+		flag = IS_ABLE_TO_CHANGE_CLASS(pc, src_id, tonumber(info.JobClassID))			
+		
+		if info.IsHave == true or flag == false then
 		    local preFuncName = TryGetProp(jobCls, 'PreFunction', 'None')
 			if jobCls.HiddenJob == 'YES' and preFuncName ~= 'None' then
 				local jobname = TryGetProp(jobCls, 'JobName', 'None')
@@ -659,6 +668,9 @@ function UPDATE_CHANGEJOB(frame)
 				
 		button:SetEventScript(ui.LBUTTONDOWN, 'CJ_CLICK_INFO')
 		button:SetEventScriptArgNumber(ui.LBUTTONDOWN, info.JobClassID);
+		if src_id ~= nil then
+			button:SetEventScriptArgString(ui.LBUTTONDOWN, tostring(src_id))
+		end
 
 		totalHeight = y + subClassCtrl:GetHeight();
 	end
@@ -667,22 +679,22 @@ function UPDATE_CHANGEJOB(frame)
 	local mains = session.GetMainSession();
 	local jobhistorysession = mains:GetPCJobInfo();
 	local jobhistory = jobhistorysession:GetJobInfoByIndex(totaljobgrade-1);
-
-	CJ_UPDATE_RIGHT_INFOMATION(frame, pcjobinfo.ClassID);
+	
+	CJ_UPDATE_RIGHT_INFOMATION(frame, pcjobinfo.ClassID, src_id);
 
 	local scrollBarCurLine = cjobGbox:GetCurLine();
 	cjobGbox:SetCurLine(0);
 end
 
-function CJ_CLICK_INFO(frame, slot, argStr, jobClsID)
-	local originalframe = ui.GetFrame("changejob");
-	CJ_UPDATE_RIGHT_INFOMATION(originalframe, jobClsID);
+function CJ_CLICK_INFO(frame, slot, argStr, jobClsID)	
+	local originalframe = ui.GetFrame("changejob");	
+	CJ_UPDATE_RIGHT_INFOMATION(originalframe, jobClsID, argStr);
 end
 
-function CHANGEJOB_SHOW_RANKROLLBACK()
+function CHANGEJOB_SHOW_RANKROLLBACK()	
 	local lastJobGrade = session.GetPcTotalJobGrade();
 	local pc = GetMyPCObject();
-	local frame = ui.GetFrame('changejob');
+	local frame = ui.GetFrame('changejob');	
 end
 
 function ON_CHANGE_JOB_SELECT_GUIDE_START(frame, btn)
@@ -728,7 +740,7 @@ function ON_UPDATE_CLASS_RESET_POINT_INFO(frame, msg, argStr, argNum)
 	end
 end
 
-function RANKROLLBACK_BTN_CLICK(parent, ctrl, argStr, srcJobID)
+function RANKROLLBACK_BTN_CLICK(parent, ctrl, argStr, srcJobID)	
 	local frame = parent:GetTopParentFrame();
 	local rollbackInfoBox = GET_CHILD_RECURSIVELY(frame, 'rollbackInfoBox');
 	rollbackInfoBox:ShowWindow(1);
@@ -736,16 +748,19 @@ function RANKROLLBACK_BTN_CLICK(parent, ctrl, argStr, srcJobID)
 
 	local arrowPic = GET_CHILD(rollbackInfoBox, 'arrowPic');
 	imcUIAnim:PlayMoveExponential(arrowPic, 'right', true, 50, 0.005, true);
+	UPDATE_CHANGEJOB(frame, srcJobID)
 end
 
-function CHANGEJOB_CLOSE_ROLLBACK_MODE(parent, ctrl)
+function CHANGEJOB_CLOSE_ROLLBACK_MODE(parent, ctrl)	
 	local frame = parent:GetTopParentFrame();
+	UPDATE_CHANGEJOB(frame)
 	local rollbackInfoBox = GET_CHILD_RECURSIVELY(frame, 'rollbackInfoBox');
 	rollbackInfoBox:ShowWindow(0);
 	CJ_UPDATE_RIGHT_INFOMATION(frame, frame:GetUserIValue('CUR_SELECT_RIGHT_JOB_ID'));
 end
 
-function CHANGEJOB_ON_ESCAPE(frame)
+function CHANGEJOB_ON_ESCAPE(frame)	
+	UPDATE_CHANGEJOB(frame)
 	local rollbackInfoBox = GET_CHILD_RECURSIVELY(frame, 'rollbackInfoBox');
 	if rollbackInfoBox:IsVisible() == 1 then
 		rollbackInfoBox:ShowWindow(0);

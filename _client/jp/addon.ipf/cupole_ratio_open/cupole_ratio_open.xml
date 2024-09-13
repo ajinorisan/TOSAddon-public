@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="cupole_ratio_open" x="0" y="0" width="1980" height="1080">
-	<frame layout_gravity="left top" margin="0 0 0 0" draw="true"/>
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
 	<script OpenScp="OPEN_CUPOLE_RATIO_TABLE" CloseScp=""/>
 	<layer layerlevel="102"/>
 	<skin frameskin=" "/>

@@ -62,3 +62,4 @@ ClassID,RideMSPD,MaxVehicle,OffsetY,RidingOffsetY,AddSpeed,JobID,LifeMin,Balloon
 61,6,1,2,3,50,0,0,0,"pet_snigo","","","NO","YES","YES","NO","","YES","NO","pet_snigo_buff"
 62,4,1,0,5.100000,50,0,0,0,"pet_Armadillo_wingedhussar","","0","NO","YES","NO","NO","","YES","YES",""
 63,4,1,0,4,50,0,0,0,"pet_ep13dessert_pink","","11","NO","YES","NO","NO","","YES","YES","pet_ep13dessert_pink_buff"
+64,4,1,0,4,50,0,0,0,"pet_mermaidpopo","","11","NO","YES","NO","NO","","YES","YES","pet_mermaidpopo_buff"

@@ -1,0 +1,445 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ToolSkill>
+	<Skill Name="Fletcher_MagicArrow">
+		<KeyInput>
+			<ToolScp Client="YES" Scp="SKL_KEY_GROUND_EVENT" UseSleep="NO">
+				<Num Num="3"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="100" UseFunc="1" FuncTxt="local skl = session.GetSkill(obj.type)
+local sklObj = GetIES(skl:GetObject())
+local maxR = sklObj.MaxR
+ return maxR"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str_Arg Arg="1" Str="E_pc_full_charge##1"/>
+				<Str Str="Dummy_emitter"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="3"/>
+				<Num Num="0.2"/>
+				<Num Num="100"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str Str="None"/>
+				<Str Str="Fletcher27"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Client="YES" Scp="MONSKL_C_PLAY_ANIM" UseSleep="NO">
+				<Str Str="SKL_CHARGESHOT_CHARGE"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="MONSKL_C_RESERVE_ANIM" UseSleep="NO">
+				<Str Str="SKL_CHARGESHOT_LOOP"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_PLAY_SOUND" UseSleep="NO">
+				<Str Str="voice_atk_long_cast_f"/>
+				<Num Num="0"/>
+				<Str Str="voice_war_atk_long_cast"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_EFFECT" UseSleep="NO">
+				<Str_Arg Arg="3.5" Str="None"/>
+				<Str Str="Dummy_body"/>
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Client="YES" Scp="MONSKL_C_CLEAR_RESERVE_ANIM" UseSleep="NO"/>
+			<ToolScp Client="NO" Scp="SKL_STOP_SOUND" UseSleep="NO">
+				<Str Str="voice_atk_long_cast_f"/>
+				<Str Str="voice_war_atk_long_cast"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_EFFECT_DETACH" UseSleep="NO">
+				<Str_Arg Arg="3.5" Str="F_archer_FlareShot_shot_fire"/>
+				<Num Num="0.5"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<HitList>
+				<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="99799" Type="FAN"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_SET_DIR_TO_TGT_Fletcher" Client="NO" UseSleep="NO" Time="0"/>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+					<Str Str="voice_wiz_m_flare_shot"/>
+					<Str Str="voice_wiz_flare_shot"/>
+				</Scp>
+				<Scp Client="NO" Scp="MSL_PAD_THROW" Time="0" UseSleep="YES">
+					<Str_Arg Arg="0.5" Str="I_arrow009_1#Dummy_Force"/>
+					<Str_Arg Arg="1" Str="F_explosion092_hit_mint"/>
+					<Str_Arg Arg="1" Str="None"/>
+					<Pos Angle="0" Dist="0" PosType="3"/>
+					<Num Num="40"/>
+					<Num Num="0.2"/>
+					<Num Num="0"/>
+					<Num Num="30"/>
+					<Num Num="1"/>
+					<Num Num="200"/>
+					<Num Num="1"/>
+					<Str_Arg Arg="1" Str="None"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Fletcher_MagicArrow"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Client="NO" Scp="SKL_SELECT_EQUIP_SH_WEAPON" UseSleep="NO"/>
+				</Cond>
+				<Skill JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+					<HitList>
+						<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="99799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_SET_DIR_TO_TGT_Fletcher" Client="NO" UseSleep="NO" Time="0"/>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+							<Str Str="voice_wiz_m_flare_shot"/>
+							<Str Str="voice_wiz_flare_shot"/>
+						</Scp>
+						<Scp Client="NO" Scp="MSL_PAD_THROW" Time="0" UseSleep="YES">
+							<Str_Arg Arg="0.5" Str="I_arrow009_1#Dummy_q_Force"/>
+							<Str_Arg Arg="1" Str="F_explosion092_hit"/>
+							<Str_Arg Arg="1" Str="None"/>
+							<Pos Angle="0" Dist="0" PosType="3"/>
+							<Num Num="30"/>
+							<Num Num="0.2"/>
+							<Num Num="0"/>
+							<Num Num="30"/>
+							<Num Num="1"/>
+							<Num Num="1000"/>
+							<Num Num="1"/>
+							<Str_Arg Arg="1" Str="None"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Angle Angle="0"/>
+							<Str Str="Fletcher_MagicArrow"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="Fletcher_Singijeon">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_BarbedArrow">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_BodkinPoint">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_BroadHead">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_CrossFire">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_FletcherArrowShot">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER_ARROW_SHOT" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+			</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<HitList>
+				<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="1" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="99799" Type="FAN"/>
+			</HitList>
+			<EtcList>
+			    <Scp Scp="SKL_SET_TARGET_CLIENT_TARGETTING" Client="NO" UseSleep="NO" Time="0">
+                    <Num Num="1"/>
+                    <Num Num="240"/>
+                </Scp>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+					<Str Str="RUN_FLETCHER_ARROW_SHOT"/>
+				</Scp>
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="YES">
+					<Str Str="SCR_Fletcher_CatenaChainArrow_RUN"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_CatenaChainArrow">
+		<KeyInput>
+			<ToolScp Client="YES" Scp="SKL_KEY_GROUND_EVENT" UseSleep="NO">
+				<Num Num="3"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="200"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str_Arg Arg="0" Str="None"/>
+				<Str Str="Dummy_emitter"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="3"/>
+				<Num Num="0.2"/>
+				<Num Num="100"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str Str="Fletcher_CatenaChainArrow_Buff"/>
+				<Str Str="None"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Client="YES" Scp="MONSKL_C_PLAY_ANIM" UseSleep="NO">
+				<Str Str="SKL_CHARGESHOT_CHARGE"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="MONSKL_C_RESERVE_ANIM" UseSleep="NO">
+				<Str Str="SKL_CHARGESHOT_LOOP"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_PLAY_SOUND" UseSleep="NO">
+				<Str Str="voice_atk_long_cast_f"/>
+				<Num Num="0"/>
+				<Str Str="voice_war_atk_long_cast"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_EFFECT" UseSleep="NO">
+				<Str_Arg Arg="3.5" Str="None"/>
+				<Str Str="Dummy_body"/>
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Client="NO" Scp="SKL_STOP_SOUND" UseSleep="NO">
+				<Str Str="voice_atk_long_cast_f"/>
+				<Str Str="voice_war_atk_long_cast"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_EFFECT_DETACH" UseSleep="NO">
+				<Str_Arg Arg="3.5" Str="F_archer_FlareShot_shot_fire"/>
+				<Num Num="0.5"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER_CATENA" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<HitList>
+				<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="99799" Type="FAN"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="skl_eff_daggerfinish_cast"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_CLEAR_RESERVE_ANIM" Client="YES" UseSleep="NO" Time="0"/>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="SKL_CHARGESHOT_SHOT"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="SCR_Fletcher_CatenaChainArrow" Client="NO" UseSleep="NO" Time="0"/>
+				<Scp Scp="MSL_PAD_THROW" Client="NO" UseSleep="YES" Time="0">
+					<Str_Arg Arg="0.4" Str="I_force018_trail_chain#Dummy_Force"/>
+					<Str_Arg Arg="1" Str="F_explosion092_hit_mint"/>
+					<Str_Arg Arg="1" Str="None"/>
+					<Pos Angle="0" Dist="0" PosType="3"/>
+					<Num Num="0"/>
+					<Num Num="1" UseFunc="1" FuncTxt="local x, y, z = GetPos(self)
+local ox, oy, oz = GetGizmoPos(self)
+local dist = GetDistanceByFromToPos(ox, oy, oz, x, y, z)
+local add_flytime = 0.2 + dist / 300
+
+return add_flytime
+"/>
+					<Num Num="0"/>
+					<Num Num="200"/>
+					<Num Num="1"/>
+					<Num Num="200"/>
+					<Num Num="0"/>
+					<Str_Arg Arg="1" Str="None"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Fletcher_CatenaChainArrow_PAD"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Client="BOTH" Scp="SKL_CHECK_BUFF_STATE" UseSleep="NO">
+						<Str Str="Fletcher_CatenaChainArrow_Buff"/>
+					</ToolScp>
+				</Cond>
+				<Skill JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+					<HitList>
+						<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="99799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SCR_Fletcher_CatenaChainArrow_CANCLE_PAD" Client="NO" UseSleep="NO" Time="0"/>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="Fletcher_FletcherArrowShot_2">
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EnableScripts>
+				<ToolScp Scp="SKL_CHECK_FLETCHER_ARROW_SHOT" Client="BOTH" UseSleep="NO">
+					<Num Num="0"/>
+				</ToolScp>
+			</EnableScripts>
+			<HitList>
+				<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="1" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="99799" Type="FAN"/>
+			</HitList>
+			<EtcList>
+			    <Scp Scp="SKL_SET_RESERVED_TARGET_TO_HARD_TARGET" Client="NO" UseSleep="NO" Time="0" />
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+					<Str Str="RUN_FLETCHER_ARROW_SHOT_2"/>
+				</Scp>
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="YES">
+					<Str Str="SCR_Fletcher_CatenaChainArrow_RUN"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_CrossFire_2">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_BarbedArrow_2">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Fletcher_Singijeon_2">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>	
+	<Skill Name="Fletcher_BodkinPoint_2">
+		<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+</ToolSkill>

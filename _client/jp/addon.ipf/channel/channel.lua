@@ -105,6 +105,10 @@ function SELECT_ZONE_MOVE_CHANNEL(index, channelID)
 
     end
     
+    if IS_JUMP_MAP_BUFF_APPLIED(pc) == 1 then
+        return;
+    end
+
     local msg = ScpArgMsg("ReallyMoveToChannel_{Channel}", "Channel", channelID + 1);
     local scpString = string.format("RUN_GAMEEXIT_TIMER(\"Channel\", %d)", channelID);
     ui.MsgBox(msg, scpString, "None");

@@ -6202,6 +6202,64 @@
 			</ToolScp>
 		</StartList>
 	</AI>
+	<AI Name="EP16_2_FANLIB_48_3_MQ2_VIVORA_NPC_AI" ActiveMessageMapInBattle="1">
+		<List>
+			<ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+				<Str Str="SCR_EP16_2_FANLIB_48_3_MQ2_VIVORA_NPC_SIMPLE_AI_RUN"/>
+			</ToolScp>
+		</List>
+		<StartList>
+			<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+		</StartList>
+	</AI>
+    <AI Name="EP16_2_FANLIB_48_4_MQ13_GERA_AI" ActiveMessageMapInBattle="1">
+        <StartList>
+            <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_EP16_2_FANLIB_48_4_MQ13_GERA_AI"/>
+            </ToolScp>
+        </StartList>
+    </AI>
+    <AI Name="EP16_2_FANLIB_48_4_MQ14_GERA_AI" ActiveMessageMapInBattle="1">
+        <StartList>
+            <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_EP16_2_FANLIB_48_4_MQ14_GERA_AI"/>
+            </ToolScp>
+        </StartList>
+    </AI>
+    <AI Name="EP16_2_FANLIB_48_4_MQ15_GERA_AI" ActiveMessageMapInBattle="1">
+        <StartList>
+            <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_EP16_2_FANLIB_48_4_MQ15_GERA_AI"/>
+            </ToolScp>
+        </StartList>
+    </AI>
+    <AI Name="EP16_2_FANLIB_48_4_MQ16_GERA_AI" ActiveMessageMapInBattle="1">
+        <StartList>
+            <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_EP16_2_FANLIB_48_4_MQ16_GERA_AI"/>
+            </ToolScp>
+        </StartList>
+    </AI>
+    <AI Name="BLACK_REVELATION_DESTINATION_AI" UpdateMS="500" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_BLACK_REVELATION_DESTINATION_SIMPLE_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
+    </AI>
+    <AI Name="CRYSTALGOLEM_ROCK_THROWING_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_CRYSTALGOLEM_ROCK_THROWING_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
+    </AI>
     <AI Name="EVENT1912_4TH_BUFF2_RUN_MON_AI_RUN" UpdateMS="10000" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
@@ -28436,5 +28494,12 @@ return GET_RATE_MHP(self, damage) * 100"/>
 				<Num Num="11"/>
 			</ToolScp>
 		</HitList>
+	</AI>
+    <AI Name="companion_pet_mermaidpopo" ActiveMessageMapInBattle="1">
+		<List>
+			<ToolScp Scp="SAI_FUNC2_DIRECT_SLEEP" Client="NO" UseSleep="YES">
+				<Str Str="PET_LOOP_AI"/>
+			</ToolScp>
+		</List>
 	</AI>
 </AIList>

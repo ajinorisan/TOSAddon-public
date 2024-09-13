@@ -219,4 +219,10 @@
 	<Map MapName="f_nicopolis_81_3">
 		<Dir Name="f_nicopolis_81_3_elt"/>
 	</Map>
+	<Map MapName="ep16_2_d_fantasylibrary_48_4">
+		<Dir Name="d_fantasylibrary_48_4_elt"/>
+	</Map>
+	<Map MapName="ep16_2_d_fantasylibrary_48_3">
+		<Dir Name="d_fantasylibrary_48_3_elt"/>
+	</Map>
 </MapList>

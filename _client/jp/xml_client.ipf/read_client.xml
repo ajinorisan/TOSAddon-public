@@ -65,5 +65,6 @@
 	<ReadXml Name="tpitem_banner"/>
 	<ReadXml Name="cupolefaceoffset"/>
 	<ReadXml Name="cupole_story"/>
+	<ReadXml Name="kupoleanimmapping"/>
 </Category>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by dd (IMCGames Co., Ltd) -->

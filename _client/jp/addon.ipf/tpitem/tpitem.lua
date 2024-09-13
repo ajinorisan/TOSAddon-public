@@ -925,7 +925,7 @@ function CREATE_TPITEM_TREE(obj, tpitemtree, i, firstTreeItem)
 
 	if tpitemtree:IsExist(hsubtreeitem) == 0 and subcategory ~= "None" then
 		local added = nil
-		if config.GetServiceNation() == 'PAPAYA' then
+		if config.GetServiceNation() == 'PAPAYA' or force_papaya then
 			if subcategory == 'TP_Package' then
 				added = tpitemtree:Add(htreeitem, "{@st66}".. 'New/Limited', category.."#"..subcategory, "{#000000}");
 			else

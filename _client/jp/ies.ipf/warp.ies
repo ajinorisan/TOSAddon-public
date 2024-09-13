@@ -856,3 +856,8 @@ ClassID,TargetX,TargetY,TargetZ,Latitude,Longitude,StartDir,ClassName,CMM_Name,T
 3066,-1508,74,1726,45,45,0,"EP15_1_FABBEY_3_TO_EP15_1_FABBEY_2","참회의 기도소  -> 노바하 서고","ep15_1_f_abbey_2"
 3067,-250,74,-1181,45,45,0,"NICO811_EP15_2_D_NICOPOLIS_1","스타리 타운 -> 비밀실험실","ep15_2_d_nicopolis_1"
 3068,2223,-19,-106,45,45,0,"EP15_2_D_NICOPOLIS_1_NICO811","비밀실험실 -> 스타리 타운","f_nicopolis_81_1"
+3069,-913,271,-602,45,45,0,"EP16_2_FLIBRARY482_TO_FLIBRARY483","환상도서관482 -> 환상도서관483","ep16_2_d_fantasylibrary_48_3"
+3070,-1211,80,994,45,45,0,"EP16_2_FLIBRARY483_TO_FLIBRARY484","환상도서관483 -> 환상도서관484","ep16_2_d_fantasylibrary_48_4"
+3071,-1398,163,1777,45,45,0,"EP16_2_FLIBRARY484_TO_FLIBRARY483","환상도서관484 -> 환상도서관483","ep16_2_d_fantasylibrary_48_3"
+3072,-2031,18,-973,45,45,0,"EP16_2_FLIBRARY484_TO_FLIBRARY485","환상도서관484 -> 환상도서관485","ep16_2_d_fantasylibrary_48_5"
+3073,168,138,396,45,45,0,"EP16_2_FLIBRARY485_TO_FLIBRARY484","환상도서관485 -> 환상도서관484","ep16_2_d_fantasylibrary_48_4"

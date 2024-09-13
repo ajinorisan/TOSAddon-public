@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<ToolSkill>
+    <Skill Name="Lama_Lamapose">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="SKL_BUFF_NOSOUND"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="0">
+                    <Str_Arg Str="F_cleric_lamapose" Arg="1"/>
+                    <Str Str="Dummy_emitter"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="skl_eff_lama_lamapose_on"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="100">
+                    <Str Str="Lamapose_Buff"/>
+                    <Num Num="99"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+        <ByCondSkills>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_SELECT_BUFF" Client="NO" UseSleep="NO">
+                        <Str Str="Lamapose_Buff"/>
+                    </ToolScp>
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="SKL_BUFF_NOSOUND"/>
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="0">
+                            <Str_Arg Str="F_cleric_lamapose2" Arg="1"/>
+                            <Str Str="Dummy_emitter"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="skl_eff_lama_lamapose_off"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="100">
+                            <Str Str="Lamapose_Buff"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+        </ByCondSkills>
+    </Skill>
+    <Skill Name="Lama_Lamadash">
+        <EnableScripts>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF"/>
+            </ToolScp>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF_C"/>
+            </ToolScp>
+        </EnableScripts>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="999799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="999999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="SKL_LAMADASH"/>
+                    <Num Num="3"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_INVIN" Client="NO" UseSleep="NO" Time="0">
+                    <Num Num="0.5"/>
+                </Scp>
+                <Scp Scp="SKL_SET_IMMUNE_STATE" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="Skill_NoDamage_Buff"/>
+                    <Num Num="100"/>
+                </Scp>
+                <Scp Scp="SKL_SETPOS" Client="NO" UseSleep="NO" Time="100">
+                    <Pos Angle="0" Dist="100" PosType="5"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Lama_Avoid">
+        <EnableScripts>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF"/>
+            </ToolScp>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF_C"/>
+            </ToolScp>
+        </EnableScripts>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="SKL_AVOID"/>
+                    <Num Num="1.5"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="Useavoid_Buff"/>
+                    <Num Num="99"/>
+                    <Num Num="0"/>
+                    <Num Num="0" UseFunc="1" FuncTxt="return TryGetProp(obj, &quot;CancelTime&quot;)"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                    <Str Str="voice_war_atk_short"/>
+                    <Str Str="voice_atk_short_war_f"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Lama_Endlessattacks">
+        <EndScripts>
+            <ToolScp Scp="C_COLORBLEND_ACTOR" Client="YES" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0.5"/>
+                <Num Num="0.5"/>
+                <Num Num="0.5"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </EndScripts>
+        <EnableScripts>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF"/>
+            </ToolScp>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF_C"/>
+            </ToolScp>
+        </EnableScripts>
+        <KeyInput>
+            <ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="3" UseFunc="1" FuncTxt="    local value = 0
+    local self = GetMyPCObject()
+    if IsPVPField(self) == 1 then
+        value = 1
+    end
+    return value"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Str Str="None"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="5"/>
+                <Num Num="1"/>
+                <Num Num="45"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </KeyInput>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="SKL_ENDLESSATTACKS"/>
+                    <Num Num="2.5"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="SCR_ABILITY_LAMA16"/>
+                </Scp>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="0" PosType="5"/>
+                    <Num Num="75"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="skl_eff_lama_endlessattacks"/>
+                </Scp>
+                <Scp Scp="C_COLORBLEND_ACTOR" Client="YES" UseSleep="NO" Time="300">
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0.5"/>
+                    <Num Num="0.5"/>
+                    <Num Num="0.5"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="550">
+                    <Str Str="SKL_LAMA_TGT_DMG"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="700">
+                    <Str Str="SKL_LAMA_TGT_DMG"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="850">
+                    <Str Str="SKL_LAMA_TGT_DMG"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1000">
+                    <Str Str="SKL_LAMA_TGT_DMG"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1150">
+                    <Str Str="SKL_LAMA_TGT_DMG"/>
+                </Scp>
+                <Scp Scp="C_COLORBLEND_ACTOR" Client="YES" UseSleep="NO" Time="1350">
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0.5"/>
+                    <Num Num="0.5"/>
+                    <Num Num="0.5"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Lama_Kick">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="55" SklAngle="0.17453292" AniTime="100" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Lama_Fist">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="100" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Lama_Relax">
+        <EnableScripts>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF"/>
+            </ToolScp>
+            <ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+                <Str Str="SCR_LAMA_USE_SKILL_BUFF_C"/>
+            </ToolScp>
+        </EnableScripts>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="SCR_RELAX_LAMA18_ABILITY"/>
+                </Scp>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="SKL_RELAX"/>
+                    <Num Num="2.5"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="skl_eff_lama_relax"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                    <Str Str="voice_war_atk_short"/>
+                    <Str Str="voice_atk_short_war_f"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="100">
+                    <Str Str="Lamakick_Buff"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="100">
+                    <Str Str="Lamafist_Buff"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Lama_StrongfistHanginglegs">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+            <EnableScripts>
+                <ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SCR_LAMA_LOCK_SKILL_BUFF"/>
+                </ToolScp>
+                <ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+                    <Str Str="SCR_LAMA_LOCK_SKILL_BUFF_C"/>
+                </ToolScp>
+            </EnableScripts>
+		</MainSkl>
+        <ByCondSkills>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+                        <Str Str="Lama_StrongfistHanginglegs/Lama_Strongfist"/>
+                        <Num Num="1"/>
+                    </ToolScp>  
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                        </Scp>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="SKL_STRONGFIST"/>
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamafist_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamakick_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="0">
+                            <Pos Angle="0" Dist="0" PosType="5"/>
+                            <Num Num="0"/>
+                            <Num Num="70"/>
+                            <Num Num="30"/>
+                            <Num Num="0" UseFunc="1" FuncTxt="return SCR_GET_Lama_SR2_Ratio(obj)"/>
+                            <Num Num="2"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="skl_eff_lama_strongfist"/>
+                        </Scp>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                            <Str Str="voice_war_atk_short"/>
+                            <Str Str="voice_atk_short_war_f"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="600">
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+                        <Str Str="Lama_StrongfistHanginglegs/Lama_Hanginglegs"/>
+                            <Num Num="1"/>
+                    </ToolScp>
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                        </Scp>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="SKL_HANGINGLEGS"/>
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamafist_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamakick_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="0">
+                            <Pos Angle="0" Dist="0" PosType="5"/>
+                            <Num Num="0"/>
+                            <Num Num="60"/>
+                            <Num Num="70"/>
+                            <Num Num="0" UseFunc="1" FuncTxt="return SCR_GET_Lama_SR_Ratio(obj)"/>
+                            <Num Num="2"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="skl_eff_lama_hanginglegs"/>
+                        </Scp>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                            <Str Str="voice_war_atk_short"/>
+                            <Str Str="voice_atk_short_war_f"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="100">
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+        </ByCondSkills>
+    </Skill>
+    <Skill Name="Lama_PointkickEarthshock">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+            <EnableScripts>
+                <ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SCR_LAMA_LOCK_SKILL_BUFF"/>
+                </ToolScp>
+                <ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+                    <Str Str="SCR_LAMA_LOCK_SKILL_BUFF_C"/>
+                </ToolScp>
+            </EnableScripts>
+		</MainSkl>
+        <ByCondSkills>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+                        <Str Str="Lama_PointkickEarthshock/Lama_Pointkick"/>
+                        <Num Num="1"/>
+                    </ToolScp>  
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                        </Scp>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="SKL_POINTKICK"/>
+                            <Num Num="1.5"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_SET_TARGET_CLIENT_TARGETTING" Client="NO" UseSleep="NO" Time="0">
+                            <Num Num="1"/>
+                            <Num Num="70"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamafist_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamakick_Buff"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="skl_eff_lama_pointkick"/>
+                        </Scp>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                            <Str Str="voice_war_atk_short"/>
+                            <Str Str="voice_atk_short_war_f"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="100">
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+                        <Str Str="Lama_PointkickEarthshock/Lama_Earthshock"/>
+                            <Num Num="1"/>
+                    </ToolScp>  
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                        </Scp>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="SKL_EARTHSHOCK"/>
+                            <Num Num="2"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamafist_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamakick_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                            <Pos Angle="0" Dist="0" PosType="5"/>
+                            <Num Num="70"/>
+                            <Num Num="0" UseFunc="1" FuncTxt="return SCR_GET_Lama_SR_Ratio(obj)"/>
+                            <Num Num="2"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="skl_eff_lama_earthshock"/>
+                        </Scp>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                            <Str Str="voice_war_atk_short"/>
+                            <Str Str="voice_atk_short_war_f"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="500">
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+        </ByCondSkills>
+    </Skill>
+    <Skill Name="Lama_FlyingkickSuddenkick">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+            <EnableScripts>
+                <ToolScp Scp="SKL_CHECK_BY_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SCR_LAMA_LOCK_SKILL_BUFF"/>
+                </ToolScp>
+                <ToolScp Scp="SKL_CHECK_BY_SCRIPT_C" Client="YES" UseSleep="NO">
+                    <Str Str="SCR_LAMA_LOCK_SKILL_BUFF_C"/>
+                </ToolScp>
+            </EnableScripts>
+		</MainSkl>
+        <ByCondSkills>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+                        <Str Str="Lama_FlyingkickSuddenkick/Lama_Flyingkick"/>
+                        <Num Num="1"/>
+                    </ToolScp>  
+                </Cond>
+                <KeyInput>
+                    <ToolScp Scp="SKL_KEY_GROUND_EVENT" Client="YES" UseSleep="NO">
+                        <Num Num="3"/>
+                        <Num Num="0"/>
+                        <Num Num="0"/>
+                        <Num Num="1"/>
+                        <Num Num="120"/>
+                        <Num Num="0.1"/>
+                        <Num Num="0"/>
+                        <Num Num="0"/>
+                        <Num Num="0"/>
+                        <Str_Arg Str="None" Arg="1"/>
+                        <Str Str="None"/>
+                        <Num Num="0"/>
+                        <Num Num="0"/>
+                        <Num Num="5"/>
+                        <Num Num="1"/>
+                        <Num Num="45"/>
+                        <Num Num="0"/>
+                        <Num Num="0"/>
+                        <Num Num="0"/>
+                        <Num Num="0"/>
+                        <Str Str="None"/>
+                        <Str Str="None"/>
+                        <Str Str="LamaFistCnt"/>
+                        <Num Num="4"/>
+                    </ToolScp>
+                </KeyInput>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                        </Scp>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="SKL_FLYINGKICK"/>
+                            <Num Num="2"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamafist_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamakick_Buff"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="skl_eff_lama_flyingkick"/>
+                        </Scp>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                            <Str Str="voice_war_atk_medium"/>
+                            <Str Str="voice_atk_long_cast_f"/>
+                        </Scp>
+                        <Scp Scp="SKL_SETPOS" Client="NO" UseSleep="NO" Time="320">
+                            <Pos Angle="0" Dist="0" PosType="3"/>
+                            <Str_Arg Str="None" Arg="1"/>
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                        </Scp>
+                        <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="600">
+                            <Pos Angle="0" Dist="0" PosType="5"/>
+                            <Num Num="70"/>
+                            <Num Num="0" UseFunc="1" FuncTxt="return SCR_GET_Lama_SR_Ratio(obj)"/>
+                            <Num Num="2"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="650">
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+                        <Str Str="Lama_FlyingkickSuddenkick/Lama_Suddenkick"/>
+                        <Num Num="1"/>
+                    </ToolScp>
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="LAMA_USE_SKILL_SETPROP"/>
+                        </Scp>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="SKL_SUDDENKICK"/>
+                            <Num Num="2.2"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_SET_TARGET_CLIENT_TARGETTING" Client="NO" UseSleep="NO" Time="0">
+                            <Num Num="1"/>
+                            <Num Num="120"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamafist_Buff"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF_REMOVE" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="Lamakick_Buff"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="skl_eff_lama_suddenkick_warp"/>
+                        </Scp>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                            <Str Str="voice_war_atk_medium"/>
+                            <Str Str="voice_atk_long_cast_f"/>
+                        </Scp>
+                        <Scp Scp="SKL_SETPOS_TARGET" Client="NO" UseSleep="NO" Time="50">
+                            <Str_Arg Str="None" Arg="1"/>
+                            <Num Num="135"/>
+                            <Num Num="30"/>
+                            <Num Num="120"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="600">
+                            <Str Str="skl_eff_lama_suddenkick_atk"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="600">
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+        </ByCondSkills>
+    </Skill>
+</ToolSkill>

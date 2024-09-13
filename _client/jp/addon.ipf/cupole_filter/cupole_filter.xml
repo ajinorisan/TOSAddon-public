@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="cupole_filter" x="0" y="0" width="250" height="125"> 
-	<frame layout_gravity="right top" margin="0 460 560 0" draw="true"/>
+	<frame layout_gravity="center center" margin="280 -30 0 0" draw="true"/>
 	<script OpenScp="" CloseScp=""/>
 	<layer layerlevel="102"/>
 	<skin frameskin=" "/>

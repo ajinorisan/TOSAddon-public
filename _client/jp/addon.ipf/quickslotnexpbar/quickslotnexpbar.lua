@@ -763,8 +763,8 @@ function SET_QUICK_SLOT(frame, slot, category, type, iesID, makeLog, sendSavePac
 			icon:SetTooltipStrArg("quickslot");
 			icon:SetTooltipIESID(iesID);
 		end
-
 		local isLockState = quickslot.GetLockState();
+
 		if isLockState == 1 then
 			slot:EnableDrag(0);
 		else
@@ -795,7 +795,7 @@ function SET_QUICK_SLOT(frame, slot, category, type, iesID, makeLog, sendSavePac
 	end    
 end
 
-function SET_MON_QUICK_SLOT(frame, slot, category, type)   
+function SET_MON_QUICK_SLOT(frame, slot, category, type, index)   
 	if frame ~= nil and session.GetSkill(type) ~= nil and is_contain_skill_icon(frame, type) == true and isForeceRegister == false then
         return;
 	end
@@ -810,8 +810,8 @@ function SET_MON_QUICK_SLOT(frame, slot, category, type)
 		local iconInfo = icon:GetInfo();
 		slot:SetUserValue('ICON_CATEGORY', iconInfo:GetCategory());
 		slot:SetUserValue('ICON_TYPE', iconInfo.type);
-
-		frame:SetUserValue('before_summon_skill_slot_' .. tostring(iconInfo.type), type)
+		icon:SetTooltipNumArg(index);
+		frame:SetUserValue('before_summon_skill_slot_'..tostring(index), type)
 	end
 
 	local skl = session.GetSkill(type);
@@ -1558,7 +1558,7 @@ function QUICKSLOTNEXPBAR_MY_MONSTER_SKILL(isOn, monName, buffType)
 			local sklName = list:Get(i);
 			local sklCls = GetClass("Skill", sklName);
 			local type = sklCls.ClassID;
-			SET_MON_QUICK_SLOT(frame, slot, "Skill", type)
+			SET_MON_QUICK_SLOT(frame, slot, "Skill", type, i);
 			icon = slot:GetIcon();
 			slot:SetEventScript(ui.RBUTTONUP, 'None');
 		end

@@ -15,26 +15,6 @@ end
 
 
 
---이번 시즌에 해당하는 프로그래스를 넘긴다.
-local function POPOBOOSET_GET_PROGRESS_INFORMATION(index)
-    local list, cnt = GetClassList("popoboost_inforamation");
-    local AccountProp = GET_POPOBOOST_ACCPROP();
-    local count = 0;
-    for i = 0, cnt - 1 do
-        local cls = GetClassByIndexFromList(list,i);
-        if cls ~= nil then
-            local seasonprop = TryGetProp(cls, "SeasonProperty", "None")
-            if seasonprop == AccountProp then
-                if count == index then
-                    return cls;
-                end
-                count = count + 1;
-            end
-        end
-    end
-    return nil;
-end
-
 local function POPOBOOST_GET_REWARD_INFO(pc, index)
     local progressInfo = POPOBOOSET_GET_PROGRESS_INFORMATION(index);
     if progressInfo == nil then
@@ -92,7 +72,7 @@ local function POPOBOOST_IS_PREMIUM()
     if aobj == nil then
         return false;
     end
-    local AccProp = GET_POPOBOOST_ACCPROP();
+    local AccProp = GET_POPOBOOST_SEASONPROP();
 
     local premium = TryGetProp(aobj, AccProp, 0);
     if premium >= 2 then
@@ -112,7 +92,7 @@ local function POPOBOOST_CHECK_PARTICIPATE(frame, pc)
     if acc == nil then
         return;
     end
-    local AccProp = GET_POPOBOOST_ACCPROP();
+    local AccProp = GET_POPOBOOST_SEASONPROP();
     local popoProp = TryGetProp(acc, AccProp, "None");
 
     if popoProp == 0 or popoProp == 2 then
@@ -159,6 +139,12 @@ local function POPOBOOST_SET_CONTENT_IMAGE(frame)
     if recommandContent == nil then
         return ;
     end
+    local recommandText = GET_CHILD_RECURSIVELY(frame,"recommandText");
+    if recommandText == nil then
+        return ;
+    end
+
+
     local progress = POPOBOOST_GET_PROGRESS();
 
     local popo_info_cls = POPOBOOSET_GET_PROGRESS_INFORMATION(progress);
@@ -166,7 +152,18 @@ local function POPOBOOST_SET_CONTENT_IMAGE(frame)
         return;
     end
     local GuideImage = TryGetProp(popo_info_cls,"GuideImage","None");
+    local UseGuideText = TryGetProp(popo_info_cls,"UseGuideText","false");
+    local GuideGoal = TryGetProp(popo_info_cls,"GuideGoal","None");
 
+    if UseGuideText == "True" then
+        recommandContent:ShowWindow(0)
+        recommandText:ShowWindow(1)
+        recommandText:SetTextByKey("value", GuideGoal)
+    else
+        recommandContent:ShowWindow(1)
+        recommandText:ShowWindow(0)
+    end
+    
     recommandContent:SetImage(GuideImage);
 end
 
@@ -192,7 +189,10 @@ local function POPOBOOST_SET_GUIDE_TEXT(frame)
 
     if progress == 0 then
         guideText:SetTextByKey('value', ScpArgMsg(ClientMsg, "QUEST", GuideText) );
-        guideTextAlret:SetTextByKey('value', ClMsg("EVENT_2308_W_POPOBOOST_GUIDE_MESSAGE_ARLET_QUEST"));
+        guideTextAlret:SetTextByKey('value', ClMsg("EVENT_2409_POPOBOOST_ALRET1"));
+    elseif progress == 1 or progress == 2 then
+        guideText:SetTextByKey('value', ScpArgMsg(ClientMsg, "CONTENT", GuideText, "ITEM", GuideItem) );
+        guideTextAlret:SetTextByKey('value', ClMsg("EVENT_2409_POPOBOOST_ALRET2"));
     else
         guideText:SetTextByKey('value', ScpArgMsg(ClientMsg, "CONTENT", GuideText, "ITEM", GuideItem) );
         guideTextAlret:SetTextByKey('value', ClMsg("EVENT_2308_W_POPOBOOST_GUIDE_MESSAGE_ARLET"));
@@ -233,14 +233,14 @@ local function POPOBOOST_GEARSCORE_BTN_SET(frame)
 
     local ScoreGBox = GET_CHILD_RECURSIVELY(frame,"ScoreGBox");
 
-    local offsetX = 185
-    local offsetY = 0
+    local offsetX = 190
+    local offsetY = 11
     local index = 6
 
     local gearscore = POPOBOOST_GET_MAX_GEARSCORE(pc);
     for i = 0, index do
         local ctrlName = string.format("popoboost_gearscore_btn%d",i);
-        local score = ScoreGBox:CreateOrGetControlSet('popoboost_gearscore_btn',ctrlName, i * offsetX, offsetY);
+        local score = ScoreGBox:CreateOrGetControlSet('popoboost_gearscore_btn',ctrlName, i * offsetX - 20, offsetY);
         local gearscorePic = GET_CHILD(score,"gearscorePic");
         local gearscoreBtn = GET_CHILD(score,"gearscoreBtn");
         local highlight = GET_CHILD(score,"highlight");
@@ -250,6 +250,9 @@ local function POPOBOOST_GEARSCORE_BTN_SET(frame)
         local score = TryGetProp(rewardClass,"RewardScore", 300000);
 
         highlight:ShowWindow(0);
+        --2409버전은 기어스코어 표시를 지운다
+        gearscorePic:ShowWindow(0);
+        ----------------------------
         gearscoreBtn:SetEventScript(ui.LBUTTONUP,"POPOBOOST_REWARD_CHANGE_BY_GEARSCORE");
 		gearscoreBtn:SetEventScriptArgNumber(ui.LBUTTONUP, i);
 
@@ -260,9 +263,10 @@ local function POPOBOOST_GEARSCORE_BTN_SET(frame)
         local propName = string.format("%s%d",ProgressProp,i)
         local progress = TryGetProp(acc,propName,-2);
         local isPremium = POPOBOOST_IS_PREMIUM();
+        local IsPopoboostStepClear = GET_POPOBOOST_PROGRESS_IS_CLEAR(GetMyPCObject(), i);
 
         IsMinimizeHighlight = false;
-        if gearscore >= score then
+        if IsPopoboostStepClear then
             local imageName = string.format("popoboost_gearscore_reach_%d",i + 2);
             gearscorePic:SetImage(imageName);
             if progress == 1 and isPremium == true then
@@ -322,17 +326,32 @@ local function POPOBOOST_SET_GEARSCORE_BTN_STATE(frame)
     local index = POPOBOOST_GET_PROGRESS();
     local maxidx = 6
     local offsetX = 185
-    local offsetY = 15
+    local offsetY = 0
 
+    local bIsNotClear = true;
+    local idx = 0;
     for i = 0, maxidx do
         local ctrlName = string.format("popoboost_gearscore_btn%d",i);
         local score = ScoreGBox:CreateOrGetControlSet('popoboost_gearscore_btn',ctrlName, i * offsetX, offsetY);
         local gearscoreBtn = GET_CHILD(score,"gearscoreBtn");
         if i == index then
-            gearscoreBtn:SetImage("popoboost_gearscore_arrow_cursoron");
+            gearscoreBtn:SetImage("compen_btn2");
         else
-            gearscoreBtn:SetImage("popoboost_gearscore_arrow");
+            gearscoreBtn:SetImage("compen_btn2");
         end
+        local IsClear = GET_POPOBOOST_PROGRESS_IS_CLEAR(pc, i)
+        if bIsNotClear == true and IsClear == false then
+            bIsNotClear = false;
+            idx = i;
+        end
+        --jour_compen_off
+        --달성하지못했으 때의 마크
+    end
+    for i = idx, maxidx do
+        local ctrlName = string.format("popoboost_gearscore_btn%d",i);
+        local score = ScoreGBox:CreateOrGetControlSet('popoboost_gearscore_btn',ctrlName, i * offsetX, offsetY);
+        local gearscoreBtn = GET_CHILD(score,"gearscoreBtn");
+        gearscoreBtn:SetImage("jour_compen_off2");
     end
 end
 
@@ -391,7 +410,6 @@ function OPEN_POPOBOOST()
     end
     local score = GET_PLAYER_GEAR_SCORE(pc)
     local lv = pc.Lv;
-
     --account property를 받아와서 이벤트 진행중인지 체크해야함.
     POPOBOOST_CHECK_PARTICIPATE(frame, pc);
     POPOBOOST_SET_PREMIUM_BOX(frame);
@@ -401,35 +419,45 @@ function OPEN_POPOBOOST()
     local btn = GET_CHILD_RECURSIVELY(frame,"participate")
     btn:EnableHitTest(1);
 
-    if lv <= 480 and score <= 8000 then
-        --이벤트 버튼 활성화
-        btn:EnableHitTest(1);
-    end
     --현재 기어스코어 달성률에 따라서 아이템 정보를 가져와야 한다.
     --서버에서 가져와야하는거 아닌가??
 
     POPOBOOST_RESET_ITEM_REWARD(frame)
     POPO_GUIDE_QUEST_RED_DOT(frame)
+    local charText = GET_CHILD_RECURSIVELY(frame, "charText");
+    if GET_POPOBOOST_SERVER() == 1 then
+        charText:SetTextByKey("lv", 480)
+        if lv > 480 then
+            --이벤트 버튼 활성화
+            btn:EnableHitTest(1);
+        end    
+    else
+        charText:SetTextByKey("lv", 10)
+        if lv <= 480 and score <= 8000 then
+            --이벤트 버튼 활성화
+            btn:EnableHitTest(1);
+        end    
+    end
 end
 
 ----- 기어스코어 게이지 업데이트
 function POPOBOOST_GEARSCOREGAUGE_UPDATE(frame)
+    local maxprogress = 7
     local pc = GetMyPCObject();
     if pc == nil then
         return ; 
     end
     local GearScoreGauge = GET_CHILD_RECURSIVELY(frame,"GearScoreGauge");
-    local currentScore = POPOBOOST_GET_MAX_GEARSCORE(pc);
-    local maxScore = 21200; 
-    local threshold_value = 16000;
-    if currentScore <= threshold_value then
-        local percente = (currentScore) / (threshold_value) * 0.16;
-        GearScoreGauge:SetPoint(percente, 1);
-    else
-        local StartPer = 0.16;
-        local percente = (currentScore - threshold_value) / (maxScore - threshold_value) * 0.84;
-        GearScoreGauge:SetPoint(StartPer + percente, 1);
+    local point = 0;
+    for i = 1, maxprogress do 
+        local Is_Clear = GET_POPOBOOST_PROGRESS_IS_CLEAR(pc, i);
+        if Is_Clear == true then
+            point = point + 0.16667;
+        else
+            break;
+        end
     end 
+    GearScoreGauge:SetPoint(point, 1);
 end
 
 -------이벤트 참여 ui 팝업
@@ -451,7 +479,11 @@ function POPOBOOST_PRESS_EVENT_PARTICIPATE(frame)
         return ;
     end
     local opt = { CompareTextDesc = ClMsg('RellayWantParticipatePoPoBoost') }
-    WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'popoboostparticipate;CantRollbackEventParticipate/POPOBOOST_SUCCESS_EVENT_PARTICIPATE', 0, opt);
+    if GET_POPOBOOST_SERVER() ~= 1 then
+        WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'popoboostparticipate;CantRollbackEventParticipate/POPOBOOST_SUCCESS_EVENT_PARTICIPATE', 0, opt);
+    else
+        WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'TOSHeroMapPattern_None;CantRollbackEventParticipate/POPOBOOST_SUCCESS_EVENT_PARTICIPATE', 0, opt);
+    end
 end
 
 --이벤트 참여 세팅
@@ -505,7 +537,7 @@ function POPOBOOST_EVENT_START(frame,arg,arg1,arg2)
     if acc == nil then
         return;
     end
-    local AccProp = GET_POPOBOOST_ACCPROP();
+    local AccProp = GET_POPOBOOST_SEASONPROP();
     local popoProp = TryGetProp(acc,AccProp,"None");
 
     local tx = TxBegin(pc)
@@ -589,13 +621,15 @@ function POPOBOOST_SET_REWARD(frame, name)
     for k, v in pairs(item_list[tag]) do
         local value = i * 10 + j;
         local targetItem = GetClass("Item", k);
-        local ctrlName = string.format("%sset%d",name,value);
-        local rewards = rewardBG:CreateOrGetControlSet('popoboost_reward',ctrlName, i * offsetX + offset, j * offsetY + defaultOffset);
-        POPOBOOST_SET_REWARD_ICON(frame,rewards,targetItem,targetItem.Icon,v,isRecieve)
-        i = i + 1;
-        if i == maxitem then
-            j = j + 1;
-            i = 0 ;
+        if targetItem then
+            local ctrlName = string.format("%sset%d",name,value);
+            local rewards = rewardBG:CreateOrGetControlSet('popoboost_reward',ctrlName, i * offsetX + offset, j * offsetY + defaultOffset);
+            POPOBOOST_SET_REWARD_ICON(frame,rewards,targetItem,targetItem.Icon,v,isRecieve)
+            i = i + 1;
+            if i == maxitem then
+                j = j + 1;
+                i = 0 ;
+            end
         end
     end
 
@@ -610,13 +644,15 @@ end
 function POPOBOOST_TAKE_REWEARD_BTN(frame)
     local progress = POPOBOOST_GET_PROGRESS();
 
-    local isOver = POPOBOOST_IS_OVER_GEARSCORE();
+	local player = GetMyPCObject();
+    local IsClear = GET_POPOBOOST_PROGRESS_IS_CLEAR(player, progress)
+    -- local isOver = POPOBOOST_IS_OVER_GEARSCORE();
     local isPremium = POPOBOOST_IS_PREMIUM();
     local premium = 0;
     if isPremium == true then
         premium = 1;
     end
-    if isOver == true then 
+    if IsClear == true then 
         local popoboost_info = string.format("%d %d", progress, premium);
         pc.ReqExecuteTx_Item('POPOBOOST_REAWRD_REQUEST', "None", popoboost_info);
     end
@@ -654,7 +690,6 @@ function POPOBOOST_OPEN_INDUN_SHORTCUT(frame,msg,argStr,argNum)
     end
     local ShortcutScriptName = TryGetProp(popo_info_cls,"ShortcutScriptName","None");
     local ShortcutParam = TryGetProp(popo_info_cls,"ShortcutParam", 0);
-
     local script = _G[ShortcutScriptName];
     if progress == 0 then
         script(nil,nil,nil,ShortcutParam);
@@ -762,4 +797,12 @@ function POPO_GUIDE_QUEST_RED_DOT(frame)
 	elseif point == 0 then
 		notice:ShowWindow(0)
 	end
+end
+
+function POPOBOOST_SHORTCUT_OPEN_FRAME(Name)
+    ui.OpenFrame(Name)
+end
+
+function POPOBOOOST_CHANGE_REWARD(parent, ctrl, argStr, argNum)
+    POPOBOOST_REWARD_CHANGE_BY_GEARSCORE(nil,nil,nil,1)
 end

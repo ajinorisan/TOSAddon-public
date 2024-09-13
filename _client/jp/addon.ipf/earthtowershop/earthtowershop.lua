@@ -29,6 +29,11 @@ local g_account_prop_shop_table =
         ['coinName'] = 'dummy_RadaCertificate',
         ['propName'] = 'RadaCertificate',
     },
+    ['JurateCertificate'] = 
+    {
+        ['coinName'] = 'dummy_JurateCertificate',
+        ['propName'] = 'JurateCertificate',
+    },
     ['TeamBattleLeagueShop'] = 
     {
         ['coinName'] = 'dummy_TeamBattleCoin',
@@ -62,6 +67,10 @@ local g_account_prop_shop_table =
     ['EVENT_2407_KUPOLE'] = 
     {
         ['coinName'] = "EVENT_2407_Coin"
+    },
+    ['EVENT_2410_MOONRISE'] = 
+    {
+        ['coinName'] = "EVENT_MOONRISE_2410"
     }
 }
 --------------------------------------------------------------------------------------------------------------------------
@@ -70,7 +79,7 @@ local shop_list = {}
 table.insert(shop_list, 'GabijaCertificate')
 table.insert(shop_list, 'VakarineCertificate')
 table.insert(shop_list, 'RadaCertificate')
-
+table.insert(shop_list, 'JurateCertificate')
 local shop_data = {}
 local function _CLEAR_INFO(groupName, cls)
     shop_data = nil;
@@ -378,6 +387,18 @@ function EARTHTOWERSHOP_BUY_ITEM_RESULT(frame, msg, argStr, argNum)
             end
             propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
         end
+    elseif shopType == "EVENT_2410_MOONRISE" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+        if itemCls ~= nil then
+            propertyRemain:SetTextByKey('icon', ClMsg("EVENT_COIN_MSG"));
+            propertyRemain:SetTextByKey('itemName', "")
+            local count = GetInvItemCount(GetMyPCObject(), coinName)
+            if count == 'None' then
+                count = '0'
+            end
+            propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+        end 
     end
 end
 
@@ -587,6 +608,12 @@ end
 function REQ_RadaCertificate_SHOP_OPEN()
     local frame = ui.GetFrame("earthtowershop");
     frame:SetUserValue("SHOP_TYPE", 'RadaCertificate');
+    ui.OpenFrame('earthtowershop');
+end
+
+function REQ_JurateCertificate_SHOP_OPEN()
+    local frame = ui.GetFrame("earthtowershop");
+    frame:SetUserValue("SHOP_TYPE", 'JurateCertificate');
     ui.OpenFrame('earthtowershop');
 end
 
@@ -1036,6 +1063,14 @@ function EARTH_TOWER_SET_PROPERTY_COUNT(ctrl, itemName, propName)
         ctrl:SetTextByKey('itemCount', GET_COMMAED_STRING(count));
         ctrl:ShowWindow(1);
         return;
+    elseif itemName == "EVENT_MOONRISE_2410" then
+        local clsmsg = ClMsg("EVENT_COIN_MSG");
+        ctrl:SetTextByKey('icon', clsmsg);
+        ctrl:SetTextByKey('itemName', "");
+        ctrl:SetTextByKey('itemCount', GET_COMMAED_STRING(count));
+        ctrl:ShowWindow(1);
+        return;
+
     else
         ctrl:SetTextByKey('icon', "")  
     end
@@ -2270,6 +2305,7 @@ local pre_season_coin_shop = {}
 pre_season_coin_shop['GabijaCertificate'] = 'REQ_PREV_SEASON_COIN_SHOP_OPEN'
 pre_season_coin_shop['VakarineCertificate'] = 'REQ_SEASON_COIN_SHOP_OPEN'
 pre_season_coin_shop['RadaCertificate'] = 'REQ_RadaCertificate_COIN_SHOP_OPEN'
+pre_season_coin_shop['JurateCertificate'] = 'REQ_JurateCertificate_COIN_SHOP_OPEN'
 
 function EARTHTOWERSHOP_POINT_BUY_OPEN()
     local frame = ui.GetFrame('earthtowershop')

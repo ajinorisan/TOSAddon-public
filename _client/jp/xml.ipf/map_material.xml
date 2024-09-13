@@ -803,4 +803,10 @@
 			<Sound From="walk_left" To="step_soil"/>
 		</Anim>
 	</Material>
+	<Material ID="46" Name="effect_capybara" KorName="카피바라 발자국 이펙트" MaterialItem="None">
+		<Anim Name="RUN_RIDE">
+			<Particle From="F_pc_run_blank_dummy" To="Stomp_CapybaraFootprint_Black_01" Scale="1.2" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="90;0;90"/>
+			<Sound From="walk_left" To="walk_left"/>
+		</Anim>
+	</Material>
 </Map_materials>

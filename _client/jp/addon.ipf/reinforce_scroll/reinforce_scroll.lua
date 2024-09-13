@@ -26,7 +26,7 @@ function ON_REMOVE_TARGET_ITEM_REINFORCE_SCROLL(frame, slot, str)
 	REINFORCE_SCROLL_CANCEL();
 end
 
-function REINFORCE_SCROLL_EXEC_ASK_AGAIN(frame, btn)
+function REINFORCE_SCROLL_EXEC_ASK_AGAIN(frame, btn)	
 	local scrollType = frame:GetUserValue("ScrollType")
 	local clickable = frame:GetUserValue("EnableTranscendButton")
 	if tonumber(clickable) ~= 1 then
@@ -71,6 +71,10 @@ function REINFORCE_SCROLL_EXEC_ASK_AGAIN(frame, btn)
 	local clmsg = ScpArgMsg("ReinforceScrollWarning{Before}{After}", "Before", before_reinforce, "After", after_reinforce)
 	if TryGetProp(scrollObj, 'StringArg', 'None') == 'rada_option_rescale_scroll' then
 		clmsg = ScpArgMsg("RadaOptionReScaleScrollWarning")
+	elseif string.find(TryGetProp(scrollObj, 'StringArg', 'None'), 'option_reset_scroll') ~= nil then		
+		clmsg = ScpArgMsg("OptionResetScrollWarning")
+	elseif string.find(TryGetProp(scrollObj, 'StringArg', 'None'), 'option_scroll') ~= nil then
+		clmsg = ScpArgMsg("OptionScrollWarning")		
 	end
 
 	imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OK_SOUND"));
@@ -86,6 +90,59 @@ function REINFORCE_SCROLL_RESULT(isSuccess, after_reinforce)
 		ReserveScript("REINFORCE_SCROLL_CHANGE_BUTTON()", 0.3);
 		local text_itemtranscend = GET_CHILD_RECURSIVELY(frame, "text_itemtranscend");
 		text_itemtranscend:SetTextByKey("value", string.format("{s20}%s", after_reinforce));
+	else
+		REINFORCE_SCROLL_RESULT_UPDATE(frame, 0);
+	end
+	
+	REINFORCE_SCROLL_LOCK_ITEM("None");
+	
+	local slot = GET_CHILD(frame, "slot");
+	local icon = slot:GetIcon();
+	icon:SetTooltipType("None");
+	icon:SetTooltipArg("", 0, "");
+	ReserveScript("REINFORCE_SCROLL_CHANGE_TOOLTIP()", 0.3);
+end
+
+function OPTION_SCROLL_RESULT(isSuccess, list)	
+	local frame = ui.GetFrame("reinforce_scroll");
+	if isSuccess == 1 then
+		local animpic_bg = GET_CHILD_RECURSIVELY(frame, "animpic_bg");
+		animpic_bg:ShowWindow(1);
+		animpic_bg:ForcePlayAnimation();
+		ReserveScript("REINFORCE_SCROLL_CHANGE_BUTTON()", 0.3);
+		local text_result = GET_CHILD_RECURSIVELY(frame, "text_result");
+		text_result:ShowWindow(1)		
+		local token = StringSplit(list, '/')
+		text_result:SetTextByKey("value", string.format("{s20}%s%s +%s{/}{/}", token[4], ClMsg(token[1]), token[2]));		
+	elseif isSuccess == 2 then
+		local animpic_bg = GET_CHILD_RECURSIVELY(frame, "animpic_bg");
+		animpic_bg:ShowWindow(1);
+		animpic_bg:ForcePlayAnimation();
+		ReserveScript("REINFORCE_SCROLL_CHANGE_BUTTON()", 0.3);
+		local text_result = GET_CHILD_RECURSIVELY(frame, "text_result");
+		text_result:ShowWindow(1)		
+		local token = StringSplit(list, '/')
+		text_result:SetTextByKey("value", string.format("{s20}%s%s{/}{/}", token[3], ScpArgMsg(token[1], 'level', token[2])));
+	else
+		REINFORCE_SCROLL_RESULT_UPDATE(frame, 0);
+	end
+	
+	REINFORCE_SCROLL_LOCK_ITEM("None");
+	
+	local slot = GET_CHILD(frame, "slot");
+	local icon = slot:GetIcon();
+	icon:SetTooltipType("None");
+	icon:SetTooltipArg("", 0, "");
+	ReserveScript("REINFORCE_SCROLL_CHANGE_TOOLTIP()", 0.3);
+end
+
+function OPTION_RESET_SCROLL_RESULT(isSuccess)	
+	local frame = ui.GetFrame("reinforce_scroll");
+	if isSuccess == 1 then
+		local animpic_bg = GET_CHILD_RECURSIVELY(frame, "animpic_bg");
+		animpic_bg:ShowWindow(1);
+		animpic_bg:ForcePlayAnimation();
+		ReserveScript("REINFORCE_SCROLL_CHANGE_BUTTON()", 0.3);		
 	else
 		REINFORCE_SCROLL_RESULT_UPDATE(frame, 0);
 	end
@@ -305,8 +362,19 @@ function REINFORCE_SCROLL_UI_INIT()
 
 	local text_reinforce = GET_CHILD_RECURSIVELY(frame, "text_reinforce")
 	local num_2 = TryGetProp(scrollObj, 'NumberArg2', 0)
-	if TryGetProp(scrollObj, 'StringArg', 'None') ~= 'rada_option_rescale_scroll' then	
-		text_reinforce:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))
+
+	local is_reset_scroll = false
+	local str_arg = TryGetProp(scrollObj, 'StringArg', 'None')
+	if str_arg == 'rada_option_rescale_scroll' then
+		is_reset_scroll = true
+	end
+
+	if string.find(str_arg, 'option_reset_scroll') ~= nil then
+		is_reset_scroll = true
+	end
+	
+	if is_reset_scroll == false then	
+		text_reinforce:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))		
 	else
 		local text_itemtranscend = GET_CHILD_RECURSIVELY(frame, 'text_itemtranscend')
 		text_reinforce:ShowWindow(0)
@@ -314,7 +382,7 @@ function REINFORCE_SCROLL_UI_INIT()
 	end
 	
 	local text_desc = GET_CHILD_RECURSIVELY(frame, "text_desc");		
-	if TryGetProp(scrollObj, 'StringArg', 'None') ~= 'rada_option_rescale_scroll' then
+	if is_reset_scroll == false then
 		text_desc:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))	
 		text_desc:ShowWindow(1);	
 	else
@@ -404,7 +472,7 @@ function REINFORCE_SCROLL_SET_TARGET_ITEM(invframe, invItem)
 	local scrollObj = GetIES(scrollInvItem:GetObject());
 	
 
-	local scrollType = frame:GetUserValue("ScrollType");
+	local scrollType = frame:GetUserValue("ScrollType");	
 	local itemObj = GetIES(invItem:GetObject());
 
 	local enable_func_str = TryGetProp(scrollObj, 'EnableFunc', 'None')
@@ -433,7 +501,23 @@ function REINFORCE_SCROLL_SET_TARGET_ITEM(invframe, invItem)
 	text_itemtranscend:StopColorBlend();
 	text_itemtranscend:ShowWindow(1);
 
-	if TryGetProp(scrollObj, 'StringArg', 'None') ~= 'rada_option_rescale_scroll' then
+	if string.find(scrollType, 'option_scroll') ~= nil then
+		text_itemtranscend:ShowWindow(0);
+	end
+
+	local str_arg = TryGetProp(scrollObj, 'StringArg', 'None')
+	local is_reset_scroll = false
+
+	if str_arg == 'rada_option_rescale_scroll' then
+		is_reset_scroll = true
+	end
+
+	if string.find(str_arg, 'option_reset_scroll') ~= nil then
+		is_reset_scroll = true
+	end
+	
+
+	if is_reset_scroll == false then
 		text_reinforce:SetTextByKey("value", TryGetProp(scrollObj, 'NumberArg2', 0))
 	else
 		text_reinforce:ShowWindow(0)
@@ -513,12 +597,32 @@ function REINFORCE_SCROLL_SELECT_TARGET_ITEM(scrollItem)
 	local tab = gbox:GetChild("inventype_Tab");	
 	tolua.cast(tab, "ui::CTabControl");
 	tab:SelectTab(1);
-
+	
 	if string.find(TryGetProp(scrollObj, 'StringArg', 'None'), 'aether') ~= nil then
 		tab:SelectTab(6);
 	else
 		tab:SelectTab(1);
 	end
+
+	local text_result = GET_CHILD_RECURSIVELY(frame, "text_result")
+	text_result:ShowWindow(0)
+	local text_reinforce = GET_CHILD_RECURSIVELY(frame, "text_reinforce")
+	local text_desc = GET_CHILD_RECURSIVELY(frame, "text_desc");		
+	if string.find(scrollType, 'option_scroll') ~= nil then
+		text_reinforce:ShowWindow(0)
+		text_desc:ShowWindow(0)		
+	else
+		text_reinforce:ShowWindow(1)
+		text_desc:ShowWindow(1)		
+	end
+
+	if string.find(scrollType, 'option_reset_scroll') ~= nil then
+		text_reinforce:ShowWindow(0)
+		text_desc:ShowWindow(0)		
+		local text_itemtranscend = GET_CHILD_RECURSIVELY(frame, 'text_itemtranscend')		
+		text_itemtranscend:ShowWindow(0)
+	end
+
 
 	SET_SLOT_APPLY_FUNC(invframe, "REINFORCE_SCROLL_CHECK_TARGET_ITEM", nil)
 	INVENTORY_SET_CUSTOM_RBTNDOWN("REINFORCE_SCROLL_INV_RBTN")

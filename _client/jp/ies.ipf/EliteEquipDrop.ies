@@ -94,4 +94,6 @@ ClassID,minLv,maxLv,dropRatio,ClassName,Name,ServerMsg,EventCompositon,Dropable,
 94,420,450,2,"TSP04_129_1","바이보라 비전 - 신의 위세","NO","NO","YES","WingedHussars"
 95,420,450,2,"DAG04_123_12","바이보라 비전 - 루나틱","NO","NO","YES","Desperado"
 96,420,450,2,"TBW04_126_8","바이보라 비전 - 원기회복","NO","NO","YES","BowMaster"
+97,420,450,2,"MUS04_127_1","바이보라 비전 - 입자 가속기","NO","NO","YES","Vulture[A]"
 98,420,450,2,"TSW04_127_1","바이보라 비전 - 퓌이크티스","NO","NO","YES","Vanquisher"
+99,420,450,2,"TSF04_127_1","바이보라 비전 - 입자 가속기","NO","NO","YES","Vulture[W]"

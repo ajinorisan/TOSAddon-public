@@ -65,7 +65,6 @@ function GODDESS_ROULETTE_REMAIN_UPDATE(frame)
 	local accObj = GetMyAccountObj();
 	local type = GET_USE_ROULETTE_TYPE(typeNum);
 	local nowCnt = GET_USE_ROULETTE_COUNT(type, accObj);
-
 	if nowCnt ~= 0 then
 		startbtn:SetTextByKey("curCnt",  "{#fff200}"..nowCnt.."{/}");
 	else
@@ -84,7 +83,7 @@ end
 
 function GODDESS_ROULETTE_STATE_UPDATE(frame, msg, argStr)
 	local frame = ui.GetFrame("goddess_roulette");
-
+	
 	local strlist = StringSplit(argStr, ";");
 	local roulette_board = GET_CHILD_RECURSIVELY(frame, "roulette_board");
 	roulette_board:SetImage(strlist[1]);

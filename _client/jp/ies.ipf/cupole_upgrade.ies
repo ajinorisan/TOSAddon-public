@@ -28,6 +28,7 @@ ClassID,Upgrade_value,Owned_Value,UpgradeItemValue,ClassName,Group_ID,Name,Stat_
 27,77,4320,2,"Gabija_upgrade","Gabija_01","가비야","BLK_BREAK_BM","MDEF_BM","cupole_rankup_UR"
 28,77,432,2,"Vakarine_upgrade","Vakarine_01","바카리네","HR_BM","PATK_BM","cupole_rankup_UR"
 29,77,432,2,"Jurate_upgrade","jurate_01","유라테","DR_BM","MATK_BM","cupole_rankup_UR"
-30,0,0,2,"Laima_upgrade","laima_01","라이마","DR_BM","CRTDR_BM","cupole_rankup_UR"
+30,77,540,2,"Laima_upgrade","laima_01","라이마","BLK_BM","MiddleSize_Def_BM","cupole_rankup_UR"
 31,77,162,2,"Saule_upgrade","saule_01","사울레","HR_BM","CRTHR_BM","cupole_rankup_UR"
 32,0,0,2,"maid_ruta_upgrade","m_ruta_01","메이드 루타","BLK_BM","MiddleSize_Def_BM","cupole_rankup_UR"
+33,77,162,2,"summer_zesty_upgrade","summer_zesty_01","수영복 제스티","DR_BM","CRTDR_BM","cupole_rankup_UR"

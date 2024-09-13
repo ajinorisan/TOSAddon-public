@@ -3267,4 +3267,60 @@
     <Level Level="0" PropList_TopLeg="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
     <Level Level="1" PropList_TopLeg="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/죽음의 무도 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
+	<Item Name="GEM_Vulture_CombatProtocol_Archer">
+		<Level Level="0" PropList_TopLeg="OptDesc/전투 프로토콜[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/전투 프로토콜[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/전투 프로토콜[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/전투 프로토콜[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+  </Item>
+	<Item Name="GEM_Vulture_Decomposition_Archer">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 분해[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 분해[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 분해[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 분해[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+  </Item>
+	<Item Name="GEM_Vulture_GravityField_Archer">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 중력장[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 중력장[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 중력장[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 중력장[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+  </Item>
+	<Item Name="GEM_Vulture_Diffusion_Archer">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 확산[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 확산[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 확산[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 확산[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+  </Item>
+	<Item Name="GEM_Vulture_PurificationProtocol_Archer">
+		<Level Level="0" PropList_TopLeg="OptDesc/정화 프로토콜[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/정화 프로토콜[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/정화 프로토콜[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/정화 프로토콜[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+  </Item>
+	<Item Name="GEM_Vulture_Purification_Archer">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 정화[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 정화[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 정화[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 정화[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+  </Item>
+	<Item Name="GEM_Vulture_Devastation_Archer">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 황폐화[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 황폐화[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 황폐화[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 황폐화[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+  </Item>
+	<Item Name="GEM_Vulture_CombatProtocol_Wizard">
+		<Level Level="0" PropList_TopLeg="OptDesc/전투 프로토콜[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/전투 프로토콜[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/전투 프로토콜[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/전투 프로토콜[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Vulture_Decomposition_Wizard">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 분해[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 분해[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 분해[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 분해[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Vulture_GravityField_Wizard">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 중력장[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 중력장[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 중력장[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 중력장[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Vulture_Diffusion_Wizard">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 확산[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 확산[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 확산[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 확산[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Vulture_PurificationProtocol_Wizard">
+		<Level Level="0" PropList_TopLeg="OptDesc/정화 프로토콜[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/정화 프로토콜[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/정화 프로토콜[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/정화 프로토콜[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Vulture_Purification_Wizard">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 정화[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 정화[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 정화[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 정화[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
+	<Item Name="GEM_Vulture_Devastation_Wizard">
+		<Level Level="0" PropList_TopLeg="OptDesc/입력: 황폐화[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 황폐화[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+		<Level Level="1" PropList_TopLeg="OptDesc/입력: 황폐화[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/입력: 황폐화[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None"/>
+	</Item>
 </SocketProperty>

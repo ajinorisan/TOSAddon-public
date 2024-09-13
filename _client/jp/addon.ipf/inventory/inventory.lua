@@ -397,6 +397,14 @@ function UPDATE_SHIHOUETTE_IMAGE(frame)
 	if nil ~= genderFrame and genderFrame:IsVisible() == 1 then
 		SWITCHGENDER_DRAW_CHANGE_STATE(genderFrame);
 	end
+
+
+	--equipment manager
+	-- local equipment_manager = ui.GetFrame("equipment_manager");
+	-- if equipment_manager ~= nil then
+	-- 	EQUIPMENT_MANAGER_EQUIP_UPDATE_SHIHOUETTE_IMAGE(frame);
+	-- end
+
 end
 
 
@@ -750,6 +758,7 @@ function INVENTORY_ON_MSG(frame, msg, argStr, argNum)
 	if msg == 'ACCOUNT_UPDATE' then
 		DRAW_MEDAL_COUNT(frame)
 		DRAW_SEASON_COIN(frame)
+		session.inventory.ReqTrustPoint();
 	end
 
 	if msg == 'INV_DRAW_MONEY_TEXT' then
@@ -980,7 +989,7 @@ function INVENTORY_LIST_GET(frame, setpos, slotSetName, invenTypeStr)
 	end
 	
 	DRAW_TOTAL_VIS(frame, 'invenZeny');
-	local funcStr = frame:GetUserValue("SLOT_APPLY_FUNC");
+	local funcStr = frame:GetUserValue("SLOT_APPLY_FUNC");	
 	if funcStr ~= "None" then
 		local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
 		for i = 1, slotSetNameListCnt do
@@ -3091,17 +3100,17 @@ function STATUS_DUMP_SLOT_SET(a,s,d)
 	STATUS_EQUIP_SLOT_SET(ui.GetFrame('inventory'));
 end
 
-function _INV_EQUIP_LIST_SET_ICON(slot, icon, equipItem)    
+function _INV_EQUIP_LIST_SET_ICON(slot, icon, equipItem)    	
 	local frame = slot:GetTopParentFrame();
 	ICON_SET_EQUIPITEM_TOOLTIP(icon, equipItem, frame:GetName());
-	if frame:GetName() ~= "compare" then	
+	if frame:GetName() ~= "compare" then				
 		icon:SetDumpScp('STATUS_DUMP_SLOT_SET');
 		slot:SetEventScript(ui.LBUTTONDOWN, 'CHECK_EQP_LBTN');
 		slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, equipItem.equipSpot);
 		slot:SetEventScript(ui.RBUTTONDOWN, 'STATUS_SLOT_RBTNDOWN');
-		slot:SetEventScriptArgNumber(ui.RBUTTONDOWN, equipItem.equipSpot);
+		slot:SetEventScriptArgNumber(ui.RBUTTONDOWN, equipItem.equipSpot);		
 		slot:Select(0);		
-	else
+	else		
 		slot:EnableDrag(0);
 		local swapBtn1 = GET_CHILD_RECURSIVELY(frame, "weapon_swap_1")
 		local swapBtn2 = GET_CHILD_RECURSIVELY(frame, "weapon_swap_2")
@@ -3129,7 +3138,7 @@ function _INV_EQUIP_LIST_SET_ICON(slot, icon, equipItem)
 		refreshScpfun = _G[refreshScp];
 		refreshScpfun(itemObj);
 	end	
-
+	
 	local lv = itemObj.Level;
 	if lv > 1 then
 		slot:SetText('{s20}{ol}{#FFFFFF}{b}'..lv, 'count', ui.LEFT, ui.TOP, 8, 2);
@@ -3141,6 +3150,23 @@ function _INV_EQUIP_LIST_SET_ICON(slot, icon, equipItem)
 	if score > 0 then
 		slot:SetText('{s14}{ol}{#FFFFFF}'..score, 'count', ui.RIGHT, ui.TOP, 0, 2)
 	end	
+
+	local skinName = "invenslot_nomal"
+	local itemgrade = GET_ITEM_GRADE(itemObj)	
+	if itemgrade == 2 then
+		skinName = "invenslot_magic"
+	elseif itemgrade == 3 then
+		skinName = "invenslot_rare"
+	elseif itemgrade == 4 then
+		skinName = "invenslot_unique"
+	elseif itemgrade == 5 then
+		skinName = "invenslot_legend"
+	elseif itemgrade == 6 then
+		skinName = "invenslot_pic_goddess"
+	elseif itemgrade >= 10 then
+		skinName = GET_ITEM_BG_PICTURE_BY_GRADE(itemgrade, nil, nil, 4)
+	end
+	slot:SetSkinName(skinName)
 end
 
 function SET_EQUIP_SLOT_ITEMGRADE_BG(frame, slot, obj)		
@@ -3151,7 +3177,7 @@ function SET_EQUIP_SLOT_ITEMGRADE_BG(frame, slot, obj)
 	if topParent:GetName() == "compare" then
 		topParent = frame
 	end
-	local itemgrade = GET_ITEM_GRADE(obj)		
+	local itemgrade = GET_ITEM_GRADE(obj)	
 	if itemgrade ~= nil and itemgrade ~= 0 and itemgrade ~= 1 and itemgrade ~= "None" then
 		if itemgrade == 2 then
 			slotSkinName = topParent:GetUserConfig("EQUIPSLOT_PIC_MAGIC")
@@ -3179,7 +3205,7 @@ function SET_EQUIP_SLOT_BY_SPOT(frame, equipItem, eqpItemList, iconFunc, ...)
 	ui.inventory.InventorySetEquipSlotBySpot(frame:GetName(), equipItem, eqpItemList, iconFunc);
 end
 
-function SET_EQUIP_SLOT(frame, i, equipItemList, iconFunc, ...)
+function SET_EQUIP_SLOT(frame, i, equipItemList, iconFunc, ...)	
 	if equipItemList == nil then
 		equipItemList = session.GetEquipItemList();
 	end
@@ -3201,6 +3227,13 @@ function SET_EQUIP_LIST_ANIM(frame, equipItemList, iconFunc, ...)
 				if spotName == "HELMET" then
 					spotName = "HAIR"
 				end
+		
+				--equipment manager
+				-- local equipment_manager = ui.GetFrame("equipment_manager")
+				-- if equipment_manager ~= nil then
+				-- 	EQUIPMENT_MANAGER_EQUIP_SET_EQUIP_LIST_ANIM(frame, equipItemList, iconFunc, ...);
+				-- end
+
 				local itemSlotSet = GET_CHILD_RECURSIVELY(frame, 'itemslotset')
 				local child = GET_CHILD_RECURSIVELY(itemSlotSet, spotName.."ANIM");	
 
@@ -4657,6 +4690,12 @@ function DO_WEAPON_SWAP_1(frame)
 	else
 		DO_WEAPON_SWAP(frame, 1)
 	end
+
+	--equipment manager
+	-- local equipment_manager = ui.GetFrame("equipment_manager")
+	-- if equipment_manager ~= nil then
+	-- 	EQUIPMENT_MANAGER_EQUIP_DO_WEAPON_SWAP_1(frame);
+	-- end
 end
 
 function DO_WEAPON_SWAP_2(frame)
@@ -4669,6 +4708,12 @@ function DO_WEAPON_SWAP_2(frame)
 	else
 		DO_WEAPON_SWAP(frame, 2)
 	end
+
+	--equipment manager
+	-- local equipment_manager = ui.GetFrame("equipment_manager")
+	-- if equipment_manager ~= nil then
+	-- 	EQUIPMENT_MANAGER_EQUIP_DO_WEAPON_SWAP_2(frame);
+	-- end
 end
 
 function SCR_CHECK_SWAPABLE_C()
@@ -4762,7 +4807,9 @@ function ON_UPDATE_TRUST_POINT(frame, msg, argStr, trustPoint)
 	if frame == nil then
 		return
 	end
-
+	if frame:IsVisible() == 0 then
+        return
+    end
 	local trustPointGbox = GET_CHILD_RECURSIVELY(frame, 'trustPointGbox');
 	local trustPointImg = GET_CHILD_RECURSIVELY(trustPointGbox, "trustPointImg");
 	local trustPointText = GET_CHILD_RECURSIVELY(trustPointGbox, "trustPointText");
@@ -5761,10 +5808,15 @@ function CHECK_CLIENT_CONSUME_MULTIPLE_ITEMS_TRANSFORM_NEW_ITEM(item_id)
 	local itemObj = GetIES(invItem:GetObject())
 	local div = TryGetProp(itemObj, 'NumberArg1', 0)
 	local max = 0;
-	if (invItem.count / div) < 1 then
+	if invItem.count < div then
+		ui.SysMsg(ClMsg("Auto_SuLyangi_BuJogHapNiDa."));
+		return;
+	end
+
+	if math.floor(invItem.count / div) < 1 then
 		max = 1;
 	else
-		max = (invItem.count / div)
+		max = math.floor(invItem.count / div)
 	end
 
 	local titleText = ScpArgMsg("INPUT_CNT_D_D", "Auto_1", 1, "Auto_2", math.max(1, max))

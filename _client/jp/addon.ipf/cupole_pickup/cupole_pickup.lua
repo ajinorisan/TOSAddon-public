@@ -11,6 +11,7 @@ end
 -- 서버에서 응답을 받으면 pickup accountprop 갱신하기.
 function PICKUP_ON_CUPOLE_ACTIVATE(frame, msg, argStr, argNum)
     SET_CURRENT_CUPOLE_PICKUP_ITEM_VALUE(frame, argNum, MAX_COUNT)
+    SET_PICKUP_BTN(frame)
     if frame:GetName() == "cupole_item" then
         SET_CUPOLE_GACHA_COLOR(frame)
     end
@@ -32,6 +33,7 @@ function OPEN_CUPOLE_PICKUP(frame)
     
     local PickupListBG = GET_CHILD_RECURSIVELY(frame,"PickupListBG")
     PickupListBG:SetScrollBarSkinName("verticalscrollbar3")
+    SET_PICKUP_BTN(frame)
 end
 
 function CLOSE_CUPOLE_PICKUP(frame)
@@ -52,7 +54,7 @@ function CREATE_PICKUP_CUPOLE_LIST(frame)
     local PickupListBG = GET_CHILD_RECURSIVELY(frame, "PickupListBG")
     local offset = {OFFSET_X, OFFSET_Y}
     for k,v in pairs(Pickuplist) do
-       local clsname = TryGetProp(v, "ClassName", "None")
+        local clsname = TryGetProp(v, "ClassName", "None")
         local index = TryGetProp(v, "ClassID", '0') - 1
         local cupole_slot_box = PickupListBG:CreateOrGetControlSet('cupole_pickup_slot', clsname, offset[1], (k - 1) * offset[2] + 5)
         cupole_slot_box:SetGravity(ui.CENTER_HORZ, ui.TOP)
@@ -248,6 +250,11 @@ function EARN_PICKUP_CUPOLE(frame, ctrl, argStr, argNum)
         if count < get_cupole_pickup_count() then
             return;
         end
+        if CHECK_CUPOLE_WITHOUT_EQUIP(nil, index) == true then
+            ui.SysMsg(ClMsg('AlreadyKupole'));
+            return;
+        end
+
         local cls = GET_CUPOLE_RATIO_INFO_BY_INDEX(index)
         local ratioindex = TryGetProp(cls, "ClassID", 0)
         local type = 2 -- 0:단차 1:10연차 2:픽업
@@ -304,4 +311,17 @@ function SAFE_CALL(func, ...)
         print("Error: " .. result)
     end
     return status, result
+end
+
+function SET_PICKUP_BTN(frame)
+    if not frame or frame:GetName() ~= 'cupole_pickup' then
+        return;
+    end
+    local earnbtn = GET_CHILD_RECURSIVELY(frame, "earnbtn")
+    local cost = GET_CUPOLE_PICKUP_PROP_COUNT()
+    if cost >= 300 then
+        earnbtn:SetSkinName("cupole_greenbtn")
+    else
+        earnbtn:SetSkinName("cupole_graybtn")
+    end
 end

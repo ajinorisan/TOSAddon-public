@@ -50,7 +50,7 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 52,52,1,40,1,1,1,1,0,0,0,0,0,"HiddenWall_200_200_500","UnvisibleName","","","","","","","","","","NO","YES","NO","Netual","","","",""
 53,53,1,40,1,1,1,1,0,0,0,0,0,"leather_bag_event","[이벤트]{nl}체크 포인트 3","","","","","","","EVENT_2204_CAMPING_JUMP_CHECK_NPC","","","NO","YES","NO","Netual","","","EVENT_2105_CAMPING_JUMP_POEN_BAG3",""
 54,54,1,40,1,1,1,1,0,0,0,0,0,"leather_bag_event","[이벤트]{nl}체크 포인트 2","","","","","","","EVENT_2204_CAMPING_JUMP_CHECK_NPC","","","NO","YES","NO","Netual","","","EVENT_2105_CAMPING_JUMP_POEN_BAG2",""
-55,55,1,40,1,1,1,1,0,0,0,0,0,"leather_bag_event","[이벤트]{nl}체크 포인트 4","","","","","","","EVENT_2204_CAMPING_JUMP_CHECK_NPC","","","NO","YES","NO","Netual","","","EVENT_2105_CAMPING_JUMP_POEN_BAG4",""
+55,55,1,40,1,1,1,1,0,0,0,0,0,"leather_bag_event","[이벤트]{nl}완주 성공!","","","","","","","EVENT_2204_CAMPING_JUMP_CHECK_NPC","","","NO","YES","NO","Netual","","","EVENT_2105_CAMPING_JUMP_POEN_BAG4",""
 56,56,1,40,1,1,1,1,0,0,0,0,0,"Hidden_pillar","UnvisibleName","","","","EVENT_VIVID_FLOOR_AI2","","","","","","NO","YES","NO","Netual","green;150","","",""
 57,57,1,40,1,1,1,1,0,0,0,0,0,"Hidden_pillar","UnvisibleName","","","","","","VIVID_CITY_UPDOWN4","","","","NO","YES","NO","Netual","","","",""
 59,59,1,40,1,1,1,1,0,0,0,0,0,"Board3","[이벤트] 안내 게시판","","","","","","","EVENT_2204_CAMPING_JUMP_BOARD_NPC","","","NO","YES","NO","Netual","","","",""

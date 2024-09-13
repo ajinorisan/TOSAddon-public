@@ -27,7 +27,7 @@
 		<groupbox name="itemlist_gbbg" parent="itemlist_gb" rect="0 0 630 790" margin="0 20 0 0" layout_gravity="center center" skin="test_paper_bg" draw="true" hittest="false"/>
 		<button name="itemlist_closeBtn" parent="itemlist_gb" rect="0 0 36 37" margin="0 55 5 0" layout_gravity="right top" image="gold_close_button" LBtnUpScp="GODDESS_ROULETTE_ITEM_CLOSE"/>
 		<groupbox name="title_gb" parent="itemlist_gb" rect="0 0 520 80" margin="0 15 0 0" layout_gravity="center top" draw="true" skin="test_h_redribbon_skin" />
-		<richtext name="title" parent="title_gb" rect="0 0 500 60" margin="0 -2 0 0" layout_gravity="center center" caption="{@st43b}{s22}포포 룰렛 획득 가능 아이템"/>
+		<richtext name="title" parent="title_gb" rect="0 0 500 60" margin="0 -2 0 0" layout_gravity="center center" caption="{@st43b}{s22}여신의 룰렛 획득 가능 아이템"/>
 		<groupbox name="itemlistbg" parent="itemlist_gb" rect="0 0 570 665" margin="0 105 0 0" layout_gravity="center top" draw="true" skin="test_frame_midle" scrollbar="false"/>		
 		<groupbox name="itemlist" parent="itemlistbg" rect="0 0 570 590" margin="0 70 0 0" layout_gravity="center top" draw="false"/>
 		<groupbox name="gradeinfo_gb" parent="itemlistbg" rect="0 0 560 53" margin="0 11 0 0" layout_gravity="center top" skin="test_pvp_resul_team"/>

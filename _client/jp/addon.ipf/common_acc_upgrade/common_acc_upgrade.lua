@@ -278,7 +278,7 @@ function COMMON_ACC_UPGRADE_OPTION_SET_UP(frame, before, after)
 
     local before_val1, before_val2 = shared_upgrade_acc.get_value(item_obj,before);
     local after_val1, after_val2 = shared_upgrade_acc.get_value(item_obj,cur_rank);
-
+    
     CustomOptDescFunc = _G[CustomOptDescFunc]
     local msg1, option1_name = CustomOptDescFunc(item_obj)
 

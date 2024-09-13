@@ -559,7 +559,7 @@ function GODPROTECTION_SPINE(frame)
 		local spineToolTip = frame:GetUserConfig("SPINE");
 		local spineInfo = geSpine.GetSpineInfo(spineToolTip);
 		if spineInfo ~= nil then
-			picture:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation());
+			picture:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied());
 		end	
 	end
 	

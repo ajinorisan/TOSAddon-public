@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP16_2_FANLIB_48_4_MQ14_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59845" Pos="-507.97#338.39#-1219.73" genCount="1" genTime="20000" autoGen="0" objectKey="0" tendency="1"/>
+                    <Obj Type="Monster" MonType="59846" Pos="-527.07#338.39#-1304.15" genCount="1" genTime="20000" autoGen="0" objectKey="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="59847" Pos="-495.27#338.39#-1394.99" genCount="1" genTime="20000" autoGen="0" objectKey="2" tendency="1"/>
+                    <Obj Type="Monster" MonType="59848" Pos="-417.98#338.39#-1433.72" genCount="1" genTime="20000" autoGen="0" objectKey="3" tendency="1"/>
+                    <Obj Type="Monster" MonType="59845" Pos="-329.58#338.39#-1388.36" genCount="1" genTime="20000" autoGen="0" objectKey="4" tendency="1"/>
+                    <Obj Type="Monster" MonType="59846" Pos="-299.18#338.39#-1307.95" genCount="1" genTime="20000" autoGen="0" objectKey="5" tendency="1"/>
+                    <Obj Type="Monster" MonType="59847" Pos="-321.48#338.39#-1218.19" genCount="1" genTime="20000" autoGen="0" objectKey="6" tendency="1"/>
+                    <Obj Type="Monster" MonType="59848" Pos="-408.16#338.39#-1187.53" genCount="1" genTime="20000" autoGen="0" objectKey="7" tendency="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="MonsterGen">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="DefGroup/0/DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5/DefGroup/6/DefGroup/7"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP16_2_FANLIB_48_4_MQ13_INSTER_HATE"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Timer">
+                        <condList>
+                             <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP16_2_FANLIB_48_4_MINI_TIMER"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="FailCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_limit_time"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_IMMEDIATELY" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="모든 PC가 전투 불능상태가 되어 퀘스트에 실패하였습니다."/>
+                                <Str Str="!"/>
+                                <Num Num="3"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="DefGroup/0/DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5/DefGroup/6/DefGroup/7"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="ClearCheck"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP16_2_FANLIB_48_4_MINI_QUEST_FAIL"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="ClearCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_limit_time"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_OVER" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="DefGroup/0/DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5/DefGroup/6/DefGroup/7"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="FailCheck"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
+                                <Str Str="SSN_EP16_2_FANLIB_48_4_MQ14"/>
+                                <Str Str="QuestInfoValue1"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Update">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP16_2_FANLIB_48_4_MINI_TIME_CHECK"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+                <EnterList>
+                    <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                        <Num Num="2"/>
+                        <Str Str="SCR_EP16_2_FANLIB_48_4_MQ13_BALLOONTEXT_START"/>
+                    </ToolScp>
+                </EnterList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

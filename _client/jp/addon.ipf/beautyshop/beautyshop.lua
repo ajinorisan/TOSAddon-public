@@ -1318,10 +1318,17 @@ function BEAUTYSHOP_GET_HEADINDEX(gender, itemClassName, colorName)
 		hairEngName = itemObj.StringArg;
 	end
 
+	local is_helmet = false;
+	if itemObj ~= nil and TryGetProp(itemObj, "EqpType", "None") == "HELMET" then
+		is_helmet = true;
+	end
+
 	local hairIndex = ui.GetHeadIndexByXML(gender, hairEngName, colorName);
 	if hairIndex == 0 then
 		hairIndex = ui.GetHeadIndexByXML(gender, hairEngName, "default");
-		ui.SysMsg(ClMsg('DesigncutNoExistColor'));
+		if is_helmet == false then
+			ui.SysMsg(ClMsg('DesigncutNoExistColor'));
+		end
 	end
 	return hairIndex
 end

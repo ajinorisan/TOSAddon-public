@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="cupole_skill_tooltip" x="0" y="0" width="300" height="600"> 
-	<frame layout_gravity="left top" margin="490 285 0 0" draw="true"/>
+	<frame layout_gravity="center center" margin="-325 45 0 0" draw="true"/>
 	<script OpenScp="" CloseScp=""/>
 	<layer layerlevel="102"/>
 	<skin frameskin=" "/>
@@ -10,7 +10,7 @@
     <sound opensound="window_open" closesound="window_close"/>
 	<option closebutton="false"/>
     <controls>
-    <!-- 관리탭 -->
+<!-- 관리탭 -->
         <groupbox name="managerTab" rect="0 0 260 280" margin="0 10 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="cupoleroundsquare" />
 			<picture name="skillicon" parent="managerTab" stretch="true" layout_gravity="center top" rect="0 0 50 50" margin="0 20 0 0" image="icon_Buff_kupole_AccuracyBuff_SR"/>
 			<richtext name="skillname" parent="managerTab" rect="0 0 30 30" layout_gravity="center top" margin="0 100 0 0" fixwidth="false" format="{@st42b}{s16}%s" param1="name" param1_def="default" textalign="left top"/>

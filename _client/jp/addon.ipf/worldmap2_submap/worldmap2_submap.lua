@@ -6,7 +6,11 @@ end
 
 -- SETTING
 function WORLDMAP2_SUBMAP_EPISODE()
-	return ui.GetFrame("worldmap2_submap"):GetUserConfig("SUBMAP_NAME")
+    local episode = ui.GetFrame("worldmap2_submap"):GetUserConfig("SUBMAP_NAME");
+    if episode == "EP16_2" then
+        episode = "EP9_2";
+    end
+	return episode;
 end
 
 function WORLDMAP2_SUBMAP_SET_EPISODE(episode)
@@ -211,9 +215,9 @@ end
 
 -- DRAW
 function WORLDMAP2_SUBMAP_DRAW_BASE(frame)
-	local mapName = WORLDMAP2_SUBMAP_EPISODE()
-	local mapData = GetClass("worldmap2_data", mapName)
-
+    local mapName = WORLDMAP2_SUBMAP_EPISODE()
+    local mapData = GetClass("worldmap2_data", mapName)
+    
 	local submapPic = AUTO_CAST(frame:GetChild("submap_pic"))
 	local submapIcon = AUTO_CAST(frame:GetChild("submap_icon"))
 	local submapSbarEP = AUTO_CAST(frame:GetChild("submap_sbar_ep"))
@@ -302,7 +306,7 @@ function WORLDMAP2_SUBMAP_DRAW_BASE(frame)
 end
 
 function WORLDMAP2_SUBMAP_DRAW(frame)
-	local episode = WORLDMAP2_SUBMAP_EPISODE()
+    local episode = WORLDMAP2_SUBMAP_EPISODE()
 	local list = SCR_GET_XML_IES("worldmap2_submap_data", "Episode", episode)
 	for i = 1, #list do
 		WORLDMAP2_SUBMAP_DRAW_ZONE(frame, list[i])
@@ -584,13 +588,14 @@ function WORLDMAP2_SUBMAP_ZONE_CHECK(mapName)
     end
     
     frame:SetUserConfig("ZONE_CHECK", mapName)
-
+    
     -- 순서 조정
     do
         local checkSet = frame:GetChild(mapName)
-        local checkImage = checkSet:GetChild("zone_btn")
-        
-        checkImage:SetMargin(checkImage:GetMargin().left, checkImage:GetMargin().top, checkImage:GetMargin().right, checkImage:GetMargin().bottom)
+        if checkSet ~= nil then
+            local checkImage = checkSet:GetChild("zone_btn")
+            checkImage:SetMargin(checkImage:GetMargin().left, checkImage:GetMargin().top, checkImage:GetMargin().right, checkImage:GetMargin().bottom)
+        end
     end
 
     -- 체크 부여

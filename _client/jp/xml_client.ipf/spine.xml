@@ -167,28 +167,31 @@
 		<Element Name="zanas" root="zanas" atlas="zanas" json="zanas" scale="1" offsetX="0" offsetY="0" animation="animation"/>
 	</Spine>
 	<Spine>
-		<Element Name="Kupole_Austeja_UR" root="austeja_m" atlas="austeja_m" json="austeja_m" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="Kupole_Austeja_UR" root="austeja_m" atlas="austeja_m" json="austeja_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
-		<Element Name="Kupole_gabija_UR" root="gabija_m" atlas="gabija_m" json="gabija_m" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="Kupole_gabija_UR" root="gabija_m" atlas="gabija_m" json="gabija_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
-		<Element Name="vakarine_student" root="vakarine_student" atlas="vakarine_student" json="vakarine_student" scale="1" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="vakarine_student" root="vakarine_student" atlas="vakarine_student" json="vakarine_student" scale="1" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
-		<Element Name="Kupole_jurate_UR" root="jurate_m" atlas="jurate_m" json="jurate_m" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="Kupole_jurate_UR" root="jurate_m" atlas="jurate_m" json="jurate_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
-		<Element Name="Kupole_laima_UR" root="laima_m" atlas="laima_m" json="laima_m" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="Kupole_laima_UR" root="laima_m" atlas="laima_m" json="laima_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
-		<Element Name="Kupole_maid_ruta_UR" root="ruta_maid" atlas="ruta_maid" json="ruta_maid" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="Kupole_maid_ruta_UR" root="ruta_maid" atlas="ruta_maid" json="ruta_maid" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
-		<Element Name="Kupole_saule_UR" root="saule_m" atlas="saule_m" json="saule_m" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="Kupole_saule_UR" root="saule_m" atlas="saule_m" json="saule_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
-	<Element Name="Kupole_vakarine_UR" root="vakarine_m" atlas="vakarine_m" json="vakarine_m" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="Kupole_vakarine_UR" root="vakarine_m" atlas="vakarine_m" json="vakarine_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Summer_Zesty_UR" root="zesty_swimsuit" atlas="zesty_swimsuit" json="zesty_swimsuit" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
 		<Element Name="Cache" root="Cache" atlas="cacheshop" json="cacheshop" scale="" offsetX="0" offsetY="0" animation="animation"/>
