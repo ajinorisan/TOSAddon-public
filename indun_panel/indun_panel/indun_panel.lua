@@ -37,10 +37,12 @@
 -- v1.3.7 メレジナハードに入れなかった問題修正。
 -- v1.3.8 チャレ券使用の順番ミスってたので修正。
 -- v1.3.9 リファクタリング。過去女神商店。
+-- v1.4.0 パネル開いてる時に他のフレームに干渉してそうなところを修正。テルハルシャ修正。
+-- v1.4.1 240912アップデート対応
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.9"
+local ver = "1.4.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -48,15 +50,6 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settingsFileLoc = string.format('../addons/%s/new_settings.json', addonNameLower)
-
---[[function indun_panel_get_indunid()
-    -- 新ダンジョン追加時に重宝。セッティングボタン右クリでも良さそう。
-    -- ダンジョンフレームの新ダンジョンを選択して実行すれば調べられる。なんかボタンにセットして使おう
-    local frame = ui.GetFrame("induninfo")
-    local redButton = GET_CHILD_RECURSIVELY(frame, 'RedButton')
-    local indun_classid = redButton:GetUserValue('MOVE_INDUN_CLASSID')
-    print(indun_classid)
-end]]
 
 local acutil = require("acutil")
 local os = require("os")
@@ -234,6 +227,13 @@ function indun_panel_init(frame)
     vakarine:SetTextTooltip(g.lang == "Japanese" and "{ol}ヴァカリネショップ" or "{ol}Vakarine Shop")
     vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
 
+    local rada = frame:CreateOrGetControl("button", "rada", 240, 7, 29, 29);
+    AUTO_CAST(rada)
+    rada:SetSkinName("None")
+    rada:SetText("{img goddess3_shop_btn 29 29}")
+    rada:SetTextTooltip(g.lang == "Japanese" and "{ol}ラダショップ" or "{ol}Rada Shop")
+    rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
+
     local configbtn = frame:CreateOrGetControl('button', 'configbtn', 120, 5, 30, 35)
     AUTO_CAST(configbtn)
     configbtn:SetSkinName("None")
@@ -266,8 +266,9 @@ function indun_panel_init(frame)
     if g.settings.jsr_checkbox == 1 then
         indun_panel_FIELD_BOSS_TIME_TAB_SETTING(frame)
     end
+
     indun_panel_frame_contents(frame)
-    configbtn:RunUpdateScript("indun_panel_frame_contents", 1.0)
+    -- configbtn:RunUpdateScript("indun_panel_frame_contents", 1.0)
     frame:SetLayerLevel(80)
     frame:Resize(g.x + 570, g.y + 5)
     g.x = nil
@@ -287,123 +288,105 @@ function indun_panel_pvpmaine_count()
     return coincount
 end
 
-local induntype = {
-    [1] = {
-        challenge = {
-            s460 = 644,
-            s480 = 645,
-            pt = 646
-        }
-    },
-    [2] = {
-        singularity = {
-            normal = 647,
-            ex = 691
-        }
-    },
-    [3] = {
-        season = {
-
-            [1] = 699, -- radaseasonchallenge 699~703
-            [2] = 700,
-            [3] = 701,
-            [4] = 702,
-            [5] = 703
-        }
-    },
-    [4] = {
-        merregina = {
-            s = 696,
-            a = 695,
-            h = 697,
-            ac = 80032
-        }
-    },
-    [5] = {
-        slogutis = {
-            s = 689,
-            a = 688,
-            h = 690,
-            ac = 80031
-        }
-    },
-    [6] = {
-        upinis = {
-            s = 686,
-            a = 685,
-            h = 687,
-            ac = 80030
-        }
-    },
-    [7] = {
-        roze = {
-            s = 680,
-            a = 679,
-            h = 681,
-            ac = 80015
-        }
-    },
-    [8] = {
-        falouros = {
-            s = 677,
-            a = 676,
-            h = 678,
-            ac = 80017
-        }
-    },
-    [9] = {
-        spreader = {
-            s = 674,
-            a = 673,
-            h = 675,
-            ac = 80016
-        }
-    },
-    [10] = {
-        jellyzele = {
-            s = 672,
-            a = 671,
-            h = 670
-        }
-    },
-    [11] = {
-        delmore = {
-            s = 667,
-            a = 666,
-            h = 665
-        }
-    },
-    [12] = {
-        telharsha = 623
-    },
-    [13] = {
-        velnice = 201
-    },
-    [14] = {
-        giltine = {
-            s = 669,
-            a = 635,
-            h = 628
-        }
-    },
-    [15] = {
-        earring = {
-            s = 661,
-            a = 662,
-            h = 663
-        }
-    },
-    [16] = {
-        cemetery = {
-            c490 = 684,
-            c500 = 693
-        }
-    },
-
-    [17] = {
-        jsr = 0
+local induntype = {{
+    challenge = {
+        s460 = 644,
+        s480 = 645,
+        pt = 646
     }
-}
+}, {
+    singularity = {
+        normal = 647
+    }
+}, {
+    neringa = {
+        s = 708,
+        a = 707,
+        ac = 80035
+    }
+}, {
+    golem = {
+        s = 711,
+        a = 710,
+        ac = 80037
+    }
+}, {
+    merregina = {
+        s = 696,
+        a = 695,
+        h = 697,
+        ac = 80032
+    }
+}, {
+    slogutis = {
+        s = 689,
+        a = 688,
+        h = 690,
+        ac = 80031
+    }
+}, {
+    upinis = {
+        s = 686,
+        a = 685,
+        h = 687,
+        ac = 80030
+    }
+}, {
+    roze = {
+        s = 680,
+        a = 679,
+        h = 681,
+        ac = 80015
+    }
+}, {
+    falouros = {
+        s = 677,
+        a = 676,
+        h = 678,
+        ac = 80017
+    }
+}, {
+    spreader = {
+        s = 674,
+        a = 673,
+        h = 675,
+        ac = 80016
+    }
+}, {
+    jellyzele = {
+        s = 672,
+        a = 671,
+        h = 670
+    }
+}, {
+    delmore = {
+        s = 667,
+        a = 666,
+        h = 665
+    }
+}, {
+    telharsha = 623
+}, {
+    velnice = 201
+}, {
+    giltine = {
+        s = 669,
+        a = 635,
+        h = 628
+    }
+}, {
+    earring = {
+        s = 661,
+        a = 662,
+        h = 663
+    }
+}, {
+    cemetery = {
+        c490 = 684
+    }
+}, {
+    jsr = 0
+}}
 
 function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
 
@@ -469,10 +452,8 @@ function indun_panel_ischecked(frame, ctrl, argStr, argNum)
     local ctrlname = ctrl:GetName()
     local ischeck = ctrl:IsChecked()
 
-    if g.settings[ctrlname] ~= nil then
-        g.settings[ctrlname] = ischeck
-        indun_panel_save_settings()
-    end
+    g.settings[ctrlname] = ischeck
+    indun_panel_save_settings()
 end
 
 function indun_panel_event_tos_whole_shop_open()
@@ -524,6 +505,7 @@ function indun_panel_frame_contents(frame)
     local x = 135
     local count = #induntype
     for i = 1, count do
+
         local entry = induntype[i]
         for key, value in pairs(entry) do
 
@@ -532,9 +514,10 @@ function indun_panel_frame_contents(frame)
                 text:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
                 text:AdjustFontSizeByWidth(120)
                 if type(value) == "table" then
+                    -- neringa golem
                     if key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or key == "spreader" or
-                        key == "merregina" then
-
+                        key == "merregina" or key == "neringa" or key == "golem" then
+                        print(key)
                         for subKey, subValue in pairs(value) do
 
                             indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
@@ -554,11 +537,11 @@ function indun_panel_frame_contents(frame)
                     elseif key == "cemetery" then
 
                         indun_panel_cemetery_frame(frame, key, y)
-                    elseif key == "season" then
+                        --[[elseif key == "season" then
 
                         for subKey, subValue in ipairs(value) do
                             indun_panel_season_frame(frame, key, subKey, subValue, y)
-                        end
+                        end]]
                     end
                 else
                     if key == "telharsha" then
@@ -596,11 +579,13 @@ function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
 
     -- 695 メレジナ -- 688 スロガ -- 685 ウピ
     local raidTable = {
+        [707] = {11210024, 11210023, 11210022},
+        [710] = {11210028, 11210027, 11210026},
         [695] = {11200356, 11200355, 11200354},
         [688] = {11200290, 10820036, 11200289, 11200288},
         [685] = {11200281, 10820035, 11200280, 11200279}
     }
-
+    print(tostring(subValue))
     session.ResetItemList()
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList()
@@ -724,11 +709,15 @@ end
 function indun_panel_raid_itemuse(frame, ctrl, argStr, induntype)
 
     local raidTable = {
+        [707] = {11210024, 11210023, 11210022},
+        [710] = {11210028, 11210027, 11210026},
         [695] = {11200356, 11200355, 11200354},
         [688] = {11200290, 10820036, 11200289, 11200288},
         [685] = {11200281, 10820035, 11200280, 11200279}
     }
     local buffIDs = {
+        [707] = 80035, -- ネリンガ
+        [710] = 80037, -- ゴーレム
         [685] = 80030, -- 蝶々
         [688] = 80031, -- スロガ
         [695] = 80032 -- メレジ
@@ -775,6 +764,8 @@ end
 function indun_panel_autosweep(frame, ctrl, argStr, induntype)
 
     local buffIDs = {
+        [707] = 80035, -- ネリンガ
+        [710] = 80037, -- ゴーレム
         [673] = 80016, -- スプレッダー
         [676] = 80017, -- ファロウス
         [679] = 80015, -- ロゼ
@@ -792,6 +783,10 @@ function indun_panel_autosweep(frame, ctrl, argStr, induntype)
             ui.SysMsg(g.lang == "Japanese" and "掃討バフがありません。" or "There is no autoclear buff.")
         end
     end
+
+    -- フレーム内容再描画
+    local frame = ui.GetFrame("indun_panel")
+    indun_panel_frame_contents(frame)
 end
 
 function indun_panel_sweep_count(buffid)
@@ -869,12 +864,12 @@ end
 function indun_panel_challenge_frame(frame, key, y)
 
     local cha_460 = frame:CreateOrGetControl('button', 'cha_460', 135, y, 80, 30)
-    cha_460:SetText("{ol}480")
+    cha_460:SetText("{ol}500")
     cha_460:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_solo")
     cha_460:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
     local cha_480 = frame:CreateOrGetControl('button', 'cha_480', 220, y, 80, 30)
-    cha_480:SetText("{ol}500")
+    cha_480:SetText("{ol}520")
     cha_480:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_solo")
     cha_480:SetEventScriptArgNumber(ui.LBUTTONUP, 645)
 
@@ -897,10 +892,12 @@ function indun_panel_challenge_frame(frame, key, y)
     cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
     local cha_ticketcount = frame:CreateOrGetControl("richtext", "cha_ticketcount", 520, y + 5, 40, 30)
+    print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")))
     cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
                                 INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") ..
                                 " {img icon_item_Tos_Event_Coin 20 20}" ..
-                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28") .. ")")
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315") .. ")")
+
 end
 
 function indun_panel_singularity_frame(frame, key, y)
@@ -910,15 +907,15 @@ function indun_panel_singularity_frame(frame, key, y)
     sin_n:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_pt")
     sin_n:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
-    local sin_ex = frame:CreateOrGetControl('button', 'sin_ex', 220, y, 80, 30)
+    --[[local sin_ex = frame:CreateOrGetControl('button', 'sin_ex', 220, y, 80, 30)
     sin_ex:SetText("{ol}{#FF0000}EX")
     sin_ex:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_pt")
-    sin_ex:SetEventScriptArgNumber(ui.LBUTTONUP, 691)
+    sin_ex:SetEventScriptArgNumber(ui.LBUTTONUP, 691)]]
 
-    local sin_count = frame:CreateOrGetControl("richtext", "sin_count", 305, y + 5, 30, 30)
+    local sin_count = frame:CreateOrGetControl("richtext", "sin_count", 220, y + 5, 30, 30)
     sin_count:SetText(indun_panel_GetEntranceCountText(647, 1))
 
-    local sin_ticket = frame:CreateOrGetControl('button', 'sin_ticket', 335, y, 80, 30)
+    local sin_ticket = frame:CreateOrGetControl('button', 'sin_ticket', 250, y, 80, 30)
     sin_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
     sin_ticket:SetTextTooltip("{ol}" ..
                                   INDUN_PANEL_LANG(
@@ -927,14 +924,14 @@ function indun_panel_singularity_frame(frame, key, y)
     sin_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
     sin_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
-    local sin_ticketcount = frame:CreateOrGetControl("richtext", "sin_ticketcount", 420, y + 5, 40, 30)
+    local sin_ticketcount = frame:CreateOrGetControl("richtext", "sin_ticketcount", 335, y + 5, 40, 30)
     sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}d:" ..
                                 INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. " w:" ..
                                 INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") ..
                                 " {img icon_item_Tos_Event_Coin 20 20}" ..
-                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_27") .. ")")
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314") .. ")")
 
-    local sin_check = frame:CreateOrGetControl("checkbox", "singularity_check", 560, y, 25, 25)
+    local sin_check = frame:CreateOrGetControl("checkbox", "singularity_check", 475, y, 25, 25)
     AUTO_CAST(sin_check)
     sin_check:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
     sin_check:SetTextTooltip(g.lang == "Japanese" and
@@ -993,12 +990,12 @@ function indun_panel_cemetery_frame(frame, key, y)
     local count_490 = frame:CreateOrGetControl("richtext", "count_490", 220, y + 5)
     count_490:SetText(indun_panel_GetEntranceCountText(684, 1))
 
-    local btn_500 = frame:CreateOrGetControl('button', 'btn_500', 250, y, 80, 30)
+    --[[local btn_500 = frame:CreateOrGetControl('button', 'btn_500', 250, y, 80, 30)
     btn_500:SetText("{ol}500")
     btn_500:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
     btn_500:SetEventScriptArgNumber(ui.LBUTTONUP, 693)
     local count_500 = frame:CreateOrGetControl("richtext", "count_500", 335, y + 5)
-    count_500:SetText(indun_panel_GetEntranceCountText(693, 1))
+    count_500:SetText(indun_panel_GetEntranceCountText(693, 1))]]
 end
 
 function indun_panel_season_enter(frame, ctrl, argStr, argNum)
@@ -1020,10 +1017,10 @@ function indun_panel_telharsha_frame(frame, key, y)
 
     local telbtn = frame:CreateOrGetControl('button', 'telbtn', 135, y, 80, 30)
     telbtn:SetText("{ol}IN")
+    telbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
+    telbtn:SetEventScriptArgNumber(ui.LBUTTONUP, 623)
 
     local telcnt = frame:CreateOrGetControl("richtext", "telcnt", 220, y + 5)
-    telcnt:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
-    telcnt:SetEventScriptArgNumber(ui.LBUTTONUP, 623)
     telcnt:SetText(indun_panel_GetEntranceCountText(623, 2))
 end
 
@@ -1131,7 +1128,7 @@ function indun_panel_jsr_frame(frame, key, y)
     jsrbtn:SetEventScript(ui.LBUTTONUP, "FIELD_BOSS_JOIN_ENTER_CLICK")
     jsrbtn:SetUserValue("Y", y)
     indun_panel_FIELD_BOSS_ENTER_TIMER_SETTING(frame)
-    -- jsrbtn:RunUpdateScript("indun_panel_FIELD_BOSS_ENTER_TIMER_SETTING", 1.0)
+    jsrbtn:RunUpdateScript("indun_panel_FIELD_BOSS_ENTER_TIMER_SETTING", 1.0)
 
 end
 
@@ -1202,13 +1199,13 @@ function indun_panel_item_use_sin(induntype, count)
         if life_time ~= nil then
             if classid == 10820018 and count == 0 and tonumber(life_time) < 86400 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             elseif classid == 11030067 and count == 0 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             elseif classid == 10820018 and count == 0 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             end
         end
     end
@@ -1216,24 +1213,22 @@ function indun_panel_item_use_sin(induntype, count)
     local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
     if dcount == 1 and count == 0 then
         indun_panel_buyuse("PVP_MINE_41")
-        return
     end
 
     local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
     if wcount >= 1 and count == 0 then
         indun_panel_buyuse("PVP_MINE_42")
-        return
     end
 
     local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_27")
     if mcount >= 1 and count == 0 then
         indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_27")
-        return
     end
 
-    local targetItems = {}
-    -- local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", induntype).PlayPerResetType)
+    local frame = ui.GetFrame("indun_panel")
+    indun_panel_frame_contents(frame)
 
+    local targetItems = {}
     -- アイテムの収集
     for i = 0, cnt - 1 do
         local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
@@ -1248,9 +1243,15 @@ function indun_panel_item_use_sin(induntype, count)
     for _, classid in ipairs(targetItems) do
         local msg = g.lang == "Japanese" and "期限はありません。使用しますか？" or
                         "It has no expiration date.{nl}Do you want to use it?"
-        local yesscp = string.format("INV_ICON_USE(session.GetInvItemByType(%d))", classid)
+        local yesscp = string.format("indun_panel_INV_ICON_USE(%d)", classid)
         local msgbox = ui.MsgBox(msg, yesscp, '')
     end
+end
+
+function indun_panel_INV_ICON_USE(classid)
+    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+    local frame = ui.GetFrame("indun_panel")
+    indun_panel_frame_contents(frame)
 end
 
 function indun_panel_item_use_cha(induntype, count)
@@ -1268,38 +1269,39 @@ function indun_panel_item_use_cha(induntype, count)
         if life_time ~= nil then
             if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             elseif classid == 11030080 and count == 1 and tonumber(life_time) < 86400 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             elseif classid == 11030080 and count == 1 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             elseif classid == 641954 and count == 1 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             elseif classid == 10820019 and count == 1 then
                 INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+                break
             end
         end
         if classid == 10000073 and count == 1 then
             INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-            return
+            break
         end
     end
 
     local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
     if event_trade_count >= 1 and count == 1 then
         indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_28")
-        return
+    else
+        local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+        if trade_count >= 1 and count == 1 then
+            indun_panel_buyuse("PVP_MINE_40")
+        end
     end
 
-    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
-    if trade_count >= 1 and count == 1 then
-        indun_panel_buyuse("PVP_MINE_40")
-        return
-    end
+    local frame = ui.GetFrame("indun_panel")
+    indun_panel_frame_contents(frame)
 end
 
 function indun_panel_item_use(frame, ctrl, argStr, induntype)
@@ -1403,6 +1405,8 @@ function indun_panel_load_settings()
             zoom = 336,
             challenge_checkbox = 1,
             singularity_checkbox = 1,
+            neringa_checkbox = 1,
+            golem_checkbox = 1,
             merregina_checkbox = 1,
             slogutis_checkbox = 1,
             upinis_checkbox = 1,
@@ -1439,6 +1443,12 @@ function INDUN_PANEL_LANG(str)
     local langcode = option.GetCurrentCountry()
 
     if langcode == "Japanese" then
+        if str == tostring("neringa") then
+            str = "ネリンガ"
+        end
+        if str == tostring("golem") then
+            str = "ゴーレム"
+        end
         if str == tostring("challenge") then
             str = "チャレンジ"
         end
@@ -1533,4 +1543,53 @@ end
         end
     end
     return nil
+end]]
+
+--[[function indun_panel_item_use_cha(induntype, count)
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
+
+    for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
+        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+        -- 11030080 フィールド狩りで落ちるヤツ。ライフタイム縛りやめる？
+
+        if life_time ~= nil then
+            if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030080 and count == 1 and tonumber(life_time) < 86400 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 11030080 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 641954 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            elseif classid == 10820019 and count == 1 then
+                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                return
+            end
+        end
+        if classid == 10000073 and count == 1 then
+            INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+            return
+        end
+    end
+
+    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
+    if event_trade_count >= 1 and count == 1 then
+        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_28")
+        return
+    end
+
+    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+    if trade_count >= 1 and count == 1 then
+        indun_panel_buyuse("PVP_MINE_40")
+        return
+    end
 end]]
