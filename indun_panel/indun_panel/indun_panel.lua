@@ -39,10 +39,11 @@
 -- v1.3.9 リファクタリング。過去女神商店。
 -- v1.4.0 パネル開いてる時に他のフレームに干渉してそうなところを修正。テルハルシャ修正。
 -- v1.4.1 240912アップデート対応
+-- v1.4.2 色々バグ修正。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.1"
+local ver = "1.4.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -268,7 +269,7 @@ function indun_panel_init(frame)
     end
 
     indun_panel_frame_contents(frame)
-    -- configbtn:RunUpdateScript("indun_panel_frame_contents", 1.0)
+    configbtn:RunUpdateScript("indun_panel_frame_update", 1.0)
     frame:SetLayerLevel(80)
     frame:Resize(g.x + 570, g.y + 5)
     g.x = nil
@@ -276,6 +277,108 @@ function indun_panel_init(frame)
     frame:SetSkinName("chat_window_2")
     frame:EnableHitTest(1);
     frame:SetAlpha(100)
+
+end
+
+function indun_panel_frame_update(frame)
+    local frame = ui.GetFrame("indun_panel")
+    local raid_table = {
+        neringa = {707, 80035},
+        golem = {710, 80037},
+        merregina = {695, 80032},
+        slogutis = {688, 80031},
+        upinis = {685, 80030},
+        roze = {680, 80015},
+        falouros = {677, 80017},
+        spreader = {674, 80016}
+    }
+
+    for key, value in pairs(raid_table) do
+
+        local count = GET_CHILD_RECURSIVELY(frame, key .. "count")
+        local sweep_count = GET_CHILD_RECURSIVELY(frame, key .. "sweepcount")
+        for _, v in ipairs(value) do
+            if string.len(v) == 3 then
+                count:SetText(indun_panel_GetEntranceCountText(v, 2))
+
+                local raidTable = {
+                    [707] = {11210024, 11210023, 11210022},
+                    [710] = {11210028, 11210027, 11210026},
+                    [695] = {11200356, 11200355, 11200354},
+                    [688] = {11200290, 10820036, 11200289, 11200288},
+                    [685] = {11200281, 10820035, 11200280, 11200279}
+                }
+                -- アイテム製造中にインベいじったらバグるので
+                -- session.ResetItemList()
+                local invItemList = session.GetInvItemList()
+                local guidList = invItemList:GetGuidList()
+                local cnt = guidList:Count()
+
+                if raidTable[v] then
+
+                    local use = GET_CHILD_RECURSIVELY(frame, key .. "use")
+                    local item_count = 0
+                    for _, targetClassID in ipairs(raidTable[v]) do
+                        for i = 0, cnt - 1 do
+                            local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+                            local invItem = invItemList:GetItemByGuid(guidList:Get(i))
+                            if itemobj.ClassID == targetClassID then
+                                item_count = item_count + invItem.count
+                            end
+                        end
+                    end
+
+                    local itemClass = GetClassByType('Item', raidTable[v][2])
+                    local icon = itemClass.Icon
+                    local text = g.lang and
+                                     string.format("{ol}{img %s 25 25 } %d個持っています。", icon, item_count) or
+                                     string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon, item_count)
+
+                    use:SetTextTooltip(text)
+
+                end
+            else
+                sweep_count:SetText("{ol}{#FFFFFF}{s16}(" .. indun_panel_sweep_count(v) .. ")")
+            end
+
+        end
+
+    end
+    local cha_count = GET_CHILD_RECURSIVELY(frame, "cha_count")
+    cha_count:SetText(indun_panel_GetEntranceCountText(646, 2))
+    local cha_ticketcount = GET_CHILD_RECURSIVELY(frame, "cha_ticketcount")
+    cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") ..
+                                " {img icon_item_Tos_Event_Coin 20 20}" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315") .. ")")
+    local sin_count = GET_CHILD_RECURSIVELY(frame, "sin_count")
+    sin_count:SetText(indun_panel_GetEntranceCountText(647, 1))
+    local sin_ticketcount = GET_CHILD_RECURSIVELY(frame, "sin_ticketcount")
+    sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}d:" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. " w:" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") ..
+                                " {img icon_item_Tos_Event_Coin 20 20}" ..
+                                INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314") .. ")")
+
+    local velrecipename = "PVP_MINE_52"
+    local velchangecnt = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(velrecipename)
+    if velchangecnt < 0 then
+        velchangecnt = 0
+    end
+    local velchangetxt = GET_CHILD_RECURSIVELY(frame, "velchangetxt")
+    velchangetxt:SetText(string.format("{ol}{#FFFFFF}(%d/%d)", velchangecnt, indun_panel_overbuy_count(velrecipename)))
+    local velamount = GET_CHILD_RECURSIVELY(frame, "velamount")
+    local velamount_text = "{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}"
+    if tonumber(velchangecnt) == 1 then
+        velamount_text = velamount_text .. "1,000)"
+    else
+        velamount_text = velamount_text ..
+                             string.format("{ol}{#FF0000}%s",
+                GET_COMMAED_STRING(indun_panel_overbuy_amount(velrecipename))) .. "{ol}{#FFFFFF})"
+    end
+    velamount:SetText(velamount_text)
+
+    return 1
 
 end
 
@@ -495,7 +598,7 @@ function indun_panel_FIELD_BOSS_TIME_TAB_SETTING(frame)
     else
         sub_tab:SelectTab(1)
     end
-    -- print(tostring(sub_tab:GetSelectItemIndex()))
+
 end
 
 function indun_panel_frame_contents(frame)
@@ -517,7 +620,7 @@ function indun_panel_frame_contents(frame)
                     -- neringa golem
                     if key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or key == "spreader" or
                         key == "merregina" or key == "neringa" or key == "golem" then
-                        print(key)
+
                         for subKey, subValue in pairs(value) do
 
                             indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
@@ -585,7 +688,7 @@ function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
         [688] = {11200290, 10820036, 11200289, 11200288},
         [685] = {11200281, 10820035, 11200280, 11200279}
     }
-    print(tostring(subValue))
+
     session.ResetItemList()
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList()
@@ -610,9 +713,8 @@ function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
 
         local itemClass = GetClassByType('Item', raidTable[subValue][2])
         local icon = itemClass.Icon
-        local text = g.lang and
-                         string.format("{ol}{img %s 25 25 } %d個持っています。使用しますか？", icon,
-                count) or string.format("{ol}{img %s 25 25 } Use it?{nl} Quantity in Inventory", icon, count)
+        local text = g.lang and string.format("{ol}{img %s 25 25 } %d個持っています。", icon, count) or
+                         string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon, count)
 
         use:SetTextTooltip(text)
         use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
@@ -738,7 +840,7 @@ function indun_panel_raid_itemuse(frame, ctrl, argStr, induntype)
                 local classid = itemobj.ClassID
 
                 if classid == targetClassID then
-                    -- print(enter_count .. ":" .. sweep_count)
+
                     if enter_count == 2 and sweep_count >= 1 then
                         INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                         ReserveScript(
@@ -892,7 +994,7 @@ function indun_panel_challenge_frame(frame, key, y)
     cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
 
     local cha_ticketcount = frame:CreateOrGetControl("richtext", "cha_ticketcount", 520, y + 5, 40, 30)
-    print(tostring(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")))
+
     cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
                                 INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") ..
                                 " {img icon_item_Tos_Event_Coin 20 20}" ..
@@ -903,7 +1005,7 @@ end
 function indun_panel_singularity_frame(frame, key, y)
 
     local sin_n = frame:CreateOrGetControl('button', 'sin_n', 135, y, 80, 30)
-    sin_n:SetText("{ol}{#FFD900}AUTO")
+    sin_n:SetText("{ol}{#FFD900}520")
     sin_n:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_pt")
     sin_n:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
 
@@ -1119,6 +1221,7 @@ function indun_panel_velnice_frame(frame, y)
                 GET_COMMAED_STRING(indun_panel_overbuy_amount(velrecipename))) .. "{ol}{#FFFFFF})"
     end
     velamount:SetText(velamount_text)
+
 end
 
 function indun_panel_jsr_frame(frame, key, y)
@@ -1173,11 +1276,12 @@ function indun_panel_FIELD_BOSS_ENTER_TIMER_SETTING(frame)
         textstr = g.settings.en_ver == 1 and "Already Exit" or ClMsg("Already_Exit");
     end
 
+    local frame = ui.GetFrame("indun_panel")
     local jsrbtn = GET_CHILD_RECURSIVELY(frame, "jsrbtn")
     local y = jsrbtn:GetUserIValue("Y")
     local jsrtime = frame:CreateOrGetControl("richtext", "jsrtime", 220, y + 5, 10, 10)
     jsrtime:SetText("{ol}" .. textstr)
-
+    return 1
 end
 
 function indun_panel_buyuse(recipeName)
@@ -1290,9 +1394,9 @@ function indun_panel_item_use_cha(induntype, count)
         end
     end
 
-    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
+    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
     if event_trade_count >= 1 and count == 1 then
-        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_28")
+        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_315")
     else
         local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
         if trade_count >= 1 and count == 1 then

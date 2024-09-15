@@ -212,7 +212,7 @@
 		"name" : "Indun Panel",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.4.1",
+		"fileVersion" : "v1.4.2",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "チャレンジやレイドに入る支援パネルを設置します。<br>Set up a support panel to enter challenges and raids.<br>챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",
