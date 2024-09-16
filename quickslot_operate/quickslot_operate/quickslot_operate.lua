@@ -11,10 +11,11 @@
 -- v1.1.0 ストレートモード追加、キャラ毎のクイックスロット保存呼出機能追加。
 -- v1.1.1 INIT時に余計な読み込みで遅くなってたのを修正。ロードボタン押した時にパースする様に修正。
 -- v1.1.2 ロードボタン押した時のバグ修正
+-- v1.1.3 520アプデ対応
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -40,7 +41,7 @@ function g.SetupHook(func, baseFuncName)
 end
 
 local raid_list = {
-    Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681},
+    Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711},
     Klaida = {686, 685, 687},
     Velnias = {689, 688, 690, 669, 635, 628, 696, 695, 697},
     Forester = {672, 671, 670},
@@ -62,19 +63,10 @@ local down_potion_list = {
     Widling = 640377,
     Forester = 640376
 }
-
+-- ies.ipf/indun.ies レイド番号で探せ
 local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyForest", "Raid_AbyssalObserver",
                    "raid_Jellyzele", "raId_castle_ep14", "raid_giltine_AutoGuild", "raid_dcapital_108",
-                   "raid_kivotos_island"}
-
--- raid_Rosethemisterable roze
--- raid_castle_ep14_2 ファロプロゲ
--- Raid_DreamyForest　蝶々
--- Raid_AbyssalObserver　スロガ
--- raid_Jellyzele　クラゲ
--- raId_castle_ep14　デルムーア
--- raid_giltine_AutoGuild　ギルティネ
--- raid_dcapital_108　レジェンドギルティネ
+                   "raid_kivotos_island", "Raid_DarkNeringa", "Raid_CrystalGolem"}
 
 function quickslot_operate_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
