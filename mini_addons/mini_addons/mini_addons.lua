@@ -37,10 +37,11 @@
 -- v1.3.7 チャンネルインフォフレームをレイドなどでは表示しない様に。マーケット出店時の数量バグ修正。
 -- v1.3.8 マーケット出店時の数量バグ修正のバグ修正。
 -- v1.3.9 サウンドミュート機能。説明を韓国語版に翻訳。
+-- v1.4.0 ユラテコインも自動使用。バフリストバグってたの修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.9"
+local ver = "1.4.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -62,6 +63,12 @@ function g.SetupHook(func, baseFuncName)
     end
     base[baseFuncName] = _G[replacementName]
 end
+
+local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161,
+                   11200160, 11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212,
+                   11030211, 11030210, 11030201, 11035673, 11035670, 11035668, 11030394, 11030240, 646076, 11035672,
+                   11035669, 11035667, 11035457, 11035426, 11035409, 11201239, 11201238, 11201237, 11201236, 11201235,
+                   11201234, 11201233, 1101232}
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 g.buffsFileLoc = string.format('../addons/%s/buffs.json', addonNameLower)
@@ -1011,11 +1018,6 @@ function MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT(frame, msg)
     return
 end
 
-local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161,
-                   11200160, 11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212,
-                   11030211, 11030210, 11030201, 11035673, 11035670, 11035668, 11030394, 11030240, 646076, 11035672,
-                   11035669, 11035667, 11035457, 11035426, 11035409}
-
 -- 傭兵団コイン、女神コイン、王国再建団コインを取得時、自動で使用
 function MINI_ADDONS_INV_ICON_USE()
 
@@ -1587,26 +1589,34 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
         local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
         AUTO_CAST(buffslot)
         local buffCls = GetClassByType("Buff", buffID);
-        SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
+        print(tostring(buffCls))
+        if buffCls ~= nil then
+            SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
 
-        local icon = CreateIcon(buffslot)
-        AUTO_CAST(icon)
-        icon:SetTooltipType('buff');
-        icon:SetTooltipArg(buffCls.Name, buffID, 0);
+            local icon = CreateIcon(buffslot)
+            AUTO_CAST(icon)
+            icon:SetTooltipType('buff');
+            icon:SetTooltipArg(buffCls.Name, buffID, 0);
 
-        local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 45, y + 5, 30, 30)
-        AUTO_CAST(buffcheck)
-        local check = g.buffs[tostring(buffID)] or 0
-        buffcheck:SetCheck(check)
-        buffcheck:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFCHECK")
-        buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buffID)
-        buffcheck:SetText("{ol}" .. buffCls.Name)
-        local clsid = buffCls.ClassID
-        buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. clsid ..
-                                     "{nl}チェックするとパーティーバフ表示" or "{ol}" .. clsid ..
-                                     "{nl}Party buff display when checked")
-        y = y + 35
-        i = i + 1
+            local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 45, y + 5, 30, 30)
+            AUTO_CAST(buffcheck)
+            local check = g.buffs[tostring(buffID)] or 0
+
+            buffcheck:SetCheck(check)
+            buffcheck:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFCHECK")
+            buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buffID)
+
+            buffcheck:SetText("{ol}" .. buffCls.Name)
+            -- local clsid = buffCls.ClassID
+
+            buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buffID ..
+                                         "{nl}チェックするとパーティーバフ表示" or "{ol}" .. buffID ..
+                                         "{nl}Party buff display when checked")
+
+            y = y + 35
+            i = i + 1
+        end
+
     end
 
     bufflistframe:ShowWindow(1)
