@@ -61,7 +61,7 @@ local bufftbl = {
     }
 
 }
-local colortbl = {
+local color_tabel = {
     [1] = "C0C0C0", -- シルバー
     [2] = "ADFF2F", -- 黄緑
     [3] = "FFFF00", -- 黄色
@@ -74,7 +74,7 @@ local colortbl = {
     [10] = "4682B4" -- 白
 }
 
-local handlelist = {
+local sound_list = {
     [1] = "None",
     [2] = "premium_enchantchip",
     [3] = "system_craft_potion_succes",
@@ -98,12 +98,9 @@ local handlelist = {
     [21] = 'sys_atk_booster_on',
     [22] = "market buy",
     [23] = 'statsup'
-    -- "sys_alarm_fullcharge",
-    -- "sys_card_battle_roulette_turn",
-    -- "sys_class_change",
-    -- "button_v_click",
+
 }
-local effectlist = {
+local effect_list = {
     [1] = "None",
     [2] = "F_pattern025_loop",
     [3] = "F_buff_Cleric_Haste_Buff",
@@ -128,7 +125,7 @@ function SKILL_NOTICE_ON_INIT(addon, frame)
     addon:RegisterMsg('GAME_START', "skill_notice_frame_init")
 
     g.cid = session.GetMySession():GetCID()
-
+    g.buffs = {}
 end
 
 function skill_notice_load_settings()
@@ -147,6 +144,10 @@ function skill_notice_load_settings()
         }
     end
 
+    if not settings[tostring(g.cid)] then
+        settings[tostring(g.cid)] = {}
+    end
+
     g.settings = settings
     skill_notice_save_settings()
 end
@@ -155,180 +156,286 @@ function skill_notice_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
 end
 
-function skill_notice_buffid_edit(frame, ctrl, str, num)
-    local buff_id = tonumber(ctrl:GetText())
+function skill_notice_sound_setting(buff_id, sound)
+
+    imcSound.PlaySoundEvent(sound);
+    local buff_table = g.settings["buffs"]
+    if buff_table[tostring(buff_id)] then
+        buff_table[tostring(buff_id)].sound = sound
+        skill_notice_save_settings()
+    end
+end
+
+function skill_notice_sound_select(frame, ctrl, str, buff_id)
+
+    local context = ui.CreateContextMenu("SOUND_SETTING", "Sound Setting", 300, 0, 100, 100)
+    for i, sound in ipairs(sound_list) do
+        local script = string.format("skill_notice_sound_setting(%d,'%s')", buff_id, sound)
+        ui.AddContextMenuItem(context, sound, script)
+    end
+    ui.OpenContextMenu(context)
+end
+
+function skill_notice_color_test_close()
+    local frame = ui.GetFrame(addonNameLower .. "setting_frame")
+    local gauge_box = GET_CHILD_RECURSIVELY(frame, "gauge_box")
+    gauge_box:ShowWindow(0)
+end
+
+function skill_notice_color_test_gauge(buff_name, color_name, buff_id)
+    local frame = ui.GetFrame(addonNameLower .. "setting_frame")
+
+    local gauge_box = frame:CreateOrGetControl('groupbox', "gauge_box", 100, 10, 200, 30);
+    AUTO_CAST(gauge_box)
+    gauge_box:RemoveAllChild()
+
+    local gauge = gauge_box:CreateOrGetControl("gauge", "gauge", 5, 5, 180, 20);
+    AUTO_CAST(gauge)
+    imcSound.PlaySoundEvent("sys_tp_box_3")
+    ui.SysMsg(buff_name .. ":Gauge Color Setting")
+    gauge:SetSkinName("gauge");
+    gauge:SetColorTone(color_name);
+    gauge:SetPoint(5, 10);
+    gauge:AddStat('{ol}{s20}%v/%m');
+    gauge:SetStatFont(0, 'quickiconfont');
+    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+
+    frame:ShowWindow(1)
+    gauge_box:ShowWindow(1)
+    ReserveScript("skill_notice_color_test_close()", 3.0)
+end
+
+function skill_notice_color_select(frame, ctrl, connect_str, buff_id)
+    local split = SCR_STRING_CUT(connect_str, '/')
+    local buff_name = split[1]
+    local color_name = split[2]
+
+    local buff_table = g.settings["buffs"]
+    if buff_table[tostring(buff_id)] then
+        buff_table[tostring(buff_id)].color = color_name
+        skill_notice_save_settings()
+    end
+
+    skill_notice_color_test_gauge(buff_name, color_name, buff_id)
+end
+
+function skill_notice_effect_test(effectName, sound, size)
+
+    local myHandle = session.GetMyHandle();
+    local actor = world.GetActor(myHandle)
+    effect.AddActorEffectByOffset(actor, effectName, size, "MID", true, true);
+    effect.DetachActorEffect(actor, effectName, 5.0);
+    if sound ~= "None" then
+        imcSound.PlaySoundEvent(sound);
+    end
+end
+
+function skill_notice_effect_setting(buff_id, effect_Name)
+
+    local size = 0
+    local sound
+
+    local buff_table = g.settings["buffs"]
+
+    if buff_table[tostring(buff_id)] then
+        buff_table[tostring(buff_id)].effect = effect_Name
+        size = buff_table[tostring(buff_id)].size
+        sound = buff_table[tostring(buff_id)].sound
+    end
+    skill_notice_save_settings()
+    ReserveScript(string.format("skill_notice_effect_test('%s','%s',%d)", effect_Name, sound, size), 0.1)
+end
+
+function skill_notice_effect_select(frame, ctrl, str, buff_id)
+
+    local context = ui.CreateContextMenu("SOUND_SETTING", "Effect Setting", 300, 0, 100, 100)
+    for i, effect_Name in ipairs(effect_list) do
+        local script = string.format("skill_notice_effect_setting(%d,'%s')", buff_id, effect_Name)
+        ui.AddContextMenuItem(context, effect_Name, script)
+    end
+    ui.OpenContextMenu(context)
+end
+
+-- use color effect sound size max_count
+function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save)
+    local frame = ui.GetFrame(frame_name)
+    local buff_id = tonumber(buffid_edit:GetText())
+    if buff_id == nil then
+        return
+    end
+    local buff_class = GetClassByType("Buff", buff_id)
+    if buff_class ~= nil then
+        local buff_slot = GET_CHILD_RECURSIVELY(frame, "buff_slot" .. index)
+        local buff_name = buff_class.Name
+        local image_name = GET_BUFF_ICON_NAME(buff_class);
+        SET_SLOT_ICON(buff_slot, image_name)
+
+        local icon = CreateIcon(buff_slot)
+        AUTO_CAST(icon)
+        icon:SetTooltipType('buff');
+        icon:SetTooltipArg(buff_name, buff_id, 0);
+        buff_slot:Invalidate();
+
+        local buff_name = buff_class.Name
+        local y = index == 1 and 50 or (index - 1) * 80 + 50
+        local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. index, 10, y - 20, 200, 20)
+        AUTO_CAST(buff_text)
+        buff_text:SetText("{ol}" .. buff_name)
+
+        local sound_text = frame:CreateOrGetControl("richtext", "sound_text" .. index, 70, y, 200, 20)
+        AUTO_CAST(sound_text)
+        sound_text:SetText("{ol}Sound Config")
+
+        local sound_config = frame:CreateOrGetControl("button", "sound_config" .. index, 180, y, 25, 25)
+        AUTO_CAST(sound_config)
+        sound_config:SetSkinName("None")
+        sound_config:SetText("{img config_button_normal 25 25}")
+        sound_config:SetEventScript(ui.LBUTTONUP, "skill_notice_sound_select")
+        sound_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+
+        local color_text = frame:CreateOrGetControl("richtext", "color_text" .. index, 220, y, 200, 20)
+        AUTO_CAST(color_text)
+        color_text:SetText("{ol}Gauge Color")
+
+        local color_box = frame:CreateOrGetControl('groupbox', "color_box" .. index, 320, y, 220, 20);
+        AUTO_CAST(color_box)
+        for i = 0, 9 do
+            local color_class = color_tabel[i + 1]
+
+            if color_class ~= nil then
+                local color = color_box:CreateOrGetControl("picture", "color" .. index .. "_" .. i, 20 * i, 0, 20, 20);
+                AUTO_CAST(color)
+                color:SetImage("chat_color");
+                color:SetColorTone("FF" .. color_class)
+                color:SetEventScript(ui.LBUTTONUP, "skill_notice_color_select")
+                color:SetEventScriptArgString(ui.LBUTTONUP, buff_name .. "/" .. "FF" .. color_class)
+                color:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+
+            end
+        end
+
+        local effect_text = frame:CreateOrGetControl("richtext", "effect_text" .. index, 70, y + 30, 200, 20)
+        AUTO_CAST(effect_text)
+        effect_text:SetText("{ol}Effect Config")
+
+        local effect_config = frame:CreateOrGetControl("button", "effect_config" .. index, 180, y + 30, 25, 25)
+        AUTO_CAST(effect_config)
+        effect_config:SetSkinName("None")
+        effect_config:SetText("{img config_button_normal 25 25}")
+        effect_config:SetEventScript(ui.LBUTTONUP, "skill_notice_effect_select")
+        effect_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+
+        if no_save == nil then
+            local buff_table = g.settings["buffs"]
+            buff_table[tostring(buff_id)] = buff_table[tostring(buff_id)] or {}
+            buff_table[tostring(buff_id)].name = buff_name
+            buff_table[tostring(buff_id)].color = "FFFFFF00"
+            buff_table[tostring(buff_id)].effect = "None"
+            buff_table[tostring(buff_id)].sound = "None"
+            buff_table[tostring(buff_id)].size = 2
+            buff_table[tostring(buff_id)].max_count = 10
+            buff_table[tostring(buff_id)].mode = "gauge"
+            skill_notice_save_settings()
+            skill_notice_frame_init()
+        end
+    end
 end
 
 function skill_notice_setting(frame, ctrl, argStr, argNum)
-    local newframe = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "_new", 0, 0, 200, 400)
-    AUTO_CAST(newframe)
-    newframe:SetSkinName("test_frame_midle_light")
-    newframe:SetPos(200, 300)
-    newframe:SetLayerLevel(61);
-    newframe:Resize(540, 440)
-    newframe:RemoveAllChild()
+    local setting_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting_frame", 0, 0, 200, 400)
+    AUTO_CAST(setting_frame)
+    setting_frame:SetSkinName("test_frame_midle_light")
+    setting_frame:SetPos(200, 300)
+    setting_frame:SetLayerLevel(61);
+    setting_frame:RemoveAllChild()
 
-    local text = newframe:CreateOrGetControl("richtext", "text", 20, 5, 200, 20)
-    AUTO_CAST(text)
-    text:SetText("{ol}Skill Notice Setting")
+    local title_text = setting_frame:CreateOrGetControl("richtext", "title_text", 20, 5, 200, 20)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Skill Notice Setting")
 
-    local close = newframe:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    local close = setting_frame:CreateOrGetControl("button", "close", 0, 0, 20, 20)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
     close:SetGravity(ui.RIGHT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "skill_notice_newframe_close")
-    newframe:ShowWindow(1)
 
     local buff_table = g.settings["buffs"]
     local y = 50
     local index = 1
-    if next(buff_table) == nil then
-        local slot = newframe:CreateOrGetControl("slot", "slot" .. index, 10, y, 50, 50)
-        AUTO_CAST(slot)
-        slot:EnablePop(0)
-        slot:EnableDrop(0)
-        slot:EnableDrag(0)
-        slot:SetSkinName('invenslot2');
 
-        local buffid_edit = newframe:CreateOrGetControl("edit", "buffid_edit" .. index, 70, y, 50, 20)
+    -- 関数なしでスロットと編集ボックスを生成する共通処理をまとめたパターン
+    local function create_slot_and_edit(index, y, buff_id)
+        -- スロットの生成
+        local buff_slot = setting_frame:CreateOrGetControl("slot", "buff_slot" .. index, 10, y, 50, 50)
+        AUTO_CAST(buff_slot)
+        buff_slot:EnablePop(0)
+        buff_slot:EnableDrop(0)
+        buff_slot:EnableDrag(0)
+        buff_slot:SetSkinName('invenslot2')
+
+        if buff_id then
+            local buff_class = GetClassByType("Buff", buff_id)
+            local buff_name = buff_class.Name
+            local image_name = GET_BUFF_ICON_NAME(buff_class)
+            SET_SLOT_ICON(buff_slot, image_name)
+
+            local icon = CreateIcon(buff_slot)
+            AUTO_CAST(icon)
+            icon:SetTooltipType('buff')
+            icon:SetTooltipArg(buff_name, buff_id, 0)
+            buff_slot:Invalidate()
+        end
+
+        -- 編集ボックスの生成
+        local buffid_edit = setting_frame:CreateOrGetControl("edit", "buffid_edit" .. index, 0, y, 50, 20)
         AUTO_CAST(buffid_edit)
         buffid_edit:SetFontName("white_16_ol")
         buffid_edit:SetTextAlign("center", "center")
+
+        if buff_id then
+            buffid_edit:SetText(buff_id)
+        end
+
         buffid_edit:SetEventScript(ui.ENTERKEY, "skill_notice_buffid_edit")
+        buffid_edit:SetEventScriptArgString(ui.ENTERKEY, setting_frame:GetName())
+        buffid_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
+
+        -- 必要に応じてスクリプトを呼び出す
+        if buff_id then
+            local no_save = true
+            skill_notice_buffid_edit(frame, buffid_edit, setting_frame:GetName(), index, no_save)
+        end
+    end
+
+    -- バフが空の場合
+    if next(buff_table) == nil then
+        create_slot_and_edit(index, y, nil)
     else
-        -- テーブルが空でない場合は通常の処理
-        for key, value in pairs(buff_table) do
-            print(key .. ":" .. value)
+        -- バフがある場合、テーブル内のバフ情報をループ
+        for str_buff_id, _ in pairs(buff_table) do
+            local buff_id = tonumber(str_buff_id)
+            create_slot_and_edit(index, y, buff_id)
+            index = index + 1
+            y = y + 80
         end
+        -- 新しいスロットの生成
+        create_slot_and_edit(index, y, nil)
     end
-    --[[local y = 50
-    for index, buffData in ipairs(bufftbl) do
 
-        local buffName = newframe:CreateOrGetControl("richtext", "buffName" .. index, 10, y - 20, 200, 20)
-        AUTO_CAST(buffName)
-        buffName:SetText("{ol}" .. buffData.text)
-
-        local sound = newframe:CreateOrGetControl("richtext", "sound" .. index, 70, y, 200, 20)
-        AUTO_CAST(sound)
-        sound:SetText("{ol}Sound Config")
-
-        local soundconfig = newframe:CreateOrGetControl("button", "soundconfig" .. index, 180, y, 25, 25)
-        AUTO_CAST(soundconfig)
-        soundconfig:SetSkinName("None")
-        soundconfig:SetText("{img config_button_normal 25 25}")
-        soundconfig:SetEventScript(ui.LBUTTONUP, "skill_notice_sound_select")
-        soundconfig:SetEventScriptArgString(ui.LBUTTONUP, buffData.text)
-
-        if buffData.text ~= "Battle Spirit 8" then
-            local gaugecolor = newframe:CreateOrGetControl("richtext", "gaugecolor" .. index, 220, y, 200, 20)
-            AUTO_CAST(gaugecolor)
-            gaugecolor:SetText("{ol}Gauge Color")
-
-            local colorbox = newframe:CreateOrGetControl('groupbox', "colorbox" .. index, 320, y, 220, 20);
-            AUTO_CAST(colorbox)
-            for i = 0, 9 do
-                local colorCls = colortbl[i + 1]
-
-                if colorCls ~= nil then
-                    local color =
-                        colorbox:CreateOrGetControl("picture", "color" .. index .. "_" .. i, 20 * i, 0, 20, 20);
-                    AUTO_CAST(color)
-                    color:SetImage("chat_color");
-                    color:SetColorTone("FF" .. colorCls)
-                    color:SetEventScript(ui.LBUTTONUP, "skill_notice_color_select")
-                    color:SetEventScriptArgString(ui.LBUTTONUP, buffData.text .. "/" .. "FF" .. colorCls)
-                    color:SetEventScriptArgNumber(ui.LBUTTONUP, buffData.id)
-
-                end
-            end
-        end
-        local effect = newframe:CreateOrGetControl("richtext", "effect" .. index, 70, y + 30, 200, 20)
-        AUTO_CAST(effect)
-        effect:SetText("{ol}Effect Config")
-
-        local effectconfig = newframe:CreateOrGetControl("button", "effectconfig" .. index, 180, y + 30, 25, 25)
-        AUTO_CAST(effectconfig)
-        effectconfig:SetSkinName("None")
-        effectconfig:SetText("{img config_button_normal 25 25}")
-        effectconfig:SetEventScript(ui.LBUTTONUP, "skill_notice_effect_select")
-        effectconfig:SetEventScriptArgString(ui.LBUTTONUP, buffData.text)
-
-        local effectsize = newframe:CreateOrGetControl("richtext", "effectsize" .. index, 220, y + 30, 200, 20)
-        AUTO_CAST(effectsize)
-        effectsize:SetText("{ol}Effect Size")
-
-        local effectedit = newframe:CreateOrGetControl("edit", "effectedit" .. index, 310, y + 30, 50, 20)
-        AUTO_CAST(effectedit)
-        effectedit:SetFontName("white_16_ol")
-        effectedit:SetTextAlign("center", "center")
-
-        if buffData.text == "Pyktis" then
-            effectedit:SetText("{ol}" .. g.settings.pyktis.size)
-
-        elseif buffData.text == "Battle Spirit 8" then
-            effectedit:SetText("{ol}" .. g.settings.battlespirit8.size)
-
-        elseif buffData.text == "Battle Spirit 10" then
-            effectedit:SetText("{ol}" .. g.settings.battlespirit10.size)
-
-        elseif buffData.text == "Charge Arrow" then
-            effectedit:SetText("{ol}" .. g.settings.chargearrow.size)
-
-        elseif buffData.text == "Reload" then
-            effectedit:SetText("{ol}" .. g.settings.reload.size)
-        end
-
-        effectedit:SetEventScript(ui.ENTERKEY, "skill_notice_effect_size")
-        effectedit:SetEventScriptArgString(ui.ENTERKEY, buffData.text)
-
-        if buffData.text ~= "Battle Spirit 8" then
-            local display = newframe:CreateOrGetControl("richtext", "display" .. index, 370, y + 30, 200, 20)
-            AUTO_CAST(display)
-            display:SetText("{ol}display or hide")
-
-            local displaycheck = newframe:CreateOrGetControl("checkbox", "displaycheck" .. index, 500, y + 30, 200, 20)
-            AUTO_CAST(displaycheck)
-            displaycheck:SetTextTooltip("Check to display{nl}Settings for each character")
-            local LoginName = session.GetMySession():GetPCApc():GetName()
-            displaycheck:SetCheck(g.settings[LoginName][buffData.name])
-
-            displaycheck:SetEventScript(ui.LBUTTONUP, "skill_notice_ischeck")
-            displaycheck:SetEventScriptArgString(ui.LBUTTONUP, buffData.name)
-        end
-
-        local slot = newframe:CreateOrGetControl("slot", "slot" .. index, 10, y, 50, 50)
-        AUTO_CAST(slot)
-        slot:EnablePop(0)
-        slot:EnableDrop(0)
-        slot:EnableDrag(0)
-        slot:SetSkinName('invenslot2');
-        local buff = GetClassByType("Buff", buffData.id);
-        local imageName = GET_BUFF_ICON_NAME(buff);
-        SET_SLOT_ICON(slot, imageName)
-
-        local icon = CreateIcon(slot)
-        AUTO_CAST(icon)
-        icon:SetTooltipType('buff');
-        icon:SetTooltipArg(buff.Name, buffData.id, 0);
-
-        slot:Invalidate();
-
-        y = y + 80
-    end
-    skill_notice_frame_init(frame)]]
+    -- ウィンドウのリサイズと表示
+    setting_frame:Resize(540, y + 20)
+    setting_frame:ShowWindow(1)
 end
 
-function skill_notice_frame_init(frame)
+function skill_notice_frame_init()
 
     local frame = ui.GetFrame("skill_notice")
     frame:RemoveAllChild()
-    frame:SetSkinName("chat_window");
-    frame:SetAlpha(20);
+    frame:SetSkinName("chat_window")
+    frame:SetAlpha(20)
     frame:SetTitleBarSkin("None")
-    frame:EnableMove(1);
+    frame:EnableMove(1)
     frame:EnableHitTest(1)
-
-    frame:Resize(200, 400);
     frame:SetEventScript(ui.LBUTTONUP, "skill_notice_end_drag")
     frame:SetEventScript(ui.RBUTTONUP, "skill_notice_setting")
 
@@ -345,328 +452,168 @@ function skill_notice_frame_init(frame)
     buffgb:SetSkinName("None");
     buffgb:RemoveAllChild()
 
-    local LoginName = session.GetMySession():GetPCApc():GetName()
+    local buff_table = g.settings["buffs"]
+    local cid_table = g.settings[tostring(g.cid)]
     local y = 0
-    local colortone = ""
-    local max = 0
-    for index, buffData in ipairs(bufftbl) do
+    for str_buff_id, _ in pairs(buff_table) do
 
-        if g.settings[LoginName][buffData.name] == nil then
-            g.settings[LoginName][buffData.name] = 1
-            skill_notice_save_settings()
+        if cid_table[str_buff_id] == nil then
+            cid_table[str_buff_id] = {}
+            cid_table[str_buff_id].use = "YES"
         end
 
-        if index ~= 2 then
-            if g.settings[LoginName][buffData.name] == 1 then
-                local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buffData.name, 10, y * 25 + 10, 160, 20);
-                AUTO_CAST(gauge)
+        local buff_id = tonumber(str_buff_id)
 
-                if buffData.text == "Pyktis" then
-                    colortone = g.settings.pyktis.color
-                    max = 30
-                elseif buffData.text == "Battle Spirit 10" then
-                    colortone = g.settings.battlespirit10.color
-                    max = 10
-                elseif buffData.text == "Charge Arrow" then
-                    colortone = g.settings.chargearrow.color
-                    max = 5
-                elseif buffData.text == "Reload" then
-                    colortone = g.settings.reload.color
-                    max = 10
-                end
+        if cid_table[str_buff_id].use == "YES" then
+            local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buff_id, 10, y * 25 + 10, 160, 20);
+            AUTO_CAST(gauge)
+            local myHandle = session.GetMyHandle()
+            local actor = world.GetActor(myHandle)
+            local buff = info.GetBuff(myHandle, buff_id)
 
-                local myHandle = session.GetMyHandle()
-                local actor = world.GetActor(myHandle)
-                local buff = info.GetBuff(myHandle, buffData.id)
-
-                gauge:SetSkinName("gauge");
-                gauge:SetColorTone(colortone);
-                if buff ~= nil then
-                    gauge:SetPoint(buff.over, max);
-                    gauge:AddStat('{ol}{s20}%v/%m');
-                    gauge:SetStatFont(0, 'quickiconfont');
-                    gauge:SetStatOffset(0, 20, 0);
-                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
-                else
-                    gauge:SetPoint(0, max);
-                    gauge:AddStat('{ol}{s20}%v/%m');
-                    gauge:SetStatFont(0, 'quickiconfont');
-                    gauge:SetStatOffset(0, 20, 0);
-                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
-                end
-
-                local bufftext = buffgb:CreateOrGetControl("richtext", "bufftext" .. buffData.name, 0, y * 25 + 10, 160,
-                                                           20)
-                AUTO_CAST(bufftext)
-
-                if buffData.name == "Thunder_Charge_Buff" then
-                    bufftext:SetText("{ol}{s12}" .. buffData.text)
-                elseif buffData.name == "BattleSpirit_Buff" then
-                    bufftext:SetText("{ol}{s12}Battle Spirit")
-                elseif buffData.name == "ChargeArrow_Buff" then
-                    bufftext:SetText("{ol}{s12}" .. buffData.text)
-                elseif buffData.name == "Reload_Buff" then
-                    bufftext:SetText("{ol}{s12}" .. buffData.text)
-                end
-
-                y = y + 1
+            gauge:SetSkinName("gauge");
+            gauge:SetColorTone(buff_table[str_buff_id]);
+            if buff ~= nil then
+                gauge:SetPoint(buff.over, buff_table[str_buff_id].max_count);
+                gauge:AddStat('{ol}{s20}%v/%m');
+                gauge:SetStatFont(0, 'quickiconfont');
+                gauge:SetStatOffset(0, 20, 0);
+                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+            else
+                gauge:SetPoint(0, max);
+                gauge:AddStat('{ol}{s20}%v/%m');
+                gauge:SetStatFont(0, 'quickiconfont');
+                gauge:SetStatOffset(0, 20, 0);
+                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
             end
+
+            local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160, 20)
+            AUTO_CAST(buff_text)
+            buff_text:SetText("{ol}{s12}" .. buff_table[str_buff_id].name)
+
+            y = y + 1
         end
+
     end
+    skill_notice_save_settings()
 
     buffgb:Resize(180, y * 25 + 30)
     frame:Resize(180, y * 25 + 30)
-    frame:ShowWindow(1);
-
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-    if g.settings[LoginName].new_check.use == 1 then
-        frame:RunUpdateScript("skill_notice_new_buff_frame", 0.1);
-
-    end
+    frame:ShowWindow(1)
 
 end
 
-function skill_notice_buff_remove(frame, msg, argStr, argNum)
+function skill_notice_buff_remove(frame, msg, str, buff_type)
     local frame = ui.GetFrame("skill_notice")
     local myHandle = session.GetMyHandle()
     local actor = world.GetActor(myHandle)
-    local bufftype = argNum
 
-    for index, buffData in ipairs(bufftbl) do
-        if tostring(bufftype) == tostring(buffData.id) then
-            local text = buffData.text
-            local max = buffData.max
+    local buff_table = g.settings["buffs"]
+    local cid_table = g.settings[tostring(g.cid)]
 
-            local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.name)
+    for str_buff_id, _ in pairs(buff_table) do
+        if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
+            local buff_id = tonumber(str_buff_id)
+            local effect = buff_table[str_buff_id].effect
+            local max = buff_table[str_buff_id].max_count
+
+            local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
             AUTO_CAST(gauge)
             gauge:RemoveAllChild()
             gauge:SetPoint(0, max);
-            -- gauge:AddStat("");
-            -- gauge:AddStat('{ol}{s20}%v/%m');
             gauge:SetStatFont(0, 'quickiconfont');
             gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
             gauge:EnableHitTest(0)
 
-            -- pyktis
-            if bufftype == 1158 then
-                if g.settings.pyktis.effect ~= "None" then
-                    effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
-                end
-                gauge:SetColorTone(g.settings.pyktis.color);
-                g.pyktismax = 0
-            elseif bufftype == 1164 then
-                if g.settings.chargearrow.effect ~= "None" then
-                    effect.DetachActorEffect(actor, g.settings.chargearrow.effect, 0);
-                end
-                gauge:SetColorTone(g.settings.chargearrow.color);
-                g.chargearrow = 0
-            elseif bufftype == 1112 then
-                if g.settings.reload.effect ~= "None" then
-                    effect.DetachActorEffect(actor, g.settings.reload.effect, 0);
-                end
-                gauge:SetColorTone(g.settings.reload.color);
-                g.reload = 0
-            elseif bufftype == 1163 then
-                if g.settings.battlespirit8.effect ~= "None" then
-                    effect.DetachActorEffect(actor, g.settings.battlespirit8.effect, 0);
-                end
-                if g.settings.battlespirit10.effect ~= "None" then
-                    effect.DetachActorEffect(actor, g.settings.battlespirit10.effect, 0);
-                end
-                gauge:SetColorTone(g.settings.battlespirit10.color);
-                g.battlespirit10max = 0
-            end
+            gauge:SetColorTone(buff_table[str_buff_id].color);
 
+            if effect ~= "None" then
+                effect.DetachActorEffect(actor, buff_table[str_buff_id].effect, 0)
+            end
+            g.buffs[str_buff_id] = nil
         end
     end
 end
-function skill_notice_buff_add(frame, msg, argStr, argNum)
+
+function skill_notice_buff_add(frame, msg, str, buff_type)
     local frame = ui.GetFrame("skill_notice")
     local myHandle = session.GetMyHandle()
     local actor = world.GetActor(myHandle)
-    local bufftype = argNum
 
-    for index, buffData in ipairs(bufftbl) do
-        if tostring(bufftype) == tostring(buffData.id) then
-            local text = buffData.text
-            local max = buffData.max
-            local buff = info.GetBuff(myHandle, buffData.id);
+    local buff_table = g.settings["buffs"]
+    local cid_table = g.settings[tostring(g.cid)]
 
-            if buff ~= nil then
-                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.name)
+    for str_buff_id, _ in pairs(buff_table) do
+        if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
+            local buff_id = tonumber(str_buff_id)
+            local max = buff_table[str_buff_id].max_count
+            local buff_class = info.GetBuff(myHandle, buff_id)
+
+            if buff_class ~= nil then
+                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
                 AUTO_CAST(gauge)
                 gauge:RemoveAllChild()
-                gauge:SetPoint(buff.over, max);
-                -- gauge:AddStat("");
-                -- gauge:AddStat('{ol}{s20}%v/%m');
+                gauge:SetPoint(buff_class.over, max)
                 gauge:SetStatFont(0, 'quickiconfont');
                 gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 gauge:EnableHitTest(0)
 
+                g.buffs[str_buff_id] = false
             end
 
         end
     end
+
 end
-function skill_notice_buff_update(frame, msg, argStr, argNum)
+
+function skill_notice_buff_update(frame, msg, str, buff_type)
 
     local frame = ui.GetFrame("skill_notice")
     local myHandle = session.GetMyHandle()
     local actor = world.GetActor(myHandle)
-    local bufftype = argNum
 
-    for index, buffData in ipairs(bufftbl) do
-        if tostring(bufftype) == tostring(buffData.id) then
-            local text = buffData.text
-            local max = buffData.max
-            local buff = info.GetBuff(myHandle, buffData.id);
+    local buff_table = g.settings["buffs"]
+    local cid_table = g.settings[tostring(g.cid)]
 
-            if buff ~= nil then
-                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buffData.name)
+    for str_buff_id, _ in pairs(buff_table) do
+        if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
+            local buff_id = tonumber(str_buff_id)
+            local max = buff_table[str_buff_id].max_count
+            local buff_class = info.GetBuff(myHandle, buff_id)
+
+            if buff_class ~= nil then
+                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
                 AUTO_CAST(gauge)
                 gauge:RemoveAllChild()
-                gauge:SetPoint(buff.over, max);
-                -- gauge:AddStat("");
-                -- gauge:AddStat('{ol}{s20}%v/%m');
+                gauge:SetPoint(buff_class.over, max)
                 gauge:SetStatFont(0, 'quickiconfont');
                 gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 gauge:EnableHitTest(0)
 
-                -- pyktis
-                if bufftype == 1158 and buff.over == buffData.max and g.pyktismax == 0 then
-                    if g.settings.pyktis.effect ~= "None" then
-                        -- effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
-                        effect.AddActorEffectByOffset(actor, g.settings.pyktis.effect, g.settings.pyktis.size, "MID",
-                                                      true, true);
+                if buff_class.over == max and not g.buffs[buff_id] then
+                    local effect = buff_table[str_buff_id].effect
+                    local size = buff_table[str_buff_id].size
+                    effect.AddActorEffectByOffset(actor, effect, size, "MID", true, true)
+
+                    local sound = buff_table[str_buff_id].sound
+                    if sound ~= "None" then
+                        imcSound.PlaySoundEvent(sound)
                     end
-                    if g.settings.pyktis.sound ~= "None" then
-                        imcSound.PlaySoundEvent(g.settings.pyktis.sound);
-                    end
-                    gauge:SetColorTone("FFFF0000");
-                    g.pyktismax = 1
-                    --[[elseif bufftype == 1158 and buff.over == buffData.max then
-                    if g.settings.pyktis.effect ~= "None" then
-                        effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
-                        effect.AddActorEffectByOffset(actor, g.settings.pyktis.effect, g.settings.pyktis.size, "MID",
-                            true, true);
-                    end
-                    gauge:SetColorTone("FFFF0000");]]
-                elseif bufftype == 1158 and buff.over ~= buffData.max then
-                    if g.settings.pyktis.effect ~= "None" then
-                        effect.DetachActorEffect(actor, g.settings.pyktis.effect, 0);
-                    end
-                    gauge:SetColorTone(g.settings.pyktis.color);
-                    g.pyktismax = 0
+                    gauge:SetColorTone("FFFF0000")
+                    g.buffs[str_buff_id] = true
                 end
-
-                -- chargearrow
-                if bufftype == 1164 and buff.over == buffData.max and g.chargearrow == 0 then
-                    if g.settings.chargearrow.effect ~= "None" then
-
-                        effect.AddActorEffectByOffset(actor, g.settings.chargearrow.effect, g.settings.chargearrow.size,
-                                                      "MID", true, true);
-                    end
-                    if g.settings.chargearrow.sound ~= "None" then
-                        imcSound.PlaySoundEvent(g.settings.chargearrow.sound);
-                    end
-                    gauge:SetColorTone("FFFF0000");
-                    g.chargearrow = 1
-                    --[[elseif bufftype == 1164 and buff.over == buffData.max then
-                    if g.settings.chargearrow.effect ~= "None" then
-                        effect.AddActorEffectByOffset(actor, g.settings.chargearrow.effect, g.settings.chargearrow.size,
-                            "MID", true, true);
-                    end
-                    gauge:SetColorTone("FFFF0000");]]
-                elseif bufftype == 1164 and buff.over ~= buffData.max then
-                    if g.settings.chargearrow.effect ~= "None" then
-                        effect.DetachActorEffect(actor, g.settings.chargearrow.effect, 0);
-                    end
-
-                    gauge:SetColorTone(g.settings.chargearrow.color);
-                    g.chargearrow = 0
-                end
-
-                -- reload
-                if bufftype == 1112 and buff.over == buffData.max and g.reload == 0 then
-                    if (IsBattleState(GetMyPCObject()) == 1) then
-                        if g.settings.reload.effect ~= "None" then
-
-                            effect.AddActorEffectByOffset(actor, g.settings.reload.effect, g.settings.reload.size,
-                                                          "MID", true, true);
-                        end
-                        if g.settings.reload.sound ~= "None" then
-                            imcSound.PlaySoundEvent(g.settings.reload.sound);
-                        end
-                    end
-                    gauge:SetColorTone("FFFF0000");
-                    g.reload = 1
-                    --[[elseif bufftype == 1112 and buff.over == buffData.max then
-                    if (IsBattleState(GetMyPCObject()) == 1) then
-                        if g.settings.reload.effect ~= "None" then
-                           
-                            effect.AddActorEffectByOffset(actor, g.settings.reload.effect, g.settings.reload.size,
-                                "MID", true, true);
-                        end
-                    end
-                    gauge:SetColorTone("FFFF0000");]]
-                elseif bufftype == 1112 and buff.over ~= buffData.max then
-                    if g.settings.reload.effect ~= "None" then
-                        effect.DetachActorEffect(actor, g.settings.reload.effect, 0);
-                    end
-                    gauge:SetColorTone(g.settings.reload.color);
-                    g.reload = 0
-                end
-
-                -- battlespirit
-                if bufftype == 1163 and buff.over == 8 then
-                    if g.settings.battlespirit8.effect ~= "None" then
-                        effect.AddActorEffectByOffset(actor, g.settings.battlespirit8.effect,
-                                                      g.settings.battlespirit8.size, "MID", true, true);
-                    end
-                    if g.settings.battlespirit8.sound ~= "None" then
-                        imcSound.PlaySoundEvent(g.settings.battlespirit8.sound);
-                    end
-                elseif bufftype == 1163 and buff.over == 10 and g.battlespirit10max == 0 then
-                    if g.settings.battlespirit8.effect ~= "None" then
-                        effect.DetachActorEffect(actor, g.settings.battlespirit8.effect, 0);
-                    end
-                    if g.settings.battlespirit10.effect ~= "None" then
-                        effect.AddActorEffectByOffset(actor, g.settings.battlespirit10.effect,
-                                                      g.settings.battlespirit10.size, "MID", true, true);
-                    end
-                    if g.settings.battlespirit10.sound ~= "None" then
-                        imcSound.PlaySoundEvent(g.settings.battlespirit10.sound);
-                    end
-                    gauge:SetColorTone("FFFF0000");
-                    g.battlespirit10max = 1
-
-                elseif bufftype == 1163 and buff.over < 8 then
-                    if g.settings.battlespirit8.effect ~= "None" then
-                        effect.DetachActorEffect(actor, g.settings.battlespirit8.effect, 0);
-                    end
-                    if g.settings.battlespirit10.effect ~= "None" then
-                        effect.DetachActorEffect(actor, g.settings.battlespirit10.effect, 0);
-                    end
-                    gauge:SetColorTone(g.settings.battlespirit10.color);
-
-                end
-
             end
 
         end
     end
+
 end
 
-function skill_notice_end_drag(frame, ctrl, argStr, argNum)
+function skill_notice_end_drag(frame, ctrl, str, num)
 
-    if frame:GetName() == "notice_frame" then
-        g.settings.new_x = frame:GetX();
-        g.settings.new_y = frame:GetY();
-    else
-        local frame = ui.GetFrame("skill_notice")
-
-        g.settings.x = frame:GetX();
-        g.settings.y = frame:GetY();
+    if frame:GetName() == "skill_notice" then
+        g.settings.x = frame:GetX()
+        g.settings.y = frame:GetY()
     end
     skill_notice_save_settings()
 end
@@ -818,71 +765,6 @@ function skill_notice_effect_test_size(argStr, size)
 
 end
 
-function skill_notice_effect_select(frame, ctrl, argStr, argNum)
-
-    local context = ui.CreateContextMenu("SOUND_SETTING", "Effect Setting", 300, 0, 100, 100)
-
-    for i, effect in ipairs(effectlist) do
-
-        local scp = string.format("skill_notice_effect_setting('%s','%s')", argStr, effect)
-        ui.AddContextMenuItem(context, effect, scp)
-    end
-
-    ui.OpenContextMenu(context)
-end
-
-function skill_notice_effect_setting(argStr, effect)
-
-    local effectName = tostring(effect)
-    local size = 0
-    local sound
-
-    if argStr == "Pyktis" then
-
-        g.settings.pyktis.effect = effect
-        size = g.settings.pyktis.size
-        sound = g.settings.pyktis.sound
-
-    elseif argStr == "Battle Spirit 8" then
-        g.settings.battlespirit8.effect = effect
-        size = g.settings.battlespirit8.size
-        sound = g.settings.battlespirit8.sound
-
-    elseif argStr == "Battle Spirit 10" then
-        g.settings.battlespirit10.effect = effect
-        size = g.settings.battlespirit10.size
-        sound = g.settings.battlespirit10.sound
-
-    elseif argStr == "Charge Arrow" then
-        g.settings.chargearrow.effect = effect
-        size = g.settings.chargearrow.size
-        sound = g.settings.chargearrow.sound
-
-    elseif argStr == "Reload" then
-        g.settings.reload.effect = effect
-        size = g.settings.reload.size
-        sound = g.settings.reload.sound
-
-    end
-    skill_notice_save_settings()
-    ReserveScript(string.format("skill_notice_effect_test('%s','%s',%d)", effectName, sound, size), 0.1)
-
-end
-
-function skill_notice_effect_test(effectName, sound, size)
-
-    local myHandle = session.GetMyHandle();
-    local actor = world.GetActor(myHandle)
-
-    effect.AddActorEffectByOffset(actor, effectName, tonumber(size), "MID", true, true);
-    effect.DetachActorEffect(actor, effectName, 5.0);
-
-    if sound ~= "None" then
-        imcSound.PlaySoundEvent(sound);
-    end
-
-end
-
 -- local myHandle = session.GetMyHandle();
 -- local actor = world.GetActor(myHandle)
 -- local effectName = "F_pattern025_loop"
@@ -896,89 +778,6 @@ end
 
 -- effect.DetachActorEffect(actor, effectName, 0);
 -- effect.AddActorEffectByOffset(actor, effectName, 3.0, "MID", true, true);
-
-function skill_notice_color_select(frame, ctrl, argStr, argNum)
-    local split = SCR_STRING_CUT(argStr, '/')
-    local front = split[1]
-    local back = split[2]
-    local buffid = argNum
-    skill_notice_color_test_gauge(front, back, buffid)
-
-    if front == "Pyktis" then
-        g.settings.pyktis.color = back
-    elseif front == "Battle Spirit 8" then
-        g.settings.battlespirit8.color = back
-    elseif front == "Battle Spirit 10" then
-        g.settings.battlespirit10.color = back
-    elseif front == "Charge Arrow" then
-        g.settings.chargearrow.color = back
-    elseif front == "Reload" then
-        g.settings.reload.color = back
-    end
-    skill_notice_save_settings()
-end
-function skill_notice_color_test_gauge(front, back, buffid)
-    local gaugeframe = ui.GetFrame(addonNameLower .. "_new")
-
-    local gaugebox = gaugeframe:CreateOrGetControl('groupbox', "gaugebox", 100, 10, 200, 30);
-    AUTO_CAST(gaugebox)
-    gaugebox:RemoveAllChild()
-
-    local gauge = gaugebox:CreateOrGetControl("gauge", "gauge", 5, 5, 180, 20);
-    AUTO_CAST(gauge)
-    imcSound.PlaySoundEvent("sys_tp_box_3")
-    ui.SysMsg(front .. ":Gauge Color Setting")
-    gauge:SetSkinName("gauge");
-    -- gauge:SetSkinName("pcbang_point_gauge_s");
-    gauge:SetColorTone(back);
-    gauge:SetPoint(5, 10);
-    gauge:AddStat('{ol}{s20}%v/%m');
-    gauge:SetStatFont(0, 'quickiconfont');
-    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
-
-    gaugeframe:ShowWindow(1)
-    gaugebox:ShowWindow(1)
-    ReserveScript("skill_notice_color_test_close()", 3.0)
-end
-
-function skill_notice_color_test_close()
-    local gaugeframe = ui.GetFrame(addonNameLower .. "_new")
-
-    local gaugebox = gaugeframe:GetChildRecursively("gaugebox")
-
-    gaugebox:ShowWindow(0)
-end
-
-function skill_notice_sound_select(frame, ctrl, argStr, argNum)
-
-    local context = ui.CreateContextMenu("SOUND_SETTING", "Sound Setting", 300, 0, 100, 100)
-
-    for i, handle in ipairs(handlelist) do
-
-        local scp = string.format("skill_notice_sound_setting('%s','%s')", argStr, handle)
-        ui.AddContextMenuItem(context, handle, scp)
-    end
-
-    ui.OpenContextMenu(context)
-end
-
-function skill_notice_sound_setting(argStr, handle)
-
-    imcSound.PlaySoundEvent(handle);
-    if argStr == "Pyktis" then
-        g.settings.pyktis.sound = handle
-    elseif argStr == "Battle Spirit 8" then
-        g.settings.battlespirit8.sound = handle
-    elseif argStr == "Battle Spirit 10" then
-        g.settings.battlespirit10.sound = handle
-    elseif argStr == "Charge Arrow" then
-        g.settings.chargearrow.sound = handle
-    elseif argStr == "Reload" then
-        g.settings.reload.sound = handle
-    end
-    skill_notice_save_settings()
-
-end
 
 function skill_notice_newframe_close(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
