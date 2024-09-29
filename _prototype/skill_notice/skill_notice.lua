@@ -263,10 +263,12 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
     if buff_id == nil then
         return
     end
+    local buff_table = g.settings["buffs"]
+
     local buff_class = GetClassByType("Buff", buff_id)
     if buff_class ~= nil then
         local buff_slot = GET_CHILD_RECURSIVELY(frame, "buff_slot" .. index)
-        local buff_name = buff_class.Name
+        local buff_name = buff_class.ClassName
         local image_name = GET_BUFF_ICON_NAME(buff_class);
         SET_SLOT_ICON(buff_slot, image_name)
 
@@ -276,9 +278,10 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         icon:SetTooltipArg(buff_name, buff_id, 0);
         buff_slot:Invalidate();
 
-        local buff_name = buff_class.Name
+        local buff_name = buff_class.ClassName
+
         local y = index == 1 and 50 or (index - 1) * 80 + 50
-        local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. index, 10, y - 20, 200, 20)
+        local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. index, 90, y - 20, 200, 20)
         AUTO_CAST(buff_text)
         buff_text:SetText("{ol}" .. buff_name)
 
@@ -326,18 +329,48 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         effect_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
         if no_save == nil then
-            local buff_table = g.settings["buffs"]
             buff_table[tostring(buff_id)] = buff_table[tostring(buff_id)] or {}
             buff_table[tostring(buff_id)].name = buff_name
             buff_table[tostring(buff_id)].color = "FFFFFF00"
             buff_table[tostring(buff_id)].effect = "None"
             buff_table[tostring(buff_id)].sound = "None"
             buff_table[tostring(buff_id)].size = 2
-            buff_table[tostring(buff_id)].max_count = 10
+            buff_table[tostring(buff_id)].max_charge = 10
             buff_table[tostring(buff_id)].mode = "gauge"
             skill_notice_save_settings()
             skill_notice_frame_init()
         end
+
+        local size_text = frame:CreateOrGetControl("richtext", "size_text" .. index, 220, y + 30, 200, 20)
+        AUTO_CAST(size_text)
+        size_text:SetText("{ol}Effect Size")
+
+        local size_edit = frame:CreateOrGetControl("edit", "size_edit" .. index, 310, y + 30, 40, 20)
+        AUTO_CAST(size_edit)
+        size_edit:SetFontName("white_16_ol")
+        size_edit:SetTextAlign("center", "center")
+        local size = buff_table[tostring(buff_id)].size
+        size_edit:SetText("{ol}" .. size)
+
+        local charge_text = frame:CreateOrGetControl("richtext", "charge_text" .. index, 355, y + 30, 200, 20)
+        AUTO_CAST(charge_text)
+        charge_text:SetText("{ol}Max Charge")
+
+        local charge_edit = frame:CreateOrGetControl("edit", "charge_edit" .. index, 455, y + 30, 40, 20)
+        AUTO_CAST(charge_edit)
+        charge_edit:SetFontName("white_16_ol")
+        charge_edit:SetTextAlign("center", "center")
+        local charge = buff_table[tostring(buff_id)].max_charge
+        charge_edit:SetText("{ol}" .. charge)
+
+        local mode_text = frame:CreateOrGetControl("richtext", "mode_text" .. index, 500, y + 30, 200, 20)
+        AUTO_CAST(mode_text)
+        mode_text:SetText("{ol}Mode")
+
+        local mode_check = frame:CreateOrGetControl("checkbox", "mode_check" .. index, 550, y + 25, 20, 20)
+        AUTO_CAST(mode_check)
+        mode_check:SetTextTooltip("Icon mode when checked")
+
     end
 end
 
@@ -375,7 +408,7 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
 
         if buff_id then
             local buff_class = GetClassByType("Buff", buff_id)
-            local buff_name = buff_class.Name
+            local buff_name = buff_class.ClassName
             local image_name = GET_BUFF_ICON_NAME(buff_class)
             SET_SLOT_ICON(buff_slot, image_name)
 
@@ -387,7 +420,7 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
         end
 
         -- 編集ボックスの生成
-        local buffid_edit = setting_frame:CreateOrGetControl("edit", "buffid_edit" .. index, 0, y, 50, 20)
+        local buffid_edit = setting_frame:CreateOrGetControl("edit", "buffid_edit" .. index, 10, y - 20, 70, 20)
         AUTO_CAST(buffid_edit)
         buffid_edit:SetFontName("white_16_ol")
         buffid_edit:SetTextAlign("center", "center")
@@ -423,7 +456,7 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
     end
 
     -- ウィンドウのリサイズと表示
-    setting_frame:Resize(540, y + 20)
+    setting_frame:Resize(580, y + 60)
     setting_frame:ShowWindow(1)
 end
 
@@ -458,29 +491,30 @@ function skill_notice_frame_init()
     for str_buff_id, _ in pairs(buff_table) do
 
         if cid_table[str_buff_id] == nil then
-            cid_table[str_buff_id] = {}
-            cid_table[str_buff_id].use = "YES"
+            cid_table[str_buff_id] = "YES"
         end
 
         local buff_id = tonumber(str_buff_id)
 
-        if cid_table[str_buff_id].use == "YES" then
+        if cid_table[str_buff_id] == "YES" then
             local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buff_id, 10, y * 25 + 10, 160, 20);
             AUTO_CAST(gauge)
             local myHandle = session.GetMyHandle()
             local actor = world.GetActor(myHandle)
             local buff = info.GetBuff(myHandle, buff_id)
+            local max_charge = buff_table[str_buff_id].max_charge
+            local color = buff_table[str_buff_id].color
 
             gauge:SetSkinName("gauge");
-            gauge:SetColorTone(buff_table[str_buff_id]);
+            gauge:SetColorTone(color)
             if buff ~= nil then
-                gauge:SetPoint(buff.over, buff_table[str_buff_id].max_count);
+                gauge:SetPoint(buff.over, max_charge);
                 gauge:AddStat('{ol}{s20}%v/%m');
                 gauge:SetStatFont(0, 'quickiconfont');
                 gauge:SetStatOffset(0, 20, 0);
                 gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
             else
-                gauge:SetPoint(0, max);
+                gauge:SetPoint(0, max_charge);
                 gauge:AddStat('{ol}{s20}%v/%m');
                 gauge:SetStatFont(0, 'quickiconfont');
                 gauge:SetStatOffset(0, 20, 0);
@@ -489,7 +523,7 @@ function skill_notice_frame_init()
 
             local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160, 20)
             AUTO_CAST(buff_text)
-            buff_text:SetText("{ol}{s12}" .. buff_table[str_buff_id].name)
+            buff_text:SetText("{ol}{s12}" .. GetClassByType("Buff", tonumber(str_buff_id)).Name)
 
             y = y + 1
         end
@@ -515,12 +549,12 @@ function skill_notice_buff_remove(frame, msg, str, buff_type)
         if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
             local buff_id = tonumber(str_buff_id)
             local effect = buff_table[str_buff_id].effect
-            local max = buff_table[str_buff_id].max_count
+            local max_charge = buff_table[str_buff_id].max_charge
 
             local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
             AUTO_CAST(gauge)
             gauge:RemoveAllChild()
-            gauge:SetPoint(0, max);
+            gauge:SetPoint(0, max_charge);
             gauge:SetStatFont(0, 'quickiconfont');
             gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
             gauge:EnableHitTest(0)
@@ -546,14 +580,14 @@ function skill_notice_buff_add(frame, msg, str, buff_type)
     for str_buff_id, _ in pairs(buff_table) do
         if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
             local buff_id = tonumber(str_buff_id)
-            local max = buff_table[str_buff_id].max_count
+            local max_charge = buff_table[str_buff_id].max_charge
             local buff_class = info.GetBuff(myHandle, buff_id)
 
             if buff_class ~= nil then
                 local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
                 AUTO_CAST(gauge)
                 gauge:RemoveAllChild()
-                gauge:SetPoint(buff_class.over, max)
+                gauge:SetPoint(buff_class.over, max_charge)
                 gauge:SetStatFont(0, 'quickiconfont');
                 gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 gauge:EnableHitTest(0)
@@ -578,19 +612,19 @@ function skill_notice_buff_update(frame, msg, str, buff_type)
     for str_buff_id, _ in pairs(buff_table) do
         if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
             local buff_id = tonumber(str_buff_id)
-            local max = buff_table[str_buff_id].max_count
+            local max_charge = buff_table[str_buff_id].max_charge
             local buff_class = info.GetBuff(myHandle, buff_id)
 
             if buff_class ~= nil then
                 local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
                 AUTO_CAST(gauge)
                 gauge:RemoveAllChild()
-                gauge:SetPoint(buff_class.over, max)
+                gauge:SetPoint(buff_class.over, max_charge)
                 gauge:SetStatFont(0, 'quickiconfont');
                 gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
                 gauge:EnableHitTest(0)
 
-                if buff_class.over == max and not g.buffs[buff_id] then
+                if buff_class.over == max_charge and not g.buffs[buff_id] then
                     local effect = buff_table[str_buff_id].effect
                     local size = buff_table[str_buff_id].size
                     effect.AddActorEffectByOffset(actor, effect, size, "MID", true, true)
