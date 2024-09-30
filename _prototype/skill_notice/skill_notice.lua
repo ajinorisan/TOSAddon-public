@@ -263,7 +263,9 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
     if buff_id == nil then
         return
     end
+
     local buff_table = g.settings["buffs"]
+    local cid_table = g.settings[tostring(g.cid)]
 
     local buff_class = GetClassByType("Buff", buff_id)
     if buff_class ~= nil then
@@ -363,6 +365,21 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         local charge = buff_table[tostring(buff_id)].max_charge
         charge_edit:SetText("{ol}" .. charge)
 
+        local display_text = frame:CreateOrGetControl("richtext", "display_text" .. index, 500, y, 200, 20)
+        AUTO_CAST(display_text)
+        display_text:SetText("{ol}Display")
+
+        local display_check = frame:CreateOrGetControl("checkbox", "display_check" .. index, 550, y - 5, 20, 20)
+        AUTO_CAST(display_check)
+        display_check:SetTextTooltip("Displayed when checked{nl}Set by character")
+        if cid_table[tostring(buff_id)] == nil then
+            cid_table[tostring(buff_id)] = true
+            skill_notice_save_settings()
+        end
+        display_check:SetCheck(cid_table[tostring(buff_id)] and 1 or 0)
+        display_check:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_check")
+        display_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+
         local mode_text = frame:CreateOrGetControl("richtext", "mode_text" .. index, 500, y + 30, 200, 20)
         AUTO_CAST(mode_text)
         mode_text:SetText("{ol}Mode")
@@ -370,11 +387,51 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         local mode_check = frame:CreateOrGetControl("checkbox", "mode_check" .. index, 550, y + 25, 20, 20)
         AUTO_CAST(mode_check)
         mode_check:SetTextTooltip("Icon mode when checked")
+        local mode_set = 0
+        if buff_table[tostring(buff_id)].mode ~= "gauge" then
+            mode_set = 1
+        end
+        mode_check:SetCheck(mode_set)
+        mode_check:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_check")
+        mode_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+
+        local delete_btn = frame:CreateOrGetControl("button", "delete_btn" .. index, 580, y, 25, 25)
+        AUTO_CAST(delete_btn)
+        delete_btn:SetSkinName("test_red_button")
+        delete_btn:SetText("{ol}×")
+        delete_btn:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_delete")
+        delete_btn:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
     end
 end
 
-function skill_notice_setting(frame, ctrl, argStr, argNum)
+function skill_notice_setting_check(frame, ctrl, str, buff_id)
+    local ischeck = ctrl:IsChecked()
+    local ctrl_name = ctrl:GetName()
+    local cid_table = g.settings[tostring(g.cid)]
+    local buff_table = g.settings["buffs"]
+
+    if ctrl_name == "display_check" and ischeck == 1 then
+        cid_table[tostring(buff_id)] = true
+    elseif ctrl_name == "display_check" and ischeck == 0 then
+        cid_table[tostring(buff_id)] = false
+    elseif ctrl_name == "mode_check" and ischeck == 1 then
+        buff_table[tostring(buff_id)].mode = "icon"
+    elseif ctrl_name == "mode_check" and ischeck == 0 then
+        buff_table[tostring(buff_id)].mode = "gauge"
+    end
+    skill_notice_save_settings()
+    skill_notice_frame_init()
+end
+
+function skill_notice_setting_delete(frame, ctrl, str, buff_id)
+    local buff_table = g.settings["buffs"]
+    buff_table[tostring(buff_id)] = nil
+    skill_notice_save_settings()
+    skill_notice_setting(frame, ctrl, str, nil)
+end
+
+function skill_notice_setting(frame, ctrl, str, num)
     local setting_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting_frame", 0, 0, 200, 400)
     AUTO_CAST(setting_frame)
     setting_frame:SetSkinName("test_frame_midle_light")
@@ -396,9 +453,8 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
     local y = 50
     local index = 1
 
-    -- 関数なしでスロットと編集ボックスを生成する共通処理をまとめたパターン
     local function create_slot_and_edit(index, y, buff_id)
-        -- スロットの生成
+
         local buff_slot = setting_frame:CreateOrGetControl("slot", "buff_slot" .. index, 10, y, 50, 50)
         AUTO_CAST(buff_slot)
         buff_slot:EnablePop(0)
@@ -419,7 +475,6 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
             buff_slot:Invalidate()
         end
 
-        -- 編集ボックスの生成
         local buffid_edit = setting_frame:CreateOrGetControl("edit", "buffid_edit" .. index, 10, y - 20, 70, 20)
         AUTO_CAST(buffid_edit)
         buffid_edit:SetFontName("white_16_ol")
@@ -433,29 +488,24 @@ function skill_notice_setting(frame, ctrl, argStr, argNum)
         buffid_edit:SetEventScriptArgString(ui.ENTERKEY, setting_frame:GetName())
         buffid_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
 
-        -- 必要に応じてスクリプトを呼び出す
         if buff_id then
             local no_save = true
             skill_notice_buffid_edit(frame, buffid_edit, setting_frame:GetName(), index, no_save)
         end
     end
 
-    -- バフが空の場合
     if next(buff_table) == nil then
         create_slot_and_edit(index, y, nil)
     else
-        -- バフがある場合、テーブル内のバフ情報をループ
         for str_buff_id, _ in pairs(buff_table) do
             local buff_id = tonumber(str_buff_id)
             create_slot_and_edit(index, y, buff_id)
             index = index + 1
             y = y + 80
         end
-        -- 新しいスロットの生成
         create_slot_and_edit(index, y, nil)
     end
 
-    -- ウィンドウのリサイズと表示
     setting_frame:Resize(580, y + 60)
     setting_frame:ShowWindow(1)
 end
