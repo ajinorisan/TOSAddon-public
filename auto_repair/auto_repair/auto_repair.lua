@@ -7,10 +7,11 @@
 -- v1.0.8 フレームの場所変更 
 -- v1.0.9 フレーム動かせて記憶する様に。表示最適化
 -- v1.1.0 520アップデート対応
+-- v1.1.1 ロードが早すぎて、セッティングファイルがnullになる不具合修正
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -52,8 +53,7 @@ function AUTO_REPAIR_ON_INIT(addon, frame)
     local map_class = GetClass("Map", current_map)
     if map_class.MapType == "City" then
 
-        AUTO_REPAIR_LOADSETTINGS()
-
+        addon:RegisterMsg("GAME_START", "AUTO_REPAIR_LOADSETTINGS")
         local auto_repair_item = session.GetInvItemByName(repair_item_name)
 
         if auto_repair_item ~= nil then
