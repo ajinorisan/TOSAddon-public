@@ -280,12 +280,10 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         icon:SetTooltipArg(buff_name, buff_id, 0);
         buff_slot:Invalidate();
 
-        local buff_name = buff_class.ClassName
-
         local y = index == 1 and 50 or (index - 1) * 80 + 50
-        local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. index, 90, y - 20, 200, 20)
+        local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. index, 115, y - 20, 200, 20)
         AUTO_CAST(buff_text)
-        buff_text:SetText("{ol}" .. buff_name)
+        buff_text:SetText("{ol}" .. buff_class.Name)
 
         local sound_text = frame:CreateOrGetControl("richtext", "sound_text" .. index, 70, y, 200, 20)
         AUTO_CAST(sound_text)
@@ -298,11 +296,11 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         sound_config:SetEventScript(ui.LBUTTONUP, "skill_notice_sound_select")
         sound_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
-        local color_text = frame:CreateOrGetControl("richtext", "color_text" .. index, 220, y, 200, 20)
+        local color_text = frame:CreateOrGetControl("richtext", "color_text" .. index, 215, y, 200, 20)
         AUTO_CAST(color_text)
         color_text:SetText("{ol}Gauge Color")
 
-        local color_box = frame:CreateOrGetControl('groupbox', "color_box" .. index, 320, y, 220, 20);
+        local color_box = frame:CreateOrGetControl('groupbox', "color_box" .. index, 315, y, 220, 20);
         AUTO_CAST(color_box)
         for i = 0, 9 do
             local color_class = color_tabel[i + 1]
@@ -343,7 +341,7 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
             skill_notice_frame_init()
         end
 
-        local size_text = frame:CreateOrGetControl("richtext", "size_text" .. index, 220, y + 30, 200, 20)
+        local size_text = frame:CreateOrGetControl("richtext", "size_text" .. index, 215, y + 30, 200, 20)
         AUTO_CAST(size_text)
         size_text:SetText("{ol}Effect Size")
 
@@ -365,26 +363,23 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         local charge = buff_table[tostring(buff_id)].max_charge
         charge_edit:SetText("{ol}" .. charge)
 
-        local display_text = frame:CreateOrGetControl("richtext", "display_text" .. index, 500, y, 200, 20)
+        local display_text = frame:CreateOrGetControl("richtext", "display_text" .. index, 520, y, 200, 20)
         AUTO_CAST(display_text)
         display_text:SetText("{ol}Display")
 
-        local display_check = frame:CreateOrGetControl("checkbox", "display_check" .. index, 550, y - 5, 20, 20)
+        local display_check = frame:CreateOrGetControl("checkbox", "display_check" .. index, 585, y - 5, 20, 20)
         AUTO_CAST(display_check)
         display_check:SetTextTooltip("Displayed when checked{nl}Set by character")
-        if cid_table[tostring(buff_id)] == nil then
-            cid_table[tostring(buff_id)] = true
-            skill_notice_save_settings()
-        end
-        display_check:SetCheck(cid_table[tostring(buff_id)] and 1 or 0)
+
+        display_check:SetCheck(cid_table[tostring(buff_id)] == "YES" and 1 or 0)
         display_check:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_check")
         display_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
-        local mode_text = frame:CreateOrGetControl("richtext", "mode_text" .. index, 500, y + 30, 200, 20)
+        local mode_text = frame:CreateOrGetControl("richtext", "mode_text" .. index, 520, y + 30, 200, 20)
         AUTO_CAST(mode_text)
         mode_text:SetText("{ol}Mode")
 
-        local mode_check = frame:CreateOrGetControl("checkbox", "mode_check" .. index, 550, y + 25, 20, 20)
+        local mode_check = frame:CreateOrGetControl("checkbox", "mode_check" .. index, 585, y + 25, 20, 20)
         AUTO_CAST(mode_check)
         mode_check:SetTextTooltip("Icon mode when checked")
         local mode_set = 0
@@ -395,7 +390,7 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         mode_check:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_check")
         mode_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
-        local delete_btn = frame:CreateOrGetControl("button", "delete_btn" .. index, 580, y, 25, 25)
+        local delete_btn = frame:CreateOrGetControl("button", "delete_btn" .. index, 85, y - 25, 30, 30)
         AUTO_CAST(delete_btn)
         delete_btn:SetSkinName("test_red_button")
         delete_btn:SetText("{ol}×")
@@ -411,13 +406,13 @@ function skill_notice_setting_check(frame, ctrl, str, buff_id)
     local cid_table = g.settings[tostring(g.cid)]
     local buff_table = g.settings["buffs"]
 
-    if ctrl_name == "display_check" and ischeck == 1 then
-        cid_table[tostring(buff_id)] = true
-    elseif ctrl_name == "display_check" and ischeck == 0 then
-        cid_table[tostring(buff_id)] = false
-    elseif ctrl_name == "mode_check" and ischeck == 1 then
+    if string.find(ctrl_name, "display_check") ~= nil and ischeck == 1 then
+        cid_table[tostring(buff_id)] = "YES"
+    elseif string.find(ctrl_name, "display_check") ~= nil and ischeck == 0 then
+        cid_table[tostring(buff_id)] = "NO"
+    elseif string.find(ctrl_name, "mode_check") ~= nil and ischeck == 1 then
         buff_table[tostring(buff_id)].mode = "icon"
-    elseif ctrl_name == "mode_check" and ischeck == 0 then
+    elseif string.find(ctrl_name, "mode_check") ~= nil and ischeck == 0 then
         buff_table[tostring(buff_id)].mode = "gauge"
     end
     skill_notice_save_settings()
@@ -506,7 +501,7 @@ function skill_notice_setting(frame, ctrl, str, num)
         create_slot_and_edit(index, y, nil)
     end
 
-    setting_frame:Resize(580, y + 60)
+    setting_frame:Resize(615, y + 60)
     setting_frame:ShowWindow(1)
 end
 
@@ -702,7 +697,7 @@ function skill_notice_end_drag(frame, ctrl, str, num)
     skill_notice_save_settings()
 end
 
-function skill_notice_new_buff_frame()
+--[[function skill_notice_new_buff_frame()
 
     local noticeframe = ui.CreateNewFrame("chat_memberlist", "notice_frame", 0, 0, 10, 10)
     AUTO_CAST(noticeframe)
@@ -865,5 +860,5 @@ end
 
 function skill_notice_newframe_close(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
-end
+end]]
 
