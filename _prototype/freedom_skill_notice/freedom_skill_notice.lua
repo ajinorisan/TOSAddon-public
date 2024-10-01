@@ -1,17 +1,15 @@
--- v1.0.1 エフェクト重ね掛けバグ修正
--- v1.0.2 ゲージ短くした。サイズ入力の時に空白とか文字入れたらバグってたの修正。
--- v1.0.3 バイオレントバフをデカめに表示機能追加。
-local addonName = "SKILL_NOTICE"
+-- v1.0.0 作ってみた
+local addonName = "freedom_skill_notice"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/newsettings.json', addonNameLower)
+g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
@@ -28,39 +26,6 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
-local bufftbl = {
-    [1] = {
-        text = "Pyktis",
-        name = "Thunder_Charge_Buff",
-        id = 1158,
-        max = 30
-    },
-    [2] = {
-        text = "Battle Spirit 8",
-        name = "BattleSpirit_Buff",
-        id = 1163,
-        max = 8
-    },
-    [3] = {
-        text = "Battle Spirit 10",
-        name = "BattleSpirit_Buff",
-        id = 1163,
-        max = 10
-    },
-    [4] = {
-        text = "Charge Arrow",
-        name = "ChargeArrow_Buff",
-        id = 1164,
-        max = 5
-    },
-    [5] = {
-        text = "Reload",
-        name = "Reload_Buff",
-        id = 1112,
-        max = 10
-    }
-
-}
 local color_tabel = {
     [1] = "C0C0C0", -- シルバー
     [2] = "ADFF2F", -- 黄緑
@@ -113,22 +78,22 @@ local effect_list = {
     [10] = "F_archere_magicarrow_gruond_loop2"
 }
 
-function SKILL_NOTICE_ON_INIT(addon, frame)
+function FREEDOM_SKILL_NOTICE_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
 
-    skill_notice_load_settings()
-    addon:RegisterMsg('BUFF_UPDATE', 'skill_notice_buff_update');
-    addon:RegisterMsg('BUFF_ADD', 'skill_notice_buff_add');
-    addon:RegisterMsg('BUFF_REMOVE', 'skill_notice_buff_remove');
-    addon:RegisterMsg('GAME_START', "skill_notice_frame_init")
-
+    freedom_skill_notice_load_settings()
+    addon:RegisterMsg('BUFF_UPDATE', 'freedom_skill_notice_buff_update');
+    addon:RegisterMsg('BUFF_ADD', 'freedom_skill_notice_buff_add');
+    addon:RegisterMsg('BUFF_REMOVE', 'freedom_skill_notice_buff_remove');
+    addon:RegisterMsg('GAME_START', "freedom_skill_notice_frame_init")
+    CHAT_SYSTEM("TEST")
     g.cid = session.GetMySession():GetCID()
     g.buffs = {}
 end
 
-function skill_notice_load_settings()
+function freedom_skill_notice_load_settings()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
     if err then
@@ -149,40 +114,40 @@ function skill_notice_load_settings()
     end
 
     g.settings = settings
-    skill_notice_save_settings()
+    freedom_skill_notice_save_settings()
 end
 
-function skill_notice_save_settings()
+function freedom_skill_notice_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
 end
 
-function skill_notice_sound_setting(buff_id, sound)
+function freedom_skill_notice_sound_setting(buff_id, sound)
 
     imcSound.PlaySoundEvent(sound);
     local buff_table = g.settings["buffs"]
     if buff_table[tostring(buff_id)] then
         buff_table[tostring(buff_id)].sound = sound
-        skill_notice_save_settings()
+        freedom_skill_notice_save_settings()
     end
 end
 
-function skill_notice_sound_select(frame, ctrl, str, buff_id)
+function freedom_skill_notice_sound_select(frame, ctrl, str, buff_id)
 
     local context = ui.CreateContextMenu("SOUND_SETTING", "Sound Setting", 300, 0, 100, 100)
     for i, sound in ipairs(sound_list) do
-        local script = string.format("skill_notice_sound_setting(%d,'%s')", buff_id, sound)
+        local script = string.format("freedom_skill_notice_sound_setting(%d,'%s')", buff_id, sound)
         ui.AddContextMenuItem(context, sound, script)
     end
     ui.OpenContextMenu(context)
 end
 
-function skill_notice_color_test_close()
+function freedom_skill_notice_color_test_close()
     local frame = ui.GetFrame(addonNameLower .. "setting_frame")
     local gauge_box = GET_CHILD_RECURSIVELY(frame, "gauge_box")
     gauge_box:ShowWindow(0)
 end
 
-function skill_notice_color_test_gauge(buff_name, color_name, buff_id)
+function freedom_skill_notice_color_test_gauge(buff_name, color_name, buff_id)
     local frame = ui.GetFrame(addonNameLower .. "setting_frame")
 
     local gauge_box = frame:CreateOrGetControl('groupbox', "gauge_box", 100, 10, 200, 30);
@@ -202,10 +167,10 @@ function skill_notice_color_test_gauge(buff_name, color_name, buff_id)
 
     frame:ShowWindow(1)
     gauge_box:ShowWindow(1)
-    ReserveScript("skill_notice_color_test_close()", 3.0)
+    ReserveScript("freedom_skill_notice_color_test_close()", 3.0)
 end
 
-function skill_notice_color_select(frame, ctrl, connect_str, buff_id)
+function freedom_skill_notice_color_select(frame, ctrl, connect_str, buff_id)
     local split = SCR_STRING_CUT(connect_str, '/')
     local buff_name = split[1]
     local color_name = split[2]
@@ -213,13 +178,14 @@ function skill_notice_color_select(frame, ctrl, connect_str, buff_id)
     local buff_table = g.settings["buffs"]
     if buff_table[tostring(buff_id)] then
         buff_table[tostring(buff_id)].color = color_name
-        skill_notice_save_settings()
+        freedom_skill_notice_save_settings()
     end
 
-    skill_notice_color_test_gauge(buff_name, color_name, buff_id)
+    freedom_skill_notice_color_test_gauge(buff_name, color_name, buff_id)
+    freedom_skill_notice_frame_init()
 end
 
-function skill_notice_effect_test(effectName, sound, size)
+function freedom_skill_notice_effect_test(effectName, sound, size)
 
     local myHandle = session.GetMyHandle();
     local actor = world.GetActor(myHandle)
@@ -230,7 +196,7 @@ function skill_notice_effect_test(effectName, sound, size)
     end
 end
 
-function skill_notice_effect_setting(buff_id, effect_Name)
+function freedom_skill_notice_effect_setting(buff_id, effect_Name)
 
     local size = 0
     local sound
@@ -242,22 +208,50 @@ function skill_notice_effect_setting(buff_id, effect_Name)
         size = buff_table[tostring(buff_id)].size
         sound = buff_table[tostring(buff_id)].sound
     end
-    skill_notice_save_settings()
-    ReserveScript(string.format("skill_notice_effect_test('%s','%s',%d)", effect_Name, sound, size), 0.1)
+    freedom_skill_notice_save_settings()
+    ReserveScript(string.format("freedom_skill_notice_effect_test('%s','%s',%d)", effect_Name, sound, size), 0.1)
 end
 
-function skill_notice_effect_select(frame, ctrl, str, buff_id)
+function freedom_skill_notice_effect_select(frame, ctrl, str, buff_id)
 
     local context = ui.CreateContextMenu("SOUND_SETTING", "Effect Setting", 300, 0, 100, 100)
     for i, effect_Name in ipairs(effect_list) do
-        local script = string.format("skill_notice_effect_setting(%d,'%s')", buff_id, effect_Name)
+        local script = string.format("freedom_skill_notice_effect_setting(%d,'%s')", buff_id, effect_Name)
         ui.AddContextMenuItem(context, effect_Name, script)
     end
     ui.OpenContextMenu(context)
 end
 
+function freedom_skill_notice_size_edit(frame, ctrl, str, buff_id)
+
+    local size_text = tonumber(ctrl:GetText())
+    if size_text <= 10 then
+        local buff_table = g.settings["buffs"]
+        buff_table[tostring(buff_id)].size = size_text
+        freedom_skill_notice_save_settings()
+
+        local effect_Name = buff_table[tostring(buff_id)].effect
+        if effect_Name ~= "None" then
+            local size = buff_table[tostring(buff_id)].size
+            local sound = buff_table[tostring(buff_id)].sound
+            ReserveScript(string.format("freedom_skill_notice_effect_test('%s','%s',%d)", effect_Name, sound, size), 0.1)
+        end
+    else
+        ui.SysMsg("Set at less than 10")
+    end
+end
+
+function freedom_skill_notice_charge_edit(frame, ctrl, str, buff_id)
+    print(tostring(buff_id))
+    local charge_text = tonumber(ctrl:GetText())
+    local buff_table = g.settings["buffs"]
+    buff_table[tostring(buff_id)].max_charge = charge_text
+    freedom_skill_notice_save_settings()
+    freedom_skill_notice_frame_init()
+end
+
 -- use color effect sound size max_count
-function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save)
+function freedom_skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save)
     local frame = ui.GetFrame(frame_name)
     local buff_id = tonumber(buffid_edit:GetText())
     if buff_id == nil then
@@ -293,7 +287,7 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         AUTO_CAST(sound_config)
         sound_config:SetSkinName("None")
         sound_config:SetText("{img config_button_normal 25 25}")
-        sound_config:SetEventScript(ui.LBUTTONUP, "skill_notice_sound_select")
+        sound_config:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_sound_select")
         sound_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
         local color_text = frame:CreateOrGetControl("richtext", "color_text" .. index, 215, y, 200, 20)
@@ -310,7 +304,7 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
                 AUTO_CAST(color)
                 color:SetImage("chat_color");
                 color:SetColorTone("FF" .. color_class)
-                color:SetEventScript(ui.LBUTTONUP, "skill_notice_color_select")
+                color:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_color_select")
                 color:SetEventScriptArgString(ui.LBUTTONUP, buff_name .. "/" .. "FF" .. color_class)
                 color:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
@@ -325,7 +319,7 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         AUTO_CAST(effect_config)
         effect_config:SetSkinName("None")
         effect_config:SetText("{img config_button_normal 25 25}")
-        effect_config:SetEventScript(ui.LBUTTONUP, "skill_notice_effect_select")
+        effect_config:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_effect_select")
         effect_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
         if no_save == nil then
@@ -337,8 +331,8 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
             buff_table[tostring(buff_id)].size = 2
             buff_table[tostring(buff_id)].max_charge = 10
             buff_table[tostring(buff_id)].mode = "gauge"
-            skill_notice_save_settings()
-            skill_notice_frame_init()
+            freedom_skill_notice_save_settings()
+            freedom_skill_notice_frame_init()
         end
 
         local size_text = frame:CreateOrGetControl("richtext", "size_text" .. index, 215, y + 30, 200, 20)
@@ -351,6 +345,8 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         size_edit:SetTextAlign("center", "center")
         local size = buff_table[tostring(buff_id)].size
         size_edit:SetText("{ol}" .. size)
+        size_edit:SetEventScript(ui.ENTERKEY, "freedom_skill_notice_size_edit")
+        size_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
 
         local charge_text = frame:CreateOrGetControl("richtext", "charge_text" .. index, 355, y + 30, 200, 20)
         AUTO_CAST(charge_text)
@@ -362,6 +358,8 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         charge_edit:SetTextAlign("center", "center")
         local charge = buff_table[tostring(buff_id)].max_charge
         charge_edit:SetText("{ol}" .. charge)
+        charge_edit:SetEventScript(ui.ENTERKEY, "freedom_skill_notice_charge_edit")
+        charge_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
 
         local display_text = frame:CreateOrGetControl("richtext", "display_text" .. index, 520, y, 200, 20)
         AUTO_CAST(display_text)
@@ -372,7 +370,7 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
         display_check:SetTextTooltip("Displayed when checked{nl}Set by character")
 
         display_check:SetCheck(cid_table[tostring(buff_id)] == "YES" and 1 or 0)
-        display_check:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_check")
+        display_check:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_setting_check")
         display_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
         local mode_text = frame:CreateOrGetControl("richtext", "mode_text" .. index, 520, y + 30, 200, 20)
@@ -387,20 +385,20 @@ function skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save
             mode_set = 1
         end
         mode_check:SetCheck(mode_set)
-        mode_check:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_check")
+        mode_check:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_setting_check")
         mode_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
         local delete_btn = frame:CreateOrGetControl("button", "delete_btn" .. index, 85, y - 25, 30, 30)
         AUTO_CAST(delete_btn)
         delete_btn:SetSkinName("test_red_button")
         delete_btn:SetText("{ol}×")
-        delete_btn:SetEventScript(ui.LBUTTONUP, "skill_notice_setting_delete")
+        delete_btn:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_setting_delete")
         delete_btn:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
     end
 end
 
-function skill_notice_setting_check(frame, ctrl, str, buff_id)
+function freedom_skill_notice_setting_check(frame, ctrl, str, buff_id)
     local ischeck = ctrl:IsChecked()
     local ctrl_name = ctrl:GetName()
     local cid_table = g.settings[tostring(g.cid)]
@@ -415,18 +413,23 @@ function skill_notice_setting_check(frame, ctrl, str, buff_id)
     elseif string.find(ctrl_name, "mode_check") ~= nil and ischeck == 0 then
         buff_table[tostring(buff_id)].mode = "gauge"
     end
-    skill_notice_save_settings()
-    skill_notice_frame_init()
+    freedom_skill_notice_save_settings()
+    freedom_skill_notice_frame_init()
 end
 
-function skill_notice_setting_delete(frame, ctrl, str, buff_id)
+function freedom_skill_notice_setting_delete(frame, ctrl, str, buff_id)
     local buff_table = g.settings["buffs"]
     buff_table[tostring(buff_id)] = nil
-    skill_notice_save_settings()
-    skill_notice_setting(frame, ctrl, str, nil)
+    freedom_skill_notice_save_settings()
+    freedom_skill_notice_setting(frame, ctrl, str, nil)
 end
 
-function skill_notice_setting(frame, ctrl, str, num)
+function freedom_skill_notice_newframe_close(frame, ctrl, argStr, argNum)
+    frame:ShowWindow(0)
+    freedom_skill_notice_frame_init()
+end
+
+function freedom_skill_notice_setting(frame, ctrl, str, num)
     local setting_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting_frame", 0, 0, 200, 400)
     AUTO_CAST(setting_frame)
     setting_frame:SetSkinName("test_frame_midle_light")
@@ -442,7 +445,7 @@ function skill_notice_setting(frame, ctrl, str, num)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
     close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "skill_notice_newframe_close")
+    close:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_newframe_close")
 
     local buff_table = g.settings["buffs"]
     local y = 50
@@ -479,13 +482,13 @@ function skill_notice_setting(frame, ctrl, str, num)
             buffid_edit:SetText(buff_id)
         end
 
-        buffid_edit:SetEventScript(ui.ENTERKEY, "skill_notice_buffid_edit")
+        buffid_edit:SetEventScript(ui.ENTERKEY, "freedom_skill_notice_buffid_edit")
         buffid_edit:SetEventScriptArgString(ui.ENTERKEY, setting_frame:GetName())
         buffid_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
 
         if buff_id then
             local no_save = true
-            skill_notice_buffid_edit(frame, buffid_edit, setting_frame:GetName(), index, no_save)
+            freedom_skill_notice_buffid_edit(frame, buffid_edit, setting_frame:GetName(), index, no_save)
         end
     end
 
@@ -505,17 +508,17 @@ function skill_notice_setting(frame, ctrl, str, num)
     setting_frame:ShowWindow(1)
 end
 
-function skill_notice_frame_init()
+function freedom_skill_notice_frame_init()
 
-    local frame = ui.GetFrame("skill_notice")
+    local frame = ui.GetFrame("freedom_skill_notice")
     frame:RemoveAllChild()
     frame:SetSkinName("chat_window")
     frame:SetAlpha(20)
     frame:SetTitleBarSkin("None")
     frame:EnableMove(1)
     frame:EnableHitTest(1)
-    frame:SetEventScript(ui.LBUTTONUP, "skill_notice_end_drag")
-    frame:SetEventScript(ui.RBUTTONUP, "skill_notice_setting")
+    frame:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_end_drag")
+    frame:SetEventScript(ui.RBUTTONUP, "freedom_skill_notice_setting")
 
     frame:SetPos(g.settings.x, g.settings.y)
 
@@ -523,7 +526,7 @@ function skill_notice_frame_init()
     AUTO_CAST(setting)
     setting:SetSkinName("None");
     setting:SetText("{img config_button_normal 20 20}")
-    setting:SetEventScript(ui.LBUTTONUP, "skill_notice_setting")
+    setting:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_setting")
     setting:SetTextTooltip("Skill Notice{nl}Left-Click Settings")
 
     local buffgb = frame:CreateOrGetControl('groupbox', "buffgb", 0, 20, 190, 25);
@@ -574,7 +577,7 @@ function skill_notice_frame_init()
         end
 
     end
-    skill_notice_save_settings()
+    freedom_skill_notice_save_settings()
 
     buffgb:Resize(180, y * 25 + 30)
     frame:Resize(180, y * 25 + 30)
@@ -582,8 +585,8 @@ function skill_notice_frame_init()
 
 end
 
-function skill_notice_buff_remove(frame, msg, str, buff_type)
-    local frame = ui.GetFrame("skill_notice")
+function freedom_skill_notice_buff_remove(frame, msg, str, buff_type)
+    local frame = ui.GetFrame("freedom_skill_notice")
     local myHandle = session.GetMyHandle()
     local actor = world.GetActor(myHandle)
 
@@ -614,8 +617,8 @@ function skill_notice_buff_remove(frame, msg, str, buff_type)
     end
 end
 
-function skill_notice_buff_add(frame, msg, str, buff_type)
-    local frame = ui.GetFrame("skill_notice")
+function freedom_skill_notice_buff_add(frame, msg, str, buff_type)
+    local frame = ui.GetFrame("freedom_skill_notice")
     local myHandle = session.GetMyHandle()
     local actor = world.GetActor(myHandle)
 
@@ -645,9 +648,9 @@ function skill_notice_buff_add(frame, msg, str, buff_type)
 
 end
 
-function skill_notice_buff_update(frame, msg, str, buff_type)
+function freedom_skill_notice_buff_update(frame, msg, str, buff_type)
 
-    local frame = ui.GetFrame("skill_notice")
+    local frame = ui.GetFrame("freedom_skill_notice")
     local myHandle = session.GetMyHandle()
     local actor = world.GetActor(myHandle)
 
@@ -688,16 +691,16 @@ function skill_notice_buff_update(frame, msg, str, buff_type)
 
 end
 
-function skill_notice_end_drag(frame, ctrl, str, num)
+function freedom_skill_notice_end_drag(frame, ctrl, str, num)
 
-    if frame:GetName() == "skill_notice" then
+    if frame:GetName() == "freedom_skill_notice" then
         g.settings.x = frame:GetX()
         g.settings.y = frame:GetY()
     end
-    skill_notice_save_settings()
+    freedom_skill_notice_save_settings()
 end
 
---[[function skill_notice_new_buff_frame()
+--[[function freedom_skill_notice_new_buff_frame()
 
     local noticeframe = ui.CreateNewFrame("chat_memberlist", "notice_frame", 0, 0, 10, 10)
     AUTO_CAST(noticeframe)
@@ -720,7 +723,7 @@ end
 
     noticeframe:SetPos(g.settings.new_x, g.settings.new_y)
     noticeframe:RemoveAllChild()
-    noticeframe:SetEventScript(ui.LBUTTONUP, "skill_notice_end_drag")
+    noticeframe:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_end_drag")
 
     local slotset = noticeframe:CreateOrGetControl("slotset", "slotset", 0, 10, 0, 0)
     AUTO_CAST(slotset)
@@ -763,7 +766,7 @@ end
 
 end
 
-function skill_notice_ischeck(frame, ctrl, argStr, argNum)
+function freedom_skill_notice_ischeck(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
     local ctrlname = ctrl:GetName()
     local LoginName = session.GetMySession():GetPCApc():GetName()
@@ -771,7 +774,7 @@ function skill_notice_ischeck(frame, ctrl, argStr, argNum)
     if ctrlname == "new_check" then
         g.settings[LoginName].new_check.use = ischeck
         if ischeck == 1 then
-            skill_notice_new_buff_frame()
+            freedom_skill_notice_new_buff_frame()
 
         end
     else
@@ -779,11 +782,11 @@ function skill_notice_ischeck(frame, ctrl, argStr, argNum)
         -- print(tostring(ctrlname) .. ":" .. tostring(ischeck))
 
     end
-    skill_notice_save_settings()
-    skill_notice_frame_init(frame)
+    freedom_skill_notice_save_settings()
+    freedom_skill_notice_frame_init(frame)
 end
 
-function skill_notice_effect_size(frame, ctrl, argStr, argNum)
+function freedom_skill_notice_effect_size(frame, ctrl, argStr, argNum)
 
     local size = tonumber(ctrl:GetText())
     if size == nil then
@@ -808,12 +811,12 @@ function skill_notice_effect_size(frame, ctrl, argStr, argNum)
         g.settings.reload.size = size
 
     end
-    skill_notice_save_settings()
-    ReserveScript(string.format("skill_notice_effect_test_size('%s',%d)", argStr, size), 0.1)
+    freedom_skill_notice_save_settings()
+    ReserveScript(string.format("freedom_skill_notice_effect_test_size('%s',%d)", argStr, size), 0.1)
 
 end
 
-function skill_notice_effect_test_size(argStr, size)
+function freedom_skill_notice_effect_test_size(argStr, size)
     local myHandle = session.GetMyHandle();
     local actor = world.GetActor(myHandle)
     local effectName
@@ -858,7 +861,5 @@ end
 -- effect.DetachActorEffect(actor, effectName, 0);
 -- effect.AddActorEffectByOffset(actor, effectName, 3.0, "MID", true, true);
 
-function skill_notice_newframe_close(frame, ctrl, argStr, argNum)
-    frame:ShowWindow(0)
-end]]
+]]
 
