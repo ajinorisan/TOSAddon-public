@@ -105,7 +105,8 @@ function freedom_skill_notice_load_settings()
         settings = {
             x = 400,
             y = 400,
-            buffs = {}
+            buffs = {},
+            icons = {}
         }
     end
 
@@ -242,7 +243,7 @@ function freedom_skill_notice_size_edit(frame, ctrl, str, buff_id)
 end
 
 function freedom_skill_notice_charge_edit(frame, ctrl, str, buff_id)
-    print(tostring(buff_id))
+
     local charge_text = tonumber(ctrl:GetText())
     local buff_table = g.settings["buffs"]
     buff_table[tostring(buff_id)].max_charge = charge_text
@@ -250,7 +251,40 @@ function freedom_skill_notice_charge_edit(frame, ctrl, str, buff_id)
     freedom_skill_notice_frame_init()
 end
 
--- use color effect sound size max_count
+function freedom_skill_notice_setting_check(frame, ctrl, str, buff_id)
+    local ischeck = ctrl:IsChecked()
+    local ctrl_name = ctrl:GetName()
+    local cid_table = g.settings[tostring(g.cid)]
+    local buff_table = g.settings["buffs"]
+    local icon_table = g.settings["icons"]
+
+    if string.find(ctrl_name, "display_check") ~= nil and ischeck == 1 then
+        cid_table[tostring(buff_id)] = "YES"
+    elseif string.find(ctrl_name, "display_check") ~= nil and ischeck == 0 then
+        cid_table[tostring(buff_id)] = "NO"
+    elseif string.find(ctrl_name, "mode_check") ~= nil and ischeck == 1 then
+        buff_table[tostring(buff_id)].mode = "icon"
+        table.insert(icon_table, buff_id)
+    elseif string.find(ctrl_name, "mode_check") ~= nil and ischeck == 0 then
+        buff_table[tostring(buff_id)].mode = "gauge"
+        table.remove(icon_table, buff_id)
+    end
+    freedom_skill_notice_save_settings()
+    freedom_skill_notice_frame_init()
+end
+
+function freedom_skill_notice_setting_delete(frame, ctrl, str, buff_id)
+    local buff_table = g.settings["buffs"]
+    buff_table[tostring(buff_id)] = nil
+    freedom_skill_notice_save_settings()
+    freedom_skill_notice_setting(frame, ctrl, str, nil)
+end
+
+function freedom_skill_notice_newframe_close(frame, ctrl, argStr, argNum)
+    frame:ShowWindow(0)
+    freedom_skill_notice_frame_init()
+end
+
 function freedom_skill_notice_buffid_edit(frame, buffid_edit, frame_name, index, no_save)
     local frame = ui.GetFrame(frame_name)
     local buff_id = tonumber(buffid_edit:GetText())
@@ -333,6 +367,7 @@ function freedom_skill_notice_buffid_edit(frame, buffid_edit, frame_name, index,
             buff_table[tostring(buff_id)].mode = "gauge"
             freedom_skill_notice_save_settings()
             freedom_skill_notice_frame_init()
+            freedom_skill_notice_setting(nil, nil, nil, nil)
         end
 
         local size_text = frame:CreateOrGetControl("richtext", "size_text" .. index, 215, y + 30, 200, 20)
@@ -396,37 +431,6 @@ function freedom_skill_notice_buffid_edit(frame, buffid_edit, frame_name, index,
         delete_btn:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
     end
-end
-
-function freedom_skill_notice_setting_check(frame, ctrl, str, buff_id)
-    local ischeck = ctrl:IsChecked()
-    local ctrl_name = ctrl:GetName()
-    local cid_table = g.settings[tostring(g.cid)]
-    local buff_table = g.settings["buffs"]
-
-    if string.find(ctrl_name, "display_check") ~= nil and ischeck == 1 then
-        cid_table[tostring(buff_id)] = "YES"
-    elseif string.find(ctrl_name, "display_check") ~= nil and ischeck == 0 then
-        cid_table[tostring(buff_id)] = "NO"
-    elseif string.find(ctrl_name, "mode_check") ~= nil and ischeck == 1 then
-        buff_table[tostring(buff_id)].mode = "icon"
-    elseif string.find(ctrl_name, "mode_check") ~= nil and ischeck == 0 then
-        buff_table[tostring(buff_id)].mode = "gauge"
-    end
-    freedom_skill_notice_save_settings()
-    freedom_skill_notice_frame_init()
-end
-
-function freedom_skill_notice_setting_delete(frame, ctrl, str, buff_id)
-    local buff_table = g.settings["buffs"]
-    buff_table[tostring(buff_id)] = nil
-    freedom_skill_notice_save_settings()
-    freedom_skill_notice_setting(frame, ctrl, str, nil)
-end
-
-function freedom_skill_notice_newframe_close(frame, ctrl, argStr, argNum)
-    frame:ShowWindow(0)
-    freedom_skill_notice_frame_init()
 end
 
 function freedom_skill_notice_setting(frame, ctrl, str, num)
@@ -535,6 +539,25 @@ function freedom_skill_notice_frame_init()
 
     local buff_table = g.settings["buffs"]
     local cid_table = g.settings[tostring(g.cid)]
+    local icon_count = 0
+    local icon_table = g.settings["icons"]
+
+    local icon_frame = ui.CreateNewFrame("chat_memberlist", addonNameLower .. "icon_frame", 0, 0, 0, 0)
+    AUTO_CAST(icon_frame)
+    if #icon_table > 0 then
+        icon_frame:RemoveAllChild()
+        icon_frame:SetSkinName("chat_window")
+        icon_frame:SetTitleBarSkin("None")
+        icon_frame:SetAlpha(30)
+        icon_frame:SetLayerLevel(61)
+        icon_frame:EnableHitTest(1)
+        icon_frame:EnableMove(1)
+        icon_frame:SetPos(g.settings.icon_x or 500, g.settings.icon_y or 500)
+        icon_frame:SetEventScript(ui.LBUTTONUP, "freedom_skill_notice_end_drag")
+        icon_frame:ShowWindow(1)
+        icon_frame:Resize(0, 0)
+    end
+
     local y = 0
     for str_buff_id, _ in pairs(buff_table) do
 
@@ -543,37 +566,65 @@ function freedom_skill_notice_frame_init()
         end
 
         local buff_id = tonumber(str_buff_id)
+        local mode = buff_table[str_buff_id].mode
 
         if cid_table[str_buff_id] == "YES" then
-            local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buff_id, 10, y * 25 + 10, 160, 20);
-            AUTO_CAST(gauge)
-            local myHandle = session.GetMyHandle()
-            local actor = world.GetActor(myHandle)
-            local buff = info.GetBuff(myHandle, buff_id)
-            local max_charge = buff_table[str_buff_id].max_charge
-            local color = buff_table[str_buff_id].color
 
-            gauge:SetSkinName("gauge");
-            gauge:SetColorTone(color)
-            if buff ~= nil then
-                gauge:SetPoint(buff.over, max_charge);
-                gauge:AddStat('{ol}{s20}%v/%m');
-                gauge:SetStatFont(0, 'quickiconfont');
-                gauge:SetStatOffset(0, 20, 0);
-                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+            local my_handle = session.GetMyHandle()
+            local buff = info.GetBuff(my_handle, buff_id)
+            local buff_class = GetClassByType('Buff', buff_id)
+
+            if mode == "icon" then
+
+                local icon = icon_frame:CreateOrGetControl("picture", "icon_" .. buff_id, icon_count * 50, 0, 50, 50)
+                AUTO_CAST(icon)
+                icon:SetGravity(ui.CENTER_HORZ, ui.TOP)
+                icon:SetImage('icon_' .. buff_class.Icon)
+                icon:EnableHitTest(0)
+
+                local buff_count = icon:CreateOrGetControl("richtext", "buff_count" .. buff_id, 0, 0, 40, 40)
+                AUTO_CAST(buff_count)
+                buff_count:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+                buff_count:SetText("{ol}{s40}" .. buff.over)
+
+                if buff.over == 0 then
+                    icon:SetColorTone("FF111111")
+                else
+                    icon:SetColorTone("FFFFFFFF")
+                end
+
+                icon_frame:Resize(icon_count * 50 + 10, 50 + 10)
+                icon_count = icon_count + 1
+
             else
-                gauge:SetPoint(0, max_charge);
-                gauge:AddStat('{ol}{s20}%v/%m');
-                gauge:SetStatFont(0, 'quickiconfont');
-                gauge:SetStatOffset(0, 20, 0);
-                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buff_id, 10, y * 25 + 10, 160, 20);
+                AUTO_CAST(gauge)
+                -- local actor = world.GetActor(myHandle)
+                local max_charge = buff_table[str_buff_id].max_charge
+                local color = buff_table[str_buff_id].color
+
+                gauge:SetSkinName("gauge");
+                gauge:SetColorTone(color)
+                if buff ~= nil then
+                    gauge:SetPoint(buff.over, max_charge);
+                    gauge:AddStat('{ol}{s20}%v/%m');
+                    gauge:SetStatFont(0, 'quickiconfont');
+                    gauge:SetStatOffset(0, 20, 0);
+                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                else
+                    gauge:SetPoint(0, max_charge);
+                    gauge:AddStat('{ol}{s20}%v/%m');
+                    gauge:SetStatFont(0, 'quickiconfont');
+                    gauge:SetStatOffset(0, 20, 0);
+                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                end
+
+                local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160, 20)
+                AUTO_CAST(buff_text)
+                buff_text:SetText("{ol}{s12}" .. GetClassByType("Buff", tonumber(str_buff_id)).Name)
+
+                y = y + 1
             end
-
-            local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160, 20)
-            AUTO_CAST(buff_text)
-            buff_text:SetText("{ol}{s12}" .. GetClassByType("Buff", tonumber(str_buff_id)).Name)
-
-            y = y + 1
         end
 
     end
@@ -587,8 +638,8 @@ end
 
 function freedom_skill_notice_buff_remove(frame, msg, str, buff_type)
     local frame = ui.GetFrame("freedom_skill_notice")
-    local myHandle = session.GetMyHandle()
-    local actor = world.GetActor(myHandle)
+    -- local my_handle = session.GetMyHandle()
+    -- local actor = world.GetActor(my_handle)
 
     local buff_table = g.settings["buffs"]
     local cid_table = g.settings[tostring(g.cid)]
@@ -598,16 +649,31 @@ function freedom_skill_notice_buff_remove(frame, msg, str, buff_type)
             local buff_id = tonumber(str_buff_id)
             local effect = buff_table[str_buff_id].effect
             local max_charge = buff_table[str_buff_id].max_charge
+            local mode = buff_table[str_buff_id].mode
+            if mode == "icon" then
+                local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
+                if icon_frame ~= nil then
+                    local icon = GET_CHILD_RECURSIVELY(icon_frame, "icon_" .. buff_id)
+                    AUTO_CAST(icon)
+                    icon:SetColorTone("FF111111")
 
-            local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
-            AUTO_CAST(gauge)
-            gauge:RemoveAllChild()
-            gauge:SetPoint(0, max_charge);
-            gauge:SetStatFont(0, 'quickiconfont');
-            gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
-            gauge:EnableHitTest(0)
+                    local buff_count = GET_CHILD_RECURSIVELY(icon, "buff_count" .. buff_id)
+                    AUTO_CAST(buff_count)
+                    buff_count:SetText("{ol}{s40}0")
 
-            gauge:SetColorTone(buff_table[str_buff_id].color);
+                end
+            else
+                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
+                AUTO_CAST(gauge)
+                gauge:RemoveAllChild()
+                gauge:SetPoint(0, max_charge);
+                gauge:SetStatFont(0, 'quickiconfont');
+                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                gauge:EnableHitTest(0)
+
+                gauge:SetColorTone(buff_table[str_buff_id].color);
+
+            end
 
             if effect ~= "None" then
                 effect.DetachActorEffect(actor, buff_table[str_buff_id].effect, 0)
@@ -619,8 +685,8 @@ end
 
 function freedom_skill_notice_buff_add(frame, msg, str, buff_type)
     local frame = ui.GetFrame("freedom_skill_notice")
-    local myHandle = session.GetMyHandle()
-    local actor = world.GetActor(myHandle)
+    local my_handle = session.GetMyHandle()
+    -- local actor = world.GetActor(myHandle)
 
     local buff_table = g.settings["buffs"]
     local cid_table = g.settings[tostring(g.cid)]
@@ -629,16 +695,30 @@ function freedom_skill_notice_buff_add(frame, msg, str, buff_type)
         if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
             local buff_id = tonumber(str_buff_id)
             local max_charge = buff_table[str_buff_id].max_charge
-            local buff_class = info.GetBuff(myHandle, buff_id)
+            local buff_class = info.GetBuff(my_handle, buff_id)
+            local mode = buff_table[str_buff_id].mode
 
             if buff_class ~= nil then
-                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
-                AUTO_CAST(gauge)
-                gauge:RemoveAllChild()
-                gauge:SetPoint(buff_class.over, max_charge)
-                gauge:SetStatFont(0, 'quickiconfont');
-                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
-                gauge:EnableHitTest(0)
+
+                if mode == "icon" then
+                    local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
+                    if icon_frame ~= nil then
+                        local icon = GET_CHILD_RECURSIVELY(icon_frame, "icon_" .. buff_id)
+                        AUTO_CAST(icon)
+                        icon:SetColorTone("FFFFFFFF")
+                        local buff_count = GET_CHILD_RECURSIVELY(icon, "buff_count" .. buff_id)
+                        AUTO_CAST(buff_count)
+                        buff_count:SetText("{ol}{s40}buff_class.over")
+                    end
+                else
+                    local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
+                    AUTO_CAST(gauge)
+                    gauge:RemoveAllChild()
+                    gauge:SetPoint(buff_class.over, max_charge)
+                    gauge:SetStatFont(0, 'quickiconfont');
+                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                    gauge:EnableHitTest(0)
+                end
 
                 g.buffs[str_buff_id] = false
             end
@@ -651,8 +731,100 @@ end
 function freedom_skill_notice_buff_update(frame, msg, str, buff_type)
 
     local frame = ui.GetFrame("freedom_skill_notice")
-    local myHandle = session.GetMyHandle()
-    local actor = world.GetActor(myHandle)
+    local my_handle = session.GetMyHandle()
+
+    -- キャッシュ
+    local buff_table = g.settings["buffs"]
+    local cid_table = g.settings[tostring(g.cid)]
+    local str_buff_type = tostring(buff_type) -- buff_typeを文字列に変換
+
+    -- 指定されたバフが有効でない場合はスキップ
+    if cid_table[str_buff_type] ~= "YES" or not buff_table[str_buff_type] then
+        return
+    end
+
+    local buff_data = buff_table[str_buff_type]
+    local buff_class = info.GetBuff(my_handle, tonumber(str_buff_type)) -- buff_idも取得
+
+    -- バフが存在しない場合は処理をスキップ
+    if buff_class == nil then
+        return
+    end
+
+    -- モードによる処理分岐
+    if buff_data.mode == "icon" then
+        local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
+        if icon_frame then
+            local icon = GET_CHILD_RECURSIVELY(icon_frame, "icon_" .. str_buff_type)
+            if icon then
+                AUTO_CAST(icon)
+
+                -- バフカウント更新
+                local buff_count = GET_CHILD_RECURSIVELY(icon, "buff_count" .. str_buff_type)
+                if buff_count then
+                    AUTO_CAST(buff_count)
+                    buff_count:SetText(string.format("{ol}{s40}%d", buff_class.over))
+                end
+
+                -- バフが最大スタックに達した場合の処理
+                if buff_class.over == buff_data.max_charge and not g.buffs[str_buff_type] then
+                    apply_buff_effects(buff_data)
+                    g.buffs[str_buff_type] = true
+                end
+            end
+        end
+
+    else -- "gauge"モードの場合
+        local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. str_buff_type)
+        if gauge then
+            AUTO_CAST(gauge)
+            gauge:RemoveAllChild()
+            gauge:SetPoint(buff_class.over, buff_data.max_charge)
+            gauge:SetStatFont(0, 'quickiconfont')
+            gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT)
+            gauge:EnableHitTest(0)
+
+            -- バフが最大スタックに達した場合の処理
+            if buff_class.over == buff_data.max_charge and not g.buffs[str_buff_type] then
+                apply_buff_effects(buff_data)
+                gauge:SetColorTone("FFFF0000") -- 色の変更
+                g.buffs[str_buff_type] = true
+            end
+        end
+    end
+end
+
+-- バフのエフェクトとサウンドを適用するための共通関数
+function freedom_skill_notice_apply_buff_effects(buff_data)
+    local effect = buff_data.effect
+    if effect and effect ~= "None" then
+        local size = buff_data.size or 1.0
+        effect.AddActorEffectByOffset(actor, effect, size, "MID", true, true)
+    end
+
+    local sound = buff_data.sound
+    if sound and sound ~= "None" then
+        imcSound.PlaySoundEvent(sound)
+    end
+end
+
+function freedom_skill_notice_end_drag(frame, ctrl, str, num)
+
+    if frame:GetName() == "freedom_skill_notice" then
+        g.settings.x = frame:GetX()
+        g.settings.y = frame:GetY()
+    elseif frame:GetName() == addonNameLower .. "icon_frame" then
+        g.settings.icon_x = frame:GetX()
+        g.settings.icon_y = frame:GetY()
+    end
+    freedom_skill_notice_save_settings()
+end
+
+--[[function freedom_skill_notice_buff_update(frame, msg, str, buff_type)
+
+    local frame = ui.GetFrame("freedom_skill_notice")
+    local my_handle = session.GetMyHandle()
+    -- local actor = world.GetActor(myHandle)
 
     local buff_table = g.settings["buffs"]
     local cid_table = g.settings[tostring(g.cid)]
@@ -661,44 +833,58 @@ function freedom_skill_notice_buff_update(frame, msg, str, buff_type)
         if tostring(buff_type) == str_buff_id and cid_table[str_buff_id] == "YES" then
             local buff_id = tonumber(str_buff_id)
             local max_charge = buff_table[str_buff_id].max_charge
-            local buff_class = info.GetBuff(myHandle, buff_id)
+            local buff_class = info.GetBuff(my_handle, buff_id)
+            local mode = buff_table[str_buff_id].mode
 
             if buff_class ~= nil then
-                local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
-                AUTO_CAST(gauge)
-                gauge:RemoveAllChild()
-                gauge:SetPoint(buff_class.over, max_charge)
-                gauge:SetStatFont(0, 'quickiconfont');
-                gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
-                gauge:EnableHitTest(0)
+                if mode == "icon" then
+                    local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
+                    if icon_frame ~= nil then
+                        local icon = GET_CHILD_RECURSIVELY(icon_frame, "icon_" .. buff_id)
+                        AUTO_CAST(icon)
+                        local buff_count = GET_CHILD_RECURSIVELY(icon, "buff_count" .. buff_id)
+                        AUTO_CAST(buff_count)
+                        buff_count:SetText("{ol}{s40}buff_class.over")
 
-                if buff_class.over == max_charge and not g.buffs[buff_id] then
-                    local effect = buff_table[str_buff_id].effect
-                    local size = buff_table[str_buff_id].size
-                    effect.AddActorEffectByOffset(actor, effect, size, "MID", true, true)
-
-                    local sound = buff_table[str_buff_id].sound
-                    if sound ~= "None" then
-                        imcSound.PlaySoundEvent(sound)
+                        if buff_class.over == max_charge and not g.buffs[buff_id] then
+                            local effect = buff_table[str_buff_id].effect
+                            local size = buff_table[str_buff_id].size
+                            effect.AddActorEffectByOffset(actor, effect, size, "MID", true, true)
+                            local sound = buff_table[str_buff_id].sound
+                            if sound ~= "None" then
+                                imcSound.PlaySoundEvent(sound)
+                            end
+                            g.buffs[str_buff_id] = true
+                        end
                     end
-                    gauge:SetColorTone("FFFF0000")
-                    g.buffs[str_buff_id] = true
+                else
+                    local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
+                    AUTO_CAST(gauge)
+                    gauge:RemoveAllChild()
+                    gauge:SetPoint(buff_class.over, max_charge)
+                    gauge:SetStatFont(0, 'quickiconfont');
+                    gauge:SetStatAlign(0, ui.CENTER_HORZ, ui.CENTER_VERT);
+                    gauge:EnableHitTest(0)
+
+                    if buff_class.over == max_charge and not g.buffs[buff_id] then
+                        local effect = buff_table[str_buff_id].effect
+                        local size = buff_table[str_buff_id].size
+                        effect.AddActorEffectByOffset(actor, effect, size, "MID", true, true)
+
+                        local sound = buff_table[str_buff_id].sound
+                        if sound ~= "None" then
+                            imcSound.PlaySoundEvent(sound)
+                        end
+                        gauge:SetColorTone("FFFF0000")
+                        g.buffs[str_buff_id] = true
+                    end
                 end
             end
 
         end
     end
 
-end
-
-function freedom_skill_notice_end_drag(frame, ctrl, str, num)
-
-    if frame:GetName() == "freedom_skill_notice" then
-        g.settings.x = frame:GetX()
-        g.settings.y = frame:GetY()
-    end
-    freedom_skill_notice_save_settings()
-end
+end]]
 
 --[[function freedom_skill_notice_new_buff_frame()
 
