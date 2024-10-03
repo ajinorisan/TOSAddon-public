@@ -447,6 +447,7 @@ function indun_list_viewer_title_frame_open()
     AUTO_CAST(auto_text)
     auto_text:SetText("{ol}" .. ac_text)
 
+    -- ゴーレムH712 A710 S711 ネリンガH709 A707 S708 
     local icon_table = {
         [1] = {
             iconName = "icon_item_misc_merregina_blackpearl",
