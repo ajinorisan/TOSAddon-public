@@ -12,10 +12,11 @@
 -- v1.1.1 INIT時に余計な読み込みで遅くなってたのを修正。ロードボタン押した時にパースする様に修正。
 -- v1.1.2 ロードボタン押した時のバグ修正
 -- v1.1.3 520アプデ対応
+-- v1.1.4 ネリゴレハード対応。jsonファイルから直接対応増やせる様に変更。これで僕が死んでもある程度使えると思う。
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -41,12 +42,19 @@ function g.SetupHook(func, baseFuncName)
 end
 
 local raid_list = {
-    Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711},
+    Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711, 709, 712},
     Klaida = {686, 685, 687},
     Velnias = {689, 688, 690, 669, 635, 628, 696, 695, 697},
     Forester = {672, 671, 670},
     Widling = {677, 676, 678}
 }
+-- local raid_list = {}
+local zone_id_list = {11261, 11250, 11263, 11266, 11252, 11256, 11230, 11208, 11270, 11276, 11277}
+-- local zone_id_list = {}
+-- ies.ipf/indun.ies レイド番号で探せ
+local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyForest", "Raid_AbyssalObserver",
+                   "raid_Jellyzele", "raId_castle_ep14", "raid_giltine_AutoGuild", "raid_dcapital_108",
+                   "raid_kivotos_island", "Raid_DarkNeringa", "Raid_CrystalGolem"}
 
 local potion_list = {
     Velnias = 640504,
@@ -63,10 +71,6 @@ local down_potion_list = {
     Widling = 640377,
     Forester = 640376
 }
--- ies.ipf/indun.ies レイド番号で探せ
-local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyForest", "Raid_AbyssalObserver",
-                   "raid_Jellyzele", "raId_castle_ep14", "raid_giltine_AutoGuild", "raid_dcapital_108",
-                   "raid_kivotos_island", "Raid_DarkNeringa", "Raid_CrystalGolem"}
 
 function quickslot_operate_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
@@ -87,26 +91,138 @@ function quickslot_operate_load_settings()
     acutil.saveJSON(g.frame_settingsFileLoc, g.frame_settings)
 end
 
+function quickslot_operate_load_settings()
+    -- ファイルが存在するかをチェックする関数
+    local function file_exists(filePath)
+        local file = io.open(filePath, "r") -- 読み込みモードでファイルを開く
+        if file then
+            file:close() -- ファイルが存在すれば閉じる
+            return true
+        else
+            return false
+        end
+    end
+
+    -- ファイルの内容を読み込んでデコードする関数
+    local function load_json_file(filePath)
+        local file = io.open(filePath, "r") -- 読み込み用にファイルを開く
+        if file then
+            local content = file:read("*a") -- ファイル全体を読み込む
+            file:close() -- ファイルを閉じる
+
+            --[[for key, value in pairs(json.decode(content)) do
+                if type(value) == "table" then
+                    for k, v in pairs(value) do
+                        print(key .. ": " .. tostring(v))
+                    end
+                else
+                    print(key .. ": " .. tostring(value))
+                end
+
+            end]]
+            return json.decode(content) -- JSONをデコードしてLuaテーブルに変換
+        end
+        return nil -- 読み込みに失敗した場合はnilを返す
+    end
+
+    -- リストをファイルに保存する関数
+    local function save_json_file(filePath, data)
+        local json_output = json.encode(data) -- LuaテーブルをJSONにエンコード
+        local file = io.open(filePath, "w") -- 書き込み用にファイルを開く
+        if file then
+            file:write(json_output) -- JSONをファイルに書き込む
+            file:close() -- ファイルを閉じる
+            print("JSONファイルが保存されました: " .. string.gsub(filePath, "../", "\\"))
+        end
+    end
+
+    -- raid_list.json の読み込みと上書き処理
+    local raid_list_file_location = string.format('../addons/%s/raid_list.json', addonNameLower)
+    if file_exists(raid_list_file_location) then
+        -- ファイルが存在する場合、既存のリストを読み込む
+        local existing_raid_list = load_json_file(raid_list_file_location)
+        if existing_raid_list then
+            -- Lua上の raid_list を既存のリストで上書き
+            raid_list = existing_raid_list
+
+        end
+    else
+        -- ファイルが存在しない場合は新規作成
+        save_json_file(raid_list_file_location, raid_list)
+    end
+
+    -- zone_id_list.json の読み込みと上書き処理
+    local zone_id_list_file_location = string.format('../addons/%s/zone_id_list.json', addonNameLower)
+    if file_exists(zone_id_list_file_location) then
+        -- ファイルが存在する場合、既存のリストを読み込む
+        local existing_zone_id_list = load_json_file(zone_id_list_file_location)
+        if existing_zone_id_list then
+            -- Lua上の zone_id_list を既存のリストで上書き
+            zone_id_list = existing_zone_id_list
+
+        end
+    else
+        -- ファイルが存在しない場合は新規作成
+        save_json_file(zone_id_list_file_location, zone_id_list)
+    end
+end
+
+function quickslot_operate_INDUNINFO_DETAIL_LBTN_CLICK(frame, msg)
+    local parent, detailCtrl, clicked = acutil.getEventArgs(msg)
+
+    local frame = parent:GetTopParentFrame();
+    local posbox = GET_CHILD_RECURSIVELY(frame, "posBox")
+    local childCount = posbox:GetChildCount()
+    local map_id = ""
+    -- 各子要素の名前を取得して表示
+    for i = 0, childCount - 1 do
+        local child = posbox:GetChildByIndex(i) -- 子要素をインデックスで取得
+        if string.find(child:GetName(), "MAP_CTRL_") then
+            map_id = string.gsub(child:GetName(), "MAP_CTRL_", "")
+        end
+    end
+    local indunClassID = detailCtrl:GetUserIValue('INDUN_CLASS_ID');
+    local indun = GetClassByType('Indun', indunClassID)
+    local dungeonType = TryGetProp(indun, "DungeonType");
+    local ctrl = GET_CHILD_RECURSIVELY(parent, detailCtrl:GetName())
+    AUTO_CAST(ctrl)
+    if dungeonType == "Raid" then
+        -- print(tostring(ctrl:GetName()))
+        ctrl:SetEventScript(ui.RBUTTONUP, "quickslot_operate_displayid")
+        ctrl:SetEventScriptArgNumber(ui.RBUTTONUP, indunClassID)
+        ctrl:SetEventScriptArgString(ui.RBUTTONUP, map_id)
+    end
+end
+
+function quickslot_operate_displayid(frame, ctrl, map_id, indun_id)
+
+    ui.SysMsg("indun id: " .. indun_id .. "{nl}map id: " .. map_id)
+end
+
 function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
 
+    addon:RegisterMsg('GAME_START', 'quickslot_operate_json_settings')
     acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
     addon:RegisterMsg('GAME_START_3SEC', 'quickslot_operate_set_script')
+    acutil.setupEvent(addon, "INDUNINFO_DETAIL_LBTN_CLICK", "quickslot_operate_INDUNINFO_DETAIL_LBTN_CLICK");
 
     quickslot_operate_load_settings()
 
     local currentZone = GetZoneName()
+    local mapCls = GetClass('Map', currentZone)
+    local map_id = mapCls.ClassID
 
-    for _, zone in ipairs(zone_list) do
-        if zone == currentZone then
+    for _, zone_id in ipairs(zone_id_list) do
+        if zone_id == map_id then
             ReserveScript("quickslot_operate_change_potion()", 6.0)
             break
         end
-
     end
+
     quickslot_operate_frame_init()
     if g.frame_settings.straight == true then
         quickslot_operate_start_straight()
@@ -145,7 +261,6 @@ function quickslot_operate_save_icon()
                 ["iesid"] = iesid
             }
         end
-        -- print(category .. ":" .. type .. ":" .. iesid)
     end
     ui.SysMsg("Slot contents saved.")
     quickslot_operate_save_settings()
