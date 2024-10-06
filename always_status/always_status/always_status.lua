@@ -16,10 +16,11 @@
 -- v1.1.5 効果音のバグ再修正。
 -- v1.1.6 色選べる様に。コード書き直した。もちろん設定ファイルは初期化される。
 -- v1.1.7 ギアスコアの反映を見直し。フレーム表示のタイミングも見直し
+-- v1.1.8 海外で数字が切れるらしいところ修正。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.7"
+local ver = "1.1.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -31,6 +32,9 @@ g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 local acutil = require("acutil")
 local os = require("os")
 local json = require("json")
+
+local folder_path = string.format("../addons/%s", addonNameLower)
+os.execute('mkdir "' .. folder_path .. '"')
 
 local status_list = {"STR", "INT", "CON", "MNA", "DEX", "gear_score", "ability_point_score", "PATK", "MATK", "HEAL_PWR",
                      "SR", "HR", "BLK_BREAK", "CRTATK", "CRTMATK", "CRTHR", "DEF", "MDEF", "SDR", "DR", "BLK", "CRTDR",
@@ -643,8 +647,6 @@ function always_status_frame_init()
 
                         local stat = frame:CreateOrGetControl("richtext", "stat" .. k, 165, y)
                         AUTO_CAST(stat)
-                        -- stat:SetEventScript(ui.RBUTTONDOWN, "always_status_info_setting")
-                        -- stat:SetTextTooltip(always_status_language("Right-click to set display"))
 
                         if status == "STR" or status == "INT" or status == "CON" or status == "MNA" or status == "DEX" then
                             for i = 0, 4 do
@@ -695,6 +697,9 @@ function always_status_frame_init()
                         end
                         y = y + 20
                         title:AdjustFontSizeByWidth(150)
+                        if (option.GetCurrentCountry() ~= "Japanese") then
+                            stat:AdjustFontSizeByWidth(135)
+                        end
                         break
                     end
 
@@ -705,7 +710,7 @@ function always_status_frame_init()
         if (option.GetCurrentCountry() == "Japanese") then
             frame:Resize(260, y + 10)
         else
-            frame:Resize(300, y + 10)
+            frame:Resize(310, y + 10)
         end
 
         frame:ShowWindow(1)
@@ -714,7 +719,7 @@ function always_status_frame_init()
 end
 
 function always_status_update()
-    -- print("test")
+
     local frame = ui.GetFrame(addonNameLower)
     local statframe = ui.GetFrame("status")
     local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
