@@ -316,5 +316,15 @@
 		"unicode" : "⛄",
 		"description" : "倉庫をインベントリ風に改造します。自動搬出入機能付き。<br>Converts warehouse to inventory style. Includes automatic loading/unloading function.<br>창고를 인벤토리 스타일로 개조합니다. 자동 반입 및 반출 기능 포함.",
 		"tags" : []
+	},
+	{
+		"name" : "Indun List Viewer",
+		"file" : "indun_list_viewer",
+		"extension" : "ipf",
+		"fileVersion" : "v1.2.0",
+		"releaseTag" : "indun_list_viewer",
+		"unicode" : "⛄",
+		"description" : "レイドの消化状況を一覧表示します。instantccアドオンを入れていると職アイコンクリックでCCします。<br>List raid digests. cc by clicking on the job icon if you have the instantcc add-on.<br>레이드 소화 현황을 나열하며, instantcc 애드온을 넣었다면 직업 아이콘 클릭으로 CC를 합니다.",
+		"tags" : []
 	}
 ]
