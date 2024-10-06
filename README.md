@@ -186,6 +186,22 @@ v1.0.0 公開。
 
 　
 
+### Skill Notice Free
+
+回数系バフをお知らせ。自分で登録必要。mutekiの回数版的なやつ。ミニマップ右下の設定ボタンから設定。
+
+　
+
+v1.0.2 公開。
+　
+
+アドオンマネージャー登録済
+![キャプチャ](https://github.com/user-attachments/assets/0a5cb657-748d-490b-bc7d-c07daf48c76a)
+
+----
+
+　
+
 ### Skill Notice
 
 ピクティス、バトルスピリット、チャージアロー、リロードバフをお知らせ
