@@ -42,10 +42,11 @@
 -- v1.4.2 色々バグ修正。
 -- v1.4.3 設定でレイドを非表示にしてた場合に更新処理バグってたの修正。
 -- v1.4.4 分裂券のデイリー分買えなかったの修正。くやしい
+-- v1.4.5 ネリゴレハード追加
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.4"
+local ver = "1.4.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -302,12 +303,14 @@ local induntype = {{
     }
 }, {
     neringa = {
+        h = 709,
         s = 708,
         a = 707,
         ac = 80035
     }
 }, {
     golem = {
+        h = 712,
         s = 711,
         a = 710,
         ac = 80037
