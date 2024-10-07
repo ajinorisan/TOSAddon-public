@@ -1,10 +1,11 @@
 -- v1.0.0 作ってみた
 -- v1.0.1 見直した。自動フォルダ作成機能。
 -- v1.0.2 回数の色の挙動修正。一般公開。
+-- v1.0.3 バフ登録時のバグ修正
 local addonName = "skill_notice_free"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -330,40 +331,39 @@ function skill_notice_free_setting(frame, ctrl, str, num)
 
     local function create_slot_and_edit(index, y, buff_id)
 
-        local buff_slot = setting_frame:CreateOrGetControl("slot", "buff_slot" .. index, 10, y, 50, 50)
+        local buff_slot = setting_frame:CreateOrGetControl("slot", "buff_slot" .. buff_id, 10, y, 50, 50)
         AUTO_CAST(buff_slot)
         buff_slot:EnablePop(0)
         buff_slot:EnableDrop(0)
         buff_slot:EnableDrag(0)
         buff_slot:SetSkinName("invenslot2")
 
-        local buffid_edit = setting_frame:CreateOrGetControl("edit", "buffid_edit" .. index, 10, y - 20, 70, 20)
+        local buffid_edit = setting_frame:CreateOrGetControl("edit", "buffid_edit" .. buff_id, 10, y - 20, 70, 20)
         AUTO_CAST(buffid_edit)
         buffid_edit:SetFontName("white_16_ol")
         buffid_edit:SetTextAlign("center", "center")
         buffid_edit:SetEventScript(ui.ENTERKEY, "skill_notice_free_buffid_edit")
-        buffid_edit:SetEventScriptArgString(ui.ENTERKEY, setting_frame:GetName())
+        buffid_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
         buffid_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
 
-        if buff_id then
+        local buff_class = GetClassByType("Buff", buff_id)
+
+        if buff_class then
+
             buffid_edit:SetText(buff_id)
 
-            local buff_class = GetClassByType("Buff", buff_id)
-            if buff_class then
+            local buff_name = buff_class.ClassName
+            local image_name = GET_BUFF_ICON_NAME(buff_class)
+            SET_SLOT_ICON(buff_slot, image_name)
 
-                local buff_name = buff_class.ClassName
-                local image_name = GET_BUFF_ICON_NAME(buff_class)
-                SET_SLOT_ICON(buff_slot, image_name)
+            local icon = CreateIcon(buff_slot)
+            AUTO_CAST(icon)
+            icon:SetTooltipType("buff")
+            icon:SetTooltipArg(buff_name, buff_id, 0)
+            buff_slot:Invalidate()
 
-                local icon = CreateIcon(buff_slot)
-                AUTO_CAST(icon)
-                icon:SetTooltipType("buff")
-                icon:SetTooltipArg(buff_name, buff_id, 0)
-                buff_slot:Invalidate()
-            end
+            skill_notice_free_buffid_edit(frame, buffid_edit, buff_id, index)
 
-            local save_flag = false
-            skill_notice_free_buffid_edit(frame, buffid_edit, setting_frame:GetName(), index, save_flag)
         end
 
     end
@@ -371,7 +371,7 @@ function skill_notice_free_setting(frame, ctrl, str, num)
     local buff_table = g.settings["buffs"]
 
     if next(buff_table) == nil then
-        create_slot_and_edit(index - 1, y, nil)
+        create_slot_and_edit(index, y, 0)
     else
         for str_buff_id, _ in pairs(buff_table) do
             local buff_id = tonumber(str_buff_id)
@@ -379,7 +379,7 @@ function skill_notice_free_setting(frame, ctrl, str, num)
             index = index + 1
             y = y + 80
         end
-        create_slot_and_edit(index, y, nil)
+        create_slot_and_edit(index, y, 0)
     end
 
     setting_frame:Resize(615, y + 60)
@@ -392,11 +392,12 @@ function skill_notice_free_newframe_close(frame, ctrl, argStr, argNum)
     skill_notice_free_frame_init()
 end
 
-function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, save_flag)
+function skill_notice_free_buffid_edit(frame, buffid_edit, buff_id, index)
 
-    local frame = ui.GetFrame(frame_name)
+    local frame = ui.GetFrame(addonNameLower .. "setting_frame")
     local buff_id = tonumber(buffid_edit:GetText())
-    if buff_id == nil then
+    if buff_id == nil or buff_id == 0 then
+        buffid_edit:SetText("")
         return
     end
 
@@ -409,9 +410,9 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
 
         local buff_name = buff_class.ClassName
 
-        if save_flag == nil then
+        if buff_table[str_buff_id] == nil then
 
-            buff_table[str_buff_id] = buff_table[str_buff_id] or {}
+            buff_table[str_buff_id] = {}
             buff_table[str_buff_id].name = buff_name
             buff_table[str_buff_id].color = "FFFFFF00"
             buff_table[str_buff_id].effect = "None"
@@ -424,7 +425,7 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
             skill_notice_free_setting(nil, nil, nil, nil)
         end
 
-        local buff_slot = GET_CHILD_RECURSIVELY(frame, "buff_slot" .. index)
+        local buff_slot = GET_CHILD_RECURSIVELY(frame, "buff_slot" .. buff_id)
         local image_name = GET_BUFF_ICON_NAME(buff_class)
         SET_SLOT_ICON(buff_slot, image_name)
 
@@ -435,33 +436,33 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
         buff_slot:Invalidate()
 
         local y = index == 1 and 50 or (index - 1) * 80 + 50
-        local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. index, 115, y - 20, 200, 20)
+        local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. buff_id, 115, y - 20, 200, 20)
         AUTO_CAST(buff_text)
         local dic_buff_name = buff_class.Name
         buff_text:SetText("{ol}" .. dic_buff_name)
 
-        local sound_text = frame:CreateOrGetControl("richtext", "sound_text" .. index, 70, y, 200, 20)
+        local sound_text = frame:CreateOrGetControl("richtext", "sound_text" .. buff_id, 70, y, 200, 20)
         AUTO_CAST(sound_text)
         sound_text:SetText("{ol}Sound Config")
 
-        local sound_config = frame:CreateOrGetControl("button", "sound_config" .. index, 180, y, 25, 25)
+        local sound_config = frame:CreateOrGetControl("button", "sound_config" .. buff_id, 180, y, 25, 25)
         AUTO_CAST(sound_config)
         sound_config:SetSkinName("None")
         sound_config:SetText("{img config_button_normal 25 25}")
         sound_config:SetEventScript(ui.LBUTTONUP, "skill_notice_free_sound_select")
         sound_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
-        local color_text = frame:CreateOrGetControl("richtext", "color_text" .. index, 215, y, 200, 20)
+        local color_text = frame:CreateOrGetControl("richtext", "color_text" .. buff_id, 215, y, 200, 20)
         AUTO_CAST(color_text)
         color_text:SetText("{ol}Gauge Color")
 
-        local color_box = frame:CreateOrGetControl("groupbox", "color_box" .. index, 315, y, 220, 20)
+        local color_box = frame:CreateOrGetControl("groupbox", "color_box" .. buff_id, 315, y, 220, 20)
         AUTO_CAST(color_box)
         for i = 0, 9 do
             local color_class = color_tabel[i + 1]
 
             if color_class ~= nil then
-                local color = color_box:CreateOrGetControl("picture", "color" .. index .. "_" .. i, 20 * i, 0, 20, 20)
+                local color = color_box:CreateOrGetControl("picture", "color" .. buff_id .. "_" .. i, 20 * i, 0, 20, 20)
                 AUTO_CAST(color)
                 color:SetImage("chat_color")
                 color:SetColorTone("FF" .. color_class)
@@ -472,22 +473,22 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
             end
         end
 
-        local effect_text = frame:CreateOrGetControl("richtext", "effect_text" .. index, 70, y + 30, 200, 20)
+        local effect_text = frame:CreateOrGetControl("richtext", "effect_text" .. buff_id, 70, y + 30, 200, 20)
         AUTO_CAST(effect_text)
         effect_text:SetText("{ol}Effect Config")
 
-        local effect_config = frame:CreateOrGetControl("button", "effect_config" .. index, 180, y + 30, 25, 25)
+        local effect_config = frame:CreateOrGetControl("button", "effect_config" .. buff_id, 180, y + 30, 25, 25)
         AUTO_CAST(effect_config)
         effect_config:SetSkinName("None")
         effect_config:SetText("{img config_button_normal 25 25}")
         effect_config:SetEventScript(ui.LBUTTONUP, "skill_notice_free_effect_select")
         effect_config:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
-        local size_text = frame:CreateOrGetControl("richtext", "size_text" .. index, 215, y + 30, 200, 20)
+        local size_text = frame:CreateOrGetControl("richtext", "size_text" .. buff_id, 215, y + 30, 200, 20)
         AUTO_CAST(size_text)
         size_text:SetText("{ol}Effect Size")
 
-        local size_edit = frame:CreateOrGetControl("edit", "size_edit" .. index, 310, y + 30, 40, 20)
+        local size_edit = frame:CreateOrGetControl("edit", "size_edit" .. buff_id, 310, y + 30, 40, 20)
         AUTO_CAST(size_edit)
         size_edit:SetFontName("white_16_ol")
         size_edit:SetTextAlign("center", "center")
@@ -496,11 +497,11 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
         size_edit:SetEventScript(ui.ENTERKEY, "skill_notice_free_size_edit")
         size_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
 
-        local charge_text = frame:CreateOrGetControl("richtext", "charge_text" .. index, 355, y + 30, 200, 20)
+        local charge_text = frame:CreateOrGetControl("richtext", "charge_text" .. buff_id, 355, y + 30, 200, 20)
         AUTO_CAST(charge_text)
         charge_text:SetText("{ol}Max Charge")
 
-        local charge_edit = frame:CreateOrGetControl("edit", "charge_edit" .. index, 455, y + 30, 40, 20)
+        local charge_edit = frame:CreateOrGetControl("edit", "charge_edit" .. buff_id, 455, y + 30, 40, 20)
         AUTO_CAST(charge_edit)
         charge_edit:SetFontName("white_16_ol")
         charge_edit:SetTextAlign("center", "center")
@@ -509,11 +510,11 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
         charge_edit:SetEventScript(ui.ENTERKEY, "skill_notice_free_charge_edit")
         charge_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
 
-        local display_text = frame:CreateOrGetControl("richtext", "display_text" .. index, 520, y, 200, 20)
+        local display_text = frame:CreateOrGetControl("richtext", "display_text" .. buff_id, 520, y, 200, 20)
         AUTO_CAST(display_text)
         display_text:SetText("{ol}Display")
 
-        local display_check = frame:CreateOrGetControl("checkbox", "display_check" .. index, 585, y - 5, 20, 20)
+        local display_check = frame:CreateOrGetControl("checkbox", "display_check" .. buff_id, 585, y - 5, 20, 20)
         AUTO_CAST(display_check)
         display_check:SetTextTooltip("Displayed when checked{nl}Set by character")
 
@@ -521,11 +522,11 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
         display_check:SetEventScript(ui.LBUTTONUP, "skill_notice_free_setting_check")
         display_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
-        local mode_text = frame:CreateOrGetControl("richtext", "mode_text" .. index, 520, y + 30, 200, 20)
+        local mode_text = frame:CreateOrGetControl("richtext", "mode_text" .. buff_id, 520, y + 30, 200, 20)
         AUTO_CAST(mode_text)
         mode_text:SetText("{ol}Mode")
 
-        local mode_check = frame:CreateOrGetControl("checkbox", "mode_check" .. index, 585, y + 25, 20, 20)
+        local mode_check = frame:CreateOrGetControl("checkbox", "mode_check" .. buff_id, 585, y + 25, 20, 20)
         AUTO_CAST(mode_check)
         mode_check:SetTextTooltip("Icon mode when checked")
         local mode_set = 0
@@ -536,7 +537,7 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, frame_name, index, sa
         mode_check:SetEventScript(ui.LBUTTONUP, "skill_notice_free_setting_check")
         mode_check:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
-        local delete_btn = frame:CreateOrGetControl("button", "delete_btn" .. index, 85, y - 25, 30, 30)
+        local delete_btn = frame:CreateOrGetControl("button", "delete_btn" .. buff_id, 85, y - 25, 30, 30)
         AUTO_CAST(delete_btn)
         delete_btn:SetSkinName("test_red_button")
         delete_btn:SetText("{ol}×")
