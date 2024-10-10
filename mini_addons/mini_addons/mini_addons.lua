@@ -38,10 +38,12 @@
 -- v1.3.8 マーケット出店時の数量バグ修正のバグ修正。
 -- v1.3.9 サウンドミュート機能。説明を韓国語版に翻訳。
 -- v1.4.0 ユラテコインも自動使用。バフリストバグってたの修正。
+-- v1.4.1 自分のエフェクト調整機能追加
+-- v1.4.2 ユラテコイン自動使用のバグ修正。装備忘れメッセージを520環境まで拡張。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.0"
+local ver = "1.4.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -50,6 +52,8 @@ local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
 local os = require("os")
+local folder_path = string.format("../addons/%s", addonNameLower)
+os.execute('mkdir "' .. folder_path .. '"')
 
 local base = {}
 
@@ -68,7 +72,7 @@ local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 112
                    11200160, 11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212,
                    11030211, 11030210, 11030201, 11035673, 11035670, 11035668, 11030394, 11030240, 646076, 11035672,
                    11035669, 11035667, 11035457, 11035426, 11035409, 11201239, 11201238, 11201237, 11201236, 11201235,
-                   11201234, 11201233, 1101232}
+                   11201234, 11201233, 11201232}
 
 g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
 g.buffsFileLoc = string.format('../addons/%s/buffs.json', addonNameLower)
@@ -112,7 +116,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
         relic_gauge = 1,
         raid_check = 1,
         coin_count = 0,
-        bgm = 0
+        bgm = 0,
+        my_effect = 0
     }
 
     if not settings then
@@ -168,6 +173,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     if g.settings.raid_record == 1 then
         acutil.setupEvent(addon, "RAID_RECORD_INIT", "MINI_ADDONS_RAID_RECORD_INIT")
+    end
+
+    if g.settings.my_effect == 1 then
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_MY_EFFECT_SETTING")
     end
 
     if g.settings.other_effect == 1 then
@@ -333,6 +342,8 @@ function MINI_ADDONS_LANG(str)
             str = "左上の表示をキャラクター名に変更します"
         elseif str == "Displays the channel switching frame" then
             str = "チャンネル切替フレームを表示します"
+        elseif str == "Adjust my effects from 1 to 100" then
+            str = "自分のエフェクトを調整します。1~100"
         elseif str == "Adjust other people's effects from 1 to 100, recommended 75" then
             str = "他人のエフェクトを調整します。1~100。おすすめは75"
         elseif str == "Automate the display of the Goddess Protection gacha frame" then
@@ -395,6 +406,8 @@ function MINI_ADDONS_LANG(str)
             str = "왼쪽 상단 표시를 캐릭터 이름으로 변경합니다"
         elseif str == "Displays the channel switching frame" then
             str = "채널 전환 프레임을 표시합니다"
+        elseif str == "Adjust my effects from 1 to 100" then
+            str = "자신의 효과를 조정합니다 1에서 100까지"
         elseif str == "Adjust other people's effects from 1 to 100, recommended 75" then
             str = "다른 사람의 이펙트를 1에서 100까지 조정합니다. 추천 75"
         elseif str == "Automate the display of the Goddess Protection gacha frame" then
@@ -504,6 +517,10 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         check = g.settings.channel_info,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Displays the channel switching frame")
     }, {
+        name = "my_effect",
+        check = g.settings.my_effect or 0,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Adjust my effects from 1 to 100")
+    }, {
         name = "other_effect",
         check = g.settings.other_effect,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Adjust other people's effects from 1 to 100, recommended 75")
@@ -539,7 +556,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     }}
 
     local x = 10
-    for _, setting in ipairs(settings) do
+    for i, setting in ipairs(settings) do
 
         local checkbox = frame:CreateOrGetControl('checkbox', setting.name .. "_checkbox", 10, x, 25, 25)
         AUTO_CAST(checkbox)
@@ -581,7 +598,19 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             other_effect_edit:SetTextAlign("center", "center")
             local other_effect = config.GetOtherEffectTransparency()
             local num = math.floor(other_effect * 0.392156862745 + 0.5)
-            other_effect_edit:SetText(num)
+            other_effect_edit:SetText("{ol}" .. num)
+        elseif setting.name == "my_effect" then
+
+            local my_effect_edit = frame:CreateOrGetControl('edit', 'my_effect_edit', textWidth + 15, x - 5, 60, 25)
+            AUTO_CAST(my_effect_edit)
+            my_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_MY_EFFECT_EDIT")
+            my_effect_edit:SetTextTooltip("{ol}1~100")
+            my_effect_edit:SetFontName("white_16_ol")
+            my_effect_edit:SetTextAlign("center", "center")
+
+            local my_effect = config.GetMyEffectTransparency()
+            local num = math.floor(my_effect * 0.392156862745 + 0.5)
+            my_effect_edit:SetText("{ol}" .. num)
         end
         x = x + 30
 
@@ -614,6 +643,7 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local ctrlname = ctrl:GetName()
     local settingNames = {
         other_effect = "other_effect_checkbox",
+        my_effect = "my_effect_checkbox",
         channel_info = "channel_info_checkbox",
         pc_name = "pc_name_checkbox",
         quest_hide = "quest_hide_checkbox",
@@ -674,7 +704,7 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 25, 30)
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_mac 30 30}")
-    -- btn:SetTextTooltip("{ol}左クリック:Mini Addons 設定{/}")
+
     btn:SetEventScript(ui.LBUTTONDOWN, "MINI_ADDONS_SETTING_FRAME_INIT")
     local text = g.lang == "Japanese" and "{ol}左クリック: Mini Addons 設定{nl}右クリック: MUTE" or
                      "{ol}Left click: Mini Addons settings{nl}Right click: MUTE"
@@ -1110,6 +1140,31 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
         end
     end
 
+    local neringa = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 709).PlayPerResetType)
+    local golem = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 712).PlayPerResetType)
+
+    if neringa ~= golem then
+        if langcode == "Japanese" then
+            if neringa ~= 1 then
+                imcSound.PlayMusicQueueLocal('colonywar_win')
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}ネリンガまだやってへんで？", 5.0)
+                NICO_CHAT("{@st55_a}ネリンガまだやってへんで？")
+            elseif golem ~= 1 then
+                imcSound.PlayMusicQueueLocal('colonywar_win')
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}ゴーレムまだやってへんで？", 5.0)
+                NICO_CHAT("{@st55_a}ゴーレムまだやってへんで？")
+            end
+        else
+            if neringa ~= 1 then
+                imcSound.PlayMusicQueueLocal('colonywar_win')
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}I haven't done Neringa yet, okay?", 5.0)
+            elseif golem ~= 1 then
+                imcSound.PlayMusicQueueLocal('colonywar_win')
+                _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}I haven't done Golem yet, okay?", 5.0)
+            end
+        end
+    end
+
 end
 
 function MINI_ADDONS_CHARBASE_RELIC()
@@ -1382,7 +1437,7 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
     local frame = ui.GetFrame('indunenter');
     local indunType = frame:GetUserValue('INDUN_TYPE', indunType)
 
-    local indunType_table = {665, 670, 675, 678, 681, 628, 687, 690}
+    local indunType_table = {665, 670, 675, 678, 681, 628, 687, 690, 697, 709, 712}
 
     for i = 1, #indunType_table do
         if tostring(indunType_table[i]) == tostring(indunType) then
@@ -1423,6 +1478,33 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
 
     end
 
+end
+
+function MINI_ADDONS_MY_EFFECT_EDIT(frame, ctrl)
+    local my_effect = tonumber(ctrl:GetText())
+    if my_effect <= 100 and my_effect >= 1 then
+        local num = math.floor(my_effect / 0.392156862745 + 0.5)
+
+        g.settings.my_effect_value = num
+        MINI_ADDONS_SAVE_SETTINGS()
+        config.SetMyEffectTransparency(num)
+        ui.SysMsg("my effect changed.")
+    else
+        ui.SysMsg("Not a valid value.")
+        return
+    end
+
+end
+
+function MINI_ADDONS_MY_EFFECT_SETTING()
+
+    EFFECT_TRANSPARENCY_ON()
+    local my_effect = config.GetMyEffectTransparency()
+    if g.settings.my_effect_value ~= nil then
+        config.SetMyEffectTransparency(g.settings.my_effect_value)
+    else
+        config.SetMyEffectTransparency(my_effect)
+    end
 end
 
 function MINI_ADDONS_OTHER_EFFECT_EDIT(frame, ctrl)
@@ -1589,7 +1671,7 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
         local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
         AUTO_CAST(buffslot)
         local buffCls = GetClassByType("Buff", buffID);
-        print(tostring(buffCls))
+
         if buffCls ~= nil then
             SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
 
