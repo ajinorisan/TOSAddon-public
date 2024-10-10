@@ -4,10 +4,11 @@
 -- v1.0.3 バフ登録時のバグ修正
 -- v1.0.4 エフェクト消えなかったの修正
 -- v1.0.5 バフリストから登録するバフ選べる様に
+-- v1.0.6 バフリストバグ修正
 local addonName = "skill_notice_free"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -162,7 +163,11 @@ function skill_notice_free_load_settings()
     g.settings = settings
     skill_notice_free_save_settings()
 
-    g.get_buffs = {}
+    local get_buffs, err = acutil.loadJSON(g.get_buffs_file_path, g.get_buffs)
+    if not get_buffs then
+        get_buffs = {}
+    end
+    g.get_buffs = get_buffs
     acutil.saveJSON(g.get_buffs_file_path, g.get_buffs)
 end
 
