@@ -11,45 +11,60 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
+local json = require("json")
 
-g.settingsFileLoc = string.format("../addons/%s/settings.json", addonNameLower);
-
-g.settings = {
-    f_x = 450,
-    f_y = 20
-}
-
-g.count = 0
-
-local target_map_id = {11239, -- 1F
-11242, -- 2F
-11244 -- 3F
-}
-
-g.ischecked = 0
+g.settings_file_location = string.format("../addons/%s/new_settings.json", addonNameLower);
 
 function KLCOUNT_SAVE_SETTINGS()
 
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
+    acutil.saveJSON(g.settings_file_location, g.settings);
 end
 
 function KLCOUNT_LOADSETTINGS()
 
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local settings, err = acutil.loadJSON(g.settings_file_location, g.settings)
 
     if not settings then
         settings = {
             frame_x = 1500,
-            frame_y = 20
+            frame_y = 20,
+            auto_cut = false,
+            map_ids = {}
         }
     end
 
     g.settings = settings
     KLCOUNT_SAVE_SETTINGS()
+
+end
+
+function klcount_information_context(frame, ctrl, str, num)
+
+    local context = ui.CreateContextMenu("klcount_context", "Kl Count", 0, 0, 200, 0)
+    ui.AddContextMenuItem(context, " ", "")
+
+    for i = 1, #g.settings.map_ids do
+        local display_text = GetClassByType("Map", g.settings.map_ids[i]).Name
+        local scprit = ui.AddContextMenuItem(context, display_text,
+                                             string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
+    end
+
+    ui.OpenContextMenu(context)
+end
+
+function klcount_map_information(map_id)
+
+end
+
+function klcount_information_button(frame)
+
+    local info_button = frame:CreateOrGetControl("button", "info_button", 115, 60, 50, 30)
+    info_button:SetText("info")
+    info_button:SetEventScript(ui.LBUTTONUP, "klcount_information_context")
 end
 
 function KLCOUNT_INIT_FRAME()
-    local frame = _G.ui.GetFrame("klcount")
+    local frame = ui.GetFrame("klcount")
 
     frame:ShowWindow(1)
     frame:EnableHitTest(1)
@@ -67,9 +82,14 @@ function KLCOUNT_INIT_FRAME()
     g.start_time = imcTime.GetAppTimeMS()
 
     local count_text = frame:CreateOrGetControl("richtext", "count_text", 10, 10, 200, 30)
-    count_text:SetText(string.format("{ol}{s16}KLCounter : %d{/}", g.count))
+    count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.count))
 
-    local map_name = g.GetMapName()
+    local function get_map_name()
+        local map_id = session.GetMapID()
+        return GetClassByType("Map", map_id).Name
+    end
+
+    local map_name = get_map_name()
     local map_text = frame:CreateOrGetControl("richtext", "map_text", 10, 35, 200, 30)
     map_text:SetText(string.format("{s16}%s{/}", map_name))
 
@@ -79,16 +99,113 @@ function KLCOUNT_INIT_FRAME()
     local s = 0
     timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
     frame:RunUpdateScript("KLCOUNT_TIME_UPDATE", 1.0)
+
+    klcount_information_button(frame)
 end
 
 function KLCOUNT_TIME_UPDATE(frame)
     local time = imcTime.GetAppTimeMS() - g.start_time
-    local h = math.floor(time / (60 * 60 * 1000))
-    local m = math.floor((time / (60 * 1000)) % 60)
-    local s = math.floor((time / 1000) % 60)
-    local timer_text = GET_CHILD_RECURSIVELY(frame, "timer_text")
-    timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
-    return 1
+    if frame:IsVisible() == 1 then
+        local h = math.floor(time / (60 * 60 * 1000))
+        local m = math.floor((time / (60 * 1000)) % 60)
+        local s = math.floor((time / 1000) % 60)
+        local timer_text = GET_CHILD_RECURSIVELY(frame, "timer_text")
+        timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
+        return 1
+    else
+        g.map_data.stay_time = g.map_data.stay_time + time
+        g.map_data.kill_count = g.map_data.kill_count + g.count
+        g.map_data.get_items = g.temp_get_items
+        acutil.saveJSON(g.map_file_location, g.map_data)
+        return 0
+    end
+end
+
+function klcount_INV_ITEM_ADD(frame, msg, iesid, inv_index)
+    local inv_item = session.GetInvItemByGuid(iesid)
+    local item_obj = GetIES(inv_item:GetObject());
+    local class_id = tostring(item_obj.ClassID)
+
+    if not g.temp_get_items[class_id] then
+        g.temp_get_items[class_id] = 1
+    else
+        g.temp_get_items[class_id] = g.temp_get_items[class_id] + 1
+    end
+end
+
+function KLCOUNT_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+
+    local is_auto_challenge_map = session.IsAutoChallengeMap()
+    local is_solo_challenge_map = session.IsSoloChallengeMap()
+    if is_auto_challenge_map == true or is_solo_challenge_map == true then
+        return
+    end
+
+    KLCOUNT_LOADSETTINGS()
+
+    local player_character = GetMyPCObject();
+    local current_map = GetZoneName(player_character)
+    local map_class = GetClass("Map", current_map)
+    if map_class.MapType == "Field" or map_class.MapType == "Dungeon" then
+        addon:RegisterMsg("GAME_START", "KLCOUNT_INIT_FRAME")
+        addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
+        addon:RegisterMsg('INV_ITEM_ADD', "kilcount_INV_ITEM_ADD")
+        addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', "kilcount_INV_ITEM_ADD")
+
+        local map_id = session.GetMapID()
+
+        g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
+
+        local map_data = acutil.loadJSON(g.map_file_location, g.map_data);
+        if not map_data then
+            local map_name = GetClassByType("Map", map_id).ClassName
+            map_data = {
+                map_name = map_name,
+                stay_time = 0,
+                kill_count = 0,
+                get_items = {}
+            }
+        end
+        g.map_data = map_data
+        g.temp_get_items = {}
+        acutil.saveJSON(g.map_file_location, g.map_data)
+
+        local id_check = false
+        for _, id in ipairs(g.settings.map_ids) do
+            if id == map_id then
+                id_check = true
+                break
+            end
+        end
+
+        if not id_check then
+            table.insert(g.settings.map_ids, map_id)
+            KLCOUNT_SAVE_SETTINGS()
+        end
+    end
+
+    --[[local target_map_id = {11239, -- 1F
+    11242, -- 2F
+    11244 -- 3F
+    }
+
+    local function is_target_map()
+        local map_id = session.GetMapID()
+        for i = 1, #target_map_id do
+            if map_id == target_map_id[i] then
+                return true
+            end
+        end
+        return false
+    end
+
+    if is_target_map() == true then
+        frame:SetEventScript(ui.RBUTTONUP, "KLCOUNT_CHECKBOX_OPEN")
+        addon:RegisterMsg('BUFF_ADD', 'KLCOUNT_BUFF_ADD');
+    end]]
 end
 
 function KLCOUNT_POSITION_SETTING(frame)
@@ -103,54 +220,15 @@ function KLCOUNT_UPDATE(frame)
     local count_text = GET_CHILD_RECURSIVELY(frame, "count_text")
     g.count = g.count + 1
     count_text:SetText(string.format("{ol}{s16}KLCounter : %d{/}", g.count))
-
 end
+--[[function KLCOUNT_BUFF_ADD(frame, msg, str, num)
 
-function g.IsTargetMap()
-    local map_id = _G.session.GetMapID()
-    for i = 1, #target_map_id do
-        if map_id == target_map_id[i] then
-            return true
-        end
-    end
-    return false
-end
-
-function g.GetMapName()
-    local map_id = _G.session.GetMapID()
-    return _G.GetClassByType("Map", map_id).Name
-end
-
-function _G.KLCOUNT_ON_INIT(addon, frame)
-
-    g.addon = addon
-    g.frame = frame
-
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-
-    if mapCls.MapType == "Field" or mapCls.MapType == "Dungeon" then
-        addon:RegisterMsg("GAME_START", "KLCOUNT_INIT_FRAME")
-        addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
-    end
-
-    if g.IsTargetMap() == true then
-        frame:SetEventScript(ui.RBUTTONUP, "KLCOUNT_CHECKBOX_OPEN")
-        addon:RegisterMsg('BUFF_ADD', 'KLCOUNT_BUFF_ADD');
-    end
-
-    KLCOUNT_LOADSETTINGS()
-end
-
-function KLCOUNT_BUFF_ADD(frame, msg, str, num)
-
-    if g.ischecked == 1 then
+    local auto_cut = g.settings.auto_cut
+    if auto_cut then
         ReserveScript("KLCOUNT_CHECK_ALL_SLOTS()", 5.0)
     else
         return
     end
-
 end
 
 function KLCOUNT_CHECK_ALL_SLOTS()
@@ -160,23 +238,19 @@ function KLCOUNT_CHECK_ALL_SLOTS()
         return
     end
 
-    local buff = info.GetBuff(session.GetMyHandle(), 40049)
-
-    local slotCount = 40
-    if g.ischecked == 1 then
-
-        for i = 0, slotCount - 1 do
-            local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
-            if slot and slot:GetIcon() then
-                local iconInfo = slot:GetIcon():GetInfo()
-
-                local iconName = iconInfo:GetImageName()
-                if iconName == "icon_common_relic_release" and buff ~= nil then
-                    local icon = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot"):GetIcon()
-
-                    ICON_USE(icon)
-                    return
-                end
+    local info_buff = info.GetBuff(session.GetMyHandle(), 40049)
+    local slot_count = 40
+    for i = 1, slot_count do
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        if slot and icon then
+            AUTO_CAST(icon)
+            local icon_info = icon:GetInfo()
+            local icon_name = icon_info:GetImageName()
+            if icon_name == "icon_common_relic_release" and info_buff ~= nil then
+                ICON_USE(icon)
+                return
             end
         end
     end
@@ -184,35 +258,36 @@ end
 
 function KLCOUNT_CHECKBOX_OPEN(frame)
 
-    local checkbox = frame:CreateOrGetControl('checkbox', 'checkbox', 20, 60, 15, 15)
-    AUTO_CAST(checkbox)
-    checkbox:SetTextTooltip("チェックすると自動でレリックOFF{nl}Automatic relic off when checked.")
-    checkbox:ShowWindow(1)
-    local ischeck = checkbox:IsChecked(g.ischecked);
-    checkbox:SetEventScript(ui.LBUTTONUP, "KLCOUNT_ISCHECKED")
+    local check_box = frame:CreateOrGetControl('check_box', 'checkbox', 20, 60, 15, 15)
+    AUTO_CAST(check_box)
+    check_box:ShowWindow(1)
+    local auto_cut = g.settings.auto_cut
+    local is_check = 0
+    if auto_cut then
+        is_check = 1
+    end
+    check_box:SetCheck(is_check)
+    check_box:SetEventScript(ui.LBUTTONUP, "KLCOUNT_ISCHECKED")
+    check_box:SetEventScriptArgNumber(ui.LBUTTONUP, is_check)
     ReserveScript("KLCOUNT_CHECKBOX_CLOSE()", 10.0)
-
 end
 
-function KLCOUNT_ISCHECKED(frame)
+function KLCOUNT_ISCHECKED(frame, ctrl, str, is_check)
 
-    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
-    local ischeck = checkbox:IsChecked()
-
-    if ischeck == 1 then
-        g.ischecked = 1
-        CHAT_SYSTEM("Automatic relic off")
-        ReserveScript("KLCOUNT_CHECKBOX_CLOSE()", 5.0)
-    elseif ischeck == 0 then
-        g.ischecked = 0
-        ReserveScript("KLCOUNT_CHECKBOX_CLOSE()", 5.0)
+    local auto_cut = g.settings.auto_cut
+    if is_check == 1 then
+        auto_cut = true
+    else
+        auto_cut = false
     end
-
+    KLCOUNT_SAVE_SETTINGS()
+    ReserveScript("KLCOUNT_CHECKBOX_CLOSE()", 5.0)
 end
 
 function KLCOUNT_CHECKBOX_CLOSE()
-    local frame = ui.GetFrame(addonNameLower)
-    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
-    checkbox:ShowWindow(0)
-end
+
+    local frame = ui.GetFrame("klcount")
+    local check_box = GET_CHILD_RECURSIVELY(frame, "check_box")
+    check_box:ShowWindow(0)
+end]]
 
