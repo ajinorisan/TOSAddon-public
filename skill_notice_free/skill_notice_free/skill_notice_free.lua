@@ -2,10 +2,13 @@
 -- v1.0.1 見直した。自動フォルダ作成機能。
 -- v1.0.2 回数の色の挙動修正。一般公開。
 -- v1.0.3 バフ登録時のバグ修正
+-- v1.0.4 エフェクト消えなかったの修正
+-- v1.0.5 バフリストから登録するバフ選べる様に
+-- v1.0.6 バフリストバグ修正
 local addonName = "skill_notice_free"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -20,6 +23,7 @@ local folder_path = string.format("../addons/%s", addonNameLower)
 os.execute('mkdir "' .. folder_path .. '"')
 
 g.settings_file_path = string.format("../addons/%s/settings.json", addonNameLower)
+g.get_buffs_file_path = string.format("../addons/%s/get_buffs.json", addonNameLower)
 
 local base = {}
 
@@ -158,6 +162,13 @@ function skill_notice_free_load_settings()
 
     g.settings = settings
     skill_notice_free_save_settings()
+
+    local get_buffs, err = acutil.loadJSON(g.get_buffs_file_path, g.get_buffs)
+    if not get_buffs then
+        get_buffs = {}
+    end
+    g.get_buffs = get_buffs
+    acutil.saveJSON(g.get_buffs_file_path, g.get_buffs)
 end
 
 function skill_notice_free_save_settings()
@@ -188,13 +199,6 @@ function skill_notice_free_frame_init()
     frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_end_drag")
     frame:SetEventScript(ui.RBUTTONUP, "skill_notice_free_setting")
     frame:SetPos(g.settings.x or 400, g.settings.y or 400)
-
-    --[[local setting = frame:CreateOrGetControl("button", "setting", 150, 5, 20, 20)
-    AUTO_CAST(setting)
-    setting:SetSkinName("None")
-    setting:SetText("{img config_button_normal 20 20}")
-    setting:SetEventScript(ui.LBUTTONUP, "skill_notice_free_setting")
-    setting:SetTextTooltip("Skill Notice{nl}Left-Click Settings")]]
 
     local buffgb = frame:CreateOrGetControl("groupbox", "buffgb", 0, 20, 190, 25)
     buffgb:SetSkinName("None")
@@ -307,6 +311,109 @@ function skill_notice_free_frame_init()
     frame:ShowWindow(1)
 end
 
+function skill_notice_free_buff_list_open(frame, ctrl, str, num)
+    local buff_list_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "buff_list_frame", 0, 0, 10, 10)
+    AUTO_CAST(buff_list_frame)
+    buff_list_frame:SetSkinName("bg")
+    buff_list_frame:Resize(500, 1060)
+    buff_list_frame:SetPos(1400, 10)
+    buff_list_frame:SetLayerLevel(121)
+    buff_list_frame:RemoveAllChild()
+
+    local buff_list_gb = buff_list_frame:CreateOrGetControl("groupbox", " buff_list_gb", 5, 35, 490, 1015)
+    AUTO_CAST(buff_list_gb)
+    buff_list_gb:SetSkinName("bg")
+
+    local close_button = buff_list_frame:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.RIGHT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "skill_notice_free_buff_list_close");
+
+    local get_buffs, err = acutil.loadJSON(g.get_buffs_file_path, g.get_buffs)
+
+    local sorted_buffs = {}
+    for buff_id, _ in pairs(get_buffs) do
+        table.insert(sorted_buffs, tonumber(buff_id))
+    end
+    table.sort(sorted_buffs)
+
+    local title_text = buff_list_frame:CreateOrGetControl('richtext', 'title_text', 10, 10, 200, 30)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Setting Buff List")
+
+    -- ソートされた順番で表示
+    local y = 0
+    for _, buff_id in ipairs(sorted_buffs) do
+
+        local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. buff_id, 10, y + 5, 30, 30)
+        AUTO_CAST(buff_slot)
+        local buff_class = GetClassByType("Buff", buff_id)
+
+        if buff_class ~= nil then
+            local image_name = GET_BUFF_ICON_NAME(buff_class)
+            if image_name ~= "icon_None" then
+                local buff_name = buff_class.Name
+                if buff_name ~= "None" then
+
+                    SET_SLOT_IMG(buff_slot, GET_BUFF_ICON_NAME(buff_class));
+
+                    local icon = CreateIcon(buff_slot)
+                    AUTO_CAST(icon)
+                    icon:SetTooltipType('buff');
+
+                    icon:SetTooltipArg(buff_name, buff_id, 0);
+
+                    local buff_set = buff_list_gb:CreateOrGetControl('button', 'buff_set' .. buff_id, 45, y + 5, 40, 30)
+                    AUTO_CAST(buff_set)
+                    buff_set:SetText("{ol}Set")
+                    buff_set:SetTextTooltip("{ol}Add to monitoring buffs")
+                    buff_set:SetEventScript(ui.LBUTTONUP, "skill_notice_free_add_monitoring_buff")
+                    buff_set:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+
+                    local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
+                        200, 30)
+                    AUTO_CAST(buff_text)
+                    buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
+                    buff_text:AdjustFontSizeByWidth(400)
+                    y = y + 35
+                end
+            end
+        end
+
+    end
+
+    buff_list_frame:ShowWindow(1)
+end
+
+function skill_notice_free_add_monitoring_buff(frame, ctrl, str, buff_id)
+    local buff_table = g.settings["buffs"]
+    local str_buff_id = tostring(buff_id)
+    local buff_class = GetClassByType("Buff", buff_id)
+    local buff_name = buff_class.ClassName
+
+    if buff_table[str_buff_id] == nil then
+
+        buff_table[str_buff_id] = {}
+        buff_table[str_buff_id].name = buff_name
+        buff_table[str_buff_id].color = "FFFFFF00"
+        buff_table[str_buff_id].effect = "None"
+        buff_table[str_buff_id].sound = "None"
+        buff_table[str_buff_id].size = 2
+        buff_table[str_buff_id].max_charge = 10
+        buff_table[str_buff_id].mode = "gauge"
+        skill_notice_free_save_settings()
+        skill_notice_free_frame_init()
+        skill_notice_free_setting(nil, nil, nil, nil)
+    end
+end
+
+function skill_notice_free_buff_list_close(frame, ctrl, argStr, argNum)
+
+    frame:ShowWindow(0)
+    skill_notice_free_setting(nil, nil, nil, nil)
+end
+
 function skill_notice_free_setting(frame, ctrl, str, num)
 
     local setting_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting_frame", 0, 0, 200, 400)
@@ -325,6 +432,12 @@ function skill_notice_free_setting(frame, ctrl, str, num)
     close:SetImage("testclose_button")
     close:SetGravity(ui.RIGHT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "skill_notice_free_newframe_close")
+
+    local buff_list = setting_frame:CreateOrGetControl("button", "buff_list", 480, 5, 80, 30)
+    AUTO_CAST(buff_list)
+    buff_list:SetSkinName("test_red_button")
+    buff_list:SetText("{ol}Buff List")
+    buff_list:SetEventScript(ui.LBUTTONUP, "skill_notice_free_buff_list_open")
 
     local y = 50
     local index = 1
@@ -711,6 +824,7 @@ function skill_notice_free_setting_delete(frame, ctrl, str, buff_id)
     buff_table[str_buff_id] = nil
     skill_notice_free_save_settings()
     skill_notice_free_setting(frame, ctrl, str, nil)
+    skill_notice_free_frame_init()
 end
 
 function skill_notice_free_buff_remove(frame, msg, str, buff_id)
@@ -730,18 +844,18 @@ function skill_notice_free_buff_remove(frame, msg, str, buff_id)
 
     if buff_data.mode == "icon" then
         local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
-        if icon_frame then
-            local icon_slot = GET_CHILD_RECURSIVELY(icon_frame, "icon_slot" .. buff_id)
-            if icon_slot then
-                AUTO_CAST(icon_slot)
-                local buff_count = GET_CHILD_RECURSIVELY(icon_slot, "buff_count" .. buff_id)
-                AUTO_CAST(buff_count)
-                if buff_count then
-                    buff_count:SetText("{ol}{s35}0")
-                    buff_count:SetColorTone("FFFFFFFF")
-                end
-            end
+        local icon_slot = GET_CHILD_RECURSIVELY(icon_frame, "icon_slot" .. buff_id)
+        AUTO_CAST(icon_slot)
+        local buff_count = GET_CHILD_RECURSIVELY(icon_slot, "buff_count" .. buff_id)
+        AUTO_CAST(buff_count)
+        buff_count:SetText("{ol}{s35}0")
+        buff_count:SetColorTone("FFFFFFFF")
+        local effect_name = buff_data.effect
+        if effect_name ~= "None" then
+            effect.DetachActorEffect(actor, effect_name, 0)
         end
+        g.buffs[str_buff_id] = nil
+
     else
         local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
         if gauge then
@@ -769,38 +883,40 @@ function skill_notice_free_buff_add(frame, msg, str, buff_id)
 
     local frame = ui.GetFrame("skill_notice_free")
     local my_handle = session.GetMyHandle()
+    local info_buff = info.GetBuff(my_handle, buff_id)
 
     local buff_table = g.settings["buffs"]
     local cid_table = g.settings[tostring(g.cid)]
     local str_buff_id = tostring(buff_id)
+
+    local buff_class = GetClassByType("Buff", buff_id)
+    if buff_class ~= nil then
+        if not g.get_buffs[str_buff_id] then
+            local buff_name = buff_class.ClassName
+            g.get_buffs[str_buff_id] = buff_name
+            acutil.saveJSON(g.get_buffs_file_path, g.get_buffs)
+        end
+    end
 
     if cid_table[str_buff_id] ~= "YES" or not buff_table[str_buff_id] then
         return
     end
 
     local buff_data = buff_table[str_buff_id]
-    local info_buff = info.GetBuff(my_handle, buff_id)
 
     if info_buff == nil then
         return
     end
 
     if buff_data.mode == "icon" then
+
         local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
-        if icon_frame then
-            local icon_slot = GET_CHILD_RECURSIVELY(icon_frame, "icon_slot" .. str_buff_id)
-            if icon_slot then
-                AUTO_CAST(icon_slot)
-                local buff_count = GET_CHILD_RECURSIVELY(icon_slot, "buff_count" .. str_buff_id)
-                AUTO_CAST(buff_count)
-                if buff_count then
-                    buff_count:SetText("{ol}{s35}" .. info_buff.over)
-                    -- buff_count:SetColorTone("FFFFFFFF")
-                end
+        local icon_slot = GET_CHILD_RECURSIVELY(icon_frame, "icon_slot" .. str_buff_id)
+        AUTO_CAST(icon_slot)
+        local buff_count = GET_CHILD_RECURSIVELY(icon_slot, "buff_count" .. str_buff_id)
+        AUTO_CAST(buff_count)
 
-            end
-        end
-
+        buff_count:SetText("{ol}{s35}" .. info_buff.over)
     else
         local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. str_buff_id)
         if gauge then
@@ -823,6 +939,7 @@ function skill_notice_free_buff_update(frame, msg, str, buff_id)
 
     local frame = ui.GetFrame("skill_notice_free")
     local my_handle = session.GetMyHandle()
+    local actor = world.GetActor(my_handle)
 
     local buff_table = g.settings["buffs"]
     local cid_table = g.settings[tostring(g.cid)]
@@ -840,29 +957,26 @@ function skill_notice_free_buff_update(frame, msg, str, buff_id)
     end
 
     if buff_data.mode == "icon" then
+
         local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
-        if icon_frame then
-            local icon_slot = GET_CHILD_RECURSIVELY(icon_frame, "icon_slot" .. str_buff_id)
-            if icon_slot then
-                AUTO_CAST(icon_slot)
+        local icon_slot = GET_CHILD_RECURSIVELY(icon_frame, "icon_slot" .. str_buff_id)
+        AUTO_CAST(icon_slot)
 
-                local buff_count = GET_CHILD_RECURSIVELY(icon_slot, "buff_count" .. str_buff_id)
-                AUTO_CAST(buff_count)
-                if buff_count then
-                    buff_count:SetText("{ol}{s35}" .. info_buff.over)
-                end
+        local buff_count = GET_CHILD_RECURSIVELY(icon_slot, "buff_count" .. str_buff_id)
+        AUTO_CAST(buff_count)
+        buff_count:SetText("{ol}{s35}" .. info_buff.over)
 
-                if info_buff.over == buff_data.max_charge and not g.buffs[str_buff_id] then
-                    buff_count:SetColorTone("FFFF0000")
-                    skill_notice_free_apply_buff_effects(buff_data)
-
-                    g.buffs[str_buff_id] = true
-                elseif info_buff.over ~= buff_data.max_charge then
-                    buff_count:SetColorTone("FFFFFFFF")
-                end
+        if info_buff.over == buff_data.max_charge and not g.buffs[str_buff_id] then
+            buff_count:SetColorTone("FFFF0000")
+            skill_notice_free_apply_buff_effects(buff_data)
+            g.buffs[str_buff_id] = true
+        elseif info_buff.over ~= buff_data.max_charge then
+            buff_count:SetColorTone("FFFFFFFF")
+            local effect_name = buff_data.effect
+            if effect_name ~= "None" then
+                effect.DetachActorEffect(actor, effect_name, 0)
             end
         end
-
     else
         local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. str_buff_id)
         if gauge then
