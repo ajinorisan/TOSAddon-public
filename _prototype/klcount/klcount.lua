@@ -26,7 +26,7 @@ function KLCOUNT_LOADSETTINGS()
 
     if not settings then
         settings = {
-            frame_x = 1500,
+            frame_x = 1340,
             frame_y = 20,
             auto_cut = false,
             map_ids = {}
@@ -46,7 +46,7 @@ function klcount_information_context(frame, ctrl, str, num)
     for i = 1, #g.settings.map_ids do
         local display_text = GetClassByType("Map", g.settings.map_ids[i]).Name
         local scprit = ui.AddContextMenuItem(context, display_text,
-                                             string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
+            string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
     end
 
     ui.OpenContextMenu(context)
@@ -58,7 +58,7 @@ end
 
 function klcount_information_button(frame)
 
-    local info_button = frame:CreateOrGetControl("button", "info_button", 115, 60, 50, 30)
+    local info_button = frame:CreateOrGetControl("button", "info_button", 5, 60, 50, 30)
     info_button:SetText("info")
     info_button:SetEventScript(ui.LBUTTONUP, "klcount_information_context")
 end
@@ -104,21 +104,14 @@ function KLCOUNT_INIT_FRAME()
 end
 
 function KLCOUNT_TIME_UPDATE(frame)
-    local time = imcTime.GetAppTimeMS() - g.start_time
-    if frame:IsVisible() == 1 then
-        local h = math.floor(time / (60 * 60 * 1000))
-        local m = math.floor((time / (60 * 1000)) % 60)
-        local s = math.floor((time / 1000) % 60)
-        local timer_text = GET_CHILD_RECURSIVELY(frame, "timer_text")
-        timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
-        return 1
-    else
-        g.map_data.stay_time = g.map_data.stay_time + time
-        g.map_data.kill_count = g.map_data.kill_count + g.count
-        g.map_data.get_items = g.temp_get_items
-        acutil.saveJSON(g.map_file_location, g.map_data)
-        return 0
-    end
+
+    g.time = imcTime.GetAppTimeMS() - g.start_time
+    local h = math.floor(g.time / (60 * 60 * 1000))
+    local m = math.floor((g.time / (60 * 1000)) % 60)
+    local s = math.floor((g.time / 1000) % 60)
+    local timer_text = GET_CHILD_RECURSIVELY(frame, "timer_text")
+    timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
+    return 1
 end
 
 function klcount_INV_ITEM_ADD(frame, msg, iesid, inv_index)
@@ -133,31 +126,33 @@ function klcount_INV_ITEM_ADD(frame, msg, iesid, inv_index)
     end
 end
 
-function KLCOUNT_ON_INIT(addon, frame)
+function klcount_GAME_START()
 
-    g.addon = addon
-    g.frame = frame
+    local addon = g.addon
 
-    local is_auto_challenge_map = session.IsAutoChallengeMap()
-    local is_solo_challenge_map = session.IsSoloChallengeMap()
-    if is_auto_challenge_map == true or is_solo_challenge_map == true then
-        return
-    end
-
-    KLCOUNT_LOADSETTINGS()
+    --[[if g.map_data then
+        g.map_data.stay_time = g.map_data.stay_time + g.time
+        g.map_data.kill_count = g.map_data.kill_count + g.count
+        g.map_data.get_items = g.temp_get_items
+        acutil.saveJSON(g.map_file_location, g.map_data)
+    end]]
 
     local player_character = GetMyPCObject();
     local current_map = GetZoneName(player_character)
     local map_class = GetClass("Map", current_map)
+    if map_class.ChallengeMode == "YES" then
+        CHAT_SYSTEM("チャレンジ")
+        return
+    end
+    local map_id = session.GetMapID()
+
+    g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
+
     if map_class.MapType == "Field" or map_class.MapType == "Dungeon" then
         addon:RegisterMsg("GAME_START", "KLCOUNT_INIT_FRAME")
         addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
         addon:RegisterMsg('INV_ITEM_ADD', "kilcount_INV_ITEM_ADD")
         addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', "kilcount_INV_ITEM_ADD")
-
-        local map_id = session.GetMapID()
-
-        g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
 
         local map_data = acutil.loadJSON(g.map_file_location, g.map_data);
         if not map_data then
@@ -186,6 +181,17 @@ function KLCOUNT_ON_INIT(addon, frame)
             KLCOUNT_SAVE_SETTINGS()
         end
     end
+
+end
+
+function KLCOUNT_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+
+    KLCOUNT_LOADSETTINGS()
+
+    addon:RegisterMsg("GAME_START", "klcount_GAME_START")
 
     --[[local target_map_id = {11239, -- 1F
     11242, -- 2F
