@@ -41,11 +41,10 @@ end
 function klcount_information_context(frame, ctrl, str, num)
 
     local context = ui.CreateContextMenu("klcount_context", "Kl Count", 0, 0, 200, 0)
-    ui.AddContextMenuItem(context, " ", "")
 
     for i = 1, #g.settings.map_ids do
         local display_text = GetClassByType("Map", g.settings.map_ids[i]).Name
-        local scprit = ui.AddContextMenuItem(context, display_text,
+        local script = ui.AddContextMenuItem(context, display_text,
             string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
     end
 
@@ -53,14 +52,31 @@ function klcount_information_context(frame, ctrl, str, num)
 end
 
 function klcount_map_information(map_id)
-
+    local context = ui.CreateContextMenu("klcount_context", "Kl Count", 0, 0, 100, 0)
+    local map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
+    local map_date = acutil.loadJSON(map_file_location);
+    for k, v in pairs(map_date.get_items) do
+        local display_text = GetClassByType("Item", k).Name .. ":" .. v
+        if display_text ~= nil then
+            ui.AddContextMenuItem(context, display_text)
+        end
+    end
+    ui.OpenContextMenu(context)
 end
 
 function klcount_information_button(frame)
 
-    local info_button = frame:CreateOrGetControl("button", "info_button", 5, 60, 50, 30)
-    info_button:SetText("info")
+    local frame = ui.GetFrame("klcount")
+    frame:RemoveAllChild()
+    frame:SetPos(g.settings.frame_x, g.settings.frame_y)
+    frame:SetSkinName("None")
+    frame:SetTitleBarSkin("None")
+    local info_button = frame:CreateOrGetControl("button", "info_button", 0, 0, 80, 30)
+    AUTO_CAST(info_button)
+    frame:Resize(80, 30)
+    info_button:SetText("klcount")
     info_button:SetEventScript(ui.LBUTTONUP, "klcount_information_context")
+    frame:ShowWindow(1)
 end
 
 function KLCOUNT_INIT_FRAME()
@@ -84,23 +100,13 @@ function KLCOUNT_INIT_FRAME()
     local count_text = frame:CreateOrGetControl("richtext", "count_text", 10, 10, 200, 30)
     count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.count))
 
-    local function get_map_name()
-        local map_id = session.GetMapID()
-        return GetClassByType("Map", map_id).Name
-    end
-
-    local map_name = get_map_name()
+    g.map_id = session.GetMapID()
+    local map_name = GetClassByType("Map", g.map_id).Name
     local map_text = frame:CreateOrGetControl("richtext", "map_text", 10, 35, 200, 30)
     map_text:SetText(string.format("{s16}%s{/}", map_name))
 
-    local timer_text = frame:CreateOrGetControl("richtext", "timer_text", 90, 60, 200, 30)
-    local h = 0
-    local m = 0
-    local s = 0
-    timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
     frame:RunUpdateScript("KLCOUNT_TIME_UPDATE", 1.0)
 
-    klcount_information_button(frame)
 end
 
 function KLCOUNT_TIME_UPDATE(frame)
@@ -109,51 +115,58 @@ function KLCOUNT_TIME_UPDATE(frame)
     local h = math.floor(g.time / (60 * 60 * 1000))
     local m = math.floor((g.time / (60 * 1000)) % 60)
     local s = math.floor((g.time / 1000) % 60)
-    local timer_text = GET_CHILD_RECURSIVELY(frame, "timer_text")
+    local timer_text = frame:CreateOrGetControl("richtext", "timer_text", 90, 60, 200, 30)
     timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
+    g.map_data.stay_time = g.map_data.stay_time + 60
+    acutil.saveJSON(g.map_file_location, g.map_data)
+
     return 1
 end
 
 function klcount_INV_ITEM_ADD(frame, msg, iesid, inv_index)
+    CHAT_SYSTEM(msg)
+    if msg == "INV_ITEM_CHANGE_COUNT" then
+
+    end
     local inv_item = session.GetInvItemByGuid(iesid)
     local item_obj = GetIES(inv_item:GetObject());
     local class_id = tostring(item_obj.ClassID)
 
-    if not g.temp_get_items[class_id] then
-        g.temp_get_items[class_id] = 1
+    if not g.map_data.get_items[class_id] then
+        g.map_data.get_items[class_id] = 1
     else
-        g.temp_get_items[class_id] = g.temp_get_items[class_id] + 1
+        g.map_data.get_items[class_id] = g.map_data.get_items[class_id] + 1
     end
+    acutil.saveJSON(g.map_file_location, g.map_data)
+end
+
+function klcount_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT(frame, msg, str, arg)
+    local msgList = StringSplit(str, '#');
+
+    if msgList[1] == "SHOW" then
+        local frame = ui.GetFrame("klcount")
+        frame:ShowWindow(0)
+    end
+
 end
 
 function klcount_GAME_START()
 
     local addon = g.addon
-
-    --[[if g.map_data then
-        g.map_data.stay_time = g.map_data.stay_time + g.time
-        g.map_data.kill_count = g.map_data.kill_count + g.count
-        g.map_data.get_items = g.temp_get_items
-        acutil.saveJSON(g.map_file_location, g.map_data)
-    end]]
+    local frame = g.frame
 
     local player_character = GetMyPCObject();
     local current_map = GetZoneName(player_character)
     local map_class = GetClass("Map", current_map)
-    if map_class.ChallengeMode == "YES" then
-        CHAT_SYSTEM("チャレンジ")
-        return
-    end
     local map_id = session.GetMapID()
 
-    g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
-
     if map_class.MapType == "Field" or map_class.MapType == "Dungeon" then
-        addon:RegisterMsg("GAME_START", "KLCOUNT_INIT_FRAME")
-        addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
-        addon:RegisterMsg('INV_ITEM_ADD', "kilcount_INV_ITEM_ADD")
-        addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', "kilcount_INV_ITEM_ADD")
+        KLCOUNT_INIT_FRAME()
 
+        addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
+        addon:RegisterMsg('INV_ITEM_ADD', "klcount_INV_ITEM_ADD")
+        addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', "klcount_INV_ITEM_ADD")
+        g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
         local map_data = acutil.loadJSON(g.map_file_location, g.map_data);
         if not map_data then
             local map_name = GetClassByType("Map", map_id).ClassName
@@ -165,7 +178,6 @@ function klcount_GAME_START()
             }
         end
         g.map_data = map_data
-        g.temp_get_items = {}
         acutil.saveJSON(g.map_file_location, g.map_data)
 
         local id_check = false
@@ -180,6 +192,8 @@ function klcount_GAME_START()
             table.insert(g.settings.map_ids, map_id)
             KLCOUNT_SAVE_SETTINGS()
         end
+    else
+        klcount_information_button(frame)
     end
 
 end
@@ -191,9 +205,28 @@ function KLCOUNT_ON_INIT(addon, frame)
 
     KLCOUNT_LOADSETTINGS()
 
+    addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT", "klcount_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT");
     addon:RegisterMsg("GAME_START", "klcount_GAME_START")
 
-    --[[local target_map_id = {11239, -- 1F
+end
+
+function KLCOUNT_POSITION_SETTING(frame)
+
+    g.settings.frame_x = frame:GetX()
+    g.settings.frame_y = frame:GetY()
+    KLCOUNT_SAVE_SETTINGS()
+end
+
+function KLCOUNT_UPDATE(frame)
+
+    local count_text = GET_CHILD_RECURSIVELY(frame, "count_text")
+    g.count = g.count + 1
+    count_text:SetText(string.format("{ol}{s16}KLCounter : %d{/}", g.count))
+    g.map_data.kill_count = g.map_data.kill_count + 1
+    acutil.saveJSON(g.map_file_location, g.map_data)
+end
+
+--[[local target_map_id = {11239, -- 1F
     11242, -- 2F
     11244 -- 3F
     }
@@ -212,21 +245,6 @@ function KLCOUNT_ON_INIT(addon, frame)
         frame:SetEventScript(ui.RBUTTONUP, "KLCOUNT_CHECKBOX_OPEN")
         addon:RegisterMsg('BUFF_ADD', 'KLCOUNT_BUFF_ADD');
     end]]
-end
-
-function KLCOUNT_POSITION_SETTING(frame)
-
-    g.settings.frame_x = frame:GetX()
-    g.settings.frame_y = frame:GetY()
-    KLCOUNT_SAVE_SETTINGS()
-end
-
-function KLCOUNT_UPDATE(frame)
-
-    local count_text = GET_CHILD_RECURSIVELY(frame, "count_text")
-    g.count = g.count + 1
-    count_text:SetText(string.format("{ol}{s16}KLCounter : %d{/}", g.count))
-end
 --[[function KLCOUNT_BUFF_ADD(frame, msg, str, num)
 
     local auto_cut = g.settings.auto_cut
