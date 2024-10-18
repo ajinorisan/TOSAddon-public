@@ -45,7 +45,7 @@ function klcount_information_context(frame, ctrl, str, num)
     for i = 1, #g.settings.map_ids do
         local display_text = GetClassByType("Map", g.settings.map_ids[i]).Name
         local script = ui.AddContextMenuItem(context, display_text,
-            string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
+                                             string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
     end
 
     ui.OpenContextMenu(context)
@@ -54,8 +54,20 @@ end
 function klcount_map_information(map_id)
     local context = ui.CreateContextMenu("klcount_context", "Kl Count", 0, 0, 100, 0)
     local map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
-    local map_date = acutil.loadJSON(map_file_location);
-    for k, v in pairs(map_date.get_items) do
+    local map_data = acutil.loadJSON(map_file_location);
+
+    local total_seconds = map_data.stay_time
+    local hours = math.floor(total_seconds / 3600)
+    local minutes = math.floor((total_seconds % 3600) / 60)
+    local seconds = total_seconds % 60
+
+    local stay_time = "Stay Time : " .. string.format("%02d:%02d:%02d", hours, minutes, seconds)
+    local kill_count = "Kill Count : " .. map_data.kill_count
+
+    ui.AddContextMenuItem(context, display_text)
+    ui.AddContextMenuItem(context, display_text)
+
+    for k, v in pairs(map_data.get_items) do
         local display_text = GetClassByType("Item", k).Name .. ":" .. v
         if display_text ~= nil then
             ui.AddContextMenuItem(context, display_text)
@@ -123,19 +135,12 @@ function KLCOUNT_TIME_UPDATE(frame)
     return 1
 end
 
-function klcount_INV_ITEM_ADD(frame, msg, iesid, inv_index)
-    CHAT_SYSTEM(msg)
-    if msg == "INV_ITEM_CHANGE_COUNT" then
-
-    end
-    local inv_item = session.GetInvItemByGuid(iesid)
-    local item_obj = GetIES(inv_item:GetObject());
-    local class_id = tostring(item_obj.ClassID)
+function klcount_ITEMMSG_ITEM_COUNT(frame, msg, class_id, item_count)
 
     if not g.map_data.get_items[class_id] then
-        g.map_data.get_items[class_id] = 1
+        g.map_data.get_items[class_id] = item_count
     else
-        g.map_data.get_items[class_id] = g.map_data.get_items[class_id] + 1
+        g.map_data.get_items[class_id] = g.map_data.get_items[class_id] + item_count
     end
     acutil.saveJSON(g.map_file_location, g.map_data)
 end
@@ -164,8 +169,8 @@ function klcount_GAME_START()
         KLCOUNT_INIT_FRAME()
 
         addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
-        addon:RegisterMsg('INV_ITEM_ADD', "klcount_INV_ITEM_ADD")
-        addon:RegisterMsg('INV_ITEM_CHANGE_COUNT', "klcount_INV_ITEM_ADD")
+        addon:RegisterMsg('ITEM_PICK', 'klcount_ITEMMSG_ITEM_COUNT');
+
         g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
         local map_data = acutil.loadJSON(g.map_file_location, g.map_data);
         if not map_data then
