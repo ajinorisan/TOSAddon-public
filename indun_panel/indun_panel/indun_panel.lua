@@ -43,10 +43,11 @@
 -- v1.4.3 設定でレイドを非表示にしてた場合に更新処理バグってたの修正。
 -- v1.4.4 分裂券のデイリー分買えなかったの修正。くやしい
 -- v1.4.5 ネリゴレハード追加
+-- v1.4.6 分裂券とチャレ券使う順番明確化。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.5"
+local ver = "1.4.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1187,47 +1188,61 @@ function indun_panel_buyuse(recipeName)
     INDUN_PANEL_ITEM_BUY_USE(recipeName)
 end
 
-function indun_panel_item_use_sin(induntype, count)
+function indun_panel_item_use_sin(indun_type, enterance_count)
 
     session.ResetItemList()
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList()
     local cnt = guidList:Count()
 
+    local first_use = nil
+    local second_use = nil
+    local third_use = nil
+
     for i = 0, cnt - 1 do
         local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-        local classid = itemobj.ClassID
-        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
+        local classid = tonumber(itemobj.ClassID)
+        local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(itemobj))
+        local use_item = session.GetInvItemByType(classid)
 
-        if life_time ~= nil then
-            if classid == 10820018 and count == 0 and tonumber(life_time) < 86400 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 11030067 and count == 0 then
-
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 10820018 and count == 0 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+        -- 優先順位に従って使用するアイテムを設定
+        if enterance_count == 0 then
+            if classid == 10820018 and life_time ~= nil and life_time < 86400 then
+                first_use = use_item -- 最優先: 10820018かつ寿命が24時間未満
+            elseif classid == 11030067 then
+                second_use = use_item -- 次優先: 11030067
+            elseif classid == 10820018 then
+                third_use = use_item -- 最後の優先: 10820018
             end
         end
     end
 
+    -- 優先順位に基づいてアイテムを使用
+    if first_use then
+        INV_ICON_USE(first_use)
+        return
+    elseif second_use then
+        INV_ICON_USE(second_use)
+        return
+    elseif third_use then
+        INV_ICON_USE(third_use)
+        return
+    end
+
     local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-    if dcount == 1 and count == 0 then
+    if dcount == 1 and enterance_count == 0 then
         indun_panel_buyuse("PVP_MINE_41")
         return
     end
 
     local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
-    if wcount >= 1 and count == 0 then
+    if wcount >= 1 and enterance_count == 0 then
         indun_panel_buyuse("PVP_MINE_42")
         return
     end
 
     local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_27")
-    if mcount >= 1 and count == 0 then
+    if mcount >= 1 and enterance_count == 0 then
         indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_27")
         return
     end
@@ -1238,7 +1253,7 @@ function indun_panel_item_use_sin(induntype, count)
         local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
         local classid = itemobj.ClassID
 
-        if count == 0 and (classid == 10000470 or classid == 11030021 or classid == 11030017) then
+        if enterance_count == 0 and (classid == 10000470 or classid == 11030021 or classid == 11030017) then
             table.insert(targetItems, classid)
         end
     end
@@ -1257,49 +1272,72 @@ function indun_panel_INV_ICON_USE(classid)
 
 end
 
-function indun_panel_item_use_cha(induntype, count)
+function indun_panel_item_use_cha(indun_type, enterance_count)
+
     session.ResetItemList()
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList()
     local cnt = guidList:Count()
 
+    local first_use = nil
+    local second_use = nil
+    local third_use = nil
+    local fourth_use = nil
+    local fifth_use = nil
+    local six_use = nil
+
     for i = 0, cnt - 1 do
         local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-        local classid = itemobj.ClassID
-        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
-        -- 11030080 フィールド狩りで落ちるヤツ。ライフタイム縛りやめる？
+        local classid = tonumber(itemobj.ClassID)
+        local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(itemobj))
+        local use_item = session.GetInvItemByType(classid)
 
-        if life_time ~= nil then
-            if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 11030080 and count == 1 and tonumber(life_time) < 86400 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 11030080 and count == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 641954 and count == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 10820019 and count == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+        -- 優先順位のチェック
+        if enterance_count == 1 then
+            if classid == 10820019 and life_time ~= nil and life_time < 86400 then
+                first_use = use_item -- 優先度1: 10820019 (24時間未満)
+            elseif classid == 11030080 and life_time ~= nil and life_time < 86400 then
+                second_use = use_item -- 優先度2: 11030080 (24時間未満)
+            elseif classid == 11030080 then
+                third_use = use_item -- 優先度3: 11030080
+            elseif classid == 641954 then
+                fourth_use = use_item -- 優先度4: 641954
+            elseif classid == 10820019 then
+                fifth_use = use_item -- 優先度5: 10820019
+            elseif classid == 10000073 then
+                six_use = use_item -- 優先度6: 10000073
             end
-        end
-        if classid == 10000073 and count == 1 then
-            INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-            return
         end
     end
 
+    -- 優先順位に基づいてアイテムを使用
+    if first_use then
+        INV_ICON_USE(first_use)
+        return
+    elseif second_use then
+        INV_ICON_USE(second_use)
+        return
+    elseif third_use then
+        INV_ICON_USE(third_use)
+        return
+    elseif fourth_use then
+        INV_ICON_USE(fourth_use)
+        return
+    elseif fifth_use then
+        INV_ICON_USE(fifth_use)
+        return
+    elseif six_use then
+        INV_ICON_USE(six_use)
+        return
+    end
+
     local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
-    if event_trade_count >= 1 and count == 1 then
+    if event_trade_count >= 1 and enterance_count == 1 then
         indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_315")
         return
     else
         local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
-        if trade_count >= 1 and count == 1 then
+        if trade_count >= 1 and enterance_count == 1 then
             indun_panel_buyuse("PVP_MINE_40")
             return
         end
@@ -1307,18 +1345,14 @@ function indun_panel_item_use_cha(induntype, count)
 
 end
 
-function indun_panel_item_use(frame, ctrl, argStr, induntype)
+function indun_panel_item_use(frame, ctrl, argStr, indun_type)
 
-    session.ResetItemList()
-    local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList()
-    local cnt = guidList:Count()
-    local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", induntype).PlayPerResetType)
+    local enterance_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType)
 
-    if induntype == 647 then
-        indun_panel_item_use_sin(induntype, count)
-    elseif induntype == 644 then
-        indun_panel_item_use_cha(induntype, count)
+    if indun_type == 647 then
+        indun_panel_item_use_sin(indun_type, enterance_count)
+    elseif indun_type == 644 then
+        indun_panel_item_use_cha(indun_type, enterance_count)
     end
 end
 

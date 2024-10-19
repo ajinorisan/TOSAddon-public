@@ -2,10 +2,10 @@
 		"name" : "KL count",
 		"file" : "klcount",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.6",
+		"fileVersion" : "v1.0.8",
 		"releaseTag" : "klcount",
 		"unicode" : "⛄",
-		"description" : "フィールド狩りで倒したモンスターをカウント。<br>Count monsters killed in field hunts.<br>필드 사냥에서 쓰러뜨린 몬스터를 계산합니다.",
+		"description" : "フィールド狩りで倒したモンスターをカウント。アイテムドロップ分析情報取得<br>Count monsters killed in field hunts.Item drop analysis information acquisition<br>필드 사냥에서 쓰러뜨린 몬스터를 계산합니다.아이템 드롭 분석 정보 획득",
 		"tags" : []
 	},
 	{
