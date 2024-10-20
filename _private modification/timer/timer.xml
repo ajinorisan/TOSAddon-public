@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="timer" x="400" y="300" width="300" height="212" version="2">
+  <frame layout_gravity="left top" margin="0 0 0 0"/>
+  <input moveable="true" moveintitlebar="false" hittestframe="true" resize="false"/>
+  <draw drawframe="true" drawtitlebar="false" drawnotitlebar="false"/>
+  <layer layerlevel="10"/>
+  <skin frameskin="chat_window"/>
+  <option closebutton="false" visible="false"/>
+  <script OpenScp="TIMER_OPEN" CloseScp="TIMER_CLOSE" LBtnUpScp="TIMER_END_DRAG"/>
+  <controls>
+    <timer name="timerTick" rect="0 0 10 10"/>
+    <button name="closeButton" layout_gravity="right top" rect="0 0 35 35" margin="0 10 10 0" image="testclose_button" stretch="true" hittest="true" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" oversound="button_over" clicksound="button_click_big" LBtnUpScp="TIMER_CLOSE"/>
+
+    <richtext name="remainTimeText" rect="0 0 280 16" margin="10 20 0 0" format="{@st43}{s16}%s{/}{/}" param1="value"/>
+    <richtext name="timerDesc" rect="0 0 280 20" margin="10 46 0 0" format="{@st43}{s20}{#FF7F00}%s{/}{/}{/}" param1="value"/>
+    <groupbox name="remainClockGbox" rect="0 0 192 50" margin="54 76 0 0" draw="false" hittest="false">
+      <richtext name="remainMin" rect="0 0 72 50" margin="0 0 0 0" format="{@st41b}{s48}%s{/}{/}" param1="value" param1_def="00" textalign="right top" resizebytext="false" fixwidth="true"/>
+      <richtext name="remainTimeSep" rect="0 0 48 50" margin="72 0 0 0" caption="{@st41b}{s48}:{/}{/}" textalign="center top" resizebytext="false" fixwidth="true"/>
+      <richtext name="remainSec" rect="0 0 72 50" margin="120 0 0 0" format="{@st41b}{s48}%s{/}{/}" param1="value" param1_def="00" textalign="left top" resizebytext="false" fixwidth="true"/>
+    </groupbox>
+
+    <richtext name="totalTimeText" rect="0 0 280 16" margin="10 146 0 0" format="{@st43}{s16}%s{/}{/}" param1="value"/>
+    <groupbox name="totalClockGbox" rect="0 0 112 30" margin="94 172 0 0" draw="false" hittest="false">
+      <richtext name="totalMin" rect="0 0 42 30" margin="0 0 0 0" format="{@st41b}{s28}%s{/}{/}" param1="value" param1_def="00" textalign="right top" resizebytext="false" fixwidth="true"/>
+      <richtext name="totalTimeSep" rect="0 0 28 30" margin="42 0 0 0" caption="{@st41b}{s28}:{/}{/}" textalign="center top" resizebytext="false" fixwidth="true"/>
+      <richtext name="totalSec" rect="0 0 42 30" margin="70 0 0 0" format="{@st41b}{s28}%s{/}{/}" param1="value" param1_def="00" textalign="left top" resizebytext="false" fixwidth="true"/>
+    </groupbox>
+  </controls>
+</uiframe>
