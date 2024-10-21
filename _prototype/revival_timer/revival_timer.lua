@@ -71,9 +71,9 @@ function revival_timer_frame_init()
 
     local set_timer = frame:CreateOrGetControl('button', 'set_timer', 0, 0, 60, 30)
     AUTO_CAST(set_timer)
-    set_timer:SetText("Timer")
+    set_timer:SetText("{ol}Timer")
     set_timer:SetEventScript(ui.LBUTTONUP, "revival_timer_setting")
-    -- local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 35, 35)
+
 end
 
 function revival_timer_setting(frame, ctrl, str, num)
@@ -84,19 +84,40 @@ function revival_timer_setting(frame, ctrl, str, num)
     frame:ShowWindow(1)
     frame:SetSkinName("None")
     frame:SetSkinName("test_frame_midle_light")
-    frame:Resize(200, 100)
+    frame:Resize(140, 120)
     frame:SetLayerLevel(999)
+
+    local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.RIGHT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "revival_timer_frame_close");
 
     local info_text = frame:CreateOrGetControl('richtext', 'info_text', 5, 5, 50, 20)
     AUTO_CAST(info_text)
-    info_text:SetText("{ol}Info : ")
+    info_text:SetText("{ol}Notice Text")
 
-    local info_edit = frame:CreateOrGetControl('edit', 'info_edit', 55, 5, 130, 20)
+    local info_edit = frame:CreateOrGetControl('edit', 'info_edit', 10, 25, 130, 20)
     AUTO_CAST(info_edit)
     info_edit:SetFontName("white_16_ol")
     info_edit:SetTextAlign("center", "center")
-    info_edit:SetEventScript(ui.ENTERKEY, "indun_panel_autozoom_save")
+    info_edit:SetEventScript(ui.ENTERKEY, "revival_timer_edit_save")
 
+    local set_second = frame:CreateOrGetControl('richtext', 'set_second', 5, 55, 50, 20)
+    AUTO_CAST(set_second)
+    info_text:SetText("{ol}Set Seconds : ")
+
+    local set_second_edit = frame:CreateOrGetControl('edit', 'set_second_edit', 60, 55, 50, 20)
+    AUTO_CAST(set_second_edit)
+    set_second_edit:SetFontName("white_16_ol")
+    set_second_edit:SetTextAlign("center", "center")
+    set_second_edit:SetEventScript(ui.ENTERKEY, "revival_timer_edit_save")
+
+    local show_timer = frame:CreateOrGetControl("button", "show_timer", 90, 80, 50, 30)
+    AUTO_CAST(show_timer)
+    show_timer:SetText("{ol}Show Timer")
+    show_timer:SetEventScript(ui.LBUTTONUP, "revival_timer_show_timer");
+    show_timer:SetEventScriptArgString(ui.LBUTTONUP, "test");
 end
 
 function revival_timer_start(frame)
