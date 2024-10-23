@@ -1,9 +1,11 @@
 -- v1.0.0 公開。 effect.PlayActorEffect(actor, 'F_sys_TPBOX_great_300', 'None', 2.0, 5.0)このコードで怖い思いした。TOS落としても鳴ってる。
 -- v1.0.1 修正。
+-- v1.0.2 ui.Chatがアルファベットでないとバグってたの修正。
+-- v1.0.3 PTチャットの英語修正。はずい。左ALTで隠すように。
 local addonName = "REVIVAL_TIMER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -89,7 +91,7 @@ function revival_timer_frame_close(frame, ctrl, str, num)
 
     elseif frame_name == addonNameLower .. "show_timer" then
         frame:ShowWindow(0)
-        -- ui.DestroyFrame(frame_name);
+
     end
 end
 
@@ -210,17 +212,18 @@ function revival_timer_timer_update(frame)
 
         timer_text:SetText(string.format("{ol}{s46}%02d:%02d{/}", m, s))
         if g.start_seconds <= 10.5 and g.start_seconds >= 9.5 then
-            revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. "10 seconds ago")
+
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. g.settings.set_text .. "10 seconds ago")
+                ui.Chat("/p " .. g.settings.set_text .. " 10 sec rem.")
             end
+            revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 10 sec rem.")
         elseif g.start_seconds <= 5.5 and g.start_seconds >= 4.5 then
-            revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. "5 seconds ago")
 
             imcSound.PlaySoundEvent('sys_tp_box_3')
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. g.settings.set_text .. "5 seconds ago")
+                ui.Chat("/p " .. g.settings.set_text .. " 5 sec rem.")
             end
+            revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 5 sec rem.")
         end
         return 1
     else
@@ -236,8 +239,8 @@ function revival_timer_setting(frame, ctrl, str, num)
     local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting", 0, 0, 0, 0)
     AUTO_CAST(frame)
     frame:SetPos(1570, 30)
-    frame:SetSkinName("chat_window")
-    frame:Resize(180, 200)
+    frame:SetSkinName("bg")
+    frame:Resize(180, 220)
     frame:SetLayerLevel(999)
 
     local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
@@ -282,7 +285,7 @@ function revival_timer_setting(frame, ctrl, str, num)
 
     local notice = frame:CreateOrGetControl('richtext', 'notice', 10, 170, 100, 20)
     AUTO_CAST(notice)
-    notice:SetText("{ol}{#FFD700}※Start at Right ALT")
+    notice:SetText("{ol}{#FFD700}※Start at Right ALT{nl}" .. "      Hide at Left ALT")
 
     frame:ShowWindow(1)
 end
@@ -302,8 +305,16 @@ function revival_timer_start(frame)
     local downKey = keyboard.GetDownKey();
     if downKey ~= nil then
         if downKey == "RALT" then
-            local frame = ui.GetFrame(addonNameLower .. "show_timer")
+            local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "show_timer", 0, 0, 0, 0)
+            AUTO_CAST(frame)
+
+            frame:StopUpdateScript("revival_timer_timer_update");
             revival_timer_show_timer(frame, nil, nil, nil)
+        elseif downKey == "LALT" then
+            local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "show_timer", 0, 0, 0, 0)
+            AUTO_CAST(frame)
+            frame:StopUpdateScript("revival_timer_timer_update");
+            frame:ShowWindow(0)
         end
     end
     return 1
