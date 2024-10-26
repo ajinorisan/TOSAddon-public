@@ -193,7 +193,7 @@
 		"name" : "Let's Go Home",
 		"file" : "lets_go_home",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.3",
+		"fileVersion" : "v1.0.5",
 		"releaseTag" : "lets_go_home",
 		"unicode" : "⛄",
 		"description" : "右クリックで設定。左クリックでホームタウンとホームチャンネルに移動します。バックスラッシュがショトカです。クエストワープ優先。次にトークンワープを使います。その次にトークンワープクールダウン中はワープ呪文書を使います。<br>Right click to set up. Left click to go to home town and home channel. Quest warp priority. Then use Token Warp. Then use the warp spellbook during the token warp cooldown. <br>우클릭으로 설정. 왼쪽 클릭으로 홈타운과 홈 채널로 이동합니다. 퀘스트 워프 우선. 다음으로 토큰 워프를 사용합니다. 그 다음 토큰 워프 재사용 대기시간 동안 워프 주문서를 사용합니다.",
