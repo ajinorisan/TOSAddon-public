@@ -40,10 +40,11 @@
 -- v1.4.0 ユラテコインも自動使用。バフリストバグってたの修正。
 -- v1.4.1 自分のエフェクト調整機能追加
 -- v1.4.2 ユラテコイン自動使用のバグ修正。装備忘れメッセージを520環境まで拡張。
+-- v1.4.3 トークンワープ画面でクールダウン時間表示するように。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.2"
+local ver = "1.4.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -151,6 +152,43 @@ function MINI_ADDONS_LOAD_SETTINGS()
 
 end
 
+function MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP(frame, msg)
+    -- acutil.getEventArgs(msg)
+    print("MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP")
+    local frame = ui.GetFrame("worldmap2_minimap")
+    frame:RunUpdateScript("MINI_ADDONS_TOKEN_WARP_COOLDOWN", 1.0)
+
+end
+
+function MINI_ADDONS_TOKEN_WARP_COOLDOWN(frame)
+    local minimap_token_btn = GET_CHILD_RECURSIVELY(frame, "minimap_token_btn")
+    AUTO_CAST(minimap_token_btn)
+
+    local isTokenState = session.loginInfo.IsPremiumState(ITEM_TOKEN)
+    local imageName = ""
+
+    local cd = GET_TOKEN_WARP_COOLDOWN()
+
+    if isTokenState == true and cd == 0 then
+        imageName = "{img worldmap2_token_gold 38 38} {@st101lightbrown_16}"
+    else
+        imageName = "{img worldmap2_token_gray 38 38} {@st101lightbrown_16}"
+    end
+
+    minimap_token_btn:SetText(imageName .. ScpArgMsg("TokenWarp"))
+
+    local cdtext = frame:CreateOrGetControl('richtext', 'cdtext', 50, 820)
+    AUTO_CAST(cdtext)
+
+    local minutes = math.floor(cd / 60)
+    local seconds = cd % 60
+    local cdtimer = string.format('%d:%02d', minutes, seconds)
+
+    cdtext:SetText("{ol}{#FFFFFF}TokenWarp CD: " .. cdtimer)
+
+    return 1
+end
+
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -170,6 +208,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
     acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM");
+    acutil.setupEvent(addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP");
 
     if g.settings.raid_record == 1 then
         acutil.setupEvent(addon, "RAID_RECORD_INIT", "MINI_ADDONS_RAID_RECORD_INIT")
