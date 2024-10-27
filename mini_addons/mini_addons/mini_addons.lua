@@ -41,10 +41,11 @@
 -- v1.4.1 自分のエフェクト調整機能追加
 -- v1.4.2 ユラテコイン自動使用のバグ修正。装備忘れメッセージを520環境まで拡張。
 -- v1.4.3 トークンワープ画面でクールダウン時間表示するように。
+-- v1.4.4 ヴァカリネ装備をレイド時に他人に知らせる機能
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.3"
+local ver = "1.4.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -118,7 +119,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
         raid_check = 1,
         coin_count = 0,
         bgm = 0,
-        my_effect = 0
+        my_effect = 0,
+        vakarine = 0
     }
 
     if not settings then
@@ -188,7 +190,38 @@ function MINI_ADDONS_TOKEN_WARP_COOLDOWN(frame)
 
     return 1
 end
+function MINI_ADDONS_VAKARINE_NOTICE()
 
+    local equip_item_list = session.GetEquipItemList();
+    local equip_guid_list = equip_item_list:GetGuidList();
+    local count = equip_guid_list:Count();
+    local vakarine_count = 0
+    for i = 0, count - 1 do
+        local guid = equip_guid_list:Get(i);
+        if guid ~= '0' then
+            local equip_item = equip_item_list:GetItemByGuid(guid);
+            if equip_item ~= nil and equip_item:GetObject() ~= nil then
+
+                local item = GetIES(equip_item:GetObject())
+
+                for j = 1, MAX_OPTION_EXTRACT_COUNT do
+                    local propGroupName = "RandomOptionGroup_" .. j;
+                    local propName = "RandomOption_" .. j;
+                    local cls_msg = ScpArgMsg(item[propName])
+                    -- plagueDoctor_bless
+                    if string.find(cls_msg, "vakarine_bless") ~= nil then
+                        vakarine_count = vakarine_count + 1
+                    end
+
+                end
+
+            end
+        end
+    end
+    if vakarine_count >= 5 then
+        ui.Chat("!! " .. "vakarine")
+    end
+end
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -196,6 +229,13 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
 
     MINI_ADDONS_LOAD_SETTINGS()
+
+    local map = GetClass('Map', session.GetMapName());
+    local keyword = TryGetProp(map, 'Keyword', 'None');
+    local keyword_table = StringSplit(keyword, ';');
+    if table.find(keyword_table, 'IsRaidField') > 0 and g.settings.vakarine == 1 then
+        addon:RegisterMsg('GAME_START', "MINI_ADDONS_VAKARINE_NOTICE")
+    end
 
     g.SetupHook(MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE, "EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE")
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
@@ -402,6 +442,8 @@ function MINI_ADDONS_LANG(str)
             str = "各商店のコインの上限を99999に引き上げます"
         elseif str == "Always move the BGM player in city" then
             str = "街でBGMプレイヤーを常に動かします"
+        elseif str == "Notify others of vakarine equipment in raid" then
+            str = "レイド時、ヴァカリネ装備を他人にお知らせ"
         elseif str == "Check to enable" then
             str = "チェックすると有効化"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -465,6 +507,8 @@ function MINI_ADDONS_LANG(str)
             str = "각 상점의 코인 최대 한도를 99999로 올립니다"
         elseif str == "Always move the BGM player in city" then
             str = "도시에서 BGM 플레이어 항상 이동"
+        elseif str == "Notify others of vakarine equipment in raid" then
+            str = " 레이드에 있는 바카린 장비를 다른 플레이어에게 알리기"
         elseif str == "Check to enable" then
             str = "체크 시 활성화"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -592,6 +636,10 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         name = "bgm",
         check = g.settings.bgm,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Always move the BGM player in city")
+    }, {
+        name = "vakarine",
+        check = g.settings.vakarine,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Notify others of vakarine equipment in raid")
     }}
 
     local x = 10
@@ -706,7 +754,8 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         relic_gauge = "relic_gauge_checkbox",
         raid_check = "raid_check_checkbox",
         coin_count = "coin_count_checkbox",
-        bgm = "bgm_checkbox"
+        bgm = "bgm_checkbox",
+        vakarine = "vakarine_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
