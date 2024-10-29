@@ -40,13 +40,15 @@ function NOCHECK_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+    g.lang = option.GetCurrentCountry()
+
     g.SetupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG")
     g.SetupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP")
     g.SetupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
     g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
     g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
     g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-                "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
@@ -64,29 +66,62 @@ function NOCHECK_ON_INIT(addon, frame)
             addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
         end
 
+        g.SetupHook(NOCHECK_REINFORCE_131014_EXEC, "REINFORCE_131014_EXEC")
         acutil.setupEvent(addon, "MORU_LBTN_CLICK", "NOCHECK_MORU_LBTN_CLICK");
     end
 
 end
 
-function NOCHECK_COMMAND()
-    if g.nocheck == nil then
-        g.nocheck = 1
-        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
+function _NOCHECK_REINFORCE_131014_EXEC(checkReuildFlag)
+    local frame = ui.GetFrame("reinforce_131014");
+    local fromItem, fromMoru = REINFORCE_131014_GET_ITEM(frame);
+    local moruObj = GetIES(fromMoru:GetObject())
+    local fromItemObj = GetIES(fromItem:GetObject());
+    g.curReinforce = fromItemObj.Reinforce_2;
 
-    elseif g.nocheck == 0 then
-        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
-        g.nocheck = 1
+    if moruObj.ClassID == 11200074 or moruObj.ClassID == 11200075 then
+        local curReinforce = fromItemObj.Reinforce_2;
+
+        session.ResetItemList();
+        session.AddItemID(fromItem:GetIESID());
+        session.AddItemID(fromMoru:GetIESID());
+        local resultlist = session.GetItemIDList();
+        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist);
+        REINFORCE_131014_UPDATE_MORU_COUNT(frame);
 
     else
-        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
-        g.nocheck = 0
-
+        base["REINFORCE_131014_EXEC"](checkReuildFlag)
     end
+end
 
+function NOCHECK_REINFORCE_131014_EXEC(checkReuildFlag)
+    _NOCHECK_REINFORCE_131014_EXEC(checkReuildFlag)
 end
 
 function NOCHECK_MORU_LBTN_CLICK(frame, msg)
+    local invframe, invItem = acutil.getEventArgs(msg)
+    local upgradeitem_2 = ui.GetFrame("reinforce_131014");
+    local skipOver5 = GET_CHILD_RECURSIVELY(upgradeitem_2, "skipOver5")
+    AUTO_CAST(skipOver5)
+    skipOver5:SetCheck(1)
+    local reinforce_stop = upgradeitem_2:CreateOrGetControl("checkbox", "reinforce_stop", 45, 300, 28, 28)
+    AUTO_CAST(reinforce_stop)
+    reinforce_stop:SetText(g.lang == "Japanese" and "{@st41}{s18}+7 +10 +15 で確認します" or
+                               "{@st41}{s18}+7 +10 +15 to confirm")
+
+    local cancel = upgradeitem_2:CreateOrGetControl("button", "cancel", 300, 375, 80, 50)
+    AUTO_CAST(cancel)
+    cancel:SetSkinName("test_red_button")
+    cancel:SetText("{ol}Cancel")
+    cancel:SetEventScript(ui.LBUTTONUP, "NOCHECK_MORU_FRAME_CLOSE");
+end
+
+function NOCHECK_MORU_FRAME_CLOSE()
+    local upgradeitem_2 = ui.GetFrame("reinforce_131014");
+    upgradeitem_2:ShowWindow(0)
+    return
+end
+--[[function NOCHECK_MORU_LBTN_CLICK(frame, msg)
     local invframe, invItem = acutil.getEventArgs(msg)
 
     NOCHECK_REINFORCE_131014_MSGBOX()
@@ -127,6 +162,23 @@ function NOCHECK_REINFORCE_131014_EXEC()
     end
 
     REINFORCE_131014_UPDATE_MORU_COUNT(frame);
+
+end]]
+
+function NOCHECK_COMMAND()
+    if g.nocheck == nil then
+        g.nocheck = 1
+        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
+
+    elseif g.nocheck == 0 then
+        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
+        g.nocheck = 1
+
+    else
+        ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
+        g.nocheck = 0
+
+    end
 
 end
 
