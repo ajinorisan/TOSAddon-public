@@ -309,7 +309,7 @@
 		"name" : "No check",
 		"file" : "nocheck",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.6",
+		"fileVersion" : "v1.1.8",
 		"releaseTag" : "nocheck",
 		"unicode" : "⛄",
 		"description" : "各種確認を消します。ラダコレクションの強化を支援します。<br>Erase various checks. Helps strengthen the Rada collection.<br>각종 확인을 지웁니다. 라다 컬렉션 강화를 지원합니다.",

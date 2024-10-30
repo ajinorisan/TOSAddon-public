@@ -10,10 +10,12 @@
 -- v1.1.4 コレクション強化の挙動安定してなかったの直したハズ。むずかった
 -- v1.1.5 WARNINGBOXバグってたので修正。
 -- v1.1.6 コレクション強化の挙動が安定しなかったのでシンプルに戻した。
+-- v1.1.7 コレクション強化520に対応。金床の挙動安定化再挑戦。
+-- v1.1.8 コレクション強化520に対応。1.1.6の挙動のまま
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.6"
+local ver = "1.1.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -55,7 +57,7 @@ function NOCHECK_ON_INIT(addon, frame)
 
     -- acutil.setupHook(EASYBUFF_OPEN_FOOD_TABLE_UI_DELAY, "OPEN_FOOD_TABLE_UI")
 
-    acutil.slashCommand("/nocheck", NOCHECK_COMMAND);
+    -- acutil.slashCommand("/nocheck", NOCHECK_COMMAND);
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -66,29 +68,81 @@ function NOCHECK_ON_INIT(addon, frame)
             addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
         end
 
-        g.SetupHook(NOCHECK_REINFORCE_131014_EXEC, "REINFORCE_131014_EXEC")
+        -- g.SetupHook(NOCHECK_REINFORCE_131014_EXEC, "REINFORCE_131014_EXEC")
         acutil.setupEvent(addon, "MORU_LBTN_CLICK", "NOCHECK_MORU_LBTN_CLICK");
     end
 
 end
 
+--[[function NOCHECK_GET_MONB(frame)
+
+    g.handle = session.GetTargetHandle();
+    local monb_frame = ui.GetFrame("monb_" .. g.handle);
+    if monb_frame ~= nil then
+        local timer = frame:CreateOrGetControl("timer", "addontimer2", 0, 0);
+        AUTO_CAST(timer)
+        timer:Stop();
+
+        timer:SetUpdateScript("NOCHECK_MONITOR_MONB");
+        timer:Start(0.1);
+    else
+
+        return
+    end
+end
+
+function NOCHECK_MONITOR_MONB(frame)
+
+    local monb_frame = ui.GetFrame("monb_" .. g.handle);
+    if monb_frame ~= nil then
+        return
+    else
+
+        local timer = frame:CreateOrGetControl("timer", "addontimer2", 0, 0);
+        AUTO_CAST(timer)
+        timer:Stop();
+        NOCHECK_REINFORCE_131014_EXEC()
+
+    end
+end
+
+function NOCHECK_MONB_CREATE(frame_name)
+    g.first = false
+    local frame = ui.GetFrame(frame_name);
+    local fromItem, fromMoru = REINFORCE_131014_GET_ITEM(frame);
+    local moruObj = GetIES(fromMoru:GetObject())
+    session.ResetItemList();
+    session.AddItemID(fromItem:GetIESID());
+    session.AddItemID(fromMoru:GetIESID());
+    local resultlist = session.GetItemIDList();
+    item.DialogTransaction("ITEM_REINFORCE_131014", resultlist);
+    REINFORCE_131014_UPDATE_MORU_COUNT(frame);
+
+    local timer = frame:CreateOrGetControl("timer", "addontimer2", 0, 0);
+    AUTO_CAST(timer)
+    timer:SetUpdateScript("NOCHECK_GET_MONB");
+    timer:Start(0.1);
+end
+
 function _NOCHECK_REINFORCE_131014_EXEC(checkReuildFlag)
     local frame = ui.GetFrame("reinforce_131014");
+    local frame_name = frame:GetName()
     local fromItem, fromMoru = REINFORCE_131014_GET_ITEM(frame);
     local moruObj = GetIES(fromMoru:GetObject())
     local fromItemObj = GetIES(fromItem:GetObject());
-    g.curReinforce = fromItemObj.Reinforce_2;
 
     if moruObj.ClassID == 11200074 or moruObj.ClassID == 11200075 then
         local curReinforce = fromItemObj.Reinforce_2;
-
-        session.ResetItemList();
-        session.AddItemID(fromItem:GetIESID());
-        session.AddItemID(fromMoru:GetIESID());
-        local resultlist = session.GetItemIDList();
-        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist);
-        REINFORCE_131014_UPDATE_MORU_COUNT(frame);
-
+        if g.reinforce_stop == true and g.first ~= true and
+            (curReinforce == 7 or curReinforce == 10 or curReinforce == 15 or curReinforce == 20) then
+            local yes_script = string.format("NOCHECK_MONB_CREATE('%s')", frame_name)
+            local no_script = string.format("NOCHECK_MORU_FRAME_CLOSE()")
+            REINFORCE_131014_UPDATE_MORU_COUNT(frame);
+            ui.MsgBox(g.lang == "Japanese" and "まだ続けますか？" or "Do you want to continue?", yes_script,
+                no_script);
+            return
+        end
+        NOCHECK_MONB_CREATE(frame_name)
     else
         base["REINFORCE_131014_EXEC"](checkReuildFlag)
     end
@@ -96,6 +150,15 @@ end
 
 function NOCHECK_REINFORCE_131014_EXEC(checkReuildFlag)
     _NOCHECK_REINFORCE_131014_EXEC(checkReuildFlag)
+end
+
+function NOCHECK_REINFORCE_CHECK(frame, ctrl, str, num)
+    local is_check = ctrl:IsChecked()
+    if is_check == 1 then
+        g.reinforce_stop = true
+    else
+        g.reinforce_stop = false
+    end
 end
 
 function NOCHECK_MORU_LBTN_CLICK(frame, msg)
@@ -106,22 +169,33 @@ function NOCHECK_MORU_LBTN_CLICK(frame, msg)
     skipOver5:SetCheck(1)
     local reinforce_stop = upgradeitem_2:CreateOrGetControl("checkbox", "reinforce_stop", 45, 300, 28, 28)
     AUTO_CAST(reinforce_stop)
-    reinforce_stop:SetText(g.lang == "Japanese" and "{@st41}{s18}+7 +10 +15 で確認します" or
-                               "{@st41}{s18}+7 +10 +15 to confirm")
+    reinforce_stop:SetCheck(g.reinforce_stop == true and 1 or 0)
+    reinforce_stop:SetEventScript(ui.LBUTTONUP, "NOCHECK_REINFORCE_CHECK")
+    reinforce_stop:SetText(g.lang == "Japanese" and "{@st41}{s18}+7 +10 +15 +20 で確認します" or
+                               "{@st41}{s18}+7 +10 +15 +20 to confirm")
 
     local cancel = upgradeitem_2:CreateOrGetControl("button", "cancel", 300, 375, 80, 50)
     AUTO_CAST(cancel)
     cancel:SetSkinName("test_red_button")
     cancel:SetText("{ol}Cancel")
     cancel:SetEventScript(ui.LBUTTONUP, "NOCHECK_MORU_FRAME_CLOSE");
+
+    local frame = ui.GetFrame("reinforce_131014");
+    local timer = frame:CreateOrGetControl("timer", "addontimer2", 0, 0);
+    AUTO_CAST(timer)
+    timer:Stop();
+    g.first = true
 end
 
 function NOCHECK_MORU_FRAME_CLOSE()
     local upgradeitem_2 = ui.GetFrame("reinforce_131014");
+    local timer = upgradeitem_2:CreateOrGetControl("timer", "addontimer2", 0, 0);
+    AUTO_CAST(timer)
+    timer:Stop();
     upgradeitem_2:ShowWindow(0)
     return
-end
---[[function NOCHECK_MORU_LBTN_CLICK(frame, msg)
+end]]
+function NOCHECK_MORU_LBTN_CLICK(frame, msg)
     local invframe, invItem = acutil.getEventArgs(msg)
 
     NOCHECK_REINFORCE_131014_MSGBOX()
@@ -135,7 +209,7 @@ function NOCHECK_REINFORCE_131014_MSGBOX()
     local moruObj = GetIES(fromMoru:GetObject())
     local exec = GET_CHILD_RECURSIVELY(frame, "exec")
 
-    if moruObj.ClassName == "Moru_goddess_500" then
+    if moruObj.ClassName == "Moru_goddess_500" or moruObj.ClassName == "Moru_goddess_520" then
         local skipOver5 = GET_CHILD_RECURSIVELY(frame, "skipOver5")
         skipOver5:SetCheck(1)
         exec:ShowWindow(0)
@@ -163,9 +237,9 @@ function NOCHECK_REINFORCE_131014_EXEC()
 
     REINFORCE_131014_UPDATE_MORU_COUNT(frame);
 
-end]]
+end
 
-function NOCHECK_COMMAND()
+--[[function NOCHECK_COMMAND()
     if g.nocheck == nil then
         g.nocheck = 1
         ui.SysMsg("WARNINGMSGBOX NOCHECK OFF{nl}Please return to the barracks once.")
@@ -180,7 +254,7 @@ function NOCHECK_COMMAND()
 
     end
 
-end
+end]]
 
 function NOCHECK_WARNINGMSGBOX_FRAME_OPEN()
 
