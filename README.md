@@ -97,6 +97,25 @@ v1.0.0 公開。
 
 　
 
+### My Buffs Controlr
+
+バフ欄を移動可能にして、選択したバフを非表示にします。街では動作しません。設定のみ可能。
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+
+![TreeOfSavior_20241105_232034](https://github.com/user-attachments/assets/6cfca44e-a17c-4797-86c8-86f4af09928b)
+
+　
+
+----
+
+　
+
 ### Revival Timer
 
 右ALTキーでタイマーを起動します。ミニマップ上部のボタンで設定します。既存のTimer addonと競合しません。

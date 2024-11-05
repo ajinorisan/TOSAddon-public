@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "My Buffs Control",
+		"file" : "my_buffs",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "my_buffs",
+		"unicode" : "⛄",
+		"description" : "バフ欄を移動可能にして、選択したバフを非表示にします。街では動作しません。設定のみ可能。<br> Make the buff column movable and hide selected buffs.Does not work in town. Only setting is possible.<br>버프 칸을 이동 가능하게 하여 선택한 버프를 숨길 수 있습니다.시내에서는 작동하지 않습니다. 설정만 가능합니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Revival Timer",
 		"file" : "revival_timer",
 		"extension" : "ipf",
