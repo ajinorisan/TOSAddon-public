@@ -4,10 +4,11 @@
 -- v1.0.8 分析を詳細に
 -- v1.0.9 チャレンジとかで無駄に増えるマップを無効化
 -- v1.1.0 インフォフレームをちゃんと作った。褒めて欲しい。
+-- v1.1.1 フレームのレイヤーを上げた。
 local addonName = "KLCOUNT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -85,7 +86,7 @@ function klcount_map_information(map_id)
 
     local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "map_info", 0, 0, 0, 0)
     AUTO_CAST(frame)
-    frame:SetPos(1000, 50)
+    frame:SetPos(1000, 30)
     frame:SetSkinName("test_frame_low")
 
     local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
@@ -172,8 +173,8 @@ function klcount_map_information(map_id)
             AUTO_CAST(display_text2)
             display_text2:SetText("{ol}" .. display2)
             y = y + 55
-            if x < display_text2:GetWidth() then
-                x = display_text2:GetWidth()
+            if x < display_text2:GetWidth() + 10 then
+                x = display_text2:GetWidth() + 10
             end
         end
     end
@@ -186,7 +187,12 @@ function klcount_map_information(map_id)
     reset_button:SetEventScript(ui.LBUTTONUP, "klcount_map_reset_reserve")
     reset_button:SetEventScriptArgNumber(ui.LBUTTONUP, map_id)
 
+    if y >= 840 then
+        y = 840
+    end
     frame:Resize(x + 40, 160 + y)
+    -- frame:Resize(x + 40, 250)
+    frame:SetLayerLevel(150)
     info_gbox:Resize(frame:GetWidth() - 20, frame:GetHeight() - 55)
     frame:ShowWindow(1)
 
