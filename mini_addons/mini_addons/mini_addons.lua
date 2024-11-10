@@ -42,10 +42,12 @@
 -- v1.4.2 ユラテコイン自動使用のバグ修正。装備忘れメッセージを520環境まで拡張。
 -- v1.4.3 トークンワープ画面でクールダウン時間表示するように。
 -- v1.4.4 ヴァカリネ装備をレイド時に他人に知らせる機能
+-- v1.4.5 週ボス報酬を自動で受け取る機能。不安定かも。
+-- v1.4.6 テスト用。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.4"
+local ver = "1.4.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -120,7 +122,8 @@ function MINI_ADDONS_LOAD_SETTINGS()
         coin_count = 0,
         bgm = 0,
         my_effect = 0,
-        vakarine = 0
+        vakarine = 0,
+        weekly_boss_reward = 0
     }
 
     if not settings then
@@ -156,7 +159,7 @@ end
 
 function MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP(frame, msg)
     -- acutil.getEventArgs(msg)
-    print("MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP")
+    -- print("MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP")
     local frame = ui.GetFrame("worldmap2_minimap")
     frame:RunUpdateScript("MINI_ADDONS_TOKEN_WARP_COOLDOWN", 1.0)
 
@@ -289,7 +292,8 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.pc_name == 1 then
-        addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_PCNAME_REPLACE")
+        -- addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_PCNAME_REPLACE")
+        acutil.setupEvent(addon, 'HEADSUPDISPLAY_ON_MSG', "MINI_ADDONS_PCNAME_REPLACE")
     end
 
     acutil.setupEvent(addon, "CONFIG_ENABLE_AUTO_CASTING", "MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING");
@@ -320,11 +324,20 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         g.partyinfo = 0
     end
 
+    if session.weeklyboss.GetNowWeekNum() == 0 then
+        weekly_boss.RequestWeeklyBossNowWeekNum()
+    end
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
 
     if mapCls.MapType == "City" then
+
+        if g.settings.weekly_boss_reward == 1 then
+
+            addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_WEEKLY_BOSS_REWARD")
+        end
 
         if g.settings.coin_use == 1 then
             addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
@@ -365,6 +378,92 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     MINI_ADDONS_NEW_FRAME_INIT()
+end
+g.wbreward = nil
+function MINI_ADDONS_WEEKLY_BOSS_REWARD()
+    local week_num = WEEKLY_BOSS_RANK_WEEKNUM_NUMBER();
+    -- print(week_num)
+    if week_num ~= 0 then
+        weekly_boss.RequestAcceptAbsoluteRewardAll(week_num)
+
+        if g.wbreward ~= true then
+
+            local indun_info = ui.GetFrame("induninfo")
+            indun_info:Resize(0, 0)
+            indun_info:ShowWindow(1)
+
+            TOGGLE_INDUNINFO(indun_info, 3)
+            local tab = GET_CHILD_RECURSIVELY(indun_info, "tab")
+            AUTO_CAST(tab)
+            tab:SelectTab(3);
+
+            INDUNINFO_TAB_CHANGE(tab, tab)
+
+            local season_tab = GET_CHILD_RECURSIVELY(indun_info, "season_tab")
+            AUTO_CAST(season_tab)
+            season_tab:SelectTab(1);
+            --[[local x, y = GET_SCREEN_XY(season_tab)
+            mouse.SetPos(x + 5, y - 50);]]
+            g.index = 0
+
+            indun_info:RunUpdateScript("MINI_ADDONS_WEEKLY_BOSS_RANK_REWARD", 1.5)
+        end
+    end
+end
+
+function MINI_ADDONS_WEEKLY_BOSS_RANK_REWARD(indun_info)
+    local classtype_tab = GET_CHILD_RECURSIVELY(indun_info, "classtype_tab")
+    AUTO_CAST(classtype_tab)
+    local frame = ui.GetFrame("weeklyboss_reward")
+
+    classtype_tab:SelectTab(g.index);
+
+    if g.index <= 4 then
+
+        WEEKLY_BOSS_DATA_REUQEST();
+        classtype_tab:RunUpdateScript("MINI_ADDONS_WEEKLY_BOSS_RANK_GET_REWARD", 1.0)
+        --[[local x, y = GET_SCREEN_XY(classtype_tab)
+        mouse.SetPos(x - 120 + g.index * 60, y + 5);]]
+        return 1
+    else
+        indun_info:ShowWindow(0)
+        indun_info:Resize(1095, 610)
+        indun_info:StopUpdateScript("MINI_ADDONS_WEEKLY_BOSS_RANK_REWARD")
+        g.wbreward = true
+        return 0
+    end
+
+end
+
+function MINI_ADDONS_WEEKLY_BOSS_RANK_GET_REWARD(frame)
+    print(g.index)
+    local week_num = WEEKLY_BOSS_RANK_WEEKNUM_NUMBER();
+    print(week_num)
+    local myrank = session.weeklyboss.GetMyRankInfo(week_num);
+    print(myrank)
+    local indun_info = ui.GetFrame("induninfo")
+    local classtype_tab = GET_CHILD_RECURSIVELY(indun_info, "classtype_tab")
+    AUTO_CAST(classtype_tab)
+
+    if myrank ~= 0 and myrank <= 100 then
+        weekly_boss.RequestAccpetRankingReward(week_num, myrank)
+
+        indun_info:ShowWindow(0)
+        indun_info:Resize(1095, 610)
+        indun_info:StopUpdateScript("MINI_ADDONS_WEEKLY_BOSS_RANK_REWARD")
+        classtype_tab:StopUpdateScript("MINI_ADDONS_WEEKLY_BOSS_RANK_GET_REWARD")
+        g.wbreward = true
+        return
+    elseif myrank ~= 0 and myrank > 100 then
+        indun_info:ShowWindow(0)
+        indun_info:Resize(1095, 610)
+        indun_info:StopUpdateScript("MINI_ADDONS_WEEKLY_BOSS_RANK_REWARD")
+        classtype_tab:StopUpdateScript("MINI_ADDONS_WEEKLY_BOSS_RANK_GET_REWARD")
+        g.wbreward = true
+        return
+
+    end
+    g.index = g.index + 1
 end
 
 function MINI_ADDONS_SOUND_TOGGLE(frame, ctrl, str, num)
@@ -444,6 +543,8 @@ function MINI_ADDONS_LANG(str)
             str = "街でBGMプレイヤーを常に動かします"
         elseif str == "Notify others of vakarine equipment in raid" then
             str = "レイド時、ヴァカリネ装備を他人にお知らせ"
+        elseif str == "Receive weekly boss reward automatically" then
+            str = "週間ボスレイド報酬を自動で受け取り"
         elseif str == "Check to enable" then
             str = "チェックすると有効化"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -509,6 +610,8 @@ function MINI_ADDONS_LANG(str)
             str = "도시에서 BGM 플레이어 항상 이동"
         elseif str == "Notify others of vakarine equipment in raid" then
             str = " 레이드에 있는 바카린 장비를 다른 플레이어에게 알리기"
+        elseif str == "Receive weekly boss reward automatically" then
+            str = " 주간 보스 레이드 보상을 자동으로 수령"
         elseif str == "Check to enable" then
             str = "체크 시 활성화"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -640,6 +743,10 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         name = "vakarine",
         check = g.settings.vakarine,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Notify others of vakarine equipment in raid")
+    }, {
+        name = "weekly_boss_reward",
+        check = g.settings.weekly_boss_reward,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Receive weekly boss reward automatically")
     }}
 
     local x = 10
@@ -755,7 +862,8 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         raid_check = "raid_check_checkbox",
         coin_count = "coin_count_checkbox",
         bgm = "bgm_checkbox",
-        vakarine = "vakarine_checkbox"
+        vakarine = "vakarine_checkbox",
+        weekly_boss_reward = "weekly_boss_reward_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
@@ -1377,13 +1485,14 @@ function MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC()
     config.SaveConfig()
 end
 
-function MINI_ADDONS_PCNAME_REPLACE()
+function MINI_ADDONS_PCNAME_REPLACE(frame, msg)
     local frame = ui.GetFrame("headsupdisplay")
     local LoginName = session.GetMySession():GetPCApc():GetName()
     local name_text = GET_CHILD_RECURSIVELY(frame, "name_text")
-    -- name_text:SetText("")
-    name_text:SetText("{@st41}" .. tostring(LoginName))
-    return
+    if name_text:GetText() ~= "{@st41}" .. tostring(LoginName) then
+        name_text:SetText("{@st41}" .. tostring(LoginName))
+        return
+    end
 end
 
 -- ダイアログ制御系
