@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ToolSkill><Skill Name="Mon_cretobiang_Skill_2">
+<ToolSkill>
+    <Skill Name="Mon_cretobiang_Skill_2">
 		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<HitList>
 				<Frame Angle="1.8609847" AniTime="2000" Dist="23.804718" ForceATK="0" HitCount="1" Length="60" PosType="1" RandDist="0" RandomPerHit="0" RotAngle="-0.2617994" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="1800" Type="SQUARE" Width="20" />

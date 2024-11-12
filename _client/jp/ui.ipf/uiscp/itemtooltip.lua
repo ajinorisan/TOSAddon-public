@@ -972,6 +972,29 @@ function DRAW_SPECIAL_RANDOM_OPTION(item, desc)
 		desc = desc .. suffix
 	end
 
+	local RadaOption = TryGetProp(item, 'JurateOption', 'None')	
+	if RadaOption ~= 'None' then
+		local prefix = ''
+		local suffix = ''
+		if SEASON_COIN_NAME ~= 'JurateCertificate' then
+			prefix = '{#7F7F7F}'
+			suffix = '{/}'
+		end
+
+		desc = prefix .. desc
+		desc = desc .. '{nl}' .. ScpArgMsg('jurate_option') .. '{nl}'
+
+		local list = StringSplit(RadaOption, ';')
+		for i = 1, #list do
+			local name = StringSplit(list[i], '/')[1]
+			local value = StringSplit(list[i], '/')[2]
+			
+			desc = desc .. ScpArgMsg(name, 'level', value) .. '{nl}'
+		end
+		desc = desc .. ScpArgMsg('jurate_option_end') .. '{nl}'
+		desc = desc .. suffix
+	end
+
 	return desc
 end
 

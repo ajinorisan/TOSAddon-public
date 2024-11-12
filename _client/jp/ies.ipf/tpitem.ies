@@ -12,7 +12,7 @@ ClassID,Price,JobGrade,Itemdate,AccountLimitCount,BonusItemCnt,AccountLimitWeekl
 22,38,0,210428,0,0,2,"ClassName22","TP_Premium","TP_Package","coin_package_520","","","","NO","","NO","AccountLimitWeeklyCountProperty_3",""
 23,49,0,210124,1,0,0,"ClassName23","TP_Premium","TP_Package","Premium_Vakarine","","","","NO","","NO","",""
 24,39,0,210122,0,0,0,"ClassName24","TP_Premium","TP_Package","emoticonItem_24_46","","","","NO","","NO","",""
-27,145,0,240912,1,0,0,"ClassName27","TP_Premium","TP_Package","premium_popoboost_ticket_2409","","2024-09-12 06:00:00","2024-12-10 10:00:00","NO","","NO","",""
+27,145,0,240912,1,0,0,"ClassName27","TP_Premium","TP_Package","premium_popoboost_ticket_2409","","2024-09-11 06:00:00","2024-12-10 10:00:00","NO","","NO","",""
 101,99,0,210125,0,0,0,"ClassName101","TP_Premium","TP_Useable","PremiumToken","","","","NO","","NO","",""
 102,9,0,210124,0,0,0,"ClassName102","TP_Premium","TP_Useable","Premium_boostToken","","","","NO","","NO","",""
 103,33,0,210123,0,0,0,"ClassName103","TP_Premium","TP_Premium_Sale","Premium_SkillReset","","","","NO","","NO","",""

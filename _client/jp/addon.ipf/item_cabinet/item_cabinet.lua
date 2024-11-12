@@ -828,11 +828,19 @@ function GET_ENABLE_EQUIP_JOB(listCls)
 	local ori_name = TryGetProp(listCls, 'ClassName', 'None')		
 	local job_cls = GetClass('EliteEquipDrop', ori_name)		
 	if job_cls ~= nil then
-		local job_name = TryGetProp(job_cls, 'JobName', 'None')
+		local job_name = TryGetProp(job_cls, 'JobName', 'None')		
 		if job_name ~= 'All' then
-			local _cls = GetClassByStrProp("Job", "JobName", job_name);
-			if _cls ~= nil then
+			local _cls = GetClassByStrProp("Job", "JobName", job_name);			
+			if _cls ~= nil then				
 				return dictionary.ReplaceDicIDInCompStr(TryGetProp(_cls, 'Name', 'None'))
+			else
+				_cls = GetClass('ClientMessage', job_name)
+				if _cls ~= nil then				
+					local name = TryGetProp(_cls, 'Data', 'None')
+					if name ~= 'None' then
+						return dictionary.ReplaceDicIDInCompStr(name)
+					end
+				end
 			end
 		end
 	end

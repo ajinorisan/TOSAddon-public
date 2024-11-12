@@ -119,10 +119,18 @@ end
 function GET_BELT_GEAR_SCORE(item)
     local lv = TryGetProp(item, 'UseLv', 0)    
     score = 700
-    if lv >= 470 then
+    if lv == 470 then
         score = 900
-    else
-
+    elseif lv == 480 then
+        score = 900
+    elseif lv == 510 then
+        score = 1100
+        for i = 5, MAX_RANDOM_OPTION_COUNT do
+            local name = TryGetProp(item, 'RandomOption_' .. i)            
+            if name ~= 'None' then
+                score = score + 100
+            end
+        end
     end
 
     local high = 0
@@ -132,7 +140,7 @@ function GET_BELT_GEAR_SCORE(item)
 
     if TryGetProp(item, 'GroupName', 'None') == 'BELT' then
         local max_count = shared_item_belt.get_max_random_option_count(item)
-        local sum = 0
+        local sum = 0        
         
         for i = 1, max_count do
             local name = TryGetProp(item, 'RandomOption_' .. i)
@@ -286,8 +294,16 @@ function GET_GEAR_SCORE(item, pc)
         if is_quest_ark == true then
             quest_ark_penalty = 0.95 -- 5% 패널티
         end
-        grade = math.min(5, grade)
-        local ret = (251 + (25.1 * ark_lv)) * quest_ark_penalty        
+        
+        local ret = 251 + (25.1 * ark_lv)
+        for i = 1, 2 do
+            local value = TryGetProp(item, 'RandomOptionValue_' .. i, 0)            
+            if value > 0 then
+                ret = ret + 250
+            end
+        end
+
+        local ret = ret * quest_ark_penalty        
         return math.floor(ret + 0.5)
     elseif type == 'EARRING' then
         if TryGetProp(item, 'ClassName', 'None') == 'EP13_SampleGabijaEarring' then

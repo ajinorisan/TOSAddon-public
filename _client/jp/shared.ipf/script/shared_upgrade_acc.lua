@@ -108,7 +108,7 @@ end
 make_shared_upgrade_acc_table()
 
 shared_upgrade_acc.is_valid_item = function(item)
-    if TryGetProp(item, 'StringArg', 'None') ~= 'EP16_acc' then
+    if TryGetProp(item, 'EnableUpgrade', 'None') ~= 'YES' then
         return false, 'NotValidItem'
     end
     
@@ -142,6 +142,7 @@ shared_upgrade_acc.get_value = function(item, rank)
 end
 
 shared_upgrade_acc.get_cost = function(item)
+    local name = TryGetProp(item, 'ClassName', 'None')
     local lv = TryGetProp(item, 'UseLv', 0)
     local spot = TryGetProp(item, 'ClassType', 'None')
 
@@ -149,9 +150,24 @@ shared_upgrade_acc.get_cost = function(item)
         return nil
     end
 
+    if material_table[lv][name] ~= nil then
+        return material_table[lv][name]
+    end
+
     if material_table[lv][spot] == nil then
         return nil
     end
 
     return material_table[lv][spot]
+end
+
+
+function EQUIP_UPGRADE_BELT_510(pc, item)    
+    local ret = shared_upgrade_equip.get_value(item)
+    item.ALLSTAT = item.ALLSTAT + ret[1][2]
+end
+
+function UNEQUIP_UPGRADE_BELT_510(pc, item)    
+    local ret = shared_upgrade_equip.get_value(item)
+    item.ALLSTAT = item.ALLSTAT - ret[1][2]
 end

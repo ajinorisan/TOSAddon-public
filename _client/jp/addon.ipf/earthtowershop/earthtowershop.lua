@@ -71,6 +71,18 @@ local g_account_prop_shop_table =
     ['EVENT_2410_MOONRISE'] = 
     {
         ['coinName'] = "EVENT_MOONRISE_2410"
+    },
+    ['EVENT_2410_MOONRISE_PAPAYA'] = 
+    {
+        ['coinName'] = "EVENT_MOONRISE_2410_PAPAYA"
+    },
+    ['EVENT_2410_LEAVES'] = 
+    {
+        ['coinName'] = "EVENT_LEAVE_2410"
+    },
+    ['EVENT_W_MOON_SHOP'] =
+    {
+        ['coinName'] = 'EVENT_W_MOON_COIN'
     }
 }
 --------------------------------------------------------------------------------------------------------------------------
@@ -399,6 +411,29 @@ function EARTHTOWERSHOP_BUY_ITEM_RESULT(frame, msg, argStr, argNum)
             end
             propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
         end 
+    elseif shopType == "EVENT_2410_LEAVES" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+        if itemCls ~= nil then
+            propertyRemain:SetTextByKey('icon', ClMsg("EVENT_COIN_MSG"));
+            propertyRemain:SetTextByKey('itemName', "")
+            local count = GetInvItemCount(GetMyPCObject(), coinName)
+            if count == 'None' then
+                count = '0'
+            end
+            propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+        end 
+    elseif shopType == "EVENT_W_MOON_SHOP" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
     end
 end
 

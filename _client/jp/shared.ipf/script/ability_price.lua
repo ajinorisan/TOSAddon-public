@@ -1,5 +1,29 @@
 -- ability_price.lua
 
+function SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
+    local max = TryGetProp(groupClass, "Add_UnlockJobNum", -1);
+    if max < 0 then
+        return "LOCK_GRADE";
+    end
+
+    local AddStr = "Add_UnlockArgStr"
+    for i = 0, max - 1 do
+        local unlockFuncName = groupClass.UnlockScr;
+        local AddProp = AddStr..i;
+        local AddLockArgStr = TryGetProp(groupClass, AddProp, "None");
+        if unlockFuncName ~= 'None' then
+            local scp = _G[unlockFuncName];
+            local ret = scp(pc, AddLockArgStr, groupClass.UnlockArgNum, abilIES);
+            if ret ~= "LOCK_GRADE" then
+                return ret;
+            end
+        else
+            return nil;
+        end
+    end
+    return "LOCK_GRADE"
+end
+
 function ABIL_1RANK_NORMAL_PRICE(pc, abilName, abilLevel, maxLevel)
 
 --    local price = 1 + (4 - maxLevel + abilLevel) * 1;
@@ -850,16 +874,19 @@ function GET_ABILITY_POINT_BY_NAME(pc, name)
                 local flag = true
                 if unlockFuncName ~= 'None' then
                     local scp = _G[unlockFuncName];
-                    if scp ~= nil then                        
+                    if scp ~= nil then        
                         local ret = scp(pc, TryGetProp(shop_info, 'UnlockArgStr', 'None'), TryGetProp(shop_info, 'UnlockArgNum', 99), abil);
                         if ret ~= 'UNLOCK' then
-                            flag = false
+                            -- flag = false
+                            local addret = SET_ADDITOINAL_LOCK_FUNCTION(pc, shop_info)
+                            if addret ~= 'UNLOCK' then
+                                flag = false
+                            end
                         end
                     end
                 end
-                
                 if func_name ~= 'None' and flag == true then
-                    local func = _G[func_name]               
+                    local func = _G[func_name]   
                     if func ~= nil then
                         local point = 0                        
                         for j = 1, level do

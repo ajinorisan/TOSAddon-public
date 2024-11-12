@@ -1,15 +1,3 @@
-function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
 
 
 function SCR_BURNING_EVENT_LIST_LOAD(inputType, isServer)

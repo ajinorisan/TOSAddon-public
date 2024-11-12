@@ -1,18 +1,5 @@
 -- 아이템 룬 shared_item_earring
 
-function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
-
 
 shared_item_earring = {}
 local item_earring_option_range = nil
@@ -22,6 +9,7 @@ item_earring_max_stats_option_count = 3 -- 최대 3개
 item_earring_base_ctrl_list = {'Warrior', 'Wizard', 'Archer', 'Cleric', 'Scout'}
 local item_earring_max_special_option_count = nil 
 item_earring_ctrl_tree = nil
+item_earring_ctrl_tree_dup = nil
 
 shared_item_earring.MAX_SLOT_CNT = 25;
 
@@ -31,8 +19,10 @@ local function make_item_earring_option_range()
     end
     
     item_earring_ctrl_tree = {}
+    item_earring_ctrl_tree_dup = {}
     for _, ctrl in pairs(item_earring_base_ctrl_list) do
-        item_earring_ctrl_tree[ctrl] = {}        
+        item_earring_ctrl_tree[ctrl] = {}
+        item_earring_ctrl_tree_dup[ctrl] = {}
     end
 
     local cls_list, cnt = GetClassList('Job')
@@ -41,7 +31,11 @@ local function make_item_earring_option_range()
         if TryGetProp(cls, 'EnableJob', 'None') == 'YES' then
             local ctrl_type = TryGetProp(cls, 'CtrlType', 'None')
             if ctrl_type ~= 'None' and TryGetProp(cls, 'Rank', 0) > 1 then
-                table.insert(item_earring_ctrl_tree[ctrl_type], TryGetProp(cls, 'ClassName', 'None'))                
+                table.insert(item_earring_ctrl_tree[ctrl_type], TryGetProp(cls, 'ClassName', 'None'))
+
+                table.insert(item_earring_ctrl_tree_dup[ctrl_type], {TryGetProp(cls, 'ClassName', 'None'), 1})
+                table.insert(item_earring_ctrl_tree_dup[ctrl_type], {TryGetProp(cls, 'ClassName', 'None'), 2})
+                table.insert(item_earring_ctrl_tree_dup[ctrl_type], {TryGetProp(cls, 'ClassName', 'None'), 3})
             end
         end
     end
@@ -216,7 +210,7 @@ shared_item_earring.get_fragmentation_count = function(item)
     return 1
 end
 
-shared_item_earring.is_able_to_fragmetation = function(item)    
+shared_item_earring.is_able_to_fragmetation = function(item)
     if IS_RANDOM_OPTION_SKILL_GEM(item) == true then
         return true
     end
@@ -228,7 +222,7 @@ shared_item_earring.is_able_to_fragmetation = function(item)
     if TryGetProp(item, 'UseLv', 0) < 470 then
         return false
     end
-
+    
     if TryGetProp(item, 'GroupName', 'None') ~= 'Earring' and TryGetProp(item, 'GroupName', 'None') ~= 'BELT' and TryGetProp(item, 'GroupName', 'None') ~= 'SHOULDER'
         and shared_item_goddess_icor.get_goddess_icor_grade(item) == 0
     then
@@ -237,6 +231,11 @@ shared_item_earring.is_able_to_fragmetation = function(item)
 
     local clsName = TryGetProp(item, 'ClassName', 'None')
     if string.find(clsName, 'NoTrade_') ~= nil then
+        return false
+    end
+    
+    local ex_group = TryGetProp(item, 'ExchangeGroup', 'None')
+    if ex_group ~= 'None' then
         return false
     end
 

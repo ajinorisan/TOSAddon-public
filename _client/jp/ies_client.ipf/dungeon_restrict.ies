@@ -49,3 +49,6 @@ ClassID,ClassName,Category,Icon,Spot_Name,Desc,MsgType
 1048,"1048","Goddess_Raid_CollapsingMine_Auto","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
 1049,"1049","Goddess_Raid_CollapsingMine_Party","","사망 제어","DeathCountLimit{count}","DeathCount"
 1050,"1050","Goddess_Raid_CollapsingMine_Party","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1051,"1051","Goddess_Raid_CollapsingMine_Ex_Easy","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1052,"1052","Goddess_Raid_CollapsingMine_Ex_Normal","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1053,"1053","Goddess_Raid_CollapsingMine_Ex_Hard","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""

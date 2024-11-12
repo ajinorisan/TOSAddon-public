@@ -10,6 +10,7 @@
     <sound opensound="window_open" closesound="window_close"/>
 	<option closebutton="false"/>
 	<animation frameOpenAnim="" frameCloseAnim="" margin="0 0 0 0"/>
+	 <userconfig DefaultSzX="191" DefaultSzY="260" DefaultRatioY="1" DefaultRatioX="1" RatioY="0.8" RatioX="1" DefMarginX="0" DefMarginY="0" MarginX="0" MarginY="0"/>
     <controls>
     <!-- 관리탭 -->
         <groupbox name="managerTab" rect="0 0 1920 1080" margin="0 0 0 0" layout_gravity="left top" draw="true" skin=""/>

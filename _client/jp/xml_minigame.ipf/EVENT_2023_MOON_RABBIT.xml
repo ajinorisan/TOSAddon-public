@@ -191,7 +191,7 @@
                         </condList>
                         <execList>
                             <ToolScp Scp="MGAME_SET_RAID_TIMER" Client="NO" UseSleep="NO">
-                                <Num Num="180"/>
+                                <Num Num="60"/>
                                 <Str Str="RemainTime"/>
                                 <Str Str="Yellow"/>
                             </ToolScp>

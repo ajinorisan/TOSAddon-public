@@ -177,3 +177,67 @@ function IS_RADA_OPTION_EQUIPMENT(item)
 
 	return exist
 end
+
+function IS_ABLE_TO_USE_JURATE_OPTION_RESET_SCROLL(item, scroll)
+	if TryGetProp(scroll, 'StringArg', 'None') ~= 'jurate_option_reset_scroll' then
+        return false, 'DontUseItem'
+    end 
+
+	if IS_JURATE_OPTION_EQUIPMENT(item) == false then
+		return false, 'DontUseItem'
+	end
+
+    if TryGetProp(item, 'UseLv', 0) == TryGetProp(scroll, 'NumberArg1', 0) then
+        return true
+    end
+
+	return false, 'DontUseItem'
+end
+
+
+function IS_JURATE_OPTION_EQUIPMENT(item)
+	local item_list = {
+        'EP16_RAID_CLOTH_TOP', 'EP16_RAID_CLOTH_LEG', 'EP16_RAID_CLOTH_FOOT', 'EP16_RAID_CLOTH_HAND',
+        'EP16_RAID_LEATHER_TOP', 'EP16_RAID_LEATHER_LEG', 'EP16_RAID_LEATHER_FOOT', 'EP16_RAID_LEATHER_HAND',
+        'EP16_RAID_PLATE_TOP', 'EP16_RAID_PLATE_LEG', 'EP16_RAID_PLATE_FOOT', 'EP16_RAID_PLATE_HAND',
+	}
+	
+	local exist = false
+
+	for i = 1, #item_list do
+		if item_list[i] == TryGetProp(item, 'ClassName', 'None') then
+			if TryGetProp(item, 'JurateOption', 'None') ~= 'None' then
+				return true
+			end
+		end
+	end
+
+	return exist
+end
+
+function IS_ABLE_TO_USE_520_JURATE_OPTION_SCROLL(item, scroll)
+	local item_list = {
+        'EP16_RAID_CLOTH_TOP', 'EP16_RAID_CLOTH_LEG', 'EP16_RAID_CLOTH_FOOT', 'EP16_RAID_CLOTH_HAND',
+        'EP16_RAID_LEATHER_TOP', 'EP16_RAID_LEATHER_LEG', 'EP16_RAID_LEATHER_FOOT', 'EP16_RAID_LEATHER_HAND',
+        'EP16_RAID_PLATE_TOP', 'EP16_RAID_PLATE_LEG', 'EP16_RAID_PLATE_FOOT', 'EP16_RAID_PLATE_HAND',
+	}
+
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'jurate_option_scroll' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'JurateOption', 'None') ~= 'None' then
+        return false, 'DontUseItem'
+    end
+    
+	local name = TryGetProp(item, 'ClassName', 'None')
+	if table.find(item_list, name) == 0 then
+		return false, 'DontUseItem'
+	end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
+end

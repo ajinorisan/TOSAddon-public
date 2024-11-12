@@ -276,3 +276,7 @@ function FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC(guid)
         end
     end
 end
+
+function FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC()
+    ui.Chat('/equipment_processing_npc');
+end

@@ -4451,6 +4451,10 @@ function SCR_ABIL_Desperado24_ACTIVE(self,abilty)
     if skill ~= nil then
         SetExProp(self, "Desperado24", 1);
         SendPCExProp(self, "Desperado24", 1);
+        -- 바이올렌트 버프 초기화.
+        if IsBuffApplied(self, "Violent") == "YES" then
+            RemoveBuff(self, "Violent");
+        end
     end
 end
 
@@ -4496,6 +4500,263 @@ function SCR_ABIL_Desperado26_INACTIVE(self,abilty)
     end 
 end
 
+-- 벌쳐
+-- 분해: 응축
+function SCR_ABIL_Vulture11_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_Decomposition_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture11", 1);
+        SendPCExProp(self, "Vulture11", 1);
+    end
 
+    local skillWizard = GetSkill(self, "Vulture_Decomposition_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture11", 1);
+        SendPCExProp(self, "Vulture11", 1);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_Decomposition_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture11", 1);
+        SendPCExProp(self, "Vulture11", 1);
+    end
+end
+
+function SCR_ABIL_Vulture11_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_Decomposition_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture11", 0);
+        SendPCExProp(self, "Vulture11", 0);
+    end 
+
+    local skillWizard = GetSkill(self, "Vulture_Decomposition_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture11", 0);
+        SendPCExProp(self, "Vulture11", 0);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_Decomposition_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture11", 0);
+        SendPCExProp(self, "Vulture11", 0);
+    end
+end
+
+--중력장: EMP
+function SCR_ABIL_Vulture12_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_GravityField_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture12", 1);
+        SendPCExProp(self, "Vulture12", 1);
+    end
+
+    local skillWizard = GetSkill(self, "Vulture_GravityField_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture12", 1);
+        SendPCExProp(self, "Vulture12", 1);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_GravityField_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture12", 1);
+        SendPCExProp(self, "Vulture12", 1);
+    end
+end
+
+function SCR_ABIL_Vulture12_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_GravityField_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture12", 0);
+        SendPCExProp(self, "Vulture12", 0);
+    end 
+
+    local skillWizard = GetSkill(self, "Vulture_GravityField_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture12", 0);
+        SendPCExProp(self, "Vulture12", 0);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_GravityField_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture12", 0);
+        SendPCExProp(self, "Vulture12", 0);
+    end
+end
+
+--확산: 재배열 
+function SCR_ABIL_Vulture13_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_Diffusion_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture13", 1);
+        SendPCExProp(self, "Vulture13", 1);
+    end
+
+    local skillWizard = GetSkill(self, "Vulture_Diffusion_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture13", 1);
+        SendPCExProp(self, "Vulture13", 1);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_Diffusion_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture13", 1);
+        SendPCExProp(self, "Vulture13", 1);
+    end
+end
+
+function SCR_ABIL_Vulture13_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_Diffusion_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture13", 0);
+        SendPCExProp(self, "Vulture13", 0);
+    end
+
+    local skillWizard = GetSkill(self, "Vulture_Diffusion_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture13", 0);
+        SendPCExProp(self, "Vulture13", 0);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_Diffusion_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture13", 0);
+        SendPCExProp(self, "Vulture13", 0);
+    end
+end
+
+
+-- [아츠] 정화: 과열양상
+function SCR_ABIL_Vulture21_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_PurificationProtocol_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture21", 1);
+        SendPCExProp(self, "Vulture21", 1);
+    end
+
+    local skillWizard = GetSkill(self, "Vulture_PurificationProtocol_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture21", 1);
+        SendPCExProp(self, "Vulture21", 1);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_PurificationProtocol_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture21", 1);
+        SendPCExProp(self, "Vulture21", 1);
+    end
+end
+
+function SCR_ABIL_Vulture21_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_PurificationProtocol_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture21", 0);
+        SendPCExProp(self, "Vulture21", 0);
+    end
+
+    local skillWizard = GetSkill(self, "Vulture_PurificationProtocol_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture21", 0);
+        SendPCExProp(self, "Vulture21", 0);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_PurificationProtocol_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture21", 0);
+        SendPCExProp(self, "Vulture21", 0);
+    end
+end
+
+--[아츠] 안정화: 지역 초토화
+function SCR_ABIL_Vulture22_ACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_Devastation_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture22", 1);
+        SendPCExProp(self, "Vulture22", 1);
+    end
+
+    local skillWizard = GetSkill(self, "Vulture_Devastation_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture22", 1);
+        SendPCExProp(self, "Vulture22", 1);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_Devastation_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture22", 1);
+        SendPCExProp(self, "Vulture22", 1);
+    end
+end
+
+function SCR_ABIL_Vulture22_INACTIVE(self,abilty)
+    local skill = GetSkill(self, "Vulture_Devastation_Archer");
+    if skill ~= nil then
+        SetExProp(self, "Vulture22", 0);
+        SendPCExProp(self, "Vulture22", 0);
+    end
+
+    local skillWizard = GetSkill(self, "Vulture_Devastation_Wizard");
+    if skillWizard ~= nil then
+        SetExProp(self, "Vulture22", 0);
+        SendPCExProp(self, "Vulture22", 0);
+    end
+
+    local skillScout = GetSkill(self, "Vulture_Devastation_Scout");
+    if skillScout ~= nil then
+        SetExProp(self, "Vulture22", 0);
+        SendPCExProp(self, "Vulture22", 0);
+    end
+end
+
+function SCR_ABIL_Sledger17_ACTIVE(self, ability)
+    local skillSwordman = GetSkill(self, "Sledger_RollingHammer_Swordman");
+    local skillCleric = GetSkill(self, "Sledger_RollingHammer_Cleric");
+    if skillSwordman ~= nil then
+        local shootTimeSwordman = TryGetProp(skillSwordman, "ShootTime", 0)
+        local cancelTimeSwordman = TryGetProp(skillSwordman, "CancelTime", 0)
+
+        SetExProp(ability, "Sledger17_shootTime_Swordman", shootTimeSwordman)
+        SetExProp(ability, "Sledger17_cancelTime_Swordman", cancelTimeSwordman)
+
+        skillSwordman.ShootTime = 1500
+        skillSwordman.CancelTime = 1500
+
+        InvalidateSkill(self, skillSwordman.ClassName);
+        SendSkillProperty(self, skillSwordman);
+    end
+
+    if skillCleric ~= nil then
+        local shootTimeCleric = TryGetProp(skillCleric, "ShootTime", 0)
+        local cancelTimeCleric = TryGetProp(skillCleric, "CancelTime", 0)
+
+        SetExProp(ability, "Sledger17_shootTime_Cleric", shootTimeCleric)
+        SetExProp(ability, "Sledger17_cancelTime_Cleric", cancelTimeCleric)
+
+        skillCleric.ShootTime = 1500
+        skillCleric.CancelTime = 1500
+
+        InvalidateSkill(self, skillCleric.ClassName);
+        SendSkillProperty(self, skillCleric);
+    end
+end
+
+function SCR_ABIL_Sledger17_INACTIVE(self, ability)
+    local skillSwordman = GetSkill(self, "Sledger_RollingHammer_Swordman");
+    local skillCleric = GetSkill(self, "Sledger_RollingHammer_Cleric");
+    if skillSwordman ~= nil then
+        local shootTimeSwordman = GetExProp(ability, "Sledger17_shootTime_Swordman")
+        local cancelTimeSwordman = GetExProp(ability, "Sledger17_cancelTime_Swordman")
+
+        skillSwordman.ShootTime = shootTimeSwordman
+        skillSwordman.CancelTime = cancelTimeSwordman
+    end
+
+    if skillCleric ~= nil then
+        local shootTimeCleric = GetExProp(ability, "Sledger17_shootTime_Cleric")
+        local cancelTimeCleric = GetExProp(ability, "Sledger17_cancelTime_Cleric")
+
+        skillCleric.ShootTime = shootTimeCleric
+        skillCleric.CancelTime = cancelTimeCleric
+    end
+end
 
 

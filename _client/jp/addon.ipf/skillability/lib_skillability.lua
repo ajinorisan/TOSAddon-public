@@ -705,24 +705,3 @@ function GET_JOB_NAME_BY_ENGNAME(name)
         end
     end
 end
-
-function SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
-    local max = TryGetProp(groupClass, "Add_UnlockJobNum", -1);
-    if max < 1 then
-        return nil;
-    end
-    local AddStr = "Add_UnlockArgStr"
-    for i = 0, max do
-        local unlockFuncName = groupClass.UnlockScr;
-        local AddProp = AddStr..i;
-        local AddLockArgStr = TryGetProp(groupClass, AddProp, "None");
-        if unlockFuncName ~= 'None' then
-            local scp = _G[unlockFuncName];
-            local ret = scp(pc, AddLockArgStr, groupClass.UnlockArgNum, abilIES);
-            return ret;
-        else
-            return nil;
-        end
-    end
-
-end

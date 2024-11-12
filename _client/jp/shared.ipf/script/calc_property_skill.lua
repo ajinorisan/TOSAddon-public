@@ -81,7 +81,6 @@ end
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_SKL_CoolDown(skill)
     local pc = GetSkillOwner(skill);
-    
     local coolDownClassify, zoneAddCoolDown = SCR_GET_SKILL_RESTRICT_ARG(pc, skill)
     
     local value = skill.CoolDownValue;
@@ -1440,7 +1439,7 @@ function SCR_Get_SkillFactor_Reinforce_Ability(skill)
     end
 
     local value = SyncFloor(skill.SklFactor * 10) * 0.1 + SyncFloor(skill.SklFactorByLevel * 10) * 0.1 * (skill.Level - 1)
-
+    
     if IsInTOSHeroMap(pc) == true then
         return math.floor(value)
     end
@@ -1455,7 +1454,7 @@ function SCR_Get_SkillFactor_Reinforce_Ability(skill)
         end
 
         value = value * (1 + ((abilLevel * 0.005) + masterAddValue))
-
+        
         local hidden_abil_cls = GetClass("HiddenAbility_Reinforce", skill.ClassName);
         if abilLevel >= 65 and hidden_abil_cls ~= nil then
         	local hidden_abil_name = TryGetProp(hidden_abil_cls, "HiddenReinforceAbil");
@@ -15754,6 +15753,12 @@ function SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
         basicCoolDown = basicCoolDown * rada_cooldown
     end
 
+    rada_cooldown = GetExProp(pc, 'jurate_cooldown')
+    if rada_cooldown > 0 then
+        rada_cooldown = 1 - rada_cooldown / 100        
+        basicCoolDown = basicCoolDown * rada_cooldown
+    end
+    
     -- 여신의 전언: 불꽃의 기억 쿨다운 감소
     local earring_raid_cooldown = GetExProp(pc, 'earring_raid_cooldown')
     if earring_raid_cooldown > 0 then
@@ -20021,26 +20026,13 @@ end
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_SKL_COOLDOWN_Kupole_Active_Skill(skill)
     local basicCoolDown = TryGetProp(skill, "BasicCoolDown", 0)
-    local name = TryGetProp(skill, "ClassName", 0)
-    local RankName = "KupoleRank"..name;
     local pc = GetSkillOwner(skill)
-    local rank = GetExProp(pc, RankName);
-
-    if IsServerSection() == 0 then    
-        local cls = GET_REPRESENT_CUPOLE_INFO()
-        local Group_ID = TryGetProp(cls, "Group_ID", "None")
-        local sklCls = GetClassByStrProp2("cupole_skill", "Group_ID", Group_ID, "Skill_Type", "Active");
-        local skillname = TryGetProp(sklCls, "Skill_Name", "None")
-        if skill.ClassName == skillname then
-            rank = GET_CUPOLE_RANK_BY_CLS(cls)
-        end
-    end
-
+    rank = SCR_GET_Kupole_Rank(skill)
 
     if IsPVPServer(pc) == 1 or IsPVPField(pc) == 1 or IsJoinColonyWarMap(pc) == 1 then
         basicCoolDown = basicCoolDown * 2
     end
-    
+
     return basicCoolDown - rank * 5000;
 end
 
@@ -20486,7 +20478,7 @@ function SCR_Get_SkillFactor_Corsair_Bombardments(skill)
         skl = skill
     end
     local value = SCR_Get_SkillFactor_Reinforce_Ability(skl)
-    value = (value * 7) * 0.5
+    value = (value * 7) * 0.5 
     value = math.floor(value)    
     return value
 end
@@ -20505,13 +20497,48 @@ function SCR_Get_SkillFactor_Rogue_Lachrymator(skill)
     value = math.floor(value)    
     return value
 end
-
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Vulture_Attack(skill)
+    local pc = GetSkillOwner(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    value = math.floor(value)
+    local total = 0;
+    local skillNames = {
+        "Vulture_Decomposition_Archer", "Vulture_GravityField_Archer", "Vulture_Diffusion_Archer",
+        "Vulture_Decomposition_Wizard", "Vulture_GravityField_Wizard", "Vulture_Diffusion_Wizard",
+        "Vulture_Decomposition_Scout", "Vulture_GravityField_Scout", "Vulture_Diffusion_Scout"
+    }
+    
+    local total = 0
+    for _, skillName in ipairs(skillNames) do
+        local skl = GetSkill(pc, skillName)
+        if skl then
+            total = total + skl.Level
+        end
+    end
+    
+    return value + (total * 300)
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Reinforce_Ability_CombatProtocol(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    value = math.floor(value)
+    return value
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_Reinforce_Ability_Decomposition(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    
+    value = math.floor(value)
+    return value
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_Kupole_Rank(skill)
     local name = TryGetProp(skill, "ClassName", 0)
     local RankName = "KupoleRank"..name;
     local pc = GetSkillOwner(skill)
     local rank = GetExProp(pc, RankName);
-
+    
     if IsServerSection() == 0 then    
         local cls = GET_REPRESENT_CUPOLE_INFO()
         local Group_ID = TryGetProp(cls, "Group_ID", "None")
@@ -20540,5 +20567,123 @@ function SCR_GET_SR_Kupole_Ratio(skill)
     
     value = value + (value * (0.1 * kupoleRank))
     
+    return value
+end
+
+-- TODO:DY
+function SCR_Get_SkillFactor_Reinforce_Ability_CombatProtocol(skill)
+    local pc = GetSkillOwner(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    value = math.floor(value)
+    return value
+end
+
+function SCR_GET_Decomposition_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Decomposition_Ratio2(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_GravityField_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Diffusion_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Vulture_Purification_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 15;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    
+    return value;
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Vulture_Devastation_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 20;    
+    if IsPVPField(pc) == 1 and value > 2 then
+        value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+    end
+    return value;
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Vulture_Protocol_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 0
+    if pc ~= nil then 
+        local lv = TryGetProp(skill, 'Level', 0)   
+        value = 1.5 * lv;
+    end
+    return value
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Vulture_Protocol_Ratio2(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 0
+    if pc ~= nil then 
+        local lv = TryGetProp(skill, 'Level', 0)   
+        value = 1.0 * lv;
+    end
+    return value
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_PurificationProtocol_Ratio(skill)
+    local pc = GetSkillOwner(skill);
+    local value = 0
+    if pc ~= nil then 
+        local lv = TryGetProp(skill, 'Level', 0)   
+        value = 5 * lv;
+    end
+    return value
+end
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_SKL_COOLDOWN_Purification(skill)
+    local pc = GetSkillOwner(skill);
+    local basicCoolDown = TryGetProp(skill, "BasicCoolDown", 0)
+    local abilAddCoolDown = GetAbilityAddSpendValue(pc, skill.ClassName, "CoolDown");
+    
+    if GetExProp(pc, "ITEM_VIBORA_ParticleAccel_Lv4") > 0 then
+        basicCoolDown = basicCoolDown - 1000;
+    end
+ 
+    basicCoolDown = basicCoolDown + abilAddCoolDown;
+    basicCoolDown = SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
+
+    return math.floor(basicCoolDown);
+end
+
+function SCR_GET_Sledgehammer_Ratio(skill)
+    local level = TryGetProp(skill, 'Level', 0)
+    local value = 1 * level;
+
+    value = value * SCR_REINFORCEABILITY_TOOLTIP(skill)
+
     return value
 end

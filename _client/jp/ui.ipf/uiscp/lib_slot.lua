@@ -452,7 +452,6 @@ function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
 
 	local itemgrade = TryGetProp(itemCls, 'ItemGrade', 0)
 	itemgrade = GET_ITEM_GRADE(itemCls)
-	
 	if itemgrade == nil or itemgrade == 0 or itemgrade == 1 or itemgrade == "None" then
 		slot:SetSkinName(skinName)
 		return
@@ -468,8 +467,9 @@ function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
 		skinName = "invenslot_legend"
 	elseif itemgrade == 6 then
 		skinName = "invenslot_pic_goddess"
+	elseif itemgrade >= 10 then
+		skinName = GET_ITEM_BG_PICTURE_BY_GRADE(itemgrade, nil, nil, 4)
 	end
-
 	slot:SetSkinName(skinName)
 	
 end

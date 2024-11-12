@@ -154,7 +154,7 @@ ClassID,CoinCount_1,CoinCount_2,CoinCount_3,CoinCount_4,CoinCount_5,Probability_
 804,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"UNDERAQUEDUCT_MGAME","bossKill","머즈루스 : 어려움","머즈루스 : 어려움","","","","","","","0"
 805,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"IRREDIAN1131_SRAID_C","bossKill","이레디안 레이드 : 텔하르샤","텔하르샤","Tos_Event_Coin","","","","","","0"
 806,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"FreeDungeon_Telharsha","bossKill","이레디안 레이드 : 텔하르샤","텔하르샤","Tos_Event_Coin","","","","","","0"
-901,1,0,0,0,0,50,0,50,0,0,0,0,0,0,0,0,"monKill","monKill","몬스터 처치","일반 몬스터 처치","Event_2310_Stew_Ingredient","","","","","","0"
+901,1,0,1,0,1,50,0,10,0,50,0,0,0,0,0,0,"monKill","monKill","몬스터 처치","일반 몬스터 처치","Event_2310_Stew_Ingredient","","Event_2108_Box_A","","Event_2108_Ticket","","0"
 902,1,0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,"monKill_Field_Normal","monKill","일반 필드 몬스터 처치","일반 필드 몬스터 처치","Event_2310_Stew_Ingredient","","","","","","0"
 903,1,0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,"monKill_Field_Elite","monKill","엘리트 필드 몬스터 처치","엘리트 필드 몬스터 처치","Event_2310_Stew_Ingredient","","","","","","0"
 1001,120,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"MYTHIC_STARTOWER_MINI_AUTO","Mythic","쇠락한 르귄가문의 던전","성물 레이드 자동매칭","Tos_Event_Coin","","","","","","0"

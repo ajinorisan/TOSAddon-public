@@ -23,7 +23,7 @@ function LETICIA_CUBE_OPEN(frame)
 	local frame = ui.GetFrame('leticia_cube');
 	LETICIA_CUBE_LIST_UPDATE(frame);
 	frame:ShowWindow(1);
-	if config.GetServiceNation() == "TAIWAN" then
+	if config.GetServiceNation() == "TAIWAN" or config.GetServiceNation() == "PAPAYA"  then
         GET_CHILD_RECURSIVELY(frame,"openBtn2"):SetEnable(0)
         GET_CHILD_RECURSIVELY(frame,"openBtn2"):ShowWindow(0)
 		GET_CHILD_RECURSIVELY(frame,"openBtn"):SetMargin(0, 0, 0, 40);
@@ -122,6 +122,22 @@ function LETICIA_CUBE_OPEN_BUTTON(frame, ctrl, argStr, argNum, _gachaClassName, 
 		cubeName = _cubeName;
 	end
 
+    local pc = GetMyPCObject()
+	local aobj = GetMyAccountObj(pc)
+	local Cnt = TryGetProp(aobj, "LETICIA_CUBE_OPEN_COUNT", 0)
+
+    if config.GetServiceNation() == 'PAPAYA' then
+        if Cnt >= 200 then
+            ui.SysMsg(ClMsg('CantOpenLeticiaCube'))
+            return
+        end
+
+        if Cnt > 189 and gachaClassName == 'Gacha_TP_108' then
+            ui.SysMsg(ClMsg('OnlyOpen1LeticiaCube'))
+            return
+        end
+    end
+
     local gachaCls = GetClass('GachaDetail', gachaClassName);    
     local cubeItemCls = GetClass('Item', cubeName);
     local TP_IMG = frame:GetUserConfig('TP_IMG');
@@ -139,12 +155,13 @@ function LETICIA_CUBE_OPEN_BUTTON(frame, ctrl, argStr, argNum, _gachaClassName, 
         clMsg = string.format('{@st66d}{s18}{img %s 40 40} %s %d%s{/}{/}', consumeItem.Icon, consumeItem.Name, gachaCls.ConsumeItemCnt, ClMsg('Piece'));
     end
         
-    local pc = GetMyPCObject()
-    local aobj = GetMyAccountObj(pc)
-    local Cnt = TryGetProp(aobj, "LETICIA_CUBE_OPEN_COUNT", 0)
-
 	if frame:GetUserIValue('OPEN_MSG_BOX') == 0 then
-		local msg = string.format("%s{nl} {nl}{#85070a}%s",ScpArgMsg('LeticiaGacha{CONSUME}', 'CONSUME', clMsg, 'COUNT', Cnt),ClMsg('ContainWarningItem'))
+        local msg_txt = 'LeticiaGacha{CONSUME}'
+        if config.GetServiceNation() == 'PAPAYA' then
+            msg_txt = 'LeticiaGacha{CONSUME}2'
+        end
+
+		local msg = string.format("%s{nl} {nl}{#85070a}%s", ScpArgMsg(msg_txt, 'CONSUME', clMsg, 'COUNT', Cnt),ClMsg('ContainWarningItem'))
 		local yesScp = string.format('REQ_LETICIA_CUBE_OPEN("%s")',cubeName)
 		if config.GetServiceNation() == "TAIWAN" then
 			local usedTP = session.shop.GetUsedMedalTotal();
@@ -152,7 +169,7 @@ function LETICIA_CUBE_OPEN_BUTTON(frame, ctrl, argStr, argNum, _gachaClassName, 
 				msg = ScpArgMsg('tpshop_first_buy_msg')
 				yesScp = string.format('NEWBIE_CHECK_LETICIA_CUBE_OPEN("%s","%s")',cubeName,clMsg)
 			else
-				msg = ScpArgMsg('LeticiaGacha{CONSUME}', 'CONSUME', clMsg, 'COUNT', Cnt)
+				msg = ScpArgMsg(msg_txt, 'CONSUME', clMsg)
 			end
 		end
 		ui.MsgBox(msg, yesScp, 'LETICIA_CUBE_CLOSE_ALL()');
@@ -162,10 +179,13 @@ function LETICIA_CUBE_OPEN_BUTTON(frame, ctrl, argStr, argNum, _gachaClassName, 
 end
 
 function NEWBIE_CHECK_LETICIA_CUBE_OPEN(cubeName,clMsg)
-	local pc = GetMyPCObject()
-    local aobj = GetMyAccountObj(pc)
-    local Cnt = TryGetProp(aobj, "LETICIA_CUBE_OPEN_COUNT", 0)
-	local msg = ScpArgMsg('LeticiaGacha{CONSUME}', 'CONSUME', clMsg, 'COUNT', Cnt)
+    local msg_txt = 'LeticiaGacha{CONSUME}'
+
+    if config.GetServiceNation() == 'PAPAYA' then
+        msg_txt = 'LeticiaGacha{CONSUME}2'
+    end
+
+	local msg = ScpArgMsg(msg_txt, 'CONSUME', clMsg)
 	local yesScp = string.format('REQ_LETICIA_CUBE_OPEN("%s")',cubeName)
 	ui.MsgBox(msg, yesScp, 'LETICIA_CUBE_CLOSE_ALL()');
 end
@@ -210,7 +230,7 @@ function LETICIA_CUBE_ITEM_LIST_BUTTON_URL()
     end
 
     if config.GetServiceNation() == 'PAPAYA' then
-        login.OpenURL('https://tos.papayaplay.com/tos.do?tp=news.view&postid=5124');
+        login.OpenURL('https://tos.papayaplay.com/tos.do?tp=news.view&postid=4696');
     else
         login.OpenURL('https://steamcommunity.com/games/2178420/announcements/detail/3866965910201898614')
     end

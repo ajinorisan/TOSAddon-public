@@ -163,11 +163,11 @@ function INDUNINFO_DRAW_CATEGORY_DETAIL_LIST_BY_CATEGORY_RAIDTYPE_MERGE(indun_li
         else
             local difficulty = TryGetProp(indun_cls, "Difficulty", "None");
             name_text:SetTextByKey("name", difficulty);
-            if ticketing_type == "Entrance_Ticket" then
-                count_text:SetText(ScpArgMsg("ChallengeMode_HardMode_Count", "Count", GET_CURRENT_ENTERANCE_COUNT(playper_reset_type)));
+            if ticketing_type == "Entrance_Ticket" then                
+                count_text:SetText(ScpArgMsg("ChallengeMode_HardMode_Count", "Count", GET_CURRENT_ENTERANCE_COUNT(playper_reset_type, indun_cls)));                
                 cycle_pic:ShowWindow(0);
             else
-                count_text:SetTextByKey("current", GET_CURRENT_ENTERANCE_COUNT(playper_reset_type));
+                count_text:SetTextByKey("current", GET_CURRENT_ENTERANCE_COUNT(playper_reset_type));                
                 count_text:SetTextByKey("max", GET_INDUN_MAX_ENTERANCE_COUNT(playper_reset_type));
                 INDUNINFO_SET_CYCLE_PIC(cycle_pic, indun_cls, "_s");
             end

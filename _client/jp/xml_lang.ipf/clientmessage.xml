@@ -105,6 +105,9 @@
 		<Class ClassID="341" ClassName="MaxCharacterSlotForSeasonServer" Data="시즌 서버에서는 최대 4개의 캐릭터까지만 생성 가능합니다."/>
 		<Class ClassID="342" ClassName="CantMoveToPrivateRegion" Data="지역 전용 채널로는 이동할 수 없습니다."/>
 		<Class ClassID="343" ClassName="GiveItemForPreRegistration" Data="사전 예약 보상이 인벤토리로 지급되었습니다."/>
+		<Class ClassID="344" ClassName="CantOpenLeticiaCube" Data="개봉 최대 한도에 도달하였습니다."/>
+		<Class ClassID="345" ClassName="OnlyOpen1LeticiaCube" Data="1회 개봉만 가능합니다."/>
+		<Class ClassID="346" ClassName="LeticiaGacha{CONSUME}2" Data="큐브 개봉시{nl}{CONSUME}  소모됩니다.{nl}개봉하시겠습니까?{nl} {nl}{@st66d_y}{s20}현재 개봉 횟수{nl}{COUNT}{/}{/}"/>
 	</Category>
 	<Category Name="Skill">
 		<Class ClassID="500" ClassName="CannotGetSkill{NAME}" Data="[{NAME}] 스킬을 습득할 수 없습니다."/>
@@ -138,6 +141,7 @@
 		<Class ClassID="530" ClassName="CantUseInRiding" Data="탑승 중에는 사용할 수 없습니다."/>		
 		<Class ClassID="531" ClassName="RequireWeaponEnhancement" Data="무기 강화 상태에서만 사용할 수 있습니다."/>
 		<Class ClassID="532" ClassName="CantResurrection" Data="아직 부활할 수 없습니다."/>
+		<Class ClassID="533" ClassName="RaidReturnToZone3Sec" Data="레이드가 시작된 이후에 재입장할 수 없습니다. 3초 후 밖으로 이동됩니다."/>
 	</Category>
 	<Category Name="SimpleWords">
 		<Class ClassID="1100" ClassName="ValidTime" Data="지속 시간"/>
@@ -860,6 +864,7 @@
 		<Class ClassID="3128" ClassName="AutoSweepEventContents" Data="자동 소탕 이벤트가 적용중인 콘텐츠입니다."/>
 		<Class ClassID="3129" ClassName="OnlyUseHavingZeroCount_Raid_Count" Data="[{Raid}] 입장 가능 횟수가 {count} 미만인 경우에만 사용 가능합니다."/>
 		<Class ClassID="3130" ClassName="InvitationEventReward" Data="Invitation Event Reward"/>
+		<Class ClassID="3131" ClassName="OnlyUseHavingZeroCount_Level" Data="[Lv.{count}] 분열 특이점 입장 가능 횟수가 0 인 경우에만 사용 가능합니다."/>
 	</Category>
 	<Category Name="ItemPuzzle">
 		<Class ClassID="3501" ClassName="WouldYouSelectThisCombinationAsAlchemystryTarget?" Data="이 조합을 연금 대상으로 선택합니까?"/>
@@ -1819,6 +1824,8 @@
 		<Class ClassID="5289" ClassName="jurate_lostlife" Data="- 잃은 생명력 10%당 받는 피해{#8000FF}{level}%{/}감소(최대 90%)"/>
 		<Class ClassID="5290" ClassName="jurate_criup" Data="- 치명타 발생 확률{#8000FF}{level}%{/}증가"/>
 		<Class ClassID="5291" ClassName="jurate_speedup" Data="- 이동속도{#8000FF}{level}{/}증가"/>
+		<Class ClassID="5292" ClassName="tooltip_Sledger" Data=" - 슬레저 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 헤비 스매싱 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 롤링 해머 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 스윙 해머 최종 대미지 {img green_up_arrow 16 16}50%"/>
+		<Class ClassID="5293" ClassName="tooltip_Sledger_Lv4" Data="{nl} {nl}{@st66d}{s15} - 빅뱅 최종 대미지{img green_up_arrow 16 16}100%"/>
 	</Category>
 	<Category Name="PeriodicTitle">
 		<Class ClassID="6001" ClassName="TournamentChampion" Data="토너먼트 챔피언"/>
@@ -11671,6 +11678,7 @@
 		<Class ClassID="102522" ClassName="GuildQuestTotalClearCount" Data="누적 클리어 횟수({#FF0000}{count}/8{/})"/>
 		<Class ClassID="102523" ClassName="GuildQuestClearCountNextReset" Data="※다음 주간 클리어 횟수는 초기화 일자는 {#FF0000}{date}{/} 입니다. 만약 초기화 일자가 지났는데도 초기화되지 않았다면 다시 길드타워와 상호작용을 해주세요."/>
 		<Class ClassID="102524" ClassName="BlackMarketNoticeDBCoinError" Data="입찰 진행중 코인의 변동이 발생하여 작업에 실패하였습니다. 잠시 후 다시 시도해 주세요."/>
+		<Class ClassID="102525" ClassName="papaya_event_msg1" Data="어이쿠, 꼬마 아이가 네게 장난을 치는 모양이야!"/>
 	</Category>
 	<Category Name="EqupClasses">
 		<Class ClassID="103001" ClassName="THSword" Data="양손검"/>
@@ -15442,6 +15450,13 @@
 		<Class ClassID="139433" ClassName="NoTargetInMyRange" Data="공격 범위 내에 적 대상이 없습니다."/>
 		<Class ClassID="139434" ClassName="season_earring_raid_normal_msg" Data="시즌 여신의 전언: 파티(Normal) 콘텐츠의 1회 추가 횟수를 받으셨습니다"/>
 		<Class ClassID="139435" ClassName="season_earring_raid_hard_msg" Data="시즌 여신의 전언: 파티(Hard) 콘텐츠의 1회 추가 횟수를 받으셨습니다"/>
+		<Class ClassID="139436" ClassName="Season_CollapsingMine_Ex_Raid_Easy_Msg" Data="시즌 무너지는 광산: 파티(Easy) 콘텐츠의 1회 추가 횟수를 받으셨습니다"/>
+		<Class ClassID="139437" ClassName="Season_CollapsingMine_Ex_Raid_Normal_Msg" Data="시즌 무너지는 광산: 파티(Normal) 콘텐츠의 1회 추가 횟수를 받으셨습니다"/>
+		<Class ClassID="139438" ClassName="Season_CollapsingMine_Ex_Raid_Hard_Msg" Data="시즌 무너지는 광산: 파티(Hard) 콘텐츠의 1회 추가 횟수를 받으셨습니다"/>
+		<Class ClassID="139439" ClassName="Season_Raid_Insufficient_Ticket" Data="시즌 레이드 콘텐츠의 입장 횟수가 부족합니다"/>
+		<Class ClassID="139440" ClassName="ChallengeExpertModeReset_MSG2_Level" Data="[Lv.{count}] 분열 특이점 1회 추가 횟수를 받으셨습니다"/>
+		<Class ClassID="139441" ClassName="ChallengeModeReset_MSG2_Level" Data="[Lv.{count}] 챌린지 모드 1회 추가 횟수를 받으셨습니다"/>
+		<Class ClassID="139442" ClassName="ChallengeModeReset_MSG1_Level" Data="[Lv.{count}] 챌린지 모드 입장 가능 횟수가 0 인 경우에만 사용 가능합니다."/>
 		</Category>
 	<Category Name="SkillMsg">
 		<Class ClassID="200001" ClassName="DontBuildCampThisAria" Data="해당 지역에서는 거점을 설치할 수 없습니다."/>
@@ -16939,6 +16954,12 @@
 		<Class ClassID="302881" ClassName="EVENT_2410_MOONRISE_CHAT2" Data="최종 대미지가 올라간 기분이 들어"/>
 		<Class ClassID="302882" ClassName="EVENT_2409_POPOBOOST_ALRET1" Data="{#FF0000}※ 바로가기 버튼을 클릭하여 다음 성장 목표를 확인해 보세요.{/}"/>
 		<Class ClassID="302883" ClassName="EVENT_2409_POPOBOOST_ALRET2" Data="{#FF0000}※ 바로가기 버튼을 클릭하면 장비 보관함 UI로 이동합니다.{/}"/>
+		<Class ClassID="302884" ClassName="EVENT_2407_RAINBOW_MESSAGE_PAPAYA{TOTAL}{WEEK}" Data="{#3366FF}[이벤트] 포포 룰렛 코인 현황{/}{nl}총 코인 획득량 ({TOTAL}/60){nl}주간 코인 획득량 ({WEEK}/12){nl}{#FF0000}※[이벤트] 포포 룰렛 코인은 무지개 다리 이벤트를 클리어하여 획득할 수 있습니다.{/}{nl}{#FF0000}※ 주간 획득량은 매주 월요일 오전 6시에 초기화 됩니다.{/}"/>
+		<Class ClassID="302885" ClassName="EVENT_2410_MOONRISE_PAPAYA" Data="[어린이의 날] 교환 상점"/>
+		<Class ClassID="302886" ClassName="EVENT_2410_MOONRISE_CHECK_MSG_PAPAYA{WEEK}{TOTAL}" Data="[[이벤트] 2024 주화 획득현황]{nl}주간 획득량({WEEK}/1500){nl}총 획득량({TOTAL}/6000){nl}{#FF0000}※ 주간 획득량은 매주 월요일 오전 6시에 초기화 됩니다.{nl}"/>
+		<Class ClassID="302887" ClassName="EVENT_2410_LEAVES" Data="[단풍맞이] 교환 상점"/>
+		<Class ClassID="302888" ClassName="EVENT_2410_HALLOWEEN_PAPAYA{DAY}{TOTAL}" Data="{#3366FF}[이벤트] 달맞이 주화{/}{nl}총 코인 획득량 ({TOTAL}/4350){nl}일일 코인 획득량 ({DAY}/150){nl}{#FF0000}※[이벤트] 달맞이 주화 코인은 달토끼 아지트를 클리어하여 획득할 수 있습니다.{/}{nl}{#FF0000}※ 일일 획득량은 오전 6시에 초기화 됩니다.{/}"/>
+
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>
@@ -18036,6 +18057,7 @@
 		<Class ClassID="595004" ClassName="EVENT_NEW_SEASON_SERVER_450_REWARD_MSG_2" Data="{#003399}[만렙 달성 이벤트]{/} 보상 수령"/>
 		<Class ClassID="595005" ClassName="EVENT_NEW_SEASON_SERVER_450_REWARD_MSG_3" Data="이미 보상을 수령했습니다"/>
 		<Class ClassID="595006" ClassName="EVENT_POPO_ROULETTE_NPC_NAME" Data="[이벤트] 포포 룰렛"/>
+		<Class ClassID="595007" ClassName="EVENT_2407_MOON" Data="[이벤트] 어린이날"/>
 	</Category>
 	<Category Name="EventProgressCheck">
 		<Class ClassID="596000" ClassName="FLEX!" Data="FLEX!"/>
@@ -18123,7 +18145,7 @@
 		<Class ClassID="599033" ClassName="EVENT_2009_FULLMOON_REWARD_DESCRIPTION_2" Data="[달맞이] 특성 포인트 1,000 1개{nl}[달맞이] 산드라의 미세 감정 돋보기 1개{nl}[달맞이] 인스턴스 던전 입장 횟수 초기화권 2개{nl}[달맞이] 인스턴스 던전 배수 토큰 4개{nl}[이벤트] 순경 코스튬 상자(14일) - 팀당 1회"/>
 		<Class ClassID="599034" ClassName="EVENT_2009_FULLMOON_REWARD_DESCRIPTION_3" Data="[달맞이] 특성 포인트 1,000 3개{nl}[달맞이] 황금 모루 3개{nl}[달맞이] 인스턴스 던전 입장 횟수 초기화권 3개{nl}[달맞이] 인스턴스 던전 배수 토큰 6개"/>
 		<Class ClassID="599035" ClassName="EVENT_2009_FULLMOON_REWARD_DESCRIPTION_4" Data="[달맞이] 특성 포인트 1,000 5개{nl}[달맞이] 마법 부여 스크롤 5개{nl}[달맞이] 이벤트 엘릭서 상자 1개"/>
-		<Class ClassID="599036" ClassName="EVENT_2009_FULLMOON_REWARD_DESCRIPTION_5" Data="[달맞이] 특성 포인트 10,000 1개{nl}용병단 증표 2,000개{nl}[달맞이] 챌린지 모드 1회 입장권 1개{nl}[달맞이] 챌린지 포탈 생성 스크롤 1개"/>
+		<Class ClassID="599036" ClassName="EVENT_2009_FULLMOON_REWARD_DESCRIPTION_5" Data="[달맞이] 특성 포인트 10,000 1개{nl}용병단 증표 2,000개{nl}[달맞이] [Lv.520] 챌린지 모드 1회 입장권 1개{nl}[달맞이] 챌린지 포탈 생성 스크롤 1개"/>
 		<Class ClassID="599037" ClassName="EVENT_2009_FULLMOON_REWARD_DESCRIPTION_6" Data="총 누적 포인트 10,000P 를 달성하시면 특별 보상을 획득할 수 있습니다.{nl}순경 코스튬(남), 순경 코스튬 (여)중{nl}1개를 선택하여 획득할 수 있습니다.(팀당 1회, [추석 이벤트] 보름달 NPC를 통해 수령)"/>
 		<Class ClassID="599038" ClassName="EVENT_2009_FULLMOON_TAKE_REWARD_MSG" Data="{LEVEL}단계 보상을 획득합니다.{nl}현재 누적 달맞이 포인트: {POINT}{nl}{#FF0000}자세한 보상 리스트는 '/달빛'을 통해 확인하실 수 있습니다."/>
 		<Class ClassID="599039" ClassName="EVENT_2009_FULLMOON_TAKE_BUFF_MSG" Data="{LEVEL}단계 버프를 획득합니다.{nl}현재 누적 달맞이 포인트: {POINT}{nl}{#FF0000}자세한 보상 리스트는 '/달빛'을 통해 확인하실 수 있습니다."/>
@@ -18667,10 +18689,10 @@
 		<Class ClassID="1000022" ClassName="ChallengeMode_Not_Exists" Data="생성된 챌린지 모드가 없습니다.{nl}파티 리더만 생성 가능합니다."/>
 		<Class ClassID="1000023" ClassName="AcceptChallengeMode_HardMode" Data="챌린지 {#ff0000}챌린지 모드 : 분열 특이점{/}에 참여하시겠습니까?"/>
 		<Class ClassID="1000024" ClassName="Challenge_Mode_HardMode_Creating" Data="다른 파티원이 챌린지 모드 "/>
-		<Class ClassID="1000025" ClassName="Challenge_Mode_HardMode_Not_Enough_EnableEntryCount" Data="챌린지 모드 : 분열 특이점 입장 가능 횟수가 부족합니다."/>
+		<Class ClassID="1000025" ClassName="Challenge_Mode_HardMode_Not_Enough_EnableEntryCount" Data="입장 가능 횟수가 부족합니다."/>
 		<Class ClassID="1000026" ClassName="CompleteChallengeModeHardMode" Data="챌린지 모드 : {#ff0000}분열 특이점{/}을 정복하셨습니다. 보상을 받으시겠습니까?"/>
 		<Class ClassID="1000027" ClassName="ChallengeModePortalMark_HardMode" Data="분열 특이점 포탈"/>
-		<Class ClassID="1000028" ClassName="ChallengeMode_HardMode_Count" Data="{#000000}({Count}회 가능){/}"/>
+		<Class ClassID="1000028" ClassName="ChallengeMode_HardMode_Count" Data="{#000000}({Count}회){/}"/>
 		<Class ClassID="1000029" ClassName="CantRejoinRewardMode" Data="보상 지급 단계에서는 입장하실 수 없습니다."/>
 		<Class ClassID="1000030" ClassName="CantRejoinCuzPlayingNormalMode" Data="챌린지 일반 모드를 진행하시는 동안은 분열 특이점에 입장하실 수 없습니다."/>
 		<Class ClassID="1000031" ClassName="CantRejoinCuzPlayingHardMode" Data="챌린지 모드 : 분열 특이점을 진행하시는 동안은 일반 챌린지 모드에 입장하실 수 없습니다."/>
@@ -19268,6 +19290,10 @@
 		<Class ClassID="1105001" ClassName="AskFullScreenMenuMoveNpc" Data="{Menu} 이용을 위해 즉시 이동하시겠습니까?"/>
 		<Class ClassID="1105002" ClassName="NoticeFullScreenMenuMoveNpc" Data="{Menu} 이용을 위해서는 주요 도시에 있어야 합니다."/>
 		<Class ClassID="1105003" ClassName="NoticeFullScreenMenuMoveNpcCity" Data="{Menu} 이용을 위해서는 {City}에 있어야 합니다."/>
+		<Class ClassID="1105004" ClassName="EquipmentProcessing_Fragmentation" Data="아이템 파편화"/>
+		<Class ClassID="1105005" ClassName="EquipmentProcessing_RerollItem" Data="아이템 옵션 재설정"/>
+		<Class ClassID="1105006" ClassName="EquipmentProcessing_AethergemTransfer" Data="에테르 젬 강화레벨 이전"/>
+		<Class ClassID="1105007" ClassName="EquipmentProcessing_DuctilityItem" Data="아이템 옵션 연성"/>
 	</Category>
 	<Category Name="Job">
 		<Class ClassID="1106001" ClassName="Warrior" Data="소드맨"/>
@@ -19377,6 +19403,10 @@
 		<Class ClassID="1106105" ClassName="Vulture" Data="벌처"/>
 		<Class ClassID="1106106" ClassName="Vulture[A]" Data="벌처[A]"/>
 		<Class ClassID="1106107" ClassName="Vulture[W]" Data="벌처[W]"/>
+		<Class ClassID="1106108" ClassName="Sledger" Data="슬레저"/>
+		<Class ClassID="1106109" ClassName="Sledger[C]" Data="슬레저[C]"/>
+		<Class ClassID="1106110" ClassName="Sledger[S]" Data="슬레저[S]"/>
+		<Class ClassID="1106111" ClassName="Vulture[T]" Data="벌처[T]"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>

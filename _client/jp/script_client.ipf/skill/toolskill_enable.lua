@@ -518,6 +518,19 @@ function SCR_BOKOR_CHECK_BUFF_C(actor, skl, buffName)
     return 0;
 end
 
+function SKL_CHECK_BUFF_OVER_C(actor,skl,buffName, stacklimit)
+    local getBuff = actor:GetBuff():GetBuff(buffName)
+    if getBuff == nil then
+        return 0;
+    else
+        local over = getBuff.over
+        if over <stacklimit then
+            return 0;
+        end
+    end
+    return 1
+end
+
 function SCR_BOKOR_CHECK_BUFF_C_Mackangdal(actor, skl, buffName)
     local getBuff = actor:GetBuff():GetBuff("PowerOfDarkness_Buff")
     if getBuff ~= nil then

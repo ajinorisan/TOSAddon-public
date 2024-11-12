@@ -1,20 +1,8 @@
 -- shared_item_goddess_socket.lua, 가디스 장비 소켓 관련
 
-local function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
 
 local parameter_list = nil
-local end_lv = 500
+local end_lv = 520
 function make_parameter_list()
 	if parameter_list ~= nil then
 		return
@@ -37,6 +25,10 @@ function make_parameter_list()
 	parameter_list[500] = {} 
 	parameter_list[500]['MAX_NORMAL_SOCKET_COUNT'] = 2 -- 색상 젬 소켓 최대 개수
 	parameter_list[500]['MAX_AETHER_SOCKET_COUNT'] = 1 -- 에테르 젬 소켓 최대 개수	
+
+	parameter_list[520] = {} 
+	parameter_list[520]['MAX_NORMAL_SOCKET_COUNT'] = 2 -- 색상 젬 소켓 최대 개수
+	parameter_list[520]['MAX_AETHER_SOCKET_COUNT'] = 1 -- 에테르 젬 소켓 최대 개수	
 end
 make_parameter_list()
 
@@ -108,7 +100,11 @@ function setting_lv_normal_socket_material(mat_list_by_lv, lv)
 		mat_list_by_lv[lv][1][season_coin] = 675
 		mat_list_by_lv[lv][2][season_coin] = 1575
 	elseif lv == 500 then
-		season_coin = 'RadaCertificate'		
+		season_coin = 'RadaCertificate'
+		mat_list_by_lv[lv][1][season_coin] = 675
+		mat_list_by_lv[lv][2][season_coin] = 1575
+	elseif lv == 520 then
+		season_coin = 'JurateCertificate'
 		mat_list_by_lv[lv][1][season_coin] = 675
 		mat_list_by_lv[lv][2][season_coin] = 1575
 	end

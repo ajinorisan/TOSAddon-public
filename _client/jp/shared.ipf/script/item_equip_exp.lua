@@ -201,8 +201,16 @@ end
 function GET_MORE_ANCIENT_EXP(pc)
 	local sumExp = 0.0;
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Ancient_boostToken');
+	
+	if IsBuffApplied(pc, 'Ancient_boostToken_vertigo') == 'YES' then
+		if GetClassString('Map', GetZoneName(pc), 'MapType') == 'Field' then
+			sumExp = sumExp + IsBuffAppliedEXP(pc, 'Ancient_boostToken_vertigo');
+		end
+	end
+	
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Ancient_boostToken_150');
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Ancient_boostToken_200');
+	
 	
 	if IsBuffApplied(pc, "pet_sparrow_thanksgivng_buff") == "YES" then
 	    sumExp = sumExp + 1

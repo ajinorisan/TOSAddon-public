@@ -1,20 +1,8 @@
 -- shared_item_goddess_reinforce.lua, 가디스 장비 강화 관련 
 -- item_goddess_reinforce.xml
 
-local equip_end_lv = 510
+local equip_end_lv = 520
 
-local function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
 
 item_goddess_reinforce = {}  -- namespace
 
@@ -136,6 +124,14 @@ function GET_MAX_REINFORCE_POINT(lv)
 	end
 end
 
+local function IS_POPOBOOST_REINFORCE_ITEM(ItemPopoProp, useLv, checkLv, IsPopoboostClear)
+	-- 포포부스트 아이템이고, 현재 시즌이며, 레벨 스코프가 맞으며, 포포부스트가 클리어 된 상태가 아니라면
+	if ItemPopoProp > 0 and ItemPopoProp == GET_POPOBOOST_ITEMPROP() and useLv <= checkLv and (not IsPopoboostClear) then
+		return true;
+	end
+	return false;
+end
+
 --- 확률 관련 -----------------------------------------------------
 
 -- 100000단위로 관리한다.
@@ -231,7 +227,7 @@ item_goddess_reinforce.get_premium_sub_revision_prop_percent = function(goal_lv,
 end
 
 -- 최종 성공 수치
-item_goddess_reinforce.get_final_reinforce_prop = function(target_item, add_percentUp_count, add_premium_percentUp_count)
+item_goddess_reinforce.get_final_reinforce_prop = function(target_item, add_percentUp_count, add_premium_percentUp_count, IsPopoboostClear)
 	local goal_lv = TryGetProp(target_item, 'Reinforce_2', 0) + 1 -- 목표 강화 수치
 	local use_lv = TryGetProp(target_item, 'UseLv', 1)
 
@@ -258,10 +254,9 @@ item_goddess_reinforce.get_final_reinforce_prop = function(target_item, add_perc
 	local base = item_goddess_reinforce.get_basic_prop(use_lv, goal_lv)
 	local fail_prop = item_goddess_reinforce.get_current_fail_revision_prop(target_item) -- 실패한 보정확률	
 
-	-- 	포포부스트
-	
-	if TryGetProp(target_item, 'popoboost', 0) == GET_POPOBOOST_ITEMPROP() and use_lv <= 490 then
-		base = base * 2	
+	-- 	포포부스트	포포부스트 아이템이고, 포포부스트 시즌이 맞으며, 500 레벨 이하의 장비(마신, 우피니스 등등)에만 적용, 목표 미달성 시에만 적용
+	if 	IS_POPOBOOST_REINFORCE_ITEM(TryGetProp(target_item, 'popoboost', 0), use_lv, 500, IsPopoboostClear)	then
+		base = base * 2			
 	end
 
 	if fail_prop + base >= 100000 then		
@@ -296,8 +291,8 @@ item_goddess_reinforce.get_final_reinforce_prop = function(target_item, add_perc
 	end
 end
 -- 최종 확률을 퍼센트 형태로 가져온다.
-item_goddess_reinforce.get_final_reinforce_prop_percent = function(target_item, add_percentUp_count, add_premium_percentUp_count)
-	local value, _, _ = item_goddess_reinforce.get_final_reinforce_prop(target_item, add_percentUp_count, add_premium_percentUp_count) / 1000
+item_goddess_reinforce.get_final_reinforce_prop_percent = function(target_item, add_percentUp_count, add_premium_percentUp_count, IsPopoboostClear)
+	local value, _, _ = item_goddess_reinforce.get_final_reinforce_prop(target_item, add_percentUp_count, add_premium_percentUp_count, IsPopoboostClear) / 1000
 	return string.format('%.2f', value)
 end
 
@@ -555,6 +550,10 @@ function setting_lv_material_armor(mat_list_by_lv, lv)
 			seasonCoin = "RadaCertificate" 
 			misc_reinforce_1 = "misc_upinis_wing_NoTrade" 
 			misc_BlessedStone = 'misc_BlessedStone_1'
+		elseif lv == 520 then
+			seasonCoin = "JurateCertificate" -- 다음 세대
+			misc_reinforce_1 = "misc_boss_CrystalGolem_NoTrade" -- 다음 세대 
+			misc_BlessedStone = 'misc_BlessedStone_1'
 		end
 
 		mat_list_by_lv[lv]['armor'][6][seasonCoin] = 450
@@ -802,6 +801,10 @@ function setting_lv_material_weapon(mat_list_by_lv, lv)
 		if lv == 500 then
 			seasonCoin = "RadaCertificate" -- 다음 세대
 			misc_reinforce_1 = "misc_slogutis_fragments_NoTrade" -- 다음 세대 
+			misc_BlessedStone = 'misc_BlessedStone_1'
+		elseif lv == 520 then
+			seasonCoin = "JurateCertificate" -- 다음 세대
+			misc_reinforce_1 = "misc_boss_DarkNeringa_NoTrade" -- 다음 세대 
 			misc_BlessedStone = 'misc_BlessedStone_1'
 		end
 
@@ -1178,6 +1181,8 @@ function setting_lv_misc_material(mat_list_by_lv, lv, group)
 			misc1 = "misc_ore28" 
 		elseif lv == 510 then
 			misc1 = "misc_ore28" 
+		elseif lv == 520 then
+			misc1 = "misc_ore28" 
 		end
 
 		mat_list_by_lv[lv][group][1][misc1] = 26
@@ -1219,12 +1224,11 @@ function make_item_goddess_reinforce_material_list()
 	end
 
 	item_goddess_reinforce_material_list = {}
-	item_goddess_reinforce_material_list[460] = {} -- 차후 더 높은 레벨의 아이템이 추가될시에 추가
-	item_goddess_reinforce_material_list[470] = {}
-	item_goddess_reinforce_material_list[480] = {}
-	item_goddess_reinforce_material_list[490] = {}
-	item_goddess_reinforce_material_list[500] = {}
-	item_goddess_reinforce_material_list[510] = {}
+	local start_lv = 460	
+	while start_lv <= equip_end_lv do
+		item_goddess_reinforce_material_list[start_lv] = {} -- 차후 더 높은 레벨의 아이템이 추가될시에 추가	
+		start_lv = start_lv + 10
+	end
 	
 	local classtype_list = {}
 	local group_list = {}
@@ -1345,7 +1349,7 @@ end
 make_item_goddess_reinforce_material_list()
 
 -- 해당 강화로 가는데 필요한 재료 목록을 가져온다(실버, 주화, 다 포함)
-item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv, IsEventItem)
+item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv, IsEventItem, IsPopoboostClear)
 	if item_goddess_reinforce_material_list[use_lv] == nil then
 		return nil
 	end
@@ -1353,12 +1357,13 @@ item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv,
 	if item_goddess_reinforce_material_list[use_lv][class_type] == nil then
 		return nil
 	end
+	local except_list = {'misc_BlessedStone', 'misc_BlessedStone_1', 'misc_ore22', 'misc_ore23', 'misc_ore28' }
 
 	-- 포포 부스트 이벤트 아이템일 경우 (이벤트 기간중인 아이템) 축조, 뉴클/시에라 없이 강화 가능하게 한다.
-	if IsEventItem == GET_POPOBOOST_ITEMPROP() and use_lv <= 490 then
+	if IS_POPOBOOST_REINFORCE_ITEM(IsEventItem, use_lv, 500, IsPopoboostClear) then
 		local TempPopoboost_Material_List = {}
 		for k,v in pairs(item_goddess_reinforce_material_list[use_lv][class_type][goal_lv]) do
-			if k ~= "misc_BlessedStone" and k ~= "misc_ore22" and k ~= "misc_ore23" then
+			if table.find(except_list, k) == 0 then
 				TempPopoboost_Material_List[k] = v;
 			end
 		end

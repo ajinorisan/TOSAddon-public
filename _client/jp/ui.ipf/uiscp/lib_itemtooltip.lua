@@ -1197,6 +1197,8 @@ function ABILITY_DESC_NO_PLUS(desc, cur, is_max)
 	else
 		if is_max == 1 then
 			return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, '{@st66b}{#64ff64}{ol}'.. math.abs(cur));
+		elseif is_max == 2 then
+			return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, '{@st66b}{#a349a4}{ol}'.. math.abs(cur));
 		else
 			return string.format(" %s "..ScpArgMsg("PropUp").."%d", desc, math.abs(cur));
 		end    	

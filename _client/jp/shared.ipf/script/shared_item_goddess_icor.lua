@@ -12,131 +12,20 @@ function make_icor_option_range(item_goddess_icor_range, set_list, lv, type, max
         item_goddess_icor_range[lv][type][v] = {}
         item_goddess_icor_range[lv][type][v]['LOW'] = {math.floor(max * low), max}
         item_goddess_icor_range[lv][type][v]['HIGH'] = {math.floor(max), math.floor(max * high)}
+        if lv >= 520 and type == 'Armor' then
+            -- print(ClMsg(v), item_goddess_icor_range[lv][type][v]['LOW'][1], item_goddess_icor_range[lv][type][v]['LOW'][2])
+        --     print(ClMsg(v), item_goddess_icor_range[lv][type][v]['HIGH'][1], item_goddess_icor_range[lv][type][v]['HIGH'][2])
     end
 end
-
-function make_item_goddess_icor_range()
-    if item_goddess_icor_range ~= nil then
-        return
     end
 
-    -- local cls_list, cnt = GetClassList('goddess_special_option')
-
-    item_goddess_icor_range = {}
-    option_list_by_group = {}
-
-    random_option_group_name = {}    
-    
-    random_option_group_name['AllRace_Atk'] = 'ATK'         -- 모든 종족 대상 공격력    
-    random_option_group_name['Add_Damage_Atk'] = 'ATK'      -- 추가 대미지 
-    random_option_group_name['AllMaterialType_Atk'] = 'ATK' -- 모든 방어구 재질 공격력
-    random_option_group_name['ADD_CLOTH'] = 'ATK'   
-    random_option_group_name['ADD_LEATHER'] = 'ATK'   
-    random_option_group_name['ADD_IRON'] = 'ATK'   
-    random_option_group_name['ADD_SMALLSIZE'] = 'ATK'   
-    random_option_group_name['ADD_MIDDLESIZE'] = 'ATK'   
-    random_option_group_name['ADD_LARGESIZE'] = 'ATK'   
-    random_option_group_name['ADD_GHOST'] = 'ATK'   
-    random_option_group_name['ADD_FORESTER'] = 'ATK'   
-    random_option_group_name['ADD_WIDLING'] = 'ATK'   
-    random_option_group_name['ADD_VELIAS'] = 'ATK'   
-    random_option_group_name['ADD_PARAMUNE'] = 'ATK'   
-    random_option_group_name['ADD_KLAIDA'] = 'ATK'   
-
-    random_option_group_name['STR'] = 'STAT'
-    random_option_group_name['DEX'] = 'STAT'
-    random_option_group_name['CON'] = 'STAT'
-    random_option_group_name['INT'] = 'STAT'
-    random_option_group_name['MNA'] = 'STAT'
-
-    random_option_group_name['CRTHR'] = 'UTIL_ARMOR'        -- 치명타 발생
-    random_option_group_name['BLK_BREAK'] = 'UTIL_ARMOR'    -- 블록 관통
-    random_option_group_name['BLK'] = 'UTIL_ARMOR'          -- 블록
-    random_option_group_name['ADD_HR'] = 'UTIL_ARMOR'       -- 명중
-    random_option_group_name['ADD_DR'] = 'UTIL_ARMOR'       -- 회피
-    random_option_group_name['CRTDR'] = 'UTIL_ARMOR'        -- 치명타 저항
-    random_option_group_name['RHP'] = 'UTIL_ARMOR'          -- HP 회복력
-    
-    random_option_group_name['ResAdd_Damage'] = 'DEF'       -- 추가 대미지 저항    
-    random_option_group_name['Cloth_Def'] = 'DEF'
-    random_option_group_name['Leather_Def'] = 'DEF'
-    random_option_group_name['Iron_Def'] = 'DEF'
-    random_option_group_name['MiddleSize_Def'] = 'DEF'
-
-        
-    local cls_list, cnt = GetClassList('goddess_atk_def_option')
-    for i = 0, cnt - 1 do
-        local cls = GetClassByIndexFromList(cls_list, i)
-        local _name = TryGetProp(cls, 'ClassName', 'None')
-        local type = TryGetProp(cls, 'Type', 'None')
-        if type ~= 'None' then
-            random_option_group_name[_name] = type
-        end
-    end
-    
-    option_list_by_group[480] = {}
-    option_list_by_group[480]['Armor'] = {}
-    option_list_by_group[480]['Armor']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 
-    'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
-    'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
-    'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
-    }
-
-    option_list_by_group[480]['Armor']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
-    option_list_by_group[480]['Armor']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
-    option_list_by_group[480]['Armor']['DEF'] = {'ResAdd_Damage', 'stun_res', 'high_fire_res', 'high_freezing_res', 'high_lighting_res', 'high_poison_res', 'high_laceration_res', 'portion_expansion', 
-    'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
-    }
-
-    option_list_by_group[480]['Weapon'] = {}
-    option_list_by_group[480]['Weapon']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 'perfection', 'revenge',
-    'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
-    'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
-    'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
-    }
-    option_list_by_group[480]['Weapon']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
-    option_list_by_group[480]['Weapon']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
-    option_list_by_group[480]['Weapon']['DEF'] = {'ResAdd_Damage', 
-    'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
-    }
-
-    option_list_by_group[500] = {}
-    option_list_by_group[500]['Armor'] = {}
-    option_list_by_group[500]['Armor']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 
-    'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
-    'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
-    'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
-    }
-
-    option_list_by_group[500]['Armor']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
-    option_list_by_group[500]['Armor']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
-    option_list_by_group[500]['Armor']['DEF'] = {'ResAdd_Damage', 'stun_res', 'high_fire_res', 'high_freezing_res', 'high_lighting_res', 'high_poison_res', 'high_laceration_res', 'portion_expansion', 
-    'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
-    }
-
-    option_list_by_group[500]['Weapon'] = {}
-    option_list_by_group[500]['Weapon']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 'perfection', 'revenge',
-    'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
-    'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
-    'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
-    }
-    option_list_by_group[500]['Weapon']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
-    option_list_by_group[500]['Weapon']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
-    option_list_by_group[500]['Weapon']['DEF'] = {'ResAdd_Damage', 
-    'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
-    }
-
-    -- for group, v in pairs(option_list_by_group[480]['Weapon']) do        
-    --     for k1, v1 in pairs(v) do
-    --         print(group, v1)
-    --     end
-    -- end
-
+function set_item_goddess_icor_range_480(item_goddess_icor_range)
+    local max
+    local min
     item_goddess_icor_range[480] = {}
     item_goddess_icor_range[480]['Armor'] = {}    
 
     -- ATK
-    local max
     max = 963
     local set_list = {'AllMaterialType_Atk', 'AllRace_Atk'}
     make_icor_option_range(item_goddess_icor_range, set_list, 480, 'Armor', max, 0.8, 1.2)
@@ -234,110 +123,311 @@ function make_item_goddess_icor_range()
     set_list = {'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'}
     make_icor_option_range(item_goddess_icor_range, set_list, 480, 'Weapon', max, 0.8, 1.2)    
     -- end of DEF
+end
 
-
-
-    ---------------------------------------------------- 500 레벨 시작  ----------------------------------------
-    item_goddess_icor_range[500] = {}
-    item_goddess_icor_range[500]['Armor'] = {}    
+function set_item_goddess_icor_range_by_level(i, level, item_goddess_icor_range)
+        item_goddess_icor_range[level] = {}
+        item_goddess_icor_range[level]['Armor'] = {}    
     -- ATK    
-    max = 1251 -- 1.3배
-    set_list = {'AllMaterialType_Atk', 'AllRace_Atk'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Armor', max, 0.8, 1.2)
+    local max = 1251 -- 1.3배
+    local min
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))            
+        end        
+    local set_list = {'AllMaterialType_Atk', 'AllRace_Atk'}
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Armor', max, 0.8, 1.2)
     
     max = 1471
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))            
+        end        
     set_list = {'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Armor', max, 0.8, 1.2)
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Armor', max, 0.8, 1.2)
 
     max = 1836
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))            
+        end        
     set_list = {'Add_Damage_Atk'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Armor', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Armor', max, 0.8, 1.2)    
     -- end of ATK
 
     -- STAT
     max = 219
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))            
+        end        
     set_list = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Armor', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Armor', max, 0.8, 1.2)    
     -- end of STAT
 
     -- UTIL_ARMOR
     max = 734  -- (4부위 3523)
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))            
+        end        
     set_list = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Armor', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Armor', max, 0.8, 1.2)    
     -- end of UTIL_ARMOR
 
     -- DEF
     max = 1836
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))            
+        end        
     set_list = {'ResAdd_Damage'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Armor', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Armor', max, 0.8, 1.2)    
 
     max = 1471
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))            
+        end        
     set_list = {'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Armor', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Armor', max, 0.8, 1.2)    
         
-    min = 130  -- 10레벨당 요구량 복리 33% 증가, 
+        min = 130  -- 10레벨당 요구량 복리 33% 증가, function GET_MAX_REG_VALUE(lv)
     max = 170
+        if i > 1 then
+            min = math.floor(min * 1.77^(i-1))
+            max = math.floor(max * 1.77^(i-1))
+        end
+
     set_list = {'stun_res', 'high_fire_res', 'high_freezing_res', 'high_lighting_res', 'high_poison_res', 'high_laceration_res'}
     for k, v in pairs(set_list) do
-        item_goddess_icor_range[500]['Armor'][v] = {}
-        item_goddess_icor_range[500]['Armor'][v]['LOW'] = {min, max}
-        item_goddess_icor_range[500]['Armor'][v]['HIGH'] = {math.floor(max), math.floor(max * 1.3)}
+            item_goddess_icor_range[level]['Armor'][v] = {}
+            item_goddess_icor_range[level]['Armor'][v]['LOW'] = {min, max}
+            item_goddess_icor_range[level]['Armor'][v]['HIGH'] = {math.floor(max), math.floor(max * 1.3)}
+        if level == 520 then
+            -- print(ClMsg(v), item_goddess_icor_range[level]['Armor'][v]['LOW'][1], item_goddess_icor_range[level]['Armor'][v]['LOW'][2])
+            -- print(ClMsg(v), item_goddess_icor_range[level]['Armor'][v]['HIGH'][1], item_goddess_icor_range[level]['Armor'][v]['HIGH'][2])
+        end
     end    
 
     min = 20000
     max = 30000
+        if i > 1 then
+            min = math.floor(min * 1.33^(i-1))
+            max = math.floor(max * 1.33^(i-1))
+        end
+
     set_list = {'portion_expansion'}
     for k, v in pairs(set_list) do
-        item_goddess_icor_range[500]['Armor'][v] = {}
-        item_goddess_icor_range[500]['Armor'][v]['LOW'] = {min, max}
-        item_goddess_icor_range[500]['Armor'][v]['HIGH'] = {math.floor(max), math.floor(max * 1.5)}
+            item_goddess_icor_range[level]['Armor'][v] = {}
+            item_goddess_icor_range[level]['Armor'][v]['LOW'] = {min, max}
+            item_goddess_icor_range[level]['Armor'][v]['HIGH'] = {math.floor(max), math.floor(max * 1.5)}
+        if level == 520 then
+            -- print(ClMsg(v), item_goddess_icor_range[level]['Armor'][v]['LOW'][1], item_goddess_icor_range[level]['Armor'][v]['LOW'][2])
+            -- print(ClMsg(v), item_goddess_icor_range[level]['Armor'][v]['HIGH'][1], item_goddess_icor_range[level]['Armor'][v]['HIGH'][2])
+        end
     end    
     -- end of DEF
 
-    item_goddess_icor_range[500]['Weapon'] = {}
+        item_goddess_icor_range[level]['Weapon'] = {}
     -- ATK
     max = 1561
+        local max_ratio = 1.5
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))
+            max_ratio = 1.2
+        end        
     set_list = {'AllMaterialType_Atk', 'AllRace_Atk'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.5)        
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, max_ratio)
     
     max = 2757
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))
+        end        
     set_list = {'Add_Damage_Atk'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)
     
     max = 4000
+        if i > 1 then
+            max = math.floor(max * 1.5^(i-1))
+        end        
     set_list = {'perfection'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)
     
     max = 30000
+        if i > 1 then
+            max = math.floor(max * 1.5^(i-1))
+        end        
     set_list = {'revenge'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)
 
     max = 1836    
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))
+        end           
     set_list = {'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)    
     -- end of ATK
 
     -- STAT
     max = 275
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))
+        end        
     set_list = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)    
     -- end of STAT
 
     -- UTIL_ARMOR
     max = 919 -- 4부위(4400)
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))
+        end        
     set_list = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)    
     -- end of UTIL_ARMOR
 
     -- DEF
     max = 2757
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))
+        end        
     set_list = {'ResAdd_Damage'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)
 
     max = 1836
+        if i > 1 then
+            max = math.floor(max * 1.3^(i-1))
+        end        
     set_list = {'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'}
-    make_icor_option_range(item_goddess_icor_range, set_list, 500, 'Weapon', max, 0.8, 1.2)    
+        make_icor_option_range(item_goddess_icor_range, set_list, level, 'Weapon', max, 0.8, 1.2)    
     -- end of DEF
+end
+
+function make_item_goddess_icor_range()
+    if item_goddess_icor_range ~= nil then
+        return
+    end
+
+    -- local cls_list, cnt = GetClassList('goddess_special_option')
+
+    item_goddess_icor_range = {}
+    option_list_by_group = {}
+
+    random_option_group_name = {}    
+    
+    random_option_group_name['AllRace_Atk'] = 'ATK'         -- 모든 종족 대상 공격력    
+    random_option_group_name['Add_Damage_Atk'] = 'ATK'      -- 추가 대미지 
+    random_option_group_name['AllMaterialType_Atk'] = 'ATK' -- 모든 방어구 재질 공격력
+    random_option_group_name['ADD_CLOTH'] = 'ATK'   
+    random_option_group_name['ADD_LEATHER'] = 'ATK'   
+    random_option_group_name['ADD_IRON'] = 'ATK'   
+    random_option_group_name['ADD_SMALLSIZE'] = 'ATK'   
+    random_option_group_name['ADD_MIDDLESIZE'] = 'ATK'   
+    random_option_group_name['ADD_LARGESIZE'] = 'ATK'   
+    random_option_group_name['ADD_GHOST'] = 'ATK'   
+    random_option_group_name['ADD_FORESTER'] = 'ATK'   
+    random_option_group_name['ADD_WIDLING'] = 'ATK'   
+    random_option_group_name['ADD_VELIAS'] = 'ATK'   
+    random_option_group_name['ADD_PARAMUNE'] = 'ATK'   
+    random_option_group_name['ADD_KLAIDA'] = 'ATK'   
+
+    random_option_group_name['STR'] = 'STAT'
+    random_option_group_name['DEX'] = 'STAT'
+    random_option_group_name['CON'] = 'STAT'
+    random_option_group_name['INT'] = 'STAT'
+    random_option_group_name['MNA'] = 'STAT'
+
+    random_option_group_name['CRTHR'] = 'UTIL_ARMOR'        -- 치명타 발생
+    random_option_group_name['BLK_BREAK'] = 'UTIL_ARMOR'    -- 블록 관통
+    random_option_group_name['BLK'] = 'UTIL_ARMOR'          -- 블록
+    random_option_group_name['ADD_HR'] = 'UTIL_ARMOR'       -- 명중
+    random_option_group_name['ADD_DR'] = 'UTIL_ARMOR'       -- 회피
+    random_option_group_name['CRTDR'] = 'UTIL_ARMOR'        -- 치명타 저항
+    random_option_group_name['RHP'] = 'UTIL_ARMOR'          -- HP 회복력
+    
+    random_option_group_name['ResAdd_Damage'] = 'DEF'       -- 추가 대미지 저항    
+    random_option_group_name['Cloth_Def'] = 'DEF'
+    random_option_group_name['Leather_Def'] = 'DEF'
+    random_option_group_name['Iron_Def'] = 'DEF'
+    random_option_group_name['MiddleSize_Def'] = 'DEF'
+
+        
+    local cls_list, cnt = GetClassList('goddess_atk_def_option')
+    for i = 0, cnt - 1 do
+        local cls = GetClassByIndexFromList(cls_list, i)
+        local _name = TryGetProp(cls, 'ClassName', 'None')
+        local type = TryGetProp(cls, 'Type', 'None')
+        if type ~= 'None' then
+            random_option_group_name[_name] = type
+        end
+    end
+    
+    option_list_by_group[480] = {}
+    option_list_by_group[480]['Armor'] = {}
+    option_list_by_group[480]['Armor']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 
+    'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
+    'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
+    'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
+    }
+
+    option_list_by_group[480]['Armor']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
+    option_list_by_group[480]['Armor']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
+    option_list_by_group[480]['Armor']['DEF'] = {'ResAdd_Damage', 'stun_res', 'high_fire_res', 'high_freezing_res', 'high_lighting_res', 'high_poison_res', 'high_laceration_res', 'portion_expansion', 
+    'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
+    }
+
+    option_list_by_group[480]['Weapon'] = {}
+    option_list_by_group[480]['Weapon']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 'perfection', 'revenge',
+    'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
+    'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
+    'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
+    }
+    option_list_by_group[480]['Weapon']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
+    option_list_by_group[480]['Weapon']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
+    option_list_by_group[480]['Weapon']['DEF'] = {'ResAdd_Damage', 
+    'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
+    }
+
+    local level_list = {500, 520}
+
+    for i = 1, #level_list do
+        local level = level_list[i]
+        option_list_by_group[level] = {}
+        option_list_by_group[level]['Armor'] = {}
+        option_list_by_group[level]['Armor']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 
+        'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
+        'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
+        'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
+        }
+    
+        option_list_by_group[level]['Armor']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
+        option_list_by_group[level]['Armor']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
+        option_list_by_group[level]['Armor']['DEF'] = {'ResAdd_Damage', 'stun_res', 'high_fire_res', 'high_freezing_res', 'high_lighting_res', 'high_poison_res', 'high_laceration_res', 'portion_expansion', 
+        'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
+        }
+    
+        option_list_by_group[level]['Weapon'] = {}
+        option_list_by_group[level]['Weapon']['ATK'] = {'AllRace_Atk', 'Add_Damage_Atk', 'AllMaterialType_Atk', 'perfection', 'revenge',
+        'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 
+        'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 
+        'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'
+        }
+        option_list_by_group[level]['Weapon']['STAT'] = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
+        option_list_by_group[level]['Weapon']['UTIL_ARMOR'] = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR', 'RHP'}
+        option_list_by_group[level]['Weapon']['DEF'] = {'ResAdd_Damage', 
+        'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'
+        }    
+    end
+    
+    -- for group, v in pairs(option_list_by_group[520]['Weapon']) do        
+    --     for k1, v1 in pairs(v) do
+    --         print(group, v1)
+    --     end
+    -- end
+
+    local max
+    set_item_goddess_icor_range_480(item_goddess_icor_range)
+
+    ---------------------------------------------------- 500~ 레벨 시작  ----------------------------------------    
+    for i = 1, #level_list do
+        local level = level_list[i]
+        set_item_goddess_icor_range_by_level(i, level, item_goddess_icor_range)        
+    end
+
 end
 
 make_item_goddess_icor_range()
@@ -362,6 +452,10 @@ shared_item_goddess_icor.get_option_value_range_icor = function(item, option_nam
         if _spot == 'Armor' then
             spot = 'Armor'
         elseif string.find(_spot, 'Weapon') ~= nil then
+            spot = 'Weapon'
+        end
+
+        if TryGetProp(item, 'ClassType', 'None') == 'Shield' then
             spot = 'Weapon'
         end
 
@@ -511,6 +605,32 @@ shared_item_goddess_icor.get_cost = function(lv, count, grade, cost_list)
             cost_list['RadaCertificate'] = math.floor(cost_count)
 
             cost_count = 100 * math.pow(1.04, count)
+            cost_count = cost_count * 1.5
+            cost_list['misc_ore28'] = math.floor(cost_count) -- 
+            return true
+        end
+    elseif lv == 520 then
+        if grade == 'LOW' then
+            local cost_count = 1 + math.floor(count / 4)
+            cost_list['misc_BlessedStone_1'] = math.floor(cost_count)
+
+            cost_count = 300 * math.pow(1.04, count)
+            cost_list['JurateCertificate'] = math.floor(cost_count)
+
+            cost_count = 100 * math.pow(1.05, count)
+            cost_list['misc_ore28'] = math.floor(cost_count)
+            
+            return true
+        else    
+            local cost_count = 1 + math.floor(count / 2.5)
+            cost_count = cost_count * 1.5
+            cost_list['misc_BlessedStone_1'] = math.floor(cost_count)
+
+            cost_count = 300 * math.pow(1.04, count)
+            cost_count = cost_count * 1.3
+            cost_list['JurateCertificate'] = math.floor(cost_count)
+
+            cost_count = 100 * math.pow(1.05, count)
             cost_count = cost_count * 1.5
             cost_list['misc_ore28'] = math.floor(cost_count) -- 
             return true

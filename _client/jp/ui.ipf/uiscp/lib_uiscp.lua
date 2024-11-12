@@ -647,7 +647,7 @@ function SET_SPINE_TOOLTIP_IMAGE(picture, itemCls)
                 picture:SetScaleFactor(spineInfo:GetScaleFactor());
                 picture:SetOffsetX(spineInfo:GetOffsetX());
                 picture:SetOffsetY(spineInfo:GetOffsetY());
-                picture:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation());
+                picture:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied());
 
                 local effectCount = spineInfo:GetEffectCount();
                 for i = 0, effectCount - 1 do

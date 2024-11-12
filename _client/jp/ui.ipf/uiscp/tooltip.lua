@@ -49,7 +49,7 @@ function TRY_PARSE_PROPERTY(obj, nextObj, caption)
             local tagText = string.sub(caption, tagStart + 2, tagStart + tagEnd);
             local beforeStr = string.sub(caption, 1, tagStart - 1);
             local endStr = string.sub(caption, tagStart + tagEnd + 3, string.len(caption));            
-
+  
             local propValue;            
             if string.sub(tagText, 1, 1) == "1" then
                 local propName = string.sub(tagText, 2, string.len(tagText));                     
@@ -57,7 +57,6 @@ function TRY_PARSE_PROPERTY(obj, nextObj, caption)
             else
                 propValue = nextObj[tagText]
             end
-            
             if propValue % 1 ~= 0 then
                 propValue = string.format("%.1f", propValue);            
             end
@@ -521,7 +520,7 @@ function SET_SKILL_TOOLTIP_ICON_AND_NAME(skillFrame, obj, useTranslateData)
         if useTranslateData == true then
             local translated_data = dictionary.ReplaceDicIDInCompStr(obj_name);
             if obj_eng_name ~= translated_data then
-                if config.GetServiceNation() ~= "GLOBAL" then
+                if config.GetServiceNation() ~= "GLOBAL" and config.GetServiceNation() ~= "PAPAYA" then
                     name_text = name_text.."{/}{nl}"..obj_eng_name;
                 end
             end
@@ -1291,9 +1290,12 @@ function MAKE_SKILL_CAPTION2(className, caption2, curLv)
             if sklObj == nil then return end
 
             if CHECK_SKILL_KEYWORD(sklObj, "pcSummonSkill") == 1 then
+                --탑승 스킬 계수 보이게 수정.
                 local factor = SCR_Get_SkillFactor(sklObj)
                 local text = '{@st43}{s16}' .. ClMsg('SkillFactorText') .. tostring(factor) .. '%%'
-                caption = string.gsub(caption, 'None', text)
+                --caption = caption.."None"
+                caption = string.gsub(caption, "None", text)
+                --caption = ""
             end
         end
     end

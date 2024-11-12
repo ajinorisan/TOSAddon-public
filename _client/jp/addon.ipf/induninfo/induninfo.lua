@@ -621,7 +621,7 @@ function INDUNINFO_DETAIL_CTRL_UPDATE_ENTERANCE_COUNT(frame, msg, arg_str, arg_n
                     local count_text = detail_ctrl:GetChild("countText");
                     local ticketing_type = TryGetProp(cls, "TicketingType", "None");
                     if ticketing_type == "Entrance_Ticket" then        
-                        count_text:SetText(ScpArgMsg("ChallengeMode_HardMode_Count", "Count", GET_CURRENT_ENTERANCE_COUNT(arg_num)))
+                        count_text:SetText(ScpArgMsg("ChallengeMode_HardMode_Count", "Count", GET_CURRENT_ENTERANCE_COUNT(arg_num, cls)))
                     else
                         count_text:SetTextByKey("current", GET_CURRENT_ENTERANCE_COUNT(arg_num));
                         count_text:SetTextByKey("max", GET_INDUN_MAX_ENTERANCE_COUNT(arg_num));
@@ -634,7 +634,7 @@ function INDUNINFO_DETAIL_CTRL_UPDATE_ENTERANCE_COUNT(frame, msg, arg_str, arg_n
                         local count_text = detail_ctrl:GetChild("countText");
                         local ticketing_type = TryGetProp(cls, "TicketingType", "None");
                         if ticketing_type == "Entrance_Ticket" then        
-                            count_text:SetText(ScpArgMsg("ChallengeMode_HardMode_Count", "Count", GET_CURRENT_ENTERANCE_COUNT(arg_num)))
+                            count_text:SetText(ScpArgMsg("ChallengeMode_HardMode_Count", "Count", GET_CURRENT_ENTERANCE_COUNT(arg_num, cls)))
                         else
                             count_text:SetTextByKey("current", GET_CURRENT_ENTERANCE_COUNT(arg_num));
                             count_text:SetTextByKey("max", GET_INDUN_MAX_ENTERANCE_COUNT(arg_num));
@@ -688,12 +688,32 @@ function INDUNINFO_DRAW_CATEGORY_DETAIL_LIST(indunListBox, cls, is_weekly_reset,
         -- if resetGroupID == -101 or resetGroupID == 816 or resetGroupID == 817 or resetGroupID == 813 then
         -- 분열 특이점, 성물레이드, 성물레이드 도전모드 예외 처리; 
         -- -101 : contents_info에 있는 분열특이점, 챌린지모드는 어따 쓰는지 모르겠음 일단 현황판 탭에서는 안쓰이는중
+        --if TryGetProp(cls, 'UnitPerReset', 'None') == 'ACCOUNT' and TryGetProp(cls, 'WeeklyEnterableCount', 0) == 0 then
+        local dungeon_type = TryGetProp(cls, 'DungeonType', 'None')
+        local name = TryGetProp(cls, 'ClassName', 'None')
         if TryGetProp(cls, 'TicketingType', 'None') == 'Entrance_Ticket' then        
-            countText:SetText(ScpArgMsg('ChallengeMode_HardMode_Count', 'Count', GET_CURRENT_ENTERANCE_COUNT(cls.PlayPerResetType)))
+            -- 회 가능
+            countText:SetText(ScpArgMsg('ChallengeMode_HardMode_Count', 'Count', GET_CURRENT_ENTERANCE_COUNT(cls.PlayPerResetType, cls)))
+            if string.find(name, 'Challenge_Auto_Hard_Party') == nil then
             cyclePic:ShowWindow(0);
         else
-            countText:SetTextByKey('current', GET_CURRENT_ENTERANCE_COUNT(cls.PlayPerResetType));
-            countText:SetTextByKey('max', GET_INDUN_MAX_ENTERANCE_COUNT(cls.PlayPerResetType));
+                INDUNINFO_SET_CYCLE_PIC(cyclePic,cls,'_s')
+            end
+        else
+            local current = GET_CURRENT_ENTERANCE_COUNT(cls.PlayPerResetType)
+            local max = GET_INDUN_MAX_ENTERANCE_COUNT(cls.PlayPerResetType)
+            if string.find(dungeon_type, 'Challenge_') == nil then
+                countText:SetTextByKey('current', current);
+                countText:SetTextByKey('max', max);
+            else
+                if current == 0 then
+                    current = 1
+                else
+                    current = 0
+                end
+                countText:SetText(ScpArgMsg('ChallengeMode_HardMode_Count', 'Count', current))
+            end
+            
             INDUNINFO_SET_CYCLE_PIC(cyclePic,cls,'_s')
         end
     end
@@ -865,11 +885,27 @@ function INDUNINFO_CATEGORY_LBTN_CLICK(categoryCtrl, ctrl, selectIndun)
 end
 end
     
-function GET_CURRENT_ENTERANCE_COUNT(resetGroupID)
+function GET_CURRENT_ENTERANCE_COUNT(resetGroupID, dungeon_cls)
     local etc = GetMyEtcObject();
     local acc_obj = GetMyAccountObj()
     if etc == nil or acc_obj == nil then
         return 0;
+    end
+
+    local class_name = TryGetProp(dungeon_cls, 'ClassName', 'None')    
+    if dungeon_cls ~= nil and string.find(class_name, 'Challenge_') ~= nil then        
+        local UnitPerReset = TryGetProp(dungeon_cls, 'UnitPerReset', 'None')        
+        if UnitPerReset ~= 'None' then
+            local ticket_type = TryGetProp(dungeon_cls, 'TicketingType', 'None')
+            if ticket_type == 'Entrance_Ticket' then
+                local name = TryGetProp(dungeon_cls, 'CheckCountName', 'None')
+                if UnitPerReset == 'ACCOUNT' then                    
+                    return TryGetProp(acc_obj, name, 0)
+                elseif UnitPerReset == 'PC' then
+                    return TryGetProp(etc, name, 0)
+                end
+            end 
+        end
     end
 
     if resetGroupID < 0 then
@@ -900,9 +936,11 @@ function GET_CURRENT_ENTERANCE_COUNT(resetGroupID)
 
     if indunCls.WeeklyEnterableCount ~= nil and indunCls.WeeklyEnterableCount ~= "None" and indunCls.WeeklyEnterableCount ~= 0 then
         if indunCls.UnitPerReset == 'PC' then
+            
             return(etc['IndunWeeklyEnteredCount_'..resetGroupID]) --매주 남은 횟수
         else     
-            if (indunCls.DungeonType == "EarringRaid" and indunCls.ClassName ~= 'EarringRaid_Extreme') or indunCls.DungeonType == "SeasonEarringRaid" then
+
+            if (indunCls.DungeonType == "EarringRaid" and indunCls.ClassName ~= 'EarringRaid_Extreme') or indunCls.DungeonType == "SeasonEarringRaid" or indunCls.StartNPCDialog == "Goddess_Raid_Ex" then
                 return acc_obj[TryGetProp(indunCls, "CheckCountName", "None")];
             end            
             return(acc_obj['IndunWeeklyEnteredCount_'..resetGroupID]) --매주 남은 횟수
@@ -1755,20 +1793,34 @@ function INDUNINFO_SET_ENTERANCE_COUNT(frame, resetGroupID, indunClassID)
     local countData2 = GET_CHILD_RECURSIVELY(frame, 'countData2');
     
     local indun = GetClassByType('Indun', indunClassID)
-   
+    local dungeon_type = TryGetProp(indun, 'DungeonType', 'None')
     if resetGroupID == -101 or resetGroupID == 816 or resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 820 then
         countData2:SetTextByKey('now', GET_CURRENT_ENTERANCE_COUNT(resetGroupID))
         countData:ShowWindow(0)
         countData2:ShowWindow(1)
     elseif TryGetProp(indun, 'TicketingType', 'None') == "Entrance_Ticket" then
-        countData2:SetTextByKey('now', GET_CURRENT_ENTERANCE_COUNT(resetGroupID))
+        countData2:SetTextByKey('now', GET_CURRENT_ENTERANCE_COUNT(resetGroupID, indun))
         countData:ShowWindow(0)
         countData2:ShowWindow(1)        
     else
-        countData:SetTextByKey('now', GET_CURRENT_ENTERANCE_COUNT(resetGroupID));
-        countData:SetTextByKey('max', GET_INDUN_MAX_ENTERANCE_COUNT(resetGroupID));
+        -- dungeon_type
+        local current = GET_CURRENT_ENTERANCE_COUNT(resetGroupID)
+        local max = GET_INDUN_MAX_ENTERANCE_COUNT(resetGroupID)        
+        if string.find(dungeon_type, 'Challenge_') == nil then
+            countData:SetTextByKey('now', current);
+            countData:SetTextByKey('max', max);
         countData2:ShowWindow(0)
         countData:ShowWindow(1)
+        else
+            if current == 1 then
+                current = 0
+            else
+                current = 1
+            end           
+            countData2:SetTextByKey('now', current)
+            countData:ShowWindow(0)
+            countData2:ShowWindow(1)        
+        end
     end
     INDUNENTER_MAKE_MONLIST(frame, indunCls);
 end
@@ -2039,9 +2091,9 @@ function INDUNINFO_SET_ADMISSION_ITEM(frame,indunCls)
     local countData2 = GET_CHILD_RECURSIVELY(frame, 'countData2');
     local cycleImage = GET_CHILD_RECURSIVELY(frame, 'cyclePic');
     local nowAdmissionItemCount = GET_INDUN_ADMISSION_ITEM_COUNT(indunCls)
+    local dungeon_type = TryGetProp(indunCls, 'DungeonType', 'None')
     if nowAdmissionItemCount <= 0 then        
         countText:SetText(ScpArgMsg("IndunAdmissionItemReset"))        
-        
         local width = countText:GetWidth() + 35
         local margin = cycleImage:GetMargin()
         cycleImage:SetMargin(width, margin.top, margin.bottom, margin.right)
@@ -2050,9 +2102,18 @@ function INDUNINFO_SET_ADMISSION_ITEM(frame,indunCls)
             countData:ShowWindow(0);
             countData2:ShowWindow(1);
             countItemData:ShowWindow(0);
+            
+            if string.find(dungeon_type, 'Challenge_') ~= nil then
+                INDUNINFO_SET_CYCLE_PIC(cycleImage,indunCls,'_l')
+            end
         else
+            if string.find(dungeon_type, 'Challenge_') == nil then
             countData2:ShowWindow(0);
             countData:ShowWindow(1);
+            else
+                countData2:ShowWindow(1);
+                countData:ShowWindow(0);
+            end
         countItemData:ShowWindow(0);
         INDUNINFO_SET_CYCLE_PIC(cycleImage,indunCls,'_l')
         end        

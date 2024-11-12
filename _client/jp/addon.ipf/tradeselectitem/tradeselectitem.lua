@@ -1431,17 +1431,32 @@ function OPEN_TRADE_SELECT_SKILL_GEM(frame)
 			end
 		end
 		
-		-----------------------------------------------				
+		-----------------------------------------------		
 		if string.find(job, '%[') ~= nil and string.find(job, '%]') ~= nil  then
 			local end_num = string.find(job, '%[')
 			local prefix = string.sub(job, 0, end_num - 1)
-			if string.find(job, '[W]') ~= nil then				
+			if string.find(job, '%[W%]') ~= nil then				
 				if string.find(sklname, prefix..'_') ~= nil and string.find(sklname, '_Wizard') ~= nil then
 					local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
 					SkillList[#SkillList + 1] = skillgem_cls
 				end
-			elseif string.find(job, '[A]') ~= nil then				
+			elseif string.find(job, '%[A%]') ~= nil then				
 				if string.find(sklname, prefix..'_') ~= nil and string.find(sklname, '_Archer') ~= nil then					
+					local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
+					SkillList[#SkillList + 1] = skillgem_cls
+				end
+			elseif string.find(job, '%[T%]') ~= nil then				
+				if string.find(sklname, prefix..'_') ~= nil and string.find(sklname, '_Scout') ~= nil then					
+					local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
+					SkillList[#SkillList + 1] = skillgem_cls
+				end
+			elseif string.find(job, '%[S%]') ~= nil then
+				if string.find(sklname, prefix..'_') ~= nil and string.find(sklname, '_Swordman') ~= nil then
+					local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
+					SkillList[#SkillList + 1] = skillgem_cls
+				end
+			elseif string.find(job, '%[C%]') ~= nil then				
+				if string.find(sklname, prefix..'_') ~= nil and string.find(sklname, '_Cleric') ~= nil then
 					local skillgem_cls = GetClassByStrProp('Item', 'SkillName', sklname)
 					SkillList[#SkillList + 1] = skillgem_cls
 				end

@@ -1,18 +1,5 @@
 -- etc_tooltip.lua
 
-local function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
-
 function ITEM_TOOLTIP_ETC(tooltipframe, invitem, argStr, usesubframe)    
 	tolua.cast(tooltipframe, "ui::CTooltipFrame");
 
@@ -423,11 +410,14 @@ function DRAW_ETC_PREVIEW_TOOLTIP(tooltipframe, invitem, ypos, mainframename)
 		return ypos;
 	end
 
-	local iconName = invitem.Icon;
+	local iconName = invitem.Icon;	
 	if string.find(invitem.StringArg, "Balloon_") ~= nil then
 		-- 말풍선 아이템일 경우 item의 icon이 아닌 chat_balloon의 SkinPreview 이미지 출력
-		local balloonCls = GetClass('Chat_Balloon', invitem.StringArg);
-		iconName = balloonCls.SkinPreview;
+		local balloonCls = GetClass('Chat_Balloon', invitem.StringArg);		
+		iconName = TryGetProp(balloonCls, 'SkinPreview', 'None');
+		if iconName == 'None' then
+			return ypos
+		end
 	end
 
 	local gBox = GET_CHILD(tooltipframe, mainframename,'ui::CGroupBox')
@@ -853,6 +843,9 @@ function attendance_gift_box_DESC_LIST(item)
 	for i = 1, #list do
 		local token = StringSplit(list[i], '/')
 		local cls = GetClass('Item', token[1])		
+		if cls == nil then
+			print(token[1])
+		end
 		local msg = ScpArgMsg('get_item{name}{count}', 'name', dic.getTranslatedStr(cls.Name), 'count', token[2])
 		if i == #list then
 			desc = desc .. msg
@@ -882,6 +875,107 @@ function trade_select_item_DESC(item)
 		local cls = GetClass('Item', item_name)
 		local msg = '- ' .. ScpArgMsg('get_item{name}{count}', 'name', dic.getTranslatedStr(cls.Name), 'count', count)
 		desc = desc .. msg .. '{nl}'		
+	end
+
+	return desc
+end
+
+function make_item_option_with_range(item)
+	local desc = ''
+
+	local str_list = TryGetProp(item, 'StringArg2', 'None')	
+	if str_list ~= 'None' then
+		local token = StringSplit(str_list, ';')
+		for i = 1, #token do
+			local pair = StringSplit(token[i], '/')
+			local name = pair[1]
+			local min = tonumber(pair[2])
+			local max = tonumber(pair[3])
+			local txt = string.format(' - %s[%d-%d]', ClMsg(name), min, max)
+			desc = desc .. txt .. '{nl}'
+		end
+	end
+
+	return desc
+end
+
+function use_option_scroll_tooltip(item)
+	local desc = ''
+
+	local str_list = TryGetProp(item, 'OptionList', 'None')	
+	if str_list ~= 'None' then
+		local token = StringSplit(str_list, ';')
+		for i = 1, #token do
+			local pair = StringSplit(token[i], '/')
+			local name = pair[1]
+			local value = pair[2]			
+			local txt = string.format(' - %s %d', ClMsg(name), value)
+			desc = desc .. txt .. '{nl}'
+		end
+	end
+
+	return desc
+end
+
+function use_jurate_scroll_tooltip(item)
+	local desc = ''
+
+	local str_list = TryGetProp(item, 'OptionList', 'None')	
+	if str_list ~= 'None' then
+		local token = StringSplit(str_list, ';')
+		for i = 1, #token do
+			local pair = StringSplit(token[i], '/')
+			local name = pair[1]
+			local value = pair[2]
+			local txt = string.format(' %s {#0000FF}(%d%%){/}', ScpArgMsg(name, 'level', value), pair[3])
+			desc = desc .. txt .. '{nl}'
+		end
+	end
+
+	return desc
+end
+
+function use_lv520_random_option_scroll_box(item)
+	local desc = ''
+
+	local str_list = TryGetProp(item, 'StringArg', 'None')	
+	if str_list ~= 'None' then
+		local token = StringSplit(str_list, ';')
+		for i = 1, #token do
+			local pair = StringSplit(token[i], '/')
+			local name = pair[1]	
+			local cls = GetClass('Item', name)
+			local txt = string.format(' - %s', dic.getTranslatedStr(cls.Name))
+			desc = desc .. txt .. '{nl}'
+		end
+	end
+
+	return desc
+end
+
+function use_jurate_cube_tooltip(item)
+	local desc = ''
+
+	local str_list = TryGetProp(item, 'StringArg', 'None')	
+	if str_list ~= 'None' then
+		local token = StringSplit(str_list, ';')
+		local total = 0
+		for i = 1, #token do
+			local pair = StringSplit(token[i], '/')
+			total = total + tonumber(pair[3])
+		end
+
+		for i = 1, #token do
+			local pair = StringSplit(token[i], '/')
+			local name = pair[1]
+			local count = pair[2]
+			local cls = GetClass('Item', name)
+			name = dic.getTranslatedStr(cls.Name)
+			local prop = (tonumber(pair[3]) / total) * 100
+			
+			local txt = string.format(' {#0000FF}(%.4f%%){/}', prop)
+			desc = desc .. ScpArgMsg('get_item{name}{count}', 'name', name, 'count', count) .. txt .. '{nl}'
+		end
 	end
 
 	return desc

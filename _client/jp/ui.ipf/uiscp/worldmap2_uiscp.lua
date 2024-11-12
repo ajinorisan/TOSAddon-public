@@ -381,7 +381,13 @@ function WORLDMAP2_TOKEN_WARP(mapName)
     end
 
     if GET_TOKEN_WARP_COOLDOWN() == 0 then
-        ui.MsgBox(ScpArgMsg("TokenWarpTo{MAPNAME}", "MAPNAME", mapData.Name), string.format("WORLDMAP2_TOKEN_WARP_REQUEST(\"%s\")", mapName), "None")
+        local map_name = mapData.Name;
+        local enable_level_text = TryGetProp(submapData, "EnableLevelText", "NO");
+        if enable_level_text == "YES" then
+            local level = TryGetProp(mapData, "QuestLevel", 0);
+            map_name = ClMsg("Auto_{s16}_LeBel")..level.." "..map_name;
+        end
+        ui.MsgBox(ScpArgMsg("TokenWarpTo{MAPNAME}", "MAPNAME", map_name), string.format("WORLDMAP2_TOKEN_WARP_REQUEST(\"%s\")", mapName), "None")
     else
         addon.BroadMsg("NOTICE_Dm_!", ScpArgMsg("TokenWarpDisable{TIME}", "TIME", GET_TOKEN_WARP_COOLDOWN()), 5)
     end

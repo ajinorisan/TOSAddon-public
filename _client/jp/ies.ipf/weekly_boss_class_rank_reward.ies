@@ -95,3 +95,8 @@ ClassID,reward_id,class_id,Desc,rank_1
 94,1,3107,"신궁","Item_Achieve_plate_BowMaster/1;"
 95,1,5019,"데스페라도","Item_Achieve_plate_Desperado/1;"
 96,1,1026,"뱅퀴셔","Item_Achieve_plate_Vanquisher/1;"
+97,1,2026,"벌처[W]","Item_Achieve_plate_Vulture/1;"
+98,1,3108,"벌처[A]","Item_Achieve_plate_Vulture/1;"
+99,1,5020,"벌처[T]","Item_Achieve_plate_Vulture/1;"
+100,1,4024,"슬레저[C]","Item_Achieve_plate_Sledger/1;"
+101,1,1027,"슬레저[S]","Item_Achieve_plate_Sledger/1;"

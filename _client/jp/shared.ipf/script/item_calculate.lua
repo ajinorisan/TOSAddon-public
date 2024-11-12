@@ -214,6 +214,9 @@ function INIT_ARMOR_PROP(item, class)
     for i = 1, #commonPropList do
         local propName = commonPropList[i];        
         local propValue = class[propName];
+        if propValue == nil then
+            propValue = 0
+        end
         if except_list[propName] ~= true then
             if growth_rate > 0 and growth_rate < 1 then
             local growth_value = math.floor(propValue * growth_rate);
@@ -914,6 +917,7 @@ function SCR_REFRESH_WEAPON(item, enchantUpdate, ignoreReinfAndTranscend, reinfB
     APPLY_RANDOM_OPTION(item);
     APPLY_RARE_RANDOM_OPTION(item);    
     MAKE_ITEM_OPTION_BY_OPTION_SOCKET(item);
+    APPLY_UPGRADE_OPTION(item)
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
@@ -1115,6 +1119,7 @@ function SCR_REFRESH_ARMOR(item, enchantUpdate, ignoreReinfAndTranscend, reinfBo
     APPLY_RANDOM_OPTION(item);
     APPLY_RARE_RANDOM_OPTION(item);
     MAKE_ITEM_OPTION_BY_OPTION_SOCKET(item);
+    APPLY_UPGRADE_OPTION(item)
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
@@ -1226,6 +1231,14 @@ function SCR_REFRESH_ACC(item, enchantUpdate, ignoreReinfAndTranscend, reinfBonu
     
     APPLY_AWAKEN(item);
     MAKE_ITEM_OPTION_BY_OPTION_SOCKET(item);    
+    APPLY_UPGRADE_OPTION(item)
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_REFRESH_ARK(item, enchantUpdate, ignoreReinfAndTranscend, reinfBonusValue)
+    local class = GetClassByType('Item', item.ClassID);
+    INIT_ARMOR_PROP(item, class)
+    APPLY_RANDOM_OPTION(item);
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
@@ -1360,6 +1373,20 @@ function APPLY_AWAKEN(item)
 
     local hiddenProp = item.HiddenProp;
     item[hiddenProp] = item[hiddenProp] + item.HiddenPropValue;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function APPLY_UPGRADE_OPTION(item)
+    local name = TryGetProp(item, 'ClassName', 'None')
+    local cls = GetClass('upgrade_equip_item', name)
+    if cls ~= nil then
+        local func = TryGetProp(cls, 'EquipFunc', 'None')
+        if func ~= 'None' then
+            local pc = GetItemOwner(item)
+            func = _G[func]
+            func(pc, item)
+        end
+    end    
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
@@ -2521,7 +2548,7 @@ end
 
 
 -- 가장 마지막에 실행됨
-function COMMON_EQUIP_ITEM(pc, item)
+function COMMON_EQUIP_ITEM(pc, item)    
     if shared_enchant_special_option.is_hair_acc(item) == true then
         for i = 1, 3 do
             local propName = "HatPropName_"..i;
@@ -2545,11 +2572,12 @@ function COMMON_EQUIP_ITEM(pc, item)
                 end
             end
         end
-    end
+            end
+    -- SCR_REFRESH_ARMOR 여기에서 실행될 수 있도록 추가해야 한다.
     
-end
+        end
 -- 가장 마지막에 실행됨
-function COMMON_UNEQUIP_ITEM(pc, item)
+function COMMON_UNEQUIP_ITEM(pc, item)    
     if shared_enchant_special_option.is_hair_acc(item) == true then
         for i = 1, 3 do
             local propName = "HatPropName_"..i;
@@ -2573,5 +2601,5 @@ function COMMON_UNEQUIP_ITEM(pc, item)
                 end
             end            
         end
-    end
+            end
 end

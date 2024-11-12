@@ -54,8 +54,16 @@ function WORLDMAP2_SEARCH_UPDATE(frame)
 
         if string.find(string.lower(mapName), string.lower(searchText)) ~= nil and cls.IsInEpisode == "YES" then
             mapList[#mapList+1] = {}
-            mapList[#mapList][1] = mapData.Name
-            mapList[#mapList][2] = mapData.ClassName
+            
+            local map_name = mapData.Name;
+            local map_cls_name = mapData.ClassName;
+            if string.find(map_cls_name, "ep16_2") ~= nil then
+                local quest_level = TryGetProp(mapData, "QuestLevel", 0);
+                map_name = string.format("Lv.%s %s", quest_level, map_name);
+            end
+
+            mapList[#mapList][1] = map_name;
+            mapList[#mapList][2] = map_cls_name;
         end
     end
 

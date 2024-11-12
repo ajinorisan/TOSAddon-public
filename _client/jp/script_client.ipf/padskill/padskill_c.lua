@@ -30,6 +30,7 @@ end
 
 function C_PAD_EFFECT_POS(actor, obj, padGuid, eftName, scl, x, y, z, lifeTime, activeEffect, activeEffect_arg, isEnablePositionCompensation, ignoreVisibleOption, delayTime)
 	-- actor 는 nil 일 수도 있다.
+	-- lifeTime 은 second 단위이다.
 	if isEnablePositionCompensation == nil then
 		isEnablePositionCompensation = 1;
 	end

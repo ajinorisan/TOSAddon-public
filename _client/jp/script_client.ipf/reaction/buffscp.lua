@@ -1144,7 +1144,44 @@ function RamMuay_LEAVE(actor, obj, buff)
     ScpChangeSwordmanStanceAnimationSet(actor, obj, buff)
 end
 
+function VultureDummy_ENTER(actor, obj, buff)        
+    Vulture_ENTER(actor, obj, buff)    
+end
+
+function Vulture_ENTER(actor, obj, buff)        
+    actor:SetAlwaysBattleState(true);
+    actor:GetAnimation():SetChangeJumpAnim(true);
+    actor:GetAnimation():SetSTDAnim("SKL_VULTURE_ASTD");
+    actor:GetAnimation():SetWLKAnim("SKL_VULTURE_AWLK");
+    actor:GetAnimation():SetRUNAnim("SKL_VULTURE_ARUN");
+    actor:GetAnimation():SetTURNAnim("SKL_VULTURE_ASTD");  
+    actor:GetAnimation():SetRAISEAnim("SKL_VULTURE_RAISE");
+    actor:GetAnimation():SetLANDAnim("SKL_VULTURE_LAND2")
+    actor:GetAnimation():SetOnAIRAnim("SKL_VULTURE_ONAIR")
+    actor:GetAnimation():SetFALLAnim("SKL_VULTURE_FALL");
+    actor:SetAlwaysBattleState(true);
+end
+
+function Vulture_UPDATE(actor, obj, buff)
+    -- local lhItem = session.GetEquipItemBySpot(item.GetEquipSpotNum("LH"));
+    -- local lhObj = GetIES(lhItem:GetObject());
+    -- if lhObj.ClassType == "Artefact" then
+    --     actor:ShowModelByPart("LH", 0, 0, "Vulture_CombatProtocol_Buff");
+    -- end
+end
+
+function Vulture_LEAVE(actor, obj, buff)
+    actor:SetAlwaysBattleState(false);
+    actor:GetAnimation():ResetSTDAnim();
+    actor:GetAnimation():ResetWLKAnim();
+    actor:GetAnimation():ResetRUNAnim();
+    actor:GetAnimation():ResetTURNAnim();
+    actor:GetAnimation():InitJumpAnimation();
+    actor:GetAnimation():SetChangeJumpAnim(false);
+end
+
 function ScpChangeMovingShotAnimationSet(actor, obj, buff)
+    
     local buffSwiftStep = actor:GetBuff():GetBuff('SwiftStep_Buff');
     local buffDoubleGunStance = actor:GetBuff():GetBuff('DoubleGunStance_Buff');
     local buffLimacon = actor:GetBuff():GetBuff('Limacon_Buff');
@@ -1152,7 +1189,7 @@ function ScpChangeMovingShotAnimationSet(actor, obj, buff)
     local AssaultFire = actor:GetBuff():GetBuff('AssaultFire_Buff');
     local Outrage = actor:GetBuff():GetBuff('Outrage_Buff');
     local buffHakkapeliterAssault = actor:GetBuff():GetBuff('Hakkapeliter_Assault_Buff');
-    
+
     -- Outrage_Buff
     -- elseif Outrage ~= nil and buffDoubleGunStance ~= nil then
     if buffDoubleGunStance ~= nil then
@@ -1842,6 +1879,7 @@ function Luchador_ChangeStance_LEAVE(actor, obj, buff)
     ScpChangeSwordmanStanceAnimationSet(actor, obj, buff)
 end
 
+
 function GolpearClientScp_ENTER(actor, obj, buff)
     actor:GetAnimation():SetRUNAnim("SKL_LUCHADOR_GOLPEAR");
     actor:GetAnimation():SetWLKAnim("SKL_LUCHADOR_GOLPEAR");
@@ -1896,6 +1934,16 @@ function BowMaster_FocusFire_Buff_LEAVE(actor, obj, buff)
     actor:GetAnimation():ResetRUNAnim();
     actor:GetAnimation():ResetWLKAnim();
     actor:GetAnimation():ResetTURNAnim();
+    actor:SetAlwaysBattleState(false);
+    actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
+end
+
+function Sledger_ColorBlend_Buff_ENTER(actor, obj, buff)
+    actor:SetAlwaysBattleState(true);    
+    actor:GetEffect():ActorColorBlend(1, 230/255, 190/255, 10/255, 1, 0);        
+end
+
+function Sledger_ColorBlend_Buff_LEAVE(actor, obj, buff)
     actor:SetAlwaysBattleState(false);
     actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
 end
@@ -2321,4 +2369,24 @@ function SCR_BUFF_ANIM_CONVERT_boss_Slogutis_Solo(actor, buff_anim)
         end
     end
     return buff_anim;
+end
+
+-- EFFECT_ANGELPOPORI_BUFF
+function EFFECT_ANGELPOPORI_BUFF_ENTER(actor, obj, buff)
+end
+
+function EFFECT_ANGELPOPORI_BUFF_UPDATE(actor, obj, buff)
+    local pc = GetMyPCObject();
+    if pc ~= nil then
+        local handle = GetExProp(pc, "angel_popori_handle");
+        if world.IsAttachToNode(handle) == false then
+            local to_handle = actor:GetHandleVal();
+            local target_node = "Bip01 Head";
+            local offset_x, offset_y, offset_z = 0, 20, 0;
+            world.AttachTo(handle, to_handle, target_node, offset_x, offset_y, offset_z);
+        end
+    end
+end
+
+function EFFECT_ANGELPOPORI_BUFF_LEAVE(actor, obj, buff)
 end

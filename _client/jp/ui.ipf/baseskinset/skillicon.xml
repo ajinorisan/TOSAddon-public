@@ -459,6 +459,14 @@
 		<image name="icon_arch_ScatterShot" file="\icon\skill\archer\icon_arch_ScatterShot.png" imgrect="0 0 128 128" CMM_Caption="산탄 사격"/>
 		<image name="icon_arch_GodArrow" file="\icon\skill\archer\icon_arch_GodArrow.png" imgrect="0 0 128 128" CMM_Caption="신의화살"/>
 		<image name="icon_buff_chargearrow" file="\icon\skill\archer\icon_buff_chargearrow.png" imgrect="0 0 128 128" CMM_Caption="차지 애로우"/>										
+		<image name="icon_arch_VultureAttack" file="\icon\skill\archer\icon_arch_VultureAttack.png" imgrect="0 0 128 128" CMM_Caption="포화"/>
+		<image name="icon_arch_CombatProtocol" file="\icon\skill\archer\icon_arch_CombatProtocol.png" imgrect="0 0 128 128" CMM_Caption="전투 프로토콜"/>
+		<image name="icon_arch_Decomposition" file="\icon\skill\archer\icon_arch_Decomposition.png" imgrect="0 0 128 128" CMM_Caption="입력: 분해"/>
+		<image name="icon_arch_GravityField" file="\icon\skill\archer\icon_arch_GravityField.png" imgrect="0 0 128 128" CMM_Caption="입력: 중력장"/>
+		<image name="icon_arch_Diffusion" file="\icon\skill\archer\icon_arch_Diffusion.png" imgrect="0 0 128 128" CMM_Caption="입력: 확산"/>
+		<image name="icon_arch_PurificationProtocol" file="\icon\skill\archer\icon_arch_PurificationProtocol.png" imgrect="0 0 128 128" CMM_Caption="정화 프로토콜"/>
+		<image name="icon_buff_Purification" file="\icon\skill\archer\icon_arch_Purification.png" imgrect="0 0 128 128" CMM_Caption="입력: 정화"/>
+		<image name="icon_buff_Devastation" file="\icon\skill\archer\icon_arch_Devastation.png" imgrect="0 0 128 128" CMM_Caption="입력: 황폐화"/>
 	</imagelist>
 	<imagelist category="cleric_skillicon">
 		<image name="icon_cler_Heal" file="\icon\skill\cleric\icon_cler_Heal.png" imgrect="0 0 128 128" CMM_Caption="힐"/>
@@ -664,6 +672,13 @@
 		<image name="icon_cler_Gospel" file="\icon\skill\cleric\icon_cler_gospel.png" imgrect="0 0 128 128" CMM_Caption="가스펠"/>
 		<image name="icon_cler_Didache" file="\icon\skill\cleric\icon_cler_didache.png" imgrect="0 0 128 128" CMM_Caption="디타케: 면죄"/>
 		<image name="icon_buff_sin" file="\icon\skill\cleric\icon_buff_sin.png" imgrect="0 0 128 128" CMM_Caption="Sin"/>		
+		<image name="icon_cler_BigBang" file="\icon\skill\cleric\icon_cler_BigBang.png" imgrect="0 0 128 128" CMM_Caption="빅뱅"/>
+		<image name="icon_cler_ChargeHammer" file="\icon\skill\cleric\icon_cler_ChargeHammer.png" imgrect="0 0 128 128" CMM_Caption="차지 해머"/>
+		<image name="icon_cler_HeavySmashing" file="\icon\skill\cleric\icon_cler_HeavySmashing.png" imgrect="0 0 128 128" CMM_Caption="헤비 스매싱"/>
+		<image name="icon_cler_RollingHammer" file="\icon\skill\cleric\icon_cler_RollingHammer.png" imgrect="0 0 128 128" CMM_Caption="롤링 해머"/>
+		<image name="icon_cler_SledgeHammer" file="\icon\skill\cleric\icon_cler_SledgeHammer.png" imgrect="0 0 128 128" CMM_Caption="슬레지해머"/>
+		<image name="icon_cler_SwingHammer" file="\icon\skill\cleric\icon_cler_SwingHammer.png" imgrect="0 0 128 128" CMM_Caption="스윙 해머"/>
+		<image name="icon_cler_sledger_buff" file="\icon\skill\cleric\icon_cler_sledger_buff.png" imgrect="0 0 128 128" CMM_Caption="슬레저의 투지"/>
 	</imagelist>
 	<imagelist category="warrior_skillicon">
 		<image name="icon_warri_thrust" file="\icon\skill\warrior\icon_warri_thrust.png" imgrect="0 0 128 128" CMM_Caption="쓰러스트"/>
@@ -3092,6 +3107,25 @@
 		<image name="ability_archer_bowmaster17" file="\icon\icon_ability_archer11.tga" imgrect="640 128 128 128" CMM_Caption="차지 애로우"/>
 		<image name="ability_archer_bowmaster18" file="\icon\icon_ability_archer11.tga" imgrect="768 128 128 128" CMM_Caption="[아츠] 신의 화살: 신속함"/>
 		<image name="ability_archer_bowmaster19" file="\icon\icon_ability_archer11.tga" imgrect="896 128 128 128" CMM_Caption="[아츠] 속사"/>								
+		<image name="ability_archer_Vulture1" file="\icon\icon_ability_archer11.tga" imgrect="640 256 128 128" CMM_Caption="전투 프로토콜 작동: 강화"/>
+		<image name="ability_archer_Vulture2" file="\icon\icon_ability_archer11.tga" imgrect="896 256 128 128" CMM_Caption="분해: 강화"/>
+		<image name="ability_archer_Vulture3" file="\icon\icon_ability_archer11.tga" imgrect="128 384 128 128" CMM_Caption="중력장: 강화"/>
+		<image name="ability_archer_Vulture4" file="\icon\icon_ability_archer11.tga" imgrect="384 384 128 128" CMM_Caption="확산: 강화"/>
+		<image name="ability_archer_Vulture5" file="\icon\icon_ability_archer11.tga" imgrect="640 384 128 128" CMM_Caption="정화 프로토콜 : 강화"/>
+		<image name="ability_archer_Vulture6" file="\icon\icon_ability_archer11.tga" imgrect="896 384 128 128" CMM_Caption="정화: 강화"/>
+		<image name="ability_archer_Vulture7" file="\icon\icon_ability_archer11.tga" imgrect="128 512 128 128" CMM_Caption="황폐화: 강화"/>
+		<image name="ability_archer_Vulture101" file="\icon\icon_ability_archer11.tga" imgrect="768 256 128 128" CMM_Caption="[아츠] 전투 프로토콜 작동: 상급 강화"/>
+		<image name="ability_archer_Vulture102" file="\icon\icon_ability_archer11.tga" imgrect="0 384 128 128" CMM_Caption="[아츠] 분해: 상급 강화"/>
+		<image name="ability_archer_Vulture103" file="\icon\icon_ability_archer11.tga" imgrect="256 384 128 128" CMM_Caption="[아츠] 중력장: 상급 강화"/>
+		<image name="ability_archer_Vulture104" file="\icon\icon_ability_archer11.tga" imgrect="512 384 128 128" CMM_Caption="[아츠] 확산: 상급 강화"/>
+		<image name="ability_archer_Vulture105" file="\icon\icon_ability_archer11.tga" imgrect="768 384 128 128" CMM_Caption="[아츠] 정화 프로토콜: 상급 강화"/>
+		<image name="ability_archer_Vulture106" file="\icon\icon_ability_archer11.tga" imgrect="0 512 128 128" CMM_Caption="[아츠] 정화: 상급 강화"/>
+		<image name="ability_archer_Vulture107" file="\icon\icon_ability_archer11.tga" imgrect="256 512 128 128" CMM_Caption="[아츠] 황폐화: 상급 강화"/>
+		<image name="ability_archer_Vulture11" file="\icon\icon_ability_archer11.tga" imgrect="0 256 128 128" CMM_Caption="분해: 응축"/>
+		<image name="ability_archer_Vulture12" file="\icon\icon_ability_archer11.tga" imgrect="128 256 128 128" CMM_Caption="중력장 : EMP"/>
+		<image name="ability_archer_Vulture13" file="\icon\icon_ability_archer11.tga" imgrect="256 256 128 128" CMM_Caption="확산: 재배열"/>
+		<image name="ability_archer_Vulture21" file="\icon\icon_ability_archer11.tga" imgrect="384 256 128 128" CMM_Caption="[아츠] 정화: 오버페이먼트"/>
+		<image name="ability_archer_Vulture22" file="\icon\icon_ability_archer11.tga" imgrect="512 256 128 128" CMM_Caption="[아츠] 황폐화: 지역 초토화"/>
 	</imagelist>
 	<imagelist category="abilityicon_cleric">
 		<image name="ability_cleric_Cleric1" file="\icon\icon_ability_cleric01.tga" imgrect="0 0 128 128" CMM_Caption="큐어-도트시간감소"/>
@@ -3673,6 +3707,22 @@
 		<image name="ability_cleric_Pontifex12" file="\icon\icon_ability_cleric09.tga" imgrect="256 896 128 128" CMM_Caption="[아츠] 어톤먼트: 상급 강화"/>
 		<image name="ability_cleric_Pontifex13" file="\icon\icon_ability_cleric09.tga" imgrect="640 896 128 128" CMM_Caption="[아츠] 에반젤리즘: 상급 강화"/>
 		<image name="ability_cleric_Pontifex14" file="\icon\icon_ability_cleric09.tga" imgrect="897 768 128 128" CMM_Caption="[아츠] 디다케: 면죄: 상급 강화"/>
+		<image name="ability_cleric_Sledger01" file="\icon\icon_ability_cleric10.tga" imgrect="768 0 128 128" CMM_Caption="헤비 스매싱: 강화"/>
+		<image name="ability_cleric_Sledger02" file="\icon\icon_ability_cleric10.tga" imgrect="0 128 128 128" CMM_Caption="롤링 해머: 강화"/>
+		<image name="ability_cleric_Sledger03" file="\icon\icon_ability_cleric10.tga" imgrect="256 128 128 128" CMM_Caption="차지 해머: 강화"/>
+		<image name="ability_cleric_Sledger04" file="\icon\icon_ability_cleric10.tga" imgrect="512 128 128 128" CMM_Caption="스윙 해머: 강화"/>
+		<image name="ability_cleric_Sledger05" file="\icon\icon_ability_cleric10.tga" imgrect="768 128 128 128" CMM_Caption="빅뱅: 강화"/>
+		<image name="ability_cleric_Sledger101" file="\icon\icon_ability_cleric10.tga" imgrect="896 0 128 128" CMM_Caption="[아츠] 헤비 스매싱: 상급 강화"/>
+		<image name="ability_cleric_Sledger102" file="\icon\icon_ability_cleric10.tga" imgrect="128 128 128 128" CMM_Caption="[아츠] 롤링 해머: 상급 강화"/>
+		<image name="ability_cleric_Sledger103" file="\icon\icon_ability_cleric10.tga" imgrect="384 130 128 128" CMM_Caption="[아츠] 차지 해머: 상급 강화"/>
+		<image name="ability_cleric_Sledger104" file="\icon\icon_ability_cleric10.tga" imgrect="640 128 128 128" CMM_Caption="[아츠] 스윙 해머: 상급 강화"/>
+		<image name="ability_cleric_Sledger105" file="\icon\icon_ability_cleric10.tga" imgrect="896 128 128 128" CMM_Caption="[아츠] 빅뱅: 상급 강화"/>
+		<image name="ability_cleric_Sledger06" file="\icon\icon_ability_cleric10.tga" imgrect="128 0 128 128" CMM_Caption="슬레저의 투지"/>
+		<image name="ability_cleric_Sledger07" file="\icon\icon_ability_cleric10.tga" imgrect="640 0 128 128" CMM_Caption="차지 해머: 타격 포인트"/>
+		<image name="ability_cleric_Sledger08" file="\icon\icon_ability_cleric10.tga" imgrect="384 0 128 128" CMM_Caption="스윙 해머: 예열"/>
+		<image name="ability_cleric_Sledger09" file="\icon\icon_ability_cleric10.tga" imgrect="512 0 128 128" CMM_Caption="[아츠] 빅뱅: 지면 폭발"/>
+		<image name="ability_cleric_Sledger10" file="\icon\icon_ability_cleric10.tga" imgrect="0 256 128 128" CMM_Caption="슬레지해머: 강화"/>
+		<image name="ability_cleric_Sledger11" file="\icon\icon_ability_cleric10.tga" imgrect="128 256 128 128" CMM_Caption="롤링 해머: 위치 선점"/>
 	</imagelist>
 	<imagelist category="abilityicon_common">
 		<image name="ability_common_DaggerMastery" file="\icon\icon_ability_common.tga" imgrect="0 0 128 128" CMM_Caption="단검 마스터리"/>
@@ -4107,6 +4157,7 @@
 		<image name="icon_kupole_Vakarine" file="\icon\skill\cupole\icon_kupole_Vakarine.png" imgrect="0 0 128 128" CMM_Caption="바카리네"/>
 		<image name="icon_kupole_Zawra" file="\icon\skill\cupole\icon_kupole_Zawra.png" imgrect="0 0 128 128" CMM_Caption="자우라"/>
 		<image name="icon_kupole_Zesty" file="\icon\skill\cupole\icon_kupole_Zesty.png" imgrect="0 0 128 128" CMM_Caption="제스티"/>
+		<image name="icon_kupole_Laima_skill" file="\icon\skill\cupole\Passive\icon_kupole_Laima_skill.png" imgrect="0 0 128 128" CMM_Caption="라이마"/>
 		<image name="icon_Buff_kupole_AccuracyBuff_SR" file="\icon\skill\cupole\Passive\icon_kupole_AccuracyBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="정확도 버프"/>
 		<image name="icon_Buff_kupole_Austeja" file="\icon\skill\cupole\Passive\icon_kupole_Austeja.png" imgrect="0 0 128 128" CMM_Caption="아우스테아"/>
 		<image name="icon_Buff_kupole_BlockingBuff_SR" file="\icon\skill\cupole\Passive\icon_kupole_BlockingBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="블록"/>

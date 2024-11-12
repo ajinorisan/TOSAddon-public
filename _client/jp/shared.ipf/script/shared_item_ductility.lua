@@ -3,7 +3,11 @@
 
 shared_item_ductility = {}
 
-shared_item_ductility.is_able_to_ductility = function(item, index)
+shared_item_ductility.is_able_to_ductility = function(item, index)    
+    if TryGetProp(item, 'EnableDuctility', 'None') == 'NO' then
+        return false, 'CantDuctilityEquipment'
+    end
+
     if string.find(TryGetProp(item, 'ClassName', 'None'), '_high2') ~= nil then
         return false  -- 최상급은 안됨
     end
@@ -64,6 +68,10 @@ shared_item_ductility.is_able_to_ductility_option = function(item,index)
 end
 
 shared_item_ductility.is_able_to_ductility_without_index = function(item)
+    if TryGetProp(item, 'EnableDuctility', 'None') == 'NO' then
+        return false, 'CantDuctilityEquipment'
+    end
+
     if string.find(TryGetProp(item, 'ClassName', 'None'), '_high2') ~= nil then
         return false  -- 최상급은 안됨
     end
@@ -166,6 +174,27 @@ shared_item_ductility.get_ductility_cost_table = function(item)
             cost_list['misc_ore22'] = math.floor(cost_count) * 3
             valid = true
         end
+    elseif lv == 510 then
+        local cost_count = misc_base * math.pow(1.05, count)
+            cost_count = math.floor(cost_count)
+            cost_count = math.min(cost_count, 20)
+            cost_list['piece_EP16_penetration_belt'] = math.floor(cost_count) * 3
+
+            cost_count = misc_base * math.pow(1.05, count)
+            cost_count = math.floor(cost_count)
+            cost_count = math.min(cost_count, 20)
+            cost_list['piece_EP16_fierce_shoulder'] = math.floor(cost_count) * 3
+
+            cost_count = coin_base * math.pow(1.05, count)
+            cost_count = math.floor(cost_count)
+            cost_count = math.min(cost_count, 30000)
+            cost_list['JurateCertificate'] = math.floor(cost_count) * 3
+
+            cost_count = ore_base * math.pow(1.05, count)
+            cost_count = math.floor(cost_count)
+            cost_count = math.min(cost_count, 3000)
+            cost_list['misc_ore28'] = math.floor(cost_count) * 3
+            valid = true
     end
 
     return cost_list, valid

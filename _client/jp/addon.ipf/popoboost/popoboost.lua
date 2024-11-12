@@ -426,14 +426,14 @@ function OPEN_POPOBOOST()
     POPO_GUIDE_QUEST_RED_DOT(frame)
     local charText = GET_CHILD_RECURSIVELY(frame, "charText");
     if GET_POPOBOOST_SERVER() == 1 then
-        charText:SetTextByKey("lv", 480)
-        if lv > 480 then
+        charText:SetTextByKey("lv", 10)
+        if lv <= 10 then
             --이벤트 버튼 활성화
             btn:EnableHitTest(1);
         end    
     else
         charText:SetTextByKey("lv", 10)
-        if lv <= 480 and score <= 8000 then
+        if lv <= 10 then
             --이벤트 버튼 활성화
             btn:EnableHitTest(1);
         end    
@@ -701,7 +701,11 @@ end
 function POPOBOOST_GODDESS_ROULETTE(frame,arg)
     ui.CloseFrame('popoboost');
     local frame = ui.GetFrame("goddess_roulette")
-    GODDESS_ROULETTE_OPEN(frame, nil, nil, 4)
+    if config.GetServiceNation() == "PAPAYA" then
+        GODDESS_ROULETTE_OPEN(frame, nil, nil, 5)
+    else
+        GODDESS_ROULETTE_OPEN(frame, nil, nil, 4)
+    end
 end
 
 function POPOBOOST_REWARD_CHANGE_BY_GEARSCORE(frame, ctrl, str, num)

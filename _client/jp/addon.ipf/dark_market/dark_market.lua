@@ -9,6 +9,19 @@ function RESERVED_BLACK_MARKET_REQUEST_INFO()
 end
 
 
+local function get_black_market_item_count(active_id)
+    local space = 'black_market_schedule'    
+    if config.GetServiceNation() == 'TAIWAN' then
+        space = "black_market_schedule_TAIWAN"
+    end
+    if config.GetServiceNation() == 'PAPAYA' then
+        space = "black_market_schedule_PAPAYA"
+    end
+
+    local cls = GetClassByType(space, active_id)
+    return TryGetProp(cls, 'item_count', 1)
+end
+
 function UPDATE_BLACK_MARKET_ITEM_ADDON_MSG(frame)
     ReserveScript('RESERVED_BLACK_MARKET_REQUEST_INFO()', 1.5) 
 end
@@ -25,12 +38,12 @@ function UPDATE_BLACK_MARKET_ITEM(frame, msg, argStr, argNum)
         local my_price = token[6]
         local active_id = tonumber(token[7])
         
-        SET_BLACK_MARKET_INIT(start, eend, item_name, price, is_my)        
+        SET_BLACK_MARKET_INIT(start, eend, item_name, price, is_my, active_id)        
         SET_BM_MY_AUCTION_STATE(frame, item_name, price, my_price, active_id)
     end
 end
 
-function BLACK_MARKET_UI_OPEN(start, eend, item_name, price, is_my, my_price, active_id)
+function BLACK_MARKET_UI_OPEN(start, eend, item_name, price, is_my, my_price, active_id)    
     ui.OpenFrame("dark_market");
     local frame = ui.GetFrame("dark_market");
     local managerTab = frame:GetChild("managerTab")
@@ -51,7 +64,7 @@ function BLACK_MARKET_UI_OPEN(start, eend, item_name, price, is_my, my_price, ac
     if active_id ~= 0 then
         processinfo:ShowWindow(1)
         noinfo:ShowWindow(0)
-        SET_BLACK_MARKET_INIT(start, eend, item_name, price, is_my)
+        SET_BLACK_MARKET_INIT(start, eend, item_name, price, is_my, active_id)
     else
         processinfo:ShowWindow(0)
         noinfo:ShowWindow(1)
@@ -62,7 +75,7 @@ function BLACK_MARKET_UI_OPEN(start, eend, item_name, price, is_my, my_price, ac
     BM_REMIAN_TIME_UPDATE(frame)
 end
 
-function SET_BLACK_MARKET_INIT(start, eend, item_name, price, is_my)        
+function SET_BLACK_MARKET_INIT(start, eend, item_name, price, is_my, active_id)
     local frame = ui.GetFrame("dark_market");
     local itemCls = GetClass("Item", item_name)    
     if itemCls == nil then
@@ -78,10 +91,12 @@ function SET_BLACK_MARKET_INIT(start, eend, item_name, price, is_my)
     SET_CURRENT_CASH_IN_HAND(managerTab)
 end
 
-function SET_BLACK_MARKET_ICON(frame, itemCls, active_id)
+function SET_BLACK_MARKET_ICON(frame, itemCls, active_id)    
     if active_id == 0 then
         return
     end
+    
+    local item_count = get_black_market_item_count(active_id)
 
     local fullImage = GET_LEGENDEXPPOTION_ICON_IMAGE_FULL(itemCls);
     local pic = GET_CHILD_RECURSIVELY(frame,"pic","ui::CSlot");
@@ -92,7 +107,8 @@ function SET_BLACK_MARKET_ICON(frame, itemCls, active_id)
     else
         icon = CreateIcon(pic);
         icon:SetImage(fullImage)
-    end       
+    end   
+    SET_SLOT_COUNT_TEXT(pic, item_count, '{s42}{ol}{b}', nil, nil, -10, -5)
     SET_BALCK_MARKET_TOOLTIP(icon,itemCls)
 end
 
@@ -101,10 +117,13 @@ function SET_BALCK_MARKET_TOOLTIP(icon, itemCls)
     icon:SetTooltipOverlap(1)
 end
 
-function SET_BALCK_MARKET_ITEM_NAME(frame, itemCls, active_id)
+function SET_BALCK_MARKET_ITEM_NAME(frame, itemCls, active_id)    
     local name = GET_CHILD_RECURSIVELY(frame,"name")
     local ItemName = TryGetProp(itemCls, "Name", "None");
-    name:SetTextByKey("value",ItemName);
+    
+    local item_count = get_black_market_item_count(active_id)
+
+    name:SetTextByKey("value",ItemName .. '  x ' .. item_count);
 
     if name:GetWidth() < name:GetTextWidth() then
         name:EnableSlideShow(1)
@@ -306,6 +325,7 @@ function SET_BM_SCHEDULE(frame)
             local endTime = TryGetProp(cls, "end_datetime", "1999-01-01 00:00:00")
             local ItemClsName = TryGetProp(cls, "item_class_name", "None")
             local hammerpirce = TryGetProp(cls, "hammer_price", 0)
+            local item_count = TryGetProp(cls, 'item_count', 1)
             
             local ret = date_time.is_later_than(startTime, nowTime)            
             if ret == true then
@@ -334,11 +354,12 @@ function SET_BM_SCHEDULE(frame)
                     icon = CreateIcon(pic);
                 end
                 if itemCls ~= nil then
+                    SET_SLOT_COUNT_TEXT(pic, item_count) -- 갯수
                     local fullImage = GET_LEGENDEXPPOTION_ICON_IMAGE_FULL(itemCls);
-                    icon:SetImage(fullImage)                    
+                    icon:SetImage(fullImage)
                     SET_BALCK_MARKET_TOOLTIP(icon, itemCls)
                 end 
-                name:SetTextByKey("value",itemName);
+                name:SetTextByKey("value",itemName .. '  x ' .. item_count);
                 --슬라이드 on off
                 if name:GetWidth() < name:GetTextWidth() then
                     name:EnableSlideShow(1)
@@ -359,7 +380,7 @@ function SET_BM_SCHEDULE(frame)
     end
 end
 
-function SET_BM_MY_AUCTION_STATE(frame, item_name, price, my_price, active_id)
+function SET_BM_MY_AUCTION_STATE(frame, item_name, price, my_price, active_id)    
     local myMarketGbox = GET_CHILD_RECURSIVELY(frame,"myMarketGbox")
     local myinfo = GET_CHILD_RECURSIVELY(myMarketGbox,"myinfo")
     local noinfo = GET_CHILD_RECURSIVELY(myMarketGbox,"noinfo")
@@ -378,8 +399,8 @@ function SET_BM_MY_AUCTION_STATE(frame, item_name, price, my_price, active_id)
         noinfo:ShowWindow(0)
     end
 
-    SET_BLACK_MARKET_ICON(myinfo, itemCls);
-    SET_BALCK_MARKET_ITEM_NAME(myinfo,itemCls)
+    SET_BLACK_MARKET_ICON(myinfo, itemCls, active_id);
+    SET_BALCK_MARKET_ITEM_NAME(myinfo,itemCls, active_id)
     SET_BM_PRICE(money,price)
     SET_BM_PRICE(myprice,my_price)
     if my_price == "0" then

@@ -998,10 +998,19 @@ function GET_ITEM_TOOLTIP_SKIN(cls)
 	return "Item_tooltip_consumable";
 end
 
-function GET_ITEM_BG_PICTURE_BY_GRADE(rank, needAppraisal, needRandomOption)
-	local pic = 'None'
+function GET_ITEMGRADE_BG_PICUTRE_BY_RANK(rank)
+	local bglist = {}
+	local flag = 1
+	for i = 1, 4 do
+		table.insert(bglist, rank.."GradeBg"..i); 
+	end
+
+	return bglist
+end
+function GET_ITEM_BG_PICTURE_BY_GRADE(rank, needAppraisal, needRandomOption, tag)
+	local pic = "None";
 	local flag = 3
-	
+	local itemrankoffset = 9;
 	if needAppraisal == 1 or needRandomOption == 1 then
 		flag = 4
 	end
@@ -1026,6 +1035,15 @@ function GET_ITEM_BG_PICTURE_BY_GRADE(rank, needAppraisal, needRandomOption)
 		return "premium_item_bg";
 	end
 
+	if rank >= 10 then
+		if tag == 4 then
+			pic = GET_ITEMGRADE_BG_PICUTRE_BY_RANK(rank - itemrankoffset)[4]
+		elseif tag == 2 then
+			pic = GET_ITEMGRADE_BG_PICUTRE_BY_RANK(rank - itemrankoffset)[2]
+		else
+			pic = GET_ITEMGRADE_BG_PICUTRE_BY_RANK(rank - itemrankoffset)[1]
+		end
+	end
 	return pic;
 end
 

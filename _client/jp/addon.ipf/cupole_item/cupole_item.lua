@@ -611,7 +611,7 @@ function SET_CUPOLE_BTN_CITY(frame)
 end
 
 ---큐폴 uimodel offset 조절 함수
-function SET_CUPOLE_MAINCHARACTERFRAME_BY_INDEX(index)
+function SET_CUPOLE_MAINCHARACTERFRAME_BY_INDEX(index, cupole_index)
     local frame = ui.GetFrame("cupole_item")
     if frame == nil then
         return;
@@ -621,21 +621,22 @@ function SET_CUPOLE_MAINCHARACTERFRAME_BY_INDEX(index)
     if MainCharacter == nil then
         return ;
     end
-    SET_RTT_OFFSET_IN_IMAGE(MainCharacter, index)
+    SET_RTT_OFFSET_IN_IMAGE(MainCharacter, index, cupole_index)
 end
 
-function SET_CUPOLE_GAHCAFRAME_BY_INDEX(frame, index)
-    SET_RTT_OFFSET_IN_IMAGE(frame, index)
+function SET_CUPOLE_GAHCAFRAME_BY_INDEX(frame, index, cupole_index)
+    SET_RTT_OFFSET_IN_IMAGE(frame, index, cupole_index)
 end
 
 ----특정 index의 offset 조절함수.
-function SET_RTT_OFFSET_IN_IMAGE(frame, OffsetIndex)
+function SET_RTT_OFFSET_IN_IMAGE(frame, OffsetIndex, cupole_index)
     if OffsetIndex > 15 or OffsetIndex < 0 then
         print("error!!")
         return ;
     end
     local CupoleUV = string.format("cupole_%d",OffsetIndex);
     frame:SetImage(CupoleUV)
+    SET_KUPOLE_RTT_IMAGE_SIZE(frame, cupole_index)
 end
 
 
@@ -1073,13 +1074,49 @@ function UPDATE_CUPOLE(frame)
     return 1;
 end
 
+function SET_KUPOLE_RTT_IMAGE_SIZE(ImageFrame, index)
+    local mainFrame = ImageFrame:GetTopParentFrame();
+    local SzX = mainFrame:GetUserConfig("DefaultSzX")
+    local SzY = mainFrame:GetUserConfig("DefaultSzY")
+
+    local DefRatioY = mainFrame:GetUserConfig("DefaultRatioY")
+    local DefRatioX = mainFrame:GetUserConfig("DefaultRatioX")
+    
+    local RatioY = mainFrame:GetUserConfig("RatioY")
+    local RatioX = mainFrame:GetUserConfig("RatioX")
+    local numindex =  tonumber(index);
+    if numindex == 33 then
+        SzX = SzX * RatioX
+        SzY = SzY * RatioY
+    else
+        SzX = SzX * DefRatioX
+        SzY = SzY * DefRatioY
+    end
+    local DefMarginX = mainFrame:GetUserConfig("DefMarginX")
+    local DefMarginY = mainFrame:GetUserConfig("DefMarginY")
+
+    local MarginX = mainFrame:GetUserConfig("MarginX")
+    local MarginY = mainFrame:GetUserConfig("MarginY")
+    local X;
+    local Y;
+    if numindex == 33 then
+        X = MarginX;
+        Y = MarginY;
+    else
+        X = DefMarginX;
+        Y = DefMarginY;
+    end
+    
+    ImageFrame:Resize(SzX, SzY);
+    ImageFrame:SetMargin(X, Y, 0, 0);
+end
 
 ----maincharater 큐폴 설정 
 function KUPOLE_UIMODEL_IN_MAINCHARACTER(index)
     -- REMOVE_ALL_CUPOLE_UIMODEL()
     local ownerHandle, ui_model = CREATE_CUPOLE_UIMODEL(index, true)
     local val = GET_CUPOLE_INDEX(ownerHandle, ui_model, true)
-    SET_CUPOLE_MAINCHARACTERFRAME_BY_INDEX(val)
+    SET_CUPOLE_MAINCHARACTERFRAME_BY_INDEX(val, index)
 end
 
 function KUPOLE_UIMODEL_IN_GACHA_RESULT(frame, index)
@@ -1090,7 +1127,7 @@ function KUPOLE_UIMODEL_IN_GACHA_RESULT(frame, index)
         ownerHandle, ui_model = CREATE_CUPOLE_UIMODEL(index)
         val = GET_CUPOLE_INDEX(ownerHandle, ui_model)   
     end 
-    SET_CUPOLE_GAHCAFRAME_BY_INDEX(pic, val)
+    SET_CUPOLE_GAHCAFRAME_BY_INDEX(pic, val, index)
 end
 
 function KUPOLE_UIMODEL_IN_PICKUP(frame, index)
@@ -1102,7 +1139,7 @@ function KUPOLE_UIMODEL_IN_PICKUP(frame, index)
     --     ownerHandle, ui_model = CREATE_CUPOLE_UIMODEL(index)
     --     val = GET_CUPOLE_INDEX(ownerHandle, ui_model)   
     -- end 
-    SET_CUPOLE_GAHCAFRAME_BY_INDEX(pic, val)
+    SET_CUPOLE_GAHCAFRAME_BY_INDEX(pic, val, index)
 end
 
 
@@ -1122,9 +1159,23 @@ function CREATE_CUPOLE_UIMODEL(index, isMainCharacter)
     local ownerHandle = session.GetMyHandle();
     local ownerActor = world.GetActor(ownerHandle);
 	local monActor_uimodel = ownerActor:GetClientMonster():GetClientMonsterByName(ui_model);
-
+    local numindex = tonumber(index);
+    local posy = 100
     if isMainCharacter == true then
-        FixSize = 3
+        if numindex == 33 then
+            FixSize = 3.5
+            posy = 10
+        else
+            FixSize = 3
+            posy = 100
+        end
+    else
+        if numindex == 33 then
+            FixSize = 1
+            posy = 10
+        else
+            posy = 100
+        end
     end
 	if monActor_uimodel == nil then
 		local ownerPos = ownerActor:GetPos();
@@ -1132,7 +1183,7 @@ function CREATE_CUPOLE_UIMODEL(index, isMainCharacter)
 		monActor_uimodel = ownerActor:GetClientMonster():GetClientMonsterByName(ui_model);
         if monActor_uimodel ~= nil then
             local monHandle = monActor_uimodel:GetHandleVal();
-            FixUIModelToActor(monHandle, ownerHandle, "None", 0, 100, 0, 1, 0, -1);
+            FixUIModelToActor(monHandle, ownerHandle, "None", 0, posy, 0, 1, 0, -1);
             StartCupoleAnimation(monHandle, ownerHandle);
         end
 	end
@@ -1451,10 +1502,10 @@ function TOGGLE_CUPOLE_SPECIAL_ADDON(frame, index)
     local Special = TryGetProp(cls, "Special", "None")
 
     local PotionBG = GET_CHILD_RECURSIVELY(frame, "PotionBG")
+    cupole_addon:ShowWindow(0);
 
     if Special == "None" or not Special then
         PotionBG:ShowWindow(0);
-        cupole_addon:ShowWindow(0);
     else
         PotionBG:ShowWindow(1);
     end

@@ -1,17 +1,5 @@
 -- shared_item_goddess_craft.lua, 가디스 장비 제작/계승 관련
 
-local function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
 
 local parameter_list = nil
 function make_parameter_list()
@@ -53,6 +41,10 @@ function make_parameter_list()
 
 	parameter_list[490] = {} -- 
 	parameter_list[490]['Acc'] = 500 -- 바우드 -> EP16
+
+	parameter_list[500] = {} -- 500 -> 520 으로 계승
+	parameter_list[500]['Weapon'] = 520
+	parameter_list[500]['Armor'] = 520
 end
 make_parameter_list()
 
@@ -250,6 +242,45 @@ function setting_lv500_inherit_target_list(list_by_lv)
 
 end
 
+function setting_lv520_inherit_target_list(list_by_lv)
+	list_by_lv[520]['Weapon'] = {
+		'EP16_RAID_SWORD',
+		'EP16_RAID_THSWORD',
+		'EP16_RAID_STAFF',
+		'EP16_RAID_THBOW',
+		'EP16_RAID_BOW',
+		'EP16_RAID_MACE',
+		'EP16_RAID_THMACE',
+		'EP16_RAID_SHIELD',
+		'EP16_RAID_SPEAR',
+		'EP16_RAID_THSPEAR',
+		'EP16_RAID_DAGGER',
+		'EP16_RAID_THSTAFF',
+		'EP16_RAID_PISTOL',
+		'EP16_RAID_RAPIER',
+		'EP16_RAID_CANNON',
+		'EP16_RAID_MUSKET',
+		'EP16_RAID_TRINKET',
+	}
+
+	list_by_lv[520]['Armor'] = {
+		'EP16_RAID_CLOTH_TOP',
+		'EP16_RAID_CLOTH_LEG',
+		'EP16_RAID_CLOTH_FOOT',
+		'EP16_RAID_CLOTH_HAND',
+		'EP16_RAID_LEATHER_TOP',
+		'EP16_RAID_LEATHER_LEG',
+		'EP16_RAID_LEATHER_FOOT',
+		'EP16_RAID_LEATHER_HAND',
+		'EP16_RAID_PLATE_TOP',
+		'EP16_RAID_PLATE_LEG',
+		'EP16_RAID_PLATE_FOOT',
+		'EP16_RAID_PLATE_HAND',
+	}
+
+end
+
+
 function setting_lv470_acc_inherit_target_list(list_by_lv)
 	list_by_lv[470]['Neck'] = {
 		'EP13_NECK06_HIGH_001',
@@ -306,30 +337,31 @@ function make_goddess_inherit_target_list()
 	
 	item_goddess_inherit_target_list[120] = {}
 	item_goddess_inherit_target_list[280] = {}
-
 	item_goddess_inherit_target_list[460] = {}
 	item_goddess_inherit_target_list[470] = {}
 	item_goddess_inherit_target_list[480] = {}
 	item_goddess_inherit_target_list[490] = {}
 	item_goddess_inherit_target_list[500] = {}
+	item_goddess_inherit_target_list[520] = {}
 
 	local list_by_lv = {}
 
 	list_by_lv[120] = {}	
-	list_by_lv[120]['Weapon'] = {}
-	list_by_lv[120]['Armor'] = {}
-	setting_lv120_inherit_target_list(list_by_lv)
-
 	list_by_lv[280] = {}
-	list_by_lv[280]['Weapon'] = {}
-	list_by_lv[280]['Armor'] = {}
-	setting_lv280_inherit_target_list(list_by_lv)
-
 	list_by_lv[460] = {}
 	list_by_lv[470] = {}
 	list_by_lv[480] = {}
 	list_by_lv[490] = {}
 	list_by_lv[500] = {}
+	list_by_lv[520] = {}
+
+	list_by_lv[120]['Weapon'] = {}
+	list_by_lv[120]['Armor'] = {}
+	setting_lv120_inherit_target_list(list_by_lv)
+
+	list_by_lv[280]['Weapon'] = {}
+	list_by_lv[280]['Armor'] = {}
+	setting_lv280_inherit_target_list(list_by_lv)
 
 	list_by_lv[460]['Weapon'] = {}
 	list_by_lv[460]['Armor'] = {}
@@ -342,7 +374,7 @@ function make_goddess_inherit_target_list()
 	list_by_lv[480]['Weapon'] = {}
 	list_by_lv[480]['Armor'] = {}
 	setting_lv480_inherit_target_list(list_by_lv)
-
+	
 	list_by_lv[490]['Neck'] = {}
 	list_by_lv[490]['Ring'] = {}
 	setting_lv490_acc_inherit_target_list(list_by_lv)
@@ -350,6 +382,10 @@ function make_goddess_inherit_target_list()
 	list_by_lv[500]['Weapon'] = {}
 	list_by_lv[500]['Armor'] = {}	
 	setting_lv500_inherit_target_list(list_by_lv)
+	
+	list_by_lv[520]['Weapon'] = {}
+	list_by_lv[520]['Armor'] = {}	
+	setting_lv520_inherit_target_list(list_by_lv)
 
 	list_by_lv[500]['Neck'] = {}
 	list_by_lv[500]['Ring'] = {}
@@ -427,8 +463,7 @@ item_goddess_craft.check_enable_inherit_item = function(item)
 		return false
 	end
 	
-	if item_goddess_inherit_target_list[target_lv] == nil then		
-		
+	if item_goddess_inherit_target_list[target_lv] == nil then				
 		return false
 	end
 	
@@ -648,6 +683,18 @@ item_goddess_craft.get_basic_random_option_value = function(mat_item)
 
 				table.insert(option_list, 'MiddleSize_Def')
 				table.insert(option_value, 492)
+			elseif lv == 520 then  -- 500 에서 계승하는 경우
+				table.insert(option_list, 'AllRace_Atk')
+				table.insert(option_value, 565)
+
+				table.insert(option_list, 'CON')
+				table.insert(option_value, 125)
+
+				table.insert(option_list, 'CRTHR')
+				table.insert(option_value, 416)
+
+				table.insert(option_list, 'MiddleSize_Def')
+				table.insert(option_value, 565)
 			end
 		elseif group_name == 'Weapon' or group_name == 'SubWeapon' or class_type == 'Shield' then
 			if lv == 480 then -- 460에서 계승 하는 경우
@@ -674,6 +721,18 @@ item_goddess_craft.get_basic_random_option_value = function(mat_item)
 
 				table.insert(option_list, 'MiddleSize_Def')
 				table.insert(option_value, 922)
+			elseif lv == 520 then -- 500 에서 계승하는 경우
+				table.insert(option_list, 'AllRace_Atk')
+				table.insert(option_value, 1005)
+
+				table.insert(option_list, 'CON')
+				table.insert(option_value, 234)
+
+				table.insert(option_list, 'CRTHR')
+				table.insert(option_value, 777)
+
+				table.insert(option_list, 'MiddleSize_Def')
+				table.insert(option_value, 1060)
 			end			
 		end		
 	end
@@ -683,80 +742,7 @@ end
 
 -- 계열 변경할 때, 기존 옵션으로 돌려준다.
 item_goddess_craft.get_basic_random_option_value_for_exchange_group = function(mat_item)
-	local grade = TryGetProp(mat_item, 'ItemGrade', 0)
-	local lv = TryGetProp(mat_item, 'UseLv', 0)
-	local group_name = TryGetProp(mat_item, 'GroupName', 'None')
-	local is_acc = false
-	local class_type = TryGetProp(mat_item, 'ClassType', 'None')
-	if class_type == 'Neck' or class_type == 'Ring' then
-		is_acc = true
-	end
-	
-	local option_list = {}
-	local option_value = {}
-	local option_group = {}
-	table.insert(option_group, 'ATK')
-	table.insert(option_group, 'STAT')
-	table.insert(option_group, 'UTIL_ARMOR')
-	table.insert(option_group, 'DEF')
-
-	if is_acc == false then
-		if group_name == 'Armor' and class_type ~= 'Shield' then
-			if lv == 480 then -- 460에서 계승 하는 경우
-				table.insert(option_list, 'AllRace_Atk')
-				table.insert(option_value, 410)
-
-				table.insert(option_list, 'CON')
-				table.insert(option_value, 91)
-
-				table.insert(option_list, 'CRTHR')
-				table.insert(option_value, 302)
-
-				table.insert(option_list, 'MiddleSize_Def')
-				table.insert(option_value, 410)
-			elseif lv == 500 then
-				table.insert(option_list, 'AllRace_Atk')
-				table.insert(option_value, 492)
-
-				table.insert(option_list, 'CON')
-				table.insert(option_value, 109)
-
-				table.insert(option_list, 'CRTHR')
-				table.insert(option_value, 362)
-
-				table.insert(option_list, 'MiddleSize_Def')
-				table.insert(option_value, 492)
-			end
-		elseif group_name == 'Weapon' or group_name == 'SubWeapon' or class_type == 'Shield' then
-			if lv == 480 then -- 460에서 계승 하는 경우
-				table.insert(option_list, 'AllRace_Atk')
-				table.insert(option_value, 769)
-
-				table.insert(option_list, 'CON')
-				table.insert(option_value, 170)
-
-				table.insert(option_list, 'CRTHR')
-				table.insert(option_value, 564)
-
-				table.insert(option_list, 'MiddleSize_Def')
-				table.insert(option_value, 769)
-			elseif lv == 500 then
-				table.insert(option_list, 'AllRace_Atk')
-				table.insert(option_value, 874)
-
-				table.insert(option_list, 'CON')
-				table.insert(option_value, 204)
-
-				table.insert(option_list, 'CRTHR')
-				table.insert(option_value, 676)
-
-				table.insert(option_list, 'MiddleSize_Def')
-				table.insert(option_value, 922)
-			end			
-		end		
-	end
-
-	return option_list, option_value, option_group
+	return item_goddess_craft.get_basic_random_option_value(mat_item)
 end
 
 

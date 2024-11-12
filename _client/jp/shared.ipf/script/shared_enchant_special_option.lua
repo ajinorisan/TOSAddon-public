@@ -448,6 +448,17 @@ end
 function GET_ITEM_GRADE(obj)
     local grade = TryGetProp(obj, 'ItemGrade', 'None')
 
+    local group_name = TryGetProp(obj, 'GroupName', 'Name')
+    if group_name == 'Ark' then
+        for i = 1, MAX_OPTION_EXTRACT_COUNT do
+            local name = TryGetProp(obj, 'RandomOption_' .. i, 'None')
+            if name ~= 'None' then
+                grade = 6
+                break
+            end
+        end
+    end
+
     if shared_enchant_special_option.is_hair_acc(obj) == true then
         local rank = shared_enchant_special_option.get_item_rank(obj)
         local value = GET_ACC_RANK_VALUE(rank)
@@ -460,6 +471,11 @@ function GET_ITEM_GRADE(obj)
         elseif value == 4 then
             grade = 6
         end
+    end
+
+    local rank = TryGetProp(obj, 'UpgradeRank', 0)
+    if rank >= 10 then
+        grade = rank
     end
 
     return grade

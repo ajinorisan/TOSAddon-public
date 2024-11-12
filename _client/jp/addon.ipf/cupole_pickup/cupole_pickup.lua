@@ -42,14 +42,14 @@ function CLOSE_CUPOLE_PICKUP(frame)
 end
 
 function CREATE_PICKUP_CUPOLE_LIST(frame)
-    local Pickuplist = {}
-    local cupolelist, cnt = GetClassList("cupole_list")
-    for i = 0 , cnt - 1 do
-        local cls = GetClassByIndexFromList(cupolelist, i)
-        if cls and TryGetProp(cls, "Grade", "R") == "UR" and TryGetProp(cls, "Use", "false") == "true" then
-            table.insert(Pickuplist, cls)
-        end
-    end
+    local Pickuplist = GE_CURRENTE_PICKUP_CUPOLE_ULTRA_RANK_LIST();
+    -- local cupolelist, cnt = GetClassList("cupole_list")
+    -- for i = 0 , cnt - 1 do
+    --     local cls = GetClassByIndexFromList(cupolelist, i)
+    --     if cls and TryGetProp(cls, "Grade", "R") == "UR" and TryGetProp(cls, "Use", "false") == "true" then
+    --         table.insert(Pickuplist, cls)
+    --     end
+    -- end
 
     local PickupListBG = GET_CHILD_RECURSIVELY(frame, "PickupListBG")
     local offset = {OFFSET_X, OFFSET_Y}

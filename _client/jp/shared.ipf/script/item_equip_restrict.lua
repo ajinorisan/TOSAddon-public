@@ -1601,7 +1601,13 @@ function CHECK_GEAR_SCORE_FOR_CONTENTS(pc, indun_cls)
 	end
 
 	local acc = GetAccountObj(pc);	
-	if TryGetProp(indun_cls, 'UnitPerReset', 'None') == 'ACCOUNT' and TryGetProp(indun_cls, 'TicketingType', 'None') == 'Entrance_Ticket' and TryGetProp(indun_cls, 'CheckCountName', 'None') ~= 'None' then
+	if TryGetProp(indun_cls, 'TicketingType', 'None') == 'Entrance_Ticket' and TryGetProp(indun_cls, 'CheckCountName', 'None') ~= 'None' then
+		if TryGetProp(indun_cls, 'UnitPerReset', 'None') == 'ACCOUNT' then
+			acc = GetAccountObj(pc);
+		else
+			acc = GetETCObject(pc)
+		end
+
 		local remain_count = TryGetProp(acc, TryGetProp(indun_cls, 'CheckCountName', 'None'), 0)
 		if remain_count < 1 then
 			local indun_name = TryGetProp(indun_cls, "Name", "None");

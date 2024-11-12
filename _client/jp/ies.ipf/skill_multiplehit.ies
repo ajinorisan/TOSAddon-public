@@ -452,3 +452,8 @@ ClassID,HitCount,ClassName
 451,3,"Vulture_Diffusion_Wizard"
 452,6,"Vulture_Purification_Wizard"
 453,21,"Vulture_Devastation_Wizard"
+454,27,"Vulture_Decomposition_Scout"
+455,2,"Vulture_GravityField_Scout"
+456,3,"Vulture_Diffusion_Scout"
+457,6,"Vulture_Purification_Scout"
+458,21,"Vulture_Devastation_Scout"

@@ -50,21 +50,32 @@ function GET_MAX_CLASS_RESET_POINT_EXP()
     return 3000;
 end
 
-
-function IS_ABLE_TO_CHANGE_CLASS(pc, targetJobID,destJobID)
+-- 전직할 클래스 destJobID
+function IS_ABLE_TO_CHANGE_CLASS(pc, targetJobID, destJobID)    
     local dest_jobCls = GetClassByType("Job", destJobID);
     local spcialGroup = TryGetProp(dest_jobCls,"SpecialGroup","None")
 	if spcialGroup ~= "None" then
-        local jobList = GetJobHistoryList(pc)        
-		for k, v in pairs(jobList) do
-			local cls = GetClassByType('Job', v)
-			local checkProp = TryGetProp(cls,"SpecialGroup")
-		    if spcialGroup ==  checkProp  then
-                if cls.ClassID ~= targetJobID then                    
+        if targetJobID == nil or targetJobID == '' then            
+            local jobList = GetJobHistoryList(pc)
+            for k, v in pairs(jobList) do
+                local cls = GetClassByType('Job', v)
+                local checkProp = TryGetProp(cls,"SpecialGroup", 'None')                
+                if spcialGroup == checkProp then                    
                     return false
                 end
-			end
-		end
+            end
+        else
+            local jobList = GetJobHistoryList(pc)        
+            for k, v in pairs(jobList) do
+                local cls = GetClassByType('Job', v)
+                local checkProp = TryGetProp(cls,"SpecialGroup", 'None')                
+                if spcialGroup == checkProp then                    
+                    if tostring(cls.ClassID) ~= tostring(targetJobID) then
+                        return false
+                    end
+                end
+            end
+        end
     end
     
     return true

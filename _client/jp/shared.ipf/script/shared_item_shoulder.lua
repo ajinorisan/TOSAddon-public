@@ -56,7 +56,7 @@ local function make_item_shoulder_option_range()
     -- end
 
     local start = 480
-    local end_level = 480
+    local end_level = 510
 
     while start <= end_level do
         max_option_group_count[start] = 2    -- 최대 2개의 옵션 그룹을 가질 수 있음
@@ -81,15 +81,31 @@ local function make_item_shoulder_option_range()
     
         for k, option_name in pairs(option_group[start][1]['LOW']) do
             -- 아이템레벨, 그룹 넘버, 등급, 옵션이름
-            item_shoulder_option_range[start][1]['LOW'][option_name] = {60, 80}
-            item_shoulder_option_range[start][1]['HIGH'][option_name] = {90, 120}
+            if start == 480 then
+                item_shoulder_option_range[start][1]['LOW'][option_name] = {60, 80}
+                item_shoulder_option_range[start][1]['HIGH'][option_name] = {90, 120}
+            elseif start == 510 then
+                item_shoulder_option_range[start][1]['LOW'][option_name] = {108, 150}
+                item_shoulder_option_range[start][1]['HIGH'][option_name] = {140, 180}
+            end
             option_group_number_by_option_name[start][option_name] = 1
         end
        
         -- 옵션 그룹 2
         option_group[start][2] = {}
-        option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}
-        option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}    
+
+        if start == 480 then
+            option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}
+            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}        
+        elseif start == 510 then
+            option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'MHP', 'RHP'}
+            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'MHP', 'RHP'}    
+        else
+            option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}
+            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}        
+        end
+
+        
 
         -- for i = 1, #option_name_list do -- 특수 옵션 추가
         --     local _name = option_name_list[i]
@@ -118,8 +134,26 @@ local function make_item_shoulder_option_range()
             item_shoulder_option_range[start][2]['HIGH']['BLK'] = {1875, 2500}
             item_shoulder_option_range[start][2]['HIGH']['ADD_DR'] = {1875, 2500}
             item_shoulder_option_range[start][2]['HIGH']['SDR'] = {7, 10}
-            item_shoulder_option_range[start][2]['HIGH']['MHP'] = {6000, 8000}    
+            item_shoulder_option_range[start][2]['HIGH']['MHP'] = {6000, 8000}
             item_shoulder_option_range[start][2]['HIGH']['RHP'] = {1875, 2500}
+        elseif start == 510 then
+            item_shoulder_option_range[start][2]['LOW']['CRTATK'] = {4500, 6250}
+            item_shoulder_option_range[start][2]['LOW']['CRTMATK'] = {4500, 6250}
+            item_shoulder_option_range[start][2]['LOW']['CRTDR'] = {2250, 3125}
+            item_shoulder_option_range[start][2]['LOW']['CRTHR'] = {2250, 3125}
+            item_shoulder_option_range[start][2]['LOW']['BLK'] = {2250, 3125}
+            item_shoulder_option_range[start][2]['LOW']['ADD_DR'] = {2250, 3125}
+            item_shoulder_option_range[start][2]['LOW']['MHP'] = {7200, 10000}
+            item_shoulder_option_range[start][2]['LOW']['RHP'] = {2250, 3125}
+            
+            item_shoulder_option_range[start][2]['HIGH']['CRTATK'] = {5000, 7500}
+            item_shoulder_option_range[start][2]['HIGH']['CRTMATK'] = {5000, 7500}
+            item_shoulder_option_range[start][2]['HIGH']['CRTDR'] = {2500, 3750}
+            item_shoulder_option_range[start][2]['HIGH']['CRTHR'] = {2500, 3750}
+            item_shoulder_option_range[start][2]['HIGH']['BLK'] = {2500, 3750}
+            item_shoulder_option_range[start][2]['HIGH']['ADD_DR'] = {2500, 3750}
+            item_shoulder_option_range[start][2]['HIGH']['MHP'] = {8000, 12000}
+            item_shoulder_option_range[start][2]['HIGH']['RHP'] = {2500, 3750}
         end
     
         -- for i = 1, #option_name_list do
@@ -133,8 +167,13 @@ local function make_item_shoulder_option_range()
 
         -- 옵션 재설정 후보 개수
         candidate_option_count[start] = {}
-        candidate_option_count[start]['LOW'] = 2
-        candidate_option_count[start]['HIGH'] = 2
+        if start == 480 then
+            candidate_option_count[start]['LOW'] = 2
+            candidate_option_count[start]['HIGH'] = 2
+        elseif start == 510 then
+            candidate_option_count[start]['LOW'] = 2
+            candidate_option_count[start]['HIGH'] = 0
+        end
 
         start = start + 10
     end
@@ -376,6 +415,19 @@ shared_item_shoulder.get_reroll_cost_table = function(item)
             cost_list['misc_ore22'] = math.floor(cost_count)
             valid = true
         end
+    elseif lv == 510 then
+        local cost_count = 2 + math.floor(count / 3)
+        cost_count = cost_count * 1.5
+        cost_list['misc_BlessedStone_1'] = math.floor(cost_count)
+
+        cost_count = 500 * math.pow(1.04, count)
+        cost_count = cost_count * 1.3
+        cost_list['JurateCertificate'] = math.floor(cost_count)
+
+        cost_count = 400 * math.pow(1.04, count)
+        cost_count = cost_count * 1.5
+        cost_list['misc_ore28'] = math.floor(cost_count)
+        valid = true
     end
 
     return cost_list, valid
@@ -428,7 +480,7 @@ shared_item_shoulder.is_valid_unlock_item = function(scrollObj, itemObj)
 		return false, 'NotValidItem'
 	end
 
-    if TryGetProp(scrollObj, 'StringArg', 'None') == 'unlock_shoulder_team_belonging' and string.find(tostring(TryGetProp(itemObj, 'ClassName', 'None')), 'EP14_fierce_shoulder') ~= nil then
+    if TryGetProp(scrollObj, 'StringArg', 'None') == 'unlock_shoulder_team_belonging' and string.find(TryGetProp(itemObj, 'ClassName', 'None'), 'fierce_shoulder') ~= nil then
         return true, 'None'
     end
     
@@ -438,6 +490,3 @@ shared_item_shoulder.is_valid_unlock_item = function(scrollObj, itemObj)
     
     return true, 'None'
 end
-
-
-

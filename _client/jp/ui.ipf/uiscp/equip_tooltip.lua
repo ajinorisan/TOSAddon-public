@@ -1,18 +1,5 @@
 -- equip_tooltip.lua
 
-local function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
-
 
 function ITEM_TOOLTIP_WEAPON(tooltipframe, invitem, strarg, usesubframe)	
 	ITEM_TOOLTIP_EQUIP(tooltipframe, invitem, strarg, usesubframe)
@@ -429,6 +416,9 @@ function DRAW_EQUIP_COMMON_TOOLTIP_SMALL_IMG(tooltipframe, invitem, mainframenam
 
 	local evolvedGoddessTitle = GET_CHILD_RECURSIVELY(equipCommonCSet, "evolvedGoddessTitle")
 	evolvedGoddessTitle:ShowWindow(0)
+
+	local UpgradeTitle = GET_CHILD_RECURSIVELY(equipCommonCSet, "UpgradeTitle")
+	UpgradeTitle:ShowWindow(0)
 --	local GRADE_FONT_SIZE = equipCommonCSet:GetUserConfig("GRADE_FONT_SIZE"); -- 등급 나타내는 별 크기
 	
 	local score = GET_GEAR_SCORE(invitem)
@@ -491,6 +481,16 @@ function DRAW_EQUIP_COMMON_TOOLTIP_SMALL_IMG(tooltipframe, invitem, mainframenam
 	local grade = GET_ITEM_GRADE(invitem)
 	local gradeBGName = GET_ITEM_BG_PICTURE_BY_GRADE(grade, needAppraisal, needRandomOption)
 	item_bg:SetImage(gradeBGName);
+	local titlegrade = GET_ITEM_BG_PICTURE_BY_GRADE(grade, needAppraisal, needRandomOption, 2)
+	UpgradeTitle:SetImage(titlegrade);
+
+	if grade >= 10 then
+		UpgradeTitle:ShowWindow(1);
+		evolvedGoddessTitle:ShowWindow(0)
+		legendTitle:ShowWindow(0)
+	end
+
+
 	-- 아이템 이미지
 	local itemPicture = GET_CHILD(equipCommonCSet, "itempic", "ui::CPicture");
 	if (needAppraisal ~= nil and needAppraisal == 1) or (needRandomOption ~= nil and needRandomOption == 1) then
@@ -1089,6 +1089,8 @@ function DRAW_EQUIP_PROPERTY(tooltipframe, invitem, inheritanceItem, yPos, mainf
         inner_yPos = DRAW_EQUIP_FIXED_ICHOR(invitem, inheritanceItem, property_gbox, inner_yPos) -- 고정 아이커
     end
 
+	inner_yPos = DRAW_EQUIP_UPGRADE_OPTION(invitem, property_gbox, inner_yPos)
+
     inner_yPos = DRAW_EQUIP_HAIR_ENCHANT(invitem, property_gbox, inner_yPos) -- 헤어 인챈트 옵션
 	inner_yPos = DRAW_EQUIP_AWAKEN_AND_ENCHANT(invitem, property_gbox, inner_yPos) -- 각성, 인챈트 옵션
 
@@ -1231,12 +1233,14 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
 				end
 				if max == current_value then
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 1);
+				elseif math.floor(max * 1.5) - 1 <= current_value then
+					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 2);
 				else
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 0);
 				end
 				
-				if max ~= nil and max > 0 and max ~= current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'					
+				if max > 0 and max > current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'				
 				end
 			else
 				local current_value = propItem[propValue]
@@ -2677,7 +2681,13 @@ function DRAW_ENABLE_TREATMENT(tooltipframe, invitem, yPos, mainframename)
 		text = _APPEND_LIMITATION_TEXT(enable_engrave, text, ClMsg('enable_engrave'))		
 		text = _APPEND_LIMITATION_TEXT(enable_apply_engrave, text, ClMsg('enable_apply_engrave'))		
 		text = _APPEND_LIMITATION_TEXT(enable_goddess_icor, text, ClMsg('enable_goddess_icor'))		
-		text = _APPEND_LIMITATION_TEXT(item_goddess_transcend.is_able_to_evolve(invitem), text, ClMsg('enable_evolve'))			
+		text = _APPEND_LIMITATION_TEXT(item_goddess_transcend.is_able_to_evolve(invitem), text, ClMsg('enable_evolve'))
+		local ret, _ = shared_upgrade_equip.is_valid_item(invitem)		
+		text = _APPEND_LIMITATION_TEXT(ret, text, ClMsg('enable_upgrade'))
+		if ret == false then
+			ret, _ = shared_upgrade_acc.is_valid_item(invitem)
+			text = _APPEND_LIMITATION_TEXT(ret, text, ClMsg('enable_upgrade'))
+		end
 	else
 		if item_goddess_growth.is_max_reinforce(invitem) then
 			text = _APPEND_LIMITATION_TEXT(true, text, '{@st41b}{#00eeee}' .. ClMsg('enable_inheritance') .. '{/}{/}' .. '(' ..ClMsg('use_goddess_equipment') .. ')' );
@@ -3056,7 +3066,7 @@ local function _CREATE_ARK_LV(gBox, ypos, step, class_name, curlv)
 		
 		local infoText = gBox:CreateControl('richtext', 'infoText'..step, 15, ypos, gBox:GetWidth(), 30);
 		infoText:SetText(strInfo);		
-		infoText:SetFontName("brown_16");
+		infoText:SetFontName("brown_16");		
 		ypos = ypos + infoText:GetHeight() + margin;
 	end
 
@@ -3108,7 +3118,8 @@ function ITEM_TOOLTIP_ARK(tooltipframe, invitem, strarg, usesubframe)
 	ypos = DRAW_EQUIP_COMMON_TOOLTIP_SMALL_IMG(tooltipframe, invitem, mainframename); -- 장비라면 공통적으로 그리는 툴팁들
 
 	ypos = DRAW_ARK_LV(tooltipframe, invitem, ypos, mainframename); 			-- 레벨, 레벨에 따른 아크 옵션 증가 값
-
+	
+	ypos = DRAW_ARK_PROPERTY(tooltipframe, invitem, nil, ypos, mainframename, false);	-- 랜덤 옵션	
 	ypos = DRAW_ARK_OPTION(tooltipframe, invitem, ypos, mainframename); 		-- 아크 옵션
 	
 	if TryGetProp(invitem, 'EnableArkLvup', 0) == 0 then
@@ -3611,7 +3622,7 @@ function DRAW_EQUIP_RANDOM_EARRING_OPTION(invitem, property_gbox, inner_yPos)
 				end
 				
 				if max ~= nil and max ~= current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'					
 				end
 			else
 				local current_value = propItem[propValue]
@@ -3650,7 +3661,7 @@ function DRAW_EQUIP_SPECIAL_EARRING_OPTION(invitem, property_gbox, inner_yPos)
 			local lv = TryGetProp(invitem, 'EarringSpecialOptionLevelValue_' .. i, 0)
 			local text = ScpArgMsg('EarringSpecialOption{ctrl}{rank}{lv}', 'ctrl', ctrl, 'rank', rank, 'lv', lv)
 			if max ~= nil and lv < max and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-				text = text .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'
+				text = text .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'				
 			end
 			inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, text, 0, inner_yPos);			
 		end
@@ -3765,12 +3776,14 @@ function DRAW_EQUIP_GODDESS_ICOR(invitem, property_gbox, inner_yPos)
 				local current_value = propItem[propValue]				
 				if max == current_value then
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 1);
+				elseif math.floor(max * 1.5) - 1 <= current_value then
+					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 2);
 				else
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 0);
 				end
 				
-				if max ~= nil and max ~= current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'
+				if max > current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'				
 				end
 			else
 				local current_value = propItem[propValue]
@@ -3829,7 +3842,7 @@ function DRAW_EQUIP_BELT(invitem, property_gbox, inner_yPos)
 	local init_yPos = inner_yPos;
 	
 	local reroll_index = TryGetProp(invitem, 'RerollIndex', 0)
-
+	
     for i = 1, MAX_OPTION_EXTRACT_COUNT do
         local propGroupName = "RandomOptionGroup_"..i;
         local propName = "RandomOption_"..i;
@@ -3870,7 +3883,7 @@ function DRAW_EQUIP_BELT(invitem, property_gbox, inner_yPos)
 			end
 			
 			local strInfo = nil
-			if max ~= nil then
+			if max ~= 0 and max ~= nil then
 				local current_value = propItem[propValue]				
 				if max == current_value then
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 1);
@@ -3878,8 +3891,8 @@ function DRAW_EQUIP_BELT(invitem, property_gbox, inner_yPos)
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 0);
 				end
 				
-				if max ~= nil and max ~= current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'
+				if i <= 4 and max ~= nil and max ~= current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'					
 				end
 			else
 				local current_value = propItem[propValue]
@@ -3918,6 +3931,43 @@ function DRAW_BELT_PROPERTY(tooltipframe, invitem, inheritanceItem, yPos, mainfr
 	local property_gbox = GET_CHILD(tooltip_equip_property_CSet, 'property_gbox', 'ui::CGroupBox');
 	
 	inner_yPos = DRAW_EQUIP_BELT(invitem, property_gbox, inner_yPos) -- 랜덤 옵션
+	inner_yPos = DRAW_EQUIP_UPGRADE_OPTION(invitem, property_gbox, inner_yPos)
+
+
+    -- 아무것도 못그렸으면 컨트롤셋 지우고 리턴
+    if inner_yPos == 0 then
+        gBox:RemoveChild('tooltip_equip_property')
+        return yPos
+    end
+    
+	tooltip_equip_property_CSet:Resize(tooltip_equip_property_CSet:GetWidth(),tooltip_equip_property_CSet:GetHeight() + property_gbox:GetHeight() + property_gbox:GetY());
+
+	gBox:Resize(gBox:GetWidth(),gBox:GetHeight() + tooltip_equip_property_CSet:GetHeight())
+	return tooltip_equip_property_CSet:GetHeight() + tooltip_equip_property_CSet:GetY();
+end
+
+function DRAW_ARK_PROPERTY(tooltipframe, invitem, inheritanceItem, yPos, mainframename, drawLableline)	
+	local gBox = GET_CHILD(tooltipframe, mainframename, 'ui::CGroupBox')
+	gBox:RemoveChild('tooltip_equip_property');
+
+    -- 컨트롤셋 생성
+    local tooltip_equip_property_CSet = gBox:CreateOrGetControlSet('tooltip_equip_property', 'tooltip_equip_property', 0, yPos);
+    
+    -- 라벨라인 처리 (아이커 아이템 툴팁)
+    local labelline = GET_CHILD(tooltip_equip_property_CSet, 'labelline');
+    if drawLableline == false then
+        tooltip_equip_property_CSet:SetOffset(tooltip_equip_property_CSet:GetX(), tooltip_equip_property_CSet:GetY() - 10);
+        labelline:ShowWindow(0);
+    else
+        labelline:ShowWindow(1);
+    end
+
+    local inner_yPos = 0;
+	local property_gbox = GET_CHILD(tooltip_equip_property_CSet, 'property_gbox', 'ui::CGroupBox');
+	
+	inner_yPos = DRAW_EQUIP_BELT(invitem, property_gbox, inner_yPos) -- 랜덤 옵션
+	inner_yPos = DRAW_EQUIP_UPGRADE_OPTION(invitem, property_gbox, inner_yPos)
+
 
     -- 아무것도 못그렸으면 컨트롤셋 지우고 리턴
     if inner_yPos == 0 then
@@ -4080,4 +4130,25 @@ function DRAW_EQUIP_SKILL_SOCKET(tooltipframe, itemObj, yPos, addinfoframename)
 
 	gBox:Resize(gBox:GetWidth(),gBox:GetHeight() + tooltip_equip_socket_CSet:GetHeight())
 	return tooltip_equip_socket_CSet:GetHeight() + tooltip_equip_socket_CSet:GetY();
+end
+
+
+function DRAW_EQUIP_UPGRADE_OPTION(invitem, property_gbox, inner_yPos)
+	local name = TryGetProp(invitem, 'ClassName', 'None')
+	local cls = GetClass('upgrade_equip_item', name)
+	
+	local grade = TryGetProp(invitem, 'UpgradeRank', 0)	
+	if cls ~= nil then
+		local func = TryGetProp(cls, 'TooltipFunc', 'None')
+		if func ~= 'None' then
+			func = _G[func]
+			inner_yPos = func(invitem, property_gbox, inner_yPos)
+		end
+	else
+		if grade > 0 then
+			inner_yPos = TOOLTIP_UPGRADE_ACC_510(invitem, property_gbox, inner_yPos)
+		end
+	end
+
+	return inner_yPos
 end

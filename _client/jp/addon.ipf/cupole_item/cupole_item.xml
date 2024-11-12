@@ -10,13 +10,14 @@
 	<sound opensound="window_open" closesound="window_close"/>
 	<option closebutton="false"/>
 	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<userconfig DefaultSzX="885" DefaultSzY="1200" DefaultRatioY="1" DefaultRatioX="1" RatioY="0.8" RatioX="1" DefMarginX="0" DefMarginY="200" MarginX="0" MarginY="-50"/>
 	<controls>
 		<groupbox name="managerTab" rect="0 0 1620 800" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="epi_guide_frame_bg"/>
 		<groupbox name="cupole_manager_top" rect="0 0 1650 75" margin="0 105 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="relic_frame_top" stretch="true" hittest="true"/>
 		<richtext name="Title" parent="cupole_manager_top" rect="0 0 200 50" margin="0 0 0 0" layout_gravity="center center" caption="{@st43}{s24}큐폴" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
 		<picture name="pic" parent="managerTab" rect="0 0 1600 900" margin="0 -60 0 0" layout_gravity="center center" draw="true" hittestbox="false" stretch="true" scrollbar="false" image="kupole_r_sr"/>
 		<spinepic name="spinepic" parent="managerTab" rect="0 0 1600 900" margin="0 -60 0 0" layout_gravity="center center" updateparent="true" animation="animation" scale="1.3" stretch="false" offsetX="52" offsetY="33"/>
-		<groupbox name="manageBG" parent="managerTab" rect="0 0 1600 800" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp="LBTNUP_RESET_CUPOLE_SELECT_MODE"/>
+		<groupbox name="manageBG" parent="managerTab" rect="0 0 1600 790" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp="LBTNUP_RESET_CUPOLE_SELECT_MODE"/>
 		<picture name="MainCharacter" parent="manageBG" rect="0 0 885 1200" margin="0 200 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" image="cupole_0" stretch="true" TargetTexture="true" LBtnUpScp="LBTNUP_RESET_CUPOLE_SELECT_MODE"/>
 		<spinepic name="spinepic" parent="manageBG" rect="0 0 1000 1000" margin="0 -150 0 0" layout_gravity="center center" updateparent="true" animation="animation" scale="0.7" stretch="false" offsetX="-50" offsetY="-20"/>
 		<button name="btnPrevRotCharacter" parent="manageBG" rect="0 0 40 58" margin="-350 0 0 0" layout_gravity="center center" image="button_left_select2" clicksound="button_click_big" oversound="button_over" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="CUPOLE_UIMODEL_ROTATE_BTN" LBtnUpArgNum="0"/>

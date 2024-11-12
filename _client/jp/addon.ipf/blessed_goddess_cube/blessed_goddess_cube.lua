@@ -9,6 +9,7 @@ end
 function BLESSED_CUBE_OPEN(frame)
 	local frame = ui.GetFrame('blessed_goddess_cube');
 	BLESSED_CUBE_LIST_UPDATE(frame);
+    BELSEED_CUBE_COUNT_UPDATE(frame);
 	frame:ShowWindow(1);
 	if config.GetServiceNation() ~= "KOR" then
         GET_CHILD_RECURSIVELY(frame,"openBtn2"):SetEnable(0)
@@ -16,9 +17,20 @@ function BLESSED_CUBE_OPEN(frame)
 		GET_CHILD_RECURSIVELY(frame,"openBtn"):SetMargin(0, 0, 0, 40);
 		session.shop.RequestUsedMedalTotal()
 	end
+
+    GET_CHILD_RECURSIVELY(frame,"openBtn2"):ShowWindow(0)
 end
 
 function BLESSED_CUBE_CLOSE()
+end
+
+function BELSEED_CUBE_COUNT_UPDATE(frame)
+    local gachaCnt = GET_CHILD_RECURSIVELY(frame, 'gachaCnt');
+    local pc = GetMyPCObject()
+    local acc = GetMyAccountObj(pc);
+    local count =  TryGetProp(acc, "PAPAYA_BLESSED_GACHA_125284", -1);
+
+    gachaCnt:SetTextByKey("count",count);
 end
 
 function BLESSED_CUBE_LIST_UPDATE(frame)

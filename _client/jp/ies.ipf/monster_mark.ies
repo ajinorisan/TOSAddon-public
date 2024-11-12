@@ -43,6 +43,8 @@ ClassID,Radius,AddRadius,Height,ClassName,DirType,Texture,UseShadowRadius
 42,0,35,20,"boss_crystal_golem","DIRTYPE_ETC","texture\\boss_sky.tga","YES"
 43,0,35,20,"boss_crystal_golem_Auto","DIRTYPE_ETC","texture\\boss_sky.tga","YES"
 44,0,35,20,"boss_crystal_golem_Solo","DIRTYPE_ETC","texture\\boss_sky.tga","YES"
+45,0,35,20,"boss_neringa_of_evil_season","DIRTYPE_ETC","texture\\boss_green.tga","YES"
+46,0,35,20,"boss_crystal_golem_season","DIRTYPE_ETC","texture\\boss_sky.tga","YES"
 101,0,25,20,"weekly_boss_solcom","DIRTYPE_ETC","texture\\boss_green.tga","YES"
 102,0,30,20,"weekly_boss_Zawra","DIRTYPE_ETC","texture\\boss_yellow.tga","YES"
 103,0,25,20,"weekly_boss_Nuaelle","DIRTYPE_ETC","texture\\boss_yellow.tga","YES"

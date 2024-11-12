@@ -1581,6 +1581,13 @@ function SCR_Get_DEF(self)
     end
     
     value = value - throwItemDef;
+
+    local card_crystalgolem_pdef_rate = GetExProp(self, "card_crystalgolem_pdef_rate");
+    if card_crystalgolem_pdef_rate > 0 then
+        local rate = card_crystalgolem_pdef_rate * 0.08;
+        local add_value = math.floor(value * rate);
+        value = value + add_value;
+    end
     
     if value < 0 then
         value = 0;
@@ -1678,6 +1685,13 @@ function SCR_Get_MDEF(self)
         decRatio = 0.5
     end
     value = math.floor(value * decRatio)
+
+    local card_crystalgolem_mdef_rate = GetExProp(self, "card_crystalgolem_mdef_rate");
+    if card_crystalgolem_mdef_rate > 0 then
+        local rate = card_crystalgolem_mdef_rate * 0.08;
+        local add_value = math.floor(value * rate);
+        value = value + add_value;
+    end
     
     return math.floor(value);
 end

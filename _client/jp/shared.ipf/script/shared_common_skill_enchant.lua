@@ -117,6 +117,11 @@ shared_common_skill_enchant.get_cost = function(armor)
         cost['RadaCertificate'] = 20000
         cost['common_skill_enchant_jewal_480'] = 1        
         return cost;
+    elseif lv == 520 then
+        local cost = {}
+        cost['JurateCertificate'] = 20000
+        cost['common_skill_enchant_jewal_480'] = 1        
+        return cost;
     end
 
     return nil

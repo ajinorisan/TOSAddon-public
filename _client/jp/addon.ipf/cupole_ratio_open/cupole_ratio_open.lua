@@ -24,7 +24,6 @@ function CREATE_CUPOLE_RATIO_LIST(frame, table)
     RBG:SetUserValue("y", 0);
 
     local cupolelist, cnt = GetClassList("cupole_list");
-
     for k,v in pairs(table) do
         local clsname = v[1]
         local ratio = v[2]

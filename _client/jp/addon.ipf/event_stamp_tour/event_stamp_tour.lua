@@ -167,6 +167,12 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 		
 		-- 보상 text
 		local reward = TryGetProp(missionCls, "Reward"..i, "None")
+		if config.GetServiceNation() == "PAPAYA" then
+			local rewardPapayastr = TryGetProp(missionCls, "RewardPAPAYA"..i, 'None');
+			if rewardPapayastr ~= 'None' then
+				reward = rewardPapayastr;
+			end
+		end
 		local rewardliststr = StringSplit(reward, '/');
 		local rewardcnt = #rewardliststr;
 
@@ -220,10 +226,12 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 		local shortCut = TryGetProp(missionCls,'ShortCut'..i)
 		if shortCut == nil or shortCut == 'None' then
 			go_btn:SetEnable(0)
+			go_btn:ShowWindow(0);
 		else
 			go_btn:SetEventScriptArgString(ui.LBUTTONUP, shortCut);
 			go_btn:SetEventScriptArgNumber(ui.LBUTTONUP, (3 * currentpage) + i);
 			go_btn:SetEnable(1)
+			go_btn:ShowWindow(1);
 		end
 		local helpBtn = GET_CHILD_RECURSIVELY(ctrlSet,'question')
 		local helpType = TryGetProp(missionCls,'HelpType'..i)
@@ -231,6 +239,11 @@ function EVENT_STAMP_TOUR_SET_PAGE(frame,t,tt,tt)
 		local helpText = TryGetProp(missionCls,'HelpText'..i, "None")
 		helpBtn:SetEventScriptArgNumber(ui.LBUTTONUP, helpType);
 		helpBtn:SetEnable(1)
+
+		if config.GetServiceNation() == "PAPAYA" then 
+			helpBtn:ShowWindow(0);
+		end
+	
 		if helpType == nil or helpType == 0 then
 			if helpType == 0 and helpText ~="None" then
 				helpBtn:SetEventScript(ui.LBUTTONUP, "None");

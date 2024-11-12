@@ -64,7 +64,7 @@ local function make_item_belt_option_range()
     end
 
     local start = 470
-    local end_level = 470
+    local end_level = 510
 
     while start <= end_level do
         max_option_group_count[start] = 2    -- 최대 2개의 옵션 그룹을 가질 수 있음
@@ -89,15 +89,30 @@ local function make_item_belt_option_range()
     
         for k, option_name in pairs(option_group[start][1]['LOW']) do
             -- 아이템레벨, 그룹 넘버, 등급, 옵션이름
-            item_belt_option_range[start][1]['LOW'][option_name] = {40, 80}
-            item_belt_option_range[start][1]['HIGH'][option_name] = {80, 120}
+            if start == 470 then
+                item_belt_option_range[start][1]['LOW'][option_name] = {40, 80}
+                item_belt_option_range[start][1]['HIGH'][option_name] = {80, 120}
+            elseif start == 510 then
+                item_belt_option_range[start][1]['LOW'][option_name] = {108, 150}
+                item_belt_option_range[start][1]['HIGH'][option_name] = {140, 180}
+            end
             option_group_number_by_option_name[start][option_name] = 1
         end
        
         -- 옵션 그룹 2
         option_group[start][2] = {}
-        option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'SR', 'MHP', 'RHP'}
-        option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'SR', 'MHP', 'RHP'}    
+
+        if start == 470 then
+            option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'SR', 'MHP', 'RHP'}
+            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'SR', 'MHP', 'RHP'}    
+        elseif start == 510 then
+            option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'MHP', 'RHP'}
+            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'MHP', 'RHP'}    
+        else
+            option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'SR', 'MHP', 'RHP'}
+            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTHR', 'BLK_BREAK', 'ADD_HR', 'SR', 'MHP', 'RHP'}    
+        end
+        
         for i = 1, #option_name_list do -- 특수 옵션 추가
             local _name = option_name_list[i]
             table.insert(option_group[start][2]['HIGH'], _name)
@@ -125,6 +140,22 @@ local function make_item_belt_option_range()
             item_belt_option_range[start][2]['HIGH']['SR'] = {4, 10}
             item_belt_option_range[start][2]['HIGH']['MHP'] = {4000, 8000}    
             item_belt_option_range[start][2]['HIGH']['RHP'] = {1000, 2500}
+        elseif start == 510 then
+            item_belt_option_range[start][2]['LOW']['CRTATK'] = {4500, 6250}
+            item_belt_option_range[start][2]['LOW']['CRTMATK'] = {4500, 6250}
+            item_belt_option_range[start][2]['LOW']['CRTHR'] = {2250, 3125}
+            item_belt_option_range[start][2]['LOW']['BLK_BREAK'] = {2250, 3125}
+            item_belt_option_range[start][2]['LOW']['ADD_HR'] = {2250, 3125}
+            item_belt_option_range[start][2]['LOW']['MHP'] = {7200, 10000}
+            item_belt_option_range[start][2]['LOW']['RHP'] = {2250, 3125}
+
+            item_belt_option_range[start][2]['HIGH']['CRTATK'] = {5000, 7500}
+            item_belt_option_range[start][2]['HIGH']['CRTMATK'] = {5000, 7500}
+            item_belt_option_range[start][2]['HIGH']['CRTHR'] = {2500, 3750}
+            item_belt_option_range[start][2]['HIGH']['BLK_BREAK'] = {2500, 3750}
+            item_belt_option_range[start][2]['HIGH']['ADD_HR'] = {2500, 3750}
+            item_belt_option_range[start][2]['HIGH']['MHP'] = {8000, 12000}
+            item_belt_option_range[start][2]['HIGH']['RHP'] = {2500, 3750}
         end
     
         for i = 1, #option_name_list do
@@ -138,8 +169,14 @@ local function make_item_belt_option_range()
 
         -- 옵션 재설정 후보 개수
         candidate_option_count[start] = {}
-        candidate_option_count[start]['LOW'] = 2
-        candidate_option_count[start]['HIGH'] = 2
+
+        if start == 470 then
+            candidate_option_count[start]['LOW'] = 2
+            candidate_option_count[start]['HIGH'] = 2
+        elseif start == 510 then
+            candidate_option_count[start]['LOW'] = 2
+            candidate_option_count[start]['HIGH'] = 0
+        end
 
         start = start + 10
     end
@@ -323,7 +360,11 @@ shared_item_belt.is_valid_reroll_option = function(item, index, option_name, max
     return true
 end
 
-shared_item_belt.is_able_to_reroll = function(item, index)    
+shared_item_belt.is_able_to_reroll = function(item, index)
+    if IS_ABLT_TO_REROLL(item) == false then
+        return false, 'CantRerollEquipment'
+    end
+
     if TryGetProp(item, 'GroupName', 'None') ~= 'BELT' then
         return false, 'CantRerollEquipment'
     end
@@ -381,6 +422,19 @@ shared_item_belt.get_reroll_cost_table = function(item)
             cost_list['misc_ore22'] = math.floor(cost_count)
             valid = true
         end
+    elseif lv == 510 then
+        local cost_count = 2 + math.floor(count / 3)
+        cost_count = cost_count * 1.5
+        cost_list['misc_BlessedStone_1'] = math.floor(cost_count)
+
+        cost_count = 500 * math.pow(1.04, count)
+        cost_count = cost_count * 1.3
+        cost_list['JurateCertificate'] = math.floor(cost_count)
+
+        cost_count = 400 * math.pow(1.04, count)
+        cost_count = cost_count * 1.5
+        cost_list['misc_ore28'] = math.floor(cost_count)
+        valid = true
     end
 
     return cost_list, valid
@@ -424,7 +478,7 @@ shared_item_belt.is_valid_unlock_item = function(scrollObj, itemObj)
     if TryGetProp(itemObj, 'CharacterBelonging', 0) == 0 then
 		return false, 'OnlyUseBelongingItem'
 	end
-
+    
 	if TryGetProp(itemObj, 'ItemLv', 0) ~= TryGetProp(scrollObj, 'NumberArg1', 999) then
 		return false, 'NotValidItem'
 	end
@@ -433,7 +487,7 @@ shared_item_belt.is_valid_unlock_item = function(scrollObj, itemObj)
 		return false, 'NotValidItem'
 	end
 
-    if TryGetProp(scrollObj, 'StringArg', 'None') == 'unlock_belt_team_belonging' and string.find(tostring(TryGetProp(itemObj, 'ClassName', 'None')), 'EP13_penetration_belt') ~= nil then
+    if TryGetProp(scrollObj, 'StringArg', 'None') == 'unlock_belt_team_belonging' and string.find(TryGetProp(itemObj, 'ClassName', 'None'), 'penetration_belt') ~= nil then
         return true, 'None'
     end
     
@@ -444,18 +498,192 @@ shared_item_belt.is_valid_unlock_item = function(scrollObj, itemObj)
     return true, 'None'
 end
 
+shared_item_belt.get_belt_grade = function(obj)
+    local arg = TryGetProp(obj,"NumberArg1",0)	
+
+    if TryGetProp(obj, 'UseLv', 0) >= 510 and arg == 1 then
+        return 2
+    end
+
+    if arg == 4 then
+        return 1
+    elseif arg == 20 then
+        return 2
+    elseif arg == 200 then
+        return 3
+    end
+
+    
+    return 1
+end
+
+
+
+-- 전체 아이템 대상
 function IS_ABLT_TO_REROLL(item_obj)
     if shared_item_goddess_icor.get_goddess_icor_grade(item_obj) > 0 then
         return true
     end
 
-    if TryGetProp(item_obj, 'GroupName', 'None') == 'BELT' then
+    if TryGetProp(item_obj, 'GroupName', 'None') == 'BELT' then        
+        if TryGetProp(item_obj, 'EnableReroll', 'None') == 'NO' then
+            return false
+        end
+
         return true
     end
         
     if TryGetProp(item_obj, 'GroupName', 'None') == 'SHOULDER' then
+        if TryGetProp(item_obj, 'EnableReroll', 'None') == 'NO' then
+            return false
+        end
+
         return true
     end
 
     return false
+end
+
+
+
+function IS_ABLE_TO_USE_510_BELT_OPTION_SCROLL(item, scroll)
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'option_scroll' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'RandomOption_6', 'None') ~= 'None' then
+        return false, 'DontUseItem'
+    end
+
+    local name = TryGetProp(item, 'ClassName', 'None')
+    if string.find(name, 'EP16_penetration_belt') == nil or string.find(name, '_high') == nil then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
+end
+
+function IS_ABLE_TO_USE_510_BELT_OPTION_RESET_SCROLL(item, scroll)
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'option_scroll_reset' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'RandomOption_5', 'None') == 'None' then
+        return false, 'DontUseItem'
+    end
+
+    local name = TryGetProp(item, 'ClassName', 'None')
+    if string.find(name, 'EP16_penetration_belt') == nil or string.find(name, '_high') == nil then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
+end
+
+function IS_ABLE_TO_USE_510_SHOULDER_OPTION_SCROLL(item, scroll)
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'option_scroll' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'RandomOption_6', 'None') ~= 'None' then
+        return false, 'DontUseItem'
+    end
+
+    local name = TryGetProp(item, 'ClassName', 'None')
+    if string.find(name, 'EP16_fierce_shoulder_') == nil or string.find(name, '_high') == nil then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
+end
+
+function IS_ABLE_TO_USE_510_SHOULDER_OPTION_RESET_SCROLL(item, scroll)
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'option_scroll_reset' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'RandomOption_5', 'None') == 'None' then
+        return false, 'DontUseItem'
+    end
+
+    local name = TryGetProp(item, 'ClassName', 'None')
+    if string.find(name, 'EP16_fierce_shoulder_') == nil or string.find(name, '_high') == nil then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
+end
+
+function IS_ABLE_TO_USE_ARK_OPTION_SCROLL(item, scroll)
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'option_scroll' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'RandomOption_2', 'None') ~= 'None' then
+        return false, 'DontUseItem'
+    end
+
+    local name = TryGetProp(item, 'GroupName', 'None')
+    if name ~= 'Ark' then
+        return false, 'DontUseItem'
+    end
+    
+    if TryGetProp(item, 'CharacterBelonging', 0) ~= 1 then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'ArkLevel', 0) < 10 then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
+end
+
+function IS_ABLE_TO_USE_ARK_OPTION_RESET_SCROLL(item, scroll)
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'option_scroll_reset' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'RandomOption_1', 'None') == 'None' then
+        return false, 'DontUseItem'
+    end
+
+    local name = TryGetProp(item, 'GroupName', 'None')
+    if name ~= 'Ark' then
+        return false, 'DontUseItem'
+    end
+    
+    if TryGetProp(item, 'CharacterBelonging', 0) ~= 1 then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'ArkLevel', 0) < 10 then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
 end

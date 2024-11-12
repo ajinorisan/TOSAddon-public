@@ -108,5 +108,7 @@
 		<image name="c_archer_BowMaster" file="\icon\class_archer.tga" imgrect="400 400 100 100" CMM_Caption="신궁"/>
 		<image name="c_scout_Desperado" file="\icon\class_scout.tga" imgrect="400 100 100 100" CMM_Caption="데스페라도"/>
 		<image name="c_warrior_Vanquisher" file="\icon\class_warrior2.tga" imgrect="0 0 100 100" CMM_Caption="뱅퀴셔"/>
+		<image name="c_archer_Vulture" file="\icon\class_archer2.tga" imgrect="0 0 100 100" CMM_Caption="벌쳐"/>
+		<image name="c_cleric_Sledger" file="\icon\class_cleric.tga" imgrect="200 400 100 100" CMM_Caption="슬레저"/>
 	</imagelist>
 </skinset>

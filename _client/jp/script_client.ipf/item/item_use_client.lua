@@ -87,6 +87,20 @@ function ABILITY_POINT_RESET_ARTS_C(invItem)
 		return;
 	end
 
+	local jobName = "Char"..TryGetProp(itemObj, 'NumberArg1', 0).."_"..TryGetProp(itemObj, 'NumberArg2', 0);
+
+	local prefix = "Char"..TryGetProp(itemObj, 'NumberArg1', 0)
+	local jobList = GetJobHistoryList(GetMyPCObject())
+	for k, v in pairs(jobList) do
+		local cls = GetClassByType('Job', tonumber(v))
+		local name = TryGetProp(cls, 'ClassName', 'None')
+		local _prefix = StringSplit(name, '_')[1]
+		if prefix ~= _prefix then
+			ui.SysMsg(ClMsg('NotExistRefundAbilityPoint'))
+			return
+		end
+	end
+
 	if 0 == frame:IsVisible() then
 		frame:ShowWindow(1)
 	end
@@ -107,9 +121,7 @@ function ABILITY_POINT_RESET_ARTS_C(invItem)
 	
 	frame:SetUserValue("itemIES", invItem:GetIESID());
 	frame:SetUserValue("ClassName", itemObj.ClassName);
-	
-	
-	local jobName = "Char"..TryGetProp(itemObj, 'NumberArg1', 0).."_"..TryGetProp(itemObj, 'NumberArg2', 0);
+
 	local getAbilPoint = GetTotalAbilityPointByJob(GetMyPCObject(), jobName, 1);
 	if getAbilPoint == nil then
 		getAbilPoint = 0;

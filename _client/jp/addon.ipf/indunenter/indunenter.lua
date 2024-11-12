@@ -974,7 +974,7 @@ function INDUNENTER_MAKE_COUNT_BOX(frame, noPicBox, indunCls)
 
         local is_season_challenge = resetGroupID == 904 or resetGroupID == 905 or resetGroupID == 906 or resetGroupID == 907 or resetGroupID == 908;
 
-        local is_use_count2 = is_season_challenge == true or resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 832 or resetGroupID == 837 or resetGroupID == 909 or resetGroupID == 910;
+        local is_use_count2 = is_season_challenge == true or resetGroupID == 817 or resetGroupID == 813 or resetGroupID == 807 or resetGroupID == 5000 or resetGroupID == 832 or resetGroupID == 837 or resetGroupID == 909 or resetGroupID == 910;        
         if is_use_count2 == true then
                 nowCount = GET_CURRENT_ENTERANCE_COUNT(resetGroupID); 
             countData2:SetTextByKey("now", nowCount);
@@ -1012,6 +1012,18 @@ function INDUNENTER_MAKE_COUNT_BOX(frame, noPicBox, indunCls)
             countData:ShowWindow(1);
             countData2:ShowWindow(0);
             countItemData:ShowWindow(0);
+
+            local dungeon_type = TryGetProp(indunCls, 'DungeonType', 'None')
+            if string.find(dungeon_type, 'Challenge_') ~= nil then
+                countData:ShowWindow(0);
+                countData2:ShowWindow(1);
+                if nowCount == 0 then
+                    nowCount = 1
+                else
+                    nowCount = 0
+                end
+                countData2:SetTextByKey("now", nowCount);
+            end
         end
     else
         local pc = GetMyPCObject();

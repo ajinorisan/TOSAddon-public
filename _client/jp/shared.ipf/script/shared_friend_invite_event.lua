@@ -2,7 +2,7 @@
 
 local reward_list = nil
 
--- 이벤트 종료시에 반환 값을 None으로 한다.
+-- 이벤트 종료시에 반환 값을 None으로 한다. (20240812)
 function GET_FRIEND_INVITE_EVENT_START_TIME()
     return 'None'
 end

@@ -202,6 +202,9 @@
                             <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
                                 <Str Str="SCR_RAID_DEATH_COUNT_RESET"/>
                             </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_GODDESS_RAID_REMOVE_RELIC_PENALTY"/>
+                            </ToolScp>
                         </execList>
                     </Event>
                     <Event execCount="1" eventName="20Sec">
@@ -357,6 +360,27 @@
                             </ToolScp>
                         </execList>
                     </Event>
+                    <Event execCount="1" eventName="PC_ALL_DEAD">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_IMMEDIATELY" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="모든 PC가 전투 불능상태가 되어 레이드에 실패하였습니다.{nl}30초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_FAIL_CHECK_LOG" Client="NO" UseSleep="NO">
+                                <Str Str="Goddess_Raid_BlackRevelation_Party"/>
+                                <Str Str="AllPCDead"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>                    
                 </StageEvents>
             </Stage>
             <Stage Name="RankResetPoint">

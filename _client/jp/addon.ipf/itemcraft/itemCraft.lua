@@ -1985,6 +1985,12 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
 		CRAFT_ITEM_ALL(itemSet, btn)
 	elseif itemName == "EVENT_MOONRISE_2410" then
 		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName == "EVENT_MOONRISE_2410_PAPAYA" then
+		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName== "EVENT_LEAVE_2410" then
+		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName =="EVENT_W_MOON_COIN" then
+		CRAFT_ITEM_ALL(itemSet, btn)
 	end
 
 	if propName == nil then

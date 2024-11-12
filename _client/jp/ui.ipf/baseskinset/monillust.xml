@@ -388,6 +388,8 @@
 		<image name="BW_boss_Vasilissa" file="\icon\monster\boss\BW_boss_Vasilissa.png" imgrect="0 0 80 80"/>
 		<image name="boss_snigo" file="\icon\monster\boss\boss_snigo.png" imgrect="0 0 80 80"/>
 		<image name="boss_merregina_despair" file="\icon\monster\boss\boss_merregina_despair.png" imgrect="0 0 80 80"/>
+		<image name="boss_neringa_of_evil" file="\icon\monster\boss\boss_DarkNeringa.png" imgrect="0 0 80 80"/>
+		<image name="boss_crystal_golem" file="\icon\monster\boss\boss_CrystalGolem.png" imgrect="0 0 80 80"/>
 	</imagelist>
 	<imagelist category="Monster_icon_nor_01">
 		<image name="mon_onion" file="\icon\monster\mon\mon_onion.png" imgrect="0 0 80 80"/>
@@ -1661,39 +1663,54 @@
 		<image name="ep15_2_Papillon_Assassin" file="\icon\monster\mon\ep15_2_Papillon_Assassin.png" imgrect="0 0 80 80 "/>
 		<image name="ep15_2_Papillon_leader" file="\icon\monster\mon\ep15_2_Papillon_leader.png" imgrect="0 0 80 80 "/>
 		<image name="ep15_2_dark_statue" file="\icon\monster\mon\ep15_2_dark_statue.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_crobasia" file="\icon\monster\mon\ep16_2_crobasia.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_rotacion" file="\icon\monster\mon\ep16_2_rotacion.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_boogie_box" file="\icon\monster\mon\ep16_2_boogie_box.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_gear" file="\icon\monster\mon\ep16_2_gear.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_lapinel" file="\icon\monster\mon\ep16_2_lapinel.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_lapindal" file="\icon\monster\mon\ep16_2_lapindal.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_wisnol" file="\icon\monster\mon\ep16_2_wisnol.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_lampal" file="\icon\monster\mon\ep16_2_lampal.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_cretobiang" file="\icon\monster\mon\ep16_2_cretobiang.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_creto" file="\icon\monster\mon\ep16_2_creto.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_lapindion" file="\icon\monster\mon\ep16_2_lapindion.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_llapindal_ribbon" file="\icon\monster\mon\ep16_2_llapindal_ribbon.png" imgrect="0 0 80 80 "/>
+		<image name="ep16_2_wis" file="\icon\monster\mon\ep16_2_wis.png" imgrect="0 0 80 80 "/>
 	</imagelist>
 	<imagelist category="cupoles">
 		<image name="Amongd_R" file="\icon\monster\cupole\cupole_Amongd_R.png" imgrect="0 0 128 128 "/>
 		<image name="Aristowl_SR" file="\icon\monster\cupole\cupole_Aristowl_SR.png" imgrect="0 0 128 128 "/>
 		<image name="Mugol_SR" file="\icon\monster\cupole\cupole_Mugol_SR.png" imgrect="0 0 128 128 "/>
-		<image name="Heidy_SR" 	 file="\icon\monster\cupole\cupole_Heidy_SR.png" 		imgrect="0 0 128 128 "/>
-		<image name="Beeto_R" 		 file="\icon\monster\cupole\cupole_Beeto_R.png" 			imgrect="0 0 128 128 "/>
-		<image name="Cape_SR" 		 file="\icon\monster\cupole\cupole_Cape_SR.png" 			imgrect="0 0 128 128 "/>
-		<image name="Cockatric_SR" 	 file="\icon\monster\cupole\cupole_Cockatric_SR.png" 		imgrect="0 0 128 128 "/>
-		<image name="Cyclobat_R" 	 file="\icon\monster\cupole\cupole_Cyclobat_R.png" 		imgrect="0 0 128 128 "/>
-		<image name="Grock_R" 		 file="\icon\monster\cupole\cupole_Grock_R.png" 			imgrect="0 0 128 128 "/>
-		<image name="Hallow_SR" 	 file="\icon\monster\cupole\cupole_Hallow_SR.png" 		imgrect="0 0 128 128 "/>
-		<image name="Kepari_R" 		 file="\icon\monster\cupole\cupole_Kepari_R.png" 			imgrect="0 0 128 128 "/>
-		<image name="Leagle_R" 		 file="\icon\monster\cupole\cupole_Leagle_R.png" 			imgrect="0 0 128 128 "/>
-		<image name="Mothque_R" 	 file="\icon\monster\cupole\cupole_Mothque_R.png" 		imgrect="0 0 128 128 "/>
-		<image name="AmongdMage_R" 	 file="\icon\monster\cupole\cupole_AmongdMage_R.png" 		imgrect="0 0 128 128 "/>
-		<image name="Oti_R" 	file="\icon\monster\cupole\cupole_Oti_R.png" 			imgrect="0 0 128 128 "/>
-		<image name="Phantomhands_SR"  file="\icon\monster\cupole\cupole_Phantomhands_SR.png" 	imgrect="0 0 128 128 "/>
-		<image name="Phantomhelm_SR"  file="\icon\monster\cupole\cupole_Phantomhelm_SR.png" 	imgrect="0 0 128 128 "/>
-		<image name="Phantomspear_SR"  file="\icon\monster\cupole\cupole_Phantomspear_SR.png" 	imgrect="0 0 128 128 "/>
-		<image name="Prox_R" file="\icon\monster\cupole\cupole_Prox_R.png" 			imgrect="0 0 128 128 "/>
-		<image name="Remalkan_SR" 	 file="\icon\monster\cupole\cupole_Remalkan_SR.png" 		imgrect="0 0 128 128 "/>
-		<image name="Scotbare_SR" 	 file="\icon\monster\cupole\cupole_Scotbare_SR.png" 		imgrect="0 0 128 128 "/>
-		<image name="Tinirock_SR" 	 file="\icon\monster\cupole\cupole_Tinirock_SR.png" 		imgrect="0 0 128 128 "/>
-		<image name="Togol_SR" 		 file="\icon\monster\cupole\cupole_Togol_SR.png" 			imgrect="0 0 128 128 "/>
-		<image name="Wooboo_R" 		 file="\icon\monster\cupole\cupole_Wooboo_R.png" 			imgrect="0 0 128 128 "/>
-		<image name="woobooter_SR" 	 file="\icon\monster\cupole\cupole_woobooter_SR.png" 		imgrect="0 0 128 128 "/>
-		<image name="UR_cupole_austeja_m" 	 file="\icon\monster\cupole\UR_cupole_austeja_m.png" 		imgrect="0 0 128 128 "/>
-		<image name="UR_cupole_gabia_m" 	 file="\icon\monster\cupole\UR_cupole_gabia_m.png" 		imgrect="0 0 128 128 "/>
-		<image name="UR_cupole_jurate_m" 	 file="\icon\monster\cupole\UR_cupole_jurate_m.png" 		imgrect="0 0 128 128 "/>
-		<image name="UR_cupole_laima_m" 	 file="\icon\monster\cupole\UR_cupole_laima_m.png" 		imgrect="0 0 128 128 "/>
-		<image name="UR_cupole_saule_m" 	 file="\icon\monster\cupole\UR_cupole_saule_m.png" 		imgrect="0 0 128 128 "/>
-		<image name="UR_cupole_vakarine_m" 	 file="\icon\monster\cupole\UR_cupole_vakarine_m.png" 		imgrect="0 0 128 128 "/>
-		<image name="UR_cupole_maid_ruta_m" 	 file="\icon\monster\cupole\UR_cupole_maid_ruta_m.png" 		imgrect="0 0 128 128 "/>
+		<image name="Heidy_SR" file="\icon\monster\cupole\cupole_Heidy_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Beeto_R" file="\icon\monster\cupole\cupole_Beeto_R.png" imgrect="0 0 128 128 "/>
+		<image name="Cape_SR" file="\icon\monster\cupole\cupole_Cape_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Cockatric_SR" file="\icon\monster\cupole\cupole_Cockatric_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Cyclobat_R" file="\icon\monster\cupole\cupole_Cyclobat_R.png" imgrect="0 0 128 128 "/>
+		<image name="Grock_R" file="\icon\monster\cupole\cupole_Grock_R.png" imgrect="0 0 128 128 "/>
+		<image name="Hallow_SR" file="\icon\monster\cupole\cupole_Hallow_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Kepari_R" file="\icon\monster\cupole\cupole_Kepari_R.png" imgrect="0 0 128 128 "/>
+		<image name="Leagle_R" file="\icon\monster\cupole\cupole_Leagle_R.png" imgrect="0 0 128 128 "/>
+		<image name="Mothque_R" file="\icon\monster\cupole\cupole_Mothque_R.png" imgrect="0 0 128 128 "/>
+		<image name="AmongdMage_R" file="\icon\monster\cupole\cupole_AmongdMage_R.png" imgrect="0 0 128 128 "/>
+		<image name="Oti_R" file="\icon\monster\cupole\cupole_Oti_R.png" imgrect="0 0 128 128 "/>
+		<image name="Phantomhands_SR" file="\icon\monster\cupole\cupole_Phantomhands_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Phantomhelm_SR" file="\icon\monster\cupole\cupole_Phantomhelm_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Phantomspear_SR" file="\icon\monster\cupole\cupole_Phantomspear_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Prox_R" file="\icon\monster\cupole\cupole_Prox_R.png" imgrect="0 0 128 128 "/>
+		<image name="Remalkan_SR" file="\icon\monster\cupole\cupole_Remalkan_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Scotbare_SR" file="\icon\monster\cupole\cupole_Scotbare_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Tinirock_SR" file="\icon\monster\cupole\cupole_Tinirock_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Togol_SR" file="\icon\monster\cupole\cupole_Togol_SR.png" imgrect="0 0 128 128 "/>
+		<image name="Wooboo_R" file="\icon\monster\cupole\cupole_Wooboo_R.png" imgrect="0 0 128 128 "/>
+		<image name="woobooter_SR" file="\icon\monster\cupole\cupole_woobooter_SR.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_austeja_m" file="\icon\monster\cupole\UR_cupole_austeja_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_gabia_m" file="\icon\monster\cupole\UR_cupole_gabia_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_jurate_m" file="\icon\monster\cupole\UR_cupole_jurate_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_laima_m" file="\icon\monster\cupole\UR_cupole_laima_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_saule_m" file="\icon\monster\cupole\UR_cupole_saule_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_vakarine_m" file="\icon\monster\cupole\UR_cupole_vakarine_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_maid_ruta_m" file="\icon\monster\cupole\UR_cupole_maid_ruta_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_summer_zesty_m" file="\icon\monster\cupole\UR_cupole_summer_zesty_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_Lecifer_m" file="\icon\monster\cupole\UR_cupole_Lecifer_m.png" imgrect="0 0 128 128 "/>
 	</imagelist>
 </skinset>

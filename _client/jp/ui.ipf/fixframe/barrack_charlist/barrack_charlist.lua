@@ -520,6 +520,14 @@ function CREATE_SCROLL_CHAR_LIST(frame, actor)
 		indunBtn:SetVisible(0)
 	end
 
+	local popoBtn = mainBox:GetChild("popoBtn")
+	local val = IS_POPOBOOST_PARTICIPATE_CHAR_BARRACK(key)
+	if val and val > 0 then
+		popoBtn:ShowWindow(1)
+	else
+		popoBtn:ShowWindow(0)
+	end
+
 	if session.barrack.GetMyAccount():GetByStrCID(key) ~= nil and "Barrack" == barrackMode then
 		btn:SetEventScript(ui.LBUTTONDBLCLICK, "BARRACK_TO_GAME");
 		btn:SetEventScriptArgString(ui.LBUTTONDBLCLICK, key);
@@ -1466,4 +1474,14 @@ function GET_TOTAL_CHARACTER_COUNT()
 	local accountInfo = session.barrack.GetMyAccount();
 	local cnt = accountInfo:GetTotalSlotCount();
 	return cnt
+end
+
+function IS_POPOBOOST_PARTICIPATE_CHAR_BARRACK(cid)
+	local accountInfo = session.barrack.GetMyAccount();
+	local popoetcprop = GET_POPOBOOST_ETCPROP();
+	if popoetcprop == "None" or popoetcprop == nil then
+		return;
+	end
+	local val = accountInfo:GetBarrackCharEtcProp(cid, popoetcprop)
+	return tonumber(val);
 end

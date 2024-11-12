@@ -32,3 +32,4 @@ ClassID,ClassName,PotionName1,PotionName2,CondFunc,ExecFunc
 31,"Kupole_saule_UR","","","",""
 32,"Kupole_maid_ruta_UR","Drug_Heal100HP_Dot","Drug_Heal100SP_Dot","Kupole_maid_ruta_UR_condfunc","Kupole_maid_ruta_UR_ExecFunc"
 33,"Kupole_Summer_Zesty_UR","","","",""
+34,"Kupole_Lecifer_UR","Potion_MIX_DMG_UP_NoTrade;Potion_MIX_DMG_UP;Potion_MIX_HIGH_DMG_UP","Potion_MIX_DMG_DOWN_NoTrade;Potion_MIX_DMG_DOWN","kupole_lecifer_condfunc","kupole_lecifer_ExecFunc"

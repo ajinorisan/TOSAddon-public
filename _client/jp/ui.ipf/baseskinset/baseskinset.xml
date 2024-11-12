@@ -1839,36 +1839,36 @@
 			<img name="bottomright" imgrect="715 375 317 57"/>
 		</skin>
 		<skin name="cupoleellipseframe3" texture="\skin\cupole_bg\CupoleSkinSet.tga">
-			<img name="topleft" 	imgrect="387 172 18 40"/>
-			<img name="topcore" 	imgrect="407 172 50 40"/>
-			<img name="topright" 	imgrect="459 172 17 40"/>
-			<img name="bodyleft" 	imgrect="387 214 23 1"/>
-			<img name="bodycore" 	imgrect="407 214 41 1"/>
-			<img name="bodyright" 	imgrect="459 214 23 1"/>
-			<img name="bottomleft" 	imgrect="387 214 23 1"/>
-			<img name="bottomcore" 	imgrect="407 214 41 1"/>
+			<img name="topleft" imgrect="387 172 18 40"/>
+			<img name="topcore" imgrect="407 172 50 40"/>
+			<img name="topright" imgrect="459 172 17 40"/>
+			<img name="bodyleft" imgrect="387 214 23 1"/>
+			<img name="bodycore" imgrect="407 214 41 1"/>
+			<img name="bodyright" imgrect="459 214 23 1"/>
+			<img name="bottomleft" imgrect="387 214 23 1"/>
+			<img name="bottomcore" imgrect="407 214 41 1"/>
 			<img name="bottomright" imgrect="459 214 23 1"/>
 		</skin>
 		<skin name="cupolegreenroundsquare3" texture="\skin\cupole_bg\CupoleSkinSet.tga">
-			<img name="topleft" 	imgrect="387 215 9 8"/>
-			<img name="topcore" 	imgrect="397 215 80 8"/>
-			<img name="topright" 	imgrect="478 215 9 8"/>
-			<img name="bodyleft" 	imgrect="387 224 9 22"/>
-			<img name="bodycore" 	imgrect="397 224 80 22"/>
-			<img name="bodyright" 	imgrect="478 224 9 22"/>
-			<img name="bottomleft" 	imgrect="387 247 9 8"/>
-			<img name="bottomcore" 	imgrect="397 247 80 8"/>
+			<img name="topleft" imgrect="387 215 9 8"/>
+			<img name="topcore" imgrect="397 215 80 8"/>
+			<img name="topright" imgrect="478 215 9 8"/>
+			<img name="bodyleft" imgrect="387 224 9 22"/>
+			<img name="bodycore" imgrect="397 224 80 22"/>
+			<img name="bodyright" imgrect="478 224 9 22"/>
+			<img name="bottomleft" imgrect="387 247 9 8"/>
+			<img name="bottomcore" imgrect="397 247 80 8"/>
 			<img name="bottomright" imgrect="478 247 9 8"/>
 		</skin>
 		<skin name="cupolehalfgreenroundsquare2" texture="\skin\cupole_bg\CupoleSkinSet.tga">
-			<img name="topleft" 	imgrect="387 258 9 9"/>
-			<img name="topcore" 	imgrect="397 258 80 9"/>
-			<img name="topright" 	imgrect="478 258 9 9"/>
-			<img name="bodyleft" 	imgrect="387 268 9 10"/>
-			<img name="bodycore" 	imgrect="397 268 80 10"/>
-			<img name="bodyright" 	imgrect="478 268 9 10"/>
-			<img name="bottomleft" 	imgrect="387 279 9 10"/>
-			<img name="bottomcore" 	imgrect="397 279 80 10"/>
+			<img name="topleft" imgrect="387 258 9 9"/>
+			<img name="topcore" imgrect="397 258 80 9"/>
+			<img name="topright" imgrect="478 258 9 9"/>
+			<img name="bodyleft" imgrect="387 268 9 10"/>
+			<img name="bodycore" imgrect="397 268 80 10"/>
+			<img name="bodyright" imgrect="478 268 9 10"/>
+			<img name="bottomleft" imgrect="387 279 9 10"/>
+			<img name="bottomcore" imgrect="397 279 80 10"/>
 			<img name="bottomright" imgrect="478 279 9 10"/>
 		</skin>
 	</skinlist>
@@ -7889,6 +7889,37 @@
 			<img name="cooltime" imgrect="403 272 67 67"/>
 			<img name="selected" imgrect="403 272 67 67"/>
 		</skin>
+		<skin name="alchemist_ui4_slot" texture="\skin\glimoire_skin.tga">
+			<img name="slot" imgrect="131 272 67 67"/>
+			<img name="mouseon" imgrect="403 272 67 67"/>
+			<img name="cooltime" imgrect="403 272 67 67"/>
+			<img name="selected" imgrect="403 272 67 67"/>
+		</skin>
+		<skin name="alchemist_ui5_slot" texture="\skin\glimoire_skin.tga">
+			<img name="slot" imgrect="63 272 67 67"/>
+			<img name="mouseon" imgrect="403 272 67 67"/>
+			<img name="cooltime" imgrect="403 272 67 67"/>
+			<img name="selected" imgrect="403 272 67 67"/>
+		</skin>
+		<!-- <skin name="alchemist_ui_slot_empty" texture="\skin\glimoire_skin.tga">
+			<img name="slot" imgrect="0 272 62 62"/>
+			<img name="mouseon" imgrect="403 272 67 67"/>
+			<img name="cooltime" imgrect="403 272 67 67"/>
+			<img name="selected" imgrect="403 272 67 67"/>
+		</skin> -->
+		<!-- <skin name="alchemist_ui_slot_empty" texture="\skin\pip_test.tga">
+			<img name="slot" imgrect="403 36 50 50"/>
+			<img name="mouseon" imgrect="403 210 50 50"/>
+			<img name="cooltime" imgrect="403 210 50 50"/>
+			<img name="selected" imgrect="403 210 50 50"/>
+		</skin> -->
+		<skin name="alchemist_ui_slot_empty" texture="\skin\mainframe_A.tga">
+			<img name="slot" imgrect="662 547 42 42"/>
+			<img name="slot" imgrect="767 592 42 42"/>
+			<img name="mouseon" imgrect="490 547 42 42"/>
+			<img name="cooltime" imgrect="533 547 42 42"/>
+			<img name="selected" imgrect="576 547 42 42"/>
+		</skin>
 		<skin name="box_custom_slot" texture="\skin\pip_test2.tga">
 			<img name="slot" imgrect="328 313 68 68"/>
 			<img name="mouseon" imgrect="397 313 68 68"/>
@@ -7918,6 +7949,72 @@
 			<img name="mouseon" imgrect="1335 654 58 58"/>
 			<img name="cooltime" imgrect="1335 654 58 58"/>
 			<img name="selected" imgrect="1335 654 58 58"/>
+		</skin>
+		<skin name="1GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 800 58 58"/>
+			<img name="mouseon" imgrect="436 1117 58 58"/>
+			<img name="cooltime" imgrect="436 1117 58 58"/>
+			<img name="selected" imgrect="436 1117 58 58"/>
+		</skin>
+		<skin name="6GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 721 58 58"/>
+			<img name="mouseon" imgrect="436 880 58 58"/>
+			<img name="cooltime" imgrect="436 880 58 58"/>
+			<img name="selected" imgrect="436 880 58 58"/>
+		</skin>
+		<skin name="4GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 642 58 58"/>
+			<img name="mouseon" imgrect="436 1117 58 58"/>
+			<img name="cooltime" imgrect="436 1117 58 58"/>
+			<img name="selected" imgrect="436 1117 58 58"/>
+		</skin>
+		<skin name="5GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 563 58 58"/>
+			<img name="mouseon" imgrect="436 880 58 58"/>
+			<img name="cooltime" imgrect="436 880 58 58"/>
+			<img name="selected" imgrect="436 880 58 58"/>
+		</skin>
+		<skin name="8GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 484 58 58"/>
+			<img name="mouseon" imgrect="436 1038 58 58"/>
+			<img name="cooltime" imgrect="436 1038 58 58"/>
+			<img name="selected" imgrect="436 1038 58 58"/>
+		</skin>
+		<skin name="3GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 405 58 58"/>
+			<img name="mouseon" imgrect="436 1117 58 58"/>
+			<img name="cooltime" imgrect="436 1117 58 58"/>
+			<img name="selected" imgrect="436 1117 58 58"/>
+		</skin>
+		<skin name="10GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 326 58 58"/>
+			<img name="mouseon" imgrect="436 959 58 58"/>
+			<img name="cooltime" imgrect="436 959 58 58"/>
+			<img name="selected" imgrect="436 959 58 58"/>
+		</skin>
+		<skin name="2GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 247 58 58"/>
+			<img name="mouseon" imgrect="436 880 58 58"/>
+			<img name="cooltime" imgrect="436 880 58 58"/>
+			<img name="selected" imgrect="436 880 58 58"/>
+		</skin>
+		<skin name="7GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 168 58 58"/>
+			<img name="mouseon" imgrect="436 1038 58 58"/>
+			<img name="cooltime" imgrect="436 1038 58 58"/>
+			<img name="selected" imgrect="436 1038 58 58"/>
+		</skin>
+		<skin name="9GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 89 58 58"/>
+			<img name="mouseon" imgrect="436 959 58 58"/>
+			<img name="cooltime" imgrect="436 959 58 58"/>
+			<img name="selected" imgrect="436 959 58 58"/>
+		</skin>
+		<skin name="11GradeBg4" texture="\skin\ItemGradeSkinSet.tga">
+			<img name="slot" imgrect="436 10 58 58"/>
+			<img name="mouseon" imgrect="436 880 58 58"/>
+			<img name="cooltime" imgrect="436 880 58 58"/>
+			<img name="selected" imgrect="436 880 58 58"/>
 		</skin>
 		<skin name="cupole_ui3_slot" texture="\skin\glimoire_skin.tga">
 			<img name="slot" imgrect="64 272 67 67"/>
@@ -10157,6 +10254,8 @@
 		<image name="Map_Bridge_Wailing_Dimension" file="\skin\indunmap\Map_Bridge_Wailing_Dimension.png" imgrect="0 0 295 450" CMM_Caption="통곡의 다리 - 이공간"/>
 		<image name="Map_Raid_Kivotos_Island" file="\skin\indunmap\Map_Raid_Kivotos_Island.png" imgrect="0 0 295 450" CMM_Caption="절망의 섬"/>
 		<image name="Map_SeasonEarringRaid" file="\skin\indunmap\Map_SeasonEarringRaid.png" imgrect="0 0 295 450" CMM_Caption="시즌 여신의 전언: 운명의 여흔"/>
+		<image name="Map_Neringa" file="\skin\indunmap\Map_Neringa.png" imgrect="0 0 295 450" CMM_Caption="다크 네링가"/>
+		<image name="Map_Crystalgolem" file="\skin\indunmap\Map_Crystalgolem.png" imgrect="0 0 295 450" CMM_Caption="수정 골렘"/>
 	</imagelist>
 	<imagelist category="jootest_image">
 		<image name="market_hairacc" file="\skin\market_skin.tga" imgrect="1927 447 60 60" CMM_Caption="마켓_헤어악세사리"/>
@@ -11769,6 +11868,7 @@
 		<image name="bosspselect_lock02" file="\skin\indun_skin3.tga" imgrect="1 1 294 225" CMM_Caption="보스 선택 잠금2"/>
 		<image name="toc_mark" file="\icon\toc_mark.png" imgrect="0 0 27 27"/>
 		<image name="inventory_coin_rada_pic" file="\skin\pip_test2.tga" imgrect="899 325 27 27" CMM_Caption="여신의 증표(라다)"/>
+		<image name="inventory_coin_jurate_pic" file="\skin\pip_test2.tga" imgrect="926 325 27 27" CMM_Caption="여신의 증표(유라테)"/>
 	</imagelist>
 	<imagelist category="je_button">
 		<image name="menu_guild_info" file="\skin\guild_skin.tga" imgrect="165 298 45 45" CMM_Caption="길드 정보"/>
@@ -12753,6 +12853,9 @@
 		<image name="goddess3_shop_btn" file="\skin\button_small.tga" imgrect="178 358 44 44" CMM_Caption="여신의 증표 상점"/>
 		<image name="goddess3_shop_btn_cursoron" file="\skin\button_small.tga" imgrect="224 358 44 44"/>
 		<image name="goddess3_shop_btn_clicked" file="\skin\button_small.tga" imgrect="268 358 44 44"/>
+		<image name="goddess4_shop_btn" file="\skin\button_small.tga" imgrect="594 245 44 44" CMM_Caption="여신의 증표 상점"/>
+		<image name="goddess4_shop_btn_cursoron" file="\skin\button_small.tga" imgrect="594 290 44 44"/>
+		<image name="goddess4_shop_btn_clicked" file="\skin\button_small.tga" imgrect="594 335 44 44"/>
 		<image name="pvpmine_shop_btn_total" file="\skin\button_small.tga" imgrect="135 291 44 44" CMM_Caption="용병단 증표 상점 리사이즈"/>
 		<image name="pvpmine_shop_btn_total_cursoron" file="\skin\button_small.tga" imgrect="180 291 44 44"/>
 		<image name="pvpmine_shop_btn_total_clicked" file="\skin\button_small.tga" imgrect="225 291 44 44"/>
@@ -13832,6 +13935,8 @@
 		<image name="jour_gauge_bg" file="\skin\tooltip_skin_3.tga" imgrect="1990 1306 52 736"/>
 		<image name="jour_toprank_bg" file="\skin\HUD.tga" imgrect="1632 333 215 82"/>
 		<image name="jour_compen_off" file="\skin\HUD.tga" imgrect="1657 293 44 36"/>
+		<image name="jour_compen_off_clicked" file="\skin\HUD.tga" imgrect="1657 293 44 36"/>
+		<image name="jour_compen_off_cursoron" file="\skin\HUD.tga" imgrect="1657 293 44 36"/>
 		<image name="jour_new_item" file="\skin\tooltip_skin_3.tga" imgrect="1458 1596 380 120"/>
 		<image name="jour_new_item1" file="\skin\normal_item_tootip.tga" imgrect="372 0 100 100"/>
 		<image name="jour_new_mapopen" file="\skin\tooltip_skin_3.tga" imgrect="1361 1952  80 80"/>
@@ -14007,6 +14112,8 @@
 		<image name="emoticonItem_2402_2" file="\icon\emoticon\snigo_chear.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2404_168" file="\icon\emoticon\snigo_yami.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2404_169" file="\icon\emoticon\snigo_box.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2409_170" file="\icon\emoticon\jurate_happy.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2409_171" file="\icon\emoticon\jurate_sad.png" imgrect="0 0 128 128"/>
 	</imagelist>
 	<imagelist category="itemtooltip_image">
 		<image name="circle_gem" file="\skin\tooltip_skin_3.tga" imgrect="805 228 30 30"/>
@@ -14864,6 +14971,8 @@
 		<image name="minimap_main_achievement" file="\icon\minimap_icon3.tga" imgrect="0 1133 80 80"/>
 		<image name="minimap_sub_achievement" file="\icon\minimap_icon3.tga" imgrect="81 1133 80 80"/>
 		<image name="minimap_mon_leader" file="\icon\minimap_icon3.tga" imgrect="0 1213 80 80"/>
+		<image name="minimap_vulture" file="\icon\minimap_icon3.tga" imgrect="162 1137 80 80"/>
+		<image name="minimap_sledger" file="\icon\minimap_icon3.tga" imgrect="243 1137 80 80"/>
 	</imagelist>
 	<imagelist category="quest_tags">
 		<image name="quest_tag_1_MAIN" file="\icon\minimap_icon.tga" imgrect="61 31 16 16"/>
@@ -14929,6 +15038,12 @@
 		<image name="compen_btn" file="\skin\HUD.tga" imgrect="1519 293 44 36" CMM_Caption="모험일지 보상버튼"/>
 		<image name="compen_btn_cursoron" file="\skin\HUD.tga" imgrect="1565 293 44 36"/>
 		<image name="compen_btn_clicked" file="\skin\HUD.tga" imgrect="1612 293 44 36"/>
+		<image name="compen_btn2" file="\skin\HUD.tga" imgrect="695 1072 59 59" CMM_Caption="포포부스트 보상버튼"/>
+		<image name="compen_btn2_cursoron" file="\skin\HUD.tga" imgrect="755 1072 59 59"/>
+		<image name="compen_btn2_clicked" file="\skin\HUD.tga" imgrect="815 1072 59 59"/>
+		<image name="jour_compen_off2" file="\skin\HUD.tga" imgrect="875 1072 59 59"/>
+		<image name="jour_compen_off2_cursoron" file="\skin\HUD.tga" imgrect="875 1072 59 59"/>
+		<image name="jour_compen_off2_clicked" file="\skin\HUD.tga" imgrect="875 1072 59 59"/>
 		<image name="skillup" file="\skin\button.tga" imgrect="0 810 56 56" CMM_Caption="스킬 레벨업"/>
 		<image name="skillup_cursoron" file="\skin\button.tga" imgrect="57 810 56 56"/>
 		<image name="skillup_clicked" file="\skin\button.tga" imgrect="114 810 56 56"/>
@@ -15360,6 +15475,10 @@
 		<image name="Dlg_port_bowmaster" file="\npcimg\bowmaster_master.png" imgrect="0 0 1000 1159" CMM_Caption="신궁"/>
 		<image name="Dlg_port_desperado" file="\npcimg\desperado_master.png" imgrect="0 0 800 874" CMM_Caption="데스페라도"/>
 		<image name="Dlg_port_vanquisher" file="\npcimg\vanquisher_master.png" imgrect="0 0 1000 1125" CMM_Caption="뱅퀴셔"/>
+		<image name="Dlg_port_Ep16_2_Neringa_Before" file="\npcimg\Ep16_2_Neringa_Before.png" imgrect="0 0 700 1000" CMM_Caption="변화 전 네링가"/>
+		<image name="Dlg_port_Ep16_2_Neringa_After" file="\npcimg\Ep16_2_Neringa_After.png" imgrect="0 0 700 1000" CMM_Caption="변화 후 네링가"/>
+		<image name="Dlg_port_vulture" file="\npcimg\vulture_master.png" imgrect="0 0 1590 900" CMM_Caption="벌쳐"/>
+		<image name="Dlg_port_sledger" file="\npcimg\sledger_master.png" imgrect="0 0 859 1200" CMM_Caption="슬레저"/>
 	</imagelist>
 	<imagelist category="Dlg_boss">
 		<image name="balloon_Skiaclipse" file="\skin\monster_Dlg.tga" imgrect="0 0 220 260" CMM_Caption="스키아클립스"/>
@@ -15377,6 +15496,8 @@
 		<image name="balloon_boss_Upinis" file="\skin\monster_Dlg_02.tga" imgrect="221 0 220 260" CMM_Caption="우피니스"/>
 		<image name="balloon_boss_Slogutis" file="\skin\monster_Dlg_02.tga" imgrect="442 0 220 260" CMM_Caption="마신 슬로거티스"/>
 		<image name="balloon_boss_MerreginaDespair" file="\skin\monster_Dlg_02.tga" imgrect="0 261 220 260" CMM_Caption="절망의 머레지나"/>
+		<image name="balloon_boss_neringa_of_evil" file="\skin\monster_Dlg_02.tga" imgrect="221 261 220 260" CMM_Caption="악의 자아에 물든 네링가"/>
+		<image name="balloon_boss_crystal_golem" file="\skin\monster_Dlg_02.tga" imgrect="442 261 220 260" CMM_Caption="수정 골렘"/>
 	</imagelist>
 	<imagelist category="bufficon">
 		<image name="icon_Str_up" file="\icon\buff_icon.tga" imgrect="256 384 128 128" CMM_Caption="힘+"/>
@@ -16200,6 +16321,11 @@
 		<image name="icon_buff_SuperBossSkill_11" file="\icon\buff_icon7.tga" imgrect="0 512 128 128" CMM_Caption="암흑 고리"/>
 		<image name="icon_buff_ridepet_falouros" file="\icon\buff_icon7.tga" imgrect="128 512 128 128" CMM_Caption="팔로우로스"/>
 		<image name="icon_pet_ep13dessert_pink_buff" file="\icon\buff_icon7.tga" imgrect="256 512 128 128" CMM_Caption="딸기 스위트 펭"/>
+		<image name="icon_buff_ridepet_capybara" file="\icon\buff_icon7.tga" imgrect="512 512 128 128" CMM_Caption="카피바라"/>
+		<image name="icon_buff_revelation_hope" file="\icon\buff_icon7.tga" imgrect="640 512 128 128" CMM_Caption="희망의 계시"/>
+		<image name="icon_raid_neringa_autoclear" file="\icon\buff_icon7.tga" imgrect="768 512 128 128" CMM_Caption="네링가 자동 소탕 버프"/>
+		<image name="icon_raid_crystalgolem_autoclear" file="\icon\buff_icon7.tga" imgrect="896 512 128 128" CMM_Caption="수정 골렘 자동 소탕 버프"/>
+		<image name="icon_buff_ridepet_elephant" file="\icon\buff_icon7.tga" imgrect="0 640 128 128" CMM_Caption="코끼리"/>
 	</imagelist>
 	<imagelist category="housing_bufficon">
 		<image name="icon_Weapon_Klaida" file="\icon\icon_hosing_buff.tga" imgrect="0 0 128 128"/>
@@ -16642,6 +16768,8 @@
 		<image name="170_boss_Upinis" file="\skin\bosscard\170_boss_Upinis.tga" imgrect="0 0 330 440"/>
 		<image name="171_boss_Slogutis" file="\skin\bosscard\171_boss_Slogutis.tga" imgrect="0 0 330 440"/>
 		<image name="172_boss_MerreginaDespair" file="\skin\bosscard\172_boss_MerreginaDespair.png" imgrect="0 0 330 440"/>
+		<image name="173_boss_DarkNeringa" file="\skin\bosscard\173_boss_DarkNeringa.tga" imgrect="0 0 330 440"/>
+		<image name="174_boss_CrystalGolem" file="\skin\bosscard\174_boss_CrystalGolem.tga" imgrect="0 0 330 440"/>
 	</imagelist>
 	<imagelist category="sub_card3">
 		<image name="legend_card_fragment_lv1" file="\skin\bosscard\legend_card_fragment_lv1.tga" imgrect="0 0 330 440"/>
@@ -17021,6 +17149,19 @@
 		<image name="plate_achieve_PerfectPopolion" file="\skin\user_title_skin2.tga" imgrect="856 204 214 34" CMM_Caption="퍼펙트 포포리온 칭호"/>
 		<image name="plate_achieve_Vanquisher_weekraid" file="\skin\user_title_skin2.tga" imgrect="1070 204 214 34" CMM_Caption="뱅퀴셔 주보레 칭호"/>
 		<image name="plate_achieve_Vanquisher" file="\skin\user_title_skin2.tga" imgrect="0 238 214 34" CMM_Caption="뱅퀴셔 칭호"/>
+		<image name="plate_achieve_Vulture_weekraid" file="\skin\user_title_skin2.tga" imgrect="214 238 214 34" CMM_Caption="벌쳐 주보레 칭호"/>
+		<image name="plate_achieve_Vulture" file="\skin\user_title_skin2.tga" imgrect="428 238 214 34" CMM_Caption="벌쳐 칭호"/>
+		<image name="plate_achieve_Tidal_Serenity" file="\skin\user_title_skin2.tga" imgrect="642 238 214 34" CMM_Caption="포포 부스트 클리어 칭호"/>
+		<image name="plate_achieve_BlackRevelation" file="\skin\user_title_skin2.tga" imgrect="856 238 214 34" CMM_Caption="검은 계시의 장(Hard) 150회 클리어"/>
+		<image name="plate_achieve_CollapsingMine" file="\skin\user_title_skin2.tga" imgrect="1070 238 214 34" CMM_Caption="무너지는 광산(Hard) 150회 클리어"/>
+		<image name="plate_achieve_Boss_DarkNeringa_gold" file="\skin\user_title_skin2.tga" imgrect="0 272 214 34" CMM_Caption="검은 계시의 장 골드"/>
+		<image name="plate_achieve_Boss_DarkNeringa_silver" file="\skin\user_title_skin2.tga" imgrect="214 272 214 34" CMM_Caption="검은 계시의 장 실버"/>
+		<image name="plate_achieve_Boss_DarkNeringa_bronze" file="\skin\user_title_skin2.tga" imgrect="428 272 214 34" CMM_Caption="검은 계시의 장 브론즈"/>
+		<image name="plate_achieve_Boss_CrystalMiner_gold" file="\skin\user_title_skin2.tga" imgrect="642 272 214 34" CMM_Caption="무너지는 광산 골드"/>
+		<image name="plate_achieve_Boss_CrystalMiner_silver" file="\skin\user_title_skin2.tga" imgrect="856 272 214 34" CMM_Caption="무너지는 광산 실버"/>
+		<image name="plate_achieve_Boss_CrystalMiner_bronze" file="\skin\user_title_skin2.tga" imgrect="1070 272 214 34" CMM_Caption="무너지는 광산 브론즈"/>
+		<image name="plate_achieve_Sledger_weekraid" file="\skin\user_title_skin2.tga" imgrect="0 306 214 34" CMM_Caption="슬레저 주보레 칭호"/>
+		<image name="plate_achieve_Sledger" file="\skin\user_title_skin2.tga" imgrect="214 306 214 34" CMM_Caption="슬레저 칭호"/>
 	</imagelist>
 	<imagelist category="skin_hair">
 		<image name="icon_skintone_01_m01" file="\skin\skinhair\icon_skintone_01_m01.png" imgrect="0 0 80 80" CMM_Caption="남성 01"/>
@@ -17184,6 +17325,8 @@
 		<image name="ridepet_bluedragon" file="\icon\ridepet.tga" imgrect="0 240 80 80" CMM_Caption="푸른 용"/>
 		<image name="ridepet_ep16yongyong" file="\icon\ridepet.tga" imgrect="80 240 80 80" CMM_Caption="용용이"/>
 		<image name="ridepet_falouros" file="\icon\ridepet.tga" imgrect="160 240 80 80" CMM_Caption="팔로우로스"/>
+		<image name="ridepet_capybara" file="\icon\ridepet.tga" imgrect="240 240 80 80" CMM_Caption="카피바라"/>
+		<image name="ridepet_elephant" file="\icon\ridepet.tga" imgrect="320 240 80 80" CMM_Caption="코끼리"/>
 	</imagelist>
 	<effectimagelist category="effectlist">
 		<image name="blue_orb" file="\icon\blue_orb.tga" imgrect="0 0 256 256"/>
@@ -17304,6 +17447,7 @@
 		<image name="icon_fullscreen_menu_housing" file="\skin\ui_hud_icon.tga" imgrect="512 640 128 128"/>
 		<image name="icon_fullscreen_menu_contentsboard" file="\skin\ui_hud_icon.tga" imgrect="640 640 128 128"/>
 		<image name="icon_fullscreen_menu_totalmenu" file="\skin\ui_hud_icon.tga" imgrect="768 640 128 128"/>
+		<image name="icon_fullscreen_menu_equipment_processing" file="\skin\ui_hud_icon.tga" imgrect="896 640 128 128"/>
 		<image name="fullscreen_menu_category" file="\skin\ui_hud_icon.tga" imgrect="0 918 350 50"/>
 		<image name="fullscreen_menu_button" file="\skin\ui_hud_icon.tga" imgrect="0 768 350 50" CMM_Caption="전체메뉴배경버튼"/>
 		<image name="fullscreen_menu_button_cursoron" file="\skin\ui_hud_icon.tga" imgrect="0 818 350 50"/>
@@ -17473,9 +17617,9 @@
 		<image name="kupolecardframe_SR" file="\skin\cupole_banner\kupolecardframe_SR.png" imgrect="0 0 256 256"/>
 		<image name="kupolecardframe_UR" file="\skin\cupole_banner\kupolecardframe_UR.png" imgrect="0 0 256 256"/>
 		<image name="back_cacheshop" file="\skin\cupole_bg\back_cacheshop.png" imgrect="0 0 1280 720"/>
-		<image name="potionhud" file="\skin\HUD.tga" imgrect="765 687 26 36"/>
-		<image name="potionhudoff" file="\skin\HUD.tga" imgrect="765 726 26 13"/>
-		<image name="potionhudon" file="\skin\HUD.tga" imgrect="765 742 26 13"/>
+		<image name="potionhud" file="\skin\HUD.tga" imgrect="758 690 30 37"/>
+		<image name="potionhudoff" file="\skin\HUD.tga" imgrect="758 729 28 13"/>
+		<image name="potionhudon" file="\skin\HUD.tga" imgrect="758 744 28 13"/>
 		<image name="kupolechain" file="\skin\cupole_banner\kupolechain.png" imgrect="0 0 512 512"/>
 		<image name="kupolechain_R" file="\skin\cupole_banner\kupolechain_R.png" imgrect="0 0 256 256"/>
 		<image name="kupolechain_SR" file="\skin\cupole_banner\kupolechain_SR.png" imgrect="0 0 256 256"/>
@@ -17499,9 +17643,47 @@
 		<image name="kupole_friendshipup" file="\skin\cupole_bg\kupole_friendshipup.jpg" imgrect="0 0 1440 720"/>
 		<image name="img_friend_friendshipup" file="\skin\cupole_banner\img_friend_friendshipup.png" imgrect="0 0 333 45"/>
 		<image name="img_friend_frame_level" file="\skin\cupole_banner\img_friend_frame_level.png" imgrect="0 0 553 232"/>
+		<image name="potionimg" file="\skin\glimoire_skin.tga" imgrect="93 340 40 46"/>
+		<image name="potiondef" file="\skin\glimoire_skin.tga" imgrect="63 340 29 14"/>
+		<image name="potionatk" file="\skin\glimoire_skin.tga" imgrect="63 355 29 14"/>
 	</imagelist>
 
 	<imagelist category="friendinvite">
 		<image name="friendletter" file="\skin\friendinvite.png" imgrect="0 0 72 72"/>
+	</imagelist>
+	<imagelist category="ItemGradeSkin">
+		<image name="1GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="960 1190 418 274"/>
+		<image name="1GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 798 406 62"/>
+		<image name="1GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 799 60 60"/>
+		<image name="2GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="518 895 418 274"/>
+		<image name="2GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 245 406 62"/>
+		<image name="2GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 246 60 60"/>
+		<image name="3GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="518 1485 418 274"/>
+		<image name="3GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 403 406 62"/>
+		<image name="3GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 404 60 60"/>
+		<image name="4GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="960 600 418 274"/>
+		<image name="4GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 640 406 62"/>
+		<image name="4GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 641 60 60"/>
+		<image name="5GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="960 305 418 274"/>
+		<image name="5GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 561 406 62"/>
+		<image name="5GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 562 60 60"/>
+		<image name="6GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="960 895 418 274"/>
+		<image name="6GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 719 406 62"/>
+		<image name="6GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 720 60 60"/>
+		<image name="7GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="518 600 418 274"/>
+		<image name="7GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 166 406 62"/>
+		<image name="7GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 167 60 60"/>
+		<image name="8GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="960 10 418 274"/>
+		<image name="8GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 482 406 62"/>
+		<image name="8GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 483 60 60"/>
+		<image name="9GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="518 305 418 274"/>
+		<image name="9GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 87 406 62"/>
+		<image name="9GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 88 60 60"/>
+		<image name="10GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="518 1190 418 274"/>
+		<image name="10GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 324 406 62"/>
+		<image name="10GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 325 60 60"/>
+		<image name="11GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="518 10 418 274"/>
+		<image name="11GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 8 406 62"/>
+		<image name="11GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 9 60 60"/>
 	</imagelist>
 </skinset>

@@ -2,8 +2,21 @@
 
 local json = require('json')
 
-SEASON_COIN_NAME = 'RadaCertificate'
-SEASON_COIN_PREFIX_NAME = 'RadaCertificateCoin'
+SEASON_COIN_NAME = 'JurateCertificate'
+SEASON_COIN_PREFIX_NAME = 'JurateCertificateCoin'
+
+function replace(text, to_be_replaced, replace_with)
+	local retText = text
+	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
+    if strFindStart ~= nil then
+		local nStringCnt = string.len(text)		
+		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
+    else
+        retText = text
+	end
+	
+    return retText
+end
 
 function is_goddess_moru(item)
     if string.find(TryGetProp(item, 'StringArg', 'None'), 'Certificate') ~= nil and TryGetProp(item, 'NumberArg1', 0) > 0 then
@@ -3409,6 +3422,96 @@ function JOB_ILLUSIONIST_PRE_CHECK(pc, jobCount)
     return 'NO'
 end
 
+function JOB_VULTURE_W_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char2_26', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_VULTURE_A_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char3_25', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_VULTURE_T_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char5_20', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_SLEDGER_C_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char4_24', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_SLEDGER_S_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char1_27', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
 function JOB_SPEARMASTER_PRE_CHECK(pc, jobCount)
     local aObj
     if IsServerSection() == 0 then
@@ -3605,8 +3708,6 @@ function JOB_BowMaster_PRE_CHECK(pc, jobCount)
 
     return 'NO'
 end
-
-
 
 function GET_ACCOUNT_WAREHOUSE_EXTEND_PRICE(aObj, taxRate)
     local slotDiff = aObj.AccountWareHouseExtend;
@@ -4336,6 +4437,14 @@ function IS_BOUNTY_BATTLE_BUFF_APPLIED(pc)
     return 0;
 end
 
+function IS_JUMP_MAP_BUFF_APPLIED(pc)
+    if IsBuffApplied(pc, 'EVENT_2105_CAMPING_JUMP') == "YES" then
+        return 1;
+    end
+
+    return 0;
+end
+
 function IS_DEFAULT_COSTUME_LOCK(JobID)
     local jobCls = GetClassByType("Job", JobID);
     local defaultCostume = TryGetProp(jobCls, "DefaultCostume", "None")
@@ -4568,6 +4677,7 @@ function CHECK_TOSW_BLOCKADE_RESTRICT_TIME(event_id)
     --[[ if event_id == 503 or event_id == 504 or event_id == 505 then
         return CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME();        
     end ]]
+
     return false;
 end
 
@@ -4582,54 +4692,26 @@ function CHECK_TOSW_FISHING_AND_COLONY_RESTRICT_TIME()
     return false;
 end
 
--- 트오세 W - 베르니케 파편던전 PreCheck 에서 사용.
-function CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME()
-    --[[ local time = nil;
-    if IsServerSection() == 1 then
-        time = GetDBTime();
-    elseif IsServerSection() ~= 1 then
-        time = geTime.GetServerSystemTime(); 
-    end
-    if time ~= nil then
-        local month = time.wMonth;
-        if month == 4 then
-            local day = time.wDay;
-            local hour = time.wHour;
-            if day == 29 or day == 30 then
-                if day == 30 and hour > 12 then
-                    return false;
-                end
-                return true;
-            end
-        end
-    end
-    return false; ]]
-end
-
 -- 트오세 W - 주간 보스 레이드 제한.
 function CHECK_TOSW_WEEKLY_BOSS_RAID_RESTRICT_TIME()
-    --[[ local time = nil;
-    if IsServerSection() == 1 then
-        time = GetDBTime();
-    elseif IsServerSection() ~= 1 then
-        time = geTime.GetServerSystemTime(); 
-    end
-    if time ~= nil then
-        local month = time.wMonth;
-        if month == 4 then
-            local day = time.wDay;
-            local hour = time.wHour;
-            if day == 29 or day == 30 then
-                if day == 30 and hour > 12 then
-                    return false;
-                end
-                return true;
-            end
-        end
-    end ]]
-    return false;
+    return CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME();
 end
 
+
+-- 트오세 W - 베르니케 파편던전 PreCheck 에서 사용.
+function CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME()
+    local start = '2024-09-09 00:00:00';
+    local finish = '2024-09-12 10:00:00';
+    local nation = GetServerNation();
+    if nation == "PAPAYA" then
+        start = '2024-10-07 00:00:00';
+        finish = '2024-10-11 10:00:00';
+    end
+    if date_time.is_between_time(start, finish) == true then
+        return true;
+    end
+    return false;
+end
 
 -- 트오세 W 통합 제한
 function CHECK_TOSW_RESTRICT_TIME()
@@ -4669,8 +4751,8 @@ function CHECK_TOSW_RESTRICT_TIME()
                 end
             end
         end
-    end ]]
-    return false;
+    end
+    return false; ]]
 end
 
 -- 트오세 W - 팀 배틀리그
@@ -4820,7 +4902,10 @@ function M_NUMBER_FORMAT(num)
 end
 
 function IS_ABLE_TO_JOIN_GUILD_EVENT(pc, cls)
-    local limit = TryGetProp(cls, 'PlayerLv', 0)
+    local limit = TryGetProp(cls, 'PlayerLv', 0);
+    if TryGetProp(cls, "BlockMission", "NO") == "YES" then
+        limit = PC_MAX_LEVEL;
+    end
     if pc.Lv < limit then
         return false
     else
@@ -4834,6 +4919,6 @@ function GET_BLACK_MARKET_COIN_NAME()
 end
 
 function GET_BLACK_MARKET_RETURN_ITEM_ID()
--- RadaCertificateCoin_1000000p
-    return 1000000, '11200350'  -- 뒤에서 부터 1번    
+-- CertificateCoin_1000000p
+    return 1000000, '11201238'  -- 뒤에서 부터 1번    
 end

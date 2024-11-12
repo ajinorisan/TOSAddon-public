@@ -372,7 +372,7 @@ function GET_CUPOLE_SPECIAL_ACCOUNTPROPS(index)
     local cls = GET_CUPOLE_CLASS_BY_INDEX(index)
     local prop1 = TryGetProp(cls, "SpecialProp1", "None")
     local prop2 = TryGetProp(cls, "SpecialProp2", "None")
-    return prop1, prop2;
+    return {prop1, prop2};
 end
 
 function GET_CUPOLE_SPECIAL_ITEMS(pc, index)
@@ -392,10 +392,14 @@ function GET_CUPOLE_SPECIAL_ITEMS(pc, index)
     if acc == nil then
         return 0;
     end
-    local prop1, prop2 = GET_CUPOLE_SPECIAL_ACCOUNTPROPS(index)
-    
-    local Item1 = TryGetProp(acc, prop1, "None")
-    local Item2 = TryGetProp(acc, prop2, "None")
+    local prop = GET_CUPOLE_SPECIAL_ACCOUNTPROPS(index)
+
+    if prop[1] == "None" then
+        return -1, -1
+    end
+
+    local Item1 = TryGetProp(acc, prop[1], "None")
+    local Item2 = TryGetProp(acc, prop[2], "None")
 
     return Item1, Item2;
 end
@@ -725,4 +729,24 @@ function GET_KUPOLE_UPGRADE_ITEM_COUNT(UpgradeCls, rank)
     local UpgradeCount = TryGetProp(UpgradeCls, "UpgradeItemValue")
     
     return UpgradeItemClassName, UpgradeCount + tonumber(rank) - 1
+end
+
+function GE_CURRENTE_PICKUP_CUPOLE_ULTRA_RANK_LIST()
+    local cupolelist, cupolecnt = GetClassList("cupole_list");
+    local ratiolist, ratiocnt = GetClassList("cupole_ratio");
+
+    local URList = {};
+    for i = 0, cupolecnt - 1 do
+        local cupolecls = GetClassByIndexFromList(cupolelist, i)
+        local Grade = TryGetProp(cupolecls, "Grade", "R")
+        local ClsName = TryGetProp(cupolecls, "ClassName", "None")
+        if Grade == "UR" then
+            local RatioItem = GetClassByNameFromList(ratiolist, ClsName);
+            if RatioItem then
+                table.insert(URList, cupolecls)
+            end
+        end
+    end
+
+    return URList;
 end
