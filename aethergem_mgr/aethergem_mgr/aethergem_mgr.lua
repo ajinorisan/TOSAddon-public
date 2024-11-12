@@ -7,10 +7,11 @@
 -- v1.0.9 23.09.05patch対応。LV500エーテルジェム対応。
 -- v1.1.0 右クリックで着け外し機能削除
 -- v1.1.1 UIをすっきりした。
+-- v1.1.2 520対応。
 local addonName = "AETHERGEM_MGR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -43,7 +44,7 @@ function AETHERGEM_MGR_LOADSETTINGS()
 
     if err then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
 
     if not settings then
@@ -70,6 +71,7 @@ end
 function AETHERGEM_MGR_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
+    g.lang = option.GetCurrentCountry()
 
     addon:RegisterMsg("GAME_START_3SEC", "AETHERGEM_MGR_LOADSETTINGS")
     addon:RegisterMsg("GAME_START_3SEC", "AETHERGEM_MGR_FRAME_INIT")
@@ -100,142 +102,67 @@ function AETHERGEM_MGR_FRAME_INIT()
     AUTO_CAST(icon)
     icon:SetImage(iconImg);
     slot:Resize(30, 30)
-    icon:SetTextTooltip("{ol}Aethegem Manager{nl}Right click:Setup{nl}Left click:activation{nl}" ..
-                            "右クリック：設定{nl}左クリック：作動")
+    icon:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック：設定{nl}左クリック：作動" or
+                            "{ol}Aethegem Manager{nl}Right click:Setup{nl}Left click:activation")
     slot:SetEventScript(ui.RBUTTONUP, "AETHERGEM_MGR_GEM_SETTING")
     slot:SetEventScript(ui.RBUTTONDOWN, "AETHERGEM_MGR_DELAY_FRAME_INIT")
     slot:SetEventScript(ui.LBUTTONUP, "AETHERGEM_MGR_REMOVEEQUIP_BUTTON_CLICK")
 
 end
 
+local gem_mapping = {
+    ["480[STR]"] = 850006,
+    ["480[INT]"] = 850007,
+    ["480[CON]"] = 850010,
+    ["480[SPR]"] = 850009,
+    ["480[DEX]"] = 850008,
+    ["500[STR]"] = 850011,
+    ["500[INT]"] = 850012,
+    ["500[CON]"] = 850015,
+    ["500[SPR]"] = 850014,
+    ["500[DEX]"] = 850013,
+    ["520[STR]"] = 850016,
+    ["520[INT]"] = 850017,
+    ["520[CON]"] = 850020,
+    ["520[SPR]"] = 850019,
+    ["520[DEX]"] = 850018
+}
+
+local gem_order = {"480[STR]", "480[INT]", "480[CON]", "480[SPR]", "480[DEX]", "500[STR]", "500[INT]", "500[CON]",
+                   "500[SPR]", "500[DEX]", "520[STR]", "520[INT]", "520[CON]", "520[SPR]", "520[DEX]"}
+
 function AETHERGEM_MGR_GEM_SETTING(frame)
+    local context = ui.CreateContextMenu("AETHERGEM_SETTING", "Aether Gem Setting", 0, 50, 180, 100)
 
-    local handlelist = {
-        [1] = "480[STR]",
-        [2] = "480[INT]",
-        [3] = "480[CON]",
-        [4] = "480[SPR]",
-        [5] = "480[DEX]",
-        [6] = "500[STR]",
-        [7] = "500[INT]",
-        [8] = "500[CON]",
-        [9] = "500[SPR]",
-        [10] = "500[DEX]"
+    for _, handle in ipairs(gem_order) do
+        local scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handle)
+        ui.AddContextMenuItem(context, handle, scp)
 
-    }
+        -- 各カテゴリーに区切りを追加
+        if handle == "480[DEX]" then
+            ui.AddContextMenuItem(context, "  ")
+        elseif handle == "500[DEX]" then
+            ui.AddContextMenuItem(context, "   ")
+        end
+    end
 
-    local context = ui.CreateContextMenu("AETHERGEM_SETTING", "Aethegem Setting", 0, 50, 180, 100);
-
-    local scp = ""
-    -- icon_item_highcolorgem_STR
-
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[1])
-    ui.AddContextMenuItem(context, handlelist[1], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[2])
-    ui.AddContextMenuItem(context, handlelist[2], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[3])
-    ui.AddContextMenuItem(context, handlelist[3], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[4])
-    ui.AddContextMenuItem(context, handlelist[4], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[5])
-    ui.AddContextMenuItem(context, handlelist[5], scp);
-    ui.AddContextMenuItem(context, "  ");
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[6])
-    ui.AddContextMenuItem(context, handlelist[6], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[7])
-    ui.AddContextMenuItem(context, handlelist[7], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[8])
-    ui.AddContextMenuItem(context, handlelist[8], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[9])
-    ui.AddContextMenuItem(context, handlelist[9], scp);
-    scp = string.format("AETHERGEM_MGR_SELECTED('%s')", handlelist[10])
-    ui.AddContextMenuItem(context, handlelist[10], scp);
-    ui.AddContextMenuItem(context, " ");
-    ui.AddContextMenuItem(context, "Cancel");
-
-    ui.OpenContextMenu(context);
-
+    ui.AddContextMenuItem(context, " ")
+    ui.AddContextMenuItem(context, "Cancel")
+    ui.OpenContextMenu(context)
 end
 
 function AETHERGEM_MGR_SELECTED(handle)
-
     local CID = session.GetMySession():GetCID()
+    local gemid = gem_mapping[handle]
 
-    if handle == '480[STR]' then
-
-        local gemid = 850006
+    if gemid then
         g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.480]エーテルジェム-力を登録しました。{nl}[Lv.480] Aether Gem - STR set on this character.")
-
-    elseif handle == '480[INT]' then
-        local gemid = 850007
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.480]エーテルジェム-知能を登録しました。{nl}[Lv.480] Aether Gem - INT set on this character.")
-
-    elseif handle == '480[CON]' then
-        local gemid = 850010
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.480]エーテルジェム-体力を登録しました。{nl}[Lv.480] Aether Gem - CON set on this character.")
-
-    elseif handle == '480[SPR]' then
-        local gemid = 850009
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.480]エーテルジェム-精神を登録しました。{nl}[Lv.480] Aether Gem - SPR set on this character.")
-
-    elseif handle == '480[DEX]' then
-        local gemid = 850008
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.480]エーテルジェム-敏捷を登録しました。{nl}[Lv.480] Aether Gem - DEX set on this character.")
-
-    elseif handle == '500[STR]' then
-        local gemid = 850011
-        g.settings[CID].gemid = gemid
-        ui.SysMsg(
-            "[Lv.500]エーテルジェム-力を登録しました。{nl}[Lv.500] Aether Gem - STR set on this character.")
-
-    elseif handle == '500[INT]' then
-        local gemid = 850012
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.500]エーテルジェム-知能を登録しました。{nl}[Lv.500] Aether Gem - INT set on this character.")
-
-    elseif handle == '500[CON]' then
-        local gemid = 850015
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.500]エーテルジェム-体力を登録しました。{nl}[Lv.500] Aether Gem - CON set on this character.")
-
-    elseif handle == '500[SPR]' then
-        local gemid = 850014
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.500]エーテルジェム-精神を登録しました。{nl}[Lv.500] Aether Gem - SPR set on this character.")
-
-    elseif handle == '500[DEX]' then
-        local gemid = 850013
-        g.settings[CID].gemid = gemid
-
-        ui.SysMsg(
-            "[Lv.500]エーテルジェム-敏捷を登録しました。{nl}[Lv.500] Aether Gem - DEX set on this character.")
-
+        ui.SysMsg(g.lang == "Japanese" and "{ol}" .. handle .. " エーテルジェムを登録しました。" or
+                      "{ol}" .. handle .. " Aether Gem set on this character.")
     end
 
     AETHERGEM_MGR_SAVE_SETTINGS()
     AETHERGEM_MGR_FRAME_INIT()
-
 end
 
 function AETHERGEM_MGR_DELAY_FRAME_INIT()
@@ -249,10 +176,7 @@ function AETHERGEM_MGR_DELAY_FRAME_INIT()
         return
     end
     delayframe:SetSkinName('None')
-    -- delayframe:ShowTitleBar(0)
     delayframe:Resize(70, 40)
-    -- delayframe:SetLayerLevel(100)
-    -- delayframe:SetPos(1830, 330)
 
     delayframe:RemoveAllChild()
 
@@ -263,9 +187,9 @@ function AETHERGEM_MGR_DELAY_FRAME_INIT()
     delay:SetFontName("white_16_ol")
     delay:SetTextAlign("center", "center")
     delay:SetEventScript(ui.ENTERKEY, "AETHERGEM_MGR_DELAY_SAVE")
-    delay:SetTextTooltip("{ol}Aethegem Manager" ..
-                             "動作のディレイ時間を設定します。デフォルトは0.6秒。早過ぎると失敗が多発します。{nl}" ..
-                             "Sets the delay time for the operation. Default is 0.6 seconds. Too early and many failures will occur.")
+    delay:SetTextTooltip(g.lang == "Japanese" and
+                             "{ol}Aethegem Manager{nl}動作のディレイ時間を設定します。{nl}デフォルトは0.6秒。{nl}早過ぎると失敗が多発します。" or
+                             "{ol}Aethegem Manager{nl}Sets the delay time for the operation.{nl}Default is 0.6 seconds.{nl}Too early and many failures will occur.")
 
     delayframe:ShowWindow(1)
 end
@@ -275,10 +199,12 @@ function AETHERGEM_MGR_DELAY_SAVE(frame, ctrl, argStr, argNum)
     frame:ShowWindow(0)
     local delay = tonumber(ctrl:GetText())
     if delay > 0.3 and delay < 0.8 then
-        ui.SysMsg("Delay time is now set to " .. delay .. " seconds")
+        ui.SysMsg(g.lang == "Japanese" and "ディレイタイムを" .. delay .. "秒に設定しました。" or
+                      "Delay time is now set to " .. delay .. " seconds")
         g.settings.delay = delay
     else
-        ui.SysMsg("Set between 0.3 and 0.8 seconds.")
+        ui.SysMsg(g.lang == "Japanese" and "0.3～0.8秒の間で設定してください。" or
+                      "Set between 0.3 and 0.8 seconds.")
         return
     end
     AETHERGEM_MGR_SAVE_SETTINGS()
@@ -300,15 +226,6 @@ function AETHERGEM_MGR_GODDESS_EQUIP_MANAGER_OPEN(frame)
         return
     end
 
-    --[[ui.CloseFrame('rareoption')
-    ui.CloseFrame('item_cabinet')
-    for i = 1, #revertrandomitemlist do
-        local revert_name = revertrandomitemlist[i]
-        local revert_frame = ui.GetFrame(revert_name)
-        if revert_frame ~= nil and revert_frame:IsVisible() == 1 then
-            ui.CloseFrame(revert_name)
-        end
-    end]]
     local frame = ui.GetFrame('goddess_equip_manager')
     frame:ShowWindow(1)
     local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')

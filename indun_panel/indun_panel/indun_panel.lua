@@ -44,10 +44,12 @@
 -- v1.4.4 分裂券のデイリー分買えなかったの修正。くやしい
 -- v1.4.5 ネリゴレハード追加
 -- v1.4.6 分裂券とチャレ券使う順番明確化。
+-- v1.4.7 20241112のチャレンジアップデートで殺されたのを直した。
+-- v1.4.8 デザインをユーザーに叩かれたので元に戻した。クヤシイ
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.6"
+local ver = "1.4.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -133,6 +135,7 @@ function indun_panel_frame_init()
 
     frame:SetSkinName('None')
     frame:SetLayerLevel(30)
+    -- frame:Resize(110, 50)
     frame:Resize(140, 40)
     frame:SetPos(665, 30)
     frame:SetTitleBarSkin("None")
@@ -142,8 +145,15 @@ function indun_panel_frame_init()
 
     frame:RemoveAllChild()
 
+    -- local button = frame:CreateOrGetControl("button", "indun_panel_open", 0, 0, 50, 50)
     local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
     AUTO_CAST(button)
+
+    -- button:SetSkinName("None")
+    -- sysmenu_instantDungeon
+    --[[button:SetText("{img sysmenu_instantDungeon 50 50}")
+    button:SetTextTooltip("{ol}Indun Panel " .. ver)
+    button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")]]
     button:SetText("{ol}{s11}INDUNPANEL")
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
 
@@ -152,6 +162,12 @@ function indun_panel_frame_init()
     ccbtn:SetSkinName("None")
     ccbtn:SetText("{img barrack_button_normal 30 30}")
     ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+
+    --[[local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 60, 10, 30, 30)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 30 30}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")]]
 
     frame:ShowWindow(1)
     frame:RunUpdateScript("indun_panel_time_update", 300)
@@ -244,6 +260,56 @@ function indun_panel_init(frame)
     configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
     configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}レイド表示設定" or "{ol}Raid Display Settings")
 
+    --[[local button = frame:CreateOrGetControl("button", "indun_panel_open", 0, 0, 50, 50)
+    AUTO_CAST(button)
+    button:SetSkinName("None")
+    -- sysmenu_instantDungeon
+    button:SetText("{img sysmenu_instantDungeon 50 50}")
+    -- button:SetText("{ol}{s11}INDUNPANEL")
+
+    local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 60, 10, 30, 30)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 30 30}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+    ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります。" or "{ol}Return to Barracks.")
+
+    local configbtn = frame:CreateOrGetControl('button', 'configbtn', 100, 10, 30, 30)
+    AUTO_CAST(configbtn)
+    configbtn:SetSkinName("None")
+    configbtn:SetText("{img config_button_normal 30 30}")
+    configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
+    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}レイド表示設定" or "{ol}Raid Display Settings")
+
+    local tosshop = frame:CreateOrGetControl("button", "tosshop", 132, 13, 25, 25);
+    AUTO_CAST(tosshop)
+    tosshop:SetSkinName("None")
+    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+    tosshop:SetTextTooltip(g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop")
+    tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
+
+    -- goddess3_shop_btn
+    local gabija = frame:CreateOrGetControl("button", "gabija", 160, 12, 29, 29);
+    AUTO_CAST(gabija)
+    gabija:SetSkinName("None")
+    gabija:SetText("{img goddess_shop_btn 29 29}")
+    gabija:SetTextTooltip(g.lang == "Japanese" and "{ol}ガビヤショップ" or "{ol}Gabija Shop")
+    gabija:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
+
+    local vakarine = frame:CreateOrGetControl("button", "vakarine", 190, 12, 29, 29);
+    AUTO_CAST(vakarine)
+    vakarine:SetSkinName("None")
+    vakarine:SetText("{img goddess2_shop_btn 29 29}")
+    vakarine:SetTextTooltip(g.lang == "Japanese" and "{ol}ヴァカリネショップ" or "{ol}Vakarine Shop")
+    vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
+
+    local rada = frame:CreateOrGetControl("button", "rada", 220, 12, 29, 29);
+    AUTO_CAST(rada)
+    rada:SetSkinName("None")
+    rada:SetText("{img goddess3_shop_btn 29 29}")
+    rada:SetTextTooltip(g.lang == "Japanese" and "{ol}ラダショップ" or "{ol}Rada Shop")
+    rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")]]
+
     if configbtn:IsVisible() == 1 then
         button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
 
@@ -294,13 +360,13 @@ end
 
 local induntype = {{
     challenge = {
-        s460 = 644,
-        s480 = 645,
-        pt = 646
+        s460 = 1000,
+        s480 = 1001,
+        pt = 1002
     }
 }, {
     singularity = {
-        normal = 647
+        normal = 2000
     }
 }, {
     neringa = {
@@ -868,20 +934,20 @@ function indun_panel_challenge_frame(frame, key, y)
     local cha_460 = frame:CreateOrGetControl('button', 'cha_460', 135, y, 80, 30)
     cha_460:SetText("{ol}500")
     cha_460:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_solo")
-    cha_460:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
+    cha_460:SetEventScriptArgNumber(ui.LBUTTONUP, 1000)
 
     local cha_480 = frame:CreateOrGetControl('button', 'cha_480', 220, y, 80, 30)
     cha_480:SetText("{ol}520")
     cha_480:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_solo")
-    cha_480:SetEventScriptArgNumber(ui.LBUTTONUP, 645)
+    cha_480:SetEventScriptArgNumber(ui.LBUTTONUP, 1001)
 
     local cha_pt = frame:CreateOrGetControl('button', 'cha_pt', 305, y, 80, 30)
     cha_pt:SetText("{ol}{#FFD900}PT")
     cha_pt:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_pt")
-    cha_pt:SetEventScriptArgNumber(ui.LBUTTONUP, 646)
+    cha_pt:SetEventScriptArgNumber(ui.LBUTTONUP, 1002)
 
     local cha_count = frame:CreateOrGetControl("richtext", "cha_count", 390, y + 5, 40, 30)
-    cha_count:SetText(indun_panel_GetEntranceCountText(646, 2))
+    cha_count:SetText(indun_panel_GetEntranceCountText(1002, 2))
 
     local cha_ticket = frame:CreateOrGetControl('button', 'cha_ticket', 435, y, 80, 30)
     cha_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
@@ -891,7 +957,7 @@ function indun_panel_challenge_frame(frame, key, y)
                 "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
                 "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))"))
     cha_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
-    cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 644)
+    cha_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 1000)
 
     local cha_ticketcount = frame:CreateOrGetControl("richtext", "cha_ticketcount", 520, y + 5, 40, 30)
 
@@ -907,7 +973,7 @@ function indun_panel_singularity_frame(frame, key, y)
     local sin_n = frame:CreateOrGetControl('button', 'sin_n', 135, y, 80, 30)
     sin_n:SetText("{ol}{#FFD900}520")
     sin_n:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_pt")
-    sin_n:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
+    sin_n:SetEventScriptArgNumber(ui.LBUTTONUP, 2000)
 
     --[[local sin_ex = frame:CreateOrGetControl('button', 'sin_ex', 220, y, 80, 30)
     sin_ex:SetText("{ol}{#FF0000}EX")
@@ -915,7 +981,7 @@ function indun_panel_singularity_frame(frame, key, y)
     sin_ex:SetEventScriptArgNumber(ui.LBUTTONUP, 691)]]
 
     local sin_count = frame:CreateOrGetControl("richtext", "sin_count", 220, y + 5, 30, 30)
-    sin_count:SetText(indun_panel_GetEntranceCountText(647, 1))
+    sin_count:SetText(indun_panel_GetEntranceCountText(2000, 1))
 
     local sin_ticket = frame:CreateOrGetControl('button', 'sin_ticket', 250, y, 80, 30)
     sin_ticket:SetText("{ol}{#EE7800}{s14}BUYUSE")
@@ -924,7 +990,7 @@ function indun_panel_singularity_frame(frame, key, y)
             "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
                 "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))"))
     sin_ticket:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
-    sin_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 647)
+    sin_ticket:SetEventScriptArgNumber(ui.LBUTTONUP, 2000)
 
     local sin_ticketcount = frame:CreateOrGetControl("richtext", "sin_ticketcount", 335, y + 5, 40, 30)
     sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}d:" ..
@@ -1187,7 +1253,7 @@ end
 function indun_panel_buyuse(recipeName)
     INDUN_PANEL_ITEM_BUY_USE(recipeName)
 end
-
+-- print(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314"))
 function indun_panel_item_use_sin(indun_type, enterance_count)
 
     session.ResetItemList()
@@ -1241,9 +1307,9 @@ function indun_panel_item_use_sin(indun_type, enterance_count)
         return
     end
 
-    local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_27")
+    local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314")
     if mcount >= 1 and enterance_count == 0 then
-        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_27")
+        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_314")
         return
     end
 
@@ -1349,9 +1415,9 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
 
     local enterance_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType)
 
-    if indun_type == 647 then
+    if indun_type == 2000 then
         indun_panel_item_use_sin(indun_type, enterance_count)
-    elseif indun_type == 644 then
+    elseif indun_type == 1000 then
         indun_panel_item_use_cha(indun_type, enterance_count)
     end
 end

@@ -44,10 +44,11 @@
 -- v1.4.4 ヴァカリネ装備をレイド時に他人に知らせる機能
 -- v1.4.5 週ボス報酬を自動で受け取る機能。不安定かも。
 -- v1.4.6 テスト用。
+-- v1.4.7 死んだときのフレーム制御ミスってたの修正
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.6"
+local ver = "1.4.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -56,6 +57,7 @@ local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
 local os = require("os")
+
 local folder_path = string.format("../addons/%s", addonNameLower)
 os.execute('mkdir "' .. folder_path .. '"')
 
