@@ -114,6 +114,17 @@ function tos_google_translate_load_settings()
         name_file:close() -- ファイルが存在する場合は閉じる
     end
 
+    local send_file = io.open(g.send_location, "r")
+    if not send_file then
+        -- ファイルが存在しない場合は新しいファイルを作成
+        send_file = io.open(g.send_location, "w") -- "w" モードでファイルを開く
+        if send_file then
+            send_file:close() -- ファイルを閉じる
+        end
+    else
+        send_file:close() -- ファイルが存在する場合は閉じる
+    end
+
     tos_google_translate_save_settings()
 end
 
@@ -140,41 +151,65 @@ end
 function tos_google_translate_3SEC(frame, msg, str, num)
     -- g.addon:RegisterMsg("FPS_UPDATE", "tos_google_translate_chat");
     g.count = g.count or 1
-    acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "tos_google_translate_chat");
+    acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "tos_google_translate_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "tos_google_translate_name_trans");
 end
 
-function tos_google_translate_chat_(frame)
-    frame = GET_CHILD(frame, "chatgbox_63")
-    local child_count = frame:GetChildCount()
-    local child_names = {}
-    for i = 0, child_count - 1 do
-        local child = frame:GetChildByIndex(i)
-        table.insert(child_names, child:GetName())
+function tos_google_translate_name_replace(chatframe_name, msg_type, msg, name, chat_id)
+    CHAT_SYSTEM("test")
+    local frame = ui.GetFrame(chatframe_name)
+    if frame ~= nil then
+        CHAT_SYSTEM("test1")
+        local right_name = g.names[name]
+        if right_name ~= nil then
+            CHAT_SYSTEM("test2")
+
+            local clustername = "cluster_" .. chat_id
+            if clustername ~= nil then
+                CHAT_SYSTEM("test3")
+                local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+
+                local label = GET_CHILD(cluster, 'bg')
+                if label ~= nil then
+                    CHAT_SYSTEM("test4")
+
+                    local text = GET_CHILD(cluster, "text")
+                    if text ~= nil then
+                        CHAT_SYSTEM("test5")
+                        local commnderNameUIText = right_name .. " : " .. msg
+                        CHAT_SYSTEM(tostring(commnderNameUIText))
+                        -- print(tostring(commnderNameUIText))
+                        --[[local font_size = GET_CHAT_FONT_SIZE()
+                    local msg_front = ""
+                    local font_style = ""
+
+                    if msg_type == "Normal" then
+                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
+                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
+                    elseif msg_type == "Shout" then
+                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
+                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
+                    elseif msg_type == "Party" then
+                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
+                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
+                    elseif msg_type == "Guild" then
+                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
+                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
+                    elseif msg_type == "System" then
+                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
+                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_7"), commnderNameUIText)
+                    end
+
+                    text:SetTextByKey("font", font_style)
+                    text:SetTextByKey("size", font_size)
+                    text:SetTextByKey("text", msg_front)
+
+                    label:SetAlpha(0) -- アルファを0に設定]]
+                    end
+                end
+            end
+        end
     end
-
-    for i, name in ipairs(child_names) do
-        print(name)
-    end
-end
-
-function tos_google_translate_chat(frame, msg)
-
-    local frame = ui.GetFrame("chatframe")
-    local child_count = frame:GetChildCount()
-    local child_names = {}
-    for i = 0, child_count - 1 do
-        local child = frame:GetChildByIndex(i)
-        table.insert(child_names, child:GetName())
-    end
-
-    for i, name in ipairs(child_names) do
-        print(name)
-    end
-    print("test" .. g.count)
-
-    -- frame:RunUpdateScript("tos_google_translate_chat_", 1.0)
-
 end
 
 function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
@@ -184,10 +219,129 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
     if chatframe == nil then
         return;
     end
+
+    local clustername = ""
+    local chat_id = 0
     local frame = ui.GetFrame("chatframe")
     local size = session.ui.GetMsgInfoSize(groupboxname)
     local chat = session.ui.GetChatMsgInfo(groupboxname, size - 1)
-    if chat == nil then
+    for i = startindex, size - 1 do
+        local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
+        local chat_id = clusterinfo:GetMsgInfoID()
+        local clustername = "cluster_" .. chat_id
+        local cluster = GET_CHILD_RECURSIVELY(chatframe, clustername)
+        if cluster == nil then
+            return
+        elseif cluster:IsVisible() == 1 then
+
+            local msg_type = chat:GetMsgType()
+            local msg = chat:GetMsg()
+            local name = chat:GetCommanderName()
+            local send_msg = msg .. ":::" .. chat_id .. ":::" .. msg_type .. ":::" .. groupboxname
+
+            if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" then
+                return
+            end
+
+            if tos_google_translate_is_valid_name(msg) then
+                local send_file = io.open(g.send_location, "r")
+
+                if send_file then
+                    local content = send_file:read("*a") -- ファイルの全内容を読み込む
+                    send_file:close()
+
+                    send_file = io.open(g.send_location, "a") -- 追記モードで再度開く
+
+                    if content == "" then
+                        send_file:write(send_msg) -- 空の場合はそのまま書き込む
+                    else
+                        send_file:write("\n" .. send_msg) -- 空でない場合は改行を追加
+                    end
+
+                    send_file:close() -- ファイルを閉じる
+
+                end
+            end
+            if tos_google_translate_is_valid_name(name) then
+                -- 読み込み用のファイルを開く
+                local name_file_read = io.open(g.name_location, "r")
+                g.names = {}
+
+                if name_file_read then
+                    for line in name_file_read:lines() do
+                        local left_name, right_name = line:match("^(.-):::(.*)$")
+                        if left_name and right_name then
+                            g.names[left_name] = right_name -- 名前をキーとしたテーブルに保存     
+                            if left_name == name then
+                                -- name が left_name と一致した場合、break する
+                                break
+                            end
+                        end
+                    end
+                    name_file_read:close() -- 読み込み用のファイルを閉じる
+                end
+
+                -- 追記モードでファイルを開く
+                local name_file_write = io.open(g.name_location, "a")
+                if name_file_write then
+                    -- 既に名前が存在するかチェック
+                    if not g.names[name] then
+                        -- 新しい名前を追加
+                        g.names[name] = name
+                        name_file_write:write("\n" .. name .. ":::" .. name)
+                    end
+                    name_file_write:close() -- 書き込み用のファイルを閉じる
+
+                end
+
+                local right_name = g.names[name]
+                if right_name ~= nil then
+                    local clustername = "cluster_" .. chat_id
+                    if clustername ~= nil then
+                        local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+                        local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                        if text ~= nil then
+
+                            local commnderNameUIText = right_name .. " : " .. msg
+                            CHAT_SYSTEM(tostring(commnderNameUIText))
+                            local font_size = GET_CHAT_FONT_SIZE()
+                            local msg_front = ""
+                            local font_style = ""
+
+                            if msg_type == "Normal" then
+                                font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
+                                msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
+                            elseif msg_type == "Shout" then
+                                font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
+                                msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
+                            elseif msg_type == "Party" then
+                                font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
+                                msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
+                            elseif msg_type == "Guild" then
+                                font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
+                                msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
+                            elseif msg_type == "System" then
+                                font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
+                                msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_7"), commnderNameUIText)
+                            end
+
+                            text:SetTextByKey("font", font_style)
+                            text:SetTextByKey("size", font_size)
+                            text:SetTextByKey("text", msg_front)
+
+                        end
+                    end
+                end
+                --[[ReserveScript(string.format("tos_google_translate_name_replace('%s','%s','%s','%s',%d)",
+                    chatframe:GetName(), msg_type, msg, name, chat_id), 0.1)]]
+            end
+
+            --[[ReserveScript(string.format("tos_google_translate_name_replace('%s','%s','%s','%s',%d)",
+                chatframe:GetName(), msg_type, msg, name, chat_id), 0.1)]]
+            return
+        end
+    end
+    --[[if chat == nil then
         print(tostring(chat))
         return
     end
@@ -196,23 +350,6 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
 
     if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" then
         return
-    end
-
-    local clustername = ""
-
-    local chat_id = 0
-    for i = startindex, size - 1 do
-        local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
-        clustername = "cluster_" .. clusterinfo:GetMsgInfoID()
-        local cluster = GET_CHILD_RECURSIVELY(chatframe, clustername)
-        if cluster == nil then
-
-            return
-        elseif cluster:IsVisible() == 1 then
-
-            chat_id = clusterinfo:GetMsgInfoID()
-            break
-        end
     end
 
     if string.find(chat:GetMsg(), "{spine ") then
@@ -348,8 +485,19 @@ function tos_google_translate_DRAW_CHAT_MSG(frame, msg)
         send_file:close()
 
     end
-    print("test4")
+    print("test4")]]
 end
+
+--[[function tos_google_translate_is_valid_msg(str)
+    if g.lang == "ja" then
+        return WITH_HANGLE(str) and WITH_ENGLISH(str)
+    elseif g.lang == "ko" then
+        return WITH_JAPANESE(str) and WITH_ENGLISH(str)
+    elseif g.lang == "en" then
+        return WITH_HANGLE(str) and WITH_JAPANESE(str)
+    end
+    return false
+end]]
 
 function tos_google_translate_is_valid_name(str)
     if g.lang == "ja" then
