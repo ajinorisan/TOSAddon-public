@@ -133,8 +133,12 @@ function your_name_load_settings()
         receive_file:close()
     end
 
-    if not g.names then
-        g.names = {}
+    if not g.chat_ids then
+        g.chat_ids = {}
+    end
+
+    if not g.separate then
+        g.separate = {}
     end
 
     your_name_save_settings()
@@ -160,29 +164,83 @@ function YOUR_NAME_ON_INIT(addon, frame)
 end
 
 function your_name_3SEC(frame, msg, str, num)
-
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "your_name_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "your_name_name_trans");
-    g.addon:RegisterMsg("FPS_UPDATE", "your_name_name_table_update");
+    -- g.addon:RegisterMsg("FPS_UPDATE", "your_name_chat_update");
+    local frame = ui.GetFrame("chatframe")
+    local timer = frame:CreateOrGetControl("timer", "addontimer2", 0, 0);
+    AUTO_CAST(timer)
+    timer:SetUpdateScript("your_name_chat_update");
+    timer:Start(5.0);
 end
 
-function your_name_name_table_update(frame, msg, str, num)
+function your_name_chat_update(frame)
+
     local name_file_read = io.open(g.name_location, "r")
     if name_file_read then
         for line in name_file_read:lines() do
             local left_name, right_name = line:match("^(.-):::(.*)$")
             if left_name and right_name then
                 g.names[left_name] = right_name
+
+                if g.chat_ids[left_name] ~= nil then
+
+                    local chat_id = g.chat_ids[left_name].chat_id
+                    local msg_type = g.chat_ids[left_name].msg_type
+
+                    if msg_type == "Normal" or msg_type == "Shout" or msg_type == "Party" or msg_type == "Guild" then
+                        local frame = ui.GetFrame("chatframe")
+                        local clustername = "cluster_" .. chat_id
+                        local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+                        if cluster:IsVisible() == 1 and cluster ~= nil then
+
+                            local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                            if text ~= nil then
+                                local chat_text = text:GetText()
+                                local name, msg = string.match(chat_text, "(.+) : (.+)")
+                                if your_name_is_translation(name) then
+                                    local name_and_text = right_name .. " : " .. msg
+
+                                    local font_size = GET_CHAT_FONT_SIZE()
+                                    local msg_front = ""
+                                    local font_style = ""
+
+                                    if msg_type == "Normal" then
+                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
+                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_1"), name_and_text)
+                                    elseif msg_type == "Shout" then
+                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
+                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_2"), name_and_text)
+                                    elseif msg_type == "Party" then
+                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
+                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_3"), name_and_text)
+                                    elseif msg_type == "Guild" then
+                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
+                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_4"), name_and_text)
+                                    elseif msg_type == "System" then
+                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
+                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_7"), name_and_text)
+                                    end
+
+                                    text:SetTextByKey("font", font_style)
+                                    text:SetTextByKey("size", font_size)
+                                    text:SetTextByKey("text", msg_front)
+                                end
+
+                            end
+                        end
+                    end
+                end
             end
         end
         name_file_read:close()
     end
+
 end
 
 function your_name_name_replace(frame, msg_type, msg, name, chat_id)
 
     local name_file_read = io.open(g.name_location, "r")
-    g.names = {}
 
     if name_file_read then
         for line in name_file_read:lines() do
@@ -201,8 +259,13 @@ function your_name_name_replace(frame, msg_type, msg, name, chat_id)
     if name_file_write then
         if not g.names[name] then
             g.names[name] = name
+            name:gsub("{", "")
             name_file_write:write(name .. ":::" .. name .. "\n")
             name_file_write:flush()
+            g.chat_ids[name] = {
+                chat_id = chat_id,
+                msg_type = msg_type
+            }
         end
         name_file_write:close()
     end
@@ -275,6 +338,7 @@ function your_name_DRAW_CHAT_MSG(frame, msg)
         local chat_id = clusterinfo:GetMsgInfoID()
         local clustername = "cluster_" .. chat_id
         local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+
         if cluster == nil then
             return
         elseif cluster:IsVisible() == 1 then
@@ -286,7 +350,7 @@ function your_name_DRAW_CHAT_MSG(frame, msg)
 
             local index = tonumber(frame:GetUserValue("BTN_INDEX")) + 1
             local chat_option = ui.GetFrame("chat_option")
-            local tabgbox = GET_CHILD_RECURSIVELY(chat_option_frame, "tabgbox" .. index)
+            local tabgbox = GET_CHILD_RECURSIVELY(chat_option, "tabgbox" .. index)
             local btn_general_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_general_pic")
             local btn_shout_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_shout_pic")
             local btn_party_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_party_pic")
@@ -305,6 +369,7 @@ function your_name_DRAW_CHAT_MSG(frame, msg)
             local name = chat:GetCommanderName()
 
             if your_name_is_translation(name) then
+
                 your_name_name_replace(frame, msg_type, msg, name, chat_id)
             end
 
@@ -315,12 +380,18 @@ function your_name_DRAW_CHAT_MSG(frame, msg)
             local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. groupboxname .. ":::" .. msg
 
             if your_name_is_translation(msg) then
+                local separate_msg = string.match(msg, "(%b{})%{/}{/}")
+                if separate_msg then
+                    msg = msg:gsub(separate_msg, "")
+                    send_msg = chat_id .. ":::" .. msg_type .. ":::" .. groupboxname .. ":::" .. msg .. ":::" ..
+                                   separate_msg
+                end
+
                 your_name_msg_send(frame, send_msg)
             end
-            break
         end
+        break
     end
-
 end
 
 function your_name_given_name(frame_given_name, pc_txt_frame)
@@ -349,7 +420,7 @@ function your_name_given_name(frame_given_name, pc_txt_frame)
                     if frame_family_name ~= nil then
                         local frame_family_name_margin = frame_family_name:GetMargin()
                         frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                                                    frame_family_name_margin.right, frame_family_name_margin.bottom);
+                            frame_family_name_margin.right, frame_family_name_margin.bottom);
                     end
                     found = true
                     break
