@@ -11,6 +11,7 @@ local g = _G["ADDONS"][author][addonName]
 
 g.settings_location = string.format('../addons/%s/settings.json', addonNameLower)
 g.send_location = string.format('../addons/%s/send.dat', addonNameLower)
+g.receive_location = string.format('../addons/%s/receive.dat', addonNameLower)
 g.name_location = string.format('../addons/%s/name.dat', addonNameLower)
 
 local acutil = require("acutil")
@@ -122,6 +123,20 @@ function your_name_load_settings()
         send_file:close()
     end
 
+    local receive_file = io.open(g.receive_location, "r")
+    if not receive_file then
+        receive_file = io.open(g.receive_location, "w")
+        if receive_file then
+            receive_file:close()
+        end
+    else
+        receive_file:close()
+    end
+
+    if not g.names then
+        g.names = {}
+    end
+
     your_name_save_settings()
 end
 
@@ -148,6 +163,20 @@ function your_name_3SEC(frame, msg, str, num)
 
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "your_name_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "your_name_name_trans");
+    g.addon:RegisterMsg("FPS_UPDATE", "your_name_name_table_update");
+end
+
+function your_name_name_table_update(frame, msg, str, num)
+    local name_file_read = io.open(g.name_location, "r")
+    if name_file_read then
+        for line in name_file_read:lines() do
+            local left_name, right_name = line:match("^(.-):::(.*)$")
+            if left_name and right_name then
+                g.names[left_name] = right_name
+            end
+        end
+        name_file_read:close()
+    end
 end
 
 function your_name_name_replace(frame, msg_type, msg, name, chat_id)
@@ -251,9 +280,29 @@ function your_name_DRAW_CHAT_MSG(frame, msg)
         elseif cluster:IsVisible() == 1 then
 
             local msg_type = chat:GetMsgType()
+            if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" then
+                return
+            end
+
+            local index = tonumber(frame:GetUserValue("BTN_INDEX")) + 1
+            local chat_option = ui.GetFrame("chat_option")
+            local tabgbox = GET_CHILD_RECURSIVELY(chat_option_frame, "tabgbox" .. index)
+            local btn_general_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_general_pic")
+            local btn_shout_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_shout_pic")
+            local btn_party_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_party_pic")
+            local btn_guild_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_guild_pic")
+            if btn_general_pic:IsVisible() == 0 and msg_type == "Normal" then
+                return
+            elseif btn_shout_pic:IsVisible() == 0 and msg_type == "Shout" then
+                return
+            elseif btn_party_pic:IsVisible() == 0 and msg_type == "Party" then
+                return
+            elseif btn_guild_pic:IsVisible() == 0 and msg_type == "Guild" then
+                return
+            end
+
             local msg = chat:GetMsg()
             local name = chat:GetCommanderName()
-            local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. groupboxname .. ":::" .. msg
 
             if your_name_is_translation(name) then
                 your_name_name_replace(frame, msg_type, msg, name, chat_id)
@@ -263,33 +312,14 @@ function your_name_DRAW_CHAT_MSG(frame, msg)
                 return
             end
 
+            local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. groupboxname .. ":::" .. msg
+
             if your_name_is_translation(msg) then
                 your_name_msg_send(frame, send_msg)
             end
             break
         end
     end
-
-    --[[if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" then
-        return
-    end
-
-    local index = tonumber(frame:GetUserValue("BTN_INDEX")) + 1
-    local chat_option_frame = ui.GetFrame("chat_option")
-    local tabgbox = GET_CHILD_RECURSIVELY(chat_option_frame, "tabgbox" .. index)
-    local btn_general_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_general_pic")
-    local btn_shout_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_shout_pic")
-    local btn_party_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_party_pic")
-    local btn_guild_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_guild_pic")
-    if btn_general_pic:IsVisible() == 0 and msg_type == "Normal" then
-        return
-    elseif btn_shout_pic:IsVisible() == 0 and msg_type == "Shout" then
-        return
-    elseif btn_party_pic:IsVisible() == 0 and msg_type == "Party" then
-        return
-    elseif btn_guild_pic:IsVisible() == 0 and msg_type == "Guild" then
-        return
-    end]]
 
 end
 
@@ -319,7 +349,7 @@ function your_name_given_name(frame_given_name, pc_txt_frame)
                     if frame_family_name ~= nil then
                         local frame_family_name_margin = frame_family_name:GetMargin()
                         frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                            frame_family_name_margin.right, frame_family_name_margin.bottom);
+                                                    frame_family_name_margin.right, frame_family_name_margin.bottom);
                     end
                     found = true
                     break
