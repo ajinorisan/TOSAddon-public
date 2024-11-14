@@ -77,9 +77,7 @@ end
 function your_name_not_found_name(str)
 
     local name_file = io.open(g.name_location, "a")
-    if not name_file then
-        return
-    elseif name_file then
+    if name_file then
         name_file:write(str .. ":::" .. str .. "\n")
         name_file:flush()
         name_file:close()
@@ -147,7 +145,6 @@ end
 function YOUR_NAME_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
-    g.last_msg = ""
 
     your_name_load_settings()
 
@@ -166,12 +163,30 @@ end
 function your_name_3SEC(frame, msg, str, num)
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "your_name_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "your_name_name_trans");
-    -- g.addon:RegisterMsg("FPS_UPDATE", "your_name_chat_update");
+
     local frame = ui.GetFrame("chatframe")
     local timer = frame:CreateOrGetControl("timer", "addontimer2", 0, 0);
     AUTO_CAST(timer)
     timer:SetUpdateScript("your_name_chat_update");
     timer:Start(5.0);
+end
+
+function format_chat_message(frame, msg_type, right_name, msg)
+    local msg_type_map = {
+        Normal = 1,
+        Shout = 2,
+        Party = 3,
+        Guild = 4,
+        System = 7
+    }
+    local chat_type_id = msg_type_map[msg_type]
+    if chat_type_id then
+        local font_size = GET_CHAT_FONT_SIZE()
+        local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
+        return string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg), font_style,
+               font_size
+    end
+    return nil, nil, nil -- msg_typeが無効な場合
 end
 
 function your_name_chat_update(frame)
@@ -399,40 +414,22 @@ function your_name_given_name(frame_given_name, pc_txt_frame)
     local clean_name = given_name:gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
 
     if your_name_is_translation(clean_name) then
-        local name_file = io.open(g.name_location, "r")
-        local names = {}
-        if name_file then
-            local found = false
-            for line in name_file:lines() do
-                local left_name, right_name = line:match("^(.-):::(.*)$")
+        local right_name = your_name_process_name(frame_given_name, clean_name)
+        if right_name ~= nil then
+            local original_part = given_name:sub(1, 9)
+            local new_given_name = original_part .. right_name
 
-                if left_name == clean_name then
+            local frame_given_name_Width_ = frame_given_name:GetWidth()
+            frame_given_name:SetText(new_given_name)
+            local frame_given_name_Width = frame_given_name:GetWidth()
+            local x = frame_given_name:GetX();
 
-                    local original_part = given_name:sub(1, 9)
-                    local new_given_name = original_part .. right_name
-
-                    local frame_given_name_Width_ = frame_given_name:GetWidth()
-                    frame_given_name:SetText(new_given_name)
-                    local frame_given_name_Width = frame_given_name:GetWidth()
-                    local x = frame_given_name:GetX();
-
-                    local frame_family_name = GET_CHILD(pc_txt_frame, "familyName")
-                    if frame_family_name ~= nil then
-                        local frame_family_name_margin = frame_family_name:GetMargin()
-                        frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                            frame_family_name_margin.right, frame_family_name_margin.bottom);
-                    end
-                    found = true
-                    break
-                end
+            local frame_family_name = GET_CHILD(pc_txt_frame, "familyName")
+            if frame_family_name ~= nil then
+                local frame_family_name_margin = frame_family_name:GetMargin()
+                frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
+                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
-            name_file:close()
-
-            if not found then
-                your_name_not_found_name(clean_name)
-            end
-        else
-            return
         end
     end
 end
@@ -442,67 +439,28 @@ function your_name_family_name(frame_family_name)
     local clean_name = family_name:gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
 
     if your_name_is_translation(clean_name) then
-        local name_file = io.open(g.name_location, "r")
-        local names = {}
-        if name_file then
-            local found = false
-            for line in name_file:lines() do
-                local left_name, right_name = line:match("^(.-):::(.*)$")
-
-                if left_name == clean_name then
-
-                    local original_part = family_name:sub(1, 9)
-                    local new_family_name = original_part .. right_name
-                    frame_family_name:SetText(new_family_name)
-
-                    found = true
-                    break
-                end
-            end
-            name_file:close()
-
-            if not found then
-                your_name_not_found_name(clean_name)
-            end
-        else
-            return
+        local right_name = your_name_process_name(frame_family_name, clean_name)
+        if right_name ~= nil then
+            local original_part = family_name:sub(1, 9)
+            local new_family_name = original_part .. right_name
+            frame_family_name:SetText(new_family_name)
         end
+
     end
 end
 
 function your_name_guild_name(frame_guild_name)
+
     local guild_name = frame_guild_name:GetText()
 
     if string.find(guild_name, "{img guild_master_mark 20 20}") then
-
         guild_name = string.gsub(guild_name, "{img guild_master_mark 20 20}", "")
-
     end
 
     if your_name_is_translation(guild_name) then
-        local name_file = io.open(g.name_location, "r")
-        local names = {}
-        if name_file then
-            local found = false
-            for line in name_file:lines() do
-                local left_name, right_name = line:match("^(.-):::(.*)$")
-
-                if left_name == guild_name then
-
-                    local new_guild_name = right_name
-
-                    frame_guild_name:SetText(new_guild_name)
-                    found = true
-                    break -- 名前が見つかったのでループを終了
-                end
-            end
-            name_file:close() -- ファイルを閉じる
-
-            if not found then
-                your_name_not_found_name(guild_name)
-            end
-        else
-            return
+        local new_guild_name = your_name_process_name(frame_guild_name, guild_name)
+        if new_guild_name ~= nil then
+            frame_guild_name:SetText(new_guild_name)
         end
     end
 end
@@ -512,64 +470,48 @@ function your_name_shop_name(shop_frame)
     AUTO_CAST(shop_text)
     if shop_text ~= nil then
         local text = shop_text:GetText():gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
-
         if your_name_is_translation(text) then
-            local name_file = io.open(g.name_location, "r")
-            local names = {}
-            if name_file then
-                local found = false
-                for line in name_file:lines() do
-                    local left_name, right_name = line:match("^(.-):::(.*)$")
 
-                    if left_name == text then
-
-                        local new_shop_name = right_name
-
-                        shop_text:SetTextByKey("value", new_shop_name);
-                        found = true
-                        break -- 名前が見つかったのでループを終了
-                    end
-                end
-                name_file:close() -- ファイルを閉じる
-
-                if not found then
-                    your_name_not_found_name(text)
-                end
-            else
-                return
+            local new_shop_name = your_name_process_name(shop_text, text)
+            if new_shop_name ~= nil then
+                shop_text:SetTextByKey("value", new_shop_name);
             end
         end
     end
     local frame_lv_box = GET_CHILD(shop_frame, "withLvBox");
-    local frame_shop_name = GET_CHILD(frame_lv_box, "lv_title");
-    local shop_name = frame_shop_name:GetText():gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
+    if frame_lv_box ~= nil then
+        local frame_shop_name = GET_CHILD(frame_lv_box, "lv_title");
+        if frame_shop_name ~= nil then
+            local shop_name = frame_shop_name:GetText():gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
 
-    if your_name_is_translation(shop_name) then
-        local name_file = io.open(g.name_location, "r")
-        local names = {}
-        if name_file then
-            local found = false
-            for line in name_file:lines() do
-                local left_name, right_name = line:match("^(.-):::(.*)$")
-
-                if left_name == shop_name then
-
-                    local new_shop_name = right_name
-
-                    frame_shop_name:SetTextByKey("value", right_name);
-                    found = true
-                    break -- 名前が見つかったのでループを終了
+            if your_name_is_translation(shop_name) then
+                local new_shop_name = your_name_process_name(frame_shop_name, shop_name)
+                if new_shop_name ~= nil then
+                    frame_shop_name:SetTextByKey("value", new_shop_name);
                 end
             end
-            name_file:close() -- ファイルを閉じる
-
-            if not found then
-                your_name_not_found_name(shop_name)
-            end
-        else
-            return
         end
     end
+end
+
+function your_name_process_name(frame, clean_name)
+    local name_file = io.open(g.name_location, "r")
+    if name_file then
+        local found = false
+        for line in name_file:lines() do
+            local left_name, right_name = line:match("^(.-):::(.*)$")
+            if left_name == clean_name then
+                found = true
+                return right_name
+            end
+        end
+        name_file:close()
+
+        if not found then
+            your_name_not_found_name(clean_name)
+        end
+    end
+    return nil
 end
 
 function your_name_name_trans()
