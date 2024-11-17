@@ -10,9 +10,10 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 g.settings_location = string.format('../addons/%s/settings.json', addonNameLower)
-g.send_location = string.format('../addons/%s/send.dat', addonNameLower)
-g.receive_location = string.format('../addons/%s/receive.dat', addonNameLower)
-g.name_location = string.format('../addons/%s/name.dat', addonNameLower)
+g.send_msg = string.format('../addons/%s/send_msg.dat', addonNameLower)
+g.recv_msg = string.format('../addons/%s/recv_msg.dat', addonNameLower)
+g.send_name = string.format('../addons/%s/send_name.dat', addonNameLower)
+g.recv_name = string.format('../addons/%s/recv_name.dat', addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
@@ -74,16 +75,6 @@ function your_name_is_translation(str)
     return false
 end
 
-function your_name_not_found_name(str)
-
-    local name_file = io.open(g.name_location, "a")
-    if name_file then
-        name_file:write(str .. ":::" .. str .. "\n")
-        name_file:flush()
-        name_file:close()
-    end
-end
-
 function your_name_save_settings()
     acutil.saveJSON(g.settings_location, g.settings)
 end
@@ -101,42 +92,34 @@ function your_name_load_settings()
     end
     g.settings = settings
 
-    local name_file = io.open(g.name_location, "r")
-    if not name_file then
-        name_file = io.open(g.name_location, "w")
-        if name_file then
-            name_file:close()
+    local function open_or_create_file(file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            file = io.open(file_path, "w") -- ファイルが存在しない場合は作成
+            if file then
+                file:close() -- 作成したらすぐに閉じる
+            end
+        else
+            file:close() -- 存在するファイルを閉じる
         end
-    else
-        name_file:close()
     end
 
-    local send_file = io.open(g.send_location, "r")
-    if not send_file then
-        send_file = io.open(g.send_location, "w")
-        if send_file then
-            send_file:close()
-        end
-    else
-        send_file:close()
-    end
+    -- g.recv_name を初期化
+    open_or_create_file(g.recv_name)
 
-    local receive_file = io.open(g.receive_location, "r")
-    if not receive_file then
-        receive_file = io.open(g.receive_location, "w")
-        if receive_file then
-            receive_file:close()
-        end
-    else
-        receive_file:close()
-    end
+    -- g.load が nil または false の場合にファイルを初期化
+    if g.load == nil or g.load == false then
+        -- 既存のファイルを削除
+        os.remove(g.send_name)
+        os.remove(g.send_msg)
+        os.remove(g.recv_msg)
 
-    if not g.chat_ids then
-        g.chat_ids = {}
-    end
+        -- 新しいファイルを作成
+        open_or_create_file(g.send_name)
+        open_or_create_file(g.send_msg)
+        open_or_create_file(g.recv_msg)
 
-    if not g.separate then
-        g.separate = {}
+        g.load = true
     end
 
     your_name_save_settings()
@@ -145,6 +128,9 @@ end
 function YOUR_NAME_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
+    g.chat_ids = g.chat_ids or {}
+    g.chat_msgs = g.chat_msgs or {}
+    -- g.load = false
 
     your_name_load_settings()
 
@@ -164,14 +150,9 @@ function your_name_3SEC(frame, msg, str, num)
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "your_name_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "your_name_name_trans");
 
-    local frame = ui.GetFrame("chatframe")
-    local timer = frame:CreateOrGetControl("timer", "addontimer2", 0, 0);
-    AUTO_CAST(timer)
-    timer:SetUpdateScript("your_name_chat_update");
-    timer:Start(5.0);
 end
 
-function format_chat_message(frame, msg_type, right_name, msg)
+function your_name_format_chat_message(frame, msg_type, right_name, msg)
     local msg_type_map = {
         Normal = 1,
         Shout = 2,
@@ -179,164 +160,143 @@ function format_chat_message(frame, msg_type, right_name, msg)
         Guild = 4,
         System = 7
     }
+
     local chat_type_id = msg_type_map[msg_type]
     if chat_type_id then
-        local font_size = GET_CHAT_FONT_SIZE()
+        local font_size = tonumber(GET_CHAT_FONT_SIZE()) - 1
+        -- print(font_size)
         local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
-        return string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg), font_style,
-               font_size
+        local msg_front = string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg)
+        return msg_front, font_style, font_size
     end
     return nil, nil, nil -- msg_typeが無効な場合
 end
 
 function your_name_chat_update(frame)
 
-    local name_file_read = io.open(g.name_location, "r")
-    if name_file_read then
-        for line in name_file_read:lines() do
-            local left_name, right_name = line:match("^(.-):::(.*)$")
-            if left_name and right_name then
-                g.names[left_name] = right_name
+    local name = frame:GetUserValue("NAME")
+    local chat_id = frame:GetUserIValue("CHAT_ID")
+    local right_name = your_name_process_name(frame, name)
+    -- print(chat_id .. ":" .. tostring(right_name) .. ":" .. name)
+    for key_chat_id, chat in pairs(g.chat_ids) do
+        if tonumber(key_chat_id) == tonumber(chat_id) then
+            local msg_front, font_style, font_size = your_name_format_chat_message(frame, chat.msg_type, right_name,
+                chat.msg)
+            if msg_front ~= nil then
+                local clustername = "cluster_" .. chat_id
+                local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+                local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                text:SetTextByKey("font", font_style)
+                text:SetTextByKey("size", font_size)
+                text:SetTextByKey("text", msg_front)
 
-                if g.chat_ids[left_name] ~= nil then
+                g.chat_ids[key_chat_id] = nil
 
-                    local chat_id = g.chat_ids[left_name].chat_id
-                    local msg_type = g.chat_ids[left_name].msg_type
+                return 0
+            else
+                g.chat_ids[key_chat_id] = nil
 
-                    if msg_type == "Normal" or msg_type == "Shout" or msg_type == "Party" or msg_type == "Guild" then
-                        local frame = ui.GetFrame("chatframe")
-                        local clustername = "cluster_" .. chat_id
-                        local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
-                        if cluster:IsVisible() == 1 and cluster ~= nil then
-
-                            local text = GET_CHILD_RECURSIVELY(cluster, "text")
-                            if text ~= nil then
-                                local chat_text = text:GetText()
-                                local name, msg = string.match(chat_text, "(.+) : (.+)")
-                                if your_name_is_translation(name) then
-                                    local name_and_text = right_name .. " : " .. msg
-
-                                    local font_size = GET_CHAT_FONT_SIZE()
-                                    local msg_front = ""
-                                    local font_style = ""
-
-                                    if msg_type == "Normal" then
-                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
-                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_1"), name_and_text)
-                                    elseif msg_type == "Shout" then
-                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
-                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_2"), name_and_text)
-                                    elseif msg_type == "Party" then
-                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
-                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_3"), name_and_text)
-                                    elseif msg_type == "Guild" then
-                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
-                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_4"), name_and_text)
-                                    elseif msg_type == "System" then
-                                        font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
-                                        msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_7"), name_and_text)
-                                    end
-
-                                    text:SetTextByKey("font", font_style)
-                                    text:SetTextByKey("size", font_size)
-                                    text:SetTextByKey("text", msg_front)
-                                end
-
-                            end
-                        end
-                    end
-                end
+                return 0
             end
         end
-        name_file_read:close()
     end
 
 end
 
 function your_name_name_replace(frame, msg_type, msg, name, chat_id)
 
-    local name_file_read = io.open(g.name_location, "r")
+    name = name:gsub("{+", "")
+    g.names = g.names or {}
 
-    if name_file_read then
-        for line in name_file_read:lines() do
-            local left_name, right_name = line:match("^(.-):::(.*)$")
-            if left_name and right_name then
-                g.names[left_name] = right_name
-                if left_name == name then
+    local right_name = your_name_process_name(frame, name)
+
+    if right_name ~= name then
+        local msg_front, font_style, font_size = your_name_format_chat_message(frame, msg_type, right_name, msg)
+        if msg_front ~= nil then
+            local clustername = "cluster_" .. chat_id
+            local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+            local text = GET_CHILD_RECURSIVELY(cluster, "text")
+            text:SetTextByKey("font", font_style)
+            text:SetTextByKey("size", font_size)
+            text:SetTextByKey("text", msg_front)
+        end
+    else
+        local frame = ui.GetFrame("chatframe")
+        frame:SetUserValue("NAME", name)
+        frame:SetUserValue("CHAT_ID", chat_id)
+        frame:RunUpdateScript("your_name_chat_update", 5)
+    end
+end
+
+function your_name_msg_replace(frame)
+    local recv_file = io.open(g.recv_msg, "r")
+    if recv_file then
+        for line in recv_file:lines() do
+            local chat_id, msg_type, msg, separate_msg = line:match("^(.-):::(.-):::(.-):::(.*)$")
+            for tbl_chat_id, chat_info in pairs(g.chat_msgs) do
+                -- print(tostring(tbl_chat_id) .. tostring(chat_id))
+                if tonumber(tbl_chat_id) == tonumber(chat_id) then
+
+                    local tbl_msg_type = chat_info.msg_type
+                    local tbl_name = chat_info.name
+                    local right_name = your_name_process_name(frame, tbl_name)
+
+                    local clustername = "cluster_" .. chat_id
+                    local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+                    local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                    local msg_front, font_style, font_size =
+                        your_name_format_chat_message(frame, tbl_msg_type, right_name, msg)
+
+                    if separate_msg and separate_msg ~= "None" then
+                        -- separate_msgがテーブルであることを仮定
+                        local separate_msgs = {} -- separate_msgを分割して格納するテーブル
+                        for item in separate_msg:gmatch("[^,]+") do -- カンマで区切って分割
+                            table.insert(separate_msgs, item)
+                        end
+
+                        -- 各メッセージをmsg_frontに追加
+                        for _, item in ipairs(separate_msgs) do
+                            local pattern = "{@dicID_(.-)}"
+                            item = item:gsub(pattern, function(match)
+                                return "@dicID_" .. match
+                            end)
+                            msg_front = msg_front .. item
+                        end
+                        for _, item in ipairs(separate_msgs) do
+                            local pattern = "{img link_party 24 24}" .. "{(.-)}" .. "{/}{/}"
+                            item = item:gsub(pattern, function(match)
+                                return "{img link_party 24 24}" .. "{(.-)}" .. "{/}{/}"
+                            end)
+                            msg_front = msg_front .. item
+                        end
+                    end
+
+                    text:SetTextByKey("font", font_style)
+                    text:SetTextByKey("size", font_size)
+                    text:SetTextByKey("text", msg_front)
+                    g.chat_msgs[tbl_chat_id] = nil
+                    recv_file:close()
                     break
                 end
             end
+
         end
-        name_file_read:close()
+
     end
-
-    local name_file_write = io.open(g.name_location, "a")
-    if name_file_write then
-        if not g.names[name] then
-            g.names[name] = name
-            name:gsub("{", "")
-            name_file_write:write(name .. ":::" .. name .. "\n")
-            name_file_write:flush()
-            g.chat_ids[name] = {
-                chat_id = chat_id,
-                msg_type = msg_type
-            }
-        end
-        name_file_write:close()
-    end
-
-    local right_name = g.names[name]
-    if right_name ~= nil then
-        local clustername = "cluster_" .. chat_id
-        if clustername ~= nil then
-            local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
-            local text = GET_CHILD_RECURSIVELY(cluster, "text")
-            if text ~= nil then
-
-                local name_and_text = right_name .. " : " .. msg
-
-                local font_size = GET_CHAT_FONT_SIZE()
-                local msg_front = ""
-                local font_style = ""
-
-                if msg_type == "Normal" then
-                    font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
-                    msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_1"), name_and_text)
-                elseif msg_type == "Shout" then
-                    font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
-                    msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_2"), name_and_text)
-                elseif msg_type == "Party" then
-                    font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
-                    msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_3"), name_and_text)
-                elseif msg_type == "Guild" then
-                    font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
-                    msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_4"), name_and_text)
-                elseif msg_type == "System" then
-                    font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
-                    msg_front = string.format("[%s]%s", ScpArgMsg("ChatType_7"), name_and_text)
-                end
-
-                text:SetTextByKey("font", font_style)
-                text:SetTextByKey("size", font_size)
-                text:SetTextByKey("text", msg_front)
-
-            end
-        end
-    end
-
+    recv_file:close()
 end
 
 function your_name_msg_send(frame, send_msg)
-    local send_file = io.open(g.send_location, "a")
+    local send_file = io.open(g.send_msg, "a")
 
     if send_file then
-        send_file = io.open(g.send_location, "a")
         send_file:write(send_msg .. "\n")
         send_file:flush()
         send_file:close()
+        frame:RunUpdateScript("your_name_msg_replace", 5.0)
     end
 end
-
+ui.Chat("/p 쌀먹징징충박멸??쌀먹징징충박멸?")
 function your_name_DRAW_CHAT_MSG(frame, msg)
 
     local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
@@ -384,26 +344,91 @@ function your_name_DRAW_CHAT_MSG(frame, msg)
             local name = chat:GetCommanderName()
 
             if your_name_is_translation(name) then
-
+                g.chat_ids[tostring(chat_id)] = {
+                    msg_type = msg_type,
+                    name = name,
+                    msg = msg
+                }
                 your_name_name_replace(frame, msg_type, msg, name, chat_id)
+
             end
 
             if string.find(msg, "{spine ") then
                 return
             end
-
-            local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. groupboxname .. ":::" .. msg
-
             if your_name_is_translation(msg) then
-                local separate_msg = string.match(msg, "(%b{})%{/}{/}")
-                if separate_msg then
-                    msg = msg:gsub(separate_msg, "")
-                    send_msg = chat_id .. ":::" .. msg_type .. ":::" .. groupboxname .. ":::" .. msg .. ":::" ..
-                                   separate_msg
+
+                local function modify_string(msg)
+                    msg = msg:gsub("{#0000FF}", "{#FFFF00}")
+                    local pattern = "{img link_party 24 24}(.-){/}{/}"
+                    msg = msg:gsub(pattern, function(match)
+                        return "{img link_party 24 24}{" .. match .. "}{/}{/}"
+                    end)
+
+                    local pattern = "@dicID_(.-){/}{/}"
+                    msg = msg:gsub(pattern, function(match)
+                        return "{@dicID_" .. match .. "}{/}{/}"
+                    end)
+
+                    return msg
                 end
 
+                msg = modify_string(msg)
+
+                local function wrapped_contents(msg)
+                    local pattern = "{(.-)}" -- {}で囲まれた部分を抽出するパターン
+                    local separate_msg = {} -- テーブルを初期化
+
+                    -- マッチを順番に取得してテーブルに追加
+                    for match in msg:gmatch(pattern) do
+                        table.insert(separate_msg, "{" .. match .. "}")
+                    end
+
+                    -- msgから{}で囲まれた部分を削除
+                    msg = msg:gsub(pattern, "")
+
+                    -- テーブルの内容を表示
+
+                    --[[if #separate_msg == 0 then
+                    print("None") -- テーブルが空の場合は "None" を表示
+                else
+                    for _, content in ipairs(separate_msg) do
+                        print(content)
+                    end
+                end]]
+
+                    return msg, separate_msg -- 抽出した内容のテーブルを返す
+                end
+
+                local modified_msg, separate_msg = wrapped_contents(msg)
+                if modified_msg == "" or modified_msg == " " then
+                    return
+                end
+
+                local function anti_pattern(modified_msg)
+                    local ptterns = {
+                        pattern = "%?+",
+                        replacement = " "
+                    }
+                    for _, entry in ipairs(patterns) do
+                        -- 大文字小文字を区別せずに置き換えるために、メッセージを小文字に変換
+                        modified_msg = modified_msg:gsub(entry.pattern, entry.replacement)
+                    end
+                    return modified_msg
+                end
+                print(chat_id .. ":" .. name .. ":" .. modified_msg)
+                g.chat_msgs[tostring(chat_id)] = {
+                    msg_type = msg_type,
+                    name = name,
+                    msg = modified_msg,
+                    separate_msg = #separate_msg == 0 and "None" or table.concat(separate_msg, ",") -- テーブルが空なら "None" を設定
+                }
+
+                local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. g.chat_msgs[tostring(chat_id)].msg .. ":::" ..
+                                     g.chat_msgs[tostring(chat_id)].separate_msg
                 your_name_msg_send(frame, send_msg)
             end
+
         end
         break
     end
@@ -415,7 +440,7 @@ function your_name_given_name(frame_given_name, pc_txt_frame)
 
     if your_name_is_translation(clean_name) then
         local right_name = your_name_process_name(frame_given_name, clean_name)
-        if right_name ~= nil then
+        if right_name ~= clean_name then
             local original_part = given_name:sub(1, 9)
             local new_given_name = original_part .. right_name
 
@@ -428,7 +453,7 @@ function your_name_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
+                    frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
@@ -440,7 +465,7 @@ function your_name_family_name(frame_family_name)
 
     if your_name_is_translation(clean_name) then
         local right_name = your_name_process_name(frame_family_name, clean_name)
-        if right_name ~= nil then
+        if right_name ~= clean_name then
             local original_part = family_name:sub(1, 9)
             local new_family_name = original_part .. right_name
             frame_family_name:SetText(new_family_name)
@@ -459,7 +484,7 @@ function your_name_guild_name(frame_guild_name)
 
     if your_name_is_translation(guild_name) then
         local new_guild_name = your_name_process_name(frame_guild_name, guild_name)
-        if new_guild_name ~= nil then
+        if new_guild_name ~= guild_name then
             frame_guild_name:SetText(new_guild_name)
         end
     end
@@ -473,7 +498,7 @@ function your_name_shop_name(shop_frame)
         if your_name_is_translation(text) then
 
             local new_shop_name = your_name_process_name(shop_text, text)
-            if new_shop_name ~= nil then
+            if new_shop_name ~= text then
                 shop_text:SetTextByKey("value", new_shop_name);
             end
         end
@@ -486,7 +511,7 @@ function your_name_shop_name(shop_frame)
 
             if your_name_is_translation(shop_name) then
                 local new_shop_name = your_name_process_name(frame_shop_name, shop_name)
-                if new_shop_name ~= nil then
+                if new_shop_name ~= shop_name then
                     frame_shop_name:SetTextByKey("value", new_shop_name);
                 end
             end
@@ -495,7 +520,7 @@ function your_name_shop_name(shop_frame)
 end
 
 function your_name_process_name(frame, clean_name)
-    local name_file = io.open(g.name_location, "r")
+    local name_file = io.open(g.recv_name, "r")
     if name_file then
         local found = false
         for line in name_file:lines() do
@@ -508,13 +533,42 @@ function your_name_process_name(frame, clean_name)
         name_file:close()
 
         if not found then
-            your_name_not_found_name(clean_name)
+            if your_name_is_translation(clean_name) then
+                your_name_not_found_name(clean_name)
+            end
         end
     end
-    return nil
+    return clean_name
+end
+
+function your_name_not_found_name(str)
+    local name_file = io.open(g.send_name, "r")
+    local found = false
+
+    if name_file then
+        for line in name_file:lines() do
+            local left_name, right_name = line:match("^(.-):::(.*)$")
+            if left_name == str then
+                found = true
+                break
+            end
+        end
+        name_file:close()
+    end
+
+    if not found then
+        local append_file = io.open(g.send_name, "a") -- 追記モードで開く
+        if append_file then
+            append_file:write(str .. ":::" .. str .. "\n")
+            append_file:flush() -- これはオプションですが、書き込みを確実にするために使います
+            append_file:close()
+        end
+    end
 end
 
 function your_name_name_trans()
+    local frame = ui.GetFrame("chatframe")
+    frame:Invalidate()
     local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
 
     for i = 1, selected_objects_count do
