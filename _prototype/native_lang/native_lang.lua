@@ -9,15 +9,18 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
+local acutil = require("acutil")
+local json = require('json')
+local os = require("os")
+
+local folder_path = string.format("../addons/%s", addonNameLower)
+os.execute('mkdir "' .. folder_path .. '"')
+
 g.settings_location = string.format('../addons/%s/settings.json', addonNameLower)
 g.send_msg = string.format('../addons/%s/send_msg.dat', addonNameLower)
 g.recv_msg = string.format('../addons/%s/recv_msg.dat', addonNameLower)
 g.send_name = string.format('../addons/%s/send_name.dat', addonNameLower)
 g.recv_name = string.format('../addons/%s/recv_name.dat', addonNameLower)
-
-local acutil = require("acutil")
-local json = require('json')
-local os = require("os")
 
 local base = {}
 
@@ -122,6 +125,13 @@ function native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
     return
 end
 
+function native_lang_translate_exe_start()
+    local exe_path = "../addons/native_lang/native_lang_py/native_lang-v0.0.1.exe"
+    local command = string.format('start "" /min "%s"', exe_path)
+    os.execute(command)
+    CHAT_SYSTEM("native_lang_start")
+end
+
 function NATIVE_LANG_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -143,12 +153,12 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     end
 
     addon:RegisterMsg("GAME_START_3SEC", "native_lang_3SEC");
+    addon:RegisterMsg("GAME_START", "native_lang_translate_exe_start");
 end
 
 function native_lang_3SEC(frame, msg, str, num)
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "native_lang_name_trans");
-
 end
 
 function native_lang_format_chat_message(frame, msg_type, right_name, msg)
@@ -160,9 +170,12 @@ function native_lang_format_chat_message(frame, msg_type, right_name, msg)
         System = 7
     }
 
+    local pattern = "{img link_party 24 24}{(.-)}"
+    msg = msg:gsub(pattern, "{img link_party 24 24}%1")
+
     local chat_type_id = msg_type_map[msg_type]
     if chat_type_id then
-        local font_size = tonumber(GET_CHAT_FONT_SIZE()) - 1
+        local font_size = tonumber(GET_CHAT_FONT_SIZE())
         local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
         local msg_front = string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg)
         return msg_front, font_style, font_size
@@ -179,17 +192,10 @@ function native_lang_chat_update(frame)
     for key_chat_id, chat in pairs(g.chat_ids) do
         if tonumber(key_chat_id) == tonumber(chat_id) then
             local msg_front, font_style, font_size = native_lang_format_chat_message(frame, chat.msg_type, right_name,
-                                                                                     chat.msg)
+                chat.msg)
             if msg_front ~= nil then
 
                 native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
-                --[[local clustername = "cluster_" .. chat_id
-                local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
-                local text = GET_CHILD_RECURSIVELY(cluster, "text")
-                text:SetTextByKey("font", font_style)
-                text:SetTextByKey("size", font_size)
-                text:SetTextByKey("text", msg_front)]]
-
             end
             g.chat_ids[key_chat_id] = nil
             return 0
@@ -217,12 +223,6 @@ function native_lang_name_replace(frame, msg_type, msg, name, chat_id)
         if msg_front ~= nil then
 
             native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
-            --[[local clustername = "cluster_" .. chat_id
-            local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
-            local text = GET_CHILD_RECURSIVELY(cluster, "text")
-            text:SetTextByKey("font", font_style)
-            text:SetTextByKey("size", font_size)
-            text:SetTextByKey("text", msg_front)]]
         end
     else
         local frame = ui.GetFrame("chatframe")
@@ -293,13 +293,16 @@ function native_lang_msg_replace(frame)
     end
 end
 
-function native_lang_msg_send(frame, send_msg)
+function native_lang_msg_send(frame, send_msg, name, chat_id)
     local send_file = io.open(g.send_msg, "a")
 
     if send_file then
         send_file:write(send_msg .. "\n")
         send_file:flush()
         send_file:close()
+        local frame = ui.GetFrame("chatframe")
+        frame:SetUserValue("NAME", name)
+        frame:SetUserValue("CHAT_ID", chat_id)
         frame:RunUpdateScript("native_lang_msg_replace", 5.0)
     end
 end
@@ -316,13 +319,12 @@ function native_lang_msg_processing(msg)
             return "{@dicID_" .. match .. "}{/}{/}"
         end)]]
 
-        local pattern = "{img link_party 24 24}(.-)"
-        msg = msg:gsub(pattern, "{img link_party 24 24}{%1}")
+        local pattern = "{img link_party 24 24}(.-){/}{/}"
+        msg = msg:gsub(pattern, "{img link_party 24 24}{%1}{/}{/}")
 
-        pattern = "@dicID_(.-)"
+        pattern = "@dicID_%^%$ITEM_(.-)%$%*%^"
         msg = msg:gsub(pattern, "{@dicID_%1}")
 
-        msg = msg:gsub("{#0000FF}", "{#FFFF00}")
         return msg
     end
 
@@ -340,25 +342,30 @@ function native_lang_msg_processing(msg)
 
     local function anti_pattern(modified_msg)
         -- 特殊文字を含むリスト
-        local patterns = {",", "?", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\""}
+        local patterns = {",", "?", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\"", "/"}
 
         for _, pattern in ipairs(patterns) do
             modified_msg = modified_msg:gsub(pattern .. "+", " ")
+
         end
-        return modified_msg:match("^%s*(.-)%s*$")
+        return modified_msg
     end
 
     msg = modify_string(msg)
+
     local modified_msg, separate_msg = wrapped_contents(msg)
+
     if modified_msg:match("^%s*$") then
         return nil, nil
     end
+
     modified_msg = anti_pattern(modified_msg)
 
+    modified_msg = modified_msg:gsub(" +", " ")
     return modified_msg, separate_msg
 
 end
--- ui.Chat("/p 쌀먹징징충박멸??쌀먹징징충박멸?")
+-- ui.Chat("/p 쌀먹징징충박멸????? 쌀먹징징충박멸?")
 function native_lang_DRAW_CHAT_MSG(frame, msg)
 
     local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
@@ -403,7 +410,10 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
             end
 
             local msg = chat:GetMsg()
+            msg = msg:gsub("{#0000FF}", "{#FFFF00}")
             local name = chat:GetCommanderName()
+
+            print(chat_id .. ":" .. name .. ":" .. msg)
 
             if native_lang_is_translation(name) then
                 g.chat_ids[tostring(chat_id)] = {
@@ -412,7 +422,6 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                     msg = msg
                 }
                 native_lang_name_replace(frame, msg_type, msg, name, chat_id)
-
             end
 
             if string.find(msg, "{spine ") then
@@ -436,7 +445,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
 
                 local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. g.chat_msgs[tostring(chat_id)].msg .. ":::" ..
                                      g.chat_msgs[tostring(chat_id)].separate_msg
-                native_lang_msg_send(frame, send_msg)
+                native_lang_msg_send(frame, send_msg, name, chat_id)
             end
 
         end
@@ -463,7 +472,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
+                    frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
