@@ -13,8 +13,8 @@ local acutil = require("acutil")
 local json = require('json')
 local os = require("os")
 
-local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')
+--[[local folder_path = string.format("../addons/%s", addonNameLower)
+os.execute('mkdir "' .. folder_path .. '"')]]
 
 g.settings_location = string.format('../addons/%s/settings.json', addonNameLower)
 g.send_msg = string.format('../addons/%s/send_msg.dat', addonNameLower)
@@ -83,10 +83,20 @@ function native_lang_load_settings()
 
     local settings = acutil.loadJSON(g.settings_location, g.settings)
 
+    local lang = option.GetCurrentCountry()
+    if lang == "Japanese" then
+        g.lang = "ja"
+    elseif lang == "kr" then
+        g.lang = "ko"
+    else
+        g.lang = "en"
+    end
+
     if not settings then
 
         settings = {
-            use = 1
+            use = 1,
+            lang = g.lang
         }
     end
     g.settings = settings
@@ -126,9 +136,13 @@ function native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
 end
 
 function native_lang_translate_exe_start()
-    local exe_path = "../addons/native_lang/native_lang_py/native_lang-v0.0.1.exe"
-    local command = string.format('start "" /min "%s"', exe_path)
-    os.execute(command)
+    if not g.start then
+        local exe_path = "../addons/native_lang/native_lang_python/native_lang-v0.0.1.exe"
+        local command = string.format('start "" /min "%s"', exe_path)
+        os.execute(command)
+        g.start = true
+    end
+
 end
 
 function NATIVE_LANG_ON_INIT(addon, frame)
@@ -136,28 +150,55 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.frame = frame
     g.chat_ids = g.chat_ids or {}
     g.chat_msgs = g.chat_msgs or {}
-
+    g.chat_count = 0
+    g.child_names = {}
     -- tos_google_translate無効化
     g.SetupHook(native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT, "TOS_GOOGLE_TRANSLATE_ON_INIT")
 
     native_lang_load_settings()
 
-    local lang = option.GetCurrentCountry()
-    if lang == "Japanese" then
-        g.lang = "ja"
-    elseif lang == "kr" then
-        g.lang = "ko"
-    else
-        g.lang = "en"
-    end
-
     addon:RegisterMsg("GAME_START_3SEC", "native_lang_3SEC");
     addon:RegisterMsg("GAME_START", "native_lang_translate_exe_start");
+end
+
+function native_lang_chat_all_replace(frame)
+    local chatframe = ui.GetFrame("chatframe")
+    local child_count = chatframe:GetChildCount()
+
+    for i = 0, child_count - 1 do
+        local child = chatframe:GetChildByIndex(i)
+        if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
+            local chat_gbox = child:GetName()
+            local gbox = GET_CHILD_RECURSIVELY(chatframe, chat_gbox)
+            local gbox_child_count = gbox:GetChildCount()
+
+            if g.chat_count ~= gbox_child_count then
+                for j = 0, gbox_child_count - 1 do
+                    local gbox_child = gbox:GetChildByIndex(j)
+                    local child_name = gbox_child:GetName()
+
+                    if tostring(child_name) ~= "_SCR" then
+                        local cluster = GET_CHILD_RECURSIVELY(gbox, child_name)
+                        local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                        print(tostring(text:GetText()))
+                    end
+                    table.insert(g.child_names, child_name)
+                end
+                g.chat_count = gbox_child_count
+                return 1
+            else
+
+                return 1
+            end
+        end
+    end
 end
 
 function native_lang_3SEC(frame, msg, str, num)
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "native_lang_name_trans");
+    frame:RunUpdateScript("native_lang_chat_all_replace", 0.1)
+    -- g.addon:RegisterMsg("FPS_UPDATE", "native_lang_chat_all_replace");
 end
 
 function native_lang_format_chat_message(frame, msg_type, right_name, msg)
@@ -184,21 +225,20 @@ end
 
 function native_lang_chat_update(frame)
 
-    local name = frame:GetUserValue("NAME")
-    local chat_id = frame:GetUserIValue("CHAT_ID")
-    local right_name = native_lang_process_name(frame, name)
+    -- local name = frame:GetUserValue("NAME")
+    -- local chat_id = frame:GetUserIValue("CHAT_ID")
 
     for key_chat_id, chat in pairs(g.chat_ids) do
-        if tonumber(key_chat_id) == tonumber(chat_id) then
-            local msg_front, font_style, font_size = native_lang_format_chat_message(frame, chat.msg_type, right_name,
-                                                                                     chat.msg)
-            if msg_front ~= nil then
+        local name = chat.name
+        local right_name = native_lang_process_name(frame, name)
+        local msg_front, font_style, font_size = native_lang_format_chat_message(frame, chat.msg_type, right_name,
+            chat.msg)
+        if msg_front ~= nil then
 
-                native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
-            end
-            g.chat_ids[key_chat_id] = nil
-            return 0
+            native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
         end
+        g.chat_ids[key_chat_id] = nil
+
     end
 end
 
@@ -232,6 +272,7 @@ function native_lang_name_replace(frame, msg_type, msg, name, chat_id)
 end
 
 function native_lang_msg_replace(frame)
+
     local recv_file = io.open(g.recv_msg, "r")
     if recv_file then
         local found_match = false -- フラグを初期化
@@ -241,6 +282,7 @@ function native_lang_msg_replace(frame)
             for tbl_chat_id, chat_info in pairs(g.chat_msgs) do
 
                 if tonumber(tbl_chat_id) == tonumber(chat_id) then
+
                     local tbl_msg_type = chat_info.msg_type
                     local tbl_name = chat_info.name
                     local right_name = native_lang_process_name(frame, tbl_name)
@@ -268,16 +310,9 @@ function native_lang_msg_replace(frame)
                     native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
                     g.chat_msgs[tbl_chat_id] = nil
 
-                    found_match = true
-                    break
                 end
             end
-
-            if found_match then
-                break
-            end
         end
-
         recv_file:close()
     end
 end
@@ -291,9 +326,7 @@ function native_lang_msg_send(frame, send_msg, name, chat_id)
         send_file:close()
 
         local frame = ui.GetFrame("chatframe")
-        frame:SetUserValue("NAME", name)
-        frame:SetUserValue("CHAT_ID", chat_id)
-        frame:RunUpdateScript("native_lang_msg_replace", 5.0)
+        frame:RunUpdateScript("native_lang_msg_replace", 6.0)
     end
 end
 
@@ -304,7 +337,7 @@ function native_lang_msg_processing(msg)
         local pattern = "{img link_party 24 24}(.-){/}{/}"
         msg = msg:gsub(pattern, "{img link_party 24 24}{%1}{/}{/}")
 
-        pattern = "@dicID_%^%$ITEM_(.-)%$%*%^"
+        pattern = "@dicID_%^%*%$(.-)%$%*%^"
         msg = msg:gsub(pattern, "{@dicID_%1}")
 
         return msg
@@ -324,7 +357,7 @@ function native_lang_msg_processing(msg)
 
     local function anti_pattern(modified_msg)
         -- 特殊文字を含むリスト
-        local patterns = {",", "?", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\"", "/"}
+        local patterns = {",", "&", "?", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\"", "/"}
 
         for _, pattern in ipairs(patterns) do
             modified_msg = modified_msg:gsub(pattern .. "+", " ")
@@ -347,7 +380,7 @@ function native_lang_msg_processing(msg)
     return modified_msg, separate_msg
 
 end
--- ui.Chat("/p 쌀먹징징충박멸????? 쌀먹징징충박멸?")
+-- ui.Chat("/p 쌀먹징징충박멸?????")
 function native_lang_DRAW_CHAT_MSG(frame, msg)
 
     local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
@@ -367,7 +400,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
 
         if cluster == nil then
             return
-        elseif cluster:IsVisible() == 1 then
+        else
 
             local msg_type = chat:GetMsgType()
             if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" then
@@ -453,7 +486,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
+                    frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
