@@ -129,7 +129,6 @@ function native_lang_translate_exe_start()
     local exe_path = "../addons/native_lang/native_lang_py/native_lang-v0.0.1.exe"
     local command = string.format('start "" /min "%s"', exe_path)
     os.execute(command)
-    CHAT_SYSTEM("native_lang_start")
 end
 
 function NATIVE_LANG_ON_INIT(addon, frame)
@@ -192,7 +191,7 @@ function native_lang_chat_update(frame)
     for key_chat_id, chat in pairs(g.chat_ids) do
         if tonumber(key_chat_id) == tonumber(chat_id) then
             local msg_front, font_style, font_size = native_lang_format_chat_message(frame, chat.msg_type, right_name,
-                chat.msg)
+                                                                                     chat.msg)
             if msg_front ~= nil then
 
                 native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
@@ -228,19 +227,20 @@ function native_lang_name_replace(frame, msg_type, msg, name, chat_id)
         local frame = ui.GetFrame("chatframe")
         frame:SetUserValue("NAME", name)
         frame:SetUserValue("CHAT_ID", chat_id)
-        frame:RunUpdateScript("native_lang_chat_update", 5)
+        frame:RunUpdateScript("native_lang_chat_update", 5.0)
     end
 end
 
 function native_lang_msg_replace(frame)
     local recv_file = io.open(g.recv_msg, "r")
     if recv_file then
+        local found_match = false -- フラグを初期化
+
         for line in recv_file:lines() do
             local chat_id, msg_type, msg, separate_msg = line:match("^(.-):::(.-):::(.-):::(.*)$")
             for tbl_chat_id, chat_info in pairs(g.chat_msgs) do
 
                 if tonumber(tbl_chat_id) == tonumber(chat_id) then
-
                     local tbl_msg_type = chat_info.msg_type
                     local tbl_name = chat_info.name
                     local right_name = native_lang_process_name(frame, tbl_name)
@@ -248,47 +248,36 @@ function native_lang_msg_replace(frame)
                         native_lang_format_chat_message(frame, tbl_msg_type, right_name, msg)
 
                     if separate_msg and separate_msg ~= "None" then
-
                         local separate_msgs = {}
-                        for item in separate_msg:gmatch("[^,]+") do
-                            table.insert(separate_msgs, item)
+                        for msg_item in separate_msg:gmatch("[^,]+") do
+                            table.insert(separate_msgs, msg_item)
                         end
 
-                        -- 各メッセージをmsg_frontに追加
-                        for _, item in ipairs(separate_msgs) do
-                            --[[local pattern = "{@dicID_(.-)}"
-                            item = item:gsub(pattern, function(match)
-                                return "@dicID_" .. match
-                            end)
-                            msg_front = msg_front .. item]]
-                            local pattern = "{@dicID_(.-)}"
+                        for _, msg_item in ipairs(separate_msgs) do
 
-                            -- 置換処理を直感的にするために一時変数を使用
-                            item = item:gsub(pattern, "@dicID_%1") -- %1でキャプチャグループを参照
+                            local pattern1 = "{@dicID_(.-)}"
+                            msg_item = msg_item:gsub(pattern1, "@dicID_%1")
 
-                            msg_front = msg_front .. item
-                        end
+                            local pattern2 = "{img link_party 24 24}{(.-)}"
+                            msg_item = msg_item:gsub(pattern2, "{img link_party 24 24}%1")
 
-                        for _, item in ipairs(separate_msgs) do
-                            --[[local pattern = "{img link_party 24 24}" .. "{(.-)}" .. "{/}{/}"
-                            item = item:gsub(pattern, function(match)
-                                return "{img link_party 24 24}" .. "{(.-)}" .. "{/}{/}"
-                            end)
-                            msg_front = msg_front .. item]]
-                            local pattern = "{img link_party 24 24}{(.-)}"
-
-                            item = item:gsub(pattern, "{img link_party 24 24}%1")
-                            msg_front = msg_front .. item
+                            msg_front = msg_front .. msg_item
                         end
                     end
-                    native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
 
+                    native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
                     g.chat_msgs[tbl_chat_id] = nil
-                    recv_file:close()
+
+                    found_match = true
                     break
                 end
             end
+
+            if found_match then
+                break
+            end
         end
+
         recv_file:close()
     end
 end
@@ -300,6 +289,7 @@ function native_lang_msg_send(frame, send_msg, name, chat_id)
         send_file:write(send_msg .. "\n")
         send_file:flush()
         send_file:close()
+
         local frame = ui.GetFrame("chatframe")
         frame:SetUserValue("NAME", name)
         frame:SetUserValue("CHAT_ID", chat_id)
@@ -310,14 +300,6 @@ end
 function native_lang_msg_processing(msg)
 
     local function modify_string(msg)
-
-        --[[msg = msg:gsub(pattern, function(match)
-            return "{img link_party 24 24}{" .. match .. "}{/}{/}"
-        end)]]
-
-        --[[msg = msg:gsub(pattern, function(match)
-            return "{@dicID_" .. match .. "}{/}{/}"
-        end)]]
 
         local pattern = "{img link_party 24 24}(.-){/}{/}"
         msg = msg:gsub(pattern, "{img link_party 24 24}{%1}{/}{/}")
@@ -447,7 +429,6 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                                      g.chat_msgs[tostring(chat_id)].separate_msg
                 native_lang_msg_send(frame, send_msg, name, chat_id)
             end
-
         end
         break
     end
@@ -472,7 +453,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                    frame_family_name_margin.right, frame_family_name_margin.bottom);
+                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
