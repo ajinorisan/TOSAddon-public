@@ -149,7 +149,6 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.chat_ids = g.chat_ids or {}
-    g.chat_msgs = g.chat_msgs or {}
     g.chat_count = 0
     g.child_names = {}
     -- tos_google_translate無効化
@@ -161,84 +160,49 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     addon:RegisterMsg("GAME_START", "native_lang_translate_exe_start");
 end
 
-function native_lang_chat_all_replace(frame)
-    local chatframe = ui.GetFrame("chatframe")
-    local child_count = chatframe:GetChildCount()
-
-    for i = 0, child_count - 1 do
-        local child = chatframe:GetChildByIndex(i)
-        if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
-            local chat_gbox = child:GetName()
-            local gbox = GET_CHILD_RECURSIVELY(chatframe, chat_gbox)
-            local gbox_child_count = gbox:GetChildCount()
-
-            if g.chat_count ~= gbox_child_count then
-                for j = 0, gbox_child_count - 1 do
-                    local gbox_child = gbox:GetChildByIndex(j)
-                    local child_name = gbox_child:GetName()
-
-                    if tostring(child_name) ~= "_SCR" then
-                        local cluster = GET_CHILD_RECURSIVELY(gbox, child_name)
-                        local text = GET_CHILD_RECURSIVELY(cluster, "text")
-                        print(tostring(text:GetText()))
-                    end
-                    table.insert(g.child_names, child_name)
-                end
-                g.chat_count = gbox_child_count
-                return 1
-            else
-
-                return 1
-            end
-        end
-    end
-end
-
 function native_lang_3SEC(frame, msg, str, num)
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "native_lang_name_trans");
-    frame:RunUpdateScript("native_lang_chat_all_replace", 0.1)
-    -- g.addon:RegisterMsg("FPS_UPDATE", "native_lang_chat_all_replace");
+    frame:RunUpdateScript("native_lang_async_msg_send", 10.0)
+
 end
 
-function native_lang_format_chat_message(frame, msg_type, right_name, msg)
-    local msg_type_map = {
-        Normal = 1,
-        Shout = 2,
-        Party = 3,
-        Guild = 4,
-        System = 7
-    }
+function native_lang_chat_name_replace(frame, msg_type, msg, name, chat_id)
 
-    local pattern = "{img link_party 24 24}{(.-)}"
-    msg = msg:gsub(pattern, "{img link_party 24 24}%1")
+    name = name:gsub("{+", "")
 
-    local chat_type_id = msg_type_map[msg_type]
-    if chat_type_id then
-        local font_size = tonumber(GET_CHAT_FONT_SIZE())
-        local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
-        local msg_front = string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg)
-        return msg_front, font_style, font_size
-    end
-    return nil, nil, nil
-end
+    local right_name = native_lang_process_name(frame, name)
 
-function native_lang_chat_update(frame)
-
-    -- local name = frame:GetUserValue("NAME")
-    -- local chat_id = frame:GetUserIValue("CHAT_ID")
-
-    for key_chat_id, chat in pairs(g.chat_ids) do
-        local name = chat.name
-        local right_name = native_lang_process_name(frame, name)
-        local msg_front, font_style, font_size = native_lang_format_chat_message(frame, chat.msg_type, right_name,
-            chat.msg)
+    if right_name ~= name then
+        local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name, msg)
         if msg_front ~= nil then
 
-            native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
+            native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
+            g.chat_ids[tostring(chat_id)].name = right_name
+            g.chat_ids[tostring(chat_id)].name_trans = "No"
         end
-        g.chat_ids[key_chat_id] = nil
+    else
+        local frame = ui.GetFrame("chatframe")
+        frame:RunUpdateScript("native_lang_chat_name_replace_update", 5.0)
+    end
+end
 
+function native_lang_chat_name_replace_update(frame)
+
+    for key_chat_id, chat in pairs(g.chat_ids) do
+        if chat.name_trans == "Yes" then
+            local name = chat.name
+            local right_name = native_lang_process_name(frame, name)
+            local org_msg = chat.org_msg
+            local msg_tyep = chat.msg_type
+            local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_tyep, right_name,
+                                                                                     org_msg)
+            if msg_front ~= nil then
+                native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
+                chat.name = right_name
+                chat.name_trans = "No"
+            end
+        end
     end
 end
 
@@ -251,73 +215,90 @@ function native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_
     text:SetTextByKey("text", msg_front)
 end
 
-function native_lang_name_replace(frame, msg_type, msg, name, chat_id)
+function native_lang_format_chat_message(frame, msg_type, right_name, msg)
+    local msg_type_map = {
+        Normal = 1,
+        Shout = 2,
+        Party = 3,
+        Guild = 4,
+        System = 7
+    }
 
-    name = name:gsub("{+", "")
-
-    local right_name = native_lang_process_name(frame, name)
-
-    if right_name ~= name then
-        local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name, msg)
-        if msg_front ~= nil then
-
-            native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
-        end
-    else
-        local frame = ui.GetFrame("chatframe")
-        frame:SetUserValue("NAME", name)
-        frame:SetUserValue("CHAT_ID", chat_id)
-        frame:RunUpdateScript("native_lang_chat_update", 5.0)
+    local chat_type_id = msg_type_map[msg_type]
+    if chat_type_id then
+        local font_size = tonumber(GET_CHAT_FONT_SIZE())
+        local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
+        local msg_front = string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg)
+        return msg_front, font_style, font_size
     end
+    return nil, nil, nil
 end
 
 function native_lang_msg_replace(frame)
 
     local recv_file = io.open(g.recv_msg, "r")
     if recv_file then
-        local found_match = false -- フラグを初期化
-
         for line in recv_file:lines() do
             local chat_id, msg_type, msg, separate_msg = line:match("^(.-):::(.-):::(.-):::(.*)$")
-            for tbl_chat_id, chat_info in pairs(g.chat_msgs) do
-
-                if tonumber(tbl_chat_id) == tonumber(chat_id) then
-
-                    local tbl_msg_type = chat_info.msg_type
-                    local tbl_name = chat_info.name
-                    local right_name = native_lang_process_name(frame, tbl_name)
-                    local msg_front, font_style, font_size =
-                        native_lang_format_chat_message(frame, tbl_msg_type, right_name, msg)
-
-                    if separate_msg and separate_msg ~= "None" then
-                        local separate_msgs = {}
-                        for msg_item in separate_msg:gmatch("[^,]+") do
-                            table.insert(separate_msgs, msg_item)
-                        end
-
-                        for _, msg_item in ipairs(separate_msgs) do
-
-                            local pattern1 = "{@dicID_(.-)}"
-                            msg_item = msg_item:gsub(pattern1, "@dicID_%1")
-
-                            local pattern2 = "{img link_party 24 24}{(.-)}"
-                            msg_item = msg_item:gsub(pattern2, "{img link_party 24 24}%1")
-
-                            msg_front = msg_front .. msg_item
-                        end
+            if g.chat_ids[tostring(chat_id)].msg_trans == "Yes" then
+                g.chat_ids[tostring(chat_id)].trans_msg = msg
+                g.chat_ids[tostring(chat_id)].separate_msg = separate_msg
+                g.chat_ids[tostring(chat_id)].msg_trans = "No"
+                local msg_type = g.chat_ids[tostring(chat_id)].msg_type
+                local name = g.chat_ids[tostring(chat_id)].name
+                local right_name = native_lang_process_name(frame, name)
+                local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name,
+                                                                                         msg)
+                if separate_msg and separate_msg ~= "None" then
+                    local separate_msgs = {}
+                    for msg_item in separate_msg:gmatch("[^,]+") do
+                        table.insert(separate_msgs, msg_item)
                     end
 
-                    native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
-                    g.chat_msgs[tbl_chat_id] = nil
+                    for _, msg_item in ipairs(separate_msgs) do
 
+                        local pattern1 = "{@dicID_(.-)}"
+                        msg_item = msg_item:gsub(pattern1, "@dicID_%1")
+
+                        local pattern2 = "{img link_party 24 24}{(.-)}"
+                        msg_item = msg_item:gsub(pattern2, "{img link_party 24 24}%1")
+
+                        msg_front = msg_front .. msg_item
+                    end
                 end
+                native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
             end
         end
+        native_lang_chat_all_replace()
         recv_file:close()
     end
 end
 
-function native_lang_msg_send(frame, send_msg, name, chat_id)
+--[[g.chat_ids[tostring(chat_id)] = {
+                    msg_type = msg_type,
+                    name = name,
+                    org_msg = msg,
+                    proc_msg = nil,
+                    separate_msg = "None",
+                    name_trans = "Yes",
+                    msg_trans = "No",
+                    trans_msg = ""
+                }]]
+function native_lang_async_msg_send(frame)
+
+    for chat_id, chat_info in pairs(g.chat_ids) do
+        local msg_trans = chat_info.msg_trans
+        if msg_trans == "Yes" then
+            local msg_type = chat_info.msg_type
+            local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. g.chat_ids[tostring(chat_id)].proc_msg .. ":::" ..
+                                 g.chat_ids[tostring(chat_id)].separate_msg .. ":::" ..
+                                 g.chat_ids[tostring(chat_id)].org_msg
+            native_lang_msg_send(frame, send_msg)
+        end
+    end
+end
+
+function native_lang_msg_send(frame, send_msg)
     local send_file = io.open(g.send_msg, "a")
 
     if send_file then
@@ -326,7 +307,7 @@ function native_lang_msg_send(frame, send_msg, name, chat_id)
         send_file:close()
 
         local frame = ui.GetFrame("chatframe")
-        frame:RunUpdateScript("native_lang_msg_replace", 6.0)
+        frame:RunUpdateScript("native_lang_msg_replace", 5.5)
     end
 end
 
@@ -427,6 +408,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
             local msg = chat:GetMsg()
             msg = msg:gsub("{#0000FF}", "{#FFFF00}")
             local name = chat:GetCommanderName()
+            name = name:gsub(" %[(.-)%]", "")
 
             print(chat_id .. ":" .. name .. ":" .. msg)
 
@@ -434,13 +416,23 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 g.chat_ids[tostring(chat_id)] = {
                     msg_type = msg_type,
                     name = name,
-                    msg = msg
+                    org_msg = msg,
+                    proc_msg = nil,
+                    separate_msg = "None",
+                    name_trans = "Yes",
+                    msg_trans = "No",
+                    trans_msg = ""
                 }
                 native_lang_name_replace(frame, msg_type, msg, name, chat_id)
             end
 
             if string.find(msg, "{spine ") then
                 return
+            end
+            local name_trans_value = g.chat_ids[tostring(chat_id)].name_trans
+
+            if name_trans_value == nil then
+                name_trans_value = "No"
             end
 
             if native_lang_is_translation(msg) then
@@ -451,16 +443,21 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 end
 
                 print(chat_id .. ":" .. name .. ":" .. modified_msg)
-                g.chat_msgs[tostring(chat_id)] = {
+                g.chat_ids[tostring(chat_id)] = {
                     msg_type = msg_type,
                     name = name,
-                    msg = modified_msg,
-                    separate_msg = #separate_msg == 0 and "None" or table.concat(separate_msg, ",")
+                    org_msg = msg,
+                    proc_msg = modified_msg,
+                    separate_msg = #separate_msg == 0 and "None" or table.concat(separate_msg, ","),
+                    name_trans = name_trans_value,
+                    msg_trans = "Yes",
+                    trans_msg = ""
                 }
 
-                local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. g.chat_msgs[tostring(chat_id)].msg .. ":::" ..
-                                     g.chat_msgs[tostring(chat_id)].separate_msg
-                native_lang_msg_send(frame, send_msg, name, chat_id)
+                local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. g.chat_ids[tostring(chat_id)].proc_msg ..
+                                     ":::" .. g.chat_ids[tostring(chat_id)].separate_msg .. ":::" ..
+                                     g.chat_ids[tostring(chat_id)].org_msg
+                native_lang_msg_send(frame, send_msg)
             end
         end
         break
@@ -486,7 +483,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                    frame_family_name_margin.right, frame_family_name_margin.bottom);
+                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
@@ -600,8 +597,8 @@ function native_lang_not_found_name(str)
 end
 
 function native_lang_name_trans()
-    local frame = ui.GetFrame("chatframe")
-    frame:Invalidate()
+    -- local frame = ui.GetFrame("chatframe")
+    -- frame:Invalidate()
     local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
 
     for i = 1, selected_objects_count do
@@ -642,6 +639,202 @@ function native_lang_name_trans()
     end
 end
 
+function native_lang_chat_all_replace()
+    local chatframe = ui.GetFrame("chatframe")
+    local child_count = chatframe:GetChildCount()
+
+    for i = 0, child_count - 1 do
+        local child = chatframe:GetChildByIndex(i)
+        if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
+            local chat_gbox = child:GetName()
+            local gbox = GET_CHILD_RECURSIVELY(chatframe, chat_gbox)
+            local gbox_child_count = gbox:GetChildCount()
+
+            if g.chat_count ~= gbox_child_count then
+                for j = 0, gbox_child_count - 1 do
+                    local gbox_child = gbox:GetChildByIndex(j)
+                    local child_name = gbox_child:GetName()
+
+                    if tostring(child_name) ~= "_SCR" then
+                        local cluster = GET_CHILD_RECURSIVELY(gbox, child_name)
+                        local label = GET_CHILD(cluster, "bg")
+                        local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX")
+                        local chat_Width = gbox:GetWidth()
+                        local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                        label:Resize(chat_Width - offsetX, text:GetHeight())
+                        cluster:Resize(chat_Width, label:GetHeight())
+                        local ypos = cluster:GetY() + cluster:GetHeight()
+                        local margin_left = 20
+                        cluster:SetOffset(margin_left, ypos)
+
+                        if gbox:GetLineCount() == gbox:GetCurLine() + gbox:GetVisibleLineCount() then
+                            gbox:SetScrollPos(99999)
+                        end
+
+                    end
+                end
+            end
+        end
+    end
+end
+--[[function native_lang_gbox(output)
+    local mainchatFrame = ui.GetFrame("chatframe")
+    local frame = ui.GetFrame("tos_google_translate")
+    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 0, 0, frame:GetWidth(), frame:GetHeight())
+    AUTO_CAST(gbox)
+    gbox:SetLeftScroll(1)
+
+    local ypos = 0
+    local max_chat_id = nil -- 最大の chat_id を格納する変数
+
+    g.ypos = 0
+
+    -- 事前に最大の chat_id を算出
+    for i, entry in ipairs(output) do
+        local chat_id = tonumber(entry.chat_id)
+        if chat_id and (max_chat_id == nil or chat_id > max_chat_id) then
+            max_chat_id = chat_id
+        end
+    end
+
+    for i, entry in ipairs(output) do
+        local chat_id = entry.chat_id
+        local name = entry.name
+        local trans_text = entry.trans_text
+        local msgtype = entry.msgtype
+        local time = entry.time
+
+        local clustername = "cluster_" .. chat_id
+        local marginLeft = 20
+        local marginRight = 0
+
+        local commnderNameUIText = name .. " : " .. trans_text
+
+        for i, extractedTexts in pairs(g.extractedTexts) do
+            if chat_id == i then
+                for j, extractedText in ipairs(extractedTexts) do
+                    extractedText = remove_unwanted_braces(extractedText)
+
+                    commnderNameUIText = commnderNameUIText .. extractedText
+                end
+            end
+        end
+
+        -- {img icon_item_GabijaEarring 30 30} の存在を確認
+        local img_start, img_end = string.find(commnderNameUIText, "{img icon_item_GabijaEarring 30 30}")
+
+        if img_start and img_end then
+            -- すべての { の位置をリストアップ
+            local positions = {}
+            local current_pos = 1
+            while true do
+                local start_pos = string.find(commnderNameUIText, "{", current_pos, true)
+                if not start_pos then
+                    break
+                end
+                table.insert(positions, start_pos)
+                current_pos = start_pos + 1
+            end
+
+            -- 後ろから3個目と2個目の { の位置を取得
+            local third_last_pos = positions[#positions - 2]
+
+            if third_last_pos then
+                -- 後ろから3個目の { を ( に置き換え
+                commnderNameUIText = string.sub(commnderNameUIText, 1, third_last_pos - 1) .. "" ..
+                                         string.sub(commnderNameUIText, third_last_pos + 1)
+
+            end
+        end
+        if g.settings.use == 2 then
+            commnderNameUIText = commnderNameUIText .. "{#FF0000}_{/}"
+        end
+
+        commnderNameUIText = commnderNameUIText:gsub("{s18", "")
+        commnderNameUIText = commnderNameUIText:gsub("}{a SLI", "{a SLI")
+        commnderNameUIText = commnderNameUIText:gsub("{/}{/{", "{/}{/}{")
+        -- print(commnderNameUIText)
+        local msgFront = ""
+        local fontStyle = nil
+        if msgtype == "Normal" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
+        elseif msgtype == "Shout" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
+        elseif msgtype == "Party" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
+        elseif msgtype == "Guild" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
+        elseif msgtype == "System" then
+            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
+            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_7"), commnderNameUIText)
+        end
+
+        if g.settings.use == 1 then
+
+            local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
+                marginRight, 1)
+
+            local label = chatCtrl:GetChild('bg')
+            local txt = GET_CHILD(chatCtrl, "text")
+            local timeCtrl = GET_CHILD(chatCtrl, "time")
+
+            label:SetAlpha(0)
+
+            local fontSize = GET_CHAT_FONT_SIZE()
+
+            txt:SetTextByKey("font", fontStyle)
+            txt:SetTextByKey("size", fontSize)
+            txt:SetTextByKey("text", msgFront)
+            timeCtrl:SetTextByKey("time", time)
+
+            local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
+            native_lang_chat_ctrl(gbox, chatCtrl, label, txt, timeCtrl, offsetX)
+
+        elseif g.settings.use == 2 then
+            local chatCtrl = GET_CHILD_RECURSIVELY(mainchatFrame, clustername)
+            -- local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, ypos,                marginRight, 1)
+            if chatCtrl ~= nil then
+                local groupboxname = chatCtrl:GetParent():GetName()
+                local groupbox = GET_CHILD_RECURSIVELY(mainchatFrame, groupboxname)
+
+                local label = chatCtrl:GetChild('bg')
+                local txt = GET_CHILD(chatCtrl, "text")
+                local timeCtrl = GET_CHILD(chatCtrl, "time")
+
+                label:SetAlpha(0)
+
+                local fontSize = GET_CHAT_FONT_SIZE()
+
+                txt:SetTextByKey("font", fontStyle)
+                txt:SetTextByKey("size", fontSize)
+                txt:SetTextByKey("text", msgFront)
+                timeCtrl:SetTextByKey("time", time)
+
+                local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
+                local chatWidth = groupbox:GetWidth()
+                txt:SetTextMaxWidth(chatWidth - 100)
+                txt:SetText(txt:GetText())
+                label:Resize(chatWidth - offsetX, txt:GetHeight())
+                chatCtrl:Resize(chatWidth, label:GetHeight())
+
+                if chat_id == max_chat_id then
+                    ypos = chatCtrl:GetY() + chatCtrl:GetHeight()
+                    chatCtrl:SetOffset(marginLeft, ypos)
+                end
+
+                if groupbox:GetLineCount() == groupbox:GetCurLine() + groupbox:GetVisibleLineCount() then
+                    groupbox:SetScrollPos(99999)
+                end
+            end
+
+        end
+    end
+
+end]]
 -- ui.Chat("/p 감자조와")
 --[==[g.loaded = false
 
@@ -1585,164 +1778,7 @@ local function remove_unwanted_braces(input_str)
     return result
 end
 
-function native_lang_gbox(output)
-    local mainchatFrame = ui.GetFrame("chatframe")
-    local frame = ui.GetFrame("tos_google_translate")
-    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 0, 0, frame:GetWidth(), frame:GetHeight())
-    AUTO_CAST(gbox)
-    gbox:SetLeftScroll(1)
 
-    local ypos = 0
-    local max_chat_id = nil -- 最大の chat_id を格納する変数
-
-    g.ypos = 0
-
-    -- 事前に最大の chat_id を算出
-    for i, entry in ipairs(output) do
-        local chat_id = tonumber(entry.chat_id)
-        if chat_id and (max_chat_id == nil or chat_id > max_chat_id) then
-            max_chat_id = chat_id
-        end
-    end
-
-    for i, entry in ipairs(output) do
-        local chat_id = entry.chat_id
-        local name = entry.name
-        local trans_text = entry.trans_text
-        local msgtype = entry.msgtype
-        local time = entry.time
-
-        local clustername = "cluster_" .. chat_id
-        local marginLeft = 20
-        local marginRight = 0
-
-        local commnderNameUIText = name .. " : " .. trans_text
-
-        for i, extractedTexts in pairs(g.extractedTexts) do
-            if chat_id == i then
-                for j, extractedText in ipairs(extractedTexts) do
-                    extractedText = remove_unwanted_braces(extractedText)
-
-                    commnderNameUIText = commnderNameUIText .. extractedText
-                end
-            end
-        end
-
-        -- {img icon_item_GabijaEarring 30 30} の存在を確認
-        local img_start, img_end = string.find(commnderNameUIText, "{img icon_item_GabijaEarring 30 30}")
-
-        if img_start and img_end then
-            -- すべての { の位置をリストアップ
-            local positions = {}
-            local current_pos = 1
-            while true do
-                local start_pos = string.find(commnderNameUIText, "{", current_pos, true)
-                if not start_pos then
-                    break
-                end
-                table.insert(positions, start_pos)
-                current_pos = start_pos + 1
-            end
-
-            -- 後ろから3個目と2個目の { の位置を取得
-            local third_last_pos = positions[#positions - 2]
-
-            if third_last_pos then
-                -- 後ろから3個目の { を ( に置き換え
-                commnderNameUIText = string.sub(commnderNameUIText, 1, third_last_pos - 1) .. "" ..
-                                         string.sub(commnderNameUIText, third_last_pos + 1)
-
-            end
-        end
-        if g.settings.use == 2 then
-            commnderNameUIText = commnderNameUIText .. "{#FF0000}_{/}"
-        end
-
-        commnderNameUIText = commnderNameUIText:gsub("{s18", "")
-        commnderNameUIText = commnderNameUIText:gsub("}{a SLI", "{a SLI")
-        commnderNameUIText = commnderNameUIText:gsub("{/}{/{", "{/}{/}{")
-        -- print(commnderNameUIText)
-        local msgFront = ""
-        local fontStyle = nil
-        if msgtype == "Normal" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_NORMAL")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_1"), commnderNameUIText)
-        elseif msgtype == "Shout" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SHOUT")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_2"), commnderNameUIText)
-        elseif msgtype == "Party" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_PARTY")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_3"), commnderNameUIText)
-        elseif msgtype == "Guild" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_4"), commnderNameUIText)
-        elseif msgtype == "System" then
-            fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_SYSTEM")
-            msgFront = string.format("[%s]%s", ScpArgMsg("ChatType_7"), commnderNameUIText)
-        end
-
-        if g.settings.use == 1 then
-
-            local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, g.ypos,
-                marginRight, 1)
-
-            local label = chatCtrl:GetChild('bg')
-            local txt = GET_CHILD(chatCtrl, "text")
-            local timeCtrl = GET_CHILD(chatCtrl, "time")
-
-            label:SetAlpha(0)
-
-            local fontSize = GET_CHAT_FONT_SIZE()
-
-            txt:SetTextByKey("font", fontStyle)
-            txt:SetTextByKey("size", fontSize)
-            txt:SetTextByKey("text", msgFront)
-            timeCtrl:SetTextByKey("time", time)
-
-            local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
-            native_lang_chat_ctrl(gbox, chatCtrl, label, txt, timeCtrl, offsetX)
-
-        elseif g.settings.use == 2 then
-            local chatCtrl = GET_CHILD_RECURSIVELY(mainchatFrame, clustername)
-            -- local chatCtrl = gbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft, ypos,                marginRight, 1)
-            if chatCtrl ~= nil then
-                local groupboxname = chatCtrl:GetParent():GetName()
-                local groupbox = GET_CHILD_RECURSIVELY(mainchatFrame, groupboxname)
-
-                local label = chatCtrl:GetChild('bg')
-                local txt = GET_CHILD(chatCtrl, "text")
-                local timeCtrl = GET_CHILD(chatCtrl, "time")
-
-                label:SetAlpha(0)
-
-                local fontSize = GET_CHAT_FONT_SIZE()
-
-                txt:SetTextByKey("font", fontStyle)
-                txt:SetTextByKey("size", fontSize)
-                txt:SetTextByKey("text", msgFront)
-                timeCtrl:SetTextByKey("time", time)
-
-                local offsetX = mainchatFrame:GetUserConfig("CTRLSET_OFFSETX")
-                local chatWidth = groupbox:GetWidth()
-                txt:SetTextMaxWidth(chatWidth - 100)
-                txt:SetText(txt:GetText())
-                label:Resize(chatWidth - offsetX, txt:GetHeight())
-                chatCtrl:Resize(chatWidth, label:GetHeight())
-
-                if chat_id == max_chat_id then
-                    ypos = chatCtrl:GetY() + chatCtrl:GetHeight()
-                    chatCtrl:SetOffset(marginLeft, ypos)
-                end
-
-                if groupbox:GetLineCount() == groupbox:GetCurLine() + groupbox:GetVisibleLineCount() then
-                    groupbox:SetScrollPos(99999)
-                end
-            end
-
-        end
-    end
-
-end
 
 function native_lang_get_curline()
     local frame = ui.GetFrame("tos_google_translate")
