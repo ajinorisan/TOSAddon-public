@@ -131,6 +131,64 @@ function native_lang_load_settings()
     native_lang_save_settings()
     native_lang_chat_all_replace_init()
 end
+--[[g.chat_ids[tostring(chat_id)] = {
+    msg_type = msg_type,
+    name = name,
+    org_msg = msg,
+    proc_msg = nil,
+    separate_msg = "None",
+    name_trans = "Yes",
+    msg_trans = "No",
+    trans_msg = ""
+}]]
+function native_lang_chat_all_replace_init()
+    local chatframe = ui.GetFrame("chatframe")
+    local child_count = chatframe:GetChildCount()
+    for i = 0, child_count - 1 do
+        local child = chatframe:GetChildByIndex(i)
+        if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
+            local chat_gbox = child:GetName()
+            local gbox = GET_CHILD_RECURSIVELY(chatframe, chat_gbox)
+            local gbox_child_count = gbox:GetChildCount()
+            local ypos = 0
+            for j = 0, gbox_child_count - 1 do
+                local gbox_child = gbox:GetChildByIndex(j)
+                local child_name = gbox_child:GetName()
+                if tostring(child_name) ~= "_SCR" then
+                    local margin_left = 20
+                    local cluster = GET_CHILD(gbox, child_name)
+                    local label = cluster:GetChild('bg')
+                    local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX")
+                    local chat_Width = gbox:GetWidth()
+                    local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                    local frame_chat_id = string.gsub(child_name, "cluster_", "")
+
+                    --[[if not g.load and then
+                        DESTROY_CHILD_BYNAME(gbox, cluster:GetName())
+                    end]]
+                    if g.chat_ids[frame_chat_id] then
+                        local name = g.chat_ids[frame_chat_id].name
+                        local org_msg = g.chat_ids[frame_chat_id].org_msg
+                        local msg = g.chat_ids[frame_chat_id].trans_msg ~= "" and org_msg or
+                                        g.chat_ids[frame_chat_id].trans_msg
+                        local msg_type = g.chat_ids[frame_chat_id].msg_type
+                        native_lang_chat_name_replace(chatframe, msg_type, msg, name, frame_chat_id)
+                    end
+
+                    label:Resize(chat_Width - offsetX, text:GetHeight())
+                    cluster:Resize(chat_Width, label:GetHeight())
+                    cluster:SetOffset(margin_left, ypos)
+                    ypos = ypos + cluster:GetHeight()
+
+                end
+            end
+            if gbox:GetLineCount() == gbox:GetCurLine() + gbox:GetVisibleLineCount() then
+                gbox:SetScrollPos(99999)
+            end
+        end
+    end
+
+end
 
 function native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
     return
@@ -150,8 +208,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.chat_ids = g.chat_ids or {}
-    g.chat_count = 0
-    g.child_names = {}
+
     -- tos_google_translate無効化
     g.SetupHook(native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT, "TOS_GOOGLE_TRANSLATE_ON_INIT")
 
@@ -164,7 +221,6 @@ end
 function native_lang_3SEC(frame, msg, str, num)
     acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG");
     g.addon:RegisterMsg("FPS_UPDATE", "native_lang_name_trans");
-    -- g.addon:RegisterMsg("FPS_UPDATE", "native_lang_chat_all_replace");
     frame:RunUpdateScript("native_lang_async_msg_send", 10.0)
 
 end
@@ -198,7 +254,7 @@ function native_lang_chat_name_replace_update(frame)
             local org_msg = chat.org_msg
             local msg_tyep = chat.msg_type
             local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_tyep, right_name,
-                org_msg)
+                                                                                     org_msg)
             if msg_front ~= nil then
                 native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
                 chat.name = right_name
@@ -251,7 +307,7 @@ function native_lang_msg_replace(frame)
                 local name = g.chat_ids[tostring(chat_id)].name
                 local right_name = native_lang_process_name(frame, name)
                 local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name,
-                    msg)
+                                                                                         msg)
                 if separate_msg and separate_msg ~= "None" then
                     local separate_msgs = {}
                     for msg_item in separate_msg:gmatch("[^,]+") do
@@ -280,48 +336,58 @@ function native_lang_msg_replace(frame)
 end
 
 function native_lang_async_msg_send(frame)
-    -- recvに存在するchat_idを取得する
-    local existing_chat_ids = {}
 
-    local f = io.open(g.recv_msg, 'r')
-    if f then
-        for line in f:lines() do
-            local parts = line:split(":::") -- ここでsplit関数が必要
-            if #parts >= 1 then
-                existing_chat_ids[parts[1]] = true -- chat_idをキーにして存在することを保持
+    local recv_ids = {}
+    local send_ids = {}
+
+    local function load_chat_ids(file_name, ids_table)
+        local file = io.open(file_name, 'r')
+        if file then
+            for line in file:lines() do
+                local parts = line:split(":::") -- split関数を最適化
+                if #parts >= 1 then
+                    ids_table[parts[1]] = true -- chat_idをキーにして存在することを保持
+                end
             end
+            file:close()
         end
-        f:close()
     end
 
-    -- sendに存在するchat_idを取得する
-    local sent_chat_ids = {}
+    load_chat_ids(g.recv_msg, recv_ids)
+    load_chat_ids(g.send_msg, send_ids)
 
-    local f = io.open(g.send_msg, 'r')
-    if f then
-        for line in f:lines() do
-            local parts = line:split(":::") -- ここでsplit関数が必要
-            if #parts >= 1 then
-                sent_chat_ids[parts[1]] = true -- chat_idをキーにして存在することを保持
-            end
-        end
-        f:close()
-    end
+    local messages_to_send = {}
 
     for chat_id, chat_info in pairs(g.chat_ids) do
         local msg_trans = chat_info.msg_trans
-        print(chat_id)
+
         if msg_trans == "Yes" then
-            -- recvにもsendにも存在しない場合のみ送信
-            if not existing_chat_ids[tostring(chat_id)] and not sent_chat_ids[tostring(chat_id)] then
+
+            if not recv_ids[tostring(chat_id)] and not send_ids[tostring(chat_id)] then
                 local msg_type = chat_info.msg_type
                 local send_msg_content =
                     chat_id .. ":::" .. msg_type .. ":::" .. g.chat_ids[tostring(chat_id)].proc_msg .. ":::" ..
                         g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. g.chat_ids[tostring(chat_id)].org_msg
-                native_lang_msg_send(frame, send_msg_content)
+                table.insert(messages_to_send, send_msg_content)
+                -- native_lang_msg_send(frame, send_msg_content)
             end
         end
     end
+
+    if #messages_to_send > 0 then
+        local send_file = io.open(g.send_msg, "a")
+        if send_file then
+            for _, msg in ipairs(messages_to_send) do
+                send_file:write(msg .. "\n")
+            end
+            send_file:flush()
+            send_file:close()
+        end
+    end
+
+    local frame = ui.GetFrame("chatframe")
+    frame:RunUpdateScript("native_lang_msg_replace", 9.0)
+
     return 1
 end
 
@@ -389,59 +455,6 @@ function native_lang_msg_processing(msg)
 
 end
 
-function native_lang_chat_all_replace_init()
-    local chatframe = ui.GetFrame("chatframe")
-    local child_count = chatframe:GetChildCount()
-
-    local recv_file = io.open(g.recv_msg, "r")
-    if recv_file then
-        for line in recv_file:lines() do
-            local chat_id, msg_type, msg, separate_msg, org_msg = line:match("^(.-):::(.-):::(.-):::(.-):::(.*)$")
-            for i = 0, child_count - 1 do
-                local child = chatframe:GetChildByIndex(i)
-                if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
-                    local chat_gbox = child:GetName()
-                    local gbox = GET_CHILD_RECURSIVELY(chatframe, chat_gbox)
-                    local gbox_child_count = gbox:GetChildCount()
-                    local ypos = 0
-                    for j = 0, gbox_child_count - 1 do
-                        local gbox_child = gbox:GetChildByIndex(j)
-                        local child_name = gbox_child:GetName()
-
-                        if tostring(child_name) ~= "_SCR" then
-                            local margin_left = 20
-                            local cluster = GET_CHILD(gbox, child_name)
-                            local label = cluster:GetChild('bg')
-                            local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX")
-                            local chat_Width = gbox:GetWidth()
-                            local text = GET_CHILD_RECURSIVELY(cluster, "text")
-
-                            if g.chat_ids[tostring(chat_id)] then
-                                local name = g.chat_ids[tostring(chat_id)].name
-                                local msg = g.chat_ids[tostring(chat_id)].trans_msg ~= "" and org_msg or
-                                                g.chat_ids[tostring(chat_id)].trans_msg
-                                native_lang_chat_name_replace(chatframe, msg_type, msg, name, chat_id)
-                            end
-
-                            label:Resize(chat_Width - offsetX, text:GetHeight())
-                            cluster:Resize(chat_Width, label:GetHeight())
-                            cluster:SetOffset(margin_left, ypos)
-                            ypos = ypos + cluster:GetHeight()
-
-                        end
-                    end
-                    if gbox:GetLineCount() == gbox:GetCurLine() + gbox:GetVisibleLineCount() then
-                        gbox:SetScrollPos(99999)
-                    end
-
-                end
-            end
-        end
-        recv_file:close()
-    end
-
-end
-
 function native_lang_chat_all_replace()
     local chatframe = ui.GetFrame("chatframe")
     local child_count = chatframe:GetChildCount()
@@ -500,9 +513,10 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
         if cluster == nil then
             return
         else
-            g.chat_ids[tostring(chat_id)] = {}
+
             local msg_type = chat:GetMsgType()
-            if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" then
+            if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" and msg_type ~=
+                "System" then
                 return
             end
 
@@ -513,6 +527,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
             local btn_shout_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_shout_pic")
             local btn_party_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_party_pic")
             local btn_guild_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_guild_pic")
+            local btn_system_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_system_pic")
             if btn_general_pic:IsVisible() == 0 and msg_type == "Normal" then
                 return
             elseif btn_shout_pic:IsVisible() == 0 and msg_type == "Shout" then
@@ -520,6 +535,8 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
             elseif btn_party_pic:IsVisible() == 0 and msg_type == "Party" then
                 return
             elseif btn_guild_pic:IsVisible() == 0 and msg_type == "Guild" then
+                return
+            elseif btn_system_pic:IsVisible() == 0 and msg_type == "System" then
                 return
             end
 
@@ -604,7 +621,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                    frame_family_name_margin.right, frame_family_name_margin.bottom);
+                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
@@ -672,54 +689,37 @@ end
 
 function native_lang_process_name(frame, clean_name)
     local name_file = io.open(g.recv_name, "r")
-    if name_file then
-        local found = false
-        for line in name_file:lines() do
-            local left_name, right_name = line:match("^(.-):::(.*)$")
-            if left_name == clean_name then
-                found = true
-                return right_name
-            end
-        end
-        name_file:close()
-
-        if not found then
-            if native_lang_is_translation(clean_name) then
-                native_lang_not_found_name(clean_name)
-            end
-        end
-    end
-    return clean_name
-end
-
-function native_lang_not_found_name(str)
-    local name_file = io.open(g.send_name, "r")
     local found = false
 
     if name_file then
         for line in name_file:lines() do
             local left_name, right_name = line:match("^(.-):::(.*)$")
-            if left_name == str then
+            if left_name == clean_name then
                 found = true
-                break
+                name_file:close()
+                return right_name
             end
         end
         name_file:close()
     end
 
     if not found then
-        local append_file = io.open(g.send_name, "a") -- 追記モードで開く
-        if append_file then
-            append_file:write(str .. ":::" .. str .. "\n")
-            append_file:flush() -- これはオプションですが、書き込みを確実にするために使います
-            append_file:close()
+        if native_lang_is_translation(clean_name) then
+
+            local append_file = io.open(g.send_name, "a")
+            if append_file then
+                append_file:write(clean_name .. ":::" .. clean_name .. "\n")
+                append_file:flush()
+                append_file:close()
+            end
         end
     end
+
+    return clean_name
 end
 
 function native_lang_name_trans()
-    -- local frame = ui.GetFrame("chatframe")
-    -- frame:Invalidate()
+
     local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
 
     for i = 1, selected_objects_count do
