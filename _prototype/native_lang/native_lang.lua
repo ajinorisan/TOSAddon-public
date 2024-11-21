@@ -129,25 +129,25 @@ function native_lang_load_settings()
     end
 
     native_lang_save_settings()
-    native_lang_chat_all_replace_init()
+    for chat_id, chat in pairs(g.chat_ids) do
+        local org_name = chat.name
+        local right_name = native_lang_process_name(nil, org_name)
+        g.chat_ids[chat_id].name = right_name
+    end
 end
---[[g.chat_ids[tostring(chat_id)] = {
-    msg_type = msg_type,
-    name = name,
-    org_msg = msg,
-    proc_msg = nil,
-    separate_msg = "None",
-    name_trans = "Yes",
-    msg_trans = "No",
-    trans_msg = ""
-}]]
+
 function native_lang_chat_all_replace_init()
+
     local chatframe = ui.GetFrame("chatframe")
+
     local child_count = chatframe:GetChildCount()
+
     for i = 0, child_count - 1 do
         local child = chatframe:GetChildByIndex(i)
+
         if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
             local chat_gbox = child:GetName()
+
             local gbox = GET_CHILD_RECURSIVELY(chatframe, chat_gbox)
             local gbox_child_count = gbox:GetChildCount()
             local ypos = 0
@@ -157,22 +157,27 @@ function native_lang_chat_all_replace_init()
                 if tostring(child_name) ~= "_SCR" then
                     local margin_left = 20
                     local cluster = GET_CHILD(gbox, child_name)
+
                     local label = cluster:GetChild('bg')
                     local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX")
                     local chat_Width = gbox:GetWidth()
                     local text = GET_CHILD_RECURSIVELY(cluster, "text")
-                    local frame_chat_id = string.gsub(child_name, "cluster_", "")
+                    local frame_chat_id = tostring(string.gsub(child_name, "cluster_", ""))
 
-                    --[[if not g.load and then
-                        DESTROY_CHILD_BYNAME(gbox, cluster:GetName())
-                    end]]
-                    if g.chat_ids[frame_chat_id] then
+                    if g.chat_ids[frame_chat_id] ~= nil then
                         local name = g.chat_ids[frame_chat_id].name
                         local org_msg = g.chat_ids[frame_chat_id].org_msg
-                        local msg = g.chat_ids[frame_chat_id].trans_msg ~= "" and org_msg or
+
+                        local msg = g.chat_ids[frame_chat_id].trans_msg == "" and org_msg or
                                         g.chat_ids[frame_chat_id].trans_msg
+
                         local msg_type = g.chat_ids[frame_chat_id].msg_type
-                        native_lang_chat_name_replace(chatframe, msg_type, msg, name, frame_chat_id)
+                        local msg_front, font_style, font_size =
+                            native_lang_format_chat_message(chatframe, msg_type, name, msg)
+                        if msg_front ~= nil then
+                            -- msg_front = msg_front .. "{#FF0000}★{/}"
+                            native_lang_chat_replace(chatframe, msg_front, font_style, font_size, frame_chat_id)
+                        end
                     end
 
                     label:Resize(chat_Width - offsetX, text:GetHeight())
@@ -189,7 +194,7 @@ function native_lang_chat_all_replace_init()
     end
 
 end
-
+-- native_lang_chat_all_replace_init()
 function native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
     return
 end
@@ -215,7 +220,9 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     native_lang_load_settings()
 
     addon:RegisterMsg("GAME_START_3SEC", "native_lang_3SEC");
-    -- addon:RegisterMsg("GAME_START", "native_lang_translate_exe_start");
+    addon:RegisterMsg("GAME_START_3SEC", "native_lang_chat_all_replace_init");
+
+    addon:RegisterMsg("GAME_START", "native_lang_translate_exe_start");
 end
 
 function native_lang_3SEC(frame, msg, str, num)
@@ -254,7 +261,7 @@ function native_lang_chat_name_replace_update(frame)
             local org_msg = chat.org_msg
             local msg_tyep = chat.msg_type
             local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_tyep, right_name,
-                                                                                     org_msg)
+                org_msg)
             if msg_front ~= nil then
                 native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
                 chat.name = right_name
@@ -307,7 +314,7 @@ function native_lang_msg_replace(frame)
                 local name = g.chat_ids[tostring(chat_id)].name
                 local right_name = native_lang_process_name(frame, name)
                 local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name,
-                                                                                         msg)
+                    msg)
                 if separate_msg and separate_msg ~= "None" then
                     local separate_msgs = {}
                     for msg_item in separate_msg:gmatch("[^,]+") do
@@ -316,8 +323,8 @@ function native_lang_msg_replace(frame)
 
                     for _, msg_item in ipairs(separate_msgs) do
 
-                        local pattern1 = "{@dicID_(.-)}"
-                        msg_item = msg_item:gsub(pattern1, "@dicID_%1")
+                        local pattern1 = "{@dicID_%^%*%$(.-)%$%*%^}"
+                        msg_item = msg_item:gsub(pattern1, "@dicID_%^%*%$(.-)%$%*%^")
 
                         local pattern2 = "{img link_party 24 24}{(.-)}"
                         msg_item = msg_item:gsub(pattern2, "{img link_party 24 24}%1")
@@ -412,8 +419,10 @@ function native_lang_msg_processing(msg)
         msg = msg:gsub(pattern, "{img link_party 24 24}{%1}{/}{/}")
 
         pattern = "@dicID_%^%*%$(.-)%$%*%^"
-        msg = msg:gsub(pattern, "{@dicID_%1}")
+        msg = msg:gsub(pattern, "{@dicID_%^%*%$(.-)%$%*%^}")
 
+        pattern = "!@#%$(.-)#@!"
+        msg = msg:gsub(pattern, "{!@#%$(.-)#@!}")
         return msg
     end
 
@@ -492,7 +501,8 @@ function native_lang_chat_all_replace()
         end
     end
 end
--- ui.Chat("/p 쌀먹징징충박멸?????")
+ui.Chat("/p 쌀먹징징충박멸?????")
+
 function native_lang_DRAW_CHAT_MSG(frame, msg)
 
     local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
@@ -504,9 +514,11 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
     local frame = ui.GetFrame("chatframe")
     local size = session.ui.GetMsgInfoSize(groupboxname)
     local chat = session.ui.GetChatMsgInfo(groupboxname, size - 1)
+
     for i = startindex, size - 1 do
         local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
         local chat_id = clusterinfo:GetMsgInfoID()
+
         local clustername = "cluster_" .. chat_id
         local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
 
@@ -560,7 +572,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 }
                 native_lang_chat_name_replace(frame, msg_type, msg, name, chat_id)
             end
-            print(chat_id .. ":" .. name .. ":" .. msg)
+
             if string.find(msg, "{spine ") then
                 return
             end
@@ -572,12 +584,12 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 name_trans_value = "No"
             end
 
-            if native_lang_is_translation(msg) then
+            local modified_msg, separate_msg = native_lang_msg_processing(msg)
+            if modified_msg == nil then
+                return
+            end
 
-                local modified_msg, separate_msg = native_lang_msg_processing(msg)
-                if modified_msg == nil then
-                    return
-                end
+            if native_lang_is_translation(modified_msg) then
 
                 print(chat_id .. ":" .. name .. ":" .. modified_msg)
                 g.chat_ids[tostring(chat_id)] = {
@@ -600,6 +612,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
         end
 
     end
+
 end
 
 function native_lang_given_name(frame_given_name, pc_txt_frame)
@@ -621,7 +634,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
+                    frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
