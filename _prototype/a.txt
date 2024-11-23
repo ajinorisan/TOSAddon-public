@@ -6,3 +6,7 @@ miniaddons デバフ欄　週ボス受け取り切り替え
 
 cchとmccの連携おかしいらしい
 
+miniaddons mybuffsの競合調べる
+
+ボスのHPバーいじるやつ
+
