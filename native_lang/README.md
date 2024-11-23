@@ -2,6 +2,12 @@
 
 ![キャプチャ241123](https://github.com/user-attachments/assets/ed0fd698-a4d3-4c8f-a84d-a9ec3209c1e2)
 
+exe置き場
+https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/native_lang_python.zip
+
+ダウンロード方法
+![キャプチャ241123-2](https://github.com/user-attachments/assets/385ada14-0d3f-452e-893b-fbd3d49dcbfd)
+
 exeのバージョンは0.0.2 それ以外だと動きません。
 
 自動でチャットとかキャラクター名とか露店名を翻訳します。
