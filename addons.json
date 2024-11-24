@@ -19,6 +19,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Boss Gauge",
+		"file" : "boss_gauge",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.1",
+		"releaseTag" : "boss_gauge",
+		"unicode" : "⛄",
+		"description" : "ボスのHPゲージにスタンとシールド表示します。<br>Display stun and shield on the boss HP gauge.<br>보스의 HP 게이지에 스턴과 실드를 표시합니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Revival Timer",
 		"file" : "revival_timer",
 		"extension" : "ipf",

@@ -10,3 +10,5 @@ miniaddons mybuffsの競合調べる
 
 ボスのHPバーいじるやつ
 
+timerがアルファベットだと動かない件
+
