@@ -46,6 +46,7 @@
 -- v1.4.6 分裂券とチャレ券使う順番明確化。
 -- v1.4.7 20241112のチャレンジアップデートで殺されたのを直した。
 -- v1.4.8 デザインをユーザーに叩かれたので元に戻した。クヤシイ
+-- v1.4.9 レイドチケット周り修正、ヴェルニケチケ修正
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -822,7 +823,10 @@ function indun_panel_raid_itemuse(frame, ctrl, argStr, induntype)
                         ReserveScript(
                             string.format("indun_panel_autosweep(nil,nil,'%s',%d)", ctrl:GetName(), induntype), 0.2)
                         return
-                    elseif enter_count <= 1 and sweep_count == 0 then
+                    elseif enter_count == 1 and sweep_count == 0 then
+                        INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+                        return
+                    elseif enter_count == 0 and sweep_count == 0 then
                         return
                     end
                 end
@@ -852,6 +856,7 @@ function indun_panel_autosweep(frame, ctrl, argStr, induntype)
     else
         if not string.find(argStr, "use") then
             ui.SysMsg(g.lang == "Japanese" and "掃討バフがありません。" or "There is no autoclear buff.")
+            return
         end
     end
 
@@ -1118,7 +1123,24 @@ function indun_panel_buyuse_vel(frame, ctrl, recipename, indunType)
     local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
     local trade_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
 
-    if count == 1 and trade_count == 1 then
+    local vel_oneday_ticket = 11030169 -- Ticket_Bernice_Enter_1d
+
+    if count == 1 then
+        session.ResetItemList()
+        local invItemList = session.GetInvItemList()
+        local guidList = invItemList:GetGuidList()
+        local cnt = guidList:Count()
+
+        for i = 0, cnt - 1 do
+
+            local use_item = session.GetInvItemByType(vel_oneday_ticket)
+            if use_item ~= nil then
+                INV_ICON_USE(use_item)
+                return
+            end
+        end
+
+    elseif count == 1 and trade_count == 1 then
         INDUN_PANEL_ITEM_BUY_USE(recipename)
     elseif count == 1 and trade_count == 0 then
         local vel_recipecls = GetClass('ItemTradeShop', recipename)
