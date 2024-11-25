@@ -35,6 +35,14 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
+function g.split(str, sep)
+    local parts = {}
+    for part in str:gmatch("([^" .. sep .. "]+)") do
+        table.insert(parts, part)
+    end
+    return parts
+end
+
 local function WITH_HANGLE(str)
     for _, code in utf8.codes(str) do
         if code >= 0xAC00 and code <= 0xD7A3 then
@@ -142,6 +150,38 @@ function native_lang_load_settings()
 
     native_lang_save_settings()
 
+    native_lang_name_table_create()
+    native_lang_msg_table_create()
+end
+
+function native_lang_msg_table_create()
+    g.msgs = {}
+    local msg_file = io.open(g.recv_msg, "r")
+
+    if msg_file then
+        for line in msg_file:lines() do
+            local parts = g.split(line, ":::") -- 分割結果を取得
+            if #parts > 0 then
+                if parts[4] ~= "None" then
+                    local separate_msg = parts[4]
+                    separate_msg = separate_msg:gsub("},%s*{", "}{")
+                    separate_msg = separate_msg:gsub("{%((%d+)}", "(%1")
+                    separate_msg = separate_msg:gsub("{%)}", ")")
+                    separate_msg = separate_msg:gsub("{@dicID_%^%*%$(.-)%$%*^}", "@dicID_^*$%1$*^")
+                    separate_msg = separate_msg:gsub("{img link_party 24 24}{(.-)}{/}", "{img link_party 24 24}%1{/}")
+                    parts[4] = separate_msg
+                else
+                    parts[4] = ""
+                end
+                table.insert(g.msgs, parts) -- 例えば、全てのpartsをg.msgsに追加
+            end
+        end
+        msg_file:close()
+    end
+end
+
+function native_lang_name_table_create()
+
     g.names = {}
     local name_file = io.open(g.recv_name, "r")
 
@@ -154,7 +194,6 @@ function native_lang_load_settings()
         end
         name_file:close()
     end
-
 end
 
 function native_lang_chat_all_replace_init()
@@ -164,9 +203,6 @@ function native_lang_chat_all_replace_init()
     end
     local chatframe = ui.GetFrame("chatframe")
     local child_count = chatframe:GetChildCount()
-    if child_count == g.chat_child then
-        return
-    end
 
     for i = 0, child_count - 1 do
         local child = chatframe:GetChildByIndex(i)
@@ -188,6 +224,7 @@ function native_lang_chat_all_replace_init()
                     local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX")
                     local chat_Width = gbox:GetWidth()
                     local text = GET_CHILD_RECURSIVELY(cluster, "text")
+
                     local frame_chat_id = tostring(string.gsub(child_name, "cluster_", ""))
 
                     if g.chat_ids[frame_chat_id] ~= nil then
@@ -308,7 +345,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.chat_ids = g.chat_ids or {}
-    g.chat_child = 0
+
     g.name_len = 0
     g.msg_len = 0
 
@@ -435,7 +472,7 @@ function native_lang_chat_name_replace_update(frame)
             local org_msg = chat.org_msg
             local msg_tyep = chat.msg_type
             local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_tyep, right_name,
-                org_msg)
+                                                                                     org_msg)
             if msg_front ~= nil then
                 native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
                 chat.name = right_name
@@ -500,7 +537,7 @@ function native_lang_msg_replace(frame)
                 local name = g.chat_ids[tostring(chat_id)].name
                 local right_name = native_lang_process_name(frame, name)
                 local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name,
-                    msg)
+                                                                                         msg)
 
                 if separate_msg and separate_msg ~= "None" then
                     separate_msg = separate_msg:gsub("},%s*{", "}{")
@@ -743,8 +780,11 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
             end
 
             local msg = chat:GetMsg()
+            local org_msg = msg
             msg = msg:gsub("{#0000FF}", "{#FFFF00}")
+
             local name = chat:GetCommanderName()
+            local org_name = name
             name = name:gsub(" %[(.-)%]", "")
 
             if msg_type == "System" and string.find(msg, "Guild_Colony_Occupation_WorldMessage") then
@@ -765,8 +805,8 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 g.chat_ids[tostring(chat_id)] = {
                     msg_type = msg_type,
                     name = name,
-                    org_name = name,
-                    org_msg = msg,
+                    org_name = org_name,
+                    org_msg = org_msg,
                     proc_msg = nil,
                     separate_msg = "None",
                     name_trans = "Yes",
@@ -803,8 +843,8 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 g.chat_ids[tostring(chat_id)] = {
                     msg_type = msg_type,
                     name = name,
-                    org_name = name,
-                    org_msg = msg,
+                    org_name = org_name,
+                    org_msg = org_msg,
                     proc_msg = modified_msg,
                     separate_msg = #separate_msg == 0 and "None" or table.concat(separate_msg, ","),
                     name_trans = name_trans_value,
@@ -813,7 +853,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 }
                 local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. g.chat_ids[tostring(chat_id)].proc_msg ..
                                      ":::" .. g.chat_ids[tostring(chat_id)].separate_msg .. ":::" ..
-                                     g.chat_ids[tostring(chat_id)].org_msg
+                                     g.chat_ids[tostring(chat_id)].org_msg .. ":::" .. org_name
                 native_lang_msg_send(frame, send_msg)
             end
             break
@@ -840,7 +880,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                    frame_family_name_margin.right, frame_family_name_margin.bottom);
+                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
