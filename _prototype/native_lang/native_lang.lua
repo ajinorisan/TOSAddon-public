@@ -121,6 +121,8 @@ function native_lang_load_settings()
     end
     g.settings = settings
 
+    native_lang_save_settings()
+
     local function open_or_create_file(file_path)
         local file = io.open(file_path, "r")
         if not file then
@@ -148,10 +150,9 @@ function native_lang_load_settings()
         g.load = true
     end
 
-    native_lang_save_settings()
-
     native_lang_name_table_create()
     native_lang_msg_table_create()
+
 end
 
 function native_lang_msg_table_create()
@@ -173,11 +174,19 @@ function native_lang_msg_table_create()
                 else
                     parts[4] = ""
                 end
-                table.insert(g.msgs, parts) -- 例えば、全てのpartsをg.msgsに追加
+                local org_msg = parts[5]:match("^%s*(.-)%s*$") -- 前後の空白を削除parts[5]
+                g.msgs[org_msg] = {
+                    chat_id = parts[1],
+                    msg_type = parts[2],
+                    trans_msg = parts[3],
+                    separate_msg = parts[4],
+                    org_name = parts[6]
+                }
             end
         end
         msg_file:close()
     end
+
 end
 
 function native_lang_name_table_create()
@@ -200,6 +209,14 @@ function native_lang_chat_all_replace_init()
 
     if g.settings.use == 0 then
         return
+    end
+    local file = io.open(g.recv_msg, "r")
+    local size = file:seek("end") -- ファイルの末尾に移動してサイズを取得
+    file:close()
+    if g.recv_msg_size == size then
+        return
+    else
+        native_lang_msg_table_create()
     end
     local chatframe = ui.GetFrame("chatframe")
     local child_count = chatframe:GetChildCount()
@@ -227,6 +244,55 @@ function native_lang_chat_all_replace_init()
                     -- print(tostring(text:GetText()))
                     local frame_chat_id = tostring(string.gsub(child_name, "cluster_", ""))
 
+                    local font_style = text:GetTextByKey("font")
+                    local font_size = text:GetTextByKey("size")
+
+                    local get_text = text:GetText()
+
+                    local colon_index = string.find(get_text, ":")
+                    local end_index = string.find(get_text, "{/}", colon_index)
+                    local org_msg = ""
+                    if colon_index and end_index then
+                        org_msg = string.sub(get_text, colon_index + 1, end_index - 1):gsub("{nl}", ""):match(
+                            "^%s*(.-)%s*$") -- 前後の空白を削除
+
+                        -- org_msg = string.sub(get_text, colon_index + 1, end_index - 1):gsub("{nl}", "")
+                    end
+                    local bracket_index = string.find(get_text, "]")
+                    colon_index = string.find(get_text, ":", bracket_index)
+                    local org_name = ""
+                    if bracket_index and colon_index then
+                        org_name = string.sub(get_text, bracket_index + 1, colon_index - 1):match("^%s*(.-)%s*$") -- 前後の空白を削除
+
+                        org_name = g.names[org_name] or org_name
+                        print(org_name .. get_text)
+                    end
+
+                    local type = get_text:match("(%b[])")
+                    if type == nil then
+                        type = "System"
+                    end
+
+                    if g.msgs[org_msg] ~= nil then
+
+                        local msg = g.msgs[org_msg].trans_msg .. g.msgs[org_msg].separate_msg
+                        local msg_type = g.msgs[org_msg].msg_type
+                        local name = g.names[org_name] or org_name
+                        local msg_front, font_style, font_size =
+                            native_lang_format_chat_message(chatframe, msg_type, name, msg)
+                        if msg_front ~= nil then
+                            native_lang_chat_replace(chatframe, msg_front, font_style, font_size, frame_chat_id)
+                        end
+                    else
+
+                    end
+
+                    --[[local clustername = "cluster_" .. chat_id
+                    local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+                    local text = GET_CHILD_RECURSIVELY(cluster, "text")
+                    text:SetTextByKey("font", font_style)
+                    text:SetTextByKey("size", font_size)
+                    text:SetTextByKey("text", msg_front)
                     if g.chat_ids[frame_chat_id] ~= nil then
                         local name = g.names[g.chat_ids[frame_chat_id].org_name] or g.chat_ids[frame_chat_id].org_name
                         local org_msg = g.chat_ids[frame_chat_id].org_msg
@@ -254,15 +320,15 @@ function native_lang_chat_all_replace_init()
                             -- msg_front = msg_front .. "{#FF0000}★{/}"
                             native_lang_chat_replace(chatframe, msg_front, font_style, font_size, frame_chat_id)
                         end
-                    end
+                    end]]
 
                     label:Resize(chat_Width - offsetX, text:GetHeight())
                     cluster:Resize(chat_Width, label:GetHeight())
                     cluster:SetOffset(margin_left, ypos)
                     ypos = ypos + cluster:GetHeight()
-                    if g.chat_ids[frame_chat_id].name_trans == "No" and g.chat_ids[frame_chat_id].name_trans == "No" then
+                    --[[if g.chat_ids[frame_chat_id].name_trans == "No" and g.chat_ids[frame_chat_id].name_trans == "No" then
                         g.chat_child = child_count
-                    end
+                    end]]
                 end
             end
             if gbox:GetLineCount() == gbox:GetCurLine() + gbox:GetVisibleLineCount() then
@@ -271,6 +337,7 @@ function native_lang_chat_all_replace_init()
         end
     end
 
+    -- g.recv_msg_size = size
 end
 -- native_lang_chat_all_replace_init()
 function native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
@@ -345,7 +412,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.chat_ids = g.chat_ids or {}
-
+    g.recv_msg_size = 0
     g.name_len = 0
     g.msg_len = 0
 
@@ -361,7 +428,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
 
     addon:RegisterMsg("GAME_START_3SEC", "native_lang_3SEC");
     addon:RegisterMsg("GAME_START", "native_lang_frame_init");
-    addon:RegisterMsg("GAME_START", "native_lang_translate_exe_start");
+    -- addon:RegisterMsg("GAME_START", "native_lang_translate_exe_start");
 end
 
 function native_lang_3SEC(frame, msg, str, num)
@@ -504,7 +571,6 @@ function native_lang_format_chat_message(frame, msg_type, right_name, msg)
 
     local chat_type_id = msg_type_map[msg_type]
     if chat_type_id then
-
         local font_size = tonumber(GET_CHAT_FONT_SIZE())
         local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
         local msg_front = string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg)
@@ -622,15 +688,12 @@ end]]
 function native_lang_msg_send(frame, send_msg)
 
     local send_file = io.open(g.send_msg, "a")
-
     if send_file then
         send_file:write(send_msg .. "\n")
         send_file:flush()
         send_file:close()
-
-        --[[local frame = ui.GetFrame("chatframe")
-        frame:RunUpdateScript("native_lang_msg_replace", 1.5)]]
     end
+
 end
 
 function native_lang_msg_processing(msg)
@@ -854,7 +917,6 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                     trans_msg = ""
                 }
 
-                print(chat_id)
                 local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. proc_msg .. ":::" ..
                                      g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. org_msg .. ":::" .. org_name
                 native_lang_msg_send(frame, send_msg)
