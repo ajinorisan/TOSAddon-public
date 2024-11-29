@@ -9,16 +9,6 @@
 		"tags" : []
 	},
 	{
-		"name" : "Native Lang",
-		"file" : "native_lang",
-		"extension" : "ipf",
-		"fileVersion" : "v0.0.3",
-		"releaseTag" : "native_lang",
-		"unicode" : "⛄",
-		"description" : "キャラクター名、露店名、チャットを翻訳します。動作にchrome必要です。アドオン単体では機能しません。exeファイルが必要です。exeファイルのverは0.0.3です。置き場所<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>ReadMeを良く読んでご使用ください。<br>Translate character names, stall names, and chat. Requires “chrome” to run.Add-on by itself does not work. exe file is required. exe file ver is 0.0.3. location<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>Please read ReadMe carefully before use.<br>캐릭터 이름, 상점 이름, 채팅을 번역합니다. 작동하려면 크롬이 필요합니다. 애드온만으로는 작동하지 않으며, exe 파일이 필요하며, exe 파일의 버전은 0.0.3입니다. 설치 위치<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>ReadMe를 잘 읽고 사용하시기 바랍니다.",
-		"tags" : []
-	},
-	{
 		"name" : "My Buffs Control",
 		"file" : "my_buffs",
 		"extension" : "ipf",
