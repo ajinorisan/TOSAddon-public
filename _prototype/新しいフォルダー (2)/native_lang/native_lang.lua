@@ -185,6 +185,10 @@ function native_lang_chat_all_replace_init()
                     local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX")
                     local chat_Width = gbox:GetWidth()
                     local text = GET_CHILD_RECURSIVELY(cluster, "text")
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
                     local frame_chat_id = tostring(string.gsub(child_name, "cluster_", ""))
 
                     if g.chat_ids[frame_chat_id] ~= nil then
@@ -572,6 +576,7 @@ function native_lang_chat_name_replace_update(frame)
     end
 
     for key_chat_id, chat in pairs(g.chat_ids) do
+<<<<<<< Updated upstream
         -- if chat.name_trans == "Yes" then
         local name = chat.org_name
         local right_name = native_lang_process_name(frame, name)
@@ -582,6 +587,20 @@ function native_lang_chat_name_replace_update(frame)
             native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
             chat.name = right_name
             -- chat.name_trans = "No"
+=======
+        if chat.name_trans == "Yes" then
+            local name = chat.org_name
+            local right_name = native_lang_process_name(frame, name)
+            local org_msg = chat.org_msg
+            local msg_tyep = chat.msg_type
+            local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_tyep, right_name,
+                                                                                     org_msg)
+            if msg_front ~= nil then
+                native_lang_chat_replace(frame, msg_front, font_style, font_size, tonumber(key_chat_id))
+                chat.name = right_name
+                chat.name_trans = "No"
+            end
+>>>>>>> Stashed changes
         end
         -- end
     end
@@ -618,6 +637,115 @@ function native_lang_format_chat_message(frame, msg_type, right_name, msg)
     return nil, nil, nil
 end
 
+<<<<<<< Updated upstream
+=======
+function native_lang_msg_replace(frame)
+
+    local recv_file = io.open(g.recv_msg, "r")
+    if recv_file then
+        local msg_len = recv_file:seek("end")
+        if g.msg_len == msg_len then
+            recv_file:close() -- ファイルを閉じる
+            return 1
+        else
+            recv_file:seek("set", 0)
+            g.msg_len = msg_len
+        end
+        -- print("ファイルの長さ: " .. g.msg_len .. ":" .. msg_len .. " バイト")
+        for line in recv_file:lines() do
+            local chat_id, msg_type, msg, separate_msg, org_msg = line:match("^(.-):::(.-):::(.-):::(.-):::(.*)$")
+
+            if g.chat_ids[tostring(chat_id)].msg_trans == "Yes" then
+                g.chat_ids[tostring(chat_id)].trans_msg = msg
+                g.chat_ids[tostring(chat_id)].separate_msg = separate_msg
+                g.chat_ids[tostring(chat_id)].msg_trans = "No"
+                local msg_type = g.chat_ids[tostring(chat_id)].msg_type
+                local name = g.chat_ids[tostring(chat_id)].name
+                local right_name = native_lang_process_name(frame, name)
+                local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name,
+                                                                                         msg)
+
+                if separate_msg and separate_msg ~= "None" then
+                    separate_msg = separate_msg:gsub("},%s*{", "}{")
+                    separate_msg = separate_msg:gsub("{%((%d+)}", "(%1") -- {(5 の部分を (5 に戻す
+                    separate_msg = separate_msg:gsub("{%)}", ")")
+                    -- if not separate_msg:find("Earring") then
+                    separate_msg = separate_msg:gsub("{@dicID_%^%*%$(.-)%$%*^}", "@dicID_^*$%1$*^")
+
+                    local pattern2 = "{img link_party 24 24}{(.-)}{/}"
+                    separate_msg = separate_msg:gsub(pattern2, "{img link_party 24 24}%1{/}")
+
+                    msg_front = msg_front .. separate_msg
+
+                end
+
+                native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
+            end
+        end
+        native_lang_chat_all_replace()
+        recv_file:close()
+    end
+end
+
+--[[function native_lang_async_msg_send(frame)
+    if g.settings.use == 0 then
+        return 1
+    end
+    local recv_ids = {}
+    local send_ids = {}
+
+    local function load_chat_ids(file_name, ids_table)
+        local file = io.open(file_name, 'r')
+        if file then
+            for line in file:lines() do
+                local parts = line:split(":::") -- split関数を最適化
+                if #parts >= 1 then
+                    ids_table[parts[1] = true -- chat_idをキーにして存在することを保持
+                end
+            end
+            file:close()
+        end
+    end
+
+    load_chat_ids(g.recv_msg, recv_ids)
+    load_chat_ids(g.send_msg, send_ids)
+
+    local messages_to_send = {}
+
+    for chat_id, chat_info in pairs(g.chat_ids) do
+        local msg_trans = chat_info.msg_trans
+
+        if msg_trans == "Yes" then
+
+            if not recv_ids[tostring(chat_id)] and not send_ids[tostring(chat_id)] then
+                local msg_type = chat_info.msg_type
+                local send_msg_content =
+                    chat_id .. ":::" .. msg_type .. ":::" .. g.chat_ids[tostring(chat_id)].proc_msg .. ":::" ..
+                        g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. g.chat_ids[tostring(chat_id)].org_msg
+                table.insert(messages_to_send, send_msg_content)
+
+            end
+        end
+    end
+
+    if #messages_to_send > 0 then
+        local send_file = io.open(g.send_msg, "a")
+        if send_file then
+            for _, msg in ipairs(messages_to_send) do
+                send_file:write(msg .. "\n")
+            end
+            send_file:flush()
+            send_file:close()
+        end
+    end
+
+    --[[local frame = ui.GetFrame("chatframe")
+    frame:RunUpdateScript("native_lang_msg_replace", 1.5)]
+
+    return 1
+end]]
+
+>>>>>>> Stashed changes
 function native_lang_msg_send(frame, send_msg)
 
     local send_file = io.open(g.send_msg, "a")
@@ -877,7 +1005,7 @@ function native_lang_given_name(frame_given_name, pc_txt_frame)
             if frame_family_name ~= nil then
                 local frame_family_name_margin = frame_family_name:GetMargin()
                 frame_family_name:SetMargin(x + frame_given_name_Width + 5, frame_family_name_margin.top,
-                    frame_family_name_margin.right, frame_family_name_margin.bottom);
+                                            frame_family_name_margin.right, frame_family_name_margin.bottom);
             end
         end
     end
