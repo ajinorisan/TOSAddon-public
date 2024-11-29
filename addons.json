@@ -9,6 +9,16 @@
 		"tags" : []
 	},
 	{
+		"name" : "Native Lang",
+		"file" : "native_lang",
+		"extension" : "ipf",
+		"fileVersion" : "v0.0.3",
+		"releaseTag" : "native_lang",
+		"unicode" : "⛄",
+		"description" : "アドオン単体では機能しません。exeファイルが必要です。exeファイルのverは0.0.3です。置き場所<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>ReadMeを良く読んでご使用ください。<br>The addon does not work by itself. exe file is required. exe file ver is 0.0.3. Location:<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>Please read the ReadMe carefully before use.<br>애드온만으로는 작동하지 않습니다.” exe 파일이 필요하며, exe 파일의 버전은 0.0.3입니다. 위치<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>ReadMe를 잘 읽고 사용하시기 바랍니다.",
+		"tags" : []
+	},
+	{
 		"name" : "My Buffs Control",
 		"file" : "my_buffs",
 		"extension" : "ipf",
@@ -66,16 +76,6 @@
 		"releaseTag" : "relic_change",
 		"unicode" : "⛄",
 		"description" : "レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。<br>Simplify the replacement of Relic Gems. A button is created at the top centre of the screen.<br>유물 젬 교체가 간소화됩니다. 화면 중앙 상단에 버튼이 생성됩니다.",
-		"tags" : []
-	},
-	{
-		"name" : "Tos Google Translate",
-		"file" : "tos_google_translate",
-		"extension" : "ipf",
-		"fileVersion" : "v1.0.7",
-		"releaseTag" : "tos_google_translate",
-		"unicode" : "⛄",
-		"description" : "https://github.com/ajinorisan/TOSAddon-public/tree/main/tos_google_translate<br>exe file storage<br>チャットを自動翻訳します。アドオン単体では動作しません。右上のGitHubのページのtos_google_translate内のREADMEを読んでご使用ください。<br>Automatically translates chats. The add-on does not work by itself. Please read the README in tos_google_translate on the GitHub page on the upper right.<br>애드온 단독으로는 작동하지 않습니다. 우측 상단의 GitHub 페이지 tos_google_translate 내 README를 읽고 사용하시기 바랍니다.",
 		"tags" : []
 	},
 	{
