@@ -7,7 +7,7 @@
 
 exe置き場
 
-https://drive.google.com/file/d/1fovfxfvxymUr67pv_TAYG5-CCP2t_Qop/view?usp=drive_link
+https://drive.google.com/drive/folders/1gp0F_RYwmGqcramp2Ze-M05mwomQEgjb?usp=drive_link
 
 https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/native_lang_python.zip
 
