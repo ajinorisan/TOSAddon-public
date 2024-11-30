@@ -1,66 +1,72 @@
 ### Native lang
 
+自動でチャットとかキャラクター名とか露店名を翻訳します。
+
+翻訳にはGoogle翻訳を使用します。
+
 ![キャプチャ241123](https://github.com/user-attachments/assets/ed0fd698-a4d3-4c8f-a84d-a9ec3209c1e2)
 
 ![キャプチャ241129](https://github.com/user-attachments/assets/653526e7-98ba-4dd6-9da8-9eed2611e5a5)
 
 
-exe置き場
+##使用方法
 
-https://drive.google.com/file/d/1MwqtMXowtWTuUCSn_hbFsUNCkXZogXze/view?usp=drive_link
+native_lang-v0.0.3.tarをダウンロード
 
-https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/native_lang_python.zip
+![キャプチャ241130-2](https://github.com/user-attachments/assets/013d1e49-fb82-429d-aa7e-ddb109e5d5a8)
 
-ダウンロード方法
+下記の場所に置いてTOSを起動
 
-![キャプチャ241123-2](https://github.com/user-attachments/assets/385ada14-0d3f-452e-893b-fbd3d49dcbfd)
+![キャプチャ241130](https://github.com/user-attachments/assets/987111fc-d0e9-4bef-8b3b-d1b95d81f3c7)
 
-exeのバージョンは0.0.3 それ以外だと動きません。
-
-自動でチャットとかキャラクター名とか露店名を翻訳します。
-
-翻訳にはGoogle翻訳を使用します。
-
-アドオン単体では動かないので下記の場所に"native_lang_python.zip"を置いて解凍してください。
-
-"addons"内に"native_lange"フォルダーが無い場合は"native_lange"手動でフォルダーを作成してください。
-
-下記の場所にexeがあれば、TOSを起動すればアドオンは動作します。
-
-![キャプチャ](https://github.com/user-attachments/assets/affc6f97-d56c-453c-bd59-d66222c96c32)
+tarのバージョンは0.0.3 それ以外だと動きません。
 
 
-The exe version is 0.0.3.
+-----
 
-It automatically translates the chat, character names, and stall names.
+Automatically translates chat, character names, and stall names.
 
 Google Translate is used for translation.
 
-The add-on does not work by itself, so please put “native_lang_python.zip” in the following location and unzip it.
 
-If there is no “native_lange” folder in “addons”, please create a folder “native_lange” manually.
+##How to use
 
-If you have the exe in the following location, you can launch TOS and the add-on will work.
+Download native_lang-v0.0.3.tar
 
-![キャプチャ](https://github.com/user-attachments/assets/affc6f97-d56c-453c-bd59-d66222c96c32)
+![キャプチャ241130-2](https://github.com/user-attachments/assets/013d1e49-fb82-429d-aa7e-ddb109e5d5a8)
+
+Place it in the following location and start TOS
+
+![キャプチャ241130](https://github.com/user-attachments/assets/987111fc-d0e9-4bef-8b3b-d1b95d81f3c7)
+
+The version of tar is 0.0.3.
 
 
- exe 버전은 0.0.3 이상이면 작동하지 않습니다.
+-----
 
-자동으로 채팅이나 캐릭터 이름, 상점 이름 등을 번역합니다.
+채팅이나 캐릭터 이름, 상점 이름 등을 자동으로 번역합니다.
 
 번역은 구글 번역을 사용합니다.
 
-애드온만으로는 작동하지 않으므로 아래 위치에 “native_lang_python.zip”을 넣고 압축을 풀어주세요.
 
-“addons” 내에 ‘native_lange’ 폴더가 없다면 ‘native_lange’ 폴더를 수동으로 생성해 주세요.
+##사용 방법
 
-아래 위치에 exe가 있으면 TOS를 실행하면 애드온이 동작합니다.
+native_lang-v0.0.0.3.tar 다운로드
 
-![キャプチャ](https://github.com/user-attachments/assets/affc6f97-d56c-453c-bd59-d66222c96c32)
+![キャプチャ241130-2](https://github.com/user-attachments/assets/013d1e49-fb82-429d-aa7e-ddb109e5d5a8)
 
+아래 위치에 두고 TOS 실행
+
+![キャプチャ241130-2](https://github.com/user-attachments/assets/013d1e49-fb82-429d-aa7e-ddb109e5d5a8)
+
+tar 버전은 0.0.3 이상이면 동작하지 않습니다.
+
+
+-----
 
 不具合ありましたら、下記まで連絡ください。
+
+If you have any problems, please contact us at
 
 Twitter
 

@@ -7,8 +7,6 @@ import os
 import threading
 import sys
 import psutil
-#from watchdog.observers import Observer
-#from watchdog.events import FileSystemEventHandler
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -19,7 +17,7 @@ import time
 
 # exeの時は下記2段を有効化
 exe_path = sys.executable
-exe_dir = os.path.dirname(os.path.dirname(exe_path))
+exe_dir = os.path.dirname(exe_path)
 
 # pyファイルでテストの時はこちらを有効化
 #current_dir = os.path.dirname(os.path.abspath(__file__))

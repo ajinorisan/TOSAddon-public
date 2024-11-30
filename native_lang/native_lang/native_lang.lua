@@ -267,10 +267,32 @@ function native_lang_GAME_START()
         if g.settings.use == 0 then
             return
         end
+
         if not g.start then
-            local exe_path = "../addons/native_lang/native_lang_python/native_lang-v" .. exe .. ".exe"
-            local command = string.format('start "" /min "%s"', exe_path)
-            os.execute(command)
+
+            local exe_path = "../addons/native_lang/native_lang-v" .. exe .. ".exe"
+            local file = io.open(exe_path, "r")
+            if file then
+                file:close()
+                local command = string.format('start "" /min "%s"', exe_path)
+                os.execute(command)
+            else
+                local tar_path = "../addons/native_lang/native_lang-v" .. exe .. ".tar"
+                -- print(tar_path)
+                local output_dir = "../addons/native_lang"
+
+                -- tarコマンドの生成
+                local tar_command = string.format('tar -xf "%s" -C "%s"', tar_path, output_dir)
+
+                local result = os.execute(tar_command)
+
+                if result then
+                    local command = string.format('start "" /min "%s"', exe_path)
+                    os.execute(command)
+                end
+
+            end
+
             g.start = true
         end
 
