@@ -1,7 +1,8 @@
+-- v0.0.4 フレームのコンテキストが上手く動かなかったの修正
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.3"
+local ver = "0.0.4"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -196,7 +197,59 @@ function NATIVE_LANG_ON_INIT(addon, frame)
 
 end
 
+function native_lang_switching()
+    local chatframe = ui.GetFrame("chatframe")
+    local trans_btn = GET_CHILD_RECURSIVELY(chatframe, "trans_btn")
+    AUTO_CAST(trans_btn)
+
+    if g.settings.use == 1 then
+        g.settings.use = 0
+        trans_btn:SetSkinName('test_gray_button')
+        trans_btn:SetTextTooltip("Native Lang is suspended")
+    else
+        g.settings.use = 1
+        trans_btn:SetSkinName("test_red_button")
+        trans_btn:SetTextTooltip("Native Lang in use")
+    end
+    native_lang_save_settings()
+end
+
+function native_lang_restart()
+    local file = io.open(g.restart, "w")
+    file:write("restart")
+    file:close()
+    g.start = false
+    g.load = false
+    g.chat_ids = {}
+    g.name_len = 0
+    g.msg_len = 0
+    g.chat_check = {}
+    g.recv_count = 0
+    ui.SysMsg("[Native Lang] restarted.{nl}" .. "Please return to the barracks once.")
+end
+
+function native_lang_context()
+    print("test")
+    local context = ui.CreateContextMenu("native_lang_context", "Native Lang", 0, 0, 50, 0)
+    ui.AddContextMenuItem(context, "-----")
+
+    local str_scp
+    if g.settings.use == 1 then
+        str_scp = string.format("native_lang_switching()")
+        ui.AddContextMenuItem(context, "Native Lang stop", str_scp)
+    else
+        str_scp = string.format("native_lang_switching()")
+        ui.AddContextMenuItem(context, "Native Lang operation", str_scp)
+    end
+
+    str_scp = string.format("native_lang_restart()")
+    ui.AddContextMenuItem(context, "Restart", str_scp)
+
+    ui.OpenContextMenu(context)
+end
+
 function native_lang_GAME_START()
+
     local function native_lang_frame_init()
         local chatframe = ui.GetFrame("chatframe")
         local tabgbox = GET_CHILD_RECURSIVELY(chatframe, "tabgbox")
@@ -209,55 +262,8 @@ function native_lang_GAME_START()
             trans_btn:SetSkinName("test_red_button")
             trans_btn:SetTextTooltip("Native Lang in use")
         end
+        print("test1")
 
-        local function native_lang_context()
-            local context = ui.CreateContextMenu("native_lang_context", "Native Lang", 0, 0, 50, 0)
-            ui.AddContextMenuItem(context, "-----")
-
-            local function native_lang_switching()
-                local chatframe = ui.GetFrame("chatframe")
-                local trans_btn = GET_CHILD_RECURSIVELY(chatframe, "trans_btn")
-                AUTO_CAST(trans_btn)
-
-                if g.settings.use == 1 then
-                    g.settings.use = 0
-                    trans_btn:SetSkinName('test_gray_button')
-                    trans_btn:SetTextTooltip("Native Lang is suspended")
-                else
-                    g.settings.use = 1
-                    trans_btn:SetSkinName("test_red_button")
-                    trans_btn:SetTextTooltip("Native Lang in use")
-                end
-                native_lang_save_settings()
-            end
-
-            local str_scp
-            if g.settings.use == 1 then
-                str_scp = string.format("native_lang_switching()")
-                ui.AddContextMenuItem(context, "Native Lang stop", str_scp)
-            else
-                str_scp = string.format("native_lang_switching()")
-                ui.AddContextMenuItem(context, "Native Lang operation", str_scp)
-            end
-
-            local function native_lang_restart()
-                local file = io.open(g.restart, "w")
-                file:write("restart")
-                file:close()
-                g.start = false
-                g.load = false
-                g.chat_ids = {}
-                g.name_len = 0
-                g.msg_len = 0
-                g.chat_check = {}
-                g.recv_count = 0
-                ui.SysMsg("[Native Lang] restarted.{nl}" .. "Please return to the barracks once.")
-            end
-            str_scp = string.format("native_lang_restart()")
-            ui.AddContextMenuItem(context, "Restart", str_scp)
-
-            ui.OpenContextMenu(context)
-        end
         trans_btn:SetText("{ol}{s14}{#FFFFFF}" .. g.lang)
         trans_btn:SetEventScript(ui.LBUTTONUP, "native_lang_context")
     end

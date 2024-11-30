@@ -31,6 +31,8 @@ https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/README.md
 
 ![キャプチャ241129](https://github.com/user-attachments/assets/653526e7-98ba-4dd6-9da8-9eed2611e5a5)
 
+v0.0.4 フレームのコンテキストバグ修正
+
 v0.0.3 公開。
 　
 
