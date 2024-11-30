@@ -7,6 +7,8 @@
 
 exe置き場
 
+https://drive.google.com/file/d/1fovfxfvxymUr67pv_TAYG5-CCP2t_Qop/view?usp=drive_link
+
 https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/native_lang_python.zip
 
 ダウンロード方法
