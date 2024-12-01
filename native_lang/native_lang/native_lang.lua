@@ -1,8 +1,9 @@
 -- v0.0.4 フレームのコンテキストが上手く動かなかったの修正
+-- v0.0.5 新規のチャットはTOTALフレームで処理されるらしいので、そこを排他しない様に。
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.4"
+local ver = "0.0.5"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -229,7 +230,7 @@ function native_lang_restart()
 end
 
 function native_lang_context()
-    print("test")
+
     local context = ui.CreateContextMenu("native_lang_context", "Native Lang", 0, 0, 50, 0)
     ui.AddContextMenuItem(context, "-----")
 
@@ -262,7 +263,6 @@ function native_lang_GAME_START()
             trans_btn:SetSkinName("test_red_button")
             trans_btn:SetTextTooltip("Native Lang in use")
         end
-        print("test1")
 
         trans_btn:SetText("{ol}{s14}{#FFFFFF}" .. g.lang)
         trans_btn:SetEventScript(ui.LBUTTONUP, "native_lang_context")
@@ -315,7 +315,7 @@ end
 function native_lang_FPS_UPDATE()
     native_lang_name_trans()
 
-    local function native_lang_name_dat_check()
+    function native_lang_name_dat_check()
 
         local recv_file = io.open(g.recv_name, "r")
         if recv_file then
@@ -336,7 +336,7 @@ function native_lang_FPS_UPDATE()
     end
     native_lang_name_dat_check()
 
-    local function native_lang_msg_dat_check()
+    function native_lang_msg_dat_check()
 
         local recv_file = io.open(g.recv_msg, "r")
         if recv_file then
@@ -347,6 +347,7 @@ function native_lang_FPS_UPDATE()
             else
                 recv_file:seek("set", 0)
                 local current_line = g.recv_count + 1
+
                 for line in recv_file:lines() do
                     if current_line >= g.recv_count then
                         local chat_id, msg_type, msg, separate_msg, org_msg, org_name = line:match(
@@ -360,11 +361,42 @@ function native_lang_FPS_UPDATE()
                 end
                 g.msg_len = msg_len
                 g.recv_count = g.recv_count + 1
+
                 native_lang_replace()
             end
         end
     end
     native_lang_msg_dat_check()
+end
+
+function native_lang_format_chat_message(frame, msg_type, right_name, msg)
+    local msg_type_map = {
+        Normal = 1,
+        Shout = 2,
+        Party = 3,
+        Guild = 4,
+        System = 7
+    }
+
+    local chat_type_id = msg_type_map[msg_type]
+    if chat_type_id then
+
+        local font_size = tonumber(GET_CHAT_FONT_SIZE())
+        local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
+        local msg_front = string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id), right_name, msg)
+        return msg_front, font_style, font_size
+    end
+    return nil, nil, nil
+end
+
+function native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
+
+    local clustername = "cluster_" .. chat_id
+    local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
+    local text = GET_CHILD_RECURSIVELY(cluster, "text")
+    text:SetTextByKey("font", font_style)
+    text:SetTextByKey("size", font_size)
+    text:SetTextByKey("text", msg_front)
 end
 
 -- g.chat_ids = {}
@@ -380,7 +412,9 @@ function native_lang_replace()
     for i = 0, child_count - 1 do
         local child = chatframe:GetChildByIndex(i)
 
-        if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
+        -- if child:GetName() ~= "chatgbox_TOTAL" and string.find(child:GetName(), "chatgbox_") then
+        if string.find(child:GetName(), "chatgbox_") then
+
             local chat_gbox = child:GetName()
             local gbox = GET_CHILD_RECURSIVELY(chatframe, chat_gbox)
             local gbox_child_count = gbox:GetChildCount()
@@ -391,6 +425,7 @@ function native_lang_replace()
                 local child_name = gbox_child:GetName()
 
                 if tostring(child_name) ~= "_SCR" then
+
                     local margin_left = 20
                     local cluster = GET_CHILD(gbox, child_name)
 
@@ -424,40 +459,10 @@ function native_lang_replace()
                         local msg_type = g.chat_ids[tostring(chat_id)].msg_type
                         local name = g.chat_ids[tostring(chat_id)].name
 
-                        local function native_lang_format_chat_message(frame, msg_type, right_name, msg)
-                            local msg_type_map = {
-                                Normal = 1,
-                                Shout = 2,
-                                Party = 3,
-                                Guild = 4,
-                                System = 7
-                            }
-
-                            local chat_type_id = msg_type_map[msg_type]
-                            if chat_type_id then
-
-                                local font_size = tonumber(GET_CHAT_FONT_SIZE())
-                                local font_style = frame:GetUserConfig("TEXTCHAT_FONTSTYLE_" .. msg_type:upper())
-                                local msg_front = string.format("[%s]%s : %s", ScpArgMsg("ChatType_" .. chat_type_id),
-                                    right_name, msg)
-                                return msg_front, font_style, font_size
-                            end
-                            return nil, nil, nil
-                        end
-
                         local msg_front, font_style, font_size =
                             native_lang_format_chat_message(chatframe, msg_type, name, msg)
+
                         if msg_front ~= nil then
-
-                            local function native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)
-
-                                local clustername = "cluster_" .. chat_id
-                                local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
-                                local text = GET_CHILD_RECURSIVELY(cluster, "text")
-                                text:SetTextByKey("font", font_style)
-                                text:SetTextByKey("size", font_size)
-                                text:SetTextByKey("text", msg_front)
-                            end
 
                             native_lang_chat_replace(chatframe, msg_front, font_style, font_size, chat_id)
                         end
@@ -624,7 +629,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 return
             end
 
-            local function native_lang_msg_send(frame, send_msg)
+            function native_lang_msg_send(frame, send_msg)
 
                 local send_file = io.open(g.send_msg, "a")
 
@@ -635,7 +640,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 end
             end
 
-            local function native_lang_is_translation_msg(msg)
+            function native_lang_is_translation_msg(msg)
                 if g.lang == "ja" then
                     return WITH_HANGLE(msg) or WITH_ENGLISH(msg)
                 elseif g.lang == "ko" then
@@ -654,7 +659,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                                      g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. msg .. ":::" .. name
                 native_lang_msg_send(frame, send_msg)
             else
-                print(msg)
+
                 native_lang_replace()
             end
             break

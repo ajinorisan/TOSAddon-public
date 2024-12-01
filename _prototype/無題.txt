@@ -19763,3 +19763,190 @@ System
 78082::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK_END#@!
 78275:諭吉ん家:いるくんサボりか？
 いるくんサボりか？
+16498:Gaara:WTT> {a SLI 1539101530551733|# 11101054}{#FFFF00}{img icon_item_costume_ep16redhood_f 30 30}@dicID_^*$ETC_20240603_075392$*^{/}{/} to Christmas Swordsman Costume (Female)
+16498:Gaara:WTT> to Christmas Swordsman Costume Female
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+16627:Gaara:{a SLI 155153116620770531587202412102092014|# 11030067}{#FFFF00}{img icon_item_expertmode_enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20241111_076761$*^{/}{/}{/}
+16756:린아란:{a SLI 155152687119582931587202412102092652|# 641954}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ITEM_20241111_028928$*^{/}{/}{/}20RUN
+16756:린아란:20RUN
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17304::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17433::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+test
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17562::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+16498:Gaara:WTT> {a SLI 1539101530551733|# 11101054}{#FFFF00}{img icon_item_costume_ep16redhood_f 30 30}@dicID_^*$ETC_20240603_075392$*^{/}{/} to Christmas Swordsman Costume (Female)
+16498:Gaara:WTT> to Christmas Swordsman Costume Female
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+16627:Gaara:{a SLI 155153116620770531587202412102092014|# 11030067}{#FFFF00}{img icon_item_expertmode_enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20241111_076761$*^{/}{/}{/}
+16756:린아란:{a SLI 155152687119582931587202412102092652|# 641954}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ITEM_20241111_028928$*^{/}{/}{/}20RUN
+16756:린아란:20RUN
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17304::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17433::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+test
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17562::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17691::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+17820:아지노리:test
+test1
+17820:아지노리:test
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17949::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!あ
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18078::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18207::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18336::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18465::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18594::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+t4
+test
+*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스
+18594:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$한입할게요 메구 그레이스필드 허송송 유니우스#@ 
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18723::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+t4
+test
+한입할게요, 메구, 그레이스필드, 허송송, 유니우스
+18723:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$한입할게요 메구 그레이스필드 허송송 유니우스#@ 
+18852:WASABI:{a SLI 1551531166135972|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+{a SLI 1551531166135972|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+t0
+t1
+t2
+t3
+t4
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18981::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+한입할게요, 메구, 그레이스필드, 허송송, 유니우스
+18981:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$한입할게요 메구 그레이스필드 허송송 유니우스#@ 
+
+16498:Gaara:WTT> {a SLI 1539101530551733|# 11101054}{#FFFF00}{img icon_item_costume_ep16redhood_f 30 30}@dicID_^*$ETC_20240603_075392$*^{/}{/} to Christmas Swordsman Costume (Female)
+16498:Gaara:WTT> to Christmas Swordsman Costume Female
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+16627:Gaara:{a SLI 155153116620770531587202412102092014|# 11030067}{#FFFF00}{img icon_item_expertmode_enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20241111_076761$*^{/}{/}{/}
+16756:린아란:{a SLI 155152687119582931587202412102092652|# 641954}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ITEM_20241111_028928$*^{/}{/}{/}20RUN
+16756:린아란:20RUN
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17304::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17433::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+test
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17562::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17691::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+17820:아지노리:test
+test1
+17820:아지노리:test
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+17949::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!あ
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18078::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18207::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18336::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18465::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18594::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+t4
+test
+*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스
+18594:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$한입할게요 메구 그레이스필드 허송송 유니우스#@ 
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18723::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+t0
+t1
+t2
+t3
+t4
+test
+한입할게요, 메구, 그레이스필드, 허송송, 유니우스
+18723:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$한입할게요 메구 그레이스필드 허송송 유니우스#@ 
+18852:WASABI:{a SLI 1551531166135972|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+{a SLI 1551531166135972|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+t0
+t1
+t2
+t3
+t4
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+18981::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+한입할게요, 메구, 그레이스필드, 허송송, 유니우스
+18981:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$한입할게요 메구 그레이스필드 허송송 유니우스#@ 
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+19110::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+置き換えた名前:{#FF0000}★{/}一口やります, {#FF0000}★{/}メグ, {#FF0000}★{/}グレースフィールド, 허송송, {#FF0000}★{/}ユニウス
+19110:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$한입할게요 메구 그레이스필드 허송송 유니우스#@ 
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+19239::{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$한입할게요, 메구, 그레이스필드, 허송송, 유니우스#@!
+置き換えた名前:{#FF0000}★{/}一口やります, {#FF0000}★{/}メグ, {#FF0000}★{/}グレースフィールド, 허송송, {#FF0000}★{/}ユニウス
+19239:: @#$NOTICE_FIELDBOSS_RANK$*$rank$*$2$*$name$*$★一口やります ★メグ ★グレースフィールド 허송송 ★ユニウス#@ 
+
+
