@@ -15,6 +15,8 @@
 
 native_lang-v0.0.3.tarをダウンロード
 
+tarがウイルス扱いされた場合は一時的にアンチウイルスソフトを無効にしてください。
+
 ![キャプチャ241130-2](https://github.com/user-attachments/assets/013d1e49-fb82-429d-aa7e-ddb109e5d5a8)
 
 下記の場所に置いてTOSを起動
@@ -37,6 +39,8 @@ Google Chrome is required for use.
 
 Download native_lang-v0.0.3.tar
 
+If tar is treated as a virus, temporarily disable your anti-virus software.
+
 ![キャプチャ241130-2](https://github.com/user-attachments/assets/013d1e49-fb82-429d-aa7e-ddb109e5d5a8)
 
 Place it in the following location and start TOS
@@ -58,6 +62,8 @@ The version of tar is 0.0.3.
 ###사용 방법
 
 native_lang-v0.0.3.tar 다운로드
+
+tar가 바이러스 취급을 받는 경우, 바이러스 백신 소프트웨어를 일시적으로 비활성화하십시오.
 
 ![キャプチャ241130-2](https://github.com/user-attachments/assets/013d1e49-fb82-429d-aa7e-ddb109e5d5a8)
 

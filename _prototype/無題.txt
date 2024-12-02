@@ -5942,3 +5942,15 @@ nil
 47084:12VerZion:{a SLP 1551363662153539}{#FFFF00}{img link_party 24 24}abydreamH{/}{/} deal -1
 47084:12VerZion: deal -1
 47213:System:!@#$NotEnough{ItemName}Item$*$ItemName$*$[Lv.520] 챌린지 모드 추가 보상권#@!
+47600:System:!@#$PointGet{name}{count}$*$name$*$!@#$JurateCertificate#@!$*$count$*$500#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+47729:System:{#DD0000}!@#$FIELDBOSS_WORLD_EVENT_WIN_MSG{PC}{ITEM}$*$PC$*$슈라랏$*$ITEM$*$|$#유라테의 세 번째 권능#$|#@!
+47921:System:{#DD0000}@dicID_^*$ETC_20201113_052054$*^
+48114:김베른:{a SLP 1551363662154406}{#FFFF00}{img link_party 24 24}boss-collrabo{/}{/} 25+ dealer
+48114:김베른: 25+ dealer
+
+I have just uploaded the official version of the “Native Lang” addon to the Addon Manager.
+Customers in each country, who? I hope that the loss of
+https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang
+Please read the URL carefully and use it.
