@@ -27,8 +27,6 @@ https://twitter.com/ToSJP_rada
 
 https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/README.md
 
-![TreeOfSavior_20241125_002654](https://github.com/user-attachments/assets/0f7f6d25-4352-4bb4-bc85-4c1370d898f5)
-
 ![キャプチャ241129](https://github.com/user-attachments/assets/653526e7-98ba-4dd6-9da8-9eed2611e5a5)
 
 v1.0.0 気になるとこは直したので、正式版でリリース。週ボスランクの名前変換など
@@ -588,6 +586,8 @@ v1.0.2 直前装備を着ける機能実装、ヘルメット取れないバグ�
 ### Boss Gauge
 
 ボスのHPゲージにスタンとシールド情報を表示
+
+![TreeOfSavior_20241125_002654](https://github.com/user-attachments/assets/0f7f6d25-4352-4bb4-bc85-4c1370d898f5)
 
 　
 
