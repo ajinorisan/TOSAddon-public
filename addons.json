@@ -193,7 +193,7 @@
 		"name" : "Job Change Helper",
 		"file" : "job_change_helper",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.3",
+		"fileVersion" : "v1.0.4",
 		"releaseTag" : "job_change_helper",
 		"unicode" : "⛄",
 		"description" : "インベントリに早着替えボタンが付きます。転職情報アイコンを押すと左上にボタンが付きます。PTから抜けて、PETを未召喚に戻して、装備を外します。<br>A quick change button will be added to your inventory. Press the change information icon and a button will appear in the upper left corner. exit PT, return PET to unsummoned, and remove equipment.<br>인벤토리에 빠른 옷 갈아입기 버튼이 생깁니다. 전직 정보 아이콘을 누르면 왼쪽 상단에 버튼이 뜨는데, PT에서 빠져나와 PET를 미소환 상태로 되돌리고 장비를 벗는다.",

@@ -5950,7 +5950,9 @@ nil
 48114:김베른:{a SLP 1551363662154406}{#FFFF00}{img link_party 24 24}boss-collrabo{/}{/} 25+ dealer
 48114:김베른: 25+ dealer
 
-I have just uploaded the official version of the “Native Lang” addon to the Addon Manager.
-Customers in each country, who? I hope that the loss of
+I have just uploaded the official version of the “Native Lang” addon to the Addon Manager.Customers in each country, who? I hope that the loss of
 https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang
 Please read the URL carefully and use it.
+25813:System:@dicID_^*$ETC_20190117_037176$*^
+25942:System:@dicID_^*$ETC_20180706_034457$*^
+26071:System:!@#$REPUTATION_COIN_USE_SUCCESS{ITEMNAME}{BEFORE}{AFTER}$*$ITEMNAME$*$왕국 재건단 주화$*$BEFORE$*$3326090$*$AFTER$*$3376090#@!
