@@ -31,7 +31,7 @@ function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
     if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName];
+        _G[replacementName] = _G[baseFuncName]
         _G[baseFuncName] = func
     end
     base[baseFuncName] = _G[replacementName]
@@ -194,24 +194,25 @@ function NATIVE_LANG_ON_INIT(addon, frame)
 
     g.SetupHook(native_lang_UPDATE_PARTYINFO_HP, "UPDATE_PARTYINFO_HP")
     g.SetupHook(native_lang_DAMAGE_METER_GAUGE_SET, "DAMAGE_METER_GAUGE_SET")
-    -- g.SetupHook(native_lang_WEEKLY_BOSS_RANK_UPDATE, "WEEKLY_BOSS_RANK_UPDATE")
 
-    acutil.setupEvent(addon, "WEEKLY_BOSS_RANK_UPDATE", "native_lang_WEEKLY_BOSS_RANK_UPDATE");
-    acutil.setupEvent(addon, "SHOW_PC_COMPARE", "native_lang_SHOW_PC_COMPARE");
-    acutil.setupEvent(addon, "CHAT_TAB_BTN_CLICK", "native_lang_CHAT_TAB_BTN_CLICK");
+    acutil.setupEvent(addon, "WEEKLY_BOSS_RANK_UPDATE", "native_lang_WEEKLY_BOSS_RANK_UPDATE")
+    acutil.setupEvent(addon, "SHOW_PC_COMPARE", "native_lang_SHOW_PC_COMPARE")
+    -- acutil.setupEvent(addon, "CHAT_TAB_BTN_CLICK", "native_lang_CHAT_TAB_BTN_CLICK")
 
-    addon:RegisterMsg("GAME_START_3SEC", "native_lang_GAME_START_3SEC");
-    addon:RegisterMsg("GAME_START", "native_lang_GAME_START");
+    addon:RegisterMsg("GAME_START_3SEC", "native_lang_GAME_START_3SEC")
+    addon:RegisterMsg("GAME_START", "native_lang_GAME_START")
 
 end
 
-function native_lang_CHAT_TAB_BTN_CLICK(frame, msg)
+--[[function native_lang_CHAT_TAB_BTN_CLICK(frame, msg)
     native_lang_replace()
-end
+end]]
 
 function native_lang_SHOW_PC_COMPARE(frame, msg)
     local cid = acutil.getEventArgs(msg)
-    local frame = ui.GetFrame("compare");
+    local frame = ui.GetFrame("compare")
+    frame:SetLayerLevel(102)
+
     local charNameRTxt = GET_CHILD_RECURSIVELY(frame, "charName", "ui::CRichText")
     local teamName = charNameRTxt:GetTextByKey("teamName")
     teamName = native_lang_process_name(teamName)
@@ -219,8 +220,8 @@ function native_lang_SHOW_PC_COMPARE(frame, msg)
     local charName = charNameRTxt:GetTextByKey("charName")
     charName = native_lang_process_name(charName)
 
-    charNameRTxt:SetTextByKey("teamName", teamName);
-    charNameRTxt:SetTextByKey("charName", charName);
+    charNameRTxt:SetTextByKey("teamName", teamName)
+    charNameRTxt:SetTextByKey("charName", charName)
 end
 
 function native_lang_WEEKLY_BOSS_RANK_UPDATE()
@@ -232,54 +233,54 @@ function native_lang_WEEKLY_BOSS_RANK_UPDATE()
     end
 
     local frame = ui.GetFrame("induninfo")
-    local rankListBox = GET_CHILD_RECURSIVELY(frame, "rankListBox", "ui::CGroupBox");
-    local cnt = session.weeklyboss.GetRankInfoListSize();
+    local rankListBox = GET_CHILD_RECURSIVELY(frame, "rankListBox", "ui::CGroupBox")
+    local cnt = session.weeklyboss.GetRankInfoListSize()
 
     if cnt == 0 then
-        return;
+        return
     end
     for i = 1, cnt do
         local ctrlSet = GET_CHILD_RECURSIVELY(rankListBox, "CTRLSET_" .. i)
-        local teamname = session.weeklyboss.GetRankInfoTeamName(i - 1);
+        local teamname = session.weeklyboss.GetRankInfoTeamName(i - 1)
         local org_name = teamname
         if g.settings.use == 0 then
-            local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText");
-            name:SetTextByKey("value", teamname);
+            local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText")
+            name:SetTextByKey("value", teamname)
         else
             teamname = g.names[teamname] or teamname
             if native_lang_is_translation(teamname) then
                 native_lang_process_name(teamname)
             end
-            local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText");
-            name:SetTextByKey("value", teamname);
+            local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText")
+            name:SetTextByKey("value", teamname)
         end
 
         function native_lang_MEMBERINFO_ONCLICK(frame, ctrl, str, num)
-            ui.Chat('/memberinfo ' .. str);
+            ui.Chat('/memberinfo ' .. str)
             local compare = ui.GetFrame("compare")
-            compare:SetLayerLevel(102);
+            compare:SetLayerLevel(102)
         end
 
-        local btn = rankListBox:CreateOrGetControl('button', "BTN_" .. i, 225, (i - 1) * 73 + 5, 100, 25);
-        tolua.cast(btn, "ui::CButton");
-        btn:SetEventScript(ui.LBUTTONUP, "native_lang_MEMBERINFO_ONCLICK");
-        btn:SetEventScriptArgString(ui.LBUTTONUP, org_name);
+        local btn = rankListBox:CreateOrGetControl('button', "BTN_" .. i, 225, (i - 1) * 73 + 5, 100, 25)
+        tolua.cast(btn, "ui::CButton")
+        btn:SetEventScript(ui.LBUTTONUP, "native_lang_MEMBERINFO_ONCLICK")
+        btn:SetEventScriptArgString(ui.LBUTTONUP, org_name)
 
         if wbrextend then
-            btn:SetText("Memberinfo");
+            btn:SetText("Memberinfo")
 
             if _G["WBREXTEND"][org_name] ~= nil then
-                local txtGs = rankListBox:CreateOrGetControl('button', "txtGs_" .. i, 225, (i - 1) * 73 + 50, 100, 25);
-                tolua.cast(txtGs, "ui::CButton");
-                txtGs:SetText("GS: " .. _G["WBREXTEND"][org_name]);
-                txtGs:SetEventScript(ui.LBUTTONUP, "GS_ONCLICK");
+                local txtGs = rankListBox:CreateOrGetControl('button', "txtGs_" .. i, 225, (i - 1) * 73 + 50, 100, 25)
+                tolua.cast(txtGs, "ui::CButton")
+                txtGs:SetText("GS: " .. _G["WBREXTEND"][org_name])
+                txtGs:SetEventScript(ui.LBUTTONUP, "GS_ONCLICK")
             end
         else
             btn:Resize(50, 25)
-            btn:SetText("{ol}Info");
+            btn:SetText("{ol}Info")
             btn:SetGravity(ui.RIGHT, ui.TOP)
-            local rect = btn:GetMargin();
-            btn:SetMargin(rect.left, rect.top + 45, rect.right + 25, rect.bottom);
+            local rect = btn:GetMargin()
+            btn:SetMargin(rect.left, rect.top + 45, rect.right + 25, rect.bottom)
         end
     end
 
@@ -338,7 +339,7 @@ end
 
 function native_lang_GAME_START()
 
-    local function native_lang_frame_init()
+    function native_lang_frame_init()
         local chatframe = ui.GetFrame("chatframe")
         local tabgbox = GET_CHILD_RECURSIVELY(chatframe, "tabgbox")
         local trans_btn = tabgbox:CreateOrGetControl("button", "trans_btn", 270, -1, 30, 30)
@@ -356,7 +357,7 @@ function native_lang_GAME_START()
     end
     native_lang_frame_init()
 
-    local function native_lang_translate_exe_start()
+    function native_lang_translate_exe_start()
         if g.settings.use == 0 then
             return
         end
@@ -390,13 +391,12 @@ function native_lang_GAME_START()
         end
 
     end
-
     native_lang_translate_exe_start()
 end
 
 function native_lang_GAME_START_3SEC()
-    acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG");
-    g.addon:RegisterMsg("FPS_UPDATE", "native_lang_FPS_UPDATE");
+    acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG")
+    g.addon:RegisterMsg("FPS_UPDATE", "native_lang_FPS_UPDATE")
 end
 
 function native_lang_name_dat_check()
@@ -434,7 +434,7 @@ function native_lang_msg_dat_check()
             for line in recv_file:lines() do
                 if current_line >= g.recv_count then
                     local chat_id, msg_type, msg, separate_msg, org_msg, org_name = line:match(
-                        "^(.-):::(.-):::(.-):::(.-):::(.-):::(.*)$")
+                                                                                        "^(.-):::(.-):::(.-):::(.-):::(.-):::(.*)$")
                     if g.chat_ids[tostring(chat_id)] then
                         g.chat_ids[tostring(chat_id)].trans_msg = msg
                         g.chat_ids[tostring(chat_id)].name = g.names[org_name] or org_name
@@ -544,7 +544,7 @@ function native_lang_replace()
                             separate_msg = separate_msg:gsub("{%)}", ")")
                             separate_msg = separate_msg:gsub("{@dicID_%^%*%$(.-)%$%*^}", "@dicID_^*$%1$*^")
                             separate_msg = separate_msg:gsub("{img link_party 24 24}{(.-)}{/}",
-                                "{img link_party 24 24}%1{/}")
+                                                             "{img link_party 24 24}%1{/}")
 
                             msg = msg .. separate_msg
                         end
@@ -660,10 +660,10 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
     if g.settings.use == 0 then
         return
     end
-    local groupboxname, startindex, chatframe = acutil.getEventArgs(msg);
+    local groupboxname, startindex, chatframe = acutil.getEventArgs(msg)
 
     if chatframe == nil then
-        return;
+        return
     end
 
     local frame = ui.GetFrame("chatframe")
@@ -926,7 +926,7 @@ function native_lang_name_trans()
                 local pc_txt_frame = ui.GetFrame(frame_name)
                 if pc_txt_frame ~= nil then
 
-                    local function native_lang_given_name(frame_given_name, pc_txt_frame)
+                    function native_lang_given_name(frame_given_name, pc_txt_frame)
                         local given_name = frame_given_name:GetText()
                         local clean_name = given_name:gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
 
@@ -939,14 +939,15 @@ function native_lang_name_trans()
                                 local frame_given_name_Width_ = frame_given_name:GetWidth()
                                 frame_given_name:SetText(new_given_name)
                                 local frame_given_name_Width = frame_given_name:GetWidth()
-                                local x = frame_given_name:GetX();
+                                local x = frame_given_name:GetX()
 
                                 local frame_family_name = GET_CHILD(pc_txt_frame, "familyName")
                                 if frame_family_name ~= nil then
                                     local frame_family_name_margin = frame_family_name:GetMargin()
                                     frame_family_name:SetMargin(x + frame_given_name_Width + 5,
-                                        frame_family_name_margin.top, frame_family_name_margin.right,
-                                        frame_family_name_margin.bottom);
+                                                                frame_family_name_margin.top,
+                                                                frame_family_name_margin.right,
+                                                                frame_family_name_margin.bottom)
                                 end
                             end
                         end
@@ -957,7 +958,7 @@ function native_lang_name_trans()
                         native_lang_given_name(frame_given_name, pc_txt_frame)
                     end
 
-                    local function native_lang_family_name(frame_family_name)
+                    function native_lang_family_name(frame_family_name)
                         local family_name = frame_family_name:GetText()
                         local clean_name = family_name:gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
 
@@ -982,7 +983,7 @@ function native_lang_name_trans()
                         native_lang_family_name(frame_name)
                     end
 
-                    local function native_lang_guild_name(frame_guild_name)
+                    function native_lang_guild_name(frame_guild_name)
 
                         local guild_name = frame_guild_name:GetText()
 
@@ -1003,40 +1004,84 @@ function native_lang_name_trans()
                         native_lang_guild_name(frame_guild_name)
                     end
 
-                    local function native_lang_shop_name(shop_frame)
-                        local shop_text = GET_CHILD(shop_frame, "text");
-                        AUTO_CAST(shop_text)
+                    function native_lang_shop_name(shop_frame)
+                        local shop_text = GET_CHILD(shop_frame, "text")
                         if shop_text ~= nil then
                             local text = shop_text:GetText():gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
                             if native_lang_is_translation(text) then
 
                                 local new_shop_name = native_lang_process_name(text)
                                 if new_shop_name ~= text then
-                                    shop_text:SetTextByKey("value", new_shop_name);
+                                    shop_text:SetTextByKey("value", new_shop_name)
                                 end
                             end
                         end
-                        local frame_lv_box = GET_CHILD(shop_frame, "withLvBox");
+                        local frame_lv_box = GET_CHILD(shop_frame, "withLvBox")
                         if frame_lv_box ~= nil then
-                            local frame_shop_name = GET_CHILD(frame_lv_box, "lv_title");
+                            local frame_shop_name = GET_CHILD(frame_lv_box, "lv_title")
                             if frame_shop_name ~= nil then
                                 local shop_name = frame_shop_name:GetText():gsub("{.-}", ""):gsub("__+", "_"):match(
-                                    "^%s*(.-)%s*$")
+                                                      "^%s*(.-)%s*$")
 
                                 if native_lang_is_translation(shop_name) then
                                     local new_shop_name = native_lang_process_name(shop_name)
                                     if new_shop_name ~= shop_name then
-                                        frame_shop_name:SetTextByKey("value", new_shop_name);
+                                        frame_shop_name:SetTextByKey("value", new_shop_name)
                                     end
                                 end
                             end
                         end
                     end
-                    local shop_frame = ui.GetFrame("SELL_BALLOON_" .. handle);
+                    local shop_frame = ui.GetFrame("SELL_BALLOON_" .. handle)
+
                     if shop_frame ~= nil then
                         native_lang_shop_name(shop_frame)
                     end
 
+                end
+            end
+        end
+    end
+end
+
+function native_lange_name_replace(ctrl, pc_txt_frame)
+    local name = ctrl:GetText()
+    if string.find(name, "{img guild_master_mark 20 20}") then
+        name = string.gsub(name, "{img guild_master_mark 20 20}", "")
+    end
+    local clean_name = name:gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
+    if native_lang_is_translation(clean_name) then
+        name = native_lang_process_name(clean_name)
+        if name ~= clean_name then
+            if ctrl == GET_CHILD(pc_txt_frame, "givenName") then
+                local original_part = name:sub(1, 9)
+                name = original_part .. name
+
+                local ctrl_Width = ctrl:GetWidth()
+                ctrl:SetText(name)
+                local x = ctrl:GetX()
+
+                local family_name = GET_CHILD(pc_txt_frame, "familyName")
+                if family_name ~= nil then
+                    local family_name_margin = family_name:GetMargin()
+                    family_name:SetMargin(x + ctrl_Width + 5, family_name_margin.top, family_name_margin.right,
+                                          family_name_margin.bottom)
+                end
+            elseif ctrl == GET_CHILD(pc_txt_frame, "familyName") then
+                local original_part = name:sub(1, 9)
+                name = original_part .. name
+                ctrl:SetText(name)
+
+            elseif ctrl == GET_CHILD(pc_txt_frame, "guildName") then
+                ctrl:SetText(name)
+            elseif ctrl == GET_CHILD(pc_txt_frame, "text") then
+                ctrl:SetTextByKey("value", name)
+                local frame_lv_box = GET_CHILD(pc_txt_frame, "withLvBox")
+                if frame_lv_box ~= nil then
+                    local frame_shop_name = GET_CHILD(frame_lv_box, "lv_title")
+                    if frame_shop_name ~= nil then
+                        frame_shop_name:SetTextByKey("value", name)
+                    end
                 end
             end
         end
@@ -1052,9 +1097,9 @@ function _native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
     if g.settings.use == 0 then
         base["UPDATE_PARTYINFO_HP"](partyInfoCtrlSet, partyMemberInfo)
     else
-        local nameObj = partyInfoCtrlSet:GetChild('name_text');
-        local nameRichText = tolua.cast(nameObj, "ui::CRichText");
-        local name = nameRichText:GetTextByKey("name");
+        local nameObj = partyInfoCtrlSet:GetChild('name_text')
+        local nameRichText = tolua.cast(nameObj, "ui::CRichText")
+        local name = nameRichText:GetTextByKey("name")
 
         if native_lang_is_translation(name) then
             local font = name:match("({.-})")
@@ -1182,36 +1227,36 @@ end]]
 
 --[[function native_lang_UPDATE_PARTYINFO_HP(frame, msg)
 
-    local party_info_ctrlSet, party_member_info = acutil.getEventArgs(msg);
+    local party_info_ctrlSet, party_member_info = acutil.getEventArgs(msg)
 
     local party_info_frame = ui.GetFrame('partyinfo')
     local FAR_MEMBER_NAME_FONT_COLORTAG = party_info_frame:GetUserConfig("FAR_MEMBER_NAME_FONT_COLORTAG")
     local NEAR_MEMBER_NAME_FONT_COLORTAG = party_info_frame:GetUserConfig("NEAR_MEMBER_NAME_FONT_COLORTAG")
 
-    local stat = party_member_info:GetInst();
-    local pos = stat:GetPos();
-    local my_handle = session.GetMyHandle();
-    local distance = info.GetDestPosDistance(pos.x, pos.y, pos.z, my_handle);
-    local shared_cls = GetClass("SharedConst", 'PARTY_SHARE_RANGE');
-    local my_mapname = session.GetMapName();
-    local party_member_mapname = GetClassByType("Map", party_member_info:GetMapID()).ClassName;
+    local stat = party_member_info:GetInst()
+    local pos = stat:GetPos()
+    local my_handle = session.GetMyHandle()
+    local distance = info.GetDestPosDistance(pos.x, pos.y, pos.z, my_handle)
+    local shared_cls = GetClass("SharedConst", 'PARTY_SHARE_RANGE')
+    local my_mapname = session.GetMapName()
+    local party_member_mapname = GetClassByType("Map", party_member_info:GetMapID()).ClassName
 
-    local party_member_name = party_member_info:GetName();
+    local party_member_name = party_member_info:GetName()
     party_member_name:gsub(FAR_MEMBER_NAME_FONT_COLORTAG, "")
     party_member_name:gsub(FAR_MEMBER_NAME_FONT_COLORTAG, "")
     party_member_name = native_lang_process_name(nil, party_member_name)
 
-    local name_obj = party_info_ctrlSet:GetChild('name_text');
-    local name_text = tolua.cast(name_obj, "ui::CRichText");
+    local name_obj = party_info_ctrlSet:GetChild('name_text')
+    local name_text = tolua.cast(name_obj, "ui::CRichText")
 
     if distance < shared_cls.Value and my_mapname == party_member_mapname then
 
-        party_member_name = NEAR_MEMBER_NAME_FONT_COLORTAG .. party_member_name;
-        name_text:SetTextByKey("name", party_member_name);
+        party_member_name = NEAR_MEMBER_NAME_FONT_COLORTAG .. party_member_name
+        name_text:SetTextByKey("name", party_member_name)
     else
 
-        party_member_name = FAR_MEMBER_NAME_FONT_COLORTAG .. party_member_name;
-        name_text:SetTextByKey("name", party_member_name);
+        party_member_name = FAR_MEMBER_NAME_FONT_COLORTAG .. party_member_name
+        name_text:SetTextByKey("name", party_member_name)
     end
 end]]
 
