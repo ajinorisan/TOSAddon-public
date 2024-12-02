@@ -1,8 +1,9 @@
 -- v1.0.0 とりあえず公開
+-- v1.0.1 一部ユーザーが使えないとの情報あり。それっぽいところを直してみたけどわからん
 local addonName = "my_buffs"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -13,11 +14,11 @@ local acutil = require("acutil")
 local json = require("json")
 local os = require("os")
 
-local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')
+-- local folder_path = string.format("../addons/%s", addonNameLower)
+-- os.execute('mkdir "' .. folder_path .. '"')
 
 g.settings_file_path = string.format("../addons/%s/settings.json", addonNameLower)
-g.get_buffs_file_path = string.format("../addons/%s/get_buffs.json", addonNameLower)
+-- g.get_buffs_file_path = string.format("../addons/%s/get_buffs.json", addonNameLower)
 
 local base = {}
 
@@ -39,19 +40,26 @@ function MY_BUFFS_ON_INIT(addon, frame)
     my_buffs_load_settings()
 
     addon:RegisterMsg("GAME_START", "my_buffs_frame")
-    addon:RegisterMsg("BUFF_ADD", "my_buffs_BUFF_ADD")
+    addon:RegisterMsg("BUFF_ADD", "my_buffs_BUFF_ADD_")
 
     g.SetupHook(my_buffs_BUFF_ON_MSG, "BUFF_ON_MSG")
 
     g.hook = false
-    local functionName = "SEPARATEDPCDEBUFF_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+    local functionName = "COMMON_BUFF_MSG_OLD" -- チェックしたい関数の名前を文字列として指定します
     if type(_G[functionName]) == "function" then
-
         g.hook = true
     end
 
 end
+
+--[[function my_buffs_BUFF_ON_MSG_(frame, msg, argStr, argNum)
+    ReserveScript(string.format("my_buffs_BUFF_ON_MSG('%s','%s','%s',%d)", frame, msg, argStr, argNum), 0.01)
+end]]
+
 function my_buffs_BUFF_ON_MSG(frame, msg, argStr, argNum)
+
+    local frame = ui.GetFrame("buff")
+
     local handle = session.GetMyHandle();
     local map_class = GetClass("Map", session.GetMapName());
     if map_class.MapType ~= 'City' then
@@ -67,6 +75,7 @@ function my_buffs_BUFF_ON_MSG(frame, msg, argStr, argNum)
     end
 
     if not g.hook then
+
         if msg == "BUFF_ADD" then
             COMMON_BUFF_MSG(frame, "ADD", argNum, handle, s_buff_ui, argStr);
         elseif msg == "BUFF_REMOVE" then
@@ -75,6 +84,7 @@ function my_buffs_BUFF_ON_MSG(frame, msg, argStr, argNum)
             COMMON_BUFF_MSG(frame, "UPDATE", argNum, handle, s_buff_ui, argStr);
         end
     else
+
         if msg == "BUFF_ADD" then
             COMMON_BUFF_MSG_OLD(frame, "ADD", argNum, handle, s_buff_ui, argStr);
         elseif msg == "BUFF_REMOVE" then
@@ -88,7 +98,7 @@ function my_buffs_BUFF_ON_MSG(frame, msg, argStr, argNum)
     BUFF_RESIZE(frame, s_buff_ui);
 end
 
-function my_buffs_SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
+--[[function my_buffs_SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
     local map_class = GetClass("Map", session.GetMapName());
     if map_class.MapType ~= 'City' then
         local str_buff_id = tostring(buffType)
@@ -98,9 +108,15 @@ function my_buffs_SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, b
         end
     end
     base["SET_BUFF_SLOT"](slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
+end]]
+
+function my_buffs_BUFF_ADD_(frame, ctrl, str, num)
+    ReserveScript(string.format("my_buffs_BUFF_ADD(%d)", num), 0.1)
+
 end
 
-function my_buffs_BUFF_ADD(frame, ctrl, str, num)
+function my_buffs_BUFF_ADD(num)
+
     local str_buff_id = tostring(num)
     if g.settings.buffs[str_buff_id] == nil then
         g.settings.buffs[str_buff_id] = true
@@ -226,7 +242,7 @@ function my_buffs_buff_list_open(frame, ctrl, str, num)
     close_button:SetGravity(ui.RIGHT, ui.TOP)
     close_button:SetEventScript(ui.LBUTTONUP, "my_buffs_buff_list_close");
 
-    local get_buffs, err = acutil.loadJSON(g.get_buffs_file_path, g.get_buffs)
+    -- local get_buffs, err = acutil.loadJSON(g.get_buffs_file_path, g.get_buffs)
 
     local sorted_buffs = {}
     for buff_id, _ in pairs(g.settings.buffs) do

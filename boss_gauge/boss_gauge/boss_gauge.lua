@@ -94,8 +94,8 @@ function boss_gauge_TARGETINFOTOBOSS_TARGET_SET(frame, msg)
     local text_x = nametext:GetX()
     local text_width = nametext:GetWidth()
 
-    if text_width > 220 then
-        text_width = 220
+    if text_width > 190 then
+        text_width = 190
     end
     local text_height = nametext:GetHeight()
 

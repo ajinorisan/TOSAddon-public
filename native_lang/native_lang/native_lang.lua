@@ -1,9 +1,10 @@
 -- v0.0.4 フレームのコンテキストが上手く動かなかったの修正
 -- v0.0.5 新規のチャットはTOTALフレームで処理されるらしいので、そこを排他しない様に。
+-- v1.0.0 気になったところは直したから正式版
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.5"
+local ver = "1.0.0"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -182,6 +183,8 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.msg_len = 0
     g.chat_check = g.chat_check or {}
     g.recv_count = 0
+    -- g.copy_ids = {}
+    -- g.msg_front = ""
 
     -- tos_google_translate無効化
     g.SetupHook(native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT, "TOS_GOOGLE_TRANSLATE_ON_INIT")
@@ -192,9 +195,95 @@ function NATIVE_LANG_ON_INIT(addon, frame)
 
     g.SetupHook(native_lang_UPDATE_PARTYINFO_HP, "UPDATE_PARTYINFO_HP")
     g.SetupHook(native_lang_DAMAGE_METER_GAUGE_SET, "DAMAGE_METER_GAUGE_SET")
+    -- g.SetupHook(native_lang_WEEKLY_BOSS_RANK_UPDATE, "WEEKLY_BOSS_RANK_UPDATE")
 
-    addon:RegisterMsg("GAME_START_3SEC", "native_lang_GAME_START_3SEC");
+    acutil.setupEvent(addon, "WEEKLY_BOSS_RANK_UPDATE", "native_lang_WEEKLY_BOSS_RANK_UPDATE");
+    acutil.setupEvent(addon, "SHOW_PC_COMPARE", "native_lang_SHOW_PC_COMPARE");
+    -- acutil.setupEvent(addon, "CHAT_TAB_BTN_CLICK", "native_lang_CHAT_TAB_BTN_CLICK");
+
     addon:RegisterMsg("GAME_START", "native_lang_GAME_START");
+    addon:RegisterMsg("GAME_START_3SEC", "native_lang_GAME_START_3SEC");
+end
+
+--[[function native_lang_CHAT_TAB_BTN_CLICK(frame, msg)
+    native_lang_replace()
+end]]
+
+function native_lang_SHOW_PC_COMPARE(frame, msg)
+    local cid = acutil.getEventArgs(msg)
+    local frame = ui.GetFrame("compare");
+    frame:SetLayerLevel(102);
+
+    local charNameRTxt = GET_CHILD_RECURSIVELY(frame, "charName", "ui::CRichText")
+    local teamName = charNameRTxt:GetTextByKey("teamName")
+    teamName = native_lang_process_name(teamName)
+
+    local charName = charNameRTxt:GetTextByKey("charName")
+    charName = native_lang_process_name(charName)
+
+    charNameRTxt:SetTextByKey("teamName", teamName);
+    charNameRTxt:SetTextByKey("charName", charName);
+end
+
+function native_lang_WEEKLY_BOSS_RANK_UPDATE()
+
+    local wbrextend = nil
+    local functionName = "WBREXTEND_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+    if type(_G[functionName]) == "function" then
+        wbrextend = true
+    end
+
+    local frame = ui.GetFrame("induninfo")
+    local rankListBox = GET_CHILD_RECURSIVELY(frame, "rankListBox", "ui::CGroupBox");
+    local cnt = session.weeklyboss.GetRankInfoListSize();
+
+    if cnt == 0 then
+        return;
+    end
+    for i = 1, cnt do
+        local ctrlSet = GET_CHILD_RECURSIVELY(rankListBox, "CTRLSET_" .. i)
+        local teamname = session.weeklyboss.GetRankInfoTeamName(i - 1);
+        local org_name = teamname
+        if g.settings.use == 0 then
+            local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText");
+            name:SetTextByKey("value", teamname);
+        else
+            teamname = g.names[teamname] or teamname
+            if native_lang_is_translation(teamname) then
+                native_lang_process_name(teamname)
+            end
+            local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText");
+            name:SetTextByKey("value", teamname);
+        end
+
+        function native_lang_MEMBERINFO_ONCLICK(frame, ctrl, str, num)
+            ui.Chat('/memberinfo ' .. str);
+            local compare = ui.GetFrame("compare")
+            compare:SetLayerLevel(102);
+        end
+
+        local btn = rankListBox:CreateOrGetControl('button', "BTN_" .. i, 225, (i - 1) * 73 + 5, 100, 25);
+        tolua.cast(btn, "ui::CButton");
+        btn:SetEventScript(ui.LBUTTONUP, "native_lang_MEMBERINFO_ONCLICK");
+        btn:SetEventScriptArgString(ui.LBUTTONUP, org_name);
+
+        if wbrextend then
+            btn:SetText("Memberinfo");
+
+            if _G["WBREXTEND"][org_name] ~= nil then
+                local txtGs = rankListBox:CreateOrGetControl('button', "txtGs_" .. i, 225, (i - 1) * 73 + 50, 100, 25);
+                tolua.cast(txtGs, "ui::CButton");
+                txtGs:SetText("GS: " .. _G["WBREXTEND"][org_name]);
+                txtGs:SetEventScript(ui.LBUTTONUP, "GS_ONCLICK");
+            end
+        else
+            btn:Resize(50, 25)
+            btn:SetText("{ol}Info");
+            btn:SetGravity(ui.RIGHT, ui.TOP)
+            local rect = btn:GetMargin();
+            btn:SetMargin(rect.left, rect.top + 45, rect.right + 25, rect.bottom);
+        end
+    end
 
 end
 
@@ -305,6 +394,7 @@ function native_lang_GAME_START()
     end
 
     native_lang_translate_exe_start()
+
 end
 
 function native_lang_GAME_START_3SEC()
@@ -313,6 +403,7 @@ function native_lang_GAME_START_3SEC()
 end
 
 function native_lang_FPS_UPDATE()
+
     native_lang_name_trans()
 
     function native_lang_name_dat_check()
@@ -356,6 +447,13 @@ function native_lang_FPS_UPDATE()
                             g.chat_ids[tostring(chat_id)].trans_msg = msg
                             g.chat_ids[tostring(chat_id)].name = g.names[org_name] or org_name
 
+                            --[[if g.chat_ids[tostring(chat_id)].copy_ids ~= nil and msg_type ~= "System" then
+                                for index, id in ipairs(g.chat_ids[tostring(chat_id)].copy_ids) do
+                                    if id ~= chat_id then
+                                        g.chat_ids[tostring(id)] = g.chat_ids[tostring(chat_id)]
+                                    end
+                                end
+                            end]]
                         end
                     end
                 end
@@ -399,14 +497,12 @@ function native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_
     text:SetTextByKey("text", msg_front)
 end
 
--- g.chat_ids = {}
 function native_lang_replace()
 
     if g.settings.use == 0 then
         return
     end
     local chatframe = ui.GetFrame("chatframe")
-
     local child_count = chatframe:GetChildCount()
 
     for i = 0, child_count - 1 do
@@ -463,9 +559,10 @@ function native_lang_replace()
                             native_lang_format_chat_message(chatframe, msg_type, name, msg)
 
                         if msg_front ~= nil then
-
                             native_lang_chat_replace(chatframe, msg_front, font_style, font_size, chat_id)
+                            -- g.msg_front = msg_front
                         end
+
                     end
 
                     label:Resize(chat_Width - offsetX, text:GetHeight())
@@ -481,11 +578,107 @@ function native_lang_replace()
     end
 end
 
--- ui.Chat("/p 쌀먹징징충박멸?????")
+function native_lang_system_msg_replace(chat_id, msg, msg_type, name, org_msg)
 
--- ui.Chat("/p 쌀먹징징충박멸?????")
+    function native_lang_system_msg_to_chat_ids(chat_id, msg, msg_type, name, org_msg, updated_msg)
+        g.chat_ids[tostring(chat_id)] = {
+            msg_type = msg_type,
+            name = g.names[name] or name,
+            org_name = name,
+            org_msg = org_msg,
+            proc_msg = msg,
+            separate_msg = "None",
+            trans_msg = updated_msg
+        }
+        native_lang_replace()
+    end
+
+    if string.find(msg, "https:") then
+        native_lang_system_msg_to_chat_ids(chat_id, msg, msg_type, name, org_msg, msg)
+        return 1
+
+    elseif string.find(msg, "Guild_Colony_End_WorldMessage") then
+        local start_pos = string.find(msg, "$*$partyName$*$", 1, true)
+        start_pos = start_pos + 15
+        local end_pos = string.find(msg, "#@!", start_pos, true)
+        local guild_name = string.sub(msg, start_pos, end_pos - 1)
+        local trimmed_name = guild_name:match("^%s*(.-)%s*$")
+        local trans_guild_name = ""
+        if g.names[trimmed_name] then
+            trans_guild_name = g.names[guild_name]
+        else
+            trans_guild_name = guild_name
+        end
+        local updated_msg = string.sub(msg, 1, start_pos - 1) .. trans_guild_name .. string.sub(msg, end_pos)
+        updated_msg = "{#DD0000}" .. updated_msg
+        native_lang_system_msg_to_chat_ids(chat_id, msg, msg_type, name, org_msg, updated_msg)
+
+        return 1
+    elseif string.find(msg, "Guild_Colony_Occupation_WorldMessage") then
+        local start_pos = string.find(msg, "$*$partyName$*$", 1, true)
+        start_pos = start_pos + 15
+        local end_pos = string.find(msg, "$*$mapName$*$", start_pos, true)
+        local final_pos = string.find(msg, "|#@!", start_pos, true)
+        local guild_name = string.sub(msg, start_pos, end_pos - 1)
+        local trimmed_name = guild_name:match("^%s*(.-)%s*$")
+        local trans_guild_name = ""
+        if g.names[trimmed_name] then
+            trans_guild_name = g.names[guild_name]
+        else
+            trans_guild_name = guild_name
+        end
+        local updated_msg = string.sub(msg, 1, start_pos - 1) .. trans_guild_name .. string.sub(msg, end_pos, final_pos)
+        updated_msg = "{#DD0000}" .. updated_msg
+        native_lang_system_msg_to_chat_ids(chat_id, msg, msg_type, name, org_msg, updated_msg)
+
+        return 1
+    elseif string.find(msg, "NOTICE_FIELDBOSS_RANK") then
+        local start_pos = string.find(msg, "$*$name$*$", 1, true)
+        start_pos = start_pos + 10
+        local end_pos = string.find(msg, "#@!", start_pos, true)
+        local names_str = string.sub(msg, start_pos, end_pos - 1)
+
+        local replaced_names = {}
+        for name_str in names_str:gmatch("([^,]+)") do -- カンマで分割
+            local trimmed_name = name_str:match("^%s*(.-)%s*$") -- 前後の空白を削除
+
+            if g.names[trimmed_name] then
+                table.insert(replaced_names, g.names[trimmed_name]) -- 置き換え
+            else
+                table.insert(replaced_names, trimmed_name) -- 置き換えが無い場合はそのまま
+            end
+        end
+
+        local new_names_str = table.concat(replaced_names, ", ")
+        local updated_msg = string.sub(msg, 1, start_pos - 1) .. new_names_str .. string.sub(msg, end_pos)
+        native_lang_system_msg_to_chat_ids(chat_id, msg, msg_type, name, org_msg, updated_msg)
+        return 1
+    elseif string.find(msg, "FIELDBOSS_WORLD_EVENT_WIN_MSG") then
+        local start_pos = string.find(msg, "$*$PC$*$", 1, true)
+        start_pos = start_pos + 8
+        local end_pos = string.find(msg, "$*$ITEM$*$", start_pos, true)
+        local final_pos = string.find(msg, "|#@!", start_pos, true)
+        local name = string.sub(msg, start_pos, end_pos - 1)
+        local trimmed_name = name:match("^%s*(.-)%s*$")
+        local trans_name = ""
+        if g.names[trimmed_name] then
+            trans_name = g.names[name]
+        else
+            trans_name = name
+        end
+        local updated_msg = string.sub(msg, 1, start_pos - 1) .. trans_name .. string.sub(msg, end_pos, final_pos)
+        updated_msg = "{#DD0000}" .. updated_msg
+        native_lang_system_msg_to_chat_ids(chat_id, msg, msg_type, "", org_msg, updated_msg)
+        return 1
+    else
+        return 0
+    end
+end
+--[[CHAT_SYSTEM(
+    "{#DD0000}!@#$FIELDBOSS_WORLD_EVENT_WIN_MSG{PC}{ITEM}$*$PC$*$슈라랏$*$ITEM$*$|$#유라테의 세 번째 권능#$|#@!")]]
 
 function native_lang_DRAW_CHAT_MSG(frame, msg)
+
     if g.settings.use == 0 then
         return
     end
@@ -498,12 +691,14 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
     local frame = ui.GetFrame("chatframe")
     local size = session.ui.GetMsgInfoSize(groupboxname)
     local chat = session.ui.GetChatMsgInfo(groupboxname, size - 1)
+    local president = 0
 
     for i = startindex, size - 1 do
         local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
         local chat_id = clusterinfo:GetMsgInfoID()
 
         if g.chat_check[tostring(chat_id)] ~= true then
+            -- table.insert(g.copy_ids, chat_id)
             g.chat_check[tostring(chat_id)] = true
         else
             return
@@ -513,12 +708,22 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
         local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
 
         if cluster == nil then
+
             return
         else
 
+            president = chat_id
             local msg_type = chat:GetMsgType()
             if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" and msg_type ~=
                 "System" then
+                return
+            end
+
+            if string.find(msg, "{spine") then
+                --[[local right_name = g.names[name] or name
+                local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name,
+                    msg)
+                native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)]]
                 return
             end
 
@@ -548,15 +753,19 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
             local name = chat:GetCommanderName()
             name = name:gsub(" %[(.-)%]", "")
 
-            if name == "System" then
-                name = ""
-            end
-
-            if name == "あじのり" then
+            --[[if name == "あじのり" then
                 name = "아지노리"
-            end
+            end]]
 
             print(chat_id .. ":" .. name .. ":" .. msg)
+
+            local sys_msg_find = native_lang_system_msg_replace(chat_id, msg, msg_type, name, org_msg)
+            if sys_msg_find == 1 then
+                return
+            end
+            if name == "System" then
+                return
+            end
 
             local function native_lang_msg_processing(msg)
 
@@ -589,7 +798,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
 
                 local function anti_pattern(proc_msg)
                     -- 特殊文字を含むリスト
-                    local patterns = {",", "&", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\"", "/"}
+                    local patterns = {",", "&", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\"", "//"}
 
                     for _, pattern in ipairs(patterns) do
                         proc_msg = proc_msg:gsub(pattern .. "+", " ")
@@ -599,11 +808,8 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 end
 
                 msg = modify_string(msg)
-
                 local proc_msg, separate_msg = wrapped_contents(msg)
-
                 proc_msg = anti_pattern(proc_msg)
-
                 proc_msg = proc_msg:gsub(" +", " ")
                 return proc_msg, separate_msg
 
@@ -625,11 +831,9 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 g.chat_ids[tostring(chat_id)].name = g.names[name] or name
             end
 
-            if string.find(msg, "{spine ") then
-                return
-            end
-
-            function native_lang_msg_send(frame, send_msg)
+            function native_lang_msg_send(send_msg, president)
+                --[[g.chat_ids[tostring(president)].copy_ids = g.copy_ids
+                g.copy_ids = {}]]
 
                 local send_file = io.open(g.send_msg, "a")
 
@@ -657,17 +861,28 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
 
                 local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. proc_msg .. ":::" ..
                                      g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. msg .. ":::" .. name
-                native_lang_msg_send(frame, send_msg)
+                -- ReserveScript(string.format("native_lang_msg_send('%s',%d)", send_msg, president), 0.01)
+                native_lang_msg_send(send_msg, president)
             else
 
                 native_lang_replace()
             end
-            break
+            -- break
+
         end
     end
+
 end
 
+--[[CHAT_SYSTEM(
+    "{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#수로교 지역#$|#@!")]]
 function native_lang_process_name(clean_name)
+
+    if string.find(clean_name, "PartyMemberMapNChannel", 1, true) then
+        return clean_name
+    elseif string.find(clean_name, "★★", 1, true) then
+        return clean_name
+    end
 
     if g.names[clean_name] then
         local right_name = g.names[clean_name]
@@ -691,6 +906,7 @@ function native_lang_process_name(clean_name)
     end
 
     if not found then
+
         if native_lang_is_translation(clean_name) then
 
             local existing_keys = {}
@@ -700,19 +916,14 @@ function native_lang_process_name(clean_name)
                     local key = line:match("^(.-):::")
 
                     if key then
-                        -- 既に存在するキーをテーブルに追加
                         existing_keys[key] = true
-                        -- 特定の条件を満たす場合は処理を終了
-                        if string.find(key, "★") then
-                            existing_keys[key] = true
-                        elseif string.find(key, "PartyMemberMapNChannel") then
-                            existing_keys[key] = true
-                        end
+
                     end
+
                 end
                 read_file:close()
             end
-
+            -- print(tostring(existing_keys[clean_name]))
             -- 重複がない場合に書き込む
             if not existing_keys[clean_name] then
                 local append_file = io.open(g.send_name, "a")
@@ -752,7 +963,6 @@ function native_lang_name_trans()
                                 local original_part = given_name:sub(1, 9)
                                 local new_given_name = original_part .. right_name
 
-                                local frame_given_name_Width_ = frame_given_name:GetWidth()
                                 frame_given_name:SetText(new_given_name)
                                 local frame_given_name_Width = frame_given_name:GetWidth()
                                 local x = frame_given_name:GetX();
@@ -859,11 +1069,11 @@ function native_lang_name_trans()
     end
 end
 
-function native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
+--[[function native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
     _native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
-end
+end]]
 
-function _native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
+function native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
 
     if g.settings.use == 0 then
         base["UPDATE_PARTYINFO_HP"](partyInfoCtrlSet, partyMemberInfo)
@@ -885,11 +1095,11 @@ function _native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
     end
 end
 
-function native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
+--[[function native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
     _native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
-end
+end]]
 
-function _native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
+function native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
     if g.settings.use == 0 then
         base["DAMAGE_METER_GAUGE_SET"](ctrl, leftStr, point, rightStr, skin)
     else

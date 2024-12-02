@@ -45,10 +45,11 @@
 -- v1.4.5 週ボス報酬を自動で受け取る機能。不安定かも。
 -- v1.4.6 テスト用。
 -- v1.4.7 死んだときのフレーム制御ミスってたの修正
+-- v1.4.8 週ボスのダメージ累計報酬を先週分か今週分か切替出来る様に
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.7"
+local ver = "1.4.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -58,8 +59,8 @@ local g = _G["ADDONS"][author][addonName]
 local acutil = require("acutil")
 local os = require("os")
 
-local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')
+--[[local folder_path = string.format("../addons/%s", addonNameLower)
+os.execute('mkdir "' .. folder_path .. '"')]]
 
 local base = {}
 
@@ -227,6 +228,7 @@ function MINI_ADDONS_VAKARINE_NOTICE()
         ui.Chat("!! " .. "vakarine")
     end
 end
+
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -383,7 +385,11 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 end
 g.wbreward = nil
 function MINI_ADDONS_WEEKLY_BOSS_REWARD()
+
     local week_num = WEEKLY_BOSS_RANK_WEEKNUM_NUMBER();
+    if g.settings.reward_switch == 1 then
+        week_num = WEEKLY_BOSS_RANK_WEEKNUM_NUMBER() - 1
+    end
     -- print(week_num)
     if week_num ~= 0 then
         weekly_boss.RequestAcceptAbsoluteRewardAll(week_num)
@@ -438,11 +444,11 @@ function MINI_ADDONS_WEEKLY_BOSS_RANK_REWARD(indun_info)
 end
 
 function MINI_ADDONS_WEEKLY_BOSS_RANK_GET_REWARD(frame)
-    print(g.index)
+    -- print(g.index)
     local week_num = WEEKLY_BOSS_RANK_WEEKNUM_NUMBER();
-    print(week_num)
+    -- print(week_num)
     local myrank = session.weeklyboss.GetMyRankInfo(week_num);
-    print(myrank)
+    -- print(myrank)
     local indun_info = ui.GetFrame("induninfo")
     local classtype_tab = GET_CHILD_RECURSIVELY(indun_info, "classtype_tab")
     AUTO_CAST(classtype_tab)
@@ -807,6 +813,26 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             local my_effect = config.GetMyEffectTransparency()
             local num = math.floor(my_effect * 0.392156862745 + 0.5)
             my_effect_edit:SetText("{ol}" .. num)
+        elseif setting.name == "weekly_boss_reward" then
+            -- g.lang = "en"
+            if not g.settings.reward_switch then
+                g.settings.reward_switch = 1
+                MINI_ADDONS_SAVE_SETTINGS()
+            end
+            local switch = frame:CreateOrGetControl('button', 'switch', textWidth + 15, x, 80, 25)
+            AUTO_CAST(switch)
+            if g.settings.reward_switch == 1 then
+                switch:SetText(g.lang == "Japanese" and "{ol}先週分" or "{ol}last week")
+            else
+                switch:SetText(g.lang == "Japanese" and "{ol}今週分" or "{ol}this week")
+            end
+            switch:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH")
+            local switch_width = switch:GetWidth()
+            local switch_text = frame:CreateOrGetControl("richtext", "switch_text", textWidth + 15 + switch_width,
+                x + 2, 80, 25)
+            AUTO_CAST(switch_text)
+            switch_text:SetText(g.lang == "Japanese" and "{ol}ダメージ報酬切替" or "{ol}Damage Reward Switch")
+            -- g.lang = "Japanese"
         end
         x = x + 30
 
@@ -832,6 +858,18 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     frame:SetPos((screenWidth - frameWidth) / 2, (screenHeight - frameHeight) / 2)
     frame:ShowWindow(1)
 
+end
+
+function MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH(frame, ctrl, str, num)
+    if g.settings.reward_switch == 1 then
+        g.settings.reward_switch = 0
+        ctrl:SetText(g.lang == "Japanese" and "{ol}今週分" or "{ol}this week")
+    else
+        g.settings.reward_switch = 1
+        ctrl:SetText(g.lang == "Japanese" and "{ol}先週分" or "{ol}last week")
+    end
+    MINI_ADDONS_SAVE_SETTINGS()
+    MINI_ADDONS_SETTING_FRAME_INIT()
 end
 
 function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
