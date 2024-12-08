@@ -29,6 +29,8 @@ https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/README.md
 
 ![キャプチャ241129](https://github.com/user-attachments/assets/653526e7-98ba-4dd6-9da8-9eed2611e5a5)
 
+v1.0.1 色々例外処理。ペット名も翻訳。ギアスコアを接続キャラのMAXで取得する様にしたけど、まぁ手動。JTOS感は出せてるかな。
+
 v1.0.0 気になるとこは直したので、正式版でリリース。週ボスランクの名前変換など
 
 v0.0.5 TOTALチャットフレームを排他しない様に

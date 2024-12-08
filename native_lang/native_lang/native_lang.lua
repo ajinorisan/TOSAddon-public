@@ -1,6 +1,7 @@
 -- v0.0.4 フレームのコンテキストが上手く動かなかったの修正
 -- v0.0.5 新規のチャットはTOTALフレームで処理されるらしいので、そこを排他しない様に。
 -- v1.0.0 気になったところは直したから正式版
+-- v1.0.1 ギアスコアランク作成、週ボスの所に表示、ヴェルニケ表も翻訳、ペット名翻訳
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -25,6 +26,7 @@ g.recv_msg = string.format('../addons/%s/recv_msg.dat', addonNameLower)
 g.send_name = string.format('../addons/%s/send_name.dat', addonNameLower)
 g.recv_name = string.format('../addons/%s/recv_name.dat', addonNameLower)
 g.restart = string.format('../addons/%s/restart.dat', addonNameLower)
+g.gear_score = string.format('../addons/%s/gear_score.dat', addonNameLower)
 
 local base = {}
 
@@ -126,6 +128,7 @@ function native_lang_load_settings()
     end
 
     native_lang_open_or_create_file(g.recv_name)
+
     local files = {g.send_name, g.send_msg, g.recv_msg}
 
     if not g.load then
@@ -165,6 +168,26 @@ function native_lang_load_settings()
         end
     end
     native_lang_name_table_create()
+
+    g.gear_scores = {}
+    local file = io.open(g.gear_score, "r")
+    if file then
+        for line in file:lines() do
+            local org_name, teamName, guildIdx, value = line:match("([^:]+):::(%S+):::(%d+):::(%d+)")
+            if native_lang_is_translation(teamName) and not g.names[org_name] then
+                teamName = native_lang_process_name(org_name)
+            end
+            table.insert(g.gear_scores, {org_name, teamName, guildIdx, tonumber(value)})
+        end
+        file:close()
+    else
+        file = io.open(g.gear_score, "w")
+        file:close()
+    end
+    table.sort(g.gear_scores, function(a, b)
+        return a[4] > b[4] -- 3番目の要素がvalue
+    end)
+
 end
 
 function native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT(addon, frame)
@@ -183,8 +206,8 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.msg_len = 0
     g.chat_check = g.chat_check or {}
     g.recv_count = 0
-    -- g.copy_ids = {}
-    -- g.msg_front = ""
+
+    g.gear_score_table = g.gear_score_table or {}
 
     -- tos_google_translate無効化
     g.SetupHook(native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT, "TOS_GOOGLE_TRANSLATE_ON_INIT")
@@ -195,14 +218,428 @@ function NATIVE_LANG_ON_INIT(addon, frame)
 
     g.SetupHook(native_lang_UPDATE_PARTYINFO_HP, "UPDATE_PARTYINFO_HP")
     g.SetupHook(native_lang_DAMAGE_METER_GAUGE_SET, "DAMAGE_METER_GAUGE_SET")
-    -- g.SetupHook(native_lang_WEEKLY_BOSS_RANK_UPDATE, "WEEKLY_BOSS_RANK_UPDATE")
+    g.SetupHook(native_lang_UPDATE_COMPANION_TITLE, "UPDATE_COMPANION_TITLE")
+    g.SetupHook(native_lang_GEAR_SCORE_RANKING_CREATE_INFO, "GEAR_SCORE_RANKING_CREATE_INFO")
+    g.SetupHook(native_lang_SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL, "SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL")
 
     acutil.setupEvent(addon, "WEEKLY_BOSS_RANK_UPDATE", "native_lang_WEEKLY_BOSS_RANK_UPDATE");
     acutil.setupEvent(addon, "SHOW_PC_COMPARE", "native_lang_SHOW_PC_COMPARE");
+
+    acutil.setupEvent(addon, "ON_EVENTBANNER_GEARSCORE", "native_lang_ON_EVENTBANNER_GEARSCORE");
+
     -- acutil.setupEvent(addon, "CHAT_TAB_BTN_CLICK", "native_lang_CHAT_TAB_BTN_CLICK");
 
     addon:RegisterMsg("GAME_START", "native_lang_GAME_START");
     addon:RegisterMsg("GAME_START_3SEC", "native_lang_GAME_START_3SEC");
+
+end
+
+function native_lang_SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL(rankGbox, ctrlType, rank, week)
+
+    if g.settings.use == 0 then
+        base["SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL"](rankGbox, ctrlType, rank, week)
+    else
+        native_lang_SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL_(rankGbox, ctrlType, rank, week)
+    end
+end
+
+function native_lang_SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL_(rankGbox, ctrlType, rank, week)
+    AUTO_CAST(rankGbox)
+    local emblemSlotImageName = rankGbox:GetUserConfig("GUILD_EMBLEM_SLOT");
+    local scoreInfo = session.soloDungeon.GetRankingByIndex(week, ctrlType, rank)
+    if scoreInfo == nil then
+        return;
+    end
+
+    local rankText = GET_CHILD_RECURSIVELY(rankGbox, "rankText")
+    rankText:SetTextByKey("rank", rank + 1)
+
+    local familyName = g.names[scoreInfo.familyName] or scoreInfo.familyName
+    if native_lang_is_translation(familyName) and not g.names[familyName] then
+        familyName = native_lang_process_name(familyName)
+    end
+
+    local teamNameText = GET_CHILD_RECURSIVELY(rankGbox, "teamNameText")
+    teamNameText:SetTextByKey("teamname", familyName)
+
+    local charLevelText = GET_CHILD_RECURSIVELY(rankGbox, "charLevelText")
+    charLevelText:SetTextByKey("charlevel", scoreInfo.level)
+
+    local guildName = g.names[scoreInfo.guildName] or scoreInfo.guildName
+    if native_lang_is_translation(guildName) and not g.names[guildName] then
+        guildName = native_lang_process_name(guildName)
+    end
+
+    local guildNameText = GET_CHILD_RECURSIVELY(rankGbox, "guildNameText")
+    guildNameText:SetTextByKey("guildname", guildName);
+
+    local emblemCtrl = GET_CHILD_RECURSIVELY(rankGbox, "guildEmblem")
+    if emblemCtrl ~= nil then
+        local worldID = session.party.GetMyWorldIDStr();
+        local emblemImgName = guild.GetEmblemImageName(scoreInfo:GetGuildIDStr(), worldID);
+        emblemCtrl:SetImage(emblemSlotImageName);
+        if emblemImgName ~= 'None' then
+            emblemCtrl:SetFileName(emblemImgName);
+            emblemCtrl:Invalidate();
+        else
+            if scoreInfo:GetGuildIDStr() ~= "0" then
+                GetGuildEmblemImage("SOLODUNGEON_UPDATE_GUILD_EMBLEM_IMAGE", scoreInfo:GetGuildIDStr())
+            end
+        end
+    end
+
+    local cnt = scoreInfo:GetJobHistoryCount()
+    local jobTreeList = {}
+    local jobTreeGbox = GET_CHILD_RECURSIVELY(rankGbox, "jobTreeGbox")
+    for i = 0, cnt - 1 do
+        local jobID = scoreInfo:GetJobHistoryByIndex(i)
+        local jobCls = GetClassByType("Job", jobID)
+        if jobCls ~= nil then
+            local icon = jobCls.Icon
+            if icon ~= nil then
+                local rankImage = jobTreeGbox:CreateOrGetControl("picture", "rankImage_" .. i + 1, 35 * i, 0, 35, 35)
+                rankImage = tolua.cast(rankImage, "ui::CPicture")
+                rankImage:SetImage(icon)
+                rankImage:SetEnableStretch(1);
+                rankImage:EnableHitTest(0)
+
+                if jobTreeList[jobID] == nil then
+                    jobTreeList[jobID] = 1
+                else
+                    jobTreeList[jobID] = jobTreeList[jobID] + 1
+                end
+            end
+        end
+    end
+
+    local jobtext = "";
+    for jobid, grade in pairs(jobTreeList) do
+        -- 클래스 이름{@st41}
+        local jobCls = GetClassByType("Job", jobid)
+
+        local jobName = TryGetProp(jobCls, "Name")
+        jobtext = jobtext .. ("{@st41}") .. jobName
+
+        jobtext = jobtext .. ('{nl}');
+    end
+    jobTreeGbox:SetTextTooltip(jobtext);
+
+    local maxStageText = GET_CHILD_RECURSIVELY(rankGbox, "maxStageText")
+    maxStageText:SetTextByKey("maxstage", scoreInfo.stage);
+
+    local clear_time = scoreInfo.clear_time;
+    if clear_time ~= 0 then
+        clear_time = session.soloDungeon.GetClearTimeConvert(tonumber(clear_time));
+    else
+        clear_time = "03:00";
+    end
+
+    local killMonsterText = GET_CHILD_RECURSIVELY(rankGbox, "killMonsterText")
+    killMonsterText:SetTextByKey("killmonster", clear_time)
+end
+
+function native_lang_GEAR_SCORE_RANKING_CREATE_INFO(ctrl, rank, guildIdx, teamName, charName, value)
+    if g.settings.use == 0 then
+        base["GEAR_SCORE_RANKING_CREATE_INFO"](ctrl, rank, guildIdx, teamName, charName, value)
+    else
+        native_lang_GEAR_SCORE_RANKING_CREATE_INFO_(ctrl, rank, guildIdx, teamName, charName, value)
+    end
+end
+
+function native_lang_GEAR_SCORE_RANKING_CREATE_INFO_(ctrl, rank, guildIdx, teamName, charName, value)
+    local guildPic = GET_CHILD(ctrl, "emblem_pic")
+    local rankText = GET_CHILD(ctrl, "rank_text")
+    local teamNameText = GET_CHILD(ctrl, "team_name_text")
+    local charNameText = GET_CHILD(ctrl, "char_name_text")
+    local valueText = GET_CHILD(ctrl, "value_text")
+
+    local org_name = teamName:gsub("{#0000FF}", "")
+
+    teamName = teamName:gsub("{#0000FF}", "")
+    if native_lang_is_translation(teamName) then
+        teamName = native_lang_process_name(teamName)
+    end
+    if native_lang_is_translation(charName) then
+        charName = native_lang_process_name(charName)
+    end
+    rankText:SetTextByKey("value", rank)
+    if teamName == GETMYFAMILYNAME() then
+        teamName = "{#0000FF}" .. teamName
+    end
+    teamNameText:SetTextByKey("value", teamName)
+    charNameText:SetTextByKey("value", charName)
+    valueText:SetTextByKey("value", value)
+
+    local frame = guildPic:GetTopParentFrame()
+    local close_btn = GET_CHILD_RECURSIVELY(frame, "closeBtn")
+    AUTO_CAST(close_btn)
+    close_btn:SetEventScript(ui.LBUTTONDOWN, "native_lang_real_rank_save")
+
+    if g.gear_score_table[org_name] then
+        if tonumber(value) > tonumber(g.gear_score_table[org_name].value) then
+            g.gear_score_table[org_name].value = value -- 値を更新
+        end
+    else
+        g.gear_score_table[org_name] = {
+            team_name = teamName,
+            guildIdx = guildIdx,
+            value = value
+        }
+    end
+    if guildIdx ~= "0" then
+        local worldID = session.party.GetMyWorldIDStr()
+        local emblemImgName = guild.GetEmblemImageName(guildIdx, worldID)
+        if emblemImgName ~= 'None' then
+            guildPic:SetFileName(emblemImgName)
+        end
+    end
+end
+
+function native_lang_real_rank_save(frame, ctrl, str, num)
+
+    local file_path = g.gear_score
+    g.gear_scores = {}
+
+    local file = io.open(file_path, "r")
+    if file then
+        for line in file:lines() do
+            local org_name, teamName, guildIdx, value = line:match("([^:]+):::(%S+):::(%d+):::(%d+)")
+
+            if not g.gear_score_table[org_name] then
+                g.gear_score_table[org_name] = {
+                    team_name = teamName,
+                    guildIdx = guildIdx,
+                    value = value
+                }
+            end
+        end
+        file:close()
+    end
+
+    for key, data in pairs(g.gear_score_table) do
+        local team_name = data.team_name
+
+        if native_lang_is_translation(team_name) and not g.names[key] then
+            team_name = native_lang_process_name(key)
+        end
+
+        table.insert(g.gear_scores, {key, team_name, data.guildIdx, tonumber(data.value)})
+    end
+
+    table.sort(g.gear_scores, function(a, b)
+        return a[4] > b[4] -- 3番目の要素がvalue
+    end)
+
+    local file = io.open(file_path, "w")
+    if file then
+        for _, score in ipairs(g.gear_scores) do
+            local line = string.format("%s:::%s:::%s:::%d\n", score[1], score[2], score[3], score[4])
+            file:write(line)
+            file:flush()
+        end
+        file:close()
+    end
+
+    --[[for i, score in ipairs(g.gear_scores) do
+        local teamName = score[1]
+        local guildIdx = score[2]
+        local value = score[3]
+        print(string.format("チーム名: %s, ギルドインデックス: %d, 値: %d", teamName, guildIdx, value))
+    end]]
+
+end
+
+function native_lang_mouseon(frame, ctrl, str, num)
+    ctrl:SetFontName("yellow_20_ol_ds");
+    ctrl:SetText("Maximum Rank>>")
+
+end
+
+function native_lang_mouseoff(frame, ctrl, str, num)
+    ctrl:SetFontName("white_20_ol_ds");
+    ctrl:SetText("Maximum Rank>>")
+end
+
+function native_lang_ON_EVENTBANNER_GEARSCORE()
+    local frame = ui.GetFrame("ingameeventbanner")
+    if g.settings.use == 0 then
+        local real_rank = GET_CHILD_RECURSIVELY(frame, "real_rank")
+        if real_rank ~= nil then
+            real_rank:ShowWindow(0)
+        end
+        return
+    end
+    ReserveScript("native_lang_ON_EVENTBANNER_GEARSCORE_()", 0.5)
+end
+
+function native_lang_ON_EVENTBANNER_GEARSCORE_()
+
+    local frame = ui.GetFrame("ingameeventbanner")
+    local ranking_gear_score = GET_CHILD_RECURSIVELY(frame, "ranking_gear_score");
+    AUTO_CAST(ranking_gear_score)
+    local detail_btn = GET_CHILD(ranking_gear_score, "detail_btn");
+    local detail_x, detail_y = detail_btn:GetX(), detail_btn:GetY()
+    local real_rank = ranking_gear_score:CreateOrGetControl('button', "real_rank", detail_x - 180, detail_y, 100, 30);
+    AUTO_CAST(real_rank)
+    real_rank:SetSkinName("None")
+    real_rank:SetEventScript(ui.LBUTTONUP, "native_lang_real_rank_frame")
+    real_rank:SetEventScript(ui.MOUSEON, "native_lang_mouseon")
+    real_rank:SetEventScript(ui.MOUSEOFF, "native_lang_mouseoff")
+    real_rank:SetFontName("white_20_ol_ds");
+    real_rank:SetText("Maximum Rank>>")
+    real_rank:ShowWindow(1)
+end
+
+function native_lang_real_rank_frame_close(frame, ctrl, str, num)
+    local frame = ui.GetFrame(addonNameLower .. "gear_score_info")
+    frame:ShowWindow(0)
+end
+
+function native_lang_real_rank_frame(frame, ctrl, str, num)
+    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "gear_score_info", 0, 0, 0, 0)
+    AUTO_CAST(frame)
+    frame:SetPos(1000, 30)
+    frame:SetSkinName("test_frame_low")
+    frame:SetLayerLevel(1000);
+    frame:RemoveAllChild()
+    -- frame:SetTitleBarSkin("mainframe_03")
+
+    local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.RIGHT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "native_lang_real_rank_frame_close")
+    close_button:SetMargin(0, 55, 0, 0)
+
+    local rank_title = frame:CreateOrGetControl('richtext', 'rank_title', 15, 60, 60, 30)
+    AUTO_CAST(rank_title)
+    rank_title:SetFontName("white_20_ol_ds");
+    rank_title:SetText("Rank")
+
+    local name_title = frame:CreateOrGetControl('richtext', 'name_title', 120, 60, 200, 30)
+    AUTO_CAST(name_title)
+    name_title:SetFontName("white_20_ol_ds");
+    name_title:SetText("Team Name")
+
+    local score_title = frame:CreateOrGetControl('richtext', 'score_title', 330, 60, 80, 30)
+    AUTO_CAST(score_title)
+    score_title:SetFontName("white_20_ol_ds");
+    score_title:SetText("Gear Score")
+
+    local info_gbox = frame:CreateOrGetControl("groupbox", "info_gbox", 10, 95, frame:GetWidth() - 20,
+        frame:GetHeight() - 55)
+    AUTO_CAST(info_gbox)
+
+    info_gbox:SetSkinName("bg")
+
+    local y = 0
+    local x = 480
+    for i, entry in ipairs(g.gear_scores) do
+        local rank_text = info_gbox:CreateOrGetControl('richtext', 'rank_text' .. i, 10, y + 5, 60, 30)
+        AUTO_CAST(rank_text)
+        rank_text:SetFontName("white_20_ol_ds");
+        rank_text:SetText(i)
+
+        local pic = info_gbox:CreateOrGetControl('picture', "pic" .. i, 80, y, 30, 30);
+        AUTO_CAST(pic)
+        -- pic:SetGravity(ui.LEFT, ui.TOP);
+        if tostring(entry[3]) ~= "0" then
+            local worldID = session.party.GetMyWorldIDStr()
+            local emblemImgName = guild.GetEmblemImageName(tostring(entry[3]), worldID)
+
+            if emblemImgName ~= 'None' then
+                pic:SetFileName(emblemImgName)
+                pic:SetEnableStretch(1);
+            end
+        end
+
+        local name_text = info_gbox:CreateOrGetControl('richtext', 'name_text' .. i, 120, y + 5, 200, 30)
+        AUTO_CAST(name_text)
+        name_text:SetFontName("white_20_ol_ds");
+        local name = entry[2] or entry[1]
+        name_text:SetText(name)
+
+        local score_text = info_gbox:CreateOrGetControl('richtext', 'score_text' .. i, 330, y + 5, 80, 30)
+        AUTO_CAST(score_text)
+        score_text:SetFontName("white_20_ol_ds");
+        score_text:SetText(entry[4])
+
+        y = y + 35
+
+    end
+
+    frame:Resize(x, 800)
+    local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, frame:GetWidth(), 55)
+    title_gb:SetSkinName("test_frame_top")
+    AUTO_CAST(title_gb)
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text);
+    title_text:SetText('{ol}{s20}Maximum Gear Score Ranking')
+    info_gbox:Resize(frame:GetWidth() - 20, frame:GetHeight() - 105)
+    info_gbox:SetScrollPos(0)
+    frame:ShowWindow(1)
+end
+
+function native_lang_UPDATE_COMPANION_TITLE(frame, handle)
+    if g.settings.use == 0 then
+        base["UPDATE_COMPANION_TITLE"](frame, handle)
+    else
+        native_lang_UPDATE_COMPANION_TITLE_(frame, handle)
+    end
+end
+
+function native_lang_UPDATE_COMPANION_TITLE_(frame, handle)
+    -- print(tostring(handle))
+    frame = tolua.cast(frame, "ui::CObject");
+    local petguid = session.pet.GetPetGuidByHandle(handle);
+    local mycompinfoBox = GET_CHILD_RECURSIVELY(frame, "mycompinfo");
+    if mycompinfoBox == nil then
+        return;
+    end
+
+    local otherscompinfo = GET_CHILD_RECURSIVELY(frame, "otherscompinfo");
+    if petguid == 'None' then
+        mycompinfoBox:ShowWindow(0)
+        otherscompinfo:ShowWindow(1)
+
+        local targetinfo = info.GetTargetInfo(handle);
+        if targetinfo == nil then
+            return;
+        end
+        local othernameTxt = GET_CHILD_RECURSIVELY(frame, "othername");
+        local origin_name = targetinfo.name
+        local clean_name = origin_name:gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
+        local trans_name = g.names[clean_name] or targetinfo.name
+        if native_lang_is_translation(clean_name) then
+            trans_name = native_lang_process_name(clean_name)
+            othernameTxt:SetText(trans_name)
+        else
+            othernameTxt:SetText(trans_name)
+        end
+
+    else
+        local myActor = GetMyPCObject();
+        if myActor ~= nil and IsBuffApplied(myActor, "RidingCompanion") == "YES" then
+            mycompinfoBox:ShowWindow(0);
+        else
+            mycompinfoBox:ShowWindow(1);
+        end
+        otherscompinfo:ShowWindow(0);
+
+        local mynameRtext = GET_CHILD_RECURSIVELY(frame, "myname");
+        local gauge_stamina = GET_CHILD_RECURSIVELY(frame, "StGauge");
+        local gauge_HP = GET_CHILD_RECURSIVELY(frame, "HpGauge");
+
+        local pet = session.pet.GetPetByGUID(petguid);
+        mynameRtext:SetText(pet:GetName())
+
+        local petObj = GetIES(pet:GetObject());
+        gauge_stamina:SetPoint(petObj.Stamina, petObj.MaxStamina);
+
+        local petInfo = info.GetStat(handle);
+        gauge_HP:SetPoint(petInfo.HP, petInfo.maxHP);
+    end
+    frame:Invalidate()
 end
 
 --[[function native_lang_CHAT_TAB_BTN_CLICK(frame, msg)
@@ -214,6 +651,9 @@ function native_lang_SHOW_PC_COMPARE(frame, msg)
     local frame = ui.GetFrame("compare");
     frame:SetLayerLevel(102);
 
+    if g.settings.use == 0 then
+        return
+    end
     local charNameRTxt = GET_CHILD_RECURSIVELY(frame, "charName", "ui::CRichText")
     local teamName = charNameRTxt:GetTextByKey("teamName")
     teamName = native_lang_process_name(teamName)
@@ -254,6 +694,24 @@ function native_lang_WEEKLY_BOSS_RANK_UPDATE()
             end
             local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText");
             name:SetTextByKey("value", teamname);
+
+            if g.gear_scores then
+                for _, score in ipairs(g.gear_scores) do
+                    if score[1] == org_name then
+                        local text_gs = rankListBox:CreateOrGetControl('button', "text_gs" .. i, 215, (i - 1) * 73 + 50,
+                            100, 25);
+                        AUTO_CAST(text_gs)
+                        text_gs:SetSkinName("None")
+                        local score_text = "{@st66b}{s16}Max Gear Score : " .. score[4]
+                        text_gs:SetText(score_text)
+                        text_gs:SetEventScript(ui.LBUTTONDOWN, "native_lang_real_rank_frame")
+                        text_gs:SetTextTooltip("{ol}Left click{nl}" .. " Open the Maximum Gear Score Ranking frame")
+                        break
+                    end
+
+                end
+
+            end
         end
 
         function native_lang_MEMBERINFO_ONCLICK(frame, ctrl, str, num)
@@ -359,9 +817,9 @@ function native_lang_GAME_START()
     native_lang_frame_init()
 
     local function native_lang_translate_exe_start()
-        if g.settings.use == 0 then
+        --[[if g.settings.use == 0 then
             return
-        end
+        end]]
 
         if not g.start then
 
@@ -712,10 +1170,20 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
             return
         else
 
+            local msg = chat:GetMsg()
+            local org_msg = msg
+            msg = msg:gsub("{#0000FF}", "{#FFFF00}")
+            local name = chat:GetCommanderName()
+            name = name:gsub(" %[(.-)%]", "")
+
+            --[[if name == "あじのり" then
+                name = "아지노리"
+            end]]
+
             president = chat_id
             local msg_type = chat:GetMsgType()
             if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" and msg_type ~=
-                "System" then
+                "System" and msg_type ~= "GuildComm" and msg_type ~= "GuildNotice" then
                 return
             end
 
@@ -724,6 +1192,16 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 local msg_front, font_style, font_size = native_lang_format_chat_message(frame, msg_type, right_name,
                     msg)
                 native_lang_chat_replace(frame, msg_front, font_style, font_size, chat_id)]]
+                return
+            end
+
+            print(chat_id .. ":" .. name .. ":" .. msg)
+
+            local sys_msg_find = native_lang_system_msg_replace(chat_id, msg, msg_type, "", org_msg)
+            if sys_msg_find == 1 then
+                return
+            end
+            if name == "System" then
                 return
             end
 
@@ -747,26 +1225,6 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
                 return
             end
 
-            local msg = chat:GetMsg()
-            local org_msg = msg
-            msg = msg:gsub("{#0000FF}", "{#FFFF00}")
-            local name = chat:GetCommanderName()
-            name = name:gsub(" %[(.-)%]", "")
-
-            --[[if name == "あじのり" then
-                name = "아지노리"
-            end]]
-
-            print(chat_id .. ":" .. name .. ":" .. msg)
-
-            local sys_msg_find = native_lang_system_msg_replace(chat_id, msg, msg_type, name, org_msg)
-            if sys_msg_find == 1 then
-                return
-            end
-            if name == "System" then
-                return
-            end
-
             local function native_lang_msg_processing(msg)
 
                 local function modify_string(msg)
@@ -776,9 +1234,11 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
 
                     msg = msg:gsub("(@dicID_%^%*%$.-%$%*%^)", "{%1}")
 
-                    msg = msg:gsub("%((%d+)", "{(%1}") -- (5 の部分を {(5 に
-                    msg = msg:gsub("%)", "{)}")
+                    if string.find(msg, "Earring 30 30") then
 
+                        msg = msg:gsub("%((%d+)", "{(%1}") -- (5 の部分を {(5 に
+                        msg = msg:gsub("%)", "{)}")
+                    end
                     local pattern3 = "!@#%$(.-)#@!"
                     msg = msg:gsub(pattern3, "{!@#%$(.-)#@!}")
                     return msg
@@ -798,7 +1258,8 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
 
                 local function anti_pattern(proc_msg)
                     -- 特殊文字を含むリスト
-                    local patterns = {",", "&", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\"", "//"}
+                    local patterns = {",", "`", "~~", "&", "!", ":", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'",
+                                      "%\"", "//"}
 
                     for _, pattern in ipairs(patterns) do
                         proc_msg = proc_msg:gsub(pattern .. "+", " ")
@@ -857,7 +1318,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
 
             if native_lang_is_translation_msg(proc_msg) then
 
-                print(chat_id .. ":" .. name .. ":" .. proc_msg)
+                -- print(chat_id .. ":" .. name .. ":" .. proc_msg)
 
                 local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. proc_msg .. ":::" ..
                                      g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. msg .. ":::" .. name
@@ -937,8 +1398,152 @@ function native_lang_process_name(clean_name)
     end
     return clean_name
 end
-
 function native_lang_name_trans()
+    if g.settings.use == 0 then
+        return
+    end
+
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
+
+    for i = 1, selected_objects_count do
+
+        local handle = GetHandle(selected_objects[i])
+
+        if handle ~= nil then
+            if info.IsPC(handle) == 1 then
+                local frame_name = "charbaseinfo1_" .. handle
+                local pc_txt_frame = ui.GetFrame(frame_name)
+                local shop_frame = ui.GetFrame("SELL_BALLOON_" .. handle)
+
+                function native_lang_name_replace(ctrl)
+
+                    local origin_name = ctrl:GetText()
+                    if string.find(origin_name, "{img guild_master_mark 20 20}") then
+                        origin_name = string.gsub(origin_name, "{img guild_master_mark 20 20}", "")
+                    end
+                    -- 
+                    local clean_name = origin_name:gsub("{.-}", ""):gsub("__+", "_"):match("^%s*(.-)%s*$")
+                    if native_lang_is_translation(clean_name) then
+
+                        local trans_name = native_lang_process_name(clean_name)
+                        if trans_name ~= clean_name then
+
+                            if ctrl:GetName() == "givenName" then
+                                local original_part = origin_name:sub(1, 9)
+                                trans_name = original_part .. trans_name
+                                ctrl:SetText(trans_name)
+                                local ctrl_Width = ctrl:GetWidth()
+                                local x = ctrl:GetX()
+                                local family_name = GET_CHILD(pc_txt_frame, "familyName")
+                                if family_name ~= nil then
+                                    local frame_family_name_margin = family_name:GetMargin()
+                                    family_name:SetMargin(x + ctrl_Width + 5, frame_family_name_margin.top,
+                                        frame_family_name_margin.right, frame_family_name_margin.bottom)
+                                end
+                            elseif ctrl:GetName() == "familyName" or ctrl:GetName() == "name" then
+                                local original_part = origin_name:sub(1, 9)
+                                trans_name = original_part .. trans_name
+                                ctrl:SetText(trans_name)
+                            elseif ctrl:GetName() == "guildName" then
+                                ctrl:SetText(trans_name)
+                            elseif ctrl:GetName() == "text" then
+                                ctrl:SetTextByKey("value", trans_name)
+                            elseif ctrl:GetName() == "lv_title" then
+
+                                ctrl:SetTextByKey("value", trans_name)
+                            end
+
+                        end
+
+                    end
+                end
+                if pc_txt_frame ~= nil then
+
+                    local given_name = GET_CHILD(pc_txt_frame, "givenName")
+                    if given_name ~= nil then
+                        native_lang_name_replace(given_name)
+                    end
+
+                    local family_name = GET_CHILD(pc_txt_frame, "familyName")
+                    if family_name ~= nil then
+                        native_lang_name_replace(family_name)
+                    end
+
+                    local frame_name = GET_CHILD(pc_txt_frame, "name")
+                    if frame_name ~= nil then
+                        native_lang_name_replace(frame_name)
+                    end
+
+                    local guild_name = GET_CHILD(pc_txt_frame, "guildName")
+                    if guild_name ~= nil then
+                        native_lang_name_replace(guild_name)
+                    end
+                end
+
+                if shop_frame ~= nil then
+
+                    local shop_text = GET_CHILD(shop_frame, "text")
+                    if shop_text ~= nil then
+                        native_lang_name_replace(shop_text)
+                    end
+                    local lv_box = GET_CHILD(shop_frame, "withLvBox");
+                    if lv_box ~= nil then
+                        local lv_title = GET_CHILD(lv_box, "lv_title");
+                        if lv_title ~= nil then
+                            native_lang_name_replace(lv_title)
+                        end
+                    end
+                end
+
+            end
+        end
+    end
+end
+
+function native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
+
+    if g.settings.use == 0 then
+        base["UPDATE_PARTYINFO_HP"](partyInfoCtrlSet, partyMemberInfo)
+    else
+        local nameObj = partyInfoCtrlSet:GetChild('name_text');
+        local nameRichText = tolua.cast(nameObj, "ui::CRichText");
+        local name = nameRichText:GetTextByKey("name");
+
+        if native_lang_is_translation(name) then
+            local font = name:match("({.-})")
+            name = name:gsub("{.-}", ""):match("^%s*(.-)%s*$")
+            name = native_lang_process_name(name)
+            if font then
+                name = font .. name
+            end
+            nameRichText:SetTextByKey("name", name)
+        end
+        base["UPDATE_PARTYINFO_HP"](partyInfoCtrlSet, partyMemberInfo)
+    end
+end
+
+function native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
+    if g.settings.use == 0 then
+        base["DAMAGE_METER_GAUGE_SET"](ctrl, leftStr, point, rightStr, skin)
+    else
+        local font = "{@st42b}{ds}{s12}"
+        leftStr = leftStr:gsub("{@st42b}{ds}{s12}", ""):match("^%s*(.-)%s*$")
+        leftStr = g.names[leftStr] or leftStr
+        leftStr = font .. leftStr
+
+        base["DAMAGE_METER_GAUGE_SET"](ctrl, leftStr, point, rightStr, skin)
+    end
+end
+
+--[[function native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
+    _native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
+end]]
+
+--[[function native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
+    _native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
+end]]
+
+--[[function native_lang_name_trans()
     if g.settings.use == 0 then
         return
     end
@@ -1067,50 +1672,7 @@ function native_lang_name_trans()
             end
         end
     end
-end
-
---[[function native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
-    _native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
 end]]
-
-function native_lang_UPDATE_PARTYINFO_HP(partyInfoCtrlSet, partyMemberInfo)
-
-    if g.settings.use == 0 then
-        base["UPDATE_PARTYINFO_HP"](partyInfoCtrlSet, partyMemberInfo)
-    else
-        local nameObj = partyInfoCtrlSet:GetChild('name_text');
-        local nameRichText = tolua.cast(nameObj, "ui::CRichText");
-        local name = nameRichText:GetTextByKey("name");
-
-        if native_lang_is_translation(name) then
-            local font = name:match("({.-})")
-            name = name:gsub("{.-}", ""):match("^%s*(.-)%s*$")
-            name = native_lang_process_name(name)
-            if font then
-                name = font .. name
-            end
-            nameRichText:SetTextByKey("name", name)
-        end
-        base["UPDATE_PARTYINFO_HP"](partyInfoCtrlSet, partyMemberInfo)
-    end
-end
-
---[[function native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
-    _native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
-end]]
-
-function native_lang_DAMAGE_METER_GAUGE_SET(ctrl, leftStr, point, rightStr, skin)
-    if g.settings.use == 0 then
-        base["DAMAGE_METER_GAUGE_SET"](ctrl, leftStr, point, rightStr, skin)
-    else
-        local font = "{@st42b}{ds}{s12}"
-        leftStr = leftStr:gsub("{@st42b}{ds}{s12}", ""):match("^%s*(.-)%s*$")
-        leftStr = g.names[leftStr] or leftStr
-        leftStr = font .. leftStr
-
-        base["DAMAGE_METER_GAUGE_SET"](ctrl, leftStr, point, rightStr, skin)
-    end
-end
 
 --[[local function native_lang_chat_name_replace(frame, msg_type, msg, name, chat_id)
 
