@@ -47,10 +47,11 @@
 -- v1.4.7 20241112のチャレンジアップデートで殺されたのを直した。
 -- v1.4.8 デザインをユーザーに叩かれたので元に戻した。クヤシイ
 -- v1.4.9 レイドチケット周り修正、ヴェルニケチケ修正
+-- v1.5.0 ヴェルニケチケット周り再修正。チャレと分裂のチケット使用時のコード見直し。
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.8"
+local ver = "1.5.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -136,7 +137,6 @@ function indun_panel_frame_init()
 
     frame:SetSkinName('None')
     frame:SetLayerLevel(30)
-    -- frame:Resize(110, 50)
     frame:Resize(140, 40)
     frame:SetPos(665, 30)
     frame:SetTitleBarSkin("None")
@@ -146,7 +146,6 @@ function indun_panel_frame_init()
 
     frame:RemoveAllChild()
 
-    -- local button = frame:CreateOrGetControl("button", "indun_panel_open", 0, 0, 50, 50)
     local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
     AUTO_CAST(button)
 
@@ -260,56 +259,6 @@ function indun_panel_init(frame)
     configbtn:SetText("{img config_button_normal 30 30}")
     configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
     configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}レイド表示設定" or "{ol}Raid Display Settings")
-
-    --[[local button = frame:CreateOrGetControl("button", "indun_panel_open", 0, 0, 50, 50)
-    AUTO_CAST(button)
-    button:SetSkinName("None")
-    -- sysmenu_instantDungeon
-    button:SetText("{img sysmenu_instantDungeon 50 50}")
-    -- button:SetText("{ol}{s11}INDUNPANEL")
-
-    local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 60, 10, 30, 30)
-    AUTO_CAST(ccbtn)
-    ccbtn:SetSkinName("None")
-    ccbtn:SetText("{img barrack_button_normal 30 30}")
-    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
-    ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります。" or "{ol}Return to Barracks.")
-
-    local configbtn = frame:CreateOrGetControl('button', 'configbtn', 100, 10, 30, 30)
-    AUTO_CAST(configbtn)
-    configbtn:SetSkinName("None")
-    configbtn:SetText("{img config_button_normal 30 30}")
-    configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
-    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}レイド表示設定" or "{ol}Raid Display Settings")
-
-    local tosshop = frame:CreateOrGetControl("button", "tosshop", 132, 13, 25, 25);
-    AUTO_CAST(tosshop)
-    tosshop:SetSkinName("None")
-    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
-    tosshop:SetTextTooltip(g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop")
-    tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
-
-    -- goddess3_shop_btn
-    local gabija = frame:CreateOrGetControl("button", "gabija", 160, 12, 29, 29);
-    AUTO_CAST(gabija)
-    gabija:SetSkinName("None")
-    gabija:SetText("{img goddess_shop_btn 29 29}")
-    gabija:SetTextTooltip(g.lang == "Japanese" and "{ol}ガビヤショップ" or "{ol}Gabija Shop")
-    gabija:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
-
-    local vakarine = frame:CreateOrGetControl("button", "vakarine", 190, 12, 29, 29);
-    AUTO_CAST(vakarine)
-    vakarine:SetSkinName("None")
-    vakarine:SetText("{img goddess2_shop_btn 29 29}")
-    vakarine:SetTextTooltip(g.lang == "Japanese" and "{ol}ヴァカリネショップ" or "{ol}Vakarine Shop")
-    vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
-
-    local rada = frame:CreateOrGetControl("button", "rada", 220, 12, 29, 29);
-    AUTO_CAST(rada)
-    rada:SetSkinName("None")
-    rada:SetText("{img goddess3_shop_btn 29 29}")
-    rada:SetTextTooltip(g.lang == "Japanese" and "{ol}ラダショップ" or "{ol}Rada Shop")
-    rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")]]
 
     if configbtn:IsVisible() == 1 then
         button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
@@ -581,7 +530,7 @@ function indun_panel_frame_contents(frame)
 
         local entry = induntype[i]
         for key, value in pairs(entry) do
-
+            -- print(tostring(key))
             if g.settings[key .. "_checkbox"] == 1 then
                 local text = frame:CreateOrGetControl("richtext", key, x - 125, y + 5)
                 text:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(key))
@@ -980,11 +929,6 @@ function indun_panel_singularity_frame(frame, key, y)
     sin_n:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_pt")
     sin_n:SetEventScriptArgNumber(ui.LBUTTONUP, 2000)
 
-    --[[local sin_ex = frame:CreateOrGetControl('button', 'sin_ex', 220, y, 80, 30)
-    sin_ex:SetText("{ol}{#FF0000}EX")
-    sin_ex:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_challenge_pt")
-    sin_ex:SetEventScriptArgNumber(ui.LBUTTONUP, 691)]]
-
     local sin_count = frame:CreateOrGetControl("richtext", "sin_count", 220, y + 5, 30, 30)
     sin_count:SetText(indun_panel_GetEntranceCountText(2000, 1))
 
@@ -1109,51 +1053,40 @@ function indun_panel_overbuy_amount(recipename)
     return 0
 end
 
-function indun_panel_overbuy_count(recipename)
-    local aObj = GetMyAccountObj()
-    local recipecls = GetClass('ItemTradeShop', recipename)
-    local overbuy_max = TryGetProp(recipecls, 'MaxOverBuyCount', 0)
-    local overbuy_prop = TryGetProp(recipecls, 'OverBuyProperty', 'None')
-    local overbuy_count = TryGetProp(aObj, overbuy_prop, 0)
-    return tonumber(overbuy_max) - tonumber(overbuy_count)
-end
-
 function indun_panel_buyuse_vel(frame, ctrl, recipename, indunType)
 
     local count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
-    local trade_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indunType).PlayPerResetType)
+    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipename)
 
     local vel_oneday_ticket = 11030169 -- Ticket_Bernice_Enter_1d
 
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
     if count == 1 then
-        session.ResetItemList()
-        local invItemList = session.GetInvItemList()
-        local guidList = invItemList:GetGuidList()
-        local cnt = guidList:Count()
-
         for i = 0, cnt - 1 do
-
             local use_item = session.GetInvItemByType(vel_oneday_ticket)
             if use_item ~= nil then
                 INV_ICON_USE(use_item)
                 return
             end
         end
-
-    elseif count == 1 and trade_count == 1 then
-        INDUN_PANEL_ITEM_BUY_USE(recipename)
-    elseif count == 1 and trade_count == 0 then
-        local vel_recipecls = GetClass('ItemTradeShop', recipename)
-        local vel_overbuy_max = TryGetProp(vel_recipecls, 'MaxOverBuyCount', 0)
-
-        if vel_overbuy_max >= 1 then
+        if trade_count == 1 then
             INDUN_PANEL_ITEM_BUY_USE(recipename)
-            return
-        else
-            ui.SysMsg(g.lang == "Japanese" and "トレード回数が足りません。" or "No trade count.")
-            return
+        elseif trade_count == 0 then
+            local vel_recipecls = GetClass('ItemTradeShop', recipename)
+            local vel_overbuy_max = TryGetProp(vel_recipecls, 'MaxOverBuyCount', 0)
+            if vel_overbuy_max >= 1 then
+                INDUN_PANEL_ITEM_BUY_USE(recipename)
+                return
+            else
+                ui.SysMsg(g.lang == "Japanese" and "トレード回数が足りません。" or "No trade count.")
+                return
+            end
         end
     end
+
 end
 
 function indun_panel_enter_velnice_solo()
@@ -1183,8 +1116,8 @@ function indun_panel_velnice_frame(frame, y)
     local velcnt = frame:CreateOrGetControl("richtext", "velcnt", 220, y + 5, 50, 30)
     velcnt:SetText(indun_panel_GetEntranceCountText(201, 2))
 
-    local velrecipename = "PVP_MINE_52"
-    local velchangecnt = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(velrecipename)
+    local recipe_name = "PVP_MINE_52"
+    local velchangecnt = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipe_name)
     if velchangecnt < 0 then
         velchangecnt = 0
     end
@@ -1193,11 +1126,11 @@ function indun_panel_velnice_frame(frame, y)
     AUTO_CAST(velbuyuse)
     velbuyuse:SetText("{ol}{#EE7800}{s14}BUYUSE")
     velbuyuse:SetEventScript(ui.LBUTTONUP, "indun_panel_buyuse_vel")
-    velbuyuse:SetEventScriptArgString(ui.LBUTTONUP, velrecipename)
+    velbuyuse:SetEventScriptArgString(ui.LBUTTONUP, recipe_name)
     velbuyuse:SetEventScriptArgNumber(ui.LBUTTONUP, 201)
 
     local velchangetxt = frame:CreateOrGetControl("richtext", "velchangetxt", 350, y + 5, 60, 30)
-    velchangetxt:SetText(string.format("{ol}{#FFFFFF}(%d/%d)", velchangecnt, indun_panel_overbuy_count(velrecipename)))
+    velchangetxt:SetText(string.format("{ol}{#FFFFFF}(%d/%d)", velchangecnt, indun_panel_overbuy_count(recipe_name)))
 
     local velamount = frame:CreateOrGetControl("richtext", "velamount", 415, y + 5, 50, 30)
     local velamount_text = "{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}"
@@ -1206,10 +1139,19 @@ function indun_panel_velnice_frame(frame, y)
     else
         velamount_text = velamount_text ..
                              string.format("{ol}{#FF0000}%s",
-                GET_COMMAED_STRING(indun_panel_overbuy_amount(velrecipename))) .. "{ol}{#FFFFFF})"
+                GET_COMMAED_STRING(indun_panel_overbuy_amount(recipe_name))) .. "{ol}{#FFFFFF})"
     end
     velamount:SetText(velamount_text)
 
+end
+
+function indun_panel_overbuy_count(recipe_name)
+    local aObj = GetMyAccountObj()
+    local recipecls = GetClass('ItemTradeShop', recipe_name)
+    local overbuy_max = TryGetProp(recipecls, 'MaxOverBuyCount', 0)
+    local overbuy_prop = TryGetProp(recipecls, 'OverBuyProperty', 'None')
+    local overbuy_count = TryGetProp(aObj, overbuy_prop, 0)
+    return tonumber(overbuy_max) - tonumber(overbuy_count)
 end
 
 function indun_panel_jsr_frame(frame, key, y)
@@ -1272,161 +1214,117 @@ function indun_panel_FIELD_BOSS_ENTER_TIMER_SETTING(frame)
     return 1
 end
 
-function indun_panel_buyuse(recipeName)
-    INDUN_PANEL_ITEM_BUY_USE(recipeName)
-end
--- print(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314"))
 function indun_panel_item_use_sin(indun_type, enterance_count)
+
+    local ticket_table = {10820018, 11030067}
 
     session.ResetItemList()
     local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList()
-    local cnt = guidList:Count()
-
-    local first_use = nil
-    local second_use = nil
-    local third_use = nil
-
-    for i = 0, cnt - 1 do
-        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-        local classid = tonumber(itemobj.ClassID)
-        local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(itemobj))
-        local use_item = session.GetInvItemByType(classid)
-
-        -- 優先順位に従って使用するアイテムを設定
-        if enterance_count == 0 then
-            if classid == 10820018 and life_time ~= nil and life_time < 86400 then
-                first_use = use_item -- 最優先: 10820018かつ寿命が24時間未満
-            elseif classid == 11030067 then
-                second_use = use_item -- 次優先: 11030067
-            elseif classid == 10820018 then
-                third_use = use_item -- 最後の優先: 10820018
+    local use_item = nil
+    for _, classid in ipairs(ticket_table) do
+        use_item = session.GetInvItemByType(classid)
+        if use_item ~= nil then
+            local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(GetIES(use_item:GetObject())))
+            if life_time ~= nil and life_time < 86400 then
+                INV_ICON_USE(use_item)
+                return
             end
         end
     end
 
-    -- 優先順位に基づいてアイテムを使用
-    if first_use then
-        INV_ICON_USE(first_use)
-        return
-    elseif second_use then
-        INV_ICON_USE(second_use)
-        return
-    elseif third_use then
-        INV_ICON_USE(third_use)
-        return
-    end
-
-    local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
-    if dcount == 1 and enterance_count == 0 then
-        indun_panel_buyuse("PVP_MINE_41")
-        return
-    end
-
-    local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
-    if wcount >= 1 and enterance_count == 0 then
-        indun_panel_buyuse("PVP_MINE_42")
-        return
-    end
-
-    local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314")
-    if mcount >= 1 and enterance_count == 0 then
-        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_314")
-        return
-    end
-
-    local targetItems = {}
-    -- アイテムの収集
-    for i = 0, cnt - 1 do
-        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-        local classid = itemobj.ClassID
-
-        if enterance_count == 0 and (classid == 10000470 or classid == 11030021 or classid == 11030017) then
-            table.insert(targetItems, classid)
+    for _, classid in ipairs(ticket_table) do
+        use_item = session.GetInvItemByType(classid)
+        if use_item ~= nil then
+            local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(GetIES(use_item:GetObject())))
+            if life_time ~= nil then
+                INV_ICON_USE(use_item)
+                return
+            else
+                INV_ICON_USE(use_item)
+                return
+            end
         end
     end
 
-    -- 収集したアイテムの処理
-    for _, classid in ipairs(targetItems) do
-        local msg = g.lang == "Japanese" and "期限はありません。使用しますか？" or
-                        "It has no expiration date.{nl}Do you want to use it?"
-        local yesscp = string.format("indun_panel_INV_ICON_USE(%d)", classid)
-        local msgbox = ui.MsgBox(msg, yesscp, '')
-    end
-end
+    if enterance_count == 0 then
+        local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+        if dcount == 1 then
+            INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_41")
+            return
+        end
 
-function indun_panel_INV_ICON_USE(classid)
-    INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
+        local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+        if wcount >= 1 then
+            INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_42")
+            return
+        end
+
+        local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314")
+        if mcount >= 1 then
+            INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_314")
+            return
+        end
+    end
+
+    function indun_panel_INV_ICON_USE(classid)
+        INV_ICON_USE(session.GetInvItemByType(classid))
+    end
+
+    local targetItems = {10000470, 11030021, 11030017}
+    for _, classid in ipairs(targetItems) do
+        use_item = session.GetInvItemByType(classid)
+        if use_item ~= nil then
+            local msg = g.lang == "Japanese" and "期限はありません。使用しますか？" or
+                            "It has no expiration date.{nl}Do you want to use it?"
+            local yesscp = string.format("indun_panel_INV_ICON_USE(%d)", classid)
+            local msgbox = ui.MsgBox(msg, yesscp, '')
+        end
+    end
 
 end
 
 function indun_panel_item_use_cha(indun_type, enterance_count)
 
+    local ticket_table = {10820019, 11030080, 641954, 641969, 641955, 10000073}
+
     session.ResetItemList()
     local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList()
-    local cnt = guidList:Count()
-
-    local first_use = nil
-    local second_use = nil
-    local third_use = nil
-    local fourth_use = nil
-    local fifth_use = nil
-    local six_use = nil
-
-    for i = 0, cnt - 1 do
-        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-        local classid = tonumber(itemobj.ClassID)
-        local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(itemobj))
-        local use_item = session.GetInvItemByType(classid)
-
-        -- 優先順位のチェック
-        if enterance_count == 1 then
-            if classid == 10820019 and life_time ~= nil and life_time < 86400 then
-                first_use = use_item -- 優先度1: 10820019 (24時間未満)
-            elseif classid == 11030080 and life_time ~= nil and life_time < 86400 then
-                second_use = use_item -- 優先度2: 11030080 (24時間未満)
-            elseif classid == 11030080 then
-                third_use = use_item -- 優先度3: 11030080
-            elseif classid == 641954 then
-                fourth_use = use_item -- 優先度4: 641954
-            elseif classid == 10820019 then
-                fifth_use = use_item -- 優先度5: 10820019
-            elseif classid == 10000073 then
-                six_use = use_item -- 優先度6: 10000073
+    local use_item = nil
+    for _, classid in ipairs(ticket_table) do
+        use_item = session.GetInvItemByType(classid)
+        if use_item ~= nil then
+            local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(GetIES(use_item:GetObject())))
+            if life_time ~= nil and life_time < 86400 then
+                INV_ICON_USE(use_item)
+                return
             end
         end
     end
 
-    -- 優先順位に基づいてアイテムを使用
-    if first_use then
-        INV_ICON_USE(first_use)
-        return
-    elseif second_use then
-        INV_ICON_USE(second_use)
-        return
-    elseif third_use then
-        INV_ICON_USE(third_use)
-        return
-    elseif fourth_use then
-        INV_ICON_USE(fourth_use)
-        return
-    elseif fifth_use then
-        INV_ICON_USE(fifth_use)
-        return
-    elseif six_use then
-        INV_ICON_USE(six_use)
-        return
+    for _, classid in ipairs(ticket_table) do
+        use_item = session.GetInvItemByType(classid)
+        if use_item ~= nil then
+            local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(GetIES(use_item:GetObject())))
+            if life_time ~= nil then
+                INV_ICON_USE(use_item)
+                return
+            else
+                INV_ICON_USE(use_item)
+                return
+            end
+        end
     end
 
-    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
-    if event_trade_count >= 1 and enterance_count == 1 then
-        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_315")
-        return
-    else
+    if enterance_count == 1 then
+        local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
+        if event_trade_count >= 1 then
+            INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_315")
+            return
+        end
+
         local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
-        if trade_count >= 1 and enterance_count == 1 then
-            indun_panel_buyuse("PVP_MINE_40")
+        if trade_count >= 1 then
+            INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40")
             return
         end
     end
@@ -1565,9 +1463,9 @@ function INDUN_PANEL_LANG(str)
         end
         return "{s20}" .. str
     end
-    local langcode = option.GetCurrentCountry()
+    -- local langcode = option.GetCurrentCountry()
 
-    if langcode == "Japanese" then
+    if g.lang == "Japanese" then
         if str == tostring("neringa") then
             str = "ネリンガ"
         end
@@ -1651,188 +1549,130 @@ function INDUN_PANEL_LANG(str)
 
     return "{s20}" .. str
 end
---[[function indun_panel_frame_update(frame)
-    local frame = ui.GetFrame("indun_panel")
-    local raid_table = {
-        neringa = {707, 80035},
-        golem = {710, 80037},
-        merregina = {695, 80032},
-        slogutis = {688, 80031},
-        upinis = {685, 80030},
-        roze = {679, 80015},
-        falouros = {676, 80017},
-        spreader = {673, 80016}
-    }
 
-    for key, value in pairs(raid_table) do
+--[[local use_item = session.GetInvItemByType(10000073)
+    local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(GetIES(use_item:GetObject())))
+    print(tostring(life_time))]]
+-- INV_ICON_USE(use_item)
 
-        local count = GET_CHILD_RECURSIVELY(frame, key .. "count")
-        if count ~= nil then
-            local sweep_count = GET_CHILD_RECURSIVELY(frame, key .. "sweepcount")
+--[[local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
 
-            for _, v in pairs(value) do
+    local first_use = nil
+    local second_use = nil
+    local third_use = nil
+    local fourth_use = nil
+    local fifth_use = nil
+    local six_use = nil
 
-                if string.len(v) == 3 then
+    for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = tonumber(itemobj.ClassID)
+        local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(itemobj))
+        local use_item = session.GetInvItemByType(classid)
 
-                    count:SetText(indun_panel_GetEntranceCountText(v, 2))
-
-                    local raidTable = {
-                        [707] = {11210024, 11210023, 11210022},
-                        [710] = {11210028, 11210027, 11210026},
-                        [695] = {11200356, 11200355, 11200354},
-                        [688] = {11200290, 10820036, 11200289, 11200288},
-                        [685] = {11200281, 10820035, 11200280, 11200279}
-                    }
-                    -- アイテム製造中にインベいじったらバグるので
-                    -- session.ResetItemList()
-                    local invItemList = session.GetInvItemList()
-                    local guidList = invItemList:GetGuidList()
-                    local cnt = guidList:Count()
-
-                    if raidTable[v] then
-
-                        local use = GET_CHILD_RECURSIVELY(frame, key .. "use")
-                        local item_count = 0
-                        for _, targetClassID in pairs(raidTable[v]) do
-                            for i = 0, cnt - 1 do
-
-                                local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-                                local invItem = invItemList:GetItemByGuid(guidList:Get(i))
-                                if itemobj.ClassID == targetClassID then
-                                    item_count = item_count + invItem.count
-                                end
-                            end
-                        end
-
-                        local itemClass = GetClassByType('Item', raidTable[v][2])
-
-                        local icon = itemClass.Icon
-                        local text = g.lang and
-                                         string.format("{ol}{img %s 25 25 } %d個持っています。", icon,
-                                item_count) or
-                                         string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon, item_count)
-
-                        use:SetTextTooltip(text)
-
-                    end
-                else
-
-                    sweep_count:SetText("{ol}{#FFFFFF}{s16}(" .. indun_panel_sweep_count(v) .. ")")
-                end
-
+        -- 優先順位のチェック
+        if enterance_count == 1 then
+            if classid == 10820019 and life_time ~= nil and life_time < 86400 then
+                first_use = use_item -- 優先度1: 10820019 (24時間未満)
+            elseif classid == 11030080 and life_time ~= nil and life_time < 86400 then
+                second_use = use_item -- 優先度2: 11030080 (24時間未満)
+            elseif classid == 11030080 then
+                third_use = use_item -- 優先度3: 11030080
+            elseif classid == 641954 then
+                fourth_use = use_item -- 優先度4: 641954
+            elseif classid == 10820019 then
+                fifth_use = use_item -- 優先度5: 10820019
+            elseif classid == 10000073 then
+                six_use = use_item -- 優先度6: 10000073
             end
         end
-
     end
 
-    local cha_count = GET_CHILD_RECURSIVELY(frame, "cha_count")
-    if cha_count ~= nil then
-        cha_count:SetText(indun_panel_GetEntranceCountText(646, 2))
-        local cha_ticketcount = GET_CHILD_RECURSIVELY(frame, "cha_ticketcount")
-        cha_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
-                                    INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") ..
-                                    " {img icon_item_Tos_Event_Coin 20 20}" ..
-                                    INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315") .. ")")
+    -- 優先順位に基づいてアイテムを使用
+    if first_use then
+        INV_ICON_USE(first_use)
+        return
+    elseif second_use then
+        INV_ICON_USE(second_use)
+        return
+    elseif third_use then
+        INV_ICON_USE(third_use)
+        return
+    elseif fourth_use then
+        INV_ICON_USE(fourth_use)
+        return
+    elseif fifth_use then
+        INV_ICON_USE(fifth_use)
+        return
+    elseif six_use then
+        INV_ICON_USE(six_use)
+        return
     end
 
-    local sin_count = GET_CHILD_RECURSIVELY(frame, "sin_count")
-    if sin_count ~= nil then
-        sin_count:SetText(indun_panel_GetEntranceCountText(647, 1))
-        local sin_ticketcount = GET_CHILD_RECURSIVELY(frame, "sin_ticketcount")
-        sin_ticketcount:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}d:" ..
-                                    INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. " w:" ..
-                                    INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") ..
-                                    " {img icon_item_Tos_Event_Coin 20 20}" ..
-                                    INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314") .. ")")
-    end
-
-    local velrecipename = "PVP_MINE_52"
-    local velchangecnt = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(velrecipename)
-    if velchangecnt < 0 then
-        velchangecnt = 0
-    end
-    local velchangetxt = GET_CHILD_RECURSIVELY(frame, "velchangetxt")
-    if velchangetxt ~= nil then
-        velchangetxt:SetText(string.format("{ol}{#FFFFFF}(%d/%d)", velchangecnt,
-            indun_panel_overbuy_count(velrecipename)))
-        local velamount = GET_CHILD_RECURSIVELY(frame, "velamount")
-        local velamount_text = "{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}"
-        if tonumber(velchangecnt) == 1 then
-            velamount_text = velamount_text .. "1,000)"
-        else
-            velamount_text = velamount_text ..
-                                 string.format("{ol}{#FF0000}%s",
-                    GET_COMMAED_STRING(indun_panel_overbuy_amount(velrecipename))) .. "{ol}{#FFFFFF})"
+    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
+    if event_trade_count >= 1 and enterance_count == 1 then
+        INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_315")
+        return
+    else
+        local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+        if trade_count >= 1 and enterance_count == 1 then
+            INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40")
+            return
         end
-        velamount:SetText(velamount_text)
-    end
+    end]]
 
-    return 1
+--[[for i = 0, cnt - 1 do
+        local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+        local classid = itemobj.ClassID
 
-end]]
---[[function INDUN_PANEL_GET_MAX_RECIPE_TRADE_COUNT(recipeName)
-    local recipeCls = GetClass("ItemTradeShop", recipeName)
-    local accountCls = GetClassByType("Account", 1)
-    if recipeCls.NeedProperty ~= "None" and recipeCls.NeedProperty ~= "" then
-        local sCount = TryGetProp(accountCls, recipeCls.NeedProperty)
-        if sCount then
-            return sCount
+        if enterance_count == 0 and (classid == 10000470 or classid == 11030021 or classid == 11030017) then
+            table.insert(targetItems, classid)
         end
     end
-    if recipeCls.AccountNeedProperty ~= "None" and recipeCls.AccountNeedProperty ~= "" then
-        local sCount = TryGetProp(accountCls, recipeCls.AccountNeedProperty)
-        if sCount then
-            return sCount
-        end
-    end
-    return nil
-end]]
 
---[[function indun_panel_item_use_cha(induntype, count)
-    session.ResetItemList()
+    収集したアイテムの処理
+
+    --[[session.ResetItemList()
     local invItemList = session.GetInvItemList()
     local guidList = invItemList:GetGuidList()
     local cnt = guidList:Count()
 
+    local first_use = nil
+    local second_use = nil
+    local third_use = nil
+
     for i = 0, cnt - 1 do
         local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-        local classid = itemobj.ClassID
-        local life_time = GET_REMAIN_ITEM_LIFE_TIME(itemobj)
-        -- 11030080 フィールド狩りで落ちるヤツ。ライフタイム縛りやめる？
+        local classid = tonumber(itemobj.ClassID)
+        local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(itemobj))
+        local use_item = session.GetInvItemByType(classid)
 
-        if life_time ~= nil then
-            if classid == 10820019 and count == 1 and tonumber(life_time) < 86400 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 11030080 and count == 1 and tonumber(life_time) < 86400 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 11030080 and count == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 641954 and count == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
-            elseif classid == 10820019 and count == 1 then
-                INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-                return
+        -- 優先順位に従って使用するアイテムを設定
+        if enterance_count == 0 then
+            if classid == 10820018 and life_time ~= nil and life_time < 86400 then
+                first_use = use_item -- 最優先: 10820018かつ寿命が24時間未満
+            elseif classid == 11030067 then
+                second_use = use_item -- 次優先: 11030067
+            elseif classid == 10820018 then
+                third_use = use_item -- 最後の優先: 10820018
             end
         end
-        if classid == 10000073 and count == 1 then
-            INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
-            return
-        end
     end
 
-    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_28")
-    if event_trade_count >= 1 and count == 1 then
-        indun_panel_buyuse("EVENT_TOS_WHOLE_SHOP_28")
+    -- 優先順位に基づいてアイテムを使用
+    if first_use then
+        INV_ICON_USE(first_use)
         return
-    end
+    elseif second_use then
+        INV_ICON_USE(second_use)
+        return
+    elseif third_use then
+        INV_ICON_USE(third_use)
+        return
+    end]]
 
-    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
-    if trade_count >= 1 and count == 1 then
-        indun_panel_buyuse("PVP_MINE_40")
-        return
-    end
+--[[function indun_panel_buyuse(recipeName)
+    INDUN_PANEL_ITEM_BUY_USE(recipeName)
 end]]
+-- print(INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314"))

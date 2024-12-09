@@ -5,7 +5,7 @@
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
