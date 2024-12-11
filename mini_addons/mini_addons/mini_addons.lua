@@ -46,10 +46,12 @@
 -- v1.4.6 テスト用。
 -- v1.4.7 死んだときのフレーム制御ミスってたの修正
 -- v1.4.8 週ボスのダメージ累計報酬を先週分か今週分か切替出来る様に
+-- v1.4.9 ワイドスクリーンだとSetPosおかしいらしい。アドオンの前提が色々崩れそう。コワイヨ
+-- v1.5.0 クポルポーションのフレームを非表示に
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.4.8"
+local ver = "1.5.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -256,6 +258,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM");
     acutil.setupEvent(addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP");
 
+    if g.settings.cupole_portion == 1 then -- !
+        acutil.setupEvent(addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
+    end
+
     if g.settings.raid_record == 1 then
         acutil.setupEvent(addon, "RAID_RECORD_INIT", "MINI_ADDONS_RAID_RECORD_INIT")
     end
@@ -383,6 +389,12 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     MINI_ADDONS_NEW_FRAME_INIT()
 end
+
+function MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON()
+    local frame = ui.GetFrame("cupole_external_addon")
+    frame:ShowWindow(0)
+end
+
 g.wbreward = nil
 function MINI_ADDONS_WEEKLY_BOSS_REWARD()
 
@@ -489,7 +501,7 @@ function MINI_ADDONS_SOUND_TOGGLE(frame, ctrl, str, num)
 end
 
 function MINI_ADDONS_LANG(str)
-
+    -- !
     if g.lang == "Japanese" then
         if str == "Skip confirmation for admission of 4 or less people" then
             str = "4人以下入場時の確認をスキップ"
@@ -553,6 +565,8 @@ function MINI_ADDONS_LANG(str)
             str = "レイド時、ヴァカリネ装備を他人にお知らせ"
         elseif str == "Receive weekly boss reward automatically" then
             str = "週間ボスレイド報酬を自動で受け取り"
+        elseif str == "Hide the potion frame of the cupole" then
+            str = "クポルのポーションフレームを非表示に"
         elseif str == "Check to enable" then
             str = "チェックすると有効化"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -620,6 +634,8 @@ function MINI_ADDONS_LANG(str)
             str = " 레이드에 있는 바카린 장비를 다른 플레이어에게 알리기"
         elseif str == "Receive weekly boss reward automatically" then
             str = " 주간 보스 레이드 보상을 자동으로 수령"
+        elseif str == "Hide the potion frame of the cupole" then
+            str = "큐폴의 포션 프레임 숨기기"
         elseif str == "Check to enable" then
             str = "체크 시 활성화"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -644,7 +660,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     close:SetSkinName("None")
     close:SetText("{img testclose_button 30 30}")
     close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
-
+    -- !
     local settings = {{
         name = "under_staff",
         check = g.settings.under_staff,
@@ -755,6 +771,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         name = "weekly_boss_reward",
         check = g.settings.weekly_boss_reward,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Receive weekly boss reward automatically")
+    }, {
+        name = "cupole_portion",
+        check = g.settings.cupole_portion,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide the potion frame of the cupole")
+
     }}
 
     local x = 10
@@ -875,6 +896,7 @@ end
 function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
     local ctrlname = ctrl:GetName()
+    -- !
     local settingNames = {
         other_effect = "other_effect_checkbox",
         my_effect = "my_effect_checkbox",
@@ -903,7 +925,8 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         coin_count = "coin_count_checkbox",
         bgm = "bgm_checkbox",
         vakarine = "vakarine_checkbox",
-        weekly_boss_reward = "weekly_boss_reward_checkbox"
+        weekly_boss_reward = "weekly_boss_reward_checkbox",
+        cupole_portion = "cupole_portion_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
@@ -931,11 +954,14 @@ end
 
 function MINI_ADDONS_NEW_FRAME_INIT()
 
-    local newframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_new", 0, 0, 110, 50)
+    local newframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_new", 0, 0, 0, 0)
     AUTO_CAST(newframe)
     newframe:SetSkinName('None')
     newframe:Resize(30, 30)
-    newframe:SetPos(1580, 305)
+    local minimap_frame = ui.GetFrame("minimap")
+    local minimap_X, minimap_Y = minimap_frame:GetX(), minimap_frame:GetY()
+    print(minimap_X .. ":" .. minimap_Y)
+    newframe:SetPos(minimap_X + 5, minimap_Y + 230 + 5)
     newframe:SetTitleBarSkin("None")
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 25, 30)
     btn:SetSkinName("None")
@@ -950,7 +976,7 @@ function MINI_ADDONS_NEW_FRAME_INIT()
 
     g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
 end
-
+-- MINI_ADDONS_NEW_FRAME_INIT()
 function MINI_ADDONS_FRAME_CLOSE(frame)
     local frame = ui.GetFrame("mini_addons")
     frame:ShowWindow(0)
