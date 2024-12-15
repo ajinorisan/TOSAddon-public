@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+
+<uiframe name="dark_market" x="0" y="0" width="1080" height="720"> 
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="" CloseScp=""/>
+	<layer layerlevel="99"/>
+	<skin frameskin="None"/>
+	<draw drawframe="true" drawtitlebar="false" topmostlayerbyclick="true"/>
+    <input moveable="true" hittestframe="true" moveintitlebar="false" catchmovepos="true"/>
+    <sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+    <controls>
+    <!-- 관리탭 -->
+        <groupbox name="managerTab" rect="0 0 1080 720" margin="0 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin="test_frame_low"/>
+		<groupbox name="relicmanager_top" rect="0 0 1080 70" margin="0 0 0 0" layout_gravity="center top" draw="true" scrollbar="false" skin="TPshop_title" stretch="true" hittest="true"/>
+		<richtext name="title" parent="relicmanager_top" rect="0 0 800 50" margin="0 0 110 0" layout_gravity="center center" format="{@st43}{s24}블랙 마켓 - 여신의 증표(유라테)" drawbackground="false" fixwidth="true" 	fontname="white_18_ol" textalign="center center"/>
+
+			<groupbox name="processGbox" parent="managerTab" rect="0 0 1035 675" margin="-13 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin="relic_frame_bg"/>
+				<groupbox name="processinfo" parent="processGbox" rect="0 0 1035 675" margin="0 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin=""/>
+
+					<slot name="pic" parent="processinfo" margin="0 100 0 0" rect="0 0 200 200" hittest="true" skin="invenslot2" stretch="true" changecursor="false" layout_gravity="center top"/>
+					<picture name="icon_pic" parent="processinfo" rect="0 0 700 50" margin="0 325 0 0"  layout_gravity="center top" stretch="true" draw="true" hittest="false" scrollbar="false" image="adventure_info_title"/>
+					<richtext name="name" parent="processinfo" rect="0 0 700 50" margin="0 325 0 0" layout_gravity="center top" format="{@st43}{s24}%s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" 	fontname="white_18_ol"  textalign="center center" />
+
+					<richtext name="real" parent="processinfo" rect="0 0 300 50" margin="0 0 0 15" layout_gravity="center bottom" format="%s" param1="price" param1_def="1,000,000" drawbackground="false" fixwidth="true" 	fontname="white_18_ol"  textalign="center center"/>
+					<richtext name="bilion" parent="processinfo" rect="0 0 200 35" margin="130 0 0 60" layout_gravity="center bottom" caption="{@st43}{s24}M 주화" drawbackground="false" fixwidth="true" fontname="white_18_ol" 	 textalign="center center"/>
+
+					<button name="submit" parent="processinfo" rect="0 0 180 70" margin="0 0 75 35" layout_gravity="right bottom" LBtnUpScp="BLACK_MARKET_BID" skin="relic_btn_purple" format="{s24}%s" 	oversound="button_cursor_over_3" param1="value" param1_def="입찰" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" />
+					<richtext name="value" parent="processinfo" rect="0 0 500 50" margin="0 100 0 0" layout_gravity="center center" caption="{@st43}{s32}최고 입찰가" param1="value" param1_def="1000000" drawbackground="false" 	fixwidth="true" fontname="white_18_ol"  textalign="center center"/>
+					<groupbox name="division_arrow" parent="processinfo" rect="0 0 1080 50" margin="0 150 0 0" skin="test_arow" layout_gravity="center center"/>
+					<edit name="price" parent="processinfo" rect="0 0 170 40" margin="0 0 0 55" layout_gravity="center bottom" numbermode="true" minnumber="0" skin="test_weight_skin" caption="0" textalign="center center" fontname="white_18_ol" typingscp="BLACK_MARKET_PRICE_TYPING"/>
+					<richtext name="money" parent="processinfo" rect="0 0 300 50" margin="-50 170 0 0" layout_gravity="center center" format="{@st43}{s24}%s 주화" param1="value" param1_def="1000000" drawbackground="false" fixwidth="true" 	fontname="white_18_ol"  textalign="right center"/>
+					<button name="refresh_sell_button" parent="processinfo" rect="0 0 44 44" margin="125 170 0 0"  stretch="true" layout_gravity="center center" clicksound="button_click_big" oversound="button_over" image="button_view_info_big" 	hittest="true" LBtnUpScp="RESERVED_BLACK_MARKET_REQUEST_INFO" texttooltip="Refresh"/>
+
+					<richtext name="cashinhand" parent="processinfo" rect="0 0 270 90" margin="85 0 0 35" layout_gravity="left bottom" format="{@st43}{s24}보유 주화{nl}%s" param1="value" param1_def="1000000" drawbackground="false" fixwidth="true" 	fontname="white_18_ol"  textalign="center center"/>
+
+					<gauge name="remianTimeGauge" parent="processinfo" rect="0 0 1030 40" margin="0 62 0 0" layout_gravity="center center" drawlastpoint="true"  ratewidth="false" skin="black_market_gauge"  hittest="false" point="50"/>
+					<richtext name="remianTime" parent="processinfo" rect="0 0 1030 40" margin="0 62 0 0" layout_gravity="center center" format="{@st43}{s18}남은 시간 : %s" param1="value" param1_def="1000000" drawbackground="false" fixwidth="true" 	fontname="white_18_ol"  textalign="center center"/>
+
+				<richtext name="noinfo" parent="processGbox" rect="0 0 500 70" margin="0 0 0 0" layout_gravity="center center" caption="{@st43}{s40}진행중인 경매 정보 없음" drawbackground="false" fixwidth="true" 	fontname="white_18_ol" textalign="center center"/>
+
+			<button name="close" rect="0 0 44 44" margin="0 15 10 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="CLOSE_DARK_MARKET" oversound="button_over" MouseOffAnim="btn_mouseoff" 	MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button"/>
+
+			<groupbox name="scheduleGbox" parent="managerTab" rect="0 0 1035 675" margin="-13 0 0 0" layout_gravity="center center" draw="true"  scrollbar="true" skin="relic_frame_bg"/>
+
+			<groupbox name="myMarketGbox" parent="managerTab" rect="0 0 1035 675" margin="-13 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin="relic_frame_bg"/>
+				<groupbox name="myinfo" parent="myMarketGbox" rect="0 0 1035 675" margin="0 0 0 0" layout_gravity="center center" draw="true" scrollbar="false" skin=""/>
+					<slot name="pic" parent="myinfo" margin="0 100 0 0" rect="0 0 200 200" hittest="true" skin="invenslot2" stretch="true" changecursor="false" layout_gravity="center top"/>
+					<picture name="icon_pic" parent="myinfo" rect="0 0 700 50" margin="0 325 0 0"  layout_gravity="center top" stretch="true" draw="true" hittest="false"  scrollbar="false" image="adventure_info_title"/>
+					<richtext name="name" parent="myinfo" rect="0 0 700 50" margin="0 325 0 0" layout_gravity="center top" format="{@st43}{s24}%s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" textalign="center center" />
+
+					<richtext name="money" parent="myinfo" rect="0 0 500 70" margin="-200 170 0 0" layout_gravity="center center" format="{@st43}{s24}현재 최고가{nl}%s" param1="value" param1_def="1000000" drawbackground="false" fixwidth="true" 	fontname="white_18_ol" textalign="center center"/>
+					<richtext name="myprice" parent="myinfo" rect="0 0 500 70" margin="200 170 0 0" layout_gravity="center center" format="{@st43}{s24}나의 입찰가{nl}%s" param1="value" param1_def="1000000" drawbackground="false" fixwidth="true" 	fontname="white_18_ol"  textalign="center center"/>
+
+				<richtext name="noinfo" parent="myMarketGbox" rect="0 0 500 70" margin="0 0 0 0" layout_gravity="center center" caption="{@st43}{s40}입찰 정보 없음" drawbackground="false" fixwidth="true" 	fontname="white_18_ol"  textalign="center center"/>
+
+			<tab name="markettab" parent="managerTab" rect="0 0 1080 100" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" LBtnDownScp="BLACK_MARKET_TAB_CHANGE" fixwidth="true" itemspc="0" oversound="button_cursor_over_2" skin="tab3" margin="20 68 0 0"/>
+			<tabitem name="Itembox2" parent="markettab" caption="{@st66b}진행중인 경매{/}" width="345" layout_gravity="left top"/>
+			<tabitem name="Itembox1" parent="markettab" caption="{@st66b}경매 일정{/}" width="345" layout_gravity="left top" />
+			<tabitem name="Itembox3" parent="markettab" caption="{@st66b}나의 경매 현황{/}" width="345" layout_gravity="left top"/>
+
+    </controls>
+</uiframe>

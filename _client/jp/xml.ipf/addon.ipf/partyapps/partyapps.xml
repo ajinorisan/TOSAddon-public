@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="partyapps" x="0" y="10" width="44" height="290">
+	<frame fasthide="true" layout_gravity="right bottom" margin="0 0 205 55" scale_align="center bottom"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<skin frameskin="systemmenu_vertical"/>
+	<input moveable="false" hittestframe="true"/>
+	<layer layerlevel="99"/>
+	<option closebutton="false"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end"/>
+	<controls>
+		<button name="PARTY_SEARCH" layout_gravity="center bottom" texttooltip="{@st59}파티 찾기 게시판{/}" clicksound="button_click_big" oversound="button_over" image="ps_hud_searchBtn" rect="0 0 44 44" margin="0 0 0 50" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="ui.ToggleFrame(&apos;party_search_board&apos;)"/>
+		<button name="PARTY_INFO" layout_gravity="center bottom" texttooltip="{@st59}파티 정보 (F6){/}" clicksound="button_click_big" oversound="button_over" image="ps_hud_partyBtn" rect="0 0 44 44" margin="0 0 0 5" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="ui.ToggleFrame(&apos;party&apos;)"/>
+	</controls>
+</uiframe>

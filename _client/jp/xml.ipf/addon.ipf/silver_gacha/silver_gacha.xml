@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="silver_gacha" x="0" y="0" width="1270" height="960">
+	<frame draw="true" fasthide="true" layout_gravity="center center"/>
+	<skin frameskin="none"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<input moveable="true" hittestframe="true"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<layer layerlevel="92"/>
+	<script OpenScp="SILVER_GACHA_OPEN" CloseScp="SILVER_GACHA_CLOSE"/>
+	<userconfig RESULT_EFFECT="I_screen_bosscard_frame06" RESULT_EFFECT_SCALE="5" RESULT_EFFECT_DURATION="0.5" SPINE="lagana" DEDICATION_BUTTON_EFFECT="UI_screen_CircleButton" DEDICATION_BUTTON_EFFECT_SCALE="7" DEDICATION_BUTTON_EFFECT_DURATION="2" POINT_RESULT_EFFECT_SCALE="4" SLOT_IMAGE_RANK1="protection_legend" SLOT_IMAGE_RANK2="protection_unique" SLOT_IMAGE_RANK3="protection_magic" BACKGROUND_IMAGE="protection_pattern"/>
+	<controls>
+		<!-- title -->
+		<groupbox name="main_frame" rect="0 0 1270 890" margin="0 58 0 0" layout_gravity="center top" skin="test_frame_low" hittest="false"/>
+		<groupbox name="title_frame" rect="0 0 1265 49" margin="0 58 0 0" layout_gravity="center top" skin="protection_frame" hittest="false"/>
+		<picture name="title_pic" rect="0 0 580 160" margin="0 0 0 0" layout_gravity="center top" image="lure_of_a_demon_title" hittest="false"/>
+		<richtext name="title_text" rect="0 0 470 130" margin="0 60 0 0" layout_gravity="center top" caption="{@st43}{s22}마신의 유혹" hittest="false"/>
+		<button name="closeBtn" rect="0 0 35 35" margin="0 65 7 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('silver_gacha')" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true"/>
+		<!-- time -->
+		<groupbox name="time_gb" rect="0 0 290 42" margin="0 135 0 0" layout_gravity="center top" skin="protection_stopwatch" hittest="false"/>
+		<richtext name="time" parent="time_gb" rect="0 0 290 42" margin="0 0 0 0" layout_gravity="center center" format="{@st41b}{s16}%s월 %s일 ~ %s월 %s일" param1="month1" param1_def="1" param2="day1" param2_def="1" param3="month2" param3_def="1" param4="day2" param4_def="1"/>
+		<!-- dedication -->
+		<spinepic name="spinepic" rect="0 0 661 800" margin="299 140 0 0" layout_gravity="center top" updateparent="true" animation="animation" scale="0.9" stretch="true" offsetX="0" offsetY="30"/>
+		<picture name="dedication_slot_pic" rect="0 0 120 120" margin="170 560 0 0" image="protection_prize" layout_gravity="center top" stretch="true" draw="true"/>
+		<slot name="dedication_slot" parent="dedication_slot_pic" rect="0 0 71 71" margin="0 3 0 0" layout_gravity="center center" enabledrop="false" enablepop="false" enabledrag="false" draw="true"/>
+		<groupbox name="dedication_bg" rect="0 0 250 115" margin="170 700 0 0" skin="protection_lottery_notice" layout_gravity="center top" hittest="true" scroll="false"/>
+		<groupbox name="dedication_gb" parent="dedication_bg" rect="0 0 210 41" margin="0 12 0 0" layout_gravity="center top" hittest="false" scroll="false" draw="false"/>
+		<richtext name="dedication_text" parent="dedication_gb" rect="0 0 40 41" margin="15 0 0 0" layout_gravity="left center" caption="{@st41b}{s16}1회"/>
+		<picture name="dedication_pic" parent="dedication_gb" rect="0 0 21 21" margin="-30 -2 0 0" layout_gravity="center center" image="silver_pic" hittest="false" stretch="true"/>
+		<richtext name="dedication_silver" parent="dedication_gb" rect="0 0 100 41" margin="0 0 5 0" layout_gravity="right center" format="{@st41b}{s16} %s" param1="value" param1_def="50000"/>
+		<groupbox name="dedication_btn_gb" rect="0 0 300 100" margin="170 820 0 0" layout_gravity="center top" scroll="false" draw="false"/>
+		<button name="dedication_btn" parent="dedication_btn_gb" rect="0 0 160 60" margin="0 10 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}헌납" LBtnUpScp="SILVER_GACHA_CLICK" oversound="button_cursor_over_3" clicksound="button_click_big"/>
+		<button name="dedication_okbtn" parent="dedication_btn_gb" rect="0 0 160 60" margin="0 10 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}확인" LBtnUpScp="SILVER_GACHA_INIT" oversound="button_cursor_over_3" clicksound="button_click_big"/>
+		<groupbox name="once_gb" parent="dedication_bg" rect="0 0 210 40" margin="0 60 0 0" layout_gravity="center top" hittest="true" scroll="false" draw="false"/>
+		<richtext name="once_text" parent="once_gb" rect="0 0 40 41" margin="15 7 0 0" layout_gravity="left top" caption="{@st41b}{s16}배수"/>
+		<groupbox name="once_count_gb" parent="once_gb" rect="0 0 225 40" margin="0 0 0 0" layout_gravity="right top" draw="true" hittestbox="true" skin="None" scroll="false"/>
+		<edit name="once_count_edit" parent="once_count_gb" rect="0 0 60 32" margin="0 0 0 0" layout_gravity="right top" textalign="center center" fontname="white_18_ol" numbermode="true" skin="test_weight_skin" OffsetForDraw="0 -1" minnumber="1" maxnumber="5" typingscp="SILVER_GACHA_ONCE_COUNT_TYPING"/>
+		<button name="once_count_upBtn" parent="once_count_gb" stretch="true" rect="0 0 60 60" margin="75 1 0 0" layout_gravity="left top" image="test_up_w_btn" oversound="button_over" LBtnUpScp="SILVER_GACHA_ONCE_COUNT_UPBTN_CLICK"/>
+		<button name="once_count_downBtn" parent="once_count_gb" stretch="true" rect="0 0 60 60" margin="75 16 0 0" layout_gravity="left top" image="test_down_w_btn" oversound="button_over" LBtnUpScp="SILVER_GACHA_ONCE_COUNT_DOWNBTN_CLICK"/>
+		<!-- 연속 봉헌 -->
+		<groupbox name="auto_gb" rect="0 0 300 300" margin="450 640 0 0" layout_gravity="center top" hittest="true" scroll="false" draw="false"/>
+		<edit name="auto_edit" parent="auto_gb" rect="0 0 280 45" margin="0 70 0 0" layout_gravity="center top" fontname="white_18_ol" textalign="center center" OffsetForDraw="0 -1" numbermode="true" typingsound="chat_typing" maxnumber="99999999" LBtnDownScp="SILVER_GACHA_AUTO_EDIT_CLICK"/>
+		<richtext name="auto_text" parent="auto_gb" rect="0 0 300 40" margin="0 82 0 0" layout_gravity="center top" caption="{@st41b}{s16}헌납할 횟수를 입력해 주세요" hittest="false"/>
+		<button name="auto_btn" parent="auto_gb" rect="0 0 160 60" margin="0 130 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}연속 헌납" oversound="button_cursor_over_3" clicksound="button_click_big" LBtnUpScp="SILVER_GACHA_AUTO_START_BTN_CLICK"/>
+		<button name="auto_okbtn" parent="auto_gb" rect="0 0 160 60" margin="0 190 0 0" image="login_test_button" layout_gravity="center top" stretch="false" caption="{@st43}{s24}중단" oversound="button_cursor_over_3" clicksound="button_click_big" LBtnUpScp="SILVER_GACHA_AUTO_STOP_BTN_CLICK"/>
+		<!-- protection_in -->
+		<groupbox name="protection_gb" rect="0 0 575 730" margin="-320 195 0 0" layout_gravity="center top" skin="protection_in_background" scroll="false"/>
+		<!-- description -->
+		<groupbox name="desc_text_gb" rect="0 0 600 150" margin="0 200 30 0" layout_gravity="right top" skin="" hittest="false"/>
+		<richtext name="desc_text" parent="desc_text_gb" rect="0 0 600 100" margin="0 0 0 0" layout_gravity="right top" caption="{@st66b}{s18}* 마신의 유혹은 실버로 이용하는 확률형 콘텐츠입니다.{nl}* 회당 5만 실버가 소모되며, 확률에 따라 월별 신규 코스튬이나{nl}    마신의 유혹 포인트를 획득할 수 있습니다." hittest="false" maxwidth="600"/>
+	</controls>
+</uiframe>

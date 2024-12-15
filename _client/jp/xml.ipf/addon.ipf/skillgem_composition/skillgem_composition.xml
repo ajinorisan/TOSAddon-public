@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="skillgem_composition" x="0" y="0" width="500" height="1160" create="open">
+	<draw drawtitlebar="false"/>
+	<skin frameskin="None"/>
+	<frame fullheight="true" fasthide="true" layout_gravity="left top" open="pip" margin="-470 0 0 0"/>
+	<layer layerlevel="80"/>
+	<option closebutton="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<script OpenScp="SKILLGEM_COMPOSITION_OPEN_SCP"/>
+	<userconfig COMPOSITON_SLOT_EFFECT="UI_item_parts_violet" RESULT_EFFECT="UI_item_parts2_success"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 500 1030" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="true" skin="test_frame_low"/>
+		<groupbox name="bg_inner" parent="bg" rect="0 0 424 254" margin="0 305 0 0" layout_gravity="center center" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_midle"/>
+		<groupbox name="pipwin_top" rect="0 0 500 60" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_top"/>
+		<richtext name="title" rect="0 0 120 24" margin="0 17 0 0" layout_gravity="center top" drawbackground="false" fixwidth="false" fontname="white_16_ol" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st43}%s" param1="value" param1_def="스킬 젬 합성"/>
+		<button name="close" rect="0 0 44 44" margin="0 20 28 0" layout_gravity="right top" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" LBtnUpScp="SKILLGEM_COMPOSITION_CLOSE"/>
+		<picture name="question" rect="0 0 44 44" margin="28 20 0 0" layout_gravity="left top" hittesr="true" image="testquesten_button" oversound="button_over" texttooltip="{@st59b}스킬 젬 합성{nl} {nl}{@st59s} - 종류에 상관없이 스킬 젬 5개를 소모하여 전체 스킬 젬 중 스킬 젬 1개를 균등 확률로 획득할 수 있습니다.{nl} - 재료로 투입한 스킬 젬의 클래스 계열에 따라 획득할 스킬 젬의 계열 별 확률이 결정됩니다.{nl} - 합성 완료 후 추가적으로 스킬 젬 파편을 1개 획득합니다.{nl} - 스킬 젬 파편을 10개 모아서 사용하면 스킬 젬 선택 상자를 1개 획득합니다."/>
+		<!-- slot -->
+		<richtext name="text_input" rect="0 0 400 30" margin="0 90 0 0" layout_gravity="center top" format="{@st43}{s20}%s" param1="value" param1_def="합성할 아이템을 올려주세요" fontname="white_16_b_ol"/>
+		<slot name="slot_1" rect="0 0 100 100" margin="20 140 0 0" layout_gravity="left top" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpArgNum="1" RBtnUpScp="SKILLGEM_COMPOSITION_ITEM_POP" DropScp="SKILLGEM_COMPOSITION_ITEM_DROP"/>
+		<richtext name="slot_1_name" rect="0 0 400 30" margin="130 175 0 0" layout_gravity="left top" format="%s" param1="value" fontname="brown_20_b"/>
+		<slot name="slot_2" rect="0 0 100 100" margin="20 250 0 0" layout_gravity="left top" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpArgNum="2" RBtnUpScp="SKILLGEM_COMPOSITION_ITEM_POP" DropScp="SKILLGEM_COMPOSITION_ITEM_DROP"/>
+		<richtext name="slot_2_name" rect="0 0 400 30" margin="130 285 0 0" layout_gravity="left top" format="%s" param1="value" fontname="brown_20_b"/>
+		<slot name="slot_3" rect="0 0 100 100" margin="20 360 0 0" layout_gravity="left top" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpArgNum="3" RBtnUpScp="SKILLGEM_COMPOSITION_ITEM_POP" DropScp="SKILLGEM_COMPOSITION_ITEM_DROP"/>
+		<richtext name="slot_3_name" rect="0 0 400 30" margin="130 395 0 0" layout_gravity="left top" format="%s" param1="value" fontname="brown_20_b"/>
+		<slot name="slot_4" rect="0 0 100 100" margin="20 470 0 0" layout_gravity="left top" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpArgNum="4" RBtnUpScp="SKILLGEM_COMPOSITION_ITEM_POP" DropScp="SKILLGEM_COMPOSITION_ITEM_DROP"/>
+		<richtext name="slot_4_name" rect="0 0 400 30" margin="130 505 0 0" layout_gravity="left top" format="%s" param1="value" fontname="brown_20_b"/>
+		<slot name="slot_5" rect="0 0 100 100" margin="20 580 0 0" layout_gravity="left top" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" skin="invenslot2" RBtnUpArgNum="5" RBtnUpScp="SKILLGEM_COMPOSITION_ITEM_POP" DropScp="SKILLGEM_COMPOSITION_ITEM_DROP"/>
+		<richtext name="slot_5_name" rect="0 0 400 30" margin="130 615 0 0" layout_gravity="left top" format="%s" param1="value" fontname="brown_20_b"/>
+		<!-- result -->
+		<groupbox name="reinfResultBox" rect="0 0 500 700" margin="0 140 0 0" layout_gravity="center top" draw="false" resizebyresolution="true" resizebyparent="true"/>
+		<picture name="successBgBox" parent="reinfResultBox" rect="0 0 507 500" margin="0 60 0 0" layout_gravity="center top" hittest="true" image="SUCCESS_gold_bg"/>
+		<picture name="successPic" parent="successBgBox" rect="0 0 401 150" margin="0 240 0 0" hittest="false" image="BnYellow_skin" stretch="true" layout_gravity="center top"/>
+		<slot name="successItem" parent="successBgBox" rect="0 0 140 140" margin="0 100 0 0" layout_gravity="center top" hittest="true"/>
+		<picture name="successTextPic" parent="successBgBox" rect="0 0 330 133" margin="0 240 0 0" hittest="false" image="card_reinforce_SUCCESS" stretch="true" layout_gravity="center top"/>
+		<richtext name="result_preview_text" rect="0 0 400 30" margin="0 705 0 0" layout_gravity="center top" format="{@st42}{s19}%s" param1="value" param1_def="예상 결과" fontname="white_16_b_ol"/>
+		<button name="doBtn" rect="0 0 180 50" margin="0 0 0 70" layout_gravity="center bottom" skin="test_red_button" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="합성" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnUpScp="SKILLGEM_COMPOSITION_BTN_CLICK"/>
+		<button name="resetBtn" rect="0 0 180 50" margin="0 0 0 70" layout_gravity="center bottom" skin="test_red_button" caption="{@st42}확인" LBtnUpScp="SKILLGEM_COMPOSITION_UI_RESET"/>
+	</controls>
+</uiframe>

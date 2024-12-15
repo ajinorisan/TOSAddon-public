@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="minimized_popoboost_2023" x="0" y="0" width="80" height="80">
+	<frame fullheight="false" fasthide="false" scale_align="center center" layout_gravity="right top" margin="0 292 430 0"/>
+	<layer layerlevel="40"/>
+	<draw blend="100" drawtitlebar="false" drawframe="false"/>
+	<option visible="true" closebutton="false" useimageitem="true" piptype="right" autoopen="true" hideable="false"/>
+	<controls>
+		<button name="openPoPoBoost" rect="0 0 100 60" margin="0 0 0 0" layout_gravity="center center" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" stretch="true" clicksound="button_click_3" oversound="button_cursor_over_2" image="popoboost_minimized_button" LBtnDownScp="MINIMIZED_POPOBOOST_BUTTON_CLICK" texttooltip="{@st59}포포 부스트{/}"/>
+		<groupbox name="notice_bg" rect="0 0 20 20" margin="0 0 0 0" layout_gravity="right top" hittest="false" skin="digitnotice_bg"/>
+	</controls>
+</uiframe>

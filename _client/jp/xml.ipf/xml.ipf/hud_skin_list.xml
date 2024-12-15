@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by tachyon (EMBRACE) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<List>
+	<SkinList ClassName="HeadsupDisplay" FrameName="headsupdisplay">
+		<Controls>
+			<myclasspic1 control_type="picture">
+				<skin_name default="myhpspleft" normal="weekboss_normal_hud_L" magic="weekboss_magic_hud_L" unique="weekboss_unique_hud_L" legend="weekboss_legend_hud_L" goddess="weekboss_goddess_hud_L"/>
+				<rp_skin_name default="hud_min_relic_left" normal="weekboss_normal_hud_L2" magic="weekboss_magic_hud_L2" unique="weekboss_unique_hud_L2" legend="weekboss_legend_hud_L2" goddess="weekboss_goddess_hud_L2"/>
+			</myclasspic1>
+			<myhpspright control_type="picture">
+				<skin_name default="myhpspright" normal="weekboss_normal_hud_R" magic="weekboss_magic_hud_R" unique="weekboss_unique_hud_R" legend="weekboss_legend_hud_R" goddess="weekboss_goddess_hud_R"/>
+				<rp_skin_name default="hud_min_relic_right" normal="weekboss_normal_hud_R2" magic="weekboss_magic_hud_R2" unique="weekboss_unique_hud_R2" legend="weekboss_legend_hud_R2" goddess="weekboss_goddess_hud_R2"/>
+			</myhpspright>
+			<hp control_type="gauge">
+				<skin_name default="hud_HP_min" normal="weekboss_normal_hud_HP" magic="weekboss_magic_hud_HP" unique="weekboss_unique_hud_HP" legend="weekboss_legend_hud_HP" goddess="weekboss_goddess_hud_HP"/>
+			</hp>
+			<hp_relic control_type="gauge">
+				<skin_name default="hud_HP_min_relic" normal="weekboss_normal_hud_HP2" magic="weekboss_magic_hud_HP2" unique="weekboss_unique_hud_HP2" legend="weekboss_legend_hud_HP2" goddess="weekboss_goddess_hud_HP2"/>
+			</hp_relic>
+			<sp control_type="gauge">
+				<skin_name default="hud_SP_min" normal="weekboss_normal_hud_SP" magic="weekboss_magic_hud_SP" unique="weekboss_unique_hud_SP" legend="weekboss_legend_hud_SP" goddess="weekboss_goddess_hud_SP"/>
+			</sp>
+			<sp_relic control_type="gauge">
+				<skin_name default="hud_SP_min_relic" normal="weekboss_normal_hud_SP2" magic="weekboss_magic_hud_SP2" unique="weekboss_unique_hud_SP2" legend="weekboss_legend_hud_SP2" goddess="weekboss_goddess_hud_SP2"/>
+			</sp_relic>
+			<sta1 control_type="gauge">
+				<skin_name default="hud_STA_min" normal="weekboss_normal_hud_STA" magic="weekboss_magic_hud_STA" unique="weekboss_unique_hud_STA" legend="weekboss_legend_hud_STA" goddess="weekboss_goddess_hud_STA"/>
+			</sta1>
+			<sta1_relic control_type="gauge">
+				<skin_name default="hud_STA_min_relic" normal="weekboss_normal_hud_STA2" magic="weekboss_magic_hud_STA2" unique="weekboss_unique_hud_STA2" legend="weekboss_legend_hud_STA2" goddess="weekboss_goddess_hud_STA2"/>
+			</sta1_relic>
+			<rp control_type="gauge">
+				<skin_name default="hud_RP_min_relic" normal="weekboss_normal_hud_R2" magic="weekboss_magic_hud_R2" unique="weekboss_unique_hud_R2" legend="weekboss_legend_hud_R2" goddess="weekboss_goddess_hud_R2"/>
+			</rp>
+		</Controls>
+	</SkinList>
+	<SkinList ClassName="CharbaseInfo" FrameName="charbaseinfo1/charbaseinfo1_my">
+		<Controls>
+			<pcHpGauge control_type="gauge">
+				<skin_name default="pcinfo_gauge_hp2" normal="normal_pcinfo_gauge_hp_relic" magic="magic_pcinfo_gauge_hp_relic" unique="unique_pcinfo_gauge_hp_relic" legend="legend_pcinfo_gauge_hp_relic" goddess="goddess_pcinfo_gauge_hp_relic"/>
+			</pcHpGauge>
+			<pcSpGauge control_type="gauge">
+				<skin_name default="pcinfo_gauge_sp2" normal="normal_pcinfo_gauge_sp_relic" magic="magic_pcinfo_gauge_sp_relic" unique="unique_pcinfo_gauge_sp_relic" legend="legend_pcinfo_gauge_sp_relic" goddess="goddess_pcinfo_gauge_sp_relic"/>
+			</pcSpGauge>
+			<pcinfo_bg_L control_type="picture">
+				<skin_name default="pcinfo3_bg_L" normal="normal_pcinfo_gauge_relic_L" magic="magic_pcinfo_gauge_relic_L" unique="unique_pcinfo_gauge_relic_L" legend="legend_pcinfo_gauge_relic_L" goddess="goddess_pcinfo_gauge_relic_L"/>
+				<rp_skin_name default="pcinfo3_bg_L" normal="normal_pcinfo_gauge_relic_L" magic="magic_pcinfo_gauge_relic_L" unique="unique_pcinfo_gauge_relic_L" legend="legend_pcinfo_gauge_relic_L" goddess="goddess_pcinfo_gauge_relic_L"/>
+			</pcinfo_bg_L>
+			<pcinfo_bg_R control_type="picture">
+				<skin_name default="pcinfo3_bg_R" normal="normal_pcinfo_gauge_relic_R" magic="magic_pcinfo_gauge_relic_R" unique="unique_pcinfo_gauge_relic_R" legend="legend_pcinfo_gauge_relic_R" goddess="goddess_pcinfo_gauge_relic_R"/>
+				<rp_skin_name default="pcinfo3_bg_R" normal="normal_pcinfo_gauge_relic_R" magic="magic_pcinfo_gauge_relic_R" unique="unique_pcinfo_gauge_relic_R" legend="legend_pcinfo_gauge_relic_R" goddess="goddess_pcinfo_gauge_relic_R"/>
+			</pcinfo_bg_R>
+		</Controls>
+	</SkinList>
+	<SkinList ClassName="PartyInfo" FrameName="party/partyinfo">
+		<Controls>
+			<jobportrait_bg control_type="picture">
+				<skin_name default="None" normal="weekboss_party_normal" magic="weekboss_party_magic" unique="weekboss_party_unique" legend="weekboss_party_legend" goddess="weekboss_party_goddess"/>
+			</jobportrait_bg>
+		</Controls>
+	</SkinList>
+</List>

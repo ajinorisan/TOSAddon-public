@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP14_1_FCASTLE2_MQ_1_MGAME" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="1115229953">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59695" Pos="1884.65#1.22#518.48" angle="69" genCount="1" maxStackCount="1" genTime="3000" genReadyTime="3000" objectKey="0" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59695" Pos="1944.08#1.22#504.53" angle="69" genCount="1" maxStackCount="1" genTime="3000" genReadyTime="3000" objectKey="1" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59695" Pos="2001.20#1.22#491.19" angle="69" genCount="1" maxStackCount="1" genTime="3000" genReadyTime="3000" objectKey="2" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59695" Pos="1900.84#1.22#562.79" angle="69" genCount="1" maxStackCount="1" genTime="3000" genReadyTime="3000" objectKey="3" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59695" Pos="1967.11#1.22#554.77" angle="69" genCount="1" maxStackCount="1" genTime="3000" genReadyTime="3000" objectKey="4" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59696" Pos="1909.11#1.22#467.64" angle="69" genCount="1" maxStackCount="1" genTime="3000" genReadyTime="3000" objectKey="5" searchRange="1000" tendency="1"/>
+                    <Obj Type="Monster" MonType="59696" Pos="1972.44#1.22#460.26" angle="69" genCount="1" maxStackCount="1" genTime="1000" genReadyTime="5000" objectKey="6" searchRange="1000" tendency="1"/>
+                </ObjList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

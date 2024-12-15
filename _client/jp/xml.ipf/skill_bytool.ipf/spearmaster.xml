@@ -1,0 +1,1211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<ToolSkill>
+	<Skill Name="SpearMaster_SwiftMove">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="SCR_REMOVE_MOVEMENT_DEBUFF"/>
+				</Scp>
+				<Scp Scp="SKL_TGT_MOVE" Client="NO" UseSleep="YES" Time="0">
+					<Num Num="0"/>
+					<Num Num="150"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+					<Num Num="0.1"/>
+					<Num Num="1"/>
+					<Num Num="0.15000001"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="skl_eff_sog_swiftwalk"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="voice_war_atk_short"/>
+					<Str Str="voice_atk_short_war_f"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="75">
+					<Str Str="SKL_SWIFTWALK"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_SELECT_ACTIVE_ABIL" Client="NO" UseSleep="NO">
+						<Str Str="SpearMaster12"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+							<Str Str="SCR_REMOVE_MOVEMENT_DEBUFF"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="skl_eff_sog_swiftwalk"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="voice_war_atk_short"/>
+							<Str Str="voice_atk_short_war_f"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="200">
+							<Str Str="SKL_SWIFTWALK"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SETPOS" Client="NO" UseSleep="NO" Time="550">
+							<Pos Angle="0" Dist="150"/>
+							<Str_Arg Str="None" Arg="1"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="SpearMaster_Hierophany">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+			</HitList>
+			<EtcList>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+					<Str Str="voice_war_atk_short"/>
+					<Str Str="voice_atk_short_war_f"/>
+				</Scp>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="skl_eff_sog_hierophany"/>
+				</Scp>
+				<Scp Client="NO" Scp="SKL_BUFF_SAME_TARGET_DEBUFF" Time="0" UseSleep="NO">
+					<Str Str="Hierophany_Slash_Buff"/>
+					<Num FuncTxt="return obj.Level" Num="0" UseFunc="1"/>
+					<Num Num="0"/>
+					<Num Num="12000" UseFunc="1" FuncTxt="return SCR_GET_Hierophany_Time(obj) * 1000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0" UseFunc="1" FuncTxt="local abil = GetAbility(self, &quot;SpearMaster19&quot;)
+                    if abil ~= nil and TryGetProp(abil, &quot;ActiveState&quot;, 0) == 1 then
+                        return 1
+                    end
+                    return 0"/>
+					<Str Str="Hierophany_Debuff"/>
+					<Num FuncTxt="return obj.Level" Num="0" UseFunc="1"/>
+					<Num Num="0"/>
+					<Num Num="40000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="SpearMaster_StanceChange">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="skl_eff_luchador_luchadesilla_whoosh"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="2"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+							<Str Str="SCR_SPEARMASTER_STANCE_CHANGE"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="skl_eff_sog_stancechange_f"/>
+						</Scp>
+						<Scp Scp="SKL_BUFF_SAME_TARGET_DEBUFF" Client="NO" UseSleep="NO" Time="600">
+							<Str Str="StanceChangeImmune_Buff" UseFunc="1" FuncTxt="local name = &quot;None&quot;
+                            local abil = GetAbility(self,  &quot;SpearMaster13&quot;)
+                            if abil ~= nil and TryGetProp(abil, &quot;ActiveState&quot;, 0) == 1 then
+                                local prev_time = GetExProp(self, &quot;COOLDOWN_SpearMaster13&quot;)
+                                local cur_time = imcTime.GetAppTime()
+                                if cur_time - prev_time >= 35 then
+                                    name = &quot;StanceChangeImmune_Buff&quot;
+                                end
+                            end
+                            return name"/>
+							<Num Num="0" UseFunc="1" FuncTxt="return obj.Level"/>
+							<Num Num="0"/>
+							<Num Num="2000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+							<Num Num="0"/>
+							<Str Str="StanceChangeImmune_DeBuff"/>
+							<Num Num="0" UseFunc="1" FuncTxt="return obj.Level;"/>
+							<Num Num="0"/>
+							<Num Num="35000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+							<Str Str="SCR_SPEARMASTER_STANCE_CHANGE"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="skl_eff_sog_stancechange_s"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_BUFF_SAME_TARGET_DEBUFF" Time="600" UseSleep="NO">
+							<Str Str="StanceChangeImmune_Buff" UseFunc="1" FuncTxt="local name = &quot;None&quot;
+                            local abil = GetAbility(self,  &quot;SpearMaster13&quot;)
+                            if abil ~= nil and TryGetProp(abil, &quot;ActiveState&quot;, 0) == 1 then
+                                local prev_time = GetExProp(self, &quot;COOLDOWN_SpearMaster13&quot;)
+                                local cur_time = imcTime.GetAppTime()
+                                if cur_time - prev_time >= 35 then
+                                    name = &quot;StanceChangeImmune_Buff&quot;
+                                end
+                            end
+                            return name"/>
+							<Num FuncTxt="return obj.Level" Num="0" UseFunc="1"/>
+							<Num Num="0"/>
+							<Num Num="2000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+							<Num Num="0"/>
+							<Str Str="StanceChangeImmune_DeBuff"/>
+							<Num FuncTxt="return obj.Level;" Num="0" UseFunc="1"/>
+							<Num Num="0"/>
+							<Num Num="35000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="SpearMaster_WildTigerSpear">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="2"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="0" UseSleep="NO">
+							<Str Str="SKL_WILDTIGER_S"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="100">
+							<Str Str="skl_eff_sog_wildtiger_s"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="300" UseSleep="NO">
+							<Str Str="voice_war_atk_short"/>
+							<Str Str="voice_atk_medium_war_f"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="750">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_WildTigerSpear_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="750">
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1050">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_WildTigerSpear_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1050">
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_BUFF" Time="1050" UseSleep="NO">
+							<Str Str="None" UseFunc="1" FuncTxt="local name = &quot;None&quot;
+							local abil = GetAbility(self, &quot;SpearMaster6&quot;)
+							if abil ~= nil and TryGetProp(abil, &quot;ActiveState&quot;, 0) == 1 then
+								name = &quot;WildTiger_Slash_Debuff&quot;
+							end
+							return name"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="10000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_STOP_ANIM" Client="YES" UseSleep="NO" Time="1200"/>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+							<Str Str="voice_war_atk_short"/>
+							<Str Str="voice_atk_short_war_f"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="skl_eff_sog_wildtiger_f"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="SKL_WILDTIGER_F"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="200">
+							<Str Str="skl_eff_sog_wildtiger_f"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="500">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="80"/>
+							<Num Num="25"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_WildTigerSpear_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="500" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_BUFF" Time="500" UseSleep="NO">
+							<Str Str="WildTiger_Aries_Debuff" UseFunc="1" FuncTxt="local name = &quot;WildTiger_Aries_Debuff&quot;
+							local abil = GetAbility(self, &quot;SpearMaster5&quot;)
+							if abil ~= nil and TryGetProp(abil, &quot;ActiveState&quot;, 0) == 1 then
+								name = &quot;None&quot;
+							end
+							return name"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="5000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="SpearMaster_RushSpear">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="2"/>
+					</ToolScp>
+					<ToolScp Scp="SKL_SELECT_ACTIVE_ABIL" Client="NO" UseSleep="NO">
+						<Str Str="SpearMaster8"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="SKL_RUSHSPEAR_S"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_MOVE" Client="NO" UseSleep="YES" Time="0">
+							<Num Num="0"/>
+							<Num Num="60"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0.32"/>
+							<Num Num="1"/>
+							<Num Num="0.75"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="100">
+							<Str Str="skl_eff_sog_rushspear_s"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+							<Str Str="voice_war_atk_medium"/>
+							<Str Str="voice_atk_medium_war_f"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="600">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_RushSpear_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="600">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="900">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_RushSpear_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="900">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1200">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_RushSpear_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1200">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="2"/>
+					</ToolScp>
+					<ToolScp Scp="SKL_SELECT_UNACTIVE_ABIL" Client="NO" UseSleep="NO">
+						<Str Str="SpearMaster8"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="SKL_RUSHSPEAR_S"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_MOVE" Client="NO" UseSleep="YES" Time="0">
+							<Num Num="0"/>
+							<Num Num="60"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0.32"/>
+							<Num Num="1"/>
+							<Num Num="0.75"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="100">
+							<Str Str="skl_eff_sog_rushspear_s"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="300">
+							<Str Str="voice_war_atk_medium"/>
+							<Str Str="voice_atk_medium_war_f"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="600">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_RushSpear_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="600">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1200">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_RushSpear_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1200">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="0" UseSleep="NO">
+							<Str Str="SKL_RUSHSPEAR_F"/>
+							<Num Num="1.5"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="skl_eff_sog_rushspear_f"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+							<Str Str="voice_war_atk_short"/>
+							<Str Str="voice_atk_short_war_f"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_MOVE" Client="NO" UseSleep="YES" Time="500">
+							<Num Num="0"/>
+							<Num Num="120"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0.1"/>
+							<Num Num="1"/>
+							<Num Num="0.15000001"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="550">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="150"/>
+							<Num Num="30"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_RushSpear_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="550">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_BUFF" Time="550" UseSleep="NO">
+							<Str Str="RushSpear_Slow_Debuff"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="4000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="SpearMaster_FlyingSerpentFall">
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING_EXPROP_CHECK" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="3"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+				<Str_Arg Str="None" Arg="1"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="45"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str Str="None"/>
+				<Str Str="SpearMaster18"/>
+				<Str Str="SPEARMASTER_STANCE"/>
+				<Num Num="2"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Scp="C_EFFECT" Client="YES" UseSleep="NO">
+				<Str_Arg Str="F_levitation051_orange_loop" Arg="2"/>
+				<Str Str="Bip01"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="MONSKL_C_PLAY_ANIM" UseSleep="NO">
+				<Str Str="SKL_DRAGONFALL_S_CAST"/>
+				<Num Num="2"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Client="YES" Scp="MONSKL_C_RESERVE_ANIM" UseSleep="NO">
+				<Str Str="SKL_DRAGONFALL_S_LOOP"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Client="NO" Scp="SKL_CANCEL_CANCEL" UseSleep="NO"/>
+			<ToolScp Client="YES" Scp="MONSKL_C_CLEAR_RESERVE_ANIM" UseSleep="NO"/>
+			<ToolScp Client="YES" Scp="MONSKL_C_PLAY_ANIM" UseSleep="NO">
+				<Str Str="SKL_DRAGONFALL_S_END"/>
+				<Num Num="2"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Scp="C_EFFECT_DETACH" Client="YES" UseSleep="NO">
+				<Str_Arg Str="F_levitation051_orange_loop" Arg="1.5"/>
+				<Num Num="0.5"/>
+			</ToolScp>
+			<ToolScp Scp="SKL_STOP_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="skl_eff_sog_dragonfall_s"/>
+				<Str Str="skl_eff_sog_dragonfall_s"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="2"/>
+					</ToolScp>
+					<ToolScp Scp="SKL_SELECT_UNACTIVE_ABIL" Client="NO" UseSleep="NO">
+						<Str Str="SpearMaster18"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+							<Str Str="voice_war_atk_long_shot"/>
+							<Str Str="voice_atk_long_war_f"/>
+						</Scp>
+						<Scp Scp="C_EFFECT_POS" Client="YES" LoopTime="500" UseSleep="NO" Time="100">
+							<Str_Arg Str="F_burstup048_fire_2" Arg="2.5"/>
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Str Str="None"/>
+						</Scp>
+						<Scp Scp="C_EFFECT_POS" Client="YES" LoopTime="1000" UseSleep="NO" Time="100">
+							<Str_Arg Str="E_spear003_s" Arg="0.7"/>
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Str Str="None"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="200">
+							<Str Str="skl_eff_sog_dragonfall_s"/>
+						</Scp>
+						<Scp Client="NO" LoopTime="500" Scp="SKL_SET_TARGET_CIRCLE" Time="700" UseSleep="NO">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_FlyingSerpentFall_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+						</Scp>
+						<Scp Client="NO" LoopTime="500" Scp="SKL_TGT_DMG" Time="700" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="2"/>
+					</ToolScp>
+					<ToolScp Scp="SKL_SELECT_ACTIVE_ABIL" Client="NO" UseSleep="NO">
+						<Str Str="SpearMaster18"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="99799" Type="FAN" Width="30"/>
+					</HitList>
+					<EtcList>
+						<Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="0" UseSleep="NO">
+							<Str Str="SKL_DRAGONFALL_S_CAST"/>
+							<Num Num="2"/>
+							<Num Num="1"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="300" UseSleep="NO">
+							<Str Str="voice_war_atk_long_shot"/>
+							<Str Str="voice_atk_long_war_f"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="300">
+							<Str Str="skl_eff_sog_dragonfall_s2"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_EFFECT" Time="400" UseSleep="NO">
+							<Str_Arg Arg="3" Str="F_warrior_dragonfall001"/>
+							<Str Str="None"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_EFFECT_POS" Time="550" UseSleep="NO">
+							<Str_Arg Arg="1.2" Str="E_spear003_1"/>
+							<Pos Angle="0" Dist="15"/>
+							<Num Num="0"/>
+							<Str Str="None"/>
+							<Angle Angle="0.0000001"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="YES" Scp="SKL_C_RESUME_ANI" Time="600" UseSleep="NO"/>
+						<Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="600" UseSleep="NO">
+							<Str Str="SKL_DRAGONFALL_S_END"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_EFFECT_POS" Time="700" UseSleep="NO">
+							<Str_Arg Arg="1.2" Str="F_warrior_dragonfall002"/>
+							<Pos Angle="0" Dist="15"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_SHOCKWAVE" Time="750" UseSleep="NO">
+							<Num Num="5"/>
+							<Num Num="1"/>
+							<Num Num="45"/>
+							<Num Num="999"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_SET_TARGET_CIRCLE" Time="950" UseSleep="NO">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_FlyingSerpentFall_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="950" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+					<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+						<Str Str="SKL_DRAGONFALL_F_LOOP"/>
+						<Num Num="1"/>
+						<Num Num="1"/>
+						<Num Num="0"/>
+					</Scp>
+					<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="250">
+						<Str Str="SKL_DRAGONFALL_F_SHOT"/>
+						<Num Num="1"/>
+						<Num Num="1"/>
+						<Num Num="0"/>
+					</Scp>
+					<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="200">
+						<Str Str="skl_eff_sog_dragonfall_f"/>
+					</Scp>
+					<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="250">
+						<Str Str="voice_war_atk_long_shot"/>
+						<Str Str="voice_atk_long_war_f"/>
+					</Scp>
+					<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="600">
+						<Pos Angle="0" Dist="0"/>
+						<Num Num="0"/>
+						<Num Num="130"/>
+						<Num Num="30"/>
+						<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_FlyingSerpentFall_Aries_Ratio(obj)"/>
+						<Num Num="2"/>
+						<Num Num="0"/>
+						<Num Num="0"/>
+					</Scp>
+					<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="600">
+						<Num Num="1"/>
+						<Num Num="0"/>
+						<Num Num="0"/>
+					</Scp>
+				</EtcList>
+				<ResultList>
+					<ToolScp Client="NO" Scp="S_R_COND_ABILITY" UseSleep="NO">
+						<Str Str="SpearMaster18"/>
+					</ToolScp>
+					<ToolScp Client="NO" Scp="S_R_KNOCK_TARGET" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN" UseSleep="NO">
+						<Num Num="3"/>
+						<Num Num="0"/>
+						<Num Num="375"/>
+						<Num Num="10"/>
+						<Num Num="0"/>
+						<Num Num="1"/>
+						<Num Num="2"/>
+					</ToolScp>
+					<ToolScp Client="NO" Scp="S_R_COND_SCRIPT" UseSleep="NO">
+						<Str Str="SCR_CHECK_BOSS_SPEARMASTER18"/>
+					</ToolScp>
+					<ToolScp Scp="S_R_TGTBUFF" Client="NO" UseSleep="NO">
+						<Str Str="SpearMaster18_Debuff"/>
+						<Num Num="1"/>
+						<Num Num="0"/>
+						<Num Num="7000"/>
+						<Num Num="1"/>
+						<Num Num="100"/>
+						<Num Num="-1"/>
+					</ToolScp>
+				</ResultList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="SpearMaster_UniqueSpearDance">
+		<EndScripts>
+			<ToolScp Client="NO" Scp="SKL_RUN_SCRIPT" UseSleep="NO">
+				<Str Str="SCR_UNIQUESPEARDANCE_REDUCE_COOLDOWN"/>
+			</ToolScp>
+		</EndScripts>
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING_HAVE_ABIL" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="3"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+				<Str_Arg Str="None" Arg="1"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="45"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str Str="None"/>
+				<Str Str="SpearMaster10"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Scp="C_EFFECT" Client="YES" UseSleep="NO">
+				<Str_Arg Str="F_levitation051_orange_loop" Arg="2"/>
+				<Str Str="Bip01"/>
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Scp="SKL_STOP_SOUND_EXPROP_CHECK" Client="NO" UseSleep="NO">
+				<Str Str="SPEARMASTER_STANCE"/>
+				<Num Num="1"/>
+				<Str Str="skl_eff_sog_uniquespeardance_f"/>
+				<Str Str="skl_eff_sog_uniquespeardance_f"/>
+				<Str Str="skl_eff_sog_uniquespeardance_s"/>
+				<Str Str="skl_eff_sog_uniquespeardance_s"/>
+			</ToolScp>
+			<ToolScp Scp="C_EFFECT_DETACH" Client="YES" UseSleep="NO">
+				<Str_Arg Str="F_levitation051_orange_loop" Arg="1.5"/>
+				<Num Num="0.5"/>
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_CANCEL_CANCEL" UseSleep="NO"/>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName=""/>
+			</HitList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="2"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="skl_eff_sog_uniquespeardance_s"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+							<Str Str="voice_war_atk_short"/>
+							<Str Str="voice_atk_short_war_f"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="SKL_WILDTIGER_F"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="500">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="80"/>
+							<Num Num="25"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="500" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="600">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="80"/>
+							<Num Num="25"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="600" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="700">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="80"/>
+							<Num Num="25"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="700" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="900">
+							<Str Str="SKL_RUSHSPEAR_S"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="1200">
+							<Str Str="voice_war_atk_medium"/>
+							<Str Str="voice_atk_medium_war_f"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1500">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1500">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2100">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2100">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="2250" UseSleep="NO">
+							<Str Str="voice_war_atk_long_shot"/>
+							<Str Str="voice_atk_long_war_f"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="2250">
+							<Str Str="SKL_SPEARDANCE_FINISH"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="3000">
+							<Pos Angle="0" Dist="0" PosType="5"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Slash_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2700">
+							<Str_Arg Str="F_warrior_Hierophany_tiger_buff" Arg="0.5"/>
+							<Pos Angle="0" Dist="0" Height="10"/>
+							<Num Num="0"/>
+							<Str Str="None"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="3000">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_CHECK_EXPROP" Client="NO" UseSleep="NO">
+						<Str Str="SPEARMASTER_STANCE"/>
+						<Num Num="1"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="FAN"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="SKL_WILDTIGER_S"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
+							<Str Str="skl_eff_sog_uniquespeardance_f"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="300" UseSleep="NO">
+							<Str Str="voice_war_atk_medium"/>
+							<Str Str="voice_atk_medium_war_f"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="750">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="750">
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1050">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="120"/>
+							<Num Num="10" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1050">
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="YES" Scp="C_VOICE_SOUND" Time="1350" UseSleep="NO">
+							<Str Str="voice_war_atk_short"/>
+							<Str Str="voice_atk_short_war_f"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="1350">
+							<Str Str="SKL_WILDTIGER_F"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="1850">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="80"/>
+							<Num Num="25"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="1850" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="1950">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="80"/>
+							<Num Num="25"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="1950" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="2050">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="80"/>
+							<Num Num="25"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Client="NO" Scp="SKL_TGT_DMG" Time="2050" UseSleep="NO">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="2350">
+							<Str Str="SKL_DRAGONFALL_F_LOOP"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="2600">
+							<Str Str="SKL_DRAGONFALL_F_SHOT"/>
+							<Num Num="1"/>
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="2600">
+							<Str Str="voice_war_atk_long_shot"/>
+							<Str Str="voice_atk_long_war_f"/>
+						</Scp>
+						<Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="3000">
+							<Pos Angle="0" Dist="0"/>
+							<Num Num="0"/>
+							<Num Num="130"/>
+							<Num Num="30"/>
+							<Num Num="3" UseFunc="1" FuncTxt="return SCR_GET_UniqueSpearDance_Aries_Ratio(obj)"/>
+							<Num Num="2"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="3000">
+							<Num Num="1"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2700">
+							<Str_Arg Str="F_warrior_Hierophany_dragon_buff" Arg="0.5"/>
+							<Pos Angle="0" Dist="0" Height="10"/>
+							<Num Num="0"/>
+							<Str Str="None"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+</ToolSkill>

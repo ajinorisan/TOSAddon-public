@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<ClaimCodes Name="ClaimCodes">
+	<Class Code="1" Desc="ギルド解散"/>
+	<Class Code="2" Desc="マスター運営権移譲"/>
+	<Class Code="3" Desc="職級に権限付与"/>
+	<Class Code="4" Desc="職級新設/削除"/>
+	<Class Code="5" Desc="ギルド名変更"/>
+	<Class Code="6" Desc="コロニー戦参加/未参加設定"/>
+	<Class Code="10" Desc="ギルドメンバー追放"/>
+	<Class Code="11" Desc="ギルドメンバー招待"/>
+	<Class Code="12" Desc="ギルド成長"/>
+	<Class Code="13" Desc="ギルド特性設定"/>
+	<Class Code="14" Desc="ギルドタワー撤去"/>
+	<Class Code="15" Desc="エンブレム変更"/>
+	<Class Code="16" Desc="バナー変更"/>
+	<Class Code="17" Desc="職級任命"/>
+	<Class Code="19" Desc="ギルド加入申請書受諾"/>
+	<!-- don't delate and modify (default) string -->
+	<Class Code="103" Desc="ギルド資金入金(default)"/>
+	<Class Code="104" Desc="ギルド共用倉庫への入庫"/>
+	<Class Code="105" Desc="ギルド共用倉庫からの出庫"/>
+	<Class Code="106" Desc="ロイヤルティオプション管理"/>
+	<Class Code="107" Desc="ロイヤルティ分配"/>
+	<Class Code="202" Desc="お知らせ入力"/>
+	<Class Code="203" Desc="広報文入力"/>
+	<Class Code="204" Desc="コミュニティメッセージ表示(default)"/>
+	<Class Code="205" Desc="コミュニティメッセージ作成"/>
+	<Class Code="207" Desc="コミュニティメッセージを削除"/>
+	<Class Code="301" Desc="宣戦布告/解除"/>
+	<Class Code="302" Desc="ギルド戦争中立設定/解除"/>
+	<Class Code="303" Desc="戦争中の相手ギルドリスト表示"/>
+	<Class Code="401" Desc="ギルドクエスト開始"/>
+	<Class Code="402" Desc="ギルドアジト部外者入場設定"/>
+	<Class Code="403" Desc="アジト農場使用"/>
+	<Class Code="404" Desc="アジトコンパニオン育成"/>
+	<Class Code="405" Desc="ギルドアジトレイド開始"/>
+</ClaimCodes>

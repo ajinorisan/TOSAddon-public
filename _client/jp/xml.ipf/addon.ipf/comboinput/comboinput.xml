@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMCGames Co., Ltd (IMCGames Co., Ltd) -->
+<uiframe name="comboinput" x="0" y="0" width="800" height="140">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame fullheight="false" fasthide="false" layout_gravity="center bottom" margin="0 0 0 260" draw="false"/>
+	<input moveable="false" hittestframe="false" moveintitlebar="false"/>
+	<option closebutton="false"/>
+	<script OpenScp="COMBOINPUT_OPEN" CloseScp="COMBOINPUT_CLOSE"/>
+	<sound opensound="sys_event_window_open_1" closesound="None"/>
+	<layer layerlevel="92"/>
+	<userconfig KEY_IMG_SIZE="40" KEY_INPUT_SOUND="skl_eff_luchador_martinete_combo_click" LAST_KEY_INPUT_SOUND="skl_eff_luchador_martinete_combo_end_click"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 64 64" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_midle" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false"/>
+		<picture name="combo_timer_gauge_left" rect="0 0 7 33" margin="193 0 0 40" layout_gravity="left bottom" hittest="false" image="challenge_gauge_left" stretch="true"/>
+		<picture name="combo_timer_gauge_right" rect="0 0 7 33" margin="0 0 193 40" layout_gravity="right bottom" hittest="false" image="challenge_gauge_right" stretch="true"/>
+		<gauge name="combo_timer_gauge" rect="0 0 400 33" margin="0 0 0 40" layout_gravity="center bottom" drawlastpoint="false" ratewidth="true" skin="challenge_gauge_lv1" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 4" textoffset2="4 4" hittest="false"/>
+		<richtext name="combo_timer" rect="0 0 100 30" margin="0 0 0 45" layout_gravity="center bottom" format="{@st43}{s20}%s" param1="time" param1_def="0.0" resizebytext="true"/>
+		<groupbox name="cancelbox" rect="0 0 100 40" margin="0 0 150 0" layout_gravity="right bottom" draw="false"/>
+		<groupbox name="cancel_bg" parent="cancelbox" rect="0 0 120 26" margin="0 0 0 0" layout_gravity="left center" skin="left_gradient"/>
+		<richtext name="cancel_text" parent="cancelbox" rect="0 0 350 40" margin="5 0 0 0" layout_gravity="left center" format="%s{@st42}{s14}{#ffff00}취소{/}" param1="img" param1_def=""/>
+	</controls>
+</uiframe>

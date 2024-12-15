@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="reroll_item_option" x="0" y="0" width="470" height="750">
+	<draw drawtitlebar="false"/>
+	<frame fullheight="false" fasthide="true" layout_gravity="left top" margin="500 20 0 0"/>
+	<input maxwidth="1280" moveable="true" hittestframe="true"/>
+	<layer layerlevel="102"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<script OpenScp="REROLL_ITEM_OPTION_OPEN" CloseScp="REROLL_ITEM_OPTION_CLOSE"/>
+	<userconfig DEFAULT_ROW="5"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 470 750" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin="test_frame_low"/>
+		<groupbox name="pip4" rect="0 0 470 130" margin="0 -5 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="test_frame_top"/>
+		<richtext name="title" rect="0 0 100 30" margin="0 11 0 0" layout_gravity="center top" format="{@st43}%s{/}" param1="title" param1_def="재설정 가능 옵션" fontname="default" spacey="0" hittest="false"/>
+		<button name="close" rect="-10 0 44 44" margin="0 15 17 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;reroll_item_option&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="question" rect="0 0 44 44" margin="27 20 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="재설정 가능한 옵션 목록을 보여줍니다."/>
+		<groupbox name="optionGbox" rect="0 0 430 650" margin="0 80 0 0" layout_gravity="center top" skin="test_frame_midle"/>
+	</controls>
+</uiframe>

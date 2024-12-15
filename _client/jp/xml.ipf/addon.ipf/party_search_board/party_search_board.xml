@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="party_search_board" x="0" y="0" width="642" height="896" create="open">
+	<frame layout_gravity="center center" margin="-100 0 0 0" tooltipoverlap="true"/>
+	<option closebutton="false"/>
+	<draw drawframe="false" drawtitlebar="false" drawnotitlebar="false"><![CDATA[]]></draw>
+	<input moveable="true" hittestframe="true"/>
+	<script OpenScp="PARTY_SEARCH_BOARD_OPEN" CloseScp=""/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end"/>
+	<layer layerlevel="94"/>
+	<controls>
+		<groupbox name="gFrame" rect="0 0 642 896" margin="0 0 0 0" layout_gravity="left center" skin="relic_frame_bg" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="gb" rect="0 0 622 745" margin="10 140 0 0" layout_gravity="left top" skin="ps_frame1" draw="true" hittestbox="true" hittest="true" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" rect="0 0 642 61" margin="0 0 0 0" layout_gravity="left top" skin="ps_title_green" hittestbox="false" stretch="true"/>
+		<richtext name="title" parent="titlegbox" rect="0 0 200 50" margin="0 17 0 0" layout_gravity="center top" caption="{@st43}{s24}파티 찾기 게시판" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="closeBtn" parent="titlegbox" rect="0 0 44 44" margin="0 20 27 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;party_search_board&apos;)" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}파티 찾기 게시판을 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover"/>
+		<button name="searchMenuBtn" rect="0 0 210 26" margin="125 65 0 0" layout_gravity="left top" skin="ps_menuBtn_search" enabletextcursoron="true" cursornormalstyle="st106_lbr" cursoronstyle="ps1_2" cursorclickedstyle="st66b" textoffset="30 1" textalign="left center" caption="{@ps1_1}{s20}조회" LBtnUpScp="PARTY_SEARCH_BOARD_MENU_SEARCH_BTN"/>
+		<picture name="menuLine" rect="0 0 3 30" margin="0 63 0 0" layout_gravity="center top" image="ps_line1" hittestbox="false" stretch="true"/>
+		<button name="registerMenuBtn" rect="0 0 210 24" margin="0 65 0 0" layout_gravity="right top" skin="ps_menuBtn_register" enabletextcursoron="true" cursornormalstyle="st106_lbr" cursoronstyle="ps1_2" cursorclickedstyle="st66b" textoffset="30 1" textalign="left center" caption="{@st106_lbr}{s20}등록" LBtnUpScp="PARTY_SEARCH_BOARD_MENU_REGISTER_BTN"/>
+		<!-- 조회 탭  -->
+		<groupbox name="search_gb" rect="0 0 622 745" margin="10 140 0 0" layout_gravity="left top" skin="ps_frame1" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="searchgbox" parent="search_gb" rect="0 0 290 38" margin="17 16 0 0" layout_gravity="left top" draw="true" scrollbar="true" hittestbox="false" resizebyparent="false" skin="worldmap2_search_bg"/>
+		<edit name="searchEdit" parent="searchgbox" rect="0 0 245 38" margin="3 0 0 0" layout_gravity="left center" OffsetForDraw="0 -1" clicksound="button_click_big" drawbackground="false" fontname="white_18_ol" maxlen="40" oversound="button_over" skin="None" textalign="left center" typingsound="chat_typing" EnterKeyScp="PARTY_SEARCH_BOARD_SEARCH_BTN"/>
+		<button name="searchBtn" parent="searchgbox" rect="0 0 38 38" margin="0 0 0 12" layout_gravity="right center" LBtnUpScp="PARTY_SEARCH_BOARD_SEARCH_BTN" image="worldmap2_search_btn"/>
+		<button name="refreshBtn" rect="0 0 38 38" parent="search_gb" margin="315 16 0 0" layout_gravity="left top" image="ps_refreshBtn" oversound="button_cursor_over_3" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" LBtnUpScp="PARTY_SEARCH_BOARD_REFRESH"/>
+		<!--파티 모집글 리스트-->
+		<groupbox name="partyListBox" parent="search_gb" rect="0 0 347 610" margin="17 68 0 0" layout_gravity="left top" draw="false" scrollbar="false" hittestbox="false" resizebyparent="false" skin=""/>
+		<richtext name="pageText" parent="search_gb" rect="0 0 0 5" margin="-130 0 0 20" layout_gravity="center bottom" format="{@st66b}{s16}%s" param1="page" param1_def="1" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<button name="prevBtn" rect="0 0 40 30" parent="search_gb" margin="-180 0 0 20" layout_gravity="center bottom" image="ps_arrowBtn_l" LBtnUpScp="PARTY_SEARCH_BOARD_PAGE_PREV_BUTTON"/>
+		<button name="nextBtn" rect="0 0 40 30" parent="search_gb" margin="-80 0 0 20" layout_gravity="center bottom" image="ps_arrowBtn_r" LBtnUpScp="PARTY_SEARCH_BOARD_PAGE_NEXT_BUTTON"/>
+		<!--파티원 리스트-->
+		<groupbox name="memberListgb" parent="search_gb" rect="0 0 252 741" margin="0 2 2 0" layout_gravity="right top" draw="true" scrollbar="true" hittestbox="false" resizebyparent="false" skin="ps_frame4"/>
+		<groupbox name="partyNamegb" parent="search_gb" rect="0 0 150 68" margin="0 0 105 0" layout_gravity="right top" draw="true" scrollbar="true" hittestbox="false" resizebyparent="false" skin="ps_gradient"/>
+		<richtext name="partyNameText" parent="search_gb" rect="0 0 180 44" margin="380 10 0 0" layout_gravity="left top" format="{@st43b}{s16}%s" param1="value" param1_def="파티이름" drawbackground="false" fontname="brown_18" resizebytext="false" fixwidth="true" fixheight="true" textalign="left top" omitbyheight="true" ellipsistexttooltip="true"/>
+		<richtext name="partyCntText" parent="search_gb" rect="0 0 50 35" margin="0 10 10 0" layout_gravity="right top" format="{@st204_green}{s16}%s{@st43b}{s16}/5" param1="value" param1_def="1" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="left center"/>
+		<groupbox name="memberListBox" parent="search_gb" rect="0 0 256 430" margin="0 76 0 0" layout_gravity="right top" draw="false" scrollbar="true" hittestbox="false" resizebyparent="false" skin=""/>
+		<button name="requestBtn" rect="0 0 222 66" parent="search_gb" margin="0 0 15 15" layout_gravity="right bottom" skin="hero_btn_green2" caption="{@st43b}{s20}참가신청" textoffset="0 -2" LBtnUpScp="PARTY_SEARCH_BOARD_REQ_PARTICIPATE"/>
+		<groupbox name="partyLinegb" parent="search_gb" rect="0 0 252 30" margin="0 0 2 210" layout_gravity="right bottom" draw="true" hittestbox="false" skin="ps_frame3"/>
+		<richtext name="conditionText" parent="partyLinegb" rect="0 0 225 30" margin="0 0 0 0" layout_gravity="center center" caption="{@ps1_1}{s16}파티 참가 조건" drawbackground="false" fixwidth="true" fontname="brown_18" resizebytext="false" textalign="left center" LBtnUpScp="Heloo"/>
+		<!-- 요구조건 리스트 -->
+		<groupbox name="conditionListBox" parent="search_gb" rect="0 0 232 100" margin="0 0 10 95" layout_gravity="right bottom" draw="false" hittestbox="false" skin=""/>
+		<richtext name="abil" parent="conditionListBox" rect="0 0 200 50" margin="0 2 0 0" layout_gravity="left top" caption="{@sti1c}{s16}특성 달성률(%)" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="abilBox" parent="conditionListBox" rect="0 0 60 28" margin="0 0 3 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_textframe"/>
+		<richtext name="abilText" parent="abilBox" rect="0 0 60 528" margin="0 0 0 0" layout_gravity="center center" format="{@sti1b}{s16} %s" param1="value" param1_def="0" drawbackground="false" fixwidth="true" fontname="brown_18" resizebytext="false" textalign="left center"/>
+		<richtext name="gear" parent="conditionListBox" rect="0 0 200 50" margin="0 34 0 0" layout_gravity="left top" caption="{@sti1c}{s16}기어 스코어" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="gearBox" parent="conditionListBox" rect="0 0 60 28" margin="0 32 3 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_textframe"/>
+		<richtext name="gearText" parent="gearBox" rect="0 0 60 28" margin="0 0 0 0" layout_gravity="center center" format="{@sti1b}{s16} %s" param1="value" param1_def="0" drawbackground="false" fixwidth="true" fontname="brown_18" resizebytext="false" textalign="left center"/>
+		<richtext name="relic" parent="conditionListBox" rect="0 0 200 50" margin="0 66 0 0" layout_gravity="left top" caption="{@sti1c}{s16}성물 레벨" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="relicBox" parent="conditionListBox" rect="0 0 60 28" margin="0 64 3 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_textframe"/>
+		<richtext name="relicText" parent="relicBox" rect="0 0 60 28" margin="0 0 0 0" layout_gravity="center center" format="{@sti1b}{s16} %s" param1="value" param1_def="0" drawbackground="false" fixwidth="true" fontname="brown_18" resizebytext="false" textalign="left center"/>
+		<!-- 관리 탭  -->
+		<groupbox name="manage_gb" rect="0 0 622 781" margin="10 104 0 0" layout_gravity="left top" skin="ps_frame1" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="memberListgb2" parent="manage_gb" rect="0 0 254 770" margin="2 2 0 0" layout_gravity="left top" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="ps_frame4"/>
+		<groupbox name="manageTitlegb" parent="manage_gb" rect="0 0 618 38" margin="0 2 0 0" layout_gravity="center top" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="ps_frame4"/>
+		<groupbox name="requestListgb" parent="manage_gb" rect="0 0 366 660" margin="256 38 0 0" layout_gravity="left top" draw="false" scrollbar="false" hittestbox="false" resizebyparent="false" skin=""/>
+		<groupbox name="requestListBox" parent="manage_gb" rect="0 0 366 615" margin="256 83 0 0" layout_gravity="left top" draw="false" scrollbar="true" hittestbox="false" resizebyparent="false" skin=""/>
+		<picture name="join_icon" parent="requestListgb" rect="0 0 37 22" hittest="false" margin="8 10 0 0" layout_gravity="left top" image="ps_icon_join" stretch="true"/>
+		<droplist name="categoryList" parent="manage_gb" rect="0 0 150 28" margin="0 6 6 0" layout_gravity="right top" SelectScp="PARTY_SEARCH_BOARD_SELECT_CATEGORY_DROP" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="worldmap2_minimap_droplist" textalign="left center" textoffset="10 0" visibleline="3" buttonoffset="6"/>
+		<!-- 파티 제목 및 파티원 수 -->
+		<groupbox name="title_gradient" parent="manage_gb" rect="0 0 150 35" margin="0 0 0 0" layout_gravity="left top" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="ps_gradient"/>
+		<richtext name="partyCntText2" parent="manage_gb" rect="0 0 225 35" margin="10 0 0 0" layout_gravity="left top" format="{@st204_green}{s16}%s{@st43b}{s16}/5" param1="value" param1_def="1" drawbackground="false" fixwidth="true" fontname="brown_18" resizebytext="false" textalign="left center"/>
+		<edit name="title_edit" parent="manage_gb" rect="0 0 320 35" margin="50 0 0 0" layout_gravity="left top" OffsetForDraw="0 -1" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" maxlen="40" oversound="button_over" skin="None" textalign="left center" typingsound="chat_typing"/>
+		<groupbox name="memberListBox2" parent="manage_gb" rect="0 0 256 430" margin="0 45 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" skin=""/>
+		<!-- 등록/업데이트 및 공고 삭제 타이머 -->
+		<groupbox name="timer_gb" parent="manage_gb" rect="0 0 618 85" margin="0 0 0 2" layout_gravity="center bottom" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="ps_frame3"/>
+		<richtext name="timer_text" parent="timer_gb" rect="0 0 345 35" margin="20 2 0 0" layout_gravity="left center" format="%s" param1="value" param1_def="{@st105_y_16}{s14}모집 공고 자동 삭제까지{@st43b}{s20} 19:59 {@st105_y_16}{s14}남았습니다" drawbackground="false" fontname="brown_18" resizebytext="false" textalign="left center"/>
+		<button name="registerBtn" rect="0 0 222 66" parent="manage_gb" margin="0 0 20 8" layout_gravity="right bottom" skin="hero_btn_green2" format="{@st43b}{s20}%s" param1="text" param1_def="등록" LBtnUpScp="PARTY_SEARCH_BOARD_REGISTER_POST"/>
+		<!-- 파티 참가 조건 -->
+		<groupbox name="partyLinegb2" parent="manage_gb" rect="0 0 254 30" margin="2 0 0 210" layout_gravity="left bottom" draw="true" hittestbox="false" skin="ps_frame3"/>
+		<richtext name="conditionText2" parent="partyLinegb2" rect="0 0 225 30" margin="-4 0 0 0" layout_gravity="center center" caption="{@ps1_1}{s16}파티 참가 조건" drawbackground="false" fixwidth="true" fontname="brown_18" resizebytext="false" textalign="left center"/>
+		<groupbox name="conditionListBox2" parent="manage_gb" rect="0 0 232 100" margin="12 0 0 95" layout_gravity="left bottom" draw="false" hittestbox="false" skin=""/>
+		<richtext name="recruit_abil" parent="conditionListBox2" rect="0 0 200 50" margin="0 2 0 0" layout_gravity="left top" caption="{@sti1c}{s16}특성 달성률(%)" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="abil_gb" parent="conditionListBox2" rect="0 0 60 28" margin="0 0 0 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_textframe"/>
+		<edit name="abil_edit" parent="abil_gb" rect="0 0 60 28" margin="3 1 0 0" layout_gravity="left center" OffsetForDraw="0 -2" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" maxnumber="100" minnumber="0" oversound="button_over" skin="None" textalign="left center" numbermode="true" typingsound="chat_typing"/>
+		<richtext name="recruit_gear" parent="conditionListBox2" rect="0 0 200 50" margin="0 34 0 0" layout_gravity="left top" caption="{@sti1c}{s16}기어 스코어" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="gear_gb" parent="conditionListBox2" rect="0 0 60 28" margin="0 32 0 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_textframe"/>
+		<edit name="gear_edit" parent="gear_gb" rect="0 0 60 28" margin="3 1 0 0" layout_gravity="left center" OffsetForDraw="0 -2" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" minnumber="0" oversound="button_over" skin="None" textalign="left center" numbermode="true" typingsound="chat_typing"/>
+		<richtext name="recruit_relic" parent="conditionListBox2" rect="0 0 200 50" margin="0 66 0 0" layout_gravity="left top" caption="{@sti1c}{s16}성물 레벨" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="relic_gb" parent="conditionListBox2" rect="0 0 60 28" margin="0 64 0 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_textframe"/>
+		<edit name="relic_edit" parent="relic_gb" rect="0 0 60 28" margin="3 1 0 0" layout_gravity="left center" OffsetForDraw="0 -2" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" maxnumber="20" minnumber="0" oversound="button_over" skin="None" textalign="left center" numbermode="true" typingsound="chat_typing"/>
+		<timer name="addontimer" rect="0 0 10 10"/>
+		<!-- 등록 탭 -->
+		<groupbox name="register_gb" rect="0 0 622 781" margin="10 104 0 0" layout_gravity="left top" skin="ps_frame1" draw="true" hittestbox="true" hittest="true" resizebyparent="false" scrollbar="false"/>
+		<richtext name="titleText" parent="register_gb" rect="0 0 300 30" margin="-10 -232 0 0" layout_gravity="center center" caption="{img ps_icon_input 20 20}{@st66b}{s16}공고 제목" drawbackground="false" fixwidth="true" textalign="left center"/>
+		<groupbox name="title_gb" parent="register_gb" rect="0 0 320 36" margin="0 -200 0 0" layout_gravity="center center" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="ps_frame_input"/>
+		<richtext name="input_text" parent="title_gb" margin="5 0 0 0" rect="0 0 120 24" textalign="left center" resizebytext="true" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left center" format="{@st41b}{s16}{#b5b5b5}%s{/}" param1="value" param1_def="파티공고 제목을 입력해주세요"/>
+		<edit name="title_edit" parent="title_gb" rect="0 0 320 35" margin="5 0 0 0" layout_gravity="center center" OffsetForDraw="0 -1" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" maxlen="40" oversound="button_over" skin="None" textalign="left center" typingsound="chat_typing" typingscp="PARTY_SEARCH_BOARD_INPUT_NAME_KEY"/>
+		<richtext name="conditionText3" parent="register_gb" rect="0 0 300 30" margin="-10 -142 0 0" layout_gravity="center center" caption="{img ps_icon_input 20 20}{@st66b}{s16}파티 참가 조건" drawbackground="false" fixwidth="true" textalign="left center"/>
+		<groupbox name="conditionListBox3" parent="register_gb" rect="0 0 320 200" margin="0 -20 0 0" layout_gravity="center center" draw="false" hittestbox="false" skin=""/>
+		<richtext name="recruit_abil2" parent="conditionListBox3" rect="0 0 200 50" margin="0 5 0 0" layout_gravity="left top" caption="{@sti1c}{s16}특성 달성률(%)" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="abil_gb2" parent="conditionListBox3" rect="0 0 60 36" margin="0 0 0 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_frame_input"/>
+		<edit name="abil_edit" parent="abil_gb2" rect="0 0 60 28" margin="3 1 0 0" layout_gravity="left center" OffsetForDraw="0 -2" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" maxnumber="100" minnumber="0" oversound="button_over" skin="None" textalign="left center" numbermode="true" typingsound="chat_typing"/>
+		<richtext name="recruit_gear2" parent="conditionListBox3" rect="0 0 200 50" margin="0 50 0 0" layout_gravity="left top" caption="{@sti1c}{s16}기어 스코어" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="gear_gb2" parent="conditionListBox3" rect="0 0 60 36" margin="0 45 0 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_frame_input"/>
+		<edit name="gear_edit" parent="gear_gb2" rect="0 0 60 28" margin="3 1 0 0" layout_gravity="left center" OffsetForDraw="0 -2" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" minnumber="0" oversound="button_over" skin="None" textalign="left center" numbermode="true" typingsound="chat_typing"/>
+		<richtext name="recruit_relic2" parent="conditionListBox3" rect="0 0 200 50" margin="0 95 0 0" layout_gravity="left top" caption="{@sti1c}{s16}성물 레벨" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<groupbox name="relic_gb2" parent="conditionListBox3" rect="0 0 60 36" margin="0 90 0 0" layout_gravity="right top" draw="true" hittestbox="false" skin="ps_frame_input"/>
+		<edit name="relic_edit" parent="relic_gb2" rect="0 0 60 28" margin="3 1 0 0" layout_gravity="left center" OffsetForDraw="0 -2" clicksound="button_click_big" drawbackground="false" fontname="white_16_ol" maxnumber="20" minnumber="0" oversound="button_over" skin="None" textalign="left center" numbermode="true" typingsound="chat_typing"/>
+		<droplist name="categoryList2" parent="register_gb" rect="0 0 320 28" margin="0 55 0 0" layout_gravity="center center" SelectScp="PARTY_SEARCH_BOARD_SELECT_CATEGORY_DROP" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="worldmap2_minimap_droplist" textalign="left center" textoffset="5 0" visibleline="3" buttonoffset="6"/>
+		<button name="registerBtn2" rect="0 0 250 80" parent="register_gb" margin="0 180 0 0" layout_gravity="center center" skin="hero_btn_green2" format="{@st43b}{s20}%s" textoffset="0 -2" param1="text" param1_def="파티 모집 공고 등록" LBtnUpScp="PARTY_SEARCH_BOARD_REGISTER_POST"/>
+		<!--카테고리 리스트-->
+		<groupbox name="categoryListBox" rect="0 0 453 39" margin="10 104 0 0" layout_gravity="left top" draw="false" scrollbar="true" hittestbox="false" resizebyparent="false" skin=""/>
+		<button name="raid_button" parent="categoryListBox" skin="ps_tabBtn" rect="0 0 118 39" margin="10 0 0 0" layout_gravity="left top" draw="true" textoffset="0 0" format="{@st43b}{s18}%s{/}" param1="name" param1_def="레이드" LBtnUpArgStr="raid" LBtnUpScp="PARTY_SEARCH_BOARD_SELECT_CATEGORY"/>
+		<button name="quest_button" parent="categoryListBox" skin="ps_tabBtn" rect="0 0 118 39" margin="131 0 0 0" layout_gravity="left top" draw="true" textoffset="0 0" format="{@st43b}{s18}%s{/}" param1="name" param1_def="퀘스트" LBtnUpArgStr="quest" LBtnUpScp="PARTY_SEARCH_BOARD_SELECT_CATEGORY"/>
+		<button name="etc_button" parent="categoryListBox" skin="ps_tabBtn" rect="0 0 118 39" margin="252 0 0 0" layout_gravity="left top" draw="true" textoffset="0 0" format="{@st43b}{s18}%s{/}" param1="name" param1_def="기타" LBtnUpArgStr="etc" LBtnUpScp="PARTY_SEARCH_BOARD_SELECT_CATEGORY"/>
+	</controls>
+</uiframe>

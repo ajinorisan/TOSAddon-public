@@ -1,0 +1,1413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<idspace id="HairType">
+	<Category>
+		<Class ClassID="1">
+			<Node Index="1" Type="숏 컷" EngName="Shortcut" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="2" Type="숏 컷" EngName="Shortcut" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="3" Type="숏 컷" EngName="Shortcut" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="4" Type="숏 컷" EngName="Shortcut" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="5" Type="숏 컷" EngName="Shortcut" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="6" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="7" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="8" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="9" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="10" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="11" Type="리젠트" EngName="Regent" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="12" Type="리젠트" EngName="Regent" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="13" Type="리젠트" EngName="Regent" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="14" Type="리젠트" EngName="Regent" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="15" Type="리젠트" EngName="Regent" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="16" Type="숏 샤기" EngName="ShortShaggy" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="17" Type="숏 샤기" EngName="ShortShaggy" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="18" Type="숏 샤기" EngName="ShortShaggy" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="19" Type="숏 샤기" EngName="ShortShaggy" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="20" Type="숏 샤기" EngName="ShortShaggy" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="21" Type="넘긴 머리" EngName="SlickedBack" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="22" Type="넘긴 머리" EngName="SlickedBack" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="23" Type="넘긴 머리" EngName="SlickedBack" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="24" Type="넘긴 머리" EngName="SlickedBack" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="25" Type="넘긴 머리" EngName="SlickedBack" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="26" Type="베이비펌" EngName="Baby" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="27" Type="베이비펌" EngName="Baby" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="28" Type="베이비펌" EngName="Baby" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="29" Type="베이비펌" EngName="Baby" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="30" Type="베이비펌" EngName="Baby" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="31" Type="댄디" EngName="Dandy" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="32" Type="댄디" EngName="Dandy" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="33" Type="댄디" EngName="Dandy" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="34" Type="댄디" EngName="Dandy" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="35" Type="댄디" EngName="Dandy" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="36" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="37" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="38" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="39" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="40" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="41" Type="노블 웨이브" EngName="NovelWave" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="42" Type="노블 웨이브" EngName="NovelWave" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="43" Type="노블 웨이브" EngName="NovelWave" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="44" Type="노블 웨이브" EngName="NovelWave" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="45" Type="노블 웨이브" EngName="NovelWave" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="46" Type="쉐도우펌" EngName="ShadowPerm" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="47" Type="쉐도우펌" EngName="ShadowPerm" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="48" Type="쉐도우펌" EngName="ShadowPerm" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="49" Type="쉐도우펌" EngName="ShadowPerm" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="50" Type="쉐도우펌" EngName="ShadowPerm" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="51" Type="테리우스" EngName="Terius" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="52" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="53" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="54" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="55" Type="레트로 레이어드" EngName="shepherd" ColorE="default" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="56" Type="테리우스" EngName="Terius" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="57" Type="테리우스" EngName="Terius" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="58" Type="테리우스" EngName="Terius" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="59" Type="테리우스" EngName="Terius" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="60" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="61" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="62" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="63" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="64" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="65" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="66" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="67" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="68" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="69" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="70" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="71" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="72" Type="숏 컷" EngName="Shortcut" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="73" Type="숏 컷" EngName="Shortcut" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="74" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="75" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="76" Type="리젠트" EngName="Regent" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="77" Type="리젠트" EngName="Regent" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="78" Type="숏 샤기" EngName="ShortShaggy" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="79" Type="숏 샤기" EngName="ShortShaggy" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="80" Type="넘긴 머리" EngName="SlickedBack" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="81" Type="넘긴 머리" EngName="SlickedBack" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="82" Type="베이비펌" EngName="Baby" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="83" Type="베이비펌" EngName="Baby" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="84" Type="댄디" EngName="Dandy" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="85" Type="댄디" EngName="Dandy" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="86" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="87" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="88" Type="노블 웨이브" EngName="NovelWave" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="89" Type="노블 웨이브" EngName="NovelWave" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="90" Type="쉐도우펌" EngName="ShadowPerm" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="91" Type="쉐도우펌" EngName="ShadowPerm" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="92" Type="테리우스" EngName="Terius" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="93" Type="테리우스" EngName="Terius" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="94" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="95" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="96" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="97" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="98" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="99" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="100" Type="숏 컷" EngName="Shortcut" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="101" Type="숏 컷" EngName="Shortcut" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="102" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="103" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="104" Type="리젠트" EngName="Regent" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="105" Type="리젠트" EngName="Regent" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="106" Type="숏 샤기" EngName="ShortShaggy" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="107" Type="숏 샤기" EngName="ShortShaggy" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="108" Type="넘긴 머리" EngName="SlickedBack" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="109" Type="넘긴 머리" EngName="SlickedBack" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="110" Type="베이비펌" EngName="Baby" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="111" Type="베이비펌" EngName="Baby" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="112" Type="댄디" EngName="Dandy" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="113" Type="댄디" EngName="Dandy" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="114" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="115" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="116" Type="노블 웨이브" EngName="NovelWave" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="117" Type="노블 웨이브" EngName="NovelWave" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="118" Type="쉐도우펌" EngName="ShadowPerm" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="119" Type="쉐도우펌" EngName="ShadowPerm" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="120" Type="테리우스" EngName="Terius" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="121" Type="테리우스" EngName="Terius" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="122" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="123" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="124" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="125" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="126" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="127" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="128" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="129" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="130" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="131" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="132" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="133" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="134" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="135" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="136" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="137" Type="퀴프 컷" EngName="Onmyoji" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="138" Type="퀴프 컷" EngName="Onmyoji" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="139" Type="퀴프 컷" EngName="Onmyoji" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="140" Type="퀴프 컷" EngName="Onmyoji" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="141" Type="퀴프 컷" EngName="Onmyoji" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="142" Type="퀴프 컷" EngName="Onmyoji" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="143" Type="퀴프 컷" EngName="Onmyoji" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="144" Type="퀴프 컷" EngName="Onmyoji" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="145" Type="퀴프 컷" EngName="Onmyoji" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="146" Type="유러피안" EngName="Necromancer" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="147" Type="유러피안" EngName="Necromancer" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="148" Type="유러피안" EngName="Necromancer" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="149" Type="유러피안" EngName="Necromancer" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="150" Type="유러피안" EngName="Necromancer" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="151" Type="유러피안" EngName="Necromancer" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="152" Type="유러피안" EngName="Necromancer" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="153" Type="유러피안" EngName="Necromancer" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="154" Type="유러피안" EngName="Necromancer" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="155" Type="컬링 백 펌" EngName="featherfoot" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="156" Type="컬링 백 펌" EngName="featherfoot" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="157" Type="컬링 백 펌" EngName="featherfoot" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="158" Type="컬링 백 펌" EngName="featherfoot" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="159" Type="컬링 백 펌" EngName="featherfoot" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="160" Type="컬링 백 펌" EngName="featherfoot" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="161" Type="컬링 백 펌" EngName="featherfoot" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="162" Type="컬링 백 펌" EngName="featherfoot" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="163" Type="컬링 백 펌" EngName="featherfoot" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="164" Type="숏 컷" EngName="Shortcut" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="165" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="166" Type="리젠트" EngName="Regent" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="167" Type="숏 샤기" EngName="ShortShaggy" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="168" Type="넘긴 머리" EngName="SlickedBack" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="169" Type="베이비펌" EngName="Baby" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="170" Type="댄디" EngName="Dandy" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="171" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="172" Type="노블 웨이브" EngName="NovelWave" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="173" Type="쉐도우펌" EngName="ShadowPerm" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="174" Type="테리우스" EngName="Terius" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="175" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="176" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="177" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="178" Type="레트로 레이어드" EngName="shepherd" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="179" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="180" Type="퀴프 컷" EngName="Onmyoji" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="181" Type="유러피안" EngName="Necromancer" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="182" Type="컬링 백 펌" EngName="featherfoot" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="183" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="184" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="185" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="186" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="187" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="188" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="189" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="190" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="191" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="192" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="193" Type="투블럭" EngName="mergen" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="194" Type="투블럭" EngName="mergen" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="195" Type="투블럭" EngName="mergen" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="196" Type="투블럭" EngName="mergen" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="197" Type="투블럭" EngName="mergen" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="198" Type="투블럭" EngName="mergen" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="199" Type="투블럭" EngName="mergen" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="200" Type="투블럭" EngName="mergen" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="201" Type="투블럭" EngName="mergen" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="202" Type="투블럭" EngName="mergen" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="203" Type="숏 컷" EngName="Shortcut" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="204" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="205" Type="리젠트" EngName="Regent" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="206" Type="숏 샤기" EngName="ShortShaggy" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="207" Type="넘긴 머리" EngName="SlickedBack" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="208" Type="베이비펌" EngName="Baby" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="209" Type="댄디" EngName="Dandy" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="210" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="211" Type="노블 웨이브" EngName="NovelWave" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="212" Type="쉐도우펌" EngName="ShadowPerm" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="213" Type="테리우스" EngName="Terius" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="214" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="215" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="216" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="217" Type="레트로 레이어드" EngName="shepherd" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="218" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="219" Type="퀴프 컷" EngName="Onmyoji" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="220" Type="유러피안" EngName="Necromancer" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="221" Type="컬링 백 펌" EngName="featherfoot" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="222" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="223" Type="투블럭" EngName="mergen" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="224" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="225" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="226" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="227" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="228" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="229" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="230" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="231" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="232" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="233" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="234" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="235" Type="숏 컷" EngName="Shortcut" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="236" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="237" Type="리젠트" EngName="Regent" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="238" Type="숏 샤기" EngName="ShortShaggy" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="239" Type="넘긴 머리" EngName="SlickedBack" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="240" Type="베이비펌" EngName="Baby" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="241" Type="댄디" EngName="Dandy" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="242" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="243" Type="노블 웨이브" EngName="NovelWave" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="244" Type="쉐도우펌" EngName="ShadowPerm" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="245" Type="테리우스" EngName="Terius" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="246" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="247" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="248" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="249" Type="레트로 레이어드" EngName="shepherd" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="250" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="251" Type="퀴프 컷" EngName="Onmyoji" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="252" Type="유러피안" EngName="Necromancer" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="253" Type="컬링 백 펌" EngName="featherfoot" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="254" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="255" Type="투블럭" EngName="mergen" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="256" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="257" Type="미디엄 커트" EngName="shortwave" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="258" Type="미디엄 커트" EngName="shortwave" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="259" Type="미디엄 커트" EngName="shortwave" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="260" Type="미디엄 커트" EngName="shortwave" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="261" Type="미디엄 커트" EngName="shortwave" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="262" Type="미디엄 커트" EngName="shortwave" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="263" Type="미디엄 커트" EngName="shortwave" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="264" Type="미디엄 커트" EngName="shortwave" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="265" Type="미디엄 커트" EngName="shortwave" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="266" Type="미디엄 커트" EngName="shortwave" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="267" Type="미디엄 커트" EngName="shortwave" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="268" Type="미디엄 커트" EngName="shortwave" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="269" Type="비대칭 롱 컷" EngName="falconer" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="270" Type="비대칭 롱 컷" EngName="falconer" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="271" Type="비대칭 롱 컷" EngName="falconer" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="272" Type="비대칭 롱 컷" EngName="falconer" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="273" Type="비대칭 롱 컷" EngName="falconer" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="274" Type="비대칭 롱 컷" EngName="falconer" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="275" Type="비대칭 롱 컷" EngName="falconer" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="276" Type="비대칭 롱 컷" EngName="falconer" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="277" Type="비대칭 롱 컷" EngName="falconer" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="278" Type="비대칭 롱 컷" EngName="falconer" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="279" Type="비대칭 롱 컷" EngName="falconer" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="280" Type="비대칭 롱 컷" EngName="falconer" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="281" Type="숏 컷" EngName="Shortcut" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="282" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="283" Type="리젠트" EngName="Regent" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="284" Type="숏 샤기" EngName="ShortShaggy" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="285" Type="넘긴 머리" EngName="SlickedBack" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="286" Type="베이비펌" EngName="Baby" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="287" Type="댄디" EngName="Dandy" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="288" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="289" Type="노블 웨이브" EngName="NovelWave" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="290" Type="쉐도우펌" EngName="ShadowPerm" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="291" Type="테리우스" EngName="Terius" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="292" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="293" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="294" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="295" Type="레트로 레이어드" EngName="shepherd" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="296" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="297" Type="퀴프 컷" EngName="Onmyoji" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="298" Type="유러피안" EngName="Necromancer" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="299" Type="컬링 백 펌" EngName="featherfoot" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="300" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="301" Type="투블럭" EngName="mergen" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="302" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="303" Type="미디엄 커트" EngName="shortwave" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="304" Type="비대칭 롱 컷" EngName="falconer" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="305" Type="숏 컷" EngName="Shortcut" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="306" Type="비대칭 숏 컷" EngName="UnbalancedShortcut" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="307" Type="리젠트" EngName="Regent" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="308" Type="숏 샤기" EngName="ShortShaggy" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="309" Type="넘긴 머리" EngName="SlickedBack" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="310" Type="베이비펌" EngName="Baby" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="311" Type="댄디" EngName="Dandy" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="312" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="313" Type="노블 웨이브" EngName="NovelWave" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="314" Type="쉐도우펌" EngName="ShadowPerm" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="315" Type="테리우스" EngName="Terius" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="316" Type="올림 웨이브" EngName="LifterWaveCut" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="317" Type="댄디 웨이브컬" EngName="DandyWaveCurl" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="318" Type="노블 포니테일" EngName="NovlePonyTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="319" Type="레트로 레이어드" EngName="shepherd" ColorE="white" Color="화이트" UseableBarrack="NO"/>
+			<Node Index="320" Type="코카트리스 헤드(남)" EngName="CockatriesM" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="321" Type="퀴프 컷" EngName="Onmyoji" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="322" Type="유러피안" EngName="Necromancer" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="323" Type="컬링 백 펌" EngName="featherfoot" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="324" Type="어퍼바인드 투블럭" EngName="shinobi" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="325" Type="투블럭" EngName="mergen" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="326" Type="프린스 웨이브" EngName="plaguedoctor" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="327" Type="미디엄 커트" EngName="shortwave" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="328" Type="비대칭 롱 컷" EngName="falconer" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="329" Type="레트로 레이어드" EngName="shepherd" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="330" Type="레트로 레이어드" EngName="shepherd" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="331" Type="레트로 레이어드" EngName="shepherd" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="332" Type="레트로 레이어드" EngName="shepherd" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="333" Type="레트로 레이어드" EngName="shepherd" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="334" Type="레트로 레이어드" EngName="shepherd" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="335" Type="레트로 레이어드" EngName="shepherd" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="336" Type="레트로 레이어드" EngName="shepherd" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="337" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="338" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="339" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="340" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="341" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="342" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="343" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="344" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="345" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="346" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="347" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="348" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="349" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="350" Type="치킨 푸들 헤드(남)" EngName="helmet_poodle01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="351" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="352" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="353" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="354" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="355" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="356" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="357" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="358" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="359" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="360" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="361" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="362" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="363" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="364" Type="턱시도 냥이 헤드(남)" EngName="helmet_tiecat01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="365" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="366" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="367" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="368" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="369" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="370" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="371" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="372" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="373" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="374" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="375" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="376" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="377" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="378" Type="포포리온 헤드(남)" EngName="helmet_poporion01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="379" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="380" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="381" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="382" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="383" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="384" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="385" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="386" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="387" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="388" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="389" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="390" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="391" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="392" Type="펭귄 헤드(남)" EngName="helmet_penguin02" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="393" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="394" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="395" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="396" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="397" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="398" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="399" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="400" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="401" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="402" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="403" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="404" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="405" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="406" Type="하나밍 헤드(남)" EngName="helmet_hanaming01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="407" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="408" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="409" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="410" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="411" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="412" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="413" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="414" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="415" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="416" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="417" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="418" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="419" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="420" Type="케파 헤드(남)" EngName="helmet_kepa01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="421" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="422" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="423" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="424" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="425" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="426" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="427" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="428" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="429" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="430" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="431" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="432" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="433" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="434" Type="라이칸스로피 수인화(남)" EngName="hair_lycan" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="435" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="436" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="437" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="438" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="439" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="440" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="441" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="442" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="443" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="444" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="445" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="446" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="447" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="448" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="449" Type="바니보이" EngName="bunnyboy" ColorE="default" Color="아쿠아마린" UseableBarrack="NO"/>
+			<Node Index="450" Type="바니보이" EngName="bunnyboy" ColorE="black" Color="블랙 화이트" UseableBarrack="NO"/>
+			<Node Index="451" Type="바니보이" EngName="bunnyboy" ColorE="pink" Color="라이트 핑크" UseableBarrack="NO"/>
+			<Node Index="452" Type="바니보이" EngName="bunnyboy" ColorE="red" Color="베이비 핑크" UseableBarrack="NO"/>
+			<Node Index="453" Type="바니보이" EngName="bunnyboy" ColorE="blue" Color="연한 아쿠아마린" UseableBarrack="NO"/>
+			<Node Index="454" Type="투톤 댄디 컷" EngName="mintpink" ColorE="default" Color="민트 핑크 브릿지" UseableBarrack="NO"/>
+			<Node Index="455" Type="투톤 댄디 컷" EngName="mintpink" ColorE="black" Color="블랙 화이트 브릿지" UseableBarrack="NO"/>
+			<Node Index="456" Type="투톤 댄디 컷" EngName="mintpink" ColorE="blue" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="457" Type="투톤 댄디 컷" EngName="mintpink" ColorE="gray" Color="그레이" UseableBarrack="NO"/>
+			<Node Index="458" Type="투톤 댄디 컷" EngName="mintpink" ColorE="white" Color="화이트 블루 브릿지" UseableBarrack="NO"/>
+			<Node Index="459" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="default" Color="레드 화이트 브릿지" UseableBarrack="NO"/>
+			<Node Index="460" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="black" Color="블랙 화이트 브릿지" UseableBarrack="NO"/>
+			<Node Index="461" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="white" Color="퍼플 화이트 브릿지" UseableBarrack="NO"/>
+			<Node Index="462" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="gray" Color="그레이" UseableBarrack="NO"/>
+			<Node Index="463" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="464" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="465" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="466" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="467" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="468" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="469" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="470" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="471" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="472" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="473" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="474" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="475" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="476" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="477" Type="수건 양머리(남)" EngName="sheeptowelM" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="478" Type="레트로 레이어드" EngName="shepherd" ColorE="dark" Color="블랙" UseableBarrack="NO"/>
+			<Node Index="479" Type="레트로 레이어드" EngName="shepherd" ColorE="gold" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="480" Type="바니보이" EngName="bunnyboy" ColorE="blond" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="481" Type="바니보이" EngName="bunnyboy" ColorE="paleblue" Color="페일 블루" UseableBarrack="NO"/>
+			<Node Index="482" Type="바니보이" EngName="bunnyboy" ColorE="dark" Color="다크" UseableBarrack="NO"/>
+			<Node Index="483" Type="투톤 댄디 컷" EngName="mintpink" ColorE="blond" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="484" Type="투톤 댄디 컷" EngName="mintpink" ColorE="ashblue" Color="애쉬 블루" UseableBarrack="NO"/>
+			<Node Index="485" Type="투톤 댄디 컷" EngName="mintpink" ColorE="brown" Color="애쉬 브라운" UseableBarrack="NO"/>
+			<Node Index="486" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="blond" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="487" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="paleblue" Color="페일 블루" UseableBarrack="NO"/>
+			<Node Index="488" Type="노블 웨이브 포니테일" EngName="redbridge" ColorE="brown" Color="애쉬 브라운" UseableBarrack="NO"/>
+			<Node Index="489" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="490" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="491" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="492" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="493" Type="뱅" EngName="banghair" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="494" Type="뱅" EngName="banghair" ColorE="paleblue" Color="페일 블루" UseableBarrack="NO"/>
+			<Node Index="495" Type="뱅" EngName="banghair" ColorE="brown" Color="애쉬 브라운" UseableBarrack="NO"/>
+			<Node Index="496" Type="숏 리젠트 헤어" EngName="bulletmarker" ColorE="default" Color="그레이" UseableBarrack="NO"/>
+			<Node Index="497" Type="숏 리젠트 헤어" EngName="bulletmarker" ColorE="black" Color="페일 블랙" UseableBarrack="NO"/>
+			<Node Index="498" Type="숏 리젠트 헤어" EngName="bulletmarker" ColorE="flame" Color="플레임 레드" UseableBarrack="NO"/>
+			<Node Index="499" Type="숏 리젠트 헤어" EngName="bulletmarker" ColorE="violet" Color="라벤더 바이올렛" UseableBarrack="NO"/>
+			<Node Index="500" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="501" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="502" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="503" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="504" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="505" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="506" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="507" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="508" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="509" Type="달 토끼 헬멧(남)" EngName="helmet_MoonRabbit" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="510" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="511" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="512" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="513" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="514" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="515" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="516" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="517" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="518" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="519" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="520" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="521" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="522" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="523" Type="어쌔신 두건(남)" EngName="Helmet_assassin01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="524" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="525" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="526" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="527" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="528" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="529" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="530" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="531" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="532" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="533" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="534" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="535" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="536" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="537" Type="길티네 추종자의 두건(남)" EngName="helmet_GuiltyM" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="538" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="539" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="540" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="541" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="542" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="543" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="544" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="545" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="546" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="547" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="548" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="549" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="550" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="551" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="552" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="553" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="554" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="555" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="556" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="557" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="558" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="559" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="560" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="561" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="562" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="563" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="564" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="565" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="566" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="567" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="568" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="569" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="570" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="571" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="572" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="573" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="574" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="575" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="576" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="577" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="578" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="579" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="580" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="581" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="582" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="583" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="584" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="585" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="586" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="587" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="588" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="589" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="590" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="591" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="592" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="593" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="594" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="595" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="596" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="597" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="598" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="599" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="600" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="601" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="602" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="603" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="604" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="605" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="606" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="607" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="608" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="609" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="610" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="611" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="612" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="613" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="614" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="615" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="616" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="617" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="618" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="619" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="620" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="621" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="636" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="637" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="638" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="639" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="640" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="641" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="642" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="643" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="644" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="645" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="646" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="647" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="648" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="649" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="650" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="651" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="652" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="653" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="654" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="655" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="656" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="657" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="658" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="659" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="660" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="661" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="662" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="663" Type="TOS 레인저 핑크 헬멧" EngName="helmet_squadron_pink" EngColor="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="664" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="665" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="666" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="667" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="668" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="669" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="670" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="671" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="672" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="673" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="674" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="675" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="676" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="677" Type="TOS 레인저 그린 헬멧" EngName="helmet_squadron_green" EngColor="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="678" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="679" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="680" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="681" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="682" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="683" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="684" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="685" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="686" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="687" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="688" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="689" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="690" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="691" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+		</Class>
+		<Class ClassID="2">
+			<Node Index="1" Type="숏 컷" EngName="Shortcut" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="2" Type="숏 컷" EngName="Shortcut" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="3" Type="숏 컷" EngName="Shortcut" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="4" Type="숏 컷" EngName="Shortcut" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="5" Type="숏 컷" EngName="Shortcut" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="6" Type="롱 샤기" EngName="LongShaggy" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="7" Type="롱 샤기" EngName="LongShaggy" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="8" Type="롱 샤기" EngName="LongShaggy" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="9" Type="롱 샤기" EngName="LongShaggy" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="10" Type="롱 샤기" EngName="LongShaggy" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="11" Type="볼륨 컬" EngName="Volume" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="12" Type="볼륨 컬" EngName="Volume" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="13" Type="볼륨 컬" EngName="Volume" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="14" Type="볼륨 컬" EngName="Volume" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="15" Type="볼륨 컬" EngName="Volume" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="16" Type="롱 포니테일" EngName="LongPonyTail" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="17" Type="롱 포니테일" EngName="LongPonyTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="18" Type="롱 포니테일" EngName="LongPonyTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="19" Type="롱 포니테일" EngName="LongPonyTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="20" Type="롱 포니테일" EngName="LongPonyTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="21" Type="트윈테일" EngName="TwinTail" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="22" Type="트윈테일" EngName="TwinTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="23" Type="트윈테일" EngName="TwinTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="24" Type="트윈테일" EngName="TwinTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="25" Type="트윈테일" EngName="TwinTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="26" Type="레게포니테일" EngName="RPonyTail" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="27" Type="레게포니테일" EngName="RPonyTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="28" Type="레게포니테일" EngName="RPonyTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="29" Type="레게포니테일" EngName="RPonyTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="30" Type="레게포니테일" EngName="RPonyTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="31" Type="더블 번" EngName="DoubleBurn" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="32" Type="더블 번" EngName="DoubleBurn" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="33" Type="더블 번" EngName="DoubleBurn" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="34" Type="더블 번" EngName="DoubleBurn" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="35" Type="더블 번" EngName="DoubleBurn" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="36" Type="롱 레이어드" EngName="LongLayered" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="37" Type="롱 레이어드" EngName="LongLayered" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="38" Type="롱 레이어드" EngName="LongLayered" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="39" Type="롱 레이어드" EngName="LongLayered" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="40" Type="롱 레이어드" EngName="LongLayered" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="41" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="42" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="43" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="44" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="45" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="46" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="47" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="48" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="49" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="50" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="51" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="52" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="53" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="54" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="55" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="56" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="default" Color="기본" UseableBarrack="YES"/>
+			<Node Index="57" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="58" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="59" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="60" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="61" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="62" Type="볼륨웨이브" EngName="VolumeWave" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="63" Type="헤어15" EngName="Hair_F15" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="64" Type="노블 롱" EngName="NovleLong" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="65" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="66" Type="브레이드 포니테일" EngName="zealot" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="67" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="68" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="69" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="70" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="71" Type="볼륨웨이브" EngName="VolumeWave" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="72" Type="볼륨웨이브" EngName="VolumeWave" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="73" Type="볼륨웨이브" EngName="VolumeWave" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="74" Type="볼륨웨이브" EngName="VolumeWave" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="75" Type="노블 롱" EngName="NovleLong" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="76" Type="노블 롱" EngName="NovleLong" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="77" Type="노블 롱" EngName="NovleLong" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="78" Type="노블 롱" EngName="NovleLong" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="79" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="80" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="81" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="82" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="83" Type="숏 컷" EngName="Shortcut" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="84" Type="숏 컷" EngName="Shortcut" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="85" Type="롱 샤기" EngName="LongShaggy" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="86" Type="롱 샤기" EngName="LongShaggy" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="87" Type="볼륨 컬" EngName="Volume" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="88" Type="볼륨 컬" EngName="Volume" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="89" Type="롱 포니테일" EngName="LongPonyTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="90" Type="롱 포니테일" EngName="LongPonyTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="91" Type="트윈테일" EngName="TwinTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="92" Type="트윈테일" EngName="TwinTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="93" Type="레게포니테일" EngName="RPonyTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="94" Type="레게포니테일" EngName="RPonyTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="95" Type="더블 번" EngName="DoubleBurn" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="96" Type="더블 번" EngName="DoubleBurn" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="97" Type="롱 레이어드" EngName="LongLayered" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="98" Type="롱 레이어드" EngName="LongLayered" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="99" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="100" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="101" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="102" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="103" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="104" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="105" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="106" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="107" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="108" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="109" Type="볼륨웨이브" EngName="VolumeWave" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="110" Type="볼륨웨이브" EngName="VolumeWave" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="111" Type="노블 롱" EngName="NovleLong" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="112" Type="노블 롱" EngName="NovleLong" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="113" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="114" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="115" Type="숏 컷" EngName="Shortcut" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="116" Type="숏 컷" EngName="Shortcut" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="117" Type="롱 샤기" EngName="LongShaggy" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="118" Type="롱 샤기" EngName="LongShaggy" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="119" Type="볼륨 컬" EngName="Volume" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="120" Type="볼륨 컬" EngName="Volume" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="121" Type="롱 포니테일" EngName="LongPonyTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="122" Type="롱 포니테일" EngName="LongPonyTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="123" Type="트윈테일" EngName="TwinTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="124" Type="트윈테일" EngName="TwinTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="125" Type="레게포니테일" EngName="RPonyTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="126" Type="레게포니테일" EngName="RPonyTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="127" Type="더블 번" EngName="DoubleBurn" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="128" Type="더블 번" EngName="DoubleBurn" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="129" Type="롱 레이어드" EngName="LongLayered" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="130" Type="롱 레이어드" EngName="LongLayered" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="131" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="132" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="133" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="134" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="135" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="136" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="137" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="138" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="139" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="140" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="141" Type="볼륨웨이브" EngName="VolumeWave" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="142" Type="볼륨웨이브" EngName="VolumeWave" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="143" Type="노블 롱" EngName="NovleLong" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="144" Type="노블 롱" EngName="NovleLong" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="145" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="146" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="147" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="148" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="149" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="150" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="151" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="152" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="153" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="154" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="155" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="156" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="157" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="158" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="159" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="160" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="161" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="162" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="163" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="164" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="165" Type="브레이드 포니테일" EngName="zealot" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="166" Type="브레이드 포니테일" EngName="zealot" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="167" Type="브레이드 포니테일" EngName="zealot" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="168" Type="브레이드 포니테일" EngName="zealot" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="169" Type="브레이드 포니테일" EngName="zealot" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="170" Type="브레이드 포니테일" EngName="zealot" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="171" Type="브레이드 포니테일" EngName="zealot" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="172" Type="브레이드 포니테일" EngName="zealot" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="173" Type="내추럴 웨이브" EngName="silvia" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="174" Type="내추럴 웨이브" EngName="silvia" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="175" Type="내추럴 웨이브" EngName="silvia" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="176" Type="내추럴 웨이브" EngName="silvia" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="177" Type="내추럴 웨이브" EngName="silvia" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="178" Type="내추럴 웨이브" EngName="silvia" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="179" Type="내추럴 웨이브" EngName="silvia" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="180" Type="내추럴 웨이브" EngName="silvia" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="181" Type="내추럴 웨이브" EngName="silvia" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="182" Type="숏 컷" EngName="Shortcut" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="183" Type="롱 샤기" EngName="LongShaggy" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="184" Type="볼륨 컬" EngName="Volume" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="185" Type="롱 포니테일" EngName="LongPonyTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="186" Type="트윈테일" EngName="TwinTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="187" Type="레게포니테일" EngName="RPonyTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="188" Type="더블 번" EngName="DoubleBurn" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="189" Type="롱 레이어드" EngName="LongLayered" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="190" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="191" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="192" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="193" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="194" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="195" Type="볼륨웨이브" EngName="VolumeWave" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="196" Type="헤어15" EngName="Hair_F15" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="197" Type="노블 롱" EngName="NovleLong" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="198" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="199" Type="브레이드 포니테일" EngName="zealot" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="200" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="201" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="202" Type="내추럴 웨이브" EngName="silvia" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="203" Type="노블 웨이브 펌" EngName="warrock2" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="204" Type="노블 웨이브 펌" EngName="warrock2" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="205" Type="노블 웨이브 펌" EngName="warrock2" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="206" Type="노블 웨이브 펌" EngName="warrock2" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="207" Type="노블 웨이브 펌" EngName="warrock2" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="208" Type="노블 웨이브 펌" EngName="warrock2" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="209" Type="노블 웨이브 펌" EngName="warrock2" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="210" Type="노블 웨이브 펌" EngName="warrock2" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="211" Type="노블 웨이브 펌" EngName="warrock2" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="212" Type="노블 웨이브 펌" EngName="warrock2" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="213" Type="리본장식 더블 번" EngName="puppeteer" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="214" Type="리본장식 더블 번" EngName="puppeteer" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="215" Type="리본장식 더블 번" EngName="puppeteer" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="216" Type="리본장식 더블 번" EngName="puppeteer" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="217" Type="리본장식 더블 번" EngName="puppeteer" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="218" Type="리본장식 더블 번" EngName="puppeteer" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="219" Type="리본장식 더블 번" EngName="puppeteer" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="220" Type="리본장식 더블 번" EngName="puppeteer" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="221" Type="리본장식 더블 번" EngName="puppeteer" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="222" Type="리본장식 더블 번" EngName="puppeteer" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="223" Type="숏 컷" EngName="Shortcut" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="224" Type="롱 샤기" EngName="LongShaggy" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="225" Type="볼륨 컬" EngName="Volume" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="226" Type="롱 포니테일" EngName="LongPonyTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="227" Type="트윈테일" EngName="TwinTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="228" Type="레게포니테일" EngName="RPonyTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="229" Type="더블 번" EngName="DoubleBurn" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="230" Type="롱 레이어드" EngName="LongLayered" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="231" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="232" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="233" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="234" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="235" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="236" Type="볼륨웨이브" EngName="VolumeWave" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="237" Type="헤어15" EngName="Hair_F15" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="238" Type="노블 롱" EngName="NovleLong" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="239" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="240" Type="브레이드 포니테일" EngName="zealot" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="241" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="242" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="243" Type="내추럴 웨이브" EngName="silvia" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="244" Type="노블 웨이브 펌" EngName="warrock2" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="245" Type="리본장식 더블 번" EngName="puppeteer" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="246" Type="비대칭 블렌드컷" EngName="scout" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="247" Type="비대칭 블렌드컷" EngName="scout" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="248" Type="비대칭 블렌드컷" EngName="scout" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="249" Type="비대칭 블렌드컷" EngName="scout" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="250" Type="비대칭 블렌드컷" EngName="scout" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="251" Type="비대칭 블렌드컷" EngName="scout" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="252" Type="비대칭 블렌드컷" EngName="scout" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="253" Type="비대칭 블렌드컷" EngName="scout" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="254" Type="비대칭 블렌드컷" EngName="scout" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="255" Type="비대칭 블렌드컷" EngName="scout" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="256" Type="비대칭 블렌드컷" EngName="scout" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="257" Type="숏 컷" EngName="Shortcut" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="258" Type="롱 샤기" EngName="LongShaggy" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="259" Type="볼륨 컬" EngName="Volume" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="260" Type="롱 포니테일" EngName="LongPonyTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="261" Type="트윈테일" EngName="TwinTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="262" Type="레게포니테일" EngName="RPonyTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="263" Type="더블 번" EngName="DoubleBurn" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="264" Type="롱 레이어드" EngName="LongLayered" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="265" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="266" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="267" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="268" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="269" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="270" Type="볼륨웨이브" EngName="VolumeWave" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="271" Type="헤어15" EngName="Hair_F15" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="272" Type="노블 롱" EngName="NovleLong" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="273" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="274" Type="브레이드 포니테일" EngName="zealot" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="275" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="276" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="277" Type="내추럴 웨이브" EngName="silvia" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="278" Type="노블 웨이브 펌" EngName="warrock2" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="279" Type="리본장식 더블 번" EngName="puppeteer" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="280" Type="비대칭 블렌드컷" EngName="scout" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="281" Type="업스타일 헤어" EngName="ploana" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="282" Type="업스타일 헤어" EngName="ploana" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="283" Type="업스타일 헤어" EngName="ploana" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="284" Type="업스타일 헤어" EngName="ploana" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="285" Type="업스타일 헤어" EngName="ploana" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="286" Type="업스타일 헤어" EngName="ploana" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="287" Type="업스타일 헤어" EngName="ploana" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="288" Type="업스타일 헤어" EngName="ploana" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="289" Type="업스타일 헤어" EngName="ploana" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="290" Type="업스타일 헤어" EngName="ploana" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="291" Type="업스타일 헤어" EngName="ploana" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="292" Type="업스타일 헤어" EngName="ploana" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="293" Type="내추럴 포니테일" EngName="tyurt" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="294" Type="내추럴 포니테일" EngName="tyurt" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="295" Type="내추럴 포니테일" EngName="tyurt" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="296" Type="내추럴 포니테일" EngName="tyurt" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="297" Type="내추럴 포니테일" EngName="tyurt" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="298" Type="내추럴 포니테일" EngName="tyurt" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="299" Type="내추럴 포니테일" EngName="tyurt" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="300" Type="내추럴 포니테일" EngName="tyurt" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="301" Type="내추럴 포니테일" EngName="tyurt" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="302" Type="내추럴 포니테일" EngName="tyurt" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="303" Type="내추럴 포니테일" EngName="tyurt" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="304" Type="내추럴 포니테일" EngName="tyurt" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="305" Type="숏 컷" EngName="Shortcut" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="306" Type="롱 샤기" EngName="LongShaggy" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="307" Type="볼륨 컬" EngName="Volume" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="308" Type="롱 포니테일" EngName="LongPonyTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="309" Type="트윈테일" EngName="TwinTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="310" Type="레게포니테일" EngName="RPonyTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="311" Type="더블 번" EngName="DoubleBurn" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="312" Type="롱 레이어드" EngName="LongLayered" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="313" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="314" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="315" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="316" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="317" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="318" Type="볼륨웨이브" EngName="VolumeWave" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="319" Type="헤어15" EngName="Hair_F15" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="320" Type="노블 롱" EngName="NovleLong" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="321" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="322" Type="브레이드 포니테일" EngName="zealot" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="323" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="324" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="325" Type="내추럴 웨이브" EngName="silvia" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="326" Type="노블 웨이브 펌" EngName="warrock2" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="327" Type="리본장식 더블 번" EngName="puppeteer" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="328" Type="비대칭 블렌드컷" EngName="scout" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="329" Type="업스타일 헤어" EngName="ploana" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="330" Type="내추럴 포니테일" EngName="tyurt" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="331" Type="숏 컷" EngName="Shortcut" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="332" Type="롱 샤기" EngName="LongShaggy" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="333" Type="볼륨 컬" EngName="Volume" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="334" Type="롱 포니테일" EngName="LongPonyTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="335" Type="트윈테일" EngName="TwinTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="336" Type="레게포니테일" EngName="RPonyTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="337" Type="더블 번" EngName="DoubleBurn" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="338" Type="롱 레이어드" EngName="LongLayered" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="339" Type="숏 트윈테일" EngName="ShortTwinTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="340" Type="묶은 롱 웨이브" EngName="TiedLongWave" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="341" Type="롱 웨이브 트윈테일" EngName="LongWaveTwinTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="342" Type="숏 포니테일" EngName="ShortPonyTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="343" Type="볼륨웨이브 트윈테일" EngName="VolumeWaveTwinTail" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="344" Type="볼륨웨이브" EngName="VolumeWave" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="345" Type="헤어15" EngName="Hair_F15" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="346" Type="노블 롱" EngName="NovleLong" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="347" Type="숏 컷 펌" EngName="ShortCutPerm" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="348" Type="브레이드 포니테일" EngName="zealot" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="349" Type="코카트리스 헤드(여)" EngName="CockatriesF" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="350" Type="롱 웨이브 펌" EngName="Jullahair" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="351" Type="내추럴 웨이브" EngName="silvia" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="352" Type="노블 웨이브 펌" EngName="warrock2" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="353" Type="리본장식 더블 번" EngName="puppeteer" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="354" Type="비대칭 블렌드컷" EngName="scout" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="355" Type="업스타일 헤어" EngName="ploana" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="356" Type="내추럴 포니테일" EngName="tyurt" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="357" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="default" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="358" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="359" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="360" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="361" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="white" Color="화이트" UseableBarrack="NO"/>
+			<Node Index="362" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="363" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="364" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="365" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="366" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="367" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="368" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="369" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="370" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="371" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="372" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="373" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="374" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="375" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="376" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="377" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="378" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="379" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="380" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="381" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="382" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="383" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="384" Type="치킨 푸들 헤드" EngName="helmet_poodle" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="385" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="386" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="387" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="388" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="389" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="390" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="391" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="392" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="393" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="394" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="395" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="396" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="397" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="398" Type="턱시도 냥이 헤드(여)" EngName="helmet_tiecat" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="399" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="400" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="401" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="402" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="403" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="404" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="405" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="406" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="407" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="408" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="409" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="410" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="411" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="412" Type="포포리온 헤드(여)" EngName="helmet_poporion" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="413" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="414" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="415" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="416" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="417" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="418" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="419" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="420" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="421" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="422" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="423" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="424" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="425" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="426" Type="펭귄 헤드(여)" EngName="helmet_penguin02" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="427" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="428" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="429" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="430" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="431" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="432" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="433" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="434" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="435" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="436" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="437" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="438" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="439" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="440" Type="하나밍 헤드(여)" EngName="helmet_hanaming01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="441" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="442" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="443" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="444" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="445" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="446" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="447" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="448" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="449" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="450" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="451" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="452" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="453" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="454" Type="케파 헤드(여)" EngName="helmet_kepa01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="455" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="456" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="457" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="458" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="459" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="460" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="461" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="462" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="463" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="464" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="465" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="466" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="467" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="468" Type="라이칸스로피 수인화(여)" EngName="hair_lycan" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="469" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="470" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="471" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="472" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="473" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="474" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="475" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="476" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="477" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="478" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="479" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="480" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="481" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="482" Type="금강불개 투구" EngName="helmet_goldarmor" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="483" Type="고스로리" EngName="gothloli_hair" ColorE="default" Color="블루 그라데이션" UseableBarrack="NO"/>
+			<Node Index="484" Type="고스로리" EngName="gothloli_hair" ColorE="red" Color="핑크 그라데이션" UseableBarrack="NO"/>
+			<Node Index="485" Type="고스로리" EngName="gothloli_hair" ColorE="purple" Color="핑크 블루 그라데이션" UseableBarrack="NO"/>
+			<Node Index="486" Type="고스로리" EngName="gothloli_hair" ColorE="gray" Color="스노우 화이트" UseableBarrack="NO"/>
+			<Node Index="487" Type="고스로리" EngName="gothloli_hair" ColorE="blue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="488" Type="사이드 포니테일" EngName="waveponytail" ColorE="default" Color="핑크" UseableBarrack="NO"/>
+			<Node Index="489" Type="사이드 포니테일" EngName="waveponytail" ColorE="blond" Color="골드" UseableBarrack="NO"/>
+			<Node Index="490" Type="사이드 포니테일" EngName="waveponytail" ColorE="gray" Color="블랙 바이올렛" UseableBarrack="NO"/>
+			<Node Index="491" Type="사이드 포니테일" EngName="waveponytail" ColorE="purple" Color="퍼플 바이올렛" UseableBarrack="NO"/>
+			<Node Index="492" Type="사이드 포니테일" EngName="waveponytail" ColorE="midnightblue" Color="퍼플" UseableBarrack="NO"/>
+			<Node Index="493" Type="쳐피뱅" EngName="pinkgradation" ColorE="default" Color="핑크 그라데이션" UseableBarrack="NO"/>
+			<Node Index="494" Type="쳐피뱅" EngName="pinkgradation" ColorE="black" Color="블랙" UseableBarrack="NO"/>
+			<Node Index="495" Type="쳐피뱅" EngName="pinkgradation" ColorE="gray" Color="그레이" UseableBarrack="NO"/>
+			<Node Index="496" Type="쳐피뱅" EngName="pinkgradation" ColorE="red" Color="블랙 레드 브릿지" UseableBarrack="NO"/>
+			<Node Index="497" Type="쳐피뱅" EngName="pinkgradation" ColorE="white" Color="미드나이트 블루 그라데이션" UseableBarrack="NO"/>
+			<Node Index="498" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="499" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="black" Color="검은색" UseableBarrack="NO"/>
+			<Node Index="500" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="blue" Color="파란색" UseableBarrack="NO"/>
+			<Node Index="501" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="pink" Color="분홍색" UseableBarrack="NO"/>
+			<Node Index="502" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="503" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="504" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="505" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="506" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="507" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="508" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="509" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="510" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="511" Type="수건 양머리(여)" EngName="sheeptowelF" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="512" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="skymint" Color="스카이 민트" UseableBarrack="NO"/>
+			<Node Index="513" Type="로맨틱 번헤어" EngName="nature_waveup" ColorE="gold" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="514" Type="고스로리" EngName="gothloli_hair" ColorE="blond" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="515" Type="고스로리" EngName="gothloli_hair" ColorE="mint" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="516" Type="고스로리" EngName="gothloli_hair" ColorE="lightbrown" Color="애쉬 브라운" UseableBarrack="NO"/>
+			<Node Index="517" Type="사이드 포니테일" EngName="waveponytail" ColorE="brown" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="518" Type="사이드 포니테일" EngName="waveponytail" ColorE="mint" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="519" Type="사이드 포니테일" EngName="waveponytail" ColorE="darkblue" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="520" Type="쳐피뱅" EngName="pinkgradation" ColorE="blond" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="521" Type="쳐피뱅" EngName="pinkgradation" ColorE="mint" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="522" Type="쳐피뱅" EngName="pinkgradation" ColorE="lightbrown" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="523" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="524" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="525" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="526" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="527" Type="시노비 컷" EngName="hunter" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="528" Type="시노비 컷" EngName="hunter" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="529" Type="시노비 컷" EngName="hunter" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="530" Type="시노비 컷" EngName="hunter" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="531" Type="시노비 컷" EngName="hunter" ColorE="white" Color="블론드" UseableBarrack="NO"/>
+			<Node Index="532" Type="피쉬 테일" EngName="braidtwin" ColorE="default" Color="그레이" UseableBarrack="NO"/>
+			<Node Index="533" Type="피쉬 테일" EngName="braidtwin" ColorE="charcoal" Color="챠콜" UseableBarrack="NO"/>
+			<Node Index="534" Type="피쉬 테일" EngName="braidtwin" ColorE="copper" Color="코퍼 브라운" UseableBarrack="NO"/>
+			<Node Index="535" Type="피쉬 테일" EngName="braidtwin" ColorE="pink" Color="더티 핑크" UseableBarrack="NO"/>
+			<Node Index="536" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="537" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="538" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="539" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="540" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="541" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="542" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="543" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="544" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="545" Type="달 토끼 헬멧(여)" EngName="helmet_MoonRabbit" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="546" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="547" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="548" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="549" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="550" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="551" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="552" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="553" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="554" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="555" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="556" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="557" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="558" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="559" Type="어쌔신 두건(여)" EngName="Helmet_assassin01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="560" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="561" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="562" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="563" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="564" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="565" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="566" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="567" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="568" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="569" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="570" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="571" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="572" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="573" Type="길티네 추종자의 두건(여)" EngName="helmet_GuiltyF" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="574" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="575" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="576" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="577" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="578" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="579" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="580" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="581" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="582" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="583" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="584" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="585" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="586" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="587" Type="길티네의 두건" EngName="helmet_FairyGuilty" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="588" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="589" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="590" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="591" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="592" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="593" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="594" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="595" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="596" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="597" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="598" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="599" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="600" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="601" Type="콩닥콩닥 면사포" EngName="helmet_weddingvail02" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="602" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="603" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="604" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="605" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="606" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="607" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="608" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="609" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="610" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="611" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="612" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="613" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="614" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="615" Type="북극 펭귄 헬멧" EngName="winter_Helmet_penguin" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="616" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="617" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="618" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="619" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="620" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="621" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="622" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="623" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="624" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="625" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="626" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="627" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="628" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="629" Type="황금 복돼지 헬멧" EngName="helmet_goldpig" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="630" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="631" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="632" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="633" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="634" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="635" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="636" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="637" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="638" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="639" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="640" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="641" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="642" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="643" Type="소라빵 귀염둥이 귀족 영애 얼굴" EngName="helmet_romance01" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="644" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="645" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="646" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="647" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="648" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="649" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="650" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="651" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="652" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="653" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="654" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="655" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="656" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="657" Type="충격받은 장미 기사 얼굴" EngName="helmet_romance02" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="658" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="659" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="660" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="661" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="662" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="663" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="664" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="665" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="666" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="667" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="668" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="669" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="670" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="671" Type="반달가슴곰 헤드" EngName="helmet_blackbear" ColorE="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="686" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="687" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="688" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="689" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="690" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="691" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="692" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="693" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="694" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="695" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="696" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="697" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="698" Type="TOS 레인저 레드 헬멧" EngName="helmet_squadron_red" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="699" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="700" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="701" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="702" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="703" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="704" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="705" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="706" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="707" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="708" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="709" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="710" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="711" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="712" Type="TOS 레인저 블루 헬멧" EngName="helmet_squadron_blue" EngColor="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="713" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="714" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="715" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="716" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="717" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="718" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="719" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="720" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="721" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="722" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="723" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="724" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="725" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="726" Type="TOS 레인저 옐로우 헬멧" EngName="helmet_squadron_yellow" EngColor="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+			<Node Index="727" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="default" Color="기본" UseableBarrack="NO"/>
+			<Node Index="728" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="black" Color="라이트 브라운" UseableBarrack="NO"/>
+			<Node Index="729" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="blue" Color="애플 민트" UseableBarrack="NO"/>
+			<Node Index="730" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="pink" Color="다크 블루" UseableBarrack="NO"/>
+			<Node Index="731" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="white" Color="흰색" UseableBarrack="NO"/>
+			<Node Index="732" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="blond" Color="애쉬 블론드" UseableBarrack="NO"/>
+			<Node Index="733" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="red" Color="루비 와인" UseableBarrack="NO"/>
+			<Node Index="734" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="green" Color="파스텔 그린" UseableBarrack="NO"/>
+			<Node Index="735" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="gray" Color="애쉬 그레이" UseableBarrack="NO"/>
+			<Node Index="736" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="lightsalmon" Color="라이트 살몬" UseableBarrack="NO"/>
+			<Node Index="737" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="purple" Color="바이올렛" UseableBarrack="NO"/>
+			<Node Index="738" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="orange" Color="오렌지" UseableBarrack="NO"/>
+			<Node Index="739" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="brown" Color="브라운" UseableBarrack="NO"/>
+			<Node Index="740" Type="괴수 헬멧" EngName="helmet_squadron_kaiju" EngColor="midnightblue" Color="미드나이트 블루" UseableBarrack="NO"/>
+		</Class>
+	</Category>
+</idspace>

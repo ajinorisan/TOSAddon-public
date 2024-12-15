@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="hairenchant_option" x="0" y="0" width="400" height="200">
+	<frame fullheight="false" fasthide="true" layout_gravity="right center" margin="0 65 0 0"/>
+	<skin frameskin="none"/>
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="100"/>
+	<option closebutton="false"/>
+	<sound opensound="button_click_stats_OK"/>
+	<effect open="character_item_window_open" close="character_item_window_close"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false" catchmovepos="true"/>
+	<script CloseScp="" OpenScp="HAIRENCHANT_OPTION_OPEN_FRAME"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 400 210" margin="0 -10 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_Item_tooltip_equip"/>
+		<groupbox name="title" rect="0 0 400 200" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_lyellow_skin"/>
+
+			<groupbox name="droplistbg" parent="bg" rect="0 0 470 200" margin="10 50 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin=""/>
+
+				<groupbox name="fstbg" parent="droplistbg" rect="0 0 400 200" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin=""/>
+					<droplist name="opt_list" parent="fstbg" rect="0 0 300 60" margin="0 0 0 0" layout_gravity="left top" SelectScp="ENCHANT_DROPLIST_SELECT" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal4" textalign="left center" textoffset="10 0" visibleline="6" fontname="white_12_ol"/>
+					<edit name="opt_edit" parent="fstbg" rect="0 0 80 35" margin="0 0 15 0" layout_gravity="right top" OffsetForDraw="0 0" fontname="white_16_ol" maxlen="30" saveinput="true" textalign="center center" typingscp="ENCAHNT_OPTION_TYPING" EnterKeyScp="" />
+
+				<groupbox name="sndbg" parent="droplistbg" rect="0 0 400 200" margin="0 40 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin=""/>
+					<droplist name="opt_list" parent="sndbg" rect="0 0 300 60" margin="0 0 0 0" layout_gravity="left top" SelectScp="ENCHANT_DROPLIST_SELECT" fontname="black_16_b" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal4" textalign="left center" textoffset="10 0" visibleline="6" />
+					<edit name="opt_edit" parent="sndbg" rect="0 0 80 35" margin="0 0 15 0" layout_gravity="right top" OffsetForDraw="0 0" fontname="white_16_ol" maxlen="30" saveinput="true" textalign="center center" typingscp="ENCAHNT_OPTION_TYPING" EnterKeyScp="" />
+
+				<groupbox name="trdbg" parent="droplistbg" rect="0 0 400 200" margin="0 80 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin=""/>
+					<droplist name="opt_list" parent="trdbg" rect="0 0 300 60" margin="0 0 0 0" layout_gravity="left top" SelectScp="ENCHANT_DROPLIST_SELECT" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal4" textalign="left center" textoffset="10 0" visibleline="6" fontname="white_12_ol"/>
+					<edit name="opt_edit" parent="trdbg" rect="0 0 80 35" margin="0 0 15 0" layout_gravity="right top" OffsetForDraw="0 0" fontname="white_16_ol" maxlen="30" saveinput="true" textalign="center center" typingscp="ENCAHNT_OPTION_TYPING" EnterKeyScp="" />
+
+			<edit name="repeatCnt" parent="title" rect="0 0 80 35" margin="0 160 92 0" layout_gravity="right top" OffsetForDraw="0 0" fontname="white_16_ol" maxlen="30" saveinput="true" textalign="center center" typingscp="ENCAHNT_REAPEAT_TYPING" EnterKeyScp="None" />
+
+		<!-- <button name="select_before" parent="title" rect="0 0 90 35" margin="0 160 92 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="AUTOOPTION_START_BTN" skin="test_red_button" format="{@st41b}{s18}적용" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/> -->
+		<button name="resetBtn" parent="title" rect="0 0 90 35" margin="0 160 2 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ENCHANT_OPTION_RESET" skin="test_pvp_btn" format="{@st41b}{s16}초기화" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+
+		<button name="close" rect="0 0 65 65" margin="5 -2 0 0" layout_gravity="left top" LBtnUpScp="CANCEL_ENCHANT_OPTION" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="sys_popup_open_2" image="testclose_button" oversound="button_over" texttooltip="{@st59}옵션 창을 닫습니다.{/}"/>
+
+	</controls>
+</uiframe>

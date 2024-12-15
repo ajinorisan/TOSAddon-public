@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="earring_raid_board" x="0" y="0" width="250" height="396" create="open" layout_gravity="center center">
+	<draw drawframe="false" drawtitlebar="false"/>
+	<frame layout_gravity="right top" margin="0 30 350 0"/>
+	<input moveable="false"/>
+	<layer layerlevel="35"/>
+	<!-- <skin frameskin="black_box_op20"/> -->
+	<script OpenScp="MYTHIC_UI_OPEN"/>
+	<option visible="true" closebutton="false" piptype="right" autoopen="true" hideable="false"/>
+	<userconfig ITEM_BOX_WIDTH="250" ITEM_BOX_HEIGHT="120" BG_BOX_HEIGHT="396"/>
+	<controls>
+		<groupbox name="title_box" rect="0 0 250 46" margin="0 5 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false"/>
+		<picture name="title_pic" rect="0 0 250 46" margin="0 0 0 0" stretch="true" layout_gravity="left top" parent="title_box" image="wedge_s_title"/>
+		<richtext name="title_text" rect="0 0 250 46" margin="0 0 0 0" layout_gravity="center center" parent="title_box" format="{@st44}{s16}%s{/}{@st105_y_16}(%s:%s){/}" param1="title" param1_def="title" param2="min" param2_def="00" param3="sec" param3_def="00" textalign="center center"/>
+		<groupbox name="bg" rect="0 0 250 396" margin="0 51 0 0" layout_gravity="center top" skin="wedge_frame_green" draw="true" scrollbar="false"/>
+		<groupbox name="wavetime_box" rect="0 0 250 60" margin="0 10 0 0" layout_gravity="center top" draw="false" parent="bg" hittestbox="false"/>
+		<slot name="wavetime_icon" rect="0 0 16 19" margin="10 5 0 0" layout_gravity="left top" parent="wavetime_box" image="wedge_icon_s_time" hittest="false"/>
+		<richtext name="wavetime_text" rect="0 0 150 25" margin="27 5 0 0" layout_gravity="left top" parent="wavetime_box" format="{@sti1c}{s14}%s 웨이브 남은 시간{/}" param1="wave" param1_def="0"/>
+		<richtext name="wavetime_value" rect="0 0 150 25" margin="0 5 5 0" layout_gravity="right top" parent="wavetime_box" format="{@st105_y_16}%s:%s{/}" param1="min" param2="sec" param1_def="00" param2_def="00"/>
+		<gauge name="wavetime_gauge" rect="0 0 230 10" margin="0 32 0 0" layout_gravity="center top" parent="wavetime_box" inverse="false" hittest="false" skin="gauge" point="0" maxpoint="100"/>
+		<groupbox name="progress_box" rect="0 0 250 60" margin="0 65 0 0" draw="false" parent="bg" layout_gravity="center top"/>
+		<picture name="progress_pic" rect="0 0 16 19" parent="progress_box" margin="10 5 0 0" layout_gravity="left top" image="wedge_icon_s_goal" stretch="true"/>
+		<richtext name="progress_text" rect="0 0 100 30" parent="progress_box" margin="27 6 0 0" layout_gravity="left top" caption="{@sti1c}{s14}달성률"/>
+		<richtext name="progress_percent" rect="0 0 50 30" parent="progress_box" margin="0 5 5 0" layout_gravity="right top" format="{@st204_green}%s%" param1="percent" param1_def="0"/>
+		<gauge name="progress_gauge" rect="0 0 230 10" parent="progress_box" margin="0 32 0 0" layout_gravity="center top" skin="gauge_green" inverse="false" point="0" maxpoint="100"/>
+		<groupbox name="skill_box" rect="0 0 250 120" margin="0 115 0 0" draw="false" parent="bg" layout_gravity="center top" scrollbar="false"/>
+		<picture name="skill_pic" rect="0 0 16 19" margin="10 5 0 0" layout_gravity="left top" parent="skill_box" image="wedge_icon_s_pattern"/>
+		<richtext name="skill_text" rect="0 0 20 20" margin="27 6 0 0" layout_gravity="left top" parent="skill_box" caption="{@sti1c}{s14}파티 스킬"/>
+		<richtext name="skill_count_text" rect="0 0 20 20" parent="skill_box" margin="0 5 5 0" layout_gravity="right top" format="{@st204_magenta}%s회" param1="count" param1_def="0"/>
+		<gauge name="skill_cool_time_gauge" rect="0 0 230 10" margin="0 30 0 0" layout_gravity="center top" parent="skill_box" inverse="false" hittest="false" skin="gauge_red" point="0" maxpoint="100"/>
+		<groupbox name="skill_icon_box" rect="0 0 230 60" margin="0 48 0 0" layout_gravity="center top" parent="skill_box" skin="chat_window" scrollbar="false"/>
+	</controls>
+</uiframe>

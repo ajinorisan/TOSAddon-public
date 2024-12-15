@@ -1,0 +1,1163 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ToolSkill>
+    <Skill Name="Rancer_GiganteMarcha">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="350" Dist="0" ForceATK="0" HitCount="1" Length="120" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="150" Type="SQUARE" Width="45"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="0" UseSleep="NO">
+                    <Str Str="SKL_GIGANTEMARCHA"/>
+                    <Num Num="1.5"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+                    <Str Str="voice_war_atk_long_cast"/>
+                    <Str Str="voice_atk_long_cast_f"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="skl_eff_rancer_gigantemarcha"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_CHECK_LOOPING_COUNT_INIT" Time="200" TimeSync="0" UseSleep="NO">
+                    <Num Num="4"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_CHECK_LOOPING_COUNT" Time="200" TimeSync="0" UseSleep="NO"/>
+                <Scp Client="NO" LoopTime="200" Scp="MONSKL_PAD_DIR_MSL" Time="400" UseSleep="YES">
+                    <Pos Angle="0.78539819" Dist="28"/>
+                    <Str Str="GiganteMarcha_Pad"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="150"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5.6999998"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" LoopTime="200" Scp="MONSKL_PAD_DIR_MSL" Time="400" UseSleep="YES">
+                    <Pos Angle="-0.78539819" Dist="28"/>
+                    <Str Str="GiganteMarcha_Pad"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="150"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="-5.6999998"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" LoopTime="200" Scp="MONSKL_PAD_DIR_MSL" Time="400" UseSleep="YES">
+                    <Pos Angle="0" Dist="20"/>
+                    <Str Str="GiganteMarcha_Pad"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="150"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Client="NO" Scp="S_R_TGT_REMOVE_BUFF" UseSleep="NO">
+                    <Str FuncTxt="local func_name = 'get_remove_buff_tooltip_' .. TryGetProp(skill, 'ClassName', 'None')
+               local func = _G[func_name]
+               if func == nil then return end
+               return func(skill.Level)" Str="0" UseFunc="1"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Chage">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="999999" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="999799" Type="FAN" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_SQUARE" Time="0" UseSleep="NO">
+                    <Pos Angle="0.017891053" Dist="8.027173"/>
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num FuncTxt="local value = 1; local abil = GetAbility(self, '') local ActiveState = TryGetProp(abil, &quot;ActiveState&quot;) if abil ~= nil and ActiveState == 1 then     value = 3 end SetExProp(self, &quot;CHARGE_COUNT&quot;, value); return value;" Num="3" UseFunc="1"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SOUND" Time="0" UseSleep="NO">
+                    <Str Str="skl_eff_lancer_chage"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SHOCKWAVE" Time="0" UseSleep="NO">
+                    <Num Num="1.5"/>
+                    <Num Num="1.2"/>
+                    <Num Num="100"/>
+                    <Num Num="999"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="50" UseSleep="NO">
+                    <Str Str="voice_war_atk_long_cast"/>
+                    <Str Str="voice_atk_long_cast_f"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="50" UseSleep="NO">
+                    <Str_Arg Arg="1" Str="I_warrior_chage_dash"/>
+                    <Str Str="Dummy_effect_moulinet_shot"/>
+                    <Num Num="0.40000001"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_TGT_MOVE" Time="100" UseSleep="YES">
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="0"/>
+                    <Num Num="0.15000001"/>
+                    <Num Num="0.07000001"/>
+                    <Num Num="1"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="100" UseSleep="NO">
+                    <Pos Angle="0" Dist="0"/>
+                    <Angle Angle="0"/>
+                    <Str Str="Rancer_Charge"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SHOCKWAVE" Time="300" UseSleep="NO">
+                    <Num Num="10"/>
+                    <Num Num="0.5"/>
+                    <Num Num="100"/>
+                    <Num Num="999"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="300" UseSleep="NO">
+                    <Str_Arg Arg="1" Str="E_warrior_Longomiant"/>
+                    <Str Str="Dummy_effect_moulinet_shot"/>
+                    <Num Num="0.40000001"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Scp="S_R_COND_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SKL_Charge_Debuff"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Prevent">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_war_m_Prevent_cast"/>
+                    <Str Str="voice_war_Prevent_cast"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="skl_eff_rancer_prevent_sphere"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="250" UseSleep="NO">
+                    <Str_Arg Arg="5.5" Str="F_buff_basic049"/>
+                    <Str Str="Bip01 Neck"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_BUFF" Time="300" UseSleep="NO">
+                    <Str Str="Prevent_Buff"/>
+                    <Num FuncTxt="return obj.Level;" Num="0" UseFunc="1"/>
+                    <Num Num="0"/>
+                    <Num FuncTxt="  local value = 2000     local abil = GetAbility(self, &quot;Lancer14&quot;)     if abil ~= nil and abil.ActiveState == 1 then         value = value + (abil.Level * 200)     end          return value" Num="0" UseFunc="1"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Commence">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="9799" Type="FAN" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_BUFF" Time="0" UseSleep="NO">
+                    <Str Str="Commence_Buff"/>
+                    <Num FuncTxt="return obj.Level" Num="1" UseFunc="1"/>
+                    <Num Num="0"/>
+                    <Num Num="30000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="voice_war_atk_short"/>
+                    <Str Str="voice_atk_short_war_f"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Joust">
+        <EndScripts>
+            <ToolScp Scp="MONSKL_REMOVE_PAD" Client="NO" UseSleep="NO">
+                <Str Str="Rancer_Joust"/>
+            </ToolScp>
+            <ToolScp Scp="MONSKL_C_STOP_ANIM" Client="YES" UseSleep="NO"/>
+        </EndScripts>
+        <KeyInput>
+            <ToolScp Scp="SKL_KEY_DYNAMIC_CASTING_HAVE_ABIL" Client="YES" UseSleep="NO">
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="2"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Str Str="None"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="5"/>
+                <Num Num="1"/>
+                <Num Num="45"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+                <Str Str="Lancer28"/>
+            </ToolScp>
+        </KeyInput>
+        <KeyInputStart>
+            <ToolScp Scp="MONSKL_C_PLAY_ANIM_ABIL" Client="YES" UseSleep="NO">
+                <Str Str="Lancer28"/>
+                <Str Str="skl_charge_ride_abil_loop"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="C_SOUND" Client="YES" UseSleep="NO">
+                <Str Str="skl_eff_rancer_joust_cast_abil"/>
+            </ToolScp>
+            <ToolScp Scp="C_EFFECT_ABIL" Client="YES" UseSleep="NO">
+                <Str Str="Lancer28"/>
+                <Str_Arg Str="F_warrior_Charge_cast_light_white_loop" Arg="1.5"/>
+                <Str Str="Bip01"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="C_EFFECT_ABIL" Client="YES" UseSleep="NO">
+                <Str Str="Lancer28"/>
+                <Str_Arg Str="I_spread_in011_2" Arg="0.69999999"/>
+                <Str Str="Bip01"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </KeyInputStart>
+        <KeyInputEnd>
+            <ToolScp Scp="C_EFFECT_DETACH" Client="YES" UseSleep="NO">
+                <Str_Arg Str="F_warrior_Charge_cast_light_white_loop" Arg="1"/>
+                <Num Num="0.5"/>
+            </ToolScp>
+            <ToolScp Scp="C_EFFECT_DETACH" Client="YES" UseSleep="NO">
+                <Str_Arg Str="I_breath001_fire" Arg="1"/>
+                <Num Num="0.5"/>
+            </ToolScp>
+            <ToolScp Scp="C_SOUND" Client="YES" UseSleep="NO">
+                <Str Str="skl_eff_rancer_joust_shot_abil"/>
+            </ToolScp>
+        </KeyInputEnd>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="450" Dist="0" Angle="0" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="550" Dist="110" Angle="0" Accel="2" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="750" Dist="160" Angle="0" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="voice_war_atk_long_shot"/>
+                    <Str Str="voice_atk_long_war_f"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="PadImmune_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="skl_charge_ride"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="400">
+                    <Pos Angle="0" Dist="3.8255448e-43"/>
+                    <Num Num="0"/>
+                    <Num Num="180"/>
+                    <Num Num="40"/>
+                    <Num Num="10" UseFunc="1" FuncTxt="local value = 10
+                    if IsPVPField(self) == 1 and value > 2 then
+                    value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+                    end
+                    return value"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="450">
+                    <Str_Arg Str="I_warrior_chage_dash_white" Arg="2"/>
+                    <Num Num="1"/>
+                    <Pos Angle="0" Dist="3.8255448e-43"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                    <Pos Angle="0" Dist="20"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                    <Pos Angle="0" Dist="40"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                    <Pos Angle="0" Dist="60"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="550">
+                    <Pos Angle="0" Dist="80"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="550">
+                    <Pos Angle="0" Dist="100"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="600">
+                    <Pos Angle="0" Dist="120"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="600">
+                    <Pos Angle="0" Dist="140"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="650">
+                    <Pos Angle="0" Dist="160"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="700">
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="700">
+                    <Pos Angle="0" Dist="180"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Scp="S_R_ABIL_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                    <Str Str="Lancer28"/>
+                    <Num Num="4"/>
+                    <Num Num="3"/>
+                    <Num Num="250"/>
+                    <Num Num="70"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="2"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_TGT_Decrease_heal_debuff" Client="NO" UseSleep="NO">
+                    <Str Str="0" UseFunc="1" FuncTxt="local func_name = 'get_decrease_heal_debuff_tooltip_' .. TryGetProp(skill, 'ClassName', 'None')
+               local func = _G[func_name]
+               if func == nil then return end
+               return func(skill.Level)"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_TGTBUFF" Client="NO" UseSleep="NO">
+                    <Str Str="JoustSilence_Debuff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return skill.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="2000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="-1"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_COND_ABILITY" Client="NO" UseSleep="NO">
+                    <Str Str="Lancer12"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_COND_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SKL_JOUST_STRUCTURE_DEAD"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_COND_ABILITY" Client="NO" UseSleep="NO">
+                    <Str Str="Lancer28"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                    <Num Num="4"/>
+                    <Num Num="3"/>
+                    <Num Num="150"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="2"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+        <ByCondSkills>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_SELECT_ACTIVE_ABIL" Client="NO" UseSleep="NO">
+                        <Str Str="Lancer28"/>
+                    </ToolScp>
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <HitList>
+                        <Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                    </HitList>
+                    <EtcList>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="voice_war_atk_long_shot"/>
+                            <Str Str="voice_atk_long_war_f"/>
+                        </Scp>
+                        <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+                            <Str Str="PadImmune_Buff"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                            <Num Num="1000"/>
+                            <Num Num="1"/>
+                            <Num Num="100"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="MONSKL_C_PLAY_ANIM_ABIL" Client="YES" UseSleep="NO" Time="0">
+                            <Str Str="Lancer28"/>
+                            <Str Str="skl_charge_ride_abil_shot"/>
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="0">
+                            <Str_Arg Str="I_warrior_chage_dash_white" Arg="2"/>
+                            <Num Num="1"/>
+                            <Pos Angle="0" Dist="50"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_MOVE_JUMP_BY_CASTING_RATE" Client="NO" UseSleep="YES" Time="0">
+                            <Num Num="0"/>
+                            <Num Num="180"/>
+                            <Num Num="0"/>
+                            <Num Num="0.5"/>
+                            <Num Num="0.050000001"/>
+                            <Num Num="1"/>
+                            <Num Num="0.1"/>
+                            <Num Num="1"/>
+                        </Scp>
+                        <Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="0">
+                            <Pos Angle="0" Dist="3.8255448e-43"/>
+                            <Num Num="0"/>
+                            <Num Num="180"/>
+                            <Num Num="40"/>
+                            <Num Num="10"/>
+                            <Num Num="2"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG_BY_CASTING_RATE" Client="NO" UseSleep="NO" Time="0">
+                            <Num Num="0.5"/>
+                            <Num Num="1.5"/>
+                        </Scp>
+                        <Scp Scp="C_EFFECT_DETACH" Client="YES" UseSleep="NO" Time="400">
+                            <Str_Arg Str="I_warrior_chage_dash_white" Arg="1"/>
+                            <Num Num="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                            <Pos Angle="0" Dist="20"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                            <Pos Angle="0" Dist="40"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                            <Pos Angle="0" Dist="60"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="550">
+                            <Pos Angle="0" Dist="80"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="550">
+                            <Pos Angle="0" Dist="100"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="600">
+                            <Pos Angle="0" Dist="120"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="600">
+                            <Pos Angle="0" Dist="140"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="650">
+                            <Pos Angle="0" Dist="160"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                        <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="700">
+                            <Pos Angle="0" Dist="180"/>
+                            <Str Str="ENEMY"/>
+                            <Num Num="20"/>
+                            <Num Num="50"/>
+                            <Str Str="I_pattern008_explosion_mash_square"/>
+                            <Num Num="3000"/>
+                            <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                        </Scp>
+                    </EtcList>
+                    <ResultList>
+                        <ToolScp Scp="S_R_ABIL_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                            <Str Str="Lancer28"/>
+                            <Num Num="4"/>
+                            <Num Num="3"/>
+                            <Num Num="250"/>
+                            <Num Num="70"/>
+                            <Num Num="0"/>
+                            <Num Num="1"/>
+                            <Num Num="2"/>
+                        </ToolScp>
+                        <ToolScp Scp="S_R_TGT_Decrease_heal_debuff" Client="NO" UseSleep="NO">
+                            <Str Str="0" UseFunc="1" FuncTxt="local func_name = 'get_decrease_heal_debuff_tooltip_' .. TryGetProp(skill, 'ClassName', 'None')
+               local func = _G[func_name]
+               if func == nil then return end
+               return func(skill.Level)"/>
+                        </ToolScp>
+                        <ToolScp Scp="S_R_TGTBUFF" Client="NO" UseSleep="NO">
+                            <Str Str="JoustSilence_Debuff"/>
+                            <Num Num="1" UseFunc="1" FuncTxt="return skill.Level;"/>
+                            <Num Num="0"/>
+                            <Num Num="2000"/>
+                            <Num Num="1"/>
+                            <Num Num="100"/>
+                            <Num Num="-1"/>
+                        </ToolScp>
+                        <ToolScp Scp="S_R_COND_ABILITY" Client="NO" UseSleep="NO">
+                            <Str Str="Lancer12"/>
+                        </ToolScp>
+                        <ToolScp Scp="S_R_COND_SCRIPT" Client="NO" UseSleep="NO">
+                            <Str Str="SKL_JOUST_STRUCTURE_DEAD"/>
+                        </ToolScp>
+                        <ToolScp Scp="S_R_COND_ABILITY" Client="NO" UseSleep="NO">
+                            <Str Str="Lancer28"/>
+                        </ToolScp>
+                        <ToolScp Scp="S_R_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                            <Num Num="4"/>
+                            <Num Num="3"/>
+                            <Num Num="150"/>
+                            <Num Num="10"/>
+                            <Num Num="0"/>
+                            <Num Num="1"/>
+                            <Num Num="2"/>
+                        </ToolScp>
+                    </ResultList>
+                </Skill>
+            </SubSkl>
+        </ByCondSkills>
+    </Skill>
+    <Skill Name="Rancer_Quintain">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="550" Dist="0" ForceATK="0" HitCount="1" Length="100" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="350" Type="SQUARE" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="voice_war_atk_medium"/>
+                    <Str Str="voice_atk_medium_war_f"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_SpillAttack">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="200" Dist="0" ForceATK="0" HitCount="1" Length="100" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="0" Type="SQUARE" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+                    <Str Str="voice_war_atk_medium"/>
+                    <Str Str="voice_atk_medium_war_f"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_HeadStrike">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="540" Dist="0" ForceATK="0" HitCount="1" Length="80" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="340" Type="SQUARE" Width="15"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="voice_war_atk_medium"/>
+                    <Str Str="voice_atk_medium_war_f"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Crush">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="340" Dist="0" ForceATK="0" HitCount="1" Length="90" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="140" Type="SQUARE" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="voice_war_atk_medium"/>
+                    <Str Str="voice_atk_medium_war_f"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="SCR_VIBORA_THSPEAR_CRUSH_TRIGGER"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="500">
+                    <Str Str="Crush_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="5000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Client="NO" Scp="S_R_TGTBUFF" UseSleep="NO">
+                    <Str Str="Crush_Debuff"/>
+                    <Num FuncTxt="return skill.Level;" Num="1" UseFunc="1"/>
+                    <Num Num="0"/>
+                    <Num Num="5000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="-1"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Common_Rancer_Commence">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="9799" Type="FAN" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_BUFF" Time="0" UseSleep="NO">
+                    <Str Str="Commence_Buff"/>
+                    <Num FuncTxt="return obj.Level" Num="1" UseFunc="1"/>
+                    <Num Num="0"/>
+                    <Num Num="30000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>                
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="voice_war_atk_short"/>
+                    <Str Str="voice_atk_short_war_f"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Common_Rancer_Prevent">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <EtcList>                
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="voice_war_m_Prevent_cast"/>
+                    <Str Str="voice_war_Prevent_cast"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SOUND" Time="100" UseSleep="NO">
+                    <Str Str="skl_eff_rancer_prevent_sphere"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="250" UseSleep="NO">
+                    <Str_Arg Arg="5.5" Str="F_buff_basic049"/>
+                    <Str Str="Bip01 Neck"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_BUFF" Time="300" UseSleep="NO">
+                    <Str Str="Prevent_Buff"/>
+                    <Num FuncTxt="return obj.Level;" Num="0" UseFunc="1"/>
+                    <Num Num="0"/>
+                    <Num FuncTxt="return 2000" Num="0" UseFunc="1"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Crush_2">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="340" Dist="0" ForceATK="0" HitCount="1" Length="90" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="140" Type="SQUARE" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="voice_war_atk_medium"/>
+                    <Str Str="voice_atk_medium_war_f"/>
+                </Scp>
+                <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="SCR_VIBORA_THSPEAR_CRUSH_TRIGGER"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Client="NO" Scp="S_R_TGTBUFF" UseSleep="NO">
+                    <Str Str="Crush_Debuff"/>
+                    <Num FuncTxt="return skill.Level;" Num="1" UseFunc="1"/>
+                    <Num Num="0"/>
+                    <Num Num="5000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="-1"/>
+                </ToolScp>
+                <ToolScp Client="NO" Scp="S_R_TGTBUFF" UseSleep="NO">
+                    <Str Str="Crush_Def_Debuff"/>
+                    <Num FuncTxt="return skill.Level;" Num="1" UseFunc="1"/>
+                    <Num Num="0"/>
+                    <Num Num="5000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="-1"/>
+                </ToolScp>                
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Joust_2">
+        <EndScripts>
+            <ToolScp Scp="MONSKL_REMOVE_PAD" Client="NO" UseSleep="NO">
+                <Str Str="Rancer_Joust"/>
+            </ToolScp>
+            <ToolScp Scp="MONSKL_C_STOP_ANIM" Client="YES" UseSleep="NO"/>
+        </EndScripts>                
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="450" Dist="0" Angle="0" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="550" Dist="110" Angle="0" Accel="2" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="750" Dist="160" Angle="0" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="voice_war_atk_long_shot"/>
+                    <Str Str="voice_atk_long_war_f"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="PadImmune_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="skl_charge_ride"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_SET_TARGET_SQUARE" Client="NO" UseSleep="NO" Time="400">
+                    <Pos Angle="0" Dist="3.8255448e-43"/>
+                    <Num Num="0"/>
+                    <Num Num="180"/>
+                    <Num Num="40"/>
+                    <Num Num="10" UseFunc="1" FuncTxt="local value = 10
+                    if IsPVPField(self) == 1 and value > 2 then
+                    value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
+                    end
+                    return value"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="450">
+                    <Str_Arg Str="I_warrior_chage_dash_white" Arg="2"/>
+                    <Num Num="1"/>
+                    <Pos Angle="0" Dist="3.8255448e-43"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                    <Pos Angle="0" Dist="20"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                    <Pos Angle="0" Dist="40"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="500">
+                    <Pos Angle="0" Dist="60"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="550">
+                    <Pos Angle="0" Dist="80"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="550">
+                    <Pos Angle="0" Dist="100"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="600">
+                    <Pos Angle="0" Dist="120"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="600">
+                    <Pos Angle="0" Dist="140"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="650">
+                    <Pos Angle="0" Dist="160"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+                <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="700">
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SCR_PAD_DESTORY" Client="NO" UseSleep="NO" Time="700">
+                    <Pos Angle="0" Dist="180"/>
+                    <Str Str="ENEMY"/>
+                    <Num Num="20"/>
+                    <Num Num="50"/>
+                    <Str Str="I_pattern008_explosion_mash_square"/>
+                    <Num Num="3000"/>
+                    <Str_Arg Str="F_smoke117" Arg="0.5"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Scp="S_R_ABIL_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                    <Str Str="Lancer28"/>
+                    <Num Num="4"/>
+                    <Num Num="3"/>
+                    <Num Num="250"/>
+                    <Num Num="70"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="2"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_TGT_Decrease_heal_debuff" Client="NO" UseSleep="NO">
+                    <Str Str="0" UseFunc="1" FuncTxt="local func_name = 'get_decrease_heal_debuff_tooltip_Rancer_Joust'
+               local func = _G[func_name]
+               if func == nil then return end
+               return func(skill.Level)"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_TGTBUFF" Client="NO" UseSleep="NO">
+                    <Str Str="JoustSilence_Debuff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return skill.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="2000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="-1"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_COND_ABILITY" Client="NO" UseSleep="NO">
+                    <Str Str="Lancer12"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_COND_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SKL_JOUST_STRUCTURE_DEAD"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_COND_ABILITY" Client="NO" UseSleep="NO">
+                    <Str Str="Lancer28"/>
+                </ToolScp>
+                <ToolScp Scp="S_R_KNOCK_TARGET" Client="NO" UseSleep="NO" TooltipScp="TOOLTIP_MONSKL_R_KNOCKDOWN">
+                    <Num Num="4"/>
+                    <Num Num="3"/>
+                    <Num Num="150"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="2"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>        
+    </Skill>
+    <Skill Name="Rancer_SpillAttack_2">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="200" Dist="0" ForceATK="0" HitCount="1" Length="100" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="0" Type="SQUARE" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+                    <Str Str="voice_war_atk_medium"/>
+                    <Str Str="voice_atk_medium_war_f"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Client="NO" Scp="UNRIDE_COMPANION_2" UseSleep="NO"/>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Quintain_2">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="550" Dist="0" ForceATK="0" HitCount="1" Length="100" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="350" Type="SQUARE" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="voice_war_atk_medium"/>
+                    <Str Str="voice_atk_medium_war_f"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_Chage_2">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="999999" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="999799" Type="FAN" Width="30"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="NO" Scp="SKL_SET_TARGET_SQUARE" Time="0" UseSleep="NO">
+                    <Pos Angle="0.017891053" Dist="8.027173"/>
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="35"/>
+                    <Num FuncTxt="local value = 1; local abil = GetAbility(self, '') local ActiveState = TryGetProp(abil, &quot;ActiveState&quot;) if abil ~= nil and ActiveState == 1 then     value = 3 end SetExProp(self, &quot;CHARGE_COUNT&quot;, value); return value;" Num="3" UseFunc="1"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SOUND" Time="0" UseSleep="NO">
+                    <Str Str="skl_eff_lancer_chage"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SHOCKWAVE" Time="0" UseSleep="NO">
+                    <Num Num="1.5"/>
+                    <Num Num="1.2"/>
+                    <Num Num="100"/>
+                    <Num Num="999"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="50" UseSleep="NO">
+                    <Str Str="voice_war_atk_long_cast"/>
+                    <Str Str="voice_atk_long_cast_f"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="50" UseSleep="NO">
+                    <Str_Arg Arg="1" Str="I_warrior_chage_dash"/>
+                    <Str Str="Dummy_effect_moulinet_shot"/>
+                    <Num Num="0.40000001"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_TGT_MOVE" Time="100" UseSleep="YES">
+                    <Num Num="0"/>
+                    <Num Num="200"/>
+                    <Num Num="0"/>
+                    <Num Num="0.15000001"/>
+                    <Num Num="0.07000001"/>
+                    <Num Num="1"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="100" UseSleep="NO">
+                    <Pos Angle="0" Dist="0"/>
+                    <Angle Angle="0"/>
+                    <Str Str="Rancer_Charge"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SHOCKWAVE" Time="300" UseSleep="NO">
+                    <Num Num="10"/>
+                    <Num Num="0.5"/>
+                    <Num Num="100"/>
+                    <Num Num="999"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_EFFECT" Time="300" UseSleep="NO">
+                    <Str_Arg Arg="1" Str="E_warrior_Longomiant"/>
+                    <Str Str="Dummy_effect_moulinet_shot"/>
+                    <Num Num="0.40000001"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Scp="S_R_COND_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SKL_Charge_Debuff"/>
+                </ToolScp>                
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Rancer_GiganteMarcha_2">
+        <MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+            <HitList>
+                <Frame Angle="0" AniTime="350" Dist="0" ForceATK="0" HitCount="1" Length="120" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="150" Type="SQUARE" Width="45"/>
+            </HitList>
+            <EtcList>
+                <Scp Client="YES" Scp="MONSKL_C_PLAY_ANIM" Time="0" UseSleep="NO">
+                    <Str Str="SKL_GIGANTEMARCHA"/>
+                    <Num Num="1.5"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_VOICE_SOUND" Time="0" UseSleep="NO">
+                    <Str Str="voice_war_atk_long_cast"/>
+                    <Str Str="voice_atk_long_cast_f"/>
+                </Scp>
+                <Scp Client="YES" Scp="C_SOUND" Time="200" UseSleep="NO">
+                    <Str Str="skl_eff_rancer_gigantemarcha"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_CHECK_LOOPING_COUNT_INIT" Time="200" TimeSync="0" UseSleep="NO">
+                    <Num Num="4"/>
+                </Scp>
+                <Scp Client="NO" Scp="SKL_CHECK_LOOPING_COUNT" Time="200" TimeSync="0" UseSleep="NO"/>
+                <Scp Client="NO" LoopTime="200" Scp="MONSKL_PAD_DIR_MSL" Time="400" UseSleep="YES">
+                    <Pos Angle="0.78539819" Dist="28"/>
+                    <Str Str="GiganteMarcha_Pad"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="150"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5.6999998"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" LoopTime="200" Scp="MONSKL_PAD_DIR_MSL" Time="400" UseSleep="YES">
+                    <Pos Angle="-0.78539819" Dist="28"/>
+                    <Str Str="GiganteMarcha_Pad"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="150"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="-5.6999998"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Client="NO" LoopTime="200" Scp="MONSKL_PAD_DIR_MSL" Time="400" UseSleep="YES">
+                    <Pos Angle="0" Dist="20"/>
+                    <Str Str="GiganteMarcha_Pad"/>
+                    <Num Num="200"/>
+                    <Num Num="1"/>
+                    <Num Num="150"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Client="NO" Scp="S_R_TGT_REMOVE_BUFF" UseSleep="NO">
+                    <Str FuncTxt="local func_name = 'get_remove_buff_tooltip_' .. TryGetProp(skill, 'ClassName', 'None')
+               local func = _G[func_name]
+               if func == nil then return end
+               return func(skill.Level)" Str="0" UseFunc="1"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+</ToolSkill>

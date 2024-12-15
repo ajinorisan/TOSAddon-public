@@ -1,0 +1,11 @@
+ClassID,ClassName,Category,Type,Icon,StringCoin,IsNowSeason,InvIcon
+1,"MISC_PVP_MINE2","coin","essential","icon_item_pvpmine_2","YES","NO",""
+2,"VakarineCertificate","old_coin","essential","icon_item_season_coin_vakarine","YES","NO","inventory_coin_vakarine_pic"
+3,"GabijaCertificate","old_coin","essential","icon_item_season_coin_gabia","YES","NO","inventory_coin_gabia_pic"
+4,"CONTENTS_TOTAL_POINT","POINT","essential","icon_item_silver_gacha_ticket","NO","NO",""
+5,"Mileage_SilverGacha","POINT","","icon_item_demon_point","NO","NO",""
+6,"REPUTATION_COIN_EP13","coin","essential","icon_item_Reputation_coin_01","NO","NO",""
+8,"TeamBattleCoin","coin","essential","icon_item_pvpmine_2_gold","YES","NO",""
+9,"EVENT_TOS_WHOLE_TOTAL_COIN","coin","essential","icon_item_Tos_Event_Coin","YES","NO",""
+10,"RadaCertificate","old_coin","essential","icon_item_season_coin_Rada","YES","NO","inventory_coin_rada_pic"
+11,"JurateCertificate","coin","essential","icon_item_season_coin_Jurate","YES","YES","inventory_coin_jurate_pic"

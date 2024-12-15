@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP15_1_F_ABBEY3_1_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59778" Pos="-58.80#186.43#-863.46" genCount="1" genTime="10000" objectKey="0" tendency="1"/>
+                    <Obj Type="Monster" MonType="59778" Pos="76.77#186.43#-863.53" angle="-143" genCount="1" genTime="10000" objectKey="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="59780" Pos="-43.86#186.43#-938.45" angle="29" genCount="1" genTime="10000" objectKey="2" tendency="1"/>
+                    <Obj Type="Monster" MonType="59780" Pos="59.83#186.43#-949.02" angle="145" genCount="1" genTime="10000" objectKey="3" tendency="1"/>
+                </ObjList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_pickup" x="0" y="0" width="1980" height="1080">
+<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_CUPOLE_PICKUP" CloseScp="CLOSE_CUPOLE_PICKUP"/>
+	<layer layerlevel="102"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+	<input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<userconfig DefaultSzX="500" DefaultSzY="617" DefaultRatioY="1" DefaultRatioX="1" RatioY="0.8" RatioX="1" DefMarginX="0" DefMarginY="100" MarginX="0" MarginY="25"/>
+	<controls>
+		<!-- 관리탭 -->
+		<groupbox name="managerTab" rect="0 0 1000 650" margin="-45 -25 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreenroundsquare2"/>
+			<picture name="BgImg" parent="managerTab" rect="0 0 1000 650" margin="-80 0 0 0" layout_gravity="center center" draw="true" hittestbox="true"  scrollbar="false" image="img_FellowBG" stretch="false" LBtnUpScp=""/>
+			<groupbox name="PickupListBG" parent="managerTab" rect="0 0 130 525" margin="20 100 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="true" skin="cupoleroundsquare"/>
+			<groupbox name="manageBG" parent="managerTab" rect="0 0 400 525" margin="-120 100 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="true" skin=""/>
+				<picture name="MainCharacter" parent="manageBG" rect="0 0 500 617" margin="0 100 0 0" layout_gravity="center center" draw="true" hittestbox="true"  scrollbar="false" image="cupole_0" stretch="true" TargetTexture="true" LBtnUpScp=""/>
+				<picture name="ItemPic" parent="manageBG" rect="0 0 400 400" margin="135 140 0 0" layout_gravity="center center" draw="true" hittestbox="true"  scrollbar="false" image="icon_item_kupole_rankup_ur" stretch="false" LBtnUpScp=""/>
+				<picture name="DecoImg" parent="manageBG" rect="0 0 400 400" margin="0 50 0 0" layout_gravity="center center" draw="true" hittestbox="true"  scrollbar="false" image="img_kupole_frame" stretch="false" LBtnUpScp=""/>
+				<picture name="Name_Pic" parent="manageBG" rect="0 0 450 108" margin="0 0 0 0"  layout_gravity="center top" stretch="true" draw="true" hittest="false"  scrollbar="false" image="img_LootBox_neme"/>
+					<richtext name="CupoleName" parent="Name_Pic" rect="0 0 370 108" margin="0 0 0 0" layout_gravity="center center" format="{@st66d}{s22}%s" param1="Name" param1_def="Name" hittest="false" fixwidth="true" textalign="center center"/>
+			<groupbox name="InfoBG" parent="managerTab" rect="0 0 400 425" margin="0 100 20 0" layout_gravity="right top" draw="true" hittestbox="false" scrollbar="false" skin="cupoleroundsquare"/>
+				<groupbox name="SelectBG" parent="InfoBG" rect="0 0 400 225" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="true" skin=""/>
+					<picture name="Deco_Line" parent="SelectBG" rect="0 0 390 2" margin="0 85 0 0"  layout_gravity="center top" stretch="true" draw="true" hittest="false"  scrollbar="false" image="Deco_line"/>				
+					<picture name="Skl_light" parent="SelectBG" rect="0 0 52 28" margin="70 72 0 0"  layout_gravity="left top" stretch="true" draw="true" hittest="false"  scrollbar="false" image="e_li1"/>				
+					<picture name="Eft_light" parent="SelectBG" rect="0 0 52 28" margin="0 72 70 0"  layout_gravity="right top" stretch="true" draw="true" hittest="false"  scrollbar="false" image="e_li1"/>				
+					<richtext name="Skill" parent="SelectBG" rect="0 0 150 50" margin="20 50 0 0" layout_gravity="left top" caption="{@st66d}{s22}스킬" hittest="true" fixwidth="true" textalign="center center" LBtnUpScp="CUPOLE_INFO_SELECT" LBtnUpArgNum="0"/>
+					<richtext name="Effect" parent="SelectBG" rect="0 0 150 50" margin="0 50 20 0" layout_gravity="right top" caption="{@st66d}{s22}효과" hittest="true" fixwidth="true" textalign="center center" LBtnUpScp="CUPOLE_INFO_SELECT" LBtnUpArgNum="1"/>
+					<richtext name="Item" parent="SelectBG" rect="0 0 150 50" margin="0 50 0 0" layout_gravity="center top" caption="{@st66d}{s22}아이템 정보" hittest="true" fixwidth="true" textalign="center center" LBtnUpScp="" LBtnUpArgNum="1"/>
+				<groupbox name="SkillBG" parent="InfoBG" rect="0 0 400 425" margin="10 100 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="true" skin=""/>
+					<picture name="SkillIcon" parent="SkillBG" rect="0 0 50 50" margin="0 50 0 0"  layout_gravity="left top" stretch="true" draw="true" hittest="false"  scrollbar="false" image="img_LootBox_neme" />
+					<richtext name="SkillName" parent="SkillBG" rect="0 0 370 108" margin="50 0 0 0" layout_gravity="left top" format="{@st66d}{s22}%s" param1="name" param1_def="Name" hittest="false" fixwidth="true" textalign="left center" />
+					<richtext name="SkillExplan" parent="SkillBG" rect="0 0 320 108" margin="65 50 0 0" layout_gravity="left top" format="{@st66d}{s18}%s" param1="explan" param1_def="explan" hittest="false" fixwidth="true" textalign="left top" />
+				<groupbox name="EffectBG" parent="InfoBG" rect="0 0 400 425" margin="10 100 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="true" skin=""/>
+					<groupbox name="CEBG" parent="EffectBG" rect="0 0 400 225" margin="15 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="true" skin=""/>
+						<richtext name="CE" parent="CEBG" rect="0 0 370 108" margin="0 0 0 0" layout_gravity="left top" caption="{@st66d}{s22}동행 효과" fixwidth="true" textalign="left center" />
+						<richtext name="companyEffect" parent="CEBG" rect="0 0 370 108" margin="10 50 0 0" layout_gravity="left top" format="{@st66d}{s20}%s" param1="value" param1_def="explan" hittest="false" fixwidth="true" textalign="left center" />
+					<groupbox name="OEBG" parent="EffectBG" rect="0 0 400 225" margin="15 85 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="true" skin=""/>
+						<richtext name="OE" parent="OEBG" rect="0 0 370 108" margin="0 0 0 0" layout_gravity="left center" caption="{@st66d}{s22}보유 효과" fixwidth="true" textalign="left center" />
+						<richtext name="haveEffect" parent="OEBG" rect="0 0 370 108" margin="10 50 0 0" layout_gravity="left center" format="{@st66d}{s20}%s" param1="value" param1_def="explan" hittest="false" fixwidth="true" textalign="left center" />
+				<groupbox name="ItemBG" parent="InfoBG" rect="0 0 400 425" margin="10 100 0 0" layout_gravity="left top" draw="true" hittestbox="false" scrollbar="true" skin=""/>
+					<richtext name="Itemexp" parent="ItemBG" rect="0 0 360 108" margin="10 50 0 0" layout_gravity="left top" format="{@st66d}{s20}%s" param1="explan" param1_def="explan" hittest="false" fixwidth="true" textalign="left top" />
+			<groupbox name="BtnBG" parent="managerTab" rect="0 0 400 100" margin="0 0 20 20" layout_gravity="right bottom" draw="true" hittestbox="false" scrollbar="false" skin=""/>
+				<groupbox name="SelectGacha" parent="BtnBG" rect="0 0 150 100" margin="15 25 0 0" layout_gravity="left top" skin="cupoleellipseframe2" stretch="true"/>
+					<richtext name="gachatype0" parent="SelectGacha" rect="0 0 100 100" margin="15 5 0 0" layout_gravity="left top" caption="{@st66d}{s18}{img icon_mileage 30 30 }" hittest="false" fixwidth="true" textalign="left center"/>
+					<richtext name="gachacnt0" parent="SelectGacha" rect="0 0 100 100" margin="0 8 10 0" layout_gravity="right top" format="{@st66d}{s18}%s/%s" param1="count" param1_def="0" param2="max" param2_def="0" hittest="false" fixwidth="true" textalign="right center"/>
+
+				<button name="earnbtn" parent="BtnBG" rect="0 0 150 60" margin="0 20 15 0" layout_gravity="right top" LBtnUpScp="EARN_PICKUP_CUPOLE" skin="cupole_graybtn" stretch="true" caption="{@st66d}{s20}영입" textalign="center top" textoffset="0 13"/>
+			<groupbox name="relicmanager_top" rect="0 0 1000 55" margin="-45 190 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="cupolehalfgreenroundsquare" stretch="true"/>
+				<picture name="image1" parent="relicmanager_top" rect="0 0 115 50" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="img_popup_title" Reverse="true"/>
+				<picture name="image2" parent="relicmanager_top" rect="0 0 115 50" margin="0 0 0 0" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="right top" image="img_popup_title" />
+				<richtext name="gachatype0" parent="relicmanager_top" rect="0 0 350 100" margin="0 0 0 0" layout_gravity="center center" caption="{@st66d}{s24}큐폴 확정 영입" hittest="false" fixwidth="true" textalign="center center"/>
+			<button name="closeBtn" rect="0 0 37 37" margin="0 10 5 0" parent="relicmanager_top" layout_gravity="right top" image="testclose_button" texttooltip="픽업 UI를 닫습니다." LBtnUpScp="ui.CloseFrame('cupole_pickup')"/>
+	</controls>
+</uiframe>

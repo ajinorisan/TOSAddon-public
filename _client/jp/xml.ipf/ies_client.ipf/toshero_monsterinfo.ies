@@ -1,0 +1,4 @@
+ClassID,ClassName,MonsterName_1,MonsterInfo_1,MonsterName_2,MonsterInfo_2,MonsterName_3,MonsterInfo_3,MonsterName_4,MonsterInfo_4,MonsterName_5,MonsterInfo_5
+1,"TOSHero_Straight","TH_boss_RaganosisCommander","방어선 돌파 지역의 보스 몬스터로 등장합니다.","TH_raganosis_Phalanx_white","대열을 유지하고 있는 고정형 몬스터로, 근접하는 캐릭터를 밀쳐냅니다. 팔랑크스의 후방에 있는 몬스터는 보호 받아 대미지를 받지 않습니다.","TH_raganosis_cannon_white","공격 사거리가 긴 몬스터로 팔랑크스의 후방에 배치되어 보호받습니다.","","","",""
+2,"TOSHero_Wheel","TH_boss_BowerKeeper","마력의 소용돌이 지역의 보스 몬스터로, 잔여 몬스터 수 만큼 강해집니다. 몬스터가 20마리 이상이 되면 모든 몬스터의 속성이 혼돈성으로 변경됩니다.","TH_bower_Gather","캐릭터에게 근접 시 자폭으로 범위 내 모든 표적에게 대미지를 줍니다. [마력 과잉] 디버프의 중첩 수에 따라 추가 폭파가 발생합니다.","","","","","",""
+3,"TOSHero_Grid","TH_boss_saugumas_executor","대성당 탈환 지역의 보스 몬스터로 등장합니다.","TH_orsha_catapult","아주 긴 공격 사거리로 캐릭터의 화면 밖에서 부터 공격해옵니다. 배제의 빛을 우선 타격하며 배제의 빛의 충전을 중지 시킬 수 있습니다.","TH_saugumas_guard_orange","오르샤 캐터펄트를 사수하는 몬스터로, 소거마스 가드가 주변에 남아있는 한 오르샤 캐터펄트는 보호 받아 대미지를 받지 않습니다.","","","",""

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MintPC (Mi) -->
+<skinset name="Base">
+	<skinlist category="bars">
+		<skin name="titlebar" texture="\skin\HUD.tga">
+			<img name="left" imgrect="0 722 100 100"/>
+			<img name="middle" imgrect="101 722 210 100"/>
+			<img name="right" imgrect="312 722 100 100"/>
+		</skin>
+		<skin name="titlebar2" texture="\skin\tooltip_skin_3.tga">
+			<img name="left" imgrect="393 1653 148 74"/>
+			<img name="core" imgrect="543 1653 4 74"/>
+			<img name="middle" imgrect="548 1653 84 74"/>
+			<img name="right" imgrect="634 1653 148 74"/>
+		</skin>
+		<skin name="titlebar3" texture="\skin\paid_skin.tga">
+			<img name="left" imgrect="131 288 130 165"/>
+			<img name="core" imgrect="262 288 130 165"/>
+			<img name="middle" imgrect="288 0 316 165"/>
+			<img name="right" imgrect="393 288 130 165"/>
+		</skin>
+		<skin name="notitlebar" texture="\skin\tooltip_skin_3.tga">
+			<img name="left" imgrect="393 1653 148 74"/>
+			<img name="middle" imgrect="542 1653 84 74"/>
+			<img name="right" imgrect="627 1653 148 74"/>
+		</skin>
+		<skin name="activetitlebar" texture="\skin\mainframe_A.tga">
+			<img name="left" imgrect="0 0 40 40"/>
+			<img name="middle" imgrect="41 0 100 40"/>
+			<img name="right" imgrect="142 0 40 40"/>
+		</skin>
+		<skin name="droplist" texture="\skin\mainframe_A.tga">
+			<img name="left" imgrect="4 340 16 28"/>
+			<img name="middle" imgrect="24 340 16 28"/>
+			<img name="right" imgrect="44 340 16 28"/>
+			<img name="dropbutton" imgrect="68 300 18 12"/>
+			<img name="dropbutton_click" imgrect="86 300 18 12"/>
+			<img name="dropbutton_cursoron" imgrect="104 300 18 12"/>
+		</skin>
+		<skin name="columnheader" texture="\skin\mainframe_A.tga">
+			<img name="left" imgrect="0 258 20 20"/>
+			<img name="middle" imgrect="22 258 20 20"/>
+			<img name="right" imgrect="44 258 20 20"/>
+		</skin>
+		<skin name="slidebar" texture="\skin\HUD.tga">
+			<img name="left" imgrect="1199 409 20 20"/>
+			<img name="middle" imgrect="1220 409 20 20"/>
+			<img name="right" imgrect="1241 409 20 20"/>
+			<img name="cursor" imgrect="1199 388 20 20"/>
+			<img name="cursor_click" imgrect="1220 388 20 20"/>
+			<img name="cursor_onmouse" imgrect="1241 388 20 20"/>
+		</skin>
+		<skin name="labelline" texture="\skin\mainframe_A.tga">
+			<img name="left" imgrect="858 975 20 8"/>
+			<img name="middle" imgrect="879 975 120 8"/>
+			<img name="right" imgrect="1000 975 20 8"/>
+			<img name="top" imgrect="140 146 8 8"/>
+			<img name="center" imgrect="148 146 8 8"/>
+			<img name="bottom" imgrect="156 146 8 8"/>
+		</skin>
+		<skin name="labelline2" texture="\skin\tooltip_skin_3.tga">
+			<img name="left" imgrect="900 227 24 2"/>
+			<img name="middle" imgrect="925 227 56 2"/>
+			<img name="right" imgrect="982 227 24 2"/>
+			<img name="top" imgrect="900 229 24 1"/>
+			<img name="center" imgrect="925 229 64 1"/>
+			<img name="bottom" imgrect="982 229 24 1"/>
+		</skin>
+		<skin name="socket_gem_titlebar" texture="\skin\tooltip_skin_3.tga">
+			<img name="left" imgrect="0 1334 150 60"/>
+			<img name="core" imgrect="156 1334 85 60"/>
+			<img name="middle" imgrect="151 1334 4 60"/>
+			<img name="right" imgrect="242 1334 150 60"/>
+		</skin>
+		<skin name="buffbuy_my_bg_titlebar" texture="\skin\tooltip_skin_3.tga">
+			<img name="left" imgrect="393 1653 148 74"/>
+			<img name="middle" imgrect="542 1653 84 74"/>
+			<img name="right" imgrect="627 1653 148 74"/>
+		</skin>
+		<skin name="worldmap2_bar_category" texture="\skin\worldmap2.tga">
+			<img name="left" imgrect="165 191 30 38"/>
+			<img name="middle" imgrect="196 191 30 38"/>
+			<img name="right" imgrect="227 191 30 38"/>
+		</skin>
+	</skinlist>
+	<skinlist category="scrollbars">
+		<skin name="verticalscrollbar2" texture="\skin\pip_test.tga">
+			<img name="background" imgrect="1986 532 20 25"/>
+			<img name="btnup" imgrect="1986 506 20 19"/>
+			<img name="btnup_cursoron" imgrect="2007 506 20 19"/>
+			<img name="btnup_click" imgrect="2028 506 20 19"/>
+			<img name="btndown" imgrect="1986 564 20 19"/>
+			<img name="btndown_cursoron" imgrect="2007 564 20 19"/>
+			<img name="btndown_click" imgrect="2028 564 20 19"/>
+			<img name="bartop" imgrect="1986 584 20 9"/>
+			<img name="bartop_cursoron" imgrect="2007 584 20 9"/>
+			<img name="bartop_click" imgrect="2028 584 20 9"/>
+			<img name="barmiddle" imgrect="1986 593 20 30"/>
+			<img name="barmiddle_cursoron" imgrect="2007 593 20 30"/>
+			<img name="barmiddle_click" imgrect="2028 593 20 30"/>
+			<img name="barbottom" imgrect="1986 623 20 8"/>
+			<img name="barbottom_cursoron" imgrect="2007 623 20 8"/>
+			<img name="barbottom_click" imgrect="2028 623 20 8"/>
+		</skin>
+		<skin name="verticalscrollbar3" texture="\skin\HUD.tga">
+			<img name="background" imgrect="1244 373 14 14"/>
+			<img name="btnup" imgrect="1199 343 14 14"/>
+			<img name="btnup_cursoron" imgrect="1214 343 14 14"/>
+			<img name="btnup_click" imgrect="1229 343 14 14"/>
+			<img name="btndown" imgrect="1199 358 14 14"/>
+			<img name="btndown_cursoron" imgrect="1214 358 14 14"/>
+			<img name="btndown_click" imgrect="1229 358 14 14"/>
+			<img name="bartop" imgrect="1199 373 14 14"/>
+			<img name="bartop_cursoron" imgrect="1214 373 14 14"/>
+			<img name="bartop_click" imgrect="1229 373 14 14"/>
+			<img name="barmiddle" imgrect="1244 343 14 14"/>
+			<img name="barmiddle_cursoron" imgrect="1259 343 14 14"/>
+			<img name="barmiddle_click" imgrect="1274 343 14 14"/>
+			<img name="barbottom" imgrect="1244 358 14 14"/>
+			<img name="barbottom_cursoron" imgrect="1259 358 14 14"/>
+			<img name="barbottom_click" imgrect="1274 358 14 14"/>
+		</skin>
+		<skin name="verticalscrollbar" texture="\skin\mainframe_A.tga">
+			<img name="background" imgrect="393 686 18 18"/>
+			<img name="btnup" imgrect="648 704 18 18"/>
+			<img name="btnup_cursoron" imgrect="667 704 18 18"/>
+			<img name="btnup_click" imgrect="686 704 18 18"/>
+			<img name="btndown" imgrect="648 723 18 18"/>
+			<img name="btndown_cursoron" imgrect="667 723 18 18"/>
+			<img name="btndown_click" imgrect="686 723 18 18"/>
+			<img name="bartop" imgrect="222 686 18 18"/>
+			<img name="bartop_cursoron" imgrect="241 686 18 18"/>
+			<img name="bartop_click" imgrect="260 686 18 18"/>
+			<img name="barmiddle" imgrect="279 686 18 18"/>
+			<img name="barmiddle_cursoron" imgrect="298 686 18 18"/>
+			<img name="barmiddle_click" imgrect="317 686 18 18"/>
+			<img name="barbottom" imgrect="336 686 18 18"/>
+			<img name="barbottom_cursoron" imgrect="355 686 18 18"/>
+			<img name="barbottom_click" imgrect="374 686 18 18"/>
+		</skin>
+		<skin name="scrollbar_Btn" texture="\skin\mainframe_A.tga">
+			<img name="btnup" imgrect="648 704 18 18"/>
+			<img name="btnup_cursoron" imgrect="667 704 18 18"/>
+			<img name="btnup_click" imgrect="686 704 18 18"/>
+			<img name="btndown" imgrect="648 723 18 18"/>
+			<img name="btndown_cursoron" imgrect="667 723 18 18"/>
+			<img name="btndown_click" imgrect="686 723 18 18"/>
+			<img name="btntrform" imgrect="648 771 18 18"/>
+			<img name="btntrform_cursoron" imgrect="667 771 18 18"/>
+			<img name="btntrform_click" imgrect="686 771 18 18"/>
+		</skin>
+		<skin name="worldmap2_scrollbar" texture="\skin\worldmap2.tga">
+			<img name="background" imgrect="284 0 18 26"/>
+			<img name="btnup" imgrect="303 0 18 15"/>
+			<img name="btnup_cursoron" imgrect="303 32 18 15"/>
+			<img name="btnup_click" imgrect="303 64 18 15"/>
+			<img name="btndown" imgrect="303 16 18 15"/>
+			<img name="btndown_cursoron" imgrect="303 48 18 15"/>
+			<img name="btndown_click" imgrect="303 80 18 15"/>
+			<img name="bartop" imgrect="322 0 14 10"/>
+			<img name="bartop_cursoron" imgrect="337 0 14 10"/>
+			<img name="bartop_click" imgrect="352 0 14 10"/>
+			<img name="barmiddle" imgrect="322 11 14 20"/>
+			<img name="barmiddle_cursoron" imgrect="337 11 14 20"/>
+			<img name="barmiddle_click" imgrect="352 11 14 20"/>
+			<img name="barbottom" imgrect="322 32 14 10"/>
+			<img name="barbottom_cursoron" imgrect="337 32 14 10"/>
+			<img name="barbottom_click" imgrect="352 32 14 10"/>
+		</skin>
+		<skin name="alchemy_cupboard_scroll" texture="\skin\alchemy.tga">
+			<img name="background" imgrect="631 1782 19 179"/>
+			<img name="btnup" imgrect="631 1763 19 18"/>
+			<img name="btnup_cursoron" imgrect="651 1763 19 18"/>
+			<img name="btnup_click" imgrect="671 1763 19 18"/>
+			<img name="btndown" imgrect="631 1962 19 18"/>
+			<img name="btndown_cursoron" imgrect="651 1962 19 18"/>
+			<img name="btndown_click" imgrect="671 1962 19 18"/>
+			<img name="bartop" imgrect="631 1981 19 8"/>
+			<img name="bartop_cursoron" imgrect="651 1981 19 8"/>
+			<img name="bartop_click" imgrect="671 1981 19 8"/>
+			<img name="barmiddle" imgrect="631 1989 19 23"/>
+			<img name="barmiddle_cursoron" imgrect="651 1989 19 23"/>
+			<img name="barmiddle_click" imgrect="671 1989 19 23"/>
+			<img name="barbottom" imgrect="631 2012 19 8"/>
+			<img name="barbottom_cursoron" imgrect="651 2012 19 8"/>
+			<img name="barbottom_click" imgrect="671 2012 19 8"/>
+		</skin>
+		<skin name="tribal_scroll" texture="\skin\tribal.tga">
+			<img name="background" imgrect="285 35 16 26"/>
+			<img name="btnup" imgrect="357 35 16 16"/>
+			<img name="btnup_cursoron" imgrect="375 35 16 16"/>
+			<img name="btnup_click" imgrect="392 35 16 16"/>
+			<img name="btndown" imgrect="357 52 16 16"/>
+			<img name="btndown_cursoron" imgrect="375 52 16 16"/>
+			<img name="btndown_click" imgrect="392 52 16 16"/>
+			<img name="bartop" imgrect="304 35 16 12"/>
+			<img name="bartop_cursoron" imgrect="321 35 16 12"/>
+			<img name="bartop_click" imgrect="338 35 16 12"/>
+			<img name="barmiddle" imgrect="304 48 16 14"/>
+			<img name="barmiddle_cursoron" imgrect="321 48 16 14"/>
+			<img name="barmiddle_click" imgrect="338 48 16 14"/>
+			<img name="barbottom" imgrect="304 63 16 12"/>
+			<img name="barbottom_cursoron" imgrect="321 63 16 12"/>
+			<img name="barbottom_click" imgrect="338 63 16 12"/>
+		</skin>
+		<skin name="verticalscrollbar4" texture="\skin\essential_guide.tga">
+			<img name="background" imgrect="0 17 12 14"/>
+			<img name="btnup" imgrect="0 0 12 16"/>
+			<img name="btnup_cursoron" imgrect="13 0 12 16"/>
+			<img name="btnup_click" imgrect="26 0 12 16"/>
+			<img name="btndown" imgrect="0 32 12 16"/>
+			<img name="btndown_cursoron" imgrect="13 32 12 16"/>
+			<img name="btndown_click" imgrect="26 32 12 16"/>
+			<img name="bartop" imgrect="0 49 12 10"/>
+			<img name="bartop_cursoron" imgrect="13 49 12 10"/>
+			<img name="bartop_click" imgrect="26 49 12 10"/>
+			<img name="barmiddle" imgrect="0 60 12 10"/>
+			<img name="barmiddle_cursoron" imgrect="13 60 12 10"/>
+			<img name="barmiddle_click" imgrect="26 60 12 10"/>
+			<img name="barbottom" imgrect="0 71 12 10"/>
+			<img name="barbottom_cursoron" imgrect="13 71 12 10"/>
+			<img name="barbottom_click" imgrect="26 71 12 10"/>
+		</skin>
+	</skinlist>
+</skinset>

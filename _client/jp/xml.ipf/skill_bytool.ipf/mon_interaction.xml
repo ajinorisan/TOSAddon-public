@@ -1,0 +1,1970 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<ToolSkill>
+    <Skill Name="Mon_Interaction_orsha_catapult_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="MSL_THROW_SYNC" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="100">
+                    <Str_Arg Str="I_force114_kruvina_mesh#Bone_catapult04" Arg="1"/>
+                    <Str_Arg Str="I_force114_kruvina_dead_mesh" Arg="1"/>
+                    <Str_Arg Str="None" Arg="1.5"/>
+                    <Pos Angle="0" Dist="0" PosType="1"/>
+                    <Num Num="30"/>
+                    <Num Num="3"/>
+                    <Num Num="0"/>
+                    <Num Num="100"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0.5"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="1000"/>
+                    <Str Str="ENEMY"/>
+                </Scp>
+            </EtcList>
+            <ResultList>
+                <ToolScp Scp="S_R_COND_SCRIPT" Client="NO" UseSleep="NO">
+                    <Str Str="SCR_DELMORE_CASTLE_CATAPULT_RESULT_BOSS"/>
+                </ToolScp>
+            </ResultList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_Interaction_ballista_Skill_1">
+        <EndScripts>
+            <ToolScp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_REVIVAL_PAULIUS_INTERACTION_BALLISTA_SKILL_SERACH_BOSS"/>
+            </ToolScp>
+        </EndScripts>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="800" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="750" SklAngle="0.17453292" AniTime="1000" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="shot" Speed="1"/>
+                <Scp Scp="SKL_SET_TARGET_WANT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="boss_RevivalPaulius_ballista_Arrow_Pos"/>
+                    <Pos Angle="0" Dist="500"/>
+                    <Num Num="1000"/>
+                    <Num Num="5"/>
+                    <Num Num="7"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_Interaction_GresmeRaven_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="49999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="10" Length="600" SklAngle="0.17453292" AniTime="50199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="raid_flying" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="1300" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="1800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="1900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="2000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="2100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="2600" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="3100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="3200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="3300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="3400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="3900" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="4400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="4500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="4600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="4700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="5200" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="5700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="5800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="5900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="6000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="6500" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="7000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="7100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="7200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="7300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="7800" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="8300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="8400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="8500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="8600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="9100" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="9600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="9700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="9800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="9900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="10400" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="10900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="11000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="11100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="11200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="11700" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="12200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="12300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="12400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="12500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="13000" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="13500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="13600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="13700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="13800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="14300" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="14800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="14900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="15000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="15100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="15600" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="16100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="16200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="16300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="16400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="16900" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="17400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="17500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="17600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="17700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="18200" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="18700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="18800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="18900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="19000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="19500" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="20000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="20100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="20200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="20300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="20800" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="21300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="21400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="21500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="21600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="22100" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="22600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="22700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="22800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="22900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="23400" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="23900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="24000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="24100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="24200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="24700" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="25200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="25300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="25400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="25500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="26000" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="26500">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="26600">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="26700">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="26800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="27300" Anim="raid_shot" Speed="1"/>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="27800">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="27900">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="28000">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="28100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="29100">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="29200">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="29300">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_FORCE_EFT" Client="YES_Time" UseSleep="NO" Time="29400">
+                    <Str_Arg Str="I_force099#Bone_mouth01" Arg="2"/>
+                    <Str Str="arrow_cast"/>
+                    <Str_Arg Str="F_explosion026_rize_red2" Arg="1"/>
+                    <Str Str="arrow_blow"/>
+                    <Str Str="SLOW"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Angle_Abs Angle="0"/>
+                    <Num Num="0"/>
+                    <Num Num="5"/>
+                    <Num Num="10"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Str Str="None"/>
+                    <PosDist Angle="0" Dist="0" PosType="11"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_Interaction_orsha_catapult_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk" Speed="1"/>
+                <Scp Scp="MSL_THROW_SYNC" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="800">
+                    <Str_Arg Str="I_orsha_catapult001#Bone_catapult04#Bone_catapult04" Arg="1"/>
+                    <Str_Arg Str="F_explosion086_smoke" Arg="1"/>
+                    <Str_Arg Str="I_archer_canon_force" Arg="1.5"/>
+                    <Pos Angle="0" Dist="0" PosType="1"/>
+                    <Num Num="30"/>
+                    <Num Num="1.5"/>
+                    <Num Num="0"/>
+                    <Num Num="500"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0.5"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="1000"/>
+                    <Str Str="ENEMY"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+</ToolSkill>

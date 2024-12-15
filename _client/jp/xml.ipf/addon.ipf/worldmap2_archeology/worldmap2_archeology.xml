@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="worldmap2_archeology" x="0" y="0" width="470" height="1060">
+	<frame margin="715 0 0 0" fasthide="true" scale_align="center center" layout_gravity="center center"/>
+	<skin frameskin="worldmap2_frame_01"/>
+	<draw blend="100" drawtitlebar="false"/>
+	<input moveable="true" hittestframe="true"/>
+	<layer layerlevel="230"/>
+	<option closebutton="false"/>
+	<script OpenScp="OPEN_WORLDMAP2_ARCHEOLOGY" CloseScp=""/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<controls>
+		<picture name="title_pic" rect="0 0 390 56" margin="0 -468 0 0" layout_gravity="center center" image="worldmap2_title_green"/>
+		<groupbox name="missions_gb_frame" rect="0 0 420 244" margin="0 -265 0 0" layout_gravity="center center" skin="worldmap2_frame_03" stretch="true" scrollbar="true"/>
+		<groupbox name="missions_gb" rect="0 0 423 240" margin="1 -265 0 0" layout_gravity="center center" skin="None" stretch="true" scrollbar="true"/>
+		<richtext name="title_text" rect="0 0 396 56" margin="0 -468 0 0" layout_gravity="center center" textalign="center center" caption="{@st100cream_24}고고학"/>
+		<richtext name="missionList_text" rect="0 0 100 32" margin="-173 -406 0 0" layout_gravity="center center" textalign="center center" caption="{@st101lightbrown_16}발굴 가능 지역"/>
+		<button name="close_btn" rect="0 0 38 38" margin="215 -510 0 0" layout_gravity="center center" LBtnUpScp="ui.CloseFrame('worldmap2_archeology')" texttooltip="고고학 맵 정보창을 닫습니다." oversound="button_cursor_over_3" clicksound="button_click_big" image="testclose_button"/>
+	</controls>
+</uiframe>

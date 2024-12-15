@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="minimized_guide_mission_button" x="0" y="0" width="80" height="80">
+	<frame layout_gravity="right top" margin="0 476 347 0"/>
+	<layer layerlevel="31"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<option visible="true" closebutton="false" useimageitem="true" piptype="right" autoopen="true" hideable="false"/>
+	<controls>
+		<button name="openBtn" rect="0 0 58 60" margin="0 0 0 0" layout_gravity="center top" clicksound="button_click_3" oversound="button_cursor_over_2" image="essentialguide_btn" LBtnDownScp="MINIMIZED_GUIDE_MISSION_BUTTON_CLICK"/>
+		<groupbox name="notice_bg" rect="0 0 20 20" margin="0 0 5 0" layout_gravity="right top" hittest="false" skin="digitnotice_bg"/>
+	</controls>
+</uiframe>

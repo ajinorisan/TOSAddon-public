@@ -1,0 +1,7 @@
+ClassID,ClassName,AccountProperty,IconName
+0,"weekboss_default_hud","HUD_SKIN_DATE_DEFAULT_GRADE",""
+1,"Weekly_BorderSkin_Normal","HUD_SKIN_DATE_NORMAL_GRADE","weekboss_hud_skin_normal"
+2,"Weekly_BorderSkin_Magic","HUD_SKIN_DATE_MAGIC_GRADE","weekboss_hud_skin_magic"
+3,"Weekly_BorderSkin_Unique","HUD_SKIN_DATE_UNIQUE_GRADE","weekboss_hud_skin_unique"
+4,"Weekly_BorderSkin_Legend","HUD_SKIN_DATE_LEGEND_GRADE","weekboss_hud_skin_legend"
+5,"Weekly_BorderSkin_Goddess","HUD_SKIN_DATE_GODDESS_GRADE","weekboss_hud_skin_goddess"

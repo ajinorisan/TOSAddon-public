@@ -1,0 +1,7 @@
+ClassID,StartHour,StartMin,EndHour,EndMin,ClassName
+1,21,30,24,0,"pvp_teambattle_rule"
+2,22,0,24,0,"pvp_teambattle_rule_steam_1001"
+3,22,0,24,0,"pvp_teambattle_rule_steam_1003"
+4,23,0,1,0,"pvp_teambattle_rule_steam_1004"
+5,21,30,23,30,"pvp_teambattle_rule_steam_1005"
+6,19,30,23,30,"pvp_teambattle_rule_PAPAYA"

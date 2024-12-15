@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="itemrandomfree" x="0" y="0" width="400" height="500">
+	<frame fullheight="false" fasthide="false" layout_gravity="right center" margin="0 0 500 0"/>
+	<draw drawtitlebar="false"/>
+	<skin frameskin="none"/>
+	<input maxwidth="1280" moveable="false"/>
+	<effect open="character_item_window_open" close="character_item_window_close"/>
+	<layer layerlevel="100"/>
+	<option closebutton="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<script OpenScp="ITEM_FREE_RANDOM_OPTION_OPEN" CloseScp="ITEM_FREE_RANDOM_OPTION_CLOSE"/>
+	<userconfig RESET_SUCCESS_SOUND="sys_transcend_success" RESET_SUCCESS_EFFECT="UI_item_parts" EFFECT_SCALE="5" EFFECT_DURATION="0.5"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 400 500" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="true" skin="test_Item_tooltip_equip"/>
+		<richtext name="richtext_1" rect="0 0 120 24" margin="0 10 0 0" layout_gravity="center top" drawbackground="false" fixwidth="false" fontname="white_16_ol" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false" format="{@st41b}%s" param1="value" param1_def="산드라의 무료 감정 돋보기"/>
+		<groupbox name="gbox" rect="0 0 400 450" margin="0 40 0 0" parent="bg" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="gem_socket_bg"/>
+		<groupbox name="pic_bg" rect="0 0 400 312" margin="0 0 0 0" layout_gravity="center top" parent="gbox" draw="false" hittestbox="false" resizebyparent="false" changecursor="false" scrollbar="false" hittest="true" skin="test_socket_topskin"/>
+		<picture name="pic" parent="pic_bg" rect="0 0 312 312" margin="0 0 0 0" layout_gravity="center center" changecursor="false" hittest="true" image="re_appraisal_image" stretch="false"/>
+		<groupbox name="groupbox_2" rect="0 0 380 60" margin="0 0 0 0" parent="pic_bg" layout_gravity="center bottom" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="monster_skill_bg"/>
+		<groupbox name="groupbox_1" rect="0 0 380 60" margin="0 0 0 0" parent="pic_bg" layout_gravity="center bottom" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="monster_skill_bg"/>
+		<button name="do_sandrarevertrandom" parent="gbox" rect="0 0 180 50" margin="0 0 0 60" layout_gravity="center bottom" LBtnUpScp="ITEM_FREE_RANDOM_OPTION_EXEC" skin="test_red_button" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="감정" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<button name="send_ok" parent="gbox" rect="0 0 180 50" margin="0 0 0 60" layout_gravity="center bottom" LBtnUpScp="SENDOK_ITEM_FREE_RANDOM_OPTION_UI" skin="test_red_button" format="{@st41b}{s18}%s" oversound="button_cursor_over_3" param1="value" param1_def="확인" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big"/>
+		<button name="close" rect="0 0 44 44" margin="3 3 0 0" layout_gravity="left top" LBtnUpArgNum="" LBtnUpScp="ITEM_FREE_RANDOM_OPTION_CLOSE" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button"/>
+		<slot name="slot" margin="-4 70 0 0" rect="0 0 140 140" parent="pic_bg" movepop="false" dropsound="icon_get_down" picksound="icon_pick_up" DropScp="ITEM_FREE_RANDOM_OPTION_DROP" skin="invenslot2" RBtnUpScp="REMOVE_ITEM_FREE_RANDOM_OPTION_TARGET_ITEM" layout_gravity="center top"/>
+		<picture name="slot_bg_image" parent="slot" rect="0 0 140 140" margin="10 13 0 0" layout_gravity="center center" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="false" image="socket_slot_bg2" oversound="button_over"/>
+		<richtext name="text_itemname" margin="0 -3 0 0 " rect="0 0 300 50" parent="groupbox_1" layout_gravity="center center " hittestbox="false" textalign="center center " resizebytext="true" spacey="0" maxwidth="0" fontname="white_18_b_ds_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false"/>
+		<richtext name="text_putonitem" margin="0 -3 0 0 " rect="0 0 400 50" parent="groupbox_1" format="{@st43b}{s18}아이템을 올려주세요" layout_gravity="center center " hittestbox="false" textalign="center center " resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false"/>
+	</controls>
+</uiframe>

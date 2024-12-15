@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="activation_emphasize" x="0" y="0" width="300" height="300">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0"/>
+	<input moveable="false" hittestframe="false" moveintitlebar="false"/>
+	<skin frameskin="none"/>
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="100"/>
+	<option closebutton="false"/>
+	<sound opensound="button_click_stats_OK"/>
+	<effect open="character_item_window_open" close="character_item_window_close"/>
+	<script OpenScp="" CloseScp=""/>
+	<userconfig FADEIN_TIME_MS="500" FADEOUT_TIME_MS="500" PLAY_SOUND_NAME="button_click_stats_OK" ICON_MAX_ALPHA="70" ICON_DEF_SIZE="120" ICON_MAX_SIZE="160"/>
+	<controls>
+		<picture name="emphasize_icon" rect="0 0 120 120" margin="0 0 0 0" layout_gravity="center center" hittest="false" image="None" stretch="true"/>
+	</controls>
+</uiframe>

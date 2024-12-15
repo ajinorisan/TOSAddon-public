@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_item" x="0" y="0" width="1920" height="1080">
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_CUPOLE_ITEM" CloseScp="CLOSE_CUPOLE_ITEM"/>
+	<layer layerlevel="101"/>
+	<skin frameskin="None"/>
+	<draw drawframe="true" drawtitlebar="false" topmostlayerbyclick="true"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false" catchmovepos="true"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+	<userconfig DefaultSzX="885" DefaultSzY="1200" DefaultRatioY="1" DefaultRatioX="1" RatioY="0.8" RatioX="1" DefMarginX="0" DefMarginY="200" MarginX="0" MarginY="-50"/>
+	<controls>
+		<groupbox name="managerTab" rect="0 0 1620 800" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="epi_guide_frame_bg"/>
+		<groupbox name="cupole_manager_top" rect="0 0 1650 75" margin="0 105 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="relic_frame_top" stretch="true" hittest="true"/>
+		<richtext name="Title" parent="cupole_manager_top" rect="0 0 200 50" margin="0 0 0 0" layout_gravity="center center" caption="{@st43}{s24}큐폴" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<picture name="pic" parent="managerTab" rect="0 0 1600 900" margin="0 -60 0 0" layout_gravity="center center" draw="true" hittestbox="false" stretch="true" scrollbar="false" image="kupole_r_sr"/>
+		<spinepic name="spinepic" parent="managerTab" rect="0 0 1600 900" margin="0 -60 0 0" layout_gravity="center center" updateparent="true" animation="animation" scale="1.3" stretch="false" offsetX="52" offsetY="33"/>
+		<groupbox name="manageBG" parent="managerTab" rect="0 0 1600 790" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp="LBTNUP_RESET_CUPOLE_SELECT_MODE"/>
+		<picture name="MainCharacter" parent="manageBG" rect="0 0 885 1200" margin="0 200 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" image="cupole_0" stretch="true" TargetTexture="true" LBtnUpScp="LBTNUP_RESET_CUPOLE_SELECT_MODE"/>
+		<spinepic name="spinepic" parent="manageBG" rect="0 0 1000 1000" margin="0 -150 0 0" layout_gravity="center center" updateparent="true" animation="animation" scale="0.7" stretch="false" offsetX="-50" offsetY="-20"/>
+		<button name="btnPrevRotCharacter" parent="manageBG" rect="0 0 40 58" margin="-350 0 0 0" layout_gravity="center center" image="button_left_select2" clicksound="button_click_big" oversound="button_over" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="CUPOLE_UIMODEL_ROTATE_BTN" LBtnUpArgNum="0"/>
+		<button name="btnNextRotCharacter" parent="manageBG" rect="0 0 40 58" margin="350 0 0 0" layout_gravity="center center" image="button_right_select2" clicksound="button_click_big" oversound="button_over" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="CUPOLE_UIMODEL_ROTATE_BTN" LBtnUpArgNum="1"/>
+		<groupbox name="bg" parent="manageBG" rect="0 0 330 605" margin="0 115 50 0" layout_gravity="right top" draw="true" scrollbar="true" skin="cupoleroundsquare"/>
+		<groupbox name="SlotBG" parent="bg" rect="0 0 330 198" margin="0 0 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupoleroundsquare"/>
+		<groupbox name="gb_slot" parent="SlotBG" rect="0 0 300 160" margin="0 -5 0 0" layout_gravity="center center" draw="true" hittest="true" hittestbox="false" LBtnUpScp="" scrollbar="false" skin=""/>
+		<picture name="icon_pic" parent="SlotBG" rect="0 0 30 17" margin="-60 5 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="false" scrollbar="false" image="icon_cupole_titlebar"/>
+		<picture name="icon_pic2" parent="SlotBG" rect="0 0 30 17" margin="60 5 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="false" scrollbar="false" image="icon_cupole_titlebar" Reverse="true"/>
+		<richtext name="Title" parent="SlotBG" rect="0 0 90 30" margin="0 2 0 0" layout_gravity="center top" format="{@st66d}{s21}%s" param1="value" param1_def="팀 편성" hittest="false" fixwidth="true" textalign="center center" slideshow="true"/>
+		<picture name="Name_Pic" parent="manageBG" rect="0 0 450 108" margin="0 0 0 50" layout_gravity="center bottom" stretch="true" draw="true" hittest="false" scrollbar="false" image="img_LootBox_neme"/>
+		<richtext name="CupoleName" parent="Name_Pic" rect="0 0 370 108" margin="0 0 0 0" layout_gravity="center center" format="{@st66d}{s22}%s" param1="Name" param1_def="Name" hittest="false" fixwidth="true" textalign="center center" slideshow="true"/>
+		<!-- 큐폴 리스트 -->
+		<groupbox name="slotsetBG" parent="manageBG" rect="0 0 335 405" margin="0 315 45 0" layout_gravity="right top" draw="true" hittestbox="true" scrollbar="true" skin=""/>
+		<!-- 관리 탭 -->
+		<groupbox name="InfoBG" parent="manageBG" rect="0 0 350 650" margin="50 155 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin=""/>
+		<groupbox name="OptionBG" parent="InfoBG" rect="0 0 300 215" margin="0 0 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupoleroundsquare"/>
+		<groupbox name="OptionListBG" parent="OptionBG" rect="0 0 308 185" margin="0 30 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupolesquare"/>
+		<richtext name="Title" parent="OptionBG" rect="0 0 220 30" margin="10 5 0 0" layout_gravity="left top" caption="{@st66d}{s20}총 보유 효과" hittest="false" fixwidth="true" textalign="left center"/>
+		<groupbox name="NamelBG" parent="InfoBG" rect="0 0 300 30" margin="0 220 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupoleroundsquare"/>
+		<picture name="rank_pic" parent="NamelBG" rect="0 0 40 24" margin="10 0 0 0" layout_gravity="left center" stretch="true" draw="true" hittest="false" scrollbar="false" image="cupole_grade_R"/>
+		<richtext name="Name" parent="NamelBG" rect="0 0 220 30" margin="75 0 0 0" layout_gravity="left center" format="{@st66d}{s20}%s" param1="value" param1_def="이름" hittest="false" fixwidth="true" textalign="left center"/>
+		<groupbox name="ExplainBG" parent="InfoBG" rect="0 0 300 112" margin="0 255 0 0" check_pattern="false" stretch="true" LBtnUpScp="" layout_gravity="left top" skin="cupoleroundsquare" scrollbar="false"/>
+		<picture name="friendly_pic" parent="ExplainBG" rect="0 0 62 44" margin="0 10 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="false" scrollbar="false" image="icon_friendly_64"/>
+		<richtext name="Rate" parent="friendly_pic" rect="0 0 40 40" margin="0 0 0 0" layout_gravity="center center" format="{@st66d}{s16}%s" param1="value" param1_def="1" hittest="false" fixwidth="true" textalign="center center"/>
+		<richtext name="companyText" parent="ExplainBG" rect="0 0 280 30" margin="10 66 0 0" layout_gravity="left top" caption="{@st66d}{s16}동행 효과" hittest="false" fixwidth="true" textalign="left center"/>
+		<richtext name="companyEffect" parent="ExplainBG" rect="0 0 280 30" margin="0 66 10 0" layout_gravity="right top" format="{@st66d}{s16}%s" param1="value" param1_def="+ 10" hittest="false" fixwidth="true" textalign="right center"/>
+		<richtext name="haveText" parent="ExplainBG" rect="0 0 280 30" margin="10 87 0 0" layout_gravity="left top" caption="{@st66d}{s16}보유 효과" hittest="false" fixwidth="true" textalign="left center"/>
+		<richtext name="haveEffect" parent="ExplainBG" rect="0 0 280 30" margin="0 87 10 0" layout_gravity="right top" format="{@st66d}{s16}%s" param1="value" param1_def="+ 10" hittest="false" fixwidth="true" textalign="right center"/>
+		<picture name="upgradebtn_bg" parent="ExplainBG" rect="0 0 35 35" margin="0 10 5 0" layout_gravity="right top" stretch="true" draw="true" hittest="true" scrollbar="false" image="Ring_white"/>
+		<button name="btn" parent="upgradebtn_bg" rect="0 0 25 25" margin="0 0 0 0" layout_gravity="center center" LBtnUpScp="SCP_OPEN_CUPOLE_UPGRADE" image="icon_plus" stretch="false"/>
+		<groupbox name="SkillBG" parent="InfoBG" rect="0 0 300 50" margin="0 372 0 0" check_pattern="false" stretch="true" LBtnUpScp="" layout_gravity="left top" skin="cupoleroundsquare"/>
+		<richtext name="Explain" parent="SkillBG" rect="0 0 200 50" margin="7 0 0 0" layout_gravity="left center" caption="{@st43}{s20}액티브 스킬" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<groupbox name="PassiveBG" parent="InfoBG" rect="0 0 300 50" margin="0 428 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupoleroundsquare"/>
+		<richtext name="Explain" parent="PassiveBG" rect="0 0 200 50" margin="7 0 0 0" layout_gravity="left center" caption="{@st43}{s20}패시브 스킬" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<checkbox name="illustration" parent="InfoBG" rect="0 0 250 20" margin="0 500 0 0" layout_gravity="left top" LBtnUpScp="CHECK_ILLUSTRATION_MODE" caption="{@st42}일러스트 보기{/}" ellipsistexttooltip="true" clicksound="button_click_big" oversound="button_over"/>
+		<picture name="favorites" parent="InfoBG" rect="0 0 45 45" margin="0 0 0 0" layout_gravity="right top" stretch="true" draw="true" hittest="true" scrollbar="false" image="favorite_inactive" LBtnUpScp="SET_FAVORITE_CUPOLE"/>
+		<!-- <button name="Emotion" parent="InfoBG" rect="0 0 200 60" margin="0 0 0 50" layout_gravity="left bottom" LBtnUpScp="OPEN_EMOTION_BTN" skin="test_gray_button" stretch="true" caption="{@st66d}{s16}감정표현"/> -->
+		<groupbox name="PotionBG" parent="manageBG" rect="0 0 100 100" margin="250 640 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" skin="cupoleroundsquare"/>
+			<picture name="PotionPic" parent="PotionBG" rect="0 0 40 53" margin="0 10 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhud" LBtnUpScp="TOGGLE_CUPOLE_ADDON_FRAME"/>
+			<picture name="PotionToggle" parent="PotionBG" rect="0 0 50 26" margin="0 65 0 0" layout_gravity="center top" stretch="true" draw="true" hittest="true" scrollbar="false" image="potionhudoff" LBtnDownScp="TOGGLE_POTION_AUTO_USE"/>
+			<picture name="question" parent="PotionBG" rect="0 0 33 33" margin="0 0 0 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="{@st59b}포션 자동사용{nl}{@st59s} - 메인 슬롯에 장착한 큐폴만 자동사용 기능 동작.{nl} - 아래 On/Off 버튼 좌클릭 시 작동.{nl} - 활성화 시 재사용 대기시간 마다 자동 사용.{nl} - 마을, 팀 배틀 리그에서는 기능 사용불가{/}"/>
+		<!-- 가챠 결과 화면 -->
+		<groupbox name="gachaBG" parent="managerTab" rect="0 0 1600 800" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp=""/>
+		<groupbox name="gachaResult" parent="gachaBG" rect="0 0 1600 700" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp=""/>
+		<uieffect effect="I_sys_item_slot_loop" scale="4" overlab="No" sound="None" offset="-1 0" playtime="0.1" duration="1" conditon="active" event="TRANSCEND_RESULT_1"/>
+		<!-- 픽업 선택 화면  -->
+		<groupbox name="pickUpBG" parent="managerTab" rect="0 0 1600 800" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="true" skin="" LBtnUpScp=""/>
+		<spinepic name="spinepic" parent="pickUpBG" rect="0 0 1000 1000" margin="-150 -120 0 0" layout_gravity="left center" updateparent="true" animation="animation" scale="0.7" stretch="false" offsetX="-50" offsetY="-20"/>
+		<picture name="GahcaNamePic" parent="pickUpBG" rect="0 0 450 108" margin="75 0 0 75" layout_gravity="left bottom" draw="true" hittestbox="false" stretch="true" scrollbar="false" image="img_LootBox_neme"/>
+		<richtext name="GachaName" parent="GahcaNamePic" rect="0 0 370 108" margin="0 0 0 0" layout_gravity="center center" format="{@st66d}{s22}%s" param1="Name" param1_def="Name" hittest="false" fixwidth="true" textalign="center center" slideshow="true"/>
+		<picture name="bg" parent="pickUpBG" rect="0 0 900 450" margin="0 -30 100 0" layout_gravity="right center" draw="true" hittestbox="true" stretch="true" scrollbar="false" image="img_shop_get_bg"/>
+		<picture name="pickupSelectBG" parent="pickUpBG" rect="0 0 1000 500" margin="0 0 50 0" layout_gravity="right center" draw="true" hittestbox="true" stretch="true" scrollbar="false"/>
+		<picture name="pickupSelect" parent="pickUpBG" rect="0 0 1000 600" margin="0 0 50 0" layout_gravity="right center" draw="true" hittestbox="true" stretch="true" scrollbar="false" image="img_shop_get_frame"/>
+		<picture name="pickupBtnBG" parent="pickUpBG" rect="0 0 910 160" margin="0 227 95 0" layout_gravity="right center" draw="true" hittestbox="true" stretch="true" scrollbar="false" image="img_shop_get_bottom"/>
+		<picture name="SelectGacha" parent="pickupBtnBG" rect="0 0 240 130" margin="-250 0 0 0" layout_gravity="center center" LBtnUpScp="TOGGLE_CUPOLE_PICKUP_ADDON" LBtnUpArgNum="2" image="icon_shop_get_btn1" stretch="true" caption="{@st66d}{s23}셀렉트" texttooltip="{@st59b}마우스 좌클릭으로 큐폴 확정 영입 창을 켭니다.{/}"/>
+		<richtext name="gachatitle0" parent="SelectGacha" rect="0 0 240 100" margin="0 15 0 0" layout_gravity="center top" caption="{@st66d}{s20}확정 영입" hittest="false" fixwidth="true" textalign="center center"/>
+		<richtext name="gachatype0" parent="SelectGacha" rect="0 0 100 100" margin="45 7 0 0" layout_gravity="left center" caption="{@st66d}{s18}{img icon_mileage 40 40}" hittest="false" fixwidth="true" textalign="left center"/>
+		<richtext name="gachacnt0" parent="SelectGacha" rect="0 0 100 100" margin="0 7 45 0" layout_gravity="right center" format="{@st66d}{s18}%s/300" param1="count" param1_def="0" hittest="false" fixwidth="true" textalign="right center"/>
+		<picture name="StepGacha" parent="pickupBtnBG" rect="0 0 240 130" margin="0 0 0 0" layout_gravity="center center" LBtnUpScp="GACHA_CUPOLE_START_ON" LBtnUpArgNum="0" image="icon_shop_get_btn2" stretch="true" caption="{@st66d}{s23}단차" texttooltip="{@st59b}마우스 좌클릭으로 큐폴 영입을 1회 실행합니다.{/}"/>
+		<richtext name="gachatitle1" parent="StepGacha" rect="0 0 240 100" margin="0 15 0 0" layout_gravity="center top" caption="{@st66d}{s20}큐폴 영입 1회" hittest="false" fixwidth="true" textalign="center center" clicksound="sys_card_button_click_magic"/>
+		<richtext name="gachatype1" parent="StepGacha" rect="0 0 100 100" margin="45 7 0 0" layout_gravity="left center" caption="{@st66d}{s18}{img icon_item_kupole_gachaticket 40 40}" hittest="false" fixwidth="true" textalign="left center"/>
+		<richtext name="gachacnt1" parent="StepGacha" rect="0 0 100 100" margin="0 7 45 0" layout_gravity="right center" caption="{@st66d}{s18}1" hittest="false" fixwidth="true" textalign="right center"/>
+		<picture name="ConsecutiveGacha" parent="pickupBtnBG" rect="0 0 240 130" margin="250 0 0 0" layout_gravity="center center" LBtnUpScp="GACHA_CUPOLE_START_ON" LBtnUpArgNum="1" image="icon_shop_get_btn2" stretch="true" caption="{@st66d}{s20}연차" texttooltip="{@st59b}마우스 좌클릭으로 큐폴 영입을 10회 실행합니다.{/}"/>
+		<richtext name="gachatitle2" parent="ConsecutiveGacha" rect="0 0 240 100" margin="0 15 0 0" layout_gravity="center top" caption="{@st66d}{s20}큐폴 영입 10회 + 1" hittest="false" fixwidth="true" textalign="center center" clicksound="sys_card_button_click_unique"/>
+		<richtext name="gachatype2" parent="ConsecutiveGacha" rect="0 0 100 100" margin="45 7 0 0" layout_gravity="left center" caption="{@st66d}{s18}{img icon_item_kupole_gachaticket 40 40}" hittest="false" fixwidth="true" textalign="left center"/>
+		<richtext name="gachacnt2" parent="ConsecutiveGacha" rect="0 0 100 100" margin="0 7 45 0" layout_gravity="right center" caption="{@st66d}{s18}10" hittest="false" fixwidth="true" textalign="right center"/>
+		<picture name="pickupFrameBG" parent="pickUpBG" rect="0 0 1000 190" margin="0 -60 50 0" layout_gravity="right center" draw="true" hittestbox="true" stretch="true" scrollbar="false" image="img_shop_get_center"/>
+		<picture name="gacha_probaility" parent="pickupFrameBG" rect="0 0 25 25" margin="0 0 150 25" layout_gravity="right bottom" draw="true" hittestbox="true" stretch="true" scrollbar="false" image="icon_info" LBtnUpScp="TOGGLE_CUPOLE_RATIO" clicksound="sys_card_battle_result_1"/>
+		<groupbox name="TabGroupBox" parent="managerTab" rect="0 0 1600 70" margin="10 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" skin="cupolehalfsquare" LBtnUpScp=""/>
+		<tab name="CupoleTab" parent="managerTab" rect="0 0 400 100" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" LBtnDownScp="CUPOLE_TAB_CHANGE" fixwidth="true" itemspc="1" oversound="button_cursor_over_2" skin="tab_cupole" margin="12 27 0 0"/>
+		<tabitem name="Itembox2" parent="CupoleTab" caption="{@st66b}큐폴 관리{/}" width="200" layout_gravity="left top"/>
+		<tabitem name="Itembox1" parent="CupoleTab" caption="{@st66b}큐폴 영입{/}" width="200" layout_gravity="left top"/>
+		<button name="SelectBtn" parent="managerTab" rect="0 0 135 45" margin="0 265 250 0" layout_gravity="right top" LBtnUpScp="" skin="cupole_border_btn" stretch="true" caption="{@st66d}{s24}동행" clicksound="button_click_stats_OK" oversound="button_over"/>
+		<button name="DisableBtn" parent="managerTab" rect="0 0 135 45" margin="0 265 85 0" layout_gravity="right top" LBtnUpScp="" skin="cupole_border2_btn" stretch="true" caption="{@st66d}{s24}해제" clicksound="button_click_skill_down" oversound="button_over"/>
+		<groupbox name="filtergbox" parent="managerTab" rect="0 0 40 40" margin="0 315 405 0" layout_gravity="right top" draw="true" hittestbox="true" resizebyresolution="false" scrollbar="false" skin="cupolegreenroundsquare"/>
+		<button name="filterBtn" parent="filtergbox" rect="0 0 50 50" margin="0 0 0 0" layout_gravity="center center" LBtnUpScp="CUPOLE_FILTER_BTN" image="icon_filter" stretch="true"/>
+		<button name="closeBtn" rect="0 0 37 37" margin="0 125 185 0" layout_gravity="right top" image="testclose_button" texttooltip="큐폴 UI를 닫습니다." LBtnUpScp="ui.CloseFrame('cupole_item')"/>
+	</controls>
+</uiframe>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="accountprop_inventory" x="0" y="0" width="420" height="840">
+	<frame fullheight="false" fasthide="true" layout_gravity="right center" margin="0 95 510 0" draw="false"/>
+	<draw drawtitlebar="false"/>
+	<skin frameskin="None"/>
+	<input moveable="false" hittestframe="false"/>
+	<option visible="false" hideable="true" closebutton="false" moveable="true" alwaysVisible="false"/>
+	<layer layerlevel="95"/>
+	<sound opensound="inven_win_open" closesound="inven_win_close"/>
+	<script OpenScp="ACCOUNTPROP_INVENTORY_OPEN_SCRIPT"/>
+	<userconfig TREE_GROUP_BOX_MARGIN="10" TREE_NODE_FONT="white_20_ol"/>
+	<controls>
+		<groupbox name="mainbg" rect="0 0 420 770" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_low" draw="true" hittest="true"/>
+		<groupbox name="title_gb" rect="0 0 420 126" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="false" skin="test_frame_top"/>
+		<richtext name="title" rect="0 0 200 30" margin="0 18 0 0" layout_gravity="center top" caption="{@st43}콘텐츠 포인트{/}"/>
+		<button name="colse" rect="0 0 44 44" margin="28 20 0 0" layout_gravity="left top" LBtnUpScp="ACCOUNTPROP_INVENTORY_CLOSE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+		<groupbox name="main_gb" rect="0 0 390 690" margin="0 65 0 0" layout_gravity="center top" skin="test_frame_midle" draw="true" scrollbar="true"/>
+		<tree name="tree" parent="main_gb" rect="0 0 400 100" margin="0 0 0 0" layout_gravity="left top" drawline="true" selectioncolor="000000" scrollbar="false"/>
+	</controls>
+</uiframe>

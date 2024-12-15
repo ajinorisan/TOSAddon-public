@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<ToolSkill>
+    <Skill Name="Mon_ep14_1_npc_pajauta_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="CIRCLE" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="2" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="1" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="150"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="SKL_LOOK_TGT" Client="NO" UseSleep="NO" Time="0"/>
+                <Anim Time="0" Anim="skl_1" Speed="1"/>
+                <Scp Scp="MSL_THROW" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="500">
+                    <Str_Arg Str="I_arrow008#Bip01 R Finger11" Arg="0.69999999"/>
+                    <Str_Arg Str="F_spark013" Arg="1"/>
+                    <Str_Arg Str="I_force003_green" Arg="1"/>
+                    <Pos Angle="0" Dist="0" PosType="1" Height="20"/>
+                    <Num Num="10"/>
+                    <Num Num="0.2"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="1000"/>
+                    <Str Str="ENEMY"/>
+                    <Str Str="MSL_APPLIED_BUFF_CallBack"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Cannon_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="100" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="120"/>
+                    <Num Num="90"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="MSL_THROW_SYNC" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="900">
+                    <Str_Arg Str="I_archer_canon_force2#Dummy_eff_atk" Arg="1"/>
+                    <Str_Arg Str="I_explosion002_orange" Arg="1"/>
+                    <Str_Arg Str="I_force003_green" Arg="1"/>
+                    <Pos Angle="0" Dist="0" PosType="1"/>
+                    <Num Num="30"/>
+                    <Num Num="0.30000001"/>
+                    <Num Num="0"/>
+                    <Num Num="50"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0.1"/>
+                    <Str_Arg Str="F_sys_target_monster" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="1000"/>
+                    <Str Str="ENEMY"/>
+                    <Str Str="MSL_APPLIED_BUFF_CallBack"/>
+                </Scp>
+                <Scp Scp="MSL_THROW_SYNC" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="1200">
+                    <Str_Arg Str="I_archer_canon_force2#Dummy_eff_atk" Arg="1"/>
+                    <Str_Arg Str="I_explosion002_orange" Arg="1"/>
+                    <Str_Arg Str="I_force003_green" Arg="1"/>
+                    <Pos Angle="0" Dist="0" PosType="1"/>
+                    <Num Num="30"/>
+                    <Num Num="0.5"/>
+                    <Num Num="0"/>
+                    <Num Num="100"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0.2"/>
+                    <Str_Arg Str="F_sys_target_monster" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="1000"/>
+                    <Str Str="ENEMY"/>
+                    <Str Str="MSL_APPLIED_BUFF_CallBack"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Cannon_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="120"/>
+                    <Num Num="90"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="MSL_THROW" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="700">
+                    <Str_Arg Str="I_archer_canon_force2#Dummy_eff_atk" Arg="1"/>
+                    <Str_Arg Str="I_explosion002_orange" Arg="1"/>
+                    <Str_Arg Str="I_force003_green" Arg="1"/>
+                    <Pos Angle="0" Dist="0" PosType="1"/>
+                    <Num Num="30"/>
+                    <Num Num="0.40000001"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Str_Arg Str="F_sys_target_monster" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="1000"/>
+                    <Str Str="ENEMY"/>
+                    <Str Str="MSL_APPLIED_BUFF_CallBack"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_shielder_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="700" Dist="0" Angle="-1.192093e-07" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="1400" Dist="78.466431" Angle="-0.0052896976" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="SQUARE" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="EFT_AND_HIT_ARROW" Client="NO" UseSleep="YES" Time="0">
+                    <Pos Angle="0" Dist="8.8497266e-18"/>
+                    <Pos Angle="0" Dist="100"/>
+                    <Str_Arg Str="F_sys_arrow_monster" Arg="0.5"/>
+                    <Num Num="15"/>
+                    <Num Num="0.0099999998"/>
+                    <Num Num="0.2"/>
+                    <Num Num="500"/>
+                    <Str_Arg Str="F_explosion125_explosion" Arg="2.2"/>
+                    <Num Num="25"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="25"/>
+                    <Num Num="0.25"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="100"/>
+                </Scp>
+                <Anim Time="400" Anim="skl2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_shielder_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="500" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="25" Length="45" SklAngle="0.17453292" AniTime="700" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Gladiator_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="700" Dist="0" Angle="-1.192093e-07" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="800" Dist="19.598217" Angle="-0.14141174" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="SQUARE" Time="600" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="35" SklAngle="0.78539819" AniTime="800" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Charger_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="45" SklAngle="0.87266469" AniTime="300" RotAngle="0" ForceATK="0"/>
+                <Frame Type="FAN" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="45" SklAngle="0.87266469" AniTime="600" RotAngle="0" ForceATK="0"/>
+                <Frame Type="FAN" Time="700" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="45" SklAngle="0.87266469" AniTime="900" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Charger_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="45" SklAngle="0.69813174" AniTime="300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Spear_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="10" Length="40" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Spear_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="35" SklAngle="0.52359879" AniTime="300" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_GresmeCrow_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="CIRCLE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="35" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0"/>
+                <Frame Type="CIRCLE" Time="500" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="35" SklAngle="0.17453292" AniTime="700" RotAngle="0" ForceATK="0"/>
+                <Frame Type="CIRCLE" Time="600" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="35" SklAngle="0.17453292" AniTime="800" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_GresmeCrow_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="40" SklAngle="0.52359879" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Gladiator_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="40" SklAngle="0.52359879" AniTime="300" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Swordman_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="800" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="40" SklAngle="0.17453292" AniTime="1000" RotAngle="0" ForceATK="0"/>
+                <Frame Type="SQUARE" Time="900" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="40" SklAngle="0.17453292" AniTime="1100" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_Bleakferret_Swordman_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="50" SklAngle="0.78539819" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="FAN" Time="800" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="50" SklAngle="0.78539819" AniTime="1000" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_GresmeBird_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="1100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="120" SklAngle="0.17453292" AniTime="1300" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_GresmeBird_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="40" SklAngle="0.69813174" AniTime="300" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_GresmeRaven_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="1100" Dist="0" Angle="-1.192093e-07" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="1300" Dist="83.845856" Angle="-0.020845784" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="1600" Dist="0" Angle="-1.192093e-07" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+                <Scp Scp="EFT_AND_HIT_ARROW" Client="NO" UseSleep="YES" Time="0">
+                    <Pos Angle="0" Dist="4.1264426e-30"/>
+                    <Pos Angle="0" Dist="120"/>
+                    <Str_Arg Str="F_sys_arrow_monster" Arg="0.5"/>
+                    <Num Num="15"/>
+                    <Num Num="0.0099999998"/>
+                    <Num Num="0.30000001"/>
+                    <Num Num="1300"/>
+                    <Str_Arg Str="F_explosion99_dark2" Arg="2.5"/>
+                    <Num Num="30"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="35"/>
+                    <Num Num="0.050000001"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="100"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_GresmeRaven_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="600" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="40" SklAngle="0.17453292" AniTime="800" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="700" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="40" SklAngle="0.17453292" AniTime="900" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="800" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="40" SklAngle="0.17453292" AniTime="1000" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_npc_pajauta_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="150" SklAngle="0.87266469" AniTime="300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="150"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="SKL_LOOK_TGT" Client="NO" UseSleep="NO" Time="0"/>
+                <Anim Time="0" Anim="skl_1" Speed="1"/>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="300">
+                    <Str_Arg Str="I_archer_fanwiseshots" Arg="1"/>
+                    <Pos Angle="0" Dist="10" Height="22"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="320">
+                    <Str_Arg Str="I_archer_fanwiseshots" Arg="1"/>
+                    <Pos Angle="0" Dist="10" Height="22"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="340">
+                    <Str_Arg Str="I_archer_fanwiseshots" Arg="1"/>
+                    <Pos Angle="0" Dist="10" Height="22"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="360">
+                    <Str_Arg Str="I_archer_fanwiseshots" Arg="1"/>
+                    <Pos Angle="0" Dist="10" Height="22"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="380">
+                    <Str_Arg Str="I_archer_fanwiseshots" Arg="1"/>
+                    <Pos Angle="0" Dist="10" Height="22"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="400">
+                    <Str_Arg Str="I_archer_fanwiseshots" Arg="1"/>
+                    <Pos Angle="0" Dist="10" Height="22"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_npc_pajauta_Skill_3">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="150"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="SKL_LOOK_TGT" Client="NO" UseSleep="NO" Time="0"/>
+                <Anim Time="0" Anim="skl_1" Speed="1"/>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="0">
+                    <Str_Arg Str="F_levitation015_dark" Arg="2"/>
+                    <Str Str="None"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="200">
+                    <Str_Arg Str="F_spread_in005_dark##0.1" Arg="0.5"/>
+                    <Str Str="Bip01 R Finger12"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="200" Anim="skl_1" Speed="0.1" StartTime="0.050000001"/>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="300">
+                    <Str_Arg Str="F_spread_in005_dark##0.1" Arg="0.5"/>
+                    <Str Str="Bip01 R Finger12"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="400">
+                    <Str_Arg Str="F_spread_in005_dark##0.1" Arg="0.5"/>
+                    <Str Str="Bip01 R Finger12"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="1000" Anim="skl_1" Speed="1" StartTime="0.5"/>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1100">
+                    <Pos Angle="0" Dist="20" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1"/>
+                    <Num Num="20"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1150">
+                    <Pos Angle="0" Dist="40" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.1"/>
+                    <Num Num="22"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1200">
+                    <Pos Angle="0" Dist="60" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.2"/>
+                    <Num Num="24"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1250">
+                    <Pos Angle="0" Dist="80" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.3"/>
+                    <Num Num="26"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1300">
+                    <Pos Angle="0" Dist="100" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.4"/>
+                    <Num Num="28"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1350">
+                    <Pos Angle="0" Dist="120" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.5"/>
+                    <Num Num="30"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1400">
+                    <Pos Angle="0" Dist="140" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.6"/>
+                    <Num Num="32"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1450">
+                    <Pos Angle="0" Dist="160" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.7"/>
+                    <Num Num="34"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1500">
+                    <Pos Angle="0" Dist="180" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.8"/>
+                    <Num Num="36"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1550">
+                    <Pos Angle="0" Dist="200" Height="22"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion085_dark" Arg="1.9"/>
+                    <Num Num="38"/>
+                    <Num Num="100"/>
+                    <Num Num="300"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_kingdomsodier_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="0" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_kingdomsodier_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="0" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_npc_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="0" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_npc_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_TransmutationSoldier_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="50" SklAngle="0.17453292" AniTime="300" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_TransmutationMerchant_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+                <Scp Scp="MSL_THROW" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MSL_THROW" Time="1000">
+                    <Str_Arg Str="I_force025_red#Bip001 Neck" Arg="1"/>
+                    <Str_Arg Str="I_explosion002_green" Arg="1"/>
+                    <Str_Arg Str="I_force003_green" Arg="1"/>
+                    <Pos Angle="0" Dist="40"/>
+                    <Num Num="30"/>
+                    <Num Num="0.5"/>
+                    <Num Num="0"/>
+                    <Num Num="50"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Str_Arg Str="F_sys_target_monster" Arg="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                    <Num Num="1000"/>
+                    <Str Str="ENEMY"/>
+                    <Str Str="MSL_APPLIED_BUFF_CallBack"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_TransmutationMerchant_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="500" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="50" SklAngle="0.87266469" AniTime="700" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="0.5"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_TransmutationPeople_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="600" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="40" SklAngle="0.17453292" AniTime="800" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_TransmutationPeople_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="35" SklAngle="0.69813174" AniTime="300" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_1_TransmutationSoldier_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="300" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="60" SklAngle="0.17453292" AniTime="500" RotAngle="0" ForceATK="0"/>
+                <Frame Type="SQUARE" Time="300" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="60" SklAngle="0.17453292" AniTime="500" RotAngle="0" ForceATK="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_2_Bleakferret_Lancer_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="600" Dist="0" Angle="-1.192093e-07" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="700" Dist="34.701656" Angle="-0.045740563" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="SQUARE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="50" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk" Speed="0.5"/>
+                <Anim Time="600" Anim="atk" Speed="1" StartTime="0.40000001"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_2_Bleakferret_Lancer_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="500" Dist="0" Angle="-1.192093e-07" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="1100" Dist="108.49161" Angle="-1.0667575e-05" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="SQUARE" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="15" Length="130" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="atk" Speed="0.69999999"/>
+                <Scp Scp="EFT_AND_HIT_ARROW" Client="NO" UseSleep="YES" Time="0">
+                    <Pos Angle="0" Dist="30"/>
+                    <Pos Angle="0" Dist="150"/>
+                    <Str_Arg Str="None" Arg="0.5"/>
+                    <Num Num="15"/>
+                    <Num Num="0.0099999998"/>
+                    <Num Num="0.2"/>
+                    <Num Num="500"/>
+                    <Str_Arg Str="None" Arg="0.80000001"/>
+                    <Num Num="20"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="30"/>
+                    <Num Num="0.1"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="100"/>
+                </Scp>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="0">
+                    <Str_Arg Str="F_light055_orange4##0.5" Arg="2.5"/>
+                    <Str Str="Dummy_eff_Sword"/>
+                    <Num Num="0.80000001"/>
+                </Scp>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="100">
+                    <Str_Arg Str="F_light055_orange4##0.5" Arg="2.5"/>
+                    <Str Str="Dummy_eff_Sword"/>
+                    <Num Num="0.80000001"/>
+                </Scp>
+                <Anim Time="600" Anim="skl1" Speed="1" StartTime="0.40000001"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_2_Bleakferret_Scout_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0"ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="100"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="200">
+                    <Pos Angle="0" Dist="0" PosType="9"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion141_red" Arg="0.69999999"/>
+                    <Num Num="20"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="500" Anim="skl1" Speed="1"/>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="700">
+                    <Pos Angle="0" Dist="0" PosType="9"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion141_red" Arg="0.69999999"/>
+                    <Num Num="20"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Anim Time="900" Anim="skl2" Speed="1"/>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1200">
+                    <Pos Angle="0" Dist="0" PosType="9"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion141_red" Arg="0.80000001"/>
+                    <Num Num="20"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="1700">
+                    <Pos Angle="0" Dist="0" PosType="9"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion141_red" Arg="1"/>
+                    <Num Num="20"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_2_Bleakferret_Scout_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0"ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0">
+                    <Pos Angle="0" Dist="0"/>
+                    <Num Num="100"/>
+                    <Num Num="5"/>
+                    <Num Num="2"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                </Scp>
+                <Anim Time="200" Anim="skl1" Speed="1"/>
+                <Scp Scp="EFT_AND_HIT" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_EFT_AND_HIT" Time="600">
+                    <Pos Angle="0" Dist="0" PosType="9"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Num Num="0"/>
+                    <Str_Arg Str="F_explosion141_red" Arg="1"/>
+                    <Num Num="20"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="1000"/>
+                    <Str_Arg Str="None" Arg="1"/>
+                    <Str Str="None"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_2_Bleakferret_Strange_Skill_1">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <MoveList>
+                <Frame Time="400" Dist="0" Angle="-1.192093e-07" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+                <Frame Time="500" Dist="24.248428" Angle="-0.029104153" Accel="1" Height="0" MoveType="0" Gravity="600" JumpPower="300"/>
+            </MoveList>
+            <HitList>
+                <Frame Type="FAN" Time="600" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="50" Length="60" SklAngle="1.308997" AniTime="800" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl1" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="Mon_ep14_2_Bleakferret_Strange_Skill_2">
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="1.0471976" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="FAN" Time="500" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="1.0471976" AniTime="700" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="FAN" Time="1100" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="60" SklAngle="1.0471976" AniTime="1300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Anim Time="0" Anim="skl2" Speed="1"/>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+</ToolSkill>

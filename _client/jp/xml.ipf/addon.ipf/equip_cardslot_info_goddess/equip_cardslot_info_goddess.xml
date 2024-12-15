@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by dd (IMCGames Co., Ltd) -->
+<uiframe name="equip_cardslot_info_goddess" x="0" y="0" width="400" height="740">
+	<frame fasthide="true" layout_gravity="right center" margin="0 0 0 0" scale_align="right center"/>
+	<skin frameskin="test_win_lastpopup2"/>
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="105"/>
+	<input moveable="false"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="popup_start3" frameCloseAnim="popup_end3"/>
+	<effect open="character_item_window_open" close="character_item_window_close"/>
+	<userconfig starSize="20"/>
+	<controls>
+		<richtext name="infoMsg" rect="0 0 350 70" margin="0 80 0 0" format="{@st66d}{s18}{#FFFF18}[ %s ]{/} {@st66d}{s18}{#FFFFFF}장착을 해제합니다.{/}" param1="Name" param1_def="asd" textalign="center center" layout_gravity="center top" resizebytext="false" spacey="0" maxwidth="0" fontname="white_18_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false"/>
+		<spinepic name="card_img" rect="0 0 260 370" layout_gravity="center top" margin="0 145 0 0" updateparent="true" animation="animation" scale="1.0" stretch="true" offsetX="0" offsetY="0" hittest="false" image="boss_bg_slot"/>
+		<picture name="card_img2" rect="0 0 260 370" margin="0 145 0 0" layout_gravity="center top" hittest="false" image="boss_bg_slot" stretch="true"/>
+		<richtext name="cardStar" rect="0 0 400 50" margin="0 475 0 0" layout_gravity="center top" format="{@st42}%s{/}" param1="value" param1_def="itemstar" textalign="center center" resizebytext="false" spacey="0" maxwidth="0" fontname="white_22_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false"/>
+		<groupbox name="bg" rect="0 0 350 115" margin="0 525 0 0" layout_gravity="center top" scale_align="left bottom" draw="true" skin="test_frame_midle"/>
+		<richtext name="effect_title" margin="10 5 0 0" rect="0 0 10 50" parent="bg" layout_gravity="left top" format="{@st41_red}제거 되는 효과{/}" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_22_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false"/>
+		<richtext name="effect_info" margin="0 50 0 0" rect="0 0 15 300" parent="bg" layout_gravity="center top" format="{@st41b}{s16}%s{/}" param1="RemovedEffect" param1_def="없음." textalign="left top" resizebytext="true" spacey="0" maxwidth="320" fontname="white_22_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false"/>
+		<button name="button_1" margin="-87 0 0 30" rect="0 0 175 55" format="{@st41b}해제하기{/}" skin="test_gray_button" layout_gravity="center bottom" oversound="button_over" LBtnUpScp="EQUIP_GODDESSCARDSLOT_BTN_REMOVE"/>
+		<button name="button_2" margin="87 0 0 30" rect="0 0 175 55" format="{@st41b}취소{/}" skin="test_gray_button" layout_gravity="center bottom" oversound="button_over" LBtnUpScp="ui.CloseFrame('equip_cardslot_info_goddess')"/>
+	</controls>
+</uiframe>

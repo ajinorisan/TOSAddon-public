@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="gear_score_ranking" x="0" y="0" width="620" height="880" create="open">
+	<frame layout_gravity="center center" margin="-100 0 0 0" tooltipoverlap="true"/>
+	<option closebutton="false"/>
+	<draw drawframe="false" drawtitlebar="false" drawnotitlebar="false"/>
+	<input moveable="true" hittestframe="true"/>
+	<script OpenScp="GEAR_SCORE_RANKING_OPEN" CloseScp=""/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<layer layerlevel="1000"/>
+	<controls>
+		<groupbox name="gFrame" rect="0 0 620 880" margin="0 0 0 0" layout_gravity="left center" skin="test_frame_low" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" rect="0 0 620 74" margin="0 0 0 0" layout_gravity="left top" skin="test_frame_top" hittestbox="false" stretch="true"/>
+		<richtext name="title" parent="titlegbox" rect="0 0 200 50" margin="0 17 0 0" layout_gravity="center top" caption="{@st43}{s24}기어스코어 랭킹" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="closeBtn" parent="titlegbox" rect="0 0 44 44" margin="0 20 27 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;gear_score_ranking&apos;)" clicksound="button_click_big" image="testclose_button" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover"/>
+		
+		<groupbox name="playerBox" rect="0 0 590 70" margin="0 65 0 0" layout_gravity="center top" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="test_frame_midle"/>
+	
+		<groupbox name="userListBox" rect="0 0 590 683" margin="0 145 0 0" layout_gravity="center top" draw="true" scrollbar="false" hittestbox="false" resizebyparent="false" skin="test_frame_midle"/>
+		<groupbox name="rankboxTitle" rect="0 0 590 40" margin="0 145 0 0" layout_gravity="center top" skin="market_listbase" draw="true" hittestbox="false"/>
+		<richtext name="rankTitle" parent="rankboxTitle" rect="0 0 30 40" margin="30 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}순위"/>
+		<richtext name="rankTeamName" parent="rankboxTitle" rect="0 0 30 40" margin="130 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}팀명"/>
+		<richtext name="rankCharName" parent="rankboxTitle" rect="0 0 30 40" margin="270 0 0 0" layout_gravity="left center" caption="{@st66b}{s16}캐릭터명"/>
+		<richtext name="rankGearScore" parent="rankboxTitle" rect="0 0 30 40" margin="0 0 30 0" layout_gravity="right center" caption="{@st66b}{s16}기어스코어"/>
+
+		<richtext name="pageText" rect="0 0 0 5" margin="0 0 0 15" layout_gravity="center bottom" format="{@st43}{s22}%s" param1="page" param1_def="1" drawbackground="false" fixwidth="false" fontname="brown_18" resizebytext="true" textalign="center center"/>
+		<button name="prevBtn" rect="0 0 40 30" margin="-275 0 0 15" layout_gravity="center bottom" caption="{img white_left_arrow 18 18}" LBtnUpScp="GEAR_SCORE_RANKING_PREV_BUTTON"/>
+		<button name="nextBtn" rect="0 0 40 30" margin="275 0 0 15" layout_gravity="center bottom" caption="{img white_right_arrow 18 18}" LBtnUpScp="GEAR_SCORE_RANKING_NEXT_BUTTON"/>
+	</controls>
+</uiframe>
+ 

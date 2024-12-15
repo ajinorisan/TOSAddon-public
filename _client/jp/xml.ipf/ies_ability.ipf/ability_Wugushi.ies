@@ -1,0 +1,13 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+201,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi14","UNLOCK_ABIL_SKILL","Wugushi_WugongGu","오공고 1레벨 이상","ABIL_REINFORCE_PRICE"
+301,200,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi7","UNLOCK_BASE_LEVEL","","캐릭터 200레벨 이상","ABIL_COMMON_PRICE_200LV"
+401,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi23","UNLOCK_ABIL_SKILL","Wugushi_LatentVenom","잠독백세 1레벨 이상","ABIL_REINFORCE_PRICE"
+501,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi17","UNLOCK_ABIL_SKILL","Wugushi_ThrowGuPot","독 항아리 1레벨 이상","ABIL_REINFORCE_PRICE"
+601,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi27","UNLOCK_ABIL_SKILL","Wugushi_WideMiasma","독무만상 1레벨 이상","ABIL_REINFORCE_PRICE"
+701,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi28","UNLOCK_ABIL_SKILL","Wugushi_JincanGu","금잠고 1레벨 이상","ABIL_REINFORCE_PRICE"
+803,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi37","UNLOCK_ABIL_JOB_LEVEL","Char3_6","무고사 클래스 45레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+901,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi30","UNLOCK_ABIL_OTHERABILITY","Wugushi14","[오공고: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+902,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi31","UNLOCK_ABIL_OTHERABILITY","Wugushi17","[독 항아리: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+903,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi32","UNLOCK_ABIL_OTHERABILITY","Wugushi28","[금잠고: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+904,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi33","UNLOCK_ABIL_OTHERABILITY","Wugushi23","[잠독백세: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+905,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Wugushi34","UNLOCK_ABIL_OTHERABILITY","Wugushi27","[독무만상: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

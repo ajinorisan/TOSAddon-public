@@ -1,0 +1,1132 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ToolSkill>
+    <Skill Name="RuneCaster_Stan">
+		<KeyInput>
+			<ToolScp Client="YES" Scp="SKL_KEY_GROUND_EVENT" UseSleep="NO">
+				<Num FuncTxt=" local value = 2  local pc = GetMyPCObject()  if IsBuffApplied(pc, &quot;Runcaster_Casting_Buff&quot;) == &quot;YES&quot; then   local castingBuffOver = GetBuffOver(pc, 'Runcaster_Casting_Buff')      value = 1   if castingBuffOver >= 2 then    value = 0.5   end  end    return value" Num="0" UseFunc="1"/>
+				<Num Num="0" />
+				<Num Num="0" />
+				<Num Num="1" />
+				<Num Num="150" />
+				<Num Num="0.1" />
+				<Num Num="0" />
+				<Num Num="1" />
+				<Num Num="1" />
+				<Str_Arg Arg="1" Str="E_pc_full_charge3" />
+				<Str Str="None" />
+				<Num Num="0" />
+				<Num Num="0" />
+				<Num Num="5" />
+				<Num Num="1" />
+				<Num Num="45" />
+				<Num Num="0" />
+				<Num Num="0" />
+				<Num Num="1" />
+				<Num Num="0" />
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Client="YES" Scp="MONSKL_C_PLAY_ANIM" UseSleep="NO">
+				<Str Str="SKL_STAN_CAST" />
+				<Num Num="1" />
+				<Num Num="1" />
+				<Num Num="0" />
+			</ToolScp>
+			<ToolScp Client="YES" Scp="MONSKL_C_RESERVE_ANIM" UseSleep="NO">
+				<Str Str="SKL_STAN_LOOP" />
+				<Num Num="1" />
+				<Num Num="1" />
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_SHOW_PARTS_MODEL" UseSleep="NO">
+				<Str Str="LH" />
+				<Num Num="0" />
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_SHOW_PARTS_MODEL" UseSleep="NO">
+				<Str Str="RH" />
+				<Num Num="0" />
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_EFFECT" UseSleep="NO">
+				<Str_Arg Arg="2" Str="F_wizard_EnchantEarth_ground" />
+				<Str Str="None" />
+				<Num Num="0" />
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_PLAY_SOUND" UseSleep="NO">
+				<Str Str="voice_wiz_f_stan_cast" />
+				<Num Num="0" />
+				<Str Str="voice_wiz_m_stan_cast" />
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_PLAY_SOUND" UseSleep="NO">
+				<Str Str="skl_eff_algiz_cast_loop" />
+				<Num Num="0" />
+				<Str Str="skl_eff_algiz_cast_loop" />
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Client="YES" Scp="C_EFFECT_DETACH" UseSleep="NO">
+				<Str_Arg Arg="1" Str="F_wizard_EnchantEarth_ground" />
+				<Num Num="0.5" />
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_STOP_SOUND" UseSleep="NO">
+				<Str Str="voice_wiz_f_stan_cast" />
+				<Str Str="voice_wiz_m_stan_cast" />
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_STOP_SOUND" UseSleep="NO">
+				<Str Str="skl_eff_algiz_cast_loop" />
+				<Str Str="skl_eff_algiz_cast_loop" />
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<HitList>
+				<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="99799" Type="FAN" />
+			</HitList>
+			<EtcList>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="0" UseSleep="NO">
+					<Pos Angle="0" Dist="0" PosType="3" />
+					<Angle Angle="0" />
+					<Str Str="RuneCaster_Stan" />
+				</Scp>
+				<Scp Client="NO" Scp="SKL_BUFF_ABIL" Time="0" UseSleep="NO">
+                    <Str Str="RuneCaster1"/>
+                    <Str Str="Runcaster_Casting_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num FuncTxt=" local value = 5000  local abil = GetAbility(self, &quot;RuneCaster1&quot;)  if abil ~= nil then   value = value + abil.Level * 250    end    return value" Num="0" UseFunc="1"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+				</Scp>
+				<Scp Client="YES" Scp="C_SOUND" Time="100" UseSleep="NO">
+					<Str Str="skl_eff_meteostrikes_whoosh" />
+				</Scp>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+					<Str Str="voice_wiz_m_stan_shot" />
+					<Str Str="voice_wiz_f_stan_shot" />
+				</Scp>
+                <Scp Client="YES" Scp="C_SHOW_PARTS_MODEL" Time="600" UseSleep="NO">
+					<Str Str="LH" />
+					<Num Num="1" />
+				</Scp>
+                <Scp Client="YES" Scp="C_SHOW_PARTS_MODEL" Time="600" UseSleep="NO">
+					<Str Str="RH" />
+					<Num Num="1" />
+				</Scp>
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" UseSleep="NO">
+					<Str Str="SCR_RUNCASTER_VIBORA"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+    <Skill Name="RuneCaster_Berkana">
+    	<EnableScripts>
+			<ToolScp Scp="SKL_CHECK_FLETCHER" Client="BOTH" UseSleep="NO">
+				<Num Num="0"/>
+			</ToolScp>
+		</EnableScripts>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="Berkana_Buff"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="
+return obj.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="1800000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="200">
+					<Str Str="skl_eff_berkana_shot"/>
+				</Scp>
+                <Scp Scp="EFFECT_POS_ROTATE" Client="NO" UseSleep="NO" Time="300">
+                    <Str_Arg Str="I_wizard_rune_stone_Algiz_light_mash_shot" Arg="1"/>
+                    <Pos Angle="0" Dist="15" PosType="5" Height="30"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="45"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="-45"/>
+                    <Num Num="15"/>
+                    <Num Num="35"/>
+                    <Num Num="15"/>
+                </Scp>
+                <Scp Scp="EFFECT_POS_ROTATE" Client="NO" UseSleep="NO" Time="400">
+                    <Str_Arg Str="I_wizard_rune_stone_Hagalaz_light_mash_shot" Arg="1"/>
+                    <Pos Angle="0" Dist="10" PosType="5" Height="40"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="45"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="-45"/>
+                    <Num Num="10"/>
+                    <Num Num="47"/>
+                    <Num Num="10"/>
+                </Scp>
+                <Scp Scp="EFFECT_POS_ROTATE" Client="NO" UseSleep="NO" Time="500">
+                    <Str_Arg Str="I_wizard_rune_stone_Isa_light_mash_shot" Arg="1"/>
+                    <Pos Angle="0" Dist="0" PosType="5" Height="45"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="45"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="-45"/>
+                    <Num Num="0"/>
+                    <Num Num="55"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="EFFECT_POS_ROTATE" Client="NO" UseSleep="NO" Time="600">
+                    <Str_Arg Str="I_wizard_rune_stone_Thurisaz_light_mash_shot" Arg="1"/>
+                    <Pos Angle="0" Dist="-10" PosType="5" Height="40"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="45"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="-45"/>
+                    <Num Num="-10"/>
+                    <Num Num="47"/>
+                    <Num Num="-10"/>
+                </Scp>
+                <Scp Scp="EFFECT_POS_ROTATE" Client="NO" UseSleep="NO" Time="700">
+                    <Str_Arg Str="I_wizard_rune_stone_Tiwaz_light_mash_shot" Arg="1"/>
+                    <Pos Angle="0" Dist="-15" PosType="5" Height="30"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="45"/>
+                    <Num Num="0"/>
+                    <Num Num="0"/>
+                    <Num Num="1"/>
+                    <Num Num="-45"/>
+                    <Num Num="-15"/>
+                    <Num Num="35"/>
+                    <Num Num="-15"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+    <Skill Name="RuneCaster_Ehwaz">
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="3" UseFunc="1" FuncTxt="local value = 2
+local pc = GetMyPCObject()  
+if IsBuffApplied(pc, 'Runcaster_Casting_Buff') == 'YES' then  
+            local castingBuffOver = GetBuffOver(pc, 'Runcaster_Casting_Buff')
+            value = 1
+            if castingBuffOver >= 2 then
+                value = 0.5
+            end
+        end                  
+return value"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+				<Str_Arg Str="None" Arg="1"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="45"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str Str="None"/>
+				<Str Str="None"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Scp="MONSKL_C_CASTING_ANIM" Client="YES" UseSleep="NO">
+				<Str Str="skl_Ehwaz_re"/>
+				<Str Str="None"/>
+				<Num Num="0.5"/>
+				<Num Num="0"/>
+				<Str Str="None"/>
+				<Str Str="ASTD"/>
+			</ToolScp>
+			<ToolScp Scp="SKL_PLAY_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_runecaster_f_ehwaz_cast"/>
+				<Num Num="0"/>
+				<Str Str="voice_runecaster_m_ehwaz_cast"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Scp="MONSKL_C_RESET_CASTING_ANIM" Client="YES" UseSleep="NO"/>
+			<ToolScp Scp="SKL_STOP_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_runecaster_f_ehwaz_cast"/>
+				<Str Str="voice_runecaster_m_ehwaz_cast"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9800" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10000" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_BUFF_ABIL" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="RuneCaster1"/>
+					<Str Str="Runcaster_Casting_Buff"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="0" UseFunc="1" FuncTxt=" local value = 5000  local abil = GetAbility(self, &quot;RuneCaster1&quot;)  if abil ~= nil then   value = value + abil.Level * 250    end    return value"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="voice_runecaster_m_ehwaz_shot"/>
+					<Str Str="voice_runecaster_f_ehwaz_shot"/>
+				</Scp>
+				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="100">
+					<Str Str="skl_eff_ehwaz_shot"/>
+				</Scp>
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="400">
+					<Str_Arg Str="F_warrior_bash_shot_ground2###1" Arg="3.5"/>
+					<Pos Angle="0" Dist="0" PosType="5"/>
+					<Num Num="0"/>
+					<Str Str="None"/>
+				</Scp>
+				<Scp Scp="MONSKL_CRE_PAD_BY" Client="NO" UseSleep="NO" Time="500">
+					<Pos Angle="-120" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="RuneCaster_Ehwaz_Pad3"/>
+				</Scp>
+				<Scp Scp="MONSKL_CRE_PAD_BY" Client="NO" UseSleep="NO" Time="500">
+					<Pos Angle="120" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="RuneCaster_Ehwaz_Pad2"/>
+				</Scp>
+				<Scp Scp="MONSKL_CRE_PAD_BY" Client="NO" UseSleep="NO" Time="500">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="RuneCaster_Ehwaz_Pad1"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="RuneCaster_Hagalaz">
+		<EndScripts>
+			<ToolScp Client="NO" Scp="SKL_CANCEL_CANCEL" UseSleep="NO" />
+		</EndScripts>
+		<KeyInput>
+			<ToolScp Client="YES" Scp="SKL_KEY_GROUND_EVENT" UseSleep="NO">
+				<Num FuncTxt=" local value = 2  local pc = GetMyPCObject()  if IsBuffApplied(pc, &quot;Runcaster_Casting_Buff&quot;) == &quot;YES&quot; then   local castingBuffOver = GetBuffOver(pc, 'Runcaster_Casting_Buff')      value = 1   if castingBuffOver >= 2 then    value = 0.5   end  end    return value" Num="0" UseFunc="1"/>
+				<Num Num="0" />
+				<Num Num="0" />
+				<Num Num="0" />
+				<Num Num="150" />
+				<Num Num="0.1" />
+				<Num Num="0" />
+				<Num Num="1" />
+				<Num Num="1" />
+				<Str_Arg Arg="1.5" Str="F_wizard_RuneCaster_fullcharge" />
+				<Str Str="None" />
+				<Num Num="0" />
+				<Num Num="0" />
+				<Num Num="5" />
+				<Num Num="1" />
+				<Num Num="45" />
+				<Num Num="0" />
+				<Num Num="0" />
+				<Num Num="1" />
+				<Num Num="0" />
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Client="YES" Scp="MONSKL_C_PLAY_ANIM" UseSleep="NO">
+				<Str Str="SKL_HAGALAZ_CAST" />
+				<Num Num="1" />
+				<Num Num="1" />
+			</ToolScp>
+			<ToolScp Client="YES" Scp="MONSKL_C_RESERVE_ANIM" UseSleep="NO">
+				<Str Str="SKL_HAGALAZ_LOOP" />
+				<Num Num="1" />
+				<Num Num="1" />
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_SHOW_PARTS_MODEL" UseSleep="NO">
+				<Str Str="LH" />
+				<Num Num="0" />
+			</ToolScp>
+			<ToolScp Client="YES" Scp="C_SHOW_PARTS_MODEL" UseSleep="NO">
+				<Str Str="RH" />
+				<Num Num="0" />
+			</ToolScp>
+			<ToolScp Client="NO" Scp="SKL_PLAY_SOUND" UseSleep="NO">
+				<Str Str="voice_wiz_f_hagalaz_cast" />
+				<Num Num="0" />
+				<Str Str="voice_wiz_m_hagalaz_cast" />
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Client="YES" Scp="MONSKL_C_CLEAR_RESERVE_ANIM" UseSleep="NO" />
+			<ToolScp Client="NO" Scp="SKL_STOP_SOUND" UseSleep="NO">
+				<Str Str="voice_wiz_f_hagalaz_cast" />
+				<Str Str="voice_wiz_m_hagalaz_cast" />
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
+			<HitList>
+				<Frame Angle="0" AniTime="9999" Dist="0" ForceATK="0" HitCount="1" PosType="3" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9799" Type="SQUARE" />
+			</HitList>
+			<EtcList>
+				<Scp Client="NO" Scp="SKL_BUFF_ABIL" Time="0" UseSleep="NO">
+                    <Str Str="RuneCaster1"/>
+                    <Str Str="Runcaster_Casting_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num FuncTxt=" local value = 5000  local abil = GetAbility(self, &quot;RuneCaster1&quot;)  if abil ~= nil then   value = value + abil.Level * 250    end    return value" Num="0" UseFunc="1"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+				</Scp>
+				<Scp Client="YES" Scp="C_VOICE_SOUND" Time="100" UseSleep="NO">
+					<Str Str="voice_wiz_m_hagalaz_shot" />
+					<Str Str="voice_wiz_f_hagalaz_shot" />
+				</Scp>
+				<Scp Client="NO" Scp="EFT_AND_HIT" Time="300" TooltipScp="TOOLTIP_EFT_AND_HIT" UseSleep="YES">
+					<Pos Angle="0" Dist="0" PosType="3" />
+					<Str_Arg Arg="1" Str="None" />
+					<Num Num="0" />
+					<Str_Arg Arg="1" Str="F_wizard_Hagalaz_explosion" />
+					<Num Num="75" />
+					<Num Num="0" />
+					<Num Num="0" />
+					<Num Num="5" />
+					<Num Num="500" />
+					<Str_Arg Arg="1" Str="None" />
+					<Str Str="None" />
+					<Num Num="1" />
+					<Num Num="0" />
+					<Num Num="0" />
+				</Scp>
+			</EtcList>
+			<ResultList>
+                <ToolScp Client="NO" Scp="S_R_TGT_REMOVE_BUFF" UseSleep="NO">
+                    <Str FuncTxt="local func_name = 'get_remove_buff_tooltip_' .. TryGetProp(skill, 'ClassName', 'None')
+               local func = _G[func_name]
+               if func == nil then return end
+               return func(skill.Level)" Str="0" UseFunc="1"/>
+                </ToolScp>
+			</ResultList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="RuneCaster_Isa">
+        <EndScripts>
+            <ToolScp Scp="SKL_CANCEL_CANCEL" Client="NO" UseSleep="NO"/>
+        </EndScripts>
+        <KeyInput>
+            <ToolScp Scp="SKL_KEY_GROUND_EVENT" Client="YES" UseSleep="NO">
+                <Num Num="3" UseFunc="1" FuncTxt=" local value = 2  local pc = GetMyPCObject()  if IsBuffApplied(pc, &quot;Runcaster_Casting_Buff&quot;) == &quot;YES&quot; then   local castingBuffOver = GetBuffOver(pc, 'Runcaster_Casting_Buff')      value = 1   if castingBuffOver >= 2 then    value = 0.5   end  end    return value"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="150"/>
+                <Num Num="0.1"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Str_Arg Str="None" Arg="1"/>
+                <Str Str="None"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="5"/>
+                <Num Num="1"/>
+                <Num Num="45"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+                <Str Str="None"/>
+            </ToolScp>
+        </KeyInput>
+        <KeyInputStart>
+            <ToolScp Scp="MONSKL_C_CASTING_ANIM" Client="YES" UseSleep="NO">
+				<Str Str="skl_Uruz_cast"/>
+                <Str Str="None"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Str Str="None"/>
+                <Str Str="ASTD"/>
+            </ToolScp>
+            <ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+                <Str Str="LH"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+                <Str Str="RH"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="SKL_PLAY_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_runecaster_f_isa_cast"/>
+                <Num Num="0"/>
+				<Str Str="voice_runecaster_m_isa_cast"/>
+            </ToolScp>
+        </KeyInputStart>
+        <KeyInputEnd>
+            <ToolScp Scp="MONSKL_C_RESET_CASTING_ANIM" Client="YES" UseSleep="NO"/>
+            <ToolScp Scp="SKL_STOP_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_runecaster_f_isa_cast"/>
+				<Str Str="voice_runecaster_m_isa_cast"/>
+            </ToolScp>
+        </KeyInputEnd>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="CIRCLE" Time="100" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="50" SklAngle="0.17453292" AniTime="300" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="CIRCLE" Time="140" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="50" SklAngle="0.17453292" AniTime="340" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="CIRCLE" Time="180" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="50" SklAngle="0.17453292" AniTime="380" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="CIRCLE" Time="220" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="50" SklAngle="0.17453292" AniTime="420" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_BUFF_ABIL" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="RuneCaster1"/>
+                    <Str Str="Runcaster_Casting_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num Num="0" UseFunc="1" FuncTxt=" local value = 5000  local abil = GetAbility(self, &quot;RuneCaster1&quot;)  if abil ~= nil then   value = value + abil.Level * 250    end    return value"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+					<Str Str="voice_runecaster_m_isa_shot"/>
+					<Str Str="voice_runecaster_f_isa_shot"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="100">
+                    <Str_Arg Str="I_stone001_mesh" Arg="0.9"/>
+                    <Pos Angle="0.39269909" Dist="-20" PosType="3"/>
+                    <Num Num="0.6"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="300">
+                    <Str_Arg Str="F_ground180_boom" Arg="1.4"/>
+                    <Pos Angle="-1.5790404" Dist="7.1315899" PosType="3"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="320">
+                    <Str_Arg Str="F_ground180_boom" Arg="1.4"/>
+                    <Pos Angle="-0.36615556" Dist="19.409985" PosType="3"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="340">
+                    <Str_Arg Str="F_ground180_boom" Arg="1.4"/>
+                    <Pos Angle="-3.1381824" Dist="19.489395" PosType="3"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="360">
+                    <Str_Arg Str="F_ground180_boom" Arg="1.4"/>
+                    <Pos Angle="-1.5784241" Dist="12.643083" PosType="3"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="380">
+                    <Str_Arg Str="F_ground180_boom" Arg="1.4"/>
+                    <Pos Angle="-2.2755485" Dist="16.666779" PosType="3"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="400">
+                    <Str_Arg Str="F_ground180_boom" Arg="1.4"/>
+                    <Pos Angle="-0.88910574" Dist="18.733698" PosType="3"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+                <Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="420">
+                    <Str_Arg Str="F_ground180_boom" Arg="1.4"/>
+                    <Pos Angle="-1.7227178" Dist="28.133331" PosType="3"/>
+                    <Num Num="0"/>
+                    <Str Str="None"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+    </Skill>
+	<Skill Name="RuneCaster_Algiz">
+		<EndScripts>
+			<ToolScp Client="NO" Scp="SKL_CANCEL_CANCEL" UseSleep="NO"/>
+		</EndScripts>
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_CASTING_OR_PARTY_TARGET" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="3" UseFunc="1" FuncTxt=" local value = 2  local pc = GetMyPCObject()  if IsBuffApplied(pc, &quot;Runcaster_Casting_Buff&quot;) == &quot;YES&quot; then   local castingBuffOver = GetBuffOver(pc, 'Runcaster_Casting_Buff')      value = 1   if castingBuffOver >= 2 then    value = 0.5   end  end    return value"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+				<Str_Arg Str="F_wizard_RuneCaster_fullcharge" Arg="1.5"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="45"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str Str="RuneCaster22"/>
+				<Num Num="0"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
+				<Str Str="SKL_ALGIZ_CAST"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Scp="MONSKL_C_RESERVE_ANIM" Client="YES" UseSleep="NO">
+				<Str Str="SKL_ALGIZ_LOOP"/>
+				<Num Num="1"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+				<Str Str="LH"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+				<Str Str="RH"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Scp="SKL_PLAY_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_wiz_f_algiz_cast"/>
+				<Num Num="0"/>
+				<Str Str="voice_wiz_m_algiz_cast"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Scp="MONSKL_C_CLEAR_RESERVE_ANIM" Client="YES" UseSleep="NO"/>
+			<ToolScp Scp="SKL_STOP_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_wiz_f_algiz_cast"/>
+				<Str Str="voice_wiz_m_algiz_cast"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="SQUARE" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="Algiz_Buff"/>
+					<Num Num="0" UseFunc="1" FuncTxt="return obj.Level;"/>
+					<Num Num="0"/>
+					<Num Num="1800000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF_ABIL" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="RuneCaster1"/>
+					<Str Str="Runcaster_Casting_Buff"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num FuncTxt=" local value = 5000  local abil = GetAbility(self, &quot;RuneCaster1&quot;)  if abil ~= nil then   value = value + abil.Level * 250    end    return value" Num="0" UseFunc="1"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+					<Str Str="voice_wiz_m_algiz_shot"/>
+					<Str Str="voice_wiz_f_algiz_shot"/>
+				</Scp>
+				<Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="550">
+					<Str_Arg Str="F_wizard_Algiz_shot" Arg="5"/>
+					<Str Str="None"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+		<ByCondSkills>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_SELECT_ABIL" Client="NO" UseSleep="NO">
+						<Str Str="RuneCaster11"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Type="SQUARE" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+							<Str Str="Algiz_PainBarrier_Buff"/>
+							<Num Num="0" UseFunc="1" FuncTxt="return obj.Level;"/>
+							<Num Num="0"/>
+							<Num Num="300000"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+							<Str Str="voice_wiz_m_algiz_shot"/>
+							<Str Str="voice_wiz_f_algiz_shot"/>
+						</Scp>
+						<Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="550">
+							<Str_Arg Str="F_wizard_Algiz_shot" Arg="5"/>
+							<Str Str="None"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+			<SubSkl>
+				<Cond>
+					<ToolScp Scp="SKL_SELECT_ABIL" Client="NO" UseSleep="NO">
+						<Str Str="RuneCaster22"/>
+					</ToolScp>
+				</Cond>
+				<Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+					<HitList>
+						<Frame Type="SQUARE" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+					</HitList>
+					<EtcList>
+						<Scp Scp="SKL_SET_TARGET_CLIENT_TARGETTING" Client="NO" UseSleep="NO" Time="0">
+							<Num Num="1"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="SKL_TGT_BUFF" Client="NO" UseSleep="NO" Time="500">
+							<Str Str="Thurisaz_Buff"/>
+							<Num Num="1" UseFunc="1" FuncTxt="
+return  obj.Level;"/>
+							<Num Num="0"/>
+							<Num Num="0" UseFunc="1" FuncTxt="return 60000 * obj.Level"/>
+							<Num Num="1"/>
+							<Num Num="100"/>
+							<Num Num="0"/>
+							<Num Num="0"/>
+						</Scp>
+						<Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="550">
+							<Str_Arg Str="F_wizard_Algiz_shot" Arg="5"/>
+							<Str Str="None"/>
+							<Num Num="0"/>
+						</Scp>
+					</EtcList>
+				</Skill>
+			</SubSkl>
+		</ByCondSkills>
+	</Skill>
+	<Skill Name="RuneCaster_Thurisaz">
+		<EndScripts>
+			<ToolScp Scp="SKL_CANCEL_CANCEL" Client="NO" UseSleep="NO"/>
+		</EndScripts>
+		<KeyInput>
+			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="2"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="1"/>
+				<Num Num="0"/>
+				<Str_Arg Str="None" Arg="1"/>
+				<Str Str="None"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="5"/>
+				<Num Num="1"/>
+				<Num Num="45"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Num Num="0"/>
+				<Str Str="None"/>
+				<Str Str="None"/>
+			</ToolScp>
+		</KeyInput>
+		<KeyInputStart>
+			<ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
+				<Str Str="skl_Thurisaz_re"/>
+				<Num Num="4"/>
+				<Num Num="1"/>
+			</ToolScp>
+			<ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+				<Str Str="LH"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+				<Str Str="RH"/>
+				<Num Num="0"/>
+			</ToolScp>
+			<ToolScp Scp="SKL_PLAY_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_atk_long_cast_f"/>
+				<Num Num="0"/>
+				<Str Str="voice_war_atk_long_cast"/>
+			</ToolScp>
+		</KeyInputStart>
+		<KeyInputEnd>
+			<ToolScp Scp="MONSKL_C_CLEAR_RESERVE_ANIM" Client="YES" UseSleep="NO"/>
+			<ToolScp Scp="SKL_STOP_SOUND" Client="NO" UseSleep="NO">
+				<Str Str="voice_atk_long_cast_f"/>
+				<Str Str="voice_war_atk_long_cast"/>
+			</ToolScp>
+		</KeyInputEnd>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="300" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="310" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_RUN_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="310" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_MOVE_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="320" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_RUN_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="320" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_MOVE_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="330" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_RUN_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="330" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_MOVE_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="340" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_RUN_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="340" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_MOVE_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="350" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_RUN_PAD"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="350" LoopTime="200">
+					<Str Str="SCR_SKL_RUNECASTER_EIHWAZ_MOVE_PAD"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+    <Skill Name="RuneCaster_Tiwaz">
+        <EndScripts>
+            <ToolScp Scp="SKL_CANCEL_CANCEL" Client="NO" UseSleep="NO"/>
+        </EndScripts>
+        <KeyInput>
+            <ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0" UseFunc="1" FuncTxt="local value = 2
+local pc = GetMyPCObject()  
+if IsBuffApplied(pc, 'Runcaster_Casting_Buff') == 'YES' then  
+            local castingBuffOver = GetBuffOver(pc, 'Runcaster_Casting_Buff')
+            value = 1
+            if castingBuffOver >= 2 then
+                value = 0.5
+            end
+        end                  
+local abil = session.GetAbilityByName('RuneCaster18');
+if abil ~= nil then
+    local abilObj = GetIES(abil:GetObject());
+    if abilObj.ActiveState == 1 then
+        value = 2
+    end
+end
+
+return value"/>
+                <Num Num="0" UseFunc="1" FuncTxt="local value = 0  
+local pc = GetMyPCObject()  
+local abil = session.GetAbilityByName('RuneCaster18');
+if abil ~= nil then
+    local abilObj = GetIES(abil:GetObject());
+    if abilObj.ActiveState == 1 then
+        value = 1
+    end
+end
+
+return value"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0" UseFunc="1" FuncTxt="local value = 0  
+local pc = GetMyPCObject()
+local abil = session.GetAbilityByName('RuneCaster18');
+if abil ~= nil then
+    local abilObj = GetIES(abil:GetObject());
+    if abilObj.ActiveState == 1 then
+        value = 1
+    end
+end
+
+return value"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Str_Arg Str="F_wizard_RuneCaster_fullcharge" Arg="1.5"/>
+                <Str Str="None"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="5"/>
+                <Num Num="1"/>
+                <Num Num="45"/>
+                <Num Num="0"/>
+                <Num Num="0" UseFunc="1" FuncTxt="local value = 1
+local pc = GetMyPCObject()  
+local abil = session.GetAbilityByName('RuneCaster18');
+if abil ~= nil then
+    local abilObj = GetIES(abil:GetObject());
+    if abilObj.ActiveState == 1 then
+        value = 0
+    end
+end
+
+return value"/>
+                <Num Num="0"/>
+                <Str Str=""/>
+                <Str Str=""/>
+            </ToolScp>
+        </KeyInput>
+        <KeyInputStart>
+            <ToolScp Scp="SKL_PLAY_SOUND" Client="NO" UseSleep="NO">
+                <Str Str="voice_wiz_f_tiwaz_cast"/>
+                <Num Num="0"/>
+                <Str Str="voice_wiz_m_tiwaz_cast"/>
+            </ToolScp>
+            <ToolScp Scp="MONSKL_C_CASTING_ANIM_OR_PLAY_ANIM" Client="YES" UseSleep="NO">
+                <Str Str="skl_Tiwaz_cast"/>
+                <Str Str="None"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Str Str="RuneCaster18"/>
+                <Str Str="skl_Tiwaz_cast_abil2"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="MONSKL_C_RESERVE_ANIM" Client="YES" UseSleep="NO">
+                <Str Str="ASTD" UseFunc="1" FuncTxt="local value = 'None'  
+local pc = GetMyPCObject()
+local abil = session.GetAbilityByName('RuneCaster18');
+if abil ~= nil then
+    local abilObj = GetIES(abil:GetObject());
+    if abilObj.ActiveState == 1 then
+        value = 'SKL_TIWAZ_LOOP_ABIL'
+    end
+end
+
+return value"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+            </ToolScp>
+            <ToolScp Scp="C_EFFECT_ABIL" Client="YES" UseSleep="NO">
+                <Str Str="RuneCaster18"/>
+                <Str_Arg Str="E_wizard_Tiwaz_shot_line_abil" Arg="1"/>
+                <Str Str="Dummy_emitter"/>
+                <Num Num="0"/>
+            </ToolScp>
+        </KeyInputStart>
+        <KeyInputEnd>
+            <ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+                <Str Str="LH"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO">
+                <Str Str="RH"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="SKL_STOP_SOUND" Client="NO" UseSleep="NO">
+                <Str Str="voice_wiz_f_tiwaz_cast"/>
+                <Str Str="voice_wiz_m_tiwaz_cast"/>
+            </ToolScp>
+            <ToolScp Scp="MONSKL_C_CLEAR_RESERVE_ANIM" Client="YES" UseSleep="NO"/>
+            <ToolScp Scp="MONSKL_C_RESET_CASTING_ANIM" Client="YES" UseSleep="NO"/>
+            <ToolScp Scp="C_EFFECT_DETACH" Client="YES" UseSleep="NO">
+                <Str_Arg Str="E_wizard_Tiwaz_shot_line_abil" Arg="1"/>
+                <Num Num="0.5"/>
+            </ToolScp>
+        </KeyInputEnd>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="200" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="170" SklAngle="0.17453292" AniTime="400" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="300" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="170" SklAngle="0.17453292" AniTime="500" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="400" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="170" SklAngle="0.17453292" AniTime="600" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="500" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="170" SklAngle="0.17453292" AniTime="700" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+                <Frame Type="SQUARE" Time="600" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="20" Length="170" SklAngle="0.17453292" AniTime="800" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+                    <Str Str="None" UseFunc="1" FuncTxt="local value = 'SKL_TIWAZ_SHOT'  
+local pc = GetMyPCObject()
+local abil = session.GetAbilityByName('RuneCaster18');
+if abil ~= nil then
+    local abilObj = GetIES(abil:GetObject());
+    if abilObj.ActiveState == 1 then
+        value = 'SKL_TIWAZ_SHOT_ABIL'
+    end
+end
+
+return value"/>
+                    <Num Num="1"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF_ABIL" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="RuneCaster1"/>
+                    <Str Str="Runcaster_Casting_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num FuncTxt=" local value = 5000  local abil = GetAbility(self, &quot;RuneCaster1&quot;)  if abil ~= nil then   value = value + abil.Level * 250    end    return value" Num="0" UseFunc="1"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="200">
+                    <Str Str="voice_wiz_m_tiwaz_shot"/>
+                    <Str Str="voice_wiz_f_tiwaz_shot"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>
+        <ByCondSkills>
+            <SubSkl>
+                <Cond>
+                    <ToolScp Scp="SKL_SELECT_ABIL" Client="NO" UseSleep="NO">
+                        <Str Str="RuneCaster18"/>
+                    </ToolScp>
+                </Cond>
+                <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+                    <EtcList>
+                        <Scp Scp="SKL_SET_TARGET_SQUARE_SR" Client="NO" UseSleep="NO" Time="0" LoopTime="240">
+                            <Pos Angle="0" Dist="0"/>
+                            <Num Num="0"/>
+							<Num Num="200"/>
+							<Num Num="40"/>
+                            <Num Num="2"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="0" LoopTime="255">
+                            <Num Num="1"/>
+                            <Num Num="1"/>
+                            <Num Num="0"/>
+                        </Scp>
+                        <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="200">
+                            <Str Str="voice_wiz_m_tiwaz_shot"/>
+                            <Str Str="voice_wiz_f_tiwaz_shot"/>
+                        </Scp>
+                    </EtcList>
+                </Skill>
+            </SubSkl>
+        </ByCondSkills>
+    </Skill>
+    <Skill Name="Common_RuneCaster_Algiz">
+        <EndScripts>
+            <ToolScp Client="NO" Scp="SKL_CANCEL_CANCEL" UseSleep="NO"/>
+        </EndScripts>
+        <KeyInput>
+            <ToolScp Scp="SKL_KEY_CASTING_OR_PARTY_TARGET" Client="YES" UseSleep="NO">
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="3" UseFunc="1" FuncTxt=" local value = 2  local pc = GetMyPCObject()  if IsBuffApplied(pc, &quot;Runcaster_Casting_Buff&quot;) == &quot;YES&quot; then   local castingBuffOver = GetBuffOver(pc, 'Runcaster_Casting_Buff')      value = 1   if castingBuffOver >= 2 then    value = 0.5   end  end    return value"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+                <Str_Arg Str="F_wizard_RuneCaster_fullcharge" Arg="1.5"/>
+                <Str Str="None"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="5"/>
+                <Num Num="1"/>
+                <Num Num="45"/>
+                <Num Num="0"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Str Str=""/>
+                <Num Num="0"/>
+            </ToolScp>
+        </KeyInput>
+        <KeyInputStart>
+            <ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
+                <Str Str="BUFF"/>
+                <Num Num="1"/>
+                <Num Num="1"/>
+            </ToolScp>                        
+            <ToolScp Scp="SKL_PLAY_SOUND" Client="NO" UseSleep="NO">
+                <Str Str="voice_wiz_f_algiz_cast"/>
+                <Num Num="0"/>
+                <Str Str="voice_wiz_m_algiz_cast"/>
+            </ToolScp>
+        </KeyInputStart>
+        <KeyInputEnd>
+            <ToolScp Scp="MONSKL_C_CLEAR_RESERVE_ANIM" Client="YES" UseSleep="NO"/>
+            <ToolScp Scp="SKL_STOP_SOUND" Client="NO" UseSleep="NO">
+                <Str Str="voice_wiz_f_algiz_cast"/>
+                <Str Str="voice_wiz_m_algiz_cast"/>
+            </ToolScp>
+        </KeyInputEnd>
+        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+            <HitList>
+                <Frame Type="SQUARE" Time="9799" HitCount="1" TermMin="0" TermMax="0" PosType="3" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="9999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+            </HitList>
+            <EtcList>
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="Algiz_Buff"/>
+                    <Num Num="0" UseFunc="1" FuncTxt="return obj.Level;"/>
+                    <Num Num="0"/>
+                    <Num Num="1800000"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="SKL_BUFF_ABIL" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="RuneCaster1"/>
+                    <Str Str="Runcaster_Casting_Buff"/>
+                    <Num Num="1"/>
+                    <Num Num="0"/>
+                    <Num FuncTxt=" local value = 5000  local abil = GetAbility(self, &quot;RuneCaster1&quot;)  if abil ~= nil then   value = value + abil.Level * 250    end    return value" Num="0" UseFunc="1"/>
+                    <Num Num="1"/>
+                    <Num Num="100"/>
+                    <Num Num="0"/>
+                </Scp>
+                <Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="100">
+                    <Str Str="voice_wiz_m_algiz_shot"/>
+                    <Str Str="voice_wiz_f_algiz_shot"/>
+                </Scp>
+                <Scp Scp="C_EFFECT" Client="YES" UseSleep="NO" Time="550">
+                    <Str_Arg Str="F_wizard_Algiz_shot" Arg="5"/>
+                    <Str Str="None"/>
+                    <Num Num="0"/>
+                </Scp>
+            </EtcList>
+        </MainSkl>        
+    </Skill>
+	</ToolSkill>

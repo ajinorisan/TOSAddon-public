@@ -1,0 +1,4 @@
+ClassID,ClassName,Name,Icon,Desc
+1,"Hwarang_Skillcost_Buff","기백","Hwarang_Skillcost_Buff","화랑의 일부 스킬 사용에 필요한 버프입니다.{nl} {nl} {nl}[사용 스킬]{nl}흑각궁, 백각궁, 임전무퇴, 교우이신"
+2,"Hwarang_Target_Debuff","여흔","Hwarang_Target_Debuff","애기살, 궁무 스킬로 부여할 수 있는 디버프입니다.{nl} {nl}흑각궁, 백각궁 스킬 사용 시 해당 디버프가 부여된 적에게 발사합니다."
+3,"keraunos_Spark_Buff","스파크","wizard_Spark","[스파크] 버프중 케라우노스{nl} 스킬 사용시 사라지며, 해당 스킬의 재사용 대기시간이{nl} 적용되지 않습니다."

@@ -1,0 +1,9 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+101,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser3","UNLOCK_ABIL_SKILL","Appraiser_Blindside","약점공격 1레벨 이상","ABIL_REINFORCE_PRICE"
+602,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser10","UNLOCK_ABIL_SKILL","Appraiser_LargeMagnifyingGlass","대형 돋보기 1레벨 이상","ABIL_REINFORCE_PRICE"
+603,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser12","UNLOCK_ABIL_SKILL","Appraiser_HighMagnifyingGlass","고배율 확대경 1레벨 이상","ABIL_REINFORCE_PRICE"
+604,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser13","UNLOCK_ABIL_SKILL","Appraiser_TripletLens","트리플렛 렌즈 1레벨 이상","ABIL_REINFORCE_PRICE"
+701,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser7","UNLOCK_ABIL_JOB_LEVEL","Char3_13","감정사 클래스 45 레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+702,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser16","UNLOCK_ABIL_JOB_LEVEL","Char3_13","감정사 클래스 45 레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+802,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser11","UNLOCK_ABIL_OTHERABILITY","Appraiser10","[대형 돋보기: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+803,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Appraiser14","UNLOCK_ABIL_OTHERABILITY","Appraiser13","[트리플렛 렌즈: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

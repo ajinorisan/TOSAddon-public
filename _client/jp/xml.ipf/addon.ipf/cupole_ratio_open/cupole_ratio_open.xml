@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_ratio_open" x="0" y="0" width="1980" height="1080">
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_CUPOLE_RATIO_TABLE" CloseScp=""/>
+	<layer layerlevel="102"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+	<input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<controls>
+		<!-- 관리탭 -->
+		<groupbox name="managerTab" rect="0 0 1020 650" margin="-45 -25 0 0" layout_gravity="center center" draw="true" hittestbox="true" scrollbar="false" skin="cupolegreenroundsquare3"/>
+			<groupbox name="ratioBG" parent="managerTab" rect="0 0 1000 525" margin="0 100 0 0" layout_gravity="center top" draw="true" hittestbox="true" scrollbar="true" skin=""/>
+				<groupbox name="ctrlBG" parent="managerTab" rect="0 0 1000 500" margin="0 120 0 0" layout_gravity="center top" draw="true" hittestbox="true" scrollbar="true" skin=""/>
+
+				<groupbox name="URBG" parent="ctrlBG" rect="0 0 950 650" margin="25 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="cupolegreenroundsquare2"/>
+					<richtext name="Title" parent="URBG" rect="0 0 220 30" margin="0 5 0 0" layout_gravity="center top" caption="{@st66d}{s20}UR등급" hittest="false" fixwidth="true" 	textalign="center center" />
+
+				<groupbox name="SRBG" parent="ctrlBG" rect="0 0 950 650" margin="25 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="cupolegreenroundsquare2"/>
+					<richtext name="Title" parent="SRBG" rect="0 0 220 30" margin="0 5 0 0" layout_gravity="center top" caption="{@st66d}{s20}SR등급" hittest="false" fixwidth="true" 	textalign="center center" />
+
+				<groupbox name="RBG" parent="ctrlBG" rect="0 0 950 650" margin="25 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="cupolegreenroundsquare2"/>
+					<richtext name="Title" parent="RBG" rect="0 0 220 30" margin="0 5 0 0" layout_gravity="center top" caption="{@st66d}{s20}R등급" hittest="false" fixwidth="true" 	textalign="center center" />
+
+		<groupbox name="relicmanager_top" rect="0 0 1020 60" margin="-45 190 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="cupolehalfgreenroundsquare" stretch="true"/>
+			<groupbox name="topframe" rect="0 0 1020 150" margin="-45 194 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="cupole_gold_top_frame" stretch="true"/>
+			<richtext name="topTitle" parent="relicmanager_top" rect="0 0 220 30" margin="0 20 0 0" layout_gravity="center top" caption="{@st66d}{s24}영입 확률 표시" hittest="false" fixwidth="true" 	textalign="center center" />
+
+		<groupbox name="frame" rect="0 0 1020 650" margin="-45 -25 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupole_gold_frame"/>
+
+		<button name="closeBtn" rect="0 0 37 37" parent="relicmanager_top" margin="0 15 10 0" layout_gravity="right top" image="testclose_button" texttooltip="확률 UI를 닫습니다." LBtnUpScp="ui.CloseFrame('cupole_ratio_open')" clicksound="character_item_window_close"/>
+	</controls>
+</uiframe>

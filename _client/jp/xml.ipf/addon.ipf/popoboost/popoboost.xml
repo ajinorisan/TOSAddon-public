@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+
+<uiframe name="popoboost" x="0" y="0" width="1280" height="780"> 
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+		<script OpenScp="OPEN_POPOBOOST" CloseScp=""/>
+		<draw drawtitlebar="false"/>
+		<skin frameskin="None"/>
+		<layer topmostlayer="false" layerlevel="92"/>
+		<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+    <controls>
+		<groupbox name="gFrame" rect="0 0 1280 780" margin="0 0 0 0" layout_gravity="left center" skin="relic_frame_bg" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="MainBox" rect="0 0 1280 780" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin=""/>
+
+        <groupbox name="goldFrame" parent="gFrame" rect="0 0 1280 45" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="premium_case_skin2"/>
+
+        <groupbox name="BannerGBox" parent="MainBox" rect="0 0 1200 500" margin="40 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin=""/>
+		<webpicture name="bannerImg" parent="BannerGBox" rect="0 0 1185 200" margin="0 40 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="center top" image=""/>
+		<groupbox name="banner" parent="BannerGBox" rect="0 0 1200 200" margin="0 40 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="center top" skin="popoboost_banner_bg"/>
+		<!-- <picture name="bannerRightImage" parent="banner" rect="0 0 250 150" margin="0 -8 8 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="right top" image="popoboost_poporion"/> -->
+
+
+        <groupbox name="ScoreGBox" parent="MainBox" rect="0 0 1200 100" margin="40 240 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin=""/>
+        <gauge name="GearScoreGauge" parent="ScoreGBox" rect="0 0 1202 40" margin="0 30 0 0" layout_gravity="left top" drawlastpoint="true" ratewidth="true" skin="popoboost_gearscore_gauge"  hittest="false" point="50"/>
+
+
+        <groupbox name="InfoGBox" parent="MainBox" rect="0 0 1200 410" margin="40 340 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin=""/>
+        <groupbox name="ContentGBox" parent="InfoGBox" rect="0 0 315 410" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_frame_midle"/>
+		<groupbox name="ContentTitle" parent="ContentGBox" rect="0 0 325 75" margin="0 0 0 0" stretch="false" LBtnUpScp="" resizebyresolution="false" layout_gravity="center top" skin="TPshop_title"/>
+		<richtext name="ContentTitleText" parent="ContentGBox" rect="0 0 120 75" margin="0 25 0 0" layout_gravity="center top" caption="성장 목표" fixwidth="false" fontname="white_24_ol" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" hittest="false" />
+        <picture name="recommandContent" parent="ContentGBox" rect="0 0 315 410" margin="0 0 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image=""/>
+		<richtext name="recommandText" parent="ContentGBox" rect="0 0 280 380" margin="20 100 0 0" layout_gravity="left top" format="%s" param1="value" param1_def="1" fixwidth="true" fontname="white_18_ol" hittest="false" textalign="left top"/>
+		<picture name="contentFrame" parent="ContentGBox" rect="0 0 315 410" margin="0 0 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="popoboost_content_frame_image"/>
+
+        <groupbox name="GuideGBox" parent="InfoGBox" rect="0 0 515 410" margin="325 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin=""/>
+		<picture name="growGuide" parent="GuideGBox" rect="0 0 515 410" margin="0 0 0 0" check_pattern="false" stretch="true" LBtnUpScp="" resizebyresolution="false" layout_gravity="left top" image="popoboost_guide_frame_image"/>
+        <richtext name="guideText" parent="GuideGBox" rect="0 0 430 410" margin="0 100 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="1" fixwidth="true" fontname="white_18_ol" hittest="false" textalign="center top"/>
+		<richtext name="guideTextAlret" parent="GuideGBox" rect="0 0 400 410" margin="0 335 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="1" fixwidth="true" fontname="white_18_ol" hittest="false" textalign="center top"/>
+		<groupbox name="guideTitle" parent="GuideGBox" rect="0 0 525 75" margin="0 0 0 0" stretch="false" LBtnUpScp="" resizebyresolution="false" layout_gravity="center top" skin="TPshop_title"/>
+		<richtext name="guideTitleText" parent="GuideGBox" rect="0 0 120 75" margin="0 25 0 0" layout_gravity="center top" caption="성장 가이드" fixwidth="false" fontname="white_24_ol" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" hittest="false" />
+        <button name="shortcutBtn" parent="GuideGBox" rect="0 0 150 50" margin="0 0 0 75" layout_gravity="center bottom" skin="test_red_button" hittest="true" caption="바로가기" oversound="button_over" clicksound="button_click_stats" scrollbar="false" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" fontname="white_20_ol" LBtnUpScp="POPOBOOST_OPEN_INDUN_SHORTCUT"/>
+
+        <groupbox name="RewardGBox" parent="InfoGBox" rect="0 0 400 410" margin="850 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="false" skin=""/>
+		<picture name="normalReward" parent="RewardGBox" rect="0 0 350 170" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="true" stretch="true" image="popoboost_reward_frame_image2"/>
+		<picture name="premiumReward" parent="RewardGBox" rect="0 0 350 170" margin="0 170 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="true" stretch="true" image="popoboost_reward_frame_image3"/>
+
+		<groupbox name="premiumRewardUnActive" parent="RewardGBox" rect="0 0 350 180" margin="0 170 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="true" skin="blackbg1"/>
+		<button name="purchasePreminum" parent="premiumRewardUnActive" rect="0 0 61 61" margin="0 0 0 0" layout_gravity="center center" image="popoboost_premium_lock" hittest="true" oversound="button_over" clicksound="button_click_stats" scrollbar="false" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" fontname="white_20_b" LBtnUpScp="POPOBOOST_OPEN_TP_SHOP"/>
+		<richtext name="premiumText" parent="premiumRewardUnActive" rect="0 0 61 61" margin="0 40 0 0" fontname="white_20_b" caption="Premium" layout_gravity="center center" />
+
+
+        <button name="recieveReward" parent="RewardGBox" rect="0 0 150 65" margin="-3 0 0 0" layout_gravity="left bottom" skin="test_red_button" hittest="true" caption="보상 받기" oversound="button_over" clicksound="button_click_stats" scrollbar="false" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" fontname="white_20_ol" LBtnUpScp="POPOBOOST_TAKE_REWEARD_BTN"/>
+		<!-- <button	name="openBtn" parent="RewardGBox" rect="0 0 75 75" margin="0 0 48 5" layout_gravity="right bottom" image="god_roulette_coin_entrance" clicksound="button_click_3" oversound="button_cursor_over_2" LBtnUpScp="POPOBOOST_GODDESS_ROULETTE"/>
+		<richtext name="title" parent="openBtn" rect="0 0 110 30" margin="0 55 0 0" layout_gravity="center top" caption="{@st66d_y}{s16}여신의 룰렛" hittest="false" fixwidth="true" textalign="center center"/> -->
+
+		<button	name="openBtn" parent="RewardGBox" rect="0 0 75 75" margin="0 0 165 0" layout_gravity="right bottom" image="popolion_roulette_icon" clicksound="button_click_3" oversound="button_cursor_over_2" LBtnUpScp="POPOBOOST_GODDESS_ROULETTE"/>
+		<flowtext name="title" parent="RewardGBox" rect="0 0 200 30" margin="0 55 105 0" layout_gravity="right bottom" caption="{@st66d_y}{s16}포포리온 룰렛" hittest="false" fixwidth="true" textalign="center center"/>
+
+		<button	name="guideBtn" parent="RewardGBox" rect="0 0 75 75" margin="0 0 60 0" layout_gravity="right bottom" image="popoboost_guide_quest_icon" clicksound="button_click_3" oversound="button_cursor_over_2" LBtnUpScp="POPO_GUIDE_QUEST_OPEN"/>
+		<flowtext name="guidetitle" parent="RewardGBox" rect="0 0 200 30" margin="0 55 0 0" layout_gravity="right bottom" caption="{@st66d_y}{s16}가이드 퀘스트" hittest="false" fixwidth="true" textalign="center center"/>
+		<groupbox name="notice_bg" parent="RewardGBox" rect="0 0 20 20" margin="0 0 60 50" layout_gravity="right bottom" hittest="false" skin="digitnotice_bg"/>
+
+
+		<richtext name="explainText" rect="0 0 800 70" margin="40 0 0 5" layout_gravity="left bottom" caption="※ 이벤트 장비가 아닌 {#FFFF00}무기/방어구/액세서리{/}의 계승은 이벤트에 반영되지 않습니다." fixwidth="true" fontname="white_18_ol" hittest="false" spacey="0" />
+
+        <groupbox name="PreviewGBox" parent="MainBox" rect="0 0 1280 561" margin="0 274 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="blackbox_op_80" hittest="true"/>
+		<richtext name="eventText" parent="PreviewGBox" rect="0 0 800 70" margin="0 60 0 0" layout_gravity="center top" textalign="center top" caption="포포 부스트 이벤트란, {#ffff00}푸짐한 보상{/}과 함께 캐릭터의 {#ffff00}초고속 성장{/}을 지원하는 이벤트입니다.{nl}이벤트를 시작하고 보상을 획득하세요." fixwidth="true" fontname="white_22_ol" hittest="false" spacey="0" />
+		<richtext name="charText" parent="PreviewGBox" rect="0 0 800 70" margin="0 180 0 0" layout_gravity="center top" textalign="center top" format="참여 조건 : {#FFFF00}Lv.%s{/} 미만" param1="lv" param1_def="10" fixwidth="true" fontname="white_22_ol" hittest="false" spacey="0" />
+		<richtext name="exText" parent="PreviewGBox" rect="0 0 800 70" margin="0 400 0 0" layout_gravity="center top" textalign="center top" caption="{#FFFF00}포포 부스트 이벤트는 팀당 1개의 캐릭터만 참여 가능합니다.{nl}포포 부스트 이벤트의 참여 캐릭터는 변경할 수 없습니다." fixwidth="true" fontname="white_22_ol" hittest="false" spacey="0" />
+        <button name="participate" parent="PreviewGBox" rect="0 0 150 50" margin="0 300 0 0" layout_gravity="center top" skin="test_red_button" hittest="true" caption="이벤트 참여" oversound="button_over" clicksound="button_click_stats" scrollbar="false" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" fontname="white_20_ol" LBtnUpScp="POPOBOOST_PRESS_EVENT_PARTICIPATE"/>
+
+		<button name="closeBtn" parent="gFrame" rect="0 0 37 37" margin="0 7 7 0" layout_gravity="right top" image="testclose_button" texttooltip="포포 부스트 UI를 닫습니다" LBtnUpScp="ui.CloseFrame('popoboost')"/>
+
+
+    </controls>
+</uiframe>

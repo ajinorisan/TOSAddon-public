@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMCGames Co., Ltd (IMCGames Co., Ltd) -->
+<uiframe name="event_santa_gamble" x="0" y="0" width="1920" height="1080">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<skin frameskin="None"/>
+	<draw drawframe="true" drawtitlebar="false"/>
+	<input moveable="false" hittestframe="true" moveintitlebar="false"/>
+	<option closebutton="false"/>
+	<sound opensound="skill_window_open" closesound="skill_window_close"/>
+	<layer layerlevel="98"/>
+	<userconfig TIME_FONT_NOMAL="{@st41b}{s16}" TIME_FONT_ONEMINUTE="{@st41b}{s16}{#ff5c5c}" SILVER_TEXT_FONT="{@st41b}{s16}" OK_BUTTON_EFFECT_NAME="UI_screen_CircleButton" OK_BUTTON_EFFECT_SCALE="2" RESULT_EFFECT="I_screen_bosscard_frame08" RESULT_EFFECT_SCALE_S="4" RESULT_EFFECT_SCALE_M="5" RESULT_EFFECT_DURATION="0.2" COUPON_DEFAULT="무료 쿠폰"/>
+	<script CloseScp="CLOSE_SANTA_GAMBLE"/>
+	<controls>
+
+		<!-- title -->
+		<groupbox name="main_gb" rect="0 0 1000 900" margin="200 0 0 35" layout_gravity="center bottom" skin="None" hittest="true"/>
+			<!-- <groupbox name="title_gb" rect="0 0 760 58" margin="0 0 0 0" parent="main_gb" layout_gravity="center top" skin="test_frame_top_r" hittest="false"/>
+				<richtext name="title_text" parent="title_gb" rect="0 0 400 30" margin="0 19 0 0" layout_gravity="center top" format="{@st43}{s22}%s" param1="value" param1_def="타이틀" hittest="false"/> -->
+			<picture name="santa_bundle" rect="0 0 900 950" margin="0 0 0 0" parent="main_gb" layout_gravity="center center" draw="false" stretch="true" image="santa_bundle"/>
+			<groupbox name="item_gb" rect="0 0 1000 800" margin="0 -50 0 0" parent="main_gb" layout_gravity="center center" skin="None" hittest="true"/>
+			<button name="gacha_start" rect="0 0 220 70" margin="-40 0 0 230" parent="main_gb" layout_gravity="center bottom" LBtnUpScp="SCR_GAHCA_START_BTN" clicksound="button_click_big" image="santa_item_gacha_btn2" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" stretch="true" format="{@st41b}{s20}{img %s 40 40} %s{nl}선물 뽑기" param1="value" param1_def="icon_mileage" param2="cnt" param2_def="1"/>
+			<button name="Gacha_Probability" rect="0 0 50 50" margin="100 0 0 250" parent="main_gb" layout_gravity="center bottom" LBtnUpScp="EXTERN_OPEN_LETICIA_PROBABILITY" LBtnUpArgNum="2" LBtnUpArgStr="1" clicksound="button_click_big" image="santa_item_probability_btn" oversound="button_over" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true"/>
+
+			<richtext name="remaintime" parent="main_gb" rect="0 0 150 25" margin="0 -8 175 0" layout_gravity="right center" format="남은 시간{nl}%s/300초" param1="value" param1_def="0" hittest="false" textalign="center center" fontname="yellow_22_ol_ds" fixwidth="true"/>
+
+			<!-- <richtext name="cautionText" parent="main_gb" rect="0 0 800 25" margin="50 0 0 125" layout_gravity="center bottom" format="{@st66d}%s{/}" param1="value" param1_def="None" hittest="false" textalign="left center" fixwidth="true"/> -->
+
+		<button name="closeBtn" rect="0 0 35 35" margin="0 100 400 0" parent="main_gb" layout_gravity="right top" LBtnUpScp="ui.CloseFrame('event_santa_gamble')" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true"/>
+
+
+		<!-- 일러스트 -->
+		<picture name="dialogimage" rect="0 0 1000 1200" margin="-450 0 0 0" layout_gravity="center bottom" imagealign="right bottom"/>
+
+				<!-- 대화창 -->
+		<groupbox name="text_main_gb" rect="0 0 1000 270" margin="200 0 0 0" layout_gravity="center bottom" skin="None" hittest="true"/>
+			<groupbox name="text_gb" rect="0 0 1000 240" margin="0 0 0 0" parent="text_main_gb" layout_gravity="center bottom" skin="wordframe" hittest="true"/>
+				<!-- <flowtext name="textlist" rect="50 38 900 155" layout_gravity="left top" parent="text_gb" RBtnDownScp="EDIT_DLG_CONTEXT" fixwidth="true" rateheight="true" sildeshow="false" spacey="2" updateparent="true"/> -->
+				<richtext name="cautionText" parent="text_gb" rect="0 0 800 25" margin="50 40 0 0" layout_gravity="left top" format="{@st66d}{s24}%s{/}" param1="value" param1_def="None" hittest="false" textalign="left center" fixwidth="true"/>
+       			<!-- <animpicture name="space" rect="10 15 80 80" layout_gravity="right bottom" parent="text_gb" animcount="2" hittest="false" image="space_1" loop="true" spacex="1" spacey="0" stretch="true" texelheight="100" texelwidth="100" texelx="0" texely="0" ticktime="0.50"/>
+			<groupbox name="text_title_gb" rect="0 0 190 58" margin="30 16 0 0" parent="text_main_gb" layout_gravity="left top" skin="dialogtitlebar" hittest="false"/>
+				<richtext name="npcname" parent="text_title_gb" rect="0 0 150 25" margin="1 -8 0 0" layout_gravity="center center" format="%s" param1="value" param1_def="타이틀" hittest="false" textalign="center center" fontname="yellow_22_ol_ds"/> -->
+	</controls>
+</uiframe>

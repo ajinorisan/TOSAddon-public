@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="toshero_info_lottery" x="0" y="0" width="300" height="550">
+	<frame fullheight="false" layout_gravity="right top" margin="0 35 560 0"/>
+	<skin frameskin="None"/>
+	<layer layerlevel="100"/>
+	<input moveable="true"/>
+	<draw drawtitlebar="false"/>
+	<option closebutton="false" hideable="false"/>
+	<controls>
+        <groupbox name="main" margin="0 0 0 0" rect="0 0 240 534" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_frame_lottery"/>
+        <groupbox name="title" margin="0 0 0 0" rect="0 0 295 75" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_title_lottery"/>
+        <richtext name="title_text" margin="0 11 0 0" rect="0 0 120 30" parent="title" format="{@sti1c}{s18}포인트 쿠폰{/}" textalign="center top" layout_gravity="center top"/>
+        <button name="close" rect="0 0 44 44" margin="0 5 30 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;toshero_info_lottery&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}창을 닫습니다{/}"/>
+		<picture name="question" rect="0 0 44 44" margin="30 5 0 0" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="일정 포인트를 사용해 50% 확률로 사용한 포인트의 2배를 획득 할 수 있습니다.{nl}{#FF0000}ALL IN 버튼은 한 번만 사용할 수 있습니다.{/}{nl}{#FFFF00}※ 포인트 쿠폰은 준비 단계에서만 사용 가능합니다.{/}"/>
+        <picture name="info_pic" rect="0 0 87 64" margin="0 50 0 0" layout_gravity="center top" image="hero_2times"/>
+        <groupbox name="info_gb" margin="0 120 0 0" rect="0 0 122 24" layout_gravity="center top" draw="true" hittestbox="false" skin="hero_title_s"/>
+        <richtext name="info_text" margin="0 0 0 0" rect="0 0 120 30" parent="info_gb" caption="{@st202}{s16}성공확률:50%{/}" textalign="center center" layout_gravity="center center"/>
+        <button name="point_btn_1" rect="0 0 154 84" margin="0 160 0 0" layout_gravity="center top" LBtnUpScp="TOSHERO_INFO_LOTTERY_EXEC" LBtnUpArgNum="1" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="hero_pointBtn_1000" oversound="button_over"/>
+        <button name="point_btn_2" rect="0 0 154 84" margin="0 248 0 0" layout_gravity="center top" LBtnUpScp="TOSHERO_INFO_LOTTERY_EXEC" LBtnUpArgNum="2" MMouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="hero_pointBtn_5000" oversound="button_over"/>
+        <button name="point_btn_3" rect="0 0 154 84" margin="0 336 0 0" layout_gravity="center top" LBtnUpScp="TOSHERO_INFO_LOTTERY_EXEC" LBtnUpArgNum="3" MMouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="hero_pointBtn_10000" oversound="button_over"/>
+        <button name="point_btn_4" rect="0 0 154 84" margin="0 424 0 0" layout_gravity="center top" LBtnUpScp="TOSHERO_INFO_LOTTERY_EXEC" LBtnUpArgNum="4" MMouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="hero_pointBtn_allin" oversound="button_over"/>
+	</controls>
+</uiframe>

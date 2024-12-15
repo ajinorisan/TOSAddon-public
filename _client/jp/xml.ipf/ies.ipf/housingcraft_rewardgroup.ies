@@ -1,0 +1,10 @@
+ClassID,Value1,Value2,ClassName
+1,1,0,"reputation_5"
+2,2,0,"reputation_10"
+3,3,0,"reputation_15"
+4,4,0,"reputation_20"
+5,5,0,"reputation_25"
+6,6,0,"reputation_30"
+7,7,0,"reputation_35"
+8,12,0,"reputation_60"
+20,0,1,"pharmacy_5"

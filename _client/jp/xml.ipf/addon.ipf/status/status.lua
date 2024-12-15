@@ -1,0 +1,3127 @@
+﻿g_reserve_reset = 0;
+MAX_INV_COUNT = 4999;
+
+function STATUS_ON_INIT(addon, frame)
+    addon:RegisterMsg('PC_PROPERTY_UPDATE_TO_STATUS', 'STATUS_UPDATE');
+    addon:RegisterMsg('PC_PROPERTY_UPDATE_DETAIL', 'SCR_PC_PROPERTY_UPDATE_DETAIL');
+    addon:RegisterOpenOnlyMsg('STAT_UPDATE', 'STATUS_UPDATE');
+    addon:RegisterMsg('RESET_STAT_UP', 'RESERVE_RESET');
+    addon:RegisterMsg('STAT_AVG', 'STATUS_ON_MSG');
+    addon:RegisterOpenOnlyMsg('ACHIEVE_POINT', 'ACHIEVE_RESET');
+    addon:RegisterOpenOnlyMsg('ACHIEVE_REWARD', 'ACHIEVE_RESET');
+    addon:RegisterMsg("GAME_START", "STATUS_ON_GAME_START");
+    addon:RegisterMsg("PC_COMMENT_CHANGE", "STATUS_ON_PC_COMMENT_CHANGE");
+    addon:RegisterMsg("MYPC_CHANGE_SHAPE", "ACHIEVE_RESET");
+    addon:RegisterMsg("JOB_CHANGE", "STATUS_JOB_CHANGE");
+    addon:RegisterMsg("LIKEIT_WHO_LIKE_ME", "STATUS_INFO");
+    addon:RegisterMsg("TOKEN_STATE", "TOKEN_ON_MSG");
+    addon:RegisterMsg('UPDATE_EXP_UP', 'STATUS_UPDATE_EXP_UP_BOX');
+    addon:RegisterMsg('HAIR_COLOR_CHANGE', 'ON_HAIR_COLOR_CHANGE');
+    addon:RegisterMsg('UPDATE_REPRESENTATION_CLASS_ICON', 'ON_UPDATE_REPRESENTATION_CLASS_ICON');
+    -- 말풍선 스킨 관련
+    addon:RegisterMsg('ADD_CHATBALLOON_SKIN', 'CHATBALLOON_INIT');
+    addon:RegisterMsg('SET_MY_CHATBALLOON_SKIN', 'ON_SET_MY_CHATBALLOON_SKIN');
+    addon:RegisterMsg('ENABLE_CHANGE_TEAM_NAME_BY_ITME', 'ENABLE_CHANGE_TEAM_NAME_BY_ITME');
+    addon:RegisterMsg('ENABLE_CHANGE_GUILD_NAME_BY_ITME', 'ENABLE_CHANGE_GUILD_NAME_BY_ITME');
+
+    STATUS_INFO_VIEW(frame);
+end
+
+function UI_TOGGLE_STATUS()
+    if app.IsBarrackMode() == true then
+        return;
+    end
+    ui.ToggleFrame('status')
+end
+
+function STATUS_ON_GAME_START(frame)
+
+    STATUS_ON_PC_COMMENT_CHANGE(frame);
+    STATUS_JOB_CHANGE(frame);
+
+end
+
+local function STATUS_SETUP_TOKEN(frame,ctrlsetName, imgName, text, additional)
+    local ctrlSet = frame:CreateControlSet("tokenDetail1", ctrlsetName, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+    local prop = ctrlSet:GetChild("prop");
+    local imag = string.format(imgName, 55, 45)
+	local img_txt = ctrlSet:GetChild('img_txt');	
+    local value = GET_CHILD_RECURSIVELY(ctrlSet, "value");
+    prop:SetTextByKey("value", ClMsg(text));
+    value:ShowWindow(0);
+    img_txt:SetTextByKey("value", imag);
+    if additional ~= nil then
+        imag = string.format(additional, 100, 45)
+        value:SetTextByKey("value", imag);    
+        value:ShowWindow(1);
+    end
+
+end
+
+function SHOW_TOKEN_REMAIN_TIME(ctrl)
+    local elapsedSec = imcTime.GetAppTime() - ctrl:GetUserIValue("STARTSEC");
+    local startSec = ctrl:GetUserIValue("REMAINSEC");
+    startSec = startSec - elapsedSec;
+    if 0 > startSec then
+        ctrl:SetTextByKey("value", "");
+        return 0;
+    end
+    local timeTxt = GET_TIME_TXT(startSec);
+    ctrl:SetTextByKey("value", "{@st42}" .. timeTxt);
+    return 1;
+end
+
+function TOKEN_ON_MSG(frame, msg, argStr, argNum)
+    local logoutGBox = frame:GetChild("logoutGBox");
+    local logoutInternal = logoutGBox:GetChild("logoutInternal");
+    local gToken = logoutInternal:GetChild("gToken");
+    local time = gToken:GetChild("time");
+    time:ShowWindow(0);
+
+    local tokenList = gToken:GetChild("tokenList");
+    tokenList:RemoveAllChild();
+
+    if argNum ~= ITEM_TOKEN or "NO" == argStr then
+        return;
+    end
+
+    local difSec = GET_REMAIN_TOKEN_SEC();
+    if 0 < difSec then
+        time:ShowWindow(1);
+        time:SetUserValue("REMAINSEC", difSec);
+        time:SetUserValue("STARTSEC", imcTime.GetAppTime());
+        SHOW_TOKEN_REMAIN_TIME(time);
+        time:RunUpdateScript("SHOW_TOKEN_REMAIN_TIME");
+    else
+        time:SetTextByKey("value", "");
+        time:StopUpdateScript("SHOW_TOKEN_REMAIN_TIME");
+    end
+
+    for i = 0, 3 do        
+        local str, value = GetCashInfo(ITEM_TOKEN, i);
+        if str ~= nil and str ~= 'abilityMax' then
+            local ctrlSet = tokenList:CreateControlSet("tokenDetail1", "CTRLSET_" .. i, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+            local prop = ctrlSet:GetChild("prop");
+            local normal = GetCashValue(0, str)
+            local txt = "None"
+			local img_txt = ctrlSet:GetChild('img_txt');	
+            local img = nil;
+            local tokenGbox = ctrlSet:GetChild("groupbox_1");
+            tokenGbox:Resize(435,50);
+            prop:Resize(275, 50);
+
+            if str == "marketSellCom" then
+                normal = normal + 0.01;
+                value = value + 0.01;
+                img = string.format("{img 67percent_image %d %d}", 55, 45)
+                prop:SetTextByKey("value", ClMsg(str));
+                txt = string.format("{img 67percent_image2 %d %d}", 100, 45)
+            elseif str == "speedUp" then
+                img = string.format("{img 3plus_image %d %d}", 55, 45)
+                prop:SetTextByKey("value", ClMsg(str));
+                txt = string.format("{img 3plus_image2 %d %d}", 100, 45)
+            else
+                img = string.format("{img 9plus_image %d %d}", 55, 45)
+                prop:SetTextByKey("value", ClMsg(str));
+                txt = string.format("{img 9plus_image2 %d %d}", 100, 45)
+            end
+            if img ~= nil then
+                img_txt:SetTextByKey("value", img);
+            end
+            local value = GET_CHILD_RECURSIVELY(ctrlSet, "value");
+            value:SetTextByKey("value", txt);
+        end
+
+    end
+
+    local ctrlSet = tokenList:CreateControlSet("tokenDetail1", "CTRLSET_" .. 5, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+    local prop = ctrlSet:GetChild("prop");
+    local imag = string.format(STATUS_OVERRIDE_GET_IMGNAME1(), 55, 45)
+    local img_txt = ctrlSet:GetChild('img_txt');	
+    local tokenGbox = ctrlSet:GetChild("groupbox_1");
+    tokenGbox:Resize(435,50);
+    prop:SetTextByKey("value", ScpArgMsg("Token_ExpUp{PER}", "PER", " "));
+    img_txt:SetTextByKey("value", imag);
+    local value = GET_CHILD_RECURSIVELY(ctrlSet, "value");
+    imag = string.format(STATUS_OVERRIDE_GET_IMGNAME2(), 100, 45)
+    value:SetTextByKey("value", imag);
+
+    local itemClassID = session.loginInfo.GetPremiumStateArg(ITEM_TOKEN)
+    local itemCls = GetClassByType("Item", itemClassID);    
+    if IS_MYPC_EXCHANGE_BENEFIT_STATE() == true then
+        local ctrlSet = tokenList:CreateControlSet("tokenDetail1", "CTRLSET_" .. 6, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+        local prop = ctrlSet:GetChild("prop");
+        local img = string.format("{img dealok_image %d %d}", 55, 45)
+        local img_txt = ctrlSet:GetChild('img_txt');	
+        local value = GET_CHILD_RECURSIVELY(ctrlSet, "value");
+
+        img_txt:SetTextByKey("value", img);
+        prop:SetTextByKey("value", ScpArgMsg("AllowTradeByCount"));
+        value:ShowWindow(0);
+        value:SetTextByKey("value", "");
+
+        --STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 6, "{img dealok_image %d %d}","AllowTradeByCount");
+    end
+
+    -- local ctrlSet = tokenList:CreateControlSet("tokenDetail", "CTRLSET_" .. 7,  ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+    --    local prop = ctrlSet:GetChild("prop");
+    --    local imag = string.format("{img 1plus_image %d %d}", 55, 45)
+    --    prop:SetTextByKey("value", imag..ClMsg("CanGetMoreBuff"));
+    --    local value = GET_CHILD_RECURSIVELY(ctrlSet, "value");
+    --    value:ShowWindow(0);
+
+    STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 8, "{img paid_pose_image %d %d}","AllowPremiumPose");
+    STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 9, "{img Immediately_image %d %d}","CanGetMoneyByMarketImmediately");
+    STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 10, "{img MarketLimitedRM_image %d %d}","CanRegisterMarketRegradlessOfLimit");
+    STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 11, "{img teamcabinet_image %d %d}","TeamWarehouseEnable");
+    STATUS_SETUP_TOKEN(tokenList,"CTRLSET_" .. 12, "{img worldmaptoken_image %d %d}","CanUseWorldMapToken");
+
+
+--    local ctrlSet = tokenList:CreateControlSet("tokenDetail", "CTRLSET_" .. 12, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+--    local prop = ctrlSet:GetChild("prop");
+--    local imag = string.format("{img 1plus_image %d %d}", 55, 45)
+--    prop:SetTextByKey("value", imag .. ClMsg("Mission_Reward"));
+--    local value = GET_CHILD_RECURSIVELY(ctrlSet, "value");
+--    value:ShowWindow(0);
+--
+--    local ctrlSet = tokenList:CreateControlSet("tokenDetail", "CTRLSET_" .. 13, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+--    local prop = ctrlSet:GetChild("prop");
+--    local imag = string.format("{img 2minus_image %d %d}", 55, 45)
+--    prop:SetTextByKey("value", imag .. ClMsg("RaidStance"));
+--    local value = GET_CHILD_RECURSIVELY(ctrlSet, "value");
+--    value:ShowWindow(0);
+
+    STATUS_OVERRIDE_NEWCONTROLSET1(tokenList)
+
+    GBOX_AUTO_ALIGN(tokenList, 0, 0, 0, false, true);
+end
+
+function STATUS_OVERRIDE_NEWCONTROLSET1(tokenList)
+    -- do Nothing(override)
+end
+
+function STATUS_OVERRIDE_GET_IMGNAME1()
+    return "{img 50percent_image_1 %d %d}"
+end
+
+function STATUS_OVERRIDE_GET_IMGNAME2()
+    return "{img 50percent_image3 %d %d}"
+end
+
+
+function STATUS_ON_PC_COMMENT_CHANGE(frame)
+    local socialInfo = session.social.GetMySocialInfo();
+    local logoutGBox = frame:GetChild("logoutGBox");
+    local logoutInternal = logoutGBox:GetChild("logoutInternal");
+    local pccomment = logoutInternal:GetChild("pccomment");
+    if pccomment ~= nil then
+        pccomment:SetTextByKey("value", socialInfo:GetPCComment(PC_COMMENT_TITLE));
+    end
+end
+
+function REQ_CHANGE_PC_COMMENT(parent, ctrl)
+
+    local socialInfo = session.social.GetMySocialInfo();
+    local curComment = socialInfo:GetPCComment(PC_COMMENT_TITLE);
+    local frame = parent:GetTopParentFrame();
+    INPUT_STRING_BOX_CB(frame, ScpArgMsg("InputWelcomeComment"), "EXEC_CHANGE_PC_COMMENT", curComment, nil, nil, GetMaxCommentLen());
+
+end
+
+function EXEC_CHANGE_PC_COMMENT(frame, comment)
+    packet.SendChangePCComment(PC_COMMENT_TITLE, comment);
+end
+
+function STATUS_ON_MSG(frame, msg, argStr, argNum)
+    if msg == 'INV_ITEM_ADD' then
+        STATUS_EMPTY_EQUIP_SET(frame, argNum);
+    elseif msg == 'STAT_AVG' then
+        STATUS_AVG(frame);
+    end
+end
+
+function STATUS_EMPTY_EQUIP_SET(frame, argNum)
+    local invItem = session.GetInvItem(argNum);
+    if invItem ~= nil then
+        local itemobj = GetIES(invItem:GetObject());
+        local child = frame:GetChild(itemobj.EqpType);
+        if child ~= nil then
+            local slot = tolua.cast(child, 'ui::CSlot');
+            if slot:GetIcon() == nil then
+                ITEM_EQUIP(argNum);
+            end
+        end
+    end
+end
+
+function STATUS_ONLOAD(frame, obj, argStr, argNum)    
+    if option.GetCurrentCountry() == 'German' then        
+        local tabObj = frame:GetChild('statusTab');
+        local itembox_tab = tolua.cast(tabObj, "ui::CTabControl");    
+        itembox_tab:SetItemsFixWidth(150)
+    end
+    
+    STAT_RESET(frame);
+    ACHIEVE_RESET(frame);
+    CHATBALLOON_INIT(frame);
+    HUD_SKIN_INIT(frame);
+    STATUS_REPUTATION_INIT();
+
+    STATUS_TAB_CHANGE(frame);
+    STATUS_INFO();
+    STATUS_UPDATE_EXP_UP_BOX(frame);
+    OPEN_DMGSELECTOR(frame);
+    pc.ReqExecuteTx('GUIDE_QUEST_OPEN_UI', frame:GetName())
+end
+
+function STATUS_CLOSE(frame, obj, argStr, argNum)
+    local shopFrame = ui.GetFrame('shop');    
+end
+
+function COMMIT_STAT(frame)
+    EXEC_COMMIT_STAT(frame);
+end
+
+function EXEC_COMMIT_STAT(frame)
+
+    local TxArgString = "";
+
+    for i = 0, STAT_COUNT - 1 do
+        local typeStr = GetStatTypeStr(i);
+        TxArgString = TxArgString .. string.format("%d", session.GetUserConfig(typeStr .. "_UP"));
+        if i ~= STAT_COUNT - 1 then
+            TxArgString = TxArgString .. " ";
+        end
+    end
+
+
+    pc.ReqExecuteTx_NumArgs("SCR_TX_STAT_UP", TxArgString);
+
+    imcSound.PlaySoundEvent('button_click_stats_up');
+
+end
+
+function ROLLBACK_STAT(frame)
+    frame = frame:GetTopParentFrame();
+    STAT_RESET(frame)
+end
+
+function STATUS_UPDATE(frame)
+    if g_reserve_reset == 1 then
+        STAT_RESET(frame, 1);
+        g_reserve_reset = 0;
+    else
+        DebounceScript("STATUS_INFO", 0.2, 0);
+    end
+end
+
+function RESERVE_RESET(frame)
+    g_reserve_reset = 1;
+    ui.OpenFrame('status')    
+end
+
+function STAT_RESET(frame, update)
+
+    local changed = update;
+
+    for i = 0, STAT_COUNT - 1 do
+        local typeStr = GetStatTypeStr(i);
+        if 1 == session.SetUserConfig(typeStr .. "_UP", 0) then
+            changed = 1;
+        end
+    end
+
+    if changed == 1 then
+        STATUS_INFO();
+    end
+end
+
+function ACHIEVE_RESET(frame)
+	DebounceScript("STATUS_ACHIEVE_INIT", 0.5, 0);
+end
+
+function SET_STAT_TEXT(frame, ctrlname, pc, propname, pointprop, addprop, consumed, vpc, xpos, ypos, totalValue, argValue)
+
+    local configName = propname .. "_UP";
+    local statup = session.GetUserConfig(configName);
+    local add = pc[addprop];
+    local total = pc[propname];
+    local point = pc[pointprop];
+    local base = total - add - point;
+
+    local value =(total + statup) / totalValue;
+    local percValue = math.floor(value * 100);
+    local addYpos = percValue - 25;
+    local buttonPos = ypos;
+    ypos = ypos - addYpos;
+
+    local gboxctrl = frame:GetChild('statusUpGbox');
+    local statusUpControlSet = gboxctrl:CreateOrGetControlSet('statusinfo', ctrlname, xpos, ypos);
+    tolua.cast(statusUpControlSet, "ui::CControlSet");
+
+    local bgPic = GET_CHILD(statusUpControlSet, "bgPic", "ui::CPicture");
+    bgPic:SetImage(propname .. '_slot');
+
+
+    local name = GET_CHILD(statusUpControlSet, "name", "ui::CRichText");
+    name:SetText('{@st66b}{s18}' .. ClMsg(propname));
+
+    local onepic = GET_CHILD(statusUpControlSet, "one", "ui::CPicture");
+    local tenpic = GET_CHILD(statusUpControlSet, "ten", "ui::CPicture");
+    local hunpic = GET_CHILD(statusUpControlSet, "hun", "ui::CPicture");
+    local thopic = GET_CHILD(statusUpControlSet, "tho", "ui::CPicture");
+
+    onepic:ShowWindow(0);
+    onepic:EnableHitTest(0);
+    tenpic:ShowWindow(0);
+    tenpic:EnableHitTest(0);
+    hunpic:ShowWindow(0);
+    hunpic:EnableHitTest(0);
+    thopic:ShowWindow(0);
+    thopic:EnableHitTest(0);
+
+    local statupValue = total + statup;
+
+    if statupValue >= 1000 then
+        local one = statupValue % 10;
+        local ten = math.floor(statupValue % 100 / 10);
+        local hun = math.floor(statupValue % 1000 / 100);
+        local tho = math.floor(statupValue / 1000);
+
+        onepic:SetImage(tostring(one));
+        onepic:ShowWindow(1);
+        onepic:SetOffset(30, 115);
+        tenpic:SetImage(tostring(ten));
+        tenpic:ShowWindow(1);
+        tenpic:SetOffset(10, 115);
+        hunpic:SetImage(tostring(hun));
+        hunpic:ShowWindow(1);
+        hunpic:SetOffset(-10, 115);
+        thopic:SetImage(tostring(tho));
+        thopic:ShowWindow(1);
+        thopic:SetOffset(-30, 115);
+    elseif statupValue >= 100 then
+        local one = statupValue % 10;
+        local ten = math.floor(statupValue % 100 / 10);
+        local hun = math.floor(statupValue % 1000 / 100);
+
+        onepic:SetImage(tostring(one));
+        onepic:ShowWindow(1);
+        onepic:SetOffset(20, 115);
+        tenpic:SetImage(tostring(ten));
+        tenpic:ShowWindow(1);
+        tenpic:SetOffset(0, 115);
+        hunpic:SetImage(tostring(hun));
+        hunpic:ShowWindow(1);
+        hunpic:SetOffset(-20, 115);
+
+    elseif statupValue >= 10 then
+        local one = statupValue % 10;
+        local ten = math.floor(statupValue / 10);
+
+        onepic:SetImage(tostring(one));
+        onepic:ShowWindow(1);
+        onepic:SetOffset(15, 115);
+        tenpic:SetImage(tostring(ten));
+        tenpic:ShowWindow(1);
+        tenpic:SetOffset(-12, 115);
+    else
+
+        onepic:SetImage(tostring(statupValue));
+        onepic:ShowWindow(1);
+        onepic:SetOffset(0, 115);
+    end
+
+    local btnUp = GET_CHILD(statusUpControlSet, "upbtn", "ui::CButton");
+    if ctrlname == "STR" then
+        name:EnableHitTest(1);
+        name:SetTextTooltip(ScpArgMsg("Auto_{@st59}KongKyeogLyeoge_yeongHyangeul_Jum{/}"));
+    elseif ctrlname == "CON" then
+        name:EnableHitTest(1);
+        name:SetTextTooltip(ScpArgMsg("Auto_{@st59}ChoeDae_HPe_yeongHyangeul_Jum{/}"));
+    elseif ctrlname == "INT" then
+        name:EnableHitTest(1);
+        name:SetTextTooltip(ScpArgMsg("Auto_{@st59}ChoeDae_SPe_yeongHyangeul_Jum{/}"));
+    elseif ctrlname == "MNA" then
+        name:EnableHitTest(1);
+        name:SetTextTooltip(ScpArgMsg("MNA_UI_MSG1"));
+    elseif ctrlname == "DEX" then
+        name:EnableHitTest(1);
+        name:SetTextTooltip(ScpArgMsg("Auto_{@st59}ChiMyeongTa_Mich_HoePie_yeongHyangeul_Jum{/}"));
+    end
+
+    bgPic:SetTooltipType("status_detail");
+    bgPic:SetTooltipArg(base, point, add);
+
+    btnUp:SetEventScript(ui.LBUTTONUP, "REQ_STAT_UP");
+    btnUp:SetEventScriptArgString(ui.LBUTTONUP, propname);
+    btnUp:SetClickSound("button_click_stats");
+
+    btnUp:SetEventScript(ui.RBUTTONUP, "OPERATOR_REQ_STAT_UP");
+    btnUp:SetEventScriptArgString(ui.RBUTTONUP, propname);
+
+    if statup > 0 then
+        if vpc == nil then
+            vpc = CloneIES_UseCP(pc);
+        end
+
+        local statpropname = propname .. "_STAT";
+        vpc[statpropname] = vpc[statpropname] + statup;
+    end
+
+    return consumed + statup, vpc;
+end
+
+function UPDATE_STATUS_DETAIL_TOOLTIP(frame, base, point, add)
+    local baseValue = GET_CHILD(frame, "base_value", "ui::CRichText");
+    local pointValue = GET_CHILD(frame, "point_value", "ui::CRichText");
+    local addValue = GET_CHILD(frame, "add_value", "ui::CRichText");
+
+    baseValue:SetTextByKey("value", base);
+    pointValue:SetTextByKey("value", point);
+    addValue:SetTextByKey("value", add);
+
+    local desc = GET_CHILD(frame, "desc", "ui::CRichText");
+    desc:SetTextByKey("value", ScpArgMsg("StatusTooltipDesc"));
+end
+
+function REQ_STAT_UP(frame, control, argstr, argnum)
+
+    if GET_REMAIN_STAT_PTS() <= 0 then
+        return;
+    end
+
+    local configName = argstr .. "_UP";
+    local curstat = session.GetUserConfig(configName);
+
+
+    session.SetUserConfig(configName, curstat + 1);
+    frame = frame:GetTopParentFrame();
+    STATUS_INFO();
+end
+
+function OPERATOR_REQ_STAT_UP(frame, control, argstr, argnum)
+
+    if GET_REMAIN_STAT_PTS() <= 0 then
+        return;
+    end
+
+    local configName = argstr .. "_UP";
+    local curstat = session.GetUserConfig(configName);
+    local bonusstat = GET_REMAIN_STAT_PTS();
+    local increase = 10;
+    local remainder = 0;
+
+    if curstat + increase > bonusstat or increase > bonusstat then
+        remainder = bonusstat -(curstat + increase);
+    end
+
+    if 0 > remainder then
+        remainder = 0;
+        increase = bonusstat;
+    end
+    session.SetUserConfig(configName, curstat + increase + remainder);
+    frame = frame:GetTopParentFrame();
+    STATUS_INFO();
+end
+
+function GET_REMAIN_STAT_PTS()
+
+    local pc = GetMyPCObject();
+    local consumed = 0;
+    for i = 0, STAT_COUNT - 1 do
+        local typeStr = GetStatTypeStr(i);
+        consumed = consumed + session.GetUserConfig(typeStr .. "_UP");
+    end
+
+    local bonusstat = GET_STAT_POINT(pc) - consumed;
+    return bonusstat;
+end
+
+function UPDATE_STATUS_STAT(frame, gboxctrl, pc)
+
+    local vpc = nil;
+
+    local consumed = 0;
+    local totalValue = 0;
+    for i = 0, STAT_COUNT - 1 do
+        local typeStr = GetStatTypeStr(i);
+        totalValue = totalValue + pc[typeStr] + session.GetUserConfig(typeStr .. "_UP");
+    end
+
+    for i = 0, STAT_COUNT - 1 do
+        local typeStr = GetStatTypeStr(i);
+        local x = tonumber(frame:GetUserConfig("StatIconStartX")) + i * 85;
+        local avg = session.GetStatAvg(i) + pc[typeStr];
+        consumed, vpc = SET_STAT_TEXT(frame, typeStr, pc, typeStr, typeStr .. "_STAT", typeStr .. "_ADD", consumed, vpc, x, 60, totalValue, avg);
+    end
+
+
+    local statusupGbox = frame:GetChild('statusUpGbox');
+    local bonusstat = GET_STAT_POINT(pc);
+    local title_RemainStat = GET_CHILD(statusupGbox, "Title_RemainStat", "ui::CRichText");
+    if bonusstat <= 0 and consumed == 0 then
+        title_RemainStat:ShowWindow(0);
+    else
+        title_RemainStat:SetTextByKey("statpts", bonusstat - consumed);
+        title_RemainStat:ShowWindow(1);
+    end
+
+    if bonusstat - consumed > 0 then
+        for i = 0, STAT_COUNT - 1 do
+            local typeStr = GetStatTypeStr(i);
+            STATUS_BTN_UP_VISIBLE(frame, typeStr, pc, 1);
+        end
+    else
+        for i = 0, STAT_COUNT - 1 do
+            local typeStr = GetStatTypeStr(i);
+            STATUS_BTN_UP_VISIBLE(frame, typeStr, pc, 0);
+        end
+    end
+    if consumed > 0 then
+        statusupGbox:GetChild("COMMIT"):ShowWindow(1);
+        statusupGbox:GetChild("CANCEL"):ShowWindow(1);
+    else
+        statusupGbox:GetChild("COMMIT"):ShowWindow(0);
+        statusupGbox:GetChild("CANCEL"):ShowWindow(0);
+    end
+
+    return vpc;
+
+end
+
+function STATUS_BTN_UP_VISIBLE(frame, controlsetName, pc, visible)
+    local gboxctrl = frame:GetChild('statusUpGbox');
+    local statusUpControlSet = GET_CHILD(gboxctrl, controlsetName, "ui::CControlSet");
+
+    local statName = controlsetName;
+    if pc[statName] + session.GetUserConfig(statName .. "_UP") >= 9999 then
+        visible = 0;
+    end
+
+    local btnUp = GET_CHILD(statusUpControlSet, "upbtn", "ui::CPicture");
+    btnUp:ShowWindow(visible);
+end
+
+function GET_ONLINE_PARTY_MEMBER_N_ADDEXP()
+    local pcparty = session.party.GetPartyInfo();
+    if pcparty == nil then
+        return 0, 0;
+    end
+
+    local partyInfo = pcparty.info;
+    local obj = GetIES(pcparty:GetObject());
+    local list = session.party.GetPartyMemberList(PARTY_NORMAL);
+    local count = list:Count();
+    local memberIndex = 0;
+    local addValue = 0;
+    local matchCount = 0;
+    local jobNumList = { };
+    jobNumList['Warrior'] = 0;
+    jobNumList['Wizard'] = 0;
+    jobNumList['Archer'] = 0;
+    jobNumList['Cleric'] = 0;
+
+    local myAid = session.loginInfo.GetAID();
+    for i = 0, count - 1 do
+        local partyMemberInfo = list:Element(i)
+        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
+            local stat = partyMemberInfo:GetInst();
+            local pos = stat:GetPos();
+            local myHandle = session.GetMyHandle();
+            local dist = info.GetDestPosDistance(pos.x, pos.y, pos.z, myHandle);
+            local sharedcls = GetClass("SharedConst", 'PARTY_SHARE_RANGE');
+
+            local mymapname = session.GetMapName();
+            local partymembermapName = GetClassByType("Map", partyMemberInfo:GetMapID()).ClassName;
+
+            if dist < sharedcls.Value and mymapname == partymembermapName then
+                memberIndex = memberIndex + 1;
+
+                local iconinfo = partyMemberInfo:GetIconInfo();
+                local jobCls = GetClassByType("Job", iconinfo.job);
+                jobNumList[jobCls.CtrlType] = jobNumList[jobCls.CtrlType] + 1;
+            end
+        end
+    end
+
+    if memberIndex >= 3 then
+        matchCount = jobNumList['Warrior']
+        if matchCount < 3 then
+            matchCount = jobNumList['Wizard']
+            if matchCount < 3 then
+                matchCount = jobNumList['Archer']
+                if matchCount < 3 then
+                    matchCount = jobNumList['Cleric']
+                end
+            end
+        end
+        local tempStr = "";
+        SWITCH(math.floor(matchCount)) {
+            [3] = function() tempStr = "PARTY_EXP_JOB_BALANCE_BONUS_COUNT_THREE"; end,
+            [4] = function() tempStr = "PARTY_EXP_JOB_BALANCE_BONUS_COUNT_FOUR"; end,
+            default = function() end,
+        }
+
+        if string.len(tempStr) > 0 then
+            local cls = GetClass("SharedConst", tempStr);
+            local val = cls.Value;
+            if val ~= nil then
+                addValue = val;
+            end
+        end
+    end
+
+    return memberIndex, addValue;
+end
+
+function SETEXP_SLOT_PARTY(expupBuffBox, addValue, index, entireSum)
+    local cls = GetClass("SharedConst", "PARTY_EXP_BONUS");
+    local percSum = sum;
+    local val = cls.Value;
+    if val ~= nil then
+        local sum = val + addValue;
+        local class = GetClassByType('Buff', 4542);
+        percSum = SETSLOTCTRL_EXP(class, class.Icon, expupBuffBox, index, entireSum, sum * 100);
+        return true, percSum;
+    end
+    return false, percSum;
+end
+
+-- F1 경험치 계산부분
+function SETEXP_SLOT(gbox, addBuffClsName, isAdd)
+    local expupBuffBox = gbox:GetChild('expupBuffBox');
+    expupBuffBox:RemoveAllChild();
+
+    local function _IS_CHECK_BUFF_KEYWORD(buff, _keyword)
+        local buffKeyword = TryGetProp(buff, 'Keyword', 'None');
+        if buffKeyword ~= 'None' then
+            local keywordList = StringSplit(buffKeyword, ';');
+            for j = 1, #keywordList do
+                if keywordList[j] == _keyword then
+                    return true;
+                end
+            end
+        end
+        return false;
+    end
+
+    local totalExpUpValue = 0;
+
+    -- team level
+    local account = session.barrack.GetMyAccount();
+    if account ~= nil then
+        local teamLevel = account:GetTeamLevel();
+        local expupValue = GET_TEAM_LEVEL_EXP_BONUS(teamLevel);
+        expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, 'TeamLevel', expupValue);
+        totalExpUpValue = totalExpUpValue + expupValue;
+    end
+
+    -- server exp
+    local serverExpupValue = 0;
+    if session.world.IsIntegrateServer() == true then
+        local etc = GetMyEtcObject();
+        local expupValue = TryGetProp(etc, 'MyWorldExpRate');
+        if expupValue ~= nil then
+            serverExpupValue = expupValue;
+        end
+    else
+        serverExpupValue = session.world.GetServerJadduryRate();
+    end
+
+    serverExpupValue = math.floor(serverExpupValue * 100);
+    serverExpupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, 'ExpUpStd', serverExpupValue);
+    totalExpUpValue = totalExpUpValue + serverExpupValue;
+
+    -- pc room premium
+    if 1 == session.loginInfo.GetPremiumState() then
+        local expupValue = JAEDDURY_NEXON_PC_EXP_RATE;
+        expupValue = expupValue * 100;
+        expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, 'ExpUpEvent', expupValue);
+        totalExpUpValue = totalExpUpValue + expupValue;
+    end
+
+    -- char exp
+    local handle = session.GetMyHandle();
+    local charExpBuffCls = GetClass("Buff", "Event_CharExpRate");
+    if charExpBuffCls ~= nil then
+        local charexpbuff = info.GetBuff(tonumber(handle), charExpBuffCls.ClassID);
+        if charexpbuff ~= nil then
+            local expupValue = buff.arg1;
+            expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, 'Event_CharExpRate', expupValue);
+            totalExpUpValue = totalExpUpValue + expupValue;
+        end
+    end
+
+    -- auto match
+    if session.world.IsIntegrateIndunServer() == true then
+        local party = session.party.GetPartyMemberList(PARTY_NORMAL);
+        local count = party:Count();
+        local expupValue = INDUN_AUTO_MATCHING_PARTY_EXP_BOUNS_RATE(count) / count * 100;
+        expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, 'PartyIndunExpBuff', expupValue);
+        totalExpUpValue = totalExpUpValue + expupValue;
+    end
+
+    -- worldevent
+    if addBuffClsName == 'GoldenFishEvent' and isAdd == 1 then
+        local expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, 'GoldenFishEvent', GOLDEN_FISH_EXP_RATE);
+        totalExpUpValue = totalExpUpValue + expupValue;
+    end
+
+    -- exp buffs
+    local buffCount = info.GetBuffCount(handle);
+    for i = 0, buffCount - 1 do
+        local buff = info.GetBuffIndexed(handle, i);
+        local buffCls = GetClassByType('Buff', buff.buffID);
+        if buffCls ~= nil then
+            local expupValue = 0;
+            if buffCls.ClassName == 'GoldenFishEvent' then
+                expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, buffCls.ClassName, GOLDEN_FISH_EXP_RATE);
+            elseif buffCls.ClassName == 'Premium_Nexon_PartyExp' then
+                expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, buffCls.ClassName, (NEXON_PC_PARTY_EXP_RATE + JAEDDURY_NEXON_PC_PARTY_EXP_RATE)*100);
+            elseif _IS_CHECK_BUFF_KEYWORD(buffCls, 'AncientBoost') == true then
+                expupValue = 0
+            --EVENT_1905_TOS_CHILD
+            --elseif buffCls.ClassName == 'EVENT_1905_TOS_CHIILD_BUFF1' then
+            --    if info.GetLevel(handle) < 380 then
+            --        expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, buffCls.ClassName);
+            --    end
+            elseif buffCls.ClassName == 'SEASON_EXP_Buff' then
+                expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, buffCls.ClassName, 1200);
+            
+            else
+                expupValue = SETEXP_SLOT_ADD_ICON(expupBuffBox, buffCls.ClassName);
+            end
+            totalExpUpValue = totalExpUpValue + expupValue;
+        end
+    end
+
+    local totalExpUpValueText = GET_CHILD_RECURSIVELY(gbox, 'totalExpUpValueText');    
+    if GetExProp(GetMyPCObject(), 'final_multiple_exp_rate') > 0 then
+        local value = GetExProp(GetMyPCObject(), 'final_multiple_exp_rate')
+        totalExpUpValue = math.floor(tonumber(totalExpUpValue) * (1 + value))
+    end
+    
+    totalExpUpValueText:SetTextByKey('value', totalExpUpValue);
+end
+
+
+function SETEXP_SLOT_ADD_ICON(expupBuffBox, key, expupValue)
+    -- info
+    local handle = session.GetMyHandle();
+    local buffCls = GetClass('Buff', key);
+    if buffCls == nil then
+        return 0;
+    end
+    if expupValue == nil then
+        local buffExpUp = TryGetProp(buffCls, 'BuffExpUP');
+        if buffExpUp == nil then
+            expupValue = 0;
+        else
+            expupValue = math.floor(buffExpUp * 100);
+        end
+    end
+
+    if expupValue <= 0 then
+        return 0;
+    end
+
+    -- groupbox
+    local numChild = expupBuffBox:GetChildCount();
+    local gBox = expupBuffBox:CreateOrGetControl('groupbox', 'expupBox_' .. key, 42, 70, ui.LEFT, ui.TOP, 42 *(numChild - 1), 0, 0, 0);
+    gBox = tolua.cast(gBox, 'ui::CGroupBox');
+    gBox:EnableDrawFrame(0);
+
+    -- slot
+    local slot = gBox:CreateOrGetControl('slot', 'slot_' .. key, 42, 42, ui.LEFT, ui.TOP, 0, 0, 0, 0);
+    slot = tolua.cast(slot, 'ui::CSlot');
+    slot:EnableDrop(0);
+    slot:EnableDrag(0);
+
+    -- icon
+    local icon = CreateIcon(slot);
+    icon:SetImage('icon_' .. buffCls.Icon);
+    if key == "Premium_Nexon" or key =="Premium_Token" then -- premium tooltip
+        local buff = info.GetBuff(tonumber(handle), buffCls.ClassID);
+        if nil ~= buff then
+            icon:SetTooltipType('premium');
+            icon:SetTooltipArg(handle, buffCls.ClassID, buff.arg1);
+            icon:SetTooltipOverlap(1);
+        end
+    else
+        icon:SetTooltipType('buff');
+        icon:SetTooltipArg(handle, buffCls.ClassID, "");
+        icon:SetTooltipOverlap(1);
+    end
+
+    -- percent text
+    expupValue = math.floor(expupValue);
+    local text = gBox:CreateOrGetControl('richtext', 'text_' .. key, 40, 20, ui.CENTER_HORZ, ui.TOP, 0, 45, 0, 0);
+    text:SetFontName('white_18_ol');
+    text:SetText('{s13}' .. expupValue .. '%{/}');
+
+    gBox:ShowWindow(1);
+
+    return expupValue;
+end
+
+function STATUS_INFO()
+    local frame = ui.GetFrame('status');
+    local MySession = session.GetMyHandle()
+    local CharName = info.GetName(MySession);
+    local NameObj = GET_CHILD(frame, "NameText", "ui::CRichText");
+    local LevJobObj = GET_CHILD(frame, "LevJobText", "ui::CRichText");
+    local lv = info.GetLevel(session.GetMyHandle());
+    local job = info.GetJob(session.GetMyHandle());
+    local etc = GetMyEtcObject();
+    if etc.RepresentationClassID ~= 'None' then
+        local repreJobCls = GetClassByType('Job', etc.RepresentationClassID);
+        if repreJobCls ~= nil then
+            job = repreJobCls.ClassID;
+        end
+    end
+
+    local gender = info.GetGender(session.GetMyHandle());
+    local jobCls = GetClassByType("Job", job);
+    local jName = GET_JOB_NAME(jobCls, gender);
+
+    local lvText = jName;
+
+    NameObj:SetText('{@st53}' .. CharName)
+    LevJobObj:SetText('{@st41}{s20}' .. lvText)
+
+    local pc = GetMyPCObject();
+    local opc = nil;
+    local gboxctrl2 = frame:GetChild('statusGbox');
+    local gboxctrl = GET_CHILD(gboxctrl2, 'internalstatusBox');
+    local vpc = UPDATE_STATUS_STAT(frame, gboxctrl, pc);
+    if vpc ~= nil then
+        opc = pc;
+        pc = vpc;
+    end
+    local y = 0;
+
+    y = y + 10;
+
+    local expupGBox = GET_CHILD(gboxctrl, 'expupGBox');
+    SETEXP_SLOT(expupGBox);
+    y = y + expupGBox:GetHeight() + 10;
+
+    local returnY = STATUS_HIDDEN_JOB_UNLOCK_VIEW(pc, opc, frame, gboxctrl, y);
+    if returnY ~= y then y = returnY + 3; end
+    
+    local returnY = STATUS_ITEM_GEAR_SCORE(pc, opc, frame, gboxctrl, y);
+    if returnY ~= y then y = returnY + 3; end
+
+    local returnY = STATUS_ABILITY_POINT_SCORE(pc, opc, frame, gboxctrl, y);
+    if returnY ~= y then y = returnY + 3; end    
+
+    local returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MHP", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MSP", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "RHP", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "RSP", y);
+    y = returnY + 24;
+    
+
+    returnY = STATUS_ATTRIBUTE_VALUE_RANGE_NEW(pc, opc, frame, gboxctrl, "PATK", "MINPATK", "MAXPATK", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_RANGE_NEW(pc, opc, frame, gboxctrl, "MATK", "MINMATK", "MAXMATK", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "HEAL_PWR", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "SR", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "HR", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MHR", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "BLK_BREAK", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "CRTATK", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "CRTMATK", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "CRTHR", y);
+    y = returnY + 10;
+
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "DEF", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MDEF", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "SDR", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "DR", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "BLK", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "CRTDR", y);
+    y = returnY + 10;
+
+
+    returnY = STATUS_ATTRIBUTE_VALUE_DIVISIONBYTHOUSAND_NEW(pc, opc, frame, gboxctrl, "MaxSta", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "NormalASPD", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "SkillASPD", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MSPD", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_WITH_PERCENT_SYMBOL(pc, opc, frame, gboxctrl, "CastingSpeed", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_WITH_PERCENT_SYMBOL(pc, opc, frame, gboxctrl, "HateRate", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MaxWeight", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "LootingChance", y);
+    y = returnY + 10;
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Add_Damage_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "ResAdd_Damage", y);
+    y = returnY + 10;  -- 종류가 바뀌는 부분
+
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Aries_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Slash_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Strike_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Arrow_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Cannon_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Gun_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Melee_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Fire_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Ice_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Lightning_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Earth_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Poison_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Dark_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Holy_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Magic_Soul_Atk", y);
+    y = returnY + 10; -- 종류가 달라지면 10만큼 더 아래로
+
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "DefAries", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "DefSlash", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "DefStrike", y);
+    y = returnY + 10;
+
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "SmallSize_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MiddleSize_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "LargeSize_Atk", y);
+    if returnY ~= y then y = returnY + 3; end    
+    y = returnY + 10;
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "BOSS_ATK", y);
+    y = returnY + 10;
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "MiddleSize_Def", y);
+    y = returnY + 10;    
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Cloth_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Leather_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Iron_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Ghost_Atk", y);    
+    y = returnY + 10;
+    
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Cloth_Def", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Leather_Def", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Iron_Def", y);    
+    if returnY ~= y then y = returnY + 3; end
+
+    local set_list = {'stun_res', 'high_fire_res', 'high_freezing_res', 'high_lighting_res', 'high_poison_res', 'high_laceration_res', 'portion_expansion'}
+    for k, v in pairs(set_list) do
+        returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, v, y);    
+        if returnY ~= y then y = returnY + 3; end
+    end
+    y = returnY + 10;
+    
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Forester_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Widling_Atk", y);    
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Klaida_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Paramune_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "Velnias_Atk", y);
+    if returnY ~= y then y = returnY + 3; end
+
+    set_list = {'perfection', 'revenge'}
+    for k, v in pairs(set_list) do
+        returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, v, y);    
+        if returnY ~= y then y = returnY + 3; end
+    end
+    
+    y = returnY + 10;    
+
+    -- Property Name은  calc_property_pc.lua 에서 SCR_GET_Cloth_ATK 와 일치
+
+    -- STATUS_ATTRIBUTE_VALUE_RANGE(pc, opc, frame, gboxctrl, "PATK", "MINPATK", "MAXPATK");
+    -- STATUS_ATTRIBUTE_VALUE_RANGE(pc, opc, frame, gboxctrl, "MATK", "MINMATK", "MAXMATK");
+    -- STATUS_ATTR_SET_PERCENT(pc, opc, frame, gboxctrl, "CRTHR");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "CRTHR");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "SR");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "HR");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "Fire_Atk");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "Ice_Atk");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "Lightning_Atk");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "Poison_Atk");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "Holy_Atk");
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "Dark_Atk");
+
+
+
+    -- STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "DEF");
+    STATUS_ATTR_SET_PERCENT(pc, opc, frame, gboxctrl, "BLK");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "CRTDR");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "SDR");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "DR");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "ResFire");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "ResIce");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "ResLightning");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "ResSoul");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "ResPoison");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "ResHoly");
+    STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, "ResDark");
+    y = y + 10;
+	
+	
+	
+	returnY = STATUS_ATTRIBUTE_BOX_TITLE(pc, opc, frame, gboxctrl, ScpArgMsg("ItemEnchantOption"), y);
+    if returnY ~= y then
+        y = returnY + 5;
+    end
+	
+	local itemRareOptionList = { 'EnchantMainWeaponDamageRate', 'EnchantSubWeaponDamageRate', 'EnchantBossDamageRate', 'EnchantMeleeReducedRate', 'EnchantMagicReducedRate', 'EnchantPVPDamageRate', 'EnchantPVPReducedRate', 'EnchantCriticalDamage_Rate', 'EnchantCriticalHitRate', 'EnchantCriticalDodgeRate', 'EnchantHitRate', 'EnchantDodgeRate', 'EnchantBlockBreakRate', 'EnchantBlockRate', 'EnchantMSPD', 'EnchantSR' };
+	
+	for i = 1, #itemRareOptionList do
+		local itemRareOption = itemRareOptionList[i];
+	    returnY = STATUS_ITEM_RARE_OPTION_VALUE(pc, opc, frame, gboxctrl, itemRareOption, y);
+	    if returnY ~= y then
+	        y = returnY + 3;
+	    end
+	end
+    
+	y = y + 10;
+	
+    frame:Invalidate();
+
+    if vpc ~= nil then
+        DestroyIES(vpc);
+    end
+
+    local loceCountText = GET_CHILD_RECURSIVELY(frame, "loceCountText")
+    loceCountText:SetTextByKey("Count", session.likeit.GetWhoLikeMeCount());
+
+end
+
+function STATUS_TEXT_SET(textStr)
+    local findStart, findEnd = string.find(textStr, '.');
+
+    if findStart == nil then
+        return textStr;
+    end
+
+    local intStr = string.sub(textStr, 1, findStart + 1);
+    local subStr = string.sub(textStr, findEnd + 2, string.len(textStr) -1);
+    return string.format("%s{s14}{#cccccc}%s{/}{/}%s", intStr, subStr, "%");
+end
+
+function STATUS_SLOT_RBTNDOWN(frame, slot, argStr, equipSpot)
+    frame = frame:GetTopParentFrame()
+    if true == BEING_TRADING_STATE() then
+        return;
+    end
+
+    local isEmptySlot = false;
+
+    local invItemList = session.GetInvItemList();    
+    local itemCount = session.GetInvItemList():Count();
+
+    if session.GetInvItemList():Count() < MAX_INV_COUNT then
+        isEmptySlot = true;
+    end
+
+    if isEmptySlot == true then
+        imcSound.PlaySoundEvent('inven_unequip');
+        local spot = equipSpot;
+        item.UnEquip(spot);
+    else
+        ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."));
+    end
+end
+
+function CHECK_EQP_LBTN(frame, slot, argStr, argNum)
+    frame = frame:GetTopParentFrame()
+    local targetItem = item.HaveTargetItem();
+
+	if targetItem == 1 then
+		local useItemIndex = item.GetTargetItem();
+		local useItem = session.GetInvItem(useItemIndex);
+        
+		if useItem ~= nil then
+			local useItemObj = GetIES(useItem:GetObject());
+			local useItemGroup = useItemObj.GroupName
+			local useItemUseType = useItemObj.Usable
+
+			-- EVENT_2011_5TH
+			if IS_TRANSCEND_SCROLL_ITEM_EVENT_2011_5TH(useItemObj) == 1 then
+				SCR_EVENT_2011_5TH_SCROLL_SELECT(argNum, useItem, 'status');
+				return;
+            end
+            
+            -- ReLabeling_Rewards_EP12
+            -- Target Itme TRANSCEND
+			if IS_TRANSCEND_SCROLL_ITEM_EP12_REWARD(useItemObj) == 1 then
+				SCR_EVENT_EP12_REWARD_SCROLL_SELECT(argNum, useItem, 'status');
+				return;
+            end
+            
+            -- ReLabeling_Rewards_EP12
+            -- Target Itme Reinforce
+			if IS_REINFORCE_SCROLL_ITEM_EP12_REWARD(useItemObj) == 1 then
+				SCR_EVENT_EP12_REWARD_SCROLL_SELECT_REINFORCE(argNum, useItem, 'status');
+				return;
+            end
+            
+			if useItemGroup == 'Gem' and useItemUseType == 'ITEMTARGET' then
+				SCR_GEM_ITEM_SELECT(argNum, useItem, 'status');
+				return;
+			end
+		end
+	end
+
+    tolua.cast(slot, 'ui::CSlot');
+    local toicon = slot:GetIcon();
+    if toicon == nil then
+        return;
+    end
+
+    local iesID = toicon:GetTooltipIESID();
+    local curLBtn = frame:GetUserValue("LBTN_SCP");
+    if curLBtn ~= "None" then
+        local invitem = GET_ITEM_BY_GUID(iesID, 1);
+        if invitem ~= nil then
+            local func = _G[curLBtn];
+            func(frame, invitem, slot);
+            return;
+        end
+    end
+
+
+    if keyboard.IsKeyPressed("LCTRL") == 1 then
+        local invitem = GET_ITEM_BY_GUID(iesID, 1);
+        LINK_ITEM_TEXT(invitem);
+        return;
+    end
+
+
+    local exchangeFrame = ui.GetFrame('exchange');
+    exchangeFrame:SetUserValue('CLICK_EQUIP_INV_ITEM', 'NO')
+    if exchangeFrame:IsVisible() == 1 then
+        exchangeFrame:SetUserValue('CLICK_EQUIP_INV_ITEM', 'YES')
+    end
+
+
+
+    local fromID = GET_USING_ITEM_GUID();
+    if fromID ~= 0 then
+        SCR_MAGICAMULET_EQUIP(item.GetUsingItem(), GET_ITEM_BY_GUID(iesID, 1));
+    end
+
+end
+
+function GET_USING_ITEM_GUID()
+
+    local fromItem = item.GetUsingItem();
+    if fromItem == nil then
+        return "0";
+    end
+
+    return fromItem:GetIESID();
+
+end
+
+function GET_USING_ITEM_OBJ()
+
+    local fromItem = item.GetUsingItem();
+    if fromItem == nil then
+        return nil;
+    end
+
+    return GetIES(fromItem:GetObject());
+
+end
+
+function SET_VALUE_ZERO(value)
+    if value == 0 or value == nil then
+        return 1, '0';
+    else
+        -- 실제로는 소수점 값이 있지만, UI상으로는 0으로 표기. (ex: 메니스샷 이동불가 처리)
+        return 0, math.floor(value);
+    end
+end
+
+function STATUS_ATTR_SET_PERCENT(pc, opc, frame, gboxctrl, attributeName)
+    local txtctrl_CRTHR = gboxctrl:GetChild(attributeName);
+    if txtctrl_CRTHR ~= nil then
+        local textValue = STATUS_TEXT_SET(string.format("%.2f%%", pc[attributeName] / 100));
+        if opc ~= nil and opc[attributeName] ~= pc[attributeName] then
+            local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+            txtctrl_CRTHR:SetText(colStr .. textValue);
+        else
+            txtctrl_CRTHR:SetText(textValue);
+        end
+    end
+end
+
+function STATUS_ATTRIBUTE_VALUE_RANGE(pc, opc, frame, gboxctrl, attributeName, minName, maxName)
+    local txtctrl = GET_CHILD(gboxctrl, attributeName, 'ui::CRichText');
+    if txtctrl == nil then
+        return;
+    end
+
+    local minVal = pc[minName];
+    local maxVal = pc[maxName];
+
+    if pc ~= nil and pc.ATK_COMMON_BM > 0 then
+        minVal = minVal + pc.ATK_COMMON_BM;
+        maxVal = maxVal + pc.ATK_COMMON_BM;
+    end
+
+    local grayStyle;
+    local value;
+    if maxVal == 0 then
+        grayStyle = 1;
+        value = 0;
+    else
+        grayStyle = 0;
+
+        if attributeName == "ATK" and item.IsUseJungtanRank() > 0 then
+            value = string.format("%d~%d(+%d)", minVal, maxVal, item.GetJungtanDamage());
+        else
+            value = string.format("%d~%d", minVal, maxVal);
+        end
+    end
+
+    if opc ~= nil and opc[maxName] ~= maxVal then
+        local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
+        local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+
+
+        local beforeValue = value;
+        if attributeName == "ATK" and item.IsUseJungtanRank() > 0 then
+            beforeValue = string.format("%d~%d(+%d)", opc[minName], opc[maxName], item.GetJungtanDamage());
+        else
+            beforeValue = string.format("%d~%d", opc[minName], opc[maxName]);
+        end
+
+        if beforeValue ~= value then
+            txtctrl:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);
+        else
+            txtctrl:SetText(value);
+        end
+    else
+        txtctrl:SetText(value);
+    end
+end
+
+function STATUS_ATTRIBUTE_VALUE_RANGE_NEW(pc, opc, frame, gboxctrl, attributeName, minName, maxName, y)    
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', attributeName, 0, y);
+    tolua.cast(controlSet, "ui::CControlSet");
+
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    title:SetText(ScpArgMsg(attributeName));
+    if attributeName == 'PATK_SUB' then
+        title:SetTextTooltip(ScpArgMsg("StatusTooltipMsg1"))
+    end
+
+    local stat = GET_CHILD(controlSet, "stat", "ui::CRichText");
+
+
+    local minVal = pc[minName];
+    local maxVal = pc[maxName];
+
+    local grayStyle;
+    local value;
+    if maxVal == 0 then
+        grayStyle = 1;
+        value = 0;
+    else
+        grayStyle = 0;
+        value = string.format("%d~%d", minVal, maxVal);
+    end
+
+
+    if opc ~= nil and opc[maxName] ~= maxVal then
+        local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
+        local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+
+        local beforeValue = value;
+        beforeValue = string.format("%d~%d", opc[minName], opc[maxName]);
+
+        if beforeValue ~= value then
+            stat:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);
+        else
+            stat:SetText(value);
+        end
+    else
+        stat:SetText(value);
+    end
+    
+    if GetExProp(pc, 'event_atk') > 0 then
+        value = GetExProp(pc, 'event_atk')
+        if minName == 'MINPATK' or minName == 'MINMATK' then
+            stat:SetText(value);
+        end
+
+        if minName == 'MAXPATK' or minName == 'MAXMATK' then
+            stat:SetText(value);
+        end
+    end
+    
+
+    controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+function STATUS_HIDDEN_JOB_UNLOCK_VIEW(pc, opc, frame, gboxctrl, y)
+    local jobList, jobListCnt = GetClassList('Job');
+    local etcObj = GetMyEtcObject();
+    local aObj = GetMyAccountObj();
+    for i = 0, jobListCnt - 1 do
+        local jobIES = GetClassByIndexFromList(jobList, i);
+        if jobIES ~= nil then
+            if jobIES.HiddenJob == 'YES' then
+                local flag = false
+                if jobIES.ClassName == 'Char4_12' then
+                    local jobCircle = session.GetJobGrade(GetClassNumber('Job', 'Char4_2', 'ClassID'))
+                    if jobCircle >= 3 then
+                        flag = true
+                    end
+                else
+                    flag = true
+                end
+                
+                local jobName
+                if config.GetServiceNation() == 'GLOBAL_JP' or config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
+                    jobName = jobIES.Name
+                else 
+                    jobName = jobIES.EngName
+                end
+					
+                if flag == true and((etcObj["HiddenJob_" .. jobIES.ClassName] == 300 and jobIES.PreFunction ~= 'None' ) or IS_KOR_TEST_SERVER()) then
+                    local hidden_job = gboxctrl:CreateControl('richtext', 'HIDDEN_JOB_' .. jobIES.ClassName, 10, y, 100, 25);
+                    hidden_job:SetText('{@sti8}' .. ScpArgMsg("HIDDEN_JOB_UNLOCK_VIEW_MSG1", "JOBNAME", jobName))
+                    y = y + 25
+                end
+                
+                if UQ_GET_JOB_SETTING_JOB(jobIES.ClassName) ~= nil or jobIES.SpecialJob =="YES" then
+                    if aObj["UnlockQuest_" .. jobIES.ClassName] ~= nil then
+                        if flag == true and((aObj["UnlockQuest_" .. jobIES.ClassName] == 1 and jobIES.PreFunction ~= 'None' ) or IS_KOR_TEST_SERVER()) then
+                            local hidden_job = gboxctrl:CreateControl('richtext', 'HIDDEN_JOB_' .. jobIES.ClassName, 10, y, 100, 25);
+                            hidden_job:SetText('{@sti8}' .. ScpArgMsg("HIDDEN_JOB_UNLOCK_VIEW_MSG1", "JOBNAME", jobName))
+                            y = y + 25
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return y
+end
+
+function STATUS_ITEM_GEAR_SCORE(pc, opc, frame, gboxctrl, y)        
+    local score = GET_PLAYER_GEAR_SCORE(pc)
+
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', 'gear_score', 0, y);    
+    tolua.cast(controlSet, "ui::CControlSet");
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    
+    title:SetText('{@sti8}' .. ScpArgMsg("EquipedItemGearScore"));
+    title:SetTextTooltip(ScpArgMsg("TooltipDescGearScore"))
+
+    local scoreBtn = GET_CHILD_RECURSIVELY(controlSet, "gearScoreBtn")
+    local btnX = title:GetX() + title:GetWidth() + 5;
+    scoreBtn:SetOffset(btnX, -2);
+
+    local stat = GET_CHILD(controlSet, "stat", "ui::CRichText");
+    title:SetUseOrifaceRect(true)
+    stat:SetUseOrifaceRect(true)
+
+    stat:SetText('{@sti8}' .. score);
+	
+    if title:GetWidth() >= 350 then
+		title:AdjustFontSizeByWidth(350)
+	end
+	
+    controlSet:Resize(controlSet:GetWidth(), scoreBtn:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+function STATUS_ABILITY_POINT_SCORE(pc, opc, frame, gboxctrl, y)        
+    local score = GET_PLAYER_ABILITY_SCORE(pc) .. '%'
+
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', 'ability_point_score', 0, y);    
+    tolua.cast(controlSet, "ui::CControlSet");
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    
+    title:SetText('{@sti8}' .. ScpArgMsg("AbilityPointScore"));
+    title:SetTextTooltip(ScpArgMsg("TooltipDescAbilityPointScore"))
+
+    local stat = GET_CHILD(controlSet, "stat", "ui::CRichText");
+    title:SetUseOrifaceRect(true)
+    stat:SetUseOrifaceRect(true)
+
+    stat:SetText('{@sti8}' .. score);
+	
+    if title:GetWidth() >= 350 then
+		title:AdjustFontSizeByWidth(350)
+	end
+	
+    controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+local color_attribute = {}
+color_attribute['Cloth_Def'] = 'Cloth_Def_status'
+color_attribute['Leather_Def'] = 'Leather_Def_status'
+color_attribute['Iron_Def'] = 'Iron_Def_status'
+color_attribute['MiddleSize_Def'] = 'MiddleSize_Def_status'
+color_attribute['AllMaterialType_Def'] = 'AllMaterialType_Def_status'
+color_attribute['ResAdd_Damage'] = 'ResAdd_Damage_status'
+
+color_attribute['SmallSize_Atk'] = 'SmallSize_Atk_status'
+color_attribute['MiddleSize_Atk'] = 'MiddleSize_Atk_status'
+color_attribute['LargeSize_Atk'] = 'LargeSize_Atk_status'
+color_attribute['Cloth_Atk'] = 'Cloth_Atk_status'
+color_attribute['Leather_Atk'] = 'Leather_Atk_status'
+color_attribute['Iron_Atk'] = 'Iron_Atk_status'
+color_attribute['Forester_Atk'] = 'Forester_Atk_status'
+color_attribute['Widling_Atk'] = 'Widling_Atk_status'
+color_attribute['Klaida_Atk'] = 'Klaida_Atk_status'
+color_attribute['Paramune_Atk'] = 'Paramune_Atk_status'
+color_attribute['Velnias_Atk'] = 'Velnias_Atk_status'
+color_attribute['Ghost_Atk'] = 'Ghost_Atk_status'
+color_attribute['Add_Damage_Atk'] = 'Add_Damage_Atk_status'
+color_attribute['BOSS_ATK'] = 'BOSS_ATK_status'
+color_attribute['AllMaterialType_Atk'] = 'AllMaterialType_Atk_status'
+color_attribute['AllSize_Atk'] = 'AllSize_Atk_status'
+color_attribute['AllRace_Atk'] = 'AllRace_Atk_status'
+color_attribute['perfection'] = 'perfection_status'
+color_attribute['revenge'] = 'revenge_status'
+color_attribute['stun_res'] = 'stun_res_status'
+color_attribute['high_fire_res'] = 'high_fire_res_status'
+color_attribute['high_freezing_res'] = 'high_freezing_res_status'
+color_attribute['high_lighting_res'] = 'high_lighting_res_status'
+color_attribute['high_poison_res'] = 'high_poison_res_status'
+color_attribute['high_laceration_res'] = 'high_laceration_res_status'
+color_attribute['portion_expansion'] = 'portion_expansion_status'
+
+local all_attribute_list = {}
+all_attribute_list['Leather_Def'] = 1
+all_attribute_list['Cloth_Def'] = 1
+all_attribute_list['Iron_Def'] = 1
+all_attribute_list['Cloth_Atk'] = 1
+all_attribute_list['Leather_Atk'] = 1
+all_attribute_list['Iron_Atk'] = 1
+all_attribute_list['Ghost_Atk'] = 1
+all_attribute_list['SmallSize_Atk'] = 1
+all_attribute_list['MiddleSize_Atk'] = 1
+all_attribute_list['LargeSize_Atk'] = 1
+all_attribute_list['Widling_Atk'] = 1
+all_attribute_list['Paramune_Atk'] = 1
+all_attribute_list['Forester_Atk'] = 1
+all_attribute_list['Velnias_Atk'] = 1
+all_attribute_list['Klaida_Atk'] = 1
+
+local special_option_list = {}
+special_option_list['perfection'] = 1
+special_option_list['revenge'] = 1
+special_option_list['stun_res'] = 1
+special_option_list['high_fire_res'] = 1
+special_option_list['high_freezing_res'] = 1
+special_option_list['high_lighting_res'] = 1
+special_option_list['high_poison_res'] = 1
+special_option_list['high_laceration_res'] = 1
+special_option_list['portion_expansion'] = 1
+
+
+function ADD_ALL_ATK_STATUS(pc, attributeName, value)
+    if attributeName == 'SmallSize_Atk' or attributeName == 'MiddleSize_Atk' or attributeName == 'LargeSize_Atk' then
+        value = value + TryGetProp(pc, 'AllSize_Atk', 0)
+    elseif attributeName == 'Cloth_Atk' or attributeName == 'Leather_Atk' or attributeName == 'Iron_Atk' or attributeName == 'Ghost_Atk' then
+        value = value + TryGetProp(pc, 'AllMaterialType_Atk', 0)        
+    elseif attributeName == 'Cloth_Def' or attributeName == 'Leather_Def' or attributeName == 'Iron_Def' then
+        value = value + TryGetProp(pc, 'AllMaterialType_Def', 0)        
+    elseif attributeName == 'Forester_Atk' or attributeName == 'Widling_Atk' or attributeName == 'Klaida_Atk' or attributeName == 'Paramune_Atk' or attributeName == 'Velnias_Atk' then
+        value = value + TryGetProp(pc, 'AllRace_Atk', 0)        
+    end
+
+    return value
+end
+
+function GET_SPECIAL_OPTION_VALUE(pc, name)
+    local value = 0
+    local tooltip_text = nil
+
+    local equip_item_list = session.GetEquipItemList();
+    local equip_guid_list = equip_item_list:GetGuidList();
+    local count = equip_guid_list:Count();
+    
+    for i = 0, count - 1 do
+        local guid = equip_guid_list:Get(i);
+        if guid ~= '0' then
+            local equip_item = equip_item_list:GetItemByGuid(guid);
+            if equip_item ~= nil and equip_item:GetObject() ~= nil then
+                local item = GetIES(equip_item:GetObject())
+
+                for j = 1, shared_item_goddess_icor.get_max_option_count() do
+                    local _name = 'RandomOption_' .. j
+                    local _value = 'RandomOptionValue_' .. j
+                    
+                    if TryGetProp(item, _name, 'None') == name then
+                        value = value + TryGetProp(item, _value, 0)                        
+                    end
+                end
+            end
+        end
+    end
+
+    value = value + GetExProp(pc, name .. '_BM')
+
+    if value > 0 then
+        if name == 'revenge' then
+            tooltip_text = ScpArgMsg(name .. '_desc', 'value', value, 'value2', math.floor(value * 0.25))
+        elseif string.find(name, '_res') ~= nil then            
+            local value1 = string.format('%.1f', math.min(tonumber(value / GET_MAX_REG_VALUE(pc.Lv) * 100), 100))            
+            tooltip_text = ScpArgMsg(name .. '_desc', 'value', value1, 'level', pc.Lv)
+        else
+            tooltip_text = ScpArgMsg(name .. '_desc', 'value', value)
+        end
+    end
+
+    return value, tooltip_text
+end
+
+function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)               
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', attributeName, 0, y);
+    tolua.cast(controlSet, "ui::CControlSet");
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    if color_attribute[attributeName] ~= nil then        
+        title:SetText(ScpArgMsg(color_attribute[attributeName]));
+    else
+        title:SetText(ScpArgMsg(attributeName));
+    end
+    
+    local s_value, s_tooltip = 0, nil
+
+    if special_option_list[attributeName] ~= nil then        
+        s_value, s_tooltip = GET_SPECIAL_OPTION_VALUE(pc, attributeName)
+    end
+
+    local enable_zero = false
+    if attributeName == 'SR' then
+        title:SetTextTooltip(ScpArgMsg("StatusTooltipMsg2"))
+    elseif attributeName == 'BLK' then
+        title:SetTextTooltip(ScpArgMsg("StatusTooltipMsgBlk{value}", "value", pc["BLKABLE"]))    
+    elseif attributeName == 'SDR' then
+        title:SetTextTooltip(ScpArgMsg("StatusTooltipMsg3"))    
+    elseif attributeName == 'LootingChance' then
+        title:SetTextTooltip(ScpArgMsg("StatusTooltipMsgLootingChance"))
+    elseif attributeName == 'RHP' or attributeName == 'RSP' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgRHPRSP'))
+    elseif attributeName == 'Forester_Atk' or attributeName == 'Widling_Atk' or attributeName == 'Klaida_Atk' or attributeName == 'Paramune_Atk' or attributeName == 'Velnias_Atk' or attributeName == 'BOSS_ATK' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgRacetype'))
+    elseif attributeName == 'Cloth_Atk' or attributeName == 'Leather_Atk' or attributeName == 'Iron_Atk' or attributeName == 'Ghost_Atk' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgRacetype'))
+    elseif attributeName == 'SmallSize_Atk' or attributeName == 'MiddleSize_Atk' or attributeName == 'LargeSize_Atk' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgRacetype'))
+    elseif attributeName == 'AllMaterialType_Def' then        
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgAllMaterialTypeDef'))
+    elseif attributeName == 'AllSize_Atk' then        
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgAllSizeAtk'))    
+    elseif attributeName == 'AllMaterialType_Atk' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgAllMaterialTypeAtk'))
+    elseif attributeName == 'AllRace_Atk' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgAllMaterialTypeAtk'))        
+    elseif s_tooltip ~= nil then        
+        title:SetTextTooltip(s_tooltip)
+    end
+
+    if all_attribute_list[attributeName] == 1 then
+        enable_zero = true
+    end
+
+    local stat = GET_CHILD(controlSet, "stat", "ui::CRichText");
+    title:SetUseOrifaceRect(true)
+    stat:SetUseOrifaceRect(true)
+
+    -- stat:SetText('120');
+
+    local grayStyle, value = 1, 0
+    if special_option_list[attributeName] == nil then
+        grayStyle, value = SET_VALUE_ZERO(TryGetProp(pc, attributeName, 0));            
+    else
+        if tonumber(s_value) > 0 then
+            grayStyle = 0
+            value = s_value            
+        end
+    end
+
+    if enable_zero == false and 1 == grayStyle then
+        stat:SetText('');
+        controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+        return y + controlSet:GetHeight();
+    end
+
+    if opc ~= nil and special_option_list[attributeName] == nil and opc[attributeName] ~= value then        
+        local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
+        local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+
+        local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);
+    
+        if beforeValue ~= value then
+            stat:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);            
+        else
+            stat:SetText(value); 
+        end
+    else
+        if special_option_list[attributeName] == nil then            
+            value = ADD_ALL_ATK_STATUS(pc, attributeName, value)
+            if value == 0 then
+                stat:SetText('');
+                controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+                return y + controlSet:GetHeight();
+            end
+            if attributeName == 'HEAL_PWR' then
+                value = GET_SHOW_HEAL_PWR(pc, pc[attributeName])
+            end
+
+            value = get_percent_format(attributeName, value)        
+            stat:SetText(value);                    
+        else            
+            value = s_value            
+            stat:SetText(value);   
+        end
+    end
+	
+    if title:GetWidth() >= 350 then
+		title:AdjustFontSizeByWidth(350)
+	end
+	
+    controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+function get_percent_format(attribute_name, value)
+    local func_name = string.format('get_%s_ratio_for_status', attribute_name);
+    local func = _G[func_name]
+    
+    if func == nil then
+        return value
+    end
+
+    value = func(value)
+    return value
+end
+
+
+function STATUS_ITEM_RARE_OPTION_VALUE(pc, opc, frame, gboxctrl, attributeName, y)
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', attributeName, 0, y);
+    tolua.cast(controlSet, "ui::CControlSet");
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    title:SetText(ScpArgMsg(attributeName));
+	
+    local stat = GET_CHILD(controlSet, "stat", "ui::CRichText");
+    title:SetUseOrifaceRect(true)
+    stat:SetUseOrifaceRect(true)
+    
+    local grayStyle, value = SET_VALUE_ZERO(pc[attributeName]);
+	
+    if 1 == grayStyle then
+        stat:SetText('');
+        controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+        return y + controlSet:GetHeight();
+    end
+    
+    -- 상수 값 예외 처리 --
+    local isRatioValue = 1;
+    if attributeName == 'EnchantMSPD' or attributeName == 'EnchantSR' then
+        isRatioValue = 0;
+    end
+    
+    -- value 값 String 및 소수점 처리 시작 --
+    local stringValue = tostring(math.abs(value));
+    if isRatioValue == 1 then
+        if value ~= 0 and math.abs(value) < 10 then
+        	stringValue = "0." .. stringValue;
+        else
+        	stringValue = string.sub(stringValue, 1, -2) .. "." .. string.sub(stringValue, -1, -1);
+        end
+    end
+    
+    if value < 0 then
+    	stringValue = ScpArgMsg("MinusSymbol") .. stringValue;
+    end
+	-- value 값 String 및 소수점 처리 끝 --
+	local statText = nil;
+    if opc ~= nil and opc[attributeName] ~= value then
+        local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
+        local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+
+        local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);
+		
+        if beforeValue ~= value then
+            statText = colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. stringValue;
+        else
+            statText = stringValue;
+        end
+    else
+        statText = stringValue;
+    end
+
+    if statText ~= nil then
+        if isRatioValue == 1 then
+            statText = statText .. ScpArgMsg("PercentSymbol");
+        end
+        
+        stat:SetText(statText);
+    end
+
+    controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+function STATUS_ATTRIBUTE_VALUE_WITH_PERCENT_SYMBOL(pc, opc, frame, gboxctrl, attributeName, y)
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', attributeName, 0, y);
+    tolua.cast(controlSet, "ui::CControlSet");
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    title:SetText(ScpArgMsg(attributeName));
+	
+    local stat = GET_CHILD(controlSet, "stat", "ui::CRichText");
+    title:SetUseOrifaceRect(true)
+    stat:SetUseOrifaceRect(true)
+    
+    local grayStyle, value = SET_VALUE_ZERO(pc[attributeName]);
+	
+    if 1 == grayStyle then
+        stat:SetText('');
+        controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+        return y + controlSet:GetHeight();
+    end
+    
+	local statText = nil;
+    if opc ~= nil and opc[attributeName] ~= value then
+        local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
+        local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+
+        local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);
+		
+        if beforeValue ~= value then
+            statText = colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value;
+        else
+            statText = value;
+        end
+    else
+        statText = value;
+    end
+
+    if statText ~= nil then
+        statText = statText .. ScpArgMsg("PercentSymbol");
+        
+        stat:SetText(statText);
+    end
+
+    controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+function STATUS_ATTRIBUTE_BOX_TITLE(pc, opc, frame, gboxctrl, titleText, y)
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', titleText, 0, y);
+    tolua.cast(controlSet, "ui::CControlSet");
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    title:SetText("{@st41}{s20}" .. titleText .. "{/}{/}");
+	
+    controlSet:Resize(controlSet:GetWidth(), title:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+
+
+function STATUS_ATTRIBUTE_VALUE_DIVISIONBYTHOUSAND_NEW(pc, opc, frame, gboxctrl, attributeName, y)
+
+    local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', attributeName, 0, y);
+    tolua.cast(controlSet, "ui::CControlSet");
+
+    local title = GET_CHILD(controlSet, "title", "ui::CRichText");
+    title:SetText(ScpArgMsg(attributeName));
+
+    local stat = GET_CHILD(controlSet, "stat", "ui::CRichText");
+
+
+    -- stat:SetText('120');
+
+    local grayStyle, value = SET_VALUE_ZERO(pc[attributeName]);
+    if 1 == grayStyle then
+        stat:SetText('');
+        controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+        return y + controlSet:GetHeight();
+    end
+    value = math.floor(value / 1000);
+    if opc ~= nil and opc[attributeName] ~= value then
+        local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
+        local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+
+        local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);
+        if 'MaxSta' == attributeName then
+            beforeValue = math.floor(beforeValue / 1000);
+        end
+        if beforeValue ~= value then
+            stat:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);
+        else
+            stat:SetText(value);
+        end
+    else
+        stat:SetText(value);
+    end
+    controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
+    return y + controlSet:GetHeight();
+end
+
+function STATUS_ATTRIBUTE_VALUE(pc, opc, frame, gboxctrl, attributeName)
+
+    local txtctrl = gboxctrl:GetChild(attributeName);
+    if txtctrl == nil then
+        return;
+    end
+
+    tolua.cast(txtctrl, 'ui::CRichText');
+
+    local grayStyle, value = SET_VALUE_ZERO(pc[attributeName]);
+    if opc ~= nil and opc[attributeName] ~= value then
+        local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
+        local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
+
+        local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);
+
+        if attributeName == 'DR' then
+            beforeValue = string.format("%.1f", beforeValue);
+            value = string.format("%.1f", value);
+        end
+
+        if beforeValue ~= value then
+            txtctrl:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);
+        else
+            txtctrl:SetText(value);
+        end
+    else
+        txtctrl:SetText(value);
+
+        if pc ~= nil and pc.DEF_COMMON_BM > 0 then
+            value = value + pc.DEF_COMMON_BM;
+        end
+
+        if attributeName == "DEF" and item.IsUseJungtanDefRank() > 0 then
+            local value2 = string.format("(+%d)", item.GetJungtanDefence());
+            txtctrl:SetText(value .. value2);
+        else
+            if attributeName == 'DR' then
+                value = string.format("%.1f", value);
+            end
+            txtctrl:SetText(value);
+        end
+
+    end
+end
+
+function STATUS_TAB_CHANGE(frame, ctrl, argStr, argNum)
+    local tabObj = frame:GetChild('statusTab');
+    local itembox_tab = tolua.cast(tabObj, "ui::CTabControl");
+    local curtabIndex = itembox_tab:GetSelectItemIndex();
+    STATUS_VIEW(frame, curtabIndex);
+end
+
+function STATUS_VIEW(frame, curtabIndex)
+    if curtabIndex == 0 then
+        STATUS_INFO_VIEW(frame);
+    elseif curtabIndex == 1 then
+        STATUS_LOGOUTPC_VIEW(frame);
+    elseif curtabIndex == 2 then
+        STATUS_REPUTATION_VIEW(frame);
+    end
+end
+
+function STATUS_INFO_VIEW(frame)
+    local gboxctrl = frame:GetChild('statusGbox');
+    local pc = GetMyPCObject()
+    gboxctrl:ShowWindow(1);
+    local logoutGBox = frame:GetChild("logoutGBox");
+    logoutGBox:ShowWindow(0);
+    local statusupGbox = frame:GetChild('statusUpGbox');
+    statusupGbox:ShowWindow(1);
+    local resetBtn = statusupGbox:GetChild('status_reset_btn')
+    resetBtn:SetTextTooltip(ScpArgMsg("LowLevelFreeTransferClass", 'name', PC_MAX_LEVEL));
+        
+    if pc.Lv < PC_MAX_LEVEL then 
+        resetBtn:ShowWindow(1)
+    else
+        resetBtn:ShowWindow(0)
+    end
+    local reputationGBox = frame:GetChild('reputationGBox')
+    reputationGBox:ShowWindow(0);
+end
+
+function STATUS_LOGOUTPC_VIEW(frame)
+    local gboxctrl = frame:GetChild('statusGbox');
+    gboxctrl:ShowWindow(0);
+    local logoutGBox = frame:GetChild("logoutGBox");
+    logoutGBox:ShowWindow(1);
+    local statusupGbox = frame:GetChild('statusUpGbox');
+    statusupGbox:ShowWindow(0);
+    local reputationGBox = frame:GetChild('reputationGBox')
+    reputationGBox:ShowWindow(0);
+end
+
+function STATUS_REPUTATION_VIEW(frame)
+    local gboxctrl = frame:GetChild('statusGbox');
+    gboxctrl:ShowWindow(0);
+    local logoutGBox = frame:GetChild("logoutGBox");
+    logoutGBox:ShowWindow(0);
+    local statusupGbox = frame:GetChild('statusUpGbox');
+    statusupGbox:ShowWindow(0);
+    local reputationGBox = frame:GetChild('reputationGBox')
+    reputationGBox:ShowWindow(1);
+end
+
+function CHANGE_MYPC_NAME(frame)
+
+    local charName = GETMYPCNAME();
+    local newframe = ui.GetFrame("inputstring");
+    newframe:SetUserValue("InputType", "InputNameForChange");
+    INPUT_STRING_BOX(ClMsg("InputNameForChange"), "EXEC_CHANGE_NAME", charName, 0, 16);
+
+end
+
+CHAR_NAME_LEN = 20;
+
+function EXEC_CHANGE_NAME(inputframe, ctrl)
+    if ctrl:GetName() == "inputstr" then
+        inputframe = ctrl;
+    end
+
+    local changedName = GET_INPUT_STRING_TXT(inputframe);
+
+    if ui.IsValidCharacterName(changedName) == false then        
+        return;
+    end
+
+    OPEN_CHECK_USER_MIND_BEFOR_YES(inputframe, "pcName", changedName, GETMYPCNAME(), "None");
+end
+
+function STATUS_AVG(frame)
+    local pc = GetMyPCObject();
+
+    local totalValue = 0;
+
+    for i = 0, STAT_COUNT - 1 do
+        local typeStr = GetStatTypeStr(i);
+        local avg = session.GetStatAvg(i) + pc[typeStr];
+        totalValue = totalValue + avg;
+    end
+
+    for i = 0, STAT_COUNT - 1 do
+        local typeStr = GetStatTypeStr(i);
+        local avg = session.GetStatAvg(i) + pc[typeStr];
+
+        local x = tonumber(frame:GetUserConfig("StatIconStartX")) + i * 85;
+        SET_STAT_AVG_TEXT(frame, typeStr .. "_AVG", typeStr, pc[typeStr], avg, x, 87, totalValue);
+    end
+
+
+end
+
+function SET_STAT_AVG_TEXT(frame, ctrlname, propName, propValue, avgStr, xpos, ypos, totalValue)
+
+    local value = avgStr / totalValue;
+    local percValue = math.floor(value * 100);
+    local addYpos = percValue - 25;
+
+    ypos = ypos - addYpos;
+
+    local gboxctrl = frame:GetChild('statusAvgGbox');
+    local statusUpControlSet = gboxctrl:CreateOrGetControlSet('statusinfo', ctrlname, xpos, ypos);
+    tolua.cast(statusUpControlSet, "ui::CControlSet");
+
+    local bgPic = GET_CHILD(statusUpControlSet, "bgPic", "ui::CPicture");
+
+    -- bgPic:SetImage(propName..'_slot');
+
+    local colorTone = "AAFFFFFF";
+    if avgStr > propValue then
+        colorTone = "AA66CC00";
+    end
+    bgPic:SetColorTone(colorTone);
+
+    local name = GET_CHILD(statusUpControlSet, "name", "ui::CRichText");
+    name:ShowWindow(0);
+    -- name:SetText('{@st41}'..ClMsg(propName));
+
+    local onepic = GET_CHILD(statusUpControlSet, "one", "ui::CPicture");
+    local tenpic = GET_CHILD(statusUpControlSet, "ten", "ui::CPicture");
+    onepic:ShowWindow(0);
+    tenpic:ShowWindow(0);
+
+    --[[local statupValue = avgStr;
+	if statupValue >= 10 then
+		local one = statupValue % 10;
+		local ten = math.floor(statupValue / 10);
+
+		onepic:SetImage(tostring(one));
+		onepic:ShowWindow(1);
+		onepic:SetOffset(15, 20);
+		tenpic:SetImage(tostring(ten));
+		tenpic:ShowWindow(1);
+		tenpic:SetOffset(-12, 20);
+	else
+		onepic:SetImage(tostring(statupValue));
+		onepic:ShowWindow(1);
+		onepic:SetOffset(0, 20);
+	end]]--
+
+    local btnUp = GET_CHILD(statusUpControlSet, "upbtn", "ui::CButton");
+    btnUp:ShowWindow(0);
+end
+
+function STATUS_ACHIEVE_INIT_HAIR_COLOR(gbox)
+
+ --[[   if gbox == nil then
+        return
+    end
+
+    local customizingGBox = gbox
+    local colorTitle = customizingGBox:GetChild('hairColorStatic');
+   
+    -- 원래 아이콘들 삭제.
+    DESTROY_CHILD_BYNAME(customizingGBox, "hairColor_");
+
+    local pc = GetMyPCObject()
+    local etc = GetMyEtcObject();
+
+	local haveHairColorList = {}
+	local haveHairColorEList = {}
+
+    local nowHeadIndex = item.GetHeadIndex()
+	local PartClass = imcIES.GetClass("CreatePcInfo", "Hair");
+	local GenderList = PartClass:GetSubClassList();
+	local Selectclass   = GenderList:GetClass(pc.Gender);
+	local Selectclasslist = Selectclass:GetSubClassList();
+
+    local nowHairCls = Selectclasslist:GetClass(nowHeadIndex);
+    if nil == nowHairCls then
+        return;
+    end
+
+    local nowPCHairEngName = imcIES.GetString(nowHairCls, 'EngName')
+    local nowPCHairColor = imcIES.GetString(nowHairCls, 'EngColor')
+    nowPCHairColor = string.lower(nowPCHairColor)
+
+    -- 헤어 컬러가 많아질 경우 UI 벽을 뚫게 된다. row, col로 나눔.
+    local max_width = customizingGBox:GetWidth()
+    local row = 1
+    local col = 0
+    -- 아래 하드코딩 되어 있던 것들 이쪽으로 이동.
+    local row_top_margin = 20
+    local col_left_margin = 30
+    local height = 35
+    local width = 35
+    local select_margin = row_top_margin - 10
+
+    -- 기본헤어이름과 뷰티샵에서 변경했는지 확인.
+    local startHairName = TryGetProp(etc, 'StartHairName')
+    local bueatyShopHair = TryGetProp(etc, "BeautyshopStartHair")
+    
+    -- 기본헤어와 현재헤어 이름이 같고, 뷰티샵에서 변경한 헤어 일 때 신규 헤어다.
+    if startHairName == nowPCHairEngName and bueatyShopHair == "Yes" then 
+            -- 타이틀 변경
+            if colorTitle ~= nil then
+                colorTitle:SetTextByKey("text", ClMsg('Status_Hair_Color') );
+            end
+
+            local startHairColorName =  TryGetProp(etc, "StartHairColorName")
+            local color = imcIES.GetString(nowHairCls, 'Color')
+
+            -- 한개만 그림.
+            local eachhairimg = customizingGBox:CreateOrGetControl('picture', 'hairColor_' .. startHairColorName,col_left_margin + (width * col), row_top_margin +  (height * row), width, height);
+            tolua.cast(eachhairimg, "ui::CPicture");
+
+            local colorimgname = GET_HAIRCOLOR_IMGNAME_BY_ENGNAME(startHairColorName)
+            eachhairimg:SetImage(colorimgname);
+            eachhairimg:SetTextTooltip(color)  
+           
+    -- 아니라면 가발이거나 구 기본헤어.
+    else
+        -- 타이틀 변경
+        if colorTitle ~= nil then
+            colorTitle:SetTextByKey("text", ClMsg('Status_Wig_Dye') );
+        end
+ 
+        for i = 0, Selectclasslist:Count() do
+            local eachcls = Selectclasslist:GetByIndex(i);
+            if eachcls ~= nil then
+                local eachengname = imcIES.GetString(eachcls, 'EngName')
+                if eachengname == nowPCHairEngName then
+
+                    local eachColorE = imcIES.GetString(eachcls, 'EngColor')
+                    local eachColor = imcIES.GetString(eachcls, 'Color')
+                    eachColorE = string.lower(eachColorE)
+
+                    -- 업적 받으면 헤어 컬러 사라지는 현상이 있다고 해서 HairColor 프로퍼티 값으로도 확인
+                    if TryGetProp(etc, "HairColor_" .. eachColorE) == 1 then
+                        haveHairColorList[#haveHairColorList + 1] = eachColor;
+                        haveHairColorEList[#haveHairColorEList + 1] = eachColorE;
+                    end
+                end
+            end
+        end
+        --코카트리스 헤드같은 경우 염색 리스트가 바뀌는 버그가 있어 재정렬하고 하고 아이콘을 생성해줘야한다
+	    SORT_HAIR_COLORLIST(hairColorBtn, haveHairColorList, haveHairColorEList)
+        SET_HAIR_COLOR_LIST(customizingGBox, row_top_margin, col_left_margin, select_margin, max_width, width, height, nowPCHairColor, haveHairColorList, haveHairColorEList)
+    end ]]--
+end
+
+function SET_HAIR_COLOR_LIST(gbox, row_top_margin, col_left_margin, select_margin, max_width, width, height, nowPCHairColor, haveHairColorList, haveHairColorEList)
+    if #haveHairColorList ~= #haveHairColorEList then
+        return;
+    end
+    local row = 1
+    local col = 0
+
+    -- row 변경 조건 검사
+    local temp_offset_x = col_left_margin + width * col;
+    local temp_max_width = temp_offset_x + width;
+    if temp_max_width >= max_width then
+        row = row +1
+        col = 0
+    end
+
+    for i = 1, #haveHairColorEList do
+        local eachColorE = haveHairColorEList[i];
+        local eachColor = haveHairColorList[i];
+        local eachhairimg = gbox:CreateOrGetControl('picture', 'hairColor_' .. eachColorE, col_left_margin + (width * col), row_top_margin +  (height * row), width, height);
+        tolua.cast(eachhairimg, "ui::CPicture");
+
+        local colorimgname = GET_HAIRCOLOR_IMGNAME_BY_ENGNAME(eachColorE)
+        eachhairimg:SetImage(colorimgname);
+        eachhairimg:SetTextTooltip(eachColor)
+        eachhairimg:SetEventScript(ui.LBUTTONDOWN, "REQ_CHANGE_HAIR_COLOR");
+        eachhairimg:SetEventScriptArgString(ui.LBUTTONDOWN, eachColorE);
+
+        -- 선택 이미지 표시.
+        if nowPCHairColor == eachColorE then
+            local selectedimg = gbox:CreateOrGetControl('picture', 'hairColor_Selected', col_left_margin + width * col, select_margin +  (height * row), width, height);
+            tolua.cast(selectedimg, "ui::CPicture");
+            selectedimg:SetImage('color_check');
+        end
+        col = col + 1
+    end
+end
+
+-- 캐릭터 설정 - 장착 가능한 칭호, 현재 칭호 버프 단계, 다음 단계까지 필요한 칭호 필요
+function STATUS_ACHIEVE_INIT()
+	local frame = ui.GetFrame("status");
+--     local achieveGbox = frame:GetChild('achieveGbox');
+--     local internalBox = achieveGbox:GetChild("internalBox");
+    local clslist, clscnt = GetClassList("Achieve");
+--     local accObj = GetMyAccountObj();
+--     local x = 10;
+--     local y = 10;
+
+    local equipAchieveName = pc.GetEquipAchieveName();
+--     for i = 0, clscnt - 1 do
+--         local cls = GetClassByIndexFromList(clslist, i);
+--         if cls == nil then
+--             break;
+--         end
+
+--         local Hidden = TryGetProp(cls, "Hidden", "No")
+--         local className = TryGetProp(cls, "ClassName", "None")
+--         if HAVE_ACHIEVE_FIND(cls.ClassID) == 1 or Hidden == "NO" or IS_UNLOCK_QUEST_STARTED(nil, className) == true then
+--             local nowpoint = GetAchievePoint(GetMyPCObject(), cls.NeedPoint);
+--             local ctrlset = internalBox:CreateOrGetControlSet('each_achieve', 'ACHIEVE_RICHTEXT_' .. i, x, y);
+--             tolua.cast(ctrlset, "ui::CControlSet");
+--             ctrlset:SetUserValue('ACHIEVE_ID', cls.ClassID);
+
+--             local NORMAL_SKIN = ctrlset:GetUserConfig("NORMAL_SKIN");
+--             local HAVE_SKIN = ctrlset:GetUserConfig("HAVE_SKIN");
+
+--             local gbox = GET_CHILD_RECURSIVELY(ctrlset, 'each_achieve_gbox')
+--             local desc_title = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_desctitle')
+--             local reward = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_reward')
+--             local gauge = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_gauge')
+--             local static_accomplishment = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_static_accomplishment')
+--             local accomplishment = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_accomplishment')
+--             local static_desc = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_static_desc')
+--             local desc = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_desc')
+--             local name = GET_CHILD_RECURSIVELY(ctrlset, 'achieve_name')
+--             local req_btn = GET_CHILD_RECURSIVELY(ctrlset, 'req_reward_btn')
+--             req_btn:ShowWindow(0);
+            
+--             --조건과 칭호의 위치를 텍스트 길이가 가장 긴 "달성도" 기준으로 맞춘다
+--             desc:SetOffset(static_desc:GetX() + static_accomplishment:GetWidth() + 10, desc:GetY())
+--             accomplishment:SetOffset(static_accomplishment:GetX() + static_accomplishment:GetWidth() + 10, accomplishment:GetY());
+--             gauge:SetOffset(static_accomplishment:GetX() + static_accomplishment:GetWidth() + 10, gauge:GetY());
+--             gauge:Resize(gbox:GetWidth() - static_accomplishment:GetWidth() -50, gauge:GetHeight());
+--             accomplishment:SetText("("..nowpoint.."/"..cls.NeedCount..")");
+
+--             local isHasAchieve = 0;
+--             if HAVE_ACHIEVE_FIND(cls.ClassID) == 1 and nowpoint >= cls.NeedCount then
+--                 isHasAchieve = 1;
+--             end
+
+--             if isHasAchieve == 1 then
+--                 if equipAchieveName ~= 'None' and equipAchieveName == cls.Name then
+--                     desc_title:SetText(cls.DescTitle .. ScpArgMsg('Auto__(SayongJung)'));
+--                 else
+--                     desc_title:SetText(cls.DescTitle);
+--                 end
+--                 gbox:SetSkinName(HAVE_SKIN);
+--             else
+--                 desc_title:SetText(cls.DescTitle);
+--                 gbox:SetSkinName(NORMAL_SKIN);
+--             end
+
+--             desc:SetText(cls.Desc);
+--             gauge:SetPoint(nowpoint, cls.NeedCount);
+--             name:SetTextByKey('name', cls.Name);
+--             reward:SetTextByKey('reward', cls.Reward);
+
+--             if isHasAchieve == 1 then
+--                 gauge:ShowWindow(0);
+--                 static_accomplishment:ShowWindow(0);
+--                 accomplishment:ShowWindow(0);
+--                 static_desc:SetOffset(static_desc:GetX(), static_accomplishment:GetY());
+--                 desc:SetOffset(desc:GetX(), static_desc:GetY());
+--                 local value = TryGetProp(accObj, "AchieveReward_"..cls.ClassName);
+--                 if value ~= nil and value == 0 then
+--                     req_btn:ShowWindow(1);
+--                 end
+--             else
+--                 gauge:ShowWindow(1);
+--                 static_accomplishment:ShowWindow(1);
+--                 accomplishment:ShowWindow(1);
+--             end
+
+--             local suby = desc:GetY() + desc:GetHeight() + 10;
+--             if cls.Name ~= 'None' then
+--                 name:ShowWindow(1);
+--                 name:SetOffset(name:GetX(), suby);
+--                 suby = name:GetY() + name:GetHeight() + 10;
+--             else
+--                 name:ShowWindow(0);
+--             end
+
+--             if cls.Reward ~= 'None' then
+--                 reward:ShowWindow(1)
+--                 reward:SetOffset(reward:GetX(), suby)
+--                 suby = reward:GetY() + reward:GetHeight() + 10
+--             else
+--                 reward:ShowWindow(0)
+--             end
+
+--             gbox:Resize(gbox:GetWidth(), suby);
+--             ctrlset:Resize(ctrlset:GetWidth(), gbox:GetHeight());
+--             y = y + ctrlset:GetHeight() + 10;
+--         end
+--     end
+ 
+--     local customizingGBox =  GET_CHILD_RECURSIVELY(frame, 'customizingGBox')
+--     STATUS_ACHIEVE_INIT_HAIR_COLOR(customizingGBox); -- 가발 염색 목록 보여주기
+--     DESTROY_CHILD_BYNAME(customizingGBox, "ACHIEVE_RICHTEXT_");
+    
+--     local index = 0; local x = 40; local y = 145;
+	local useableTitleList = GET_CHILD_RECURSIVELY(frame, "useableTitleList", "ui::CDropList");
+	useableTitleList:SelectItemByKey(config.GetXMLConfig("SelectAchieveKey"));
+	if equipAchieveName == nil or equipAchieveName == 'None' then
+		useableTitleList:ClearItems();
+    end
+    
+	local myAchieveCount = 0;
+	local myAchieveCount_ExceptPeriod = 0;
+	local currentAchieveCls = nil;
+	local nextAchieveCls = nil;
+    frame:SetUserValue("ShowNextStatReward", 0);
+    
+	local showNextStatRewardCheckBox = GET_CHILD_RECURSIVELY(frame, 'showNextStatReward');
+	showNextStatRewardCheckBox:SetCheck(0);
+	
+	local defaultTitleText = frame:GetUserConfig("DEFAULT_TITLE_TEXT");
+	useableTitleList:AddItem(0, defaultTitleText);
+	
+    for i = 0, clscnt - 1 do
+        local cls = GetClassByIndexFromList(clslist, i);
+        if cls == nil then 
+            break; 
+        end
+
+        local nowpoint = GetAchievePoint(GetMyPCObject(), cls.NeedPoint)
+        local isHasAchieve = 0;
+        if HAVE_ACHIEVE_FIND(cls.ClassID) == 1 and nowpoint >= cls.NeedCount then
+            isHasAchieve = 1;
+        end
+
+        if isHasAchieve == 1 and cls.Name ~= "None" then
+			local itemString = string.format("{@st42b}%s{/}", cls.Name);
+			useableTitleList:AddItem(i, itemString);
+			myAchieveCount = myAchieveCount + 1;
+			if TryGetProp(cls, 'PeriodAchieve', 'None') ~= "YES" then
+				myAchieveCount_ExceptPeriod = myAchieveCount_ExceptPeriod + 1
+			end
+        end
+    end
+
+	local nextAchieveCount = 0;
+	local list, cnt = GetClassList("AchieveStatReward");
+	for i = 0, cnt - 1 do
+		local cls = GetClassByIndexFromList(list, i);
+		if i + 1 <= cnt - 1 then
+			local achieveCount = cls.AchieveCount;
+			local tempNextAchieveCls = GetClassByIndexFromList(list, i + 1);
+			nextAchieveCount = tempNextAchieveCls.AchieveCount;
+			if achieveCount <= myAchieveCount_ExceptPeriod and myAchieveCount_ExceptPeriod < nextAchieveCount then
+				currentAchieveCls = cls;
+				nextAchieveCls = tempNextAchieveCls;
+				break;
+			end
+		else
+			currentAchieveCls = cls;
+			nextAchieveCls = cls;
+		end		
+	end
+	
+	local titleListStatic = GET_CHILD_RECURSIVELY(frame, "titleListStatic");
+	titleListStatic:SetTextByKey("value1", myAchieveCount);
+
+	local currentbuffText = GET_CHILD_RECURSIVELY(frame, "currentbuffText");
+	local nextbuffText = GET_CHILD_RECURSIVELY(frame, "nextbuffText");
+	if myAchieveCount_ExceptPeriod == 0 then
+		currentbuffText:SetTextByKey("value", 0);
+		nextbuffText:SetTextByKey("value", 1);
+    elseif myAchieveCount_ExceptPeriod >= 60 then
+        currentbuffText:SetTextByKey("value", currentAchieveCls.ClassID - 1);
+        nextbuffText:SetTextByKey("value", 0);
+	else
+		currentbuffText:SetTextByKey("value", currentAchieveCls.ClassID - 1);
+		nextbuffText:SetTextByKey("value", nextAchieveCount - myAchieveCount_ExceptPeriod);
+	end
+					
+	frame:SetUserValue("currentAchieveClassID", currentAchieveCls.ClassID);
+	frame:SetUserValue("nextAchieveClassID", nextAchieveCls.ClassID);
+	CHANGE_STAT_FONT(frame, 'STR', currentAchieveCls.STR_BM, 1);
+	CHANGE_STAT_FONT(frame, 'CON', currentAchieveCls.CON_BM, 1);
+	CHANGE_STAT_FONT(frame, 'INT', currentAchieveCls.INT_BM, 1);
+	CHANGE_STAT_FONT(frame, 'MNA', currentAchieveCls.MNA_BM, 1);
+	CHANGE_STAT_FONT(frame, 'DEX', currentAchieveCls.DEX_BM, 1);
+	CHANGE_STAT_FONT(frame, 'PATK', currentAchieveCls.PATK_BM, 1);
+	CHANGE_STAT_FONT(frame, 'MATK', currentAchieveCls.MATK_BM, 1);
+	CHANGE_STAT_FONT(frame, 'DEF', currentAchieveCls.DEF_BM, 1);
+	CHANGE_STAT_FONT(frame, 'MDEF', currentAchieveCls.MDEF_BM, 1);
+	CHANGE_STAT_FONT(frame, 'MSP', currentAchieveCls.MSP_BM, 1);
+	frame:Invalidate();
+end
+
+function SHOW_NEXT_STATS_REWARD(frame)
+	local frame = ui.GetFrame("status");
+	local currentAchieveClassID = frame:GetUserIValue("currentAchieveClassID")
+	local nextAchieveClassID = frame:GetUserIValue("nextAchieveClassID")
+
+	local isShowNext = frame:GetUserIValue("ShowNextStatReward")
+	if isShowNext == 0 then
+		local nextAchieveCls = GetClassByType("AchieveStatReward", nextAchieveClassID)
+		
+		CHANGE_STAT_FONT(frame, 'STR', nextAchieveCls.STR_BM)
+		CHANGE_STAT_FONT(frame, 'CON', nextAchieveCls.CON_BM)
+		CHANGE_STAT_FONT(frame, 'INT', nextAchieveCls.INT_BM)
+		CHANGE_STAT_FONT(frame, 'MNA', nextAchieveCls.MNA_BM)
+		CHANGE_STAT_FONT(frame, 'DEX', nextAchieveCls.DEX_BM)
+		CHANGE_STAT_FONT(frame, 'PATK', nextAchieveCls.PATK_BM)
+		CHANGE_STAT_FONT(frame, 'MATK', nextAchieveCls.MATK_BM)
+		CHANGE_STAT_FONT(frame, 'DEF', nextAchieveCls.DEF_BM)
+		CHANGE_STAT_FONT(frame, 'MDEF', nextAchieveCls.MDEF_BM)
+		CHANGE_STAT_FONT(frame, 'MSP', nextAchieveCls.MSP_BM)
+
+		frame:SetUserValue("ShowNextStatReward", 1)
+	elseif isShowNext == 1 then
+		local currentAchieveCls = GetClassByType("AchieveStatReward", currentAchieveClassID)
+		
+		CHANGE_STAT_FONT(frame, 'STR', currentAchieveCls.STR_BM)
+		CHANGE_STAT_FONT(frame, 'CON', currentAchieveCls.CON_BM)
+		CHANGE_STAT_FONT(frame, 'INT', currentAchieveCls.INT_BM)
+		CHANGE_STAT_FONT(frame, 'MNA', currentAchieveCls.MNA_BM)
+		CHANGE_STAT_FONT(frame, 'DEX', currentAchieveCls.DEX_BM)
+		CHANGE_STAT_FONT(frame, 'PATK', currentAchieveCls.PATK_BM)
+		CHANGE_STAT_FONT(frame, 'MATK', currentAchieveCls.MATK_BM)
+		CHANGE_STAT_FONT(frame, 'DEF', currentAchieveCls.DEF_BM)
+		CHANGE_STAT_FONT(frame, 'MDEF', currentAchieveCls.MDEF_BM)
+		CHANGE_STAT_FONT(frame, 'MSP', currentAchieveCls.MSP_BM)
+
+		frame:SetUserValue("ShowNextStatReward", 0)
+	end
+end
+
+--isInit 처음 창을 띄우는 경우인지를 판단하는 flag
+function CHANGE_STAT_FONT(frame, stat, value, isInit)
+	local currentAchieveClassID = frame:GetUserIValue("currentAchieveClassID")
+	local nextAchieveClassID = frame:GetUserIValue("nextAchieveClassID")
+	local changeStatFontname = frame:GetUserConfig("CHANGE_STAT_FONTNAME")
+	local defaultStatValueFontname = frame : GetUserConfig("DEFAULT_STAT_VALUE_FONTNAME")
+	local defaultStatNameFontname = frame : GetUserConfig("DEFAULT_STAT_NAME_FONTNAME")
+	local currentAchieveCls = GetClassByType("AchieveStatReward", currentAchieveClassID)
+	local nextAchieveCls = GetClassByType("AchieveStatReward", nextAchieveClassID)
+	local showNextStatReward = frame:GetUserIValue("ShowNextStatReward")
+
+	local text = value
+	text = '+' .. value
+
+	if isInit == 1 then
+		local statValue = GET_CHILD_RECURSIVELY(frame, stat .. '_VALUE')
+		statValue : SetTextByKey("value", text)
+		statValue : SetFontName(defaultStatValueFontname)
+		local statText = GET_CHILD_RECURSIVELY(frame, stat .. '_TEXT')
+		statText : SetFontName(defaultStatNameFontname)
+		return
+	end
+
+	if currentAchieveCls[stat .. '_BM'] ~= nextAchieveCls[stat .. '_BM'] and showNextStatReward == 0 then
+		local statValue = GET_CHILD_RECURSIVELY(frame, stat .. '_VALUE')
+		statValue:SetTextByKey("value", text)
+		statValue:SetFontName(changeStatFontname)
+		local statText = GET_CHILD_RECURSIVELY(frame, stat .. '_TEXT')
+		statText:SetFontName(changeStatFontname)
+	else
+		local statValue = GET_CHILD_RECURSIVELY(frame, stat .. '_VALUE')
+		statValue:SetTextByKey("value", text)
+		statValue:SetFontName(defaultStatValueFontname)
+		local statText = GET_CHILD_RECURSIVELY(frame, stat .. '_TEXT')
+		statText:SetFontName(defaultStatNameFontname)
+	end
+end
+
+function SELECT_ACHIEVE_TITLE(frame)
+	local useableTitleList = GET_CHILD_RECURSIVELY(frame, "useableTitleList")
+	local i = useableTitleList:GetSelItemKey()
+	local list, cnt = GetClassList("Achieve");
+	local cls = GetClassByIndexFromList(list, i);
+	config.ChangeXMLConfig("SelectAchieveKey", i);
+	ACHIEVE_EQUIP(frame, nil, nil, cls.ClassID)
+end
+
+function REQ_ACHIEVE_REWARD(frame, ctrl)
+    local achieveID = frame:GetUserIValue('ACHIEVE_ID');
+    session.ReqAchieveReward(achieveID);
+end
+
+function REQ_CHANGE_HAIR_COLOR(frame, ctrl, hairColorName)
+    item.ReqChangeHead(hairColorName);
+end
+
+function GET_HAIRCOLOR_IMGNAME_BY_ENGNAME(engname)
+    if engname == 'black' then
+        return "black_color"
+    end
+
+    if engname == 'blue' then
+        return "blue_color"
+    end
+
+    if engname == 'pink' then
+        return "peach_color"
+    end
+
+    if engname == 'white' then
+        return "white_color"
+    end
+
+    if engname == 'blond' then
+        return "blond_color"
+    end
+
+    if engname == 'red' then
+        return "red_color"
+    end
+
+    if engname == 'green' then
+        return "green_color"
+    end
+
+    if engname == 'gray' then
+        return "gray_color"
+    end
+
+    if engname == 'lightsalmon' then
+        return "lightsalmon_color"
+    end
+
+    if engname == 'purple' then
+        return "purple_color"
+    end
+
+    if engname == 'orange' then
+        return "orange_color"
+    end
+
+    if engname == 'midnightblue' then
+        return "midnightblue_color"
+    end
+    return "basic_color"
+end
+
+function GET_HAIRCOLOR_COLORTONE_BY_ENGNAME(engname)
+    if engname == 'black' then
+        return "FF111111"
+    end
+
+    if engname == 'blue' then
+        return "FF00FF00"
+    end
+
+    if engname == 'pink' then
+        return "FF000066"
+    end
+
+    if engname == 'white' then
+        return "FFFFFFFF"
+    end
+
+    return "default"
+
+end
+
+function STATUS_JOB_CHANGE(frame)
+    --[[
+	local logoutGBox = frame:GetChild("logoutGBox");
+	local logoutInternal = logoutGBox:GetChild("logoutInternal");
+	local makelogoutpc = GET_CHILD(logoutInternal, "makelogoutpc");
+	local totalJobGrade = session.GetPcTotalJobGrade();
+	if totalJobGrade >= 3 then
+		makelogoutpc:SetTextByKey("value", ClMsg("PossibleToUse"));
+	else
+		makelogoutpc:SetTextByKey("value", ClMsg("ImpossibleToUse"));
+	end
+	]]
+end
+
+-- 캐릭터 이름 변경
+function CHANGE_MYPC_NAME_BY_ITEM(invItem)
+    local newframe = ui.GetFrame("inputstring");
+    if invItem.isLockState then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"));
+        newframe:ShowWindow(0);
+        return;
+    end
+
+    local charName = GETMYPCNAME();
+    newframe:SetUserValue("InputType", "InputNameForChange");
+    newframe:SetUserValue("ItemIES", invItem:GetIESID());
+    newframe:SetUserValue("ItemType", "PcName");
+    INPUT_STRING_BOX(ClMsg("InputNameForChange"), "EXEC_CHANGE_NAME_BY_ITEM", charName, 0, 16);
+end
+
+-- 팀 이름 변경
+function CHANGE_TEAM_NAME_BY_ITEM(invItem)
+    local newframe = ui.GetFrame("inputstring");
+    if invItem.isLockState then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"));
+        newframe:ShowWindow(0);
+        return;
+    end
+
+    local charName = GETMYFAMILYNAME();
+    newframe:SetUserValue("InputType", "InputNameForChange");
+    newframe:SetUserValue("ItemIES", invItem:GetIESID());
+    newframe:SetUserValue("ItemType", "TeamName");
+    INPUT_STRING_BOX(ClMsg("ChangeFamilyName"), "EXEC_CHANGE_NAME_BY_ITEM", charName, 0, 16);
+end
+
+-- 길드 이름 변경
+function CHANGE_GUILD_NAME_BY_ITEM(invItem)
+    local newframe = ui.GetFrame("inputstring");
+    if invItem.isLockState then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"));
+        newframe:ShowWindow(0);
+        return;
+    end
+
+    local guild = session.party.GetPartyInfo(PARTY_GUILD);
+    if guild == nil then
+        newframe:ShowWindow(0);
+        return;
+    end
+
+    local charName = guild.info.name;
+    newframe:SetUserValue("InputType", "InputNameForChange");
+    newframe:SetUserValue("ItemIES", invItem:GetIESID());
+    newframe:SetUserValue("ItemType", "GuildName");
+    INPUT_STRING_BOX(ClMsg("ChangeGuildName"), "EXEC_CHANGE_NAME_BY_ITEM", charName, 0, 16);
+end
+
+function EXEC_CHANGE_NAME_BY_ITEM(inputframe, ctrl)    
+    if ctrl:GetName() == "inputstr" then
+        inputframe = ctrl;
+    end
+
+    local newframe = ui.GetFrame("inputstring");
+    local itemIES = nil;
+    local itemIES = newframe:GetUserValue("ItemIES");
+    local itemType = newframe:GetUserValue("ItemType");
+    local changedName = GET_INPUT_STRING_TXT(newframe);
+    if ui.IsValidCharacterName(changedName) == false then        
+        return;
+    end
+	
+	local charName = nil;
+	if itemType == "PcName" then
+		charName = GETMYPCNAME(); 
+	elseif itemType == "TeamName" then
+		charName = GETMYFAMILYNAME();
+	elseif itemType == "GuildName" then
+		local guild = session.party.GetPartyInfo(PARTY_GUILD);
+		if guild == nil then
+			inputframe:ShowWindow(0);
+			return;
+		end
+        charName = guild.info.name;
+    elseif itemType == "Companionhire" then
+	else return; end
+    
+	if changedName == charName then
+		ui.SysMsg(ClMsg("SameName"));
+		return;
+    end
+    
+    if itemType == "TeamName" then
+        pc.CheckUseName(itemType, changedName, "ENABLE_CHANGE_TEAM_NAME_BY_ITME");
+    elseif itemType == "GuildName" then
+        pc.CheckUseName(itemType, changedName, "ENABLE_CHANGE_GUILD_NAME_BY_ITME");
+    else
+        OPEN_CHECK_USER_MIND_BEFOR_YES_BY_ITEM(inputframe, changedName, itemIES, itemType);
+    end
+end
+
+function ENABLE_CHANGE_TEAM_NAME_BY_ITME(frame, msg, argStr, result)
+    if result ~= 0 then
+        if result == -1 or result == -12 or result == -14 or result == -15 or result == -21 or result == -11 or result == -13 or result == -2 then
+			ui.SysMsg(ClMsg("AlreadyorImpossibleName"));
+	    else
+			ui.SysMsg(ClMsg("TeamNameChangeFailed"));
+		end
+
+        return;
+    end
+    local inputframe = ui.GetFrame("inputstring");
+    local itemIES = inputframe:GetUserValue("ItemIES");
+    local itemType = inputframe:GetUserValue("ItemType");
+    local changedName = GET_INPUT_STRING_TXT(inputframe);
+    OPEN_CHECK_USER_MIND_BEFOR_YES_BY_ITEM(inputframe, changedName, itemIES, itemType);
+end
+
+function ENABLE_CHANGE_GUILD_NAME_BY_ITME(frame, msg, argStr, argNum)
+    local inputframe = ui.GetFrame("inputstring");
+    local itemIES = inputframe:GetUserValue("ItemIES");
+    local itemType = inputframe:GetUserValue("ItemType");
+    local changedName = GET_INPUT_STRING_TXT(inputframe);
+    OPEN_CHECK_USER_MIND_BEFOR_YES_BY_ITEM(inputframe, changedName, itemIES, itemType);
+end
+
+function STATUS_UPDATE_EXP_UP_BOX(frame, msg, argStr, argNum)
+    local expupGBox = GET_CHILD_RECURSIVELY(frame, 'expupGBox');
+    SETEXP_SLOT(expupGBox, argStr, argNum);
+end
+
+function ON_HAIR_COLOR_CHANGE(frame, msg, argStr, argNum)
+    local colorItemCls = GetClass('Item', argStr);
+    local hairCls = GET_HAIR_CLASS_C(colorItemCls.StringArg);
+    local colorName = imcIES.GetString(hairCls, 'Color')    
+    local yesscp = string.format('item.ReqChangeHead("%s")', imcIES.GetString(hairCls, 'EngColor'));
+    ui.MsgBox(ScpArgMsg('Hair_Color_Change{COLOR}', 'COLOR', colorName), yesscp, 'None');
+end
+
+function GET_HAIR_CLASS_C(engName)
+    local pc = GetMyPCObject()
+	local PartClass = imcIES.GetClass("CreatePcInfo", "Hair");
+	local GenderList = PartClass:GetSubClassList();
+	local Selectclass   = GenderList:GetClass(pc.Gender);
+	local Selectclasslist = Selectclass:GetSubClassList();
+    for i = 0, Selectclasslist:Count() do
+        local eachcls = Selectclasslist:GetByIndex(i);
+        if eachcls ~= nil then
+            local colorE = imcIES.GetString(eachcls, 'EngColor');
+            if colorE == engName then
+                return eachcls;
+            end
+        end
+    end
+    return nil;
+end
+
+function SCR_PC_PROPERTY_UPDATE_DETAIL(frame, msg, propertyName, argNum)
+    local pc = GetMyPCObject();
+    local gboxctrl2 = frame:GetChild('statusGbox');
+    local gboxctrl = GET_CHILD(gboxctrl2, 'internalstatusBox');
+    local controlSet = gboxctrl:GetControlSet('status_stat', propertyName);
+	local y = 0;
+	if controlSet ~= nil then y = controlSet:GetY(); end
+    if propertyName == "CastingSpeed" then
+        STATUS_ATTRIBUTE_VALUE_WITH_PERCENT_SYMBOL(pc, nil, frame, gboxctrl, propertyName, y);
+    else
+        STATUS_ATTRIBUTE_VALUE_NEW(pc, nil, frame, gboxctrl, propertyName, y);
+    end
+end
+
+function STATUS_OPEN_CLASS_DROPLIST(parent, ctrl)
+    local mainSession = session.GetMainSession();
+	local pcJobInfo = mainSession:GetPCJobInfo();
+	local jobCount = pcJobInfo:GetJobCount();	
+    local droplistframe = ui.MakeDropListFrame(ctrl, -330, 0, 400, 300, jobCount, ui.CENTER_HORZ, 'STATUS_SELET_REPRESENTATION_CLASS', nil, nil);
+	for i = 0, jobCount - 1 do
+        local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
+        local jobCls = GetClassByType('Job', jobInfo.jobID);        
+        ui.AddDropListItem(jobCls.Name, nil, jobCls.ClassID);
+    end
+end
+
+function STATUS_SELET_REPRESENTATION_CLASS(selectedIndex, selectedKey)
+    ChangeRepresentationClass(selectedKey);
+end
+
+function ON_UPDATE_REPRESENTATION_CLASS_ICON(frame, msg, argStr, representationID)    
+    local LevJobText = GET_CHILD_RECURSIVELY(frame, 'LevJobText');
+    local jobCls = GetClassByType('Job', representationID);
+    local gender = info.GetGender(session.GetMyHandle());
+    local jName = GET_JOB_NAME(jobCls, gender);
+    local lvText = jName;
+    local etc = GetMyEtcObject();
+    etc.RepresentationClassID = tostring(representationID);
+    LevJobText:SetText('{@st41}{s20}' .. lvText);
+end
+
+------------------------------ 말풍선 스킨 ------------------------------
+-- 말풍선 스킨 droplist 초기화, 갱신
+function CHATBALLOON_INIT(frame)
+    local frame = ui.GetFrame("status");
+	local defaultTitleText = frame:GetUserConfig("DEFAULT_TITLE_TEXT");
+
+	local chatballoonskin_list = GET_CHILD_RECURSIVELY(frame, "chatballoonskin_list", "ui::CDropList");
+    chatballoonskin_list:EnableHitTest(1);
+	chatballoonskin_list:ClearItems();
+    chatballoonskin_list:AddItem(1, defaultTitleText);
+
+    local chatballoonSkinlist, cnt = GetClassList('Chat_Balloon');
+	if chatballoonSkinlist == nil then
+		return;
+    end
+
+    local myskinClassID = session.chatballoonskin.GetChatBalloonSkin();
+	for i = 0, cnt - 1 do
+        local cls = GetClassByIndexFromList(chatballoonSkinlist, i);
+        local skinData = session.chatballoonskin.GetChatBalloonSkinDataByClassID(cls.ClassID);
+        if skinData ~= nil then
+            local balloonCls = GetClassByType('Chat_Balloon', skinData.skinID);
+            if balloonCls ~= nil then
+                local caption = "{@st42b}"..balloonCls.Name;
+                if skinData.endTime.wYear ~= 2999 then
+                    caption = caption .. " ("..ClMsg("LimitTime").. ")";
+                end
+                chatballoonskin_list:AddItem(skinData.skinID, caption);
+            end
+		end
+    end
+
+    if chatballoonskin_list:SelectItemByKey(myskinClassID) == true then
+        -- 현재 적용 말풍선 스킨 선택, 아이콘 툴팁 정보 설정
+        ON_SET_MY_CHATBALLOON_SKIN(frame, "", "", myskinClassID);
+    end
+
+end
+
+-- 적용중인 말풍선 스킨 변경
+function CHANGE_CHATBALLOON_SKIN(frame, ctrl)
+    local key = ctrl:GetSelItemKey();
+    local myskinClassID = session.chatballoonskin.GetChatBalloonSkin();
+
+    if tonumber(key) == myskinClassID then
+        return;
+    end
+
+    ctrl:EnableHitTest(0);
+    SetChatBalloonSkin(key);
+end
+
+-- 말풍선 스킨 적용 완료
+function ON_SET_MY_CHATBALLOON_SKIN(frame, msg, argStr, ClassID)
+    local frame = ui.GetFrame("status");
+
+    local chatballoonskin_slot = GET_CHILD_RECURSIVELY(frame, "chatballoonskin_slot");
+    chatballoonskin_slot:ClearIcon();
+    chatballoonskin_slot:SetFrontImage('None');
+    
+    local ctrl = GET_CHILD_RECURSIVELY(frame, "chatballoonskin_list");
+    local balloonCls = GetClassByType('Chat_Balloon', ClassID);
+    if ClassID == 1 or balloonCls == nil then   -- ClassID = 1 -> 기본 말풍선
+       chatballoonskin_slot:EnableHitTest(0);
+       ctrl:EnableHitTest(1);
+       return;
+    end
+
+    -- 아이콘 변경
+    local iconName = TryGetProp(balloonCls, "Icon", "None")
+    if iconName ~= "None" then
+        chatballoonskin_slot:EnableHitTest(1);
+        SET_SLOT_ICON(chatballoonskin_slot, iconName);
+        local icon = chatballoonskin_slot:GetIcon();
+        local isLimitTime = 0;   -- 기간제 아이템인지 0 : 무제한, 1 : 기간제
+        
+        local skinData = session.chatballoonskin.GetChatBalloonSkinDataByClassID(ClassID);
+        if skinData ~= nil then
+            if skinData.endTime.wYear ~= 2999 then
+                isLimitTime = 1;
+
+                -- 남은 시간
+                local difSec = GET_REMAIN_CHATBALLOON_SKIN_SEC(ClassID);
+                chatballoonskin_slot:SetFrontImage('clock_inven');
+                icon:SetDrawLifeTimeText(0);
+                icon:SetUserValue("REMAINSEC", difSec);
+                icon:SetUserValue("STARTSEC", imcTime.GetAppTime());
+                icon:SetDrawLifeTimeText(1);
+                icon:SetOnLifeTimeUpdateScp('ICON_UPDATE_CHATBALLOON_REMAIN_LIFETIME');                    
+            end
+        end        
+        
+        -- 툴팁 관련 내용    
+        icon:SetTooltipType("chatballoon_skin_info");
+        icon:SetTooltipArg(ClassID, isLimitTime, 0);
+        icon:SetTooltipOverlap(0);
+    end
+
+    ctrl:EnableHitTest(1);
+end
+
+-- 말풍선 스킨 툴팁 업데이트
+function UPDATE_CHATBALLOON_SKIN_INFO(tooltipframe, skinClassID, isLimitTime)
+    tolua.cast(tooltipframe, "ui::CTooltipFrame");
+    local balloonCls = GetClassByType('Chat_Balloon', skinClassID);
+
+    -- 아이템 이름 세팅
+    local name = GET_CHILD(tooltipframe, "nametext", "ui::CRichText");
+
+    name:SetTextByKey("itemname", balloonCls.Name);
+	name:AdjustFontSizeByWidth(name:GetWidth());
+    name:SetTextAlign("center","center");
+    
+    -- 미리보기
+    local previewPic = GET_CHILD(tooltipframe, "previewPic", "ui::CPicture");
+    previewPic:SetImage(balloonCls.SkinPreview);
+    local lifetimegb = GET_CHILD(tooltipframe, "lifetimegb", "ui::CGroupBox");
+    lifetimegb:RemoveChild('tooltip_lifeTimeinfo');	
+    tooltipframe:Resize(tooltipframe:GetOriginalWidth(), tooltipframe:GetOriginalHeight());
+    if isLimitTime == 1 then
+        -- 기간제
+        local difSec = GET_REMAIN_CHATBALLOON_SKIN_SEC(skinClassID);
+        local tooltip_lifeTimeinfo_CSet = lifetimegb:CreateControlSet('tooltip_lifeTimeinfo', 'tooltip_lifeTimeinfo', 0, 0);
+        tolua.cast(tooltip_lifeTimeinfo_CSet, "ui::CControlSet");
+        local lifeTime_text = GET_CHILD(tooltip_lifeTimeinfo_CSet,'lifeTime','ui::CRichText');
+            
+        lifeTime_text:SetUserValue("REMAINSEC", difSec);
+        lifeTime_text:SetUserValue("STARTSEC", imcTime.GetAppTime());
+        lifeTime_text:RunUpdateScript("SHOW_CHATBALLOON_SKIN_REMAIN_LIFE_TIME");
+
+        lifetimegb:Resize(tooltip_lifeTimeinfo_CSet:GetWidth(), tooltip_lifeTimeinfo_CSet:GetHeight() + 5);        
+        tooltipframe:Resize(tooltipframe:GetWidth(), tooltipframe:GetOriginalHeight() + lifetimegb:GetHeight());
+    end
+end
+
+-- 말풍선 스킨 남은 시간 체크 - 슬롯 아이콘
+function ICON_UPDATE_CHATBALLOON_REMAIN_LIFETIME(icon)
+	if icon == nil then
+		return 0;
+    end
+    
+    local elapsedSec = imcTime.GetAppTime() - icon:GetUserIValue("STARTSEC");
+    local startSec = icon:GetUserIValue("REMAINSEC");
+    startSec = startSec - elapsedSec;
+    if 0 > startSec then
+        return 0;
+    end
+
+	return startSec;
+end
+
+-- 말풍선 스킨 남은 시간 체크 - 툴팁
+function SHOW_CHATBALLOON_SKIN_REMAIN_LIFE_TIME(ctrl)
+	local elapsedSec = imcTime.GetAppTime() - ctrl:GetUserIValue("STARTSEC");
+	local startSec = ctrl:GetUserIValue("REMAINSEC");
+    startSec = startSec - elapsedSec;
+	if 0 > startSec then
+		ctrl:SetFontName("red_18");
+        ctrl:StopUpdateScript("SHOW_CHATBALLOON_SKIN_REMAIN_LIFE_TIME");        
+        ctrl:SetTextByKey("p_LifeTime", ClMsg("TimeExpired"));
+        return 0;
+	end 
+    
+	local timeTxt = GET_TIME_TXT(startSec);
+    ctrl:SetTextByKey("p_LifeTime", timeTxt);
+    
+	return 1;
+end
+------------------------------ 말풍선 스킨 ------------------------------
+-- ** hud skin ** --
+function HUD_SKIN_INIT(frame)
+    if frame == nil then return; end
+    local list_hud_skin = GET_CHILD_RECURSIVELY(frame, "list_hud_skin", "ui::CDropList");
+    local selectItemIndex = 0;
+    if list_hud_skin ~= nil then
+        list_hud_skin:EnableHitTest(1);
+        list_hud_skin:ClearItems();
+        -- default item
+        local item_index = 1;
+        local default_text = frame:GetUserConfig("DEFAULT_TITLE_TEXT");
+        list_hud_skin:AddItem(item_index, default_text, -1);
+        item_index = item_index + 1;
+        -- skin item
+        local count = hud_skin.GetHudGradeCount(); 
+        local select_grade_name = hud_skin.GetSelectHudGradeName();
+        for i = 0, count - 1 do
+            local grade_name = hud_skin.GetHudGradeNameByIndex(i);
+            if grade_name ~= "" and grade_name ~= "None" then
+                local msg = ClMsg(grade_name);
+                list_hud_skin:AddItem(item_index, msg, i);
+                if select_grade_name ~= "None" then
+                    if select_grade_name == grade_name then
+                        list_hud_skin:SelectItem(item_index - 1);   
+                        selectItemIndex = i;          
+                    end
+                end
+                item_index = item_index + 1;
+            end
+        end
+        -- select skin
+        HUD_SKIN_APPLY(frame, nil, select_grade_name, selectItemIndex);
+    end
+end
+
+-- select
+function SELECT_HUD_SKIN(frame)
+if frame == nil then return; end
+    local list_hud_skin = GET_CHILD_RECURSIVELY(frame, "list_hud_skin");
+    if list_hud_skin ~= nil then
+        local item_value = list_hud_skin:GetSelItemValue();
+        if item_value < 0 then
+            -- 스킨 제거.
+            HUD_SKIN_APPLY(frame, nil, "Default", 0)    
+            addon.BroadMsg("HUD_SKIN_APPLY","Default",0);
+ 
+        elseif item_value >= 0 then
+            -- 등급별 스킨 적용.
+            local grade_name = hud_skin.GetHudGradeNameByIndex(item_value);
+            HUD_SKIN_APPLY(frame, nil, grade_name, item_value);
+            addon.BroadMsg("HUD_SKIN_APPLY", item_value, 0);
+        end
+        addon.BroadMsg("STAT_UPDATE", "",0);
+
+    end
+end
+
+-- apply
+function HUD_SKIN_APPLY(frame, msg, arg_str, arg_num)
+    if frame == nil or arg_str == nil then return; end
+    if arg_num == nil then
+        return;
+    end
+    local grade_name = arg_str;
+    if grade_name ~= "" and grade_name ~= "None" then
+        hud_skin.ApplyHudSkin(arg_num);
+    end
+    HUD_SKIN_TIME_INFO_UPDATE(frame, arg_num)
+end
+
+function STATUS_RESET_LBTN(parent,self)
+    local yesscp = string.format('STATUS_RESET_EXEC()')
+    local msgbox = ui.MsgBox(ScpArgMsg('ResetStatPointFreeUntil', 'name', PC_MAX_LEVEL),yesscp,'')
+    SET_MODAL_MSGBOX(msgbox)
+
+end
+
+function STATUS_RESET_EXEC()
+    pc.ReqExecuteTx_Item("SCR_USE_STAT_RESET", '0', '')
+end
+
+function HUD_SKIN_TIME_INFO_UPDATE(frame, index)
+    local hudskin_slot = GET_CHILD_RECURSIVELY(frame, "hudskin_slot", "ui::CSlot");
+
+    if hudskin_slot ~= nil then
+        hudskin_slot:ClearIcon();
+        hudskin_slot:SetFrontImage('None');
+
+        local HUD_SKIN_Cls = GetClassByIndex('hud_skin_list', index);
+        local iconName = TryGetProp(HUD_SKIN_Cls, "IconName", "None")
+        local AccProp = TryGetProp(HUD_SKIN_Cls, "AccountProperty", "None");
+        if iconName ~= "None" then
+
+            hudskin_slot:EnableHitTest(1);
+            SET_SLOT_ICON(hudskin_slot, iconName);
+            local icon = hudskin_slot:GetIcon();
+            local pc = GetMyPCObject();
+            if pc == nil then
+                return;
+            end
+            local acc = GetMyAccountObj(pc);
+            if acc == nil then
+                return;
+            end
+            if acc ~= nil then
+                local SkinDate = TryGetProp(acc, AccProp, "None");
+                if SkinDate ~= nil and SkinDate ~= "None" then
+
+                    local sysTime = geTime.GetServerSystemTime();
+                    local endTime = imcTime.GetSysTimeByStr(SkinDate);
+                    local difSec = imcTime.GetDifSec(endTime, sysTime);
+
+                    hudskin_slot:SetFrontImage('clock_inven');
+                    icon:SetDrawLifeTimeText(0);
+                    icon:SetUserValue("REMAINSEC", difSec);
+                    icon:SetUserValue("STARTSEC", imcTime.GetAppTime());
+                    icon:SetDrawLifeTimeText(1);
+                    icon:SetOnLifeTimeUpdateScp('ICON_UPDATE_CHATBALLOON_REMAIN_LIFETIME');                   
+                end
+            end
+        end
+    end
+
+end

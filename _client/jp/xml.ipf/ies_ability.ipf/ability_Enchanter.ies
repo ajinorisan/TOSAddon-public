@@ -1,0 +1,9 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+101,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter9","UNLOCK_ABIL_SKILL","Enchanter_EnchantGlove","인챈트 글로브 1레벨 이상","ABIL_REINFORCE_PRICE"
+201,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter10","UNLOCK_ABIL_SKILL","Enchanter_Agility","어질리티 1레벨 이상","ABIL_REINFORCE_PRICE"
+301,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter11","UNLOCK_ABIL_SKILL","Enchanter_EnchantLightning","인챈트 웨폰 1레벨 이상","ABIL_REINFORCE_PRICE"
+401,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter12","UNLOCK_ABIL_SKILL","Enchanter_EnchantEarth","인챈트 어스 1레벨 이상","ABIL_REINFORCE_PRICE"
+402,300,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter3","UNLOCK_BASE_LEVEL","","캐릭터 300레벨 이상","ABIL_COMMON_PRICE_300LV"
+403,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter17","UNLOCK_ABIL_SKILL","Enchanter_EnchantAura","인챈트 아우라 1레벨 이상","ABIL_REINFORCE_PRICE"
+1001,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter15","UNLOCK_ABIL_JOB_LEVEL","Char5_8","인챈터 클래스 45레벨 이상","HIDDENABIL_PRICE_COND_JOBLEVEL"
+1101,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Enchanter18","UNLOCK_ABIL_OTHERABILITY","Enchanter17","[인챈트 아우라: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

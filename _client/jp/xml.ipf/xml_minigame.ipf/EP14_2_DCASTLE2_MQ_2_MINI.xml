@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP14_2_DCASTLE2_MQ_2_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59749" Pos="248.45#95.68#-265.60" angle="-2" genCount="1" objectKey="1" tendency="1"/>
+                    <Obj Type="Monster" MonType="59744" Pos="285.85#95.68#-336.85" angle="-163" genCount="1" objectKey="6" tendency="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="MON_Gen">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="DefGroup/1/DefGroup/0/DefGroup/2/DefGroup/5/DefGroup/6"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="15"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="DefGroup/1/DefGroup/0/DefGroup/2/DefGroup/5/DefGroup/6"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

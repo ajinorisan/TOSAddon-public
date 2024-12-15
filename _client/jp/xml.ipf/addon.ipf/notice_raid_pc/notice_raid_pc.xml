@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="notice_raid_pc" x="0" y="0" width="200" height="100" create="open">
+	<frame title="notice_raid_pc" layout_gravity="center center" margin="0 0 0 0"/>
+	<skin frameskin="none"/>
+	<layer layerlevel="20"/>
+	<draw drawtitlebar="false" drawnotitlebar="false"/>
+	<option hideable="false" closebutton="false"/>
+	<userconfig COLD_BLAST_ICON_WIDTH="55" COLD_BLAST_ICON_HEIGHT="100" ENCHANTMENT_ICON_WIDTH="55" ENCHANTMENT_ICON_HEIGHT="55" SINGLE_ICON_START_X="67" COUPLE_ICON_START_X="50" DEFAULT_WIDTH="200"/>
+	<controls>
+		<groupbox name="gbox" rect="0 0 200 100" hittest="false" hittestbox="false" margin="0 0 0 0" layout_gravity="left top" draw="false" scrollbar="false" fixheight="false"/>
+	</controls>
+</uiframe>

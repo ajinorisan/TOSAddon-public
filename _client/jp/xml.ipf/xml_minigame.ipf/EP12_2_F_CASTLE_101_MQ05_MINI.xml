@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP12_2_F_CASTLE_101_MQ05_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="1115228497">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59526" Pos="-1020.53#52.93#-981.73" angle="132" genCount="8" maxStackCount="1" genTime="10000" genReadyTime="10000" objectKey="0" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59524" Pos="-982.31#52.93#-845.76" angle="-175" genCount="18" maxStackCount="1" genTime="5000" genReadyTime="5000" objectKey="1" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59523" Pos="-948.21#52.93#-899.77" angle="-166" genCount="18" maxStackCount="1" genTime="5000" objectKey="2" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59524" Pos="-1122.75#52.93#-969.14" angle="75" genCount="18" maxStackCount="1" genTime="5000" genReadyTime="5000" objectKey="3" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59523" Pos="-1075.43#52.93#-997.85" angle="82" genCount="18" maxStackCount="1" genTime="5000" objectKey="4" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59525" Pos="-1037.03#52.93#-914.82" angle="134" genCount="18" maxStackCount="1" genTime="5000" objectKey="5" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59523" Pos="-1001.37#52.93#-768.52" angle="-135" genCount="18" maxStackCount="1" genTime="5000" objectKey="6" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59523" Pos="-1205.48#52.93#-923.79" angle="36" genCount="18" maxStackCount="1" genTime="5000" objectKey="8" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59524" Pos="-945.35#52.93#-795.05" angle="-156" genCount="18" maxStackCount="1" genTime="5000" genReadyTime="5000" objectKey="10" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59524" Pos="-1184.69#52.93#-979.60" angle="50" genCount="18" maxStackCount="1" genTime="5000" genReadyTime="5000" objectKey="11" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59525" Pos="-1126.25#52.93#-999.33" angle="134" genCount="18" maxStackCount="1" genTime="5000" objectKey="12" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59525" Pos="-933.07#52.93#-851.47" angle="134" genCount="18" maxStackCount="1" genTime="5000" objectKey="13" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59526" Pos="-977.93#52.93#-937.07" angle="132" genCount="8" maxStackCount="1" genTime="10000" genReadyTime="10000" objectKey="7" propList="&apos;SimpleAI&apos; &apos;MQ05_MINI_BOWER_BATTLE_AI&apos; " tendency="1"/>
+                </ObjList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

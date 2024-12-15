@@ -1,0 +1,9 @@
+ClassID,ClassName,Name,SkinName,AccountProperty,EffectName
+1,"DmgFont_0001","기본 폰트","Normal","dmg_font_001","I_SYS_damage"
+2,"DmgFont_0002","흰 꽃잎","WhiteFlower","dmg_font_002","I_SYS_damage_green_flower"
+3,"DmgFont_0003","외곽선","OutLine","dmg_font_003","I_SYS_damage_05_outline"
+4,"DmgFont_0004","펑크","Punk","dmg_font_004","I_SYS_damage_05_punk"
+5,"DmgFont_0005","여신","Goddess","dmg_font_005","I_SYS_damage_06"
+6,"DmgFont_0006","벚꽃","Sakura","dmg_font_006","I_SYS_damage_07"
+7,"DmgFont_0007","마신","Devil","dmg_font_007","I_SYS_damage_08"
+8,"DmgFont_0008","슬래시","Slash","dmg_font_008","I_SYS_damage_09"

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by tachyon (EMBRACE) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<SkinList>
+	<HUDName ClassName="HeadsupDisplay" FrameName="headsupdisplay">
+		<hp Name="hp" Parts="HP" Control="Gauge"/>
+		<sp Name="sp" Parts="SP" Control="Gauge"/>
+		<sta Name="sta" Parts="STA" Control="Gauge"/>
+		<rp Name="rp" Parts="RP2" Control="Gauge"/>
+		<hp_relic Name="hp_relic" Parts="HP2" Control="Gauge"/>
+		<sp_relic Name="sp_relic" Parts="SP2" Control="Gauge"/>
+		<sta_relic Name="sta_relic" Parts="STA2" Control="Gauge"/>
+		<leftpic Name="myclasspic" Parts="L" Control="Pic"/>
+		<rightpic Name="myhpspright" Parts="R" Control="Pic"/>
+		<soulCrystal_bg Name="soulCrystal_bg" Parts="soulCrystal_bg" Control="Pic"/>
+	</HUDName>
+	<HUDName ClassName="charbaseinfo1_my" FrameName="charbaseinfo1_my">
+		<pcinfoL Name="pcinfo_bg_L" Parts="pcinfo_L2" Control="Pic"/>
+		<pcinfoR Name="pcinfo_bg_R" Parts="pcinfo_R2" Control="Pic"/>
+		<basehp Name="pcHpGauge" Parts="pcinfo_hp2" Control="Gauge"/>
+		<basesp Name="pcSpGauge" Parts="pcinfo_sp2" Control="Gauge"/>
+		<basesta Name="pcStaGauge" Parts="pcinfo_sta2" Control="Gauge"/>
+	</HUDName>
+	<HUDName ClassName="charbaseinfo1" FrameName="charbaseinfo1">
+		<pcinfoL Name="pcinfo_bg_L" Parts="pcinfo_L" Control="Pic"/>
+		<pcinfoR Name="pcinfo_bg_R" Parts="pcinfo_R" Control="Pic"/>
+		<basehp Name="pcHpGauge" Parts="pcinfo_hp" Control="Gauge"/>
+		<basesp Name="pcSpGauge" Parts="pcinfo_sp" Control="Gauge"/>
+	</HUDName>
+	<HUDName ClassName="PartyInfo" FrameName="PartyInfo">
+		<jobBG Name="jobBG" Parts="party" Control="Pic"/>
+	</HUDName>
+	
+</SkinList>

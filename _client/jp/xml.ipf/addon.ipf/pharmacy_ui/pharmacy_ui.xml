@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="pharmacy_ui" x="0" y="0" width="1790" height="852">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame title="{@st43}비약 연성술{/}" layout_gravity="center center" margin="0 0 0 0" fullheight="false" fasthide="true" open=""/>
+	<input moveable="true"/>
+	<layer layerlevel="96"/>
+	<option closebutton="false"/>
+	<sound opensound="window_mohum_open" closesound="window_mohum_close"/>
+	<script OpenScp="OPEN_PHARMACY_UI" CloseScp="CLOSE_PHARMACY_UI"/>
+	<userconfig POS_IMG="alchemy_chessman" GOAL_IMG="alchemy_question_mark" HURDLE_IMG="alchemy_question_obstacle" MOVE_IMG="alchemy_partition_move" EMPTY_POTION_IMG="alchemy_neutralization_portion" REWARD_POTION_IMG="alchemy_complete_portion" NEUTRALIZE_POTION_IMG="alchemy_neutralization_toxicity" MAT_REGISTER_SOUND="sys_pharmacy_grinder_equip" WHEEL_START_SOUND="sys_pharmacy_grinder_button" WHEEL_RUN_SOUND="sys_pharmacy_grinder_loop" MOVE_SOUND="sys_mouseover_percussion_1" ARRIVED_SOUND="exp_slot1_shot" EXTRACTOR_RUN_SOUND="sys_pharmacy_grinder_water"/>
+	<controls>
+	<!-- head -->
+		<groupbox name="bg_main" rect="0 0 1790 852" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="alchemy_notebg" skin="None"/>
+		<button name="close" rect="0 0 44 44" margin="0 5 85 0" layout_gravity="right top" LBtnUpScp="CLOSE_UI" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}비약 연성술 창을 닫습니다{/}"/>
+		<button name="help_btn" rect="0 0 44 44" margin="0 5 120 0" layout_gravity="right top" LBtnUpScp="PHARMACY_UI_HELP_POP" clicksound="button_click_big" image="testquesten_button" oversound="button_over" texttooltip="{@st59}비약 연성술 도움말을 보려면 클릭하세요{/}"/>
+		<groupbox name="main_gb" rect="0 0 1585 762" margin="90 30 0 0" layout_gravity="left top" draw="false" resizebyresolution="false" scrollbar="false" skin="test_weight_skin"/>
+		<!-- map and count -->
+		<groupbox name="map_count_bg" parent="main_gb" rect="0 0 630 716" margin="97 25 0 0" layout_gravity="left top" draw="true" resizebyresolution="false" scrollbar="false" skin="None" image="alchemy_parchment_bg"/>
+		<richtext name="recipe_remaintime" parent="map_count_bg" margin="0 40 0 0" rect="0 0 120 24" format="{@st43}{s18}남은 시간 ({@st47}{s18}%s{/}{/}){/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>
+		<groupbox name="slotset_gb" parent="map_count_bg" rect="0 0 435 435" margin="-5 87 0 0" layout_gravity="center top" draw="true" resizebyresolution="false" scrollbar="false" skin="alchemy_parchment_range_in"/>
+		<slotset name="slotset_19" parent="slotset_gb" rect="0 0 437 437" margin="0 0 0 0" layout_gravity="center center" cursoronresize="false" dropsound="icon_get_down" enablepop="false" enabledrop="false" enableshowempty="true" enableselect="false" enabledrag="false" hideindrag="true" maxselect="8" movepop="false" col="19" row="19" size="23 23" skin="None" image="alchemy_partition_square" spc="0 0"/>
+		<groupbox name="slotset_out_bg" parent="map_count_bg" rect="0 0 435 435" margin="-5 87 0 0" layout_gravity="center top" draw="true" resizebyresolution="false" scrollbar="false" skin="alchemy_parchment_range_out"/>
+		<groupbox name="count_gb" parent="map_count_bg" margin="0 0 0 30" rect="0 0 400 100" layout_gravity="center bottom" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="test_weight_skin"/>
+		<groupbox name="reward_count_gb" parent="count_gb" margin="10 10 0 0" rect="0 0 375 28" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="alchemy_title_status_board"/>
+		<groupbox name="reward_count_bg" parent="reward_count_gb" margin="0 0 0 0" rect="0 0 128 28" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="alchemy_title_status_board"/>
+		<richtext name="reward_count_text" parent="reward_count_bg" margin="15 0 0 0" rect="0 0 80 28" caption="완성도" textalign="left center" fontname="white_14_ol" fixwidth="false" layout_gravity="left center"/>
+		<richtext name="reward_count" parent="reward_count_gb" margin="135 0 0 0" rect="0 0 80 28" format="%s" param1="value" param1_def="" textalign="left center" fontname="white_20_ol" fixwidth="false" layout_gravity="left center"/>
+		<groupbox name="neutralize_count_gb" parent="count_gb" margin="10 44 0 0" rect="0 0 375 28" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="alchemy_title_status_board"/>
+		<groupbox name="neutralize_count_bg" parent="neutralize_count_gb" margin="0 0 0 0" rect="0 0 128 28" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="alchemy_title_status_board"/>
+		<richtext name="neutralize_count_text" parent="neutralize_count_bg" margin="15 0 0 0" rect="0 0 80 28" caption="남은 중화 횟수" textalign="left center" fontname="white_14_ol" fixwidth="false" layout_gravity="left center"/>
+		<richtext name="neutralize_count" parent="neutralize_count_gb" margin="135 0 0 0" rect="0 0 80 28" format="%s" param1="value" param1_def="" textalign="left center" fontname="white_20_ol" fixwidth="false" layout_gravity="left center"/>
+		<gauge name="poison_gauge" parent="count_gb" rect="0 0 371 18" margin="10 78 0 0" layout_gravity="left top" skin="alchemy_parchment_gauge" inverse="false" point="10" maxpoint="100" text1="%v / %m" textoffset1="0 0" textfont1="white_14_ol" textalign1="center center"/>
+		<!-- material -->
+		<groupbox name="mat_bg" parent="main_gb" rect="0 0 394 327" margin="0 15 375 0" layout_gravity="right top" draw="true" resizebyresolution="false" scrollbar="false" skin="None" image="alchemy_cupboard"/>
+		<tab name="mat_tab" parent="mat_bg" margin="40 49 0 0" rect="0 0 140 25" layout_gravity="left top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="inven_arrange" LBtnUpScp="PHARMACY_UI_MATERIAL_TAB_CHANGE" itemspc="0" oversound="button_cursor_over_2" skin="tab2"/>
+		<tabitem name="tab_material" parent="mat_tab" width="70" caption="{@sti1c}{s14}합성 재료{/}{/}" texttooltip="{@st59}합성 재료{/}" layout_gravity="left top" normalimage="alchemy_tab" overimage="alchemy_tab_cursoron" selectimage="alchemy_tab_clicked"/>
+		<tabitem name="tab_neutralizer" parent="mat_tab" width="70" caption="{@sti1c}{s14}중화제{/}{/}" texttooltip="{@st59}중화제{/}" layout_gravity="left top" normalimage="alchemy_tab" overimage="alchemy_tab_cursoron" selectimage="alchemy_tab_clicked"/>
+		<droplist name="sort_list" parent="mat_bg" rect="0 0 135 20" margin="0 51 45 0" layout_gravity="right top" SelectScp="PHARMACY_UI_SELECT_MATERIAL_LIST_BY_GRADE" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="left center" textoffset="10 0" font="white_14_ol" visibleline="4"/>
+		<groupbox name="mat_gb" parent="mat_bg" tabname="tab_material" rect="0 0 284 215" margin="0 85 36 0" layout_gravity="right top" draw="false" resizebyresolution="false" scrollbar="true" skin="test_weight_skin"/>
+		<groupbox name="material_gb" parent="mat_gb" rect="0 0 284 700" margin="0 9 0 0" layout_gravity="left top" draw="false" resizebyresolution="false" scrollbar="false" skin="test_weight_skin"/>
+		<slotset name="material_slotset" parent="material_gb" rect="0 0 300 400" margin="0 0 0 0" layout_gravity="left top" LBtnUpScp="PHARMACY_UI_CLICK_MAT_SLOTSET" RBtnUpScp="PHARMACY_UI_CLICK_MAT_SLOTSET" cursoronresize="false" dropsound="icon_get_down" enablepop="true" enabledrop="false" enableshowempty="true" enableselect="false" enabledrag="true" hideindrag="false" maxselect="1" movepop="false" col="4" row="3" size="50 50" skin="None" image="alchemy_slot" spc="11 18" picksound="icon_pick_up"/>
+		<groupbox name="neutral_gb" parent="mat_bg" tabname="tab_neutralizer" rect="0 0 284 215" margin="0 85 36 0" layout_gravity="right top" draw="false" resizebyresolution="false" scrollbar="true" skin="test_weight_skin"/>
+		<groupbox name="neutralizer_gb" parent="neutral_gb" rect="0 0 284 200" margin="0 9 0 0" layout_gravity="left top" draw="false" resizebyresolution="false" scrollbar="false" skin="test_weight_skin"/>
+		<slotset name="neutralizer_slotset" parent="neutralizer_gb" rect="0 0 300 700" margin="0 0 0 0" layout_gravity="left top" LBtnUpScp="PHARMACY_UI_CLICK_NEUTRALIZER" RBtnUpScp="PHARMACY_UI_CLICK_NEUTRALIZER" cursoronresize="false" dropsound="icon_get_down" enablepop="true" enabledrop="false" enableshowempty="true" enableselect="false" enabledrag="true" hideindrag="false" maxselect="1" movepop="false" col="4" row="3" size="50 50" skin="None" image="alchemy_slot" spc="11 18" picksound="icon_pick_up"/>
+		<!-- grinder -->
+		<groupbox name="grinder_gb" parent="main_gb" margin="0 0 380 18" rect="0 0 375 392" layout_gravity="right bottom" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+		<picture name="grinder_deco_pic" parent="grinder_gb" margin="0 0 0 0" rect="0 0 355 357" layout_gravity="center top" image="alchemy_grinder_decoration_bg" stretch="false"/>
+			<!-- powder drop -->
+		<picture name="grinder_drop1" parent="grinder_gb" rect="0 0 67 69" margin="0 0 0 33" layout_gravity="center bottom" image="alchemy_grinder_powder01_01" stretch="false"/>
+		<picture name="grinder_drop2" parent="grinder_gb" rect="0 0 67 69" margin="0 0 0 33" layout_gravity="center bottom" image="alchemy_grinder_powder02_02" stretch="false"/>
+		<picture name="grinder_drop3" parent="grinder_gb" rect="0 0 67 69" margin="0 0 0 33" layout_gravity="center bottom" image="alchemy_grinder_powder03_03" stretch="false"/>
+			<!-- end of powder drop -->
+		<picture name="grinder_body" parent="grinder_gb" rect="0 0 233 308" margin="0 83 0 0" layout_gravity="center top" image="alchemy_grinder" stretch="false"/>
+		<picture name="grinder_cap" parent="grinder_gb" rect="0 0 134 62" margin="0 0 114 295" layout_gravity="right bottom" image="alchemy_grinder_cap" stretch="false"/>
+		<picture name="grinder_handle" parent="grinder_gb" rect="0 0 203 196" margin="-3 109 0 0" layout_gravity="center top" image="alchemy_grinder_handle" stretch="false"/>
+		<picture name="grinder_dish" parent="grinder_gb" rect="0 0 119 27" margin="0 0 0 22" layout_gravity="center bottom" image="alchemy_grinder_dish" stretch="false"/>
+			<!-- powder stack -->
+		<picture name="grinder_powder1" parent="grinder_gb" rect="0 0 67 69" margin="0 0 0 33" layout_gravity="center bottom" image="alchemy_grinder_powder01" stretch="false"/>
+		<picture name="grinder_powder2" parent="grinder_gb" rect="0 0 67 69" margin="0 0 0 33" layout_gravity="center bottom" image="alchemy_grinder_powder02" stretch="false"/>
+		<picture name="grinder_powder3" parent="grinder_gb" rect="0 0 67 69" margin="0 0 0 33" layout_gravity="center bottom" image="alchemy_grinder_powder03" stretch="false"/>
+			<!-- end of powder stack -->
+		<slot name="mat_slot" parent="grinder_gb" margin="60 15 0 0" rect="0 0 64 64" movepop="true" oversound="button_cursor_over_3" dropsound="sys_pharmacy_grinder_equip" picksound="icon_pick_up" image="alchemy_slot" texttooltip="{@st59}합성 재료를 올려주세요{/}" layout_gravity="left top" DropScp="PHARMACY_UI_DROP_MAT_SLOT" RBtnUpScp="PHARMACY_UI_MAT_SLOT_CLEAR" PopScp="PHARMACY_UI_MAT_SLOT_CLEAR"/>
+		<button name="dispense_btn" parent="grinder_gb" margin="0 29 0 0" rect="0 0 95 48" image="alchemy_hand_direct" layout_gravity="left center" LBtnUpScp="PHARMACY_UI_CLICK_DISPENSE_BTN" texttooltip="{@st59}합성 시작{/}"/>
+		<!-- extractor -->
+		<groupbox name="extractor_gb" parent="main_gb" margin="0 45 115 0" rect="0 0 236 685" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+		<picture name="extractor_deco_pic" parent="extractor_gb" margin="0 0 0 0" rect="0 0 229 567" layout_gravity="center top" image="alchemy_extractor_decoration_bg" stretch="false"/>
+		<groupbox name="extractor_frame" parent="extractor_gb" margin="0 23 0 0" rect="0 0 236 662" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None" image="alchemy_extractor_tree_frame"/>
+			<!-- valve -->
+		<picture name="extractor_valve_close" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_valve_close" stretch="false"/>
+		<picture name="extractor_valve_half" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_valve_half" stretch="false"/>
+		<picture name="extractor_valve_open" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_valve_open" stretch="false"/>
+			<!-- end of valve -->
+			<!-- funnel -->
+		<picture name="extractor_funnel_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid01" stretch="false"/>
+		<picture name="extractor_funnel_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid02" stretch="false"/>
+		<picture name="extractor_funnel_3" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid03" stretch="false"/>
+		<picture name="extractor_funnel_4" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid04" stretch="false"/>
+		<picture name="extractor_funnel_5" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid05" stretch="false"/>
+		<picture name="extractor_funnel_6" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid06" stretch="false"/>
+		<picture name="extractor_funnel_7" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid07" stretch="false"/>
+			<!-- end of funnel -->
+			<!-- funnel drop -->
+		<picture name="extractor_funnel_1_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid01_01" stretch="false"/>
+		<picture name="extractor_funnel_1_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid01_02" stretch="false"/>
+		<picture name="extractor_funnel_2_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid02_01" stretch="false"/>
+		<picture name="extractor_funnel_3_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid03_01" stretch="false"/>
+		<picture name="extractor_funnel_4_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid04_01" stretch="false"/>
+		<picture name="extractor_funnel_5_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid05_01" stretch="false"/>
+		<picture name="extractor_funnel_6_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid06_01" stretch="false"/>
+		<picture name="extractor_funnel_7_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_liquid07_01" stretch="false"/>
+			<!-- end of funnel drop -->
+			<!-- filter -->
+		<picture name="extractor_filter_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_powder01" stretch="false"/>
+		<picture name="extractor_filter_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_powder02" stretch="false"/>
+		<picture name="extractor_filter_3" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_powder03" stretch="false"/>
+		<picture name="extractor_filter_4" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_powder04" stretch="false"/>
+			<!-- end of filter -->
+			<!-- pipe -->
+		<picture name="extractor_pipe_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe01" stretch="false"/>
+		<picture name="extractor_pipe_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe02" stretch="false"/>
+		<picture name="extractor_pipe_3" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe03" stretch="false"/>
+		<picture name="extractor_pipe_4" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe04" stretch="false"/>
+		<picture name="extractor_pipe_5" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe05" stretch="false"/>
+			<!-- end of pipe -->
+			<!-- pipe drop -->
+		<picture name="extractor_pipe_1_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe01_01" stretch="false"/>
+		<picture name="extractor_pipe_2_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe02_01" stretch="false"/>
+		<picture name="extractor_pipe_3_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe03_01" stretch="false"/>
+		<picture name="extractor_pipe_3_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe03_02" stretch="false"/>
+		<picture name="extractor_pipe_4_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe04_01" stretch="false"/>
+		<picture name="extractor_pipe_4_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe04_02" stretch="false"/>
+		<picture name="extractor_pipe_5_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe05_01" stretch="false"/>
+		<picture name="extractor_pipe_5_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_pipe05_02" stretch="false"/>
+			<!-- end of pipe drop -->
+			<!-- flask -->
+		<picture name="extractor_flask_1" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_medicine01" stretch="false"/>
+		<picture name="extractor_flask_2" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_medicine02" stretch="false"/>
+		<picture name="extractor_flask_3" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase_medicine03" stretch="false"/>
+			<!-- end of flask -->
+		<picture name="extractor_glasscase" parent="extractor_frame" margin="0 0 0 0" rect="0 0 236 662" layout_gravity="center top" image="alchemy_extractor_glasscase" stretch="false"/>
+		<slot name="extractor_cap" parent="extractor_gb" margin="0 23 0 0" rect="0 0 98 52" layout_gravity="center top" movepop="true" oversound="button_cursor_over_3" dropsound="sys_pharmacy_grinder_equip" picksound="icon_pick_up" image="alchemy_extractor_glasscase_cap" texttooltip="{@st59}중화제를 올려주세요{/}" DropScp="PHARMACY_UI_DROP_EXTRACTOR_CAP" RBtnUpScp="None" PopScp="None"/>
+		<picture name="extractor_cap_pic" parent="extractor_gb" margin="0 0 0 0" rect="0 0 98 52" layout_gravity="center top" image="alchemy_extractor_glasscase_cap" stretch="false"/>
+			<!-- tutorial -->
+		<groupbox name="tuto_extract_gb" parent="extractor_gb" margin="0 450 0 0" rect="0 0 230 210" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+		<groupbox name="tuto_remaintime_gb" parent="main_gb" margin="338 57 0 0" rect="0 0 150 40" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+		<groupbox name="tuto_slot_center_gb" parent="main_gb" margin="387 310 0 0" rect="0 0 40 40" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+		<groupbox name="tuto_slot_goal_gb" parent="main_gb" margin="525 264 0 0" rect="0 0 40 40" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+		<groupbox name="tuto_slot_material1_gb" parent="mat_bg" margin="68 90 0 0" rect="0 0 60 60" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+		<groupbox name="tuto_poison_gauge_gb" parent="main_gb" margin="217 680 0 0" rect="0 0 380 35" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false" skin="None"/>
+			<!-- end of tutorial -->
+	</controls>
+</uiframe>

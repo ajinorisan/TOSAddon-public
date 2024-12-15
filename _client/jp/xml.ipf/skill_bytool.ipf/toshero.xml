@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<ToolSkill>
+	<Skill Name="TOSHero_Skl_Ballista">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<EtcList>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="voice_archer_m_SweepingCannon_shot"/>
+					<Str Str="voice_archer_SweepingCannon_shot"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="public_kick"/>
+					<Num Num="1.5"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_STOP_ANIM" Client="YES" UseSleep="NO" Time="500"/>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="YES" Time="0">
+					<Str Str="SCR_SHOOT_ITEM_TOSHERO_BALLISTA"/>
+				</Scp>
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="100">
+					<Num Num="4"/>
+					<Num Num="1"/>
+					<Num Num="10"/>
+					<Num Num="999"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="TOSHero_Skl_TOY">
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<EtcList>
+				<Scp Scp="C_VOICE_SOUND" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="voice_war_atk_medium"/>
+					<Str Str="voice_atk_medium_war_f"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="public_buff"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="100">
+					<Num Num="4"/>
+					<Num Num="1"/>
+					<Num Num="8"/>
+					<Num Num="999"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="YES" Time="0">
+					<Str Str="SCR_USE_ITEM_TOSHERO_TOY_ON"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="YES" Time="0">
+					<Str Str="SCR_USE_ITEM_TOSHERO_TOY_OFF"/>
+				</Scp>
+				<Scp Scp="C_EFFECT_USE_XYZ" Client="YES" UseSleep="NO" Time="300">
+					<Str_Arg Str="F_cleric_monstrance_shot_light3" Arg="0.8"/>
+					<Str Str="Bip01 L Finger11"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="C_EFFECT_DETACH" Client="YES" UseSleep="NO" Time="700">
+					<Str_Arg Str="F_cleric_monstrance_shot_light3" Arg="1"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+</ToolSkill>

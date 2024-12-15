@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="cupole_gacha" x="0" y="0" width="1920" height="1080"> 
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_CUPOLE_GACHA" CloseScp="CLOSE_CUPOLE_GACHA"/>
+	<layer layerlevel="103"/>
+	<skin frameskin=" "/>
+	<draw drawtitlebar="false" topmostlayerbyclick="true"/>
+    <input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
+    <sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="" frameCloseAnim="" margin="0 0 0 0"/>
+	 <userconfig DefaultSzX="191" DefaultSzY="260" DefaultRatioY="1" DefaultRatioX="1" RatioY="0.8" RatioX="1" DefMarginX="0" DefMarginY="0" MarginX="0" MarginY="10"/>
+    <controls>
+    <!-- 관리탭 -->
+        <groupbox name="managerTab" rect="0 0 1920 1080" margin="0 0 0 0" layout_gravity="left top" draw="true" skin=""/>
+			<groupbox name="gachaBG" parent="managerTab" rect="0 0 1620 800" margin="0 0 0 0" layout_gravity="center center" draw="true" skin=""/>
+
+		<button name="skip_gacha_btn" rect="0 0 124 50" margin="0 230 180 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="UI_card_choice_click" oversound="button_cursor_over_2" image="gachaskip_btn" LBtnDownScp="None"/>
+		<button name="onemore" rect="0 0 150 60" margin="100 0 0 165" layout_gravity="center bottom" LBtnUpScp="RE_RECRUIT_CUPOLE_GACHA" skin="cupole_greenbtn" stretch="true" format="{img icon_item_kupole_gachaticket 20 20} {@st66d}{s18}%s/%s{nl}한 번 더 영입{/}" param1="count" param1_def="0" param2="max" param2_def="10" textalign="center top" textoffset="0 3"/>
+		<button name="cancle" rect="0 0 150 60" margin="-100 0 0 165" layout_gravity="center bottom" LBtnUpScp="CUPOLE_RESULT_SKIL_BTN" skin="cupole_bluebtn" stretch="true" caption="{@st66d}{s18}종료" textalign="center top" textoffset="0 13"/>
+    </controls>
+</uiframe>

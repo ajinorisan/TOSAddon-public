@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="fullscreen_navigation_menu" x="0" y="0" width="1920" height="1080" create="open">
+	<frame layout_gravity="left top" margin="0 0 0 0"/>
+	<input hittestframe="true" moveintitlebar="false"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="111"/>
+	<option closebutton="false"/>
+	<script OpenScp="FULLSCREEN_NAVIGATION_MENU_OPEN" CloseScp="FULLSCREEN_NAVIGATION_MENU_CLOSE"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<userconfig STAR_IMAGE="star_mark" CATE_TITLE_HEIGHT="50" CATE_TITLE_TOP_MARGIN="15" FRAME_WIDTH="1920" FRAME_HEIGHT="1080" FRAME_HEIGHT2="1440" MAX_PAGE="2"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 4096 2048" margin="0 0 0 0" layout_gravity="center center" skin="market_low" hittestbox="false" scrollbar="false" stretch="true"/>
+		<groupbox name="gbox" parent="bg" rect="0 0 1900 1050" margin="0 0 0 0" layout_gravity="center center" scrollbar="false" draw="false" hittestbox="true" resizebyparent="false"/>
+		<richtext name="text_page" parent="gbox" rect="0 0 200 40" margin="0 0 0 0" layout_gravity="center bottom" format="{@st43}{s32}%s" param1="page" param1_def="1" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="btn_page_left" parent="gbox" rect="0 0 44 44" margin="-60 10 0 0" layout_gravity="center bottom" hittest="true" LBtnDownScp="FULLSCREEN_NAVIGATION_MENU_PAGE_BTN" clicksound="button_click_big" image="epi_guide_left_btn" oversound="button_over"/>
+		<button name="btn_page_right" parent="gbox" rect="0 0 44 44" margin="60 10 0 0" layout_gravity="center bottom" hittest="true" LBtnDownScp="FULLSCREEN_NAVIGATION_MENU_PAGE_BTN" clicksound="button_click_big" image="epi_guide_right_btn" oversound="button_over"/>
+		<groupbox name="gbox_menu" parent="gbox" rect="0 0 1800 920" margin="0 80 0 0" layout_gravity="center top" draw="false" scrollbar="false" hittestbox="false" resizebyparent="false"/>
+	</controls>
+</uiframe>

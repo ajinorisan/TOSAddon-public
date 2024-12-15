@@ -1,0 +1,223 @@
+function GUILDMEMBERGO_ON_INIT(addon, frame)
+    addon:RegisterMsg('CLEAR_ACCEPT_GUILDSKILL_MSGBOX', 'ON_CLEAR_ACCEPT_GUILDSKILL_MSGBOX');
+end
+
+function GUILDMEMBER_GO_UPDATE_MEMBERLIST(frame, skillType)
+
+	frame:SetUserValue("SKILLTYPE", skillType);	
+	local skill = session.GetSkill(skillType);
+	local obj = GetIES(skill:GetObject());
+	local level = obj.Level;
+	frame:SetUserValue("SKILLLEVEL", obj.Level);
+
+	local gbox_list = frame:GetChild("gbox_list");
+	gbox_list:RemoveAllChild();
+	frame:SetUserValue("Count", 0);
+
+	local connectionCount = 1;
+	local myAid = session.loginInfo.GetAID();
+	local list = session.party.GetPartyMemberList(PARTY_GUILD);
+	local count = list:Count();
+	for i = 0 , count - 1 do
+		local partyMemberInfo = list:Element(i);
+		if partyMemberInfo:GetMapID() > 0 and partyMemberInfo:GetAID() ~= myAid then
+			local ctrlSet = gbox_list:CreateControlSet("guildsummon_set", "MEMBER_" .. i, ui.LEFT, ui.TOP, 0, 0, 0, 0);
+			ctrlSet:SetUserValue("AID", partyMemberInfo:GetAID());
+			local txt_location = ctrlSet:GetChild("txt_location");
+			local txt_teamname = ctrlSet:GetChild("txt_teamname");
+			txt_teamname:SetTextByKey("value", partyMemberInfo:GetName());
+			txt_teamname:SetTextTooltip(partyMemberInfo:GetName());
+			connectionCount = connectionCount + 1;
+			local locationText = "";
+			if partyMemberInfo:GetMapID() > 0 then
+				local mapCls = GetClassByType("Map", partyMemberInfo:GetMapID());
+				if mapCls ~= nil then
+					locationText = string.format("[%s%d] %s", ScpArgMsg("Channel"), partyMemberInfo:GetChannel() + 1, mapCls.Name);
+				end
+			end
+
+			txt_location:SetTextByKey("value", locationText);
+			txt_location:SetTextTooltip(locationText);
+
+			GUILDMEMBER_GO_CTRLSET_UPDATE(ctrlSet, 0);
+		end
+	end
+
+	GBOX_AUTO_ALIGN(gbox_list, 0, 0, 0, true, false);
+
+	local txt_currentcount = frame:GetChild("txt_currentcount");
+	local txt = ScpArgMsg("CurrentConnectionCount{Cur}/{Max}", "Cur", connectionCount, "Max", count);
+	txt_currentcount:SetTextByKey("value", txt);
+
+end
+
+function GET_TOTAL_CHECK_COUNT(frame)
+
+
+
+end
+
+function GUILDMEMBER_GO_CTRLSET_UPDATE(ctrlSet, updateTotalCheckCount)
+
+	local frame = ctrlSet:GetTopParentFrame();
+	local level = frame:GetUserIValue("SKILLLEVEL");
+
+	local checkbox = GET_CHILD(ctrlSet, "checkbox");
+	local isChecked = checkbox:IsChecked();
+	local bg = ctrlSet:GetChild("bg");
+	if isChecked == 1 then 
+		if updateTotalCheckCount ~= 0 then
+			local curCount = frame:GetUserIValue("Count");
+			if curCount >= level then
+				checkbox:SetCheck(0);
+				return;
+			end
+		end
+
+		bg:SetSkinName("baseyellow_btn");
+	else
+		bg:SetSkinName("base_btn");
+	end
+
+	if updateTotalCheckCount ~= 0 then
+		local checkCount = 0;
+		local gbox_list = frame:GetChild("gbox_list");
+		for i = 0 , gbox_list:GetChildCount() - 1 do
+			local ctrlSet = gbox_list:GetChildByIndex(i);
+			local aid = ctrlSet:GetUserValue("AID");
+			if aid ~= "None" then
+				local checkbox = GET_CHILD(ctrlSet, "checkbox");
+				local isChecked = checkbox:IsChecked();
+				if isChecked == 1 then
+					checkCount = checkCount + 1;
+				end
+			end
+		end
+
+		frame:SetUserValue("Count", checkCount);
+	end
+
+end
+
+function GUILD_GO_EXEC(parent, ctrl)
+    if IS_IN_EVENT_MAP() == true then
+        ui.SysMsg(ClMsg('ImpossibleInCurrentMap'));
+        return;
+    end
+
+	local frame = parent:GetTopParentFrame();
+	local skillType = frame:GetUserIValue("SKILLTYPE");
+	local sklCls = GetClassByType("Skill", skillType);
+
+	local msgString = ScpArgMsg("WillYouUseSkill{SkillName}?", "SkillName", sklCls.Name);
+	local yesScp = string.format("_GUILD_GO_EXEC(\"%s\")", frame:GetName());
+	ui.MsgBox(msgString, yesScp, "None");
+
+end
+
+function _GUILD_GO_EXEC(frameName)
+
+	local frame = ui.GetFrame(frameName);
+
+	local skillType = frame:GetUserIValue("SKILLTYPE");
+	session.party.ClearSkillTargetList();
+
+	local gbox_list = frame:GetChild("gbox_list");
+	for i = 0 , gbox_list:GetChildCount() - 1 do
+		local ctrlSet = gbox_list:GetChildByIndex(i);
+		local aid = ctrlSet:GetUserValue("AID");
+		if aid ~= "None" then
+			local checkbox = GET_CHILD(ctrlSet, "checkbox");
+			if checkbox:IsChecked() == 1 then
+				session.party.AddSkillTarget(aid);
+			end
+		end
+	end
+	
+	session.party.ReqUsePartyMemberSkill(PARTY_GUILD, skillType);
+	frame:ShowWindow(0);
+
+end
+
+function GUILD_MEMBER_SKILL_INVITE(argList)    
+	local sList = StringSplit(argList, "#");
+    
+	local aid = sList[1];
+	local skillType = tonumber( sList[2] );
+    
+    local callMember = session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid);
+	local callMemberName = callMember:GetName();
+	
+	local sklCls = GetClassByType("Skill", skillType);
+	local msgString = ScpArgMsg("{CallMemberName}Use{SkillName}Skill_WillYouToAccept?", "CallMemberName", callMemberName, "SkillName", sklCls.Name);
+    
+    if callMemberName == nil then
+        msgString = ScpArgMsg("GuildLeaderUse{SkillName}Skill_WillYouToAccept?", "SkillName", sklCls.Name);
+    end
+
+    local yesScp = string.format("ACCEPT_GUILD_SKILL(\"%s\", %d)", aid, skillType);
+    local noScp = string.format('DISAGREE_GUILD_SKILL("%s", %d)', aid, skillType);
+
+    local msgBox = ui.GetMsgBox(ui.ConvertScpArgMsgTag(msgString));
+    if msgBox ~= nil then
+        return
+    end
+
+	local acceptMsgBox = ui.MsgBox(msgString, yesScp, noScp);
+    acceptMsgBox = tolua.cast(acceptMsgBox, 'ui::CMessageBoxFrame');
+
+    local frame = ui.GetFrame('guildmembergo');
+    frame:SetUserValue('ACCEPT_MSGBOX_INDEX', acceptMsgBox:GetIndex());
+end
+
+function ACCEPT_GUILD_SKILL(aid, skillType)
+    if session.colonywar.GetProgressState() == true then
+        local list = session.party.GetPartyMemberList(PARTY_GUILD);
+        local count = list:Count();
+        for i = 0 , count - 1 do
+            local partyMemberInfo = list:Element(i);
+            local guild = GET_MY_GUILD_INFO();
+            if partyMemberInfo:GetAID() == guild.info:GetLeaderAID() then
+                local mapID = partyMemberInfo:GetMapID()
+                if mapID == 9996 or mapID == 9997 or mapID == 9998 then
+					local aObj = GetMyAccountObj();
+					local lastGuildGIDX = TryGetProp(aObj, 'LastGuildOutGIDX');
+                    local lastGuildOutDay = TryGetProp(aObj, "LastGuildOutDay")
+                    if lastGuildOutDay ~= "None" then
+                        local lastTime = imcTime.GetSysTimeByStr(lastGuildOutDay)
+						local addTime = AFTER_GUILD_OUT_COLONY_WAR_PARTICIPATE_PERIOD_DELAY
+						
+						-- 개척 길드 탈퇴 패널티 제거
+						local guildidx = GET_GUILD_MEMBER_JOIN_AUTO_GUILD_IDX();
+						if guildidx ~= "0" and guildidx == lastGuildGIDX then
+							return;
+						end
+
+                	    local enterEnableTime = imcTime.AddSec(lastTime, (addTime*60));
+                	    local nowTime = session.GetDBSysTime();
+                    	local difSec = imcTime.GetDifSec(enterEnableTime, nowTime);
+                	    if difSec > 0 then
+                	        local remainDay = math.floor((((difSec/60)/60)/24))
+                	        local remainHour = math.floor(((difSec/60)/60)%24)
+                	        local remainMin = math.floor((difSec/60)%60)
+                	        local remainSec = math.floor(difSec%60)
+                            local remainTimeStr = ScpArgMsg("GUILD_COLONY_ENTER_REMAIN_TIME{day}{hour}{min}{sec}", "day", remainDay, "hour", remainHour, "min", remainMin, "sec", remainSec)
+                            addon.BroadMsg("NOTICE_Dm_scroll", ScpArgMsg("GUILD_COLONY_MSG_ENTER_FAIL5{day}{time}", "day", ((addTime/60)/24), "time", remainTimeStr), 5);
+                            return
+                        end
+                    end
+                end
+            end
+        end
+    end
+    session.party.AcceptUsePartyMemberSkill(aid, skillType, true);	
+end
+
+function ON_CLEAR_ACCEPT_GUILDSKILL_MSGBOX(frame, msg, argStr, argNum)
+    local index = frame:GetUserIValue('ACCEPT_MSGBOX_INDEX');    
+    ui.CloseMsgBoxByIndex(index);
+end
+
+function DISAGREE_GUILD_SKILL(aid, skillType)
+    session.party.AcceptUsePartyMemberSkill(aid, skillType, false);
+end

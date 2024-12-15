@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="friend_invite_mission" x="0" y="0" width="600" height="700">
+	<frame fullheight="false" fasthide="false" scale_align="center center" layout_gravity="center center" margin="0 0 0 0"/>
+	<layer layerlevel="40"/>
+	<draw blend="100" drawtitlebar="false" drawframe="false" scrollbar="false"/>
+	<script OpenScp="OPEN_FRIEND_INVITE_MISSION"/>
+	<controls>
+		<groupbox name="MainGB" rect="0 0 600 650" margin="10 20 0 0" layout_gravity="left top" hittest="true" skin="test_partyquest_skin"/>
+			<picture name="TeamName" parent="MainGB" rect="0 0 475 25" margin="15 10 0 0" layout_gravity="left top" hittest="true" image="" stretch="true"/>
+				<richtext name="inviter" parent="TeamName" rect="0 0 100 25" margin="16 0 0 0" layout_gravity="left center" caption="{st16}열매 (초대한 팀)" textalign="center center" fontname="white_16_b_ol"/>
+				<richtext name="inviterName" parent="TeamName" rect="0 0 240 25" margin="0 0 0 0" layout_gravity="right center" format="{st16}%s" fontname="white_16_b_ol" param1="Name" param1_def="Name" textalign="right center" fixwidth="true"/>
+			<picture name="TeamNameInvite" parent="MainGB" rect="0 0 475 25" margin="15 25 0 0" layout_gravity="left top" hittest="true" image="" stretch="true"/>
+				<richtext name="invitee" parent="TeamNameInvite" rect="0 0 100 25" margin="16 0 0 0" layout_gravity="left center" caption="{st16}씨앗 (초대받은 팀)" fontname="white_16_b_ol" textalign="center center"/>
+				<richtext name="inviteeName" parent="TeamNameInvite" rect="0 0 240 25" margin="0 0 0 0" layout_gravity="right center" format="{st16}%s" fontname="white_16_b_ol" param1="Name" param1_def="가나다라마바사아" textalign="right center" fixwidth="true"/>
+			<groupbox name="ItemInfoBox" parent="MainGB" rect="0 0 550 500" margin="20 75 0 0" layout_gravity="left top" hittest="true" skin=""/>
+
+			<richtext name="EventExplain" parent="MainGB" rect="0 0 500 50" margin="25 0 0 25" layout_gravity="left bottom" caption="[보상받기] 버튼은 해당 미션을 완료한 씨앗(초대받은 팀)만 누를 수 있고,{nl}보상은 열매(초대한 팀)와 씨앗 모두에게 지급됩니다." fontname="brown_18" textalign="left center"/>
+		<button name="closeBtn" rect="0 0 60 60" margin="0 30 35 0" layout_gravity="right top" image="testclose_button" LBtnUpScp="ui.CloseFrame('friend_invite_mission')"/>
+	</controls>
+</uiframe>

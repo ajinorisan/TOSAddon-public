@@ -1,0 +1,13 @@
+ClassID,UnlockArgNum,MaxLevel,Price1,Time1,Price2,Time2,Price3,Time3,Price4,Time4,Price5,Time5,Price6,Time6,Price7,Time7,Price8,Time8,Price9,Time9,Price10,Time10,ClassName,UnlockScr,UnlockArgStr,UnlockDesc,ScrCalcPrice
+101,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot7","UNLOCK_ABIL_SKILL","Featherfoot_Ngadhundi","은가둔디 1레벨 이상","ABIL_REINFORCE_PRICE"
+201,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot20","UNLOCK_ABIL_SKILL","Featherfoot_Enervation","에너베이션 1레벨 이상","ABIL_REINFORCE_PRICE"
+301,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot35","UNLOCK_ABIL_SKILL","Featherfoot_Kundela","쿤델라 1레벨 이상","ABIL_REINFORCE_PRICE"
+401,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot36","UNLOCK_ABIL_SKILL","Featherfoot_Bloodexplosion","블러드 익스플로전 1레벨 이상","ABIL_REINFORCE_PRICE"
+501,1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot37","UNLOCK_ABIL_SKILL","Featherfoot_Bloodpool","블러드 풀 1레벨 이상","ABIL_REINFORCE_PRICE"
+1001,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot41","UNLOCK_ABIL_JOB_LEVEL","Char2_16","페더풋 클래스 45레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+1002,45,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot42","UNLOCK_ABIL_JOB_LEVEL","Char2_16","페더풋 클래스 45레벨 달성","HIDDENABIL_PRICE_COND_JOBLEVEL"
+1101,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot27","UNLOCK_ABIL_OTHERABILITY","Featherfoot7","[은가둔디: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+1102,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot31","UNLOCK_ABIL_OTHERABILITY","Featherfoot20","[에너베이션: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+1103,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot38","UNLOCK_ABIL_OTHERABILITY","Featherfoot35","[쿤델라: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+1104,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot39","UNLOCK_ABIL_OTHERABILITY","Featherfoot36","[블러드 익스플로전: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"
+1105,65,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Featherfoot40","UNLOCK_ABIL_OTHERABILITY","Featherfoot37","[블러드 풀: 강화] 특성 65 레벨 달성","HIDDENABIL_PRICE_COND_REINFORCE"

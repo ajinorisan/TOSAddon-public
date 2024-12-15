@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<EquipExpList>
+	<EquipExp Group="Card">
+		<Exp Level="1" GiveExp="100" TotalExp="200" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="150" TotalExp="500" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="200" TotalExp="900" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="250" TotalExp="1400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="300" TotalExp="2000" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="350" TotalExp="2700" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="7" GiveExp="400" TotalExp="3500" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="8" GiveExp="450" TotalExp="4400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="9" GiveExp="500" TotalExp="5400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="10" GiveExp="550" TotalExp="6500" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Card_xp_100">
+		<Exp Level="1" GiveExp="100" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Card_Gacha_dummy01">
+		<Exp Level="1" GiveExp="500" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Lv10_Card_TP">
+		<Exp Level="1" GiveExp="5400" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Old_Card_TP">
+		<Exp Level="1" GiveExp="1000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Card_dummy01_Event">
+		<Exp Level="1" GiveExp="1000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="KQ_token_hethran_1">
+		<Exp Level="1" GiveExp="300" TotalExp="1000" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="KQ_token_hethran_2">
+		<Exp Level="1" GiveExp="500" TotalExp="2500" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="KQ_token_hethran_3">
+		<Exp Level="1" GiveExp="2500" TotalExp="7500" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Card_dummy01">
+		<Exp Level="1" GiveExp="2000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Gem">
+		<Exp Level="1" GiveExp="100" TotalExp="300" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="300" TotalExp="1200" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="900" TotalExp="3900" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="2700" TotalExp="14700" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="10800" TotalExp="57900" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="43200" TotalExp="230700" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="7" GiveExp="172800" TotalExp="1094700" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="8" GiveExp="864000" TotalExp="5414700" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="9" GiveExp="4320000" TotalExp="27014700" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="10" GiveExp="4320000" TotalExp="27014700" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Gem_Skill">
+		<Exp Level="1" GiveExp="7350" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Equip">
+		<Exp Level="1" GiveExp="20" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Misc">
+		<Exp Level="1" GiveExp="5" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExp_Talt01">
+		<Exp Level="1" GiveExp="100" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone01">
+		<Exp Level="1" GiveExp="3000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone02">
+		<Exp Level="1" GiveExp="15500" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone03">
+		<Exp Level="1" GiveExp="31000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone04">
+		<Exp Level="1" GiveExp="62000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone05">
+		<Exp Level="1" GiveExp="124000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone07">
+		<Exp Level="1" GiveExp="145340" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone09">
+		<Exp Level="1" GiveExp="230700" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone10">
+		<Exp Level="1" GiveExp="1094700" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone11">
+		<Exp Level="1" GiveExp="5414700" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExpStone12">
+		<Exp Level="1" GiveExp="27014700" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExp_randomQuest1">
+		<Exp Level="1" GiveExp="300" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExp_randomQuest2">
+		<Exp Level="1" GiveExp="1200" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExp_randomQuest3">
+		<Exp Level="1" GiveExp="3900" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExp_randomQuest4">
+		<Exp Level="1" GiveExp="14700" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExp_randomQuest5">
+		<Exp Level="1" GiveExp="57900" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="GemExp_5000">
+		<Exp Level="1" GiveExp="5000" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Card_Fish_300">
+		<Exp Level="1" GiveExp="300" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Legend_Card">
+		<Exp Level="1" GiveExp="0" TotalExp="20" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="0" TotalExp="60" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="0" TotalExp="130" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="0" TotalExp="230" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="0" TotalExp="370" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="0" TotalExp="550" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="7" GiveExp="0" TotalExp="780" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="8" GiveExp="0" TotalExp="1060" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="9" GiveExp="0" TotalExp="1400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="10" GiveExp="0" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Legend_Reinforce_Card_MaxLv4">
+		<Exp Level="1" GiveExp="0" TotalExp="6000" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="0" TotalExp="13200" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="0" TotalExp="29100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="0" TotalExp="29100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Legend_Reinforce_Card_MaxLv6">
+		<Exp Level="1" GiveExp="0" TotalExp="6000" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="0" TotalExp="13200" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="0" TotalExp="29100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="0" TotalExp="64100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="0" TotalExp="141100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="0" TotalExp="141100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Legend_Reinforce_Card_MaxLv8">
+		<Exp Level="1" GiveExp="0" TotalExp="6000" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="0" TotalExp="13200" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="0" TotalExp="29100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="0" TotalExp="64100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="0" TotalExp="141100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="0" TotalExp="310500" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="7" GiveExp="0" TotalExp="683100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="8" GiveExp="0" TotalExp="683100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Legend_Reinforce_Card_MaxLv10">
+		<Exp Level="1" GiveExp="0" TotalExp="6000" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="0" TotalExp="13200" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="0" TotalExp="29100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="0" TotalExp="64100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="0" TotalExp="141100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="0" TotalExp="310500" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="7" GiveExp="0" TotalExp="683100" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="8" GiveExp="0" TotalExp="1502900" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="9" GiveExp="0" TotalExp="3306400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="10" GiveExp="0" TotalExp="3306400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Goddess_Card">
+		<Exp Level="1" GiveExp="0" TotalExp="20" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="0" TotalExp="60" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="0" TotalExp="130" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="0" TotalExp="230" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="0" TotalExp="370" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="0" TotalExp="550" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="7" GiveExp="0" TotalExp="780" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="8" GiveExp="0" TotalExp="1060" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="9" GiveExp="0" TotalExp="1400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="10" GiveExp="0" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+	<EquipExp Group="Goddess_ReinForce_Card">
+		<Exp Level="1" GiveExp="0" TotalExp="10" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="2" GiveExp="0" TotalExp="30" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="3" GiveExp="0" TotalExp="70" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="4" GiveExp="0" TotalExp="120" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="5" GiveExp="0" TotalExp="190" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="6" GiveExp="0" TotalExp="280" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="7" GiveExp="0" TotalExp="400" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="8" GiveExp="0" TotalExp="540" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="9" GiveExp="0" TotalExp="710" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+		<Exp Level="10" GiveExp="0" TotalExp="0" PriceMultiple="1.0">
+			<Prop/>
+		</Exp>
+	</EquipExp>
+</EquipExpList>

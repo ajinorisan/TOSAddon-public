@@ -1,0 +1,6 @@
+ClassID,IsEnable,TOSHero_Default,TOSHero_Blessed,TOSHero_Neutral,TOSHero_Corrupted,TOSHero_Chaos,ClassName,Name,Image,ToolTip
+1,0,0,-15,-15,-15,-15,"TOSHero_Default","무속성","hero_icon_Default","{img hero_icon_Default 20 20} : ALL {img hero_icon_down 11 10}"
+2,1,15,0,-15,15,-15,"TOSHero_Blessed","축복성","hero_icon_Blessed","{img hero_icon_Blessed 20 20} : {img hero_icon_Default 20 20} {img hero_icon_up 11 10} {img hero_icon_Corrupted 20 20} {img hero_icon_up 11 10} {img hero_icon_Neutral 20 20} {img hero_icon_down 11 10} {img hero_icon_Chaos 20 20} {img hero_icon_down 11 10}"
+3,1,15,15,0,-15,-15,"TOSHero_Neutral","자연성","hero_icon_Neutral","{img hero_icon_Neutral 20 20} : {img hero_icon_Default 20 20} {img hero_icon_up 11 10} {img hero_icon_Blessed 20 20} {img hero_icon_up 11 10} {img hero_icon_Corrupted 20 20} {img hero_icon_down 11 10} {img hero_icon_Chaos 20 20} {img hero_icon_down 11 10}"
+4,1,15,-15,15,0,-15,"TOSHero_Corrupted","타락성","hero_icon_Corrupted","{img hero_icon_Corrupted 20 20} : {img hero_icon_Default 20 20} {img hero_icon_up 11 10} {img hero_icon_Neutral 20 20} {img hero_icon_up 11 10} {img hero_icon_Blessed 20 20} {img hero_icon_down 11 10} {img hero_icon_Chaos 20 20} {img hero_icon_down 11 10}"
+5,0,15,15,15,15,0,"TOSHero_Chaos","혼돈성","hero_icon_Chaos","{img hero_icon_Chaos 20 20} : ALL {img hero_icon_up 11 10}"

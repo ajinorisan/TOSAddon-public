@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP13_F_SIAULIAI_3_MQ_07_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="1115227383">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59584" Pos="-520.90#84.89#373.47" genCount="1" genTime="20000" objectKey="0" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-615.15#84.89#367.03" genCount="1" genTime="20000" objectKey="1" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-486.58#84.89#310.73" genCount="1" genTime="20000" objectKey="2" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-640.94#84.89#674.87" genCount="1" genTime="20000" objectKey="3" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-524.82#84.89#656.44" genCount="1" genTime="20000" objectKey="4" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-366.88#84.89#772.24" genCount="1" genTime="20000" objectKey="5" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-291.35#84.89#778.44" genCount="1" genTime="20000" objectKey="6" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-298.71#84.89#620.25" genCount="1" genTime="20000" objectKey="7" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-298.87#84.89#348.41" genCount="1" genTime="20000" objectKey="8" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59584" Pos="-203.28#84.89#339.22" genCount="1" genTime="20000" objectKey="9" propList="&apos;Faction&apos; &apos;Qeust_Team1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-469.50#84.89#372.75" genCount="1" genTime="20000" objectKey="10" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-555.55#84.89#316.42" genCount="1" genTime="20000" objectKey="11" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-576.10#84.89#417.79" genCount="1" genTime="20000" objectKey="12" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-585.94#84.89#630.81" genCount="1" genTime="20000" objectKey="13" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-535.09#84.89#747.32" genCount="1" genTime="20000" objectKey="14" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-326.38#84.89#702.74" genCount="1" genTime="20000" objectKey="15" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-259.69#84.89#716.31" genCount="1" genTime="20000" objectKey="16" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59585" Pos="-251.82#84.89#380.89" genCount="1" genTime="20000" objectKey="17" propList="&apos;Faction&apos; &apos;Qeust_Team2&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-428.33#84.89#327.69" genCount="1" genTime="20000" objectKey="18" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-500.65#84.89#417.75" genCount="1" genTime="20000" objectKey="19" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-587.26#84.89#689.14" genCount="1" genTime="20000" objectKey="20" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-498.56#84.89#693.83" genCount="1" genTime="20000" objectKey="21" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-521.76#84.89#596.47" genCount="1" genTime="20000" objectKey="22" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-314.69#84.89#741.77" genCount="1" genTime="20000" objectKey="23" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-350.07#84.89#655.16" genCount="1" genTime="20000" objectKey="24" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-282.56#84.89#668.31" genCount="1" genTime="20000" objectKey="25" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-377.08#84.89#727.13" genCount="1" genTime="20000" objectKey="26" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-248.86#84.89#301.69" genCount="1" genTime="20000" objectKey="27" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-310.10#84.89#396.58" genCount="1" genTime="20000" objectKey="28" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                    <Obj Type="Monster" MonType="59583" Pos="-311.80#84.89#302.27" genCount="1" genTime="20000" objectKey="29" propList="&apos;Faction&apos; &apos;Qeust_Team3&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <List>
+                                <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
+                                    <Num Num="500"/>
+                                </ToolScp>
+                            </List>
+                            <DeadList>
+                                <ToolScp Scp="SAI_DEAD_SOBJ_PARTY" Client="NO" UseSleep="NO">
+                                    <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                    <Str Str="QuestInfoValue1"/>
+                                    <Num Num="1"/>
+                                </ToolScp>
+                            </DeadList>
+                            <StartList>
+                                <ToolScp Scp="S_AI_SET_TENDENCY" Client="NO" UseSleep="NO">
+                                    <Str Str="Attack"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="ClearCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT_ALIVE" Client="NO" UseSleep="NO">
+                                <MGameObj List="DefGroup/0/DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5/DefGroup/6/DefGroup/7/DefGroup/8/DefGroup/9/DefGroup/10/DefGroup/11/DefGroup/12/DefGroup/13/DefGroup/14/DefGroup/15/DefGroup/16/DefGroup/17/DefGroup/18/DefGroup/19/DefGroup/20/DefGroup/21/DefGroup/22/DefGroup/23/DefGroup/24/DefGroup/25/DefGroup/26/DefGroup/27/DefGroup/28/DefGroup/29"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
+                                <Str Str="SSN_EP13_F_SIAULIAI_3_MQ_07"/>
+                                <Str Str="QuestInfoValue1"/>
+                                <Num Num="30"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

@@ -1,0 +1,6 @@
+ClassID,Count,AchieveLevel,ClassName,ItemName
+1001,5,5,"Achieve_Level_Reward_1","Achieve_Ability_Point_Stone_10000_Team"
+1002,1,10,"Achieve_Level_Reward_2","PremiumToken_1d"
+1003,1,20,"Achieve_Level_Reward_3","PvPMineMiscBoost_Ticket_15d"
+1004,1,30,"Achieve_Level_Reward_4","Achieve_Ability_Reset_Box_30d"
+1005,1,40,"Achieve_Level_Reward_5","EngraveSlotExtension_Ticket_AchieveLevel"

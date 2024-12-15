@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP16_1_CORAL_32_1_MQ4_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59814" Pos="871.59#143.05#-445.11" genCount="1" genTime="20000" autoGen="0" objectKey="0" propList="&apos;SimpleAI&apos; &apos;EP16_1_CORAL_32_1_MQ4_MINI_MON_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59815" Pos="1003.17#143.05#-437.37" genCount="1" genTime="20000" autoGen="0" objectKey="1" propList="&apos;SimpleAI&apos; &apos;EP16_1_CORAL_32_1_MQ4_MINI_MON_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59816" Pos="1018.11#143.05#-311.44" genCount="1" genTime="20000" autoGen="0" objectKey="2" propList="&apos;SimpleAI&apos; &apos;EP16_1_CORAL_32_1_MQ4_MINI_MON_AI&apos; " tendency="1"/>
+                    <Obj Type="Monster" MonType="59814" Pos="866.44#143.05#-312.06" genCount="1" genTime="20000" autoGen="0" objectKey="3" propList="&apos;SimpleAI&apos; &apos;EP16_1_CORAL_32_1_MQ4_MINI_MON_AI&apos; " tendency="1"/>
+                </ObjList>
+                <StageEvents>
+                     <Event eventName="MonsterGen">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="DefGroup/0/DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Clear">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="EP16_1_CORAL_32_1_MQ4_VALUE_01"/>
+                                <Str Str="OVER"/>
+                                <Num Num="27"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
+                                <Str Str="SSN_EP16_1_CORAL_32_1_MQ4"/>
+                                <Str Str="QuestInfoValue1"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="EP16_1_CORAL_32_1_MQ4_VALUE_01"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+        <EnterList>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_EP16_1_CORAL_32_1_MQ4_BALLOONTEXT"/>
+            </ToolScp>
+            <ToolScp Scp="MGAME_ZONEENTER_SCRIPT" Client="NO" UseSleep="NO">
+                <Num Num="2"/>
+                <Str Str="SCR_EP16_1_CORAL_32_1_MQ4_HIDE_NPC"/>
+            </ToolScp>
+        </EnterList>
+    </Game>
+</GameList>

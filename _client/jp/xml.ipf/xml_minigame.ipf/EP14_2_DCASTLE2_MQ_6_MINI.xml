@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP14_2_DCASTLE2_MQ_6_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="DefGroup">
+                <ObjList>
+                    <Obj Type="Monster" MonType="59750" Pos="167.95#68.03#534.38" genCount="1" genTime="40000" genReadyTime="10000" objectKey="3" tendency="1"/>
+                    <Obj Type="Monster" MonType="59745" Pos="18.65#68.03#774.02" genCount="1" genTime="40000" genReadyTime="10000" objectKey="7" tendency="1"/>
+                    <Obj Type="Monster" MonType="59744" Pos="196.25#68.03#773.22" genCount="1" genTime="40000" genReadyTime="10000" objectKey="11" tendency="1"/>
+                    <Obj Type="Monster" MonType="59749" Pos="-7.71#68.03#559.79" genCount="1" genTime="40000" genReadyTime="10000" objectKey="15" tendency="1"/>
+                </ObjList>
+                <StageEvents>
+                    <Event eventName="Mon_Gen">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="DefGroup/0/DefGroup/1/DefGroup/2/DefGroup/3/DefGroup/4/DefGroup/5/DefGroup/6/DefGroup/7/DefGroup/8/DefGroup/9/DefGroup/10/DefGroup/11/DefGroup/12/DefGroup/13/DefGroup/14/DefGroup/15/DefGroup/16/DefGroup/17/DefGroup/18/DefGroup/19"/>
+                                <Num Num="7"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO" CondFunc="">
+                                <MGameObjIndex List="DefGroup/2/DefGroup/3/DefGroup/6/DefGroup/7/DefGroup/10/DefGroup/11/DefGroup/14/DefGroup/15/DefGroup/17/DefGroup/18"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+                <ScrLockList>
+                    <Area>
+                        <Pos Value="188.222672 95.677536 -395.358459"/>
+                        <Pos Value="196.370544 95.677536 -340.667358"/>
+                        <Pos Value="180.504089 68.031784 -523.996155"/>
+                        <Pos Value="102.891373 68.031784 -538.716858"/>
+                        <Pos Value="152.220093 68.031784 -529.121948"/>
+                        <Pos Value="29.962067 68.031784 -506.795868"/>
+                        <Pos Value="119.332329 68.031784 372.349915"/>
+                        <Pos Value="-273.321777 68.031776 362.798401"/>
+                        <Pos Value="-216.629639 68.031784 411.584106"/>
+                        <Pos Value="-344.014862 68.031776 396.809387"/>
+                        <Pos Value="1.044296 68.031784 400.833984"/>
+                    </Area>
+                    <Area>
+                        <Pos Value="188.222672 95.677536 -395.358459"/>
+                        <Pos Value="196.370544 95.677536 -340.667358"/>
+                        <Pos Value="180.504089 68.031784 -523.996155"/>
+                        <Pos Value="102.891373 68.031784 -538.716858"/>
+                        <Pos Value="152.220093 68.031784 -529.121948"/>
+                        <Pos Value="29.962067 68.031784 -506.795868"/>
+                        <Pos Value="119.332329 68.031784 372.349915"/>
+                        <Pos Value="-273.321777 68.031776 362.798401"/>
+                        <Pos Value="-216.629639 68.031784 411.584106"/>
+                        <Pos Value="-344.014862 68.031776 396.809387"/>
+                        <Pos Value="1.044296 68.031784 400.833984"/>
+                    </Area>
+                    <Area>
+                        <Pos Value="188.222672 95.677536 -395.358459"/>
+                        <Pos Value="196.370544 95.677536 -340.667358"/>
+                        <Pos Value="180.504089 68.031784 -523.996155"/>
+                        <Pos Value="102.891373 68.031784 -538.716858"/>
+                        <Pos Value="152.220093 68.031784 -529.121948"/>
+                        <Pos Value="29.962067 68.031784 -506.795868"/>
+                        <Pos Value="119.332329 68.031784 372.349915"/>
+                        <Pos Value="-273.321777 68.031776 362.798401"/>
+                        <Pos Value="-216.629639 68.031784 411.584106"/>
+                        <Pos Value="-344.014862 68.031776 396.809387"/>
+                        <Pos Value="1.044296 68.031784 400.833984"/>
+                        <Pos Value="-200.970230 68.031784 287.499664"/>
+                    </Area>
+                </ScrLockList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

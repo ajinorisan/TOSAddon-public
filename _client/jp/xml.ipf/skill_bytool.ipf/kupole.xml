@@ -1,0 +1,478 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ToolSkill>
+	<Skill Name="Kupole_R_Buff_Common_HR">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_HR_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="100">
+					<Str Str="CUPOLE_COMMON_HR_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_R_Buff_Common_BLK">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_BLK_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="250">
+					<Str Str="CUPOLE_COMMON_BLK_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_R_Buff_Common_BLK_BREAK">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_BLK_BREAK_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="250">
+					<Str Str="CUPOLE_COMMON_BLK_BREAK_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_R_Buff_Common_DR">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_DR_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="250">
+					<Str Str="CUPOLE_COMMON_DR_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Buff_Common_HR">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_HR_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="250">
+					<Str Str="CUPOLE_COMMON_HR_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Buff_Common_BLK">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_BLK_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="250">
+					<Str Str="CUPOLE_COMMON_BLK_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Buff_Common_BLK_BREAK">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_BLK_BREAK_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="250">
+					<Str Str="CUPOLE_COMMON_BLK_BREAK_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Buff_Common_DR">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+			<ToolScp Scp="CHECK_KUPOLE_BUFF_USABLE" Client="NO" UseSleep="NO">
+				<Str Str="CUPOLE_COMMON_DR_UP_BUFF"/>
+			</ToolScp>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="250">
+					<Str Str="CUPOLE_COMMON_DR_UP_BUFF"/>
+					<Num Num="99"/>
+					<Num Num="0"/>
+					<Num Num="20000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Austeja_Nectar">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_Austeja_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Kupole_Austeja_Pad_Heal"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Gabija_cleansing_falme">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_gabija_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Kupole_Gabija_cleansing_falme"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_vakarine_shelter_for_traverlers">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_vakarine_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Kupole_vakarine_shelter_for_traverlers"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_juarate_calm_sea">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="C_UNITY_EFFECT_POS" Client="YES" Time="0" UseSleep="NO">
+					<Str Str="GroundAura_WaterWave_Blue_01"/>
+					<Num Num="1"/>
+					<Pos Angle="0" Dist="0" Height="0"/>
+					<Num Num="2"/>
+					<Str Str="GroundAura_WaterWave_Blue_01"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_jurate_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="YES" Scp="C_SOUND" Time="0" UseSleep="NO">
+					<Str Str="skl_eff_kupole_jurate_buff_01"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="300">
+					<Str Str="Calm_Sea_Buff"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="5000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_saule_daylight">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_saule_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Kupole_saule_daylight"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_laima_Wheel_Of_Fate">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_laima_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Kupole_laima_Wheel_Of_Fate"/>
+				</Scp>
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="0" TimeSync="0" UseSleep="NO">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="150">
+					<Str Str="WheelOfFate_Buff"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="10000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_SummerZesty_AquaWind">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_Summer_Zesty_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Kupole_summerzesty_aquawind1"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Lecifer_DarkLightningCurse">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="RUN_Kupole_Lecifer_DarkLightningCurse" Client="NO" UseSleep="YES" Time="500">
+					<Pos Angle="0" Dist="0"/>
+					<Num Num="150"/>
+					<Num Num="5"/>
+					<Num Num="2"/>
+					<Num Num="0"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Client="YES" Scp="C_SOUND" Time="0" UseSleep="NO">
+					<Str Str="skl_eff_kupole_rexipher_shot_01"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_SantaZemyna_MerryChristmas">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+					<Str Str="KUPOLE_SKILL_VALUE_SET"/>
+				</Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_Summer_Zesty_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="150">
+					<Str Str="SantaZemyna_MerryChristmas_Buff"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="10000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+					<Pos Angle="0" Dist="0"/>
+					<Angle Angle="0"/>
+					<Str Str="Kupole_SantaZemyna_MerryChristmas"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+</ToolSkill>

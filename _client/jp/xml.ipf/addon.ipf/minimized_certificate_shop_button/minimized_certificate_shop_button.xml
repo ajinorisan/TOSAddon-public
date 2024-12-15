@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="minimized_certificate_shop_button" x="0" y="0" width="44" height="44">
+	<frame fullheight="false" fasthide="false" scale_align="center center" layout_gravity="right top" margin="0 76 458 0"/>
+	<layer layerlevel="32"/>
+	<draw blend="100" drawtitlebar="false" drawframe="false"/>
+	<option visible="false" closebutton="false" useimageitem="true" autoopen="true" hideable="false"/>
+	<controls>
+		<button name="openCertificate_ShopBtn" rect="0 0 40 40" margin="0 0 0 0" layout_gravity="center center" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_3" oversound="button_cursor_over_2" image="goddess4_shop_btn" LBtnDownScp="MINIMIZED_CERTIFICATE_SHOP_BUTTON_CLICK" texttooltip="{@st59}여신의 증표 상점{/}"/>
+	</controls>
+</uiframe>

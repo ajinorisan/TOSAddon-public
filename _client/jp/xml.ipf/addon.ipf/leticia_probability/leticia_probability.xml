@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+
+<uiframe name="leticia_probability" x="0" y="0" width="650" height="740"> 
+	<frame layout_gravity="center center" margin="0 0 0 0" draw="true"/>
+	<script OpenScp="OPEN_LETICIA_PROBABILITY" CloseScp=""/>
+	<layer layerlevel="102"/>
+	<skin frameskin="None"/>
+	<draw drawframe="true" drawtitlebar="false" topmostlayerbyclick="true"/>
+    <input moveable="true" hittestframe="true" moveintitlebar="false" catchmovepos="true"/>
+    <sound opensound="window_open" closesound="window_close"/>
+	<option closebutton="false"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
+    <controls>
+    <!-- 관리탭 -->
+        <groupbox name="managerTab" rect="0 0 650 740" margin="0 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin="test_frame_low"/>
+		<groupbox name="relicmanager_top" rect="0 0 650 70" margin="0 0 0 0" layout_gravity="center top" draw="true" scrollbar="false" skin="TPshop_title" stretch="true" hittest="true"/>
+		<richtext name="title" parent="relicmanager_top" rect="0 0 600 50" margin="0 0 110 0" layout_gravity="center center" format="{@st43}{s24}확률 정보" drawbackground="false" fixwidth="true" 	fontname="white_18_ol" textalign="center center"/>
+			<groupbox name="RounTab" parent="managerTab" rect="0 0 480 40" margin="25 75 0 0" layout_gravity="left top" draw="true"  scrollbar="false" skin=""/>
+				<button name="asdasdasdasd" rect="0 0 35 35" margin="0 0 0 0" layout_gravity="left top" skin="relic_btn_purple" stretch="false" format="{@st41b}{s18}%s" param1="value" param1_def="소켓 확장" oversound="button_cursor_over_3" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" omitbywidth="true" texttooltip="소켓 확장" parent="RounTab"/>
+
+			<groupbox name="TopTab" parent="managerTab" rect="0 0 320 40" margin="0 75 25 0" hittestbox="false" skin="test_weight_skin" layout_gravity="right top"  draw="true"  scrollbar="false"/>
+				<richtext name="editDiff" parent="TopTab" rect="0 0 260 50" margin="0 0 0 0" layout_gravity="left center" caption="{@st55_b}  검색어를 입력하세요.{/}" drawbackground="false" fixwidth="true" fontname="black_16_b" resizebytext="true" textalign="left center"/>
+				<edit name="input" parent="TopTab" margin="10 0 0 0" skin="test_weight_skin" rect="0 0 240 32" fontname="white_18_ol" maxlen="32" EnterKeyScp="LETICIA_PROBABILTY_SEARCH_TAB" LBtnDownScp="LETICIA_PROBABILITY_SEARCH_CLICK" numbermode="false" stretch="true" drawbackground="false" OffsetForDraw="0 -1" layout_gravity="left center" textalign="left center" typingsound="chat_typing"/>
+				<button name="btn_find" parent="TopTab" image="inven_s" margin="0 0 0 0" rect="0 0 50 40" layout_gravity="right center" LBtnUpScp="LETICIA_PROBABILTY_SEARCH_TAB" oversound="button_over" clicksound="button_click_big"/>
+			<groupbox name="SlotTab" parent="managerTab" rect="0 0 640 610" margin="0 110 0 0" layout_gravity="center top" draw="true"  scrollbar="true" skin=""/>
+
+		<button name="close" rect="0 0 44 44" margin="0 15 10 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame('leticia_probability')" oversound="button_over" MouseOffAnim="btn_mouseoff" 	MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button"/>
+    </controls>
+</uiframe>

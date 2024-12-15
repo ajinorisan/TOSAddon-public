@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="minimized_guild_colony_info" x="0" y="0" width="70" height="70" create="open" layout_gravity="right bottom">
+	<frame layout_gravity="right top" margin="0 5 350 0"/>
+	<input moveable="false"/>
+	<draw drawtitlebar="false" drawnotitlebar="false"/>
+	<layer layerlevel="30"/>
+	<option closebutton="false" hideable="false"/>
+	<skin frameskin="none"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="popup_start" frameCloseAnim="popup_end"/>
+	<controls>
+		<groupbox name="gbox" margin="0 0 0 0" rect="0 0 70 65" hittestbox="false" draw="false" layout_gravity="left top"/>
+		<button name="openBtn" rect="0 0 67 63" margin="0 0 0 0" layout_gravity="center center" clicksound="button_click_3" oversound="button_cursor_over_2" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" image="GuildColony_MemberCheck_btn" parent="gbox" LBtnUpScp="TOGGLE_COLONY_INFO" texttooltip="길드 콜로니전 전장 정보"/>
+	</controls>
+</uiframe>

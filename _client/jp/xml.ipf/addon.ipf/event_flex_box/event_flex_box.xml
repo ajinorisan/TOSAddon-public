@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="event_flex_box" x="0" y="0" width="510" height="714" create="open">
+	<frame fullheight="false" fasthide="true" layout_gravity="center center"/>
+	<skin frameskin="none"/>
+	<draw drawtitlebar="false"/>
+	<layer layerlevel="80"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<animation frameOpenAnim="popup_start3" frameCloseAnim="popup_end3"/>
+	<userconfig BUTTON_CLICK_SOUND="button_click_stats_OK"/>
+	<script CloseScp="EVENT_FLEX_BOX_CLOSE"/>
+	<controls>
+		<picture name="main_pic" rect="0 0 510 714" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="false" image="flex_box_bg" imagealign="center center"/>
+		<groupbox name="main_gb" rect="0 0 355 440" margin="0 210 0 0" layout_gravity="center top" draw="false" hittestbox="false" scrollbar="false"/>
+		<button name="close" rect="0 0 35 35" margin="0 135 20 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}아이템 획득 창을 닫습니다.{/}" LBtnUpScp="EVENT_FLEX_BOX_CLOSE"/>
+		<richtext name="main_text" parent="main_gb" rect="0 0 350 50" margin="0 60 0 0" layout_gravity="center top" format="{@st66b}{s20} %s을(를){nl}사용해 다양한 보상을 획득하세요." param1="value" textalign="center center" fixwidth="true"/>
+		<groupbox name="grade_gb" parent="main_gb" rect="0 0 300 120" margin="5 135 0 0" layout_gravity="center top" hittestbox="false" scrollbar="false" draw="false"/>
+		<richtext name="grade_text" parent="grade_gb" rect="0 0 200 40" margin="0 0 0 0" layout_gravity="center top" format="{@st66b}{s20}현재 획득 가능 등급" param1="value" param2="count" textalign="center center" fixwidth="true"/>
+		<picture name="start_grade_pic" parent="grade_gb" rect="0 0 120 60" margin="-85 5 0 0" layout_gravity="center center" imagealign="center center"/>
+		<picture name="range_grade_pic" parent="grade_gb" rect="0 0 47 18" margin="0 5 0 0" layout_gravity="center center" imagealign="center center" image="range_item_rank"/>
+		<picture name="end_grade_pic" parent="grade_gb" rect="0 0 120 60" margin="85 5 0 0" layout_gravity="center center" imagealign="center center"/>
+		<button name="open_btn" parent="main_gb" rect="0 0 190 60" margin="0 250 0 0" layout_gravity="center top" format="{@st41}%s 개봉" param1="value" skin="test_red_button" oversound="button_over" LBtnUpScp="EVENT_FLEX_BOX_OPEN_BTN_CLICK"/>
+		<button name="reward_btn" parent="main_gb" rect="0 0 48 49" margin="135 258 0 0" layout_gravity="center top" image="guild_banner_menu_btn" texttooltip="획득 가능한 아이템 확인하기" LBtnUpScp="EVENT_FLEX_BOX_REWARD_LIST_OPEN_BTN_CLICK"/>
+		<richtext name="open_count_text" parent="main_gb" rect="0 0 250 50" margin="0 320 0 0" layout_gravity="center top" format="{@st66b}{s16}누적 개봉 횟수 : %s%s" param1="cur" param2="max" textalign="center center" fixwidth="true"/>
+		<richtext name="item_text" parent="main_gb" rect="0 0 270 50" margin="0 345 0 0" layout_gravity="center top" format="{@st66b}{s16}남은 %s %s개" param1="value" param2="count" textalign="center center" fixwidth="true"/>
+		<richtext name="lowlevel_tiptext" parent="main_gb" rect="0 0 270 40" margin="0 0 0 15" layout_gravity="center bottom" caption="{@st66b}{s16}{#ff0000}Lv.400 이상의 캐릭터만{nl}이용할 수 있습니다." textalign="center center"/>
+	</controls>
+</uiframe>

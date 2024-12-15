@@ -1,0 +1,626 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EVENT_2023_SNIGO_DUNGEON" minLv="0" maxLv="0" mapName="event_snigo_dungeon" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="Start">
+                <ObjList>
+                    <Obj Type="Monster" MonType="150217" Pos="-729.70#285.29#-733.48" angle="-97" genCount="1" genTime="20000" objectKey="0" propList="&apos;Dialog&apos; &apos;EVENT_SNIGO_START_NPC&apos; &apos;Name&apos; &apos;크루세이더 보초병&apos;"/>
+                    <Obj Type="Monster" MonType="150218" Pos="-697.62#286.06#-739.46" angle="-94" genCount="1" genTime="20000" objectKey="1" propList="&apos;Name&apos; &apos;크루세이더 보초병&apos;"/>
+                    <Obj Type="Monster" MonType="150218" Pos="-698.63#285.42#-827.48" angle="65" genCount="1" genTime="20000" objectKey="2" propList="&apos;Name&apos; &apos;크루세이더 보초병&apos;"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Start">
+                        <execList>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EVENT_2023_SNIGO_DUNGEON"/>
+                                <Str Str="StageStart"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="End" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="이벤트 종료!{nl}60초 뒤, 입장한 곳으로 돌아갑니다."/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_DM_ICON" Client="NO" UseSleep="NO">
+                        <Str Str="이벤트 종료!{nl}60초 뒤, 입장한 곳으로 돌아갑니다."/>
+                        <Str Str="Clear"/>
+                        <Num Num="5"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList>
+                    <Obj Type="Monster" MonType="160065" Pos="1269.11#602.46#1503.88" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Reward">
+                        <execList>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EVENT_2023_SNIGO_DUNGEON"/>
+                                <Str Str="MinigameSuccess"/>
+                            </ToolScp>
+                            <ToolScp Scp="EXEC_DUNGEON_GIVE_TAKE_SOBJ_ACHIEVE_TX" Client="NO" UseSleep="NO">
+                                <Str Str="Evnet2023_SnigoDungeon"/>
+                                <Str Str="None"/>
+                                <Str Str="101013"/>
+                                <Str Str="Evnet2023_SnigoDungeon"/>
+                                <Str Str="NO"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Boss"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Start"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_RAID_END_STOP_DEBUFF_MON"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EVENT_SNIGO_END"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="CreateExitPortal">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="End/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Return_Zone">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="60"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="30Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="30"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="30초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="20Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="40"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="20초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="10Sec">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="50"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="10초 후 입장 지역으로 돌아갑니다."/>
+                                <Str Str="!"/>
+                                <Num Num="5"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Event_Manager" AutoStart="0">
+                <ObjList/>
+                <StageEvents>
+                    <Event eventName="EventStart">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EVENT_SNIGO_START"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Step1_Start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EVENT_SNIGO_SYS_MSG"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Step1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="timer_start">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIMER_REMAIN_TIME"/>
+                                <Str Str="OVER"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIMER_CHANGE"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="SCR_RAID_CLEAR_TIME_START_SETTING" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_SET_RAID_TIMER" Client="NO" UseSleep="NO">
+                                <Num Num="1800"/>
+                                <Str Str="RemainTime"/>
+                                <Str Str="Yellow"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="timer_end">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="SCR_RAID_TIMER_CHANGE_CHECK" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK_START" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIMER_START_TIME"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_end"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="End"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Step1" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="101014" Pos="-254.81#287.26#-635.40" angle="-88" genCount="1" genTime="20000" objectKey="0" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-245.58#288.23#-774.99" angle="-88" genCount="1" genTime="20000" objectKey="1" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-397.67#312.25#-436.50" angle="-88" genCount="1" genTime="20000" objectKey="2" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-104.45#287.33#-805.27" angle="-88" genCount="1" genTime="20000" objectKey="3" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-127.63#287.26#-688.00" angle="-88" genCount="1" genTime="20000" objectKey="4" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-190.88#287.26#-533.85" angle="-88" genCount="1" genTime="20000" objectKey="5" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-60.04#287.26#-718.74" angle="-88" genCount="1" genTime="20000" objectKey="6" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-89.69#287.26#-595.76" angle="-88" genCount="1" genTime="20000" objectKey="7" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101014" Pos="-354.65#289.06#-546.19" angle="-88" genCount="1" genTime="20000" objectKey="8" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-993.99#409.72#87.16" angle="-54" genCount="1" genTime="20000" objectKey="9" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-879.00#409.72#107.29" angle="-54" genCount="1" genTime="20000" objectKey="10" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-817.90#409.72#214.28" angle="-54" genCount="1" genTime="20000" objectKey="11" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-738.20#409.72#283.28" angle="-54" genCount="1" genTime="20000" objectKey="12" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-714.10#409.72#189.75" angle="-54" genCount="1" genTime="20000" objectKey="13" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-777.47#409.72#105.10" angle="-54" genCount="1" genTime="20000" objectKey="14" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-850.40#409.72#11.28" angle="-59" genCount="1" genTime="20000" objectKey="15" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-946.51#409.72#-38.89" angle="-54" genCount="1" genTime="20000" objectKey="16" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-827.81#409.72#-92.70" angle="-54" genCount="1" genTime="20000" objectKey="17" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-719.12#409.72#-20.68" angle="-54" genCount="1" genTime="20000" objectKey="18" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-639.36#409.72#100.76" angle="-94" genCount="1" genTime="20000" objectKey="19" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-631.23#409.72#7.02" angle="-54" genCount="1" genTime="20000" objectKey="20" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-1046.47#409.72#-4.19" angle="-54" genCount="1" genTime="20000" objectKey="21" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-617.72#409.72#251.37" angle="-121" genCount="1" genTime="20000" objectKey="22" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101015" Pos="-903.12#409.72#193.83" angle="-70" genCount="1" genTime="20000" objectKey="23" UseAiOutOfPc="1" autoGen="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="born_mon">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Step1/0/Step1/1/Step1/2/Step1/3/Step1/4/Step1/5/Step1/6/Step1/7/Step1/8/Step1/9/Step1/10/Step1/11/Step1/12/Step1/13/Step1/14/Step1/15/Step1/16/Step1/17/Step1/18/Step1/19/Step1/20/Step1/21/Step1/22/Step1/23"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_gen_mon"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="step1_clear_check">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_gen_mon"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Step1/0/Step1/1/Step1/2/Step1/3/Step1/4/Step1/5/Step1/6/Step1/7/Step1/8/Step1/9/Step1/10/Step1/11/Step1/12/Step1/13/Step1/14/Step1/15/Step1/16/Step1/17/Step1/18/Step1/19/Step1/20/Step1/21/Step1/22/Step1/23"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EVENT_2023_SNIGO_DUNGEON"/>
+                                <Str Str="Step1_Clear"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EVENT_SNIGO_SYS_MSG"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Step2"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Step1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Step2" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="101016" Pos="216.61#419.93#251.62" angle="164" genCount="1" genTime="20000" objectKey="0" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="125.27#419.93#306.84" angle="164" genCount="1" genTime="20000" objectKey="1" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="113.77#419.93#152.73" angle="164" genCount="1" genTime="20000" objectKey="2" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="213.07#421.20#64.95" angle="164" genCount="1" genTime="20000" objectKey="3" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="243.71#419.93#149.55" angle="164" genCount="1" genTime="20000" objectKey="4" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="321.13#419.93#235.47" angle="164" genCount="1" genTime="20000" objectKey="5" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="351.45#419.93#118.17" angle="164" genCount="1" genTime="20000" objectKey="6" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="317.89#425.09#15.29" angle="164" genCount="1" genTime="20000" objectKey="7" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="71.00#419.93#249.00" angle="164" genCount="1" genTime="20000" objectKey="8" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="602.57#436.17#-747.46" angle="117" genCount="1" genTime="20000" objectKey="9" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="587.08#436.17#-615.89" angle="117" genCount="1" genTime="20000" objectKey="10" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="703.22#436.17#-530.11" angle="117" genCount="1" genTime="20000" objectKey="11" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="741.60#436.17#-641.65" angle="117" genCount="1" genTime="20000" objectKey="12" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="728.01#436.17#-758.10" angle="117" genCount="1" genTime="20000" objectKey="13" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="800.66#436.17#-829.37" angle="117" genCount="1" genTime="20000" objectKey="14" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="800.66#436.17#-829.37" angle="117" genCount="1" genTime="20000" objectKey="15" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="800.66#436.17#-829.37" angle="117" genCount="1" genTime="20000" objectKey="16" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="850.89#436.17#-722.40" angle="117" genCount="1" genTime="20000" objectKey="17" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101017" Pos="868.69#436.17#-591.02" angle="117" genCount="1" genTime="20000" objectKey="18" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="644.67#436.17#-676.11" angle="119" genCount="1" genTime="20000" objectKey="19" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="672.43#436.17#-807.57" angle="119" genCount="1" genTime="20000" objectKey="20" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="765.00#436.17#-706.10" angle="119" genCount="1" genTime="20000" objectKey="21" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="782.77#436.17#-570.77" angle="119" genCount="1" genTime="20000" objectKey="22" UseAiOutOfPc="1" autoGen="0"/>
+                    <Obj Type="Monster" MonType="101016" Pos="862.74#436.17#-647.62" angle="119" genCount="1" genTime="20000" objectKey="23" UseAiOutOfPc="1" autoGen="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="born_mon">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="SCR_RAID_CLEAR_TIME_START_SETTING" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Step2/0/Step2/1/Step2/2/Step2/3/Step2/4/Step2/5/Step2/6/Step2/7/Step2/8/Step2/9/Step2/10/Step2/11/Step2/12/Step2/13/Step2/14/Step2/15/Step2/16/Step2/17/Step2/18/Step2/19/Step2/20/Step2/21/Step2/22/Step2/23"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_gen_mon"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="step2_clear_check">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_gen_mon"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Step2/0/Step2/1/Step2/2/Step2/3/Step2/4/Step2/5/Step2/6/Step2/7/Step2/8/Step2/9/Step2/10/Step2/11/Step2/12/Step2/13/Step2/14/Step2/15/Step2/16/Step2/17/Step2/18/Step2/19/Step2/20/Step2/21/Step2/22/Step2/23"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_clear"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EVENT_2023_SNIGO_DUNGEON"/>
+                                <Str Str="Step2_Clear"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EVENT_SNIGO_SYS_MSG"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Step3"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Step2"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Step3" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="101018" Pos="1318.48#535.51#164.89" angle="0" genCount="1" autoGen="0" genTime="20000" objectKey="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="born_mon">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step3_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Step3/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step3_gen_mon"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="step3_clear_check">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step3_gen_mon"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Step3/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step3_clear"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EVENT_2023_SNIGO_DUNGEON"/>
+                                <Str Str="Step3_Clear"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EVENT_SNIGO_SYS_MSG"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Step4"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Step3"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Step4" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="101013" Pos="1269.11#602.46#1503.88" angle="0" genCount="1" autoGen="0" genTime="20000" objectKey="0"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="born_boss">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step3_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step4_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Step4/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step4_gen_mon"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="step4_clear_check">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step4_gen_mon"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step1_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step2_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step3_clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Step4/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_step4_clear"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="EVENT_2023_SNIGO_DUNGEON"/>
+                                <Str Str="Step4_Clear"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="End"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="Step4"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

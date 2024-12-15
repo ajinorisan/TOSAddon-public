@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="goddesssealtrade" x="0" y="0" width="540" height="610" create="open">
+	<frame layout_gravity="center center" margin="0 0 400 0" scale_align="center center"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="99"/>
+	<option closebutton="false"/>
+	<sound opensound="character_item_window_open" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="popup_start2" frameCloseAnim="popup_end2"/>
+	<script CloseScp="GODDESSSEALTRADE_CLOSE"/>
+	<userconfig USE_BTN_X_MARGIN="-85"/>
+	<controls>
+		<groupbox name="gFrame" rect="0 0 520 600" margin="0 0 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="false"/>
+		<groupbox name="gbox" parent="gFrame" rect="0 0 520 570" margin="0 15 0 0" layout_gravity="left center" skin="test_frame_low" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<groupbox name="titlegbox" rect="0 0 550 74" margin="0 0 0 0" layout_gravity="center top" skin="relic_frame_top" hittestbox="false" stretch="true"/>
+		<richtext name="title" parent="titlegbox" rect="0 0 200 50" margin="0 23 0 0" layout_gravity="center top" caption="{@st43}{s24}유라테 인장 연성" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<button name="closeBtn" parent="titlegbox" rect="0 0 44 44" margin="0 20 10 0" layout_gravity="right top" LBtnUpScp="ui.CloseFrame(&apos;goddesssealtrade&apos;)" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}유라테 인장 연성 창을 닫습니다{/}" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover"/>
+
+		<slot name="mat_slot" margin="-150 100 0 0" rect="0 0 160 160" movepop="true" dropsound="icon_get_down" picksound="icon_pick_up" PopScp="GODDESSSEALTRADE_CLEAR_SLOT" DropScp="GODDESSSEALTRADE_ITEM_DROP" skin="invenslot2" RBtnUpScp="GODDESSSEALTRADE_CLEAR_SLOT" layout_gravity="center top"/>
+		<slot name="result_slot" margin="150 100 0 0" rect="0 0 160 160" movepop="false" enabledrop="false" enabledrag="false" enablepop="false" skin="invenslot2" layout_gravity="center top"/>
+		<richtext name="mat_item_name" rect="0 0 190 30" margin="-150 275 0 0" layout_gravity="center top" format="{@st42}{s18}+5 %s{/}{/}" param1="name" param1_def="재료 인장" drawbackground="false" textalign="center center" fontname="brown_18" fixwidth="true" maxwidth="0" spacey="0" resizebytext="true" slideshow="false" updateparent="false"/>
+		<richtext name="result_item_name" rect="0 0 190 30" margin="150 275 0 0" layout_gravity="center top" format="{@st42}{s18}+5 %s{/}{/}" param1="name" param1_def="유라테 인장" drawbackground="false" textalign="center center" fontname="brown_18" fixwidth="true" maxwidth="0" spacey="0" resizebytext="true" slideshow="false" updateparent="false"/>
+		
+		<picture name="arrowPic" rect="0 0 30 86" stretch="true" margin="5 140 0 0" layout_gravity="center top" image="icon_arrow_right"/>
+		<groupbox name="division_arrow" skin="test_arow" layout_gravity="center top" rect="0 0 490 40" margin="0 330 0 0" stretch="true"/>
+		<groupbox name="mat_gbox" rect="0 0 490 170" margin="0 330 0 0" layout_gravity="center top" skin="" draw="false" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+
+		<button name="tradeBtn" rect="0 0 190 70" margin="0 0 0 40" layout_gravity="center bottom" LBtnUpScp="GODDESSSEALTRADE_REQ_TRADE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st41b}연성{/}" clicksound="button_click" oversound="button_over" skin="relic_btn_purple"/>
+	</controls>
+</uiframe>
