@@ -48,10 +48,11 @@
 -- v1.4.8 週ボスのダメージ累計報酬を先週分か今週分か切替出来る様に
 -- v1.4.9 ワイドスクリーンだとSetPosおかしいらしい。アドオンの前提が色々崩れそう。コワイヨ
 -- v1.5.0 クポルポーションのフレームを非表示に
+-- v1.5.1 PTメンバーの希望の啓示見えるように
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.0"
+local ver = "1.5.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -960,7 +961,7 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     newframe:Resize(30, 30)
     local minimap_frame = ui.GetFrame("minimap")
     local minimap_X, minimap_Y = minimap_frame:GetX(), minimap_frame:GetY()
-    print(minimap_X .. ":" .. minimap_Y)
+    -- print(minimap_X .. ":" .. minimap_Y)
     newframe:SetPos(minimap_X + 5, minimap_Y + 230 + 5)
     newframe:SetTitleBarSkin("None")
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 25, 30)
@@ -1983,6 +1984,14 @@ function MINI_ADDONS_BUFFLIST_FRAME_CLOSE()
 end
 
 function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
+    if g.settings.party_buff ~= 1 then
+        base["ON_PARTYINFO_BUFFLIST_UPDATE"](frame)
+    else
+        MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
+    end
+end
+
+function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
     local frame = ui.GetFrame("partyinfo");
     if frame == nil then
         return;
@@ -2042,7 +2051,11 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
                         local buffID = partyMemberInfo:GetBuffIDByIndex(j);
 
                         local cls = GetClassByType("Buff", buffID);
-                        if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~= "TeamLevel" then
+
+                        -- if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~= "TeamLevel" then
+                        -- print(buffID .. ":" .. tostring(IS_PARTY_INFO_SHOWICON(cls.ShowIcon)))
+                        if cls ~= nil and cls.ClassName ~= "TeamLevel" then
+
                             local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
                             local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
                             local slot = nil;

@@ -7,10 +7,11 @@
 -- v1.2.0 倉庫閉じるチェックボックスのセットチェック漏れてた。
 -- v1.2.1 ロード処理見直し。
 -- v1.2.2 エコモードバグってたの修正。
+-- v1.2.3 AGM連携の確認を切り替えられるように。ある程度日本語化
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.2"
+local ver = "1.2.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -101,11 +102,12 @@ end
 g.load = false
 
 function CC_HELPER_ON_INIT(addon, frame)
-    -- CHAT_SYSTEM("CCHELPER")
+
     g.addon = addon
     g.frame = frame
     g.LOGINCID = info.GetCID(session.GetMyHandle())
     g.settings = g.settings or {}
+    g.lang = option.GetCurrentCountry()
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -136,9 +138,9 @@ function cc_helper_invframe_init()
     setbtn:SetSkinName("None")
     setbtn:SetText("{img config_button_normal 30 30}")
     setbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_frame_init")
-    setbtn:SetTextTooltip("Character Change Helper{nl}" ..
-                              "マウス左ボタンクリック、キャラ毎に出し入れするアイテム設定。{nl}" ..
-                              "Left mouse button click, setting items to be moved in and out for each character.")
+    setbtn:SetTextTooltip(g.lang == "Japanese" and
+                              "Character Change Helper{nl}マウス左ボタンクリック、キャラ毎に出し入れするアイテム設定。" or
+                              "Character Change Helper{nl}Left mouse button click,{nl}setting items to be moved in and out for each character.")
 
     local eco = invframe:CreateOrGetControl("richtext", "eco", 210, 342)
     eco:SetText("{#FF0000}{s10}Eco")
@@ -148,9 +150,9 @@ function cc_helper_invframe_init()
     checkbox:SetCheck(g.check)
     checkbox:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     checkbox:ShowWindow(1)
-    checkbox:SetTextTooltip("Character Change Helper{nl}" ..
-                                "チェックすると外すのにシルバーが必要なレジェンドカードとエーテルジェムの動作をスキップします。{nl}" ..
-                                "If checked, it skips the operation of legend cards and ether gems that require silver to remove.")
+    checkbox:SetTextTooltip(g.lang == "Japanese" and
+                                "Character Change Helper{nl}チェックすると、外すのにシルバーが必要な{nl}レジェンドカードとエーテルジェムの動作をスキップします。" or
+                                "Character Change Helper{nl}If checked, it skips the operation of legend cards and{nl}ether gems that require silver to remove.")
 
     local awhframe = ui.GetFrame("accountwarehouse")
     if awhframe:IsVisible() == 1 then
@@ -161,8 +163,9 @@ function cc_helper_invframe_init()
 
         inbtn:ShowWindow(1)
         inbtn:SetSkinName("test_pvp_btn")
-        inbtn:SetTextTooltip("Character Change Helper{nl}" .. "装備を外して倉庫へ搬入します。{nl}" ..
-                                 "The equipment is removed and brought into the warehouse.")
+        inbtn:SetTextTooltip(g.lang == "Japanese" and
+                                 "Character Change Helper{nl}装備を外して倉庫へ搬入します。" or
+                                 "Character Change Helper{nl}The equipment is removed and brought into the warehouse.")
 
         local outbtn = invframe:CreateOrGetControl("button", "inv_out", 293, 345, 30, 30)
         AUTO_CAST(outbtn)
@@ -170,8 +173,9 @@ function cc_helper_invframe_init()
         outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn_start")
         outbtn:ShowWindow(1)
         outbtn:SetSkinName("test_pvp_btn")
-        outbtn:SetTextTooltip("Character Change Helper{nl}" .. "倉庫から搬出して装備します。{nl}" ..
-                                  "It is carried out from the warehouse and equipped.")
+        outbtn:SetTextTooltip(g.lang == "Japanese" and
+                                  "Character Change Helper{nl}倉庫から搬出して装備します。" or
+                                  "Character Change Helper{nl}It is carried out from the warehouse and equipped.")
     end
 
 end
@@ -186,8 +190,9 @@ function cc_helper_accountwarehouse_init()
     awh_inbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_in_btn_aethergem_mgr")
     awh_inbtn:ShowWindow(1)
     awh_inbtn:SetSkinName("test_pvp_btn")
-    awh_inbtn:SetTextTooltip("Character Change Helper{nl}" .. "装備を外して倉庫へ搬入します。{nl}" ..
-                                 "The equipment is removed and brought into the warehouse.")
+    awh_inbtn:SetTextTooltip(g.lang == "Japanese" and
+                                 "Character Change Helper{nl}装備を外して倉庫へ搬入します。" or
+                                 "Character Change Helper{nl}The equipment is removed and brought into the warehouse.")
 
     local awh_outbtn = awhframe:CreateOrGetControl("button", "out", 585, 120, 40, 30)
     AUTO_CAST(awh_outbtn)
@@ -195,14 +200,16 @@ function cc_helper_accountwarehouse_init()
     awh_outbtn:SetEventScript(ui.LBUTTONUP, "cc_helper_out_btn_start")
     awh_outbtn:ShowWindow(1)
     awh_outbtn:SetSkinName("test_pvp_btn")
-    awh_outbtn:SetTextTooltip("Character Change Helper{nl}" .. "倉庫から搬出して装備します。{nl}" ..
-                                  "It is carried out from the warehouse and equipped.")
+    awh_outbtn:SetTextTooltip(g.lang == "Japanese" and
+                                  "Character Change Helper{nl}倉庫から搬出して装備します。" or
+                                  "Character Change Helper{nl}It is carried out from the warehouse and equipped.")
 
     local auto_close = awhframe:CreateOrGetControl("checkbox", "auto_close", 515, 120, 30, 30)
     AUTO_CAST(auto_close)
     auto_close:ShowWindow(1)
-    auto_close:SetTextTooltip("After the operation is completed,{nl}the warehouse and inventory are closed.{nl}" ..
-                                  "動作終了後倉庫とインベントリーを閉じます。")
+    auto_close:SetTextTooltip(
+        g.lang == "Japanese" and "動作終了後倉庫とインベントリーを閉じます。" or
+            "After the operation is completed,{nl}the warehouse and inventory are closed.")
     auto_close:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     auto_close:SetCheck(g.settings.auto_close)
 
@@ -213,7 +220,7 @@ function cc_helper_accountwarehouse_init()
         mccbtn:SetSkinName("test_red_button")
         mccbtn:SetTextAlign("right", "center")
         mccbtn:SetText("{img monsterbtn_image 30 20}{/}")
-        mccbtn:SetTextTooltip("カード自動搬出入、自動着脱{nl}" ..
+        mccbtn:SetTextTooltip(g.lang == "Japanese" and "カード自動搬出入、自動着脱" or
                                   "Automatic card loading/unloading, automatic insertion/removal")
         mccbtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_MONSTERCARDPRESET_FRAME_OPEN")
     end
@@ -267,9 +274,8 @@ function cc_helper_set_load(characterName)
 
     local characterData = {}
 
-    -- キャラクターデータを検索
     for key, data in pairs(g.set) do
-        -- print(string.format("確認中 CharacterName: %s", characterName))
+
         if type(data) == "table" and key == characterName then
             characterData = data
             break
@@ -285,7 +291,7 @@ function cc_helper_set_load(characterName)
     if characterData then
         g.settings[g.LOGINCID] = characterData
         g.settings[g.LOGINCID].name = LoginName
-        -- print(g.settings[g.LOGINCID].name)
+
         cc_helper_save_settings()
         local frame = ui.GetFrame("cc_helper")
         frame:ShowWindow(0)
@@ -463,6 +469,18 @@ function cc_helper_set_save(frame, ctr, str, num)
     acutil.saveJSON(g.setFileLoc, g.set)
 end
 
+function cc_helper_agm_setting(frame, ctrl, str, num)
+    if not g.settings[g.LOGINCID].agm_check then
+        g.settings[g.LOGINCID].agm_check = true
+
+    else
+        g.settings[g.LOGINCID].agm_check = false
+
+    end
+    cc_helper_save_settings()
+    cc_helper_setting_frame_init()
+    frame:ShowWindow(1)
+end
 -- settingframe
 function cc_helper_setting_frame_init()
     local awhframe = ui.GetFrame("accountwarehouse")
@@ -472,9 +490,10 @@ function cc_helper_setting_frame_init()
     cc_helper_load_settings()
 
     local frame = ui.GetFrame(addonNameLower)
+    frame:RemoveAllChild()
     frame:SetSkinName("test_frame_low")
     frame:SetLayerLevel(93)
-    frame:Resize(270, 285)
+    frame:Resize(270, 320)
     frame:SetPos(1140, 380)
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
@@ -510,7 +529,8 @@ function cc_helper_setting_frame_init()
     mcc_title:SetText("{ol}mcc")
     local mccuse = frame:CreateOrGetControl("checkbox", "mccuse", 45, 250, 25, 25)
     AUTO_CAST(mccuse)
-    mccuse:SetTextTooltip("チェックを入れると[Monster Card Change]と連携します。{nl}" ..
+    mccuse:SetTextTooltip(g.lang == "Japanese" and
+                              "チェックを入れると[Monster Card Change]と連携します。" or
                               "If checked, it will work with [Monster Card Change].")
     mccuse:SetCheck(g.settings[g.LOGINCID].mcc_use)
     mccuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
@@ -519,10 +539,39 @@ function cc_helper_setting_frame_init()
     agm_title:SetText("{ol}agm")
     local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 115, 250, 25, 25)
     AUTO_CAST(agmuse)
-    agmuse:SetTextTooltip("チェックを入れると[Aethergem Manager]と連携します。{nl}" ..
-                              "If checked, it will work with [Aethergem Manager].")
+    agmuse:SetTextTooltip(
+        g.lang == "Japanese" and "チェックを入れると[Aethergem Manager]と連携します。" or
+            "If checked, it will work with [Aethergem Manager].")
     agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     agmuse:SetCheck(g.settings[g.LOGINCID].agm_use)
+
+    local agm_on_off = frame:CreateOrGetControl('button', 'agm_on_off', 80, 275, 60, 30)
+    AUTO_CAST(agm_on_off)
+    if g.settings[g.LOGINCID].agm_use == 1 then -- !
+        if g.settings[g.LOGINCID].agm_check == true then
+
+            agm_on_off:SetSkinName("test_red_button")
+            agm_on_off:SetText("{ol}ON")
+            agm_on_off:SetTextTooltip(g.lang == "Japanese" and
+                                          "[エーテルジェムマネージャー]との連携時に確認します" or
+                                          "Check when working with [Aethergem Manager]")
+        else
+            agm_on_off:SetSkinName("test_gray_button")
+            agm_on_off:SetText("{ol}OFF")
+            agm_on_off:SetTextTooltip(g.lang == "Japanese" and
+                                          "[エーテルジェムマネージャー]との連携時に確認しません" or
+                                          "Not checked when working with [Aethergem Manager]")
+        end
+        agm_on_off:SetEventScript(ui.LBUTTONUP, "cc_helper_agm_setting")
+    else
+        g.settings[g.LOGINCID].agm_check = true
+        agm_on_off:SetSkinName("test_red_button")
+        agm_on_off:SetText("{ol}ON")
+        agm_on_off:SetTextTooltip(g.lang == "Japanese" and
+                                      "[エーテルジェムマネージャー]との連携時に確認します" or
+                                      "Check when working with [Aethergem Manager]")
+    end
+    cc_helper_save_settings()
 
     local close = frame:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
     AUTO_CAST(close)
@@ -540,9 +589,9 @@ function cc_helper_setting_frame_init()
     delay:SetFontName("white_16_ol")
     delay:SetTextAlign("center", "center")
     delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
-    delay:SetTextTooltip(
-        "動作のディレイ時間を設定します。デフォルトは0.3秒。早過ぎると失敗が多発します。{nl}" ..
-            "Sets the delay time for the operation. Default is 0.3 seconds. Too early and many failures will occur.")
+    delay:SetTextTooltip(g.lang == "Japanese" and
+                             "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
+                             "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")
 
     if g.settings[g.LOGINCID] == nil then
         g.settings[g.LOGINCID] = {}
@@ -697,10 +746,7 @@ end
 function cc_helper_settings_close(frame)
     local frame = ui.GetFrame("cc_helper")
     frame:ShowWindow(0)
-    --[[if frame:IsVisible() == 1 then
-        frame:ShowWindow(0)
-        cc_helper_load_settings()
-    end]]
+
 end
 
 function cc_helper_cancel(frame, ctrl, argstr, argnum)
@@ -813,6 +859,7 @@ function cc_helper_check_setting(frame, ctrl, argStr, argNum)
     elseif ctrl:GetName() == "agmuse" then
         if ischeck == 0 then
             g.settings[g.LOGINCID].agm_use = 0
+
         else
             g.settings[g.LOGINCID].agm_use = 1
         end
@@ -830,7 +877,8 @@ function cc_helper_check_setting(frame, ctrl, argStr, argNum)
         end
     end
     cc_helper_save_settings()
-
+    cc_helper_setting_frame_init()
+    frame:ShowWindow(1)
 end
 
 function cc_helper_delay_change(frame, ctrl, argStr, argNum)
@@ -1096,6 +1144,7 @@ function cc_helper_in_btn_aethergem_mgr()
     if ADDONS.norisan.AETHERGEM_MGR ~= nil and g.check == 0 and g.settings[g.LOGINCID].agm_use == 1 then
 
         for _, slotName in ipairs(equipSlots) do
+
             local equipSlot = GET_CHILD_RECURSIVELY(frame, slotName)
             local Icon = equipSlot:GetIcon()
 
@@ -1123,10 +1172,16 @@ end
 
 function cc_helper_msgbox_frame()
 
-    local msg = "Do you want to start Aethrgem Manager first?"
-    local yes_scp = "cc_helper_in_btn_agm()"
-    local no_scp = "cc_helper_in_btn_start()"
-    ui.MsgBox(msg, yes_scp, no_scp);
+    if g.settings[g.LOGINCID].agm_check == true then
+        local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
+                        "Do you want to start[Aether Gem Manager]first?"
+        local yes_scp = "cc_helper_in_btn_agm()"
+        local no_scp = "cc_helper_in_btn_start()"
+        ui.MsgBox(msg, yes_scp, no_scp);
+    else
+        cc_helper_in_btn_agm()
+
+    end
 
     return
 end
@@ -1146,11 +1201,10 @@ function cc_helper_in_btn_agm()
 end
 
 function cc_helper_in_btn_start()
-    -- print("cc_helper_in_btn_start")
+
     g.monstercard = 1
     g.unequip = 1
-    -- g.agm = 1
-    -- g.equip = 0
+
     local frame = ui.GetFrame("inventory")
 
     if true == BEING_TRADING_STATE() then
@@ -1230,97 +1284,6 @@ function cc_helper_unequip()
     local legtrue = 0
     cc_helper_unequip_card(legtrue)
 end
-
---[[function cc_helper_unequip()
-
-    local frame = ui.GetFrame("inventory")
-    local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
-    eqpTab:SelectTab(1)
-    local equip_tbl = {
-        [1] = "SEAL",
-        [3] = "RELIC",
-        [2] = "ARK",
-        [4] = "HAT",
-        [5] = "HAT_L",
-        [6] = "HAT_T"
-    }
-    for i = 1, 6 do
-        for key, value in pairs(equip_tbl) do
-            local slot = GET_CHILD_RECURSIVELY(frame, value)
-            local icon = slot:GetIcon()
-            if icon ~= nil then
-                local icon_info = icon:GetInfo()
-
-                if icon_info ~= nil then
-                    local iesid = icon_info:GetIESID()
-
-                    if value == "SEAL" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].seal_iesid then
-
-                            local index = 25
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "RELIC" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].crown_iesid then
-                            local index = 29 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "ARK" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].ark_iesid then
-                            local index = 27 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-
-                        end
-                    end
-                    if value == "HAT" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair1_iesid then
-                            local index = 0 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "HAT_T" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair2_iesid then
-
-                            local index = 20 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "HAT_L" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair3_iesid then
-
-                            local index = 1 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                end
-            end
-
-        end
-    end
-    eqpTab:SelectTab(1)
-    local legtrue = 0
-    cc_helper_unequip_card(legtrue)
-end]]
 
 function cc_helper_unequip_card(legtrue)
 
@@ -1741,11 +1704,6 @@ function cc_helper_out_btn_start()
 
     end
 
-    --[[for _, iesid in ipairs(take) do
-        print("Selected item iesid:" .. iesid)
-    end]]
-
-    -- アイテムの倉庫からの移動と装備
     session.ResetItemList()
     for _, iesid in pairs(take) do
         session.AddItemID(tonumber(iesid), 1)
@@ -1847,106 +1805,6 @@ function cc_helper_card_equip(spot, iesid)
         pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr)
     end
 end
-
--- itemequip
---[[function cc_helper_equip_reserve()
-    local frame = ui.GetFrame("inventory")
-
-    local iesids = {
-        [1] = {
-            GODCARD = g.settings[g.LOGINCID].god_iesid
-        },
-        [2] = {
-            HAT = g.settings[g.LOGINCID].hair1_iesid
-        },
-        [3] = {
-            HAT_T = g.settings[g.LOGINCID].hair2_iesid
-        },
-        [4] = {
-            HAT_L = g.settings[g.LOGINCID].hair3_iesid
-        },
-        [5] = {
-            SEAL = g.settings[g.LOGINCID].seal_iesid
-        },
-        [6] = {
-            ARK = g.settings[g.LOGINCID].ark_iesid
-        },
-
-        [7] = {
-            RELIC = g.settings[g.LOGINCID].crown_iesid
-        },
-        [8] = {
-            LEGCARD = g.settings[g.LOGINCID].leg_iesid
-        }
-
-    }
-    local delay = 0
-    for index, data in ipairs(iesids) do
-        local spot, iesid = next(data) -- テーブルの最初のキーと値を取得
-
-        if spot == "GODCARD" then
-            local god_index = 13
-            local cardid = GETMYCARD_INFO(god_index)
-
-            if cardid == 0 and iesid ~= nil then
-
-                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
-                delay = delay + g.settings.delay * 3
-
-            end
-
-        elseif spot ~= "LEGCARD" and spot ~= "GODCARD" then
-
-            -- print("item" .. delay)
-            if iesid ~= "" then
-
-                ReserveScript(string.format("cc_helper_equip('%s','%s')", spot, iesid), delay)
-                delay = delay + g.settings.delay * 1.5
-
-            end
-
-        elseif spot == "LEGCARD" and g.check == 0 then
-            local leg_index = 12
-            local cardid = GETMYCARD_INFO(leg_index)
-            -- print(delay)
-            if cardid == 0 and iesid ~= nil then
-                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
-            end
-        end
-
-    end
-
-    ReserveScript("cc_helper_end_operation()", delay + 1.0)
-
-end
-
-function cc_helper_equip(spot, iesid)
-    local item = session.GetInvItemByGuid(tonumber(iesid))
-    if item ~= nil then
-
-        local item_index = item.invIndex
-        ITEM_EQUIP(item_index, spot)
-    end
-end
-
-function cc_helper_card_equip(spot, iesid)
-
-    MONSTERCARDSLOT_FRAME_OPEN()
-
-    if spot == "GODCARD" then
-        local god_index = 13
-        local argStr = string.format("%d#%s", god_index, tostring(iesid));
-        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
-        return
-    elseif spot == "LEGCARD" then
-
-        local leg_index = 12
-        local argStr = string.format("%d#%s", leg_index, tostring(iesid));
-        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
-        return
-    end
-
-end]]
 
 function cc_helper_end_operation()
     -- 装備解除が必要かどうかをチェック
@@ -2051,11 +1909,16 @@ function cc_helper_handle_aether_gem_management()
                 local gem = equipItem:GetEquipGemID(2)
 
                 if gem == 0 then
-
-                    local msg = "Call Aether Gem Manager?"
-                    local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
-                    ui.MsgBox(msg, yes_scp, "None")
-                    break
+                    if g.settings[g.LOGINCID].agm_check == true then
+                        local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
+                                        "Call[Aether Gem Manager]?"
+                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
+                        ui.MsgBox(msg, yes_scp, "None")
+                        break
+                    else
+                        AETHERGEM_MGR_GET_EQUIP()
+                        break
+                    end
                     -- return
                 end
             end
@@ -2125,6 +1988,197 @@ function cc_helper_handle_monstercard_change()
         msgframe:ShowWindow(1)
     end
 end
+
+--[[function cc_helper_unequip()
+
+    local frame = ui.GetFrame("inventory")
+    local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
+    eqpTab:SelectTab(1)
+    local equip_tbl = {
+        [1] = "SEAL",
+        [3] = "RELIC",
+        [2] = "ARK",
+        [4] = "HAT",
+        [5] = "HAT_L",
+        [6] = "HAT_T"
+    }
+    for i = 1, 6 do
+        for key, value in pairs(equip_tbl) do
+            local slot = GET_CHILD_RECURSIVELY(frame, value)
+            local icon = slot:GetIcon()
+            if icon ~= nil then
+                local icon_info = icon:GetInfo()
+
+                if icon_info ~= nil then
+                    local iesid = icon_info:GetIESID()
+
+                    if value == "SEAL" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].seal_iesid then
+
+                            local index = 25
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "RELIC" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].crown_iesid then
+                            local index = 29 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "ARK" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].ark_iesid then
+                            local index = 27 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+
+                        end
+                    end
+                    if value == "HAT" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair1_iesid then
+                            local index = 0 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "HAT_T" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair2_iesid then
+
+                            local index = 20 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                    if value == "HAT_L" and i == key then
+
+                        if iesid ~= nil and tostring(iesid) == g.settings[g.LOGINCID].hair3_iesid then
+
+                            local index = 1 -- スロットインデックスを適切な値に設定する必要があります
+                            item.UnEquip(index)
+                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+                            return
+                        end
+                    end
+                end
+            end
+
+        end
+    end
+    eqpTab:SelectTab(1)
+    local legtrue = 0
+    cc_helper_unequip_card(legtrue)
+end]]
+
+-- itemequip
+--[[function cc_helper_equip_reserve()
+    local frame = ui.GetFrame("inventory")
+
+    local iesids = {
+        [1] = {
+            GODCARD = g.settings[g.LOGINCID].god_iesid
+        },
+        [2] = {
+            HAT = g.settings[g.LOGINCID].hair1_iesid
+        },
+        [3] = {
+            HAT_T = g.settings[g.LOGINCID].hair2_iesid
+        },
+        [4] = {
+            HAT_L = g.settings[g.LOGINCID].hair3_iesid
+        },
+        [5] = {
+            SEAL = g.settings[g.LOGINCID].seal_iesid
+        },
+        [6] = {
+            ARK = g.settings[g.LOGINCID].ark_iesid
+        },
+
+        [7] = {
+            RELIC = g.settings[g.LOGINCID].crown_iesid
+        },
+        [8] = {
+            LEGCARD = g.settings[g.LOGINCID].leg_iesid
+        }
+
+    }
+    local delay = 0
+    for index, data in ipairs(iesids) do
+        local spot, iesid = next(data) -- テーブルの最初のキーと値を取得
+
+        if spot == "GODCARD" then
+            local god_index = 13
+            local cardid = GETMYCARD_INFO(god_index)
+
+            if cardid == 0 and iesid ~= nil then
+
+                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
+                delay = delay + g.settings.delay * 3
+
+            end
+
+        elseif spot ~= "LEGCARD" and spot ~= "GODCARD" then
+
+            -- print("item" .. delay)
+            if iesid ~= "" then
+
+                ReserveScript(string.format("cc_helper_equip('%s','%s')", spot, iesid), delay)
+                delay = delay + g.settings.delay * 1.5
+
+            end
+
+        elseif spot == "LEGCARD" and g.check == 0 then
+            local leg_index = 12
+            local cardid = GETMYCARD_INFO(leg_index)
+            -- print(delay)
+            if cardid == 0 and iesid ~= nil then
+                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
+            end
+        end
+
+    end
+
+    ReserveScript("cc_helper_end_operation()", delay + 1.0)
+
+end
+
+function cc_helper_equip(spot, iesid)
+    local item = session.GetInvItemByGuid(tonumber(iesid))
+    if item ~= nil then
+
+        local item_index = item.invIndex
+        ITEM_EQUIP(item_index, spot)
+    end
+end
+
+function cc_helper_card_equip(spot, iesid)
+
+    MONSTERCARDSLOT_FRAME_OPEN()
+
+    if spot == "GODCARD" then
+        local god_index = 13
+        local argStr = string.format("%d#%s", god_index, tostring(iesid));
+        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
+        return
+    elseif spot == "LEGCARD" then
+
+        local leg_index = 12
+        local argStr = string.format("%d#%s", leg_index, tostring(iesid));
+        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
+        return
+    end
+
+end]]
 
 --[[ 終了処理
 function cc_helper_end_operation()
