@@ -849,6 +849,8 @@ function SELECTTEAM_ON_MSG(frame, msg, argStr, argNum, ud)
 			START_GAME_SET_MAP(gameStartFrame, argNum, bpc:GetApc().mapID, bpc:GetApc().channelID);
 			end
 			gameStartFrame:ShowWindow(1);
+			BARRACK_INIT_LANGUAGE_CONFIG(gameStartFrame)
+			
 		end
 	elseif msg == "BARRACK_SELECTCHARACTER" then    
 		ON_CLOSE_BARRACK_SELECT_MONSTER();
@@ -1116,6 +1118,8 @@ function SET_BARRACK_MODE(frame, argStr, layer)
 		create_info:ShowWindow(1);
 		zone:ShowWindow(1);
 		channels:ShowWindow(1);
+		
+		BARRACK_INIT_LANGUAGE_CONFIG(gameStartUI)
 	else
 		start_game:SetTextByKey("value", ClMsg("Return"));
 		create_info:ShowWindow(0);
@@ -1484,4 +1488,46 @@ function IS_POPOBOOST_PARTICIPATE_CHAR_BARRACK(cid)
 	end
 	local val = accountInfo:GetBarrackCharEtcProp(cid, popoetcprop)
 	return tonumber(val);
+end
+
+function BARRACK_INIT_LANGUAGE_CONFIG(frame)	
+	local catelist = GET_CHILD(frame, "languageList")	
+	catelist:ClearItems();
+
+	if dictionary.IsEnableDic() == false then
+		catelist:ShowWindow(0);
+		local language_title = frame:GetChild("language_title");
+		language_title:ShowWindow(0);
+	end
+
+	local selIndex = 0;
+	local cnt = option.GetNumCountry();
+	for i = 0 , cnt - 1 do
+		local lanUIString =  option.GetPossibleCountryUIName(i);
+		local lanUIString2 =  string.format("{@st42b}%s", option.GetPossibleCountryUIName(i));
+		local NationGroup = GetServerNation();
+		if (lanUIString ~= "kr") then 
+			if NationGroup == "GLOBAL" then
+				if (lanUIString ~= "Japanese")then
+					catelist:AddItem(lanUIString, lanUIString2);
+				end
+			else
+				catelist:AddItem(lanUIString, lanUIString2);
+			end
+		end
+	end
+	
+	local lanString = option.GetCurrentCountry();
+	catelist:SelectItemByKey(lanString);
+end
+
+function APPLY_LANGUAGE_BARRACK(frame)
+	
+	local lanCtrl = GET_CHILD_RECURSIVELY(frame, "languageList", "ui::CDropList");
+	local lanString = lanCtrl:GetSelItemKey();
+	option.SetCountry(lanString)
+
+	config.SaveConfig();
+
+	barrack.ReloadBarrackCharInfo()
 end

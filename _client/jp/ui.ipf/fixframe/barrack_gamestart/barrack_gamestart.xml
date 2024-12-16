@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MintPC (Mi) -->
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
-<uiframe name="barrack_gamestart" x="0" y="0" width="650" height="210">
+<uiframe name="barrack_gamestart" x="0" y="0" width="850" height="210">
 	<frame title="캐릭터선택" layout_gravity="center bottom" margin="0 0 0 40" scale_align="center bottom"/>
 	<draw drawtitlebar="false" drawframe="false"/>
 	<input moveable="false" hittestframe="false"/>
@@ -17,5 +17,9 @@
 		<checkbox name="hidelogin" rect="0 0 80 50" margin="0 65 0 25" layout_gravity="center top" LBtnUpScp="UPDATE_BARRACK_HIDELOGIN_OPTION" format="{@st42}%s{/}" param1="option_name" param1_def="접속 알림 끄기" resizebytext="true" omitbywidth="true" ellipsistexttooltip="true" clicksound="button_click_big" oversound="button_over"/>
 		<richtext name="zone" margin="0 -1000 0 0" rect="0 0 300 24" format="{@st45ty}%s{/}" param1="value" param1_def="SIAUL_WEST_SIAUL_WEST_" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>
 		<droplist name="channels" margin="0 32 0 0" rect="0 0 240 20" layout_gravity="center top" skin="droplist_normal5" visibleline="5" frametextalign="left" font="white_20_ol" textalign="left center" textoffset="20 0" SelectScp="SELECT_GAMESTART_CHANNEL" defaultoffset="true"/>
+
+		<!-- <groupbox name="languageBox" rect="0 0 590 80" margin="490 130 0 0" layout_gravity="center top" scrollbar="false" draw="false"/> -->
+        <richtext name="language_title" rect="0 0 250 24" margin="590 50 0 0" layout_gravity="left top" format="{@st43}언어 선택{/}"/>
+        <droplist name="languageList"  rect="0 0 200 40" margin="600 90 0 0" layout_gravity="left top" SelectScp="APPLY_LANGUAGE_BARRACK" font="white_20_ol" frametextalign="left" skin="droplist_normal" textalign="left center" textoffset="10 0" visibleline="11"/>
 	</controls>
 </uiframe>

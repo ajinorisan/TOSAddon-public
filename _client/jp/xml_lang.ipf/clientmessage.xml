@@ -245,6 +245,7 @@
 		<Class ClassID="1203" ClassName="KupoleURItem" Data="여신의 은총 : UR"/>
 		<Class ClassID="1204" ClassName="KupoleBuffAlreadyApply" Data="이미 동일한 효과의 버프를 보유하고 있습니다."/>
 		<Class ClassID="1205" ClassName="enable_upgrade" Data="{@st42_red}업그레이드 가능{/}"/>
+		<Class ClassID="1206" ClassName="9th_event_col" Data="[9주년] 컬렉션 이벤트"/>		
 		</Category>
 	<Category Name="Reinforce">
 		<Class ClassID="2001" ClassName="NotEnoughReinforcePotential" Data="강화에 필요한 포텐셜이 부족합니다"/>
@@ -2565,7 +2566,7 @@
 		<Class ClassID="10647" ClassName="NoticedInheritance" Data="+20 강화 수치에 도달한 장비({#FF0000}{name}{/})가 있습니다. 해당 장비를 다음 등급의 장비로 계승할 수 있습니다.{nl}{#FF0000}메뉴 - 아이템 - 가디스 장비 - 계승"/>
 		<Class ClassID="10648" ClassName="EnableUpgradeAetherGem" Data="다음 단계의 에테르젬으로 강화레벨을 이전할 수 있습니다. 이때 다음 단계의 에테르젬이 필요합니다.{nl}{@st66d}{s15}피이로맨서 마스터의 연구실 - 아브레 멜린(NPC) 이용{/}{/}"/>
 		<Class ClassID="10649" ClassName="desc_popoboost_item" Data="포포 부스트 {count}차 이벤트 아이템입니다."/>		
-		<Class ClassID="10650" ClassName="notice_goddess_moru_item" Data="가디스 모루로만 강화가 가능한 아이템입니다. 강화 실버 할인 쿠폰이 적용되지 않는 아이템입니다."/>
+		<Class ClassID="10650" ClassName="notice_goddess_moru_item" Data="전용 모루로만 강화가 가능한 아이템입니다. 강화 실버 할인 쿠폰이 적용되지 않는 아이템입니다."/>
 		<Class ClassID="10651" ClassName="NoticeStartSkill" Data="스킬 포인트가 지급되었습니다. {#ff0000}스킬과 특성(F3){/}을 열어 공격 스킬을 배울 수 있습니다."/>
 		<Class ClassID="10652" ClassName="NotEnoughCupoleTicket" Data="큐폴 영입권이 부족합니다"/>
 		<Class ClassID="10653" ClassName="Item_Consume" Data="소모품"/>
@@ -3059,6 +3060,7 @@
 		<Class ClassID="21485" ClassName="NewEpisodeLockMsg_Episode_16_1" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode16-1]{/}의 퀘스트 시작은 {#FFFF00}스타리타운{/}의 {#FFFF00}스타리 시계 탑 광장 근처{/}로부터 시작할 수 있습니다."/>
 		<Class ClassID="21486" ClassName="RecipeBox" Data="레시피 상자"/>
 		<Class ClassID="21487" ClassName="NewEpisodeLockMsg_Episode_16_2" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode16-2]{/}의 퀘스트 시작은 {#FFFF00}라이마의 성소{/}의 {#FFFF00}라이마 NPC{/}로부터 시작할 수 있습니다."/>
+		<Class ClassID="21488" ClassName="TP_Newbie" Data="초심자"/>
 	</Category>
 	<Category Name="ChatText">
 		<Class ClassID="22001" ClassName="Guard" Data="방어"/>
@@ -11055,6 +11057,7 @@
 		<Class ClassID="92295" ClassName="CollapsingMine" Data="무너지는 광산"/>
 		<Class ClassID="92296" ClassName="EP16_2_FANLIB_48_4_MINI_TIME_MSG" Data="남은 시간 : {sec}초"/>
 		<Class ClassID="92297" ClassName="Goddess_Raid_CollapsingMine_RollingNoticeMsg" Data="수정골렘이 중첩된 가속력만큼 약화 상태에 빠집니다."/>
+		<Class ClassID="92304" ClassName="RequireLevel" Data="요구 레벨 : {level}"/>
 	</Category>
 	<Category Name="BattleText">
 		<Class ClassID="100001" ClassName="ADD_DAMAGE_{Auto_1}!" Data="추가 대미지 {Auto_1}!"/>
@@ -16959,7 +16962,15 @@
 		<Class ClassID="302886" ClassName="EVENT_2410_MOONRISE_CHECK_MSG_PAPAYA{WEEK}{TOTAL}" Data="[[이벤트] 2024 주화 획득현황]{nl}주간 획득량({WEEK}/1500){nl}총 획득량({TOTAL}/6000){nl}{#FF0000}※ 주간 획득량은 매주 월요일 오전 6시에 초기화 됩니다.{nl}"/>
 		<Class ClassID="302887" ClassName="EVENT_2410_LEAVES" Data="[단풍맞이] 교환 상점"/>
 		<Class ClassID="302888" ClassName="EVENT_2410_HALLOWEEN_PAPAYA{DAY}{TOTAL}" Data="{#3366FF}[이벤트] 달맞이 주화{/}{nl}총 코인 획득량 ({TOTAL}/4350){nl}일일 코인 획득량 ({DAY}/150){nl}{#FF0000}※[이벤트] 달맞이 주화 코인은 달토끼 아지트를 클리어하여 획득할 수 있습니다.{/}{nl}{#FF0000}※ 일일 획득량은 오전 6시에 초기화 됩니다.{/}"/>
-
+		<Class ClassID="302889" ClassName="EVENT_2411_SANTA" Data="트팡! 산타 보따리 (용병단 증표 필요)"/>
+		<Class ClassID="302890" ClassName="USE_ALL_CHANCE" Data="모든 기회를 소모했습니다."/>
+		<Class ClassID="302891" ClassName="EVENT_2411_SANTA_MSG{FREE}" Data="{#3366FF}[트팡! 산타 보따리 뽑기현황]{/}{nl}무료 뽑기 진행횟수({FREE}/50){nl}{#FF0000}※ 무료 뽑기를 50회 진행하면 더 이상 선물 보따리 뽑기를 진행할 수 없습니다.{/}"/>
+		<Class ClassID="302892" ClassName="EVENT_2411_SANTA2" Data="홈커밍 산타 보따리 (9주년 티켓 필요)"/>
+		<Class ClassID="302893" ClassName="EVENT_2411_9th_col_event" Data="9주년 컬렉션 이벤트 상점"/>
+		<Class ClassID="302894" ClassName="EVENT_POPOBOOST_2412_GUIDE_MSG{ITEM}" Data="여신/마신 아이커는 방어구에 부여할 수 있는 특수한 옵션입니다.{nl}인벤토리에 지급된 [{ITEM}] 아이템을 사용하여 장비 보관함에서 해당 옵션을 개방할 수 있습니다."/>
+		<Class ClassID="302895" ClassName="EVENT_2411_SANTA_CAUTION1" Data="※ 산타를 만날 때마다 첫 선물 뽑기는 무료입니다.{nl}{#3366FF}(무료 1회, 보너스 4회){/}{nl}※ 무료 뽑기를 50회 진행하면 더 이상 선물 뽑기를 진행할 수 없습니다.{nl}{#3366FF}(무료/보너스 뽑기 모두 진행 불가){/}"/>	
+		<Class ClassID="302896" ClassName="EVENT_2411_SANTA_CAUTION2" Data="※ 뽑기 진행 시 [이벤트] 9주년 선물 티켓 1개를 소모합니다.{nl}※ 9주년 티켓은 이벤트 기간이 종료되면 더 이상 사용할 수 없습니다.{nl}"/>
+		<Class ClassID="302897" ClassName="EVENT_2411_SANTA_OUT" Data="던전 나가기"/>
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>

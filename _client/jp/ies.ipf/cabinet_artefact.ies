@@ -65,3 +65,7 @@ ClassID,Upgrade,MakeCostSilver,MaxUpgrade,Basic,Category,ClassName,GetItemFunc,R
 64,0,10000,1,0,"Artefact","ep16poporiruta_musket","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16poporiruta_musket_cabinet","","루타포포리 머스킷"
 65,0,10000,1,0,"Artefact","sledger_thspear","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","sledger_thspear_cabinet","","슬레저의 파이크"
 66,0,10000,1,0,"Artefact","sledger_thhammer","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","sledger_thhammer_cabinet","","슬레저의 투 핸드 메이스"
+67,0,10000,1,0,"Artefact","ep16angler_rapier","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16angler_rapier_cabinet","","강태공의 레이피어"
+68,0,10000,1,0,"Artefact","ep16angler_sword","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16angler_sword_cabinet","","강태공의 소드"
+69,0,10000,1,0,"Artefact","ep16angler_staff","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16angler_staff_cabinet","","강태공의 스태프"
+70,0,10000,1,0,"Artefact","ep16angler_shield","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16angler_shield_cabinet","","강태공의 실드"

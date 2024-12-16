@@ -1102,6 +1102,10 @@ function SET_KUPOLE_RTT_IMAGE_SIZE(ImageFrame, index)
     if numindex == 33 then
         X = MarginX;
         Y = MarginY;
+    elseif numindex == 34  then
+        --수정 필요
+        X = MarginX;
+        Y = MarginY * -2;
     else
         X = DefMarginX;
         Y = DefMarginY;

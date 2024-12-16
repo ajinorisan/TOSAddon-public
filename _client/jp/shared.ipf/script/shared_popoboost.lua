@@ -13,7 +13,7 @@ function popoboost_table()
         end
     
         item_list['Normal0'] = {}
-        item_list['Normal0']['open_ticket_cabinet_vibora_lv4'] = 3
+        item_list['Normal0']['open_ticket_cabinet_goddess_lv3'] = 4
         item_list['Normal0']['Event_JobexpCard_BOX'] = 1
         item_list['Normal0']['EVENT_RankReset_Point_Lv3'] = 1
         item_list['Normal0']['Ability_Point_Stone_100000'] = 20
@@ -23,7 +23,7 @@ function popoboost_table()
         -- item_list['Normal0']['open_ticket_cabinet_goddess_lv3'] = 4
             
         item_list['Normal1'] = {}
-        item_list['Normal1']['open_ticket_cabinet_goddess_lv3'] = 4
+        item_list['Normal1']['open_ticket_cabinet_vibora_lv4'] = 3
         item_list['Normal1']['EVENT_2403_Friend_Invite_Coin'] = 8
         item_list['Normal1']['misc_pvp_mine2_NotLimit_10000'] = 4
         item_list['Normal1']['Exchange_Weapon_Book_500_1d'] = 4
@@ -79,7 +79,7 @@ function popoboost_table()
         item_list['Normal6']['piece_penetration_belt_high_Belonging'] = 1
         item_list['Normal6']['JurateCertificateCoin_50000p'] = 3
         item_list['Normal6']['selectbox_specialclass_01'] = 1
-        item_list['Normal6']['Event_Roulette_Coin_PoPo_2409'] = 5
+        item_list['Normal6']['Event_Roulette_Coin_PoPo_2412'] = 5
 
         
         -- item_list['Normal6']['Event_Roulette_Coin_PoPo_2404'] = 5
@@ -94,7 +94,7 @@ function popoboost_table()
             
         --이모티콘 플러스 패키지 교체해야함
         item_list['Premium0']={}
-        item_list['Premium0']['emoticonItem_2409_popo'] = 1
+        item_list['Premium0']['emoticonItem_2412_popo'] = 1
         item_list['Premium0']['class_unlock_achievement_select'] = 1
         item_list['Premium0']['misc_Ether_Gem_Socket_500_NoTrade'] = 4
         item_list['Premium0']['Piece_Gem_High_500'] = 4
@@ -142,8 +142,8 @@ function popoboost_table()
         
         --칭호 변경해야함.
         item_list['Premium6']={}
-        item_list['Premium6']['Event_Roulette_Coin_PoPo_2409'] = 5
-        item_list['Premium6']['EVENT_2409_tidal_Serenity'] = 1
+        item_list['Premium6']['Event_Roulette_Coin_PoPo_2412'] = 5
+        item_list['Premium6']['plate_achieve_Santasmith'] = 1
         item_list['Premium6']['piece_GabijaEarring_select_job_NoTrade_Belonging'] = 1
         item_list['Premium6']['JurateCertificateCoin_50000p'] = 3
         item_list['Premium6']['common_skill_enchant_jewal_480'] = 10
@@ -200,7 +200,7 @@ function popoboost_table()
         item_list['Normal6']['piece_penetration_belt_high_Belonging'] = 1
         item_list['Normal6']['JurateCertificateCoin_50000p'] = 3
         item_list['Normal6']['selectbox_specialclass_01'] = 1
-        item_list['Normal6']['Event_Roulette_Coin_PoPo_2409'] = 5
+        item_list['Normal6']['Event_Roulette_Coin_PoPo_2412'] = 5
         item_list['Normal6']['legend_card_select_album'] = 1
 
         
@@ -257,7 +257,7 @@ function popoboost_table()
 
         --칭호 변경해야함.
         item_list['Premium6']={}
-        item_list['Premium6']['Event_Roulette_Coin_PoPo_2409'] = 5
+        item_list['Premium6']['Event_Roulette_Coin_PoPo_2412'] = 5
         item_list['Premium6']['EVENT_2409_tidal_Serenity'] = 1
         item_list['Premium6']['piece_GabijaEarring_select_job_NoTrade_Belonging'] = 1
         item_list['Premium6']['JurateCertificateCoin_50000p'] = 3
@@ -516,6 +516,7 @@ function GET_CURRENT_SEASCON_POPOBOST_INFO()
                 startprop = "StartTime"
                 endprop = "EndTime"
             end
+            
             local start_time = TryGetProp(info, startprop, "0000-00-00 00:00:00");
             local end_time = TryGetProp(info, endprop, "0000-00-00 00:00:00");
 
@@ -758,7 +759,7 @@ function CHECK_POPOBOOST_PROGRESS_CHECK_FUNC(pc, progress)
 
 end
 
-function CEHCK_POPOBOOST_PROGRESS_CHECK_01(pc, equip_list)
+function CEHCK_POPOBOOST_PROGRESS_CHECK_02(pc, equip_list)
     local equipcount = 0;
     local clearcount = 4;
     local equip_list = GetEquipItemList(pc)
@@ -778,11 +779,11 @@ function CEHCK_POPOBOOST_PROGRESS_CHECK_01(pc, equip_list)
         end
     end
     if equipcount == clearcount then
-        SCR_POPOBOOST_PROGRESS_SET(pc, 1)
+        SCR_POPOBOOST_PROGRESS_SET(pc, 2)
     end
 end
 
-function CEHCK_POPOBOOST_PROGRESS_CHECK_02(pc, equip_list)
+function CEHCK_POPOBOOST_PROGRESS_CHECK_01(pc, equip_list)
     local equipcount = 0;
     local clearcount = 4;
     local equip_list = GetEquipItemList(pc)
@@ -802,10 +803,26 @@ function CEHCK_POPOBOOST_PROGRESS_CHECK_02(pc, equip_list)
         end
     end
     if equipcount == clearcount then
-        SCR_POPOBOOST_PROGRESS_SET(pc, 2)
+        SCR_POPOBOOST_PROGRESS_SET(pc, 1)
     end
 end
 
 function CEHCK_POPOBOOST_PROGRESS_CHECK_INHERITANCE(pc)
 
+end
+
+function RETURN_POPOBOOST_ACCOUNTPROP_TO_CHAR_BY_INT(value)
+    if value == 0 then
+        return "None"
+    end
+    if value == 1 then
+        return "Normal"
+    end
+    if value == 2 then
+        return "OnlyPremium"
+    end
+    if value == 3 then
+        return "All"
+    end
+    return "None"
 end

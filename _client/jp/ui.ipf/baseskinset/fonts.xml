@@ -128,6 +128,7 @@
 		<font name="yellow_18_b" filename="ORIGINAL" size="18" color="#FFCC66" space="0" underline="no" bold="yes" dropshadow="no" italic="no" outline="no" outlinecolor="#333333"/>
 		<font name="yellow_20_ol" filename="ORIGINAL" size="20" color="#FFCC66" space="0" underline="no" bold="no" dropshadow="no" italic="no" outline="yes" outlinecolor="#333333"/>
 		<font name="yellow_20_ol_ds" filename="ORIGINAL" size="20" color="#FFCC66" space="0" underline="no" bold="no" dropshadow="yes" italic="no" outline="yes" outlinecolor="#333333"/>
+		<font name="yellow_22_ol_ds" filename="ORIGINAL" size="22" color="#FFCC33" space="0" underline="no" bold="no" dropshadow="yes" italic="no" outline="yes" outlinecolor="#333333"/>
 		<font name="yellow_24_ol" filename="ORIGINAL" size="24" color="#FFCC66" space="0" underline="no" bold="no" dropshadow="no" italic="no" outline="yes" outlinecolor="#333333"/>
 		<font name="yellow_24_b_ol" filename="ORIGINAL" size="24" color="#FFCC66" space="0" underline="no" bold="yes" dropshadow="no" italic="no" outline="yes" outlinecolor="#333333"/>
 		<font name="yellow_30_b_ol" filename="ORIGINAL" size="30" color="#FFCC66" space="0" underline="no" bold="yes" dropshadow="no" italic="no" outline="yes" outlinecolor="#333333" gradation="gradation2"/>

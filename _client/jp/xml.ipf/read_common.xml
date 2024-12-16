@@ -439,4 +439,5 @@
 	<ReadXml Name="friend_invite"/>	
 	<ReadXml Name="cupole_pickuplist"/>
 	<ReadXml Name="rerunticket"/>
+	<ReadXml Name="event_gamble_list"/>	
 </Category>

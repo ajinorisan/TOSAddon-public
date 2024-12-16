@@ -1301,6 +1301,12 @@
         <Effect Name="eff_pc_assassin_surprise_attack"/>
         <Effect Name="eff_monster_velclipse_skill06_launch_01"/>
         <Effect Name="eff_monster_velclipse_skill06_cast_01"/>
+        <Effect Name="GroundAura_ChristmasTree_Green_01"/>
+        <Effect Name="GroundAura_SnowField_White_02"/>
+        <Effect Name="GroundAura_RangeCircle_Cyan_02"/>
+        <Effect Name="Kupole_SantaZemyna_MerryChristmas"/>
+        <Effect Name="GroundAura_GiftBox_Rainbow_01"/>
+        <Effect Name="skl_eff_santazemyna_skl"/>
     </Category>
     <Category ID="70">
         <Effect Name="EVENT_2001_NEWYEAR_INIT_PAD"/>

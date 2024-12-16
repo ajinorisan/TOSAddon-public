@@ -126,17 +126,17 @@ function LETICIA_CUBE_OPEN_BUTTON(frame, ctrl, argStr, argNum, _gachaClassName, 
 	local aobj = GetMyAccountObj(pc)
 	local Cnt = TryGetProp(aobj, "LETICIA_CUBE_OPEN_COUNT", 0)
 
-    if config.GetServiceNation() == 'PAPAYA' then
-        if Cnt >= 200 then
-            ui.SysMsg(ClMsg('CantOpenLeticiaCube'))
-            return
-        end
+    -- if config.GetServiceNation() == 'PAPAYA' then
+    --     if Cnt >= 200 then
+    --         ui.SysMsg(ClMsg('CantOpenLeticiaCube'))
+    --         return
+    --     end
 
-        if Cnt > 189 and gachaClassName == 'Gacha_TP_108' then
-            ui.SysMsg(ClMsg('OnlyOpen1LeticiaCube'))
-            return
-        end
-    end
+    --     if Cnt > 189 and gachaClassName == 'Gacha_TP_108' then
+    --         ui.SysMsg(ClMsg('OnlyOpen1LeticiaCube'))
+    --         return
+    --     end
+    -- end
 
     local gachaCls = GetClass('GachaDetail', gachaClassName);    
     local cubeItemCls = GetClass('Item', cubeName);
@@ -232,6 +232,6 @@ function LETICIA_CUBE_ITEM_LIST_BUTTON_URL()
     if config.GetServiceNation() == 'PAPAYA' then
         login.OpenURL('https://tos.papayaplay.com/tos.do?tp=news.view&postid=4696');
     else
-        login.OpenURL('https://steamcommunity.com/games/2178420/announcements/detail/3866965910201898614')
+        login.OpenURL('https://steamcommunity.com/games/2178420/announcements/detail/3864716013106357956')
     end
 end

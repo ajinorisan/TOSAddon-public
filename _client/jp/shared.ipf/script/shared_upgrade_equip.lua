@@ -17,6 +17,11 @@ local function make_shared_upgrade_equip_table()
         material_table['EP16_penetration_belt_' .. i .. '_high']['JurateCertificate'] = 5000
         material_table['EP16_penetration_belt_' .. i .. '_high']['misc_BlessedStone_1'] = 2
         material_table['EP16_penetration_belt_' .. i .. '_high']['misc_ore28'] = 300
+
+        material_table['NoTrade_EP16_penetration_belt_' .. i .. '_high'] = {}
+        material_table['NoTrade_EP16_penetration_belt_' .. i .. '_high']['JurateCertificate'] = 5000
+        material_table['NoTrade_EP16_penetration_belt_' .. i .. '_high']['misc_BlessedStone_1'] = 2
+        material_table['NoTrade_EP16_penetration_belt_' .. i .. '_high']['misc_ore28'] = 300
     end
 
     for i = 1, 6 do
@@ -24,6 +29,11 @@ local function make_shared_upgrade_equip_table()
         material_table['EP16_fierce_shoulder_' .. i .. '_high']['JurateCertificate'] = 5000
         material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_1'] = 2
         material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_ore28'] = 300
+
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high'] = {}
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['JurateCertificate'] = 5000
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_1'] = 2
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_ore28'] = 300
     end
 
     local item_list = {

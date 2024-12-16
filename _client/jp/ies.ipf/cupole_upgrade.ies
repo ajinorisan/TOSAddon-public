@@ -33,3 +33,4 @@ ClassID,Upgrade_value,Owned_Value,UpgradeItemValue,ClassName,Group_ID,Name,Stat_
 32,0,0,2,"maid_ruta_upgrade","m_ruta_01","메이드 루타","BLK_BM","MiddleSize_Def_BM","cupole_rankup_UR"
 33,77,162,2,"summer_zesty_upgrade","summer_zesty_01","수영복 제스티","DR_BM","CRTDR_BM","cupole_rankup_UR"
 34,77,540,2,"lecifer_upgrade","Lecifer_01","렉시퍼","BLK_BREAK_BM","MiddleSize_Atk_BM","cupole_rankup_UR"
+35,77,432,2,"santa_zemyna_upgrade","SantaZemyna_01","산타 제미나","HR_BM","PATK_BM","cupole_rankup_UR"

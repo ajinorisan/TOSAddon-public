@@ -193,8 +193,11 @@
 	<Spine>
 		<Element Name="Kupole_Summer_Zesty_UR" root="zesty_swimsuit" atlas="zesty_swimsuit" json="zesty_swimsuit" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
-		<Spine>
+	<Spine>
 		<Element Name="Kupole_Lecifer_UR" root="rexipher_m" atlas="rexipher_m" json="rexipher_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_SantaZemyna_UR" root="zemyna_santa" atlas="zemyna_santa" json="zemyna_santa" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
 		<Element Name="Cache" root="Cache" atlas="cacheshop" json="cacheshop" scale="" offsetX="0" offsetY="0" animation="animation"/>

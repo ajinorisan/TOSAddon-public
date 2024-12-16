@@ -34,15 +34,19 @@ end
 
 function IS_MORU_DISCOUNT_50_PERCENT(moruItem)
     if moruItem == nil then
-        return false;
+        return false, 1;
     end
 
     if moruItem.ClassName == "Moru_Platinum_Premium" 
      or moruItem.StringArg ==  'Reinforce_Discount_50' then
-        return true;
+        return true, 0.5;
     end
 
-    return false;
+    if moruItem.ClassName == "Event_9th_Moru_goddess" then
+        return true, 0.7
+    end 
+
+    return false, 1;
 end
 
 -- 포텐션 0인 장비에만 사용가능한 모루 확인, 뒤에 타입이 추가됨
@@ -68,6 +72,12 @@ function IS_MORU_NOT_DESTROY_TARGET_ITEM(moruItem)
 
     if moruItem.StringArg == 'unique_gold_Moru' or moruItem.StringArg == 'blessed_ruby_Moru' then
         return true, 'ruby'
+    end
+
+    local str2 = TryGetProp(moruItem, 'StringArg2', 'None')
+
+    if string.find(str2, 'event') ~= nil then
+        return false, 'ruby'
     end
 
     -- if moruItem.StringArg == 'Event_LuckyBreak_Moru' then
@@ -129,6 +139,18 @@ function REINFORCE_ABLE_131014(item, moru_item)
     if moru_item ~= nil then
         local str = TryGetProp(moru_item, 'StringArg', 'None')
         local item_str = TryGetProp(item, 'StringArg', 'None')    
+
+        local str2 = TryGetProp(moru_item, 'StringArg2', 'None')
+        local item_str2 = TryGetProp(item, 'StringArg2', 'None')    
+        
+        if str2 ~= 'None' or item_str2 ~= 'None' then
+            if str2 == item_str2 then                
+                return 1
+            else
+                return 0
+            end
+        end
+
         if item_str == 'Moru_goddess' and string.find(str, 'Certificate') == nil then
             return 0
         end
@@ -257,9 +279,11 @@ function GET_REINFORCE_PRICE(fromItem, moruItem, pc)
     
     value = math.floor((500 + (lv ^ 1.1 * (5 + (reinforcecount * 2.5)))) * (2 + (math.max(0, reinforcecount - 9) * 0.5))) * priceRatio * gradeRatio;
     value_diamond = math.floor((500 + (lv ^ 1.1 * (5 + (reinforcecount_diamond * 2.5)))) * (2 + (math.max(0, reinforcecount - 9) * 0.5))) * priceRatio * gradeRatio;
-    
-    if IS_MORU_DISCOUNT_50_PERCENT(moruItem) == true then
-        value = value / 2;
+
+    local is_discount, dis_ratio = IS_MORU_DISCOUNT_50_PERCENT(moruItem)
+
+    if is_discount == true then
+        value = value * dis_ratio;
     end
     
     if IS_MORU_FREE_PRICE(moruItem) == true then

@@ -7129,6 +7129,7 @@
 			<groupbox name="maintab" rect="0 0 610 75" margin="0 0 0 0" layout_gravity="center center" draw="true" resizebyparent="false" resizebyresolution="true" scrollbar="false" skin="test_frame_low"/>
 				<richtext name="grade" parent="maintab" rect="0 0 50 75" margin="10 0 0 0" layout_gravity="left center" format="{@st43}{s24}%s" param1="value" param1_def="grade" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center"/>
 				<slot name="pic" parent="maintab" margin="65 0 0 0" rect="0 0 50 50" hittest="true" skin="invenslot2" stretch="true" changecursor="false" layout_gravity="left center"/>
+					<richtext name="inSlotCnt" parent="pic" rect="0 0 16 16" margin="0 0 0 5" layout_gravity="right bottom" format="{@st43}{s16}%s" param1="value" param1_def="Cnt" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center" />
 				<richtext name="name" parent="maintab" rect="0 0 325 50" margin="125 0  0 0" layout_gravity="left center" format="{@st43}{s16}%s" param1="value" param1_def="Name" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="left center" />
 				<richtext name="cnt" parent="maintab" rect="0 0 100 75" margin="435 0 0 0" layout_gravity="left center" format="{@st43}{s16}%s개" param1="value" param1_def="Cnt" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center"/>
 				<richtext name="percente" parent="maintab" rect="0 0 100 75" margin="500 0 0 0" layout_gravity="left center" format="{@st43}{s16}%s%" param1="value" param1_def="percente" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="center center"/>
@@ -7206,6 +7207,27 @@
 			<slot name="icon" margin="0 75 0 0" rect="0 0 135 135" layout_gravity="center top" enabledrop="false" enablepop="false" hittest="true"/>
 			<richtext name="desc" margin="20 0 0 70" rect="0 0 260 50" caption="XXXXXXXXXXXXXXXXXXXXXXXXX" textalign="left top" resizebytext="false" spacey="0" maxwidth="0" fontname="brown_16_b" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left bottom"/>
 			<button name="buyBtn" rect="0 0 130 42" margin="0 0 10 10" layout_gravity="right bottom" skin="test_red_button" scrollbar="false" hittest="true" caption="{@st42b}{s16}선택{/}" fontname="black_16_b" oversound="button_over" clicksound="button_click_stats" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="RERUN_TICKET_SELECT_ITEM"/>
+		</controls>
+	</controlset>
+	<!-- EVENT_2411_SANTA_GAHCA_SLOT -->
+
+	<controlset name="santa_slot" hittest="true" width="100" height="180" hittestset="false">
+		<controls>
+			<groupbox name="item_gb" rect="0 0 100 180" margin="0 0 0 0" layout_gravity="center center" draw="true" hittest="true" hittestbox="false" LBtnUpScp="" resizebyparent="false" scrollbar="false" skin="None" stretch="true"/>
+				<picture name="item_frame" rect="0 0 90 90" margin="0 3 0 0" parent="item_gb" layout_gravity="left top" draw="false" stretch="true" image="santa_item_frame"/>
+				<picture name="item_frame_effect" rect="0 0 90 90" margin="0 3 0 0" parent="item_gb" layout_gravity="left top" draw="false" stretch="true" image="santa_item_frame_Select"/>
+			<!-- <picture name="revert" rect="0 0 100 100" margin="0 02 0 0" layout_gravity="center top" draw="true" hittest="true" hittestbox="true" LBtnUpScp="" resizebyparent="false" scrollbar="false" stretch="true" image=""/> -->
+			<slot name="item_slot" rect="0 0 80 80" margin="5 8 0 0" layout_gravity="left top" changecursor="false" hittest="true" draw="true" enabledrag="false" LBtnUpScp="" skin="santa_gamble_slot" enableselect="true" />
+			<richtext name="remina_text" margin="0 0 0 0" rect="0 0 25 25" foramt="X %s" param1="cur" param1_def="1" textalign="center bottom" resizebytext="true" spacey="0" fontname="white_18_b_ds_ol"  updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center bottom" parent="item_gb"/>
+			<picture name="disable_shadow" rect="0 0 90 90" margin="0 0 0 0" layout_gravity="left top" changecursor="false" hittest="true" draw="true" enabledrag="false" LBtnUpScp="" image="santa_item_frame_Effect" enableselect="false" stretch="true"/>
+			<picture name="sold_out" rect="0 0 90 50" margin="0 20 0 0" layout_gravity="left top" draw="true" hittest="true" hittestbox="true" LBtnUpScp="" resizebyparent="false" scrollbar="false" stretch="true" image="santa_item_slot_soldout" oversound="button_cursor_over_3" clicksound="button_click_big"/>
+		</controls>
+	</controlset>
+
+	<!-- LETICIA_PROBAILITY_SLOT -->
+	<controlset name="event_probaility_sel_slot" hittest="true" width="90" height="38" hittestset="true">
+		<controls>
+			<button name="select_btn" rect="0 0 89 38" margin="0 0 0 0" layout_gravity="left top" skin="relic_btn_purple" stretch="false" format="{@st41b}{s18}%s회차" param1="value" param1_def="1" oversound="button_cursor_over_3" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" omitbywidth="true"/>
 		</controls>
 	</controlset>
 </controlsetlist>

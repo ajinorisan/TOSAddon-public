@@ -18407,12 +18407,12 @@
       </Trigger>
     </TriggerList>
   </SpcItem>
-  <SpcItem Name="GEM_Sledger_HeavySmashing">
+  <SpcItem Name="GEM_Sledger_HeavySmashing_Cleric">
     <TriggerList Act="UnEquip">
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Sledger_HeavySmashing" />
+            <Str Str="Sledger_HeavySmashing_Cleric" />
             <Num Num="-1" />
           </ToolScp>
         </ExecList>
@@ -18422,7 +18422,7 @@
       <Trigger>
         <ExecList>
           <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
-            <Str Str="Sledger_HeavySmashing" />
+            <Str Str="Sledger_HeavySmashing_Cleric" />
             <Num Num="1" />
           </ToolScp>
         </ExecList>

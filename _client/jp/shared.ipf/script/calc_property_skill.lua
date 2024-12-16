@@ -1482,6 +1482,23 @@ function SCR_Get_SkillFactor_Reinforce_Ability(skill)
     return math.floor(value);
 end
 
+
+function SCR_Get_SkillFactor_Reinforce_Ability_BigBang(skill)
+    local value = 0
+    local pc = GetSkillOwner(skill);
+    local bigbangSkillCleric = GetSkill(pc, 'Sledger_BigBang_Cleric');
+    if bigbangSkillCleric ~= nil then
+        value = TryGetProp(bigbangSkillCleric, "SkillFactor", 100) * 0.35
+    end
+
+    local bigbangSkillSwordman = GetSkill(pc, 'Sledger_BigBang_Swordman');
+    if bigbangSkillSwordman ~= nil then
+        value = TryGetProp(bigbangSkillSwordman, "SkillFactor", 100) * 0.35
+    end
+    
+    return value
+end
+
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_Get_SkillFactor_Doppelsoeldner_Zornhau_Abil(skill)
     local pc = GetSkillOwner(skill);
@@ -15663,6 +15680,15 @@ function SCR_GET_Tracking_Ratio2(skill)
 end
 
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function CHECK_EXCEPT_COOLDOWNGROUP(skill, groupname)
+    local CD_Group = skill.CoolDownGroup;
+    if CD_Group == groupname then
+        return true;
+    end
+    return false;
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
     local skill_name = TryGetProp(skill, "ClassName", "None")
 
@@ -15674,6 +15700,11 @@ function SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
     -- 공용스킬은 재사용 대기시간 효과를 적용받지 않음
     if GetClass('enchant_skill_list', skill_name) ~= nil then
         return basicCoolDown
+    end
+
+    -- 일부 스킬 그룹의 쿨타임 체크를 로직에서 제외.
+    if CHECK_EXCEPT_COOLDOWNGROUP(skill, "Sledger_BigBang") == true then
+        return basicCoolDown;
     end
 
     -- Laima CoolTime Buff

@@ -1601,6 +1601,7 @@ ClassID,OverHeatResetTime,ClassName,IsOverHeat,ReducePlayOnly,ForceReset
 6006,40000,"AquaWind","NO","FALSE","YES"
 6007,40000,"WheelOfFate","NO","FALSE","YES"
 6008,40000,"DarkLightningCurse","NO","FALSE","YES"
+6009,40000,"MerryChristmas","NO","FALSE","YES"
 7000,10000,"Sledger_HeavySmashing","NO","FALSE","YES"
 7001,10000,"Sledger_RollingHammer","NO","FALSE","YES"
 7002,5000,"Sledger_ChargeHammer","NO","FALSE","YES"

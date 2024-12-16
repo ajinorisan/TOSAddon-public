@@ -13,16 +13,19 @@ function MINIMIZED_POPOBOOST_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
     end
     local pc = GetMyPCObject();
     if pc == nil then
+        frame:ShowWindow(0);
         return ; 
     end
 
     local etc = GetMyEtcObject(pc);
     if etc == nil then
+        frame:ShowWindow(0);
         return ;
     end
 
     local acc = GetMyAccountObj(pc);
     if acc == nil then
+        frame:ShowWindow(0);
         return;
     end
 
@@ -31,8 +34,10 @@ function MINIMIZED_POPOBOOST_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
         frame:ShowWindow(0);
         return;
     end
+
     local popoProp = TryGetProp(acc,AccProp, -1);
-    if popoProp == 0 or popoProp == 2 then
+    local state = RETURN_POPOBOOST_ACCOUNTPROP_TO_CHAR_BY_INT(popoProp)
+    if state == "None" or popoProp == "OnlyPremium" then
         local lv = TryGetProp(pc,"Lv",0);
         if POPOBOOST_CHECK_ELIGIBILITY(lv, nil) == false then
             frame:ShowWindow(0);
@@ -72,3 +77,4 @@ function POPOBOOST_ALRET(frame, msg, argStr, argNum)
         notice_bg:ShowWindow(1);
     end
 end
+

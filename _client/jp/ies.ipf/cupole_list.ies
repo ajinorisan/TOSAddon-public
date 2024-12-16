@@ -33,3 +33,4 @@ ClassID,Scale,ClassName,Dec_Name,Group_ID,Use,AccountProperty,BookMark,Icon,Grad
 32,1,"Kupole_maid_ruta_UR","메이드 루타","m_ruta_01","false","Cupole_032","BMK_32","UR_cupole_maid_ruta_m","UR","YES","Default","Portion","mruta1","mruta2"
 33,1,"Kupole_Summer_Zesty_UR","수영복 제스티","summer_zesty_01","true","Cupole_033","BMK_33","UR_cupole_summer_zesty_m","UR","YES","Default","","",""
 34,1,"Kupole_Lecifer_UR","렉시퍼","Lecifer_01","true","Cupole_034","BMK_34","UR_cupole_Lecifer_m","UR","YES","Default","Portion","lecifer1","lecifer2"
+35,1,"Kupole_SantaZemyna_UR","산타 제미나","SantaZemyna_01","true","Cupole_035","BMK_35","UR_cupole_santazemyna_m","UR","YES","Default","Portion","santazemyna1","santazemyna2"

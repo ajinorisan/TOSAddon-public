@@ -20,6 +20,6 @@
 		<richtext name="cubeText" rect="0 0 300 30" parent="cubeBox" margin="0 0 0 15" layout_gravity="center bottom" caption="큐브 이름이다" fontname="white_18_b_ol"/>
 		<groupbox name="cubeListBox" rect="0 0 382 341" margin="0 73 13 0" layout_gravity="right top" skin="test_frame_midle" fixheight="true" scrollbar="true"/>
 		<button name="openBtn" rect="0 0 281 63" margin="0 0 0 60" layout_gravity="center bottom" skin="test_red_button" format="{nl}{img %s 40 40}{@st42b}{s20}큐브 개봉  " fontname="white_18_b_ol" LBtnUpScp="LETICIA_CUBE_OPEN_BUTTON" param1="icon" param1_def="icon_item_tpBox_30"/>
-		<button name="openBtn2" rect="0 0 281 40" margin="0 0 0 20" layout_gravity="center bottom" skin="test_gray_button" format="{nl}{@st42b}{s20}확률형 아이템 목록" fontname="white_18_b_ol" LBtnUpScp="EXTERN_OPEN_LETICIA_PROBABILITY"/>
+		<button name="openBtn2" rect="0 0 281 40" margin="0 0 0 20" layout_gravity="center bottom" skin="test_gray_button" format="{nl}{@st42b}{s20}확률형 아이템 목록" fontname="white_18_b_ol" LBtnUpScp="EXTERN_OPEN_LETICIA_PROBABILITY" LBtnUpArgNum="1"/>
 	</controls>
 </uiframe>

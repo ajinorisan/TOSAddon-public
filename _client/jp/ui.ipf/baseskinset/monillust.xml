@@ -1712,5 +1712,6 @@
 		<image name="UR_cupole_maid_ruta_m" file="\icon\monster\cupole\UR_cupole_maid_ruta_m.png" imgrect="0 0 128 128 "/>
 		<image name="UR_cupole_summer_zesty_m" file="\icon\monster\cupole\UR_cupole_summer_zesty_m.png" imgrect="0 0 128 128 "/>
 		<image name="UR_cupole_Lecifer_m" file="\icon\monster\cupole\UR_cupole_Lecifer_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_SantaZemyna_m" file="\icon\monster\cupole\UR_cupole_santazemyna_m.png" imgrect="0 0 128 128 "/>
 	</imagelist>
 </skinset>

@@ -1871,6 +1871,39 @@
 			<img name="bottomcore" imgrect="397 279 80 10"/>
 			<img name="bottomright" imgrect="478 279 9 10"/>
 		</skin>
+		<!-- <skin name="event_probaility_btn" texture="\skin\santa_frame.tga">
+			<img name="topleft" 	imgrect="0 266 13 12"/>
+			<img name="topcore" 	imgrect="14 266 88 12"/>
+			<img name="topright" 	imgrect="103 266 13 12"/>
+			<img name="bodyleft" 	imgrect="0 279 13 6"/>
+			<img name="bodycore" 	imgrect="14 279 88 6"/>
+			<img name="bodyright" 	imgrect="103 279 13 6"/>
+			<img name="bottomleft" 	imgrect="0 286 13 12"/>
+			<img name="bottomcore" 	imgrect="14 286 88 12"/>
+			<img name="bottomright" imgrect="103 286 13 12"/>
+		</skin>
+		<skin name="event_probaility_btn_cursoron" texture="\skin\santa_frame.tga">
+			<img name="topleft" 	imgrect="0 266 13 12"/>
+			<img name="topcore" 	imgrect="14 266 88 12"/>
+			<img name="topright" 	imgrect="103 266 13 12"/>
+			<img name="bodyleft" 	imgrect="0 279 13 6"/>
+			<img name="bodycore" 	imgrect="14 279 88 6"/>
+			<img name="bodyright" 	imgrect="103 279 13 6"/>
+			<img name="bottomleft" 	imgrect="0 286 13 12"/>
+			<img name="bottomcore" 	imgrect="14 286 88 12"/>
+			<img name="bottomright" imgrect="103 286 13 12"/>
+		</skin>
+		<skin name="event_probaility_btn_clicked" texture="\skin\santa_frame.tga">
+			<img name="topleft" 	imgrect="0 301 13 12"/>
+			<img name="topcore" 	imgrect="14 301 98 6"/>
+			<img name="topright" 	imgrect="103 301 13 12"/>
+			<img name="bodyleft" 	imgrect="0 314 13 12"/>
+			<img name="bodycore" 	imgrect="14 314 98 6"/>
+			<img name="bodyright" 	imgrect="103 314 13 12"/>
+			<img name="bottomleft" 	imgrect="0 321 13 12"/>
+			<img name="bottomcore" 	imgrect="14 321 98 6"/>
+			<img name="bottomright" imgrect="103 321 13 12"/>
+		</skin> -->
 	</skinlist>
 	<skinlist category="testjoo_buttons">
 		<skin name="test_skin_01_btn" texture="\skin\pip_test.tga">
@@ -8028,6 +8061,12 @@
 			<img name="cooltime" imgrect="403 272 67 67"/>
 			<img name="selected" imgrect="403 272 67 67"/>
 		</skin>
+		<skin name="santa_gamble_slot" texture="\skin\santa_frame.tga">
+			<img name="slot" imgrect="0 0 50 50"/>
+			<img name="mouseon" imgrect="0 214 50 50"/>
+			<img name="cooltime" imgrect="0 214 50 50"/>
+			<img name="selected" imgrect="0 214 50 50"/>
+		</skin>
 	</skinlist>
 	<skinlist category="None">
 		<skin name="skin_shadow" texture="\skin\skin_shadow.png">
@@ -14114,6 +14153,10 @@
 		<image name="emoticonItem_2404_169" file="\icon\emoticon\snigo_box.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2409_170" file="\icon\emoticon\jurate_happy.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2409_171" file="\icon\emoticon\jurate_sad.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2412_172" file="\icon\emoticon\smith_happy.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2412_173" file="\icon\emoticon\smtih_sorry.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2412_174" file="\icon\emoticon\smith_ok.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2412_175" file="\icon\emoticon\smith_die.png" imgrect="0 0 128 128"/>
 	</imagelist>
 	<imagelist category="itemtooltip_image">
 		<image name="circle_gem" file="\skin\tooltip_skin_3.tga" imgrect="805 228 30 30"/>
@@ -15479,6 +15522,7 @@
 		<image name="Dlg_port_Ep16_2_Neringa_After" file="\npcimg\Ep16_2_Neringa_After.png" imgrect="0 0 700 1000" CMM_Caption="변화 후 네링가"/>
 		<image name="Dlg_port_vulture" file="\npcimg\vulture_master.png" imgrect="0 0 1590 900" CMM_Caption="벌쳐"/>
 		<image name="Dlg_port_sledger" file="\npcimg\sledger_master.png" imgrect="0 0 859 1200" CMM_Caption="슬레저"/>
+		<image name="Dlg_port_santa_Teliavelis" file="\npcimg\santa_Teliavelis.png" imgrect="0 0 989 1124" CMM_Caption="산타 테리아베이스"/>
 	</imagelist>
 	<imagelist category="Dlg_boss">
 		<image name="balloon_Skiaclipse" file="\skin\monster_Dlg.tga" imgrect="0 0 220 260" CMM_Caption="스키아클립스"/>
@@ -16326,6 +16370,7 @@
 		<image name="icon_raid_neringa_autoclear" file="\icon\buff_icon7.tga" imgrect="768 512 128 128" CMM_Caption="네링가 자동 소탕 버프"/>
 		<image name="icon_raid_crystalgolem_autoclear" file="\icon\buff_icon7.tga" imgrect="896 512 128 128" CMM_Caption="수정 골렘 자동 소탕 버프"/>
 		<image name="icon_buff_ridepet_elephant" file="\icon\buff_icon7.tga" imgrect="0 640 128 128" CMM_Caption="코끼리"/>
+		<image name="icon_buff_ridepet_scooter_red" file="\icon\buff_icon7.tga" imgrect="128 640 128 128" CMM_Caption="포포 스쿠터(레드)"/>
 	</imagelist>
 	<imagelist category="housing_bufficon">
 		<image name="icon_Weapon_Klaida" file="\icon\icon_hosing_buff.tga" imgrect="0 0 128 128"/>
@@ -17162,6 +17207,10 @@
 		<image name="plate_achieve_Boss_CrystalMiner_bronze" file="\skin\user_title_skin2.tga" imgrect="1070 272 214 34" CMM_Caption="무너지는 광산 브론즈"/>
 		<image name="plate_achieve_Sledger_weekraid" file="\skin\user_title_skin2.tga" imgrect="0 306 214 34" CMM_Caption="슬레저 주보레 칭호"/>
 		<image name="plate_achieve_Sledger" file="\skin\user_title_skin2.tga" imgrect="214 306 214 34" CMM_Caption="슬레저 칭호"/>
+		<image name="plate_achieve_9th" file="\skin\user_title_skin2.tga" imgrect="428 306 214 34" CMM_Caption="9주년"/>
+		<image name="plate_achieve_CA" file="\skin\user_title_skin2.tga" imgrect="642 306 214 34" CMM_Caption="CA"/>
+		<image name="plate_achieve_XMas2024" file="\skin\user_title_skin2.tga" imgrect="856 306 214 34" CMM_Caption="크리스마스 2024"/>
+		<image name="plate_achieve_Santasmith" file="\skin\user_title_skin2.tga" imgrect="1070 306 214 34" CMM_Caption="산타스미스"/>
 	</imagelist>
 	<imagelist category="skin_hair">
 		<image name="icon_skintone_01_m01" file="\skin\skinhair\icon_skintone_01_m01.png" imgrect="0 0 80 80" CMM_Caption="남성 01"/>
@@ -17327,6 +17376,7 @@
 		<image name="ridepet_falouros" file="\icon\ridepet.tga" imgrect="160 240 80 80" CMM_Caption="팔로우로스"/>
 		<image name="ridepet_capybara" file="\icon\ridepet.tga" imgrect="240 240 80 80" CMM_Caption="카피바라"/>
 		<image name="ridepet_elephant" file="\icon\ridepet.tga" imgrect="320 240 80 80" CMM_Caption="코끼리"/>
+		<image name="ridepet_scooter_red" file="\icon\ridepet.tga" imgrect="400 240 80 80" CMM_Caption="코끼리"/>
 	</imagelist>
 	<effectimagelist category="effectlist">
 		<image name="blue_orb" file="\icon\blue_orb.tga" imgrect="0 0 256 256"/>
@@ -17685,5 +17735,23 @@
 		<image name="11GradeBg1" file="\skin\ItemGradeSkinSet.tga" imgrect="518 10 418 274"/>
 		<image name="11GradeBg2" file="\skin\ItemGradeSkinSet.tga" imgrect="9 8 406 62"/>
 		<image name="11GradeBg3" file="\skin\ItemGradeSkinSet.tga" imgrect="435 9 60 60"/>
+	</imagelist>
+	<imagelist category="EventSanta">
+		<image name="santa_item_slot" file="\skin\santa_frame.tga" imgrect="0 0 50 50"/>
+		<image name="santa_item_slot_soldout" file="\skin\santa_frame.tga" imgrect="51 0 59 33"/>
+		<image name="santa_item_slot_soldout2" file="\skin\santa_frame.tga" imgrect="51 34 88 23"/>
+		<image name="santa_item_frame" file="\skin\santa_frame.tga" imgrect="0 58 56 85"/>
+		<image name="santa_item_frame_Effect" file="\skin\santa_frame.tga" imgrect="57 58 56 85"/>
+		<image name="santa_item_frame_Select" file="\skin\santa_frame.tga" imgrect="114 58 56 85"/>
+		<image name="santa_item_gacha_btn" file="\skin\santa_frame.tga" imgrect="0 144 116 34"/>
+		<image name="santa_item_gacha_btn_cursoron" file="\skin\santa_frame.tga" imgrect="0 179 116 34"/>
+		<image name="santa_item_gacha_btn_clicked" file="\skin\santa_frame.tga" imgrect="0 179 116 34"/>
+		<image name="santa_item_probability_btn" file="\skin\santa_frame.tga" imgrect="117 144 32 31"/>
+		<image name="santa_item_probability_btn_cursoron" file="\skin\santa_frame.tga" imgrect="117 179 32 31"/>
+		<image name="santa_item_probability_btn_clicked" file="\skin\santa_frame.tga" imgrect="117 179 32 31"/>
+		<image name="santa_bundle" file="\skin\santa_frame.tga" imgrect="171 0 547 589"/>
+		<image name="santa_item_gacha_btn2" file="\skin\santa_frame.tga" imgrect="709 0 220 70"/>
+		<image name="santa_item_gacha_btn2_cursoron" file="\skin\santa_frame.tga" imgrect="709 73 220 70"/>
+		<image name="santa_item_gacha_btn2_clicked" file="\skin\santa_frame.tga" imgrect="709 73 220 70"/>
 	</imagelist>
 </skinset>

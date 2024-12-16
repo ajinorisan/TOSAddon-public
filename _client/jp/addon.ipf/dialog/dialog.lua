@@ -127,6 +127,8 @@ function DIALOG_TEXTVIEW(frame, msg, argStr)
 end
 
 function DIALOG_ON_MSG(frame, msg, argStr, argNum)
+	CLOSE_EVENT_SANTA_GAMBLE();
+	
 	frame:Invalidate();
 
 	local appsFrame = ui.GetFrame('apps');
@@ -163,6 +165,12 @@ function DIALOG_ON_MSG(frame, msg, argStr, argNum)
 		frame:ShowWindow(showDialog);
 		frame:SetUserValue("DialogType", 2);
     end
+
+	if msg == "DIALOG_STAY" then
+		DIALOG_TEXTVIEW(frame, msg, argStr, argNum)
+		frame:ShowWindow(1);
+		frame:SetUserValue("DialogType", 3);
+	end
 
 	if msg == 'DIALOG_CLOSE' then
         local textBoxObj	= frame:GetChild('textbox');
@@ -254,6 +262,9 @@ function DIALOG_ON_SKIP(frame, msg, argStr, argNum)
 				elseif dialogType == 2 then
 					session.SetSelectDlgList();
 					ui.OpenFrame('dialogselect');
+				elseif dialogType == 3 then
+					frame:Invalidate();
+					DIALOG_SEND_OK(frame);
 				end
 			end
 		end
@@ -291,8 +302,8 @@ end
 function DIALOG_ON_ESCAPE(frame, msg, argStr, argNum)
 	local textObj = frame:GetChild('textlist');
     tolua.cast(textObj, 'ui::CFlowText');
-
 	if frame:IsVisible() == 1 then
+
 		local dialogType = frame:GetUserIValue("DialogType");
 		if dialogType == 1 then
 			frame:Invalidate();

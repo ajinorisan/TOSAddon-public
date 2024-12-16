@@ -756,18 +756,19 @@ function GET_POPOBOOST_MINIMIZED_HIGHLIGHT()
     local index = 6
     local gearscore = POPOBOOST_GET_MAX_GEARSCORE(pc);
     for i = 0, index do
-        local rewardClass = POPOBOOSET_GET_PROGRESS_INFORMATION(i);
-        local score = TryGetProp(rewardClass,"RewardScore", 300000);
+        -- local isclear = GET_POPOBOOST_PROGRESS_IS_CLEAR(pc, i)
 
         local ProgressProp = GET_POPOBOOST_PROGRESPROP();
         if ProgressProp == "None" then
             return IsMinimizeHighlight;
         end    
+        local isClear = GET_POPOBOOST_PROGRESS_IS_CLEAR(pc, progress)
+
         local propName = string.format("%s%d",ProgressProp,i)
         local progress = TryGetProp(acc,propName,-2);
         local isPremium = POPOBOOST_IS_PREMIUM();
-        if gearscore >= score then
-            local imageName = string.format("popoboost_gearscore_reach_%d",i);
+        if not isClear then
+            -- local imageName = string.format("popoboost_gearscore_reach_%d",i);
             if progress == 1 and isPremium == true then
                 IsMinimizeHighlight = true;
             elseif progress == -1 then

@@ -36,7 +36,7 @@ end
 
 -- npc 생성 했을 경우 마을 이동 제한시간, 초 단위 
 function GET_EVENT_2101_SUPPLY_CONTENT_NPC_TIME()
-    return 180;
+    return 300;
 end
 
 function IS_EVENT_2101_SUPPLY_CONTENT_NPC(className)

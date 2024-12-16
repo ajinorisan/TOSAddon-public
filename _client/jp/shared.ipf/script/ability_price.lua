@@ -1,11 +1,16 @@
 -- ability_price.lua
 
+function SET_ADDITOINAL_LOCK_FUNCTION_SERVER(pc, space, abil_name)    
+    local groupClass = GetClass(space, abil_name)
+    local ret = SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
+    if ret == nil then
+        ret = 'None'
+    end
+    return ret
+end
+
 function SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
     local max = TryGetProp(groupClass, "Add_UnlockJobNum", -1);
-    if max < 0 then
-        return "LOCK_GRADE";
-    end
-
     local AddStr = "Add_UnlockArgStr"
     for i = 0, max - 1 do
         local unlockFuncName = groupClass.UnlockScr;
@@ -21,6 +26,24 @@ function SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
             return nil;
         end
     end
+
+    if max == -1 then
+        local unlockFuncName = TryGetProp(groupClass, 'UnlockScr', 'None')        
+        local UnlockArgStr = TryGetProp(groupClass, 'UnlockArgStr', 'None')
+
+        if unlockFuncName == 'None' and UnlockArgStr == 'None' then
+            return 'UNLOCK'
+        end
+
+        local scp = _G[unlockFuncName];        
+        if scp == nil then
+            return "LOCK_GRADE"
+        end
+        
+        local ret = scp(pc, UnlockArgStr, groupClass.UnlockArgNum);
+        return ret
+    end
+
     return "LOCK_GRADE"
 end
 

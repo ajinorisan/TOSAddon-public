@@ -145,6 +145,20 @@
                             </ToolScp>
                         </execList>
                     </Event>
+                    <Event execCount="1" eventName="CreateEventSanta">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_SUCCESS_STAGE_SCP" Client="NO" UseSleep="NO">
+                                <Num Num="428.99"/>
+                                <Num Num="226.20"/>
+                                <Num Num="139.17"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
                 </StageEvents>
             </Stage>
             <Stage Name="Fail" AutoStart="0">
