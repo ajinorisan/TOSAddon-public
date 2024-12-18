@@ -13,10 +13,11 @@
 -- v1.1.2 ロードボタン押した時のバグ修正
 -- v1.1.3 520アプデ対応
 -- v1.1.4 ネリゴレハード対応。jsonファイルから直接対応増やせる様に変更。これで僕が死んでもある程度使えると思う。
+-- v1.1.5 ストレートモードバグってたの修正
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -78,6 +79,7 @@ function quickslot_operate_save_settings()
 end
 
 function quickslot_operate_load_settings()
+
     local frame_settings, err = acutil.loadJSON(g.frame_settingsFileLoc, g.frame_settings)
 
     if not frame_settings then
@@ -89,9 +91,6 @@ function quickslot_operate_load_settings()
     g.frame_settings = frame_settings
 
     acutil.saveJSON(g.frame_settingsFileLoc, g.frame_settings)
-end
-
-function quickslot_operate_load_settings()
     -- ファイルが存在するかをチェックする関数
     local function file_exists(filePath)
         local file = io.open(filePath, "r") -- 読み込みモードでファイルを開く
@@ -204,6 +203,7 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
+    g.frame_settings = g.frame_settings or {}
 
     addon:RegisterMsg('GAME_START', 'quickslot_operate_json_settings')
     acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG");
@@ -224,7 +224,9 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
     end
 
     quickslot_operate_frame_init()
-    if g.frame_settings.straight == true then
+    -- print(tostring(g.frame_settings.straight))
+    if g.frame_settings.straight then
+
         quickslot_operate_start_straight()
     end
 end

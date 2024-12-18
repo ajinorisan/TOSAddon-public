@@ -112,7 +112,7 @@
 		"name" : "Quickslot Operate",
 		"file" : "quickslot_operate",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.4",
+		"fileVersion" : "v1.1.5",
 		"releaseTag" : "quickslot_operate",
 		"unicode" : "⛄",
 		"description" : "クイックスロットの女神ポーションをレイド毎に付け替えます。ストレートモード、保存、読込機能付き。<br>Quick slot goddess potions to be replaced for each raid. Straight mode, with save and load functions.<br>레이드마다 퀵 슬롯의 여신 물약을 교체할 수 있습니다. 스트레이트 모드, 저장, 불러오기 기능 포함.",
