@@ -233,7 +233,7 @@
 		"name" : "Aethergem Manager",
 		"file" : "aethergem_mgr",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.2",
+		"fileVersion" : "v1.1.4",
 		"releaseTag" : "aethergem_mgr",
 		"unicode" : "⛄",
 		"description" : "インベントリのボタンでエーテルジェムの付け替えを自動化します。キャラ毎の事前設定が必要です。<br>Automate the replacement of ether gems with a button in inventory. Requires pre-setting for each character.<br>인벤토리의 버튼으로 에테르 젬을 자동으로 교체할 수 있습니다. 캐릭터별 사전 설정이 필요합니다.",
