@@ -17,10 +17,11 @@
 -- v1.1.6 色選べる様に。コード書き直した。もちろん設定ファイルは初期化される。
 -- v1.1.7 ギアスコアの反映を見直し。フレーム表示のタイミングも見直し
 -- v1.1.8 海外で数字が切れるらしいところ修正。
+-- v1.1.9 フォルダ作るコードをアドオン導入時のみに。
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.8"
+local ver = "1.1.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -33,8 +34,22 @@ local acutil = require("acutil")
 local os = require("os")
 local json = require("json")
 
-local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 local status_list = {"STR", "INT", "CON", "MNA", "DEX", "gear_score", "ability_point_score", "PATK", "MATK", "HEAL_PWR",
                      "SR", "HR", "BLK_BREAK", "CRTATK", "CRTMATK", "CRTHR", "DEF", "MDEF", "SDR", "DR", "BLK", "CRTDR",

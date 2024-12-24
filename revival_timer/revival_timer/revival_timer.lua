@@ -2,10 +2,11 @@
 -- v1.0.1 修正。
 -- v1.0.2 ui.Chatがアルファベットでないとバグってたの修正。
 -- v1.0.3 PTチャットの英語修正。はずい。左ALTで隠すように。
+-- v1.0.4 使用文字バグ修正したはず。なんでなってたかも良くワカラン
 local addonName = "REVIVAL_TIMER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -14,12 +15,26 @@ local g = _G["ADDONS"][author][addonName]
 
 g.settings_file_path = string.format('../addons/%s/settings.json', addonNameLower)
 
-local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')
-
 local acutil = require("acutil")
 local json = require('json')
 local os = require("os")
+
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 local base = {}
 function g.SetupHook(func, baseFuncName)
@@ -187,7 +202,7 @@ function revival_timer_NICO_CHAT(msg)
     change_client_size(frame)
     local name = UI_EFFECT_GET_NAME(frame, "NICO_");
     local ctrl = frame:CreateControl("richtext", name, x, y, 200, 20);
-    frame:SetLayerLevel(999)
+    frame:SetLayerLevel(90)
     frame:ShowWindow(1);
     ctrl = tolua.cast(ctrl, "ui::CRichText");
     ctrl:EnableResizeByText(1);
@@ -214,15 +229,15 @@ function revival_timer_timer_update(frame)
         if g.start_seconds <= 10.5 and g.start_seconds >= 9.5 then
 
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. g.settings.set_text .. " 10 sec rem.")
+                ui.Chat("/p " .. tostring(g.settings.set_text) .. " 10 sec rem.")
             end
             revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 10 sec rem.")
         elseif g.start_seconds <= 5.5 and g.start_seconds >= 4.5 then
 
-            imcSound.PlaySoundEvent('sys_tp_box_3')
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. g.settings.set_text .. " 5 sec rem.")
+                ui.Chat("/p " .. tostring(g.settings.set_text) .. " 5 sec rem.")
             end
+            imcSound.PlaySoundEvent('sys_tp_box_3')
             revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 5 sec rem.")
         end
         return 1

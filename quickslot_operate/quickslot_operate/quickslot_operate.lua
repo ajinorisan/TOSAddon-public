@@ -14,10 +14,11 @@
 -- v1.1.3 520アプデ対応
 -- v1.1.4 ネリゴレハード対応。jsonファイルから直接対応増やせる様に変更。これで僕が死んでもある程度使えると思う。
 -- v1.1.5 ストレートモードバグってたの修正
+-- v1.1.6 ジョイスティックモードにも対応したつもり
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.1.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -30,6 +31,23 @@ g.frame_settingsFileLoc = string.format('../addons/%s/frame_settings.json', addo
 local acutil = require("acutil")
 local os = require("os")
 local json = require("json")
+
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 local base = {}
 function g.SetupHook(func, baseFuncName)
@@ -91,77 +109,61 @@ function quickslot_operate_load_settings()
     g.frame_settings = frame_settings
 
     acutil.saveJSON(g.frame_settingsFileLoc, g.frame_settings)
-    -- ファイルが存在するかをチェックする関数
+
     local function file_exists(filePath)
-        local file = io.open(filePath, "r") -- 読み込みモードでファイルを開く
+        local file = io.open(filePath, "r")
         if file then
-            file:close() -- ファイルが存在すれば閉じる
+            file:close()
             return true
         else
             return false
         end
     end
 
-    -- ファイルの内容を読み込んでデコードする関数
     local function load_json_file(filePath)
-        local file = io.open(filePath, "r") -- 読み込み用にファイルを開く
+        local file = io.open(filePath, "r")
         if file then
-            local content = file:read("*a") -- ファイル全体を読み込む
+            local content = file:read("*a")
             file:close() -- ファイルを閉じる
 
-            --[[for key, value in pairs(json.decode(content)) do
-                if type(value) == "table" then
-                    for k, v in pairs(value) do
-                        print(key .. ": " .. tostring(v))
-                    end
-                else
-                    print(key .. ": " .. tostring(value))
-                end
-
-            end]]
-            return json.decode(content) -- JSONをデコードしてLuaテーブルに変換
+            return json.decode(content)
         end
-        return nil -- 読み込みに失敗した場合はnilを返す
+        return nil
     end
 
-    -- リストをファイルに保存する関数
     local function save_json_file(filePath, data)
-        local json_output = json.encode(data) -- LuaテーブルをJSONにエンコード
-        local file = io.open(filePath, "w") -- 書き込み用にファイルを開く
+        local json_output = json.encode(data)
+        local file = io.open(filePath, "w")
         if file then
-            file:write(json_output) -- JSONをファイルに書き込む
-            file:close() -- ファイルを閉じる
-            print("JSONファイルが保存されました: " .. string.gsub(filePath, "../", "\\"))
+            file:write(json_output)
+            file:close()
+            -- print("JSONファイルが保存されました: " .. string.gsub(filePath, "../", "\\"))
         end
     end
 
-    -- raid_list.json の読み込みと上書き処理
     local raid_list_file_location = string.format('../addons/%s/raid_list.json', addonNameLower)
     if file_exists(raid_list_file_location) then
-        -- ファイルが存在する場合、既存のリストを読み込む
+
         local existing_raid_list = load_json_file(raid_list_file_location)
         if existing_raid_list then
-            -- Lua上の raid_list を既存のリストで上書き
+
             raid_list = existing_raid_list
 
         end
     else
-        -- ファイルが存在しない場合は新規作成
         save_json_file(raid_list_file_location, raid_list)
     end
 
-    -- zone_id_list.json の読み込みと上書き処理
     local zone_id_list_file_location = string.format('../addons/%s/zone_id_list.json', addonNameLower)
     if file_exists(zone_id_list_file_location) then
-        -- ファイルが存在する場合、既存のリストを読み込む
+
         local existing_zone_id_list = load_json_file(zone_id_list_file_location)
         if existing_zone_id_list then
-            -- Lua上の zone_id_list を既存のリストで上書き
+
             zone_id_list = existing_zone_id_list
 
         end
     else
-        -- ファイルが存在しない場合は新規作成
         save_json_file(zone_id_list_file_location, zone_id_list)
     end
 end
@@ -218,13 +220,14 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     for _, zone_id in ipairs(zone_id_list) do
         if zone_id == map_id then
-            ReserveScript("quickslot_operate_change_potion()", 6.0)
+            ReserveScript("quickslot_operate_change_potion()", 3.0) -- !
+            -- DebounceScript("quickslot_operate_change_potion", 1.0);
             break
         end
     end
 
     quickslot_operate_frame_init()
-    -- print(tostring(g.frame_settings.straight))
+
     if g.frame_settings.straight then
 
         quickslot_operate_start_straight()
@@ -669,13 +672,11 @@ function quickslot_operate_SHOW_INDUNENTER_DIALOG()
     local group_name = quickslot_operate_GetGroupName(induntype)
 
     local potion_id = potion_list[group_name]
-
     local down_potion_id = down_potion_list[group_name]
-
     if potion_id ~= nil or down_potion_id ~= nil then
 
-        ReserveScript(string.format("quickslot_operate_get_potion(%d, %d)", potion_id, down_potion_id), 0.5)
-
+        -- ReserveScript(string.format("quickslot_operate_get_potion(%d, %d)", potion_id, down_potion_id), 0.5)
+        quickslot_operate_get_potion(potion_id, down_potion_id)
     end
 end
 
@@ -693,33 +694,53 @@ function quickslot_operate_GetGroupName(induntype)
 end
 
 function quickslot_operate_get_potion(potion_id, down_potion_id)
-    -- print(potion_id .. ":" .. down_potion_id)
+    session.ResetItemList()
     local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList();
-    local cnt = guidList:Count();
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
+
+    local found_potion_id = nil
+    local found_down_potion_id = nil
 
     for i = 0, cnt - 1 do
-        local guid = guidList:Get(i);
+        local guid = guidList:Get(i)
         local invItem = invItemList:GetItemByGuid(guid)
         local itemobj = GetIES(invItem:GetObject())
-        local iesid = invItem:GetIESID()
         local class_id = itemobj.ClassID
 
-        if class_id == potion_id or class_id == down_potion_id then
-            session.ResetItemList()
-            quickslot_operate_check_all_slots(potion_id, down_potion_id)
+        if class_id == potion_id then
+            found_potion_id = potion_id
+        elseif class_id == down_potion_id then
+            found_down_potion_id = down_potion_id
+        end
+
+        if found_potion_id and found_down_potion_id then
             break
         end
     end
 
+    if found_potion_id and found_down_potion_id then
+        quickslot_operate_check_all_slots(found_potion_id, found_down_potion_id)
+    elseif found_potion_id then
+        quickslot_operate_check_all_slots(found_potion_id, nil) -- down_potion_idはnil
+    elseif found_down_potion_id then
+        quickslot_operate_check_all_slots(nil, found_down_potion_id) -- potion_idはnil
+    end
 end
 
 function quickslot_operate_check_all_slots(potion_id, down_potion_id)
 
     local frame = ui.GetFrame("quickslotnexpbar")
-    if not frame then
-        return
+    local joyframe = ui.GetFrame('joystickquickslot')
+    if IsJoyStickMode() == 1 then
+        g.stick_mode = 1
+        frame:ShowWindow(1)
+        joyframe:ShowWindow(0)
     end
+
+    --[[if not frame then
+        return
+    end]]
 
     local slotCount = 40
 
@@ -732,29 +753,38 @@ function quickslot_operate_check_all_slots(potion_id, down_potion_id)
         if icon ~= nil then
             local iconinfo = icon:GetInfo()
             local classid = iconinfo.type
-            for group, id in pairs(potion_list) do
-                if id == classid then
+            if potion_id ~= nil then
+                for group, id in pairs(potion_list) do
+                    if id == classid then
 
-                    SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, _, 0, true, true)
-                    icon:SetDumpArgNum(i);
-                    break
-
+                        SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, potion_id, _, 0, true, true)
+                        icon:SetDumpArgNum(i);
+                        break
+                    end
                 end
             end
+            if down_potion_id ~= nil then
+                for group, id in pairs(down_potion_list) do
+                    if id == classid then
 
-            for group, id in pairs(down_potion_list) do
-                if id == classid then
-
-                    SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, _, 0, true, true)
-                    icon:SetDumpArgNum(i);
-                    break
-
+                        SET_QUICK_SLOT(frame, slot, quickSlotInfo.category, down_potion_id, _, 0, true, true)
+                        icon:SetDumpArgNum(i);
+                        break
+                    end
                 end
             end
-
         end
     end
 
+    if g.stick_mode == 1 then
+
+        frame:ShowWindow(0)
+        joyframe:ShowWindow(1)
+        DebounceScript("JOYSTICK_QUICKSLOT_UPDATE_ALL_SLOT", 0.1);
+        -- g.stick_mode = 0
+    else
+        DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1);
+    end
 end
 
 function quickslot_operate_choice_potion(frame, ctrl, str, num)

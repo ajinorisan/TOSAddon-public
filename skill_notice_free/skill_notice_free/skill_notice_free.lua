@@ -5,10 +5,11 @@
 -- v1.0.4 エフェクト消えなかったの修正
 -- v1.0.5 バフリストから登録するバフ選べる様に
 -- v1.0.6 バフリストバグ修正
+-- v1.0.7 街では景観を損ねるので非表示に
 local addonName = "skill_notice_free"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -19,8 +20,22 @@ local acutil = require("acutil")
 local json = require("json")
 local os = require("os")
 
-local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 g.settings_file_path = string.format("../addons/%s/settings.json", addonNameLower)
 g.get_buffs_file_path = string.format("../addons/%s/get_buffs.json", addonNameLower)
@@ -99,7 +114,12 @@ function SKILL_NOTICE_FREE_ON_INIT(addon, frame)
     addon:RegisterMsg("BUFF_UPDATE", "skill_notice_free_buff_update")
     addon:RegisterMsg("BUFF_ADD", "skill_notice_free_buff_add")
     addon:RegisterMsg("BUFF_REMOVE", "skill_notice_free_buff_remove")
-    addon:RegisterMsg("GAME_START", "skill_notice_free_frame_init")
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType ~= "City" then
+        addon:RegisterMsg("GAME_START", "skill_notice_free_frame_init")
+    end
     addon:RegisterMsg("FPS_UPDATE", "skill_notice_free_FPS_UPDATE")
     addon:RegisterMsg("GAME_START", "skill_notice_free_start_frame")
 end
@@ -130,7 +150,12 @@ function skill_notice_free_FPS_UPDATE()
     local start_frame = ui.GetFrame(addonNameLower .. "start_frame")
 
     if start_frame:IsVisible() == 0 then
-        skill_notice_free_frame_init()
+        local pc = GetMyPCObject();
+        local curMap = GetZoneName(pc)
+        local mapCls = GetClass("Map", curMap)
+        if mapCls.MapType ~= "City" then
+            skill_notice_free_frame_init()
+        end
         skill_notice_free_start_frame()
     else
         return
@@ -416,6 +441,8 @@ end
 
 function skill_notice_free_setting(frame, ctrl, str, num)
 
+    skill_notice_free_frame_init()
+
     local setting_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting_frame", 0, 0, 200, 400)
     AUTO_CAST(setting_frame)
     setting_frame:SetSkinName("test_frame_midle_light")
@@ -501,8 +528,19 @@ end
 
 function skill_notice_free_newframe_close(frame, ctrl, argStr, argNum)
 
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType ~= "City" then
+        skill_notice_free_frame_init()
+    else
+        local snf_frame = ui.GetFrame("skill_notice_free")
+        snf_frame:ShowWindow(0)
+        local snf_icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
+        snf_icon_frame:ShowWindow(0)
+    end
     frame:ShowWindow(0)
-    skill_notice_free_frame_init()
+
 end
 
 function skill_notice_free_buffid_edit(frame, buffid_edit, buff_id, index)
@@ -829,6 +867,9 @@ end
 
 function skill_notice_free_buff_remove(frame, msg, str, buff_id)
     local frame = ui.GetFrame("skill_notice_free")
+    if frame:IsVisible() == 0 then
+        return
+    end
     local my_handle = session.GetMyHandle()
     local actor = world.GetActor(my_handle)
 
@@ -855,7 +896,7 @@ function skill_notice_free_buff_remove(frame, msg, str, buff_id)
             effect.DetachActorEffect(actor, effect_name, 0)
         end
         g.buffs[str_buff_id] = nil
-
+        -- icon_slot:ShowWindow(0)
     else
         local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. buff_id)
         if gauge then
@@ -876,12 +917,16 @@ function skill_notice_free_buff_remove(frame, msg, str, buff_id)
             effect.DetachActorEffect(actor, effect_name, 0)
         end
         g.buffs[str_buff_id] = nil
+        -- gauge:ShowWindow(0)
     end
 end
 
 function skill_notice_free_buff_add(frame, msg, str, buff_id)
 
     local frame = ui.GetFrame("skill_notice_free")
+    if frame:IsVisible() == 0 then
+        return
+    end
     local my_handle = session.GetMyHandle()
     local info_buff = info.GetBuff(my_handle, buff_id)
 
@@ -917,6 +962,7 @@ function skill_notice_free_buff_add(frame, msg, str, buff_id)
         AUTO_CAST(buff_count)
 
         buff_count:SetText("{ol}{s35}" .. info_buff.over)
+        -- icon_slot:ShowWindow(1)
     else
         local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. str_buff_id)
         if gauge then
@@ -930,6 +976,7 @@ function skill_notice_free_buff_add(frame, msg, str, buff_id)
             local color = buff_table[str_buff_id].color
             gauge:SetColorTone(color)
         end
+        -- gauge:ShowWindow(1)
     end
     g.buffs[str_buff_id] = false
 
@@ -938,6 +985,9 @@ end
 function skill_notice_free_buff_update(frame, msg, str, buff_id)
 
     local frame = ui.GetFrame("skill_notice_free")
+    if frame:IsVisible() == 0 then
+        return
+    end
     local my_handle = session.GetMyHandle()
     local actor = world.GetActor(my_handle)
 

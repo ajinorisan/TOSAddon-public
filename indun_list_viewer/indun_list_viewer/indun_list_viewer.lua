@@ -19,10 +19,11 @@
 -- v1.1.8 作り直して最適化。資材アイコンからレイド入れる様に。サブアカでもバグらない様に。
 -- v1.1.9 520環境に作り替え。cidでセーブデータ保持すると制約あるのでnameで保持に変更。
 -- v1.2.0 instantccとの連携コードミスってたので修正。
+-- v1.2.1 フォルダ作るコードをアドオン導入時のみに。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.0"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -32,8 +33,23 @@ local g = _G["ADDONS"][author][addonName]
 local acutil = require("acutil")
 local json = require("json")
 local os = require("os")
-local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')
+
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 local function unicode_to_codepoint(char)
     local codepoint = utf8.codepoint(char)

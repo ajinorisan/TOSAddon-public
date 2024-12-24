@@ -49,10 +49,11 @@
 -- v1.4.9 ワイドスクリーンだとSetPosおかしいらしい。アドオンの前提が色々崩れそう。コワイヨ
 -- v1.5.0 クポルポーションのフレームを非表示に
 -- v1.5.1 PTメンバーの希望の啓示見えるように
+-- v1.5.2 ラガナを非表示に
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.1"
+local ver = "1.5.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -98,7 +99,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
         -- 設定ファイル読み込み失敗時処理
         -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
-
+    -- !
     local defaultSettings = {
         reword_x = 1100,
         reword_y = 100,
@@ -129,7 +130,9 @@ function MINI_ADDONS_LOAD_SETTINGS()
         bgm = 0,
         my_effect = 0,
         vakarine = 0,
-        weekly_boss_reward = 0
+        weekly_boss_reward = 0,
+        cupole_portion = 0,
+        goodbye_ragana = 0
     }
 
     if not settings then
@@ -230,6 +233,40 @@ function MINI_ADDONS_VAKARINE_NOTICE()
     if vakarine_count >= 5 then
         ui.Chat("!! " .. "vakarine")
     end
+end
+
+function mini_addons_ragana_remove_timer(frame, msg, str, num)
+    local frame = ui.GetFrame("mini_addons")
+    local timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0);
+    AUTO_CAST(timer)
+    timer:SetUpdateScript("mini_addons_ragana_remove");
+    timer:Start(1.0);
+end
+
+function mini_addons_ragana_remove(frame)
+
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
+
+    for i = 1, selected_objects_count do
+
+        local handle = GetHandle(selected_objects[i])
+
+        if handle ~= nil then
+            if info.IsPC(handle) ~= 1 then
+                local npcName = world.GetActor(handle):GetName()
+                if npcName == "[마신의 유혹]{nl}마신 라가나의 환영" then
+
+                    world.Leave(handle, 0.0);
+                    local timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0);
+                    AUTO_CAST(timer)
+                    timer:Stop();
+                    return
+                end
+
+            end
+        end
+    end
+
 end
 
 function MINI_ADDONS_ON_INIT(addon, frame)
@@ -344,6 +381,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     local mapCls = GetClass("Map", curMap)
 
     if mapCls.MapType == "City" then
+
+        if g.settings.goodbye_ragana == 1 then
+            addon:RegisterMsg("GAME_START", "mini_addons_ragana_remove_timer");
+        end
 
         if g.settings.weekly_boss_reward == 1 then
 
@@ -566,8 +607,10 @@ function MINI_ADDONS_LANG(str)
             str = "レイド時、ヴァカリネ装備を他人にお知らせ"
         elseif str == "Receive weekly boss reward automatically" then
             str = "週間ボスレイド報酬を自動で受け取り"
-        elseif str == "Hide the potion frame of the cupole" then
+        elseif str == "Hide the potion frame of the cupole" then -- Hide Ragana in city
             str = "クポルのポーションフレームを非表示に"
+        elseif str == "Hide Ragana in city" then
+            str = "街にいるラガナを非表示にします"
         elseif str == "Check to enable" then
             str = "チェックすると有効化"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -633,10 +676,12 @@ function MINI_ADDONS_LANG(str)
             str = "도시에서 BGM 플레이어 항상 이동"
         elseif str == "Notify others of vakarine equipment in raid" then
             str = " 레이드에 있는 바카린 장비를 다른 플레이어에게 알리기"
-        elseif str == "Receive weekly boss reward automatically" then
+        elseif str == "Receive weekly boss reward automatically" then ---- Hide Ragana in city
             str = " 주간 보스 레이드 보상을 자동으로 수령"
         elseif str == "Hide the potion frame of the cupole" then
             str = "큐폴의 포션 프레임 숨기기"
+        elseif str == "Hide Ragana in city" then
+            str = "도시에 있는 라가나를 숨깁니다"
         elseif str == "Check to enable" then
             str = "체크 시 활성화"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -776,6 +821,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         name = "cupole_portion",
         check = g.settings.cupole_portion,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide the potion frame of the cupole")
+
+    }, {
+        name = "goodbye_ragana",
+        check = g.settings.goodbye_ragana,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide Ragana in city")
 
     }}
 
@@ -927,7 +977,8 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         bgm = "bgm_checkbox",
         vakarine = "vakarine_checkbox",
         weekly_boss_reward = "weekly_boss_reward_checkbox",
-        cupole_portion = "cupole_portion_checkbox"
+        cupole_portion = "cupole_portion_checkbox",
+        goodbye_ragana = "goodbye_ragana_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
