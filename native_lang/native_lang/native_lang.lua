@@ -2,10 +2,11 @@
 -- v0.0.5 新規のチャットはTOTALフレームで処理されるらしいので、そこを排他しない様に。
 -- v1.0.0 気になったところは直したから正式版
 -- v1.0.1 ギアスコアランク作成、週ボスの所に表示、ヴェルニケ表も翻訳、ペット名翻訳
+-- v1.0.2 ギアスコアランク初期化されるの直したハズ
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -170,23 +171,27 @@ function native_lang_load_settings()
     native_lang_name_table_create()
 
     g.gear_scores = {}
+    local seen_keys = {} -- 追加したorg_nameを記録するためのテーブル
     local file = io.open(g.gear_score, "r")
+
     if file then
         for line in file:lines() do
             local org_name, teamName, guildIdx, value = line:match("([^:]+):::(%S+):::(%d+):::(%d+)")
-            if native_lang_is_translation(teamName) and not g.names[org_name] then
-                teamName = native_lang_process_name(org_name)
+
+            if not seen_keys[org_name] then
+                if native_lang_is_translation(teamName) and not g.names[org_name] then
+                    teamName = native_lang_process_name(org_name)
+                end
+
+                table.insert(g.gear_scores, {org_name, g.names[org_name] or teamName, guildIdx, tonumber(value)})
+                seen_keys[org_name] = true -- org_nameを記録
             end
-            table.insert(g.gear_scores, {org_name, teamName, guildIdx, tonumber(value)})
         end
         file:close()
     else
         file = io.open(g.gear_score, "w")
         file:close()
     end
-    table.sort(g.gear_scores, function(a, b)
-        return a[4] > b[4] -- 3番目の要素がvalue
-    end)
 
 end
 
@@ -207,7 +212,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.chat_check = g.chat_check or {}
     g.recv_count = 0
 
-    g.gear_score_table = g.gear_score_table or {}
+    -- g.gear_score_table = g.gear_score_table or {}
 
     -- tos_google_translate無効化
     g.SetupHook(native_lang_TOS_GOOGLE_TRANSLATE_ON_INIT, "TOS_GOOGLE_TRANSLATE_ON_INIT")
@@ -232,6 +237,210 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     addon:RegisterMsg("GAME_START", "native_lang_GAME_START");
     addon:RegisterMsg("GAME_START_3SEC", "native_lang_GAME_START_3SEC");
 
+end
+
+function native_lang_GEAR_SCORE_RANKING_CREATE_INFO(ctrl, rank, guildIdx, teamName, charName, value)
+    if g.settings.use == 0 then
+        base["GEAR_SCORE_RANKING_CREATE_INFO"](ctrl, rank, guildIdx, teamName, charName, value)
+    else
+        native_lang_GEAR_SCORE_RANKING_CREATE_INFO_(ctrl, rank, guildIdx, teamName, charName, value)
+    end
+end
+
+function native_lang_GEAR_SCORE_RANKING_CREATE_INFO_(ctrl, rank, guildIdx, teamName, charName, value)
+    local guildPic = GET_CHILD(ctrl, "emblem_pic")
+    local rankText = GET_CHILD(ctrl, "rank_text")
+    local teamNameText = GET_CHILD(ctrl, "team_name_text")
+    local charNameText = GET_CHILD(ctrl, "char_name_text")
+    local valueText = GET_CHILD(ctrl, "value_text")
+
+    local org_name = teamName:gsub("{#0000FF}", "")
+
+    teamName = teamName:gsub("{#0000FF}", "")
+    if native_lang_is_translation(teamName) then
+        teamName = native_lang_process_name(teamName)
+    end
+    if native_lang_is_translation(charName) then
+        charName = native_lang_process_name(charName)
+    end
+    rankText:SetTextByKey("value", rank)
+    if teamName == GETMYFAMILYNAME() then
+        teamName = "{#0000FF}" .. teamName
+    end
+    teamNameText:SetTextByKey("value", teamName)
+    charNameText:SetTextByKey("value", charName)
+    valueText:SetTextByKey("value", value)
+
+    local frame = guildPic:GetTopParentFrame()
+    local close_btn = GET_CHILD_RECURSIVELY(frame, "closeBtn")
+    AUTO_CAST(close_btn)
+    close_btn:SetEventScript(ui.LBUTTONDOWN, "native_lang_real_rank_save")
+
+    local found = false
+
+    for i = 1, #g.gear_scores do
+        local gs_org_name = g.gear_scores[i][1]
+        if org_name == gs_org_name then
+            found = true
+            local gs_value = g.gear_scores[i][4]
+            if tonumber(value) > tonumber(gs_value) then
+                g.gear_scores[i][4] = tonumber(value)
+            end
+            break
+        end
+    end
+
+    if not found then
+        table.insert(g.gear_scores, {org_name, teamName, guildIdx, value})
+    end
+
+    if guildIdx ~= "0" then
+        local worldID = session.party.GetMyWorldIDStr()
+        local emblemImgName = guild.GetEmblemImageName(guildIdx, worldID)
+        if emblemImgName ~= 'None' then
+            guildPic:SetFileName(emblemImgName)
+        end
+    end
+end
+
+function native_lang_real_rank_save(frame, ctrl, str, num)
+
+    table.sort(g.gear_scores, function(a, b)
+        return a[4] > b[4] -- 4番目の要素がvalue
+    end)
+
+    local file_path = g.gear_score
+
+    local file = io.open(file_path, "w")
+    if file then
+        for _, score in ipairs(g.gear_scores) do
+            local line = string.format("%s:::%s:::%s:::%d\n", score[1], score[2], score[3], score[4])
+            file:write(line)
+            file:flush()
+        end
+        file:close()
+    end
+
+end
+
+function native_lang_ON_EVENTBANNER_GEARSCORE()
+    local frame = ui.GetFrame("ingameeventbanner")
+    if g.settings.use == 0 then
+        local real_rank = GET_CHILD_RECURSIVELY(frame, "real_rank")
+        if real_rank ~= nil then
+            real_rank:ShowWindow(0)
+        end
+        return
+    end
+    ReserveScript("native_lang_ON_EVENTBANNER_GEARSCORE_()", 0.5)
+end
+
+function native_lang_ON_EVENTBANNER_GEARSCORE_()
+
+    local frame = ui.GetFrame("ingameeventbanner")
+    local ranking_gear_score = GET_CHILD_RECURSIVELY(frame, "ranking_gear_score");
+    AUTO_CAST(ranking_gear_score)
+    local detail_btn = GET_CHILD(ranking_gear_score, "detail_btn");
+    local detail_x, detail_y = detail_btn:GetX(), detail_btn:GetY()
+    local real_rank = ranking_gear_score:CreateOrGetControl('button', "real_rank", detail_x - 180, detail_y, 100, 30);
+    AUTO_CAST(real_rank)
+    real_rank:SetSkinName("None")
+    real_rank:SetEventScript(ui.LBUTTONUP, "native_lang_real_rank_frame")
+
+    real_rank:SetText("{ol}{s20}Maximum Rank>>")
+    real_rank:ShowWindow(1)
+end
+
+function native_lang_real_rank_frame_close(frame, ctrl, str, num)
+    local frame = ui.GetFrame(addonNameLower .. "gear_score_info")
+    frame:ShowWindow(0)
+end
+
+function native_lang_real_rank_frame(frame, ctrl, str, num)
+    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "gear_score_info", 0, 0, 0, 0)
+    AUTO_CAST(frame)
+    frame:SetPos(1000, 30)
+    frame:SetSkinName("test_frame_low")
+    frame:SetLayerLevel(1000);
+    frame:RemoveAllChild()
+    -- frame:SetTitleBarSkin("mainframe_03")
+
+    local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.RIGHT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "native_lang_real_rank_frame_close")
+    close_button:SetMargin(0, 55, 0, 0)
+
+    local rank_title = frame:CreateOrGetControl('richtext', 'rank_title', 15, 60, 60, 30)
+    AUTO_CAST(rank_title)
+    rank_title:SetFontName("white_20_ol_ds");
+    rank_title:SetText("Rank")
+
+    local name_title = frame:CreateOrGetControl('richtext', 'name_title', 120, 60, 200, 30)
+    AUTO_CAST(name_title)
+    name_title:SetFontName("white_20_ol_ds");
+    name_title:SetText("Team Name")
+
+    local score_title = frame:CreateOrGetControl('richtext', 'score_title', 330, 60, 80, 30)
+    AUTO_CAST(score_title)
+    score_title:SetFontName("white_20_ol_ds");
+    score_title:SetText("Gear Score")
+
+    local info_gbox = frame:CreateOrGetControl("groupbox", "info_gbox", 10, 95, frame:GetWidth() - 20,
+        frame:GetHeight() - 55)
+    AUTO_CAST(info_gbox)
+
+    info_gbox:SetSkinName("bg")
+
+    local y = 0
+    local x = 480
+    local worldID = session.party.GetMyWorldIDStr()
+    for i, entry in ipairs(g.gear_scores) do
+        local rank_text = info_gbox:CreateOrGetControl('richtext', 'rank_text' .. i, 10, y + 5, 60, 30)
+        AUTO_CAST(rank_text)
+        rank_text:SetFontName("white_20_ol_ds");
+        rank_text:SetText(i)
+
+        local pic = info_gbox:CreateOrGetControl('picture', "pic" .. i, 70, y, 30, 30);
+        AUTO_CAST(pic)
+
+        if tostring(entry[3]) ~= "0" then
+
+            local emblemImgName = guild.GetEmblemImageName(tostring(entry[3]), worldID)
+
+            if emblemImgName ~= 'None' then
+                pic:SetFileName(emblemImgName)
+                pic:SetEnableStretch(1);
+            end
+        end
+
+        local name_text = info_gbox:CreateOrGetControl('richtext', 'name_text' .. i, 110, y + 5, 240, 30)
+        AUTO_CAST(name_text)
+
+        local name = entry[2] or entry[1]
+        name_text:SetText("{ol}{s18}" .. name)
+        name_text:AdjustFontSizeByWidth(240)
+
+        local score_text = info_gbox:CreateOrGetControl('richtext', 'score_text' .. i, 360, y + 5, 80, 30)
+        AUTO_CAST(score_text)
+        -- score_text:SetFontName("white_20_ol_ds");
+        score_text:SetText("{ol}{s18}" .. entry[4])
+
+        y = y + 35
+
+    end
+
+    frame:Resize(x, 800)
+    local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, frame:GetWidth(), 55)
+    title_gb:SetSkinName("test_frame_top")
+    AUTO_CAST(title_gb)
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text);
+    title_text:SetText('{ol}{s20}Maximum Gear Score Ranking')
+    info_gbox:Resize(frame:GetWidth() - 20, frame:GetHeight() - 105)
+    info_gbox:SetScrollPos(0)
+    frame:ShowWindow(1)
 end
 
 function native_lang_SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL(rankGbox, ctrlType, rank, week)
@@ -336,248 +545,6 @@ function native_lang_SOLODUNGEON_RANKINGPAGE_FILL_RANK_CTRL_(rankGbox, ctrlType,
 
     local killMonsterText = GET_CHILD_RECURSIVELY(rankGbox, "killMonsterText")
     killMonsterText:SetTextByKey("killmonster", clear_time)
-end
-
-function native_lang_GEAR_SCORE_RANKING_CREATE_INFO(ctrl, rank, guildIdx, teamName, charName, value)
-    if g.settings.use == 0 then
-        base["GEAR_SCORE_RANKING_CREATE_INFO"](ctrl, rank, guildIdx, teamName, charName, value)
-    else
-        native_lang_GEAR_SCORE_RANKING_CREATE_INFO_(ctrl, rank, guildIdx, teamName, charName, value)
-    end
-end
-
-function native_lang_GEAR_SCORE_RANKING_CREATE_INFO_(ctrl, rank, guildIdx, teamName, charName, value)
-    local guildPic = GET_CHILD(ctrl, "emblem_pic")
-    local rankText = GET_CHILD(ctrl, "rank_text")
-    local teamNameText = GET_CHILD(ctrl, "team_name_text")
-    local charNameText = GET_CHILD(ctrl, "char_name_text")
-    local valueText = GET_CHILD(ctrl, "value_text")
-
-    local org_name = teamName:gsub("{#0000FF}", "")
-
-    teamName = teamName:gsub("{#0000FF}", "")
-    if native_lang_is_translation(teamName) then
-        teamName = native_lang_process_name(teamName)
-    end
-    if native_lang_is_translation(charName) then
-        charName = native_lang_process_name(charName)
-    end
-    rankText:SetTextByKey("value", rank)
-    if teamName == GETMYFAMILYNAME() then
-        teamName = "{#0000FF}" .. teamName
-    end
-    teamNameText:SetTextByKey("value", teamName)
-    charNameText:SetTextByKey("value", charName)
-    valueText:SetTextByKey("value", value)
-
-    local frame = guildPic:GetTopParentFrame()
-    local close_btn = GET_CHILD_RECURSIVELY(frame, "closeBtn")
-    AUTO_CAST(close_btn)
-    close_btn:SetEventScript(ui.LBUTTONDOWN, "native_lang_real_rank_save")
-
-    if g.gear_score_table[org_name] then
-        if tonumber(value) > tonumber(g.gear_score_table[org_name].value) then
-            g.gear_score_table[org_name].value = value -- 値を更新
-        end
-    else
-        g.gear_score_table[org_name] = {
-            team_name = teamName,
-            guildIdx = guildIdx,
-            value = value
-        }
-    end
-    if guildIdx ~= "0" then
-        local worldID = session.party.GetMyWorldIDStr()
-        local emblemImgName = guild.GetEmblemImageName(guildIdx, worldID)
-        if emblemImgName ~= 'None' then
-            guildPic:SetFileName(emblemImgName)
-        end
-    end
-end
-
-function native_lang_real_rank_save(frame, ctrl, str, num)
-
-    local file_path = g.gear_score
-    g.gear_scores = {}
-
-    local file = io.open(file_path, "r")
-    if file then
-        for line in file:lines() do
-            local org_name, teamName, guildIdx, value = line:match("([^:]+):::(%S+):::(%d+):::(%d+)")
-
-            if not g.gear_score_table[org_name] then
-                g.gear_score_table[org_name] = {
-                    team_name = teamName,
-                    guildIdx = guildIdx,
-                    value = value
-                }
-            end
-        end
-        file:close()
-    end
-
-    for key, data in pairs(g.gear_score_table) do
-        local team_name = data.team_name
-
-        if native_lang_is_translation(team_name) and not g.names[key] then
-            team_name = native_lang_process_name(key)
-        end
-
-        table.insert(g.gear_scores, {key, team_name, data.guildIdx, tonumber(data.value)})
-    end
-
-    table.sort(g.gear_scores, function(a, b)
-        return a[4] > b[4] -- 3番目の要素がvalue
-    end)
-
-    local file = io.open(file_path, "w")
-    if file then
-        for _, score in ipairs(g.gear_scores) do
-            local line = string.format("%s:::%s:::%s:::%d\n", score[1], score[2], score[3], score[4])
-            file:write(line)
-            file:flush()
-        end
-        file:close()
-    end
-
-    --[[for i, score in ipairs(g.gear_scores) do
-        local teamName = score[1]
-        local guildIdx = score[2]
-        local value = score[3]
-        print(string.format("チーム名: %s, ギルドインデックス: %d, 値: %d", teamName, guildIdx, value))
-    end]]
-
-end
-
-function native_lang_mouseon(frame, ctrl, str, num)
-    ctrl:SetFontName("yellow_20_ol_ds");
-    ctrl:SetText("Maximum Rank>>")
-
-end
-
-function native_lang_mouseoff(frame, ctrl, str, num)
-    ctrl:SetFontName("white_20_ol_ds");
-    ctrl:SetText("Maximum Rank>>")
-end
-
-function native_lang_ON_EVENTBANNER_GEARSCORE()
-    local frame = ui.GetFrame("ingameeventbanner")
-    if g.settings.use == 0 then
-        local real_rank = GET_CHILD_RECURSIVELY(frame, "real_rank")
-        if real_rank ~= nil then
-            real_rank:ShowWindow(0)
-        end
-        return
-    end
-    ReserveScript("native_lang_ON_EVENTBANNER_GEARSCORE_()", 0.5)
-end
-
-function native_lang_ON_EVENTBANNER_GEARSCORE_()
-
-    local frame = ui.GetFrame("ingameeventbanner")
-    local ranking_gear_score = GET_CHILD_RECURSIVELY(frame, "ranking_gear_score");
-    AUTO_CAST(ranking_gear_score)
-    local detail_btn = GET_CHILD(ranking_gear_score, "detail_btn");
-    local detail_x, detail_y = detail_btn:GetX(), detail_btn:GetY()
-    local real_rank = ranking_gear_score:CreateOrGetControl('button', "real_rank", detail_x - 180, detail_y, 100, 30);
-    AUTO_CAST(real_rank)
-    real_rank:SetSkinName("None")
-    real_rank:SetEventScript(ui.LBUTTONUP, "native_lang_real_rank_frame")
-    real_rank:SetEventScript(ui.MOUSEON, "native_lang_mouseon")
-    real_rank:SetEventScript(ui.MOUSEOFF, "native_lang_mouseoff")
-    real_rank:SetFontName("white_20_ol_ds");
-    real_rank:SetText("Maximum Rank>>")
-    real_rank:ShowWindow(1)
-end
-
-function native_lang_real_rank_frame_close(frame, ctrl, str, num)
-    local frame = ui.GetFrame(addonNameLower .. "gear_score_info")
-    frame:ShowWindow(0)
-end
-
-function native_lang_real_rank_frame(frame, ctrl, str, num)
-    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "gear_score_info", 0, 0, 0, 0)
-    AUTO_CAST(frame)
-    frame:SetPos(1000, 30)
-    frame:SetSkinName("test_frame_low")
-    frame:SetLayerLevel(1000);
-    frame:RemoveAllChild()
-    -- frame:SetTitleBarSkin("mainframe_03")
-
-    local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
-    AUTO_CAST(close_button)
-    close_button:SetImage("testclose_button")
-    close_button:SetGravity(ui.RIGHT, ui.TOP)
-    close_button:SetEventScript(ui.LBUTTONUP, "native_lang_real_rank_frame_close")
-    close_button:SetMargin(0, 55, 0, 0)
-
-    local rank_title = frame:CreateOrGetControl('richtext', 'rank_title', 15, 60, 60, 30)
-    AUTO_CAST(rank_title)
-    rank_title:SetFontName("white_20_ol_ds");
-    rank_title:SetText("Rank")
-
-    local name_title = frame:CreateOrGetControl('richtext', 'name_title', 120, 60, 200, 30)
-    AUTO_CAST(name_title)
-    name_title:SetFontName("white_20_ol_ds");
-    name_title:SetText("Team Name")
-
-    local score_title = frame:CreateOrGetControl('richtext', 'score_title', 330, 60, 80, 30)
-    AUTO_CAST(score_title)
-    score_title:SetFontName("white_20_ol_ds");
-    score_title:SetText("Gear Score")
-
-    local info_gbox = frame:CreateOrGetControl("groupbox", "info_gbox", 10, 95, frame:GetWidth() - 20,
-        frame:GetHeight() - 55)
-    AUTO_CAST(info_gbox)
-
-    info_gbox:SetSkinName("bg")
-
-    local y = 0
-    local x = 480
-    for i, entry in ipairs(g.gear_scores) do
-        local rank_text = info_gbox:CreateOrGetControl('richtext', 'rank_text' .. i, 10, y + 5, 60, 30)
-        AUTO_CAST(rank_text)
-        rank_text:SetFontName("white_20_ol_ds");
-        rank_text:SetText(i)
-
-        local pic = info_gbox:CreateOrGetControl('picture', "pic" .. i, 80, y, 30, 30);
-        AUTO_CAST(pic)
-        -- pic:SetGravity(ui.LEFT, ui.TOP);
-        if tostring(entry[3]) ~= "0" then
-            local worldID = session.party.GetMyWorldIDStr()
-            local emblemImgName = guild.GetEmblemImageName(tostring(entry[3]), worldID)
-
-            if emblemImgName ~= 'None' then
-                pic:SetFileName(emblemImgName)
-                pic:SetEnableStretch(1);
-            end
-        end
-
-        local name_text = info_gbox:CreateOrGetControl('richtext', 'name_text' .. i, 120, y + 5, 200, 30)
-        AUTO_CAST(name_text)
-        name_text:SetFontName("white_20_ol_ds");
-        local name = entry[2] or entry[1]
-        name_text:SetText(name)
-
-        local score_text = info_gbox:CreateOrGetControl('richtext', 'score_text' .. i, 330, y + 5, 80, 30)
-        AUTO_CAST(score_text)
-        score_text:SetFontName("white_20_ol_ds");
-        score_text:SetText(entry[4])
-
-        y = y + 35
-
-    end
-
-    frame:Resize(x, 800)
-    local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, frame:GetWidth(), 55)
-    title_gb:SetSkinName("test_frame_top")
-    AUTO_CAST(title_gb)
-    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
-    AUTO_CAST(title_text);
-    title_text:SetText('{ol}{s20}Maximum Gear Score Ranking')
-    info_gbox:Resize(frame:GetWidth() - 20, frame:GetHeight() - 105)
-    info_gbox:SetScrollPos(0)
-    frame:ShowWindow(1)
 end
 
 function native_lang_UPDATE_COMPANION_TITLE(frame, handle)
@@ -805,10 +772,10 @@ function native_lang_GAME_START()
         AUTO_CAST(trans_btn)
         if g.settings.use == 0 then
             trans_btn:SetSkinName('test_gray_button')
-            trans_btn:SetTextTooltip("Native Lang is suspended")
+            trans_btn:SetTextTooltip("Native Lang is suspended{nl}" .. "Left click to setting")
         elseif g.settings.use == 1 then
             trans_btn:SetSkinName("test_red_button")
-            trans_btn:SetTextTooltip("Native Lang in use")
+            trans_btn:SetTextTooltip("Native Lang in use{nl}" .. "Left click to setting")
         end
 
         trans_btn:SetText("{ol}{s14}{#FFFFFF}" .. g.lang)
