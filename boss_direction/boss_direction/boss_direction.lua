@@ -2,10 +2,11 @@
 -- v1.0.2 角度調整
 -- v1.0.3 レイヤー修正。スキルショートカットより低く設定。
 -- v1.0.4 バグ修正
+-- v1.0.5 クエストモードから復帰した時にちゃんと動かなかったの修正。
 local addonName = "BOSS_DIRECTION"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -43,52 +44,58 @@ function BOSS_DIRECTION_ON_INIT(addon, frame)
         addon:RegisterMsg('TARGET_BUFF_UPDATE', 'BOSS_DIRECTION_ON_MSG');
         addon:RegisterMsg('TARGET_CLEAR_BOSS', 'BOSS_DIRECTION_ON_MSG');
         addon:RegisterMsg('TARGET_UPDATE', 'BOSS_DIRECTION_ON_MSG');
+        -- addon:RegisterMsg('FPS_UPDATE', 'BOSS_DIRECTION_ON_MSG');
+    end
+end
 
-        local headsup = ui.GetFrame("headsupdisplay");
-        headsup:RunUpdateScript("BOSS_DIRECTION_ON_MSG", 0.1)
+function BOSS_DIRECTION_CHECK_HANDLE_STATUS()
+
+    local currentTime = os.time()
+
+    if (currentTime - g.time) >= 2 then
+        local frame = ui.GetFrame(g.framename)
+        frame:ShowWindow(0)
+        local timer = GET_CHILD(frame, "timer")
+        AUTO_CAST(timer)
+        timer:Stop();
     end
 
 end
 
 function BOSS_DIRECTION_ON_MSG(frame, msg, argStr, argNum)
-    local handle = session.GetTargetBossHandle();
-    local targetinfo = info.GetTargetInfo(handle);
+
+    g.time = os.time()
     local frame = ui.GetFrame(g.framename)
-    --[[if targetinfo == nil then
-        frame:ShowWindow(0)
-        return 0
-    end]]
-    if msg == "TARGET_CLEAR_BOSS" then
-        frame:ShowWindow(0)
-        return 0
+    local handle = session.GetTargetBossHandle();
+
+    local timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0);
+    AUTO_CAST(timer)
+
+    if handle == 0 then
+        timer:SetUpdateScript("BOSS_DIRECTION_CHECK_HANDLE_STATUS");
+        timer:Start(0.3);
+        return
+    elseif msg == "TARGET_CLEAR_BOSS" then
+        timer:SetUpdateScript("BOSS_DIRECTION_CHECK_HANDLE_STATUS");
+        timer:Start(0.3);
+        return
     end
 
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
-
     frame:Resize(130, 130);
     frame:SetLayerLevel(89)
 
-    local arrow = frame:GetChild("arrow");
-    if arrow == nil then
-        arrow = frame:CreateOrGetControl("picture", "arrow", 0, 0, 70, 70);
-        tolua.cast(arrow, "ui::CPicture");
-
-        arrow:SetImage("class_tree_arrow")
-        arrow:SetEnableStretch(1);
-        arrow:EnableHitTest(0);
-        arrow:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT);
-    end
-    if handle ~= 0 then
-        -- arrow:SetAngle(info.GetAngle(handle) - 30);
-        arrow:SetAngle(info.GetAngle(handle) - 23);
-        arrow:Resize(70, 70);
-        arrow:SetColorTone("FFFF0000");
-        FRAME_AUTO_POS_TO_OBJ(frame, handle, -frame:GetWidth() / 2, -frame:GetHeight() / 2, 0, 0);
-        frame:ShowWindow(1);
-    end
-
-    return 1
-
+    local arrow = frame:CreateOrGetControl("picture", "arrow", 0, 0, 70, 70);
+    AUTO_CAST(arrow)
+    arrow:SetImage("class_tree_arrow")
+    arrow:SetEnableStretch(1);
+    arrow:EnableHitTest(0);
+    arrow:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT);
+    arrow:SetAngle(info.GetAngle(handle) - 23);
+    arrow:Resize(70, 70);
+    arrow:SetColorTone("FFFF0000");
+    FRAME_AUTO_POS_TO_OBJ(frame, handle, -frame:GetWidth() / 2, -frame:GetHeight() / 2, 0, 0);
+    frame:ShowWindow(1);
 end
 
