@@ -5,10 +5,11 @@
 -- v1.0.9 チャレンジとかで無駄に増えるマップを無効化
 -- v1.1.0 インフォフレームをちゃんと作った。褒めて欲しい。
 -- v1.1.1 フレームのレイヤーを上げた。
+-- v1.1.2 インフォフレームの横幅調整。TP画面出してもフレーム復帰するように
 local addonName = "KLCOUNT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -157,6 +158,10 @@ function klcount_map_information(map_id)
             local display_text = info_gbox:CreateOrGetControl('richtext', 'display_text' .. str_key, 10, 95 + y, 50, 20)
             AUTO_CAST(display_text)
             display_text:SetText("{ol}" .. display)
+
+            if x < display_text:GetWidth() + 10 then
+                x = display_text:GetWidth() + 10
+            end
 
             local kill_count_percent = map_data.get_items[str_key] / map_data.kill_count * 100
             local rounded_kill_count_percent = math.floor(kill_count_percent * 10 + 0.5) / 10
@@ -321,6 +326,7 @@ function klcount_GAME_START()
         g.challenge_mode = false
         addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
         addon:RegisterMsg('ITEM_PICK', 'klcount_ITEM_PICK');
+        addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');
 
         g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
         local map_data = acutil.loadJSON(g.map_file_location);
@@ -352,6 +358,15 @@ function klcount_GAME_START()
         KLCOUNT_INIT_FRAME()
     elseif map_class.MapType == "City" then
         klcount_information_button(frame)
+    end
+end
+
+function klcount_FPS_UPDATE()
+    local frame = ui.GetFrame("klcount")
+    if frame:IsVisible() == 0 then
+        frame:ShowWindow(1)
+    else
+        return
     end
 end
 
