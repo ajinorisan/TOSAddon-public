@@ -20,10 +20,11 @@
 -- v1.1.9 520環境に作り替え。cidでセーブデータ保持すると制約あるのでnameで保持に変更。
 -- v1.2.0 instantccとの連携コードミスってたので修正。
 -- v1.2.1 フォルダ作るコードをアドオン導入時のみに。
+-- v1.2.2 表示するレイドを選べる様に。UI変更
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.1"
+local ver = "1.2.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -374,6 +375,20 @@ function indun_list_viewer_frame_init()
     end
 end
 -- ゴーレムH712 A710 S711 ネリンガH709 A707 S708 
+
+local check_table = {
+    [1] = "Neringa_H",
+    [2] = "Golem_H",
+    [3] = "Merregina_H",
+    [4] = "Slogutis_H",
+    [5] = "Upinis_H",
+    [6] = "Neringa_S",
+    [7] = "Golem_S",
+    [8] = "Merregina_S",
+    [9] = "Slogutis_S",
+    [10] = "Upinis_S",
+    [11] = "Memo"
+}
 function indun_list_viewer_title_frame_open()
 
     indun_list_viewer_get_raid_count()
@@ -381,11 +396,10 @@ function indun_list_viewer_title_frame_open()
     AUTO_CAST(frame)
     frame:RemoveAllChild()
     frame:SetLayerLevel(99);
-    frame:SetSkinName("bg")
+    frame:SetSkinName("test_frame_low")
 
     local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
     AUTO_CAST(title_gb)
-    title_gb:SetColorTone("FF000000");
 
     local texts = {
         japanese = {
@@ -395,7 +409,7 @@ function indun_list_viewer_title_frame_open()
             mode_text = "チェックを入れるとスクロールモードに切替",
             display_text = "チェックしたキャラはレイド回数非表示",
             memo = "メモ",
-            display = "表示切替"
+            display = "表示"
         },
         etc = {
             charcter_name = "CharacterName",
@@ -405,23 +419,12 @@ function indun_list_viewer_title_frame_open()
             mode_text = "Switch to scroll mode when checked",
             display_text = "Checked characters hide raid count",
             memo = "Memo",
-            display = "Display"
+            display = "Disp"
         }
     }
 
     local select_texts = g.lang == "Japanese" and texts.japanese or texts.etc
-    local charcter_name = title_gb:CreateOrGetControl("richtext", "charcter_name", 20, 35)
-    AUTO_CAST(charcter_name)
-    charcter_name:SetText("{ol}" .. select_texts.charcter_name)
 
-    local hard_raid = title_gb:CreateOrGetControl("richtext", "hard_raid", 175, 10)
-    AUTO_CAST(hard_raid)
-    hard_raid:SetText("{ol}" .. select_texts.hard_raid)
-
-    local auto_raid = title_gb:CreateOrGetControl("richtext", "auto_raid", 355, 10)
-    AUTO_CAST(auto_raid)
-    auto_raid:SetText("{ol}" .. select_texts.auto_raid)
-    -- ゴーレムH712 A710 S711 ネリンガH709 A707 S708 
     local icon_table = {{
         icon_name = "icon_item_misc_boss_DarkNeringa",
         hard = 709,
@@ -449,39 +452,45 @@ function indun_list_viewer_title_frame_open()
         auto = 685
     }}
 
-    local x = 175
+    local x = 185
     for i = 1, 5 do
 
-        local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 30, 25, 25);
-        AUTO_CAST(title_picture)
-        local icon_name = icon_table[i].icon_name
-        title_picture:SetImage(icon_name)
-        title_picture:SetEnableStretch(1)
-        title_picture:EnableHitTest(1)
-        title_picture:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_enter_hard")
-        title_picture:SetEventScriptArgNumber(ui.LBUTTONDOWN, icon_table[i].hard)
-        title_picture:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
-        title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示" or
-                                         "Left click to display raid screen")
+        if g.settings[tostring(check_table[i])] == 1 then
+            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
+            AUTO_CAST(title_picture)
+            local icon_name = icon_table[i].icon_name
+            title_picture:SetImage(icon_name)
+            title_picture:SetEnableStretch(1)
+            title_picture:EnableHitTest(1)
+            title_picture:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_enter_hard")
+            title_picture:SetEventScriptArgNumber(ui.LBUTTONDOWN, icon_table[i].hard)
+            title_picture:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+            title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示{nl}" ..
+                                             select_texts.hard_raid or "Left click to display raid screen{nl}" ..
+                                             select_texts.hard_raid)
 
-        x = x + 30
+            x = x + 30
+        end
     end
     x = x + 30
     for i = 6, 10 do
 
-        local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 30, 25, 25);
-        AUTO_CAST(title_picture)
-        local icon_name = icon_table[i - 5].icon_name
-        title_picture:SetImage(icon_name)
-        title_picture:SetEnableStretch(1)
-        title_picture:EnableHitTest(1)
-        title_picture:SetUserValue("SOLO", icon_table[i - 5].solo)
-        title_picture:SetUserValue("AUTO", icon_table[i - 5].auto)
-        title_picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
-        title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示" or
-                                         "Left click to display raid screen")
+        if g.settings[tostring(check_table[i])] == 1 then
+            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
+            AUTO_CAST(title_picture)
+            local icon_name = icon_table[i - 5].icon_name
+            title_picture:SetImage(icon_name)
+            title_picture:SetEnableStretch(1)
+            title_picture:EnableHitTest(1)
+            title_picture:SetUserValue("SOLO", icon_table[i - 5].solo)
+            title_picture:SetUserValue("AUTO", icon_table[i - 5].auto)
+            title_picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
+            title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示{nl}" ..
+                                             select_texts.auto_raid or "Left click to display raid screen{nl}" ..
+                                             select_texts.auto_raid)
 
-        x = x + 65
+            x = x + 65
+        end
     end
 
     local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
@@ -496,7 +505,108 @@ function indun_list_viewer_title_frame_open()
     cc_button:SetText("{img barrack_button_normal 30 30}")
     cc_button:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
-    local mode_check = title_gb:CreateOrGetControl('checkbox', 'mode_check', 80, 5, 30, 30)
+    function indun_list_viewer_config(frame, ctrl, str, num)
+
+        local frame = ui.GetFrame(addonNameLower .. "list_frame")
+        frame:RemoveAllChild()
+        local config_gb = frame:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
+        AUTO_CAST(config_gb)
+        config_gb:SetSkinName("bg")
+        config_gb:ShowWindow(1)
+
+        local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
+        AUTO_CAST(title_gb)
+        local x = 185
+        for i = 1, 5 do
+
+            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
+            AUTO_CAST(title_picture)
+            local icon_name = icon_table[i].icon_name
+            title_picture:SetImage(icon_name)
+            title_picture:SetEnableStretch(1)
+            title_picture:EnableHitTest(1)
+            title_picture:SetTextTooltip("{ol}" .. select_texts.hard_raid)
+
+            x = x + 30
+        end
+        x = x + 30
+        for i = 6, 10 do
+
+            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
+            AUTO_CAST(title_picture)
+            local icon_name = icon_table[i - 5].icon_name
+            title_picture:SetImage(icon_name)
+            title_picture:SetEnableStretch(1)
+            title_picture:EnableHitTest(1)
+            title_picture:SetTextTooltip("{ol}" .. select_texts.auto_raid)
+
+            x = x + 65
+        end
+
+        local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
+        AUTO_CAST(memo_text)
+        memo_text:SetText("{ol}" .. select_texts.memo)
+
+        local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.LEFT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
+        close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+
+        local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
+        AUTO_CAST(text)
+        text:SetText("{ol}Display if checked")
+
+        function indun_list_viewer_display_check(frame, ctrl, str, num)
+
+            local ischeck = ctrl:IsChecked()
+            g.settings[str] = ischeck
+            indun_list_viewer_save_settings()
+        end
+
+        for i = 1, #check_table do
+            -- print(tostring(check_table[i]))
+            if g.settings[tostring(check_table[i])] == nil then
+                g.settings[tostring(check_table[i])] = 1
+            end
+        end
+        indun_list_viewer_save_settings()
+        local x = 180
+        for i = 1, 5 do
+
+            local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
+            AUTO_CAST(check_box)
+            check_box:SetCheck(g.settings[tostring(check_table[i])] or 1)
+            check_box:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
+            check_box:SetEventScriptArgString(ui.LBUTTONDOWN, check_table[i])
+
+            x = x + 30
+        end
+        x = x + 30
+        for i = 6, 11 do
+
+            local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
+            AUTO_CAST(check_box)
+            check_box:SetCheck(g.settings[tostring(check_table[i])] or 1)
+            check_box:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
+            check_box:SetEventScriptArgString(ui.LBUTTONDOWN, check_table[i])
+
+            x = x + 65
+        end
+        title_gb:Resize(900 + 70, 55)
+        frame:Resize(865 + 80, 85)
+
+        config_gb:Resize(865 + 60, frame:GetHeight() - 45)
+    end
+
+    local config_btn = title_gb:CreateOrGetControl('button', 'config_btn', 75, 5, 30, 30)
+    AUTO_CAST(config_btn)
+    config_btn:SetSkinName("None")
+    config_btn:SetText("{img config_button_normal 30 30}")
+    config_btn:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_config")
+
+    local mode_check = title_gb:CreateOrGetControl('checkbox', 'mode_check', 115, 5, 30, 30)
     AUTO_CAST(mode_check)
     if g.settings.display_mode == "full" then
         mode_check:SetCheck(0)
@@ -506,11 +616,14 @@ function indun_list_viewer_title_frame_open()
     mode_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
     mode_check:SetTextTooltip("{ol}" .. select_texts.mode_text)
 
-    local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
-    AUTO_CAST(memo_text)
-    memo_text:SetText("{ol}" .. select_texts.memo)
+    if g.settings[tostring(check_table[11])] == 1 then
+        local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
+        AUTO_CAST(memo_text)
+        memo_text:SetText("{ol}" .. select_texts.memo)
+        x = x + 160
+    end
 
-    local display_text = title_gb:CreateOrGetControl("richtext", "display_text", x + 160, 10)
+    local display_text = title_gb:CreateOrGetControl("richtext", "display_text", x, 10)
     AUTO_CAST(display_text)
     display_text:SetText("{ol}" .. select_texts.display)
     display_text:SetTextTooltip("{ol}" .. select_texts.display_text)
@@ -523,182 +636,269 @@ function indun_list_viewer_title_frame_open()
     indun_list_viewer_frame_open(frame)
 end
 
-function indun_list_viewer_close(frame)
+function indun_list_viewer_close(frame, ctrl, str, num)
 
     local frame = ui.GetFrame(addonNameLower .. "list_frame")
     frame:ShowWindow(0)
+
+    if num == 1 then
+        indun_list_viewer_title_frame_open()
+    end
 end
 
 function indun_list_viewer_frame_open(frame)
 
-    local gb = frame:CreateOrGetControl("groupbox", "gb", 0, 55, 10, 10)
+    local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
     AUTO_CAST(gb)
-    gb:SetColorTone("FF000000")
-    local x = 35
+    gb:SetSkinName("bg")
+
     local y = 10
     for _, data in ipairs(g.sorted_settings) do
+        local x = 35
         if type(data) == "table" then
             local pc_name = data.pc_name
 
             local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
             AUTO_CAST(name)
             if g.login_name == pc_name then
-                name:SetText("{ol}{#FF4500}" .. pc_name)
+                name:SetText("{ol}{s14}{#FF4500}" .. pc_name)
             else
-                name:SetText("{ol}" .. pc_name)
+                name:SetText("{ol}{s14}" .. pc_name)
             end
 
             indun_list_viewer_job_slot(frame, data, y)
 
-            local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y - 7, 865 + 10, 2)
-            line:SetSkinName("labelline_def_3")
-
-            local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, 680, y - 5, 150, 25)
-            AUTO_CAST(memo)
-            memo:SetFontName("white_14_ol")
-            memo:SetTextAlign("left", "center")
-            memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
-            memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
-            memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
-            local memoData = data.memo
-            memo:SetText(memoData)
-
-            local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, 865, y - 5, 25, 25)
-            AUTO_CAST(display)
-            display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
-            display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
-            local check = 1
-            if not data.hide then
-                check = 0
-            end
-            display:SetCheck(check)
+            local i = 1
 
             if not data.hide then
                 local raid_count = data["raid_count"]
                 local auto_clear_count = data["auto_clear_count"]
-                local N_H = gb:CreateOrGetControl("richtext", "N_H" .. pc_name, x + 140, y)
-                AUTO_CAST(N_H)
-                N_H:SetText("{ol}{s14}( " .. raid_count.N_H .. " )")
-                if raid_count.N_H == 1 then
-                    N_H:SetColorTone("FF990000");
-                else
-                    N_H:SetColorTone("FFFFFFFF");
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 140
+                    local N_H = gb:CreateOrGetControl("richtext", "N_H" .. pc_name, x, y)
+                    AUTO_CAST(N_H)
+                    N_H:SetText("{ol}{s14}( " .. raid_count.N_H .. " )")
+                    if raid_count.N_H == 1 then
+                        N_H:SetColorTone("FF990000");
+                    else
+                        N_H:SetColorTone("FFFFFFFF");
+                    end
                 end
 
-                local G_H = gb:CreateOrGetControl("richtext", "G_H" .. pc_name, x + 170, y)
-                AUTO_CAST(G_H)
-                G_H:SetText("{ol}{s14}( " .. raid_count.G_H .. " )")
-                if raid_count.G_H == 1 then
-                    G_H:SetColorTone("FF990000");
-                else
-                    G_H:SetColorTone("FFFFFFFF");
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local G_H = gb:CreateOrGetControl("richtext", "G_H" .. pc_name, x, y)
+                    AUTO_CAST(G_H)
+                    G_H:SetText("{ol}{s14}( " .. raid_count.G_H .. " )")
+                    if raid_count.G_H == 1 then
+                        G_H:SetColorTone("FF990000");
+                    else
+                        G_H:SetColorTone("FFFFFFFF");
+                    end
                 end
 
-                local M_H = gb:CreateOrGetControl("richtext", "M_H" .. pc_name, x + 200, y)
-                AUTO_CAST(M_H)
-                M_H:SetText("{ol}{s14}( " .. raid_count.M_H .. " )")
-                if raid_count.M_H == 1 then
-                    M_H:SetColorTone("FF990000");
-                else
-                    M_H:SetColorTone("FFFFFFFF");
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local M_H = gb:CreateOrGetControl("richtext", "M_H" .. pc_name, x, y)
+                    AUTO_CAST(M_H)
+                    M_H:SetText("{ol}{s14}( " .. raid_count.M_H .. " )")
+                    if raid_count.M_H == 1 then
+                        M_H:SetColorTone("FF990000");
+                    else
+                        M_H:SetColorTone("FFFFFFFF");
+                    end
                 end
 
-                local S_H = gb:CreateOrGetControl("richtext", "S_H" .. pc_name, x + 230, y)
-                AUTO_CAST(S_H)
-                S_H:SetText("{ol}{s14}( " .. raid_count.S_H .. " )")
-                if raid_count.S_H == 1 then
-                    S_H:SetColorTone("FF990000");
-                else
-                    S_H:SetColorTone("FFFFFFFF");
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local S_H = gb:CreateOrGetControl("richtext", "S_H" .. pc_name, x, y)
+                    AUTO_CAST(S_H)
+                    S_H:SetText("{ol}{s14}( " .. raid_count.S_H .. " )")
+                    if raid_count.S_H == 1 then
+                        S_H:SetColorTone("FF990000");
+                    else
+                        S_H:SetColorTone("FFFFFFFF");
+                    end
                 end
 
-                local U_H = gb:CreateOrGetControl("richtext", "U_H" .. pc_name, x + 260, y)
-                AUTO_CAST(U_H)
-                U_H:SetText("{ol}{s14}( " .. raid_count.U_H .. " )")
-                if raid_count.U_H == 1 then
-                    U_H:SetColorTone("FF990000");
-                else
-                    U_H:SetColorTone("FFFFFFFF");
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local U_H = gb:CreateOrGetControl("richtext", "U_H" .. pc_name, x, y)
+                    AUTO_CAST(U_H)
+                    U_H:SetText("{ol}{s14}( " .. raid_count.U_H .. " )")
+                    if raid_count.U_H == 1 then
+                        U_H:SetColorTone("FF990000");
+                    else
+                        U_H:SetColorTone("FFFFFFFF");
+                    end
+
                 end
 
-                local N_A = gb:CreateOrGetControl("richtext", "N_A" .. pc_name, x + 320, y)
-                AUTO_CAST(N_A)
-                N_A:SetText("{ol}{s14}( " .. raid_count.N_A .. " )")
-                if raid_count.N_A == 2 then
-                    N_A:SetColorTone("FF990000");
-                else
-                    N_A:SetColorTone("FFFFFFFF");
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 60
+                    local N_A = gb:CreateOrGetControl("richtext", "N_A" .. pc_name, x, y)
+                    AUTO_CAST(N_A)
+                    N_A:SetText("{ol}{s14}( " .. raid_count.N_A .. " )")
+                    if raid_count.N_A == 2 then
+                        N_A:SetColorTone("FF990000");
+                    else
+                        N_A:SetColorTone("FFFFFFFF");
+                    end
+
+                    x = x + 25
+                    local N_S = gb:CreateOrGetControl("richtext", "N_S" .. pc_name, x, y)
+                    AUTO_CAST(N_S)
+                    N_S:SetText("{ol}{s14}/( " .. auto_clear_count.N_S .. " )")
                 end
 
-                local N_S = gb:CreateOrGetControl("richtext", "N_S" .. pc_name, x + 345, y)
-                AUTO_CAST(N_S)
-                N_S:SetText("{ol}{s14}/( " .. auto_clear_count.N_S .. " )")
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local G_A = gb:CreateOrGetControl("richtext", "G_A" .. pc_name, x, y)
+                    AUTO_CAST(G_A)
+                    G_A:SetText("{ol}{s14}( " .. raid_count.G_A .. " )")
+                    if raid_count.G_A == 2 then
+                        G_A:SetColorTone("FF990000");
+                    else
+                        G_A:SetColorTone("FFFFFFFF");
+                    end
 
-                local G_A = gb:CreateOrGetControl("richtext", "G_A" .. pc_name, x + 385, y)
-                AUTO_CAST(G_A)
-                G_A:SetText("{ol}{s14}( " .. raid_count.G_A .. " )")
-                if raid_count.G_A == 2 then
-                    G_A:SetColorTone("FF990000");
-                else
-                    G_A:SetColorTone("FFFFFFFF");
+                    x = x + 25
+                    local G_S = gb:CreateOrGetControl("richtext", "G_S" .. pc_name, x, y)
+                    AUTO_CAST(G_S)
+                    G_S:SetText("{ol}{s14}/( " .. auto_clear_count.G_S .. " )")
                 end
 
-                local G_S = gb:CreateOrGetControl("richtext", "G_S" .. pc_name, x + 410, y)
-                AUTO_CAST(G_S)
-                G_S:SetText("{ol}{s14}/( " .. auto_clear_count.G_S .. " )")
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local M_A = gb:CreateOrGetControl("richtext", "M_A" .. pc_name, x, y)
+                    AUTO_CAST(M_A)
+                    M_A:SetText("{ol}{s14}( " .. raid_count.M_A .. " )")
+                    if raid_count.M_A == 2 then
+                        M_A:SetColorTone("FF990000");
+                    else
+                        M_A:SetColorTone("FFFFFFFF");
+                    end
+                    x = x + 25
+                    local M_S = gb:CreateOrGetControl("richtext", "M_S" .. pc_name, x, y)
+                    AUTO_CAST(M_S)
+                    M_S:SetText("{ol}{s14}/( " .. auto_clear_count.M_S .. " )")
 
-                local M_A = gb:CreateOrGetControl("richtext", "M_A" .. pc_name, x + 450, y)
-                AUTO_CAST(M_A)
-                M_A:SetText("{ol}{s14}( " .. raid_count.M_A .. " )")
-                if raid_count.M_A == 2 then
-                    M_A:SetColorTone("FF990000");
-                else
-                    M_A:SetColorTone("FFFFFFFF");
                 end
 
-                local M_S = gb:CreateOrGetControl("richtext", "M_S" .. pc_name, x + 475, y)
-                AUTO_CAST(M_S)
-                M_S:SetText("{ol}{s14}/( " .. auto_clear_count.M_S .. " )")
-
-                local S_A = gb:CreateOrGetControl("richtext", "S_A" .. pc_name, x + 515, y)
-                AUTO_CAST(S_A)
-                S_A:SetText("{ol}{s14}( " .. raid_count.S_A .. " )")
-                if raid_count.S_A == 2 then
-                    S_A:SetColorTone("FF990000");
-                else
-                    S_A:SetColorTone("FFFFFFFF");
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local S_A = gb:CreateOrGetControl("richtext", "S_A" .. pc_name, x, y)
+                    AUTO_CAST(S_A)
+                    S_A:SetText("{ol}{s14}( " .. raid_count.S_A .. " )")
+                    if raid_count.S_A == 2 then
+                        S_A:SetColorTone("FF990000");
+                    else
+                        S_A:SetColorTone("FFFFFFFF");
+                    end
+                    x = x + 25
+                    local S_S = gb:CreateOrGetControl("richtext", "S_S" .. pc_name, x, y)
+                    AUTO_CAST(S_S)
+                    S_S:SetText("{ol}{s14}/( " .. auto_clear_count.S_S .. " )")
                 end
 
-                local S_S = gb:CreateOrGetControl("richtext", "S_S" .. pc_name, x + 540, y)
-                AUTO_CAST(S_S)
-                S_S:SetText("{ol}{s14}/( " .. auto_clear_count.S_S .. " )")
-
-                local U_A = gb:CreateOrGetControl("richtext", "U_A" .. pc_name, x + 580, y)
-                AUTO_CAST(U_A)
-                U_A:SetText("{ol}{s14}( " .. raid_count.U_A .. " )")
-                if raid_count.U_A == 2 then
-                    U_A:SetColorTone("FF990000");
-                else
-                    U_A:SetColorTone("FFFFFFFF");
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local U_A = gb:CreateOrGetControl("richtext", "U_A" .. pc_name, x, y)
+                    AUTO_CAST(U_A)
+                    U_A:SetText("{ol}{s14}( " .. raid_count.U_A .. " )")
+                    if raid_count.U_A == 2 then
+                        U_A:SetColorTone("FF990000");
+                    else
+                        U_A:SetColorTone("FFFFFFFF");
+                    end
+                    x = x + 25
+                    local U_S = gb:CreateOrGetControl("richtext", "U_S" .. pc_name, x, y)
+                    AUTO_CAST(U_S)
+                    U_S:SetText("{ol}{s14}/( " .. auto_clear_count.U_S .. " )")
                 end
-
-                local U_S = gb:CreateOrGetControl("richtext", "U_S" .. pc_name, x + 605, y)
-                AUTO_CAST(U_S)
-                U_S:SetText("{ol}{s14}/( " .. auto_clear_count.U_S .. " )")
+                g.x = x
             end
+
+            i = i + 1
+            if g.settings[tostring(check_table[11])] == 1 then
+
+                local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 200, 1)
+                line:SetSkinName("labelline_def_3")
+
+                local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, g.x + 40, y - 2, 180, 20)
+                AUTO_CAST(memo)
+                memo:SetFontName("white_14_ol")
+                memo:SetTextAlign("left", "center")
+                memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
+                memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
+                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                local memoData = data.memo
+                memo:SetText(memoData)
+
+                local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 225, y - 5, 25, 25) -- 865
+                AUTO_CAST(display)
+                display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+                display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+                local check = 1
+                if not data.hide then
+                    check = 0
+                end
+                display:SetCheck(check)
+                if g.settings.display_mode == "full" then
+                    frame:Resize(g.x + 225 + 80, y + 75)
+                    -- gb:Resize(865 + 60, y + 40)
+                    gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+                else
+                    frame:Resize(g.x + 225 + 80, 545)
+                    gb:Resize(frame:GetWidth() - 20, 500)
+                    gb:EnableScrollBar(1);
+                    gb:EnableDrawFrame(1);
+                    gb:SetScrollPos(0)
+                end
+            else
+                local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
+                line:SetSkinName("labelline_def_3")
+
+                local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 40, y - 5, 25, 25) -- 865
+                AUTO_CAST(display)
+                display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+                display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+                local check = 1
+                if not data.hide then
+                    check = 0
+                end
+                display:SetCheck(check)
+                if g.settings.display_mode == "full" then
+                    frame:Resize(g.x + 40 + 80, y + 75)
+                    gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+                else
+                    frame:Resize(g.x + 40 + 80, 545)
+                    gb:Resize(frame:GetWidth() - 20, 500)
+                    gb:EnableScrollBar(1);
+                    gb:EnableDrawFrame(1);
+                    gb:SetScrollPos(0)
+                end
+            end
+
             y = y + 25
         end
     end
-    if g.settings.display_mode == "full" then
-        frame:Resize(865 + 80, y + 60)
-        gb:Resize(865 + 60, y + 40)
-    else
-        frame:Resize(865 + 80, 570)
-        gb:Resize(865 + 60, 500)
-        gb:EnableScrollBar(1);
-        gb:EnableDrawFrame(1);
-        gb:SetScrollPos(0)
-    end
+    local display_text = GET_CHILD_RECURSIVELY(frame, "display_text")
+    AUTO_CAST(display_text)
+    local charName = GETMYPCNAME();
+    local display = GET_CHILD_RECURSIVELY(frame, 'display' .. charName)
+    AUTO_CAST(display)
+    local display_x = display:GetX()
+    display_text:SetPos(display_x + 10, 10)
     frame:ShowWindow(1)
 end
 
@@ -957,167 +1157,3 @@ function indun_list_viewer_enter_hard(frame, ctrl, str, induntype)
         return
     end
 end
-
---[[function indun_list_viewer_load_settings()
-    local file = io.open(g.new_settingsFileLoc, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-
-        g.settings = json.decode(content)
-    else
-        g.settings = {
-            time = 1702846800,
-            reset = false,
-            mode = 0
-        }
-        indun_list_viewer_save_settings()
-    end
-
-    local account_info = session.barrack.GetMyAccount()
-    local barrack_pc_count = account_info:GetBarrackPCCount()
-
-    for i = 0, barrack_pc_count - 1 do
-        local barrackPCInfo = account_info:GetBarrackPCByIndex(i)
-        local barrackPCName = barrackPCInfo:GetName()
-
-        local cnt = account_info:GetPCCount()
-        for j = 0, cnt - 1 do
-            local pcInfo = account_info:GetPCByIndex(j)
-            local pcApc = pcInfo:GetApc()
-            local pcName = pcApc:GetName()
-            local pccid = pcInfo:GetCID()
-
-            if barrackPCName == pcName then
-
-                g.change[pcName] = pccid
-                local changeFileLoc = string.format('../addons/%s/change.json', addonNameLower)
-                acutil.saveJSON(changeFileLoc, g.change)
-
-                if not g.settings[pccid] then
-                    g.settings[pccid] = {
-                        name = pcName,
-                        layer = 9,
-                        order = j,
-                        hide = false,
-                        memo = "",
-                        president_jobid = "",
-                        jobid = "",
-                        count = {
-                            S_H = "?",
-                            S_N = "?",
-                            U_H = "?",
-                            U_N = "?",
-                            R_H = "?",
-                            R_N = "?",
-                            T_H = "?",
-                            T_N = "?",
-                            M_H = "?",
-                            M_N = "?",
-                            R_S = "?",
-                            T_S = "?",
-                            U_S = "?",
-                            S_S = "?",
-                            M_S = "?"
-                        }
-                    }
-                end
-
-                if g.layer ~= nil and g.layer ~= g.settings[pccid].layer then
-                    g.settings[pccid].layer = g.layer
-                end
-
-            end
-        end
-    end
-    g.layer = nil
-
-    indun_list_viewer_save_settings()
-
-    g.sortedSettings = {}
-    for pccid, data in pairs(g.settings) do
-        if type(data) == "table" and data.layer and data.order then
-            data.cid = pccid
-            table.insert(g.sortedSettings, data)
-        end
-    end
-
-    local function sortByLayerAndOrder(a, b)
-        if a.layer ~= b.layer then
-            return a.layer < b.layer
-        else
-            return a.order < b.order
-        end
-    end
-
-    table.sort(g.sortedSettings, sortByLayerAndOrder)
-
-    -- indun_list_viewer_get_raid_count()
-    indun_list_viewer_frame_init()
-    -- 並べ替え後の結果を表示（デバッグ用）
-    --[[for _, data in ipairs(g.sortedSettings) do
-        print(string.format("Name: %s, Order: %d, Layer: %d", data.name, data.order, data.layer))
-    end
-
-end
-
-function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
-
-    g.addon = addon
-    g.frame = frame
-    g.settings = g.settings or {}
-    g.change = g.change or {}
-    g.cid = session.GetMySession():GetCID();
-    g.lang = option.GetCurrentCountry()
-
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
-
-        addon:RegisterMsg('GAME_START', "indun_list_viewer_load_settings")
-        g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
-        acutil.setupEvent(addon, "STATUS_SELET_REPRESENTATION_CLASS",
-                          "indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS")
-        -- addon:RegisterMsg('FPS_UPDATE', "indun_list_viewer_get_raid_count")
-        acutil.setupEvent(addon, "APPS_TRY_LEAVE", "indun_list_viewer_get_raid_count")
-        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_raid_count")
-        if g.loaded == true then
-            addon:RegisterMsg('GAME_START', "indun_list_viewer_raid_reset_time")
-        end
-        if g.loaded == false then
-            g.loaded = true
-        end
-    end
-end
-
-function indun_list_viewer_raid_reset_time()
-    local currentTime = os.time()
-    -- 今日の曜日を取得 (0: 日曜日, 1: 月曜日, ..., 6: 土曜日)
-    local currentWeekday = tonumber(os.date("%w", currentTime))
-    -- 月曜日からの日数を計算
-    local daysUntilMonday = (currentWeekday + 7 - 1) % 7
-    -- 今日の日付から daysUntilMonday を引く
-    local targetDate = os.date("*t", currentTime - (daysUntilMonday * 24 * 60 * 60))
-    targetDate.hour = 6
-    targetDate.min = 0
-    targetDate.sec = 0
-    -- 月曜日の朝6時の日時を計算
-    local mondayAM6 = os.time(targetDate)
-    -- 月曜日が未来の日付の場合、前週の月曜日に変更
-    if mondayAM6 > currentTime then
-        targetDate = os.date("*t", mondayAM6 - (7 * 24 * 60 * 60))
-        mondayAM6 = os.time(targetDate)
-    end
-    -- 経過時間を計算
-    local elapsed_time = currentTime - g.settings.time
-    local nextreset = 604800 -- 次の月曜日の6時までの秒数（1週間）
-
-    if elapsed_time > nextreset then
-        g.settings.time = mondayAM6
-
-        indun_list_viewer_save_settings()
-        indun_list_viewer_raid_reset()
-        return
-    end
-end]]
