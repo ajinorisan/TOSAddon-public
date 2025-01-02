@@ -21,10 +21,11 @@
 -- v1.2.0 instantccとの連携コードミスってたので修正。
 -- v1.2.1 フォルダ作るコードをアドオン導入時のみに。
 -- v1.2.2 表示するレイドを選べる様に。UI変更
+-- v1.2.3 レイド選択の初期設定が出来ていなかったので、修正
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.2"
+local ver = "1.2.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -349,6 +350,20 @@ function indun_list_viewer_get_reset_time()
     return next_monday_timestamp
 end
 
+local check_table = {
+    [1] = "Neringa_H",
+    [2] = "Golem_H",
+    [3] = "Merregina_H",
+    [4] = "Slogutis_H",
+    [5] = "Upinis_H",
+    [6] = "Neringa_S",
+    [7] = "Golem_S",
+    [8] = "Merregina_S",
+    [9] = "Slogutis_S",
+    [10] = "Upinis_S",
+    [11] = "Memo"
+}
+
 function indun_list_viewer_frame_init()
 
     local frame = ui.GetFrame("indun_list_viewer")
@@ -373,22 +388,16 @@ function indun_list_viewer_frame_init()
                                        "You must return to the barracks once to rearrange the order of the characters.{nl}" ..
                                        "(instant cc not available)")
     end
+
+    for i = 1, 11 do
+        if g.settings[tostring(check_table[i])] == nil then
+            g.settings[tostring(check_table[i])] = 1
+        end
+    end
+    indun_list_viewer_save_settings()
 end
 -- ゴーレムH712 A710 S711 ネリンガH709 A707 S708 
 
-local check_table = {
-    [1] = "Neringa_H",
-    [2] = "Golem_H",
-    [3] = "Merregina_H",
-    [4] = "Slogutis_H",
-    [5] = "Upinis_H",
-    [6] = "Neringa_S",
-    [7] = "Golem_S",
-    [8] = "Merregina_S",
-    [9] = "Slogutis_S",
-    [10] = "Upinis_S",
-    [11] = "Memo"
-}
 function indun_list_viewer_title_frame_open()
 
     indun_list_viewer_get_raid_count()
