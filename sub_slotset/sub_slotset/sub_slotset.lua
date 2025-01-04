@@ -1,9 +1,10 @@
 -- v1.0.1 レイヤー設定追加。再設定機能追加。エモを右クリックでチャット。
 -- v1.0.2 増設したスロットに上手くハマらなかったの修正。
+-- v1.0.3 インベントリアイテムの数量が0になった時にバグってたの修正。クエストワープの設定方法追加
 local addonName = "SUB_SLOTSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -27,6 +28,23 @@ function g.SetupHook(func, baseFuncName)
     end
     base[baseFuncName] = _G[replacementName]
 end
+
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 function sub_slotset_load_settings()
 
@@ -62,11 +80,8 @@ function sub_slotset_personal_load_settings()
     end
 
     g.personal = settings
-
     sub_slotset_personal_save_settings()
-
     sub_slotset_frame_init()
-
 end
 
 function sub_slotset_personal_save_settings()
@@ -85,12 +100,85 @@ function SUB_SLOTSET_ON_INIT(addon, frame)
     g.frame = frame
     g.settings = g.settings or {}
     g.personal = g.personal or {}
+    g.cid = session.GetMySession():GetCID()
 
     addon:RegisterMsg("GAME_START", "sub_slotset_load_settings")
-    -- addon:RegisterMsg("GAME_START", "sub_slotset_frame_init")
     acutil.setupEvent(addon, "MAKE_QUEST_INFO_TYPE_ICON", "sub_slotset_MAKE_QUEST_INFO_TYPE_ICON");
     acutil.setupEvent(addon, "EMO_OPEN", "sub_slotset_EMO_OPEN");
+    g.SetupHook(sub_slotset_SET_QUEST_CTRL_TEXT, "SET_QUEST_CTRL_TEXT")
+    acutil.setupEvent(addon, "TPITEM_CLOSE", "sub_slotset_TPITEM_CLOSE");
+    -- addon:RegisterMsg("FPS_UPDATE", "sub_slotset_FPS_UPDATE")
+end
 
+function sub_slotset_TPITEM_CLOSE(frame, msg)
+
+    local index = g.settings["index"]
+    local sources = {g.settings, g.personal} -- ソースをテーブルに格納
+
+    for i = 0, index do
+        for _, source in pairs(sources) do -- pairsを使ってテーブルをループ
+            local sub_slot_key = "sub_slotset_" .. tostring(i)
+            local sub_slot = source[sub_slot_key]
+            if sub_slot then
+                local frame = ui.GetFrame(sub_slot_key)
+                frame:ShowWindow(1)
+            end
+        end
+    end
+end
+
+function sub_slotset_SET_QUEST_CTRL_TEXT(ctrl, questIES)
+    sub_slotset_SET_QUEST_CTRL_TEXT_(ctrl, questIES)
+end
+
+function sub_slotset_SET_QUEST_CTRL_TEXT_(ctrl, questIES)
+    local Quest_Ctrl = tolua.cast(ctrl, "ui::CControlSet");
+    local nametxt = GET_CHILD(Quest_Ctrl, "name", "ui::CRichText");
+    local leveltxt = GET_CHILD(Quest_Ctrl, "level", "ui::CRichText");
+
+    local textFont = ""
+    local textColor = ""
+    if questIES.QuestMode == "MAIN" then
+        textFont = Quest_Ctrl:GetUserConfig("MAIN_FONT")
+        textColor = Quest_Ctrl:GetUserConfig("MAIN_COLOR")
+    elseif questIES.QuestMode == "SUB" then
+        textFont = Quest_Ctrl:GetUserConfig("SUB_FONT")
+        textColor = Quest_Ctrl:GetUserConfig("SUB_COLOR")
+    elseif questIES.QuestMode == "REPEAT" then
+        textFont = Quest_Ctrl:GetUserConfig("REPEAT_FONT")
+        textColor = Quest_Ctrl:GetUserConfig("REPEAT_COLOR")
+    elseif questIES.QuestMode == "PARTY" then
+        textFont = Quest_Ctrl:GetUserConfig("PARTY_FONT")
+        textColor = Quest_Ctrl:GetUserConfig("PARTY_COLOR")
+    elseif questIES.QuestMode == "KEYITEM" then
+        textFont = Quest_Ctrl:GetUserConfig("KEYITEM_FONT")
+        textColor = Quest_Ctrl:GetUserConfig("KEYITEM_COLOR")
+    end
+
+    -- 퀘스트 레벨과 이름의 폰트 및 색상 지정.
+    nametxt:SetText(textFont .. textColor .. questIES.Name)
+    leveltxt:SetText(textColor .. textColor .. "Lv " .. questIES.Level)
+
+    local rect = leveltxt:GetMargin();
+    leveltxt:SetMargin(rect.left - 10, rect.top, rect.right, rect.bottom);
+
+    local questMarkPic = GET_CHILD(Quest_Ctrl, "questmark", "ui::CPicture");
+    local image_name = questMarkPic:GetImageName();
+    local result = SCR_QUEST_CHECK_C(GetMyPCObject(), questIES.ClassName);
+    if (result == 'POSSIBLE' and questIES.POSSI_WARP == 'YES') or (result == 'PROGRESS' and questIES.PROG_WARP == 'YES') or
+        (result == 'SUCCESS' and questIES.SUCC_WARP == 'YES') then
+        local slot = Quest_Ctrl:CreateOrGetControl("slot", "slot", 78, 5, 20, 20)
+        AUTO_CAST(slot)
+        slot:EnablePop(1)
+        slot:EnableDrop(0)
+        slot:SetEventScript(ui.POP, "sub_slotset_questslot_pop")
+        slot:SetEventScriptArgNumber(ui.POP, questIES.ClassID)
+        slot:SetEventScriptArgString(ui.POP, "Quest")
+
+        local icon = CreateIcon(slot);
+        icon:SetImage("questinfo_return");
+        icon:SetTextTooltip("{ol}Sub Slotset{nl}LeftClick:for Registration")
+    end
 end
 
 function sub_slotset_frame_init()
@@ -133,10 +221,8 @@ function sub_slotset_slotset_frame_init(belong, isnew)
     local index = g.settings.index or 0
     if belong == "shared" then
         table = g.settings
-
     elseif belong == "character" then
         table = g.personal
-
     end
 
     local X = ui.GetClientInitialWidth() / 2 -- 1920
@@ -430,8 +516,47 @@ function sub_slotset_slotset_init(frame)
     frame:RunUpdateScript("sub_slotset_slotset_update", 0.3)
 end
 
+function sub_slotset_SET_SLOT_COUNT_TEXT(slot, cnt, font, hor, ver, stateX, stateY)
+    if font == nil then
+        font = '{s15}{ol}{b}';
+    end
+
+    if hor == nil then
+        hor = ui.RIGHT;
+    end
+
+    if ver == nil then
+        ver = ui.BOTTOM;
+    end
+
+    if stateX == nil then
+        stateX = -2;
+    end
+
+    if stateY == nil then
+        stateY = 1;
+    end
+
+    slot:SetText(font .. cnt, 'count', hor, ver, stateX, stateY);
+
+end
+
+function sub_slotset_SET_SLOT_ITEM_TEXT(slot, invItem, obj)
+    if obj.MaxStack > 1 then
+        sub_slotset_SET_SLOT_COUNT_TEXT(slot, invItem.count);
+        return;
+    end
+
+    local lv = TryGetProp(obj, "Level");
+    if lv ~= nil and lv > 1 then
+        slot:SetFrontImage('enchantlevel_indi_icon');
+        slot:SetText('{s20}{ol}{#FFFFFF}{b}' .. lv, 'count', ui.LEFT, ui.TOP, 8, 2);
+        return;
+    end
+end
+
 function sub_slotset_slotset_update(frame)
-    --
+
     local isnew = frame:GetUserValue("ISNEW")
 
     if isnew == "true" then
@@ -450,7 +575,7 @@ function sub_slotset_slotset_update(frame)
     slotset:EnableDrop(1)
     slotset:EnableHitTest(1);
     local slot_count = slotset:GetSlotCount()
-    -- print(tostring(slot_count))
+
     local clsid = 0
     local category = ""
     local iesid = ""
@@ -517,11 +642,13 @@ function sub_slotset_slotset_update(frame)
                 SET_SLOT_ITEM_IMAGE(slot, invItem)
                 local icon = slot:GetIcon()
                 ICON_SET_ITEM_COOLDOWN_OBJ(icon, GetIES(invItem:GetObject()))
-                SET_SLOT_ITEM_TEXT(slot, invItem, ItemCls)
-
+                -- SET_SLOT_ITEM_TEXT(slot, invItem, ItemCls)
+                sub_slotset_SET_SLOT_ITEM_TEXT(slot, invItem, ItemCls)
             else
+
                 SET_SLOT_ITEM_CLS(slot, ItemCls);
                 CreateIcon(slot):SetColorTone('FFFF0000')
+                slot:SetText("{s15}{ol}{b}" .. 0, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
             end
         elseif category == "Pose" then
             local icon = CreateIcon(slot)
@@ -578,9 +705,19 @@ function sub_slotset_slotset_update(frame)
             local questIES = GetClassByType("QuestProgressCheck", clsid);
             local targetMapName = GET_QUEST_LOCATION(questIES)
             local zoneName = GetClassString('Map', targetMapName, 'Name')
-            if result == "COMPLETE" then
+            local result = SCR_QUEST_CHECK_C(GetMyPCObject(), questIES.ClassName);
+            if (result == 'POSSIBLE' and questIES.POSSI_WARP == 'YES') or
+                (result == 'PROGRESS' and questIES.PROG_WARP == 'YES') or
+                (result == 'SUCCESS' and questIES.SUCC_WARP == 'YES') then
+                icon:SetColorTone('FFFFFFFF')
+                icon:SetTextTooltip("{ol}" .. questIES.Name)
+            else
                 icon:SetColorTone('FFFF0000')
+                icon:SetTextTooltip("{ol}" .. questIES.Name)
             end
+            --[[if result == "COMPLETE" then
+                icon:SetColorTone('FFFF0000')
+            end]]
             icon:SetImage("questinfo_return");
             SET_SLOT_COUNT_TEXT(slot, zoneName, '{s10}{ol}{b}', ui.LEFT, ui.BOTTOM, 0, 0)
 
@@ -1178,15 +1315,20 @@ function sub_slotset_slot_rbutton(frame, slot, category, clsid)
         local questIES = GetClassByType("QuestProgressCheck", clsid);
         local pc = GetMyPCObject();
         local result = SCR_QUEST_CHECK_Q(pc, questIES.ClassName);
-        local questnpc_state = GET_QUEST_NPC_STATE(questIES, result, pc);
 
-        if mapClassName ~= questIES[questnpc_state .. 'Map'] then
-            isMoveMap = 1;
+        if (result == 'POSSIBLE' and questIES.POSSI_WARP == 'YES') or
+            (result == 'PROGRESS' and questIES.PROG_WARP == 'YES') or
+            (result == 'SUCCESS' and questIES.SUCC_WARP == 'YES') then
+            local questnpc_state = GET_QUEST_NPC_STATE(questIES, result, pc);
+            if mapClassName ~= questIES[questnpc_state .. 'Map'] then
+                isMoveMap = 1;
+            end
+            local cheat = string.format("/retquest %d", clsid);
+            movie.QuestWarp(session.GetMyHandle(), cheat, isMoveMap);
+            packet.ClientDirect("QuestWarp");
+        else
+            CreateIcon(slot):SetColorTone('FFFF0000')
         end
-        local cheat = string.format("/retquest %d", clsid);
-
-        movie.QuestWarp(session.GetMyHandle(), cheat, isMoveMap);
-        packet.ClientDirect("QuestWarp");
 
     elseif category == 'Emoticon' then
 
