@@ -19,10 +19,11 @@
 -- v1.1.9 数量指定アイテムが倉庫に足りなかった場合に引き出さなかったバグ修正。
 -- v1.2.0 検索を有効に。その他些末なバグ修正。
 -- v1.2.1 あかんバグ修正
+-- v1.2.2 入庫時に引っ掛かりにくくなったハズ。テストは足りてない。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.1"
+local ver = "1.2.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -360,6 +361,123 @@ function another_warehouse_accountwarehouse_init_reserve()
     end
 end
 
+function another_warehouse_base_item_list_create()
+
+    g.item_list = {}
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local guidList = itemList:GetGuidList()
+    local sortedGuidList = itemList:GetSortedGuidList()
+    local sortedCnt = sortedGuidList:Count()
+    local vis = false
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        local obj = GetIES(invItem:GetObject())
+        local type = obj.ClassID
+        if type == 900011 then
+            g.item_list[0] = {
+                count = invItem.count,
+                guid = guid,
+                type = type,
+                name = obj.ClassName
+            }
+            vis = true
+            break
+        end
+    end
+    if vis == false then
+        g.item_list[0] = {
+            count = 0,
+            guid = "0",
+            type = 900011
+        }
+        vis = true
+    end
+
+    local item_index = 1
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        local obj = GetIES(invItem:GetObject())
+        local type = obj.ClassID
+
+        if type ~= 900011 then
+            g.item_list[item_index] = {
+                count = invItem.count,
+                guid = guid,
+                type = type,
+                name = obj.ClassName
+            }
+
+            item_index = item_index + 1
+        end
+    end
+
+    --[[print(0 .. ": Count = " .. g.item_list[0].count .. ", GUID = " .. g.item_list[0].guid .. ", TYPE = " ..
+              g.item_list[0].type .. ": Name = " .. g.item_list[0].name)
+    for index, value in ipairs(g.item_list) do
+        print(index .. ": Count = " .. value.count .. ", GUID = " .. value.guid .. ", TYPE = " .. value.type ..
+                  ": Name = " .. value.name)
+    end]]
+
+end
+
+function another_warehouse_base_accountwarehouse_open(frame, msg, str, num)
+
+    ReserveScript("another_warehouse_base_item_list_create()", 0.5)
+
+    local awframe = ui.GetFrame("accountwarehouse")
+    local accountwarehouse_tab = GET_CHILD_RECURSIVELY(awframe, "accountwarehouse_tab")
+    if accountwarehouse_tab ~= nil then
+        awframe:RemoveChild("accountwarehouse_tab")
+    end
+    local slotgbox = GET_CHILD_RECURSIVELY(awframe, "slotgbox")
+    if slotgbox ~= nil then
+        awframe:RemoveChild("slotgbox")
+    end
+    -- <slotset name="slotset" parent="slotgbox" rect="0 0 480 276" margin="5 0 0 0" 
+    -- layout_gravity="center top" draw="true" DropScp="PUT_ACCOUNT_ITEM_TO_WAREHOUSE" 
+    -- RBtnDownScp="ACCOUNT_WAREHOUSE_SLOT_RESET" col="10" row="7" cursoronresize="false" 
+    -- dropsound="icon_get_down" hideindrag="true" maxselect="70" movepop="false" 
+    -- oversound="button_cursor_over_3" picksound="icon_pick_up" size="60 60" 
+    -- skin="accountwarehouse_slot" spc="1 1" visible="true" enableselect="true" enablepop="false" 
+    -- selectmode="msgbox" selectedimage="socket_slot_check"/>
+    -- <groupbox name="slotgbox" parent="gbox" rect="0 0 640 460" margin="5 110 0 0" 
+    -- layout_gravity="left top" draw="false" scrollbar="true" skin="test_frame_low" hittestbox="false"/>
+    local gbox = GET_CHILD_RECURSIVELY(awframe, "gbox")
+
+    local slot_gbox = gbox:CreateOrGetControl("groupbox", "slot_gbox", 10, 110, 640, 428)
+    AUTO_CAST(slot_gbox)
+    slot_gbox:SetSkinName("test_frame_low")
+    slot_gbox:EnableHitTest(1);
+    slot_gbox:EnableDrawFrame(0);
+    slot_gbox:SetGravity(ui.LEFT, ui.TOP)
+
+    local accountObj = GetMyAccountObj();
+    local max_count = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                          ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+    local row = math.ceil(max_count / 10)
+    local slot_set = slot_gbox:CreateOrGetControl('slotset', 'slot_set', 5, 0, 630, 240)
+    AUTO_CAST(slot_set)
+
+    slot_set:SetSlotSize(60, 60)
+    slot_set:EnablePop(0)
+    slot_set:EnableDrag(0)
+    slot_set:EnableDrop(1)
+    slot_set:SetMaxSelectionCount(999)
+    slot_set:EnableSelection(1)
+
+    -- slot_set:SetSelectedImage('socket_slot_check');
+
+    slot_set:SetColRow(10, row)
+    slot_set:SetSpc(1, 1)
+    slot_set:SetSkinName('accountwarehouse_slot')
+    slot_set:CreateSlots()
+
+    local slot_count = slot_set:GetSlotCount()
+end
+
 function another_warehouse_accountwarehouse_init()
 
     if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
@@ -378,6 +496,7 @@ function another_warehouse_accountwarehouse_init()
         -- addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_accountwarehouse_open");
         acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
         acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close")
+        -- addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_base_accountwarehouse_open")
 
         local functionName = "YAACCOUNTINVENTORY_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
         if type(_G[functionName]) == "function" then
@@ -1351,9 +1470,10 @@ function another_warehouse_get_goal_index()
                           ADDITIONAL_SLOT_COUNT_BY_TOKEN
 
     local invItemCount = another_warehouse_item_count()
-    local maxcount = another_warehouse_get_maxcount()
 
-    if invItemCount >= maxcount then
+    local maxcount = another_warehouse_get_maxcount()
+    -- print(invItemCount .. ":" .. maxcount)
+    if tonumber(invItemCount) > tonumber(maxcount) then
         ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'))
         return
     end
@@ -1373,15 +1493,14 @@ function another_warehouse_get_goal_index()
     end
 
     local tabIndices = {4, 3, 2, 1, 0}
-    local offsets = {210, 140, 70, 0, 0}
 
-    for index = #tabIndices, 1, -1 do
+    for index = 1, #tabIndices do
         local i = tabIndices[index]
         tab:SelectTab(i)
         if i > 0 then
             local left = GetTabLeftCount(tab, gbox)
             if left < 70 then
-                return basecount + offsets[index] + left + 1
+                return basecount + i * 70
             end
         else
             local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
@@ -1389,7 +1508,7 @@ function another_warehouse_get_goal_index()
                 local slot = slotset:GetSlotByIndex(j)
                 AUTO_CAST(slot)
                 if slot:GetIcon() == nil then
-                    return j + 1
+                    return j
                 end
             end
         end
@@ -2273,6 +2392,7 @@ function another_warehouse_checkvalid(iesid)
 
     local obj = GetIES(invItem:GetObject())
     local itemcnt = another_warehouse_item_count()
+
     local maxcount = another_warehouse_get_maxcount()
 
     if maxcount <= itemcnt then
@@ -2322,6 +2442,9 @@ function another_warehouse_putitem(iesid, count)
     end
 
     local frame = ui.GetFrame("accountwarehouse")
+
+    -- item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
+    -- frame:GetUserIValue("HANDLE"))
 
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
         frame:GetUserIValue("HANDLE"), goal_index)
