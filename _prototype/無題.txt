@@ -12396,3 +12396,2622 @@ name:#99FF00}
 89658:빠다와플:{img emoticon_0008 70 70}
 90432:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Kuso-Kuso$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
 90561:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$NixAlone$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+120487:빠다와플:그리고 겜 좀더 할거같으면 길드 들어가시는거 생각해보세여
+부길마 견우 입니다. 길드(Alt+G) [커 뮤 니 티] 탭에서 뉴비/복귀 가이드 글을 확인해 보세요.
+120616:七転:{a SLP 1553850448218328}{#FFFF00}{img link_party 24 24}ハードレイド三{/}{/}
+120745:빠다와플:아까 폐사할거같다고 하시길랰ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+120874:아크네:아 ㅋㅋ스킬다시찍으니까
+121003:七転:上記募集中です、初見の方もどうぞ
+121132:아크네:할만해졋어요
+121261:빠다와플:엌ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+부길마 견우 입니다. 길드(Alt+G) [커 뮤 니 티] 탭에서 뉴비/복귀 가이드 글을 확인해 보세요.
+121390:아크네:이젠 잡몹한테 스킬10개정도박으면 주금
+121519:빠다와플:,, 그거정상인가요
+121648:빠다와플:혹시 마을에서 버프는 하셨어여?
+121777:아크네:아녀
+121906:아크네:급식만 먹었어요
+122035:빠다와플:그래도 밥은 어찌 먹으셨나보넼ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+122164:아크네:밥은 공짜길래..ㅎ
+122293:빠다와플:{img emoticon_0016 70 70}
+122422:빠다와플:마법협회 어쩌구 걔한테 렙업보상은요?
+122551:아크네:엥
+122680:빠다와플:잉
+122809:아크네:스토리에 슬로거티스 왜케쌔죠
+122938:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$법률$*$PC$*$파멸사#@!#@!
+123067:아크네:한방에죽엇네 ㄷ
+123196:빠다와플:도와드릴가여?
+123325:아크네:넹 ㄷㄷ어렵네요 ㅠ
+123454:빠다와플:필드에서 스토리보스 잡는거에영?
+123583:빠다와플:어디로가야대요
+123712:아크네:마신의처소인데
+123841:아크네:잠시만요 죽을게요
+147025:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$GagiiiKaTol$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+147154:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$YUN38$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+147314:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$티타임$*$mapName$*$|$#아렐르노 남작령#$|#@!
+147539:Shout:민트슈가:마3명있는 슬픈 길드가 어디있누
+147699:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#누오로딘 폭포#$|#@!
+147924:Shout:월e:님아 매너좀;;
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+148053:Shout:로동조합:저는 힐런뎁쇼
+148182:Shout:로동조합:팬을 거부하는겝니까?
+148311:Shout:바셀린:내 메이든에 걸리는녀석은 암컷이된다
+148471:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#살비야스 숲#$|#@!
+148696:Shout:월e:펜미팅때 뵈요~
+148825:Shout:월e:즐겁다
+148954:Shout:천상백옥경:아니 집에 간다고 왜 떄리냐고! 조류인플레인자 퍼트리네
+149083:Shout:김베른:위하~
+149212:Shout:민트슈가:즐겁다
+149372:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#게나르 평원#$|#@!
+149628:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#살비야스 숲#$|#@!
+149853:Shout:월e:병아리식 아이사츠
+150013:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$마신$*$mapName$*$|$#수로교 지역#$|#@!
+150238:Shout:Nicole:양념치ㅏ킨?
+부길마 견우 입니다. 길드(Alt+G) [커 뮤 니 티] 탭에서 뉴비/복귀 가이드 글을 확인해 보세요.
+150367:Shout:Nicole:크악
+150527:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#누오로딘 폭포#$|#@!
+150783:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$はるかぜと共に$*$mapName$*$|$#게나르 평원#$|#@!
+151008:Shout:이별일년후에:독감 월월이
+151168:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#스벤티마스 유형지#$|#@!
+151393:Shout:뚜앙:{a SLI 1552858311086538|# 11200367}{#FFFF00}{img icon_item_misc_merregina_blackpearl_NoTrade 30 30}@dicID_^*$ETC_20240201_074333$*^{/}{/} HELP!
+151522:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$아카츠키$*$PC$*$쿠니마사#@!#@!
+147025:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$GagiiiKaTol$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+147154:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$YUN38$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+147314:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$티타임$*$mapName$*$|$#아렐르노 남작령#$|#@!
+147539:Shout:민트슈가:마3명있는 슬픈 길드가 어디있누
+147699:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#누오로딘 폭포#$|#@!
+147924:Shout:월e:님아 매너좀;;
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+148053:Shout:로동조합:저는 힐런뎁쇼
+148182:Shout:로동조합:팬을 거부하는겝니까?
+148311:Shout:바셀린:내 메이든에 걸리는녀석은 암컷이된다
+148471:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#살비야스 숲#$|#@!
+148696:Shout:월e:펜미팅때 뵈요~
+148825:Shout:월e:즐겁다
+148954:Shout:천상백옥경:아니 집에 간다고 왜 떄리냐고! 조류인플레인자 퍼트리네
+149083:Shout:김베른:위하~
+149212:Shout:민트슈가:즐겁다
+149372:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#게나르 평원#$|#@!
+149628:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#살비야스 숲#$|#@!
+149853:Shout:월e:병아리식 아이사츠
+150013:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$마신$*$mapName$*$|$#수로교 지역#$|#@!
+150238:Shout:Nicole:양념치ㅏ킨?
+부길마 견우 입니다. 길드(Alt+G) [커 뮤 니 티] 탭에서 뉴비/복귀 가이드 글을 확인해 보세요.
+150367:Shout:Nicole:크악
+150527:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#누오로딘 폭포#$|#@!
+150783:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$はるかぜと共に$*$mapName$*$|$#게나르 평원#$|#@!
+151008:Shout:이별일년후에:독감 월월이
+151168:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#스벤티마스 유형지#$|#@!
+151393:Shout:뚜앙:{a SLI 1552858311086538|# 11200367}{#FFFF00}{img icon_item_misc_merregina_blackpearl_NoTrade 30 30}@dicID_^*$ETC_20240201_074333$*^{/}{/} HELP!
+151522:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$아카츠키$*$PC$*$쿠니마사#@!#@!
+151651:Guild:아크네:어..
+151780:Guild:아크네:메인퀘 510이되야 할 수 있네요../?
+151940:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$Rebellion$*$mapName$*$|$#아렐르노 남작령#$|#@!
+152165:Guild:견우:크란토연안에서
+152294:Guild:견우:닥사 하시고 렙업 좀 하셔야해요
+152423:Shout:민트슈가:다른 게임 하고오니까 트우시 의욕이 팍 식어버려니ㅔ
+152552:Guild:아크네:아
+152681:Guild:아크네:폐사구간 왔다
+152810:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+152939:Guild:견우:ㅋㅋㅋㅋㅋㅋㅋㅋ
+153068:Guild:빠다와플:아직 늦지않았따
+153197:Guild:빠다와플:바로 트우시삭제 구구혓
+153357:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#아렐르노 남작령#$|#@!
+153582:Guild:아크네:ㅋㅋㅋ
+153742:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#누오로딘 폭포#$|#@!
+153967:Shout:월e:흐으응 비나리는 뒤가 약하구나?
+154127:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$はるかぜと共に$*$mapName$*$|$#아렐르노 남작령#$|#@!
+154352:Shout:뚜앙:{a SLI 1552858311086538|# 11200367}{#FFFF00}{img icon_item_misc_merregina_blackpearl_NoTrade 30 30}@dicID_^*$ETC_20240201_074333$*^{/}{/} 3/5 HELP
+154512:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#수로교 지역#$|#@!
+154768:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#누오로딘 폭포#$|#@!
+155024:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#누오로딘 폭포#$|#@!
+155280:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$티타임$*$mapName$*$|$#누오로딘 폭포#$|#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+155505:Shout:월e:민트형은 나가
+155634:Shout:월e:나가 디지기 시르면
+155763:Shout:바셀린:또 폰티같은 쓰레기 들고온거에요?
+155892:Shout:바셀린:지금 나가지 않으면 우린 춤을 출거에요
+156021:Shout:민트슈가:고..고맙다
+156150:Shout:천상백옥경:춤추세요
+156279:Guild:아크네:혹시 뱅퀴셔해금권 파시는분 있나요
+156408:Guild:빠다와플:?
+156537:Shout:민트슈가:아오
+156666:Shout:SEMO:sad
+156795:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Lev1athan$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+156924:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$엔젤리너$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+157053:Shout:아크네:뉴비에게 뱅퀴셔 해금권 판매해주실분..? 폐사직전임
+157182:Shout:바셀린:제발 폐사해 다른게임알아봐
+157311:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+157440:Shout:로동조합:이번 레티샤에 복각 나오지않는한 힘들듯
+157569:Shout:바토라가:한달만 기다리면 몬스터헌터 와일즈 오픈
+157729:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#누오로딘 폭포#$|#@!
+147025:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$GagiiiKaTol$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+147154:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$YUN38$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+147314:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$티타임$*$mapName$*$|$#아렐르노 남작령#$|#@!
+147539:Shout:민트슈가:마3명있는 슬픈 길드가 어디있누
+147699:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#누오로딘 폭포#$|#@!
+147924:Shout:월e:님아 매너좀;;
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+148053:Shout:로동조합:저는 힐런뎁쇼
+148182:Shout:로동조합:팬을 거부하는겝니까?
+148311:Shout:바셀린:내 메이든에 걸리는녀석은 암컷이된다
+148471:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#살비야스 숲#$|#@!
+148696:Shout:월e:펜미팅때 뵈요~
+148825:Shout:월e:즐겁다
+148954:Shout:천상백옥경:아니 집에 간다고 왜 떄리냐고! 조류인플레인자 퍼트리네
+149083:Shout:김베른:위하~
+149212:Shout:민트슈가:즐겁다
+149372:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#게나르 평원#$|#@!
+149628:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#살비야스 숲#$|#@!
+149853:Shout:월e:병아리식 아이사츠
+150013:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$마신$*$mapName$*$|$#수로교 지역#$|#@!
+150238:Shout:Nicole:양념치ㅏ킨?
+부길마 견우 입니다. 길드(Alt+G) [커 뮤 니 티] 탭에서 뉴비/복귀 가이드 글을 확인해 보세요.
+150367:Shout:Nicole:크악
+150527:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#누오로딘 폭포#$|#@!
+150783:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$はるかぜと共に$*$mapName$*$|$#게나르 평원#$|#@!
+151008:Shout:이별일년후에:독감 월월이
+151168:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#스벤티마스 유형지#$|#@!
+151393:Shout:뚜앙:{a SLI 1552858311086538|# 11200367}{#FFFF00}{img icon_item_misc_merregina_blackpearl_NoTrade 30 30}@dicID_^*$ETC_20240201_074333$*^{/}{/} HELP!
+151522:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$아카츠키$*$PC$*$쿠니마사#@!#@!
+151651:Guild:아크네:어..
+151780:Guild:아크네:메인퀘 510이되야 할 수 있네요../?
+151940:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$Rebellion$*$mapName$*$|$#아렐르노 남작령#$|#@!
+152165:Guild:견우:크란토연안에서
+152294:Guild:견우:닥사 하시고 렙업 좀 하셔야해요
+152423:Shout:민트슈가:다른 게임 하고오니까 트우시 의욕이 팍 식어버려니ㅔ
+152552:Guild:아크네:아
+152681:Guild:아크네:폐사구간 왔다
+152810:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+152939:Guild:견우:ㅋㅋㅋㅋㅋㅋㅋㅋ
+153068:Guild:빠다와플:아직 늦지않았따
+153197:Guild:빠다와플:바로 트우시삭제 구구혓
+153357:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#아렐르노 남작령#$|#@!
+153582:Guild:아크네:ㅋㅋㅋ
+153742:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#누오로딘 폭포#$|#@!
+153967:Shout:월e:흐으응 비나리는 뒤가 약하구나?
+154127:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$はるかぜと共に$*$mapName$*$|$#아렐르노 남작령#$|#@!
+154352:Shout:뚜앙:{a SLI 1552858311086538|# 11200367}{#FFFF00}{img icon_item_misc_merregina_blackpearl_NoTrade 30 30}@dicID_^*$ETC_20240201_074333$*^{/}{/} 3/5 HELP
+154512:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$병아리$*$mapName$*$|$#수로교 지역#$|#@!
+154768:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#누오로딘 폭포#$|#@!
+155024:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#누오로딘 폭포#$|#@!
+155280:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$티타임$*$mapName$*$|$#누오로딘 폭포#$|#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+155505:Shout:월e:민트형은 나가
+155634:Shout:월e:나가 디지기 시르면
+155763:Shout:바셀린:또 폰티같은 쓰레기 들고온거에요?
+155892:Shout:바셀린:지금 나가지 않으면 우린 춤을 출거에요
+156021:Shout:민트슈가:고..고맙다
+156150:Shout:천상백옥경:춤추세요
+156279:Guild:아크네:혹시 뱅퀴셔해금권 파시는분 있나요
+156408:Guild:빠다와플:?
+156537:Shout:민트슈가:아오
+156666:Shout:SEMO:sad
+156795:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Lev1athan$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+156924:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$엔젤리너$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+157053:Shout:아크네:뉴비에게 뱅퀴셔 해금권 판매해주실분..? 폐사직전임
+157182:Shout:바셀린:제발 폐사해 다른게임알아봐
+157311:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+157440:Shout:로동조합:이번 레티샤에 복각 나오지않는한 힘들듯
+157569:Shout:바토라가:한달만 기다리면 몬스터헌터 와일즈 오픈
+157729:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#누오로딘 폭포#$|#@!
+157954:Guild:아크네:복각은 몇일에 하는거죠
+158083:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$뽀푸리하우스$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+158212:Guild:빠다와플:겨누님 레티샤 언제나와요
+158341:guildmem:guildmem:!@#${WHO}{TYPE}ChatOut$*$WHO$*$가람스$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+158470:Guild:견우:레티샤가
+158599:Guild:견우:원래는 1일날나왔는데
+158728:Guild:견우:2번재주에 나오던가
+158857:Guild:빠다와플:다음쭈?
+158986:Guild:견우:7일날
+159115:Guild:아크네:오
+159244:Guild:견우:나오겠네요
+159373:Guild:견우:아마?
+159502:Guild:아크네:다행이다
+159631:Guild:빠다와플:?
+159760:Guild:아크네:현질을통해 강해지겠어요
+159889:Guild:빠다와플:누가 뱅퀴해금권 사라고 가르챠줌
+160018:Guild:아크네:지나가던 고인물분이
+160147:Guild:빠다와플:악마네 ㄹㅇ
+160276:Guild:아크네:뱅퀴셔하래요
+160405:Guild:아크네:젤쌔다고
+160534:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+160663:Guild:아크네:그래서 위자드만들었다가 지우고 다시 소드맨만듬
+160792:Guild:빠다와플:길드나 넣어달라그래요
+160952:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$UnNamedPlanet$*$mapName$*$|$#살비야스 숲#$|#@!
+161208:System:System:{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#수로교 지역#$|#@!
+Index 49: Count = 15, GUID = 1554030837154908
+Index 50: Count = 161, GUID = 1553996477424690
+Index 51: Count = 273, GUID = 1554005067370586
+Index 52: Count = 8, GUID = 1553944937824049
+Index 53: Count = 54, GUID = 1554022247249852
+Index 54: Count = 738, GUID = 1554022247189769
+Index 55: Count = 4, GUID = 1554017952172347
+Index 56: Count = 90, GUID = 1554022247239423
+Index 57: Count = 6, GUID = 1553996477428136
+Index 58: Count = 40, GUID = 1553987887312907
+Index 59: Count = 40, GUID = 1553987887312906
+Index 60: Count = 200, GUID = 1554022247234244
+Index 61: Count = 2, GUID = 1554022247221635
+Index 62: Count = 189, GUID = 1554022247235467
+Index 63: Count = 200, GUID = 1554022247234243
+Index 64: Count = 7, GUID = 1554022247250339
+Index 65: Count = 4, GUID = 1554022247236172
+Index 66: Count = 1, GUID = 1553558390487834
+Index 67: Count = 2, GUID = 1554069491819699
+Index 68: Count = 10, GUID = 1553953527722392
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+10192:Shout:공주:팀배 서비스 종료 
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+1
+1
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+Index 2: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 37: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 38: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 39: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 40: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 41: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 42: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 43: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 44: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 45: Count = 2, GUID = 1553944937800791, TYPE = 647016
+Index 46: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 47: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 48: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 49: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 50: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 51: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 52: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 53: Count = 54, GUID = 1554022247249852, TYPE = 11201202
+Index 54: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 55: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 56: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 57: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 58: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 59: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 60: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 61: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 62: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 63: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 64: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 65: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 66: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 67: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 68: Count = 10, GUID = 1553953527722392, TYPE = 490032
+10450:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$KIGWA$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+10579:Shout:6시내고양이:민슈님 고마워~
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+10708:Shout:캬루:한번 더 눌러줘요
+10837:Shout:민트슈가:{img emoticon_0005 30 30} {img emoticon_0005 30 30} {img emoticon_0005 30 30} {img emoticon_0005 30 30} 
+1
+1
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+Index 2: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 37: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 38: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 39: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 40: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 41: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 42: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 43: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 44: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 45: Count = 2, GUID = 1553944937800791, TYPE = 647016
+Index 46: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 47: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 48: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 49: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 50: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 51: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 52: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 53: Count = 54, GUID = 1554022247249852, TYPE = 11201202
+Index 54: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 55: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 56: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 57: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 58: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 59: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 60: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 61: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 62: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 63: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 64: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 65: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 66: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 67: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 68: Count = 10, GUID = 1553953527722392, TYPE = 490032
+11095:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$레베럽$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+11224:Shout:실버애로우:{a SLI 1550581978138335|# 11200355}{#FFFF00}{img icon_item_despairisland_auto_enter 30 30}@dicID_^*$ETC_20240201_074317$*^{/}{/}
+11353:Shout:팬텀부대원:{a SLP 1553850448218609}{#FFFF00}{img link_party 24 24}golem hard{/}{/} gogo~
+11482:Guild:4lkruzeth:{img ragana_emotion70 128 128} 
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+4
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+35
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+12127:Shout:팬텀부대원:{a SLP 1553850448218609}{#FFFF00}{img link_party 24 24}golem hard{/}{/} 딜러힐러구해용
+12256:Shout:내정보:{a SLI 1549246243766671|# 11200367}{#FFFF00}{img icon_item_misc_merregina_blackpearl_NoTrade 30 30}@dicID_^*$ETC_20240201_074333$*^{/}{/}
+12385:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$332098003$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+Index 2: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 37: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 38: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 39: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 40: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 41: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 42: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 43: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 44: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 45: Count = 2, GUID = 1553944937800791, TYPE = 647016
+Index 46: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 47: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 48: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 49: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 50: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 51: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 52: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 53: Count = 54, GUID = 1554022247249852, TYPE = 11201202
+Index 54: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 55: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 56: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 57: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 58: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 59: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 60: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 61: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 62: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 63: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 64: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 65: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 66: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 67: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 68: Count = 10, GUID = 1553953527722392, TYPE = 490032
+12643:Shout:팬텀부대원:{a SLP 1553850448218609}{#FFFF00}{img link_party 24 24}golem hard{/}{/} want healer,dps~
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+number
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+Index 2: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+Index 2: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+Index 2: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 37: Count = 0, GUID = , TYPE = 0
+Index 38: Count = 0, GUID = , TYPE = 0
+Index 39: Count = 0, GUID = , TYPE = 0
+Index 40: Count = 0, GUID = , TYPE = 0
+Index 41: Count = 0, GUID = , TYPE = 0
+Index 42: Count = 0, GUID = , TYPE = 0
+Index 43: Count = 0, GUID = , TYPE = 0
+Index 44: Count = 0, GUID = , TYPE = 0
+Index 45: Count = 0, GUID = , TYPE = 0
+Index 46: Count = 0, GUID = , TYPE = 0
+Index 47: Count = 0, GUID = , TYPE = 0
+Index 48: Count = 0, GUID = , TYPE = 0
+Index 49: Count = 0, GUID = , TYPE = 0
+Index 50: Count = 0, GUID = , TYPE = 0
+Index 51: Count = 0, GUID = , TYPE = 0
+Index 52: Count = 0, GUID = , TYPE = 0
+Index 53: Count = 0, GUID = , TYPE = 0
+Index 54: Count = 0, GUID = , TYPE = 0
+Index 55: Count = 0, GUID = , TYPE = 0
+Index 56: Count = 0, GUID = , TYPE = 0
+Index 57: Count = 0, GUID = , TYPE = 0
+Index 58: Count = 0, GUID = , TYPE = 0
+Index 59: Count = 0, GUID = , TYPE = 0
+Index 60: Count = 0, GUID = , TYPE = 0
+Index 61: Count = 0, GUID = , TYPE = 0
+Index 62: Count = 0, GUID = , TYPE = 0
+Index 63: Count = 0, GUID = , TYPE = 0
+Index 64: Count = 0, GUID = , TYPE = 0
+Index 65: Count = 0, GUID = , TYPE = 0
+Index 66: Count = 0, GUID = , TYPE = 0
+Index 67: Count = 0, GUID = , TYPE = 0
+Index 68: Count = 0, GUID = , TYPE = 0
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+35
+Index 1: Count = 129, GUID = 1554022247277143, TYPE = 900011
+Index 2: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 37: Count = 0, GUID = , TYPE = 0
+Index 38: Count = 0, GUID = , TYPE = 0
+Index 39: Count = 0, GUID = , TYPE = 0
+Index 40: Count = 0, GUID = , TYPE = 0
+Index 41: Count = 0, GUID = , TYPE = 0
+Index 42: Count = 0, GUID = , TYPE = 0
+Index 43: Count = 0, GUID = , TYPE = 0
+Index 44: Count = 0, GUID = , TYPE = 0
+Index 45: Count = 0, GUID = , TYPE = 0
+Index 46: Count = 0, GUID = , TYPE = 0
+Index 47: Count = 0, GUID = , TYPE = 0
+Index 48: Count = 0, GUID = , TYPE = 0
+Index 49: Count = 0, GUID = , TYPE = 0
+Index 50: Count = 0, GUID = , TYPE = 0
+Index 51: Count = 0, GUID = , TYPE = 0
+Index 52: Count = 0, GUID = , TYPE = 0
+Index 53: Count = 0, GUID = , TYPE = 0
+Index 54: Count = 0, GUID = , TYPE = 0
+Index 55: Count = 0, GUID = , TYPE = 0
+Index 56: Count = 0, GUID = , TYPE = 0
+Index 57: Count = 0, GUID = , TYPE = 0
+Index 58: Count = 0, GUID = , TYPE = 0
+Index 59: Count = 0, GUID = , TYPE = 0
+Index 60: Count = 0, GUID = , TYPE = 0
+Index 61: Count = 0, GUID = , TYPE = 0
+Index 62: Count = 0, GUID = , TYPE = 0
+Index 63: Count = 0, GUID = , TYPE = 0
+Index 64: Count = 0, GUID = , TYPE = 0
+Index 65: Count = 0, GUID = , TYPE = 0
+Index 66: Count = 0, GUID = , TYPE = 0
+Index 67: Count = 0, GUID = , TYPE = 0
+Index 68: Count = 0, GUID = , TYPE = 0
+13933:Guild:フカヒレ:日が変わるぞー
+14062:Guild:フカヒレ:HOTタイム報酬受取りは24時まで！
+14191:Shout:七転:{a SLP 1553850448218618}{#FFFF00}{img link_party 24 24}ゴーレムとネリ{/}{/}ンガレイド募集してみます{img bakarine_emotion59 30 30} 
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+Index 1: Count = 0, GUID = , TYPE = 0
+Index 2: Count = 0, GUID = , TYPE = 0
+Index 3: Count = 0, GUID = , TYPE = 0
+Index 4: Count = 0, GUID = , TYPE = 0
+Index 5: Count = 0, GUID = , TYPE = 0
+Index 6: Count = 0, GUID = , TYPE = 0
+Index 7: Count = 0, GUID = , TYPE = 0
+Index 8: Count = 0, GUID = , TYPE = 0
+Index 9: Count = 0, GUID = , TYPE = 0
+Index 10: Count = 0, GUID = , TYPE = 0
+Index 11: Count = 0, GUID = , TYPE = 0
+Index 12: Count = 0, GUID = , TYPE = 0
+Index 13: Count = 0, GUID = , TYPE = 0
+Index 14: Count = 0, GUID = , TYPE = 0
+Index 15: Count = 0, GUID = , TYPE = 0
+Index 16: Count = 0, GUID = , TYPE = 0
+Index 17: Count = 0, GUID = , TYPE = 0
+Index 18: Count = 0, GUID = , TYPE = 0
+Index 19: Count = 0, GUID = , TYPE = 0
+Index 20: Count = 0, GUID = , TYPE = 0
+Index 21: Count = 0, GUID = , TYPE = 0
+Index 22: Count = 0, GUID = , TYPE = 0
+Index 23: Count = 0, GUID = , TYPE = 0
+Index 24: Count = 0, GUID = , TYPE = 0
+Index 25: Count = 0, GUID = , TYPE = 0
+Index 26: Count = 0, GUID = , TYPE = 0
+Index 27: Count = 0, GUID = , TYPE = 0
+Index 28: Count = 0, GUID = , TYPE = 0
+Index 29: Count = 0, GUID = , TYPE = 0
+Index 30: Count = 0, GUID = , TYPE = 0
+Index 31: Count = 0, GUID = , TYPE = 0
+Index 32: Count = 0, GUID = , TYPE = 0
+Index 33: Count = 0, GUID = , TYPE = 0
+Index 34: Count = 0, GUID = , TYPE = 0
+Index 35: Count = 0, GUID = , TYPE = 0
+Index 36: Count = 0, GUID = , TYPE = 0
+Index 37: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 38: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 39: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 40: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 41: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 42: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 43: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 44: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 45: Count = 2, GUID = 1553944937800791, TYPE = 647016
+Index 46: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 47: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 48: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 49: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 50: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 51: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 52: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 53: Count = 54, GUID = 1554022247249852, TYPE = 11201202
+Index 54: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 55: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 56: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 57: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 58: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 59: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 60: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 61: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 62: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 63: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 64: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 65: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 66: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 67: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 68: Count = 10, GUID = 1553953527722392, TYPE = 490032
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+35
+Index 1: Count = 0, GUID = , TYPE = 0
+Index 2: Count = 0, GUID = , TYPE = 0
+Index 3: Count = 0, GUID = , TYPE = 0
+Index 4: Count = 0, GUID = , TYPE = 0
+Index 5: Count = 0, GUID = , TYPE = 0
+Index 6: Count = 0, GUID = , TYPE = 0
+Index 7: Count = 0, GUID = , TYPE = 0
+Index 8: Count = 0, GUID = , TYPE = 0
+Index 9: Count = 0, GUID = , TYPE = 0
+Index 10: Count = 0, GUID = , TYPE = 0
+Index 11: Count = 0, GUID = , TYPE = 0
+Index 12: Count = 0, GUID = , TYPE = 0
+Index 13: Count = 0, GUID = , TYPE = 0
+Index 14: Count = 0, GUID = , TYPE = 0
+Index 15: Count = 0, GUID = , TYPE = 0
+Index 16: Count = 0, GUID = , TYPE = 0
+Index 17: Count = 0, GUID = , TYPE = 0
+Index 18: Count = 0, GUID = , TYPE = 0
+Index 19: Count = 0, GUID = , TYPE = 0
+Index 20: Count = 0, GUID = , TYPE = 0
+Index 21: Count = 0, GUID = , TYPE = 0
+Index 22: Count = 0, GUID = , TYPE = 0
+Index 23: Count = 0, GUID = , TYPE = 0
+Index 24: Count = 0, GUID = , TYPE = 0
+Index 25: Count = 0, GUID = , TYPE = 0
+Index 26: Count = 0, GUID = , TYPE = 0
+Index 27: Count = 0, GUID = , TYPE = 0
+Index 28: Count = 0, GUID = , TYPE = 0
+Index 29: Count = 0, GUID = , TYPE = 0
+Index 30: Count = 0, GUID = , TYPE = 0
+Index 31: Count = 0, GUID = , TYPE = 0
+Index 32: Count = 0, GUID = , TYPE = 0
+Index 33: Count = 0, GUID = , TYPE = 0
+Index 34: Count = 0, GUID = , TYPE = 0
+Index 35: Count = 0, GUID = , TYPE = 0
+Index 36: Count = 0, GUID = , TYPE = 0
+Index 37: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 38: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 39: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 40: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 41: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 42: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 43: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 44: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 45: Count = 2, GUID = 1553944937800791, TYPE = 647016
+Index 46: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 47: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 48: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 49: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 50: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 51: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 52: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 53: Count = 54, GUID = 1554022247249852, TYPE = 11201202
+Index 54: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 55: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 56: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 57: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 58: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 59: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 60: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 61: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 62: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 63: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 64: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 65: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 66: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 67: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 68: Count = 10, GUID = 1553953527722392, TYPE = 490032
+14578:Shout:七転:{a SLP 1553850448218618}{#FFFF00}{img link_party 24 24}ゴーレムとネリ{/}{/}ンガレイド、まだ募集中です{img glacier_emoticon104 30 30} 
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+14707:Shout:七転:{a SLP 1553850448218618}{#FFFF00}{img link_party 24 24}ゴーレムとネリ{/}{/}ンガいろいろ募集中です、未消化の方お気軽にどうぞ{img Mulia_emotion141 30 30} 
+14836:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$승혁$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+14965:Shout:七転:{a SLP 1553850448218618}{#FFFF00}{img link_party 24 24}ゴーレムとネリ{/}{/}ンガ駆け込み消化、出発前募集です{img glacier_emoticon105 30 30} 
+15094:Guild:BiriBiri:noobs H runs, turbo abys/dreamy rose, anyone?
+15223:Guild:승혁:아 오랜만에오는데
+15352:Guild:승혁:좀 알려주실분 있나요
+15481:Guild:BiriBiri:{a SLP 1553975002267674}{#FFFF00}{img link_party 24 24}INST_653_0_0{/}{/}
+15610:Guild:승혁:ㅜ
+15739:Shout:銀杏_:{a SLI 1554005067404697|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}PLSPLS~
+15868:Shout:Ulquiorra:{a SLI 155400077230465331587202501207001159|# 641954}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ITEM_20241111_028928$*^{/}{/}{/}
+15997:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Merliness$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+16126:Guild:BiriBiri:{a SLP 1553850448218613}{#FFFF00}{img link_party 24 24}Party#ZC4HBO{/}{/}
+16255:Shout:Sungokong:{a SLP 1553850448218613}{#FFFF00}{img link_party 24 24}Party#ZC4HBO{/}{/} hard runs for thurbu, rose, abyss, & dreamy anyone {img emoticon_0036 30 30} 
+16384:Shout:6시내고양이:{a SLI 1553446721561181|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+16513:Guild:승혁:ㅎ2
+16642:Guild:아크네:여신의증표 바카리네 어디서얻죠?
+16771:Shout:銀杏_:{a SLI 1554005067404697|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}{img emoticon_0031 30 30} {img emoticon_0030 30 30} {img emoticon_0030 30 30} {img emoticon_0030 30 30} {img emoticon_0030 30 30} PLSPLS
+16900:Shout:エネロ:auto{a SLI 1553910578127207|# 11200317}{#FFFF00}{img icon_item_misc_boss_Slogutis_NoTrade 30 30}@dicID_^*$ETC_20230828_072964$*^{/}{/}please
+17029:Guild:아크네:낚시는어케하나요
+17416:Shout:PAPAYA:콜로니 이제 한길드가 한거점밖에 못먹게 패치했나요?
+17545:Shout:BiriBiri:{a SLP 1553850448218613}{#FFFF00}{img link_party 24 24}Party#ZC4HBO{/}{/}roseH, aby/dreamyH
+17674:Shout:コモレビ:{a SLP 1553850448218294}{#FFFF00}{img link_party 24 24}ゴーレム hard{/}{/}　火力ぽい方3名募集
+17803:Shout:Ulquiorra:{a SLI 155400077230465231587202501207001159|# 641954}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ITEM_20241111_028928$*^{/}{/}{/}
+17932:Shout:コモレビ:{a SLP 1553850448218294}{#FFFF00}{img link_party 24 24}ゴーレム hard{/}{/}　火力ぽい方2名募集
+18061:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$승혁$*$PC$*$용사#@!#@!
+18190:Shout:コモレビ:{a SLP 1553850448218294}{#FFFF00}{img link_party 24 24}ゴーレム hard{/}{/}　初見の方もどうぞ　火力さん1名募集
+18319:Shout:コモレビ:{a SLI 1554005067464955|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}Golem Hard: Recruiting 2 attackers
+18448:Shout:コモレビ:1attacker
+18577:Guild:CorvusV:/
+18706:Shout:コモレビ:{a SLP 1553850448218294}{#FFFF00}{img link_party 24 24}ゴーレム hard{/}{/}　火力1名　初見の方も歓迎です{img bakarine_emotion65 30 30} 
+18835:Shout:コモレビ:Golem Hard: 1 attacker
+18964:Shout:コモレビ:{a SLP 1553850448218294}{#FFFF00}{img link_party 24 24}ゴーレム hard{/}{/}　火力な方1名募集
+19093:Shout:コモレビ:Golem Hard - Recruiting 1 attacker - Newcomers welcome
+19222:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Skillberry$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+19351:Guild:BiriBiri:Tipsy
+19480:Guild:Tipsy:yow?
+19609:Shout:コモレビ:{a SLP 1553850448218294}{#FFFF00}{img link_party 24 24}ゴーレム hard{/}{/}　火力な方1名募集中
+19738:Guild:BiriBiri:wanna ask ***y done which
+19867:Guild:Tipsy:hu?
+19996:Guild:Tipsy:H?
+20125:Guild:BiriBiri:the white ***y
+20254:Guild:BiriBiri:ya
+20383:Guild:Tipsy:nothing done
+20512:Guild:Tipsy:all available
+20641:Guild:BiriBiri:hahah u slacker
+20770:Guild:Tipsy:u need?
+20899:Guild:BiriBiri:wait
+21028:Shout:コモレビ:{a SLP 1553850448218294}{#FFFF00}{img link_party 24 24}ゴーレム hard{/}{/}　{a SLI 1554005067464955|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}　火力ぽい方1名募集中　初見の方もどうぞー
+21157:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Broglie$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+21286:Guild:Tipsy:need or not?
+21415:Guild:BiriBiri:{a SLP 1553850448218613}{#FFFF00}{img link_party 24 24}Party#ZC4HBO{/}{/}
+21544:Guild:BiriBiri:slow, all alts haha
+21673:Shout:ELAC家:{a SLP 1553850448218659}{#FFFF00}{img link_party 24 24}ｺﾞｰﾚﾑﾈﾘﾝｶﾞﾊｰﾄﾞ{/}{/}火力　ヒラ　いける方お願いします
+21802:guildmem:guildmem:!@#${WHO}{TYPE}ChatOut$*$WHO$*$FullBlaster$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+22060:Shout:ELAC家:{a SLP 1553850448218659}{#FFFF00}{img link_party 24 24}ｺﾞｰﾚﾑﾈﾘﾝｶﾞﾊｰﾄﾞ{/}{/}＠１　火力系の方
+22189:Shout:ELAC家:{a SLP 1553850448218659}{#FFFF00}{img link_party 24 24}ｺﾞｰﾚﾑﾈﾘﾝｶﾞﾊｰﾄﾞ{/}{/}＠１　火力　ラストコール
+22318:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$レミデーア$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+22447:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Arona$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+22576:Shout:HELLSING:WTB [ Vanqui BOX  ] 
+22705:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$レミデーア$*$PC$*$enyuo#@!#@!
+22963:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Artezia$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+23092:Shout:아르니카:아스테리아 길드에서 길원님 모집합니다. 매너유저님이시면 뉴비님 라이트유저님도 환영해요! 편하게 길드가입신청 또는 귓말 주세요 {img emoticon_0041 30 30} 
+23221:Guild:BiriBiri:those start end msg is auto?
+23350:Shout:HELLSING:WTB [ Vanqui BOX ] 
+23479:Guild:Tipsy:the vult play perfect
+23608:Guild:Tipsy:{img emoticon_0016 70 70} 
+23737:Guild:BiriBiri:how type so fat
+23866:Guild:Tipsy:vult with art not perfect friendly
+23995:Guild:Tipsy:{img emoticon_0016 70 70} 
+24124:Guild:Tipsy:me spamming base cleric heal as a fake healer
+24253:Guild:Tipsy:cus he want perfect
+24382:Guild:BiriBiri:bwahahaa
+24511:Guild:BiriBiri:ty tipsy
+24640:Guild:Tipsy:ty too
+24769:Guild:Tipsy:sleep now
+24898:Guild:Tipsy:{img Gabija_EarringRaid_emoticon_128 128 128} 
+25027:Shout:HELLSING:WTB [ Vanqui 150M ]
+25156:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$BenzYuthapoi$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+25285:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$Arona$*$PC$*$Samuume#@!#@!
+25414:Shout:E-X:{a SLI 155400506746792831587202501120020758|# 10820019}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20241111_076813$*^{/}{/}{/}
+25543:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$awk$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+25672:Shout:E-X:{a SLI 155400506746792831587202501120020758|# 10820019}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20241111_076813$*^{/}{/}{/}{img malsuns_emotion80 30 30} 
+26188:Guild:묘묭:포포부스트 해보신 분 계신가요?
+26317:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Xhane$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+26446:Guild:춘봉:!! x
+26575:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$가람스$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+26704:Shout:HELLSING:WTB [ Vanqui box ] 
+26833:guildmem:guildmem:!@#${WHO}{TYPE}ChatOut$*$WHO$*$가람스$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+26962:Shout:Farstorm:does anyone still play this game?
+Index 2168: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 2169: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 2170: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 2171: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 2172: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 2173: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 2174: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 2175: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 2176: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 2177: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 2178: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 2179: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 2180: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 2181: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 2182: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 2183: Count = 3, GUID = 1553944937800791, TYPE = 647016
+Index 2184: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 2185: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 2186: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 2187: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 2188: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 2189: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 2190: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 2191: Count = 57, GUID = 1554022247249852, TYPE = 11201202
+Index 2192: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 2193: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 2194: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 2195: Count = 10, GUID = 1553944937978172, TYPE = 11035677
+Index 2196: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 2197: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 2198: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 2199: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 2200: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 2201: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 2202: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 2203: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 2204: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 2205: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 2206: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 2207: Count = 15, GUID = 1553953527722392, TYPE = 490032
+Index 2208: Count = 1, GUID = 1553944937978195, TYPE = 490005
+Index 2209: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 2210: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 2211: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 2212: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 2213: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 2214: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 2215: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 2216: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 2217: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 2218: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 2219: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 2220: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 2221: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 2222: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 2223: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 2224: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 2225: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 2226: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 2227: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 2228: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 2229: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 2230: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 2231: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 2232: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 2233: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 2234: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 2235: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 2236: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 2237: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 2238: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 2239: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 2240: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 2241: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 2242: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 2243: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 2244: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 2245: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 2246: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 2247: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 2248: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 2249: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 2250: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 2251: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 2252: Count = 3, GUID = 1553944937800791, TYPE = 647016
+Index 2253: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 2254: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 2255: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 2256: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 2257: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 2258: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 2259: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 2260: Count = 57, GUID = 1554022247249852, TYPE = 11201202
+Index 2261: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 2262: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 2263: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 2264: Count = 10, GUID = 1553944937978172, TYPE = 11035677
+Index 2265: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 2266: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 2267: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 2268: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 2269: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 2270: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 2271: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 2272: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 2273: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 2274: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 2275: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 2276: Count = 15, GUID = 1553953527722392, TYPE = 490032
+Index 2277: Count = 1, GUID = 1553944937978195, TYPE = 490005
+Index 2278: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 2279: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 2280: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 2281: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 2282: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 2283: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 2284: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 2285: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 2286: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 2287: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 2288: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 2289: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 2290: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 2291: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 2292: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 2293: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 2294: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 2295: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 2296: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 2297: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 2298: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 2299: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 2300: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 2301: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 2302: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 2303: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 2304: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 2305: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 2306: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 2307: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 2308: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 2309: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 2310: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 2311: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 2312: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 2313: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 2314: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 2315: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 2316: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 2317: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 2318: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 2319: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 2320: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 2321: Count = 3, GUID = 1553944937800791, TYPE = 647016
+Index 2322: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 2323: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 2324: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 2325: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 2326: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 2327: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 2328: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 2329: Count = 57, GUID = 1554022247249852, TYPE = 11201202
+Index 2330: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 2331: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 2332: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 2333: Count = 10, GUID = 1553944937978172, TYPE = 11035677
+Index 2334: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 2335: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 2336: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 2337: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 2338: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 2339: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 2340: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 2341: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 2342: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 2343: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 2344: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 2345: Count = 15, GUID = 1553953527722392, TYPE = 490032
+Index 2346: Count = 1, GUID = 1553944937978195, TYPE = 490005
+Index 2347: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 2348: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 2349: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 2350: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 2351: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 2352: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 2353: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 2354: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 2355: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 2356: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 2357: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 2358: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 2359: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 2360: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 2361: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 2362: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 2363: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 2364: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 2365: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 2366: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 2367: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 2368: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 2369: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 2370: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 2371: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 2372: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 2373: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 2374: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 2375: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 2376: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 2377: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 2378: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 2379: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 2380: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 2381: Count = 1, GUID = 1553966412617843, TYPE = 11030002
+Index 2382: Count = 1, GUID = 1553979297536015, TYPE = 11030001
+Index 2383: Count = 31, GUID = 1554022247249856, TYPE = 960220
+Index 2384: Count = 10, GUID = 1553906283052066, TYPE = 960219
+Index 2385: Count = 3, GUID = 1553944937942213, TYPE = 960218
+Index 2386: Count = 10, GUID = 1554022247249860, TYPE = 689009
+Index 2387: Count = 75506, GUID = 1553906283052065, TYPE = 649037
+Index 2388: Count = 19, GUID = 1554022247248561, TYPE = 647051
+Index 2389: Count = 7, GUID = 1553901988079019, TYPE = 2010001
+Index 2390: Count = 3, GUID = 1553944937800791, TYPE = 647016
+Index 2391: Count = 6, GUID = 1554022247249854, TYPE = 664802
+Index 2392: Count = 5, GUID = 1553979297524705, TYPE = 647011
+Index 2393: Count = 1, GUID = 1553944937850679, TYPE = 645927
+Index 2394: Count = 15, GUID = 1554030837154908, TYPE = 649026
+Index 2395: Count = 161, GUID = 1553996477424690, TYPE = 649025
+Index 2396: Count = 273, GUID = 1554005067370586, TYPE = 645783
+Index 2397: Count = 8, GUID = 1553944937824049, TYPE = 645192
+Index 2398: Count = 57, GUID = 1554022247249852, TYPE = 11201202
+Index 2399: Count = 738, GUID = 1554022247189769, TYPE = 11201120
+Index 2400: Count = 4, GUID = 1554017952172347, TYPE = 11201119
+Index 2401: Count = 90, GUID = 1554022247239423, TYPE = 2010006
+Index 2402: Count = 10, GUID = 1553944937978172, TYPE = 11035677
+Index 2403: Count = 6, GUID = 1553996477428136, TYPE = 11035676
+Index 2404: Count = 40, GUID = 1553987887312907, TYPE = 10600210
+Index 2405: Count = 40, GUID = 1553987887312906, TYPE = 10600209
+Index 2406: Count = 200, GUID = 1554022247234244, TYPE = 11200048
+Index 2407: Count = 2, GUID = 1554022247221635, TYPE = 11030138
+Index 2408: Count = 189, GUID = 1554022247235467, TYPE = 2010005
+Index 2409: Count = 200, GUID = 1554022247234243, TYPE = 11030177
+Index 2410: Count = 7, GUID = 1554022247250339, TYPE = 640406
+Index 2411: Count = 4, GUID = 1554022247236172, TYPE = 1420043
+Index 2412: Count = 1, GUID = 1553558390487834, TYPE = 11030462
+Index 2413: Count = 2, GUID = 1554069491819699, TYPE = 490500
+Index 2414: Count = 15, GUID = 1553953527722392, TYPE = 490032
+Index 2415: Count = 1, GUID = 1553944937978195, TYPE = 490005
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+Index 0: Count = 129, GUID = 1553944937978419, TYPE = 900011
+Index 1: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 2: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 3: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 4: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 5: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 6: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 7: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 8: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 9: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 10: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 11: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 12: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 13: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 14: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 15: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 16: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 17: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 18: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 19: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 20: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 21: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 22: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 23: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 24: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 25: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 26: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 27: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 28: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 29: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 30: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 31: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 32: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 33: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 34: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+Index 0: Count = 129, GUID = 1553944937978419, TYPE = 900011
+Index 1: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 2: Count = 0, GUID = , TYPE = 0
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+1553962117657305
+1553944937978419
+1554069491819695
+1554069491819696
+1554060901888650
+1554060901888651
+1553992182519575
+1553992182519616
+1553983592450430
+1553992182519700
+1553906283067420
+1554022247236728
+1553906283075889
+1554022247239812
+1554017952172247
+1553953527734274
+1554022247224347
+1554073786774844
+1553944937800881
+1553944937800876
+1554005067359742
+1553944937824211
+1553970707606697
+1554009362235097
+1553944937800858
+1553953527731698
+1553957822603398
+1553953527732384
+1554056606884163
+1553987887312494
+1553944937846774
+1553987887312898
+1554022247206527
+1553975002595085
+1553975002595086
+1553966412617843
+1553979297536015
+1554022247249856
+1553906283052066
+1553944937942213
+1554022247249860
+1553906283052065
+1554022247248561
+1553901988079019
+1553944937800791
+1554022247249854
+1553979297524705
+1553944937850679
+1554030837154908
+1553996477424690
+1554005067370586
+1553944937824049
+1554022247249852
+1554022247189769
+1554017952172347
+1554022247239423
+1553944937978172
+1553996477428136
+1553987887312907
+1553987887312906
+1554022247234244
+1554022247221635
+1554022247235467
+1554022247234243
+1554022247250339
+1554022247236172
+1553558390487834
+1554069491819699
+1553953527722392
+1553944937978195
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+1553962117657305
+1553944937978419
+1554069491819695
+1554069491819696
+1554060901888650
+1554060901888651
+1553992182519575
+1553992182519616
+1553983592450430
+1553992182519700
+1553906283067420
+1554022247236728
+1553906283075889
+1554022247239812
+1554017952172247
+1553953527734274
+1554022247224347
+1554073786774844
+1553944937800881
+1553944937800876
+1554005067359742
+1553944937824211
+1553970707606697
+1554009362235097
+1553944937800858
+1553953527731698
+1553957822603398
+1553953527732384
+1554056606884163
+1553987887312494
+1553944937846774
+1553987887312898
+1554022247206527
+1553975002595085
+1553975002595086
+1553966412617843
+1553979297536015
+1554022247249856
+1553906283052066
+1553944937942213
+1554022247249860
+1553906283052065
+1554022247248561
+1553901988079019
+1553944937800791
+1554022247249854
+1553979297524705
+1553944937850679
+1554030837154908
+1553996477424690
+1554005067370586
+1553944937824049
+1554022247249852
+1554022247189769
+1554017952172347
+1554022247239423
+1553944937978172
+1553996477428136
+1553987887312907
+1553987887312906
+1554022247234244
+1554022247221635
+1554022247235467
+1554022247234243
+1554022247250339
+1554022247236172
+1553558390487834
+1554069491819699
+1553953527722392
+1553944937978195
+nil
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+Index 0: Count = 129, GUID = 1553944937978419, TYPE = 900011
+Index 1: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 2: Count = 0, GUID = , TYPE = 0
+Index 3: Count = 2, GUID = 1554069491819695, TYPE = 11200392
+Index 4: Count = 1, GUID = 1554069491819696, TYPE = 11200391
+Index 5: Count = 2, GUID = 1554060901888650, TYPE = 11200390
+Index 6: Count = 1, GUID = 1554060901888651, TYPE = 11200389
+Index 7: Count = 2, GUID = 1553992182519575, TYPE = 11201223
+Index 8: Count = 2, GUID = 1553992182519616, TYPE = 11201220
+Index 9: Count = 23, GUID = 1553983592450430, TYPE = 11201185
+Index 10: Count = 1, GUID = 1553992182519700, TYPE = 11201184
+Index 11: Count = 22, GUID = 1553906283067420, TYPE = 11201181
+Index 12: Count = 2, GUID = 1554022247236728, TYPE = 11200367
+Index 13: Count = 1, GUID = 1553906283075889, TYPE = 11200366
+Index 14: Count = 1, GUID = 1554022247239812, TYPE = 11200353
+Index 15: Count = 3, GUID = 1554017952172247, TYPE = 11201050
+Index 16: Count = 2, GUID = 1553953527734274, TYPE = 11201045
+Index 17: Count = 141, GUID = 1554022247224347, TYPE = 11200317
+Index 18: Count = 6, GUID = 1554073786774844, TYPE = 11200316
+Index 19: Count = 5955, GUID = 1553944937800881, TYPE = 11030477
+Index 20: Count = 5142, GUID = 1553944937800876, TYPE = 11030476
+Index 21: Count = 1, GUID = 1554005067359742, TYPE = 11201021
+Index 22: Count = 1, GUID = 1553944937824211, TYPE = 11201020
+Index 23: Count = 34, GUID = 1553970707606697, TYPE = 11200230
+Index 24: Count = 24, GUID = 1554009362235097, TYPE = 11200190
+Index 25: Count = 4203, GUID = 1553944937800858, TYPE = 11030472
+Index 26: Count = 15, GUID = 1553953527731698, TYPE = 11201005
+Index 27: Count = 10, GUID = 1553957822603398, TYPE = 11201000
+Index 28: Count = 15, GUID = 1553953527732384, TYPE = 11200181
+Index 29: Count = 14, GUID = 1554056606884163, TYPE = 11200053
+Index 30: Count = 300, GUID = 1553987887312494, TYPE = 11030136
+Index 31: Count = 900, GUID = 1553944937846774, TYPE = 11030130
+Index 32: Count = 55, GUID = 1553987887312898, TYPE = 11030037
+Index 33: Count = 1, GUID = 1554022247206527, TYPE = 11030451
+Index 34: Count = 19, GUID = 1553975002595085, TYPE = 11030018
+Index 35: Count = 147, GUID = 1553975002595086, TYPE = 11030012
+Index 36: Count = 0, GUID = , TYPE = 0
+Index 37: Count = 0, GUID = , TYPE = 0
+Index 38: Count = 0, GUID = , TYPE = 0
+Index 39: Count = 0, GUID = , TYPE = 0
+Index 40: Count = 0, GUID = , TYPE = 0
+Index 41: Count = 0, GUID = , TYPE = 0
+Index 42: Count = 0, GUID = , TYPE = 0
+Index 43: Count = 0, GUID = , TYPE = 0
+Index 44: Count = 0, GUID = , TYPE = 0
+Index 45: Count = 0, GUID = , TYPE = 0
+Index 46: Count = 0, GUID = , TYPE = 0
+Index 47: Count = 0, GUID = , TYPE = 0
+Index 48: Count = 0, GUID = , TYPE = 0
+Index 49: Count = 0, GUID = , TYPE = 0
+Index 50: Count = 0, GUID = , TYPE = 0
+Index 51: Count = 0, GUID = , TYPE = 0
+Index 52: Count = 0, GUID = , TYPE = 0
+Index 53: Count = 0, GUID = , TYPE = 0
+Index 54: Count = 0, GUID = , TYPE = 0
+Index 55: Count = 0, GUID = , TYPE = 0
+Index 56: Count = 0, GUID = , TYPE = 0
+Index 57: Count = 0, GUID = , TYPE = 0
+Index 58: Count = 0, GUID = , TYPE = 0
+Index 59: Count = 0, GUID = , TYPE = 0
+Index 60: Count = 0, GUID = , TYPE = 0
+Index 61: Count = 0, GUID = , TYPE = 0
+Index 62: Count = 0, GUID = , TYPE = 0
+Index 63: Count = 0, GUID = , TYPE = 0
+Index 64: Count = 0, GUID = , TYPE = 0
+Index 65: Count = 0, GUID = , TYPE = 0
+Index 66: Count = 0, GUID = , TYPE = 0
+Index 67: Count = 0, GUID = , TYPE = 0
+Index 68: Count = 0, GUID = , TYPE = 0
+Index 69: Count = 0, GUID = , TYPE = 0
+Index 70: Count = 0, GUID = , TYPE = 0
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+315
+Index 0: Count = 129, GUID = 1553944937978419, TYPE = 900011
+Index 1: Count = 1, GUID = 1553962117657305, TYPE = 699040
+Index 2: Count = 0, GUID = , TYPE = 0
+Index 3: Count = 0, GUID = , TYPE = 0
+Index 4: Count = 0, GUID = , TYPE = 0
+Index 5: Count = 0, GUID = , TYPE = 0
+Index 6: Count = 0, GUID = , TYPE = 0
+Index 7: Count = 0, GUID = , TYPE = 0
+Index 8: Count = 0, GUID = , TYPE = 0
+Index 9: Count = 0, GUID = , TYPE = 0
+Index 10: Count = 0, GUID = , TYPE = 0
+Index 11: Count = 0, GUID = , TYPE = 0
+Index 12: Count = 0, GUID = , TYPE = 0
+Index 13: Count = 0, GUID = , TYPE = 0
+Index 14: Count = 0, GUID = , TYPE = 0
+Index 15: Count = 0, GUID = , TYPE = 0
+Index 16: Count = 0, GUID = , TYPE = 0
+Index 17: Count = 0, GUID = , TYPE = 0
+Index 18: Count = 0, GUID = , TYPE = 0
+Index 19: Count = 0, GUID = , TYPE = 0
+Index 20: Count = 0, GUID = , TYPE = 0
+Index 21: Count = 0, GUID = , TYPE = 0
+Index 22: Count = 0, GUID = , TYPE = 0
+Index 23: Count = 0, GUID = , TYPE = 0
+Index 24: Count = 0, GUID = , TYPE = 0
+Index 25: Count = 0, GUID = , TYPE = 0
+Index 26: Count = 0, GUID = , TYPE = 0
+Index 27: Count = 0, GUID = , TYPE = 0
+Index 28: Count = 0, GUID = , TYPE = 0
+Index 29: Count = 0, GUID = , TYPE = 0
+Index 30: Count = 0, GUID = , TYPE = 0
+Index 31: Count = 0, GUID = , TYPE = 0
+Index 32: Count = 0, GUID = , TYPE = 0
+Index 33: Count = 0, GUID = , TYPE = 0
+Index 34: Count = 0, GUID = , TYPE = 0
+Index 35: Count = 0, GUID = , TYPE = 0
+Index 36: Count = 0, GUID = , TYPE = 0
+Index 37: Count = 0, GUID = , TYPE = 0
+Index 38: Count = 0, GUID = , TYPE = 0
+Index 39: Count = 0, GUID = , TYPE = 0
+Index 40: Count = 0, GUID = , TYPE = 0
+Index 41: Count = 0, GUID = , TYPE = 0
+Index 42: Count = 0, GUID = , TYPE = 0
+Index 43: Count = 0, GUID = , TYPE = 0
+Index 44: Count = 0, GUID = , TYPE = 0
+Index 45: Count = 0, GUID = , TYPE = 0
+Index 46: Count = 0, GUID = , TYPE = 0
+Index 47: Count = 0, GUID = , TYPE = 0
+Index 48: Count = 0, GUID = , TYPE = 0
+Index 49: Count = 0, GUID = , TYPE = 0
+Index 50: Count = 0, GUID = , TYPE = 0
+Index 51: Count = 0, GUID = , TYPE = 0
+Index 52: Count = 0, GUID = , TYPE = 0
+Index 53: Count = 0, GUID = , TYPE = 0
+Index 54: Count = 0, GUID = , TYPE = 0
+Index 55: Count = 0, GUID = , TYPE = 0
+Index 56: Count = 0, GUID = , TYPE = 0
+Index 57: Count = 0, GUID = , TYPE = 0
+Index 58: Count = 0, GUID = , TYPE = 0
+Index 59: Count = 0, GUID = , TYPE = 0
+Index 60: Count = 0, GUID = , TYPE = 0
+Index 61: Count = 0, GUID = , TYPE = 0
+Index 62: Count = 0, GUID = , TYPE = 0
+Index 63: Count = 0, GUID = , TYPE = 0
+Index 64: Count = 0, GUID = , TYPE = 0
+Index 65: Count = 0, GUID = , TYPE = 0
+Index 66: Count = 0, GUID = , TYPE = 0
+Index 67: Count = 0, GUID = , TYPE = 0
+Index 68: Count = 0, GUID = , TYPE = 0
+Index 69: Count = 0, GUID = , TYPE = 0
+Index 70: Count = 0, GUID = , TYPE = 0
+Index 71: Count = 0, GUID = , TYPE = 0
+Index 72: Count = 0, GUID = , TYPE = 0
+Index 73: Count = 0, GUID = , TYPE = 0
+Index 74: Count = 0, GUID = , TYPE = 0
+Index 75: Count = 0, GUID = , TYPE = 0
+Index 76: Count = 0, GUID = , TYPE = 0
+Index 77: Count = 0, GUID = , TYPE = 0
+Index 78: Count = 0, GUID = , TYPE = 0
+Index 79: Count = 0, GUID = , TYPE = 0
+Index 80: Count = 0, GUID = , TYPE = 0
+Index 81: Count = 0, GUID = , TYPE = 0
+Index 82: Count = 0, GUID = , TYPE = 0
+Index 83: Count = 0, GUID = , TYPE = 0
+Index 84: Count = 0, GUID = , TYPE = 0
+Index 85: Count = 0, GUID = , TYPE = 0
+Index 86: Count = 0, GUID = , TYPE = 0
+Index 87: Count = 0, GUID = , TYPE = 0
+Index 88: Count = 0, GUID = , TYPE = 0
+Index 89: Count = 0, GUID = , TYPE = 0
+Index 90: Count = 0, GUID = , TYPE = 0
+Index 91: Count = 0, GUID = , TYPE = 0
+Index 92: Count = 0, GUID = , TYPE = 0
+Index 93: Count = 0, GUID = , TYPE = 0
+Index 94: Count = 0, GUID = , TYPE = 0
+Index 95: Count = 0, GUID = , TYPE = 0
+Index 96: Count = 0, GUID = , TYPE = 0
+Index 97: Count = 0, GUID = , TYPE = 0
+Index 98: Count = 0, GUID = , TYPE = 0
+Index 99: Count = 0, GUID = , TYPE = 0
+Index 100: Count = 0, GUID = , TYPE = 0
+Index 101: Count = 0, GUID = , TYPE = 0
+Index 102: Count = 0, GUID = , TYPE = 0
+Index 103: Count = 0, GUID = , TYPE = 0
+Index 104: Count = 0, GUID = , TYPE = 0
+Index 105: Count = 0, GUID = , TYPE = 0
+Index 106: Count = 0, GUID = , TYPE = 0
+Index 107: Count = 0, GUID = , TYPE = 0
+Index 108: Count = 0, GUID = , TYPE = 0
+Index 109: Count = 0, GUID = , TYPE = 0
+Index 110: Count = 0, GUID = , TYPE = 0
+Index 111: Count = 0, GUID = , TYPE = 0
+Index 112: Count = 0, GUID = , TYPE = 0
+Index 113: Count = 0, GUID = , TYPE = 0
+Index 114: Count = 0, GUID = , TYPE = 0
+Index 115: Count = 0, GUID = , TYPE = 0
+Index 116: Count = 0, GUID = , TYPE = 0
+Index 117: Count = 0, GUID = , TYPE = 0
+Index 118: Count = 0, GUID = , TYPE = 0
+Index 119: Count = 0, GUID = , TYPE = 0
+Index 120: Count = 0, GUID = , TYPE = 0
+Index 121: Count = 0, GUID = , TYPE = 0
+Index 122: Count = 0, GUID = , TYPE = 0
+Index 123: Count = 0, GUID = , TYPE = 0
+Index 124: Count = 0, GUID = , TYPE = 0
+Index 125: Count = 0, GUID = , TYPE = 0
+Index 126: Count = 0, GUID = , TYPE = 0
+Index 127: Count = 0, GUID = , TYPE = 0
+Index 128: Count = 0, GUID = , TYPE = 0
+Index 129: Count = 0, GUID = , TYPE = 0
+Index 130: Count = 0, GUID = , TYPE = 0
+Index 131: Count = 0, GUID = , TYPE = 0
+Index 132: Count = 0, GUID = , TYPE = 0
+Index 133: Count = 0, GUID = , TYPE = 0
+Index 134: Count = 0, GUID = , TYPE = 0
+Index 135: Count = 0, GUID = , TYPE = 0
+Index 136: Count = 0, GUID = , TYPE = 0
+Index 137: Count = 0, GUID = , TYPE = 0
+Index 138: Count = 0, GUID = , TYPE = 0
+Index 139: Count = 0, GUID = , TYPE = 0
+Index 140: Count = 0, GUID = , TYPE = 0
+Index 141: Count = 0, GUID = , TYPE = 0
+Index 142: Count = 0, GUID = , TYPE = 0
+Index 143: Count = 0, GUID = , TYPE = 0
+Index 144: Count = 0, GUID = , TYPE = 0
+Index 145: Count = 0, GUID = , TYPE = 0
+Index 146: Count = 0, GUID = , TYPE = 0
+Index 147: Count = 0, GUID = , TYPE = 0
+Index 148: Count = 0, GUID = , TYPE = 0
+Index 149: Count = 0, GUID = , TYPE = 0
+Index 150: Count = 0, GUID = , TYPE = 0
+Index 151: Count = 0, GUID = , TYPE = 0
+Index 152: Count = 0, GUID = , TYPE = 0
+Index 153: Count = 0, GUID = , TYPE = 0
+Index 154: Count = 0, GUID = , TYPE = 0
+Index 155: Count = 0, GUID = , TYPE = 0
+Index 156: Count = 0, GUID = , TYPE = 0
+Index 157: Count = 0, GUID = , TYPE = 0
+Index 158: Count = 0, GUID = , TYPE = 0
+Index 159: Count = 0, GUID = , TYPE = 0
+Index 160: Count = 0, GUID = , TYPE = 0
+Index 161: Count = 0, GUID = , TYPE = 0
+Index 162: Count = 0, GUID = , TYPE = 0
+Index 163: Count = 0, GUID = , TYPE = 0
+Index 164: Count = 0, GUID = , TYPE = 0
+Index 165: Count = 0, GUID = , TYPE = 0
+Index 166: Count = 0, GUID = , TYPE = 0
+Index 167: Count = 0, GUID = , TYPE = 0
+Index 168: Count = 0, GUID = , TYPE = 0
+Index 169: Count = 0, GUID = , TYPE = 0
+Index 170: Count = 0, GUID = , TYPE = 0
+Index 171: Count = 0, GUID = , TYPE = 0
+Index 172: Count = 0, GUID = , TYPE = 0
+Index 173: Count = 0, GUID = , TYPE = 0
+Index 174: Count = 0, GUID = , TYPE = 0
+Index 175: Count = 0, GUID = , TYPE = 0
+Index 176: Count = 0, GUID = , TYPE = 0
+Index 177: Count = 0, GUID = , TYPE = 0
+Index 178: Count = 0, GUID = , TYPE = 0
+Index 179: Count = 0, GUID = , TYPE = 0
+Index 180: Count = 0, GUID = , TYPE = 0
+Index 181: Count = 0, GUID = , TYPE = 0
+Index 182: Count = 0, GUID = , TYPE = 0
+Index 183: Count = 0, GUID = , TYPE = 0
+Index 184: Count = 0, GUID = , TYPE = 0
+Index 185: Count = 0, GUID = , TYPE = 0
+Index 186: Count = 0, GUID = , TYPE = 0
+Index 187: Count = 0, GUID = , TYPE = 0
+Index 188: Count = 0, GUID = , TYPE = 0
+Index 189: Count = 0, GUID = , TYPE = 0
+Index 190: Count = 0, GUID = , TYPE = 0
+Index 191: Count = 0, GUID = , TYPE = 0
+Index 192: Count = 0, GUID = , TYPE = 0
+Index 193: Count = 0, GUID = , TYPE = 0
+Index 194: Count = 0, GUID = , TYPE = 0
+Index 195: Count = 0, GUID = , TYPE = 0
+Index 196: Count = 0, GUID = , TYPE = 0
+Index 197: Count = 0, GUID = , TYPE = 0
+Index 198: Count = 0, GUID = , TYPE = 0
+Index 199: Count = 0, GUID = , TYPE = 0
+Index 200: Count = 0, GUID = , TYPE = 0
+Index 201: Count = 0, GUID = , TYPE = 0
+Index 202: Count = 0, GUID = , TYPE = 0
+Index 203: Count = 0, GUID = , TYPE = 0
+Index 204: Count = 0, GUID = , TYPE = 0
+Index 205: Count = 0, GUID = , TYPE = 0
+Index 206: Count = 0, GUID = , TYPE = 0
+Index 207: Count = 0, GUID = , TYPE = 0
+Index 208: Count = 0, GUID = , TYPE = 0
+Index 209: Count = 0, GUID = , TYPE = 0
+Index 210: Count = 0, GUID = , TYPE = 0
+Index 211: Count = 0, GUID = , TYPE = 0
+Index 212: Count = 0, GUID = , TYPE = 0
+Index 213: Count = 0, GUID = , TYPE = 0
+Index 214: Count = 0, GUID = , TYPE = 0
+Index 215: Count = 0, GUID = , TYPE = 0
+Index 216: Count = 0, GUID = , TYPE = 0
+Index 217: Count = 0, GUID = , TYPE = 0
+Index 218: Count = 0, GUID = , TYPE = 0
+Index 219: Count = 0, GUID = , TYPE = 0
+Index 220: Count = 0, GUID = , TYPE = 0
+Index 221: Count = 0, GUID = , TYPE = 0
+Index 222: Count = 0, GUID = , TYPE = 0
+Index 223: Count = 0, GUID = , TYPE = 0
+Index 224: Count = 0, GUID = , TYPE = 0
+Index 225: Count = 0, GUID = , TYPE = 0
+Index 226: Count = 0, GUID = , TYPE = 0
+Index 227: Count = 0, GUID = , TYPE = 0
+Index 228: Count = 0, GUID = , TYPE = 0
+Index 229: Count = 0, GUID = , TYPE = 0
+Index 230: Count = 0, GUID = , TYPE = 0
+Index 231: Count = 0, GUID = , TYPE = 0
+Index 232: Count = 0, GUID = , TYPE = 0
+Index 233: Count = 0, GUID = , TYPE = 0
+Index 234: Count = 0, GUID = , TYPE = 0
+Index 235: Count = 0, GUID = , TYPE = 0
+Index 236: Count = 0, GUID = , TYPE = 0
+Index 237: Count = 0, GUID = , TYPE = 0
+Index 238: Count = 0, GUID = , TYPE = 0
+Index 239: Count = 0, GUID = , TYPE = 0
+Index 240: Count = 0, GUID = , TYPE = 0
+Index 241: Count = 0, GUID = , TYPE = 0
+Index 242: Count = 0, GUID = , TYPE = 0
+Index 243: Count = 0, GUID = , TYPE = 0
+Index 244: Count = 0, GUID = , TYPE = 0
+Index 245: Count = 0, GUID = , TYPE = 0
+Index 246: Count = 0, GUID = , TYPE = 0
+Index 247: Count = 0, GUID = , TYPE = 0
+Index 248: Count = 0, GUID = , TYPE = 0
+Index 249: Count = 0, GUID = , TYPE = 0
+Index 250: Count = 0, GUID = , TYPE = 0
+Index 251: Count = 0, GUID = , TYPE = 0
+Index 252: Count = 0, GUID = , TYPE = 0
+Index 253: Count = 0, GUID = , TYPE = 0
+Index 254: Count = 0, GUID = , TYPE = 0
+Index 255: Count = 0, GUID = , TYPE = 0
+Index 256: Count = 0, GUID = , TYPE = 0
+Index 257: Count = 0, GUID = , TYPE = 0
+Index 258: Count = 0, GUID = , TYPE = 0
+Index 259: Count = 0, GUID = , TYPE = 0
+Index 260: Count = 0, GUID = , TYPE = 0
+Index 261: Count = 0, GUID = , TYPE = 0
+Index 262: Count = 0, GUID = , TYPE = 0
+Index 263: Count = 0, GUID = , TYPE = 0
+Index 264: Count = 0, GUID = , TYPE = 0
+Index 265: Count = 0, GUID = , TYPE = 0
+Index 266: Count = 0, GUID = , TYPE = 0
+Index 267: Count = 0, GUID = , TYPE = 0
+Index 268: Count = 0, GUID = , TYPE = 0
+Index 269: Count = 0, GUID = , TYPE = 0
+Index 270: Count = 0, GUID = , TYPE = 0
+Index 271: Count = 0, GUID = , TYPE = 0
+Index 272: Count = 0, GUID = , TYPE = 0
+Index 273: Count = 0, GUID = , TYPE = 0
+Index 274: Count = 0, GUID = , TYPE = 0
+Index 275: Count = 0, GUID = , TYPE = 0
+Index 276: Count = 0, GUID = , TYPE = 0
+Index 277: Count = 0, GUID = , TYPE = 0
+Index 278: Count = 0, GUID = , TYPE = 0
+Index 279: Count = 0, GUID = , TYPE = 0
+Index 280: Count = 0, GUID = , TYPE = 0
+Index 281: Count = 0, GUID = , TYPE = 0
+Index 282: Count = 0, GUID = , TYPE = 0
+Index 283: Count = 0, GUID = , TYPE = 0
+Index 284: Count = 0, GUID = , TYPE = 0
+Index 285: Count = 0, GUID = , TYPE = 0
+Index 286: Count = 0, GUID = , TYPE = 0
+Index 287: Count = 0, GUID = , TYPE = 0
+Index 288: Count = 0, GUID = , TYPE = 0
+Index 289: Count = 0, GUID = , TYPE = 0
+Index 290: Count = 0, GUID = , TYPE = 0
+Index 291: Count = 0, GUID = , TYPE = 0
+Index 292: Count = 0, GUID = , TYPE = 0
+Index 293: Count = 0, GUID = , TYPE = 0
+Index 294: Count = 0, GUID = , TYPE = 0
+Index 295: Count = 0, GUID = , TYPE = 0
+Index 296: Count = 0, GUID = , TYPE = 0
+Index 297: Count = 0, GUID = , TYPE = 0
+Index 298: Count = 0, GUID = , TYPE = 0
+Index 299: Count = 0, GUID = , TYPE = 0
+Index 300: Count = 0, GUID = , TYPE = 0
+Index 301: Count = 0, GUID = , TYPE = 0
+Index 302: Count = 0, GUID = , TYPE = 0
+Index 303: Count = 0, GUID = , TYPE = 0
+Index 304: Count = 0, GUID = , TYPE = 0
+Index 305: Count = 0, GUID = , TYPE = 0
+Index 306: Count = 0, GUID = , TYPE = 0
+Index 307: Count = 0, GUID = , TYPE = 0
+Index 308: Count = 0, GUID = , TYPE = 0
+Index 309: Count = 0, GUID = , TYPE = 0
+Index 310: Count = 0, GUID = , TYPE = 0
+Index 311: Count = 0, GUID = , TYPE = 0
+Index 312: Count = 0, GUID = , TYPE = 0
+Index 313: Count = 0, GUID = , TYPE = 0
+Index 314: Count = 0, GUID = , TYPE = 0
+Index 315: Count = 0, GUID = , TYPE = 0
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+33799:Shout:asgardJay:{a SLI 1506408239785408|# 10000073}{#FFFF00}{img icon_item_ChallengeEnter 30 30}@dicID_^*$ETC_20241111_076789$*^{/}{/}
+33928:Shout:asgardJay:{a SLI 1521500754581886|# 10000470}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076791$*^{/}{/}
+34057:Shout:asgardJay:{a SLI 1521500754581886|# 10000470}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076791$*^{/}{/}
+34186:Shout:asgardJay:{a SLI 1521500754581886|# 10000470}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076791$*^{/}{/}
+34831:Shout:HELLSING:WTB [ Vangqui box ]
+36508:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$nari33$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+36637:Guild:Mystrick:{a SLI 1553987887331895733010727014001001309|# 11039404}{#FFFF00}{img icon_item_card_goddess 30 30}@dicID_^*$ETC_20210125_053515$*^{/}{/}   job done....
+36766:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Kirosuu$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+36895:Guild:4lkruzeth:grats
+37024:Guild:Mystrick:{img Rozaliia_emotion01 128 128} 
+37153:Shout:HELLSING:WTB [ Vangqui box OR paper ] 
+37282:Shout:Bomb양갱:2박 3일의 현실 긴 여행을 끝마치고 어둠의땅 트오세에 다시 귀엽게 돌아왔다!!! 에큥!!
+37411:Shout:Bomb양갱:그럼 오늘도 활기차게 노래를 부르자!
+37540:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$모빅$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+37669:Shout:Bomb양갱:무도회를 뒤~지벙 작은 소란을 또 이~~르켜~ 등장부터 인사까지 파격적이게! 우리 살짝 놀아볼까 솔직하게 베베!! 지~~~금부터 시작해~ 볼게~~
+37798:Shout:Bomb양갱:꽃가루를 나알~~려~ 폭죽을 더 크게 터트려~ 우릴 오만과 편견에 가두지 마아아~~~
+37927:Shout:Bomb양갱:필 마이 리듬!! 컴윗미~~! 상상해봐 뭐든지~ 노랠 따라서~ 저 달빛에 춤을춰~ 바로 지금~~ 팔로 팔로 마이 헐빗~ 해가 떠오를대 까지~~ 필 마이 리듬!! 멈추지 말아줘~~ 이순간을 놓치마 베이붸!!!!!!!!!!!!!!!!!!
+38056:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$하후희$*$PC$*$연빛#@!#@!
+38185:Shout:HELLSING:WTB [ Vangqui Box ] 
+38314:Shout:chaoneema:are u winning son?
+38443:Shout:4lkruzeth:no wait, let him cook
+38572:Shout:chaoneema:oh sry, my bad
+38701:Shout:Gaara:WTT>{a SLI 1107118014893169|# 633069}{#FFFF00}{img icon_item_hanbok02_f 30 30}@dicID_^*$ITEM_20171019_015655$*^{/}{/}  to Pit-a-pet wedding dress costume (Female)
+39217:guildmem:guildmem:!@#${WHO}{TYPE}ChatOut$*$WHO$*$UMF$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+39346:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$시요닝$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+41699:System:System:{#DD0000}@dicID_^*$ETC_20201113_052054$*^
+41924:Shout:Gaara:WTT>{a SLI 1107118014893169|# 633069}{#FFFF00}{img icon_item_hanbok02_f 30 30}@dicID_^*$ITEM_20171019_015655$*^{/}{/} to Wizard Swimwear costume (female)
+42084:System:System:{#DD0000}@dicID_^*$ETC_20201113_052055$*^
+42727:System:System:{#DD0000}!@#$NOTICE_READY_FIELDBOSS_WORLD_EVENT{TIME}$*$TIME$*$60#@!
+42983:System:System:{#DD0000}!@#$NOTICE_START_FIELDBOSS_WORLD_EVENT#@!
+43239:System:System:{#DD0000}!@#$NOTICE_END_FIELDBOSS_WORLD_EVENT#@!
+43495:System:System:{#DD0000}!@#$NOTICE_FIELDBOSS_RANK#@!
+43751:System:System:{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$1$*$name$*$一級河川, だるす, ハマナス, cheshire, あーちょん#@!
+44007:System:System:{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$2$*$name$*$AuroraBlue, Kiyoharun, Pyonkichi, TeamRocket#@!
+44263:System:System:{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$3$*$name$*$스트링거, 루잉, sara, 유니우스#@!
+44519:System:System:{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$4$*$name$*$リプティカ, 七転, ELAC家#@!
+44775:System:System:{#DD0000}!@#$NOTICE_FIELDBOSS_RANK{rank}{name}$*$rank$*$5$*$name$*$たっけのこ, ガスパーク, 糸むすび#@!
+45031:System:System:{#DD0000}!@#$NOTICE_FIELDBOSS_RANK_END#@!
+45256:Shout:七転:{a SLP 1553850448218794}{#FFFF00}{img link_party 24 24}ハードレイド三{/}{/}種募集してみます{img emoticonItem_2412_172 30 30} 
+45385:Guild:KenZei:the lag is back 
+45514:Guild:4lkruzeth:feelsbad kenlag
+45643:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$모빅$*$PC$*$직장인#@!#@!
+45772:Guild:모빅:그혹시 구원의향로는 어떻게 깨나요 ..
+45901:Guild:빠다와플:메인퀘 먼저 미세여
+46030:Guild:빠다와플:포포미션은 만렙찍구
+46159:Guild:모빅:냅 해보겠습니다
+46288:Guild:빠다와플:{img Mulia_emotion115 128 128}
+46804:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$Cambriel$*$PC$*$Isolde#@!#@!
+47320:Guild:KenZei:B> Punisher Seal :(
+47449:Shout:KenZei:B> Punisher Seal Pm offer
+47578:Shout:T2_:激動　自動　ファロウロス　4人以下で待機してます
+48094:Shout:공주:무야호 
+48223:Shout:가람쥐:뷁
+48352:Shout:공주:트오새 사랑해 ~ 
+48481:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$그랑데$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+48610:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$그랑데$*$PC$*$시에테#@!#@!
+48739:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$RollT$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+48868:Guild:KenZei:5-10 secs delay 
+48997:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$SCP-001$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+49126:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$무신$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+49255:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$arcanasphere$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+49771:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$ちかち$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+49900:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$주이$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+50029:Guild:KenZei:awewe carry
+50158:Shout:LOSTARKサ終難民:{a SLI 155402224730592531587202501207155222|# 11030067}{#FFFF00}{img icon_item_expertmode_enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20241111_076761$*^{/}{/}{/}2 runs
+50287:Guild:KenZei:Isle please 1 run AM
+50416:Guild:Awewe:lessgoo
+50545:Guild:Awewe:my bad
+50674:Guild:KenZei:is this ytoy?
+50803:Guild:Tipsy:nice le me leech
+50932:Guild:KenZei:oh hello
+51061:Guild:Tipsy:leeching awewe
+51190:Guild:KenZei:lagg
+51319:Guild:KenZei:pls dont dc
+51448:Guild:KenZei:haha
+51577:Guild:KenZei:thanks
+51706:Guild:Tipsy:{a SLI 1554048017040625|# 11200351}{#FFFF00}{img icon_item_lv1_misc_goddess_noble_3 30 30}@dicID_^*$ETC_20240201_074311$*^{/}{/}
+51835:Guild:KenZei:wow lucky
+51964:Guild:Awewe:early lucky of week {img emoticon_0008 30 30} 
+52093:Guild:KenZei:which is better
+52222:Shout:기현:{img emoticon_0037 30 30} 
+52351:Guild:KenZei:the sword or the accesory in 9th collectio
+52480:Guild:4lkruzeth:im gonna do it tipsy
+52609:Guild:4lkruzeth:vanq doppel and nerf my own dps
+52738:Guild:Awewe:sword first ken
+52867:Guild:Tipsy:huh?
+52996:Guild:Tipsy:vanq doppel highlander?
+53125:Guild:Tipsy:lol
+53254:Guild:4lkruzeth:yes, time to be dumb
+53383:Guild:4lkruzeth:time to make the game more fun- uh i mean more messy for me
+53512:Shout:민뎀:{a SLI 1554022247304389|# 11200355}{#FFFF00}{img icon_item_despairisland_auto_enter 30 30}@dicID_^*$ETC_20240201_074317$*^{/}{/}
+53641:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$paninae$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+53770:Shout:민뎀:{a SLI 1554022247304393|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+53899:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$강화쥐$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+54028:Shout:LOSTARKサ終難民:{a SLI 1553541210743086|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}3/5
+54157:Shout:민뎀:{a SLI 1554022247304391|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}
+54286:Shout:LOSTARKサ終難民:{a SLI 1553541210743068|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}3/5
+54415:Shout:민뎀:{a SLI 1554022247307835|# 11200355}{#FFFF00}{img icon_item_despairisland_auto_enter 30 30}@dicID_^*$ETC_20240201_074317$*^{/}{/}
+54544:Shout:민뎀:{a SLI 1554022247307840|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+54673:Guild:빠다와플:{img emoticon_0006 128 128} 
+54802:Guild:Neinee:{img emoticon_0041 70 70} 
+54931:Shout:사탕:{a SLI 1553549800965602|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}
+55060:Shout:민뎀:{a SLI 1554022247301816|# 11200355}{#FFFF00}{img icon_item_despairisland_auto_enter 30 30}@dicID_^*$ETC_20240201_074317$*^{/}{/}
+55189:Shout:LOSTARKサ終難民:{a SLI 155402224730819531587202501120172432|# 10820037}{#FFFF00}{img icon_item_despairisland_auto_enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20240902_076097$*^{/}{/}{/}3/5
+55318:Shout:민뎀:{a SLI 1554022247301938|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+55447:Shout:민뎀:{a SLI 1554022247301913|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}
+55576:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$강화쥐$*$PC$*$아프니카#@!#@!
+55705:Shout:Bomb양갱:오오오!! 한여름 밤의 피서같이!! 우리 둘만의 파도타기!! 볼게 우린 너무 많아~~ 오 마마이~ 하루종일 더깊이 빠져~ 어느새 시간이 멈춰~ 온종일!! 고 고 그라운!! 네게 설레~~~ 가까워진 것 만 같 아!!!!!!!!!!!!!!!!
+55834:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Elfes$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+55963:Shout:Bomb양갱:컴 윗미 나아아아아우~~ 넌 어디까지 가길 원해!! 잠깐만 둘이~ 조금 더 멀리~ 빨로미 나아아아아우~ 난 너와 함꼐 가볼래~
+56092:Shout:Bomb양갱:위고! 위고!! 위고! 위고!! 말해봐!! 왓츄 왓츄 원 왓츄  왓츄 원~ 오오오~ 더 크게!! 왓츄 왓츄 원! 왓츄 왓츄원 오오오오~ 컴 윗미 나아아아우~ 난 너와 함게 가볼래~  위고!! 위고!! 위고! 위고!! 오오!!
+56221:Shout:Bomb양갱:-꼬우면  AAA 프로미스나인 갤러리로-
+56350:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Pet$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+56479:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Keken12$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+56608:Shout:HELLSING:WTB [ Vanqui box ] 
+32734:Guild:かじぶうにゃ:おちますーおやすみなさい
+32863:Guild:かじぶうにゃ:おつかれさまです
+32992:Guild:ぴんころ:おやすー
+33121:Guild:諭吉ん家:mi-
+33250:Party:あじのり:{img emoticon_0037 70 70} 
+33379:Guild:あじのり:{img emoticon_0037 70 70} 
+33508:Shout:큐피트:{a SLI 155402224730436131587202501113143831|# 11200356}{#FFFF00}{img icon_item_despairisland_auto_enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20240201_074318$*^{/}{/}{/}
+33637:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG1$*$SELF$*$セガール$*$ITEM$*$[9주년] 그레이트 소드(2)$*$NUM$*$15#@!#@!
+21159:Guild:Awewe:see ya around guys thx for everything {img emoticon_0001 30 30} 
+21288:Guild:Tipsy:best of luck
+21417:Guild:Tipsy:{img Gabija_EarringRaid_emoticon_128 128 128} 
+21546:Guild:BiriBiri:cya Awewe
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+21675:guildmem:guildmem:!@#${WHO}{TYPE}ChatOut$*$WHO$*$Awewe$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+22578:guildmem:guildmem:!@#${WHO}{TYPE}ChatOut$*$WHO$*$Teppo$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+26448:Shout:oぴよまるo:{a SLI 1551539755936630|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}{img emoticonItem_2312_popo_163 30 30} 
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+26964:Shout:ユニベアシティ:{a SLI 1553244857839950|# 11030021}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076753$*^{/}{/}
+27222:Shout:oぴよまるo:{a SLI 1551539755936630|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}3/5{img bakarine_emotion55 30 30} 
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+28383:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$LE15-JP001$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+28512:Shout:ヌイ:{a SLP 1551363662152327}{#FFFF00}{img link_party 24 24}墓地 3run{/}{/}   {a SLI 155344242691014431587202501207095603|# 11200276}{#FFFF00}{img icon_item_BridgeWailing_Party_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230421_071882$*^{/}{/}{/}
+28641:Shout:날고싶은닭:나의싸랑 천쌍 빽옥꼉!~`
+28770:Shout:날고싶은닭:아 18토큰 2일똥나무 2일연장해서 기뻐`~
+28899:Shout:날고싶은닭:권어진 죽여버릴겨`~
+29028:Shout:천상백옥경:그분 이미 트오세 탈주했어 찾지마아아아
+29157:Shout:날고싶은닭:아냐 내가찾아서 복수할겨`
+29286:Shout:천상백옥경:어머나.. 당신의 사랑이라고요? 세상에
+29415:Shout:천상백옥경:{img bakarine_emotion60 30 30} 
+29544:Shout:날고싶은닭:내가 지금술을 너무마니마셨어`~
+29673:Shout:날고싶은닭:ㅁ;읺래~`
+29802:Shout:七転:{a SLP 1553850448219008}{#FFFF00}{img link_party 24 24}ハードレイド三{/}{/}種募集です{img emoticonItem_2412_172 30 30} 
+29931:Shout:날고싶은닭:\
+30060:Shout:七転:{a SLP 1553850448219008}{#FFFF00}{img link_party 24 24}ハードレイド三{/}{/}種、おふたりさま募集です{img glacier_emoticon104 30 30} 
+30318:Shout:ユニベアシティ:{a SLI 155402224733051931587202501221002613|# 10820026}{#FFFF00}{img icon_item_Boss_Roze_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230406_071705$*^{/}{/}{/}
+30447:Guild:아크네:님들
+30576:Shout:HELLSING:WTB [ Vanqui box ] / 뱅퀴셔 박스 삽니다
+30705:Guild:아크네:윙드전직했는데
+30834:Guild:아크네:컴페니언 사야대요?
+30963:Shout:ユニベアシティ:{a SLI 155402224733051931587202501221002613|# 10820026}{#FFFF00}{img icon_item_Boss_Roze_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230406_071705$*^{/}{/}{/} 2/5 help
+31092:Shout:七転:{a SLP 1553850448219008}{#FFFF00}{img link_party 24 24}ハードレイド三{/}{/}種まだ募集中です、タノシイです{img medeina_emotion03 30 30} 
+31221:Shout:ヌイ:{a SLP 1551363662152327}{#FFFF00}{img link_party 24 24}墓地 3run{/}{/}　{a SLI 155344242691014431587202501207095603|# 11200276}{#FFFF00}{img icon_item_BridgeWailing_Party_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230421_071882$*^{/}{/}{/}
+31350:Shout:七転:{a SLP 1553850448219008}{#FFFF00}{img link_party 24 24}ハードレイド三{/}{/}種、若干名募集中です
+31479:Shout:七転:{a SLP 1553850448219008}{#FFFF00}{img link_party 24 24}ハードレイド三{/}{/}種(メレジナゴーレムネリンガ)初見の方もお気軽にどうぞ{img glacier_emoticon105 30 30} 
+31608:Shout:날고싶은닭:나 오늘 서울역 갔다가~~
+31737:Shout:날고싶은닭:거지때려서 파출소갔다왔어
+31866:Shout:날고싶은닭:진짜인생 거지같어`~
+31995:Shout:날고싶은닭:님들도 거지들 조심하셈~`
+32124:Shout:날고싶은닭:막달려들어`~ ㅋ,,ㅋ
+32253:Shout:방상시:나도 10년전에 수원역 거지 때렷는대 난파출손안갓어
+32382:Shout:날고싶은닭:난 발차기한번하구 `~
+32511:Shout:날고싶은닭:고소장어ㅗ다는데 ㅋㅋ뉘미럴
+32640:Shout:날고싶은닭:아몰랑~~
+32769:Shout:날고싶은닭:권어진 사랑ㅇ해 ~~
+32898:Shout:날고싶은닭:그동안 갈궈서 미안햐`~
+33027:Shout:날고싶은닭:너두직원인데 뭔죄가있겠어`~
+33156:Shout:날고싶은닭:너랑나란 오늘부터 1일이야`~
+33285:Shout:七転:{a SLP 1553850448219008}{#FFFF00}{img link_party 24 24}ハードレイド{/}{/}三種類、出発前募集です
+33414:Guild:아크네:{a SLI 155402224732591972938309310125827161089621101257DEF7376594821128472-12305112848NoTrade_EP16_GoddessIcor_Weapon_high101253AllRace_Atk101255Iron_Def725410114267573551204101246BLK10126023051012511204101243Cloth_Def101242DEF10779611045902685101248UTIL_ARMOR10124926851045932716101254ATK|# 11107030}{#FFFF00}{img icon_item_darkneringa_thsword 30 30}+10 [Event] @dicID_^*$ETC_20240910_076373$*^{/}{/}
+33543:Guild:아크네:아이커 이렇게하는거 맞아요?
+33672:Shout:날고싶은닭:나오을술조금마셨어 백옥겨 ㅇ~차ㅉ어`~
+33801:Shout:날고싶은닭:너때문이야`~
+33930:Guild:칠흙:ㅇㅇ
+34059:Shout:ユニベアシティ:{a SLI 155402224733097331587202501221003515|# 10820036}{#FFFF00}{img icon_item_Boss_Slogutis_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20240425_075297$*^{/}{/}{/}2/5
+34188:Shout:날고싶은닭:암튼나랑 사귀면 1일 일 진화석알지?
+34317:Shout:날고싶은닭:싸랑해`~
+34446:Shout:날고싶은닭:써니야 미안해`~
+34575:Shout:날고싶은닭:오빠는 돈을따라갔다 잘살어라`~
+34704:Shout:WolfNuBeast:Q{a SLI 155402224703072331587202501409012433|# 11200281}{#FFFF00}{img icon_item_Boss_Upinis_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230828_072919$*^{/}{/}{/}
+34833:Shout:날고싶은닭:밤양ㄱ앵 3시간뒤에 말하겠지`~
+34962:Shout:날고싶은닭:꼬우면 연설하라구`~
+35349:Shout:銀杏_:{a SLI 1554005067522570|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}{img bakarine_emotion63 30 30} {img bakarine_emotion64 30 30} {img bakarine_emotion64 30 30} {img bakarine_emotion64 30 30} {img bakarine_emotion64 30 30} PLS~
+35478:Shout:ヌイ:{a SLP 1551363662152327}{#FFFF00}{img link_party 24 24}墓地 3run{/}{/}　{a SLI 155344242691014431587202501207095603|# 11200276}{#FFFF00}{img icon_item_BridgeWailing_Party_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230421_071882$*^{/}{/}{/}
+35607:Guild:아크네:컴패니언 머사는게좋나여?
+35736:Shout:ユニベアシティ:{a SLI 155402224733097531587202501221003517|# 10820026}{#FFFF00}{img icon_item_Boss_Roze_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230406_071705$*^{/}{/}{/}
+35865:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Arutala$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+35994:Shout:ユニベアシティ:{a SLI 155402224733097531587202501221003517|# 10820026}{#FFFF00}{img icon_item_Boss_Roze_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230406_071705$*^{/}{/}{/} help
+36123:Shout:tukumotan62:shut you annoying little bitch ,, get help yourselves
+36252:Shout:tukumotan62:chocke on rapist s ****s
+36381:Shout:tukumotan62:is there a way that it doesnt show on my block lists when i block people ,, fcking PHreaks
+36510:Shout:날고싶은닭:뭔소리야
+36639:Shout:날고싶은닭:``죽울래:
+36768:Shout:Gaara:good idea motherf u c k e r going to block you, you **** d i c k you boring asf
+36897:Shout:Gaara:go to hell 
+37026:Shout:영이:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+37155:Shout:날고싶은닭:너나떨어저라~
+37284:Shout:날고싶은닭:니미 짱깨들 
+37413:Shout:날고싶은닭:죽여버린다`~
+37542:Shout:날고싶은닭:씹발넘들이 뒤질라고`
+37671:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Rembran$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+37800:Shout:날고싶은닭:꺼져~개세끼들아`
+37929:Shout:날고싶은닭:아우`~짜장냄새1`~
+38058:Shout:날고싶은닭:꺼져라`~짜장들아`
+38187:Shout:날고싶은닭:지들은  지즐이뭔 잘못한지모르지`
+38316:Shout:날고싶은닭:지들이 `~아술먹어서 오타작렬
+38445:Shout:날고싶은닭:암튼니들은  트우시에서 꺼져라`
+38574:Shout:아크네:컴패니언 상점에서 파는 기본3개 말고 이쁜거 사는방법 없나여
+38703:Shout:날고싶은닭:음  현질해여`
+38832:Shout:날고싶은닭:내일부터 복각이니 거기서 팔수도있음1
+38961:Shout:날고싶은닭:씨박새기들 ~~잘안풀어서문제임~
+39090:Shout:ポチャッコ:{a SLI 1535760046306240|# 11030021}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076753$*^{/}{/}
+39219:Shout:날고싶은닭:너혼자가 개섹야`~
+39348:Shout:날고싶은닭:나술먹고 삐졌어`~
+39477:Shout:날고싶은닭:좋은거하나보여줘`~
+39606:Shout:날고싶은닭:너네들많잖아`~
+39735:Shout:날고싶은닭:{img emoticonItem_2412_175 30 30} 
+39864:Shout:날고싶은닭:{img emoticonItem_2412_174 30 30} \
+40251:Shout:날고싶은닭:난  일본을좋아해`~ 애니부터 야동까지 얼마나사라한다구`~
+40509:Shout:날고싶은닭:너네없으면  나두없어`~
+40767:Shout:銀杏_:{a SLI 1554005067404697|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}{img bakarine_emotion55 30 30} {img bakarine_emotion65 30 30} {img bakarine_emotion65 30 30} {img bakarine_emotion65 30 30} {img bakarine_emotion65 30 30} PLSPLS~
+40896:Shout:날고싶은닭:타임워치는 나두 좋아해`~
+41412:Shout:날고싶은닭:아무튼 기무치야`~
+41799:Shout:날고싶은닭:한국사람은  권어진같이생기진않았어`~
+41928:Shout:Gamma:날닭님 흑화했네 존버단 불러
+42315:Shout:날고싶은닭:나두 권어진보구싶어``
+42444:Shout:날고싶은닭:와 존버단을알다니`
+42573:Shout:날고싶은닭:그아가씨 ~~도망감~`
+42702:Shout:Gamma:{img emoticonItem_2402_1 30 30} 
+42831:Shout:날고싶은닭:난 워낙 고인물이라 날 받아줄때도 이젠 어뵤지`~
+42960:Shout:날고싶은닭:닌 트우시 쓰래기지`
+43089:Shout:날고싶은닭:난 그렇게 없어지는거지`
+43218:Shout:날고싶은닭:하지만~~
+43347:Shout:날고싶은닭:권어진을 싫어하구`
+43476:Shout:날고싶은닭:트우시를사랑하지`~
+43605:Shout:Gamma:권어진이 잘못했네 권성동 같은넘인가
+43734:Shout:날고싶은닭:아니 같은권씨야?
+43863:Shout:날고싶은닭:아`~씨발이네`~
+43992:Shout:날고싶은닭:암튼 난 쓰레기네`1~
+44121:Shout:날고싶은닭:다들 나를 맛있게 먹어죠`
+44250:Shout:コモレビ:{a SLI 1554103851366108|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}　ヒーラーで2周します
+44379:Shout:날고싶은닭:너혼자하라구`~
+44508:Shout:날고싶은닭:야매때`~
+44637:Shout:ポチャッコ:{a SLI 155402224733277031587202501221012314|# 10820036}{#FFFF00}{img icon_item_Boss_Slogutis_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20240425_075297$*^{/}{/}{/}
+44766:Shout:날고싶은닭:젓같은권어진~
+44895:Shout:날고싶은닭:씨발넘
+45024:Guild:아크네:우피니스 솔플 어렵네 ㄷㄷ
+45153:Shout:날고싶은닭:또지이름은 써지네
+45282:Shout:날고싶은닭:권어진 사랑해`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+45411:Shout:날고싶은닭:구너어진남자일까 여자일까?~
+45540:Shout:날고싶은닭:아씨발 구어진아니구 권어자
+45669:Shout:날고싶은닭:남자일/가 여자일까?
+45798:Shout:ポチャッコ:{a SLI 155402224733277031587202501221012314|# 10820036}{#FFFF00}{img icon_item_Boss_Slogutis_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20240425_075297$*^{/}{/}{/}-4
+45927:Shout:コモレビ:{a SLI 1554103851366108|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}　２/5
+46056:Guild:아크네:와 몽숲 솔플8분걸림
+46185:Shout:별꼬마:{a SLI 1553532621030171|# 11210027}{#FFFF00}{img item_Boss_CrystalGolem_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075946$*^{/}{/}
+46314:Shout:コモレビ:{a SLI 1554103851366108|# 11210023}{#FFFF00}{img item_Boss_DarkNeringa_Auto_Enter 30 30}@dicID_^*$ETC_20240902_075940$*^{/}{/}　3/5
+46443:Shout:ポチャッコ:{a SLI 155402224733277131587202501221012319|# 10820026}{#FFFF00}{img icon_item_Boss_Roze_Auto_Enter 30 30}{img test_cooltime 30 30}@dicID_^*$ETC_20230406_071705$*^{/}{/}{/}-4
+46572:Shout:PomPomプリン:{a SLI 1554022247333551|# 11200312}{#FFFF00}{img icon_item_misc_boss_Upinis 30 30}@dicID_^*$ETC_20230828_072954$*^{/}{/}　am  -3
+46701:Guild:ItzeliaL:anyone dreamy forest auto match ?
+46830:Shout:PomPomプリン:{a SLI 1554022247333552|# 11200316}{#FFFF00}{img icon_item_misc_boss_Slogutis 30 30}@dicID_^*$ETC_20230828_072962$*^{/}{/} am -4
+46959:Guild:칠흙:here let's go
+47088:Shout:Gaara:{a SLI 155410385136813331587202501308020333|# 641954}{#FFFF00}{img icon_item_ChallengeEnter 30 30}{img test_cooltime 30 30}@dicID_^*$ITEM_20241111_028928$*^{/}{/}{/} 10 runs pls join queue
+47346:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$설기$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+47604:Shout:エネロ:{a SLI 1521500754687049|# 10000470}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076791$*^{/}{/}2run
+47733:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Monkee$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+47862:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$EDDIELOTT$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+47991:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$asiakolba$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+48120:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$963$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+48249:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$조준호$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+48378:Guild:조준호:안녕하세요
+48507:Shout:asgardJay:{a SLI 1521500754581886|# 10000470}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076791$*^{/}{/}
+48636:Shout:asgardJay:{a SLI 1521500754581886|# 10000470}{#FFFF00}{img icon_item_expertmode_enter 30 30}@dicID_^*$ETC_20241111_076791$*^{/}{/}
+48894:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG1$*$SELF$*$D-Kurea$*$ITEM$*$[라다] 템서스 플랑베르쥬$*$NUM$*$15#@!#@!
+49023:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$JBOYS$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 000000014E15D498
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 00000000C5B74DF8
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 00000001239B24E8
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 00000001193AF448
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 0000000142274C48
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+36508:Guild:아크네:주화 1700만개는 어떻게얻는거죠 ㄷ
+36637:Guild:빠다와플:주화가
+36766:Guild:빠다와플:많아여 이게임에
+36895:Guild:빠다와플:종류가
+37024:Guild:아크네:경매장에
+37153:Guild:아크네:블랙마켓
+37282:Guild:빠다와플:넹
+37411:Guild:아크네:지금 입찰이 1700만인데
+37540:Guild:아크네:어케그리많이벌죠
+37669:Guild:빠다와플:.........?
+37798:Guild:빠다와플:실버 어케 그렇게 마니 벌었냐고여?
+37927:Guild:아크네:아녀 이거 실버론 못하고
+38056:Guild:아크네:주화로만 입찰되는것같은데
+38185:Guild:아크네:주화가 1700만임
+38314:Guild:빠다와플:주화가뭔뎈ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+38443:Guild:아크네:그냥 주화라고만되어잇는데..
+38572:Guild:아크네:여신의증표 유라테 네
+38701:Guild:빠다와플:아 블랙마켓
+38830:Guild:빠다와플:그거도 레티샤하면 나와여
+38959:Guild:아크네:아
+39088:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+39217:Guild:아크네:레티샤깡
+39346:Guild:빠다와플:아저시
+39475:Guild:빠다와플:좋은말할때 게임삭제해주세요
+39604:Guild:빠다와플:감사합니다
+39733:Guild:빠다와플:{img emoticon_0008 70 70}
+39862:Guild:빠다와플:옹 그새 만렙찍으셨네?ㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+39991:Guild:아크네:저이미
+40120:Guild:아크네:많이썻어여 ..ㅎㅎ
+40249:Guild:빠다와플:아니 이겜 무ㅓ살게없는데
+40378:Guild:빠다와플:...........?
+40507:Guild:빠다와플:빨리 길드들어가세여
+40636:Guild:빠다와플:혼자 이상한거 사지말구
+40765:Guild:빠다와플:물어보면서 사세여
+40894:Guild:아크네:1주일지나면 받아준데여
+41023:Guild:빠다와플:성장길드는 탈퇴패널티 없어여
+41152:Guild:빠다와플:여기는 나가면 바로 다른길드 가입가능
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 00000000C58CB408
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+42055:Shout:モナ:{a SLP 1554335779520563}{#FFFF00}{img link_party 24 24}3レイド{/}{/}＠２募集です
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 00000000EE0747A8
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+ui::CSlotSet: 000000010EB96588
+45151:Shout:HELLSING:WTB [ Vanquisher box ] / 뱅퀴셔 해금 삽니다
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+45667:Guild:아크네:운영자님 해금권좀
+45796:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$OTriCRang$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+45925:Guild:아크네:팔아주세요
+46054:Shout:빠다와플:WTB snow leopard headband 10m
+47473:Shout:아크네:뱅퀴셔해금권 1.5억삼 ㅅㅅㅅㅅ
+47602:Guild:빠다와플:저한테 1억만 주세요 감사합니다
+48247:Guild:아크네:해금권주세요..
+49021:Guild:빠다와플:힘내세오
+49150:Guild:아크네:이럴줄알앗으면 스카우트벌쳐핧걸
+49279:Guild:빠다와플:계정새로파면..대자..나,,
+49408:Guild:빠다와플:바......보.................
+49537:Guild:아크네:이미여기에
+49666:Guild:아크네:많은노력과
+49795:Guild:아크네:시간과
+49924:Guild:아크네:돈을
+50053:Guild:아크네:썻서요
+50182:Guild:빠다와플:그렇다면 후회하지마십쑈!!!!!!!!!!!!!
+50311:Guild:빠다와플:이미늦었따 뱅퀴셔가는거야
+50440:Guild:빠다와플:{img emoticon_0016 70 70}
+50569:Guild:아크네:운영자나와!!@!@
+50698:Guild:빠다와플:퇴근햇써!!!!!!!!!!
+50827:Guild:자곡동:이번 레티샤 창렬이네
+50956:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+51085:Guild:아크네:다음달까지 윙드하면
+51214:Guild:아크네:폐사각
+51343:Guild:자곡동:다음달에는 뱅퀴 풀어야되는거아닌감
+51472:Shout:빠다와플:머리띠 팔아줘 인터네쇼널친구드라,,
+51601:Guild:Neinee:lol what 
+51730:Guild:아크네:근데
+51859:Guild:아크네:만렙찍고나선
+51988:Guild:아크네:뭐해야되죠
+52117:Guild:빠다와플:던전뺑이치기
+52246:Guild:아크네:레이드..?
+52375:Guild:빠다와플:끝
+52504:Guild:자곡동:pvp 생각있으면 갈길이 멀긴한데
+52633:Guild:자곡동:그거아니면 장비강화나 하다가 폐사죠
+52762:Guild:아크네:강화재료파밍을
+52891:Guild:아크네:어디서하져
+53020:Guild:빠다와플:던죤
+53149:Guild:자곡동:레이드용
+53278:Guild:아크네:레벨던전?
+53407:Guild:자곡동:520제 방어구 맞췄으면
+53536:Guild:빠다와플:검은계시-무기 광산-방어구 절망섬-악세
+53665:Guild:자곡동:검은계시, 
+53794:Guild:자곡동:ㅇㅇ
+53923:Guild:빠다와플:{img emoticon_0008 70 70}
+54052:Guild:자곡동:저렇게 돌아서 재료파밍하면서 강화하면되요
+54181:Guild:아크네:오
+54310:Guild:아크네:감사합니다
+54439:Guild:아크네:오토누가 잡아줄때까지 존버
+54568:Guild:자곡동:그리고 tos주화랑 용증써서 분열 꾸준히 도세요
+54697:Guild:아크네:ㅋㅋ
+54826:Guild:아크네:검은계시
+54955:Guild:아크네:기어스점수안되네
+55084:Guild:자곡동:25000안됨?
+55213:Guild:아크네:27000
+55342:Guild:아크네:컷이더라구요
+55471:Guild:아크네:저25000이라서
+55600:Guild:아크네:1인은 들어가지려나
+55729:Guild:자곡동:ㅇㅇ 1인
+55858:Guild:빠다와플:들어가서 레이저맞고 죽는소리들려주세요
+55987:Guild:빠다와플:감사합니다
+56116:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$요하하하$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+56245:Guild:자곡동:암튼 레티샤 3달째 창렬
+56374:Guild:아크네:헉 계시1인 개빡신데여
+56503:Shout:흔직세:폐급 인원 데려갈 길드있나요?
+56632:Guild:자곡동:그 칼질 좀 피하면서 딜해야되요
+56761:Guild:아크네:뉴비폐사한다
+57019:Guild:자곡동:방어구 계승했어요?
+57148:Guild:아크네:넹
+57406:Guild:아크네:성물안터트려서그런가
+57664:Guild:빠다와플:바이보라 똑바로 껴주세요
+57793:Guild:빠다와플:감사합니다
+57922:Guild:아크네:아
+58051:Guild:아크네:그러네 응들어간거 4개해서
+58180:Guild:아크네:약한듯
+58309:Guild:아크네:협응
+58438:Guild:자곡동:신의위세랑
+58567:Guild:빠다와플:응X4
+58696:Guild:아크네:오늘 당연히 뱅퀴셔나올줄알고 바이보라 뱅퀴셔꺼 받아놈 ㅎㅎ
+58825:Guild:자곡동:님 나머지 직업 2개 뭐임
+58954:Guild:빠다와플:ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+59083:Guild:아크네:템플러 매화요
+59212:Guild:자곡동:템플러꺼
+59341:Guild:자곡동:윙드 템플러
+59470:Guild:아크네:에반데
+59599:Guild:자곡동:글고 특성 몇렙이에요
+59728:Guild:아크네:특성앵간한건 다찍긴햇는데
+59857:Guild:자곡동:상급도?
+59986:Guild:아크네:넹
+60115:Guild:자곡동:그럼 절망이랑 광산부터 돌아보세요
+60244:Guild:자곡동:거긴 할만할거임
+60373:Guild:아크네:넹
+60502:Guild:Neinee:hard raid?
+60631:Guild:빠다와플:no 1 person
+60760:Guild:Neinee:ha i see
+60889:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$요하하하$*$PC$*$donghaha#@!#@!
+nghaha#@!#@!
+nghaha#@!#@!
+61018:Guild:아크네:바이보라는
+61147:Guild:아크네:왼손오른손 상관없이 발라도되는거죠
+61276:Guild:자곡동:네
+44871:Shout:바셀린:그럼 좆됐나요?
+45387:Shout:쵸파:이게 누구야 바셀린아니야
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+-1
+35
+281
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+46032:Shout:메구:wts > Giltine card
+46161:Shout:아크네:님들 헤어랑 디자인컷 차이가 머죠?
+46290:Shout:바셀린:디자인컷은 돌려쓰기가가능해요감사합니다
+46419:Shout:히토시즈쿠:디자인컷은 가발 헤어는 캐릭터에 영구적용 아닌가
+46548:Guild:빠다와플:디자인컷이 가발이엇어?
+46806:Guild:빠다와플:가발 따로있는거아님?
+46935:Shout:Zenkins:디자인컷은 염색약 여러 종류가 적용되어 있는 가발
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+47451:Shout:디사나:저 거래소가 어딘가요????
+47580:Guild:빠다와플:조나 어지럽다
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+49773:Shout:로동조합:{a SLM 1001#316#235}{#FFFF00}{img link_map 24 24}@dicID_^*$ETC_20150317_001144$*^{/}{/} 클라페다 기준으론 여기고 마을아무데서나 접속가능해여
+50449:System:System:{#DD0000}!@#$StartBlackMarketBetween{Start}And{End}$*$Start$*$2025-01-07 06:00:00$*$End$*$2025-01-08 00:00:00#@!
+50803:Shout:디사나:감사해요^^
+51190:Shout:Zenkins:미니맵 옆에 상점 펼쳐보기 -> 마켓 으로 접근 가능
+51319:Shout:七転:{a SLP 1554335779520761}{#FFFF00}{img link_party 24 24}三種レイド{/}{/}募集です{img baiga_emotion01 30 30} 
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+-1
+63:315
+51577:Shout:히토시즈쿠:고양이젤리 길드원 상시모집중 오르샤 3채로
+51835:Shout:히토시즈쿠:애옹
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+51964:Shout:빠다와플:WTB baby snow leopard headband 10m
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+-1
+63:315
+52738:Shout:수도:{img bakarine_emotion69 30 30} 
+53125:Shout:쵸파:키무라 하큐가 싫기때무네 다시 가보겠습니다 새해복많이받으세오
+[Execute] dofile("../data/addon_d/another_warehouse/another_warehouse.lua")
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+63:315
+53641:Shout:디사나:저 탈것은 머로 검색해야하나요?
+53770:Shout:공주:탈 띄고 것 치셈 
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+53899:Shout:Zenkins:혹은 등록증으로 검색
+54157:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$QUI3T$*$PC$*$SNAK3#@!#@!
+!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$QUI3T$*$PC$*$SNAK3#@!#@!
