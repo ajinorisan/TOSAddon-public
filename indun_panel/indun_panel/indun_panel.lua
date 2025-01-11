@@ -49,10 +49,11 @@
 -- v1.4.9 レイドチケット周り修正、ヴェルニケチケ修正
 -- v1.5.0 ヴェルニケチケット周り再修正。チャレと分裂のチケット使用時のコード見直し。
 -- v1.5.1 装備加工とか付けた。ヴェルニケバグってたクヤシイTOSイベコイン表示とか。レティワープ付けた。
+-- v1.5.2 バグ修正
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.1"
+local ver = "1.5.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -191,7 +192,7 @@ function indun_panel_frame_init()
         local time = os.date("*t")
         local hour = time.hour
 
-        if hour >= 5 and hour <= 6 and g.ex == 1 then
+        if hour >= 5 and hour <= 6 and g.ex ~= 2 then
             pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
             local ets_frame = ui.GetFrame('earthtowershop')
             ets_frame:RunUpdateScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART", 0.2)
@@ -660,6 +661,17 @@ end
 function indun_panel_frame_contents(frame)
 
     local frame = ui.GetFrame("indun_panel")
+    local account_obj = GetMyAccountObj()
+    local tos_coin_count = GET_CHILD_RECURSIVELY(frame, "tos_coin_count")
+    if tos_coin_count ~= nil then
+        local coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
+        tos_coin_count:SetText(string.format("{ol}{#FFD900}{s18}%s", coin_count))
+    end
+    local pvpminecount = GET_CHILD_RECURSIVELY(frame, "pvpminecount")
+    if pvpminecount ~= nil then
+        local coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "MISC_PVP_MINE2", "0"))
+        pvpminecount:SetText(string.format("{ol}{#FFD900}{s18}%s", coin_count))
+    end
     local y = 45
     local x = 135
     local count = #induntype
@@ -1036,16 +1048,18 @@ function indun_panel_frame_contents(frame)
                             function indun_panel_buyuse_vel(frame, ctrl, recipename, indun_type)
 
                                 local count = GET_CURRENT_ENTERANCE_COUNT(
-                                    GetClassByType("Indun", indunType).PlayPerResetType)
+                                    GetClassByType("Indun", indun_type).PlayPerResetType)
+
                                 local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipename)
 
-                                local vel_oneday_ticket = 11030169 -- Ticket_Bernice_Enter_1d
+                                local vel_oneday_ticket = 11030169 or 11030257 -- Ticket_Bernice_Enter_1d
 
                                 session.ResetItemList()
                                 local invItemList = session.GetInvItemList()
                                 local guidList = invItemList:GetGuidList()
                                 local cnt = guidList:Count()
                                 if count == 1 then
+
                                     for i = 0, cnt - 1 do
                                         local use_item = session.GetInvItemByType(vel_oneday_ticket)
                                         if use_item ~= nil then
@@ -1476,6 +1490,11 @@ function INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
     return nil
 end
 
+function indun_panel_TPITEM_CLOSE(frame, msg)
+
+    indun_panel_frame_init()
+end
+
 function INDUN_PANEL_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -1498,10 +1517,11 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             indun_panel_frame_init()
         end
 
-        if g.ex == nil and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
+        if g.ex ~= 1 and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
             addon:RegisterMsg('GAME_START', "indun_panel_minimized_pvpmine_shop_init") -- shopframe:Resize(580, 1920)
         end
         g.SetupHook(indun_panel_INDUN_ALREADY_PLAYING, "INDUN_ALREADY_PLAYING")
+        acutil.setupEvent(addon, "TPITEM_CLOSE", "indun_panel_TPITEM_CLOSE");
     else
         indun_panel_autozoom_init()
     end

@@ -8,18 +8,34 @@
 -- v1.0.8 キャラの装備詳細見れる様にした。でも同一バラックじゃないと無理／(^o^)＼ 他の装備LVも可視化
 -- v1.0.9 バグ修正
 -- v1.1.0 高速化。ギアスコア表示。セーブデータは一旦消えます(´;ω;｀)
+-- v1.1.1 セーブファイルの呼出修正
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/new2_settings.json', addonNameLower)
+local function unicode_to_codepoint(char)
+    local codepoint = utf8.codepoint(char)
+    return string.format("%X", codepoint)
+end
 
+local function convert_to_ascii(input)
+    local result = ""
+    for char in input:gmatch(utf8.charpattern) do
+        result = result .. unicode_to_codepoint(char)
+    end
+    return result
+end
+
+local input = GETMYFAMILYNAME()
+local output = convert_to_ascii(input)
+g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, output .. "2501")
+g.changeFileLoc = string.format('../addons/%s/%s.json', addonNameLower, "change" .. output .. "2501")
 local acutil = require("acutil")
 local json = require('json')
 local os = require("os")
@@ -34,6 +50,23 @@ function g.SetupHook(func, baseFuncName)
     end
     base[baseFuncName] = _G[replacementName]
 end
+
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 local jatbl = {
     ["Common_Peltasta_HardShield"] = "ハードシールド",
@@ -137,8 +170,6 @@ local entbl = {
     ["Common_Recovery"] = "Recovery"
 
 }
-
-g.changeFileLoc = string.format('../addons/%s/change.json', addonNameLower)
 
 function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
 
@@ -260,7 +291,6 @@ function other_character_skill_list_load_settings()
         for i = 0, barrackPCCount - 1 do
             local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
             local barrackPCName = barrackPCInfo:GetName()
-
             change[barrackPCName] = "0"
         end
         g.change = change
@@ -498,7 +528,10 @@ function other_character_skill_list_save_enchant()
         end
 
     else
-        print("File not found or unable to open: " .. path)
+        --[[local file = io.open(path, "w")
+        file:write({})
+        file:Close()
+        -- print("File not found or unable to open: " .. path)]]
     end
 
 end
@@ -963,8 +996,8 @@ function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
             x = x + 25
             cnt = cnt + 1
 
-        else
-            print("File not found or unable to open: " .. path)
+            -- else
+            -- print("File not found or unable to open: " .. path)
         end
 
     end
