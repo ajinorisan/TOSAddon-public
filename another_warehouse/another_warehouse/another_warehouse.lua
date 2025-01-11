@@ -20,10 +20,11 @@
 -- v1.2.0 検索を有効に。その他些末なバグ修正。
 -- v1.2.1 あかんバグ修正
 -- v1.2.2 入庫時に引っ掛かりにくくなったハズ。テストは足りてない。
+-- v1.2.3 入庫時の引っ掛かりバグ完全に直った。IMCに勝った。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.2"
+local ver = "1.2.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1367,16 +1368,17 @@ function another_warehouse_item_put(frame)
                     local count = itemData.count
                     local invcount = itemData.invcount
 
-                    another_warehouse_checkvalid(guid)
-                    local exist, index = another_warehouse_get_exist_item_index(inv_obj)
-
                     local goal_index = 0
+                    goal_index = another_warehouse_get_goal_index()
+                    --[[local exist, index = another_warehouse_get_exist_item_index(inv_obj)
                     if exist == true and index >= 0 then
                         goal_index = index
-                    else
-                        goal_index = another_warehouse_get_goal_index()
-                    end
 
+                        print(tostring(exist) .. ":" .. index .. ":" .. goal_index)
+                    else
+                        another_warehouse_checkvalid(guid)
+                    end]]
+                    another_warehouse_checkvalid(guid)
                     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(count),
                         warehouseFrame:GetUserIValue("HANDLE"), goal_index)
                     another_warehouse_item_put_to(guid, count, goal_index, clsID, invcount)
@@ -1529,6 +1531,7 @@ function another_warehouse_get_exist_item_index(itemObj)
             local invItem = itemList:GetItemByGuid(guid)
             local invItem_obj = GetIES(invItem:GetObject());
             if itemObj.ClassID == invItem_obj.ClassID then
+
                 ret1 = true
                 ret2 = invItem.invIndex
                 break
@@ -2392,7 +2395,6 @@ function another_warehouse_checkvalid(iesid)
 
     local obj = GetIES(invItem:GetObject())
     local itemcnt = another_warehouse_item_count()
-
     local maxcount = another_warehouse_get_maxcount()
 
     if maxcount <= itemcnt then
@@ -2428,19 +2430,19 @@ end
 
 function another_warehouse_putitem(iesid, count)
 
-    another_warehouse_checkvalid(iesid)
+    -- another_warehouse_checkvalid(iesid)
 
     local invItem = session.GetInvItemByGuid(iesid)
     local invItem_obj = GetIES(invItem:GetObject());
 
-    local exist, index = another_warehouse_get_exist_item_index(invItem_obj)
-
     local goal_index = another_warehouse_get_goal_index()
-
+    --[[local exist, index = another_warehouse_get_exist_item_index(invItem_obj)
     if exist == true and index >= 0 then
         goal_index = index
-    end
-
+    else
+        another_warehouse_checkvalid(iesid)
+    end]]
+    another_warehouse_checkvalid(iesid)
     local frame = ui.GetFrame("accountwarehouse")
 
     -- item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
@@ -2448,7 +2450,13 @@ function another_warehouse_putitem(iesid, count)
 
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
         frame:GetUserIValue("HANDLE"), goal_index)
-
+    local gbox_warehouse = GET_CHILD_RECURSIVELY(frame, "gbox_warehouse");
+    if gbox_warehouse ~= nil then
+        gbox_warehouse:UpdateData();
+        -- gbox_warehouse:SetCurLine(0);
+        -- gbox_warehouse:InvalidateScrollBar();
+        frame:Invalidate();
+    end
 end
 
 function another_warehouse_active_mousebutton()

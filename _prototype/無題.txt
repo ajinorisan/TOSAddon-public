@@ -15015,3 +15015,23 @@ File not found or unable to open: ../addons/other_character_skill_list/155387621
 53899:Shout:Zenkins:혹은 등록증으로 검색
 54157:guildmem:guildmem:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$QUI3T$*$PC$*$SNAK3#@!#@!
 !@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$QUI3T$*$PC$*$SNAK3#@!#@!
+106128:Shout:빠다와플:{a SLI 1552978570046209|# 641963}{#FFFF00}{img icon_item_ChallengeEnter 30 30}@dicID_^*$ITEM_20241111_028926$*^{/}{/}
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+File not found or unable to open: ../addons/other_character_skill_list/1553876218020809.json
+106257:GuildNotice:4lkruzeth:Greetings Saviors! We will be hosting Giltine Guild Mission at 22:30 SVT!
+106386:Shout:루잉:{a SLP 1554335779521075}{#FFFF00}{img link_party 24 24}골계절{/}{/} 골렘 계시 절망 (계시만해도되는파티) 힐러구합니다
+106515:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$융합$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+106805:System:System:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$요하하하$*$PC$*$donghaha#@!#@!
+!@#!@#ahahgnod$*$CP$*$형형픚*$FLES$*$3GSM_METSYS_DLIUG$#@!$*$GSM$*$^*$022000_71305102_IU$*^_DIcid@$*$EPYT$*$}GSM{}EPYT{gsMpuorG$#@!
+start_pos[$*$SELF$*$]:35
+start_pos:35
+end_pos[$*$PC$*$]:15
+요하하하
+요하하하
+!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*${#FF0000}★{/}ジョハハハ$*$PC$*$donghaha#@!#@!
+[Execute] dofile("../data/addon_d/native_lang/native_lang.lua")
+106934:System:System:!@#$GroupMsg{TYPE}{MSG}$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^$*$MSG$*$!@#$GUILD_SYSTEM_MSG3$*$SELF$*$요하하하$*$PC$*$donghaha#@!#@!
+107063:guildmem:guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$Alfp$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!
