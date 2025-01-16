@@ -9,26 +9,11 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-local function unicode_to_codepoint(char)
-    local codepoint = utf8.codepoint(char)
-    return string.format("%X", codepoint)
-end
-
-local function convert_to_ascii(input)
-    local result = ""
-    for char in input:gmatch(utf8.charpattern) do
-        result = result .. unicode_to_codepoint(char)
-    end
-    return result
-end
-
-local input = GETMYFAMILYNAME()
-local output = convert_to_ascii(input)
-g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, output .. "2501")
+local active_id = session.loginInfo.GetAID()
+g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, active_id)
 
 local acutil = require("acutil")
 local json = require('json')
-
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
@@ -72,7 +57,7 @@ function vakarine_equip_load_settings()
     if not settings then
         settings = {
             buffid = {},
-            delay = 0.2
+            delay = 0.25
         }
     end
 
@@ -101,24 +86,14 @@ function vakarine_equip_load_settings()
     vakarine_equip_save_settings()
 
     g.util_tbl = {}
-
     for i, equip_name in ipairs(equips_tbl) do
-        g.util_tbl[i] = {}
-        table.insert(g.util_tbl[i], {equips_tbl[i], equip_index[i], "0"})
-        local equip_index = check_equip_tbl[i]
-        g.util_tbl[i][equip_name][equip_index] = {}
-        g.util_tbl[i][equip_name][equip_index] = g.settings[g.cid]["equip_tbl"][equip_name]
+        if g.settings[g.cid]["equip_tbl"][equip_name] == 1 then
+            table.insert(g.util_tbl, {equips_tbl[i], equip_index[i], 1})
+        else
+            table.insert(g.util_tbl, {equips_tbl[i], equip_index[i], 0})
+        end
     end
 
-    --[[for i, equip in ipairs(g.util_tbl) do
-        print("Index " .. i .. ":")
-        for equip_name, equip_data in pairs(equip) do
-            print("  Equip Name: " .. equip_name)
-            for equip_index, value in pairs(equip_data) do
-                print("    Equip Index: " .. equip_index .. ", Value: " .. value)
-            end
-        end
-    end]]
 end
 
 function vakarine_equip_pic_lbtn(frame, ctrl, str, num)
@@ -130,7 +105,7 @@ function vakarine_equip_pic_lbtn(frame, ctrl, str, num)
     pic:SetImage("itemslot_alchemy_mark")
     pic:SetEnableStretch(1);
     pic:EnableHitTest(1)
-    -- pic:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_list")
+
     if ctrl ~= "GAME_START" then
         if g.settings[g.cid].use == 0 then
             g.settings[g.cid].use = 1
@@ -164,7 +139,7 @@ function vakarine_equip_pic_rbtn()
     local config_gb = frame:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
     AUTO_CAST(config_gb)
     config_gb:SetSkinName("bg")
-    frame:SetPos(120, 50)
+    frame:SetPos(510, 10)
 
     function vakarine_equip_config_close(frame, ctrl, str, num)
         frame:ShowWindow(0)
@@ -208,10 +183,6 @@ function vakarine_equip_pic_rbtn()
         if equip_name == "RH_SUB" or equip_name == "LH_SUB" then
             g.settings[g.cid]["equip_tbl"]["RH_SUB"] = ischeck
             g.settings[g.cid]["equip_tbl"]["LH_SUB"] = ischeck
-            vakarine_equip_pic_rbtn()
-        elseif equip_name == "RH" or equip_name == "LH" then
-            g.settings[g.cid]["equip_tbl"]["RH"] = ischeck
-            g.settings[g.cid]["equip_tbl"]["LH"] = ischeck
             vakarine_equip_pic_rbtn()
         end
         vakarine_equip_save_settings()
@@ -258,139 +229,101 @@ function vakarine_equip_switching(frame, msg, str, num)
     pic:EnableHitTest(1)
     pic:SetEventScript(ui.LBUTTONUP, "vakarine_equip_pic_lbtn")
     pic:SetEventScript(ui.RBUTTONUP, "vakarine_equip_pic_rbtn")
+    -- 良くないね
+    -- pic:SetEventScript(ui.RBUTTONDOWN, "vakarine_equip_buff_list")
     pic:SetTextTooltip(g.lang == "Japanese" and
                            "{ol}Vakarine Equip{nl}左クリックでON/OFF切替{nl}右クリックで設定" or
                            "{ol}Vakarine Equip{nl}Left click to switch ON/OFF{nl}Right click to config")
     vakarine_equip_pic_lbtn(frame, msg, str, num)
 end
 
-function vakarine_equip_unequip_(equip_index)
-    item.UnEquip(equip_index)
-end
-
 function vakarine_equip_unequip(frame, msg, str, num)
 
-    session.ResetItemList();
-    local equip_item_list = session.GetEquipItemList();
+    for i, data in ipairs(g.equip_tbl) do
+        local equip_name = data[1]
+        if equip_name == "NECK" then
+            g.neck = true
+        end
 
-    local delay = 0
-    for i, equip in ipairs(g.util_tbl) do
-        for equip_name, equip_data in pairs(equip) do
-            for equip_index, use_value in pairs(equip_data) do
-                if use_value ~= 0 then
-                    print(equip_name)
-                    local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-                    local iesid = equip_item:GetIESID()
-                    if iesid ~= "0" then
-                        ReserveScript(string.format("vakarine_equip_unequip_(%d)", equip_index), delay)
-                        delay = g.settings.delay + delay
-                        break
-                    end
-                end
-                break
+        local equip_index = data[2]
+        local iesid = data[3]
+        local use = data[4]
+        item.UnEquip(equip_index)
+        if use == 1 then
+
+            data[4] = 0
+            if i ~= #g.equip_tbl then
+                ReserveScript("vakarine_equip_unequip()", g.settings.delay - 0.05)
+            else
+                ReserveScript("vakarine_equip_item_equip()", g.settings.delay)
+
             end
-            break
+            return
         end
     end
-    ReserveScript(string.format("vakarine_equip_item_equip(%d)", delay), delay)
-    local frame = ui.GetFrame("inventory")
-    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-        DO_WEAPON_SLOT_CHANGE(frame, 1)
-    else
-        DO_WEAPON_SWAP(frame, 1)
-    end
+
 end
 
-function vakarine_equip_item_equip_(item_index, equip_name)
-    ITEM_EQUIP(item_index, equip_name)
-end
+function vakarine_equip_item_equip()
 
-function vakarine_equip_item_equip(delay)
-    print(delay)
-    -- g.equip_iesids[equip_name], {equip_index, iesid})
-    local equip_item_list = session.GetEquipItemList();
-    for i, equip in ipairs(g.util_tbl) do
-        for equip_name, equip_data in pairs(equip) do
-            for equip_index, use_value in pairs(equip_data) do
-                if use_value ~= 0 then
-                    local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-                    local iesid = equip_item:GetIESID()
-                    if equip_name == "NECK" then
-                        local type = 584103 -- アニマス
-                        equip_item = session.GetInvItemByType(type)
-                        if equip_item == nil then
-                            equip_item = session.GetInvItemByGuid(iesid);
-                        end
-                    end
-
-                    if iesid ~= "0" then
-                        ReserveScript(string.format("vakarine_equip_item_equip_(%d,'%s')", equip_index, equip_name),
-                            delay)
-                        delay = g.settings.delay + delay
-                        print(delay)
-                        break
-                    end
-                end
-                break
-            end
-            break
+    if not g.neck then
+        local type = 584103 -- アニマス
+        local inv_item = session.GetInvItemByType(type)
+        if inv_item ~= nil then
+            local inv_index = inv_item.invIndex
+            ITEM_EQUIP(inv_index, "NECK")
+            g.neck = true
+            ReserveScript("vakarine_equip_item_equip()", g.settings.delay)
+            return
         end
     end
 
-    --[[for i, equip in ipairs(g.util_tbl) do
-        local equip_name = equips_tbl[i]
-        local equip_index = check_equip_tbl[i]
-        local use_value = g.util_tbl[i][equip_name][equip_index]
-        if use_value ~= 0 and use_value ~= nil then
-            local iesid = g.equip_iesids[equip_name]
-            if iesid then
-                local equip_item = session.GetInvItemByGuid(iesid);
-                if equip_name == "NECK" then
-                    local type = 584103 -- アニマス
-                    equip_item = session.GetInvItemByType(type)
-                    if equip_item == nil then
-                        equip_item = session.GetInvItemByGuid(iesid);
-                    end
-                end
-                if equip_item ~= nil then
-                    local item_index = equip_item.invIndex
-                    g.equip_iesids[equip_name] = nil
-                    ReserveScript(string.format("vakarine_equip_item_equip_(%d,'%s')", item_index, equip_name), delay)
-                    delay = g.settings.delay + delay
-                    print(delay)
+    for i, data in ipairs(g.equip_tbl) do
+        local equip_name = data[1]
+        local equip_index = data[2]
+        local iesid = data[3]
+        local use = data[4]
+        if use == 0 then
+            data[4] = 1
+            local inv_item = session.GetInvItemByGuid(iesid);
+
+            if equip_name == "NECK" then
+                local type = 584103 -- アニマス
+                inv_item = session.GetInvItemByType(type)
+                if inv_item == nil then
+                    inv_item = session.GetInvItemByGuid(iesid);
                 end
             end
+            local inv_index = inv_item.invIndex
+            ITEM_EQUIP(inv_index, equip_name)
+            if i ~= #g.equip_tbl then
+                ReserveScript("vakarine_equip_item_equip()", g.settings.delay)
+            else
+                ReserveScript("vakarine_equip_equips_check()", g.settings.delay)
+            end
+            return
         end
-    end]]
-    ReserveScript("vakarine_equip_equips_check()", delay)
-    return
+    end
 end
 
 function vakarine_equip_equips_check()
-    local equipItemList = session.GetEquipItemList();
-    local cnt = equipItemList:Count();
 
-    --[[local check_equip_tbl = {8, 9, 30, 31, 19, 17, 18, 3, 14, 4, 5, 34, 33}
-    local check_str_tbl = {"NoWeapon", "NoWeapon", "NoWeapon", "NoWeapon", "NoNeck", "NoRing", "NoRing", "NoShirt",
-                           "NoPants", "NoGloves", "NoBoots", "NoOuter", "NoOuter"}]
-    local check_equip_tbl = {8, 9, 30, 31, 19, 17, 18, 3, 14, 4, 5}
-    local check_str_tbl = {"NoWeapon", "NoWeapon", "NoWeapon", "NoWeapon", "NoNeck", "NoRing", "NoRing", "NoShirt",
-                           "NoPants", "NoGloves", "NoBoots"}]]
+    local equip_item_list = session.GetEquipItemList();
+    for i, data in ipairs(g.equip_tbl) do
+        local equip_name = data[1]
+        local equip_index = data[2]
+        local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
+        local iesid = equip_item:GetIESID()
 
-    for i, equip in ipairs(g.util_tbl) do
-        for equip_name, equip_data in pairs(equip) do
-            for equip_index, use_value in pairs(equip_data) do
-                -- for i, spot_index in ipairs(check_equip_tbl) do
-                local equip_item = equipItemList:GetEquipItemByIndex(equip_index)
-                local iesid = equip_item:GetIESID()
-                if iesid ~= "0" then
-                    local spotName = item.GetEquipSpotName(equip_item.equipSpot)
-                    imcAddOn.BroadMsg("NOTICE_Dm_!", spotName .. " Not equipped", 3);
-                    return
-                end
-            end
+        if iesid == "0" then
+            imcAddOn.BroadMsg("NOTICE_Dm_!", equip_name .. " Not equipped", 10);
+            ui.SetHoldUI(false);
+            return
         end
     end
+    local invframe = ui.GetFrame("inventory")
+    invframe:ShowWindow(0)
+    ui.SetHoldUI(false);
     imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[NH]End of Operation", 3);
 end
 
@@ -440,8 +373,7 @@ function vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)
         if tonumber(buffid) == buff_id then
             exists = true
             -- 良くないね
-            --[[if value == 1 then
-                
+            --[[if value == 1 and g.vakarine then
                 REMOVE_BUF(_, _, _, buff_id)
             end]]
             return
@@ -475,7 +407,7 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
     local cur_map = GetZoneName(pc)
     local map_cls = GetClass("Map", cur_map)
     local cur_map_id = session.GetMapID()
-    print(tostring(map_cls.MapType))
+    local map_id = session.GetMapID()
 
     function vakarine_equip_vakarine()
         local equip_item_list = session.GetEquipItemList();
@@ -515,32 +447,43 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
     if not vakarine_judgment then
         return
     end
+    -- 11244 聖域3F 11227 分裂
+    if (map_cls.MapType == "Instance" or cur_map_id == 11244) and cur_map_id ~= 11227 then
 
-    if map_cls.MapType == "Instance" or cur_map_id == 11244 or map_cls.MapType == "Field" then
-        g.equip_iesids = {}
         session.ResetItemList();
         local equip_item_list = session.GetEquipItemList();
-
-        for i, equip in ipairs(g.util_tbl) do
-            for equip_name, equip_index in pairs(equip) do
-                for equip_name, equip_data in pairs(equip) do
-                    for equip_index, use_value in pairs(equip_data) do
-                        if use_value ~= 0 then
-                            local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-                            local iesid = equip_item:GetIESID()
-                            if iesid ~= "0" then
-                                table.insert(g.equip_iesids[equip_name], {equip_index, iesid})
-                                -- g.equip_iesids[equip_name] = iesid
-                                break
-                            end
-                        end
+        g.equip_tbl = {}
+        g.neck = false
+        for i, data in ipairs(g.util_tbl) do
+            local equip_name = data[1]
+            local equip_index = data[2]
+            local use = data[3]
+            local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
+            local iesid = equip_item:GetIESID()
+            if use == 1 then
+                if iesid ~= "0" then
+                    if equip_name == "NECK" then
+                        g.neck_iesid = iesid
                     end
-                    break
+                    table.insert(g.equip_tbl, {equip_name, equip_index, iesid, use})
                 end
-                break
+            elseif use == 0 and equip_name == "NECK" then
+                g.neck_iesid = iesid
             end
         end
-        addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_unequip")
+        local invframe = ui.GetFrame("inventory")
+        if tonumber(USE_SUBWEAPON_SLOT) == 1 then
+            DO_WEAPON_SLOT_CHANGE(invframe, 1)
+        else
+            DO_WEAPON_SWAP(invframe, 1)
+        end
+        invframe:ShowWindow(1)
+        function vakarine_equip_unequip_set_delay()
+            ui.SetHoldUI(true);
+            ReserveScript("vakarine_equip_unequip()", 1.0)
+            return
+        end
+        addon:RegisterMsg("GAME_START", "vakarine_equip_unequip_set_delay")
 
     elseif map_cls.MapType == "City" then
 
@@ -548,47 +491,23 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
             local equip_item_list = session.GetEquipItemList();
             local equip_item = equip_item_list:GetEquipItemByIndex(19);
             local iesid = equip_item:GetIESID()
-            if iesid ~= g.equip_iesids["NECK"] then
-                local equip_item = session.GetInvItemByGuid(g.equip_iesids["NECK"])
+            if iesid ~= g.neck_iesid then
+                local equip_item = session.GetInvItemByGuid(g.neck_iesid)
                 if equip_item ~= nil then
                     local item_index = equip_item.invIndex
                     item.Equip(item_index)
+                    return
+                else
+                    return
                 end
             end
         end
+
         addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_neck_equip")
     end
 end
-g.equip_iesids = {}
-session.ResetItemList();
-local equip_item_list = session.GetEquipItemList();
-for i, equip in ipairs(g.util_tbl) do
-    for equip_name, equip_data in pairs(equip) do
-        for equip_index, use_value in pairs(equip_data) do
-            if use_value ~= 0 then
-                local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-                local iesid = equip_item:GetIESID()
-                if iesid ~= "0" then
-                    if not g.equip_iesids[i] then
-                        g.equip_iesids[i] = {}
-                    end
-                    table.insert(g.equip_iesids[i], {equip_name, equip_index, iesid})
-                    break
-                end
-            end
-        end
-    end
-end
-for i, items in ipairs(g.equip_iesids) do
-    print("Index " .. i .. ":")
-    for _, item in ipairs(items) do
-        local equip_name = item[1]
-        local equip_index = item[2]
-        local iesid = item[3]
-        print("  Equip Name: " .. equip_name .. ", Equip Index: " .. equip_index .. ", IESID: " .. iesid)
-    end
-end
---[[function vakarine_equip_buff_list(frame, ctrl, str, num)
+
+function vakarine_equip_buff_list(frame, ctrl, str, num)
     local bufflistframe = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "_bufflist", 0, 0, 10, 10)
     AUTO_CAST(bufflistframe)
     bufflistframe:SetSkinName("bg")
@@ -601,7 +520,7 @@ end
     bg:SetSkinName("bg")
 
     function vakarine_equip_bufflist_close(frame, ctrl, str, num)
-    frame:ShowWindow(0)
+        frame:ShowWindow(0)
     end
 
     local closeBtn = bufflistframe:CreateOrGetControl('button', 'closeBtn', 450, 0, 30, 30)
@@ -649,5 +568,5 @@ end
         end
     end
     bufflistframe:ShowWindow(1)
-end]]
+end
 

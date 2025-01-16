@@ -356,5 +356,15 @@
 		"unicode" : "⛄",
 		"description" : "レイドの消化状況を一覧表示します。instantccアドオンを入れていると職アイコンクリックでCCします。<br>List raid digests. cc by clicking on the job icon if you have the instantcc add-on.<br>레이드 소화 현황을 나열하며, instantcc 애드온을 넣었다면 직업 아이콘 클릭으로 CC를 합니다.",
 		"tags" : []
+	},
+	{
+		"name" : "Vakarine equip",
+		"file" : "vakarine_equip",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "vakarine_equip",
+		"unicode" : "⛄",
+		"description" : "ヴァカリネの恩恵を5箇所装着している場合、レイドなどで装備を脱着します。<br>If wearing 5 Vakarine benefits, take the equipment off and on for raids, etc.<br>5개의 바카린 혜택을 착용한 경우, 레이드 등을 위해 장비를 벗었다가 착용하세요.",
+		"tags" : ["vakarine","Vakarine"]
 	}
 ]
