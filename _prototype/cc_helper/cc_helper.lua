@@ -278,7 +278,6 @@ function cc_helper_setting_frame_init()
     local awhframe = ui.GetFrame("accountwarehouse")
     ACCOUNTWAREHOUSE_CLOSE(awhframe)
     UI_TOGGLE_INVENTORY()
-    cc_helper_load_settings()
 
     local frame = ui.GetFrame(addonNameLower)
     frame:RemoveAllChild()
@@ -312,9 +311,6 @@ function cc_helper_setting_frame_init()
     delete:SetEventScript(ui.LBUTTONUP, "cc_helper_delete_context")
 
     INVENTORY_SET_CUSTOM_RBTNDOWN("cc_helper_inv_rbtn")
-
-    -- local title = frame:CreateOrGetControl("richtext", "title", 40, 15)
-    -- title:SetText("{ol}{s18}CC Helper " .. "{s16}" .. ver)
 
     local mcc_title = frame:CreateOrGetControl("richtext", "mcc_title", 10, 250)
     mcc_title:SetText("{ol}mcc")
@@ -364,6 +360,12 @@ function cc_helper_setting_frame_init()
     end
     cc_helper_save_settings()
 
+    function cc_helper_settings_close(frame)
+        local frame = ui.GetFrame("cc_helper")
+        frame:ShowWindow(0)
+
+    end
+
     local close = frame:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
     AUTO_CAST(close)
     close:SetImage("testclose_button")
@@ -384,7 +386,26 @@ function cc_helper_setting_frame_init()
                              "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
                              "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")
 
-    local function createSlot(frame, name, x, y, width, height, skin, text, image, iesid)
+    function cc_helper_cancel(frame, ctrl, argstr, argnum)
+
+        ctrl:ClearIcon()
+        ctrl:RemoveAllChild()
+        local name = ctrl:GetName()
+
+        for _, key in ipairs(g.settings[g.cid]) do
+            if key == "name" then
+                for _, v in pairs(g.settings[g.cid][key]) do
+                    v.image = ""
+                    v.iesid = ""
+                    v.clsid = 0
+                end
+            end
+        end
+        cc_helper_save_settings()
+
+    end
+
+    local function createSlot(frame, name, x, y, width, height, skin, text, clsid, iesid)
         local slot = frame:CreateOrGetControl("slot", name, x, y, width, height)
         AUTO_CAST(slot)
         slot:SetSkinName(skin)
@@ -394,97 +415,84 @@ function cc_helper_setting_frame_init()
         slot:EnableDrop(1)
         slot:SetEventScript(ui.DROP, "cc_helper_frame_drop")
         slot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
-        slot:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
+        -- slot:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
 
-        if image ~= nil then
-            SET_SLOT_IMG(slot, image)
+        if clsid ~= nil then
+            local itemObj = GetClassByType("Item", clsid);
+            SET_SLOT_ITEM_CLS(slot, itemObj);
             SET_SLOT_IESID(slot, iesid);
         end
     end
 
-    local slotInfo = {{
-        name = "seal",
-        x = 210,
-        y = 70,
-        text = "{ol}{s14}SEAL",
-        iesid = g.settings[g.cid].seal_iesid,
-        image = g.settings[g.cid].seal_image
-    }, {
-        name = "ark",
-        x = 210,
-        y = 130,
-        text = "{ol}{s14}ARK",
-        iesid = g.settings[g.cid].ark_iesid,
-        image = g.settings[g.cid].ark_image
-    }, {
-        name = "agem",
-        x = 210,
-        y = 10,
-        text = "{ol}{s12}AETHER{nl}GEM",
-        iesid = g.settings[g.cid].gem_clsid,
-        image = g.settings[g.cid].gem_image
-    }, {
-        name = "legcard",
-        x = 10,
-        y = 50,
-        text = "{ol}{s14}LEGEND{nl}CARD",
-        iesid = g.settings[g.cid].leg_iesid,
-        image = g.settings[g.cid].leg_image
-    }, {
-        name = "godcard",
-        x = 110,
-        y = 50,
-        text = "{ol}{s14}GODDESS{nl}CARD",
-        iesid = g.settings[g.cid].god_iesid,
-        image = g.settings[g.cid].god_image
-    }, {
-        name = "hair",
-        x = 10,
-        y = 190,
-        text = "{ol}{s14}HAIR1",
-        iesid = g.settings[g.cid].hair1_iesid,
-        image = g.settings[g.cid].hair1_image
-    }, {
-        name = "hair",
-        x = 70,
-        y = 190,
-        text = "{ol}{s14}HAIR2",
-        iesid = g.settings[g.cid].hair2_iesid,
-        image = g.settings[g.cid].hair2_image
-    }, {
-        name = "hair",
-        x = 130,
-        y = 190,
-        text = "{ol}{s14}HAIR3",
-        iesid = g.settings[g.cid].hair3_iesid,
-        image = g.settings[g.cid].hair3_image
-    }}
+    local slot_info = {
+        ["seal"] = {
+            x = 210,
+            y = 70,
+            text = "{ol}{s14}SEAL"
+        },
+        ["ark"] = {
+            x = 210,
+            y = 130,
+            text = "{ol}{s14}ARK"
+        },
+        ["gem"] = {
+            x = 210,
+            y = 130,
+            text = "{ol}{s12}AETHER{nl}GEM"
+        },
+        ["leg"] = {
+            x = 10,
+            y = 50,
+            text = "{ol}{s14}LEGEND{nl}CARD"
+        },
+        ["god"] = {
+            x = 110,
+            y = 50,
+            text = "{ol}{s14}GODDESS{nl}CARD"
+        },
+        ["hair1"] = {
+            x = 10,
+            y = 190,
+            text = "{ol}{s14}HAIR1"
+        },
+        ["hair2"] = {
+            x = 70,
+            y = 190,
+            text = "{ol}{s14}HAIR2"
+        },
+        ["hair3"] = {
+            x = 130,
+            y = 190,
+            text = "{ol}{s14}HAIR3"
+        }
+    }
 
-    local temp_tbl = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem"}
     for _, data in ipairs(g.settings[g.cid]) do
-        for _, info in ipairs(slotInfo) do
-            local width = 50
-            local height = 50
-            if info.name == "legcard" or info.name == "godcard" then
-                width = 90
-                height = 130
+        if type(data) == "table" then
+            for k, v in pairs(data) do
+                for name, info in pairs(slot_info) do
+                    if name == k then
+                        local width = 50
+                        local height = 50
+                        if name == "leg" or name == "god" then
+                            width = 90
+                            height = 130
+                        end
+                        local skin = "invenslot2"
+                        if name == "leg" then
+                            skin = "legendopen_cardslot"
+                        elseif name == "god" then
+                            skin = "goddess_card__activation"
+                        end
+                        createSlot(frame, name, info.x, info.y, width, height, skin, info.text, v.clsid, v.iesid)
+                        break
+                    end
+                end
             end
-            local skin = "invenslot2"
-            if info.name == "legcard" then
-                skin = "legendopen_cardslot"
-            elseif info.name == "godcard" then
-                skin = "goddess_card__activation"
-            end
-            createSlot(frame, info.name, info.x, info.y, width, height, skin, info.text, info.image, info.iesid)
         end
     end
 end
 
-function cc_helper_settings_close(frame)
-    local frame = ui.GetFrame("cc_helper")
-    frame:ShowWindow(0)
-
-end
 -- !
 -- mccframe
 function cc_helper_monstercard_change(frame, ctrl)
@@ -720,68 +728,6 @@ function cc_helper_agm_setting(frame, ctrl, str, num)
     cc_helper_save_settings()
     cc_helper_setting_frame_init()
     frame:ShowWindow(1)
-end
-
-function cc_helper_cancel(frame, ctrl, argstr, argnum)
-
-    ctrl:ClearIcon()
-    ctrl:RemoveAllChild()
-
-    if ctrl:GetName() == "hair_slot1" then
-
-        g.settings[g.cid].hair1_image = ""
-        g.settings[g.cid].hair1_iesid = ""
-        g.settings[g.cid].hair1_clsid = 0
-
-    elseif ctrl:GetName() == "hair_slot2" then
-        g.settings[g.cid].hair2_image = ""
-        g.settings[g.cid].hair2_iesid = ""
-        g.settings[g.cid].hair2_clsid = 0
-
-    elseif ctrl:GetName() == "hair_slot3" then
-        g.settings[g.cid].hair3_image = ""
-        g.settings[g.cid].hair3_iesid = ""
-        g.settings[g.cid].hair3_clsid = 0
-
-    elseif ctrl:GetName() == "crown_slot" then
-
-        g.settings[g.cid].crown_iesid = ""
-        g.settings[g.cid].crown_clsid = 0
-
-        g.settings[g.cid].crown_image = ""
-
-    elseif ctrl:GetName() == "seal_slot" then
-        g.settings[g.cid].seal_iesid = ""
-        g.settings[g.cid].seal_clsid = 0
-
-        g.settings[g.cid].seal_image = ""
-
-    elseif ctrl:GetName() == "ark_slot" then
-        g.settings[g.cid].ark_iesid = ""
-        g.settings[g.cid].ark_clsid = 0
-
-        g.settings[g.cid].ark_image = ""
-
-    elseif ctrl:GetName() == "agem_slot" then
-        g.settings[g.cid].gem_clsid = 0
-
-        g.settings[g.cid].gem_image = ""
-
-    elseif ctrl:GetName() == "legcard_slot" then
-        g.settings[g.cid].leg_iesid = ""
-        g.settings[g.cid].leg_clsid = 0
-
-        g.settings[g.cid].leg_image = ""
-
-    elseif ctrl:GetName() == "godcard_slot" then
-        g.settings[g.cid].god_iesid = ""
-        g.settings[g.cid].god_clsid = 0
-
-        g.settings[g.cid].god_image = ""
-
-    end
-    cc_helper_save_settings()
-
 end
 
 function cc_helper_tooltip(frame, ctrl, argStr, argNum)
