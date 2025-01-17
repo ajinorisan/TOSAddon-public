@@ -13,10 +13,16 @@
 -- v1.1.3 ディレイ設定消えてたの修正。
 -- v1.1.4 ディレイ設定バグってたの修正。
 -- v1.1.5 倉庫にアイテム無い時に搬出バグってたの修正。あと1M未満のシルバー取り出し修正。怒涛の修正つかれたよ。
+-- v1.1.6 1M未満修正、倉庫自動搬出入最適化。
+-- v1.1.7 更に最適化。もう無理
+-- v1.1.8 預ける数と引き出す数が一緒でインベントリに無かった場合バグってたの修正。引き出し開始が早すぎて読み込めてなかったの修正。
+-- v1.1.9 数量指定アイテムが倉庫に足りなかった場合に引き出さなかったバグ修正。
+-- v1.2.0 検索を有効に。その他些末なバグ修正。
+-- v1.2.1 あかんバグ修正
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -34,6 +40,23 @@ local base = {}
 local function IsBlackListedTabName(name)
     return name == 'Quest'
 end
+
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
@@ -59,11 +82,11 @@ function another_warehouse_load_settings()
             amount_check = 0,
             transfer = 0,
             items = {},
-            delay = 0.5
+            delay = 0.3
 
         }
     elseif settings.delay == nil then
-        settings.delay = 0.5
+        settings.delay = 0.3
     end
 
     another_warehouse_save_settings()
@@ -204,14 +227,14 @@ function another_warehouse_lang(str)
             str = "データコピー完了"
         end
         -- Put delay time
-        if str == "Put delay time" then
-            str = "入庫遅延設定"
+        if str == "Delay time" then
+            str = "遅延設定"
         end
 
         -- Set the delay time in case of failure {nl}in warehouse entry. Basic is 0.5 sec.
-        if str == "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec." then
+        if str == "If the warehouse entry fails,{nl}set a longer time. Basic is 0.3 sec." then
             str =
-                "倉庫入庫に失敗する場合、時間を長めに設定してください。デフォルトは0.5秒です。"
+                "倉庫入出庫に失敗する場合、時間を長めに設定してください。デフォルトは0.3秒です。"
         end
 
         -- ui.SysMsg(another_warehouse_lang("The entered text is not numeric."){nl}入力された文字が数値ではないです。")
@@ -286,18 +309,18 @@ function another_warehouse_help()
     ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: right mouse click to Carry in all items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: left mouse click to Carry in 1 items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang(
-                              "Inventory: left SHIFT+mouse right click to Carry in Input quantity items"), "None")
+        "Inventory: left SHIFT+mouse right click to Carry in Input quantity items"), "None")
     ui.AddContextMenuItem(context,
-                          another_warehouse_lang("Inventory: left SHIFT+mouse left click to Carry in 10 items"), "None")
+        another_warehouse_lang("Inventory: left SHIFT+mouse left click to Carry in 10 items"), "None")
 
     -- ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: right mouse click to Carry out all items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: right mouse click to Carry out all items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang("Warehouse: left mouse click to Carry out 1 items"), "None")
 
     ui.AddContextMenuItem(context, another_warehouse_lang(
-                              "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items"), "None")
+        "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items"), "None")
     ui.AddContextMenuItem(context,
-                          another_warehouse_lang("Warehouse: left SHIFT+mouse left click to Carry out 10 items"), "None")
+        another_warehouse_lang("Warehouse: left SHIFT+mouse left click to Carry out 10 items"), "None")
 
     ui.OpenContextMenu(context)
 end
@@ -306,10 +329,9 @@ function another_warehouse_setting_help()
     local context = ui.CreateContextMenu("CONTEXT", "          [Anothe Warehouse]Setting Help", 30, 0, 100, 100)
     ui.AddContextMenuItem(context, another_warehouse_lang("Inventory: right mouse click to set team items"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang(
-                              "Inventory: left SHIFT+mouse right click to set items for each character"), "None")
+        "Inventory: left SHIFT+mouse right click to set items for each character"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang(
-                              "Setting slot: left SHIFT+right mouse click to change the number of setting pieces"),
-                          "None")
+        "Setting slot: left SHIFT+right mouse click to change the number of setting pieces"), "None")
     ui.AddContextMenuItem(context, another_warehouse_lang("Setting slot: right mouse click to clear settings"), "None")
     ui.OpenContextMenu(context)
 end
@@ -353,6 +375,7 @@ function another_warehouse_accountwarehouse_init()
 
         addon:RegisterMsg('ESCAPE_PRESSED', 'another_warehouse_accountwarehouse_close');
 
+        -- addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_accountwarehouse_open");
         acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
         acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close")
 
@@ -436,7 +459,7 @@ function another_warehouse_set_item_take(frame, ctrl, argStr, argNum)
         end
     end
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                    warehouseFrame:GetUserIValue("HANDLE"))
+        warehouseFrame:GetUserIValue("HANDLE"))
     another_warehouse_set_item_close(frame, ctrl, argStr, argNum)
 
     ACCOUNTWAREHOUSE_CLOSE(warehouseFrame)
@@ -650,6 +673,90 @@ end
 
 function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
 
+    g.new_sorted_guid_list = {}
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local guidList = itemList:GetGuidList()
+    local sortedGuidList = itemList:GetSortedGuidList()
+    local sortedCnt = sortedGuidList:Count()
+
+    -- !!!
+    local foundItem = false -- アイテムが見つかったかどうかのフラグ
+
+    for i = 0, sortedCnt - 1 do
+        local guid = sortedGuidList:Get(i)
+        local invItem = itemList:GetItemByGuid(guid)
+        local obj = GetIES(invItem:GetObject())
+
+        if obj.ClassID == 900011 then
+            g.new_sorted_guid_list[0] = {
+                count = invItem.count,
+                guid = guid,
+                type = obj.ClassID
+            } -- カウントとGUIDを追加
+            foundItem = true
+            break
+        end
+    end
+
+    if not foundItem then
+        for i = 0, sortedCnt - 1 do
+            local guid = sortedGuidList:Get(i)
+
+            g.new_sorted_guid_list[0] = {
+                count = 0,
+                guid = "",
+                type = 00000
+            }
+
+        end
+    end
+
+    local accountObj = GetMyAccountObj();
+    local max_count = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                          ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+    local initial_count = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                              accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                              ADDITIONAL_SLOT_COUNT_BY_TOKEN
+    local item_index = 0
+    print(tostring(max_count))
+    for j = 1, max_count do
+        local guid = sortedGuidList:Get(item_index)
+        if guid ~= nil then
+            local invItem = itemList:GetItemByGuid(guid)
+            local obj = GetIES(invItem:GetObject())
+
+            if j <= initial_count and invItem ~= nil and obj.ClassID ~= 900011 then
+                g.new_sorted_guid_list[j] = {
+                    count = invItem.count,
+                    guid = guid,
+                    type = obj.ClassID
+                }
+                item_index = item_index + 1
+            elseif j >= 71 and invItem ~= nil and obj.ClassID ~= 900011 then
+                g.new_sorted_guid_list[j] = {
+                    count = invItem.count,
+                    guid = guid,
+                    type = obj.ClassID
+                }
+                item_index = item_index + 1
+            else
+                g.new_sorted_guid_list[j] = {
+                    count = 0,
+                    guid = "",
+                    type = 0
+                }
+            end
+        end
+    end
+
+    -- g.new_sorted_guid_listの中身を表示
+    print("Index " .. 0 .. ": Count = " .. g.new_sorted_guid_list[0].count .. ", GUID = " ..
+              g.new_sorted_guid_list[0].guid .. ", TYPE = " .. g.new_sorted_guid_list[0].type)
+    for index, value in ipairs(g.new_sorted_guid_list) do
+        print("Index " .. index .. ": Count = " .. value.count .. ", GUID = " .. value.guid .. ", TYPE = " .. value.type)
+    end
+
     local msframe = ui.GetFrame("monstercardslot")
     msframe:SetLayerLevel(98)
 
@@ -657,20 +764,55 @@ function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
     local accountwarehouse_tab = GET_CHILD_RECURSIVELY(frame, "accountwarehouse_tab")
     accountwarehouse_tab:SetMargin(0, 240) -- margin="0 120 0 0"
     local richtext_1 = GET_CHILD_RECURSIVELY(frame, "richtext_1")
-    richtext_1:SetMargin(30, 133) --  margin="30 73 0 0"
+    richtext_1:ShowWindow(0)
+
     local itemcnt = GET_CHILD_RECURSIVELY(frame, "itemcnt")
     itemcnt:SetMargin(0, 133, 190, 0) --  margin="0 73 190 0"
     local slotgbox = GET_CHILD_RECURSIVELY(frame, "slotgbox")
     slotgbox:ShowWindow(0)
+    --[[local richtext_2 = GET_CHILD_RECURSIVELY(frame, "richtext_2")
+    richtext_2:SetMargin(21, 0, 0, 366)
+    print(tostring(richtext_2:GetText()))]]
+    local richtext_3 = GET_CHILD_RECURSIVELY(frame, "richtext_3")
+    richtext_3:SetMargin(17, 4, 0, 0)
+
+    --[[local gbox = GET_CHILD_RECURSIVELY(frame, 'visgBox')
+    local cnt = session.AccountWarehouse.GetCount();
+
+    for i = cnt - 1, 0, -1 do
+        local ctrlSet = gbox:CreateControlSet("AccountVisLog", "CTRLSET_" .. i, ui.CENTER_HORZ, ui.TOP, 0, 0, 0, 0);
+        local inputVis = ctrlSet:GetChild('inputVis')
+        AUTO_CAST(inputVis)
+        print(inputVis:GetText())
+        local margin = inputVis:GetMargin()
+        inputVis:SetMargin(margin.left - 150, margin.top, margin.right, margin.bottom)
+        -- print(tostring(margin.left))
+    end]]
 
     local maxcount = another_warehouse_get_maxcount()
     local itemcount = another_warehouse_item_count()
 
     local grupbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+    grupbox:RemoveChild("search_edit")
+    -- !!
+    local search_edit = grupbox:CreateOrGetControl("edit", "search_edit", 0, 0, 295, 35)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+    local margin = search_edit:GetMargin();
+    search_edit:SetMargin(margin.left + 115, margin.top + 20, margin.right, margin.bottom)
+    search_edit:SetEventScript(ui.ENTERKEY, "another_warehouse_frame_update")
+
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    search_btn:SetEventScript(ui.LBUTTONUP, "another_warehouse_frame_update")
 
     local awsetting = grupbox:CreateOrGetControl("button", "awsetting", 0, 0, 30, 43)
     AUTO_CAST(awsetting)
-    awsetting:SetText("{img config_button_normal 30 30}")
+    awsetting:SetText("{img config_button_normal 27 27}")
     awsetting:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_frame_init")
     awsetting:SetMargin(145, 60, 0, 0)
     awsetting:SetSkinName("None")
@@ -685,14 +827,15 @@ function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
     help:SetTextTooltip("[Another Warehouse]{nl}help")
     help:SetSkinName("test_pvp_btn")
     help:SetEventScript(ui.LBUTTONUP, "another_warehouse_help")
+    help:ShowWindow(1)
 
     local leave = grupbox:CreateOrGetControl('checkbox', "leave", 0, 0, 30, 30)
-
     AUTO_CAST(leave);
     leave:SetCheck(g.settings.leave or 0)
     leave:SetMargin(180, 67, 0, 0)
     leave:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
     leave:SetTextTooltip("Check leaves one in the warehouse.{nl}チェックすると倉庫に1個残します。")
+    leave:ShowWindow(1)
 
     local take = grupbox:CreateOrGetControl("button", "take", 10, 0, 100, 43)
     AUTO_CAST(take)
@@ -723,6 +866,7 @@ function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
     local LoginName = session.GetMySession():GetPCApc():GetName()
     name_text:SetMargin(10, 5, 0, 0)
     name_text:SetText("{ol}{s18}" .. LoginName .. "{/}")
+    name_text:ShowWindow(1)
 
     local overlap = ui.GetFrame("another_warehouse")
     overlap:SetSkinName("None")
@@ -756,13 +900,13 @@ function another_warehouse_ADVANCEDMONEYINPUT(frame)
     local frame = ui.GetFrame("accountwarehouse")
     local editMoney = frame:GetChildRecursively("moneyInput")
     AUTO_CAST(editMoney)
-    editMoney:SetText("0")
+    editMoney:SetText("")
     local DepositSkin = frame:GetChildRecursively("DepositSkin")
     AUTO_CAST(DepositSkin)
     DepositSkin:Resize(DepositSkin:GetWidth(), 45)
 
     local cancel = DepositSkin:CreateOrGetControl("button", "cancel", DepositSkin:GetWidth() - 50,
-                                                  DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(cancel)
     cancel:SetText("{ol}{s12}{@st66b}C")
     cancel:SetSkinName("test_pvp_btn")
@@ -772,7 +916,7 @@ function another_warehouse_ADVANCEDMONEYINPUT(frame)
     cancel:SetEventScriptArgNumber(ui.RBUTTONUP, 0)
 
     local M1 = DepositSkin:CreateOrGetControl("button", "m1", DepositSkin:GetWidth() - 100,
-                                              DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(M1)
     M1:SetText("{ol}{@st66b}{s12}1M")
     M1:SetSkinName("test_pvp_btn")
@@ -782,7 +926,7 @@ function another_warehouse_ADVANCEDMONEYINPUT(frame)
     M1:SetEventScriptArgNumber(ui.RBUTTONUP, 1000000)
 
     local M5 = DepositSkin:CreateOrGetControl("button", "m5", DepositSkin:GetWidth() - 150,
-                                              DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(M5)
     M5:SetText("{ol}{@st66b}{s12}5M")
     M5:SetSkinName("test_pvp_btn")
@@ -792,7 +936,7 @@ function another_warehouse_ADVANCEDMONEYINPUT(frame)
     M5:SetEventScriptArgNumber(ui.RBUTTONUP, 5000000)
 
     local M10 = DepositSkin:CreateOrGetControl("button", "m10", DepositSkin:GetWidth() - 200,
-                                               DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(M10)
     M10:SetText("{ol}{@st66b}{s12}10M")
     M10:SetSkinName("test_pvp_btn")
@@ -802,7 +946,7 @@ function another_warehouse_ADVANCEDMONEYINPUT(frame)
     M10:SetEventScriptArgNumber(ui.RBUTTONUP, 10000000)
 
     local M50 = DepositSkin:CreateOrGetControl("button", "m50", DepositSkin:GetWidth() - 250,
-                                               DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(M50)
     M50:SetText("{ol}{@st66b}{s12}50M")
     M50:SetSkinName("test_pvp_btn")
@@ -812,7 +956,7 @@ function another_warehouse_ADVANCEDMONEYINPUT(frame)
     M50:SetEventScriptArgNumber(ui.RBUTTONUP, 50000000)
 
     local M100 = DepositSkin:CreateOrGetControl("button", "m100", DepositSkin:GetWidth() - 300,
-                                                DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(M100)
     M100:SetText("{ol}{@st66b}{s12}100M")
     M100:SetSkinName("test_pvp_btn")
@@ -822,14 +966,14 @@ function another_warehouse_ADVANCEDMONEYINPUT(frame)
     M100:SetEventScriptArgNumber(ui.RBUTTONUP, 100000000)
 
     local ALLOUT = DepositSkin:CreateOrGetControl("button", "allout", DepositSkin:GetWidth() - 350,
-                                                  DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(ALLOUT)
     ALLOUT:SetText("{ol}{@st66b}{s12}{img chul_arrow 10 10}ALL")
     ALLOUT:SetSkinName("test_pvp_btn")
     ALLOUT:SetEventScript(ui.LBUTTONUP, "another_warehouse_lbtn_ADVANCEDMONEYINPUT")
 
     local ALLIN = DepositSkin:CreateOrGetControl("button", "allin", DepositSkin:GetWidth() - 400,
-                                                 DepositSkin:GetHeight() - 23, 50, 25)
+        DepositSkin:GetHeight() - 23, 50, 25)
     AUTO_CAST(ALLIN)
     ALLIN:SetText("{ol}{@st66b}{s12}{img in_arrow 10 10}ALL")
     ALLIN:SetSkinName("test_pvp_btn")
@@ -845,14 +989,16 @@ function another_warehouse_rbtn_ADVANCEDMONEYINPUT(frame, ctrl, str, num)
     local editMoney = frame:GetChildRecursively("moneyInput")
     AUTO_CAST(editMoney)
     if ctrl:GetName() == "cancel" then
-        editMoney:SetText(0)
+        editMoney:SetText("")
         return
     end
     local cleanedValue = string.gsub(editMoney:GetText(), "[\r\n,]", "")
 
     local numericValue = tonumber(cleanedValue)
-    if (numericValue - num) >= 0 then
+    if (numericValue - num) > 0 then
         editMoney:SetText(GET_COMMAED_STRING(SumForBigNumberInt64(numericValue, "-" .. num)))
+    else
+        editMoney:SetText("")
     end
 
 end
@@ -898,10 +1044,10 @@ function another_warehouse_lbtn_ADVANCEDMONEYINPUT(frame, ctrl, str, num)
 
             editMoney:SetText(GET_COMMAED_STRING(silveritem:GetAmountStr()))
         else
-            editMoney:SetText(0)
+            editMoney:SetText("")
         end
     elseif ctrl:GetName() == "cancel" then
-        editMoney:SetText(0)
+        editMoney:SetText("")
     else
         local cleanedValue = string.gsub(editMoney:GetText(), "[\r\n,]", "")
         local numericValue = tonumber(cleanedValue)
@@ -927,12 +1073,12 @@ function another_warehouse_keeper_reserve()
     local delay = g.settings.delay
 
     if g.settings[LoginCID].item_check == 1 then
-
+        -- another_warehouse_item()
         ReserveScript("another_warehouse_item()", delay)
         return
     elseif g.settings[LoginCID].maney_check == 1 then
 
-        ReserveScript("another_warehouse_silver()", delay)
+        ReserveScript("another_warehouse_silver()", delay * 2)
         return
     else
         another_warehouse_end()
@@ -999,14 +1145,7 @@ function another_warehouse_fraction()
     end
 end
 
-function another_warehouse_item_tooltip_close(count)
-    local tooltip_frame = ui.GetFrame("another_warehouse_tooltip" .. count)
-    tooltip_frame:ShowWindow(0)
-
-end
-
 function another_warehouse_item()
-
     g.takeitemtbl = {}
     g.putitemtbl = {}
 
@@ -1014,10 +1153,10 @@ function another_warehouse_item()
 
     local warehouseFrame = ui.GetFrame('accountwarehouse')
     local handle = warehouseFrame:GetUserIValue('HANDLE')
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    local guidList = itemList:GetGuidList();
-    local sortedGuidList = itemList:GetSortedGuidList();
-    local sortedCnt = sortedGuidList:Count();
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sortedGuidList = itemList:GetSortedGuidList()
+    local sortedCnt = sortedGuidList:Count()
+    local leave_one = g.settings.leave == 1
 
     for i = 0, sortedCnt - 1 do
         local guid = sortedGuidList:Get(i)
@@ -1025,26 +1164,20 @@ function another_warehouse_item()
         local type = invItem.type
         local itemobj = GetIES(invItem:GetObject())
         local iesid = invItem:GetIESID()
-        local inv_count = 0
-        if g.settings.leave ~= 1 then
-            inv_count = invItem.count
-        else
-            inv_count = invItem.count - 1
-        end
-        for str_index, items in pairs(g.settings[LoginCID].items) do
+        local inv_count = leave_one and invItem.count - 1 or invItem.count
 
+        -- Process LoginCID specific items
+        local loginCIDItems = g.settings[LoginCID] and g.settings[LoginCID].items or {}
+        for str_index, items in pairs(loginCIDItems) do
             local clsID = items.clsid
             local count = items.count
-
-            g.putitemtbl[clsID] = {
-                iesid = "",
-                count = count,
-                handle = 0,
-                invItem = ""
-            }
-
+            if not g.putitemtbl[clsID] then
+                g.putitemtbl[clsID] = {
+                    iesid = "",
+                    count = count
+                }
+            end
             if type == clsID and inv_count > 0 then
-
                 g.takeitemtbl[clsID] = {
                     iesid = iesid,
                     count = count
@@ -1052,23 +1185,20 @@ function another_warehouse_item()
                 break
             end
         end
-        for str_index, items in pairs(g.settings.items) do
 
+        -- Process global items
+        local globalItems = g.settings.items or {}
+        for str_index, items in pairs(globalItems) do
             local clsID = items.clsid
             local count = items.count
-
             if not g.putitemtbl[clsID] then
                 g.putitemtbl[clsID] = {
                     iesid = "",
-                    count = count,
-                    handle = 0,
-                    invItem = ""
+                    count = count
                 }
             end
             if type == clsID and inv_count > 0 then
-
                 if not g.takeitemtbl[clsID] then
-
                     g.takeitemtbl[clsID] = {
                         iesid = iesid,
                         count = count
@@ -1077,7 +1207,6 @@ function another_warehouse_item()
                 end
             end
         end
-
     end
 
     local invItemList = session.GetInvItemList()
@@ -1090,48 +1219,49 @@ function another_warehouse_item()
         local inv_obj = GetIES(inv_Item:GetObject())
         local inv_clsid = inv_obj.ClassID
         if inv_obj.ClassName ~= MONEY_NAME then
-            for clsid, table in pairs(g.takeitemtbl) do
-                local take_count = 0
-                local count = table.count
-                if tonumber(count) ~= inv_Item.count then
-                    take_count = tonumber(count) - inv_Item.count
-                end
+            for clsID, table in pairs(g.takeitemtbl) do
+                if clsID == inv_clsid then
+                    local take_count = table.count - inv_Item.count
 
-                if clsid == inv_clsid then
-
-                    if take_count < 0 then
-                        g.takeitemtbl[clsid] = nil
+                    if take_count <= 0 then
+                        g.takeitemtbl[clsID] = nil
+                    else
+                        g.takeitemtbl[clsID].count = take_count
                     end
                     break
                 end
-
             end
-            for clsid, table in pairs(g.putitemtbl) do
-                local put_count = 0
-                local count = table.count
-                if tonumber(count) ~= inv_Item.count then
-                    put_count = inv_Item.count - tonumber(count)
-                end
-                if clsid == inv_clsid then
+
+            for clsID, table in pairs(g.putitemtbl) do
+                if clsID == inv_clsid then
+                    local put_count = inv_Item.count - table.count
                     if put_count > 0 then
-                        g.putitemtbl[clsid] = {
+                        g.putitemtbl[clsID] = {
                             iesid = guid,
                             count = put_count,
-                            handle = handle,
-                            invItem = inv_Item
+                            invcount = inv_Item.count
                         }
+                    elseif put_count == 0 then
+                        g.putitemtbl[clsID] = nil -- 同数の場合、putのみを除外
                     else
-                        g.putitemtbl[clsid] = nil
+                        g.putitemtbl[clsID] = nil
                     end
                     break
                 end
-
             end
         end
     end
 
-    another_warehouse_item_take()
+    -- 同数のアイテムをチェックして除外
+    for clsID, takeData in pairs(g.takeitemtbl) do
+        local putData = g.putitemtbl[clsID]
+        if putData and takeData.count == putData.count then
+            -- g.takeitemtbl[clsID] = nil
+            g.putitemtbl[clsID] = nil
+        end
+    end
 
+    another_warehouse_item_take()
 end
 
 function another_warehouse_item_take()
@@ -1140,232 +1270,116 @@ function another_warehouse_item_take()
     if warehouseFrame:IsVisible() == 0 then
         return
     end
-
     session.ResetItemList()
-    for clsid, table in pairs(g.takeitemtbl) do
-        local count = table.count
-        local iesid = table.iesid
-        if count ~= 0 then
-            session.AddItemID(tonumber(iesid), count)
+
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sortedGuidList = itemList:GetSortedGuidList()
+    local sortedCnt = sortedGuidList:Count()
+    local leave_one = g.settings.leave == 1
+
+    for clsid, itemInfo in pairs(g.takeitemtbl) do
+        for i = 0, sortedCnt - 1 do
+            local guid = sortedGuidList:Get(i)
+            local invItem = itemList:GetItemByGuid(guid)
+            local inv_count = leave_one and invItem.count - 1 or invItem.count
+            local inv_obj = GetIES(invItem:GetObject())
+            local count = math.min(itemInfo.count, inv_count)
+            local iesid = invItem:GetIESID()
+
+            if iesid == itemInfo.iesid then
+
+                if count ~= 0 then
+
+                    session.AddItemID(iesid, count)
+                    break
+                end
+            end
         end
     end
 
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                    warehouseFrame:GetUserIValue("HANDLE"))
+        warehouseFrame:GetUserIValue("HANDLE"))
 
-    local flag = 0
-    ReserveScript(string.format("another_warehouse_item_put(%d)", flag), 0.1)
-    return
+    local delay = g.settings.delay
+    g.tooltip_count = 0
+    warehouseFrame:RunUpdateScript("another_warehouse_item_put", delay)
 
-    --[[local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    local guidList = itemList:GetGuidList();
-    local sortedGuidList = itemList:GetSortedGuidList();
-    local sortedCnt = sortedGuidList:Count();
-    local fromframe = ui.GetFrame("accountwarehouse")
-
-    g.take = {}
-    for key, value in pairs(g.takeitemtbl) do
-
-        for i = 0, sortedCnt - 1 do
-            local guid = sortedGuidList:Get(i)
-            local invItem = itemList:GetItemByGuid(guid)
-            local type = invItem.type
-            local iesid = invItem:GetIESID()
-
-            if key == type and value ~= 0 then
-
-                local count = value
-                count = math.min(count, invItem.count)
-
-                g.takeitemtbl[type] = nil
-                -- another_warehouse_item_take_to(iesid, count)
-
-                g.take[iesid] = count
-
-                -- ReserveScript(string.format("another_warehouse_item_take_to('%s',%d)", iesid, count), delay)
-                -- delay = delay + 0.5
-                break
-            elseif key == type and value == 0 then
-                g.takeitemtbl[type] = nil
-                break
-            end
-
-        end
-
-    end
-
-    another_warehouse_item_take_to()]]
 end
 
---[[function another_warehouse_item_take_to()
-
-    local fromframe = ui.GetFrame("accountwarehouse")
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    session.ResetItemList()
-
-    for iesid, count in pairs(g.take) do
-        if count ~= 0 then
-            session.AddItemID(tonumber(iesid), count)
-        end
-    end
-
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), fromframe:GetUserIValue("HANDLE"))
-    g.take = nil
-
-    local flag = 0
-    ReserveScript(string.format("another_warehouse_item_put(%d)", flag), 0.1)
-    return
-end]]
-
-function another_warehouse_item_put(flag)
+function another_warehouse_item_put(frame)
 
     local warehouseFrame = ui.GetFrame('accountwarehouse')
     if warehouseFrame:IsVisible() == 0 then
-        return
+        return 0
     end
 
     local delay = g.settings.delay
-    local tooltip_count = 0
-    if flag == 0 then
-        for clsID, itemData in pairs(g.putitemtbl) do
-            if warehouseFrame:IsVisible() == 1 then
 
-                local iesid = itemData.iesid
-                local Count = itemData.count
-
-                local handle = itemData.handle
-                local invItem = itemData.invItem
-                local itemobj = GetIES(invItem:GetObject())
-                local itemCls = GetClassByType('Item', clsID)
-
-                another_warehouse_checkvalid(iesid)
-                local exist, index = another_warehouse_get_exist_item_index(itemobj)
-                local goal_index = another_warehouse_get_goal_index()
-                if exist == true and index >= 0 then
-                    goal_index = index
-                end
-
-                g.putitemtbl[clsID] = nil
-
-                local iconName = GET_ITEM_ICON_IMAGE(itemCls);
-                local Name = itemCls.Name
-
-                ReserveScript(string.format("another_warehouse_item_put_to('%s',%d,%d,%d,'%s','%s',%d)", iesid, Count,
-                                            handle, goal_index, Name, iconName, tooltip_count), delay)
-                delay = delay + g.settings.delay
-
-                if tooltip_count >= 4 then
-                    tooltip_count = tooltip_count - 4
-                else
-                    tooltip_count = tooltip_count + 1
-                end
-            end
-
-        end
-
-        another_warehouse_reitem_put(flag)
-
-        return
-    else
-        local LoginCID = info.GetCID(session.GetMyHandle())
-        if g.settings[LoginCID].maney_check == 1 then
-            ReserveScript("another_warehouse_silver()", 0.1)
-        end
-        ReserveScript("another_warehouse_end()", delay)
-        return
-    end
-
-end
-
-function another_warehouse_reitem_put(flag)
-
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    g.putitemtbl = {} -- アイテム情報を格納するテーブル
-    if warehouseFrame:IsVisible() == 0 then
-        return
-    end
-
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
-
-    local ivframe = ui.GetFrame("inventory");
     local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList();
-    local cnt = guidList:Count();
+    local inv_guidList = invItemList:GetGuidList()
+    local cnt = inv_guidList:Count()
 
-    for k, v in pairs(g.settings.items) do
-        local clsID = v.clsid
-        local count = v.count
+    for i = 0, cnt - 1 do
+        local guid = inv_guidList:Get(i)
+        local inv_Item = invItemList:GetItemByGuid(guid)
+        local inv_obj = GetIES(inv_Item:GetObject())
+        local inv_clsid = inv_obj.ClassID
+        if inv_obj.ClassName ~= MONEY_NAME then
+            for clsID, itemData in pairs(g.putitemtbl) do
 
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i)
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local invClsID = itemobj.ClassID
-            local inv_count = invItem.count
+                if clsID == inv_clsid then
 
-            if clsID == invClsID then
-                local item_count = inv_count - count
-                if item_count > 0 then
-                    g.putitemtbl[clsID] = {
-                        iesid = guid,
-                        count = invItem.count,
-                        handle = handle,
-                        invItem = invItem
-                    }
-                    break
+                    local count = itemData.count
+                    local invcount = itemData.invcount
+
+                    another_warehouse_checkvalid(guid)
+                    local exist, index = another_warehouse_get_exist_item_index(inv_obj)
+
+                    local goal_index = 0
+                    if exist == true and index >= 0 then
+                        goal_index = index
+                    else
+                        goal_index = another_warehouse_get_goal_index()
+                    end
+
+                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(count),
+                        warehouseFrame:GetUserIValue("HANDLE"), goal_index)
+                    another_warehouse_item_put_to(guid, count, goal_index, clsID, invcount)
+                    g.putitemtbl[clsID] = nil
+
+                    return 1
                 end
             end
         end
-
     end
 
     local LoginCID = info.GetCID(session.GetMyHandle())
-
-    for k2, v2 in pairs(g.settings[LoginCID].items) do
-        local char_clsID = v2.clsid
-        local char_count = v2.count
-
-        g.putitemtbl[char_clsID] = nil -- 既存の初期化
-
-        for i = 0, cnt - 1 do
-            local guid = guidList:Get(i)
-            local invItem = invItemList:GetItemByGuid(guid)
-            local itemobj = GetIES(invItem:GetObject())
-            local invClsID = itemobj.ClassID
-            local inv_count = invItem.count
-
-            if char_clsID == invClsID then
-                local item_count = inv_count - char_count
-
-                if item_count > 0 then
-                    g.putitemtbl[char_clsID] = {
-                        iesid = guid,
-                        count = invItem.count,
-                        handle = handle,
-                        invItem = invItem
-                    }
-                    break
-                end
-            end
-        end
+    if g.settings[LoginCID].maney_check == 1 then
+        ReserveScript("another_warehouse_silver()", 0.1)
     end
+    ReserveScript("another_warehouse_end()", delay)
 
-    if next(g.putitemtbl) == nil then
-        flag = 1
-        another_warehouse_item_put(flag)
-    else
-        another_warehouse_item_put(flag)
-    end
+    return 0
 
 end
 
-function another_warehouse_item_put_to(iesid, count, handle, goal_index, Name, iconName, tooltip_count)
+function another_warehouse_item_put_to(guid, count, goal_index, clsID, invcount)
+
+    local itemCls = GetClassByType('Item', clsID)
+    local iconName = GET_ITEM_ICON_IMAGE(itemCls);
+    local Name = itemCls.Name
+    if g.tooltip_count >= 4 then
+        g.tooltip_count = g.tooltip_count - 4
+    else
+        g.tooltip_count = g.tooltip_count + 1
+    end
+    g.putitemtbl[clsID] = nil
+
+    another_warehouse_item_tooltip(Name, iconName, count, g.tooltip_count)
     CHAT_SYSTEM(another_warehouse_lang("Item to warehousing") .. "：[" .. "{#EE82EE}" .. Name .. "{#FFFF00}]×" ..
                     "{#EE82EE}" .. count)
-
-    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
-    another_warehouse_item_tooltip(Name, iconName, count, tooltip_count)
     return
+
 end
 
 function another_warehouse_item_tooltip(Name, iconName, Count, tooltipcount)
@@ -1401,6 +1415,12 @@ function another_warehouse_item_tooltip(Name, iconName, Count, tooltipcount)
     SET_SLOT_ICON(tooltip_slot, iconName)
     tooltip_frame:ShowWindow(1)
     ReserveScript(string.format("another_warehouse_item_tooltip_close(%d)", tooltipcount), 2.0)
+
+end
+
+function another_warehouse_item_tooltip_close(count)
+    local tooltip_frame = ui.GetFrame("another_warehouse_tooltip" .. count)
+    tooltip_frame:ShowWindow(0)
 
 end
 
@@ -1486,7 +1506,9 @@ function another_warehouse_get_exist_item_index(itemObj)
 end
 
 function another_warehouse_end()
+
     ui.SysMsg("[AWH]End of Operation")
+    imcSound.PlaySoundEvent('sys_cube_open_normal');
 end
 
 function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
@@ -1534,7 +1556,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     maney_check:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
     maney_check:SetCheck(g.settings[LoginCID].maney_check)
     maney_check:SetTextTooltip(another_warehouse_lang(
-                                   "When checked, silver is automatically deposited and withdrawn from the warehouse.Set up for each character."))
+        "When checked, silver is automatically deposited and withdrawn from the warehouse.Set up for each character."))
 
     local item_text = settingframe:CreateOrGetControl("richtext", "item_text", 55, 95, 0, 0)
     AUTO_CAST(item_text);
@@ -1545,7 +1567,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     item_check:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
     item_check:SetCheck(g.settings[LoginCID].item_check)
     item_check:SetTextTooltip(another_warehouse_lang(
-                                  "When checked, items are automatically moved in and out of the warehouse.Set up for each character."))
+        "When checked, items are automatically moved in and out of the warehouse.Set up for each character."))
 
     local amount_text = settingframe:CreateOrGetControl("richtext", "amount_text", 400, 65, 0, 0)
     AUTO_CAST(amount_text);
@@ -1554,7 +1576,7 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     local amount_check = settingframe:CreateOrGetControl('checkbox', "amount_check", 660, 65, 25, 25)
     AUTO_CAST(amount_check);
     amount_check:SetTextTooltip(another_warehouse_lang(
-                                    "When checked, fractional amounts less than 1 million silver are taken from the warehouse."))
+        "When checked, fractional amounts less than 1 million silver are taken from the warehouse."))
     amount_check:SetEventScript(ui.LBUTTONUP, "another_warehouse_setting_check")
     amount_check:SetCheck(g.settings.amount_check)
 
@@ -1578,13 +1600,13 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     delay_edit:SetTextAlign("center", "center") -- print(tostring(g.settings.silver))
 
     delay_edit:SetTextTooltip(another_warehouse_lang(
-                                  "If the warehouse entry fails,{nl}set a longer time. Basic is 0.5 sec."))
-    delay_edit:SetText(tonumber(g.settings.delay) or 0.5)
+        "If the warehouse entry fails,{nl}set a longer time. Basic is 0.3 sec."))
+    delay_edit:SetText(tonumber(g.settings.delay) or 0.3)
     delay_edit:SetEventScript(ui.ENTERKEY, 'another_warehouse_setting_edit')
 
     local delay_text = settingframe:CreateOrGetControl("richtext", "delay_text", 505, 125, 100, 0)
     AUTO_CAST(delay_text);
-    delay_text:SetText("{ol}" .. another_warehouse_lang("Put delay time"))
+    delay_text:SetText("{ol}" .. another_warehouse_lang("Delay time"))
 
     local team_text = settingframe:CreateOrGetControl("richtext", "team_text", 25, 125, 0, 0)
     AUTO_CAST(team_text);
@@ -1893,8 +1915,7 @@ function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
             frame:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
 
             INPUT_NUMBER_BOX(frame, another_warehouse_lang('Enter the number to be left in the inventory.'),
-                             "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type,
-                             tostring(index), nil)
+                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
 
             if g.settings.items[tostring(index)] == nil then
@@ -1923,8 +1944,7 @@ function another_warehouse_setting_drop(frame, ctrl, argStr, argNum)
             local frame = ui.GetFrame("another_warehouse_setting")
             frame:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
             INPUT_NUMBER_BOX(frame, another_warehouse_lang('Enter the number to be left in the inventory.'),
-                             "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type,
-                             tostring(index), nil)
+                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
 
             if g.settings[LoginCID].items[tostring(index)] == nil then
@@ -2119,8 +2139,7 @@ function another_warehouse_setting_rbtn(itemObj, slot)
             local frame = ui.GetFrame("another_warehouse_setting")
             frame:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
             INPUT_NUMBER_BOX(frame, another_warehouse_lang('Enter the number to be left in the inventory.'),
-                             "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type,
-                             tostring(index), nil)
+                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
 
             if g.settings[LoginCID].items[tostring(index)] == nil then
@@ -2167,8 +2186,7 @@ function another_warehouse_setting_rbtn(itemObj, slot)
             local frame = ui.GetFrame("another_warehouse_setting")
             frame:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
             INPUT_NUMBER_BOX(frame, another_warehouse_lang('Enter the number to be left in the inventory.'),
-                             "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type,
-                             tostring(index), nil)
+                "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(index), nil)
         else
 
             if g.settings.items[tostring(index)] == nil then
@@ -2247,8 +2265,7 @@ function another_warehouse_setting_count_change(frame, ctrl, argStr, argNum)
     local awsframe = ui.GetFrame("another_warehouse_setting")
     awsframe:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
     INPUT_NUMBER_BOX(awsframe, another_warehouse_lang('Enter the number to be left in the inventory.'),
-                     "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type,
-                     tostring(slot_index), nil)
+        "another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack), type, tostring(slot_index), nil)
 
 end
 
@@ -2297,7 +2314,7 @@ function another_warehouse_notice()
     local msg = another_warehouse_lang("Notice from [another warehouse]")
     NICO_CHAT("{@st55_a}" .. msg)
     local msg2 = another_warehouse_lang(
-                     "[Yet Another Account Inventory] add-on is installed and will not function properly.")
+        "[Yet Another Account Inventory] add-on is installed and will not function properly.")
     NICO_CHAT("{@st55_a}" .. msg2)
 
 end
@@ -2391,7 +2408,7 @@ function another_warehouse_putitem(iesid, count)
     local frame = ui.GetFrame("accountwarehouse")
 
     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
-                            frame:GetUserIValue("HANDLE"), goal_index)
+        frame:GetUserIValue("HANDLE"), goal_index)
 
 end
 
@@ -2465,7 +2482,7 @@ function another_warehouse_inv_rbtn(itemObj, slot)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(frame, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", maxCnt, 1, maxCnt,
-                             nil, tostring(invItem:GetIESID()));
+                nil, tostring(invItem:GetIESID()));
         else
             another_warehouse_putitem(iesid, invItem.count)
         end
@@ -2563,7 +2580,7 @@ function another_warehouse_get_maxcount()
     end
 
 end
-
+-- !!!
 function another_warehouse_frame_close(frame, ctrl)
     local frame = ui.GetFrame("another_warehouse")
     frame:ShowWindow(0)
@@ -2573,7 +2590,8 @@ function another_warehouse_frame_close(frame, ctrl)
     local accountwarehouse_tab = GET_CHILD_RECURSIVELY(awframe, "accountwarehouse_tab")
     accountwarehouse_tab:SetMargin(0, 120, 0, 0) -- margin="0 120 0 0"
     local richtext_1 = GET_CHILD_RECURSIVELY(awframe, "richtext_1")
-    richtext_1:SetMargin(30, 73, 0, 0) --  margin="30 73 0 0"
+    richtext_1:ShowWindow(1)
+    -- richtext_1:SetMargin(30, 73, 0, 0) --  margin="30 73 0 0"
     local itemcnt = GET_CHILD_RECURSIVELY(awframe, "itemcnt")
     itemcnt:SetMargin(0, 73, 190, 0) --  margin="0 73 190 0"
     local slotgbox = GET_CHILD_RECURSIVELY(awframe, "slotgbox")
@@ -2590,6 +2608,15 @@ function another_warehouse_frame_close(frame, ctrl)
 
     local take = GET_CHILD_RECURSIVELY(awframe, "take")
     take:ShowWindow(0)
+
+    local help = GET_CHILD_RECURSIVELY(awframe, "help")
+    help:ShowWindow(0)
+    -- name_text
+    local name_text = GET_CHILD_RECURSIVELY(awframe, "name_text")
+    name_text:ShowWindow(0)
+    -- leave
+    local leave = GET_CHILD_RECURSIVELY(awframe, "leave")
+    leave:ShowWindow(0)
 
     another_warehouse_deactive_mousebutton()
     INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
@@ -2847,7 +2874,7 @@ function another_warehouse_on_rbutton(frame, slot, argstr, argnum)
 
         if invItem.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
             INPUT_NUMBER_BOX(awframe, ScpArgMsg("InputCount"), "another_warehouse_take_item_from_warehouse", maxCnt, 1,
-                             maxCnt, nil, iesid);
+                maxCnt, nil, iesid);
         else
             another_warehouse_takeitem(awframe, iesid, 1)
 
@@ -2866,7 +2893,7 @@ function another_warehouse_on_rbutton(frame, slot, argstr, argnum)
     end
 
 end
-
+-- !
 function another_warehouse_frame_update()
 
     g.tree = {}
@@ -2901,7 +2928,7 @@ function another_warehouse_frame_update()
                 local tree_box =
                     GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox')
                 local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo],
-                                                   'ui::CTreeControl')
+                    'ui::CTreeControl')
 
                 local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT");
                 local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH");
@@ -2964,6 +2991,9 @@ function another_warehouse_frame_update()
         table.sort(invItemList, INVENTORY_SORT_BY_NAME)
     end
 
+    local search_edit = GET_CHILD_RECURSIVELY(awframe, "search_edit")
+    local search_text = search_edit:GetText()
+
     for i = 1, #invenTitleName do
         local category = invenTitleName[i]
         local lim = 30
@@ -2992,6 +3022,57 @@ function another_warehouse_frame_update()
                         if itemCls ~= nil then
                             local makeSlot = true;
 
+                            if search_text ~= "" then
+                                local itemname = string.lower(dictionary.ReplaceDicIDInCompStr(itemCls.Name));
+                                local prefixClassName = TryGetProp(itemCls, "LegendPrefix")
+                                if prefixClassName ~= nil and prefixClassName ~= "None" then
+                                    local prefixCls = GetClass('LegendSetItem', prefixClassName)
+                                    local prefixName = string.lower(dictionary.ReplaceDicIDInCompStr(prefixCls.Name));
+                                    itemname = prefixName .. " " .. itemname;
+                                end
+                                local tempcap = string.lower(search_text);
+                                local a = string.find(itemname, tempcap);
+                                if a == nil then
+                                    makeSlot = false
+                                    if TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
+                                        local max_option_count =
+                                            shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
+                                                'UseLv', 1))
+                                        for ii = 1, max_option_count do
+                                            local option_name = 'EarringSpecialOption_' .. ii
+                                            local job = TryGetProp(itemCls, option_name, 'None')
+                                            if job ~= 'None' then
+                                                local job_cls = GetClass('Job', job)
+                                                if job_cls ~= nil then
+                                                    itemname = string.lower(
+                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name));
+                                                    a = string.find(itemname, tempcap);
+                                                    if a ~= nil then
+                                                        makeSlot = true
+                                                        break
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    elseif TryGetProp(itemCls, 'GroupName', 'None') == 'Icor' then
+
+                                        local max_option = 5
+                                        for iii = 1, max_option do
+                                            local item = GetIES(invItem:GetObject())
+                                            local option_name = 'RandomOption_' .. iii
+                                            local option = TryGetProp(item, option_name, 'None')
+                                            if option ~= "None" or option ~= nil then
+                                                itemname = string.lower(dictionary.ReplaceDicIDInCompStr(ClMsg(option)))
+                                            end
+                                            a = string.find(itemname, tempcap);
+                                            if a ~= nil then
+                                                makeSlot = true
+                                                break
+                                            end
+                                        end
+                                    end
+                                end
+                            end
                             local viewOptionCheck = 1
                             if typeStr == "Equip" then
                                 viewOptionCheck = CHECK_INVENTORY_OPTION_EQUIP(itemCls)
@@ -3002,25 +3083,26 @@ function another_warehouse_frame_update()
                             elseif typeStr == "Gem" then
                                 viewOptionCheck = CHECK_INVENTORY_OPTION_GEM(itemCls)
                             end
+                            if makeSlot == true and viewOptionCheck == 1 then
+                                if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
+                                    g.tree[typeStr] = g.tree[typeStr] or {}
+                                    if invenTypeStr == nil or invenTypeStr == typeStr then
+                                        local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
+                                            'ui::CGroupBox')
+                                        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
+                                            'ui::CTreeControl')
+                                        another_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, baseidcls,
+                                            typeStr);
 
-                            if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
-                                g.tree[typeStr] = g.tree[typeStr] or {}
-                                if invenTypeStr == nil or invenTypeStr == typeStr then
-                                    local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                                                           'ui::CGroupBox')
-                                    local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                                       'ui::CTreeControl')
-                                    another_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, baseidcls,
-                                                                          typeStr);
+                                    end
+
+                                    local tree_box_all = GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
+                                    local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
+                                        'ui::CTreeControl')
+                                    another_warehouse_insert_item_to_tree(frame, tree_all, invItem, itemCls, baseidcls,
+                                        typeStr);
 
                                 end
-
-                                local tree_box_all = GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
-                                local tree_all =
-                                    GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All', 'ui::CTreeControl')
-                                another_warehouse_insert_item_to_tree(frame, tree_all, invItem, itemCls, baseidcls,
-                                                                      typeStr);
-
                             end
                         end
                     end
@@ -3031,7 +3113,7 @@ function another_warehouse_frame_update()
 
     end
     local height = frame:GetHeight()
-    for typeNo = 1, #g_invenTypeStrList do
+    --[[for typeNo = 1, #g_invenTypeStrList do
         if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
             local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox');
             local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo], 'ui::CTreeControl');
@@ -3041,7 +3123,24 @@ function another_warehouse_frame_update()
             end
 
         end
+    end]]
+
+    for typeNo = 1, #g_invenTypeStrList do
+        if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
+            local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox');
+            AUTO_CAST(tree_box)
+            local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo], 'ui::CTreeControl');
+            AUTO_CAST(tree)
+            if tree_box:GetWidth() ~= (650 - 38) then
+                tree_box:Resize(650 - 38, height - 5)
+            end
+            if tree:GetWidth() ~= (650 - 38) then
+                tree:Resize(650 - 38, height - 5)
+            end
+            -- 
+        end
     end
+
     for typeNo = 1, #g_invenTypeStrList do
         if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
             local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox');
@@ -3082,17 +3181,6 @@ function another_warehouse_frame_update()
         end
 
     end
-    for typeNo = 1, #g_invenTypeStrList do
-        if not IsBlackListedTabName(g_invenTypeStrList[typeNo]) then
-            local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox');
-            local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo], 'ui::CTreeControl');
-            AUTO_CAST(tree)
-            if tree:GetWidth() ~= (650 - 38) then
-                tree:Resize(650 - 38, height - 5)
-            end
-            -- 
-        end
-    end
 
     local gbox = frame:GetChild("inventoryGbox")
     AUTO_CAST(gbox)
@@ -3115,265 +3203,3 @@ function another_warehouse_frame_update()
     count_text:SetFontName("white_16_ol")
 
 end
-
---[[function another_warehouse_accountwarehouse_save()
-    local frame = ui.GetFrame("accountwarehouse")
-    local tab = GET_CHILD(frame, "accountwarehouse_tab");
-    local accountObj = GetMyAccountObj();
-    local basecount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
-                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
-                          ADDITIONAL_SLOT_COUNT_BY_TOKEN
-
-    for i = 0, 4 do
-        if i == 0 then
-            tab:SelectTab(i)
-            local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
-            for j = 1, basecount do
-                local slot = slotset:GetSlotByIndex(j)
-                AUTO_CAST(slot)
-                local icon = slot:GetIcon()
-                if icon == nil then
-
-                    local iconInfo = icon:GetInfo();
-                    local invItem = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iconInfo:GetIESID());
-                end
-
-            end
-        end
-    end
-end]]
-
---[[if g.settings.amount_check == 1 then
-
-        local gbox = GET_CHILD_RECURSIVELY(warehouseFrame, 'visgBox')
-        local cnt = session.AccountWarehouse.GetCount() - 1
-
-        local ctrlSet = GET_CHILD_RECURSIVELY(warehouseFrame, 'CTRLSET_' .. cnt)
-        local result = ctrlSet:GetChild('result')
-        local value = result:GetTextByKey('value')
-        local cleanedValue = string.gsub(value, "[\r\n,]", "")
-        local numericValue = tonumber(cleanedValue)
-
-        if numericValue <= 999999 then
-
-            charsilver = (math.floor(charsilver / 1000000) * 1000000) - tonumber(g.settings.silver)
-            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(), tostring(charsilver), handle)
-            return
-        end
-
-        local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-        local guidlist = itemList:GetSortedGuidList()
-        local cnt = itemList:Count()
-
-        for i = 0, cnt - 1 do
-            local guid = guidlist:Get(i)
-            local invItem = itemList:GetItemByGuid(guid)
-            if invItem ~= nil then
-                local invItem_obj = GetIES(invItem:GetObject())
-                if invItem_obj.ClassName == MONEY_NAME then
-                    local count = invItem.count
-                    if count >= 1000000 then
-                        local fraction = count % 1000000
-                        local inv_frac = charsilver % 1000000
-
-                        if fraction == 0 then
-                            if charsilver < tonumber(g.settings.silver) then
-                                session.ResetItemList()
-                                session.AddItemIDWithAmount(guid, tostring(tonumber(g.settings.silver)))
-                                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-                                return
-                            elseif charsilver > tonumber(g.settings.silver) then
-                                local put_silver = charsilver - inv_frac
-                                if put_silver < tonumber(g.settings.silver) then
-                                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(),
-                                        tostring(inv_frac), handle)
-                                    return
-                                elseif put_silver > tonumber(g.settings.silver) then
-                                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silveritem:GetIESID(),
-                                        tostring(put_silver - tonumber(g.settings.silver)), handle)
-                                    return
-                                end
-                            end
-                        else
-                            if charsilver == tonumber(g.settings.silver) then
-                                session.ResetItemList()
-                                session.AddItemIDWithAmount(guid, tostring(fraction))
-                                item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-                                return
-                            elseif charsilver < tonumber(g.settings.silver) then
-                                if (charsilver + fraction) < tonumber(g.settings.silver) then
-                                    session.ResetItemList()
-                                    session.AddItemIDWithAmount(guid, tostring(fraction + tonumber(g.settings.silver)))
-                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                        handle)
-                                    return
-                                else
-                                    session.ResetItemList()
-                                    session.AddItemIDWithAmount(guid, tostring(fraction))
-                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                        handle)
-                                    return
-                                end
-                            elseif charsilver > tonumber(g.settings.silver) then
-                                if (inv_frac + fraction) < tonumber(g.settings.silver) then
-                                    session.ResetItemList()
-                                    session.AddItemIDWithAmount(guid, tostring(tonumber(g.settings.silver) + fraction))
-                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                        handle)
-                                    return
-                                else
-                                    session.ResetItemList()
-                                    session.AddItemIDWithAmount(guid, tostring(fraction))
-                                    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                                        handle)
-                                    return
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    print(g.settings.amount_check)]]
---[[function another_warehouse_fraction()
-
-    local warehouseFrame = ui.GetFrame('accountwarehouse')
-    local handle = warehouseFrame:GetUserIValue('HANDLE')
-    local awsilver = 0
-    session.ResetItemList()
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local guidlist = itemList:GetSortedGuidList()
-    local cnt = itemList:Count()
-    local iesid = ""
-
-    for i = 0, cnt - 1 do
-        local guid = guidlist:Get(i)
-        local invItem = itemList:GetItemByGuid(guid)
-        if invItem ~= nil then
-            local invItem_obj = GetIES(invItem:GetObject())
-            if invItem_obj.ClassName == MONEY_NAME then
-                local count = invItem.count
-                if count >= 1000000 then
-                    local fraction = count % 1000000
-                    if fraction < 999999 then
-                        awsilver = fraction
-                        print(awsilver)
-                        iesid = guid
-                        break
-                    end
-                end
-            end
-        end
-    end
-
-    session.AddItemIDWithAmount(iesid, tostring(awsilver))
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-
-end]]
-
---[[function another_warehouse_get_goal_index()
-    local frame = ui.GetFrame("accountwarehouse")
-    local tab = GET_CHILD(frame, "accountwarehouse_tab");
-    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-
-    local accountObj = GetMyAccountObj();
-    local basecount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
-                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
-                          ADDITIONAL_SLOT_COUNT_BY_TOKEN
-
-    local invItemCount = another_warehouse_item_count()
-    local maxcount = another_warehouse_get_maxcount()
-    local index = 0
-
-    if invItemCount < maxcount then
-        for i = 4, 0, -1 do
-            -- for i = 0, 4 do
-            if i == 4 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + 210 + left + 1
-                    return index
-                end
-            elseif i == 3 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + 140 + left + 1
-                    return index
-                end
-            elseif i == 2 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + 70 + left + 1
-                    return index
-                end
-            elseif i == 1 then
-                tab:SelectTab(i)
-                local itemcnt = GET_CHILD(gbox, "itemcnt")
-                local length = #itemcnt:GetText()
-                local left = 0
-
-                if length == 14 then
-                    left = string.sub(itemcnt:GetText(), length - 6, length - 6) * 1 -- 左側の数字を取得
-                else
-                    left = string.sub(itemcnt:GetText(), length - 7, length - 6) * 1 -- 左側の数字を取得
-                end
-
-                if left < 70 then
-                    index = basecount + left + 1
-                    return index
-                end
-
-            elseif i == 0 then
-                tab:SelectTab(i)
-                local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
-                for j = 1, basecount do
-                    local slot = slotset:GetSlotByIndex(j)
-                    AUTO_CAST(slot)
-                    local icon = slot:GetIcon()
-                    if icon == nil then
-                        index = j + 1
-                        return index
-                    end
-
-                end
-
-            end
-        end
-    else
-
-        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
-        return
-    end
-
-end]]
