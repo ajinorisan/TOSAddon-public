@@ -2,7 +2,7 @@
 local addonName = "vakarine_equip"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -42,6 +42,11 @@ function g.mkdir_new_folder()
     end
 end
 g.mkdir_new_folder()
+
+if not g.loaded then
+    vakarine_equip_load_settings()
+    g.loaded = true
+end
 
 local equip_index = {8, 9, 30, 31, 19, 17, 18, 3, 14, 4, 5, 34, 33}
 local equips_tbl = {"RH", "LH", "RH_SUB", "LH_SUB", "NECK", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS",
