@@ -1,4 +1,5 @@
 -- v1.0.0 とりあえず作った。
+-- v1.0.1 ネックレス最後に処理に変更。知らんやんそんなん。
 local addonName = "vakarine_equip"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
@@ -43,14 +44,9 @@ function g.mkdir_new_folder()
 end
 g.mkdir_new_folder()
 
-if not g.loaded then
-    vakarine_equip_load_settings()
-    g.loaded = true
-end
-
-local equip_index = {8, 9, 30, 31, 19, 17, 18, 3, 14, 4, 5, 34, 33}
-local equips_tbl = {"RH", "LH", "RH_SUB", "LH_SUB", "NECK", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS",
-                    "SHOULDER", "BELT"}
+local equip_index = {8, 9, 30, 31, 17, 18, 3, 14, 4, 5, 34, 33, 19}
+local equips_tbl = {"RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS", "SHOULDER",
+                    "BELT", "NECK"}
 
 function vakarine_equip_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
@@ -74,7 +70,6 @@ function vakarine_equip_load_settings()
                 LH = 1,
                 RH_SUB = 1,
                 LH_SUB = 1,
-                NECK = 1,
                 RING1 = 1,
                 RING2 = 1,
                 SHIRT = 1,
@@ -82,7 +77,8 @@ function vakarine_equip_load_settings()
                 GLOVES = 1,
                 BOOTS = 1,
                 SHOULDER = 1,
-                BELT = 1
+                BELT = 1,
+                NECK = 1
             }
         }
     end
@@ -245,10 +241,6 @@ end
 function vakarine_equip_unequip(frame, msg, str, num)
 
     for i, data in ipairs(g.equip_tbl) do
-        local equip_name = data[1]
-        if equip_name == "NECK" then
-            g.neck = true
-        end
 
         local equip_index = data[2]
         local iesid = data[3]
@@ -271,18 +263,6 @@ end
 
 function vakarine_equip_item_equip()
 
-    if not g.neck then
-        local type = 584103 -- アニマス
-        local inv_item = session.GetInvItemByType(type)
-        if inv_item ~= nil then
-            local inv_index = inv_item.invIndex
-            ITEM_EQUIP(inv_index, "NECK")
-            g.neck = true
-            ReserveScript("vakarine_equip_item_equip()", g.settings.delay)
-            return
-        end
-    end
-
     for i, data in ipairs(g.equip_tbl) do
         local equip_name = data[1]
         local equip_index = data[2]
@@ -301,14 +281,25 @@ function vakarine_equip_item_equip()
             end
             local inv_index = inv_item.invIndex
             ITEM_EQUIP(inv_index, equip_name)
-            if i ~= #g.equip_tbl then
-                ReserveScript("vakarine_equip_item_equip()", g.settings.delay)
-            else
-                ReserveScript("vakarine_equip_equips_check()", g.settings.delay)
-            end
+            ReserveScript("vakarine_equip_item_equip()", g.settings.delay)
             return
         end
     end
+
+    if not g.neck then
+        local type = 584103 -- アニマス
+        local inv_item = session.GetInvItemByType(type)
+        if inv_item ~= nil then
+            local inv_index = inv_item.invIndex
+            ITEM_EQUIP(inv_index, "NECK")
+            g.neck = true
+            ReserveScript("vakarine_equip_item_equip()", g.settings.delay)
+            return
+        end
+    end
+
+    ReserveScript("vakarine_equip_equips_check()", g.settings.delay)
+    return
 end
 
 function vakarine_equip_equips_check()
@@ -370,24 +361,6 @@ function vakarine_equip_stat_update()
     hptext:SetText(string.format('{%s}{ol}{%s}%d%%', "s15", color, hp_now))
     hptext:SetGravity(ui.RIGHT, ui.TOP);
     hptext:SetOffset(hp:GetX(), hp:GetY() - 10 - (15 - 15))
-end
-
-function vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)
-    local exists = false
-    for buffid, value in pairs(g.settings["buffid"]) do
-        if tonumber(buffid) == buff_id then
-            exists = true
-            -- 良くないね
-            --[[if value == 1 and g.vakarine then
-                REMOVE_BUF(_, _, _, buff_id)
-            end]]
-            return
-        end
-    end
-    if not exists then
-        g.settings["buffid"][tostring(buff_id)] = 0
-        vakarine_equip_save_settings()
-    end
 end
 
 function VAKARINE_EQUIP_ON_INIT(addon, frame)
@@ -452,6 +425,7 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
     if not vakarine_judgment then
         return
     end
+
     -- 11244 聖域3F 11227 分裂
     if (map_cls.MapType == "Instance" or cur_map_id == 11244) and cur_map_id ~= 11227 then
 
@@ -469,6 +443,7 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
                 if iesid ~= "0" then
                     if equip_name == "NECK" then
                         g.neck_iesid = iesid
+                        g.neck = true
                     end
                     table.insert(g.equip_tbl, {equip_name, equip_index, iesid, use})
                 end
@@ -476,6 +451,7 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
                 g.neck_iesid = iesid
             end
         end
+
         local invframe = ui.GetFrame("inventory")
         if tonumber(USE_SUBWEAPON_SLOT) == 1 then
             DO_WEAPON_SLOT_CHANGE(invframe, 1)
@@ -496,8 +472,9 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
             local equip_item_list = session.GetEquipItemList();
             local equip_item = equip_item_list:GetEquipItemByIndex(19);
             local iesid = equip_item:GetIESID()
-            if iesid ~= g.neck_iesid then
+            if iesid ~= g.neck_iesid and g.neck_iesid ~= nil then
                 local equip_item = session.GetInvItemByGuid(g.neck_iesid)
+                g.neck_iesid = nil
                 if equip_item ~= nil then
                     local item_index = equip_item.invIndex
                     item.Equip(item_index)
@@ -509,6 +486,24 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
         end
 
         addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_neck_equip")
+    end
+end
+
+function vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)
+    local exists = false
+    for buffid, value in pairs(g.settings["buffid"]) do
+        if tonumber(buffid) == buff_id then
+            exists = true
+            -- 良くないね
+            --[[if value == 1 and g.vakarine then
+                REMOVE_BUF(_, _, _, buff_id)
+            end]]
+            return
+        end
+    end
+    if not exists then
+        g.settings["buffid"][tostring(buff_id)] = 0
+        vakarine_equip_save_settings()
     end
 end
 
