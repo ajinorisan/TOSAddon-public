@@ -440,7 +440,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, cid)
+                                          value.iesid, value.image, cid)
                     break
                 end
             end
@@ -668,7 +668,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, g.cid)
+                                          value.iesid, value.image, g.cid)
                     break
                 end
             end
@@ -992,29 +992,28 @@ function cc_helper_unequip()
     local frame = ui.GetFrame("inventory")
     local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     eqpTab:SelectTab(1)
-    local equip_tbl = {
-        ["seal"] = 25,
-        ["ark"] = 27,
-        ["hair1"] = 0,
-        ["hair2"] = 20,
-        ["hair3"] = 1
-    }
+    local equip_tbl = {0, 20, 1, 25, 27}
 
-    for key, value in pairs(g.settings[g.cid]) do
-        for k, v in pairs(equip_tbl) do
-            if key == k then
-                local slot = GET_CHILD_RECURSIVELY(frame, key)
-                local icon = slot:GetIcon()
-                local icon_info = icon:GetInfo()
-                print(key .. ":" .. tostring(icon_info))
-                if icon_info then
-                    local iesid = icon_info:GetIESID()
-
-                end
-
-            end
-        end
+    local equip_item_list = session.GetEquipItemList();
+    for i, equip_index in ipairs(equip_tbl) do
+        local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
+        local iesid = equip_item:GetIESID()
+        local iesid = icon_info:GetIESID()
     end
+
+    --[[local equip_item_list = session.GetEquipItemList();
+    for i, data in ipairs(g.equip_tbl) do
+        local equip_name = data[1]
+        local equip_index = data[2]
+        local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
+        local iesid = equip_item:GetIESID()
+
+        if iesid == "0" then
+            imcAddOn.BroadMsg("NOTICE_Dm_!", equip_name .. " Not equipped", 10);
+            ui.SetHoldUI(false);
+            return
+        end
+    end]]
 
     --[[for _, equip in ipairs(equip_tbl) do
         local slot = GET_CHILD_RECURSIVELY(frame, equip.type)
