@@ -8,10 +8,11 @@
 -- v1.2.1 ロード処理見直し。
 -- v1.2.2 エコモードバグってたの修正。
 -- v1.2.3 AGM連携の確認を切り替えられるように。ある程度日本語化
+-- v1.2.4 AGM連携を4種類対応出来るように。コピーの仕様変更。コード見直し。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.3"
+local ver = "1.2.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -131,7 +132,7 @@ function CC_HELPER_ON_INIT(addon, frame)
     if type(_G[functionName]) == "function" then
         g.agm = true
     end
-    CHAT_SYSTEM("agm" .. tostring(g.agm))
+
     -- cc_helper_load_settings()
 
     local pc = GetMyPCObject();
@@ -441,7 +442,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, cid)
+                                          value.iesid, value.image, cid)
                     break
                 end
             end
@@ -669,7 +670,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, g.cid)
+                                          value.iesid, value.image, g.cid)
                     break
                 end
             end
@@ -1334,11 +1335,7 @@ end
 
 function cc_helper_out_btn_start()
 
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local sortedGuidList = itemList:GetSortedGuidList()
-    local sortedCnt = sortedGuidList:Count()
-
-    if g.settings.eco_mode == 0 then
+    if g.agm and g.settings.eco_mode == 0 then
         if g.settings[g.cid].agm_use == 1 then
 
             local gems = {}
@@ -1352,6 +1349,12 @@ function cc_helper_out_btn_start()
             end
 
             g.take_gem = {}
+
+            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+            local sortedGuidList = itemList:GetSortedGuidList()
+            local sortedCnt = sortedGuidList:Count()
+            local fromframe = ui.GetFrame("accountwarehouse")
+            local handle = fromframe:GetUserIValue("HANDLE")
 
             for i = 0, sortedCnt - 1 do
                 local iesid = sortedGuidList:Get(i)
@@ -1402,1026 +1405,192 @@ function cc_helper_out_btn_start()
                 local iesid = gems.iesid
                 session.AddItemID(tonumber(iesid), 1)
             end
-
-            local fromframe = ui.GetFrame("accountwarehouse")
-            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                fromframe:GetUserIValue("HANDLE"))
+            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+            ReserveScript("cc_helper_equip_take_warehouse()", g.settings.delay)
+            return
         end
     end
+    cc_helper_equip_take_warehouse()
+end
 
-    local temp_tbl = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem"}
-    -- ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+function cc_helper_equip_take_warehouse()
+
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sortedGuidList = itemList:GetSortedGuidList()
+    local sortedCnt = sortedGuidList:Count()
+    local fromframe = ui.GetFrame("accountwarehouse")
+    local handle = fromframe:GetUserIValue("HANDLE")
+
+    local temp_tbl = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3"}
+
+    session.ResetItemList()
+    for _, equip in pairs(temp_tbl) do
+        local iesid = g.settings[g.cid][equip].iesid
+        if iesid ~= "0" then
+            local inv_item = itemList:GetItemByGuid(iesid)
+            if inv_item ~= nil then
+                session.AddItemID(tonumber(iesid), 1)
+            end
+        end
+    end
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+
+    MONSTERCARDSLOT_FRAME_OPEN()
+    ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
 end
 
 function cc_helper_equip_reserve()
     local frame = ui.GetFrame("inventory")
+    local inv_tab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
 
-    local iesid_data = {{
-        spot = "GODCARD",
-        index = 13,
-        iesid = g.settings[g.cid].god_iesid
-    }, {
-        spot = "HAT",
-        index = nil,
-        iesid = g.settings[g.cid].hair1_iesid
-    }, {
-        spot = "HAT_T",
-        index = nil,
-        iesid = g.settings[g.cid].hair2_iesid
-    }, {
-        spot = "HAT_L",
-        index = nil,
-        iesid = g.settings[g.cid].hair3_iesid
-    }, {
-        spot = "SEAL",
-        index = nil,
-        iesid = g.settings[g.cid].seal_iesid
-    }, {
-        spot = "ARK",
-        index = nil,
-        iesid = g.settings[g.cid].ark_iesid
-    }, {
-        spot = "RELIC",
-        index = nil,
-        iesid = g.settings[g.cid].crown_iesid
-    }, {
-        spot = "LEGCARD",
-        index = 12,
-        iesid = g.settings[g.cid].leg_iesid
-    }}
+    local temp_tbl = {"god", "hair1", "hair2", "hair3", "seal", "ark", "leg"}
 
-    local delay = 0
-    for _, data in ipairs(iesid_data) do
-        local spot, index, iesid = data.spot, data.index, data.iesid
-        if spot == "GODCARD" then
+    for _, equip in ipairs(temp_tbl) do
+        if equip == "god" then
             local card_index = 13
             local cardid = GETMYCARD_INFO(card_index)
-
+            local iesid = g.settings[g.cid][equip].iesid
             if cardid == 0 and iesid ~= "" then
-                ReserveScript(string.format("cc_helper_card_equip('%s', '%s')", spot, iesid), delay)
-                delay = delay + g.settings.delay * 3
+                inv_tab:SelectTab(4)
+                local argstr = string.format("%d#%s", card_index, tostring(iesid))
+                pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
+                ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                return
             end
-        elseif spot == "LEGCARD" then
-            if g.check == 0 then
+        elseif equip == "leg" then
+            if g.settings.eco_mode == 0 then
                 local card_index = 12
                 local cardid = GETMYCARD_INFO(card_index)
-
+                local iesid = g.settings[g.cid][equip].iesid
                 if cardid == 0 and iesid ~= "" then
-                    ReserveScript(string.format("cc_helper_card_equip('%s', '%s')", spot, iesid), delay)
-                    delay = delay + g.settings.delay * 3
+                    inv_tab:SelectTab(4)
+                    local argstr = string.format("%d#%s", card_index, tostring(iesid))
+                    pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
+                    ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                    return
                 end
             end
         else
-            if iesid ~= "" then
-                ReserveScript(string.format("cc_helper_equip('%s', '%s')", spot, iesid), delay)
-                delay = delay + g.settings.delay * 1.5
+
+            function cc_helper_equip(spot, iesid)
+                local item = session.GetInvItemByGuid(iesid)
+                if item then
+                    local item_index = item.invIndex
+                    ITEM_EQUIP(item_index, spot)
+                end
             end
+
+            local equip_tbl = {{
+                ["HAT"] = 0
+            }, {
+                ["HAT_T"] = 20
+            }, {
+                ["HAT_L"] = 1
+            }, {
+                ["SEAL"] = 25
+            }, {
+                ["ARK"] = 27
+            }}
+            for i, data in ipairs(equip_tbl) do
+                for spot, equip_index in pairs(data) do
+                    local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
+                    local iesid = equip_item:GetIESID()
+                    if iesid == "0" then
+                        inv_tab:SelectTab(1)
+                        cc_helper_equip(spot, iesid)
+                        ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                        return
+                    end
+                end
+            end
+
         end
     end
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay)
+    ReserveScript("cc_helper_end_operation()", g.settings.delay + 0.1)
 
-    ReserveScript("cc_helper_end_operation()", delay + 1.0)
-end
-
-function cc_helper_equip(spot, iesid)
-    local item = session.GetInvItemByGuid(iesid)
-    if item then
-        local item_index = item.invIndex
-        ITEM_EQUIP(item_index, spot)
-    end
-end
-
-function cc_helper_card_equip(spot, iesid)
-    MONSTERCARDSLOT_FRAME_OPEN()
-
-    local card_index
-    if spot == "GODCARD" then
-        card_index = 13
-    elseif spot == "LEGCARD" then
-        card_index = 12
-    end
-
-    if card_index then
-        local argStr = string.format("%d#%s", card_index, tostring(iesid))
-        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr)
-    end
 end
 
 function cc_helper_end_operation()
-    -- 装備解除が必要かどうかをチェック
-    local function check_unequip(iesid, start_func)
-        if iesid ~= "" then
-            local item = session.GetInvItemByGuid(iesid)
-            if item then
-                ReserveScript(start_func, g.settings.delay)
-                return true
-            end
-        end
-        return false
-    end
 
-    -- カードスロットの装備解除をチェック
-    local function check_card_unequip(slot_index, iesid, start_func)
-        local cardid = GETMYCARD_INFO(slot_index - 1)
-        if cardid ~= 0 and iesid == tostring(cardid) then
-            ReserveScript(start_func, g.settings.delay)
-            return true
-        end
-        return check_unequip(iesid, start_func)
-    end
-
-    -- 装備解除の処理
-    if g.unequip == 1 then
-        local unequip_items = {{
-            iesid = g.settings[g.cid].seal_iesid,
-            start_func = "cc_helper_in_btn_start()"
-        }, {
-            iesid = g.settings[g.cid].ark_iesid,
-            start_func = "cc_helper_in_btn_start()"
-        }, {
-            iesid = g.settings[g.cid].hair1_iesid,
-            start_func = "cc_helper_in_btn_start()"
-        }, {
-            iesid = g.settings[g.cid].hair2_iesid,
-            start_func = "cc_helper_in_btn_start()"
-        }, {
-            iesid = g.settings[g.cid].hair3_iesid,
-            start_func = "cc_helper_in_btn_start()"
-        }, {
-            iesid = g.settings[g.cid].crown_iesid,
-            start_func = "cc_helper_in_btn_start()"
-        }}
-
-        for _, item in ipairs(unequip_items) do
-            if check_unequip(item.iesid, item.start_func) then
-                return
-            end
-        end
-
-        if g.settings[g.cid].leg_iesid ~= "" and g.check == 0 then
-            if check_card_unequip(13, g.settings[g.cid].leg_iesid, "cc_helper_in_btn_start()") then
-                return
-            end
-        end
-
-        if g.settings[g.cid].god_iesid ~= "" then
-            if check_card_unequip(14, g.settings[g.cid].god_iesid, "cc_helper_in_btn_start()") then
-                return
-            end
-        end
-
-        g.unequip = 0
-    end
-
-    -- インベントリフレームを開いて全てのタブを選択
     local frame = ui.GetFrame("inventory")
-    local allTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
-    allTab:SelectTab(0)
+    local inv_tab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
+    inv_tab:SelectTab(0)
 
-    -- モンスターカードスロットを閉じるスクリプトを予約
-    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
-
-    ui.SysMsg("[CCH]end of operation")
-    if g.settings.auto_close == 1 and g.settings[g.cid].agm_use ~= 1 and g.settings[g.cid].mcc_use ~= 1 then
+    if g.agm and g.settings.eco_mode == 0 and g.settings[g.cid].agm_use == 1 and g.temp == nil then
+        cc_helper_handle_aether_gem_management()
+        return
+    end
+    g.temp = nil
+    ui.SysMsg("[CCH]End of Operation")
+    if g.settings.auto_close == 1 then
         local frame = ui.GetFrame("inventory")
         frame:ShowWindow(0)
         local awframe = ui.GetFrame("accountwarehouse")
         awframe:ShowWindow(0)
     end
-
-    cc_helper_handle_monstercard_change()
-    cc_helper_handle_aether_gem_management()
+    if ADDONS.norisan.monstercard_change and g.settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
+        g.monstercard = 1
+        cc_helper_handle_monstercard_change()
+    end
 
 end
 
 function cc_helper_handle_aether_gem_management()
-    if g.agm == 1 and ADDONS.norisan.AETHERGEM_MGR and g.check == 0 and g.settings[g.cid].agm_use == 1 then
-        local equipSlots = {"RH", "LH", "RH_SUB", "LH_SUB"}
 
-        for _, slotName in ipairs(equipSlots) do
-            local equipSlot = GET_CHILD_RECURSIVELY(ui.GetFrame("inventory"), slotName)
-            local icon = equipSlot:GetIcon()
+    local equipSlots = {"RH", "LH", "RH_SUB", "LH_SUB"}
 
-            if icon then
-                local iconInfo = icon:GetInfo()
-                local guid = iconInfo:GetIESID()
-                local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(guid).type)
-                local classID = itemCls.ClassID
-                local equipItem = session.GetEquipItemByType(classID)
-                local gem = equipItem:GetEquipGemID(2)
+    for _, slotName in ipairs(equipSlots) do
+        local equipSlot = GET_CHILD_RECURSIVELY(ui.GetFrame("inventory"), slotName)
+        local icon = equipSlot:GetIcon()
 
-                if gem == 0 then
-                    if g.settings[g.cid].agm_check == true then
-                        local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
-                                        "Call[Aether Gem Manager]?"
-                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
-                        ui.MsgBox(msg, yes_scp, "None")
-                        break
-                    else
-                        AETHERGEM_MGR_GET_EQUIP()
-                        break
-                    end
-                    -- return
-                end
-            end
-        end
-    end
-end
+        if icon then
+            local iconInfo = icon:GetInfo()
+            local guid = iconInfo:GetIESID()
+            local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(guid).type)
+            local classID = itemCls.ClassID
+            local equipItem = session.GetEquipItemByType(classID)
+            local gem = equipItem:GetEquipGemID(2)
 
--- !
-
---[[function cc_helper_aether_gem_get_equip()
-
-    local frame = ui.GetFrame("inventory")
-    session.ResetItemList()
-    local equipItemList = session.GetEquipItemList();
-    local inv_tab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
-    inv_tab:SelectTab(1)
-
-    local isEmptySlot = false;
-    if session.GetInvItemList():Count() < MAX_INV_COUNT then
-        isEmptySlot = true;
-    end
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    local delay = 0
-
-    if isEmptySlot == true then
-
-        function cc_helper_aether_gem_unequip(equip_index)
-            item.UnEquip(equip_index)
-        end
-
-        for _, equip in ipairs(equips) do
-            local child = GET_CHILD_RECURSIVELY(frame, equip)
-
-            local icon = child:GetIcon()
-            local guid = icon:GetInfo():GetIESID()
-            if guid ~= "0" then
-                if equip == "RH" then
-                    cc_helper_aether_gem_unequip(8)
-                elseif equip == "LH" then
-                    delay = g.settings.delay
-                    ReserveScript(string.format("cc_helper_aether_gem_unequip(%d)", 9), delay)
-                elseif equip == "RH_SUB" then
-                    delay = g.settings.delay + delay
-                    ReserveScript(string.format("cc_helper_aether_gem_unequip(%d)", 30), delay)
-                end
-            end
-        end
-        cc_helper_aether_gem_reg_item_reserve(delay)
-    else
-        ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."))
-        return
-    end
-end
-function cc_helper_aether_gem_reg_item_reserve(delay)
-
-    for i = 1, 4 do
-        ReserveScript(string.format("cc_helper_aether_gem_reg_item(%d,%d)", i, delay), g.settings.delay * i)
-        delay = delay + g.settings.delay
-    end
-end
-
-function cc_helper_aether_gem_reg_item(index, delay)
-    print(delay)
-    local frame = ui.GetFrame('goddess_equip_manager')
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    local guid_tbl = {}
-    for _, equip in ipairs(equips) do
-        local child = GET_CHILD_RECURSIVELY(frame, equip)
-        local icon = child:GetIcon()
-        local guid = icon:GetInfo():GetIESID()
-        table.insert(guid_tbl, guid)
-    end
-    local guid = guid_tbl[index]
-    if guid ~= "0" then
-        local inv_item = session.GetInvItemByGuid(guid)
-        local item_obj = GetIES(inv_item:GetObject())
-        GODDESS_MGR_SOCKET_REG_ITEM(frame, inv_item, item_obj)
-        GODDESS_MGR_SOCKET_AETHER_UPDATE(frame)
-        cc_helper_aether_gem_remove(guid, index, delay, guid_tbl)
-    end
-end
-
-function cc_helper_aether_gem_remove(guid, index, delay, guid_tbl)
-
-    local eqpframe = ui.GetFrame("inventory")
-    local invTab = GET_CHILD_RECURSIVELY(eqpframe, "inventype_Tab")
-    invTab:SelectTab(6)
-
-    local frame = ui.GetFrame("goddess_equip_manager")
-    local aether_cover_bg = GET_CHILD_RECURSIVELY(frame, 'aether_cover_bg')
-    local socket_slot = GET_CHILD_RECURSIVELY(frame, "socket_slot")
-    local aether_inner_bg = GET_CHILD_RECURSIVELY(frame, 'aether_inner_bg')
-    local ctrlset = GET_CHILD(aether_inner_bg, 'AETHER_CSET_0')
-    local do_remove = GET_CHILD(ctrlset, "do_remove")
-    if aether_cover_bg:IsVisible() == 1 then
-        return;
-    end
-
-    local is_clickable = do_remove:IsEnable()
-    if is_clickable == 1 then
-        -- 外す方
-        local item_guid = socket_slot:GetUserValue('ITEM_GUID')
-        local tx_name = 'GODDESS_SOCKET_AETHER_GEM_UNEQUIP'
-        pc.ReqExecuteTx_Item(tx_name, item_guid, 2)
-        if index == 4 then
-            -- ReserveScript("AETHERGEM_MGR_EQUIP()", g.settings.delay)
-            delay = delay + g.settings.delay
-            ReserveScript(string.format("cc_helper_aether_gem_equip(%d,'%s')", delay, guid_tbl), g.settings.delay)
-
-            return
-        end
-    end
-end
-
-function cc_helper_aether_gem_equip(delay, guid_tbl)
-
-    local frame = ui.GetFrame("inventory")
-    local delay = g.settings.delay
-    for i = 1, 4 do
-        local guid = guid_tbl[i]
-        local invitem = session.GetInvItemByGuid(guid);
-
-        if invitem ~= nil then
-            local index = invitem.invIndex
-            local spotname = nil
-            if i == 1 then
-                DO_WEAPON_SLOT_CHANGE(frame, 1)
-                spotname = "RH"
-            elseif i == 2 then
-                spotname = "LH"
-            elseif i == 3 then
-                spotname = "RH_SUB"
-            elseif i == 4 then
-                spotname = "LH_SUB"
-            end
-            ReserveScript(string.format("ITEM_EQUIP(%d,'%s')", index, spotname), delay)
-            if i ~= 4 then
-                delay = delay + delay
-            end
-            frame:Invalidate();
-        end
-    end
-    return delay
-end]]
---[[function cc_helper_set_load(characterName)
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-
-    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
-
-    g.set = set
-
-    local characterData = {}
-
-    for key, data in pairs(g.set) do
-
-        if type(data) == "table" and key == characterName then
-            characterData = data
-            break
-        end
-    end
-
-    if characterData then
-        g.settings[g.cid] = characterData
-        g.settings[g.cid].name = LoginName
-
-        cc_helper_save_settings()
-        local frame = ui.GetFrame("cc_helper")
-        frame:ShowWindow(0)
-        ReserveScript("cc_helper_setting_frame_init()", 0.5)
-        return
-    end
-end
-
-function cc_helper_context(frame, ctr, str, num)
-
-    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
-    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "set load", 0, 0, 0, 0);
-    ui.AddContextMenuItem(context, "-----", "")
-    for characterName, data in pairs(set) do
-
-        local jobidStr = "" -- jobid を格納する変数
-
-        -- data 内の jobid をすべて取得して連結する
-        for key, value in pairs(data) do
-            if key:match("^job_%d+$") then -- "job_" で始まるキーをチェック
-                local jobClass = GetClassByType("Job", tonumber(value))
-
-                local jobname = TryGetProp(jobClass, "Name", "None")
-                local start_index, end_index = string.find(jobname, '@dicID')
-
-                if start_index == 1 then
-                    jobname = dic.getTranslatedStr(TryGetProp(jobClass, "Name", "None"))
-                end
-
-                if jobidStr == "" then
-
-                    jobidStr = tostring(jobname)
+            if gem == 0 then
+                if g.settings[g.cid].agm_check == true then
+                    local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
+                                    "Call[Aether Gem Manager]?"
+                    local yes_scp = "cc_helper_out_btn_agm()"
+                    ui.MsgBox(msg, yes_scp, "None")
+                    break
                 else
-                    jobidStr = jobidStr .. ", " .. tostring(jobname)
-                end
-            end
-        end
-
-        -- jobid を characterName に連結
-        local displayText = characterName
-        if jobidStr ~= "" then
-            displayText = characterName .. " (" .. jobidStr .. ")"
-        end
-
-        local scp =
-            ui.AddContextMenuItem(context, displayText, string.format("cc_helper_set_load('%s')", characterName))
-    end
-    ui.OpenContextMenu(context);
-end
-
-function cc_helper_set_delete(characterName)
-
-    g.set[characterName] = nil
-    ui.SysMsg("Deleted set.")
-    acutil.saveJSON(g.setFileLoc, g.set)
-
-end
-
-function cc_helper_delete_context(frame, ctr, str, num)
-
-    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
-    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "set delete", 0, 0, 100, 100);
-
-    ui.AddContextMenuItem(context, "-----", "")
-
-    for characterName, data in pairs(set) do
-        local jobidStr = "" -- jobid を格納する変数
-
-        -- data 内の jobid をすべて取得して連結する
-        for key, value in pairs(data) do
-            if key:match("^job_%d+$") then -- "job_" で始まるキーをチェック
-                local jobClass = GetClassByType("Job", tonumber(value))
-
-                local jobname = TryGetProp(jobClass, "Name", "None")
-                local start_index, end_index = string.find(jobname, '@dicID')
-
-                if start_index == 1 then
-                    jobname = dic.getTranslatedStr(TryGetProp(jobClass, "Name", "None"))
-                end
-
-                if jobidStr == "" then
-
-                    jobidStr = tostring(jobname)
-                else
-                    jobidStr = jobidStr .. ", " .. tostring(jobname)
-                end
-            end
-        end
-
-        -- jobid を characterName に連結
-        local displayText = characterName
-        if jobidStr ~= "" then
-            displayText = characterName .. " (" .. jobidStr .. ")"
-        end
-
-        local scp = ui.AddContextMenuItem(context, displayText,
-            string.format("cc_helper_set_delete('%s')", characterName))
-    end
-    ui.OpenContextMenu(context);
-
-end
-
-function cc_helper_set_save(frame, ctr, str, num)
-    local set, err = acutil.loadJSON(g.setFileLoc, g.set)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
-
-    if not set then
-        set = {}
-    end
-
-    local jobtbl = {}
-    local mainSession = session.GetMainSession();
-    local pcJobInfo = mainSession:GetPCJobInfo();
-    local jobCount = pcJobInfo:GetJobCount();
-    for i = 0, jobCount - 1 do
-        local jobInfo = pcJobInfo:GetJobInfoByIndex(i);
-        local jobid = tonumber(jobInfo.jobID)
-        table.insert(jobtbl, jobid) -- jobtbl に jobid を追加
-    end
-
-    local LoginName = session.GetMySession():GetPCApc():GetName()
-
-    set[LoginName] = {
-        seal_iesid = g.settings[g.cid].seal_iesid,
-        seal_clsid = g.settings[g.cid].seal_clsid,
-        seal_image = g.settings[g.cid].seal_image,
-
-        ark_iesid = g.settings[g.cid].ark_iesid,
-        ark_clsid = g.settings[g.cid].ark_clsid,
-        ark_image = g.settings[g.cid].ark_image,
-
-        gem_clsid = g.settings[g.cid].gem_clsid,
-        gem_image = g.settings[g.cid].gem_image,
-
-        leg_iesid = g.settings[g.cid].leg_iesid,
-        leg_clsid = g.settings[g.cid].leg_clsid,
-        leg_image = g.settings[g.cid].leg_image,
-
-        god_iesid = g.settings[g.cid].god_iesid,
-        god_clsid = g.settings[g.cid].god_clsid,
-        god_image = g.settings[g.cid].god_image,
-
-        hair1_image = g.settings[g.cid].hair1_image,
-        hair1_iesid = g.settings[g.cid].hair1_iesid,
-        hair1_clsid = g.settings[g.cid].hair1_clsid,
-
-        hair2_image = g.settings[g.cid].hair2_image,
-        hair2_iesid = g.settings[g.cid].hair2_iesid,
-        hair2_clsid = g.settings[g.cid].hair2_clsid,
-
-        hair3_image = g.settings[g.cid].hair3_image,
-        hair3_iesid = g.settings[g.cid].hair3_iesid,
-        hair3_clsid = g.settings[g.cid].hair3_clsid,
-
-        crown_image = g.settings[g.cid].crown_image,
-        crown_iesid = g.settings[g.cid].crown_iesid,
-        crown_clsid = g.settings[g.cid].crown_clsid,
-
-        mcc_use = g.settings[g.cid].mcc_use,
-        agm_use = g.settings[g.cid].agm_use
-
-    }
-    for index, jobid in ipairs(jobtbl) do
-        local key = string.format("job_%d", index) -- ユニークなキーを作成
-        set[LoginName][key] = jobid
-    end
-
-    g.set = set
-    ui.SysMsg("Saved set.")
-    acutil.saveJSON(g.setFileLoc, g.set)
-end]]
-
---[[function cc_helper_unequip()
-
-    local frame = ui.GetFrame("inventory")
-    local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
-    eqpTab:SelectTab(1)
-    local equip_tbl = {
-        [1] = "SEAL",
-        [3] = "RELIC",
-        [2] = "ARK",
-        [4] = "HAT",
-        [5] = "HAT_L",
-        [6] = "HAT_T"
-    }
-    for i = 1, 6 do
-        for key, value in pairs(equip_tbl) do
-            local slot = GET_CHILD_RECURSIVELY(frame, value)
-            local icon = slot:GetIcon()
-            if icon ~= nil then
-                local icon_info = icon:GetInfo()
-
-                if icon_info ~= nil then
-                    local iesid = icon_info:GetIESID()
-
-                    if value == "SEAL" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.cid].seal_iesid then
-
-                            local index = 25
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "RELIC" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.cid].crown_iesid then
-                            local index = 29 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "ARK" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.cid].ark_iesid then
-                            local index = 27 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-
-                        end
-                    end
-                    if value == "HAT" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.cid].hair1_iesid then
-                            local index = 0 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "HAT_T" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.cid].hair2_iesid then
-
-                            local index = 20 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                    if value == "HAT_L" and i == key then
-
-                        if iesid ~= nil and tostring(iesid) == g.settings[g.cid].hair3_iesid then
-
-                            local index = 1 -- スロットインデックスを適切な値に設定する必要があります
-                            item.UnEquip(index)
-                            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                            return
-                        end
-                    end
-                end
-            end
-
-        end
-    end
-    eqpTab:SelectTab(1)
-    local legtrue = 0
-    cc_helper_unequip_card(legtrue)
-end]]
-
--- itemequip
---[[function cc_helper_equip_reserve()
-    local frame = ui.GetFrame("inventory")
-
-    local iesids = {
-        [1] = {
-            GODCARD = g.settings[g.cid].god_iesid
-        },
-        [2] = {
-            HAT = g.settings[g.cid].hair1_iesid
-        },
-        [3] = {
-            HAT_T = g.settings[g.cid].hair2_iesid
-        },
-        [4] = {
-            HAT_L = g.settings[g.cid].hair3_iesid
-        },
-        [5] = {
-            SEAL = g.settings[g.cid].seal_iesid
-        },
-        [6] = {
-            ARK = g.settings[g.cid].ark_iesid
-        },
-
-        [7] = {
-            RELIC = g.settings[g.cid].crown_iesid
-        },
-        [8] = {
-            LEGCARD = g.settings[g.cid].leg_iesid
-        }
-
-    }
-    local delay = 0
-    for index, data in ipairs(iesids) do
-        local spot, iesid = next(data) -- テーブルの最初のキーと値を取得
-
-        if spot == "GODCARD" then
-            local god_index = 13
-            local cardid = GETMYCARD_INFO(god_index)
-
-            if cardid == 0 and iesid ~= nil then
-
-                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
-                delay = delay + g.settings.delay * 3
-
-            end
-
-        elseif spot ~= "LEGCARD" and spot ~= "GODCARD" then
-
-            -- print("item" .. delay)
-            if iesid ~= "" then
-
-                ReserveScript(string.format("cc_helper_equip('%s','%s')", spot, iesid), delay)
-                delay = delay + g.settings.delay * 1.5
-
-            end
-
-        elseif spot == "LEGCARD" and g.check == 0 then
-            local leg_index = 12
-            local cardid = GETMYCARD_INFO(leg_index)
-            -- print(delay)
-            if cardid == 0 and iesid ~= nil then
-                ReserveScript(string.format("cc_helper_card_equip('%s','%s')", spot, iesid), delay)
-            end
-        end
-
-    end
-
-    ReserveScript("cc_helper_end_operation()", delay + 1.0)
-
-end
-
-function cc_helper_equip(spot, iesid)
-    local item = session.GetInvItemByGuid(tonumber(iesid))
-    if item ~= nil then
-
-        local item_index = item.invIndex
-        ITEM_EQUIP(item_index, spot)
-    end
-end
-
-function cc_helper_card_equip(spot, iesid)
-
-    MONSTERCARDSLOT_FRAME_OPEN()
-
-    if spot == "GODCARD" then
-        local god_index = 13
-        local argStr = string.format("%d#%s", god_index, tostring(iesid));
-        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
-        return
-    elseif spot == "LEGCARD" then
-
-        local leg_index = 12
-        local argStr = string.format("%d#%s", leg_index, tostring(iesid));
-        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argStr);
-        return
-    end
-
-end]]
-
---[[ 終了処理
-function cc_helper_end_operation()
-
-    if g.unequip == 1 then
-        if g.settings[g.cid].seal_iesid ~= "" then
-
-            local seal = session.GetInvItemByGuid(g.settings[g.cid].seal_iesid)
-
-            if seal ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-        if g.settings[g.cid].ark_iesid ~= "" then
-            local ark = session.GetInvItemByGuid(g.settings[g.cid].ark_iesid)
-
-            if ark ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-
-        if g.settings[g.cid].hair1_iesid ~= "" then
-            local hair1 = session.GetInvItemByGuid(g.settings[g.cid].hair1_iesid)
-
-            if hair1 ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-        if g.settings[g.cid].hair2_iesid ~= "" then
-            local hair2 = session.GetInvItemByGuid(g.settings[g.cid].hair2_iesid)
-
-            if hair2 ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-        if g.settings[g.cid].hair3_iesid ~= "" then
-            local hair3 = session.GetInvItemByGuid(g.settings[g.cid].hair3_iesid)
-
-            if hair3 ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-        if g.settings[g.cid].crown_iesid ~= "" then
-            local crown = session.GetInvItemByGuid(g.settings[g.cid].crown_iesid)
-
-            if crown ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-        if g.settings[g.cid].leg_iesid ~= "" and g.check == 0 then
-            local slot_index = 13
-            local cardid = GETMYCARD_INFO(slot_index - 1)
-            if cardid ~= 0 and g.settings[g.cid].leg_iesid == tostring(cardid) then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-            local leg = session.GetInvItemByGuid(g.settings[g.cid].leg_iesid)
-
-            if leg ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-        if g.settings[g.cid].god_iesid ~= "" then
-            local slot_index = 14
-            local cardid = GETMYCARD_INFO(slot_index - 1)
-            if cardid ~= 0 and g.settings[g.cid].god_iesid == tostring(cardid) then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-            local god = session.GetInvItemByGuid(g.settings[g.cid].god_iesid)
-
-            if god ~= nil then
-                ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
-                return
-            end
-        end
-
-        g.unequip = 0
-
-    end
-
-    
-
-    local frame = ui.GetFrame("inventory")
-    local allTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
-    allTab:SelectTab(0)
-
-    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay * 3)
-
-    if ADDONS.norisan.monstercard_change ~= nil and g.check == 0 and g.settings[g.cid].mcc_use == 1 then
-
-        local msgframe = ui.CreateNewFrame("chat_memberlist", "monstercardchange_msg");
-        AUTO_CAST(msgframe)
-        msgframe:SetLayerLevel(110);
-
-        local screenWidth = ui.GetClientInitialWidth()
-        local screenHeight = ui.GetClientInitialHeight()
-        msgframe:Resize(390, 90)
-        local frameWidth = msgframe:GetWidth()
-        local frameHeight = msgframe:GetHeight()
-
-        local posX = (screenWidth - frameWidth) / 2
-        local posY = (screenHeight - frameHeight) / 2
-
-        msgframe:SetPos(posX, posY)
-
-        local text = msgframe:CreateOrGetControl('richtext', 'text', 15, 15)
-        AUTO_CAST(text)
-        text:SetText("{#FFA500}{ol}Call monstercard change Addon?")
-
-        local equip_btn = msgframe:CreateOrGetControl('button', 'equip_btn', 20, 45, 80, 30)
-        AUTO_CAST(equip_btn)
-        equip_btn:SetText("{ol}EQUIP")
-        equip_btn:SetTextTooltip(
-            "カードプリセットの1番目のセットを装備します。{nl}Equip the first set of card presets.")
-        equip_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
-        if g.monstercard == 1 then
-            equip_btn:SetEnable(0)
-            equip_btn:SetSkinName("test_gray_button")
-        elseif g.monstercard == 0 then
-            equip_btn:SetEnable(1)
-            equip_btn:SetSkinName("test_red_button")
-        else
-            equip_btn:SetEnable(0)
-            equip_btn:SetSkinName("test_gray_button")
-        end
-
-        local remove_btn = msgframe:CreateOrGetControl('button', 'remove_btn', 105, 45, 90, 30)
-        AUTO_CAST(remove_btn)
-        remove_btn:SetText("{ol}REMOVE")
-        remove_btn:SetTextTooltip(
-            "モンスターカードを外して倉庫に搬入します。{nl}Remove the monster card and bring it into the warehouse.")
-        remove_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
-        if g.monstercard == 1 then
-            remove_btn:SetEnable(1)
-            remove_btn:SetSkinName("test_red_button")
-        elseif g.monstercard == 0 then
-            remove_btn:SetEnable(0)
-            remove_btn:SetSkinName("test_gray_button")
-        else
-            remove_btn:SetEnable(0)
-            remove_btn:SetSkinName("test_gray_button")
-        end
-
-        local open_btn = msgframe:CreateOrGetControl('button', 'open_btn', 200, 45, 80, 30)
-        AUTO_CAST(open_btn)
-        open_btn:SetText("{ol}OPEN")
-        open_btn:SetTextTooltip(
-            "モンスターカードとモンスターカードプリセットを開きます。{nl}Open the Monster Card and Monster Card Preset.")
-        open_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
-
-        local cancel_btn = msgframe:CreateOrGetControl('button', 'cancel_btn', 285, 45, 80, 30)
-        AUTO_CAST(cancel_btn)
-        cancel_btn:SetText("{ol}CANCEL")
-        cancel_btn:SetEventScript(ui.LBUTTONUP, "cc_helper_monstercard_change")
-
-        msgframe:ShowWindow(1)
-
-    end
-
-    
-
-    if g.agm == 1 then
-        if ADDONS.norisan.AETHERGEM_MGR ~= nil and g.check == 0 and g.settings[g.cid].agm_use == 1 then
-            local equipSlots = {"RH", "LH", "RH_SUB", "LH_SUB"}
-
-            for _, slotName in ipairs(equipSlots) do
-                local equipSlot = GET_CHILD_RECURSIVELY(frame, slotName)
-                local Icon = equipSlot:GetIcon()
-
-                if Icon ~= nil then
-                    local IconInfo = Icon:GetInfo()
-                    local Guid = IconInfo:GetIESID()
-
-                    local itemCls = GetClassByType("Item", session.GetEquipItemByGuid(Guid).type);
-                    local classID = itemCls.ClassID;
-                    local equipItem = session.GetEquipItemByType(classID)
-                    local gem = equipItem:GetEquipGemID(2)
-
-                    if gem == 0 then
-                        g.agm = 0
-                        local msg = "Call Aether Gem Manager?"
-                        local yes_scp = "AETHERGEM_MGR_GET_EQUIP()"
-                        ui.MsgBox(msg, yes_scp, "None");
-                        return
-                    end
+                    cc_helper_out_btn_agm()
+                    break
                 end
             end
         end
     end
 
-    ui.SysMsg("[CCH]end of operation")
-end]]
+end
 
---[[function cc_helper_take_items_from_warehouse(iesid, type)
-
-    local invframe = ui.GetFrame("inventory")
-    local invTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
-    if type == "god" then
-        invTab:SelectTab(4)
-    elseif type == "leg" and g.check == 0 then
-        invTab:SelectTab(4)
+function cc_helper_out_btn_start_reserve()
+    g.time = g.time + g.settings.delay
+    if g.time <= 5 then
+        return 1
+    end
+    local inv_frame = ui.GetFrame("inventory")
+    local equip_slot = GET_CHILD_RECURSIVELY(inv_frame, "LH_SUB")
+    local icon = equip_slot:GetIcon()
+    if icon ~= nil then
+        g.temp = true
+        ReserveScript("cc_helper_end_operation()", g.settings.delay)
+        return 0
     else
-        invTab:SelectTab(1)
-    end
-
-    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-    local invItem = itemList:GetItemByGuid(iesid)
-    local obj = GetIES(invItem:GetObject());
-    if obj.ClassName ~= MONEY_NAME then
-
-        session.ResetItemList()
-        session.AddItemID(tonumber(iesid), 1)
-        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-            ui.GetFrame("accountwarehouse"):GetUserIValue("HANDLE"))
-
-        return
+        return 1
     end
 end
 
-function cc_helper_take_gem_item_from_warehouse(delay)
-    g.agm = 1
-    local fromframe = ui.GetFrame("accountwarehouse")
-
-    if fromframe:IsVisible() == 1 then
-        if g.settings[g.cid].gem_clsid ~= 0 and g.check == 0 then
-
-            local invframe = ui.GetFrame("inventory")
-            local gemTab = GET_CHILD_RECURSIVELY(invframe, "inventype_Tab")
-            gemTab:SelectTab(6)
-
-            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE);
-            local guidList = itemList:GetGuidList();
-            local sortedGuidList = itemList:GetSortedGuidList();
-            local sortedCnt = sortedGuidList:Count();
-            for i = 0, sortedCnt - 1 do
-                local guid = sortedGuidList:Get(i)
-                local invItem = itemList:GetItemByGuid(guid)
-                local iesid = invItem:GetIESID()
-
-                local obj = GetIES(invItem:GetObject());
-                if obj.ClassName ~= MONEY_NAME then
-
-                    if tostring(obj.ClassID) == tostring(g.settings[g.cid].gem_clsid) then
-
-                        session.ResetItemList()
-                        session.AddItemID(tonumber(iesid), 1)
-                        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(),
-                            fromframe:GetUserIValue("HANDLE"))
-                        delay = delay + g.settings.delay
-                        ReserveScript(string.format("cc_helper_take_gem_item_from_warehouse(%d)", delay),
-                            g.settings.delay)
-
-                        return
-
-                    end
-                end
-
-            end
-            ReserveScript("cc_helper_equip_reserve()", delay)
-        else
-            ReserveScript("cc_helper_equip_reserve()", delay)
-        end
-    end
-
-end]]
-
+function cc_helper_out_btn_agm()
+    local agm = ADDONS.norisan.AETHERGEM_MGR
+    agm.guids = {}
+    AETHERGEM_MGR_GET_EQUIP()
+    local inv_frame = ui.GetFrame("inventory")
+    g.time = g.settings.delay
+    inv_frame:RunUpdateScript("cc_helper_out_btn_start_reserve", g.settings.delay)
+end
