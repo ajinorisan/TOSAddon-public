@@ -50,10 +50,11 @@
 -- v1.5.0 ヴェルニケチケット周り再修正。チャレと分裂のチケット使用時のコード見直し。
 -- v1.5.1 装備加工とか付けた。ヴェルニケバグってたクヤシイTOSイベコイン表示とか。レティワープ付けた。
 -- v1.5.2 バグ修正
+-- v1.5.3 傭兵団コインのチャレンジ券変換をMAXまで出来る様に。そんなヤツおるんか？バグ修正
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.2"
+local ver = "1.5.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -192,7 +193,7 @@ function indun_panel_frame_init()
         local time = os.date("*t")
         local hour = time.hour
 
-        if hour >= 5 and hour <= 6 and g.ex ~= 2 then
+        if hour >= 6 and hour <= 7 and g.ex ~= 2 then
             pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
             local ets_frame = ui.GetFrame('earthtowershop')
             ets_frame:RunUpdateScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART", 0.2)
@@ -946,9 +947,18 @@ function indun_panel_frame_contents(frame)
 
                             local ticket_count = frame:CreateOrGetControl("richtext", key .. "ticket_count", 520, y + 5,
                                 40, 30)
-                            ticket_count:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}" ..
-                                                     INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40") ..
-                                                     " {img icon_item_Tos_Event_Coin 20 20}" ..
+
+                            local recipe_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+
+                            if recipe_trade_count < 0 then
+                                recipe_trade_count = "({img pvpmine_shop_btn_total 20 20}" .. "{ol}{#FF0000}{s16}" ..
+                                                         math.abs(recipe_trade_count) .. "/100{/}{/}" -- 絶対値を取得
+                            else
+                                recipe_trade_count = "({img pvpmine_shop_btn_total 20 20}" .. "{ol}{#FFFFFF}{s16}" ..
+                                                         math.abs(recipe_trade_count) .. "{/}{/}" -- 絶対値を取得
+                            end
+
+                            ticket_count:SetText(recipe_trade_count .. " {img icon_item_Tos_Event_Coin 20 20}" ..
                                                      INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315") ..
                                                      ")")
 
@@ -1052,20 +1062,23 @@ function indun_panel_frame_contents(frame)
 
                                 local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipename)
 
-                                local vel_oneday_ticket = 11030169 or 11030257 -- Ticket_Bernice_Enter_1d
+                                local vel_oneday_ticket = 11030169 -- Ticket_Bernice_Enter_1d
+                                local vel_ticket = 11030257
 
                                 session.ResetItemList()
                                 local invItemList = session.GetInvItemList()
-                                local guidList = invItemList:GetGuidList()
-                                local cnt = guidList:Count()
+
                                 if count == 1 then
 
-                                    for i = 0, cnt - 1 do
-                                        local use_item = session.GetInvItemByType(vel_oneday_ticket)
-                                        if use_item ~= nil then
-                                            INV_ICON_USE(use_item)
-                                            return
-                                        end
+                                    local use_item = session.GetInvItemByType(vel_oneday_ticket)
+                                    if use_item ~= nil then
+                                        INV_ICON_USE(use_item)
+                                        return
+                                    end
+                                    local use_item = session.GetInvItemByType(vel_ticket)
+                                    if use_item ~= nil then
+                                        INV_ICON_USE(use_item)
+                                        return
                                     end
 
                                     local vel_recipecls = GetClass('ItemTradeShop', recipename)
@@ -1444,6 +1457,22 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
                 if trade_count >= 1 then
                     INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
                     return
+                elseif trade_count <= 0 then
+                    local account_obj = GetMyAccountObj()
+                    local recipe_cls = GetClass('ItemTradeShop', "PVP_MINE_40")
+                    local over_max = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
+                    local over_prop = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
+                    local over_count = TryGetProp(account_obj, over_prop, 0)
+                    local overbuy_count = tonumber(over_max) - tonumber(over_count)
+
+                    if overbuy_count > 0 then
+                        local msg = g.lang == "Japanese" and "{img pvpmine_shop_btn_total 29 29} " ..
+                                        (1100 + over_count * 100) .. " 使用しました" or
+                                        "{img pvpmine_shop_btn_total 29 29} " .. (1100 + over_count * 100) .. " Used"
+                        ui.SysMsg(msg)
+                        INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
+                    end
+                    return
                 end
             end
 
@@ -1467,7 +1496,6 @@ function INDUN_PANEL_ITEM_BUY_USE(recipe_name, indun_type)
     ReserveScript(string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID), 1)
 
     if indun_type == 2000 then
-
         ReserveScript(string.format("indun_panel_enter_singularity('%s','%s','%s', %d)", _, _, _, indun_type), 2.0)
         return
     end
