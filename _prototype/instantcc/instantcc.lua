@@ -97,6 +97,92 @@ function INSTANTCC_APPS_TRY_LOGOUT()
     return
 end
 
+function INSTANTCC_CHANGE()
+    ReserveScript(string.format("barrack.SelectBarrackLayer(%d)", g.settings.do_cc.layer), 0.1)
+    ReserveScript(string.format("barrack.SelectCharacterByCID('%s')", g.settings.do_cc.cid), 0.2)
+
+    -- INSTANTCC_BARRACK_TO_GAME()
+    -- ReserveScript("barrack.SelectBarrackLayer(" .. ininfo.layer .. ")", 0.1)
+    -- ReserveScript("barrack.SelectCharacterByCID('" .. ininfo.cid .. "')", 0.2)
+    ReserveScript("INSTANTCC_TOGAME()", 0.3)
+end
+
+function INSTANTCC_RETRY()
+    g.retries = g.retries + 1
+    if g.retries > 15 then
+        app.BarrackToLogin()
+        ui.SysMsg("[ICC] Failed to select character, please try manually select.")
+        return
+    end
+    INSTANTCC_CHANGE()
+end
+
+function INSTANTCC_TOGAME()
+    local bpca = barrack.GetBarrackPCInfoByCID(g.settings.do_cc.cid)
+    if bpca == nil then
+        INSTANTCC_RETRY()
+        return
+    end
+    local bpc = barrack.GetGameStartAccount()
+    if bpc ~= nil then
+        if (bpc:GetCID() ~= g.settings.do_cc.cid) then
+            INSTANTCC_RETRY()
+            return
+        end
+        local jobName = barrack.GetSelectedCharacterJob();
+        local charName = barrack.GetSelectedCharacterName();
+
+        local bpacap = bpca:GetApc();
+        if (charName ~= bpacap:GetName()) then
+            INSTANTCC_RETRY()
+            return
+        end
+        local apc = bpc:GetApc()
+        local jobid = apc:GetJob()
+        local level = apc:GetLv()
+        local JobCtrlType = GetClassString("Job", jobid, "CtrlType")
+        config.SetConfig("LastJobCtrltype", JobCtrlType)
+        config.SetConfig("LastPCLevel", level)
+        local frame = ui.GetFrame("barrack_gamestart")
+        local channels = GET_CHILD(frame, "channels", "ui::CDropList")
+        local key = channels:GetSelItemIndex()
+        app.BarrackToGame(key)
+        return
+    end
+
+    INSTANTCC_RETRY()
+
+end
+
+function INSTANTCC_BARRACK_START_FRAME_OPEN(frame)
+    INSTANTCC_BARRACK_START_FRAME_OPEN_(frame)
+end
+
+function INSTANTCC_BARRACK_START_FRAME_OPEN_(frame)
+    if frame == nil then
+        return;
+    end
+
+    local frame = ui.GetFrame("barrack_gamestart")
+    local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
+    AUTO_CAST(hidelogin)
+    hidelogin:SetCheck(1)
+    barrack.SetHideLogin(1);
+    hidelogin:SetCheck(barrack.IsHideLogin());
+
+    g.retries = 0
+    ReserveScript("INSTANTCC_CHANGE()", 0.1)
+
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/test.txt", addonNameLower)
+    local file = io.open(file_path, "w")
+
+    if file then
+        file:write(tostring(barrack.IsHideLogin()))
+        file:close()
+    end
+end
+
 -- マップ読み込み時処理（1度だけ）
 function INSTANTCC_ON_INIT(addon, frame)
 
@@ -111,6 +197,8 @@ function INSTANTCC_ON_INIT(addon, frame)
     g.SetupHook(INSTANTCC_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
     g.SetupHook(INSTANTCC_APPS_TRY_LOGOUT, "APPS_TRY_LOGOUT")
     g.SetupHook(INSTANTCC_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+
+    g.SetupHook(INSTANTCC_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
 
     INSTANTCC_LOAD_SETTINGS()
 
@@ -231,7 +319,6 @@ function INSTANTCC_SAVE_SETTINGS()
 end
 
 function INSTANTCC_LOAD_SETTINGS()
-
     local settings, err = g.loadJSON(g.settingsFileLoc)
     if not settings then
         settings = {
@@ -240,6 +327,99 @@ function INSTANTCC_LOAD_SETTINGS()
     end
     g.settings = settings
     INSTANTCC_SAVE_SETTINGS()
+end
+
+--[[INSTANTCC_LOAD_SETTINGS()
+if INSTANTCC_GetBarrackSystem_OLD == nil and GetBarrackSystem ~= INSTANTCC_GetBarrackSystem then
+    INSTANTCC_GetBarrackSystem_OLD = GetBarrackSystem
+    GetBarrackSystem = INSTANTCC_GetBarrackSystem
+end
+
+function INSTANTCC_GetBarrackSystem(actor)
+
+    local brk = INSTANTCC_GetBarrackSystem_OLD(actor)
+    local key = brk:GetCIDStr()
+    local bpc = barrack.GetBarrackPCInfoByCID(key)
+
+    if bpc == nil then
+        return;
+    end
+
+    local bcframe = ui.GetFrame("barrack_charlist")
+    local scrollBox = bcframe:GetChild("scrollBox")
+    local order = scrollBox:GetChildCount()
+    for i = 0, scrollBox:GetChildCount() - 1 do
+        local child = scrollBox:GetChildByIndex(i);
+        if string.find(child:GetName(), 'char_') ~= nil then
+            local guid = child:GetUserValue("CID");
+            if guid == key then
+                order = i
+                break
+            end
+        end
+    end
+    local pcInfo = session.barrack.GetMyAccount():GetByStrCID(key);
+    local apc = bpc:GetApc()
+    local gender = apc:GetGender()
+    local jobid = pcInfo:GetRepID()
+
+    local info = {
+        name = actor:GetName(),
+        layer = INSTANTCC_GetCurrentLayer(),
+        cid = key,
+        job = jobid,
+        gender = gender,
+        level = actor:GetLv(),
+        order = order,
+        server = GetServerGroupID(),
+        aid = aidx
+    }
+    local found = false
+    for i = 1, #g.settings.charactors do
+        if g.settings.charactors[i].cid == key then
+            found = i
+            break
+        end
+    end
+    if found == false then
+        table.insert(g.settings.charactors, info)
+    else
+        g.settings.charactors[found] = info
+    end
+
+    -- cleanup
+    local continue = false
+    repeat
+        continue = false
+        for i = 1, #g.settings.charactors do
+
+            if g.settings.charactors[i].layer == INSTANTCC_GetCurrentLayer() and g.settings.charactors[i].aid == aidx and
+                g.settings.charactors[i].server == GetServerGroupID() then
+                local bpc = barrack.GetBarrackPCInfoByCID(g.settings.charactors[i].cid)
+                if bpc == nil then
+                    table.remove(g.settings.charactors, i)
+                    continue = true
+                    break
+                end
+            end
+        end
+
+    until continue == false
+
+    -- sort
+
+    table.sort(g.settings.charactors, function(a, b)
+        if a.layer ~= b.layer then
+            return a.layer > b.layer
+        end
+        if a.order ~= b.order then
+            return a.order < b.order
+        end
+    end)
+
+    INSTANTCC_SAVE_SETTINGS()
+
+    return INSTANTCC_GetBarrackSystem_OLD(actor)
 end
 
 --[[function INSTANTCC_DEFAULT_SETTINGS()
