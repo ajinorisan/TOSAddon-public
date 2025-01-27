@@ -25,6 +25,7 @@ local active_id = session.loginInfo.GetAID()
 g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, active_id)
 
 local acutil = require("acutil")
+local json = require("json")
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
@@ -134,7 +135,7 @@ function AETHERGEM_MGR_GEM_SETTING(frame, ctrl, str, num)
     setting_frame:RemoveAllChild()
 
     local setting_gb = setting_frame:CreateOrGetControl("groupbox", " setting_gb", 10, 35,
-        setting_frame:GetWidth() - 20, setting_frame:GetHeight() - 45)
+                                                        setting_frame:GetWidth() - 20, setting_frame:GetHeight() - 45)
     AUTO_CAST(setting_gb)
     setting_gb:SetSkinName("bg")
 
