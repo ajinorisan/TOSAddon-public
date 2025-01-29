@@ -42,7 +42,97 @@ function g.mkdir_new_folder()
 end
 g.mkdir_new_folder()
 
--- setfenv is gone since Lua 5.2
+function g.saveJSON(path, tbl)
+    local file, err = io.open(path, "w")
+    if err then
+        return _, err
+    end
+
+    local str = json.encode(tbl)
+    file:write(str)
+    file:close()
+end
+
+function g.loadJSON(path)
+
+    local file, err = io.open(path, "r")
+    local table = nil
+
+    if (err) then
+        return _, err
+    else
+        local content = file:read("*all")
+        file:close()
+        table = json.decode(content)
+        return table
+    end
+end
+
+function barrack_item_list_save_settings()
+    g.saveJSON(g.settings_file_path, g.settings)
+end
+
+function barrack_item_list_load_settings()
+
+    local settings = g.loadJSON(g.settings_file_path)
+    if not settings then
+        settings = {}
+    end
+
+    if not settings[g.cid] then
+        settings[g.cid] = {
+            warehouse = {},
+            inventory = {}
+        }
+    end
+    g.settings = settings
+    barrack_item_list_save_settings()
+end
+
+function barrack_item_list_open()
+    ui.ToggleFrame(g.frame)
+end
+
+function BARRACKITEMLIST_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+    g.lang = option.GetCurrentCountry()
+    g.cid = session.GetMySession():GetCID()
+
+    barrack_item_list_load_settings()
+
+    acutil.setupEvent(addon, 'GAME_TO_BARRACK', 'barrack_item_list_save_list')
+    acutil.setupEvent(addon, 'GAME_TO_LOGIN', 'barrack_item_list_save_list')
+    acutil.setupEvent(addon, 'DO_QUIT_GAME', 'barrack_item_list_save_list')
+
+    acutil.setupEvent(addon, 'WAREHOUSE_CLOSE', 'barrack_item_list_save_list')
+
+    acutil.addSysIcon("barrackitemlist", "sysmenu_inv", "Barrack Item List", "barrack_item_list_open")
+
+end
+
+function barrack_item_list_save_list(frame, msg)
+    local invItemList = session.GetInvItemList()
+    local inv_guidList = invItemList:GetGuidList()
+    local cnt = inv_guidList:Count()
+    g.settings[g.cid]["inventory"] = {}
+    for i = 0, cnt - 1 do
+        local guid = inv_guidList:Get(i)
+        local inv_Item = invItemList:GetItemByGuid(guid)
+        local inv_obj = GetIES(inv_Item:GetObject())
+        local inv_clsid = inv_obj.ClassID
+        local inv_count = inv_Item.count
+        local items = {inv_clsid, inv_count}
+        table.insert(g.settings[g.cid]["inventory"][i], items)
+        -- g.settings[g.cid]["inventory"][tostring(i)] = {inv_clsid, inv_count}
+    end
+
+    barrack_item_list_save_settings()
+
+end
+
+--[===[  setfenv is gone since Lua 5.2
 -- copied from https://leafo.net/guides/setfenv-in-lua52-and-above.html
 local setfenv = _G['setfenv']
 if not setfenv then
@@ -789,4 +879,4 @@ function BARRACKITEMLIST_CREATE_VAR_ICONS()
     if barrackitemlistButton ~= nil then
         barrackitemlistButton:SetTextTooltip("{@st59}barrackitemlist");
     end
-end
+end]===]
