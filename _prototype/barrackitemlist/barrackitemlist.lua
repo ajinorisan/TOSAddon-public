@@ -9,7 +9,8 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local active_id = session.loginInfo.GetAID()
-g.settings_file_path = string.format('../addons/%s/%s.json', addonNameLower, active_id)
+local folder_path = string.format("../addons/%s/%s", addonNameLower, active_id)
+-- g.settings_folder_path = string.format("../addons/%s/%s", addonNameLower, active_id)
 
 local acutil = require("acutil")
 local json = require("json")
@@ -26,8 +27,8 @@ function g.SetupHook(func, baseFuncName)
 end
 
 function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+
+    local file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, active_id)
     local file = io.open(file_path, "r")
     if not file then
         os.execute('mkdir "' .. folder_path .. '"')
@@ -82,7 +83,8 @@ function barrack_item_list_load_settings()
     if not settings[g.cid] then
         settings[g.cid] = {
             warehouse = {},
-            inventory = {}
+            inventory = {},
+            equips = {}
         }
     end
     g.settings = settings
@@ -99,13 +101,8 @@ function BARRACKITEMLIST_ON_INIT(addon, frame)
     g.frame = frame
     g.lang = option.GetCurrentCountry()
     g.cid = session.GetMySession():GetCID()
+    g.login_name = session.GetMySession():GetPCApc():GetName()
 
-    local pc = GetMyPCObject()
-    local cur_map = GetZoneName(pc)
-    local map_cls = GetClass("Map", cur_map)
-    if map_cls.MapType == "City" then
-        addon:RegisterMsg("GAME_START", "barrack_item_list_load_settings")
-    end
     acutil.setupEvent(addon, 'GAME_TO_BARRACK', 'barrack_item_list_inventory_save_list')
     acutil.setupEvent(addon, 'GAME_TO_LOGIN', 'barrack_item_list_inventory_save_list')
     acutil.setupEvent(addon, 'DO_QUIT_GAME', 'barrack_item_list_inventory_save_list')
@@ -114,22 +111,38 @@ function BARRACKITEMLIST_ON_INIT(addon, frame)
 end
 
 function barrack_item_list_warehouse_save_list(frame, msg)
+
     local frame = ui.GetFrame('warehouse')
     local gbox = frame:GetChild("gbox");
     local slotset = gbox:GetChild("slotset");
     AUTO_CAST(slotset)
 
-    g.settings[g.cid]["warehouse"] = {}
+    local items = {}
 
     for i = 0, slotset:GetSlotCount() - 1 do
         local slot = slotset:GetSlotByIndex(i)
         local icon = slot:GetIcon()
+
         if icon then
             local icon_info = icon:GetInfo();
-            table.insert(g.settings[g.cid]["warehouse"], {icon_info.type, icon_info.count})
+            local iesid = icon_info:GetIESID();
+            local obj = GetObjectByGuid(iesid)
+            local clsid = obj.ClassID
+            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name));
+            table.insert(items, {g.login_name, iesid, clsid, icon_info.count, item_name})
         end
     end
-    barrack_item_list_save_settings()
+
+    local warehouse_dat = string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id)
+    local file = io.open(warehouse_dat, "w")
+    for _, item in ipairs(items) do
+        local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5]) -- clsidとcountを:::で区切って書き込む
+        file:write(line)
+    end
+
+    file:flush()
+    file:close()
+
 end
 
 function barrack_item_list_inventory_save_list(frame, msg)
@@ -137,7 +150,7 @@ function barrack_item_list_inventory_save_list(frame, msg)
     local inv_guid_list = inv_item_list:GetGuidList()
     local cnt = inv_guid_list:Count()
 
-    g.settings[g.cid]["inventory"] = {}
+    local items = {}
 
     for i = 0, cnt - 1 do
         local guid = inv_guid_list:Get(i)
@@ -145,9 +158,20 @@ function barrack_item_list_inventory_save_list(frame, msg)
         local inv_obj = GetIES(inv_Item:GetObject())
         local inv_clsid = inv_obj.ClassID
         local inv_count = inv_Item.count
-        table.insert(g.settings[g.cid]["inventory"], {inv_clsid, inv_count})
+        local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(inv_obj.Name));
+        table.insert(items, {g.login_name, guid, inv_clsid, inv_count, item_name})
     end
-    barrack_item_list_save_settings()
+
+    local inventory_dat = string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id)
+    local file = io.open(inventory_dat, "w")
+
+    for _, item in ipairs(items) do
+        local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5]) -- clsidとcountを:::で区切って書き込む
+        file:write(line)
+    end
+
+    file:flush()
+    file:close()
 end
 
 --[===[  setfenv is gone since Lua 5.2
