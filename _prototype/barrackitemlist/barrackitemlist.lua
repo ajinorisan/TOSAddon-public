@@ -100,36 +100,54 @@ function BARRACKITEMLIST_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
     g.cid = session.GetMySession():GetCID()
 
-    barrack_item_list_load_settings()
-
-    acutil.setupEvent(addon, 'GAME_TO_BARRACK', 'barrack_item_list_save_list')
-    acutil.setupEvent(addon, 'GAME_TO_LOGIN', 'barrack_item_list_save_list')
-    acutil.setupEvent(addon, 'DO_QUIT_GAME', 'barrack_item_list_save_list')
-
-    acutil.setupEvent(addon, 'WAREHOUSE_CLOSE', 'barrack_item_list_save_list')
-
+    local pc = GetMyPCObject()
+    local cur_map = GetZoneName(pc)
+    local map_cls = GetClass("Map", cur_map)
+    if map_cls.MapType == "City" then
+        addon:RegisterMsg("GAME_START", "barrack_item_list_load_settings")
+    end
+    acutil.setupEvent(addon, 'GAME_TO_BARRACK', 'barrack_item_list_inventory_save_list')
+    acutil.setupEvent(addon, 'GAME_TO_LOGIN', 'barrack_item_list_inventory_save_list')
+    acutil.setupEvent(addon, 'DO_QUIT_GAME', 'barrack_item_list_inventory_save_list')
+    acutil.setupEvent(addon, 'WAREHOUSE_CLOSE', 'barrack_item_list_warehouse_save_list')
     acutil.addSysIcon("barrackitemlist", "sysmenu_inv", "Barrack Item List", "barrack_item_list_open")
-
 end
 
-function barrack_item_list_save_list(frame, msg)
-    local invItemList = session.GetInvItemList()
-    local inv_guidList = invItemList:GetGuidList()
-    local cnt = inv_guidList:Count()
+function barrack_item_list_warehouse_save_list(frame, msg)
+    local frame = ui.GetFrame('warehouse')
+    local gbox = frame:GetChild("gbox");
+    local slotset = gbox:GetChild("slotset");
+    AUTO_CAST(slotset)
+
+    g.settings[g.cid]["warehouse"] = {}
+
+    for i = 0, slotset:GetSlotCount() - 1 do
+        local slot = slotset:GetSlotByIndex(i)
+        local icon = slot:GetIcon()
+        if icon then
+            local icon_info = icon:GetInfo();
+            table.insert(g.settings[g.cid]["warehouse"], {icon_info.type, icon_info.count})
+        end
+    end
+    barrack_item_list_save_settings()
+end
+
+function barrack_item_list_inventory_save_list(frame, msg)
+    local inv_item_list = session.GetInvItemList()
+    local inv_guid_list = inv_item_list:GetGuidList()
+    local cnt = inv_guid_list:Count()
+
     g.settings[g.cid]["inventory"] = {}
+
     for i = 0, cnt - 1 do
-        local guid = inv_guidList:Get(i)
-        local inv_Item = invItemList:GetItemByGuid(guid)
+        local guid = inv_guid_list:Get(i)
+        local inv_Item = inv_item_list:GetItemByGuid(guid)
         local inv_obj = GetIES(inv_Item:GetObject())
         local inv_clsid = inv_obj.ClassID
         local inv_count = inv_Item.count
-        local items = {inv_clsid, inv_count}
-        table.insert(g.settings[g.cid]["inventory"][i], items)
-        -- g.settings[g.cid]["inventory"][tostring(i)] = {inv_clsid, inv_count}
+        table.insert(g.settings[g.cid]["inventory"], {inv_clsid, inv_count})
     end
-
     barrack_item_list_save_settings()
-
 end
 
 --[===[  setfenv is gone since Lua 5.2
