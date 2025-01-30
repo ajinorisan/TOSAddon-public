@@ -92,7 +92,15 @@ function barrack_item_list_load_settings()
 end
 
 function barrack_item_list_open()
-    ui.ToggleFrame(g.frame)
+    local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 670, 1080)
+    AUTO_CAST(frame)
+    -- frame:SetSkinName("test_frame_low")
+    frame:SetSkinName("None")
+    frame:SetLayerLevel(97)
+    frame:EnableMove(0)
+    frame:RemoveAllChild()
+
+    local frame_gb
 end
 
 function BARRACKITEMLIST_ON_INIT(addon, frame)
@@ -134,15 +142,26 @@ function barrack_item_list_warehouse_save_list(frame, msg)
     end
 
     local warehouse_dat = string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id)
-    local file = io.open(warehouse_dat, "w")
-    for _, item in ipairs(items) do
-        local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5]) -- clsidとcountを:::で区切って書き込む
-        file:write(line)
+
+    local lines = {}
+    for line in io.lines(warehouse_dat) do
+        local name = line:match("^(.-):::")
+        if name ~= g.login_name then
+            table.insert(lines, line)
+        end
     end
 
-    file:flush()
-    file:close()
+    local file = io.open(warehouse_dat, "w")
+    if file then
+        file:write(table.concat(lines, "\n") .. "\n")
 
+        for _, item in ipairs(items) do
+            local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
+            file:write(line)
+        end
+        file:flush()
+        file:close()
+    end
 end
 
 function barrack_item_list_inventory_save_list(frame, msg)
@@ -150,6 +169,7 @@ function barrack_item_list_inventory_save_list(frame, msg)
     local inv_guid_list = inv_item_list:GetGuidList()
     local cnt = inv_guid_list:Count()
 
+    -- inventory save
     local items = {}
 
     for i = 0, cnt - 1 do
@@ -163,15 +183,63 @@ function barrack_item_list_inventory_save_list(frame, msg)
     end
 
     local inventory_dat = string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id)
-    local file = io.open(inventory_dat, "w")
 
-    for _, item in ipairs(items) do
-        local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5]) -- clsidとcountを:::で区切って書き込む
-        file:write(line)
+    local lines = {}
+    for line in io.lines(inventory_dat) do
+        local name = line:match("^(.-):::")
+        if name ~= g.login_name then
+            table.insert(lines, line)
+        end
     end
 
-    file:flush()
-    file:close()
+    local file = io.open(inventory_dat, "w")
+    if file then
+        file:write(table.concat(lines, "\n") .. "\n")
+
+        for _, item in ipairs(items) do
+            local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
+            file:write(line)
+        end
+        file:flush()
+        file:close()
+    end
+
+    -- equips save
+    local items = {}
+
+    local equiplist = session.GetEquipItemList()
+    for i = 0, equiplist:Count() - 1 do
+        local equip_item = equiplist:GetEquipItemByIndex(i);
+        local obj = GetIES(equip_item:GetObject());
+        if obj ~= nil then
+            local iesid = equip_item:GetIESID()
+            local clsid = obj.ClassID
+            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
+            table.insert(items, {g.login_name, iesid, clsid, 1, item_name})
+        end
+    end
+
+    local equips_dat = string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)
+
+    local lines = {}
+    for line in io.lines(equips_dat) do
+        local name = line:match("^(.-):::")
+        if name ~= g.login_name then
+            table.insert(lines, line)
+        end
+    end
+
+    local file = io.open(equips_dat, "w")
+    if file then
+        file:write(table.concat(lines, "\n") .. "\n")
+
+        for _, item in ipairs(items) do
+            local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
+            file:write(line)
+        end
+        file:flush()
+        file:close()
+    end
 end
 
 --[===[  setfenv is gone since Lua 5.2
