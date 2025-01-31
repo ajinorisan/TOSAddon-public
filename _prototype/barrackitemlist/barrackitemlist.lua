@@ -170,15 +170,28 @@ function barrack_item_list_open()
     gb:SetSkinName("test_frame_midle")
     AUTO_CAST(gb);
 
+    local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
+
     local items = {}
-    for line in io.lines(warehouse_dat) do
-        local name = line:match("^(.-):::")
-        if name == g.login_name then
-            local parts = {}
-            for part in line:gmatch("([^:]+)") do
-                table.insert(parts, part)
+    for i, dat in ipairs(dat_tbl) do
+        for line in io.lines(dat) do
+            local name = line:match("^(.-):::")
+            if name == g.login_name then
+                local parts = {}
+                for part in line:gmatch("([^:]+)") do
+                    table.insert(parts, part)
+                end
+                if i == 1 then
+                    parts[1] = 'warehouse'
+                elseif i == 2 then
+                    parts[1] = 'inventory'
+                elseif i == 3 then
+                    parts[1] = 'equips'
+                end
+                table.insert(items, parts)
             end
-            table.insert(items, parts)
         end
     end
     --[[for index, item in ipairs(items) do
@@ -188,60 +201,180 @@ function barrack_item_list_open()
         end
     end]]
 
-    local invenTypeStr = nil
-
-    for typeNo = 1, #g_invenTypeStrList do
-        if g_invenTypeStrList[typeNo] ~= "Quest" then
-            if (invenTypeStr == nil or invenTypeStr == g_invenTypeStrList[typeNo] or typeNo == 1) then
-
-                local tree_box = gb:CreateOrGetControl("groupbox", "tree_box_" .. g_invenTypeStrList[typeNo], 0, 0,
-                    frame:GetWidth() - 40, frame:GetHeight() - 130)
-                AUTO_CAST(tree_box)
-                local tree = gb:CreateOrGetControl("tree", "tree_" .. g_invenTypeStrList[typeNo], 0, 0,
-                    frame:GetWidth() - 40, frame:GetHeight() - 130)
-                AUTO_CAST(tree)
-
-                tree:Clear();
-                tree:EnableDrawFrame(false)
-                tree:SetFitToChild(true, 60)
-                tree:SetFontName("white_20_ol");
-                tree:SetTabWidth(30);
-                tree:OpenNodeAll();
-
-                -- tree:SetEventScript(ui.LBUTTONDOWN, "INVENTORY_TREE_OPENOPTION_CHANGE");
-
-                -- print(tostring(g_invenTypeStrList[typeNo]))
-            end
-        end
-    end
-
-    local baseidclslist, baseidcnt = GetClassList("inven_baseid");
     local invenTitleName = {}
+    local baseidclslist, baseidcnt = GetClassList("inven_baseid")
     for i = 1, baseidcnt do
-
         local baseidcls = GetClassByIndexFromList(baseidclslist, i - 1)
-        local tempTitle = baseidcls.ClassName
-        if baseidcls.MergedTreeTitle ~= "NO" then
-            tempTitle = baseidcls.MergedTreeTitle
-        end
-
+        local tempTitle = baseidcls.MergedTreeTitle ~= "NO" and baseidcls.MergedTreeTitle or baseidcls.ClassName
         if table.find(invenTitleName, tempTitle) == 0 then
-            invenTitleName[#invenTitleName + 1] = tempTitle
-
+            table.insert(invenTitleName, tempTitle)
         end
     end
 
     for i = 1, #invenTitleName do
         local category = invenTitleName[i]
         for j = 1, #items do
-            local invItem = GetClassByType('Item', items[j][3])
-            print(tostring(invItem.ClassName))
-            if invItem ~= nil then
+            local clsid = items[j][3]
+            local iesid = items[j][2]
+            local item_count = items[j][4]
+            local item_cls = GetClassByType('Item', clsid)
+            if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+                local baseidcls = INV_GET_INVEN_BASEIDCLS_BY_ITEMGUID(iesid)
+                local titleName = baseidcls.ClassName
+                if baseidcls.MergedTreeTitle ~= "NO" then
+                    titleName = baseidcls.MergedTreeTitle
+                end
+                if category == titleName then
+                    local typeStr = GET_INVENTORY_TREEGROUP(baseidcls)
+                    if baseidcls.ClassName ~= 'Unused' then
+                        local tree = gb:CreateOrGetControl("tree", 'inventree_All', 0, 0, frame:GetWidth() - 40,
+                                                           frame:GetHeight() - 130)
+                        AUTO_CAST(tree)
+                        tree:Clear();
+                        tree:EnableDrawFrame(false)
+                        tree:SetFitToChild(true, 60)
+                        tree:SetFontName("white_20_ol");
+                        tree:SetTabWidth(30);
+                        tree:OpenNodeAll();
 
+                        barrack_item_list_insert_item_to_tree(frame, tree, item_cls, baseidcls, typeStr, item_count,
+                                                              iesid)
+                    end
+                end
             end
-
         end
     end
+end
+
+function barrack_item_list_get_slotset_name(baseidcls)
+
+    local cls = baseidcls
+    if cls == nil then
+        return 'error'
+    else
+        local className = cls.ClassName
+        if cls.MergedTreeTitle ~= "NO" then
+            className = cls.MergedTreeTitle
+        end
+        return 'sset_' .. className
+    end
+end
+
+function barrack_item_list_make_inven_slotset(tree, name)
+
+    local frame = ui.GetFrame('barrack_item_list');
+
+    local slotsize = 54
+    local colcount = 10
+
+    local newslotset = tree:CreateOrGetControl('slotset', name, 0, 0, 0, 0)
+    tolua.cast(newslotset, "ui::CSlotSet");
+
+    newslotset:EnablePop(0)
+    newslotset:EnableDrag(0)
+    newslotset:EnableDrop(0)
+    newslotset:SetMaxSelectionCount(999)
+    newslotset:SetSlotSize(slotsize, slotsize);
+    newslotset:SetColRow(colcount, 1)
+    newslotset:SetSpc(0, 0)
+    newslotset:SetSkinName('invenslot')
+    newslotset:EnableSelection(0)
+    newslotset:CreateSlots();
+    ui.inventory.AddInvenSlotSetName(name);
+    return newslotset;
+end
+
+function barrack_item_list_inven_slotset_and_title(tree, treegroup, slotsetname, baseidcls)
+
+    local slotsettitle = 'ssettitle_' .. baseidcls.ClassName;
+    if baseidcls.MergedTreeTitle ~= "NO" then
+        slotsettitle = 'ssettitle_' .. baseidcls.MergedTreeTitle
+    end
+
+    local newSlotsname = MAKE_INVEN_SLOTSET_NAME(tree, slotsettitle, baseidcls.TreeSSetTitle)
+    local newSlots = barrack_item_list_make_inven_slotset(tree, name)
+    tree:Add(treegroup, newSlotsname, slotsettitle);
+    local slotHandle = tree:Add(treegroup, newSlots, slotsetname);
+    local slotNode = tree:GetNodeByTreeItem(slotHandle);
+    slotNode:SetUserValue("IS_ITEM_SLOTSET", 1);
+end
+
+function barrack_item_list_insert_item_to_tree(frame, tree, item_cls, baseidcls, typeStr, item_count, iesid)
+
+    local treegroupname = baseidcls.TreeGroup
+
+    local treegroup = tree:FindByValue(treegroupname);
+    if tree:IsExist(treegroup) == 0 then
+        treegroup = tree:Add(baseidcls.TreeGroupCaption, baseidcls.TreeGroup);
+        local treeNode = tree:GetNodeByTreeItem(treegroup);
+        treeNode:SetUserValue("BASE_CAPTION", baseidcls.TreeGroupCaption);
+    end
+
+    -- 슬롯셋 없으면 만들기
+    local slotsetname = barrack_item_list_get_slotset_name(baseidcls)
+    local slotsetnode = tree:FindByValue(treegroup, slotsetname);
+    if tree:IsExist(slotsetnode) == 0 then
+        local slotsettitle = 'ssettitle_' .. baseidcls.ClassName;
+        if baseidcls.MergedTreeTitle ~= "NO" then
+            slotsettitle = 'ssettitle_' .. baseidcls.MergedTreeTitle
+        end
+
+        local newSlotsname = MAKE_INVEN_SLOTSET_NAME(tree, slotsettitle, baseidcls.TreeSSetTitle)
+
+        barrack_item_list_inven_slotset_and_title(tree, treegroup, slotsetname, baseidcls)
+
+        -- INVENTORY_CATEGORY_OPENOPTION_CHECK(tree:GetName(), baseidcls.ClassName);
+    end
+    local slotset = GET_CHILD_RECURSIVELY(tree, slotsetname, 'ui::CSlotSet');
+    local slotCount = slotset:GetSlotCount();
+    local slotindex = slotCount;
+
+    -- 검색 기능
+    local slot = nil;
+
+    local cnt = GET_SLOTSET_COUNT(tree, baseidcls);
+    -- 저장된 템의 최대 인덱스에 따라 자동으로 늘어나도록. 예를들어 해당 셋이 10000부터 시작하는데 10500 이 오면 500칸은 늘려야됨
+    while slotCount <= cnt do
+        slotset:ExpandRow()
+        slotCount = slotset:GetSlotCount();
+    end
+
+    slot = slotset:GetSlotByIndex(cnt);
+    cnt = cnt + 1;
+    slotset:SetUserValue("SLOT_ITEM_COUNT", cnt)
+
+    slot:ShowWindow(1);
+    -- UPDATE_INVENTORY_SLOT(slot, invItem, itemCls);
+
+    local function _DRAW_ITEM(item_cls, slot)
+
+        slot:SetSkinName('invenslot2')
+        local iconImg = GET_ITEM_ICON_IMAGE(item_cls);
+        slot:SetHeaderImage('None')
+        SET_SLOT_IMG(slot, iconImg)
+        SET_SLOT_COUNT(slot, item_count)
+        SET_SLOT_STYLESET(slot, item_cls)
+        SET_SLOT_IESID(slot, iesid)
+        -- SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, invItem, obj, nil)
+        slot:SetMaxSelectCount(item_count);
+        local icon = slot:GetIcon();
+        icon:SetTooltipArg("accountwarehouse", item_cls.ClassID, iesid);
+        SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse");
+        -- 아이커 종류 표시
+        SET_SLOT_ICOR_CATEGORY(slot, item_cls);
+    end
+
+    _DRAW_ITEM(item_cls, slot)
+    SET_SLOTSETTITLE_COUNT(tree, baseidcls, 1)
+    --[[if (g.settings.enabledrag) then
+        slot:EnableDrag(1)
+    else
+        slot:EnableDrag(0)
+    end
+    slot:SetEventScript(ui.LBUTTONUP, "another_warehouse_on_lbutton")
+    slot:SetEventScript(ui.RBUTTONUP, "another_warehouse_on_rbutton")
+    slotset:MakeSelectionList();]]
+
 end
 
 function barrack_item_list_char_data()
