@@ -10,7 +10,10 @@ local g = _G["ADDONS"][author][addonName]
 
 local active_id = session.loginInfo.GetAID()
 local folder_path = string.format("../addons/%s/%s", addonNameLower, active_id)
--- g.settings_folder_path = string.format("../addons/%s/%s", addonNameLower, active_id)
+local settings_path = string.format("../addons/%s/%s/settings.json", addonNameLower, active_id)
+local warehouse_dat = string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id)
+local inventory_dat = string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id)
+local equips_dat = string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)
 
 local acutil = require("acutil")
 local json = require("json")
@@ -70,37 +73,190 @@ function g.loadJSON(path)
 end
 
 function barrack_item_list_save_settings()
-    g.saveJSON(g.settings_file_path, g.settings)
+    g.saveJSON(settings_path, g.settings)
 end
 
 function barrack_item_list_load_settings()
 
-    local settings = g.loadJSON(g.settings_file_path)
+    local settings = g.loadJSON(settings_path)
     if not settings then
         settings = {}
     end
-
-    if not settings[g.cid] then
-        settings[g.cid] = {
-            warehouse = {},
-            inventory = {},
-            equips = {}
-        }
-    end
     g.settings = settings
     barrack_item_list_save_settings()
+
+    local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
+
+    for _, dat in ipairs(dat_tbl) do
+        local file = io.open(dat, "r")
+        if not file then
+            file = io.open(dat, "w")
+            file:close()
+        else
+            file:close() -- 存在するファイルを閉じる
+        end
+    end
+
+end
+
+function barrack_item_list_close(frame, ctrl, str, num)
+    frame:ShowWindow(0)
+end
+
+function barrack_item_list_context()
+    local context = ui.CreateContextMenu("arrack_item_list_context", "Barrack Item List", 0, 0, 200, 0)
+    ui.AddContextMenuItem(context, "-----")
+
+    for _, name in ipairs(g.chars) do
+        local str_scp
+        str_scp = string.format("barrack_item_list_char_switching('%s')", name)
+        ui.AddContextMenuItem(context, name, str_scp)
+    end
+
+    ui.OpenContextMenu(context)
 end
 
 function barrack_item_list_open()
-    local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 670, 1080)
+    local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
     AUTO_CAST(frame)
-    -- frame:SetSkinName("test_frame_low")
-    frame:SetSkinName("None")
-    frame:SetLayerLevel(97)
+    frame:SetSkinName("test_frame_low")
+    -- frame:SetSkinName("None")
+    frame:Resize(670, 1080)
+    frame:SetPos(0, 0)
     frame:EnableMove(0)
+    frame:SetLayerLevel(100)
     frame:RemoveAllChild()
+    frame:ShowWindow(1)
 
-    local frame_gb
+    local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, frame:GetWidth(), 55)
+    title_gb:SetSkinName("test_frame_top")
+    AUTO_CAST(title_gb)
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text);
+    title_text:SetText('{ol}{s26}Barrack Item List')
+
+    local close = frame:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "barrack_item_list_close")
+
+    local login_name = frame:CreateOrGetControl("richtext", "login_name", 20, 60, 0, 0)
+    AUTO_CAST(login_name);
+    login_name:SetText('{ol}{s18}' .. g.login_name)
+
+    local char_switch = frame:CreateOrGetControl("button", "char_switch", 20, 85, 150, 30)
+    AUTO_CAST(char_switch)
+    char_switch:SetText(g.lang == "Japanese" and "{ol}キャラクター切替" or "{ol}character switch")
+    char_switch:SetSkinName("test_pvp_btn")
+    char_switch:SetEventScript(ui.LBUTTONUP, "barrack_item_list_context")
+
+    local search_edit = frame:CreateOrGetControl("edit", "search_edit", 200, 80, 250, 40)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+    -- search_edit:SetEventScript(ui.ENTERKEY, "another_warehouse_frame_update")
+
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    -- search_btn:SetEventScript(ui.LBUTTONUP, "another_warehouse_frame_update")
+
+    local gb = frame:CreateOrGetControl("groupbox", "gb", 20, 120, frame:GetWidth() - 40, frame:GetHeight() - 130)
+    gb:SetSkinName("test_frame_midle")
+    AUTO_CAST(gb);
+
+    local items = {}
+    for line in io.lines(warehouse_dat) do
+        local name = line:match("^(.-):::")
+        if name == g.login_name then
+            local parts = {}
+            for part in line:gmatch("([^:]+)") do
+                table.insert(parts, part)
+            end
+            table.insert(items, parts)
+        end
+    end
+    --[[for index, item in ipairs(items) do
+        print(string.format("Item %d:", index))
+        for part_index, part in ipairs(item) do
+            print(string.format("  Part %d: %s", part_index, part))
+        end
+    end]]
+
+    local invenTypeStr = nil
+
+    for typeNo = 1, #g_invenTypeStrList do
+        if g_invenTypeStrList[typeNo] ~= "Quest" then
+            if (invenTypeStr == nil or invenTypeStr == g_invenTypeStrList[typeNo] or typeNo == 1) then
+
+                local tree_box = gb:CreateOrGetControl("groupbox", "tree_box_" .. g_invenTypeStrList[typeNo], 0, 0,
+                    frame:GetWidth() - 40, frame:GetHeight() - 130)
+                AUTO_CAST(tree_box)
+                local tree = gb:CreateOrGetControl("tree", "tree_" .. g_invenTypeStrList[typeNo], 0, 0,
+                    frame:GetWidth() - 40, frame:GetHeight() - 130)
+                AUTO_CAST(tree)
+
+                tree:Clear();
+                tree:EnableDrawFrame(false)
+                tree:SetFitToChild(true, 60)
+                tree:SetFontName("white_20_ol");
+                tree:SetTabWidth(30);
+                tree:OpenNodeAll();
+
+                -- tree:SetEventScript(ui.LBUTTONDOWN, "INVENTORY_TREE_OPENOPTION_CHANGE");
+
+                -- print(tostring(g_invenTypeStrList[typeNo]))
+            end
+        end
+    end
+
+    local baseidclslist, baseidcnt = GetClassList("inven_baseid");
+    local invenTitleName = {}
+    for i = 1, baseidcnt do
+
+        local baseidcls = GetClassByIndexFromList(baseidclslist, i - 1)
+        local tempTitle = baseidcls.ClassName
+        if baseidcls.MergedTreeTitle ~= "NO" then
+            tempTitle = baseidcls.MergedTreeTitle
+        end
+
+        if table.find(invenTitleName, tempTitle) == 0 then
+            invenTitleName[#invenTitleName + 1] = tempTitle
+
+        end
+    end
+
+    for i = 1, #invenTitleName do
+        local category = invenTitleName[i]
+        for j = 1, #items do
+            local invItem = GetClassByType('Item', items[j][3])
+            print(tostring(invItem.ClassName))
+            if invItem ~= nil then
+
+            end
+
+        end
+    end
+end
+
+function barrack_item_list_char_data()
+
+    g.chars = {}
+    local existing_names = {}
+
+    for line in io.lines(inventory_dat) do
+        local name = line:match("^(.-):::")
+        if name and not existing_names[name] then
+            table.insert(g.chars, name)
+            existing_names[name] = true
+        end
+    end
+
 end
 
 function BARRACKITEMLIST_ON_INIT(addon, frame)
@@ -110,6 +266,9 @@ function BARRACKITEMLIST_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
     g.cid = session.GetMySession():GetCID()
     g.login_name = session.GetMySession():GetPCApc():GetName()
+
+    barrack_item_list_load_settings()
+    barrack_item_list_char_data()
 
     acutil.setupEvent(addon, 'GAME_TO_BARRACK', 'barrack_item_list_inventory_save_list')
     acutil.setupEvent(addon, 'GAME_TO_LOGIN', 'barrack_item_list_inventory_save_list')
@@ -141,8 +300,6 @@ function barrack_item_list_warehouse_save_list(frame, msg)
         end
     end
 
-    local warehouse_dat = string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id)
-
     local lines = {}
     for line in io.lines(warehouse_dat) do
         local name = line:match("^(.-):::")
@@ -153,7 +310,9 @@ function barrack_item_list_warehouse_save_list(frame, msg)
 
     local file = io.open(warehouse_dat, "w")
     if file then
-        file:write(table.concat(lines, "\n") .. "\n")
+        if #lines > 0 then
+            file:write(table.concat(lines, "\n") .. "\n")
+        end
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
@@ -182,8 +341,6 @@ function barrack_item_list_inventory_save_list(frame, msg)
         table.insert(items, {g.login_name, guid, inv_clsid, inv_count, item_name})
     end
 
-    local inventory_dat = string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id)
-
     local lines = {}
     for line in io.lines(inventory_dat) do
         local name = line:match("^(.-):::")
@@ -194,7 +351,9 @@ function barrack_item_list_inventory_save_list(frame, msg)
 
     local file = io.open(inventory_dat, "w")
     if file then
-        file:write(table.concat(lines, "\n") .. "\n")
+        if #lines > 0 then
+            file:write(table.concat(lines, "\n") .. "\n")
+        end
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
@@ -213,13 +372,13 @@ function barrack_item_list_inventory_save_list(frame, msg)
         local obj = GetIES(equip_item:GetObject());
         if obj ~= nil then
             local iesid = equip_item:GetIESID()
-            local clsid = obj.ClassID
-            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
-            table.insert(items, {g.login_name, iesid, clsid, 1, item_name})
+            if iesid ~= "0" then
+                local clsid = obj.ClassID
+                local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
+                table.insert(items, {g.login_name, iesid, clsid, 1, item_name})
+            end
         end
     end
-
-    local equips_dat = string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)
 
     local lines = {}
     for line in io.lines(equips_dat) do
@@ -230,8 +389,11 @@ function barrack_item_list_inventory_save_list(frame, msg)
     end
 
     local file = io.open(equips_dat, "w")
+
     if file then
-        file:write(table.concat(lines, "\n") .. "\n")
+        if #lines > 0 then
+            file:write(table.concat(lines, "\n") .. "\n")
+        end
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
@@ -241,7 +403,8 @@ function barrack_item_list_inventory_save_list(frame, msg)
         file:close()
     end
 end
-
+-- barrack_item_list_inventory_save_list(frame, msg)
+-- barrack_item_list_inventory_save_list(frame, msg)
 --[===[  setfenv is gone since Lua 5.2
 -- copied from https://leafo.net/guides/setfenv-in-lua52-and-above.html
 local setfenv = _G['setfenv']
