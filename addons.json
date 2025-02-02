@@ -153,7 +153,7 @@
 		"name" : "Mini Addons",
 		"file" : "mini_addons",
 		"extension" : "ipf",
-		"fileVersion" : "v1.5.4",
+		"fileVersion" : "v1.5.5",
 		"releaseTag" : "mini_addons",
 		"unicode" : "⛄",
 		"description" : "MINI MAP左下ボタンを押すと機能説明とON OFF機能があります。Free From Trivial Stressの上位互換版です。競合するのでアンインストールしてください。<br>MINI MAP lower left button for function description and ON/OFF function. upward compatible version of Free From Trivial Stress. Please uninstall it as it conflicts with Free From Trivial Stress.<br>MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 기능이 있으며, Free From Trivial Stress의 상위 호환 버전입니다. 충돌이 발생하므로 제거하시기 바랍니다.",

@@ -1,9 +1,10 @@
 -- v1.0.0 とりあえず作った。
 -- v1.0.1 ネックレス最後に処理に変更。知らんやんそんなん。
+-- v1.0.2 ui.holdが手を出すには早かった。
 local addonName = "vakarine_equip"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -313,13 +314,13 @@ function vakarine_equip_equips_check()
 
         if iesid == "0" then
             imcAddOn.BroadMsg("NOTICE_Dm_!", equip_name .. " Not equipped", 10);
-            ui.SetHoldUI(false);
+            -- ui.SetHoldUI(false);
             return
         end
     end
     local invframe = ui.GetFrame("inventory")
     invframe:ShowWindow(0)
-    ui.SetHoldUI(false);
+    -- ui.SetHoldUI(false);
     imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[NH]End of Operation", 3);
 end
 
@@ -427,7 +428,9 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
     end
 
     -- 11244 聖域3F 11227 分裂
-    if (map_cls.MapType == "Instance" or cur_map_id == 11244) and cur_map_id ~= 11227 then
+
+    -- if (map_cls.MapType == "Instance" or cur_map_id == 11244) and cur_map_id ~= 11227 then
+    if (map_cls.MapType == "Instance") and cur_map_id ~= 11227 then
 
         session.ResetItemList();
         local equip_item_list = session.GetEquipItemList();
@@ -460,11 +463,12 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
         end
         invframe:ShowWindow(1)
         function vakarine_equip_unequip_set_delay()
-            ui.SetHoldUI(true);
-            ReserveScript("vakarine_equip_unequip()", 1.0)
+            vakarine_equip_unequip()
+            -- ui.SetHoldUI(true);
+            -- ReserveScript("vakarine_equip_unequip()", 1.0)
             return
         end
-        addon:RegisterMsg("GAME_START", "vakarine_equip_unequip_set_delay")
+        addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_unequip_set_delay")
 
     elseif map_cls.MapType == "City" then
 

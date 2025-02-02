@@ -9,10 +9,11 @@
 -- v1.2.2 エコモードバグってたの修正。
 -- v1.2.3 AGM連携の確認を切り替えられるように。ある程度日本語化
 -- v1.2.4 AGM連携を4種類対応出来るように。コピーの仕様変更。コード見直し。
+-- v1.2.5 バグってた。修正。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.4"
+local ver = "1.2.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1068,17 +1069,15 @@ function cc_helper_unequip()
     local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     eqpTab:SelectTab(1)
     local equip_tbl = {0, 20, 1, 25, 27}
-
+    local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark"}
     local equip_item_list = session.GetEquipItemList();
     for i, equip_index in ipairs(equip_tbl) do
         local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
         local iesid = equip_item:GetIESID()
-        if iesid ~= "0" then
+        if iesid ~= "0" and g.settings[g.cid][temp_tbl[i]].iesid == iesid then
             item.UnEquip(equip_index)
-
             ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
             return
-
         end
     end
     cc_helper_unequip_card()
@@ -1120,7 +1119,7 @@ function cc_helper_unequip_card()
     ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
 end
 
-function cc_helper_get_warehouse_count()
+function cc_helper_get_warehouse_count(check)
     local frame = ui.GetFrame("accountwarehouse")
     local accountObj = GetMyAccountObj();
     local warehouse_count = 0
@@ -1142,6 +1141,10 @@ function cc_helper_get_warehouse_count()
     local sortedGuidList = itemList:GetSortedGuidList();
     local invItemCount = sortedGuidList:Count();
 
+    if check ~= nil then
+        return invItemCount, max_count
+    end
+
     if invItemCount < max_count then
         return true
     else
@@ -1151,13 +1154,96 @@ function cc_helper_get_warehouse_count()
 
 end
 
+function cc_helper_checkvalid(iesid)
+    local invItem = session.GetInvItemByGuid(iesid)
+
+    local obj = GetIES(invItem:GetObject())
+    local itemcnt, maxcount = cc_helper_get_warehouse_count("check")
+
+    if maxcount <= itemcnt then
+
+        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
+        return;
+    end
+    if true == invItem.isLockState then
+
+        ui.SysMsg(ClMsg("MaterialItemIsLock"));
+
+        return;
+    end
+
+    local itemCls = GetClassByType("Item", obj.ClassID);
+    if itemCls.ItemType == 'Quest' then
+
+        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
+
+        return;
+    end
+
+    local enableTeamTrade = TryGetProp(itemCls, "TeamTrade");
+    if enableTeamTrade ~= nil and enableTeamTrade == "NO" then
+
+        ui.SysMsg(ClMsg("ItemIsNotTradable"));
+
+        return;
+
+    end
+
+end
+
+function cc_helper_get_goal_index()
+    local frame = ui.GetFrame("accountwarehouse")
+    local tab = GET_CHILD(frame, "accountwarehouse_tab")
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+
+    local accountObj = GetMyAccountObj()
+    local basecount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                          ADDITIONAL_SLOT_COUNT_BY_TOKEN
+
+    local itemcnt, maxcount = cc_helper_get_warehouse_count("check")
+
+    local function GetLeftCount(itemcnt)
+        local length = #itemcnt:GetText()
+        if length == 14 then
+            return tonumber(string.sub(itemcnt:GetText(), length - 6, length - 6))
+        else
+            return tonumber(string.sub(itemcnt:GetText(), length - 7, length - 6))
+        end
+    end
+
+    local function GetTabLeftCount(tab, gbox)
+        local itemcnt = GET_CHILD(gbox, "itemcnt")
+        return GetLeftCount(itemcnt)
+    end
+
+    local tabIndices = {4, 3, 2, 1, 0}
+
+    for index = 1, #tabIndices do
+        local i = tabIndices[index]
+        tab:SelectTab(i)
+        if i > 0 then
+            local left = GetTabLeftCount(tab, gbox)
+            if left < 70 then
+                return basecount + i * 70
+            end
+        else
+            local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
+            for j = 1, basecount do
+                local slot = slotset:GetSlotByIndex(j)
+                AUTO_CAST(slot)
+                if slot:GetIcon() == nil then
+                    return j
+                end
+            end
+        end
+    end
+end
+
 function cc_helper_inv_to_warehouse()
 
     if not cc_helper_get_warehouse_count() then
-
         return
-    else
-
     end
 
     local frame = ui.GetFrame("accountwarehouse");
@@ -1166,9 +1252,13 @@ function cc_helper_inv_to_warehouse()
     local inv_tab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
 
     local temp_tbl = {"seal", "ark", "hair1", "hair2", "hair3", "leg", "god"}
+
+    local equipList = session.GetEquipItemList();
+
     if frame:IsVisible() == 1 then
         for i, equip_index in ipairs(temp_tbl) do
-            local spot = session.GetInvItemByGuid(g.settings[g.cid][temp_tbl[i]].iesid)
+            local iesid = g.settings[g.cid][temp_tbl[i]].iesid
+            local spot = session.GetInvItemByGuid(iesid)
             if spot ~= nil then
 
                 local item_cls = GetClassByType('Item', g.settings[g.cid][temp_tbl[i]].clsid)
@@ -1180,7 +1270,11 @@ function cc_helper_inv_to_warehouse()
                 else
                     inv_tab:SelectTab(4)
                 end
-                item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.settings[g.cid][temp_tbl[i]].iesid, 1, handle)
+
+                local goal_index = cc_helper_get_goal_index()
+                cc_helper_checkvalid(iesid)
+
+                item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, handle, goal_index)
                 imcSound.PlaySoundEvent("sys_jam_slot_equip");
                 if i ~= #temp_tbl then
                     ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
@@ -1523,30 +1617,42 @@ function cc_helper_equip_reserve()
 
     local temp_tbl = {"god", "hair1", "hair2", "hair3", "seal", "ark", "leg"}
 
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
+
     local equip_item_list = session.GetEquipItemList();
     for _, equip in ipairs(temp_tbl) do
         if equip == "god" then
             local card_index = 13
             local cardid = GETMYCARD_INFO(card_index)
             local iesid = g.settings[g.cid][equip].iesid
-            if cardid == 0 and iesid ~= "" then
-                inv_tab:SelectTab(4)
-                local argstr = string.format("%d#%s", card_index, tostring(iesid))
-                pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
-                ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
-                return
-            end
-        elseif equip == "leg" then
-            if g.settings.eco_mode == 0 then
-                local card_index = 12
-                local cardid = GETMYCARD_INFO(card_index)
-                local iesid = g.settings[g.cid][equip].iesid
+
+            if session.GetInvItemByGuid(iesid) ~= nil then
                 if cardid == 0 and iesid ~= "" then
                     inv_tab:SelectTab(4)
                     local argstr = string.format("%d#%s", card_index, tostring(iesid))
                     pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
                     ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
                     return
+                end
+            end
+
+        elseif equip == "leg" then
+            if g.settings.eco_mode == 0 then
+                local card_index = 12
+                local cardid = GETMYCARD_INFO(card_index)
+                local iesid = g.settings[g.cid][equip].iesid
+
+                if session.GetInvItemByGuid(iesid) ~= nil then
+                    if cardid == 0 and iesid ~= "" then
+                        inv_tab:SelectTab(4)
+                        local argstr = string.format("%d#%s", card_index, tostring(iesid))
+                        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
+                        ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                        return
+                    end
                 end
             end
         else

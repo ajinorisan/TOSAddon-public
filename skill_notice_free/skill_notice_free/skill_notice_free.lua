@@ -6,10 +6,11 @@
 -- v1.0.5 バフリストから登録するバフ選べる様に
 -- v1.0.6 バフリストバグ修正
 -- v1.0.7 街では景観を損ねるので非表示に
+-- v1.0.8 セッティングフレームの高さ足りなかったの修正
 local addonName = "skill_notice_free"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -445,12 +446,16 @@ function skill_notice_free_setting(frame, ctrl, str, num)
 
     local setting_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting_frame", 0, 0, 200, 400)
     AUTO_CAST(setting_frame)
-    setting_frame:SetSkinName("test_frame_midle_light")
+    setting_frame:SetSkinName("test_frame_low")
     setting_frame:SetPos(20, 20)
-    setting_frame:SetLayerLevel(61)
+    setting_frame:SetLayerLevel(80)
     setting_frame:RemoveAllChild()
 
-    local title_text = setting_frame:CreateOrGetControl("richtext", "title_text", 20, 5, 200, 20)
+    local gb = setting_frame:CreateOrGetControl("groupbox", "gb", 10, 40, 615, 0)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+
+    local title_text = setting_frame:CreateOrGetControl("richtext", "title_text", 20, 10, 200, 20)
     AUTO_CAST(title_text)
     title_text:SetText("{ol}Skill Notice Setting")
 
@@ -460,25 +465,25 @@ function skill_notice_free_setting(frame, ctrl, str, num)
     close:SetGravity(ui.RIGHT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "skill_notice_free_newframe_close")
 
-    local buff_list = setting_frame:CreateOrGetControl("button", "buff_list", 480, 5, 80, 30)
+    local buff_list = setting_frame:CreateOrGetControl("button", "buff_list", 500, 10, 80, 30)
     AUTO_CAST(buff_list)
     buff_list:SetSkinName("test_red_button")
     buff_list:SetText("{ol}Buff List")
     buff_list:SetEventScript(ui.LBUTTONUP, "skill_notice_free_buff_list_open")
 
-    local y = 50
+    local y = 30
     local index = 1
 
     local function create_slot_and_edit(index, y, buff_id)
 
-        local buff_slot = setting_frame:CreateOrGetControl("slot", "buff_slot" .. buff_id, 10, y, 50, 50)
+        local buff_slot = gb:CreateOrGetControl("slot", "buff_slot" .. buff_id, 10, y, 50, 50)
         AUTO_CAST(buff_slot)
         buff_slot:EnablePop(0)
         buff_slot:EnableDrop(0)
         buff_slot:EnableDrag(0)
         buff_slot:SetSkinName("invenslot2")
 
-        local buffid_edit = setting_frame:CreateOrGetControl("edit", "buffid_edit" .. buff_id, 10, y - 20, 70, 20)
+        local buffid_edit = gb:CreateOrGetControl("edit", "buffid_edit" .. buff_id, 10, y - 20, 70, 20)
         AUTO_CAST(buffid_edit)
         buffid_edit:SetFontName("white_16_ol")
         buffid_edit:SetTextAlign("center", "center")
@@ -522,7 +527,8 @@ function skill_notice_free_setting(frame, ctrl, str, num)
         create_slot_and_edit(index, y, 0)
     end
 
-    setting_frame:Resize(615, y + 60)
+    setting_frame:Resize(660, y + 60)
+    gb:Resize(setting_frame:GetWidth() - 20, setting_frame:GetHeight() - 50)
     setting_frame:ShowWindow(1)
 end
 
@@ -545,7 +551,9 @@ end
 
 function skill_notice_free_buffid_edit(frame, buffid_edit, buff_id, index)
 
-    local frame = ui.GetFrame(addonNameLower .. "setting_frame")
+    local topframe = ui.GetFrame(addonNameLower .. "setting_frame")
+    local frame = GET_CHILD_RECURSIVELY(topframe, "gb")
+
     local buff_id = tonumber(buffid_edit:GetText())
     if buff_id == nil or buff_id == 0 then
         buffid_edit:SetText("")
@@ -586,7 +594,7 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, buff_id, index)
         icon:SetTooltipArg(buff_name, buff_id, 0)
         buff_slot:Invalidate()
 
-        local y = index == 1 and 50 or (index - 1) * 80 + 50
+        local y = index == 1 and 30 or (index - 1) * 80 + 30
         local buff_text = frame:CreateOrGetControl("richtext", "buff_text" .. buff_id, 115, y - 20, 200, 20)
         AUTO_CAST(buff_text)
         local dic_buff_name = buff_class.Name

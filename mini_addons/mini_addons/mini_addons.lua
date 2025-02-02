@@ -52,10 +52,11 @@
 -- v1.5.2 ラガナを非表示に
 -- v1.5.3 インベントリでイコルステータス検索出来る様に。装備錬成の武器防具ステータス付与自動化
 -- v1.5.4 ヴェルニケ階数覚える様に、クポルポーション改修、セパレートフレームのスキン消した、チャンネルの混み具合直した。
+-- v1.5.5 JSON作るとこバグってたので直した。。。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.4"
+local ver = "1.5.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -88,15 +89,15 @@ local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 112
                    11201234, 11201233, 11201232}
 
 local active_id = session.loginInfo.GetAID()
-g.settingsFileLoc = string.format("../addons/%s/%s.json", addonNameLower, active_id)
+g.settingsFileLoc = string.format("../addons/%s/%s.json", addonNameLower, active_id .. "_1")
 g.buffsFileLoc = string.format('../addons/%s/buffs.json', addonNameLower)
 
 function g.mkdir_new_folder()
-
-    local file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, active_id)
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
     local file = io.open(file_path, "r")
     if not file then
-        os.execute('mkdir "' .. g.settingsFileLoc .. '"')
+        os.execute('mkdir "' .. folder_path .. '"')
         file = io.open(file_path, "w")
         if file then
             file:write("A new file has been created")
@@ -114,7 +115,7 @@ end
 
 function MINI_ADDONS_LOAD_SETTINGS()
 
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local settings, err = acutil.loadJSON(g.settingsFileLoc)
     if err then
         -- 設定ファイル読み込み失敗時処理
         -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
@@ -392,327 +393,6 @@ function MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS_CONTINUE()
         return
     end
     MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS_(parent, nil, nil, nil)
-end
-
-local invenTitleName = nil
-local g_invenTypeStrList = {"All", "Equip", "Consume", "Recipe", "Card", "Etc", "Gem", "Premium", "Housing", "Pharmacy",
-                            "Quest"};
-local _invenSortTypeOption = {};
-
-function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET(frame, setpos, isIgnorelifticon, invenTypeStr)
-    if g.settings.icor_status_search == 0 then
-        base["INVENTORY_TOTAL_LIST_GET"](frame, setpos, isIgnorelifticon, invenTypeStr)
-    else
-        MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, invenTypeStr)
-    end
-end
-
-function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, invenTypeStr)
-
-    local frame = ui.GetFrame("inventory")
-    if frame == nil then
-        return;
-    end
-
-    local liftIcon = ui.GetLiftIcon();
-    if nil == isIgnorelifticon then
-        isIgnorelifticon = "NO";
-    end
-
-    if isIgnorelifticon ~= "NO" and liftIcon ~= nil then
-        return;
-    end
-
-    local mySession = session.GetMySession();
-    local cid = mySession:GetCID();
-    local sortType = _invenSortTypeOption[cid];
-    session.BuildInvItemSortedList();
-    local sortedList = session.GetInvItemSortedList();
-    local invItemCount = sortedList:size();
-
-    if sortType == nil then
-        sortType = 0;
-    end
-
-    local blinkcolor = frame:GetUserConfig("TREE_SEARCH_BLINK_COLOR");
-    local group = GET_CHILD_RECURSIVELY(frame, 'inventoryGbox', 'ui::CGroupBox')
-
-    for typeNo = 1, #g_invenTypeStrList do
-        if invenTypeStr == nil or invenTypeStr == g_invenTypeStrList[typeNo] or typeNo == 1 then
-            local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox')
-            local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo], 'ui::CTreeControl')
-
-            local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT");
-            local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH");
-
-            tree:Clear();
-            tree:EnableDrawFrame(false)
-            tree:SetFitToChild(true, 60)
-            tree:SetFontName(groupfontname);
-            tree:SetTabWidth(tabwidth);
-
-            local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
-            for i = 1, slotSetNameListCnt do
-                local slotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
-                ui.inventory.RemoveInvenSlotSetName(slotSetName);
-            end
-
-            local groupNameListCnt = ui.inventory.GetInvenGroupNameCount();
-            for i = 1, groupNameListCnt do
-                local groupName = ui.inventory.GetInvenGroupNameByIndex(i - 1);
-                ui.inventory.RemoveInvenGroupName(groupName);
-            end
-
-            local customFunc = nil;
-            local scriptName = frame:GetUserValue("CUSTOM_ICON_SCP");
-            local scriptArg = nil;
-            if scriptName ~= nil then
-                customFunc = _G[scriptName];
-                local getArgFunc = _G[frame:GetUserValue("CUSTOM_ICON_ARG_SCP")];
-                if getArgFunc ~= nil then
-                    scriptArg = getArgFunc();
-                end
-            end
-        end
-    end
-
-    local baseidclslist, baseidcnt = GetClassList("inven_baseid");
-    local searchGbox = group:GetChild('searchGbox');
-    local searchSkin = GET_CHILD_RECURSIVELY(searchGbox, "searchSkin", 'ui::CGroupBox');
-    local edit = GET_CHILD_RECURSIVELY(searchSkin, "ItemSearch", "ui::CEditControl");
-    local cap = edit:GetText();
-    if cap ~= "" then
-        local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
-        for i = 1, slotSetNameListCnt do
-            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
-            local slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, 'ui::CSlotSet');
-            slotset:RemoveAllChild();
-            slotset:SetUserValue("SLOT_ITEM_COUNT", 0);
-        end
-    end
-
-    local invItemList = {}
-    local index_count = 1
-    for i = 0, invItemCount - 1 do
-        local invItem = sortedList:at(i);
-        if invItem ~= nil then
-            invItemList[index_count] = invItem
-            index_count = index_count + 1
-        end
-    end
-
-    -- 1 등급순 / 2 무게순 / 3 이름순 / 4 소지량순
-    if sortType == 1 then
-        table.sort(invItemList, INVENTORY_SORT_BY_GRADE)
-    elseif sortType == 2 then
-        table.sort(invItemList, INVENTORY_SORT_BY_WEIGHT)
-    elseif sortType == 3 then
-        table.sort(invItemList, INVENTORY_SORT_BY_NAME)
-    elseif sortType == 4 then
-        table.sort(invItemList, INVENTORY_SORT_BY_COUNT)
-    else
-        table.sort(invItemList, INVENTORY_SORT_BY_NAME)
-    end
-
-    if invenTitleName == nil then
-        invenTitleName = {}
-        for i = 1, baseidcnt do
-            local baseidcls = GetClassByIndexFromList(baseidclslist, i - 1)
-            local tempTitle = baseidcls.ClassName
-            if baseidcls.MergedTreeTitle ~= "NO" then
-                tempTitle = baseidcls.MergedTreeTitle
-            end
-
-            if table.find(invenTitleName, tempTitle) == 0 then
-                invenTitleName[#invenTitleName + 1] = tempTitle
-            end
-        end
-    end
-
-    local cls_inv_index = {}
-    local i_cnt = 0
-    for i = 1, #invenTitleName do
-        local category = invenTitleName[i]
-        for j = 1, #invItemList do
-            local invItem = invItemList[j];
-            if invItem ~= nil then
-                local itemCls = GetIES(invItem:GetObject())
-                if itemCls.MarketCategory ~= "None" then
-                    local baseidcls = nil
-                    if cls_inv_index[invItem.invIndex] == nil then
-                        baseidcls = GET_BASEID_CLS_BY_INVINDEX(invItem.invIndex)
-                        cls_inv_index[invItem.invIndex] = baseidcls
-                    else
-                        baseidcls = cls_inv_index[invItem.invIndex]
-                    end
-
-                    local titleName = baseidcls.ClassName
-                    if baseidcls.MergedTreeTitle ~= "NO" then
-                        titleName = baseidcls.MergedTreeTitle
-                    end
-
-                    if category == titleName then
-                        local typeStr = GET_INVENTORY_TREEGROUP(baseidcls)
-                        if itemCls ~= nil then
-                            local makeSlot = true;
-                            if cap ~= "" then
-                                -- 인벤토리 안에 있는 아이템을 찾기 위한 로직
-                                local itemname = string.lower(dictionary.ReplaceDicIDInCompStr(itemCls.Name));
-                                -- 접두어도 포함시켜 검색해야되기 때문에, 접두를 찾아서 있으면 붙여주는 작업
-                                local prefixClassName = TryGetProp(itemCls, "LegendPrefix")
-                                if prefixClassName ~= nil and prefixClassName ~= "None" then
-                                    local prefixCls = GetClass('LegendSetItem', prefixClassName)
-                                    local prefixName = string.lower(dictionary.ReplaceDicIDInCompStr(prefixCls.Name));
-                                    itemname = prefixName .. " " .. itemname;
-                                end
-
-                                local tempcap = string.lower(cap);
-                                local a = string.find(itemname, tempcap);
-
-                                if a == nil then
-                                    makeSlot = false;
-
-                                    if TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
-                                        local max_option_count =
-                                            shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
-                                                'UseLv', 1))
-                                        for ii = 1, max_option_count do
-                                            local option_name = 'EarringSpecialOption_' .. ii
-                                            local job = TryGetProp(itemCls, option_name, 'None')
-                                            if job ~= 'None' then
-                                                local job_cls = GetClass('Job', job)
-                                                if job_cls ~= nil then
-                                                    itemname = string.lower(
-                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name));
-                                                    a = string.find(itemname, tempcap);
-                                                    if a ~= nil then
-                                                        makeSlot = true
-                                                        break
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    elseif TryGetProp(itemCls, 'GroupName', 'None') == 'Icor' then
-
-                                        local max_option = 5
-                                        for iii = 1, max_option do
-                                            local item = GetIES(invItem:GetObject())
-                                            local option_name = 'RandomOption_' .. iii
-                                            local option = TryGetProp(item, option_name, 'None')
-                                            if option ~= "None" or option ~= nil then
-                                                itemname = string.lower(dictionary.ReplaceDicIDInCompStr(ClMsg(option)))
-                                            end
-                                            a = string.find(itemname, tempcap);
-                                            if a ~= nil then
-                                                makeSlot = true
-                                                break
-                                            end
-                                        end
-                                    end
-
-                                end
-                            end
-
-                            local viewOptionCheck = 1
-                            if typeStr == "Equip" then
-                                viewOptionCheck = CHECK_INVENTORY_OPTION_EQUIP(itemCls)
-                            elseif typeStr == "Card" then
-                                viewOptionCheck = CHECK_INVENTORY_OPTION_CARD(itemCls)
-                            elseif typeStr == "Etc" then
-                                viewOptionCheck = CHECK_INVENTORY_OPTION_ETC(itemCls)
-                            elseif typeStr == "Gem" then
-                                viewOptionCheck = CHECK_INVENTORY_OPTION_GEM(itemCls)
-                            end
-
-                            if makeSlot == true and viewOptionCheck == 1 then
-                                if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
-                                    if invenTypeStr == nil or invenTypeStr == typeStr then
-                                        local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                            'ui::CGroupBox')
-                                        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                            'ui::CTreeControl')
-                                        INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls);
-                                    end
-                                    -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
-                                    if typeStr ~= "Quest" then
-                                        local tree_box_all =
-                                            GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
-                                        local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl')
-                                        INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls);
-                                    end
-                                end
-                            else
-                                --[[if customFunc ~= nil then
-                                    local slot = slotSet:GetSlotByIndex(i);
-                                    if slot ~= nil then
-                                        customFunc(slot, scriptArg, invItem, nil);
-                                    end
-                                end]]
-
-                                -- 인벤토리 옵션 적용 중이면 빈 tree 만들어 "필터링 옵션 적용 중"이라는 문구 표시해주기
-                                local isOptionApplied = CHECK_INVENTORY_OPTION_APPLIED(baseidcls);
-                                if isOptionApplied == 1 and cap == "" then -- 검색 중에는 조건에 맞는 아이템 없으면 tree 안 만듬
-                                    if invenTypeStr == nil or invenTypeStr == typeStr then
-                                        local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                            'ui::CGroupBox');
-                                        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                            'ui::CTreeControl');
-                                        EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree); -- 해당 아이템이 속한 탭
-                                    end
-
-                                    -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
-                                    if typeStr ~= "Quest" then
-                                        local tree_box_all =
-                                            GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox');
-                                        local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl');
-                                        EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree_all); -- ALL 탭 
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    for typeNo = 1, #g_invenTypeStrList do
-        local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox');
-        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo], 'ui::CTreeControl');
-
-        -- 아이템 없는 빈 슬롯은 숨겨라
-        local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
-        for i = 1, slotSetNameListCnt do
-            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
-            local slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, 'ui::CSlotSet');
-            if slotset ~= nil then
-                ui.InventoryHideEmptySlotBySlotSet(slotset);
-            end
-        end
-
-        ADD_GROUP_BOTTOM_MARGIN(frame, tree)
-        tree:OpenNodeAll();
-        tree:SetEventScript(ui.LBUTTONDOWN, "INVENTORY_TREE_OPENOPTION_CHANGE");
-        INVENTORY_CATEGORY_OPENCHECK(frame, tree);
-
-        -- 검색결과 스크롤 세팅은 여기서 하자. 트리 업데이트 후에 위치가 고정된 다음에.
-        for i = 1, slotSetNameListCnt do
-            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
-            -- slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, 'ui::CSlotSet');
-
-            local slotsetnode = tree:FindByValue(getSlotSetName);
-            if setpos == 'setpos' then
-                local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS");
-                if savedPos == 'None' then
-                    savedPos = 0
-                end
-                tree_box:SetScrollPos(tonumber(savedPos))
-            end
-        end
-    end
-
 end
 
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN(type, clmsg, desc, yesScp, noScp, min_number, max_number,
@@ -2108,6 +1788,327 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
             elseif golem ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}I haven't done Golem yet, okay?", 5.0)
+            end
+        end
+    end
+
+end
+
+local invenTitleName = nil
+local g_invenTypeStrList = {"All", "Equip", "Consume", "Recipe", "Card", "Etc", "Gem", "Premium", "Housing", "Pharmacy",
+                            "Quest"};
+local _invenSortTypeOption = {};
+
+function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET(frame, setpos, isIgnorelifticon, invenTypeStr)
+    if g.settings.icor_status_search == 0 then
+        base["INVENTORY_TOTAL_LIST_GET"](frame, setpos, isIgnorelifticon, invenTypeStr)
+    else
+        MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, invenTypeStr)
+    end
+end
+
+function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, invenTypeStr)
+
+    local frame = ui.GetFrame("inventory")
+    if frame == nil then
+        return;
+    end
+
+    local liftIcon = ui.GetLiftIcon();
+    if nil == isIgnorelifticon then
+        isIgnorelifticon = "NO";
+    end
+
+    if isIgnorelifticon ~= "NO" and liftIcon ~= nil then
+        return;
+    end
+
+    local mySession = session.GetMySession();
+    local cid = mySession:GetCID();
+    local sortType = _invenSortTypeOption[cid];
+    session.BuildInvItemSortedList();
+    local sortedList = session.GetInvItemSortedList();
+    local invItemCount = sortedList:size();
+
+    if sortType == nil then
+        sortType = 0;
+    end
+
+    local blinkcolor = frame:GetUserConfig("TREE_SEARCH_BLINK_COLOR");
+    local group = GET_CHILD_RECURSIVELY(frame, 'inventoryGbox', 'ui::CGroupBox')
+
+    for typeNo = 1, #g_invenTypeStrList do
+        if invenTypeStr == nil or invenTypeStr == g_invenTypeStrList[typeNo] or typeNo == 1 then
+            local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox')
+            local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo], 'ui::CTreeControl')
+
+            local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT");
+            local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH");
+
+            tree:Clear();
+            tree:EnableDrawFrame(false)
+            tree:SetFitToChild(true, 60)
+            tree:SetFontName(groupfontname);
+            tree:SetTabWidth(tabwidth);
+
+            local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
+            for i = 1, slotSetNameListCnt do
+                local slotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
+                ui.inventory.RemoveInvenSlotSetName(slotSetName);
+            end
+
+            local groupNameListCnt = ui.inventory.GetInvenGroupNameCount();
+            for i = 1, groupNameListCnt do
+                local groupName = ui.inventory.GetInvenGroupNameByIndex(i - 1);
+                ui.inventory.RemoveInvenGroupName(groupName);
+            end
+
+            local customFunc = nil;
+            local scriptName = frame:GetUserValue("CUSTOM_ICON_SCP");
+            local scriptArg = nil;
+            if scriptName ~= nil then
+                customFunc = _G[scriptName];
+                local getArgFunc = _G[frame:GetUserValue("CUSTOM_ICON_ARG_SCP")];
+                if getArgFunc ~= nil then
+                    scriptArg = getArgFunc();
+                end
+            end
+        end
+    end
+
+    local baseidclslist, baseidcnt = GetClassList("inven_baseid");
+    local searchGbox = group:GetChild('searchGbox');
+    local searchSkin = GET_CHILD_RECURSIVELY(searchGbox, "searchSkin", 'ui::CGroupBox');
+    local edit = GET_CHILD_RECURSIVELY(searchSkin, "ItemSearch", "ui::CEditControl");
+    local cap = edit:GetText();
+    if cap ~= "" then
+        local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
+        for i = 1, slotSetNameListCnt do
+            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
+            local slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, 'ui::CSlotSet');
+            slotset:RemoveAllChild();
+            slotset:SetUserValue("SLOT_ITEM_COUNT", 0);
+        end
+    end
+
+    local invItemList = {}
+    local index_count = 1
+    for i = 0, invItemCount - 1 do
+        local invItem = sortedList:at(i);
+        if invItem ~= nil then
+            invItemList[index_count] = invItem
+            index_count = index_count + 1
+        end
+    end
+
+    -- 1 등급순 / 2 무게순 / 3 이름순 / 4 소지량순
+    if sortType == 1 then
+        table.sort(invItemList, INVENTORY_SORT_BY_GRADE)
+    elseif sortType == 2 then
+        table.sort(invItemList, INVENTORY_SORT_BY_WEIGHT)
+    elseif sortType == 3 then
+        table.sort(invItemList, INVENTORY_SORT_BY_NAME)
+    elseif sortType == 4 then
+        table.sort(invItemList, INVENTORY_SORT_BY_COUNT)
+    else
+        table.sort(invItemList, INVENTORY_SORT_BY_NAME)
+    end
+
+    if invenTitleName == nil then
+        invenTitleName = {}
+        for i = 1, baseidcnt do
+            local baseidcls = GetClassByIndexFromList(baseidclslist, i - 1)
+            local tempTitle = baseidcls.ClassName
+            if baseidcls.MergedTreeTitle ~= "NO" then
+                tempTitle = baseidcls.MergedTreeTitle
+            end
+
+            if table.find(invenTitleName, tempTitle) == 0 then
+                invenTitleName[#invenTitleName + 1] = tempTitle
+            end
+        end
+    end
+
+    local cls_inv_index = {}
+    local i_cnt = 0
+    for i = 1, #invenTitleName do
+        local category = invenTitleName[i]
+        for j = 1, #invItemList do
+            local invItem = invItemList[j];
+            if invItem ~= nil then
+                local itemCls = GetIES(invItem:GetObject())
+                if itemCls.MarketCategory ~= "None" then
+                    local baseidcls = nil
+                    if cls_inv_index[invItem.invIndex] == nil then
+                        baseidcls = GET_BASEID_CLS_BY_INVINDEX(invItem.invIndex)
+                        cls_inv_index[invItem.invIndex] = baseidcls
+                    else
+                        baseidcls = cls_inv_index[invItem.invIndex]
+                    end
+
+                    local titleName = baseidcls.ClassName
+                    if baseidcls.MergedTreeTitle ~= "NO" then
+                        titleName = baseidcls.MergedTreeTitle
+                    end
+
+                    if category == titleName then
+                        local typeStr = GET_INVENTORY_TREEGROUP(baseidcls)
+                        if itemCls ~= nil then
+                            local makeSlot = true;
+                            if cap ~= "" then
+                                -- 인벤토리 안에 있는 아이템을 찾기 위한 로직
+                                local itemname = string.lower(dictionary.ReplaceDicIDInCompStr(itemCls.Name));
+                                -- 접두어도 포함시켜 검색해야되기 때문에, 접두를 찾아서 있으면 붙여주는 작업
+                                local prefixClassName = TryGetProp(itemCls, "LegendPrefix")
+                                if prefixClassName ~= nil and prefixClassName ~= "None" then
+                                    local prefixCls = GetClass('LegendSetItem', prefixClassName)
+                                    local prefixName = string.lower(dictionary.ReplaceDicIDInCompStr(prefixCls.Name));
+                                    itemname = prefixName .. " " .. itemname;
+                                end
+
+                                local tempcap = string.lower(cap);
+                                local a = string.find(itemname, tempcap);
+
+                                if a == nil then
+                                    makeSlot = false;
+
+                                    if TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
+                                        local max_option_count =
+                                            shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
+                                                'UseLv', 1))
+                                        for ii = 1, max_option_count do
+                                            local option_name = 'EarringSpecialOption_' .. ii
+                                            local job = TryGetProp(itemCls, option_name, 'None')
+                                            if job ~= 'None' then
+                                                local job_cls = GetClass('Job', job)
+                                                if job_cls ~= nil then
+                                                    itemname = string.lower(
+                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name));
+                                                    a = string.find(itemname, tempcap);
+                                                    if a ~= nil then
+                                                        makeSlot = true
+                                                        break
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    elseif TryGetProp(itemCls, 'GroupName', 'None') == 'Icor' then
+
+                                        local max_option = 5
+                                        for iii = 1, max_option do
+                                            local item = GetIES(invItem:GetObject())
+                                            local option_name = 'RandomOption_' .. iii
+                                            local option = TryGetProp(item, option_name, 'None')
+                                            if option ~= "None" or option ~= nil then
+                                                itemname = string.lower(dictionary.ReplaceDicIDInCompStr(ClMsg(option)))
+                                            end
+                                            a = string.find(itemname, tempcap);
+                                            if a ~= nil then
+                                                makeSlot = true
+                                                break
+                                            end
+                                        end
+                                    end
+
+                                end
+                            end
+
+                            local viewOptionCheck = 1
+                            if typeStr == "Equip" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_EQUIP(itemCls)
+                            elseif typeStr == "Card" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_CARD(itemCls)
+                            elseif typeStr == "Etc" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_ETC(itemCls)
+                            elseif typeStr == "Gem" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_GEM(itemCls)
+                            end
+
+                            if makeSlot == true and viewOptionCheck == 1 then
+                                if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
+                                    if invenTypeStr == nil or invenTypeStr == typeStr then
+                                        local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
+                                            'ui::CGroupBox')
+                                        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
+                                            'ui::CTreeControl')
+                                        INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls);
+                                    end
+                                    -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
+                                    if typeStr ~= "Quest" then
+                                        local tree_box_all =
+                                            GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
+                                        local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
+                                            'ui::CTreeControl')
+                                        INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls);
+                                    end
+                                end
+                            else
+                                --[[if customFunc ~= nil then
+                                    local slot = slotSet:GetSlotByIndex(i);
+                                    if slot ~= nil then
+                                        customFunc(slot, scriptArg, invItem, nil);
+                                    end
+                                end]]
+
+                                -- 인벤토리 옵션 적용 중이면 빈 tree 만들어 "필터링 옵션 적용 중"이라는 문구 표시해주기
+                                local isOptionApplied = CHECK_INVENTORY_OPTION_APPLIED(baseidcls);
+                                if isOptionApplied == 1 and cap == "" then -- 검색 중에는 조건에 맞는 아이템 없으면 tree 안 만듬
+                                    if invenTypeStr == nil or invenTypeStr == typeStr then
+                                        local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
+                                            'ui::CGroupBox');
+                                        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
+                                            'ui::CTreeControl');
+                                        EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree); -- 해당 아이템이 속한 탭
+                                    end
+
+                                    -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
+                                    if typeStr ~= "Quest" then
+                                        local tree_box_all =
+                                            GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox');
+                                        local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
+                                            'ui::CTreeControl');
+                                        EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree_all); -- ALL 탭 
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    for typeNo = 1, #g_invenTypeStrList do
+        local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. g_invenTypeStrList[typeNo], 'ui::CGroupBox');
+        local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. g_invenTypeStrList[typeNo], 'ui::CTreeControl');
+
+        -- 아이템 없는 빈 슬롯은 숨겨라
+        local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount();
+        for i = 1, slotSetNameListCnt do
+            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
+            local slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, 'ui::CSlotSet');
+            if slotset ~= nil then
+                ui.InventoryHideEmptySlotBySlotSet(slotset);
+            end
+        end
+
+        ADD_GROUP_BOTTOM_MARGIN(frame, tree)
+        tree:OpenNodeAll();
+        tree:SetEventScript(ui.LBUTTONDOWN, "INVENTORY_TREE_OPENOPTION_CHANGE");
+        INVENTORY_CATEGORY_OPENCHECK(frame, tree);
+
+        -- 검색결과 스크롤 세팅은 여기서 하자. 트리 업데이트 후에 위치가 고정된 다음에.
+        for i = 1, slotSetNameListCnt do
+            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1);
+            -- slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, 'ui::CSlotSet');
+
+            local slotsetnode = tree:FindByValue(getSlotSetName);
+            if setpos == 'setpos' then
+                local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS");
+                if savedPos == 'None' then
+                    savedPos = 0
+                end
+                tree_box:SetScrollPos(tonumber(savedPos))
             end
         end
     end
