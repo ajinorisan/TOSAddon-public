@@ -51,10 +51,11 @@
 -- v1.5.1 PTメンバーの希望の啓示見えるように
 -- v1.5.2 ラガナを非表示に
 -- v1.5.3 インベントリでイコルステータス検索出来る様に。装備錬成の武器防具ステータス付与自動化
+-- v1.5.4 ヴェルニケ階数覚える様に、クポルポーション改修、セパレートフレームのスキン消した、チャンネルの混み具合直した。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.3"
+local ver = "1.5.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -86,8 +87,26 @@ local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 112
                    11035669, 11035667, 11035457, 11035426, 11035409, 11201239, 11201238, 11201237, 11201236, 11201235,
                    11201234, 11201233, 11201232}
 
-g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+local active_id = session.loginInfo.GetAID()
+g.settingsFileLoc = string.format("../addons/%s/%s.json", addonNameLower, active_id)
 g.buffsFileLoc = string.format('../addons/%s/buffs.json', addonNameLower)
+
+function g.mkdir_new_folder()
+
+    local file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, active_id)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. g.settingsFileLoc .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
 
 function MINI_ADDONS_SAVE_SETTINGS()
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -110,10 +129,10 @@ function MINI_ADDONS_LOAD_SETTINGS()
         party_buff = 1,
         chat_system = 1,
         channel_display = 1,
-        mini_btn = 1,
+        mini_btn = 0,
         market_display = 1,
-        restart_move = 1,
-        pet_init = 1,
+        restart_move = 0,
+        pet_init = 0,
         dialog_ctrl = 1,
         auto_cast = 1,
         auto_casting = {},
@@ -124,18 +143,29 @@ function MINI_ADDONS_LOAD_SETTINGS()
         pc_name = 1,
         auto_gacha = 0,
         skill_enchant = 1,
-        party_info = 1,
+        party_info = 0,
         relic_gauge = 1,
-        raid_check = 1,
+        raid_check = 0,
         coin_count = 0,
         bgm = 0,
         my_effect = 0,
         vakarine = 0,
         weekly_boss_reward = 0,
-        cupole_portion = 0,
+        cupole_portion = {
+            use = 0,
+            x = 0,
+            y = 0,
+            def_x = 0,
+            def_y = 0
+        },
         goodbye_ragana = 0,
         status_upgrade = 0,
-        icor_status_search = 1
+        icor_status_search = 1,
+        velnice = {
+            use = 1,
+            level = ""
+        },
+        separated_buff = 1
     }
 
     if not settings then
@@ -170,8 +200,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
 end
 
 function MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP(frame, msg)
-    -- acutil.getEventArgs(msg)
-    -- print("MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP")
+
     local frame = ui.GetFrame("worldmap2_minimap")
     frame:RunUpdateScript("MINI_ADDONS_TOKEN_WARP_COOLDOWN", 1.0)
 
@@ -686,6 +715,92 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
 
 end
 
+function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN(type, clmsg, desc, yesScp, noScp, min_number, max_number,
+    default_number)
+    if g.settings.velnice.use == 0 then
+        base["INDUN_EDITMSGBOX_FRAME_OPEN"](type, clmsg, desc, yesScp, noScp, min_number, max_number, default_number)
+    else
+        MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
+            default_number)
+
+    end
+end
+
+function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
+    default_number)
+
+    default_number = g.settings.velnice.level
+
+    ui.OpenFrame("indun_editmsgbox")
+
+    local frame = ui.GetFrame('indun_editmsgbox');
+    frame:EnableHide(1);
+    frame:SetUserValue("user_value", type);
+
+    local text = GET_CHILD_RECURSIVELY(frame, "text");
+    text:SetText(clmsg);
+
+    local text_desc = GET_CHILD_RECURSIVELY(frame, "text_desc");
+    text_desc:SetText(desc);
+
+    local edit = GET_CHILD_RECURSIVELY(frame, "edit");
+
+    edit:SetText(default_number);
+    edit:SetNumberMode(1);
+    edit:SetMaxNumber(max_number);
+    edit:SetMinNumber(min_number);
+    edit:AcquireFocus();
+
+    local yesBtn = GET_CHILD_RECURSIVELY(frame, "yesBtn", "ui::CButton")
+    yesBtn:SetEventScript(ui.LBUTTONUP, 'MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_YES');
+    yesBtn:SetEventScriptArgString(ui.LBUTTONUP, yesScp);
+
+    local noBtn = GET_CHILD_RECURSIVELY(frame, "noBtn", "ui::CButton")
+    noBtn:SetEventScript(ui.LBUTTONUP, '_INDUN_EDITMSGBOX_FRAME_OPEN_NO');
+    noBtn:SetEventScriptArgString(ui.LBUTTONUP, noScp);
+
+    yesBtn:ShowWindow(1);
+    noBtn:ShowWindow(1);
+end
+
+function MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE(frame, msg, argStr)
+
+    local argument_list = StringSplit(argStr, ";");
+    local ui_msg = argument_list[1];
+    local waveMsg = argument_list[2];
+    local current_wave = tonumber(argument_list[3])
+    if g.velnice ~= current_wave and current_wave ~= 1 then
+
+        local frame = ui.GetFrame("solo_d_timer");
+        local remaintimeValue = GET_CHILD_RECURSIVELY(frame, "remaintimeValue");
+        local min = remaintimeValue:GetTextByKey("min");
+        local sec = string.format("%02d", tonumber(remaintimeValue:GetTextByKey("sec")))
+
+        imcAddOn.BroadMsg("NOTICE_Dm_stage_start",
+            string.format("{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
+                current_wave - 1, min, sec), 2.0)
+        g.velnice = current_wave
+    else
+        return
+    end
+
+end
+
+function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_YES(parent, ctrl, argStr, argNum)
+    local edit = GET_CHILD_RECURSIVELY(parent, "edit")
+    local text = edit:GetText();
+
+    g.settings.velnice.level = tonumber(text)
+    MINI_ADDONS_SAVE_SETTINGS()
+
+    local scp = _G[argStr]
+    if scp ~= nil then
+        local user_value = tonumber(parent:GetUserValue("user_value"));
+        scp(user_value, text)
+    end
+    ui.CloseFrame("indun_editmsgbox");
+end
+
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -703,7 +818,11 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     g.SetupHook(MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE, "EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE")
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
-    -- g.SetupHook(MINI_ADDONS_RAID_RECORD_INIT, "RAID_RECORD_INIT")
+    g.SetupHook(MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN, "INDUN_EDITMSGBOX_FRAME_OPEN")
+    if g.settings.velnice.use == 1 then
+        addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE");
+        g.velnice = 0
+    end
     g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
@@ -717,9 +836,22 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM");
     acutil.setupEvent(addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP");
+    -- !
 
-    if g.settings.cupole_portion == 1 then -- !
-        acutil.setupEvent(addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
+    local frame = ui.GetFrame("cupole_external_addon")
+    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE")
+    acutil.setupEvent(addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
+
+    if g.settings.separated_buff == 1 then
+        local frame = ui.GetFrame("buff_separatedlist")
+        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+        AUTO_CAST(gbox)
+        gbox:SetSkinName("None")
+    else
+        local frame = ui.GetFrame("buff_separatedlist")
+        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+        AUTO_CAST(gbox)
+        gbox:SetSkinName("chat_window")
     end
 
     if g.settings.raid_record == 1 then
@@ -772,7 +904,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.channel_info == 1 then
-        addon:RegisterMsg("GAME_START", "MINI_ADDONS_GAME_START_CHANNEL_LIST")
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_GAME_START_CHANNEL_LIST")
     end
 
     if g.settings.relic_gauge == 1 then
@@ -854,9 +986,33 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     MINI_ADDONS_NEW_FRAME_INIT()
 end
 
+function MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE(frame, ctrl, str, num)
+    g.settings.cupole_portion.x = frame:GetX()
+    g.settings.cupole_portion.y = frame:GetY()
+    MINI_ADDONS_SAVE_SETTINGS()
+end
+
 function MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON()
     local frame = ui.GetFrame("cupole_external_addon")
-    frame:ShowWindow(0)
+    if g.settings.cupole_portion.x == 0 and g.settings.cupole_portion.y == 0 then
+        g.settings.cupole_portion.def_x = frame:GetX()
+        g.settings.cupole_portion.def_y = frame:GetY()
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    if g.settings.cupole_portion.use == 1 then -- !
+        frame:ShowWindow(0)
+    elseif frame:IsVisible() == 1 then
+        if g.settings.cupole_portion.x == 0 and g.settings.cupole_portion.y == 0 then
+            frame:SetPos(g.settings.cupole_portion.def_x, g.settings.cupole_portion.def_y)
+        else
+            frame:SetPos(g.settings.cupole_portion.x, g.settings.cupole_portion.y)
+            -- frame:SetMargin(g.settings.cupole_portion.x, 0, 0, 0)
+            -- local margin = frame:GetMargin()
+            -- print(margin.left .. ":" .. margin.top .. ":" .. margin.right .. ":" .. margin.bottom)
+        end
+        frame:ShowWindow(1)
+    end
 end
 
 g.wbreward = nil
@@ -866,7 +1022,7 @@ function MINI_ADDONS_WEEKLY_BOSS_REWARD()
     if g.settings.reward_switch == 1 then
         week_num = WEEKLY_BOSS_RANK_WEEKNUM_NUMBER() - 1
     end
-    -- print(week_num)
+
     if week_num ~= 0 then
         weekly_boss.RequestAcceptAbsoluteRewardAll(week_num)
 
@@ -920,11 +1076,11 @@ function MINI_ADDONS_WEEKLY_BOSS_RANK_REWARD(indun_info)
 end
 
 function MINI_ADDONS_WEEKLY_BOSS_RANK_GET_REWARD(frame)
-    -- print(g.index)
+
     local week_num = WEEKLY_BOSS_RANK_WEEKNUM_NUMBER();
-    -- print(week_num)
+
     local myrank = session.weeklyboss.GetMyRankInfo(week_num);
-    -- print(myrank)
+
     local indun_info = ui.GetFrame("induninfo")
     local classtype_tab = GET_CHILD_RECURSIVELY(indun_info, "classtype_tab")
     AUTO_CAST(classtype_tab)
@@ -1029,14 +1185,18 @@ function MINI_ADDONS_LANG(str)
             str = "レイド時、ヴァカリネ装備を他人にお知らせ"
         elseif str == "Receive weekly boss reward automatically" then
             str = "週間ボスレイド報酬を自動で受け取り"
-        elseif str == "Hide the potion frame of the cupole" then -- Hide Ragana in city
-            str = "クポルのポーションフレームを非表示に"
+        elseif str == "Hide the potion frame of the cupole.Memorizes frame position even when OFF" then -- Hide Ragana in city
+            str = "クポルのポーションフレームを非表示に。OFFでもフレームの位置記憶"
         elseif str == "Hide Ragana in city" then -- icor_status_search
             str = "街にいるラガナを非表示にします" -- Equip Refining, Automate weapon/armor enhancement
         elseif str == "Equip Refining, Automate weapon/armor enhancement" then
             str = "装備錬成、武器防具ステータス付与を自動化"
         elseif str == "Search the status of icor in the inventory" then
-            str = "インベントリでイコルをステータス検索出来る様に"
+            str = "インベントリでイコルをステータス検索出来る様に" -- Remember the previous level of the Velnice dungeon
+        elseif str == "Remember the previous level of the Velnice dungeon" then -- Eliminate around separate buff frame
+            str = "ヴェルニケダンジョンの前回の階層を覚えます"
+        elseif str == "Eliminate around separate buff frame" then
+            str = "セパレートバフフレームの周りを無くします"
         elseif str == "Check to enable" then
             str = "チェックすると有効化"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -1104,14 +1264,18 @@ function MINI_ADDONS_LANG(str)
             str = " 레이드에 있는 바카린 장비를 다른 플레이어에게 알리기"
         elseif str == "Receive weekly boss reward automatically" then ---- Hide Ragana in city
             str = " 주간 보스 레이드 보상을 자동으로 수령"
-        elseif str == "Hide the potion frame of the cupole" then
-            str = "큐폴의 포션 프레임 숨기기"
+        elseif str == "Hide the potion frame of the cupole.Memorizes frame position even when OFF" then
+            str = "큐폴의 포션 프레임을 숨기고, OFF 상태에서도 프레임 위치를 기억합니다."
         elseif str == "Hide Ragana in city" then
             str = "도시에 있는 라가나를 숨깁니다"
         elseif str == "Equip Refining, Automate weapon/armor enhancement" then
             str = "장비 연성, 무기 방어구 스테이터스 부여 자동화"
         elseif str == "Search the status of icor in the inventory" then
             str = "인벤토리에서 이퀄을 상태 검색할 수 있도록 하는 방법"
+        elseif str == "Remember the previous level of the Velnice dungeon" then
+            str = "베르니케 던전의 이전 계층을 기억합니다"
+        elseif str == "Eliminate around separate buff frame" then
+            str = "분리형 버프 프레임 주변을 없앱니다"
         elseif str == "Check to enable" then
             str = "체크 시 활성화"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -1249,8 +1413,9 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Receive weekly boss reward automatically")
     }, {
         name = "cupole_portion",
-        check = g.settings.cupole_portion,
-        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide the potion frame of the cupole")
+        check = g.settings.cupole_portion.use,
+        text = "{ol}{#FF4500}" ..
+            MINI_ADDONS_LANG("Hide the potion frame of the cupole.Memorizes frame position even when OFF")
 
     }, {
         name = "goodbye_ragana",
@@ -1266,6 +1431,16 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         name = "icor_status_search",
         check = g.settings.icor_status_search,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Search the status of icor in the inventory")
+
+    }, {
+        name = "velnice", -- separated_buff
+        check = g.settings.velnice.use,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Remember the previous level of the Velnice dungeon")
+
+    }, {
+        name = "separated_buff", -- separated_buff
+        check = g.settings.separated_buff,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Eliminate around separate buff frame")
 
     }}
     -- Search the status of icor in the inventory
@@ -1347,7 +1522,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             switch_text:SetText(g.lang == "Japanese" and "{ol}ダメージ報酬切替" or "{ol}Damage Reward Switch")
             -- g.lang = "Japanese"
         end
-        x = x + 30
+        x = x + 27
 
     end
 
@@ -1421,12 +1596,19 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         cupole_portion = "cupole_portion_checkbox",
         goodbye_ragana = "goodbye_ragana_checkbox",
         status_upgrade = "status_upgrade_checkbox",
-        icor_status_search = "icor_status_search_checkbox"
+        icor_status_search = "icor_status_search_checkbox",
+        velnice = "velnice_checkbox",
+        separated_buff = "separated_buff_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
         if ctrlname == checkboxName then
-            g.settings[settingName] = ischeck
+            if checkboxName == "cupole_portion_checkbox" or checkboxName == "velnice_checkbox" then
+
+                g.settings[settingName].use = ischeck
+            else
+                g.settings[settingName] = ischeck
+            end
             if checkboxName == "bgm_checkbox" then
                 if ischeck == 0 then
                     local max_frame = ui.GetFrame("bgmplayer")
@@ -1455,7 +1637,7 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     newframe:Resize(30, 30)
     local minimap_frame = ui.GetFrame("minimap")
     local minimap_X, minimap_Y = minimap_frame:GetX(), minimap_frame:GetY()
-    -- print(minimap_X .. ":" .. minimap_Y)
+
     newframe:SetPos(minimap_X + 5, minimap_Y + 230 + 5)
     newframe:SetTitleBarSkin("None")
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 25, 30)
@@ -1480,12 +1662,20 @@ end
 function MINI_ADDONS_FPS_UPDATE()
     local newframe = ui.GetFrame("mini_addons_new")
     if newframe:IsVisible() == 1 then
+
+        local frame = ui.GetFrame("mini_addons_channel")
+        if frame ~= nil then
+            AUTO_CAST(frame)
+            if frame:IsVisible() == 0 then
+                local addonframe = ui.GetFrame("mini_addons")
+                addonframe:StopUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST")
+                MINI_ADDONS_GAME_START_CHANNEL_LIST()
+            end
+        end
+
         return
     else
         MINI_ADDONS_NEW_FRAME_INIT()
-        if g.settings.channel_info == 1 then
-            MINI_ADDONS_GAME_START_CHANNEL_LIST()
-        end
     end
 end
 
@@ -1953,7 +2143,7 @@ end
 function MINI_ADDONS_GAME_START_CHANNEL_LIST()
     MINI_ADDONS_POPUP_CHANNEL_LIST()
     local frame = ui.GetFrame("mini_addons")
-    frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 5.0)
+    frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 15)
     return
 end
 
@@ -1977,11 +2167,13 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     frame:EnableMove(1)
     if g.settings.frame_X == nil then
         g.settings.frame_X = 1500
+        MINI_ADDONS_SAVE_SETTINGS()
     end
     if g.settings.frame_Y == nil then
         g.settings.frame_Y = 395
+        MINI_ADDONS_SAVE_SETTINGS()
     end
-    MINI_ADDONS_SAVE_SETTINGS()
+
     frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
     frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_channelframe_move")
 
@@ -1989,11 +2181,17 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     title:SetText("{ol}{s12}channel info")
 
     local zoneInsts = session.serverState.GetMap();
+
     if zoneInsts ~= nil then
+
+        if zoneInsts:NeedToCheckUpdate() == true then
+            app.RequestChannelTraffics();
+        end
         local cnt = zoneInsts:GetZoneInstCount();
         for i = 0, cnt - 1 do
             local zoneInst = zoneInsts:GetZoneInstByIndex(i);
             -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+
             local String = zoneInst.pcCount
             local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
             AUTO_CAST(btn)
@@ -2547,7 +2745,7 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
                         local cls = GetClassByType("Buff", buffID);
 
                         -- if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~= "TeamLevel" then
-                        -- print(buffID .. ":" .. tostring(IS_PARTY_INFO_SHOWICON(cls.ShowIcon)))
+
                         if cls ~= nil and cls.ClassName ~= "TeamLevel" then
 
                             local buffOver = partyMemberInfo:GetBuffOverByIndex(j);

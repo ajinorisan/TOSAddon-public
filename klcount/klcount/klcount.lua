@@ -6,10 +6,11 @@
 -- v1.1.0 インフォフレームをちゃんと作った。褒めて欲しい。
 -- v1.1.1 フレームのレイヤーを上げた。
 -- v1.1.2 インフォフレームの横幅調整。TP画面出してもフレーム復帰するように
+-- v1.1.3 チャレンジとかで出ない様に、再度見直し。
 local addonName = "KLCOUNT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -326,7 +327,6 @@ function klcount_GAME_START()
         g.challenge_mode = false
         addon:RegisterMsg("EXP_UPDATE", "KLCOUNT_UPDATE")
         addon:RegisterMsg('ITEM_PICK', 'klcount_ITEM_PICK');
-        addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');
 
         g.map_file_location = string.format("../addons/%s/%s.json", addonNameLower, map_id)
         local map_data = acutil.loadJSON(g.map_file_location);
@@ -355,9 +355,14 @@ function klcount_GAME_START()
             KLCOUNT_SAVE_SETTINGS()
         end
 
-        KLCOUNT_INIT_FRAME()
+        local zoneInsts = session.serverState.GetMap();
+        if zoneInsts ~= nil then
+            KLCOUNT_INIT_FRAME()
+            addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');
+        end
     elseif map_class.MapType == "City" then
         klcount_information_button(frame)
+        addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');
     end
 end
 
