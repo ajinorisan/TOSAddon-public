@@ -54,6 +54,8 @@ v0.0.3 公開。
 
 　
 
+v1.0.2 ui.holdを止めた。再起動しないと直らないのは怖い。
+
 v1.0.1 ネックレス最後に処理する様にした。知らんかったスマン。
 
 v1.0.0 公開。
@@ -150,14 +152,11 @@ v1.0.0 公開。
 　
 
 アドオンマネージャー登録済
-
-
 　
 
 ----
 
 　
-
 ### Relic Change
 
 レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。
@@ -244,6 +243,8 @@ v1.0.0 公開。
 回数系バフをお知らせ。自分で登録必要。mutekiの回数版的なやつ。ミニマップ右下の設定ボタンから設定。
 
 　
+
+v1.0.8 設定フレームの縦が足りなくなったので直した。
 
 v1.0.7 街では非表示に
 
@@ -675,6 +676,8 @@ Aethergem Manager導入済の場合はAethergem Managerを起動するかの選�
 Monster Card Change導入済の場合は起動するかの選択が出ます。キャラ毎で表示非表示設定できます。
 
 　
+
+v1.2.5 装備外すとこバグってたので直した。カード系も倉庫に無いとバグってたの修正。
 
 v1.2.4 Aethergem Managerとの連携がバグってたの修正。コード最適化
 
@@ -1331,46 +1334,6 @@ Ectonite that automatically refills is changed to a coin-operated type.
 The author of this addon is meldavyさん
 
 
-### Warehouse Manager Reloaded
-
-Charbonさんが作ってebisukeさんが改装した倉庫アドオンを改造します。Another Warehouseに機能を付け替えたので保守終了。
-
-　
-
-v3.0.2 tos側のバグで動かなくなる時があるのを修正。王が更なる整理機能の修正をご所望。生き辛そう。
-
-v3.0.1 元の倉庫のタブ毎のアイテム数が1桁の場合バグってたのを修正。フレーム開けたら倉庫閉まる様に挙動変更。
-
-v3.0.0 基本倉庫に入れ過ぎで詰まるバグ修正したつもり。
-
-Maintain ebisuke's warehouse modification add-on.
-
-The author of this addon is Charbonさん
-
-　
-
-
-----
-
-### Yet Another Account Inventory
-
-ebisukeさんの倉庫改造アドオンを保守します。
-
-　
-
-v1.0.5 1行を10列に。キリのいい数字良いよね。コンフィグ動かなかったの修正。ログインキャラ名表示。
-
-v1.0.4 tos側のバグで動かなくなる時があるのを修正。まれに倉庫が1回で開かないので、0.5秒後に再度呼び出す様に。
-
-v1.0.3 やっぱり元の表示に戻した。元の倉庫閉じずに被せたら良かったんや。天才か？
-
-v1.0.2 warehousemanagerアドオンの詰まりバグを直すために両方表示に変更。気持ち悪いね。そうだね。
-
-Maintain ebisuke's warehouse modification add-on.
-
-The author of this addon is ebisukeさん
-
-
 ----
 
 ### Battle Spirit
@@ -1382,38 +1345,6 @@ The author of this addon is ebisukeさん
 v1.0.2 マウス右クリックで音選べる様に。
 
 v1.0.0 公開。ゲージとエフェクトと音でお知らせ。8段階と10段階でちょっと違うぞ。
-　
-
-----
-
-
-### GT sysmsg
-
-追従者の出現時間をシステムチャットとニコニコ風チャットに出力。放置してても見逃さない。音も出るよ。
-
-v1.0.7 SetupHookの競合修正。バウバス通知オフ 2023.8.22
-
-　
-
-Special thanks to menimaniさん
-
-----
-
-### Pyktis Notice
-
-ネビルティスピクティスバフをお知らせ。
-
-　
-
-v1.0.2 ゲージ短くした。サイズ入力の時に空白とか文字入れたらバグってたの修正。
-
-v1.0.1 30貯まった後も使わない場合うるさかったの修正。エフェクトでかすぎたの修正。
-
-v1.0.0 公開。ゲージとエフェクトと音でお知らせ。酔うてたらこれでも気づかなさそう。
-　
-
-----
-
 　
 
 
