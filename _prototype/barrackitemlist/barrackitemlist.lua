@@ -9,7 +9,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local active_id = session.loginInfo.GetAID()
-local folder_path = string.format("../addons/%s/%s", addonNameLower, active_id)
+local folder_path = string.format("../addons/%s/%s.json", addonNameLower, active_id)
 local settings_path = string.format("../addons/%s/%s/settings.json", addonNameLower, active_id)
 local warehouse_dat = string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id)
 local inventory_dat = string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id)
@@ -236,19 +236,20 @@ function barrack_item_list_make_inven_slotset(tree, name)
     newslotset:EnableDrag(0)
     newslotset:EnableDrop(0)
     newslotset:SetMaxSelectionCount(999)
-    newslotset:SetSlotSize(54, 54)
-    newslotset:SetColRow(10, 1)
+    newslotset:SetSlotSize(27, 27)
+    newslotset:SetColRow(20, 1)
     newslotset:SetSpc(0, 0)
     newslotset:SetSkinName('invenslot')
     newslotset:EnableSelection(0)
     newslotset:CreateSlots()
-    ui.inventory.AddInvenSlotSetName(name)
+    -- ui.inventory.AddInvenSlotSetName(name)
     return newslotset
 end
 
 function barrack_item_list_inven_slotset_and_title(tree, treegroup, slotsetname, baseidcls)
     local slotsettitle = 'ssettitle_' ..
                              (baseidcls.MergedTreeTitle ~= "NO" and baseidcls.MergedTreeTitle or baseidcls.ClassName)
+    print(tostring(slotsetname))
     local newSlotsname = MAKE_INVEN_SLOTSET_NAME(tree, slotsettitle, baseidcls.TreeSSetTitle)
     local newSlots = barrack_item_list_make_inven_slotset(tree, slotsetname)
 
@@ -296,6 +297,7 @@ function barrack_item_list_insert_item_to_tree(frame, tree, item_cls, baseidcls,
         local iconImg = GET_ITEM_ICON_IMAGE(item_cls)
         slot:SetHeaderImage('None')
         SET_SLOT_IMG(slot, iconImg)
+
         SET_SLOT_COUNT(slot, item_count)
         SET_SLOT_STYLESET(slot, item_cls)
         SET_SLOT_IESID(slot, iesid)
@@ -307,6 +309,8 @@ function barrack_item_list_insert_item_to_tree(frame, tree, item_cls, baseidcls,
     end
 
     draw_item(item_cls, slot)
+
+    tree:OpenNodeAll();
 end
 
 function barrack_item_list_char_data()
