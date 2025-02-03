@@ -118,7 +118,7 @@ function barrack_item_list_context()
     ui.OpenContextMenu(context)
 end
 
-local categorys = {}
+--[[local categorys = {}
 local categoryList = GetMarketCategoryList('root')
 for i = 1, #categoryList do
     local group = categoryList[i];
@@ -127,14 +127,7 @@ end
 
 for i, category in ipairs(categorys) do
     print(i .. ": " .. category)
-end
-local itemobj = GetObjectByGuid(itemGUID);
-if itemobj == nil then
-    return nil;
-end
-
-local baseid = GetInvenBaseID(itemobj.ClassID)
-local cls = GetClassByNumProp("inven_baseid", "BaseID", baseid);
+end]]
 
 function barrack_item_list_open()
     local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
@@ -185,7 +178,7 @@ function barrack_item_list_open()
     gb:SetSkinName("test_frame_midle")
     AUTO_CAST(gb);
 
-    local tree = gb:CreateOrGetControl("tree", 'inventree_All', 0, 0, frame:GetWidth() - 40, frame:GetHeight() - 130)
+    local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, frame:GetWidth() - 40, frame:GetHeight() - 130)
     AUTO_CAST(tree)
     tree:Clear();
     tree:EnableDrawFrame(false)
@@ -224,18 +217,56 @@ function barrack_item_list_open()
         local clsid = item[3]
         local iesid = item[2]
         local item_count = item[4]
+        local category = item[6]
+        local sub_category = item[7]
 
-        local item_cls = GetClassByType('Item', clsid)
-        if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
-            local baseidcls = INV_GET_INVEN_BASEIDCLS_BY_ITEMGUID(iesid)
-            if baseidcls then
-                local typeStr = GET_INVENTORY_TREEGROUP(baseidcls)
-                if baseidcls.ClassName ~= 'Unused' then
-                    barrack_item_list_insert_item_to_tree(frame, tree, item_cls, baseidcls, typeStr, item_count, iesid)
-                end
-            end
-        end
+        barrack_item_list_insert_item_to_tree(frame, tree, clsid, iesid, item_count, category, sub_category)
+
     end
+end
+
+function barrack_item_list_insert_item_to_tree(frame, tree, clsid, iesid, item_count, category, sub_category)
+
+    local slotsettitle = 'ssettitle_' .. sub_category
+    local newSlots = barrack_item_list_make_inven_slotset(tree, sub_category)
+    tree:Add(ClMsg(sub_category), slotsettitle)
+
+    tree:Add(newSlots, sub_category)
+
+    local slotCount = newSlots:GetSlotCount()
+    local cnt = newSlots:GetUserIValue("SLOT_ITEM_COUNT") or 0
+
+    -- スロット数を自動的に拡張
+    --[[while slotCount <= cnt do
+        slotset:ExpandRow()
+        slotCount = slotset:GetSlotCount()
+    end
+
+    local slot = slotset:GetSlotByIndex(cnt)
+    cnt = cnt + 1
+    slotset:SetUserValue("SLOT_ITEM_COUNT", cnt)
+    slot:ShowWindow(1)
+
+    -- アイテムをスロットに描画
+    local function draw_item(item_cls, slot)
+        slot:SetSkinName('invenslot2')
+        local iconImg = GET_ITEM_ICON_IMAGE(item_cls)
+        slot:SetHeaderImage('None')
+        SET_SLOT_IMG(slot, iconImg)
+
+        SET_SLOT_COUNT(slot, item_count)
+        SET_SLOT_STYLESET(slot, item_cls)
+        SET_SLOT_IESID(slot, iesid)
+        slot:SetMaxSelectCount(item_count)
+        local icon = slot:GetIcon()
+        icon:SetTooltipArg("accountwarehouse", item_cls.ClassID, iesid)
+        SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse")
+        SET_SLOT_ICOR_CATEGORY(slot, item_cls)
+    end
+
+    draw_item(item_cls, slot)]]
+
+    tree:OpenNodeAll();
 end
 
 function barrack_item_list_get_slotset_name(baseidcls)
@@ -275,60 +306,6 @@ function barrack_item_list_inven_slotset_and_title(tree, treegroup, slotsetname,
     local slotHandle = tree:Add(treegroup, newSlots, slotsetname)
     local slotNode = tree:GetNodeByTreeItem(slotHandle)
     slotNode:SetUserValue("IS_ITEM_SLOTSET", 1)
-end
-
-function barrack_item_list_insert_item_to_tree(frame, tree, item_cls, baseidcls, typeStr, item_count, iesid)
-    local treegroupname = baseidcls.TreeGroup
-    local treegroup = tree:FindByValue(treegroupname)
-
-    if tree:IsExist(treegroup) == 0 then
-        treegroup = tree:Add(baseidcls.TreeGroupCaption, baseidcls.TreeGroup)
-        local treeNode = tree:GetNodeByTreeItem(treegroup)
-        treeNode:SetUserValue("BASE_CAPTION", baseidcls.TreeGroupCaption)
-    end
-
-    local slotsetname = barrack_item_list_get_slotset_name(baseidcls)
-    local slotsetnode = tree:FindByValue(treegroup, slotsetname)
-
-    if tree:IsExist(slotsetnode) == 0 then
-        barrack_item_list_inven_slotset_and_title(tree, treegroup, slotsetname, baseidcls)
-    end
-
-    local slotset = GET_CHILD_RECURSIVELY(tree, slotsetname, 'ui::CSlotSet')
-    local slotCount = slotset:GetSlotCount()
-    local cnt = slotset:GetUserIValue("SLOT_ITEM_COUNT") or 0
-
-    -- スロット数を自動的に拡張
-    while slotCount <= cnt do
-        slotset:ExpandRow()
-        slotCount = slotset:GetSlotCount()
-    end
-
-    local slot = slotset:GetSlotByIndex(cnt)
-    cnt = cnt + 1
-    slotset:SetUserValue("SLOT_ITEM_COUNT", cnt)
-    slot:ShowWindow(1)
-
-    -- アイテムをスロットに描画
-    local function draw_item(item_cls, slot)
-        slot:SetSkinName('invenslot2')
-        local iconImg = GET_ITEM_ICON_IMAGE(item_cls)
-        slot:SetHeaderImage('None')
-        SET_SLOT_IMG(slot, iconImg)
-
-        SET_SLOT_COUNT(slot, item_count)
-        SET_SLOT_STYLESET(slot, item_cls)
-        SET_SLOT_IESID(slot, iesid)
-        slot:SetMaxSelectCount(item_count)
-        local icon = slot:GetIcon()
-        icon:SetTooltipArg("accountwarehouse", item_cls.ClassID, iesid)
-        SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse")
-        SET_SLOT_ICOR_CATEGORY(slot, item_cls)
-    end
-
-    draw_item(item_cls, slot)
-
-    tree:OpenNodeAll();
 end
 
 function barrack_item_list_char_data()
@@ -382,8 +359,13 @@ function barrack_item_list_warehouse_save_list(frame, msg)
             local iesid = icon_info:GetIESID();
             local obj = GetObjectByGuid(iesid)
             local clsid = obj.ClassID
+            local item_cls = GetClassByType('Item', clsid)
+            local category = "false"
+            if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+                category = item_cls.MarketCategory:match("^(.-)_")
+            end
             local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name));
-            table.insert(items, {g.login_name, iesid, clsid, icon_info.count, item_name})
+            table.insert(items, {g.login_name, iesid, clsid, icon_info.count, item_name, "warehouse", category})
         end
     end
 
@@ -402,7 +384,8 @@ function barrack_item_list_warehouse_save_list(frame, msg)
         end
 
         for _, item in ipairs(items) do
-            local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
+            local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -424,8 +407,13 @@ function barrack_item_list_inventory_save_list(frame, msg)
         local inv_obj = GetIES(inv_Item:GetObject())
         local inv_clsid = inv_obj.ClassID
         local inv_count = inv_Item.count
+        local item_cls = GetClassByType('Item', inv_clsid)
+        local category = "false"
+        if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+            category = item_cls.MarketCategory:match("^(.-)_")
+        end
         local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(inv_obj.Name));
-        table.insert(items, {g.login_name, guid, inv_clsid, inv_count, item_name})
+        table.insert(items, {g.login_name, guid, inv_clsid, inv_count, item_name, "inventory", category})
     end
 
     local lines = {}
@@ -443,7 +431,8 @@ function barrack_item_list_inventory_save_list(frame, msg)
         end
 
         for _, item in ipairs(items) do
-            local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
+            local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -461,8 +450,13 @@ function barrack_item_list_inventory_save_list(frame, msg)
             local iesid = equip_item:GetIESID()
             if iesid ~= "0" then
                 local clsid = obj.ClassID
+                local item_cls = GetClassByType('Item', clsid)
+                local category = "false"
+                if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+                    category = item_cls.MarketCategory:match("^(.-)_")
+                end
                 local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
-                table.insert(items, {g.login_name, iesid, clsid, 1, item_name})
+                table.insert(items, {g.login_name, iesid, clsid, 1, item_name, "equips", category})
             end
         end
     end
@@ -483,7 +477,8 @@ function barrack_item_list_inventory_save_list(frame, msg)
         end
 
         for _, item in ipairs(items) do
-            local line = string.format("%s:::%s:::%d:::%d:::%s\n", item[1], item[2], item[3], item[4], item[5])
+            local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
