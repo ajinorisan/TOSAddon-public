@@ -3,10 +3,11 @@
 -- v1.0.4 ちょいイジリ
 -- v1.0.5 ミスって謎の語り部クリアしてしまったので増やした。
 -- v1.0.6 レティーシャワープ付けた。トークンワープのカウントダウンをフレームに収めた。
+-- v1.0.7 ワープ出来ないマップでSysMsgが永遠出続けるの直した。
 local addonName = "LETS_GO_HOME"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -68,12 +69,11 @@ end
 
 function LETS_GO_HOME_KEYPRESS(frame)
 
-    if ENABLE_WARP_CHECK(GetMyPCObject()) == false then
-        ui.SysMsg(ScpArgMsg("WarpBanBountyHunt"))
-        return 1
-    end
-
     if 1 == keyboard.IsKeyPressed("BACKSLASH") then
+        if ENABLE_WARP_CHECK(GetMyPCObject()) == false then
+            ui.SysMsg(ScpArgMsg("WarpBanBountyHunt"))
+            return 1
+        end
         LETS_GO_HOME_WARP(frame)
     end
     return 1
