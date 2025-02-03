@@ -118,6 +118,24 @@ function barrack_item_list_context()
     ui.OpenContextMenu(context)
 end
 
+local categorys = {}
+local categoryList = GetMarketCategoryList('root')
+for i = 1, #categoryList do
+    local group = categoryList[i];
+    table.insert(categorys, group)
+end
+
+for i, category in ipairs(categorys) do
+    print(i .. ": " .. category)
+end
+local itemobj = GetObjectByGuid(itemGUID);
+if itemobj == nil then
+    return nil;
+end
+
+local baseid = GetInvenBaseID(itemobj.ClassID)
+local cls = GetClassByNumProp("inven_baseid", "BaseID", baseid);
+
 function barrack_item_list_open()
     local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
     AUTO_CAST(frame)
