@@ -118,17 +118,6 @@ function barrack_item_list_context()
     ui.OpenContextMenu(context)
 end
 
---[[local categorys = {}
-local categoryList = GetMarketCategoryList('root')
-for i = 1, #categoryList do
-    local group = categoryList[i];
-    table.insert(categorys, group)
-end
-
-for i, category in ipairs(categorys) do
-    print(i .. ": " .. category)
-end]]
-
 function barrack_item_list_open()
     local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
     AUTO_CAST(frame)
@@ -178,7 +167,7 @@ function barrack_item_list_open()
     gb:SetSkinName("test_frame_midle")
     AUTO_CAST(gb);
 
-    local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, frame:GetWidth() - 40, frame:GetHeight() - 130)
+    --[[local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, frame:GetWidth() - 40, frame:GetHeight() - 130)
     AUTO_CAST(tree)
     tree:Clear();
     tree:EnableDrawFrame(false)
@@ -187,13 +176,52 @@ function barrack_item_list_open()
     tree:SetTabWidth(30);
     tree:OpenNodeAll();
 
+    barrack_item_list_build_tree(frame, tree)]]
+end
+
+function barrack_item_list_build(frame, gb)
+    local items = barrack_item_list_load_data() -- データ読み込み
+    local subcategories = {} -- サブカテゴリを保存するテーブル
+
+    for j = 1, #items do
+        local item = items[j]
+        local clsid = item[3]
+        local iesid = item[2]
+        local item_count = item[4]
+        local category = item[6]
+        local sub_category = item[7]
+
+        if not subcategories[sub_category] then
+            local title_text = gb:CreateOrGetControl("richtext", "title_text", 0, 0, 0, 0)
+            AUTO_CAST(title_text);
+
+            local slot_set = gb:CreateOrGetControl('slotset', sub_category, 0, 0, 0, 0)
+            AUTO_CAST(slot_set)
+            slot_set:EnablePop(0)
+            slot_set:EnableDrag(0)
+            slot_set:EnableDrop(0)
+            slot_set:SetMaxSelectionCount(999)
+            slot_set:SetSlotSize(30, 30)
+            slot_set:SetColRow(20, 1)
+            slot_set:SetSpc(0, 0)
+            slot_set:SetSkinName('invenslot')
+            slot_set:EnableSelection(0)
+            slot_set:CreateSlots()
+        else
+
+        end
+    end
+
+end
+
+function barrack_item_list_load_data()
     local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
                      string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
                      string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
 
     local items = {}
-    for i, dat in ipairs(dat_tbl) do
-        for line in io.lines(dat) do
+    for i, dat_file_path in ipairs(dat_tbl) do
+        for line in io.lines(dat_file_path) do
             local name = line:match("^(.-):::")
             if name == g.login_name then
                 local parts = {}
@@ -211,6 +239,12 @@ function barrack_item_list_open()
             end
         end
     end
+    return items
+end
+
+function barrack_item_list_build_tree(frame, tree)
+    local items = barrack_item_list_load_data() -- データ読み込み
+    local subcategories = {} -- サブカテゴリを保存するテーブル
 
     for j = 1, #items do
         local item = items[j]
@@ -220,31 +254,43 @@ function barrack_item_list_open()
         local category = item[6]
         local sub_category = item[7]
 
-        barrack_item_list_insert_item_to_tree(frame, tree, clsid, iesid, item_count, category, sub_category)
-
+        -- サブカテゴリが未登録であればツリーに追加
+        if not subcategories[sub_category] then
+            local new_slots = barrack_item_list_make_inven_slotset(tree, sub_category)
+            -- ツリーにサブカテゴリを追加
+            local slotsettitle = 'ssettitle_' .. sub_category
+            tree:Add(ClMsg(sub_category), slotsettitle)
+            tree:Add(new_slots, sub_category)
+            subcategories[sub_category] = new_slots -- スロットセットを登録済みにする
+            barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                  sub_category)
+        else
+            local new_slots = subcategories[sub_category]
+            barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                  sub_category)
+        end
     end
+
+    tree:OpenNodeAll() -- ツリーをすべて展開
 end
 
-function barrack_item_list_insert_item_to_tree(frame, tree, clsid, iesid, item_count, category, sub_category)
+function barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category, sub_category)
+    if not new_slots then -- nilチェック
+        print("Error: new_slots is nil in barrack_item_list_insert_item_to_tree")
+        return
+    end
+    -- スロット数を拡張
+    local slotCount = new_slots:GetSlotCount()
+    local cnt = new_slots:GetUserIValue("SLOT_ITEM_COUNT") or 0
 
-    local slotsettitle = 'ssettitle_' .. sub_category
-    local newSlots = barrack_item_list_make_inven_slotset(tree, sub_category)
-    tree:Add(ClMsg(sub_category), slotsettitle)
-
-    tree:Add(newSlots, sub_category)
-
-    local slotCount = newSlots:GetSlotCount()
-    local cnt = newSlots:GetUserIValue("SLOT_ITEM_COUNT") or 0
-
-    -- スロット数を自動的に拡張
-    --[[while slotCount <= cnt do
-        slotset:ExpandRow()
-        slotCount = slotset:GetSlotCount()
+    while slotCount <= cnt do
+        new_slots:ExpandRow()
+        slotCount = new_slots:GetSlotCount()
     end
 
-    local slot = slotset:GetSlotByIndex(cnt)
+    local slot = new_slots:GetSlotByIndex(cnt)
     cnt = cnt + 1
-    slotset:SetUserValue("SLOT_ITEM_COUNT", cnt)
+    new_slots:SetUserValue("SLOT_ITEM_COUNT", cnt)
     slot:ShowWindow(1)
 
     -- アイテムをスロットに描画
@@ -261,23 +307,22 @@ function barrack_item_list_insert_item_to_tree(frame, tree, clsid, iesid, item_c
         local icon = slot:GetIcon()
         icon:SetTooltipArg("accountwarehouse", item_cls.ClassID, iesid)
         SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse")
-        SET_SLOT_ICOR_CATEGORY(slot, item_cls)
+        SET_SLOT_ICOR_CATEGORY(item_cls, slot)
     end
 
-    draw_item(item_cls, slot)]]
-
-    tree:OpenNodeAll();
-end
-
-function barrack_item_list_get_slotset_name(baseidcls)
-    if not baseidcls then
-        return 'error'
+    local item_cls = GetClassByType('Item', clsid)
+    if item_cls then
+        draw_item(item_cls, slot)
     end
-    local className = baseidcls.MergedTreeTitle ~= "NO" and baseidcls.MergedTreeTitle or baseidcls.ClassName
-    return 'sset_' .. className
+
+    -- tree:OpenNodeAll()  //削除:buildtreeでopenにしている
 end
 
 function barrack_item_list_make_inven_slotset(tree, name)
+
+end
+
+--[[function barrack_item_list_make_inven_slotset(tree, name)
     local newslotset = tree:CreateOrGetControl('slotset', name, 0, 0, 0, 0)
     tolua.cast(newslotset, "ui::CSlotSet")
 
@@ -295,6 +340,14 @@ function barrack_item_list_make_inven_slotset(tree, name)
     return newslotset
 end
 
+function barrack_item_list_get_slotset_name(baseidcls)
+    if not baseidcls then
+        return 'error'
+    end
+    local className = baseidcls.MergedTreeTitle ~= "NO" and baseidcls.MergedTreeTitle or baseidcls.ClassName
+    return 'sset_' .. className
+end
+
 function barrack_item_list_inven_slotset_and_title(tree, treegroup, slotsetname, baseidcls)
     local slotsettitle = 'ssettitle_' ..
                              (baseidcls.MergedTreeTitle ~= "NO" and baseidcls.MergedTreeTitle or baseidcls.ClassName)
@@ -306,7 +359,7 @@ function barrack_item_list_inven_slotset_and_title(tree, treegroup, slotsetname,
     local slotHandle = tree:Add(treegroup, newSlots, slotsetname)
     local slotNode = tree:GetNodeByTreeItem(slotHandle)
     slotNode:SetUserValue("IS_ITEM_SLOTSET", 1)
-end
+end]]
 
 function barrack_item_list_char_data()
 
@@ -385,7 +438,7 @@ function barrack_item_list_warehouse_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -432,7 +485,7 @@ function barrack_item_list_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -478,7 +531,7 @@ function barrack_item_list_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
