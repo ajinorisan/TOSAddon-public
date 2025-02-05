@@ -111,269 +111,11 @@ function barrack_item_list_context()
 
     for _, name in ipairs(g.chars) do
         local str_scp
-        str_scp = string.format("barrack_item_list_char_switching('%s')", name)
+        str_scp = string.format("barrack_item_list_open('%s')", name)
         ui.AddContextMenuItem(context, name, str_scp)
     end
 
     ui.OpenContextMenu(context)
-end
-
-function barrack_item_list_open()
-    local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
-    AUTO_CAST(frame)
-    frame:SetSkinName("test_frame_low")
-    frame:Resize(670, 1080)
-    frame:SetPos(0, 0)
-    frame:EnableMove(0)
-    frame:SetLayerLevel(100)
-    frame:RemoveAllChild()
-    frame:ShowWindow(1)
-
-    local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, frame:GetWidth(), 55)
-    title_gb:SetSkinName("test_frame_top")
-    AUTO_CAST(title_gb)
-    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
-    AUTO_CAST(title_text);
-    title_text:SetText('{ol}{s26}Barrack Item List')
-
-    local close = frame:CreateOrGetControl("button", "close", 0, 0, 25, 25)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "barrack_item_list_close")
-
-    local login_name = frame:CreateOrGetControl("richtext", "login_name", 20, 60, 0, 0)
-    AUTO_CAST(login_name);
-    login_name:SetText('{ol}{s18}' .. g.login_name)
-
-    local char_switch = frame:CreateOrGetControl("button", "char_switch", 20, 85, 150, 30)
-    AUTO_CAST(char_switch)
-    char_switch:SetText(g.lang == "Japanese" and "{ol}キャラクター切替" or "{ol}character switch")
-    char_switch:SetSkinName("test_pvp_btn")
-    char_switch:SetEventScript(ui.LBUTTONUP, "barrack_item_list_context")
-
-    local search_edit = frame:CreateOrGetControl("edit", "search_edit", 200, 80, 250, 40)
-    AUTO_CAST(search_edit)
-    search_edit:SetFontName("white_18_ol")
-    search_edit:SetTextAlign("left", "center")
-    search_edit:SetSkinName("inventory_serch")
-
-    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
-    AUTO_CAST(search_btn)
-    search_btn:SetImage("inven_s")
-    search_btn:SetGravity(ui.RIGHT, ui.TOP)
-
-    local gb = frame:CreateOrGetControl("groupbox", "gb", 20, 120, frame:GetWidth() - 40, frame:GetHeight() - 135)
-    gb:SetSkinName("test_frame_midle")
-    AUTO_CAST(gb);
-
-    -- local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, frame:GetWidth() - 40, frame:GetHeight() - 135)
-    local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, 0, 0)
-    AUTO_CAST(tree)
-    tree:Clear();
-    tree:EnableDrawFrame(false)
-    tree:SetFitToChild(true, 10)
-    tree:SetFontName("white_16_ol");
-    -- tree:SetTabWidth(80);
-    -- tree:OpenNodeAll();
-
-    barrack_item_list_build_tree(frame, tree)
-end
-
-function barrack_item_list_load_data()
-    local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
-                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
-                     string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
-
-    local function split(input, delimiter)
-        local parts = {}
-        for part in input:gmatch("([^" .. delimiter .. "]+)") do
-            table.insert(parts, part)
-        end
-        return parts
-    end
-
-    local items = {}
-    for _, dat_file_path in ipairs(dat_tbl) do
-        for line in io.lines(dat_file_path) do
-            local name = line:match("^(.-):::")
-            if name == g.login_name then
-                local parts = {}
-                local start = string.len(name) + 4 -- 「name:::」の長さをスキップ
-                while true do
-                    local s, e = string.find(line, ":::", start, true)
-                    if not s then
-                        local last_part = string.sub(line, start)
-                        if last_part ~= "" then
-                            table.insert(parts, last_part)
-                        end
-                        break
-                    end
-                    local part = string.sub(line, start, s - 1)
-                    table.insert(parts, part)
-                    start = e + 1
-                end
-                table.insert(items, parts)
-            end
-        end
-    end
-    return items
-end
-
-function barrack_item_list_build_tree(frame, tree)
-    local items = barrack_item_list_load_data() -- データ読み込み
-    local subcategories = {} -- サブカテゴリを保存するテーブル
-
-    for j = 1, #items do
-
-        local item = items[j]
-        --[[print(tostring(j) .. ":" .. tostring(item[1]) .. ":" .. tostring(item[2]) .. ":" .. tostring(item[3]) .. ":" ..
-                  tostring(item[4]) .. ":" .. tostring(item[5]) .. ":" .. tostring(item[6]) .. ":" .. tostring(item[7]))]]
-        local iesid = item[1]
-        local clsid = item[2]
-        local item_count = item[3]
-        local item_name = item[4]
-        local category = item[5]
-        local sub_category = item[6]
-
-        if category == "inventory" then
-            -- サブカテゴリが未登録であればツリーに追加
-            if not subcategories[sub_category] then
-                local new_slots = barrack_item_list_make_inven_slotset(tree, sub_category)
-                subcategories[sub_category] = new_slots -- スロットセットを登録済みにする
-
-                if sub_category ~= "false" then
-
-                    if sub_category == "Ancient" then
-                        sub_category = g.lang == "Japanese" and "アシスター" or "Ancient"
-                        tree:Add(sub_category)
-                    elseif sub_category == "nil" then
-                        sub_category = g.lang == "Japanese" and "レリック" or "Relic"
-                        tree:Add(sub_category)
-                    elseif sub_category == "PHousing" then
-                        sub_category = g.lang == "Japanese" and "家具" or "Housing"
-                        tree:Add(sub_category)
-                    else
-                        tree:Add(ClMsg(sub_category))
-                    end
-
-                    tree:Add(new_slots, sub_category)
-
-                    barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
-                        sub_category)
-                else
-                    -- シルバーの処理
-                end
-            else
-                local new_slots = GET_CHILD(tree, sub_category)
-                barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
-                    sub_category)
-            end
-        elseif category == "warehouse" then
-            if not subcategories[category] then
-                local new_slots = barrack_item_list_make_inven_slotset(tree, category)
-                subcategories[category] = new_slots -- スロットセットを登録済みにする
-
-                category = g.lang == "Japanese" and "倉庫" or "Warehouse"
-                tree:Add(category)
-
-                tree:Add(new_slots, sub_category)
-
-                barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
-                    sub_category)
-
-            else
-                local new_slots = GET_CHILD(tree, category)
-                barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
-                    sub_category)
-            end
-        elseif category == "equips" then
-            if not subcategories[category] then
-                local new_slots = barrack_item_list_make_inven_slotset(tree, category)
-                subcategories[category] = new_slots -- スロットセットを登録済みにする
-
-                category = g.lang == "Japanese" and "装備中" or "Equips"
-                tree:Add(category)
-
-                tree:Add(new_slots, sub_category)
-
-                barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
-                    sub_category)
-
-            else
-                local new_slots = GET_CHILD(tree, category)
-                barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
-                    sub_category)
-            end
-        end
-    end
-    tree:Resize(frame:GetWidth() - 40, frame:GetHeight() - 135)
-    tree:OpenNodeAll() -- ツリーをすべて展開
-end
-
-function barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category, sub_category)
-
-    local slotCount = new_slots:GetSlotCount()
-    local cnt = new_slots:GetUserIValue("SLOT_ITEM_COUNT") or 0
-
-    while slotCount <= cnt do
-        new_slots:ExpandRow()
-        slotCount = new_slots:GetSlotCount()
-    end
-
-    local slot = new_slots:GetSlotByIndex(cnt)
-    cnt = cnt + 1
-    new_slots:SetUserValue("SLOT_ITEM_COUNT", cnt)
-    slot:ShowWindow(1)
-
-    local item_cls = GetClassByType('Item', clsid)
-    slot:SetSkinName('invenslot2')
-    SET_SLOT_ITEM_CLS(slot, item_cls)
-    SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
-    if tonumber(item_count) > 1 then
-        SET_SLOT_COUNT_TEXT(slot, item_count, "{ol}{s14}");
-    end
-    --[[ アイテムをスロットに描画
-    local function draw_item(item_cls, slot)
-
-        -- local iconImg = GET_ITEM_ICON_IMAGE(item_cls)
-        -- slot:SetHeaderImage('None')
-        -- SET_SLOT_IMG(slot, iconImg)
-        -- SET_SLOT_COUNT(slot, item_count)
-        -- SET_SLOT_STYLESET(slot, item_cls)
-        -- SET_SLOT_IESID(slot, iesid)
-        -- slot:SetMaxSelectCount(item_count)
-        -- local icon = slot:GetIcon()
-        -- icon:SetTooltipArg("accountwarehouse", item_cls.ClassID, iesid)
-        -- SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse")
-        -- SET_SLOT_ICOR_CATEGORY(item_cls, slot)
-    end
-
-    if item_cls then
-
-        draw_item(item_cls, slot)
-    end
-
-    -- tree:OpenNodeAll()  //削除:buildtreeでopenにしている]]
-end
-
-function barrack_item_list_make_inven_slotset(tree, name)
-
-    local newslotset = tree:CreateOrGetControl('slotset', name, 20, 0, 0, 0)
-    tolua.cast(newslotset, "ui::CSlotSet")
-
-    newslotset:EnablePop(0)
-    newslotset:EnableDrag(0)
-    newslotset:EnableDrop(0)
-    newslotset:SetMaxSelectionCount(999)
-    newslotset:SetSlotSize(40, 40)
-    newslotset:SetColRow(15, 1)
-    newslotset:SetSpc(0, 0)
-    newslotset:SetSkinName('invenslot')
-    newslotset:EnableSelection(0)
-    newslotset:CreateSlots()
-
-    return newslotset
 end
 
 function barrack_item_list_char_data()
@@ -453,7 +195,7 @@ function barrack_item_list_warehouse_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -500,7 +242,7 @@ function barrack_item_list_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -546,16 +288,396 @@ function barrack_item_list_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
         file:close()
     end
 end
+
+function barrack_item_list_open(select_name)
+    local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
+    AUTO_CAST(frame)
+    frame:SetSkinName("test_frame_low")
+    frame:Resize(670, 1080)
+    frame:SetPos(0, 0)
+    frame:EnableMove(0)
+    frame:SetLayerLevel(100)
+    frame:RemoveAllChild()
+    frame:ShowWindow(1)
+
+    local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, frame:GetWidth(), 55)
+    title_gb:SetSkinName("test_frame_top")
+    AUTO_CAST(title_gb)
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text);
+    title_text:SetText('{ol}{s26}Barrack Item List')
+
+    local close = frame:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "barrack_item_list_close")
+
+    local login_name = frame:CreateOrGetControl("richtext", "login_name", 20, 60, 0, 0)
+    AUTO_CAST(login_name);
+    login_name:SetText(select_name == nil and '{ol}{s18}' .. g.login_name or select_name)
+
+    local char_switch = frame:CreateOrGetControl("button", "char_switch", 20, 85, 150, 30)
+    AUTO_CAST(char_switch)
+    char_switch:SetText(g.lang == "Japanese" and "{ol}キャラクター切替" or "{ol}character switch")
+    char_switch:SetSkinName("test_pvp_btn")
+    char_switch:SetEventScript(ui.LBUTTONUP, "barrack_item_list_context")
+
+    local search_edit = frame:CreateOrGetControl("edit", "search_edit", 200, 80, 250, 40)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+
+    local gb = frame:CreateOrGetControl("groupbox", "gb", 20, 120, frame:GetWidth() - 40, frame:GetHeight() - 135)
+    gb:SetSkinName("test_frame_midle")
+    AUTO_CAST(gb);
+
+    -- local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, frame:GetWidth() - 40, frame:GetHeight() - 135)
+    local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, 0, 0)
+    AUTO_CAST(tree)
+    tree:Clear();
+    tree:EnableDrawFrame(false)
+    tree:SetFitToChild(true, 10)
+    tree:SetFontName("white_16_ol");
+    -- tree:SetTabWidth(80);
+    -- tree:OpenNodeAll();
+
+    barrack_item_list_build_tree(frame, tree, select_name)
+end
+
+function barrack_item_list_load_data(select_name)
+    local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
+
+    local function split(input, delimiter)
+        local parts = {}
+        for part in input:gmatch("([^" .. delimiter .. "]+)") do
+            table.insert(parts, part)
+        end
+        return parts
+    end
+
+    local items = {}
+    for _, dat_file_path in ipairs(dat_tbl) do
+        for line in io.lines(dat_file_path) do
+            local name = line:match("^(.-):::")
+            local select_name = select_name == nil and g.login_name or select_name
+            if name == select_name then
+                local parts = {}
+                local start = string.len(name) + 4 -- 「name:::」の長さをスキップ
+                while true do
+                    local s, e = string.find(line, ":::", start, true)
+                    if not s then
+                        local last_part = string.sub(line, start)
+                        if last_part ~= "" then
+                            table.insert(parts, last_part)
+                        end
+                        break
+                    end
+                    local part = string.sub(line, start, s - 1)
+                    table.insert(parts, part)
+                    start = e + 1
+                end
+                table.insert(items, parts)
+            end
+        end
+    end
+    return items
+end
+
+function barrack_item_list_get_sorted_sub_categories(items)
+    local subcategories = {} -- サブカテゴリを保存するテーブル
+    local subcategory_list = {}
+
+    local subcategory_order = {
+        ["false"] = 1,
+        ["Equips"] = 2,
+        ["Warehouse"] = 3,
+        ["Weapon"] = 4,
+        ["Armor"] = 5,
+        ["HairAcc"] = 6,
+        ["Accessory"] = 7,
+        ["nil"] = 8,
+        ["Premium"] = 9,
+        ["Look"] = 10,
+        ["ChangeEquip"] = 11,
+        ["Misc"] = 12,
+        ["Consume"] = 13,
+        ["Recipe"] = 14,
+        ["Card"] = 15,
+        ["Gem"] = 16,
+        ["Ancient"] = 17,
+        ["OPTMisc"] = 18,
+        ["PHousing"] = 19
+    }
+
+    local function get_order(name)
+        return subcategory_order[name] or 100
+    end
+
+    for i = 1, #items do
+        local item = items[i]
+        local category = item[5]
+        local sub_category = item[6]
+
+        if category == "warehouse" or category == "equips" then
+            if not subcategories[category] then
+                subcategories[category] = true
+                table.insert(subcategory_list, category)
+            end
+        elseif category == "inventory" then
+            if not subcategories[sub_category] then
+                subcategories[sub_category] = true
+                table.insert(subcategory_list, sub_category)
+            end
+        end
+    end
+
+    local function sort_subcategories(a, b)
+        return get_order(a) < get_order(b)
+    end
+
+    table.sort(subcategory_list, sort_subcategories)
+    return subcategory_list
+end
+
+function barrack_item_list_build_tree(frame, tree, select_name)
+
+    local items = barrack_item_list_load_data(select_name) -- データ読み込み
+    local sub_category_list = barrack_item_list_get_sorted_sub_categories(items)
+
+    local silver = 0
+    for i = 1, #items do
+        local item = items[i]
+        local iesid = item[1]
+        local item_count = item[3]
+        if iesid == "0" then
+            silver = item_count
+            break
+        end
+    end
+
+    -- ソートされたリストを使ってツリーを構築
+    for i = 1, #sub_category_list do
+        local category = sub_category_list[i]
+        local disp_category = category
+
+        if disp_category == "false" then
+            disp_category = g.lang == "Japanese" and "シルバー" .. " " .. GET_COMMAED_STRING(tonumber(silver)) or
+                                "Silver" .. " " .. GET_COMMAED_STRING(tonumber(silver))
+        end
+
+        local new_slots = barrack_item_list_make_inven_slotset(tree, category)
+
+        if disp_category == "warehouse" then
+            disp_category = g.lang == "Japanese" and "倉庫" or "Warehouse"
+        elseif disp_category == "equips" then
+            disp_category = g.lang == "Japanese" and "装備中" or "Equips"
+        elseif disp_category == "Ancient" then
+            disp_category = g.lang == "Japanese" and "アシスター" or "Ancient"
+        elseif disp_category == "nil" then
+            disp_category = g.lang == "Japanese" and "レリック" or "Relic"
+        elseif disp_category == "PHousing" then
+            disp_category = g.lang == "Japanese" and "家具" or "Housing"
+        end
+
+        tree:Add(disp_category)
+        tree:Add(new_slots, category)
+
+        for i = 1, #items do
+            local item = items[i]
+            local iesid = item[1]
+            local clsid = item[2]
+            local item_count = item[3]
+            local item_name = item[4]
+            local cate = item[5]
+            local sub_cate = item[6]
+            if sub_cate == category or cate == category then
+                barrack_item_list_insert_item_to_tree(new_slots, clsid, item_count)
+            end
+        end
+    end
+
+    tree:Resize(frame:GetWidth() - 40, frame:GetHeight() - 135)
+    tree:OpenNodeAll()
+end
+
+function barrack_item_list_insert_item_to_tree(new_slots, clsid, item_count)
+    local slot_count = new_slots:GetSlotCount()
+    local count = new_slots:GetUserIValue("SLOT_ITEM_COUNT") or 0
+
+    while slot_count <= count do
+        new_slots:ExpandRow()
+        slot_count = new_slots:GetSlotCount()
+    end
+
+    local slot = new_slots:GetSlotByIndex(count)
+    count = count + 1
+    new_slots:SetUserValue("SLOT_ITEM_COUNT", count)
+    slot:ShowWindow(1)
+
+    local item_cls = GetClassByType('Item', clsid)
+    if item_cls then
+        slot:SetSkinName('invenslot2')
+        SET_SLOT_ITEM_CLS(slot, item_cls)
+        SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
+        if tonumber(item_count) > 1 then
+            SET_SLOT_COUNT_TEXT(slot, item_count, "{ol}{s14}");
+        end
+    end
+end
+
+function barrack_item_list_make_inven_slotset(tree, name)
+    local new_slotset = tree:CreateOrGetControl('slotset', name, 20, 0, 0, 0)
+    tolua.cast(new_slotset, "ui::CSlotSet")
+
+    new_slotset:EnablePop(0)
+    new_slotset:EnableDrag(0)
+    new_slotset:EnableDrop(0)
+    new_slotset:SetMaxSelectionCount(999)
+    new_slotset:SetSlotSize(40, 40)
+    new_slotset:SetColRow(15, 1)
+    new_slotset:SetSpc(0, 0)
+    new_slotset:SetSkinName('invenslot')
+    new_slotset:EnableSelection(0)
+    new_slotset:CreateSlots()
+
+    return new_slotset
+end
+
+--[===[
+--[[ アイテムをスロットに描画
+    local function draw_item(item_cls, slot)
+
+        -- local iconImg = GET_ITEM_ICON_IMAGE(item_cls)
+        -- slot:SetHeaderImage('None')
+        -- SET_SLOT_IMG(slot, iconImg)
+        -- SET_SLOT_COUNT(slot, item_count)
+        -- SET_SLOT_STYLESET(slot, item_cls)
+        -- SET_SLOT_IESID(slot, iesid)
+        -- slot:SetMaxSelectCount(item_count)
+        -- local icon = slot:GetIcon()
+        -- icon:SetTooltipArg("accountwarehouse", item_cls.ClassID, iesid)
+        -- SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse")
+        -- SET_SLOT_ICOR_CATEGORY(item_cls, slot)
+    end
+
+    if item_cls then
+
+        draw_item(item_cls, slot)
+    end
+
+    -- tree:OpenNodeAll()  //削除:buildtreeでopenにしている]]
+    local subcategories = {} -- サブカテゴリを保存するテーブル
+
+for i = 1, #items do
+
+    local item = items[i]
+    --[[print(tostring(j) .. ":" .. tostring(item[1]) .. ":" .. tostring(item[2]) .. ":" .. tostring(item[3]) .. ":" ..
+              tostring(item[4]) .. ":" .. tostring(item[5]) .. ":" .. tostring(item[6]) .. ":" .. tostring(item[7]))]]
+    local iesid = item[1]
+    local clsid = item[2]
+    local item_count = item[3]
+    local item_name = item[4]
+    local category = item[5]
+    local sub_category = item[6]
+
+    if category == "inventory" then
+        -- サブカテゴリが未登録であればツリーに追加
+        if not subcategories[sub_category] then
+            local new_slots = barrack_item_list_make_inven_slotset(tree, sub_category)
+            subcategories[sub_category] = new_slots -- スロットセットを登録済みにする
+
+            if sub_category ~= "false" then
+
+                if sub_category == "Ancient" then
+                    sub_category = g.lang == "Japanese" and "アシスター" or "Ancient"
+                    tree:Add(sub_category)
+                elseif sub_category == "nil" then
+                    sub_category = g.lang == "Japanese" and "レリック" or "Relic"
+                    tree:Add(sub_category)
+                elseif sub_category == "PHousing" then
+                    sub_category = g.lang == "Japanese" and "家具" or "Housing"
+                    tree:Add(sub_category)
+                else
+                    tree:Add(ClMsg(sub_category))
+                end
+
+                tree:Add(new_slots, sub_category)
+
+                barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                      sub_category)
+            else
+                -- !  -- シルバーの処理
+                local item_cls = GetClassByType('Item', clsid)
+                local icon_image = GET_ITEM_ICON_IMAGE(item_cls)
+                local silver_text = frame:CreateOrGetControl("richtext", "silver_text", 460, 30, 85, 30)
+                AUTO_CAST(silver_text);
+                silver_text:SetText("{img " .. icon_image .. " 30 30}" .. GET_COMMAED_STRING(item_count))
+            end
+        else
+            local new_slots = GET_CHILD(tree, sub_category)
+            barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                  sub_category)
+        end
+    elseif category == "warehouse" then
+        if not subcategories[category] then
+            local new_slots = barrack_item_list_make_inven_slotset(tree, category)
+            subcategories[category] = new_slots
+
+            category = g.lang == "Japanese" and "倉庫" or "Warehouse"
+            tree:Add(category)
+
+            tree:Add(new_slots, sub_category)
+
+            barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                  sub_category)
+
+        else
+            local new_slots = GET_CHILD(tree, category)
+            barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                  sub_category)
+        end
+    elseif category == "equips" then
+        if not subcategories[category] then
+            local new_slots = barrack_item_list_make_inven_slotset(tree, category)
+            subcategories[category] = new_slots
+
+            category = g.lang == "Japanese" and "装備中" or "Equips"
+            tree:Add(category)
+
+            tree:Add(new_slots, sub_category)
+
+            barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                  sub_category)
+
+        else
+            local new_slots = GET_CHILD(tree, category)
+            barrack_item_list_insert_item_to_tree(frame, tree, new_slots, clsid, iesid, item_count, category,
+                                                  sub_category)
+        end
+    end
+end
+tree:Resize(frame:GetWidth() - 40, frame:GetHeight() - 135)
+tree:OpenNodeAll()
+
 -- barrack_item_list_inventory_save_list(frame, msg)
 -- barrack_item_list_inventory_save_list(frame, msg)
---[===[  setfenv is gone since Lua 5.2
+  setfenv is gone since Lua 5.2
 -- copied from https://leafo.net/guides/setfenv-in-lua52-and-above.html
 local setfenv = _G['setfenv']
 if not setfenv then
