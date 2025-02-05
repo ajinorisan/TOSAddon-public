@@ -111,7 +111,7 @@ function barrack_item_list_context()
 
     for _, name in ipairs(g.chars) do
         local str_scp
-        str_scp = string.format("barrack_item_list_open('%s')", name)
+        str_scp = string.format("barrack_item_list_open('%s','%s')", "frame", name)
         ui.AddContextMenuItem(context, name, str_scp)
     end
 
@@ -195,7 +195,7 @@ function barrack_item_list_warehouse_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -242,7 +242,7 @@ function barrack_item_list_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -288,7 +288,7 @@ function barrack_item_list_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -296,7 +296,76 @@ function barrack_item_list_inventory_save_list(frame, msg)
     end
 end
 
-function barrack_item_list_open(select_name)
+function barrack_item_list_search_load_data(search_text)
+    local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
+
+    local function split(input, delimiter)
+        local parts = {}
+        for part in input:gmatch("([^" .. delimiter .. "]+)") do
+            table.insert(parts, part)
+        end
+        return parts
+    end
+
+    local items = {}
+    for _, dat_file_path in ipairs(dat_tbl) do
+        for line in io.lines(dat_file_path) do
+            local parts = {}
+            local start = 1
+            while true do
+                local s, e = string.find(line, ":::", start, true)
+                if not s then
+                    local last_part = string.sub(line, start)
+                    if last_part ~= "" then
+                        table.insert(parts, last_part)
+                    end
+                    break
+                end
+                local part = string.sub(line, start, s - 1)
+                table.insert(parts, part)
+                start = e + 1
+            end
+
+            if parts[5] then
+
+                local target_string = search_text -- ここに比較したい文字列を設定
+                if string.find(string.lower(target_string), string.lower(search_text)) then
+                    table.insert(items, parts)
+                end
+            end
+        end
+    end
+
+    --[[for i = 1, #items do
+        local sub_table = items[i]
+        print("Item " .. i .. ":")
+        for j = 1, #sub_table do
+            print("  " .. j .. ": " .. tostring(sub_table[j]))
+        end
+    end]]
+    return items
+end
+
+function barrack_item_list_item_search(frame, ctrl, str, num)
+
+    local frame = ctrl:GetTopParentFrame()
+    local search_edit = GET_CHILD(frame, "search_edit")
+    AUTO_CAST(search_edit)
+    local search_text = search_edit:GetText()
+
+    local items = barrack_item_list_search_load_data(search_text)
+    print("test")
+
+end
+
+function barrack_item_list_open(frame, select_name)
+
+    if frame ~= "frame" then
+        select_name = nil
+    end
+
     local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
     AUTO_CAST(frame)
     frame:SetSkinName("test_frame_low")
@@ -322,7 +391,7 @@ function barrack_item_list_open(select_name)
 
     local login_name = frame:CreateOrGetControl("richtext", "login_name", 20, 60, 0, 0)
     AUTO_CAST(login_name);
-    login_name:SetText(select_name == nil and '{ol}{s18}' .. g.login_name or select_name)
+    login_name:SetText(select_name == nil and '{ol}{s18}' .. g.login_name or '{ol}{s18}' .. select_name)
 
     local char_switch = frame:CreateOrGetControl("button", "char_switch", 20, 85, 150, 30)
     AUTO_CAST(char_switch)
@@ -335,11 +404,13 @@ function barrack_item_list_open(select_name)
     search_edit:SetFontName("white_18_ol")
     search_edit:SetTextAlign("left", "center")
     search_edit:SetSkinName("inventory_serch")
+    search_edit:SetEventScript(ui.ENTERKEY, "barrack_item_list_item_search")
 
     local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
     AUTO_CAST(search_btn)
     search_btn:SetImage("inven_s")
     search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    search_btn:SetEventScript(ui.LBUTTONUP, "barrack_item_list_item_search")
 
     local gb = frame:CreateOrGetControl("groupbox", "gb", 20, 120, frame:GetWidth() - 40, frame:GetHeight() - 135)
     gb:SetSkinName("test_frame_midle")
@@ -405,8 +476,8 @@ function barrack_item_list_get_sorted_sub_categories(items)
 
     local subcategory_order = {
         ["false"] = 1,
-        ["Equips"] = 2,
-        ["Warehouse"] = 3,
+        ["equips"] = 2,
+        ["warehouse"] = 3,
         ["Weapon"] = 4,
         ["Armor"] = 5,
         ["HairAcc"] = 6,
@@ -426,7 +497,12 @@ function barrack_item_list_get_sorted_sub_categories(items)
     }
 
     local function get_order(name)
-        return subcategory_order[name] or 100
+        local order = subcategory_order[name]
+        if order == nil then
+            return 100 -- デフォルト値を設定
+        else
+            return order
+        end
     end
 
     for i = 1, #items do
@@ -472,42 +548,50 @@ function barrack_item_list_build_tree(frame, tree, select_name)
     end
 
     -- ソートされたリストを使ってツリーを構築
+    local iesids = {}
     for i = 1, #sub_category_list do
         local category = sub_category_list[i]
         local disp_category = category
 
         if disp_category == "false" then
-            disp_category = g.lang == "Japanese" and "シルバー" .. " " .. GET_COMMAED_STRING(tonumber(silver)) or
-                                "Silver" .. " " .. GET_COMMAED_STRING(tonumber(silver))
+            disp_category = "     " .. "{img icon_item_silver 20 20}" .. " " .. GET_COMMAED_STRING(tonumber(silver))
+            tree:Add(disp_category)
         end
+        if category ~= "false" then
+            local new_slots = barrack_item_list_make_inven_slotset(tree, category)
 
-        local new_slots = barrack_item_list_make_inven_slotset(tree, category)
+            if disp_category == "warehouse" then
+                disp_category = g.lang == "Japanese" and "倉庫" or "Warehouse"
+            elseif disp_category == "equips" then
+                disp_category = g.lang == "Japanese" and "装備中" or "Equips"
+            elseif disp_category == "Ancient" then
+                disp_category = g.lang == "Japanese" and "アシスター" or "Ancient"
+            elseif disp_category == "nil" then
+                disp_category = g.lang == "Japanese" and "レリック" or "Relic"
+            elseif disp_category == "PHousing" then
+                disp_category = g.lang == "Japanese" and "家具" or "Housing"
+            else
+                disp_category = ClMsg(category)
+            end
 
-        if disp_category == "warehouse" then
-            disp_category = g.lang == "Japanese" and "倉庫" or "Warehouse"
-        elseif disp_category == "equips" then
-            disp_category = g.lang == "Japanese" and "装備中" or "Equips"
-        elseif disp_category == "Ancient" then
-            disp_category = g.lang == "Japanese" and "アシスター" or "Ancient"
-        elseif disp_category == "nil" then
-            disp_category = g.lang == "Japanese" and "レリック" or "Relic"
-        elseif disp_category == "PHousing" then
-            disp_category = g.lang == "Japanese" and "家具" or "Housing"
-        end
+            tree:Add(disp_category)
+            tree:Add(new_slots, category)
 
-        tree:Add(disp_category)
-        tree:Add(new_slots, category)
+            for i = 1, #items do
+                local item = items[i]
+                local iesid = item[1]
+                local clsid = item[2]
+                local item_count = item[3]
+                local item_name = item[4]
+                local cate = item[5]
+                local sub_cate = item[6]
 
-        for i = 1, #items do
-            local item = items[i]
-            local iesid = item[1]
-            local clsid = item[2]
-            local item_count = item[3]
-            local item_name = item[4]
-            local cate = item[5]
-            local sub_cate = item[6]
-            if sub_cate == category or cate == category then
-                barrack_item_list_insert_item_to_tree(new_slots, clsid, item_count)
+                if not iesids[iesid] then -- iesid が未登録の場合
+                    if sub_cate == category or cate == category then
+                        iesids[iesid] = true
+                        barrack_item_list_insert_item_to_tree(new_slots, clsid, item_count)
+                    end
+                end
             end
         end
     end
