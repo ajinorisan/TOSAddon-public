@@ -63,10 +63,11 @@ end
 
 function g.mkdir_new_folder()
 
+    local folder = string.format("../addons/%s", addonNameLower)
     local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
     local file = io.open(file_path, "r")
     if not file then
-        os.execute('mkdir "' .. folder_path .. '"')
+        os.execute('mkdir "' .. folder .. '"')
         file = io.open(file_path, "w")
         if file then
             file:write("A new file has been created")
@@ -76,10 +77,11 @@ function g.mkdir_new_folder()
         file:close()
     end
 
+    local folder = string.format("../addons/%s/%s", addonNameLower, active_id)
     local file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, active_id)
     local file = io.open(file_path, "r")
     if not file then
-        os.execute('mkdir "' .. folder_path .. '"')
+        os.execute('mkdir "' .. folder .. '"')
         file = io.open(file_path, "w")
         if file then
             file:write("A new file has been created")
@@ -92,11 +94,7 @@ end
 g.mkdir_new_folder()
 
 function g.saveJSON(path, tbl)
-    local file, err = io.open(path, "w")
-    if err then
-        return _, err
-    end
-
+    local file = io.open(path, "w")
     local str = json.encode(tbl)
     file:write(str)
     file:close()
@@ -105,15 +103,14 @@ end
 function g.loadJSON(path)
 
     local file, err = io.open(path, "r")
-    local table = nil
 
-    if (err) then
-        return _, err
-    else
+    if file then
         local content = file:read("*all")
         file:close()
-        table = json.decode(content)
+        local table = json.decode(content)
         return table
+    else
+        return nil
     end
 end
 
@@ -124,9 +121,11 @@ end
 function characters_item_serch_load_settings()
 
     local settings = g.loadJSON(settings_path)
+
     if not settings then
         settings = {}
     end
+
     g.settings = settings
     characters_item_serch_save_settings()
 
@@ -156,27 +155,11 @@ function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
 
     characters_item_serch_load_settings()
 
-    function characters_item_serch_char_data()
-
-        g.chars = {}
-        local existing_names = {}
-
-        for line in io.lines(inventory_dat) do
-            local name = line:match("^(.-):::")
-            if name and not existing_names[name] then
-                table.insert(g.chars, name)
-                existing_names[name] = true
-            end
-        end
-
-    end
-    characters_item_serch_char_data()
-
     g.setup_event(addon, 'GAME_TO_BARRACK', 'characters_item_serch_inventory_save_list')
     g.setup_event(addon, 'GAME_TO_LOGIN', 'characters_item_serch_inventory_save_list')
     g.setup_event(addon, 'DO_QUIT_GAME', 'characters_item_serch_inventory_save_list')
     g.setup_event(addon, "INVENTORY_CLOSE", "characters_item_serch_inventory_save_list")
-
+    -- g.setup_event(addon, "INVENTORY_CLOSE", "characters_item_serch_warehouse_save_list")
     g.setup_event(addon, 'WAREHOUSE_CLOSE', 'characters_item_serch_warehouse_save_list')
     local sysmenu_frame = ui.GetFrame("sysmenu")
     local inven = GET_CHILD(sysmenu_frame, "inven")
@@ -193,7 +176,7 @@ function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
     end
     local tooltip = get_localized_tooltip(g.lang)
     inven:SetTextTooltip(tooltip)
-    -- acutil.addSysIcon("barrackitemlist", "sysmenu_inv", "Barrack Item List", "characters_item_serch_open")
+
 end
 
 function characters_item_serch_toggle_frame(frame, ctrlstr, num)
@@ -250,7 +233,7 @@ function characters_item_serch_warehouse_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -297,7 +280,7 @@ function characters_item_serch_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -326,6 +309,23 @@ function characters_item_serch_inventory_save_list(frame, msg)
         end
     end
 
+    local mc_frame = ui.GetFrame("monstercardslot")
+    for i = 1, 14 do
+        local card_info = equipcard.GetCardInfo(i);
+        if card_info then
+            local clsid = card_info:GetCardID()
+            local item_cls = GetClassByType("Item", clsid)
+            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(item_cls.Name))
+            local category = "false"
+            if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+                category = item_cls.MarketCategory:match("^(.-)_")
+            end
+
+            table.insert(items, {g.login_name, "None" .. i, clsid, 1, item_name, "equips", category})
+        end
+
+    end
+
     local lines = {}
     for line in io.lines(equips_dat) do
         local name = line:match("^(.-):::")
@@ -343,18 +343,34 @@ function characters_item_serch_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
         file:close()
     end
+    characters_item_serch_char_data()
+end
+
+function characters_item_serch_char_data()
+
+    g.chars = {}
+    local existing_names = {}
+
+    for line in io.lines(inventory_dat) do
+        local name = line:match("^(.-):::")
+        if name and not existing_names[name] then
+            table.insert(g.chars, name)
+            existing_names[name] = true
+        end
+    end
+
 end
 
 function characters_item_serch_serch_load_data(search_text)
     local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
-                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id)}
-    -- string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
+                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
+                     string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
 
     local function split(input, delimiter)
         local parts = {}
@@ -367,6 +383,7 @@ function characters_item_serch_serch_load_data(search_text)
     local items = {}
     for _, dat_file_path in ipairs(dat_tbl) do
         for line in io.lines(dat_file_path) do
+
             if string.find(string.lower(line), string.lower(search_text)) then
                 local parts = {}
                 local start = 1
@@ -388,13 +405,6 @@ function characters_item_serch_serch_load_data(search_text)
         end
     end
 
-    --[[for i = 1, #items do
-        local sub_table = items[i]
-        print("Item " .. i .. ":")
-        for j = 1, #sub_table do
-            print("  " .. j .. ": " .. tostring(sub_table[j]))
-        end
-    end]]
     return items
 end
 
@@ -404,23 +414,48 @@ function characters_item_serch_item_search(frame, ctrl, str, num)
     local search_edit = GET_CHILD(frame, "search_edit")
     AUTO_CAST(search_edit)
     local search_text = search_edit:GetText()
+    if search_text == "" then
+        characters_item_serch_open(frame, g.login_name)
+        return
+    end
+    local gb = GET_CHILD(frame, "gb")
+    gb:RemoveAllChild()
+    local tree = gb:CreateOrGetControl("tree", 'name_tree', 0, 0, 0, 0)
+    AUTO_CAST(tree)
+    tree:Clear();
+    tree:EnableDrawFrame(false)
+    tree:SetFitToChild(true, 10)
+    tree:SetFontName("white_16_ol");
 
-    local tree = GET_CHILD(frame, "tree")
     local items = characters_item_serch_serch_load_data(search_text)
-
+    --[[for i = 1, #items do
+        local sub_table = items[i]
+        print("Item " .. i .. ":")
+        for j = 1, #sub_table do
+            print("  " .. j .. ": " .. tostring(sub_table[j]))
+        end
+    end]]
     local names = {}
+
     for i = 1, #items do
         local item = items[i]
         local name = item[1]
-        local slot_set
+
         if not names[name] then
             names[name] = true
-            slot_set = characters_item_serch_make_inven_slotset(tree, name)
+            local slot_set = characters_item_serch_make_inven_slotset(tree, name)
             tree:Add(name)
             tree:Add(slot_set, name)
         end
+
+    end
+
+    for i = 1, #items do
+        local item = items[i]
+        local name = item[1]
         local clsid = item[3]
         local item_count = item[4]
+        local slot_set = GET_CHILD(tree, name)
         characters_item_serch_insert_item_to_tree(slot_set, clsid, item_count)
     end
     tree:Resize(frame:GetWidth() - 40, frame:GetHeight() - 135)
@@ -434,13 +469,14 @@ function characters_item_serch_open(frame, select_name)
     end
 
     local frame = ui.GetFrame("characters_item_serch")
-    -- local frame = ui.CreateNewFrame("notice_on_pc", "barrack_item_list", 0, 0, 0, 0)
+
     AUTO_CAST(frame)
     frame:SetSkinName("test_frame_low")
     frame:Resize(670, 1080)
     frame:SetPos(0, 0)
     frame:EnableMove(0)
     frame:SetLayerLevel(100)
+    frame:SetTitleBarSkin("None")
     frame:RemoveAllChild()
     frame:ShowWindow(1)
 
@@ -449,7 +485,7 @@ function characters_item_serch_open(frame, select_name)
     AUTO_CAST(title_gb)
     local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
     AUTO_CAST(title_text);
-    title_text:SetText('{ol}{s26}Barrack Item List')
+    title_text:SetText('{ol}{s26}Characters Item Serch')
 
     function characters_item_serch_close(frame, ctrl, str, num)
         frame:ShowWindow(0)
@@ -466,7 +502,7 @@ function characters_item_serch_open(frame, select_name)
     login_name:SetText(select_name == nil and '{ol}{s18}' .. g.login_name or '{ol}{s18}' .. select_name)
 
     function characters_item_serch_context()
-        local context = ui.CreateContextMenu("arrack_item_list_context", "Barrack Item List", 0, 0, 200, 0)
+        local context = ui.CreateContextMenu("characters_item_serch_context", "Characters", 0, 0, 120, 0)
         ui.AddContextMenuItem(context, "-----")
 
         for _, name in ipairs(g.chars) do
@@ -684,6 +720,7 @@ function characters_item_serch_build_tree(frame, tree, select_name)
 end
 
 function characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
+
     local slot_count = new_slots:GetSlotCount()
     local count = new_slots:GetUserIValue("SLOT_ITEM_COUNT") or 0
 
@@ -699,6 +736,7 @@ function characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
 
     local item_cls = GetClassByType('Item', clsid)
     if item_cls then
+
         slot:SetSkinName('invenslot2')
         SET_SLOT_ITEM_CLS(slot, item_cls)
         SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
@@ -709,6 +747,7 @@ function characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
 end
 
 function characters_item_serch_make_inven_slotset(tree, name)
+
     local new_slotset = tree:CreateOrGetControl('slotset', name, 20, 0, 0, 0)
     tolua.cast(new_slotset, "ui::CSlotSet")
 
