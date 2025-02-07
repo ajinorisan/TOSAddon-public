@@ -10,7 +10,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
 local active_id = session.loginInfo.GetAID()
-local folder_path = string.format("../addons/%s/%s.json", addonNameLower, active_id)
+local folder_path = string.format("../addons/%s/%s", addonNameLower, active_id)
 local settings_path = string.format("../addons/%s/%s/settings.json", addonNameLower, active_id)
 local warehouse_dat = string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id)
 local inventory_dat = string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id)
@@ -127,6 +127,33 @@ function characters_item_serch_load_settings()
     end
 
     g.settings = settings
+
+    if not g.settings.chars then
+        g.settings.chars = {}
+    end
+
+    local account_info = session.barrack.GetMyAccount()
+    local barrack_char_count = account_info:GetBarrackPCCount()
+
+    local existing_char_names = {}
+    for i = 0, barrack_char_count - 1 do
+        local barrack_char_info = account_info:GetBarrackPCByIndex(i)
+        local barrack_char_name = barrack_char_info:GetName()
+        existing_char_names[barrack_char_name] = true
+        if not g.settings.chars[barrack_char_name] then
+            g.settings.chars[barrack_char_name] = {
+                layer = 9,
+                index = 99
+            }
+        end
+    end
+
+    for char_name in pairs(g.settings.chars) do
+        if not existing_char_names[char_name] then
+            g.settings.chars[char_name] = nil
+        end
+    end
+
     characters_item_serch_save_settings()
 
     local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
@@ -145,6 +172,61 @@ function characters_item_serch_load_settings()
 
 end
 
+function characters_item_serch_BARRACK_TO_GAME(msg)
+    local frame = ui.GetFrame("barrack_charlist")
+    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
+    g.layer = layer
+end
+
+function characters_item_serch_char_data(frame, msg, str, num)
+
+    local account_info = session.barrack.GetMyAccount()
+    local layer_pc_count = account_info:GetPCCount()
+
+    local char_list = {}
+    for i = 0, layer_pc_count - 1 do
+        local pc_info = account_info:GetPCByIndex(i)
+        local pc_apc = pc_info:GetApc()
+        local pc_name = pc_apc:GetName()
+        if g.layer then
+            g.settings.chars[pc_name].layer = g.layer
+        end
+        g.settings.chars[pc_name] = i
+        table.insert(char_list, {
+            name = pc_name,
+            data = g.settings.chars[pc_name]
+        })
+
+    end
+
+    g.layer = nil
+
+    local function sort_chars(a, b)
+        return a.data.layer < b.data.layer or (a.data.layer == b.data.layer and a.data.index < b.data.index)
+    end
+
+    table.sort(char_list, sort_chars)
+
+    for i = 1, #char_list do
+        g.settings.chars[char_list[i].name] = char_list[i].data
+
+    end
+    characters_item_serch_save_settings()
+
+    g.chars = {}
+    local existing_names = {}
+    for line in io.lines(inventory_dat) do
+        local name = line:match("^(.-):::")
+        for i = 1, #char_list do
+            if name == char_list[i].name and name and not existing_names[name] then
+                table.insert(g.chars, char_list[i].name)
+                existing_names[name] = true
+                break
+            end
+        end
+    end
+end
+
 function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -154,6 +236,8 @@ function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
     g.login_name = session.GetMySession():GetPCApc():GetName()
 
     characters_item_serch_load_settings()
+
+    g.setup_event(addon, 'BARRACK_TO_GAME', 'characters_item_serch_BARRACK_TO_GAME')
 
     g.setup_event(addon, 'GAME_TO_BARRACK', 'characters_item_serch_inventory_save_list')
     g.setup_event(addon, 'GAME_TO_LOGIN', 'characters_item_serch_inventory_save_list')
@@ -176,7 +260,7 @@ function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
     end
     local tooltip = get_localized_tooltip(g.lang)
     inven:SetTextTooltip(tooltip)
-
+    addon:RegisterMsg("GAME_START_3SEC", "characters_item_serch_char_data")
 end
 
 function characters_item_serch_toggle_frame(frame, ctrlstr, num)
@@ -233,7 +317,7 @@ function characters_item_serch_warehouse_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -280,7 +364,7 @@ function characters_item_serch_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -343,28 +427,13 @@ function characters_item_serch_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                item[5], item[6], item[7])
+                                       item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
         file:close()
     end
-    characters_item_serch_char_data()
-end
-
-function characters_item_serch_char_data()
-
-    g.chars = {}
-    local existing_names = {}
-
-    for line in io.lines(inventory_dat) do
-        local name = line:match("^(.-):::")
-        if name and not existing_names[name] then
-            table.insert(g.chars, name)
-            existing_names[name] = true
-        end
-    end
-
+    -- characters_item_serch_char_data()
 end
 
 function characters_item_serch_serch_load_data(search_text)
