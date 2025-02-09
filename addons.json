@@ -9,6 +9,26 @@
 		"tags" : []
 	},
 	{
+		"name" : "Characters Item Serch",
+		"file" : "characters_item_serch",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "characters_item_serch",
+		"unicode" : "⛄",
+		"description" : "BarrackItemList オマージュ。出来ることほとんど変わりません。インベントリボタン右クリックで作動。<br>BarrackItemList Homage. Almost the same things can be done. Right-click on the inventory button to activate.<br>BarrackItemList 오마주. 할 수 있는 일은 거의 변함이 없습니다. 인벤토리 버튼 우클릭으로 작동.",
+		"tags" : []
+	},
+	{
+		"name" : "Pick Item Tracker",
+		"file" : "pick_item_tracker",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "pick_item_tracker",
+		"unicode" : "⛄",
+		"description" : "BetterPickQueue オマージュ。必要最小限の情報を表示するシンプル版です。<br>BetterPickQueue Homage. A simple version that displays the minimum necessary information.<br>BetterPickQueue 오마주. 필요한 최소한의 정보만 표시하는 심플한 버전입니다.",
+		"tags" : []
+	},
+	{
 		"name" : "Native Lang",
 		"file" : "native_lang",
 		"extension" : "ipf",

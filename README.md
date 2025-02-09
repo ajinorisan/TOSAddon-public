@@ -48,6 +48,44 @@ v0.0.3 公開。
 
 　
 
+### Characters Item Serch
+
+BarrackItemList オマージュ。出来ることほとんど変わりません。インベントリボタン右クリックで作動。他のチームキャラクターのアイテムを検索します。
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+
+![Image](https://github.com/user-attachments/assets/94bc4f68-70c7-4acb-98a6-030f7e779210)
+
+　
+
+----
+
+　
+
+### Pick Item Tracker
+
+BetterPickQueue オマージュ。必要最小限の情報を表示するシンプル版です。何秒前に拾ったとかイランかったんや。
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+
+![Image](https://github.com/user-attachments/assets/7d5d3e84-3eb1-48ba-9e9e-457e03e6a9c7)
+
+　
+
+----
+
+　
+
 ### Vakarine Equip
 
 ヴァカリネの恩恵を5箇所装着している場合、レイドなどで装備を脱着します。HPバーのジョブアイコンに設定ボタンが表示されます。
