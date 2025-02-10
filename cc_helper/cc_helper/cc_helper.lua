@@ -10,10 +10,11 @@
 -- v1.2.3 AGM連携の確認を切り替えられるように。ある程度日本語化
 -- v1.2.4 AGM連携を4種類対応出来るように。コピーの仕様変更。コード見直し。
 -- v1.2.5 バグってた。修正。
+-- v1.2.6 agmとの連携バグってたの修正。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.5"
+local ver = "1.2.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1307,6 +1308,7 @@ function cc_helper_gem_inv_to_warehouse_reserve()
 
     for i = 1, 4 do
         local clsid = g.settings[g.cid]["gem" .. i].clsid
+
         if not gems[clsid] then
             gems[clsid] = 1
         else
@@ -1339,23 +1341,19 @@ function cc_helper_gem_inv_to_warehouse_reserve()
     table.sort(g.put_gem, function(a, b)
         return a.level > b.level
     end)
+
     local filtered_gems = {}
-
-    for _, gem in ipairs(g.put_gem) do
-        if gems[gem.clsid] and gems[gem.clsid] > 0 then -- clsidがgemsに存在し、カウントが1以上の場合
-
-            local count_to_insert = gems[gem.clsid] -- 挿入する数を取得
-            for j = 1, count_to_insert do
+    local max_gems = 4
+    for i, gem in ipairs(g.put_gem) do
+        if i <= max_gems then
+            if gems[gem.clsid] and gems[gem.clsid] > 0 then -- clsidがgemsに存在し、カウントが1以上の場合
                 table.insert(filtered_gems, gem)
+                -- print("Inserting gem with clsid: " .. tostring(gem.clsid) .. ", level: " .. tostring(gem.level))
+                gems[gem.clsid] = gems[gem.clsid] - 1
             end
-            gems[gem.clsid] = 0 -- すべて挿入したのでカウントを0にする
         end
     end
     g.put_gem = filtered_gems
-    --[[for i, gem in ipairs(g.put_gem) do
-        print(string.format("Index: %d, level: %d, iesid: %s, clsid: %s", i, gem.level, gem.iesid, gem.clsid))
-    end]]
-
     cc_helper_gem_inv_to_warehouse()
 end
 
@@ -1744,7 +1742,7 @@ function cc_helper_handle_aether_gem_management()
                     ui.MsgBox(msg, yes_scp, "None")
                     break
                 else
-                    cc_helper_out_btn_agm()
+                    cc_helper_out_btn_agm() -- !
                     break
                 end
             end
