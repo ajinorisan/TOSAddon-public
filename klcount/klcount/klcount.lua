@@ -7,10 +7,11 @@
 -- v1.1.1 フレームのレイヤーを上げた。
 -- v1.1.2 インフォフレームの横幅調整。TP画面出してもフレーム復帰するように
 -- v1.1.3 チャレンジとかで出ない様に、再度見直し。
+-- v1.1.4 フレームのxmlにAutoOpen書いた。謎にzoneInsts取得してバグってたの直した
 local addonName = "KLCOUNT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -233,10 +234,10 @@ function klcount_information_button(frame)
     frame:SetPos(g.settings.frame_x, g.settings.frame_y)
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
-    local info_button = frame:CreateOrGetControl("button", "info_button", 0, 0, 100, 30)
+    local info_button = frame:CreateOrGetControl("button", "info_button", 0, 0, 70, 30)
     AUTO_CAST(info_button)
-    frame:Resize(100, 30)
-    info_button:SetText("Map Info")
+    frame:Resize(80, 30)
+    info_button:SetText("MapInfo")
     info_button:SetEventScript(ui.LBUTTONUP, "klcount_information_context")
     frame:ShowWindow(1)
 end
@@ -355,14 +356,17 @@ function klcount_GAME_START()
             KLCOUNT_SAVE_SETTINGS()
         end
 
+        KLCOUNT_INIT_FRAME()
+        --[[addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');
         local zoneInsts = session.serverState.GetMap();
         if zoneInsts ~= nil then
-            KLCOUNT_INIT_FRAME()
-            addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');
-        end
+
+        end]]
     elseif map_class.MapType == "City" then
         klcount_information_button(frame)
-        addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');
+        local frame = ui.GetFrame("klcount")
+        frame:ShowWindow(1)
+        -- addon:RegisterMsg('FPS_UPDATE', 'klcount_FPS_UPDATE');]]
     end
 end
 

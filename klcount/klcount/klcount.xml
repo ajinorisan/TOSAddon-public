@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <uiframe name="klcount" x="0" y="0" width="10" height="10" create="open">
     <skin frameskin="shadow_box"/>
+    <option visible="true" closebutton="false" autoopen="true" hideable="false"/>
     <input moveable="true" hittestframe="true"/>
     <!--<script LBtnUpScp="KLCOUNT_UPDATESETTINGS"/>-->
     <controls/>
