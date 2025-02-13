@@ -11,10 +11,11 @@
 -- v1.2.4 AGM連携を4種類対応出来るように。コピーの仕様変更。コード見直し。
 -- v1.2.5 バグってた。修正。
 -- v1.2.6 agmとの連携バグってたの修正。
+-- v1.2.7 json作る時バグってた。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.6"
+local ver = "1.2.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
