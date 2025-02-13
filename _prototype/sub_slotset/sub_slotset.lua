@@ -763,15 +763,40 @@ function sub_slotset_slotset_update(frame)
                     acc = GetMyAccountObj()
                 end
                 local haveEmoticon = TryGetProp(acc, 'HaveEmoticon_' .. cls.ClassID)
-                print(tostring(haveEmoticon))
+                if haveEmoticon > 0 then
+                    local icon = CreateIcon(slot)
+                    local namelist = StringSplit(cls.ClassName, "motion_")
+                    local imageName = namelist[1]
+                    if 1 < #namelist then
+                        imageName = namelist[2]
+                    end
+                    if imageName == iesid then
+                        icon:SetImage(iesid)
+                        icon:SetColorTone('FFFFFFFF')
+                    end
+                    slot:ClearText()
+                else
+
+                    local icon = CreateIcon(slot)
+                    local namelist = StringSplit(cls.ClassName, "motion_")
+                    local imageName = namelist[1]
+                    if 1 < #namelist then
+                        imageName = namelist[2]
+                    end
+                    if imageName == iesid then
+                        icon:SetImage(iesid)
+                        icon:SetColorTone('FFFF0000')
+                    end
+                    slot:ClearText()
+                end
             end
 
-            local icon = CreateIcon(slot)
+            --[[local icon = CreateIcon(slot)
 
             icon:SetImage(iesid)
             icon:SetColorTone('FFFFFFFF')
 
-            slot:ClearText()
+            slot:ClearText()]]
 
         elseif category == 'None' then
 
