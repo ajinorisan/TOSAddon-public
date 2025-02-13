@@ -14,16 +14,13 @@ local json = require("json")
 
 function g.setup_hook(my_func, origin_func_name)
     g.funcs = g.funcs or {}
-    local func_name = string.gsub(origin_func_name, "%.", "");
-    local upper = string.upper(func_name)
-    local replace_name = upper .. "_BASE_" .. func_name
-    local origin_func = _G[origin_func_name]
-    if not _G[replace_name] then
-        _G[replace_name] = origin_func
+    local addon_upper = string.upper(addon_name)
+    local rep_func_name = addon_upper .. "_BASE_" .. origin_func_name
+    if (_G[rep_func_name] == nil) then
+        _G[rep_func_name] = _G[origin_func_name];
         _G[origin_func_name] = my_func
     end
-    local hooked_func = _G[replace_name]
-    g.funcs[origin_func_name] = hooked_func
+    g.funcs[origin_func_name] = _G[rep_func_name]
 end
 
 function g.setup_event(my_addon, origin_func_name, my_func_name)
