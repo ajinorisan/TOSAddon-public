@@ -9,10 +9,14 @@
 -- v1.2.2 エコモードバグってたの修正。
 -- v1.2.3 AGM連携の確認を切り替えられるように。ある程度日本語化
 -- v1.2.4 AGM連携を4種類対応出来るように。コピーの仕様変更。コード見直し。
+-- v1.2.5 バグってた。修正。
+-- v1.2.6 agmとの連携バグってたの修正。
+-- v1.2.7 json作る時バグってた。
+-- v1.2.8 agmとの連携更にばぐってたの修正。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.4"
+local ver = "1.2.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -71,6 +75,7 @@ function cc_helper_load_settings()
     end
 
     g.settings = settings
+
     if not g.settings[g.cid] then
         local temp_tbl = {"name", "mcc_use", "agm_use", "agm_check", "seal", "ark", "leg", "god", "hair1", "hair2",
                           "hair3", "gem1", "gem2", "gem3", "gem4"}
@@ -79,9 +84,10 @@ function cc_helper_load_settings()
         for i, key in ipairs(temp_tbl) do
             if key == "name" then
                 cid_settings[key] = g.login_name
-            elseif key == "mcc_use" or key == "agm_use" then
+            elseif key == "mcc_use" then
                 cid_settings[key] = 0
-
+            elseif key == "agm_use" then
+                cid_settings[key] = 0
             elseif key == "agm_check" then
                 cid_settings[key] = 1
             else
@@ -98,6 +104,25 @@ function cc_helper_load_settings()
         g.settings[g.cid] = cid_settings
     else
         g.settings[g.cid] = settings[g.cid]
+    end
+
+    local functionName = "AETHERGEM_MGR_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+    if type(_G[functionName]) == "function" then
+        g.agm = true
+    else
+        g.agm = false
+        if g.settings[g.cid].agm_use then
+            g.settings[g.cid].agm_use = 0
+        end
+    end
+    local functionName = "MONSTERCARD_CHANGE_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+    if type(_G[functionName]) == "function" then
+        g.mcc = true
+    else
+        g.mcc = false
+        if g.settings[g.cid].mcc_use then
+            g.settings[g.cid].mcc_use = 0
+        end
     end
 
     cc_helper_save_settings()
@@ -127,11 +152,7 @@ function CC_HELPER_ON_INIT(addon, frame)
     g.cid = info.GetCID(session.GetMyHandle())
     g.lang = option.GetCurrentCountry()
     g.login_name = session.GetMySession():GetPCApc():GetName()
-
-    local functionName = "AETHERGEM_MGR_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
-    if type(_G[functionName]) == "function" then
-        g.agm = true
-    end
+    g.cids = {}
 
     -- cc_helper_load_settings()
 
@@ -152,6 +173,19 @@ end
 function cc_helper_invframe_init()
 
     local invframe = ui.GetFrame("inventory")
+
+    local cid_exists = false
+    for _, cid in ipairs(g.cids) do
+        if cid == g.cid then
+            cid_exists = true
+            break
+        end
+    end
+
+    if not cid_exists then
+        cc_helper_load_settings()
+        table.insert(g.cids, g.cid)
+    end
 
     local setbtn = invframe:CreateOrGetControl("button", "set", 205, 345, 30, 30)
     AUTO_CAST(setbtn)
@@ -189,8 +223,6 @@ end
 
 function cc_helper_accountwarehouse_init()
 
-    cc_helper_load_settings()
-
     local awhframe = ui.GetFrame("accountwarehouse")
 
     local awh_inbtn = awhframe:CreateOrGetControl("button", "in", 565, 120, 30, 30)
@@ -222,8 +254,8 @@ function cc_helper_accountwarehouse_init()
     auto_close:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     auto_close:SetCheck(g.settings.auto_close)
 
-    if _G.ADDONS.norisan.monstercard_change ~= nil then
-
+    -- if _G.ADDONS.norisan.monstercard_change ~= nil then
+    if g.mcc then
         local mccbtn = awhframe:CreateOrGetControl("button", "mcc", 625, 120, 30, 30)
         AUTO_CAST(mccbtn)
         mccbtn:SetSkinName("test_red_button")
@@ -379,47 +411,94 @@ function cc_helper_setting_frame_init()
             slot:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
         end
 
-        local item_cls = GetClassByType("Item", clsid);
-        SET_SLOT_ITEM_CLS(slot, item_cls);
-        SET_SLOT_IMG(slot, image)
-        SET_SLOT_IESID(slot, iesid);
-
-        if name ~= "leg" and name ~= "god" then
-            SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
-        end
-        if string.find(name, "hair") ~= nil then
-            slot:SetSkinName(g.settings[cid][name].skin)
-        end
-        if string.find(name, "gem") ~= nil then
-            slot:SetSkinName(g.settings[cid][name].skin)
-        end
-        local icon = slot:GetIcon();
-        local inv_item = session.GetInvItemByGuid(iesid);
-        if inv_item ~= nil then
-            icon:SetTooltipType('wholeitem');
-            icon:SetTooltipArg("None", clsid, iesid);
-        else
-            -- inv_item が nil の場合も次に進む
-            if clsid ~= 0 and string.find(name, "hair") ~= nil then
-
-                local function split(str, sep)
-                    local parts = {}
-                    for part in str:gmatch("([^" .. sep .. "]+)") do
-                        table.insert(parts, part)
-                    end
-                    return parts
-                end
-
-                local str = g.settings[cid][name].memo
-                local result = split(str, ":::")
-
-                icon:SetTextTooltip("{ol}Rank: " .. result[4] .. "{nl}" .. result[1] .. "{nl}" .. result[2] .. "{nl}" ..
-                                        result[3])
-            elseif clsid ~= 0 then
+        if string.find(name, "gem") == nil then
+            local item_cls = GetClassByType("Item", clsid);
+            SET_SLOT_ITEM_CLS(slot, item_cls);
+            SET_SLOT_IMG(slot, image)
+            SET_SLOT_IESID(slot, iesid);
+            if name ~= "leg" and name ~= "god" then
+                SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
+            end
+            if string.find(name, "hair") ~= nil then
+                slot:SetSkinName(g.settings[cid][name].skin)
+            end
+            local icon = slot:GetIcon();
+            local inv_item = session.GetInvItemByGuid(iesid);
+            if inv_item ~= nil then
                 icon:SetTooltipType('wholeitem');
                 icon:SetTooltipArg("None", clsid, iesid);
+            else
+                -- inv_item が nil の場合も次に進む
+                if clsid ~= 0 and string.find(name, "hair") ~= nil then
+
+                    local function split(str, sep)
+                        local parts = {}
+                        for part in str:gmatch("([^" .. sep .. "]+)") do
+                            table.insert(parts, part)
+                        end
+                        return parts
+                    end
+
+                    local str = g.settings[cid][name].memo
+                    local result = split(str, ":::")
+
+                    icon:SetTextTooltip("{ol}Rank: " .. result[4] .. "{nl}" .. result[1] .. "{nl}" .. result[2] ..
+                                            "{nl}" .. result[3])
+                elseif clsid ~= 0 then
+                    icon:SetTooltipType('wholeitem');
+                    icon:SetTooltipArg("None", clsid, iesid);
+                end
             end
         end
+
+        if g.settings[g.cid].agm_use == 0 and string.find(name, "gem") ~= nil then
+            slot:ShowWindow(0)
+        elseif g.settings[g.cid].agm_use == 1 and string.find(name, "gem") ~= nil then
+            local agm_json = string.format('../addons/%s/%s.json', "aethergem_mgr", active_id)
+            local settings = acutil.loadJSON(agm_json)
+            local agm_tbl = settings
+            if agm_tbl ~= nil then
+                local use_index = settings[g.cid]["use_index"]
+                if use_index ~= nil then
+                    local name_index = string.gsub(name, "gem", "")
+                    local item_type = agm_tbl[use_index][name_index]
+                    local gemKey = "gem" .. name_index
+
+                    g.settings[g.cid][gemKey].clsid = item_type
+                    cc_helper_save_settings()
+                    if item_type ~= nil and item_type ~= 0 then
+                        local gem_cls = GetClassByType("Item", item_type);
+                        local gem_name = gem_cls.ClassName
+                        local icon = CreateIcon(slot)
+                        SET_SLOT_ITEM_CLS(slot, gem_cls)
+                        local lv_text = slot:CreateOrGetControl('richtext', 'lv_text', 0, 30, 25, 25)
+                        AUTO_CAST(lv_text)
+                        if string.find(gem_name, "480") ~= nil then
+                            lv_text:SetText("{ol}{s14}LV480")
+                        elseif string.find(gem_name, "500") ~= nil then
+                            lv_text:SetText("{ol}{s14}LV500")
+                        elseif string.find(gem_name, "520") ~= nil then
+                            lv_text:SetText("{ol}{s14}LV520")
+                        else
+                            lv_text:SetText("{ol}{s14}LV460")
+                        end
+                        icon:SetTextTooltip(
+                            g.lang == "Japanese" and "{ol}Aethergem Managerの設定を参照します" or
+                                "{ol}Browse Aethergem Manager settings")
+                    end
+                end
+            end
+            slot:EnablePop(0)
+            slot:EnableDrag(0)
+            slot:EnableDrop(0)
+            slot:SetEventScript(ui.DROP, "None")
+            slot:SetEventScript(ui.RBUTTONDOWN, "None")
+
+        end
+
+        --[[if string.find(name, "gem") ~= nil then
+            slot:SetSkinName(g.settings[cid][name].skin)
+        end]]
 
     end
 
@@ -484,23 +563,27 @@ function cc_helper_setting_frame_init()
     copy:SetText("{ol}copy")
     copy:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_copy")
 
-    local mccuse = frame:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
-    AUTO_CAST(mccuse)
-    mccuse:SetText("{ol}mcc")
-    mccuse:SetTextTooltip(g.lang == "Japanese" and
-                              "チェックを入れると[Monster Card Change]と連携します。" or
-                              "If checked, it will work with [Monster Card Change].")
-    mccuse:SetCheck(g.settings[g.cid].mcc_use)
-    mccuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+    if g.mcc then
+        local mccuse = frame:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
+        AUTO_CAST(mccuse)
+        mccuse:SetText("{ol}mcc")
+        mccuse:SetTextTooltip(g.lang == "Japanese" and
+                                  "チェックを入れると[Monster Card Change]と連携します。" or
+                                  "If checked, it will work with [Monster Card Change].")
+        mccuse:SetCheck(g.settings[g.cid].mcc_use)
+        mccuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+    end
 
-    local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
-    AUTO_CAST(agmuse)
-    agmuse:SetText("{ol}agm")
-    agmuse:SetTextTooltip(
-        g.lang == "Japanese" and "チェックを入れると[Aethergem Manager]と連携します。" or
-            "If checked, it will work with [Aethergem Manager].")
-    agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    agmuse:SetCheck(g.settings[g.cid].agm_use)
+    if g.agm then
+        local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
+        AUTO_CAST(agmuse)
+        agmuse:SetText("{ol}agm")
+        agmuse:SetTextTooltip(g.lang == "Japanese" and
+                                  "チェックを入れると[Aethergem Manager]と連携します。" or
+                                  "If checked, it will work with [Aethergem Manager].")
+        agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+        agmuse:SetCheck(g.settings[g.cid].agm_use)
+    end
 
     function cc_helper_agm_setting(frame, ctrl, str, num)
         if g.settings[g.cid].agm_check == 0 then
@@ -705,8 +788,8 @@ function cc_helper_inv_rbtn(item_obj, slot)
         ["GODDESS"] = "god",
         ["sset_HairAcc_Acc1"] = "hair1",
         ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3",
-        ["aether"] = "gem"
+        ["sset_HairAcc_Acc3"] = "hair3"
+        -- ["aether"] = "gem"
     }
 
     for key, value in pairs(temp_tbl) do
@@ -729,13 +812,13 @@ function cc_helper_inv_rbtn(item_obj, slot)
         elseif key == "sset_HairAcc_Acc3" and key == parent_name then
             local str = cc_helper_hair_option(item_obj)
             cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-        elseif gemtype == "aether" and key == "aether" then
+            --[[elseif gemtype == "aether" and key == "aether" then
             for i = 1, 4 do
                 if g.settings[g.cid][tostring(value) .. i].clsid == 0 then
                     cc_helper_settings_slot(frame, value .. i, item_obj, iesid, clsid, image)
                     break
                 end
-            end
+            end]]
 
         end
 
@@ -848,8 +931,8 @@ function cc_helper_frame_drop(frame, ctrl, argstr, argnum)
         ["GODDESS"] = "god",
         ["sset_HairAcc_Acc1"] = "hair1",
         ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3",
-        ["aether"] = "gem"
+        ["sset_HairAcc_Acc3"] = "hair3"
+        -- ["aether"] = "gem"
     }
 
     for key, value in pairs(temp_tbl) do
@@ -872,13 +955,13 @@ function cc_helper_frame_drop(frame, ctrl, argstr, argnum)
         elseif key == "sset_HairAcc_Acc3" and key == parent_name then
             local str = cc_helper_hair_option(item_obj)
             cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-        elseif gemtype == "aether" and key == "aether" then
+            --[[elseif gemtype == "aether" and key == "aether" then
             for i = 1, 4 do
                 if g.settings[g.cid][tostring(value) .. i].clsid == 0 then
                     cc_helper_settings_slot(frame, value .. i, item_obj, iesid, clsid, image)
                     break
                 end
-            end
+            end]]
         end
     end
 end
@@ -953,9 +1036,10 @@ function cc_helper_in_btn_agm()
     local frame = ui.GetFrame("cc_helper")
     frame:ShowWindow(0)
 
-    local agm = ADDONS.norisan.AETHERGEM_MGR
+    aethergem_mgr_gem_operation()
+    --[[local agm = ADDONS.norisan.AETHERGEM_MGR
     agm.guids = {}
-    AETHERGEM_MGR_GET_EQUIP()
+    AETHERGEM_MGR_GET_EQUIP()]]
     local inv_frame = ui.GetFrame("inventory")
     g.time = g.settings.delay
     inv_frame:RunUpdateScript("cc_helper_in_btn_start_reserve", g.settings.delay)
@@ -988,17 +1072,15 @@ function cc_helper_unequip()
     local eqpTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     eqpTab:SelectTab(1)
     local equip_tbl = {0, 20, 1, 25, 27}
-
+    local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark"}
     local equip_item_list = session.GetEquipItemList();
     for i, equip_index in ipairs(equip_tbl) do
         local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
         local iesid = equip_item:GetIESID()
-        if iesid ~= "0" then
+        if iesid ~= "0" and g.settings[g.cid][temp_tbl[i]].iesid == iesid then
             item.UnEquip(equip_index)
-            if i ~= #equip_tbl then
-                ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
-                return
-            end
+            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+            return
         end
     end
     cc_helper_unequip_card()
@@ -1006,9 +1088,7 @@ end
 
 function cc_helper_unequip_card()
 
-    if g.settings[g.cid]["god"].clsid ~= 0 and (g.settings[g.cid]["leg"].clsid ~= 0 and g.settings.eco_mode == 0) then
-        MONSTERCARDSLOT_FRAME_OPEN()
-    end
+    MONSTERCARDSLOT_FRAME_OPEN()
 
     if g.settings[g.cid]["leg"].clsid ~= 0 and g.settings.eco_mode == 0 then
 
@@ -1042,7 +1122,7 @@ function cc_helper_unequip_card()
     ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
 end
 
-function cc_helper_get_warehouse_count()
+function cc_helper_get_warehouse_count(check)
     local frame = ui.GetFrame("accountwarehouse")
     local accountObj = GetMyAccountObj();
     local warehouse_count = 0
@@ -1064,6 +1144,10 @@ function cc_helper_get_warehouse_count()
     local sortedGuidList = itemList:GetSortedGuidList();
     local invItemCount = sortedGuidList:Count();
 
+    if check ~= nil then
+        return invItemCount, max_count
+    end
+
     if invItemCount < max_count then
         return true
     else
@@ -1073,13 +1157,96 @@ function cc_helper_get_warehouse_count()
 
 end
 
+function cc_helper_checkvalid(iesid)
+    local invItem = session.GetInvItemByGuid(iesid)
+
+    local obj = GetIES(invItem:GetObject())
+    local itemcnt, maxcount = cc_helper_get_warehouse_count("check")
+
+    if maxcount <= itemcnt then
+
+        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
+        return;
+    end
+    if true == invItem.isLockState then
+
+        ui.SysMsg(ClMsg("MaterialItemIsLock"));
+
+        return;
+    end
+
+    local itemCls = GetClassByType("Item", obj.ClassID);
+    if itemCls.ItemType == 'Quest' then
+
+        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
+
+        return;
+    end
+
+    local enableTeamTrade = TryGetProp(itemCls, "TeamTrade");
+    if enableTeamTrade ~= nil and enableTeamTrade == "NO" then
+
+        ui.SysMsg(ClMsg("ItemIsNotTradable"));
+
+        return;
+
+    end
+
+end
+
+function cc_helper_get_goal_index()
+    local frame = ui.GetFrame("accountwarehouse")
+    local tab = GET_CHILD(frame, "accountwarehouse_tab")
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+
+    local accountObj = GetMyAccountObj()
+    local basecount = accountObj.BasicAccountWarehouseSlotCount + accountObj.MaxAccountWarehouseCount +
+                          accountObj.AccountWareHouseExtend + accountObj.AccountWareHouseExtendByItem +
+                          ADDITIONAL_SLOT_COUNT_BY_TOKEN
+
+    local itemcnt, maxcount = cc_helper_get_warehouse_count("check")
+
+    local function GetLeftCount(itemcnt)
+        local length = #itemcnt:GetText()
+        if length == 14 then
+            return tonumber(string.sub(itemcnt:GetText(), length - 6, length - 6))
+        else
+            return tonumber(string.sub(itemcnt:GetText(), length - 7, length - 6))
+        end
+    end
+
+    local function GetTabLeftCount(tab, gbox)
+        local itemcnt = GET_CHILD(gbox, "itemcnt")
+        return GetLeftCount(itemcnt)
+    end
+
+    local tabIndices = {4, 3, 2, 1, 0}
+
+    for index = 1, #tabIndices do
+        local i = tabIndices[index]
+        tab:SelectTab(i)
+        if i > 0 then
+            local left = GetTabLeftCount(tab, gbox)
+            if left < 70 then
+                return basecount + i * 70
+            end
+        else
+            local slotset = GET_CHILD_RECURSIVELY(frame, "slotset")
+            for j = 1, basecount do
+                local slot = slotset:GetSlotByIndex(j)
+                AUTO_CAST(slot)
+                if slot:GetIcon() == nil then
+                    return j
+                end
+            end
+        end
+    end
+end
+
 function cc_helper_inv_to_warehouse()
 
     if not cc_helper_get_warehouse_count() then
-
         return
-    else
-
     end
 
     local frame = ui.GetFrame("accountwarehouse");
@@ -1088,9 +1255,13 @@ function cc_helper_inv_to_warehouse()
     local inv_tab = GET_CHILD_RECURSIVELY(fromFrame, "inventype_Tab")
 
     local temp_tbl = {"seal", "ark", "hair1", "hair2", "hair3", "leg", "god"}
+
+    local equipList = session.GetEquipItemList();
+
     if frame:IsVisible() == 1 then
         for i, equip_index in ipairs(temp_tbl) do
-            local spot = session.GetInvItemByGuid(g.settings[g.cid][temp_tbl[i]].iesid)
+            local iesid = g.settings[g.cid][temp_tbl[i]].iesid
+            local spot = session.GetInvItemByGuid(iesid)
             if spot ~= nil then
 
                 local item_cls = GetClassByType('Item', g.settings[g.cid][temp_tbl[i]].clsid)
@@ -1102,7 +1273,11 @@ function cc_helper_inv_to_warehouse()
                 else
                     inv_tab:SelectTab(4)
                 end
-                item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, g.settings[g.cid][temp_tbl[i]].iesid, 1, handle)
+
+                local goal_index = cc_helper_get_goal_index()
+                cc_helper_checkvalid(iesid)
+
+                item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, handle, goal_index)
                 imcSound.PlaySoundEvent("sys_jam_slot_equip");
                 if i ~= #temp_tbl then
                     ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
@@ -1135,6 +1310,7 @@ function cc_helper_gem_inv_to_warehouse_reserve()
 
     for i = 1, 4 do
         local clsid = g.settings[g.cid]["gem" .. i].clsid
+
         if not gems[clsid] then
             gems[clsid] = 1
         else
@@ -1167,23 +1343,19 @@ function cc_helper_gem_inv_to_warehouse_reserve()
     table.sort(g.put_gem, function(a, b)
         return a.level > b.level
     end)
+
     local filtered_gems = {}
-
-    for _, gem in ipairs(g.put_gem) do
-        if gems[gem.clsid] and gems[gem.clsid] > 0 then -- clsidがgemsに存在し、カウントが1以上の場合
-
-            local count_to_insert = gems[gem.clsid] -- 挿入する数を取得
-            for j = 1, count_to_insert do
+    local max_gems = 4
+    for i, gem in ipairs(g.put_gem) do
+        if i <= max_gems then
+            if gems[gem.clsid] and gems[gem.clsid] > 0 then -- clsidがgemsに存在し、カウントが1以上の場合
                 table.insert(filtered_gems, gem)
+                -- print("Inserting gem with clsid: " .. tostring(gem.clsid) .. ", level: " .. tostring(gem.level))
+                gems[gem.clsid] = gems[gem.clsid] - 1
             end
-            gems[gem.clsid] = 0 -- すべて挿入したのでカウントを0にする
         end
     end
     g.put_gem = filtered_gems
-    --[[for i, gem in ipairs(g.put_gem) do
-        print(string.format("Index: %d, level: %d, iesid: %s, clsid: %s", i, gem.level, gem.iesid, gem.clsid))
-    end]]
-
     cc_helper_gem_inv_to_warehouse()
 end
 
@@ -1244,7 +1416,7 @@ function cc_helper_endput_operation()
         local awframe = ui.GetFrame("accountwarehouse")
         awframe:ShowWindow(0)
     end
-    if ADDONS.norisan.monstercard_change and g.settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
+    if g.mcc and g.settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
         g.monstercard = 1
         cc_helper_handle_monstercard_change()
     end
@@ -1445,23 +1617,19 @@ function cc_helper_equip_reserve()
 
     local temp_tbl = {"god", "hair1", "hair2", "hair3", "seal", "ark", "leg"}
 
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+    local guidList = invItemList:GetGuidList()
+    local cnt = guidList:Count()
+
+    local equip_item_list = session.GetEquipItemList();
     for _, equip in ipairs(temp_tbl) do
         if equip == "god" then
             local card_index = 13
             local cardid = GETMYCARD_INFO(card_index)
             local iesid = g.settings[g.cid][equip].iesid
-            if cardid == 0 and iesid ~= "" then
-                inv_tab:SelectTab(4)
-                local argstr = string.format("%d#%s", card_index, tostring(iesid))
-                pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
-                ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
-                return
-            end
-        elseif equip == "leg" then
-            if g.settings.eco_mode == 0 then
-                local card_index = 12
-                local cardid = GETMYCARD_INFO(card_index)
-                local iesid = g.settings[g.cid][equip].iesid
+
+            if session.GetInvItemByGuid(iesid) ~= nil then
                 if cardid == 0 and iesid ~= "" then
                     inv_tab:SelectTab(4)
                     local argstr = string.format("%d#%s", card_index, tostring(iesid))
@@ -1470,8 +1638,24 @@ function cc_helper_equip_reserve()
                     return
                 end
             end
-        else
 
+        elseif equip == "leg" then
+            if g.settings.eco_mode == 0 then
+                local card_index = 12
+                local cardid = GETMYCARD_INFO(card_index)
+                local iesid = g.settings[g.cid][equip].iesid
+
+                if session.GetInvItemByGuid(iesid) ~= nil then
+                    if cardid == 0 and iesid ~= "" then
+                        inv_tab:SelectTab(4)
+                        local argstr = string.format("%d#%s", card_index, tostring(iesid))
+                        pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
+                        ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                        return
+                    end
+                end
+            end
+        else
             function cc_helper_equip(spot, iesid)
                 local item = session.GetInvItemByGuid(iesid)
                 if item then
@@ -1481,23 +1665,23 @@ function cc_helper_equip_reserve()
             end
 
             local equip_tbl = {{
-                ["HAT"] = 0
+                ["HAT"] = "hair1"
             }, {
-                ["HAT_T"] = 20
+                ["HAT_T"] = "hair2"
             }, {
-                ["HAT_L"] = 1
+                ["HAT_L"] = "hair3"
             }, {
-                ["SEAL"] = 25
+                ["SEAL"] = "seal"
             }, {
-                ["ARK"] = 27
+                ["ARK"] = "ark"
             }}
+
             for i, data in ipairs(equip_tbl) do
-                for spot, equip_index in pairs(data) do
-                    local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-                    local iesid = equip_item:GetIESID()
-                    if iesid == "0" then
-                        inv_tab:SelectTab(1)
-                        cc_helper_equip(spot, iesid)
+                for spot, equip in pairs(data) do
+                    inv_tab:SelectTab(1)
+                    local guid = g.settings[g.cid][equip].iesid
+                    if session.GetInvItemByGuid(guid) ~= nil then
+                        cc_helper_equip(spot, guid)
                         ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
                         return
                     end
@@ -1529,7 +1713,7 @@ function cc_helper_end_operation()
         local awframe = ui.GetFrame("accountwarehouse")
         awframe:ShowWindow(0)
     end
-    if ADDONS.norisan.monstercard_change and g.settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
+    if g.mcc and g.settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
         g.monstercard = 1
         cc_helper_handle_monstercard_change()
     end
@@ -1553,14 +1737,14 @@ function cc_helper_handle_aether_gem_management()
             local gem = equipItem:GetEquipGemID(2)
 
             if gem == 0 then
-                if g.settings[g.cid].agm_check == true then
+                if g.settings[g.cid].agm_check == 1 then
                     local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
                                     "Call[Aether Gem Manager]?"
                     local yes_scp = "cc_helper_out_btn_agm()"
                     ui.MsgBox(msg, yes_scp, "None")
                     break
                 else
-                    cc_helper_out_btn_agm()
+                    cc_helper_out_btn_agm() -- !
                     break
                 end
             end
@@ -1587,9 +1771,8 @@ function cc_helper_out_btn_start_reserve()
 end
 
 function cc_helper_out_btn_agm()
-    local agm = ADDONS.norisan.AETHERGEM_MGR
-    agm.guids = {}
-    AETHERGEM_MGR_GET_EQUIP()
+
+    aethergem_mgr_gem_operation()
     local inv_frame = ui.GetFrame("inventory")
     g.time = g.settings.delay
     inv_frame:RunUpdateScript("cc_helper_out_btn_start_reserve", g.settings.delay)

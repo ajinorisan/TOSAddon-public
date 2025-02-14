@@ -1,10 +1,11 @@
 -- v1.0.1 レイヤー設定追加。再設定機能追加。エモを右クリックでチャット。
 -- v1.0.2 増設したスロットに上手くハマらなかったの修正。
 -- v1.0.3 インベントリアイテムの数量が0になった時にバグってたの修正。クエストワープの設定方法追加
+-- v1.0.4 エモーションの使用出来ないものを分かるようにした。上手いことハマらないエモーションあったのを直した。
 local addonName = "SUB_SLOTSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1192,7 +1193,7 @@ function sub_slotset_resetting(frame_name)
     resetting_frame:ShowWindow(1)
 
     local gbox = resetting_frame:CreateOrGetControl("groupbox", "gbox", 35, 0, resetting_frame:GetWidth() - 35,
-        resetting_frame:GetHeight())
+                                                    resetting_frame:GetHeight())
     AUTO_CAST(gbox)
     gbox:SetSkinName("test_frame_midle_light")
 
