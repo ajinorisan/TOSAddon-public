@@ -366,6 +366,8 @@ end
 
 function sub_slotset_slotset_init(frame)
 
+    g.emo_check = false
+
     local str = frame:GetUserValue("BELONG")
     local isnew = frame:GetUserValue("ISNEW")
 
@@ -545,6 +547,7 @@ function sub_slotset_slotset_init(frame)
     frame:ShowWindow(1)
     frame:SetUserValue("ISNEW", "false")
     frame:RunUpdateScript("sub_slotset_slotset_update", 0.3)
+
 end
 
 function sub_slotset_SET_SLOT_COUNT_TEXT(slot, cnt, font, hor, ver, stateX, stateY)
@@ -755,48 +758,55 @@ function sub_slotset_slotset_update(frame)
 
             local acc = GetMyAccountObj()
             local list, listCnt = GetClassList("chat_emoticons")
-            for i = 0, listCnt - 1 do
-                local cls = GetClassByIndexFromList(list, i)
-                if TryGetProp(cls, 'HaveUnit', 'None') == 'PC' then
-                    acc = GetMyEtcObject()
-                else
-                    acc = GetMyAccountObj()
-                end
-                local haveEmoticon = TryGetProp(acc, 'HaveEmoticon_' .. cls.ClassID)
-                if haveEmoticon > 0 then
-                    local icon = CreateIcon(slot)
-                    local namelist = StringSplit(cls.ClassName, "motion_")
-                    local imageName = namelist[1]
-                    if 1 < #namelist then
-                        imageName = namelist[2]
-                    end
-                    if imageName == iesid then
-                        icon:SetImage(iesid)
-                        icon:SetColorTone('FFFFFFFF')
-                    end
-                    slot:ClearText()
-                else
+            if not g.emo_check then
 
-                    local icon = CreateIcon(slot)
+                for i = 0, listCnt - 1 do
+                    local cls = GetClassByIndexFromList(list, i)
+                    if TryGetProp(cls, 'HaveUnit', 'None') == 'PC' then
+                        acc = GetMyEtcObject()
+                    else
+                        acc = GetMyAccountObj()
+                    end
                     local namelist = StringSplit(cls.ClassName, "motion_")
                     local imageName = namelist[1]
                     if 1 < #namelist then
                         imageName = namelist[2]
                     end
-                    if imageName == iesid then
-                        icon:SetImage(iesid)
-                        icon:SetColorTone('FFFF0000')
+
+                    local clsId = cls.ClassID
+                    if cls.CheckServer == 'YES' then
+                        local haveEmoticon = TryGetProp(acc, 'HaveEmoticon_' .. clsId)
+                        if haveEmoticon then
+                            local icon = CreateIcon(slot)
+
+                            if iesid == imageName then
+                                icon:SetImage(iesid)
+                                if haveEmoticon > 0 then
+                                    icon:SetColorTone('FFFFFFFF')
+                                else
+                                    icon:SetColorTone('FFFF0000')
+                                end
+                                slot:ClearText()
+                            end
+                        end
+                    else
+                        local icon = CreateIcon(slot)
+
+                        if iesid == imageName then
+                            icon:SetImage(iesid)
+
+                            icon:SetColorTone('FFFFFFFF')
+
+                            slot:ClearText()
+                        end
                     end
-                    slot:ClearText()
+
                 end
+            else
+                local icon = CreateIcon(slot)
+                icon:SetImage(iesid)
+                slot:ClearText()
             end
-
-            --[[local icon = CreateIcon(slot)
-
-            icon:SetImage(iesid)
-            icon:SetColorTone('FFFFFFFF')
-
-            slot:ClearText()]]
 
         elseif category == 'None' then
 
@@ -806,6 +816,7 @@ function sub_slotset_slotset_update(frame)
 
     end
 
+    g.emo_check = true
     return 1
 end
 
@@ -1181,7 +1192,7 @@ function sub_slotset_resetting(frame_name)
     resetting_frame:ShowWindow(1)
 
     local gbox = resetting_frame:CreateOrGetControl("groupbox", "gbox", 35, 0, resetting_frame:GetWidth() - 35,
-                                                    resetting_frame:GetHeight())
+        resetting_frame:GetHeight())
     AUTO_CAST(gbox)
     gbox:SetSkinName("test_frame_midle_light")
 
