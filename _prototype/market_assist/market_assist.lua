@@ -2,7 +2,7 @@ local addon_name = "ADDON_NAME"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
 local ver = "1.0.0"
-
+--
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
