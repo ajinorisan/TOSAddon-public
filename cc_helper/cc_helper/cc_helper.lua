@@ -12,10 +12,11 @@
 -- v1.2.5 バグってた。修正。
 -- v1.2.6 agmとの連携バグってたの修正。
 -- v1.2.7 json作る時バグってた。
+-- v1.2.8 agmとの連携更にばぐってたの修正。
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.7"
+local ver = "1.2.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -520,7 +521,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, cid)
+                                          value.iesid, value.image, cid)
                     break
                 end
             end
@@ -752,7 +753,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, g.cid)
+                                          value.iesid, value.image, g.cid)
                     break
                 end
             end
@@ -1736,7 +1737,7 @@ function cc_helper_handle_aether_gem_management()
             local gem = equipItem:GetEquipGemID(2)
 
             if gem == 0 then
-                if g.settings[g.cid].agm_check == true then
+                if g.settings[g.cid].agm_check == 1 then
                     local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
                                     "Call[Aether Gem Manager]?"
                     local yes_scp = "cc_helper_out_btn_agm()"

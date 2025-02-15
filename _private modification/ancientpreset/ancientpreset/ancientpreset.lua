@@ -1,18 +1,68 @@
---dofile("../data/addon_d/ancientpreset/ancientpreset.lua");
-
+-- dofile("../data/addon_d/ancientpreset/ancientpreset.lua");
 -- areas defined
 local author = 'meldavy'
 local addonName = 'ancientpreset'
+local addonNameLower = 'ancientpreset'
+local ver = "2.0.0"
 _G['ADDONS'] = _G['ADDONS'] or {}
 _G['ADDONS'][author] = _G['ADDONS'][author] or {}
 _G['ADDONS'][author][addonName] = _G['ADDONS'][author][addonName] or {}
 
 -- get a pointer to the area
 local AncientPreset = _G['ADDONS'][author][addonName]
+local g = AncientPreset
 local acutil = require('acutil')
 local base = {}
 
-AncientPreset.SettingsFileLoc = string.format('../addons/%s/settings.json', addonName)
+g.active_id = session.loginInfo.GetAID()
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+
+    local folder = string.format("../addons/%s/%s", addonNameLower, g.active_id)
+    local file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, g.active_id)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
+
+AncientPreset.SettingsFileLoc = string.format('../addons/%s/%s_settings.json', addonName, g.active_id)
+AncientPreset.SettingsBaseFileLoc = string.format('../addons/%s/settings.json', addonName)
+
+local file = io.open(AncientPreset.SettingsFileLoc, "r")
+if not file then
+    file = io.open(AncientPreset.SettingsBaseFileLoc, "r")
+    if file then
+        local base_settings = file:read("a")
+        file:close()
+
+        file = io.open(AncientPreset.SettingsFileLoc, "w")
+        if file then
+            file:write(base_settings)
+            file:close()
+        end
+    end
+end
 
 AncientPreset.Settings = {
     Position = {
@@ -27,7 +77,7 @@ AncientPreset.Default = {
     Width = 707,
     IsVisible = 0,
     Movable = 1,
-    Enabled = 1, -- Hittest
+    Enabled = 1 -- Hittest
 };
 
 function ANCIENTPRESET_ON_INIT(addon, frame)
@@ -60,7 +110,6 @@ function ANCIENTPRESET_ON_INIT(addon, frame)
     ANCIENTPRESET_ON_FRAME_INIT(frame)
     ANCIENTPRESET_ON_TAB_CHANGE(frame)
 end
-
 
 function ANCIENTPRESET_REMOVE_CARD_IN_SLOT(slotIndex)
     local card = session.ancient.GetAncientCardBySlot(slotIndex)
@@ -139,17 +188,17 @@ function ANCIENTPRESET_ON_TAB_CHANGE(parent, ctrl)
 end
 
 function ANCIENTPRESET_LOAD_SLOTS_BY_INDEX(frame, tabIndex)
-    local gbox =  GET_CHILD_RECURSIVELY(frame,'ancient_card_slot_Gbox')
+    local gbox = GET_CHILD_RECURSIVELY(frame, 'ancient_card_slot_Gbox')
     gbox:RemoveAllChild()
     local width = 4
     for index = 0, 3 do
-        local ctrlSet = gbox:CreateControlSet("ancient_card_item_slot", "SLOT_"..index, width, 4);
+        local ctrlSet = gbox:CreateControlSet("ancient_card_item_slot", "SLOT_" .. index, width, 4);
         width = width + ctrlSet:GetWidth() + 2
-        local ancient_card_gbox = GET_CHILD_RECURSIVELY(ctrlSet,"ancient_card_gbox")
+        local ancient_card_gbox = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_gbox")
         ancient_card_gbox:SetVisible(0)
-        ctrlSet:SetUserValue("INDEX",index)
+        ctrlSet:SetUserValue("INDEX", index)
         ctrlSet:EnableHitTest(1)
-        local slot = GET_CHILD_RECURSIVELY(ctrlSet,"ancient_card_slot")
+        local slot = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_slot")
         AUTO_CAST(slot)
         local icon = CreateIcon(slot);
         slot:EnableHitTest(1)
@@ -157,7 +206,7 @@ function ANCIENTPRESET_LOAD_SLOTS_BY_INDEX(frame, tabIndex)
         ctrlSet:SetEventScript(ui.RBUTTONDOWN, 'ANCIENTPRESET_CARD_SWAP_RBTNDOWN');
         ctrlSet:SetEventScriptArgNumber(ui.RBUTTONDOWN, -1);
         if index == 0 then
-            local gold_border = GET_CHILD_RECURSIVELY(ctrlSet,"gold_border")
+            local gold_border = GET_CHILD_RECURSIVELY(ctrlSet, "gold_border")
             AUTO_CAST(gold_border)
             gold_border:SetImage('monster_card_g_frame_02')
         end
@@ -173,13 +222,13 @@ function ANCIENTPRESET_LOAD_SLOTS_BY_INDEX(frame, tabIndex)
                 end
             end
         end
-        local default_image = GET_CHILD_RECURSIVELY(ctrlSet,"default_image")
+        local default_image = GET_CHILD_RECURSIVELY(ctrlSet, "default_image")
         AUTO_CAST(default_image)
         default_image:SetImage("socket_slot_bg")
     end
 end
 
-function ANCIENTPRESET_CARD_SWAP_RBTNDOWN(parent,ctrlSet,argStr,argNum)
+function ANCIENTPRESET_CARD_SWAP_RBTNDOWN(parent, ctrlSet, argStr, argNum)
     local toIndex = tonumber(ctrlSet:GetUserValue("INDEX"))
     local frame = parent:GetTopParentFrame();
     local tab = frame:GetChild("tab")
@@ -193,7 +242,7 @@ function ANCIENTPRESET_CARD_SWAP_RBTNDOWN(parent,ctrlSet,argStr,argNum)
     ANCIENTPRESET_ON_TAB_CHANGE(frame) -- redraw
 end
 
-function ANCIENTPRESET_CARD_SWAP_ON_DROP(parent,toCtrlSet, argStr, argNum)
+function ANCIENTPRESET_CARD_SWAP_ON_DROP(parent, toCtrlSet, argStr, argNum)
     local toIndex = tonumber(toCtrlSet:GetUserValue("INDEX"))
     local ancientFrame = ui.GetFrame("ancient_card_list")
 
@@ -231,8 +280,8 @@ function ANCIENTPRESET_CARD_SWAP_ON_DROP(parent,toCtrlSet, argStr, argNum)
     AncientPreset.Settings.Presets[tabIndex][toIndex] = guid
     ANCIENTPRESET_SAVE_SETTINGS()
     ANCIENTPRESET_ON_TAB_CHANGE(frame) -- redraw
-    ancientFrame:SetUserValue("LIFTED_GUID","None")
-    frame:SetUserValue("LIFTED_GUID","None")
+    ancientFrame:SetUserValue("LIFTED_GUID", "None")
+    frame:SetUserValue("LIFTED_GUID", "None")
 end
 
 function ANCIENTPRESET_OPEN(frame)
@@ -301,7 +350,8 @@ function ANCIENTPRESET_ON_FRAME_INIT(frame)
     AUTO_CAST(topbg)
     topbg:EnableHittestGroupBox(false)
 
-    local ancient_card_slot_Gbox = topbg:CreateOrGetControl("groupbox", "ancient_card_slot_Gbox", 665, 275, ui.LEFT, ui.TOP, 0, 0, 0, 0);
+    local ancient_card_slot_Gbox = topbg:CreateOrGetControl("groupbox", "ancient_card_slot_Gbox", 665, 275, ui.LEFT,
+        ui.TOP, 0, 0, 0, 0);
     AUTO_CAST(ancient_card_slot_Gbox)
     ancient_card_slot_Gbox:EnableHittestGroupBox(false)
     ancient_card_slot_Gbox:SetSkinName("test_frame_midle")
@@ -310,15 +360,15 @@ function ANCIENTPRESET_ON_FRAME_INIT(frame)
     tab:SetEventScript(ui.LBUTTONUP, "ANCIENTPRESET_ON_TAB_CHANGE");
     AUTO_CAST(tab)
     tab:SetSkinName("tab2")
-    for i = 1, 7 do
-        tab:AddItem("{@st66b}{s16}Set " .. i, true, "", "", "", "","", false)
+    for i = 1, 10 do
+        tab:AddItem("{@st66b}{s16}Set " .. i, true, "", "", "", "", "", false)
         -- tab:AddItemWithName("{@st66b}{s16}프리셋 " .. i, "preset_" .. i)
     end
-    tab:SetItemsFixWidth(90)
-    tab:SetItemsAdjustFontSizeByWidth(90);
+    tab:SetItemsFixWidth(65)
+    tab:SetItemsAdjustFontSizeByWidth(65);
     tab:SetEventScript(ui.MOUSEMOVE, "")
 
-    local swap = frame:CreateOrGetControl("button", "swap", 100, 45,ui.RIGHT, ui.TOP, 0, 325, 30 , 0);
+    local swap = frame:CreateOrGetControl("button", "swap", 100, 45, ui.RIGHT, ui.TOP, 0, 325, 30, 0);
     swap:SetSkinName("test_pvp_btn")
     swap:SetText("{@st42}{s18}Change")
     swap:SetEventScript(ui.LBUTTONUP, "ANCIENTPRESET_ON_SWAP_CLICK");

@@ -243,7 +243,7 @@
 		"name" : "Character Change Helper",
 		"file" : "cc_helper",
 		"extension" : "ipf",
-		"fileVersion" : "v1.2.7",
+		"fileVersion" : "v1.2.8",
 		"releaseTag" : "cc_helper",
 		"unicode" : "⛄",
 		"description" : "各種装備をインベントリのボタンで倉庫から出し入れして着脱をします。シルバーの掛からない装備のみの簡易モードに切り替え可能です。<br>Various types of equipment are put on and taken off from the warehouse using buttons on the inventory. It is possible to switch to a simple mode of only equipment that does not cost silver.<br>각종 장비를 인벤토리의 버튼으로 창고에 넣고 뺄 수 있습니다. 실버가 걸려있지 않은 장비만 간이 모드로 전환할 수 있습니다.",

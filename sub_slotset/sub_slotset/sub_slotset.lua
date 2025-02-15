@@ -1,33 +1,24 @@
 -- v1.0.1 レイヤー設定追加。再設定機能追加。エモを右クリックでチャット。
 -- v1.0.2 増設したスロットに上手くハマらなかったの修正。
 -- v1.0.3 インベントリアイテムの数量が0になった時にバグってたの修正。クエストワープの設定方法追加
+-- v1.0.4 エモーションの使用出来ないものを分かるようにした。上手いことハマらないエモーションあったのを直した。
 local addonName = "SUB_SLOTSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-
 local acutil = require("acutil")
 local os = require("os")
 local json = require("json")
 
-local base = {}
-
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName];
-        _G[baseFuncName] = func
-    end
-    base[baseFuncName] = _G[replacementName]
-end
+g.settings_base_FileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.active_id = session.loginInfo.GetAID()
+g.settingsFileLoc = string.format("../addons/%s/%s/settings.json", addonNameLower, g.active_id)
 
 function g.mkdir_new_folder()
     local folder_path = string.format("../addons/%s", addonNameLower)
@@ -43,8 +34,49 @@ function g.mkdir_new_folder()
     else
         file:close()
     end
+
+    local folder = string.format("../addons/%s/%s", addonNameLower, g.active_id)
+    local file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, g.active_id)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
 end
 g.mkdir_new_folder()
+
+local file = io.open(g.settingsFileLoc, "r")
+if not file then
+    file = io.open(g.settings_base_FileLoc, "r")
+    if file then
+        local base_settings = file:read("a")
+        file:close()
+
+        file = io.open(g.settingsFileLoc, "w")
+        if file then
+            file:write(base_settings)
+            file:close()
+        end
+    end
+end
+
+local base = {}
+
+function g.SetupHook(func, baseFuncName)
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    base[baseFuncName] = _G[replacementName]
+end
 
 function sub_slotset_load_settings()
 
@@ -335,6 +367,8 @@ end
 
 function sub_slotset_slotset_init(frame)
 
+    g.emo_check = false
+
     local str = frame:GetUserValue("BELONG")
     local isnew = frame:GetUserValue("ISNEW")
 
@@ -514,6 +548,7 @@ function sub_slotset_slotset_init(frame)
     frame:ShowWindow(1)
     frame:SetUserValue("ISNEW", "false")
     frame:RunUpdateScript("sub_slotset_slotset_update", 0.3)
+
 end
 
 function sub_slotset_SET_SLOT_COUNT_TEXT(slot, cnt, font, hor, ver, stateX, stateY)
@@ -564,7 +599,6 @@ function sub_slotset_slotset_update(frame)
     end
 
     local belong = frame:GetUserValue("BELONG")
-
     local frame_name = frame:GetName()
 
     local frame = ui.GetFrame(frame_name)
@@ -723,12 +757,57 @@ function sub_slotset_slotset_update(frame)
 
         elseif category == 'Emoticon' then
 
-            local icon = CreateIcon(slot)
+            local acc = GetMyAccountObj()
+            local list, listCnt = GetClassList("chat_emoticons")
+            if not g.emo_check then
 
-            icon:SetImage(iesid)
-            icon:SetColorTone('FFFFFFFF')
+                for i = 0, listCnt - 1 do
+                    local cls = GetClassByIndexFromList(list, i)
+                    if TryGetProp(cls, 'HaveUnit', 'None') == 'PC' then
+                        acc = GetMyEtcObject()
+                    else
+                        acc = GetMyAccountObj()
+                    end
+                    local namelist = StringSplit(cls.ClassName, "motion_")
+                    local imageName = namelist[1]
+                    if 1 < #namelist then
+                        imageName = namelist[2]
+                    end
 
-            slot:ClearText()
+                    local clsId = cls.ClassID
+                    if cls.CheckServer == 'YES' then
+                        local haveEmoticon = TryGetProp(acc, 'HaveEmoticon_' .. clsId)
+                        if haveEmoticon then
+                            local icon = CreateIcon(slot)
+
+                            if iesid == imageName then
+                                icon:SetImage(iesid)
+                                if haveEmoticon > 0 then
+                                    icon:SetColorTone('FFFFFFFF')
+                                else
+                                    icon:SetColorTone('FFFF0000')
+                                end
+                                slot:ClearText()
+                            end
+                        end
+                    else
+                        local icon = CreateIcon(slot)
+
+                        if iesid == imageName then
+                            icon:SetImage(iesid)
+
+                            icon:SetColorTone('FFFFFFFF')
+
+                            slot:ClearText()
+                        end
+                    end
+
+                end
+            else
+                local icon = CreateIcon(slot)
+                icon:SetImage(iesid)
+                slot:ClearText()
+            end
 
         elseif category == 'None' then
 
@@ -738,6 +817,7 @@ function sub_slotset_slotset_update(frame)
 
     end
 
+    g.emo_check = true
     return 1
 end
 
@@ -1113,7 +1193,7 @@ function sub_slotset_resetting(frame_name)
     resetting_frame:ShowWindow(1)
 
     local gbox = resetting_frame:CreateOrGetControl("groupbox", "gbox", 35, 0, resetting_frame:GetWidth() - 35,
-        resetting_frame:GetHeight())
+                                                    resetting_frame:GetHeight())
     AUTO_CAST(gbox)
     gbox:SetSkinName("test_frame_midle_light")
 
