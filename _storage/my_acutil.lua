@@ -112,6 +112,29 @@ function g.load_json(path)
     end
 end
 
+function g.save_settings()
+    g.save_json(g.settings_path, g.settings)
+end
+
+function g.load_settings()
+
+    local settings = g.load_json(g.settings_path)
+
+    if not settings then
+        settings = {
+            x = 1000,
+            y = 500,
+            move = 1,
+            hittest = 1,
+            visible = 0
+        }
+    end
+
+    g.settings = settings
+
+    g.save_settings()
+end
+
 function ADDON_NAME_ON_INIT(addon, frame)
 
     g.addon = addon
