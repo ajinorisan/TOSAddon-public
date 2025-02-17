@@ -152,97 +152,64 @@ function SUB_MAP_ON_INIT(addon, frame)
     addon:RegisterMsg('PARTY_INST_UPDATE', 'sub_map_update_member_party');
     addon:RegisterMsg('PARTY_UPDATE', 'sub_map_update_member_party');
 
-    addon:RegisterMsg('MON_MINIMAP', 'MAP_MON_MINIMAP');
+    addon:RegisterMsg('MON_MINIMAP', 'sub_map_monster');
 end
 
 function sub_map_monster(frame, msg, argStr, argNum, info)
 
     local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
 
     local handle = info.handle;
     local ctrlName = "_MONPOS_" .. handle;
-    local monPic = frame:GetChild(ctrlName);
-    if monPic ~= nil then
-        sub_map_setpos(frame, info)
-        return;
-    end
-
-    monPic = frame:CreateOrGetControl('picture', ctrlName, 0, 0, 20, 20);
+    local monPic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture");
+    --[[if monPic then
+        monPic:ShowWindow(1);
+        sub_map_monpic_auto_update(monPic)
+        return
+    end]]
+    monPic = gbox:CreateOrGetControl('picture', ctrlName, 0, 0, 20, 20);
     AUTO_CAST(monPic)
-
-    function sub_map_monpic_auto_update(monPic)
-        local handle = monPic:GetUserIValue("HANDLE");
-        local actor = world.GetActor(handle);
-        if actor ~= nil then
-            local actorPos = actor:GetPos();
-            monPic:SetUserValue("POS_X", actorPos.x);
-            monPic:SetUserValue("POS_Y", actorPos.z);
-            sub_map_setpos_offset(monPic:GetParent(), handle, actorPos.x, actorPos.z);
-            return 1;
-        end
-
-        return 1;
-    end
 
     if not monPic:HaveUpdateScript("sub_map_monpic_auto_update") then
         monPic:RunUpdateScript("sub_map_monpic_auto_update", 1.0);
     end
 
     monPic:SetUserValue("HANDLE", handle);
-    monPic:SetUserValue("EXTERN", "YES");
-    monPic:SetUserValue("EXTERN_PIC", "YES");
 
     local monCls = GetClassByType("Monster", info.type);
-    -- local imgName = GET_MAP_MON_MINIMAP_IMAGENAME(info)
     local imgName = monCls.MinimapIcon
     monPic:SetImage(imgName);
     monPic:SetEnableStretch(1);
     monPic:ShowWindow(1);
 
-    sub_map_setpos(frame, info)
-
 end
 
-function sub_map_setpos(frame, info)
+function sub_map_monpic_auto_update(monPic)
 
-    sub_map_setpos_offset(frame, info.handle, info);
+    local frame = monPic:GetTopParentFrame()
+    local gbox = GET_CHILD(frame, "gbox")
+    local handle = monPic:GetUserIValue("HANDLE");
+    local actor = world.GetActor(handle);
 
-    --[[local ctrlName = "_MONPOS_" .. info.handle;
-    local monPic = frame:GetChild(ctrlName);
-    monPic:SetUserValue("POS_X", info.x);
-    monPic:SetUserValue("POS_Z", info.z);]]
-
-end
-
-function sub_map_setpos_offset(frame, handle, info)
-
-    local ctrlName = "_MONPOS_" .. handle;
-    local monPic = frame:GetChild(ctrlName);
-    local mapprop = session.GetCurrentMapProp();
-
-    local instInfo = info:GetInst();
-    local worldPos = instInfo:GetPos();
-
-    local map_pic = GET_CHILD(frame:GetTopParentFrame(), "map_pic", "ui::CPicture");
-
-    local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight());
-    local x = (pos.x - monPic:GetWidth() / 2);
-    local y = (pos.y - monPic:GetHeight() / 2);
-
-    monPic:SetOffset(x, y);
-
-    --[[function GET_MAP_POS(frame, mapprop, x, y, width, height)
-
-        return MapPos.x, MapPos.y, width * dd, height * dd;
-
+    if actor ~= nil then
+        local mapprop = session.GetCurrentMapProp();
+        local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture");
+        local actorPos = actor:GetPos();
+        local monCls = GetClassByType('Monster', actor:GetType())
+        if TryGetProp(monCls, 'MonRank', 'None') == 'Boss' then
+            local pos = mapprop:WorldPosToMinimapPos(actorPos, map_pic:GetWidth(), map_pic:GetHeight());
+            local x = (pos.x - monPic:GetWidth() / 2);
+            local y = (pos.y - monPic:GetHeight() / 2);
+            monPic:SetOffset(x, y);
+        end
+        return 1;
+    else
+        gbox:RemoveChild("_MONPOS_" .. handle)
+        return 1;
     end
-    local XC, YC, sx, sy = GET_MAP_POS(frame, mapprop, x, z, width, height);
 
-    XC = XC - sx / 2;
-    YC = YC - sy / 2;
-    monPic:SetOffset(XC, YC);
-    monPic:Resize(sx, sy);]]
-
+    return 1;
 end
 
 function sub_map_frame_init()
