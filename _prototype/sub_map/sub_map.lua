@@ -166,8 +166,8 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
     local mon_pic = GET_CHILD_RECURSIVELY(frame, ctrl_name)
     if not mon_pic then
         mon_pic = gbox:CreateOrGetControl('picture', ctrl_name, 0, 0, 20, 20)
-        AUTO_CAST(mon_pic)
     end
+    AUTO_CAST(mon_pic)
 
     if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
         mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 1.0)
@@ -182,7 +182,7 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
     mon_pic:ShowWindow(1)
 end
 
-function sub_map_monpic_auto_update(monPic)
+function sub_map_monpic_auto_update(mon_pic)
 
     local frame = mon_pic:GetTopParentFrame()
     local gbox = GET_CHILD(frame, "gbox")
@@ -271,6 +271,8 @@ function sub_map_set_warp_point(frame, map_name)
     local mongens = mapprop.mongens
     local count = mongens:Count()
 
+    local gbox = frame:GetChild("gbox")
+
     for i = 0, count - 1 do
         local mon_prop = mongens:Element(i)
         local icon_name = mon_prop:GetMinimapIcon()
@@ -284,11 +286,11 @@ function sub_map_set_warp_point(frame, map_name)
                     for match in mon_prop:GetDialog():gmatch("[a-zA-Z]+_(.*)") do
                         warp_cls = GetClass("Warp", match)
                     end
-
-                elseif warp_cls then
+                end
+                if warp_cls then
                     local cls_name = TryGetProp(warp_cls, "TargetZone", "None")
                     local pos = gen_list:Element(j)
-                    local gbox = frame:GetChild("gbox")
+
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, gbox:GetWidth(), gbox:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, 20, 20, ui.LEFT, ui.TOP, 0, 0,
                                                          0, 0)
@@ -296,10 +298,12 @@ function sub_map_set_warp_point(frame, map_name)
                     icon:SetImage(mon_prop:GetMinimapIcon())
                     icon:SetOffset(mappos.x - 10, mappos.y - 10)
                     icon:SetEnableStretch(1)
+
                 end
             end
         end
     end
+    gbox:Invalidate()
 end
 
 function sub_map_MAP_CHARACTER_UPDATE(frame, msg, str, num)
@@ -382,6 +386,7 @@ function sub_map_set_pcicon(frame, msg, str, num)
     end
     display_party_member(PARTY_NORMAL, "pm", 'Archer_party')
     display_party_member(PARTY_GUILD, "gm", 'Wizard_party')
+    gbox:Invalidate()
 end
 
 --[[function sub_map_set_pcicon(frame, msg, str, num)
