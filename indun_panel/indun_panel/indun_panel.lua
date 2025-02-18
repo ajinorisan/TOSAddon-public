@@ -51,10 +51,11 @@
 -- v1.5.1 装備加工とか付けた。ヴェルニケバグってたクヤシイTOSイベコイン表示とか。レティワープ付けた。
 -- v1.5.2 バグ修正
 -- v1.5.3 傭兵団コインのチャレンジ券変換をMAXまで出来る様に。そんなヤツおるんか？バグ修正
+-- v1.5.4 レダニア足したけどまだテスト出来てない
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.3"
+local ver = "1.5.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -235,6 +236,13 @@ local induntype = {{
 }, {
     singularity = 2000
 }, {
+    redania = {
+        h = 718,
+        s = 717,
+        a = 716,
+        ac = 80039
+    }
+}, {
     neringa = {
         h = 709,
         s = 708,
@@ -325,6 +333,7 @@ local induntype = {{
 }}
 
 local buffIDs = {
+    [716] = 80039, -- レダニア
     [707] = 80035, -- ネリンガ
     [710] = 80037, -- ゴーレム
     [673] = 80016, -- スプレッダー
@@ -335,6 +344,7 @@ local buffIDs = {
     [695] = 80032 -- メレジ
 }
 local raidTable = {
+    [716] = {11210044, 11210043, 11210042},
     [707] = {11210024, 11210023, 11210022},
     [710] = {11210028, 11210027, 11210026},
     [695] = {11200356, 11200355, 11200354},
@@ -639,8 +649,10 @@ end
 function indun_panel_ischecked(frame, ctrl, argStr, argNum)
 
     local ctrlname = ctrl:GetName()
+    if string.find(ctrl:GetName(), "auto_check") then
+        ctrlname = "singularity_check"
+    end
     local ischeck = ctrl:IsChecked()
-
     g.settings[ctrlname] = ischeck
     indun_panel_save_settings()
 end
@@ -686,7 +698,7 @@ function indun_panel_frame_contents(frame)
                 if type(value) == "table" then
                     -- neringa golem
                     if key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or key == "spreader" or
-                        key == "merregina" or key == "neringa" or key == "golem" then
+                        key == "merregina" or key == "neringa" or key == "golem" or key == "redania" then
 
                         function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
 
@@ -1584,6 +1596,7 @@ function indun_panel_load_settings()
             zoom = 336,
             challenge_checkbox = 1,
             singularity_checkbox = 1,
+            redania_checkbox = 1,
             neringa_checkbox = 1,
             golem_checkbox = 1,
             merregina_checkbox = 1,
@@ -1605,10 +1618,15 @@ function indun_panel_load_settings()
             season_checkbox = 1
         }
         settings = g.settings
-        indun_panel_save_settings()
+
+    end
+
+    if not settings.redania_checkbox then
+        settings.redania_checkbox = 1
     end
 
     g.settings = settings
+    indun_panel_save_settings()
 end
 
 function INDUN_PANEL_LANG(str)
@@ -1621,6 +1639,9 @@ function INDUN_PANEL_LANG(str)
     end
 
     if g.lang == "Japanese" then
+        if str == tostring("redania") then
+            str = "レダニア"
+        end
         if str == tostring("neringa") then
             str = "ネリンガ"
         end

@@ -8,10 +8,11 @@
 -- v1.0.9 フレーム動かせて記憶する様に。表示最適化
 -- v1.1.0 520アップデート対応
 -- v1.1.1 ロードが早すぎて、セッティングファイルがnullになる不具合修正
+-- v1.1.2 530update
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -34,8 +35,8 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 -- ここを変更すればいつまでも使えそう。知らんけど。
-local repair_item_classid = 11201231
-local repair_item_name = "QuestReward_repairPotion_520"
+local repair_item_classid = 11201325
+local repair_item_name = "QuestReward_repairPotion_530"
 local repair_tradeshop_item = "JurateCertificate_13"
 local shop_type = "JurateCertificate"
 

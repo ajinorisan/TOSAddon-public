@@ -263,7 +263,7 @@
 		"name" : "Indun Panel",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.5.3",
+		"fileVersion" : "v1.5.4",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "チャレンジやレイドに入る支援パネルを設置します。<br>Set up a support panel to enter challenges and raids.<br>챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",
@@ -293,10 +293,10 @@
 		"name" : "Auto Repair",
 		"file" : "auto_repair",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.1",
+		"fileVersion" : "v1.1.2",
 		"releaseTag" : "auto_repair",
 		"unicode" : "⛄",
-		"description" : "装備の耐久を監視して30%未満になると[Lv.510]緊急修理キットを使用して自動で修理します。<br>Monitors the equipment's durability and automatically repairs it using the '[Lv.510] Emergency Repair Kit' when it falls below 30%.<br>장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.510] 긴급 수리 키트'를 사용하여 자동으로 수리합니다.",
+		"description" : "装備の耐久を監視して30%未満になると[Lv.530]緊急修理キットを使用して自動で修理します。<br>Monitors the equipment's durability and automatically repairs it using the '[Lv.530] Emergency Repair Kit' when it falls below 30%.<br>장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.530] 긴급 수리 키트'를 사용하여 자동으로 수리합니다.",
 		"tags" : []
 	},
 {
