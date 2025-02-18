@@ -126,7 +126,7 @@ function g.load_settings()
             y = 120,
             move = 1,
             hittest = 1,
-            visible = 0
+            visible = 1
         }
     end
 
@@ -146,10 +146,6 @@ function SUB_MAP_ON_INIT(addon, frame)
     g.load_settings()
 
     addon:RegisterMsg('GAME_START_3SEC', 'sub_map_frame_init')
-    addon:RegisterMsg('MAP_CHARACTER_UPDATE', 'sub_map_MAP_CHARACTER_UPDATE')
-    addon:RegisterMsg('MON_MINIMAP', 'sub_map_monster')
-
-    addon:RegisterMsg('FPS_UPDATE', 'sub_map_set_pcicon')
 
     --[[addon:RegisterMsg('GUILD_INFO_UPDATE', 'sub_map_update_member_guild')
     addon:RegisterMsg('PARTY_INST_UPDATE', 'sub_map_update_member_party')
@@ -227,16 +223,45 @@ function sub_map_frame_init()
     frame:SetSkinName('None')
     frame:SetTitleBarSkin("None")
     frame:SetPos(g.settings.x, g.settings.y)
-    frame:SetLayerLevel(30)
-    -- frame:ShowWindow(g.settings.visible)
+    frame:SetLayerLevel(12)
     frame:ShowWindow(1)
-    frame:Resize(220, 220)
 
-    function sub_map_frame_layer_change(frame, ctrl, str, num)
+    local title = frame:CreateOrGetControl("richtext", "title", 20, 5)
+    title:SetText("{ol}{S10}Sub Map")
+
+    local display = frame:CreateOrGetControl("picture", "display", 0, 3, 15, 15)
+    AUTO_CAST(display)
+    display:SetEnableStretch(1)
+    display:EnableHitTest(1)
+    display:SetEventScript(ui.LBUTTONUP, "sub_map_frame_toggle")
+    display:SetTextTooltip("{ol}Display / hide")
+
+    function sub_map_frame_toggle(frame, ctrl)
+
+        if g.settings.visible == 1 then
+            g.settings.visible = 0
+        else
+            g.settings.visible = 1
+        end
+        g.save_settings()
+        sub_map_frame_init()
+        return
+    end
+
+    if g.settings.visible == 1 then
+        display:SetImage("btn_minus");
+        frame:Resize(220, 220)
+    else
+        display:SetImage("btn_plus");
+        frame:Resize(220, 20)
+        return
+    end
+
+    local function sub_map_frame_layer_change(frame, ctrl, str, num)
         if str == "ON" then
             frame:SetLayerLevel(32)
-            frame:SetSkinName('chat_window')
-            frame:SetAlpha(30)
+            -- frame:SetSkinName('chat_window')
+            -- frame:SetAlpha(30)
         end
     end
 
@@ -263,6 +288,10 @@ function sub_map_frame_init()
 
     sub_map_MAP_CHARACTER_UPDATE(frame)
     sub_map_set_warp_point(frame, map_name)
+
+    g.addon:RegisterMsg('MAP_CHARACTER_UPDATE', 'sub_map_MAP_CHARACTER_UPDATE')
+    g.addon:RegisterMsg('MON_MINIMAP', 'sub_map_monster')
+    g.addon:RegisterMsg('FPS_UPDATE', 'sub_map_set_pcicon')
 end
 
 function sub_map_set_warp_point(frame, map_name)
