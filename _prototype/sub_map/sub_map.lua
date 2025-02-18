@@ -145,8 +145,10 @@ function SUB_MAP_ON_INIT(addon, frame)
 
     g.load_settings()
 
-    addon:RegisterMsg('GAME_START_3SEC', 'sub_map_frame_init')
-
+    local map_type = g.get_map_type()
+    if map_type == "City" or map_type == "Field" or map_type == "Dungeon" then
+        addon:RegisterMsg('GAME_START_3SEC', 'sub_map_frame_init')
+    end
     --[[addon:RegisterMsg('GUILD_INFO_UPDATE', 'sub_map_update_member_guild')
     addon:RegisterMsg('PARTY_INST_UPDATE', 'sub_map_update_member_party')
     addon:RegisterMsg('PARTY_UPDATE', 'sub_map_update_member_party')]]
@@ -213,7 +215,7 @@ function sub_map_frame_init()
     frame:EnableMove(g.settings.move)
     frame:EnableHitTest(g.settings.hittest)
 
-    function sub_map_frame_end_drag(frame, ctrl)
+    local function sub_map_frame_end_drag(frame, ctrl)
         g.settings.x = frame:GetX()
         g.settings.y = frame:GetY()
         g.save_settings()
@@ -236,7 +238,7 @@ function sub_map_frame_init()
     display:SetEventScript(ui.LBUTTONUP, "sub_map_frame_toggle")
     display:SetTextTooltip("{ol}Display / hide")
 
-    function sub_map_frame_toggle(frame, ctrl)
+    local function sub_map_frame_toggle(frame, ctrl)
 
         if g.settings.visible == 1 then
             g.settings.visible = 0
@@ -360,7 +362,7 @@ function sub_map_set_pcicon(frame, msg, str, num)
     local mapprop = session.GetCurrentMapProp()
     local handle_tbl = {}
 
-    local function display_party_member(party_type, icon_prefix, default_icon)
+    local function sub_map_display_party_member(party_type, icon_prefix, default_icon)
         local my_info = session.party.GetMyPartyObj(party_type)
         if not my_info then
             return
@@ -413,8 +415,8 @@ function sub_map_set_pcicon(frame, msg, str, num)
             end
         end
     end
-    display_party_member(PARTY_NORMAL, "pm", 'Archer_party')
-    display_party_member(PARTY_GUILD, "gm", 'Wizard_party')
+    sub_map_display_party_member(PARTY_NORMAL, "pm", 'Archer_party')
+    sub_map_display_party_member(PARTY_GUILD, "gm", 'Wizard_party')
     gbox:Invalidate()
 end
 
