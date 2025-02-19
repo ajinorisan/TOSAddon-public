@@ -59,7 +59,7 @@ function g.SetupHook(func, baseFuncName)
     end
     base[baseFuncName] = _G[replacementName]
 end
-
+-- レダニア 716,717,718 11278 Raid_Redania
 local raid_list = {
     Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711, 709, 712},
     Klaida = {686, 685, 687},
