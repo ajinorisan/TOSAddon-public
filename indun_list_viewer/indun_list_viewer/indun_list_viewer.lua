@@ -23,10 +23,11 @@
 -- v1.2.2 表示するレイドを選べる様に。UI変更
 -- v1.2.3 レイド選択の初期設定が出来ていなかったので、修正
 -- v1.2.4 レダニア追加。表示崩れるバグ直した。
+-- v1.2.5 メモ蘭バグってたの修正
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.4"
+local ver = "1.2.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -600,7 +601,7 @@ function indun_list_viewer_title_frame_open()
             x = x + 30
         end
         x = x + 30
-        for i = 7, 12 do
+        for i = 7, 13 do
 
             local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
             AUTO_CAST(check_box)
@@ -663,6 +664,9 @@ function indun_list_viewer_close(frame, ctrl, str, num)
 end
 
 function indun_list_viewer_frame_open(frame)
+
+    local title_gb = GET_CHILD_RECURSIVELY(frame, "title_gb")
+    AUTO_CAST(title_gb)
 
     local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
     AUTO_CAST(gb)
@@ -899,20 +903,7 @@ function indun_list_viewer_frame_open(frame)
             local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
             line:SetSkinName("labelline_def_3")
 
-            local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 40, y - 5, 25, 25) -- 865
-            AUTO_CAST(display)
-            display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
-            display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
-            local check = 1
-            if not data.hide then
-                check = 0
-            end
-            display:SetCheck(check)
-
             if g.settings[tostring(check_table[#check_table])] == 1 then
-
-                --[[local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 200, 1)
-                line:SetSkinName("labelline_def_3")]]
 
                 local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, g.x + 40, y - 2, 180, 20)
                 AUTO_CAST(memo)
@@ -923,8 +914,18 @@ function indun_list_viewer_frame_open(frame)
                 memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
                 local memoData = data.memo
                 memo:SetText(memoData)
-
+                g.x = g.x + 180
             end
+
+            local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 50, y - 5, 25, 25) -- 865
+            AUTO_CAST(display)
+            display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+            display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+            local check = 1
+            if not data.hide then
+                check = 0
+            end
+            display:SetCheck(check)
 
             y = y + 25
         end
@@ -933,12 +934,15 @@ function indun_list_viewer_frame_open(frame)
     if g.settings.display_mode == "full" then
         frame:Resize(g.x + 40 + 80, y + 50)
         gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+        title_gb:Resize(frame:GetWidth() - 20, 55)
+
     else
         frame:Resize(g.x + 40 + 80, 545)
         gb:Resize(frame:GetWidth() - 20, 500)
         gb:EnableScrollBar(1);
         gb:EnableDrawFrame(1);
         gb:SetScrollPos(0)
+        title_gb:Resize(frame:GetWidth() - 20, 55)
     end
 
     local display_text = GET_CHILD_RECURSIVELY(frame, "display_text")
