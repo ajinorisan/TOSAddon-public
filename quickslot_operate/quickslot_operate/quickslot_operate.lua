@@ -15,10 +15,11 @@
 -- v1.1.4 ネリゴレハード対応。jsonファイルから直接対応増やせる様に変更。これで僕が死んでもある程度使えると思う。
 -- v1.1.5 ストレートモードバグってたの修正
 -- v1.1.6 ジョイスティックモードにも対応したつもり
+-- v1.1.7 レダニア追加
 local addonName = "quickslot_operate"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.6"
+local ver = "1.1.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -62,18 +63,18 @@ end
 -- レダニア 716,717,718 11278 Raid_Redania
 local raid_list = {
     Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711, 709, 712},
-    Klaida = {686, 685, 687},
+    Klaida = {686, 685, 687, 716, 717, 718},
     Velnias = {689, 688, 690, 669, 635, 628, 696, 695, 697},
     Forester = {672, 671, 670},
     Widling = {677, 676, 678}
 }
 -- local raid_list = {}
-local zone_id_list = {11261, 11250, 11263, 11266, 11252, 11256, 11230, 11208, 11270, 11276, 11277}
+local zone_id_list = {11261, 11250, 11263, 11266, 11252, 11256, 11230, 11208, 11270, 11276, 11277, 11278}
 -- local zone_id_list = {}
 -- ies.ipf/indun.ies レイド番号で探せ
 local zone_list = {"raid_Rosethemisterable", "raid_castle_ep14_2", "Raid_DreamyForest", "Raid_AbyssalObserver",
                    "raid_Jellyzele", "raId_castle_ep14", "raid_giltine_AutoGuild", "raid_dcapital_108",
-                   "raid_kivotos_island", "Raid_DarkNeringa", "Raid_CrystalGolem"}
+                   "raid_kivotos_island", "Raid_DarkNeringa", "Raid_CrystalGolem", "Raid_Redania"}
 
 local potion_list = {
     Velnias = 640504,
@@ -144,11 +145,11 @@ function quickslot_operate_load_settings()
     local raid_list_file_location = string.format('../addons/%s/raid_list.json', addonNameLower)
     if file_exists(raid_list_file_location) then
 
-        local existing_raid_list = load_json_file(raid_list_file_location)
-        if existing_raid_list then
-
-            raid_list = existing_raid_list
-
+        local file = io.open(raid_list_file_location, "w") -- "w" モードでファイルを開く (上書き)
+        if file then
+            local json_string = json.encode(raid_list) -- JSON エンコードが必要
+            file:write(json_string)
+            file:close()
         end
     else
         save_json_file(raid_list_file_location, raid_list)
@@ -157,12 +158,13 @@ function quickslot_operate_load_settings()
     local zone_id_list_file_location = string.format('../addons/%s/zone_id_list.json', addonNameLower)
     if file_exists(zone_id_list_file_location) then
 
-        local existing_zone_id_list = load_json_file(zone_id_list_file_location)
-        if existing_zone_id_list then
-
-            zone_id_list = existing_zone_id_list
-
+        local file = io.open(zone_id_list_file_location, "w") -- "w" モードでファイルを開く (上書き)
+        if file then
+            local json_string = json.encode(zone_id_list) -- JSON エンコードが必要
+            file:write(json_string)
+            file:close()
         end
+
     else
         save_json_file(zone_id_list_file_location, zone_id_list)
     end

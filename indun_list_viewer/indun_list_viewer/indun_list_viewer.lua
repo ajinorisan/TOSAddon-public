@@ -22,10 +22,11 @@
 -- v1.2.1 フォルダ作るコードをアドオン導入時のみに。
 -- v1.2.2 表示するレイドを選べる様に。UI変更
 -- v1.2.3 レイド選択の初期設定が出来ていなかったので、修正
+-- v1.2.4 レダニア追加。表示崩れるバグ直した。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.3"
+local ver = "1.2.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -136,6 +137,11 @@ function indun_list_viewer_load_settings()
                 }
             }
         end
+        if not g.settings[barrack_pc_name]["raid_count"].R_H then
+            g.settings[barrack_pc_name]["raid_count"].R_H = "?"
+            g.settings[barrack_pc_name]["raid_count"].R_A = "?"
+            g.settings[barrack_pc_name]["auto_clear_count"].R_S = "?"
+        end
     end
 
     indun_list_viewer_save_settings()
@@ -175,7 +181,9 @@ function indun_list_viewer_raid_reset()
             S_H = "?",
             S_A = "?",
             U_H = "?",
-            U_A = "?"
+            U_A = "?",
+            R_H = "?",
+            R_A = "?"
         }
     end
     g.settings.reset_time = indun_list_viewer_get_reset_time()
@@ -264,6 +272,8 @@ function indun_list_viewer_get_raid_count()
 
     local function create_data()
         local data = {
+            R_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 718).PlayPerResetType),
+            R_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 716).PlayPerResetType),
             N_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 709).PlayPerResetType),
             N_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 707).PlayPerResetType),
             G_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 712).PlayPerResetType),
@@ -283,6 +293,7 @@ function indun_list_viewer_get_raid_count()
     g.settings[g.login_name]["raid_count"] = data
 
     local sweepbuff_table = {
+        R_S = 80039,
         N_S = 80035,
         G_S = 80037,
         M_S = 80032,
@@ -350,19 +361,8 @@ function indun_list_viewer_get_reset_time()
     return next_monday_timestamp
 end
 
-local check_table = {
-    [1] = "Neringa_H",
-    [2] = "Golem_H",
-    [3] = "Merregina_H",
-    [4] = "Slogutis_H",
-    [5] = "Upinis_H",
-    [6] = "Neringa_S",
-    [7] = "Golem_S",
-    [8] = "Merregina_S",
-    [9] = "Slogutis_S",
-    [10] = "Upinis_S",
-    [11] = "Memo"
-}
+local check_table = {"Redania_H", "Neringa_H", "Golem_H", "Merregina_H", "Slogutis_H", "Upinis_H", "Redania_S",
+                     "Neringa_S", "Golem_S", "Merregina_S", "Slogutis_S", "Upinis_S", "Memo"}
 
 function indun_list_viewer_frame_init()
 
@@ -389,7 +389,7 @@ function indun_list_viewer_frame_init()
                                        "(instant cc not available)")
     end
 
-    for i = 1, 11 do
+    for i = 1, #check_table do
         if g.settings[tostring(check_table[i])] == nil then
             g.settings[tostring(check_table[i])] = 1
         end
@@ -435,6 +435,11 @@ function indun_list_viewer_title_frame_open()
     local select_texts = g.lang == "Japanese" and texts.japanese or texts.etc
 
     local icon_table = {{
+        icon_name = "icon_item_misc_boss_Redania",
+        hard = 718,
+        solo = 717,
+        auto = 716
+    }, {
         icon_name = "icon_item_misc_boss_DarkNeringa",
         hard = 709,
         solo = 708,
@@ -462,7 +467,7 @@ function indun_list_viewer_title_frame_open()
     }}
 
     local x = 185
-    for i = 1, 5 do
+    for i = 1, 6 do
 
         if g.settings[tostring(check_table[i])] == 1 then
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
@@ -482,17 +487,17 @@ function indun_list_viewer_title_frame_open()
         end
     end
     x = x + 30
-    for i = 6, 10 do
+    for i = 7, 12 do
 
         if g.settings[tostring(check_table[i])] == 1 then
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
             AUTO_CAST(title_picture)
-            local icon_name = icon_table[i - 5].icon_name
+            local icon_name = icon_table[i - 6].icon_name --
             title_picture:SetImage(icon_name)
             title_picture:SetEnableStretch(1)
             title_picture:EnableHitTest(1)
-            title_picture:SetUserValue("SOLO", icon_table[i - 5].solo)
-            title_picture:SetUserValue("AUTO", icon_table[i - 5].auto)
+            title_picture:SetUserValue("SOLO", icon_table[i - 6].solo)
+            title_picture:SetUserValue("AUTO", icon_table[i - 6].auto)
             title_picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
             title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示{nl}" ..
                                              select_texts.auto_raid or "Left click to display raid screen{nl}" ..
@@ -526,7 +531,7 @@ function indun_list_viewer_title_frame_open()
         local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
         AUTO_CAST(title_gb)
         local x = 185
-        for i = 1, 5 do
+        for i = 1, 6 do
 
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
             AUTO_CAST(title_picture)
@@ -538,12 +543,13 @@ function indun_list_viewer_title_frame_open()
 
             x = x + 30
         end
+
         x = x + 30
-        for i = 6, 10 do
+        for i = 7, 12 do
 
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
             AUTO_CAST(title_picture)
-            local icon_name = icon_table[i - 5].icon_name
+            local icon_name = icon_table[i - 6].icon_name
             title_picture:SetImage(icon_name)
             title_picture:SetEnableStretch(1)
             title_picture:EnableHitTest(1)
@@ -581,8 +587,9 @@ function indun_list_viewer_title_frame_open()
             end
         end
         indun_list_viewer_save_settings()
+
         local x = 180
-        for i = 1, 5 do
+        for i = 1, 6 do
 
             local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
             AUTO_CAST(check_box)
@@ -593,7 +600,7 @@ function indun_list_viewer_title_frame_open()
             x = x + 30
         end
         x = x + 30
-        for i = 6, 11 do
+        for i = 7, 12 do
 
             local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
             AUTO_CAST(check_box)
@@ -625,7 +632,7 @@ function indun_list_viewer_title_frame_open()
     mode_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
     mode_check:SetTextTooltip("{ol}" .. select_texts.mode_text)
 
-    if g.settings[tostring(check_table[11])] == 1 then
+    if g.settings[tostring(check_table[#check_table])] == 1 then
         local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
         AUTO_CAST(memo_text)
         memo_text:SetText("{ol}" .. select_texts.memo)
@@ -678,12 +685,28 @@ function indun_list_viewer_frame_open(frame)
             indun_list_viewer_job_slot(frame, data, y)
 
             local i = 1
-
+            local index = 0
             if not data.hide then
                 local raid_count = data["raid_count"]
                 local auto_clear_count = data["auto_clear_count"]
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 140
+
+                    x = index == 0 and x + 140 or x + 30
+                    index = index + 1
+                    local R_H = gb:CreateOrGetControl("richtext", "R_H" .. pc_name, x, y)
+                    AUTO_CAST(R_H)
+                    R_H:SetText("{ol}{s14}( " .. raid_count.R_H .. " )")
+                    if raid_count.R_H == 1 then
+                        R_H:SetColorTone("FF990000");
+                    else
+                        R_H:SetColorTone("FFFFFFFF");
+                    end
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = index == 0 and x + 140 or x + 30
+                    index = index + 1
                     local N_H = gb:CreateOrGetControl("richtext", "N_H" .. pc_name, x, y)
                     AUTO_CAST(N_H)
                     N_H:SetText("{ol}{s14}( " .. raid_count.N_H .. " )")
@@ -696,7 +719,8 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 30
+                    x = index == 0 and x + 140 or x + 30
+                    index = index + 1
                     local G_H = gb:CreateOrGetControl("richtext", "G_H" .. pc_name, x, y)
                     AUTO_CAST(G_H)
                     G_H:SetText("{ol}{s14}( " .. raid_count.G_H .. " )")
@@ -709,7 +733,8 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 30
+                    x = index == 0 and x + 140 or x + 30
+                    index = index + 1
                     local M_H = gb:CreateOrGetControl("richtext", "M_H" .. pc_name, x, y)
                     AUTO_CAST(M_H)
                     M_H:SetText("{ol}{s14}( " .. raid_count.M_H .. " )")
@@ -722,7 +747,8 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 30
+                    x = index == 0 and x + 140 or x + 30
+                    index = index + 1
                     local S_H = gb:CreateOrGetControl("richtext", "S_H" .. pc_name, x, y)
                     AUTO_CAST(S_H)
                     S_H:SetText("{ol}{s14}( " .. raid_count.S_H .. " )")
@@ -735,7 +761,9 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 30
+                    x = index == 0 and x + 140 or x + 30
+                    index = index + 1
+
                     local U_H = gb:CreateOrGetControl("richtext", "U_H" .. pc_name, x, y)
                     AUTO_CAST(U_H)
                     U_H:SetText("{ol}{s14}( " .. raid_count.U_H .. " )")
@@ -748,8 +776,34 @@ function indun_list_viewer_frame_open(frame)
                 end
 
                 i = i + 1
+                if x >= 175 then
+                    index = 0
+                else
+                    x = 140
+                end
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 60
+                    x = index == 0 and x + 60 or x + 40
+                    index = index + 1
+
+                    local R_A = gb:CreateOrGetControl("richtext", "R_A" .. pc_name, x, y)
+                    AUTO_CAST(R_A)
+                    R_A:SetText("{ol}{s14}( " .. raid_count.R_A .. " )")
+                    if raid_count.R_A == 2 then
+                        R_A:SetColorTone("FF990000");
+                    else
+                        R_A:SetColorTone("FFFFFFFF");
+                    end
+
+                    x = x + 25
+                    local R_S = gb:CreateOrGetControl("richtext", "R_S" .. pc_name, x, y)
+                    AUTO_CAST(R_S)
+                    R_S:SetText("{ol}{s14}/( " .. auto_clear_count.R_S .. " )")
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = index == 0 and x + 60 or x + 40
+                    index = index + 1
                     local N_A = gb:CreateOrGetControl("richtext", "N_A" .. pc_name, x, y)
                     AUTO_CAST(N_A)
                     N_A:SetText("{ol}{s14}( " .. raid_count.N_A .. " )")
@@ -767,7 +821,8 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 40
+                    x = index == 0 and x + 60 or x + 40
+                    index = index + 1
                     local G_A = gb:CreateOrGetControl("richtext", "G_A" .. pc_name, x, y)
                     AUTO_CAST(G_A)
                     G_A:SetText("{ol}{s14}( " .. raid_count.G_A .. " )")
@@ -785,7 +840,8 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 40
+                    x = index == 0 and x + 60 or x + 40
+                    index = index + 1
                     local M_A = gb:CreateOrGetControl("richtext", "M_A" .. pc_name, x, y)
                     AUTO_CAST(M_A)
                     M_A:SetText("{ol}{s14}( " .. raid_count.M_A .. " )")
@@ -803,7 +859,8 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 40
+                    x = index == 0 and x + 60 or x + 40
+                    index = index + 1
                     local S_A = gb:CreateOrGetControl("richtext", "S_A" .. pc_name, x, y)
                     AUTO_CAST(S_A)
                     S_A:SetText("{ol}{s14}( " .. raid_count.S_A .. " )")
@@ -820,7 +877,8 @@ function indun_list_viewer_frame_open(frame)
 
                 i = i + 1
                 if g.settings[tostring(check_table[i])] == 1 then
-                    x = x + 40
+                    x = index == 0 and x + 60 or x + 40
+                    index = index + 1
                     local U_A = gb:CreateOrGetControl("richtext", "U_A" .. pc_name, x, y)
                     AUTO_CAST(U_A)
                     U_A:SetText("{ol}{s14}( " .. raid_count.U_A .. " )")
@@ -838,10 +896,23 @@ function indun_list_viewer_frame_open(frame)
             end
 
             i = i + 1
-            if g.settings[tostring(check_table[11])] == 1 then
+            local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
+            line:SetSkinName("labelline_def_3")
 
-                local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 200, 1)
-                line:SetSkinName("labelline_def_3")
+            local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 40, y - 5, 25, 25) -- 865
+            AUTO_CAST(display)
+            display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+            display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+            local check = 1
+            if not data.hide then
+                check = 0
+            end
+            display:SetCheck(check)
+
+            if g.settings[tostring(check_table[#check_table])] == 1 then
+
+                --[[local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 200, 1)
+                line:SetSkinName("labelline_def_3")]]
 
                 local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, g.x + 40, y - 2, 180, 20)
                 AUTO_CAST(memo)
@@ -853,54 +924,23 @@ function indun_list_viewer_frame_open(frame)
                 local memoData = data.memo
                 memo:SetText(memoData)
 
-                local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 225, y - 5, 25, 25) -- 865
-                AUTO_CAST(display)
-                display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
-                display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
-                local check = 1
-                if not data.hide then
-                    check = 0
-                end
-                display:SetCheck(check)
-                if g.settings.display_mode == "full" then
-                    frame:Resize(g.x + 225 + 80, y + 75)
-                    -- gb:Resize(865 + 60, y + 40)
-                    gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
-                else
-                    frame:Resize(g.x + 225 + 80, 545)
-                    gb:Resize(frame:GetWidth() - 20, 500)
-                    gb:EnableScrollBar(1);
-                    gb:EnableDrawFrame(1);
-                    gb:SetScrollPos(0)
-                end
-            else
-                local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
-                line:SetSkinName("labelline_def_3")
-
-                local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 40, y - 5, 25, 25) -- 865
-                AUTO_CAST(display)
-                display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
-                display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
-                local check = 1
-                if not data.hide then
-                    check = 0
-                end
-                display:SetCheck(check)
-                if g.settings.display_mode == "full" then
-                    frame:Resize(g.x + 40 + 80, y + 75)
-                    gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
-                else
-                    frame:Resize(g.x + 40 + 80, 545)
-                    gb:Resize(frame:GetWidth() - 20, 500)
-                    gb:EnableScrollBar(1);
-                    gb:EnableDrawFrame(1);
-                    gb:SetScrollPos(0)
-                end
             end
 
             y = y + 25
         end
     end
+
+    if g.settings.display_mode == "full" then
+        frame:Resize(g.x + 40 + 80, y + 50)
+        gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+    else
+        frame:Resize(g.x + 40 + 80, 545)
+        gb:Resize(frame:GetWidth() - 20, 500)
+        gb:EnableScrollBar(1);
+        gb:EnableDrawFrame(1);
+        gb:SetScrollPos(0)
+    end
+
     local display_text = GET_CHILD_RECURSIVELY(frame, "display_text")
     AUTO_CAST(display_text)
     local charName = GETMYPCNAME();
@@ -1166,3 +1206,400 @@ function indun_list_viewer_enter_hard(frame, ctrl, str, induntype)
         return
     end
 end
+
+--[[local temp_table = {{
+    name = "Redania_H",
+    code = "R_H"
+}, {
+    name = "Neringa_H",
+    code = "N_H"
+}, {
+    name = "Golem_H",
+    code = "G_H"
+}, {
+    name = "Merregina_H",
+    code = "M_H"
+}, {
+    name = "Slogutis_H",
+    code = "S_H"
+}, {
+    name = "Upinis_H",
+    code = "U_H"
+}, {
+    name = "Redania_S",
+    code = "R_S"
+}, {
+    name = "Neringa_S",
+    code = "N_S"
+}, {
+    name = "Golem_S",
+    code = "G_S"
+}, {
+    name = "Merregina_S",
+    code = "M_S"
+}, {
+    name = "Slogutis_S",
+    code = "S_S"
+}, {
+    name = "Upinis_S",
+    code = "U_S"
+}, {
+    name = "Memo",
+    code = nil
+}}
+local y = 10
+for _, data in ipairs(g.sorted_settings) do
+    local x = 35
+    local xx = 0
+    if type(data) == "table" then
+        local pc_name = data.pc_name
+
+        local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
+        AUTO_CAST(name)
+        if g.login_name == pc_name then
+            name:SetText("{ol}{s14}{#FF4500}" .. pc_name)
+        else
+            name:SetText("{ol}{s14}" .. pc_name)
+        end
+
+        indun_list_viewer_job_slot(frame, data, y)
+
+        if not data.hide then
+            local raid_count = data["raid_count"]
+            local auto_clear_count = data["auto_clear_count"]
+            local index = 0
+            for i = 1, 6 do
+                if g.settings[tostring(temp_table[i].name)] == 1 then
+                    if index == 0 then
+                        x = x + 140
+                        index = index + 1
+                    else
+                        x = x + 30
+                    end
+                    local raid_name = temp_table[i].code
+                    local hard = gb:CreateOrGetControl("richtext", raid_name .. pc_name, x, y)
+                    AUTO_CAST(hard)
+                    hard:SetText("{ol}{s14}( " .. raid_count[raid_name] .. " )")
+                    if data.raid_count[raid_name] == 1 then
+                        hard:SetColorTone("FF990000");
+                    end
+                end
+            end
+
+            local index = 0
+            for i = 7, #temp_table - 1 do
+                if g.settings[tostring(temp_table[i].name)] == 1 then
+                    if index == 0 then
+                        x = x + 60
+                        index = index + 1
+                    else
+                        x = x + 30
+                    end
+                    local raid_name = temp_table[i].code
+                    local auto = gb:CreateOrGetControl("richtext", raid_name .. pc_name, x, y)
+                    AUTO_CAST(auto)
+                    auto:SetText("{ol}{s14}( " .. raid_count[raid_name] .. " )")
+                    if data.raid_count[raid_name] == 1 then
+                        auto:SetColorTone("FF990000");
+                    end
+
+                    x = x + 20
+
+                    local sweep = gb:CreateOrGetControl("richtext", "sweep" .. raid_name .. pc_name, x, y)
+                    AUTO_CAST(sweep)
+                    local sweep_str = string.gsub(raid_name, "_A", "_S")
+                    sweep:SetText("{ol}{s14}( " .. auto_clear_count[sweep_str] .. " )")
+                    if data.raid_count[raid_name] == 1 then
+                        auto:SetColorTone("FF990000");
+                    end
+                end
+            end
+
+            if g.settings[tostring(temp_table[#temp_table].name)] == 1 then
+
+                local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, x + 40, y - 2, 180, 20)
+                AUTO_CAST(memo)
+                memo:SetFontName("white_14_ol")
+                memo:SetTextAlign("left", "center")
+                memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
+                memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
+                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                local memoData = data.memo
+                memo:SetText(memoData)
+            end
+            xx = x
+
+            y = y + 25
+        end
+        for i = 1, #temp_table do
+            local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, x + 200, 1)
+            line:SetSkinName("labelline_def_3")
+
+            local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, x + 225, y - 5, 25, 25) -- 865
+            AUTO_CAST(display)
+            display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+            display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+            local check = 1
+            if not data.hide then
+                check = 0
+            end
+            display:SetCheck(check)
+            y = y + 25
+        end
+        for i = 1, #check_table do
+
+            if not data.hide then
+                local raid_count = data["raid_count"]
+                local auto_clear_count = data["auto_clear_count"]
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 140
+                    local R_H = gb:CreateOrGetControl("richtext", "R_H" .. pc_name, x, y)
+                    AUTO_CAST(R_H)
+                    R_H:SetText("{ol}{s14}( " .. raid_count.R_H .. " )")
+                    if raid_count.R_H == 1 then
+                        R_H:SetColorTone("FF990000");
+                    else
+                        R_H:SetColorTone("FFFFFFFF");
+                    end
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local N_H = gb:CreateOrGetControl("richtext", "N_H" .. pc_name, x, y)
+                    AUTO_CAST(N_H)
+                    N_H:SetText("{ol}{s14}( " .. raid_count.N_H .. " )")
+                    if raid_count.N_H == 1 then
+                        N_H:SetColorTone("FF990000");
+                    else
+                        N_H:SetColorTone("FFFFFFFF");
+                    end
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local G_H = gb:CreateOrGetControl("richtext", "G_H" .. pc_name, x, y)
+                    AUTO_CAST(G_H)
+                    G_H:SetText("{ol}{s14}( " .. raid_count.G_H .. " )")
+                    if raid_count.G_H == 1 then
+                        G_H:SetColorTone("FF990000");
+                    else
+                        G_H:SetColorTone("FFFFFFFF");
+                    end
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local M_H = gb:CreateOrGetControl("richtext", "M_H" .. pc_name, x, y)
+                    AUTO_CAST(M_H)
+                    M_H:SetText("{ol}{s14}( " .. raid_count.M_H .. " )")
+                    if raid_count.M_H == 1 then
+                        M_H:SetColorTone("FF990000");
+                    else
+                        M_H:SetColorTone("FFFFFFFF");
+                    end
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local S_H = gb:CreateOrGetControl("richtext", "S_H" .. pc_name, x, y)
+                    AUTO_CAST(S_H)
+                    S_H:SetText("{ol}{s14}( " .. raid_count.S_H .. " )")
+                    if raid_count.S_H == 1 then
+                        S_H:SetColorTone("FF990000");
+                    else
+                        S_H:SetColorTone("FFFFFFFF");
+                    end
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 30
+                    local U_H = gb:CreateOrGetControl("richtext", "U_H" .. pc_name, x, y)
+                    AUTO_CAST(U_H)
+                    U_H:SetText("{ol}{s14}( " .. raid_count.U_H .. " )")
+                    if raid_count.U_H == 1 then
+                        U_H:SetColorTone("FF990000");
+                    else
+                        U_H:SetColorTone("FFFFFFFF");
+                    end
+
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 60
+                    local R_A = gb:CreateOrGetControl("richtext", "R_A" .. pc_name, x, y)
+                    AUTO_CAST(R_A)
+                    R_A:SetText("{ol}{s14}( " .. raid_count.R_A .. " )")
+                    if raid_count.R_A == 2 then
+                        R_A:SetColorTone("FF990000");
+                    else
+                        R_A:SetColorTone("FFFFFFFF");
+                    end
+
+                    x = x + 25
+                    local R_S = gb:CreateOrGetControl("richtext", "R_S" .. pc_name, x, y)
+                    AUTO_CAST(R_S)
+                    R_S:SetText("{ol}{s14}/( " .. auto_clear_count.R_S .. " )")
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local N_A = gb:CreateOrGetControl("richtext", "N_A" .. pc_name, x, y)
+                    AUTO_CAST(N_A)
+                    N_A:SetText("{ol}{s14}( " .. raid_count.N_A .. " )")
+                    if raid_count.N_A == 2 then
+                        N_A:SetColorTone("FF990000");
+                    else
+                        N_A:SetColorTone("FFFFFFFF");
+                    end
+
+                    x = x + 25
+                    local N_S = gb:CreateOrGetControl("richtext", "N_S" .. pc_name, x, y)
+                    AUTO_CAST(N_S)
+                    N_S:SetText("{ol}{s14}/( " .. auto_clear_count.N_S .. " )")
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local G_A = gb:CreateOrGetControl("richtext", "G_A" .. pc_name, x, y)
+                    AUTO_CAST(G_A)
+                    G_A:SetText("{ol}{s14}( " .. raid_count.G_A .. " )")
+                    if raid_count.G_A == 2 then
+                        G_A:SetColorTone("FF990000");
+                    else
+                        G_A:SetColorTone("FFFFFFFF");
+                    end
+
+                    x = x + 25
+                    local G_S = gb:CreateOrGetControl("richtext", "G_S" .. pc_name, x, y)
+                    AUTO_CAST(G_S)
+                    G_S:SetText("{ol}{s14}/( " .. auto_clear_count.G_S .. " )")
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local M_A = gb:CreateOrGetControl("richtext", "M_A" .. pc_name, x, y)
+                    AUTO_CAST(M_A)
+                    M_A:SetText("{ol}{s14}( " .. raid_count.M_A .. " )")
+                    if raid_count.M_A == 2 then
+                        M_A:SetColorTone("FF990000");
+                    else
+                        M_A:SetColorTone("FFFFFFFF");
+                    end
+                    x = x + 25
+                    local M_S = gb:CreateOrGetControl("richtext", "M_S" .. pc_name, x, y)
+                    AUTO_CAST(M_S)
+                    M_S:SetText("{ol}{s14}/( " .. auto_clear_count.M_S .. " )")
+
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local S_A = gb:CreateOrGetControl("richtext", "S_A" .. pc_name, x, y)
+                    AUTO_CAST(S_A)
+                    S_A:SetText("{ol}{s14}( " .. raid_count.S_A .. " )")
+                    if raid_count.S_A == 2 then
+                        S_A:SetColorTone("FF990000");
+                    else
+                        S_A:SetColorTone("FFFFFFFF");
+                    end
+                    x = x + 25
+                    local S_S = gb:CreateOrGetControl("richtext", "S_S" .. pc_name, x, y)
+                    AUTO_CAST(S_S)
+                    S_S:SetText("{ol}{s14}/( " .. auto_clear_count.S_S .. " )")
+                end
+
+                i = i + 1
+                if g.settings[tostring(check_table[i])] == 1 then
+                    x = x + 40
+                    local U_A = gb:CreateOrGetControl("richtext", "U_A" .. pc_name, x, y)
+                    AUTO_CAST(U_A)
+                    U_A:SetText("{ol}{s14}( " .. raid_count.U_A .. " )")
+                    if raid_count.U_A == 2 then
+                        U_A:SetColorTone("FF990000");
+                    else
+                        U_A:SetColorTone("FFFFFFFF");
+                    end
+                    x = x + 25
+                    local U_S = gb:CreateOrGetControl("richtext", "U_S" .. pc_name, x, y)
+                    AUTO_CAST(U_S)
+                    U_S:SetText("{ol}{s14}/( " .. auto_clear_count.U_S .. " )")
+                end
+                g.x = x
+            end
+
+            i = i + 1
+            if g.settings[tostring(check_table[#check_table])] == 1 then
+
+                local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 200, 1)
+                line:SetSkinName("labelline_def_3")
+
+                local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, g.x + 40, y - 2, 180, 20)
+                AUTO_CAST(memo)
+                memo:SetFontName("white_14_ol")
+                memo:SetTextAlign("left", "center")
+                memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
+                memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
+                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                local memoData = data.memo
+                memo:SetText(memoData)
+
+                local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 225, y - 5, 25, 25) -- 865
+                AUTO_CAST(display)
+                display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+                display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+                local check = 1
+                if not data.hide then
+                    check = 0
+                end
+                display:SetCheck(check)
+                if g.settings.display_mode == "full" then
+                    frame:Resize(g.x + 225 + 80, y + 75)
+                    -- gb:Resize(865 + 60, y + 40)
+                    gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+                else
+                    frame:Resize(g.x + 225 + 80, 545)
+                    gb:Resize(frame:GetWidth() - 20, 500)
+                    gb:EnableScrollBar(1);
+                    gb:EnableDrawFrame(1);
+                    gb:SetScrollPos(0)
+                end
+            else
+                local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
+                line:SetSkinName("labelline_def_3")
+
+                local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 40, y - 5, 25, 25) -- 865
+                AUTO_CAST(display)
+                display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+                display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+                local check = 1
+                if not data.hide then
+                    check = 0
+                end
+                display:SetCheck(check)
+                if g.settings.display_mode == "full" then
+                    frame:Resize(g.x + 40 + 80, y + 75)
+                    gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+                else
+                    frame:Resize(g.x + 40 + 80, 545)
+                    gb:Resize(frame:GetWidth() - 20, 500)
+                    gb:EnableScrollBar(1);
+                    gb:EnableDrawFrame(1);
+                    gb:SetScrollPos(0)
+                end
+            end
+        end
+        local i = 1
+
+        y = y + 25
+    end
+end]]
