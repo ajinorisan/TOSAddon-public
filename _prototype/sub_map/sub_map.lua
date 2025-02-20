@@ -297,6 +297,7 @@ function sub_map_frame_init()
     g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_set_pcicon_update")
     g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_set_pcicon_update")
     g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_set_pcicon_update")
+    g.handle_tbl = {}
 end
 
 function sub_map_set_pcicon_update(frame, msg, str, num, info)
@@ -307,7 +308,7 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
     local mapprop = session.GetCurrentMapProp()
     local handle_tbl = {}
 
-    local function sub_map_display_party_member(party_type, icon_prefix, default_icon)
+    local function sub_map_display_party_member(party_type, default_icon)
         local my_info = session.party.GetMyPartyObj(party_type)
         if not my_info then
             return
@@ -323,32 +324,34 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
 
         for i = 0, count - 1 do
             local pc_info = list:Element(i)
-            -- local pc_info = info
             local handle = pc_info:GetHandle()
 
             if my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() == pc_info:GetChannel() and my_handle ~=
                 handle and handle ~= 0 and not handle_tbl[handle] then
 
-                local icon = GET_CHILD_RECURSIVELY(gbox, icon_prefix .. handle)
+                handle_tbl[handle] = true
+                g.handle_tbl[handle] = true
 
                 local instInfo = pc_info:GetInst()
                 local worldPos = instInfo:GetPos()
                 local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
                 local x = (pos.x - 10)
                 local y = (pos.y - 10)
+                local icon = GET_CHILD_RECURSIVELY(gbox, handle)
+                if icon then
+                    if math.floor(x) ~= icon:GetX() then
+                        gbox:RemoveChild(handle)
+                        icon = gbox:CreateOrGetControl("picture", handle, x, y, 20, 20)
+                        AUTO_CAST(icon)
+                        icon:SetEnableStretch(1)
 
-                handle_tbl[handle] = {
-                    posx = x,
-                    posy = y
-                }
-                print(math.floor(x) .. ":" .. icon:GetX())
-                if not icon then
-                    icon = gbox:CreateOrGetControl("picture", icon_prefix .. handle, x, y, 20, 20)
+                    end
+                else
+                    icon = gbox:CreateOrGetControl("picture", handle, x, y, 20, 20)
+                    AUTO_CAST(icon)
+                    icon:SetEnableStretch(1)
                 end
-                AUTO_CAST(icon)
-                icon:SetEnableStretch(1)
 
-                -- icon:SetOffset(x, y)
                 local pcinfo_hp = instInfo.hp
                 if pcinfo_hp > 0 then
                     icon:SetImage(default_icon)
@@ -359,8 +362,19 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
             end
         end
     end
-    sub_map_display_party_member(PARTY_NORMAL, "pm", "Archer_party")
-    sub_map_display_party_member(PARTY_GUILD, "gm", "Wizard_party")
+    sub_map_display_party_member(PARTY_NORMAL, "Archer_party")
+    sub_map_display_party_member(PARTY_GUILD, "Wizard_party")
+
+    for handle, _ in pairs(g.handle_tbl) do
+        if not handle_tbl[handle] then
+            local icon = GET_CHILD_RECURSIVELY(gbox, handle)
+            if icon then
+                gbox:RemoveChild(handle)
+            end
+            g.handle_tbl[handle] = nil -- g.handle_tbl から削除
+        end
+    end
+
     gbox:Invalidate()
 
 end
@@ -393,7 +407,7 @@ function sub_map_set_warp_point(frame, map_name)
 
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, gbox:GetWidth(), gbox:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, 20, 20, ui.LEFT, ui.TOP, 0, 0,
-                        0, 0)
+                                                         0, 0)
                     AUTO_CAST(icon)
                     icon:SetImage(mon_prop:GetMinimapIcon())
                     icon:SetOffset(mappos.x - 10, mappos.y - 10)
