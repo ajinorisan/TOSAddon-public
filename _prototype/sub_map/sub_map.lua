@@ -27,18 +27,18 @@ function g.setup_event(my_addon, origin_func_name, my_func_name)
     local function_name = string.gsub(origin_func_name, "%.", "")
     local original_func = _G[origin_func_name]
 
-    if not _G['ADDONS']['EVENTS'] then
-        _G['ADDONS']['EVENTS'] = {}
+    if not _G["ADDONS"]["EVENTS"] then
+        _G["ADDONS"]["EVENTS"] = {}
     end
 
-    if not _G['ADDONS']['EVENTS']['ARGS'] then
-        _G['ADDONS']['EVENTS']['ARGS'] = {}
+    if not _G["ADDONS"]["EVENTS"]["ARGS"] then
+        _G["ADDONS"]["EVENTS"]["ARGS"] = {}
     end
 
     local function hooked_function(...)
         local args = {...}
         local results = {original_func(...)}
-        _G['ADDONS']['EVENTS']['ARGS'][function_name] = args
+        _G["ADDONS"]["EVENTS"]["ARGS"][function_name] = args
         imcAddOn.BroadMsg(function_name)
         return table.unpack(results)
     end
@@ -48,7 +48,7 @@ function g.setup_event(my_addon, origin_func_name, my_func_name)
 end
 
 function g.get_event_args(event_msg)
-    return table.unpack(_G['ADDONS']['EVENTS']['ARGS'][event_msg])
+    return table.unpack(_G["ADDONS"]["EVENTS"]["ARGS"][event_msg])
 end
 
 function g.mkdir_new_folder()
@@ -147,11 +147,11 @@ function SUB_MAP_ON_INIT(addon, frame)
 
     local map_type = g.get_map_type()
     if map_type == "City" or map_type == "Field" or map_type == "Dungeon" then
-        addon:RegisterMsg('GAME_START_3SEC', 'sub_map_frame_init')
+        addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
     end
-    --[[addon:RegisterMsg('GUILD_INFO_UPDATE', 'sub_map_update_member_guild')
-    addon:RegisterMsg('PARTY_INST_UPDATE', 'sub_map_update_member_party')
-    addon:RegisterMsg('PARTY_UPDATE', 'sub_map_update_member_party')]]
+    --[[addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
+    addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
+    addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")]]
 end
 
 function sub_map_monster(frame, msg, argStr, argNum, info)
@@ -163,7 +163,7 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
 
     local mon_pic = GET_CHILD_RECURSIVELY(frame, ctrl_name)
     if not mon_pic then
-        mon_pic = gbox:CreateOrGetControl('picture', ctrl_name, 0, 0, 20, 20)
+        mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, 20, 20)
     end
     AUTO_CAST(mon_pic)
 
@@ -191,8 +191,8 @@ function sub_map_monpic_auto_update(mon_pic)
         local mapprop = session.GetCurrentMapProp()
         local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
         local actor_pos = actor:GetPos()
-        local mon_cls = GetClassByType('Monster', actor:GetType())
-        if TryGetProp(mon_cls, 'MonRank', 'None') == 'Boss' then
+        local mon_cls = GetClassByType("Monster", actor:GetType())
+        if TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
             local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
             local x = (pos.x - mon_pic:GetWidth() / 2)
             local y = (pos.y - mon_pic:GetHeight() / 2)
@@ -205,6 +205,26 @@ function sub_map_monpic_auto_update(mon_pic)
     end
 
     return 1
+end
+
+function sub_map_frame_toggle(frame, ctrl)
+
+    if g.settings.visible == 1 then
+        g.settings.visible = 0
+    else
+        g.settings.visible = 1
+    end
+    g.save_settings()
+    sub_map_frame_init()
+    return
+end
+
+function sub_map_frame_layer_change(frame, ctrl, str, num)
+    if str == "ON" then
+        frame:SetLayerLevel(32)
+        -- frame:SetSkinName("chat_window")
+        -- frame:SetAlpha(30)
+    end
 end
 
 function sub_map_frame_init()
@@ -222,7 +242,7 @@ function sub_map_frame_init()
     end
     frame:SetEventScript(ui.LBUTTONUP, "sub_map_frame_end_drag")
 
-    frame:SetSkinName('None')
+    frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
     frame:SetPos(g.settings.x, g.settings.y)
     frame:SetLayerLevel(12)
@@ -238,18 +258,6 @@ function sub_map_frame_init()
     display:SetEventScript(ui.LBUTTONUP, "sub_map_frame_toggle")
     display:SetTextTooltip("{ol}Display / hide")
 
-    local function sub_map_frame_toggle(frame, ctrl)
-
-        if g.settings.visible == 1 then
-            g.settings.visible = 0
-        else
-            g.settings.visible = 1
-        end
-        g.save_settings()
-        sub_map_frame_init()
-        return
-    end
-
     if g.settings.visible == 1 then
         display:SetImage("btn_minus");
         frame:Resize(220, 220)
@@ -257,14 +265,6 @@ function sub_map_frame_init()
         display:SetImage("btn_plus");
         frame:Resize(220, 20)
         return
-    end
-
-    local function sub_map_frame_layer_change(frame, ctrl, str, num)
-        if str == "ON" then
-            frame:SetLayerLevel(32)
-            -- frame:SetSkinName('chat_window')
-            -- frame:SetAlpha(30)
-        end
     end
 
     local gbox = frame:CreateOrGetControl("groupbox", "gbox", 200, 200, ui.LEFT, ui.BOTTOM, 0, 20, 0, 0)
@@ -291,9 +291,78 @@ function sub_map_frame_init()
     sub_map_MAP_CHARACTER_UPDATE(frame)
     sub_map_set_warp_point(frame, map_name)
 
-    g.addon:RegisterMsg('MAP_CHARACTER_UPDATE', 'sub_map_MAP_CHARACTER_UPDATE')
-    g.addon:RegisterMsg('MON_MINIMAP', 'sub_map_monster')
-    g.addon:RegisterMsg('FPS_UPDATE', 'sub_map_set_pcicon')
+    g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "sub_map_MAP_CHARACTER_UPDATE")
+    g.addon:RegisterMsg("MON_MINIMAP", "sub_map_monster")
+    -- g.addon:RegisterMsg("FPS_UPDATE", "sub_map_set_pcicon")
+    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_set_pcicon_update")
+    g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_set_pcicon_update")
+    g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_set_pcicon_update")
+end
+
+function sub_map_set_pcicon_update(frame, msg, str, num, info)
+
+    local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
+    local map_pic = frame:GetChildRecursively("map_pic")
+    local mapprop = session.GetCurrentMapProp()
+    local handle_tbl = {}
+
+    local function sub_map_display_party_member(party_type, icon_prefix, default_icon)
+        local my_info = session.party.GetMyPartyObj(party_type)
+        if not my_info then
+            return
+        end
+
+        local my_handle = session.GetMyHandle()
+        local list = session.party.GetPartyMemberList(party_type)
+        local count = list:Count()
+
+        if count == 1 then
+            return
+        end
+
+        for i = 0, count - 1 do
+            local pc_info = list:Element(i)
+            -- local pc_info = info
+            local handle = pc_info:GetHandle()
+
+            if my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() == pc_info:GetChannel() and my_handle ~=
+                handle and handle ~= 0 and not handle_tbl[handle] then
+
+                local icon = GET_CHILD_RECURSIVELY(gbox, icon_prefix .. handle)
+
+                local instInfo = pc_info:GetInst()
+                local worldPos = instInfo:GetPos()
+                local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
+                local x = (pos.x - 10)
+                local y = (pos.y - 10)
+
+                handle_tbl[handle] = {
+                    posx = x,
+                    posy = y
+                }
+                print(math.floor(x) .. ":" .. icon:GetX())
+                if not icon then
+                    icon = gbox:CreateOrGetControl("picture", icon_prefix .. handle, x, y, 20, 20)
+                end
+                AUTO_CAST(icon)
+                icon:SetEnableStretch(1)
+
+                -- icon:SetOffset(x, y)
+                local pcinfo_hp = instInfo.hp
+                if pcinfo_hp > 0 then
+                    icon:SetImage(default_icon)
+                else
+                    icon:SetImage("die_party")
+                end
+
+            end
+        end
+    end
+    sub_map_display_party_member(PARTY_NORMAL, "pm", "Archer_party")
+    sub_map_display_party_member(PARTY_GUILD, "gm", "Wizard_party")
+    gbox:Invalidate()
+
 end
 
 function sub_map_set_warp_point(frame, map_name)
@@ -307,7 +376,7 @@ function sub_map_set_warp_point(frame, map_name)
     for i = 0, count - 1 do
         local mon_prop = mongens:Element(i)
         local icon_name = mon_prop:GetMinimapIcon()
-        if icon_name == 'minimap_portal' or icon_name == 'minimap_erosion' then
+        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
             local gen_list = mon_prop.GenList
             local gen_count = gen_list:Count()
             for j = 0, gen_count - 1 do
@@ -324,7 +393,7 @@ function sub_map_set_warp_point(frame, map_name)
 
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, gbox:GetWidth(), gbox:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, 20, 20, ui.LEFT, ui.TOP, 0, 0,
-                                                         0, 0)
+                        0, 0)
                     AUTO_CAST(icon)
                     icon:SetImage(mon_prop:GetMinimapIcon())
                     icon:SetOffset(mappos.x - 10, mappos.y - 10)
@@ -382,154 +451,49 @@ function sub_map_set_pcicon(frame, msg, str, num)
 
             if my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() == pc_info:GetChannel() and my_handle ~=
                 handle and handle ~= 0 and not handle_tbl[handle] then
-
+                -- print(handle)
                 local actor = world.GetActor(handle)
+
                 if not actor then
                     local icon = GET_CHILD_RECURSIVELY(frame, icon_prefix .. handle)
+
                     if icon then
-                        gbox:RemoveChild(icon:GetName())
+                        gbox:RemoveChild(icon_prefix .. handle)
                     end
-                    return
-                end
 
-                handle_tbl[handle] = true
-                local icon = GET_CHILD_RECURSIVELY(frame, icon_prefix .. handle)
-                if not icon then
-                    icon = gbox:CreateOrGetControl("picture", icon_prefix .. handle, 0, 0, 20, 20)
-                end
-                AUTO_CAST(icon)
-                icon:SetEnableStretch(1)
-
-                local actor_pos = actor:GetPos()
-                local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
-                local x = (pos.x - icon:GetWidth() / 2)
-                local y = (pos.y - icon:GetHeight() / 2)
-                icon:SetOffset(x, y)
-                local inst_info = pc_info:GetInst()
-                local pcinfo_hp = inst_info.hp
-                if pcinfo_hp > 0 then
-                    icon:SetImage(default_icon)
                 else
-                    icon:SetImage('die_party')
+                    handle_tbl[handle] = true
+                    local icon = GET_CHILD_RECURSIVELY(frame, icon_prefix .. handle)
+                    if not icon then
+                        icon = gbox:CreateOrGetControl("picture", icon_prefix .. handle, 0, 0, 20, 20)
+                    end
+                    AUTO_CAST(icon)
+                    icon:SetEnableStretch(1)
+
+                    local actor_pos = actor:GetPos()
+                    local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+                    local x = (pos.x - icon:GetWidth() / 2)
+                    local y = (pos.y - icon:GetHeight() / 2)
+                    icon:SetOffset(x, y)
+                    local inst_info = pc_info:GetInst()
+                    local pcinfo_hp = inst_info.hp
+                    if pcinfo_hp > 0 then
+                        icon:SetImage(default_icon)
+                    else
+                        icon:SetImage("die_party")
+                    end
                 end
+
             end
         end
     end
-    sub_map_display_party_member(PARTY_NORMAL, "pm", 'Archer_party')
-    sub_map_display_party_member(PARTY_GUILD, "gm", 'Wizard_party')
+    sub_map_display_party_member(PARTY_NORMAL, "pm", "Archer_party")
+    sub_map_display_party_member(PARTY_GUILD, "gm", "Wizard_party")
     gbox:Invalidate()
+
 end
 
---[[function sub_map_set_pcicon(frame, msg, str, num)
-
-    local frame = ui.GetFrame("sub_map")
-    local gbox = frame:GetChildRecursively("gbox")
-    local map_pic = frame:GetChildRecursively("map_pic")
-    local mapprop = session.GetCurrentMapProp()
-    local handletbl = {}
-
-    local myInfo = session.party.GetMyPartyObj(PARTY_NORMAL)
-
-    if myInfo then
-
-        local myhandle = session.GetMyHandle()
-        local list = session.party.GetPartyMemberList(PARTY_NORMAL)
-        local count = list:Count()
-
-        if count == 1 then
-            return
-        end
-
-        for i = 0, count - 1 do
-            local pcInfo = list:Element(i)
-            local handle = pcInfo:GetHandle()
-
-            if myInfo:GetMapID() == pcInfo:GetMapID() and myInfo:GetChannel() == pcInfo:GetChannel() and myhandle ~=
-                handle and handle ~= 0 then
-
-                local actor = world.GetActor(handle)
-
-                if actor ~= nil then
-
-                    handletbl[handle] = true
-                    -- gbox:RemoveChild(pcInfo:GetName())
-                    local pm_icon = GET_CHILD_RECURSIVELY(frame, "pm" .. handle)
-                    if not pm_icon then
-                        pm_icon = gbox:CreateOrGetControl("picture", "pm" .. handle, 0, 0, 20, 20)
-                    end
-                    AUTO_CAST(pm_icon)
-                    pm_icon:SetEnableStretch(1)
-
-                    local actorPos = actor:GetPos()
-
-                    local pos = mapprop:WorldPosToMinimapPos(actorPos, map_pic:GetWidth(), map_pic:GetHeight())
-                    local x = (pos.x - pm_icon:GetWidth() / 2)
-                    local y = (pos.y - pm_icon:GetHeight() / 2)
-                    pm_icon:SetOffset(x, y)
-                    local instInfo = pcInfo:GetInst()
-                    local pcinfo_hp = instInfo.hp
-                    if pcinfo_hp > 0 then
-                        pm_icon:SetImage('Archer_party')
-                    else
-                        pm_icon:SetImage('die_party')
-                    end
-                end
-            end
-        end
-    end
-
-    local myInfo = session.party.GetMyPartyObj(PARTY_GUILD)
-
-    if myInfo then
-
-        local myhandle = session.GetMyHandle()
-        local list = session.party.GetPartyMemberList(PARTY_GUILD)
-        local count = list:Count()
-
-        if count == 1 then
-            return
-        end
-
-        for i = 0, count - 1 do
-            local pcInfo = list:Element(i)
-            local handle = pcInfo:GetHandle()
-
-            if myInfo:GetMapID() == pcInfo:GetMapID() and myInfo:GetChannel() == pcInfo:GetChannel() and myhandle ~=
-                handle and handle ~= 0 and not handletbl[handle] then
-
-                local actor = world.GetActor(handle)
-
-                if actor ~= nil then
-
-                    handletbl[handle] = true
-                    -- gbox:RemoveChild(pcInfo:GetName())
-                    local gm_icon = GET_CHILD_RECURSIVELY(frame, "gm" .. handle)
-                    if not gm_icon then
-                        gm_icon = gbox:CreateOrGetControl("picture", "gm" .. handle, 0, 0, 20, 20)
-                    end
-                    AUTO_CAST(gm_icon)
-                    gm_icon:SetEnableStretch(1)
-
-                    local actorPos = actor:GetPos()
-
-                    local pos = mapprop:WorldPosToMinimapPos(actorPos, map_pic:GetWidth(), map_pic:GetHeight())
-                    local x = (pos.x - gm_icon:GetWidth() / 2)
-                    local y = (pos.y - gm_icon:GetHeight() / 2)
-                    gm_icon:SetOffset(x, y)
-                    local instInfo = pcInfo:GetInst()
-                    local pcinfo_hp = instInfo.hp
-                    if pcinfo_hp > 0 then
-                        gm_icon:SetImage('Wizard_party')
-                    else
-                        gm_icon:SetImage('die_party')
-                    end
-                end
-            end
-        end
-    end
-end]]
-
-function sub_map_update_member_party(frame, msg, arg, type, info)
+--[[function sub_map_update_member_party(frame, msg, arg, type, info)
 
     if session.world.IsIntegrateServer() == true then
         DESTROY_GUILD_MEMBER_ICON()
@@ -574,9 +538,9 @@ function sub_map_update_member_party(frame, msg, arg, type, info)
                         pm_icon:SetOffset(x, y)
                         local pcinfo_hp = instInfo.hp
                         if pcinfo_hp > 0 then
-                            pm_icon:SetImage('Archer_party')
+                            pm_icon:SetImage("Archer_party")
                         else
-                            pm_icon:SetImage('die_party')
+                            pm_icon:SetImage("die_party")
                         end
                     end
                 end
@@ -609,12 +573,6 @@ function sub_map_update_member_guild(frame, msg, arg, type, info)
             if pcInfo:GetHandle() ~= 0 then
                 local show_flag = true
                 if pcInfo:GetHandle() ~= session.GetMyHandle() then
-                    --[[local actor = world.GetActor(pcInfo:GetHandle())
-                    print(tostring(actor))
-                    if actor ~= nil and session.friendly_fight.IsFriendlyFightState() == true and
-                        actor:IsVisiableState() == false then
-                        show_flag = false
-                    end]]
 
                     if show_flag == true then
                         local gbox = frame:GetChildRecursively("gbox")
@@ -644,16 +602,16 @@ function sub_map_update_member_guild(frame, msg, arg, type, info)
                                 if party_pcInfo then
                                     local party_pc_name = party_pcInfo:GetName()
                                     if pcInfo:GetName() == party_pc_name then
-                                        gm_icon:SetImage('Archer_party')
+                                        gm_icon:SetImage("Archer_party")
                                         alreadySet = true -- 設定されたことを記録
                                     end
                                 end
                             end
                             if not alreadySet then
-                                gm_icon:SetImage('Wizard_party')
+                                gm_icon:SetImage("Wizard_party")
                             end
                         else
-                            gm_icon:SetImage('die_party')
+                            gm_icon:SetImage("die_party")
                         end
                     end
                 end
@@ -698,7 +656,7 @@ end
     end
 
     local instInfo = pcInfo:GetInst()
-    local map_partymember_iconset = frame:CreateOrGetControlSet('map_partymember_iconset', name, 30, 30)
+    local map_partymember_iconset = frame:CreateOrGetControlSet("map_partymember_iconset", name, 30, 30)
     map_partymember_iconset:SetTooltipType("partymap")
     map_partymember_iconset:SetTooltipArg(pcInfo:GetName(), type)
 
@@ -713,15 +671,15 @@ function sub_map_SET_PM_MINIMAP_ICON(map_partymember_iconset, pcHP, aid)
     local pm_icon = GET_CHILD_RECURSIVELY(map_partymember_iconset, "pm_icon")
     if pcHP > 0 then
         if session.party.GetPartyMemberInfoByAID(PARTY_NORMAL, aid) ~= nil then
-            pm_icon:SetImage('Archer_party')
+            pm_icon:SetImage("Archer_party")
         elseif session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid) ~= nil then
 
-            pm_icon:SetImage('Wizard_party')
+            pm_icon:SetImage("Wizard_party")
         else
-            pm_icon:SetImage('die_party')
+            pm_icon:SetImage("die_party")
         end
     else
-        pm_icon:SetImage('die_party')
+        pm_icon:SetImage("die_party")
     end
 end]]
 
