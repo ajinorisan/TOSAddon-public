@@ -23,11 +23,12 @@
 -- v1.2.2 表示するレイドを選べる様に。UI変更
 -- v1.2.3 レイド選択の初期設定が出来ていなかったので、修正
 -- v1.2.4 レダニア追加。表示崩れるバグ直した。
--- v1.2.5 メモ蘭バグってたの修正
+-- v1.2.5 メモ欄バグってたの修正
+-- v1.2.6 再修正。。。
 local addonName = "indun_list_viewer"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.5"
+local ver = "1.2.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -896,26 +897,27 @@ function indun_list_viewer_frame_open(frame)
                     AUTO_CAST(U_S)
                     U_S:SetText("{ol}{s14}/( " .. auto_clear_count.U_S .. " )")
                 end
+
+                if g.settings[tostring(check_table[#check_table])] == 1 then
+
+                    local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, x + 40, y - 2, 180, 20)
+                    AUTO_CAST(memo)
+                    memo:SetFontName("white_14_ol")
+                    memo:SetTextAlign("left", "center")
+                    memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
+                    memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
+                    memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                    local memoData = data.memo
+                    memo:SetText(memoData)
+
+                    x = x + 180
+                end
                 g.x = x
             end
 
             i = i + 1
             local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
             line:SetSkinName("labelline_def_3")
-
-            if g.settings[tostring(check_table[#check_table])] == 1 then
-
-                local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, g.x + 40, y - 2, 180, 20)
-                AUTO_CAST(memo)
-                memo:SetFontName("white_14_ol")
-                memo:SetTextAlign("left", "center")
-                memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
-                memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
-                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
-                local memoData = data.memo
-                memo:SetText(memoData)
-                g.x = g.x + 180
-            end
 
             local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 50, y - 5, 25, 25) -- 865
             AUTO_CAST(display)
