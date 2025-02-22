@@ -1045,6 +1045,8 @@ The author of this addon is Kiicchanさん
 
 　
 
+v1.1.5 mapinfoのエラー処理追加
+
 v1.1.4 バグってた。直した。250211
 
 v1.1.3 フレーム出る出ないのコードを修正。

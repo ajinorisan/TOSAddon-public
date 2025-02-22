@@ -8,10 +8,11 @@
 -- v1.1.2 インフォフレームの横幅調整。TP画面出してもフレーム復帰するように
 -- v1.1.3 チャレンジとかで出ない様に、再度見直し。
 -- v1.1.4 フレームのxmlにAutoOpen書いた。謎にzoneInsts取得してバグってたの直した
+-- v1.1.5 mapinfoのエラー処理追加
 local addonName = "KLCOUNT"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -48,17 +49,28 @@ function KLCOUNT_LOADSETTINGS()
 end
 
 function klcount_information_context(frame, ctrl, str, num)
-
     local context = ui.CreateContextMenu("klcount_context", "{ol}Map Info", 0, 0, 200, 0)
 
     for i = 1, #g.settings.map_ids do
-
         local map_file_location = string.format("../addons/%s/%s.json", addonNameLower, g.settings.map_ids[i])
-        local map_data = acutil.loadJSON(map_file_location);
+        local map_data, err = acutil.loadJSON(map_file_location);
 
-        if next(map_data.get_items) ~= nil then
+        if err then
+            -- エラーが発生した場合
+            -- CHAT_SYSTEM("Error loading map data for " .. g.settings.map_ids[i] .. ": " .. err)
 
-            local display_text = GetClassByType("Map", g.settings.map_ids[i]).Name
+            local map_name = GetClassByType("Map", g.settings.map_ids[i]).ClassName
+            map_data = {
+                map_name = map_name,
+                stay_time = 0,
+                kill_count = 0,
+                get_items = {}
+            }
+
+            acutil.saveJSON(map_file_location, map_data)
+            -- スキップして次のループに進む
+        elseif next(map_data.get_items) ~= nil then
+            local display_text = g.settings.map_ids[i] .. " " .. GetClassByType("Map", g.settings.map_ids[i]).Name
             local script = ui.AddContextMenuItem(context, display_text,
                 string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
         else
@@ -69,7 +81,6 @@ function klcount_information_context(frame, ctrl, str, num)
                 kill_count = 0,
                 get_items = {}
             }
-
             acutil.saveJSON(map_file_location, map_data)
         end
     end
