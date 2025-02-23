@@ -13,10 +13,11 @@
 -- v1.1.7 コレクション強化520に対応。金床の挙動安定化再挑戦。
 -- v1.1.8 コレクション強化520に対応。1.1.6の挙動のまま
 -- v1.1.9 金床はなんでもノーチェックに。インベントリにonoff付けた。クエとかでバグるらしいので、街以外ではOFFに。アイテム連続使用のフレーム作った
+-- v1.2.0 アイテム連続使用フレームのバグ修正
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.9"
+local ver = "1.2.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -473,8 +474,35 @@ end
 
 function nocheck_inventory_continuous_use_frame_close(frame, ctrl, str, num)
     local frame = ui.GetFrame(addonNameLower .. "continuous_use")
+    local item_slot = GET_CHILD(frame, "item_slot")
+    AUTO_CAST(item_slot)
+    item_slot:SetUserValue("CLASS_ID", 0)
     frame:ShowWindow(0)
     INVENTORY_SET_CUSTOM_RBTNDOWN('None')
+end
+
+function nocheck_inventory_continuous_use_count_result(frame_name, clsid)
+
+    local frame = ui.GetFrame(frame_name)
+
+    local item_slot = GET_CHILD(frame, "item_slot")
+    AUTO_CAST(item_slot)
+    local inv_item = session.GetInvItemByType(clsid)
+    if not inv_item then
+        nocheck_inventory_continuous_use_frame_close(frame)
+        return
+    end
+    local count = tonumber(inv_item.count)
+    if g.count ~= count then
+        item_slot:SetText("{s18}{ol}{b}" .. count, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
+        frame:Invalidate()
+        nocheck_inventory_continuous_use(frame)
+        return
+
+    else
+        nocheck_inventory_continuous_use_frame_close(frame)
+        return
+    end
 end
 
 function nocheck_inventory_continuous_use_icon_use(frame)
@@ -484,6 +512,7 @@ function nocheck_inventory_continuous_use_icon_use(frame)
     AUTO_CAST(item_slot)
     local clsid = item_slot:GetUserIValue("CLASS_ID")
     if clsid == 0 then
+        frame:ShowWindow(0)
         return
     end
 
@@ -494,9 +523,10 @@ function nocheck_inventory_continuous_use_icon_use(frame)
         SET_SLOT_ITEM_CLS(item_slot, item_cls);
         inv_item = session.GetInvItemByType(clsid)
         local count = tonumber(inv_item.count)
-        item_slot:SetText("{s18}{ol}{b}" .. count, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
-        frame:Invalidate()
-        return 1
+
+        local result = ReserveScript(string.format("nocheck_inventory_continuous_use_count_result('%s',%d)",
+            frame:GetName(), clsid), 1.0)
+
     else
         local item_cls = GetClassByType("Item", clsid)
         SET_SLOT_ITEM_CLS(item_slot, item_cls);
@@ -504,7 +534,7 @@ function nocheck_inventory_continuous_use_icon_use(frame)
         item_slot:SetText("{s18}{ol}{b}" .. 0, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
         frame:Invalidate()
         frame:RunUpdateScript("nocheck_inventory_continuous_use_frame_close", 1.0);
-        return 0
+        return
     end
 
 end
@@ -513,12 +543,15 @@ function nocheck_inventory_continuous_use(frame, ctrl, str, num)
     local frame = ui.GetFrame(addonNameLower .. "continuous_use")
     local item_slot = GET_CHILD(frame, "item_slot")
     local clsid = item_slot:GetUserIValue("CLASS_ID")
+    -- session.ResetItemList();
     local inv_item = session.GetInvItemByType(clsid)
+    g.count = tonumber(inv_item.count)
 
     if inv_item ~= nil then
         local item_cls = GetClassByType("Item", clsid)
         SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
-        frame:RunUpdateScript("nocheck_inventory_continuous_use_icon_use", 1.0);
+        nocheck_inventory_continuous_use_icon_use(frame)
+        -- frame:RunUpdateScript("nocheck_inventory_continuous_use_icon_use", 1.0);
     end
 end
 

@@ -3,10 +3,11 @@
 -- v1.0.4 コード見直し。装備右クリック時に素材もセットする様に変更。
 -- v1.0.5 補助剤スロットのエラー修正。
 -- v1.0.6 バグ再修正
+-- v1.0.7 素材が丁度0になる場合の挙動おかしかったの修正
 local addonName = "CONTINUERF"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -281,22 +282,22 @@ function CONTINUERF__GODDESS_MGR_REFORGE_REINFORCE_EXEC(frame)
             local inv_count = GET_CHILD_RECURSIVELY(ctrlset, 'invcount')
             local need_count = inv_count:GetTextByKey('need')
             local have_count = inv_count:GetTextByKey('have')
-            for i = 0, mat_bg:GetChildCount() - 1 do
-                local ctrlset = GET_CHILD(mat_bg, 'GODDESS_REINF_MAT_' .. i)
-                if tonumber(need_count) > tonumber(have_count) then
 
-                    CONTINUERF_END_OF_REINFORCE(frame)
+            local ctrlset = GET_CHILD(mat_bg, 'GODDESS_REINF_MAT_' .. i)
+            if tonumber(need_count) > tonumber(have_count) then
 
-                    return 0
-                end
+                CONTINUERF_END_OF_REINFORCE(frame)
+
+                return 0
+            elseif tonumber(need_count) == tonumber(have_count) then
+                ctrlset:SetUserValue('MATERIAL_IS_SELECTED', "select_clear")
             end
 
             local mat_name = ctrlset:GetUserValue('ITEM_NAME')
 
             if IS_ACCOUNT_COIN(mat_name) == false then
                 local mat_item = session.GetInvItemByName(mat_name)
-                local mat_guid = mat_item:GetIESID()
-                -- local mat_count = slot:GetEventScriptArgString(ui.DROP)
+                local mat_guid = mat_item:GetIESID() -- local mat_count = slot:GetEventScriptArgString(ui.DROP)
                 local mat_count = tonumber(have_count)
                 session.AddItemID(mat_guid, tonumber(mat_count))
 

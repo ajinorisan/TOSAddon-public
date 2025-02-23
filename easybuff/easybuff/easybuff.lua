@@ -4,10 +4,11 @@
 -- v2.0.5 食事の時バグってたの修正。
 -- v2.0.6 修正したと思ったけど修正出来てなかったのを修正
 -- v2.0.7 バフ屋も付与時確認追加。
+-- v2.0.8 自分がメンテ屋開店時のバグ修正
 local addonName = "EASYBUFF"
 local addonNameLower = string.lower(addonName)
 local author = "Kiicchan"
-local version = "2.0.7"
+local version = "2.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -145,6 +146,11 @@ function EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL()
 
     if g.settings.useHook ~= 1 then
 
+        return
+    end
+
+    local frame = ui.GetFrame("itembuffopen")
+    if session.GetMyHandle() == frame:GetUserIValue("HANDLE") then
         return
     end
     ReserveScript("EASYBUFF_SQUIRE_BUFF_EQUIP_CTRL_DELAY()", 0.5)
