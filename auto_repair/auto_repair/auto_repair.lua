@@ -9,20 +9,20 @@
 -- v1.1.0 520アップデート対応
 -- v1.1.1 ロードが早すぎて、セッティングファイルがnullになる不具合修正
 -- v1.1.2 530update
+-- v1.1.3 セッティングファイルがnullになるの修正
 local addonName = "AUTO_REPAIR"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-g.settingsFileLoc = string.format('../addons/%s/new_settings.json', addonNameLower)
+g.settingsFileLoc = string.format('../addons/%s/settings_2502.json', addonNameLower)
 
 local acutil = require("acutil")
-
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
@@ -75,8 +75,8 @@ function AUTO_REPAIR_END_DRAG(frame, ctrl, argStr, argNum)
         g.settings.x = frame:GetX();
         g.settings.y = frame:GetY();
     elseif frame_name == "auto_repair_setting" then
-        g.settings.setting_x = frame:GetX();
-        g.settings.setting_y = frame:GetY();
+        g.settings.setx = frame:GetX();
+        g.settings.sety = frame:GetY();
     end
     AUTO_REPAIR_SAVE_SETTINGS()
 end
@@ -349,12 +349,7 @@ end
 
 function AUTO_REPAIR_LOADSETTINGS()
 
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
+    local settings = acutil.loadJSON(g.settingsFileLoc)
 
     if not settings then
 
@@ -366,15 +361,8 @@ function AUTO_REPAIR_LOADSETTINGS()
             x = 680,
             y = 660
         }
-
+        AUTO_REPAIR_SAVE_SETTINGS()
     end
-
-    if not settings.buy_quantity then
-        settings.buy_quantity = 50
-    elseif not settings.msg_quantity then
-        settings.msg_quantity = 20
-    end
-    AUTO_REPAIR_SAVE_SETTINGS()
     g.settings = settings
 end
 
