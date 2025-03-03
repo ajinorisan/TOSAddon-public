@@ -146,10 +146,14 @@ function SUB_MAP_ON_INIT(addon, frame)
     g.load_settings()
 
     local map_type = g.get_map_type()
-    if map_type == "City" or map_type == "Field" or map_type == "Dungeon" then
+    if map_type ~= "Instance" then
         addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
     end
-    --[[addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
+
+    --[[if map_type == "City" or map_type == "Field" or map_type == "Dungeon" then
+        addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
+    end
+    addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
     addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
     addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")]]
 end

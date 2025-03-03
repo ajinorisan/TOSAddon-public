@@ -221,7 +221,7 @@ function characters_item_serch_char_data(frame, msg, str, num)
 
 end
 
---[[function characters_item_serch_SELECT_BARRACK_LAYER(frame, ctrl, arg, layer)
+function characters_item_serch_SELECT_BARRACK_LAYER(frame, ctrl, arg, layer)
     characters_item_serch_SELECT_BARRACK_LAYER_(frame, ctrl, arg, layer)
 end
 
@@ -273,14 +273,7 @@ function characters_item_serch_SELECT_BARRACK_LAYER_(frame, ctrl, arg, layer)
     AddLuaTimerFunc('reset_moving_barrack_layer', 5000, 0) -- 5초뒤에 강제로 해제.
 
 end
-g.setup_hook(characters_item_serch_SELECT_BARRACK_LAYER, 'SELECT_BARRACK_LAYER')]]
-
-function characters_item_serch_enable_layer_btn(frame)
-    local frame = ui.GetFrame('barrack_charlist')
-    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
-    g.layer = layer
-end
-
+g.setup_hook(characters_item_serch_SELECT_BARRACK_LAYER, 'SELECT_BARRACK_LAYER')
 function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -294,9 +287,8 @@ function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
     g.layer = g.layer or 1
     -- CHAT_SYSTEM(tostring(g.layer))
 
-    g.setup_event(addon, "enable_layer_btn", "characters_item_serch_enable_layer_btn")
     -- g.setup_event(addon, 'SELECT_BARRACK_LAYER', 'characters_item_serch_SELECT_BARRACK_LAYER')
-    ----acutil.setupEvent(addon, "SELECT_BARRACK_LAYER", "characters_item_serch_SELECT_BARRACK_LAYER");
+    acutil.setupEvent(addon, "SELECT_BARRACK_LAYER", "characters_item_serch_SELECT_BARRACK_LAYER");
 
     g.setup_event(addon, 'GAME_TO_BARRACK', 'characters_item_serch_inventory_save_list')
     g.setup_event(addon, 'GAME_TO_LOGIN', 'characters_item_serch_inventory_save_list')
