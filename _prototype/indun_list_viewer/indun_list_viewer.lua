@@ -280,7 +280,6 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
         -- g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
         addon:RegisterMsg('GAME_START', "indun_list_viewer_load_settings")
-
         addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_raid_count")
         acutil.setupEvent(addon, "enable_layer_btn", "indun_list_viewer_enable_layer_btn")
         acutil.setupEvent(addon, "APPS_TRY_LEAVE", "indun_list_viewer_get_raid_count")
@@ -303,7 +302,7 @@ function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
     g.SetupHook(indun_list_viewer_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
     g.SetupHook(indun_list_viewer_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
-    g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+    -- g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
 end
 
 function indun_list_viewer_BARRACK_START_FRAME_OPEN(frame)
@@ -371,12 +370,12 @@ function indun_list_viewer_TOGAME()
         indun_list_viewer_RETRY()
         return
     end
-
-    indun_list_viewer_BARRACK_TO_GAME()
+    BARRACK_TO_GAME()
+    -- indun_list_viewer_BARRACK_TO_GAME()
 
 end
 
-function indun_list_viewer_BARRACK_TO_GAME()
+--[[function indun_list_viewer_BARRACK_TO_GAME()
     indun_list_viewer_BARRACK_TO_GAME_()
 end
 
@@ -415,7 +414,7 @@ function indun_list_viewer_BARRACK_TO_GAME_()
         local key = channels:GetSelItemIndex();
         app.BarrackToGame(key);
     end
-end
+end]]
 
 function indun_list_viewer_TRY_MOVE_BARRACK()
     indun_list_viewer_TRY_MOVE_BARRACK_()
