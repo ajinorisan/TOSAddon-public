@@ -146,12 +146,14 @@ function SUB_MAP_ON_INIT(addon, frame)
     g.load_settings()
 
     local map_type = g.get_map_type()
-    if map_type == "City" or map_type == "Field" or map_type == "Dungeon" then
+
+    if map_type ~= "Instance" then
         addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
+        addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
+        addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
+        addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")
     end
-    --[[addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
-    addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
-    addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")]]
+
 end
 
 function sub_map_monster(frame, msg, argStr, argNum, info)
@@ -227,6 +229,23 @@ function sub_map_frame_layer_change(frame, ctrl, str, num)
     end
 end
 
+function sub_map_frame_map_link(frame, ctrl)
+
+    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
+        return;
+    end
+
+    local x, y = GET_LOCAL_MOUSE_POS(ctrl);
+
+    local cur_map_id = session.GetMapID()
+    local map_cls = GetClassByType("Map", cur_map_id)
+    local map_name = map_cls.ClassName
+
+    local mapprop = geMapTable.GetMapProp(map_name);
+    local worldPos = mapprop:MinimapPosToWorldPos(x, y, ctrl:GetWidth(), ctrl:GetHeight());
+    LINK_MAP_POS(map_name, worldPos.x, worldPos.y);
+end
+
 function sub_map_frame_init()
 
     local frame = ui.GetFrame("sub_map")
@@ -260,16 +279,18 @@ function sub_map_frame_init()
 
     if g.settings.visible == 1 then
         display:SetImage("btn_minus");
-        frame:Resize(220, 220)
+        frame:Resize(230, 230)
     else
         display:SetImage("btn_plus");
-        frame:Resize(220, 20)
+        frame:Resize(230, 20)
         return
     end
 
     local gbox = frame:CreateOrGetControl("groupbox", "gbox", 200, 200, ui.LEFT, ui.BOTTOM, 0, 20, 0, 0)
     gbox:SetEventScript(ui.MOUSEON, "sub_map_frame_layer_change")
     gbox:SetEventScriptArgString(ui.MOUSEON, "ON")
+
+    gbox:SetEventScript(ui.LBUTTONDOWN, "sub_map_frame_map_link")
     -- gbox:SetEventScript(ui.MOUSEOFF, "sub_map_frame_layer_change")
     -- gbox:SetEventScriptArgString(ui.MOUSEOFF, "OFF")
 
@@ -293,7 +314,7 @@ function sub_map_frame_init()
 
     g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "sub_map_MAP_CHARACTER_UPDATE")
     g.addon:RegisterMsg("MON_MINIMAP", "sub_map_monster")
-    -- g.addon:RegisterMsg("FPS_UPDATE", "sub_map_set_pcicon")
+    g.addon:RegisterMsg("FPS_UPDATE", "sub_map_set_pcicon_update")
     g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_set_pcicon_update")
     g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_set_pcicon_update")
     g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_set_pcicon_update")
@@ -308,7 +329,7 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
     local mapprop = session.GetCurrentMapProp()
     local handle_tbl = {}
 
-    local function sub_map_display_party_member(party_type, default_icon)
+    local function sub_map_display_party_member(party_type, type_str, default_icon)
         local my_info = session.party.GetMyPartyObj(party_type)
         if not my_info then
             return
@@ -330,25 +351,28 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
                 handle and handle ~= 0 and not handle_tbl[handle] then
 
                 handle_tbl[handle] = true
-                g.handle_tbl[handle] = true
+                g.handle_tbl[handle] = type_str
 
                 local instInfo = pc_info:GetInst()
                 local worldPos = instInfo:GetPos()
                 local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
                 local x = (pos.x - 10)
                 local y = (pos.y - 10)
-                local icon = GET_CHILD_RECURSIVELY(gbox, handle)
+                local icon = GET_CHILD_RECURSIVELY(gbox, type_str .. handle)
                 if icon then
                     if math.floor(x) ~= icon:GetX() then
                         gbox:RemoveChild(handle)
-                        icon = gbox:CreateOrGetControl("picture", handle, x, y, 20, 20)
+                        icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, 20, 20)
                         AUTO_CAST(icon)
+
+                        icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName());
                         icon:SetEnableStretch(1)
 
                     end
                 else
-                    icon = gbox:CreateOrGetControl("picture", handle, x, y, 20, 20)
+                    icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, 20, 20)
                     AUTO_CAST(icon)
+                    icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName());
                     icon:SetEnableStretch(1)
                 end
 
@@ -362,14 +386,30 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
             end
         end
     end
-    sub_map_display_party_member(PARTY_NORMAL, "Archer_party")
-    sub_map_display_party_member(PARTY_GUILD, "Wizard_party")
+    sub_map_display_party_member(PARTY_NORMAL, "pm", "Archer_party")
 
-    for handle, _ in pairs(g.handle_tbl) do
+    local isAutoChallengeMap = session.IsAutoChallengeMap();
+    local isSoloChallengeMap = session.IsSoloChallengeMap();
+    if not isAutoChallengeMap and not isSoloChallengeMap then
+        sub_map_display_party_member(PARTY_GUILD, "gm", "Wizard_party")
+    else
+        for handle, str_type in pairs(g.handle_tbl) do
+            if str_type == "gm" then
+                local icon = GET_CHILD_RECURSIVELY(gbox, str_type .. handle)
+                if icon then
+                    gbox:RemoveChild(str_type .. handle)
+                end
+                g.handle_tbl[handle] = nil
+            end
+        end
+        return
+    end
+
+    for handle, str_type in pairs(g.handle_tbl) do
         if not handle_tbl[handle] then
-            local icon = GET_CHILD_RECURSIVELY(gbox, handle)
+            local icon = GET_CHILD_RECURSIVELY(gbox, str_type .. handle)
             if icon then
-                gbox:RemoveChild(handle)
+                gbox:RemoveChild(str_type .. handle)
             end
             g.handle_tbl[handle] = nil -- g.handle_tbl から削除
         end
@@ -407,8 +447,10 @@ function sub_map_set_warp_point(frame, map_name)
 
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, gbox:GetWidth(), gbox:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, 20, 20, ui.LEFT, ui.TOP, 0, 0,
-                                                         0, 0)
+                        0, 0)
                     AUTO_CAST(icon)
+                    local map_cls = GetClass("Map", cls_name);
+                    icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name);
                     icon:SetImage(mon_prop:GetMinimapIcon())
                     icon:SetOffset(mappos.x - 10, mappos.y - 10)
                     icon:SetEnableStretch(1)
@@ -437,7 +479,7 @@ function sub_map_MAP_CHARACTER_UPDATE(frame, msg, str, num)
 
 end
 
-function sub_map_set_pcicon(frame, msg, str, num)
+--[[function sub_map_set_pcicon(frame, msg, str, num)
 
     local frame = ui.GetFrame("sub_map")
     local gbox = GET_CHILD(frame, "gbox")
@@ -507,7 +549,7 @@ function sub_map_set_pcicon(frame, msg, str, num)
 
 end
 
---[[function sub_map_update_member_party(frame, msg, arg, type, info)
+function sub_map_update_member_party(frame, msg, arg, type, info)
 
     if session.world.IsIntegrateServer() == true then
         DESTROY_GUILD_MEMBER_ICON()

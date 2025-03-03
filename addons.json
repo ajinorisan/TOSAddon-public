@@ -102,7 +102,7 @@
 		"name" : "Skill Notice Free",
 		"file" : "skill_notice_free",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.8",
+		"fileVersion" : "v1.0.9",
 		"releaseTag" : "skill_notice_free",
 		"unicode" : "⛄",
 		"description" : "1.0.5で登録方法見直し。回数系バフをお知らせ。自分で登録必要。mutekiの回数版的なやつ<br>Reviewed registration method in 1.0.5.Notification of frequency buffs. You need to register yourself. Add-on for “muteki” frequency.<br>1.0.5에서 등록 방법 개편.횟수제 버프를 알려드립니다. 직접 등록이 필요합니다. 'muteki'의 횟수판적인 애드온",
