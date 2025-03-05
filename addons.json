@@ -12,7 +12,7 @@
 		"name" : "Characters Item Serch",
 		"file" : "characters_item_serch",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "characters_item_serch",
 		"unicode" : "⛄",
 		"description" : "BarrackItemList オマージュ。出来ることほとんど変わりません。インベントリボタン右クリックで作動。<br>BarrackItemList Homage. Almost the same things can be done. Right-click on the inventory button to activate.<br>BarrackItemList 오마주. 할 수 있는 일은 거의 변함이 없습니다. 인벤토리 버튼 우클릭으로 작동.",
