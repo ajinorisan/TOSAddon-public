@@ -4,10 +4,11 @@
 -- v1.0.1 ギアスコアランク作成、週ボスの所に表示、ヴェルニケ表も翻訳、ペット名翻訳
 -- v1.0.2 ギアスコアランク初期化されるの直したハズ
 -- v1.0.3 色々。一旦あげ
+-- v1.0.4 ギアスコア取るところでnilが出てバグってたの修正
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -171,7 +172,7 @@ function native_lang_load_settings()
     end
     native_lang_name_table_create()
 
-    g.gear_scores = {}
+    --[[g.gear_scores = {}
     local seen_keys = {} -- 追加したorg_nameを記録するためのテーブル
     local file = io.open(g.gear_score, "r")
 
@@ -190,6 +191,37 @@ function native_lang_load_settings()
         end
         file:close()
     else
+        file = io.open(g.gear_score, "w")
+        file:close()
+    end]]
+
+    g.gear_scores = {}
+    local seen_keys = {} -- 追加したorg_nameを記録するためのテーブル
+    local file = io.open(g.gear_score, "r")
+
+    if file then
+        for line in file:lines() do
+
+            local org_name, teamName, guildIdx, value = line:match("([^:]+):::(%S+):::(%d+):::(%d+)")
+
+            if org_name and teamName and guildIdx and value then
+
+                if not seen_keys[org_name] then
+                    if native_lang_is_translation(teamName) and not g.names[org_name] then
+                        teamName = native_lang_process_name(org_name)
+                    end
+
+                    table.insert(g.gear_scores, {org_name, g.names[org_name] or teamName, guildIdx, tonumber(value)})
+                    seen_keys[org_name] = true -- org_nameを記録
+                end
+                --[[else
+                -- デバッグ出力: マッチしなかった場合
+                print("Line did not match: " .. line)]]
+            end
+        end
+        file:close()
+    else
+
         file = io.open(g.gear_score, "w")
         file:close()
     end

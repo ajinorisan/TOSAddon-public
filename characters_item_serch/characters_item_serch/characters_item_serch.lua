@@ -1,8 +1,9 @@
 -- v1.0.0 取り急ぎ作った。barrackitemlist見たいなやつ。
+-- v1.0.1 アイテムID順に並び替える様に。バラックレイヤー安定しなかったので、レイヤー変更時にのみ取得に変更。
 local addonName = "CHARACTERS_ITEM_SERCH"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -30,33 +31,32 @@ function g.setup_hook(my_func, origin_func_name)
     g.funcs[origin_func_name] = _G[rep_func_name]
 end
 
-function g.setup_event(my_addon, origin_func_name, my_func_name)
-    local function_name = string.gsub(origin_func_name, "%.", "");
-    local original_func = _G[origin_func_name]
+--[==[function g.setup_event(my_addon, origin_func_name, my_func_name)
+    local functionName = string.gsub(origin_func_name, "%.", "");
 
-    if not _G['ADDONS']['EVENTS'] then
-        _G['ADDONS']['EVENTS'] = {}
+    if _G['ADDONS']['EVENTS'][functionName .. "_OLD"] == nil then
+        _G['ADDONS']['EVENTS'][functionName .. "_OLD"] = loadstring("return " .. origin_func_name)();
     end
 
-    if not _G['ADDONS']['EVENTS']['ARGS'] then
-        _G['ADDONS']['EVENTS']['ARGS'] = {}
-    end
+    local hookedFuncString = origin_func_name .. [[ = function(...)
+		local function pack2(...) return {n=select('#', ...), ...} end
+		local thisFuncName = "]] .. functionName .. [[";
+		local result = pack2(pcall(_G['ADDONS']['EVENTS'][thisFuncName .. '_OLD'], ...));
+		_G['ADDONS']['EVENTS']['ARGS'][thisFuncName] = {...};
+		imcAddOn.BroadMsg(thisFuncName);
+		return unpack(result, 2, result.n);
+	end
+	]];
 
-    local function hooked_function(...)
-        local args = {...}
-        local results = {original_func(...)}
-        _G['ADDONS']['EVENTS']['ARGS'][function_name] = args
-        imcAddOn.BroadMsg(function_name);
-        return table.unpack(results)
-    end
+    pcall(loadstring(hookedFuncString));
 
-    _G[origin_func_name] = hooked_function
-    my_addon:RegisterMsg(function_name, my_func_name)
+    my_addon:RegisterMsg(functionName, my_func_name);
+
 end
 
 function g.get_event_args(event_msg)
-    return table.unpack(_G['ADDONS']['EVENTS']['ARGS'][event_msg]);
-end
+    return table.unpack(_G['ADDONS']['EVENTS']['ARGS'][event_msg])
+end]==]
 
 function g.mkdir_new_folder()
 
@@ -170,9 +170,6 @@ function characters_item_serch_load_settings()
 end
 
 function characters_item_serch_char_data(frame, msg, str, num)
-    if not g.layer then
-        return
-    end
 
     local account_info = session.barrack.GetMyAccount()
     local layer_pc_count = account_info:GetPCCount()
@@ -184,7 +181,7 @@ function characters_item_serch_char_data(frame, msg, str, num)
         local pc_name = pc_apc:GetName()
         g.settings.chars[pc_name] = {
             index = i,
-            layer = g.layer
+            layer = tonumber(g.layer) or tonumber(g.settings.chars[pc_name].layer)
         }
     end
 
@@ -193,6 +190,7 @@ function characters_item_serch_char_data(frame, msg, str, num)
 
     local sorted_chars = {}
     for name, data in pairs(g.settings.chars) do
+
         table.insert(sorted_chars, {
             name = name,
             data = data
@@ -215,70 +213,18 @@ function characters_item_serch_char_data(frame, msg, str, num)
             end
         end
     end
-    --[[for i = 1, #g.chars do
-        print(i .. ": " .. tostring(g.chars[i]))
-    end]]
 
 end
 
---[[function characters_item_serch_SELECT_BARRACK_LAYER(frame, ctrl, arg, layer)
-    characters_item_serch_SELECT_BARRACK_LAYER_(frame, ctrl, arg, layer)
+function characters_item_serch_BARRACK_TO_GAME()
+    characters_item_serch_BARRACK_TO_GAME_()
 end
 
-local current_layer = 1
-function characters_item_serch_SELECT_BARRACK_LAYER_(frame, ctrl, arg, layer)
-
+function characters_item_serch_BARRACK_TO_GAME_()
+    local frame = ui.GetFrame("barrack_charlist");
+    local layer = frame:GetUserValue("SelectBarrackLayer");
     g.layer = layer
-    local before = frame:GetUserValue("SelectBarrackLayer");
-    local isMoving = frame:GetUserValue("MovingBarrackLayer");
-    if tostring(before) == tostring(layer) then
-        return;
-    end
-
-    if tostring(isMoving) == '1' then
-        return;
-    end
-
-    frame:SetUserValue("MovingBarrackLayer", 1);
-
-    local pccount = GET_CHILD(frame, "pccount", "ui::CRichText");
-    local layerCtrl_1 = GET_CHILD(frame, "changeLayer1", "ui::CButton");
-    local layerCtrl_2 = GET_CHILD(frame, "changeLayer2", "ui::CButton");
-    local layerCtrl_3 = GET_CHILD(frame, "changeLayer3", "ui::CButton");
-    if ctrl:GetName() == 'changeLayer1' then
-        layerCtrl_1:SetImage('barrack_on_one_btn');
-        layerCtrl_2:SetImage('barrack_off_two_btn');
-        layerCtrl_3:SetImage('barrack_off_three_btn');
-        pccount:SetTextByKey("value", '1');
-    elseif ctrl:GetName() == 'changeLayer2' then
-        layerCtrl_1:SetImage('barrack_off_one_btn');
-        layerCtrl_2:SetImage('barrack_on_two_btn');
-        layerCtrl_3:SetImage('barrack_off_three_btn');
-        pccount:SetTextByKey("value", '2');
-    else
-        layerCtrl_1:SetImage('barrack_off_one_btn');
-        layerCtrl_2:SetImage('barrack_off_two_btn');
-        layerCtrl_3:SetImage('barrack_on_three_btn');
-        pccount:SetTextByKey("value", '3');
-    end
-
-    barrack.SelectBarrackLayer(layer);
-    frame:SetUserValue("SelectBarrackLayer", layer);
-    current_layer = layer
-    local scrollBox = frame:GetChild("scrollBox");
-    scrollBox:RemoveAllChild();
-    disable_char_btn(frame)
-    disable_layer_btn(frame)
-    AddLuaTimerFunc('enable_layer_btn', 5000, 0)
-    AddLuaTimerFunc('reset_moving_barrack_layer', 5000, 0) -- 5초뒤에 강제로 해제.
-
-end
-g.setup_hook(characters_item_serch_SELECT_BARRACK_LAYER, 'SELECT_BARRACK_LAYER')]]
-
-function characters_item_serch_enable_layer_btn(frame)
-    local frame = ui.GetFrame('barrack_charlist')
-    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
-    g.layer = layer
+    g.funcs["BARRACK_TO_GAME"]()
 end
 
 function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
@@ -291,19 +237,13 @@ function CHARACTERS_ITEM_SERCH_ON_INIT(addon, frame)
 
     characters_item_serch_load_settings()
 
-    g.layer = g.layer or 1
-    -- CHAT_SYSTEM(tostring(g.layer))
+    g.setup_hook(characters_item_serch_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+    acutil.setupEvent(addon, 'GAME_TO_BARRACK', 'characters_item_serch_inventory_save_list')
+    acutil.setupEvent(addon, 'GAME_TO_LOGIN', 'characters_item_serch_inventory_save_list')
+    acutil.setupEvent(addon, 'DO_QUIT_GAME', 'characters_item_serch_inventory_save_list')
+    acutil.setupEvent(addon, "INVENTORY_CLOSE", "characters_item_serch_inventory_save_list")
 
-    g.setup_event(addon, "enable_layer_btn", "characters_item_serch_enable_layer_btn")
-    -- g.setup_event(addon, 'SELECT_BARRACK_LAYER', 'characters_item_serch_SELECT_BARRACK_LAYER')
-    ----acutil.setupEvent(addon, "SELECT_BARRACK_LAYER", "characters_item_serch_SELECT_BARRACK_LAYER");
-
-    g.setup_event(addon, 'GAME_TO_BARRACK', 'characters_item_serch_inventory_save_list')
-    g.setup_event(addon, 'GAME_TO_LOGIN', 'characters_item_serch_inventory_save_list')
-    g.setup_event(addon, 'DO_QUIT_GAME', 'characters_item_serch_inventory_save_list')
-    g.setup_event(addon, "INVENTORY_CLOSE", "characters_item_serch_inventory_save_list")
-
-    g.setup_event(addon, 'WAREHOUSE_CLOSE', 'characters_item_serch_warehouse_save_list')
+    acutil.setupEvent(addon, 'WAREHOUSE_CLOSE', 'characters_item_serch_warehouse_save_list')
     local sysmenu_frame = ui.GetFrame("sysmenu")
     local inven = GET_CHILD(sysmenu_frame, "inven")
     AUTO_CAST(inven)
@@ -378,7 +318,7 @@ function characters_item_serch_warehouse_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -425,7 +365,7 @@ function characters_item_serch_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -488,7 +428,7 @@ function characters_item_serch_inventory_save_list(frame, msg)
 
         for _, item in ipairs(items) do
             local line = string.format("%s:::%s:::%d:::%d:::%s:::%s:::%s\n", item[1], item[2], item[3], item[4],
-                                       item[5], item[6], item[7])
+                item[5], item[6], item[7])
             file:write(line)
         end
         file:flush()
@@ -530,14 +470,15 @@ function characters_item_serch_serch_load_data(search_text)
                     table.insert(parts, part)
                     start = e + 1
                 end
-                parts[2] = tonumber(parts[2]) or 0
+
+                parts[3] = tonumber(parts[3]) or 0
                 table.insert(items, parts)
             end
         end
     end
 
     table.sort(items, function(a, b)
-        return a[2] < b[2]
+        return a[3] < b[3]
     end)
 
     return items
@@ -637,8 +578,11 @@ function characters_item_serch_open(frame, select_name)
     login_name:SetText(select_name == nil and '{ol}{s18}' .. g.login_name or '{ol}{s18}' .. select_name)
 
     function characters_item_serch_context()
+        print(tostring(g.chars))
         local context = ui.CreateContextMenu("characters_item_serch_context", "Characters", 0, 0, 120, 0)
         ui.AddContextMenuItem(context, "-----")
+
+        print(tostring(g.chars))
 
         for _, name in ipairs(g.chars) do
             local str_scp
@@ -717,10 +661,17 @@ function characters_item_serch_load_data(select_name)
                     table.insert(parts, part)
                     start = e + 1
                 end
+                parts[2] = tonumber(parts[2]) or 0
+
                 table.insert(items, parts)
             end
         end
     end
+
+    table.sort(items, function(a, b)
+        return a[2] < b[2]
+    end)
+
     return items
 end
 
