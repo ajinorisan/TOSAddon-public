@@ -1440,6 +1440,8 @@ ebisukeさん作成のアドオンを保守します。バラックの順番取�
 
 　
 
+v1.0.5 早速バグ修正
+
 v1.0.4 今まで個人で使ってたのを保守開始。
 
 The author of this addon is ebisukeさん

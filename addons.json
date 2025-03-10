@@ -12,7 +12,7 @@
 		"name" : "InstantCC",
 		"file" : "instantcc",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.4",
+		"fileVersion" : "v1.0.5",
 		"releaseTag" : "instantcc",
 		"unicode" : "⛄",
 		"description" : "ebisukeさん作成のアドオンを保守します。キャラクターチェンジを簡易にします。他のアドオンと衝突する部分があるので修正しました。<br>Maintains an addon created by ebisuke.Simplify character change.Fixed some conflicts with other addons.<br>ebisuke님이 만든 애드온을 유지보수합니다.캐릭터 변경을 간소화합니다.다른 애드온과 충돌하는 부분이 있어 수정했습니다.",
