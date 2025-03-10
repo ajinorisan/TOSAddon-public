@@ -6,7 +6,17 @@
 		"releaseTag" : "klcount",
 		"unicode" : "⛄",
 		"description" : "フィールド狩りで倒したモンスターをカウント。アイテムドロップ分析情報取得<br>Count monsters killed in field hunts.Item drop analysis information acquisition<br>필드 사냥에서 쓰러뜨린 몬스터를 계산합니다.아이템 드롭 분석 정보 획득",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
+	},
+	{
+		"name" : "InstantCC",
+		"file" : "instantcc",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.4",
+		"releaseTag" : "instantcc",
+		"unicode" : "⛄",
+		"description" : "ebisukeさん作成のアドオンを保守します。キャラクターチェンジを簡易にします。他のアドオンと衝突する部分があるので修正しました。<br>Maintains an addon created by ebisuke.Simplify character change.Fixed some conflicts with other addons.<br>ebisuke님이 만든 애드온을 유지보수합니다.캐릭터 변경을 간소화합니다.다른 애드온과 충돌하는 부분이 있어 수정했습니다.",
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Characters Item Serch",
@@ -16,7 +26,7 @@
 		"releaseTag" : "characters_item_serch",
 		"unicode" : "⛄",
 		"description" : "BarrackItemList オマージュ。出来ることほとんど変わりません。インベントリボタン右クリックで作動。<br>BarrackItemList Homage. Almost the same things can be done. Right-click on the inventory button to activate.<br>BarrackItemList 오마주. 할 수 있는 일은 거의 변함이 없습니다. 인벤토리 버튼 우클릭으로 작동.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Pick Item Tracker",
@@ -26,7 +36,7 @@
 		"releaseTag" : "pick_item_tracker",
 		"unicode" : "⛄",
 		"description" : "BetterPickQueue オマージュ。必要最小限の情報を表示するシンプル版です。<br>BetterPickQueue Homage. A simple version that displays the minimum necessary information.<br>BetterPickQueue 오마주. 필요한 최소한의 정보만 표시하는 심플한 버전입니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Native Lang",
@@ -36,7 +46,7 @@
 		"releaseTag" : "native_lang",
 		"unicode" : "⛄",
 		"description" : "tar file location<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>キャラクター名、露店名、チャットを翻訳します。動作にchrome必要です。アドオン単体では機能しません。tarファイルをダウンロードしてアドオンフォルダに置いてください。<br>Translates character names, stall names, and chat. Requires chrome to run. Add-on by itself does not work. tar file must be downloaded and placed in add-on folder.<br>캐릭터명, 상점명, 채팅을 번역합니다. 작동하려면 chrome이 필요합니다. 애드온만으로는 작동하지 않습니다. tar 파일을 다운로드하여 애드온 폴더에 넣어주세요.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "My Buffs Control",
@@ -46,7 +56,7 @@
 		"releaseTag" : "my_buffs",
 		"unicode" : "⛄",
 		"description" : "バフ欄を移動可能にして、選択したバフを非表示にします。街では動作しません。設定のみ可能。<br> Make the buff column movable and hide selected buffs.Does not work in town. Only setting is possible.<br>버프 칸을 이동 가능하게 하여 선택한 버프를 숨길 수 있습니다.시내에서는 작동하지 않습니다. 설정만 가능합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Boss Gauge",
@@ -56,7 +66,7 @@
 		"releaseTag" : "boss_gauge",
 		"unicode" : "⛄",
 		"description" : "ボスのHPゲージにスタンとシールド表示します。<br>Display stun and shield on the boss HP gauge.<br>보스의 HP 게이지에 스턴과 실드를 표시합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Revival Timer",
@@ -66,7 +76,7 @@
 		"releaseTag" : "revival_timer",
 		"unicode" : "⛄",
 		"description" : "右ALTキーでタイマーを起動します。左ALTでタイマーを終了し消します。ミニマップ上部のボタンで設定します。既存のTimer addonと競合しません。<br> Right ALT key starts the timer. Left ALT key exits the timer and turns it off. Use the buttons at the top of the minimap to set the timer. Does not conflict with existing Timer addon.<br> 오른쪽 ALT 키로 타이머를 시작합니다. 왼쪽 ALT로 타이머를 종료하고 지웁니다. 미니맵 상단의 버튼으로 설정합니다. 기존 Timer addon과 충돌하지 않습니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Cupole Manager",
@@ -76,7 +86,7 @@
 		"releaseTag" : "cupole_manager",
 		"unicode" : "⛄",
 		"description" : "クポルの呼び出しをチーム共通化。未登録キャラでも自動で呼び出します。<br>Team commonization of cupole calls. Even unregistered characters are automatically called.<br>큐폴라 호출의 팀 공용화. 등록되지 않은 캐릭터도 자동으로 호출됩니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Sub Slotset",
@@ -86,7 +96,7 @@
 		"releaseTag" : "sub_slotset",
 		"unicode" : "⛄",
 		"description" : "SubQuickSlotオマージュ。出来ることは特に変わりません。<br>SubQuickSlot homage.What you can do is no different.<br>SubQuickSlot 오마주. 할 수 있는 일은 특별히 다르지 않습니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Relic Change",
@@ -96,7 +106,7 @@
 		"releaseTag" : "relic_change",
 		"unicode" : "⛄",
 		"description" : "レリックジェムの入替えを簡素化します。画面中央上部にボタンが作成されます。<br>Simplify the replacement of Relic Gems. A button is created at the top centre of the screen.<br>유물 젬 교체가 간소화됩니다. 화면 중앙 상단에 버튼이 생성됩니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Skill Notice Free",
@@ -106,7 +116,7 @@
 		"releaseTag" : "skill_notice_free",
 		"unicode" : "⛄",
 		"description" : "1.0.5で登録方法見直し。回数系バフをお知らせ。自分で登録必要。mutekiの回数版的なやつ<br>Reviewed registration method in 1.0.5.Notification of frequency buffs. You need to register yourself. Add-on for “muteki” frequency.<br>1.0.5에서 등록 방법 개편.횟수제 버프를 알려드립니다. 직접 등록이 필요합니다. 'muteki'의 횟수판적인 애드온",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},			
 {
 		"name" : "Skill Notice",
@@ -116,7 +126,7 @@
 		"releaseTag" : "skill_notice",
 		"unicode" : "⛄",
 		"description" : "ピクティス、バトルスピリット、チャージアロー、リロードバフをお知らせ。<br>Informs about the pyktis, battle spirit, charge arrow, and reload buffs.<br>픽티스, 배틀 스피릿, 차지 애로우, 재장전 버프를 알려드립니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},	
 {
 		"name" : "Other Character Skill List",
@@ -126,7 +136,7 @@
 		"releaseTag" : "other_character_skill_list",
 		"unicode" : "⛄",
 		"description" : "1.1.0でロード遅くなるの修正。各キャラの錬成スキルを一覧表示。その他装備状況も表示します。一度、該当キャラインベントリを開閉する必要があります。<br>Fixed slow loading in 1.1.0. Listed alchemy skills of each character. Other equipment status is also displayed. It is necessary to open/close the relevant character inventory once.<br>1.1.0에서 로딩이 느려지는 현상 수정. 각 캐릭터의 연성 스킬 목록 표시. 기타 장비 상태도 표시합니다. 해당 캐릭 인벤토리를 한 번 열어야 합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Quickslot Operate",
@@ -136,7 +146,7 @@
 		"releaseTag" : "quickslot_operate",
 		"unicode" : "⛄",
 		"description" : "クイックスロットの女神ポーションをレイド毎に付け替えます。ストレートモード、保存、読込機能付き。<br>Quick slot goddess potions to be replaced for each raid. Straight mode, with save and load functions.<br>레이드마다 퀵 슬롯의 여신 물약을 교체할 수 있습니다. 스트레이트 모드, 저장, 불러오기 기능 포함.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Always Status",
@@ -146,7 +156,7 @@
 		"releaseTag" : "always_status",
 		"unicode" : "⛄",
 		"description" : "ステータスを好きな場所に常に表示します。<br>Always display status where you want it.<br>상태를 원하는 곳에 항상 표시할 수 있습니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 
 {
@@ -157,7 +167,7 @@
 		"releaseTag" : "boss_direction",
 		"unicode" : "⛄",
 		"description" : "ボスが向いている方向を矢印でお知らせ。<br>The direction the boss is facing is indicated by an arrow.<br>보스가 향하고 있는 방향을 화살표로 알려준다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Auto Pet Summon",
@@ -167,7 +177,7 @@
 		"releaseTag" : "auto_pet_summon",
 		"unicode" : "⛄",
 		"description" : "キャラ毎に最後に連れていたペットを自動で召喚します。<br>Each character automatically summons the last pet they had with them.<br>캐릭터마다 마지막으로 데리고 있던 펫을 자동으로 소환합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Mini Addons",
@@ -177,7 +187,7 @@
 		"releaseTag" : "mini_addons",
 		"unicode" : "⛄",
 		"description" : "MINI MAP左下ボタンを押すと機能説明とON OFF機能があります。Free From Trivial Stressの上位互換版です。競合するのでアンインストールしてください。<br>MINI MAP lower left button for function description and ON/OFF function. upward compatible version of Free From Trivial Stress. Please uninstall it as it conflicts with Free From Trivial Stress.<br>MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 기능이 있으며, Free From Trivial Stress의 상위 호환 버전입니다. 충돌이 발생하므로 제거하시기 바랍니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Goddess Icor Manager",
@@ -187,7 +197,7 @@
 		"releaseTag" : "goddess_icor_manager",
 		"unicode" : "⛄",
 		"description" : "インベントリに付くボタンで、イコルのオプション付与を一覧表示して簡易化します。<br>A button attached to the inventory, which lists and simplifies the granting of options for the ichor.<br>인벤토리에 있는 버튼으로 이퀄의 옵션 부여를 목록화하여 간소화합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Market Voucher",
@@ -197,7 +207,7 @@
 		"releaseTag" : "market_voucher",
 		"unicode" : "⛄",
 		"description" : "マーケットの販売履歴表示(シルバー受け取った時に記録)<br>Market sales history display (recorded when silver received).<br>마켓의 판매 내역 표시(실버 수령 시 기록).",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "dungeonrpcharger",
@@ -207,7 +217,7 @@
 		"releaseTag" : "dungeonrpcharger",
 		"unicode" : "⛄",
 		"description" : "meldavyさん作成のアドオン保守。女神コイン商店のエクトナイトも使用出来ます。<br>Add-on maintenance created by meldavy. You can also use ectonite from the Goddess Coin Shop.<br>meldavy님이 만든 애드온 유지보수. 여신코인상점의 엑토나이트를 사용할 수 있습니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Job Change Helper",
@@ -217,7 +227,7 @@
 		"releaseTag" : "job_change_helper",
 		"unicode" : "⛄",
 		"description" : "インベントリに早着替えボタンが付きます。転職情報アイコンを押すと左上にボタンが付きます。PTから抜けて、PETを未召喚に戻して、装備を外します。<br>A quick change button will be added to your inventory. Press the change information icon and a button will appear in the upper left corner. exit PT, return PET to unsummoned, and remove equipment.<br>인벤토리에 빠른 옷 갈아입기 버튼이 생깁니다. 전직 정보 아이콘을 누르면 왼쪽 상단에 버튼이 뜨는데, PT에서 빠져나와 PET를 미소환 상태로 되돌리고 장비를 벗는다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Monster Card Change",
@@ -227,7 +237,7 @@
 		"releaseTag" : "monstercard_change",
 		"unicode" : "⛄",
 		"description" : "モンスターカードプリセットを使いやすくします。カード自動搬出入、自動着脱機能付き。<br>Easy to use monster card preset. Includes automatic card loading/unloading and automatic card insertion/removal functions.<br>몬스터 카드 프리셋을 쉽게 사용할 수 있습니다. 카드 자동 반출입, 자동 탈부착 기능 포함.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Let's Go Home",
@@ -237,7 +247,7 @@
 		"releaseTag" : "lets_go_home",
 		"unicode" : "⛄",
 		"description" : "右クリックで設定。左クリックでホームタウンとホームチャンネルに移動します。バックスラッシュがショトカです。クエストワープ優先。次にトークンワープを使います。その次にトークンワープクールダウン中はワープ呪文書を使います。<br>Right click to set up. Left click to go to home town and home channel. Quest warp priority. Then use Token Warp. Then use the warp spellbook during the token warp cooldown. <br>우클릭으로 설정. 왼쪽 클릭으로 홈타운과 홈 채널로 이동합니다. 퀘스트 워프 우선. 다음으로 토큰 워프를 사용합니다. 그 다음 토큰 워프 재사용 대기시간 동안 워프 주문서를 사용합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Character Change Helper",
@@ -247,7 +257,7 @@
 		"releaseTag" : "cc_helper",
 		"unicode" : "⛄",
 		"description" : "各種装備をインベントリのボタンで倉庫から出し入れして着脱をします。シルバーの掛からない装備のみの簡易モードに切り替え可能です。<br>Various types of equipment are put on and taken off from the warehouse using buttons on the inventory. It is possible to switch to a simple mode of only equipment that does not cost silver.<br>각종 장비를 인벤토리의 버튼으로 창고에 넣고 뺄 수 있습니다. 실버가 걸려있지 않은 장비만 간이 모드로 전환할 수 있습니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Aethergem Manager",
@@ -257,7 +267,7 @@
 		"releaseTag" : "aethergem_mgr",
 		"unicode" : "⛄",
 		"description" : "インベントリのボタンでエーテルジェムの付け替えを自動化します。キャラ毎の事前設定が必要です。<br>Automate the replacement of ether gems with a button in inventory. Requires pre-setting for each character.<br>인벤토리의 버튼으로 에테르 젬을 자동으로 교체할 수 있습니다. 캐릭터별 사전 설정이 필요합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Indun Panel",
@@ -267,7 +277,7 @@
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
 		"description" : "チャレンジやレイドに入る支援パネルを設置します。<br>Set up a support panel to enter challenges and raids.<br>챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "muteki2ex",
@@ -277,7 +287,7 @@
 		"releaseTag" : "muteki2ex",
 		"unicode" : "⛄",
 		"description" : "WRIT様作成のmuteki2exの改造版。アイコンモード、オーバーロードレイドのCD管理、パーティーチャットのお知らせ機能追加。with effect機能復活。<br>Modified version of muteki2ex created by WRIT. Added icon mode, overload raid CD management, party chat notification function, and with effect function.<br>WRIT님이 만든 muteki2ex의 모드 버전. 아이콘 모드, 오버로드 레이드 CD 관리, 파티 채팅 알림 기능 추가, with effect 기능 부활.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Ancient AutoSet",
@@ -287,7 +297,7 @@
 		"releaseTag" : "ancient_autoset",
 		"unicode" : "⛄",
 		"description" : "アシスターセットをキャラ毎に自動で付け替えます。事前登録必要です。街でしか動きません。<br>Assister sets will be automatically replaced for each character. Pre-registration required. Only works in town.<br>캐릭터별로 어시스터 세트를 자동으로 교체합니다. 사전 등록이 필요합니다. 도시에서만 움직입니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Auto Repair",
@@ -297,7 +307,7 @@
 		"releaseTag" : "auto_repair",
 		"unicode" : "⛄",
 		"description" : "装備の耐久を監視して30%未満になると[Lv.530]緊急修理キットを使用して自動で修理します。<br>Monitors the equipment's durability and automatically repairs it using the '[Lv.530] Emergency Repair Kit' when it falls below 30%.<br>장비의 내구도를 모니터링하여 30% 미만이 되면 '[Lv.530] 긴급 수리 키트'를 사용하여 자동으로 수리합니다.",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
 {
 		"name" : "Guild Event Warp",
@@ -307,7 +317,7 @@
 		"releaseTag" : "guildeventwarp",
 		"unicode" : "⛄",
 		"description" : "画面右上の小さいボタンから封鎖戦のMAP1Chにワープ<br>Warp to MAP1Ch of the blockade battle from the small button in the upper right corner of the screen.<br>화면 우측 상단의 작은 버튼으로 봉쇄전 MAP1Ch로 워프",
-		"tags" : []
+		"tags" : ["ajinori","ajinorisan"]
 	},
  {
 		"name" : "Easy buff",
@@ -318,7 +328,7 @@
 		"unicode" : "⛄",
 		"description" : "Kiicchan様作成のeasybuffを改造しました。各種商店の看板クリックでバフ自動付与。<br>Modified easybuff created by Kiicchan. Buffs are automatically given by clicking on various store signs.<br>Kiicchan님이 만든 easybuff를 개조했습니다. 각종 상점의 간판 클릭으로 버프 자동 부여.",
 		"tags" : [
-		           "buff"
+		           "buff","ajinori","ajinorisan"
 		]
 	},
  {
@@ -330,7 +340,7 @@
 		"unicode" : "⛄",
 		"description" : "MAP移動時の確認を自動化。チャットコマンド'/amc'で無効化。<br>Automated confirmation when moving MAP. Disabled by '/amc' chat command.<br>MAP 이동 시 확인 자동화. 채팅 명령어 '/amc'로 비활성화.",
 		"tags" : [
-		           "map"
+		           "map","ajinori","ajinorisan"
 		]
 	},
 {
@@ -342,7 +352,7 @@
 		"unicode" : "⛄",
 		"description" : "ゴッデス装備連続強化<br>Goddes equipment continuous reinforcement<br>갓데스 장비 연속 강화",
 		"tags" : [
-		           "item"
+		           "item","ajinori","ajinorisan"
 		]
 	},
  {
@@ -354,7 +364,7 @@
 		"unicode" : "⛄",
 		"description" : "バージョン1.1.9でインベントリにON OFFボタン付けました。アイテム連続使用フレーム作った。各種確認を消します。各種金床の強化を支援します。<br>Version 1.1.9 has an ON/OFF button on the inventory. Made a frame for continuous use of items. Remove various confirmations. Support for various anvil enhancements.<br>1.1.9 버전에서 인벤토리에 ON OFF 버튼을 추가했습니다. 아이템 연속 사용 프레임을 만들었습니다. 각종 확인을 지웁니다. 각종 금층 강화를 지원합니다.",
 		"tags" : [
-		           "item"
+		           "item","ajinori","ajinorisan"
 		]
 	},
 	{
@@ -365,7 +375,7 @@
 		"releaseTag" : "another_warehouse",
 		"unicode" : "⛄",
 		"description" : "倉庫をインベントリ風に改造します。自動搬出入機能付き。<br>Converts warehouse to inventory style. Includes automatic loading/unloading function.<br>창고를 인벤토리 스타일로 개조합니다. 자동 반입 및 반출 기능 포함.",
-		"tags" : ["warehouse","Warehouse"]
+		"tags" : ["warehouse","Warehouse","ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Indun List Viewer",
@@ -375,7 +385,7 @@
 		"releaseTag" : "indun_list_viewer",
 		"unicode" : "⛄",
 		"description" : "レイドの消化状況を一覧表示します。instantccアドオンを入れていると職アイコンクリックでCCします。<br>List raid digests. cc by clicking on the job icon if you have the instantcc add-on.<br>레이드 소화 현황을 나열하며, instantcc 애드온을 넣었다면 직업 아이콘 클릭으로 CC를 합니다.",
-		"tags" : ["indun"]
+		"tags" : ["indun","ajinori","ajinorisan"]
 	},
 	{
 		"name" : "Vakarine equip",
@@ -385,6 +395,6 @@
 		"releaseTag" : "vakarine_equip",
 		"unicode" : "⛄",
 		"description" : "ステータスバーのジョブアイコンにボタンが表示されます。ヴァカリネの恩恵を5箇所装着している場合、レイドなどで装備を脱着します。<br>A button appears on the job icon in the status bar.If wearing 5 Vakarine benefits, take the equipment off and on for raids, etc.<br>상태 표시줄의 작업 아이콘에 버튼이 표시됩니다.5개의 바카린 혜택을 착용한 경우, 레이드 등을 위해 장비를 벗었다가 착용하세요.",
-		"tags" : ["vakarine","Vakarine"]
+		"tags" : ["vakarine","Vakarine","ajinori","ajinorisan"]
 	}
 ]
