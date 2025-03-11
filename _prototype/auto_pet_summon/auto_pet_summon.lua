@@ -48,11 +48,9 @@ function AUTO_PET_SUMMON_ON_INIT(addon, frame)
                 pet_clsid = 0
             }
         end
-
         g.personal = settings
         AUTO_PET_SUMMON_PERSONAL_SAVE_SETTINGS()
         addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_COMPANION")
-
     end
     acutil.setupEvent(addon, "control.SummonPet", "AUTO_PET_SUMMON_PET_FRAME_INIT");
     acutil.setupEvent(addon, "HOTKEY_UNSUMMON_COMPANION", "AUTO_PET_SUMMON_PET_RELEASE");
