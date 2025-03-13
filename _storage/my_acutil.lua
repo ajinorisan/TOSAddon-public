@@ -84,10 +84,7 @@ function g.setup_event(my_addon, origin_func_name, my_func_name)
     end
 
     local function hooked_function(...)
-        local success, results = pcall(function(...)
-            -- 元の関数を呼び出す
-            return _G[origin_func_name](...)
-        end)
+        local success, results = pcall(_G[origin_func_name], ...)
 
         if not success then
             -- print("[Error] Hooked function failed:", results)
