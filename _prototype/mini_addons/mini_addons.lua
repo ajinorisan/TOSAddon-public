@@ -183,6 +183,10 @@ function MINI_ADDONS_LOAD_SETTINGS()
     g.settings = settings
     MINI_ADDONS_SAVE_SETTINGS()
 
+    MINI_ADDONS_SAVE_AND_CREATE_BUFFIDS()
+end
+
+function MINI_ADDONS_SAVE_AND_CREATE_BUFFIDS()
     local buffs = acutil.loadJSON(g.buffsFileLoc, g.buffs)
 
     if not buffs then
@@ -192,13 +196,12 @@ function MINI_ADDONS_LOAD_SETTINGS()
     g.buffs = buffs
     acutil.saveJSON(g.buffsFileLoc, g.buffs);
 
-    g.buffid = {}
+    g.buffids = {}
     for key, value in pairs(g.buffs) do
         if value == 1 then
-            table.insert(g.buffid, tonumber(key))
+            table.insert(g.buffids, tonumber(key))
         end
     end
-
 end
 
 function MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP(frame, msg)
@@ -397,18 +400,18 @@ function MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS_CONTINUE()
 end
 
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-    default_number)
+                                                 default_number)
     if g.settings.velnice.use == 0 then
         base["INDUN_EDITMSGBOX_FRAME_OPEN"](type, clmsg, desc, yesScp, noScp, min_number, max_number, default_number)
     else
         MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-            default_number)
+                                                 default_number)
 
     end
 end
 
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-    default_number)
+                                                  default_number)
 
     default_number = g.settings.velnice.level
 
@@ -458,8 +461,9 @@ function MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE(frame, msg, argStr)
         local sec = string.format("%02d", tonumber(remaintimeValue:GetTextByKey("sec")))
 
         imcAddOn.BroadMsg("NOTICE_Dm_stage_start",
-            string.format("{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
-                current_wave - 1, min, sec), 2.0)
+                          string.format(
+                              "{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
+                              current_wave - 1, min, sec), 2.0)
         g.velnice = current_wave
     else
         return
@@ -484,9 +488,7 @@ end
 
 function MINI_ADDONS_BUFFLIST_ALL_CHECK(frame, ctrl, str, num)
     local is_check = ctrl:IsChecked()
-
     local frame = ctrl:GetTopParentFrame()
-    print(tostring(frame:GetName()))
     local bg = GET_CHILD_RECURSIVELY(frame, "bg")
 
     local i = 1
@@ -502,6 +504,7 @@ function MINI_ADDONS_BUFFLIST_ALL_CHECK(frame, ctrl, str, num)
     end
 
     acutil.saveJSON(g.buffsFileLoc, g.buffs)
+    MINI_ADDONS_SAVE_AND_CREATE_BUFFIDS()
 end
 
 function MINI_ADDONS_BUFFLIST_FRAME_INIT()
@@ -590,6 +593,7 @@ function MINI_ADDONS_BUFFCHECK(frame, ctrl, argStr, buffID)
         g.buffs[tostring(buffID)] = check
         acutil.saveJSON(g.buffsFileLoc, g.buffs)
     end
+    MINI_ADDONS_SAVE_AND_CREATE_BUFFIDS()
 end
 
 function MINI_ADDONS_BUFFLIST_FRAME_CLOSE()
@@ -676,7 +680,7 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
                             if cls.Group1 == 'Buff' then
                                 MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
                                 if g.settings.party_buff == 1 then
-                                    local excludedBuffIDs = g.buffid
+                                    local excludedBuffIDs = g.buffids
                                     if MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
                                         slot = buffListSlotSet:GetSlotByIndex(buffIndex);
                                         buffIndex = buffIndex + 1;
@@ -743,7 +747,7 @@ function MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
     end
 end
 
-function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
+--[[function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
     local frame = ui.GetFrame("partyinfo");
     if frame == nil then
         return;
@@ -803,8 +807,7 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
                         local buffID = partyMemberInfo:GetBuffIDByIndex(j);
                         local cls = GetClassByType("Buff", buffID);
                         if g.settings.party_buff == 1 then
-                            if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~=
-                                "TeamLevel" then
+                            if cls ~= nil and cls.ClassName ~= "TeamLevel" then
 
                                 MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
 
@@ -812,8 +815,20 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
                                 local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
                                 local slot = nil;
                                 if cls.Group1 == 'Buff' then
-                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                    buffIndex = buffIndex + 1;
+
+                                    function MINI_ADDONS_IS_BUFF_EXCLUDED(buffID, buff_ids)
+                                        for _, id in ipairs(buff_ids) do
+                                            if buffID == id then
+                                                return true
+                                            end
+                                        end
+                                        return false
+                                    end
+
+                                    if MINI_ADDONS_IS_BUFF_EXCLUDED(cls.ClassID, g.buffids) then
+                                        slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                        buffIndex = buffIndex + 1;
+                                    end
 
                                 elseif cls.Group1 == 'Debuff' then
                                     slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
@@ -911,7 +926,119 @@ function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
             end
         end
     end
-    acutil.setupHook(mini_addons_basefunction_old, "ON_PARTYINFO_BUFFLIST_UPDATE")
+
+end]]
+
+function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
+    local frame = ui.GetFrame("partyinfo")
+    if not frame then
+        return
+    end
+
+    local pcparty = session.party.GetPartyInfo()
+    if not pcparty then
+        DESTROY_CHILD_BYNAME(frame, 'PTINFO_')
+        frame:ShowWindow(0)
+        return
+    end
+
+    local buffid_set = {}
+    for _, id in ipairs(g.buffids) do
+        buffid_set[id] = true
+    end
+
+    local list = session.party.GetPartyMemberList(0)
+    local count = list:Count()
+    local myInfo = session.party.GetMyPartyObj()
+
+    for i = 0, count - 1 do
+        local partyMemberInfo = list:Element(i)
+        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
+            local buffCount = partyMemberInfo:GetBuffCount()
+            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID())
+
+            if partyInfoCtrlSet then
+                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet")
+                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet")
+
+                -- スロット初期化
+                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
+                    local slot = buffListSlotSet:GetSlotByIndex(j)
+                    if slot then
+                        slot:SetKeyboardSelectable(false)
+                        slot:ShowWindow(0)
+                    end
+                end
+                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
+                    local slot = debuffListSlotSet:GetSlotByIndex(j)
+                    if slot then
+                        slot:ShowWindow(0)
+                    end
+                end
+
+                if buffCount <= 0 then
+                    partyMemberInfo:ResetBuff()
+                    buffCount = partyMemberInfo:GetBuffCount()
+                end
+
+                if buffCount > 0 then
+                    local buffIndex, debuffIndex = 0, 0
+                    for j = 0, buffCount - 1 do
+                        local buffID = partyMemberInfo:GetBuffIDByIndex(j)
+                        local cls = GetClassByType("Buff", buffID)
+
+                        if cls and cls.ClassName ~= "TeamLevel" then
+                            local show_buff = (g.settings.party_buff == 1 and buffid_set[buffID]) or
+                                                  (g.settings.party_buff ~= 1 and IS_PARTY_INFO_SHOWICON(cls.ShowIcon))
+
+                            if show_buff then
+                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
+
+                                local slot = (cls.Group1 == 'Buff') and buffListSlotSet:GetSlotByIndex(buffIndex) or
+                                                 (cls.Group1 == 'Debuff') and
+                                                 debuffListSlotSet:GetSlotByIndex(debuffIndex)
+
+                                if cls.Group1 == 'Buff' then
+                                    buffIndex = buffIndex + 1
+                                elseif cls.Group1 == 'Debuff' then
+                                    debuffIndex = debuffIndex + 1
+                                end
+
+                                if slot then
+                                    local buffOver = partyMemberInfo:GetBuffOverByIndex(j)
+                                    local buffTime = partyMemberInfo:GetBuffTimeByIndex(j)
+
+                                    local icon = slot:GetIcon() or CreateIcon(slot)
+
+                                    local handle = (myInfo and myInfo:GetMapID() == partyMemberInfo:GetMapID() and
+                                                       myInfo:GetChannel() == partyMemberInfo:GetChannel()) and
+                                                       partyMemberInfo:GetHandle() or 0
+
+                                    icon:SetDrawCoolTimeText(math.floor(buffTime / 1000))
+                                    icon:SetTooltipType('buff')
+                                    icon:SetTooltipArg(tostring(handle), buffID, "")
+
+                                    local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None')
+                                    if imageName ~= "icon_None" then
+                                        icon:Set(imageName, 'BUFF', buffID, 0)
+                                    end
+
+                                    slot:SetText(buffOver > 1 and ('{s13}{ol}{b}' .. buffOver) or "", 'count', ui.RIGHT,
+                                                 ui.BOTTOM, 1, 2)
+                                    slot:ShowWindow(1)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function MINI_ADDONS_ON_PARTYINFO_INST_UPDATE(frame, msg, argStr, argNum)
+    local frame = ui.GetFrame("partyinfo");
+    MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame);
 end
 
 function mini_addons_basefunction_old()
@@ -940,8 +1067,13 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE");
         g.velnice = 0
     end
+
+    -- IMCのON_PARTYINFO_BUFFLIST_UPDATEを削除
+    g.SetupHook(mini_addons_basefunction_old, "ON_PARTYINFO_BUFFLIST_UPDATE")
     addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
+    addon:RegisterMsg("PARTY_INST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_INST_UPDATE")
     -- g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
@@ -1596,11 +1728,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
             end
             auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
-                "When turned on, the gacha starts automatically.CC required for switching"))
+                                              "When turned on, the gacha starts automatically.CC required for switching"))
             auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
         elseif setting.name == "other_effect" then
             local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', textWidth + 15, x - 5, 60,
-                25)
+                                                               25)
             AUTO_CAST(other_effect_edit)
             other_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_OTHER_EFFECT_EDIT")
             other_effect_edit:SetTextTooltip("{ol}1~100")
@@ -1637,7 +1769,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             switch:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH")
             local switch_width = switch:GetWidth()
             local switch_text = frame:CreateOrGetControl("richtext", "switch_text", textWidth + 15 + switch_width,
-                x + 2, 80, 25)
+                                                         x + 2, 80, 25)
             AUTO_CAST(switch_text)
             switch_text:SetText(g.lang == "Japanese" and "{ol}ダメージ報酬切替" or "{ol}Damage Reward Switch")
             -- g.lang = "Japanese"
@@ -2189,7 +2321,7 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
             if slogutis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
-                    5.0)
+                                     5.0)
                 NICO_CHAT("{@st55_a}スローガティスまだやってへんで？")
             elseif upinis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
@@ -2415,7 +2547,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                     if TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
                                         local max_option_count =
                                             shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
-                                                'UseLv', 1))
+                                                                                                        'UseLv', 1))
                                         for ii = 1, max_option_count do
                                             local option_name = 'EarringSpecialOption_' .. ii
                                             local job = TryGetProp(itemCls, option_name, 'None')
@@ -2423,7 +2555,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                                 local job_cls = GetClass('Job', job)
                                                 if job_cls ~= nil then
                                                     itemname = string.lower(
-                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name));
+                                                                   dictionary.ReplaceDicIDInCompStr(job_cls.Name));
                                                     a = string.find(itemname, tempcap);
                                                     if a ~= nil then
                                                         makeSlot = true
@@ -2468,9 +2600,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                            'ui::CGroupBox')
+                                                                               'ui::CGroupBox')
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                            'ui::CTreeControl')
+                                                                           'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls);
                                     end
                                     -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
@@ -2478,7 +2610,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl')
+                                                                               'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls);
                                     end
                                 end
@@ -2495,9 +2627,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if isOptionApplied == 1 and cap == "" then -- 검색 중에는 조건에 맞는 아이템 없으면 tree 안 만듬
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                            'ui::CGroupBox');
+                                                                               'ui::CGroupBox');
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                            'ui::CTreeControl');
+                                                                           'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree); -- 해당 아이템이 속한 탭
                                     end
 
@@ -2506,7 +2638,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox');
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl');
+                                                                               'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree_all); -- ALL 탭 
                                     end
                                 end
@@ -2851,7 +2983,8 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 if tostring(spotName) == "SEAL" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                            "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？", 3.0)
+                                             "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？",
+                                             3.0)
                         -- ui.SysMsg("{#FF8C00}エンブレム装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Emblem?")
@@ -2861,7 +2994,8 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 elseif tostring(spotName) == "ARK" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                            "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?", 3.0)
+                                             "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?",
+                                             3.0)
                         -- ui.SysMsg("{st55_a}{#FF8C00}アーク装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Ark?")
@@ -3101,7 +3235,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
