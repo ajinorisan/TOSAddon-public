@@ -3,11 +3,13 @@
 -- v1.0.2 バラック表示諦めた。酔うてるししゃあない。
 -- v1.0.3 書き直し。処理を極力シンプルに。
 -- v1.0.4 他に干渉しない様に
+-- v1.0.5 速攻バグ修正
+-- v1.0.6 設定ジョブ取れる様に。
 local addonName = "INSTANTCC"
 local addonNameLower = string.lower(addonName)
 
 local author = "ebisuke"
-local ver = "1.0.4"
+local ver = "1.0.6"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -82,7 +84,10 @@ function INSTANTCC_SORT_CHAR_DATA()
         local pc_name = pc_apc:GetName()
         local pc_cid = pc_info:GetCID()
         local gender = pc_apc:GetGender()
-        local jobid = pc_apc:GetJob()
+        -- local jobid = pc_apc:GetJob()
+        local pc_info = session.barrack.GetMyAccount():GetByStrCID(pc_cid);
+
+        local jobid = pc_info:GetRepID() or pc_apc:GetJob()
         local level = pc_apc:GetLv()
 
         local info = {
@@ -131,15 +136,14 @@ function INSTANTCC_ON_INIT(addon, frame)
 
     INSTANTCC_LOAD_SETTINGS()
 
+    g.retry = nil
     g.do_cc = nil
     g.layer = g.layer or (g.settings and g.settings.charactors and g.settings.charactors.layer) or 1
-
-    INSTANTCC_SORT_CHAR_DATA()
 
     g.SetupHook(INSTANTCC_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
     g.SetupHook(INSTANTCC_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
     g.SetupHook(INSTANTCC_BARRACK_TO_GAME, "BARRACK_TO_GAME")
-
+    INSTANTCC_SORT_CHAR_DATA()
 end
 
 function INSTANTCC_APPS_TRY_MOVE_BARRACK()
@@ -181,18 +185,22 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN(frame)
 end
 
 function INSTANTCC_BARRACK_START_FRAME_OPEN_(frame)
+
     if frame == nil then
         return
     end
-    local gs_frame = ui.GetFrame("barrack_gamestart")
+
     local bc_frame = ui.GetFrame("barrack_charlist")
     g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-    local hidelogin = GET_CHILD_RECURSIVELY(gs_frame, "hidelogin", "ui::CCheckBox");
+    local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
     AUTO_CAST(hidelogin)
     barrack.SetHideLogin(1);
     hidelogin:SetCheck(1);
+    --[[local start_game = GET_CHILD_RECURSIVELY(frame, "start_game")
+    AUTO_CAST(start_game)
+    start_game:SetEventScript(ui.LBUTTONUP, "INSTANTCC_BARRACK_TO_GAME")]]
 
-    if g.do_cc then
+    if g.do_cc and not g.retry then
         g.retry = 0
         ReserveScript("INSTANTCC_CHANGE()", 0.1)
     end
