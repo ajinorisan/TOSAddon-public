@@ -53,10 +53,11 @@
 -- v1.5.3 インベントリでイコルステータス検索出来る様に。装備錬成の武器防具ステータス付与自動化
 -- v1.5.4 ヴェルニケ階数覚える様に、クポルポーション改修、セパレートフレームのスキン消した、チャンネルの混み具合直した。
 -- v1.5.5 JSON作るとこバグってたので直した。。。
+-- v1.5.6 パーティーバフリスト取るとこが他のアドオンと喧嘩してるらしいので直した。韓国語を教えてもらった。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.5"
+local ver = "1.5.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -481,6 +482,442 @@ function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_YES(parent, ctrl, argStr, argNu
     ui.CloseFrame("indun_editmsgbox");
 end
 
+function MINI_ADDONS_BUFFLIST_ALL_CHECK(frame, ctrl, str, num)
+    local is_check = ctrl:IsChecked()
+
+    local frame = ctrl:GetTopParentFrame()
+    print(tostring(frame:GetName()))
+    local bg = GET_CHILD_RECURSIVELY(frame, "bg")
+
+    local i = 1
+    for buff_id, _ in pairs(g.buffs) do
+
+        local buffcheck = GET_CHILD_RECURSIVELY(frame, "buffcheck" .. i)
+        if buffcheck then
+            AUTO_CAST(buffcheck)
+            buffcheck:SetCheck(is_check)
+            g.buffs[buff_id] = is_check
+            i = i + 1
+        end
+    end
+
+    acutil.saveJSON(g.buffsFileLoc, g.buffs)
+end
+
+function MINI_ADDONS_BUFFLIST_FRAME_INIT()
+    local bufflistframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_bufflist", 0, 0, 10, 10)
+    AUTO_CAST(bufflistframe)
+    bufflistframe:SetSkinName("bg")
+    bufflistframe:Resize(500, 1060)
+    bufflistframe:SetPos(10, 10)
+    bufflistframe:SetLayerLevel(121)
+    bufflistframe:RemoveAllChild()
+
+    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1015)
+    AUTO_CAST(bg)
+    bg:SetSkinName("bg")
+    bg:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
+    bg:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリックで閉じます。" or "Right-click to close.")
+
+    local closeBtn = bufflistframe:CreateOrGetControl('button', 'closeBtn', 450, 0, 30, 30)
+    AUTO_CAST(closeBtn)
+    closeBtn:SetImage("testclose_button")
+    closeBtn:SetGravity(ui.RIGHT, ui.TOP)
+    closeBtn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
+
+    local all_toggle = bufflistframe:CreateOrGetControl('checkbox', 'all_toggle', 425, 5, 25, 25)
+    AUTO_CAST(all_toggle)
+    all_toggle:SetTextTooltip(g.lang == "Japanese" and "{ol}全ての表示切替" or "Toggle All Displays")
+    all_toggle:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_ALL_CHECK");
+
+    local sortedBuffIDs = {}
+    for buffID, _ in pairs(g.buffs) do
+        table.insert(sortedBuffIDs, tonumber(buffID))
+    end
+    table.sort(sortedBuffIDs)
+
+    local bufflisttext = bufflistframe:CreateOrGetControl('richtext', 'bufflisttext', 10, 10, 200, 30)
+    AUTO_CAST(bufflisttext)
+    bufflisttext:SetText("{ol}BUFF LIST")
+
+    -- ソートされた順番で表示
+    local y = 0
+    local i = 1
+
+    for _, buffID in ipairs(sortedBuffIDs) do
+
+        local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
+        AUTO_CAST(buffslot)
+        local buffCls = GetClassByType("Buff", buffID);
+
+        if buffCls ~= nil then
+            SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
+
+            local icon = CreateIcon(buffslot)
+            AUTO_CAST(icon)
+            icon:SetTooltipType('buff');
+            icon:SetTooltipArg(buffCls.Name, buffID, 0);
+
+            local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 45, y + 5, 30, 30)
+            AUTO_CAST(buffcheck)
+            local check = g.buffs[tostring(buffID)] or 0
+
+            buffcheck:SetCheck(check)
+            buffcheck:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFCHECK")
+            buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buffID)
+
+            buffcheck:SetText("{ol}" .. buffCls.Name)
+            -- local clsid = buffCls.ClassID
+
+            buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buffID ..
+                                         "{nl}チェックするとパーティーバフ表示" or "{ol}" .. buffID ..
+                                         "{nl}Party buff display when checked")
+
+            y = y + 35
+            i = i + 1
+        end
+
+    end
+
+    bufflistframe:ShowWindow(1)
+
+end
+
+function MINI_ADDONS_BUFFCHECK(frame, ctrl, argStr, buffID)
+    local check = ctrl:IsChecked()
+
+    if g.buffs[tostring(buffID)] ~= nil then
+        g.buffs[tostring(buffID)] = check
+        acutil.saveJSON(g.buffsFileLoc, g.buffs)
+    end
+end
+
+function MINI_ADDONS_BUFFLIST_FRAME_CLOSE()
+    local frame = ui.GetFrame("mini_addons_bufflist")
+    frame:ShowWindow(0)
+end
+
+--[[function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
+    if g.settings.party_buff ~= 1 then
+        base["ON_PARTYINFO_BUFFLIST_UPDATE"](frame)
+    else
+        MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
+    end
+end
+
+function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
+    local frame = ui.GetFrame("partyinfo");
+    if frame == nil then
+        return;
+    end
+    local pcparty = session.party.GetPartyInfo();
+    if pcparty == nil then
+        DESTROY_CHILD_BYNAME(frame, 'PTINFO_');
+        frame:ShowWindow(0);
+        return;
+    end
+
+    local partyInfo = pcparty.info;
+    local obj = GetIES(pcparty:GetObject());
+    local list = session.party.GetPartyMemberList(0);
+    local count = list:Count();
+    local memberIndex = 0;
+
+    local myInfo = session.party.GetMyPartyObj();
+    -- 접속중 파티원 버프리스트
+    for i = 0, count - 1 do
+        local partyMemberInfo = list:Element(i);
+        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
+            local buffCount = partyMemberInfo:GetBuffCount();
+            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
+            if partyInfoCtrlSet ~= nil then
+                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet");
+                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet");
+
+                -- 초기화
+                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
+                    local slot = buffListSlotSet:GetSlotByIndex(j);
+                    slot:SetKeyboardSelectable(false);
+                    if slot == nil then
+                        break
+                    end
+                    slot:ShowWindow(0);
+                end
+
+                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
+                    local slot = debuffListSlotSet:GetSlotByIndex(j);
+                    if slot == nil then
+                        break
+                    end
+                    slot:ShowWindow(0);
+                end
+
+                -- 아이콘 셋팅
+                if buffCount <= 0 then
+                    partyMemberInfo:ResetBuff();
+                    buffCount = partyMemberInfo:GetBuffCount();
+                end
+
+                if buffCount > 0 then
+                    local buffIndex = 0;
+                    local debuffIndex = 0;
+                    for j = 0, buffCount - 1 do
+                        local buffID = partyMemberInfo:GetBuffIDByIndex(j);
+
+                        local cls = GetClassByType("Buff", buffID);
+
+                        -- if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~= "TeamLevel" then
+
+                        if cls ~= nil and cls.ClassName ~= "TeamLevel" then
+
+                            local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
+                            local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
+                            local slot = nil;
+                            if cls.Group1 == 'Buff' then
+                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
+                                if g.settings.party_buff == 1 then
+                                    local excludedBuffIDs = g.buffid
+                                    if MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
+                                        slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                        buffIndex = buffIndex + 1;
+                                    end
+                                else
+                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                    buffIndex = buffIndex + 1;
+                                end
+
+                            elseif cls.Group1 == 'Debuff' then
+                                slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
+                                debuffIndex = debuffIndex + 1;
+                            end
+
+                            if slot ~= nil then
+
+                                local icon = slot:GetIcon();
+                                if icon == nil then
+                                    icon = CreateIcon(slot);
+                                end
+
+                                local handle = 0;
+                                if myInfo ~= nil then
+                                    if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
+                                        partyMemberInfo:GetChannel() then
+                                        handle = partyMemberInfo:GetHandle();
+                                    end
+                                end
+
+                                handle = tostring(handle);
+                                icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
+                                icon:SetTooltipType('buff');
+                                icon:SetTooltipArg(handle, buffID, "");
+                                -- icon:SetEnable(1)
+
+                                local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
+                                if imageName ~= "icon_None" then
+                                    icon:Set(imageName, 'BUFF', buffID, 0);
+
+                                end
+
+                                if buffOver > 1 then
+                                    slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
+                                else
+                                    slot:SetText("");
+                                end
+
+                                slot:ShowWindow(1);
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end]]
+
+function MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
+
+    local buffIDStr = tostring(buffID)
+    if g.buffs[buffIDStr] == nil then
+        g.buffs[buffIDStr] = 1
+        acutil.saveJSON(g.buffsFileLoc, g.buffs)
+    end
+end
+
+function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
+    local frame = ui.GetFrame("partyinfo");
+    if frame == nil then
+        return;
+    end
+    local pcparty = session.party.GetPartyInfo();
+    if pcparty == nil then
+        DESTROY_CHILD_BYNAME(frame, 'PTINFO_');
+        frame:ShowWindow(0);
+        return;
+    end
+
+    local partyInfo = pcparty.info;
+    local obj = GetIES(pcparty:GetObject());
+    local list = session.party.GetPartyMemberList(0);
+    local count = list:Count();
+    local memberIndex = 0;
+
+    local myInfo = session.party.GetMyPartyObj();
+    -- 접속중 파티원 버프리스트
+    for i = 0, count - 1 do
+        local partyMemberInfo = list:Element(i);
+        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
+            local buffCount = partyMemberInfo:GetBuffCount();
+            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
+            if partyInfoCtrlSet ~= nil then
+                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet");
+                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet");
+
+                -- 초기화
+                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
+                    local slot = buffListSlotSet:GetSlotByIndex(j);
+                    slot:SetKeyboardSelectable(false);
+                    if slot == nil then
+                        break
+                    end
+                    slot:ShowWindow(0);
+                end
+
+                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
+                    local slot = debuffListSlotSet:GetSlotByIndex(j);
+                    if slot == nil then
+                        break
+                    end
+                    slot:ShowWindow(0);
+                end
+
+                -- 아이콘 셋팅
+                if buffCount <= 0 then
+                    partyMemberInfo:ResetBuff();
+                    buffCount = partyMemberInfo:GetBuffCount();
+                end
+
+                if buffCount > 0 then
+                    local buffIndex = 0;
+                    local debuffIndex = 0;
+                    for j = 0, buffCount - 1 do
+                        local buffID = partyMemberInfo:GetBuffIDByIndex(j);
+                        local cls = GetClassByType("Buff", buffID);
+                        if g.settings.party_buff == 1 then
+                            if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~=
+                                "TeamLevel" then
+
+                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
+
+                                local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
+                                local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
+                                local slot = nil;
+                                if cls.Group1 == 'Buff' then
+                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                    buffIndex = buffIndex + 1;
+
+                                elseif cls.Group1 == 'Debuff' then
+                                    slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
+                                    debuffIndex = debuffIndex + 1;
+                                end
+
+                                if slot ~= nil then
+                                    local icon = slot:GetIcon();
+                                    if icon == nil then
+                                        icon = CreateIcon(slot);
+                                    end
+
+                                    local handle = 0;
+                                    if myInfo ~= nil then
+                                        if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
+                                            partyMemberInfo:GetChannel() then
+                                            handle = partyMemberInfo:GetHandle();
+                                        end
+                                    end
+
+                                    handle = tostring(handle);
+                                    icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
+                                    icon:SetTooltipType('buff');
+                                    icon:SetTooltipArg(handle, buffID, "");
+
+                                    local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
+                                    if imageName ~= "icon_None" then
+                                        icon:Set(imageName, 'BUFF', buffID, 0);
+                                    end
+
+                                    if buffOver > 1 then
+                                        slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
+                                    else
+                                        slot:SetText("");
+                                    end
+
+                                    slot:ShowWindow(1);
+                                end
+                            end
+                        else
+
+                            if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~=
+                                "TeamLevel" then
+
+                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
+
+                                local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
+                                local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
+                                local slot = nil;
+                                if cls.Group1 == 'Buff' then
+                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
+                                    buffIndex = buffIndex + 1;
+
+                                elseif cls.Group1 == 'Debuff' then
+                                    slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
+                                    debuffIndex = debuffIndex + 1;
+                                end
+
+                                if slot ~= nil then
+                                    local icon = slot:GetIcon();
+                                    if icon == nil then
+                                        icon = CreateIcon(slot);
+                                    end
+
+                                    local handle = 0;
+                                    if myInfo ~= nil then
+                                        if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
+                                            partyMemberInfo:GetChannel() then
+                                            handle = partyMemberInfo:GetHandle();
+                                        end
+                                    end
+
+                                    handle = tostring(handle);
+                                    icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
+                                    icon:SetTooltipType('buff');
+                                    icon:SetTooltipArg(handle, buffID, "");
+
+                                    local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
+                                    if imageName ~= "icon_None" then
+                                        icon:Set(imageName, 'BUFF', buffID, 0);
+                                    end
+
+                                    if buffOver > 1 then
+                                        slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
+                                    else
+                                        slot:SetText("");
+                                    end
+
+                                    slot:ShowWindow(1);
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    acutil.setupHook(mini_addons_basefunction_old, "ON_PARTYINFO_BUFFLIST_UPDATE")
+end
+
+function mini_addons_basefunction_old()
+    return
+end
+
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -503,7 +940,8 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE");
         g.velnice = 0
     end
-    g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
+    -- g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
     g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
@@ -593,7 +1031,9 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.raid_check == 1 then
-        acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "MINI_ADDONS_CHECK_DREAMY_ABYSS")
+        g.settings.raid_check = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+        -- acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "MINI_ADDONS_CHECK_DREAMY_ABYSS")
     end
 
     if g.settings.party_info == 1 then
@@ -886,13 +1326,13 @@ function MINI_ADDONS_LANG(str)
         if str == "Skip confirmation for admission of 4 or less people" then
             str = "4인 이하 입장 시 확인을 건너뜁니다"
         elseif str == "Raid records movable and resizable" then
-            str = "레이드 기록을 이동 가능하고 크기 조정 가능하게 합니다"
+            str = "레이드 기록의 이동이 가능하고, 크기 조절을 할 수 있습니다"
         elseif str == "Hide buffs for party members" then
             str = "파티원 버프를 숨깁니다"
         elseif str == "You can choose which buffs to display" then
             str = "표시할 버프를 선택할 수 있습니다"
         elseif str == "Perfect and Black Market notices not displayed in chat" then
-            str = "완벽 및 블랙 마켓 공지를 채팅에 표시하지 않습니다"
+            str = "완벽함 메시지 및 블랙 마켓 공지를 채팅에 표시 하지 않습니다"
         elseif str == "Fixed channel display misalignment for Japanese ver" then
             str = "일본어 버전의 채널 표시 정렬을 수정했습니다"
         elseif str == "Hide minibutton in upper right corner during raid" then
@@ -904,14 +1344,14 @@ function MINI_ADDONS_LANG(str)
         elseif str == "Automatic display of pet summon frame" then
             str = "펫 소환 프레임을 자동으로 표시합니다"
         elseif str == "Controls various dialogs" then
-            str = "각종 대화를 제어합니다"
+            str = "각종 채팅을 제어합니다"
         elseif str == "Set auto casting per character" then
             str = "캐릭터별로 자동 시전 설정"
         elseif str == "Automatically used when acquiring coin items" then
             str =
-                "용병단 코인, 시즌 코인, 왕국 재건단 코인을 획득할 때 자동으로 사용됩니다"
+                "용병단 증표, 시즌 여신의 증표, 왕국 재건단 주화를 획득할 때 자동으로 사용합니다"
         elseif str == "Notification of forgetting to equip ark and emblem upon entry to the hard raid" then
-            str = "하드 레이드 입장 시 아크 및 엠블렘 장착 잊음을 알림니다"
+            str = "하드 레이드 입장시 아크 및 인장의 미착용을 알립니다"
         elseif str == "Lower frame layer level during auto match" then
             str = "자동 매칭 시 프레임 레이어 레벨을 낮춥니다"
         elseif str == "Hide the quest list" then
@@ -941,7 +1381,7 @@ function MINI_ADDONS_LANG(str)
         elseif str == "Always move the BGM player in city" then
             str = "도시에서 BGM 플레이어 항상 이동"
         elseif str == "Notify others of vakarine equipment in raid" then
-            str = " 레이드에 있는 바카린 장비를 다른 플레이어에게 알리기"
+            str = "레이드에서 바카리네 장비를 착용시 다른 플레이어에게 알립니다"
         elseif str == "Receive weekly boss reward automatically" then ---- Hide Ragana in city
             str = " 주간 보스 레이드 보상을 자동으로 수령"
         elseif str == "Hide the potion frame of the cupole.Memorizes frame position even when OFF" then
@@ -951,7 +1391,7 @@ function MINI_ADDONS_LANG(str)
         elseif str == "Equip Refining, Automate weapon/armor enhancement" then
             str = "장비 연성, 무기 방어구 스테이터스 부여 자동화"
         elseif str == "Search the status of icor in the inventory" then
-            str = "인벤토리에서 이퀄을 상태 검색할 수 있도록 하는 방법"
+            str = "인벤토리에서 'icor' 상태 검색하기"
         elseif str == "Remember the previous level of the Velnice dungeon" then
             str = "베르니케 던전의 이전 계층을 기억합니다"
         elseif str == "Eliminate around separate buff frame" then
@@ -1066,12 +1506,12 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         name = "relic_gauge",
         check = g.settings.relic_gauge,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Add a Relic to the character's gauge")
-    }, {
+    } --[[, {
         name = "raid_check",
         check = g.settings.raid_check,
         text = "{ol}{#FF4500}" ..
             MINI_ADDONS_LANG("Prevents character change mistakes during the hard raid on the Dreamy& Abyss")
-    }, {
+    }]] , {
         name = "party_info",
         check = g.settings.party_info,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Toggle party info frame. For mouse mode.Party info rightclick")
@@ -2586,249 +3026,6 @@ function MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
     else
         curchannel:SetTextByKey("value", "")
     end
-end
-
-function MINI_ADDONS_BUFFLIST_FRAME_INIT()
-    local bufflistframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_bufflist", 0, 0, 10, 10)
-    AUTO_CAST(bufflistframe)
-    bufflistframe:SetSkinName("bg")
-    bufflistframe:Resize(500, 1060)
-    bufflistframe:SetPos(10, 10)
-    bufflistframe:SetLayerLevel(121)
-    bufflistframe:RemoveAllChild()
-
-    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1015)
-    AUTO_CAST(bg)
-    bg:SetSkinName("bg")
-    bg:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
-    bg:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリックで閉じます。" or "Right-click to close.")
-
-    local closeBtn = bufflistframe:CreateOrGetControl('button', 'closeBtn', 450, 0, 30, 30)
-    AUTO_CAST(closeBtn)
-    closeBtn:SetImage("testclose_button")
-    closeBtn:SetGravity(ui.RIGHT, ui.TOP)
-    closeBtn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
-
-    local sortedBuffIDs = {}
-    for buffID, _ in pairs(g.buffs) do
-        table.insert(sortedBuffIDs, tonumber(buffID))
-    end
-    table.sort(sortedBuffIDs)
-
-    local bufflisttext = bufflistframe:CreateOrGetControl('richtext', 'bufflisttext', 90, 10, 200, 30)
-    AUTO_CAST(bufflisttext)
-    bufflisttext:SetText("{ol}BUFF LIST")
-
-    -- ソートされた順番で表示
-    local y = 0
-    local i = 1
-
-    for _, buffID in ipairs(sortedBuffIDs) do
-
-        local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
-        AUTO_CAST(buffslot)
-        local buffCls = GetClassByType("Buff", buffID);
-
-        if buffCls ~= nil then
-            SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
-
-            local icon = CreateIcon(buffslot)
-            AUTO_CAST(icon)
-            icon:SetTooltipType('buff');
-            icon:SetTooltipArg(buffCls.Name, buffID, 0);
-
-            local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 45, y + 5, 30, 30)
-            AUTO_CAST(buffcheck)
-            local check = g.buffs[tostring(buffID)] or 0
-
-            buffcheck:SetCheck(check)
-            buffcheck:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFCHECK")
-            buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buffID)
-
-            buffcheck:SetText("{ol}" .. buffCls.Name)
-            -- local clsid = buffCls.ClassID
-
-            buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buffID ..
-                                         "{nl}チェックするとパーティーバフ表示" or "{ol}" .. buffID ..
-                                         "{nl}Party buff display when checked")
-
-            y = y + 35
-            i = i + 1
-        end
-
-    end
-
-    bufflistframe:ShowWindow(1)
-
-end
-
-function MINI_ADDONS_BUFFCHECK(frame, ctrl, argStr, buffID)
-    local check = ctrl:IsChecked()
-
-    if g.buffs[tostring(buffID)] ~= nil then
-        g.buffs[tostring(buffID)] = check
-        acutil.saveJSON(g.buffsFileLoc, g.buffs)
-    end
-end
-
-function MINI_ADDONS_BUFFLIST_FRAME_CLOSE()
-    local frame = ui.GetFrame("mini_addons_bufflist")
-    frame:ShowWindow(0)
-end
-
-function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
-    if g.settings.party_buff ~= 1 then
-        base["ON_PARTYINFO_BUFFLIST_UPDATE"](frame)
-    else
-        MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
-    end
-end
-
-function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
-    local frame = ui.GetFrame("partyinfo");
-    if frame == nil then
-        return;
-    end
-    local pcparty = session.party.GetPartyInfo();
-    if pcparty == nil then
-        DESTROY_CHILD_BYNAME(frame, 'PTINFO_');
-        frame:ShowWindow(0);
-        return;
-    end
-
-    local partyInfo = pcparty.info;
-    local obj = GetIES(pcparty:GetObject());
-    local list = session.party.GetPartyMemberList(0);
-    local count = list:Count();
-    local memberIndex = 0;
-
-    local myInfo = session.party.GetMyPartyObj();
-    -- 접속중 파티원 버프리스트
-    for i = 0, count - 1 do
-        local partyMemberInfo = list:Element(i);
-        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
-            local buffCount = partyMemberInfo:GetBuffCount();
-            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
-            if partyInfoCtrlSet ~= nil then
-                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet");
-                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet");
-
-                -- 초기화
-                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
-                    local slot = buffListSlotSet:GetSlotByIndex(j);
-                    slot:SetKeyboardSelectable(false);
-                    if slot == nil then
-                        break
-                    end
-                    slot:ShowWindow(0);
-                end
-
-                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
-                    local slot = debuffListSlotSet:GetSlotByIndex(j);
-                    if slot == nil then
-                        break
-                    end
-                    slot:ShowWindow(0);
-                end
-
-                -- 아이콘 셋팅
-                if buffCount <= 0 then
-                    partyMemberInfo:ResetBuff();
-                    buffCount = partyMemberInfo:GetBuffCount();
-                end
-
-                if buffCount > 0 then
-                    local buffIndex = 0;
-                    local debuffIndex = 0;
-                    for j = 0, buffCount - 1 do
-                        local buffID = partyMemberInfo:GetBuffIDByIndex(j);
-
-                        local cls = GetClassByType("Buff", buffID);
-
-                        -- if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~= "TeamLevel" then
-
-                        if cls ~= nil and cls.ClassName ~= "TeamLevel" then
-
-                            local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
-                            local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
-                            local slot = nil;
-                            if cls.Group1 == 'Buff' then
-                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
-                                if g.settings.party_buff == 1 then
-                                    local excludedBuffIDs = g.buffid
-                                    if MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
-                                        slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                        buffIndex = buffIndex + 1;
-                                    end
-                                else
-                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                    buffIndex = buffIndex + 1;
-                                end
-
-                            elseif cls.Group1 == 'Debuff' then
-                                slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
-                                debuffIndex = debuffIndex + 1;
-                            end
-
-                            if slot ~= nil then
-
-                                local icon = slot:GetIcon();
-                                if icon == nil then
-                                    icon = CreateIcon(slot);
-                                end
-
-                                local handle = 0;
-                                if myInfo ~= nil then
-                                    if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
-                                        partyMemberInfo:GetChannel() then
-                                        handle = partyMemberInfo:GetHandle();
-                                    end
-                                end
-
-                                handle = tostring(handle);
-                                icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
-                                icon:SetTooltipType('buff');
-                                icon:SetTooltipArg(handle, buffID, "");
-                                -- icon:SetEnable(1)
-
-                                local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
-                                if imageName ~= "icon_None" then
-                                    icon:Set(imageName, 'BUFF', buffID, 0);
-
-                                end
-
-                                if buffOver > 1 then
-                                    slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
-                                else
-                                    slot:SetText("");
-                                end
-
-                                slot:ShowWindow(1);
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-function MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
-
-    local buffIDStr = tostring(buffID)
-    if g.buffs[buffIDStr] == nil then
-        g.buffs[buffIDStr] = 0
-        acutil.saveJSON(g.buffsFileLoc, g.buffs)
-    end
-end
-
-function MINI_ADDONS_IsBuffExcluded(buffID, excludedBuffIDs)
-    for _, id in ipairs(excludedBuffIDs) do
-        if buffID == id then
-            return true -- 除外リストに含まれる場合、trueを返す
-        end
-    end
-    return false -- 除外リストに含まれない場合、falseを返す
 end
 
 function MINI_ADDONS_UPDATESETTINGS(frame)
