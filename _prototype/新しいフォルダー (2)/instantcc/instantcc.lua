@@ -18,7 +18,7 @@ local acutil = require("acutil")
 local json = require("json")
 
 local active_id = session.loginInfo.GetAID()
-g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, active_id)
+g.settings_file_path = string.format('../addons/%s/%s.json', addonNameLower, active_id)
 
 local base = {}
 
@@ -77,12 +77,12 @@ function g.loadJSON(path)
 end
 
 function INSTANTCC_SAVE_SETTINGS()
-    g.saveJSON(g.settingsFileLoc, g.settings)
+    g.saveJSON(g.settings_file_path, g.settings)
 end
 
 function INSTANTCC_LOAD_SETTINGS()
 
-    local settings = g.loadJSON(g.settingsFileLoc)
+    local settings = g.loadJSON(g.settings_file_path)
     if not settings then
         settings = {
             charactors = {}
@@ -149,10 +149,13 @@ function INSTANTCC_ON_INIT(addon, frame)
     g.frame = frame
     g.do_cc = nil
     g.layer = g.layer or 1
+    g.try = 0
 
     INSTANTCC_LOAD_SETTINGS()
 
     g.SetupHook(INSTANTCC_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
+    g.SetupHook(INSTANTCC_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
+    g.SetupHook(INSTANTCC_BARRACK_TO_GAME, "BARRACK_TO_GAME")
 
     INSTANTCC_SORT_CHAR_DATA()
 
@@ -166,16 +169,20 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK_()
 
     function INSTANTCC_DO_CC(cid, layer)
 
-        g.do_cc = {
-            cid = cid,
-            layer = layer
-        }
-        base["APPS_TRY_MOVE_BARRACK"]()
-        return
+        if cid ~= nil then
+            g.do_cc = {
+                cid = cid,
+                layer = layer
+            }
+            base["APPS_TRY_MOVE_BARRACK"]()
+            return
+        else
+            base["APPS_TRY_MOVE_BARRACK"]()
+        end
     end
 
-    local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "Barrack Charactor List", 0, 0, 380, 0)
-    ui.AddContextMenuItem(context, "Return To Barrack", "base['APPS_TRY_MOVE_BARRACK']()")
+    local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "Barrack Charactor List", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "Return To Barrack", "INSTANTCC_DO_CC()")
     for i = 1, #g.settings.charactors do
 
         local info = g.settings.charactors[i]
@@ -203,28 +210,64 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN_(frame)
     barrack.SetHideLogin(1);
     hidelogin:SetCheck(barrack.IsHideLogin());
 
-    local bc_frame = ui.GetFrame("barrack_charlist")
-    g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-
-    if g.do_cc then
+    g.try = g.try + 1
+    if g.do_cc and g.try <= 1 then
         g.retry = 0
         ReserveScript("INSTANTCC_CHANGE()", 0.1)
     end
 end
 
-g.SetupHook(INSTANTCC_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
-ReserveScript(string.format("INSTANTCC_BARRACK_START_FRAME_OPEN_(%d)", 0), 0.1)
-
 function INSTANTCC_CHANGE()
+    barrack.SelectBarrackLayer(g.do_cc.layer)
+    ReserveScript(string.format("barrack.SelectCharacterByCID('%s')", g.do_cc.cid), 0.1)
+    ReserveScript("INSTANTCC_TOGAME()", 0.2)
+end
 
-    ReserveScript(string.format("barrack.SelectBarrackLayer(%d)", g.do_cc.layer), 0.1)
-    ReserveScript(string.format("barrack.SelectCharacterByCID('%s')", g.do_cc.cid), 0.2)
-    ReserveScript("INSTANTCC_TOGAME()", 0.3)
+function INSTANTCC_BARRACK_TO_GAME()
+    INSTANTCC_BARRACK_TO_GAME_()
+end
+
+function INSTANTCC_BARRACK_TO_GAME_()
+
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+
+    local myaccount = session.barrack.GetMyAccount();
+    if nil == myaccount then
+        return;
+    end
+    local myCharCount = myaccount:GetTotalSlotCount();
+    local buySlot = myaccount:GetBuySlotCount();
+    local barrackCls = GetClass("BarrackMap", myaccount:GetThemaName());
+    local maxCharCount = barrackCls.BaseSlot + buySlot;
+
+    if 0 == PostponeCharCount() and myCharCount > maxCharCount then
+        ui.SysMsg(ScpArgMsg("Many{CharCount}Than{CharSlot}CantStartGame", "CharCount", myCharCount, "CharSlot",
+            maxCharCount));
+    else
+        local bpc = barrack.GetGameStartAccount();
+        if bpc ~= nil then
+            local apc = bpc:GetApc();
+
+            local jobid = apc:GetJob();
+            local level = apc:GetLv();
+
+            local JobCtrlType = GetClassString('Job', jobid, 'CtrlType');
+
+            config.SetConfig("LastJobCtrltype", JobCtrlType);
+            config.SetConfig("LastPCLevel", level);
+        end
+        local frame = ui.GetFrame("barrack_gamestart")
+        local channels = GET_CHILD(frame, "channels", "ui::CDropList");
+        local key = channels:GetSelItemIndex();
+        app.BarrackToGame(key);
+    end
 end
 
 function INSTANTCC_RETRY()
     g.retry = g.retry + 1
     if g.retry > #g.settings.charactors then
+        g.do_cc = nil
         app.BarrackToLogin()
         ui.SysMsg("[ICC] Failed to select character, please try manually select.")
         return
@@ -236,6 +279,7 @@ function INSTANTCC_TOGAME()
 
     local bpca = barrack.GetBarrackPCInfoByCID(g.do_cc.cid)
     if bpca == nil then
+
         INSTANTCC_RETRY()
         return
     end
@@ -258,9 +302,12 @@ function INSTANTCC_TOGAME()
         return
     end
 
-    local bc_frame = ui.GetFrame("barrack_charlist")
+    INSTANTCC_BARRACK_TO_GAME()
+
+end
+
+--[[local bc_frame = ui.GetFrame("barrack_charlist")
     local layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-    g.layer = layer
 
     local apc = bpc:GetApc()
     local jobid = apc:GetJob()
@@ -274,8 +321,7 @@ function INSTANTCC_TOGAME()
     local channels = GET_CHILD(frame, "channels", "ui::CDropList")
     local key = channels:GetSelItemIndex()
 
-    app.BarrackToGame(key)
-end
+    app.BarrackToGame(key)]]
 
 --[[if INSTANTCC_BARRACK_START_FRAME_OPEN_OLD == nil then
     INSTANTCC_BARRACK_START_FRAME_OPEN_OLD = BARRACK_START_FRAME_OPEN

@@ -147,8 +147,13 @@ function SUB_MAP_ON_INIT(addon, frame)
     g.load_settings()
 
     g.size = g.size or g.settings.size
+    g.icon_size = g.icon_size or g.size * 0.08
 
     local map_type = g.get_map_type()
+    -- 流刑地1771　ゲナル1541　水路3740　男爵1176　サルビ2431　ヌオ滝2561
+    print(tostring(session.GetMapID()))
+    print(tostring(world.IsPVPMap()))
+    print(tostring(session.colonywar.GetIsColonyWarMap()))
     if world.IsPVPMap() == true or session.colonywar.GetIsColonyWarMap() == true then
         addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
         addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
@@ -174,7 +179,7 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
 
     local mon_pic = GET_CHILD_RECURSIVELY(frame, ctrl_name)
     if not mon_pic then
-        mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, g.size / 10, g.size / 10)
+        mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, g.icon_size, g.icon_size)
     end
     AUTO_CAST(mon_pic)
 
@@ -262,8 +267,9 @@ function sub_map_config_save(frame, ctrl)
         if size and size >= 150 and size <= 350 then
             g.settings.size = size
             g.size = size
+            g.icon_size = g.size * 0.08
         else
-            ui.SysMsg(g.lange == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
+            ui.SysMsg(g.lang == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
             sub_map_config(frame, ctrl, "close")
             return
         end
@@ -278,6 +284,7 @@ function sub_map_config_save(frame, ctrl)
 end
 
 function sub_map_config(frame, ctrl, str)
+
     local x = frame:GetWidth() - 85
     local size_edit = frame:CreateOrGetControl('edit', 'size_edit', x, 0, 50, 25)
     AUTO_CAST(size_edit)
@@ -286,9 +293,10 @@ function sub_map_config(frame, ctrl, str)
     size_edit:SetTextAlign('center', 'center')
     size_edit:SetEventScript(ui.ENTERKEY, "sub_map_config_save");
     size_edit:SetText(g.settings.size or tonumber(200))
-    size_edit:SetTextTooltip(g.lange == "Japanese" and "{ol}150～350" or "{ol}150～350")
+    size_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}150～350" or "{ol}150～350")
 
-    if not str then
+    if str == 0 then
+
         size_edit:ShowWindow(1)
     else
         size_edit:ShowWindow(0)
@@ -303,11 +311,17 @@ function sub_map_config(frame, ctrl, str)
     move:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックを外すとフレーム固定" or
                             "{ol}Frame fixed when unchecked")
 
-    if not str then
+    if str == 0 then
         move:ShowWindow(1)
     else
         move:ShowWindow(0)
     end
+end
+
+function sub_map_frame_end_drag(frame, ctrl)
+    g.settings.x = frame:GetX()
+    g.settings.y = frame:GetY()
+    g.save_settings()
 end
 
 function sub_map_frame_init()
@@ -318,11 +332,6 @@ function sub_map_frame_init()
     frame:EnableMove(g.settings.move)
     frame:EnableHitTest(g.settings.hittest)
 
-    local function sub_map_frame_end_drag(frame, ctrl)
-        g.settings.x = frame:GetX()
-        g.settings.y = frame:GetY()
-        g.save_settings()
-    end
     frame:SetEventScript(ui.LBUTTONUP, "sub_map_frame_end_drag")
     frame:SetEventScript(ui.RBUTTONUP, "sub_map_config")
 
@@ -371,7 +380,7 @@ function sub_map_frame_init()
     map_pic:SetEnableStretch(1)
     map_pic:EnableHitTest(0)
 
-    local my = gbox:CreateOrGetControl("picture", "my", g.size * 0.15, g.size * 0.15, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    local my = gbox:CreateOrGetControl("picture", "my", g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
     AUTO_CAST(my)
     my:SetImage("minimap_leader")
     my:SetEnableStretch(1)
@@ -439,11 +448,18 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
         if remove then
 
             for handle, _ in pairs(g.handle_tbl) do
-                local icon = GET_CHILD_RECURSIVELY(gbox, "gm" .. handle) or GET_CHILD_RECURSIVELY(gbox, "pm" .. handle)
+                local icon = GET_CHILD_RECURSIVELY(gbox, "pm" .. handle)
                 if icon then
                     gbox:RemoveChild(icon:GetName())
+                    g.handle_tbl[handle] = nil
                 end
-                g.handle_tbl[handle] = nil
+
+                local icon = GET_CHILD_RECURSIVELY(gbox, "gm" .. handle)
+                if icon then
+                    gbox:RemoveChild(icon:GetName())
+                    g.handle_tbl[handle] = nil
+                end
+
             end
             return
         end
@@ -463,13 +479,13 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
                 local instInfo = pc_info:GetInst()
                 local worldPos = instInfo:GetPos()
                 local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
-                local x = (pos.x - g.size * 0.1 / 2)
-                local y = (pos.y - g.size * 0.1 / 2)
+                local x = (pos.x - g.icon_size / 2)
+                local y = (pos.y - g.icon_size / 2)
                 local icon = GET_CHILD_RECURSIVELY(gbox, type_str .. handle)
                 if icon then
                     if math.floor(x) ~= icon:GetX() then
                         gbox:RemoveChild(handle)
-                        icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, g.size * 0.1, g.size * 0.1)
+                        icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, g.icon_size, g.icon_size)
                         AUTO_CAST(icon)
 
                         icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName());
@@ -477,7 +493,7 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
 
                     end
                 else
-                    icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, g.size * 0.1, g.size * 0.1)
+                    icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, g.icon_size, g.icon_size)
                     AUTO_CAST(icon)
                     icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName());
                     icon:SetEnableStretch(1)
@@ -599,8 +615,8 @@ function sub_map_mapicon_update(frame, msg, str, num)
         if string.find(data.class_type, "treasure_box") then
             local item_split = split(data.argstr2, ":");
             local item_name = GetClass("Item", item_split[2]).Name
-            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.size * 0.1, g.size * 0.1, ui.LEFT, ui.TOP,
-                                                 0, 0, 0, 0)
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
+                0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name);
             icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
@@ -616,8 +632,8 @@ function sub_map_mapicon_update(frame, msg, str, num)
         if string.find(data.class_type, "statue_vakarine") or string.find(data.class_type, "klaipeda_square_statue") or
             string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
 
-            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.size * 0.1, g.size * 0.1, ui.LEFT, ui.TOP,
-                                                 0, 0, 0, 0)
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
+                0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.name);
             icon:SetImage(data.icon_name)
@@ -762,13 +778,13 @@ function sub_map_set_warp_point(frame, map_name)
                     local pos = gen_list:Element(j)
 
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
-                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.size * 0.1, g.size * 0.1,
-                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
+                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
                     AUTO_CAST(icon)
                     local map_cls = GetClass("Map", cls_name);
                     icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name);
                     icon:SetImage(mon_prop:GetMinimapIcon())
-                    icon:SetOffset(mappos.x - g.size * 0.1 / 2, mappos.y - g.size * 0.1 / 2)
+                    icon:SetOffset(mappos.x - icon:GetWidth() / 2, mappos.y - icon:GetHeight() / 2)
                     icon:SetEnableStretch(1)
 
                 end
