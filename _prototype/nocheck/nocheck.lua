@@ -14,10 +14,11 @@
 -- v1.1.8 コレクション強化520に対応。1.1.6の挙動のまま
 -- v1.1.9 金床はなんでもノーチェックに。インベントリにonoff付けた。クエとかでバグるらしいので、街以外ではOFFに。アイテム連続使用のフレーム作った
 -- v1.2.0 アイテム連続使用フレームのバグ修正
+-- v1.2.1 アクセの系統変更時不自然なの修正。ボスカード使用時OFFでも使う様に。ええやろ別に。
 local addonName = "NOCHECK"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.0"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -363,11 +364,11 @@ end
 
 -- カードブック使用時の確認削除
 function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)
-    if g.settings.use == 1 then
-        NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN_(invItem)
-    else
+    -- if g.settings.use == 1 then
+    NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN_(invItem)
+    --[[else
         base["BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN"](invItem)
-    end
+    end]]
 end
 
 function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN_(invItem)
@@ -409,7 +410,7 @@ function NOCHECK_ON_INIT(addon, frame)
     g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
     g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
     g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+                "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
     g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
     g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
@@ -525,7 +526,7 @@ function nocheck_inventory_continuous_use_icon_use(frame)
         local count = tonumber(inv_item.count)
 
         local result = ReserveScript(string.format("nocheck_inventory_continuous_use_count_result('%s',%d)",
-            frame:GetName(), clsid), 1.0)
+                                                   frame:GetName(), clsid), 1.0)
 
     else
         local item_cls = GetClassByType("Item", clsid)

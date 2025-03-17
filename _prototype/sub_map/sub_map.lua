@@ -146,28 +146,66 @@ function SUB_MAP_ON_INIT(addon, frame)
 
     g.load_settings()
 
+    local map_type = g.get_map_type()
+
+    local current_map_id = session.GetMapID()
+    local colony_map = {1176, 1541, 1771, 2431, 2561, 3740}
+
+    for _, id in ipairs(colony_map) do
+        if current_map_id == id then
+            addon:RegisterMsg('GAME_START_3SEC', "sub_map_resize_show_frame")
+            return
+        end
+    end
+
+    if map_type ~= "Instance" then
+        addon:RegisterMsg('GAME_START_3SEC', "sub_map_resize_show_frame")
+    end
+
+end
+
+function sub_map_resize_show_frame()
+    local map_frame = ui.GetFrame("map")
+    map_frame:Resize(g.settings.size, g.settings.size)
+    UPDATE_MAP(map_frame);
+    map_frame:ShowWindow(1)
+end
+
+--[===[function SUB_MAP_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+    g.lang = option.GetCurrentCountry()
+    g.cid = session.GetMySession():GetCID()
+    g.login_name = session.GetMySession():GetPCApc():GetName()
+
+    g.load_settings()
+
     g.size = g.size or g.settings.size
     g.icon_size = g.icon_size or g.size * 0.08
 
     local map_type = g.get_map_type()
-    -- 流刑地1771　ゲナル1541　水路3740　男爵1176　サルビ2431　ヌオ滝2561
-    print(tostring(session.GetMapID()))
-    print(tostring(world.IsPVPMap()))
-    print(tostring(session.colonywar.GetIsColonyWarMap()))
-    if world.IsPVPMap() == true or session.colonywar.GetIsColonyWarMap() == true then
+
+    local current_map_id = session.GetMapID()
+    local colony_map = {1176, 1541, 1771, 2431, 2561, 3740} -- 流刑地1771　ゲナル1541　水路3740　男爵1176　サルビ2431　ヌオ滝2561
+
+    local function register_messages()
         addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
         addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
         addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
         addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")
-    else
-        if map_type ~= "Instance" then
-            addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
-            addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
-            addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
-            addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")
+    end
+
+    for _, id in ipairs(colony_map) do
+        if current_map_id == id then
+            register_messages()
+            return
         end
     end
 
+    if map_type ~= "Instance" then
+        register_messages()
+    end
 end
 
 function sub_map_monster(frame, msg, argStr, argNum, info)
@@ -616,7 +654,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             local item_split = split(data.argstr2, ":");
             local item_name = GetClass("Item", item_split[2]).Name
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                0, 0, 0)
+                                                 0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name);
             icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
@@ -633,7 +671,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                0, 0, 0)
+                                                 0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.name);
             icon:SetImage(data.icon_name)
@@ -779,7 +817,7 @@ function sub_map_set_warp_point(frame, map_name)
 
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
-                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
                     AUTO_CAST(icon)
                     local map_cls = GetClass("Map", cls_name);
                     icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name);
@@ -810,7 +848,7 @@ function sub_map_MAP_CHARACTER_UPDATE(frame, msg, str, num)
     my:ShowWindow(1)
     map_pic:Invalidate()
 
-end
+end]]==]]
 
 --[[function sub_map_set_pcicon(frame, msg, str, num)
 
@@ -1007,7 +1045,7 @@ function sub_map_update_member_guild(frame, msg, arg, type, info)
             end
         end
     end
-end
+end]===]
 
 --[[function sub_map_CREATE_PM_PICTURE(frame, pcInfo, type, mapprop)
     local myInfo = session.party.GetMyPartyObj(type)
