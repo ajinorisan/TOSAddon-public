@@ -75,25 +75,23 @@ function cc_helper_load_settings()
             auto_close = 1
         }
     end
-    CHAT_SYSTEM("test")
-    g.settings = settings
 
-    if not g.settings[g.cid] then
+    if not settings[g.cid] then
         local temp_tbl = {"name", "mcc_use", "agm_use", "agm_check", "seal", "ark", "leg", "god", "hair1", "hair2",
                           "hair3", "gem1", "gem2", "gem3", "gem4"}
-        local cid_settings = {}
+        settings[g.cid] = {}
 
         for i, key in ipairs(temp_tbl) do
             if key == "name" then
-                cid_settings[key] = g.login_name
+                settings[g.cid][key] = g.login_name
             elseif key == "mcc_use" then
-                cid_settings[key] = 0
+                settings[g.cid][key] = 0
             elseif key == "agm_use" then
-                cid_settings[key] = 0
+                settings[g.cid][key] = 0
             elseif key == "agm_check" then
-                cid_settings[key] = 1
+                settings[g.cid][key] = 1
             else
-                cid_settings[key] = {
+                settings[g.cid][key] = {
                     iesid = "",
                     clsid = 0,
                     image = "",
@@ -103,11 +101,10 @@ function cc_helper_load_settings()
             end
         end
 
-        g.settings[g.cid] = cid_settings
-    else
-        g.settings[g.cid] = settings[g.cid]
     end
-    CHAT_SYSTEM("test1")
+
+    g.settings = settings
+
     local functionName = "AETHERGEM_MGR_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
     if type(_G[functionName]) == "function" then
         g.agm = true
@@ -117,7 +114,7 @@ function cc_helper_load_settings()
             g.settings[g.cid].agm_use = 0
         end
     end
-    CHAT_SYSTEM("test2")
+
     local functionName = "MONSTERCARD_CHANGE_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
     if type(_G[functionName]) == "function" then
         g.mcc = true
@@ -127,30 +124,33 @@ function cc_helper_load_settings()
             g.settings[g.cid].mcc_use = 0
         end
     end
-    CHAT_SYSTEM("test3")
+
     cc_helper_save_settings()
 
     local cid_name_file_location = string.format('../addons/%s/%s', addonNameLower, active_id .. "_cid_name.json")
     g.cid_name = {}
-    local file = io.open(cid_name_file_location, "r")
 
+    local file = io.open(cid_name_file_location, "r")
     if file then
         local content = file:read("*all")
         file:close()
-        g.cid_name = json.decode(content)
+        g.cid_name = json.decode(content) or {}
     end
 
-    if g.cid_name[g.cid] == nil then
+    if not g.cid_name[g.cid] then
         g.cid_name[g.cid] = g.login_name
+
+        local encoded_content = json.encode(g.cid_name)
         file = io.open(cid_name_file_location, "w")
-        file:write(json.encode(g.cid_name))
-        file:close()
+        if file then
+            file:write(encoded_content)
+            file:close()
+        end
     end
 
     local end_time = os.clock()
     local elapsed_time = end_time - start_time
 
-    print(string.format("実行時間: %.6f 秒", elapsed_time))
     CHAT_SYSTEM(string.format("実行時間: %.6f 秒", elapsed_time))
 end
 
@@ -163,20 +163,10 @@ function CC_HELPER_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
     g.login_name = session.GetMySession():GetPCApc():GetName()
 
-    local cid_exists = false
-    for _, cid in ipairs(g.cids) do
-        if cid == g.cid then
-            cid_exists = true
-            break
-        end
-    end
-
-    if not cid_exists then
+    if not g.cids[g.cid] then
         cc_helper_load_settings()
-        table.insert(g.cids, g.cid)
+        g.cids[g.cid] = true
     end
-    CHAT_SYSTEM("testload")
-    -- cc_helper_load_settings()
 
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
@@ -530,7 +520,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, cid)
+                                          value.iesid, value.image, cid)
                     break
                 end
             end
@@ -762,7 +752,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, g.cid)
+                                          value.iesid, value.image, g.cid)
                     break
                 end
             end
