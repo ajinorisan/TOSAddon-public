@@ -1,4 +1,4 @@
-local addon_name = "ADDON_NAME"
+local addon_name = "BULK_SALES"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
 local ver = "1.0.0"
@@ -82,7 +82,7 @@ function g.load_settings()
     g.save_settings()
 end
 
-function ADDON_NAME_ON_INIT(addon, frame)
+function BULK_SALES_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
@@ -90,4 +90,32 @@ function ADDON_NAME_ON_INIT(addon, frame)
     g.cid = session.GetMySession():GetCID()
     g.login_name = session.GetMySession():GetPCApc():GetName()
 
+    addon:RegisterMsg('DIALOG_CLOSE', 'bulk_sales_SHOP_ON_MSG');
+end
+
+function bulk_sales_SHOP_ON_MSG(frame, msg, str, num)
+
+    if msg ~= "" then
+        return
+    end
+
+    local frame = ui.GetFrame("bulk_sales")
+
+    frame:SetSkinName("None")
+    frame:SetTitleBarSkin("None")
+
+    local slotset = frame:CreateOrGetControl('slotset', 'slotset', 0, 0, 0, 0)
+    AUTO_CAST(slotset);
+    slotset:EnablePop(1)
+    slotset:EnableDrag(1)
+    slotset:EnableDrop(1)
+    slotset:EnableHitTest(1);
+    slotset:SetColRow(10, 20)
+    slotset:SetSlotSize(40, 40)
+    slotset:SetSpc(1, 1)
+    slotset:SetSkinName('invenslot2')
+    slotset:CreateSlots()
+
+    frame:Resize(slotset:GetWidth() + 10, slotset:GetHeight() + 10)
+    frame:ShowWindow(1)
 end
