@@ -126,7 +126,8 @@ function g.load_settings()
             y = 120,
             move = 1,
             hittest = 1,
-            visible = 1
+            visible = 1,
+            size = 200
         }
     end
 
@@ -146,26 +147,65 @@ function SUB_MAP_ON_INIT(addon, frame)
     g.load_settings()
 
     local map_type = g.get_map_type()
-<<<<<<< HEAD
-=======
 
->>>>>>> 9cc480f3610d1ff620242bcf8d86a43404a83231
+    local current_map_id = session.GetMapID()
+    local colony_map = {1176, 1541, 1771, 2431, 2561, 3740}
+
+    for _, id in ipairs(colony_map) do
+        if current_map_id == id then
+            addon:RegisterMsg('GAME_START_3SEC', "sub_map_resize_show_frame")
+            return
+        end
+    end
+
     if map_type ~= "Instance" then
+        addon:RegisterMsg('GAME_START_3SEC', "sub_map_resize_show_frame")
+    end
+
+end
+
+function sub_map_resize_show_frame()
+    local map_frame = ui.GetFrame("map")
+    map_frame:Resize(g.settings.size, g.settings.size)
+    UPDATE_MAP(map_frame);
+    map_frame:ShowWindow(1)
+end
+
+--[===[function SUB_MAP_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+    g.lang = option.GetCurrentCountry()
+    g.cid = session.GetMySession():GetCID()
+    g.login_name = session.GetMySession():GetPCApc():GetName()
+
+    g.load_settings()
+
+    g.size = g.size or g.settings.size
+    g.icon_size = g.icon_size or g.size * 0.08
+
+    local map_type = g.get_map_type()
+
+    local current_map_id = session.GetMapID()
+    local colony_map = {1176, 1541, 1771, 2431, 2561, 3740} -- 流刑地1771　ゲナル1541　水路3740　男爵1176　サルビ2431　ヌオ滝2561
+
+    local function register_messages()
         addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
         addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
         addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
         addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")
     end
 
-<<<<<<< HEAD
-    --[[if map_type == "City" or map_type == "Field" or map_type == "Dungeon" then
-        addon:RegisterMsg("GAME_START_3SEC", "sub_map_frame_init")
+    for _, id in ipairs(colony_map) do
+        if current_map_id == id then
+            register_messages()
+            return
+        end
     end
-    addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_member_guild")
-    addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_update_member_party")
-    addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_member_party")]]
-=======
->>>>>>> 9cc480f3610d1ff620242bcf8d86a43404a83231
+
+    if map_type ~= "Instance" then
+        register_messages()
+    end
 end
 
 function sub_map_monster(frame, msg, argStr, argNum, info)
@@ -177,7 +217,7 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
 
     local mon_pic = GET_CHILD_RECURSIVELY(frame, ctrl_name)
     if not mon_pic then
-        mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, 20, 20)
+        mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, g.icon_size, g.icon_size)
     end
     AUTO_CAST(mon_pic)
 
@@ -258,6 +298,70 @@ function sub_map_frame_map_link(frame, ctrl)
     LINK_MAP_POS(map_name, worldPos.x, worldPos.y);
 end
 
+function sub_map_config_save(frame, ctrl)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "size_edit" then
+        local size = tonumber(ctrl:GetText())
+        if size and size >= 150 and size <= 350 then
+            g.settings.size = size
+            g.size = size
+            g.icon_size = g.size * 0.08
+        else
+            ui.SysMsg(g.lang == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
+            sub_map_config(frame, ctrl, "close")
+            return
+        end
+
+    elseif ctrl_name == "move" then
+        local is_check = ctrl:IsChecked()
+        g.settings.move = is_check
+    end
+    sub_map_config(frame, ctrl, "close")
+    sub_map_frame_init()
+    g.save_settings()
+end
+
+function sub_map_config(frame, ctrl, str)
+
+    local x = frame:GetWidth() - 85
+    local size_edit = frame:CreateOrGetControl('edit', 'size_edit', x, 0, 50, 25)
+    AUTO_CAST(size_edit)
+    size_edit:SetFontName('white_14_ol')
+    size_edit:SetSkinName('test_weight_skin')
+    size_edit:SetTextAlign('center', 'center')
+    size_edit:SetEventScript(ui.ENTERKEY, "sub_map_config_save");
+    size_edit:SetText(g.settings.size or tonumber(200))
+    size_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}150～350" or "{ol}150～350")
+
+    if str == 0 then
+
+        size_edit:ShowWindow(1)
+    else
+        size_edit:ShowWindow(0)
+    end
+
+    local move = frame:CreateOrGetControl('checkbox', 'move', 0, 0, 25, 25)
+    AUTO_CAST(move)
+
+    move:SetCheck(g.settings.move)
+    move:SetGravity(ui.RIGHT, ui.TOP)
+    move:SetEventScript(ui.LBUTTONUP, "sub_map_config_save")
+    move:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックを外すとフレーム固定" or
+                            "{ol}Frame fixed when unchecked")
+
+    if str == 0 then
+        move:ShowWindow(1)
+    else
+        move:ShowWindow(0)
+    end
+end
+
+function sub_map_frame_end_drag(frame, ctrl)
+    g.settings.x = frame:GetX()
+    g.settings.y = frame:GetY()
+    g.save_settings()
+end
+
 function sub_map_frame_init()
 
     local frame = ui.GetFrame("sub_map")
@@ -266,12 +370,8 @@ function sub_map_frame_init()
     frame:EnableMove(g.settings.move)
     frame:EnableHitTest(g.settings.hittest)
 
-    local function sub_map_frame_end_drag(frame, ctrl)
-        g.settings.x = frame:GetX()
-        g.settings.y = frame:GetY()
-        g.save_settings()
-    end
     frame:SetEventScript(ui.LBUTTONUP, "sub_map_frame_end_drag")
+    frame:SetEventScript(ui.RBUTTONUP, "sub_map_config")
 
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
@@ -280,7 +380,9 @@ function sub_map_frame_init()
     frame:ShowWindow(1)
 
     local title = frame:CreateOrGetControl("richtext", "title", 20, 5)
-    title:SetText("{ol}{S10}Sub Map")
+    local map_id = session.GetMapID()
+    local map_name = GetClassByType("Map", map_id).Name
+    title:SetText("{ol}{S10}" .. map_name)
 
     local display = frame:CreateOrGetControl("picture", "display", 0, 3, 15, 15)
     AUTO_CAST(display)
@@ -291,27 +393,32 @@ function sub_map_frame_init()
 
     if g.settings.visible == 1 then
         display:SetImage("btn_minus");
-        frame:Resize(230, 230)
+        frame:Resize(g.size + 10, g.size + 40)
     else
         display:SetImage("btn_plus");
-        frame:Resize(230, 20)
+        frame:Resize(g.size + 10, 40)
         return
     end
 
-    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 200, 200, ui.LEFT, ui.BOTTOM, 0, 20, 0, 0)
+    local gbox = frame:CreateOrGetControl("groupbox", "gbox", g.size + 10, g.size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
     gbox:SetEventScript(ui.MOUSEON, "sub_map_frame_layer_change")
     gbox:SetEventScriptArgString(ui.MOUSEON, "ON")
+    -- gbox:SetScrollBar(0);
+    -- gbox:EnableScrollBar(0);
 
     gbox:SetEventScript(ui.LBUTTONDOWN, "sub_map_frame_map_link")
+    gbox:SetTextTooltip(g.lang == "Japanese" and
+                            "{ol}右クリック:設定{nl}LCTRL+左クリック:マップリンク" or
+                            "{ol}{ol}Right click:Settings{nl}LCTRL+Left click:Map Link")
     -- gbox:SetEventScript(ui.MOUSEOFF, "sub_map_frame_layer_change")
     -- gbox:SetEventScriptArgString(ui.MOUSEOFF, "OFF")
 
-    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", 200, 200, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", g.size, g.size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
     AUTO_CAST(map_pic)
     map_pic:SetEnableStretch(1)
     map_pic:EnableHitTest(0)
 
-    local my = gbox:CreateOrGetControl("picture", "my", 30, 30, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    local my = gbox:CreateOrGetControl("picture", "my", g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
     AUTO_CAST(my)
     my:SetImage("minimap_leader")
     my:SetEnableStretch(1)
@@ -326,6 +433,9 @@ function sub_map_frame_init()
 
     g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "sub_map_MAP_CHARACTER_UPDATE")
     g.addon:RegisterMsg("MON_MINIMAP", "sub_map_monster")
+
+    g.addon:RegisterMsg("FPS_UPDATE", "sub_map_mapicon_update")
+
     g.addon:RegisterMsg("FPS_UPDATE", "sub_map_set_pcicon_update")
     g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_set_pcicon_update")
     g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_set_pcicon_update")
@@ -342,18 +452,57 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
     local handle_tbl = {}
 
     local function sub_map_display_party_member(party_type, type_str, default_icon)
+
         local my_info = session.party.GetMyPartyObj(party_type)
+        local remove = false
+
         if not my_info then
-            return
+            remove = true
+            --[[for handle, str_type in pairs(g.handle_tbl) do
+                local icon = GET_CHILD_RECURSIVELY(gbox, str_type .. handle)
+                if icon then
+                    gbox:RemoveChild(str_type .. handle)
+                end
+                g.handle_tbl[handle] = nil
+            end
+            return]]
         end
 
-        local my_handle = session.GetMyHandle()
         local list = session.party.GetPartyMemberList(party_type)
         local count = list:Count()
 
         if count == 1 then
+            remove = true
+            --[[for handle, str_type in pairs(g.handle_tbl) do
+                local icon = GET_CHILD_RECURSIVELY(gbox, str_type .. handle)
+                if icon then
+                    gbox:RemoveChild(str_type .. handle)
+                end
+                g.handle_tbl[handle] = nil
+            end
+            return]]
+        end
+
+        if remove then
+
+            for handle, _ in pairs(g.handle_tbl) do
+                local icon = GET_CHILD_RECURSIVELY(gbox, "pm" .. handle)
+                if icon then
+                    gbox:RemoveChild(icon:GetName())
+                    g.handle_tbl[handle] = nil
+                end
+
+                local icon = GET_CHILD_RECURSIVELY(gbox, "gm" .. handle)
+                if icon then
+                    gbox:RemoveChild(icon:GetName())
+                    g.handle_tbl[handle] = nil
+                end
+
+            end
             return
         end
+
+        local my_handle = session.GetMyHandle()
 
         for i = 0, count - 1 do
             local pc_info = list:Element(i)
@@ -368,13 +517,13 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
                 local instInfo = pc_info:GetInst()
                 local worldPos = instInfo:GetPos()
                 local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
-                local x = (pos.x - 10)
-                local y = (pos.y - 10)
+                local x = (pos.x - g.icon_size / 2)
+                local y = (pos.y - g.icon_size / 2)
                 local icon = GET_CHILD_RECURSIVELY(gbox, type_str .. handle)
                 if icon then
                     if math.floor(x) ~= icon:GetX() then
                         gbox:RemoveChild(handle)
-                        icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, 20, 20)
+                        icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, g.icon_size, g.icon_size)
                         AUTO_CAST(icon)
 
                         icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName());
@@ -382,7 +531,7 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
 
                     end
                 else
-                    icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, 20, 20)
+                    icon = gbox:CreateOrGetControl("picture", type_str .. handle, x, y, g.icon_size, g.icon_size)
                     AUTO_CAST(icon)
                     icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName());
                     icon:SetEnableStretch(1)
@@ -398,12 +547,15 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
             end
         end
     end
+    sub_map_draw_fog()
     sub_map_display_party_member(PARTY_NORMAL, "pm", "Archer_party")
 
     local isAutoChallengeMap = session.IsAutoChallengeMap();
     local isSoloChallengeMap = session.IsSoloChallengeMap();
+
     if not isAutoChallengeMap and not isSoloChallengeMap then
         sub_map_display_party_member(PARTY_GUILD, "gm", "Wizard_party")
+
     else
         for handle, str_type in pairs(g.handle_tbl) do
             if str_type == "gm" then
@@ -414,10 +566,9 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
                 g.handle_tbl[handle] = nil
             end
         end
-        return
     end
-
-    for handle, str_type in pairs(g.handle_tbl) do
+    gbox:Invalidate()
+    --[[for handle, str_type in pairs(g.handle_tbl) do
         if not handle_tbl[handle] then
             local icon = GET_CHILD_RECURSIVELY(gbox, str_type .. handle)
             if icon then
@@ -425,10 +576,216 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
             end
             g.handle_tbl[handle] = nil -- g.handle_tbl から削除
         end
+    end]]
+
+end
+
+function sub_map_get_mapinfo()
+    local map_class_name = session.GetMapName()
+    if map_class_name == nil or map_class_name == "" or map_class_name == "None" then
+        return
     end
 
-    gbox:Invalidate()
+    local frame = ui.GetFrame("sub_map")
+    local map_pic = frame:GetChildRecursively("map_pic")
 
+    local property = geMapTable.GetMapProp(map_class_name)
+    local class_list, class_count = GetClassList("GenType_" .. map_class_name)
+    local mongens = property.mongens
+    local temp_tbl = {}
+    local count = mongens:Count()
+
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local ies_data = GetClassByIndexFromList(class_list, i)
+        local class_type = ies_data.ClassType
+        local state = GetNPCState(map_class_name, ies_data.GenType)
+
+        if not state then
+            state = false
+        end
+
+        local gen_list = mon_prop.GenList
+        local map_pos
+        if gen_list:Count() > 0 then
+            map_pos = property:WorldPosToMinimapPos(gen_list:Element(0), map_pic:GetWidth(), map_pic:GetHeight())
+        end
+        local icon_name = mon_prop:GetMinimapIcon()
+
+        if string.find(class_type, "treasure_box") or string.find(class_type, "statue_zemina") or
+            string.find(class_type, "statue_vakarine") or string.find(class_type, "klaipeda_square_statue") or
+            string.find(class_type, "npc_orsha_goddess") then
+
+            local data = {
+                class_type = class_type,
+                state = state,
+                map_pos = map_pos,
+                icon_name = icon_name,
+                argstr1 = ies_data.ArgStr1,
+                argstr2 = ies_data.ArgStr2,
+                argstr3 = ies_data.ArgStr3,
+                name = ies_data.Name
+            }
+            table.insert(temp_tbl, data)
+        end
+    end
+
+    return temp_tbl
+end
+
+function sub_map_mapicon_update(frame, msg, str, num)
+
+    local info_table = sub_map_get_mapinfo()
+
+    local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
+
+    local function split(str, delim)
+        local return_data = {};
+        for match in string.gmatch(str, "[^" .. delim .. "]+") do
+            table.insert(return_data, match);
+        end
+        return return_data
+    end
+
+    for i, data in ipairs(info_table) do
+
+        if string.find(data.class_type, "treasure_box") then
+            local item_split = split(data.argstr2, ":");
+            local item_name = GetClass("Item", item_split[2]).Name
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
+                                                 0, 0, 0)
+            AUTO_CAST(icon)
+            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name);
+            icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+            icon:SetEnableStretch(1)
+            if data.state then
+                icon:SetImage("icon_item_box")
+            else
+                icon:SetText("{ol}{s10}" .. data.argstr1)
+                icon:SetImage("compen_btn")
+            end
+        end
+
+        if string.find(data.class_type, "statue_vakarine") or string.find(data.class_type, "klaipeda_square_statue") or
+            string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
+
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
+                                                 0, 0, 0)
+            AUTO_CAST(icon)
+            icon:SetTextTooltip("{ol}{s10}" .. data.name);
+            icon:SetImage(data.icon_name)
+            icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+            icon:SetEnableStretch(1)
+
+            if data.state then
+                icon:SetColorTone("FFFFFFFF")
+            else
+                icon:SetColorTone("FF555555")
+            end
+        end
+
+        --[[if data.state and string.find(data.class_type, "treasure_box") then
+
+            local item_split = split(data.argstr2, ":");
+            local item_name = GetClass("Item", item_split[2]).Name
+            local ForeColor = "#FFFFFF"
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 20, 20, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+            AUTO_CAST(icon)
+            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name);
+            -- icon:SetImage("compen_btn")
+            icon:SetImage("icon_item_box")
+            icon:SetOffset(data.map_pos.x - 10, data.map_pos.y - 10)
+            icon:SetEnableStretch(1)
+
+        elseif not data.state and string.find(data.class_type, "treasure_box") then
+            local item_split = split(data.argstr2, ":");
+            local item_name = GetClass("Item", item_split[2]).Name
+            local ForeColor = "#FFFFFF"
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. item_name, 20, 20, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+            AUTO_CAST(icon)
+            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name);
+            icon:SetImage("compen_btn")
+            icon:SetText("{ol}{s10}" .. data.argstr1)
+            icon:SetOffset(data.map_pos.x - 10, data.map_pos.y - 10)
+            icon:SetEnableStretch(1)
+        end
+
+        if data.state and string.find(data.class_type, "statue_vakarine") or
+            string.find(data.class_type, "klaipeda_square_statue") or string.find(data.class_type, "npc_orsha_goddess") or
+            string.find(data.class_type, "statue_zemina") then
+
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 20, 20, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+            AUTO_CAST(icon)
+            icon:SetTextTooltip("{ol}{s10}" .. data.name);
+            -- icon:SetImage("compen_btn")
+            icon:SetImage(data.icon_name)
+            icon:SetOffset(data.map_pos.x - 10, data.map_pos.y - 10)
+            icon:SetEnableStretch(1)
+            icon:SetColorTone("FFFFFFFF")
+
+        elseif not data.state and string.find(data.class_type, "statue_vakarine") or
+            string.find(data.class_type, "klaipeda_square_statue") or string.find(data.class_type, "npc_orsha_goddess") or
+            string.find(data.class_type, "statue_zemina") then
+
+            local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 20, 20, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+            AUTO_CAST(icon)
+            icon:SetTextTooltip("{ol}{s10}" .. data.name);
+            -- icon:SetImage("compen_btn")
+            icon:SetImage(data.icon_name)
+            icon:SetOffset(data.map_pos.x - 10, data.map_pos.y - 10)
+            icon:SetEnableStretch(1)
+            icon:SetColorTone("FF555555")
+        end]]
+    end
+    gbox:Invalidate()
+end
+
+function sub_map_draw_fog()
+    local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
+    local map_pic = frame:GetChildRecursively("map_pic")
+    AUTO_CAST(map_pic)
+    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_");
+    local map_id = session.GetMapID()
+    local map_name = GetClassByType("Map", map_id).ClassName
+
+    if MAP_USE_FOG(map_name) == 0 then
+        return
+    end
+
+    local map_frame = ui.GetFrame('map');
+    local map = GET_CHILD(map_frame, "map", 'ui::CPicture');
+
+    local map_zoom = math.abs(tonumber(map_pic:GetWidth()) / tonumber(map:GetWidth()))
+
+    local list = session.GetMapFogList(session.GetMapName());
+    local cnt = list:Count();
+    for i = 0, cnt - 1 do
+        local tile = list:PtrAt(i);
+
+        if tile.revealed == 0 then
+
+            local name = string.format("sub_map_fog_%d", i);
+            local tilePosX = (tile.x * map_zoom)
+            local tilePosY = (tile.y * map_zoom)
+            local tileWidth = math.ceil(tile.w * map_zoom)
+
+            local tileHeight = math.ceil(tile.h * map_zoom)
+
+            local pic = map_pic:CreateOrGetControl("picture", name, tilePosX, tilePosY, tileWidth, tileHeight);
+            AUTO_CAST(pic)
+
+            pic:ShowWindow(1);
+            pic:SetImage("fullred");
+            pic:SetEnableStretch(1);
+            pic:SetAlpha(40);
+            pic:EnableHitTest(0);
+
+        end
+    end
+
+    frame:Invalidate();
 end
 
 function sub_map_set_warp_point(frame, map_name)
@@ -438,6 +795,7 @@ function sub_map_set_warp_point(frame, map_name)
     local count = mongens:Count()
 
     local gbox = frame:GetChild("gbox")
+    local map_pic = gbox:GetChild("map_pic")
 
     for i = 0, count - 1 do
         local mon_prop = mongens:Element(i)
@@ -457,20 +815,21 @@ function sub_map_set_warp_point(frame, map_name)
                     local cls_name = TryGetProp(warp_cls, "TargetZone", "None")
                     local pos = gen_list:Element(j)
 
-                    local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, gbox:GetWidth(), gbox:GetHeight())
-                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, 20, 20, ui.LEFT, ui.TOP, 0, 0,
-                        0, 0)
+                    local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
+                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
+                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
                     AUTO_CAST(icon)
                     local map_cls = GetClass("Map", cls_name);
                     icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name);
                     icon:SetImage(mon_prop:GetMinimapIcon())
-                    icon:SetOffset(mappos.x - 10, mappos.y - 10)
+                    icon:SetOffset(mappos.x - icon:GetWidth() / 2, mappos.y - icon:GetHeight() / 2)
                     icon:SetEnableStretch(1)
 
                 end
             end
         end
     end
+
     gbox:Invalidate()
 end
 
@@ -489,7 +848,7 @@ function sub_map_MAP_CHARACTER_UPDATE(frame, msg, str, num)
     my:ShowWindow(1)
     map_pic:Invalidate()
 
-end
+end]]==]]
 
 --[[function sub_map_set_pcicon(frame, msg, str, num)
 
@@ -686,7 +1045,7 @@ function sub_map_update_member_guild(frame, msg, arg, type, info)
             end
         end
     end
-end
+end]===]
 
 --[[function sub_map_CREATE_PM_PICTURE(frame, pcInfo, type, mapprop)
     local myInfo = session.party.GetMyPartyObj(type)

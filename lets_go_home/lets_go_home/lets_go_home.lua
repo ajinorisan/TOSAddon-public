@@ -4,10 +4,11 @@
 -- v1.0.5 ミスって謎の語り部クリアしてしまったので増やした。
 -- v1.0.6 レティーシャワープ付けた。トークンワープのカウントダウンをフレームに収めた。
 -- v1.0.7 ワープ出来ないマップでSysMsgが永遠出続けるの直した。
+-- v1.0.8 チャンネルチェンジするタイミングでたまに固まるの修正
 local addonName = "LETS_GO_HOME"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -223,7 +224,7 @@ function LETS_GO_HOME_ON_INIT(addon, frame)
             if g.settings.leticia == 1 then
                 g.warp = 2
             end
-            addon:RegisterMsg("GAME_START", "LETS_GO_HOME_CHANNEL_CHANGE")
+            addon:RegisterMsg("GAME_START_3SEC", "LETS_GO_HOME_CHANNEL_CHANGE")
             -- RUN_GAMEEXIT_TIMER("Channel", g.settings.ch - 1)
             return
         else

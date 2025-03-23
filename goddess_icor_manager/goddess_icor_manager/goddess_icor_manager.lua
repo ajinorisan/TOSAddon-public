@@ -8,10 +8,11 @@
 -- v1.0.5 2ページ表示の場合に設定が即時反映されないバグ修正
 -- v1.0.6 2ページ目のイコル付け替えた際に1ページ目に戻るの修正。イコルのLV表示取りやめ。
 -- v1.0.7 settingsファイルが無い状態で読み込んだらバグってたの修正。ツールチップ併記取りやめ。
+-- v1.0.8 種族特攻とかのMAX数値が間違ってたの修正。そんなん知らんかった。
 local addonName = "GODDESS_ICOR_MANAGER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -2128,6 +2129,11 @@ function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str
 
     local language = option.GetCurrentCountry()
 
+    local level = info.GetLevel(session.GetMyHandle());
+    local setting_num = level * 30
+    local setting_num2 = level * 15
+    -- print(tostring(level))
+
     if language == "Japanese" then
         local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
 
@@ -2140,9 +2146,9 @@ function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str
 
         if index <= 4 or (index >= 9 and index <= 13) then
 
-            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(15000)")
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
         elseif index >= 5 and index <= 8 then
-            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(7500)")
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
 
         elseif index >= 14 then
             stattext:SetText("{ol}" .. child_stat)
@@ -2162,9 +2168,10 @@ function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str
 
         if index <= 4 or (index >= 9 and index <= 13) then
 
-            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(15000)")
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
         elseif index >= 5 and index <= 8 then
-            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(7500)")
+
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
 
         elseif index >= 14 then
             stattext:SetText("{ol}" .. child_stat)

@@ -128,7 +128,7 @@ function NOCHECK_EQUIP_CARDSLOT_INFO_OPEN(slotIndex)
     if g.settings.use == 1 then
         NOCHECK_EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT(slotIndex)
     else
-        base[EQUIP_CARDSLOT_INFO_OPEN](slotIndex)
+        base["EQUIP_CARDSLOT_INFO_OPEN"](slotIndex)
     end
 end
 function NOCHECK_EQUIP_CARDSLOT_BTN_REMOVE_WITHOUT_EFFECT(slotIndex)
@@ -364,9 +364,11 @@ end
 
 -- カードブック使用時の確認削除
 function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(invItem)
-    -- if g.settings.use == 1 then
+
     NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN_(invItem)
-    --[[else
+    --[[if g.settings.use == 1 then
+        NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN_(invItem)
+    else
         base["BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN"](invItem)
     end]]
 end

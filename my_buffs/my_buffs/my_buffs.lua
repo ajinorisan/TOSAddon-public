@@ -1,9 +1,10 @@
 -- v1.0.0 とりあえず公開
 -- v1.0.1 一部ユーザーが使えないとの情報あり。それっぽいところを直してみたけどわからん
+-- v1.0.2 デバフは全て表示する様に変更
 local addonName = "my_buffs"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -17,11 +18,10 @@ local os = require("os")
 -- local folder_path = string.format("../addons/%s", addonNameLower)
 -- os.execute('mkdir "' .. folder_path .. '"')
 
-g.settings_file_path = string.format("../addons/%s/settings.json", addonNameLower)
+g.settings_file_path = string.format("../addons/%s/settings_2503.json", addonNameLower)
 -- g.get_buffs_file_path = string.format("../addons/%s/get_buffs.json", addonNameLower)
 
 local base = {}
-
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
@@ -32,6 +32,23 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
+
 function MY_BUFFS_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -40,7 +57,7 @@ function MY_BUFFS_ON_INIT(addon, frame)
     my_buffs_load_settings()
 
     addon:RegisterMsg("GAME_START", "my_buffs_frame")
-    addon:RegisterMsg("BUFF_ADD", "my_buffs_BUFF_ADD_")
+    addon:RegisterMsg("BUFF_ADD", "my_buffs_BUFF_ADD")
 
     g.SetupHook(my_buffs_BUFF_ON_MSG, "BUFF_ON_MSG")
 
@@ -65,7 +82,6 @@ function my_buffs_BUFF_ON_MSG(frame, msg, argStr, argNum)
     if map_class.MapType ~= 'City' then
         local str_buff_id = tostring(argNum)
         if g.settings.buffs[str_buff_id] == false then
-
             return
         end
     end
@@ -98,29 +114,15 @@ function my_buffs_BUFF_ON_MSG(frame, msg, argStr, argNum)
     BUFF_RESIZE(frame, s_buff_ui);
 end
 
---[[function my_buffs_SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
-    local map_class = GetClass("Map", session.GetMapName());
-    if map_class.MapType ~= 'City' then
-        local str_buff_id = tostring(buffType)
-        if g.settings.buffs[str_buff_id] == false then
+function my_buffs_BUFF_ADD(frame, ctrl, str, buff_id)
 
-            return
+    local str_buff_id = tostring(buff_id)
+    local cls = GetClassByType("Buff", buff_id)
+    if cls.Group1 ~= 'Debuff' then
+        if g.settings.buffs[str_buff_id] == nil then
+            g.settings.buffs[str_buff_id] = true
+            my_buffs_save_settings()
         end
-    end
-    base["SET_BUFF_SLOT"](slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
-end]]
-
-function my_buffs_BUFF_ADD_(frame, ctrl, str, num)
-    ReserveScript(string.format("my_buffs_BUFF_ADD(%d)", num), 0.1)
-
-end
-
-function my_buffs_BUFF_ADD(num)
-
-    local str_buff_id = tostring(num)
-    if g.settings.buffs[str_buff_id] == nil then
-        g.settings.buffs[str_buff_id] = true
-        my_buffs_save_settings()
     end
 end
 

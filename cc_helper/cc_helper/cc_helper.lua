@@ -14,10 +14,11 @@
 -- v1.2.7 json作る時バグってた。
 -- v1.2.8 agmとの連携更にばぐってたの修正。
 -- v1.2.9 読込遅かったのを修正。その他ちょいバグ修正。
+-- v1.3.0 ヘアコスのエンチャントが3個じゃない場合バグってたの修正
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.9"
+local ver = "1.2.9.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -462,10 +463,23 @@ function cc_helper_setting_frame_init()
                     end
 
                     local str = g.settings[cid][name].memo
-                    local result = split(str, ":::")
+                    if string.find(str, ":::") then
+                        local result = split(str, ":::")
 
-                    icon:SetTextTooltip("{ol}Rank: " .. result[4] .. "{nl}" .. result[1] .. "{nl}" .. result[2] ..
-                                            "{nl}" .. result[3])
+                        if #result == 4 then
+                            icon:SetTextTooltip(
+                                "{ol}Rank: " .. result[4] .. "{nl}" .. result[1] .. "{nl}" .. result[2] .. "{nl}" ..
+                                    result[3])
+                        elseif #result == 3 then
+
+                            icon:SetTextTooltip("{ol}Rank: " .. result[3] .. "{nl}" .. result[1] .. "{nl}" .. result[2])
+                        elseif #result == 2 then
+
+                            icon:SetTextTooltip("{ol}Rank: " .. result[2] .. "{nl}" .. result[1])
+
+                        end
+
+                    end
                 elseif clsid ~= 0 then
                     icon:SetTooltipType('wholeitem');
                     icon:SetTooltipArg("None", clsid, iesid);
