@@ -21,18 +21,16 @@
 -- v1.2.1 あかんバグ修正
 -- v1.2.2 入庫時に引っ掛かりにくくなったハズ。テストは足りてない。
 -- v1.2.3 入庫時の引っ掛かりバグ完全に直った。IMCに勝った。
+-- v1.2.4 セット取り出しスロットを増やした。整理も出来る様に。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.3"
+local ver = "1.2.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
-
-g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-g.logpath = string.format('../addons/%s/log.txt', addonNameLower)
 
 local acutil = require("acutil")
 local json = require('json')
@@ -44,21 +42,33 @@ local function IsBlackListedTabName(name)
 end
 
 function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
-    local file = io.open(file_path, "r")
-    if not file then
-        os.execute('mkdir "' .. folder_path .. '"')
-        file = io.open(file_path, "w")
-        if file then
-            file:write("A new file has been created")
+    local function create_folder(folder_path, file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            os.execute('mkdir "' .. folder_path .. '"')
+            file = io.open(file_path, "w")
+            if file then
+                file:write("A new file has been created")
+                file:close()
+            end
+        else
             file:close()
         end
-    else
-        file:close()
     end
+    local folder = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    create_folder(folder, file_path)
+
+    local active_id = session.loginInfo.GetAID()
+    local user_folder = string.format("../addons/%s/%s", addonNameLower, active_id)
+    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, active_id)
+    create_folder(user_folder, user_file_path)
 end
 g.mkdir_new_folder()
+
+local active_id = session.loginInfo.GetAID()
+g.settingsFileLoc = string.format('../addons/%s/%s/settings.json', addonNameLower, active_id)
+g.settings_base_location = string.format('../addons/%s/settings.json', addonNameLower)
 
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
@@ -71,24 +81,22 @@ function g.SetupHook(func, baseFuncName)
 end
 
 function another_warehouse_load_settings()
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
 
-    if not settings or next(settings) == nil then
-        settings = {
-            silver = 1000000,
+    local settings = acutil.loadJSON(g.settingsFileLoc)
+    if not settings then
+        local base_settings = acutil.loadJSON(g.settings_base_location)
 
-            amount_check = 0,
-            transfer = 0,
-            items = {},
-            delay = 0.3
-
-        }
-    elseif settings.delay == nil then
-        settings.delay = 0.3
+        if base_settings then
+            settings = base_settings
+        else
+            settings = {
+                silver = 1000000,
+                amount_check = 0,
+                transfer = 0,
+                items = {},
+                delay = 0.3
+            }
+        end
     end
 
     another_warehouse_save_settings()
@@ -106,15 +114,53 @@ function another_warehouse_load_settings()
             items = {},
             transfer = 0
         }
-        another_warehouse_save_settings()
     end
     another_warehouse_save_settings()
+
+    if not g.organize then
+        g.organize = true
+        return
+    end
+
+    if g.organize then
+        another_warehouse_setting_file_organize()
+    end
 end
 
 function another_warehouse_save_settings()
 
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 
+end
+function another_warehouse_setting_file_organize()
+    local account_info = session.barrack.GetMyAccount()
+    local barrack_pc_count = account_info:GetBarrackPCCount()
+
+    local validKeys = {}
+
+    for key, data in pairs(g.settings) do
+        local num = tonumber(key)
+        if num then
+            for i = 0, barrack_pc_count - 1 do
+                local barrack_pc_info = account_info:GetBarrackPCByIndex(i)
+                local barrack_pc_name = barrack_pc_info:GetName()
+                if barrack_pc_name == data.name then
+                    -- CHAT_SYSTEM(tostring(barrack_pc_name))
+                    validKeys[key] = true
+                end
+            end
+        else
+            validKeys[key] = true
+        end
+    end
+
+    for key in pairs(g.settings) do
+        if not validKeys[key] then
+            g.settings[key] = nil
+        end
+    end
+
+    another_warehouse_save_settings()
 end
 
 function another_warehouse_lang(str)
@@ -620,7 +666,8 @@ function another_warehouse_set_items_setting(number, handle)
     frame:SetSkinName("test_frame_low")
     frame:SetPos(680, 170)
     frame:SetLayerLevel(100)
-    frame:Resize(270, 310)
+    -- frame:Resize(270, 310)
+    frame:Resize(270, 560)
     frame:SetUserValue("NUMBER", number)
     frame:RemoveAllChild()
 
@@ -633,7 +680,7 @@ function another_warehouse_set_items_setting(number, handle)
     local set_gb = frame:CreateOrGetControl("groupbox", "set_gb" .. number, 10, 50, 380, 380)
     AUTO_CAST(set_gb)
     set_gb:SetSkinName("test_frame_midle_light")
-    set_gb:Resize(250, 250)
+    set_gb:Resize(250, 500)
     frame:ShowWindow(1)
 
     local out = frame:CreateOrGetControl("button", "out", 0, 0, 100, 43)
@@ -659,8 +706,10 @@ function another_warehouse_set_items_setting(number, handle)
     set_slotset:EnablePop(1)
     set_slotset:EnableDrag(1)
     set_slotset:EnableDrop(1)
+    set_slotset:SetEventScript(ui.DROP, "another_warehouse_set_swap_item")
+    set_slotset:SetEventScriptArgString(ui.DROP, number)
 
-    set_slotset:SetColRow(5, 5)
+    set_slotset:SetColRow(5, 10)
     set_slotset:SetSpc(0, 0)
     set_slotset:SetSkinName('slot')
 
@@ -669,9 +718,12 @@ function another_warehouse_set_items_setting(number, handle)
 
     for i = 1, slotcount do
         local slot = GET_CHILD_RECURSIVELY(set_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+
         local icon = slot:GetIcon()
         if icon == nil then
             slot:SetTextTooltip(another_warehouse_lang("Warehouse items right-click to setting"))
+
         end
         local str_index = tostring(i)
         for key, value in pairs(g.settings.setitems[tostring(number)]) do
@@ -683,11 +735,46 @@ function another_warehouse_set_items_setting(number, handle)
                 slot:SetEventScript(ui.RBUTTONUP, "another_warehouse_set_clear_item")
                 slot:SetEventScriptArgString(ui.RBUTTONUP, number)
                 slot:SetEventScriptArgNumber(ui.RBUTTONUP, clsid)
+
                 SET_SLOT_ITEM_CLS(slot, itemcls)
+
+                -- slot:SetEventScriptArgNumber(ui.LBUTTONUP, clsid)
 
             end
         end
     end
+
+end
+
+function another_warehouse_set_swap_item(parent, slot, set_number_str, clsid)
+
+    if parent:GetTopParentFrame():GetName() ~= "another_warehouse_set_items" then
+        return
+    end
+    local lift_icon = ui.GetLiftIcon();
+    local from_slot = lift_icon:GetParent();
+    local from_index = string.gsub(from_slot:GetName(), "slot", "") * 1
+    local from_clsid = g.settings.setitems[tostring(set_number_str)][tostring(from_index)]
+
+    local to_index = string.gsub(slot:GetName(), "slot", "") * 1
+
+    local to_icon = slot:GetIcon()
+    if not to_icon then
+        g.settings.setitems[tostring(set_number_str)][tostring(from_index)] = nil
+        g.settings.setitems[tostring(set_number_str)][tostring(to_index)] = from_clsid
+
+    else
+        local to_clsid = g.settings.setitems[tostring(set_number_str)][tostring(to_index)]
+        g.settings.setitems[tostring(set_number_str)][tostring(from_index)] = to_clsid
+        g.settings.setitems[tostring(set_number_str)][tostring(to_index)] = from_clsid
+    end
+
+    another_warehouse_save_settings()
+
+    local frame = parent:GetTopParentFrame()
+    local name_edit = GET_CHILD_RECURSIVELY(frame, "name_edit")
+    local handle = name_edit:GetText()
+    another_warehouse_set_items_setting(tonumber(set_number_str), handle)
 
 end
 
@@ -769,16 +856,18 @@ function another_warehouse_take_context(frame, ctrl, argStr, argNum)
 
     if g.settings.handlelist == nil then
 
-        g.settings.handlelist = {
-            [1] = "Take Items 1",
-            [2] = "Take Items 2",
-            [3] = "Take Items 3",
-            [4] = "Take Items 4",
-            [5] = "Take Items 5",
-            [6] = "Take Items 6",
-            [7] = "Take Items 7",
-            [8] = "Take Items 8"
-        }
+        g.settings.handlelist = {"Take Items 1", "Take Items 2", "Take Items 3", "Take Items 4", "Take Items 5",
+                                 "Take Items 6", "Take Items 7", "Take Items 8", "Take Items 9", "Take Items 10"}
+        another_warehouse_save_settings()
+    end
+
+    if not g.settings.handlelist[9] then
+        table.insert(g.settings.handlelist, "Take Items 9")
+        another_warehouse_save_settings()
+    end
+
+    if not g.settings.handlelist[10] then
+        table.insert(g.settings.handlelist, "Take Items 10")
         another_warehouse_save_settings()
     end
 
@@ -839,6 +928,7 @@ function another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
     local margin = search_edit:GetMargin();
     search_edit:SetMargin(margin.left + 115, margin.top + 20, margin.right, margin.bottom)
     search_edit:SetEventScript(ui.ENTERKEY, "another_warehouse_frame_update")
+    search_edit:ShowWindow(1)
 
     local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
     AUTO_CAST(search_btn)
@@ -2363,6 +2453,9 @@ function another_warehouse_accountwarehouse_close()
     local msframe = ui.GetFrame("monstercardslot")
     msframe:SetLayerLevel(96)
 
+    local frame = ui.GetFrame("accountwarehouse")
+    frame:ShowWindow(0)
+
     local overlap = ui.GetFrame("another_warehouse")
     overlap:ShowWindow(0)
 
@@ -2664,6 +2757,9 @@ function another_warehouse_frame_close(frame, ctrl)
     -- leave
     local leave = GET_CHILD_RECURSIVELY(awframe, "leave")
     leave:ShowWindow(0)
+
+    local search_edit = GET_CHILD_RECURSIVELY(awframe, "search_edit")
+    search_edit:ShowWindow(0)
 
     another_warehouse_deactive_mousebutton()
     INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")

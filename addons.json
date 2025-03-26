@@ -19,6 +19,16 @@
 		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
+		"name" : "Bulk Sales",
+		"file" : "bulk_sales",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "instbulk_salesantcc",
+		"unicode" : "⛄",
+		"description" : "雑貨屋で大量販売出来るスロットセットを提供<br>Provide a set of slots that can be sold in bulk at a grocery store<br>잡화점에서 대량 판매할 수 있는 슬롯 세트 제공",
+		"tags" : ["ajinori","ajinorisan"]
+	},
+	{
 		"name" : "Characters Item Serch",
 		"file" : "characters_item_serch",
 		"extension" : "ipf",
@@ -163,7 +173,7 @@
 		"name" : "Boss Direction",
 		"file" : "boss_direction",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.5",
+		"fileVersion" : "v1.0.6",
 		"releaseTag" : "boss_direction",
 		"unicode" : "⛄",
 		"description" : "ボスが向いている方向を矢印でお知らせ。<br>The direction the boss is facing is indicated by an arrow.<br>보스가 향하고 있는 방향을 화살표로 알려준다.",
@@ -183,7 +193,7 @@
 		"name" : "Mini Addons",
 		"file" : "mini_addons",
 		"extension" : "ipf",
-		"fileVersion" : "v1.6.0",
+		"fileVersion" : "v1.6.1",
 		"releaseTag" : "mini_addons",
 		"unicode" : "⛄",
 		"description" : "MINI MAP左下ボタンを押すと機能説明とON OFF機能があります。Free From Trivial Stressの上位互換版です。競合するのでアンインストールしてください。<br>MINI MAP lower left button for function description and ON/OFF function. upward compatible version of Free From Trivial Stress. Please uninstall it as it conflicts with Free From Trivial Stress.<br>MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 기능이 있으며, Free From Trivial Stress의 상위 호환 버전입니다. 충돌이 발생하므로 제거하시기 바랍니다.",
@@ -371,7 +381,7 @@
 		"name" : "Another Warehouse",
 		"file" : "another_warehouse",
 		"extension" : "ipf",
-		"fileVersion" : "v1.2.3",
+		"fileVersion" : "v1.2.4",
 		"releaseTag" : "another_warehouse",
 		"unicode" : "⛄",
 		"description" : "倉庫をインベントリ風に改造します。自動搬出入機能付き。<br>Converts warehouse to inventory style. Includes automatic loading/unloading function.<br>창고를 인벤토리 스타일로 개조합니다. 자동 반입 및 반출 기능 포함.",

@@ -58,10 +58,11 @@
 -- v1.5.8 グループチャットバグ修正
 -- v1.5.9 どこでもmemberinfo出来る様に。
 -- v1.6.0 デバフ表示バグってたの修正
+-- v1.6.1 チャンネルインフォのサイズ変更。ちょっとバグ修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.0"
+local ver = "1.6.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1152,8 +1153,8 @@ function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
         ui.AddContextMenuItem(context, ScpArgMsg("WHISPER"), string.format("ui.WhisperTo('%s')", memberInfo:GetName()));
         local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')", memberInfo:GetName());
         ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
-        ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
-            string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+        --[[ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
+            string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));]]
         ui.AddContextMenuItem(context, ScpArgMsg("GiveLeaderPermission"),
             string.format("GIVE_PARTY_LEADER(\"%s\")", memberInfo:GetName()));
         ui.AddContextMenuItem(context, ScpArgMsg("Ban"), string.format("BAN_PARTY_MEMBER(\"%s\")", memberInfo:GetName()));
@@ -1172,8 +1173,8 @@ function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
         ui.AddContextMenuItem(context, ScpArgMsg("WHISPER"), string.format("ui.WhisperTo('%s')", memberInfo:GetName()));
         local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')", memberInfo:GetName());
         ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
-        ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
-            string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+        --[[ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
+            string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));]]
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
             local aid = memberInfo:GetAID();
@@ -3198,7 +3199,7 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
             -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
 
             local String = zoneInst.pcCount
-            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
+            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 40 + 5, 15, 40, 40)
             AUTO_CAST(btn)
             btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
             local channelnum = session.loginInfo.GetChannel();
@@ -3211,13 +3212,14 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
                 btn:SetText(text)
             elseif tonumber(String) < 20 then
                 local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
+                -- local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. 100
                 btn:SetText(text)
             else
                 local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
                 btn:SetText(text)
             end
         end
-        frame:Resize(cnt * 50 + 20, 60)
+        frame:Resize(cnt * 40 + 20, 60)
         frame:ShowWindow(1)
     else
         frame:ShowWindow(0)
