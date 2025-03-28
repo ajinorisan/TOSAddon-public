@@ -58,10 +58,12 @@
 -- v1.5.8 グループチャットバグ修正
 -- v1.5.9 どこでもmemberinfo出来る様に。
 -- v1.6.0 デバフ表示バグってたの修正
+-- v1.6.1 チャンネルインフォのサイズ変更。ちょっとバグ修正。
+-- v1.6.2 EP13ショップを街で開けられる様に。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.0"
+local ver = "1.6.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -416,18 +418,18 @@ function MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS_CONTINUE()
 end
 
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-                                                 default_number)
+    default_number)
     if g.settings.velnice.use == 0 then
         base["INDUN_EDITMSGBOX_FRAME_OPEN"](type, clmsg, desc, yesScp, noScp, min_number, max_number, default_number)
     else
         MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-                                                 default_number)
+            default_number)
 
     end
 end
 
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-                                                  default_number)
+    default_number)
 
     default_number = g.settings.velnice.level
 
@@ -477,9 +479,8 @@ function MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE(frame, msg, argStr)
         local sec = string.format("%02d", tonumber(remaintimeValue:GetTextByKey("sec")))
 
         imcAddOn.BroadMsg("NOTICE_Dm_stage_start",
-                          string.format(
-                              "{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
-                              current_wave - 1, min, sec), 2.0)
+            string.format("{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
+                current_wave - 1, min, sec), 2.0)
         g.velnice = current_wave
     else
         return
@@ -790,53 +791,6 @@ function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
         g.settings.group_name[tostring(roomid)] = newtitle
         MINI_ADDONS_SAVE_SETTINGS()
 
-        function MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, targetName)
-
-            local frame = ui.GetFrame('chat')
-            local chatEditCtrl = frame:GetChild('mainchat')
-            local titleCtrl = GET_CHILD(frame, 'edit_to_bg')
-            local editbg = GET_CHILD(frame, 'edit_bg')
-            local name = GET_CHILD(titleCtrl, 'title_to')
-            AUTO_CAST(name)
-            local btn_ChatType = GET_CHILD(frame, 'button_type')
-
-            titleCtrl:SetOffset(btn_ChatType:GetOriginalWidth(), titleCtrl:GetOriginalY())
-            local offsetX = btn_ChatType:GetOriginalWidth() -- 시작 offset은 type btn 넓이 다음으로.
-            local titleText = ''
-            local isVisible = 0
-
-            if targetName ~= "" then
-
-                isVisible = 1
-                titleText = targetName
-                if titleText == "" or titleText == nil then
-                    return
-                end
-
-            end
-
-            -- 이름을 먼저 설정해줘야 크기와 위치 설정이 이루어진다.
-            name:SetText(titleText)
-
-            if titleText ~= '' then
-                titleCtrl:Resize(name:GetWidth() + 20, titleCtrl:GetOriginalHeight())
-            else
-                titleCtrl:Resize(name:GetWidth(), titleCtrl:GetOriginalHeight())
-            end
-
-            if isVisible == 1 then
-                titleCtrl:SetVisible(1)
-                offsetX = offsetX + titleCtrl:GetWidth()
-            else
-                titleCtrl:SetVisible(0)
-            end
-
-            local width = chatEditCtrl:GetOriginalWidth() - titleCtrl:GetWidth() - btn_ChatType:GetWidth()
-            chatEditCtrl:Resize(width, chatEditCtrl:GetOriginalHeight())
-
-            chatEditCtrl:SetOffset(offsetX, chatEditCtrl:GetOriginalY())
-        end
-
         local chatframe = ui.GetFrame("chat")
         if chatframe ~= nil and chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE") == "6" then
             MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, g.settings.group_name[tostring(roomid)])
@@ -859,6 +813,53 @@ function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
 
 end
 
+function MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, targetName)
+
+    local frame = ui.GetFrame('chat')
+    local chatEditCtrl = frame:GetChild('mainchat')
+    local titleCtrl = GET_CHILD(frame, 'edit_to_bg')
+    local editbg = GET_CHILD(frame, 'edit_bg')
+    local name = GET_CHILD(titleCtrl, 'title_to')
+    AUTO_CAST(name)
+    local btn_ChatType = GET_CHILD(frame, 'button_type')
+
+    titleCtrl:SetOffset(btn_ChatType:GetOriginalWidth(), titleCtrl:GetOriginalY())
+    local offsetX = btn_ChatType:GetOriginalWidth() -- 시작 offset은 type btn 넓이 다음으로.
+    local titleText = ''
+    local isVisible = 0
+
+    if targetName ~= "" then
+
+        isVisible = 1
+        titleText = targetName
+        if titleText == "" or titleText == nil then
+            return
+        end
+
+    end
+
+    -- 이름을 먼저 설정해줘야 크기와 위치 설정이 이루어진다.
+    name:SetText(titleText)
+
+    if titleText ~= '' then
+        titleCtrl:Resize(name:GetWidth() + 20, titleCtrl:GetOriginalHeight())
+    else
+        titleCtrl:Resize(name:GetWidth(), titleCtrl:GetOriginalHeight())
+    end
+
+    if isVisible == 1 then
+        titleCtrl:SetVisible(1)
+        offsetX = offsetX + titleCtrl:GetWidth()
+    else
+        titleCtrl:SetVisible(0)
+    end
+
+    local width = chatEditCtrl:GetOriginalWidth() - titleCtrl:GetWidth() - btn_ChatType:GetWidth()
+    chatEditCtrl:Resize(width, chatEditCtrl:GetOriginalHeight())
+
+    chatEditCtrl:SetOffset(offsetX, chatEditCtrl:GetOriginalY())
+end
+
 function MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, ctrl, roomid, num)
 
     local chatframe = ui.GetFrame('chat')
@@ -875,6 +876,11 @@ function MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, ctrl, roomid, num)
 
     g.room_id = roomid
     ui.SetGroupChatTargetID(roomid)
+
+    local target_name = g.settings.group_name[roomid]
+    if target_name then
+        MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, target_name)
+    end
     chatframe:ShowWindow(0)
 
     if num == 1 then
@@ -944,8 +950,7 @@ function MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE(frame, msg)
 
                     for key, value in pairs(g.settings.group_name) do
                         ui.AddContextMenuItem(context, value, string.format(
-                                                  "MINI_ADDONS_SEND_POPUP_FRAME_CHAT(%s,%s,'%s',%d)", "nil",
-                                                  "main_chat", key, 1))
+                            "MINI_ADDONS_SEND_POPUP_FRAME_CHAT(%s,%s,'%s',%d)", "nil", "main_chat", key, 1))
                     end
                     ui.OpenContextMenu(context)
                 end
@@ -1030,7 +1035,7 @@ function MINI_ADDONS_CHAT_RBTN_POPUP_(frame, chatCtrl)
     local ctrlName = frame:GetName()
     if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
         local translateScp = string.format("REQ_TRANSLATE_TEXT('%s','%s','%s')", topFrame_Name, parentFrame_Name,
-                                           ctrlName)
+            ctrlName)
         ui.AddContextMenuItem(context, ScpArgMsg("TRANSLATE"), translateScp)
     end
     local copyPcId = string.format("COPY_PC_ID('%s')", targetName)
@@ -1042,13 +1047,13 @@ function MINI_ADDONS_CHAT_RBTN_POPUP_(frame, chatCtrl)
     local blockScp = string.format("CHAT_BLOCK_MSG('%s')", targetName)
     ui.AddContextMenuItem(context, ScpArgMsg("FriendBlock"), blockScp)
     ui.AddContextMenuItem(context, ScpArgMsg("Report_AutoBot"),
-                          string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", targetName))
+        string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", targetName))
 
     ui.AddContextMenuItem(context, ScpArgMsg("Cancel"), "None")
     ui.AddContextMenuItem(context, "-----", "None")
     -- ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'), string.format("ui.Chat(%s)", "/ " .. targetName))
     ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-                          string.format("ui.Chat('%s')", "/memberinfo " .. targetName))
+        string.format("ui.Chat('%s')", "/memberinfo " .. targetName))
     ui.OpenContextMenu(context)
 end
 
@@ -1083,7 +1088,7 @@ function MINI_ADDONS_POPUP_GUILD_MEMBER_(parent, ctrl)
         local mapName = session.GetMapName();
         if mapName == 'guild_agit_1' or mapName == 'guild_agit_extension' then
             ui.AddContextMenuItem(context, ScpArgMsg("GiveGuildLeaderPermission"),
-                                  string.format("SEND_REQ_GUILD_MASTER('%s')", name));
+                string.format("SEND_REQ_GUILD_MASTER('%s')", name));
         end
     end
 
@@ -1157,7 +1162,7 @@ function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
         --[[ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
             string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));]]
         ui.AddContextMenuItem(context, ScpArgMsg("GiveLeaderPermission"),
-                              string.format("GIVE_PARTY_LEADER(\"%s\")", memberInfo:GetName()));
+            string.format("GIVE_PARTY_LEADER(\"%s\")", memberInfo:GetName()));
         ui.AddContextMenuItem(context, ScpArgMsg("Ban"), string.format("BAN_PARTY_MEMBER(\"%s\")", memberInfo:GetName()));
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
@@ -1192,7 +1197,7 @@ function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
     ui.AddContextMenuItem(context, "-----", "None")
     local playerName = memberInfo:GetName();
     ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-                          string.format("ui.Chat('%s')", "/memberinfo " .. playerName))
+        string.format("ui.Chat('%s')", "/memberinfo " .. playerName))
     ui.OpenContextMenu(context);
 end
 
@@ -1305,30 +1310,30 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
             if pcObj:GetHeaderText() ~= nil and string.len(pcObj:GetHeaderText()) ~= 0 then
                 if pcObj:IsHeaderTextVisible() == true then
                     ui.AddContextMenuItem(context, "{img context_preface_block 18 17} " .. ClMsg("BlockTitleText"),
-                                          strscp);
+                        strscp);
                 else
                     ui.AddContextMenuItem(context, "{img context_preface_remove 18 17} " .. ClMsg("UnblockTitleText"),
-                                          strscp);
+                        strscp);
                 end
             end
         end
 
         if session.world.IsIntegrateServer() == false then
             local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')",
-                                                         pcObj:GetPCApc():GetFamilyName());
+                pcObj:GetPCApc():GetFamilyName());
             ui.AddContextMenuItem(context, "{img context_friend_application 18 13} " .. ScpArgMsg("ReqAddFriend"),
-                                  strRequestAddFriendScp);
+                strRequestAddFriendScp);
         end
 
         ui.AddContextMenuItem(context, "{img context_friendly_match 18 17} " .. ScpArgMsg("RequestFriendlyFight"),
-                              string.format("REQUEST_FIGHT(\"%d\")", pcObj:GetHandleVal()));
+            string.format("REQUEST_FIGHT(\"%d\")", pcObj:GetHandleVal()));
         -- ui.AddContextMenuItem(context, ScpArgMsg("RequestFriendlyAncientFight"), string.format("REQUEST_ANCIENT_FIGHT(\"%d\")", pcObj:GetHandleVal()));
 
         local mapprop = session.GetCurrentMapProp();
         local mapCls = GetClassByType("Map", mapprop.type);
         if IS_TOWN_MAP(mapCls) == true then
             ui.AddContextMenuItem(context, "{img context_personal_housing 18 17} " .. ScpArgMsg("PH_SEL_DLG_2"),
-                                  string.format("REQUEST_PERSONAL_HOUSING_WARP(\"%s\")", pcObj:GetPCApc():GetAID()));
+                string.format("REQUEST_PERSONAL_HOUSING_WARP(\"%s\")", pcObj:GetPCApc():GetAID()));
         end
 
         local familyname = pcObj:GetPCApc():GetFamilyName()
@@ -1338,29 +1343,29 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
             local strRequestLikeItScp = string.format("SEND_PC_INFO(%d)", handle);
             if session.likeit.AmILikeYou(familyname) == true then
                 ui.AddContextMenuItem(context, "{img context_like 18 17} " .. ScpArgMsg("ReqUnlikeIt"),
-                                      strRequestLikeItScp);
+                    strRequestLikeItScp);
             else
                 ui.AddContextMenuItem(context, "{img context_like 18 17} " .. ScpArgMsg("ReqLikeIt"),
-                                      strRequestLikeItScp);
+                    strRequestLikeItScp);
             end
         end
 
         ui.AddContextMenuItem(context, "{img context_automatic_suspicion 16 17} " .. ScpArgMsg("Report_AutoBot"),
-                              string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+            string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
 
         -- report guild emblem
         if pcObj:IsGuildExist() == true then
             ui.AddContextMenuItem(context,
-                                  "{img context_inappropriate_emblem 17 17} " .. ScpArgMsg("Report_GuildEmblem"),
-                                  string.format("REPORT_GUILDEMBLEM_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+                "{img context_inappropriate_emblem 17 17} " .. ScpArgMsg("Report_GuildEmblem"), string.format(
+                    "REPORT_GUILDEMBLEM_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
         end
 
         -- 보호모드, 강제킥
         if 1 == session.IsGM() then
             ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Protected"),
-                                  string.format("REQUEST_GM_ORDER_PROTECTED(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+                string.format("REQUEST_GM_ORDER_PROTECTED(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
             ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Kick"),
-                                  string.format("REQUEST_GM_ORDER_KICK(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+                string.format("REQUEST_GM_ORDER_KICK(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
         end
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
@@ -1414,7 +1419,7 @@ function MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
         strscp = string.format("ui.Chat(\"//killmon %d\")", handle);
         ui.AddContextMenuItem(context, ScpArgMsg("Auto_JeKeo"), strscp)
         ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Kick"),
-                              string.format("REQUEST_ORDER_DUMMY_KICK(\"%s\")", handle))
+            string.format("REQUEST_ORDER_DUMMY_KICK(\"%s\")", handle))
     end
 
     if session.world.IsIntegrateServer() == false then
@@ -1432,8 +1437,51 @@ function MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
     ui.OpenContextMenu(context)
 end
 
-g.group_chat = nil
+function mini_addons_REPUTATION_SHOP_OPEN_context(frame, ctrl, str, num)
 
+    function mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN(shop_type)
+        -- print(tostring(shop_type))
+        REPUTATION_SHOP_SET_SHOPTYPE(shop_type)
+        ui.OpenFrame("reputation_shop")
+    end
+
+    local context = ui.CreateContextMenu("select_shop", "EP13 Shop List ", 0, 0, 0, 0)
+    local shop_tbl = {{
+        name = "REPUTATION_ep13_f_siauliai_1",
+        id = 11209
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_2",
+        id = 11210
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_3",
+        id = 11211
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_4",
+        id = 11212
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_5",
+        id = 11213
+    }}
+
+    for index, shop in ipairs(shop_tbl) do
+        local shop_name = shop.name
+        local id = shop.id
+        local map_name = GetClassByType("Map", id).Name
+        ui.AddContextMenuItem(context, map_name,
+            string.format("mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN('%s')", shop_name))
+    end
+    ui.OpenContextMenu(context)
+end
+
+function mini_addons_reputation_shop_close()
+    local shopframe = ui.GetFrame("reputation_shop")
+    if shopframe:IsVisible() == 1 then
+        ui.CloseFrame("reputation_shop")
+        ui.ToggleFrame('inventory');
+    end
+end
+
+g.group_chat = nil
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -1447,6 +1495,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_CONTEXT_PARTY, "CONTEXT_PARTY") -- SHOW_PC_CONTEXT_MENU(handle)
     g.SetupHook(MINI_ADDONS_SHOW_PC_CONTEXT_MENU, "SHOW_PC_CONTEXT_MENU")
     g.SetupHook(MINI_ADDONS_POPUP_DUMMY, "POPUP_DUMMY")
+    -- g.SetupHook(MINI_ADDONS_ACCOUNTPROP_INVENTORY_UPDATE, "ACCOUNTPROP_INVENTORY_UPDATE")
 
     if g.settings.group_chat == 1 and g.group_chat then
 
@@ -1600,7 +1649,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
 
+    local inv = ui.GetFrame("inventory")
+    local inventory_accpropinv = GET_CHILD_RECURSIVELY(inv, "inventory_accpropinv")
+    AUTO_CAST(inventory_accpropinv)
+
     if mapCls.MapType == "City" then
+
+        inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "mini_addons_REPUTATION_SHOP_OPEN_context")
+        inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "mini_addons_reputation_shop_close")
 
         if g.settings.goodbye_ragana == 1 then
             addon:RegisterMsg("GAME_START", "mini_addons_ragana_remove_timer");
@@ -1641,6 +1697,9 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         local max_frame = ui.GetFrame("bgmplayer");
         local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn");
         MINIADDONS_BGMPLAYER_PLAY(max_frame, play_btn);
+
+        inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "None")
+        inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "None")
     end
 
     if g.settings.mini_btn == 1 then
@@ -2159,11 +2218,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
             end
             auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
-                                              "When turned on, the gacha starts automatically.CC required for switching"))
+                "When turned on, the gacha starts automatically.CC required for switching"))
             auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
         elseif setting.name == "other_effect" then
             local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', textWidth + 15, x - 5, 60,
-                                                               25)
+                25)
             AUTO_CAST(other_effect_edit)
             other_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_OTHER_EFFECT_EDIT")
             other_effect_edit:SetTextTooltip("{ol}1~100")
@@ -2200,7 +2259,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             switch:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH")
             local switch_width = switch:GetWidth()
             local switch_text = frame:CreateOrGetControl("richtext", "switch_text", textWidth + 15 + switch_width,
-                                                         x + 2, 80, 25)
+                x + 2, 80, 25)
             AUTO_CAST(switch_text)
             switch_text:SetText(g.lang == "Japanese" and "{ol}ダメージ報酬切替" or "{ol}Damage Reward Switch")
             -- g.lang = "Japanese"
@@ -2755,7 +2814,7 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
             if slogutis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
-                                     5.0)
+                    5.0)
                 NICO_CHAT("{@st55_a}スローガティスまだやってへんで？")
             elseif upinis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
@@ -2981,7 +3040,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                     if TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
                                         local max_option_count =
                                             shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
-                                                                                                        'UseLv', 1))
+                                                'UseLv', 1))
                                         for ii = 1, max_option_count do
                                             local option_name = 'EarringSpecialOption_' .. ii
                                             local job = TryGetProp(itemCls, option_name, 'None')
@@ -2989,7 +3048,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                                 local job_cls = GetClass('Job', job)
                                                 if job_cls ~= nil then
                                                     itemname = string.lower(
-                                                                   dictionary.ReplaceDicIDInCompStr(job_cls.Name));
+                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name));
                                                     a = string.find(itemname, tempcap);
                                                     if a ~= nil then
                                                         makeSlot = true
@@ -3034,9 +3093,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                                                               'ui::CGroupBox')
+                                            'ui::CGroupBox')
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                                           'ui::CTreeControl')
+                                            'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls);
                                     end
                                     -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
@@ -3044,7 +3103,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                                                               'ui::CTreeControl')
+                                            'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls);
                                     end
                                 end
@@ -3061,9 +3120,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if isOptionApplied == 1 and cap == "" then -- 검색 중에는 조건에 맞는 아이템 없으면 tree 안 만듬
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                                                               'ui::CGroupBox');
+                                            'ui::CGroupBox');
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                                           'ui::CTreeControl');
+                                            'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree); -- 해당 아이템이 속한 탭
                                     end
 
@@ -3072,7 +3131,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox');
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                                                               'ui::CTreeControl');
+                                            'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree_all); -- ALL 탭 
                                     end
                                 end
@@ -3200,7 +3259,7 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
             -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
 
             local String = zoneInst.pcCount
-            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 50 + 5, 15, 50, 40)
+            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 40 + 5, 15, 40, 40)
             AUTO_CAST(btn)
             btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
             local channelnum = session.loginInfo.GetChannel();
@@ -3213,13 +3272,14 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
                 btn:SetText(text)
             elseif tonumber(String) < 20 then
                 local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
+                -- local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. 100
                 btn:SetText(text)
             else
                 local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
                 btn:SetText(text)
             end
         end
-        frame:Resize(cnt * 50 + 20, 60)
+        frame:Resize(cnt * 40 + 20, 60)
         frame:ShowWindow(1)
     else
         frame:ShowWindow(0)
@@ -3417,8 +3477,7 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 if tostring(spotName) == "SEAL" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                                             "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？",
-                                             3.0)
+                            "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？", 3.0)
                         -- ui.SysMsg("{#FF8C00}エンブレム装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Emblem?")
@@ -3428,8 +3487,7 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 elseif tostring(spotName) == "ARK" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                                             "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?",
-                                             3.0)
+                            "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?", 3.0)
                         -- ui.SysMsg("{st55_a}{#FF8C00}アーク装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Ark?")
@@ -3669,7 +3727,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
