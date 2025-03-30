@@ -23,7 +23,7 @@
 		"file" : "bulk_sales",
 		"extension" : "ipf",
 		"fileVersion" : "v1.0.0",
-		"releaseTag" : "instbulk_salesantcc",
+		"releaseTag" : "bulk_sales",
 		"unicode" : "⛄",
 		"description" : "雑貨屋で大量販売出来るスロットセットを提供<br>Provide a set of slots that can be sold in bulk at a grocery store<br>잡화점에서 대량 판매할 수 있는 슬롯 세트 제공",
 		"tags" : ["ajinori","ajinorisan"]

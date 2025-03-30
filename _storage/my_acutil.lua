@@ -14,9 +14,12 @@ function g.setup_hook(my_func, origin_func_name)
     g.funcs = g.funcs or {}
     if not g.funcs[origin_func_name] then
         g.funcs[origin_func_name] = _G[origin_func_name]
+
         local function hooked_function(...)
+
             my_func(...)
         end
+
         _G[origin_func_name] = hooked_function
     end
 end
@@ -67,9 +70,9 @@ function g.mkdir_new_folder()
     local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
     create_folder(folder, file_path)
 
-    local active_id = session.loginInfo.GetAID()
-    local user_folder = string.format("../addons/%s/%s", addon_name_lower, active_id)
-    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, active_id)
+    g.active_id = session.loginInfo.GetAID()
+    local user_folder = string.format("../addons/%s/%s", addon_name_lower, g.active_id)
+    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, g.active_id)
     create_folder(user_folder, user_file_path)
 end
 g.mkdir_new_folder()
