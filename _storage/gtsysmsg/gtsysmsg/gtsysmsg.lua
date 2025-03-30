@@ -147,6 +147,7 @@ function GTSYSMSG_notice_use_switch(frame, ctrl, str, num)
 end
 
 function GTSYSMSG_btn_init()
+
     local chatframe = ui.GetFrame("chatframe")
     local tabgbox = GET_CHILD_RECURSIVELY(chatframe, "tabgbox")
     local switch_btn = tabgbox:CreateOrGetControl("button", "switch_btn", 300, -1, 40, 30)
@@ -166,14 +167,26 @@ function GTSYSMSG_NOTICE_ON_MSG(frame, msg, str, num)
 end
 
 function GTSYSMSG_NOTICE_ON_MSG_(frame, msg, str, num)
-
+    g.call = g.call or 0
     if string.find(str, 'AppearFieldBoss_ep14_2_d_castle_3{name}') then
-        NICO_CHAT(string.format("{@st55_a}%s", str))
-        CHAT_SYSTEM(str)
-        ReserveScript(string.format("GTSYSMSG_NOTICE_ON_MSG_GUILD('%s')", "[GTS Notice]Baubas has appeared"), 0.25)
+        g.call = g.call + 1
+        print(g.call)
+        if g.call == 1 then
+            imcSound.PlaySoundEvent('sys_tp_box_4')
+            NICO_CHAT(string.format("{@st55_a}%s", str))
+            CHAT_SYSTEM(str)
+            local guild_notice = "[GTS]Baubas has appeared"
+            GTSYSMSG_NOTICE_ON_MSG_GUILD(guild_notice)
+        elseif g.call < 3 then
+            imcSound.PlaySoundEvent('sys_tp_box_4')
+        elseif g.call == 3 then
+            imcSound.PlaySoundEvent('sys_tp_box_4')
+            g.call = 0
+        end
     elseif string.find(str, '{name}DisappearFieldBoss') and string.find(str, '맹화의 바우바') then
         CHAT_SYSTEM(str)
-        ReserveScript(string.format("GTSYSMSG_NOTICE_ON_MSG_GUILD('%s')", "[GTS Notice]Baubas has been defeated"), 0.5)
+        local guild_notice = "[GTS]Baubas has been defeated"
+        GTSYSMSG_NOTICE_ON_MSG_GUILD(guild_notice)
     end
     g.funcs["NOTICE_ON_MSG"](frame, msg, str, num)
 end
@@ -192,7 +205,6 @@ function GTSYSMSG_NOTICE_ON_MSG_GUILD(str)
     edit:RunEnterKeyScript();
     ui.ProcessReturnKey()
     chatframe:ShowWindow(0)
-
 end
 
 -- testcode

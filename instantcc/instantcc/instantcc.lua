@@ -6,11 +6,12 @@
 -- v1.0.5 速攻バグ修正
 -- v1.0.6 設定ジョブ取れる様に。
 -- v1.0.7 コンテキスト表示切替
+-- v1.0.8 indun_list_viewerと連携バグってたの修正
 local addonName = "INSTANTCC"
 local addonNameLower = string.lower(addonName)
 
 local author = "ebisuke"
-local ver = "1.0.7"
+local ver = "1.0.8"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -199,20 +200,20 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK()
     INSTANTCC_APPS_TRY_MOVE_BARRACK_(1)
 end
 
-function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
+function INSTANTCC_DO_CC(cid, layer)
 
-    function INSTANTCC_DO_CC(cid, layer)
-
-        if cid then
-            g.do_cc = {
-                cid = cid,
-                layer = layer
-            }
-            RUN_GAMEEXIT_TIMER("Barrack")
-        else
-            RUN_GAMEEXIT_TIMER("Barrack")
-        end
+    if cid then
+        g.do_cc = {
+            cid = cid,
+            layer = layer
+        }
+        RUN_GAMEEXIT_TIMER("Barrack")
+    else
+        RUN_GAMEEXIT_TIMER("Barrack")
     end
+end
+
+function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
 
     local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "Barrack Charactor List", 0, 0, 0, 0)
     ui.AddContextMenuItem(context, "Return To Barrack", "INSTANTCC_DO_CC()")

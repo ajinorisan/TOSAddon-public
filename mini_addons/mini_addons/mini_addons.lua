@@ -59,10 +59,11 @@
 -- v1.5.9 どこでもmemberinfo出来る様に。
 -- v1.6.0 デバフ表示バグってたの修正
 -- v1.6.1 チャンネルインフォのサイズ変更。ちょっとバグ修正。
+-- v1.6.2 EP13ショップを街で開けられる様に。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.1"
+local ver = "1.6.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -790,57 +791,15 @@ function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
         g.settings.group_name[tostring(roomid)] = newtitle
         MINI_ADDONS_SAVE_SETTINGS()
 
-        function MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, targetName)
-
-            local frame = ui.GetFrame('chat')
-            local chatEditCtrl = frame:GetChild('mainchat')
-            local titleCtrl = GET_CHILD(frame, 'edit_to_bg')
-            local editbg = GET_CHILD(frame, 'edit_bg')
-            local name = GET_CHILD(titleCtrl, 'title_to')
-            AUTO_CAST(name)
-            local btn_ChatType = GET_CHILD(frame, 'button_type')
-
-            titleCtrl:SetOffset(btn_ChatType:GetOriginalWidth(), titleCtrl:GetOriginalY())
-            local offsetX = btn_ChatType:GetOriginalWidth() -- 시작 offset은 type btn 넓이 다음으로.
-            local titleText = ''
-            local isVisible = 0
-
-            if targetName ~= "" then
-
-                isVisible = 1
-                titleText = targetName
-                if titleText == "" or titleText == nil then
-                    return
-                end
-
-            end
-
-            -- 이름을 먼저 설정해줘야 크기와 위치 설정이 이루어진다.
-            name:SetText(titleText)
-
-            if titleText ~= '' then
-                titleCtrl:Resize(name:GetWidth() + 20, titleCtrl:GetOriginalHeight())
-            else
-                titleCtrl:Resize(name:GetWidth(), titleCtrl:GetOriginalHeight())
-            end
-
-            if isVisible == 1 then
-                titleCtrl:SetVisible(1)
-                offsetX = offsetX + titleCtrl:GetWidth()
-            else
-                titleCtrl:SetVisible(0)
-            end
-
-            local width = chatEditCtrl:GetOriginalWidth() - titleCtrl:GetWidth() - btn_ChatType:GetWidth()
-            chatEditCtrl:Resize(width, chatEditCtrl:GetOriginalHeight())
-
-            chatEditCtrl:SetOffset(offsetX, chatEditCtrl:GetOriginalY())
-        end
-
         local chatframe = ui.GetFrame("chat")
-        if chatframe ~= nil and chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE") == "6" then
-            MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, g.settings.group_name[tostring(roomid)])
+        -- local chat_type
+        if chatframe ~= nil then
+            -- chat_type = chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE")
+
+            -- chatframe:SetUserValue("CHAT_TYPE_SELECTED_VALUE", 6)
+            ui.SetChatType(5)
             MINI_ADDONS_SEND_POPUP_FRAME_CHAT(_, _, roomid, 1)
+            -- and chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE") == "6" then
 
             local frame = ui.GetFrame('chat_grouplist');
             local gbox = GET_CHILD_RECURSIVELY(frame, "chatlist_group");
@@ -854,9 +813,54 @@ function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
             titletext:SetText(title .. persons)
             frame:ShowWindow(0)
         end
-
+        -- chatframe:SetUserValue("CHAT_TYPE_SELECTED_VALUE", chat_type)
     end
 
+end
+
+function MINI_ADDONS_CHAT_SET_TO_TITLENAME(targetName)
+
+    local frame = ui.GetFrame('chat')
+    local chatEditCtrl = frame:GetChild('mainchat')
+    local titleCtrl = GET_CHILD(frame, 'edit_to_bg')
+    local editbg = GET_CHILD(frame, 'edit_bg')
+    local name = GET_CHILD(titleCtrl, 'title_to')
+    AUTO_CAST(name)
+    local btn_ChatType = GET_CHILD(frame, 'button_type')
+
+    titleCtrl:SetOffset(btn_ChatType:GetOriginalWidth(), titleCtrl:GetOriginalY())
+    local offsetX = btn_ChatType:GetOriginalWidth() -- 시작 offset은 type btn 넓이 다음으로.
+    local titleText = ''
+    local isVisible = 0
+
+    if targetName ~= "" then
+
+        isVisible = 1
+        titleText = targetName
+        if titleText == "" or titleText == nil then
+            return
+        end
+
+    end
+    -- 이름을 먼저 설정해줘야 크기와 위치 설정이 이루어진다.
+
+    name:SetText(titleText)
+    if titleText ~= '' then
+        titleCtrl:Resize(name:GetWidth() + 20, titleCtrl:GetOriginalHeight())
+    else
+        titleCtrl:Resize(name:GetWidth(), titleCtrl:GetOriginalHeight())
+    end
+
+    if isVisible == 1 then
+        titleCtrl:SetVisible(1)
+        offsetX = offsetX + titleCtrl:GetWidth()
+    else
+        titleCtrl:SetVisible(0)
+    end
+
+    local width = chatEditCtrl:GetOriginalWidth() - titleCtrl:GetWidth() - btn_ChatType:GetWidth()
+    chatEditCtrl:Resize(width, chatEditCtrl:GetOriginalHeight())
+    chatEditCtrl:SetOffset(offsetX, chatEditCtrl:GetOriginalY())
 end
 
 function MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, ctrl, roomid, num)
@@ -872,6 +876,13 @@ function MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, ctrl, roomid, num)
         g.room_id = nil
         return
     end
+
+    local chat_type = chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE")
+    -- CHAT_SYSTEM(chat_type)
+    ui.SetChatType(5)
+    MINI_ADDONS_CHAT_SET_TO_TITLENAME(g.settings.group_name[tostring(roomid)])
+    ui.SetChatType(chat_type - 1)
+    -- chatframe:SetUserValue("CHAT_TYPE_SELECTED_VALUE", chat_type)
 
     g.room_id = roomid
     ui.SetGroupChatTargetID(roomid)
@@ -974,8 +985,10 @@ function MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE(frame, msg)
     end
 
     MINI_ADDONS_SAVE_SETTINGS()
-    MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, _, g.room_id or g.temp_id, _)
-
+    if g.group_chat then
+        MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, _, g.room_id or g.temp_id, _)
+    end
+    g.group_chat = true
 end
 
 function MINI_ADDONS_GROUPCHAT_OUT(frame)
@@ -1431,8 +1444,51 @@ function MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
     ui.OpenContextMenu(context)
 end
 
-g.group_chat = nil
+function mini_addons_REPUTATION_SHOP_OPEN_context(frame, ctrl, str, num)
 
+    function mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN(shop_type)
+        -- print(tostring(shop_type))
+        REPUTATION_SHOP_SET_SHOPTYPE(shop_type)
+        ui.OpenFrame("reputation_shop")
+    end
+
+    local context = ui.CreateContextMenu("select_shop", "EP13 Shop List ", 0, 0, 0, 0)
+    local shop_tbl = {{
+        name = "REPUTATION_ep13_f_siauliai_1",
+        id = 11209
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_2",
+        id = 11210
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_3",
+        id = 11211
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_4",
+        id = 11212
+    }, {
+        name = "REPUTATION_ep13_f_siauliai_5",
+        id = 11213
+    }}
+
+    for index, shop in ipairs(shop_tbl) do
+        local shop_name = shop.name
+        local id = shop.id
+        local map_name = GetClassByType("Map", id).Name
+        ui.AddContextMenuItem(context, map_name,
+            string.format("mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN('%s')", shop_name))
+    end
+    ui.OpenContextMenu(context)
+end
+
+function mini_addons_reputation_shop_close()
+    local shopframe = ui.GetFrame("reputation_shop")
+    if shopframe:IsVisible() == 1 then
+        ui.CloseFrame("reputation_shop")
+        ui.ToggleFrame('inventory');
+    end
+end
+
+g.group_chat = nil
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -1446,17 +1502,18 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_CONTEXT_PARTY, "CONTEXT_PARTY") -- SHOW_PC_CONTEXT_MENU(handle)
     g.SetupHook(MINI_ADDONS_SHOW_PC_CONTEXT_MENU, "SHOW_PC_CONTEXT_MENU")
     g.SetupHook(MINI_ADDONS_POPUP_DUMMY, "POPUP_DUMMY")
+    -- g.SetupHook(MINI_ADDONS_ACCOUNTPROP_INVENTORY_UPDATE, "ACCOUNTPROP_INVENTORY_UPDATE")
 
-    if g.settings.group_chat == 1 and g.group_chat then
+    if g.settings.group_chat == 1 then
 
-        if not g.sysmsg_info then
+        --[[if not g.sysmsg_info then
 
             local function mini_addons_sysmsg()
                 ui.SysMsg("{ol}Mini Addons{nl}Group chat switching function ON")
                 g.sysmsg_info = true
             end
             ReserveScript(mini_addons_sysmsg(), 3.0)
-        end
+        end]]
 
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_CHAT_CREATE_OR_UPDATE_GROUP_LIST_3SEC")
         acutil.setupEvent(addon, "CHAT_GROUPLIST_SELECT_LISTTYPE", "MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE");
@@ -1464,7 +1521,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         acutil.setupEvent(addon, "GROUPCHAT_OUT", "MINI_ADDONS_GROUPCHAT_OUT");
         acutil.setupEvent(addon, "CREATE_NEW_GROUPCHAT", "MINI_ADDONS_CREATE_NEW_GROUPCHAT");
     end
-    g.group_chat = true
 
     local map = GetClass('Map', session.GetMapName());
     local keyword = TryGetProp(map, 'Keyword', 'None');
@@ -1599,7 +1655,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
 
+    local inv = ui.GetFrame("inventory")
+    local inventory_accpropinv = GET_CHILD_RECURSIVELY(inv, "inventory_accpropinv")
+    AUTO_CAST(inventory_accpropinv)
+
     if mapCls.MapType == "City" then
+
+        inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "mini_addons_REPUTATION_SHOP_OPEN_context")
+        inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "mini_addons_reputation_shop_close")
 
         if g.settings.goodbye_ragana == 1 then
             addon:RegisterMsg("GAME_START", "mini_addons_ragana_remove_timer");
@@ -1640,6 +1703,9 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         local max_frame = ui.GetFrame("bgmplayer");
         local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn");
         MINIADDONS_BGMPLAYER_PLAY(max_frame, play_btn);
+
+        inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "None")
+        inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "None")
     end
 
     if g.settings.mini_btn == 1 then
