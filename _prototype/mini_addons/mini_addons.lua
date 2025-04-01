@@ -73,9 +73,6 @@ local g = _G["ADDONS"][author][addonName]
 local acutil = require("acutil")
 local os = require("os")
 
---[[local folder_path = string.format("../addons/%s", addonNameLower)
-os.execute('mkdir "' .. folder_path .. '"')]]
-
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
@@ -127,7 +124,7 @@ function MINI_ADDONS_LOAD_SETTINGS()
         -- 設定ファイル読み込み失敗時処理
         -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
     end
-    -- !
+    -- !追加の度に更新
     local defaultSettings = {
         reword_x = 1100,
         reword_y = 100,
@@ -208,20 +205,9 @@ function MINI_ADDONS_SAVE_AND_CREATE_BUFFIDS()
     g.buffs = buffs
     acutil.saveJSON(g.buffsFileLoc, g.buffs);
 
-    --[[local function printTable(t)
-        for key, value in pairs(t) do
-            print("Key: " .. tostring(key) .. ", Value: " .. tostring(value))
-        end
-    end
-    printTable(g.buffs)
-   g.buffids = {}
-    for key, value in pairs(g.buffs) do
-        if value == 1 then
-            table.insert(g.buffids, tonumber(key))
-        end
-    end]]
 end
 
+-- ワールドマップにトークンワープのクールダウンを表示
 function MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP(frame, msg)
 
     local frame = ui.GetFrame("worldmap2_minimap")
@@ -257,6 +243,8 @@ function MINI_ADDONS_TOKEN_WARP_COOLDOWN(frame)
 
     return 1
 end
+
+-- ヴァカリネ装備判定
 function MINI_ADDONS_VAKARINE_NOTICE()
 
     local equip_item_list = session.GetEquipItemList();
@@ -290,6 +278,7 @@ function MINI_ADDONS_VAKARINE_NOTICE()
     end
 end
 
+-- 街のラガナを非表示
 function mini_addons_ragana_remove_timer(frame, msg, str, num)
     local frame = ui.GetFrame("mini_addons")
     local timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0);
@@ -324,6 +313,7 @@ function mini_addons_ragana_remove(frame)
 
 end
 
+-- 装備錬成を自動化
 function MINI_ADDONS_COMMON_EQUIP_UPGRADE_OPEN(frame, msg)
     local frame = ui.GetFrame("common_equip_upgrade")
     if g.settings.status_upgrade == 0 then
@@ -417,6 +407,7 @@ function MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS_CONTINUE()
     MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS_(parent, nil, nil, nil)
 end
 
+-- ヴェルニケ階数を覚える。
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN(type, clmsg, desc, yesScp, noScp, min_number, max_number,
                                                  default_number)
     if g.settings.velnice.use == 0 then
@@ -504,6 +495,7 @@ function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_YES(parent, ctrl, argStr, argNu
     ui.CloseFrame("indun_editmsgbox");
 end
 
+-- PTバフの表示非表示切り替え
 function MINI_ADDONS_BUFFLIST_ALL_CHECK(frame, ctrl, str, num)
     local is_check = ctrl:IsChecked()
     local frame = ctrl:GetTopParentFrame()
@@ -771,6 +763,8 @@ function mini_addons_basefunction_old()
     return
 end
 
+-- グループチャットの切り替え機能
+g.group_chat = nil
 function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
 
     local frame = ui.GetFrame("chat_grouplist_option")
@@ -793,9 +787,14 @@ function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
         MINI_ADDONS_SAVE_SETTINGS()
 
         local chatframe = ui.GetFrame("chat")
-        if chatframe ~= nil and chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE") == "6" then
-            MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, g.settings.group_name[tostring(roomid)])
+        -- local chat_type
+        if chatframe ~= nil then
+            -- chat_type = chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE")
+
+            -- chatframe:SetUserValue("CHAT_TYPE_SELECTED_VALUE", 6)
+            ui.SetChatType(5)
             MINI_ADDONS_SEND_POPUP_FRAME_CHAT(_, _, roomid, 1)
+            -- and chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE") == "6" then
 
             local frame = ui.GetFrame('chat_grouplist');
             local gbox = GET_CHILD_RECURSIVELY(frame, "chatlist_group");
@@ -809,12 +808,12 @@ function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
             titletext:SetText(title .. persons)
             frame:ShowWindow(0)
         end
-
+        -- chatframe:SetUserValue("CHAT_TYPE_SELECTED_VALUE", chat_type)
     end
 
 end
 
-function MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, targetName)
+function MINI_ADDONS_CHAT_SET_TO_TITLENAME(targetName)
 
     local frame = ui.GetFrame('chat')
     local chatEditCtrl = frame:GetChild('mainchat')
@@ -838,10 +837,9 @@ function MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, targetName)
         end
 
     end
-
     -- 이름을 먼저 설정해줘야 크기와 위치 설정이 이루어진다.
-    name:SetText(titleText)
 
+    name:SetText(titleText)
     if titleText ~= '' then
         titleCtrl:Resize(name:GetWidth() + 20, titleCtrl:GetOriginalHeight())
     else
@@ -857,7 +855,6 @@ function MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, targetName)
 
     local width = chatEditCtrl:GetOriginalWidth() - titleCtrl:GetWidth() - btn_ChatType:GetWidth()
     chatEditCtrl:Resize(width, chatEditCtrl:GetOriginalHeight())
-
     chatEditCtrl:SetOffset(offsetX, chatEditCtrl:GetOriginalY())
 end
 
@@ -875,13 +872,15 @@ function MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, ctrl, roomid, num)
         return
     end
 
+    local chat_type = chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE")
+    -- CHAT_SYSTEM(chat_type)
+    ui.SetChatType(5)
+    MINI_ADDONS_CHAT_SET_TO_TITLENAME(g.settings.group_name[tostring(roomid)])
+    ui.SetChatType(chat_type - 1)
+    -- chatframe:SetUserValue("CHAT_TYPE_SELECTED_VALUE", chat_type)
+
     g.room_id = roomid
     ui.SetGroupChatTargetID(roomid)
-
-    local target_name = g.settings.group_name[roomid]
-    if target_name then
-        MINI_ADDONS_CHAT_SET_TO_TITLENAME(frame, target_name)
-    end
     chatframe:ShowWindow(0)
 
     if num == 1 then
@@ -982,8 +981,10 @@ function MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE(frame, msg)
     end
 
     MINI_ADDONS_SAVE_SETTINGS()
-    MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, _, g.room_id or g.temp_id, _)
-
+    if g.group_chat then
+        MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, _, g.room_id or g.temp_id, _)
+    end
+    g.group_chat = true
 end
 
 function MINI_ADDONS_GROUPCHAT_OUT(frame)
@@ -1439,6 +1440,7 @@ function MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
     ui.OpenContextMenu(context)
 end
 
+-- EP13ショップを街で開ける
 function mini_addons_REPUTATION_SHOP_OPEN_context(frame, ctrl, str, num)
 
     function mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN(shop_type)
@@ -1483,7 +1485,6 @@ function mini_addons_reputation_shop_close()
     end
 end
 
-g.group_chat = nil
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -1499,16 +1500,16 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_POPUP_DUMMY, "POPUP_DUMMY")
     -- g.SetupHook(MINI_ADDONS_ACCOUNTPROP_INVENTORY_UPDATE, "ACCOUNTPROP_INVENTORY_UPDATE")
 
-    if g.settings.group_chat == 1 and g.group_chat then
+    if g.settings.group_chat == 1 then
 
-        if not g.sysmsg_info then
+        --[[if not g.sysmsg_info then
 
             local function mini_addons_sysmsg()
                 ui.SysMsg("{ol}Mini Addons{nl}Group chat switching function ON")
                 g.sysmsg_info = true
             end
             ReserveScript(mini_addons_sysmsg(), 3.0)
-        end
+        end]]
 
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_CHAT_CREATE_OR_UPDATE_GROUP_LIST_3SEC")
         acutil.setupEvent(addon, "CHAT_GROUPLIST_SELECT_LISTTYPE", "MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE");
@@ -1516,7 +1517,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         acutil.setupEvent(addon, "GROUPCHAT_OUT", "MINI_ADDONS_GROUPCHAT_OUT");
         acutil.setupEvent(addon, "CREATE_NEW_GROUPCHAT", "MINI_ADDONS_CREATE_NEW_GROUPCHAT");
     end
-    g.group_chat = true
 
     local map = GetClass('Map', session.GetMapName());
     local keyword = TryGetProp(map, 'Keyword', 'None');
@@ -1602,6 +1602,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
         addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
         acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE");
+        g.mouse = false
     end
 
     if g.settings.dialog_ctrl == 1 then
@@ -1713,6 +1714,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     MINI_ADDONS_NEW_FRAME_INIT()
 end
 
+-- クポルポーションフレームの移動と非表示
 function MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE(frame, ctrl, str, num)
     g.settings.cupole_portion.x = frame:GetX()
     g.settings.cupole_portion.y = frame:GetY()
@@ -1742,6 +1744,7 @@ function MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON()
     end
 end
 
+-- 週間ボスレの報酬受け取り
 g.wbreward = nil
 function MINI_ADDONS_WEEKLY_BOSS_REWARD()
 
@@ -1833,6 +1836,7 @@ function MINI_ADDONS_WEEKLY_BOSS_RANK_GET_REWARD(frame)
     g.index = g.index + 1
 end
 
+-- ボタン右クリックでサウンドオフ
 function MINI_ADDONS_SOUND_TOGGLE(frame, ctrl, str, num)
 
     local volume = config.GetTotalVolume()
@@ -1848,7 +1852,7 @@ function MINI_ADDONS_SOUND_TOGGLE(frame, ctrl, str, num)
 end
 
 function MINI_ADDONS_LANG(str)
-    -- !
+    -- !追加の度に更新
     if g.lang == "Japanese" then
         if str == "Skip confirmation for admission of 4 or less people" then
             str = "4人以下入場時の確認をスキップ"
@@ -2307,7 +2311,7 @@ end
 function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
     local ctrlname = ctrl:GetName()
-    -- !
+    -- !追加の度に更新
     local settingNames = {
         other_effect = "other_effect_checkbox",
         my_effect = "my_effect_checkbox",
@@ -3582,14 +3586,19 @@ function MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM(frame, msg)
 end
 
 function MINI_ADDONS_RESTART_CONTENTS_ON_HERE()
-    local frame = ui.GetFrame("restart_contents")
+    if not g.mouse then
+        local frame = ui.GetFrame("restart_contents")
 
-    local ItemBtn = GET_CHILD_RECURSIVELY(frame, "btn_restart_" .. 1);
-    local itemWidth = ItemBtn:GetWidth();
+        local ItemBtn = GET_CHILD_RECURSIVELY(frame, "btn_restart_" .. 1);
+        local itemWidth = ItemBtn:GetWidth();
 
-    local x, y = GET_SCREEN_XY(ItemBtn, itemWidth / 2.5);
-    mouse.SetPos(x, y);
-    DialogSelect_index = 1;
+        local x, y = GET_SCREEN_XY(ItemBtn, itemWidth / 2.5);
+        mouse.SetPos(x, y);
+        DialogSelect_index = 1;
+        g.mouse = true
+    else
+        return
+    end
 end
 
 function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
@@ -3807,1104 +3816,3 @@ function MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE(ctrlset, change)
     edit_itemcount:SetText(countText);
     return countText;
 end
-
---[[function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
-
-    local frame = ui.GetFrame("partyinfo")
-    if not frame then
-        return
-    end
-
-    local pcparty = session.party.GetPartyInfo()
-    if not pcparty then
-        DESTROY_CHILD_BYNAME(frame, 'PTINFO_')
-        frame:ShowWindow(0)
-        return
-    end
-
-    local buffid_set = {}
-    for _, id in ipairs(g.buffids) do
-        buffid_set[id] = true
-    end
-
-    local list = session.party.GetPartyMemberList(0)
-    local count = list:Count()
-    local myInfo = session.party.GetMyPartyObj()
-
-    for i = 0, count - 1 do
-        local partyMemberInfo = list:Element(i)
-        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
-            local buffCount = partyMemberInfo:GetBuffCount()
-            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID())
-
-            if partyInfoCtrlSet then
-                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet")
-                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet")
-
-                -- スロット初期化
-                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
-                    local slot = buffListSlotSet:GetSlotByIndex(j)
-                    if slot then
-                        slot:SetKeyboardSelectable(false)
-                        slot:ShowWindow(0)
-                    end
-                end
-                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
-                    local slot = debuffListSlotSet:GetSlotByIndex(j)
-                    if slot then
-                        slot:ShowWindow(0)
-                    end
-                end
-
-                if buffCount <= 0 then
-                    partyMemberInfo:ResetBuff()
-                    buffCount = partyMemberInfo:GetBuffCount()
-                end
-
-                if buffCount > 0 then
-                    local buffIndex, debuffIndex = 0, 0
-                    for j = 0, buffCount - 1 do
-                        local buffID = partyMemberInfo:GetBuffIDByIndex(j)
-                        local cls = GetClassByType("Buff", buffID)
-
-                        if cls and cls.ClassName ~= "TeamLevel" then
-                            if cls.Group1 == 'Buff' then
-                                local image = TryGetProp(cls, 'Icon', 'None')
-                                if image ~= "None" and cls.ClassName ~= "None" then
-                                    MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
-                                end
-                            end
-                            local show_buff = false
-                            if g.settings.party_buff == 1 then
-                                show_buff = buffid_set[buffID]
-                            else
-                                show_buff = IS_PARTY_INFO_SHOWICON(cls.ShowIcon)
-                            end
-
-                            if show_buff then
-
-                                local slot = (cls.Group1 == 'Buff') and buffListSlotSet:GetSlotByIndex(buffIndex) or
-                                                 (cls.Group1 == 'Debuff') and
-                                                 debuffListSlotSet:GetSlotByIndex(debuffIndex)
-
-                                if cls.Group1 == 'Buff' then
-                                    buffIndex = buffIndex + 1
-                                elseif cls.Group1 == 'Debuff' then
-                                    debuffIndex = debuffIndex + 1
-                                end
-
-                                if slot then
-                                    local buffOver = partyMemberInfo:GetBuffOverByIndex(j)
-                                    local buffTime = partyMemberInfo:GetBuffTimeByIndex(j)
-
-                                    local icon = slot:GetIcon() or CreateIcon(slot)
-
-                                    local handle = (myInfo and myInfo:GetMapID() == partyMemberInfo:GetMapID() and
-                                                       myInfo:GetChannel() == partyMemberInfo:GetChannel()) and
-                                                       partyMemberInfo:GetHandle() or 0
-
-                                    icon:SetDrawCoolTimeText(math.floor(buffTime / 1000))
-                                    icon:SetTooltipType('buff')
-                                    icon:SetTooltipArg(tostring(handle), buffID, "")
-
-                                    local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None')
-                                    if imageName ~= "icon_None" then
-                                        icon:Set(imageName, 'BUFF', buffID, 0)
-                                    end
-
-                                    slot:SetText(buffOver > 1 and ('{s13}{ol}{b}' .. buffOver) or "", 'count', ui.RIGHT,
-                                        ui.BOTTOM, 1, 2)
-                                    slot:ShowWindow(1)
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end]]
-
---[[function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame, msg, str, num)
-    local frame = ui.GetFrame("partyinfo");
-    if frame == nil then
-        return;
-    end
-    local pcparty = session.party.GetPartyInfo();
-    if pcparty == nil then
-        DESTROY_CHILD_BYNAME(frame, 'PTINFO_');
-        frame:ShowWindow(0);
-        return;
-    end
-
-    local partyInfo = pcparty.info;
-    local obj = GetIES(pcparty:GetObject());
-    local list = session.party.GetPartyMemberList(0);
-    local count = list:Count();
-    local memberIndex = 0;
-
-    local myInfo = session.party.GetMyPartyObj();
-    -- 접속중 파티원 버프리스트
-    for i = 0, count - 1 do
-        local partyMemberInfo = list:Element(i);
-        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
-            local buffCount = partyMemberInfo:GetBuffCount();
-            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
-            if partyInfoCtrlSet ~= nil then
-                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet");
-                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet");
-
-                -- 초기화
-                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
-                    local slot = buffListSlotSet:GetSlotByIndex(j);
-                    slot:SetKeyboardSelectable(false);
-                    if slot == nil then
-                        break
-                    end
-                    slot:ShowWindow(0);
-                end
-
-                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
-                    local slot = debuffListSlotSet:GetSlotByIndex(j);
-                    if slot == nil then
-                        break
-                    end
-                    slot:ShowWindow(0);
-                end
-
-                -- 아이콘 셋팅
-                if buffCount <= 0 then
-                    partyMemberInfo:ResetBuff();
-                    buffCount = partyMemberInfo:GetBuffCount();
-                end
-
-                if buffCount > 0 then
-                    local buffIndex = 0;
-                    local debuffIndex = 0;
-                    for j = 0, buffCount - 1 do
-                        local buffID = partyMemberInfo:GetBuffIDByIndex(j);
-                        local cls = GetClassByType("Buff", buffID);
-                        if g.settings.party_buff == 1 then
-                            if cls ~= nil and cls.ClassName ~= "TeamLevel" then
-
-                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
-
-                                local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
-                                local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
-                                local slot = nil;
-                                if cls.Group1 == 'Buff' then
-
-                                    function MINI_ADDONS_IS_BUFF_EXCLUDED(buffID, buff_ids)
-                                        for _, id in ipairs(buff_ids) do
-                                            if buffID == id then
-                                                return true
-                                            end
-                                        end
-                                        return false
-                                    end
-
-                                    if MINI_ADDONS_IS_BUFF_EXCLUDED(cls.ClassID, g.buffids) then
-                                        slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                        buffIndex = buffIndex + 1;
-                                    end
-
-                                elseif cls.Group1 == 'Debuff' then
-                                    slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
-                                    debuffIndex = debuffIndex + 1;
-                                end
-
-                                if slot ~= nil then
-                                    local icon = slot:GetIcon();
-                                    if icon == nil then
-                                        icon = CreateIcon(slot);
-                                    end
-
-                                    local handle = 0;
-                                    if myInfo ~= nil then
-                                        if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
-                                            partyMemberInfo:GetChannel() then
-                                            handle = partyMemberInfo:GetHandle();
-                                        end
-                                    end
-
-                                    handle = tostring(handle);
-                                    icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
-                                    icon:SetTooltipType('buff');
-                                    icon:SetTooltipArg(handle, buffID, "");
-
-                                    local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
-                                    if imageName ~= "icon_None" then
-                                        icon:Set(imageName, 'BUFF', buffID, 0);
-                                    end
-
-                                    if buffOver > 1 then
-                                        slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
-                                    else
-                                        slot:SetText("");
-                                    end
-
-                                    slot:ShowWindow(1);
-                                end
-                            end
-                        else
-
-                            if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~=
-                                "TeamLevel" then
-
-                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
-
-                                local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
-                                local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
-                                local slot = nil;
-                                if cls.Group1 == 'Buff' then
-                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                    buffIndex = buffIndex + 1;
-
-                                elseif cls.Group1 == 'Debuff' then
-                                    slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
-                                    debuffIndex = debuffIndex + 1;
-                                end
-
-                                if slot ~= nil then
-                                    local icon = slot:GetIcon();
-                                    if icon == nil then
-                                        icon = CreateIcon(slot);
-                                    end
-
-                                    local handle = 0;
-                                    if myInfo ~= nil then
-                                        if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
-                                            partyMemberInfo:GetChannel() then
-                                            handle = partyMemberInfo:GetHandle();
-                                        end
-                                    end
-
-                                    handle = tostring(handle);
-                                    icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
-                                    icon:SetTooltipType('buff');
-                                    icon:SetTooltipArg(handle, buffID, "");
-
-                                    local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
-                                    if imageName ~= "icon_None" then
-                                        icon:Set(imageName, 'BUFF', buffID, 0);
-                                    end
-
-                                    if buffOver > 1 then
-                                        slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
-                                    else
-                                        slot:SetText("");
-                                    end
-
-                                    slot:ShowWindow(1);
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-end]]
-
---[[function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE(frame)
-    if g.settings.party_buff ~= 1 then
-        base["ON_PARTYINFO_BUFFLIST_UPDATE"](frame)
-    else
-        MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
-    end
-end
-
-function MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE_(frame)
-    local frame = ui.GetFrame("partyinfo");
-    if frame == nil then
-        return;
-    end
-    local pcparty = session.party.GetPartyInfo();
-    if pcparty == nil then
-        DESTROY_CHILD_BYNAME(frame, 'PTINFO_');
-        frame:ShowWindow(0);
-        return;
-    end
-
-    local partyInfo = pcparty.info;
-    local obj = GetIES(pcparty:GetObject());
-    local list = session.party.GetPartyMemberList(0);
-    local count = list:Count();
-    local memberIndex = 0;
-
-    local myInfo = session.party.GetMyPartyObj();
-    -- 접속중 파티원 버프리스트
-    for i = 0, count - 1 do
-        local partyMemberInfo = list:Element(i);
-        if geMapTable.GetMapName(partyMemberInfo:GetMapID()) ~= 'None' then
-            local buffCount = partyMemberInfo:GetBuffCount();
-            local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
-            if partyInfoCtrlSet ~= nil then
-                local buffListSlotSet = GET_CHILD(partyInfoCtrlSet, "buffList", "ui::CSlotSet");
-                local debuffListSlotSet = GET_CHILD(partyInfoCtrlSet, "debuffList", "ui::CSlotSet");
-
-                -- 초기화
-                for j = 0, buffListSlotSet:GetSlotCount() - 1 do
-                    local slot = buffListSlotSet:GetSlotByIndex(j);
-                    slot:SetKeyboardSelectable(false);
-                    if slot == nil then
-                        break
-                    end
-                    slot:ShowWindow(0);
-                end
-
-                for j = 0, debuffListSlotSet:GetSlotCount() - 1 do
-                    local slot = debuffListSlotSet:GetSlotByIndex(j);
-                    if slot == nil then
-                        break
-                    end
-                    slot:ShowWindow(0);
-                end
-
-                -- 아이콘 셋팅
-                if buffCount <= 0 then
-                    partyMemberInfo:ResetBuff();
-                    buffCount = partyMemberInfo:GetBuffCount();
-                end
-
-                if buffCount > 0 then
-                    local buffIndex = 0;
-                    local debuffIndex = 0;
-                    for j = 0, buffCount - 1 do
-                        local buffID = partyMemberInfo:GetBuffIDByIndex(j);
-
-                        local cls = GetClassByType("Buff", buffID);
-
-                        -- if cls ~= nil and IS_PARTY_INFO_SHOWICON(cls.ShowIcon) == true and cls.ClassName ~= "TeamLevel" then
-
-                        if cls ~= nil and cls.ClassName ~= "TeamLevel" then
-
-                            local buffOver = partyMemberInfo:GetBuffOverByIndex(j);
-                            local buffTime = partyMemberInfo:GetBuffTimeByIndex(j);
-                            local slot = nil;
-                            if cls.Group1 == 'Buff' then
-                                MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
-                                if g.settings.party_buff == 1 then
-                                    local excludedBuffIDs = g.buffids
-                                    if MINI_ADDONS_IsBuffExcluded(cls.ClassID, excludedBuffIDs) then
-                                        slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                        buffIndex = buffIndex + 1;
-                                    end
-                                else
-                                    slot = buffListSlotSet:GetSlotByIndex(buffIndex);
-                                    buffIndex = buffIndex + 1;
-                                end
-
-                            elseif cls.Group1 == 'Debuff' then
-                                slot = debuffListSlotSet:GetSlotByIndex(debuffIndex);
-                                debuffIndex = debuffIndex + 1;
-                            end
-
-                            if slot ~= nil then
-
-                                local icon = slot:GetIcon();
-                                if icon == nil then
-                                    icon = CreateIcon(slot);
-                                end
-
-                                local handle = 0;
-                                if myInfo ~= nil then
-                                    if myInfo:GetMapID() == partyMemberInfo:GetMapID() and myInfo:GetChannel() ==
-                                        partyMemberInfo:GetChannel() then
-                                        handle = partyMemberInfo:GetHandle();
-                                    end
-                                end
-
-                                handle = tostring(handle);
-                                icon:SetDrawCoolTimeText(math.floor(buffTime / 1000));
-                                icon:SetTooltipType('buff');
-                                icon:SetTooltipArg(handle, buffID, "");
-                                -- icon:SetEnable(1)
-
-                                local imageName = 'icon_' .. TryGetProp(cls, 'Icon', 'None');
-                                if imageName ~= "icon_None" then
-                                    icon:Set(imageName, 'BUFF', buffID, 0);
-
-                                end
-
-                                if buffOver > 1 then
-                                    slot:SetText('{s13}{ol}{b}' .. buffOver, 'count', ui.RIGHT, ui.BOTTOM, 1, 2);
-                                else
-                                    slot:SetText("");
-                                end
-
-                                slot:ShowWindow(1);
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end]]
-
---[[function MINI_ADDONS_SETTING_FRAME_INIT()
-
-    local frame = ui.GetFrame("mini_addons")
-
-    frame:SetSkinName("test_frame_midle_light")
-    frame:SetLayerLevel(93) -- クイックスロットが91やから
-
-    frame:ShowTitleBar(0);
-    frame:EnableHittestFrame(1)
-    frame:EnableHide(0)
-    frame:EnableHitTest(1)
-    frame:SetAlpha(100)
-    frame:RemoveAllChild()
-
-    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
-
-    local close = frame:CreateOrGetControl("button", "close", 615, 5, 30, 30)
-    AUTO_CAST(close)
-    close:SetGravity(ui.RIGHT, ui.TOP);
-    close:SetSkinName("None")
-    close:SetText("{img testclose_button 30 30}")
-    close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
-
-    local x = 10
-    local under_staff = frame:CreateOrGetControl("richtext", "under_staff", 40, x + 5)
-    under_staff:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Skip confirmation for admission of 4 or less people"))
-    under_staff:SetTextTooltip("{ol}4인 이하 입장 시 확인 생략")
-
-    local under_staff_checkbox = frame:CreateOrGetControl('checkbox', 'under_staff_checkbox', 10, x, 25, 25)
-    AUTO_CAST(under_staff_checkbox)
-    under_staff_checkbox:SetCheck(g.settings.under_staff)
-    under_staff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    under_staff_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local raid_record = frame:CreateOrGetControl("richtext", "raid_record", 40, x + 5)
-    raid_record:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Raid records movable and resizable"))
-    raid_record:SetTextTooltip("레이드 레코드의 이동 및 크기 변경 가능")
-
-    local raid_record_checkbox = frame:CreateOrGetControl('checkbox', 'raid_record_checkbox', 10, x, 25, 25)
-    AUTO_CAST(raid_record_checkbox)
-    raid_record_checkbox:SetCheck(g.settings.raid_record)
-    raid_record_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    raid_record_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local party_buff = frame:CreateOrGetControl("richtext", "party_buff", 110, x + 5, 80, x + 5)
-    party_buff:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide buffs for party members"))
-    party_buff:SetTextTooltip("파티원의 버프를 숨깁니다.")
-
-    local party_buff_checkbox = frame:CreateOrGetControl('checkbox', 'party_buff_checkbox', 10, x, 25, 25)
-    AUTO_CAST(party_buff_checkbox)
-    party_buff_checkbox:SetCheck(g.settings.party_buff)
-    party_buff_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    party_buff_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    local party_buff_btn = frame:CreateOrGetControl("button", "party_buff_btn", 40, x, 40, 30)
-    AUTO_CAST(party_buff_btn)
-    party_buff_btn:SetText("{ol}{#FFFFFF}bufflist")
-    party_buff_btn:SetTextTooltip(MINI_ADDONS_LANG("You can choose which buffs to display"))
-    party_buff_btn:SetSkinName("test_red_button")
-    party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
-
-    x = x + 30
-
-    local chat_system = frame:CreateOrGetControl("richtext", "chat_system", 40, x + 5)
-    chat_system:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Perfect and Black Market notices not displayed in chat"))
-    chat_system:SetTextTooltip("퍼펙트 및 블랙마켓 공지사항을 채팅에 표시하지 않습니다.")
-
-    local chat_system_checkbox = frame:CreateOrGetControl('checkbox', 'chat_system_checkbox', 10, x, 25, 25)
-    AUTO_CAST(chat_system_checkbox)
-    chat_system_checkbox:SetCheck(g.settings.chat_system)
-    chat_system_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    chat_system_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local channel_display = frame:CreateOrGetControl("richtext", "channel_display", 40, x + 5)
-    channel_display:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Fixed channel display misalignment"))
-    channel_display:SetTextTooltip("채널 표시가 어긋나는 현상 수정")
-
-    local channel_display_checkbox = frame:CreateOrGetControl('checkbox', 'channel_display_checkbox', 10, x, 25, 25)
-    AUTO_CAST(channel_display_checkbox)
-    channel_display_checkbox:SetCheck(g.settings.channel_display)
-    channel_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    channel_display_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local mini_btn = frame:CreateOrGetControl("richtext", "mini_btn", 40, x + 5)
-    mini_btn:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide mini-button in upper right corner during raid"))
-    mini_btn:SetTextTooltip("레이드 시 오른쪽 상단 미니 버튼 숨기기")
-
-    local mini_btn_checkbox = frame:CreateOrGetControl('checkbox', 'mini_btn_checkbox', 10, x, 25, 25)
-    AUTO_CAST(mini_btn_checkbox)
-    mini_btn_checkbox:SetCheck(g.settings.mini_btn)
-    mini_btn_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    mini_btn_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local market_display = frame:CreateOrGetControl("richtext", "market_display", 40, x + 5)
-    market_display:SetText("{ol}{#FF4500}" ..
-                               MINI_ADDONS_LANG(
-            "When moving into town, the list of stores in the upper right corner should be open"))
-    market_display:SetTextTooltip(
-        "{거리로 이동할 때, 오른쪽 상단의 상점 목록이 열린 상태로 만듭니다.")
-
-    local market_display_checkbox = frame:CreateOrGetControl('checkbox', 'market_display_checkbox', 10, x, 25, 25)
-    AUTO_CAST(market_display_checkbox)
-    market_display_checkbox:SetCheck(g.settings.market_display)
-    market_display_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    market_display_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local restart_move = frame:CreateOrGetControl("richtext", "restart_move", 40, x + 5)
-    restart_move:SetText("{ol}{#FF4500}" ..
-                             MINI_ADDONS_LANG("Enable to move the choice frame at restart. For colony visits"))
-    restart_move:SetTextTooltip(
-        "재시작 시 선택 프레임을 움직일 수 있도록 합니다. 식민지 견학용.")
-
-    local restart_move_checkbox = frame:CreateOrGetControl('checkbox', 'restart_move_checkbox', 10, x, 25, 25)
-    AUTO_CAST(restart_move_checkbox)
-    restart_move_checkbox:SetCheck(g.settings.restart_move)
-    restart_move_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    restart_move_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local dialog_ctrl = frame:CreateOrGetControl("richtext", "dialog_ctrl", 40, x + 5)
-    dialog_ctrl:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Controls various dialogs"))
-    dialog_ctrl:SetTextTooltip("각종 대화 상자를 제어합니다")
-
-    local dialog_ctrl_checkbox = frame:CreateOrGetControl('checkbox', 'dialog_ctrl_checkbox', 10, x, 25, 25)
-    AUTO_CAST(dialog_ctrl_checkbox)
-    dialog_ctrl_checkbox:SetCheck(g.settings.dialog_ctrl)
-    dialog_ctrl_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    dialog_ctrl_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local auto_cast = frame:CreateOrGetControl("richtext", "auto_cast", 40, x + 5)
-    auto_cast:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Autocasting is set up for each character"))
-    auto_cast:SetTextTooltip("자동 캐스팅을 캐릭터별로 설정합니다.")
-
-    local auto_cast_checkbox = frame:CreateOrGetControl('checkbox', 'auto_cast_checkbox', 10, x, 25, 25)
-    AUTO_CAST(auto_cast_checkbox)
-    auto_cast_checkbox:SetCheck(g.settings.auto_cast)
-    auto_cast_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    auto_cast_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local coin_use = frame:CreateOrGetControl("richtext", "coin_use", 40, x + 5)
-    coin_use:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automatically used when acquiring coin items"))
-    coin_use:SetTextTooltip(
-        "용병단 코인, 시즌 코인, 왕국 재건단 코인 획득 시 자동으로 사용됩니다")
-
-    local coin_use_checkbox = frame:CreateOrGetControl('checkbox', 'coin_use_checkbox', 10, x, 25, 25)
-    AUTO_CAST(coin_use_checkbox)
-    coin_use_checkbox:SetCheck(g.settings.coin_use)
-    coin_use_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    coin_use_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-    local equip_info = frame:CreateOrGetControl("richtext", "equip_info", 40, x + 5)
-    equip_info:SetText("{ol}{#FF4500}" ..
-                           MINI_ADDONS_LANG(
-            "Notification of forgetting to equip ark and emblem upon entry to the hard raid"))
-    equip_info:SetTextTooltip(
-        "하드 레이드 입장 시 아크와 엠블럼을 잊어버린 것을 알려드립니다.")
-
-    local equip_info_checkbox = frame:CreateOrGetControl('checkbox', 'equip_info_checkbox', 10, x, 25, 25)
-    AUTO_CAST(equip_info_checkbox)
-    equip_info_checkbox:SetCheck(g.settings.equip_info)
-    equip_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    equip_info_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local automatch_layer = frame:CreateOrGetControl("richtext", "automatch_layer", 40, x + 5)
-    automatch_layer:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Lower the layer level of the frame when auto-matching"))
-    automatch_layer:SetTextTooltip("오토매치 시 프레임의 레이어 레벨을 낮춥니다.")
-
-    local automatch_layer_checkbox = frame:CreateOrGetControl('checkbox', 'automatch_layer_checkbox', 10, x, 25, 25)
-    AUTO_CAST(automatch_layer_checkbox)
-
-    automatch_layer_checkbox:SetCheck(g.settings.automatch_layer)
-    automatch_layer_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    automatch_layer_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local quest_hide = frame:CreateOrGetControl("richtext", "quest_hide", 40, x + 5)
-    quest_hide:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Hide the quest list"))
-    quest_hide:SetTextTooltip("퀘스트 목록을 숨깁니다.")
-
-    local quest_hide_checkbox = frame:CreateOrGetControl('checkbox', 'quest_hide_checkbox', 10, x, 25, 25)
-    AUTO_CAST(quest_hide_checkbox)
-
-    quest_hide_checkbox:SetCheck(g.settings.quest_hide)
-    quest_hide_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    quest_hide_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local pc_name = frame:CreateOrGetControl("richtext", "pc_name", 40, x + 5)
-    pc_name:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Change the upper left display to the character's name"))
-    pc_name:SetTextTooltip("왼쪽 상단의 표시를 캐릭터 이름으로 변경합니다.")
-
-    local pc_name_checkbox = frame:CreateOrGetControl('checkbox', 'pc_name_checkbox', 10, x, 25, 25)
-    AUTO_CAST(pc_name_checkbox)
-
-    pc_name_checkbox:SetCheck(g.settings.pc_name)
-    pc_name_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    pc_name_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    x = x + 30
-
-    local channel_info = frame:CreateOrGetControl("richtext", "channel_info", 40, x + 5)
-    channel_info:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Displays the channel switching frame"))
-    channel_info:SetTextTooltip("채널 전환 프레임을 표시합니다.")
-
-    local channel_info_checkbox = frame:CreateOrGetControl('checkbox', 'channel_info_checkbox', 10, x, 25, 25)
-    AUTO_CAST(channel_info_checkbox)
-    channel_info_checkbox:SetCheck(g.settings.channel_info)
-    channel_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    channel_info_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local other_effect = frame:CreateOrGetControl("richtext", "other_effect", 110, x + 5)
-    other_effect:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Adjusts the effect of others. 1~100, recommended 75"))
-    other_effect:SetTextTooltip(
-        "다른 사람의 효과를 1에서 100까지 조정할 수 있으며, 권장치는 75입니다.")
-
-    local other_effect_checkbox = frame:CreateOrGetControl('checkbox', 'other_effect_checkbox', 10, x, 25, 25)
-    AUTO_CAST(other_effect_checkbox)
-    other_effect_checkbox:SetCheck(g.settings.other_effect)
-    other_effect_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    other_effect_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', 40, x, 60, 25)
-    AUTO_CAST(other_effect_edit)
-    other_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_OTHER_EFFECT_EDIT")
-    other_effect_edit:SetTextTooltip("{@st59}1~100")
-    other_effect_edit:SetFontName("white_16_ol")
-    other_effect_edit:SetTextAlign("center", "center")
-    local other_effect = config.GetOtherEffectTransparency()
-
-    local num = math.floor(other_effect * 0.392156862745 + 0.5)
-    other_effect_edit:SetText(num)
-
-    x = x + 30
-
-    local auto_gacha = frame:CreateOrGetControl("richtext", "auto_gacha", 100, x + 5)
-    auto_gacha:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automate the display of the Goddess Protection gacha frame"))
-    auto_gacha:SetTextTooltip("여신의 가호 가챠 프레임 표시를 자동화합니다")
-
-    local auto_gacha_checkbox = frame:CreateOrGetControl('checkbox', 'auto_gacha_checkbox', 10, x, 25, 25)
-    AUTO_CAST(auto_gacha_checkbox)
-    auto_gacha_checkbox:SetCheck(g.settings.auto_gacha)
-    auto_gacha_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    auto_gacha_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-
-    local auto_gacha_btn = frame:CreateOrGetControl('button', 'auto_gacha_btn', 40, x, 50, 30)
-    AUTO_CAST(auto_gacha_btn)
-
-    if g.settings.auto_gacha_start == 0 or g.settings.auto_gacha_start == nil then
-        auto_gacha_btn:SetText("{ol}{#FFFFFF}OFF")
-        auto_gacha_btn:SetSkinName("test_gray_button");
-        g.settings.auto_gacha_start = 0
-
-    else
-        auto_gacha_btn:SetText("{ol}{#FFFFFF}ON")
-        auto_gacha_btn:SetSkinName("test_red_button")
-
-    end
-    MINI_ADDONS_SAVE_SETTINGS()
-    auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
-        "When turned on, the gacha starts automatically.CC required for switching"))
-
-    auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
-
-    x = x + 30
-
-    local skill_enchant = frame:CreateOrGetControl("richtext", "skill_enchant", 40, x + 5)
-    skill_enchant:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automatically sets items for skill refining"))
-    skill_enchant:SetTextTooltip("스킬 연성 아이템을 자동으로 설정합니다.")
-
-    local skill_enchant_checkbox = frame:CreateOrGetControl('checkbox', 'skill_enchant_checkbox', 10, x, 25, 25)
-    AUTO_CAST(skill_enchant_checkbox)
-    skill_enchant_checkbox:SetCheck(g.settings.skill_enchant)
-    skill_enchant_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    skill_enchant_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local relic_gauge = frame:CreateOrGetControl("richtext", "relic_gauge", 40, x + 5)
-    relic_gauge:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Add a Relic to the character's gauge"))
-    relic_gauge:SetTextTooltip("캐릭터의 게이지에 유물을 추가합니다.")
-
-    local relic_gauge_checkbox = frame:CreateOrGetControl('checkbox', 'relic_gauge_checkbox', 10, x, 25, 25)
-    AUTO_CAST(relic_gauge_checkbox)
-    relic_gauge_checkbox:SetCheck(g.settings.relic_gauge)
-    relic_gauge_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    relic_gauge_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local raid_check = frame:CreateOrGetControl("richtext", "raid_check", 40, x + 5)
-    raid_check:SetText("{ol}{#FF4500}" ..
-                           MINI_ADDONS_LANG(
-            "Prevents character change mistakes during the hard raid on the Dreamy& Abyss"))
-    raid_check:SetTextTooltip("몽환 & 심연의 하드 레이드 시 캐릭터 변경 실수를 방지합니다.")
-
-    local raid_check_checkbox = frame:CreateOrGetControl('checkbox', 'raid_check_checkbox', 10, x, 25, 25)
-    AUTO_CAST(raid_check_checkbox)
-    raid_check_checkbox:SetCheck(g.settings.raid_check)
-    raid_check_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    raid_check_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-    -- !
-    local party_info = frame:CreateOrGetControl("richtext", "party_info", 40, x + 5)
-    party_info:SetText("{ol}{#FF4500}" ..
-                           MINI_ADDONS_LANG(
-            "Switching the display of the party info frame. For mouse mode.Party info right-click"))
-    party_info:SetTextTooltip("파티 인포 프레임의 표시 전환. 마우스 모드용")
-
-    local party_info_checkbox = frame:CreateOrGetControl('checkbox', 'party_info_checkbox', 10, x, 25, 25)
-    AUTO_CAST(party_info_checkbox)
-    party_info_checkbox:SetCheck(g.settings.party_info)
-    party_info_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    party_info_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local coin_count = frame:CreateOrGetControl("richtext", "coin_count", 40, x + 5)
-    coin_count:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("The maximum coin limit for each store is raised to 99999"))
-    coin_count:SetTextTooltip("각 상점의 코인 한도를 99999로 상향 조정합니다")
-
-    local coin_count_checkbox = frame:CreateOrGetControl('checkbox', 'coin_count_checkbox', 10, x, 25, 25)
-    AUTO_CAST(coin_count_checkbox)
-    coin_count_checkbox:SetCheck(g.settings.coin_count)
-    coin_count_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    coin_count_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local bgm = frame:CreateOrGetControl("richtext", "bgm", 40, x + 5)
-    bgm:SetText("{ol}{#FF4500}" .. MINI_ADDONS_LANG("Always move the BGM player in city"))
-    bgm:SetTextTooltip("거리에서 배경음악 플레이어를 항상 움직인다")
-
-    local bgm_checkbox = frame:CreateOrGetControl('checkbox', 'bgm_checkbox', 10, x, 25, 25)
-    AUTO_CAST(bgm_checkbox)
-    bgm_checkbox:SetCheck(g.settings.bgm)
-    bgm_checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-    bgm_checkbox:SetTextTooltip(MINI_ADDONS_LANG("Check to enable"))
-    x = x + 30
-
-    local description = frame:CreateOrGetControl("richtext", "description", 40, x + 5)
-    description:SetText("{ol}{#FFA500}" ..
-                            MINI_ADDONS_LANG("※Character change is required to enable or disable some functions"))
-    description:SetTextTooltip("일부 기능의 활성화, 비활성화 전환은 캐릭터 변경이 필요합니다")
-
-    x = x + 30
-
-    local langcode = option.GetCurrentCountry()
-
-    if langcode ~= "Japanese" then
-        frame:Resize(720, x)
-        -- close:SetOffset(685, 5)
-    else
-        frame:Resize(650, x)
-    end
-
-    local screenWidth = ui.GetClientInitialWidth() -- 画面の幅
-    local screenHeight = ui.GetClientInitialHeight() -- 画面の高さ
-    local frameWidth = frame:GetWidth() -- フレームの幅
-    local frameHeight = frame:GetHeight() -- フレームの高さ
-
-    -- 画面の中央にフレームを配置する
-    frame:SetPos((screenWidth - frameWidth) / 2, (screenHeight - frameHeight) / 2)
-
-    frame:ShowWindow(1)
-
-end]]
-
---[[function MINI_ADDONS_CLOSE_COMPANIONLIST()
-    local frame = ui.GetFrame("companionlist");
-    frame:ShowWindow(0);
-end
-
-]
---[[if not g.loaded then
-    local loginCharID = info.GetCID(session.GetMyHandle())
-    g.settings = {
-
-        reword_x = 1100,
-        reword_y = 100,
-
-        allcall = 0,
-        under_staff = 1,
-        raid_record = 1,
-        party_buff = 1,
-        chat_system = 1,
-        channel_display = 1,
-        mini_btn = 1,
-        market_display = 1,
-        restart_move = 1,
-        pet_init = 1,
-        dialog_ctrl = 1,
-        auto_cast = 1,
-        auto_casting = {},
-        buffid = {},
-        coin_use = 1,
-        equip_info = 1,
-        automatch_layer = 1,
-        quest_hide = 1,
-        pc_name = 1,
-        auto_gacha = 0,
-        skill_enchant = 1,
-        auto_gacha_start = 0,
-        party_info = 1,
-        relic_gauge = 1,
-        raid_check = 1,
-        coin_count = 0
-
-        -- !
-    }
-
-end]]
---[[function MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
-    local curchannel = frame:GetChild("curchannel");
-
-    local channel = session.loginInfo.GetChannel();
-    local zoneInst = session.serverState.GetZoneInst(channel);
-    if g.settings.channel_display == 1 then
-
-        if g.lang == "Japanese" then
-            if zoneInst ~= nil then
-                if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
-                    local str, stateString = GET_CHANNEL_STRING(zoneInst);
-                    curchannel:SetTextByKey("value", str .. "                      " .. stateString);
-                else
-                    local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-                    local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
-                    curchannel:SetTextByKey("value", str .. "                      " .. stateString);
-                end
-            else
-                curchannel:SetTextByKey("value", "");
-            end
-        else
-            if zoneInst ~= nil then
-                if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
-                    local str, stateString = GET_CHANNEL_STRING(zoneInst);
-                    curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
-                else
-                    local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-                    local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
-                    curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
-                end
-            else
-                curchannel:SetTextByKey("value", "");
-            end
-
-        end
-    else
-        if zoneInst ~= nil then
-            if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == false then
-                local str, stateString = GET_CHANNEL_STRING(zoneInst);
-                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
-            else
-                local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
-                local str, stateString = GET_CHANNEL_STRING(zoneInst, suffix);
-                curchannel:SetTextByKey("value", str .. "                                  " .. stateString);
-            end
-        else
-            curchannel:SetTextByKey("value", "");
-        end
-    end
-end]]
-
---[[function MINI_ADDONS_BUFFLIST_UPDATE(frame)
-
-    local frame = ui.GetFrame("partyinfo")
-    frame:Resize(600, 320)
-    local list = session.party.GetPartyMemberList();
-    local count = list:Count();
-    -- CHAT_SYSTEM(tostring(count))
-    for i = 0, count - 1 do
-        local partyMemberInfo = list:Element(i);
-        local partyInfoCtrlSet = frame:GetChild('PTINFO_' .. partyMemberInfo:GetAID());
-        AUTO_CAST(partyInfoCtrlSet)
-        -- CHAT_SYSTEM(tostring(partyInfoCtrlSet))
-        partyInfoCtrlSet:Resize(600, 62)
-    end
-
-end]]
-
---[[function MINI_ADDONS_PETINFO()
-
-    local summonedPet = session.pet.GetSummonedPet();
-    if g.settings.allcall == 1 then
-        if summonedPet == nil then
-            -- CHAT_SYSTEM("呼び出されていない")
-            MINI_ADDONS_ON_OPEN_COMPANIONLIST()
-            -- return;
-        end
-    elseif g.settings.allcall == 0 and g.check == 0 then
-        if summonedPet == nil then
-            -- CHAT_SYSTEM("呼び出されていない")
-            MINI_ADDONS_ON_OPEN_COMPANIONLIST()
-            -- return;
-        end
-    else
-        return
-    end
-
-end
-
-function MINI_ADDONS_PETLIST_FRAME_INIT()
-
-    local frame = ui.GetFrame("companionlist");
-
-    local title = GET_CHILD_RECURSIVELY(frame, "title")
-    title:SetGravity(ui.LEFT, ui.TOP);
-    title:SetOffset(10, 10);
-    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
-    if checkbox ~= nil then
-
-        frame:RemoveChild("checkbox")
-    end
-
-    checkbox = frame:CreateOrGetControl("checkbox", "checkbox", 240, 10, 20, 20)
-    AUTO_CAST(checkbox)
-
-    checkbox:SetTextTooltip(
-        "{@st59}チェックを入れるとコンパニオンリスト呼び出し機能をオフにします(キャラクター毎に設定){nl}Checking the box turns off the companion list call function (set for each character).")
-
-    checkbox:SetCheck(g.check)
-
-    checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CHECK_PET_AUTO")
-
-    local allcall = GET_CHILD_RECURSIVELY(frame, "allcall")
-    if allcall ~= nil then
-
-        frame:RemoveChild("allcall")
-    end
-
-    allcall = frame:CreateOrGetControl("checkbox", "allcall", 215, 10, 20, 20)
-    AUTO_CAST(allcall)
-
-    allcall:SetTextTooltip(
-        "{@st59}チェックを入れるとキャラ毎の設定を無視して{nl}コンパニオンリストを呼び出します(アカウント共通){nl}If checked, the companion list is called up,{nl} ignoring the settings for each character (common to all accounts).")
-
-    allcall:SetCheck(g.settings.allcall)
-
-    allcall:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CHECK_PET_AUTO")
-
-    -- UPDATE_COMPANIONLIST(frame);
-
-end
-
-function MINI_ADDONS_ON_OPEN_COMPANIONLIST()
-    local frame = ui.GetFrame("companionlist");
-
-    frame:SetOffset(800, 500)
-
-    UPDATE_COMPANIONLIST(frame);
-    frame:ShowWindow(1);
-
-    ReserveScript("MINI_ADDONS_CLOSE_COMPANIONLIST()", 10.0)
-end
-
-function MINI_ADDONS_CHECK_PET_AUTO(frame)
-
-    local checkbox = GET_CHILD_RECURSIVELY(frame, "checkbox")
-
-    local loginCharID = info.GetCID(session.GetMyHandle())
-
-    if checkbox:IsChecked() == 1 then
-        g.settings.charid[loginCharID] = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-
-    else
-
-        g.settings.charid[loginCharID] = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-
-    local allcall = GET_CHILD_RECURSIVELY(frame, "allcall")
-    if allcall:IsChecked() == 1 then
-        g.settings.allcall = 1
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-
-    else
-
-        g.settings.allcall = 0
-        MINI_ADDONS_SAVE_SETTINGS()
-        MINI_ADDONS_LOAD_SETTINGS()
-    end
-end]]
-
---[[ 激動の入り間違いを減らす
-function MINI_ADDONS_INDUNINFO_DETAIL_BOSS_SELECT_LBTN_CLICK(ctrl_set, btn, clicked)
-
-    if ctrl_set == nil or btn == nil then
-        return;
-    end
-    local parent = ctrl_set:GetParent();
-    if IS_INDUNINFO_DETAIL_BOSS_SELECT_LOCK_STATE(ctrl_set) == true then
-        return;
-    end
-    INDUNINFO_DETAIL_BOSS_SELECT_CHECK_UPDATE(parent, ctrl_set);
-    if clicked == "click" then
-        imcSound.PlaySoundEvent("button_click_7");
-    end
-    local frame = parent:GetTopParentFrame();
-
-    -- local framename = frame:GetClassName()
-    -- print(framename)
-    -- ここから追記
-    local indunframe = ui.GetFrame("induninfo")
-    local indun_cls_name_ffls = ctrl_set:GetName();
-    local indun_cls_ffls = GetClass("Indun", indun_cls_name_ffls);
-    if indun_cls_name_ffls == nil then
-        return;
-    end
-
-    -- local group_id = TryGetProp(indun_cls_name_ffls, "GroupID", "None");
-    -- local raid_type = TryGetProp(indun_cls_name_ffls, "RaidType", "None");
-
-    -- print(group_id)
-    -- print(raid_type)
-
-    ---if group_id == "TurbulentCore" and raid_type == "AutoNormal" then
-    -- print("test1")
-    -- print("test1")
-    -- 
-    local indungbox = frame:CreateOrGetControl("groupbox", "textbox_1", 200, 100, 400, 200)
-    indungbox:SetSkinName("None")
-    indungbox:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-    local msgtexts = indungbox:CreateOrGetControl("richtext", "msgtexts_1", 0, 50, 295, 225)
-    msgtexts:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-    msgtexts:SetText("{@st55_a}Spreader Select")
-    local msgtexts2 = indungbox:CreateOrGetControl("richtext", "msgtexts_2", 0, 0, 295, 225)
-    msgtexts2:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-    msgtexts2:SetText("{@st55_a}プロパゲ行くんか！？")
-    local msgtextf = indungbox:CreateOrGetControl("richtext", "msgtextf_1", 0, 50, 295, 225)
-    msgtextf:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-    msgtextf:SetText("{@st55_a}Falouros Select")
-    local msgtextf2 = indungbox:CreateOrGetControl("richtext", "msgtextf_2", 0, 0, 295, 225)
-    msgtextf2:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-    msgtextf2:SetText("{@st55_a}ファロ行くんか！？")
-    if string.match(indun_cls_name_ffls, "Goddess_Raid_Spreader_Auto") then
-        msgtextf:ShowWindow(0)
-        msgtexts:ShowWindow(1)
-        msgtextf2:ShowWindow(0)
-        msgtexts2:ShowWindow(1)
-        ReserveScript(string.format('MINI_ADDONS_TEXT_DELETE()'), 5.0)
-
-    elseif string.match(indun_cls_name_ffls, "Goddess_Raid_Falouros_Auto") then
-        msgtextf:ShowWindow(1)
-        msgtexts:ShowWindow(0)
-        msgtextf2:ShowWindow(1)
-        msgtexts2:ShowWindow(0)
-        ReserveScript(string]]

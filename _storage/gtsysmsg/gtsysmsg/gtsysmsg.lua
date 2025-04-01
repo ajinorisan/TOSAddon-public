@@ -13,14 +13,20 @@ local g = _G["ADDONS"][author][addonName]
 local json = require("json")
 
 function g.setup_hook(my_func, origin_func_name)
-    g.funcs = g.funcs or {}
-    if not g.funcs[origin_func_name] then
-        g.funcs[origin_func_name] = _G[origin_func_name]
-        local function hooked_function(...)
-            my_func(...)
-        end
-        _G[origin_func_name] = hooked_function
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
+    local origin_func = _G[origin_func_name]
+    local hooked_function = function(...)
+
+        pcall(my_func, ...)
+        if origin_func then
+            return origin_func(...)
+        end
+    end
+    _G[origin_func_name] = hooked_function
 end
 
 function g.setup_event(my_addon, origin_func_name, my_func_name)
