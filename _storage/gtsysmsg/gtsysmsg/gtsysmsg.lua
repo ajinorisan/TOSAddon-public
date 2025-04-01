@@ -18,14 +18,17 @@ function g.setup_hook(my_func, origin_func_name)
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
+
     local origin_func = _G[origin_func_name]
+
     local hooked_function = function(...)
 
         pcall(my_func, ...)
         if origin_func then
-            return origin_func(...)
+            return g.FUNCS[origin_func_name](...)
         end
     end
+
     _G[origin_func_name] = hooked_function
 end
 
@@ -131,6 +134,8 @@ function GTSYSMSG_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+    g.call = {}
+    g.music = nil
     g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
 
     g.load_settings()
@@ -168,33 +173,66 @@ function GTSYSMSG_btn_init()
     end
 end
 
+function GTSYSMSG_NOTICE_sound(frame)
+    BGMPLAYER_OPEN_UI(nil, nil)
+    BGMPLAYER_SEQUENCE_PLAY(1, tonumber(g.musicIndex));
+    BGMPLAYER_CLOSE_UI()
+end
+
 function GTSYSMSG_NOTICE_ON_MSG(frame, msg, str, num)
     GTSYSMSG_NOTICE_ON_MSG_(frame, msg, str, num)
 end
 
 function GTSYSMSG_NOTICE_ON_MSG_(frame, msg, str, num)
-    g.call = g.call or 0
+
     if string.find(str, 'AppearFieldBoss_ep14_2_d_castle_3{name}') then
-        g.call = g.call + 1
-        print(g.call)
-        if g.call == 1 then
+        local current_time = os.time()
+        g.current_time = g.current_time or current_time
+        if current_time - g.current_time >= 1 then
+            g.call = {}
+            g.current_time = current_time
+        end
+        if not g.call["AppearFieldBoss_ep14_2_d_castle_3"] then
+
             imcSound.PlaySoundEvent('sys_tp_box_4')
+            BGMPLAYER_OPEN_UI(nil, nil)
+            local frame = ui.GetFrame("bgmplayer")
+            local bgmMusicTitle_text = GET_CHILD_RECURSIVELY(frame, "bgm_music_title");
+            local title = bgmMusicTitle_text:GetTextByKey("value");
+
+            local parent = GET_CHILD_RECURSIVELY(frame, "musicinfo_gb");
+            local childCnt = parent:GetChildCount();
+
+            for i = 1, childCnt do
+                local child = parent:GetChildByIndex(i);
+                local titleText = GET_CHILD_RECURSIVELY(child, "musictitle_text");
+
+                local musicIndex = titleText:GetTextByKey("value");
+                musicIndex = StringSplit(musicIndex, '. ');
+
+                g.musicIndex = string.gsub(musicIndex[1], "{#ffc03a}", "")
+                print(tostring(g.musicIndex))
+                break
+            end
+            BGMPLAYER_SEQUENCE_PLAY(1, 241);
+            frame:RunUpdateScript("GTSYSMSG_NOTICE_sound", 1800)
+            frame:SetVisible(0)
+            -- imcSound.PlaySoundEvent("SFA_The_Awakening_of_pluto", 180);
+
             NICO_CHAT(string.format("{@st55_a}%s", str))
             CHAT_SYSTEM(str)
             local guild_notice = "[GTS]Baubas has appeared"
             GTSYSMSG_NOTICE_ON_MSG_GUILD(guild_notice)
-        elseif g.call < 3 then
-            imcSound.PlaySoundEvent('sys_tp_box_4')
-        elseif g.call == 3 then
-            imcSound.PlaySoundEvent('sys_tp_box_4')
-            g.call = 0
+            g.call["AppearFieldBoss_ep14_2_d_castle_3"] = true
+
         end
+
     elseif string.find(str, '{name}DisappearFieldBoss') and string.find(str, '맹화의 바우바') then
         CHAT_SYSTEM(str)
         local guild_notice = "[GTS]Baubas has been defeated"
         GTSYSMSG_NOTICE_ON_MSG_GUILD(guild_notice)
     end
-    g.funcs["NOTICE_ON_MSG"](frame, msg, str, num)
+    g.FUNCS["NOTICE_ON_MSG"](frame, msg, str, num)
 end
 
 function GTSYSMSG_NOTICE_ON_MSG_GUILD(str)
@@ -215,6 +253,6 @@ end
 
 -- testcode
 -- _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', _G.ScpArgMsg('AppearFieldBoss_ep14_2_d_castle_3{name}', 'name', "name"),
---    1)
+--  1)
 -- _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
 --   _G.ScpArgMsg('{name}DisappearFieldBoss', 'name', "맹화의 바우바스"), 1)

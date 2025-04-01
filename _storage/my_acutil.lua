@@ -10,6 +10,17 @@ local g = _G["ADDONS"][author][addon_name]
 
 local json = require("json")
 
+--[[function g.setup_hook(my_func, base_func_name)
+    g.FUNCS = g.FUNCS or {}
+    local addon_upper = string.upper(addon_name)
+    local replace_name = addon_upper .. "_BASE_" .. base_func_name
+    if (_G[replace_name] == nil) then
+        _G[replace_name] = _G[base_func_name];
+        _G[base_func_name] = my_func
+    end
+    g.FUNCS[base_func_name] = _G[replace_name]
+end]]
+
 function g.setup_hook(my_func, origin_func_name)
 
     g.FUNCS = g.FUNCS or {}
@@ -23,7 +34,7 @@ function g.setup_hook(my_func, origin_func_name)
 
         pcall(my_func, ...)
         if origin_func then
-            return origin_func(...)
+            return g.FUNCS[origin_func_name](...)
         end
     end
 
