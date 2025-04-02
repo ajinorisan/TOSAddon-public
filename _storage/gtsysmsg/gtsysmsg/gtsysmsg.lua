@@ -135,7 +135,6 @@ function GTSYSMSG_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.call = {}
-    g.music = nil
     g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
 
     g.load_settings()

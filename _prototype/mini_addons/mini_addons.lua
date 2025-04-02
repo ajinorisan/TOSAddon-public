@@ -175,7 +175,11 @@ function MINI_ADDONS_LOAD_SETTINGS()
         separated_buff = 1,
         group_name = {},
         group_chat = 1,
-        memberinfo = 1
+        memberinfo = 1,
+        baubas_call = {
+            use = 0,
+            guild_notice = 0
+        }
     }
 
     if not settings then
@@ -1485,6 +1489,55 @@ function mini_addons_reputation_shop_close()
     end
 end
 
+function MINI_ADDONS_NOTICE_ON_MSG_baubas(frame, msg)
+
+    local frame, msg, str, num = acutil.getEventArgs(msg)
+
+    if g.settings.baubas_call.use == 1 then
+        if string.find(str, 'AppearFieldBoss_ep14_2_d_castle_3{name}') then
+            local current_time = os.time()
+            g.current_time = g.current_time or current_time
+            if current_time - g.current_time >= 1 then
+                g.call = {}
+                g.current_time = current_time
+            end
+            if not g.call["AppearFieldBoss_ep14_2_d_castle_3"] then
+
+                imcSound.PlaySoundEvent('sys_tp_box_4')
+
+                NICO_CHAT(string.format("{@st55_a}%s", str))
+                CHAT_SYSTEM(str)
+                g.call["AppearFieldBoss_ep14_2_d_castle_3"] = true
+
+                local guild_notice = "[NOTICE]Baubas has appeared"
+                MINI_ADDONS_NOTICE_ON_MSG_GUILD(guild_notice)
+
+            end
+
+        elseif string.find(str, '{name}DisappearFieldBoss') and string.find(str, '맹화의 바우바') then
+            CHAT_SYSTEM(str)
+            local guild_notice = "[NOTICE]Baubas has been defeated"
+            MINI_ADDONS_NOTICE_ON_MSG_GUILD(guild_notice)
+        end
+    end
+end
+
+function MINI_ADDONS_NOTICE_ON_MSG_GUILD(str)
+
+    if g.settings.baubas_call.guild_notice == 0 then
+        return
+    end
+
+    local chatframe = ui.GetFrame("chat")
+    ui.SetChatType(3) -- 2pt 3guild 4wis 5gurop
+    SET_CHAT_TEXT_TO_CHATFRAME(str)
+    local edit = chatframe:GetChild('mainchat');
+    AUTO_CAST(edit)
+    edit:RunEnterKeyScript();
+    ui.ProcessReturnKey()
+    chatframe:ShowWindow(0)
+end
+
 function MINI_ADDONS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
@@ -1500,16 +1553,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(MINI_ADDONS_POPUP_DUMMY, "POPUP_DUMMY")
     -- g.SetupHook(MINI_ADDONS_ACCOUNTPROP_INVENTORY_UPDATE, "ACCOUNTPROP_INVENTORY_UPDATE")
 
+    g.call = {}
+    acutil.setupEvent(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas")
+
     if g.settings.group_chat == 1 then
-
-        --[[if not g.sysmsg_info then
-
-            local function mini_addons_sysmsg()
-                ui.SysMsg("{ol}Mini Addons{nl}Group chat switching function ON")
-                g.sysmsg_info = true
-            end
-            ReserveScript(mini_addons_sysmsg(), 3.0)
-        end]]
 
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_CHAT_CREATE_OR_UPDATE_GROUP_LIST_3SEC")
         acutil.setupEvent(addon, "CHAT_GROUPLIST_SELECT_LISTTYPE", "MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE");
@@ -1930,8 +1977,12 @@ function MINI_ADDONS_LANG(str)
             str = "セパレートバフフレームの周りを綺麗にします"
         elseif str == "Group chats can be selected from chat frame" then -- Group chat selection can be selected from chat frame
             str = "グループチャットをチャットフレームから選択出来ます" -- "Add member info to various rightclick menu"
-        elseif str == "Add member info to various rightclick menu" then
-            str = "様々な右クリックメニューにメンバーインフォを追加します" -- "Add member info to various rightclick menu"
+        elseif str == "Add member info to various rightclick menu" then -- Announcing the arrival of Baubas
+            str = "様々な右クリックメニューにメンバーインフォを追加します"
+        elseif str == "Announcing the arrival of Baubas" then -- Announcing the arrival of Baubas
+            str = "バウバス登場をお知らせ"
+        elseif str == "Notification switch to guild chat" then
+            str = "ギルドチャットへのお知らせ切替え"
         elseif str == "Check to enable" then
             str = "チェックすると有効化"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -2015,6 +2066,10 @@ function MINI_ADDONS_LANG(str)
             str = "채팅 프레임에서 그룹 채팅을 선택할 수 있습니다"
         elseif str == "Add member info to various rightclick menu" then
             str = "다양한 우클릭 메뉴에 회원 정보를 추가합니다"
+        elseif str == "Announcing the arrival of Baubas" then -- Announcing the arrival of Baubas
+            str = "바우버스 등장 소식" -- "Add member info to various rightclick menu"
+        elseif str == "Notification switch to guild chat" then
+            str = "길드 채팅으로 알림 전환"
         elseif str == "Check to enable" then
             str = "체크 시 활성화"
         elseif str == "※Character change is required to enable or disable some functions" then
@@ -2022,6 +2077,18 @@ function MINI_ADDONS_LANG(str)
         end
     end
     return str
+end
+
+function MINI_ADDONS_baubas_call_switch(frame, ctrl, str, num)
+    if g.settings.baubas_call.guild_notice == 0 then
+
+        g.settings.baubas_call.guild_notice = 1
+
+    else
+        g.settings.baubas_call.guild_notice = 0
+    end
+    MINI_ADDONS_SAVE_SETTINGS()
+    MINI_ADDONS_SETTING_FRAME_INIT()
 end
 
 function MINI_ADDONS_SETTING_FRAME_INIT()
@@ -2191,6 +2258,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         check = g.settings.memberinfo,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Add member info to various rightclick menu")
 
+    }, {
+        name = "baubas_call",
+        check = g.settings.baubas_call.use,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Announcing the arrival of Baubas")
+
     }}
 
     local x = 10
@@ -2210,6 +2282,21 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             party_buff_btn:SetTextTooltip(MINI_ADDONS_LANG("You can choose which buffs to display"))
             party_buff_btn:SetSkinName("test_red_button")
             party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
+        elseif setting.name == "baubas_call" then
+            local baubas_call_btn = frame:CreateOrGetControl('button', 'baubas_call_btn', textWidth + 15, x - 5, 50, 30)
+            AUTO_CAST(baubas_call_btn)
+            if g.settings.baubas_call.guild_notice == 0 or not g.settings.baubas_call.guild_notice then
+                baubas_call_btn:SetText("{ol}{#FFFFFF}OFF")
+                baubas_call_btn:SetSkinName("test_gray_button");
+                g.settings.baubas_call.guild_notice = 0
+                MINI_ADDONS_SAVE_SETTINGS()
+            else
+                baubas_call_btn:SetText("{ol}{#FFFFFF}ON")
+                baubas_call_btn:SetSkinName("test_red_button")
+
+            end
+            baubas_call_btn:SetTextTooltip(MINI_ADDONS_LANG("Notification switch to guild chat"))
+            baubas_call_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_baubas_call_switch")
         elseif setting.name == "auto_gacha" then
             local auto_gacha_btn = frame:CreateOrGetControl('button', 'auto_gacha_btn', textWidth + 15, x - 5, 50, 30)
             AUTO_CAST(auto_gacha_btn)
@@ -2348,12 +2435,14 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         velnice = "velnice_checkbox",
         separated_buff = "separated_buff_checkbox",
         group_chat = "group_chat_checkbox",
-        memberinfo = "memberinfo_checkbox"
+        memberinfo = "memberinfo_checkbox",
+        baubas_call = "baubas_call_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
         if ctrlname == checkboxName then
-            if checkboxName == "cupole_portion_checkbox" or checkboxName == "velnice_checkbox" then
+            if checkboxName == "cupole_portion_checkbox" or checkboxName == "velnice_checkbox" or checkboxName ==
+                "baubas_call_checkbox" then
 
                 g.settings[settingName].use = ischeck
             else
@@ -3228,6 +3317,18 @@ function MINI_ADDONS_channelframe_move(frame)
     end
 end
 
+function MINI_ADDONS_CH_FRAME_RESIZE(frame, btn, str, num)
+
+    if g.settings.ch_frame_size == 40 then
+        g.settings.ch_frame_size = 50
+    else
+        g.settings.ch_frame_size = 40
+    end
+
+    MINI_ADDONS_SAVE_SETTINGS()
+    MINI_ADDONS_POPUP_CHANNEL_LIST()
+end
+
 function MINI_ADDONS_POPUP_CHANNEL_LIST()
 
     local frame = ui.CreateNewFrame("notice_on_pc", "mini_addons_channel", 10, 10, 10, 10)
@@ -3237,17 +3338,18 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1);
     frame:EnableMove(1)
-    if g.settings.frame_X == nil then
-        g.settings.frame_X = 1500
-        MINI_ADDONS_SAVE_SETTINGS()
-    end
-    if g.settings.frame_Y == nil then
-        g.settings.frame_Y = 395
-        MINI_ADDONS_SAVE_SETTINGS()
-    end
+
+    g.settings.frame_X = g.settings.frame_X or 1500
+    g.settings.frame_Y = g.settings.frame_Y or 395
+    g.settings.ch_frame_size = g.settings.ch_frame_size or 40
+
+    MINI_ADDONS_SAVE_SETTINGS()
+
+    local size = g.settings.ch_frame_size
 
     frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
     frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_channelframe_move")
+    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_CH_FRAME_RESIZE")
 
     local title = frame:CreateOrGetControl("richtext", "title", 5, 0)
     title:SetText("{ol}{s12}channel info")
@@ -3265,9 +3367,10 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
             -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
 
             local String = zoneInst.pcCount
-            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * 40 + 5, 15, 40, 40)
+            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * size + 5, 15, size, size)
             AUTO_CAST(btn)
             btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+
             local channelnum = session.loginInfo.GetChannel();
             if i == channelnum then
                 btn:SetSkinName("test_pvp_btn");
@@ -3285,7 +3388,7 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
                 btn:SetText(text)
             end
         end
-        frame:Resize(cnt * 40 + 20, 60)
+        frame:Resize(cnt * size + 20, 60)
         frame:ShowWindow(1)
     else
         frame:ShowWindow(0)

@@ -41,11 +41,17 @@ function g.setup_hook(my_func, origin_func_name)
     _G[origin_func_name] = hooked_function
 end
 
-function g.setup_event(my_addon, origin_func_name, my_func_name)
+--[[function g.setup_event(my_addon, origin_func_name, my_func_name)
     g.ARGS = g.ARGS or {}
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
     local original_func = _G[origin_func_name]
 
     local function hooked_function(...)
+
+        -- pcall(g.FUNCS[origin_func_name], ...)
         local success, results = pcall(original_func, ...)
         if not success then
             print("error: " .. results)
@@ -54,6 +60,30 @@ function g.setup_event(my_addon, origin_func_name, my_func_name)
         g.ARGS[origin_func_name] = {...} -- 元の関数名で引数を保存
         imcAddOn.BroadMsg(origin_func_name)
         return table.unpack(results)
+    end
+
+    _G[origin_func_name] = hooked_function
+    my_addon:RegisterMsg(origin_func_name, my_func_name)
+end]]
+
+function g.setup_event(my_addon, origin_func_name, my_func_name)
+
+    local origin_func = _G[origin_func_name]
+
+    local function hooked_function(...)
+
+        local results_table = {pcall(origin_func, ...)}
+        local success = results_table[1]
+
+        if not success then
+            return
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        return table.unpack(results_table, 2, #results_table)
     end
 
     _G[origin_func_name] = hooked_function
