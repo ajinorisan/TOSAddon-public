@@ -84,6 +84,8 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     g.FUNCS = g.FUNCS or {}
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
+    elseif bool == false and g.FUNCS[origin_func_name] then
+        return
     end
 
     local origin_func = _G[origin_func_name]
@@ -98,7 +100,7 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
             if not original_success then
                 print(string.format("Error in original/previous hook for '%s': %s", origin_func_name,
-                                    tostring(original_results[2])))
+                    tostring(original_results[2])))
                 return
             end
         end
@@ -112,6 +114,7 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         else
             return -- nil を返す
         end
+
     end
     _G[origin_func_name] = hooked_function
     my_addon:RegisterMsg(origin_func_name, my_func_name)
