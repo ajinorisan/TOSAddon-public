@@ -1,247 +1,333 @@
--- dofile("../data/addon_d/separatedpcdebuff/separatedpcdebuff.lua");
--- areas defined
-local author = 'meldavy'
-local addonName = 'separatedpcdebuff'
-local ver = "2.0.0"
-_G['ADDONS'] = _G['ADDONS'] or {}
-_G['ADDONS'][author] = _G['ADDONS'][author] or {}
-_G['ADDONS'][author][addonName] = _G['ADDONS'][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
-local acutil = require('acutil')
+local addon_name = "DEBUFF_NOTICE"
+local addon_name_lower = string.lower(addon_name)
+local author = "norisan"
+local ver = "1.0.0"
 
-g.slot_count = 0
-g.slot_list = {}
-g.cap_list = {}
+_G["ADDONS"] = _G["ADDONS"] or {}
+_G["ADDONS"][author] = _G["ADDONS"][author] or {}
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
+local json = require("json")
 
-function SEPARATEDPCDEBUFF_ON_INIT(addon, frame)
+function DEBUFF_NOTICE_ON_INIT(addon, frame)
     g.addon = addon;
     g.frame = frame;
-    -- initialize frame
-    local targetbuff = ui.GetFrame('targetbuff')
-    -- t_buff_ui がどこから来るのか確認！ nil だとエラーになる
-    if targetbuff and t_buff_ui then
-        SEPARATEDPCDEBUFF_INIT_CASTER_DEBUFF_SLOT(targetbuff, t_buff_ui)
-    end
-    addon:RegisterMsg('TARGET_BUFF_ADD', 'separatedpcdebuff_TARGETBUFF_ON_MSG');
-    addon:RegisterMsg('TARGET_BUFF_REMOVE', 'separatedpcdebuff_TARGETBUFF_ON_MSG');
-    addon:RegisterMsg('TARGET_BUFF_UPDATE', 'separatedpcdebuff_TARGETBUFF_ON_MSG');
-    addon:RegisterMsg('TARGET_SET', 'separatedpcdebuff_TARGETBUFF_ON_MSG');
-    addon:RegisterMsg('TARGET_CLEAR', 'separatedpcdebuff_TARGETBUFF_ON_MSG');
 
+    addon:RegisterMsg('GAME_START', 'debuff_notice_frame_init');
+
+    addon:RegisterMsg('TARGET_BUFF_ADD', 'debuff_notice_TARGETBUFF_ON_MSG');
+    addon:RegisterMsg('TARGET_BUFF_REMOVE', 'debuff_notice_TARGETBUFF_ON_MSG');
+    addon:RegisterMsg('TARGET_BUFF_UPDATE', 'debuff_notice_TARGETBUFF_ON_MSG');
+    addon:RegisterMsg('TARGET_SET', 'debuff_notice_TARGETBUFF_ON_MSG');
+    addon:RegisterMsg('TARGET_CLEAR', 'debuff_notice_TARGETBUFF_ON_MSG');
+    g.slot_table = {}
+    g.slot_table.buffids = {}
 end
 
-function SEPARATEDPCDEBUFF_INIT_CASTER_DEBUFF_SLOT(targetbuff, buff_ui)
+function debuff_notice_frame_init()
 
-    local frame = ui.GetFrame("separatedpcdebuff")
+    local targetbuff = ui.GetFrame("targetbuff")
+
+    local frame = ui.GetFrame("debuff_notice")
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
     frame:Resize(300, 70)
     frame:SetPos(targetbuff:GetX(), targetbuff:GetY() + targetbuff:GetHeight() + 5)
-    local my_db_ss = frame:GetChild("my_db_ss")
-    if (my_db_ss == nil) then
+    local debuff_slotset = frame:GetChild("debuff_slotset")
+    if debuff_slotset == nil then
 
-        my_db_ss = frame:CreateOrGetControl("slotset", "my_db_ss", 0, 0, 300, 50)
-        AUTO_CAST(my_db_ss)
-        my_db_ss:SetColRow(6, 1)
-        my_db_ss:SetSlotSize(50, 50)
-        my_db_ss:SetSpc(2, 15)
-        my_db_ss:CreateSlots();
+        debuff_slotset = frame:CreateOrGetControl("slotset", "debuff_slotset", 0, 0, 300, 50)
+        AUTO_CAST(debuff_slotset)
+        debuff_slotset:SetColRow(6, 1)
+        debuff_slotset:SetSlotSize(50, 50)
+        debuff_slotset:SetSpc(2, 15)
+        debuff_slotset:EnablePop(0)
+        debuff_slotset:EnableDrag(0)
+        debuff_slotset:EnableDrop(0)
+        debuff_slotset:EnableHitTest(0);
+        debuff_slotset:CreateSlots();
     else
-        AUTO_CAST(my_db_ss)
+        AUTO_CAST(debuff_slotset)
     end
 
-    local childNames = {}
-    local childCount = my_db_ss:GetChildCount()
-    for i = 0, childCount - 1 do
-        local child = my_db_ss:GetChildByIndex(i)
-        table.insert(childNames, child:GetName())
-    end
-
-    for i, name in ipairs(childNames) do
-        print(name)
-    end
-
-    g.slot_count = 0
-    g.slot_list = {}
-    g.cap_list = {}
-
-    while 1 do
-        if my_db_ss == nil then
-            break
-        end
-
-        local slot = my_db_ss:GetSlotByIndex(g.slot_count);
-        if slot == nil then
-            break
-        end
-
-        g.slot_list[g.slot_count] = slot;
-        slot:ShowWindow(1);
+    local slot_count = debuff_slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+        AUTO_CAST(slot)
         local icon = CreateIcon(slot);
-        icon:SetDrawCoolTimeText(0);
-        local x = my_db_ss:GetX() + slot:GetX() + buff_ui["txt_x_offset"];
-        local y = my_db_ss:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
-
-        local captWidth, captHeight = 50, 20;
-        local capt = slot:CreateOrGetControl('richtext', "_t_" .. 4 .. "_" .. g.slot_count, x, y, captWidth, captHeight);
-        capt:SetFontName("yellow_13");
-        g.cap_list[g.slot_list] = capt;
-        g.slot_count = g.slot_count + 1;
+        for i, buff_id in pairs(g.slot_table.buffids) do
+            print("- " .. buff_id)
+        end
+        local time_text = frame:CreateOrGetControl('richtext', "time_text" .. i, slot:GetX(), slot:GetY() + 55, 50, 20);
+        time_text:SetFontName("yellow_13");
     end
 
     frame:ShowWindow(1)
+
+    local addon_timer = frame:CreateOrGetControl("timer", "addon_timer", 0, 0);
+    AUTO_CAST(addon_timer)
+    addon_timer:SetUpdateScript("debuff_notice_slotset_update");
+    addon_timer:Start(1.0);
+
 end
 
-function separatedpcdebuff_TARGETBUFF_ON_MSG(frame, msg, argStr, argNum)
+function debuff_notice_TARGETBUFF_ON_MSG(frame, msg, arg_str, buff_id)
 
-    local frame = ui.GetFrame("separatedpcdebuff")
-    local handle = session.GetTargetHandle();
-    local buffCls = GetClassByType('Buff', argNum);
+    -- ローカル変数は基本的にスネークケースだが、frame は引数と同じなのでそのまま
+    local frame = ui.GetFrame("debuff_notice")
+    local handle = session.GetTargetHandle() -- API呼び出しはそのまま
+    local buff_cls = GetClassByType('Buff', buff_id) -- ローカル変数名を変更, API呼び出しはそのまま
 
-    local buffIndex = tonumber(argStr)
-
-    local actor = world.GetActor(handle)
-    local mon_cls = GetClassByType("Monster", actor:GetType())
-
-    if TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" then
+    if not buff_cls then
         return
     end
 
-    if buffCls ~= nil and buffCls.Group1 ~= "Debuff" then
+    -- buff_cls.Group1 のようなプロパティ名は変更できないのでそのまま
+    if buff_cls and buff_cls.Group1 ~= "Debuff" then
         return
     end
 
+    -- buff_cls.ShowIcon もプロパティ名なのでそのまま
+    if buff_cls.ShowIcon == "FALSE" then
+        return;
+    end
+
+    local image_name = GET_BUFF_ICON_NAME(buff_cls);
+    if image_name == "icon_None" then
+        return
+    end
+
+    local buff_index = tonumber(arg_str)
+    local buff = info.GetBuff(handle, buff_id, buff_index);
+    if not buff then
+        buff = info.GetBuff(handle, buff_id);
+    end
+
+    local my_handle = session.GetMyHandle() -- ローカル変数名をスネークケースに（元々近かったが統一）, API呼び出しはそのまま
+
+    if buff then
+        local caster_handle = buff:GetHandle() -- ローカル変数名を変更, APIメソッド呼び出しはそのまま
+        if caster_handle ~= my_handle then
+            return
+        end
+    end
+
+    --[[ コメント内の変数も合わせておく
+        local actor = world.GetActor(handle)
+        local mon_cls = GetClassByType("Monster", actor:GetType()) -- API呼び出しはそのまま
+    
+        if TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" then -- API呼び出しはそのまま
+            return
+        end
+        ]]
+
+    -- 呼び出す関数名もスネークケースに変換 (関数定義側も合わせる必要あり)
+    -- t_buff_ui は元のコードのままとする
     if msg == "TARGET_BUFF_ADD" then
-        separatedpcdebuff_COMMON_BUFF_MSG(frame, "ADD", argNum, handle, t_buff_ui, argStr);
+        separatedpcdebuff_common_buff_msg(frame, "ADD", buff_id, handle, t_buff_ui, arg_str)
     elseif msg == "TARGET_BUFF_REMOVE" then
-        separatedpcdebuff_COMMON_BUFF_MSG(frame, "REMOVE", argNum, handle, t_buff_ui, argStr);
+        separatedpcdebuff_common_buff_msg(frame, "REMOVE", buff_id, handle, t_buff_ui, arg_str)
     elseif msg == "TARGET_BUFF_UPDATE" then
-        separatedpcdebuff_COMMON_BUFF_MSG(frame, "UPDATE", argNum, handle, t_buff_ui, argStr);
+        separatedpcdebuff_common_buff_msg(frame, "UPDATE", buff_id, handle, t_buff_ui, arg_str)
     elseif msg == "TARGET_CLEAR" then
-        separatedpcdebuff_COMMON_BUFF_MSG(frame, "CLEAR", argNum, handle, t_buff_ui);
+        separatedpcdebuff_common_buff_msg(frame, "CLEAR", buff_id, handle, t_buff_ui)
     end
 
     -- TARGET_BUFF_UPDATE(frame);
     -- TARGETBUFF_RESIZE(frame, t_buff_ui);
 end
 
-function separatedpcdebuff_COMMON_BUFF_MSG(frame, msg, buffType, handle, buff_ui, buffIndex)
+function separatedpcdebuff_COMMON_BUFF_MSG(frame, msg, buff_id, handle, buff_ui, buff_index)
 
-    -- separatedpcdebuff_BUFF_TOTAL_COUNT_CHECK(frame, msg, buffType, handle, buff_ui, buffIndex);
-    local slotset = frame:GetChild("my_db_ss")
+    if "None" == buff_index or not buff_index then
+        buff_index = 0
+    end
+    buff_index = tonumber(buff_index)
+
+    if not g.slot_table[buff_id] then
+        g.slot_table[buff_id] = true
+        table.insert(g.slot_table.buffids, buff_id)
+    end
+
+    local slotset = frame:GetChild("debuff_slotset")
     AUTO_CAST(slotset)
     CHAT_SYSTEM(msg)
     if msg == "CLEAR" then
-        if (slotset ~= nil) then
+        if slotset then
+            debuff_notice_frame_init()
+        end
+    end
 
-            if g.slot_count ~= nil and g.slot_count >= 0 then
-                for i = 0, g.slot_count - 1 do
-                    local slot = g.slot_list[i];
-                    local text = g.cap_list[i];
-                    if (slot ~= nil) then
-                        CLEAR_BUFF_SLOT(slot, text)
-                    else
-                        break
+    local buff = info.GetBuff(handle, buff_id, buff_index);
+    if not buff then
+        buff = info.GetBuff(handle, buff_id);
+    end
+
+    local buff_cls = GetClassByType('Buff', buff_id)
+
+    --[[function get_exist_debuff_in_slotlist(slotlist, buff_id)
+    for k = 0, #slotlist - 1 do
+        local slot =  slotlist[k];
+        if slot ~= nil then
+            local icon = slot:GetIcon(); 
+            if icon ~= nil then
+                local iconInfo = icon:GetInfo()
+                if iconInfo ~= nil then
+                    if tonumber(iconInfo.type) == tonumber(buff_id) then
+                        return slot, k;
                     end
                 end
             end
         end
-        frame:Invalidate();
-        return;
     end
 
-    if "None" == buffIndex or nil == buffIndex then
-        buffIndex = 0;
-    end
+    return nil;
+end]]
+    --[[function SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
+	local icon = slot:GetIcon();
+	local imageName = GET_BUFF_ICON_NAME(class);
+	if imageName ~= "icon_None" then
+		icon:Set(imageName, 'BUFF', buffType, 0);
+	end
+	if buffIndex ~= nil then
+		icon:SetUserValue("BuffIndex", buffIndex);	
+	end
 
-    buffIndex = tonumber(buffIndex);
+	if tonumber(handle) == nil then
+		return;
+	end
 
-    local class = GetClassByType('Buff', buffType);
-    if class.ShowIcon == "FALSE" then
-        return;
-    end
+	local buff = info.GetBuff(tonumber(handle), buffType, buffIndex);
+	if nil == buff then
+		return;
+	end
 
-    local my_cast_debuff = false;
-    local pcHandle = session.GetMyHandle();
+	local frame = ui.GetFrame("buff")
+	local bufflockoffset = tonumber(frame:GetUserConfig("DEFAULT_BUFF_LOCK_OFFSET"));
+	local buffGroup1 = TryGetProp(class, "Group1", "Buff");
+	if buffGroup1 == "Debuff" then
+		local bufflv = TryGetProp(class, "Lv", "99");
+		if bufflv == 4 then
+			slot:SetBgImage("buff_lock_icon_3");
+		elseif bufflv > 4 then
+			slot:SetBgImage("buff_lock_icon_4");
+		end
 
-    local buff = info.GetBuff(handle, buffType, buffIndex);
-    if (buff == nil) then
-        buff = info.GetBuff(handle, buffType);
-    end
+		if bufflv <= 3 then
+			slot:SetBgImageSize(0, 0);
+		else 
+			slot:SetBgImageSize(slot:GetWidth() + bufflockoffset, slot:GetHeight() + bufflockoffset);
+		end		
+	end
 
-    if buff ~= nil then
-        local casterHandle = buff:GetHandle();
-        if (casterHandle == pcHandle) then
-            my_cast_debuff = true;
+	if buff.over > 1 then
+		slot:SetText('{s13}{ol}{b}'..buff.over, 'count', ui.RIGHT, ui.BOTTOM, -5, -3);
+	else
+		slot:SetText("");
+	end
+	
+    if slot:GetTopParentFrame():GetName() ~= "targetbuff" then
+    	slot:SetEventScript(ui.RBUTTONUP, 'REMOVE_BUF');
+    	slot:SetEventScriptArgNumber(ui.RBUTTONUP, buffType);
+	end
+
+	slot:EnableDrop(0);
+	slot:EnableDrag(0);
+
+	if capt ~= nil then
+		capt:ShowWindow(1);
+		capt:SetText(GET_BUFF_TIME_TXT(buff.time, 0, isOtherCast));
+	end
+	
+	local targetinfo = info.GetTargetInfo( handle );
+	if targetinfo ~= nil then
+		if targetinfo.TargetWindow == 0 then
+			slot:ShowWindow(0);
+		else
+			slot:ShowWindow(1);
+		end
+	else
+		slot:ShowWindow(1);
+	end
+	
+	if class.ClassName == "Premium_Nexon" or class.ClassName =="Premium_Token" then
+		icon:SetTooltipType('premium');
+		icon:SetTooltipArg(handle, buffType, buff.arg1);
+	elseif TryGetProp(class, 'StringArg', 'None') == 'Ref_Account_datetime' then
+		icon:SetTooltipType('premium_boost')		
+		icon:SetTooltipArg(handle, buffType, buff.arg1);		
+	elseif class.ClassName == 'Water_jewel_complete_Buff' then
+		icon:SetTooltipType('Water_jewel_Buff')		
+		icon:SetTooltipArg(handle, buffType, buff.arg1);		
+	else
+	    icon:SetTooltipType('buff');
+	    if buffIndex ~= nil then
+	    	icon:SetTooltipArg(handle, buffType, buffIndex);
+	    end
+	end
+
+	slot:Invalidate();
+end]]
+
+    local function get_exist_debuff_slot()
+        local debuff_slotset = frame:GetChild("debuff_slotset")
+        local slot_count = debuff_slotset:GetSlotCount()
+        for i = 1, slot_count do
+            local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+            AUTO_CAST(slot)
+            if slot then
+                local icon = slot:GetIcon();
+                if icon then
+                    local iconInfo = icon:GetInfo()
+                    if iconInfo then
+                        if tonumber(iconInfo.type) == tonumber(buff_id) then
+                            return slot, icon, iconInfo
+                        end
+                    else
+                        return slot, icon, i
+                    end
+                end
+            end
         end
-    end
-
-    local slotlist;
-    local slotcount;
-    local captionlist;
-    local colcnt = 0;
-    local ApplyLimitCountBuff = "YES";
-
-    slotlist = g.slot_list
-    slotcount = g.slot_count
-    captionlist = g.cap_list
-    if nil ~= slotset then
-        colcnt = slotset:GetCol();
+        return nil
     end
 
     if msg == 'ADD' then
         local skip = false
-        if class ~= nil then
-            if TryGetProp(class, 'OnlyOneBuff', 'None') == 'YES' and TryGetProp(class, 'Duplicate', 1) == 0 then
-                local exist_slot, i = get_exist_debuff_in_slotlist(slotlist, buffType)
-                if exist_slot ~= nil then
-                    if exist_slot:IsVisible() == 0 then
-                        SET_BUFF_SLOT(exist_slot, captionlist[i], class, buffType, handle, slotlist, buffIndex, false);
-                    end
+        if buff_cls ~= nil then
+            if TryGetProp(buff_cls, 'OnlyOneBuff', 'None') == 'YES' and TryGetProp(buff_cls, 'Duplicate', 1) == 0 then
+                local slot, icon, index = get_exist_debuff_slot(frame)
+                if slot then
+                    local image_name = GET_BUFF_ICON_NAME(buff_cls);
+                    icon:Set(image_name, 'BUFF', buff_id, 0);
+
+                    icon:SetTooltipType('buff');
+                    icon:SetTooltipArg(handle, buff_id, buff_index);
+                    skip = true
+                end
+            end
+
+            if skip == false then
+                local slot, icon, index = get_exist_debuff_slot(frame)
+                if slot then
+                    local image_name = GET_BUFF_ICON_NAME(buff_cls);
+                    icon:Set(image_name, 'BUFF', buff_id, 0);
+                    icon:SetTooltipType('buff');
+                    icon:SetTooltipArg(handle, buff_id, buff_index);
                     skip = true
                 end
             end
         end
 
-        if skip == false then
-            for j = 0, slotcount - 1 do
-                local i = GET_BUFF_SLOT_INDEX(j, colcnt);
-                local slot = slotlist[i];
-                if slot:IsVisible() == 0 then
-                    SET_BUFF_SLOT(slot, captionlist[i], class, buffType, handle, slotlist, buffIndex, false);
-                    break
-                end
-            end
-        end
     elseif msg == 'REMOVE' then
-
-        -- try pc debuff list
-        local my_db_ss = frame:GetChild("my_db_ss")
-        AUTO_CAST(my_db_ss)
-        slotlist = g.slot_list
-        slotcount = g.slot_count
-        captionlist = g.cap_list
-        if nil ~= my_db_ss then
-            colcnt = my_db_ss:GetCol();
-        end
-        for i = 0, slotcount - 1 do
-            local slot = slotlist[i];
-            local text = captionlist[i];
-            local oldIcon = slot:GetIcon();
-            if slot:IsVisible() == 1 then
-                local oldBuffIndex = oldIcon:GetUserIValue("BuffIndex");
-                local iconInfo = oldIcon:GetInfo();
-                local isBuffIndexSame = oldBuffIndex - buffIndex;
-                if iconInfo.type == buffType and isBuffIndexSame == 0 then
-                    CLEAR_BUFF_SLOT(slot, text);
-                    local j = GET_BUFF_ARRAY_INDEX(i, colcnt);
-                    PULL_BUFF_SLOT_LIST(slotlist, captionlist, j, slotcount, colcnt, ApplyLimitCountBuff);
-                    frame:Invalidate();
-                    break
-                end
+        local slot, icon, iconInfo = get_exist_debuff_slot(frame)
+        if iconInfo then
+            if iconInfo.type == buff_id then
+                table.remove(g.slot_table.buffids, buff_id)
+                g.slot_table[buff_id] = nil
+                debuff_notice_frame_init()
             end
         end
-        TEMPLATE_REMOVE_BUFF_COUNT_SLOT_SUB(frame, buff_ui, buffType, buffIndex, colcnt, ApplyLimitCountBuff);
     elseif msg == "UPDATE" then
         for i = 0, slotcount - 1 do
             local slot = slotlist[i];
@@ -334,7 +420,7 @@ function separatedpcdebuff_BUFF_TOTAL_COUNT_CHECK(frame, msg, buffType, handle, 
                     local y = my_db_ss:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
                     local captWidth, captHeight = 50, 20;
                     local capt = frame:CreateOrGetControl('richtext', "_t_" .. 4 .. "_" .. g.slot_count, x, y,
-                        captWidth, captHeight);
+                                                          captWidth, captHeight);
                     capt:SetFontName("yellow_13");
                     g.cap_list[g.slot_count] = capt;
                     g.slot_count = g.slot_count + 1;
