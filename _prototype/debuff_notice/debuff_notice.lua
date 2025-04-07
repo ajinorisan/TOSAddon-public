@@ -21,7 +21,7 @@ function DEBUFF_NOTICE_ON_INIT(addon, frame)
     addon:RegisterMsg('TARGET_SET', 'debuff_notice_TARGETBUFF_ON_MSG');
     addon:RegisterMsg('TARGET_CLEAR', 'debuff_notice_TARGETBUFF_ON_MSG');
     g.slot_table = {}
-    g.slot_table.buffids = {}
+
 end
 
 function debuff_notice_frame_init()
@@ -55,9 +55,6 @@ function debuff_notice_frame_init()
         local slot = GET_CHILD(debuff_slotset, "slot" .. i)
         AUTO_CAST(slot)
         local icon = CreateIcon(slot);
-        for i, buff_id in pairs(g.slot_table.buffids) do
-            print("- " .. buff_id)
-        end
         local time_text = frame:CreateOrGetControl('richtext', "time_text" .. i, slot:GetX(), slot:GetY() + 55, 50, 20);
         time_text:SetFontName("yellow_13");
     end
@@ -124,37 +121,68 @@ function debuff_notice_TARGETBUFF_ON_MSG(frame, msg, arg_str, buff_id)
     -- 呼び出す関数名もスネークケースに変換 (関数定義側も合わせる必要あり)
     -- t_buff_ui は元のコードのままとする
     if msg == "TARGET_BUFF_ADD" then
-        separatedpcdebuff_common_buff_msg(frame, "ADD", buff_id, handle, t_buff_ui, arg_str)
+        debuff_notice_common_buff_msg(frame, "ADD", buff_id, handle, t_buff_ui, arg_str)
     elseif msg == "TARGET_BUFF_REMOVE" then
-        separatedpcdebuff_common_buff_msg(frame, "REMOVE", buff_id, handle, t_buff_ui, arg_str)
+        debuff_notice_common_buff_msg(frame, "REMOVE", buff_id, handle, t_buff_ui, arg_str)
     elseif msg == "TARGET_BUFF_UPDATE" then
-        separatedpcdebuff_common_buff_msg(frame, "UPDATE", buff_id, handle, t_buff_ui, arg_str)
+        debuff_notice_common_buff_msg(frame, "UPDATE", buff_id, handle, t_buff_ui, arg_str)
     elseif msg == "TARGET_CLEAR" then
-        separatedpcdebuff_common_buff_msg(frame, "CLEAR", buff_id, handle, t_buff_ui)
+        debuff_notice_common_buff_msg(frame, "CLEAR", buff_id, handle, t_buff_ui)
+    elseif msg == "TARGET_SET" then
+        debuff_notice_common_buff_msg(frame, "SET", buff_id, handle, t_buff_ui)
     end
 
-    -- TARGET_BUFF_UPDATE(frame);
-    -- TARGETBUFF_RESIZE(frame, t_buff_ui);
 end
 
-function separatedpcdebuff_COMMON_BUFF_MSG(frame, msg, buff_id, handle, buff_ui, buff_index)
+function debuff_notice_frame_redraw(frame, handle)
+    local debuff_slotset = frame:GetChild("debuff_slotset")
+    local buffids = {}
+    local slot_count = debuff_slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = CreateIcon(slot);
+        if handle then
+            if g.slot_table[handle] then
+                for buff_id, buff_index in pairs(g.slot_table[handle]) do
+                    if not buffids[buff_id] then
+                        buffids[buff_id] = true
+                        local buff = info.GetBuff(handle, buff_id, buff_index);
+                        if not buff then
+                            buff = info.GetBuff(handle, buff_id);
+                        end
+                        local buff_cls = GetClassByType('Buff', buff_id)
+                        local image_name = GET_BUFF_ICON_NAME(buff_cls);
+                        icon:Set(image_name, 'BUFF', buff_id, 0);
+                        icon:SetTooltipType('buff');
+                        icon:SetTooltipArg(handle, buff_id, buff_index)
+                    end
+                end
+            end
+        end
+        local time_text = frame:CreateOrGetControl('richtext', "time_text" .. i, slot:GetX(), slot:GetY() + 55, 50, 20);
+        time_text:SetFontName("yellow_13");
+    end
+end
+
+function debuff_notice_common_buff_msg(frame, msg, buff_id, handle, buff_ui, buff_index)
 
     if "None" == buff_index or not buff_index then
         buff_index = 0
     end
     buff_index = tonumber(buff_index)
 
-    if not g.slot_table[buff_id] then
-        g.slot_table[buff_id] = true
-        table.insert(g.slot_table.buffids, buff_id)
+    if not g.slot_table[handle] then
+        g.slot_table[handle] = {}
     end
 
     local slotset = frame:GetChild("debuff_slotset")
     AUTO_CAST(slotset)
-    CHAT_SYSTEM(msg)
+
     if msg == "CLEAR" then
         if slotset then
             debuff_notice_frame_init()
+            return
         end
     end
 
@@ -165,7 +193,106 @@ function separatedpcdebuff_COMMON_BUFF_MSG(frame, msg, buff_id, handle, buff_ui,
 
     local buff_cls = GetClassByType('Buff', buff_id)
 
-    --[[function get_exist_debuff_in_slotlist(slotlist, buff_id)
+    if msg == 'ADD' then
+        local skip = false
+        if buff_cls ~= nil then
+
+            if TryGetProp(buff_cls, 'OnlyOneBuff', 'None') == 'YES' and TryGetProp(buff_cls, 'Duplicate', 1) == 0 then
+                --[[local slot, icon = get_exist_debuff_slot(frame, buff_id, msg)
+                if slot then
+                    local image_name = GET_BUFF_ICON_NAME(buff_cls);
+                    icon:Set(image_name, 'BUFF', buff_id, 0);
+
+                    icon:SetTooltipType('buff');
+                    icon:SetTooltipArg(handle, buff_id, buff_index);
+                    skip = true
+                end]]
+                if not g.slot_table[handle][buff_id] then
+                    g.slot_table[handle][buff_id] = buff_index
+                end
+                debuff_notice_frame_init(handle)
+            end
+
+            if skip == false then
+                --[[local slot, icon = get_exist_debuff_slot(frame, buff_id, msg)
+
+                if slot then
+                    local image_name = GET_BUFF_ICON_NAME(buff_cls);
+                    icon:Set(image_name, 'BUFF', buff_id, 0);
+                    icon:SetTooltipType('buff');
+                    icon:SetTooltipArg(handle, buff_id, buff_index);
+                end]]
+                if not g.slot_table[handle][buff_id] then
+                    g.slot_table[handle][buff_id] = buff_index
+                end
+                debuff_notice_frame_init(handle)
+            end
+
+        end
+
+    elseif msg == 'REMOVE' then
+        local slot, icon, iconInfo = get_exist_debuff_slot(frame, buff_id, msg)
+        if iconInfo then
+            if iconInfo.type == buff_id then
+                g.slot_table[handle][buff_id] = nil
+                debuff_notice_frame_init(handle)
+            end
+        end
+        --[[elseif msg == "UPDATE" then
+        for i = 0, slotcount - 1 do
+            local slot = slotlist[i];
+            local text = captionlist[i];
+            local oldIcon = slot:GetIcon();
+            if slot:IsVisible() == 1 then
+                local iconInfo = oldIcon:GetInfo();
+                if iconInfo.type == buffType and oldIcon:GetUserIValue("BuffIndex") == buffIndex then
+                    SET_BUFF_SLOT(slot, captionlist[i], class, buffType, handle, slotlist, buffIndex, false);
+                    break
+                end
+            end
+        end]]
+    end
+
+    -- SEPARATEDPCDEBUFF_ARRANGE_BUFF_SLOT(frame, buff_ui);
+    -- COLONY_BATTLE_INFO_DRAW_BUFF_ICON();
+end
+local function get_exist_debuff_slot(frame, buff_id, msg)
+    local debuff_slotset = frame:GetChild("debuff_slotset")
+    local slot_count = debuff_slotset:GetSlotCount()
+
+    if msg == "ADD" then
+        for i = 1, slot_count do
+            local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+            if slot then
+                AUTO_CAST(slot)
+                local icon = slot:GetIcon();
+                if icon then
+                    local iconInfo = icon:GetInfo()
+                    if iconInfo.type == 0 then
+                        return slot, icon
+                    end
+                end
+            end
+        end
+    elseif msg == "REMOVE" then
+        for i = 1, slot_count do
+            local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+            if slot then
+                AUTO_CAST(slot)
+                local icon = slot:GetIcon();
+                if icon then
+                    local iconInfo = icon:GetInfo()
+                    if iconInfo.type == buff_id then
+                        return slot, icon, iconInfo
+                    end
+                end
+            end
+        end
+    end
+
+    return nil
+end
+--[[function get_exist_debuff_in_slotlist(slotlist, buff_id)
     for k = 0, #slotlist - 1 do
         local slot =  slotlist[k];
         if slot ~= nil then
@@ -183,7 +310,7 @@ function separatedpcdebuff_COMMON_BUFF_MSG(frame, msg, buff_id, handle, buff_ui,
 
     return nil;
 end]]
-    --[[function SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
+--[[function SET_BUFF_SLOT(slot, capt, class, buffType, handle, slotlist, buffIndex, isOtherCast)
 	local icon = slot:GetIcon();
 	local imageName = GET_BUFF_ICON_NAME(class);
 	if imageName ~= "icon_None" then
@@ -269,84 +396,6 @@ end]]
 	slot:Invalidate();
 end]]
 
-    local function get_exist_debuff_slot()
-        local debuff_slotset = frame:GetChild("debuff_slotset")
-        local slot_count = debuff_slotset:GetSlotCount()
-        for i = 1, slot_count do
-            local slot = GET_CHILD(debuff_slotset, "slot" .. i)
-            AUTO_CAST(slot)
-            if slot then
-                local icon = slot:GetIcon();
-                if icon then
-                    local iconInfo = icon:GetInfo()
-                    if iconInfo then
-                        if tonumber(iconInfo.type) == tonumber(buff_id) then
-                            return slot, icon, iconInfo
-                        end
-                    else
-                        return slot, icon, i
-                    end
-                end
-            end
-        end
-        return nil
-    end
-
-    if msg == 'ADD' then
-        local skip = false
-        if buff_cls ~= nil then
-            if TryGetProp(buff_cls, 'OnlyOneBuff', 'None') == 'YES' and TryGetProp(buff_cls, 'Duplicate', 1) == 0 then
-                local slot, icon, index = get_exist_debuff_slot(frame)
-                if slot then
-                    local image_name = GET_BUFF_ICON_NAME(buff_cls);
-                    icon:Set(image_name, 'BUFF', buff_id, 0);
-
-                    icon:SetTooltipType('buff');
-                    icon:SetTooltipArg(handle, buff_id, buff_index);
-                    skip = true
-                end
-            end
-
-            if skip == false then
-                local slot, icon, index = get_exist_debuff_slot(frame)
-                if slot then
-                    local image_name = GET_BUFF_ICON_NAME(buff_cls);
-                    icon:Set(image_name, 'BUFF', buff_id, 0);
-                    icon:SetTooltipType('buff');
-                    icon:SetTooltipArg(handle, buff_id, buff_index);
-                    skip = true
-                end
-            end
-        end
-
-    elseif msg == 'REMOVE' then
-        local slot, icon, iconInfo = get_exist_debuff_slot(frame)
-        if iconInfo then
-            if iconInfo.type == buff_id then
-                table.remove(g.slot_table.buffids, buff_id)
-                g.slot_table[buff_id] = nil
-                debuff_notice_frame_init()
-            end
-        end
-    elseif msg == "UPDATE" then
-        for i = 0, slotcount - 1 do
-            local slot = slotlist[i];
-            local text = captionlist[i];
-            local oldIcon = slot:GetIcon();
-            if slot:IsVisible() == 1 then
-                local iconInfo = oldIcon:GetInfo();
-                if iconInfo.type == buffType and oldIcon:GetUserIValue("BuffIndex") == buffIndex then
-                    SET_BUFF_SLOT(slot, captionlist[i], class, buffType, handle, slotlist, buffIndex, false);
-                    break
-                end
-            end
-        end
-    end
-
-    -- SEPARATEDPCDEBUFF_ARRANGE_BUFF_SLOT(frame, buff_ui);
-    COLONY_BATTLE_INFO_DRAW_BUFF_ICON();
-end
-
 function separatedpcdebuff_BUFF_TOTAL_COUNT_CHECK(frame, msg, buffType, handle, buff_ui, buffIndex)
     local buffCls = GetClassByType('Buff', buffType);
     if buffCls == nil or buffCls.ShowIcon == "FALSE" then
@@ -420,7 +469,7 @@ function separatedpcdebuff_BUFF_TOTAL_COUNT_CHECK(frame, msg, buffType, handle, 
                     local y = my_db_ss:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
                     local captWidth, captHeight = 50, 20;
                     local capt = frame:CreateOrGetControl('richtext', "_t_" .. 4 .. "_" .. g.slot_count, x, y,
-                                                          captWidth, captHeight);
+                        captWidth, captHeight);
                     capt:SetFontName("yellow_13");
                     g.cap_list[g.slot_count] = capt;
                     g.slot_count = g.slot_count + 1;
