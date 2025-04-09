@@ -122,43 +122,23 @@ function debuff_notice_time_update(slot, timer)
     local handle = slot:GetUserIValue("DEBUFF_HANDLE")
     local buff_id = slot:GetUserIValue("DEBUFF_ID")
     local buff_index = slot:GetUserIValue("DEBUFF_INDEX")
-    local buff = info.GetBuff(handle, buff_id, buff_index);
+
+    local frame = slot:GetTopParentFrame()
+    local time_text = GET_CHILD(slot, "time_text")
+
+    local buff = info.GetBuff(handle, buff_id, buff_index) or info.GetBuff(handle, buff_id)
     if not buff then
-        buff = info.GetBuff(handle, buff_id);
+        time_text:SetText("")
+        slot:ClearIcon();
+        debuff_notice_common_buff_msg(frame, "REMOVE", buff_id, handle, buff_index)
+    else
+        local sec = buff.time / 1000
+        sec = math.floor(sec * 10 + 0.5) / 10
+        sec = string.format("%d", sec)
+        time_text:SetText("{ol}{s15}{#FFFF00}" .. sec)
     end
 
-    local frame = slot:GetTopParentFrame()
-
-    --[[if buff.time == 0 or not buff.time then
-        return
-    end]]
-
-    local time_text = GET_CHILD(slot, "time_text")
-    time_text:ShowWindow(1)
-    local sec = buff.time / 1000
-    sec = math.floor(sec * 10 + 0.5) / 10
-    sec = string.format("%d", sec)
-    time_text:SetText("{ol}{s15}{#FFFF00}" .. sec)
     -- .. ScpArgMsg("Auto_Cho")
-end
-
-function debuff_notice_remove_time(slot)
-
-    local handle = slot:GetUserIValue("DEBUFF_HANDLE")
-    local buff_id = slot:GetUserIValue("DEBUFF_ID")
-    local buff_index = slot:GetUserIValue("DEBUFF_INDEX")
-
-    local time_text = GET_CHILD(slot, "time_text")
-    time_text:SetText("")
-
-    local frame = slot:GetTopParentFrame()
-    if g.slot_table[handle][buff_id] then
-        g.slot_table[handle][buff_id] = nil
-    end
-    slot:ClearIcon();
-    CHAT_SYSTEM("test4")
-    debuff_notice_common_buff_msg(frame, "REMOVE", buff_id, handle, buff_index)
-
 end
 
 function debuff_notice_frame_redraw(frame, handle)
@@ -208,24 +188,9 @@ function debuff_notice_frame_redraw(frame, handle)
                 addon_timer:SetUpdateScript("debuff_notice_time_update");
                 addon_timer:Start(0.3);
 
-                local buff = info.GetBuff(handle, target_buff_id, target_buff_index);
-                if not buff then
-                    buff = info.GetBuff(handle, target_buff_id);
-                end
-                CHAT_SYSTEM("test")
-                slot:StopUpdateScript("debuff_notice_remove_time")
-                slot:RunUpdateScript("debuff_notice_remove_time", buff.time / 1000)
-                CHAT_SYSTEM("test1")
             end
 
         end
-
-        --[[local addon_timer = GET_CHILD(slot, "addon_timer")
-        AUTO_CAST(addon_timer)
-        addon_timer:Stop()
-        local time_text = GET_CHILD(slot, "time_text")
-        AUTO_CAST(time_text)
-        time_text:SetText("")]]
 
     end
 
@@ -245,17 +210,36 @@ function debuff_notice_common_buff_msg(frame, msg, buff_id, handle, buff_index)
     end
 
     if msg == 'ADD' or msg == "UPDATE" then
-        CHAT_SYSTEM("ADD " .. buff_id)
+        CHAT_SYSTEM(msg .. " " .. buff_id)
         g.slot_table[handle][buff_id] = buff_index
-        --[[elseif msg == 'REMOVE' then
+    elseif msg == 'REMOVE' then
         CHAT_SYSTEM("REMOVE " .. buff_id)
-        g.slot_table[handle][buff_id] = nil]]
+        g.slot_table[handle][buff_id] = nil
     end
 
     debuff_notice_frame_redraw(frame, handle)
 end
 
---[[function debuff_notice_frame_redraw(frame, handle, msg)
+--[[
+
+function debuff_notice_remove_time(slot)
+
+    local handle = slot:GetUserIValue("DEBUFF_HANDLE")
+    local buff_id = slot:GetUserIValue("DEBUFF_ID")
+    local buff_index = slot:GetUserIValue("DEBUFF_INDEX")
+
+    local time_text = GET_CHILD(slot, "time_text")
+    time_text:SetText("")
+
+    local frame = slot:GetTopParentFrame()
+    if g.slot_table[handle][buff_id] then
+        g.slot_table[handle][buff_id] = nil
+    end
+    slot:ClearIcon();
+    CHAT_SYSTEM("test4")
+
+end
+function debuff_notice_frame_redraw(frame, handle, msg)
     local debuff_slotset = frame:GetChild("debuff_slotset")
     local buffids = {}
     local slot_count = debuff_slotset:GetSlotCount()
@@ -593,7 +577,7 @@ function separatedpcdebuff_BUFF_TOTAL_COUNT_CHECK(frame, msg, buffType, handle, 
                     local y = my_db_ss:GetY() + slot:GetY() + slot:GetHeight() + buff_ui["txt_y_offset"];
                     local captWidth, captHeight = 50, 20;
                     local capt = frame:CreateOrGetControl('richtext', "_t_" .. 4 .. "_" .. g.slot_count, x, y,
-                        captWidth, captHeight);
+                                                          captWidth, captHeight);
                     capt:SetFontName("yellow_13");
                     g.cap_list[g.slot_count] = capt;
                     g.slot_count = g.slot_count + 1;
