@@ -84,8 +84,6 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     g.FUNCS = g.FUNCS or {}
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
-    elseif bool == false and g.FUNCS[origin_func_name] then
-        return
     end
 
     local origin_func = _G[origin_func_name]
@@ -100,14 +98,14 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
             if not original_success then
                 print(string.format("Error in original/previous hook for '%s': %s", origin_func_name,
-                    tostring(original_results[2])))
+                                    tostring(original_results[2])))
                 return
             end
         end
-
         g.ARGS = g.ARGS or {}
-        g.ARGS[origin_func_name] = {...} -- この関数とセット運用：g.get_event_args(origin_func_name)
         imcAddOn.BroadMsg(origin_func_name)
+
+        g.ARGS[origin_func_name] = {...} -- この関数とセット運用：g.get_event_args(origin_func_name)
 
         if bool == true and original_success then
             return table.unpack(original_results, 2, #original_results)
@@ -116,8 +114,10 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         end
 
     end
+
     _G[origin_func_name] = hooked_function
     my_addon:RegisterMsg(origin_func_name, my_func_name)
+
 end
 
 function g.get_event_args(origin_func_name)

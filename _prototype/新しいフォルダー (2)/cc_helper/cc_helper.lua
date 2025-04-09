@@ -13,10 +13,12 @@
 -- v1.2.6 agmとの連携バグってたの修正。
 -- v1.2.7 json作る時バグってた。
 -- v1.2.8 agmとの連携更にばぐってたの修正。
+-- v1.2.9 読込遅かったのを修正。その他ちょいバグ修正。
+-- v1.3.0 ヘアコスのエンチャントが3個じゃない場合バグってたの修正
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.8"
+local ver = "1.2.9.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -28,7 +30,8 @@ local json = require('json')
 local base = {}
 
 local active_id = session.loginInfo.GetAID()
-g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, active_id)
+-- 
+g.settings_location = string.format('../addons/%s/settings.json', addonNameLower)
 
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
@@ -66,19 +69,35 @@ function cc_helper_load_settings()
 
     local start_time = os.clock()
 
-    local settings = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local share_settings = acutil.loadJSON(g.settings_location)
 
-    if not settings then
-        settings = {
+    if not share_settings then
+        share_settings = {
             delay = 0.3,
             eco_mode = 0,
             auto_close = 1
         }
+
     end
+    g.share_settings = share_settings
+    acutil.saveJSON(g.settings_location, g.share_settings)
+
+    g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, g.cid)
+
+    local settings = acutil.loadJSON(g.settingsFileLoc)
+
+    if not settings then
+        settings = {}
+    end
+
+    local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid);
+    local pc_apc = pc_info:GetApc()
+    local jobid = pc_info:GetRepID() or pc_apc:GetJob()
+    local gender = pc_apc:GetGender()
 
     if not settings[g.cid] then
         local temp_tbl = {"name", "mcc_use", "agm_use", "agm_check", "seal", "ark", "leg", "god", "hair1", "hair2",
-                          "hair3", "gem1", "gem2", "gem3", "gem4"}
+                          "hair3", "gem1", "gem2", "gem3", "gem4", "gender", "jobid"}
         settings[g.cid] = {}
 
         for i, key in ipairs(temp_tbl) do
@@ -90,6 +109,10 @@ function cc_helper_load_settings()
                 settings[g.cid][key] = 0
             elseif key == "agm_check" then
                 settings[g.cid][key] = 1
+            elseif key == "gender" then
+                settings[g.cid][key] = gender
+            elseif key == "jobid" then
+                settings[g.cid][key] = jobid
             else
                 settings[g.cid][key] = {
                     iesid = "",
@@ -105,6 +128,37 @@ function cc_helper_load_settings()
 
     g.settings = settings
 
+    local end_time = os.clock()
+    local elapsed_time = end_time - start_time
+
+    -- CHAT_SYSTEM(string.format("load 実行時間: %.6f 秒", elapsed_time))
+
+    cc_helper_save_settings()
+
+    --[[local cid_name_file_location = string.format('../addons/%s/%s', addonNameLower, active_id .. "_cid_name.json")
+    g.cid_name = {}
+
+    local file = io.open(cid_name_file_location, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        g.cid_name = json.decode(content) or {}
+    end
+
+    if not g.cid_name[g.cid] then
+        g.cid_name[g.cid] = g.login_name
+
+        local encoded_content = json.encode(g.cid_name)
+        file = io.open(cid_name_file_location, "w")
+        if file then
+            file:write(encoded_content)
+            file:close()
+        end
+    end]]
+
+end
+
+function cc_helper_function_check()
     local functionName = "AETHERGEM_MGR_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
     if type(_G[functionName]) == "function" then
         g.agm = true
@@ -124,37 +178,9 @@ function cc_helper_load_settings()
             g.settings[g.cid].mcc_use = 0
         end
     end
-
-    cc_helper_save_settings()
-
-    local cid_name_file_location = string.format('../addons/%s/%s', addonNameLower, active_id .. "_cid_name.json")
-    g.cid_name = {}
-
-    local file = io.open(cid_name_file_location, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        g.cid_name = json.decode(content) or {}
-    end
-
-    if not g.cid_name[g.cid] then
-        g.cid_name[g.cid] = g.login_name
-
-        local encoded_content = json.encode(g.cid_name)
-        file = io.open(cid_name_file_location, "w")
-        if file then
-            file:write(encoded_content)
-            file:close()
-        end
-    end
-
-    local end_time = os.clock()
-    local elapsed_time = end_time - start_time
-
-    CHAT_SYSTEM(string.format("実行時間: %.6f 秒", elapsed_time))
 end
 
-g.cids = {}
+-- g.cids = {}
 function CC_HELPER_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -163,21 +189,17 @@ function CC_HELPER_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
     g.login_name = session.GetMySession():GetPCApc():GetName()
 
-    if not g.cids[g.cid] then
-        cc_helper_load_settings()
-        g.cids[g.cid] = true
-    end
-
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-
+        cc_helper_load_settings()
         acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "cc_helper_ACCOUNTWAREHOUSE_CLOSE");
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "cc_helper_settings_close");
         acutil.setupEvent(addon, "UI_TOGGLE_INVENTORY", "cc_helper_invframe_init");
         acutil.setupEvent(addon, "INVENTORY_OPEN", "cc_helper_invframe_init");
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
+        addon:RegisterMsg("GAME_START", "cc_helper_function_check")
     end
 
 end
@@ -251,7 +273,7 @@ function cc_helper_accountwarehouse_init()
         g.lang == "Japanese" and "動作終了後倉庫とインベントリーを閉じます。" or
             "After the operation is completed,{nl}the warehouse and inventory are closed.")
     auto_close:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    auto_close:SetCheck(g.settings.auto_close)
+    auto_close:SetCheck(g.share_settings.auto_close)
 
     -- if _G.ADDONS.norisan.monstercard_change ~= nil then
     if g.mcc then
@@ -296,17 +318,19 @@ function cc_helper_check_setting(frame, ctrl, argStr, argNum)
         end
     elseif ctrl:GetName() == "ecouse" then
         if ischeck == 0 then
-            g.settings.eco_mode = 0
+            g.share_settings.eco_mode = 0
         else
-            g.settings.eco_mode = 1
+            g.share_settings.eco_mode = 1
         end
+
     elseif ctrl:GetName() == "auto_close" then
         if ischeck == 0 then
-            g.settings.auto_close = 0
+            g.share_settings.auto_close = 0
         else
-            g.settings.auto_close = 1
+            g.share_settings.auto_close = 1
         end
     end
+    acutil.saveJSON(g.settings_location, g.share_settings)
     cc_helper_save_settings()
     cc_helper_setting_frame_init()
     frame:ShowWindow(1)
@@ -439,10 +463,23 @@ function cc_helper_setting_frame_init()
                     end
 
                     local str = g.settings[cid][name].memo
-                    local result = split(str, ":::")
+                    if string.find(str, ":::") then
+                        local result = split(str, ":::")
 
-                    icon:SetTextTooltip("{ol}Rank: " .. result[4] .. "{nl}" .. result[1] .. "{nl}" .. result[2] ..
-                                            "{nl}" .. result[3])
+                        if #result == 4 then
+                            icon:SetTextTooltip(
+                                "{ol}Rank: " .. result[4] .. "{nl}" .. result[1] .. "{nl}" .. result[2] .. "{nl}" ..
+                                    result[3])
+                        elseif #result == 3 then
+
+                            icon:SetTextTooltip("{ol}Rank: " .. result[3] .. "{nl}" .. result[1] .. "{nl}" .. result[2])
+                        elseif #result == 2 then
+
+                            icon:SetTextTooltip("{ol}Rank: " .. result[2] .. "{nl}" .. result[1])
+
+                        end
+
+                    end
                 elseif clsid ~= 0 then
                     icon:SetTooltipType('wholeitem');
                     icon:SetTooltipArg("None", clsid, iesid);
@@ -503,29 +540,6 @@ function cc_helper_setting_frame_init()
 
     function cc_helper_load_copy(cid)
 
-        for name, info in pairs(slot_info) do
-            for key, value in pairs(g.settings[cid]) do
-                if name == key then
-                    local width = 50
-                    local height = 50
-                    if name == "leg" or name == "god" then
-                        -- 9:13
-                        width = 105
-                        height = 160
-                    end
-                    local skin = "invenslot2"
-                    if name == "leg" then
-                        skin = "legendopen_cardslot"
-                    elseif name == "god" then
-                        skin = "goddess_card__activation"
-                    end
-                    cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                                          value.iesid, value.image, cid)
-                    break
-                end
-            end
-        end
-
         local function deepCopy(original)
             local copy = {}
             for k, v in pairs(original) do
@@ -539,19 +553,35 @@ function cc_helper_setting_frame_init()
         end
 
         -- 使用例
-        g.settings[g.cid] = deepCopy(g.settings[cid]) -- ディープコピーを行う
+        g.settings[g.cid] = deepCopy(g.copy_settings[cid]) -- ディープコピーを行う
         g.settings[g.cid]["name"] = g.login_name -- name を更新
 
         cc_helper_save_settings()
-        return
+        cc_helper_setting_frame_init()
+        -- cc_helper_load_settings()
+        -- cc_helper_function_check()
+        frame:ShowWindow(1)
     end
 
     function cc_helper_setting_copy(frame, ctrl, str, num)
 
-        local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "Copy source", 0, 0, 0, 0);
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addonNameLower, active_id)
+        local copy_settings = acutil.loadJSON(copy_settings_location)
+        g.copy_settings = copy_settings
+
+        local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0);
         ui.AddContextMenuItem(context, "-----", "")
-        for cid, name in pairs(g.cid_name) do
-            local scp = ui.AddContextMenuItem(context, name, string.format("cc_helper_load_copy('%s')", cid))
+
+        for cid, tbl in pairs(g.copy_settings) do
+
+            if next(tbl) then
+                local job_cls = GetClassByType("Job", tbl.jobid)
+                local job_name = GET_JOB_NAME(job_cls, tbl.gender)
+                local name = tbl.name
+                local text = name .. "(" .. job_name .. ")"
+                local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_load_copy('%s')", cid))
+            end
+
         end
         ui.OpenContextMenu(context);
 
@@ -561,6 +591,56 @@ function cc_helper_setting_frame_init()
     AUTO_CAST(copy)
     copy:SetText("{ol}copy")
     copy:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_copy")
+
+    function cc_helper_setting_save(frame, ctrl, str, num)
+
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addonNameLower, active_id)
+        local copy_settings = acutil.loadJSON(copy_settings_location)
+        if not copy_settings then
+            copy_settings = {}
+        end
+        if not copy_settings[g.cid] then
+            copy_settings[g.cid] = {}
+        end
+        copy_settings[g.cid] = g.settings[g.cid]
+
+        g.copy_settings = copy_settings
+        acutil.saveJSON(copy_settings_location, g.copy_settings)
+
+        ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を保存しました" or "{#FFFF00}Settings saved")
+        cc_helper_save_settings()
+    end
+
+    local save = frame:CreateOrGetControl('button', 'save', 130, 10, 40, 30)
+    AUTO_CAST(save)
+    save:SetText("{ol}save")
+    save:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_save")
+    save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
+                            "{ol}Save this character settings for copying")
+
+    function cc_helper_setting_delete(frame, ctrl, str, num)
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addonNameLower, active_id)
+        local copy_settings = acutil.loadJSON(copy_settings_location)
+        if not copy_settings then
+            copy_settings = {}
+        end
+        if not copy_settings[g.cid] then
+            copy_settings[g.cid] = {}
+        end
+        copy_settings[g.cid] = {}
+        g.copy_settings = copy_settings
+        acutil.saveJSON(copy_settings_location, g.copy_settings)
+        ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を削除しました" or "{#FFFF00}Settings deleted")
+        cc_helper_save_settings()
+    end
+
+    local save_delete = frame:CreateOrGetControl('button', 'save_delete', 67, 10, 40, 30)
+    AUTO_CAST(save_delete)
+    save_delete:SetText("{ol}delete")
+    save_delete:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_delete")
+    save_delete:SetTextTooltip(
+        g.lang == "Japanese" and "{ol}このキャラのコピー用の設定を削除します" or
+            "{ol}Delete settings for copying this character")
 
     if g.mcc then
         local mccuse = frame:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
@@ -628,7 +708,7 @@ function cc_helper_setting_frame_init()
                               "チェックを入れると、外すのにシルバーが必要な{nl}レジェンドカードとエーテルジェムの動作をスキップします。" or
                               "If checked, it skips the operation of legend cards and{nl}ether gems that require silver to remove.")
     ecouse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    ecouse:SetCheck(g.settings.eco_mode)
+    ecouse:SetCheck(g.share_settings.eco_mode)
 
     local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 410)
     delay_title:SetText("{ol}delay")
@@ -637,18 +717,18 @@ function cc_helper_setting_frame_init()
 
         if value ~= nil then
             ui.SysMsg("Delay Time setting set to" .. value)
-            g.settings.delay = value
+            g.share_settings.delay = value
         else
             ui.SysMsg("Invalid value. Please enter one-byte numbers.")
             local text = GET_CHILD_RECURSIVELY(frame, "delay")
             text:SetText("0.3")
-            g.settings.delay = 0.3
+            g.share_settings.delay = 0.3
         end
-        cc_helper_save_settings()
+        acutil.saveJSON(g.settings_location, g.share_settings)
     end
     local delay = frame:CreateOrGetControl('edit', 'delay', 175, 410, 50, 20)
     AUTO_CAST(delay)
-    delay:SetText("{ol}" .. g.settings.delay)
+    delay:SetText("{ol}" .. g.share_settings.delay)
     delay:SetFontName("white_16_ol")
     delay:SetTextAlign("center", "center")
     delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
@@ -752,7 +832,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                                          value.iesid, value.image, g.cid)
+                        value.iesid, value.image, g.cid)
                     break
                 end
             end
@@ -970,7 +1050,7 @@ function cc_helper_in_btn_aethergem_mgr()
 
     local frame = ui.GetFrame("inventory")
     local equip_slots = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    if g.agm and g.settings.eco_mode == 0 and g.settings[g.cid].agm_use == 1 then
+    if g.agm and g.share_settings.eco_mode == 0 and g.settings[g.cid].agm_use == 1 then
 
         for _, slot_name in ipairs(equip_slots) do
             local equip_slot = GET_CHILD_RECURSIVELY(frame, slot_name)
@@ -1013,7 +1093,7 @@ function cc_helper_msgbox_frame()
 end
 
 function cc_helper_in_btn_start_reserve()
-    g.time = g.time + g.settings.delay
+    g.time = g.time + g.share_settings.delay
     if g.time <= 5 then
         return 1
     end
@@ -1025,7 +1105,7 @@ function cc_helper_in_btn_start_reserve()
 
         return 1
     else
-        ReserveScript("cc_helper_in_btn_start()", g.settings.delay)
+        ReserveScript("cc_helper_in_btn_start()", g.share_settings.delay)
         return 0
     end
 end
@@ -1040,8 +1120,8 @@ function cc_helper_in_btn_agm()
     agm.guids = {}
     AETHERGEM_MGR_GET_EQUIP()]]
     local inv_frame = ui.GetFrame("inventory")
-    g.time = g.settings.delay
-    inv_frame:RunUpdateScript("cc_helper_in_btn_start_reserve", g.settings.delay)
+    g.time = g.share_settings.delay
+    inv_frame:RunUpdateScript("cc_helper_in_btn_start_reserve", g.share_settings.delay)
 
 end
 
@@ -1078,7 +1158,7 @@ function cc_helper_unequip()
         local iesid = equip_item:GetIESID()
         if iesid ~= "0" and g.settings[g.cid][temp_tbl[i]].iesid == iesid then
             item.UnEquip(equip_index)
-            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.settings.delay)
+            ReserveScript(string.format("cc_helper_unequip('%s')", frame), g.share_settings.delay)
             return
         end
     end
@@ -1089,7 +1169,7 @@ function cc_helper_unequip_card()
 
     MONSTERCARDSLOT_FRAME_OPEN()
 
-    if g.settings[g.cid]["leg"].clsid ~= 0 and g.settings.eco_mode == 0 then
+    if g.settings[g.cid]["leg"].clsid ~= 0 and g.share_settings.eco_mode == 0 then
 
         local slot_index = 13
         local cardid = GETMYCARD_INFO(slot_index - 1)
@@ -1098,7 +1178,7 @@ function cc_helper_unequip_card()
             local argStr = slot_index - 1
             argStr = argStr .. " 1" -- 1을 arg list로 넘기면 5tp 소모후 카드 레벨 하락 안함
             pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", argStr)
-            ReserveScript("cc_helper_unequip_card()", g.settings.delay * 3)
+            ReserveScript("cc_helper_unequip_card()", g.share_settings.delay * 3)
             return
         end
     end
@@ -1118,7 +1198,7 @@ function cc_helper_unequip_card()
     if frame:IsVisible() == 1 then
         frame:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 1.0)
     end
-    ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
+    ReserveScript("cc_helper_inv_to_warehouse()", g.share_settings.delay)
 end
 
 function cc_helper_get_warehouse_count(check)
@@ -1279,17 +1359,18 @@ function cc_helper_inv_to_warehouse()
                 item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, handle, goal_index)
                 imcSound.PlaySoundEvent("sys_jam_slot_equip");
                 if i ~= #temp_tbl then
-                    ReserveScript("cc_helper_inv_to_warehouse()", g.settings.delay)
+                    ReserveScript("cc_helper_inv_to_warehouse()", g.share_settings.delay)
                     return
                 end
             end
 
         end
     end
-    if g.settings[g.cid].agm_use == 1 and g.settings.eco_mode == 0 then
-        ReserveScript("cc_helper_gem_inv_to_warehouse_reserve()", g.settings.delay)
+    -- and g.settings[g.cid].agm_check == 0
+    if g.settings[g.cid].agm_use == 1 and g.share_settings.eco_mode == 0 then
+        ReserveScript("cc_helper_gem_inv_to_warehouse_reserve()", g.share_settings.delay)
     else
-        ReserveScript("cc_helper_endput_operation()", g.settings.delay)
+        ReserveScript("cc_helper_endput_operation()", g.share_settings.delay)
     end
 end
 
@@ -1397,25 +1478,25 @@ function cc_helper_gem_inv_to_warehouse()
                             "{#EE82EE}" .. 1)
                     item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, 1, handle)
                     if next(g.put_gem) ~= nil then
-                        ReserveScript("cc_helper_gem_inv_to_warehouse()", g.settings.delay)
+                        ReserveScript("cc_helper_gem_inv_to_warehouse()", g.share_settings.delay)
                         return
                     end
                 end
             end
         end
-        ReserveScript("cc_helper_endput_operation()", g.settings.delay)
+        ReserveScript("cc_helper_endput_operation()", g.share_settings.delay)
     end
 end
 
 function cc_helper_endput_operation()
     ui.SysMsg("[CCH]End of Operation")
-    if g.settings.auto_close == 1 then
+    if g.share_settings.auto_close == 1 then
         local frame = ui.GetFrame("inventory")
         frame:ShowWindow(0)
         local awframe = ui.GetFrame("accountwarehouse")
         awframe:ShowWindow(0)
     end
-    if g.mcc and g.settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
+    if g.mcc and g.share_settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
         g.monstercard = 1
         cc_helper_handle_monstercard_change()
     end
@@ -1436,12 +1517,12 @@ function cc_helper_handle_monstercard_change()
         elseif tostring(ctrl:GetName()) == "remove_btn" then
             frame:ShowWindow(0)
             monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
-            ReserveScript("monstercard_change_get_info_accountwarehouse()", g.settings.delay)
+            ReserveScript("monstercard_change_get_info_accountwarehouse()", g.share_settings.delay)
             return
         elseif tostring(ctrl:GetName()) == "equip_btn" then
             frame:ShowWindow(0)
             monstercard_change_MONSTERCARDPRESET_FRAME_OPEN()
-            ReserveScript("monstercard_change_get_presetinfo()", g.settings.delay)
+            ReserveScript("monstercard_change_get_presetinfo()", g.share_settings.delay)
             return
         end
 
@@ -1506,81 +1587,6 @@ end
 
 function cc_helper_out_btn_start()
 
-    if g.agm and g.settings.eco_mode == 0 then
-        if g.settings[g.cid].agm_use == 1 then
-
-            local gems = {}
-            for i = 1, 4 do
-                local clsid = g.settings[g.cid]["gem" .. i].clsid
-                if not gems[clsid] then
-                    gems[clsid] = 1
-                else
-                    gems[clsid] = gems[clsid] + 1
-                end
-            end
-
-            g.take_gem = {}
-
-            local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-            local sortedGuidList = itemList:GetSortedGuidList()
-            local sortedCnt = sortedGuidList:Count()
-            local fromframe = ui.GetFrame("accountwarehouse")
-            local handle = fromframe:GetUserIValue("HANDLE")
-
-            for i = 0, sortedCnt - 1 do
-                local iesid = sortedGuidList:Get(i)
-                local inv_item = itemList:GetItemByGuid(iesid)
-                local type = inv_item.type
-                local obj = GetIES(inv_item:GetObject())
-                if gems[type] then
-
-                    local level = get_current_aether_gem_level(obj)
-                    table.insert(g.take_gem, {
-                        level = level,
-                        iesid = iesid,
-                        clsid = type
-                    })
-                end
-            end
-
-            table.sort(g.take_gem, function(a, b)
-                return a.level > b.level
-            end)
-
-            local filtered_gems = {}
-
-            for _, gem in pairs(g.take_gem) do
-                if gems[gem.clsid] and gems[gem.clsid] > 0 then
-                    local iesid = gem.iesid
-
-                    local exists = false
-                    for _, existing in pairs(filtered_gems) do
-                        if existing.iesid == iesid then
-                            exists = true
-                            break
-                        end
-                    end
-
-                    if not exists then
-                        table.insert(filtered_gems, {
-                            iesid = iesid
-                        })
-                    end
-                    gems[gem.clsid] = gems[gem.clsid] - 1
-                end
-            end
-
-            g.take_gem = filtered_gems
-            session.ResetItemList()
-            for _, gems in pairs(g.take_gem) do
-                local iesid = gems.iesid
-                session.AddItemID(tonumber(iesid), 1)
-            end
-            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-            ReserveScript("cc_helper_equip_take_warehouse()", g.settings.delay)
-            return
-        end
-    end
     cc_helper_equip_take_warehouse()
 end
 
@@ -1607,7 +1613,7 @@ function cc_helper_equip_take_warehouse()
     item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
 
     MONSTERCARDSLOT_FRAME_OPEN()
-    ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+    ReserveScript("cc_helper_equip_reserve()", g.share_settings.delay)
 end
 
 function cc_helper_equip_reserve()
@@ -1633,13 +1639,13 @@ function cc_helper_equip_reserve()
                     inv_tab:SelectTab(4)
                     local argstr = string.format("%d#%s", card_index, tostring(iesid))
                     pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
-                    ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                    ReserveScript("cc_helper_equip_reserve()", g.share_settings.delay)
                     return
                 end
             end
 
         elseif equip == "leg" then
-            if g.settings.eco_mode == 0 then
+            if g.share_settings.eco_mode == 0 then
                 local card_index = 12
                 local cardid = GETMYCARD_INFO(card_index)
                 local iesid = g.settings[g.cid][equip].iesid
@@ -1649,7 +1655,7 @@ function cc_helper_equip_reserve()
                         inv_tab:SelectTab(4)
                         local argstr = string.format("%d#%s", card_index, tostring(iesid))
                         pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", argstr)
-                        ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                        ReserveScript("cc_helper_equip_reserve()", g.share_settings.delay)
                         return
                     end
                 end
@@ -1681,7 +1687,7 @@ function cc_helper_equip_reserve()
                     local guid = g.settings[g.cid][equip].iesid
                     if session.GetInvItemByGuid(guid) ~= nil then
                         cc_helper_equip(spot, guid)
-                        ReserveScript("cc_helper_equip_reserve()", g.settings.delay)
+                        ReserveScript("cc_helper_equip_reserve()", g.share_settings.delay)
                         return
                     end
                 end
@@ -1689,8 +1695,8 @@ function cc_helper_equip_reserve()
 
         end
     end
-    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.settings.delay)
-    ReserveScript("cc_helper_end_operation()", g.settings.delay + 0.1)
+    ReserveScript("MONSTERCARDSLOT_CLOSE()", g.share_settings.delay)
+    ReserveScript("cc_helper_end_operation()", g.share_settings.delay + 0.1)
 
 end
 
@@ -1700,23 +1706,35 @@ function cc_helper_end_operation()
     local inv_tab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     inv_tab:SelectTab(0)
 
-    if g.agm and g.settings.eco_mode == 0 and g.settings[g.cid].agm_use == 1 and g.temp == nil then
+    if g.agm and g.share_settings.eco_mode == 0 and g.settings[g.cid].agm_use == 1 and g.temp == nil then
         cc_helper_handle_aether_gem_management()
         return
     end
     g.temp = nil
     ui.SysMsg("[CCH]End of Operation")
-    if g.settings.auto_close == 1 then
+    if g.share_settings.auto_close == 1 then
         local frame = ui.GetFrame("inventory")
         frame:ShowWindow(0)
         local awframe = ui.GetFrame("accountwarehouse")
         awframe:ShowWindow(0)
     end
-    if g.mcc and g.settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
+    if g.mcc and g.share_settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
         g.monstercard = 1
         cc_helper_handle_monstercard_change()
     end
 
+end
+
+function cc_helper_no_scp()
+
+    if g.share_settings.auto_close == 1 then
+        local frame = ui.GetFrame("inventory")
+        frame:ShowWindow(0)
+        local awframe = ui.GetFrame("accountwarehouse")
+        awframe:ShowWindow(0)
+    end
+    ui.SysMsg("[CCH]End of Operation")
+    return
 end
 
 function cc_helper_handle_aether_gem_management()
@@ -1740,7 +1758,8 @@ function cc_helper_handle_aether_gem_management()
                     local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
                                     "Call[Aether Gem Manager]?"
                     local yes_scp = "cc_helper_out_btn_agm()"
-                    ui.MsgBox(msg, yes_scp, "None")
+                    local no_scp = "cc_helper_no_scp()"
+                    ui.MsgBox(msg, yes_scp, no_scp)
                     break
                 else
                     cc_helper_out_btn_agm() -- !
@@ -1753,7 +1772,7 @@ function cc_helper_handle_aether_gem_management()
 end
 
 function cc_helper_out_btn_start_reserve()
-    g.time = g.time + g.settings.delay
+    g.time = g.time + g.share_settings.delay
     if g.time <= 5 then
         return 1
     end
@@ -1762,7 +1781,7 @@ function cc_helper_out_btn_start_reserve()
     local icon = equip_slot:GetIcon()
     if icon ~= nil then
         g.temp = true
-        ReserveScript("cc_helper_end_operation()", g.settings.delay)
+        ReserveScript("cc_helper_end_operation()", g.share_settings.delay)
         return 0
     else
         return 1
@@ -1771,8 +1790,92 @@ end
 
 function cc_helper_out_btn_agm()
 
-    aethergem_mgr_gem_operation()
+    local agm_json = string.format('../addons/%s/%s.json', "aethergem_mgr", active_id)
+    local agm_tbl = acutil.loadJSON(agm_json)
+    local gems = {}
+    for i = 1, 4 do
+        if agm_tbl ~= nil then
+            local use_index = agm_tbl[g.cid]["use_index"]
+            if use_index ~= nil then
+
+                local item_type = agm_tbl[use_index][tostring(i)]
+                local gemKey = "gem" .. i
+
+                g.settings[g.cid][gemKey].clsid = item_type
+
+            end
+        end
+
+        local clsid = g.settings[g.cid]["gem" .. i].clsid
+        if not gems[clsid] then
+            gems[clsid] = 1
+        else
+            gems[clsid] = gems[clsid] + 1
+        end
+    end
+    cc_helper_save_settings()
+    g.take_gem = {}
+
+    local itemList = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sortedGuidList = itemList:GetSortedGuidList()
+    local sortedCnt = sortedGuidList:Count()
+    local fromframe = ui.GetFrame("accountwarehouse")
+    local handle = fromframe:GetUserIValue("HANDLE")
+
+    for i = 0, sortedCnt - 1 do
+        local iesid = sortedGuidList:Get(i)
+        local inv_item = itemList:GetItemByGuid(iesid)
+        local type = inv_item.type
+        local obj = GetIES(inv_item:GetObject())
+        if gems[type] then
+
+            local level = get_current_aether_gem_level(obj)
+            table.insert(g.take_gem, {
+                level = level,
+                iesid = iesid,
+                clsid = type
+            })
+        end
+    end
+
+    table.sort(g.take_gem, function(a, b)
+        return a.level > b.level
+    end)
+
+    local filtered_gems = {}
+
+    for _, gem in pairs(g.take_gem) do
+        if gems[gem.clsid] and gems[gem.clsid] > 0 then
+            local iesid = gem.iesid
+
+            local exists = false
+            for _, existing in pairs(filtered_gems) do
+                if existing.iesid == iesid then
+                    exists = true
+                    break
+                end
+            end
+
+            if not exists then
+                table.insert(filtered_gems, {
+                    iesid = iesid
+                })
+            end
+            gems[gem.clsid] = gems[gem.clsid] - 1
+        end
+    end
+
+    g.take_gem = filtered_gems
+    session.ResetItemList()
+    for _, gems in pairs(g.take_gem) do
+        local iesid = gems.iesid
+        session.AddItemID(tonumber(iesid), 1)
+    end
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+    -- ReserveScript("cc_helper_equip_take_warehouse()", g.share_settings.delay)
+
+    ReserveScript("aethergem_mgr_gem_operation()", g.share_settings.delay)
     local inv_frame = ui.GetFrame("inventory")
-    g.time = g.settings.delay
-    inv_frame:RunUpdateScript("cc_helper_out_btn_start_reserve", g.settings.delay)
+    g.time = g.share_settings.delay + 0.1
+    inv_frame:RunUpdateScript("cc_helper_out_btn_start_reserve", g.share_settings.delay + 0.1)
 end

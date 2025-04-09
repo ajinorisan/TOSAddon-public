@@ -176,7 +176,7 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
             if not original_success then
                 print(string.format("Error in original/previous hook for '%s': %s", origin_func_name,
-                    tostring(original_results[2])))
+                                    tostring(original_results[2])))
                 return
             end
         end
@@ -303,7 +303,7 @@ function ZCHATEXTENDS_ON_INIT(addon, frame)
     g.setup_hook_and_event(addon, "CHAT_OPEN_INIT", "CHATEXTENDS_CHAT_OPEN_INIT", true)
     g.setup_hook_and_event(addon, "CHAT_SET_FONTSIZE_N_COLOR", "CHATEXTENDS_CHAT_SET_FONTSIZE_N_COLOR", false)
     g.setup_hook_and_event(addon, "_ADD_GBOX_OPTION_FOR_CHATFRAME", "CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME",
-        false)
+                           false)
     g.setup_hook_and_event(addon, "TOGGLE_BOTTOM_CHAT", "CHATEXTENDS_CHAT_TOGGLE_BOTTOM_CHAT", false)
 
     g.ui_setup_hook()
@@ -498,7 +498,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     -- header:SetText("{@st42}"..headertxt.."{/}");
 
     local nico_chat_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_NICO_CHAT_FLG", 650, 85,
-        300, 35);
+                                                                   300, 35);
     nico_chat_flg_chk = tolua.cast(nico_chat_flg_chk, "ui::CCheckBox");
     nico_chat_flg_chk:SetFontName("brown_16_b");
     nico_chat_flg_chk:SetText(nicotxt);
@@ -514,7 +514,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     end
 
     local rec_chat_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_REC_CHAT_FLG", 650, 120, 300,
-        35);
+                                                                  35);
     rec_chat_flg_chk = tolua.cast(rec_chat_flg_chk, "ui::CCheckBox");
     rec_chat_flg_chk:SetFontName("brown_16_b");
     rec_chat_flg_chk:SetText(rectxt);
@@ -545,7 +545,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     end
 
     local enable_type_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_ENABLE_TYPE_FLG", 650,
-        190, 300, 35);
+                                                                     190, 300, 35);
     enable_type_flg_chk = tolua.cast(enable_type_flg_chk, "ui::CCheckBox");
     enable_type_flg_chk:SetFontName("brown_16_b");
     enable_type_flg_chk:SetText(enable_type_txt);
@@ -561,7 +561,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     end
 
     local auto_read_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_AUTO_READ_FLG", 650, 225,
-        300, 35);
+                                                                   300, 35);
     auto_read_flg_chk = tolua.cast(auto_read_flg_chk, "ui::CCheckBox");
     auto_read_flg_chk:SetFontName("brown_16_b");
     auto_read_flg_chk:SetText(auto_read_txt);
@@ -855,13 +855,13 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
             local prevClusterInfo = session.ui.GetChatMsgInfo(groupboxname, i - 1);
             if prevClusterInfo ~= nil then
                 local precClusterName = "cluster_" .. prevClusterInfo:GetMsgInfoID();
-                precCluster = GET_CHILD(groupbox, precClusterName);
+                local precCluster = GET_CHILD(groupbox, precClusterName);
                 if precCluster ~= nil then
                     ypos = precCluster:GetY() + precCluster:GetHeight();
                 else
                     -- ui가 다 날아갔는데, 메시지가 들어온 경우
                     -- 재접할때 발생한다.
-                    return DRAW_CHAT_MSG(groupboxname, 0, chatframe, removeChatIDList);
+                    return g.FUNCS["DRAW_CHAT_MSG"](groupboxname, 0, chatframe, removeChatIDList);
                 end
             end
         end
@@ -897,7 +897,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
 
             if g.settings.BALLON_FLG then
                 CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinfo, commnderName, msgType,
-                    marginRight, marginLeft, ypos, fontSize, beforeclusterinfo)
+                                        marginRight, marginLeft, ypos, fontSize, beforeclusterinfo)
             else
                 local spinePic = nil;
 
@@ -905,7 +905,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
                 if config.GetXMLConfig("EnableChatFrameMotionEmoticon") == 1 and string.find(tempMsg, "{spine motion_") ~=
                     nil then
                     chatCtrl = groupbox:CreateOrGetControlSet('chatSpineVer', clustername, ui.LEFT, ui.TOP, marginLeft,
-                        ypos, marginRight, 1);
+                                                              ypos, marginRight, 1);
 
                     local strlist = StringSplit(tempMsg, ' ');
                     local emoCls = GetClass('chat_emoticons', strlist[2]);
@@ -923,7 +923,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
                     spinePic:SetOffsetX(spineInfo:GetOffsetX());
                     spinePic:SetOffsetY(spineInfo:GetOffsetY());
                     spinePic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "",
-                        spineInfo:GetAnimation());
+                                              spineInfo:GetAnimation());
                     spinePic:SetUserValue("EMOTICON_CLASSNAME", strlist[2]);
                     if startindex == 0 and size ~= 0 then
                         spinePic:SetIsStopAnim(true); -- 존 이동 시 이전 모션 이모티콘 들은 정지 상태로 변경		
@@ -932,7 +932,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
                     chatframe:RunUpdateScript("CHAT_FRAME_UPDATE");
                 else
                     chatCtrl = groupbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft,
-                        ypos, marginRight, 1);
+                                                              ypos, marginRight, 1);
                 end
 
                 chatCtrl:EnableHitTest(1);
@@ -1015,7 +1015,8 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
                             if commnderName ~= leaderName then
                                 local memberInfo = session.party.GetPartyMemberInfoByName(PARTY_GUILD, commnderName);
                                 GetPlayerClaims("CHATEXTENDS_GUILD_NOTICE_MSG_CHECK", memberInfo:GetAID(),
-                                    chatframe:GetName() .. ";" .. groupboxname .. ";" .. clusterinfo:GetMsgInfoID());
+                                                chatframe:GetName() .. ";" .. groupboxname .. ";" ..
+                                                    clusterinfo:GetMsgInfoID());
                             end
                         end
 
@@ -1035,7 +1036,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
                                             ("{#" .. colorCls.TextColor .. "}{ol}")
                         else
                             fontStyle = CHATEXTENDS_CHAT_TEXT_IS_MINE_AND_SETFONT(msgIsMine,
-                                "TEXTCHAT_FONTSTYLE_WHISPER");
+                                                                                  "TEXTCHAT_FONTSTYLE_WHISPER");
                         end
 
                         msgFront = CHATEXTENDS_GET_TYPE_CHARNAME(ScpArgMsg("ChatType_5"), commnderNameUIText);
@@ -1259,7 +1260,7 @@ end
 -- 吹き出し表示
 -- ***************************************
 function CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinfo, commnderName, msgType, marginRight,
-    marginLeft, ypos, fontSize, beforeclusterinfo)
+                                 marginLeft, ypos, fontSize, beforeclusterinfo)
     local tempfontSize = string.format("{s%s}", fontSize);
     local tempCommnderName = string.gsub(commnderName, "( %[.+%])", "");
 
@@ -1275,7 +1276,7 @@ function CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinf
     local chatCtrl = nil;
     if chatCtrlName == 'chati' then
         chatCtrl = groupbox:CreateOrGetControl('groupbox', clustername, 400, 100, horzGravity, ui.TOP, marginLeft,
-            ypos + 5, marginRight, 0);
+                                               ypos + 5, marginRight, 0);
         AUTO_CAST(chatCtrl);
         chatCtrl:EnableHitTest(1);
         chatCtrl:SetSkinName("NONE");
@@ -1316,7 +1317,7 @@ function CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinf
         time:AddParamInfo("time", "PM 16:16");
     else
         chatCtrl = groupbox:CreateOrGetControl('groupbox', clustername, 400, 100, horzGravity, ui.TOP, marginLeft,
-            ypos + 5, marginRight, 0);
+                                               ypos + 5, marginRight, 0);
         AUTO_CAST(chatCtrl);
         chatCtrl:EnableHitTest(1);
         chatCtrl:SetSkinName("NONE");
@@ -1527,7 +1528,7 @@ function CHATEXTENDS_SAVE_CHAT()
 
     -- ファイル名は YYYYMMDD_HHMISS_cid.txt
     local logfile = string.format("savechat_%s%s%s_%s%s%s_%s.txt", year, month, day, hour, min, sec,
-        CHATEXTENDS_GET_LOGFILE_CHARNAME());
+                                  CHATEXTENDS_GET_LOGFILE_CHARNAME());
 
     -- ファイル書き込みモード
     local file, err = io.open(g.SAVE_DIR .. "/" .. logfile, "w")
@@ -1576,7 +1577,8 @@ function CHATEXTENDS_GET_MSGBODY(clusterinfo, msgbody)
     local logbody = "";
     local tempstr = "";
     logbody = string.format("%s %s %s:%s{nl}", clusterinfo:GetTimeStr(),
-        CHATEXTENDS_GET_MSGTYPE_TXT(clusterinfo:GetMsgType()), clusterinfo:GetCommanderName(), msgbody);
+                            CHATEXTENDS_GET_MSGTYPE_TXT(clusterinfo:GetMsgType()), clusterinfo:GetCommanderName(),
+                            msgbody);
     logbody = string.gsub(logbody, "{nl}", "\n");
     logbody = string.gsub(logbody, "{.-}", "");
 
