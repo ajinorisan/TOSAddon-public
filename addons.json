@@ -9,6 +9,26 @@
 		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
+		"name" : "My Debuff Notice",
+		"file" : "debuff_notice",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "debuff_notice",
+		"unicode" : "⛄",
+		"description" : "meldavyさんのseparatedpcdebuffオマージュ 他のアドオンに干渉しない様に修正。少し目立つ様に。<br>meldavy's separatedpcdebuff tribute Fixed so it doesn't interfere with other addons. Made it a little more noticeable.<br>meldavy님의 separatedpcdebuff 오마주 다른 애드온을 방해하지 않도록 수정. 조금 더 눈에 띄도록",
+		"tags" : ["ajinori","ajinorisan"]
+	},
+	{
+		"name" : "Sub Map",
+		"file" : "sub_map",
+		"extension" : "ipf",
+		"fileVersion" : "v1.0.0",
+		"releaseTag" : "sub_map",
+		"unicode" : "⛄",
+		"description" : "簡易MAPを常に表示します。チャレンジモードでボスどこ？を解消します<br>A simple MAP is always displayed. Challenge mode eliminates “Where is the boss? is eliminated in the challenge mode.<br>간이 MAP을 항상 표시합니다. 챌린지 모드에서 보스 어디? 를 해결합니다.",
+		"tags" : ["ajinori","ajinorisan"]
+	},
+	{
 		"name" : "InstantCC",
 		"file" : "instantcc",
 		"extension" : "ipf",

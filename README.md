@@ -53,6 +53,44 @@ v0.0.3 公開。
 
 　
 
+### My Debuff Notice
+
+meldavyさんのseparatedpcdebuffオマージュ 他のアドオンに干渉しない様に修正。少し目立つ様に。
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+
+![Image](https://github.com/user-attachments/assets/adfa0641-3ae3-4876-af79-156d7010ec86)
+
+　
+
+----
+
+　
+
+### Sub Map
+
+簡易MAPを常に表示します。チャレンジモードでボスどこ？を解消します
+
+　
+
+v1.0.0 公開。
+　
+
+アドオンマネージャー登録済
+
+![Image](https://github.com/user-attachments/assets/1fc1f3de-9f44-4067-8038-b8e27cebddf5)
+
+　
+
+----
+
+　
+
 ### Characters Item Serch
 
 BarrackItemList オマージュ。出来ることほとんど変わりません。インベントリボタン右クリックで作動。他のチームキャラクターのアイテムを検索します。
