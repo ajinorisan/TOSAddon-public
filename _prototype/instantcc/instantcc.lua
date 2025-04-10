@@ -36,6 +36,7 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
+g.MSGS = g.MSGS or {}
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     -- bool: true なら元の関数を実行後イベント、false/nil なら元の関数を実行せずイベント発行 (my_func_name はイベントハンドラとして呼ばれる)
     g.FUNCS = g.FUNCS or {}
@@ -73,8 +74,12 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     end
 
     _G[origin_func_name] = hooked_function
-    my_addon:RegisterMsg(origin_func_name, my_func_name)
 
+    local regist_key = my_func_name .. "_" .. origin_func_name
+    if not g.MSGS[regist_key] then
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+        g.MSGS[regist_key] = true
+    end
 end
 
 function g.mkdir_new_folder()
@@ -207,7 +212,84 @@ function INSTANTCC_ON_INIT(addon, frame)
     g.go_y = apps:GetY()
 end
 
+g.log_file_path = string.format('../addons/%s/debug_log.txt', addonNameLower)
+
+function g.log_to_file(message)
+    -- ファイルを追記モード ("a") で開く
+    local file, err = io.open(g.log_file_path, "a")
+
+    if file then
+        -- ■■■ タイムスタンプを人間が読める形式に変更 ■■■
+        -- 例: "[2023-10-27 15:30:05] " みたいな形式
+        local timestamp = os.date("[%Y-%m-%d %H:%M:%S] ")
+
+        -- メッセージを書き込んで、改行を追加
+        -- message がテーブルの場合にエラーにならないように tostring を使う
+        file:write(timestamp .. tostring(message) .. "\n")
+
+        -- ファイルを閉じる
+        file:close()
+    else
+        -- ファイルが開けなかった場合のエラー処理
+        print("!!! Could not open log file: " .. tostring(err))
+    end
+end
+
 function INSTANTCC_BARRACK_START_FRAME_OPEN()
+
+    g.log_to_file("INSTANTCC_BARRACK_START_FRAME_OPEN called!") -- ★変更
+
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    if bc_frame then
+        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+        g.log_to_file("Current layer: " .. tostring(g.layer)) -- ★追加
+    else
+        g.log_to_file("barrack_charlist frame NOT found!") -- ★追加
+    end
+
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+    if not barrack_gamestart then
+        g.log_to_file("barrack_gamestart frame NOT found!") -- ★追加
+        return -- フレームがないなら処理を中断した方が安全かも
+    end
+
+    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
+    -- AUTO_CAST(hidelogin) -- AUTO_CAST はエラーになる可能性があるのでコメントアウト推奨
+    if hidelogin then -- nil チェックを追加
+        -- barrack.SetHideLogin(1) -- これはAPIなのでそのまま
+        -- hidelogin:SetCheck(1) -- UI操作もそのまま
+    else
+        g.log_to_file("hidelogin control NOT found!") -- ★追加
+    end
+
+    local start_game = GET_CHILD_RECURSIVELY(barrack_gamestart, "start_game");
+    -- AUTO_CAST(start_game) -- 同上
+    if start_game then -- nil チェックを追加
+        start_game:SetEventScript(ui.LBUTTONUP, "BARRACK_TO_GAME")
+    else
+        g.log_to_file("start_game control NOT found!") -- ★追加
+    end
+
+    -- g.do_cc と g.retry の値を確認
+    local do_cc_str = "nil"
+    if g.do_cc then
+        -- テーブルの内容をログに出力（簡単な形式で）
+        do_cc_str = string.format("{ cid=%s, layer=%s }", tostring(g.do_cc.cid), tostring(g.do_cc.layer))
+    end
+    g.log_to_file(string.format("Checking condition: g.do_cc = %s, g.retry = %s", do_cc_str, tostring(g.retry))) -- ★変更
+
+    if g.do_cc and not g.retry then
+        g.log_to_file("Condition met! Calling INSTANTCC_CHANGE()") -- ★変更
+        g.retry = 0
+        -- INSTANTCC_CHANGE() の中にも g.log_to_file を入れると、さらに追跡しやすいよ！
+        INSTANTCC_CHANGE()
+    else
+        g.log_to_file("Condition NOT met.") -- ★変更
+    end
+
+end
+
+--[[function INSTANTCC_BARRACK_START_FRAME_OPEN()
 
     local bc_frame = ui.GetFrame("barrack_charlist")
     if bc_frame then
@@ -230,7 +312,7 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN()
         INSTANTCC_CHANGE()
     end
 
-end
+end]]
 
 function INSTANTCC_TEXT_TOOLTIP(frame, ctrl, str, num)
     local tooltip_frame = ui.CreateNewFrame("notice_on_pc", "tooltip_frame", 0, 0, 0, 0)
