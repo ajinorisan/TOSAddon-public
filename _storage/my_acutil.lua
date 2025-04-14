@@ -80,44 +80,31 @@ function g.load_settings()
 end
 
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
-    -- bool: true なら元の関数を実行後イベント、false/nil なら元の関数を実行せずイベント発行 (my_func_name はイベントハンドラとして呼ばれる)
-    g.FUNCS = g.FUNCS or {}
+
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
-
-    local origin_func = _G[origin_func_name]
-
+    local origin_func = g.FUNCS[origin_func_name]
     local function hooked_function(...)
+
         local original_results
         local original_success = false
 
         if bool == true then
             original_results = {pcall(origin_func, ...)}
-            original_success = original_results[1]
-
-            if not original_success then
-                print(string.format("Error in original/previous hook for '%s': %s", origin_func_name,
-                                    tostring(original_results[2])))
-                return
-            end
         end
-        g.ARGS = g.ARGS or {}
-        imcAddOn.BroadMsg(origin_func_name)
 
-        g.ARGS[origin_func_name] = {...} -- この関数とセット運用：g.get_event_args(origin_func_name)
-
+        g.ARGS[origin_func_name] = {...}
+        local b_success = pcall(imcAddOn.BroadMsg, origin_func_name)
         if bool == true and original_success then
             return table.unpack(original_results, 2, #original_results)
         else
-            return -- nil を返す
+            return
         end
-
     end
 
     _G[origin_func_name] = hooked_function
-    my_addon:RegisterMsg(origin_func_name, my_func_name)
-
+    pcall(my_addon.RegisterMsg, my_addon, origin_func_name, my_func_name)
 end
 
 function g.get_event_args(origin_func_name)
@@ -126,6 +113,17 @@ function g.get_event_args(origin_func_name)
         return table.unpack(args)
     end
     return nil
+end
+
+function g.log_to_file(message)
+
+    local file, err = io.open(g.log_file_path, "a")
+
+    if file then
+        local timestamp = os.date("[%Y-%m-%d %H:%M:%S] ")
+        file:write(timestamp .. tostring(message) .. "\n")
+        file:close()
+    end
 end
 
 function ADDON_NAME_ON_INIT(addon, frame)
