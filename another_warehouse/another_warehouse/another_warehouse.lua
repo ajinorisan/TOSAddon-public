@@ -22,10 +22,11 @@
 -- v1.2.2 入庫時に引っ掛かりにくくなったハズ。テストは足りてない。
 -- v1.2.3 入庫時の引っ掛かりバグ完全に直った。IMCに勝った。
 -- v1.2.4 セット取り出しスロットを増やした。整理も出来る様に。
+-- v1.2.5 トークン判定を減らした。
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.4"
+local ver = "1.2.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -384,28 +385,110 @@ function another_warehouse_setting_help()
     ui.OpenContextMenu(context)
 end
 
+g.log_file_path = string.format('../addons/%s/debug_log.txt', addonNameLower)
+function g.log_to_file(message)
+
+    local file, err = io.open(g.log_file_path, "a")
+
+    if file then
+        local timestamp = os.date("[%Y-%m-%d %H:%M:%S] ")
+        file:write(timestamp .. tostring(message) .. "\n")
+        file:close()
+    end
+end
+
+function another_warehouse_APPS_TRY_MOVE_BARRACK(frame, msg)
+
+    if session.loginInfo.IsPremiumState(ITEM_TOKEN) ~= true then
+        g.token = false
+        ui.SysMsg(another_warehouse_lang("[Another warehouse] is not available because the token has not been applied."))
+    else
+        g.token = true
+    end
+end
+
 function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
     g.settings = g.settings or {}
 
+    local scp_frame = ui.GetFrame("another_warehouse_scp_frame")
+    if not scp_frame then
+        scp_frame = ui.CreateNewFrame("notice_on_pc", "another_warehouse_scp_frame", 0, 0, 0, 0)
+        AUTO_CAST(scp_frame)
+    else
+        AUTO_CAST(scp_frame)
+    end
+    scp_frame:ShowWindow(1)
+
     local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
         another_warehouse_load_settings()
-
-        addon:RegisterMsg("GAME_START_3SEC", "another_warehouse_accountwarehouse_init_reserve");
+        g.token = g.token or false
+        acutil.setupEvent(addon, 'APPS_TRY_MOVE_BARRACK', "another_warehouse_APPS_TRY_MOVE_BARRACK")
+        if not g.token then
+            scp_frame:RunUpdateScript("another_warehouse_accountwarehouse_init_reserve", 0.1)
+            g.count = 1
+        else
+            addon:RegisterMsg("GAME_START", "another_warehouse_accountwarehouse_init");
+        end
     end
 end
 
-function another_warehouse_accountwarehouse_init_reserve()
-    if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
-        another_warehouse_accountwarehouse_init()
+function another_warehouse_accountwarehouse_init_reserve(frame)
+
+    if session.loginInfo.IsPremiumState(ITEM_TOKEN) ~= true and not g.token then
+        -- print(tostring(g.count))
+        g.count = g.count + 1
+        if g.count >= 60 then
+            ui.SysMsg(another_warehouse_lang(
+                "[Another warehouse] is not available because the token has not been applied."))
+            return 0
+        else
+            return 1
+        end
     else
-        ReserveScript("another_warehouse_accountwarehouse_init()", 2.0)
+        g.token = true
+        ui.SysMsg("[AWH]ready")
+        another_warehouse_accountwarehouse_init(frame)
+        return 0
     end
+end
+
+function another_warehouse_accountwarehouse_init(frame)
+
+    g.token = true
+
+    local addon = g.addon
+    addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE");
+    addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_on_msg");
+    addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_ADD", "another_warehouse_on_msg");
+    addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_REMOVE", "another_warehouse_on_msg");
+    addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_CHANGE_COUNT", "another_warehouse_on_msg");
+    addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_IN", "another_warehouse_on_msg");
+
+    addon:RegisterMsg('ESCAPE_PRESSED', 'another_warehouse_accountwarehouse_close');
+
+    -- addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_accountwarehouse_open");
+    acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
+    acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close")
+    -- addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_base_accountwarehouse_open")
+
+    local functionName = "YAACCOUNTINVENTORY_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+    if type(_G[functionName]) == "function" then
+        another_warehouse_notice()
+        _G[functionName] = nil
+    end
+
+    local functionName = "WAREHOUSEMANAGER_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
+    if type(_G[functionName]) == "function" then
+        another_warehouse_notice2()
+        _G[functionName] = nil
+    end
+
 end
 
 function another_warehouse_base_item_list_create()
@@ -523,44 +606,6 @@ function another_warehouse_base_accountwarehouse_open(frame, msg, str, num)
     slot_set:CreateSlots()
 
     local slot_count = slot_set:GetSlotCount()
-end
-
-function another_warehouse_accountwarehouse_init()
-
-    if session.loginInfo.IsPremiumState(ITEM_TOKEN) == true then
-
-        ui.SysMsg("[AWH]ready")
-        local addon = g.addon
-        addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE");
-        addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_on_msg");
-        addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_ADD", "another_warehouse_on_msg");
-        addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_REMOVE", "another_warehouse_on_msg");
-        addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_CHANGE_COUNT", "another_warehouse_on_msg");
-        addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_IN", "another_warehouse_on_msg");
-
-        addon:RegisterMsg('ESCAPE_PRESSED', 'another_warehouse_accountwarehouse_close');
-
-        -- addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_accountwarehouse_open");
-        acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
-        acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close")
-        -- addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_base_accountwarehouse_open")
-
-        local functionName = "YAACCOUNTINVENTORY_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
-        if type(_G[functionName]) == "function" then
-            another_warehouse_notice()
-
-        end
-
-        local functionName = "WAREHOUSEMANAGER_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
-        if type(_G[functionName]) == "function" then
-
-            another_warehouse_notice2()
-
-        end
-    else
-        ui.SysMsg(another_warehouse_lang("[Another warehouse] is not available because the token has not been applied."))
-        return
-    end
 end
 
 function another_warehouse_notice2()
