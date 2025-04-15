@@ -183,6 +183,7 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
         g.ARGS = g.ARGS or {}
         g.ARGS[origin_func_name] = {...} -- この関数とセット運用：g.get_event_args(origin_func_name)
+
         imcAddOn.BroadMsg(origin_func_name)
 
         if bool == true and original_success then
@@ -192,7 +193,10 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         end
     end
     _G[origin_func_name] = hooked_function
-    my_addon:RegisterMsg(origin_func_name, my_func_name)
+    if not g.RAGISTER[origin_func_name] then
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
 end
 
 function g.get_event_args(origin_func_name)
@@ -298,6 +302,8 @@ function ZCHATEXTENDS_ON_INIT(addon, frame)
     g.addon = addon;
     g.frame = frame;
 
+    g.RAGISTER = {}
+
     g.setup_hook_and_event(addon, "DRAW_CHAT_MSG", "CHATEXTENDS_DRAW_CHAT_MSG", false)
     g.setup_hook_and_event(addon, "CHAT_SET_TO_TITLENAME", "CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME", true)
     g.setup_hook_and_event(addon, "CHAT_OPEN_INIT", "CHATEXTENDS_CHAT_OPEN_INIT", true)
@@ -305,6 +311,8 @@ function ZCHATEXTENDS_ON_INIT(addon, frame)
     g.setup_hook_and_event(addon, "_ADD_GBOX_OPTION_FOR_CHATFRAME", "CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME",
         false)
     g.setup_hook_and_event(addon, "TOGGLE_BOTTOM_CHAT", "CHATEXTENDS_CHAT_TOGGLE_BOTTOM_CHAT", false)
+    g.chat_popup = {}
+    g.chat_groupbox = {}
 
     -- g.ui_setup_hook()
     -- g.setup_hook_and_event(addon, "['ui'].SetChatType", "CHATEXTENDS_SetChatType", true)
@@ -606,6 +614,7 @@ function CHATEXTENDS_skin_change(frame, ctrl, argStr, argNum)
         g.settings.skin_change = 0
     end
     CHATEXTENDS_SAVE_SETTINGS();
+
     ui.SysMsg(change_txt)
 end
 
@@ -621,7 +630,7 @@ function CHATEXTENDS_CHAT_OPEN_INIT()
     local offsetX = btn_ChatType:GetWidth();
     mainchat:SetGravity(ui.LEFT, ui.TOP);
     mainchat:Resize(585 - titleCtrl:GetWidth() - offsetX + 17, mainchat:GetOriginalHeight())
-    mainchat:SetOffset(titleCtrl:GetWidth() + offsetX + 7, mainchat:GetOriginalY());
+    -- mainchat:SetOffset(titleCtrl:GetWidth() + offsetX + 7, mainchat:GetOriginalY());
 end
 
 -- チェックボックスのイベント
@@ -808,22 +817,47 @@ end
 function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
 
     local groupboxname, startindex, chatframe, removeChatIDList = g.get_event_args(origin_func_name)
-    CHAT_SYSTEM(tostring(groupboxname))
+
     local mainchatFrame = ui.GetFrame("chatframe");
-    if not mainchatFrame then
+
+    --[[if not mainchatFrame then
         return
-    end
+    end]]
+
     local groupbox = GET_CHILD(chatframe, groupboxname);
+    if chatframe:GetName() ~= "chatfram" then
+
+        if chatframe:IsVisible() == 1 then
+            if not g.chat_popup[tostring(chatframe:GetName())] then
+                g.chat_popup[tostring(chatframe:GetName())] = true
+                table.insert(g.chat_groupbox, {
+                    chatframe = chatframe:GetName(),
+                    groupbox = groupbox:GetName()
+                })
+            end
+        end
+    end
     local size = session.ui.GetMsgInfoSize(groupboxname);
 
     if groupbox == nil then
-        return 1;
+        local found = false
+        for i, chat_info in ipairs(g.chat_groupbox) do
+            local frame_name = chat_info.chatframe
+            local groupbox_name = chat_info.groupbox
+
+            chatframe = ui.GetFrame(frame_name)
+            groupbox = GET_CHILD_RECURSIVELY(chatframe, groupbox_name)
+            found = true
+        end
+        if not found then
+            return 1;
+        end
     end
 
     if groupbox:IsVisible() == 0 or chatframe:IsVisible() == 0 then
+        -- print(tostring(groupboxname) .. ":" .. tostring(startindex) .. ":" .. tostring(size))
         return 1;
     end
-
     CHATEXTENDS_CHAT_SET_OPACITY(groupbox);
 
     if removeChatIDList ~= nil then
@@ -835,7 +869,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
     local marginLeft = 20;
     local marginRight = 0;
     local ypos = 0;
-    CHAT_SYSTEM(tostring(size))
+
     for i = startindex, size - 1 do
         local beforeclusterinfo = nil
 
@@ -850,13 +884,14 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
             end
         end
         local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i);
+
         if clusterinfo == nil then
             return 0;
         end
 
         local clustername = "cluster_" .. clusterinfo:GetMsgInfoID();
         local chatCtrl = GET_CHILD(groupbox, clustername);
-        CHAT_SYSTEM(tostring(i))
+
         if i > 0 then
             local prevClusterInfo = session.ui.GetChatMsgInfo(groupboxname, i - 1);
             if prevClusterInfo ~= nil then
@@ -865,9 +900,11 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
                 if precCluster ~= nil then
                     ypos = precCluster:GetY() + precCluster:GetHeight();
                 else
+
                     -- ui가 다 날아갔는데, 메시지가 들어온 경우
                     -- 재접할때 발생한다.
-                    return g.FUNCS["DRAW_CHAT_MSG"](groupboxname, 0, chatframe, removeChatIDList);
+                    return CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, 0, chatframe, removeChatIDList);
+                    -- return g.FUNCS["DRAW_CHAT_MSG"](groupboxname, 0, chatframe, removeChatIDList);
                 end
             end
         end
@@ -875,6 +912,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
         local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX");
 
         if startindex == 0 and chatCtrl ~= nil then
+
             if g.settings.BALLON_FLG then
                 local commnderName = clusterinfo:GetCommanderName();
                 local tempCommnderName = string.gsub(commnderName, "( %[.+%])", "");
@@ -1770,6 +1808,7 @@ function CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME(frame, origin_func_name)
     end
 
     CHATEXTENDS_CHAT_SET_OPACITY(gbox)
+    -- _ADD_GBOX_OPTION_FOR_CHATFRAME
 
 end
 
