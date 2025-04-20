@@ -9,10 +9,11 @@
 -- v1.0.9 バグ修正
 -- v1.1.0 高速化。ギアスコア表示。セーブデータは一旦消えます(´;ω;｀)
 -- v1.1.1 セーブファイルの呼出修正
+-- v1.1.2 新キャラ作った時に反映されなかったの修正
 local addonName = "OTHER_CHARACTER_SKILL_LIST"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -278,6 +279,15 @@ function other_character_skill_list_load_settings()
 
     g.settings = settings
 
+    local login_name = session.GetMySession():GetPCApc():GetName()
+
+    if not g.settings.character[login_name] then
+        g.settings.character[login_name] = {
+            index = 99,
+            layer = 9
+        }
+    end
+
     other_character_skill_list_save_settings()
 
     local change, err = acutil.loadJSON(g.changeFileLoc, g.change)
@@ -296,6 +306,9 @@ function other_character_skill_list_load_settings()
         g.change = change
 
     else
+        if not change[login_name] then
+            change[login_name] = "0"
+        end
         g.change = change
 
     end
@@ -568,11 +581,25 @@ function other_character_skill_list_char_report_close(frame, ctrl, str, num)
     parent = parent:GetParent()
 
     parent:ShowWindow(0)
+
+    other_character_skill_list_frame_open()
 end
 
 local skin_list = {}
 function other_character_skill_list_char_report(frame, ctrl, str, num)
     -- print(tostring(frame:GetName()))
+
+    --[[local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "ctrl_name", 0, 0, 0, 0)
+    AUTO_CAST(frame)
+    -- frame:SetPos(g.settings.X, g.settings.Y)
+    frame:SetSkinName("None")
+    frame:SetLayerLevel(999)
+    frame:Resize(150, 80)
+    frame:EnableHittestFrame(1)
+    -- frame:EnableMove(1)
+    -- frame:SetEventScript(ui.LBUTTONUP, "revival_timer_end_drag")
+    frame:ShowWindow(1)
+    CHAT_SYSTEM("TEST")]]
     local cid = ""
     for name, changecid in pairs(g.change) do
         if name == str then
@@ -603,13 +630,13 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
             ui.SysMsg(
                 "{ol}Detailed view is supported only for characters in the same barracks as the currently logged-in character.")
         end
-
+        other_character_skill_list_frame_open()
         return
 
     end
     local name = str
 
-    local charCtrl = frame:CreateOrGetControlSet('barrack_charlist', 'char_' .. cid, 150, 80);
+    local charCtrl = frame:CreateOrGetControlSet('barrack_charlist', 'char_' .. cid, 150, 10);
     AUTO_CAST(charCtrl)
     frame:SetUserValue("CTRL_NAME", cid)
     charCtrl:SetUserValue("CID", cid);
@@ -741,8 +768,16 @@ function other_character_skill_list_char_report(frame, ctrl, str, num)
             end
         end
     end
+    charCtrl:Resize(400, 430)
+    local top_frame = frame:GetTopParentFrame()
+    if top_frame:GetHeight() < 490 then
+        top_frame:Resize(top_frame:GetWidth(), 540 - 60)
+        local gbox = GET_CHILD(top_frame, "gbox")
+        gbox:Resize(gbox:GetWidth(), top_frame:GetHeight() - 40)
+        -- charCtrl:Resize(charCtrl:GetWidth(), gbox:GetHeight() - 20)
+        -- CHAT_SYSTEM(charCtrl:GetWidth() .. ":" .. gbox:GetHeight() - 20)
 
-    -- charCtrl:Resize(charCtrl:GetWidth(), 128);
+    end
 
 end
 

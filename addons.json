@@ -162,7 +162,7 @@
 		"name" : "Other Character Skill List",
 		"file" : "other_character_skill_list",
 		"extension" : "ipf",
-		"fileVersion" : "v1.1.1",
+		"fileVersion" : "v1.1.2",
 		"releaseTag" : "other_character_skill_list",
 		"unicode" : "⛄",
 		"description" : "1.1.0でロード遅くなるの修正。各キャラの錬成スキルを一覧表示。その他装備状況も表示します。一度、該当キャラインベントリを開閉する必要があります。<br>Fixed slow loading in 1.1.0. Listed alchemy skills of each character. Other equipment status is also displayed. It is necessary to open/close the relevant character inventory once.<br>1.1.0에서 로딩이 느려지는 현상 수정. 각 캐릭터의 연성 스킬 목록 표시. 기타 장비 상태도 표시합니다. 해당 캐릭 인벤토리를 한 번 열어야 합니다.",
