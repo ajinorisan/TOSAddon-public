@@ -61,10 +61,11 @@
 -- v1.6.1 チャンネルインフォのサイズ変更。ちょっとバグ修正。
 -- v1.6.2 EP13ショップを街で開けられる様に。
 -- v1.6.3 バウバスのお知らせ
+-- v1.6.4 多分グルチャ直った。IMCに勝ったかも
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.3"
+local ver = "1.6.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -817,14 +818,19 @@ function MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK(frame)
 
 end
 
-function MINI_ADDONS_CHAT_SET_TO_TITLENAME(targetName)
+function MINI_ADDONS_CHAT_SET_TO_TITLENAME(targetName, roomid)
 
     local frame = ui.GetFrame('chat')
+    AUTO_CAST(frame)
     local chatEditCtrl = frame:GetChild('mainchat')
+    AUTO_CAST(chatEditCtrl)
     local titleCtrl = GET_CHILD(frame, 'edit_to_bg')
+    AUTO_CAST(titleCtrl)
     local editbg = GET_CHILD(frame, 'edit_bg')
+    AUTO_CAST(editbg)
     local name = GET_CHILD(titleCtrl, 'title_to')
     AUTO_CAST(name)
+
     local btn_ChatType = GET_CHILD(frame, 'button_type')
 
     titleCtrl:SetOffset(btn_ChatType:GetOriginalWidth(), titleCtrl:GetOriginalY())
@@ -843,9 +849,12 @@ function MINI_ADDONS_CHAT_SET_TO_TITLENAME(targetName)
     end
     -- 이름을 먼저 설정해줘야 크기와 위치 설정이 이루어진다.
 
-    name:SetText(titleText)
     if titleText ~= '' then
         titleCtrl:Resize(name:GetWidth() + 20, titleCtrl:GetOriginalHeight())
+
+        name:SetText(titleText)
+        name:ShowWindow(1)
+
     else
         titleCtrl:Resize(name:GetWidth(), titleCtrl:GetOriginalHeight())
     end
@@ -853,6 +862,7 @@ function MINI_ADDONS_CHAT_SET_TO_TITLENAME(targetName)
     if isVisible == 1 then
         titleCtrl:SetVisible(1)
         offsetX = offsetX + titleCtrl:GetWidth()
+
     else
         titleCtrl:SetVisible(0)
     end
@@ -860,6 +870,8 @@ function MINI_ADDONS_CHAT_SET_TO_TITLENAME(targetName)
     local width = chatEditCtrl:GetOriginalWidth() - titleCtrl:GetWidth() - btn_ChatType:GetWidth()
     chatEditCtrl:Resize(width, chatEditCtrl:GetOriginalHeight())
     chatEditCtrl:SetOffset(offsetX, chatEditCtrl:GetOriginalY())
+    -- print(tostring(targetName) .. ":" .. tostring(titleText))
+    frame:Invalidate()
 end
 
 function MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, ctrl, roomid, num)
@@ -873,15 +885,27 @@ function MINI_ADDONS_SEND_POPUP_FRAME_CHAT(frame, ctrl, roomid, num)
     local info = session.chat.GetByStringID(roomid);
     if info == nil then
         g.room_id = nil
+        chatframe:ShowWindow(0)
         return
     end
 
     local chat_type = chatframe:GetUserValue("CHAT_TYPE_SELECTED_VALUE")
     -- CHAT_SYSTEM(chat_type)
     ui.SetChatType(5)
-    MINI_ADDONS_CHAT_SET_TO_TITLENAME(g.settings.group_name[tostring(roomid)])
+    MINI_ADDONS_CHAT_SET_TO_TITLENAME(g.settings.group_name[tostring(roomid)], roomid)
     ui.SetChatType(chat_type - 1)
     -- chatframe:SetUserValue("CHAT_TYPE_SELECTED_VALUE", chat_type)
+
+    for room_id, title in pairs(g.settings.group_name) do
+
+        local info = session.chat.GetByStringID(room_id);
+
+        if info:GetRoomType() == 3 then
+            -- print(tostring(room_id) .. ":" .. tostring(title))
+            session.chat.SetRoomConfigTitle(room_id, title)
+
+        end
+    end
 
     g.room_id = roomid
     ui.SetGroupChatTargetID(roomid)
@@ -2475,6 +2499,23 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     MINI_ADDONS_ON_INIT(g.addon, g.frame)
 end
 
+function MINI_ADDONS_FRAME_MOVE_RESERVE(frame, ctrl, str, num)
+
+    frame:SetSkinName("chat_window")
+    frame:Resize(40, 30)
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_MOVE_SAVE")
+end
+
+function MINI_ADDONS_FRAME_MOVE_SAVE(frame, ctrl, str, num)
+    local x = frame:GetX();
+    local y = frame:GetY();
+    g.settings.newframex = x
+    g.settings.newframey = y
+    MINI_ADDONS_SAVE_SETTINGS()
+end
+
 function MINI_ADDONS_NEW_FRAME_INIT()
 
     local newframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_new", 0, 0, 0, 0)
@@ -2484,22 +2525,25 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     local minimap_frame = ui.GetFrame("minimap")
     local minimap_X, minimap_Y = minimap_frame:GetX(), minimap_frame:GetY()
 
-    newframe:SetPos(minimap_X + 5, minimap_Y + 230 + 5)
+    newframe:SetPos(g.settings.newframex or minimap_X + 5, g.settings.newframey or minimap_Y + 230 + 5)
     newframe:SetTitleBarSkin("None")
-    local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 25, 30)
+    local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 30, 30)
+    AUTO_CAST(btn)
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_mac 30 30}")
 
     btn:SetEventScript(ui.LBUTTONDOWN, "MINI_ADDONS_SETTING_FRAME_INIT")
-    local text = g.lang == "Japanese" and "{ol}左クリック: Mini Addons 設定{nl}右クリック: MUTE" or
-                     "{ol}Left click: Mini Addons settings{nl}Right click: MUTE"
+    local text = g.lang == "Japanese" and
+                     "{ol}左クリック: Mini Addons 設定{nl}右クリック: MUTE{nl}フレームの端を掴んで動かせます" or
+                     "{ol}Left click: Mini Addons settings{nl}Right click: MUTE{nl}Grab the edge of the frame and move it"
     btn:SetTextTooltip(text)
     btn:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_SOUND_TOGGLE")
+    btn:SetEventScript(ui.MOUSEON, "MINI_ADDONS_FRAME_MOVE_RESERVE")
     newframe:ShowWindow(1)
 
     g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
 end
--- MINI_ADDONS_NEW_FRAME_INIT()
+
 function MINI_ADDONS_FRAME_CLOSE(frame)
     local frame = ui.GetFrame("mini_addons")
     frame:ShowWindow(0)
