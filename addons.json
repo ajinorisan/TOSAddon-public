@@ -213,7 +213,7 @@
 		"name" : "Mini Addons",
 		"file" : "mini_addons",
 		"extension" : "ipf",
-		"fileVersion" : "v1.6.4",
+		"fileVersion" : "v1.6.5",
 		"releaseTag" : "mini_addons",
 		"unicode" : "⛄",
 		"description" : "色々な細かい便利機能を提供します。MINI MAP左下ボタンを押すと機能説明とON OFF切替があります。<br>The lower left button on the MINI MAP provides an explanation of the function and ON/OFF toggles.<br>다양한 세세한 편의 기능을 제공하며, MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 전환이 가능합니다.",
