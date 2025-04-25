@@ -62,10 +62,11 @@
 -- v1.6.2 EP13ショップを街で開けられる様に。
 -- v1.6.3 バウバスのお知らせ
 -- v1.6.4 多分グルチャ直った。IMCに勝ったかも
+-- v1.6.5 ウルトラワイドモードから通常に戻した時にフレーム消えたの修正
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.4"
+local ver = "1.6.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -2525,7 +2526,20 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     local minimap_frame = ui.GetFrame("minimap")
     local minimap_X, minimap_Y = minimap_frame:GetX(), minimap_frame:GetY()
 
-    newframe:SetPos(g.settings.newframex or minimap_X + 5, g.settings.newframey or minimap_Y + 230 + 5)
+    if not g.settings.newframex then
+        g.settings.newframex = minimap_X
+        g.settings.newframey = minimap_Y + 235
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    local width = option.GetClientWidth()
+    if g.settings.newframex > 1920 and width < 1920 then
+        g.settings.newframex = 1580
+        g.settings.newframey = 305
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    newframe:SetPos(g.settings.newframex, g.settings.newframey)
     newframe:SetTitleBarSkin("None")
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 30, 30)
     AUTO_CAST(btn)
@@ -2539,8 +2553,9 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     btn:SetTextTooltip(text)
     btn:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_SOUND_TOGGLE")
     btn:SetEventScript(ui.MOUSEON, "MINI_ADDONS_FRAME_MOVE_RESERVE")
-    newframe:ShowWindow(1)
 
+    newframe:ShowWindow(1)
+    print(tostring(newframe:GetY()) .. ":" .. tostring(newframe:GetX()))
     g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
 end
 
