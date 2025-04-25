@@ -64,10 +64,11 @@
 -- v1.6.4 多分グルチャ直った。IMCに勝ったかも
 -- v1.6.5 ウルトラワイドモードから通常に戻した時にフレーム消えたの修正
 -- v1.6.6 ウルトラワイドで位置保存機能バグってたの修正。
+-- v1.6.7 ウルトラワイドを再修正。クエストフレームの挙動を追加
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.6"
+local ver = "1.6.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -2518,7 +2519,12 @@ function MINI_ADDONS_FRAME_MOVE_SAVE(frame, ctrl, str, num)
         y = y
     }
     MINI_ADDONS_SAVE_SETTINGS()
+    frame:StopUpdateScript("MINI_ADDONS_FRAME_MOVE_SETSKIN")
+    frame:RunUpdateScript("MINI_ADDONS_FRAME_MOVE_SETSKIN", 5.0)
 
+end
+
+function MINI_ADDONS_FRAME_MOVE_SETSKIN(frame)
     frame:SetSkinName("None")
     frame:Resize(30, 30)
 end
@@ -2539,7 +2545,8 @@ function MINI_ADDONS_NEW_FRAME_INIT()
 
     local map_frame = ui.GetFrame("map")
     local width = map_frame:GetWidth()
-    if g.settings["screen"].x > 1920 and width < 1920 then
+
+    if g.settings["screen"].x > 1920 and width <= 1920 then
         g.settings["screen"] = {
             x = 1580,
             y = 305
@@ -2563,9 +2570,19 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     btn:SetGravity(ui.LEFT, ui.TOP)
     btn:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_SOUND_TOGGLE")
     btn:SetEventScript(ui.MOUSEON, "MINI_ADDONS_FRAME_MOVE_RESERVE")
+    btn:SetEventScript(ui.MOUSEOFF, "MINI_ADDONS_FRAME_MOVE_SAVE")
 
     newframe:ShowWindow(1)
     g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
+
+    local chaseinfo = ui.GetFrame("chaseinfo")
+    local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfo, "openMark_quest")
+    AUTO_CAST(openMark_quest)
+    openMark_quest:SetEventScript(ui.RBUTTONDOWN, "MINI_ADDONS_QUESTINFO_TOGGLE")
+    local notice =
+        g.lang == "Japanese" and "{ol}Mini Addons{nl}右クリック: クエストの表示/非表示切替" or
+            "{ol}Mini Addons{nl}Right-click: Show/hide quests"
+    openMark_quest:SetTextTooltip(notice)
 end
 
 function MINI_ADDONS_FRAME_CLOSE(frame)
@@ -3413,8 +3430,15 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     frame:EnableHittestFrame(1);
     frame:EnableMove(1)
 
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+    if g.settings.frame_X > 1920 and width <= 1920 then
+        g.settings.frame_X = 1500
+        g.settings.frame_X = 385
+    end
+
     g.settings.frame_X = g.settings.frame_X or 1500
-    g.settings.frame_Y = g.settings.frame_Y or 395
+    g.settings.frame_Y = g.settings.frame_Y or 385
     g.settings.ch_frame_size = g.settings.ch_frame_size or 40
 
     MINI_ADDONS_SAVE_SETTINGS()
@@ -3597,6 +3621,22 @@ function MINI_ADDONS_FRAME_MOVE()
         end
     end
 end
+---!!
+
+function MINI_ADDONS_QUESTINFO_TOGGLE(frame, ctrl, str, num)
+    local frame = ui.GetFrame("questinfoset_2")
+    local width = frame:GetWidth()
+    if width > 0 then
+        MINI_ADDONS_QUESTINFO_HIDE_RESERVE()
+        g.settings.quest_hide = 1
+        ctrl:SetImage("btn_plus")
+    else
+        MINI_ADDONS_QUESTINFO_SHOW()
+        g.settings.quest_hide = 0
+        ctrl:SetImage("btn_minus")
+    end
+    MINI_ADDONS_SAVE_SETTINGS()
+end
 
 function MINI_ADDONS_QUESTINFO_SHOW()
     local frame = ui.GetFrame("questinfoset_2")
@@ -3609,6 +3649,9 @@ function MINI_ADDONS_QUESTINFO_SHOW()
     local name_achieve = GET_CHILD_RECURSIVELY(chaseinfoframe, "name_achieve")
     name_achieve:Resize(220, 30)
     name_achieve:ShowWindow(1)
+    local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfoframe, "openMark_quest")
+    openMark_quest:ShowWindow(1)
+    openMark_quest:SetImage("btn_minus")
     frame:StopUpdateScript("MINI_ADDONS_QUESTINFO_HIDE");
 
 end
@@ -3629,9 +3672,17 @@ function MINI_ADDONS_QUESTINFO_HIDE(frame)
         local name_achieve = GET_CHILD_RECURSIVELY(chaseinfoframe, "name_achieve")
         name_achieve:Resize(0, 0)
         name_achieve:ShowWindow(0)
+        local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfoframe, "openMark_quest")
+        openMark_quest:ShowWindow(1)
+        openMark_quest:SetImage("btn_plus")
+        return 1
+    else
+        local chaseinfoframe = ui.GetFrame("chaseinfo")
+        local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfoframe, "openMark_quest")
+        openMark_quest:ShowWindow(1)
         return 1
     end
-    return 1
+
 end
 
 function MINI_ADDONS_INDUNENTER_AUTOMATCH_TYPE()
