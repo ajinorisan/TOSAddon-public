@@ -63,10 +63,11 @@
 -- v1.6.3 バウバスのお知らせ
 -- v1.6.4 多分グルチャ直った。IMCに勝ったかも
 -- v1.6.5 ウルトラワイドモードから通常に戻した時にフレーム消えたの修正
+-- v1.6.6 ウルトラワイドで位置保存機能バグってたの修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.5"
+local ver = "1.6.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -2512,9 +2513,14 @@ end
 function MINI_ADDONS_FRAME_MOVE_SAVE(frame, ctrl, str, num)
     local x = frame:GetX();
     local y = frame:GetY();
-    g.settings.newframex = x
-    g.settings.newframey = y
+    g.settings["screen"] = {
+        x = x,
+        y = y
+    }
     MINI_ADDONS_SAVE_SETTINGS()
+
+    frame:SetSkinName("None")
+    frame:Resize(30, 30)
 end
 
 function MINI_ADDONS_NEW_FRAME_INIT()
@@ -2523,24 +2529,27 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     AUTO_CAST(newframe)
     newframe:SetSkinName('None')
     newframe:Resize(30, 30)
-    local minimap_frame = ui.GetFrame("minimap")
-    local minimap_X, minimap_Y = minimap_frame:GetX(), minimap_frame:GetY()
 
-    if not g.settings.newframex then
-        g.settings.newframex = minimap_X
-        g.settings.newframey = minimap_Y + 235
-        MINI_ADDONS_SAVE_SETTINGS()
+    if not g.settings["screen"] then
+        g.settings["screen"] = {
+            x = 1580,
+            y = 305
+        }
     end
 
-    local width = option.GetClientWidth()
-    if g.settings.newframex > 1920 and width < 1920 then
-        g.settings.newframex = 1580
-        g.settings.newframey = 305
-        MINI_ADDONS_SAVE_SETTINGS()
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+    if g.settings["screen"].x > 1920 and width < 1920 then
+        g.settings["screen"] = {
+            x = 1580,
+            y = 305
+        }
     end
+    MINI_ADDONS_SAVE_SETTINGS()
 
-    newframe:SetPos(g.settings.newframex, g.settings.newframey)
+    newframe:SetPos(g.settings["screen"].x, g.settings["screen"].y)
     newframe:SetTitleBarSkin("None")
+
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 30, 30)
     AUTO_CAST(btn)
     btn:SetSkinName("None")
@@ -2551,11 +2560,11 @@ function MINI_ADDONS_NEW_FRAME_INIT()
                      "{ol}左クリック: Mini Addons 設定{nl}右クリック: MUTE{nl}フレームの端を掴んで動かせます" or
                      "{ol}Left click: Mini Addons settings{nl}Right click: MUTE{nl}Grab the edge of the frame and move it"
     btn:SetTextTooltip(text)
+    btn:SetGravity(ui.LEFT, ui.TOP)
     btn:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_SOUND_TOGGLE")
     btn:SetEventScript(ui.MOUSEON, "MINI_ADDONS_FRAME_MOVE_RESERVE")
 
     newframe:ShowWindow(1)
-    print(tostring(newframe:GetY()) .. ":" .. tostring(newframe:GetX()))
     g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
 end
 
