@@ -88,14 +88,56 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     local function hooked_function(...)
 
         local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if bool == true and original_results ~= nil then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+--[[function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+    local origin_func = g.FUNCS[origin_func_name]
+    local function hooked_function(...)
+
+        local original_results
         local original_success = false
 
         if bool == true then
             original_results = {pcall(origin_func, ...)}
+            original_success = original_results[1]
+
+            if not original_success then
+                print(string.format("Error in original/previous hook for '%s': %s", origin_func_name,
+                                    tostring(original_results[2])))
+                return
+            end
         end
 
+        g.ARGS = g.ARGS or {}
         g.ARGS[origin_func_name] = {...}
-        local b_success = pcall(imcAddOn.BroadMsg, origin_func_name)
+        imcAddOn.BroadMsg(origin_func_name)
+        -- local b_success = pcall(imcAddOn.BroadMsg, origin_func_name)
         if bool == true and original_success then
             return table.unpack(original_results, 2, #original_results)
         else
@@ -104,8 +146,12 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     end
 
     _G[origin_func_name] = hooked_function
-    pcall(my_addon.RegisterMsg, my_addon, origin_func_name, my_func_name)
-end
+
+    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end]]
 
 function g.get_event_args(origin_func_name)
     local args = g.ARGS[origin_func_name]
@@ -130,6 +176,9 @@ function ADDON_NAME_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
+
+    g.RAGISTER = {}
+
     g.lang = option.GetCurrentCountry()
     g.cid = session.GetMySession():GetCID()
     g.login_name = session.GetMySession():GetPCApc():GetName()
