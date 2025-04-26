@@ -5,10 +5,11 @@
 -- v1.0.6 レティーシャワープ付けた。トークンワープのカウントダウンをフレームに収めた。
 -- v1.0.7 ワープ出来ないマップでSysMsgが永遠出続けるの直した。
 -- v1.0.8 チャンネルチェンジするタイミングでたまに固まるの修正
+-- v1.0.9 ウルトラワイド対応
 local addonName = "LETS_GO_HOME"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -80,23 +81,75 @@ function LETS_GO_HOME_KEYPRESS(frame)
     return 1
 end
 
+function LETS_GO_HOME_frame_move_reserve(frame, ctrl, str, num)
+    AUTO_CAST(frame)
+    frame:SetSkinName("chat_window")
+    frame:Resize(45, 30)
+    frame:EnableHitTest(1)
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+    frame:SetEventScript(ui.LBUTTONUP, "LETS_GO_HOME_frame_move_save")
+end
+
+function LETS_GO_HOME_frame_move_save(frame, ctrl, str, num)
+    local x = frame:GetX();
+    local y = frame:GetY();
+    g.settings["screen"] = {
+        x = x,
+        y = y
+    }
+    LETS_GO_HOME_SAVE_SETTINGS()
+    frame:StopUpdateScript("LETS_GO_HOME_frame_move_setskin")
+    frame:RunUpdateScript("LETS_GO_HOME_frame_move_setskin", 5.0)
+
+end
+
+function LETS_GO_HOME_frame_move_setskin(frame)
+    frame:SetSkinName("None")
+    frame:Resize(30, 30)
+end
+
 function LETS_GO_HOME_FRAME_INIT()
     local frame = ui.GetFrame("lets_go_home")
     frame:SetSkinName('None')
     frame:Resize(30, 30)
-    frame:SetPos(1610, 305)
+
+    if not g.settings["screen"] then
+        g.settings["screen"] = {
+            x = 1610,
+            y = 305
+        }
+    end
+    LETS_GO_HOME_SAVE_SETTINGS()
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if g.settings["screen"].x > 1920 and width <= 1920 then
+        g.settings["screen"] = {
+            x = 1610,
+            y = 305
+        }
+    end
+
+    frame:SetPos(g.settings["screen"].x, g.settings["screen"].y)
     frame:SetTitleBarSkin("None")
 
     local btn = frame:CreateOrGetControl('button', 'home', 0, 0, 30, 30)
+    AUTO_CAST(btn)
+    btn:SetGravity(ui.LEFT, ui.TOP)
     btn:SetSkinName("None")
     btn:SetText("{img btn_housing_editmode_small_resize 30 30}")
     btn:SetTextTooltip(g.lang == "Japanese" and
-                           "{ol}右クリック:ホーム設定{nl}左クリック:ワープ{nl}ショートカット:BackSlash{/}" or
-                           "{ol}Rightclick:Home Setting{nl}Leftclick:Warp{nl}Shortcut:BackSlash{/}")
+                           "{ol}右クリック:ホーム設定{nl}左クリック:ワープ{nl}ショートカット:BackSlash{nl}フレームの端を掴んで動かせます{/}" or
+                           "{ol}Rightclick:Home Setting{nl}Leftclick:Warp{nl}Shortcut:BackSlash{nl}Grab the edge of the frame and move it{/}")
     btn:SetEventScript(ui.RBUTTONUP, "LETS_GO_HOME_SETTING")
     btn:SetEventScript(ui.LBUTTONDOWN, "LETS_GO_HOME_WARP")
     frame:ShowWindow(1)
     frame:RunUpdateScript("LETS_GO_HOME_KEYPRESS", 0.2)
+
+    btn:SetEventScript(ui.MOUSEON, "LETS_GO_HOME_frame_move_reserve")
+    btn:SetEventScript(ui.MOUSEOFF, "LETS_GO_HOME_frame_move_save")
 end
 
 function LETS_GO_HOME_BOUNTYHUNT()

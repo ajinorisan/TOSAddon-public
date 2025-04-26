@@ -8,10 +8,11 @@
 -- v1.0.7 街では景観を損ねるので非表示に
 -- v1.0.8 セッティングフレームの高さ足りなかったの修正
 -- v1.0.9 バフが無い場合スロット非表示にするなどした
+-- v1.1.0 ウルトラワイドに対応
 local addonName = "skill_notice_free"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -126,24 +127,74 @@ function SKILL_NOTICE_FREE_ON_INIT(addon, frame)
     addon:RegisterMsg("GAME_START", "skill_notice_free_start_frame")
 end
 
+function skill_notice_free_frame_move_reserve(frame, ctrl, str, num)
+
+    frame:SetSkinName("chat_window")
+    frame:Resize(40, 30)
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+    frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_frame_move_save")
+end
+
+function skill_notice_free_frame_move_save(frame, ctrl, str, num)
+    local x = frame:GetX();
+    local y = frame:GetY();
+    g.settings["screen"] = {
+        x = x,
+        y = y
+    }
+    skill_notice_free_save_settings()
+    frame:StopUpdateScript("skill_notice_free_frame_move_setskin")
+    frame:RunUpdateScript("skill_notice_free_frame_move_setskin", 5.0)
+
+end
+
+function skill_notice_free_frame_move_setskin(frame)
+    frame:SetSkinName("None")
+    frame:Resize(30, 30)
+end
+
 function skill_notice_free_start_frame()
     local start_frame = ui.CreateNewFrame("chat_memberlist", addonNameLower .. "start_frame", 0, 0, 0, 0)
     AUTO_CAST(start_frame)
+
+    if not g.settings["screen"] then
+        g.settings["screen"] = {
+            x = 1820,
+            y = 305
+        }
+    end
+    skill_notice_free_save_settings()
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if g.settings["screen"].x > 1920 and width <= 1920 then
+        g.settings["screen"] = {
+            x = 1820,
+            y = 305
+        }
+    end
 
     start_frame:RemoveAllChild()
     start_frame:SetSkinName("None")
     start_frame:SetTitleBarSkin("None")
     start_frame:EnableHitTest(1)
-    start_frame:SetPos(1820, 305)
+    start_frame:SetPos(g.settings["screen"].x, g.settings["screen"].y)
     start_frame:ShowWindow(1)
     start_frame:Resize(30, 30)
 
     local setting_button = start_frame:CreateOrGetControl('button', 'setting_button', 0, 0, 25, 30)
+    AUTO_CAST(setting_button)
     setting_button:SetSkinName("None")
     setting_button:SetText("{img sysmenu_skill 30 30}")
+    setting_button:SetGravity(ui.LEFT, ui.TOP)
     setting_button:SetEventScript(ui.LBUTTONUP, "skill_notice_free_setting")
-    local tooltip_text = "{ol}Skill Notice{nl}Left-Click Settings"
+    local tooltip_text = "{ol}Skill Notice{nl}Left-Click Settings{nl}Grab the edge of the frame and move it"
     setting_button:SetTextTooltip(tooltip_text)
+
+    setting_button:SetEventScript(ui.MOUSEON, "skill_notice_free_frame_move_reserve")
+    setting_button:SetEventScript(ui.MOUSEOFF, "skill_notice_free_frame_move_save")
 
 end
 
