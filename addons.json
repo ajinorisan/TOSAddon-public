@@ -5,7 +5,7 @@
 		"fileVersion" : "v1.1.6",
 		"releaseTag" : "klcount",
 		"unicode" : "⛄",
-		"description" : "フィールド狩りで倒したモンスターをカウント。アイテムドロップ分析情報取得<br>Count monsters killed in field hunts.Item drop analysis information acquisition<br>필드 사냥에서 쓰러뜨린 몬스터를 계산합니다.아이템 드롭 분석 정보 획득",
+		"description" : "Wide monitor supported<br>フィールド狩りで倒したモンスターをカウント。アイテムドロップ分析情報取得<br>Count monsters killed in field hunts.Item drop analysis information acquisition<br>필드 사냥에서 쓰러뜨린 몬스터를 계산합니다.아이템 드롭 분석 정보 획득",
 		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
@@ -145,7 +145,7 @@
 		"fileVersion" : "v1.1.0",
 		"releaseTag" : "skill_notice_free",
 		"unicode" : "⛄",
-		"description" : "1.0.5で登録方法見直し。回数系バフをお知らせ。自分で登録必要。mutekiの回数版的なやつ<br>Reviewed registration method in 1.0.5.Notification of frequency buffs. You need to register yourself. Add-on for “muteki” frequency.<br>1.0.5에서 등록 방법 개편.횟수제 버프를 알려드립니다. 직접 등록이 필요합니다. 'muteki'의 횟수판적인 애드온",
+		"description" : "Wide monitor supported<br>1.0.5で登録方法見直し。回数系バフをお知らせ。自分で登録必要。mutekiの回数版的なやつ<br>Reviewed registration method in 1.0.5.Notification of frequency buffs. You need to register yourself. Add-on for “muteki” frequency.<br>1.0.5에서 등록 방법 개편.횟수제 버프를 알려드립니다. 직접 등록이 필요합니다. 'muteki'의 횟수판적인 애드온",
 		"tags" : ["ajinori","ajinorisan"]
 	},			
 {
@@ -216,7 +216,7 @@
 		"fileVersion" : "v1.6.7",
 		"releaseTag" : "mini_addons",
 		"unicode" : "⛄",
-		"description" : "色々な細かい便利機能を提供します。MINI MAP左下ボタンを押すと機能説明とON OFF切替があります。<br>The lower left button on the MINI MAP provides an explanation of the function and ON/OFF toggles.<br>다양한 세세한 편의 기능을 제공하며, MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 전환이 가능합니다.",
+		"description" : "Wide monitor supported<br>色々な細かい便利機能を提供します。MINI MAP左下ボタンを押すと機能説明とON OFF切替があります。<br>The lower left button on the MINI MAP provides an explanation of the function and ON/OFF toggles.<br>다양한 세세한 편의 기능을 제공하며, MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 전환이 가능합니다.",
 		"tags" : ["ajinori","ajinorisan","mini","Mini"]
 	},
 {
@@ -276,7 +276,7 @@
 		"fileVersion" : "v1.0.9",
 		"releaseTag" : "lets_go_home",
 		"unicode" : "⛄",
-		"description" : "右クリックで設定。左クリックでホームタウンとホームチャンネルに移動します。バックスラッシュがショトカです。クエストワープ優先。次にトークンワープを使います。その次にトークンワープクールダウン中はワープ呪文書を使います。<br>Right click to set up. Left click to go to home town and home channel. Quest warp priority. Then use Token Warp. Then use the warp spellbook during the token warp cooldown. <br>우클릭으로 설정. 왼쪽 클릭으로 홈타운과 홈 채널로 이동합니다. 퀘스트 워프 우선. 다음으로 토큰 워프를 사용합니다. 그 다음 토큰 워프 재사용 대기시간 동안 워프 주문서를 사용합니다.",
+		"description" : "Wide monitor supported<br>右クリックで設定。左クリックでホームタウンとホームチャンネルに移動します。バックスラッシュがショトカです。クエストワープ優先。次にトークンワープを使います。その次にトークンワープクールダウン中はワープ呪文書を使います。<br>Right click to set up. Left click to go to home town and home channel. Quest warp priority. Then use Token Warp. Then use the warp spellbook during the token warp cooldown. <br>우클릭으로 설정. 왼쪽 클릭으로 홈타운과 홈 채널로 이동합니다. 퀘스트 워프 우선. 다음으로 토큰 워프를 사용합니다. 그 다음 토큰 워프 재사용 대기시간 동안 워프 주문서를 사용합니다.",
 		"tags" : ["ajinori","ajinorisan"]
 	},
 {
