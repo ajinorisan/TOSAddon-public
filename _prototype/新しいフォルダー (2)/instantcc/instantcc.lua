@@ -5,11 +5,13 @@
 -- v1.0.4 他に干渉しない様に
 -- v1.0.5 速攻バグ修正
 -- v1.0.6 設定ジョブ取れる様に。
+-- v1.0.7 コンテキスト表示切替
+-- v1.0.8 indun_list_viewerと連携バグってたの修正
 local addonName = "INSTANTCC"
 local addonNameLower = string.lower(addonName)
 
 local author = "ebisuke"
-local ver = "1.0.6"
+local ver = "1.0.8"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -32,6 +34,52 @@ function g.SetupHook(func, baseFuncName)
         _G[baseFuncName] = func
     end
     base[baseFuncName] = _G[replacementName]
+end
+
+g.MSGS = g.MSGS or {}
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+    -- bool: true なら元の関数を実行後イベント、false/nil なら元の関数を実行せずイベント発行 (my_func_name はイベントハンドラとして呼ばれる)
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    local origin_func = _G[origin_func_name]
+
+    local function hooked_function(...)
+        local original_results
+        local original_success = false
+
+        if bool == true then
+            original_results = {pcall(origin_func, ...)}
+            original_success = original_results[1]
+
+            if not original_success then
+                print(string.format("Error in original/previous hook for '%s': %s", origin_func_name,
+                                    tostring(original_results[2])))
+                return
+            end
+        end
+        g.ARGS = g.ARGS or {}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        g.ARGS[origin_func_name] = {...} -- この関数とセット運用：g.get_event_args(origin_func_name)
+
+        if bool == true and original_success then
+            return table.unpack(original_results, 2, #original_results)
+        else
+            return -- nil を返す
+        end
+
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    local regist_key = my_func_name .. "_" .. origin_func_name
+    if not g.MSGS[regist_key] then
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+        g.MSGS[regist_key] = true
+    end
 end
 
 function g.mkdir_new_folder()
@@ -136,28 +184,164 @@ function INSTANTCC_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
+    g.lang = option.GetCurrentCountry()
+
     INSTANTCC_LOAD_SETTINGS()
 
     g.retry = nil
     g.do_cc = nil
     g.layer = g.layer or (g.settings and g.settings.characters and g.settings.characters.layer) or 1
 
-    g.SetupHook(INSTANTCC_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
-    g.SetupHook(INSTANTCC_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
-    g.SetupHook(INSTANTCC_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+    g.setup_hook_and_event(addon, "BARRACK_START_FRAME_OPEN", "INSTANTCC_BARRACK_START_FRAME_OPEN", true)
+    g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "INSTANTCC_APPS_TRY_MOVE_BARRACK", false)
+    -- .SetupHook(INSTANTCC_BARRACK_START_FRAME_OPEN, "BARRACK_START_FRAME_OPEN")
+    -- acutil.setupEvent(addon, "BARRACK_START_FRAME_OPEN", "INSTANTCC_BARRACK_START_FRAME_OPEN");
+    -- g.SetupHook(INSTANTCC_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
+    -- g.SetupHook(INSTANTCC_BARRACK_TO_GAME, "BARRACK_TO_GAME")
     INSTANTCC_SORT_CHAR_DATA()
 
     local apps = ui.GetFrame("apps")
     local go_barrackmode = GET_CHILD_RECURSIVELY(apps, "GO_BARRACKMODE")
     AUTO_CAST(go_barrackmode)
     go_barrackmode:SetEventScript(ui.RBUTTONUP, "INSTANTCC_DISPLAY_TOGGLE")
+    go_barrackmode:SetEventScript(ui.MOUSEON, "INSTANTCC_TEXT_TOOLTIP")
+    go_barrackmode:SetEventScriptArgString(ui.MOUSEON, "ON")
+    go_barrackmode:SetEventScript(ui.MOUSEOFF, "INSTANTCC_TEXT_TOOLTIP")
+    go_barrackmode:SetEventScriptArgString(ui.MOUSEOFF, "OFF")
+    g.go_x = apps:GetX()
+    g.go_y = apps:GetY()
+end
+
+g.log_file_path = string.format('../addons/%s/debug_log.txt', addonNameLower)
+
+function g.log_to_file(message)
+    -- ファイルを追記モード ("a") で開く
+    local file, err = io.open(g.log_file_path, "a")
+
+    if file then
+        -- ■■■ タイムスタンプを人間が読める形式に変更 ■■■
+        -- 例: "[2023-10-27 15:30:05] " みたいな形式
+        local timestamp = os.date("[%Y-%m-%d %H:%M:%S] ")
+
+        -- メッセージを書き込んで、改行を追加
+        -- message がテーブルの場合にエラーにならないように tostring を使う
+        file:write(timestamp .. tostring(message) .. "\n")
+
+        -- ファイルを閉じる
+        file:close()
+    else
+        -- ファイルが開けなかった場合のエラー処理
+        print("!!! Could not open log file: " .. tostring(err))
+    end
+end
+
+function INSTANTCC_BARRACK_START_FRAME_OPEN()
+
+    g.log_to_file("INSTANTCC_BARRACK_START_FRAME_OPEN called!") -- ★変更
+
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    if bc_frame then
+        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+        g.log_to_file("Current layer: " .. tostring(g.layer)) -- ★追加
+    else
+        g.log_to_file("barrack_charlist frame NOT found!") -- ★追加
+    end
+
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+    if not barrack_gamestart then
+        g.log_to_file("barrack_gamestart frame NOT found!") -- ★追加
+        return -- フレームがないなら処理を中断した方が安全かも
+    end
+
+    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
+    -- AUTO_CAST(hidelogin) -- AUTO_CAST はエラーになる可能性があるのでコメントアウト推奨
+    if hidelogin then -- nil チェックを追加
+        -- barrack.SetHideLogin(1) -- これはAPIなのでそのまま
+        -- hidelogin:SetCheck(1) -- UI操作もそのまま
+    else
+        g.log_to_file("hidelogin control NOT found!") -- ★追加
+    end
+
+    local start_game = GET_CHILD_RECURSIVELY(barrack_gamestart, "start_game");
+    -- AUTO_CAST(start_game) -- 同上
+    if start_game then -- nil チェックを追加
+        start_game:SetEventScript(ui.LBUTTONUP, "BARRACK_TO_GAME")
+    else
+        g.log_to_file("start_game control NOT found!") -- ★追加
+    end
+
+    -- g.do_cc と g.retry の値を確認
+    local do_cc_str = "nil"
+    if g.do_cc then
+        -- テーブルの内容をログに出力（簡単な形式で）
+        do_cc_str = string.format("{ cid=%s, layer=%s }", tostring(g.do_cc.cid), tostring(g.do_cc.layer))
+    end
+    g.log_to_file(string.format("Checking condition: g.do_cc = %s, g.retry = %s", do_cc_str, tostring(g.retry))) -- ★変更
+
+    if g.do_cc and not g.retry then
+        g.log_to_file("Condition met! Calling INSTANTCC_CHANGE()") -- ★変更
+        g.retry = 0
+        -- INSTANTCC_CHANGE() の中にも g.log_to_file を入れると、さらに追跡しやすいよ！
+        INSTANTCC_CHANGE()
+    else
+        g.log_to_file("Condition NOT met.") -- ★変更
+    end
+
+end
+
+--[[function INSTANTCC_BARRACK_START_FRAME_OPEN()
+
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    if bc_frame then
+        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+    end
+
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+
+    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
+    AUTO_CAST(hidelogin)
+    barrack.SetHideLogin(1)
+    hidelogin:SetCheck(1)
+
+    local start_game = GET_CHILD_RECURSIVELY(barrack_gamestart, "start_game");
+    AUTO_CAST(start_game)
+    start_game:SetEventScript(ui.LBUTTONUP, "BARRACK_TO_GAME")
+
+    if g.do_cc and not g.retry then
+        g.retry = 0
+        INSTANTCC_CHANGE()
+    end
+
+end]]
+
+function INSTANTCC_TEXT_TOOLTIP(frame, ctrl, str, num)
+    local tooltip_frame = ui.CreateNewFrame("notice_on_pc", "tooltip_frame", 0, 0, 0, 0)
+    AUTO_CAST(tooltip_frame)
+    tooltip_frame:SetSkinName('bg')
+
+    local notice = tooltip_frame:CreateOrGetControl("richtext", "notice", 5, 5)
+    local text = g.lang == "Japanese" and "{ol}Instant CC{nl}右クリック: 表示方法を切替えます" or
+                     "{ol}Instant CC{nl}Right click: Switch display"
+    notice:SetText(text)
+    tooltip_frame:Resize(notice:GetWidth() + 10, notice:GetHeight() + 10)
+    tooltip_frame:SetPos(g.go_x - notice:GetWidth() - 10, g.go_y + 250)
+
+    if str == "ON" then
+        tooltip_frame:ShowWindow(1)
+    else
+        tooltip_frame:ShowWindow(0)
+    end
+
 end
 
 function INSTANTCC_DISPLAY_TOGGLE(frame, ctrl, str, num)
     if not g.settings.per_barracks then
         g.settings.per_barracks = true
+        ui.SysMsg(g.lang == "Japanese" and "バラック毎表示に切替えました" or
+                      "Switched to per-barrack display")
     else
         g.settings.per_barracks = false
+        ui.SysMsg(g.lang == "Japanese" and "一覧表示に切替えました" or "Switched to all list display")
     end
     INSTANTCC_SAVE_SETTINGS()
 end
@@ -166,24 +350,25 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK()
     INSTANTCC_APPS_TRY_MOVE_BARRACK_(1)
 end
 
+function INSTANTCC_DO_CC(cid, layer)
+
+    if cid then
+        g.do_cc = {
+            cid = cid,
+            layer = layer
+        }
+        RUN_GAMEEXIT_TIMER("Barrack")
+    else
+        RUN_GAMEEXIT_TIMER("Barrack")
+    end
+end
+
 function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
 
-    function INSTANTCC_DO_CC(cid, layer)
-
-        if not cid then
-            g.do_cc = {
-                cid = cid,
-                layer = layer
-            }
-            RUN_GAMEEXIT_TIMER("Barrack")
-        else
-            RUN_GAMEEXIT_TIMER("Barrack")
-        end
-    end
+    local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "Barrack Charactor List", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "Return To Barrack", "INSTANTCC_DO_CC()")
 
     if not g.settings.per_barracks then
-        local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "Barrack Charactor List", 0, 0, 0, 0)
-        ui.AddContextMenuItem(context, "Return To Barrack", "INSTANTCC_DO_CC()")
 
         for i = 1, #g.settings.characters do
             local info = g.settings.characters[i]
@@ -194,10 +379,8 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
             ui.AddContextMenuItem(context, str, string.format("INSTANTCC_DO_CC('%s',%d)", info.cid, info.layer))
         end
 
-        ui.OpenContextMenu(context)
     else
-        local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "Barrack Charactor List", 0, 0, 0, 0)
-        ui.AddContextMenuItem(context, "Return To Barrack", "INSTANTCC_DO_CC()")
+
         ui.AddContextMenuItem(context, "Barrack 1", string.format("INSTANTCC_APPS_TRY_MOVE_BARRACK_(%d)", 1))
         ui.AddContextMenuItem(context, "Barrack 2", string.format("INSTANTCC_APPS_TRY_MOVE_BARRACK_(%d)", 2))
         ui.AddContextMenuItem(context, "Barrack 3", string.format("INSTANTCC_APPS_TRY_MOVE_BARRACK_(%d)", 3))
@@ -216,47 +399,14 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
             end
         end
 
-        ui.OpenContextMenu(context)
     end
-end
-
-function INSTANTCC_BARRACK_START_FRAME_OPEN(frame)
-    INSTANTCC_BARRACK_START_FRAME_OPEN_(frame)
-end
-
-function INSTANTCC_BARRACK_START_FRAME_OPEN_(frame)
-
-    if frame == nil then
-        return
-    end
-
-    local bc_frame = ui.GetFrame("barrack_charlist")
-    g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-    local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
-    AUTO_CAST(hidelogin)
-    barrack.SetHideLogin(1);
-    hidelogin:SetCheck(1);
-
-    if g.do_cc and not g.retry then
-        g.retry = 0
-        ReserveScript("INSTANTCC_CHANGE()", 0.1)
-    end
+    ui.OpenContextMenu(context)
 end
 
 function INSTANTCC_CHANGE()
     barrack.SelectBarrackLayer(g.do_cc.layer)
     ReserveScript(string.format("barrack.SelectCharacterByCID('%s')", g.do_cc.cid), 0.1)
     ReserveScript("INSTANTCC_TOGAME()", 0.2)
-end
-
-function INSTANTCC_BARRACK_TO_GAME()
-    INSTANTCC_BARRACK_TO_GAME_()
-end
-
-function INSTANTCC_BARRACK_TO_GAME_()
-    local bc_frame = ui.GetFrame("barrack_charlist")
-    g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-    base["BARRACK_TO_GAME"]()
 end
 
 function INSTANTCC_RETRY()
@@ -297,244 +447,8 @@ function INSTANTCC_TOGAME()
         return
     end
 
-    INSTANTCC_BARRACK_TO_GAME_()
-
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+    BARRACK_TO_GAME()
 end
 
---[[local bc_frame = ui.GetFrame("barrack_charlist")
-    local layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-
-    local apc = bpc:GetApc()
-    local jobid = apc:GetJob()
-    local level = apc:GetLv()
-    local JobCtrlType = GetClassString("Job", jobid, "CtrlType")
-
-    config.SetConfig("LastJobCtrltype", JobCtrlType)
-    config.SetConfig("LastPCLevel", level)
-
-    local frame = ui.GetFrame("barrack_gamestart")
-    local channels = GET_CHILD(frame, "channels", "ui::CDropList")
-    local key = channels:GetSelItemIndex()
-
-    app.BarrackToGame(key)]]
-
---[[if INSTANTCC_BARRACK_START_FRAME_OPEN_OLD == nil then
-    INSTANTCC_BARRACK_START_FRAME_OPEN_OLD = BARRACK_START_FRAME_OPEN
-    BARRACK_START_FRAME_OPEN = INSTANTCC_BARRACK_START_FRAME_OPEN
-end]]
-
---[[function INSTANTCC_TOGAME()
-    local bpca = barrack.GetBarrackPCInfoByCID(g.do_cc.cid)
-    if bpca == nil then
-        INSTANTCC_RETRY()
-        return
-    end
-    local bpc = barrack.GetGameStartAccount()
-    if bpc ~= nil then
-        if (bpc:GetCID() ~= g.do_cc.cid) then
-            INSTANTCC_RETRY()
-            return
-        end
-        -- local jobName = barrack.GetSelectedCharacterJob();
-        local charName = barrack.GetSelectedCharacterName();
-
-        local bpacap = bpca:GetApc();
-        if (charName ~= bpacap:GetName()) then
-            INSTANTCC_RETRY()
-            return
-        end
-
-        local bc_frame = ui.GetFrame("barrack_charlist")
-        local layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-        g.layer = layer
-
-        local apc = bpc:GetApc()
-        local jobid = apc:GetJob()
-        local level = apc:GetLv()
-        local JobCtrlType = GetClassString("Job", jobid, "CtrlType")
-        config.SetConfig("LastJobCtrltype", JobCtrlType)
-        config.SetConfig("LastPCLevel", level)
-        local frame = ui.GetFrame("barrack_gamestart")
-        local channels = GET_CHILD(frame, "channels", "ui::CDropList")
-        local key = channels:GetSelItemIndex()
-        app.BarrackToGame(key)
-        return
-    end
-
-    INSTANTCC_RETRY()
-
-end]]
-
---[[function INSTANTCC_BARRACK_TO_GAME()
-
-    local frame = ui.GetFrame("barrack_charlist")
-    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
-    g.layer = layer
-
-    local gs_frame = ui.GetFrame("barrack_gamestart")
-    local hidelogin = gs_frame:GetChildRecursively("hidelogin")
-    AUTO_CAST(hidelogin)
-    hidelogin:SetCheck(1)
-    barrack.SetHideLogin(1);
-
-    base["BARRACK_TO_GAME"]()
-end]]
-
---[[function INSTANTCC_APPS_TRY_MOVE_BARRACK(a, b, c, d, bno)
-    return INSTANTCC_APPS_TRY_MOVE_BARRACK2(a, b, c, d, bno)
-end
-
-function INSTANTCC_APPS_TRY_MOVE_BARRACK2(a, b, c, d, bno)
-    bno = bno or 1
-    ReserveScript('INSTANTCC_APPS_TRY_MOVE_BARRACK3(a,b,c,d,' .. bno .. ')', 0.25)
-end]]
-
---[[function INSTANTCC_APPS_TRY_LOGOUT()
-    g.settings.do_cc = nil
-    INSTANTCC_SAVE_SETTINGS()
-    base["APPS_TRY_LOGOUT"]()
-    return
-end]]
-
---[[function INSTANTCC_DO_MOVE_BARRACK()
-    g.settings.do_cc = nil
-    INSTANTCC_SAVE_SETTINGS()
-    base["APPS_TRY_MOVE_BARRACK"]()
-    return
-end]]
-
---[[local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/test.txt", addonNameLower)
-    local file = io.open(file_path, "w")
-
-    if file then
-        file:write(tostring(barrack.IsHideLogin()))
-        file:close()
-    end]]
-
---[[INSTANTCC_LOAD_SETTINGS()
-if INSTANTCC_GetBarrackSystem_OLD == nil and GetBarrackSystem ~= INSTANTCC_GetBarrackSystem then
-    INSTANTCC_GetBarrackSystem_OLD = GetBarrackSystem
-    GetBarrackSystem = INSTANTCC_GetBarrackSystem
-end
-
-function INSTANTCC_GetBarrackSystem(actor)
-
-    local brk = INSTANTCC_GetBarrackSystem_OLD(actor)
-    local key = brk:GetCIDStr()
-    local bpc = barrack.GetBarrackPCInfoByCID(key)
-
-    if bpc == nil then
-        return;
-    end
-
-    local bcframe = ui.GetFrame("barrack_charlist")
-    local scrollBox = bcframe:GetChild("scrollBox")
-    local order = scrollBox:GetChildCount()
-    for i = 0, scrollBox:GetChildCount() - 1 do
-        local child = scrollBox:GetChildByIndex(i);
-        if string.find(child:GetName(), 'char_') ~= nil then
-            local guid = child:GetUserValue("CID");
-            if guid == key then
-                order = i
-                break
-            end
-        end
-    end
-    local pcInfo = session.barrack.GetMyAccount():GetByStrCID(key);
-    local apc = bpc:GetApc()
-    local gender = apc:GetGender()
-    local jobid = pcInfo:GetRepID()
-
-    local info = {
-        name = actor:GetName(),
-        layer = INSTANTCC_GetCurrentLayer(),
-        cid = key,
-        job = jobid,
-        gender = gender,
-        level = actor:GetLv(),
-        order = order,
-        server = GetServerGroupID(),
-        aid = aidx
-    }
-    local found = false
-    for i = 1, #g.settings.charactors do
-        if g.settings.charactors[i].cid == key then
-            found = i
-            break
-        end
-    end
-    if found == false then
-        table.insert(g.settings.charactors, info)
-    else
-        g.settings.charactors[found] = info
-    end
-
-    -- cleanup
-    local continue = false
-    repeat
-        continue = false
-        for i = 1, #g.settings.charactors do
-
-            if g.settings.charactors[i].layer == INSTANTCC_GetCurrentLayer() and g.settings.charactors[i].aid == aidx and
-                g.settings.charactors[i].server == GetServerGroupID() then
-                local bpc = barrack.GetBarrackPCInfoByCID(g.settings.charactors[i].cid)
-                if bpc == nil then
-                    table.remove(g.settings.charactors, i)
-                    continue = true
-                    break
-                end
-            end
-        end
-
-    until continue == false
-
-    -- sort
-
-    table.sort(g.settings.charactors, function(a, b)
-        if a.layer ~= b.layer then
-            return a.layer > b.layer
-        end
-        if a.order ~= b.order then
-            return a.order < b.order
-        end
-    end)
-
-    INSTANTCC_SAVE_SETTINGS()
-
-    return INSTANTCC_GetBarrackSystem_OLD(actor)
-end
-
---[[function INSTANTCC_DEFAULT_SETTINGS()
-    g.settings = {
-        charactors = {}
-
-    }
-
-end
-
-function INSTANTCC_PROCESS_COMMAND(command)
-    local cmd = "";
-
-    if #command > 0 then
-        cmd = table.remove(command, 1);
-    else
-        local msg = L_("character name needed");
-        return ui.MsgBox(msg, "", "Nope")
-    end
-
-    for i = 1, #g.settings.charactors do
-
-        if g.settings.charactors[i].name == cmd then
-            local char = g.settings.charactors[i]
-
-            INSTANTCC_DO_CC(char.cid, char.layer)
-            return
-        else
-
-            -- g.settings.charactors[i]=nil
-        end
-    end
-
-    CHAT_SYSTEM("[ICC]Charactor Not Found.")
-end]]

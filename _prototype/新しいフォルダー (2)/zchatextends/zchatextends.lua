@@ -1,7 +1,4 @@
---[[あなたはTree of Savior のアドオン作成の上級者です。
-Luaの扱いに精通しています。
-アドオン作成の手伝いをしてください。
-回答は簡潔に日本語でお願いします。]] -- ******************************************
+-- ******************************************
 -- CHAT_EXTENDS
 -- チャットフレームを拡張したアドオン
 -- なるべく遅くに読み込んでほしいので、z始まりにしている
@@ -19,8 +16,7 @@ _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {};
 local g = _G["ADDONS"][author][addonName];
 
 -- 設定ファイル保存先
-g.settingsDirLoc = string.format("../addons/%s", addonNameLower);
-g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc);
+
 g.SAVE_DIR = "../release/screenshot";
 
 -- デフォルト設定
@@ -94,9 +90,19 @@ g.loaded = false
 g.chattype = 0
 
 -- lua読み込み時のメッセージ
-CHAT_SYSTEM(string.format("%s.lua is loaded", addonName));
+-- CHAT_SYSTEM(string.format("%s.lua is loaded", addonName));
 
 -- フレーム内文字
+local headertxt = ""
+local systemtxt = ""
+local nicotxt = ""
+local rectxt = ""
+local ballontxt = ""
+local enable_type_txt = ""
+local auto_read_txt = ""
+local skin_change = ""
+local sounds_txt = ""
+local change_txt = ""
 if option.GetCurrentCountry() == "Japanese" then
     headertxt = "拡張設定";
     systemtxt = "システムメッセージを{nl}全体フレームのみに表示する";
@@ -105,7 +111,9 @@ if option.GetCurrentCountry() == "Japanese" then
     ballontxt = "吹き出しで表示する";
     enable_type_txt = "簡易表示の時に{nl}発言の種類を表示する"
     auto_read_txt = "チャットを常に更新する"
+    skin_change = "チャットのフレームを透明に"
     sounds_txt = "チャットサウンド設定"
+    change_txt = "切替にはローディングが必要です"
 else
     headertxt = "extends setting";
     systemtxt = "Display system messages{nl}only in the total frame";
@@ -114,30 +122,205 @@ else
     ballontxt = "Ballon Chat";
     enable_type_txt = "Display the type of remark{nl}at the time of simple chat"
     auto_read_txt = "Always update chat"
+    skin_change = "Transparent chat frames"
     sounds_txt = "Chat Sounds Setting"
+    change_txt = "Switching requires loading"
 end
 
+function g.mkdir_new_folder()
+    local function create_folder(folder_path, file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            os.execute('mkdir "' .. folder_path .. '"')
+            file = io.open(file_path, "w")
+            if file then
+                file:write("A new file has been created")
+                file:close()
+            end
+        else
+            file:close()
+        end
+    end
+
+    local folder = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    create_folder(folder, file_path)
+
+    g.active_id = session.loginInfo.GetAID()
+    local user_folder = string.format("../addons/%s/%s", addonNameLower, g.active_id)
+    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, g.active_id)
+    create_folder(user_folder, user_file_path)
+
+    -- g.settingsDirLoc = string.format("../addons/%s", addonNameLower);
+    -- g.settingsFileLoc = string.format("%s/settings.json", g.settingsDirLoc);
+    g.settings_path = string.format("../addons/%s/%s/settings.json", addonNameLower, g.active_id)
+end
+g.mkdir_new_folder()
+
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+    -- bool: true なら元の関数を実行後イベント、false/nil なら元の関数を実行せずイベント発行 (my_func_name はイベントハンドラとして呼ばれる)
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    local origin_func = _G[origin_func_name]
+
+    local function hooked_function(...)
+        local original_results
+        local original_success = false
+
+        if bool == true then
+            original_results = {pcall(origin_func, ...)}
+            original_success = original_results[1]
+
+            if not original_success then
+                print(string.format("Error in original/previous hook for '%s': %s", origin_func_name,
+                    tostring(original_results[2])))
+                return
+            end
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...} -- この関数とセット運用：g.get_event_args(origin_func_name)
+
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if bool == true and original_success then
+            return table.unpack(original_results, 2, #original_results)
+        else
+            return -- nil を返す
+        end
+    end
+    _G[origin_func_name] = hooked_function
+    if not g.RAGISTER[origin_func_name] then
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+function g.get_event_args(origin_func_name)
+    local args = g.ARGS[origin_func_name]
+    if args then
+        return table.unpack(args)
+    end
+    return nil
+end
+
+-- ui関数置き換えここから
+local original_ui_SetChatType = nil
+local original_ui_ProcessTabKey = nil
+local original_ui_WhisperTo = nil
+
+local function CHATEXTENDS_SetChatType(...)
+    if not original_ui_SetChatType then
+        return
+    end
+    local str = GET_CHAT_TEXT()
+    local result = original_ui_SetChatType(...)
+    if GET_CHAT_TEXT() == "" and str ~= "" then
+        SET_CHAT_TEXT(str)
+    end
+    g.chattype = ui.GetChatType()
+    return result
+end
+
+local function CHATEXTENDS_ProcessTabKey(...)
+    if not original_ui_ProcessTabKey then
+        return
+    end
+    local str = GET_CHAT_TEXT()
+    local result = original_ui_ProcessTabKey(...)
+    if GET_CHAT_TEXT() == "" and str ~= "" then
+        SET_CHAT_TEXT(str)
+    end
+    g.chattype = ui.GetChatType() -- 必要なら
+    return result
+end
+
+local function CHATEXTENDS_WhisperTo(familyName)
+    if not original_ui_WhisperTo then
+        return
+    end
+    local result = original_ui_WhisperTo(familyName)
+    g.chattype = ui.GetChatType()
+    return result
+end
+
+function g.ui_setup_hook()
+    -- SetChatType フック
+    if _G['ui'] and _G['ui'].SetChatType then
+
+        if not original_ui_SetChatType then
+            original_ui_SetChatType = _G['ui'].SetChatType
+            _G['ui'].SetChatType = CHATEXTENDS_SetChatType
+        end
+    end
+
+    -- ProcessTabKey フック
+    if _G['ui'] and _G['ui'].ProcessTabKey then
+        if not original_ui_ProcessTabKey then
+            original_ui_ProcessTabKey = _G['ui'].ProcessTabKey
+            _G['ui'].ProcessTabKey = CHATEXTENDS_ProcessTabKey -- 外で定義した関数を使う
+        end
+    end
+
+    -- WhisperTo フック
+    if _G['ui'] and _G['ui'].WhisperTo then
+        if not original_ui_WhisperTo then
+            original_ui_WhisperTo = _G['ui'].WhisperTo
+            _G['ui'].WhisperTo = CHATEXTENDS_WhisperTo -- 外で定義した関数を使う
+        end
+    end
+end
+-- ui関数置き換えここまで
+
+-- zchatextends
+
 function CHATEXTENDS_SAVE_SETTINGS()
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
+    acutil.saveJSON(g.settings_path, g.settings);
 end
 
 -- マップ読み込み時処理（1度だけ）
+
 function ZCHATEXTENDS_ON_INIT(addon, frame)
     -- 初期設定項目は1度だけ行う
-    if not g.loaded then
-        local mainchatFrame = ui.GetFrame("chatframe")
-        if mainchatFrame ~= nil then
-            local groupbox = GET_CHILD(mainchatFrame, "chatgbox_TOTAL");
-            if groupbox ~= nil then
-                groupbox = tolua.cast(groupbox, "ui::CGroupBox");
+    -- if not g.loaded then
+    local mainchatFrame = ui.GetFrame("chatframe")
+    if mainchatFrame ~= nil then
+
+        local groupbox = GET_CHILD(mainchatFrame, "chatgbox_TOTAL");
+        if groupbox ~= nil then
+            groupbox = tolua.cast(groupbox, "ui::CGroupBox");
+            if g.settings.skin_change == 1 then
+                groupbox:SetSkinName("chat_window");
+            else
                 groupbox:SetSkinName("chat_Whisper_talkskin_cusoron");
             end
         end
-        g.addon = addon;
-        g.frame = frame;
+    end
+    g.addon = addon;
+    g.frame = frame;
 
-        -- 元関数封印
-        if nil == CHATEXTENDS_DRAW_CHAT_MSG_OLD then
+    g.RAGISTER = {}
+
+    g.setup_hook_and_event(addon, "DRAW_CHAT_MSG", "CHATEXTENDS_DRAW_CHAT_MSG", false)
+    g.setup_hook_and_event(addon, "CHAT_SET_TO_TITLENAME", "CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME", true)
+    g.setup_hook_and_event(addon, "CHAT_OPEN_INIT", "CHATEXTENDS_CHAT_OPEN_INIT", true)
+    g.setup_hook_and_event(addon, "CHAT_SET_FONTSIZE_N_COLOR", "CHATEXTENDS_CHAT_SET_FONTSIZE_N_COLOR", false)
+    g.setup_hook_and_event(addon, "_ADD_GBOX_OPTION_FOR_CHATFRAME", "CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME",
+        false)
+    g.setup_hook_and_event(addon, "TOGGLE_BOTTOM_CHAT", "CHATEXTENDS_CHAT_TOGGLE_BOTTOM_CHAT", false)
+    g.chat_popup = {}
+    g.chat_groupbox = {}
+
+    -- g.ui_setup_hook()
+    -- g.setup_hook_and_event(addon, "['ui'].SetChatType", "CHATEXTENDS_SetChatType", true)
+    -- g.setup_hook_and_event(addon, "['ui'].ProcessTabKey", "CHATEXTENDS_ProcessTabKey", true)
+    -- g.setup_hook_and_event(addon, "['ui'].WhisperTo", "CHATEXTENDS_WhisperTo", true)
+
+    -- 元関数封印
+    --[[if nil == CHATEXTENDS_DRAW_CHAT_MSG_OLD then
             CHATEXTENDS_DRAW_CHAT_MSG_OLD = DRAW_CHAT_MSG;
             DRAW_CHAT_MSG = CHATEXTENDS_DRAW_CHAT_MSG;
         end
@@ -163,16 +346,16 @@ function ZCHATEXTENDS_ON_INIT(addon, frame)
         if nil == CHATEXTENDS_CHAT_TOGGLE_BOTTOM_CHAT_OLD then
             CHATEXTENDS_CHAT_TOGGLE_BOTTOM_CHAT_OLD = TOGGLE_BOTTOM_CHAT;
             TOGGLE_BOTTOM_CHAT = CHATEXTENDS_CHAT_TOGGLE_BOTTOM_CHAT;
-        end
+        end]]
 
-        -- 表示種類変えるたびに割と重いので、処理だけ残して実際には呼ばれないように
-        -- 使いたい場合は、↓のコメントアウトしているところのコメント消してやってください
-        -- if nil == CHATEXTENDS_CHAT_TAB_BTN_CLICK_OLD then
-        --	CHATEXTENDS_CHAT_TAB_BTN_CLICK_OLD = CHAT_TAB_BTN_CLICK;
-        --	CHAT_TAB_BTN_CLICK = CHATEXTENDS_CHAT_TAB_BTN_CLICK;
-        -- end
+    -- 表示種類変えるたびに割と重いので、処理だけ残して実際には呼ばれないように
+    -- 使いたい場合は、↓のコメントアウトしているところのコメント消してやってください
+    -- if nil == CHATEXTENDS_CHAT_TAB_BTN_CLICK_OLD then
+    --	CHATEXTENDS_CHAT_TAB_BTN_CLICK_OLD = CHAT_TAB_BTN_CLICK;
+    --	CHAT_TAB_BTN_CLICK = CHATEXTENDS_CHAT_TAB_BTN_CLICK;
+    -- end
 
-        if nil == CHATEXTENDS_SetChatType_OLD then
+    --[[if nil == CHATEXTENDS_SetChatType_OLD then
             CHATEXTENDS_SetChatType_OLD = _G['ui'].SetChatType;
             _G['ui'].SetChatType = CHATEXTENDS_SetChatType;
         end
@@ -190,140 +373,32 @@ function ZCHATEXTENDS_ON_INIT(addon, frame)
         if nil == CHATEXTENDS_WhisperTo_OLD then
             CHATEXTENDS_WhisperTo_OLD = _G['ui'].WhisperTo;
             _G['ui'].WhisperTo = CHATEXTENDS_WhisperTo;
+        end]]
+
+    -- コマンド登録
+    acutil.slashCommand("/savechat", CHATEXTENDS_SAVE_CHAT);
+
+    -- 設定読み込み
+    if not g.loaded then
+        local t, err = acutil.loadJSON(g.settings_path, g.settings);
+        -- 読み込めない = ファイルがない
+        if err then
+            -- ファイル作る
+            CHATEXTENDS_SAVE_SETTINGS();
+        else
+            -- 読み込めたら読み込んだ値使う
+            g.settings = t;
+            CHATEXTENDS_SAVE_SETTINGS();
         end
-        --[[
-        -- 1. アドオン固有のテーブルを用意
-        local ChatExtendsAddon = ChatExtendsAddon or {
-            OriginalFunctions = {} -- フック前の関数をここに保存
-        }
-
-        -- 2. 汎用フック関数 (テーブル内関数対応)
-        do
-            -- 文字列パスからテーブルとキーを取得するヘルパー
-            local function GetTableAndKeyFromPath(path)
-                local parts = {}
-                for part in string.gmatch(path, "[^%.]+") do
-                    table.insert(parts, part)
-                end
-                if #parts == 0 then
-                    return nil, nil, "Invalid path"
-                end
-                local key = table.remove(parts)
-                local tbl = _G
-                local currentPath = "_G"
-                for _, partName in ipairs(parts) do
-                    if type(tbl[partName]) ~= "table" then
-                        return nil, nil, string.format("Table '%s' not found in path '%s'", partName, currentPath)
-                    end
-                    tbl = tbl[partName]
-                    currentPath = currentPath .. "." .. partName
-                end
-                return tbl, key
-            end
-
-            -- フック設定関数
-            function ChatExtendsAddon.SetupHook(hook_func, path_string)
-                local target_table, func_key, err = GetTableAndKeyFromPath(path_string)
-
-                if not target_table or not func_key then
-                    -- エラーメッセージは必要に応じて調整
-                    -- print(string.format("ChatExtends Hook Error: Cannot find target for '%s'. %s. Hook skipped.", path_string, err or ""))
-                    return
-                end
-
-                if type(target_table[func_key]) ~= "function" then
-                    -- print(string.format("ChatExtends Hook Error: '%s' is not a function. Hook skipped.", path_string))
-                    return
-                end
-
-                -- このアドオンでまだフックしていなければ実行
-                if not ChatExtendsAddon.OriginalFunctions[path_string] then
-                    -- 現在の関数(オリジナルまたは前のフック)を保存
-                    ChatExtendsAddon.OriginalFunctions[path_string] = target_table[func_key]
-
-                    -- グローバル/テーブル内の関数を渡されたフック関数で上書き
-                    -- ※※※ hook_func が内部で元の関数を呼ぶ前提 ※※※
-                    target_table[func_key] = hook_func
-                    -- print(string.format("ChatExtends Hook Info: Successfully hooked '%s'", path_string))
-                else
-                    -- print(string.format("ChatExtends Hook Info: '%s' is already hooked by this addon.", path_string))
-                end
-            end
+        -- savechatフォルダあればそっちをデフォルトに
+        if CHATEXTENDS_CHECK_DIR("../release/savechat") then
+            g.SAVE_DIR = "../release/savechat";
+        else
+            g.SAVE_DIR = "../release/screenshot";
         end
-
-        -----------------------------------------------------------------------
-        -- ■■■ 重要: 各フック関数の実装例 (このように実装されている必要がある) ■■■
-        -----------------------------------------------------------------------
-        -- 例1: グローバル関数 DRAW_CHAT_MSG のフック
-        function CHATEXTENDS_DRAW_CHAT_MSG(...)
-            -- このアドオン固有の処理...
-            -- local should_continue = RunMyDrawChatLogic(...)
-
-            -- 元の関数(または前のフック)を呼び出す
-            local original_func = ChatExtendsAddon.OriginalFunctions["DRAW_CHAT_MSG"]
-            if original_func then -- and should_continue ~= false then
-                return original_func(...)
-            end
-        end
-
-        -- 例2: テーブル内関数 ui.SetChatType のフック
-        function CHATEXTENDS_SetChatType(...)
-            -- このアドオン固有の処理...
-            -- RunMySetChatTypeLogic(...)
-
-            -- 元の関数(または前のフック)を呼び出す
-            local original_func = ChatExtendsAddon.OriginalFunctions["ui.SetChatType"]
-            if original_func then
-                return original_func(...)
-            end
-        end
-
-        -- ※ 他の CHATEXTENDS_... 関数も同様に、
-        --    対応する OriginalFunctions 内の関数を呼び出すように実装してください。
-        --    (CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME は OriginalFunctions["CHAT_SET_TO_TITLENAME"] を呼ぶ、など)
-
-        -----------------------------------------------------------------------
-        -- 3. フックの適用 (元の if ブロックを置き換え)
-        -----------------------------------------------------------------------
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_DRAW_CHAT_MSG, "DRAW_CHAT_MSG")
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME, "CHAT_SET_TO_TITLENAME")
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_CHAT_OPEN_INIT, "CHAT_OPEN_INIT")
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_CHAT_SET_FONTSIZE_N_COLOR, "CHAT_SET_FONTSIZE_N_COLOR")
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME, "_ADD_GBOX_OPTION_FOR_CHATFRAME")
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_CHAT_TOGGLE_BOTTOM_CHAT, "TOGGLE_BOTTOM_CHAT")
-
-        -- コメントアウトされていたフック
-        -- ChatExtendsAddon.SetupHook(CHATEXTENDS_CHAT_TAB_BTN_CLICK,             "CHAT_TAB_BTN_CLICK")
-
-        -- テーブル内の関数
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_SetChatType, "ui.SetChatType")
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_ProcessTabKey, "ui.ProcessTabKey")
-        -- ChatExtendsAddon.SetupHook(CHATEXTENDS_ProcessReturnKey,               "ui.ProcessReturnKey")
-        ChatExtendsAddon.SetupHook(CHATEXTENDS_WhisperTo, "ui.WhisperTo")]]
-        -- コマンド登録
-        acutil.slashCommand("/savechat", CHATEXTENDS_SAVE_CHAT);
-
-        -- 設定読み込み
-        if not g.loaded then
-            local t, err = acutil.loadJSON(g.settingsFileLoc, g.settings);
-            -- 読み込めない = ファイルがない
-            if err then
-                -- ファイル作る
-                CHATEXTENDS_SAVE_SETTINGS();
-            else
-                -- 読み込めたら読み込んだ値使う
-                g.settings = t;
-                CHATEXTENDS_SAVE_SETTINGS();
-            end
-            -- savechatフォルダあればそっちをデフォルトに
-            if CHATEXTENDS_CHECK_DIR("../release/savechat") then
-                g.SAVE_DIR = "../release/savechat";
-            else
-                g.SAVE_DIR = "../release/screenshot";
-            end
-            g.loaded = true;
-        end
+        g.loaded = true;
     end
+    -- end
     -- イベント登録
     acutil.setupEvent(addon, "DRAW_CHAT_MSG", "CHATEXTENDS_SOUND_DRAW_CHAT_MSG_EVENT");
     acutil.setupEvent(addon, "DRAW_CHAT_MSG", "CHATEXTENDS_NICO_CHAT_DRAW");
@@ -431,7 +506,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     -- header:SetText("{@st42}"..headertxt.."{/}");
 
     local nico_chat_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_NICO_CHAT_FLG", 650, 85,
-                                                                   300, 35);
+        300, 35);
     nico_chat_flg_chk = tolua.cast(nico_chat_flg_chk, "ui::CCheckBox");
     nico_chat_flg_chk:SetFontName("brown_16_b");
     nico_chat_flg_chk:SetText(nicotxt);
@@ -447,7 +522,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     end
 
     local rec_chat_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_REC_CHAT_FLG", 650, 120, 300,
-                                                                  35);
+        35);
     rec_chat_flg_chk = tolua.cast(rec_chat_flg_chk, "ui::CCheckBox");
     rec_chat_flg_chk:SetFontName("brown_16_b");
     rec_chat_flg_chk:SetText(rectxt);
@@ -478,7 +553,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     end
 
     local enable_type_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_ENABLE_TYPE_FLG", 650,
-                                                                     190, 300, 35);
+        190, 300, 35);
     enable_type_flg_chk = tolua.cast(enable_type_flg_chk, "ui::CCheckBox");
     enable_type_flg_chk:SetFontName("brown_16_b");
     enable_type_flg_chk:SetText(enable_type_txt);
@@ -494,7 +569,7 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     end
 
     local auto_read_flg_chk = chat_option_frame:CreateOrGetControl('checkbox', "CHATEXTENDS_AUTO_READ_FLG", 650, 225,
-                                                                   300, 35);
+        300, 35);
     auto_read_flg_chk = tolua.cast(auto_read_flg_chk, "ui::CCheckBox");
     auto_read_flg_chk:SetFontName("brown_16_b");
     auto_read_flg_chk:SetText(auto_read_txt);
@@ -515,12 +590,38 @@ function CHATEXTENDS_CREATE_CHATOPTION_FRAME()
     soundbtn:SetAnimation("MouseOffAnim", "btn_mouseoff");
     soundbtn:SetEventScript(ui.LBUTTONDOWN, "CHATEXTENDS_SOUND_FRAME_OPEN");
 
+    local skin_change_chk = chat_option_frame:CreateOrGetControl('checkbox', "skin_change_chk", 650, 260, 300, 35);
+    skin_change_chk = tolua.cast(skin_change_chk, "ui::CCheckBox");
+    skin_change_chk:SetFontName("brown_16_b");
+    skin_change_chk:SetText(skin_change);
+    skin_change_chk:SetClickSound('button_click_big');
+    skin_change_chk:SetAnimation("MouseOnAnim", "btn_mouseover");
+    skin_change_chk:SetAnimation("MouseOffAnim", "btn_mouseoff");
+    skin_change_chk:SetOverSound('button_over');
+    skin_change_chk:SetEventScript(ui.LBUTTONUP, "CHATEXTENDS_skin_change");
+    if not g.settings.skin_change then
+        g.settings.skin_change = 0
+        CHATEXTENDS_SAVE_SETTINGS();
+    end
+    skin_change_chk:SetCheck(g.settings.skin_change);
+
+end
+
+function CHATEXTENDS_skin_change(frame, ctrl, argStr, argNum)
+    if ctrl:IsChecked() == 1 then
+        g.settings.skin_change = 1
+    else
+        g.settings.skin_change = 0
+    end
+    CHATEXTENDS_SAVE_SETTINGS();
+
+    ui.SysMsg(change_txt)
 end
 
 -- チャットオープン処理
 function CHATEXTENDS_CHAT_OPEN_INIT()
     -- 元関数呼び出し
-    CHATEXTENDS_CHAT_OPEN_INIT_OLD();
+    -- !CHATEXTENDS_CHAT_OPEN_INIT_OLD();
     -- チャット入力を変更
     local chat_frame = ui.GetFrame("chat");
     local mainchat = GET_CHILD(chat_frame, "mainchat");
@@ -529,7 +630,7 @@ function CHATEXTENDS_CHAT_OPEN_INIT()
     local offsetX = btn_ChatType:GetWidth();
     mainchat:SetGravity(ui.LEFT, ui.TOP);
     mainchat:Resize(585 - titleCtrl:GetWidth() - offsetX + 17, mainchat:GetOriginalHeight())
-    mainchat:SetOffset(titleCtrl:GetWidth() + offsetX + 7, mainchat:GetOriginalY());
+    -- mainchat:SetOffset(titleCtrl:GetWidth() + offsetX + 7, mainchat:GetOriginalY());
 end
 
 -- チェックボックスのイベント
@@ -626,8 +727,10 @@ end
 
 -- チャットサイズの設定
 -- タイプを変えたりささやき相手の名前表示したりしたら、入力フレームがリサイズされるので、その対策
-function CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME(chatType, targetName, count)
-    CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME_OLD(chatType, targetName, count)
+function CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME(frame, origin_func_name)
+    -- CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME_OLD(chatType, targetName, count)
+    local chatType, targetName, count = g.get_event_args(origin_func_name)
+
     local chat_frame = ui.GetFrame('chat');
     local mainchat = GET_CHILD(chat_frame, 'mainchat');
     local titleCtrl = GET_CHILD(chat_frame, 'edit_to_bg');
@@ -640,28 +743,35 @@ function CHATEXTENDS_CHAT_CHAT_SET_TO_TITLENAME(chatType, targetName, count)
 end
 
 -- チャットタイプ選択フック
-function CHATEXTENDS_SetChatType(typeIvalue)
+--[[function CHATEXTENDS_SetChatType(typeIvalue)
     -- 一度チャット内容を取得
     local str = GET_CHAT_TEXT();
     -- この命令でチャット内容が消える
+
     CHATEXTENDS_SetChatType_OLD(typeIvalue);
     -- チャット内容復旧
     SET_CHAT_TEXT(str);
     g.chattype = ui.GetChatType();
-end
+end]]
 
 -- タブキー押下時のフック
-function CHATEXTENDS_ProcessTabKey()
+--[[function CHATEXTENDS_ProcessTabKey()
     -- 一度チャット内容を取得
     local str = GET_CHAT_TEXT();
     -- この命令でチャット内容が消える
-    CHATEXTENDS_ProcessTabKey_OLD();
+    -- g.FUNCS["['ui'].ProcessTabKey"](...)
+    -- CHATEXTENDS_ProcessTabKey_OLD();
     -- チャット内容復旧
     if str ~= "" then
         SET_CHAT_TEXT(str);
     end
     g.chattype = ui.GetChatType();
-end
+end]]
+
+--[[function CHATEXTENDS_WhisperTo(familyName)
+    -- CHATEXTENDS_WhisperTo_OLD(familyName)
+    g.chattype = ui.GetChatType();
+end]]
 
 -- エンターキー押下時のフック
 -- 発言種類設定
@@ -676,11 +786,6 @@ function CHATEXTENDS_ProcessReturnKey()
     if chatEditCtrl:IsHaveFocus() == 1 then
         ui.SetChatType(g.chattype)
     end
-end
-
-function CHATEXTENDS_WhisperTo(familyName)
-    CHATEXTENDS_WhisperTo_OLD(familyName)
-    g.chattype = ui.GetChatType();
 end
 
 -- チャット表示種類ボタン押下時
@@ -709,19 +814,50 @@ end
 -- 　引数：String framename
 -- 　　　　処理対象フレーム名
 -- ************************************************
-function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeChatIDList)
+function CHATEXTENDS_DRAW_CHAT_MSG(frame, origin_func_name)
+
+    local groupboxname, startindex, chatframe, removeChatIDList = g.get_event_args(origin_func_name)
+
     local mainchatFrame = ui.GetFrame("chatframe");
+
+    --[[if not mainchatFrame then
+        return
+    end]]
+
     local groupbox = GET_CHILD(chatframe, groupboxname);
+    if chatframe:GetName() ~= "chatfram" then
+
+        if chatframe:IsVisible() == 1 then
+            if not g.chat_popup[tostring(chatframe:GetName())] then
+                g.chat_popup[tostring(chatframe:GetName())] = true
+                table.insert(g.chat_groupbox, {
+                    chatframe = chatframe:GetName(),
+                    groupbox = groupbox:GetName()
+                })
+            end
+        end
+    end
     local size = session.ui.GetMsgInfoSize(groupboxname);
 
     if groupbox == nil then
-        return 1;
+        local found = false
+        for i, chat_info in ipairs(g.chat_groupbox) do
+            local frame_name = chat_info.chatframe
+            local groupbox_name = chat_info.groupbox
+
+            chatframe = ui.GetFrame(frame_name)
+            groupbox = GET_CHILD_RECURSIVELY(chatframe, groupbox_name)
+            found = true
+        end
+        if not found then
+            return 1;
+        end
     end
 
     if groupbox:IsVisible() == 0 or chatframe:IsVisible() == 0 then
+        -- print(tostring(groupboxname) .. ":" .. tostring(startindex) .. ":" .. tostring(size))
         return 1;
     end
-
     CHATEXTENDS_CHAT_SET_OPACITY(groupbox);
 
     if removeChatIDList ~= nil then
@@ -733,8 +869,10 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
     local marginLeft = 20;
     local marginRight = 0;
     local ypos = 0;
+
     for i = startindex, size - 1 do
         local beforeclusterinfo = nil
+
         if i ~= 0 then
             beforeclusterinfo = session.ui.GetChatMsgInfo(groupboxname, i - 1)
             if beforeclusterinfo ~= nil then
@@ -746,6 +884,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
             end
         end
         local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i);
+
         if clusterinfo == nil then
             return 0;
         end
@@ -757,13 +896,15 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
             local prevClusterInfo = session.ui.GetChatMsgInfo(groupboxname, i - 1);
             if prevClusterInfo ~= nil then
                 local precClusterName = "cluster_" .. prevClusterInfo:GetMsgInfoID();
-                precCluster = GET_CHILD(groupbox, precClusterName);
+                local precCluster = GET_CHILD(groupbox, precClusterName);
                 if precCluster ~= nil then
                     ypos = precCluster:GetY() + precCluster:GetHeight();
                 else
+
                     -- ui가 다 날아갔는데, 메시지가 들어온 경우
                     -- 재접할때 발생한다.
-                    return DRAW_CHAT_MSG(groupboxname, 0, chatframe, removeChatIDList);
+                    return CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, 0, chatframe, removeChatIDList);
+                    -- return g.FUNCS["DRAW_CHAT_MSG"](groupboxname, 0, chatframe, removeChatIDList);
                 end
             end
         end
@@ -771,6 +912,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
         local offsetX = chatframe:GetUserConfig("CTRLSET_OFFSETX");
 
         if startindex == 0 and chatCtrl ~= nil then
+
             if g.settings.BALLON_FLG then
                 local commnderName = clusterinfo:GetCommanderName();
                 local tempCommnderName = string.gsub(commnderName, "( %[.+%])", "");
@@ -799,7 +941,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
 
             if g.settings.BALLON_FLG then
                 CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinfo, commnderName, msgType,
-                                        marginRight, marginLeft, ypos, fontSize, beforeclusterinfo)
+                    marginRight, marginLeft, ypos, fontSize, beforeclusterinfo)
             else
                 local spinePic = nil;
 
@@ -807,7 +949,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
                 if config.GetXMLConfig("EnableChatFrameMotionEmoticon") == 1 and string.find(tempMsg, "{spine motion_") ~=
                     nil then
                     chatCtrl = groupbox:CreateOrGetControlSet('chatSpineVer', clustername, ui.LEFT, ui.TOP, marginLeft,
-                                                              ypos, marginRight, 1);
+                        ypos, marginRight, 1);
 
                     local strlist = StringSplit(tempMsg, ' ');
                     local emoCls = GetClass('chat_emoticons', strlist[2]);
@@ -825,7 +967,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
                     spinePic:SetOffsetX(spineInfo:GetOffsetX());
                     spinePic:SetOffsetY(spineInfo:GetOffsetY());
                     spinePic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "",
-                                              spineInfo:GetAnimation());
+                        spineInfo:GetAnimation());
                     spinePic:SetUserValue("EMOTICON_CLASSNAME", strlist[2]);
                     if startindex == 0 and size ~= 0 then
                         spinePic:SetIsStopAnim(true); -- 존 이동 시 이전 모션 이모티콘 들은 정지 상태로 변경		
@@ -834,7 +976,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
                     chatframe:RunUpdateScript("CHAT_FRAME_UPDATE");
                 else
                     chatCtrl = groupbox:CreateOrGetControlSet('chatTextVer', clustername, ui.LEFT, ui.TOP, marginLeft,
-                                                              ypos, marginRight, 1);
+                        ypos, marginRight, 1);
                 end
 
                 chatCtrl:EnableHitTest(1);
@@ -917,8 +1059,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
                             if commnderName ~= leaderName then
                                 local memberInfo = session.party.GetPartyMemberInfoByName(PARTY_GUILD, commnderName);
                                 GetPlayerClaims("CHATEXTENDS_GUILD_NOTICE_MSG_CHECK", memberInfo:GetAID(),
-                                                chatframe:GetName() .. ";" .. groupboxname .. ";" ..
-                                                    clusterinfo:GetMsgInfoID());
+                                    chatframe:GetName() .. ";" .. groupboxname .. ";" .. clusterinfo:GetMsgInfoID());
                             end
                         end
 
@@ -938,7 +1079,7 @@ function CHATEXTENDS_DRAW_CHAT_MSG(groupboxname, startindex, chatframe, removeCh
                                             ("{#" .. colorCls.TextColor .. "}{ol}")
                         else
                             fontStyle = CHATEXTENDS_CHAT_TEXT_IS_MINE_AND_SETFONT(msgIsMine,
-                                                                                  "TEXTCHAT_FONTSTYLE_WHISPER");
+                                "TEXTCHAT_FONTSTYLE_WHISPER");
                         end
 
                         msgFront = CHATEXTENDS_GET_TYPE_CHARNAME(ScpArgMsg("ChatType_5"), commnderNameUIText);
@@ -1162,7 +1303,7 @@ end
 -- 吹き出し表示
 -- ***************************************
 function CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinfo, commnderName, msgType, marginRight,
-                                 marginLeft, ypos, fontSize, beforeclusterinfo)
+    marginLeft, ypos, fontSize, beforeclusterinfo)
     local tempfontSize = string.format("{s%s}", fontSize);
     local tempCommnderName = string.gsub(commnderName, "( %[.+%])", "");
 
@@ -1178,7 +1319,7 @@ function CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinf
     local chatCtrl = nil;
     if chatCtrlName == 'chati' then
         chatCtrl = groupbox:CreateOrGetControl('groupbox', clustername, 400, 100, horzGravity, ui.TOP, marginLeft,
-                                               ypos + 5, marginRight, 0);
+            ypos + 5, marginRight, 0);
         AUTO_CAST(chatCtrl);
         chatCtrl:EnableHitTest(1);
         chatCtrl:SetSkinName("NONE");
@@ -1219,7 +1360,7 @@ function CHATEXTENDS_BALLON_DRAW(groupboxname, groupbox, clustername, clusterinf
         time:AddParamInfo("time", "PM 16:16");
     else
         chatCtrl = groupbox:CreateOrGetControl('groupbox', clustername, 400, 100, horzGravity, ui.TOP, marginLeft,
-                                               ypos + 5, marginRight, 0);
+            ypos + 5, marginRight, 0);
         AUTO_CAST(chatCtrl);
         chatCtrl:EnableHitTest(1);
         chatCtrl:SetSkinName("NONE");
@@ -1430,7 +1571,7 @@ function CHATEXTENDS_SAVE_CHAT()
 
     -- ファイル名は YYYYMMDD_HHMISS_cid.txt
     local logfile = string.format("savechat_%s%s%s_%s%s%s_%s.txt", year, month, day, hour, min, sec,
-                                  CHATEXTENDS_GET_LOGFILE_CHARNAME());
+        CHATEXTENDS_GET_LOGFILE_CHARNAME());
 
     -- ファイル書き込みモード
     local file, err = io.open(g.SAVE_DIR .. "/" .. logfile, "w")
@@ -1479,8 +1620,7 @@ function CHATEXTENDS_GET_MSGBODY(clusterinfo, msgbody)
     local logbody = "";
     local tempstr = "";
     logbody = string.format("%s %s %s:%s{nl}", clusterinfo:GetTimeStr(),
-                            CHATEXTENDS_GET_MSGTYPE_TXT(clusterinfo:GetMsgType()), clusterinfo:GetCommanderName(),
-                            msgbody);
+        CHATEXTENDS_GET_MSGTYPE_TXT(clusterinfo:GetMsgType()), clusterinfo:GetCommanderName(), msgbody);
     logbody = string.gsub(logbody, "{nl}", "\n");
     logbody = string.gsub(logbody, "{.-}", "");
 
@@ -1527,6 +1667,8 @@ end
 -- サイズ変更
 -- ************************************************
 function CHATEXTENDS_CHAT_SET_FONTSIZE_N_COLOR(chatframe)
+
+    local chatframe = ui.GetFrame("chatframe");
 
     if chatframe == nil then
         return;
@@ -1634,15 +1776,22 @@ end
 -- ************************************************
 -- フレームスキン変更
 -- ************************************************
-function CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME(gbox)
+function CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME(frame, origin_func_name)
+
+    local gbox = g.get_event_args(origin_func_name)
+
     gbox = AUTO_CAST(gbox)
 
     local parentframe = gbox:GetParent()
 
     gbox:SetLeftScroll(1)
     -- skin change
-    --	gbox:SetSkinName("chat_window")
-    gbox:SetSkinName("chat_Whisper_talkskin_cusoron")
+    if g.settings.skin_change == 1 then
+        gbox:SetSkinName("chat_window");
+    else
+        gbox:SetSkinName("chat_Whisper_talkskin_cusoron");
+    end
+
     gbox:EnableVisibleVector(true);
     gbox:EnableHitTest(1);
     gbox:EnableHittestGroupBox(true);
@@ -1659,6 +1808,7 @@ function CHATEXTENDS_CHAT_ADD_GBOX_OPTION_FOR_CHATFRAME(gbox)
     end
 
     CHATEXTENDS_CHAT_SET_OPACITY(gbox)
+    -- _ADD_GBOX_OPTION_FOR_CHATFRAME
 
 end
 
@@ -1709,44 +1859,4 @@ function CHATEXTENDS_NICO_CHAT(msg)
     frame:RunUpdateScript("INVALIDATE_NICO");
 end
 
-local json = require "json_imc"
-function CHATEXTENDS_GUILD_NOTICE_MSG_CHECK(code, ret_json, argStr)
-    if code ~= 200 then
-        return;
-    end
-
-    local guild = GET_MY_GUILD_INFO();
-    if guild == nil then
-        return;
-    end
-
-    local ret = false;
-    local parsed_json = json.decode(ret_json)
-    for k, v in pairs(parsed_json) do
-        if v == 208 then -- 메시지 강조 권한
-            ret = true;
-            break
-        end
-    end
-
-    if ret == true then
-        return;
-    end
-
-    local argStrlist = StringSplit(argStr, ";");
-    local frame = ui.GetFrame(argStrlist[1]);
-    local groupbox = GET_CHILD(frame, argStrlist[2]);
-    local clustername = "cluster_" .. argStrlist[3];
-    local chatCtrl = GET_CHILD(groupbox, clustername);
-    if chatCtrl == nil then
-        return;
-    end
-
-    local mainchatFrame = ui.GetFrame("chatframe");
-    local fontStyle = mainchatFrame:GetUserConfig("TEXTCHAT_FONTSTYLE_GUILD");
-
-    local txt = GET_CHILD(chatCtrl, "text");
-    txt:SetTextByKey("font", fontStyle);
-    groupbox:Invalidate();
-
-end
+local jso

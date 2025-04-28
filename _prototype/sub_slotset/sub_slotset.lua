@@ -2,10 +2,11 @@
 -- v1.0.2 増設したスロットに上手くハマらなかったの修正。
 -- v1.0.3 インベントリアイテムの数量が0になった時にバグってたの修正。クエストワープの設定方法追加
 -- v1.0.4 エモーションの使用出来ないものを分かるようにした。上手いことハマらないエモーションあったのを直した。
+-- v1.0.5 ウルトラワイド対応。スロット作るボタンも動かせるように
 local addonName = "SUB_SLOTSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -80,11 +81,8 @@ end
 
 function sub_slotset_load_settings()
 
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
+    local settings = acutil.loadJSON(g.settingsFileLoc, g.settings)
+
     if not settings then
         settings = {
             index = 0
@@ -94,7 +92,6 @@ function sub_slotset_load_settings()
 
     sub_slotset_save_settings()
     sub_slotset_personal_load_settings()
-
 end
 
 function sub_slotset_personal_load_settings()
@@ -102,11 +99,8 @@ function sub_slotset_personal_load_settings()
     local cid = info.GetCID(session.GetMyHandle())
     g.personalFileLoc = string.format('../addons/%s/%s.json', addonNameLower, cid)
 
-    local settings, err = acutil.loadJSON(g.personalFileLoc)
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
+    local settings = acutil.loadJSON(g.personalFileLoc)
+
     if not settings or next(settings) == nil then
         settings = {}
     end
@@ -117,13 +111,11 @@ function sub_slotset_personal_load_settings()
 end
 
 function sub_slotset_personal_save_settings()
-
     acutil.saveJSON(g.personalFileLoc, g.personal)
 end
 
 function sub_slotset_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings)
-
 end
 
 function SUB_SLOTSET_ON_INIT(addon, frame)
@@ -139,13 +131,13 @@ function SUB_SLOTSET_ON_INIT(addon, frame)
     acutil.setupEvent(addon, "EMO_OPEN", "sub_slotset_EMO_OPEN");
     g.SetupHook(sub_slotset_SET_QUEST_CTRL_TEXT, "SET_QUEST_CTRL_TEXT")
     acutil.setupEvent(addon, "TPITEM_CLOSE", "sub_slotset_TPITEM_CLOSE");
-    -- addon:RegisterMsg("FPS_UPDATE", "sub_slotset_FPS_UPDATE")
+
 end
 
 function sub_slotset_TPITEM_CLOSE(frame, msg)
 
     local index = g.settings["index"]
-    local sources = {g.settings, g.personal} -- ソースをテーブルに格納
+    local sources = {g.settings, g.personal}
 
     for i = 0, index do
         for _, source in pairs(sources) do -- pairsを使ってテーブルをループ
@@ -213,6 +205,34 @@ function sub_slotset_SET_QUEST_CTRL_TEXT_(ctrl, questIES)
     end
 end
 
+function sub_slotset_frame_move_reserve(frame, ctrl, str, num)
+    AUTO_CAST(frame)
+    frame:SetSkinName("chat_window")
+    frame:Resize(45, 30)
+    frame:EnableHitTest(1)
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+    frame:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_move_save")
+end
+
+function sub_slotset_frame_move_save(frame, ctrl, str, num)
+    local x = frame:GetX();
+    local y = frame:GetY();
+    g.settings["screen"] = {
+        x = x,
+        y = y
+    }
+    sub_slotset_save_settings()
+    frame:StopUpdateScript("sub_slotset_frame_move_setskin")
+    frame:RunUpdateScript("sub_slotset_frame_move_setskin", 5.0)
+
+end
+
+function sub_slotset_frame_move_setskin(frame)
+    frame:SetSkinName("None")
+    frame:Resize(30, 30)
+end
+
 function sub_slotset_frame_init()
 
     local pc = GetMyPCObject();
@@ -225,7 +245,27 @@ function sub_slotset_frame_init()
         frame:SetTitleBarSkin("None")
         frame:Resize(30, 30)
 
-        frame:SetPos(783, 5)
+        if not g.settings["screen"] then
+            g.settings["screen"] = {
+                x = 783,
+                y = 5
+            }
+            sub_slotset_save_settings()
+        end
+
+        local map_frame = ui.GetFrame("map")
+        local width = map_frame:GetWidth()
+
+        if g.settings["screen"].x > 1920 and width <= 1920 then
+            g.settings["screen"] = {
+                x = 783,
+                y = 5
+            }
+        end
+
+        frame:SetPos(g.settings["screen"].x, g.settings["screen"].y)
+
+        -- frame:SetPos(783, 5)
         frame:SetLayerLevel(30);
         frame:ShowWindow(1)
 
@@ -241,6 +281,10 @@ function sub_slotset_frame_init()
         AUTO_CAST(icon)
         icon:SetImage("btn_plus");
         icon:SetTextTooltip("Sub SlotSet")
+
+        slot:SetEventScript(ui.MOUSEON, "sub_slotset_frame_move_reserve")
+        slot:SetEventScript(ui.MOUSEOFF, "sub_slotset_frame_move_save")
+
     end
     sub_slotset_slotset_frame_init("character")
     sub_slotset_slotset_frame_init("shared")
@@ -1200,7 +1244,7 @@ function sub_slotset_resetting(frame_name)
     resetting_frame:ShowWindow(1)
 
     local gbox = resetting_frame:CreateOrGetControl("groupbox", "gbox", 35, 0, resetting_frame:GetWidth() - 35,
-        resetting_frame:GetHeight())
+                                                    resetting_frame:GetHeight())
     AUTO_CAST(gbox)
     gbox:SetSkinName("test_frame_midle_light")
 

@@ -51,10 +51,11 @@
 -- v1.5.1 装備加工とか付けた。ヴェルニケバグってたクヤシイTOSイベコイン表示とか。レティワープ付けた。
 -- v1.5.2 バグ修正
 -- v1.5.3 傭兵団コインのチャレンジ券変換をMAXまで出来る様に。そんなヤツおるんか？バグ修正
+-- v1.5.4 レダニア足したけどまだテスト出来てない
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.3"
+local ver = "1.5.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -188,7 +189,7 @@ function indun_panel_frame_init()
 
     frame:ShowWindow(1)
 
-    function indun_panel_time_update()
+    --[[function indun_panel_time_update()
 
         local time = os.date("*t")
         local hour = time.hour
@@ -212,13 +213,14 @@ function indun_panel_frame_init()
     local timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0);
     AUTO_CAST(timer)
     timer:SetUpdateScript("indun_panel_time_update");
-    timer:Start(300);
+    timer:Start(300);]]
 end
 
-function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART()
+function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART(frame)
     local shopframe = ui.GetFrame('earthtowershop')
-    -- shopframe:Resize(580, 1920)
+
     if shopframe:IsVisible() == 1 then
+        shopframe:Resize(580, 1920)
         ui.CloseFrame("earthtowershop")
         return 0
     else
@@ -234,6 +236,13 @@ local induntype = {{
     }
 }, {
     singularity = 2000
+}, {
+    redania = {
+        h = 718,
+        s = 717,
+        a = 716,
+        ac = 80039
+    }
 }, {
     neringa = {
         h = 709,
@@ -325,6 +334,7 @@ local induntype = {{
 }}
 
 local buffIDs = {
+    [716] = 80039, -- レダニア
     [707] = 80035, -- ネリンガ
     [710] = 80037, -- ゴーレム
     [673] = 80016, -- スプレッダー
@@ -335,6 +345,7 @@ local buffIDs = {
     [695] = 80032 -- メレジ
 }
 local raidTable = {
+    [716] = {11210044, 11210043, 11210042},
     [707] = {11210024, 11210023, 11210022},
     [710] = {11210028, 11210027, 11210026},
     [695] = {11200356, 11200355, 11200354},
@@ -688,7 +699,7 @@ function indun_panel_frame_contents(frame)
                 if type(value) == "table" then
                     -- neringa golem
                     if key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or key == "spreader" or
-                        key == "merregina" or key == "neringa" or key == "golem" then
+                        key == "merregina" or key == "neringa" or key == "golem" or key == "redania" then
 
                         function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
 
@@ -1329,6 +1340,223 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
 
     local enterance_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType)
 
+    -- ▼▼▼ インベントリ検索用の小さな内部関数をここで定義 ▼▼▼
+    -- ticket_priority_list: 優先順位順に並んだチケット情報テーブル
+    -- reserve_enter_script: 分裂の場合に予約する入場スクリプト (なければ nil)
+    local function try_use_ticket_from_inventory(ticket_priority_list, reserve_enter_script)
+        session.ResetItemList() -- 検索前にリセット
+
+        for _, item_info in ipairs(ticket_priority_list) do
+            local invItem = session.GetInvItemByType(item_info.classid)
+            if invItem ~= nil then
+                local use_this_item = false
+                local item_obj = GetIES(invItem:GetObject())
+                local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(item_obj))
+
+                -- 条件チェック (元のロジックに合わせて調整)
+                if item_info.check_lifetime == "less_than_1day" then -- 24時間以内
+                    if life_time ~= nil and life_time > 0 and life_time < 86400 then
+                        use_this_item = true
+                    end
+                elseif item_info.check_lifetime == "has_lifetime" then -- 期限あり (24時間以上含む)
+                    if life_time ~= nil and life_time > 0 then
+                        use_this_item = true
+                    end
+                elseif item_info.check_lifetime == "no_lifetime" then -- 期限なし
+                    if life_time == nil or life_time <= 0 then -- 期限情報がないか、0以下の場合
+                        use_this_item = true
+                    end
+                end
+
+                if use_this_item then
+                    if item_info.msg_on_use then
+                        ui.SysMsg(item_info.msg_on_use)
+                    end
+                    INV_ICON_USE(invItem)
+                    if reserve_enter_script then
+                        ReserveScript(reserve_enter_script, 1.0) -- 1秒後に入場予約
+                    end
+                    return true -- チケット使用成功
+                end
+            end
+        end
+        return false -- 使用できるチケットがなかった
+    end
+    -- ▲▲▲ 内部関数定義ここまで ▲▲▲
+
+    if indun_type == 2000 then -- 分裂特異点
+        -- 分裂用チケット優先順位リスト
+        local sin_ticket_priority = { -- 優先度1: 24時間以内
+        {
+            classid = 10820018,
+            check_lifetime = "less_than_1day"
+        }, {
+            classid = 11030067,
+            check_lifetime = "less_than_1day"
+        }, -- 優先度2: 期限あり (24時間以上)
+        {
+            classid = 10820018,
+            check_lifetime = "has_lifetime"
+        }, {
+            classid = 11030067,
+            check_lifetime = "has_lifetime"
+        }, -- 優先度3: 期限なし
+        {
+            classid = 10000470,
+            check_lifetime = "no_lifetime",
+            msg_on_use = INDUN_PANEL_LANG("Used a ticket that did not expire")
+        }, {
+            classid = 11030021,
+            check_lifetime = "no_lifetime",
+            msg_on_use = INDUN_PANEL_LANG("Used a ticket that did not expire")
+        }, {
+            classid = 11030017,
+            check_lifetime = "no_lifetime",
+            msg_on_use = INDUN_PANEL_LANG("Used a ticket that did not expire")
+        }}
+        -- 分裂入場予約スクリプト
+        local sin_enter_script = string.format("indun_panel_enter_singularity(nil, nil, nil, %d)", indun_type)
+
+        -- インベントリからチケット使用を試みる
+        if try_use_ticket_from_inventory(sin_ticket_priority, sin_enter_script) then
+            return -- チケット使用成功
+        end
+
+        -- ショップ購入チェック (元のロジックを維持)
+        if enterance_count == 0 then
+            local dcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41")
+            if dcount == 1 then
+                INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_41", indun_type)
+                return
+            end
+
+            local wcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42")
+            if wcount >= 1 then
+                INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_42", indun_type)
+                return
+            end
+
+            local mcount = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_314")
+            if mcount >= 1 then
+                INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_314", indun_type)
+                return
+            end
+        end
+
+    elseif indun_type == 1000 then -- チャレンジ (value.low = 1000 を想定)
+        -- チャレンジ用チケット優先順位リスト
+        local cha_ticket_priority = { -- 優先度1: 24時間以内
+        {
+            classid = 10820019,
+            check_lifetime = "less_than_1day"
+        }, {
+            classid = 11030080,
+            check_lifetime = "less_than_1day"
+        }, {
+            classid = 641954,
+            check_lifetime = "less_than_1day"
+        }, {
+            classid = 641969,
+            check_lifetime = "less_than_1day"
+        }, {
+            classid = 641955,
+            check_lifetime = "less_than_1day"
+        }, -- 優先度2: 期限あり (24時間以上)
+        {
+            classid = 10820019,
+            check_lifetime = "has_lifetime"
+        }, {
+            classid = 11030080,
+            check_lifetime = "has_lifetime"
+        }, {
+            classid = 641954,
+            check_lifetime = "has_lifetime"
+        }, {
+            classid = 641969,
+            check_lifetime = "has_lifetime"
+        }, {
+            classid = 641955,
+            check_lifetime = "has_lifetime"
+        }, -- 優先度3: 期限なし
+        {
+            classid = 10000073,
+            check_lifetime = "no_lifetime"
+        }}
+
+        -- インベントリからチケット使用を試みる (入場予約スクリプトは nil)
+        if try_use_ticket_from_inventory(cha_ticket_priority, nil) then
+            return -- チケット使用成功
+        end
+
+        -- ショップ購入チェック (元のロジックを維持)
+        if enterance_count == 1 then
+            local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
+            if event_trade_count >= 1 then
+                INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_315", indun_type)
+                return
+            end
+
+            local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+            if trade_count >= 1 then
+                INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
+                return
+            elseif trade_count <= 0 then -- 通常購入分がない場合、Overbuy チェック
+                local aObj = GetMyAccountObj()
+                local recipeCls = GetClass('ItemTradeShop', "PVP_MINE_40")
+                local overMax = TryGetProp(recipeCls, 'MaxOverBuyCount', 0)
+                local overProp = TryGetProp(recipeCls, 'OverBuyProperty', 'None')
+                local overCount = TryGetProp(aObj, overProp, 0)
+                if (tonumber(overMax) - tonumber(overCount)) > 0 then
+                    local cost = 1100 + overCount * 100
+                    local msg = g.lang == "Japanese" and
+                                    string.format("{img pvpmine_shop_btn_total 29 29} %,d 使用しました", cost) or
+                                    string.format("{img pvpmine_shop_btn_total 29 29} %,d Used", cost)
+                    ui.SysMsg(msg)
+                    INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
+                    return
+                end
+            end
+        end
+    end
+
+    -- もし何もできなかった場合のメッセージなど（必要なら）
+    print("indun_panel_item_use: 利用可能なチケット/購入オプションなし for", indun_type)
+
+    -- INDUN_PANEL_ITEM_BUY_USE 関数は前の提案と同じ調整を推奨
+end
+
+-- === 補足：INDUN_PANEL_ITEM_BUY_USE の調整 (再掲) ===
+-- この関数内でアイテム使用と分裂入場予約を行うようにすると、処理の流れが分かりやすくなる
+function INDUN_PANEL_ITEM_BUY_USE(recipe_name, indun_type)
+    local recipeCls = GetClass("ItemTradeShop", recipe_name)
+    -- session.ResetItemList() -- ここでリセットするかどうかは要検討
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cntText = string.format("%s %s", tostring(recipeCls.ClassID), tostring(1))
+
+    -- ショップ取引実行
+    if string.find(recipe_name, "EVENT_TOS") then
+        item.DialogTransaction("EVENT_TOS_WHOLE_SHOP", itemlist, cntText)
+    else
+        item.DialogTransaction("PVP_MINE_SHOP", itemlist, cntText)
+    end
+
+    -- 購入したアイテムの使用を予約
+    local itemCls = GetClass("Item", recipeCls.TargetItem)
+    local useScript = string.format("INV_ICON_USE(session.GetInvItemByType(%d));", itemCls.ClassID)
+    ReserveScript(useScript, 1.0) -- 1秒後にアイテム使用
+
+    -- 分裂(2000)の場合、さらに1秒後に入場処理を予約
+    if indun_type == 2000 then
+        local enterScript = string.format("indun_panel_enter_singularity(nil, nil, nil, %d)", indun_type)
+        ReserveScript(enterScript, 2.0) -- アイテム使用のさらに1秒後 (時間は要調整)
+    end
+end
+
+--[==[function indun_panel_item_use(frame, ctrl, argStr, indun_type)
+
+    local enterance_count = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType)
+
     if indun_type == 2000 then
         function indun_panel_item_use_sin(indun_type, enterance_count)
 
@@ -1483,7 +1711,7 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
         end
         indun_panel_item_use_cha(indun_type, enterance_count)
     end
-end
+end]==]
 
 function INDUN_PANEL_ITEM_BUY_USE(recipe_name, indun_type)
     local recipeCls = GetClass("ItemTradeShop", recipe_name)
@@ -1527,6 +1755,7 @@ function indun_panel_TPITEM_CLOSE(frame, msg)
     indun_panel_frame_init()
 end
 
+g.loaded = false
 function INDUN_PANEL_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -1549,8 +1778,11 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             indun_panel_frame_init()
         end
 
-        if g.ex ~= 1 and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
-            addon:RegisterMsg('GAME_START', "indun_panel_minimized_pvpmine_shop_init") -- shopframe:Resize(580, 1920)
+        if not g.loaded then
+            addon:RegisterMsg('GAME_START', "indun_panel_minimized_pvpmine_shop_init")
+            g.loaded = true
+            local shopframe = ui.GetFrame('earthtowershop')
+            shopframe:Resize(0, 0)
         end
         g.SetupHook(indun_panel_INDUN_ALREADY_PLAYING, "INDUN_ALREADY_PLAYING")
         acutil.setupEvent(addon, "TPITEM_CLOSE", "indun_panel_TPITEM_CLOSE");
@@ -1567,7 +1799,7 @@ end
 function indun_panel_minimized_pvpmine_shop_init()
     local shopframe = ui.GetFrame('earthtowershop')
     pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0);
-    g.ex = 1
+
     shopframe:RunUpdateScript("INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART", 0.2)
 end
 
@@ -1588,6 +1820,7 @@ function indun_panel_load_settings()
             zoom = 336,
             challenge_checkbox = 1,
             singularity_checkbox = 1,
+            redania_checkbox = 1,
             neringa_checkbox = 1,
             golem_checkbox = 1,
             merregina_checkbox = 1,
@@ -1609,10 +1842,15 @@ function indun_panel_load_settings()
             season_checkbox = 1
         }
         settings = g.settings
-        indun_panel_save_settings()
+
+    end
+
+    if not settings.redania_checkbox then
+        settings.redania_checkbox = 1
     end
 
     g.settings = settings
+    indun_panel_save_settings()
 end
 
 function INDUN_PANEL_LANG(str)
@@ -1625,6 +1863,9 @@ function INDUN_PANEL_LANG(str)
     end
 
     if g.lang == "Japanese" then
+        if str == tostring("redania") then
+            str = "レダニア"
+        end
         if str == tostring("neringa") then
             str = "ネリンガ"
         end
