@@ -8,11 +8,12 @@
 -- v1.0.7 コンテキスト表示切替
 -- v1.0.8 indun_list_viewerと連携バグってたの修正
 -- v1.0.9 ReserveScriptを無くした。色々書き換えた。
+-- v1.1.0 キャラ順バグるの修正
 local addonName = "INSTANTCC"
 local addonNameLower = string.lower(addonName)
 
 local author = "ebisuke"
-local ver = "1.0.9"
+local ver = "1.1.0"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -54,11 +55,9 @@ function g.log_to_file(message)
     end
 end
 
-g.FUNCS = g.FUNCS or {}
-g.ARGS = g.ARGS or {}
-
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
+    g.FUNCS = g.FUNCS or {}
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
@@ -66,16 +65,17 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     local function hooked_function(...)
 
         local original_results
-        local original_success = false
 
         if bool == true then
-            original_results = {pcall(origin_func, ...)}
+            original_results = {origin_func(...)}
         end
 
+        g.ARGS = g.ARGS or {}
         g.ARGS[origin_func_name] = {...}
-        local b_success = pcall(imcAddOn.BroadMsg, origin_func_name)
-        if bool == true and original_success then
-            return table.unpack(original_results, 2, #original_results)
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if bool == true and original_results ~= nil then
+            return table.unpack(original_results)
         else
             return
         end
@@ -83,7 +83,10 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
     _G[origin_func_name] = hooked_function
 
-    pcall(my_addon.RegisterMsg, my_addon, origin_func_name, my_func_name)
+    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
 end
 
 function g.get_event_args(origin_func_name)
@@ -152,10 +155,10 @@ function INSTANTCC_SORT_CHAR_DATA()
         local pc_info = account_info:GetPCByIndex(i)
         local pc_apc = pc_info:GetApc()
         local pc_name = pc_apc:GetName()
+        -- print(tostring(pc_name))
         local pc_cid = pc_info:GetCID()
         local gender = pc_apc:GetGender()
-        -- local jobid = pc_apc:GetJob()
-        local pc_info = session.barrack.GetMyAccount():GetByStrCID(pc_cid);
+        local pc_info = account_info:GetByStrCID(pc_cid);
 
         local jobid = pc_info:GetRepID() or pc_apc:GetJob()
         local level = pc_apc:GetLv()
@@ -240,11 +243,37 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN_HOOK()
     end
 end
 
+function INSTANTCC_BARRACK_TO_GAME(...)
+
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    if bc_frame then
+        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+    end
+
+    local original_func = g.FUNCS["BARRACK_TO_GAME"]
+
+    if original_func then
+        g.FUNCS["BARRACK_TO_GAME"](...)
+    end
+
+end
+
+function INSTANTCC_BARRACK_TO_GAME_HOOK()
+    local origin_func_name = "BARRACK_TO_GAME"
+    if _G[origin_func_name] then
+        if not g.FUNCS[origin_func_name] then
+            g.FUNCS[origin_func_name] = _G[origin_func_name]
+
+        end
+        _G[origin_func_name] = INSTANTCC_BARRACK_TO_GAME
+    end
+end
+
 function INSTANTCC_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-
+    g.RAGISTER = {}
     g.lang = option.GetCurrentCountry()
 
     g.load_settings()
@@ -252,9 +281,11 @@ function INSTANTCC_ON_INIT(addon, frame)
     g.retry = nil
     g.do_cc = nil
     g.layer = g.layer or (g.settings and g.settings.characters and g.settings.characters.layer) or 1
-
+    -- CHAT_SYSTEM("layer:" .. g.layer)
     g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "INSTANTCC_APPS_TRY_MOVE_BARRACK", false)
+
     addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_START_FRAME_OPEN_HOOK")
+    addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_TO_GAME_HOOK")
 
     INSTANTCC_SORT_CHAR_DATA()
 
@@ -300,7 +331,6 @@ function INSTANTCC_DISPLAY_TOGGLE(frame, ctrl, str, num)
         ui.SysMsg(g.lang == "Japanese" and "一覧表示に切替えました" or "Switched to all list display")
     end
     g.save_settings()
-    -- INSTANTCC_SAVE_SETTINGS()
 end
 
 function INSTANTCC_DO_CC(cid, layer)
@@ -311,7 +341,6 @@ function INSTANTCC_DO_CC(cid, layer)
             layer = layer
         }
         RUN_GAMEEXIT_TIMER("Barrack")
-
     else
         RUN_GAMEEXIT_TIMER("Barrack")
     end
@@ -323,7 +352,7 @@ end
 
 function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
 
-    local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "Barrack Charactor List", 0, 0, 0, 0)
+    local context = ui.CreateContextMenu("INSTANTCC_SELECT_CHARACTOR", "{ol}Barrack Charactor List", 0, 0, 0, 0)
     ui.AddContextMenuItem(context, "Return To Barrack", "INSTANTCC_DO_CC()")
 
     if not g.settings.per_barracks then
@@ -372,6 +401,12 @@ end
 
 function INSTANTCC_RETRY()
     g.retry = g.retry + 1
+    --[[local retry = 0
+    if #g.settings.characters < 15 then
+        retry = 15
+    else
+        retry = #g.settings.characters
+    end]]
     if g.retry > #g.settings.characters then
         g.do_cc = nil
         app.BarrackToLogin()
@@ -412,6 +447,7 @@ function INSTANTCC_TOGAME(frame)
     if bc_frame then
         g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
     end
+
     BARRACK_TO_GAME()
 end
 

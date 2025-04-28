@@ -383,7 +383,7 @@ function KLCOUNT_INIT_FRAME()
     if map_text:GetWidth() + 15 > 170 then
         w = map_text:GetWidth() + 15
     end
-    CHAT_SYSTEM(w)
+
     frame:Resize(w, 95)
 
     frame:RunUpdateScript("KLCOUNT_TIME_UPDATE", 1.0)

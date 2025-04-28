@@ -18,10 +18,11 @@
 -- v1.1.7 ギアスコアの反映を見直し。フレーム表示のタイミングも見直し
 -- v1.1.8 海外で数字が切れるらしいところ修正。
 -- v1.1.9 フォルダ作るコードをアドオン導入時のみに。
+-- v1.2.0 ウルトラワイド対応
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.1.9"
+local ver = "1.2.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -133,8 +134,8 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     always_status_load_settings()
-    ReserveScript("always_status_original_frame_reduction()", 1.0)
-    -- ReserveScript("", 1.5)
+    frame:RunUpdateScript("always_status_original_frame_reduction", 1.0)
+    -- ReserveScript("always_status_original_frame_reduction()", 1.0)
 
     addon:RegisterMsg("GAME_START_3SEC", "always_status_frame_init")
     addon:RegisterMsg("GAME_START_3SEC", "always_status_original_frame_sound_config")
@@ -145,12 +146,10 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
 end
 
 function always_status_original_frame_sound_config()
-    -- CHAT_SYSTEM("ALWAYS_STATUS_ON_INIT")
     config.SetSoundVolume(g.settings.volume)
-
 end
 
-function always_status_original_frame_reduction()
+function always_status_original_frame_reduction(frame)
 
     config.SetSoundVolume(0)
     local frame = ui.GetFrame("status")
@@ -186,19 +185,13 @@ function always_status_load_settings()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
 
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
-
     local loginCID = info.GetCID(session.GetMyHandle())
     local volume = config.GetSoundVolume()
-    -- print(tostring(settings["color"]) .. ":color")
 
     if not settings or settings["color"] == nil then
 
         settings = {}
-        settings.frame_X = 1400
+        settings.frame_X = 1600
         settings.frame_Y = 500
         settings.enable = 1
         settings.volume = volume
@@ -346,41 +339,32 @@ function always_status_load_settings()
 
     end
 
-    -- print(tostring(type(g.settings[loginCID])) .. ":key")
     if g.settings[loginCID] == nil or type(g.settings[loginCID]) == "number" then
         g.settings[loginCID] = {
             key = 1,
             use = 1
         }
-
     end
-
     always_status_save_settings()
-
 end
 
 function always_status_language(str)
     if option.GetCurrentCountry() == "Japanese" then
         if str == "Right-click to set display" then
             str = "右クリックで表示設定"
-
         end
         if str == "Display and hide for each character" then
             str = "キャラクター毎に表示非表示を切り替えます"
-
         end
         if str == "If checked, the frame is fixed" then
             str = "チェックするとフレームが固定されます"
-
         end
 
         if str == "Display Setting" then
             str = "表示設定"
-
         end
         return str
     end
-
     return str
 end
 
@@ -590,6 +574,14 @@ function always_status_frame_init()
     frame:RemoveAllChild()
     frame:EnableHitTest(1)
     frame:EnableMove(g.settings.enable)
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if g.settings.frame_X > 1920 and width <= 1920 then
+        g.settings.frame_X = 1600
+        g.settings.frame_Y = 500
+    end
+
     frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
     frame:SetTitleBarSkin("None")
     frame:SetSkinName("None")

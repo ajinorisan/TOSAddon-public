@@ -2,328 +2,107 @@
 -- v1.0.2 23.09.05patch対応。ボルタからドラグーンに変更
 -- v1.0.3 TPショップ開くと消えるのを修正
 -- v1.0.4 UI気に食わなかったので修正
+-- v1.0.5 ウルトラワイド対応。
 local addonName = "GUILDEVENTWARP"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-local acutil = require("acutil")
-local base = {}
+-- local FRAME_X_POS = 1785
+-- local FRAME_Y_POS = 4
+local ICON_SIZE = 28
+local ICON_SPACING = 35
+local CH1_ID = 0
 
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName];
-        _G[baseFuncName] = func
-    end
-    base[baseFuncName] = _G[replacementName]
-end
-
-g.SettingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
-g.ctrl = 0
+g.channel_change = false
 
 function GUILDEVENTWARP_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
+    g.lang = option.GetCurrentCountry()
 
-    local frame = ui.GetFrame('guildeventwarp')
-    frame:SetSkinName('None')
-    frame:Resize(100, 30)
-    frame:SetPos(1785, 4)
-    frame:SetTitleBarSkin("None")
+    g.frame:SetSkinName('None')
+    g.frame:SetGravity(ui.RIGHT, ui.TOP)
+    local rect = g.frame:GetMargin();
+    g.frame:SetMargin(rect.left, rect.top + 4, rect.right + 35, rect.bottom);
+    -- g.frame:SetPos(FRAME_X_POS, FRAME_Y_POS)
+    g.frame:SetTitleBarSkin("None")
 
-    GUILDEVENTWARP_FRAME_INIT(frame)
+    GUILDEVENTWARP_frame_init()
 
-    -- g.SetupHook(GUILDEVENTWARP_BORUTA_ZONE_MOVE_CLICK, "BORUTA_ZONE_MOVE_CLICK")
-    -- CHAT_SYSTEM(addonNameLower .. " loaded")
-
-    if g.ctrl == 1 then
-
-        g.ctrl = 0
-        addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_CH_CHANGE")
-        -- GUILDEVENTWARP_ON_BORUTA_CLICK(frame)
-    else
-        g.ctrl = 0
-        return;
-    end
-
-end
-
-function GUILDEVENTWARP_BORUTA_ZONE_MOVE_CLICK(parent, ctrl)
-
-    -- local indunClsID = ctrl:GetUserValue('MOVE_INDUN_CLASSID');
-    -- CHAT_SYSTEM(tostring(indunClsID.ClassName))
-    -- print(tostring(indunClsID))
-    _BORUTA_ZONE_MOVE_CLICK("500")
-    -- ui.MsgBox(ClMsg('Auto_JiyeogeuLo{nl}_iDongHaSiKessSeupNiKka?'), '_BORUTA_ZONE_MOVE_CLICK(' .. indunClsID .. ')',
-    --     'None')
-end
-
-function GUILDEVENTWARP_ON_DRAGOON_CLICK()
-    g.ctrl = 1
-    _BORUTA_ZONE_MOVE_CLICK("500")
-end
-
-function GUILDEVENTWARP_FRAME_INIT(frame)
-
-    -- ボルタボタン
-    --[[local borutabutton = frame:CreateOrGetControl('button', 'boruta', 5, 0, 30, 30)
-    AUTO_CAST(borutabutton)
-    borutabutton:SetSkinName("test_red_button")
-    borutabutton:SetText("D")
-    borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")
-    borutabutton:SetTextTooltip("{@st59}Guild events, move to the Dragoon map.{nl}" ..
-                                    "{@st59}ギルドイベント、ドラグーンのマップに移動します。{/}")]]
-    frame:RemoveAllChild()
-
-    local dragoon_slot = frame:CreateOrGetControl("slot", "dragoon_slot", 0, 0, 28, 28)
-    AUTO_CAST(dragoon_slot)
-    dragoon_slot:EnablePop(0)
-    dragoon_slot:EnableDrop(0)
-    dragoon_slot:EnableDrag(0)
-    dragoon_slot:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")
-    local dragoon_monCls = GetClass("Monster", "guild_boss_dragoon_ex")
-    local dragoon_icon = CreateIcon(dragoon_slot);
-    AUTO_CAST(dragoon_icon)
-    dragoon_icon:SetImage(dragoon_monCls.Icon)
-    dragoon_icon:SetTextTooltip("{@st59}Guild events, move to the Dragoon map.{nl}" ..
-                                    "{@st59}ギルドイベント、ドラグーンのマップに移動します。{/}")
-    -- SET_SLOT_IMG(dragoon_slot, dragoon_monCls.Icon);
-
-    --[[local monClsName = 'boss_dragoon_ex'
-    local monCls = GetClass("Monster", monClsName)
-    borutabutton:SetImage(monCls.Icon)
-    CHAT_SYSTEM("test")
-    borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_DRAGOON_CLICK")]]
-
-    -- ギルティネボタン
-    --[[local giltinebutton = frame:CreateOrGetControl('button', 'giltine', 35, 0, 30, 30)
-    giltinebutton:SetSkinName("test_red_button")
-    giltinebutton:SetText("G")
-    giltinebutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_GILTINE_CLICK")
-    giltinebutton:SetTextTooltip("{@st59}Guild events, move to the Guiltine map.{nl}" ..
-                                     "{@st59}ギルドイベント、ギルティネのマップに移動します。{/}")]]
-
-    local giltine_slot = frame:CreateOrGetControl("slot", "giltine_slot", 35, 0, 28, 28)
-    AUTO_CAST(giltine_slot)
-    giltine_slot:EnablePop(0)
-    giltine_slot:EnableDrop(0)
-    giltine_slot:EnableDrag(0)
-    giltine_slot:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_GILTINE_CLICK")
-
-    local giltine_monCls = GetClass("Monster", "Legend_Boss_Giltine_Guild")
-    local giltine_icon = CreateIcon(giltine_slot);
-    AUTO_CAST(giltine_icon)
-    giltine_icon:SetImage(giltine_monCls.Icon)
-    giltine_icon:SetTextTooltip("{@st59}Guild events, move to the Guiltine map.{nl}" ..
-                                    "{@st59}ギルドイベント、ギルティネのマップに移動します。{/}")
-    -- SET_SLOT_IMG(giltine_slot, giltine_monCls.Icon);
-
-    -- バウバスボタン
-    --[[local baubasbutton = frame:CreateOrGetControl('button', 'baubas', 65, 0, 30, 30)
-    baubasbutton:SetSkinName("test_red_button")
-    baubasbutton:SetText("B")
-    baubasbutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BAUBAS_CLICK")
-    baubasbutton:SetTextTooltip("{@st59}Guild event, move to the Baubus map.{nl}" ..
-                                    "{@st59}ギルドイベント、バウバスのマップに移動します。{/}")]]
-
-    local baubas_slot = frame:CreateOrGetControl("slot", "baubas_slot", 70, 0, 28, 28)
-    AUTO_CAST(baubas_slot)
-    baubas_slot:EnablePop(0)
-    baubas_slot:EnableDrop(0)
-    baubas_slot:EnableDrag(0)
-    baubas_slot:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BAUBAS_CLICK")
-
-    local baubas_monCls = GetClass("Monster", "GuildEvent_npc_baubas2")
-    local baubas_icon = CreateIcon(baubas_slot);
-    AUTO_CAST(baubas_icon)
-    baubas_icon:SetImage(baubas_monCls.Icon)
-    baubas_icon:SetTextTooltip("{@st59}Guild event, move to the Baubus map.{nl}" ..
-                                   "{@st59}ギルドイベント、バウバスのマップに移動します。{/}")
-    -- SET_SLOT_IMG(baubas_slot, baubas_monCls.Icon);
-
-    frame:ShowWindow(1)
-end
-
-function GUILDEVENTWARP_ON_BORUTA_CLICK(frame)
-    -- CHAT_SYSTEM("ボルタボタンがクリックされました")
-
-    g.ctrl = 1
-    local indunCls = GetClass('GuildEvent', 'GM_BorutosKapas_1');
-
-    if indunCls ~= nil then
-        -- frame:ShowWindow(0)
-        local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
-        _BORUTA_ZONE_MOVE_CLICK(indunClsID)
-    end
-
-end
-
-function GUILDEVENTWARP_ON_GILTINE_CLICK(frame)
-    -- CHAT_SYSTEM("ギルティネボタンがクリックされました")
-
-    g.ctrl = 1
-    local indunCls = GetClass('GuildEvent', 'GM_Giltine_1');
-
-    if indunCls ~= nil then
-        -- frame:ShowWindow(0)
-        local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
-        _BORUTA_ZONE_MOVE_CLICK(indunClsID)
-    end
-
-end
-
-function GUILDEVENTWARP_ON_BAUBAS_CLICK(frame)
-    -- CHAT_SYSTEM("バウバスボタンがクリックされました")
-
-    g.ctrl = 1
-    local indunCls = GetClass('GuildEvent', 'GM_Baubas_1');
-
-    if indunCls ~= nil then
-        -- frame:ShowWindow(0)
-        local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
-        _BORUTA_ZONE_MOVE_CLICK(indunClsID)
-    end
-
-end
-
-function GUILDEVENTWARP_CH_CHANGE()
-    local channelID = 0 -- 0が1chらしい
-    local channelnum = session.loginInfo.GetChannel() + 1;
-    if channelnum ~= 1 then
-        -- CHAT_SYSTEM(channelnum)
-        RUN_GAMEEXIT_TIMER("Channel", channelID);
+    if g.channel_change then
+        g.channel_change = false
+        g.addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ch_change")
     end
 end
 
---[[v1.0.0のコード
-function GUILDEVENTWARP_ON_INIT(addon, frame)
-    g.addon = addon
-    g.frame = frame
+function GUILDEVENTWARP_frame_init()
+    g.frame:RemoveAllChild()
 
-    local frame = ui.GetFrame('guildeventwarp')
-    frame:SetSkinName('None')
-    frame:Resize(95, 30)
-    frame:SetPos(1790, 5)
-    frame:SetTitleBarSkin("None")
+    local guild_event_info = {{
+        name = "dragoon",
+        event_id = 500,
+        monster = "guild_boss_dragoon_ex",
+        tooltip = g.lang == "Japanese" and "{ol}ギルドイベント、ドラグーンのマップに移動します" or
+            "{ol}Guild event move to the Dragoon map",
+        click_func_name = "GUILDEVENTWARP_move_to_guild_event"
+    }, {
+        name = "giltine",
+        monster = "Legend_Boss_Giltine_Guild",
+        event_id = 501,
+        tooltip = g.lang == "Japanese" and "{ol}ギルドイベント、ギルティネのマップに移動します" or
+            "{ol}Guild event move to the Guiltine map",
+        click_func_name = "GUILDEVENTWARP_move_to_guild_event"
+    }, {
+        name = "baubas",
+        monster = "GuildEvent_npc_baubas2",
+        event_id = 502,
+        tooltip = g.lang == "Japanese" and "{ol}ギルドイベント、バウバスのマップに移動します" or
+            "{ol}Guild event move to the Baubus map",
+        click_func_name = "GUILDEVENTWARP_move_to_guild_event"
+    }}
 
-    GUILDEVENTWARP_FRAME_INIT(frame)
+    local current_x = 0
 
-    CHAT_SYSTEM(addonNameLower .. " loaded")
+    for _, info in ipairs(guild_event_info) do
+        local slot_name = info.name .. "_slot"
+        local slot = g.frame:CreateOrGetControl("slot", slot_name, current_x, 0, ICON_SIZE, ICON_SIZE)
+        AUTO_CAST(slot)
+        slot:EnablePop(0)
+        slot:EnableDrop(0)
+        slot:EnableDrag(0)
+        slot:SetEventScript(ui.LBUTTONUP, info.click_func_name)
+        slot:SetEventScriptArgString(ui.LBUTTONUP, tostring(info.event_id))
 
-    if g.ctrl == 1 then
-
-        g.ctrl = 0
-        addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_BORUTA_CLICK")
-        GUILDEVENTWARP_ON_BORUTA_CLICK(frame)
-
-    elseif g.ctrl == 2 then
-
-        g.ctrl = 0
-        addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_GILTINE_CLICK")
-        GUILDEVENTWARP_ON_GILTINE_CLICK(frame)
-
-    elseif g.ctrl == 3 then
-
-        g.ctrl = 0
-        addon:RegisterMsg("GAME_START_3SEC", "GUILDEVENTWARP_ON_BAUBAS_CLICK")
-        GUILDEVENTWARP_ON_BAUBAS_CLICK(frame)
-
-    end
-
-end
-
-function GUILDEVENTWARP_FRAME_INIT(frame)
-
-    -- ボルタボタン
-    local borutabutton = frame:CreateOrGetControl('button', 'boruta', 0, 0, 30, 30)
-    borutabutton:SetSkinName("test_red_button")
-    borutabutton:SetText("{img emoticon_0007 29 29}")
-    borutabutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BORUTA_CLICK")
-
-    -- ギルティネボタン
-    local giltinebutton = frame:CreateOrGetControl('button', 'giltine', 35, 0, 30, 30)
-    giltinebutton:SetSkinName("test_red_button")
-    giltinebutton:SetText("Gi")
-    giltinebutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_GILTINE_CLICK")
-
-    -- バウバスボタン
-    local baubasbutton = frame:CreateOrGetControl('button', 'baubas', 65, 0, 30, 30)
-    baubasbutton:SetSkinName("test_red_button")
-    baubasbutton:SetText("Ba")
-    baubasbutton:SetEventScript(ui.LBUTTONUP, "GUILDEVENTWARP_ON_BAUBAS_CLICK")
-
-    frame:ShowWindow(1)
-end
-
-function GUILDEVENTWARP_ON_BORUTA_CLICK(frame)
-    -- CHAT_SYSTEM("ボルタボタンがクリックされました")
-
-    local channelnum = session.loginInfo.GetChannel() + 1;
-    if channelnum ~= 1 then
-        g.ctrl = 1
-        GUILDEVENTWARP_CH_CHANGE()
-    else
-        g.ctrl = 0
-        local indunCls = GetClass('GuildEvent', 'GM_BorutosKapas_1');
-
-        if indunCls ~= nil then
-            -- frame:ShowWindow(0)
-            local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
-            _BORUTA_ZONE_MOVE_CLICK(indunClsID)
+        local mon_cls = GetClass("Monster", info.monster)
+        if mon_cls then
+            local icon = CreateIcon(slot);
+            AUTO_CAST(icon)
+            icon:SetImage(mon_cls.Icon)
+            icon:SetTextTooltip(info.tooltip)
         end
+
+        current_x = current_x + ICON_SPACING
     end
+
+    g.frame:Resize(current_x - (ICON_SPACING - ICON_SIZE), ICON_SIZE)
+    g.frame:ShowWindow(1)
 end
 
-function GUILDEVENTWARP_ON_GILTINE_CLICK(frame)
-    -- CHAT_SYSTEM("ギルティネボタンがクリックされました")
-    local channelnum = session.loginInfo.GetChannel() + 1;
-    if channelnum ~= 1 then
-        g.ctrl = 2
-        GUILDEVENTWARP_CH_CHANGE()
-    else
-        g.ctrl = 0
-        local indunCls = GetClass('GuildEvent', 'GM_Giltine_1');
-
-        if indunCls ~= nil then
-            -- frame:ShowWindow(0)
-            local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
-            _BORUTA_ZONE_MOVE_CLICK(indunClsID)
-        end
-    end
+function GUILDEVENTWARP_move_to_guild_event(_, _, event_id)
+    g.channel_change = true
+    _BORUTA_ZONE_MOVE_CLICK(event_id)
 end
 
-function GUILDEVENTWARP_ON_BAUBAS_CLICK(frame)
-    -- CHAT_SYSTEM("バウバスボタンがクリックされました")
-    local channelnum = session.loginInfo.GetChannel() + 1;
-    if channelnum ~= 1 then
-        g.ctrl = 3
-        GUILDEVENTWARP_CH_CHANGE()
-    else
-        g.ctrl = 0
-        local indunCls = GetClass('GuildEvent', 'GM_Baubas_1');
-
-        if indunCls ~= nil then
-            -- frame:ShowWindow(0)
-            local indunClsID = TryGetProp(indunCls, 'ClassID', 0);
-            _BORUTA_ZONE_MOVE_CLICK(indunClsID)
-        end
+function GUILDEVENTWARP_ch_change()
+    local current_channel_num = session.loginInfo.GetChannel() + 1
+    if current_channel_num ~= 1 then
+        RUN_GAMEEXIT_TIMER("Channel", CH1_ID);
     end
 end
-
-function GUILDEVENTWARP_CH_CHANGE()
-    local channelID = 0 -- 0が1chらしい
-    local channelnum = session.loginInfo.GetChannel() + 1;
-    if channelnum ~= 1 then
-        -- CHAT_SYSTEM(channelnum)
-        RUN_GAMEEXIT_TIMER("Channel", channelID);
-    end
-end
-]]
 
