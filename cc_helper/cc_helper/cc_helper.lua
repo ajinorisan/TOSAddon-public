@@ -16,10 +16,11 @@
 -- v1.2.9 読込遅かったのを修正。その他ちょいバグ修正。
 -- v1.3.0 ヘアコスのエンチャントが3個じゃない場合バグってたの修正
 -- v1.3.1 オードクローズバグってたの修正。agm全キャラ処理追加
+-- v1.3.2 agm連携のトコ修正した
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.3.1"
+local ver = "1.3.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -155,7 +156,21 @@ function cc_helper_function_check()
     if g.share_settings.all_agm and g.share_settings.all_agm == 1 then
         g.agm = false
     else
-        if g.settings[g.cid].agm_use == 1 then
+        local found = false
+        for k, v in pairs(g.settings[g.cid]) do
+            if string.find(k, "gem") and type(v) == "table" then
+                for k2, v2 in pairs(v) do
+                    if k2 == "clsid" then
+                        if v2 > 0 then
+                            found = true
+                        end
+
+                    end
+                end
+            end
+        end
+
+        if g.settings[g.cid].agm_use == 1 or found == false then
             g.agm = true
         else
             g.agm = false
@@ -171,6 +186,7 @@ function cc_helper_function_check()
             g.settings[g.cid].mcc_use = 0
         end
     end
+
 end
 
 function CC_HELPER_ON_INIT(addon, frame)
@@ -664,7 +680,20 @@ function cc_helper_setting_frame_init()
         if g.share_settings.all_agm == 1 then
             g.agm = false
         else
-            if g.settings[g.cid].agm_use == 1 then
+            local found = false
+            for k, v in pairs(g.settings[g.cid]) do
+                if string.find(k, "gem") and type(v) == "table" then
+                    for k2, v2 in pairs(v) do
+                        if k2 == "clsid" then
+                            if v2 > 0 then
+                                found = true
+                            end
+
+                        end
+                    end
+                end
+            end
+            if g.settings[g.cid].agm_use == 1 or found == false then
                 g.agm = true
             else
                 g.agm = false
@@ -672,16 +701,16 @@ function cc_helper_setting_frame_init()
         end
     end
 
-    if g.agm then
-        local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
-        AUTO_CAST(agmuse)
-        agmuse:SetText("{ol}agm")
-        agmuse:SetTextTooltip(g.lang == "Japanese" and
-                                  "チェックを入れると[Aethergem Manager]と連携します。" or
-                                  "If checked, it will work with [Aethergem Manager].")
-        agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-        agmuse:SetCheck(g.settings[g.cid].agm_use)
-    end
+    -- if g.agm then
+    local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
+    AUTO_CAST(agmuse)
+    agmuse:SetText("{ol}agm")
+    agmuse:SetTextTooltip(
+        g.lang == "Japanese" and "チェックを入れると[Aethergem Manager]と連携します。" or
+            "If checked, it will work with [Aethergem Manager].")
+    agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+    agmuse:SetCheck(g.settings[g.cid].agm_use)
+    -- end
 
     function cc_helper_agm_setting(frame, ctrl, str, num)
         if g.settings[g.cid].agm_check == 0 then
