@@ -34,5 +34,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 33,33,0,40,40,0,35,0,0,0,0,0,0,"aklastyke","","","","","","","","","","","NO","YES","NO","Monster","SmartGen","","","Attack"
 34,34,0,40,9999,0,30,0,0,0,0,0,0,"aklasbairn","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"
 35,35,1,40,1,1000,1,0,0,0,1,0,0,"star_sphere_01","내성벽 지구 관측기","","","","","","","CASTLE203_KQ_1_NPC","","","NO","YES","NO","Neutral","","","",""
-40,58252,1,40,1,1,1,2,0,0,0,0,0,"npc_elevator","이동 장치","","","","","","","","","","NO","YES","NO","Neutral","","","",""
-41,58253,1,40,1,1,1,2,0,0,0,0,0,"npc_elevator","이동 장치","","","","","","","","","","NO","YES","NO","Neutral","","","",""

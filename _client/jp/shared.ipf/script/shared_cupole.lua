@@ -352,8 +352,12 @@ function GET_CUPOLE_UPGRADE_BY_GROUPID_LIST(group_id)
 end
 
 function GET_CUPOLE_AUTO_POTION_CLS(index)
-    local cls = GetClassByType('cupole_auto_potion', index)
-    return cls;
+    local cupole_cls = GetClassByType('cupole_list', index)
+    if cupole_cls then
+        local cls = GetClassByStrProp('cupole_auto_potion', "ClassName", cupole_cls.ClassName)
+        return cls;
+    end
+    return nil;
 end
 
 function GET_CUPOLE_CLASS_ACCOUNTPROP(accprop)

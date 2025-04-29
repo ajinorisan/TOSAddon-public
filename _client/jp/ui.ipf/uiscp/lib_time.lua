@@ -74,6 +74,7 @@ function UPDATE_TIMER_CTRLSET_BY_SEC(ctrlSet)
 	local elapsed = imcTime.GetAppTime() - ctrlSet:GetUserIValue("TIMER_START");
 	local remainSec = ctrlSet:GetUserIValue("REMAIN_SEC");
 	remainSec = remainSec - elapsed;
+
 	if 0 > remainSec then
 		local mgameInfo = session.mission.GetMGameInfo();
 		if mgameInfo ~= nil and mgameInfo:GetUserValue("ToEndBattle") > 0 then

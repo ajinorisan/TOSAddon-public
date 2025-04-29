@@ -22,8 +22,7 @@ end
 
 function ADVENTURE_BOOK_CRAFT.CLEAR()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
-	local page = GET_CHILD(gb_adventure, "page_craft", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_craft", "ui::CGroupBox");
 	local list_box = GET_CHILD(page, "craft_elem_list", "ui::CGroupBox");
 	local info_box = GET_CHILD(page, "craft_item_info_gb", "ui::CGroupBox");
 	
@@ -32,8 +31,7 @@ end
 
 function ADVENTURE_BOOK_CRAFT.FILL_CRAFT_LIST()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
-	local page = GET_CHILD(gb_adventure, "page_craft", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_craft", "ui::CGroupBox");
 	local list_box = GET_CHILD(page, "craft_elem_list", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local category_opt_list = GET_CHILD(page, "category_opt_list", "ui::CDropList");
@@ -145,8 +143,7 @@ end
 
 function ADVENTURE_BOOK_CRAFT.FILL_CRAFT_INFO()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
-	local page = GET_CHILD(gb_adventure, "page_craft", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_craft", "ui::CGroupBox");
 	local info_box = GET_CHILD(page, "craft_item_info_gb", "ui::CGroupBox");
 	info_box:RemoveAllChild();
 
@@ -184,8 +181,7 @@ end
 
 function ADVENTURE_BOOK_CRAFT.DROPDOWN_LIST_INIT()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
-	local page = GET_CHILD(gb_adventure, "page_craft", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_craft", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local category_opt_list = GET_CHILD(page, "category_opt_list", "ui::CDropList");
 	local sub_category_opt_list = GET_CHILD(page, "sub_category_opt_list", "ui::CDropList");
@@ -213,8 +209,7 @@ end
 
 function ADVENTURE_BOOK_CRAFT.DROPDOWN_LIST_UPDATE_SUB()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
-	local page = GET_CHILD(gb_adventure, "page_craft", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_craft", "ui::CGroupBox");
 	local category_opt_list = GET_CHILD(page, "category_opt_list", "ui::CDropList");
 	local sub_category_opt_list = GET_CHILD(page, "sub_category_opt_list", "ui::CDropList");
 	local categoryOption = category_opt_list:GetSelItemIndex();
@@ -234,7 +229,6 @@ function ADVENTURE_BOOK_CRAFT.DROPDOWN_LIST_UPDATE_SUB()
 		sub_category_opt_list:AddItem(9, ClMsg('THSpear'));
 		sub_category_opt_list:AddItem(10, ClMsg('Rapier'));
 		sub_category_opt_list:AddItem(11, ClMsg('Musket'));
-		sub_category_opt_list:AddItem(12, ClMsg('Cannon'));
 	elseif categoryOption == 2 then
 		sub_category_opt_list:SetEnable(1);
 		sub_category_opt_list:AddItem(1, ClMsg('Shirt'));
@@ -243,13 +237,14 @@ function ADVENTURE_BOOK_CRAFT.DROPDOWN_LIST_UPDATE_SUB()
 		sub_category_opt_list:AddItem(4, ClMsg('Gloves'));
 		sub_category_opt_list:AddItem(5, ClMsg('Neck'));
 		sub_category_opt_list:AddItem(6, ClMsg('Ring'));
+		sub_category_opt_list:AddItem(7, ClMsg('Shield'));
 		sub_category_opt_list:AddItem(8, ClMsg('Outer'));
 		sub_category_opt_list:AddItem(9, ClMsg('Hat'));
 	elseif categoryOption == 3 then
 		sub_category_opt_list:SetEnable(1);
 		sub_category_opt_list:AddItem(1, ClMsg('Dagger'));
 		sub_category_opt_list:AddItem(2, ClMsg('Pistol'));
-		sub_category_opt_list:AddItem(3, ClMsg('Shield'));
+		sub_category_opt_list:AddItem(3, ClMsg('Cannon'));
 		sub_category_opt_list:AddItem(4, ClMsg('ETC'));
 	else
 		sub_category_opt_list:SetEnable(0);
@@ -258,8 +253,7 @@ end
 
 function ADVENTURE_BOOK_CRAFT_SET_POINT()
     local adventure_book = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(adventure_book, "gb_adventure", "ui::CGroupBox");
-    local page_craft = gb_adventure:GetChild('page_craft');
+    local page_craft = adventure_book:GetChild('page_craft');
     local total_score_text = page_craft:GetChild('total_score_text');
     local totalScore = GET_ADVENTURE_BOOK_RECIPE_POINT();
     total_score_text:SetTextByKey('value', totalScore);

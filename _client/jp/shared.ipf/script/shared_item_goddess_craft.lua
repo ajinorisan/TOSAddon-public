@@ -40,11 +40,15 @@ function make_parameter_list()
 	parameter_list[480]['Armor'] = 500
 
 	parameter_list[490] = {} -- 
-	parameter_list[490]['Acc'] = 500 -- 바우드 -> EP16
+	parameter_list[490]['Acc'] = 510 -- 바우드 -> 네빌티스
 
 	parameter_list[500] = {} -- 500 -> 520 으로 계승
 	parameter_list[500]['Weapon'] = 520
 	parameter_list[500]['Armor'] = 520
+
+	parameter_list[510] = {} 
+	parameter_list[510]['Acc'] = 530 -- 네빌티스 -> 칼렌티스
+
 end
 make_parameter_list()
 
@@ -313,19 +317,35 @@ function setting_lv490_acc_inherit_target_list(list_by_lv)
 	}
 end
 
-function setting_lv500_acc_inherit_target_list(list_by_lv)
-	list_by_lv[500]['Neck'] = {
+function setting_lv510_acc_inherit_target_list(list_by_lv)
+	list_by_lv[510]['Neck'] = {
 		'EP16_NECK_01',
 		'EP16_NECK_02',
 		'EP16_NECK_03',
 		'EP16_NECK_04',
 	}
 
-	list_by_lv[500]['Ring'] = {
+	list_by_lv[510]['Ring'] = {
 		'EP16_BRC_01',
 		'EP16_BRC_02',	
 		'EP16_BRC_03',	
 		'EP16_BRC_04',	
+	}
+end
+
+function setting_lv530_acc_inherit_target_list(list_by_lv)
+	list_by_lv[530]['Neck'] = {
+		'EP17_Kalentis_NECK_01',
+		'EP17_Kalentis_NECK_02',
+		'EP17_Kalentis_NECK_03',
+		'EP17_Kalentis_NECK_04',
+	}
+
+	list_by_lv[530]['Ring'] = {
+		'EP17_Kalentis_BRC_01',
+		'EP17_Kalentis_BRC_02',	
+		'EP17_Kalentis_BRC_03',	
+		'EP17_Kalentis_BRC_04',	
 	}
 end
 
@@ -342,7 +362,9 @@ function make_goddess_inherit_target_list()
 	item_goddess_inherit_target_list[480] = {}
 	item_goddess_inherit_target_list[490] = {}
 	item_goddess_inherit_target_list[500] = {}
+	item_goddess_inherit_target_list[510] = {}
 	item_goddess_inherit_target_list[520] = {}
+	item_goddess_inherit_target_list[530] = {}
 
 	local list_by_lv = {}
 
@@ -353,7 +375,9 @@ function make_goddess_inherit_target_list()
 	list_by_lv[480] = {}
 	list_by_lv[490] = {}
 	list_by_lv[500] = {}
+	list_by_lv[510] = {}
 	list_by_lv[520] = {}
+	list_by_lv[530] = {}
 
 	list_by_lv[120]['Weapon'] = {}
 	list_by_lv[120]['Armor'] = {}
@@ -387,9 +411,13 @@ function make_goddess_inherit_target_list()
 	list_by_lv[520]['Armor'] = {}	
 	setting_lv520_inherit_target_list(list_by_lv)
 
-	list_by_lv[500]['Neck'] = {}
-	list_by_lv[500]['Ring'] = {}
-	setting_lv500_acc_inherit_target_list(list_by_lv)
+	list_by_lv[510]['Neck'] = {}
+	list_by_lv[510]['Ring'] = {}
+	setting_lv510_acc_inherit_target_list(list_by_lv)
+
+	list_by_lv[530]['Neck'] = {}
+	list_by_lv[530]['Ring'] = {}
+	setting_lv530_acc_inherit_target_list(list_by_lv)
 
 	for lv, _ in pairs(item_goddess_inherit_target_list) do
 		if list_by_lv[lv]['Weapon'] ~= nil then
@@ -503,12 +531,10 @@ item_goddess_craft.check_enable_inherit_item = function(item)
 		end
 
 		if grade == 6 and use_lv >= 460 then
-			if TryGetProp(item, 'StringArg', 'None') == 'Goddess_Vasilisa' then
-				return true, 'None'
-			end
-
-			if TryGetProp(item, 'Reinforce_2', 0) < 20 then				
-				return false, 'Require20Reinforce'
+			if grade == 6 and use_lv >= 460 then
+				if TryGetProp(item, 'StringArg', 'None') ~= 'Goddess_Vasilisa' and TryGetProp(item, 'Reinforce_2', 0) < 20 then			
+						return false, 'Require20Reinforce'
+				end
 			end
 		end
 	end
@@ -634,7 +660,10 @@ item_goddess_craft.get_inherit_option_value = function(item)
 		reinf_value = 0
 	end
 
-	return reinf_value, enchant_name, enchant_value
+	local enchant_upgrade_rank = TryGetProp(item, 'UpgradeRank', 0)
+	enchant_upgrade_rank = math.floor(enchant_upgrade_rank * 0.5)
+
+	return reinf_value, enchant_name, enchant_value, enchant_upgrade_rank
 end
 
 -- 가디스 480레벨(계승으로 생성되는 아이템) 이상 방어구(상의, 하의, 장갑, 신발)에 기본적으로 부여할 옵션의 수치(힘/민/지/체)

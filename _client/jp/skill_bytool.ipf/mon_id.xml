@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ToolSkill>
-    <Skill Name="Mon_ID_boss_kucarry_balzermancer_Skill_11">
+<ToolSkill><Skill Name="Mon_ID_boss_kucarry_balzermancer_Skill_11">
 		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<HitList>
 				<Frame Angle="-0.016878771" AniTime="1400" Dist="11.153663" ForceATK="0" HitCount="4" Length="130" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.34906587" TermMax="0" TermMin="400" Time="1200" Type="FAN" Width="30" />
@@ -1025,7 +1024,7 @@
 					<Num Num="1" />
 				</Scp>
 				<Scp Client="NO" Scp="SKL_BUFF" Time="1800" UseSleep="NO">
-					<Str Str="Mon_Shield" />
+					<Str Str="Boss_Reflect_attack" />
 					<Num Num="1" />
 					<Num Num="0" />
 					<Num Num="0" />
@@ -1056,6 +1055,9 @@
 					<Num Num="0.5" />
 					<Num Num="0" />
 					<Num Num="1" />
+				</Scp>
+				<Scp Client="NO" Scp="SKL_BUFF_REMOVE" Time="3000" UseSleep="NO">
+					<Str Str="Boss_Reflect_attack" />
 				</Scp>
 			</EtcList>
 		</MainSkl>
@@ -4204,92 +4206,92 @@
 	</Skill>
 	<Skill Name="Mon_ID_boss_Fireload_Skill_5">
 		<CondList>
-            <Scp Scp="SCOND_USE_CNT" Client="NO" UseSleep="NO" Time="0">
+			<Scp Client="NO" Scp="SCOND_USE_CNT" Time="0" UseSleep="NO">
 				<Num Num="3" />
 			</Scp>
 		</CondList>
-        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<HitList>
-                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+				<Frame Angle="0" AniTime="10199" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9999" Type="FAN" />
 			</HitList>
 			<EtcList>
-                <Anim Time="0" Anim="skl1" Speed="1"/>
-                <Anim Time="1200" Anim="skl3" Speed="1"/>
-                <Scp Scp="MONSKL_CRE_MON_PC" Client="NO" UseSleep="NO" Time="3500">
+				<Anim Anim="skl1" Speed="1" Time="0" />
+				<Anim Anim="skl3" Speed="1" Time="1200" />
+				<Scp Client="NO" Scp="MONSKL_CRE_MON_PC" Time="3500" UseSleep="NO">
 					<Str Str="Fire_Dragon_summon" />
-                    <Pos Angle="0.32100755" Dist="85.565987" Rand="20" Height="1"/>
+					<Pos Angle="0.32100755" Dist="85.565987" Height="1" Rand="20" />
 					<Angle Angle="0" />
 					<Str Str="" />
 					<Str Str="BasicMonster_ATK" />
 					<Num Num="-5" />
 					<Num Num="0" />
 					<Str Str="None" />
-                    <MonProp List="DropItemList#None"/>
+					<MonProp />
 					<Num Num="0" />
 					<Num Num="2" />
 				</Scp>
-                <Scp Scp="MONSKL_CRE_MON_PC" Client="NO" UseSleep="NO" Time="3500">
+				<Scp Client="NO" Scp="MONSKL_CRE_MON_PC" Time="3500" UseSleep="NO">
 					<Str Str="Fire_Dragon_summon" />
-                    <Pos Angle="-0.37263167" Dist="79.838264" Rand="20" Height="1"/>
+					<Pos Angle="-0.37263167" Dist="79.838264" Height="1" Rand="20" />
 					<Angle Angle="0" />
 					<Str Str="" />
 					<Str Str="BasicMonster_ATK" />
 					<Num Num="-5" />
 					<Num Num="0" />
 					<Str Str="None" />
-                    <MonProp List="DropItemList#None"/>
+					<MonProp />
 					<Num Num="0" />
 					<Num Num="2" />
 				</Scp>
-                <Scp Scp="MONSKL_CRE_MON_PC" Client="NO" UseSleep="NO" Time="3500">
+				<Scp Client="NO" Scp="MONSKL_CRE_MON_PC" Time="3500" UseSleep="NO">
 					<Str Str="Fire_Dragon_summon" />
-                    <Pos Angle="1.5321561" Dist="70.989891" Rand="20" Height="1"/>
+					<Pos Angle="1.5321561" Dist="70.989891" Height="1" Rand="20" />
 					<Angle Angle="0" />
 					<Str Str="" />
 					<Str Str="BasicMonster_ATK" />
 					<Num Num="-5" />
 					<Num Num="0" />
 					<Str Str="None" />
-                    <MonProp List="DropItemList#None"/>
+					<MonProp />
 					<Num Num="0" />
 					<Num Num="2" />
 				</Scp>
-                <Scp Scp="MONSKL_CRE_MON_PC" Client="NO" UseSleep="NO" Time="3500">
+				<Scp Client="NO" Scp="MONSKL_CRE_MON_PC" Time="3500" UseSleep="NO">
 					<Str Str="pyran_summon" />
-                    <Pos Angle="-1.4787614" Dist="90.717865" Rand="20" Height="1"/>
+					<Pos Angle="-1.4787614" Dist="90.717865" Height="1" Rand="20" />
 					<Angle Angle="0" />
 					<Str Str="" />
 					<Str Str="BasicMonster_ATK" />
 					<Num Num="-5" />
 					<Num Num="0" />
 					<Str Str="None" />
-                    <MonProp List="DropItemList#None"/>
+					<MonProp />
 					<Num Num="0" />
 					<Num Num="2" />
 				</Scp>
-                <Scp Scp="MONSKL_CRE_MON_PC" Client="NO" UseSleep="NO" Time="3500">
+				<Scp Client="NO" Scp="MONSKL_CRE_MON_PC" Time="3500" UseSleep="NO">
 					<Str Str="pyran_summon" />
-                    <Pos Angle="2.4150548" Dist="73.976318" Rand="20" Height="1"/>
+					<Pos Angle="2.4150548" Dist="73.976318" Height="1" Rand="20" />
 					<Angle Angle="0" />
 					<Str Str="" />
 					<Str Str="BasicMonster_ATK" />
 					<Num Num="-5" />
 					<Num Num="0" />
 					<Str Str="None" />
-                    <MonProp List="DropItemList#None"/>
+					<MonProp />
 					<Num Num="0" />
 					<Num Num="2" />
 				</Scp>
-                <Scp Scp="MONSKL_CRE_MON_PC" Client="NO" UseSleep="NO" Time="3500">
+				<Scp Client="NO" Scp="MONSKL_CRE_MON_PC" Time="3500" UseSleep="NO">
 					<Str Str="pyran_summon" />
-                    <Pos Angle="-2.4965816" Dist="63.888355" Rand="20" Height="1"/>
+					<Pos Angle="-2.4965816" Dist="63.888355" Height="1" Rand="20" />
 					<Angle Angle="0" />
 					<Str Str="" />
 					<Str Str="BasicMonster_ATK" />
 					<Num Num="-5" />
 					<Num Num="0" />
 					<Str Str="None" />
-                    <MonProp List="DropItemList#None"/>
+					<MonProp />
 					<Num Num="0" />
 					<Num Num="2" />
 				</Scp>
@@ -4505,23 +4507,22 @@
 		</MainSkl>
 	</Skill>
 	<Skill Name="Mon_ID_boss_Fireload_Skill_3">
-        <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<HitList>
-                <Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+				<Frame Angle="0" AniTime="10199" Dist="0" ForceATK="0" HitCount="1" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" TermMax="0" TermMin="0" Time="9999" Type="FAN" />
 			</HitList>
 			<EtcList>
-                <Anim Time="0" Anim="skl2" Speed="1"/>
-                <Scp Scp="MONSKL_PAD_MSL_BUCK" Client="NO" UseSleep="YES" TooltipScp="TOOLTIP_MONSKL_PAD_MSL_BUCK" Time="2000">
+				<Anim Anim="skl2" Speed="1" Time="0" />
+				<Scp Client="NO" Scp="MONSKL_PAD_MSL_BUCK" Time="2000" TooltipScp="TOOLTIP_MONSKL_PAD_MSL_BUCK" UseSleep="YES">
 					<Pos Angle="0" Dist="0" />
 					<Str Str="Mon_Fireball_santan" />
 					<Angle Angle="0" />
 					<Num Num="250" />
 					<Num Num="10" />
-                    <Num Num="0" UseFunc="1" FuncTxt=" return IMCRandom(360 , 720);"/>
+					<Num FuncTxt=" return IMCRandom(360 , 720);" Num="0" UseFunc="1" />
 					<Num Num="80" />
 					<Num Num="100" />
 					<Num Num="200" />
-                    <Num Num="1"/>
 				</Scp>
 			</EtcList>
 		</MainSkl>

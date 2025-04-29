@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
 <Exception>
 	<Word Msg="쉐이더테스트"/>
 	<Word Msg="눈까리"/>
@@ -209,43 +209,5 @@
 	<Word Msg="icon_item_accessory_blackglass"/>
 	<Word Msg="icon_item_chassepot_1"/>
 	<Word Msg="SMALLSIZE"/>
-	<Word Msg="musket_bnhierophant"/>
-	<Word Msg="veronica"/>
-	<Word Msg="가비야 사제"/>
-	<Word Msg="비야 사제"/>
-	<Word Msg="가비야사제"/>
-	<Word Msg="비야사제"/>
-	<Word Msg="merog"/>
-	<Word Msg="글래스몰카드"/>
-	<Word Msg="글래스몰 카드"/>
-	<Word Msg="tasselhat"/>
-	<Word Msg="icon_item_unique_glass"/>
-	<Word Msg="icon_item_unique_glass_1line"/>
-	<Word Msg="glass"/>
-	<Word Msg="씹어"/>
-	<Word Msg="asmr"/>
-	<Word Msg="coral"/>
-	<Word Msg="tassel"/>
-	<Word Msg="스태그발러스발견"/>
-	<Word Msg="디오니스발견"/>
-	<Word Msg="hero"/>
-	<Word Msg="smith"/>
-	<Word Msg="비스발다스"/>
-	<Word Msg="Cryomancer_SubzeroShield"/>
-	<Word Msg="Chronomancer_Pass"/>
-	<Word Msg="발러스발견"/>
-	<Word Msg="small"/>
-	<Word Msg="빌크티스발견"/>
-	<Word Msg="빌크티스 발견"/>
-	<Word Msg="twinklerod"/>
-	<Word Msg="드파시팔찌"/>
-	<Word Msg="파시팔찌"/>
-	<Word Msg="grass"/>
-	<Word Msg="해빙신발"/>
-	<Word Msg="루시팔찌"/>
-	<Word Msg="conqueror"/>
-	<Word Msg="WingedHussars"/>
-	<Word Msg="Hussars"/>
-	<Word Msg="conqueror"/>
-	<Word Msg="icon_item_misc_transmutationSpreader_NoTrade"/>	
+  <Word Msg="musket_bnhierophant"/>
 </Exception>

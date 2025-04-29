@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMCGames Co., Ltd (IMCGames Co., Ltd) -->
+<uiframe name="escapeinput" x="0" y="0" width="800" height="140">
+	<draw drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame fullheight="false" fasthide="false" layout_gravity="center bottom" margin="0 0 0 260" draw="false"/>
+	<input moveable="false" hittestframe="false" moveintitlebar="false"/>
+	<option closebutton="false"/>
+	<script OpenScp="ESCAPEINPUT_OPEN" CloseScp="ESCAPEINPUT_CLOSE"/>
+	<sound opensound="sys_event_window_open_1" closesound="None"/>
+	<layer layerlevel="92"/>
+	<userconfig KEY_IMG_SIZE="40" KEY_INPUT_SOUND="skl_eff_luchador_martinete_combo_click" LAST_KEY_INPUT_SOUND="skl_eff_luchador_martinete_combo_end_click"/>
+	<controls>
+		<groupbox name="bg" rect="0 0 128 128" margin="0 0 0 0" layout_gravity="center top" skin="test_frame_midle" draw="false" hittest="false" resizebyparent="false" resizebyresolution="false"/>
+	</controls>
+</uiframe>

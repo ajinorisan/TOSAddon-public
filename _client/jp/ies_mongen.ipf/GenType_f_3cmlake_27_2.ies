@@ -10,7 +10,7 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 9,9,1,40,1,60000,1,0,0,0,0,0,0,"woodenwall_trap3","방책","","","","","","","F_3CMLAKE_27_2_SQ_1_NPC6","","","NO","YES","NO","Neutral","","","",""
 10,10,1,40,1,60000,1,0,0,0,0,0,0,"woodenwall_trap3","방책","","","","","","","F_3CMLAKE_27_2_SQ_1_NPC7","","","NO","YES","NO","Neutral","","","",""
 11,11,1,40,1,60000,1,0,0,0,0,0,0,"woodenwall_trap3","방책","","","","","","","F_3CMLAKE_27_2_SQ_1_NPC8","","","NO","YES","NO","Neutral","","","",""
-12,12,1,40,1,10000,8,0,0,0,1,0,0,"Hiddennpc_Q2","","","","","","","","F_3CMLAKE_27_2_SQ_2_HNPC1","","","NO","YES","NO","Neutral","","","",""
+12,12,1,40,1,10000,8,0,0,0,1,0,0,"Hiddennpc_Q1","","","","","","","","F_3CMLAKE_27_2_SQ_2_HNPC1","","","NO","YES","NO","Neutral","","","",""
 14,14,1,40,1,60000,1,1,0,0,0,0,0,"mon_paladin_follower2_1","수비대 대원","","","","","","","F_3CMLAKE_27_2_SQ_4_NPC1","","","NO","YES","NO","Neutral","","","",""
 15,15,1,40,1,60000,1,1,0,0,0,0,0,"mon_paladin_follower2_2","수비대 대원","","","","","","","F_3CMLAKE_27_2_SQ_4_NPC2","","","NO","YES","NO","Neutral","","","",""
 16,16,1,40,1,60000,1,1,0,0,0,0,0,"mon_paladin_follower2_3","수비대 대원","","","","","","","F_3CMLAKE_27_2_SQ_4_NPC3","","","NO","YES","NO","Neutral","","","",""

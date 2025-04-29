@@ -6558,6 +6558,17 @@
 			<img name="bottomcore" imgrect="345 117 34 1"/>
 			<img name="bottomright" imgrect="380 117 20 1"/>
 		</skin>
+		<skin name="whiteday_icecream_balloon" texture="\skin\say_balloon.tga">
+			<img name="topleft" imgrect="509 481 55 29"/>
+			<img name="topcore" imgrect="565 481 62 29"/>
+			<img name="topright" imgrect="628 481 55 29"/>
+			<img name="bodyleft" imgrect="509 511 55 28"/>
+			<img name="bodycore" imgrect="565 511 62 28"/>
+			<img name="bodyright" imgrect="628 511 55 28"/>
+			<img name="bottomleft" imgrect="509 540 55 29"/>
+			<img name="bottomcore" imgrect="565 540 62 29"/>
+			<img name="bottomright" imgrect="628 540 55 29"/>
+		</skin>
 	</skinlist>
 	<skinlist category="yiseul_buttons">
 		<skin name="worldmap2_btn_round" texture="\skin\worldmap2.tga">
@@ -10295,6 +10306,7 @@
 		<image name="Map_SeasonEarringRaid" file="\skin\indunmap\Map_SeasonEarringRaid.png" imgrect="0 0 295 450" CMM_Caption="시즌 여신의 전언: 운명의 여흔"/>
 		<image name="Map_Neringa" file="\skin\indunmap\Map_Neringa.png" imgrect="0 0 295 450" CMM_Caption="다크 네링가"/>
 		<image name="Map_Crystalgolem" file="\skin\indunmap\Map_Crystalgolem.png" imgrect="0 0 295 450" CMM_Caption="수정 골렘"/>
+		<image name="Map_Redania" file="\skin\indunmap\Map_Redania.png" imgrect="0 0 295 450" CMM_Caption="수정 골렘"/>
 	</imagelist>
 	<imagelist category="jootest_image">
 		<image name="market_hairacc" file="\skin\market_skin.tga" imgrect="1927 447 60 60" CMM_Caption="마켓_헤어악세사리"/>
@@ -11731,6 +11743,8 @@
 		<image name="stamp_A_mark" file="\skin\stamp_tour.tga" imgrect="1477 650 97 74" CMM_Caption="스탬프 A"/>
 		<image name="stamp_B_mark" file="\skin\stamp_tour.tga" imgrect="1575 650 97 74" CMM_Caption="스탬프 B"/>
 		<image name="popolion_roulette_title" file="\skin\popolion_roulette.tga" imgrect="0 0 637 466" CMM_Caption="포포리온 룰렛 타이틀"/>
+		<image name="Chat_Balloon_whiteday_icecream_deco" file="\skin\say_balloon.tga" imgrect="264 739 75 57" CMM_Caption="화이트데이 아이스크림"/>
+		<image name="whiteday_icecream_balloon_direction" file="\skin\say_balloon.tga" imgrect="745 153 82 75" CMM_Caption="과일 오렌지 말꼬리"/>
 	</imagelist>
 	<imagelist category="yiseul_image">
 		<image name="AbillityReset_skin" file="\skin\paid_skin_title.tga" imgrect="0 330 316 165" CMM_Caption="특성 초기화"/>
@@ -13439,6 +13453,8 @@
 		<image name="companion_pet_sled_skyblue" file="\icon\companion_Velhider.tga" imgrect="560 400 80 80"/>
 		<image name="companion_pet_sled_green" file="\icon\companion_Velhider.tga" imgrect="0 480 80 80"/>
 		<image name="companion_pet_jpn3th_fox" file="\icon\companion_Velhider02.tga" imgrect="0 0 80 80"/>
+		<image name="companion_pet_tosw2th_mermaidpopo" file="\icon\companion_Velhider02.tga" imgrect="80 0 80 80"/>
+		<image name="companion_pet_tosw2th_mermaidpopo2" file="\icon\companion_Velhider02.tga" imgrect="160 0 80 80"/>
 		<image name="companion_pet_nightrabbit" file="\icon\companion_Velhider.tga" imgrect="80 480 80 80"/>
 		<image name="companion_pet_ep13dessert_pink" file="\icon\companion_Velhider.tga" imgrect="160 480 80 80"/>
 		<image name="bg_w" file="\skin\button.tga" imgrect="252 974 50 50"/>
@@ -14157,6 +14173,10 @@
 		<image name="emoticonItem_2412_173" file="\icon\emoticon\smtih_sorry.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2412_174" file="\icon\emoticon\smith_ok.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2412_175" file="\icon\emoticon\smith_die.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2503_176" file="\icon\emoticon\honeybee.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2503_177" file="\icon\emoticon\honeybee_yami.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2504_178" file="\icon\emoticon\popo_ura_hito1.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2504_179" file="\icon\emoticon\popo_ura_hito_2.png" imgrect="0 0 128 128"/>
 	</imagelist>
 	<imagelist category="itemtooltip_image">
 		<image name="circle_gem" file="\skin\tooltip_skin_3.tga" imgrect="805 228 30 30"/>
@@ -14783,6 +14803,7 @@
 		<image name="icon_gesture_Luchador" file="\icon\social.tga" imgrect="325 730 80 80"/>
 		<image name="icon_gesture_flower_scent" file="\icon\social.tga" imgrect="405 730 80 80"/>
 		<image name="icon_gesture_queencard" file="\icon\social.tga" imgrect="1 811 80 80"/>
+		<image name="icon_gesture_KawaikuteGomen" file="\icon\social.tga" imgrect="82 811 80 80"/>
 	</imagelist>
 	<imagelist>
 		<image name="chat_page_arrow_left" file="\skin\mainframe_A.tga" imgrect="766 943 40 40"/>
@@ -15016,6 +15037,7 @@
 		<image name="minimap_mon_leader" file="\icon\minimap_icon3.tga" imgrect="0 1213 80 80"/>
 		<image name="minimap_vulture" file="\icon\minimap_icon3.tga" imgrect="162 1137 80 80"/>
 		<image name="minimap_sledger" file="\icon\minimap_icon3.tga" imgrect="243 1137 80 80"/>
+		<image name="minimap_bonemancer" file="\icon\minimap_icon3.tga" imgrect="324 1137 80 80"/>
 	</imagelist>
 	<imagelist category="quest_tags">
 		<image name="quest_tag_1_MAIN" file="\icon\minimap_icon.tga" imgrect="61 31 16 16"/>
@@ -15523,6 +15545,8 @@
 		<image name="Dlg_port_vulture" file="\npcimg\vulture_master.png" imgrect="0 0 1590 900" CMM_Caption="벌쳐"/>
 		<image name="Dlg_port_sledger" file="\npcimg\sledger_master.png" imgrect="0 0 859 1200" CMM_Caption="슬레저"/>
 		<image name="Dlg_port_santa_Teliavelis" file="\npcimg\santa_Teliavelis.png" imgrect="0 0 989 1124" CMM_Caption="산타 테리아베이스"/>
+		<image name="Dlg_port_redania" file="\npcimg\redania.png" imgrect="0 0 1210 900" CMM_Caption="레다니아"/>
+		<image name="Dlg_port_bonemancer" file="\npcimg\bonemancer_master.png" imgrect="0 0 900 1025" CMM_Caption="본맨서"/>
 	</imagelist>
 	<imagelist category="Dlg_boss">
 		<image name="balloon_Skiaclipse" file="\skin\monster_Dlg.tga" imgrect="0 0 220 260" CMM_Caption="스키아클립스"/>
@@ -15542,6 +15566,8 @@
 		<image name="balloon_boss_MerreginaDespair" file="\skin\monster_Dlg_02.tga" imgrect="0 261 220 260" CMM_Caption="절망의 머레지나"/>
 		<image name="balloon_boss_neringa_of_evil" file="\skin\monster_Dlg_02.tga" imgrect="221 261 220 260" CMM_Caption="악의 자아에 물든 네링가"/>
 		<image name="balloon_boss_crystal_golem" file="\skin\monster_Dlg_02.tga" imgrect="442 261 220 260" CMM_Caption="수정 골렘"/>
+		<image name="balloon_boss_redania" file="\skin\monster_Dlg_02.tga" imgrect="0 522 220 260" CMM_Caption="레다니아"/>
+
 	</imagelist>
 	<imagelist category="bufficon">
 		<image name="icon_Str_up" file="\icon\buff_icon.tga" imgrect="256 384 128 128" CMM_Caption="힘+"/>
@@ -16371,6 +16397,22 @@
 		<image name="icon_raid_crystalgolem_autoclear" file="\icon\buff_icon7.tga" imgrect="896 512 128 128" CMM_Caption="수정 골렘 자동 소탕 버프"/>
 		<image name="icon_buff_ridepet_elephant" file="\icon\buff_icon7.tga" imgrect="0 640 128 128" CMM_Caption="코끼리"/>
 		<image name="icon_buff_ridepet_scooter_red" file="\icon\buff_icon7.tga" imgrect="128 640 128 128" CMM_Caption="포포 스쿠터(레드)"/>
+		<image name="icon_buff_ridepet_woodsnake" file="\icon\buff_icon7.tga" imgrect="0 768 128 128" CMM_Caption="나무 뱀"/>
+		<image name="icon_buff_ridepet_chariot" file="\icon\buff_icon7.tga" imgrect="768 640 128 128" CMM_Caption="전차"/>
+		<image name="icon_buff_ridepet_white_tiger" file="\icon\buff_icon7.tga" imgrect="128 768 128 128" CMM_Caption="백호"/>
+		<image name="icon_buff_fatal_fragrance" file="\icon\buff_icon7.tga" imgrect="256 768 128 128" CMM_Caption="매혹의 향기"/>
+		<image name="icon_buff_beeswax" file="\icon\buff_icon7.tga" imgrect="384 768 128 128" CMM_Caption="밀랍 덩어리"/>
+		<image name="icon_buff_beeswax_polluted" file="\icon\buff_icon7.tga" imgrect="512 768 128 128" CMM_Caption="오염된 밀랍 덩어리"/>
+		<image name="icon_buff_redania_fury" file="\icon\buff_icon7.tga" imgrect="640 768 128 128" CMM_Caption="레다니아의 격노"/>
+		<image name="icon_buff_stinger" file="\icon\buff_icon7.tga" imgrect="768 768 128 128" CMM_Caption="마비 독침"/>
+		<image name="icon_buff_illusion" file="\icon\buff_icon7.tga" imgrect="896 768 128 128" CMM_Caption="환영 저주"/>
+		<image name="icon_buff_ridepet_chariot_white" file="\icon\buff_icon7.tga" imgrect="896 640 128 128" CMM_Caption="백색 전차"/>
+		<image name="icon_raid_redania_autoclear" file="\icon\buff_icon7.tga" imgrect="0 896 128 128" CMM_Caption="레다니아 자동 소탕 버프"/>
+		<image name="icon_buff_wild_honey" file="\icon\buff_icon7.tga" imgrect="128 896 128 128" CMM_Caption="끈적끈적 야생 꿀"/>
+		<image name="icon_buff_sakura" file="\icon\buff_icon7.tga" imgrect="256 896 128 128" CMM_Caption="연분홍 벚꽃"/>
+		<image name="icon_buff_ridepet_ninetail" file="\icon\buff_icon7.tga" imgrect="384 896 128 128" CMM_Caption="은여우"/>
+		<image name="icon_buff_mermaidpopo" file="\icon\buff_icon7.tga" imgrect="512 896 128 128" CMM_Caption="머메이드 포포"/>
+		<image name="icon_buff_mermaidpopo2" file="\icon\buff_icon7.tga" imgrect="640 896 128 128" CMM_Caption="머맨 포포"/>
 	</imagelist>
 	<imagelist category="housing_bufficon">
 		<image name="icon_Weapon_Klaida" file="\icon\icon_hosing_buff.tga" imgrect="0 0 128 128"/>
@@ -16815,6 +16857,7 @@
 		<image name="172_boss_MerreginaDespair" file="\skin\bosscard\172_boss_MerreginaDespair.png" imgrect="0 0 330 440"/>
 		<image name="173_boss_DarkNeringa" file="\skin\bosscard\173_boss_DarkNeringa.tga" imgrect="0 0 330 440"/>
 		<image name="174_boss_CrystalGolem" file="\skin\bosscard\174_boss_CrystalGolem.tga" imgrect="0 0 330 440"/>
+		<image name="175_boss_Redania" file="\skin\bosscard\175_boss_Redania.tga" imgrect="0 0 330 440"/>	
 	</imagelist>
 	<imagelist category="sub_card3">
 		<image name="legend_card_fragment_lv1" file="\skin\bosscard\legend_card_fragment_lv1.tga" imgrect="0 0 330 440"/>
@@ -17211,6 +17254,13 @@
 		<image name="plate_achieve_CA" file="\skin\user_title_skin2.tga" imgrect="642 306 214 34" CMM_Caption="CA"/>
 		<image name="plate_achieve_XMas2024" file="\skin\user_title_skin2.tga" imgrect="856 306 214 34" CMM_Caption="크리스마스 2024"/>
 		<image name="plate_achieve_Santasmith" file="\skin\user_title_skin2.tga" imgrect="1070 306 214 34" CMM_Caption="산타스미스"/>
+		<image name="plate_achieve_Boss_Redania_gold" file="\skin\user_title_skin2.tga" imgrect="214 340 214 34" CMM_Caption="레다니아 골드"/>
+		<image name="plate_achieve_Boss_Redania_silver" file="\skin\user_title_skin2.tga" imgrect="428 340 214 34" CMM_Caption="레다니아 실버"/>
+		<image name="plate_achieve_Boss_Redania_bronze" file="\skin\user_title_skin2.tga" imgrect="642 340 214 34" CMM_Caption="레다니아 브론즈"/>
+		<image name="plate_achieve_Boss_Redania" file="\skin\user_title_skin2.tga" imgrect="0 340 214 34" CMM_Caption="레다니아 150회 클리어"/>
+		<image name="plate_achieve_Bonemancer_weekraid" file="\skin\user_title_skin2.tga" imgrect="856 340 214 34" CMM_Caption="본맨서 주보레 칭호"/>
+		<image name="plate_achieve_Bonemancer" file="\skin\user_title_skin2.tga" imgrect="1070 340 214 34" CMM_Caption="본맨서 칭호"/>
+		<image name="plate_achieve_jumpinup" file="\skin\user_title_skin2.tga" imgrect="0 374 214 34" CMM_Caption="포포부스트 jumpin up"/>
 	</imagelist>
 	<imagelist category="skin_hair">
 		<image name="icon_skintone_01_m01" file="\skin\skinhair\icon_skintone_01_m01.png" imgrect="0 0 80 80" CMM_Caption="남성 01"/>
@@ -17377,6 +17427,11 @@
 		<image name="ridepet_capybara" file="\icon\ridepet.tga" imgrect="240 240 80 80" CMM_Caption="카피바라"/>
 		<image name="ridepet_elephant" file="\icon\ridepet.tga" imgrect="320 240 80 80" CMM_Caption="코끼리"/>
 		<image name="ridepet_scooter_red" file="\icon\ridepet.tga" imgrect="400 240 80 80" CMM_Caption="코끼리"/>
+		<image name="ridepet_woodsnake" file="\icon\ridepet.tga" imgrect="320 320 80 80" CMM_Caption="나무뱀"/>
+		<image name="ridepet_chariot" file="\icon\ridepet.tga" imgrect="160 320 80 80" CMM_Caption="전차"/>
+		<image name="ridepet_whitetiger" file="\icon\ridepet.tga" imgrect="400 320 80 80" CMM_Caption="백호"/>
+		<image name="ridepet_chariot_white" file="\icon\ridepet.tga" imgrect="240 320 80 80" CMM_Caption="백색 전차"/>
+		<image name="ridepet_ninetail" file="\icon\ridepet.tga" imgrect="480 320 80 80" CMM_Caption="은색 구미호"/>
 	</imagelist>
 	<effectimagelist category="effectlist">
 		<image name="blue_orb" file="\icon\blue_orb.tga" imgrect="0 0 256 256"/>
@@ -17565,6 +17620,9 @@
 		<image name="popoboost_guide_quest_icon" file="\skin\popoboost_event_skin.tga" imgrect="703 652 72 72" CMM_Caption="포포리온 룰렛 타이틀"/>
 		<image name="popoboost_guide_quest_icon_cursoron" file="\skin\popoboost_event_skin.tga" imgrect="776 652 72 72" CMM_Caption="포포리온 룰렛 타이틀"/>
 		<image name="popoboost_guide_quest_icon_clicked" file="\skin\popoboost_event_skin.tga" imgrect="849 652 72 72" CMM_Caption="포포리온 룰렛 타이틀"/>
+		<image name="popoboost_minimized_button2" file="\skin\popoboost_event_skin.tga" imgrect="144 388 72 72"/>
+		<image name="popoboost_minimized_button2_cursoron" file="\skin\popoboost_event_skin.tga" imgrect="216 388 72 72"/>
+		<image name="popoboost_minimized_button2_clicked" file="\skin\popoboost_event_skin.tga" imgrect="216 388 72 72"/>
 	</imagelist>
 	<imagelist category="hudskin">
 		<image name="weekboss_default_hud_soulCrystal_bg" file="\skin\indun_skin.tga" imgrect="614 552 83 86" CMM_Caption="소울크리스탈 횟수제한 UI"/>
@@ -17753,5 +17811,9 @@
 		<image name="santa_item_gacha_btn2" file="\skin\santa_frame.tga" imgrect="709 0 220 70"/>
 		<image name="santa_item_gacha_btn2_cursoron" file="\skin\santa_frame.tga" imgrect="709 73 220 70"/>
 		<image name="santa_item_gacha_btn2_clicked" file="\skin\santa_frame.tga" imgrect="709 73 220 70"/>
+	</imagelist>
+	<imagelist category="Gimmick">
+		<image name="gimmick_left" file="\icon\gimmick_left.png" imgrect="0 0 256 256"/>
+		<image name="gimmick_right" file="\icon\gimmick_right.png" imgrect="0 0 256 256"/>
 	</imagelist>
 </skinset>

@@ -30,4 +30,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,P
 1002,1002,1,40,1,60000,1,0,0,0,0,0,0,"noshadow_npc","UnvisibleName","","","","","","","","THORN39_3_SQ07_OBJ1","","NO","YES","NO","Neutral","Effect/F_light080_blue/1/2","","",""
 1003,1003,1,40,1,60000,1,0,0,0,0,0,0,"noshadow_npc","UnvisibleName","","","","","","","","THORN39_3_SQ07_OBJ2","","NO","YES","NO","Neutral","Effect/F_light080_blue/1/2","","",""
 1004,1004,1,40,1,60000,1,0,0,0,0,0,0,"noshadow_npc","UnvisibleName","","","","","","","","THORN39_3_SQ07_OBJ3","","NO","YES","NO","Neutral","Effect/F_light080_blue/1/2","","",""
-1005,1005,1,150,-1,10000,1,0,0,0,0,0,1,"HiddenTrigger6","HIDDEN_MIKO_3CMLAKE_83_TRIGGER","","","","HIDDEN_MIKO_3CMLAKE_83_TAC","","","","","","NO","YES","NO","Neutral","","","",""

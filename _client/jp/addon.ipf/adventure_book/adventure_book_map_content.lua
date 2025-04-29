@@ -158,7 +158,7 @@ function ADVENTURE_BOOK_MAP_CONTENT.FILTER_LIST(list, sortOption, stateOption, s
 		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_MAP_CONTENT['IS_NOT_COMPLETE'])
 	end
 	
-	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Map", {"Name"}, searchText)
+	list = ADVENTURE_BOOK_SEARCH_PROP_BY_CLASSID_FROM_LIST(list, "Map", "Name", searchText)
 
 	if sortOption == 0 then
         table.sort(list, ADVENTURE_BOOK_MAP_CONTENT['SORT_NAME_BY_CLASSID_ASC']);

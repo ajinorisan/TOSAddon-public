@@ -200,6 +200,15 @@
 		<Element Name="Kupole_SantaZemyna_UR" root="zemyna_santa" atlas="zemyna_santa" json="zemyna_santa" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
 	</Spine>
 	<Spine>
+		<Element Name="Kupole_Lada_UR" root="rada_m" atlas="rada_m" json="rada_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Naktis_UR" root="naktis" atlas="naktis" json="naktis" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Zesty_UR" root="zesty_m" atlas="zesty_m" json="zesty_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
 		<Element Name="Cache" root="Cache" atlas="cacheshop" json="cacheshop" scale="" offsetX="0" offsetY="0" animation="animation"/>
 	</Spine>
 	<Spine>

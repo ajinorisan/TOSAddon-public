@@ -5577,6 +5577,9 @@ function RUN_CLIENT_USE_MULTIPLE_MISC_PVP_MINE2(count)
 	-- 현재 및 최대 증표 획득량을 구한다
     local currentValue = TryGetProp(acc, 'WEEKLY_PVP_MINE_COUNT', 0)
     local maxValue = tonumber(MAX_WEEKLY_PVP_MINE_COUNT)
+	if IsBuffApplied(GetMyPCObject(), 'EVENT_REWARD_BOOST_VERTIGO_8') == "YES" then
+        maxValue = maxValue + 100000
+    end
     local isTokenState = session.loginInfo.IsPremiumState(ITEM_TOKEN)
     if isTokenState == true then
         local bonusValue = tonumber(WEEKLY_PVP_MINE_COUNT_TOKEN_BONUS)

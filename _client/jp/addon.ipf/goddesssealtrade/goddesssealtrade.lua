@@ -70,6 +70,22 @@ function GODDESSSEALTRADE_REG_MAT(frame, invSlot)
     session.ResetItemList()
     session.AddItemID(pieceguid)
     session.AddItemID(sealguid)
+
+    if TryGetProp(sealObj, 'CharacterBelonging', 0) == 1 then
+        local resultSlot = GET_CHILD_RECURSIVELY(frame, "result_slot")
+        local icon = resultSlot:GetIcon()
+        icon:SetTooltipStrArg('char_belonging')
+        ui.SysMsg(ClMsg("WarningSealTeamBelonging"));
+    elseif TryGetProp(sealObj, 'TeamBelonging', 0) == 1 then
+        local resultSlot = GET_CHILD_RECURSIVELY(frame, "result_slot")
+        local icon = resultSlot:GetIcon()
+        icon:SetTooltipStrArg('team_belonging')
+        ui.SysMsg(ClMsg("WarningSealTeamBelonging"));
+    else
+        local resultSlot = GET_CHILD_RECURSIVELY(frame, "result_slot")
+        local icon = resultSlot:GetIcon()
+        icon:SetTooltipStrArg('None')
+    end    
 end
 
 function GODDESSSEALTRADE_INV_BTN(itemObj, slot)
@@ -168,7 +184,7 @@ function GODDESSSEALTRADE_MATERIAL(frame, guid)
     end
 end
 
-function GODDESSSEALTRADE_RESULTSEAL(frame, guid)
+function GODDESSSEALTRADE_RESULTSEAL(frame, guid)    
     local invitem = session.GetInvItemByGuid(guid)
     if invitem == nil then return end
 
@@ -183,6 +199,7 @@ function GODDESSSEALTRADE_RESULTSEAL(frame, guid)
 
     icon:SetTooltipNumArg(sealCls.ClassID);
     icon:SetTooltipType('wholeitem');
+    icon:SetTooltipStrArg('None')
 
     local resultSealText = GET_CHILD_RECURSIVELY(frame, "result_item_name")
     resultSealText:SetTextByKey("name", sealCls.Name)

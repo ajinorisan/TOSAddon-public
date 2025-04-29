@@ -3284,6 +3284,11 @@ function SCR_Get_Sta_Jump(self)
     if IsBuffApplied(self, "RIDE_PET_RIDEPET_5") == "YES" then
         value = 0
     end
+
+    if IsBuffApplied(self, "RIDE_PET_RIDEPET_11_2") == "YES" then
+        value = 0
+    end
+
     return value;
 end
 
@@ -5071,7 +5076,13 @@ function SCR_Get_HEAL_PWR(self)
     end
     
     if GetExProp(self, "ITEM_goddess_seal_lv1") > 0 then
-        seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")
+        seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")        
+        seal_option = seal_option / 1000 -- 치유력 증가 합연산으로 처리한다
+        sum_of_heal_power = sum_of_heal_power + seal_option
+    end
+
+    if GetExProp(self, "ITEM_goddess_seal_def_lv2") > 0 then
+        seal_option = GetExProp(self, "ITEM_goddess_seal_def_lv2")
         seal_option = seal_option / 1000 -- 치유력 증가 합연산으로 처리한다
         sum_of_heal_power = sum_of_heal_power + seal_option
     end
@@ -5115,16 +5126,23 @@ function SCR_Get_HEAL_PWR_VER2(self)
     end
     sum_of_heal_power = sum_of_heal_power + byAbil
 
-    local seal_option = GetExProp(self, "ITEM_Cleric_PatronSaint_HwpRate") -- 보루타 인장 - 클레릭
+    local seal_option = GetExProp(self, "ITEM_Cleric_PatronSaint_HwpRate") -- 보루타 인장 - 클레릭    
     if seal_option > 0 then
         seal_option = seal_option / 1000
         sum_of_heal_power = sum_of_heal_power + seal_option
     end
     if GetExProp(self, "ITEM_goddess_seal_lv1") > 0 then -- 보루타 인장 - 공용
-        seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")
+        seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")    
         seal_option = seal_option / 1000
         sum_of_heal_power = sum_of_heal_power + seal_option
     end
+
+    if GetExProp(self, "ITEM_goddess_seal_def_lv2") > 0 then -- 유라테 인장 - 신의 가호
+        seal_option = GetExProp(self, "ITEM_goddess_seal_def_lv2")
+        seal_option = seal_option / 1000
+        sum_of_heal_power = sum_of_heal_power + seal_option
+    end
+
 
     value = value * (1 + sum_of_heal_power)
 
@@ -5153,7 +5171,7 @@ function GET_SHOW_HEAL_PWR(self, real_value)
     end
     
     sum_of_heal_power = sum_of_heal_power + byAbil
-
+    
     local seal_option = GetExProp(self, "ITEM_Cleric_PatronSaint_HwpRate") -- 보루타 인장 - 클레릭
     if seal_option > 0 then
         seal_option = seal_option / 1000
@@ -5165,14 +5183,19 @@ function GET_SHOW_HEAL_PWR(self, real_value)
         sum_of_heal_power = sum_of_heal_power + seal_option
     end
     
-    real_value = real_value / (1 + sum_of_heal_power) / (1 + byRateBuff)
+    if GetExProp(self, "ITEM_goddess_seal_def_lv2") > 0 then -- 유라테 인장 - 신의 가호
+        seal_option = GetExProp(self, "ITEM_goddess_seal_def_lv2")
+        seal_option = seal_option / 1000
+        sum_of_heal_power = sum_of_heal_power + seal_option
+    end
+        
     real_value  = ((real_value - (byAttack * 0.6)) / 0.4)
     
     real_value = ((real_value) + (byAttack * 0.6))
     real_value = real_value * (1 + sum_of_heal_power) 
     
     real_value = real_value * (1 + byRateBuff)
-
+    
     if IsPVPServer() == 1 or IsPVPField() == 1 or IsJoinColonyWarMap() == 1 then
         local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP / 100
         real_value = real_value * (1 - reduce_ratio)

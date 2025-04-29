@@ -27,4 +27,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 1000,1000,1,0,1,1,1,0,0,0,0,0,0,"treasure_box1","보물 상자 LV1","","","","","","","TREASUREBOX_LV","","","","YES","NO","Neutral","LV1","ITEM:COLLECT_211:1","",""
 1001,1001,1,30,1,1000,1,0,0,0,1,0,0,"Warp_arrow","록소나 지하시설 미션","","","","","","","","FLASH61_TO_CASTLE_MISSION_RN","","NO","YES","NO","Neutral","","","",""
 1002,1002,1,40,1,1,1,0,0,0,0,0,0,"Board2","경고문","","","","","","","FREE_DUNGEON_SIGN3","","","NO","YES","NO","Neutral","","","",""
-1003,1003,1,20,1,60000,1,0,0,0,1,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","EXPLORER_MISLE39","","NO","YES","NO","Neutral","","","",""

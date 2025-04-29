@@ -1,6 +1,6 @@
 function SYSMENU_ON_INIT(addon, frame)
 	addon:RegisterMsg('NOTICE_Dm_levelup_base', 'SYSMENU_ON_MSG');
-	addon:RegisterMsg('PC_PROPERTY_UPDATE_TO_SYSMENU', 'SYSMENU_ON_MSG');
+	addon:RegisterMsg('PC_PROPERTY_UPDATE', 'SYSMENU_ON_MSG');
 	addon:RegisterMsg('GAME_START', 'SYSMENU_ON_MSG');
 	addon:RegisterOpenOnlyMsg('RESET_SKL_UP', 'SYSMENU_ON_MSG');
 	addon:RegisterMsg('JOB_CHANGE', 'SYSMENU_ON_JOB_CHANGE');
@@ -10,23 +10,15 @@ function SYSMENU_ON_INIT(addon, frame)
 	addon:RegisterMsg("REMOVE_FRIEND", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("ADD_FRIEND", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("GUILD_ENTER", "SYSMENU_MYPC_GUILD_JOIN");
-	addon:RegisterMsg("ANCIENT_UI_OPEN", "SYSMENU_CHECK_HIDE_VAR_ICONS");
 
 	addon:RegisterMsg('SERV_UI_EMPHASIZE', 'ON_UI_EMPHASIZE');
 	addon:RegisterMsg("UPDATE_READ_COLLECTION_COUNT", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("PREMIUM_NEXON_PC", "SYSMENU_ON_MSG");
 	addon:RegisterMsg("ENABLE_PCBANG_SHOP", "SYSMENU_ON_MSG");
-	addon:RegisterMsg("NEW_USER_REQUEST_GUILD_JOIN", "SYSMENU_ON_MSG");
-	addon:RegisterMsg("GUILD_PROMOTE_NOTICE", "SYSMENU_GUILD_PROMOTE_NOTICE");
-	
-	addon:RegisterMsg("ACHIEVE_REWARD", "SYSMENU_ON_MSG")
-	addon:RegisterMsg("ACHIEVE_REWARD_ALL", "SYSMENU_ON_MSG")
-	addon:RegisterMsg("ACHIEVE_NEW", "SYSMENU_ON_MSG")
+	addon:RegisterMsg("NEW_USER_REQUEST_GUILD_JOIN", "SYSMENU_ON_MSG");    
 	frame:EnableHideProcess(1);
-end
 
-local before_state_list = {}
-local before_lock_list = {}
+end
 
 function SYSMENU_ON_JOB_CHANGE(frame)
 	SYSMENU_CHECK_HIDE_VAR_ICONS(frame);
@@ -47,18 +39,6 @@ end
 function SYSMENU_ON_MSG(frame, msg, argStr, argNum)
 	if msg == "GAME_START" then
 		SYSMENU_CHECK_HIDE_VAR_ICONS(frame);
-		ReserveScript("SYSMENU_GUILD_PROMOTE_NOTICE_CHECK()", 2);
-		frame:StopUpdateScript('UPDATE_GET_REINFORCE_MATERIAL')
-		frame:RunUpdateScript('UPDATE_GET_REINFORCE_MATERIAL', 2, 0)
-
-		frame:StopUpdateScript('UPDATE_INHERITANCE_NOTICE')
-		frame:RunUpdateScript('UPDATE_INHERITANCE_NOTICE', 2, 0)
-
-		before_state_list = {}
-		before_lock_list = {}
-		
-		frame:StopUpdateScript('UPDATE_LOCK_EQUIPMENT')
-		frame:RunUpdateScript('UPDATE_LOCK_EQUIPMENT', 1, 0)
 	end
 
 	if msg == "PREMIUM_NEXON_PC" or msg == "ENABLE_PCBANG_SHOP" then
@@ -72,7 +52,7 @@ function SYSMENU_ON_MSG(frame, msg, argStr, argNum)
 		end
 	end
 
-	if msg == 'PC_PROPERTY_UPDATE_TO_SYSMENU' or msg == 'RESET_SKL_UP' or msg =='GAME_START' or msg=='UPDATE_READ_COLLECTION_COUNT' then
+	if msg == 'PC_PROPERTY_UPDATE' or msg == 'RESET_SKL_UP' or msg =='GAME_START' or msg=='UPDATE_READ_COLLECTION_COUNT' then
 		SYSMENU_PC_STATUS_NOTICE(frame);
 		SYSMENU_PC_SKILL_NOTICE(frame);
 		SYSMENU_CHECK_OPENCONDITION(frame);
@@ -83,10 +63,6 @@ function SYSMENU_ON_MSG(frame, msg, argStr, argNum)
 	if msg == 'JOB_SKILL_POINT_UPDATE' then
 		SYSMENU_PC_SKILL_NOTICE(frame);
 		imcSound.PlaySoundEvent('sys_alarm_skl_status_point_count');
-	end
-
-	if msg =='GAME_START' or msg == 'ACHIEVE_REWARD' or msg == "ACHIEVE_REWARD_ALL" or msg == "ACHIEVE_NEW" then
-		SYSMENU_JOURNAL_NOTICE(frame);
 	end
 
 	if msg == 'UPDATE_FRIEND_LIST' or msg == 'REMOVE_FRIEND' or msg == 'ADD_FRIEND' then
@@ -111,7 +87,7 @@ function SYSMENU_CHECK_OPENCONDITION(frame)
 	CHECK_CTRL_OPENCONDITION(frame, "quest", "quest");
 	CHECK_CTRL_OPENCONDITION(frame, "sys_collection", "sys_collection");
 	CHECK_CTRL_OPENCONDITION(frame, "helplist", "helplist");
-	
+
 end
 
 function SYSMENU_CHECK_HIDE_VAR_ICONS(frame)
@@ -122,8 +98,6 @@ function SYSMENU_CHECK_HIDE_VAR_ICONS(frame)
 	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "guild", "guild")
 	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "poisonpot", "poisonpot")    
 	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "pcbang_shop", "pcbang_shop")
-	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "ancient_card_list", "ancient_card_list")
-	and false == VARICON_VISIBLE_STATE_CHANTED(frame, "cupole", "cupole_item")
 	then
 		return;
 	end
@@ -137,11 +111,9 @@ function SYSMENU_CHECK_HIDE_VAR_ICONS(frame)
     local offsetX = extraBag:GetX() - guildRank:GetX()
 	local rightMargin = guildRank:GetMargin().right + offsetX;
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "guildinfo", "guildinfo", "sysmenu_guild", rightMargin, offsetX, "Guild");
-	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "ancient_card_list", "ancient_card_list", "Ancient_Menu", rightMargin, offsetX);	   
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "customdrag", "customdrag", "sysmenu_alchemist", rightMargin, offsetX);
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "necronomicon", "necronomicon", "sysmenu_card", rightMargin, offsetX);
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "grimoire", "grimoire", "sysmenu_neacro", rightMargin, offsetX);
-	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "cupole", "cupole_item", "sysmenu_cupole_info", rightMargin, offsetX);
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "poisonpot", "poisonpot", "sysmenu_wugushi", rightMargin, offsetX);	 
 	rightMargin = SYSMENU_CREATE_VARICON(frame, extraBag, "pcbang_shop", "pcbang_shop", pcbangIcon, rightMargin, offsetX);	   
 end
@@ -325,77 +297,6 @@ function SYSMENU_PC_NEWFRIEND_NOTICE(frame)
 
 end
 
-function SYSMENU_INVENTORY_WEIGHT_NOTICE()
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticeInventoryOverWeight"), 0, 0, nil, "invenWeightNoticeBallon");
-	noticeBallon:ShowWindow(1);
-
-	local margin = parentCtrl:GetMargin();
-	local x = margin.right;
-	local y = margin.bottom;
-
-	x = x + (parentCtrl:GetWidth() / 2);
-	y = y + parentCtrl:GetHeight() - 5;
-
-	noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-	noticeBallon:SetMargin(0, 0, x, y);
-	noticeBallon:SetLayerLevel(106);
-end
-
-function SYSMENU_INVENTORY_WEIGHT_NOTICE_CLOSE()
-	local noticeBallon = ui.GetFrame("invenWeightNoticeBallon");
-	if noticeBallon ~= nil then
-		noticeBallon:ShowWindow(0);
-	end
-end
-
-function SYSMENU_INVENTORY_SLOTCOUNT_NOTICE()
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticeInventoryOverSlotCount"), 0, 0, nil, "invenSlotCountNoticeBalloon");
-	noticeBallon:ShowWindow(1);
-
-	local margin = parentCtrl:GetMargin();
-	local x = margin.right;
-	local y = margin.bottom;
-
-	x = x + (parentCtrl:GetWidth() / 2);
-	local weightBalloon = ui.GetFrame("invenWeightNoticeBallon");
-	if weightBalloon ~= nil then
-		y = y + parentCtrl:GetHeight() + weightBalloon:GetHeight() - 5;
-	else
-		y = y + parentCtrl:GetHeight() - 5;
-	end
-
-	noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-	noticeBallon:SetMargin(0, 0, x, y);
-	noticeBallon:SetLayerLevel(106);
-end
-
-function SYSMENU_INVENTORY_SLOTCOUNT_NOTICE_CLOSE()
-	local noticeBallon = ui.GetFrame("invenSlotCountNoticeBalloon");
-	if noticeBallon ~= nil then
-		noticeBallon:ShowWindow(0);
-	end
-end
-
 function SYSMENU_GUILD_NOTICE(frame, isChecked)
 	local parentCtrl = frame:GetChild('guildinfo');
 	if parentCtrl == nil then
@@ -434,13 +335,6 @@ function SYSMENU_PC_SKILL_NOTICE(frame)
 	local parentCtrl = frame:GetChild("skilltree");
 	local point = session.GetSkillPoint();
 	NOTICE_CTRL_SET(parentCtrl, "skilltree", point);
-end
-
-function SYSMENU_JOURNAL_NOTICE(frame)
-	local parentCtrl = frame:GetChild("journal");
-	local list = ADVENTURE_BOOK_ACHIEVE_CONTENT.LIST_REWARD()
-	local point = #list
-	NOTICE_CTRL_SET(parentCtrl, "journal", point);
 end
 
 function SYSMENU_COLLECTION_NOTICE(frame)
@@ -650,17 +544,11 @@ function AUCTION_TOOLTIP_SET_REMAINTIME(frame, aucItem)
 
 end
 
--- 카드 합성
 function TOGGLE_CARD_REINFORCE(frame)
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
         return;
-	end
-	
-	if control.IsRestSit() == false then
-		ui.SysMsg(ClMsg("AvailableOnlyWhileResting"));
-		return;
-	end
+    end
 
 	local rframe = ui.GetFrame("reinforce_by_mix");
 	if rframe:IsVisible() == 1 then
@@ -672,7 +560,7 @@ function TOGGLE_CARD_REINFORCE(frame)
 	end
 end
 
--- 증표 합성
+
 function TOGGLE_CERTIFICATE_REINFORCE(frame)		-- This is registered in restquickslotinfo.xml
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
@@ -689,7 +577,6 @@ function TOGGLE_CERTIFICATE_REINFORCE(frame)		-- This is registered in restquick
 	end
 end
 
--- 젬 강화
 function TOGGLE_GEM_REINFORCE(frame)
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
@@ -706,490 +593,19 @@ function TOGGLE_GEM_REINFORCE(frame)
 	end
 end
 
--- 고급 카드(여신,레전드 카드) 강화
 function TOGGLE_LEGEND_CARD_REINFORCE(frame)
     if GetCraftState() == 1 then
         ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
         return;
-	end
-	
-	if control.IsRestSit() == false then
-		ui.SysMsg(ClMsg("AvailableOnlyWhileResting"));
-		return;
-	end
+    end
 
 	local rframe = ui.GetFrame("legendcardupgrade");
 	if rframe:IsVisible() == 1 then
 		rframe:ShowWindow(0);
 	else
 		local title = rframe:GetChild("title");
-		title:SetTextByKey("value", ClMsg("AdvancedCardReinforce"));
+		title:SetTextByKey("value", ClMsg("LegendCardReinforce"));
 		rframe:ShowWindow(1);
 	end
 end
 
--- 아크 합성
-function TOGGLE_ARK_COMPOSITION(frame)
-    if GetCraftState() == 1 then
-        ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
-        return;
-    end
-
-	local rframe = ui.GetFrame("ark_composition");
-	if rframe:IsVisible() == 1 then
-		TOGGLE_ARK_COMPOSITION_UI(0);
-	else
-		TOGGLE_ARK_COMPOSITION_UI(1);
-	end
-end
-
--- 아크 이전
-function TOGGLE_ARK_RELOCATION(frame)
-    if GetCraftState() == 1 then
-        ui.SysMsg(ClMsg('CHATHEDRAL53_MQ03_ITEM02'));
-        return;
-    end
-
-	local rframe = ui.GetFrame("ark_relocation");
-	if rframe:IsVisible() == 1 then
-		TOGGLE_ARK_RELOCATION_UI(0);
-	else
-		TOGGLE_ARK_RELOCATION_UI(1);
-	end
-end
-
-function SYSMENU_GUILD_PROMOTE_NOTICE_CHECK()
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	if session.party.GetPartyInfo(PARTY_GUILD) ~= nil then
-		return;
-	end
-	
-	local aObj = GetMyAccountObj();
-	local cnt = TryGetProp(aObj, "GUILD_PROMOTE_NOTICE_COUNT");
-	local maxCnt = GET_GUILD_PROMOTE_NOTICE_MAX_COUNT();
-
-	if cnt < maxCnt then
-        control.CustomCommand("REQ_GUILD_PROMOTE_NOTICE_COUNT", 0);
-	end
-end
-
-function SYSMENU_GUILD_PROMOTE_NOTICE(frame)
-	local frame = ui.GetFrame("sysmenu");
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "guildRank");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("GuildPromoteNotice"), 0, 0, nil, "GuildPromoteNoticeBallon", nil, nil, 1);
-
-	local margin = parentCtrl:GetMargin();
-	local x = margin.right - noticeBallon:GetWidth();
-	local y = margin.bottom;
-
-	x = x + (parentCtrl:GetWidth() / 2);
-	y = y + parentCtrl:GetHeight() - 5;
-
-	noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-	noticeBallon:SetMargin(0, 0, x, y);
-	noticeBallon:SetLayerLevel(60);
-	noticeBallon:ShowWindow(1);
-end
-
-function REQUEST_ICOR_MANAGE_DLG(frame)
-	ui.CloseFrame('reinforce_by_mix')
-	ui.CloseFrame('icoradd_multiple')
-	ui.CloseFrame('icorrelease_multiple')
-	ui.CloseFrame('icorrelease_random_multiple')
-	control.CustomCommand('REQ_ICOR_MANAGE_DLG', 0)
-end
-
-
-function SYSMENU_INVENTORY_WEAPON_BOX_NOTICE()	
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticeStartWeaponBOX"), 0, 0, nil, "NoticeStartWeaponBOX");
-	noticeBallon:ShowWindow(1);
-
-	local margin = parentCtrl:GetMargin();
-	local x = margin.right;
-	local y = margin.bottom;
-
-	x = x + (parentCtrl:GetWidth() / 2);
-	y = y + parentCtrl:GetHeight() - 5;
-
-	noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-	noticeBallon:SetMargin(0, 0, x, y);
-	noticeBallon:SetLayerLevel(106);
-
-	frame:RunUpdateScript('CHECK_SYSMENU_INVENTORY_WEAPON_BOX_NOTICE', 1, 0)
-end
-
-function CHECK_SYSMENU_INVENTORY_WEAPON_BOX_NOTICE()	
-	local item_1 = session.GetEquipItemBySpot(ES_LH)
-	item_1 = GetIES(item_1:GetObject())
-	local item_2 = session.GetEquipItemBySpot(ES_RH)
-	item_2 = GetIES(item_2:GetObject())	
-	local noticeBallon = ui.GetFrame("NoticeStartWeaponBOX");
-	if item.IsNoneItem(item_1.ClassID) ~= 1 or item.IsNoneItem(item_2.ClassID) ~= 1 then
-		if noticeBallon ~= nil then
-			noticeBallon:ShowWindow(0);
-		end	
-
-		local frame = ui.GetFrame("sysmenu")
-		frame:StopUpdateScript('CHECK_SYSMENU_INVENTORY_WEAPON_BOX_NOTICE')		
-		return 0
-	end
-
-	if IS_HIDE_BALLOON_STATE() == false then
-		if noticeBallon ~= nil then
-			noticeBallon:ShowWindow(1);
-		end	
-	end
-
-	return 1
-end
-
-function UPDATE_GET_REINFORCE_MATERIAL()	
-	if IS_HIDE_BALLOON_STATE() == true then
-		return 1
-	end
-
-	local pc = GetMyPCObject()
-	if pc.Lv >= 30 then
-		local noticeBallon = ui.GetFrame("NoticeReinforceMaterial");
-		if noticeBallon ~= nil then
-			noticeBallon:ShowWindow(0);
-		end
-		return 0
-	end
-
-	local list = {ES_LH, ES_RH, ES_SHIRT, ES_PANTS, ES_GLOVES, ES_BOOTS}	
-	for i = 1, #list do
-		local spot = list[i]
-		local _item = session.GetEquipItemBySpot(spot)
-		_item = GetIES(_item:GetObject())
-		if item.IsNoneItem(_item.ClassID) ~= 1 then
-			if TryGetProp(_item, 'Reinforce_2', 0) > 0 then
-				local noticeBallon = ui.GetFrame("NoticeReinforceMaterial");
-				if noticeBallon ~= nil then
-					noticeBallon:ShowWindow(0);
-				end
-				return 0
-			end
-		end
-	end
-
-	local mat = session.GetInvItemByName('misc_Growth_Reinforce_Tier1')
-	if mat ~= nil then
-		local cls = GetClass('Item', 'misc_Growth_Reinforce_Tier1')
-		local count = session.GetInvItemCountByType(cls.ClassID)		
-		if count < 7 then
-			local noticeBallon = ui.GetFrame("NoticeReinforceMaterial");
-			if noticeBallon ~= nil then
-				noticeBallon:ShowWindow(0)
-			end
-			return 1
-		end
-
-		local noticeBallon = ui.GetFrame("NoticeReinforceMaterial");
-		if noticeBallon == nil then
-			local frame = ui.GetFrame("sysmenu");
-			local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-			if parentCtrl ~= nil then
-				local margin = parentCtrl:GetMargin();
-				local x = margin.right;
-				local y = margin.bottom;
-
-				x = x + (parentCtrl:GetWidth() / 2);
-				y = y + parentCtrl:GetHeight() - 5;
-
-				noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticeReinforceMaterial"), 0, 0, nil, "NoticeReinforceMaterial");
-				noticeBallon:ShowWindow(1);
-
-				noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-				noticeBallon:SetMargin(0, 0, x, y);
-				noticeBallon:SetLayerLevel(106);
-			end
-		else
-			noticeBallon:ShowWindow(1);
-		end
-	end
-
-	return 1
-end
-
-function UPDATE_INHERITANCE_NOTICE()	
-	if IS_HIDE_BALLOON_STATE() == true then
-		return 1
-	end
-
-	local list = {ES_LH, ES_RH, ES_LH_SUB, ES_RH_SUB, ES_SHIRT, ES_PANTS, ES_GLOVES, ES_BOOTS}	
-	local exist = false
-	for i = 1, #list do
-		local spot = list[i]
-		local _item = session.GetEquipItemBySpot(spot)
-		_item = GetIES(_item:GetObject())
-		if item.IsNoneItem(_item.ClassID) ~= 1 then
-			if TryGetProp(_item, 'Reinforce_2', 0) == 20 then
-				local str = TryGetProp(_item, 'StringArg', 'None')
-				local use_lv = TryGetProp(_item, 'UseLv', 0)
-				local make = false
-				if use_lv == 1 and GetMyPCObject().Lv >= 120 then
-					make = true
-				elseif use_lv == 120 and GetMyPCObject().Lv >= 280 then
-					make = true
-				elseif use_lv == 280 and GetMyPCObject().Lv >= 480 then
-					make = true
-				end
-				
-				if string.find(str, 'Growth_By_Reinforce') ~= nil and make == true then
-					exist = true
-					local noticeBallon = ui.GetFrame("NoticedInheritance");
-					if noticeBallon == nil then
-						local frame = ui.GetFrame("sysmenu");
-						local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-						if parentCtrl ~= nil then
-							local margin = parentCtrl:GetMargin();
-							local x = margin.right;
-							local y = margin.bottom;
-
-							x = x + (parentCtrl:GetWidth() / 2);
-							y = y + parentCtrl:GetHeight() - 5;
-
-							noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("NoticedInheritance", 'name', TryGetProp(_item, 'Name', 'None')), 0, 0, nil, "NoticedInheritance");
-							noticeBallon:ShowWindow(1);
-
-							noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-							noticeBallon:SetMargin(0, 0, x, y);
-							noticeBallon:SetLayerLevel(106);							
-						end
-					else
-						noticeBallon:ShowWindow(1);
-					end
-					break
-				end				
-			end
-		end
-	end
-
-	if exist == false then
-		local noticeBallon = ui.GetFrame("NoticedInheritance");
-		if noticeBallon ~= nil then
-			noticeBallon:ShowWindow(0)
-		end
-	end
-
-	return 1
-end
-
-local function make_balloon_frame_by(icon_name, name, up_y)	
-	local frame = ui.GetFrame("sysmenu");
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, icon_name);
-	if parentCtrl ~= nil then
-		local margin = parentCtrl:GetMargin();
-		local x = margin.right;
-		local y = margin.bottom;
-
-		x = x + (parentCtrl:GetWidth() / 2);
-		y = y + parentCtrl:GetHeight() - 5 + up_y;
-		noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg(name), 0, 0, nil, name);
-		noticeBallon:ShowWindow(1);
-
-		noticeBallon:SetGravity(ui.RIGHT, ui.BOTTOM);
-		noticeBallon:SetMargin(0, 0, x, y);
-		noticeBallon:SetLayerLevel(106);		
-		return noticeBallon:GetHeight()
-	end
-
-	return 0
-end
-
-
-local sort_list = {}
-table.insert(sort_list, {'CanEquipArk', 420, ES_ARK})
-table.insert(sort_list, {'CanEquipRelic', 458, ES_RELIC})
-table.insert(sort_list, {'CanEquipEarring', 470, ES_EARRING})
-
-local lock_list = {}
-table.insert(lock_list, {'EARRING', 470})
-table.insert(lock_list, {'BELT', 470})
-table.insert(lock_list, {'SHOULDER', 480})
-table.insert(lock_list, {'RELIC', 458})
-table.insert(lock_list, {'SEAL', 350})
-table.insert(lock_list, {'ARK', 420})
-
-local function is_same_list(a, b)
-	for k, v in pairs(a) do
-		if a[k] ~= b[k] then
-			return false
-		end
-	end
-	
-	return true
-end
-
-function IS_HIDE_BALLOON_STATE()	
-	local name_list = {'petlist', 'induninfo','market', 'market_sell', 'market_cabinet', 'tpitem', 'inventory', 'skillability', 'adventure_book', 'companionlist'}
-	local hide_frame = {'NoticeStartWeaponBOX', 'NoticeReinforceMaterial', 'NoticedInheritance', 'CanEquipArk', 'CanEquipRelic', 'CanEquipEarring', 'NoticeStartSkill'}
-
-	for i = 1, #name_list do
-		local frame = ui.GetFrame(name_list[i])		
-		if frame ~= nil and frame:IsVisible() == 1 then
-			for j = 1, #hide_frame do
-				local hide = ui.GetFrame(hide_frame[j])
-				if hide ~= nil then
-					hide:ShowWindow(0)
-				end
-			end
-			return true
-		end
-	end
-	
-	return false
-end
-
-function UPDATE_LOCK_EQUIPMENT()		
-	if IS_HIDE_BALLOON_STATE() == true then
-		before_state_list = {}
-		before_lock_list = {}
-		return 1
-	end
-
-	local function _SET_LOCK_IMAGE(slot, lockState)
-		local controlset = slot:CreateOrGetControlSet('inv_equipslotlock', "equipslotlock", 0, 0);		
-		controlset:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-		controlset:ShowWindow(lockState);		
-	end
-
-	local pc = GetMyPCObject()
-	local lv = pc.Lv
-	
-	local onoff_list = {}
-	for i = 1, #sort_list do
-		if lv >= sort_list[i][2] and lv <= sort_list[i][2] + 3 and lv < PC_MAX_LEVEL then
-			local _item = session.GetEquipItemBySpot(sort_list[i][3])
-			_item = GetIES(_item:GetObject())
-			local name = sort_list[i][1]
-			if item.IsNoneItem(_item.ClassID) == 1 then
-				onoff_list[name] = 1
-			else
-				onoff_list[name] = 0
-			end		
-		end
-	end
-
-	local make = is_same_list(onoff_list, before_state_list) == false
-	if make then
-		for k, v in pairs(onoff_list) do
-			local f = ui.GetFrame(k)		
-			if f ~= nil and v == 0 then
-				ui.DestroyFrame(k)
-				before_state_list[k] = 0
-			end
-		end
-
-		local y = 0	
-		for i = 1, #sort_list do
-			local flag = onoff_list[sort_list[i][1]]		
-			if flag == 1 then
-				ret = make_balloon_frame_by('inven', sort_list[i][1], y)
-				y = y + ret
-				before_state_list[sort_list[i][1]] = 1
-			end
-		end
-	end
-	
-	local draw_list = {}
-	for i = 1, #lock_list do
-		local spot = lock_list[i][1]
-		local limit_lv = lock_list[i][2]
-		if lv < limit_lv then
-			draw_list[spot] = 1
-		else
-			draw_list[spot] = 0
-		end
-	end
-	
-	make = is_same_list(draw_list, before_lock_list) == false
-	if make then
-		for spot, v in pairs(draw_list) do
-			local frame = ui.GetFrame('inventory')
-			if frame ~= nil then
-				local itemSlotSet = GET_CHILD_RECURSIVELY(frame, 'itemslotset')
-				if itemSlotSet ~= nil then
-					local slot = GET_CHILD_RECURSIVELY(itemSlotSet, spot)
-					if slot ~= nil then				
-						if v == 1 then
-							_SET_LOCK_IMAGE(slot, 1)
-							before_lock_list[spot] = 1
-						else
-							_SET_LOCK_IMAGE(slot, 0)
-							before_lock_list[spot] = 0
-						end
-					end
-				end
-			end		
-		end
-	end
-
-	return 1
-end
-
-
-function SYSMENU_SKILL_NOTICE()
-	local frame = ui.GetFrame("sysmenu");
-	if frame == nil then
-		return;
-	end
-
-	local parentCtrl = GET_CHILD_RECURSIVELY(frame, "inven");
-	if parentCtrl == nil then
-		return;
-	end
-
-	local notice_frame = ui.GetFrame("NoticeStartWeaponBOX");
-	make_balloon_frame_by('inven', "NoticeStartSkill", notice_frame:GetHeight())
-	frame:RunUpdateScript('CHECK_SYSMENU_SKILL_NOTICE', 1, 0)
-end
-
-function CHECK_SYSMENU_SKILL_NOTICE()	
-	local skillList	= session.GetSkillList();
-	local skillCount = skillList:Count();
-	local noticeBallon = ui.GetFrame("NoticeStartSkill");
-	for i = 0, skillCount -1 do
-		local skill = skillList:Element(i)
-		local cls = session.GetSkill(skill.type)
-		local obj = GetIES(cls:GetObject());
-		
-		if TryGetProp(obj, 'Job', 'None') ~= 'None' then			
-			if obj.Level > 0 then				
-				if noticeBallon ~= nil then
-					noticeBallon:ShowWindow(0);
-				end	
-
-				return 0
-			end
-		end
-	end
-
-	if IS_HIDE_BALLOON_STATE() == false then
-		if noticeBallon ~= nil then
-			noticeBallon:ShowWindow(1);
-		end	
-	end
-
-	return 1
-end

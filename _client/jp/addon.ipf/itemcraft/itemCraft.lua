@@ -1,4 +1,4 @@
-﻿--itemcraft.lua
+--itemcraft.lua
 
 function ITEMCRAFT_ON_INIT(addon, frame)
 	addon:RegisterMsg('JOURNAL_DETAIL_CRAFT_EXEC_START', 'CRAFT_DETAIL_CRAFT_EXEC_ON_START');
@@ -231,7 +231,7 @@ function CREATE_CRAFT_ARTICLE(frame)
 	local checkCraftFunc = _G["CRAFT_CHECK_".. idSpace];
 	while cls ~= nil do     
 		if checkCraftFunc(cls, arg1, arg2) == true then
-			local haveM = CRAFT_HAVE_MATERIAL(cls);	-- ?쒖옉 媛???щ?
+			local haveM = CRAFT_HAVE_MATERIAL(cls);	-- 제작 가능 여부
 			if checkHaveMaterial == 1 then
 				if haveM == 1 then
 					CRAFT_INSERT_CRAFT(cls, tree, slotHeight,haveM);
@@ -279,7 +279,7 @@ function CRAFT_UPDATE_PAGE(page, cls, haveMaterial, item)
 			local abilObj =  GetIES(abil:GetObject());
 			Level = abilObj.Level;
 
-			-- 鍮꾧툒 ?뱀꽦 ????꾩씠?쒖? ?덈꺼???쒓린?섏? ?딅룄濡??쒕떎.
+			-- 비급 특성 대상 아이템은 레벨을 표기하지 않도록 한다.
 			if abilObj.Hidden == 1 then
 				Level = 0;
 			end
@@ -516,14 +516,14 @@ function SORT_INVITEM_BY_WORTH(a,b)
     	end
     end
 
-    -- 湲곌컙?????遺遺?異붽?
+    -- 기간에 대한 부분 추가
     local lifeTimeA = TryGetProp(itemobj_a, 'ItemLifeTime');
     local lifeTimeB = TryGetProp(itemobj_b, 'ItemLifeTime');
     if lifeTimeA ~= nil and lifeTimeB ~= nil then
         local remainLifeTimeA = 2147483647;
         local remainLifeTimeB = 2147483647;
 
-        -- 臾닿린???꾩씠?쒖? ?좎큹??ItemLifeTime??0?대씪 蹂댁젙?댁쨾????
+        -- 무기한 아이템은 애초에 ItemLifeTime이 0이라 보정해줘야 함
         if lifeTimeA ~= 'None' then
             remainLifeTimeA = GET_REMAIN_LIFE_TIME(lifeTimeA);
         end
@@ -536,7 +536,7 @@ function SORT_INVITEM_BY_WORTH(a,b)
         end
     end
 
-    if itemobj_a.GroupName == 'Gem' and itemobj_b.GroupName == 'Gem' then  -- ?좎? 移대뱶??寃쎌슦???ｌ뼱???????쒕뜲...
+    if itemobj_a.GroupName == 'Gem' and itemobj_b.GroupName == 'Gem' then  -- 왠지 카드인 경우도 넣어야 할 듯 한데...
         local lv_a, curExp_a, maxExp_a = GET_ITEM_LEVEL_EXP(itemobj_a);
         local lv_b, curExp_b, maxExp_b = GET_ITEM_LEVEL_EXP(itemobj_b);
         
@@ -699,10 +699,10 @@ local function startswith(String, Start)
 end
 
 
--- ?쒖옉?섍린??異⑸텇???щ즺瑜?媛吏怨??덈뒗吏 泥댄겕?쒕떎.
+-- 제작하기에 충분한 재료를 가지고 있는지 체크한다.
 local function CHECK_MATERIAL_COUNT(recipecls, totalCount)    
-    local havingItemCount = {}      -- 媛吏怨??덈뒗 ?щ즺 ??
-    local requiredItemCount = {}    -- ?쒖옉???꾩슂???щ즺 ??
+    local havingItemCount = {}      -- 가지고 있는 재료 수
+    local requiredItemCount = {}    -- 제작에 필요한 재료 수
     
     local validRecipeMaterial = GET_MATERIAL_VALIDATION_SCRIPT(recipecls);
     local IsValidRecipeMaterial = _G[validRecipeMaterial];
@@ -714,7 +714,7 @@ local function CHECK_MATERIAL_COUNT(recipecls, totalCount)
         if itemName ~= 'None' then
             havingItemCount[itemName] = 0
             if recipeItemCnt ~= nil and recipeItemCnt ~= 'None' then
-                if requiredItemCount[itemName] == nil then  -- 寃쏀뿕?섏꽌 ?⑹튂湲곗쿂??媛숈? ?꾩씠??紐⑸줉???덉쓣 ???덇린 ?뚮Ц??map?쇰줈 媛숈? 醫낅쪟瑜?臾띕뒗??
+                if requiredItemCount[itemName] == nil then  -- 경험의서 합치기처럼 같은 아이템 목록이 있을 수 있기 때문에 map으로 같은 종류를 묶는다.
                     requiredItemCount[itemName] = recipeItemCnt * totalCount
                 else
                     requiredItemCount[itemName] = requiredItemCount[itemName] + (recipeItemCnt * totalCount)
@@ -735,7 +735,7 @@ local function CHECK_MATERIAL_COUNT(recipecls, totalCount)
 	    end
 	end, false, havingItemCount);
 
-    local max_try_count = 210000000 -- 媛吏??щ즺濡?理쒕?濡?留뚮뱾 ???덈뒗 媛쒖닔
+    local max_try_count = 210000000 -- 가진 재료로 최대로 만들 수 있는 개수
         
     if totalCount == 0 then
         totalCount = 1
@@ -752,11 +752,11 @@ local function CHECK_MATERIAL_COUNT(recipecls, totalCount)
 
     for key, requiredCount in pairs(requiredItemCount) do        
         if requiredCount > havingItemCount[key] then
-            return false, max_try_count    -- ?щ즺 遺議?
+            return false, max_try_count    -- 재료 부족
         end
     end
 
-    return true, 0 -- 議곌굔 留뚯”
+    return true, 0 -- 조건 만족
 end
 
 function CRAFT_START_CRAFT(idSpace, recipeName, totalCount, upDown, isTincturing)
@@ -904,7 +904,7 @@ end
 function IS_LIFE_TIME_OVER_ITEM(itemid)
     local invitem = session.GetInvItemByGuid(itemid);
 	if invitem == nil then
-		return true; -- 紐살벐???꾩씠?쒖씠??
+		return true; -- 못쓰는 아이템이야
 	end
 	local itemobj = GetIES(invitem:GetObject());
     if itemobj == nil then
@@ -1044,9 +1044,9 @@ function CRAFT_DETAIL_CRAFT_EXEC_ON_SUCCESS(frame, msg, str, time)
 	
     local validRecipeMaterial = GET_MATERIAL_VALIDATION_SCRIPT(recipecls);
     local IsValidRecipeMaterial = _G[validRecipeMaterial];    
-    local map_classname = {}  -- ?쒖옉???꾩슂???꾩씠??紐⑸줉
+    local map_classname = {}  -- 제작에 필요한 아이템 목록
     local map_classID = {}
-    local map_cnt = {}  -- ?쒖옉???꾩슂???꾩씠?쒕퀎 ?꾩슂 媛쒖닔
+    local map_cnt = {}  -- 제작에 필요한 아이템별 필요 개수
     local item_count = 0
     
 	for index=1, 5 do        
@@ -1062,11 +1062,11 @@ function CRAFT_DETAIL_CRAFT_EXEC_ON_SUCCESS(frame, msg, str, time)
         end		
 	end
     
-    local extralist = {}    -- 以묐났 泥댄겕????
+    local extralist = {}    -- 중복 체크용 셋
     local ordered_list = {}
     local ordered_cnt = 1
     
-    for i = 1, item_count do -- ?쒖옉???꾩슂???꾩씠?쒖쓣 ?몃깽?먯꽌 媛?몄삩??        
+    for i = 1, item_count do -- 제작에 필요한 아이템을 인벤에서 가져온다.        
         local classname = map_classname[i]    -- item ClassName
         
         local start, e = string.find(classname, 'R_')
@@ -1080,7 +1080,7 @@ function CRAFT_DETAIL_CRAFT_EXEC_ON_SUCCESS(frame, msg, str, time)
 		        SetCraftState(0)
 				ui.SetHoldUI(false);         
                 return
-            else    -- ?덉떆???꾩씠?쒖씠 議댁옱?섎㈃
+            else    -- 레시피 아이템이 존재하면
                 if invItem.isLockState == false then
                     local invItemObj = GetIES(invItem:GetObject())
                     ordered_list[ordered_cnt] = invItem:GetIESID()
@@ -1102,7 +1102,7 @@ function CRAFT_DETAIL_CRAFT_EXEC_ON_SUCCESS(frame, msg, str, time)
             
                 if session.GetInvItemByGuid(candidate_list[j]:GetIESID()).isLockState == false then
                     if IsValidRecipeMaterial(classname, GetIES(candidate_list[j]:GetObject())) then                        
-                        if geItemTable.IsStack(GetIES(candidate_list[j]:GetObject()).ClassID) == 1 then -- stack ???꾩씠?쒖씠?쇰㈃
+                        if geItemTable.IsStack(GetIES(candidate_list[j]:GetObject()).ClassID) == 1 then -- stack 형 아이템이라면
                             extralist[candidate_list[j]:GetIESID()] = candidate_list[j]:GetIESID()                
                             ordered_list[ordered_cnt] = candidate_list[j]:GetIESID()
                             ordered_cnt = ordered_cnt + 1                    
@@ -1421,7 +1421,7 @@ function CRAFT_MAKE_DETAIL_REQITEMS(ctrlset)
 	for i = 1 , 5 do
 		if TryGetProp(recipecls, "Item_"..i.."_1", 'None') ~= "None" then
 			local recipeItemCnt, invItemCnt, dragRecipeItem, invItem, recipeItemLv, invItemlist  = GET_RECIPE_MATERIAL_INFO(recipecls, i, GetMyPCObject());
-			if invItemlist ~= nil then -- ?щ즺 ?꾩씠?쒖씠 鍮꾩뒪?앺삎?대㈃ ?쇰줈 ?⑤떎
+			if invItemlist ~= nil then -- 재료 아이템이 비스택형이면 일로 온다
 				for j = 0, recipeItemCnt - 1 do
 					local itemSet = ctrlset:CreateOrGetControlSet(g_craftRecipe_detail_item, "EACHMATERIALITEM_" .. i ..'_'.. j, x, y);
 					itemSet:SetUserValue("MATERIAL_IS_SELECTED", 'nonselected');
@@ -1445,7 +1445,7 @@ function CRAFT_MAKE_DETAIL_REQITEMS(ctrlset)
 					slot:SetOverSound('button_cursor_over_2');
 					slot:SetClickSound('button_click');
 				end
-			else -- ?щ즺 ?꾩씠?쒖씠 ?ㅽ깮?뺤씠硫??쇰줈 ?⑤떎
+			else -- 재료 아이템이 스택형이면 일로 온다
 				local itemSet = ctrlset:CreateOrGetControlSet(g_craftRecipe_detail_item, "EACHMATERIALITEM_" .. i, x, y);
 				itemSet:SetUserValue("MATERIAL_IS_SELECTED", 'nonselected');
 				CRAFT_DETAIL_CTRL_INIT(itemSet);
@@ -1564,7 +1564,7 @@ function ITEMCRAFT_ON_DROP(cset, control, materialItemCnt, materialItemClassID)
 	local liftIcon 				= ui.GetLiftIcon();
 	local iconInfo = liftIcon:GetInfo();
 
-	--?깅줉 ?덈맂 IESID???쒗븯??
+	--등록 안된 IESID에 한하여
 	local resultlist = session.GetItemIDList();
 	
 	for i = 0, resultlist:Count() - 1 do
@@ -1607,7 +1607,7 @@ function REMOVE_TAG(str)
 	local pattern = "{[^}]*}";
 	local clean = str:gsub(pattern, "");
 	
-	pattern = "}[^{]*{";  -- "}{" ???쒓굅.
+	pattern = "}[^{]*{";  -- "}{" 도 제거.
 	clean = clean:gsub(pattern, "");
 
 	return clean;
@@ -1654,8 +1654,8 @@ function CRAFT_EXIT(frame, msg, argStr, argNum)
 end
 
 function SORT_PURE_INVITEMLIST(a,b)
-	-- 媛숈? ClassID瑜?媛吏??쒖씪 寃쎌슦 ?몃え ?녿뒗 ?쒕????⑹꽦 ?섎룄濡??뺣젹?섎뒗 ?⑥닔. 
-	-- ?뺣젹?쒖쐞 : 留ㅼ쭅?대???> 珥???寃쏀뿕移?> ?ル┛ ?뚯폆 ??> ?꾩옱 媛뺥솕 ?잛닔 > ?⑥? ?ы뀗??> ???덈꺼
+	-- 같은 ClassID를 가진 템일 경우 쓸모 없는 템부터 합성 하도록 정렬하는 함수. 
+	-- 정렬순위 : 매직어뮬렛 > 총 젬 경험치 > 뚫린 소켓 수 > 현재 강화 횟수 > 남은 포텐셜 > 젬 레벨
 	local itemobj_a = GetIES(a:GetObject());
 	local itemobj_b = GetIES(b:GetObject());
     
@@ -1805,7 +1805,7 @@ function CRAFT_ITEM_ALL(itemSet, btn)
         end
         local GetRecipeMaterialItemList = _G[getMaterialScript];        
         invItemlist = GetRecipeMaterialItemList(itemcls);        
-        ignoreType = true; -- 蹂꾨룄???ㅽ겕由쏀듃 ?⑥닔瑜?嫄곗튂??寃쎌슦
+        ignoreType = true; -- 별도의 스크립트 함수를 거치는 경우
     else        
 	    invItemlist = GET_ONLY_PURE_INVITEMLIST(itemcls.ClassID);
     end
@@ -1848,7 +1848,7 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 		local b_obj = GetIES(b:GetObject())
 
 		if TryGetProp(a_obj, 'Reinforce_2', 0) < TryGetProp(b_obj, 'Reinforce_2', 0) then
-			-- 媛뺥솕媛 ?곗꽑
+			-- 강화가 우선
 			return true
 		elseif TryGetProp(a_obj, 'Reinforce_2', 0) == TryGetProp(b_obj, 'Reinforce_2', 0) then
 			return TryGetProp(a_obj, 'Transcend', 0) < TryGetProp(b_obj, 'Transcend', 0)
@@ -1857,7 +1857,7 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 		end	
 	end
 
-	if check_transcend == true or check_reinforce == true then  -- 媛뺥솕/珥덉썡濡??뺣젹
+	if check_transcend == true or check_reinforce == true then  -- 강화/초월로 정렬
 		table.sort(invItemlist, sort_tmp)		
 	end
 
@@ -1921,7 +1921,7 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 	itemSet:SetUserValue(itemSet:GetName(), tostring(item_guid))
 
 	if IS_EQUIP(itemObj) == true then		
-		-- ?쒖옉?щ즺 媛뺥솕/珥덉썡 ?섏튂 泥댄겕
+		-- 제작재료 강화/초월 수치 체크
 				if TryGetProp(itemObj, 'Reinforce_2', 0) < restrict_reinforce then
 					ui.SysMsg(ScpArgMsg('MoreReinforceForCraft{count}', 'count', restrict_reinforce))
 					return
@@ -1931,7 +1931,7 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 			ui.SysMsg(ScpArgMsg('MoreTranscendForCraft{count}', 'count', restrict_transcend))
 			return
 			end			
-		-- end of ?쒖옉?щ즺 媛뺥솕/珥덉썡 ?섏튂 泥댄겕
+		-- end of 제작재료 강화/초월 수치 체크
 
 		local frame = ui.GetFrame(g_itemCraftFrameName);
 		frame:SetUserValue("TARGETSET", itemSet:GetName())
@@ -1949,7 +1949,7 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 		targetslot:SetEventScript(ui.RBUTTONUP, "CRAFT_ITEM_CANCEL");
 		targetslot:SetEventScriptArgString(ui.RBUTTONUP,invItemadd:GetIESID())
 
-		--?щ’ 而щ윭??諛??고듃 諛앷쾶 蹂寃? 
+		--슬롯 컬러톤 및 폰트 밝게 변경. 
 		icon:SetColorTone('FFFFFFFF')
 		itemSet:SetUserValue("MATERIAL_IS_SELECTED", 'selected');
 		local invframe = ui.GetFrame('inventory')
@@ -1958,7 +1958,7 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 	end
 end
 
--- ?⑸퀝??利앺몴
+-- 용병단 증표
 function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
 	local itemName = itemSet:GetUserValue("ClassName");
     local propName = nil
@@ -1970,7 +1970,7 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
 		propName = StringSplit(itemName, '_')[2]	
 	elseif itemName == 'Tos_Event_Coin' then --이벤트 코인임
 		propName = 'EVENT_TOS_WHOLE_TOTAL_COIN'
-	elseif itemName == 'Event_2304_ARBOR_DAY_coin' then --?대깽??肄붿씤??
+	elseif itemName == 'Event_2304_ARBOR_DAY_coin' then --이벤트 코인임
 		CRAFT_ITEM_ALL(itemSet, btn)
 		return;
 	elseif itemName == "Piece_Of_Memory_Snigo" then
@@ -1990,6 +1990,8 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
 	elseif itemName== "EVENT_LEAVE_2410" then
 		CRAFT_ITEM_ALL(itemSet, btn)
 	elseif itemName =="EVENT_W_MOON_COIN" then
+		CRAFT_ITEM_ALL(itemSet, btn)
+	elseif itemName =="Tos_Event_Platinum_Coin" then
 		CRAFT_ITEM_ALL(itemSet, btn)
 	end
 
@@ -2014,7 +2016,7 @@ function CRAFT_PVP_MINE_ITEM_ALL(itemSet, btn)
     local icon = targetslot:GetIcon();			
     targetslot:SetEventScript(ui.RBUTTONUP, "CRAFT_ITEM_CANCEL");
 
-    --?щ’ 而щ윭??諛??고듃 諛앷쾶 蹂寃? 
+    --슬롯 컬러톤 및 폰트 밝게 변경. 
     icon:SetColorTone('FFFFFFFF')
     itemSet:SetUserValue("MATERIAL_IS_SELECTED", 'selected');
 
@@ -2042,7 +2044,7 @@ function CRAFT_ITEM_ALL_ForLegend()
         end
         local GetRecipeMaterialItemList = _G[getMaterialScript];        
         invItemlist = GetRecipeMaterialItemList(itemcls);        
-        ignoreType = true; -- 蹂꾨룄???ㅽ겕由쏀듃 ?⑥닔瑜?嫄곗튂??寃쎌슦
+        ignoreType = true; -- 별도의 스크립트 함수를 거치는 경우
     else        
 	    invItemlist = GET_ONLY_PURE_INVITEMLIST(itemcls.ClassID);
     end
@@ -2085,7 +2087,7 @@ function CRAFT_ITEM_ALL_ForLegend()
 		local b_obj = GetIES(b:GetObject())
 			
 		if TryGetProp(a_obj, 'Reinforce_2', 0) < TryGetProp(b_obj, 'Reinforce_2', 0) then
-			-- 媛뺥솕媛 ?곗꽑
+			-- 강화가 우선
 			return true
 		elseif TryGetProp(a_obj, 'Reinforce_2', 0) == TryGetProp(b_obj, 'Reinforce_2', 0) then
 			return TryGetProp(a_obj, 'Transcend', 0) < TryGetProp(b_obj, 'Transcend', 0)
@@ -2094,7 +2096,7 @@ function CRAFT_ITEM_ALL_ForLegend()
 		end	
 	end
 
-	if check_transcend == true or check_reinforce == true then  -- 媛뺥솕/珥덉썡濡??뺣젹
+	if check_transcend == true or check_reinforce == true then  -- 강화/초월로 정렬
 		table.sort(invItemlist, sort_tmp)		
 	end
 
@@ -2154,7 +2156,7 @@ function CRAFT_ITEM_ALL_ForLegend()
 	itemSet:SetUserValue(itemSet:GetName(), tostring(item_guid))
 
 	if IS_EQUIP(itemObj) == true then		
-		-- ?쒖옉?щ즺 媛뺥솕/珥덉썡 ?섏튂 泥댄겕
+		-- 제작재료 강화/초월 수치 체크
 				if TryGetProp(itemObj, 'Reinforce_2', 0) < restrict_reinforce then
 					ui.SysMsg(ScpArgMsg('MoreReinforceForCraft{count}', 'count', restrict_reinforce))
 					return
@@ -2164,7 +2166,7 @@ function CRAFT_ITEM_ALL_ForLegend()
 			ui.SysMsg(ScpArgMsg('MoreTranscendForCraft{count}', 'count', restrict_transcend))
 			return
 			end			
-		-- end of ?쒖옉?щ즺 媛뺥솕/珥덉썡 ?섏튂 泥댄겕
+		-- end of 제작재료 강화/초월 수치 체크
 
 		local frame = ui.GetFrame(g_itemCraftFrameName);
 		frame:SetUserValue("TARGETSET", itemSet:GetName())
@@ -2178,7 +2180,7 @@ function CRAFT_ITEM_ALL_ForLegend()
 		targetslot:SetEventScript(ui.RBUTTONUP, "CRAFT_ITEM_CANCEL");
 		targetslot:SetEventScriptArgString(ui.RBUTTONUP,invItemadd:GetIESID())
 
-		--?щ’ 而щ윭??諛??고듃 諛앷쾶 蹂寃? 
+		--슬롯 컬러톤 및 폰트 밝게 변경. 
 		icon:SetColorTone('FFFFFFFF')
 		itemSet:SetUserValue("MATERIAL_IS_SELECTED", 'selected');
 		local invframe = ui.GetFrame('inventory')
@@ -2323,7 +2325,7 @@ function MAKE_DETAIL_REQITEMS(ctrlset)
 	
 	local myActor = GetMyActor();
 
-	if myActor:IsSit() == 1 then -- 쩐?? UI째징 쨔?? 쨋짠쨔짰쩔징(쨍쨍??쨈?쩍첸? [關쩔 쩐?? 쨔??째징쨌s??? 짹??f[: ?쩍캡???짠쨍쨍 ?쨍???s짧 140922.
+	if myActor:IsSit() == 1 then -- ¾?? UI°¡ ¹?? ¶§¹®¿¡(¸¸??´?½þ? [μ¿ ¾?? ¹??°¡·s??? ±??f[: ?½ĸ???§¸¸ ?¸???sª 140922.
 		--make:ShowWindow(1)
 		make:ShowWindow(0)
 	else
@@ -2467,8 +2469,8 @@ end
 
 
 
--- ?꾩씠???쒖옉 ?몄뿉??SetCraftState()瑜??댁슜???좎? ?됰룞 ?쒗븳?섍퀬 ?띠뼱??
--- ?댁そ?먯꽌 ?덈궡 msg ?댁슜 愿由ы븯?꾨줉 ??
+-- 아이템 제작 외에도 SetCraftState()를 이용해 유저 행동 제한하고 싶어서
+-- 이쪽에서 안내 msg 내용 관리하도록 함
 function PROGRESS_ITEM_CRAFT_MSG()
 	local goddess_roulette_frame = ui.GetFrame("goddess_roulette");
 	if goddess_roulette_frame:IsVisible() == 1 then

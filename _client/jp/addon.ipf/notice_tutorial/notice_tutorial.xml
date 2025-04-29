@@ -11,7 +11,6 @@
 	<input hittest="false"/>
 	<controls>
 		<richtext name="comment" rect="0 20 1920 100" layout_gravity="center top" fixwidth="true" hittest="false" resizebytext="false" textalign="center top"/>
-		<richtext name="comment2" rect="0 0 1920 80" margin="0 100 0 100" layout_gravity="center center" fixwidth="true" hittest="false" resizebytext="false" textalign="center center"/>
 		<richtext name="control" rect="0 -30 1920 30" layout_gravity="center bottom" caption="{@st41}조이패드나 마우스 조작을 원할 경우, 시스템 메뉴의 게임 설정에서 선택할 수 있습니다.{/}" fixwidth="true" hittest="false" resizebytext="false" textalign="center center"/>
 		<groupbox name="MoveKey" rect="0 0 400 480" margin="360 60 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="bg2"/>
 		<groupbox name="AtkKey" rect="0 0 260 480" margin="-560 60 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" scrollbar="false" skin="bg2"/>

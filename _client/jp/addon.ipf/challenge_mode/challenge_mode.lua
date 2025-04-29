@@ -1,7 +1,25 @@
 function CHALLENGE_MODE_ON_INIT(addon, frame)
 	addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT", "ON_CHALLENGE_MODE_TOTAL_KILL_COUNT");
-	addon:RegisterMsg("FIELD_DUNGEON_KILL_COUNT", "ON_FIELD_DUNGEON_KILL_COUNT");
-	addon:RegisterMsg("EVENT_DUNGEON_KILL_COUNT", "ON_EVENT_DUNGEON_KILL_COUNT");
+end
+
+function DIALOG_ACCEPT_CHALLENGE_MODE(handle)
+	ui.MsgBox(ClMsg("AcceptChallengeMode"), "ACCEPT_CHALLENGE_MODE(" .. tostring(handle) .. ")", "None");
+end
+
+function DIALOG_ACCEPT_CHALLENGE_MODE_RE_JOIN(handle)
+	ui.MsgBox(ClMsg("AcceptChallengeMode_ReJoin"), "ACCEPT_CHALLENGE_MODE(" .. tostring(handle) .. ")", "None");
+end
+
+function DIALOG_ACCEPT_CHALLENGE_MODE_PCBANG(handle)
+	ui.MsgBox(ClMsg("AcceptChallengeMode_PCBang"), "ACCEPT_CHALLENGE_MODE_BY_PCBANG(" .. tostring(handle) .. ")", "None");
+end
+
+function ACCEPT_CHALLENGE_MODE(handle)
+	packet.AcceptChallengeMode(handle);
+end
+
+function ACCEPT_CHALLENGE_MODE_BY_PCBANG(handle)
+	packet.AcceptChallengeModeByPCBang(handle);
 end
 
 function DIALOG_ACCEPT_NEXT_LEVEL_CHALLENGE_MODE(handle)
@@ -33,9 +51,6 @@ function ON_CHALLENGE_MODE_TOTAL_KILL_COUNT(frame, msg, str, arg)
 	if msgList[1] == "SHOW" then
 		ui.OpenFrame("challenge_mode");
 		frame:ShowWindow(1);
-
-		local challenge_pic_logo = GET_CHILD(frame, "challenge_pic_logo", "ui::CPicture");
-		challenge_pic_logo:SetImage("challenge_text");
 		
 		local level = tonumber(msgList[2]);
 		local progressGauge = GET_CHILD(frame, "challenge_gauge_lv", "ui::CGauge");
@@ -142,21 +157,8 @@ function CHALLENGE_MODE_TIMER(textTimer)
 	return 1;
 end
 
-function UPDATE_CHALLENGE_MODE_MINIMAP_MARK(x, y, z, isAlive, isHardMode)
-	local msg = "ChallengeModePortalMark";
-	if isHardMode == 1 then
-		msg = "ChallengeModePortalMark_HardMode";
-	end
-
+function UPDATE_CHALLENGE_MODE_MINIMAP_MARK(x, y, z, isAlive)
 	if isAlive == 1 then
-		session.minimap.AddIconInfo(msg, "trasuremapmark", x, y, z, ClMsg(msg), true, nil, 1.5);
-	else
-		session.minimap.RemoveIconInfo(msg);
-	end
-end
-
-function CHALLENGE_MODE_SHOW_MINIMAP_MARK(x, y, z, isCreate)
-	if isCreate == 1 then
 		session.minimap.AddIconInfo("ChallengeModePortalMark", "trasuremapmark", x, y, z, ClMsg("ChallengeModePortalMark"), true, nil, 1.5);
 	else
 		session.minimap.RemoveIconInfo("ChallengeModePortalMark");

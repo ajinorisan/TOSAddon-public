@@ -10,6 +10,7 @@ function PUMP_COLLECTION_ON_INIT(addon, frame)
 	addon:RegisterMsg("ADD_COLLECTION", "ON_ADD_PUMP_COLLECTION");						-- 컬렉션이 추가되면.   -> Make
 	addon:RegisterMsg("COLLECTION_ITEM_CHANGE", "ON_PUMP_COLLECTION_ITEM_CHANGE");		-- 컬렉션의 아이템이 갱신되면 -> Update/make
 	addon:RegisterMsg("INV_ITEM_ADD", "ON_PUMP_COLLECTION_OPEN");						-- 인벤에 아이템이 들어오면. -> OpenView
+	
 	PUMP_COLLECTION_FIRST_UPDATE  = false;												-- 재접시에 초기화
 end
 
@@ -22,6 +23,7 @@ end
 function ON_PUMP_COLLECTION_ITEM_CHANGE(frame, msg, str, type, removeType)
 	MAKE_PUMP_COLLECTION_LIST();
 end
+
 
 -- 아이템 획득시
 function ON_PUMP_COLLECTION_OPEN(frame, msg, str, itemType, removeType)
@@ -272,7 +274,7 @@ function GET_OPEN_PUMP_COLLECTION_LIST(itemType)
 
 	for k,v in pairs(PUMP_COLLECTION_INFO_LIST) do
 		for item_k,item_v in  pairs(v.infoList) do
-			if item_v.itemID == itemType and item_v.isCollected == false and item_v.Reinforce_2 == 0 then
+			if item_v.itemID == itemType and item_v.isCollected == false then
 				openCollectionList[openCollectionCount] = v;
 				openCollectionCount = openCollectionCount +1;
 				break;
@@ -342,7 +344,7 @@ function GET_COLLECTION_ITEM_INFO(collectionClass, collection)
 		end
 
 		local itemCls = GetClass("Item", itemName);
-		local itemData = GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet, TryGetProp(cls, 'Reinforce_' .. index, 0));
+		local itemData = GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet);
 
 		resultItemDatas[index] = itemData;
 		index = index +1;
@@ -351,7 +353,7 @@ function GET_COLLECTION_ITEM_INFO(collectionClass, collection)
 	return resultItemDatas;
 end
 
-function GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet, reinforce)
+function GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet)
 	local showedcount = 0;
 	if collectedItemSet[itemCls.ClassID] ~= nil then
 		showedcount = collectedItemSet[itemCls.ClassID];
@@ -370,15 +372,13 @@ function GET_COLLECTION_DETAIL_ITEM_INFO(collection, itemCls , collectedItemSet,
 		-- 이미 수집한 아이템.
 		return { 
 				itemID = itemCls.ClassID,
-				Reinforce_2 = reinforce,
-				isCollected = true				
+				isCollected = true
 			   };
 	end
 
 	-- 아직 수집하지 않은 아이템.
 	return { 
 				itemID = itemCls.ClassID,
-				Reinforce_2 = reinforce,
 				isCollected = false
 			};
 end

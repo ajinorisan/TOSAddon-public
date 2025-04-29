@@ -35,3 +35,6 @@ ClassID,ClassName,ButtonScp
 34,"Goddess_Raid_CollapsingMine_Ex_Easy","RAID_RECORD_OPEN"
 35,"Goddess_Raid_CollapsingMine_Ex_Normal","RAID_RECORD_OPEN"
 36,"Goddess_Raid_CollapsingMine_Ex_Hard","RAID_RECORD_OPEN"
+37,"Goddess_Raid_Redania_Auto","RAID_RECORD_OPEN"
+38,"Goddess_Raid_Redania_Solo","RAID_RECORD_OPEN"
+39,"Goddess_Raid_Redania_Party","RAID_RECORD_OPEN"

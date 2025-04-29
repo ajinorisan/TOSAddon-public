@@ -11,7 +11,7 @@ function ON_PARTY_HISTORY_LIST_UPDATE(frame, ctrl, argStr, argNum)
 	if listCnt == 0 then
 		return;
 	end
-	
+
 	local count = 0;
 	for i=0, listCnt - 1 do
 		local info = session.partyhistorylist.GetPartyHistoryInfo(i);

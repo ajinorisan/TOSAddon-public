@@ -8,6 +8,7 @@
 	<ReadXml Name="item_goddess_reinforce_500"/>
 	<ReadXml Name="item_goddess_reinforce_510"/>
 	<ReadXml Name="item_goddess_reinforce_520"/>
+	<ReadXml Name="item_goddess_reinforce_530"/>
 	<ReadXml Name="pharmacy_material_type"/>	
 	<ReadXml Name="skill_Simony"/>
 	<ReadXml Name="archeology_property"/>
@@ -440,4 +441,6 @@
 	<ReadXml Name="cupole_pickuplist"/>
 	<ReadXml Name="rerunticket"/>
 	<ReadXml Name="event_gamble_list"/>	
+	<ReadXml Name="limit_field_drop_item_list"/>		
+	<ReadXml Name="reward_tp3"/>
 </Category>

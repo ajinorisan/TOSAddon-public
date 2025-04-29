@@ -802,6 +802,14 @@
 			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
 			<Sound From="walk_left" To="step_soil"/>
 		</Anim>
+		<Anim Name="SKL_VULTURE_DASH_RUN">
+			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
+			<Sound From="vulture" To="step_soil"/>
+		</Anim>
+		<Anim Name="SKL_VULTURE_ARUN">
+			<Particle From="F_pc_run_blank_dummy" To="Shockwave_GrowingGrass_Green_01" Scale="0.7" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
+			<Sound From="vulture" To="step_soil"/>
+		</Anim>
 	</Material>
 	<Material ID="46" Name="effect_capybara" KorName="카피바라 발자국 이펙트" MaterialItem="None">
 		<Anim Name="RUN_RIDE">
@@ -812,6 +820,18 @@
 	<Material ID="47" Name="effect_elephant" KorName="코끼리 발자국 이펙트" MaterialItem="None">
 		<Anim Name="RUN_RIDE">
 			<Particle From="F_pc_run_blank_dummy" To="Stomp_ElephantFootprint_LightBrown_01" Scale="1" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;90"/>
+			<Sound From="walk_left" To="walk_left"/>
+		</Anim>
+	</Material>
+	<Material ID="48" Name="effect_tiger_white" KorName="백호 발자국 이펙트" MaterialItem="None">
+		<Anim Name="RUN_RIDE">
+			<Particle From="F_pc_run_blank_dummy" To="Stomp_TigerSpiritFootprint_White_01" Scale="1" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;90;0"/>
+			<Sound From="walk_left" To="walk_left"/>
+		</Anim>
+	</Material>
+	<Material ID="49" Name="effect_chariot_white" KorName="전차 바퀴 이펙트" MaterialItem="None">
+		<Anim Name="RUN_RIDE">
+			<Particle From="F_pc_run_blank_dummy" To="AerialExplosion_Dust_LightBrown_01" Scale="0.5" ForceConvert="NO" UnityEffect="YES" UnityEffectRotateAngle="0;0;0"/>
 			<Sound From="walk_left" To="walk_left"/>
 		</Anim>
 	</Material>

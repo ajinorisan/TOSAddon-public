@@ -43,7 +43,7 @@ imcSlot = {
 	end,
 };
 
-function SET_SLOT_ITEM_CLS(slot, itemCls)	
+function SET_SLOT_ITEM_CLS(slot, itemCls)
 	if itemCls == nil then
 		return;
 	end
@@ -52,12 +52,11 @@ function SET_SLOT_ITEM_CLS(slot, itemCls)
 		img = itemCls.Icon
 	end
 	
-	SET_SLOT_IMG(slot, img);	
+	SET_SLOT_IMG(slot, img);
 	SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), itemCls.ClassID);
-	return slot:GetIcon()
 end
 
-function SET_SLOT_ITEM_INFO(slot, itemCls, count, style, x, y)
+function SET_SLOT_ITEM_INFO(slot, itemCls, count, style)
 	local icon = CreateIcon(slot);
 	icon:EnableHitTest(0);
 	if itemCls == nil then
@@ -69,27 +68,18 @@ function SET_SLOT_ITEM_INFO(slot, itemCls, count, style, x, y)
     end
 	icon:Set(iconImageName, "item", itemCls.ClassID, count);
 	if itemCls.ItemType ~= "Equip" then
-		-- 아이템 수량 표시, 기존에 -2, 1 고정이였던 부분 x, y로 받아와서 설정 할 수 있도록 수정
-		if x == nil then x = -2; end
-		if y == nil then y = 1; end
-		
-		slot:SetText(style..count, 'count', ui.RIGHT, ui.BOTTOM, x, y);
+		slot:SetText(style..count, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
 	end
 
 	SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), itemCls.ClassID);
 	return icon;
 end
 
--- 배럭 장비 슬롯
+
 function SET_SLOT_ITEM_OBJ(slot, itemCls, gender, isBarrack)
 	local img = GET_ITEM_ICON_IMAGE(itemCls, gender);
 
 	SET_SLOT_IMG(slot, img);
-	local score = GET_GEAR_SCORE(itemCls)
-	if score > 0 then
-		slot:SetText('{s12}{ol}{#FFFFFF}'..score, 'count', ui.RIGHT, ui.TOP, 0, 2)
-	end
-
 	local icon = slot:GetIcon();
 
 	if nil == icon then
@@ -102,8 +92,6 @@ function SET_SLOT_ITEM_OBJ(slot, itemCls, gender, isBarrack)
 		SET_ITEM_TOOLTIP_ALL_TYPE(icon, itemCls, itemCls.ClassName, "tooltips", itemCls.ClassID, tooltipID);
 		if nil == isBarrack then
 			slot:CopyTooltipData(icon);
-		else
-			SET_SLOT_STYLESET(slot, itemCls, nil, nil, nil, nil, nil, isBarrack)
 		end
 	end
 end
@@ -136,7 +124,7 @@ function SET_SLOT_INVITEM_NOT_COUNT(slot, invItem, cnt, font, hor, ver, stateX, 
 end
 
 function SET_SLOT_ITEM_INV(slot, itemCls)
-	local type = itemCls.ClassID;
+		local type = itemCls.ClassID;
 	local img = itemCls.Icon;
 	SET_SLOT_IMG(slot, img)
 	SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), type);
@@ -153,6 +141,7 @@ function SET_SLOT_ITEM_INV(slot, itemCls)
 
 	slot:SetEventScript(ui.LBUTTONUP, 'SLOT_ITEMUSE_BY_TYPE');
 	slot:SetEventScriptArgNumber(ui.LBUTTONUP, itemCls.ClassID);
+
 end
 
 function SET_SLOT_ITEM_IMAGE(slot, invItem)
@@ -177,70 +166,6 @@ end
 
 function SET_SLOT_ITEM(slot, invItem, count)
 	imcSlot:SetItemInfo(slot, invItem, count);
-end
-
-function SET_SLOT_STAR_TEXT(slot, invItem)	
-	local starIconProp = TryGetProp(invItem, 'StarIcon', 'None');
-	local controlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
-	if (TryGetProp(invItem, "StringArg", "None") == "SkillGem" and TryGetProp(invItem, "RandomOption_1", "None") ~= "None") then
-		local grade = GET_CHILD(controlset, "grade");
-		grade:SetText("{img star_mark 18 18}");
-		controlset:ShowWindow(1);
-		controlset:SetGravity(ui.RIGHT, ui.TOP);
-	elseif starIconProp ~= 'None' then
-		local grade = GET_CHILD(controlset, "grade")
-		if starIconProp == "star_number" then
-			local starIconNumber = TryGetProp(invItem, "StarIconNumber", 0);
-			if starIconNumber > 0 then
-				local name = string.format("{@st70_m_16}%s", starIconNumber);
-				grade:SetText(name);
-			end
-		else
-			local name = string.format("{img %s 18 18}", starIconProp);
-			grade:SetText(name);
-		end
-		controlset:ShowWindow(1);
-		controlset:SetGravity(ui.RIGHT, ui.TOP);
-	else
-		controlset:ShowWindow(0);
-	end
-end
-
-function SET_SLOT_STAR_TEXT_BY_ITEM_NAME(slot, item_name)
-	local item_cls = GetClassByStrProp("Item", "Name", item_name);
-	if item_cls ~= nil then
-		local star_icon = TryGetProp(item_cls, 'StarIcon', 'None');
-		local ctrlset = slot:CreateOrGetControlSet('inv_itemstar', "starmark", 0, 0);
-		if (TryGetProp(item_cls, "StringArg", "None") == "SkillGem" and TryGetProp(item_cls, "RandomOption_1", "None") ~= "None") then
-			local grade = GET_CHILD(ctrlset, "grade")
-			grade:SetText("{img star_mark 18 18}")
-			ctrlset:ShowWindow(1)
-			ctrlset:SetGravity(ui.RIGHT, ui.TOP)
-		elseif star_icon ~= 'None' then
-			local grade = GET_CHILD(ctrlset, "grade")
-			if star_icon == "star_number" then
-				local star_icon_number = TryGetProp(item_cls, "StarIconNumber", 0);
-				if star_icon_number > 0 then
-					local name = string.format("{@st70_m_16}%s", star_icon_number);
-					grade:SetText(name);
-				end
-			else
-				local name = string.format("{img %s 18 18}", star_icon)
-				grade:SetText(name)
-			end
-			ctrlset:ShowWindow(1)
-			ctrlset:SetGravity(ui.RIGHT, ui.TOP)
-		else
-			ctrlset:ShowWindow(0)
-		end 
-	end
-end
-
-function REMOVE_SLOT_STAR_TEXT(slot)	
-	local ctrlset = GET_CHILD_RECURSIVELY(slot, "starmark");
-	if ctrlset ~= nil then
-		ctrlset:ShowWindow(0);
-	end
 end
 
 function SET_SLOT_IMG(slot, img)
@@ -338,7 +263,7 @@ function SET_SLOT_COUNT_TEXT(slot, cnt, font, hor, ver, stateX, stateY)
 		slot:SetText(font..cnt, 'count', hor, ver, stateX, stateY);
 end
 
-function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAppraisal_Flag, itemReinforce_Flag, isInventory, is_barrack)		
+function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAppraisal_Flag, itemReinforce_Flag, isInventory)
 	if slot == nil then
 		return
 	end
@@ -350,11 +275,11 @@ function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAp
 	if itemGrade_Flag == nil or itemGrade_Flag == 1 then
 		if isInventory ~= nil and isInventory == 1 and config.GetXMLConfig("ViewGradeStyle") == 0 then
 			
-		else						
-			SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
+		else
+			SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls.ItemGrade)
 		end
 	end
-	
+
 	if itemLevel_Flag == nil or itemLevel_Flag == 1 then
 		if isInventory ~= nil and isInventory == 1 and config.GetXMLConfig("ViewTranscendStyle") == 0 then
 		
@@ -363,17 +288,11 @@ function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAp
 		end
 	end
 
-	if shared_enchant_special_option.is_hair_acc(itemCls) == true then
-		SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
-	end
-
 	local needAppraisal = nil
 	local needRandomOption = nil
-	local isPharmacyItem = false
 	if itemCls ~= nil then
 		needAppraisal = TryGetProp(itemCls, "NeedAppraisal");
 		needRandomOption = TryGetProp(itemCls, "NeedRandomOption");
-		isPharmacyItem = (string.find(TryGetProp(itemCls, 'StringArg', 'None'), 'pharmacy') ~= nil)
 	end
 
 	if itemAppraisal_Flag == nil or itemAppraisal_Flag == 1 then
@@ -387,17 +306,7 @@ function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAp
 			local reinforceLv = TryGetProp(itemCls, 'Reinforce_2');
 			if TryGetProp(itemCls, 'GroupName') == 'Seal' then
 				reinforceLv = GET_CURRENT_SEAL_LEVEL(itemCls);
-			elseif TryGetProp(itemCls, 'GroupName', 'None') == 'Ark' then
-				reinforceLv = TryGetProp(itemCls, 'ArkLevel', 1)
-			elseif TryGetProp(itemCls, 'GroupName', 'None') == 'Relic' then
-				if is_barrack == 1 then
-					reinforceLv = TryGetProp(GetMyAccountObj(), 'Relic_LV', 1)
-				else
-					reinforceLv = TryGetProp(itemCls, 'Relic_LV', 1)
-				end
-			elseif TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
-				reinforceLv = shared_item_earring.get_earring_grade(itemCls)
-			end			
+			end
 			SET_SLOT_REINFORCE_LEVEL(slot, reinforceLv);			
 		end
 	end
@@ -405,8 +314,6 @@ function SET_SLOT_STYLESET(slot, itemCls, itemGrade_Flag, itemLevel_Flag, itemAp
 	if TryGetProp(itemCls, "Dur") ~= nil then
 		SET_SLOT_DURATION(slot, itemCls)
 	end
-
-	SET_SLOT_PHARMACY_MARK(slot, isPharmacyItem)
 end
 
 
@@ -439,24 +346,16 @@ function SET_SLOT_TRANSCEND_LEVEL(slot, transcendLv)
 	
 end
 
-function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)	
+function SET_SLOT_BG_BY_ITEMGRADE(slot, itemgrade)
 	local skinName = "invenslot_nomal"
 	if slot == nil then
 		return
 	end
-
-	local string_arg = TryGetProp(itemCls, 'StringArg', 'None')
-	if string.find(string_arg, 'pharmacy') ~= nil then
-		skinName = 'invenslot_alchemy'
-	end
-
-	local itemgrade = TryGetProp(itemCls, 'ItemGrade', 0)
-	itemgrade = GET_ITEM_GRADE(itemCls)
 	if itemgrade == nil or itemgrade == 0 or itemgrade == 1 or itemgrade == "None" then
 		slot:SetSkinName(skinName)
 		return
 	end
-	
+		
 	if itemgrade == 2 then
 		skinName = "invenslot_magic"
 	elseif itemgrade == 3 then
@@ -465,11 +364,8 @@ function SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
 		skinName = "invenslot_unique"
 	elseif itemgrade == 5 then
 		skinName = "invenslot_legend"
-	elseif itemgrade == 6 then
-		skinName = "invenslot_pic_goddess"
-	elseif itemgrade >= 10 then
-		skinName = GET_ITEM_BG_PICTURE_BY_GRADE(itemgrade, nil, nil, 4)
 	end
+
 	slot:SetSkinName(skinName)
 	
 end
@@ -537,9 +433,9 @@ function SET_SLOT_DURATION(slot, itemCls)
 	end
 end
 
-function SET_SLOT_ITEM_TEXT(slot, invItem, obj)	
+function SET_SLOT_ITEM_TEXT(slot, invItem, obj)
 	if obj.MaxStack > 1 then
-		SET_SLOT_COUNT_TEXT(slot, invItem.count);		
+		SET_SLOT_COUNT_TEXT(slot, invItem.count);
 		return;
 	end
 
@@ -551,8 +447,8 @@ function SET_SLOT_ITEM_TEXT(slot, invItem, obj)
 	end
 end
 
--- 아이템 카운트 표기
-function SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, invItem, obj, count, font)	
+function SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, invItem, obj, count, font)
+
 	local refreshScp = TryGetProp(obj,'RefreshScp')
 
 	if refreshScp ~= "None" and refreshScp ~= nil and obj ~= nil then
@@ -561,70 +457,23 @@ function SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, invItem, obj, count, font)
 	end	
 
 	if obj.MaxStack > 1 then
-		if IS_ENCHANT_JEWELL_ITEM(obj) == true then			
-			local number = TryGetProp(obj, 'NumberArg1', 0)
-			if number > 0 then
-				slot:SetText('{s15}{ol}{#FFFFFF}{b}LV.' ..number .. '{nl} {nl}' .. tostring(invItem.count), 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
-			end
+		if count ~= nil then
+			SET_SLOT_COUNT_TEXT(slot, count, font);
 		else
-			if font == nil then
-				font = '{s18}{ol}{b}'
-			end
-
-			if count ~= nil then
-				if 100000 <= count then	-- 6자리 수 폰트 크기 조정
-					font = "{s14}{ol}{b}";
-				end
-
-				if GET_ITEM_EXPIRE_TIME(obj) ~= 'None' then
-					if 1000 <= count then	-- 6자리 수 폰트 크기 조정
-						font = "{s12}{ol}{b}";
-					end
-					slot:SetText(font..tostring(count), 'count', ui.RIGHT, ui.TOP, -2, 1);	
-				else
-					SET_SLOT_COUNT_TEXT(slot, count, font);
-				end
-			else
-				if 100000 <= invItem.count then	-- 6자리 수 폰트 크기 조정
-					font = "{s14}{ol}{b}";
-				end
-
-				if GET_ITEM_EXPIRE_TIME(obj) ~= 'None' then					
-					if 1000 <= invItem.count then	-- 6자리 수 폰트 크기 조정
-						font = "{s12}{ol}{b}";
-					end
-					slot:SetText(font..tostring(invItem.count), 'count', ui.RIGHT, ui.TOP, -2, 1);	
-				else
-					SET_SLOT_COUNT_TEXT(slot, invItem.count, font);
-				end
-			end
+			SET_SLOT_COUNT_TEXT(slot, invItem.count, font);
 		end
-
 		return;
 	end
 
-	local lv = TryGetProp(obj, "Level", 0)	
-	if lv > 1 then
+	local lv = TryGetProp(obj, "Level");
+	if lv ~= nil and lv > 1 then
 		--slot:SetFrontImage('enchantlevel_indi_icon');
-		if IS_ENCHANT_JEWELL_ITEM(obj) == true then			
-			slot:SetText('{s15}{ol}{#FFFFFF}{b}LV.'..lv, 'count', ui.LEFT, ui.BOTTOM, 3, 2);			
+		if IS_ENCHANT_JEWELL_ITEM(obj) == true then
+			slot:SetText('{s15}{ol}{#FFFFFF}{b}LV.'..lv, 'count', ui.LEFT, ui.BOTTOM, 3, 2);
 		else
 			slot:SetText('{s17}{ol}{#FFFFFF}{b}LV. '..lv, 'count', ui.LEFT, ui.TOP, 3, 2);
 		end
-	end
-
-	local groupName = TryGetProp(obj, 'GroupName', 'None')
-	if groupName == 'Gem_Relic' then
-		local gem_lv = TryGetProp(obj, 'GemLevel', 1)
-		slot:SetText('{s17}{ol}{#FFFFFF}{b}LV. '..gem_lv, 'count', ui.LEFT, ui.TOP, 3, 2)
-	elseif groupName == "Gem_High_Color" then
-		local gem_lv = TryGetProp(obj, "AetherGemLevel", 1);
-		slot:SetText("{s14}{ol}{#FFFFFF}{b}Lv."..gem_lv, 'count', ui.LEFT, ui.TOP, 3, 2)
-	end
-
-	local score = GET_GEAR_SCORE(obj)
-	if score > 0 then
-		slot:SetText('{s14}{ol}{#FFFFFF}'.. score, 'count', ui.RIGHT, ui.TOP, 0, 2)
+		return;
 	end
 end
 
@@ -687,17 +536,4 @@ function GET_SLOT_ITEM_TYPE(slot)
 		return 0;
 	end
 	return iconinfo.type;
-end
-
-function SET_SLOT_PHARMACY_MARK(slot, isPharmacyItem)
-	if slot == nil then return end
-
-	DESTROY_CHILD_BYNAME(slot, "styleset_PharmacyIcon")
-
-	if isPharmacyItem == true then
-		local pharmacy_icon = slot:CreateOrGetControl('picture', 'styleset_PharmacyIcon', 58, 58, ui.RIGHT, ui.TOP, 0, 0, 0, 0)
-		AUTO_CAST(pharmacy_icon, 'ui::CPicture')
-		pharmacy_icon:SetImage('itemslot_alchemy_mark')
-		pharmacy_icon:EnableHitTest(0)
-	end
 end

@@ -184,8 +184,10 @@
 	<Word Msg="れいぷ"/>
 	<Word Msg="ﾚｲﾌﾟ"/>
 	<Word Msg="rape"/>
+	<Word Msg="rape"/>
 	<Word Msg="reipu"/>
 	<Word Msg="{nl}"/>
+	<Word Msg="ネクソン"/>
 	<Word Msg="ねくそん"/>
-	<Word Msg="おちんちん"/>
+	<Word Msg="NEXON"/>
 </BadWords>

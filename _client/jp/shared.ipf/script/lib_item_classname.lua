@@ -60,5 +60,8 @@ function GET_SWITCHGENDER_SELLER_SPEND_ITEM()
 end
 
 function GET_SEAL_ADDITIONAL_ITEM()
-    return 'misc_0530'; -- 인장 재료 아이템
+    local t = {}
+    table.insert(t, 'misc_0530') -- 인장 강화 재료 아이템
+    table.insert(t, 'misc_0530_seal') -- 인장 강화 재료 아이템
+    return t
 end

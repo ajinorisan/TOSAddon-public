@@ -6,7 +6,3 @@ function TPITEM_BEUTYSHOP_GO_SHOP(parent, ctrl)
     pc.ReqExecuteTx_Item('GO_BEAUTYSHOP', '0', '0');
     ui.CloseFrame('tpitem');
 end
-
-function UI_TOGGLE_TPITEM_BEUTYSHOP_GO_SHOP()
-    pc.ReqExecuteTx_Item('GO_BEAUTYSHOP', '0', '0');
-end

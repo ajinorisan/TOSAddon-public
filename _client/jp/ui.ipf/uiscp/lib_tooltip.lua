@@ -1,6 +1,6 @@
 -- lib_tooltip.lua --
 
-function MAKE_BALLOON_FRAME(text, x, y, linkText, customName, font, isFixWidth, isTailLeft)
+function MAKE_BALLOON_FRAME(text, x, y, linkText, customName, font, isFixWidth)
 
 	local tframe = ui.CreateNewFrame("balloon", customName);
 	if tframe == nil then
@@ -26,10 +26,6 @@ function MAKE_BALLOON_FRAME(text, x, y, linkText, customName, font, isFixWidth, 
 		textCtrl:SetTextByKey("Font", font);
 	end
 	textCtrl:SetTextByKey("Text", setText);
-
-	if isTailLeft == 1 then
-		tframe:SetSkinName("textballoon_reflect")
-	end
 	
 	local width = textCtrl:GetWidth() + 40;
 	local height = textCtrl:GetHeight() + 20;
@@ -93,7 +89,7 @@ function GET_STAR_TXT(imgSize, count, obj, isEquiped)
 	    if obj ~= nil and transcend > 0 then
 	        gradeString = gradeString .. string.format("{img star_mark3 %d %d}", imgSize, imgSize);
 		else
-			if obj ~= nil and (obj.ToolTipScp == 'LEGEND_BOSSCARD' or obj.ToolTipScp == 'GODDESSCARD') then
+			if obj ~= nil and obj.ToolTipScp == 'LEGEND_BOSSCARD' then
 				gradeString = gradeString .. string.format("{img mon_legendstar %d %d}", imgSize, imgSize);
 			else
 				gradeString = gradeString .. string.format("{img star_mark %d %d}", imgSize, imgSize);

@@ -14,7 +14,7 @@ function COLONY_RESULT_OPEN(isWin, argStr)
     local frame = ui.GetFrame('colony_result');
     frame:SetUserValue('SERVICE_NATION', config.GetServiceNation());
 
-    if frame:GetUserValue('SERVICE_NATION') == 'KOR' or frame:GetUserValue('SERVICE_NATION') == 'GLOBAL_KOR' then        
+    if frame:GetUserValue('SERVICE_NATION') == 'KOR' then        
         COLONY_RESULT_SHOW_UI_MODE(frame, 0);
     else        
         COLONY_RESULT_SHOW_UI_MODE(frame, 1);
@@ -38,13 +38,13 @@ function COLONY_RESULT_INIT(frame, isWin, argStr)
         winBox:ShowWindow(1);
         loseBox:ShowWindow(0);
 
-        if frame:GetUserValue('SERVICE_NATION') == 'KOR' or frame:GetUserValue('SERVICE_NATION') == 'GLOBAL_KOR' then
+        if frame:GetUserValue('SERVICE_NATION') == 'KOR' then
             imcSound.PlayMusicQueueLocal('colonywar_win_k')
         else
             imcSound.PlayMusicQueueLocal('colonywar_win')
         end
 
-        if frame:GetUserValue('SERVICE_NATION') == 'KOR' or frame:GetUserValue('SERVICE_NATION') == 'GLOBAL_KOR' then
+        if frame:GetUserValue('SERVICE_NATION') == 'KOR' then
             winBox:PlayUIEffect(WIN_EFFECT_NAME, EFFECT_SCALE, 'COLONY_WIN');
         else
             winUIBox:ShowWindow(1);
@@ -75,13 +75,13 @@ function COLONY_RESULT_INIT(frame, isWin, argStr)
         winBox:ShowWindow(0);
         loseBox:ShowWindow(1);
 
-        if frame:GetUserValue('SERVICE_NATION') == 'KOR' or frame:GetUserValue('SERVICE_NATION') == 'GLOBAL_KOR' then
+        if frame:GetUserValue('SERVICE_NATION') == 'KOR' then
             imcSound.PlayMusicQueueLocal('colonywar_lose_k')
         else
             imcSound.PlayMusicQueueLocal('colonywar_lose')
         end
 
-        if frame:GetUserValue('SERVICE_NATION') == 'KOR' or frame:GetUserValue('SERVICE_NATION') == 'GLOBAL_KOR' then            
+        if frame:GetUserValue('SERVICE_NATION') == 'KOR' then            
             loseBox:PlayUIEffect(LOSE_EFFECT_NAME, EFFECT_SCALE, 'COLONY_LOSE');
         else
             winUIBox:ShowWindow(0);

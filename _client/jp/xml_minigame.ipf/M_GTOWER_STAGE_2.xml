@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <GameList>
-	<Game Name="M_GTOWER_STAGE_2" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="15">
+	<Game Name="M_GTOWER_STAGE_2" minLv="0" maxLv="0" startWaitSec="15">
 		<StageList>
 			<Stage Name="SETTING">
 				<StartScpList>
@@ -65,7 +65,7 @@
 					</ToolScp>
 				</StartScpList>
 				<ObjList>
-					<Obj Type="Monster" MonType="40001" Pos="2971.16#267.83#-1834.35" angle="91" genCount="1" genTime="20000" objectKey="0" autoDestroy="0" propList="&apos;Name&apos; &apos;대지의 탑 3층&apos; &apos;Range&apos; &apos;50&apos; &apos;Enter&apos; &apos;G_TOWER_WARP_TO_3&apos; ">
+					<Obj Type="Monster" MonType="40001" Pos="2965.17#262.70#-1839.16" angle="91" genCount="1" genTime="20000" objectKey="0" autoDestroy="0" propList="&apos;Name&apos; &apos;대지의 탑 3층&apos; &apos;Range&apos; &apos;50&apos; &apos;Enter&apos; &apos;G_TOWER_WARP_TO_3&apos; ">
 						<SelfAI ActiveMessageMapInBattle="1">
 							<StartList>
 								<ToolScp Scp="S_AI_SERCH_OBJ_PLAY" Client="NO" UseSleep="NO">
@@ -137,7 +137,7 @@
 			<Stage Name="STAGE_1_PROG" AutoStart="0">
 				<StartScpList>
 					<ToolScp Scp="MGAME_SET_RAID_ICON" Client="NO" UseSleep="NO">
-						<Str Str="첫 번째 목표가 시작되었습니다{nl}몬스터들로부터 30초 동안 천체구를 보호하세요"/>
+						<Str Str="첫 번째 목표가 시작되었습니다{nl}몬스터들로부터 270초 동안 천체구를 보호하세요"/>
 						<Str Str="stage_start"/>
 						<Num Num="20"/>
 					</ToolScp>
@@ -525,7 +525,7 @@
 						<Str Str="천체구 보호"/>
 					</ToolScp>
 					<ToolScp Scp="MGAME_SET_TIMEOUT" Client="NO" UseSleep="NO">
-						<Num Num="30"/>
+						<Num Num="270"/>
 					</ToolScp>
 				</StartScpList>
 				<ObjList/>
@@ -552,7 +552,7 @@
 					<Event execCount="1" eventName="Succl_Timmer">
 						<condList>
 							<ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-								<Num Num="30"/>
+								<Num Num="270"/>
 							</ToolScp>
 						</condList>
 						<execList>

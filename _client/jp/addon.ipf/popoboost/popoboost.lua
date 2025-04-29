@@ -347,12 +347,17 @@ local function POPOBOOST_SET_GEARSCORE_BTN_STATE(frame)
         --jour_compen_off
         --달성하지못했으 때의 마크
     end
-    for i = idx, maxidx do
-        local ctrlName = string.format("popoboost_gearscore_btn%d",i);
-        local score = ScoreGBox:CreateOrGetControlSet('popoboost_gearscore_btn',ctrlName, i * offsetX, offsetY);
-        local gearscoreBtn = GET_CHILD(score,"gearscoreBtn");
-        gearscoreBtn:SetImage("jour_compen_off2");
+
+    --올 클리어 시에 오류 처리
+    if bIsNotClear == false then
+        for i = idx, maxidx do
+            local ctrlName = string.format("popoboost_gearscore_btn%d",i);
+            local score = ScoreGBox:CreateOrGetControlSet('popoboost_gearscore_btn',ctrlName, i * offsetX, offsetY);
+            local gearscoreBtn = GET_CHILD(score,"gearscoreBtn");
+            gearscoreBtn:SetImage("jour_compen_off2");
+        end
     end
+
 end
 
 local function POPOBOOST_SET_BANNER(frame)
@@ -392,6 +397,23 @@ local function POPOBOOST_SET_BANNER(frame)
                 end
             end
         end
+    end
+end
+
+local function SET_REWARDBOX_DISABLE_SHADOW(frame, index)
+    local normal_disable_shadow = GET_CHILD_RECURSIVELY(frame, "normal_disable_shadow")
+    local premium_disable_shadow = GET_CHILD_RECURSIVELY(frame, "premium_disable_shadow")
+
+
+    local bIsNotClear = true;
+    local IsClear = GET_POPOBOOST_PROGRESS_IS_CLEAR(pc, index)
+
+    if not IsClear then
+        normal_disable_shadow:ShowWindow(1)
+        premium_disable_shadow:ShowWindow(1)
+    else
+        normal_disable_shadow:ShowWindow(0)
+        premium_disable_shadow:ShowWindow(0)
     end
 end
 
@@ -609,14 +631,18 @@ function POPOBOOST_SET_REWARD(frame, name)
     if ProgressProp == "None" then
         return;
     end
-    local propName = string.format("%s%d", ProgressProp,index);
+
+    local propName = string.format("%s%d", ProgressProp, index);
     local progress = TryGetProp(acc,propName,-2);
     local isRecieve = false;
+
     if name == "normalReward" and (progress == 1 or progress == 3)then
         isRecieve = true;
     elseif name == "premiumReward" and (progress == 2 or progress == 3)then
         isRecieve = true;
     end
+
+    SET_REWARDBOX_DISABLE_SHADOW(frame, index)
 
     for k, v in pairs(item_list[tag]) do
         local value = i * 10 + j;

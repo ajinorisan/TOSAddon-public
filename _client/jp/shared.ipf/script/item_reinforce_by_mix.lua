@@ -39,10 +39,7 @@ function SCR_CHECK_GEM_MATERIAL(reinfItem, matItem)
 	    return 0;
 	end
 	
-	if  TryGetProp(matItem,"StringArg")=="SkillGem" and TryGetProp(matItem,"CharacterBelonging",0)==1 then
-		return 0;
-	end
-
+	
 	if TryGetProp(matItem , "ItemLifeTimeOver") == 1 then
 	    return 0;
 	end
@@ -67,9 +64,6 @@ function SCR_CHECK_GEM_MATERIAL(reinfItem, matItem)
 	if matItem.EquipXpGroup == "None" then
 		return 0;
 	end
-
-
-	
 
 	if TryGetProp(matItem, "Reinforce_Type") == "Hethran" then
 		return 0;

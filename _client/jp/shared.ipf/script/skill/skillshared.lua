@@ -13,6 +13,36 @@ function GET_NINJA_SKILLS()
 	retList[#retList + 1] = "Shinobi_Mijin_no_jutsu";
 	retList[#retList + 1] = "Shinobi_Katon_no_jutsu";
 	retList[#retList + 1] = "Shinobi_Raiton_no_Jutsu";
+--	retList[#retList + 1] = "Swordman_Thrust";
+--	retList[#retList + 1] = "Swordman_Bash";
+--	retList[#retList + 1] = "Swordman_DoubleSlash";
+--	retList[#retList + 1] = "Swordman_PommelBeat";
+--	retList[#retList + 1] = "Peltasta_UmboBlow";
+--	retList[#retList + 1] = "Peltasta_RimBlow";
+--	retList[#retList + 1] = "Peltasta_ButterFly";
+--	retList[#retList + 1] = "Peltasta_Langort";
+--	retList[#retList + 1] = "Highlander_Crown";
+--	retList[#retList + 1] = "Highlander_Moulinet";
+--	retList[#retList + 1] = "Hoplite_SynchroThrusting";
+--	retList[#retList + 1] = "Barbarian_Cleave";
+--	retList[#retList + 1] = "Barbarian_Seism";
+--	retList[#retList + 1] = "Rodelero_ShootingStar";
+--	retList[#retList + 1] = "Rodelero_ShieldBash";
+--	retList[#retList + 1] = "Rodelero_TargeSmash";
+--	retList[#retList + 1] = "Corsair_DustDevil";
+--	retList[#retList + 1] = "Corsair_HexenDropper";
+--	retList[#retList + 1] = "Corsair_ImpaleDagger";
+--	retList[#retList + 1] = "Doppelsoeldner_Mordschlag";
+--	retList[#retList + 1] = "Doppelsoeldner_Zwerchhau";
+--	retList[#retList + 1] = "Doppelsoeldner_Sturzhau";
+--	retList[#retList + 1] = "Fencer_SeptEtoiles";
+--	retList[#retList + 1] = "Fencer_AttaqueComposee";
+--	retList[#retList + 1] = "Fencer_Fleche";
+--	retList[#retList + 1] = "Dragoon_Dragontooth";
+--	retList[#retList + 1] = "Dragoon_Dragon_Soar";
+--	retList[#retList + 1] = "NakMuay_Attack";
+--	retList[#retList + 1] = "Templer_MortalSlash";
+--	retList[#retList + 1] = "Squire_DeadlyCombo";
 	return retList;
 
 end
@@ -309,11 +339,6 @@ end
 -- 같이 변경해야 함
 -- done , 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그래팀에 알려주시기 바랍니다.
 function SCR_REINFORCEABILITY_FOR_BUFFSKILL(self, skill)
-	local ignore_hidden_list = {
-		"Oracle_CounterSpell",
-		"Dievdirbys_CarveAustrasKoks",
-	}
-	
     local addRate = 1;
     if self ~= nil and skill ~= nil then
         local reinforceAbilName = TryGetProp(skill, "ReinforceAbility", "None");
@@ -327,68 +352,8 @@ function SCR_REINFORCEABILITY_FOR_BUFFSKILL(self, skill)
                 end
                 
                 addRate = addRate + (abilLevel * 0.005 + masterAddValue);
-				
-				local hidden_abil_cls = GetClass("HiddenAbility_Reinforce", skill.ClassName);
-				if table.find(ignore_hidden_list, skill.ClassName) == 0 and abilLevel >= 65 and hidden_abil_cls ~= nil then
-					local hidden_abil_name = TryGetProp(hidden_abil_cls, "HiddenReinforceAbil");
-					local hidden_abil = GetAbility(self, hidden_abil_name);
-					if hidden_abil ~= nil then
-						local abil_level = TryGetProp(hidden_abil, "Level");
-						local add_factor = TryGetProp(hidden_abil_cls, "FactorByLevel", 0) * 0.01;
-						local add_value = 0;
-						if abil_level == 10 then
-							add_value = TryGetProp(hidden_abil_cls, "AddFactor", 0) * 0.01
-						end
-						
-						addRate = addRate * (1 + (abil_level * add_factor) + add_value);
-					end
-				end
             end
         end
-	end
-	
+    end
     return addRate
-end
-
-function CHECK_SKILL_REQSTANCE(skill, checkReqStance)
-	local className = TryGetProp(skill, 'ClassName', 'None')
-	if IsNormalSkill(className) == 1 or IsExpertSkill(className) == 1 then
-		local skillReqStance = TryGetProp(skill, 'ReqStance', 'None')
-		if skillReqStance == 'None' then
-			return 1
-		end
-
-		local skillReqStanceList = SCR_STRING_CUT(skillReqStance, ';')
-		local index = table.find(skillReqStanceList, checkReqStance)
-		if index > 0 then
-			return 1
-		end
-	end
-	
-	return 0;
-end
-
-function SCR_GET_FOODTABLE_PRICE(shopClassName, mapClassName, buffClassName, abilList)
-	return 0;
-end
-
-function SCR_GET_OBLATION_PRICE(shopClassName, mapClassName, buffClassName, abilList)
-	return 1;
-end
-
-function igbore_skill_list_check(sklName, list)
-	for i = 1, #list do
-		if sklName == list[i] then
-			return 0;
-		end
-	end
-	return 1;
-end
-
-function ignore_skill_hit_check(target)
-	if IsBuffApplied(target, 'InfernalShadow_Debuff') == "YES" then
-		return 1;
-	end
-
-	return 0;
 end

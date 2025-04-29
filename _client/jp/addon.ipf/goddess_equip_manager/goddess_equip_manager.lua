@@ -4718,7 +4718,7 @@ function GODDESS_MGR_INHERIT_REG_TARGET(frame)
 	if inv_item == nil then return end
 
 	local item_obj = GetIES(inv_item:GetObject())
-	local reinf_value, enchant_name, enchant_value = item_goddess_craft.get_inherit_option_value(item_obj)
+	local reinf_value, enchant_name, enchant_value, enchant_upgrade_rank = item_goddess_craft.get_inherit_option_value(item_obj)
 
 	local gbox = GET_CHILD_RECURSIVELY(frame, 'inherit_inner_bg')
 	local target_cls_id = gbox:GetUserIValue('NOW_SELECT_ITEM_ID')
@@ -4738,7 +4738,11 @@ function GODDESS_MGR_INHERIT_REG_TARGET(frame)
 
 	local after_slot_icon = SET_SLOT_ITEM_CLS(after_slot, target_cls)
 	if after_slot_icon ~= nil then		
-		local key = 'copy_prop:Reinforce_2' .. '/' .. tostring(reinf_value) .. ';'
+		local key = 'copy_prop:Reinforce_2/' .. tostring(reinf_value) .. ';'
+		if enchant_upgrade_rank > 0 then
+			key = key  .. 'UpgradeRank/' .. tostring(enchant_upgrade_rank) .. ';'
+		end
+
 		for i = 1, 10 do
 			local name = 'EnchantSkillName_' .. i
 			local name1 = 'EnchantSkillLevel_' .. i
@@ -5305,9 +5309,17 @@ function GODDESS_MGR_CONVERT_REG_TARGET(frame)
 	local img =	GET_EQUIP_ITEM_IMAGE_NAME(target_cls, "TooltipImage")
 	SET_SLOT_IMG(after_slot, img)
 	SET_ITEM_TOOLTIP_ALL_TYPE(after_slot:GetIcon(), nil, target_cls.ClassName, '', target_cls.ClassID, 0)
-	if TryGetProp(item_obj, 'CharacterBelonging', 0) == 1 then
-		after_slot:GetIcon():SetTooltipStrArg('char_belonging')
+	local key = 'copy_prop:'
+
+	local opt_list = {'TeamBelonging',  'CharacterBelonging', 'Reinforce_2', 'UpgradeRank', 'EnchantSkillName_1', 'EnchantSkillLevel_1'}
+	local opt_list_init = {0, 0, 0, 0, 'None', 0}
+	for i = 1, #opt_list do
+		local name = opt_list[i]
+		local value = opt_list_init[i]
+		key = key .. name .. '/' .. TryGetProp(item_obj, name, value) .. ';'
 	end
+	
+	after_slot:GetIcon():SetTooltipStrArg(key)
 	
 	local after_name = GET_CHILD_RECURSIVELY(frame, 'convert_after_item_name')
 	local name_str = dic.getTranslatedStr(TryGetProp(target_cls, 'Name', 'None'))

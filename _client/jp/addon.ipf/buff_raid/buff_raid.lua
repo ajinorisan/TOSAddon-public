@@ -36,22 +36,22 @@ local function save_setting(frame)
 end
 
 local function load_setting(frame)
-		--UI 세팅 옵션 불러오기
-		if buff_raid.Loaded == nil then		
-			buff_raid.SettingsFileLocation = string.format(path_format, session.loginInfo.GetUserID())
-			local t, err = load_json(buff_raid.SettingsFileLocation, buff_raid.Settings);			
-			if err then
-				os.execute('mkdir ' .. PATH.dirname(buff_raid.SettingsFileLocation) .. ' >nul 2>nul')
-				save_setting(frame)
-			else
-				buff_raid.Settings = t;
-				buff_raid.Loaded = true;								
-			end
+	--UI 세팅 옵션 불러오기
+	if buff_raid.Loaded == nil then		
+		buff_raid.SettingsFileLocation = string.format(path_format, session.loginInfo.GetUserID())
+		local t, err = load_json(buff_raid.SettingsFileLocation, buff_raid.Settings);			
+		if err then
+			os.execute('mkdir ' .. PATH.dirname(buff_raid.SettingsFileLocation) .. ' >nul 2>nul')
+			save_setting(frame)
+		else
+			buff_raid.Settings = t;
+			buff_raid.Loaded = true;								
 		end
-		local t = buff_raid.Settings.pc_id[session.GetMySession():GetCID()]			
-		if t ~= nil and t['pos'] ~= nil then
-			BUFF_RAID_SET_POS(frame)	
-		end
+	end
+	local t = buff_raid.Settings.pc_id[session.GetMySession():GetCID()]			
+	if t ~= nil and t['pos'] ~= nil then
+		BUFF_RAID_SET_POS(frame)	
+	end
 end
 
 function BUFF_RAID_ON_INIT(addon, frame)
@@ -286,7 +286,7 @@ function BUFF_RAID_DEBUFF_LIST_GBOX_AUTO_CHECKSIZE(gbox, starty, spacey, gboxadd
 				end
 				
 				if ctrlName == "gbox_debuff" then
-					y = y + ctrl:GetHeight() + spacey;
+					y = y + ctrl:GetHeight() - 10;
 				else
 					y = y + ctrl:GetHeight() + spacey;
 				end
@@ -374,7 +374,7 @@ function BUFF_RAID_DEBUFF_CTRLSET_GBOX_AUTO_CHECKSIZE(gbox, startx, spacex, gbox
 		if lineCount == 0 then
 			maxHeight = lineHeight;
 		end
-		gbox:Resize(maxX + 8, maxHeight);
+		gbox:Resize(maxX + 8, maxHeight + 5);
 
 		local topParent = gbox:GetTopParentFrame();
 		if topParent ~= nil then
@@ -398,7 +398,7 @@ function BUFF_RAID_DEBUFF_CTRLSET_GBOX_AUTO_CHECKSIZE(gbox, startx, spacex, gbox
 				if gbox_width < gbox_debuff_real_width then
 					gbox_width = gbox_debuff_real_width;
 				end
-				topParent:Resize(gbox_width + 5 , maxHeight);
+				topParent:Resize(gbox_width + 5 , topParent:GetHeight());
 			else
 				if gbox_buff ~= nil then
 					local count = gbox_buff:GetChildCount();
@@ -414,7 +414,7 @@ function BUFF_RAID_DEBUFF_CTRLSET_GBOX_AUTO_CHECKSIZE(gbox, startx, spacex, gbox
 				if gbox_width < gbox_debuff_real_width then
 					gbox_width = gbox_debuff_real_width;
 				end
-				topParent:Resize(gbox_width + 5 , maxHeight);
+				topParent:Resize(gbox_width + 5 , topParent:GetHeight());
 			end
 		end
 	end
@@ -476,7 +476,7 @@ function BUFF_RAID_CTRLSET_CREATE_EXEC_GBOX_DEBFF(frame, msg, handle, buff, buff
 	end
 
 	if col > colCnt - 1 then
-		return;
+		--return;
 	end
 
 	BUFF_RAID_CTRLSET_CREATE_EXEC_COMMON(frame, msg, gbox, handle, buff, buffCls, buffIndex, buffID, "GBOX_DEBUFF_COL", col);

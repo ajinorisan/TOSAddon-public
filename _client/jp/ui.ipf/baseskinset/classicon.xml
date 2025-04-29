@@ -110,5 +110,6 @@
 		<image name="c_warrior_Vanquisher" file="\icon\class_warrior2.tga" imgrect="0 0 100 100" CMM_Caption="뱅퀴셔"/>
 		<image name="c_archer_Vulture" file="\icon\class_archer2.tga" imgrect="0 0 100 100" CMM_Caption="벌쳐"/>
 		<image name="c_cleric_Sledger" file="\icon\class_cleric.tga" imgrect="200 400 100 100" CMM_Caption="슬레저"/>
+		<image name="c_warrior_Bonemancer" file="\icon\class_warrior2.tga" imgrect="100 0 100 100" CMM_Caption="본맨서"/>
 	</imagelist>
 </skinset>

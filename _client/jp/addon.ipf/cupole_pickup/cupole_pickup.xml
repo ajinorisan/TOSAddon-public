@@ -9,7 +9,7 @@
 	<input moveable="false" hittestframe="true" moveintitlebar="false" catchmovepos="false"/>
 	<sound opensound="window_open" closesound="window_close"/>
 	<option closebutton="false"/>
-	<userconfig DefaultSzX="500" DefaultSzY="617" DefaultRatioY="1" DefaultRatioX="1" RatioY="0.8" RatioX="1" DefMarginX="0" DefMarginY="100" MarginX="0" MarginY="25"/>
+	<userconfig DefaultSzX="500" DefaultSzY="617" DefaultRatioY="1" DefaultRatioX="1" RatioY="0.8" RatioX="1" DefMarginX="0" DefMarginY="100" MarginX="0" MarginY="-25"/>
 	<controls>
 		<!-- 관리탭 -->
 		<groupbox name="managerTab" rect="0 0 1000 650" margin="-45 -25 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="cupolegreenroundsquare2"/>

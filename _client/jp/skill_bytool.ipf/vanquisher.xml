@@ -251,6 +251,9 @@
                         <Num Num="255"/>
                         <Num Num="255"/>
                     </ToolScp>
+                    <ToolScp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO">
+                        <Str Str="SCR_Vanquisher_VoidSlash_end"/>                            
+                    </ToolScp>
                 </EndScripts>
                 <Skill ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
                     <HitList>
@@ -333,9 +336,6 @@
                             <Str Str="None"/>
                             <Str Str="MID"/>
                         </Scp>
-                        <Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="YES" Time="600">
-                            <Str Str="SCR_Vanquisher_VoidSlash_end"/>                            
-                        </Scp>
                     </EtcList>
                 </Skill>
             </SubSkl>
@@ -354,6 +354,7 @@
                 <Num Num="255"/>
                 <Num Num="255"/>
             </ToolScp>
+            <ToolScp Scp="SCR_Vanquisher_TurnOver_end" Client="NO" UseSleep="NO"/>
         </EndScripts>
         <MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
             <HitList>
@@ -408,7 +409,6 @@
                     <Num Num="70"/>
                     <Num Num="200"/>
                 </Scp>
-                <Scp Scp="SCR_Vanquisher_TurnOver_end" Client="NO" UseSleep="YES" Time="400"/>
             </EtcList>
         </MainSkl>
     </Skill>   

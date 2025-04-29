@@ -37,7 +37,7 @@ function MINIMIZED_POPOBOOST_BUTTON_OPEN_CHECK(frame, msg, argStr, argNum)
 
     local popoProp = TryGetProp(acc,AccProp, -1);
     local state = RETURN_POPOBOOST_ACCOUNTPROP_TO_CHAR_BY_INT(popoProp)
-    if state == "None" or popoProp == "OnlyPremium" then
+    if state == "None" or state == "OnlyPremium" then
         local lv = TryGetProp(pc,"Lv",0);
         if POPOBOOST_CHECK_ELIGIBILITY(lv, nil) == false then
             frame:ShowWindow(0);

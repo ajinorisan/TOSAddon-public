@@ -12,7 +12,7 @@ function ENTER_COL_SKL(actor)
 	local moveSpeed = colDist / skillSec;
 	actor:SetDirMoveSpeed(moveSpeed);
 	actor:SetDirMoveAccel(moveSpeed);
-	actor:SetUserValue("COL_SKL_VALUE", 0);
+	actor:SetFSMArg1(0.0);
 
 end
 
@@ -20,8 +20,9 @@ end
 function UPDATE_COL_SKL(actor, elapsedTime)
 
 	local curPos = actor:GetPos();
-	local arg = actor:GetUserValue("COL_SKL_VALUE");
-	if arg == 0 then
+	local fsmArg = actor:GetFSMArg1();
+
+	if fsmArg == 0 then
 		local destPos = actor:GetArgPos(0);
 		local radius = actor:GetRadius() * 0.5;
 
@@ -34,7 +35,7 @@ function UPDATE_COL_SKL(actor, elapsedTime)
 		dist = dist - radius;
 		
 		if dist <= 1.0 or beforeDist < dist then
-			actor:SetUserValue("COL_SKL_VALUE", 1);
+			actor:SetFSMArg1(1);
 			actor:Jump(100.0);
 			
 			local PAUSE_TIME = 0.2;
@@ -44,7 +45,8 @@ function UPDATE_COL_SKL(actor, elapsedTime)
 
 			actor:SetArgPos(0, actor:GetPos());
 		end
-	elseif arg == 1 then
+		
+	elseif fsmArg == 1 then
 		local ratio = (imcTime.GetAppTime() - actor:GetFSMTime()) * 2.0;
 		if ratio >= 1.0 then
 		
@@ -65,4 +67,5 @@ function UPDATE_COL_SKL(actor, elapsedTime)
 	end
 	
 	actor:ProcessVerticalMove(elapsedTime);
+
 end

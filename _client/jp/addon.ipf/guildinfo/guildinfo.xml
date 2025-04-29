@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
 <uiframe name="guildinfo" x="0" y="0" width="1600" height="900" create="open" version="2">
 	<draw drawtitlebar="false"/>
 	<skin frameskin="test_frame_low" titlebarskin="test_frame_top" activetitlebarskin="test_frame_top"/>
 	<frame title="" fullheight="false" fasthide="true" layout_gravity="center center"/>
 	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
 	<layer layerlevel="92"/>
-	<option closebutton="false" exceptionUpdateUiMode="true"/>
+	<option closebutton="false"/>
 	<sound opensound="inven_win_open" closesound="inven_win_close"/>
 	<opencheck scp="UI_CHECK_GUILD_UI_OPEN"/>
 	<script OpenScp="GUILDINFO_OPEN_UI" CloseScp="GUILDINFO_CLOSE_UI" LBtnDownScp="GUILDINFO_MOVE_START"/>
@@ -37,7 +37,6 @@
 								<tab name="maintab" layout_gravity="center center" skin="tab4" margin="0 0 20 0" vertical="true" itemspc="1" targetcontrol="contents" fixwidth="false" autowidth="false">
 									<tabitem name="guildinfotab" caption="{@st66b}길드 정보{/}" width="170" layout_gravity="left top"/>
 									<tabitem name="communitytab" caption="{@st66b}커뮤니티{/}" width="170" layout_gravity="left top"/>
-									<tabitem name="agittab" caption="{@st66b}아지트 정보{/}" width="170" layout_gravity="left top"/>
 									<tabitem name="inventorytab" caption="{@st66b}보관함{/}" width="170" layout_gravity="left top"/>
 									<tabitem name="battletab" caption="{@st66b}전투{/}" width="170" layout_gravity="left top"/>
 									<tabitem name="optionTabItemText" caption="{@st66b}설정{/}" width="170" layout_gravity="left top"/>
@@ -51,124 +50,21 @@
 					</layoutsection>
 					<layoutsection name="contentsection">
 						<overlap name="contents" margin="0 0 10 15">
-							<layout name="community" spacing="7" orientation="horizontal" tabname="communitytab" tabchangescp="GUILDINFO_COMMUNITY_INIT">
-								<layoutsection name="community_main_section" size="79%">
-									<groupbox name="communitypanel_root" margin="" skin="test_frame_midle" scrollbar="false">
-										<groupbox name="communitypanel_channels" rect="0 0 222 780" draw="false" scrollbar="false"/>
-										<picture name="btn_channel_prevpage" margin="50 0 0 15" rect="0 0 20 20" layout_gravity="left bottom" image="white_left_arrow" LBtnUpScp="GCM_CHANNEL_PREVPAGE"/>
-										<richtext name="txt_channel_page" margin="92 0 0 15" textalign="center top" caption="1 / 1" fontname="white_16_ol" layout_gravity="left bottom"/>
-										<picture name="btn_channel_nextpage" margin="150 0 0 15" rect="0 0 20 20" layout_gravity="left bottom" image="white_right_arrow" LBtnUpScp="GCM_CHANNEL_NEXTPAGE"/>
-										<groupbox name="communitypanel_separator" skin="guild_community_tab_line" margin="220 0 0 0" rect="0 0 3 825"/>
-										<groupbox name="communitypanel" rect="0 0 869 736" margin="0 49 0 0" layout_gravity="right top" draw="false"/>
-										<groupbox name="noticepanel" rect="0 0 868 46" margin="0 1 1 0" layout_gravity="right top" draw="true" skin="guild_community_notice" scrollbar="false">
-											<groupbox name="noticepanel_contents" rect="0 0 868 46" margin="0 0 0 0" layout_gravity="left top" draw="false" scrollbar="false"/>
-											<picture name="toggleopen" rect="0 0 32 15" margin="0 17 15 0" image="guild_community_notice_open" layout_gravity="right top" LBtnUpScp="GCM_TOGGLE_NOTICE_PANEL"/>
-										</groupbox>
-										<groupbox name="chat_bg" rect="0 0 867 36" margin="0 0 2 2" layout_gravity="right bottom" draw="true" frameOpenAnim="pip_simbol_ani_3" hittestbox="false" resizebyparent="false" scrollbar="false" skin="inventory_serch">
-											<edit name="chat_edit" rect="0 0 820 30" margin="10 0 0 0" layout_gravity="left center" OffsetForDraw="5 0" border="0 0 0 0" drawbackground="false" fontname="white_20" maxlen="512" maxlenfunc="CHAT_MAXLEN_MSG" resizebytext="false" skin="None" allowtag="color img link size ul" typingsound="chat_typing" LBtnDownScp="CHAT_CLICK_CHECK"/>
-											<button name="chat_button_emo" rect="0 0 34 34" margin="0 0 0 0" layout_gravity="right center" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click" image="button_chat_emo" oversound="button_cursor_over_2"/>
-										</groupbox>
-										<groupbox name="firsttime" rect="0 0 400 200" margin="111 260 0 0" layout_gravity="center top" draw="false" hittest="false" hittestbox="false">
-											<picture name="emoticon" rect="0 0 128 128" image="guild_community_bakarine_emotion14" layout_gravity="center top"/>
-											<richtext name="text1" caption="길드 커뮤니티는 처음이신가요?" fontname="black_16_b" layout_gravity="center top" margin="0 125 0 0"/>
-											<richtext name="text2" caption="옆의 길드 채팅방을 선택해 참여하세요!" fontname="black_16_b" layout_gravity="center top" margin="0 145 0 0"/>
-										</groupbox>
-									</groupbox>
-								</layoutsection>
-								<layoutsection name="community_user_section" size="21%">
-									<groupbox name="community_users" margin="0 0 10 0" skin="test_frame_midle"/>
-								</layoutsection>
-							</layout>
-							<layout name="agitinfo_" orientation="vertical" tabname="agittab" tabchangescp="GUILD_AGIT_INFO_INIT">
-								<layoutsection name="agitinfo_section" size="13%">
-									<groupbox name="gbox_agit_info" hittest="false" hittestbox="false" image="housing_brown_box" skin="none" scrollbar="true">
-										<picture name="pic_agit_level" margin="4 4 0 0" rect="0 0 100 100" hittest="false" image="housing_level_icon_01" stretch="true" changecursor="false" layout_gravity="left top"/>
-										<richtext name="txt_extension_level_title" margin="120 14 0 0" rect="0 0 400 52" format="{@st42}{s22}%s{/}{/}" param1="value" param1_def="길드 아지트 확장 단계" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-										<richtext name="txt_extension_level" margin="120 60 0 0" rect="0 0 400 52" format="{@st42}{s22}{#ffd739}%s 단계{/}{/}{/}" param1="level" param1_def="1" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-									</groupbox>
-								</layoutsection>
-								<layoutsection name="empty_section1" size="1%">
-                				</layoutsection>
-								<layoutsection name="agitinfo_section1">
-									<layout name="agitinfo_devide1" orientation="horizontal" spacing="5" rect="0 0 0 300">
-										<layoutsection name="agitinfo_section2" size="50%">
-											<layout name="agitinfo_devide2" orientation="vertical" spacing="5" rect="0 0 0 300">
-												<layoutsection name="agitinfo_need_section">
-													<groupbox name="gbox_agit_extension_level_info" hittest="true" hittestbox="true" skin="test_frame_midle" scrollbar="true">
-														<richtext name="txt_extension_level_info_title" margin="10 10 0 0" rect="0 0 580 52" format="{@st42}{s20}%s{/}{/}" param1="value" param1_def="길드 아지트 확장 단계 및 정보" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<picture name="headerLine" rect="0 0 680 2" margin="0 46 0 0" layout_gravity="center top" image="guild_line_h2" stretch="true"/>
-														<richtext name="txt_extension_level_info_lv1" margin="10 60 0 0" rect="0 0 580 52" format="{@st41b}{s18}1 단계 : %s{/}{/}" param1="value" param1_def="" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<richtext name="txt_extension_level_info_lv2" margin="10 115 0 0" rect="0 0 580 52" format="{@st41b}{s18}2 단계 : %s{/}{/}" param1="value" param1_def="" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<richtext name="txt_extension_level_info_lv3" margin="10 235 0 0" rect="0 0 580 52" format="{@st41b}{s18}3 단계 : %s{/}{/}" param1="value" param1_def="" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<richtext name="txt_extension_level_info_lv4" margin="10 310 0 0" rect="0 0 580 52" format="{@st41b}{s18}4 단계 : %s{/}{/}" param1="value" param1_def="" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<richtext name="txt_extension_level_info_lv5" margin="10 370 0 0" rect="0 0 580 52" format="{@st41b}{s18}5 단계 : %s{/}{/}" param1="value" param1_def="" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-													</groupbox>
-												</layoutsection>
-												<layoutsection name="agitinfo_facility_section">
-													<groupbox name="gbox_agit_facility" hittest="true" hittestbox="true" skin="test_frame_midle" scrollbar="true">
-														<richtext name="txt_agit_facility_info" margin="10 10 0 0" rect="0 0 580 52" format="{@st42}{s20}%s{/}{/}" param1="value" param1_def="길드 하우징 시설 정보" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<picture name="headerLine" rect="0 0 680 2" margin="0 46 0 0" layout_gravity="center top" image="guild_line_h2" stretch="true"/>
-													</groupbox>
-												</layoutsection>
-											</layout>
+							<layout name="community" spacing="5" orientation="vertical" tabname="communitytab" tabchangescp="GUILDINFO_COMMUNITY_INIT">
+								<layoutsection name="searchSection" size="45">
+									<layout name="searchLayout">
+										<layoutsection name="searchSection"/>
+										<layoutsection name="writeOnelineBoardSection" size="150">
+											<button name="writeOnelineBoardBtn" caption="{@st41b}글 작성" skin="test_red_button" LBtnUpScp="ui.OpenFrame(&quot;guildinfo_newthread&quot;)"/>
+											<!--한줄게시판 애드온 열기 -->
 										</layoutsection>
-										<layoutsection name="agitinfo_mileage_section">
-											<layoutsection name="agitinfo_mileage_change_section">
-												<groupbox name="gbox_agitinfo_mileage_section" hittest="true" hittestbox="true" skin="test_frame_midle" scrollbar="true">
-													<richtext name="txt_agitinfo_mileage_title" margin="10 10 0 0" rect="0 0 580 52" format="{@st42}{s20}%s{/}{/}" param1="value" param1_def="기여도 및 길드 마일리지 관리" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-													<picture name="pic_question_agitinfo_mileage" rect="0 0 44 44" margin="0 7 10 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="[내 기여도를 길드 마일리지로 전환]{nl}- 1(길드 기여도) : 1(길드 마일리지)의 비율로 기여도가 길드 마일리지로 전환됩니다.{nl} {nl}[길드 마일리지를 기여도로 전환]{nl}- 10(길드 마일리지) : 1(길드 기여도)의 비율로 길드 마일리지가 기여도로 전환됩니다.{nl}- 해당 기능은 길드 마스터만 이용이 가능합니다.{nl} {nl}[길드원에게 기여도 분배]{nl}- 1(내 기여도) : 1(길드원 기여도)의 비율로 기여도를 길드원에게 분배할 수 있습니다.{nl}- 해당 기능은 길드 마스터만 이용이 가능합니다.{nl} {nl}[길드 기여도 획득 방법 및 점수]{nl}- 길드 콜로니전 참여 : 200{nl}- 길드 퀘스트 참여 : 30{nl}- 길드 성장 : 탈트, 길드 퀘스트 보상 주화 등을 통해 성장에 기여한 수치에 따라 다름{nl}- 길드 자금 입금 : 5,000 실버당 기여도 1 획득{nl}- 길드 아지트 레이드 참여 : 길드 레벨과 공헌 등급에 따라 다르며 최대 120까지 획득 가능"/>
-													<picture name="pic_agitinfo_mileage_title_header_line" rect="0 0 680 2" margin="0 46 0 0" layout_gravity="center top" image="guild_line_h2" stretch="true"/>
-													<groupbox name="gbox_agitinfo_mileage_info" margin="10 60 0 0" rect="0 0 665 90" hittest="true" hittestbox="true" skin="brownbox_is">
-														<richtext name="txt_guild_mileage" margin="15 15 0 0" rect="0 0 500 52" format="{@st42}{s18}길드 마일리지 : %s{/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<richtext name="txt_my_contribution" margin="15 50 0 0" rect="0 0 500 52" format="{@st42}{s18}내 기여도 : %s{/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-													</groupbox>
-													<groupbox name="gbox_contribution_to_mileage" margin="6 160 0 0" rect="0 0 590 60" layout_gravity="left top" skin="test_skin_01">
-														<richtext name="txt_contribution_to_mileage" margin="20 0 0 0" rect="0 0 500 52" format="{@st42}{s18}내 기여도를 길드 마일리지로 전환하기{/}{/}" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left center"/>
-													</groupbox>
-													<button name="btn_contribution_to_mileage" margin="594 164 0 0" rect="0 0 83 59" layout_gravity="left top" image="btn_gdpoint_change" LBtnUpScp="BTN_CONTRIBUTION_TO_MILEAGE" oversound="button_over" clicksound="button_click_big"/>
-													<groupbox name="gbox_mileage_to_contribution" margin="6 220 0 0" rect="0 0 590 60" layout_gravity="left top" skin="test_skin_01">
-														<richtext name="txt_mileage_to_contribution" margin="20 0 0 0" rect="0 0 500 52" format="{@st42}{s18}길드 마일리지를 기여도로 전환하기{/}{/}" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left center"/>
-													</groupbox>
-													<button name="btn_mileage_to_contribution" margin="594 224 0 0" rect="0 0 83 59" layout_gravity="left top" image="btn_gdpoint_change" LBtnUpScp="BTN_MILEAGE_TO_CONTRIBUTION" oversound="button_over" clicksound="button_click_big"/>
-													<groupbox name="gbox_distribute_contribution" margin="6 280 0 0" rect="0 0 590 60" layout_gravity="left top" skin="test_skin_01">
-														<richtext name="txt_distribute_contribution" margin="20 0 0 0" rect="0 0 500 52" format="{@st42}{s18}길드원에게 기여도 분배하기{/}{/}" textalign="left center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left center"/>
-													</groupbox>
-													<button name="btn_distribute_contribution" margin="594 284 0 0" rect="0 0 83 59" layout_gravity="left top" image="btn_gdpoint_change" LBtnUpScp="BTN_DISTRIBUTE_CONTRIBUTION" oversound="button_over" clicksound="button_click_big"/>
-													<richtext name="txt_agitinfo_housing_point_title" margin="10 366 0 0" rect="0 0 580 52" format="{@st42}{s20}%s{/}{/}" param1="value" param1_def="길드 하우징 포인트 정보" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-													<picture name="pic_question_agitinfo_housing_point" rect="0 0 44 44" margin="0 363 10 0" layout_gravity="right top" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" hittest="true" image="testquesten_button" oversound="button_over" texttooltip="하우징 포인트를 통해 길드 하우징 물품 및 시설을 구매할 수 있습니다.{nl}- 5(길드 마일리지) : 1(하우징 포인트) 비율로 각 하우징 포인트를 마일리지로 구매할 수 있습니다.{nl}- 길드 아지트 확장 단계가 2단계 이상인 경우에만 하우징 포인트 구매가 가능합니다.{nl}- 제작 공방소를 증축하여 각 하우징 포인트의 최대치를 늘릴 수 있습니다."/>
-													<picture name="pic_agitinfo_housing_point_title_header_line" rect="0 0 680 2" margin="0 402 0 0" layout_gravity="center top" image="guild_line_h2" stretch="true"/>
-													<groupbox name="gbox_agitinfo_housing_point_01" margin="30 406 0 0" rect="0 0 642 55" hittest="true" hittestbox="true" draw="false">
-														<picture name="pic_agitinfo_housing_point_01" rect="0 0 45 45" margin="5 5 0 0" layout_gravity="left top" image="icon_guild_housing_coin_01" stretch="true"/>
-														<richtext name="txt_guild_housing_point_01" margin="55 5 0 0" rect="0 0 500 25" format="{@st42}{s16}독창성{#ffd739}(+%s){/}{/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<gauge name="gague_agit_housing_point_01" margin="55 30 0 0 " rect="0 0 556 20" skin="gauge_guild_housing_point" inverse="false" point="100" maxpoint="1000" text1="%v / %m" textfont1="white_14_ol" textalign1="center center"/>
-														<button name="btn_agit_housing_point_01" layout_gravity="right bottom" rect="0 0 25 25" margin="0 0 5 4" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" stretch="false" hittest="true" image="skill_mini_plus_btn" oversound="button_cursor_over_2" LBtnUpScp="BTN_HOUSING_POINT_UP_01" RBtnUpScp="BTN_HOUSING_POINT_10UP_01" clicksound="button_click_big"/>
-													</groupbox>
-													<groupbox name="gbox_agitinfo_housing_point_02" margin="30 456 0 0" rect="0 0 642 55" hittest="true" hittestbox="true" draw="false">
-														<picture name="pic_agitinfo_housing_point_02" rect="0 0 45 45" margin="5 5 0 0" layout_gravity="left top" image="icon_guild_housing_coin_02" stretch="true"/>
-														<richtext name="txt_guild_housing_point_02" margin="55 5 0 0" rect="0 0 500 25" format="{@st42}{s16}기능성{#ffd739}(+%s){/}{/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<gauge name="gague_agit_housing_point_02" margin="55 30 0 0 " rect="0 0 556 20" skin="gauge_guild_housing_point" inverse="false" point="100" maxpoint="1000" text1="%v / %m" textfont1="white_14_ol" textalign1="center center"/>
-														<button name="btn_agit_housing_point_02" layout_gravity="right bottom" rect="0 0 25 25" margin="0 0 5 4" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" stretch="false" hittest="true" image="skill_mini_plus_btn" oversound="button_cursor_over_2" LBtnUpScp="BTN_HOUSING_POINT_UP_02" RBtnUpScp="BTN_HOUSING_POINT_10UP_02" clicksound="button_click_big"/>
-													</groupbox>
-													<groupbox name="gbox_agitinfo_housing_point_03" margin="30 506 0 0" rect="0 0 642 55" hittest="true" hittestbox="true" draw="false">
-														<picture name="pic_agitinfo_housing_point_03" rect="0 0 45 45" margin="5 5 0 0" layout_gravity="left top" image="icon_guild_housing_coin_03" stretch="true"/>
-														<richtext name="txt_guild_housing_point_03" margin="55 5 0 0" rect="0 0 500 25" format="{@st42}{s16}예술성{#ffd739}(+%s){/}{/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<gauge name="gague_agit_housing_point_03" margin="55 30 0 0 " rect="0 0 556 20" skin="gauge_guild_housing_point" inverse="false" point="100" maxpoint="1000" text1="%v / %m" textfont1="white_14_ol" textalign1="center center"/>
-														<button name="btn_agit_housing_point_03" layout_gravity="right bottom" rect="0 0 25 25" margin="0 0 5 4" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" stretch="false" hittest="true" image="skill_mini_plus_btn" oversound="button_cursor_over_2" LBtnUpScp="BTN_HOUSING_POINT_UP_03" RBtnUpScp="BTN_HOUSING_POINT_10UP_03" clicksound="button_click_big"/>
-													</groupbox>
-													<groupbox name="gbox_agitinfo_housing_point_04" margin="30 556 0 0" rect="0 0 642 55" hittest="true" hittestbox="true" draw="false">
-														<picture name="pic_agitinfo_housing_point_04" rect="0 0 45 45" margin="5 5 0 0" layout_gravity="left top" image="icon_guild_housing_coin_04" stretch="true"/>
-														<richtext name="txt_guild_housing_point_04" margin="55 5 0 0" rect="0 0 500 25" format="{@st42}{s16}경제성{#ffd739}(+%s){/}{/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-														<gauge name="gague_agit_housing_point_04" margin="55 30 0 0 " rect="0 0 556 20" skin="gauge_guild_housing_point" inverse="false" point="100" maxpoint="1000" text1="%v / %m" textfont1="white_14_ol" textalign1="center center"/>
-														<button name="btn_agit_housing_point_04" layout_gravity="right bottom" rect="0 0 25 25" margin="0 0 5 4" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" stretch="false" hittest="true" image="skill_mini_plus_btn" oversound="button_cursor_over_2" LBtnUpScp="BTN_HOUSING_POINT_UP_04" RBtnUpScp="BTN_HOUSING_POINT_10UP_04" clicksound="button_click_big"/>
-													</groupbox>
-													<richtext name="txt_guild_housing_point_deduction" margin="35 611 0 0" rect="0 0 615 20" format="{@st42}{s16}{#ff0000}차감 길드 마일리지 (%s){/}{/}{/}" param1="value" param1_def="0" textalign="right top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-													<richtext name="txt_guild_housing_point_expected_residual_mileage" margin="35 631 0 0" rect="0 0 615 20" format="{@st42}{s16}{#ffd739}예상 잔여 마일리지 : %s{/}{/}{/}" param1="value" param1_def="0" textalign="right top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
-													<button name="btn_agit_housing_point_cancel" margin="35 656 0 0" rect="0 0 115 45" caption="{@st42}{s18}취소{/}" fontname="brown_16" layout_gravity="left top" skin="test_red_button" LBtnUpScp="BTN_AGIT_HOUSING_POINT_CANCEL" oversound="button_over" clicksound="button_click_big"/>
-													<button name="btn_agit_housing_point_commit" margin="540 656 0 0" rect="0 0 115 45" caption="{@st42}{s18}저장{/}" fontname="brown_16" layout_gravity="left top" skin="test_red_button" LBtnUpScp="BTN_AGIT_HOUSING_POINT_COMMIT" oversound="button_over" clicksound="button_click_stats_up"/>
-												</groupbox>
-											</layoutsection>
+										<layoutsection name="refreshCommunitySection" size="45">
+											<button name="updateOnelineboard" image="market_reset3_btn" fontname="white_16_b_ol" LBtnUpScp="REFRESH_BOARD" texttooltip="한줄게시판을 업데이트합니다."/>
 										</layoutsection>
 									</layout>
+								</layoutsection>
+								<layoutsection name="communitySection">
+									<groupbox name="communitypanel" margin="" hittest="true" hittestbox="true" skin="test_frame_midle" scrollbar="true"/>
 								</layoutsection>
 							</layout>
 							<layout name="guildinfo_" orientation="vertical" tabname="guildinfotab" tabchangescp="GUILDINFO_INFO_INIT">
@@ -196,7 +92,7 @@
 									</layout>
 								</layoutsection>
 								<layoutsection name="guildinfo2_Section" size="15%">
-									<layout name="masterTowerNoticeLayout" margin="0 0 0 0" rect="0 0 0 120">
+									<layout name="masterTowerNoticeLayout" margin="0 0 0 0 " rect="0 0 0 120">
 										<layoutsection name="guildDetailInfoSection" size="30%">
 											<layout name="guildDetailInfoLayout" spacing="1" orientation="vertical">
 												<layoutsection name="guildMasterSection">
@@ -278,7 +174,7 @@
 									</layout>
 								</layoutsection>
 								<layoutsection name="guildinfo4_Section" size="1%">
-									<layout name="blankLayout" margin="0 0 0 0" rect="0 0 0 2">
+									<layout name="blankLayout" margin="0 0 0 0 " rect="0 0 0 2">
 										<layoutsection name="blankSection2" hittest="false">
 											<groupbox name="blankBox" skin="test_frame_midle" draw="false"/>
 										</layoutsection>
@@ -292,19 +188,19 @@
 												<groupbox name="guildMemberHeaderBg" skin="market_listbase"/>
 												<layout name="guildMemberHeaderLayout">
 													<layoutsection name="nameSortSection">
-														<richtext name="nameSortText" textalign="center center" format="길드원{img %s 13 13}" margin="0 0 45 0" param1="arrow" param1_def="guild_arrow_down" fontname="black_18" LBtnUpScp=""/>
+														<richtext name="nameSortText" textalign="center center" format="길드원{img %s 13 13}" margin="15 0 0 0" param1="arrow" param1_def="guild_arrow_down" fontname="black_18" LBtnUpScp=""/>
 													</layoutsection>
 													<layoutsection name="jobSection">
-														<richtext name="jobText" textalign="center center" caption="직업" margin="0 0 18 0" fontname="black_18"/>
+														<richtext name="jobText" textalign="center center" caption="직업" margin="0 0 0 0" fontname="black_18"/>
 													</layoutsection>
 													<layoutsection name="levelSection">
 														<richtext name="levelText" textalign="center center" format="레벨{img %s 13 13}" margin="0 0 20 0" param1="arrow" param1_def="guild_arrow_down" fontname="black_18" LBtnUpScp=""/>
 													</layoutsection>
 													<layoutsection name="dutySection">
-														<richtext name="dutyText" textalign="center center" format="직급{img %s 13 13}" margin="0 0 70 0" param1="arrow" param1_def="guild_arrow_down" fontname="black_18" LBtnUpScp=""/>
+														<richtext name="dutyText" textalign="center center" format="직급{img %s 13 13}" margin="0 0 40 0" param1="arrow" param1_def="guild_arrow_down" fontname="black_18" LBtnUpScp=""/>
 													</layoutsection>
 													<layoutsection name="contribSection">
-														<richtext name="contributionText" textalign="center center" caption="기여도" margin="0 0 90 0" fontname="black_18"/>
+														<richtext name="contributionText" textalign="center center" caption="기여도" margin="0 0 70 0" fontname="black_18"/>
 													</layoutsection>
 													<layoutsection name="mapSection">
 														<richtext name="mapText" textalign="center center" caption="위치" margin="0 0 0 0" fontname="black_18"/>
@@ -313,7 +209,7 @@
 											</overlap>
 										</layoutsection>
 										<layoutsection name="guildMemberListSection">
-											<groupbox name="memberCtrlBox" draw="false" ScrollScp="GUILDINFO_MEMBER_LIST_SCROLL"/>
+											<groupbox name="memberCtrlBox" draw="false"/>
 										</layoutsection>
 									</layout>
 								</layoutsection>
@@ -515,10 +411,13 @@
 										<layoutsection name="colonyInfoSection" size="105">
 											<layout name="colonyInfoLayout">
 												<layoutsection name="colonyInfoTextLayout">
-													<richtext name="colonyInfoText" caption="ⓘ 스팟 점령 길드는 참가로 고정됩니다.{nl}ⓘ 참가 여부 옵션은 길드 마스터만 변경할 수 있으며, '참가'로 변경 시 길드 마스터 위임이 불가능합니다.{nl}ⓘ 참가 여부 옵션은 길드 콜로니전 시작 5분 전 부터 종료 1분 후까지 변경할 수 없습니다.{nl}ⓘ 참가 여부 옵션은 길드 타워의 설치 유무와 상관없이 변경할 수 있습니다.{nl}ⓘ 이전 길드 탈퇴일을 기점으로 7일 미만인 길드원은 길드 콜로니전에 참가할 수 없습니다." margin="5 5 0 0" fixwidth="true" fontname="black_16"/>
+													<richtext name="colonyInfoText" caption="ⓘ 스팟 점령 길드는 참가로 고정됩니다.{nl}ⓘ 참가 여부 옵션은 길드 마스터만 변경할 수 있으며, '참가'로 변경 시 길드 마스터 위임이 불가능합니다.{nl}ⓘ 참가 여부 옵션은 길드 콜로니전 시작 5분 전 부터 종료 1분 후까지 변경할 수 없습니다.{nl}ⓘ 참가 여부 옵션은 길드 타워의 설치 유무와 상관없이 변경할 수 있습니다.{nl}ⓘ 이전 길드 탈퇴일을 기점으로 14일 미만인 길드원은 길드 콜로니전에 참가할 수 없습니다." margin="5 5 0 0 " fixwidth="true" fontname="black_16"/>
 												</layoutsection>
-												<layoutsection name="colonyTaxBtnSection" size="10%">
-													<button name="colonyTaxBtn" margin="0 50 0 50" caption="{@st41b}{s16}{b}적립금 분배" skin="test_red_button" LBtnUpScp="ui.OpenFrame(&apos;colony_tax_board&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+												<layoutsection name="colonyRewardBtnSection_FirstLeague" size="10%">
+													<button name="FirstLeague_colonyRewardBtn" margin="0 50 0 50" caption="{@st41b}{s16}{b}챔피언스 리그" skin="test_red_button" LBtnUpScp="ui.OpenFrame(&apos;colony_tax_board&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
+												</layoutsection>
+												<layoutsection name="colonyRewardBtnSection_SecondLeague" size="10%">
+													<button name="SecondLeague_colonyRewardBtn" margin="0 50 0 50" caption="{@st41b}{s16}{b}챌린저스 리그" skin="test_red_button" LBtnUpScp="ui.OpenFrame(&apos;colony_reward_board&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" oversound="button_over"/>
 												</layoutsection>
 											</layout>
 										</layoutsection>
@@ -534,7 +433,7 @@
 																	<richtext name="colonizedLeagueText" margin="40 0 0 0" textalign="left center" caption="지역 리그" fontname="black_18"/>
 																</layoutsection>
 																<layoutsection name="colonizedHeaderSection" size="15%">
-																	<richtext name="colonizedAreaText" margin="10 0 0 0" textalign="left center" caption="점령 지역" fontname="black_18"/>
+																	<richtext name="colonizedAreaText" textalign="left center" caption="점령 지역" fontname="black_18"/>
 																</layoutsection>
 																<layoutsection name="colonizedCitySection" size="15%">
 																	<richtext name="colonizedCityText" textalign="left center" caption="" fontname="black_18" hittest="true"/>
@@ -567,90 +466,90 @@
 							<layout name="jointInventory" tabname="jointInventoryTab" spacing="5" tabchangescp="GUILDINFO_JOINT_INVENTORY_LOAD" orientation="vertical">
 								<layoutsection name="slotLogSection">
 									<layout name="slotLogSectionLayout" spacing="5">
-										<layoutsection name="itemSection" size="33%">
-											<layout name="itemLayout" orientation="vertical" spacing="10">
-												<layoutsection name="itemLabelSection" size="30">
-													<richtext name="guildItemLabel" caption="{@st43b}{s18}아이템{/}" textalign="left center"/>
-												</layoutsection>
-												<layoutsection name="itemSlotSection">
-													<groupbox name="itemSlotBox" fixheight="true" scrollbar="true" skin="test_frame_midle">
-														<slotset margin="5 4 0 0" name="guildItemSlotset" row="1" col="5" skin="invenslot2" spc="2 2" size="83 83" enableselect="true" enabledrag="true" enabledrop="true" enablepop="true" DropScp="ON_JOINT_INVENTORY_DROP"/>
-													</groupbox>
-												</layoutsection>
-												<layoutsection name="itemEtcSection" size="50">
-													<groupbox name="itemEtcBox" draw="false">
-														<richtext name="mileageCount" format="{@st66b}길드 마일리지:%s{/}" param1="point" param1_def="0"/>
-														<button name="itemTakeBtn" rect="0 0 200 50" layout_gravity="right top" skin="test_pvp_btn" caption="{@st66b}{s18}아이템 수령{/}" LBtnUpScp="ON_JOINT_ITEM_TAKE"/>
-													</groupbox>
-												</layoutsection>
-											</layout>
+								<layoutsection name="itemSection" size="33%">
+									<layout name="itemLayout" orientation="vertical" spacing="10">
+										<layoutsection name="itemLabelSection" size="30">
+											<richtext name="guildItemLabel" caption="{@st43b}{s18}아이템{/}" textalign="left center"/>
 										</layoutsection>
-										<layoutsection name="itemLogSection">
-											<layout name="itemTransactionLayout" orientation="vertical" spacing="10">
-												<layoutsection name="itemTransactionHeaderSection" size="30">
-													<richtext name="itemTransactionTitleText" textalign="left center" caption="{@st43b}{s18}입고/출고 내역{/}"/>
-												</layoutsection>
-												<layoutsection name="itemTransactionLogSection">
-													<overlap name="itemTransactionLogOverlap">
-														<groupbox name="itemTransactionLogBg" skin="test_frame_midle" margin="0 0 20 0"/>
-														<layout name="itemTransactionBg">
-															<layoutsection name="1column1"/>
-															<layoutsection name="2column2">
-																<groupbox name="2column12" hittestbox="false" skin="pvp_Team_skin" scrollbar="false"/>
-															</layoutsection>
-															<layoutsection name="3column3"/>
-															<layoutsection name="4column4">
-																<groupbox name="2column22" hittestbox="false" skin="pvp_Team_skin" scrollbar="false"/>
-															</layoutsection>
-														</layout>
-														<layout name="itemTransactionLogLayout" orientation="vertical">
-															<layoutsection name="itemTransactionLogHeaderLayout" size="45">
-																<overlap name="itemTransactionLogHeaderOverlap">
-																	<groupbox name="itemHistoryHeaderBox" hittestbox="false" skin="market_listbase"/>
-																	<layout name="itemTransactionChartLayout">
-																		<layoutsection name="itemTradedTimeSection">
-																			<richtext name="itemDateText" caption="시간" textalign="center center" fontname="black_18"/>
-																		</layoutsection>
-																		<layoutsection name="itemDepositSection">
-																			<richtext name="itemDepositText" caption="이름" textalign="center center" fontname="black_18"/>
-																		</layoutsection>
-																		<layoutsection name="itemDepositSection2">
-																			<richtext name="itemDepositText2" caption="아이템명" textalign="center center" fontname="black_18"/>
-																		</layoutsection>
-																		<layoutsection name="itemBalanceSection">
-																			<richtext name="itemBalanceText" caption="수량" textalign="center center" fontname="black_18"/>
-																		</layoutsection>
-																	</layout>
-																</overlap>
-															</layoutsection>
-															<layoutsection name="itemLogBoxsection">
-																<groupbox name="itemLogBox" fixheight="true" scrollbar="true" draw="false"/>
-															</layoutsection>
-														</layout>
-													</overlap>
-												</layoutsection>
-												<layoutsection name="itemTransactionOptionSection" size="50">
-													<groupbox name="itemTransactionOptBox" draw="false">
-														<checkbox name="showOnlyDeposit" caption="{@st66b}입고만 보기" layout_gravity="left top" LBtnUpScp="FILTER_TRANSACTION_LOG" checked="true"/>
-														<checkbox name="showOnlyWithdraw" caption="{@st66b}출고만 보기" layout_gravity="left top" margin="180 0 0 0" LBtnUpScp="FILTER_TRANSACTION_LOG" checked="true"/>
-														<droplist name="itemLogDate" rect="0 0 200 24" layout_gravity="right top" margin="0 0 50 0" skin="droplist_normal" visibleline="8" SelectScp="ON_LOG_TIME_SET">
-															<item key="3hour" caption="{@st41d}3시간       " value="10800"/>
-															<item key="10hour" caption="{@st41d}10시간       " value="36000"/>
-															<item key="day" caption="{@st41d}1일       " value="86400"/>
-															<item key="3day" caption="{@st41d}3일       " value="259200"/>
-															<item key="week" caption="{@st41d}7일       " value="604800"/>
-															<item key="month" caption="{@st41d}1개월       " value="2629746"/>
-															<item key="2month" caption="{@st41d}2개월       " value="5259492"/>
-															<item key="3month" caption="{@st41d}3개월       " value="7889238"/>
-														</droplist>
-													</groupbox>
-												</layoutsection>
-											</layout>
+										<layoutsection name="itemSlotSection">
+											<groupbox name="itemSlotBox" fixheight="true" scrollbar="true" skin="test_frame_midle">
+												<slotset margin="5 4 0 0" name="guildItemSlotset" row="20" col="5" skin="invenslot2" spc="2 2" size="83 83" enableselect="true" enabledrag="true" enabledrop="true" enablepop="true" DropScp="ON_JOINT_INVENTORY_DROP"/>
+											</groupbox>
+										</layoutsection>
+												<layoutsection name="itemEtcSection" size="50">
+											<groupbox name="itemEtcBox" draw="false">
+												<richtext name="mileageCount" format="{@st66b}길드 마일리지:%s{/}" param1="point" param1_def="0"/>
+												<button name="itemTakeBtn" rect="0 0 200 50" layout_gravity="right top" skin="test_pvp_btn" caption="{@st66b}{s18}아이템 수령{/}" LBtnUpScp="ON_JOINT_ITEM_TAKE"/>
+											</groupbox>
 										</layoutsection>
 									</layout>
 								</layoutsection>
+								<layoutsection name="itemLogSection">
+									<layout name="itemTransactionLayout" orientation="vertical" spacing="10">
+										<layoutsection name="itemTransactionHeaderSection" size="30">
+											<richtext name="itemTransactionTitleText" textalign="left center" caption="{@st43b}{s18}입고/출고 내역{/}"/>
+										</layoutsection>
+										<layoutsection name="itemTransactionLogSection">
+											<overlap name="itemTransactionLogOverlap">
+												<groupbox name="itemTransactionLogBg" skin="test_frame_midle" margin="0 0 20 0"/>
+												<layout name="itemTransactionBg">
+													<layoutsection name="1column1"/>
+													<layoutsection name="2column2">
+														<groupbox name="2column12" hittestbox="false" skin="pvp_Team_skin" scrollbar="false"/>
+													</layoutsection>
+													<layoutsection name="3column3"/>
+													<layoutsection name="4column4">
+														<groupbox name="2column22" hittestbox="false" skin="pvp_Team_skin" scrollbar="false"/>
+													</layoutsection>
+												</layout>
+												<layout name="itemTransactionLogLayout" orientation="vertical">
+													<layoutsection name="itemTransactionLogHeaderLayout" size="45">
+														<overlap name="itemTransactionLogHeaderOverlap">
+															<groupbox name="itemHistoryHeaderBox" hittestbox="false" skin="market_listbase"/>
+															<layout name="itemTransactionChartLayout">
+																<layoutsection name="itemTradedTimeSection">
+																	<richtext name="itemDateText" caption="시간" textalign="center center" fontname="black_18"/>
+																</layoutsection>
+																<layoutsection name="itemDepositSection">
+																	<richtext name="itemDepositText" caption="이름" textalign="center center" fontname="black_18"/>
+																</layoutsection>
+																<layoutsection name="itemDepositSection2">
+																	<richtext name="itemDepositText2" caption="아이템명" textalign="center center" fontname="black_18"/>
+																</layoutsection>
+																<layoutsection name="itemBalanceSection">
+																	<richtext name="itemBalanceText" caption="수량" textalign="center center" fontname="black_18"/>
+																</layoutsection>
+															</layout>
+														</overlap>
+													</layoutsection>
+													<layoutsection name="itemLogBoxsection">
+														<groupbox name="itemLogBox" fixheight="true" scrollbar="true" draw="false"/>
+													</layoutsection>
+												</layout>
+											</overlap>
+										</layoutsection>
+												<layoutsection name="itemTransactionOptionSection" size="50">
+											<groupbox name="itemTransactionOptBox" draw="false">
+												<checkbox name="showOnlyDeposit" caption="{@st66b}입고만 보기" layout_gravity="left top" LBtnUpScp="FILTER_TRANSACTION_LOG" checked="true"/>
+												<checkbox name="showOnlyWithdraw" caption="{@st66b}출고만 보기" layout_gravity="left top" margin="180 0 0 0" LBtnUpScp="FILTER_TRANSACTION_LOG" checked="true"/>
+												<droplist name="itemLogDate" rect="0 0 200 24" layout_gravity="right top" margin="0 0 50 0" skin="droplist_normal" visibleline="8" SelectScp="ON_LOG_TIME_SET">
+													<item key="3hour" caption="{@st41d}3시간       " value="10800"/>
+													<item key="10hour" caption="{@st41d}10시간       " value="36000"/>
+													<item key="day" caption="{@st41d}1일       " value="86400"/>
+													<item key="3day" caption="{@st41d}3일       " value="259200"/>
+													<item key="week" caption="{@st41d}7일       " value="604800"/>
+													<item key="month" caption="{@st41d}1개월       " value="2629746"/>
+													<item key="2month" caption="{@st41d}2개월       " value="5259492"/>
+													<item key="3month" caption="{@st41d}3개월       " value="7889238"/>
+												</droplist>
+											</groupbox>
+										</layoutsection>
+									</layout>
+								</layoutsection>
+							</layout>
+								</layoutsection>
 								<layoutsection name="jointInventoryInfoSection" size="10%">
-									<richtext name="inventoryInfoText" format="ⓘ 입고/출고 시 마일리지 20 차감 됩니다. {nl}ⓘ마일리지는 길드원 로그인, 특정 콘텐츠 이용(챌린지 5단계 이상, 유니크 레이드, 레전드 레이드 클리어)을 통해서 적립됩니다.{nl}ⓘ특정 콘텐츠 이용을 통한 마일리지 적립은 길드원별 주간 100 까지 누적 적립 가능하며, 누적 적립은 매주 월요일 오전 6시에 초기화 됩니다." textalign="left top" resizebytext="true" fontname="black_16"/>
+									<richtext name="inventoryInfoText" format="ⓘ 입고/출고 시 마일리지 20 차감 됩니다. {nl}ⓘ마일리지는 길드원 로그인, 길드 퀘스트, 콜로니전 참여를 통해서 적립됩니다." textalign="left top" resizebytext="true" fontname="black_16"/>
 								</layoutsection>
 							</layout>
 							<layout name="setting" orientation="vertical" tabname="optionTabItemText">
@@ -713,7 +612,7 @@
 																					<picture name="authName4Bg" layout_gravity="left center" margin="10 0 0 0" stretch="true" image="test_partyquest_slot"/>
 																					<richtext name="authName4" margin="30 0 0 0" caption="{@st42}길드 커뮤니티{/}" textalign="left center" resizebytext="false" fontname="white_16_ol" fixwidth="true"/>
 																				</overlap>
-																				<grid name="claimCheckbox4" margin="20 0 0 0" rect="0 0 0 210" slotsize="500 50" slotspc="0 0"/>
+																				<grid name="claimCheckbox4" margin="20 0 0 0" rect="0 0 0 170" slotsize="500 50" slotspc="0 0"/>
 																				<overlap name="authName5ovlp" rect="0 0 0 40" margin="0 0 600 0">
 																					<picture name="authName5Bg" layout_gravity="left center" margin="10 0 0 0" stretch="true" image="test_partyquest_slot"/>
 																					<richtext name="authName5" margin="30 0 0 0" caption="{@st42}PVP{/}" textalign="left center" resizebytext="false" fontname="white_16_ol" fixwidth="true"/>
@@ -723,12 +622,7 @@
 																					<picture name="authName6Bg" layout_gravity="left center" margin="10 0 0 0" stretch="true" image="test_partyquest_slot"/>
 																					<richtext name="authName6" margin="30 0 0 0" caption="{@st42}컨텐츠{/}" textalign="left center" resizebytext="false" fontname="white_16_ol" fixwidth="true"/>
 																				</overlap>
-																				<grid name="claimCheckbox6" margin="20 0 0 0" rect="0 0 0 150" slotsize="500 50" slotspc="0 0"/>
-																				<overlap name="authName7ovlp" rect="0 0 0 40" margin="0 0 600 0">
-																					<picture name="authName7Bg" layout_gravity="left center" margin="10 0 0 0" stretch="true" image="test_partyquest_slot"/>
-																					<richtext name="authName7" margin="30 0 0 0" caption="{@st42}하우징{/}" textalign="left center" resizebytext="false" fontname="white_16_ol" fixwidth="true"/>
-																				</overlap>
-																				<grid name="claimCheckbox7" margin="20 0 0 0" rect="0 0 0 100" slotsize="500 50" slotspc="0 0"/>
+																				<grid name="claimCheckbox6" margin="20 0 0 0" rect="0 0 0 170" slotsize="500 50" slotspc="0 0"/>
 																			</scrollpanel>
 																		</layoutsection>
 																	</layout>
@@ -758,15 +652,7 @@
 														</layout>
 													</layoutsection>
 													<layoutsection name="titleHeaderSection" size="40">
-														<layout name="searchLayout" orientation="horizontal">	
-															<layoutsection name="titleSection" size="880">
-																<richtext name="titleLabel" caption="{@st43b}{s18}직급 부여" textalign="left center" fontname="black_18_b"/>
-															</layoutsection>
-															<layoutsection name="searchSection" size="500">
-																<groupbox name="searchgbox" rect="0 0 490 35" margin="0 0 0 0" draw="true" scrollbar="true" hittestbox="false" resizebyparent="false" skin="guild_base_skin"/>
-																<edit name="memberSearch" parent="searchgbox" rect="0 0 470 35" margin="3 0 0 0" OffsetForDraw="0 -1" clicksound="button_click_big" drawbackground="false" fontname="white_18_ol" maxlen="40" oversound="button_over" skin="None" textalign="left center" typingscp="GUILDMEMBER_LIST_GET" typingsound="chat_typing"/>
-															</layoutsection>
-														</layout>
+														<richtext name="titleLabel" caption="{@st43b}{s18}직급 부여" textalign="left center" fontname="black_18_b"/>
 													</layoutsection>
 													<layoutsection name="titleSetSection" size="46%">
 														<overlap name="titleSetSectionOverlap">
@@ -795,7 +681,7 @@
 																	</overlap>
 																</layoutsection>
 																<layoutsection name="titleSetSection_">
-																	<groupbox name="claimMemberList" draw="false" ScrollScp="GUILDMEMBER_LIST_GET_SCROLL"/>
+																	<groupbox name="claimMemberList" draw="false"/>
 																</layoutsection>
 															</layout>
 														</overlap>

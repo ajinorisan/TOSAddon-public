@@ -120,7 +120,7 @@ end
 
 
 -- dir_degree : actor가 바라보는 degree
-function C_PLAY_EFFECT_INFINITY_SPEARS(actor, obj, x, y, z)    
+function C_PLAY_EFFECT_INFINITY_SPEARS(actor, obj, x, y, z)
     local pos = actor:GetFrontPos(50)    
     local dir_degree = GET_DIRECTION_DEGREE(x, z, pos.x, pos.z)
         
@@ -354,4 +354,58 @@ function CHECK_WingedHussars_CircleWings_C(actor, skl, buffName, over)
     return 0
 end
 
+-- done
+function SCR_Get_SkillFactor_Common_Infinity_Spears_520(skill)    
+    local factor = TryGetProp(skill, 'SklFactor', 0)
+    return math.floor(factor)
+end
 
+
+function C_PLAY_EFFECT_INFINITY_SPEARS_520(actor, obj, x, y, z)
+    local eftName = 'None' 
+    local scl = 1.3
+    local lifeTime = 2
+    local delay = 0
+    local func = nil
+
+    delay = delay + 0.1
+    eftName = 'GroundImpact_SpearTrap_Blue_01' -- 하늘
+    scl = 1.2
+    lifeTime = 1
+    effect.PlayGroundUnityEffect(actor, eftName, scl, x, y + 200, z, lifeTime, "None", 180, 0, 0, delay);
+    func = string.format("C_PLAY_SOUND_3('%s', %d, %d, %d)", 'skl_eff_breastripper_scissors', x, y, z)
+    ReserveScript(func, delay + 0.4)    
+    ReserveScript(func, delay + 0.5)    
+    ReserveScript(func, delay + 0.6)
+    ReserveScript(func, delay + 0.7)
+    
+    delay = delay + 1
+    local count = 20
+    local count_2 = 5
+    local time = 2500
+    local sound_time = (time / 1000) + 1
+    local tick = time / count / 1000 / count_2
+    
+    eftName = 'GroundImpact_HolySpear_Blue_01'    
+    scl = 0.4
+    lifeTime = 0
+    local inverse = 25
+    for i = 1, count do
+        for j = 1, count_2 do
+            x1, y1, z1 = GetRandomPosInRange(nil, x, y, z, 20, 100)
+            delay = delay + tick              
+            inverse = inverse * -1
+            local deep = 0
+
+            if IMCRandom(1, 100) <= 70 then                
+                deep = 50
+            end
+            effect.PlayGroundUnityEffect(actor, eftName, scl, x1, y1 - deep, z1, lifeTime, "None", inverse + IMCRandom(0, 15), 0, 0, delay);
+        end
+    end
+
+    for i = 1, sound_time, 0.15 do
+        local func = string.format("C_PLAY_SOUND_3('%s', %d, %d, %d)", 'skl_eff_wingedhussars_whoosh', x, y, z)                
+        ReserveScript(func, i)
+    end
+end

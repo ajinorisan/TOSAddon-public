@@ -1,0 +1,3 @@
+ClassID,LimitCount,ClassName,Enable,Unit,Interval,PropName
+1,5,"Christmas_Voucher_Box","NO","ACCOUNT","DAY","limit_field_drop_1"
+2,100,"Event_Voucher_Box_papaya","YES","ACCOUNT","","limit_field_drop_2"

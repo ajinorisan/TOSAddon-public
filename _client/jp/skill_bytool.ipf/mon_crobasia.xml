@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ToolSkill>
-    <Skill Name="Mon_crobasia_Skill_2">
+<ToolSkill><Skill Name="Mon_crobasia_Skill_2">
 		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<HitList>
 				<Frame Angle="0" AniTime="1400" Dist="0" ForceATK="1" HitCount="1" Length="100" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="1200" Type="SQUARE" Width="10" />

@@ -117,11 +117,7 @@ ClassID,EndTime,arg2,CoolDown,ApplyTime,UseCount,ClassName,Name,SkillClassName,T
 425,0,0,50000,15000,-1,"Mythic_Gravity_Field","중력장","Mon_mythic_pattern_Skill_25","Type4","45000","","0","Mythic_Gravity_Field","{s20}[중력장]{/} {/}{nl} {nl}주기적으로 캐릭터에게 중력장이 생성됩니다.{nl}중력장은 시간이 지남에 따라 범위가 증가하며, 중력장 위의 캐릭터 이동속도를 감소시킵니다.{nl}일정 시간이 지나면 중력장은 폭발하며, 범위 내의 캐릭터에게 체력 비례 대미지를 줍니다."
 426,0,0,30000,-1,1,"Mythic_Pyroego","중간 보스- 파이로 에고","Mon_mythic_pattern_Skill_26","Type5","20000","","0","Mythic_Pyroego","{s20}[파이로 에고]{/} {/}{nl} {nl}특정 달성률 도달 시 랜덤한 위치에 포탈이 생성됩니다.{nl}포탈 진입 시 파이로 에고가 존재하는 방으로 이동할 수 있습니다.{nl}파이로 에고를 처치하지 않으면 보스 몬스터와의 전투에서 특정 패턴이 발동합니다."
 427,0,0,30000,-1,1,"Mythic_Genmagnus","중간 보스- 마스터 지니","Mon_mythic_pattern_Skill_27","Type5","20000","","0","Mythic_Genmagnus","{s20}[마스터 지니]{/} {/}{nl} {nl}특정 달성률 도달 시 랜덤한 위치에 포탈이 생성됩니다.{nl}포탈 진입 시 마스터 지니가 존재하는 방으로 이동할 수 있습니다.{nl}마스터 지니를 처치하지 않으면 보스 몬스터와의 전투에서 특정 패턴이 발동합니다."
-428,0,0,30000,-1,1,"Mythic_Wavelength","자기장","Mon_mythic_pattern_Skill_28","","20000","","0","Mythic_Boosting_Morale","특정 몬스터 전투 상태 시 모든 캐릭터에게 파장 디버프를 부여합니다.
-파장 디버프 보유 시 주변 80범위 캐릭터에게 지속 대미지를 줍니다.
-특정 몬스터 처치 시 디버프가 해제됩니다."
+428,0,0,30000,-1,1,"Mythic_Wavelength","자기장","Mon_mythic_pattern_Skill_28","","20000","","0","Mythic_Boosting_Morale","특정 몬스터 전투 상태 시 모든 캐릭터에게 파장 디버프를 부여합니다. 파장 디버프 보유 시 주변 80범위 캐릭터에게 지속 대미지를 줍니다. 특정 몬스터 처치 시 디버프가 해제됩니다."
 429,0,0,30000,-1,1,"Mythic_Link","링크","Mon_mythic_pattern_Skill_29","Type3","20000","","0","Mythic_Link","{s20}[링크]{/} {/}{nl} {nl}특정 몬스터가 범위 내 랜덤한 캐릭터에게 링크를 연결합니다.{nl}링크가 연결되어있는 동안 몬스터는 체력을 회복하며 피격 대미지가 감소합니다.{nl}링크 지속시간에 따라 대미지 감소 값이 증가하며, 링크 대상과 거리가 멀어질 경우 해제됩니다."
 430,0,0,30000,-1,1,"Mythic_Giantization","거대화","Mon_mythic_pattern_Skill_30","","20000","","0","Mythic_Giantization","특정 몬스터가 거대화되어 공격력이 증가하며, 이동속도가 감소합니다."
-431,0,0,30000,-1,1,"Mythic_TodalShield"," 철갑화","Mon_mythic_pattern_Skill_31","","20000","","0","Mythic_TodalShield","특정 몬스터는 철갑화 버프를 가지고 있습니다.
-철갑화 버프 상태에서 받는 피해가 50% 감소합니다.
-해당 버프는 CC 디버프 또는 넉백 넉다운 상태에서 해제됩니다."
+431,0,0,30000,-1,1,"Mythic_TodalShield"," 철갑화","Mon_mythic_pattern_Skill_31","","20000","","0","Mythic_TodalShield","특정 몬스터는 철갑화 버프를 가지고 있습니다. 철갑화 버프 상태에서 받는 피해가 50% 감소합니다. 해당 버프는 CC 디버프 또는 넉백 넉다운 상태에서 해제됩니다."

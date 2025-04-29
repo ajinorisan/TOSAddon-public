@@ -390,6 +390,8 @@
 		<image name="boss_merregina_despair" file="\icon\monster\boss\boss_merregina_despair.png" imgrect="0 0 80 80"/>
 		<image name="boss_neringa_of_evil" file="\icon\monster\boss\boss_DarkNeringa.png" imgrect="0 0 80 80"/>
 		<image name="boss_crystal_golem" file="\icon\monster\boss\boss_CrystalGolem.png" imgrect="0 0 80 80"/>
+		<image name="boss_redania" file="\icon\monster\boss\boss_Redania.png" imgrect="0 0 80 80"/>
+	
 	</imagelist>
 	<imagelist category="Monster_icon_nor_01">
 		<image name="mon_onion" file="\icon\monster\mon\mon_onion.png" imgrect="0 0 80 80"/>
@@ -1713,5 +1715,8 @@
 		<image name="UR_cupole_summer_zesty_m" file="\icon\monster\cupole\UR_cupole_summer_zesty_m.png" imgrect="0 0 128 128 "/>
 		<image name="UR_cupole_Lecifer_m" file="\icon\monster\cupole\UR_cupole_Lecifer_m.png" imgrect="0 0 128 128 "/>
 		<image name="UR_cupole_SantaZemyna_m" file="\icon\monster\cupole\UR_cupole_santazemyna_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_lada_m" file="\icon\monster\cupole\UR_cupole_lada_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_naktis_m" file="\icon\monster\cupole\UR_cupole_naktis_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_zesty_m" file="\icon\monster\cupole\UR_cupole_zesty_m.png" imgrect="0 0 128 128 "/>
 	</imagelist>
 </skinset>

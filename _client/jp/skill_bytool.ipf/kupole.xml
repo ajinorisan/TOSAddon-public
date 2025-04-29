@@ -475,4 +475,73 @@
 			</EtcList>
 		</MainSkl>
 	</Skill>
+		<Skill Name="Kupole_Lada_RichEnergy">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="KUPOLE_SKILL_VALUE_SET"/>
+                </Scp>
+				<Scp Scp="MONSKL_C_PLAY_CUPOLE_ANIM" Client="YES" UseSleep="NO" Time="0">
+					<Str Str="Kupole_lada_UR"/>
+					<Str Str="skill"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="150">
+					<Str Str="RichEnergy_Buff"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="30000"/>
+					<Num Num="1"/>
+					<Num Num="100"/>
+					<Num Num="0"/>
+				</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Naktis_NightFog">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="KUPOLE_SKILL_VALUE_SET"/>
+                </Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+                    <Pos Angle="0" Dist="0"/>
+                    <Angle Angle="0"/>
+                    <Str Str="Kupole_naktis_nightfog"/>
+            	</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
+	<Skill Name="Kupole_Zesty_BladeWhirlwind">
+		<EnableScripts>
+			<ToolScp Scp="CHECK_USE_CUPOLE_SKILL" Client="BOTH" UseSleep="NO"/>
+		</EnableScripts>
+		<MainSkl ScrLock="None" JumpFlee="NO" MSPDToUsePos="0">
+			<HitList>
+				<Frame Type="FAN" Time="9999" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="10199" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
+			</HitList>
+			<EtcList>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="0">
+                    <Str Str="KUPOLE_SKILL_VALUE_SET"/>
+                </Scp>
+				<Scp Client="NO" Scp="MONSKL_CRE_PAD" Time="150" UseSleep="NO">
+                    <Pos Angle="0" Dist="0"/>
+                    <Angle Angle="0"/>
+                    <Str Str="Kupole_Zesty_BladeWhirlwind"/>
+            	</Scp>
+			</EtcList>
+		</MainSkl>
+	</Skill>
 </ToolSkill>

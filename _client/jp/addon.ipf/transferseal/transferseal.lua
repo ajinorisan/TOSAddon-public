@@ -206,8 +206,16 @@ function TRANSFER_SEAL_SRC_REG(guid)
 	SET_SLOT_IMG(desc_slot, itemCls.Icon);
 
 	local ctrl = desc_slot:GetIcon();
+	ctrl:SetTooltipStrArg('None')
     SET_ITEM_TOOLTIP_TYPE(ctrl, itemCls.ClassID);
 	ctrl:SetTooltipArg("TransferSeal", itemCls.ClassID, guid);
+	if TryGetProp(itemObj, 'TeamBelonging', 0) == 1 then
+		ctrl:SetTooltipStrArg('team_belonging')
+	end
+
+	if TryGetProp(itemObj, 'CharacterBelonging', 0) == 1 then
+		ctrl:SetTooltipStrArg('char_belonging')	
+	end
 
     local fullname = string.format("+%d %s", curLv, itemCls.Name);
     local desc_item_text = GET_CHILD_RECURSIVELY(frame, "desc_item_text");

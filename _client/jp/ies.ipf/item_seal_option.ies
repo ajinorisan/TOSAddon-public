@@ -13,6 +13,8 @@ ClassID,MaxReinforceCount,SealOptionValue_1,SealOptionValue_2,SealOptionValue_3,
 12,5,100,9840,2,9840,1,"Seal_jurate2_def","","random","ITEM_goddess_seal_def_lv1","MDEF;DEF","ITEM_DRAGON_POWER","MDEF;DEF","JurateBlessing"
 13,5,300,1000,2,1000,1,"Seal_jurate3","","random","ITEM_goddess_seal_lv1","MATK;PATK","ITEM_DRAGON_POWER","MATK;PATK","JurateBlessing"
 14,5,100,11500,2,11500,1,"Seal_jurate3_def","","random","ITEM_goddess_seal_def_lv1","MDEF;DEF","ITEM_DRAGON_POWER","MDEF;DEF","JurateBlessing"
+15,5,350,2400,2,350000,1,"Seal_jurate4_1","","random","ITEM_goddess_seal_lv1","MATK;PATK","ITEM_DRAGON_POWER","seal_skill_factor1","JurateBlessing;Common_Infinity_Spears_520"
+16,5,150,30000,2,1000000,1,"Seal_jurate4_2","","random","ITEM_goddess_seal_def_lv1;ITEM_goddess_seal_def_lv2","MDEF;DEF","ITEM_DRAGON_POWER","seal_skill_factor2","JurateBlessing;Common_Divine_Protection_520"
 101,2,350,25,0,0,0,"Seal_kaze_Sword","","random","MHP","CRTHR","","",""
 102,2,110,25,0,0,0,"Seal_kaze_Wizard","","random","CRTMATK","CRTHR","","",""
 103,2,350,25,0,0,0,"Seal_kaze_Cleric","","random","MHP","CRTHR","","",""

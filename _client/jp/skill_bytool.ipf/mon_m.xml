@@ -1038,7 +1038,6 @@
 					<Num Num="150" />
 					<Num Num="50" />
 					<Num Num="50" />
-                    			<Num Num="1"/>
 				</Scp>
 				<Scp Client="NO" Scp="MONSKL_PAD_MSL_BUCK" Time="2000" UseSleep="YES">
 					<Pos Angle="0" Dist="0" PosType="5" />
@@ -1050,7 +1049,6 @@
 					<Num Num="150" />
 					<Num Num="50" />
 					<Num Num="50" />
-                    			<Num Num="1"/>
 				</Scp>
 			</EtcList>
 		</MainSkl>
@@ -1132,7 +1130,6 @@
 					<Num Num="150" />
 					<Num Num="50" />
 					<Num Num="50" />
-                    			<Num Num="1"/>
 				</Scp>
 				<Scp Client="NO" Scp="SKL_ARC_JUMP" Time="3700" UseSleep="NO">
 					<Pos Angle="0" Dist="0" PosType="1" Rand="110" />
@@ -1153,8 +1150,7 @@
 					<Num Num="150" />
 					<Num Num="50" />
 					<Num Num="50" />
-				<Num Num="1"/>
-                </Scp>
+				</Scp>
 				<Scp Client="NO" Scp="SKL_ARC_JUMP" Time="6700" UseSleep="NO">
 					<Pos Angle="0" Dist="0" PosType="10" Rand="100" />
 					<Num Num="100" />
@@ -1175,7 +1171,6 @@
 					<Num Num="150" />
 					<Num Num="50" />
 					<Num Num="50" />
-                    			<Num Num="1"/>
 				</Scp>
 			</EtcList>
 		</MainSkl>
@@ -9192,4 +9187,4 @@
 			</EtcList>
 		</MainSkl>
 	</Skill>
-</ToolSkill>
+	</ToolSkill>

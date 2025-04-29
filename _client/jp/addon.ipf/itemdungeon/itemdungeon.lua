@@ -1,5 +1,5 @@
 function ITEMDUNGEON_ON_INIT(addon, frame)
-	addon:RegisterMsg('SUCCESS_ITEM_AWAKENING', 'SUCCESS_ITEM_AWAKENING');
+	addon:RegisterMsg('SUCCESS_ITEM_AWAKENING', 'ITEMDUNGEON_CLEARUI');
 	addon:RegisterMsg('UPDATE_SPEND_ITEM', 'ITEMDUNGEON_INIT_NEEDITEM');
 end
 
@@ -14,6 +14,8 @@ function UPDATE_ITEMDUNGEON_CURRENT_ITEM(frame)
 		itemGUID = invItem:GetIESID();
 		local slotName = GET_CHILD_RECURSIVELY(frame, "slotName");
 		slotName:SetTextByKey("value", GET_FULL_NAME(obj));
+		local pr_txt = GET_CHILD_RECURSIVELY(frame, "nowPotentialStr");
+		pr_txt:ShowWindow(1);
 
 		local tempObj = CreateIESByID("Item", obj.ClassID);
 		if nil == tempObj then
@@ -25,6 +27,17 @@ function UPDATE_ITEMDUNGEON_CURRENT_ITEM(frame)
 			refreshScp = _G[refreshScp];
 			refreshScp(tempObj);
 		end	
+
+		local goodsInfoBox = GET_CHILD_RECURSIVELY(frame, 'goodsInfoBox');
+		goodsInfoBox:RemoveChild('tooltip_only_pr');
+		local nowPotential = goodsInfoBox:CreateControlSet('tooltip_only_pr', 'tooltip_only_pr', 30, pr_txt:GetY() - pr_txt:GetHeight());
+		tolua.cast(nowPotential, "ui::CControlSet");
+		local labelline = GET_CHILD(nowPotential, 'labelline');
+		labelline:ShowWindow(0);
+		local pr_gauge = GET_CHILD(nowPotential,'pr_gauge','ui::CGauge')
+		pr_gauge:SetPoint(obj.PR, tempObj.PR);
+		pr_txt = GET_CHILD(nowPotential,'pr_text','ui::CGauge')
+		pr_txt:SetVisible(0);
 		
 		DestroyIES(tempObj);
 		
@@ -42,7 +55,6 @@ end
 
 function ITEMDUNGEON_CLEARUI(frame)
 	ITEMDUNGEON_CLEAR_TARGET(frame);
-	ITEMDUNGEON_BUY_ITEM_ENABLEHITTEST();
 	ITEMDUNGEON_RESET_STONE(frame);
 	ITEMDUNGEON_RESET_ABRASIVE(frame);
 
@@ -228,7 +240,7 @@ function EXEC_ITEM_DUNGEON(parent, ctrl)
 
 	local pc = GetMyPCObject();
 	local x, y, z = GetPos(pc);
-	if 0 == IsFarFromNPC(pc, x, y, z, 60) then
+	if 0 == IsFarFromNPC(pc, x, y, z, 50) then
 		ui.SysMsg(ClMsg("TooNearFromNPC"));	
 		return 0;
 	end
@@ -263,6 +275,7 @@ function ITEMDUNGEON_SHOW_BOX(frame, seller, buyer, isSeller)
 	local titlepicture = GET_CHILD_RECURSIVELY(frame, 'titlepicture');
 	local sellerBtnBox = GET_CHILD_RECURSIVELY(frame, 'sellerBtnBox');
 	local buyerBtnBox = GET_CHILD_RECURSIVELY(frame, 'buyerBtnBox');
+	local goodsInfoBox = GET_CHILD_RECURSIVELY(frame, 'goodsInfoBox');
 
 	sellerBox:ShowWindow(seller);
 	needBox:ShowWindow(isSeller);
@@ -272,6 +285,7 @@ function ITEMDUNGEON_SHOW_BOX(frame, seller, buyer, isSeller)
 	targetSlot:ShowWindow(buyer);
 	buyerBox:ShowWindow(buyer);
 	buyerBtnBox:ShowWindow(buyer);
+	goodsInfoBox:ShowWindow(buyer);
 end
 
 function ITEMDUNGEON_INIT_NEEDITEM(frame)
@@ -344,11 +358,9 @@ function ITEMDUNGEON_SET_TITLE(frame, isSeller)
 	local title = '';
 	if isSeller == true then
 		title = ClMsg('OpenAwakeningShop');
-		GET_CHILD_RECURSIVELY(frame,'check_no_msgbox'):ShowWindow(0);
 	else
 		local awakeningSkl = GetClass('Skill', 'Alchemist_ItemAwakening');
 		title = awakeningSkl.Name;
-		GET_CHILD_RECURSIVELY(frame,'check_no_msgbox'):ShowWindow(1);
 	end
 	titleText:SetTextByKey('title', title);
 end
@@ -425,34 +437,18 @@ function ITEMDUNGEON_BUY_ITEM(parent, ctrl)
 	local warningmsg;
 
 	if awakematerialItemGuid == '0' then
-	    ui.SysMsg(ClMsg("NoMoreAbrasive"))
-	    return
+		warningmsg = ClMsg("IsSureNotUseAbrasive")..' {nl}';
 	else
 		warningmsg = ClMsg("IsSureUseAbrasive")..' {nl}';
 	end
 
 	if materialItemGuid == '0' then
-	    ui.SysMsg(ClMsg("NoMoreAbrasive"))
-	    return
+		warningmsg = warningmsg .. ClMsg("IsSureNotUseStone")..' {nl}';
 	end
 
-	-- 등록한 재료 아이템 해제 못하게
-	local buyerBox = GET_CHILD_RECURSIVELY(frame, 'buyerBox');
-	buyerBox:EnableHitTest(0);
-
-	local check = GET_CHILD_RECURSIVELY(frame, 'check_no_msgbox')
-	if check:IsChecked() == 1 then
-		_ITEMDUNGEON_BUY_ITEM()
-	else
-		warningmsg = warningmsg .. ClMsg("IsSureItemdungeon");	
-		WARNINGMSGBOX_FRAME_OPEN(warningmsg, '_ITEMDUNGEON_BUY_ITEM', 'ITEMDUNGEON_BUY_ITEM_ENABLEHITTEST');
-	end
-end
-
-function ITEMDUNGEON_BUY_ITEM_ENABLEHITTEST()
-	local frame = ui.GetFrame('itemdungeon');
-	local buyerBox = GET_CHILD_RECURSIVELY(frame, 'buyerBox');
-	buyerBox:EnableHitTest(1);
+	warningmsg = warningmsg .. ClMsg("IsSureItemdungeon");
+	
+	WARNINGMSGBOX_FRAME_OPEN(warningmsg, '_ITEMDUNGEON_BUY_ITEM', 'None');
 end
 
 function ITEMDUNGEON_CLOSE_SHOP(parent, ctrl)
@@ -491,7 +487,6 @@ function ITEMDUNGEON_UPDATE_SELLER(parent, ctrl)
 	local frame = parent:GetTopParentFrame();
 	local buyBtn = GET_CHILD_RECURSIVELY(frame,'buyBtn')
 	buyBtn:ShowWindow(1)
-	GET_CHILD_RECURSIVELY(frame,'check_no_msgbox'):ShowWindow(1);
 
 	local closeShopBtn = GET_CHILD_RECURSIVELY(frame,'closeShopBtn')
 	closeShopBtn:SetGravity(ui.RIGHT,ui.CENTER_VERT)
@@ -505,7 +500,6 @@ function ITEMDUNGEON_UPDATE_HISTORY(parent, ctrl)
 	if ctrl ~= nil then
 		local buyBtn = GET_CHILD_RECURSIVELY(frame,'buyBtn')
 		buyBtn:ShowWindow(0)
-		GET_CHILD_RECURSIVELY(frame,'check_no_msgbox'):ShowWindow(0);
 		local closeShopBtn = GET_CHILD_RECURSIVELY(frame,'closeShopBtn')
 		closeShopBtn:SetGravity(ui.CENTER_HORZ,ui.CENTER_VERT)
 	end
@@ -538,6 +532,10 @@ function ITEMDUNGEON_CLEAR_TARGET(parent, ctrl)
 
 	local slotName = GET_CHILD_RECURSIVELY(frame, "slotName");
 	slotName:SetTextByKey("value", "");
+	GET_CHILD_RECURSIVELY(frame, "nowPotentialStr"):ShowWindow(0);
+
+	local goodsInfoBox = GET_CHILD_RECURSIVELY(frame, 'goodsInfoBox');
+	goodsInfoBox:RemoveChild('tooltip_only_pr');
 end
 
 function ITEMDUNGEON_INIT_USER_PRICE(frame)	
@@ -632,12 +630,5 @@ function ITEMDUNGEON_INV_RBTN(itemobj, invslot, invguid)
 			ui.SysMsg(ClMsg("WrongDropItem"));
 		end	
 	end
-end
 
-function SUCCESS_ITEM_AWAKENING(frame, msg, arg_str, arg_num)
-	ITEMDUNGEON_BUY_ITEM_ENABLEHITTEST();
-	ITEMDUNGEON_RESET_STONE(frame);
-	ITEMDUNGEON_RESET_ABRASIVE(frame);
-
-	UPDATE_ITEMDUNGEON_CURRENT_ITEM(frame);
 end

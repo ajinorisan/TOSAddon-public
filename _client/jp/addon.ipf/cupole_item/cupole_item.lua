@@ -1085,6 +1085,7 @@ function SET_KUPOLE_RTT_IMAGE_SIZE(ImageFrame, index)
     local RatioY = mainFrame:GetUserConfig("RatioY")
     local RatioX = mainFrame:GetUserConfig("RatioX")
     local numindex =  tonumber(index);
+
     if numindex == 33 then
         SzX = SzX * RatioX
         SzY = SzY * RatioY
@@ -1092,27 +1093,8 @@ function SET_KUPOLE_RTT_IMAGE_SIZE(ImageFrame, index)
         SzX = SzX * DefRatioX
         SzY = SzY * DefRatioY
     end
-    local DefMarginX = mainFrame:GetUserConfig("DefMarginX")
-    local DefMarginY = mainFrame:GetUserConfig("DefMarginY")
 
-    local MarginX = mainFrame:GetUserConfig("MarginX")
-    local MarginY = mainFrame:GetUserConfig("MarginY")
-    local X;
-    local Y;
-    if numindex == 33 then
-        X = MarginX;
-        Y = MarginY;
-    elseif numindex == 34  then
-        --수정 필요
-        X = MarginX;
-        Y = MarginY * -2;
-    else
-        X = DefMarginX;
-        Y = DefMarginY;
-    end
-    
     ImageFrame:Resize(SzX, SzY);
-    ImageFrame:SetMargin(X, Y, 0, 0);
 end
 
 ----maincharater 큐폴 설정 
@@ -1166,16 +1148,15 @@ function CREATE_CUPOLE_UIMODEL(index, isMainCharacter)
     local numindex = tonumber(index);
     local posy = 100
     if isMainCharacter == true then
-        if numindex == 33 then
-            FixSize = 3.5
-            posy = 10
-        else
+        -- if numindex == 33 then
+        --     FixSize = 3.5
+        --     posy = 10
+        -- else
             FixSize = 3
             posy = 100
-        end
+        -- end
     else
         if numindex == 33 then
-            FixSize = 1
             posy = 10
         else
             posy = 100

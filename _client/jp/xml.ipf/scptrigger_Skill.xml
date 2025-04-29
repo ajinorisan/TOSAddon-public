@@ -111,6 +111,25 @@
 			</Trigger>
 		</TriggerList>
 	</SpcItem>
+	<SpcItem Name="Ranger_CriticalShot">
+		<TriggerList Act="BeforeAttack">
+			<Trigger>
+				<CondList>
+					<ToolScp Scp="SPCI_CHECK_SKILL" Client="NO" UseSleep="NO">
+						<Str Str="Ranger_CriticalShot"/>
+					</ToolScp>
+					<ToolScp Scp="SPCI_CHECK_TARGET_RELATION" Client="NO" UseSleep="NO" CondFunc="">
+						<Str Str="ENEMY"/>
+					</ToolScp>
+				</CondList>
+				<ExecList>
+					<ToolScp Scp="SPCI_CRTHR" Client="NO" UseSleep="NO">
+						<Num Num="100"/>
+					</ToolScp>
+				</ExecList>
+			</Trigger>
+		</TriggerList>
+	</SpcItem>
 	<SpcItem Name="Fletcher_BodkinPoint">
 		<TriggerList Act="BeforeAttack">
 			<Trigger>

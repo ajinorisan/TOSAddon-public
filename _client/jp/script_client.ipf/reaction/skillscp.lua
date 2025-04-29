@@ -1,37 +1,49 @@
 function SKILLSCP_Warrior_Guard()
+
 	control.Guard(1);
 	return 0;
 end
 
+
+--function SKILLSCP_Warrior_CrossGuard()
+
+--	control.Guard(1);
+	--return 0;
+--end
+
 function START_CYCLONE(actor)
+
 	game.LoopSkillSound(actor, "skl_fgt_whirlwind", 0.14);
 	return 0;
 end
 
+
 function MSL_DEAD_C(actor, eft, eftScale)
+
 	actor:GetEffect():StopAllEffect(1, 0);
 	actor:GetEffect():PlayEffect(eft, eftScale);
-end
 
-function UMITY_EFFECT_MSL_DEAD_C(actor, eft_name, eft_scale, angle_x, angle_y, angle_z)
-	actor:GetEffect():StopAllEffect(1, 0);
-	actor:GetEffect():PlayUnityEffect(eft_name, eft_scale, angle_x, angle_y, angle_z);
 end
 
 function MSL_MOVE_SINE(elapsedSec, totalSec, angle, pos, duration, ampl, startPos)
+
 	local timeAdjust = math.asin(startPos);
 	pos.y = (-startPos + math.sin(totalSec / duration + timeAdjust)) * ampl;
+
 end
 
 function MSL_MOVE_HOR(elapsedSec, totalSec, angle, pos, angleFix, radius)
+
 	local fixedAngle = angle + math.rad(angleFix);
 	pos.x = radius * math.cos(fixedAngle);
 	pos.z = radius * math.sin(fixedAngle);
+
 end
 
 function C_SCP_PRECHECK_SHOVEL(skillType)
 	local mapName = session.GetMapName();
 	local zoneIES = GetClass('Map', mapName);
+
 	if nil == zoneIES then
 		return;
 	end
@@ -44,12 +56,14 @@ function C_SCP_PRECHECK_SHOVEL(skillType)
 end
 
 function SKILLSCP_CART(skillType)
+
 	local mobj = GetMyPCObject();
 	local posString = GetExProp_Str(mobj, "SkillPosString");
 	if posString ~= "None" then
 		SetExProp_Str(mobj, "SkillPosString", "None");
 		return 1;
 	end
+
 
 	local mapFrame = ui.GetFrame("map");
 	mapFrame:ShowWindow(1);
@@ -70,9 +84,11 @@ function SKILLSCP_CART(skillType)
 	text:SetUserValue("SkillType", skillType);
 	eftFrame:SetUserValue("MAP_CHECKING", 1);
 	return 0;
+
 end
 
 function UPDATE_MAP_COOR_CHECK(text)
+
 	local mapFrame = ui.GetFrame("map");
 	if mapFrame:IsVisible() == 0 then
 		text:GetParent():SetUserValue("MAP_CHECKING", 0);
@@ -97,14 +113,22 @@ function UPDATE_MAP_COOR_CHECK(text)
 			control.SendSpcSkillLocation(posi.x, posi.cell, posi.y);
 			control.Skill(skillType);
 		end		
+		
 		return UI_UPDATE_DESTROY;
 	end
+	
 	return UI_UPDATE_CONTINUE;
+
 end
+
+
+
+
 
 -------------------------
 
 function SCP_SKL_IMPALER_SUBANIM(aniName)
+
 	-- 일단 내pc에서만 보이도록 내꺼만 체크. 영상용
 	local mains = session.GetMainSession();
 	local buffCount = info.GetBuffCount(mains:GetHandle());
@@ -116,21 +140,27 @@ function SCP_SKL_IMPALER_SUBANIM(aniName)
 			break;
 		end
 	end
+
 	return aniName;
 end
 
 function SCR_SKILL_RECIPE(skillType)
+
 	local skl = session.GetSkill(skillType);
 	if skl == nil then
 		return;
 	end
+
 	local obj = GetIES(skl:GetObject());
+
 	local frame = ui.GetFrame("itemcraft_alchemist");
 	SET_ITEM_CRAFT_UINAME("itemcraft_alchemist");
 	SET_CRAFT_IDSPACE(frame, "Recipe_ItemCraft", obj.ClassName, obj.LevelByDB);
 	CREATE_CRAFT_ARTICLE(frame);
 	ui.ToggleFrame("itemcraft_alchemist");
+
 	return 0;
+
 end
 
 function SCR_SKILL_PUZZLECRAFT(skillType)
@@ -147,13 +177,8 @@ function SCR_SKILL_PUZZLECRAFT(skillType)
 	local obj = GetIES(skl:GetObject());
 	local row = 1 + math.floor(obj.Level);
 	local col = 1 + math.floor(obj.Level);
-    if row > 6 then
-        row = 6;
-	end
-	if col > 6 then
-        col = 6;
-    end
 	PUZZLECRAFT_SET_MAXSIZE(row, col);
 	ui.ToggleFrame("puzzlecraft");
 	return 0;
+
 end

@@ -439,6 +439,13 @@ end
 -- 루아 타임으로 현재시간을 가져온다.
 date_time.get_lua_now_datetime_str = function()
     local ret = date_time.lua_datetime_to_str(date_time.get_lua_now_datetime())
+
+    --2024-12-19 수정 Dev #144340
+    --윈도우 시간대 변경 시 용증 부스트 툴팁이 같이 변경되는 현상 해결
+    --클라이언트에서는 서버에 접속한 시간을 기준으로 측정.
+    if IsServerSection() == 0 then
+        return date_time.add_time(geTime.GetConnectServerDateTimeStr(), imcTime.GetAppTime() - geTime.GetConnectServerApptime())
+    end
     return ret
 end
 
@@ -3512,6 +3519,60 @@ function JOB_SLEDGER_S_PRE_CHECK(pc, jobCount)
     return 'NO'
 end
 
+function JOB_BONEMANCER_S_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char1_28', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_BONEMANCER_A_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char3_26', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_BONEMANCER_C_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char4_25', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
 function JOB_SPEARMASTER_PRE_CHECK(pc, jobCount)
     local aObj
     if IsServerSection() == 0 then
@@ -4636,16 +4697,11 @@ function CHECK_INDUN_CONTENTS_RESTRICT_TIME(self)
                 return true;
             end
         else
-            if month == 9 then
-                if day == 26 and hour >= 6 then
+            if month == 7 then
+                if day >= 11 and day < 14 then
                     return true;
                 end
-
-                if day == 27 then
-                    return true;
-                end
-
-                if day == 28 and hour < 12 then
+                if day == 14 and hour < 12 then
                     return true;
                 end
             end
@@ -4663,7 +4719,7 @@ function CHECK_INDUN_WEEKLY_BLOCKADE_RESTRICT_TIME()
             local day = time.wDay;
             local hour = time.wHour;
             if month == 3 then
-                if day >= 13 and day <= 15 then
+                if day >= 6 and day <= 9 then
                     return true;
                 end
             end
@@ -4700,8 +4756,8 @@ end
 
 -- 트오세 W - 베르니케 파편던전 PreCheck 에서 사용.
 function CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME()
-    local start = '2024-09-09 00:00:00';
-    local finish = '2024-09-12 10:00:00';
+    local start = '2025-02-17 00:00:00';
+    local finish = '2025-02-18 10:00:00';
     local nation = GetServerNation();
     if nation == "PAPAYA" then
         start = '2024-10-07 00:00:00';
@@ -4922,3 +4978,46 @@ function GET_BLACK_MARKET_RETURN_ITEM_ID()
 -- CertificateCoin_1000000p
     return 1000000, '11201238'  -- 뒤에서 부터 1번    
 end
+
+-- client only
+function _GET_SORTED_CONSUME_ITEM_LIST(item_list, need_count)
+    local now_count = 0
+
+    local take_item = {}
+    local index = 2
+    for i = 1, #item_list do
+        local name = item_list[i]
+        local count = session.GetInvItemByName(name)
+        local remain_count = need_count - now_count
+        count = math.min(remain_count, count)
+        take_item[name] = count
+        now_count = now_count + count
+        if now_count >= need_count then            
+            break
+        end
+
+        index = i
+    end
+    
+    if now_count < need_count then
+        local cls = nil
+        if index == 1 then
+            cls = GetClass('Item', item_list[index])
+        else
+            cls = GetClass('Item', item_list[index - 1])
+        end
+
+        return nil
+    end
+
+    local check_count = 0
+    for k, v in pairs(take_item) do
+        check_count = check_count + v
+    end
+
+    if check_count ~= need_count then        
+        return nil
+    end
+
+    return take_item
+end 

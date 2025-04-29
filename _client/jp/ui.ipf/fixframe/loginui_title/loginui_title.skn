@@ -43,10 +43,12 @@
 		<image name="login2" file="fixframe\loginui_title\r1_logo_gb.png" imgrect="0 0 1300 680"/>
 		<image name="login_frame" file="fixframe\loginui_title\login_frame.tga" imgrect="0 0 2000 1500"/>
 		<image name="login_bg" file="fixframe\loginui_title\login_bg.jpg" imgrect="0 0 1920 1080"/>
-		<image name="login_img" file="fixframe\loginui_title\login_img2.png" imgrect="0 0 5923 2500"/>
+		<image name="login_img" file="fixframe\loginui_title\login_img2.png" imgrect="0 0 1920 1080"/>
 		<image name="login_img2" file="fixframe\loginui_title\login_img2.tga" imgrect="0 0 1920 1080"/>
 		<image name="login_img3" file="fixframe\loginui_title\login_img3.tga" imgrect="0 0 1920 1080"/>
 		<image name="login_img4" file="fixframe\loginui_title\login_img4.jpg" imgrect="0 0 2960 1662"/>
+		<image name="login_img6f" file="fixframe\loginui_title\login_img6f.png" imgrect="0 0 1920 1078"/>
+		<image name="login_img6w" file="fixframe\loginui_title\login_img6w.png" imgrect="0 0 2558 1080"/>
 		<image name="logo" file="\skin\login_barrack.tga" imgrect="0 328 167 37"/>
 		<image name="project_R1" file="\skin\login_barrack.tga" imgrect="202 0 310 240"/>
 		<image name="button_normal" file="\skin\button.tga" imgrect="0 40 142 34"/>

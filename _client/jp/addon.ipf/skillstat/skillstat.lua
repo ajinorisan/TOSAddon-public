@@ -1,5 +1,5 @@
 function SKILLSTAT_ON_INIT(addon, frame)
-	addon:RegisterMsg("RESET_ABILITY_UP", "SKILLSTAT_CLOSE")
+
 end
 
 function BEFORE_APPLIED_SKILLSTAT_OPEN(invItem)
@@ -68,9 +68,6 @@ local function IS_SKILLRESET_ITEM(itemClsName)
 	if itemClsName == 'Premium_SkillReset' or itemClsName == 'Premium_SkillReset_14d' or itemClsName == 'Premium_SkillReset_1d' or itemClsName == 'Premium_SkillReset_60d' or itemClsName == 'Premium_SkillReset_Trade' or itemClsName == 'PC_Premium_SkillReset' or itemClsName == 'Premium_SkillReset_14d_Team' then
 		return true;
 	end
-	if itemClsName == 'steam_Premium_SkillReset_1' or itemClsName == 'steam_Premium_SkillReset' then
-		return true;
-	end
 	return false;
 end
 
@@ -82,28 +79,13 @@ function REQ_SKILLSTAT_ITEM(frame, ctrl)
 
 	if IS_SKILLRESET_ITEM(argList) then
 		pc.ReqExecuteTx_Item("SCR_USE_SKILL_STAT_RESET", itemIES, argList);
-	elseif IS_ABILRESET_ITEM(argList) then
-		_ABILITY_POINT_RESET_C(frame, itemIES);
-	elseif IS_ARTSRESET_ITEM(argList) then
-		_ABILITY_POINT_RESET_ARTS_C(frame, itemIES);
 	else
 		pc.ReqExecuteTx_Item("SCR_USE_STAT_RESET", itemIES, argList);
 	end
 end
 
-function SKILLSTAT_CLOSE(frame, msg, argStr, argNum)
-	SKILLSTAT_SELEC_CANCLE(frame, nil)
-end
 
 function SKILLSTAT_SELEC_CANCLE(frame, ctrl)
-	-- 아츠 초기화 포션쪽에서 마진 변경하기 때문에 닫을 때 초기화해준다
-	local detail = GET_CHILD_RECURSIVELY(frame, "detail");
-	if detail ~= nil then
-		local curMargin = detail:GetMargin();
-		local originTop = frame:GetUserConfig("DETAIL_TOP");
-		detail:SetMargin(curMargin.left, originTop, curMargin.right, curMargin.bottom);
-	end
-
 	frame:ShowWindow(0);
 end
 

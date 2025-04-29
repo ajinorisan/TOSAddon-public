@@ -188,6 +188,7 @@ function COMMON_ACC_UPGRADE_PROGRESS(parent,ctrl,argStr,argNum)
     if inv_item == nil then return end
     local item_obj = GetIES(inv_item:GetObject())
 
+    COMMON_ACC_UPGRADE_OPTION_SET_UP(frame, TryGetProp(item_obj, 'UpgradeRank', 0), 0)  
     COMMON_ACC_UPGRADE_MAT_NUM_SET(frame,item_obj)
     --이펙트 추가
 end
@@ -256,7 +257,7 @@ function COMMON_ACC_UPGRADE_OPTION_CLEAR(frame)
 end
 
 -------set option info
-function COMMON_ACC_UPGRADE_OPTION_SET_UP(frame, before, after)
+function COMMON_ACC_UPGRADE_OPTION_SET_UP(frame, before, after)    
     local option_result = GET_CHILD_RECURSIVELY(frame,"option_result")
     local before_txt = GET_CHILD_RECURSIVELY(option_result,"before_txt")
     local after_txt = GET_CHILD_RECURSIVELY(option_result,"after_txt")
@@ -271,11 +272,11 @@ function COMMON_ACC_UPGRADE_OPTION_SET_UP(frame, before, after)
 
     local cur_rank = TryGetProp(item_obj,"UpgradeRank",0)
     local CustomOptDescFunc = TryGetProp(item_obj,"CustomOptDescFunc","None");
-
-    if after ~= nil or after ~= 0 then
+    
+    if after ~= nil and after ~= 0 then
         cur_rank = after;
     end
-
+    
     local before_val1, before_val2 = shared_upgrade_acc.get_value(item_obj,before);
     local after_val1, after_val2 = shared_upgrade_acc.get_value(item_obj,cur_rank);
     
@@ -286,7 +287,14 @@ function COMMON_ACC_UPGRADE_OPTION_SET_UP(frame, before, after)
     local option1_name2 = "";
     local option2_name1 = "";
     local option2_name2 = "";
-    
+        
+    if GetClass('upgrade_equip_item', TryGetProp(item_obj, 'ClassName', 'None')) ~= nil then
+        option1_name = ClMsg('ALLSTAT')
+        -- option1_name2 = ClMsg('ALLSTAT')
+        before_val1 = shared_upgrade_equip.get_value(item_obj, before)[1][2]        
+        after_val1 = shared_upgrade_equip.get_value(item_obj, cur_rank)[1][2]
+    end
+
     option1_name1 = string.format("%s : +%s",option1_name, before_val1); 
     option1_name2 = string.format("%s : +%s",option1_name, after_val1);
     if option1_name ~= ClMsg("EP16_EFFECT_NAME02") then
@@ -301,6 +309,10 @@ function COMMON_ACC_UPGRADE_OPTION_SET_UP(frame, before, after)
     after_txt:SetTextByKey("value",option1_name2)
     after_txt:SetTextByKey("value2",option2_name2)
 
+    if GetClass('upgrade_equip_item', TryGetProp(item_obj, 'ClassName', 'None')) ~= nil then
+        before_txt:SetTextByKey("value2",nil)
+        after_txt:SetTextByKey("value2",nil)
+    end
 end
 
 local function _GET_EFFECT_UI_MARGIN()
@@ -318,7 +330,7 @@ local function _GET_EFFECT_UI_MARGIN()
 end
 
 
-function _COMMON_ACC_UPGRADE_RESULT(frame, msg, argStr, argNum)
+function _COMMON_ACC_UPGRADE_RESULT(frame, msg, argStr, argNum)    
     local left, top = _GET_EFFECT_UI_MARGIN()
     local res_scp = ""
 

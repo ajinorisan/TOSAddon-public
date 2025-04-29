@@ -7,9 +7,14 @@ end
 -- SETTING
 function WORLDMAP2_SUBMAP_EPISODE()
     local episode = ui.GetFrame("worldmap2_submap"):GetUserConfig("SUBMAP_NAME");
-    if episode == "EP16_2" then
-        episode = "EP9_2";
+    
+    local prop_name_list = StringSplit(episode, '->');
+    if #prop_name_list >=2 then
+        episode = prop_name_list[2];
     end
+    -- if episode == "EP16_2" then
+    --     episode = "EP9_2";
+    -- end
 	return episode;
 end
 

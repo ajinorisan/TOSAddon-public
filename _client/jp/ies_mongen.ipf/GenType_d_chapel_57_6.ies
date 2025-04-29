@@ -25,3 +25,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 30,30,1,0,1,1,1,0,0,0,0,0,0,"treasure_box1","보물 상자 LV1","","","","","","","TREASUREBOX_LV","","","","YES","NO","Neutral","LV1","ITEM:COLLECT_133:1","",""
 31,31,1,1,30,10000,13,0,0,0,1,0,1,"npc_orb1_Q","보주 결정","","","","","","","CHAPLE576_RP_1_OBJ","","","NO","YES","NO","Neutral","","","",""
 32,32,1,20,1,60000,1,0,0,0,0,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","EXPLORER_MISLE7","","NO","YES","NO","Neutral","","","",""
+33,33,1,40,1,60000,1,1,0,0,0,0,0,"npc_bonemancer","[본맨서 마스터]{nl}오르벨라","","","","","","","NPC_BONEMANCER","","","NO","YES","NO","Neutral","","","",""

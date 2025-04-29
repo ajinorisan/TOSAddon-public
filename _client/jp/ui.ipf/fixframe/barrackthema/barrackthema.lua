@@ -60,8 +60,8 @@ function BARRACK_THEMA_UPDATE(frame)
 		local goBackBarrack = ctrlSet:GetChild("goBackBarrack");
 		goBackBarrack:ShowWindow(0);
 
-		local barrackMode = GetBarrackMode();
-		if barrackMode == "Preview" and preViewName == cls.ClassName then
+		local env = GetEnv();
+		if env.Mode == "Preview" and preViewName == cls.ClassName then
 			goBackBarrack:ShowWindow(1);
 		end
 
@@ -108,15 +108,11 @@ function BARRACK_THEMA_UPDATE(frame)
 	GBOX_AUTO_ALIGN(advBox, 5, 3, 10, true, false);
 end
 
-function BARRACKTHEMA_PREVIEW(themaName)	
+function BARRACKTHEMA_PREVIEW(themaName)
 	barrack.Preview(themaName);
 end
 
 function BARRACKTHEMA_APPLIED(themaName)
-	local frame = ui.GetFrame('barrackthema')
-	if frame ~= nil and frame:IsVisible() == 1 then
-		barrack.ToMyBarrack();
-	end
 	barrack.SelectThema(themaName);
 end
 
@@ -147,7 +143,7 @@ end
 function BARRACK_BUY(buyMap)
 	local cls = GetClass("BarrackMap", buyMap);
 
-	local msgBoxStr = ClMsg("ReallyBuy?") .. "{nl}" .. cls.Price .. " " .. 'TP'
+	local msgBoxStr = ClMsg("ReallyBuy?") .. "{nl}" .. cls.Price .. " " .. ScpArgMsg("NXP");
 
 	local yesScp = string.format("EXEC_BUY_BARRACK(\"%s\")", buyMap);
 	if GET_CASH_TOTAL_POINT_C() < cls.Price then

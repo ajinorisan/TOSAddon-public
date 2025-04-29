@@ -90,9 +90,12 @@ end
 
 -- 인장 강화 재료(마정석) 아이템 -- 
 function IS_SEAL_ADDITIONAL_ITEM(item)
-    if item.ClassName ~= GET_SEAL_ADDITIONAL_ITEM() then
-        return;
+    local t = GET_SEAL_ADDITIONAL_ITEM()
+
+    if table.find(t, item.ClassName) == nil then
+        return false;
     end
+
     return true;
 end
 

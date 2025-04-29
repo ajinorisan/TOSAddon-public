@@ -370,6 +370,7 @@ function SET_STAT_TEXT(frame, ctrlname, pc, propname, pointprop, addprop, consum
     local tenpic = GET_CHILD(statusUpControlSet, "ten", "ui::CPicture");
     local hunpic = GET_CHILD(statusUpControlSet, "hun", "ui::CPicture");
     local thopic = GET_CHILD(statusUpControlSet, "tho", "ui::CPicture");
+    local milpic = GET_CHILD(statusUpControlSet, "mil", "ui::CPicture");
 
     onepic:ShowWindow(0);
     onepic:EnableHitTest(0);
@@ -379,10 +380,34 @@ function SET_STAT_TEXT(frame, ctrlname, pc, propname, pointprop, addprop, consum
     hunpic:EnableHitTest(0);
     thopic:ShowWindow(0);
     thopic:EnableHitTest(0);
+    milpic:ShowWindow(0);
+    milpic:EnableHitTest(0);
 
     local statupValue = total + statup;
+    if statupValue >= 10000 then
+        local one = statupValue % 10
+        local ten = math.floor((statupValue % 100) / 10)
+        local hun = math.floor((statupValue % 1000) / 100)
+        local tho = math.floor((statupValue % 10000) / 1000)
+        local mil = math.floor((statupValue % 100000) / 10000)
+        
+        onepic:SetImage(tostring(one));
+        onepic:ShowWindow(1);
+        onepic:SetOffset(30, 115);
+        tenpic:SetImage(tostring(ten));
+        tenpic:ShowWindow(1);
+        tenpic:SetOffset(15, 115);
+        hunpic:SetImage(tostring(hun));
+        hunpic:ShowWindow(1);
+        hunpic:SetOffset(0, 115);
+        thopic:SetImage(tostring(tho));
+        thopic:ShowWindow(1);
+        thopic:SetOffset(-15, 115);
+        milpic:SetImage(tostring(mil));
+        milpic:ShowWindow(1);
+        milpic:SetOffset(-30, 115);
 
-    if statupValue >= 1000 then
+    elseif statupValue >= 1000 then
         local one = statupValue % 10;
         local ten = math.floor(statupValue % 100 / 10);
         local hun = math.floor(statupValue % 1000 / 100);

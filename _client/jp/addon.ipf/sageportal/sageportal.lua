@@ -5,15 +5,8 @@ function SAGEPORTAL_ON_INIT(addon, frame)
 end
 
 function SAGEPORTAL_OPEN_INIT(frame)
-	frame = ui.GetFrame('sageportal')
-	local skillName = "Sage_Portal";
-	if config.GetServiceNation() == "GLOBAL_JP" then
-		local richtext_1 = GET_CHILD_RECURSIVELY(frame, 'richtext_1')
-		if richtext_1 ~= nil then
-			richtext_1:SetText('{@st43}ポータル')
-		end
-	end
 
+	local skillName = "Sage_Portal";
 	SAGEPORTAL_UPDATE_LIST(frame, skillName)
 end
 

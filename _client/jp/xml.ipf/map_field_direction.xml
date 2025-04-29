@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by asdasd (IMCGames Co., Ltd) -->
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMCGames Co., Ltd (IMCGames Co., Ltd) -->
 <MapList>
 	<Map MapName="c_fedimian">
 		<Dir Name="fedimian_temple"/>
@@ -218,11 +218,5 @@
 	</Map>
 	<Map MapName="f_nicopolis_81_3">
 		<Dir Name="f_nicopolis_81_3_elt"/>
-	</Map>
-	<Map MapName="ep16_2_d_fantasylibrary_48_4">
-		<Dir Name="d_fantasylibrary_48_4_elt"/>
-	</Map>
-	<Map MapName="ep16_2_d_fantasylibrary_48_3">
-		<Dir Name="d_fantasylibrary_48_3_elt"/>
 	</Map>
 </MapList>

@@ -2,9 +2,10 @@
 
 
 function MONSTER_CONTEXT(handle, type)
-	if 1 == IsMyPcGM() and keyboard.IsKeyPressed("LCTRL") == 1 then
-		POPUP_MONSTER_CONTEXT(handle, type);
-		return;
+	if keyboard.IsKeyPressed("LCTRL") == 1 then
+		if 1 == IsMyPcGM() then
+			POPUP_MONSTER_CONTEXT(handle, type);
+		end
 	end
 end
 
@@ -62,6 +63,7 @@ function ETC_TEST(handle)
 end
 
 function SCR_NPC_DIALOG_EDIT(handle, type)
+    local npcFuncName = type,world.GetActor(handle):GetNPCStateType()
     local pc = GetMyPCObject();
     local gentype = world.GetActor(handle):GetNPCStateType()
     local genList = SCR_GET_XML_IES('GenType_'..GetZoneName(pc), 'GenType', gentype)
@@ -97,3 +99,4 @@ function SCR_NPC_DIALOG_EDIT(handle, type)
 
 	debug.ShellExecute(path);
 end
+

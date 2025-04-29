@@ -44,18 +44,22 @@ shared_item_jurate_seal.get_cost = function(item)
     local cls = shared_item_jurate_seal.get_consume_seal_cls(item)
 
     local name = TryGetProp(cls, 'ClassName', 'None')
-    local dic = nil
+    local dic = nil    
     if name == 'Seal_Boruta_Common' then
         dic = {}
-        dic['VakarineCertificate'] = 3000000        
+        dic['VakarineCertificate'] = 3000000
         return dic, true
     elseif name == 'Seal_jurate' or name == 'Seal_jurate_def' then
         dic = {}
-        dic['VakarineCertificate'] = 5000000        
+        dic['VakarineCertificate'] = 5000000
         return dic, true
     elseif name == 'Seal_jurate2' or name == 'Seal_jurate2_def' then
         dic = {}
-        dic['VakarineCertificate'] = 7000000        
+        dic['VakarineCertificate'] = 7000000
+        return dic, true
+    elseif name == 'Seal_jurate3' or name == 'Seal_jurate3_def' then
+        dic = {}
+        dic['JurateCertificate'] = 20000000
         return dic, true
     end
 

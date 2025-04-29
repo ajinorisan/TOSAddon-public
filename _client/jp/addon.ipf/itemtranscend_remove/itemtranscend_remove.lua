@@ -1,5 +1,3 @@
--- 현재 사용하지 않는 축복석 추출 / 아이템 추출 관련 UI입니다.
--- 자세한 내용은 Dev #30338을 참조해주시기 바랍니다.
 
 function ITEMTRANSCEND_REMOVE_ON_INIT(addon, frame)
 
@@ -26,9 +24,7 @@ function ITEMTRASCEND_REMOVE_OPEN(frame)
 	INVENTORY_SET_CUSTOM_RBTNDOWN("ITEMTRANSCEND_REMOVE_INV_RBTN")	
 	ui.OpenFrame("inventory");
 	
-	frame:SetUserValue('TRANSCEND_REMOVE', 'YES');
-	frame:SetUserValue("REQ_LEGEND_ITEM_DIALOG_TYPE", 0);
-
+    frame:SetUserValue('TRANSCEND_REMOVE', 'YES');
 	local needTxt = string.format("{@st43b}{s16}%s{/}", ScpArgMsg("ITEMTRANSCEND_REMOVE_GUIDE_FIRST"));	
 	SETTEXT_GUIDE(frame, 3, needTxt);
 
@@ -42,19 +38,10 @@ function ITEMTRASCEND_REMOVE_CLOSE(frame)
 		return;
 	end
 
-	control.DialogOk();
-
-	INVENTORY_SET_CUSTOM_RBTNDOWN("None");
-
-	-- DialogOk()를 실행하면 다이얼로그가 전부 닫힙니다.
-	-- 추가적인 다이얼로그를 띄우고 싶으시다면 반드시 DialogOK() 하단에 실행해주세요.
-	local dialog_type = frame:GetUserValue("REQ_LEGEND_ITEM_DIALOG_TYPE");
-	control.CustomCommand("REQ_LEGEND_ITEM_DIALOG", dialog_type);
-
-	frame:SetUserValue("REQ_LEGEND_ITEM_DIALOG_TYPE", 0);
 	frame:SetUserValue("ANIMETION_PROG_WIP", 0);
+	INVENTORY_SET_CUSTOM_RBTNDOWN("None");
 	frame:ShowWindow(0);
-
+	control.DialogOk();
 	ui.CloseFrame("inventory");
  end
 
@@ -133,7 +120,7 @@ function ITEM_TRANSCEND_REMOVE_REG_TARGETITEM(frame, itemID)
 	end
 
 	if TryGetProp(obj, 'LegendGroup', 'None') ~= 'None' then
-		frame:SetUserValue("REQ_LEGEND_ITEM_DIALOG_TYPE", 2);
+		control.CustomCommand("REQ_LEGEND_ITEM_DIALOG", 1);
 		ui.CloseFrame('itemtranscend_remove');
 		ui.CloseFrame('inventory');
 		return;

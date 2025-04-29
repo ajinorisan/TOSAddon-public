@@ -148,9 +148,8 @@ function GET_REMAIN_ITEM_LIFE_TIME(item)
 end
 
 function GET_REMAIN_TOKEN_SEC()
-    local sysTime = geTime.GetServerSystemTime();
     local endTime = session.loginInfo.GetTokenTime();
-    local difSec = imcTime.GetDifSec(endTime, sysTime);
+    local difSec = date_time.get_diff_sec(geTime.GetDateTimeStr(endTime), date_time.get_lua_now_datetime_str())		
     return difSec;
 end
 

@@ -15,3 +15,4 @@ function CLIENT_GUILD_CALL_SKILL(skillType)
 	GUILDMEMBER_GO_UPDATE_MEMBERLIST(frame, skillType);
 
 end
+

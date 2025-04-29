@@ -42,7 +42,10 @@
 
         <groupbox name="RewardGBox" parent="InfoGBox" rect="0 0 400 410" margin="850 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="false" skin=""/>
 		<picture name="normalReward" parent="RewardGBox" rect="0 0 350 170" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="true" stretch="true" image="popoboost_reward_frame_image2"/>
+		<groupbox name="normal_disable_shadow" parent="RewardGBox" rect="0 0 350 170" margin="0 0 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
+
 		<picture name="premiumReward" parent="RewardGBox" rect="0 0 350 170" margin="0 170 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="true" stretch="true" image="popoboost_reward_frame_image3"/>
+		<groupbox name="premium_disable_shadow" parent="RewardGBox" rect="0 0 350 170" margin="0 170 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
 
 		<groupbox name="premiumRewardUnActive" parent="RewardGBox" rect="0 0 350 180" margin="0 170 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false"  scrollbar="true" skin="blackbg1"/>
 		<button name="purchasePreminum" parent="premiumRewardUnActive" rect="0 0 61 61" margin="0 0 0 0" layout_gravity="center center" image="popoboost_premium_lock" hittest="true" oversound="button_over" clicksound="button_click_stats" scrollbar="false" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" fontname="white_20_b" LBtnUpScp="POPOBOOST_OPEN_TP_SHOP"/>

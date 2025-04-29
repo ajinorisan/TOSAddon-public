@@ -5,10 +5,7 @@ function WIKIADD_ON_INIT(addon, frame)
 end
 
 function ON_ADVENTURE_BOOK_NEW(frame, msg, argStr, argNum)
-	local pickitemText 	= frame:GetChild('pickitemtext');
-	if argStr ~= "" and argStr ~= "None" then
-		argStr = TranArgMsg(argStr);
-	end
+    local pickitemText 	= frame:GetChild('pickitemtext');
 	local msg = string.format("{a WIKI %d}{#050505}{s24}%s{nl}{s20}%s{/}{/}", 0, argStr, ScpArgMsg("WIKI_ADDED"));
 	pickitemText:SetText(msg);
 	frame:ShowWindow(1);
@@ -33,9 +30,7 @@ function ADD_WIKI(frame, msg, argStr, argNum)
 	else
 		name = wikicls.Name;
 	end
-	if name ~= "" and name ~= "None" then
-		name = TranArgMsg(name);
-	end
+	
 	local msg = string.format("{a WIKI %d}{#050505}{s24}%s{nl}{s20}%s{/}{/}", argNum, name, ScpArgMsg("WIKI_ADDED"));
 	pickitemText:SetText(msg);
 	frame:ShowWindow(1);

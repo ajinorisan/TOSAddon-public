@@ -48,7 +48,7 @@ local function _INIT_COMPONENT(frame)
 		checkScp = 'REINFORCE_SEAL_CHECK_ADDITIONAL_ITEM',
 		isAlwaysWithMax = true,
 	});
-	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM());
+	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM()[1]);
 	local additionalInvItem = session.GetInvItemByType(additionalItemCls.ClassID);
 	s_reinforceSeal.UpDownMax:SetMinMax(0, 0);
 	s_reinforceSeal.UpDownMax:SetStyle('{#FF0000}');
@@ -181,14 +181,29 @@ local function _INIT_APPLY_OPTION_BOX(frame, itemObj)
 	end
 end
 
-local function _GET_ADDITIONAL_ITEM(frame)
+local function _GET_ADDITIONAL_ITEM(frame)		
 	local itemSlot = GET_CHILD_RECURSIVELY(frame, 'itemSlot');
 	local additionalItemID = GET_SLOT_ITEM_TYPE(itemSlot);
-	local additionalInvItem = session.GetInvItemByType(additionalItemID);	
+	
+	local additionalInvItem = nil
+	local additionalItem = nil
+
+	local sort_item = {}  
+	table.insert(sort_item, 'misc_0530_seal');
+	table.insert(sort_item, 'misc_0530');
+
+	for i = 1, #sort_item do
+		additionalInvItem = session.GetInvItemByName(sort_item[i])
+		if additionalInvItem ~= nil then
+			break;
+		end
+	end
+
+	additionalInvItem = session.GetInvItemByType(additionalItemID);	
 	if additionalInvItem == nil or additionalInvItem:GetObject() == nil then
 		return nil, 0;
 	end
-	local additionalItem = GetIES(additionalInvItem:GetObject());
+	additionalItem = GetIES(additionalInvItem:GetObject());
 	return additionalItem, s_reinforceSeal.UpDownMax:GetNumber(), additionalInvItem;
 end
 
@@ -214,7 +229,7 @@ end
 
 local function _INIT_ADDITIONAL_ITEM(frame)
 	local itemSlot = GET_CHILD_RECURSIVELY(frame, 'itemSlot');
-	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM());
+	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM()[1]);
 	SET_SLOT_ITEM_CLS(itemSlot, additionalItemCls);
 
 	local icon = itemSlot:GetIcon();
@@ -290,7 +305,7 @@ function REINFORCE_SEAL_DROP_MATERIAL(parent, slot)
 	_UPDATE_PRICE(frame);
 end
 
-function REINFORCE_SEAL_DROP_ADDITIONAL_ITEM(parent, slot)
+function REINFORCE_SEAL_DROP_ADDITIONAL_ITEM(parent, slot)	
 	local frame = parent:GetTopParentFrame();
 	local liftIcon = ui.GetLiftIcon();
 	local iconInfo = liftIcon:GetInfo();
@@ -405,11 +420,18 @@ function REINFORCE_SEAL_EXECUTE(parent, ctrl)
 	else
 		clmsg = ClMsg('AdditionalItemCountIsNotMax');
 	end
+
 	if successRatio < 100 then
 		clmsg = clmsg..'{nl}'..ClMsg('SealReinforceInfo');
 	end
 
-	clmsg = clmsg..'{nl}'..ClMsg('ReallyReinforceSeal');
+	local belonging = TryGetProp(targetSealObj, 'TeamBelonging', 0) == 1 or TryGetProp(materialSealObj, 'TeamBelonging', 0) == 1
+	 or TryGetProp(targetSealObj, 'CharacterBelonging', 0) == 1 or TryGetProp(materialSealObj, 'CharacterBelonging', 0) == 1
+	if belonging == true then
+		clmsg = clmsg..'{nl} {nl}'..ClMsg('SealReinforceInfo2');	
+	end
+
+	clmsg = clmsg..'{nl} {nl}'..ClMsg('ReallyReinforceSeal');
 
 	ui.MsgBox(clmsg, 'IMPL_REINFORCE_SEAL_EXECUTE', 'None');
 end
@@ -456,11 +478,20 @@ function REFINFORCE_SEAL_RBTN_CLICK(itemObj, invSlot, invItemGuid)
 	end
 end
 
-function REINFORCE_SEAL_UPDATE_SIMULATE(parent, ctrl)	
+function REINFORCE_SEAL_UPDATE_SIMULATE(parent, ctrl)		
 	local frame = parent:GetTopParentFrame();	
-	local curHaveCnt = GET_INV_ITEM_COUNT_BY_PROPERTY({}, false, nil, function(item)
-		return IS_SEAL_ADDITIONAL_ITEM(item);
-	end);
+	local list = GET_SEAL_ADDITIONAL_ITEM()
+	local curHaveCnt = 0
+	for i = 1, #list do
+		local itemCls = GetClass('Item', list[i]);
+		if itemCls ~= nil then
+			local invItem = session.GetInvItemByType(itemCls.ClassID);
+			if invItem ~= nil then
+				curHaveCnt = curHaveCnt + invItem.count;
+			end
+		end
+	end
+
 	if s_reinforceSeal.UpDownMax:GetNumber() > curHaveCnt then
 		s_reinforceSeal.UpDownMax:SetNumber(curHaveCnt);
 	end
@@ -634,8 +665,16 @@ end
 
 function REINFORCE_SEAL_CHECK_ADDITIONAL_ITEM(parent, ctrl)
 	local curCnt = s_reinforceSeal.UpDownMax:GetNumber();
-	local curHaveCnt = GET_INV_ITEM_COUNT_BY_PROPERTY({}, false, nil, function(item)
-		return IS_SEAL_ADDITIONAL_ITEM(item);
-	end);
+	local list = GET_SEAL_ADDITIONAL_ITEM()
+	local curHaveCnt = 0
+	for i = 1, #list do
+		local itemCls = GetClass('Item', list[i]);
+		if itemCls ~= nil then
+			local invItem = session.GetInvItemByType(itemCls.ClassID);
+			if invItem ~= nil then
+				curHaveCnt = curHaveCnt + invItem.count;
+			end
+		end
+	end
 	return curHaveCnt > curCnt;
 end

@@ -1,8 +1,8 @@
 -- shared_item_goddess_reinforce.lua, 가디스 장비 강화 관련 
 -- item_goddess_reinforce.xml
 
-local equip_end_lv = 520
-
+local equip_end_lv = 530
+local popoboost_item_lv = 510;
 
 item_goddess_reinforce = {}  -- namespace
 
@@ -254,8 +254,8 @@ item_goddess_reinforce.get_final_reinforce_prop = function(target_item, add_perc
 	local base = item_goddess_reinforce.get_basic_prop(use_lv, goal_lv)
 	local fail_prop = item_goddess_reinforce.get_current_fail_revision_prop(target_item) -- 실패한 보정확률	
 
-	-- 	포포부스트	포포부스트 아이템이고, 포포부스트 시즌이 맞으며, 500 레벨 이하의 장비(마신, 우피니스 등등)에만 적용, 목표 미달성 시에만 적용
-	if 	IS_POPOBOOST_REINFORCE_ITEM(TryGetProp(target_item, 'popoboost', 0), use_lv, 500, IsPopoboostClear)	then
+	-- 	포포부스트	포포부스트 아이템이고, 포포부스트 시즌이 맞으며, 500 레벨 이하의 장비(마신, 우피니스, 네빌티스)에만 적용, 목표 미달성 시에만 적용
+	if 	IS_POPOBOOST_REINFORCE_ITEM(TryGetProp(target_item, 'popoboost', 0), use_lv, popoboost_item_lv, IsPopoboostClear)	then
 		base = base * 2			
 	end
 
@@ -437,112 +437,87 @@ function setting_lv_material_armor(mat_list_by_lv, lv)
 		misc_BlessedStone = 'misc_BlessedStone'
 		misc_reinforce_2 = 'misc_hornFalouros_NoTrade'
 
-		mat_list_by_lv[lv]['armor'][6][seasonCoin] = 450
-		mat_list_by_lv[lv]['armor'][6][misc_BlessedStone] = 1
+		mat_list_by_lv[lv]['armor'][6][seasonCoin] = 450		
 		mat_list_by_lv[lv]['armor'][6][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['armor'][7][seasonCoin] = 450
-		mat_list_by_lv[lv]['armor'][7][misc_BlessedStone] = 1
 		mat_list_by_lv[lv]['armor'][7][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['armor'][8][seasonCoin] = 450
-		mat_list_by_lv[lv]['armor'][8][misc_BlessedStone] = 1
 		mat_list_by_lv[lv]['armor'][8][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['armor'][9][seasonCoin] = 450
-		mat_list_by_lv[lv]['armor'][9][misc_BlessedStone] = 1
 		mat_list_by_lv[lv]['armor'][9][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['armor'][10][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][10][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][10][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][11][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][11][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][11][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][12][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][12][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][12][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][13][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][13][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][13][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][14][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][14][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][14][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][15][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][15][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][15][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][16][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][16][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][16][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][17][seasonCoin] = 1200
-		mat_list_by_lv[lv]['armor'][17][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][17][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][18][seasonCoin] = 1523
-		mat_list_by_lv[lv]['armor'][18][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][18][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][19][seasonCoin] = 1861
-		mat_list_by_lv[lv]['armor'][19][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][19][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][20][seasonCoin] = 2224
-		mat_list_by_lv[lv]['armor'][20][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][20][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['armor'][21][seasonCoin] = 2586
-		mat_list_by_lv[lv]['armor'][21][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][21][misc_reinforce_1] = 10
 
-		mat_list_by_lv[lv]['armor'][22][seasonCoin] = 2948
-		mat_list_by_lv[lv]['armor'][22][misc_BlessedStone] = 2
+		mat_list_by_lv[lv]['armor'][22][seasonCoin] = 2948		
 		mat_list_by_lv[lv]['armor'][22][misc_reinforce_1] = 15
 		mat_list_by_lv[lv]['armor'][22][misc_reinforce_2] = 10
 	
 		mat_list_by_lv[lv]['armor'][23][seasonCoin] = 3311
-		mat_list_by_lv[lv]['armor'][23][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][23][misc_reinforce_1] = 17
 		mat_list_by_lv[lv]['armor'][23][misc_reinforce_2] = 11
 	
 		mat_list_by_lv[lv]['armor'][24][seasonCoin] = 3673
-		mat_list_by_lv[lv]['armor'][24][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][24][misc_reinforce_1] = 19
 		mat_list_by_lv[lv]['armor'][24][misc_reinforce_2] = 11
 	
 		mat_list_by_lv[lv]['armor'][25][seasonCoin] = 4036
-		mat_list_by_lv[lv]['armor'][25][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][25][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['armor'][25][misc_reinforce_2] = 12
 	
 		mat_list_by_lv[lv]['armor'][26][seasonCoin] = 4398
-		mat_list_by_lv[lv]['armor'][26][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][26][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['armor'][26][misc_reinforce_2] = 12
 	
 		mat_list_by_lv[lv]['armor'][27][seasonCoin] = 4760
-		mat_list_by_lv[lv]['armor'][27][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][27][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['armor'][27][misc_reinforce_2] = 13
 	
 		mat_list_by_lv[lv]['armor'][28][seasonCoin] = 5123
-		mat_list_by_lv[lv]['armor'][28][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][28][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['armor'][28][misc_reinforce_2] = 13
 	
 		mat_list_by_lv[lv]['armor'][29][seasonCoin] = 5485
-		mat_list_by_lv[lv]['armor'][29][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][29][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['armor'][29][misc_reinforce_2] = 14
 	
 		mat_list_by_lv[lv]['armor'][30][seasonCoin] = 5848
-		mat_list_by_lv[lv]['armor'][30][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['armor'][30][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['armor'][30][misc_reinforce_2] = 14
 	elseif lv >= 500 then
@@ -690,111 +665,86 @@ function setting_lv_material_weapon(mat_list_by_lv, lv)
 		misc_reinforce_2 = 'misc_high_transmutationSpreader_NoTrade'
 
 		mat_list_by_lv[lv]['weapon'][6][seasonCoin] = 450
-		mat_list_by_lv[lv]['weapon'][6][misc_BlessedStone] = 1
 		mat_list_by_lv[lv]['weapon'][6][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['weapon'][7][seasonCoin] = 450
-		mat_list_by_lv[lv]['weapon'][7][misc_BlessedStone] = 1
 		mat_list_by_lv[lv]['weapon'][7][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['weapon'][8][seasonCoin] = 450
-		mat_list_by_lv[lv]['weapon'][8][misc_BlessedStone] = 1
 		mat_list_by_lv[lv]['weapon'][8][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['weapon'][9][seasonCoin] = 450
-		mat_list_by_lv[lv]['weapon'][9][misc_BlessedStone] = 1
 		mat_list_by_lv[lv]['weapon'][9][misc_reinforce_1] = 5
 
 		mat_list_by_lv[lv]['weapon'][10][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][10][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][10][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][11][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][11][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][11][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][12][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][12][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][12][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][13][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][13][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][13][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][14][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][14][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][14][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][15][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][15][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][15][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][16][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][16][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][16][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][17][seasonCoin] = 1200
-		mat_list_by_lv[lv]['weapon'][17][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][17][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][18][seasonCoin] = 1523
-		mat_list_by_lv[lv]['weapon'][18][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][18][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][19][seasonCoin] = 1861
-		mat_list_by_lv[lv]['weapon'][19][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][19][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][20][seasonCoin] = 2224
-		mat_list_by_lv[lv]['weapon'][20][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][20][misc_reinforce_1] = 8
 
 		mat_list_by_lv[lv]['weapon'][21][seasonCoin] = 2586
-		mat_list_by_lv[lv]['weapon'][21][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][21][misc_reinforce_1] = 10
 
 		mat_list_by_lv[lv]['weapon'][22][seasonCoin] = 2948
-		mat_list_by_lv[lv]['weapon'][22][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][22][misc_reinforce_1] = 15
 		mat_list_by_lv[lv]['weapon'][22][misc_reinforce_2] = 10
 
 		mat_list_by_lv[lv]['weapon'][23][seasonCoin] = 3311
-		mat_list_by_lv[lv]['weapon'][23][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][23][misc_reinforce_1] = 17
 		mat_list_by_lv[lv]['weapon'][23][misc_reinforce_2] = 11
 
 		mat_list_by_lv[lv]['weapon'][24][seasonCoin] = 3673
-		mat_list_by_lv[lv]['weapon'][24][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][24][misc_reinforce_1] = 19
 		mat_list_by_lv[lv]['weapon'][24][misc_reinforce_2] = 11
 
 		mat_list_by_lv[lv]['weapon'][25][seasonCoin] = 4036
-		mat_list_by_lv[lv]['weapon'][25][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][25][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['weapon'][25][misc_reinforce_2] = 12
 
 		mat_list_by_lv[lv]['weapon'][26][seasonCoin] = 4398
-		mat_list_by_lv[lv]['weapon'][26][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][26][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['weapon'][26][misc_reinforce_2] = 12
 
 		mat_list_by_lv[lv]['weapon'][27][seasonCoin] = 4760
-		mat_list_by_lv[lv]['weapon'][27][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][27][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['weapon'][27][misc_reinforce_2] = 13
 
 		mat_list_by_lv[lv]['weapon'][28][seasonCoin] = 5123
-		mat_list_by_lv[lv]['weapon'][28][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][28][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['weapon'][28][misc_reinforce_2] = 13
 
 		mat_list_by_lv[lv]['weapon'][29][seasonCoin] = 5485
-		mat_list_by_lv[lv]['weapon'][29][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][29][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['weapon'][29][misc_reinforce_2] = 14
 
 		mat_list_by_lv[lv]['weapon'][30][seasonCoin] = 5848
-		mat_list_by_lv[lv]['weapon'][30][misc_BlessedStone] = 2
 		mat_list_by_lv[lv]['weapon'][30][misc_reinforce_1] = 20
 		mat_list_by_lv[lv]['weapon'][30][misc_reinforce_2] = 14
 	elseif lv >= 500 then
@@ -937,14 +887,18 @@ function setting_lv_material_acc(mat_list_by_lv, lv)
 	if lv == 470 then
 		seasonCoin = "GabijaCertificate" -- 주화
 		medusaReinforceMisc = "misc_RevivalPaulius_NoTrade" -- 레이드 재료
-		misc_BlessedStone = 'misc_BlessedStone'
+		misc_BlessedStone = 'None'
 	elseif lv == 490 then
 		seasonCoin = "VakarineCertificate" -- 주화
 		medusaReinforceMisc = "misc_ribbonRoze_NoTrade" -- 레이드 재료
-		misc_BlessedStone = 'misc_BlessedStone'
+		misc_BlessedStone = 'None'
 	elseif lv == 510 then
 		seasonCoin = "RadaCertificate" -- 주화
 		medusaReinforceMisc = "misc_merregina_blackpearl_NoTrade" -- 레이드 재료
+		misc_BlessedStone = 'misc_BlessedStone_1'
+	elseif lv == 530 then
+		seasonCoin = "JurateCertificate" -- 주화
+		medusaReinforceMisc = "misc_ep17_acc_NoTrade" -- 레이드 재료
 		misc_BlessedStone = 'misc_BlessedStone_1'
 	end
 
@@ -1183,6 +1137,8 @@ function setting_lv_misc_material(mat_list_by_lv, lv, group)
 			misc1 = "misc_ore28" 
 		elseif lv == 520 then
 			misc1 = "misc_ore28" 
+		elseif lv == 530 then
+			misc1 = "misc_ore28" 
 		end
 
 		mat_list_by_lv[lv][group][1][misc1] = 26
@@ -1358,9 +1314,8 @@ item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv,
 		return nil
 	end
 	local except_list = {'misc_BlessedStone', 'misc_BlessedStone_1', 'misc_ore22', 'misc_ore23', 'misc_ore28' }
-
 	-- 포포 부스트 이벤트 아이템일 경우 (이벤트 기간중인 아이템) 축조, 뉴클/시에라 없이 강화 가능하게 한다.
-	if IS_POPOBOOST_REINFORCE_ITEM(IsEventItem, use_lv, 500, IsPopoboostClear) then
+	if IS_POPOBOOST_REINFORCE_ITEM(IsEventItem, use_lv, popoboost_item_lv, IsPopoboostClear) then
 		local TempPopoboost_Material_List = {}
 		for k,v in pairs(item_goddess_reinforce_material_list[use_lv][class_type][goal_lv]) do
 			if table.find(except_list, k) == 0 then
@@ -1370,7 +1325,14 @@ item_goddess_reinforce.get_material_list = function(use_lv, class_type, goal_lv,
 		return TempPopoboost_Material_List;
 	end
 
-	return item_goddess_reinforce_material_list[use_lv][class_type][goal_lv]
+	local dic = {}
+	for k,v in pairs(item_goddess_reinforce_material_list[use_lv][class_type][goal_lv]) do
+		if k ~= 'None' then
+			dic[k] = v
+		end
+	end
+
+	return dic
 end
 
 -- 460레벨 이상, 가디스 등급만 가능

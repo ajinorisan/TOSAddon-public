@@ -33,12 +33,11 @@ float2 g_InstanceID[MAX_INSTANCE_COUNT];
 // 2 : g_BlendColorAdd
 // 3 : g_auraColor
 // 4 : g_auraValues (x : factor, y : auraTime)
-// 5 : g_SkinBlendColor
 #ifdef ENABLE_FACE
-// 6 : g_faceXYMulAdd
-float4 g_InstanceVecArray[MAX_INSTANCE_COUNT * 7];
-#else
+// 5 : g_faceXYMulAdd
 float4 g_InstanceVecArray[MAX_INSTANCE_COUNT * 6];
+#else
+float4 g_InstanceVecArray[MAX_INSTANCE_COUNT * 5];
 #endif
 
 texture VTF_MatrixInstance;
@@ -58,10 +57,8 @@ float4x4 GetMatrixInstance(int idx, int type)
 	int index = idx + type;
 	const float TEX_WIDTH = 512.f;
 	const float TEX_HEIGTH = 512.f;
-	const int OffsetWidth = TEX_WIDTH / 4;
-	const int OffsetHeight = TEX_WIDTH / 4;
 
-	float4 uvCol = float4(((float)((index % OffsetWidth) * 4) + 0.5f) / TEX_WIDTH, ((float)((index / OffsetHeight)) + 0.5f) / TEX_HEIGTH, 0.f, 0.f);
+	float4 uvCol = float4(((float)((index % 128) * 4) + 0.5f) / TEX_WIDTH, ((float)((index / 128)) + 0.5f) / TEX_HEIGTH, 0.f, 0.f);
 	float4x4 mat;
 	mat._11_21_31_41 = tex2Dlod(vtf_MatrixInstance, uvCol);
 	mat._12_22_32_42 = tex2Dlod(vtf_MatrixInstance, uvCol + float4(1.f / TEX_WIDTH, 0.f, 0.f, 0));
@@ -78,7 +75,6 @@ float4 g_BlendColorAdd = float4(0.f, 0.f, 0.f, 0.f);
 float4 g_auraColor = float4(0.f, 0.f, 0.f, 0.f);
 // x : factor, y : auraTime
 float4 g_auraValues = float4(0.f, 0.f, 0.f, 0.f);
-float4 g_SkinBlendColor = float4(1.f, 1.f, 1.f, 1.f);
 
 // 3d캐릭터 2d로 그리는거
 float4x4 g_billboardTM;
@@ -125,10 +121,7 @@ float4x4 GetSkinMatrix(int idx)
 {
 	const float TEX_WIDTH = 512.f;
 	const float TEX_HEIGTH = 512.f;
-	const int OffsetWidth = TEX_WIDTH / 4;
-	const int OffsetHeight = TEX_WIDTH / 4;
-
-	float4 uvCol = float4(((float)((idx % OffsetWidth) * 4) + 0.5f) / TEX_WIDTH, ((float)((idx / OffsetHeight)) + 0.5f) / TEX_HEIGTH, 0.f, 0);
+	float4 uvCol = float4(((float)((idx % 128) * 4) + 0.5f) / TEX_WIDTH, ((float)((idx / 128)) + 0.5f) / TEX_HEIGTH, 0.f, 0);
 	float4x4 mat;
 	mat._11_21_31_41 = tex2Dlod(vtf_skin, uvCol),
 		mat._12_22_32_42 = tex2Dlod(vtf_skin, uvCol + float4(1.f / TEX_WIDTH, 0.f, 0.f, 0)),
@@ -159,21 +152,6 @@ texture DiffuseTex;
 sampler diffuseTex = sampler_state
 {
 	Texture = (DiffuseTex);
-
-	AddressU = WRAP;
-	AddressV = WRAP;
-
-	MIPFILTER = NONE;
-	MINFILTER = LINEAR;
-	MAGFILTER = LINEAR;
-};
-#endif
-
-#ifdef ENABLE_SKIN_MASK_TEX
-texture DiffuseTex_SkinMask;
-sampler diffuseTex_skinMask = sampler_state
-{
-	Texture = (DiffuseTex_SkinMask);
 
 	AddressU = WRAP;
 	AddressV = WRAP;
@@ -289,8 +267,6 @@ sampler heightTex = sampler_state
 
 float4	g_FogColor;
 float4	g_FogDist	: FOG_DIST;
-float4	g_lightColor;
-
 //g_FogDist
 //x = fog Start
 //y = fog End
@@ -301,6 +277,7 @@ float Fog_CalcFogValue(in float viewRange)
 	return (g_FogDist.y - viewRange) / (g_FogDist.z);
 }
 
+#ifdef ENABLE_DEPTH_MRT
 struct OUT_COLOR
 {
 	float4 albedo : COLOR0;
@@ -316,6 +293,7 @@ float4 CalcDepth(in float depth, in float worldPosY, in float4 posWV)
 	Out.a = 1.f;
 	return Out;
 }
+#endif
 
 #ifdef ENABLE_INSTANCING
 float4 CalcWVP(in float4 PosW, int instanceID, int matrixID, out float4 PosWV)
@@ -639,7 +617,7 @@ VS_OUT VS_ModelOption(in float4 InPos : POSITION, in float4 InNml : NORMAL, in f
 	// 얼굴 그리는 부분
 #ifdef ENABLE_FACE
 #ifdef ENABLE_INSTANCING
-	float4 faceXYMulAdd = g_InstanceVecArray[g_InstanceCount * 6 + instanceID];
+	float4 faceXYMulAdd = g_InstanceVecArray[g_InstanceCount * 5 + instanceID];
 #else
 	float4 faceXYMulAdd = g_faceXYMulAdd;
 #endif
@@ -815,7 +793,6 @@ VS_OUT VS_ModelShader(in float4 InPos : POSITION, in float4 InNml : NORMAL, in f
 #ifdef ENABLE_INSTANCING
 	, in float tmID : TEXCOORD2
 #endif
-	, uniform const bool isSnapShot
 )
 {
 	VS_OUT o = (VS_OUT)0.f;
@@ -873,13 +850,6 @@ VS_OUT VS_ModelShader(in float4 InPos : POSITION, in float4 InNml : NORMAL, in f
 #else
 	o.worldz_tmIndex_fog.x = mul(localPos + float4(0.f, -25.5f, 0.f, 0.f), g_TestMatrix).z * 0.1f;
 #endif
-
-#ifdef ENABLE_FACE
-	if (isSnapShot == true)
-	{
-		o.Pos.z += 0.0001f;
-	}
-#endif
 #endif
 
 #ifdef ENABLE_FREEZE
@@ -916,6 +886,8 @@ VS_OUT VS_ModelShader(in float4 InPos : POSITION, in float4 InNml : NORMAL, in f
 	{
 		delta = 0.0001f;
 	}
+
+	o.worldPos.w = 0.f;
 
 	float attack = 0.f;
 	float tFactor = 0.0;
@@ -971,7 +943,7 @@ VS_OUT VS_ModelShader(in float4 InPos : POSITION, in float4 InNml : NORMAL, in f
 	// 얼굴 그리는 부분
 #ifdef ENABLE_FACE
 #ifdef ENABLE_INSTANCING
-	float4 faceXYMulAdd = g_InstanceVecArray[g_InstanceCount * 6 + instanceID];
+	float4 faceXYMulAdd = g_InstanceVecArray[g_InstanceCount * 5 + instanceID];
 #else
 	float4 faceXYMulAdd = g_faceXYMulAdd;
 #endif
@@ -981,7 +953,9 @@ VS_OUT VS_ModelShader(in float4 InPos : POSITION, in float4 InNml : NORMAL, in f
 #endif
 #endif
 
+#if defined(ENABLE_DEPTH_RENDER) || defined(ENABLE_DEPTH_MRT)
 	o.outDepth.w = o.Pos.z;
+#endif
 
 #ifdef ENABLE_WATER
 	o.outDepth = o.Pos;
@@ -1041,7 +1015,7 @@ float4 PS_WaterRender(VS_OUT In) : COLOR
 
 #ifdef ENABLE_STATICSHADOWTEX
 	float4 shadowColor = tex2D(staticShadowTex, In.shadowCoord.xy);
-	Out.rgb *= shadowColor.rgb * 2.f * g_lightColor.rgb * pow(max(g_lightColor.w, 0.01f), 1.5f);
+	Out.rgb *= shadowColor.rgba * 2;
 #endif
 
 #ifdef ENABLE_ENVTEX
@@ -1069,13 +1043,7 @@ float4 PS_WaterRender(VS_OUT In) : COLOR
 	edge1 = step(0.f, edge1) * edge1;
 	edge1 = 1 - edge1 - step(1.f, 1.f - edge1);
 	Out.rgb += edge1 * edge1 * waterSprayColor;
-
-	if (g_FogColor.w > 0)
-	{
-		Out.rgb = lerp(g_FogColor.rgb, Out.rgb, 1.f - ((1.f - In.worldz_tmIndex_fog.z) * 0.3f));
-	}
-
-	Out.rgb *= g_lightColor.rgb * g_lightColor.w;
+	Out.rgb = lerp(g_FogColor.rgb, Out.rgb, 1.f - ((1.f - In.worldz_tmIndex_fog.z) * 0.3f));
 
 	saturate(Out.rgb);
 #endif
@@ -1174,7 +1142,11 @@ float GetLuminance(float3 sourceColor)
 	return luminance;
 }
 
+#ifdef ENABLE_DEPTH_MRT
 OUT_COLOR PS_TEST(VS_OUT In)
+#else
+float4 PS_TEST(VS_OUT In) : COLOR
+#endif
 {
 	float4 Out = 0.f;
 	float4 diffTexColor = 0.f;
@@ -1185,36 +1157,37 @@ OUT_COLOR PS_TEST(VS_OUT In)
 
 #ifdef ENABLE_STATICSHADOWTEX
 	float4 shadowColor = tex2D(staticShadowTex, In.shadowCoord.xy);
-	Out.rgb *= shadowColor.rgb * 2.f * g_lightColor.rgb * pow(max(g_lightColor.w, 0.01f), 1.5f);
-#else
-	Out.rgb *= g_lightColor.rgb * g_lightColor.w;
+	Out.rgb *= shadowColor.rgba * 2;
 #endif
 
-#ifdef ENABLE_INSTANCING
-	int instanceID = In.worldz_tmIndex_fog.y;
-
-	float4 blendColor = g_InstanceVecArray[g_InstanceCount + instanceID];
-#else
-	float4 blendColor = g_BlendColor;
+#ifdef ENABLE_ENVTEX
+	float4 envColor = tex2D(envTex, In.envTexCoord.xy);
 #endif
 
-	Out.rgb *= blendColor.rgb * 2.f;
-	Out.a *= blendColor.a;
+	Out.rgb = lerp(g_FogColor.rgb, Out.rgb, In.worldz_tmIndex_fog.z);
 
-	if (g_FogColor.w > 0)
-	{
-		Out.rgb = lerp(g_FogColor.rgb, Out.rgb, In.worldz_tmIndex_fog.z);
-	}
+	float chk = step(1.0f, In.worldPos.w);
+	Out.r += (sin(g_timeStamp * 10) / 5 + 0.1f) * chk;
+	Out.g += (sin(g_timeStamp * 10 + 1.04) / 5 + 0.1f) * chk;
+	Out.b += (sin(g_timeStamp * 10 + 2.08) / 5 + 0.1f) * chk;
 
 	Out.a *= g_AlphaBlending;
 
+#ifdef ENABLE_DEPTH_MRT
 	OUT_COLOR color = (OUT_COLOR)0;
 	color.albedo = Out;
 	color.depth = CalcDepth(In.outDepth.w, In.worldPos.y, In.posWV);
 	return color;
+#else
+	return Out;
+#endif	
 }
 
+#ifdef ENABLE_DEPTH_MRT
 OUT_COLOR PS_CharacterShader(VS_OUT In, uniform const bool isLowQuality)
+#else
+float4 PS_CharacterShader(VS_OUT In, uniform const bool isLowQuality) : COLOR
+#endif
 {
 #ifdef ENABLE_INSTANCING
 	int instanceID = (int)(In.worldz_tmIndex_fog.y + 1e-5f);
@@ -1232,24 +1205,6 @@ OUT_COLOR PS_CharacterShader(VS_OUT In, uniform const bool isLowQuality)
 	else
 	{
 		alpha = diffTexColor.a;
-	}
-
-#endif
-
-#ifdef ENABLE_SKIN_MASK_TEX
-	float skinMask = tex2D(diffuseTex_skinMask, In.diffuseTexCoord.xy).r;
-	if (skinMask > 0.f)
-	{
-#ifdef ENABLE_INSTANCING
-		float4 skinBlendColor = g_InstanceVecArray[g_InstanceCount * 5 + instanceID];
-#else
-		float4 skinBlendColor = g_SkinBlendColor;
-#endif
-
-		const float4 pivotColor = float4(0.5f, 0.5f, 0.5f, 0.f);
-		skinBlendColor = ((skinBlendColor - pivotColor) * skinMask) + 0.5f;
-
-		diffTexColor = diffTexColor * skinBlendColor * 2.f;
 	}
 #endif
 
@@ -1300,12 +1255,7 @@ OUT_COLOR PS_CharacterShader(VS_OUT In, uniform const bool isLowQuality)
 #ifdef ENABLE_FREEZE
 	Out = freeze(Out, In.diffuseTexCoord.xy, falloff);
 #endif
-	if (g_FogColor.w > 0)
-	{
-		Out.rgb = lerp(g_FogColor.rgb, Out.rgb, 1 - ((1 - In.worldz_tmIndex_fog.z) * 0.3f));
-	}
-
-	Out.rgb *= g_lightColor.rgb * g_lightColor.w;
+	Out.rgb = lerp(g_FogColor.rgb, Out.rgb, 1 - ((1 - In.worldz_tmIndex_fog.z) * 0.3f));
 
 #ifdef ENABLE_DIFFUSETEX_ANIMATION
 	if (g_DiffuseAnimationTM._24 > 0.f)
@@ -1315,11 +1265,15 @@ OUT_COLOR PS_CharacterShader(VS_OUT In, uniform const bool isLowQuality)
 	}
 #endif
 
+#ifdef ENABLE_DEPTH_MRT
 	OUT_COLOR color = (OUT_COLOR)0;
 	color.albedo = Out;
 	color.depth = CalcDepth(In.outDepth.w, In.worldPos.y, In.posWV);
 	color.depth.a = alpha;
 	return color;
+#else
+	return Out;
+#endif	
 }
 
 float4 PS_CharacterShaderOption(VS_OUT In, uniform const int optionType) : COLOR
@@ -1329,28 +1283,8 @@ float4 PS_CharacterShaderOption(VS_OUT In, uniform const int optionType) : COLOR
 	float3 envtex = float3(1.f, 0.f, 0.f);
 #ifdef ENABLE_DIFFUSETEX
 	diffTexColor = tex2D(diffuseTex, In.diffuseTexCoord.xy);
+
 	alpha = diffTexColor.a;
-#endif
-
-#ifdef ENABLE_INSTANCING
-	int instanceID = (int)(In.worldz_tmIndex_fog.y + 1e-5f);
-#endif
-
-#ifdef ENABLE_SKIN_MASK_TEX
-	float skinMask = tex2D(diffuseTex_skinMask, In.diffuseTexCoord.xy).r;
-	if (skinMask > 0.f)
-	{
-#ifdef ENABLE_INSTANCING
-		float4 skinBlendColor = g_InstanceVecArray[g_InstanceCount * 5 + instanceID];
-#else
-		float4 skinBlendColor = g_SkinBlendColor;
-#endif
-
-		const float4 pivotColor = float4(0.5f, 0.5f, 0.5f, 0.f);
-		skinBlendColor = ((skinBlendColor - pivotColor) * skinMask) + 0.5f;
-
-		diffTexColor = diffTexColor * skinBlendColor * 2.f;
-	}
 #endif
 
 #ifdef ENABLE_ENVTEX 
@@ -1379,7 +1313,8 @@ float4 PS_CharacterShaderOption(VS_OUT In, uniform const int optionType) : COLOR
 #endif
 
 #ifdef ENABLE_INSTANCING
-	float4 blendColor = g_InstanceVecArray[g_InstanceCount + instanceID];
+	int tmIndex = (int)(In.worldz_tmIndex_fog.y + 1e-5f);
+	float4 blendColor = g_InstanceVecArray[g_InstanceCount + tmIndex];
 #else
 	float4 blendColor = g_BlendColor;
 #endif
@@ -1413,39 +1348,19 @@ float4 PS_CharacterShaderOption(VS_OUT In, uniform const int optionType) : COLOR
 	}
 #endif
 
-	OutColor.rgb *= g_lightColor.rgb * g_lightColor.w;
-
 	return OutColor;
 }
 
+#ifdef ENABLE_DEPTH_MRT
 OUT_COLOR PS_BillBoardHead(VS_OUT In, uniform const bool isLowQuality)
-{
-#ifdef ENABLE_INSTANCING
-	int instanceID = (int)(In.worldz_tmIndex_fog.y + 1e-5f);
+#else
+float4 PS_BillBoardHead(VS_OUT In, uniform const bool isLowQuality) : COLOR
 #endif
-
+{
 	float4 diffTexColor = 0.f;
 	float alpha = 0.f;
 #ifdef ENABLE_DIFFUSETEX
 	diffTexColor = tex2D(diffuseTex, In.diffuseTexCoord.xy);
-
-#ifdef ENABLE_SKIN_MASK_TEX
-	float skinMask = tex2D(diffuseTex_skinMask, In.diffuseTexCoord.xy).r;
-	if (skinMask > 0.f)
-	{
-#ifdef ENABLE_INSTANCING
-		float4 skinBlendColor = g_InstanceVecArray[g_InstanceCount * 5 + instanceID];
-#else
-		float4 skinBlendColor = g_SkinBlendColor;
-#endif
-
-		const float4 pivotColor = float4(0.5f, 0.5f, 0.5f, 0.f);
-		skinBlendColor = ((skinBlendColor - pivotColor) * skinMask) + 0.5f;
-
-		diffTexColor = diffTexColor * skinBlendColor * 2.f;
-	}
-
-#endif
 
 	if (isLowQuality == true)
 	{
@@ -1500,19 +1415,17 @@ OUT_COLOR PS_BillBoardHead(VS_OUT In, uniform const bool isLowQuality)
 	Out = freezeHead(Out, 1.f);
 #endif
 
-	if (g_FogColor.w > 0)
-	{
-		Out.rgb = lerp(g_FogColor.rgb, Out.rgb, 1 - ((1 - In.worldz_tmIndex_fog.z) * 0.3f));
-	}
+	Out.rgb = lerp(g_FogColor.rgb, Out.rgb, 1 - ((1 - In.worldz_tmIndex_fog.z) *0.3f));
 
-	Out.rgb *= g_lightColor.rgb * g_lightColor.w;
-
+#ifdef ENABLE_DEPTH_MRT
 	OUT_COLOR color = (OUT_COLOR)0;
-
 	color.albedo = Out;
 	color.depth = CalcDepth(In.outDepth.w, In.worldPos.y, In.posWV);
 	color.depth.a = alpha;
 	return color;
+#else
+	return Out;
+#endif
 }
 
 float4 PS_Silhouette(VS_OUT In) : COLOR
@@ -1595,7 +1508,7 @@ technique DepthRenderTq
 		AlphaTestEnable = true;
 		AlphaRef = 0x10;
 		AlphaBlendEnable = false;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_DepthRender();
 	}
 }
@@ -1606,38 +1519,7 @@ technique DefaultVertexTq
 	{
 		CullMode = ccw;
 
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
-		PixelShader = compile ps_3_0 PS_TEST();
-	}
-}
-
-technique DefaultVertexAlphaTq
-{
-	pass P0
-	{
-		AlphaTestEnable = true;
-		AlphaRef = 0xfd;
-		AlphaFunc = Greater;
-		CullMode = none;
-		AlphaBlendEnable = false;
-		ZEnable = true;
-		ZFunc = LessEqual;
-		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
-		PixelShader = compile ps_3_0 PS_TEST();
-	}
-
-	pass P1
-	{
-		AlphaTestEnable = true;
-		AlphaRef = 0x01;
-		AlphaFunc = Greater;
-		CullMode = none;
-		AlphaBlendEnable = true;
-		ZEnable = true;
-		ZFunc = LessEqual;
-		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_TEST();
 	}
 }
@@ -1887,7 +1769,7 @@ technique CharacterShadingTq
 		AlphaBlendEnable = false;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_CharacterShader(false);
 	}
 
@@ -1899,7 +1781,7 @@ technique CharacterShadingTq
 		CullMode = ccw;
 		AlphaBlendEnable = true;
 		ZFunc = LessEqual;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_CharacterShader(false);
 	}
 
@@ -1940,7 +1822,7 @@ technique CharacterOutlineShadingTq
 		AlphaBlendEnable = false;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_CharacterShader(false);
 	}
 
@@ -1952,7 +1834,7 @@ technique CharacterOutlineShadingTq
 		CullMode = ccw;
 		AlphaBlendEnable = true;
 		ZFunc = LessEqual;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_CharacterShader(false);
 	}
 
@@ -1981,7 +1863,7 @@ technique CharacterShadingTq_LowQuality
 		AlphaBlendEnable = false;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_CharacterShader(true);
 	}
 }
@@ -1997,7 +1879,7 @@ technique CharacterOutlineShadingTq_LowQuality
 		AlphaBlendEnable = false;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_CharacterShader(true);
 	}
 
@@ -2017,7 +1899,6 @@ technique CharacterOutlineShadingTq_LowQuality
 
 technique BillboardHeadTq
 {
-#ifdef ENABLE_FACE
 	pass P0
 	{
 		SRGBWRITEENABLE = FALSE;
@@ -2028,38 +1909,9 @@ technique BillboardHeadTq
 		ZEnable = true;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_BillBoardHead(false);
 	}
-#else
-	pass P0
-	{
-		SRGBWRITEENABLE = FALSE;
-		CullMode = none;
-		AlphaTestEnable = true;
-		AlphaRef = 0x90;
-		AlphaFunc = Greater;
-		ZEnable = true;
-		ZFunc = LessEqual;
-		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
-		PixelShader = compile ps_3_0 PS_BillBoardHead(false);
-	}
-
-	pass P1
-	{
-		SRGBWRITEENABLE = FALSE;
-		CullMode = none;
-		AlphaTestEnable = true;
-		AlphaRef = 0x30;
-		AlphaFunc = Greater;
-		ZEnable = true;
-		ZFunc = LessEqual;
-		ZWriteEnable = false;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
-		PixelShader = compile ps_3_0 PS_BillBoardHead(false);
-	}
-#endif
 }
 
 technique BillboardHeadTq_Low
@@ -2075,7 +1927,7 @@ technique BillboardHeadTq_Low
 		ZEnable = true;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_BillBoardHead(true);
 	}
 }
@@ -2087,12 +1939,12 @@ technique BillboardHeadSnapShotTq
 		SRGBWRITEENABLE = FALSE;
 		CullMode = none;
 		AlphaTestEnable = true;
-		AlphaRef = 0x30;
+		AlphaRef = 0xb4;
 		AlphaFunc = Greater;
 		ZEnable = true;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(true);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_BillBoardHead(false);
 	}
 }
@@ -2168,7 +2020,7 @@ technique BillboardHeadAddTq
 		ZEnable = true;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_BillBoardHead(false);
 	}
 }
@@ -2186,7 +2038,7 @@ technique BillboardHeadAddTq_Low
 		ZEnable = true;
 		ZFunc = LessEqual;
 		ZWriteEnable = true;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_BillBoardHead(false);
 	}
 }
@@ -2197,7 +2049,7 @@ technique WaterRenderTq
 	pass P0
 	{
 		Zenable = TRUE;
-		VertexShader = compile vs_3_0 VS_ModelShader(false);
+		VertexShader = compile vs_3_0 VS_ModelShader();
 		PixelShader = compile ps_3_0 PS_WaterRender();
 	}
 }

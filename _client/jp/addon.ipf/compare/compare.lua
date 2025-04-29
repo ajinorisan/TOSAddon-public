@@ -9,6 +9,7 @@ end
 
 
 function PC_COMPARE_SET_ICON(slot, icon, equipItem)
+
 	SET_ITEM_TOOLTIP_BY_TYPE(icon, equipItem.type)	
 end
 
@@ -23,18 +24,7 @@ function LIKE_FAILED()
 
 end
 
-function UNLIKE_FAILED()
-	if ui.IsFrameVisible("compare") == 0 then
-		return;
-	end
-
-	local frame = ui.GetFrame("compare");
-	local likeCheck = GET_CHILD_RECURSIVELY(frame,"likeCheck")
-	likeCheck:SetCheck(1);
-
-end
-
-function REQUEST_LIKE_STATE(familyName)	
+function REQUEST_LIKE_STATE(familyName)
 	local otherpcinfo = session.otherPC.GetByFamilyName(familyName);
 	
 	local frame = ui.GetFrame("compare");
@@ -79,7 +69,7 @@ function SHOW_PC_COMPARE(cid)
 	local otherpcinfo = session.otherPC.GetByStrCID(cid);
 	local frame = ui.GetFrame("compare");
 	frame:ShowWindow(1);
-	
+
 	local charName = otherpcinfo:GetAppearance():GetName()
 	local teamName = otherpcinfo:GetAppearance():GetFamilyName()
 	local gender = otherpcinfo:GetAppearance():GetGender()
@@ -118,18 +108,6 @@ function SHOW_PC_COMPARE(cid)
 	local jobName = GET_JOB_NAME(nowjobcls, gender);
 	local level = obj.Lv
 	
-	-- 대표직업 표기
-	local icon_info = otherpcinfo:GetIconInfo()	
-	if icon_info ~= nil and icon_info.repre_job > 0 then
-		local cls = GetClassByType('Job', icon_info.repre_job)
-		if cls ~= nil then
-			local job_name = TryGetProp(cls, 'Name', 'None')
-			if job_name ~= 'None' then
-				jobName = job_name
-			end
-		end
-	end
-
 	jobInfoRTxt:SetTextByKey("rank", jobRank);
 	jobInfoRTxt:SetTextByKey("job", jobName);
 	jobInfoRTxt:SetTextByKey("lv", level);
@@ -162,11 +140,9 @@ function SHOW_PC_COMPARE(cid)
 
 	DESTROY_CHILD_BYNAME(g_equip, "EQUIPS"); -- 임시임
 
-	eqpSet = g_equip:CreateOrGetControlSet("common_itemslotSet", "EQUIPS", 0, 0);
+	eqpSet = g_equip:CreateOrGetControlSet("itemslotset_compare", "EQUIPS", 40, 20);
 	eqpSet:ShowWindow(1);
 	tolua.cast(eqpSet, "ui::CControlSet")
-
-	EQUIP_TAB_BTN(g_equip, nil, "groupbox_2", 0)
 
 	local imagename = ui.CaptureSomeonesFullStdImage(otherpcinfo:GetAppearance(), 7);	
 	
@@ -174,7 +150,7 @@ function SHOW_PC_COMPARE(cid)
 	charImage:SetImage(imagename)
 
 	local eqpList = otherpcinfo:GetEquipList();
-	SET_EQUIP_LIST(eqpSet, eqpList, "PC_COMPARE_SET_ICON");
+	SET_EQUIP_LIST(eqpSet, eqpList, PC_COMPARE_SET_ICON);
 
 	local OTHERPCJOBS = {}
 	for i = 0, otherpcinfo:GetJobCount() - 1 do
@@ -191,11 +167,11 @@ function SHOW_PC_COMPARE(cid)
 	
 	local clsindex = 0
 	for jobid, grade in pairs(OTHERPCJOBS) do
-		local x = clsindex%3 * 160
+		local x = clsindex%3 * 150
 		local y = math.floor(clsindex/3) * 125
 
 		local cls = GetClassByTypeFromList(clslist, jobid);
-		local classCtrl = classGbox:CreateOrGetControlSet('classtreeIcon', 'classCtrl_'..cls.ClassName, x, y+5);
+		local classCtrl = classGbox:CreateOrGetControlSet('classtreeIcon', 'classCtrl_'..cls.ClassName, x+20, y+5);
 		
 		local classSlot = GET_CHILD(classCtrl, "slot", "ui::CSlot");
 		classSlot:EnableHitTest(0)
@@ -226,10 +202,7 @@ function SHOW_PC_COMPARE(cid)
 	DESTROY_CHILD_BYNAME(achieveGbox_sub, "achieve_");
 	local achiclslist, ahicnt  = GetClassList("Achieve");
 	
-	local achievelist = otherpcinfo:GetAchieveList()
-	local achieveListCnt = otherpcinfo:GetAchieveListCnt()
-
-	for i = 0, achieveListCnt-1 do 
+	for i = 0, otherpcinfo.achieveCount-1 do 
 		local achieve = otherpcinfo:GetAchieve(i)
 		local nowachicls = GetClassByTypeFromList(achiclslist, achieve);
 		local y = i * 30
@@ -364,25 +337,4 @@ function SCROLL_COMPARE_HISTORY(frame, ctrl, str, scrollValue)
 		--geClientInteraction.RequestHistory(viewAID, maxPage + 1);
 	end
 
-end
-
-function EQUIP_TAB_BTN(parent, ctrl, argStr, argNum)
-	local frame = parent:GetTopParentFrame();
-	local dressBtn = GET_CHILD_RECURSIVELY(frame, "dressBtn");
-	local equipBtn = GET_CHILD_RECURSIVELY(frame, "equipBtn");
-	local groupbox2 = GET_CHILD_RECURSIVELY(frame, argStr)
-	
-	equipBtn:SetForceClicked(argNum == 0);
-	dressBtn:SetForceClicked(argNum == 1);
-
-	local equipBox = GET_CHILD_RECURSIVELY(groupbox2, "gbox_Equipped")
-	local dressBox = GET_CHILD_RECURSIVELY(groupbox2, "gbox_Dressed")
-
-	if argNum == 0 then
-		equipBox:ShowWindow(1)
-		dressBox:ShowWindow(0)
-	else
-		equipBox:ShowWindow(0)
-		dressBox:ShowWindow(1)
-	end
 end

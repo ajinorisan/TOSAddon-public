@@ -152,11 +152,19 @@ function GET_MORE_EVENT_EXP(pc)
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'event_RiceCake_Buff_3'); -- 가레떡 3단계 이벤트 버프
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'event_RiceCake_Buff_4'); -- 가레떡 4단계 이벤트 버프
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'event_RiceCake_Buff_5'); -- 가레떡 5단계 이벤트 버프
-	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_LuckyBreak_Add_Exp_1'); -- 럭키브레이크 성장 경험치 증가 1
-	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_LuckyBreak_Add_Exp_2'); -- 럭키브레이크 성장 경험치 증가 2
-	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_LuckyBreak_Add_Exp_3'); -- 럭키브레이크 성장 경험치 증가 3
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_LuckyBreak_Add_Exp_1'); -- 럭키브레이크 성장 경험치 증가 1
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_LuckyBreak_Add_Exp_2'); -- 럭키브레이크 성장 경험치 증가 2
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Event_LuckyBreak_Add_Exp_3'); -- 럭키브레이크 성장 경험치 증가 3
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'EVENT_2107_APPLE_BUFF'); -- NEXT_이벤트1
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'EVENT_2107_APPLE_GOLD_BUFF'); -- NEXT_이벤트2
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Premium_Valentine_1'); -- 발렌타인 초코 1단계
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Premium_Valentine_2'); -- 발렌타인 초코 2단계
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Premium_Valentine_3'); -- 발렌타인 초코 3단계
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Premium_Valentine_4'); -- 발렌타인 초코 4단계
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'Premium_Valentine_5'); -- 발렌타인 초코 5단계
+	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'pet_mermaidpopo_buff'); -- 머메이드 포포
+	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'pet_mermaidpopo2_buff'); -- 머맨 포포
+	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'sticky_wild_honey'); -- 끈적끈적 야생 꿀
 
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'EVENT_2102_STATUE_BUFF'); -- STM 딥디르비와 여신상 버프
 	if  TryGetProp(pc, 'Lv', 0) < 450 then

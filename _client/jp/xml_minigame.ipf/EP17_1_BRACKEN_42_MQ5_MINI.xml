@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="EP17_1_BRACKEN_42_MQ5_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="-1">
+        <StageList>
+            <Stage Name="QuestMission">
+                <ObjList>
+                    <Obj Type="Monster" MonType="160250" Pos="-879.27#436.49#939.85" angle="89" genCount="1" genTime="20000" objectKey="6"/>
+                    <Obj Type="Monster" MonType="160250" Pos="-753.11#436.49#967.71" angle="109" genCount="1" genTime="20000" objectKey="7"/>
+                    <Obj Type="Monster" MonType="160250" Pos="-891.60#436.49#817.27" angle="61" range="30" genCount="1" genTime="20000" objectKey="8"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-634.04#436.49#854.66" genCount="1" genTime="20000" autoGen="0" objectKey="9"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-809.61#436.49#759.72" genCount="1" genTime="20000" autoGen="0" objectKey="10"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-721.27#436.49#755.71" genCount="1" genTime="20000" autoGen="0" objectKey="11"/>
+                    <Obj Type="Monster" MonType="59873" Pos="-668.29#436.49#799.69" genCount="1" genTime="20000" autoGen="0" objectKey="12"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-862.23#436.49#801.14" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-865.40#436.49#869.43" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-828.83#436.49#902.88" genCount="1" genTime="20000" autoGen="0" objectKey="2"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-786.50#436.49#924.07" genCount="1" genTime="20000" autoGen="0" objectKey="3"/>
+                    <Obj Type="Monster" MonType="59874" Pos="-718.20#436.49#916.96" genCount="1" genTime="20000" autoGen="0" objectKey="4"/>
+                </ObjList>
+                <StageEvents>
+                    <Event execMS="5000" execCount="1" eventName="FirstMonsterGen" execWithStart="0">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="QuestMission/0/QuestMission/1/QuestMission/2/QuestMission/3/QuestMission/4/QuestMission/5/QuestMission/9/QuestMission/10"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_INSERT_HATE"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execMS="10000" execCount="6" eventName="MonsterGen" execWithStart="0">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="QuestMission/0/QuestMission/1/QuestMission/2/QuestMission/3/QuestMission/4/QuestMission/5/QuestMission/9/QuestMission/10"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_INSERT_HATE"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Timer">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_BRACKEN_42_MINI_TIMER"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="FailCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_limit_time"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_IMMEDIATELY" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="모든 PC가 전투 불능상태가 되어 퀘스트에 실패하였습니다."/>
+                                <Str Str="!"/>
+                                <Num Num="3"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="QuestMission/0/QuestMission/1/QuestMission/2/QuestMission/3/QuestMission/4/QuestMission/5/QuestMission/9/QuestMission/10/QuestMission/11/QuestMission/12"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="ClearCheck"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_BRACKEN_42_MINI_QUEST_FAIL"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_BRACKEN_42_MQ5_TRACK_MINIGAME_END"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="ClearCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="clear"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT_OVER" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
+                                <Str Str="SSN_EP17_1_BRACKEN_42_MQ5"/>
+                                <Str Str="QuestInfoValue1"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_BRACKEN_42_MINI_CLEAR"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_DELMON" Client="NO" UseSleep="NO">
+                                <MGameObjPtr List="QuestMission/0/QuestMission/1/QuestMission/2/QuestMission/3/QuestMission/4/QuestMission/5/QuestMission/9/QuestMission/10/QuestMission/11/QuestMission/12"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DISABLE" Client="NO" UseSleep="NO">
+                                <Str Str="FailCheck"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_BRACKEN_42_MQ5_TRACK_MINIGAME_END"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Update">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_BRACKEN_42_MINI_TIME_CHECK"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="2" eventName="Init">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCRIPT" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_EP17_1_BRACKEN_42_MQ5_TRACK_MINIGAME_INIT"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+                <ScrLockList>
+                    <Area/>
+                    <Area>
+                        <Pos Value="-640.138672 436.487793 655.315063"/>
+                        <Pos Value="-684.609863 436.487793 631.588074"/>
+                    </Area>
+                </ScrLockList>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

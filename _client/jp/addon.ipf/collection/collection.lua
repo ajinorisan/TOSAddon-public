@@ -81,17 +81,28 @@ local function get_inv_itemlist_by_name_and_reinforce(itemName, reinforce)
 	local inv_item_list = session.GetInvItemList()
 	local inv_guid_list = inv_item_list:GetGuidList()
 	local count = inv_guid_list:Count()
+	local temp_item_obj = nil;
+
+	--코스튬 아이템이 아니면 잠금 상태 분류해서 반환
 	for j = 0, count - 1 do
 		local guid = inv_guid_list:Get(j)
 		local inv_item = inv_item_list:GetItemByGuid(guid)
 		if inv_item ~= nil and inv_item:GetObject() ~= nil then
 			local obj = GetIES(inv_item:GetObject())
-			if itemName == TryGetProp(obj, 'ClassName', 0) and TryGetProp(obj, 'Reinforce_2', 0) == reinforce then
+			--잠금 상태인 아이템은 넣지 않는다
+			if inv_item.isLockState == false and itemName == TryGetProp(obj, 'ClassName', 0) and TryGetProp(obj, 'Reinforce_2', 0) == reinforce then
 				table.insert(ret, obj)	
+			elseif inv_item.isLockState == true and itemName == TryGetProp(obj, 'ClassName', 0) and TryGetProp(obj, 'Reinforce_2', 0) == reinforce then
+				temp_item_obj = obj;
 			end
 		end
 	end
 	
+	--그런데 잠금 상태 말고는 컬렉션에 추가할 아이템이 없다면, 경고 메시지를 알리기 위해 넣어준다. 
+	--어차피 COLLECTION_ADD에서 예외처리 된다
+	if #ret == 0 then
+		table.insert(ret, temp_item_obj)
+	end
 	return ret
 end
 
@@ -1054,7 +1065,7 @@ function COLLECTION_ADD(index, collectionType, itemType, itemIesID)
 			return
 		end
 	end
-	
+
 	local cls = GetClassByType('Collection', collectionType)	
 	local reinforce = TryGetProp(cls, 'Reinforce_' .. index, 0)
 	if reinforce > 0 then
@@ -1073,10 +1084,16 @@ function COLLECTION_ADD(index, collectionType, itemType, itemIesID)
 	end
 
 	if is_costume_collection == false then
-	local colls = session.GetMySession():GetCollection();
-	local coll = colls:Get(collectionType);
-	local nowcnt = coll:GetItemCountByType(itemType)
-	local colinfo = geCollectionTable.Get(collectionType);
+
+		if inv_item.isLockState == true then
+			ui.SysMsg(ClMsg('MaterialItemIsLockEither'));	
+			return;
+		end
+
+		local colls = session.GetMySession():GetCollection();
+		local coll = colls:Get(collectionType);
+		local nowcnt = coll:GetItemCountByType(itemType)
+		local colinfo = geCollectionTable.Get(collectionType);
 		local needcnt = colinfo:GetNeedItemCount(itemType);
 	if nowcnt < needcnt then
 		imcSound.PlaySoundEvent('sys_popup_open_1');

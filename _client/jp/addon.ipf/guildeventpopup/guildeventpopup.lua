@@ -1,4 +1,4 @@
-﻿function GUILDEVENTPOPUP_ON_INIT(addon, frame)
+function GUILDEVENTPOPUP_ON_INIT(addon, frame)
 	addon:RegisterMsg("GUILD_EVENT_RECRUITING_START", "ON_GUILD_EVENT_RECRUITING_START");		
 	addon:RegisterMsg("GUILD_EVENT_RECRUITING_END", "ON_GUILD_EVENT_RECRUITING_END");		
 	addon:RegisterMsg("GUILD_EVENT_RECRUITING_LIST", "ON_GUILD_EVENT_RECRUITING_LIST");		
@@ -10,16 +10,16 @@
 	GUILD_EVENT_TABLE = nil;
 end
 
-function ON_GUILD_EVENT_WAITING_LOCATION(frame, msg, argstr, argnum)	
+function ON_GUILD_EVENT_WAITING_LOCATION(frame, msg, argstr, argnum)
 	local posList = StringSplit(argstr, ";");
 	if #posList ~= 3 then
 		return;
 	end
+	local pos = MakeVec3(posList[1], posList[2], posList[3])
 
-	local pos = MakeVec3(posList[1], posList[2], posList[3]);
 	local mapCls = GetClassByType("Map", argnum);
 	local txt_locinfo = MAKE_LINK_MAP_TEXT_NO_POS_NO_FONT(mapCls.ClassName, pos.x, pos.z);
-	local locationInfo = GET_CHILD_RECURSIVELY(frame, "locationInfo");
+	local locationInfo = GET_CHILD_RECURSIVELY(frame, "locationInfo")
 	locationInfo:SetTextByKey("value", txt_locinfo);
 
 	local mapprop = session.GetCurrentMapProp();
@@ -45,7 +45,8 @@ function INIT_GUILD_EVENT_TABLE(eventID, timeStr, recruitingSec, maxPlayerCnt)
 	 end;
 end
 
-function ON_GUILD_EVENT_RECRUITING_START(frame, msg, argstr, argnum)	
+function ON_GUILD_EVENT_RECRUITING_START(frame, msg, argstr, argnum)
+
 	local btn_join = GET_CHILD(frame, "btn_join");
 	local btn_close = GET_CHILD(frame, "btn_close");
 	local groupbox_1 = GET_CHILD(frame, "groupbox_1");
@@ -54,15 +55,7 @@ function ON_GUILD_EVENT_RECRUITING_START(frame, msg, argstr, argnum)
 	local eventCls = GetClassByType("GuildEvent", argnum);
 	if eventCls == nil then
 		return;
-	else
-		local pc = GetMyPCObject()
-		if IS_ABLE_TO_JOIN_GUILD_EVENT(pc, eventCls) == false then
-			return
-		end
 	end
-
-	frame:SetUserValue("eventID", argnum);
-
 	local mapCls = GetClass("Map", eventCls.StartMap);
 	if mapCls == nil then
 		return;
@@ -124,21 +117,10 @@ function ON_GUILD_EVENT_RECRUITING_REMOVE(frame, msg, argstr, argnum)
 end
 
 function ON_GUILD_EVENT_RECRUITING_IN(frame, msg, argstr, argnum)
-	local btn_join = GET_CHILD(frame, "btn_join", "ui::CButton");
-	local btn_close = GET_CHILD(frame, "btn_close", "ui::CButton");
-	-- 일단 길드 이벤트 모집 시작한 사람(권한 있음)에게만 argnum이 1로 들어오도록 해놨으므로, 마감 또는 취소 기능은 시작한 사람만 가능하다.
-	if argnum == 1 then
-		btn_join:SetTextByKey('value', ScpArgMsg('RecruitmentEnd'));
-		btn_join:SetEventScript(ui.LBUTTONUP, "GUILD_EVENT_RECRUIT_END");
-		btn_close:SetTextByKey('value', ScpArgMsg('Cancel'));
-		btn_close:SetEventScript(ui.LBUTTONUP, "GUILD_EVENT_RECRUIT_CANCEL");
-
-		btn_join:ShowWindow(1);
-		btn_close:ShowWindow(1);
-	else
-		btn_join:ShowWindow(0);
-		btn_close:ShowWindow(0);
-	end
+	local btn_join = GET_CHILD(frame, "btn_join");
+	local btn_close = GET_CHILD(frame, "btn_close");
+	btn_join:ShowWindow(0);
+	btn_close:ShowWindow(0);
 end
 
 function ON_GUILD_EVENT_RECRUITING_OUT(frame, msg, argstr, argnum)
@@ -152,22 +134,7 @@ function ON_GUILD_EVENT_RECRUITING_OUT(frame, msg, argstr, argnum)
 end
 
 function REQ_JOIN_GUILD_EVENT(parent, ctrl)
-	local evnet_id = tonumber(parent:GetUserValue("eventID"));
-	if evnet_id == 503 or evnet_id == 504 or evnet_id == 505 then
-		local cls = GetClassByType("GuildEvent", evnet_id);
-		if cls ~= nil then
-			local evnet_name = TryGetProp(cls, "Name");
-			local msg = ScpArgMsg("guild_event_start_guild_member{guildEvent}", "guildEvent", evnet_name);
-			local yes_scp = string.format("REQ_JOIN_GUILD_EVENT_EXEC(\"%s\")", tostring(evnet_id));
-			ui.MsgBox(msg, yes_scp, "None");
-		end
-	else
-		control.CustomCommand("GUILDEVENT_JOIN", evnet_id);
-	end
-end
-
-function REQ_JOIN_GUILD_EVENT_EXEC(event_id)
-	control.CustomCommand("GUILDEVENT_JOIN", tonumber(event_id));
+	control.CustomCommand("GUILDEVENT_JOIN", 0);
 end
 
 function REQ_ClOSE_GUILD_EVENT(parent, ctrl)
@@ -300,21 +267,3 @@ function GUILD_EVENT_POPUP_UPDATE_STARTWAITSEC(frame)
 
 	return 1;
 end;
-
-function REQ_GUILD_EVENT_RECRUIT_END()
-	local handle = session.GetMyHandle()
-	control.CustomCommand("REQ_GUILD_EVENT_RECRUIT_END", handle)
-end
-
-function GUILD_EVENT_RECRUIT_END()
-	ui.MsgBox(ScpArgMsg("ReallyEndRecruit"), "REQ_GUILD_EVENT_RECRUIT_END", "None");
-end
-
-function REQ_GUILD_EVENT_RECRUIT_CANCEL()
-	local handle = session.GetMyHandle()
-	control.CustomCommand("REQ_GUILD_EVENT_RECRUIT_CANCEL", handle)
-end
-
-function GUILD_EVENT_RECRUIT_CANCEL()
-	ui.MsgBox(ScpArgMsg("ReallyCancelRecruit"), "REQ_GUILD_EVENT_RECRUIT_CANCEL", "None");
-end

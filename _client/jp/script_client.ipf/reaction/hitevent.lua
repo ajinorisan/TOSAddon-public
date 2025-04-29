@@ -28,15 +28,7 @@ function C_SR_EFT_DEFAULT(self, target, sklLevel, hitInfo, hitIndex, selfEeffect
 	end
 	
 	if targetEeffectName ~= nil and targetEeffectName ~= 'None' and targetEeffectName ~= '' then
-		local isMyEffect = self:GetHandleVal() == GetMyActor():GetHandleVal();
-		local isBoss = false;
-		if self:GetObjType() == GT_MONSTER then
-			if self.MonRank == "Boss" then
-				isBoss = true;
-			end
-		end
-		
-		target:GetEffect():PlayEffect(isMyEffect, isBoss, targetEeffectName, targetScale, GetOffsetEnum(targetOffset));
+		target:GetEffect():PlayEffect(targetEeffectName, targetScale, GetOffsetEnum(targetOffset));
 	end
 end
 

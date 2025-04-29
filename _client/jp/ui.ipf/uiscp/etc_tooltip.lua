@@ -827,9 +827,11 @@ function attendance_gift_box_DESC(item)
 	local desc = ''
 	for i = 1, #list do
 		local token = StringSplit(list[i], '/')
-		local cls = GetClass('Item', token[1])		
-		local msg = '- ' .. ScpArgMsg('get_item{name}{count}', 'name', dic.getTranslatedStr(cls.Name), 'count', token[2])
-		desc = desc .. msg .. '{nl}'		
+		local cls = GetClass('Item', token[1]);
+		if cls ~= nil then
+			local msg = '- ' .. ScpArgMsg('get_item{name}{count}', 'name', dic.getTranslatedStr(cls.Name), 'count', token[2])
+			desc = desc .. msg .. '{nl}'		
+		end
 	end
 	
 	return desc

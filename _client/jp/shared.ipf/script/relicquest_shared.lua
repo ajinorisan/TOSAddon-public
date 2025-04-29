@@ -25,7 +25,8 @@ function GET_RELICQUEST_MAP_LIST_RESULT(pc, group)
     local fieldTB14 = { 'ep14_1_f_castle_1', 'ep14_1_f_castle_2', 'ep14_1_f_castle_3', 'ep14_1_f_castle_4', 'ep14_1_f_castle_5',
         'ep14_2_d_castle_1', 'ep14_2_d_castle_2', 'ep14_2_d_castle_3' }
     local fieldTB15 = { 'ep15_1_f_abbey_1', 'ep15_1_f_abbey_2', 'ep15_1_f_abbey_3', 'ep15_2_d_nicopolis_1', 'ep15_2_d_nicopolis_2'}
-    local fieldTB16 = { "f_coral_32_1", "f_rokas_36_1", "f_pilgrimroad_36_2" }
+    local fieldTB16 = { "f_coral_32_1", "f_rokas_36_1", "f_pilgrimroad_36_2", "ep16_2_d_fantasylibrary_48_3", "ep16_2_d_fantasylibrary_48_4", "ep16_2_d_fantasylibrary_48_5" }
+    local fieldTB17 = { "ep17_1_d_limestonecave_52_1", "ep17_1_d_limestonecave_52_2", "ep17_1_d_limestonecave_52_3", "ep17_1_d_limestonecave_52_4", "ep17_1_d_limestonecave_52_5"}
 
     local indunTypeTB13 = {"MythicDungeon_Auto", "MythicDungeon_Auto_Hard", "Challenge_Auto", "Raid", "UniqueRaid", "FieldBossRaid", "MissionIndun", "DefenceMission" }
 
@@ -41,6 +42,10 @@ function GET_RELICQUEST_MAP_LIST_RESULT(pc, group)
     if table.find(fieldTB16, NowZone) > 0 then
         return true;
     end
+    if table.find(fieldTB17, NowZone) > 0 then
+        return true;
+    end
+
     local indunCls = GetClassByStrProp("Indun", "MapName", NowZone);
     if indunCls ~= nil then
         local DungeonStr = TryGetProp(indunCls, "DungeonType", "None")

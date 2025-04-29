@@ -11,10 +11,11 @@
 			</ToolScp>
 		</EndScripts>
 		<KeyInput>
+		    <ToolScp Scp="MONSKL_C_RESET_CASTING_ANIM" Client="YES" UseSleep="NO"/>            
 			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
 				<Num Num="0"/>
 				<Num Num="0"/>
-				<Num Num="5.2"/>
+				<Num Num="3"/>
 				<Num Num="1"/>
 				<Num Num="0"/>
 				<Num Num="0"/>
@@ -41,13 +42,13 @@
 		<KeyInputStart>
 			<ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
 				<Str Str="skl_HeavySmashing"/>
-				<Num Num="1.3"/>
+				<Num Num="2.2"/>
 				<Num Num="1"/>
 				<Num Num="0"/>
 			</ToolScp>
 			<ToolScp Scp="MONSKL_C_RESERVE_ANIM" Client="YES" UseSleep="NO">
 				<Str Str="skl_HeavySmashing"/>
-				<Num Num="1.3"/>
+				<Num Num="2.2"/>
 				<Num Num="1"/>
 			</ToolScp>
 		</KeyInputStart>
@@ -100,7 +101,7 @@
 				<Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="0">
 					<Str Str="skl_eff_sledger_heavysmashing"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="680">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="388">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -112,7 +113,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="700">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="399">
 					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
 					<Pos Angle="0" Dist="30"/>
 					<Num Num="0"/>
@@ -120,13 +121,13 @@
 					<Angle Angle="0"/>
 					<Num Num="0"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="750">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="428">
 					<Num Num="3"/>
 					<Num Num="0.5"/>
 					<Num Num="45"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="900" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="513">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -134,7 +135,50 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="950">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="542">
+					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
+				</Scp>
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="600">
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="2002"/>
+				</Scp>
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="713">
+					<Str Str="Swing_LightAura_Yellow_02"/>
+					<Num Num="1.2"/>
+					<Num Num="0"/>
+					<Num Num="-10"/>
+					<Num Num="180"/>
+					<Str Str="MID"/>
+					<Num Num="5"/>
+					<Num Num="1"/>
+					<Num Num="-10"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="724">
+					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
+					<Pos Angle="0" Dist="30"/>
+					<Num Num="0"/>
+					<Str Str="None"/>
+					<Angle Angle="0"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="844">
+					<Num Num="3"/>
+					<Num Num="0.5"/>
+					<Num Num="45"/>
+					<Num Num="999"/>
+				</Scp>
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="872">
+					<Pos Angle="0" Dist="30" PosType="5"/>
+					<Num Num="30"/>
+					<Num Num="10"/>
+					<Num Num="2"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="901">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
 				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1000">
@@ -143,7 +187,7 @@
 					<Num Num="0"/>
 					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="1250">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="1140">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -155,7 +199,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="1270">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="1151">
 					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
 					<Pos Angle="0" Dist="30"/>
 					<Num Num="0"/>
@@ -163,13 +207,13 @@
 					<Angle Angle="0"/>
 					<Num Num="0"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="1480">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="1243">
 					<Num Num="3"/>
 					<Num Num="0.5"/>
 					<Num Num="45"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1530" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1271">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -177,16 +221,16 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1580">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1300">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1630">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1328">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
 					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2000">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="1596">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -198,7 +242,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2020">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="1607">
 					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
 					<Pos Angle="0" Dist="30"/>
 					<Num Num="0"/>
@@ -206,13 +250,13 @@
 					<Angle Angle="0"/>
 					<Num Num="0"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="2180">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="1682">
 					<Num Num="3"/>
 					<Num Num="0.5"/>
 					<Num Num="45"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2230" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1710">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -220,59 +264,16 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2280">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1739">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2330">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1767">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
 					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2800">
-					<Str Str="Swing_LightAura_Yellow_02"/>
-					<Num Num="1.2"/>
-					<Num Num="0"/>
-					<Num Num="-10"/>
-					<Num Num="180"/>
-					<Str Str="MID"/>
-					<Num Num="5"/>
-					<Num Num="1"/>
-					<Num Num="-10"/>
-					<Num Num="1"/>
-				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2820">
-					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
-					<Pos Angle="0" Dist="30"/>
-					<Num Num="0"/>
-					<Str Str="None"/>
-					<Angle Angle="0"/>
-					<Num Num="0"/>
-				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="2950">
-					<Num Num="3"/>
-					<Num Num="0.5"/>
-					<Num Num="45"/>
-					<Num Num="999"/>
-				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="3000" LoopTime="0">
-					<Pos Angle="0" Dist="30" PosType="5"/>
-					<Num Num="30"/>
-					<Num Num="10"/>
-					<Num Num="2"/>
-					<Num Num="0"/>
-					<Num Num="1"/>
-				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="3050">
-					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
-				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="3100">
-					<Num Num="1"/>
-					<Num Num="1"/>
-					<Num Num="0"/>
-					<Num Num="2002"/>
-				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="3780">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2155">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -284,7 +285,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="3930" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2240">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -292,16 +293,16 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="4080">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2326">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="4130">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2354">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
 					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="4130">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2354">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -313,7 +314,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="4450" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2537">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -321,16 +322,16 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="4500">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2565">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="4550">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2594">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
 					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="4730">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2696">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.5"/>
 					<Num Num="0"/>
@@ -342,7 +343,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="4750">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2708">
 					<Str_Arg Str="GroundImpact_LandCrush_Yellow_02" Arg="0.40000001"/>
 					<Pos Angle="0" Dist="30"/>
 					<Num Num="0"/>
@@ -350,13 +351,13 @@
 					<Angle Angle="0"/>
 					<Num Num="0"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="4750">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="2708">
 					<Num Num="10"/>
 					<Num Num="0.5"/>
 					<Num Num="60"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="5100" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2907">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="70"/>
 					<Num Num="10"/>
@@ -364,10 +365,10 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="5150">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2936">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="5200">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2964">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
@@ -1010,7 +1011,7 @@
 	</Skill>
 	<Skill Name="Sledger_SwingHammer_Cleric">
 		<EndScripts>
-			<ToolScp Scp="SKL_C_RESUME_ANI" Client="YES" UseSleep="NO"/>			
+			<ToolScp Scp="SKL_C_RESUME_ANI" Client="YES" UseSleep="NO"/>
 			<ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
 				<Str Str="skl_SwingHammer_end"/>
 				<Num Num="1.3"/>
@@ -1161,7 +1162,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				</EtcList>
+			</EtcList>
 		</MainSkl>
 	</Skill>
 	<Skill Name="Sledger_Sledgehammer_Cleric">
@@ -1503,10 +1504,12 @@
 			</ToolScp>
 		</EndScripts>
 		<KeyInput>
+            <ToolScp Scp="MONSKL_C_CLEAR_RESERVE_ANIM" Client="YES" UseSleep="NO"/>                
+			<ToolScp Scp="MONSKL_C_RESET_CASTING_ANIM" Client="YES" UseSleep="NO"/>            
 			<ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
 				<Num Num="0"/>
 				<Num Num="0"/>
-				<Num Num="5.2"/>
+				<Num Num="3"/>
 				<Num Num="1"/>
 				<Num Num="0"/>
 				<Num Num="0"/>
@@ -1533,13 +1536,13 @@
 		<KeyInputStart>
 			<ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
 				<Str Str="skl_HeavySmashing"/>
-				<Num Num="1.3"/>
+				<Num Num="2.2"/>
 				<Num Num="1"/>
 				<Num Num="0"/>
 			</ToolScp>
 			<ToolScp Scp="MONSKL_C_RESERVE_ANIM" Client="YES" UseSleep="NO">
 				<Str Str="skl_HeavySmashing"/>
-				<Num Num="1.3"/>
+				<Num Num="2.2"/>
 				<Num Num="1"/>
 			</ToolScp>
 		</KeyInputStart>
@@ -1566,25 +1569,25 @@
 				<Frame Type="FAN" Time="99799" HitCount="1" TermMin="0" TermMax="0" PosType="0" Dist="0" RandDist="0" RandomPerHit="0" Angle="0" Width="30" Length="30" SklAngle="0.17453292" AniTime="99999" RotAngle="0" ForceATK="0" ScriptIndex="0" ScriptName="" SkillType="0"/>
 			</HitList>
 			<EtcList>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="950">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="542">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1580">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="901">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2280">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1300">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="3050">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="1739">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="4080">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2326">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="4500">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2565">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
-				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="5150">
+				<Scp Scp="SKL_RUN_SCRIPT" Client="NO" UseSleep="NO" Time="2936">
 					<Str Str="SKL_SLEDGER_HEAVYSMASHING_COOLDOWN"/>
 				</Scp>
 				<Scp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO" Time="0">
@@ -1632,37 +1635,10 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO" Time="0">
-					<Str Str="RH"/>
-					<Num Num="0"/>
-					<Num Num="1"/>
-				</Scp>
-				<Scp Scp="C_SHOW_PARTS_MODEL" Client="YES" UseSleep="NO" Time="0">
-					<Str Str="LH"/>
-					<Num Num="0"/>
-					<Num Num="1"/>
-				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_NODE" Client="YES" UseSleep="NO" Time="0">
-					<Str_Arg Str="Projectile_HolyHammer_Yellow_01" Arg="2"/>
-					<Num Num="0"/>
-					<Num Num="230"/>
-					<Num Num="260"/>
-					<Num Num="50"/>
-					<Str Str="Dummy_R_Hand"/>
-					<Str Str="None"/>
-				</Scp>
 				<Scp Client="YES" Scp="C_SOUND" Time="0" UseSleep="NO">
 					<Str Str="skl_eff_sledger_heavysmashing"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="700">
-					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
-					<Pos Angle="0" Dist="30"/>
-					<Num Num="0"/>
-					<Str Str="None"/>
-					<Angle Angle="0"/>
-					<Num Num="0"/>
-				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="680">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="388">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -1674,7 +1650,41 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="900" LoopTime="0">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="399">
+					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
+					<Pos Angle="0" Dist="30"/>
+					<Num Num="0"/>
+					<Str Str="None"/>
+					<Angle Angle="0"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="513" LoopTime="0">
+					<Pos Angle="0" Dist="30" PosType="5"/>
+					<Num Num="30"/>
+					<Num Num="10"/>
+					<Num Num="2"/>
+					<Num Num="0"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="600">
+					<Num Num="1"/>
+					<Num Num="1"/>
+					<Num Num="0"/>
+					<Num Num="2002"/>
+				</Scp>
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="713">
+					<Str Str="Swing_LightAura_Yellow_02"/>
+					<Num Num="1.2"/>
+					<Num Num="0"/>
+					<Num Num="-10"/>
+					<Num Num="180"/>
+					<Str Str="MID"/>
+					<Num Num="5"/>
+					<Num Num="1"/>
+					<Num Num="-10"/>
+					<Num Num="1"/>
+				</Scp>
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="872" LoopTime="0">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -1686,9 +1696,17 @@
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
-					<Num Num="2000"/>
+					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="1250">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="724">
+					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
+					<Pos Angle="0" Dist="30"/>
+					<Num Num="0"/>
+					<Str Str="None"/>
+					<Angle Angle="0"/>
+					<Num Num="0"/>
+				</Scp>
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="1140">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -1700,7 +1718,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1530" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1271">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -1708,13 +1726,13 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1630">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1328">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
-					<Num Num="2000"/>
+					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="1270">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="1151">
 					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
 					<Pos Angle="0" Dist="30"/>
 					<Num Num="0"/>
@@ -1722,7 +1740,7 @@
 					<Angle Angle="0"/>
 					<Num Num="0"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2000">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="1596">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -1734,7 +1752,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2230" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="1710" LoopTime="0">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -1742,13 +1760,13 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2330">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="1767">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
-					<Num Num="2000"/>
+					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2020">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="1607">
 					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
 					<Pos Angle="0" Dist="30"/>
 					<Num Num="0"/>
@@ -1756,41 +1774,7 @@
 					<Angle Angle="0"/>
 					<Num Num="0"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2800">
-					<Str Str="Swing_LightAura_Yellow_02"/>
-					<Num Num="1.2"/>
-					<Num Num="0"/>
-					<Num Num="-10"/>
-					<Num Num="180"/>
-					<Str Str="MID"/>
-					<Num Num="5"/>
-					<Num Num="1"/>
-					<Num Num="-10"/>
-					<Num Num="1"/>
-				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="3000" LoopTime="0">
-					<Pos Angle="0" Dist="30" PosType="5"/>
-					<Num Num="30"/>
-					<Num Num="10"/>
-					<Num Num="2"/>
-					<Num Num="0"/>
-					<Num Num="1"/>
-				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="3100">
-					<Num Num="1"/>
-					<Num Num="1"/>
-					<Num Num="0"/>
-					<Num Num="2000"/>
-				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2820">
-					<Str_Arg Str="GroundImpact_LandCrush_Yellow_01" Arg="0.3"/>
-					<Pos Angle="0" Dist="30"/>
-					<Num Num="0"/>
-					<Str Str="None"/>
-					<Angle Angle="0"/>
-					<Num Num="0"/>
-				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="3780">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2155">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -1802,7 +1786,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="3930" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2240">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -1810,13 +1794,13 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="4130">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2354">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
-					<Num Num="2000"/>
+					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="4130">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2354">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.2"/>
 					<Num Num="0"/>
@@ -1828,7 +1812,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="4450" LoopTime="0">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="2537">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="30"/>
 					<Num Num="10"/>
@@ -1836,13 +1820,13 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="4550">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2594">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
-					<Num Num="2000"/>
+					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="4730">
+				<Scp Scp="C_UNITY_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="2696">
 					<Str Str="Swing_LightAura_Yellow_02"/>
 					<Num Num="1.5"/>
 					<Num Num="0"/>
@@ -1854,7 +1838,7 @@
 					<Num Num="-10"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="4750">
+				<Scp Scp="C_EFFECT_POS" Client="YES" UseSleep="NO" Time="2708">
 					<Str_Arg Str="GroundImpact_LandCrush_Yellow_02" Arg="0.4"/>
 					<Pos Angle="0" Dist="30"/>
 					<Num Num="0"/>
@@ -1862,7 +1846,7 @@
 					<Angle Angle="0"/>
 					<Num Num="0"/>
 				</Scp>
-				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0" LoopTime="5100">
+				<Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="0" LoopTime="2907">
 					<Pos Angle="0" Dist="30" PosType="5"/>
 					<Num Num="70"/>
 					<Num Num="10"/>
@@ -1870,37 +1854,37 @@
 					<Num Num="0"/>
 					<Num Num="1"/>
 				</Scp>
-				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="5200">
+				<Scp Scp="SKL_TGT_DMG" Client="NO" UseSleep="NO" Time="2964">
 					<Num Num="1"/>
 					<Num Num="1"/>
 					<Num Num="0"/>
-					<Num Num="2000"/>
+					<Num Num="2002"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="750">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="428">
 					<Num Num="3"/>
 					<Num Num="0.5"/>
 					<Num Num="45"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="1480">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="844">
 					<Num Num="3"/>
 					<Num Num="0.5"/>
 					<Num Num="45"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="2180">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="1243">
 					<Num Num="3"/>
 					<Num Num="0.5"/>
 					<Num Num="45"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="2950">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="1682">
 					<Num Num="3"/>
 					<Num Num="0.5"/>
 					<Num Num="45"/>
 					<Num Num="999"/>
 				</Scp>
-				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="4750">
+				<Scp Scp="C_SHOCKWAVE" Client="YES" UseSleep="NO" Time="2708">
 					<Num Num="10"/>
 					<Num Num="0.5"/>
 					<Num Num="60"/>

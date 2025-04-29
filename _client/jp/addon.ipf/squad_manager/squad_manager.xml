@@ -8,9 +8,9 @@
 	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
 	<option closebutton="false" hideable="true"/>
 	<sound opensound="window_open" closesound="window_close"/>
-	<script OpenScp="SQUAD_MANAGER_FRAME_OPEN" CloseScp=""/>
+	<script OpenScp="" CloseScp=""/>
 	<controls>
-		<groupbox name="bgBox" rect="0 0 1363 802" margin="0 0 0 0" layout_gravity="left top" skin="relic_frame_bg" hittestbox="false"/>
+		<!-- <groupbox name="bgBox" rect="0 0 1363 802" margin="0 0 0 0" layout_gravity="left top" skin="relic_frame_bg" hittestbox="false"/>
 		<groupbox name="headerBox" rect="0 0 1365 61" margin="0 0 0 0" layout_gravity="left top" skin="ps_title_green" hittestbox="false"/>
 		<richtext name="headerText" rect="0 0 600 50" margin="0 15 0 0" layout_gravity="center top" caption="{@st43b}{s24}순례자 정보{/} " hittest="false"/>
 		<button name="close" rect="0 0 50 50" margin="0 20 28 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="SQUAD_MANAGER_FRAME_CLOSE()" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}순례자를 종료합니다{/}"/>
@@ -49,7 +49,7 @@
 		<tabitem name="season_tab2" parent="season_tab" caption="" fontname="white_18_ol" width="52" layout_gravity="left top" normalimage="pilgrim_tab_btn" overimage="pilgrim_tab_btn_cursoron" selectimage="pilgrim_tab_btn_clicked"/>
 		<tabitem name="season_tab3" parent="season_tab" caption="" fontname="white_18_ol" width="52" layout_gravity="left top" normalimage="pilgrim_tab_btn" overimage="pilgrim_tab_btn_cursoron" selectimage="pilgrim_tab_btn_clicked"/>
 		<tabitem name="season_tab4" parent="season_tab" caption="" fontname="white_18_ol" width="52" layout_gravity="left top" normalimage="pilgrim_tab_btn" overimage="pilgrim_tab_btn_cursoron" selectimage="pilgrim_tab_btn_clicked"/>
-		<richtext name="season_text" rect="0 0 300 24" margin="0 75 20 0" layout_gravity="right top" format="{@42b}{s14}랭킹 기간{nl}%s ~ %s" param1="start" param1_def="2022-01-01" param2="end" param2_def="2022-01-01" fontname="white_16_ol" fixwidth="false" resizebytext="true" hittest="true" textalign="left center"/>
+		<richtext name="season_text" rect="0 0 300 24" margin="0 75 20 0" layout_gravity="right top" format="{@42b}{s14}랭킹 기간{nl}%s ~ %s" param1="start" param1_def="2022-01-01" param2="end" param2_def="2022-01-01" fontname="white_16_ol" fixwidth="false" resizebytext="true" hittest="true" textalign="left center"/> -->
 
 	</controls>
 </uiframe>

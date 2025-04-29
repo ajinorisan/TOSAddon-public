@@ -1299,6 +1299,33 @@
             <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
         </StartList>
     </AI>
+    <AI Name="BLACK_MARKET_AI" UpdateMS="60000" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_BLACK_MARKET_AI_UPDATE"/>
+            </ToolScp>
+        </List>
+        <DeadList>
+            <ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_BLACK_MARKET_AI_LEAVE"/>
+            </ToolScp>
+        </DeadList>
+        <StartList>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_LBLACK_MARKET_AI_BORN"/>
+            </ToolScp>
+        </StartList>
+    </AI>
+    <AI Name="BLACK_REVELATION_DESTINATION_AI" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_BLACK_REVELATION_DESTINATION_SIMPLE_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
+    </AI>
     <AI Name="BLUE_CRYSTAL" ActiveMessageMapInBattle="1">
         <StartList>
             <ToolScp Scp="S_AI_EFFECT_ATTACH" Client="NO" UseSleep="NO">
@@ -1829,6 +1856,24 @@
                 <Num Num="500"/>
             </ToolScp>
         </List>
+    </AI>
+    <AI Name="BW_MINEHELL_AI" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_BRIDGE_WAILING_MINEHELL_SIMPLE_AI"/>
+            </ToolScp>
+        </List>
+    </AI>
+    <AI Name="BW_Skiaclipse_BlackSphere_AI" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="S_AI_CUSTOM_SCRIPT" Client="NO" UseSleep="YES">
+                <Str Str="SCR_BW_SKIACLIPSE_SKL8_AI"/>
+                <Num Num="100"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
     </AI>
     <AI Name="Basic_Attack_Mon" ActiveMessageMapInBattle="1"/>
     <AI Name="Boss_TombLord" ActiveMessageMapInBattle="1">
@@ -4355,6 +4400,16 @@
             <ToolScp Scp="S_AI_RESET_RALLY" Client="NO" UseSleep="NO" ExtraArg="1"/>
         </List>
     </AI>
+    <AI Name="CRYSTALGOLEM_ROCK_THROWING_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_CRYSTALGOLEM_ROCK_THROWING_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
+    </AI>
     <AI Name="CURSE_DOOL_EV" UpdateMS="1000" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO" CondFunc="">
@@ -6240,26 +6295,6 @@
             </ToolScp>
         </StartList>
     </AI>
-    <AI Name="BLACK_REVELATION_DESTINATION_AI" UpdateMS="500" ActiveMessageMapInBattle="1">
-        <List>
-            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
-                <Str Str="SCR_BLACK_REVELATION_DESTINATION_SIMPLE_AI"/>
-            </ToolScp>
-        </List>
-        <StartList>
-            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
-        </StartList>
-    </AI>
-    <AI Name="CRYSTALGOLEM_ROCK_THROWING_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
-        <List>
-            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
-                <Str Str="SCR_CRYSTALGOLEM_ROCK_THROWING_AI"/>
-            </ToolScp>
-        </List>
-        <StartList>
-            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
-        </StartList>
-    </AI>
     <AI Name="EVENT1912_4TH_BUFF2_RUN_MON_AI_RUN" UpdateMS="10000" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
@@ -7075,6 +7110,18 @@
 			</ToolScp>
 		</StartList>
 	</AI>
+    <AI Name="EVENT_W_MOON_RABBIT_MAGIC_CIRCLE" UpdateMS="1000" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_EVENT_MOON_RABBIT_MAGIC_CIRCLE_SIMPLE_AI"/>
+            </ToolScp>
+        </List>
+        <LeaveList>
+            <ToolScp Scp="SAI_DEAD_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_EVENT_MOON_RABBIT_MAGIC_CIRCLE_LEAVE_SIMPLE_AI"/>
+            </ToolScp>
+        </LeaveList>
+    </AI>
     <AI Name="EXORCIST_JOB_QUEEST_MON1" ActiveMessageMapInBattle="1"/>
     <AI Name="EXORCIST_MSTEP321_ITEM1_AI" ActiveMessageMapInBattle="1">
         <List>
@@ -9928,10 +9975,10 @@
 			<ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
 		</StartList>
 	</AI>
-    <AI Name="FOLLOWNPC_ROZE1_AI_RUN_1" UpdateMS="0" ActiveMessageMapInBattle="1">
+    <AI Name="FOLLOWNPC_AUSIRINE_AI_RUN_1" UpdateMS="0" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
-                <Str Str="ROZE1_FOLLOWNPC_AI_RUN_1_ACT"/>
+                <Str Str="FOLLOWNPC_AUSIRINE_AI_RUN_1_ACT"/>
             </ToolScp>
         </List>
         <StartList>
@@ -13590,6 +13637,32 @@
         <StartList>
             <ToolScp Scp="SetFixAnim" Client="NO" UseSleep="NO">
                 <Str Str="event_idle"/>
+            </ToolScp>
+        </StartList>
+    </AI>
+    <AI Name="KLAPEDA_EVENT_2410_GHOST" UpdateMS="30000" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="S_AI_PLAYANI_OP" Client="NO" UseSleep="NO">
+                <Str Str="CKLAIPE_SIT"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_CITY_EVENT_2410_NPC_BON"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="S_AI_PLAYANI_OP" Client="NO" UseSleep="NO">
+                <Str Str="CKLAIPE_SIT"/>
+                <Num Num="1"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+                <Num Num="0"/>
+            </ToolScp>
+            <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_CITY_EVENT_2410_NPC_BON"/>
             </ToolScp>
         </StartList>
     </AI>
@@ -17888,6 +17961,16 @@ if self.HP == 0 then return 1; else return 0; end;">
                 <Str_Arg Str="F_sys_trigger_point_green" Arg="3"/>
                 <Str Str="BOT"/>
             </ToolScp>
+        </StartList>
+    </AI>
+    <AI Name="REDANIA_VENOM_SHOOTING_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_REDANIA_VENOM_SHOOTING_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
         </StartList>
     </AI>
     <AI Name="RED_CRYSTAL" ActiveMessageMapInBattle="1">
@@ -24582,6 +24665,13 @@ if self.HP == 0 then return 1; else return 0; end;">
             </ToolScp>
         </StartList>
     </AI>
+    <AI Name="UPINIS_SAP_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_UPINIS_SAP_SIMPLE_AI_UDPATE"/>
+            </ToolScp>
+        </List>
+    </AI>
     <AI Name="Unique_Raid_Nicopolis_Gimmick_MONSTER_SUMMON" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
@@ -28541,5 +28631,15 @@ return GET_RATE_MHP(self, damage) * 100"/>
             </ToolScp>
         </StartList>
         
+    </AI>
+    <AI Name="REDANIA_VENOM_SHOOTING_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_REDANIA_VENOM_SHOOTING_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
     </AI>
 </AIList>

@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ToolSkill>
-<Skill Name="Savinose_Rykuma">
+<ToolSkill><Skill Name="Savinose_Rykuma">
 		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<HitList>
 				<Frame Angle="0" AniTime="99999" Dist="0" ForceATK="0" HitCount="1" Length="30" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.17453292" TermMax="0" TermMin="0" Time="99799" Type="FAN" Width="30" />
@@ -17,7 +16,7 @@
 					<Str Str="Rykuma_Buff" />
 					<Num Num="1" />
 					<Num Num="0" />
-					<Num FuncTxt="local value = 25000; local isDragonPower = GetExProp(self, 'ITEM_DRAGON_POWER') if tonumber(isDragonPower) >= 1 then value = 50000 end if IsPVPField(self) == 1 or IsPVPServer(self) == 1 then value = 15000 end return value" Num="20000" UseFunc="1"/>
+					<Num FuncTxt="local value = 20000; local isDragonPower = GetExProp(self, 'ITEM_DRAGON_POWER') if tonumber(isDragonPower) &gt;= 1 then value = 30000 end return value" Num="20000" UseFunc="1" />
 					<Num Num="1" />
 					<Num Num="100" />
 					<Num Num="0" />
@@ -47,7 +46,7 @@
 					<Str Str="Korup_Buff" />
 					<Num Num="1" />
 					<Num Num="0" />
-                    <Num FuncTxt="local value = 15000; local isDragonPower = GetExProp(self, 'ITEM_DRAGON_POWER') if tonumber(isDragonPower) >= 1 then value = 25000 end return value" Num="20000" UseFunc="1"/>
+					<Num Num="10000" />
 					<Num Num="1" />
 					<Num Num="100" />
 					<Num Num="0" />
@@ -83,7 +82,7 @@
                     <Str Str="Apsauga_Buff"/>
                     <Num Num="1"/>
                     <Num Num="0"/>
-                    <Num FuncTxt="local value = 30000; local isDragonPower = GetExProp(self, 'ITEM_DRAGON_POWER') if tonumber(isDragonPower) >= 1 then value = 60000 end return value" Num="30000" UseFunc="1"/>
+                    <Num Num="30000"/>
                     <Num Num="1"/>
                     <Num Num="100"/>
 					<Num Num="1"/>
@@ -114,7 +113,7 @@
                     <Str Str="Bendrinti_Buff"/>
                     <Num Num="1"/>
                     <Num Num="0"/>
-                    <Num FuncTxt="local value = 30000; local isDragonPower = GetExProp(self, 'ITEM_DRAGON_POWER') if tonumber(isDragonPower) >= 1 then value = 50000 end return value" Num="30000" UseFunc="1"/>
+                    <Num Num="30000"/>
                     <Num Num="1"/>
                     <Num Num="100"/>
                     <Num Num="0"/>

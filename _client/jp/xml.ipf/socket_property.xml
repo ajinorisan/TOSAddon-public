@@ -3399,4 +3399,76 @@
     <Level Level="0" PropList_TopLeg="OptDesc/슬레지해머[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/슬레지해머[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
     <Level Level="1" PropList_TopLeg="OptDesc/슬레지해머[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/슬레지해머[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
+  <Item Name="GEM_Bonemancer_BoneFist_Swordman">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 피스트[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 피스트[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 피스트[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 피스트[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneReaper_Swordman">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 리퍼[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리퍼[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 리퍼[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리퍼[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneWhip_Swordman">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 윕[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 윕[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 윕[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 윕[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneShield_Swordman">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 실드[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 실드[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 실드[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 실드[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneStorm_Swordman">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 스톰[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 스톰[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 스톰[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 스톰[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneReinforcement_Swordman">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 리인포스먼트[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리인포스먼트[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 리인포스먼트[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리인포스먼트[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneFist_Archer">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 피스트[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 피스트[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 피스트[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 피스트[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneReaper_Archer">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 리퍼[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리퍼[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 리퍼[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리퍼[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneWhip_Archer">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 윕[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 윕[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 윕[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 윕[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneShield_Archer">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 실드[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 실드[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 실드[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 실드[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneStorm_Archer">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 스톰[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 스톰[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 스톰[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 스톰[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneReinforcement_Archer">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 리인포스먼트[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리인포스먼트[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 리인포스먼트[A] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리인포스먼트[A] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneFist_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 피스트[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 피스트[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 피스트[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 피스트[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneReaper_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 리퍼[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리퍼[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 리퍼[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리퍼[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneWhip_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 윕[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 윕[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 윕[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 윕[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneShield_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 실드[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 실드[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 실드[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 실드[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneStorm_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 스톰[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 스톰[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 스톰[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 스톰[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Bonemancer_BoneReinforcement_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/본 리인포스먼트[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리인포스먼트[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/본 리인포스먼트[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/본 리인포스먼트[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
 </SocketProperty>

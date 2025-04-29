@@ -8,27 +8,45 @@ end
 
 function BLESSED_CUBE_OPEN(frame)
 	local frame = ui.GetFrame('blessed_goddess_cube');
+    local gachabtn = GET_CHILD_RECURSIVELY(frame,"openBtn2");
+    local openBtn = GET_CHILD_RECURSIVELY(frame,"openBtn");
+    
+    local nation = GET_POPOBOOST_SERVER();
 	BLESSED_CUBE_LIST_UPDATE(frame);
     BELSEED_CUBE_COUNT_UPDATE(frame);
 	frame:ShowWindow(1);
 	if config.GetServiceNation() ~= "KOR" then
-        GET_CHILD_RECURSIVELY(frame,"openBtn2"):SetEnable(0)
-        GET_CHILD_RECURSIVELY(frame,"openBtn2"):ShowWindow(0)
-		GET_CHILD_RECURSIVELY(frame,"openBtn"):SetMargin(0, 0, 0, 40);
+        gachabtn:SetEnable(0)
+        gachabtn:ShowWindow(0)
+		openBtn:SetMargin(0, 0, 0, 40);
 		session.shop.RequestUsedMedalTotal()
 	end
 
-    GET_CHILD_RECURSIVELY(frame,"openBtn2"):ShowWindow(0)
+    gachabtn:ShowWindow(0)
+    --w 서버일 경우
+    if nation == 0 or nation == 3 then
+        gachabtn:SetEnable(1)
+        gachabtn:ShowWindow(1)
+        gachabtn:SetEventScript(ui.LBUTTONUP, "EXTERN_OPEN_LETICIA_PROBABILITY");
+        gachabtn:SetEventScriptArgNumber(ui.LBUTTONUP, 3)
+		openBtn:SetMargin(0, 0, 0, 60);
+    end
 end
 
 function BLESSED_CUBE_CLOSE()
 end
 
 function BELSEED_CUBE_COUNT_UPDATE(frame)
+    local nation = config.GetServiceNation();
+
+    local cntBox = GET_CHILD_RECURSIVELY(frame, 'cntBox');
     local gachaCnt = GET_CHILD_RECURSIVELY(frame, 'gachaCnt');
     local pc = GetMyPCObject()
     local acc = GetMyAccountObj(pc);
     local count =  TryGetProp(acc, "PAPAYA_BLESSED_GACHA_125284", -1);
+
+
+        cntBox:ShowWindow(0)
 
     gachaCnt:SetTextByKey("count",count);
 end

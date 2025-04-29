@@ -1,52 +1,5 @@
 -- ability_price.lua
 
-function SET_ADDITOINAL_LOCK_FUNCTION_SERVER(pc, space, abil_name)    
-    local groupClass = GetClass(space, abil_name)
-    local ret = SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
-    if ret == nil then
-        ret = 'None'
-    end
-    return ret
-end
-
-function SET_ADDITOINAL_LOCK_FUNCTION(pc, groupClass)
-    local max = TryGetProp(groupClass, "Add_UnlockJobNum", -1);
-    local AddStr = "Add_UnlockArgStr"
-    for i = 0, max - 1 do
-        local unlockFuncName = groupClass.UnlockScr;
-        local AddProp = AddStr..i;
-        local AddLockArgStr = TryGetProp(groupClass, AddProp, "None");
-        if unlockFuncName ~= 'None' then
-            local scp = _G[unlockFuncName];
-            local ret = scp(pc, AddLockArgStr, groupClass.UnlockArgNum, abilIES);
-            if ret ~= "LOCK_GRADE" then
-                return ret;
-            end
-        else
-            return nil;
-        end
-    end
-
-    if max == -1 then
-        local unlockFuncName = TryGetProp(groupClass, 'UnlockScr', 'None')        
-        local UnlockArgStr = TryGetProp(groupClass, 'UnlockArgStr', 'None')
-
-        if unlockFuncName == 'None' and UnlockArgStr == 'None' then
-            return 'UNLOCK'
-        end
-
-        local scp = _G[unlockFuncName];        
-        if scp == nil then
-            return "LOCK_GRADE"
-        end
-        
-        local ret = scp(pc, UnlockArgStr, groupClass.UnlockArgNum);
-        return ret
-    end
-
-    return "LOCK_GRADE"
-end
-
 function ABIL_1RANK_NORMAL_PRICE(pc, abilName, abilLevel, maxLevel)
 
 --    local price = 1 + (4 - maxLevel + abilLevel) * 1;
@@ -360,7 +313,7 @@ function ABIL_BASE_PRICE(pc, abilName, abilLevel, maxLevel)
     return price, time;
 end
 
-function ABIL_REINFORCE_PRICE(pc, abilName, abilLevel, maxLevel)    
+function ABIL_REINFORCE_PRICE(pc, abilName, abilLevel, maxLevel)
 
     local baseFactor = 1.07
     local increseFactorList = { 1, 2, 3, 4, 5, 
@@ -374,7 +327,7 @@ function ABIL_REINFORCE_PRICE(pc, abilName, abilLevel, maxLevel)
     end
     
     local price = math.floor(baseFactor^(abilLevel - 1) * increseFactorList[index])
-    local time = 0;    
+    local time = 0;
 
     return price, time;
     
@@ -792,20 +745,6 @@ function ABIL_CLERIC9_PRICE(pc, abilName, abilLevel, maxLevel)
     return price, time;
 end
 
-function HIDDENABIL_PRICE_COND_REINFORCE(pc, abilName, abilLevel, maxLevel)
-    local price = 3057 * math.max(1, (math.pow(3, math.ceil(abilLevel/10) - 2)))
-    local time = 0;
-    
-    return math.floor(price), time;
-end
-
-function HIDDENABIL_PRICE_COND_JOBLEVEL(pc, abilName, abilLevel, maxLevel)
-    local price = 36000 / maxLevel;       -- EXPECT_TOTAL_PRICE : 36000
-    local time = 0;
-    
-    return math.floor(price), time;
-end
-
 function GET_TOTAL_ABILITY_PRICE(pc, scrCalcPrice, abilName, abilLevel, maxLevel)
     local price = 0;
     if pc == nil or abilName == nil or abilLevel == nil or maxLevel == nil or scrCalcPrice == nil or scrCalcPrice == 'None' then
@@ -842,131 +781,4 @@ function GET_TOTAL_ABILITY_PRICE_BY_PRICE_COLUMN(abilGroup, abilName, abilLevel)
     end
 
     return price;
-end
--- 현재 레벨까지의 특성 소모 특성 포인트를 가져온다.
--- 특성 활성화 조건을 만족하지 않았다면 0을 반환
-function GET_ABILITY_POINT_BY_NAME(pc, name)
-    local cls = GetClass('Ability', name)
-    if cls == nil then
-        return 0
-    end
-
-    local job_list = TryGetProp(cls, 'Job', 'None')
-    if job_list == 'None' then        
-        return 0
-    end
-
-    local need_skill = TryGetProp(cls, 'SkillCategory', 'None')
-    if  need_skill ~= 'All' and need_skill ~= 'None' then
-        local token = StringSplit(need_skill, ';')
-        local exist = false
-        for i = 1, #token do
-            local skill_name = token[i];
-            local skill = GetSkill(pc, skill_name);
-            if skill ~= nil then
-                exist = true
-                break
-            end            
-        end
-        
-        if exist == false then            
-            return 0
-        end
-    end
-
-    local token = StringSplit(job_list, ';')
-    for i = 1, #token do
-        local job = token[i]
-        local job_cls = GetClass('Job', job)
-        if job_cls ~= nil then
-            local suffix = TryGetProp(job_cls, 'EngName', 'None')
-            local group_name = 'Ability_' .. suffix
-            local shop_info = GetClass(group_name, name)
-            if shop_info ~= nil then
-                local abil = nil
-                if IsServerSection() == 1 then
-                    abil = GetAbilityIESObject(pc, TryGetProp(shop_info, 'ClassName', 'None'))
-                else
-                    abil = GetAbility(pc, TryGetProp(shop_info, 'ClassName', 'None'))
-                end
-                local level = TryGetProp(abil, 'Level', 0)                
-                local func_name = TryGetProp(shop_info, 'ScrCalcPrice', 'None')
-                local max_level = TryGetProp(shop_info, 'MaxLevel', 100)                
-
-                local unlockFuncName = TryGetProp(shop_info, 'UnlockScr', 'None')
-                local flag = true
-                if unlockFuncName ~= 'None' then
-                    local scp = _G[unlockFuncName];
-                    if scp ~= nil then        
-                        local ret = scp(pc, TryGetProp(shop_info, 'UnlockArgStr', 'None'), TryGetProp(shop_info, 'UnlockArgNum', 99), abil);
-                        if ret ~= 'UNLOCK' then
-                            -- flag = false
-                            local addret = SET_ADDITOINAL_LOCK_FUNCTION(pc, shop_info)
-                            if addret ~= 'UNLOCK' then
-                                flag = false
-                            end
-                        end
-                    end
-                end
-                if func_name ~= 'None' and flag == true then
-                    local func = _G[func_name]   
-                    if func ~= nil then
-                        local point = 0                        
-                        for j = 1, level do
-                            local add = func(pc, name, j, max_level)
-                            point = point + add                            
-                        end
-                        return point
-                    end
-                end
-            end
-        end
-    end
-
-    return 0
-end
-
--- 특성 max레벨을 달성하기 위해 필요한 총 특성 포인트량
-function GET_MAX_REQUIRED_ABILITY_POINT(pc, name)
-    local cls = GetClass('Ability', name)
-    if cls == nil then
-        return nil
-    end
-
-    local job_list = TryGetProp(cls, 'Job', 'None')
-    if job_list == 'None' then
-        return nil
-    end
-
-    local token = StringSplit(job_list, ';')
-    for i = 1, #token do
-        local job = token[i]
-        local job_cls = GetClass('Job', job)
-        if job_cls ~= nil then
-            local suffix = TryGetProp(job_cls, 'EngName', 'None')
-            local group_name = 'Ability_' .. suffix
-            local shop_info = GetClass(group_name, name)
-            if shop_info ~= nil then
-                local func_name = TryGetProp(shop_info, 'ScrCalcPrice', 'None')
-                local max_level = TryGetProp(shop_info, 'MaxLevel', 100)                
-                if func_name ~= 'None' then
-                    local func = _G[func_name]                    
-                    if func ~= nil then
-                        local point = 0
-                        for j = 1, max_level do
-                            point = point + func(pc, name, j, max_level)
-                        end
-                        return point
-                    end
-                end
-            end
-        end
-    end
-
-    return nil
-end
-                
-
-function ABIL_REINFORCE_PRICE_Pontifex_Gospel(pc, abilName, abilLevel, maxLevel)    
-    return 100000, 0
 end

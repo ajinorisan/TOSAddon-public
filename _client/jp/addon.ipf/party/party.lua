@@ -225,9 +225,23 @@ function HIDE_PARTY_CREATE_BTN()
 end
 
 function OUT_PARTY_BTN(control)
-	
-	OUT_PARTY()
 
+	--연출 중에 파티 탈퇴를 하면, 연출이 깨지는 문제가 있어 예외 처리 추가
+	--연출 중에는 파티 탈퇴를 할 수 없다.
+
+	local mgame = session.mgame.GetCurrentMGameName();
+	if mgame ~= "None" then
+		ui.SysMsg(ScpArgMsg("CannotLeaveTheParty"));
+		return;
+	end
+
+	local ret = geClientDirection.IsMyActorPlayingClientDirection();
+	if ret == true then
+		ui.SysMsg(ScpArgMsg("CannotLeaveTheParty"));
+		return;
+	end
+
+	OUT_PARTY()
 end
 
 function ON_PARTY_OPTION_RESET(frame, msg, argStr, argNum)

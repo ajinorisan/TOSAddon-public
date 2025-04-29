@@ -267,16 +267,22 @@ function GET_GEAR_SCORE(item, pc)
 
 
     if type == 'SEAL' then
-        if TryGetProp(item, 'ClassName', 'None') == 'Seal_jurate' or TryGetProp(item, 'ClassName', 'None') == 'Seal_jurate_def' then
+        local class_name = TryGetProp(item, 'ClassName', 'None') 
+
+        if class_name == 'Seal_jurate' or class_name == 'Seal_jurate_def' then
             return 1000
         end
 
-        if TryGetProp(item, 'ClassName', 'None') == 'Seal_jurate2' or TryGetProp(item, 'ClassName', 'None') == 'Seal_jurate2_def' then
+        if class_name == 'Seal_jurate2' or class_name == 'Seal_jurate2_def' then
             return 1200
         end
 
-        if TryGetProp(item, 'ClassName', 'None') == 'Seal_jurate3' or TryGetProp(item, 'ClassName', 'None') == 'Seal_jurate3_def' then
+        if class_name == 'Seal_jurate3' or class_name == 'Seal_jurate3_def' then
             return 1400
+        end
+
+        if string.find(class_name, 'Seal_jurate4') ~= nil then
+            return 1600
         end
 
         reinforce = GET_CURRENT_SEAL_LEVEL(item)        

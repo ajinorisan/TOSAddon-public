@@ -17,41 +17,17 @@ local function ENABLE_JOB_SELECT_GUIDE(frame, isEnable)
 	jobSelectBox:SetVisible(isEnable);
 end
 
-local function NOTICE_FREE_TRANSFER_CLASS(ctrl)
-	if ctrl == nil then
-		return;
-	end
-
-	-- local noticeBallon = MAKE_BALLOON_FRAME(ScpArgMsg("LowLevelFreeTransferClass", 'name', PC_MAX_LEVEL), ctrl:GetX(), ctrl:GetY(), nil, "NoticeFreeTransfer", nil, nil, 1);		
-	-- noticeBallon:SetPos(ctrl:GetX() + math.floor(ctrl:GetWidth() * 0.3), ctrl:GetY() - math.floor(noticeBallon:GetHeight() * 0.8))
-	-- noticeBallon:SetLayerLevel(200);
-	-- noticeBallon:ShowWindow(1);
-end
-
-function CHANGEJOB_OPEN(frame)	
+function CHANGEJOB_OPEN(frame)
 	session.job.ReqClassResetPoint();	
 	CHANGEJOB_SIZE_UPDATE(frame)
 	UPDATE_CHANGEJOB(frame);	
 	ENABLE_JOB_SELECT_GUIDE(frame, 0);
 	CHANGEJOB_CLOSE_ROLLBACK_MODE(frame);
-	
-	local txt = GET_CHILD_RECURSIVELY(frame, 'use_free_txt')
-	txt:ShowWindow(0)
-	if GetMyPCObject().Lv < PC_MAX_LEVEL then
-		local btn = GET_CHILD_RECURSIVELY(frame, 'class_select_multiple')
-		if btn ~= nil and btn:IsVisible()==1 then
-			txt:SetTextByKey('param1', ScpArgMsg("LowLevelFreeTransferClass", 'name', PC_MAX_LEVEL));
-			txt:ShowWindow(1)
-		end
-	end	
 end
 
 
 function CHANGEJOB_CLOSE(frame)
-	local noticeBallon = ui.GetFrame('NoticeFreeTransfer')	
-	if noticeBallon ~= nil then
-		noticeBallon:ShowWindow(0);
-	end
+
 end
 
 
@@ -72,7 +48,7 @@ function IS_HAD_JOB(id)
 	return false;
 end
 
-function CHANGEJOB_CHECK_QUEST_SCP_CONDITION_IGNORE_SELECTEDJOB(questname)	
+function CHANGEJOB_CHECK_QUEST_SCP_CONDITION_IGNORE_SELECTEDJOB(questname)
 
 	local questIES = GetClass('QuestProgressCheck', questname);
 	local req_script_check = 0
@@ -111,7 +87,7 @@ function CHANGEJOB_CHECK_QUEST_SCP_CONDITION_IGNORE_SELECTEDJOB(questname)
     elseif questIES.Script_Condition == 'OR' then
         if questIES.Check_Script >= 1 then
             local i
-			for i = 1, questIES.Check_Script do					
+            for i = 1, questIES.Check_Script do
                 if questIES['Script'..i] ~= nil and questIES['Script'..i] ~= 'None' and questIES['Script'..i] ~= '' then
                     local scriptInfo = SCR_STRING_CUT(questIES['Script'..i])
                     local func = _G[scriptInfo[1]];
@@ -133,11 +109,6 @@ function CHANGEJOB_CHECK_QUEST_SCP_CONDITION_IGNORE_SELECTEDJOB(questname)
 	return 0;
 end
 
-
-function CJ_OPEN_MULTIPLE_CLASS_CHANGE()
-	ui.OpenFrame("multiple_class_change")
-
-end
 
 function CJ_JOB_PROPERTYQUESTCHECK()
 
@@ -271,7 +242,7 @@ local function _UPDATE_JOB_STAT_RATIO(frame, jobCls)
 	SetJobStatRatio('DEX', jobCls);
 end
 
-function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid, src_id)
+function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid)
 	frame = frame:GetTopParentFrame();
 	frame:SetUserValue('CUR_SELECT_RIGHT_JOB_ID', jobid);
 
@@ -334,7 +305,7 @@ function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid, src_id)
 
 		local icon = CreateIcon(skillslot)
 		local iconname = "icon_" .. skillClass.Icon;
-
+		
 		icon:SetImage(iconname)
 		icon:SetTooltipType('skill');
 		icon:SetTooltipStrArg(skillClass.ClassName);
@@ -343,54 +314,10 @@ function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid, src_id)
 		if skl ~= nil then
 			icon:SetTooltipIESID(skl:GetIESID());
 		end
-
-		-- expand tooltip
-		if skillClass ~= nil then
-			if TryGetProp(skillClass, "ExpandSkillTooltip", "None") ~= 'None' then 
-				icon:SetTooltipType('skill_expand');
-			end
-		end
-
 		icon:Set(iconname, "Skill", skillClass.ClassID, 1);
 
 		skillslot:SetSkinName('slot');
-	end
-
-	local artsInfoBox = GET_CHILD_RECURSIVELY(frame, "artsInfoBox");
-	local artsGBox = GET_CHILD_RECURSIVELY(artsInfoBox, "groupbox_arts");
-	artsGBox:RemoveAllChild();
-	artsInfoBox:ShowWindow(0);
-	local abilNameList = GetAbilityNamesByJob(GetMyPCObject(), jobinfo.ClassName);
-	local artsimage_width = 45
-	local artsimage_height = 45
-	local arts_index = 0
-	for i = 1, #abilNameList do
-		local abil = GetClass("Ability", abilNameList[i]);
-		if abil ~= nil and TryGetProp(abil, "Hidden", 0) == 1 then
-			if artsInfoBox:IsVisible() == 0 then
-				artsInfoBox:ShowWindow(1);
-			end
-
-			local x = margin_x + arts_index * (artsimage_width + margin_x_per_eachpic);
-			local artsSlot = artsGBox:CreateOrGetControl("slot", "ARTS_" .. arts_index, x, 0, artsimage_width, artsimage_height);
-			artsSlot = tolua.cast(artsSlot, "ui::CSlot");
-			artsSlot:ShowWindow(1);
-			artsSlot:SetOverSound('win_open');
-
-			local icon = CreateIcon(artsSlot);
-			icon:SetImage(abil.Icon);
-			icon:SetTooltipType('ability');
-			icon:SetTooltipStrArg(abil.Name);
-			icon:SetTooltipNumArg(abil.ClassID);
-			local abilIES = GetAbilityIESObject(GetMyPCObject(), abil.ClassName);
-			if abilIES ~= nil then
-				icon:SetTooltipIESID(GetIESGuid(abilIES));
-			end
-			icon:Set(abil.Icon, "Ability", abil.ClassID, 1);
-
-			arts_index = arts_index + 1
-		end
-	end
+	end		
 		
 	local mbg = frame:GetChild("mbg");
 	local jobchangebutton = GET_CHILD(mbg, "class_select", "ui::CButton");
@@ -404,11 +331,6 @@ function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid, src_id)
 	if IS_HAD_JOB(jobinfo.ClassID) == true then
 		canChangeJob = false;
 	end
-	
-	if canChangeJob == true and src_id ~= 'None' and src_id ~= nil then		
-		canChangeJob = IS_ABLE_TO_CHANGE_CLASS(pc, src_id, jobinfo.ClassID)
-	end
-
     jobchangebutton:SetEnable(0);
     
     local jobCircleValue = session.GetJobGrade(jobinfo.ClassID);    
@@ -425,32 +347,24 @@ function CJ_UPDATE_RIGHT_INFOMATION(frame, jobid, src_id)
 
 	_UPDATE_JOB_STAT_RATIO(frame, jobinfo);
 
-	local pc = GetMyPCObject();	
-	local preFuncName = TryGetProp(jobinfo, 'PreFunction')
-	
-	if IS_SEASON_SERVER() == 'YES' then
-		local is_hidden = TryGetProp(jobinfo, 'HiddenJob', 'None') == 'YES'				
-		if is_hidden == true and preFuncName ~= nil then
-			preFuncName = 'None'
-		end
-	end
-
-	if preFuncName ~= nil and preFuncName ~= 'None' then
-		local preFunc = _G[preFuncName]				
+    local pc = GetMyPCObject();
+    local preFuncName = TryGetProp(jobinfo, 'PreFunction')
+    if preFuncName ~= nil and preFuncName ~= 'None' then
+        local preFunc = _G[preFuncName]
 		if preFunc ~= nil then
 			local jobCount = GetTotalJobCount(pc);
 			if isClassChangeMode == true then
 				jobCount = jobCount - 1;
 			end
-			local result = preFunc(pc, jobCount);		
+			local result = preFunc(pc, jobCount);			
             if result == 'NO' then
                 return;
             end
         end
 	end
-	
-	if canChangeJob == true and CHANGEJOB_CHECK_QUEST_SCP_CONDITION_IGNORE_SELECTEDJOB(jobinfo[stringtest]) == 1 then		
-		if CJ_JOB_PROPERTYQUESTCHECK() == 1 then		
+
+	if canChangeJob == true and CHANGEJOB_CHECK_QUEST_SCP_CONDITION_IGNORE_SELECTEDJOB(jobinfo[stringtest]) == 1 then
+		if CJ_JOB_PROPERTYQUESTCHECK() == 1 then
 			if CJ_JOB_GENDERCHECK(jobid) == 1 then
 				if isClassChangeMode or session.GetPcTotalJobGrade() < JOB_CHANGE_MAX_RANK then
 					jobchangebutton:SetEventScript(ui.LBUTTONDOWN, 'CJ_CLICK_CHANGEJOBBUTTON')
@@ -472,9 +386,7 @@ end
 
 exechangejobid = 0
 
-
-
-local function _EXCHANGE_JOB(frame, destJobID)	
+local function _EXCHANGE_JOB(frame, destJobID)
 	frame = frame:GetTopParentFrame();
 	local scrJob = frame:GetUserIValue('EXCHANGE_SRC_JOB');
     ui.CloseFrame('changejob');
@@ -486,8 +398,7 @@ local function _EXCHANGE_JOB(frame, destJobID)
 	RANKROLLBACK_CHECK_PLAYER_STATE(frame);
 end
 
-function CJ_CLICK_CHANGEJOBBUTTON(frame, slot, argStr, argNum)
-	-- session.job.ReqUnEquipItemAll()
+function CJ_CLICK_CHANGEJOBBUTTON(frame, slot, argStr, argNum)	
 	local pc = GetMyPCObject();
 	local nowjobName = pc.JobName;
 	local nowjobID = GetClass("Job", nowjobName).ClassID;
@@ -525,10 +436,17 @@ function IS_COMPANIONSKILL_JOB(jobinfo)
 
 	if jobinfo.ClassName == 'Char1_7' or jobinfo.ClassName == 'Char1_17' or jobinfo.ClassName == 'Char1_21' or 
 	jobinfo.ClassName == 'Char3_2' or jobinfo.ClassName == 'Char3_14' or 
-	jobinfo.ClassName == 'Char5_11' or jobinfo.ClassName == 'Char5_17' then
+	jobinfo.ClassName == 'Char5_11' then
 		return true;
 	end
 
+	return false;
+end
+
+local function IS_NEW_JOB(jobCls)
+	if jobCls.ClassName == 'Char3_18' or jobCls.ClassName == 'Char3_19' or jobCls.ClassName == 'Char5_13' or jobCls.ClassName == 'Char5_14' then
+		return true;
+	end
 	return false;
 end
 
@@ -539,10 +457,11 @@ local function TRANS_BOOLEAN(number)
 	return true;
 end
 
-function UPDATE_CHANGEJOB(frame, src_id)
+function UPDATE_CHANGEJOB(frame)
 	local pc = GetMyPCObject();
 	local pcjobinfo = GetClass('Job', pc.JobName)
 	local pcCtrlType = pcjobinfo.CtrlType
+
 	local charpic = GET_CHILD(frame, "class_image", "ui::CPicture");
 
 	local pcjobinfotype = 0
@@ -561,12 +480,12 @@ function UPDATE_CHANGEJOB(frame, src_id)
 		if preFuncName == 'None' then
 			return true;
 		end
-	
-		local name = TryGetProp(jobCls, "JobName", "None")
-		if name ~= 'Appraiser' and name ~= 'NakMuay' and name ~= 'Shinobi' and name ~= 'Miko' and name ~= 'RuneCaster' then
-			return true
-		end
-
+	--	if jobCls.HiddenJob == "YES" then
+	--    	local pcEtc = GetMyEtcObject();
+	--    	if pcEtc["HiddenJob_"..jobCls.ClassName] ~= 300 and IS_KOR_TEST_SERVER() == false then
+	--    	    return false;
+	--    	end
+	--	end
 		return false;
 	end
 
@@ -575,9 +494,10 @@ function UPDATE_CHANGEJOB(frame, src_id)
 	local jobList, jobCnt = GetClassList("Job");
 	for i = 0, jobCnt - 1 do
 		local jobCls = GetClassByIndexFromList(jobList, i);
-		if pcCtrlType == jobCls.CtrlType and jobCls.Rank <= JOB_CHANGE_MAX_RANK then						
+		if pcCtrlType == jobCls.CtrlType and jobCls.Rank <= JOB_CHANGE_MAX_RANK then			
 			jobInfos[#jobInfos + 1] = { JobClassID = jobCls.ClassID,
 										IsHave = IS_HAD_JOB(jobCls.ClassID),
+										IsNew = IS_NEW_JOB(jobCls),
 										HotCount = session.GetChangeJobHotRank(jobCls.ClassName),
 										IsSatisfiedHiddenQuest = _IS_SATISFIED_HIDDEN_JOB_TRIGGER(jobCls)};
 										
@@ -585,7 +505,7 @@ function UPDATE_CHANGEJOB(frame, src_id)
 		end
 	end
 	table.sort(forHotJobList, function(lhs, rhs)
-			return lhs.HotCount > rhs.HotCount; -- ?�림차순
+			return lhs.HotCount > rhs.HotCount; -- 내림차순
 		end);
 
 	local jobSelectBox = GET_CHILD_RECURSIVELY(frame, 'jobSelectBox');
@@ -610,7 +530,6 @@ function UPDATE_CHANGEJOB(frame, src_id)
 	local BUTTON_IMG_HIDDEN_JOB = frame:GetUserConfig('BUTTON_IMG_HIDDEN_JOB');
 	local BUTTON_IMG_DEFAULT = frame:GetUserConfig('BUTTON_IMG_DEFAULT');
 	local BUTTON_IMG_HAD_HIDDEN_JOB = frame:GetUserConfig('BUTTON_IMG_HAD_HIDDEN_JOB');
-	local BUTTON_IMG_SPECIAL_JOB = frame:GetUserConfig('BUTTON_IMG_SPECIAL_JOB');
 
 	local groupbox_sub_newjob = groupbox_main:CreateOrGetControlSet('groupbox_sub', 'groupbox_sub_newjob', 0, 0);
 	local cjobGbox = GET_CHILD(groupbox_sub_newjob, 'changeJobGbox');
@@ -624,6 +543,7 @@ function UPDATE_CHANGEJOB(frame, src_id)
 	local labelline = GET_CHILD_RECURSIVELY(frame, 'labelline');
 	labelline:SetGravity(ui.LEFT, ui.TOP);
 	labelline:SetOffset(30, changeJob_richtext:GetHeight() + 18);
+
 	local totalHeight = 0;
 	for i = 1, #jobInfos do
 		local info = jobInfos[i];
@@ -631,35 +551,42 @@ function UPDATE_CHANGEJOB(frame, src_id)
 		local col = (i - 1) % jobsPerALine;
 		local x = margin_x + col * (jobbox_width + margin_x_per_eachpic);
 		local y = margin_y + row * (jobbox_height + margin_y_per_eachpic);			
+
 		local jobCls = GetClassByType('Job', info.JobClassID);
 		local subClassCtrl = cjobGbox:CreateOrGetControlSet('jobinfo', 'JOB_INFO_'..jobCls.ClassName , x, y);
 		local button = GET_CHILD(subClassCtrl, "button");
 
-		local flag = true		
-		flag = IS_ABLE_TO_CHANGE_CLASS(pc, src_id, tonumber(info.JobClassID))			
-		
-		if info.IsHave == true or flag == false then
+		-- button img
+		if info.IsHave == true then
 		    local preFuncName = TryGetProp(jobCls, 'PreFunction', 'None')
-			if jobCls.HiddenJob == 'YES' and preFuncName ~= 'None' then
-				local jobname = TryGetProp(jobCls, 'JobName', 'None')
-				if jobname == 'Appraiser' or jobname == 'NakMuay' or jobname == 'Shinobi' or jobname == 'Miko' or name == 'RuneCaster' then
-					button:SetImage(BUTTON_IMG_HAD_HIDDEN_JOB);
-				elseif jobCls.SpecialJob == 'YES' then
-					button:SetImage(BUTTON_IMG_HAD_HIDDEN_JOB);
-				else
-					button:SetImage(BUTTON_IMG_HAVE_JOB);
-				end
+			if jobCls.HiddenJob == 'YES' and preFuncName ~= 'None'  then
+				button:SetImage(BUTTON_IMG_HAD_HIDDEN_JOB);
 			else
 				button:SetImage(BUTTON_IMG_HAVE_JOB);
 			end
 		elseif info.IsSatisfiedHiddenQuest == false then
 			button:SetImage(BUTTON_IMG_HIDDEN_JOB);
-		elseif jobCls.SpecialJob == 'YES' then
-			button:SetImage(BUTTON_IMG_SPECIAL_JOB);
 		else
 			button:SetImage(BUTTON_IMG_DEFAULT);
 		end
 		
+		-- hot tag
+		local charpic = GET_CHILD(subClassCtrl, "hotimg");
+		charpic:ShowWindow(0);
+		if info.HotCount > 0 then
+			local numberOfShowHot = math.min(2, #forHotJobList);
+			for hotIter = 1, numberOfShowHot do
+				if forHotJobList[hotIter].JobClassID == info.JobClassID then
+					charpic:ShowWindow(1);
+				end
+			end
+		end
+		if info.IsNew == true then
+			charpic:SetImage(BUTTON_IMG_NEW_JOB);
+			charpic:ShowWindow(1);
+		end
+
+		-- name			
 		local jobnameCtrl = GET_CHILD(subClassCtrl, "jobname");
 		jobnameCtrl:SetTextByKey("param_jobcname", GET_JOB_NAME(jobCls, GETMYPCGENDER()));
 
@@ -668,9 +595,6 @@ function UPDATE_CHANGEJOB(frame, src_id)
 				
 		button:SetEventScript(ui.LBUTTONDOWN, 'CJ_CLICK_INFO')
 		button:SetEventScriptArgNumber(ui.LBUTTONDOWN, info.JobClassID);
-		if src_id ~= nil then
-			button:SetEventScriptArgString(ui.LBUTTONDOWN, tostring(src_id))
-		end
 
 		totalHeight = y + subClassCtrl:GetHeight();
 	end
@@ -679,22 +603,22 @@ function UPDATE_CHANGEJOB(frame, src_id)
 	local mains = session.GetMainSession();
 	local jobhistorysession = mains:GetPCJobInfo();
 	local jobhistory = jobhistorysession:GetJobInfoByIndex(totaljobgrade-1);
-	
-	CJ_UPDATE_RIGHT_INFOMATION(frame, pcjobinfo.ClassID, src_id);
+
+	CJ_UPDATE_RIGHT_INFOMATION(frame, pcjobinfo.ClassID);
 
 	local scrollBarCurLine = cjobGbox:GetCurLine();
 	cjobGbox:SetCurLine(0);
 end
 
-function CJ_CLICK_INFO(frame, slot, argStr, jobClsID)	
-	local originalframe = ui.GetFrame("changejob");	
-	CJ_UPDATE_RIGHT_INFOMATION(originalframe, jobClsID, argStr);
+function CJ_CLICK_INFO(frame, slot, argStr, jobClsID)
+	local originalframe = ui.GetFrame("changejob");
+	CJ_UPDATE_RIGHT_INFOMATION(originalframe, jobClsID);
 end
 
-function CHANGEJOB_SHOW_RANKROLLBACK()	
+function CHANGEJOB_SHOW_RANKROLLBACK()
 	local lastJobGrade = session.GetPcTotalJobGrade();
 	local pc = GetMyPCObject();
-	local frame = ui.GetFrame('changejob');	
+	local frame = ui.GetFrame('changejob');
 end
 
 function ON_CHANGE_JOB_SELECT_GUIDE_START(frame, btn)
@@ -740,7 +664,7 @@ function ON_UPDATE_CLASS_RESET_POINT_INFO(frame, msg, argStr, argNum)
 	end
 end
 
-function RANKROLLBACK_BTN_CLICK(parent, ctrl, argStr, srcJobID)	
+function RANKROLLBACK_BTN_CLICK(parent, ctrl, argStr, srcJobID)
 	local frame = parent:GetTopParentFrame();
 	local rollbackInfoBox = GET_CHILD_RECURSIVELY(frame, 'rollbackInfoBox');
 	rollbackInfoBox:ShowWindow(1);
@@ -748,19 +672,16 @@ function RANKROLLBACK_BTN_CLICK(parent, ctrl, argStr, srcJobID)
 
 	local arrowPic = GET_CHILD(rollbackInfoBox, 'arrowPic');
 	imcUIAnim:PlayMoveExponential(arrowPic, 'right', true, 50, 0.005, true);
-	UPDATE_CHANGEJOB(frame, srcJobID)
 end
 
-function CHANGEJOB_CLOSE_ROLLBACK_MODE(parent, ctrl)	
+function CHANGEJOB_CLOSE_ROLLBACK_MODE(parent, ctrl)
 	local frame = parent:GetTopParentFrame();
-	UPDATE_CHANGEJOB(frame)
 	local rollbackInfoBox = GET_CHILD_RECURSIVELY(frame, 'rollbackInfoBox');
 	rollbackInfoBox:ShowWindow(0);
 	CJ_UPDATE_RIGHT_INFOMATION(frame, frame:GetUserIValue('CUR_SELECT_RIGHT_JOB_ID'));
 end
 
-function CHANGEJOB_ON_ESCAPE(frame)	
-	UPDATE_CHANGEJOB(frame)
+function CHANGEJOB_ON_ESCAPE(frame)
 	local rollbackInfoBox = GET_CHILD_RECURSIVELY(frame, 'rollbackInfoBox');
 	if rollbackInfoBox:IsVisible() == 1 then
 		rollbackInfoBox:ShowWindow(0);

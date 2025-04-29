@@ -34,4 +34,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 33,33,1,40,1,60000,1,2,0,0,1,0,0,"Warp_arrow","바린웰 87수역","","","","","","","","F_CASTLE_93_TO_F_3CMLAKE_87","","NO","YES","NO","Neutral","","","",""
 34,34,1,40,1,60000,1,2,0,0,1,0,0,"Warp_arrow","내성벽 제 10구역","","","","","","","","F_CASTLE_93_TO_F_CASTLE_94","","NO","YES","NO","Neutral","","","",""
 35,35,1,40,1,60000,1,2,0,0,1,0,0,"Warp_arrow","외성벽 제 9구역","","","","","","","","F_CASTLE_93_TO_F_CASTLE_20_1","","NO","YES","NO","Neutral","","","",""
-36,36,1,20,1,60000,1,0,0,0,1,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","EXPLORER_MISLE14","","NO","YES","NO","Neutral","","","",""

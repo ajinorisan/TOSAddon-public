@@ -4,54 +4,29 @@ function BEAUTYSHOP_SIMPLELIST_ON_INIT(addon, frame)
 end
 
 function BEAUTYSHOP_SIMPLELIST_OPEN(frame, list, isTryMode)
-  local smallModeBox = GET_CHILD_RECURSIVELY(frame, 'smallModeBox');
-  smallModeBox:ShowWindow(0);
-  
-  if config.GetServiceNation() == 'GLOBAL_JP' or config.GetServiceNation() == 'GLOBAL' then
-    local btnColorCouponlist = GET_CHILD_RECURSIVELY(frame, 'btnColorCouponlist')
-    if btnColorCouponlist ~= nil then
-      btnColorCouponlist:SetMargin(160, 80, 0, 0)      
+    local smallModeBox = GET_CHILD_RECURSIVELY(frame, 'smallModeBox');
+    smallModeBox:ShowWindow(0);
+
+    BEAUTYSHOP_SIMPLELIST_INIT_COUPON(frame, list);
+    BEAUTYSHOP_SIMPLELIST_UPDATE_ITEM_LIST(list);
+    if isTryMode == true then
+        BEAUTYSHOP_SIMPLELIST_UPDATE_SMALLMODE(frame, list);
     end
-    
-    local btnHairCouponlist = GET_CHILD_RECURSIVELY(frame, 'btnHairCouponlist')
-    if btnHairCouponlist ~= nil then
-      btnHairCouponlist:SetMargin(160, 56, 0, 0)
-    end
-
-    local btnSkinCouponlist = GET_CHILD_RECURSIVELY(frame, 'btnSkinCouponlist')
-    if btnSkinCouponlist ~= nil then
-      btnSkinCouponlist:SetMargin(160, 104, 0, 0)
-    end
-
-  end
-    
-
-  BEAUTYSHOP_SIMPLELIST_INIT_COUPON(frame, list);
-  BEAUTYSHOP_SIMPLELIST_UPDATE_ITEM_LIST(list);
-
-  if isTryMode == true then
-    BEAUTYSHOP_SIMPLELIST_UPDATE_SMALLMODE(frame, list);
-  end
 end
 
 function BEAUTYSHOP_SIMPLELIST_INIT_COUPON(frame, list)
   local hairCouponBox = GET_CHILD_RECURSIVELY(frame, 'hairCouponBox');
   local dyeCouponBox = GET_CHILD_RECURSIVELY(frame, 'dyeCouponBox');
-  local skinCouponBox = GET_CHILD_RECURSIVELY(frame, 'skinCouponBox');
   hairCouponBox:ShowWindow(0);
   dyeCouponBox:ShowWindow(0);
-  skinCouponBox:ShowWindow(0);
 
   BEAUTYSHOP_SIMPLELIST_RESET_SLOTSET(GET_CHILD_RECURSIVELY(frame, 'hairCouponSlotset'));
   BEAUTYSHOP_SIMPLELIST_RESET_SLOTSET(GET_CHILD_RECURSIVELY(frame, 'dyeCouponSlotset'));
-  BEAUTYSHOP_SIMPLELIST_RESET_SLOTSET(GET_CHILD_RECURSIVELY(frame, 'skinCouponSlotset'));
 
   local rtHaircouponTP = GET_CHILD_RECURSIVELY(frame, 'rtHaircouponTP');
   local rtColorcouponTP = GET_CHILD_RECURSIVELY(frame, 'rtColorcouponTP');
-  local rtSkincouponTP = GET_CHILD_RECURSIVELY(frame, 'rtSkincouponTP');
   rtHaircouponTP:SetTextByKey('value', 0);
   rtColorcouponTP:SetTextByKey('value', 0);
-  rtSkincouponTP:SetTextByKey('value', 0);
 end
 
 function BEAUTYSHOP_SIMPLELIST_SMALLMODE_CLEAR_SLOT(slot)
@@ -75,24 +50,10 @@ function BEAUTYSHOP_SIMPLELIST_SMALLMODE_REMOVE(parent, control, argStr, argNum)
   local itemCls = GetClass("Item", itemClassName);
   local checkTwoHandWeapon = false;
 	if itemCls ~= nil then
-      checkTwoHandWeapon = BEAUTYSHOP_CHECK_TWOHAND_WEAPON(itemCls)
-      if checkTwoHandWeapon == true then
-        BEAUTYSHOP_RESET_TWOHAND_WEAPON_SLOT(slot)
-      end
-
-      local pcSession = session.GetMySession();
-      if pcSession ~= nil then
-      local apc = pcSession:GetPCDummyApc();
-          if previewSlotName == "slotPreview_lh" then
-              gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), ES_LH, 0);
-          elseif previewSlotName == "slotPreview_rh" then
-              local eqpType = TryGetProp(itemCls, "EqpType");
-              if eqpType ~= nil and eqpType == "SH" then
-                  gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), ES_LH, 0);
-              end
-              gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), ES_RH, 0);
-          end
-      end
+		checkTwoHandWeapon = BEAUTYSHOP_CHECK_TWOHAND_WEAPON(itemCls)
+		if checkTwoHandWeapon == true then
+			BEAUTYSHOP_RESET_TWOHAND_WEAPON_SLOT(slot)
+		end
 	end
   BEAUTYSHOP_CLEAR_SLOT(slot);
   
@@ -152,16 +113,12 @@ function BEAUTYSHOP_SIMPLELIST_UPDATE_SMALLMODE(frame, list)
        slot:SetEventScript(ui.RBUTTONDOWN, 'BEAUTYSHOP_SIMPLELIST_SMALLMODE_REMOVE');
        slot:SetEventScriptArgString(ui.RBUTTONDOWN, list[i]['equipType']);
 
-        local colorName = list[i]['ColorName'];
-        if colorName ~= nil and colorName ~= "None" and colorName ~= "default" and list[i]['equipType'] == "hair" then
+        local colorName = list[i]['ColorName'];        
+        if colorName ~= nil and colorName ~= "None" and colorName ~= "default" then   
           BEAUTYSHOP_ADD_PALLETE_IMAGE(slot);
         end
-        local gender = list[i]['Gender'];
-        local fullName = itemCls.Name;        
-        if list[i]['equipType'] == "hair" then
-          fullName = BEAUTYSHOP_GET_HAIR_FULLNAME(itemCls.Name, itemCls.ClassName, colorName,gender );
-        end
-
+        local gender = list[i]['Gender']; 
+        local fullName = BEAUTYSHOP_GET_HAIR_FULLNAME(itemCls.Name, itemCls.ClassName, colorName,gender );
         icon:SetTextTooltip(fullName);
     end
 end
@@ -222,7 +179,7 @@ function BEAUTYSHOP_SIMPLELIST_UPDATE_ITEM_LIST(list)
   if gbItemList == nil then
     return;
   end
-  
+
   -- 패키지 아이템을 하나로 걸러낸다.
   local transList = BEAUTYSHOP_SIMPLELIST_TRANS_PURCHASE_ITEM_LIST(list)
 
@@ -235,7 +192,7 @@ function BEAUTYSHOP_SIMPLELIST_UPDATE_ITEM_LIST(list)
   local index = 0
   local width = ui.GetControlSetAttribute("beautyshop_list_item", "width");
   local height = ui.GetControlSetAttribute("beautyshop_list_item", "height");    
-  local hairExist, dyeExist, skinExist = 0, 0, 0;
+  local hairExist, dyeExist = 0, 0;
   for i = 1, #transList do
     local info = transList[i]
     local itemCls = GetClass("Item", info['ItemClassName']);
@@ -244,20 +201,17 @@ function BEAUTYSHOP_SIMPLELIST_UPDATE_ITEM_LIST(list)
       y = height * index;
       index = index + 1;
       ctrlSet = gbItemList:CreateOrGetControlSet("beautyshop_list_item", itemPrefix..index, x, y);
-      local hairPrice, dyePrice , skinPrice = BEAUTYSHOP_SIMPLELIST_DRAW_ITEM_DETAIL(ctrlSet, itemCls, info);
-     if hairPrice ~= nil and hairPrice > 0 then
+      local hairPrice, dyePrice = BEAUTYSHOP_SIMPLELIST_DRAW_ITEM_DETAIL(ctrlSet, itemCls, info);
+      if hairPrice ~= nil and hairPrice > 0 then
         hairExist = 1;
       end
       if dyePrice ~= nil and dyePrice > 0 then
         dyeExist = 1;
       end
-      if skinPrice ~= nil and skinPrice > 0 then
-        skinExist = 1;
-      end
     end
   end
 
-  BEAUTYSHOP_SIMPLELIST_ENABLE_COUPON_BTN(frame, hairExist, dyeExist, skinExist);  
+  BEAUTYSHOP_SIMPLELIST_ENABLE_COUPON_BTN(frame, hairExist, dyeExist);  
   BEAUTYSHOP_SIMPLE_PURCHASE_LIST = transList; -- 리스트 저장  
   BEAUTYSHOP_SIMPLELIST_UPDATE_PURCHASE_PRICE(frame);
 end
@@ -272,15 +226,13 @@ function BEAUTYSHOP_SIMPLELIST_UPDATE_PURCHASE_PRICE(frame)
    local TotalPurchaseTP = BEAUTYSHOP_SIMPLELIST_GET_PURCHASE_TP(frame);
    local HairCouponTP = BEAUTYSHOP_SIMPLELIST_GET_HAIR_COUPON_TP(frame);
    local DyeCouponTP = BEAUTYSHOP_SIMPLELIST_GET_DYE_COUPON_TP(frame);
-   local SkinCouponTP = BEAUTYSHOP_SIMPLELIST_GET_SKIN_COUPON_TP(frame);
-   local PayTP = TotalPurchaseTP + HairCouponTP + DyeCouponTP + SkinCouponTP;
+   local PayTP = TotalPurchaseTP + HairCouponTP + DyeCouponTP;
    local RemainTP = HaveTP - PayTP; 
 
    local rtHaveTP =  GET_CHILD_RECURSIVELY(frame,"rtHaveTP");
    local rtBasketTP =  GET_CHILD_RECURSIVELY(frame,"rtBasketTP");
    local rtHaircouponTP =  GET_CHILD_RECURSIVELY(frame,"rtHaircouponTP");
    local rtColorcouponTP =  GET_CHILD_RECURSIVELY(frame,"rtColorcouponTP");
-   local rtSkincouponTP =  GET_CHILD_RECURSIVELY(frame,"rtSkincouponTP");
    local rtRemainTP =  GET_CHILD_RECURSIVELY(frame,"rtRemainTP");
    local rtPayTP = GET_CHILD_RECURSIVELY(frame, 'rtPayTP');
 
@@ -288,7 +240,6 @@ function BEAUTYSHOP_SIMPLELIST_UPDATE_PURCHASE_PRICE(frame)
    rtBasketTP:SetTextByKey("value", tostring(TotalPurchaseTP))
    rtHaircouponTP:SetTextByKey("value", tostring(HairCouponTP))
    rtColorcouponTP:SetTextByKey("value", tostring(DyeCouponTP))
-   rtSkincouponTP:SetTextByKey("value", tostring(SkinCouponTP))
    rtRemainTP:SetTextByKey("value", tostring(RemainTP))   
    rtPayTP:SetTextByKey('value', PayTP);
 end
@@ -341,28 +292,12 @@ function BEAUTYSHOP_SIMPLELIST_DRAW_ITEM_DETAIL(ctrlset, itemCls, info)
     ColorClassName = info['ColorClassName'],
     ColorEngName = colorName,
   };
-
-  if priceInfo.IDSpace == "Hair_Dye_List" or priceInfo.IDSpace == "Beauty_Shop_Hair" or priceInfo.IDSpace == 'Beauty_Shop_Hair_Season' then
-    local id_space = 'Beauty_Shop_Hair'
-	if IS_SEASON_SERVER() == 'YES' then
-		id_space = 'Beauty_Shop_Hair_Season'
-	end
-    priceInfo.IDSpace = id_space
+  if priceInfo.ColorClassName ~= 'None' then
+    priceInfo.IDSpace = 'Beauty_Shop_Hair';
     priceInfo.ClassName = itemCls.ClassName;
   end
-
-  local priceResult = GET_BEAUTYSHOP_ITEM_PRICE(pc, priceInfo, nil, nil, nil);
-  
-  local price = priceResult.totalPrice;
-  local hairPrice = priceResult.hairPrice;
-  local dyePrice = priceResult.colorDyePrice;
-  local skinPrice = 0;
-
-  if priceInfo.IDSpace == "Beauty_Shop_Skin" or priceInfo.IDSpace == "Beauty_Shop_Skin_Season" then
-    skinPrice = price;
-  end
-  
-  local totalPrice = 0; 
+  local price, hairPrice, dyePrice = GET_BEAUTYSHOP_ITEM_PRICE(pc, priceInfo, nil, nil);
+  local totalPrice = 0;
   local isNoPurchaseItem = false;
   if hairPrice ~= nil then
     rtNxp:SetText(hairPrice..' + '..dyePrice..' TP');
@@ -373,14 +308,6 @@ function BEAUTYSHOP_SIMPLELIST_DRAW_ITEM_DETAIL(ctrlset, itemCls, info)
     frame:SetUserValue('PRICE_INFO_CLASSNAME', priceInfo.ClassName);
     frame:SetUserValue('PRICE_INFO_COLORCLASSNAME', priceInfo.ColorClassName);
     frame:SetUserValue('PRICE_INFO_COLORENGNAME', priceInfo.ColorEngName);
-
-  elseif skinPrice > 0 then
-    rtNxp:SetText(skinPrice..' TP');
-    totalPrice = skinPrice;
-
-    local frame = ctrlSet:GetTopParentFrame();
-    frame:SetUserValue('PRICE_INFO_SKIN_IDSPACE', priceInfo.IDSpace);
-    frame:SetUserValue('PRICE_INFO_SKIN_CLASSNAME', priceInfo.ClassName);
   else
     if price == -1 then
       isNoPurchaseItem = true;
@@ -390,7 +317,7 @@ function BEAUTYSHOP_SIMPLELIST_DRAW_ITEM_DETAIL(ctrlset, itemCls, info)
       totalPrice = price;
     end
   end
-  
+
   local dupText = GET_CHILD(ctrlSet, 'dupText');
   if isNoPurchaseItem == true then
     dupText:SetText(ClMsg('ItemsThatCanNotBePurchased'));
@@ -402,24 +329,18 @@ function BEAUTYSHOP_SIMPLELIST_DRAW_ITEM_DETAIL(ctrlset, itemCls, info)
   ctrlset:SetUserValue('TOTAL_PRICE', totalPrice);
   ctrlset:SetUserValue('HAIR_PRICE', hairPrice);
   ctrlset:SetUserValue('DYE_PRICE', dyePrice);
-  ctrlset:SetUserValue('SKIN_PRICE', skinPrice);
-  
+
   -- 구매를 위한 정보 세팅
   local hairClassName = info['HairClassName'];
   if hairClassName ~= 'None' then
-    local id_space = 'Beauty_Shop_Hair'
-    if IS_SEASON_SERVER() == 'YES' then
-      id_space = 'Beauty_Shop_Hair_Season'
-    end
-
-      idSpace = id_space;
+      idSpace = 'Beauty_Shop_Hair';
       className = hairClassName;
   end
   ctrlset:SetUserValue('IDSPACE', idSpace);
   ctrlset:SetUserValue('CLASS_NAME', className);
   ctrlset:SetUserValue('COLOR_CLASS_NAME', info['ColorClassName']);
 
-  return hairPrice, dyePrice, skinPrice;
+  return hairPrice, dyePrice;
 end
 
 function BEAUTYSHOP_SIMPLELIST_GET_PURCHASE_TP(frame)
@@ -435,11 +356,6 @@ end
 function BEAUTYSHOP_SIMPLELIST_GET_DYE_COUPON_TP(frame)
   local rtColorcouponTP = GET_CHILD_RECURSIVELY(frame, 'rtColorcouponTP');
   return tonumber(rtColorcouponTP:GetTextByKey('value'));
-end
-
-function BEAUTYSHOP_SIMPLELIST_GET_SKIN_COUPON_TP(frame)
-  local rtSkincouponTP = GET_CHILD_RECURSIVELY(frame, 'rtSkincouponTP');
-  return tonumber(rtSkincouponTP:GetTextByKey('value'));
 end
 
 function BEAUTYSHOP_SIMPLLIST_MINIMIZE(parent, ctrl)
@@ -505,24 +421,8 @@ function BEAUTYSHOP_SIMPLELIST_APPLY_DYE_COUPON(parent, ctrl)
   BEAUTYSHOP_SIMPLELIST_APPLY_COUPON(frame, 'dyeCouponSlotset');
 end
 
-function BEAUTYSHOP_SIMPLELIST_CANCEL_SKIN_COUPON(parent, ctrl)  
-  local frame = parent:GetTopParentFrame();
-  local skinCouponBox = GET_CHILD_RECURSIVELY(frame, 'skinCouponBox');
-  local skinCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'skinCouponSlotset');
-  skinCouponSlotset:ClearSelectedSlot();
-  skinCouponBox:ShowWindow(0);
-  BEAUTYSHOP_SIMPLELIST_APPLY_COUPON(frame, 'skinCouponSlotset');
-end
-
-function BEAUTYSHOP_SIMPLELIST_APPLY_SKIN_COUPON(parent, ctrl)
-  local frame = parent:GetTopParentFrame();
-  local dyeCouponBox = GET_CHILD_RECURSIVELY(frame, 'skinCouponBox');
-  dyeCouponBox:ShowWindow(0);
-  BEAUTYSHOP_SIMPLELIST_APPLY_COUPON(frame, 'skinCouponSlotset');
-end
-
 function SHOW_BEAUTYSHOP_SIMPLELIST(isTryMode, list, shopName)  
-  local frame = ui.GetFrame('beautyshop_simplelist');
+    local frame = ui.GetFrame('beautyshop_simplelist');
     frame:SetUserValue('CURRENT_SHOP', shopName);
 
     -- 구매와 입어보기일 때 위치를 바꿔주세요.
@@ -599,18 +499,6 @@ function BEAUTYSHOP_SIMPLELIST_OPEN_COLOR_COUPON(parent, ctrl)
   end
 end
 
-function BEAUTYSHOP_SIMPLELIST_OPEN_SKIN_COUPON(parent, ctrl)
-  local frame = parent:GetTopParentFrame();
-  local skinCouponBox = GET_CHILD_RECURSIVELY(frame, 'skinCouponBox');
-  skinCouponBox:ShowWindow(1);
-
-  local skinCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'skinCouponSlotset');
-  local selectedSlotCount = skinCouponSlotset:GetSelectedSlotCount();
-  if selectedSlotCount < 1 then
-    BEAUTYSHOP_SIMPLELIST_MAKE_COUPON_SLOTSET(frame, skinCouponSlotset, 'Skin');
-  end
-end
-
 function BEAUTYSHOP_SIMPLELIST_RESET_SLOTSET(slotset)
   slotset:ClearSelectedSlot();
   slotset:SetUserValue('USE_COUPON_GUID', 0);
@@ -622,9 +510,6 @@ function BEAUTYSHOP_SIMPLELIST_APPLY_COUPON(frame, slotsetName)
   local type = 'HAIR';
   if string.find(slotsetName, 'hair') ~= nil then
     textCtrl = GET_CHILD_RECURSIVELY(frame, 'rtHaircouponTP');
-  elseif string.find(slotsetName, 'skin') ~= nil then
-    textCtrl = GET_CHILD_RECURSIVELY(frame, 'rtSkincouponTP');
-    type = "SKIN";
   else
     textCtrl = GET_CHILD_RECURSIVELY(frame, 'rtColorcouponTP');
     type = 'DYE';
@@ -643,26 +528,14 @@ function BEAUTYSHOP_SIMPLELIST_APPLY_COUPON(frame, slotsetName)
       ColorClassName = frame:GetUserValue('PRICE_INFO_COLORCLASSNAME'),
       ColorEngName = frame:GetUserValue('PRICE_INFO_COLORENGNAME'),
     };
-local couponCls = GetClass('Item', slot:GetUserValue('COUPON_CLASS_NAME'));
-    local hairCoupon, dyeCoupon, skinCoupon;
+    local couponCls = GetClass('Item', slot:GetUserValue('COUPON_CLASS_NAME'));
+    local hairCoupon, dyeCoupon;
     if type == 'HAIR' then
       hairCoupon = couponCls;
-    elseif type == 'SKIN' then
-      priceInfo.IDSpace = frame:GetUserValue('PRICE_INFO_SKIN_IDSPACE');
-      priceInfo.ClassName = frame:GetUserValue('PRICE_INFO_SKIN_CLASSNAME');
-      skinCoupon = couponCls;
     else
       dyeCoupon = couponCls;
     end    
-
-    local priceResult = GET_BEAUTYSHOP_ITEM_PRICE(pc, priceInfo, hairCoupon, dyeCoupon, skinCoupon);
-    local dummy1 = priceResult.totalPrice;
-    local dummy2 = priceResult.hairPrice;
-    local dummy3 = priceResult.colorDyePrice;
-    local hairDiscountValue = priceResult.hairDiscountValue;
-    local dyeDiscountValue = priceResult.dyeDiscountValue;
-    local skinDiscountValue = priceResult.skinDiscountValue;
-
+    local dummy1, dummy2, dummy3, hairDiscountValue, dyeDiscountValue = GET_BEAUTYSHOP_ITEM_PRICE(pc, priceInfo, hairCoupon, dyeCoupon);
     local rtBasketTP = GET_CHILD_RECURSIVELY(frame, 'rtBasketTP');
     local price = GET_TOTAL_ITEM_PRICE_BY_TYPE(frame, type);
     if price < 1 then
@@ -674,8 +547,6 @@ local couponCls = GetClass('Item', slot:GetUserValue('COUPON_CLASS_NAME'));
     local discountValue = 0;
     if type == 'HAIR' then
       discountValue = hairDiscountValue;
-    elseif type == 'SKIN' then
-      discountValue = skinDiscountValue;
     else
       discountValue = dyeDiscountValue;
     end
@@ -763,8 +634,7 @@ function BEAUTYSHOP_LIST_PREVIEW_BUY(parent, control, strarg, numarg)
 
   local hairCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'hairCouponSlotset');
   local dyeCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'dyeCouponSlotset');  
-  local skinCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'skinCouponSlotset');  
-  BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM(idSpaceList, classNameList, colorList, hairCouponSlotset:GetUserValue('USE_COUPON_GUID'), dyeCouponSlotset:GetUserValue('USE_COUPON_GUID'), skinCouponSlotset:GetUserValue('USE_COUPON_GUID'));
+  BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM(idSpaceList, classNameList, colorList, hairCouponSlotset:GetUserValue('USE_COUPON_GUID'), dyeCouponSlotset:GetUserValue('USE_COUPON_GUID'));
   ui.CloseFrame('beautyshop_simplelist');
   ui.CloseFrame('beautyshop');  
   ui.CloseFrame('packagelist');
@@ -791,20 +661,17 @@ function _BEAUTYSHOP_LIST_PREVIEW_BUY()
 
   local hairCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'hairCouponSlotset');
   local dyeCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'dyeCouponSlotset');  
-  local skinCouponSlotset = GET_CHILD_RECURSIVELY(frame, 'skinCouponSlotset');  
-  BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM(idSpaceList, classNameList, colorList, hairCouponSlotset:GetUserValue('USE_COUPON_GUID'), dyeCouponSlotset:GetUserValue('USE_COUPON_GUID'), skinCouponSlotset:GetUserValue('USE_COUPON_GUID'));
+  BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM(idSpaceList, classNameList, colorList, hairCouponSlotset:GetUserValue('USE_COUPON_GUID'), dyeCouponSlotset:GetUserValue('USE_COUPON_GUID'));
   ui.CloseFrame('beautyshop_simplelist');
   ui.CloseFrame('beautyshop');  
   ui.CloseFrame('packagelist');
 end
 
-function BEAUTYSHOP_SIMPLELIST_ENABLE_COUPON_BTN(frame, hairExist, dyeExist, skinExist)  
+function BEAUTYSHOP_SIMPLELIST_ENABLE_COUPON_BTN(frame, hairExist, dyeExist)  
   local btnColorCouponlist = GET_CHILD_RECURSIVELY(frame, 'btnColorCouponlist');
   local btnHairCouponlist = GET_CHILD_RECURSIVELY(frame, 'btnHairCouponlist');
-  local btnSkinCouponlist = GET_CHILD_RECURSIVELY(frame, 'btnSkinCouponlist');
   btnHairCouponlist:SetEnable(hairExist);
   btnColorCouponlist:SetEnable(dyeExist);
-  btnSkinCouponlist:SetEnable(skinExist);
 end
 
 function GET_PACKAGE_ITEM_IN_BEAUTYSHOP_BASKET(frame)

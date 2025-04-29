@@ -14,7 +14,7 @@
 	<controls>
 		<groupbox name="managerTab" rect="0 0 1620 800" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="false" scrollbar="false" skin="epi_guide_frame_bg"/>
 		<groupbox name="cupole_manager_top" rect="0 0 1650 75" margin="0 105 0 0" layout_gravity="center top" draw="true" hittestbox="false" scrollbar="false" skin="relic_frame_top" stretch="true" hittest="true"/>
-		<richtext name="Title" parent="cupole_manager_top" rect="0 0 200 50" margin="0 0 0 0" layout_gravity="center center" caption="{@st43}{s24}큐폴" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="true" textalign="center center"/>
+		<richtext name="Title" parent="cupole_manager_top" rect="0 0 200 50" margin="0 0 0 0" layout_gravity="center center" caption="{@st43}{s24}큐폴" drawbackground="false" fixwidth="false" fontname="white_18_ol" resizebytext="false" textalign="center center"/>
 		<picture name="pic" parent="managerTab" rect="0 0 1600 900" margin="0 -60 0 0" layout_gravity="center center" draw="true" hittestbox="false" stretch="true" scrollbar="false" image="kupole_r_sr"/>
 		<spinepic name="spinepic" parent="managerTab" rect="0 0 1600 900" margin="0 -60 0 0" layout_gravity="center center" updateparent="true" animation="animation" scale="1.3" stretch="false" offsetX="52" offsetY="33"/>
 		<groupbox name="manageBG" parent="managerTab" rect="0 0 1600 790" margin="0 0 0 0" layout_gravity="left top" draw="true" hittestbox="true" scrollbar="false" skin="" LBtnUpScp="LBTNUP_RESET_CUPOLE_SELECT_MODE"/>

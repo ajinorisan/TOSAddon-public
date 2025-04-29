@@ -176,7 +176,7 @@
                             </ToolScp>
                         </execList>
                     </Event>
-                    <Event execCount="1" eventName="CreateEventSanta">
+                    <!-- <Event execCount="1" eventName="CreateEventSanta">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
                                 <Num Num="3"/>
@@ -189,7 +189,7 @@
                                 <Num Num="139.17"/>
                             </ToolScp>
                         </execList>
-                    </Event>
+                    </Event> -->
                 </StageEvents>
             </Stage>
             <Stage Name="Fail" AutoStart="0">

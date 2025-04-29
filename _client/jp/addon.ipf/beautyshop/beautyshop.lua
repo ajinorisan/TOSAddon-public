@@ -49,24 +49,14 @@ function BEAUTYSHOP_INIT_FUNCTIONMAP()
 	beautyShopInfo.functionMap["POST_BASKETSLOT_REMOVE"] =nil
 end
 
-function BEAUTYSHOP_DO_OPEN(frame, msg, shopTypeName, genderNum)
-	local id_space = 'Beauty_Shop_Hair'
-	local id_space_skin = 'Beauty_Shop_Skin'
-	if IS_SEASON_SERVER() == 'YES' then
-		id_space = 'Beauty_Shop_Hair_Season'
-		id_space_skin = 'Beauty_Shop_Skin_Season'
-	end
-
+function BEAUTYSHOP_DO_OPEN(frame, msg, shopTypeName, genderNum)	
 	local list ={
-		{Type="HAIR", OpenFunc = HAIRSHOP_OPEN, IDSpace = id_space},
+		{Type="HAIR", OpenFunc = HAIRSHOP_OPEN, IDSpace = 'Beauty_Shop_Hair'},
 		{Type="COSTUME", OpenFunc = COSTUMESHOP_OPEN, IDSpace = 'Beauty_Shop_Costume'},
 		{Type="WIG", OpenFunc = WIGSHOP_OPEN, IDSpace = 'Beauty_Shop_Wig'},
 		{Type="ETC", OpenFunc = ETCSHOP_OPEN, IDSpace = 'Beauty_Shop_Lens'},
 		{Type="PACKAGE", OpenFunc = PACKAGESHOP_OPEN, IDSpace = 'Beauty_Shop_Package_Cube'}, 
 		{Type="PREVIEW", OpenFunc = PREVIEWSHOP_OPEN, IDSpace = 'Beauty_Shop_Preview'}, 
-		{Type="SKIN", OpenFunc = SKINSHOP_OPEN, IDSpace = id_space_skin},
-		{Type="DESIGNCUT", OpenFunc = DESIGNCUTSHOP_OPEN, IDSpace = 'Beauty_Shop_Designcut'},
-		{Type="PREVIEW_SILVERGACHA", OpenFunc = PREVIEW_SILVERGACHA_SHOP_OPEN, IDSpace = 'Beauty_Shop_Preview_SilverGacha'},
 	};
 	
 	-- 상점 성별 설정.
@@ -320,12 +310,6 @@ function GET_BEAUTYSHOP_EQUIP_TYPE(frame, gender, itemClassName)
 		return 'package';
 	elseif shopName == 'PREVIEW' then
 		return PREVIEWSHOP_GET_ITEM_EQUIPTYPE(itemClassName);
-	elseif shopName == 'SKIN' then
-		return SKINSHOP_GET_ITEM_EQUIPTYPE(itemClassName);
-	elseif shopName == 'DESIGNCUT' then
-		return DESIGNCUTSHOP_GET_ITEM_EQUIPTYPE(gender, itemClassName);
-	elseif shopName == 'PREVIEW_SILVERGACHA' then
-		return PREVIEW_SILVERGACHA_SHOP_GET_ITEM_EQUIPTYPE(itemClassName);
 	end
 	return nil;
 end
@@ -410,7 +394,7 @@ function BEAUTYSHOP_SELECT_ITEM(parent, control, argStr, argNum)
 			end
 			return false;
 		end
-		
+
 		BEAUTYSHOP_CLEAR_SLOT(slot);
 	end
 	
@@ -435,7 +419,7 @@ function BEAUTYSHOP_SELECT_ITEM(parent, control, argStr, argNum)
 	picCheck_new:SetVisible(1)
 	frame:Invalidate()
 	
-	-- 처리   
+	-- 처리
 	if beautyShopInfo.functionMap["POST_SELECT_ITEM"]  ~= nil then
 		beautyShopInfo.functionMap.POST_SELECT_ITEM(frame, control)
 	end
@@ -522,7 +506,7 @@ function BEAUTYSHOP_TRY_IT_ON(parent, ctrl)
 		ui.SysMsg(ClMsg('EmptyPreviewSlot'));
 		return;
 	end
-	
+
 	-- 인벤토리에서 헤어 악세서리 보이기/안보이기 확인.
 	if BEAUTYSHOP_IS_HAIR_ACCESSORY_VISIBLE(frame) == false then
 		ui.MsgBox(ClMsg('Hair_Accessory_Visible'));
@@ -602,7 +586,7 @@ function _BEAUTYSHOP_ITEM_TO_BASKET_PREPROCESSOR(itemClassName, parentName, idSp
 	local beautyShopCls = GetClass(idSpace, shopClassName);
 	local ret, reason, argStr = IS_ENABLE_EQUIP_AT_BEAUTYSHOP(item, beautyShopCls);    
 	if ret == false then
-		if idSpace == 'Beauty_Shop_Hair' or idSpace == 'Hair_Dye_List' or idSpace == 'Beauty_Shop_Hair_Season' then
+		if idSpace == 'Beauty_Shop_Hair' or idSpace == 'Hair_Dye_List' then
 			return;
 		end
 
@@ -690,11 +674,6 @@ function BEAUTYSHOP_IS_CURRENT_HAIR(hairItemClassName, colorName)
 	return false
 end
 
-function BEAUTYSHOP_IS_CURRENT_SKINTONE(skinItemClassName)
-	local pc = GetMyPCObject()
-	return IS_SAME_PC_ETC_PROPERTY(pc, "SkintoneName", skinItemClassName);
-end
-
 function BEAUTYSHOP_ITEM_TO_BASKET(ItemClassName, ItemClassID, SubItemStrArg, ctrlset, force)
 	local item = GetClassByType("Item", ItemClassID)
 	if item == nil then    
@@ -712,7 +691,7 @@ function BEAUTYSHOP_ITEM_TO_BASKET(ItemClassName, ItemClassID, SubItemStrArg, ct
 
 	-- hair나 hair color일 경우 검사.
 	local idSpace = ctrlset:GetUserValue('IDSPACE');
-	if idSpace == 'Beauty_Shop_Hair' or idSpace == 'Hair_Dye_List' or idSpace == 'Beauty_Shop_Hair_Season' then
+	if idSpace == 'Beauty_Shop_Hair' or idSpace == 'Hair_Dye_List' then
 		-- 현재 하고 있는 헤어인지 검사한다.
 		local color = 'default'
 		if colorName ~= 'None' then
@@ -729,20 +708,6 @@ function BEAUTYSHOP_ITEM_TO_BASKET(ItemClassName, ItemClassID, SubItemStrArg, ct
 		if force ~= true and alreadySlot ~= nil then
 			local yesscp = string.format('_BEAUTYSHOP_ITEM_TO_BASKET("%s", %d, "%s", "%s", %d)', ItemClassName, ItemClassID, colorName, ctrlset:GetName(), alreadySlot:GetSlotIndex());
 			ui.MsgBox(ClMsg('BEAUTY_SHOP_ONLY_ONE_HAIR'), yesscp, 'None');
-			return;
-		end
-	elseif  idSpace == 'Beauty_Shop_Skin' or idSpae == 'Beauty_Shop_Skin_Season' then -- skin의 경우 검사.
-		-- 현재 스킨톤과 같은지 검사.
-		if BEAUTYSHOP_IS_CURRENT_SKINTONE(ItemClassName) == true then
-			ui.MsgBox(ClMsg('BEAUTY_SHOP_SAME_SKIN_UNABLE_PURCHASE'));
-			return;
-		end
-
-		-- 이미 스킨이 장바구니에 있는지 검사
-		local alreadySlot = IS_ALREAY_PUT_SKIN_IN_BASKET(topFrame, slotset);
-		if force ~= true and alreadySlot ~= nil then
-			local yesscp = string.format('_BEAUTYSHOP_ITEM_TO_BASKET("%s", %d, "%s", "%s", %d)', ItemClassName, ItemClassID, colorName, ctrlset:GetName(), alreadySlot:GetSlotIndex());
-			ui.MsgBox(ClMsg('BEAUTY_SHOP_ONLY_ONE_SKIN'), yesscp, 'None');
 			return;
 		end
 	end
@@ -774,22 +739,13 @@ function BEAUTYSHOP_ITEM_TO_BASKET(ItemClassName, ItemClassID, SubItemStrArg, ct
 		      ClassName = beautyShopClsName,
 		      ColorClassName = ctrlset:GetUserValue('COLOR_CLASS_NAME'),
 		      ColorEngName = colorName,
-			};
-
-			if priceInfo.IDSpace =="Hair_Dye_List" then
-				local id_space = 'Beauty_Shop_Hair'
-				if IS_SEASON_SERVER() == 'YES' then
-					id_space = 'Beauty_Shop_Hair_Season'
-				end
-			  priceInfo.IDSpace = id_space
-			  priceInfo.ClassName = item.ClassName;
-			end
-			slot:SetUserValue('COLOR_NAME', colorName);
-			
-			local priceResult = GET_BEAUTYSHOP_ITEM_PRICE(pc, priceInfo, nil, nil, nil);	
-			local price = priceResult.totalPrice;
-			local hairPrice = priceResult.hairPrice;
-			local dyePrice = priceResult.colorDyePrice;
+		    };
+		    if priceInfo.ColorClassName ~= 'None' then
+		      priceInfo.IDSpace = 'Beauty_Shop_Hair';
+		      priceInfo.ClassName = item.ClassName;
+		    end
+            slot:SetUserValue('COLOR_NAME', colorName);
+		    local price, hairPrice, dyePrice = GET_BEAUTYSHOP_ITEM_PRICE(pc, priceInfo, nil, nil);		    
             slot:SetUserValue('TOTAL_PRICE', price);
 
 			SET_SLOT_IMG(slot, GET_ITEM_ICON_IMAGE(item));
@@ -891,7 +847,7 @@ function BEAUTYSHOP_UPDATE_ITEM_LIST(itemList, itemCount)
 	-- 목록 채우기
 	for i = 1, itemCount  do
 		local itemInfo = itemList[i]
-		local itemObj = GetClass("Item", itemInfo.ItemClassName);		
+		local itemObj = GetClass("Item", itemInfo.ItemClassName);
 		if itemObj ~= nil and IS_NEED_TO_SHOW_BEAUTYSHOP_ITEM(topFrame, itemObj, itemInfo) == true then
 			if showEnalbeEquip == false then
 				--모두 보기
@@ -914,7 +870,7 @@ function BEAUTYSHOP_UPDATE_ITEM_LIST(itemList, itemCount)
 						end
 					end
 				end
-				
+
 				BEAUTYSHOP_DRAW_ITEM_DETAIL(itemInfo ,itemObj, ctrlSet);
 			else
 				--착용 가능한 것만 보이기
@@ -1091,26 +1047,22 @@ local function BEAUTYSHOP_SET_PREVIEW_HAIR_COLOR(apc)
 	local pc = GetMyPCObject()
 	local nowheadindex = item.GetHeadIndex();
 
-	local PartClass = imcIES.GetClass("CreatePcInfo", "Hair");
-	local GenderList = PartClass:GetSubClassList();
-	local Selectclass   = GenderList:GetClass(pc.Gender);
+	local Rootclasslist = imcIES.GetClassList("HairType");
+	local Selectclass   = Rootclasslist:GetClass(pc.Gender);
 	local Selectclasslist = Selectclass:GetSubClassList();
 
-	local nowhaircls = Selectclasslist:GetClass(nowheadindex);
-	if nowhaircls == nil then
-		return;
-	end
+	local nowhaircls = Selectclasslist:GetByIndex(nowheadindex-1);
 	
 	local nowengname = imcIES.GetString(nowhaircls, "EngName") 
-	local nowcolor = imcIES.GetString(nowhaircls, "EngColor")
+	local nowcolor = imcIES.GetString(nowhaircls, "ColorE")
 	
 	local listCount = Selectclasslist:Count();
 	
-	for i = 0, listCount do
+	for i=0, listCount do
 		local cls = Selectclasslist:GetByIndex(i);
 		if cls ~= nil then
-			if nowengname == imcIES.GetString(cls, "EngName") and nowcolor == imcIES.GetString(cls, "EngColor") then
-				apc:SetHeadType(cls:GetID());
+			if nowengname == imcIES.GetString(cls, "EngName") and nowcolor == imcIES.GetString(cls, "ColorE") then
+				apc:SetHeadType(i + 1);
 				break;
 			end
 		end
@@ -1134,7 +1086,6 @@ function BEAUTYSHOP_GET_PREVIEW_NAME_LIST()
 		"slotPreview_lh", 
 		"slotPreview_rh",
 		"slotPreview_doll",
-		"slotPreview_skin",
 	}
 	return slotNamelist
 end
@@ -1280,9 +1231,7 @@ function BEAUTYSHOP_GET_PREIVEW_SLOT_NAME(equipType, itemClassName)
 			{previewEquipName = "armband" , slotName = "slotPreview_armband"},
 			{previewEquipName = "lh" , slotName = "slotPreview_lh"},
 			{previewEquipName = "rh" , slotName = "slotPreview_rh"},
-			{previewEquipName = "doll" , slotName = "slotPreview_doll"},
-			{previewEquipName = "skin" , slotName = "slotPreview_skin"},
-			{previewEquipName = "designcut" , slotName = "slotPreview_wig"}
+			{previewEquipName = "doll" , slotName = "slotPreview_doll"}
 	}
 
 	local _equipType = BEAUTYSHOP_GET_ITEM_EQUIPTYPE_BY_ITEMCLASSNAME(equipType,itemClassName )
@@ -1318,23 +1267,12 @@ function BEAUTYSHOP_GET_HEADINDEX(gender, itemClassName, colorName)
 		hairEngName = itemObj.StringArg;
 	end
 
-	local is_helmet = false;
-	if itemObj ~= nil and TryGetProp(itemObj, "EqpType", "None") == "HELMET" then
-		is_helmet = true;
-	end
-
 	local hairIndex = ui.GetHeadIndexByXML(gender, hairEngName, colorName);
-	if hairIndex == 0 then
-		hairIndex = ui.GetHeadIndexByXML(gender, hairEngName, "default");
-		if is_helmet == false then
-			ui.SysMsg(ClMsg('DesigncutNoExistColor'));
-		end
-	end
 	return hairIndex
 end
 
 function BEAUTYSHOP_SET_PREVIEW_HAIR_EQUIP_SLOT(apc, slot, existItem, classname)
-	
+
 	if apc == nil or slot == nil or existItem == nil or classname == nil then
 		return
 	end
@@ -1349,10 +1287,10 @@ function BEAUTYSHOP_SET_PREVIEW_HAIR_EQUIP_SLOT(apc, slot, existItem, classname)
 		colorName = 'default'
 	end
 	apc:SetEquipItem(item.GetEquipSpotNum(defaultEqpSlot), 0);
-
 	-- headindex 구해서 적용.
-	local headIndex = BEAUTYSHOP_GET_HEADINDEX(apc:GetGender(), classname, colorName);
+	local headIndex = BEAUTYSHOP_GET_HEADINDEX(apc:GetGender(), classname, colorName )
 	apc:SetHeadType(headIndex);
+
 end
 
 function BEAUTYSHOP_SET_PREVIEW_WIG_EQUIP_SLOT(apc, existItem, classname)
@@ -1372,28 +1310,6 @@ function BEAUTYSHOP_SET_PREVIEW_WIG_EQUIP_SLOT(apc, existItem, classname)
 	apc:SetHeadType(headIndex);
 	-- 장착
 	apc:SetEquipItem(item.GetEquipSpotNum(defaultEqpSlot), existItem.ClassID);	
-	gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), item.GetEquipSpotNum(defaultEqpSlot), existItem.ClassID);
-end
-
-function BEAUTYSHOP_SET_PREVIEW_DESIGNCUT_EQUIP_SLOT(apc, slot, existItem, classname)
-	if apc == nil or slot == nil or existItem == nil or classname == nil then
-		return
-	end
-
-	local defaultEqpSlot = TryGetProp(existItem,"DefaultEqpSlot")
-	if defaultEqpSlot == nil then
-		return
-	end
-
-	local colorName = slot:GetUserValue("COLOR_NAME")
-	if colorName == nil or colorName == "None" then
-		colorName = "default"
-	end
-
-	local headIndex = BEAUTYSHOP_GET_HEADINDEX(apc:GetGender(), classname, colorName);
-	apc:SetHeadType(headIndex);
-	apc:SetEquipItem(item.GetEquipSpotNum(defaultEqpSlot), 0);
-	apc:SetHairWigVisible(true);
 end
 
 function BEAUTYSHOP_SET_PREVIEW_WIG_DYE_EQUIP_SLOT(apc, topFrame, wigVisible, existItem)
@@ -1444,7 +1360,7 @@ end
 
 function BEAUTYSHOP_SET_PREVIEW_WEAPON_EQUIP_SLOT(apc, slot, existItem, classname)
 	
-	if apc == nil or slot == nil  or classname == nil then
+	if apc == nil or slot == nil or slot == nil or classname == nil then
 		return
 	end
 	-- 선행 조건들 처리 (선행 조건에 해당하면 설정하고 리턴시켜야함)
@@ -1463,14 +1379,11 @@ function BEAUTYSHOP_SET_PREVIEW_WEAPON_EQUIP_SLOT(apc, slot, existItem, classnam
 			if slotName == "slotPreview_lh" then
 				-- 왼손/오른손 상관없이 장비한다.
 				apc:SetEquipItem(ES_RH, existItem.ClassID);
-				gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), ES_LH, existItem.ClassID);
 			elseif slotName == "slotPreview_rh" then
 				-- 양손이라면 왼손과 똑같은 무기가 들어 있어야 한다.
 				if eqpType == "SH" then -- 한손무기일 경우
 					apc:SetEquipItem(ES_LH, existItem.ClassID);
-					gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), ES_LH, existItem.ClassID);
 				end
-				gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), ES_RH, existItem.ClassID);
 				-- 양손무기라면 그냥 리턴된다.
 			end
 			return
@@ -1482,22 +1395,6 @@ function BEAUTYSHOP_SET_PREVIEW_WEAPON_EQUIP_SLOT(apc, slot, existItem, classnam
 	if defaultEqpSlot ~= nil then
 		apc:SetEquipItem(item.GetEquipSpotNum(defaultEqpSlot), existItem.ClassID);
 	end
-end
-
--- 스킨 슬롯 미리보기 처리
-function BEAUTYSHOP_SET_PREVIEW_SKIN_EQUIP_SLOT(apc, existItem)
-	local skintoneName = TryGetProp(existItem, "StringArg"); 
-	if skintoneName ~= nil then
-		local skintone = GetClass("SkinTone",skintoneName);
-		if skintone ~= nil then
-			local r = TryGetProp(skintone, "Red");
-			local g = TryGetProp(skintone, "Green");
-			local b = TryGetProp(skintone, "Blue");
-			if r ~= nil and g ~= nil and b ~= nil then
-				apc:SetSkinColorRGB(r,g,b);
-			end
-		end
-	end 
 end
 
 function BEAUTYSHOP_SET_PREVIEW_SLOT_LIST(apc)
@@ -1534,16 +1431,10 @@ function BEAUTYSHOP_SET_PREVIEW_SLOT_LIST(apc)
 					BEAUTYSHOP_SET_PREVIEW_WIG_DYE_EQUIP_SLOT(apc, topFrame, wigVisible, existItem);
 				elseif type == "weapon" or type == "rh" or type == "lh" then -- weapon (rh, lh)
 					BEAUTYSHOP_SET_PREVIEW_WEAPON_EQUIP_SLOT(apc, slot, existItem, classname);
-				elseif type == "skin" then
-					BEAUTYSHOP_SET_PREVIEW_SKIN_EQUIP_SLOT(apc, existItem);
-				elseif type == "designcut" then
-					wigVisible = visible;
-					BEAUTYSHOP_SET_PREVIEW_DESIGNCUT_EQUIP_SLOT(apc, slot, existItem, classname);
 				else -- 그외
 					local defaultEqpSlot = TryGetProp(existItem,"DefaultEqpSlot")
 					if defaultEqpSlot ~= nil  then -- DefaultEqpSlot이 있는것만.
 						apc:SetEquipItem(item.GetEquipSpotNum(defaultEqpSlot), existItem.ClassID);
-						gereinforceeffect.SetBeautyShopPreviewEquipItem(apc:GetName(), item.GetEquipSpotNum(defaultEqpSlot), existItem.ClassID);
 					end
 				end
 			end			
@@ -1566,7 +1457,7 @@ function BEAUTYSHOP_CANCEL_SELECT_ITEM(frame, control)
 	local savedClassName = control:GetUserValue('CLASSNAME')
 	
 	-- 헤어샵 일 때는 캔슬하지 않음.
-	if savedIDSpace == 'Beauty_Shop_Hair' or saveIDSpace == 'Beauty_Shop_Hair_Season' then
+	if savedIDSpace == 'Beauty_Shop_Hair' then
 		return
 	end
 
@@ -1759,7 +1650,7 @@ function BEAUTYSHOP_SET_PREVIEW_APC_IMAGE(frame, rotDir)
 	else 
 		imgName = ui.CaptureMyFullStdImageByAPC(apc, rotDir, 1);
 	end
-	
+
 	shihouette:SetImage(imgName);
 	frame:Invalidate();
 end
@@ -1809,17 +1700,17 @@ function BEAUTYSHOP_BUY_BASKET_BTN_CLICK(parent, ctrl)
 		return;
 	end
 
-	local frame = parent:GetTopParentFrame();
-	local list = GET_CURRENT_BASKET_ITEM_LIST(frame);
+    local frame = parent:GetTopParentFrame();
+    local list = GET_CURRENT_BASKET_ITEM_LIST(frame);
     if #list < 1 then
     	ui.SysMsg(ClMsg('EmptyBasket'));
     	return;
-	end
+    end
 	SHOW_BEAUTYSHOP_SIMPLELIST(false, list);
 end
 
 function GET_CURRENT_TRY_ON_ITEM_LIST(frame)
-	local equipTypeList = {'hair', 'wig', 'wig_dye', 'hair_costume_1', 'hair_costume_2', 'hair_costume_3', 'lens', 'costume', 'wing', 'effect_costume', 'armband', 'lh', 'rh', 'doll', 'skin'};
+	local equipTypeList = {'hair', 'wig', 'wig_dye', 'hair_costume_1', 'hair_costume_2', 'hair_costume_3', 'lens', 'costume', 'wing', 'effect_costume', 'armband', 'lh', 'rh', 'doll'};
 	local list = {};
 	for i = 1, #equipTypeList do
 		local slot = GET_CHILD_RECURSIVELY(frame, 'slotPreview_'..equipTypeList[i]);
@@ -1827,7 +1718,7 @@ function GET_CURRENT_TRY_ON_ITEM_LIST(frame)
 		if clsName ~= 'None' then
 			list[#list + 1] = {};
             local listItem = list[#list];
-			listItem['IDSpace'] = slot:GetUserValue('IDSPACE');
+            listItem['IDSpace'] = slot:GetUserValue('IDSPACE');
             listItem['ClassName'] = slot:GetUserValue('SHOP_CLASSNAME');
             listItem['ItemClassName'] = clsName;
             listItem['equipType'] = equipTypeList[i];
@@ -1877,19 +1768,7 @@ function IS_ALREAY_PUT_HAIR_IN_BASKET(frame, slotset)
 	for i = 0, slotCount - 1 do
 		local slot = slotset:GetSlotByIndex(i);		
 		local idSpace = slot:GetUserValue('IDSPACE');
-		if idSpace == 'Beauty_Shop_Hair' or idSpace == 'Hair_Dye_List' or idSpace == 'Beauty_Shop_Hair_Season' then
-			return slot;
-		end
-	end
-	return nil;
-end
-
-function IS_ALREAY_PUT_SKIN_IN_BASKET(frame, slotset)
-	local slotCount = slotset:GetSlotCount();
-	for i = 0, slotCount - 1 do
-		local slot = slotset:GetSlotByIndex(i);		
-		local idSpace = slot:GetUserValue('IDSPACE');
-		if idSpace == 'Beauty_Shop_Skin' or idSpace == 'Beauty_Shop_Skin_Season' then
+		if idSpace == 'Beauty_Shop_Hair' or idSpace == 'Hair_Dye_List' then
 			return slot;
 		end
 	end
@@ -1931,7 +1810,7 @@ end
 function BEAUTYSHOP_INIT_DROPLIST(frame)
 	local cateDrop = GET_CHILD_RECURSIVELY(frame, 'cateDrop');
 	local shopTypeName = frame:GetUserValue('CURRENT_SHOP');
-	if shopTypeName == 'HAIR' or shopTypeName == "DESIGNCUT" then
+	if shopTypeName == 'HAIR' then
 		cateDrop:ShowWindow(0);
 		return;
 	end
@@ -1967,20 +1846,11 @@ function BEAUTYSHOP_UPDATE_ITEM_LIST_BY_SHOP(frame)
 	elseif shopName == 'PREVIEW' then
 		PREVIEWSHOP_INIT_FUNCTIONMAP();
 		PREVIEWSHOP_GET_SHOP_ITEM_LIST();
-	elseif shopName == 'SKIN' then
-		SKINSHOP_INIT_FUNCTIONMAP();
-		SKINSHOP_GET_SHOP_ITEM_LIST();
-	elseif shopName == 'DESIGNCUT' then
-		DESIGNCUTSHOP_INIT_FUNCTIONMAP();
-		DESIGNCUTSHOP_GET_SHOP_ITEM_LIST(BEAUTYSHOP_GET_GENDER());
-	elseif shopName == 'PREVIEW_SILVERGACHA' then
-		PREVIEW_SILVERGACHA_SHOP_INIT_FUNCTIONMAP();
-		PREVIEW_SILVERGACHA_SHOP_GET_SHOP_ITEM_LIST();
 	end
 end
 
 ----------- 구매
-function  BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM(idSpaceList, classNameList, colorList, hairCouponGuid, dyeCouponGuid, skinCouponGuid)
+function  BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM(idSpaceList, classNameList, colorList, hairCouponGuid, dyeCouponGuid)
     if #idSpaceList ~= #classNameList or #idSpaceList ~= #colorList then
         IMC_LOG('ERROR_LOGIC', 'BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM: list count must be equal- idspace['..#idSpaceList..'], className['..#classNameList..'], color['..#colorList..']');
         return;
@@ -1991,7 +1861,7 @@ function  BEAUTYSHOP_EXEC_BUY_PURCHASE_ITEM(idSpaceList, classNameList, colorLis
     for i = 1, #idSpaceList do
     	session.beautyshop.AddPurchaseItem(idSpaceList[i], classNameList[i], colorList[i]);
     end
-	session.beautyshop.SendPurchaseItemList(hairCouponGuid, dyeCouponGuid, skinCouponGuid);
+	session.beautyshop.SendPurchaseItemList(hairCouponGuid, dyeCouponGuid);
 	
 	local frame = ui.GetFrame('beautyshop');
 	BEAUTYSHOP_RESET_SLOT(frame);
@@ -2021,7 +1891,7 @@ function BEAUTYSHOP_INIT_RIGHTTOP_BOX(frame)
 	local infoText = GET_CHILD_RECURSIVELY(frame, 'infoText');
 
 	local shopName = frame:GetUserValue('CURRENT_SHOP');
-	if shopName == 'HAIR' or shopName == "DESIGNCUT" then
+	if shopName == 'HAIR' then
 		rtSubItemTitle:ShowWindow(1);
 		gbSubItem:ShowWindow(1);
 		infoText:ShowWindow(1);
@@ -2146,6 +2016,7 @@ end
 
 function BEAUTYSHOP_DETAIL_SET_PRICE_TEXT(ctrlset, beautyShopCls)
 	local nxp = GET_CHILD(ctrlset, 'nxp');
+
 	if beautyShopCls.Price == -1 then
 		nxp:SetText("{@st43}{s18}-{/}");
 	else
@@ -2163,27 +2034,13 @@ end
 function GET_ALLOW_DUPLICATE_ITEM_CLIENT_MSG(itemClassName) -- return 'buy case client msg', 'preview case client msg'
 	local itemCls = GetClass('Item', itemClassName);
 	if itemCls.Script == 'SCR_USE_ITEM_HAIRCOLOR' then -- 염색약 처리
-		local color = itemCls.StringArg;
-		if IS_ACHIEVE_HAIR_COLOR(color) == true then 
-			local acc = GetMyAccountObj();
-			if acc ~= nil then
-				if TryGetProp(acc, "HairColor_"..itemCls.StringArg, 0) == 1 then
-					return 'AlreadyHaveWigDye', 'AlreadyHaveWigDyePreview';
-				end
-			end
-		else
-			local etc = GetMyEtcObject();
-			if etc ~= nil then
-				if TryGetProp(etc, 'HairColor_'..itemCls.StringArg, 0) == 1 then
-					return 'AlreadyHaveWigDye', 'AlreadyHaveWigDyePreview';
-				end
-			end
+		local etc = GetMyEtcObject();		
+		if TryGetProp(etc, 'HairColor_'..itemCls.StringArg, 0) == 1 then
+			return 'AlreadyHaveWigDye', 'AlreadyHaveWigDyePreview';
 		end
-
 		if session.GetInvItemByType(itemCls.ClassID) ~= nil then
 			return 'AlreadyHaveWigDye', 'AlreadyHaveWigDyePreview';
 		end
-
 		if session.GetWarehouseItemByType(itemCls.ClassID) ~= nil then
 			return 'AlreadyHaveWigDye', 'AlreadyHaveWigDyePreview';
 		end
@@ -2201,7 +2058,7 @@ function GET_ALLOW_DUPLICATE_ITEM_CLIENT_MSG(itemClassName) -- return 'buy case 
 	end
 	if session.GetWarehouseItemByType(itemCls.ClassID) ~= nil then
 		return 'AlearyHaveItemReallyBuy?', 'AlreadyHaveWannaRebuyFromPreview';
-	end	
+	end
 	return '', '';
 end
 

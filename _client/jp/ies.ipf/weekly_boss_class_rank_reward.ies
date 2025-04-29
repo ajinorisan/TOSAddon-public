@@ -100,3 +100,6 @@ ClassID,reward_id,class_id,Desc,rank_1
 99,1,5020,"벌처[T]","Item_Achieve_plate_Vulture/1;"
 100,1,4024,"슬레저[C]","Item_Achieve_plate_Sledger/1;"
 101,1,1027,"슬레저[S]","Item_Achieve_plate_Sledger/1;"
+102,1,1028,"본맨서[S]","Item_Achieve_plate_Bonemancer/1;"
+103,1,3109,"본맨서[A]","Item_Achieve_plate_Bonemancer/1;"
+104,1,4025,"본맨서[C]","Item_Achieve_plate_Bonemancer/1;"

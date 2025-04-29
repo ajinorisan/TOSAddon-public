@@ -20718,3 +20718,22 @@ function SCR_GET_Sledgehammer_Ratio(skill)
 
     return value
 end
+
+function SCR_GET_BoneFist_Ratio(skill)
+    local value = 5
+    local pc = GetSkillOwner(skill)
+    local abil = GetAbility(pc, "Bonemancer7")
+    if abil ~= nil and TryGetProp(abil, "ActiveState", 0) == 1 then
+        value = 1
+    end
+
+    return value
+end
+
+function SCR_GET_BoneShield_Ratio(skill)
+    local value = TryGetProp(skill, "Level", 1) * 3
+
+    value = value * SCR_REINFORCEABILITY_TOOLTIP(skill)
+
+    return value
+end

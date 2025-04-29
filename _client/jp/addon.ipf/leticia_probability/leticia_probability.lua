@@ -40,6 +40,9 @@ function GET_LIST_BY_FRAME_TYPE(frame)
         CREATE_PROBABILITY_ROUND_BTN(RounTab)
         RounTab:ShowWindow(1)
         TopTab:ShowWindow(0)
+    elseif TypeNum == 3 then
+        table = GET_GODDESS_CUBE_PROBABILITY("Gacha_Blessed_CUBE_001")
+        TopTab:ShowWindow(1);
     else
         table = GET_STEP_GACHA_PROBABILITY_TABLE(Round);
         RounTab:ShowWindow(0)
@@ -77,7 +80,7 @@ function LETICIA_PROBABILTY_SEARCH_TAB(parent, ctrl, argStr, argNum)
     local frame = parent:GetTopParentFrame();
     local managerTab = GET_CHILD(frame, "managerTab");
     local SlotTab = GET_CHILD(managerTab,"SlotTab")
-    local leticia_table = LETICIA_CUBE_ITEM_LIST_BUTTON();
+    local leticia_table = GET_LIST_BY_FRAME_TYPE(frame);
 
     local input = GET_CHILD_RECURSIVELY(frame, "input");
 	local searchFortext = input:GetText();
@@ -107,9 +110,9 @@ function LETICIA_PROBABILITY_SEARCH_CLICK(parent, ctrl, argStr, argNum)
     local frame = parent:GetTopParentFrame();
     local managerTab = GET_CHILD(frame, "managerTab");
     local SlotTab = GET_CHILD(managerTab,"SlotTab")
-    local leticia_table = LETICIA_CUBE_ITEM_LIST_BUTTON();
+    local leticia_table = GET_LIST_BY_FRAME_TYPE(frame);
 
-    CREATE_LETICIA_PROBABILITY_SLOTS(SlotTab, leticia_table)
+    CREATE_LETICIA_PROBABILITY_SLOTS(SlotTab, leticia_table)    
 end
 
 function CREATE_LETICIA_PROBABILITY_SLOTS(parent, table)
@@ -138,7 +141,7 @@ function CREATE_LETICIA_PROBABILITY_SLOTS(parent, table)
         local ItemCls = GetClassByStrProp("Item", "ClassName", tab[1])
         local ItemName = TryGetProp(ItemCls, "Name", 'None');
         
-        if TypeNum == 1 then
+        if TypeNum == 1 or TypeNum == 3 then
             inSlotCnt:ShowWindow(0)
             cnt:ShowWindow(1);
         else

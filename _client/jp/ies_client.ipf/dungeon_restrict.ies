@@ -52,3 +52,7 @@ ClassID,ClassName,Category,Icon,Spot_Name,Desc,MsgType
 1051,"1051","Goddess_Raid_CollapsingMine_Ex_Easy","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
 1052,"1052","Goddess_Raid_CollapsingMine_Ex_Normal","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
 1053,"1053","Goddess_Raid_CollapsingMine_Ex_Hard","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1054,"1054","Goddess_Raid_Redania_Solo","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1055,"1055","Goddess_Raid_Redania_Auto","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""
+1056,"1056","Goddess_Raid_Redania_Party","","사망 제어","DeathCountLimit{count}","DeathCount"
+1057,"1057","Goddess_Raid_Redania_Party","","회복 제어","치유 스킬의 효과가 감소하고 회복 포션의 재사용 대기시간이 증가합니다.",""

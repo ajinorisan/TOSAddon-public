@@ -1051,6 +1051,7 @@
 			<picture name="ten" layout_gravity="center top" stretch="true" rect="0 0 30 40"/>
 			<picture name="hun" layout_gravity="center top" stretch="true" rect="0 0 30 40"/>
 			<picture name="tho" layout_gravity="center top" stretch="true" rect="0 0 30 40"/>
+			<picture name="mil" layout_gravity="center top" stretch="true" rect="0 0 30 40"/>
 			<button name="upbtn" layout_gravity="center bottom" rect="0 -10 51 24" caption="{@st42}{/}" image="teststet_button" oversound="button_over" clicksound="button_click_stats" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff"/>
 		</controls>
 	</controlset>
@@ -6717,6 +6718,11 @@
 			<picture name="keycap" rect="0 0 64 64" margin="0 0 0 0" layout_gravity="center center" image="key_ESC" stretch="true"/>
 		</controls>
 	</controlset>
+	<controlset name="escapeinput_key" hittest="false" width="128" height="128" hittestset="false" skin="None" draw="false" stateskin="false">
+		<controls>
+			<picture name="keycap" rect="0 0 128 128" margin="0 0 0 0" layout_gravity="center center" image="key_ESC" stretch="true"/>
+		</controls>
+	</controlset>
 	<controlset name="colony_retreat_control" hittest="false" width="340" height="60" hittestset="false" skin="None" draw="false" stateskin="false">
 		<controls>
 			<button name="retreat_btn" rect="0 0 47 36" margin="1 0 0 0" layout_gravity="left center" LBtnUpScp="COLONY_BATTLE_INFO_RETREAT_BTN_CLICK" image="MCC_resetbtn" oversound="button_cursor_over_3" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" texttooltip="퇴각"/>
@@ -7228,6 +7234,20 @@
 	<controlset name="event_probaility_sel_slot" hittest="true" width="90" height="38" hittestset="true">
 		<controls>
 			<button name="select_btn" rect="0 0 89 38" margin="0 0 0 0" layout_gravity="left top" skin="relic_btn_purple" stretch="false" format="{@st41b}{s18}%s회차" param1="value" param1_def="1" oversound="button_cursor_over_3" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" omitbywidth="true"/>
+		</controls>
+	</controlset>
+	<!-- friend_invite -->
+	<controlset name="friend_invite_item_list2" hittest="true" width="535" height="75" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="InfoBg" rect="0 0 535 75" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_frame_low" hittestset="true" />
+				<slot name="PicBg" parent="InfoBg" rect="0 0 115 65" margin="0 0 0 0" layout_gravity="left center" draw="true" skin="invenslot2" hittestset="true" />
+					<slot name="Pic2" parent="PicBg" margin="50 0 0 0" rect="0 0 65 65" layout_gravity="left center" hittest="true" stretch="true" />
+					<slot name="Pic1" parent="PicBg" margin="5 0 0 0" rect="0 0 65 65" layout_gravity="left center" hittest="true" stretch="true" />
+					<richtext name="count" parent="PicBg" rect="0 0 25 25" margin="0 0 2 0" layout_gravity="right bottom" format="{@st43}{s18}X%s" param1="count" param1_def="0" drawbackground="false" fixwidth="false" fontname="white_18_ol" textalign="right center" />
+				<richtext name="Mission" parent="InfoBg" rect="0 0 250 40" margin="150 0 0 0" layout_gravity="left center" format="{@st43}{s20}%s" param1="explain" param1_def="explain" drawbackground="false" fixwidth="true" fontname="white_18_ol" resizebytext="true" textalign="left center" omitbywidth="false"/>
+				<button name="Recv" rect="0 0 100 70" margin="0 0 10 0" parent="InfoBg" layout_gravity="right center" skin="rank_btn" scrollbar="false" hittest="true" caption="{@st43}{s16}보상받기" resizebytext="false"/>
+					<picture name="Check" rect="0 0 44 44" margin="0 0 0 0" parent="Recv"  layout_gravity="center center" image="target_questmon"/>
+			<groupbox name="disable_shadow" rect="0 0 535 75" 	margin="0 0 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
 		</controls>
 	</controlset>
 </controlsetlist>

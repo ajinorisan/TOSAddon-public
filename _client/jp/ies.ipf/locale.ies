@@ -6,4 +6,3 @@ ClassID,WheelDir,ClassName,ServiceNation,ClientExceptionMail,ServerExceptionMail
 5,1,"THI","태국","bug_c_kor@imc.co.kr","bug_s_kor@imc.co.kr"
 6,1,"SNG","싱가폴","bug_c_kor@imc.co.kr","bug_s_kor@imc.co.kr"
 7,-1,"USA","미국","bug_c_kor@imc.co.kr","bug_s_kor@imc.co.kr"
-8,-1,"GLOBAL_KOR","대한민국","ofcbj@imc.co.kr","bug_s_kor@imc.co.kr"

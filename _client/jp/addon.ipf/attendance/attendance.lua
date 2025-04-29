@@ -34,6 +34,27 @@ function ON_ATTENDANCE_RESULT(frame, msg, argStr, argNum)
 	frame:ShowWindow(1);
 end
 
+function CAHGE_ATTENDANCE_PERIOD_BOX(frame, PeriodType)
+	local periodText1 = GET_CHILD_RECURSIVELY(frame, 'periodText1');	
+	local dayBox = GET_CHILD_RECURSIVELY(frame, 'dayBox');	
+	local dayBox_2 = GET_CHILD_RECURSIVELY(frame, 'dayBox_2');	
+	local width = 350;
+	local width_2 = 208;
+
+	if PeriodType == "OnlyEnd" then
+		periodText1:ShowWindow(0);
+		dayBox:Resize(width - 100, dayBox:GetHeight());
+		dayBox_2:Resize(width_2 - 100, dayBox_2:GetHeight());
+
+	else
+		periodText1:ShowWindow(1);
+		dayBox:Resize(width, dayBox:GetHeight());
+		dayBox_2:Resize(width_2, dayBox_2:GetHeight());
+
+	end
+
+end
+
 function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 	local attendanceCls = GetClassByType('TPEventAttendance', attendanceID);
 	if attendanceID == nil then
@@ -47,7 +68,9 @@ function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 
 	local titleText = GET_CHILD_RECURSIVELY(frame, 'titleText');
 	titleText:SetTextByKey('name', attendanceCls.Name);
-
+	
+	local PeriodType = TryGetProp(attendanceCls, "PeriodType", "None");
+	CAHGE_ATTENDANCE_PERIOD_BOX(frame, PeriodType)
 	local periodText1 = GET_CHILD_RECURSIVELY(frame, 'periodText1');	
 	local dateStr = string.format('%04d.%02d.%02d', attendanceData.startTime.wYear, attendanceData.startTime.wMonth, attendanceData.startTime.wDay);
 	periodText1:SetText(dateStr);
@@ -55,6 +78,7 @@ function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 	local periodText2 = GET_CHILD_RECURSIVELY(frame, 'periodText2');
 	dateStr = string.format('%04d.%02d.%02d', attendanceData.endTime.wYear, attendanceData.endTime.wMonth, attendanceData.endTime.wDay);
 	periodText2:SetTextByKey('date', dateStr);
+
 
 	local infoText = GET_CHILD_RECURSIVELY(frame, 'infoText');
 	local newCharInfoText = GET_CHILD_RECURSIVELY(frame, 'newCharInfoText');

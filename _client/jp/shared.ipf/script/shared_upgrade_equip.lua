@@ -119,8 +119,8 @@ end
 shared_upgrade_equip.get_value = function(item, _rank)
     local ret = {}
 
-    local use_lv = TryGetProp(item, 'UseLv', 0)
-    if use_lv >= 510 and use_lv <= 520 then
+    local use_lv = TryGetProp(item, 'UseLv', 0)    
+    if use_lv >= 510 and use_lv <= 530 then
         local rank = TryGetProp(item, 'UpgradeRank', 0)
         if _rank ~= nil then
             rank = _rank
@@ -129,6 +129,8 @@ shared_upgrade_equip.get_value = function(item, _rank)
         local value = rank * 5 
         table.insert(ret, {'ALLSTAT', value})
         return ret
+    elseif use_lv >= 540 and use_lv <= 560 then
+        
     end
 
     table.insert(ret, {'None', 0})

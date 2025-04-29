@@ -24,8 +24,7 @@ end
 
 function ADVENTURE_BOOK_MONSTER.CLEAR()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure")
-	local page = GET_CHILD(gb_adventure, "page_monster", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_monster", "ui::CGroupBox");
 	local list_box = GET_CHILD(page, "monster_list", "ui::CGroupBox");
 	local info_box = GET_CHILD(page, "monster_info_gb", "ui::CGroupBox");
 	
@@ -34,8 +33,7 @@ end
 
 function ADVENTURE_BOOK_MONSTER.FILL_MONSTER_LIST()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure")
-	local page = GET_CHILD(gb_adventure, "page_monster", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_monster", "ui::CGroupBox");
 	local list_box = GET_CHILD(page, "monster_list", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local grade_opt_list = GET_CHILD(page, "grade_opt_list", "ui::CDropList");
@@ -48,27 +46,23 @@ function ADVENTURE_BOOK_MONSTER.FILL_MONSTER_LIST()
 	local monster_info_func = ADVENTURE_BOOK_MONSTER_CONTENT["MONSTER_INFO"];
 
 	local monster_list = monster_list_func();
-	monster_list = filter_func(monster_list, sort_opt_list:GetSelItemIndex(), grade_opt_list:GetSelItemIndex(), race_opt_list:GetSelItemIndex(), searchText)
+	monster_list = filter_func(monster_list, sort_opt_list:GetSelItemIndex(), grade_opt_list:GetSelItemIndex(), race_opt_list:GetSelItemIndex(), search_editbox:GetText())
 	ADVENTURE_BOOK_MONSTER.CUR_LIST_COUNT = (#monster_list)
 	local firstIndex, lastIndex = ADVENTURE_BOOK_MONSTER.CUR_GROUP_INDICES()
-	local idx = 1
 	for i=1, lastIndex do
 		local clsID = monster_list[i]
 		local info =  monster_info_func(clsID);
-		if info['cls_name'] == info['journal'] then
-			local height = frame:GetUserConfig("MONSTER_ELEM_HEIGHT")
-			local ctrlSet = list_box:CreateOrGetControlSet("adventure_book_monster_elem", "list_mon_" .. idx, ui.LEFT, ui.TOP, 0, (idx-1)*height, 0, 0);
-			local icon = GET_CHILD(ctrlSet, "icon_pic", "ui::CPicture");
-			icon:SetImage(info['icon']);
-			if info['is_found'] == 0 then
-            	local SIHOUETTE_COLOR_TONE = frame:GetUserConfig('SIHOUETTE_COLOR_TONE');
-				ctrlSet:SetColorTone(SIHOUETTE_COLOR_TONE);
-			end
-			SET_TEXT(ctrlSet, "name_text", "value", info['name'])        
-			ctrlSet:SetUserValue('BtnArg', clsID);
-			ADVENTURE_BOOK_MONSTER_SET_GAUGE_AND_POINT(ctrlSet);
-			idx = idx + 1
+		local height = frame:GetUserConfig("MONSTER_ELEM_HEIGHT")
+		local ctrlSet = list_box:CreateOrGetControlSet("adventure_book_monster_elem", "list_mon_" .. i, ui.LEFT, ui.TOP, 0, (i-1)*height, 0, 0);
+		local icon = GET_CHILD(ctrlSet, "icon_pic", "ui::CPicture");
+		icon:SetImage(info['icon']);
+		if info['is_found'] == 0 then
+            local SIHOUETTE_COLOR_TONE = frame:GetUserConfig('SIHOUETTE_COLOR_TONE');
+			ctrlSet:SetColorTone(SIHOUETTE_COLOR_TONE);
 		end
+		SET_TEXT(ctrlSet, "name_text", "value", info['name'])        
+		ctrlSet:SetUserValue('BtnArg', clsID);
+        ADVENTURE_BOOK_MONSTER_SET_GAUGE_AND_POINT(ctrlSet);
 	end
 end
 function ADVENTURE_BOOK_MONSTER.INCREASE_GROUP_INDEX()
@@ -95,8 +89,7 @@ end
 
 function ADVENTURE_BOOK_MONSTER.FILL_MONSTER_INFO()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure")
-	local page = GET_CHILD(gb_adventure, "page_monster", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_monster", "ui::CGroupBox");
 	local info_box = GET_CHILD(page, "monster_info_gb", "ui::CGroupBox");
 	local monster_icon_pic = GET_CHILD(info_box, "monster_icon_pic", "ui::CPicture");
 	local monster_attr1 = GET_CHILD(info_box, "monster_attr1", "ui::CControlSet");
@@ -205,8 +198,7 @@ end
 
 function ADVENTURE_BOOK_MONSTER.ADJUST_SLOT_INDEX()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure")
-	local page = GET_CHILD(gb_adventure, "page_monster", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_monster", "ui::CGroupBox");
 	local info_box = GET_CHILD(page, "monster_info_gb", "ui::CGroupBox");
 	local drop_item_slotset = GET_CHILD(info_box, "drop_item_slotset");
 	local slotset = GET_CHILD(drop_item_slotset, "slotset");
@@ -229,8 +221,7 @@ end
 
 function ADVENTURE_BOOK_MONSTER.DROPDOWN_LIST_INIT()
 	local frame = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(frame, "gb_adventure")
-	local page = GET_CHILD(gb_adventure, "page_monster", "ui::CGroupBox");
+	local page = GET_CHILD(frame, "page_monster", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local grade_opt_list = GET_CHILD(page, "grade_opt_list", "ui::CDropList");
 	local race_opt_list = GET_CHILD(page, "race_opt_list", "ui::CDropList");
@@ -259,8 +250,7 @@ end
 
 function ADVENTURE_BOOK_MONSTER_SET_POINT()
     local adventure_book = ui.GetFrame('adventure_book');
-	local gb_adventure = GET_CHILD(adventure_book, "gb_adventure")
-    local page_monster = gb_adventure:GetChild('page_monster');
+    local page_monster = adventure_book:GetChild('page_monster');
     local total_score_text = page_monster:GetChild('total_score_text');
     local totalScore = GET_ADVENTURE_BOOK_MONSTER_POINT();
     total_score_text:SetTextByKey('value', totalScore);

@@ -1,11 +1,15 @@
 function FPS_ON_INIT(addon, frame)
-	addon:RegisterMsg('FPS_UPDATE', 'FPS_ON_MSG')
-	addon:RegisterMsg('SERVER_FPS', 'FPS_ON_MSG')
-	addon:RegisterMsg('RTT_UPDATE', 'RTT_ON_MSG')
-	addon:RegisterMsg('FRKPTCL_UPDATE', 'FRKPTCL_ON_MSG')
 
-	local textObject = frame:GetChild('serverfpstext')
-	textObject:ShowWindow(0)
+	addon:RegisterMsg('FPS_UPDATE', 'FPS_ON_MSG');
+	addon:RegisterMsg('SERVER_FPS', 'FPS_ON_MSG');
+    addon:RegisterMsg('RTT_UPDATE', 'RTT_ON_MSG');
+
+	local textObject = frame:GetChild('serverfpstext');
+	textObject:ShowWindow(0);
+
+	local memoryTimer = GET_CHILD_RECURSIVELY(frame, "memoryTimer", "ui::CAddOnTimer");
+	memoryTimer:SetUpdateScript("UPDATE_MEMORY_INFO");
+	memoryTimer:Start(1);
 end
 
 function FPS_ON_MSG(frame, msg, argStr, argNum)
@@ -13,7 +17,7 @@ function FPS_ON_MSG(frame, msg, argStr, argNum)
 	local fpsFrame = ui.GetFrame("fps")
 	fpsFrame:ShowWindow(showFPS)
 	local perfType = config.GetAutoAdjustLowLevel()
-	local nowLowOptionValue = config.GetUseLowOption()
+	local nowLowOptionValue = config.GetUseLowOption();
 
 	local nowLowOptionValueprt = "Low"
 	if nowLowOptionValue == 1 then
@@ -25,25 +29,25 @@ function FPS_ON_MSG(frame, msg, argStr, argNum)
 	if perfType == 0 then
 
 		if nowLowOptionValue == 0 then
-			graphic.EnableLowOption(1)
+			graphic.EnableLowOption(1);
 		end
 
 	elseif perfType == 1 then
 
 		if argNum < 20 then
 			if nowLowOptionValue == 0 then
-				graphic.EnableLowOption(1)
+				graphic.EnableLowOption(1);
 			end
 		elseif argNum > 40 then
 			if nowLowOptionValue == 1 then
-				graphic.EnableLowOption(0)
+				graphic.EnableLowOption(0);
 			end
 		end
 
 	elseif perfType == 2 then
 		
 		if nowLowOptionValue == 1 then
-			graphic.EnableLowOption(0)
+			graphic.EnableLowOption(0);
 		end
 
 	end
@@ -51,50 +55,36 @@ function FPS_ON_MSG(frame, msg, argStr, argNum)
 	if msg == 'FPS_UPDATE' then
 
 		if frame:IsVisible() == 1 then
-			local textObject = frame:GetChild('fpstext')
-			local fpsRichText = tolua.cast(textObject,"ui::CRichText")
+			local textObject = frame:GetChild('fpstext');
+			local fpsRichText = tolua.cast(textObject,"ui::CRichText");
 
-			local text = '{#ff9900}{s16}{ol}FPS : ' .. argStr
-			fpsRichText:SetText(text)
+			local text = '{#ff9900}{s16}{ol}FPS : ' .. argStr;
+			fpsRichText:SetText(text);
 		end
 
 	elseif msg == 'SERVER_FPS' then
 
-		local textObject = frame:GetChild('serverfpstext')
-		local fpsRichText = tolua.cast(textObject,"ui::CRichText")
+		local textObject = frame:GetChild('serverfpstext');
+		local fpsRichText = tolua.cast(textObject,"ui::CRichText");
 
-		local text = '{#ff9900}{s16}{ol}SERVER FPS : ' .. argNum
-		fpsRichText:SetText(text)
-		fpsRichText:ShowWindow(1)
+		local text = '{#ff9900}{s16}{ol}SERVER FPS : ' .. argNum;
+		fpsRichText:SetText(text);
+		fpsRichText:ShowWindow(1);
 
 	end
 end
 
 
 function RTT_ON_MSG(frame, msg, argStr, argNum)
-	if frame:IsVisible() == 1 then
-		local textObject = frame:GetChild('pingtext')
-		local pingRichText = tolua.cast(textObject,"ui::CRichText")
-		local text = '{#ff9900}{s16}{ol}RTT : ' .. argStr
-		
-		pingRichText:SetText(text)
-		pingRichText:ShowWindow(1)
+    if frame:IsVisible() == 1 then
+        local textObject = frame:GetChild('pingtext');
+	    local pingRichText = tolua.cast(textObject,"ui::CRichText");
+        local text = '{#ff9900}{s16}{ol}RTT : ' .. argStr;
+    
+	    pingRichText:SetText(text);
+        pingRichText:ShowWindow(1);
     end
 end
-
-
-function FRKPTCL_ON_MSG(frame, msg, cnt2, cnt1)
-	local text
-	
-	text = GET_CHILD_RECURSIVELY(frame, "particletext")
-	text:SetText("{#ff9900}{s16}{ol}FrkInst : " .. cnt1)
-	text:ShowWindow(1)
-
-	text = GET_CHILD_RECURSIVELY(frame, "particletext2")
-	text:SetText("{#ff9900}{s16}{ol}FrkPtcl : " .. cnt2)
-	text:ShowWindow(1)
-end
-
 
 function UPDATE_MEMORY_INFO(frame)
 	frame = ui.GetFrame('fps')
@@ -102,19 +92,19 @@ function UPDATE_MEMORY_INFO(frame)
 		return
 	end
 
-	imcperf.UpdateMemoryInfo()
-	local availableVirtualMemory = imcperf.GetAvailableVirtualMemoryMB()
-	local availablePageFile = imcperf.GetAvailablePageFileMB()
+	imcperf.UpdateMemoryInfo();
+	local availableVirtualMemory = imcperf.GetAvailableVirtualMemoryMB();
+	local availablePageFile = imcperf.GetAvailablePageFileMB();
 
 	-- 페이징 파일과 가상메모리중 작은걸 기준으로 한다.
-	local remainMemory = availableVirtualMemory	
+	local remainMemory = availableVirtualMemory;	
 	if remainMemory > availablePageFile then
-		remainMemory = availablePageFile
+		remainMemory = availablePageFile;
 	end
 	
-	remainMemory = remainMemory - 200 -- 200mb 정도를 OS에서 사용하므로 제외함
+	remainMemory = remainMemory - 200; -- 200mb 정도를 OS에서 사용하므로 제외함
 	if remainMemory < 0 then
-		remainMemory = 0
+		remainMemory = 0;
 	end
 	
 	local imgRed = "{img memory_1 20 20}"
@@ -128,43 +118,43 @@ function UPDATE_MEMORY_INFO(frame)
 	}
 
 	if remainMemory >= 1300 then
-		imgList.first = imgGreen
-		imgList.second = imgGreen
-		imgList.third = imgGreen
+		imgList.first = imgGreen;
+		imgList.second = imgGreen;
+		imgList.third = imgGreen;
 	elseif remainMemory >= 1100 then
-		imgList.first = imgYellow
-		imgList.second = imgGreen
-		imgList.third = imgGreen
+		imgList.first = imgYellow;
+		imgList.second = imgGreen;
+		imgList.third = imgGreen;
 	elseif remainMemory >= 750 then
-		imgList.first = imgYellow
-		imgList.second = imgYellow
-		imgList.third = imgGreen
+		imgList.first = imgYellow;
+		imgList.second = imgYellow;
+		imgList.third = imgGreen;
 	elseif remainMemory >= 550 then
-		imgList.first = imgYellow
-		imgList.second = imgYellow
-		imgList.third = imgYellow
+		imgList.first = imgYellow;
+		imgList.second = imgYellow;
+		imgList.third = imgYellow;
 	elseif remainMemory >= 350 then
-		imgList.first = imgRed
-		imgList.second = imgYellow
-		imgList.third = imgYellow
+		imgList.first = imgRed;
+		imgList.second = imgYellow;
+		imgList.third = imgYellow;
 	elseif remainMemory >= 150 then
-		imgList.first = imgRed
-		imgList.second = imgRed
-		imgList.third = imgYellow
+		imgList.first = imgRed;
+		imgList.second = imgRed;
+		imgList.third = imgYellow;
 	else -- 150 미만
-		imgList.first = imgRed
-		imgList.second = imgRed
-		imgList.third = imgRed
+		imgList.first = imgRed;
+		imgList.second = imgRed;
+		imgList.third = imgRed;
 	end
 
 	
-	local textObject = frame:GetChild('memoryText')
-	local memoryText = tolua.cast(textObject,"ui::CRichText")
+	local textObject = frame:GetChild('memoryText');
+	local memoryText = tolua.cast(textObject,"ui::CRichText");
 
 	local text = '{#ff9900}{s16}{ol}' .. 'Memory : ' .. imgList.first .. imgList.second .. imgList.third
 
-	memoryText:SetText(text)
-	memoryText:ShowWindow(1)
+	memoryText:SetText(text);
+	memoryText:ShowWindow(1);
   
 end
 

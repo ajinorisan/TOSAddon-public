@@ -613,7 +613,8 @@ function GET_TOOLTIP_ITEM_OBJECT(strarg, guid, numarg1)
 		local Tradeselectitem = GetClassByType('TradeSelectItem', guid)
 		local transcend = TryGetProp(Tradeselectitem, 'SelectItemTranscend', 0)
 		local reinforce = TryGetProp(Tradeselectitem, 'SelectItemReinforce', 0)
-		if transcend > 0 or reinforce > 0 then
+		local goddesscard_reinforce = TryGetProp(Tradeselectitem, 'SelectGoddessCardReinforce', 0)
+		if transcend > 0 or reinforce > 0 or goddesscard_reinforce > 0 then
 			local itemObj = GetClassByType('Item', numarg1)
 			viewObj = CloneIES_UseCP(itemObj);
 			if viewObj.ItemType == 'Equip' then
@@ -621,6 +622,8 @@ function GET_TOOLTIP_ITEM_OBJECT(strarg, guid, numarg1)
 				viewObj.Reinforce_2 = reinforce;
 			elseif TryGetProp(viewObj, 'Reinforce_Type', 'None') == 'LegendCard' then
 				viewObj.ItemExp = GET_LEGEND_CARD_NEED_EXP(1, reinforce)
+			elseif TryGetProp(viewObj, 'Reinforce_Type', 'None') == 'GoddessCard' then
+				viewObj.ItemExp = goddess_card_reinforce.get_goddess_card_need_point(itemObj, goddesscard_reinforce)
 			end
 			return viewObj, 1;
 		end
@@ -1175,10 +1178,12 @@ local seal_option_list = {}
 seal_option_list['MATK;PATK'] = 1
 seal_option_list['CRTMATK;CRTATK'] = 1
 seal_option_list['MDEF;DEF'] = 1
+seal_option_list['seal_skill_factor1'] = 1
+seal_option_list['seal_skill_factor2'] = 1
 
 function GET_OPTION_VALUE_OR_PERCECNT_STRING(optionName, optionValue)
 	if seal_option_list[optionName] == 1 then
-		return ABILITY_DESC_PLUS(ClMsg(optionName), optionValue);
+		return ABILITY_DESC_PLUS(ClMsg(optionName), (optionValue));
 	end
 
 	local commonPropList = GET_COMMON_PROP_LIST();
@@ -1187,9 +1192,10 @@ function GET_OPTION_VALUE_OR_PERCECNT_STRING(optionName, optionValue)
 			return ABILITY_DESC_PLUS(ClMsg(optionName), optionValue);
 		end
 	end
-	local percentText = string.format('%d', optionValue / 10);
-	return ' - '..ScpArgMsg(optionName, 'value', percentText);
-end
+	
+		local percentText = string.format('%d', optionValue / 10);	
+		return ' - '..ScpArgMsg(optionName, 'value', percentText);
+			end
 
 function ABILITY_DESC_NO_PLUS(desc, cur, is_max)
     if cur < 0 then

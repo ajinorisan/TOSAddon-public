@@ -912,6 +912,18 @@
 		<image name="icon_warri_windslasher" file="\icon\skill\warrior\icon_warri_windslasher.png" imgrect="0 0 128 128" CMM_Caption="공간 베기"/>
 		<image name="icon_warri_vanquisher1" file="\icon\skill\warrior\icon_warri_vanquisher1.png" imgrect="0 0 128 128" CMM_Caption="칼날의 끝"/>
 		<image name="icon_warri_vanquisher2" file="\icon\skill\warrior\icon_warri_vanquisher2.png" imgrect="0 0 128 128" CMM_Caption="춤추는 칼날"/>
+		<image name="icon_warri_bonefist" file="\icon\skill\warrior\icon_warri_bonefist.png" imgrect="0 0 128 128" CMM_Caption="본 피스트"/>
+		<image name="icon_warri_bonereaper" file="\icon\skill\warrior\icon_warri_bonereaper.png" imgrect="0 0 128 128" CMM_Caption="본 리퍼"/>
+		<image name="icon_warri_bonereinforcement" file="\icon\skill\warrior\icon_warri_bonereinforcement.png" imgrect="0 0 128 128" CMM_Caption="본 리인포스먼트"/>
+		<image name="icon_warri_boneshield" file="\icon\skill\warrior\icon_warri_boneshield.png" imgrect="0 0 128 128" CMM_Caption="본 실드"/>
+		<image name="icon_warri_bonestorm" file="\icon\skill\warrior\icon_warri_bonestorm.png" imgrect="0 0 128 128" CMM_Caption="본 스톰"/>
+		<image name="icon_warri_bonewhip" file="\icon\skill\warrior\icon_warri_bonewhip.png" imgrect="0 0 128 128" CMM_Caption="본 윕"/>
+		<image name="icon_buff_fist" file="\icon\skill\warrior\icon_buff_fist.png" imgrect="0 0 128 128" CMM_Caption="쐐기"/>
+		<image name="icon_buff_rib" file="\icon\skill\warrior\icon_buff_rib.png" imgrect="0 0 128 128" CMM_Caption="늑골"/>
+		<image name="icon_buff_backbone" file="\icon\skill\warrior\icon_buff_backbone.png" imgrect="0 0 128 128" CMM_Caption="등뼈"/>
+		<image name="icon_buff_fistreinforce" file="\icon\skill\warrior\icon_buff_fistreinforce.png" imgrect="0 0 128 128" CMM_Caption="쐐기 - 강화"/>
+		<image name="icon_buff_ribreinforce" file="\icon\skill\warrior\icon_buff_ribreinforce.png" imgrect="0 0 128 128" CMM_Caption="늑골 - 강화"/>
+		<image name="icon_buff_backbonereinforce" file="\icon\skill\warrior\icon_buff_backbonereinforce.png" imgrect="0 0 128 128" CMM_Caption="등뼈 - 강화"/>
 	</imagelist>
 	<imagelist category="scout_skillicon">
 		<image name="icon_scout_aggress" file="\icon\skill\scout\icon_scout_aggress.png" imgrect="0 0 128 128" CMM_Caption="인법뇌둔술"/>
@@ -1076,6 +1088,7 @@
 		<image name="icon_earring_party_util_buff" file="\icon\skill\common\icon_earring_party_util_buff.png" imgrect="0 0 128 128" CMM_Caption="유틸적인 버프"/>
 		<image name="Icon_common_magical_light" file="\icon\skill\common\Icon_common_magical_light.png" imgrect="0 0 128 128" CMM_Caption="2022.4월 테마 스킬 아이콘 2종"/>
 		<image name="Icon_common_magical_dark" file="\icon\skill\common\Icon_common_magical_dark.png" imgrect="0 0 128 128"/>
+		<image name="icon_divine_protection_520_buff" file="\icon\skill\common\icon_divine_protection_520_buff.png" imgrect="0 0 128 128"/>
 	</imagelist>
 	<imagelist category="restquickslot_icon">
 		<image name="icon_rest_arrow" file="\icon\rest_mode_icon.tga" imgrect="0 0 128 128" CMM_Caption="화살제작"/>
@@ -1845,6 +1858,21 @@
 		<image name="ability_Warrior_Vanquisher16" file="\icon\icon_ability_warrior11.tga" imgrect="640 512 128 128" CMM_Caption="공허 베기: 의지"/>
 		<image name="ability_Warrior_Vanquisher17" file="\icon\icon_ability_warrior11.tga" imgrect="512 640 128 128" CMM_Caption="[아츠] 죽음의 무도: 빈틈포착"/>
 		<image name="ability_Warrior_Vanquisher18" file="\icon\icon_ability_warrior11.tga" imgrect="640 640 128 128" CMM_Caption="뱅퀴셔의 칼날"/>
+		<image name="ability_Warrior_Bonemancer1" file="\icon\icon_ability_warrior11.tga" imgrect="768 640 128 128" CMM_Caption="본 피스트: 강화"/>
+		<image name="ability_Warrior_Bonemancer2" file="\icon\icon_ability_warrior11.tga" imgrect="0 768 128 128" CMM_Caption="본 리퍼: 강화"/>
+		<image name="ability_Warrior_Bonemancer3" file="\icon\icon_ability_warrior11.tga" imgrect="256 768 128 128" CMM_Caption="본 윕: 강화"/>
+		<image name="ability_Warrior_Bonemancer4" file="\icon\icon_ability_warrior11.tga" imgrect="0 896 128 128" CMM_Caption="본 실드: 강화"/>
+		<image name="ability_Warrior_Bonemancer5" file="\icon\icon_ability_warrior11.tga" imgrect="512 768 128 128" CMM_Caption="본 스톰: 강화"/>
+		<image name="ability_Warrior_Bonemancer6" file="\icon\icon_ability_warrior11.tga" imgrect="768 768 128 128" CMM_Caption="본 리인포스먼트: 강화"/>
+		<image name="ability_Warrior_Bonemancer101" file="\icon\icon_ability_warrior11.tga" imgrect="896 640 128 128" CMM_Caption="[아츠] 본 피스트: 상급 강화"/>
+		<image name="ability_Warrior_Bonemancer102" file="\icon\icon_ability_warrior11.tga" imgrect="128 768 128 128" CMM_Caption="[아츠] 본 리퍼: 상급 강화"/>
+		<image name="ability_Warrior_Bonemancer103" file="\icon\icon_ability_warrior11.tga" imgrect="384 768 128 128" CMM_Caption="[아츠] 본 윕: 상급 강화"/>
+		<image name="ability_Warrior_Bonemancer104" file="\icon\icon_ability_warrior11.tga" imgrect="640 768 128 128" CMM_Caption="[아츠] 본 스톰: 상급 강화"/>
+		<image name="ability_Warrior_Bonemancer105" file="\icon\icon_ability_warrior11.tga" imgrect="896 768 128 128" CMM_Caption="[아츠] 본 리인포스먼트: 상급 강화"/>
+		<image name="ability_Warrior_Bonemancer7" file="\icon\icon_ability_warrior11.tga" imgrect="256 896 128 128" CMM_Caption="본 피스트: 발화"/>
+		<image name="ability_Warrior_Bonemancer8" file="\icon\icon_ability_warrior11.tga" imgrect="128 896 128 128" CMM_Caption="[아츠] 본 실드: 뼈의 결속력"/>
+		<image name="ability_Warrior_Bonemancer10" file="\icon\icon_ability_warrior11.tga" imgrect="384 896 128 128" CMM_Caption="[아츠] 본 리인포스먼트: 뼈의 공명"/>
+		<image name="ability_Warrior_Bonemancer9" file="\icon\icon_ability_warrior11.tga" imgrect="512 896 128 128" CMM_Caption="본맨서"/>
 	</imagelist>
 	<imagelist category="abilityicon_wizard">
 		<image name="ability_Wizard_Wizard1" file="\icon\icon_ability_wizard01.tga" imgrect="0 0 128 128" CMM_Caption="슬리프-단잠"/>

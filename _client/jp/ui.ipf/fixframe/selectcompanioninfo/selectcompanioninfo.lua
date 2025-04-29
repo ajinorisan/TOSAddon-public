@@ -45,20 +45,8 @@ function UPDATE_BARRACK_COMPANION_INFO(actor)
 	else
 		gotopc:SetEnable(1);
 		gotopc:SetTextByKey("value", ScpArgMsg("GoTogether"));
-    end
-    
-    -- 해외 UI 세팅
-    if (config.GetServiceNation() ~= "KOR" and config.GetServiceNation() ~= "GLOBAL_KOR") then
-        COMPANION_INFO_GLOBAL_UI_SETTING(frame)
-    end
-end
-
-function COMPANION_INFO_GLOBAL_UI_SETTING(frame)
-    local btn1 = GET_CHILD_RECURSIVELY(frame, 'gotopc')
-    local btn2 = GET_CHILD_RECURSIVELY(frame, 'movelayer')
-
-    -- btn1:AdjustFontSizeByWidth(140)
-    -- btn2:AdjustFontSizeByWidth(140)
+	end
+	
 end
 
 function SEL_COMPANION_WITH_PC(parent, ctrl)
@@ -106,7 +94,7 @@ function EXEC_MOVE_LAYER_COMPANION(frame, ret, inputframe)
     
     local frame = ui.GetFrame("selectcompanioninfo");
 	local petGuid = frame:GetUserValue("PET_GUID");
-	barrack.ChangeBarrackTargetLayer(petGuid, tonumber(ret), true)
+	barrack.ChangeBarrackTargetLayer(petGuid, tonumber(ret))
 	--parent:ShowWindow(0);
 	ui.SysMsg(ClMsg("MoveBarrackLayer"));
 end

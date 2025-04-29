@@ -17,7 +17,7 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,P
 18,18,28,80,1,60000,30,0,0,0,1,1,0,"Stone01","영기가 흐르는 돌","","","","","","","ROKAS26_STONE","","","NO","YES","NO","Neutral","","","",""
 19,19,28,25,25,60000,10,0,0,0,1,1,0,"siauliai_grass_2","협곡 아피니스","","","","","","","ROKAS26_POPPY","","","NO","YES","NO","Neutral","","","",""
 20,20,28,250,1,60000,1,0,0,0,0,1,0,"HiddenTrigger2","","","","","","","","","ROKAS26_QUEST05","","NO","YES","NO","Neutral","","","",""
-21,21,1,170,1,60000,1,0,0,0,0,0,0,"HiddenTrigger_AlwaysTitle","설치 장소","","","","MON_DUMMY","","","ROKAS26_SUB_Q12","","","NO","YES","NO","Neutral","","","",""
+21,21,1,170,1,60000,1,0,0,0,0,0,0,"HiddenTrigger4","","","","","MON_DUMMY","","","ROKAS26_SUB_Q12","","","NO","YES","NO","Neutral","","","",""
 508,508,1,30,-1,60000,1,0,0,0,0,0,0,"blank_npc","돌을 놓아 둘 곳","","","","","","","ROKAS26_SUB_Q10_TRIGGER","","","NO","YES","NO","Neutral","","","",""
 509,509,1,30,1,1,1,1,0,0,0,0,100,"npc_paladin_follower2_3","모르쿠스 요나스","","","","","","","ROKAS26_MQ1_NPC","","","NO","YES","NO","Neutral","","","",""
 510,510,1,30,1,10000,20,0,0,1,1,1,0,"blank_npc","공간의 틈","","","","MON_DUMMY","","","ROKAS26_MQ1_STONE","","","NO","YES","NO","Neutral","Effect/F_ground135_2/1/1.0","","",""

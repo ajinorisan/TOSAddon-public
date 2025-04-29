@@ -1,4 +1,5 @@
 function EXCHANGE_ON_INIT(addon, frame)
+
    addon:RegisterMsg('EXCHANGE_START', 'EXCHANGE_MSG_START');
    addon:RegisterMsg('EXCHANGE_UPDATE', 'EXCHANGE_MSG_UPDATE');   
    addon:RegisterMsg('EXCHANGE_CANCEL', 'EXCHANGE_MSG_END');
@@ -6,6 +7,7 @@ function EXCHANGE_ON_INIT(addon, frame)
    addon:RegisterMsg('EXCHANGE_AGREE', 'EXCHANGE_MSG_AGREE');
    addon:RegisterMsg('EXCHANGE_FINALAGREE', 'EXCHANGE_MSG_FINALAGREE');
    addon:RegisterMsg('EXCHANGE_REQUEST', 'EXCHANGE_MSG_REQUEST');
+   
 end 
 
 function BEING_TRADING_STATE()
@@ -35,27 +37,18 @@ function EXCHANGE_ON_OPEN(frame)
 	local oppfinalbutton = GET_CHILD_RECURSIVELY(frame,'opponentfinalagree','ui::CButton');
 	myfinalbutton:SetEnable(0);
 	oppfinalbutton:SetEnable(0);
-	EXCHANGE_OPTIONCTRL_INIT(frame);
 end
 
 function EXCHANGE_ON_CANCEL(frame) 
 	frame:SetUserValue("CHECK_TOKENSTATE_OPPO", 0);
+
 	exchange.SendCancelExchangeMsg();
+
 	exchange.ResetExchangeItem();
-	
 	local invFrame = ui.GetFrame('inventory');	
 	INVENTORY_SET_CUSTOM_RBTNDOWN("None");
 	INVENTORY_CLEAR_SELECT(invFrame);
-	EXCHANGE_SELL_FILTER_RESET(frame);
 end 
-
-function EXCHANGE_OPTIONCTRL_INIT(frame)
-	if frame == nil then return; end
-	local exchangeFilter = GET_CHILD_RECURSIVELY(frame, "exchangefilter");
-	if exchangeFilter ~= nil then
-		exchangeFilter:SetTextByKey("option_name", ClMsg("ApplyFilter"));
-	end
-end
 
 function EXCHANGE_ON_AGREE(frame)
  	local itemCount = exchange.GetExchangeItemCount(1);	
@@ -130,7 +123,7 @@ function EXEC_INPUT_EXCHANGE_CNT(frame, inputframe, ctrl)
 	end
 end
 
-local function _EXCHANGE_ADD_FROM_INV(obj, item, tradeCnt)    
+local function _EXCHANGE_ADD_FROM_INV(obj, item, tradeCnt)
 	local reason = GetTradeLockByProperty(obj);
 	if reason ~= "None" then
 		ui.SysMsg(ScpArgMsg(reason));
@@ -147,11 +140,6 @@ local function _EXCHANGE_ADD_FROM_INV(obj, item, tradeCnt)
 		ui.AlarmMsg("ItemIsNotTradable");
 		return;
 	end
-    
-    if TryGetProp(obj, 'TeamBelonging', 0) ~= 0 or TryGetProp(obj, 'CharacterBelonging', 0) ~= 0 then
-        ui.AlarmMsg("ItemIsNotTradable");
-		return;
-    end
 
 	if geItemTable.IsHavePotential(obj.ClassID) == 1 and obj.PR == 0 then
 		ui.AlarmMsg("NoPotentialForExchange");
@@ -161,16 +149,6 @@ local function _EXCHANGE_ADD_FROM_INV(obj, item, tradeCnt)
 	if nil ~= string.find(obj.ClassName, "PremiumToken") then -- 토큰 아이템 칼럼이 생기면 바뀌어야 할 부분
 		ui.AlarmMsg("ItemIsNotTradable");
 		return;
-	end
-
-	local check = GetClassByType('market_trade_restrict', TryGetProp(obj, 'ClassID', 0))
-	if check ~= nil then
-		if IS_SEASON_SERVER() == "YES" then
-			if TryGetProp(check, 'Type', 'None') == 'NoTrade2' then
-				ui.AlarmMsg("ItemIsNotTradable");	
-				return;
-			end
-		end
 	end
 
 	local invframe = ui.GetFrame("inventory");
@@ -263,17 +241,22 @@ function EXCHANGE_INV_RBTN(itemobj, slot)
 end
 
 function EXCHANGE_ON_DROP(frame, control, argStr, argNum)
+ 	
 	if 'YES' == frame:GetTopParentFrame():GetUserValue('CLICK_EQUIP_INV_ITEM') then
 		ui.SysMsg(ScpArgMsg("Auto_JangChagJungin_aiTemeun_KeoLae_Hal_Su_eopSeupNiDa."));
 		frame:GetTopParentFrame():SetUserValue('CLICK_EQUIP_INV_ITEM', 'NO')
 		return;
 	end
+
 	
 	local liftIcon 		= ui.GetLiftIcon();	
 	local iconParentFrame = liftIcon:GetTopParentFrame();
+				
 	if iconParentFrame:GetName() == 'inventory' then 
+
 		local iconInfo = liftIcon:GetInfo();
 		local item = session.GetInvItem(iconInfo.ext);
+
 		if item == nil then
 			return;
 		end
@@ -306,9 +289,14 @@ function EXCHANGE_ON_DROP(frame, control, argStr, argNum)
 		end
 		_EXCHANGE_ADD_FROM_INV(obj, item, tradeCount);	
 	end 	
+	
 end 
 
 function EXCHANGE_MSG_END(frame, msg, argStr, argNum)
+ 	
+	--local timer = GET_CHILD(frame, "addontimer", "ui::CAddOnTimer");
+	--timer:Stop();
+
 	local opponenGBox = GET_CHILD(frame, 'opbgGbox');
 	local nameRichText = GET_CHILD_RECURSIVELY(opponenGBox,'opponentname','ui::CRichText');
 	nameRichText:SetTextByKey('value',argStr)
@@ -316,6 +304,7 @@ function EXCHANGE_MSG_END(frame, msg, argStr, argNum)
 end 
 
 function EXCHANGE_INIT_SLOT(frame)
+ 
 	local myGBox = GET_CHILD(frame, 'mybgGbox');
 	local myslotset = GET_CHILD_RECURSIVELY(myGBox,'myslot','ui::CSlotSet')	
 	myslotset:ClearIconAll();
@@ -336,16 +325,10 @@ function EXCHANGE_INIT_SLOT(frame)
 		DESTROY_CHILD_BYNAME(tempSlot, "styleset_")		
 	end
 
-	local slotCnt = myslotset:GetSlotCount();
-	for i = 0, slotCnt - 1 do
-		local tempSlot1 = myslotset:GetSlotByIndex(i)
-		local tempSlot2 = oppslotset:GetSlotByIndex(i)
-		SET_SLOT_STAR_TEXT(tempSlot1,nil)
-		SET_SLOT_STAR_TEXT(tempSlot2,nil)
-	end
 end 
 
 function EXCHANGE_MSG_START(frame, msg, argStr, argNum)
+
 	EXCHANGE_INIT_SLOT(frame);
 	EXCHANGE_RESET_AGREE_BUTTON(frame);
 
@@ -398,6 +381,7 @@ function EXCHANGE_MSG_START(frame, msg, argStr, argNum)
 	end
 
 	frame:SetUserValue("CHECK_TOKENSTATE_OPPO", argNum);
+
 	frame:ShowWindow(1);
 	ui.OpenFrame('inventory');
 end 
@@ -407,12 +391,7 @@ function EXCHANGE_ITEM_REMOVE(slot, agrNum, agrString)
 end
 
 function EXCHANGE_UPDATE_SLOT(slotset,listindex)
-	local slotCnt = slotset:GetSlotCount();
-	for i = 0, slotCnt - 1 do
-		local tempSlot = slotset:GetSlotByIndex(i)
-		SET_SLOT_STAR_TEXT(tempSlot,nil)
-	end
-
+ 
 	slotset:ClearIconAll();
 	local frame = ui.GetFrame('exchange');
 	local itemCount = exchange.GetExchangeItemCount(listindex);	
@@ -430,15 +409,13 @@ function EXCHANGE_UPDATE_SLOT(slotset,listindex)
 			if class.ItemType == 'Unused' and listindex == 1 then
 				moneyText:SetTextByKey('money', GetCommaedText(itemData.count));
 			elseif class.ItemType ~= 'Unused' then
-				local font = '{s20}{ol}{b}';
-				if 100000 <= itemData.count then	-- 6자리 수 폰트 크기 조정
-					font = '{s14}{ol}{b}';
-				end
-				local icon = SET_SLOT_ITEM_INFO(slot, itemObj, itemData.count, font);
+				local icon = SET_SLOT_ITEM_INFO(slot, itemObj, itemData.count);
 				SET_ITEM_TOOLTIP_ALL_TYPE(icon, itemData, class.ClassName, 'exchange', itemData.type, i * 10 + listindex);
 				SET_SLOT_STYLESET(slot, itemObj)
-				SET_SLOT_STAR_TEXT(slot,itemObj)
-
+				--[[
+				SET_SLOT_ITEM_OBJ(slot, class);							
+				SET_ITEM_TOOLTIP_BY_TYPE(slot:GetIcon(), class.ClassID);		
+				]]
 				if listindex == 0 then 
 					icon:SetDumpScp('EXCHANGE_DUMP_ICON');	
 				end 
@@ -448,23 +425,27 @@ function EXCHANGE_UPDATE_SLOT(slotset,listindex)
 
 			slot:SetEventScript(ui.RBUTTONDOWN, 'EXCHANGE_ITEM_REMOVE');
 			slot:SetEventScriptArgString(ui.RBUTTONDOWN, itemData:GetGUID());
+
 		else
 			local cls = GetClassByType("Wiki", itemData.itemID);
 			SET_SLOT_ICON(slot, cls.Illust);
-			SET_SLOT_STAR_TEXT(slot,itemObj)
 			local icon = slot:GetIcon();
-			icon:SetTextTooltip(string.format("%s{nl}%s", ClMsg("Recipe"), cls.Desc));
-			index = index + 1;
+			icon:SetTextTooltip(	string.format("%s{nl}%s", ClMsg("Recipe"), cls.Desc)  );				
+			index = index + 1
 		end			
 	end
 end 
 
 function EXCHANGE_DUMP_ICON(parent, icon, argStr, argNum)
+     
     local slot = tolua.cast(parent, "ui::CSlot");
+    --print(ScpArgMsg('Auto_BeoLyeo') .. slot:GetSlotIndex());
     exchange.SendRemoveOfferItem(slot:GetSlotIndex());
+
 end 
 
 function EXCHANGE_MSG_UPDATE(frame, msg, argStr, argNum)
+
 	EXCHANGE_RESET_AGREE_BUTTON(frame);
 	local myslotSet = GET_CHILD_RECURSIVELY(frame,'myslot','ui::CSlotSet');
 	
@@ -475,6 +456,7 @@ function EXCHANGE_MSG_UPDATE(frame, msg, argStr, argNum)
 end 
 
 function EXCHANGE_RESET_AGREE_BUTTON(frame)
+ 
 	local mybutton = GET_CHILD_RECURSIVELY(frame,'myagree','ui::CButton');
 	mybutton:SetEnable(1);
 
@@ -489,6 +471,7 @@ function EXCHANGE_RESET_AGREE_BUTTON(frame)
 end 
 
 function EXCHANGE_MSG_AGREE(frame, msg, argStr, argNum)
+ 
 	local mybutton = GET_CHILD_RECURSIVELY(frame,'myagree','ui::CButton');
 	local oppbutton = GET_CHILD_RECURSIVELY(frame,'opponentagree','ui::CButton');
 
@@ -504,9 +487,13 @@ function EXCHANGE_MSG_AGREE(frame, msg, argStr, argNum)
 		myfinalbutton:SetEnable(1);
 		oppfinalbutton:SetEnable(1);
 	end
+	
+	--local timer = GET_CHILD_RECURSIVELY(frame, "addontimer", "ui::CAddOnTimer");
+	--timer:Stop();
 end 
 
 function EXCHANGE_MSG_FINALAGREE(frame, msg, argStr, argNum)
+
 	if argNum == 0 then 
 		local myfinalbutton = GET_CHILD_RECURSIVELY(frame,'myfinalagree','ui::CButton');
 	   myfinalbutton:SetEnable(0);
@@ -514,19 +501,7 @@ function EXCHANGE_MSG_FINALAGREE(frame, msg, argStr, argNum)
 	   local oppfinalbutton = GET_CHILD_RECURSIVELY(frame,'opponentfinalagree','ui::CButton');
 	   oppfinalbutton:SetEnable(0);
 	end 
+
+	--local timer = GET_CHILD(frame, "addontimer", "ui::CAddOnTimer");
+	--timer:Stop();
 end 
-
-function EXCHANGE_SELL_FILTER(frame, ctrl)
-	if frame == nil or ctrl == nil then return; end
-	local isCheck = ctrl:IsChecked();
-	ui.inventory.ApplyInventoryFilter("inventory", IVF_USER_TRADE, isCheck);
-end
-
-function EXCHANGE_SELL_FILTER_RESET(frame)
-	if frame == nil then return; end
-	local option = GET_CHILD_RECURSIVELY(frame, "exchangefilter", "ui::CCheckBox");
-	if option ~= nil then
-		option:SetCheck(0);
-	end
-	ui.inventory.ApplyInventoryFilter("inventory", IVF_USER_TRADE, 0);
-end

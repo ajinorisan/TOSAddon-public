@@ -59,7 +59,7 @@ function IS_MACRO_UNVISIBLE_WEAPON_POSE(className)
 	or className == "CHEERUP" or className == "UNBELIEVABLE" or className == "SPOTLIGHT"
 	or className == "PULLUP" or className == "CHEER" or className == "BASEBALL"
 	or className == "CLOCKWORKDANCE" or className == "SQUAT" or className == "SHOOTDANCE"
-	or className == "RUSTLEDANCE" or className == "LUCHADOR" or className =="FLOWERSCENT" then
+	or className == "RUSTLEDANCE" or className == "LUCHADOR" or className =="FLOWERSCENT" or className =="KAWAI" then
 		return true;
 	end
 	return false;

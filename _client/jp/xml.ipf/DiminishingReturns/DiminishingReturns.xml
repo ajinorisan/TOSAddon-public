@@ -123,6 +123,7 @@
 			<Class Name="Whirlwind_Slow_Debuff" BuffID="6031" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="CarnageScythe_Hold" BuffID="6033" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="Feint_HoldMove_Debuff" BuffID="1151" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
+			<Class Name="SuperIce_Attribute_Buff" BuffID="800002" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 		</Category>
 	</Category>
 	<!-- ############################################################################################################################################################### -->

@@ -8,13 +8,8 @@ function ITEMOPTIONRELEASE_RANDOM_ON_INIT(addon, frame)
 	addon:RegisterMsg("UPDATE_COLONY_TAX_RATE_SET", "ON_OPTIONRELEASE_UPDATE_COLONY_TAX_RATE_SET");
 end;
 
-function ON_OPEN_DLG_ITEMOPTIONRELEASE_RANDOM(frame, msg, argStr, argNum)
+function ON_OPEN_DLG_ITEMOPTIONRELEASE_RANDOM(frame)
 	frame:ShowWindow(1);
-	if argNum == 1 then
-		frame:SetUserValue('IS_LEGEND_SHOP', 1)
-	else
-		frame:SetUserValue('IS_LEGEND_SHOP', 0)
-	end
 end;
 
 function ON_OPTIONRELEASE_UPDATE_COLONY_TAX_RATE_SET(frame)
@@ -94,8 +89,7 @@ function CLEAR_ITEMOPTIONRELEASE_RANDOM_UI()
 
 	local costBox = GET_CHILD_RECURSIVELY(frame, 'costBox');
 	local priceText = GET_CHILD_RECURSIVELY(costBox, 'priceText');
-	local price = GET_OPTION_RELEASE_COST()
-	priceText:SetTextByKey('price', price);
+	priceText:SetTextByKey('price', GET_OPTION_RELEASE_COST());
 	costBox:ShowWindow(1);
 end;
 
@@ -107,8 +101,7 @@ function _UPDATE_RELEASE_RANDOM_COST(frame)
 		return;
 	end;
 	local invItemObj = GetIES(invItem:GetObject());
-	local isLegendShop = frame:GetUserIValue('IS_LEGEND_SHOP')
-	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP(), isLegendShop)));
+	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP())));
 end
 
 function ITEM_OPTIONRELEASE_RANDOM_DROP(frame, icon, argStr, argNum)
@@ -144,7 +137,7 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM_RANDOM_OPTION(frame, itemID)
 	
 	if IS_ENABLE_RELEASE_OPTION(invItemObj) ~= true then
     		-- 복원 대상인지 체크
-		ui.SysMsg(ClMsg("IMPOSSIBLE_ITEM"));
+		ui.SysMsg(ClMsg("IcorNotAdded"));
 		return;
 	end;
 	
@@ -187,7 +180,7 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM_RANDOM_OPTION(frame, itemID)
 	for i = 1 , #list do
 
 		local propName = list[i];
-		local propValue = TryGetProp(inheritItemCls, propName, 0);
+		local propValue = inheritItemCls[propName];
 		
 		if propValue ~= 0 then
             local checkPropName = propName;
@@ -202,7 +195,7 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM_RANDOM_OPTION(frame, itemID)
 
 	for i = 1 , #list2 do
 		local propName = list2[i];
-		local propValue = TryGetProp(inheritItemCls, propName, 0);
+		local propValue = inheritItemCls[propName];
 		
 		if propValue ~= 0 then
 			cnt = cnt + 1;
@@ -234,7 +227,7 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM_RANDOM_OPTION(frame, itemID)
 
 	for i = 1 , #list do
 		local propName = list[i];
-		local propValue = TryGetProp(inheritItemCls, propName, 0);
+		local propValue = inheritItemCls[propName];
 		local needToShow = true;
 		for j = 1, #basicTooltipPropList do
 			if basicTooltipPropList[j] == propName then
@@ -242,32 +235,32 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM_RANDOM_OPTION(frame, itemID)
 			end;
 		end;
 
-		if needToShow == true and propValue ~= 0 and randomOptionProp[propName] == nil then -- 랜덤 옵션이랑 겹치는 프로퍼티는 여기서 출력하지 않음
+		if needToShow == true and inheritItemCls[propName] ~= 0 and randomOptionProp[propName] == nil then -- 랜덤 옵션이랑 겹치는 프로퍼티는 여기서 출력하지 않음
 
 			if  inheritItemCls.GroupName == 'Weapon' then
 				if propName ~= "MINATK" and propName ~= 'MAXATK' then
-					local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);					
+					local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);					
 					inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 				end;
 			elseif  inheritItemCls.GroupName == 'Armor' then
 				if inheritItemCls.ClassType == 'Gloves' then
 					if propName ~= "HR" then
-						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
 						inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 					end;
 				elseif inheritItemCls.ClassType == 'Boots' then
 					if propName ~= "DR" then
-						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
 						inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 					end;
 				else
 					if propName ~= "DEF" then
-						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+						local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
 						inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 					end;
 				end;
 			else
-				local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+				local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), inheritItemCls[propName]);
 				inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 			end;
 		end;
@@ -313,9 +306,9 @@ function ITEM_OPTIONRELEASE_REG_TARGETITEM_RANDOM_OPTION(frame, itemID)
     
 	for i = 1 , #list2 do
 		local propName = list2[i];
-		local propValue = TryGetProp(invItemObj, propName, 0);
+		local propValue = invItemObj[propName];
 		if propValue ~= 0 then
-			local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+			local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), invItemObj[propName]);
 			inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
 		end;
 	end;
@@ -378,8 +371,7 @@ function ITEMOPTIONRELEASE_RANDOM_EXEC(frame)
 	end;
 
 	local invItemObj = GetIES(invItem:GetObject());
-	local isLegendShop = frame:GetUserIValue('IS_LEGEND_SHOP')
-	local price = GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP(), isLegendShop);
+	local price = GET_OPTION_RELEASE_COST(invItemObj, GET_COLONY_TAX_RATE_CURRENT_MAP());
 	local pcMoney = GET_TOTAL_MONEY_STR();
 	if IsGreaterThanForBigNumber(price, pcMoney) == 1 then
         ui.SysMsg(ClMsg('NotEnoughMoney'));
@@ -449,13 +441,13 @@ function SUCCESS_ITEM_OPTION_RELEASE_RANDOM(frame)
 	end;
 	
 	pic_bg:ShowWindow(1);
-	--pic_bg:PlayUIEffect(RELEASE_RESULT_EFFECT_NAME, EFFECT_SCALE, 'RELEASE_RESULT_EFFECT');
+	pic_bg:PlayUIEffect(RELEASE_RESULT_EFFECT_NAME, EFFECT_SCALE, 'RELEASE_RESULT_EFFECT');
 
 	local do_release = GET_CHILD_RECURSIVELY(frame, "do_release");
 	do_release:ShowWindow(0);
 	ui.SetHoldUI(true);
 
-	ReserveScript("_SUCCESS_ITEM_OPTION_RELEASE_RANDOM()", 0.01);
+	ReserveScript("_SUCCESS_ITEM_OPTION_RELEASE_RANDOM()", EFFECT_DURATION);
 end;
 
 function _SUCCESS_ITEM_OPTION_RELEASE_RANDOM()	
@@ -470,7 +462,7 @@ function _SUCCESS_ITEM_OPTION_RELEASE_RANDOM()
 	if pic_bg == nil then
 		return;
 	end;
-	--pic_bg:StopUIEffect('RELEASE_RESULT_EFFECT', true, 0.5);
+	pic_bg:StopUIEffect('RELEASE_RESULT_EFFECT', true, 0.5);
 	pic_bg:ShowWindow(0);
 
 	local slot = GET_CHILD_RECURSIVELY(frame, "slot_result");
@@ -519,9 +511,9 @@ function RELEASE_SUCCESS_EFFECT_RANDOM(frame)
 	end;
 	pic_bg:ShowWindow(0);
 
-	--result_effect_bg:PlayUIEffect(RELEASE_SUCCESS_EFFECT_NAME, SUCCESS_EFFECT_SCALE, 'RELEASE_SUCCESS_EFFECT_RANDOM');
+	result_effect_bg:PlayUIEffect(RELEASE_SUCCESS_EFFECT_NAME, SUCCESS_EFFECT_SCALE, 'RELEASE_SUCCESS_EFFECT_RANDOM');
 
-	ReserveScript("_RELEASE_SUCCESS_EFFECT_RANDOM()", 0.01);
+	ReserveScript("_RELEASE_SUCCESS_EFFECT_RANDOM()", SUCCESS_EFFECT_DURATION);
 end
 
 function _RELEASE_SUCCESS_EFFECT_RANDOM()
@@ -534,7 +526,7 @@ function _RELEASE_SUCCESS_EFFECT_RANDOM()
 	if result_effect_bg == nil then
 		return;
 	end
-	--result_effect_bg:StopUIEffect('RELEASE_SUCCESS_EFFECT_RANDOM', true, 0.5);
+	result_effect_bg:StopUIEffect('RELEASE_SUCCESS_EFFECT_RANDOM', true, 0.5);
 	ui.SetHoldUI(false);
 end
 

@@ -110,3 +110,5 @@ ClassID,ClassName,Name,Zone,City,Group,WarpOpenQuest
 11064,"WARP_EP15_1_F_ABBEY_1","노바하 본원","ep15_1_f_abbey_1","c_orsha","키렌 지방","EP15_1_FABBEY1_MQ_1"
 11065,"WARP_EP15_1_F_ABBEY_2","노바하 서고","ep15_1_f_abbey_2","c_orsha","키렌 지방","EP15_1_FABBEY1_MQ_1"
 11066,"WARP_EP15_2_D_NICOPOLIS_1","비밀실험실","ep15_2_d_nicopolis_1","c_orsha","키렌 지방","EP15_2_D_NICOPOLIS_1_MQ_1"
+11067,"WARP_EP17_D_LIMESTONE_52_1","테브린 종유동 1구역","ep17_1_d_limestonecave_52_1","c_Klaipe","키렌 지방","EP17_1_LIMESTONECAVE_MQ16"
+11068,"WARP_EP17_D_LIMESTONE_52_5","테브린 종유동 5구역","ep17_1_d_limestonecave_52_5","c_Klaipe","키렌 지방","EP17_1_LIMESTONECAVE_MQ16"

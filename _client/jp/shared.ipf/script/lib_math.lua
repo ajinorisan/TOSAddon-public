@@ -38,11 +38,3 @@ function MinMaxCorrection(value, minVal, maxVal)
     value = math.min(math.max(minVal, value), maxVal);
     return(value);
 end
-
-function LERP(p1, p2, d1)
-  return (1 - d1) * p1 + d1 * p2;
-end
-
-function BoolToNumber(bool)
-    return bool and 1 or 0
-end

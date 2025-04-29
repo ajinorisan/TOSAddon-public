@@ -1948,6 +1948,26 @@ function Sledger_ColorBlend_Buff_LEAVE(actor, obj, buff)
     actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
 end
 
+function BoneReinforcement_ColorBlend_Buff_ENTER(actor, obj, buff)
+    actor:SetAlwaysBattleState(true);    
+    actor:GetEffect():ActorColorBlend(1, 88/255, 36/255, 138/255, 1, 0);        
+end
+
+function BoneReinforcement_ColorBlend_Buff_LEAVE(actor, obj, buff)
+    actor:SetAlwaysBattleState(false);
+    actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
+end
+
+function BoneStorm_ColorBlend_Buff_ENTER(actor, obj, buff)
+    actor:SetAlwaysBattleState(true);    
+    actor:GetEffect():ActorColorBlend(1, 72/255, 72/255, 72/255, 1, 0);        
+end
+
+function BoneStorm_ColorBlend_Buff_LEAVE(actor, obj, buff)
+    actor:SetAlwaysBattleState(false);
+    actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
+end
+
 
 
 function DOLL_LAIMA_BUFF_ENTER(actor, obj, buff)
@@ -2389,4 +2409,75 @@ function EFFECT_ANGELPOPORI_BUFF_UPDATE(actor, obj, buff)
 end
 
 function EFFECT_ANGELPOPORI_BUFF_LEAVE(actor, obj, buff)
+end
+
+--잔혹한 레다니아 패턴 3 : 매혹
+function Redania_Fatal_Fragrance_client_ENTER(actor, obj, buff)
+    --사운드 재생
+    --imcSound.PlaySoundEvent("swd_blow_cloth2")
+    --녹색으로 몇 초간 점멸
+    actor:GetEffect():SetColorBlink(0.1,0.1,0.1,0.1, 0,0.2,0,0.1, 2, 1);
+    local scp = string.format("Redania_Fatal_Fragrance_client_END(\"%d\")", actor:GetHandleVal())
+    local time = 2.0
+    ReserveScript(scp, time)
+end
+
+function Redania_Fatal_Fragrance_client_END(actor_handle)
+    local actor = world.GetActor(actor_handle)
+    if actor == nil then
+        return
+    end
+    actor:GetEffect():SetColorBlink(0,0,0,0,1,0,0,1, 0 , 1);
+end
+
+function Redania_Fatal_Fragrance_client_LEAVE(actor, obj, buff)
+    actor:GetEffect():SetColorBlink(0,0,0,0,1,0,0,1, 0 , 1);
+end
+
+--잔혹한 레다니아 스킬 : 강풍
+function REDANIA_GALE_DEBUFF_CLIENT_ENTER(actor, obj, buff)
+end
+
+function REDANIA_GALE_DEBUFF_CLIENT_UPDATE(actor, obj, buff)
+    if actor == nil then
+        return;
+    end
+
+    if actor:IsMyPC() == 1 then
+        --강풍이 불 때 움직일 수 없는 채널링 스킬을 사용할 경우 취소 시킨다
+        if geSkillControl.IsMovable() == false then
+           -- geSkillControl.CancleSkill(actor:GetHandleVal());
+        --    actor:SkillUseCancel()
+        --    actor:SkillCastCancel()
+            return;
+        end
+    end
+end
+
+function REDANIA_GALE_DEBUFF_CLIENT_LEAVE(actor, obj, buff)
+
+end
+
+--잔혹한 레다니아 스킬 : 밀랍 덩어리
+function REDANIA_BEESWAX_DEBUFF_CLIENT_ENTER(actor, obj, buff)
+
+end
+
+function REDANIA_BEESWAX_DEBUFF_CLIENT_UPDATE(actor, obj, buff)
+    if actor == nil then
+        return;
+    end
+
+    if actor:IsMyPC() == 1 then
+        actor:SetUserValue("BEESWAX_DEBUFF", 1);
+    end
+end
+
+function REDANIA_BEESWAX_DEBUFF_CLIENT_LEAVE(actor, obj, buff)
+    if actor == nil then
+        return;
+    end
+    if actor:IsMyPC() == 1 then
+        actor:SetUserValue("BEESWAX_DEBUFF", 0);
+    end
 end

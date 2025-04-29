@@ -2,12 +2,9 @@ function INDUNMAPINFO_ON_INIT(addon, frame)
     SIZE_RATIO_INDUN_MAP_INFO = 1; -- 확대 배율 기본 적용
 end
 
-function OPEN_INDUN_MAP_INFO(indunClassID, selectedMapID, resetGroupID)
+function OPEN_INDUN_MAP_INFO(indunClassID, selectedMapID)
     local frame = ui.GetFrame('indunmapinfo');
-	frame:SetUserValue('INDUN_CLASS_ID', indunClassID);
-	if resetGroupID ~= nil then
-		frame:SetUserValue('RESET_GROUP_ID', resetGroupID);
-	end
+    frame:SetUserValue('INDUN_CLASS_ID', indunClassID);
     local worldMapPic = INDUNMAPINFO_SET_PICTURE(frame);
     local mustShowMapCtrl = INDUNMAPINFO_RESET_MAP_CTRL(frame, worldMapPic, tonumber(selectedMapID));
     INDUNMAPINFO_SET_INDUN_POS(frame, worldMapPic, mustShowMapCtrl, selectedMapID);
@@ -181,12 +178,7 @@ function INDUNMAPINFO_SET_TOOLTIP(frame, gbox, ctrlSet, mapCls)
     gbox:EnableHitTest(1);
 	ctrlSet:SetTooltipType('indun_tooltip');
 	ctrlSet:SetTooltipStrArg(mapCls.ClassName);
-	local resetGroupID = frame:GetUserIValue('RESET_GROUP_ID');
-	if resetGroupID ~= nil and resetGroupID < 0 then
-		ctrlSet:SetTooltipNumArg(-indunClassID);
-	else
-		ctrlSet:SetTooltipNumArg(indunClassID);
-	end
+	ctrlSet:SetTooltipNumArg(indunClassID);
     ctrlSet:SetTooltipOverlap(1);
 end
 
@@ -332,48 +324,6 @@ function MAKE_INDUN_ICON(frame, mapName, indunCls, mapWidth, mapHeight, offsetX,
 
 end
 
-function MAKE_CONTENTS_ICON(frame, mapName, contentsCls, mapWidth, mapHeight, offsetX, offsetY)
-	-- param check
-	if frame == nil or mapName == nil or contentsCls == nil then
-		return
-	end	
-	DESTORY_MAP_PIC(frame)
-
-	-- get indun gate map property
-	local mapprop = geMapTable.GetMapProp(mapName)
-	if mapprop == nil then
-		return
-	end
-
-	local startPos = contentsCls.StartPos
-	if TryGetProp(contentsCls, 'ClassID', 0) == 102 then
-		local tempList = SCR_STRING_CUT(startPos, ';')
-		local sysTime = geTime.GetServerSystemTime();
-		local todayIndex = sysTime.wDayOfWeek + 1
-		if #tempList >= todayIndex then
-			startPos = tempList[todayIndex]
-		end
-	end
-	local posList = SCR_STRING_CUT(startPos, '/')
-
-	local WorldPos = { x = tonumber(posList[1]), z = tonumber(posList[2]) }
-	local MapPos = mapprop:WorldPosToMinimapPos(WorldPos.x, WorldPos.z, mapWidth, mapHeight);
-	local XC = offsetX + MapPos.x - 12;
-	local YC = offsetY + MapPos.y - 12;
-
-	local ctrlname = '_NPC_GEN_' .. contentsCls.ClassID
-	local PictureC = frame:CreateOrGetControl('picture', ctrlname, XC, YC, iconW, iconH);
-	tolua.cast(PictureC, "ui::CPicture");
-
-	local iconName = 'None'
-	if iconName == nil or iconName == 'None' then
-		iconName = 'minimap_0' -- default icon
-	end
-	PictureC:SetImage(iconName)
-	PictureC:SetEnableStretch(1)
-	PictureC:ShowWindow(1)
-end
-
 function UPDATE_INDUN_TOOLTIP(frame, argStr, argNum)
 	------------- param check ----------------
 	if frame == nil or argStr == nil or argNum == nil then
@@ -397,9 +347,6 @@ function UPDATE_INDUN_TOOLTIP(frame, argStr, argNum)
 	end
 
 	local indunCls = GetClassByType('Indun', argNum)
-	if argNum < 0 then
-		indunCls = GetClassByType('contents_info', -argNum)
-	end
 	if #drawList < 1 or indunCls == nil then -- some param error
 		return
 	end
@@ -444,11 +391,7 @@ function UPDATE_INDUN_TOOLTIP(frame, argStr, argNum)
 		local offsetY = 210;
 
 		-- 여기서 npc 세팅해줌
-		if argNum < 0 then
-			MAKE_CONTENTS_ICON(iconGroup, drawMapName, indunCls, mapWidth, mapHeight, offsetX, offsetY)
-		else
-			MAKE_INDUN_ICON(iconGroup, drawMapName, indunCls, mapWidth, mapHeight, offsetX, offsetY)
-		end
+		MAKE_INDUN_ICON(iconGroup, drawMapName, indunCls, mapWidth, mapHeight, offsetX, offsetY)
 		pic:EnableCopyOtherImage(nil);
 		
 		for i = 0, iconGroup:GetChildCount()-1 do

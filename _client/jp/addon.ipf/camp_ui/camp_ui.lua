@@ -119,13 +119,7 @@ function CAMP_UI_UPDATE_TIME(frame)
 end
 
 function DESTROY_CAMP(parent, ctrl)
-	local strScp = "EXEC_DESTROY_CAMP()";
-	ui.MsgBox(ScpArgMsg("ReallyDestroyBaseCamp"), strScp, "None");
-end
-
-function EXEC_DESTROY_CAMP()
-	local campInfo = session.camp.GetCurrentCampInfo();
-	control.CustomCommand("REMOVE_CAMP", campInfo:GetHandle());
+	control.CustomCommand("REMOVE_CAMP", 0);	
 end
 
 function CAMP_EXTEND_TIME(parent, ctrl)

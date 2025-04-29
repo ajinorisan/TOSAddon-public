@@ -51,7 +51,7 @@ function g.save_settings()
         file:write(str)
         file:close()
     end
-    g.save_json(g.settings_path, g.settings)
+    save_json(g.settings_path, g.settings)
 end
 
 function g.load_settings()
@@ -69,7 +69,7 @@ function g.load_settings()
         end
     end
 
-    local settings = g.load_json(g.settings_path)
+    local settings = load_json(g.settings_path)
 
     if not settings then
         settings = {}

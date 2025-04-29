@@ -138,7 +138,7 @@ end
 function GET_SEARCH_TEXT(frame)
 
 	local edit = frame:GetChild("searchinput");
-	local text = string.lower(edit:GetText());
+	local text = edit:GetText();
 	return text;
 
 end

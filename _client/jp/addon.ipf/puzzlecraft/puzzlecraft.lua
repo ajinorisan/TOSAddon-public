@@ -132,7 +132,7 @@ function CHECK_NEW_PUZZLE(frame, checkSlot)
 			if slot:GetUserIValue("SELECTED") == 0 then
 				local iconInfo = icon:GetInfo();
 				local row = math.floor(i / slotset:GetCol());
-				local col = math.fmod(i, slotset:GetCol());
+				local col = math.mod(i, slotset:GetCol());
 				geItemPuzzle.AddPuzzleInfo(row, col, iconInfo.type);
 
 				if checkSlot == slot then
@@ -212,18 +212,7 @@ function UPDATE_PUZZLECRAFT_TARGETS()
 	end		
 	
 	local cnt = geItemPuzzle.GetCombinationCount();
-	local totalNeedSecond = 0;
-	local reduceSecBySklLv = 0;
-	local skl = session.GetSkill(21006);
-	if skl ~= nil then
-		local sklObj = GetIES(skl:GetObject());
-		local lvOver = math.floor(sklObj.Level) - 5;
-		if lvOver < 0 then
-			lvOver = 0
-		end
-		reduceSecBySklLv = lvOver * 2
-	end
-
+    local totalNeedSecond = 0;
 	for i = 0 , cnt - 1 do
 		local info = geItemPuzzle.GetCombinationByIndex(i);
 		local resultInfo = geItemPuzzle.GetByClassID(info.classID);
@@ -253,7 +242,7 @@ function UPDATE_PUZZLECRAFT_TARGETS()
             needSec = resultInfo.needSec
         end
         
-        totalNeedSecond = totalNeedSecond + (needSec - reduceSecBySklLv) * ptCount;
+        totalNeedSecond = totalNeedSecond + needSec * ptCount;
 	end
 
     PUZZLECRAFT_UPDATE_TOTAL_TIME(frame, totalNeedSecond);

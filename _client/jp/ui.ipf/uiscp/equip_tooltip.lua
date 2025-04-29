@@ -1507,10 +1507,13 @@ function DRAW_popoboost_INFO(invitem, desc)
 		return desc
 	end
 
-	local text = '{@st41b}{#00ee00}'	
-	text = text .. ScpArgMsg('desc_popoboost_item', 'count', popo_count)
-
-	desc = desc .. '{nl} {nl}' .. text
+	local PopoItemProp = GET_POPOBOOST_ITEMPROP();
+	if PopoItemProp > 0 and popo_count == PopoItemProp then
+		local text = '{@st41b}{#00ee00}'	
+		text = text .. ScpArgMsg('desc_popoboost_item', 'count', popo_count)
+	
+		desc = desc .. '{nl} {nl}' .. text
+	end
 
 	return desc
 end

@@ -76,13 +76,9 @@ local g_account_prop_shop_table =
     {
         ['coinName'] = "EVENT_MOONRISE_2410_PAPAYA"
     },
-    ['EVENT_2410_LEAVES'] = 
+    ['event_2501_newyear'] = 
     {
-        ['coinName'] = "EVENT_LEAVE_2410"
-    },
-    ['EVENT_W_MOON_SHOP'] =
-    {
-        ['coinName'] = 'EVENT_W_MOON_COIN'
+        ['coinName'] = "Tos_Event_Platinum_Coin"
     }
 }
 --------------------------------------------------------------------------------------------------------------------------
@@ -434,6 +430,18 @@ function EARTHTOWERSHOP_BUY_ITEM_RESULT(frame, msg, argStr, argNum)
             count = '0'
         end
         propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+    elseif shopType == "event_2501_newyear" then
+        local propertyRemain = GET_CHILD_RECURSIVELY(frame,"propertyRemain")
+        local itemCls = GetClass('Item', coinName)
+
+        propertyRemain:SetTextByKey('itemName', itemCls.Name)
+        propertyRemain:SetTextByKey('icon', "")
+        local count = GetInvItemCount(GetMyPCObject(), coinName)
+        if count == 'None' then
+            count = '0'
+        end
+        propertyRemain:SetTextByKey('itemCount', GET_COMMAED_STRING(count))
+
     end
 end
 
@@ -1080,7 +1088,7 @@ function EARTH_TOWER_SET_PROPERTY_COUNT(ctrl, itemName, propName)
     local aObj = GetMyAccountObj()
     local count = TryGetProp(aObj, propName, '0')
     local itemCls = GetClass('Item', itemName)
-
+    
     if count == 'None' then
         count = '0'
     end
@@ -1105,7 +1113,13 @@ function EARTH_TOWER_SET_PROPERTY_COUNT(ctrl, itemName, propName)
         ctrl:SetTextByKey('itemCount', GET_COMMAED_STRING(count));
         ctrl:ShowWindow(1);
         return;
-
+    elseif itemName == "Tos_Event_Platinum_Coin" then
+        local clsmsg = ClMsg("EVENT_COIN_MSG");
+        ctrl:SetTextByKey('icon', clsmsg);
+        ctrl:SetTextByKey('itemName', "");
+        ctrl:SetTextByKey('itemCount', GET_COMMAED_STRING(count));
+        ctrl:ShowWindow(1);
+        return;
     else
         ctrl:SetTextByKey('icon', "")  
     end
