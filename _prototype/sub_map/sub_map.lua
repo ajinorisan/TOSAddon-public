@@ -141,7 +141,7 @@ function sub_map_frame_init(frame)
     end
 
     g.icon_size = g.size * 0.08
-    -- CHAT_SYSTEM("sub_map_frame_init")
+
     local frame = ui.GetFrame("sub_map")
     frame:RemoveAllChild()
 
@@ -230,9 +230,6 @@ function sub_map_frame_init(frame)
 
     g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_MAP_UPDATE_PARTY")
 
-    -- g.addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT", "sub_map_FPS_UPDATE")
-    -- :StopUpdateScript("sub_map_frame_init")
-    -- :RunUpdateScript("sub_map_frame_init", 2.0)
     if g.try == 0 then
         local minimap = ui.GetFrame("minimap")
         minimap:RunUpdateScript("sub_map_frame_init", 2.0)
@@ -555,7 +552,7 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
     end
 end
 
-function sub_map_monpic_auto_update(mon_pic)
+--[[function sub_map_monpic_auto_update(mon_pic)
 
     local frame = mon_pic:GetTopParentFrame()
     local gbox = GET_CHILD(frame, "gbox")
@@ -579,6 +576,62 @@ function sub_map_monpic_auto_update(mon_pic)
         return 1
     end
 
+    return 1
+end]]
+
+-- sub_map_monster 関数は変更なしでOK
+
+function sub_map_monpic_auto_update(mon_pic)
+
+    -- フレームやGBoxの取得は元のままでOK
+    local frame = mon_pic:GetTopParentFrame()
+    -- gbox を取得する際に nil チェックを追加するとより安全
+    local gbox = GET_CHILD(frame, "gbox")
+    if not gbox then
+        return 0
+    end -- gbox がなければ更新停止
+
+    local handle = mon_pic:GetUserIValue("HANDLE")
+    local actor = world.GetActor(handle)
+
+    if actor then
+        -- === アクターが見つかった場合 (元の処理を少し修正) ===
+        local mapprop = session.GetCurrentMapProp()
+        -- map_pic の取得も nil チェック推奨
+        local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
+        if not map_pic then
+            return 1
+        end -- map_pic がなければ位置計算できない
+
+        local actor_pos = actor:GetPos()
+        -- モンスタークラス取得とボスチェックはここでも必要 (念のため)
+        local mon_cls = GetClassByType("Monster", actor:GetType())
+        -- TryGetPropを使うとより安全
+        if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
+            -- WorldPosToMinimapPos の引数を修正 (actor_pos.x, actor_pos.z を渡す)
+            local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+            local x = (pos.x - mon_pic:GetWidth() / 2)
+            local y = (pos.y - mon_pic:GetHeight() / 2)
+            mon_pic:SetOffset(x, y)
+            -- アイコンが見えなくなっていた場合に備えて表示状態にする
+            if mon_pic:IsVisible() == 0 then
+                mon_pic:ShowWindow(1)
+            end
+        end
+        return 1 -- 更新を続ける
+    else
+        -- === アクターが見つからなかった場合 (遠くにいる or 消滅した) ===
+        -- アイコンを削除せず、非表示にするか、そのままにしておく
+        mon_pic:ShowWindow(0) -- 例: 非表示にするオプション
+
+        -- 注意: 削除しない場合、完全に消滅したボスのアイコンが残り続ける可能性がある
+        -- マップ移動時などにクリーンアップ処理を入れるのが望ましい
+
+        return 1 -- アイコンは残したまま更新を続ける (また近くに来るかもしれない)
+        -- return 0 -- もし完全に消えたと判断して更新を止めるならこちら
+    end
+
+    -- 通常はここまで来ないはずだけど、念のため
     return 1
 end
 
@@ -1040,7 +1093,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             local item_name = GetClass("Item", item_split[2]).Name
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                0, 0, 0)
+                                                 0, 0, 0)
             AUTO_CAST(icon)
 
             icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
@@ -1060,7 +1113,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                0, 0, 0)
+                                                 0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.name)
             icon:SetImage(data.icon_name)
@@ -1155,7 +1208,7 @@ function sub_map_set_warp_point(frame, map_name)
 
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
-                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
                     AUTO_CAST(icon)
                     local map_cls = GetClass("Map", cls_name)
                     icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name)
