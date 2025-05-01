@@ -523,7 +523,7 @@ function sub_map_MAP_CHARACTER_UPDATE(frame, msg, str, num)
     end
 end
 
-function sub_map_monster(frame, msg, argStr, argNum, info)
+--[[function sub_map_monster(frame, msg, argStr, argNum, info)
 
     local frame = ui.GetFrame("sub_map")
     local gbox = GET_CHILD(frame, "gbox")
@@ -535,9 +535,11 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
 
         local mon_pic = GET_CHILD_RECURSIVELY(frame, ctrl_name)
         if not mon_pic then
-            mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, g.icon_size, g.icon_size)
+            mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, info.x, info.z, g.icon_size, g.icon_size)
         end
         AUTO_CAST(mon_pic)
+        mon_pic:SetUserValue("POS_X", info.x)
+        mon_pic:SetUserValue("POS_Z", info.z)
 
         if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
             mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 1.5)
@@ -552,7 +554,7 @@ function sub_map_monster(frame, msg, argStr, argNum, info)
     end
 end
 
---[[function sub_map_monpic_auto_update(mon_pic)
+function sub_map_monpic_auto_update(mon_pic)
 
     local frame = mon_pic:GetTopParentFrame()
     local gbox = GET_CHILD(frame, "gbox")
@@ -577,7 +579,7 @@ end
     end
 
     return 1
-end]]
+end
 
 -- sub_map_monster 関数は変更なしでOK
 
@@ -609,7 +611,9 @@ function sub_map_monpic_auto_update(mon_pic)
         -- TryGetPropを使うとより安全
         if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
             -- WorldPosToMinimapPos の引数を修正 (actor_pos.x, actor_pos.z を渡す)
-            local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+            local x = mon_pic:SetUserValue("POS_X")
+            local z = mon_pic:SetUserValue("POS_Z")
+            local pos = mapprop:WorldPosToMinimapPos(x, z, map_pic:GetWidth(), map_pic:GetHeight())
             local x = (pos.x - mon_pic:GetWidth() / 2)
             local y = (pos.y - mon_pic:GetHeight() / 2)
             mon_pic:SetOffset(x, y)
@@ -633,6 +637,106 @@ function sub_map_monpic_auto_update(mon_pic)
 
     -- 通常はここまで来ないはずだけど、念のため
     return 1
+end]]
+
+function sub_map_monster(frame, msg, argStr, argNum, info)
+    -- frame や gbox の取得は変更なし
+    local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
+    if not gbox then
+        return
+    end -- gbox がないと作れない
+
+    local handle = info.handle
+    local mon_cls = GetClassByType("Monster", info.type)
+
+    if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
+        local ctrl_name = "_MONPOS_" .. handle
+        local mon_pic = GET_CHILD_RECURSIVELY(gbox, ctrl_name) -- gboxから探す
+
+        if not mon_pic then
+            -- === 新規作成 ===
+            mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, g.icon_size, g.icon_size) -- 初期位置は仮で0,0
+            if not mon_pic then
+                return
+            end -- 作成失敗
+            AUTO_CAST(mon_pic)
+
+            mon_pic:SetUserValue("HANDLE", handle)
+
+            -- アイコン画像設定
+            local img_name = mon_cls.MinimapIcon
+            mon_pic:SetImage(img_name)
+            mon_pic:SetEnableStretch(1)
+
+            -- ★★★ 初期位置の設定 ★★★
+            local mapprop = session.GetCurrentMapProp()
+            local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
+            if map_pic then
+                -- info.x, info.z を使って初期位置を計算
+                local pos = mapprop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+                local initial_x = pos.x - mon_pic:GetWidth() / 2
+                local initial_y = pos.y - mon_pic:GetHeight() / 2
+                mon_pic:SetOffset(initial_x, initial_y)
+            end
+
+            mon_pic:ShowWindow(1)
+
+            -- Updateスクリプト開始
+            if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
+                mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 1.0) -- 更新間隔はお好みで
+            end
+        end
+        -- 既に存在する場合は何もしない (Update スクリプトが動いているはず)
+    end
+end
+
+function sub_map_monpic_auto_update(mon_pic)
+    local frame = mon_pic:GetTopParentFrame()
+    local gbox = GET_CHILD(frame, "gbox")
+    if not gbox then
+        return 0
+    end
+
+    local handle = mon_pic:GetUserIValue("HANDLE")
+    local actor = world.GetActor(handle)
+
+    if actor then
+        -- === アクターが見つかった場合: 最新位置で更新 ===
+        local mapprop = session.GetCurrentMapProp()
+        local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
+        if not map_pic then
+            return 1
+        end
+
+        local actor_pos = actor:GetPos() -- ★★★ 最新の位置を取得 ({x,y,z}テーブルのはず) ★★★
+        if not actor_pos then
+            return 1
+        end -- 稀に nil が返る可能性も考慮
+
+        local mon_cls = GetClassByType("Monster", actor:GetType())
+
+        if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
+            -- ★★★ 最新の actor_pos.x と actor_pos.z を使う ★★★
+            local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+            local x = pos.x - mon_pic:GetWidth() / 2
+            local y = pos.y - mon_pic:GetHeight() / 2
+            mon_pic:SetOffset(x, y)
+
+            if mon_pic:IsVisible() == 0 then
+                mon_pic:ShowWindow(1) -- 非表示だったら表示に戻す
+            end
+        else
+            mon_pic:ShowWindow(0) -- ボスじゃなくなったら非表示
+        end
+        return 1 -- 更新続行
+    else
+        -- === アクターが見つからなかった場合: 非表示にする ===
+        if mon_pic:IsVisible() == 1 then
+            mon_pic:ShowWindow(0)
+        end
+        return 1 -- 更新続行 (また見つかるかも)
+    end
 end
 
 -- sub_map_MAP_UPDATE_PARTY_INST 内の GET_CHILD_RECURSIVELY も gbox を起点にする方が良い
