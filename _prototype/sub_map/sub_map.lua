@@ -105,6 +105,7 @@ function SUB_MAP_ON_INIT(addon, frame)
     local map_type = g.get_map_type()
     if map_type ~= "Instance" then
         addon:RegisterMsg('GAME_START_3SEC', "sub_map_frame_init")
+
     end
 
     local map_name = session.GetMapName()
@@ -122,10 +123,17 @@ end
 
 function sub_map_frame_init(frame)
 
+    if g.try == 0 then
+        frame:RunUpdateScript("sub_map_frame_init", 2.0)
+        g.try = 1
+        return
+    end
+
     local minimap = ui.GetFrame("minimap")
 
     local isAutoChallengeMap = session.IsAutoChallengeMap()
     local isSoloChallengeMap = session.IsSoloChallengeMap()
+
     if isAutoChallengeMap or isSoloChallengeMap then
         g.challenge = true
     else
@@ -191,6 +199,12 @@ function sub_map_frame_init(frame)
         return
     end
 
+    function sub_map_frame_layer_change(frame, ctrl, str, num)
+        if str == "ON" then
+            frame:SetLayerLevel(32)
+        end
+    end
+
     local gbox = frame:CreateOrGetControl("groupbox", "gbox", g.size + 10, g.size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
     AUTO_CAST(gbox)
     gbox:SetEventScript(ui.MOUSEON, "sub_map_frame_layer_change")
@@ -222,20 +236,14 @@ function sub_map_frame_init(frame)
     end
 
     g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "sub_map_MAP_CHARACTER_UPDATE")
-    g.addon:RegisterMsg("MON_MINIMAP", "sub_map_monster")
-    -- g.addon:RegisterMsg("MON_MINIMAP", "sub_map_MAP_MON_MINIMAP")
+    g.addon:RegisterMsg("MON_MINIMAP", "sub_map_MAP_MON_MINIMAP")
+    g.addon:RegisterMsg('MON_MINIMAP_END', 'sub_map_ON_MON_MINIMAP_END');
+    g.handles = {}
 
     g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_MAP_UPDATE_GUILD")
     g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_MAP_UPDATE_PARTY_INST")
 
     g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_MAP_UPDATE_PARTY")
-
-    if g.try == 0 then
-        local minimap = ui.GetFrame("minimap")
-        minimap:RunUpdateScript("sub_map_frame_init", 2.0)
-        g.try = 1
-        return
-    end
 
     if g.challenge then
         display:ShowWindow(0)
@@ -250,46 +258,18 @@ function sub_map_frame_init(frame)
     end
 end
 
-function sub_map_time_update(frame)
-    local server_time = geTime.GetServerSystemTime()
-    local hour = server_time.wHour
-    local min = server_time.wMinute
-
-    local ampm = "AM"
-    local display_hour = hour
-
-    if hour == 0 then -- 0時を12時AMにする
-        display_hour = 12
-        ampm = "AM"
-    elseif hour == 12 then -- 12時を12時PMにする
-        display_hour = 12
-        ampm = "PM"
-    elseif hour > 12 then -- 午後
-        display_hour = hour - 12
-        ampm = "PM"
-    end
-
-    local display_min = string.format("%02d", min) -- 分を2桁表示にする
-
-    local clock_text = string.format("{ol}{s18}%s %d:%s", ampm, display_hour, display_min)
-
-    local clock = frame:CreateOrGetControl("richtext", "clock", 0, 0)
-    AUTO_CAST(clock)
-    clock:SetGravity(ui.RIGHT, ui.BOTTOM)
-    clock:SetMargin(0, 0, 10, 5)
-    clock:SetText(clock_text)
-end
-
 function sub_map_change_minimap_mode(frame, msg)
+
+    if g.settings.visible ~= 1 then
+        return
+    end
 
     local minimap = ui.GetFrame("minimap")
     local minimap_x = minimap:GetX()
     local minimap_y = minimap:GetY()
     minimap:ShowWindow(0)
     frame:ShowWindow(1)
-    if g.settings.visible ~= 1 then
-        return
-    end
+
     -- frame:SetSkinName("textbutton")
     frame:SetSkinName("chat_window")
     frame:EnableMove(0)
@@ -304,12 +284,10 @@ function sub_map_change_minimap_mode(frame, msg)
     frame:Resize(minimap:GetWidth(), minimap:GetWidth() + 30)
 
     local rect = minimap:GetMargin()
-    -- print(rect.left .. ":" .. rect.top .. ":" .. rect.right .. ":" .. rect.bottom)
+
     frame:SetGravity(ui.RIGHT, ui.TOP)
     frame:SetMargin(rect.left, rect.top, rect.right, rect.bottom)
-    -- frame:SetPos(minimap_x, minimap_y)
     local gbox = GET_CHILD(frame, "gbox")
-
     gbox:SetEventScript(ui.MOUSEON, "None")
 
     local start_frame = ui.GetFrame("skill_notice_freestart_frame")
@@ -318,12 +296,41 @@ function sub_map_change_minimap_mode(frame, msg)
         start_frame:SetLayerLevel(78)
     end
 
+    function sub_map_time_update(frame)
+        local server_time = geTime.GetServerSystemTime()
+        local hour = server_time.wHour
+        local min = server_time.wMinute
+
+        local ampm = "AM"
+        local display_hour = hour
+
+        if hour == 0 then -- 0時を12時AMにする
+            display_hour = 12
+            ampm = "AM"
+        elseif hour == 12 then -- 12時を12時PMにする
+            display_hour = 12
+            ampm = "PM"
+        elseif hour > 12 then -- 午後
+            display_hour = hour - 12
+            ampm = "PM"
+        end
+
+        local display_min = string.format("%02d", min) -- 分を2桁表示にする
+
+        local clock_text = string.format("{ol}{s18}%s %d:%s", ampm, display_hour, display_min)
+
+        local clock = frame:CreateOrGetControl("richtext", "clock", 0, 0)
+        AUTO_CAST(clock)
+        clock:SetGravity(ui.RIGHT, ui.BOTTOM)
+        clock:SetMargin(0, 0, 10, 5)
+        clock:SetText(clock_text)
+    end
+
     local timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0)
     AUTO_CAST(timer)
     timer:Stop()
     timer:SetUpdateScript("sub_map_time_update")
     timer:Start(1.0)
-
 end
 
 function sub_map_set_pcicon_update(frame, msg, str, num, info)
@@ -342,7 +349,6 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
 
     if count == 1 then
         sub_map_DESTROY_CHILD_BYNAME(gbox, "pm_")
-        -- gbox:RemoveAllChild()
         return
     end
 
@@ -365,27 +371,21 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
 
             if icon then
                 AUTO_CAST(icon)
-
                 icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName())
                 icon:SetEnableStretch(1)
-
             else
                 icon = gbox:CreateOrGetControl("picture", "pm_" .. handle, x, y, g.icon_size, g.icon_size)
                 AUTO_CAST(icon)
                 icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName())
                 icon:SetEnableStretch(1)
-
             end
-
             icon:SetPos(x, y)
-
             local pcinfo_hp = instInfo.hp
             if pcinfo_hp > 0 then
                 icon:SetImage("Archer_party")
             else
                 icon:SetImage("die_party")
             end
-
         end
     end
     gbox:Invalidate()
@@ -401,12 +401,6 @@ function sub_map_frame_toggle(frame, ctrl)
     g.save_settings()
     sub_map_frame_init()
     return
-end
-
-function sub_map_frame_layer_change(frame, ctrl, str, num)
-    if str == "ON" then
-        frame:SetLayerLevel(32)
-    end
 end
 
 function sub_map_frame_map_link(frame, ctrl)
@@ -501,244 +495,6 @@ function sub_map_frame_end_drag(frame, ctrl)
     g.save_settings()
 end
 
-function sub_map_MAP_CHARACTER_UPDATE(frame, msg, str, num)
-
-    sub_map_draw_fog()
-
-    local myHandle = session.GetMyHandle()
-    local map_pic = frame:GetChildRecursively("map_pic")
-    local pos = info.GetPositionInMap(session.GetMyHandle(), map_pic:GetWidth(), map_pic:GetHeight())
-    local my = frame:GetChildRecursively("my")
-    AUTO_CAST(my)
-    my:ShowWindow(0)
-    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
-    local mapprop = session.GetCurrentMapProp()
-    local angle = info.GetAngle(myHandle) - mapprop.RotateAngle
-    my:SetAngle(angle)
-    my:ShowWindow(1)
-    map_pic:Invalidate()
-
-    if not g.challenge then
-        sub_map_mapicon_update(frame, msg, str, num)
-    end
-end
-
---[[function sub_map_monster(frame, msg, argStr, argNum, info)
-
-    local frame = ui.GetFrame("sub_map")
-    local gbox = GET_CHILD(frame, "gbox")
-    local handle = info.handle
-    local mon_cls = GetClassByType("Monster", info.type)
-    if TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
-
-        local ctrl_name = "_MONPOS_" .. handle
-
-        local mon_pic = GET_CHILD_RECURSIVELY(frame, ctrl_name)
-        if not mon_pic then
-            mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, info.x, info.z, g.icon_size, g.icon_size)
-        end
-        AUTO_CAST(mon_pic)
-        mon_pic:SetUserValue("POS_X", info.x)
-        mon_pic:SetUserValue("POS_Z", info.z)
-
-        if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
-            mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 1.5)
-        end
-
-        mon_pic:SetUserValue("HANDLE", handle)
-
-        local img_name = mon_cls.MinimapIcon
-        mon_pic:SetImage(img_name)
-        mon_pic:SetEnableStretch(1)
-        mon_pic:ShowWindow(1)
-    end
-end
-
-function sub_map_monpic_auto_update(mon_pic)
-
-    local frame = mon_pic:GetTopParentFrame()
-    local gbox = GET_CHILD(frame, "gbox")
-    local handle = mon_pic:GetUserIValue("HANDLE")
-    local actor = world.GetActor(handle)
-
-    if actor then
-        local mapprop = session.GetCurrentMapProp()
-        local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
-        local actor_pos = actor:GetPos()
-        local mon_cls = GetClassByType("Monster", actor:GetType())
-        if TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
-            local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
-            local x = (pos.x - mon_pic:GetWidth() / 2)
-            local y = (pos.y - mon_pic:GetHeight() / 2)
-            mon_pic:SetOffset(x, y)
-        end
-        return 1
-    else
-        gbox:RemoveChild("_MONPOS_" .. handle)
-        return 1
-    end
-
-    return 1
-end
-
--- sub_map_monster 関数は変更なしでOK
-
-function sub_map_monpic_auto_update(mon_pic)
-
-    -- フレームやGBoxの取得は元のままでOK
-    local frame = mon_pic:GetTopParentFrame()
-    -- gbox を取得する際に nil チェックを追加するとより安全
-    local gbox = GET_CHILD(frame, "gbox")
-    if not gbox then
-        return 0
-    end -- gbox がなければ更新停止
-
-    local handle = mon_pic:GetUserIValue("HANDLE")
-    local actor = world.GetActor(handle)
-
-    if actor then
-        -- === アクターが見つかった場合 (元の処理を少し修正) ===
-        local mapprop = session.GetCurrentMapProp()
-        -- map_pic の取得も nil チェック推奨
-        local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
-        if not map_pic then
-            return 1
-        end -- map_pic がなければ位置計算できない
-
-        local actor_pos = actor:GetPos()
-        -- モンスタークラス取得とボスチェックはここでも必要 (念のため)
-        local mon_cls = GetClassByType("Monster", actor:GetType())
-        -- TryGetPropを使うとより安全
-        if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
-            -- WorldPosToMinimapPos の引数を修正 (actor_pos.x, actor_pos.z を渡す)
-            local x = mon_pic:SetUserValue("POS_X")
-            local z = mon_pic:SetUserValue("POS_Z")
-            local pos = mapprop:WorldPosToMinimapPos(x, z, map_pic:GetWidth(), map_pic:GetHeight())
-            local x = (pos.x - mon_pic:GetWidth() / 2)
-            local y = (pos.y - mon_pic:GetHeight() / 2)
-            mon_pic:SetOffset(x, y)
-            -- アイコンが見えなくなっていた場合に備えて表示状態にする
-            if mon_pic:IsVisible() == 0 then
-                mon_pic:ShowWindow(1)
-            end
-        end
-        return 1 -- 更新を続ける
-    else
-        -- === アクターが見つからなかった場合 (遠くにいる or 消滅した) ===
-        -- アイコンを削除せず、非表示にするか、そのままにしておく
-        mon_pic:ShowWindow(0) -- 例: 非表示にするオプション
-
-        -- 注意: 削除しない場合、完全に消滅したボスのアイコンが残り続ける可能性がある
-        -- マップ移動時などにクリーンアップ処理を入れるのが望ましい
-
-        return 1 -- アイコンは残したまま更新を続ける (また近くに来るかもしれない)
-        -- return 0 -- もし完全に消えたと判断して更新を止めるならこちら
-    end
-
-    -- 通常はここまで来ないはずだけど、念のため
-    return 1
-end]]
-
-function sub_map_monster(frame, msg, argStr, argNum, info)
-    -- frame や gbox の取得は変更なし
-    local frame = ui.GetFrame("sub_map")
-    local gbox = GET_CHILD(frame, "gbox")
-    if not gbox then
-        return
-    end -- gbox がないと作れない
-
-    local handle = info.handle
-    local mon_cls = GetClassByType("Monster", info.type)
-
-    if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
-        local ctrl_name = "_MONPOS_" .. handle
-        local mon_pic = GET_CHILD_RECURSIVELY(gbox, ctrl_name) -- gboxから探す
-
-        if not mon_pic then
-            -- === 新規作成 ===
-            mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, g.icon_size, g.icon_size) -- 初期位置は仮で0,0
-            if not mon_pic then
-                return
-            end -- 作成失敗
-            AUTO_CAST(mon_pic)
-
-            mon_pic:SetUserValue("HANDLE", handle)
-
-            -- アイコン画像設定
-            local img_name = mon_cls.MinimapIcon
-            mon_pic:SetImage(img_name)
-            mon_pic:SetEnableStretch(1)
-
-            -- ★★★ 初期位置の設定 ★★★
-            local mapprop = session.GetCurrentMapProp()
-            local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
-            if map_pic then
-                -- info.x, info.z を使って初期位置を計算
-                local pos = mapprop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
-                local initial_x = pos.x - mon_pic:GetWidth() / 2
-                local initial_y = pos.y - mon_pic:GetHeight() / 2
-                mon_pic:SetOffset(initial_x, initial_y)
-            end
-
-            mon_pic:ShowWindow(1)
-
-            -- Updateスクリプト開始
-            if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
-                mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 1.0) -- 更新間隔はお好みで
-            end
-        end
-        -- 既に存在する場合は何もしない (Update スクリプトが動いているはず)
-    end
-end
-
-function sub_map_monpic_auto_update(mon_pic)
-    local frame = mon_pic:GetTopParentFrame()
-    local gbox = GET_CHILD(frame, "gbox")
-    if not gbox then
-        return 0
-    end
-
-    local handle = mon_pic:GetUserIValue("HANDLE")
-    local actor = world.GetActor(handle)
-
-    if actor then
-        -- === アクターが見つかった場合: 最新位置で更新 ===
-        local mapprop = session.GetCurrentMapProp()
-        local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
-        if not map_pic then
-            return 1
-        end
-
-        local actor_pos = actor:GetPos() -- ★★★ 最新の位置を取得 ({x,y,z}テーブルのはず) ★★★
-        if not actor_pos then
-            return 1
-        end -- 稀に nil が返る可能性も考慮
-
-        local mon_cls = GetClassByType("Monster", actor:GetType())
-
-        if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
-            -- ★★★ 最新の actor_pos.x と actor_pos.z を使う ★★★
-            local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
-            local x = pos.x - mon_pic:GetWidth() / 2
-            local y = pos.y - mon_pic:GetHeight() / 2
-            mon_pic:SetOffset(x, y)
-
-            if mon_pic:IsVisible() == 0 then
-                mon_pic:ShowWindow(1) -- 非表示だったら表示に戻す
-            end
-        else
-            mon_pic:ShowWindow(0) -- ボスじゃなくなったら非表示
-        end
-        return 1 -- 更新続行
-    else
-        -- === アクターが見つからなかった場合: 非表示にする ===
-        if mon_pic:IsVisible() == 1 then
-            mon_pic:ShowWindow(0)
-        end
-        return 1 -- 更新続行 (また見つかるかも)
-    end
-end
-
 -- sub_map_MAP_UPDATE_PARTY_INST 内の GET_CHILD_RECURSIVELY も gbox を起点にする方が良い
 function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
     local gbox = GET_CHILD(frame, "gbox") -- gbox を取得
@@ -788,45 +544,6 @@ function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
     end
 end
 
---[[function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
-    local mapprop = session.GetCurrentMapProp()
-    local myInfo = session.party.GetMyPartyObj(partyType)
-
-    local list = session.party.GetPartyMemberList(partyType)
-    local count = list:Count()
-
-    local header = "PM_"
-    if partyType == PARTY_GUILD then
-        header = "GM_"
-    end
-    for i = 0, count - 1 do
-        local skip = false
-        local pcInfo = list:Element(i)
-        if myInfo ~= pcInfo then
-            if is_my_guild_member(pcInfo:GetAID()) then
-                DESTROY_GUILD_MEMBER_ICON(frame, msg, pcInfo:GetAID())
-            end
-
-            local instInfo = pcInfo:GetInst()
-            local name = header .. pcInfo:GetAID()
-            local pic = GET_CHILD_RECURSIVELY(frame, name)
-            AUTO_CAST(pic)
-            if pic ~= nil then
-                local iconinfo = pcInfo:GetIconInfo()
-                sub_map_SET_PM_MINIMAP_ICON(pic, instInfo.hp, pcInfo:GetAID())
-                -- tolua.cast(pic, "ui::CControlSet")
-                sub_map_SET_PM_MAPPOS(frame, pic, instInfo, mapprop)
-            else
-                -- local mapFrame = ui.GetFrame('map')
-                local mapFrame = ui.GetFrame('sub_map')
-                sub_map_MAP_UPDATE_PARTY(mapFrame, "PARTY_UPDATE", nil, 0)
-                return
-            end
-        end
-    end
-
-end]]
-
 function sub_map_MAP_UPDATE_PARTY(frame, msg, arg, type, info)
 
     local gbox = GET_CHILD(frame, "gbox")
@@ -864,24 +581,6 @@ function sub_map_DESTROY_CHILD_BYNAME(parent_control, searchname) -- frame じ�
         parent_control:RemoveChild(child_name)
     end
 end
-
---[[function sub_map_DESTROY_CHILD_BYNAME(frame, searchname)
-    local index = 0
-    while 1 do
-        if index >= frame:GetChildCount() then
-            break
-        end
-
-        local childObj = frame:GetChildByIndex(index)
-        local name = childObj:GetName()
-
-        if string.find(name, searchname) ~= nil then
-            frame:RemoveChildByIndex(index)
-        else
-            index = index + 1
-        end
-    end
-end]]
 
 function sub_map_MAP_UPDATE_GUILD(frame, msg, arg, type, info)
 
@@ -970,28 +669,9 @@ function sub_map_CREATE_PM_PICTURE(frame, pcInfo, type, mapprop)
         return
     end
 
-    -- 既存チェックは上で済ませたので、ここのチェックは不要になるはず
-    -- if type == PARTY_GUILD then
-    --     if gbox:GetChild("GM_" .. pcInfo:GetAID()) ~= nil then -- frameじゃなくgboxでチェック
-    --         return
-    --     end
-    -- else
-    --     if gbox:GetChild("PM_" .. pcInfo:GetAID()) ~= nil then -- frameじゃなくgboxでチェック
-    --         return
-    --     end
-    -- end
-
     local instInfo = pcInfo:GetInst()
-    -- local gbox = GET_CHILD(frame, "gbox") -- 上に移動済み
 
-    -- CreateOrGetControl より GetChild + CreateControl の方が確実かも？
-    -- local map_partymember_iconset = gbox:GetChild(name)
-    -- if map_partymember_iconset == nil then
     local map_partymember_iconset = gbox:CreateOrGetControl("picture", name, 0, 0, g.icon_size, g.icon_size)
-    -- end
-    if map_partymember_iconset == nil then
-        return
-    end -- 作成失敗？念のため
 
     AUTO_CAST(map_partymember_iconset)
     map_partymember_iconset:SetEnableStretch(1)
@@ -1001,58 +681,6 @@ function sub_map_CREATE_PM_PICTURE(frame, pcInfo, type, mapprop)
     sub_map_SET_PM_MINIMAP_ICON(map_partymember_iconset, instInfo.hp, aid) -- aid を渡す
     sub_map_SET_PM_MAPPOS(frame, map_partymember_iconset, instInfo, mapprop)
 end
-
---[[function sub_map_CREATE_PM_PICTURE(frame, pcInfo, type, mapprop)
-    local myInfo = session.party.GetMyPartyObj(type)
-
-    if nil == myInfo then
-        return
-    end
-
-    if myInfo == pcInfo then
-        return
-    end
-
-    if myInfo:GetMapID() ~= pcInfo:GetMapID() or myInfo:GetChannel() ~= pcInfo:GetChannel() then
-        return
-    end
-
-    local header = "PM_"
-    if type == PARTY_GUILD then
-        header = "GM_"
-    end
-    local name = header .. pcInfo:GetAID()
-
-    if pcInfo:GetMapID() == 0 then
-        frame:RemoveChild(name)
-        return
-    end
-
-    if type == PARTY_GUILD then
-        if frame:GetChild("GM_" .. pcInfo:GetAID()) ~= nil then
-            return
-        end
-    else
-        if frame:GetChild("PM_" .. pcInfo:GetAID()) ~= nil then
-            return
-        end
-    end
-
-    local instInfo = pcInfo:GetInst()
-    local gbox = GET_CHILD(frame, "gbox")
-
-    -- local map_partymember_iconset = gbox:CreateOrGetControlSet('map_partymember_iconset', name, 0, 0)
-    local map_partymember_iconset = gbox:CreateOrGetControl("picture", name, 0, 0, g.icon_size, g.icon_size)
-    AUTO_CAST(map_partymember_iconset)
-    map_partymember_iconset:SetEnableStretch(1)
-    -- print(tostring(g.icon_size))
-    map_partymember_iconset:SetTooltipType("partymap")
-    map_partymember_iconset:SetTooltipArg(pcInfo:GetName(), type)
-
-   
-    sub_map_SET_PM_MINIMAP_ICON(map_partymember_iconset, instInfo.hp, pcInfo:GetAID())
-    sub_map_SET_PM_MAPPOS(frame, map_partymember_iconset, instInfo, mapprop)
-end]]
 
 function sub_map_SET_PM_MAPPOS(frame, controlset, instInfo, mapprop)
     local worldPos = instInfo:GetPos()
@@ -1197,7 +825,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             local item_name = GetClass("Item", item_split[2]).Name
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                                                 0, 0, 0)
+                0, 0, 0)
             AUTO_CAST(icon)
 
             icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
@@ -1217,7 +845,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                                                 0, 0, 0)
+                0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.name)
             icon:SetImage(data.icon_name)
@@ -1236,18 +864,87 @@ function sub_map_mapicon_update(frame, msg, str, num)
     gbox:Invalidate()
 end
 
-function sub_map_draw_fog()
-    local frame = ui.GetFrame("sub_map")
-    local gbox = GET_CHILD(frame, "gbox")
+function sub_map_set_warp_point(frame, map_name)
+
+    local mapprop = geMapTable.GetMapProp(map_name)
+    local mongens = mapprop.mongens
+    local count = mongens:Count()
+
+    local gbox = frame:GetChild("gbox")
+    local map_pic = gbox:GetChild("map_pic")
+
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local icon_name = mon_prop:GetMinimapIcon()
+        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
+            local gen_list = mon_prop.GenList
+            local gen_count = gen_list:Count()
+            for j = 0, gen_count - 1 do
+                local dialog = mon_prop:GetDialog()
+                local warp_cls = GetClass("Warp", mon_prop:GetDialog())
+                if not warp_cls then
+                    for match in mon_prop:GetDialog():gmatch("[a-zA-Z]+_(.*)") do
+                        warp_cls = GetClass("Warp", match)
+                    end
+                end
+                if warp_cls then
+                    local cls_name = TryGetProp(warp_cls, "TargetZone", "None")
+                    local pos = gen_list:Element(j)
+
+                    local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
+                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
+                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                    AUTO_CAST(icon)
+                    local map_cls = GetClass("Map", cls_name)
+                    icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name)
+                    icon:SetImage(mon_prop:GetMinimapIcon())
+                    icon:SetOffset(mappos.x - icon:GetWidth() / 2, mappos.y - icon:GetHeight() / 2)
+                    icon:SetEnableStretch(1)
+
+                end
+            end
+        end
+    end
+
+    gbox:Invalidate()
+end
+
+function sub_map_MAP_CHARACTER_UPDATE(frame, msg, str, num)
+
+    sub_map_draw_fog()
+
+    local myHandle = session.GetMyHandle()
     local map_pic = frame:GetChildRecursively("map_pic")
-    AUTO_CAST(map_pic)
-    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_")
+    local pos = info.GetPositionInMap(session.GetMyHandle(), map_pic:GetWidth(), map_pic:GetHeight())
+    local my = frame:GetChildRecursively("my")
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
+    local mapprop = session.GetCurrentMapProp()
+    local angle = info.GetAngle(myHandle) - mapprop.RotateAngle
+    my:SetAngle(angle)
+    my:ShowWindow(1)
+    map_pic:Invalidate()
+
+    if not g.challenge then
+        sub_map_mapicon_update(frame, msg, str, num)
+    end
+end
+
+function sub_map_draw_fog()
+
     local map_id = session.GetMapID()
     local map_name = GetClassByType("Map", map_id).ClassName
 
     if MAP_USE_FOG(map_name) == 0 then
         return
     end
+
+    local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
+    local map_pic = frame:GetChildRecursively("map_pic")
+    AUTO_CAST(map_pic)
+    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_")
 
     local map_frame = ui.GetFrame('map')
     local map = GET_CHILD(map_frame, "map", 'ui::CPicture')
@@ -1283,48 +980,188 @@ function sub_map_draw_fog()
     frame:Invalidate()
 end
 
-function sub_map_set_warp_point(frame, map_name)
+function sub_map_ON_MON_MINIMAP_END(frame, msg, argStr, handle)
 
-    local mapprop = geMapTable.GetMapProp(map_name)
-    local mongens = mapprop.mongens
-    local count = mongens:Count()
+    local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
 
-    local gbox = frame:GetChild("gbox")
-    local map_pic = gbox:GetChild("map_pic")
+    local ctrl_name = "_MONPOS_" .. handle
+    local mon_pic = GET_CHILD(gbox, ctrl_name)
+    if mon_pic then
+        g.handles[tostring(handle)] = 2
+        gbox:RemoveChild(ctrl_name)
+        gbox:Invalidate()
+    end
+end
 
+function sub_map_MAP_MON_MINIMAP(frame, msg, argStr, argNum, info)
+
+    local frame = ui.GetFrame("sub_map")
+    local gbox = GET_CHILD(frame, "gbox")
+
+    local handle = info.handle
+    local mon_cls = GetClassByType("Monster", info.type)
+
+    if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" and not g.handles[tostring(handle)] then
+        g.handles[tostring(handle)] = 1
+        local ctrl_name = "_MONPOS_" .. handle
+        local mon_pic = GET_CHILD_RECURSIVELY(gbox, ctrl_name)
+
+        if not mon_pic then
+
+            mon_pic = gbox:CreateOrGetControl("picture", ctrl_name, 0, 0, g.icon_size, g.icon_size)
+            AUTO_CAST(mon_pic)
+
+            mon_pic:SetUserValue("HANDLE", handle)
+
+            local img_name = mon_cls.MinimapIcon
+            mon_pic:SetImage(img_name)
+            mon_pic:SetEnableStretch(1)
+
+            local mapprop = session.GetCurrentMapProp()
+            local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
+            if map_pic then
+                local pos = mapprop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+                local initial_x = pos.x - mon_pic:GetWidth() / 2
+                local initial_y = pos.y - mon_pic:GetHeight() / 2
+                mon_pic:SetOffset(initial_x, initial_y)
+            end
+            mon_pic:ShowWindow(1)
+            if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
+                mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 0.5)
+            end
+        end
+    end
+end
+
+function sub_map_monpic_auto_update(mon_pic)
+    local frame = mon_pic:GetTopParentFrame()
+    local gbox = GET_CHILD(frame, "gbox")
+
+    local handle = mon_pic:GetUserIValue("HANDLE")
+    local actor = world.GetActor(handle)
+
+    if actor then
+        local mapprop = session.GetCurrentMapProp()
+        local map_pic = GET_CHILD_RECURSIVELY(frame, "map_pic", "ui::CPicture")
+
+        local actor_pos = actor:GetPos()
+        local mon_cls = GetClassByType("Monster", actor:GetType())
+
+        if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
+            local pos = mapprop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+            local x = pos.x - mon_pic:GetWidth() / 2
+            local y = pos.y - mon_pic:GetHeight() / 2
+            mon_pic:SetOffset(x, y)
+        end
+    end
+    return 1
+end
+
+--[[function sub_map_CREATE_PM_PICTURE(frame, pcInfo, type, mapprop)
+    local myInfo = session.party.GetMyPartyObj(type)
+
+    if nil == myInfo then
+        return
+    end
+
+    if myInfo == pcInfo then
+        return
+    end
+
+    if myInfo:GetMapID() ~= pcInfo:GetMapID() or myInfo:GetChannel() ~= pcInfo:GetChannel() then
+        return
+    end
+
+    local header = "PM_"
+    if type == PARTY_GUILD then
+        header = "GM_"
+    end
+    local name = header .. pcInfo:GetAID()
+
+    if pcInfo:GetMapID() == 0 then
+        frame:RemoveChild(name)
+        return
+    end
+
+    if type == PARTY_GUILD then
+        if frame:GetChild("GM_" .. pcInfo:GetAID()) ~= nil then
+            return
+        end
+    else
+        if frame:GetChild("PM_" .. pcInfo:GetAID()) ~= nil then
+            return
+        end
+    end
+
+    local instInfo = pcInfo:GetInst()
+    local gbox = GET_CHILD(frame, "gbox")
+
+    -- local map_partymember_iconset = gbox:CreateOrGetControlSet('map_partymember_iconset', name, 0, 0)
+    local map_partymember_iconset = gbox:CreateOrGetControl("picture", name, 0, 0, g.icon_size, g.icon_size)
+    AUTO_CAST(map_partymember_iconset)
+    map_partymember_iconset:SetEnableStretch(1)
+    -- print(tostring(g.icon_size))
+    map_partymember_iconset:SetTooltipType("partymap")
+    map_partymember_iconset:SetTooltipArg(pcInfo:GetName(), type)
+
+   
+    sub_map_SET_PM_MINIMAP_ICON(map_partymember_iconset, instInfo.hp, pcInfo:GetAID())
+    sub_map_SET_PM_MAPPOS(frame, map_partymember_iconset, instInfo, mapprop)
+end]]
+
+--[[function sub_map_DESTROY_CHILD_BYNAME(frame, searchname)
+    local index = 0
+    while 1 do
+        if index >= frame:GetChildCount() then
+            break
+        end
+
+        local childObj = frame:GetChildByIndex(index)
+        local name = childObj:GetName()
+
+        if string.find(name, searchname) ~= nil then
+            frame:RemoveChildByIndex(index)
+        else
+            index = index + 1
+        end
+    end
+end]]
+--[[function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
+    local mapprop = session.GetCurrentMapProp()
+    local myInfo = session.party.GetMyPartyObj(partyType)
+
+    local list = session.party.GetPartyMemberList(partyType)
+    local count = list:Count()
+
+    local header = "PM_"
+    if partyType == PARTY_GUILD then
+        header = "GM_"
+    end
     for i = 0, count - 1 do
-        local mon_prop = mongens:Element(i)
-        local icon_name = mon_prop:GetMinimapIcon()
-        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
-            local gen_list = mon_prop.GenList
-            local gen_count = gen_list:Count()
-            for j = 0, gen_count - 1 do
-                local dialog = mon_prop:GetDialog()
-                local warp_cls = GetClass("Warp", mon_prop:GetDialog())
-                if not warp_cls then
-                    for match in mon_prop:GetDialog():gmatch("[a-zA-Z]+_(.*)") do
-                        warp_cls = GetClass("Warp", match)
-                    end
-                end
-                if warp_cls then
-                    local cls_name = TryGetProp(warp_cls, "TargetZone", "None")
-                    local pos = gen_list:Element(j)
+        local skip = false
+        local pcInfo = list:Element(i)
+        if myInfo ~= pcInfo then
+            if is_my_guild_member(pcInfo:GetAID()) then
+                DESTROY_GUILD_MEMBER_ICON(frame, msg, pcInfo:GetAID())
+            end
 
-                    local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
-                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
-                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
-                    AUTO_CAST(icon)
-                    local map_cls = GetClass("Map", cls_name)
-                    icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name)
-                    icon:SetImage(mon_prop:GetMinimapIcon())
-                    icon:SetOffset(mappos.x - icon:GetWidth() / 2, mappos.y - icon:GetHeight() / 2)
-                    icon:SetEnableStretch(1)
-
-                end
+            local instInfo = pcInfo:GetInst()
+            local name = header .. pcInfo:GetAID()
+            local pic = GET_CHILD_RECURSIVELY(frame, name)
+            AUTO_CAST(pic)
+            if pic ~= nil then
+                local iconinfo = pcInfo:GetIconInfo()
+                sub_map_SET_PM_MINIMAP_ICON(pic, instInfo.hp, pcInfo:GetAID())
+                -- tolua.cast(pic, "ui::CControlSet")
+                sub_map_SET_PM_MAPPOS(frame, pic, instInfo, mapprop)
+            else
+                -- local mapFrame = ui.GetFrame('map')
+                local mapFrame = ui.GetFrame('sub_map')
+                sub_map_MAP_UPDATE_PARTY(mapFrame, "PARTY_UPDATE", nil, 0)
+                return
             end
         end
     end
 
-    gbox:Invalidate()
-end
-
+end]]
