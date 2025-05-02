@@ -624,6 +624,7 @@ end
 -- sub_map_MAP_UPDATE_PARTY_INST: パーティ/ギルドメンバーのインスタンス情報更新時に呼ばれる
 function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
     local gbox = GET_CHILD(frame, "gbox")
+
     local mapprop = session.GetCurrentMapProp()
     local myInfo = session.party.GetMyPartyObj(partyType)
 
@@ -633,13 +634,13 @@ function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
     for i = 0, count - 1 do
         local pcInfo = list:Element(i)
 
-        -- 自分自身は処理しない
+        -- 自分自身はスキップ
         if myInfo ~= pcInfo then
             local aid = pcInfo:GetAID()
             local instInfo = pcInfo:GetInst()
 
+            -- ★ g.aids テーブルに情報を記録（PM優先）★
             local current_info = g.aids[aid]
-
             if not current_info then
                 g.aids[aid] = {
                     type = partyType
@@ -648,41 +649,72 @@ function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
                 g.aids[aid].type = PARTY_NORMAL
             end
 
-            -- ★ アイコン取得と更新 (if/else で分岐) ★
-            local header = "PM_"
-            local skip_gm_processing = false -- GM処理をスキップするフラグ
+            -- ★ アイコン取得（プレフィックスなし）★
+            local icon_name = "icon_" .. aid -- 共通のプレフィックス + AID
+            local pic = gbox:GetChild(icon_name) -- gboxから名前で取得
 
-            if partyType == PARTY_GUILD then
-                header = "GM_"
-                -- もしPMアイコンが既にあるなら、GM処理フラグを立てる
-                if gbox:GetChild("PM_" .. aid) then
-                    skip_gm_processing = true
-                end
-            end
+            if pic then
+                -- === アイコンが存在する場合 ===
+                AUTO_CAST(pic) -- nil チェック後に AUTO_CAST
 
-            -- GM処理フラグが立っていなければ、アイコン処理に進む
-            if not skip_gm_processing then
-                local name = header .. aid
-                local pic = gbox:GetChild(name)
+                -- アイコンの見た目と位置を更新
+                -- SET_PM_MINIMAP_ICON は partyType を見て画像を決定する必要がある -> 新しい関数が必要
+                sub_map_update_member_icon(pic, instInfo.hp, aid) -- 新しい関数を想定
+                sub_map_SET_MAPPOS(frame, pic, instInfo, mapprop) -- 位置設定関数 (名前変更推奨)
 
-                if pic then
-                    -- アイコンが存在する場合のみ、位置と見た目を更新
-                    AUTO_CAST(pic)
-                    sub_map_SET_PM_MINIMAP_ICON(pic, instInfo.hp, aid)
-                    sub_map_SET_PM_MAPPOS(frame, pic, instInfo, mapprop)
-
-                    -- g.aids にコントロール参照も保存しておく (任意)
-                    if g.aids[aid] then
-                        g.aids[aid].control = pic
-                    end
+                -- g.aids にコントロール参照を保存/更新
+                if g.aids[aid] then
+                    g.aids[aid].control = pic -- 参照を更新
                 else
-                    -- アイコンが見つからない場合の処理 (コメントアウト推奨)
-                    -- print("Icon not found for " .. name .. " in PARTY_INST_UPDATE.")
+                    -- ここに来るケースは稀だが、念のため type と一緒に保存
+                    g.aids[aid] = {
+                        type = partyType,
+                        control = pic
+                    }
                 end
-            end -- if not skip_gm_processing then end
+            else
+                -- === アイコンが存在しない場合 ===
+                -- ここでは何もしない。アイコン作成は MAP_UPDATE_PARTY/GUILD に任せる。
+                -- print("Icon " .. icon_name .. " not found. Should be created by PARTY/GUILD_UPDATE.")
+            end
         end -- if myInfo ~= pcInfo then end
     end -- for loop end
 end
+
+-- ★ 新設または修正が必要な関数 ★
+
+-- メンバーアイコンの見た目を更新する関数 (PM/GM判定を含む)
+function sub_map_update_member_icon(pic_control, hp, aid)
+    if not pic_control then
+        return
+    end
+
+    if hp > 0 then
+        local member_info_party = session.party.GetPartyMemberInfoByAID(PARTY_NORMAL, aid)
+        local member_info_guild = session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid)
+
+        -- PM 優先でアイコン決定
+        if member_info_party then
+            pic_control:SetImage('Archer_party') -- パーティ用アイコン
+        elseif member_info_guild then
+            pic_control:SetImage('Wizard_party') -- ギルド用アイコン
+        else
+            -- どちらのリストにもいない？ (エラー or 離脱直後など) - 死亡アイコンにする？
+            pic_control:SetImage('die_party')
+            print("Warning: Member AID " .. aid .. " not found in party or guild list during icon update.")
+        end
+    else
+        pic_control:SetImage('die_party') -- 死亡アイコン
+    end
+end
+
+-- 位置設定関数 (名前変更推奨: sub_map_set_member_mappos)
+function sub_map_SET_MAPPOS(frame, control_to_set, instInfo, mapprop)
+    local worldPos = instInfo:GetPos()
+    sub_map_SET_MINIMAP_CTRLSET_POS(frame, control_to_set, worldPos, mapprop) -- 内部関数はそのまま使える
+end
+
+-- ( sub_map_SET_MINIMAP_CTRLSET_POS は変更なしでOK )
 
 --[[-- sub_map_MAP_UPDATE_PARTY_INST 内の GET_CHILD_RECURSIVELY も gbox を起点にする方が良い
 function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, partyType)
