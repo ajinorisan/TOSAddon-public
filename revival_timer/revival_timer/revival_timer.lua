@@ -3,10 +3,11 @@
 -- v1.0.2 ui.Chatがアルファベットでないとバグってたの修正。
 -- v1.0.3 PTチャットの英語修正。はずい。左ALTで隠すように。
 -- v1.0.4 使用文字バグ修正したはず。なんでなってたかも良くワカラン
+-- v1.0.5 ウルトラワイド対応
 local addonName = "REVIVAL_TIMER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -85,7 +86,27 @@ function revival_timer_frame_init()
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
     frame:EnableHide(0)
-    frame:SetPos(1570, 0)
+
+    if not g.settings["screen"] then
+        g.settings["screen"] = {
+            x = 1570,
+            y = 0
+        }
+        revival_timer_save_settings()
+    end
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    local x = g.settings["screen"].x
+    local y = g.settings["screen"].y
+
+    if g.settings["screen"].x > 1920 and width <= 1920 then
+        x = 1570
+        y = 0
+    end
+
+    frame:SetPos(x, y)
     frame:ShowWindow(1)
     frame:RunUpdateScript("revival_timer_start", 0.01)
 
@@ -94,6 +115,36 @@ function revival_timer_frame_init()
     set_timer:SetText("{ol}Timer")
     set_timer:SetEventScript(ui.LBUTTONUP, "revival_timer_setting")
 
+    function revival_timer_frame_move_reserve(frame, ctrl, str, num)
+        AUTO_CAST(frame)
+        frame:SetSkinName("chat_window")
+        frame:Resize(75, 30)
+        frame:EnableHitTest(1)
+        frame:EnableHittestFrame(1);
+        frame:EnableMove(1)
+        frame:SetEventScript(ui.LBUTTONUP, "revival_timer_frame_move_save")
+    end
+
+    function revival_timer_frame_move_save(frame, ctrl, str, num)
+        local x = frame:GetX();
+        local y = frame:GetY();
+        g.settings["screen"] = {
+            x = x,
+            y = y
+        }
+        revival_timer_save_settings()
+        frame:StopUpdateScript("revival_timer_move_setskin")
+        frame:RunUpdateScript("revival_timer_move_setskin", 5.0)
+
+    end
+
+    function revival_timer_move_setskin(frame)
+        frame:SetSkinName("None")
+        frame:Resize(60, 30)
+    end
+
+    set_timer:SetEventScript(ui.MOUSEON, "revival_timer_frame_move_reserve")
+    set_timer:SetEventScript(ui.MOUSEOFF, "revival_timer_frame_move_save")
 end
 
 function revival_timer_frame_close(frame, ctrl, str, num)

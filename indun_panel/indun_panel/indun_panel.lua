@@ -53,10 +53,11 @@
 -- v1.5.3 傭兵団コインのチャレンジ券変換をMAXまで出来る様に。そんなヤツおるんか？バグ修正
 -- v1.5.4 レダニア足したけどまだテスト出来てない
 -- v1.5.5 チャレンジ系をいじった
+-- v1.5.6 フレーム移動出来るように
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.5"
+local ver = "1.5.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -102,7 +103,11 @@ function indun_panel_autozoom_init()
     frame:SetSkinName('None')
     frame:SetLayerLevel(30)
     frame:Resize(140, 40)
-    frame:SetPos(1640, 0)
+    local rect = frame:GetMargin()
+    frame:SetGravity(ui.RIGHT, ui.TOP)
+    -- print(rect.left .. ":" .. rect.top .. ":" .. rect.right .. ":" .. rect.bottom)
+    frame:SetMargin(rect.left, rect.top, rect.right + 140, rect.bottom)
+    -- frame:SetPos(1640, 0)
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
     frame:RemoveAllChild()
@@ -114,8 +119,8 @@ function indun_panel_autozoom_init()
     zoomedit:SetTextAlign("center", "center")
     zoomedit:SetEventScript(ui.ENTERKEY, "indun_panel_autozoom_save")
     zoomedit:SetTextTooltip(g.lang == "Japanese" and
-                                "Auto Zoom Setting{nl}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。" or
-                                "Auto Zoom Setting{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
+                                "{ol}Auto Zoom Setting{nl}1～700の値で入力。標準は336。マップ切り替え時に入力の値までZoomします。0入力で機能無効化。" or
+                                "{ol}Auto Zoom Setting{nl}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0.")
     frame:ShowWindow(1)
 end
 
@@ -150,28 +155,63 @@ function indun_panel_autozoom_save(frame, ctrl)
     ReserveScript("indun_panel_autozoom()", 1.0)
 end
 
-function indun_panel_frame_init()
+function indun_panel_frame_drag(frame, ctrl, str, num)
+    g.settings.x = frame:GetX()
+    g.settings.y = frame:GetY()
+    indun_panel_save_settings()
 
-    --[[local shopframe = ui.GetFrame('earthtowershop')
-    shopframe:Resize(580, 1920)]]
+    frame:SetSkinName('None')
+    frame:SetTitleBarSkin("None")
+    frame:Resize(150, 40)
+
+    local button = GET_CHILD(frame, "indun_panel_open")
+    AUTO_CAST(button)
+    button:SetText("{ol}{s10}INDUNPANEL")
+end
+
+function indun_panel_frame_move_mode(frame, ctrl, str, num)
+    ctrl:SetText("{ol}{s10}MOVE MODE")
+    frame:Resize(170, 40)
+    frame:EnableMove(1)
+    frame:SetSkinName('chat_window')
+    frame:SetTitleBarSkin("None")
+    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+end
+
+function indun_panel_frame_init()
 
     local frame = ui.GetFrame("indun_panel")
 
-    -- frame:SetSkinName('chat_window_2')
     frame:SetSkinName('None')
     frame:SetLayerLevel(30)
     frame:Resize(150, 40)
-    frame:SetPos(665, 30)
+    -- frame:SetPos(665, 30)
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if not g.settings.x then
+        g.settings.x = 665
+        g.settings.y = 30
+        indun_panel_save_settings()
+    end
+
+    local x = g.settings.x
+    if width <= 1920 and x > 1920 then
+        x = g.settings.x / 21 * 16
+    end
+
+    frame:SetPos(x, g.settings.y)
     frame:SetTitleBarSkin("None")
-    -- frame:SetAlpha(10)
     frame:EnableHittestFrame(1)
     frame:RemoveAllChild()
 
     local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
     AUTO_CAST(button)
-
     button:SetText("{ol}{s10}INDUNPANEL")
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
+    button:SetEventScript(ui.RBUTTONUP, "indun_panel_frame_move_mode")
+    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック:フレーム移動出来る様に" or
+                              "{ol}Right-click: to be able to move the frame")
 
     local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
     AUTO_CAST(ccbtn)
@@ -400,13 +440,21 @@ function indun_panel_init(frame)
     leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
     leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
 
+    function indun_panel_frame_base_position(frame, ctrl, str, num)
+        frame:SetPos(665, 30)
+        g.settings.x = 665
+        g.settings.y = 30
+        indun_panel_save_settings()
+        indun_panel_frame_init()
+    end
+
     function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
 
         local frame = ui.GetFrame("indun_panel")
         frame:SetSkinName("test_frame_low")
         frame:SetLayerLevel(90)
         frame:Resize(200, 640)
-        frame:SetPos(665, 30)
+        -- frame:SetPos(665, 30)
         frame:EnableHittestFrame(1)
         -- frame:SetAlpha(100)
         frame:RemoveAllChild()
@@ -414,10 +462,15 @@ function indun_panel_init(frame)
 
         local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
         AUTO_CAST(button)
-        button:SetText("{ol}{s11}INDUNPANEL")
+        button:SetText("{ol}{s10}INDUNPANEL")
         button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
 
-        local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 165, 10, 25, 25)
+        local position = frame:CreateOrGetControl("button", "position", 155, 10, 60, 25)
+        AUTO_CAST(position)
+        position:SetText("{ol}{s10}BasePos")
+        position:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_base_position")
+
+        local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 220, 10, 25, 25)
         AUTO_CAST(en_ver)
         if g.settings.en_ver == nil then
             g.settings.en_ver = 0
@@ -454,7 +507,7 @@ function indun_panel_init(frame)
             end
             posY = posY + 35
         end
-        frame:Resize(200, posY + 5)
+        frame:Resize(260, posY + 5)
     end
 
     local configbtn = frame:CreateOrGetControl('button', 'configbtn', 115, 5, 30, 30)

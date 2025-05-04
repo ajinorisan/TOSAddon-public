@@ -65,10 +65,11 @@
 -- v1.6.5 ウルトラワイドモードから通常に戻した時にフレーム消えたの修正
 -- v1.6.6 ウルトラワイドで位置保存機能バグってたの修正。
 -- v1.6.7 ウルトラワイドを再修正。クエストフレームの挙動を追加
+-- v1.6.8 チャンネルフレームの初期場所修正。セッティングファイルバグ修正
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.7"
+local ver = "1.6.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -2541,20 +2542,21 @@ function MINI_ADDONS_NEW_FRAME_INIT()
             x = 1580,
             y = 305
         }
+        MINI_ADDONS_SAVE_SETTINGS()
     end
 
     local map_frame = ui.GetFrame("map")
     local width = map_frame:GetWidth()
 
-    if g.settings["screen"].x > 1920 and width <= 1920 then
-        g.settings["screen"] = {
-            x = 1580,
-            y = 305
-        }
-    end
-    MINI_ADDONS_SAVE_SETTINGS()
+    local x = g.settings["screen"].x
+    local y = g.settings["screen"].y
 
-    newframe:SetPos(g.settings["screen"].x, g.settings["screen"].y)
+    if g.settings["screen"].x > 1920 and width <= 1920 then
+        x = 1580
+        y = 305
+    end
+
+    newframe:SetPos(x, y)
     newframe:SetTitleBarSkin("None")
 
     local btn = newframe:CreateOrGetControl('button', 'mini', 0, 0, 30, 30)
@@ -3430,22 +3432,29 @@ function MINI_ADDONS_POPUP_CHANNEL_LIST()
     frame:EnableHittestFrame(1);
     frame:EnableMove(1)
 
-    local map_frame = ui.GetFrame("map")
-    local width = map_frame:GetWidth()
-    if g.settings.frame_X > 1920 and width <= 1920 then
+    if not g.settings.frame_X then
         g.settings.frame_X = 1500
-        g.settings.frame_X = 385
+        g.settings.frame_Y = 385
+        MINI_ADDONS_SAVE_SETTINGS()
     end
 
-    g.settings.frame_X = g.settings.frame_X or 1500
-    g.settings.frame_Y = g.settings.frame_Y or 385
-    g.settings.ch_frame_size = g.settings.ch_frame_size or 40
+    if not g.settings.ch_frame_size then
+        g.settings.ch_frame_size = 40
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
 
-    MINI_ADDONS_SAVE_SETTINGS()
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+    local x = g.settings.frame_X
+    local y = g.settings.frame_Y
+    if g.settings.frame_X > 1920 and width <= 1920 then
+        x = 1500
+        y = 385
+    end
 
     local size = g.settings.ch_frame_size
 
-    frame:SetPos(g.settings.frame_X, g.settings.frame_Y)
+    frame:SetPos(x, y)
     frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_channelframe_move")
     frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_CH_FRAME_RESIZE")
 

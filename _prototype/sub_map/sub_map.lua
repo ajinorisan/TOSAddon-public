@@ -262,6 +262,7 @@ function sub_map_frame_init(frame)
     if MAP_USE_FOG(map_name) ~= 0 then
         g.fogs = {}
         g.fog_get = false
+        g.addon:RegisterMsg("FPS_UPDATE", "sub_map_draw_fog")
         timer_frame:RunUpdateScript("sub_map_draw_fog", 1.0)
     end
     g.addon:RegisterMsg("FPS_UPDATE", "sub_map_timer_frame_monitor")
@@ -1046,7 +1047,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             local item_name = GetClass("Item", item_split[2]).Name
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                                                 0, 0, 0)
+                0, 0, 0)
             AUTO_CAST(icon)
 
             icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
@@ -1066,7 +1067,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                                                 0, 0, 0)
+                0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.name)
             icon:SetImage(data.icon_name)
@@ -1113,7 +1114,7 @@ function sub_map_set_warp_point(frame, map_name)
                     local pos = gen_list:Element(j)
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
-                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
                     AUTO_CAST(icon)
                     local map_cls = GetClass("Map", cls_name)
                     icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name)

@@ -164,7 +164,8 @@ end
 
 function g.log_to_file(message)
 
-    local file, err = io.open(g.log_file_path, "a")
+    local file_path = string.format("../addons/%s/log.txt", addon_name_lower)
+    local file = io.open(file_path, "a")
 
     if file then
         local timestamp = os.date("[%Y-%m-%d %H:%M:%S] ")

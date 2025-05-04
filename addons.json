@@ -22,10 +22,10 @@
 		"name" : "Sub Map",
 		"file" : "sub_map",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "sub_map",
 		"unicode" : "⛄",
-		"description" : "簡易MAPを常に表示します。チャレンジモードでボスどこ？を解消します<br>A simple MAP is always displayed. Challenge mode eliminates “Where is the boss? is eliminated in the challenge mode.<br>간이 MAP을 항상 표시합니다. 챌린지 모드에서 보스 어디? 를 해결합니다.",
+		"description" : "Wide monitor supported<br>簡易MAPを常に表示します。チャレンジモードでボスどこ？を解消します<br>A simple MAP is always displayed. Challenge mode eliminates “Where is the boss? is eliminated in the challenge mode.<br>간이 MAP을 항상 표시합니다. 챌린지 모드에서 보스 어디? 를 해결합니다.",
 		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
@@ -102,10 +102,10 @@
 		"name" : "Revival Timer",
 		"file" : "revival_timer",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.4",
+		"fileVersion" : "v1.0.5",
 		"releaseTag" : "revival_timer",
 		"unicode" : "⛄",
-		"description" : "右ALTキーでタイマーを起動します。左ALTでタイマーを終了し消します。ミニマップ上部のボタンで設定します。既存のTimer addonと競合しません。<br> Right ALT key starts the timer. Left ALT key exits the timer and turns it off. Use the buttons at the top of the minimap to set the timer. Does not conflict with existing Timer addon.<br> 오른쪽 ALT 키로 타이머를 시작합니다. 왼쪽 ALT로 타이머를 종료하고 지웁니다. 미니맵 상단의 버튼으로 설정합니다. 기존 Timer addon과 충돌하지 않습니다.",
+		"description" : "Wide monitor supported<br>右ALTキーでタイマーを起動します。左ALTでタイマーを終了し消します。ミニマップ上部のボタンで設定します。既存のTimer addonと競合しません。<br> Right ALT key starts the timer. Left ALT key exits the timer and turns it off. Use the buttons at the top of the minimap to set the timer. Does not conflict with existing Timer addon.<br> 오른쪽 ALT 키로 타이머를 시작합니다. 왼쪽 ALT로 타이머를 종료하고 지웁니다. 미니맵 상단의 버튼으로 설정합니다. 기존 Timer addon과 충돌하지 않습니다.",
 		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
@@ -203,7 +203,7 @@
 		"name" : "Auto Pet Summon",
 		"file" : "auto_pet_summon",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.4",
+		"fileVersion" : "v1.0.5",
 		"releaseTag" : "auto_pet_summon",
 		"unicode" : "⛄",
 		"description" : "キャラ毎に最後に連れていたペットを自動で召喚します。<br>Each character automatically summons the last pet they had with them.<br>캐릭터마다 마지막으로 데리고 있던 펫을 자동으로 소환합니다.",
@@ -213,7 +213,7 @@
 		"name" : "Mini Addons",
 		"file" : "mini_addons",
 		"extension" : "ipf",
-		"fileVersion" : "v1.6.7",
+		"fileVersion" : "v1.6.8",
 		"releaseTag" : "mini_addons",
 		"unicode" : "⛄",
 		"description" : "Wide monitor supported<br>色々な細かい便利機能を提供します。MINI MAP左下ボタンを押すと機能説明とON OFF切替があります。<br>The lower left button on the MINI MAP provides an explanation of the function and ON/OFF toggles.<br>다양한 세세한 편의 기능을 제공하며, MINI MAP 왼쪽 하단 버튼을 누르면 기능 설명과 ON OFF 전환이 가능합니다.",
@@ -303,10 +303,10 @@
 		"name" : "Indun Panel",
 		"file" : "indun_panel",
 		"extension" : "ipf",
-		"fileVersion" : "v1.5.5",
+		"fileVersion" : "v1.5.6",
 		"releaseTag" : "indun_panel",
 		"unicode" : "⛄",
-		"description" : "チャレンジやレイドに入る支援パネルを設置します。<br>Set up a support panel to enter challenges and raids.<br>챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",
+		"description" : "Wide monitor supported<br>チャレンジやレイドに入る支援パネルを設置します。<br>Set up a support panel to enter challenges and raids.<br>챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",
 		"tags" : ["ajinori","ajinorisan"]
 	},
 {
