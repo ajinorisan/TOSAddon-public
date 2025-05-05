@@ -4,21 +4,35 @@
 **推奨アドオンバージョン: v1.0.6** (古いバージョンはサポート対象外です)
 **권장 애드온 버전: v1.0.6** (이전 버전은 지원되지 않습니다)
 
-Automatically translates in-game text (chat, names, shops) using Google Translate. Requires Google Chrome. Click below for details in your language.
-チャット、キャラクター名、露店名などをGoogle翻訳で自動翻訳します。Google Chromeが必要です。詳細は各言語をクリックしてください。
-채팅, 캐릭터 이름, 상점 이름 등을 Google 번역을 사용하여 자동으로 번역합니다. Google Chrome이 필요합니다. 자세한 내용은 해당 언어를 클릭하십시오.
+---
 
-*   **Contact / 連絡先 / 연락처:** Twitter [@ToSJP_rada](https://twitter.com/ToSJP_rada)
-*   **Disclaimer / 免責事項 / 면책 조항:** Use at your own risk. 自己責任でご使用ください。 자신의 책임 하에 사용하십시오. (Details below / 詳細は下記 / 자세한 내용은 아래 참조)
-*   *This README description was partially generated with assistance from Google Gemini.*
-*   *このREADMEの説明文の一部はGoogleのGeminiを使用して作成されました。*
-*   *이 README 설명의 일부는 Google Gemini의 도움을 받아 작성되었습니다.*
+**English:** Automatically translates in-game text (chat, names, shops) using Google Translate. Requires Google Chrome. Click below for details in your language.
+
+**日本語:** チャット、キャラクター名、露店名などをGoogle翻訳で自動翻訳します。Google Chromeが必要です。詳細は各言語をクリックしてください。
+
+**한국어:** 채팅, 캐릭터 이름, 상점 이름 등을 Google 번역을 사용하여 자동으로 번역합니다. Google Chrome이 필요합니다. 자세한 내용은 해당 언어를 클릭하십시오.
+
+---
+
+*   **Contact / 連絡先 / 연락처:**
+    *   Twitter: [@ToSJP_rada](https://twitter.com/ToSJP_rada)
+
+*   **Disclaimer / 免責事項 / 면책 조항:**
+    *   Use at your own risk. (Details below)
+    *   自己責任でご使用ください。(詳細は下記)
+    *   자신의 책임 하에 사용하십시오. (자세한 내용은 아래 참조)
+
+*   **Note on generation / 生成に関する注記 / 생성 관련 참고:**
+    *   *This README description was partially generated with assistance from Google Gemini.*
+    *   *このREADMEの説明文の一部はGoogleのGeminiを使用して作成されました。*
+    *   *이 README 설명의 일부는 Google Gemini의 도움을 받아 작성되었습니다.*
 
 ---
 
 <details>
 <summary><strong>日本語 (Japanese)</strong></summary>
 
+**(ここの中身は変更なし、前回の回答と同じ)**
 **推奨アドオンバージョン: v1.0.6** (古いバージョンはサポート対象外です)
 
 チャット、キャラクター名、露店名などをGoogle翻訳で自動翻訳します。
@@ -72,6 +86,7 @@ Automatically translates in-game text (chat, names, shops) using Google Translat
 <details>
 <summary><strong>English</strong></summary>
 
+**(ここの中身は変更なし、前回の回答と同じ)**
 **Recommended Addon Version: v1.0.6** (Older versions are not supported)
 
 This addon automatically translates in-game text such as chat messages, character names, and shop titles using Google Translate.
@@ -125,6 +140,7 @@ Please note that this is a personal project, and support may be limited. Use at 
 <details>
 <summary><strong>한국어 (Korean)</strong></summary>
 
+**(ここの中身は変更なし、前回の回答と同じ)**
 **권장 애드온 버전: v1.0.6** (이전 버전은 지원되지 않습니다)
 
 채팅, 캐릭터 이름, 상점 이름 등을 Google 번역을 사용하여 자동으로 번역합니다.
