@@ -54,10 +54,11 @@
 -- v1.5.4 レダニア足したけどまだテスト出来てない
 -- v1.5.5 チャレンジ系をいじった
 -- v1.5.6 フレーム移動出来るように
+-- v1.5.7 移動後フレーム固定
 local addonName = "indun_panel"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.6"
+local ver = "1.5.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -163,6 +164,7 @@ function indun_panel_frame_drag(frame, ctrl, str, num)
     frame:SetSkinName('None')
     frame:SetTitleBarSkin("None")
     frame:Resize(150, 40)
+    frame:EnableMove(0)
 
     local button = GET_CHILD(frame, "indun_panel_open")
     AUTO_CAST(button)
@@ -185,6 +187,7 @@ function indun_panel_frame_init()
     frame:SetSkinName('None')
     frame:SetLayerLevel(30)
     frame:Resize(150, 40)
+    frame:EnableMove(0)
     -- frame:SetPos(665, 30)
     local map_frame = ui.GetFrame("map")
     local width = map_frame:GetWidth()
