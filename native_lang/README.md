@@ -1,7 +1,9 @@
 # Native Lang Addon for Tree of Savior (v1.0.6)
 
 **Recommended Addon Version: v1.0.6** (Older versions are not supported)
+
 **推奨アドオンバージョン: v1.0.6** (古いバージョンはサポート対象外です)
+
 **권장 애드온 버전: v1.0.6** (이전 버전은 지원되지 않습니다)
 
 ---
@@ -32,7 +34,6 @@
 <details>
 <summary><strong>日本語 (Japanese)</strong></summary>
 
-**(ここの中身は変更なし、前回の回答と同じ)**
 **推奨アドオンバージョン: v1.0.6** (古いバージョンはサポート対象外です)
 
 チャット、キャラクター名、露店名などをGoogle翻訳で自動翻訳します。
@@ -86,7 +87,6 @@
 <details>
 <summary><strong>English</strong></summary>
 
-**(ここの中身は変更なし、前回の回答と同じ)**
 **Recommended Addon Version: v1.0.6** (Older versions are not supported)
 
 This addon automatically translates in-game text such as chat messages, character names, and shop titles using Google Translate.
@@ -140,7 +140,6 @@ Please note that this is a personal project, and support may be limited. Use at 
 <details>
 <summary><strong>한국어 (Korean)</strong></summary>
 
-**(ここの中身は変更なし、前回の回答と同じ)**
 **권장 애드온 버전: v1.0.6** (이전 버전은 지원되지 않습니다)
 
 채팅, 캐릭터 이름, 상점 이름 등을 Google 번역을 사용하여 자동으로 번역합니다.
