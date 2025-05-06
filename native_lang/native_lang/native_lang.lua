@@ -7,10 +7,11 @@
 -- v1.0.4 ギアスコア取るところでnilが出てバグってたの修正
 -- v1.0.5 チャットモード切替機能。名前とチャットを分離して軽くしたつもり。
 -- v1.0.6 翻訳モード切替修正。/でバグってたらしいので修正
+-- v1.0.7 個別翻訳
 local addonName = "NATIVE_LANG"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -144,7 +145,7 @@ function native_lang_load_settings()
         g.load = true
     end
 
-    local file = io.open(g.recv_msg, "r")
+    --[[local file = io.open(g.recv_msg, "r")
     if file then
         for _ in file:lines() do
             g.recv_count = g.recv_count + 1
@@ -153,7 +154,7 @@ function native_lang_load_settings()
         if g.recv_count <= 10 then
             g.recv_count = 0
         end
-    end
+    end]]
 
     if not g.settings.chatmode then
         g.settings.chatmode = false
@@ -223,7 +224,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.name_len = 0
     g.msg_len = 0
     g.chat_check = g.chat_check or {}
-    g.recv_count = 0
+    -- g.recv_count = 0
 
     g.language = option.GetCurrentCountry()
 
@@ -242,6 +243,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.SetupHook(native_lang_GUILDINFO_MEMBER_LIST_CREATE, "GUILDINFO_MEMBER_LIST_CREATE")
     g.SetupHook(native_lang_GUILDNOTICE_GET, "GUILDNOTICE_GET")
     g.SetupHook(native_lang_GUILDINFO_INIT_PROFILE, "GUILDINFO_INIT_PROFILE")
+    g.SetupHook(native_lang_CHAT_RBTN_POPUP, "CHAT_RBTN_POPUP");
 
     acutil.setupEvent(addon, "WEEKLY_BOSS_RANK_UPDATE", "native_lang_WEEKLY_BOSS_RANK_UPDATE");
     acutil.setupEvent(addon, "SHOW_PC_COMPARE", "native_lang_SHOW_PC_COMPARE");
@@ -253,6 +255,75 @@ function NATIVE_LANG_ON_INIT(addon, frame)
 
 end
 
+function native_lang_CHAT_RBTN_POPUP(frame, chatCtrl)
+    native_lang_CHAT_RBTN_POPUP_(frame, chatCtrl)
+end
+
+function native_lang_CHAT_RBTN_POPUP_(frame, chatCtrl)
+
+    local topFrame = frame:GetTopParentFrame()
+    local parentFrame = frame:GetParent()
+    local topFrame_Name = topFrame:GetName()
+    local parentFrame_Name = parentFrame:GetName()
+
+    if session.world.IsIntegrateServer() == true then
+        ui.SysMsg(ScpArgMsg("CantUseThisInIntegrateServer"));
+        return;
+    end
+
+    local targetName = chatCtrl:GetUserValue("TARGET_NAME");
+    local targetTxt = chatCtrl:GetUserValue("SENTENCE")
+    if targetName == "" or GETMYFAMILYNAME() == targetName then
+        return;
+    end
+
+    local context = ui.CreateContextMenu("CONTEXT_CHAT_RBTN", targetName, 0, 0, 170, 100);
+    ui.AddContextMenuItem(context, ScpArgMsg("WHISPER"), string.format("ui.WhisperTo('%s')", targetName));
+    local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')", targetName);
+    ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
+    local partyinviteScp = string.format("PARTY_INVITE(\"%s\")", targetName);
+    ui.AddContextMenuItem(context, ScpArgMsg("PARTY_INVITE"), partyinviteScp);
+
+    -- translate Menu
+    local txt = chatCtrl:GetTextByKey("text")
+    local ctrlName = frame:GetName()
+    if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
+        local translateScp = string.format("REQ_TRANSLATE_TEXT('%s','%s','%s')", topFrame_Name, parentFrame_Name,
+            ctrlName)
+        ui.AddContextMenuItem(context, ScpArgMsg("TRANSLATE"), translateScp)
+    end
+    local copyPcId = string.format("COPY_PC_ID('%s')", targetName)
+    ui.AddContextMenuItem(context, ScpArgMsg("CopyPcId"), copyPcId)
+
+    local copyPcSentence = string.format("COPY_PC_SENTENCE('%s')", targetTxt)
+    ui.AddContextMenuItem(context, ScpArgMsg("CopyPcSentence"), copyPcSentence)
+
+    local blockScp = string.format("CHAT_BLOCK_MSG('%s')", targetName);
+    ui.AddContextMenuItem(context, ScpArgMsg("FriendBlock"), blockScp)
+
+    ui.AddContextMenuItem(context, ScpArgMsg("Report_AutoBot"),
+        string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", targetName));
+
+    ui.AddContextMenuItem(context, ScpArgMsg("Cancel"), "None")
+    ui.AddContextMenuItem(context, "-----", "None")
+
+    ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
+        string.format("ui.Chat('%s')", "/memberinfo " .. targetName))
+
+    ui.AddContextMenuItem(context, ScpArgMsg("Cancel"), "None");
+    local chatframe = frame:GetTopParentFrame()
+
+    if chatframe:GetName() == "chatframe" then
+        ui.AddContextMenuItem(context, "-----", "None");
+        local scp = string.format("native_lang_individual_translation('%s','%s')",
+            chatCtrl:GetParent():GetParent():GetName(), chatCtrl:GetParent():GetName())
+        ui.AddContextMenuItem(context,
+            g.language == "Japanese" and "Native lang 個別翻訳" or "Native lang Indiv.Trans.", scp);
+    end
+    ui.OpenContextMenu(context);
+
+end
+
 function native_lang_switching()
     local chatframe = ui.GetFrame("chatframe")
     local trans_btn = GET_CHILD_RECURSIVELY(chatframe, "trans_btn")
@@ -261,11 +332,13 @@ function native_lang_switching()
     if g.settings.use == 1 then
         g.settings.use = 0
         trans_btn:SetSkinName('test_gray_button')
-        trans_btn:SetTextTooltip("Native Lang is suspended")
+        trans_btn:SetTextTooltip(g.language == "Japanese" and "Native Lang 停止中{nl}左クリック: 設定" or
+                                     "{ol}Native Lang is suspended{nl}Left click to setting")
     else
         g.settings.use = 1
         trans_btn:SetSkinName("test_red_button")
-        trans_btn:SetTextTooltip("Native Lang in use")
+        trans_btn:SetTextTooltip(g.language == "Japanese" and "Native Lang 起動中{nl}左クリック: 設定" or
+                                     "{ol}Native Lang in use{nl}Left click to setting")
     end
     native_lang_save_settings()
 end
@@ -280,7 +353,7 @@ function native_lang_restart()
     g.name_len = 0
     g.msg_len = 0
     g.chat_check = {}
-    g.recv_count = 0
+    -- g.recv_count = 0
     ui.SysMsg("[Native Lang] restarted.{nl}" .. "Please return to the barracks once.")
 end
 
@@ -341,10 +414,12 @@ function native_lang_GAME_START()
         AUTO_CAST(trans_btn)
         if g.settings.use == 0 then
             trans_btn:SetSkinName('test_gray_button')
-            trans_btn:SetTextTooltip("{ol}Native Lang is suspended{nl}" .. "Left click to setting")
+            trans_btn:SetTextTooltip(g.language == "Japanese" and "Native Lang 停止中{nl}左クリック: 設定" or
+                                         "{ol}Native Lang is suspended{nl}Left click to setting")
         elseif g.settings.use == 1 then
             trans_btn:SetSkinName("test_red_button")
-            trans_btn:SetTextTooltip("{ol}Native Lang in use{nl}" .. "Left click to setting")
+            trans_btn:SetTextTooltip(g.language == "Japanese" and "Native Lang 起動中{nl}左クリック: 設定" or
+                                         "{ol}Native Lang in use{nl}Left click to setting")
         end
 
         trans_btn:SetText("{ol}{s14}{#FFFFFF}" .. g.lang)
@@ -401,6 +476,7 @@ function native_lang_GAME_START_3SEC()
     else
         chatframe:StopUpdateScript("native_lang_run_UPDATE")
     end
+    g.first = true
     native_lang_chat_recv()
 end
 
@@ -417,14 +493,15 @@ function native_lang_chat_recv(frame)
         return lines
     end
 
-    -- function native_lang_msg_dat_check()
     local recv_file = io.open(g.recv_msg, "r")
     if recv_file then
         local msg_len = recv_file:seek("end")
-        if g.msg_len == msg_len then
+        if g.msg_len == msg_len and not g.individual and not g.first then
+
             recv_file:close()
             return 1
         else
+
             recv_file:seek("set", 0)
             local latest_lines = read_last_lines_limited(recv_file, 350)
             for i = 1, #latest_lines do
@@ -437,8 +514,20 @@ function native_lang_chat_recv(frame)
                 end
             end
             g.msg_len = msg_len
-            g.recv_count = g.recv_count + 1 -- このカウントの意図は要確認
+
+            -- g.recv_count = g.recv_count + 1 -- このカウントの意図は要確認
             recv_file:close()
+
+            if g.individual then
+
+                local msg = g.chat_ids[tostring(g.individual)].trans_msg
+
+                if string.find(msg, "{#FF0000}★{/}") == nil and msg ~= "" then
+                    print(tostring(string.find(msg, "{#FF0000}★{/}")))
+                    return 1
+                end
+
+            end
             native_lang_replace()
             return 1
         end
@@ -522,9 +611,22 @@ end
 
 function native_lang_replace()
 
-    if g.settings.use == 0 then
+    if g.settings.use == 0 and not g.individual and not g.first then
         return
     end
+    if g.individual then
+        g.settings.use = g.temp_use
+        g.temp_use = nil
+        g.individual = false
+        ui.SysMsg("Translation End")
+
+        local frame = ui.GetFrame("chatframe")
+        frame:StopUpdateScript("native_lang_chat_recv")
+        frame:RunUpdateScript("native_lang_chat_recv", 3.0) -- ！
+    end
+
+    g.first = false
+
     local chatframe = ui.GetFrame("chatframe")
     local child_count = chatframe:GetChildCount()
 
@@ -754,6 +856,182 @@ function native_lang_system_msg_replace(chat_id, msg, msg_type, name, org_msg)
 end
 -- CHAT_SYSTEM("guildmem:!@#${WHO}{TYPE}ChatJoin$*$WHO$*$s4y0$*$TYPE$*$@dicID_^*$UI_20150317_000220$*^#@!")
 -- CHAT_SYSTEM("@dicID_^*$UI_20150317_000220$*^")
+
+function native_lang_individual_translation(groupboxname, chatctrlname)
+
+    local frame = ui.GetFrame("chatframe")
+    local chat_id = string.gsub(chatctrlname, "cluster_", "")
+    local gbox = GET_CHILD(frame, groupboxname)
+    local clustername = "cluster_" .. chat_id
+    local cluster = GET_CHILD(gbox, clustername)
+
+    if not cluster then
+        return
+    end
+    local chat
+    local size = session.ui.GetMsgInfoSize(groupboxname)
+    for i = 0, size - 1 do
+        local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
+        if tostring(chat_id) == tostring(clusterinfo:GetMsgInfoID()) then
+            chat = session.ui.GetChatMsgInfo(groupboxname, i)
+        end
+    end
+
+    local msg = chat:GetMsg()
+
+    local org_msg = msg
+    msg = msg:gsub("{#0000FF}", "{#FFFF00}")
+    local name = chat:GetCommanderName()
+    name = name:gsub(" %[(.-)%]", "")
+    local msg_type = chat:GetMsgType()
+    -- print(chat_id .. ":" .. msg_type .. ":" .. name .. ":" .. msg)
+
+    if msg_type ~= "Normal" and msg_type ~= "Shout" and msg_type ~= "Party" and msg_type ~= "Guild" and msg_type ~=
+        "System" and msg_type ~= "GuildComm" and msg_type ~= "GuildNotice" and msg_type ~= "guildmem" and msg_type ~=
+        "Whisper" then
+        return
+    end
+
+    if string.find(msg, "{spine") then
+        return
+    end
+
+    local sys_msg_find = native_lang_system_msg_replace(chat_id, msg, msg_type, name, org_msg)
+    if sys_msg_find == 1 then
+        return
+    end
+    if name == "System" then
+        return
+    end
+
+    local index = tonumber(frame:GetUserValue("BTN_INDEX")) + 1
+    local chat_option = ui.GetFrame("chat_option")
+    local tabgbox = GET_CHILD_RECURSIVELY(chat_option, "tabgbox" .. index)
+    local btn_general_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_general_pic")
+    local btn_shout_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_shout_pic")
+    local btn_party_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_party_pic")
+    local btn_guild_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_guild_pic")
+    local btn_system_pic = GET_CHILD_RECURSIVELY(tabgbox, "btn_system_pic")
+    if btn_general_pic:IsVisible() == 0 and msg_type == "Normal" then
+        return
+    elseif btn_shout_pic:IsVisible() == 0 and msg_type == "Shout" then
+        return
+    elseif btn_party_pic:IsVisible() == 0 and msg_type == "Party" then
+        return
+    elseif btn_guild_pic:IsVisible() == 0 and msg_type == "Guild" then
+        return
+    elseif btn_system_pic:IsVisible() == 0 and msg_type == "System" then
+        return
+    end
+
+    local function native_lang_msg_processing(msg)
+
+        local function modify_string(msg)
+
+            local pattern = "{img link_party 24 24}(.-){/}"
+            msg = msg:gsub(pattern, "{img link_party 24 24}{" .. "%1" .. "}{/}")
+
+            msg = msg:gsub("(@dicID_%^%*%$.-%$%*%^)", "{%1}")
+
+            if string.find(msg, "Earring 30 30") then
+
+                msg = msg:gsub("%((%d+)", "{(%1}") -- (5 の部分を {(5 に
+                msg = msg:gsub("%)", "{)}")
+            end
+            local pattern3 = "!@#%$(.-)#@!"
+            msg = msg:gsub(pattern3, "{!@#%$(.-)#@!}")
+            return msg
+        end
+
+        local function wrapped_contents(msg)
+            local pattern = "{(.-)}"
+            local separate_msg = {}
+
+            for match in msg:gmatch(pattern) do
+                table.insert(separate_msg, "{" .. match .. "}")
+            end
+
+            msg = msg:gsub(pattern, "")
+            return msg, separate_msg
+        end
+
+        local function anti_pattern(proc_msg)
+            -- 特殊文字を含むリスト
+            local patterns = {",", "`", "~~", "&", "!", ":", "/", ";", "%(", "%)", "%[", "%]", "%{", "%}", "%'", "%\"",
+                              "//"}
+
+            for _, pattern in ipairs(patterns) do
+                proc_msg = proc_msg:gsub(pattern .. "+", " ")
+
+            end
+            proc_msg = proc_msg:gsub("%%", "％")
+            return proc_msg
+        end
+
+        msg = modify_string(msg)
+        local proc_msg, separate_msg = wrapped_contents(msg)
+        proc_msg = anti_pattern(proc_msg)
+        proc_msg = proc_msg:gsub(" +", " ")
+        return proc_msg, separate_msg
+
+    end
+    local proc_msg, separate_msg = native_lang_msg_processing(msg)
+
+    g.chat_ids[tostring(chat_id)] = {
+        msg_type = msg_type,
+        name = g.names[name] or name,
+        org_name = name,
+        org_msg = org_msg,
+        proc_msg = proc_msg,
+        separate_msg = #separate_msg == 0 and "None" or table.concat(separate_msg, ","),
+        trans_msg = ""
+    }
+
+    if native_lang_is_translation(name) then
+        native_lang_process_name(name)
+        g.chat_ids[tostring(chat_id)].name = g.names[name] or name
+        g.name = true
+    end
+
+    local function native_lang_msg_send_(send_msg, chat_id)
+
+        local send_file = io.open(g.send_msg, "a")
+
+        if send_file then
+            send_file:write(send_msg .. "\n")
+            send_file:flush()
+            send_file:close()
+        end
+    end
+
+    local function native_lang_is_translation_msg_(msg)
+        if g.lang == "ja" then
+            return WITH_HANGLE(msg) or WITH_ENGLISH(msg)
+        elseif g.lang == "ko" then
+            return WITH_JAPANESE(msg) or WITH_ENGLISH(msg)
+        elseif g.lang == "en" then
+            return WITH_HANGLE(msg) or WITH_JAPANESE(msg)
+        end
+        return false
+    end
+
+    if native_lang_is_translation_msg_(proc_msg) or g.name then
+        g.individual = chat_id
+        g.temp_use = g.temp_use or g.settings.use
+        g.settings.use = 0
+        ui.SysMsg("Translation Start") -- ！
+        g.name = false
+        local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. proc_msg .. ":::" ..
+                             g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. msg .. ":::" .. name
+        native_lang_msg_send_(send_msg, chat_id)
+        frame:StopUpdateScript("native_lang_chat_recv")
+        frame:RunUpdateScript("native_lang_chat_recv", 0.5)
+    else
+        native_lang_replace()
+    end
+
+end
+
 function native_lang_DRAW_CHAT_MSG(frame, msg)
 
     if g.settings.use == 0 then
@@ -771,6 +1049,7 @@ function native_lang_DRAW_CHAT_MSG(frame, msg)
     local president = 0
 
     for i = startindex, size - 1 do
+
         local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
         local chat_id = clusterinfo:GetMsgInfoID()
 

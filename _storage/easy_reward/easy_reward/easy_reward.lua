@@ -1,7 +1,8 @@
+-- v1.0.3 均等割り付けエディット追加
 local addonName = "easy_reward"
 local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "0.0.1"
+local ver = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -77,6 +78,8 @@ function EASY_REWARD_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
+    g.lang = option.GetCurrentCountry()
+    -- g.lang = "en"
     g.RAGISTER = {}
     g.members = {}
     g.setup_hook_and_event(addon, "GUILDINVEN_SEND_INIT_MEMBER", "easy_reward_GUILDINVEN_SEND_INIT_MEMBER", false)
@@ -142,7 +145,8 @@ function easy_reward_GUILDINVEN_SEND_CLICK(parent, ctrl)
                 countList[#countList + 1] = tonumber(countValue);
                 local nameText = child:GetChild('nameText');
                 local name = nameText:GetText();
-                local message = name .. ":" .. item_name .. ":" .. tonumber(countValue) .. "個"
+                local msg = g.lang == "Japanese" and "個" or "pcs"
+                local message = name .. ":" .. item_name .. ":" .. tonumber(countValue) .. msg
                 g.log_to_file(message)
             end
         end
@@ -150,6 +154,9 @@ function easy_reward_GUILDINVEN_SEND_CLICK(parent, ctrl)
     local itemGUID = frame:GetUserValue('ITEM_ID');
     ReqGuildInventorySend(itemGUID, aidList, countList);
     ui.CloseFrame('guildinven_send');
+    local number_edit = GET_CHILD_RECURSIVELY(frame, 'number_edit')
+    AUTO_CAST(number_edit)
+    number_edit:SetText("0")
     easy_reward_count_clear(frame, ctrl, nil, nil)
 end
 
@@ -176,7 +183,8 @@ function easy_reward_GUILDINVEN_SEND_TYPING(frame, orgfuncname)
     local selectcount = GET_CHILD(frame, 'selectcount')
     AUTO_CAST(selectcount)
     selectcount:SetFontName("black_18_b")
-    selectcount:SetText("選択人数: " .. g.members.count)
+    local msg = (g.lang == "Japanese" and "選択人数: " or "Choices: ")
+    selectcount:SetText(msg .. g.members.count)
     GUILDINVEN_SEND_UPDATE_COUNT_BOX(frame)
 end
 
@@ -190,6 +198,15 @@ function easy_reward_member_list(frame, ctrl, aid, num)
         local ctrl_set = ctrl:GetParent()
         local countEdit = GET_CHILD(ctrl_set, 'countEdit')
         local countValue = countEdit:GetText();
+        local topframe = countEdit:GetTopParentFrame()
+        local number_edit = GET_CHILD(topframe, 'number_edit')
+        AUTO_CAST(number_edit)
+        local all_number = number_edit:GetText()
+
+        if all_number ~= 0 or all_number ~= "" or all_number ~= "None" then
+            countValue = all_number
+            countEdit:SetText(tostring(all_number))
+        end
         if ischeck == 0 then
             countValue = 0
         end
@@ -202,6 +219,7 @@ function easy_reward_member_list(frame, ctrl, aid, num)
 end
 
 function easy_reward_count_clear(frame, ctrl, str, num)
+
     for key, value in pairs(g.members) do
         if type(value) == "table" then
             value.item_count = 0
@@ -209,7 +227,21 @@ function easy_reward_count_clear(frame, ctrl, str, num)
     end
 end
 
+function easy_reward_number_enter(frame, ctrl, str, num)
+
+    local item_count = tonumber(ctrl:GetText())
+    for key, value in pairs(g.members) do
+        if type(value) == "table" then
+            if value.ischeck == 1 then
+                value.item_count = item_count
+            end
+        end
+    end
+    easy_reward_GUILDINVEN_SEND_INIT_MEMBER(frame)
+end
+
 function easy_reward_GUILDINVEN_SEND_INIT_MEMBER(frame)
+
     local frame = ui.GetFrame('guildinven_send')
 
     local listBox = GET_CHILD_RECURSIVELY(frame, 'listBox');
@@ -296,7 +328,8 @@ function easy_reward_GUILDINVEN_SEND_INIT_MEMBER(frame)
     local selectcount = frame:CreateOrGetControl('richtext', 'selectcount', 420, 70, 100, 25)
     AUTO_CAST(selectcount)
     selectcount:SetFontName("black_18_b")
-    selectcount:SetText("選択人数: " .. g.members.count)
+    local msg = (g.lang == "Japanese" and "選択人数: " or "Choices: ")
+    selectcount:SetText(msg .. g.members.count)
 
     local div_check = frame:CreateOrGetControl('checkbox', 'div_check', 250, 70, 25, 25)
     AUTO_CAST(div_check)
@@ -306,7 +339,14 @@ function easy_reward_GUILDINVEN_SEND_INIT_MEMBER(frame)
     end
     div_check:SetCheck(g.members.check)
     div_check:SetEventScript(ui.LBUTTONUP, "easy_reward_member_list")
-    div_check:SetTextTooltip("{ol}自動割り算機能")
+    div_check:SetTextTooltip(g.lang == "Japanese" and "自動割り算" or "Auto Divide") -- Auto Divide
+
+    local number_edit = frame:CreateOrGetControl('edit', 'number_edit', 180, 65, 60, 30)
+    AUTO_CAST(number_edit)
+    number_edit:SetEventScript(ui.ENTERKEY, "easy_reward_number_enter")
+    number_edit:SetTextTooltip(g.lang == "Japanese" and "均等割り付け数" or "Evenly Distributed")
+    number_edit:SetFontName("white_16_ol")
+    number_edit:SetTextAlign("center", "center");
 
     for index, partyMemberInfo in ipairs(members_to_sort) do
         if g.members.check == 1 then
