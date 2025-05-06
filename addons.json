@@ -309,16 +309,16 @@
 		"description" : "Wide monitor supported<br>チャレンジやレイドに入る支援パネルを設置します。<br>Set up a support panel to enter challenges and raids.<br>챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",
 		"tags" : ["ajinori","ajinorisan"]
 	},
-{
-		"name" : "muteki2ex",
-		"file" : "muteki2ex",
-		"extension" : "ipf",
-		"fileVersion" : "v2.0.6",
-		"releaseTag" : "muteki2ex",
-		"unicode" : "⛄",
-		"description" : "WRIT様作成のmuteki2exの改造版。アイコンモード、オーバーロードレイドのCD管理、パーティーチャットのお知らせ機能追加。with effect機能復活。<br>Modified version of muteki2ex created by WRIT. Added icon mode, overload raid CD management, party chat notification function, and with effect function.<br>WRIT님이 만든 muteki2ex의 모드 버전. 아이콘 모드, 오버로드 레이드 CD 관리, 파티 채팅 알림 기능 추가, with effect 기능 부활.",
-		"tags" : ["ajinori","ajinorisan"]
-	},
+	{
+		"name": "muteki2ex",
+		"file": "muteki2ex",
+		"extension": "ipf",
+		"fileVersion": "v2.0.6",
+		"releaseTag": "muteki2ex",
+		"unicode": "⛄",
+		"description": "【v2.0.6: PTチャット文字化け修正】WRIT様作成のmuteki2ex改造版。アイコン表示/回転モード、オーバーロードレイドCD管理、PTチャット通知、エフェクト表示機能付き。<br>【v2.0.6: Fixed Garbled Text in Party Chat】Modified version of muteki2ex by WRIT. Features icon display/rotation modes, Overload Raid CD management, party chat notifications, and effect display.<br>【v2.0.6: 파티 채팅 문자 깨짐 수정】WRIT님이 만든 muteki2ex 개조판. 아이콘 표시/회전 모드, 오버로드 레이드 CD 관리, 파티 채팅 알림, 이펙트 표시 기능 포함.",
+		"tags": ["ajinori", "ajinorisan", "muteki", "buff", "timer"]
+	  },
 {
 		"name" : "Ancient AutoSet",
 		"file" : "ancient_autoset",
