@@ -3,6 +3,7 @@
 -- v2.0.3 ゲージの色設定やりやすくなったけどアイコンモードで使うという自己矛盾
 -- v2.0.4 アイコン回転モード追加
 -- v2.0.5 with effect機能復活
+-- v2.0.6 PTチャットでDICデータバグってたの修正
 -- ##issues##
 -- possition update script  error
 -- check skill remove event
@@ -15,7 +16,7 @@ local addonName = "Muteki2ex";
 local addonNameUpper = string.upper(addonName);
 local addonNameLower = string.lower(addonName);
 local org_ver = "1.2.7"
-local ver = "2.0.5"
+local ver = "2.0.6"
 
 -- 作者名
 local author = "WRIT";
@@ -362,7 +363,12 @@ function MUTEKI2_UPDATE_BUFF(frame, msg, argStr, buffid)
     if buffSetting and not buffSetting.isNotNotify[g.user] then
         local control = MUTEKI2_GET_CONTROL(buffid)
         local beef = GetClassByType('Buff', buffid);
+        local lang = option.GetCurrentCountry()
         local buff_name = GetClassByType('Buff', buffid).Name
+        if lang ~= "kr" then
+            buff_name = dictionary.ReplaceDicIDInCompStr(buff_name)
+        end
+
         if buffSetting.circleIcon then
             if msg == 'BUFF_REMOVE' then
                 if buffSetting.isEffect then
