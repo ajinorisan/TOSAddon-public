@@ -203,7 +203,7 @@
 		"name" : "Auto Pet Summon",
 		"file" : "auto_pet_summon",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.5",
+		"fileVersion" : "v1.0.6",
 		"releaseTag" : "auto_pet_summon",
 		"unicode" : "⛄",
 		"description" : "キャラ毎に最後に連れていたペットを自動で召喚します。<br>Each character automatically summons the last pet they had with them.<br>캐릭터마다 마지막으로 데리고 있던 펫을 자동으로 소환합니다.",

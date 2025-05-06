@@ -4,10 +4,11 @@
 -- v1.0.3 コンパニオンフレームの呼び出しを更に遅延
 -- v1.0.4 なんかクライアント関数だと呼べなくなってたので修正
 -- v1.0.5 呼んでるペット表示機能削除。シンプルな挙動に変更
+-- v1.0.6 アイコン表示不評だったので止めた。
 local addonName = "AUTO_PET_SUMMON"
 local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -99,9 +100,10 @@ function AUTO_PET_SUMMON_ON_INIT(addon, frame)
     g.frame = frame
 
     g.lang = option.GetCurrentCountry()
-    g.cid = session.GetMySession():GetCID()
+    local cid = session.GetMySession():GetCID()
 
-    if g.get_map_type() == "City" then
+    if g.get_map_type() == "City" and (not g.cid or cid ~= g.cid) then
+        g.cid = cid
         g.load_settings()
         addon:RegisterMsg("GAME_START_3SEC", "AUTO_PET_SUMMON_COMPANION")
     end
@@ -110,17 +112,23 @@ end
 function AUTO_PET_SUMMON_COMPANION(frame, msg, str, num)
     if g.settings[g.cid].clsid ~= 0 then
         control.SummonPet(g.settings[g.cid].clsid, g.settings[g.cid].iesid, 0)
+    else
+        local login_name = session.GetMySession():GetPCApc():GetName()
+        local text = g.lang == "Japanese" and "{ol}[APS]{#FFFFFF} " .. login_name .. " {/}ペット未登録" or
+                         "{ol}[APS]{#FFFFFF} " .. login_name .. " {/}is not registered pet"
+        ui.SysMsg(text)
     end
+
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
-    frame:Resize(40, 40)
-    local handle = session.GetMyHandle();
+    frame:Resize(0, 0)
+    frame:RunUpdateScript("AUTO_PET_SUMMON_PERSONAL_SAVE_RESERVE", 1.0)
+    --[[local handle = session.GetMyHandle();
     FRAME_AUTO_POS_TO_OBJ(frame, handle, -frame:GetWidth() / 2 + 40, -140);
     -- frame:SetPos(1200, 700)
     local gbox = frame:CreateOrGetControl("groupbox", "gbox", 0, 0, 40, 40)
-    AUTO_CAST(gbox)
-    frame:RunUpdateScript("AUTO_PET_SUMMON_PERSONAL_SAVE_RESERVE", 1.0)
-    gbox:RunUpdateScript("AUTO_PET_SUMMON_PET_FRAME_INIT", 1.5)
+    AUTO_CAST(gbox)]]
+    -- gbox:RunUpdateScript("AUTO_PET_SUMMON_PET_FRAME_INIT", 1.5)
 end
 
 function AUTO_PET_SUMMON_PERSONAL_SAVE_RESERVE(frame)
@@ -144,7 +152,7 @@ function AUTO_PET_SUMMON_PERSONAL_SAVE_RESERVE(frame)
     return 1
 end
 
-function AUTO_PET_SUMMON_PET_FRAME_INIT(gbox)
+--[[function AUTO_PET_SUMMON_PET_FRAME_INIT(gbox)
 
     local frame = gbox:GetParent()
     local summonedPet = session.pet.GetSummonedPet()
@@ -169,7 +177,7 @@ function AUTO_PET_SUMMON_FRAME_CLOSE(gbox)
     local frame = gbox:GetParent()
     frame:SetVisible(0)
     gbox:ShowWindow(0)
-end
+end]]
 
 --[[function AUTO_PET_SUMMON_COMPANION_SUMMON(frame)
     local summonedPet = session.pet.GetSummonedPet()
