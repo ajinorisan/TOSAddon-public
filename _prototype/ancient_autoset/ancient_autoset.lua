@@ -88,24 +88,42 @@ function g.load_settings()
     end
 
     if not new_settings[g.cid] then
-        new_settings[g.cid] = {
-            slot1 = 0,
-            slot2 = 0,
-            slot3 = 0,
-            slot4 = 0
-        }
-    end
-
-    local settings = load_json(g.settingsFileLoc)
-
-    if settings then
-        if settings.pctbl[g.cid] then
-            new_settings[g.cid] = settings.pctbl[g.cid]
+        local old_settings = load_json(g.settingsFileLoc)
+        if old_settings and old_settings.pctbl and old_settings.pctbl[g.cid] then
+            new_settings[g.cid] = old_settings.pctbl[g.cid]
         end
     end
 
+    if not new_settings[g.cid] then
+
+        new_settings[g.cid] = {
+            slot1 = nil,
+            slot2 = nil,
+            slot3 = nil,
+            slot4 = nil
+        }
+    end
     g.settings = new_settings
     g.save_settings()
+
+end
+
+function ANCIENT_AUTOSET_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+    g.lang = option.GetCurrentCountry()
+
+    if g.get_map_type() == "City" then
+        local cid = session.GetMySession():GetCID()
+        if not g.cid or cid ~= g.cid then
+            g.cid = cid
+            g.load_settings()
+            addon:RegisterMsg("GAME_START", "ancient_autoset_setting")
+        end
+    end
+
+    ancient_autoset_frame_init()
 end
 
 function ancient_autoset_frame_init()
@@ -124,26 +142,9 @@ function ancient_autoset_frame_init()
                                "{ol}[AAS]Left-click:Setting Right-click:ReSetting")
 end
 
-function ANCIENT_AUTOSET_ON_INIT(addon, frame)
+function ancient_autoset_setting(frame, msg, str, num)
 
-    g.addon = addon
-    g.frame = frame
-    g.lang = option.GetCurrentCountry()
-    local cid = session.GetMySession():GetCID()
-
-    if not g.cid or cid ~= g.cid then
-        g.cid = cid
-        addon:RegisterMsg("GAME_START", "ancient_autoset_setting")
-    end
-    addon:RegisterMsg("GAME_START", "ancient_autoset_frame_init")
-end
-
-function ancient_autoset_setting()
-    g.load_settings()
     local tbl = g.settings[g.cid]
-    if not tbl then
-        return
-    end
 
     local target_guids = {
         [0] = tbl.slot1,
@@ -152,47 +153,32 @@ function ancient_autoset_setting()
         [3] = tbl.slot4
     }
 
-    local needs_retry = false
     local has_settings = false
 
     for slot_index = 0, 3 do
-        local target_guid = target_guids[slot_index]
-
+        local target_guid = tonumber(target_guids[slot_index])
         if target_guid ~= nil then
             has_settings = true
-
             local current_card = session.ancient.GetAncientCardBySlot(slot_index)
-
+            local iesid = card:GetGuid()
             if current_card == nil then
                 ReqSwapAncientCard(target_guid, slot_index)
-                needs_retry = true
-                break
             else
                 local current_guid = tonumber(current_card:GetGuid())
                 if target_guid ~= current_guid then
                     ReqSwapAncientCard(target_guid, slot_index)
-                    needs_retry = true
-                    break
                 end
             end
-
         end
     end
 
-    if needs_retry then
-        ReserveScript("ancient_autoset_setting()", 0.3)
-        return
-    end
-
     if not has_settings then
-
         local login_name = session.GetMySession():GetPCApc():GetName()
         local text = g.lang == "Japanese" and "{ol}[AAS]{#FFFFFF} " .. login_name .. " {/}アシスター未登録" or
                          "{ol}[APS]{#FFFFFF} " .. login_name .. " {/}is not registered assister"
         ui.SysMsg(text)
         return
     end
-
 end
 
 function ANCIENT_SETTING_MSG_RELEASE()
@@ -216,9 +202,7 @@ function ANCIENT_SETTING_RELEASE()
     end
     local msg = g.lang == "Japanese" and "[AAS]解除しました" or "[AAS]Canceled"
     ui.SysMsg(msg)
-
     g.save_settings()
-
 end
 
 function ANCIENT_SETTING_MSG()
@@ -227,7 +211,6 @@ function ANCIENT_SETTING_MSG()
                     "このキャラクターに表示中のアシスターセットを登録しますか？" or
                     "Would you like to register the assister set currently displayed on this character?"
     local yes_scp = "ANCIENT_SETTING_REG()"
-
     ui.MsgBox(msg, yes_scp, "None");
 end
 
@@ -241,16 +224,15 @@ function ANCIENT_SETTING_REG()
     for index = 0, 3 do
         local card = session.ancient.GetAncientCardBySlot(index)
         if card ~= nil then
-            local clsid = card:GetGuid()
+            local iesid = card:GetGuid()
             local slotName = "slot" .. (index + 1)
-            g.settings[g.cid][slotName] = clsid
+            g.settings[g.cid][slotName] = iesid
         end
     end
 
     local msg = g.lang == "Japanese" and "[AAS]登録しました" or "AAS]Registered"
     ui.SysMsg(msg)
     g.save_settings()
-
 end
 
 --[[
