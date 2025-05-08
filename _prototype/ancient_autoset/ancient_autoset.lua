@@ -138,17 +138,102 @@ function g.load_settings()
     end
 
     if not new_settings[g.cid] then
-        new_settings[g.cid] = {
-            slot1 = "",
-            slot2 = "",
-            slot3 = "",
-            slot4 = ""
-        }
+        new_settings[g.cid] = {}
     end
+
     g.settings = new_settings
+    if not g.loaded then
+        g.loaded = true
+        g.save_settings()
+    end
+end
+
+function ancient_autoset_frame_init()
+    local ancient_card_list = ui.GetFrame("ancient_card_list")
+    local topbg = GET_CHILD_RECURSIVELY(ancient_card_list, "topbg")
+    local btn_aas = topbg:CreateOrGetControl("button", "btn_aas", 0, 0, 33, 33)
+    AUTO_CAST(btn_aas)
+
+    btn_aas:SetGravity(ui.LEFT, ui.BOTTOM)
+    btn_aas:SetMargin(470, 0, 0, 0)
+    btn_aas:SetSkinName("None")
+    btn_aas:SetImage("config_button_normal")
+    btn_aas:Resize(33, 33)
+
+    btn_aas:SetEventScript(ui.LBUTTONUP, "ancient_autoset_reg")
+    btn_aas:SetEventScript(ui.RBUTTONUP, "ancient_autoset_reg_release")
+    btn_aas:SetTextTooltip(g.lang == "Japanese" and "{ol}[AAS]左クリック:設定{nl}右クリック:設定解除" or
+                               "{ol}[AAS]Left-click:Setting{nl}Right-click:Setting Release")
+end
+
+function ancient_autoset_reg_release(frame, ctrl)
+    local ancient_card_list = ui.GetFrame("ancient_card_list")
+    local tab = ancient_card_list:GetChild("tab")
+    AUTO_CAST(tab)
+    tab:SelectTab(0)
+    g.settings[g.cid] = {}
+    local msg = g.lang == "Japanese" and "[AAS]解除しました" or "[AAS]Canceled"
+    ui.SysMsg(msg)
     g.save_settings()
 end
 
+function ancient_autoset_reg(frame, ctrl)
+
+    local ancient_card_list = ui.GetFrame("ancient_card_list")
+    local tab = ancient_card_list:GetChild("tab")
+    AUTO_CAST(tab)
+    tab:SelectTab(0)
+
+    for index = 0, 3 do
+        local card = session.ancient.GetAncientCardBySlot(index)
+        if card then
+            local guid = card:GetGuid()
+            g.settings[g.cid][tostring(index)] = guid
+        else
+            g.settings[g.cid][tostring(index)] = nil
+        end
+    end
+
+    local msg = g.lang == "Japanese" and "[AAS]登録しました" or "AAS]Registered"
+    ui.SysMsg(msg)
+    g.save_settings()
+end
+
+function ancient_autoset_change_set_reserve(frame, msg, str, num)
+    frame:ShowWindow(1)
+    frame:RunUpdateScript("ancient_autoset_change_set", 0.3);
+end
+
+function ancient_autoset_change_set(frame)
+
+    if g.slot_index <= 3 then
+        local target_guid = g.settings[g.cid][tostring(g.slot_index)]
+        if target_guid then
+            g.has_setting = true
+            local card = session.ancient.GetAncientCardBySlot(g.slot_index)
+            if card then
+                local guid = card:GetGuid()
+                if target_guid ~= guid then
+                    ReqSwapAncientCard(target_guid, g.slot_index)
+                end
+            else
+                ReqSwapAncientCard(target_guid, g.slot_index)
+            end
+        end
+        g.slot_index = g.slot_index + 1
+        return 1
+    end
+
+    if not g.has_setting then
+        local login_name = session.GetMySession():GetPCApc():GetName()
+        local text = g.lang == "Japanese" and "{ol}[AAS]{#FFFFFF} " .. login_name .. " {/}アシスター未登録" or
+                         "{ol}[APS]{#FFFFFF} " .. login_name .. " {/}is not registered assister"
+        ui.SysMsg(text)
+    end
+    return 0
+end
+
+g.loaded = false
 function ANCIENT_AUTOSET_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -157,21 +242,21 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
 
     g.RAGISTER = {}
 
-    if g.get_map_type() == "City" then
-        local cid = session.GetMySession():GetCID()
-        if not g.cid or cid ~= g.cid then
-            g.cid = cid
-            g.load_settings()
-            addon:RegisterMsg("GAME_START", "ancient_autoset_setting")
+    local cid = session.GetMySession():GetCID()
+    if not g.loaded or not g.cid or cid ~= g.cid then
+        g.cid = cid
+        g.load_settings()
+        if g.get_map_type() == "City" then
+            addon:RegisterMsg("GAME_START", "ancient_autoset_change_set_reserve")
             g.slot_index = 0
             g.has_setting = false
         end
     end
 
+    ancient_autoset_frame_init()
+
     g.setup_hook_and_event(addon, "ANCIENT_CARD_LIST_OPEN", "ancient_autoset_ANCIENT_CARD_LIST_OPEN", true)
     g.setup_hook_and_event(addon, "ANCIENT_CARD_LIST_CLOSE", "ancient_autoset_ANCIENT_CARD_LIST_CLOSE", true)
-
-    ancient_autoset_frame_init()
 end
 
 function ancient_autoset_ANCIENT_CARD_LIST_CLOSE(frame, msg)
@@ -219,7 +304,7 @@ function ancient_autoset_ANCIENT_CARD_LIST_OPEN(frame, msg)
     topbg:EnableHittestGroupBox(false)
 
     local ancient_card_slot_gbox = topbg:CreateOrGetControl("groupbox", "ancient_card_slot_gbox", 665, 275, ui.LEFT,
-        ui.TOP, 0, 0, 0, 0);
+                                                            ui.TOP, 0, 0, 0, 0);
     AUTO_CAST(ancient_card_slot_gbox)
     ancient_card_slot_gbox:EnableHittestGroupBox(false)
     ancient_card_slot_gbox:SetSkinName("test_frame_midle")
@@ -276,12 +361,13 @@ function ancient_autoset_load_slots(frame, tab_index)
             gold_border:SetImage('monster_card_g_frame_02')
         end
 
-        if g.settings.presets[tostring(tab_index)] ~= nil then
-            if g.settings.presets[tostring(tab_index)][tostring(index)] ~= nil then
-                local guid = g.settings.presets[tostring(tab_index)][tostring(index)]
-                if guid ~= nil then
+        if g.settings and g.settings.presets and g.settings.presets[tostring(tab_index)] then
+            local preset_data = g.settings.presets[tostring(tab_index)]
+            if preset_data[tostring(index)] then
+                local guid = preset_data[tostring(index)]
+                if guid then
                     local card = session.ancient.GetAncientCardByGuid(guid)
-                    if card ~= nil then
+                    if card then
                         SET_ANCIENT_CARD_SLOT(ctrlSet, card)
                     end
                 end
@@ -294,6 +380,7 @@ function ancient_autoset_load_slots(frame, tab_index)
 end
 
 function ancient_autoset_card_change(frame, ctrl)
+
     if IS_ANCIENT_ENABLE_MAP() == "YES" then
         addon.BroadMsg("NOTICE_Dm_!", ClMsg("ImpossibleInCurrentMap"), 3);
         return
@@ -303,28 +390,39 @@ function ancient_autoset_card_change(frame, ctrl)
     AUTO_CAST(tab)
     local tab_index = tab:GetSelectItemIndex()
 
-    local operationCount = 0
-    for index = 0, 3 do
-        local equippedCard = session.ancient.GetAncientCardBySlot(index)
-        if (equippedCard ~= nil) then
-            ReserveScript(string.format("ANCIENTPRESET_REMOVE_CARD_IN_SLOT(%d)", index), 0.3 * operationCount)
-            operationCount = operationCount + 1
-        end
+    if not g.settings.presets[tostring(tab_index)] then
+        return
     end
-    for index = 0, 3 do
-        if (AncientPreset.Settings.Presets[tabIndex] == nil) then
-            AncientPreset.Settings.Presets[tabIndex] = {}
-        end
-        local guid = AncientPreset.Settings.Presets[tabIndex][index]
-        if (guid ~= nil) then
-            local card = session.ancient.GetAncientCardByGuid(guid)
-            if (card == nil) then
-                -- if guid points to a card no longer available, we invalidate it
-                AncientPreset.Settings.Presets[tabIndex][index] = nil
+    g.tab_index = tab_index
+    g.slot_index = 0
+    frame:RunUpdateScript("ancient_autoset_put_card_slot", 0.3);
+end
+
+function ancient_autoset_put_card_slot(frame)
+
+    local target_guid = g.settings.presets[tostring(g.tab_index)][tostring(g.slot_index)]
+
+    if g.slot_index <= 3 then
+        if target_guid then
+
+            local card = session.ancient.GetAncientCardBySlot(g.slot_index)
+            if card then
+                local guid = card:GetGuid()
+                if target_guid ~= guid then
+                    ReqSwapAncientCard(target_guid, g.slot_index)
+                end
+            else
+                ReqSwapAncientCard(target_guid, g.slot_index)
             end
+
         end
-        ReserveScript(string.format("ANCIENTPRESET_PUT_CARD_IN_SLOT(%d)", index), 0.3 * (index + operationCount))
+        g.slot_index = g.slot_index + 1
+        return 1
     end
+
+    g.tab_index = nil
+    g.slot_index = 0
+    return 0
 end
 
 function ancient_autoset_swap_rbtndown(parent, ctrl, str, num)
@@ -365,88 +463,7 @@ function ancient_autoset_frame_drop(parent, ctrl, str, num)
     ancient_card_list:SetUserValue("LIFTED_GUID", "None")
 end
 
-function ancient_autoset_frame_init()
-    local frame = ui.GetFrame("ancient_card_list")
-    local btn_aas = frame:GetChildRecursively("topbg"):CreateOrGetControl("button", "btn_aas", 0, 0, 33, 33)
-    AUTO_CAST(btn_aas)
-    btn_aas:SetGravity(ui.LEFT, ui.BOTTOM)
-    btn_aas:SetMargin(470, 0, 0, 0)
-    btn_aas:SetSkinName("None")
-    btn_aas:SetImage("config_button_normal")
-    btn_aas:Resize(33, 33)
-
-    btn_aas:SetEventScript(ui.LBUTTONUP, "ANCIENT_SETTING_MSG")
-    btn_aas:SetEventScript(ui.RBUTTONUP, "ANCIENT_SETTING_MSG_RELEASE")
-    btn_aas:SetTextTooltip(g.lang == "Japanese" and "{ol}[AAS]左クリック:設定 右クリック:設定解除" or
-                               "{ol}[AAS]Left-click:Setting Right-click:ReSetting")
-end
-
-function ancient_autoset_setting(frame, msg, str, num)
-    frame:ShowWindow(1)
-    frame:RunUpdateScript("ancient_autoset_setting_", 0.3);
-end
-
-function ancient_autoset_setting_(frame)
-
-    local tbl = g.settings[g.cid]
-
-    local target_guids = {
-        [0] = tbl.slot1,
-        [1] = tbl.slot2,
-        [2] = tbl.slot3,
-        [3] = tbl.slot4
-    }
-
-    if g.slot_index <= 3 then
-        local target_guid = tonumber(target_guids[g.slot_index])
-        if target_guid ~= "" then
-            g.has_setting = true
-            local card = session.ancient.GetAncientCardBySlot(g.slot_index)
-            if card == nil then
-                ReqSwapAncientCard(target_guid, g.slot_index)
-            else
-                local guid = tonumber(card:GetGuid())
-                if target_guid ~= guid then
-                    ReqSwapAncientCard(target_guid, g.slot_index)
-                end
-            end
-        end
-        g.slot_index = g.slot_index + 1
-        return 1
-    end
-
-    if not g.has_setting then
-        local login_name = session.GetMySession():GetPCApc():GetName()
-        local text = g.lang == "Japanese" and "{ol}[AAS]{#FFFFFF} " .. login_name .. " {/}アシスター未登録" or
-                         "{ol}[APS]{#FFFFFF} " .. login_name .. " {/}is not registered assister"
-        ui.SysMsg(text)
-    end
-    return 0
-end
-
-function ANCIENT_SETTING_MSG_RELEASE()
-    local msg = g.lang == "Japanese" and
-                    "このキャラクターに設定したアシスターセットを解除しますか？" or
-                    "Do you want to remove the assister set for this character?"
-    local yes_scp = "ANCIENT_SETTING_RELEASE()"
-
-    ui.MsgBox(msg, yes_scp, "None");
-end
-
-function ANCIENT_SETTING_RELEASE()
-    local frame = ui.GetFrame("ancient_card_list")
-    local tab = frame:GetChild("tab")
-    AUTO_CAST(tab)
-    tab:SelectTab(0)
-
-    for index = 0, 3 do
-        local slotName = "slot" .. (index + 1)
-        g.settings[g.cid][slotName] = nil
-    end
-    local msg = g.lang == "Japanese" and "[AAS]解除しました" or "[AAS]Canceled"
-    ui.SysMsg(msg)
-    g.save_settings()
-end
+--[[
 
 function ANCIENT_SETTING_MSG()
 
@@ -456,32 +473,6 @@ function ANCIENT_SETTING_MSG()
     local yes_scp = "ANCIENT_SETTING_REG()"
     ui.MsgBox(msg, yes_scp, "None");
 end
-
-function ANCIENT_SETTING_REG()
-
-    local frame = ui.GetFrame("ancient_card_list")
-    local tab = frame:GetChild("tab")
-    AUTO_CAST(tab)
-    tab:SelectTab(0)
-
-    for index = 0, 3 do
-
-        local slotName = "slot" .. (index + 1)
-        local card = session.ancient.GetAncientCardBySlot(index)
-        if card ~= nil then
-            local guid = card:GetGuid()
-            g.settings[g.cid][slotName] = guid
-        else
-            g.settings[g.cid][slotName] = ""
-        end
-    end
-
-    local msg = g.lang == "Japanese" and "[AAS]登録しました" or "AAS]Registered"
-    ui.SysMsg(msg)
-    g.save_settings()
-end
-
---[[
 local acutil = require("acutil")
 
 function ANCIENT_AUTOSET_FRAME_INIT()
