@@ -52,6 +52,48 @@ function g.get_map_type()
     return map_type
 end
 
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+    local origin_func = g.FUNCS[origin_func_name]
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if bool == true and original_results ~= nil then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+function g.get_event_args(origin_func_name)
+    local args = g.ARGS[origin_func_name]
+    if args then
+        return table.unpack(args)
+    end
+    return nil
+end
+
 function g.save_settings()
 
     local function save_json(path, tbl)
@@ -62,7 +104,6 @@ function g.save_settings()
             file:close()
         end
     end
-
     save_json(g.settings_path, g.settings)
 end
 
@@ -84,7 +125,9 @@ function g.load_settings()
 
     local new_settings = load_json(g.settings_path)
     if not new_settings then
-        new_settings = {}
+        new_settings = {
+            presets = {}
+        }
     end
 
     if not new_settings[g.cid] then
@@ -95,17 +138,15 @@ function g.load_settings()
     end
 
     if not new_settings[g.cid] then
-
         new_settings[g.cid] = {
-            slot1 = nil,
-            slot2 = nil,
-            slot3 = nil,
-            slot4 = nil
+            slot1 = "",
+            slot2 = "",
+            slot3 = "",
+            slot4 = ""
         }
     end
     g.settings = new_settings
     g.save_settings()
-
 end
 
 function ANCIENT_AUTOSET_ON_INIT(addon, frame)
@@ -114,16 +155,214 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
     g.frame = frame
     g.lang = option.GetCurrentCountry()
 
+    g.RAGISTER = {}
+
     if g.get_map_type() == "City" then
         local cid = session.GetMySession():GetCID()
         if not g.cid or cid ~= g.cid then
             g.cid = cid
             g.load_settings()
             addon:RegisterMsg("GAME_START", "ancient_autoset_setting")
+            g.slot_index = 0
+            g.has_setting = false
         end
     end
 
+    g.setup_hook_and_event(addon, "ANCIENT_CARD_LIST_OPEN", "ancient_autoset_ANCIENT_CARD_LIST_OPEN", true)
+    g.setup_hook_and_event(addon, "ANCIENT_CARD_LIST_CLOSE", "ancient_autoset_ANCIENT_CARD_LIST_CLOSE", true)
+
     ancient_autoset_frame_init()
+end
+
+function ancient_autoset_ANCIENT_CARD_LIST_CLOSE(frame, msg)
+    frame:ShowWindow(0)
+end
+
+function ancient_autoset_ANCIENT_CARD_LIST_OPEN(frame, msg)
+
+    local ancient_card_list = ui.GetFrame("ancient_card_list")
+    frame:RemoveAllChild()
+    frame:SetLayerLevel(92);
+    frame:SetSkinName('None');
+    frame:SetTitleBarSkin("None")
+
+    frame:SetPos(ancient_card_list:GetX() + 710, ancient_card_list:GetY() + 100);
+
+    frame:Resize(707, 400);
+    frame:ShowWindow(1);
+
+    frame:SetAnimation("frameOpenAnim", "chat_balloon_start")
+    frame:SetAnimation("frameCloseAnim", "chat_balloon_end");
+
+    local bg = frame:CreateOrGetControl("groupbox", "bg", 705, 360, ui.LEFT, ui.TOP, 0, 40, 0, 0);
+    AUTO_CAST(bg)
+    bg:SetSkinName("test_frame_low")
+    bg:EnableHittestGroupBox(false)
+
+    local title_bg = frame:CreateOrGetControl("groupbox", "title_bg", 705, 61, ui.LEFT, ui.TOP, 0, 0, 0, 0);
+    AUTO_CAST(title_bg)
+    title_bg:SetSkinName("test_frame_top")
+    title_bg:EnableHittestGroupBox(false)
+
+    local title = frame:CreateOrGetControl("richtext", "title", 100, 30, ui.CENTER_HORZ, ui.TOP, 0, 18, 0, 0);
+    title:SetText("{@st43}{s22}Assister Preset Setting{/}")
+    title:EnableHitTest(false)
+
+    local close = frame:CreateOrGetControl("button", "close", 44, 44, ui.RIGHT, ui.TOP, 0, 20, 17, 0);
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetTextTooltip("{ol}Close the Assister Preset window")
+    close:SetEventScript(ui.LBUTTONUP, "ancient_autoset_ANCIENT_CARD_LIST_CLOSE");
+
+    local topbg = frame:CreateOrGetControl("groupbox", "topbg", 665, 315, ui.LEFT, ui.TOP, 20, 100, 0, 0);
+    AUTO_CAST(topbg)
+    topbg:EnableHittestGroupBox(false)
+
+    local ancient_card_slot_gbox = topbg:CreateOrGetControl("groupbox", "ancient_card_slot_gbox", 665, 275, ui.LEFT,
+        ui.TOP, 0, 0, 0, 0);
+    AUTO_CAST(ancient_card_slot_gbox)
+    ancient_card_slot_gbox:EnableHittestGroupBox(false)
+    ancient_card_slot_gbox:SetSkinName("test_frame_midle")
+
+    local tab = frame:CreateOrGetControl("tab", "tab", 664, 40, ui.LEFT, ui.TOP, 22, 65, 0, 0);
+    AUTO_CAST(tab)
+    tab:SetEventScript(ui.LBUTTONUP, "ancient_autoset_tab_change");
+    tab:SetSkinName("tab2")
+    for i = 1, 10 do
+        tab:AddItem("{@st66b}{s16}Set " .. i, true, "", "", "", "", "", false)
+    end
+    tab:SetItemsFixWidth(66)
+    tab:SetItemsAdjustFontSizeByWidth(66);
+
+    local swap = frame:CreateOrGetControl("button", "swap", 100, 45, ui.RIGHT, ui.TOP, 0, 325, 30, 0);
+    swap:SetSkinName("test_pvp_btn")
+    swap:SetText("{@st42}{s18}Change")
+    swap:SetEventScript(ui.LBUTTONUP, "ancient_autoset_card_change");
+    ancient_autoset_tab_change(frame)
+
+end
+
+function ancient_autoset_tab_change(frame)
+
+    local tab = GET_CHILD(frame, "tab")
+    AUTO_CAST(tab)
+    local tab_index = tab:GetSelectItemIndex()
+
+    ancient_autoset_load_slots(frame, tab_index)
+end
+
+function ancient_autoset_load_slots(frame, tab_index)
+    local gbox = GET_CHILD_RECURSIVELY(frame, 'ancient_card_slot_gbox')
+
+    gbox:RemoveAllChild()
+    local width = 4
+    for index = 0, 3 do
+        local ctrlSet = gbox:CreateControlSet("ancient_card_item_slot", "SLOT_" .. index, width, 4);
+        width = width + ctrlSet:GetWidth() + 2
+        local ancient_card_gbox = GET_CHILD(ctrlSet, "ancient_card_gbox")
+        ancient_card_gbox:SetVisible(0)
+        ctrlSet:SetUserValue("INDEX", index)
+        ctrlSet:EnableHitTest(1)
+        local slot = GET_CHILD_RECURSIVELY(ctrlSet, "ancient_card_slot")
+        AUTO_CAST(slot)
+        local icon = CreateIcon(slot);
+        slot:EnableHitTest(1)
+        ctrlSet:SetEventScript(ui.DROP, 'ancient_autoset_frame_drop');
+        ctrlSet:SetEventScript(ui.RBUTTONDOWN, 'ancient_autoset_swap_rbtndown');
+
+        if index == 0 then
+            local gold_border = GET_CHILD_RECURSIVELY(ctrlSet, "gold_border")
+            AUTO_CAST(gold_border)
+            gold_border:SetImage('monster_card_g_frame_02')
+        end
+
+        if g.settings.presets[tostring(tab_index)] ~= nil then
+            if g.settings.presets[tostring(tab_index)][tostring(index)] ~= nil then
+                local guid = g.settings.presets[tostring(tab_index)][tostring(index)]
+                if guid ~= nil then
+                    local card = session.ancient.GetAncientCardByGuid(guid)
+                    if card ~= nil then
+                        SET_ANCIENT_CARD_SLOT(ctrlSet, card)
+                    end
+                end
+            end
+        end
+        local default_image = GET_CHILD_RECURSIVELY(ctrlSet, "default_image")
+        AUTO_CAST(default_image)
+        default_image:SetImage("socket_slot_bg")
+    end
+end
+
+function ancient_autoset_card_change(frame, ctrl)
+    if IS_ANCIENT_ENABLE_MAP() == "YES" then
+        addon.BroadMsg("NOTICE_Dm_!", ClMsg("ImpossibleInCurrentMap"), 3);
+        return
+    end
+
+    local tab = GET_CHILD(frame, "tab")
+    AUTO_CAST(tab)
+    local tab_index = tab:GetSelectItemIndex()
+
+    local operationCount = 0
+    for index = 0, 3 do
+        local equippedCard = session.ancient.GetAncientCardBySlot(index)
+        if (equippedCard ~= nil) then
+            ReserveScript(string.format("ANCIENTPRESET_REMOVE_CARD_IN_SLOT(%d)", index), 0.3 * operationCount)
+            operationCount = operationCount + 1
+        end
+    end
+    for index = 0, 3 do
+        if (AncientPreset.Settings.Presets[tabIndex] == nil) then
+            AncientPreset.Settings.Presets[tabIndex] = {}
+        end
+        local guid = AncientPreset.Settings.Presets[tabIndex][index]
+        if (guid ~= nil) then
+            local card = session.ancient.GetAncientCardByGuid(guid)
+            if (card == nil) then
+                -- if guid points to a card no longer available, we invalidate it
+                AncientPreset.Settings.Presets[tabIndex][index] = nil
+            end
+        end
+        ReserveScript(string.format("ANCIENTPRESET_PUT_CARD_IN_SLOT(%d)", index), 0.3 * (index + operationCount))
+    end
+end
+
+function ancient_autoset_swap_rbtndown(parent, ctrl, str, num)
+    local to_index = ctrl:GetUserIValue("INDEX")
+    local frame = parent:GetTopParentFrame();
+    local tab = GET_CHILD(frame, "tab")
+    AUTO_CAST(tab)
+    local tab_index = tab:GetSelectItemIndex()
+
+    if not g.settings.presets[tostring(tab_index)] then
+        return
+    end
+    g.settings.presets[tostring(tab_index)][tostring(to_index)] = nil
+    g.save_settings()
+    ancient_autoset_tab_change(frame)
+end
+
+function ancient_autoset_frame_drop(parent, ctrl, str, num)
+    local to_index = ctrl:GetUserIValue("INDEX")
+
+    local ancient_card_list = ui.GetFrame("ancient_card_list")
+
+    local frame = parent:GetTopParentFrame();
+    local tab = GET_CHILD(frame, "tab")
+    AUTO_CAST(tab)
+    local tab_index = tab:GetSelectItemIndex()
+
+    local guid = ancient_card_list:GetUserValue("LIFTED_GUID")
+    local card = session.ancient.GetAncientCardByGuid(guid)
+
+    if not g.settings.presets[tostring(tab_index)] then
+        g.settings.presets[tostring(tab_index)] = {}
+    end
+
+    g.settings.presets[tostring(tab_index)][tostring(to_index)] = guid
+    g.save_settings()
+    ancient_autoset_tab_change(frame)
+    ancient_card_list:SetUserValue("LIFTED_GUID", "None")
 end
 
 function ancient_autoset_frame_init()
@@ -143,6 +382,11 @@ function ancient_autoset_frame_init()
 end
 
 function ancient_autoset_setting(frame, msg, str, num)
+    frame:ShowWindow(1)
+    frame:RunUpdateScript("ancient_autoset_setting_", 0.3);
+end
+
+function ancient_autoset_setting_(frame)
 
     local tbl = g.settings[g.cid]
 
@@ -153,32 +397,31 @@ function ancient_autoset_setting(frame, msg, str, num)
         [3] = tbl.slot4
     }
 
-    local has_settings = false
-
-    for slot_index = 0, 3 do
-        local target_guid = tonumber(target_guids[slot_index])
-        if target_guid ~= nil then
-            has_settings = true
-            local current_card = session.ancient.GetAncientCardBySlot(slot_index)
-            local iesid = card:GetGuid()
-            if current_card == nil then
-                ReqSwapAncientCard(target_guid, slot_index)
+    if g.slot_index <= 3 then
+        local target_guid = tonumber(target_guids[g.slot_index])
+        if target_guid ~= "" then
+            g.has_setting = true
+            local card = session.ancient.GetAncientCardBySlot(g.slot_index)
+            if card == nil then
+                ReqSwapAncientCard(target_guid, g.slot_index)
             else
-                local current_guid = tonumber(current_card:GetGuid())
-                if target_guid ~= current_guid then
-                    ReqSwapAncientCard(target_guid, slot_index)
+                local guid = tonumber(card:GetGuid())
+                if target_guid ~= guid then
+                    ReqSwapAncientCard(target_guid, g.slot_index)
                 end
             end
         end
+        g.slot_index = g.slot_index + 1
+        return 1
     end
 
-    if not has_settings then
+    if not g.has_setting then
         local login_name = session.GetMySession():GetPCApc():GetName()
         local text = g.lang == "Japanese" and "{ol}[AAS]{#FFFFFF} " .. login_name .. " {/}アシスター未登録" or
                          "{ol}[APS]{#FFFFFF} " .. login_name .. " {/}is not registered assister"
         ui.SysMsg(text)
-        return
     end
+    return 0
 end
 
 function ANCIENT_SETTING_MSG_RELEASE()
@@ -222,11 +465,14 @@ function ANCIENT_SETTING_REG()
     tab:SelectTab(0)
 
     for index = 0, 3 do
+
+        local slotName = "slot" .. (index + 1)
         local card = session.ancient.GetAncientCardBySlot(index)
         if card ~= nil then
-            local iesid = card:GetGuid()
-            local slotName = "slot" .. (index + 1)
-            g.settings[g.cid][slotName] = iesid
+            local guid = card:GetGuid()
+            g.settings[g.cid][slotName] = guid
+        else
+            g.settings[g.cid][slotName] = ""
         end
     end
 
