@@ -3,10 +3,11 @@
 -- v1.0.5 カードスロットの1番目が入ってない場合、バグってたのを修正。お知らせを少し派手に。
 -- v1.0.6 アドマネから入れたらバグってたの修正
 -- v1.0.7 お知らせをチャットのみに
+-- v1.0.8 コードリニューアル。プリセット機能移植
 local addonName = "ANCIENT_AUTOSET"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -130,10 +131,25 @@ function g.load_settings()
         }
     end
 
+    local found = false
     if not new_settings[g.cid] then
         local old_settings = load_json(g.settingsFileLoc)
         if old_settings and old_settings.pctbl and old_settings.pctbl[g.cid] then
-            new_settings[g.cid] = old_settings.pctbl[g.cid]
+            local new_entry_for_cid = {}
+            local old_keys_to_new_keys = {
+                slot1 = "0",
+                slot2 = "1",
+                slot3 = "2",
+                slot4 = "3"
+            }
+            for old_key, new_key_str in pairs(old_keys_to_new_keys) do
+                local old_guid = old_settings.pctbl[g.cid][old_key]
+                if old_guid ~= nil then
+                    new_entry_for_cid[new_key_str] = old_guid
+                end
+            end
+            found = true
+            new_settings[g.cid] = new_entry_for_cid
         end
     end
 
@@ -142,13 +158,14 @@ function g.load_settings()
     end
 
     g.settings = new_settings
-    if not g.loaded then
+    if not g.loaded or found then
         g.loaded = true
         g.save_settings()
     end
 end
 
 function ancient_autoset_frame_init()
+    CHAT_SYSTEM("TEST")
     local ancient_card_list = ui.GetFrame("ancient_card_list")
     local topbg = GET_CHILD_RECURSIVELY(ancient_card_list, "topbg")
     local btn_aas = topbg:CreateOrGetControl("button", "btn_aas", 0, 0, 33, 33)
@@ -162,8 +179,8 @@ function ancient_autoset_frame_init()
 
     btn_aas:SetEventScript(ui.LBUTTONUP, "ancient_autoset_reg")
     btn_aas:SetEventScript(ui.RBUTTONUP, "ancient_autoset_reg_release")
-    btn_aas:SetTextTooltip(g.lang == "Japanese" and "{ol}[AAS]左クリック:設定{nl}右クリック:設定解除" or
-                               "{ol}[AAS]Left-click:Setting{nl}Right-click:Setting Release")
+    btn_aas:SetTextTooltip(g.lang == "Japanese" and "{ol}[AAS]左クリック:登録{nl}右クリック:登録解除" or
+                               "{ol}[AAS]Left-click:Register{nl}Right-click:Setting Release")
 end
 
 function ancient_autoset_reg_release(frame, ctrl)
@@ -172,7 +189,7 @@ function ancient_autoset_reg_release(frame, ctrl)
     AUTO_CAST(tab)
     tab:SelectTab(0)
     g.settings[g.cid] = {}
-    local msg = g.lang == "Japanese" and "[AAS]解除しました" or "[AAS]Canceled"
+    local msg = g.lang == "Japanese" and "[AAS]解除しました" or "[AAS]released"
     ui.SysMsg(msg)
     g.save_settings()
 end
@@ -243,20 +260,23 @@ function ANCIENT_AUTOSET_ON_INIT(addon, frame)
     g.RAGISTER = {}
 
     local cid = session.GetMySession():GetCID()
-    if not g.loaded or not g.cid or cid ~= g.cid then
+    if (not g.loaded or not g.cid or cid ~= g.cid) and g.get_map_type() == "City" then
         g.cid = cid
         g.load_settings()
-        if g.get_map_type() == "City" then
-            addon:RegisterMsg("GAME_START", "ancient_autoset_change_set_reserve")
-            g.slot_index = 0
-            g.has_setting = false
-        end
+        addon:RegisterMsg("GAME_START", "ancient_autoset_change_set_reserve")
+        g.slot_index = 0
+        g.has_setting = false
     end
 
     ancient_autoset_frame_init()
 
     g.setup_hook_and_event(addon, "ANCIENT_CARD_LIST_OPEN", "ancient_autoset_ANCIENT_CARD_LIST_OPEN", true)
     g.setup_hook_and_event(addon, "ANCIENT_CARD_LIST_CLOSE", "ancient_autoset_ANCIENT_CARD_LIST_CLOSE", true)
+
+    local functionName = "ANCIENTPRESET_ON_INIT"
+    if type(_G[functionName]) == "function" then
+        _G[functionName] = nil
+    end
 end
 
 function ancient_autoset_ANCIENT_CARD_LIST_CLOSE(frame, msg)
@@ -304,7 +324,7 @@ function ancient_autoset_ANCIENT_CARD_LIST_OPEN(frame, msg)
     topbg:EnableHittestGroupBox(false)
 
     local ancient_card_slot_gbox = topbg:CreateOrGetControl("groupbox", "ancient_card_slot_gbox", 665, 275, ui.LEFT,
-                                                            ui.TOP, 0, 0, 0, 0);
+        ui.TOP, 0, 0, 0, 0);
     AUTO_CAST(ancient_card_slot_gbox)
     ancient_card_slot_gbox:EnableHittestGroupBox(false)
     ancient_card_slot_gbox:SetSkinName("test_frame_midle")
@@ -323,8 +343,34 @@ function ancient_autoset_ANCIENT_CARD_LIST_OPEN(frame, msg)
     swap:SetSkinName("test_pvp_btn")
     swap:SetText("{@st42}{s18}Change")
     swap:SetEventScript(ui.LBUTTONUP, "ancient_autoset_card_change");
+
+    local search_edit = frame:CreateOrGetControl("edit", "search_edit", 420, 330, 150, 36)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_16_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+    search_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}セット名入力" or "{ol}Set Name Input")
+    search_edit:SetEventScript(ui.ENTERKEY, "ancient_autoset_tab_name_save")
+
+    --[[local ancient_card_comb_slots = frame:CreateOrGetControl("groupbox", "ancient_card_comb_slots", 100, 320, 300, 50);
+    AUTO_CAST(ancient_card_comb_slots)
+    ANCEINT_PASSIVE_LIST_SET(frame)]]
     ancient_autoset_tab_change(frame)
 
+end
+
+function ancient_autoset_tab_name_save(frame, ctrl)
+    local set_name = ctrl:GetText()
+    local tab = GET_CHILD(frame, "tab")
+    AUTO_CAST(tab)
+    local tab_index = tab:GetSelectItemIndex()
+    if not g.settings["presets"][tostring(tab_index)] then
+        g.settings["presets"][tostring(tab_index)] = {}
+    end
+    g.settings["presets"][tostring(tab_index)].set_name = set_name
+    g.save_settings()
+
+    frame:RunUpdateScript("ancient_autoset_ANCIENT_CARD_LIST_OPEN", 0.1)
 end
 
 function ancient_autoset_tab_change(frame)
@@ -332,6 +378,17 @@ function ancient_autoset_tab_change(frame)
     local tab = GET_CHILD(frame, "tab")
     AUTO_CAST(tab)
     local tab_index = tab:GetSelectItemIndex()
+
+    local set_name = frame:CreateOrGetControl("richtext", "set_name", 50, 340, 320, 30)
+    AUTO_CAST(set_name)
+    set_name:SetFontName("white_18_ol")
+
+    if g.settings["presets"][tostring(tab_index)].set_name then
+
+        set_name:SetText("{ol}Set Name: " .. g.settings["presets"][tostring(tab_index)].set_name)
+    else
+        set_name:SetText("")
+    end
 
     ancient_autoset_load_slots(frame, tab_index)
 end
@@ -367,6 +424,7 @@ function ancient_autoset_load_slots(frame, tab_index)
                 local guid = preset_data[tostring(index)]
                 if guid then
                     local card = session.ancient.GetAncientCardByGuid(guid)
+
                     if card then
                         SET_ANCIENT_CARD_SLOT(ctrlSet, card)
                     end
@@ -410,9 +468,11 @@ function ancient_autoset_put_card_slot(frame)
                 local guid = card:GetGuid()
                 if target_guid ~= guid then
                     ReqSwapAncientCard(target_guid, g.slot_index)
+                    imcSound.PlaySoundEvent("sys_card_battle_rival_slot_show");
                 end
             else
                 ReqSwapAncientCard(target_guid, g.slot_index)
+                imcSound.PlaySoundEvent("sys_card_battle_rival_slot_show");
             end
 
         end
@@ -420,6 +480,7 @@ function ancient_autoset_put_card_slot(frame)
         return 1
     end
 
+    g.cid = false
     g.tab_index = nil
     g.slot_index = 0
     return 0
