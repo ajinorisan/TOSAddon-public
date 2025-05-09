@@ -155,6 +155,7 @@ function g.load_settings()
 
     if not new_settings[g.cid] then
         new_settings[g.cid] = {}
+        found = true
     end
 
     g.settings = new_settings
@@ -165,7 +166,7 @@ function g.load_settings()
 end
 
 function ancient_autoset_frame_init()
-    CHAT_SYSTEM("TEST")
+
     local ancient_card_list = ui.GetFrame("ancient_card_list")
     local topbg = GET_CHILD_RECURSIVELY(ancient_card_list, "topbg")
     local btn_aas = topbg:CreateOrGetControl("button", "btn_aas", 0, 0, 33, 33)
@@ -324,7 +325,7 @@ function ancient_autoset_ANCIENT_CARD_LIST_OPEN(frame, msg)
     topbg:EnableHittestGroupBox(false)
 
     local ancient_card_slot_gbox = topbg:CreateOrGetControl("groupbox", "ancient_card_slot_gbox", 665, 275, ui.LEFT,
-        ui.TOP, 0, 0, 0, 0);
+                                                            ui.TOP, 0, 0, 0, 0);
     AUTO_CAST(ancient_card_slot_gbox)
     ancient_card_slot_gbox:EnableHittestGroupBox(false)
     ancient_card_slot_gbox:SetSkinName("test_frame_midle")
@@ -364,10 +365,13 @@ function ancient_autoset_tab_name_save(frame, ctrl)
     local tab = GET_CHILD(frame, "tab")
     AUTO_CAST(tab)
     local tab_index = tab:GetSelectItemIndex()
-    if not g.settings["presets"][tostring(tab_index)] then
-        g.settings["presets"][tostring(tab_index)] = {}
+
+    if not g.settings.presets_name then
+        g.settings.presets_name = {}
     end
-    g.settings["presets"][tostring(tab_index)].set_name = set_name
+
+    g.settings.presets_name[tostring(tab_index)] = set_name
+
     g.save_settings()
 
     frame:RunUpdateScript("ancient_autoset_ANCIENT_CARD_LIST_OPEN", 0.1)
@@ -383,9 +387,15 @@ function ancient_autoset_tab_change(frame)
     AUTO_CAST(set_name)
     set_name:SetFontName("white_18_ol")
 
-    if g.settings["presets"][tostring(tab_index)].set_name then
+    if g.settings.presets_name and g.settings.presets_name[tostring(tab_index)] then
 
-        set_name:SetText("{ol}Set Name: " .. g.settings["presets"][tostring(tab_index)].set_name)
+        local current_set_name = g.settings.presets_name[tostring(tab_index)]
+
+        if current_set_name ~= "" then
+            set_name:SetText("{ol}Set Name: " .. current_set_name)
+        else
+            set_name:SetText("")
+        end
     else
         set_name:SetText("")
     end
@@ -480,7 +490,7 @@ function ancient_autoset_put_card_slot(frame)
         return 1
     end
 
-    g.cid = false
+    g.loaded = false
     g.tab_index = nil
     g.slot_index = 0
     return 0
@@ -524,7 +534,147 @@ function ancient_autoset_frame_drop(parent, ctrl, str, num)
     ancient_card_list:SetUserValue("LIFTED_GUID", "None")
 end
 
---[[
+--[[--[[function g.save_settings()
+    -- ★ g.settings が有効なテーブルかチェック ★
+    if not g.settings or type(g.settings) ~= "table" then
+        print("[AAS] Error: Attempted to save invalid g.settings!")
+        return
+    end
+    -- ★ next() で空テーブルでないかもチェック (任意) ★
+    if not next(g.settings) then
+        print("[AAS] Warning: Attempted to save empty g.settings. Skipping.")
+        return -- 空なら保存しない
+    end
+
+    local function save_json(path, tbl)
+        local file, err = io.open(path, "w")
+        if not file then
+            print("[AAS] Error opening file for writing:", path, err)
+            return
+        end
+
+        -- ★ json.encode を pcall で保護 ★
+        local success, str_or_err = pcall(json.encode, tbl)
+        if not success then
+            print("[AAS] Error encoding settings to JSON:", str_or_err)
+            file:close()
+            return
+        end
+
+        -- ★ 書き込み ★
+        local ok, write_err = file:write(str_or_err)
+        if not ok then
+            print("[AAS] Error writing to file:", path, write_err)
+        end
+        file:close()
+    end
+    save_json(g.settings_path, g.settings)
+    print("[AAS] Settings saved.") -- 保存成功ログ
+end
+
+function g.load_settings()
+    local function load_json(path)
+        local file = io.open(path, "r")
+        if not file then
+            return nil
+        end
+
+        local content = file:read("*all")
+        file:close()
+        if not content or content == "" then
+            return nil
+        end
+
+        local success, tbl_or_err = pcall(json.decode, content)
+        if not success then
+            print("[AAS] Error decoding JSON:", path, tbl_or_err)
+            return nil
+        end
+        if type(tbl_or_err) ~= "table" then
+            print("[AAS] Error: Decoded JSON is not a table:", path)
+            return nil
+        end
+        return tbl_or_err
+    end
+
+    local new_settings = load_json(g.settings_path)
+    local needs_save = false
+
+    if not new_settings then
+        print("[AAS] Settings file (account specific) not found or invalid. Initializing.")
+        new_settings = {
+            presets = {},
+            presets_name = {}
+        } -- presets_name も初期化
+        needs_save = true
+    else
+        -- presets と presets_name がなければ初期化 (ファイルは存在したが中身が不完全な場合)
+        if not new_settings.presets or type(new_settings.presets) ~= "table" then
+            print("[AAS] Initializing presets table.")
+            new_settings.presets = {}
+            needs_save = true
+        end
+        if not new_settings.presets_name or type(new_settings.presets_name) ~= "table" then
+            print("[AAS] Initializing presets_name table.")
+            new_settings.presets_name = {}
+            needs_save = true
+        end
+    end
+
+    local current_char_settings_existed = false -- まずは false で初期化
+    if new_settings[g.cid] ~= nil then
+        -- 存在すれば true にする
+        current_char_settings_existed = true
+    end
+
+    if not current_char_settings_existed then
+        local old_settings = load_json(g.settingsFileLoc) -- 古い共通設定ファイル
+        if old_settings and old_settings.pctbl and old_settings.pctbl[g.cid] then
+            print("[AAS] Migrating active set for CID:", g.cid)
+            -- ★★★ 旧設定 (アクティブセット) のキー変換ロジック ★★★
+            local migrated_char_data = {}
+            local old_active_set = old_settings.pctbl[g.cid]
+            local old_keys_to_new_keys = {
+                slot1 = "0",
+                slot2 = "1",
+                slot3 = "2",
+                slot4 = "3"
+            }
+            local has_migrated_data = false
+            for old_key, new_key_str in pairs(old_keys_to_new_keys) do
+                local old_guid = old_active_set[old_key]
+                if old_guid ~= nil and old_guid ~= "" then -- 空文字列も移行しない方が良いかも
+                    migrated_char_data[new_key_str] = old_guid
+                    has_migrated_data = true
+                end
+            end
+
+            if has_migrated_data then
+                new_settings[g.cid] = migrated_char_data
+                needs_save = true -- 移行したので保存
+            end
+            -- ★★★ ここまで旧設定移行 ★★★
+        end
+    end
+
+    -- それでもキャラクターごとの設定テーブルがなければ作成
+    if not new_settings[g.cid] or type(new_settings[g.cid]) ~= "table" then
+        print("[AAS] Initializing settings for CID:", g.cid)
+        new_settings[g.cid] = {} -- 空テーブルでOK (各スロットはアクセス時にnilになる)
+        -- 初めてキャラデータ作った時も保存フラグ立てる
+        if not current_char_settings_existed then
+            needs_save = true
+        end
+    end
+
+    g.settings = new_settings
+
+    if not g.loaded or needs_save then
+        g.loaded = true
+        print("[AAS] Saving settings after load (Initial or Update).")
+        g.save_settings()
+    end
+end
 
 function ANCIENT_SETTING_MSG()
 
