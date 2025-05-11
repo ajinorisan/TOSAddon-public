@@ -66,10 +66,11 @@
 -- v1.6.6 ウルトラワイドで位置保存機能バグってたの修正。
 -- v1.6.7 ウルトラワイドを再修正。クエストフレームの挙動を追加
 -- v1.6.8 チャンネルフレームの初期場所修正。セッティングファイルバグ修正
+-- v1.6.9 ボスのエフェクト調整。FPSの手入力。ブラックマーケットのお知らせ修正。ヴェルニケ報酬自動受け取り
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.8"
+local ver = "1.6.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -78,6 +79,7 @@ local g = _G["ADDONS"][author][addonName]
 
 local acutil = require("acutil")
 local os = require("os")
+local json = require('json')
 
 local base = {}
 
@@ -126,10 +128,7 @@ end
 function MINI_ADDONS_LOAD_SETTINGS()
 
     local settings, err = acutil.loadJSON(g.settingsFileLoc)
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
+
     -- !追加の度に更新
     local defaultSettings = {
         reword_x = 1100,
@@ -162,8 +161,10 @@ function MINI_ADDONS_LOAD_SETTINGS()
         bgm = 0,
         my_effect = 1,
         other_effect = 1,
+        boss_effect = 1,
         vakarine = 0,
         weekly_boss_reward = 0,
+        solodun_reward = 1,
         cupole_portion = {
             use = 0,
             x = 0,
@@ -1034,9 +1035,11 @@ function MINI_ADDONS_CREATE_NEW_GROUPCHAT()
 end
 
 -- どこでもメンバーインフォ機能
-function MINI_ADDONS_CHAT_RBTN_POPUP(frame, chatCtrl)
+function MINI_ADDONS_CHAT_RBTN_POPUP(my_frame, my_msg)
+
+    local frame, chatCtrl = g.get_event_args(my_msg)
     if g.settings.memberinfo ~= 1 then
-        base["CHAT_RBTN_POPUP"](frame, chatCtrl)
+        g.FUNCS["CHAT_RBTN_POPUP"](frame, chatCtrl)
     else
         MINI_ADDONS_CHAT_RBTN_POPUP_(frame, chatCtrl)
     end
@@ -1518,7 +1521,7 @@ end
 
 function MINI_ADDONS_NOTICE_ON_MSG_baubas(frame, msg)
 
-    local frame, msg, str, num = acutil.getEventArgs(msg)
+    local frame, msg, str, num = g.get_event_args(msg)
 
     if g.settings.baubas_call.use == 1 then
         if string.find(str, 'AppearFieldBoss_ep14_2_d_castle_3{name}') then
@@ -1572,15 +1575,102 @@ end
 -- _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
 --   _G.ScpArgMsg('{name}DisappearFieldBoss', 'name', "맹화의 바우바스"), 1)
 
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+    local origin_func = g.FUNCS[origin_func_name]
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if bool == true and original_results ~= nil then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+function g.get_event_args(origin_func_name)
+    local args = g.ARGS[origin_func_name]
+    if args then
+        return table.unpack(args)
+    end
+    return nil
+end
+
+function MINI_ADDONS_fps_edit(parent, ctrl)
+
+    local fps_num = tonumber(ctrl:GetText())
+    local performance_limit_text = GET_CHILD(parent, "performance_limit_text")
+    AUTO_CAST(performance_limit_text)
+    performance_limit_text:SetTextByKey("opValue", fps_num);
+
+    local performance_limit_slide = GET_CHILD(parent, "performance_limit_slide")
+    AUTO_CAST(performance_limit_slide)
+    config.SetPerformanceLimit(fps_num);
+    performance_limit_slide:SetLevel(fps_num);
+end
+
+function MINI_ADDONS_SYS_OPTION_OPEN(frame, msg)
+
+    local systemoption = ui.GetFrame("systemoption")
+    local perfBox = GET_CHILD_RECURSIVELY(systemoption, "perfBox")
+    local fps_edit = perfBox:CreateOrGetControl('edit', 'fps_edit', 20, 200, 60, 25)
+    AUTO_CAST(fps_edit)
+    fps_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_fps_edit")
+    fps_edit:SetTextTooltip("{ol}1~240")
+    fps_edit:SetFontName("white_16_ol")
+    fps_edit:SetTextAlign("center", "center")
+    local fps_config_lv = config.GetPerformanceLimit()
+    fps_edit:SetText("{ol}" .. fps_config_lv)
+    -- print(tostring(fps_config_lv))
+
+end
+
+function mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD()
+    soloDungeonClient.ReqSoloDungeonReward()
+    g.solodun_reward = true
+end
+
+g.solodun_reward = false
+g.weekly_boss_reward = false
+g.loaded = false
 function MINI_ADDONS_ON_INIT(addon, frame)
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
     g.addon = addon
     g.frame = frame
     g.cid = info.GetCID(session.GetMyHandle())
     g.lang = option.GetCurrentCountry()
 
-    MINI_ADDONS_LOAD_SETTINGS()
+    g.RAGISTER = {}
 
-    g.SetupHook(MINI_ADDONS_CHAT_RBTN_POPUP, "CHAT_RBTN_POPUP")
+    if not g.loaded then
+        MINI_ADDONS_LOAD_SETTINGS()
+        g.loaded = true
+    end
+
+    -- g.SetupHook(MINI_ADDONS_CHAT_RBTN_POPUP, "CHAT_RBTN_POPUP")
+    g.setup_hook_and_event(addon, "CHAT_RBTN_POPUP", "MINI_ADDONS_CHAT_RBTN_POPUP", false)
+
     g.SetupHook(MINI_ADDONS_POPUP_GUILD_MEMBER, "POPUP_GUILD_MEMBER")
     g.SetupHook(MINI_ADDONS_CONTEXT_PARTY, "CONTEXT_PARTY") -- SHOW_PC_CONTEXT_MENU(handle)
     g.SetupHook(MINI_ADDONS_SHOW_PC_CONTEXT_MENU, "SHOW_PC_CONTEXT_MENU")
@@ -1588,7 +1678,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     -- g.SetupHook(MINI_ADDONS_ACCOUNTPROP_INVENTORY_UPDATE, "ACCOUNTPROP_INVENTORY_UPDATE")
 
     g.call = {}
-    acutil.setupEvent(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas")
+    g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas", true)
+    -- acutil.setupEvent(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas")
+
+    g.setup_hook_and_event(addon, "SYS_OPTION_OPEN", "MINI_ADDONS_SYS_OPTION_OPEN", true)
 
     if g.settings.group_chat == 1 then
 
@@ -1622,7 +1715,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
-    g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
+
+    -- g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
+    g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG", false)
+
     g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
 
     g.SetupHook(MINI_ADDONS_INVENTORY_TOTAL_LIST_GET, 'INVENTORY_TOTAL_LIST_GET')
@@ -1632,6 +1728,7 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM");
     acutil.setupEvent(addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP");
+
     -- !
 
     local frame = ui.GetFrame("cupole_external_addon")
@@ -1656,6 +1753,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     if g.settings.my_effect == 1 then
         addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_MY_EFFECT_SETTING")
+    end
+
+    if g.settings.boss_effect == 1 then
+        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_BOSS_EFFECT_SETTING")
     end
 
     if g.settings.other_effect == 1 then
@@ -1742,13 +1843,18 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "mini_addons_REPUTATION_SHOP_OPEN_context")
         inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "mini_addons_reputation_shop_close")
 
+        if g.settings.solodun_reward == 1 and not g.solodun_reward then
+            addon:RegisterMsg("GAME_START_3SEC", "mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD")
+            g.solodun_reward = true
+        end
+
         if g.settings.goodbye_ragana == 1 then
             addon:RegisterMsg("GAME_START", "mini_addons_ragana_remove_timer");
         end
 
-        if g.settings.weekly_boss_reward == 1 then
-
+        if g.settings.weekly_boss_reward == 1 and not g.weekly_boss_reward then
             addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_WEEKLY_BOSS_REWARD")
+            g.weekly_boss_reward = true
         end
 
         if g.settings.coin_use == 1 then
@@ -1793,6 +1899,9 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     MINI_ADDONS_NEW_FRAME_INIT()
+    local end_time = os.clock() -- ★処理終了後の時刻を記録★
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("MINI_ADDONS_ON_INIT: %.4f seconds", elapsed_time))
 end
 
 -- クポルポーションフレームの移動と非表示
@@ -1810,7 +1919,7 @@ function MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON()
         MINI_ADDONS_SAVE_SETTINGS()
     end
 
-    if g.settings.cupole_portion.use == 1 then -- !
+    if g.settings.cupole_portion.use == 1 then
         frame:ShowWindow(0)
     elseif frame:IsVisible() == 1 then
         if g.settings.cupole_portion.x == 0 and g.settings.cupole_portion.y == 0 then
@@ -1974,6 +2083,8 @@ function MINI_ADDONS_LANG(str)
             str = "チャンネル切替フレームを表示します"
         elseif str == "Adjust my effects from 1 to 100" then
             str = "自分のエフェクトを調整します。1~100"
+        elseif str == "Adjust boss effects from 1 to 100" then
+            str = "ボスのエフェクトを調整します。1~100"
         elseif str == "Adjust other people's effects from 1 to 100, recommended 75" then
             str = "他人のエフェクトを調整します。1~100。おすすめは75"
         elseif str == "Automate the display of the Goddess Protection gacha frame" then
@@ -1995,8 +2106,10 @@ function MINI_ADDONS_LANG(str)
             str = "街でBGMプレイヤーを常に動かします"
         elseif str == "Notify others of vakarine equipment in raid" then
             str = "レイド時、ヴァカリネ装備を他人にお知らせ"
-        elseif str == "Receive weekly boss reward automatically" then
+        elseif str == "Receive weekly boss reward automatically" then -- "Receive Velnice dungeon reward automatically"
             str = "週間ボスレイド報酬を自動で受け取り"
+        elseif str == "Receive Velnice dungeon reward automatically" then -- 
+            str = "ヴェルニケダンジョン報酬を自動で受け取り"
         elseif str == "Hide the potion frame of the cupole.Memorizes frame position even when OFF" then -- Hide Ragana in city
             str = "クポルのポーションフレームを非表示に。OFFでもフレームの位置記憶"
         elseif str == "Hide Ragana in city" then -- icor_status_search
@@ -2062,6 +2175,8 @@ function MINI_ADDONS_LANG(str)
             str = "채널 전환 프레임을 표시합니다"
         elseif str == "Adjust my effects from 1 to 100" then
             str = "자신의 효과를 조정합니다 1에서 100까지"
+        elseif str == "Adjust boss effects from 1 to 100" then
+            str = "보스 효과를 1에서 100으로 조정"
         elseif str == "Adjust other people's effects from 1 to 100, recommended 75" then
             str = "다른 사람의 이펙트를 1에서 100까지 조정합니다. 추천 75"
         elseif str == "Automate the display of the Goddess Protection gacha frame" then
@@ -2084,6 +2199,8 @@ function MINI_ADDONS_LANG(str)
             str = "레이드에서 바카리네 장비를 착용시 다른 플레이어에게 알립니다"
         elseif str == "Receive weekly boss reward automatically" then ---- Hide Ragana in city
             str = " 주간 보스 레이드 보상을 자동으로 수령"
+        elseif str == "Receive Velnice dungeon reward automatically" then -- 
+            str = "벨니체 던전 보상 자동 받기"
         elseif str == "Hide the potion frame of the cupole.Memorizes frame position even when OFF" then
             str = "큐폴의 포션 프레임을 숨기고, OFF 상태에서도 프레임 위치를 기억합니다."
         elseif str == "Hide Ragana in city" then
@@ -2215,6 +2332,10 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
         check = g.settings.other_effect,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Adjust other people's effects from 1 to 100, recommended 75")
     }, {
+        name = "boss_effect",
+        check = g.settings.boss_effect or 0,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Adjust boss effects from 1 to 100")
+    }, {
         name = "auto_gacha",
         check = g.settings.auto_gacha,
         text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Automate the display of the Goddess Protection gacha frame")
@@ -2250,7 +2371,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
     }, {
         name = "weekly_boss_reward",
         check = g.settings.weekly_boss_reward,
-        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Receive weekly boss reward automatically")
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Receive weekly boss reward automatically") -- solodun_reward
+    }, {
+        name = "solodun_reward",
+        check = g.settings.solodun_reward,
+        text = "{ol}{#FF4500}" .. MINI_ADDONS_LANG("Receive Velnice dungeon reward automatically") -- solodun_reward
     }, {
         name = "cupole_portion",
         check = g.settings.cupole_portion.use,
@@ -2370,6 +2495,18 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             local my_effect = config.GetMyEffectTransparency()
             local num = math.floor(my_effect * 0.392156862745 + 0.5)
             my_effect_edit:SetText("{ol}" .. num)
+        elseif setting.name == "boss_effect" then
+
+            local boss_effect_edit = frame:CreateOrGetControl('edit', 'boss_effect_edit', textWidth + 15, x - 5, 60, 25)
+            AUTO_CAST(boss_effect_edit)
+            boss_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_BOSS_EFFECT_EDIT")
+            boss_effect_edit:SetTextTooltip("{ol}1~100")
+            boss_effect_edit:SetFontName("white_16_ol")
+            boss_effect_edit:SetTextAlign("center", "center")
+
+            local boss_effect = config.GetBossMonsterEffectTransparency()
+            local num = math.floor(boss_effect * 0.392156862745 + 0.5)
+            boss_effect_edit:SetText("{ol}" .. num)
         elseif setting.name == "weekly_boss_reward" then
             -- g.lang = "en"
             if not g.settings.reward_switch then
@@ -2436,6 +2573,7 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local settingNames = {
         other_effect = "other_effect_checkbox",
         my_effect = "my_effect_checkbox",
+        boss_effect = "boss_effect_checkbox",
         channel_info = "channel_info_checkbox",
         pc_name = "pc_name_checkbox",
         quest_hide = "quest_hide_checkbox",
@@ -2462,6 +2600,7 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         bgm = "bgm_checkbox",
         vakarine = "vakarine_checkbox",
         weekly_boss_reward = "weekly_boss_reward_checkbox",
+        solodun_reward = "solodun_reward_checkbox",
         cupole_portion = "cupole_portion_checkbox",
         goodbye_ragana = "goodbye_ragana_checkbox",
         status_upgrade = "status_upgrade_checkbox",
@@ -3746,6 +3885,35 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
 
 end
 
+function MINI_ADDONS_BOSS_EFFECT_EDIT(frame, ctrl)
+    local boss_effect = tonumber(ctrl:GetText())
+    if boss_effect <= 100 and boss_effect >= 1 then
+        local num = math.floor(boss_effect / 0.392156862745 + 0.5)
+
+        g.settings.boss_effect_value = num
+        MINI_ADDONS_SAVE_SETTINGS()
+        config.SetBossMonsterEffectTransparency(num)
+        ui.SysMsg("boss effect changed.")
+    else
+        ui.SysMsg("Not a valid value.")
+        return
+    end
+
+end
+
+function MINI_ADDONS_BOSS_EFFECT_SETTING()
+
+    EFFECT_TRANSPARENCY_ON()
+    local boss_effect = config.GetBossMonsterEffectTransparency()
+    if g.settings.boss_effect_value ~= nil then
+        config.SetBossMonsterEffectTransparency(g.settings.my_effect_value)
+        -- config.SetMyEffectTransparency(g.settings.my_effect_value)
+    else
+        config.SetBossMonsterEffectTransparency(boss_effect)
+        -- config.SetMyEffectTransparency(my_effect)
+    end
+end
+
 function MINI_ADDONS_MY_EFFECT_EDIT(frame, ctrl)
     local my_effect = tonumber(ctrl:GetText())
     if my_effect <= 100 and my_effect >= 1 then
@@ -3854,14 +4022,17 @@ function MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET(frame, msg)
     end
     return resultStr
 end
+---
+function MINI_ADDONS_NOTICE_ON_MSG(frame, origin_func_name)
 
-function MINI_ADDONS_NOTICE_ON_MSG(frame, msg, argStr, argNum)
+    local frame, msg, str, num = g.get_event_args(origin_func_name)
+    print(tostring(str) .. ":" .. tostring(msg))
     if g.settings.chat_system == 1 then
-        if string.find(argStr, "StartBlackMarketBetween") then
+        if string.find(str, "StartBlackMarketBetween") then
             return
         end
     end
-    base["NOTICE_ON_MSG"](frame, msg, argStr, argNum)
+    g.FUNCS["NOTICE_ON_MSG"](frame, msg, str, num)
 end
 
 function MINI_ADDONS_CHAT_SYSTEM(msg, color)

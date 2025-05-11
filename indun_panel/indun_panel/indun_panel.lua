@@ -55,19 +55,20 @@
 -- v1.5.5 チャレンジ系をいじった
 -- v1.5.6 フレーム移動出来るように
 -- v1.5.7 移動後フレーム固定
+-- v1.5.8 フレーム固定を設定に変更。墓チケットを使える様に。その他コード見直しacutilやめた。
 local addonName = "indun_panel"
-local addonNameLower = string.lower(addonName)
+local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.7"
+local ver = "1.5.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
+
 local g = _G["ADDONS"][author][addonName]
+local json = require('json')
 
-g.settingsFileLoc = string.format('../addons/%s/new_settings.json', addonNameLower)
-
-local acutil = require("acutil")
+--[[local acutil = require("acutil")
 local os = require("os")
 local base = {}
 
@@ -79,22 +80,68 @@ function g.SetupHook(func, baseFuncName)
         _G[baseFuncName] = func
     end
     base[baseFuncName] = _G[replacementName]
+end]]
+
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+    local origin_func = g.FUNCS[origin_func_name]
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if bool == true and original_results ~= nil then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
 end
 
 function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
-    local file = io.open(file_path, "r")
-    if not file then
-        os.execute('mkdir "' .. folder_path .. '"')
-        file = io.open(file_path, "w")
-        if file then
-            file:write("A new file has been created")
+    local function create_folder(folder_path, file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            os.execute('mkdir "' .. folder_path .. '"')
+            file = io.open(file_path, "w")
+            if file then
+                file:write("A new file has been created")
+                file:close()
+            end
+        else
             file:close()
         end
-    else
-        file:close()
     end
+
+    local folder = string.format("../addons/%s", addon_name_lower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
+    create_folder(folder, file_path)
+
+    g.active_id = session.loginInfo.GetAID()
+    local user_folder = string.format("../addons/%s/%s", addon_name_lower, g.active_id)
+    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, g.active_id)
+    create_folder(user_folder, user_file_path)
+
+    g.settingsFileLoc = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
+    g.settings_path = g.settingsFileLoc
 end
 g.mkdir_new_folder()
 
@@ -152,33 +199,33 @@ function indun_panel_autozoom_save(frame, ctrl)
         end
     end
 
-    indun_panel_save_settings()
+    g.save_settings()
     ReserveScript("indun_panel_autozoom()", 1.0)
 end
 
 function indun_panel_frame_drag(frame, ctrl, str, num)
     g.settings.x = frame:GetX()
     g.settings.y = frame:GetY()
-    indun_panel_save_settings()
+    g.save_settings()
 
     frame:SetSkinName('None')
     frame:SetTitleBarSkin("None")
     frame:Resize(150, 40)
-    frame:EnableMove(0)
+    -- frame:EnableMove(0)
 
     local button = GET_CHILD(frame, "indun_panel_open")
     AUTO_CAST(button)
     button:SetText("{ol}{s10}INDUNPANEL")
 end
 
-function indun_panel_frame_move_mode(frame, ctrl, str, num)
+--[[function indun_panel_frame_move_mode(frame, ctrl, str, num)
     ctrl:SetText("{ol}{s10}MOVE MODE")
     frame:Resize(170, 40)
     frame:EnableMove(1)
     frame:SetSkinName('chat_window')
     frame:SetTitleBarSkin("None")
     frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
-end
+end]]
 
 function indun_panel_frame_init()
 
@@ -186,8 +233,10 @@ function indun_panel_frame_init()
 
     frame:SetSkinName('None')
     frame:SetLayerLevel(30)
-    frame:Resize(150, 40)
-    frame:EnableMove(0)
+    frame:Resize(170, 40)
+    frame:EnableHittestFrame(1)
+    frame:EnableMove(g.settings.move or 0)
+    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
     -- frame:SetPos(665, 30)
     local map_frame = ui.GetFrame("map")
     local width = map_frame:GetWidth()
@@ -195,7 +244,7 @@ function indun_panel_frame_init()
     if not g.settings.x then
         g.settings.x = 665
         g.settings.y = 30
-        indun_panel_save_settings()
+        g.save_settings()
     end
 
     local x = g.settings.x
@@ -212,9 +261,9 @@ function indun_panel_frame_init()
     AUTO_CAST(button)
     button:SetText("{ol}{s10}INDUNPANEL")
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
-    button:SetEventScript(ui.RBUTTONUP, "indun_panel_frame_move_mode")
-    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック:フレーム移動出来る様に" or
-                              "{ol}Right-click: to be able to move the frame")
+    -- button:SetEventScript(ui.RBUTTONUP, "indun_panel_frame_move_mode")
+    --[[button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック:フレーム移動出来る様に" or
+                              "{ol}Right-click: to be able to move the frame")]]
 
     local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
     AUTO_CAST(ccbtn)
@@ -422,6 +471,32 @@ end
 
 function indun_panel_init(frame)
 
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if not g.settings.x then
+        g.settings.x = 665
+        g.settings.y = 30
+        g.save_settings()
+    end
+
+    local x = g.settings.x
+    if width <= 1920 and x > 1920 then
+        x = g.settings.x / 21 * 16
+    end
+
+    frame:SetPos(x, g.settings.y)
+    frame:SetTitleBarSkin("None")
+    frame:EnableHittestFrame(1)
+    if not g.settings.move then
+        g.settings.move = 0
+    end
+    frame:EnableMove(g.settings.move)
+    if g.settings.move == 1 then
+        frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+    else
+        frame:SetEventScript(ui.LBUTTONUP, "None")
+    end
     frame:RemoveAllChild()
 
     local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
@@ -447,7 +522,7 @@ function indun_panel_init(frame)
         frame:SetPos(665, 30)
         g.settings.x = 665
         g.settings.y = 30
-        indun_panel_save_settings()
+        g.save_settings()
         indun_panel_frame_init()
     end
 
@@ -456,8 +531,7 @@ function indun_panel_init(frame)
         local frame = ui.GetFrame("indun_panel")
         frame:SetSkinName("test_frame_low")
         frame:SetLayerLevel(90)
-        frame:Resize(200, 640)
-        -- frame:SetPos(665, 30)
+
         frame:EnableHittestFrame(1)
         -- frame:SetAlpha(100)
         frame:RemoveAllChild()
@@ -473,16 +547,31 @@ function indun_panel_init(frame)
         position:SetText("{ol}{s10}BasePos")
         position:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_base_position")
 
-        local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 220, 10, 25, 25)
+        local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 25, 45, 25, 25)
         AUTO_CAST(en_ver)
         if g.settings.en_ver == nil then
             g.settings.en_ver = 0
-            indun_panel_save_settings()
+            g.save_settings()
         end
         en_ver:SetCheck(g.settings.en_ver)
         en_ver:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-        en_ver:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると英語表示に変更します。" or
-                                  "{ol}Checking the box changes the display to English.")
+        en_ver:SetText(g.lang == "Japanese" and "{ol}チェックすると英語表示に変更します" or
+                           "{ol}Check to display to English")
+
+        local move = frame:CreateOrGetControl('checkbox', 'move', 25, 80, 25, 25)
+        AUTO_CAST(move)
+        if g.settings.move == nil then
+            g.settings.move = 0
+            g.save_settings()
+        end
+        move:SetCheck(g.settings.move)
+        move:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        move:SetText(g.lang == "Japanese" and "{ol}チェックするとフレームを動かせます" or
+                         "{ol}Check to move the frame")
+
+        local label_line = frame:CreateControl('labelline', 'label_line', 5, 105, 355, 5);
+        AUTO_CAST(label_line)
+        label_line:SetSkinName("labelline2")
 
         local zoomedit = frame:CreateOrGetControl('edit', 'zoomedit', 100, 5, 50, 30)
         AUTO_CAST(zoomedit)
@@ -495,7 +584,7 @@ function indun_panel_init(frame)
                             "{ol}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0."
         zoomedit:SetTextTooltip("Auto Zoom Setting{nl}" .. zoomtxt)
 
-        local posY = 45
+        local posY = 110
         local count = #induntype
         for i = 1, count do
             local entry = induntype[i]
@@ -510,7 +599,7 @@ function indun_panel_init(frame)
             end
             posY = posY + 35
         end
-        frame:Resize(260, posY + 5)
+        frame:Resize(360, posY + 5)
     end
 
     local configbtn = frame:CreateOrGetControl('button', 'configbtn', 115, 5, 30, 30)
@@ -518,7 +607,7 @@ function indun_panel_init(frame)
     configbtn:SetSkinName("None")
     configbtn:SetText("{img config_button_normal 30 30}")
     configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
-    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}レイド表示設定" or "{ol}Raid Display Settings")
+    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}Indun Panel 設定" or "{ol}Indun Panel Config")
 
     if configbtn:IsVisible() == 1 then
         button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
@@ -612,24 +701,24 @@ function indun_panel_init(frame)
     checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
     checkbox:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常時展開" or "{ol}IsCheck AlwaysOpen")
 
-    local tos_coin = frame:CreateOrGetControl("richtext", "tos_coin", 435, 12)
+    local tos_coin = frame:CreateOrGetControl("richtext", "tos_coin", 465, 12)
     tos_coin:SetText("{img icon_item_Tos_Event_Coin 21 21}")
 
-    local tos_coin_count = frame:CreateOrGetControl("richtext", "tos_coin_count", 460, 10)
+    local tos_coin_count = frame:CreateOrGetControl("richtext", "tos_coin_count", 490, 10)
     coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
     tos_coin_count:SetText(string.format("{ol}{#FFD900}{s18}%s", coin_count))
 
-    local pvpmine = frame:CreateOrGetControl("richtext", "pvpmine", 530, 10)
+    local pvpmine = frame:CreateOrGetControl("richtext", "pvpmine", 560, 10)
     pvpmine:SetText("{img pvpmine_shop_btn_total 25 25}")
     -- pvpmine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団コイン数量" or "{ol}Mercenary Badge count")
 
-    local pvpminecount = frame:CreateOrGetControl("richtext", "pvpminecount", 555, 10)
+    local pvpminecount = frame:CreateOrGetControl("richtext", "pvpminecount", 585, 10)
     coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "MISC_PVP_MINE2", "0"))
     pvpminecount:SetText(string.format("{ol}{#FFD900}{s18}%s", coin_count))
 
     if g.settings.season_checkbox == nil then
         g.settings.season_checkbox = 1
-        indun_panel_save_settings()
+        g.save_settings()
     end
 
     function indun_panel_FIELD_BOSS_TIME_TAB_SETTING(frame)
@@ -684,14 +773,19 @@ end
 
 function indun_panel_ischecked(frame, ctrl, argStr, argNum)
 
+    local ischeck = ctrl:IsChecked()
+
     local ctrlname = ctrl:GetName()
     if string.find(ctrl:GetName(), "auto_check") then
         ctrlname = "singularity_check"
-
     end
-    local ischeck = ctrl:IsChecked()
+
     g.settings[ctrlname] = ischeck
-    indun_panel_save_settings()
+    g.save_settings()
+
+    if ctrlname == "move" then
+        frame:EnableMove(g.settings.move)
+    end
 end
 
 function indun_panel_get_entrance_count(indun_type, index)
@@ -1047,7 +1141,8 @@ function indun_panel_frame_contents(frame)
                                                               "{ol}Check the box for automatic PT matching")
                             if not g.settings.auto_challenge then
                                 g.settings.auto_challenge = 0
-                                indun_panel_save_settings()
+                                g.save_settings()
+
                             end
                             auto_challenge:SetCheck(g.settings.auto_challenge)
 
@@ -1240,8 +1335,42 @@ function indun_panel_frame_contents(frame)
                             btn:SetText("{ol}490")
                             btn:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
                             btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
+
                             local count = frame:CreateOrGetControl("richtext", key .. "count", 220, y + 5)
                             count:SetText(indun_panel_get_entrance_count(value, 1))
+
+                            local ticket_btn = frame:CreateOrGetControl('button', key .. 'ticket_btn', 250, y, 80, 30)
+                            AUTO_CAST(ticket_btn)
+                            ticket_btn:SetText("{ol}{#EE7800}{s14}USE")
+
+                            local invItemList = session.GetInvItemList()
+                            local guidList = invItemList:GetGuidList()
+                            local cnt = guidList:Count()
+
+                            local inv_count = 0
+                            for i = 0, cnt - 1 do
+                                local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
+                                local invItem = invItemList:GetItemByGuid(guidList:Get(i))
+                                if itemobj.ClassID == 11200276 or itemobj.ClassID == 11200275 or itemobj.ClassID ==
+                                    11200274 then
+                                    inv_count = inv_count + invItem.count
+                                end
+                            end
+
+                            local item_class1 = GetClassByType('Item', 11200276)
+
+                            local icon1 = item_class1.Icon
+
+                            local ticket_notice = g.lang == "Japanese" and
+                                                      string.format("{ol}{img %s 25 25 } %d個持っています。",
+                                    icon1, inv_count) or
+                                                      string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon1,
+                                    inv_count)
+
+                            ticket_btn:SetTextTooltip(ticket_notice)
+                            ticket_btn:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
+                            ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
+
                         end
                         indun_panel_cemetery_frame(frame, key, y)
                     elseif key == "jsr" then
@@ -1426,6 +1555,20 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
         else
             ReserveScript(string.format("indun_panel_enter_challenge('%s','%s','%s', %d)", _, _, 2, 1002), 2.0)
             return
+        end
+    end
+
+    if indun_type == 684 then
+        local ticket_table = {11200276, 11200275, 11200274}
+        session.ResetItemList()
+        local invItemList = session.GetInvItemList()
+
+        for _, classid in ipairs(ticket_table) do
+            local use_item = session.GetInvItemByType(classid)
+            if use_item then
+                INV_ICON_USE(use_item)
+                return
+            end
         end
     end
 
@@ -1645,50 +1788,146 @@ function INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipeName)
     return nil
 end
 
-function indun_panel_TPITEM_CLOSE(frame, msg)
-
-    indun_panel_frame_init()
+function indun_panel_FPS_UPDATE(frame, msg)
+    if frame:IsVisible() == 1 then
+        return
+    else
+        indun_panel_frame_init()
+    end
 end
 
 g.loaded = false
+g.sing = false
+
+function g.save_settings()
+    local function save_json(path, tbl)
+        local file = io.open(path, "w")
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+    save_json(g.settings_path, g.settings)
+end
+
+function g.load_settings()
+
+    local function load_json(path)
+
+        local file = io.open(path, "r")
+        if file then
+            local content = file:read("*all")
+            file:close()
+            local table = json.decode(content)
+            return table
+        else
+            return nil
+        end
+    end
+
+    local settings = load_json(g.settings_path)
+
+    if not settings then
+        settings = {}
+    end
+
+    g.settings = settings
+    g.save_settings()
+end
+
+function g.settings_make()
+    if next(g.settings) then
+        return
+    end
+
+    g.settings = {
+        checkbox = 0,
+        zoom = 336,
+        challenge_checkbox = 1,
+        singularity_checkbox = 1,
+        redania_checkbox = 1,
+        neringa_checkbox = 1,
+        golem_checkbox = 1,
+        merregina_checkbox = 1,
+        slogutis_checkbox = 1,
+        upinis_checkbox = 1,
+        roze_checkbox = 1,
+        falouros_checkbox = 1,
+        spreader_checkbox = 1,
+        jellyzele_checkbox = 1,
+        delmore_checkbox = 1,
+        telharsha_checkbox = 1,
+        velnice_checkbox = 1,
+        giltine_checkbox = 1,
+        earring_checkbox = 1,
+        cemetery_checkbox = 1,
+        jsr_checkbox = 1,
+        singularity_check = 0,
+        en_ver = 0,
+        season_checkbox = 1,
+        x = 665,
+        y = 30,
+        move = 0
+    }
+    g.save_settings()
+end
+
+function g.get_map_type()
+    local map_name = session.GetMapName()
+    local map_cls = GetClass("Map", map_name)
+    local map_type = map_cls.MapType
+    return map_type
+end
+
 function INDUN_PANEL_ON_INIT(addon, frame)
+
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
 
     g.addon = addon
     g.frame = frame
     g.framename = addonName
     g.lang = option.GetCurrentCountry()
 
-    indun_panel_load_settings()
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
-        local frame = ui.GetFrame("indun_panel")
-        frame:RemoveAllChild()
+    g.RAGISTER = {}
 
-        if g.settings.checkbox == 1 then
-            indun_panel_frame_init()
-            indun_panel_init(frame)
-        else
-            indun_panel_frame_init()
-        end
+    if g.get_map_type() == "City" then
 
-        if not g.loaded and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
-            local shopframe = ui.GetFrame('earthtowershop')
-            shopframe:Resize(0, 0)
-            addon:RegisterMsg('GAME_START', "indun_panel_minimized_pvpmine_shop_init") -- shopframe:Resize(580, 1920)
+        if not g.loaded then
+            g.load_settings()
+            g.settings_make()
             g.loaded = true
         end
-        g.SetupHook(indun_panel_INDUN_ALREADY_PLAYING, "INDUN_ALREADY_PLAYING")
-        acutil.setupEvent(addon, "TPITEM_CLOSE", "indun_panel_TPITEM_CLOSE");
+
+        if g.settings.checkbox == 1 then
+            addon:RegisterMsg('GAME_START', "indun_panel_init")
+        else
+            addon:RegisterMsg('GAME_START', "indun_panel_frame_init")
+        end
+
+        if not g.sing and INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") == 0 then
+
+            local earthtowershop = ui.GetFrame('earthtowershop')
+            if earthtowershop then
+                earthtowershop:Resize(0, 0)
+            end
+            g.sing = true
+        end
+
+        g.setup_hook_and_event(addon, "INDUN_ALREADY_PLAYING", "indun_panel_INDUN_ALREADY_PLAYING", false)
+        addon:RegisterMsg('FPS_UPDATE', "indun_panel_FPS_UPDATE")
     else
         indun_panel_autozoom_init()
     end
 
-    if _G.ADDONS.norisan.AUTOMAPCHANGE ~= nil then
-        acutil.setupHook(indun_panel_autozoom, "AUTOMAPCHANGE_CAMERA_ZOOM")
+    addon:RegisterMsg('GAME_START_3SEC', "indun_panel_autozoom")
+
+    local functionName = "AUTOMAPCHANGE_CAMERA_ZOOM"
+    if _G[functionName] and type(_G[functionName]) == "function" then
+        _G[functionName] = nil
     end
-    addon:RegisterMsg('GAME_START', "indun_panel_autozoom")
+
+    local end_time = os.clock() -- ★処理終了後の時刻を記録★
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("indun_panel_ON_INIT: %.4f seconds", elapsed_time))
 end
 
 function indun_panel_minimized_pvpmine_shop_init()
@@ -1708,13 +1947,13 @@ function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART(frame)
     end
 end
 
-function indun_panel_save_settings()
+--[[function indun_panel_save_settings()
     acutil.saveJSON(g.settingsFileLoc, g.settings);
 end
 
 function indun_panel_load_settings()
 
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local settings, err = acutil.loadJSON(g.settingsFileLoc)
 
     local default_settings = {
         checkbox = 0,
@@ -1755,7 +1994,7 @@ function indun_panel_load_settings()
 
     g.settings = settings
     indun_panel_save_settings()
-end
+end]]
 
 function INDUN_PANEL_LANG(str)
 

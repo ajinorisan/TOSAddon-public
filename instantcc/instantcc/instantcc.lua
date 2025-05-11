@@ -9,11 +9,12 @@
 -- v1.0.8 indun_list_viewerと連携バグってたの修正
 -- v1.0.9 ReserveScriptを無くした。色々書き換えた。
 -- v1.1.0 キャラ順バグるの修正
+-- v1.1.1 レイヤーの取り方修正。バラックでのフックの結果をグローバルに置くように。
 local addonName = "INSTANTCC"
 local addonNameLower = string.lower(addonName)
 
 local author = "ebisuke"
-local ver = "1.1.0"
+local ver = "1.1.1"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -155,7 +156,6 @@ function INSTANTCC_SORT_CHAR_DATA()
         local pc_info = account_info:GetPCByIndex(i)
         local pc_apc = pc_info:GetApc()
         local pc_name = pc_apc:GetName()
-        -- print(tostring(pc_name))
         local pc_cid = pc_info:GetCID()
         local gender = pc_apc:GetGender()
         local pc_info = account_info:GetByStrCID(pc_cid);
@@ -199,7 +199,7 @@ function INSTANTCC_SORT_CHAR_DATA()
 
     table.sort(g.settings.characters, compare_characters)
     g.save_settings()
-    -- INSTANTCC_SAVE_SETTINGS()
+
 end
 
 function INSTANTCC_BARRACK_START_FRAME_OPEN(...)
@@ -211,25 +211,26 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN(...)
     end
 
     local original_func = g.FUNCS["BARRACK_START_FRAME_OPEN"]
+    local result
 
     if original_func then
-        g.FUNCS["BARRACK_START_FRAME_OPEN"](...)
+        result = original_func(...)
     end
 
-    if barrack_gamestart then
+    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
 
-        local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
-        if hidelogin then
-            hidelogin:SetCheck(1)
-            barrack.SetHideLogin(1)
-        end
-    end
+    hidelogin:SetCheck(1)
+    barrack.SetHideLogin(1)
+
+    local start_game = GET_CHILD(barrack_gamestart, "start_game")
+    AUTO_CAST(start_game)
+    start_game:SetEventScript(ui.LBUTTONUP, "INSTANTCC_TOGAME")
 
     if g.do_cc and not g.retry then
         g.retry = 0
         INSTANTCC_CHANGE()
     end
-
+    return result
 end
 
 function INSTANTCC_BARRACK_START_FRAME_OPEN_HOOK()
@@ -248,14 +249,18 @@ function INSTANTCC_BARRACK_TO_GAME(...)
     local bc_frame = ui.GetFrame("barrack_charlist")
     if bc_frame then
         g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+        _G["norisan"] = _G["norisan"] or {}
+        _G["norisan"]["LAST_LAYER"] = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
     end
 
     local original_func = g.FUNCS["BARRACK_TO_GAME"]
 
-    if original_func then
-        g.FUNCS["BARRACK_TO_GAME"](...)
-    end
+    local result
 
+    if original_func then
+        result = original_func(...)
+    end
+    return result
 end
 
 function INSTANTCC_BARRACK_TO_GAME_HOOK()
@@ -263,7 +268,6 @@ function INSTANTCC_BARRACK_TO_GAME_HOOK()
     if _G[origin_func_name] then
         if not g.FUNCS[origin_func_name] then
             g.FUNCS[origin_func_name] = _G[origin_func_name]
-
         end
         _G[origin_func_name] = INSTANTCC_BARRACK_TO_GAME
     end
@@ -281,11 +285,18 @@ function INSTANTCC_ON_INIT(addon, frame)
     g.retry = nil
     g.do_cc = nil
     g.layer = g.layer or (g.settings and g.settings.characters and g.settings.characters.layer) or 1
-    -- CHAT_SYSTEM("layer:" .. g.layer)
     g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "INSTANTCC_APPS_TRY_MOVE_BARRACK", false)
 
-    addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_START_FRAME_OPEN_HOOK")
-    addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_TO_GAME_HOOK")
+    _G["norisan"] = _G["norisan"] or {}
+    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
+    if not _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] then
+        _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] = addonName
+        addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_START_FRAME_OPEN_HOOK")
+    end
+    if not _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] then
+        _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addonName
+        addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_TO_GAME_HOOK")
+    end
 
     INSTANTCC_SORT_CHAR_DATA()
 
@@ -401,12 +412,7 @@ end
 
 function INSTANTCC_RETRY()
     g.retry = g.retry + 1
-    --[[local retry = 0
-    if #g.settings.characters < 15 then
-        retry = 15
-    else
-        retry = #g.settings.characters
-    end]]
+
     if g.retry > #g.settings.characters then
         g.do_cc = nil
         app.BarrackToLogin()
@@ -448,6 +454,68 @@ function INSTANTCC_TOGAME(frame)
         g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
     end
 
-    BARRACK_TO_GAME()
+    _G["BARRACK_TO_GAME"]()
+
 end
 
+--[[function INSTANTCC_BARRACK_START_FRAME_OPEN(...)
+
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+    if barrack_gamestart == nil then
+        ReserveScript("INSTANTCC_BARRACK_START_FRAME_OPEN()", 0.1)
+        return
+    end
+
+    local original_func = g.FUNCS["BARRACK_START_FRAME_OPEN"]
+    local result
+
+    if original_func then
+        result = original_func(...)
+    end
+
+    if barrack_gamestart then
+        local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
+        if hidelogin then
+            hidelogin:SetCheck(1)
+            barrack.SetHideLogin(1)
+        end
+    end
+
+    if g.do_cc and not g.retry then
+        g.retry = 0
+        INSTANTCC_CHANGE()
+    end
+
+    return result
+end]]
+-- ■■■ INSTANTCC_BARRACK_TO_GAME のログ強化版 ■■■
+--[[function INSTANTCC_BARRACK_TO_GAME(...)
+    g.log_to_file(string.format("[ICC] BARRACK_TO_GAME called. Args count: %d", select("#", ...)))
+
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    if bc_frame then
+        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer")) -- tonumber(nil) に注意
+        g.log_to_file(string.format("[ICC] g.layer set to: %s", tostring(g.layer)))
+    else
+        g.log_to_file("[ICC] barrack_charlist frame not found.")
+    end
+
+    local original_func = g.FUNCS["BARRACK_TO_GAME"] -- g は INSTANTCC の g よ
+    local result
+
+    if original_func then
+        g.log_to_file("[ICC] Calling original BARRACK_TO_GAME...")
+        local success, res_or_err = pcall(original_func, ...)
+        if success then
+            result = res_or_err
+            g.log_to_file(string.format("[ICC] Original BARRACK_TO_GAME returned: %s", tostring(result)))
+        else
+            g.log_to_file(string.format("[ICC] ERROR calling original BARRACK_TO_GAME: %s", tostring(res_or_err)))
+        end
+    else
+        g.log_to_file("[ICC] Original BARRACK_TO_GAME not found in g.FUNCS!")
+    end
+
+    g.log_to_file(string.format("[ICC] BARRACK_TO_GAME returning: %s", tostring(result)))
+    return result
+end]]
