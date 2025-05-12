@@ -420,18 +420,18 @@ end
 
 -- ヴェルニケ階数を覚える。
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-    default_number)
+                                                 default_number)
     if g.settings.velnice.use == 0 then
         base["INDUN_EDITMSGBOX_FRAME_OPEN"](type, clmsg, desc, yesScp, noScp, min_number, max_number, default_number)
     else
         MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-            default_number)
+                                                 default_number)
 
     end
 end
 
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-    default_number)
+                                                  default_number)
 
     default_number = g.settings.velnice.level
 
@@ -481,8 +481,9 @@ function MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE(frame, msg, argStr)
         local sec = string.format("%02d", tonumber(remaintimeValue:GetTextByKey("sec")))
 
         imcAddOn.BroadMsg("NOTICE_Dm_stage_start",
-            string.format("{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
-                current_wave - 1, min, sec), 2.0)
+                          string.format(
+                              "{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
+                              current_wave - 1, min, sec), 2.0)
         g.velnice = current_wave
     else
         return
@@ -983,7 +984,8 @@ function MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE(frame, msg)
 
                     for key, value in pairs(g.settings.group_name) do
                         ui.AddContextMenuItem(context, value, string.format(
-                            "MINI_ADDONS_SEND_POPUP_FRAME_CHAT(%s,%s,'%s',%d)", "nil", "main_chat", key, 1))
+                                                  "MINI_ADDONS_SEND_POPUP_FRAME_CHAT(%s,%s,'%s',%d)", "nil",
+                                                  "main_chat", key, 1))
                     end
                     ui.OpenContextMenu(context)
                 end
@@ -1066,7 +1068,7 @@ function mini_addons_REPUTATION_SHOP_OPEN_context(frame, ctrl, str, num)
         local id = shop.id
         local map_name = GetClassByType("Map", id).Name
         ui.AddContextMenuItem(context, map_name,
-            string.format("mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN('%s')", shop_name))
+                              string.format("mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN('%s')", shop_name))
     end
     ui.OpenContextMenu(context)
 end
@@ -1243,7 +1245,7 @@ function MINI_ADDONS_CHAT_RBTN_POPUP(my_frame, my_msg)
     local ctrlName = frame:GetName()
     if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
         local translateScp = string.format("REQ_TRANSLATE_TEXT('%s','%s','%s')", topFrame_Name, parentFrame_Name,
-            ctrlName)
+                                           ctrlName)
         ui.AddContextMenuItem(context, ScpArgMsg("TRANSLATE"), translateScp)
     end
     local copyPcId = string.format("COPY_PC_ID('%s')", targetName)
@@ -1255,14 +1257,14 @@ function MINI_ADDONS_CHAT_RBTN_POPUP(my_frame, my_msg)
     local blockScp = string.format("CHAT_BLOCK_MSG('%s')", targetName)
     ui.AddContextMenuItem(context, ScpArgMsg("FriendBlock"), blockScp)
     ui.AddContextMenuItem(context, ScpArgMsg("Report_AutoBot"),
-        string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", targetName))
+                          string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", targetName))
 
     ui.AddContextMenuItem(context, ScpArgMsg("Cancel"), "None")
     ui.AddContextMenuItem(context, "-----", "None")
     -- ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'), string.format("ui.Chat(%s)", "/ " .. targetName))
     if g.settings.memberinfo == 1 then
         ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-            string.format("ui.Chat('%s')", "/memberinfo " .. targetName))
+                              string.format("ui.Chat('%s')", "/memberinfo " .. targetName))
     end
     ui.OpenContextMenu(context)
 end
@@ -1293,7 +1295,7 @@ function MINI_ADDONS_POPUP_GUILD_MEMBER(my_frame, my_msg)
         local mapName = session.GetMapName();
         if mapName == 'guild_agit_1' then
             ui.AddContextMenuItem(context, ScpArgMsg("GiveGuildLeaderPermission"),
-                string.format("SEND_REQ_GUILD_MASTER('%s')", name));
+                                  string.format("SEND_REQ_GUILD_MASTER('%s')", name));
         end
     end
 
@@ -1326,21 +1328,16 @@ function MINI_ADDONS_POPUP_GUILD_MEMBER(my_frame, my_msg)
         ui.AddContextMenuItem(context, "-----", "None")
 
         ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-            string.format("ui.Chat('%s')", "/memberinfo " .. name))
+                              string.format("ui.Chat('%s')", "/memberinfo " .. name))
     end
     ui.OpenContextMenu(context);
 
 end
 
-function MINI_ADDONS_CONTEXT_PARTY(frame, ctrl, aid)
-    if g.settings.memberinfo ~= 1 then
-        base["MINI_ADDONS_CONTEXT_PARTY"](frame, ctrl, aid)
-    else
-        MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
-    end
-end
+function MINI_ADDONS_CONTEXT_PARTY(my_frame, my_msg)
 
-function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
+    local frame, ctrl, aid = g.get_event_args(my_msg)
+
     local myAid = session.loginInfo.GetAID();
 
     local pcparty = session.party.GetPartyInfo();
@@ -1370,9 +1367,9 @@ function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
         local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')", memberInfo:GetName());
         ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
         ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
-            string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+                              string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
         ui.AddContextMenuItem(context, ScpArgMsg("GiveLeaderPermission"),
-            string.format("GIVE_PARTY_LEADER(\"%s\")", memberInfo:GetName()));
+                              string.format("GIVE_PARTY_LEADER(\"%s\")", memberInfo:GetName()));
         ui.AddContextMenuItem(context, ScpArgMsg("Ban"), string.format("BAN_PARTY_MEMBER(\"%s\")", memberInfo:GetName()));
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
@@ -1390,7 +1387,7 @@ function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
         local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')", memberInfo:GetName());
         ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
         ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
-            string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+                              string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
             local aid = memberInfo:GetAID();
@@ -1404,24 +1401,29 @@ function MINI_ADDONS_CONTEXT_PARTY_(frame, ctrl, aid)
 
     ui.AddContextMenuItem(context, ScpArgMsg("Cancel"), "None");
 
-    ui.AddContextMenuItem(context, "-----", "None")
-    local playerName = memberInfo:GetName();
-    ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-        string.format("ui.Chat('%s')", "/memberinfo " .. playerName))
+    if g.settings.memberinfo == 1 then
+        ui.AddContextMenuItem(context, "-----", "None")
+        local playerName = memberInfo:GetName();
+        ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
+                              string.format("ui.Chat('%s')", "/memberinfo " .. playerName))
+    end
     ui.OpenContextMenu(context);
 end
 
-function MINI_ADDONS_SHOW_PC_CONTEXT_MENU(handle)
-    if g.settings.memberinfo ~= 1 then
-        base["MINI_ADDONS_SHOW_PC_CONTEXT_MENU"](handle)
-    else
-        MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
-    end
-end
+function MINI_ADDONS_SHOW_PC_CONTEXT_MENU(my_frame, my_msg)
 
-function MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
+    local handle = g.get_event_args(my_msg)
+
     if world.IsPVPMap() == true or session.colonywar.GetIsColonyWarMap() == true or IS_IN_EVENT_MAP() == true then
         return;
+    end
+
+    local targetInfo = info.GetTargetInfo(handle);
+    if targetInfo.IsDummyPC == 1 then
+        if targetInfo.isSkillObj == 0 then -- 유체이탈은 클릭해도 아무반응 없도록 한다.
+            POPUP_DUMMY(handle, targetInfo);
+        end
+        return
     end
 
     local pcObj = world.GetActor(handle);
@@ -1429,32 +1431,12 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
         return;
     end
 
-    local targetInfo = info.GetTargetInfo(handle);
-    if targetInfo.IsDummyPC == 1 then
-        -- 유체이탈 or 환영 클릭해도 아무반응 없도록 한다.
-        local is_enable = true;
-        local cid = info.GetCID(handle);
-        if cid ~= nil and cid ~= "" and cid ~= "None" then
-            local ies_obj = GetPCObjectByCID(cid);
-            if ies_obj ~= nil then
-                if IsBuffApplied(ies_obj, "Illusion_Buff") == "YES" then
-                    is_enable = false;
-                end
-            end
-        end
-        if targetInfo.isSkillObj == 0 and is_enable == true then
-            POPUP_DUMMY(handle, targetInfo);
-        end
-        return
-    end
-
-    local strscp
     if pcObj:IsMyPC() == 1 then
         if 1 == session.IsGM() then
             local contextMenuCtrlName = string.format("{@st41}%s (%d){/}", pcObj:GetPCApc():GetFamilyName(), handle);
             local context = ui.CreateContextMenu("PC_CONTEXT_MENU", pcObj:GetPCApc():GetFamilyName(), 0, 0, 100, 100);
 
-            strscp = string.format("ui.Chat(\"//runscp TEST_SERVPOS %d\")", handle);
+            local strscp = string.format("ui.Chat(\"//runscp TEST_SERVPOS %d\")", handle);
             ui.AddContextMenuItem(context, ScpArgMsg("Auto_{@st42b}SeoBeowiChiBoKi{/}"), strscp);
 
             strscp = string.format("debug.TestNode(%d)", handle);
@@ -1487,64 +1469,56 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
     if pcObj:IsMyPC() == 0 and info.IsPC(pcObj:GetHandleVal()) == 1 then
         if targetInfo.IsDummyPC == 1 then
             packet.DummyPCDialog(handle);
-            return context;
+            return
         end
 
         local contextMenuCtrlName = string.format("{@st41}%s (%d){/}", pcObj:GetPCApc():GetFamilyName(), handle);
-        local context = ui.CreateContextMenu("PC_CONTEXT_MENU", pcObj:GetPCApc():GetFamilyName(), 0, 0, 270, 100);
+        local context = ui.CreateContextMenu("PC_CONTEXT_MENU", pcObj:GetPCApc():GetFamilyName(), 0, 0, 170, 100);
 
         -- 여기에 캐릭터 정보보기, 로그아웃PC관련 메뉴 추가하면됨
         if session.world.IsIntegrateServer() == false then
-            local strScp = string.format("exchange.RequestChange(%d)", pcObj:GetHandleVal());
-            ui.AddContextMenuItem(context, "{img context_transaction 18 18} " .. ClMsg("Exchange"), strScp);
+            local strscp = string.format("exchange.RequestChange(%d)", pcObj:GetHandleVal());
+            ui.AddContextMenuItem(context, ClMsg("Exchange"), strscp);
 
             local strWhisperScp = string.format("ui.WhisperTo('%s')", pcObj:GetPCApc():GetFamilyName());
-            ui.AddContextMenuItem(context, "{img context_whisper 18 17} " .. ClMsg("WHISPER"), strWhisperScp);
-            strScp = string.format("PARTY_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
-            ui.AddContextMenuItem(context, "{img context_party_invitation 18 17} " .. ClMsg("PARTY_INVITE"), strScp);
+            ui.AddContextMenuItem(context, ClMsg("WHISPER"), strWhisperScp);
+            strscp = string.format("PARTY_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
+            ui.AddContextMenuItem(context, ClMsg("PARTY_INVITE"), strscp);
 
             --[[
 			if AM_I_LEADER(PARTY_GUILD) == 1 or IS_GUILD_AUTHORITY(1, session.loginInfo.GetAID()) == 1 then
-				strScp = string.format("GUILD_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
-				ui.AddContextMenuItem(context, ClMsg("GUILD_INVITE"), strScp);
+				strscp = string.format("GUILD_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
+				ui.AddContextMenuItem(context, ClMsg("GUILD_INVITE"), strscp);
 			end
 			--]]
             if session.party.GetPartyInfo(PARTY_GUILD) ~= nil and targetInfo.hasGuild == false then
-                strScp = string.format("GUILD_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
-                ui.AddContextMenuItem(context, "{img context_guild_invitation 18 17} " .. ClMsg("GUILD_INVITE"), strScp);
+                strscp = string.format("GUILD_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
+                ui.AddContextMenuItem(context, ClMsg("GUILD_INVITE"), strscp);
             end
 
             strscp = string.format("barrackNormal.Visit(%d)", handle);
-            ui.AddContextMenuItem(context, "{img context_lodging_visit 16 17} " .. ScpArgMsg("VisitBarrack"), strscp);
+            ui.AddContextMenuItem(context, ScpArgMsg("VisitBarrack"), strscp);
             strscp = string.format("ui.ToggleHeaderText(%d)", handle);
             if pcObj:GetHeaderText() ~= nil and string.len(pcObj:GetHeaderText()) ~= 0 then
                 if pcObj:IsHeaderTextVisible() == true then
-                    ui.AddContextMenuItem(context, "{img context_preface_block 18 17} " .. ClMsg("BlockTitleText"),
-                        strscp);
+                    ui.AddContextMenuItem(context, ClMsg("BlockTitleText"), strscp);
                 else
-                    ui.AddContextMenuItem(context, "{img context_preface_remove 18 17} " .. ClMsg("UnblockTitleText"),
-                        strscp);
+                    ui.AddContextMenuItem(context, ClMsg("UnblockTitleText"), strscp);
                 end
             end
         end
-
+        if g.settings.memberinfo ~= 1 then
+            local strscp = string.format("PROPERTY_COMPARE(%d)", handle);
+            ui.AddContextMenuItem(context, ScpArgMsg("Auto_SalPyeoBoKi"), strscp);
+        end
         if session.world.IsIntegrateServer() == false then
             local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')",
-                pcObj:GetPCApc():GetFamilyName());
-            ui.AddContextMenuItem(context, "{img context_friend_application 18 13} " .. ScpArgMsg("ReqAddFriend"),
-                strRequestAddFriendScp);
+                                                         pcObj:GetPCApc():GetFamilyName());
+            ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
         end
 
-        ui.AddContextMenuItem(context, "{img context_friendly_match 18 17} " .. ScpArgMsg("RequestFriendlyFight"),
-            string.format("REQUEST_FIGHT(\"%d\")", pcObj:GetHandleVal()));
-        -- ui.AddContextMenuItem(context, ScpArgMsg("RequestFriendlyAncientFight"), string.format("REQUEST_ANCIENT_FIGHT(\"%d\")", pcObj:GetHandleVal()));
-
-        local mapprop = session.GetCurrentMapProp();
-        local mapCls = GetClassByType("Map", mapprop.type);
-        if IS_TOWN_MAP(mapCls) == true then
-            ui.AddContextMenuItem(context, "{img context_personal_housing 18 17} " .. ScpArgMsg("PH_SEL_DLG_2"),
-                string.format("REQUEST_PERSONAL_HOUSING_WARP(\"%s\")", pcObj:GetPCApc():GetAID()));
-        end
+        ui.AddContextMenuItem(context, ScpArgMsg("RequestFriendlyFight"),
+                              string.format("REQUEST_FIGHT(\"%d\")", pcObj:GetHandleVal()));
 
         local familyname = pcObj:GetPCApc():GetFamilyName()
         local otherpcinfo = session.otherPC.GetByFamilyName(familyname);
@@ -1552,30 +1526,27 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
         if session.world.IsIntegrateServer() == false then
             local strRequestLikeItScp = string.format("SEND_PC_INFO(%d)", handle);
             if session.likeit.AmILikeYou(familyname) == true then
-                ui.AddContextMenuItem(context, "{img context_like 18 17} " .. ScpArgMsg("ReqUnlikeIt"),
-                    strRequestLikeItScp);
+                ui.AddContextMenuItem(context, ScpArgMsg("ReqUnlikeIt"), strRequestLikeItScp);
             else
-                ui.AddContextMenuItem(context, "{img context_like 18 17} " .. ScpArgMsg("ReqLikeIt"),
-                    strRequestLikeItScp);
+                ui.AddContextMenuItem(context, ScpArgMsg("ReqLikeIt"), strRequestLikeItScp);
             end
         end
 
-        ui.AddContextMenuItem(context, "{img context_automatic_suspicion 16 17} " .. ScpArgMsg("Report_AutoBot"),
-            string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+        ui.AddContextMenuItem(context, ScpArgMsg("Report_AutoBot"),
+                              string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
 
         -- report guild emblem
         if pcObj:IsGuildExist() == true then
-            ui.AddContextMenuItem(context,
-                "{img context_inappropriate_emblem 17 17} " .. ScpArgMsg("Report_GuildEmblem"), string.format(
-                    "REPORT_GUILDEMBLEM_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+            ui.AddContextMenuItem(context, ScpArgMsg("Report_GuildEmblem"),
+                                  string.format("REPORT_GUILDEMBLEM_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
         end
 
         -- 보호모드, 강제킥
         if 1 == session.IsGM() then
             ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Protected"),
-                string.format("REQUEST_GM_ORDER_PROTECTED(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+                                  string.format("REQUEST_GM_ORDER_PROTECTED(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
             ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Kick"),
-                string.format("REQUEST_GM_ORDER_KICK(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+                                  string.format("REQUEST_GM_ORDER_KICK(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
         end
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
@@ -1587,25 +1558,23 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU_(handle)
             ui.AddContextMenuItem(context, ScpArgMsg("IndunBadPlayerReport"), scp);
         end
 
-        ui.AddContextMenuItem(context, "{img context_cancel 18 17} " .. ClMsg("Cancel"), "None");
-        ui.AddContextMenuItem(context, "-----", "None")
-        strscp = string.format("PROPERTY_COMPARE(%d)", handle);
-        ui.AddContextMenuItem(context, "{img context_look_into 18 17} " .. ScpArgMsg("Auto_SalPyeoBoKi"), strscp);
+        ui.AddContextMenuItem(context, ClMsg("Cancel"), "None");
+
+        if g.settings.memberinfo == 1 then
+            ui.AddContextMenuItem(context, "-----", "None")
+            local strscp = string.format("PROPERTY_COMPARE(%d)", handle);
+            ui.AddContextMenuItem(context, "{img context_look_into 18 17} " .. ScpArgMsg("Auto_SalPyeoBoKi"), strscp);
+        end
 
         ui.OpenContextMenu(context);
         return context;
     end
 end
 
-function MINI_ADDONS_POPUP_DUMMY(handle, targetInfo)
-    if g.settings.memberinfo ~= 1 then
-        base["POPUP_DUMMY"](handle, targetInfo)
-    else
-        MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
-    end
-end
+function MINI_ADDONS_POPUP_DUMMY(my_frame, my_msg)
 
-function MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
+    local handle, targetInfo = g.get_event_args(my_msg)
+
     local context = ui.CreateContextMenu("DPC_CONTEXT", targetInfo.name, 0, 0, 100, 100);
 
     local ownerHandle = info.GetOwner(handle);
@@ -1629,7 +1598,7 @@ function MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
         strscp = string.format("ui.Chat(\"//killmon %d\")", handle);
         ui.AddContextMenuItem(context, ScpArgMsg("Auto_JeKeo"), strscp)
         ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Kick"),
-            string.format("REQUEST_ORDER_DUMMY_KICK(\"%s\")", handle))
+                              string.format("REQUEST_ORDER_DUMMY_KICK(\"%s\")", handle))
     end
 
     if session.world.IsIntegrateServer() == false then
@@ -1640,10 +1609,12 @@ function MINI_ADDONS_POPUP_DUMMY_(handle, targetInfo)
 
     ui.AddContextMenuItem(context, ScpArgMsg("Auto_DatKi"), "")
 
-    ui.AddContextMenuItem(context, "-----", "None")
+    if g.settings.memberinfo == 1 then
+        ui.AddContextMenuItem(context, "-----", "None")
 
-    strscp = string.format("PROPERTY_COMPARE(%d)", handle);
-    ui.AddContextMenuItem(context, ScpArgMsg("Auto_SalPyeoBoKi"), strscp);
+        strscp = string.format("PROPERTY_COMPARE(%d)", handle);
+        ui.AddContextMenuItem(context, ScpArgMsg("Auto_SalPyeoBoKi"), strscp);
+    end
     ui.OpenContextMenu(context)
 end
 
@@ -2470,11 +2441,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
             end
             auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
-                "When turned on, the gacha starts automatically.CC required for switching"))
+                                              "When turned on, the gacha starts automatically.CC required for switching"))
             auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
         elseif setting.name == "other_effect" then
             local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', textWidth + 15, x - 5, 60,
-                25)
+                                                               25)
             AUTO_CAST(other_effect_edit)
             other_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_OTHER_EFFECT_EDIT")
             other_effect_edit:SetTextTooltip("{ol}1~100")
@@ -2523,7 +2494,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             switch:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH")
             local switch_width = switch:GetWidth()
             local switch_text = frame:CreateOrGetControl("richtext", "switch_text", textWidth + 15 + switch_width,
-                x + 2, 80, 25)
+                                                         x + 2, 80, 25)
             AUTO_CAST(switch_text)
             switch_text:SetText(g.lang == "Japanese" and "{ol}ダメージ報酬切替" or "{ol}Damage Reward Switch")
             -- g.lang = "Japanese"
@@ -3141,7 +3112,7 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
             if slogutis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
-                    5.0)
+                                     5.0)
                 NICO_CHAT("{@st55_a}スローガティスまだやってへんで？")
             elseif upinis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
@@ -3367,7 +3338,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                     if TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
                                         local max_option_count =
                                             shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
-                                                'UseLv', 1))
+                                                                                                        'UseLv', 1))
                                         for ii = 1, max_option_count do
                                             local option_name = 'EarringSpecialOption_' .. ii
                                             local job = TryGetProp(itemCls, option_name, 'None')
@@ -3375,7 +3346,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                                 local job_cls = GetClass('Job', job)
                                                 if job_cls ~= nil then
                                                     itemname = string.lower(
-                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name));
+                                                                   dictionary.ReplaceDicIDInCompStr(job_cls.Name));
                                                     a = string.find(itemname, tempcap);
                                                     if a ~= nil then
                                                         makeSlot = true
@@ -3420,9 +3391,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                            'ui::CGroupBox')
+                                                                               'ui::CGroupBox')
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                            'ui::CTreeControl')
+                                                                           'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls);
                                     end
                                     -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
@@ -3430,7 +3401,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl')
+                                                                               'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls);
                                     end
                                 end
@@ -3447,9 +3418,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if isOptionApplied == 1 and cap == "" then -- 검색 중에는 조건에 맞는 아이템 없으면 tree 안 만듬
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                            'ui::CGroupBox');
+                                                                               'ui::CGroupBox');
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                            'ui::CTreeControl');
+                                                                           'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree); -- 해당 아이템이 속한 탭
                                     end
 
@@ -3458,7 +3429,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox');
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                            'ui::CTreeControl');
+                                                                               'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree_all); -- ALL 탭 
                                     end
                                 end
@@ -3859,7 +3830,8 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 if tostring(spotName) == "SEAL" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                            "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？", 3.0)
+                                             "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？",
+                                             3.0)
                         -- ui.SysMsg("{#FF8C00}エンブレム装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Emblem?")
@@ -3869,7 +3841,8 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 elseif tostring(spotName) == "ARK" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                            "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?", 3.0)
+                                             "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?",
+                                             3.0)
                         -- ui.SysMsg("{st55_a}{#FF8C00}アーク装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Ark?")
@@ -4146,7 +4119,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-        UnderstaffEnterAllowMinMember);
+                                UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
