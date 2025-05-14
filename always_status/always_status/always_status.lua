@@ -19,10 +19,11 @@
 -- v1.1.8 海外で数字が切れるらしいところ修正。
 -- v1.1.9 フォルダ作るコードをアドオン導入時のみに。
 -- v1.2.0 ウルトラワイド対応
+-- v1.2.1 読込早くした
 local addonName = "always_status"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.0"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -131,9 +132,18 @@ end
 
 function ALWAYS_STATUS_ON_INIT(addon, frame)
 
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
     g.addon = addon
     g.frame = frame
-    always_status_load_settings()
+    g.cid = info.GetCID(session.GetMyHandle())
+
+    if not g.settings then
+        always_status_load_settings()
+    else
+        if not g.settings[g.cid] then
+            always_status_load_settings()
+        end
+    end
     frame:RunUpdateScript("always_status_original_frame_reduction", 1.0)
     -- ReserveScript("always_status_original_frame_reduction()", 1.0)
 
@@ -142,7 +152,10 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
 
     acutil.setupEvent(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD");
     acutil.setupEvent(addon, "CONFIG_SOUNDVOL", "always_status_CONFIG_SOUNDVOL");
-    -- acutil.setupEvent(addon, "ITEM_EQUIP", "always_status_CONFIG_SOUNDVOL")
+
+    local end_time = os.clock() -- ★処理終了後の時刻を記録★
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addonName, elapsed_time))
 end
 
 function always_status_original_frame_sound_config()
@@ -332,12 +345,9 @@ function always_status_load_settings()
             perfection = "{#FF4040}",
             revenge = "{#FF4040}"
         }
-        g.settings = settings
-
-    else
-        g.settings = settings
 
     end
+    g.settings = settings
 
     if g.settings[loginCID] == nil or type(g.settings[loginCID]) == "number" then
         g.settings[loginCID] = {

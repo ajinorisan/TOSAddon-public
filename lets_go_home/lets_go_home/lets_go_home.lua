@@ -6,10 +6,11 @@
 -- v1.0.7 ワープ出来ないマップでSysMsgが永遠出続けるの直した。
 -- v1.0.8 チャンネルチェンジするタイミングでたまに固まるの修正
 -- v1.0.9 ウルトラワイド対応
+-- v1.1.0 最適化
 local addonName = "LETS_GO_HOME"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -277,19 +278,22 @@ function LETS_GO_HOME_ON_INIT(addon, frame)
             if g.settings.leticia == 1 then
                 g.warp = 2
             end
-            addon:RegisterMsg("GAME_START_3SEC", "LETS_GO_HOME_CHANNEL_CHANGE")
+            -- LETS_GO_HOME_CHANNEL_CHANGE()
+            addon:RegisterMsg("GAME_START", "LETS_GO_HOME_CHANNEL_CHANGE")
             -- RUN_GAMEEXIT_TIMER("Channel", g.settings.ch - 1)
             return
         else
             g.warp = 0
             if g.settings.leticia == 1 then
                 addon:RegisterMsg("GAME_START", "lets_go_home_leticia_move")
+                -- lets_go_home_leticia_move()
             end
         end
     end
 
     if g.warp == 2 then
         addon:RegisterMsg("GAME_START", "lets_go_home_leticia_move")
+        -- lets_go_home_leticia_move()
         g.warp = 0
     end
 

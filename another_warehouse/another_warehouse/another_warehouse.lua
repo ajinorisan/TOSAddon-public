@@ -23,10 +23,11 @@
 -- v1.2.3 入庫時の引っ掛かりバグ完全に直った。IMCに勝った。
 -- v1.2.4 セット取り出しスロットを増やした。整理も出来る様に。
 -- v1.2.5 トークン判定を減らした。
+-- v1.2.6 読込早くした。トークン使ってない時の挙動少し変更
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.5"
+local ver = "1.2.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -100,15 +101,11 @@ function another_warehouse_load_settings()
         end
     end
 
-    another_warehouse_save_settings()
-
-    g.settings = settings
-
     local LoginName = session.GetMySession():GetPCApc():GetName()
     local LoginCID = info.GetCID(session.GetMyHandle())
 
-    if not g.settings[LoginCID] then
-        g.settings[LoginCID] = {
+    if not settings[LoginCID] then
+        settings[LoginCID] = {
             maney_check = 1,
             item_check = 1,
             name = LoginName,
@@ -116,16 +113,11 @@ function another_warehouse_load_settings()
             transfer = 0
         }
     end
+
+    g.settings = settings
+
     another_warehouse_save_settings()
 
-    if not g.organize then
-        g.organize = true
-        return
-    end
-
-    if g.organize then
-        another_warehouse_setting_file_organize()
-    end
 end
 
 function another_warehouse_save_settings()
@@ -146,7 +138,6 @@ function another_warehouse_setting_file_organize()
                 local barrack_pc_info = account_info:GetBarrackPCByIndex(i)
                 local barrack_pc_name = barrack_pc_info:GetName()
                 if barrack_pc_name == data.name then
-                    -- CHAT_SYSTEM(tostring(barrack_pc_name))
                     validKeys[key] = true
                 end
             end
@@ -401,17 +392,19 @@ function another_warehouse_APPS_TRY_MOVE_BARRACK(frame, msg)
 
     if session.loginInfo.IsPremiumState(ITEM_TOKEN) ~= true then
         g.token = false
-        ui.SysMsg(another_warehouse_lang("[Another warehouse] is not available because the token has not been applied."))
+        -- ui.SysMsg(another_warehouse_lang("[Another warehouse] is not available because the token has not been applied."))
     else
         g.token = true
     end
 end
 
+g.loaded = false
 function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
-
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
     g.addon = addon
     g.frame = frame
-    g.settings = g.settings or {}
+
+    g.cid = info.GetCID(session.GetMyHandle())
 
     local scp_frame = ui.GetFrame("another_warehouse_scp_frame")
     if not scp_frame then
@@ -426,7 +419,15 @@ function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType == "City" then
-        another_warehouse_load_settings()
+
+        if not g.settings then
+            another_warehouse_load_settings()
+        else
+            if not g.settings[g.cid] then
+                another_warehouse_load_settings()
+            end
+        end
+
         g.token = g.token or false
         acutil.setupEvent(addon, 'APPS_TRY_MOVE_BARRACK', "another_warehouse_APPS_TRY_MOVE_BARRACK")
         if not g.token then
@@ -435,7 +436,15 @@ function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
         else
             addon:RegisterMsg("GAME_START", "another_warehouse_accountwarehouse_init");
         end
+        if g.loaded then
+            addon:RegisterMsg("GAME_START", "another_warehouse_setting_file_organize");
+
+        end
+        g.loaded = true
     end
+    local end_time = os.clock() -- ★処理終了後の時刻を記録★
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addonName, elapsed_time))
 end
 
 function another_warehouse_accountwarehouse_init_reserve(frame)
@@ -1342,13 +1351,13 @@ function another_warehouse_item()
         for str_index, items in pairs(loginCIDItems) do
             local clsID = items.clsid
             local count = items.count
-            if not g.putitemtbl[clsID] then
+            if not g.putitemtbl[clsID] and clsID ~= 900011 then
                 g.putitemtbl[clsID] = {
                     iesid = "",
                     count = count
                 }
             end
-            if type == clsID and inv_count > 0 then
+            if type == clsID and inv_count > 0 and clsID ~= 900011 then
                 g.takeitemtbl[clsID] = {
                     iesid = iesid,
                     count = count
@@ -1362,13 +1371,13 @@ function another_warehouse_item()
         for str_index, items in pairs(globalItems) do
             local clsID = items.clsid
             local count = items.count
-            if not g.putitemtbl[clsID] then
+            if not g.putitemtbl[clsID] and clsID ~= 900011 then
                 g.putitemtbl[clsID] = {
                     iesid = "",
                     count = count
                 }
             end
-            if type == clsID and inv_count > 0 then
+            if type == clsID and inv_count > 0 and clsID ~= 900011 then
                 if not g.takeitemtbl[clsID] then
                     g.takeitemtbl[clsID] = {
                         iesid = iesid,

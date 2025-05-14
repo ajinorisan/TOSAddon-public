@@ -1,10 +1,11 @@
 -- v1.0.0 とりあえず公開
 -- v1.0.1 一部ユーザーが使えないとの情報あり。それっぽいところを直してみたけどわからん
 -- v1.0.2 デバフは全て表示する様に変更
+-- v1.0.3 ローディング最適化
 local addonName = "my_buffs"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -50,12 +51,14 @@ end
 g.mkdir_new_folder()
 
 function MY_BUFFS_ON_INIT(addon, frame)
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
 
     g.addon = addon
     g.frame = frame
 
-    my_buffs_load_settings()
-
+    if not g.settings then
+        my_buffs_load_settings()
+    end
     addon:RegisterMsg("GAME_START", "my_buffs_frame")
     addon:RegisterMsg("BUFF_ADD", "my_buffs_BUFF_ADD")
 
@@ -66,7 +69,9 @@ function MY_BUFFS_ON_INIT(addon, frame)
     if type(_G[functionName]) == "function" then
         g.hook = true
     end
-
+    local end_time = os.clock() -- ★処理終了後の時刻を記録★
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addonName, elapsed_time))
 end
 
 --[[function my_buffs_BUFF_ON_MSG_(frame, msg, argStr, argNum)

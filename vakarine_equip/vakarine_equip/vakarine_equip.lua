@@ -1,10 +1,11 @@
 -- v1.0.0 とりあえず作った。
 -- v1.0.1 ネックレス最後に処理に変更。知らんやんそんなん。
 -- v1.0.2 ui.holdが手を出すには早かった。
+-- v1.0.3 ローディング最適化
 local addonName = "vakarine_equip"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -86,15 +87,6 @@ function vakarine_equip_load_settings()
     g.settings = settings
 
     vakarine_equip_save_settings()
-
-    g.util_tbl = {}
-    for i, equip_name in ipairs(equips_tbl) do
-        if g.settings[g.cid]["equip_tbl"][equip_name] == 1 then
-            table.insert(g.util_tbl, {equips_tbl[i], equip_index[i], 1})
-        else
-            table.insert(g.util_tbl, {equips_tbl[i], equip_index[i], 0})
-        end
-    end
 
 end
 
@@ -364,24 +356,8 @@ function vakarine_equip_stat_update()
     hptext:SetOffset(hp:GetX(), hp:GetY() - 10 - (15 - 15))
 end
 
-function VAKARINE_EQUIP_ON_INIT(addon, frame)
+function vakarine_equip_GAME_START(frame, msg, str, num)
 
-    g.addon = addon
-    g.frame = frame
-    g.cid = info.GetCID(session.GetMyHandle())
-    g.lang = option.GetCurrentCountry()
-    vakarine_equip_load_settings()
-
-    addon:RegisterMsg('BUFF_ADD', 'vakarine_equip_BUFF_ON_MSG')
-    addon:RegisterMsg('BUFF_UPDATE', 'vakarine_equip_BUFF_ON_MSG');
-    addon:RegisterMsg('STAT_UPDATE', 'vakarine_equip_stat_update');
-    addon:RegisterMsg('TAKE_DAMAGE', 'vakarine_equip_stat_update');
-    addon:RegisterMsg('TAKE_HEAL', 'vakarine_equip_stat_update');
-
-    addon:RegisterMsg("GAME_START", "vakarine_equip_switching")
-    if g.settings[g.cid].use == 0 then
-        return
-    end
     local pc = GetMyPCObject();
     local cur_map = GetZoneName(pc)
     local map_cls = GetClass("Map", cur_map)
@@ -427,11 +403,42 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
         return
     end
 
+    if map_cls.MapType == "City" and g.neck then
+
+        function vakarine_equip_neck_equip(frame, msg, str, num)
+            local equip_item_list = session.GetEquipItemList();
+            local equip_item = equip_item_list:GetEquipItemByIndex(19);
+            local iesid = equip_item:GetIESID()
+            if iesid ~= g.neck_iesid and g.neck_iesid ~= nil then
+                local equip_item = session.GetInvItemByGuid(g.neck_iesid)
+                g.neck_iesid = nil
+                if equip_item ~= nil then
+                    local item_index = equip_item.invIndex
+                    item.Equip(item_index)
+                    return 0
+                else
+                    return 0
+                end
+            end
+            return 0
+        end
+        frame:RunUpdateScript("vakarine_equip_neck_equip", 3.0)
+        -- g.addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_neck_equip")
+    end
+
     -- 11244 聖域3F 11227 分裂
 
     -- if (map_cls.MapType == "Instance" or cur_map_id == 11244) and cur_map_id ~= 11227 then
     if (map_cls.MapType == "Instance") and cur_map_id ~= 11227 then
 
+        g.util_tbl = {}
+        for i, equip_name in ipairs(equips_tbl) do
+            if g.settings[g.cid]["equip_tbl"][equip_name] == 1 then
+                table.insert(g.util_tbl, {equips_tbl[i], equip_index[i], 1})
+            else
+                table.insert(g.util_tbl, {equips_tbl[i], equip_index[i], 0})
+            end
+        end
         session.ResetItemList();
         local equip_item_list = session.GetEquipItemList();
         g.equip_tbl = {}
@@ -466,31 +473,45 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
             vakarine_equip_unequip()
             -- ui.SetHoldUI(true);
             -- ReserveScript("vakarine_equip_unequip()", 1.0)
-            return
+            return 0
         end
-        addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_unequip_set_delay")
+        frame:RunUpdateScript("vakarine_equip_unequip_set_delay", 3.0)
+        -- g.addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_unequip_set_delay")
 
-    elseif map_cls.MapType == "City" then
-
-        function vakarine_equip_neck_equip(frame, msg, str, num)
-            local equip_item_list = session.GetEquipItemList();
-            local equip_item = equip_item_list:GetEquipItemByIndex(19);
-            local iesid = equip_item:GetIESID()
-            if iesid ~= g.neck_iesid and g.neck_iesid ~= nil then
-                local equip_item = session.GetInvItemByGuid(g.neck_iesid)
-                g.neck_iesid = nil
-                if equip_item ~= nil then
-                    local item_index = equip_item.invIndex
-                    item.Equip(item_index)
-                    return
-                else
-                    return
-                end
-            end
-        end
-
-        addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_neck_equip")
     end
+end
+
+function VAKARINE_EQUIP_ON_INIT(addon, frame)
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
+    g.addon = addon
+    g.frame = frame
+    g.cid = info.GetCID(session.GetMyHandle())
+    g.lang = option.GetCurrentCountry()
+
+    if not g.settings then
+        vakarine_equip_load_settings()
+    else
+        if not g.settings[g.cid] then
+            vakarine_equip_load_settings()
+        end
+    end
+
+    addon:RegisterMsg('BUFF_ADD', 'vakarine_equip_BUFF_ON_MSG')
+    addon:RegisterMsg('BUFF_UPDATE', 'vakarine_equip_BUFF_ON_MSG');
+    addon:RegisterMsg('STAT_UPDATE', 'vakarine_equip_stat_update');
+    addon:RegisterMsg('TAKE_DAMAGE', 'vakarine_equip_stat_update');
+    addon:RegisterMsg('TAKE_HEAL', 'vakarine_equip_stat_update');
+
+    addon:RegisterMsg("GAME_START", "vakarine_equip_switching")
+
+    if g.settings[g.cid].use == 0 then
+        return
+    end
+    addon:RegisterMsg("GAME_START", "vakarine_equip_GAME_START")
+    local end_time = os.clock() -- ★処理終了後の時刻を記録★
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addonName, elapsed_time))
+
 end
 
 function vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)

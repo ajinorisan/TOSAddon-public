@@ -6,10 +6,11 @@
 -- v1.0.6 バグ修正。logtextが長すぎると、文字列が取得出来無さそう。
 -- v1.0.7 韓国語クライアントでも動く様になったハズ。知らんけど。
 -- v1.0.8 テキストを上手に格納できずに表示が追いつかずにバグってたのを修正。
+-- v1.0.9 ローディング最適化
 local addonName = "MARKET_VOUCHER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -34,24 +35,73 @@ function g.SetupHook(func, baseFuncName)
     base[baseFuncName] = _G[replacementName]
 end
 
-if not g.settings then
-    g.settings = {} -- もしg.settingsが存在しない場合、新しいテーブルを作成
+local json = require("json")
+
+function g.mkdir_new_folder()
+    local function create_folder(folder_path, file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            os.execute('mkdir "' .. folder_path .. '"')
+            file = io.open(file_path, "w")
+            if file then
+                file:write("A new file has been created")
+                file:close()
+            end
+        else
+            file:close()
+        end
+    end
+
+    local folder = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    create_folder(folder, file_path)
+
+    g.active_id = session.loginInfo.GetAID()
+    local user_folder = string.format("../addons/%s/%s", addonNameLower, g.active_id)
+    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addonNameLower, g.active_id)
+    create_folder(user_folder, user_file_path)
+
+    g.settings_path = string.format("../addons/%s/%s/settings.json", addonNameLower, g.active_id)
+
+    local new_settings_file_check = io.open(g.settings_path, "r")
+    if not new_settings_file_check then
+        local old_file = io.open(g.settingsFileLoc, "rb") -- バイナリモードで開くのが安全
+        if old_file then
+            local content = old_file:read("*all")
+            old_file:close()
+
+            local new_file = io.open(g.settings_path, "wb") -- バイナリモードで書き込む
+            if new_file then
+                new_file:write(content)
+                new_file:close()
+
+                -- os.remove(old_settings_path_local) -- 削除する場合はこれ
+            end
+
+        end
+    else
+        new_settings_file_check:close()
+    end
 end
+g.mkdir_new_folder()
 
 function MARKET_VOUCHER_ON_INIT(addon, frame)
 
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
     g.addon = addon
     g.frame = frame
-    -- addon:RegisterMsg("GAME_START", "market_voucher_init_frame")
 
-    -- acutil.setupHook(market_voucher_CABINET_ITEM_BUY, "_CABINET_ITEM_BUY")
     acutil.setupEvent(addon, "MARKET_CABINET_MODE", "market_voucher_MARKET_CABINET_MODE");
-    -- acutil.setupEvent(addon, "MARKET_CLOSE", "market_voucher_print_close");
-    -- acutil.setupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST")
-    g.SetupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST");
-    market_voucher_init_frame()
-    market_voucher_load_settings()
 
+    g.SetupHook(market_voucher_CABINET_GET_ALL_LIST, "CABINET_GET_ALL_LIST");
+    addon:RegisterMsg("GAME_START", "market_voucher_init_frame")
+
+    if not g.settings then
+        market_voucher_load_settings()
+    end
+    local end_time = os.clock() -- ★処理終了後の時刻を記録★
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addonName, elapsed_time))
 end
 
 function market_voucher_MARKET_CABINET_MODE(frame)
@@ -86,7 +136,7 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
     local frame = ui.GetFrame("market_cabinet")
     local itemGbox = GET_CHILD(frame, "itemGbox");
     local cnt = session.market.GetCabinetItemCount();
-    -- print(tostring(cnt))
+
     for i = 0, cnt - 1 do
         local cabinetItem = session.market.GetCabinetItemByIndex(i);
         local whereFrom = cabinetItem:GetWhereFrom();
@@ -144,7 +194,7 @@ function market_voucher_CABINET_GET_ALL_LIST(frame, control, strarg, now)
         end
     end
     market_voucher_save_settings()
-    market_voucher_load_settings()
+    -- market_voucher_load_settings()
     -- table.remove(g.settings)
     base["CABINET_GET_ALL_LIST"](frame, control, strarg, now)
     -- CABINET_GET_ALL_LIST_OLD(frame, control, strarg, now)
@@ -193,7 +243,7 @@ function market_voucher_lang(str)
     return str
 end
 function market_voucher_save_settings(result)
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
+    acutil.saveJSON(g.settings_path, g.settings);
 
 end
 
@@ -317,117 +367,6 @@ function market_voucher_print(frame, ctrl, argStr, argNum)
     -- market_voucher_set_textview(textview, logText)
 end
 
---[[function market_voucher_print(frame, ctrl, argStr, argNum)
-    local frame = ui.GetFrame("market_voucher")
-    frame:SetSkinName("downbox")
-    frame:ShowTitleBar(0);
-    frame:SetOffset(15, 175);
-    frame:Resize(1220, 770)
-    frame:EnableHitTest(1)
-    frame:SetLayerLevel(100);
-
-    local bg = frame:CreateOrGetControl("groupbox", "bg", 5, 5, 1210, 720)
-    AUTO_CAST(bg)
-    bg:SetSkinName("chat_window")
-
-    local logdelete = frame:CreateOrGetControl("button", "logdelete", 1130, 730, 80, 30)
-    AUTO_CAST(logdelete)
-    logdelete:SetTextTooltip("ログを削除します。{nl}Delete logs.")
-    logdelete:SetText(market_voucher_lang("{ol}Log Delete"))
-    logdelete:SetEventScript(ui.LBUTTONUP, "market_voucher_clear")
-
-    local close = frame:CreateOrGetControl("button", "close", 1185, 5, 30, 30)
-    AUTO_CAST(close)
-    -- close:SetTextTooltip("ログを削除します。{nl}Delete logs.")
-    close:SetText("×")
-    close:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
-
-    g.sumtotal_amount = 0
-
-    local total_amount_sum_eng = 0
-
-    table.sort(g.settings, function(a, b)
-        local tokenA = StringSplit(a, '/')
-        local tokenB = StringSplit(b, '/')
-        local dateA = tokenA[1]
-        local dateB = tokenB[1]
-        -- dateA と dateB を比較して降順に並び替えるロジック
-        return dateA > dateB
-    end)
-
-    -- printTable(g.settings)
-    local textview = bg:CreateOrGetControl("richtext", "textview", 5, 5, 1210, 3000)
-    AUTO_CAST(textview)
-    textview:SetTextTooltip("左クリックでフレームを閉じます。{nl}Left-click to close the frame.")
-
-    textview:SetText("")
-    textview:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
-    -- textview:SetText(tostring(logText))
-
-    local count = #g.settings
-
-    local logText = ""
-
-    local startdate = ""
-    local enddate = ""
-
-    for i = 1, count do
-        local token = StringSplit(g.settings[i], '/')
-        if i == 1 then
-            local originalString = token[1]
-            local startIndex = string.find(originalString, ":") + 1 -- ":"の次の位置を取得
-            local endIndex = startIndex + 10 -- ":"の次から10文字分を取得
-            startdate = string.sub(originalString, startIndex, endIndex)
-        end
-
-        if i == #g.settings then
-            local originalString = token[1]
-            local startIndex = string.find(originalString, ":") + 1 -- ":"の次の位置を取得
-            local endIndex = startIndex + 10 -- ":"の次から10文字分を取得
-            enddate = string.sub(originalString, startIndex, endIndex)
-        end
-
-        local date = "{ol}" .. token[1]
-        local name = "{ol}" .. token[2]
-        local item = "{ol}" .. token[3]
-        if string.find(item, "?") ~= nil then
-            -- item = "{ol}" .. item:gsub("?", "-")
-            item = string.gsub(item, "?", "-")
-        end
-        local quantity = "{ol}" .. token[4]
-        local unit_price = token[5]
-        local total_amount = token[6]
-        local show_unit_price = "{ol}" .. token[7]
-        local show_total_amount = "{ol}" .. token[8]
-
-        logText = tostring(logText) .. date .. " , " .. name .. " , " .. item .. " , " .. quantity .. " , " ..
-                      show_unit_price .. " , " .. show_total_amount .. "{nl}"
-        textview:SetText(logText)
-        g.sumtotal_amount = g.sumtotal_amount + tonumber(total_amount)
-        print(tostring(logText))
-    end
-    print(tostring(logText))
-    -- print(tostring(startdate))
-    -- print(tostring(enddate))
-    -- market_voucher_frame_init(frame)
-
-    local sumtotal_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 880, 740, 100, 30)
-    local roundednumber = market_voucher_round(g.sumtotal_amount / 1000000)
-
-    sumtotal_amount_text:SetText(market_voucher_lang("{ol}{#FF0000}Total Sales:") ..
-                                     GET_COMMAED_STRING(g.sumtotal_amount) .. "(" .. roundednumber .. "M)")
-    sumtotal_amount_text:ShowWindow(1)
-
-    local date_text = frame:CreateOrGetControl("richtext", "date_text", 600, 740, 100, 30)
-    date_text:SetText(market_voucher_lang("{ol}Period:") .. enddate .. "～" .. startdate)
-
-    frame:ShowWindow(1)
-    frame:RunUpdateScript("market_voucher_auto_close", 0.5);
-
-    textview:ShowWindow(1)
-    -- market_voucher_set_textview(textview, logText)
-end]]
-
 function market_voucher_auto_close(frame)
     local marketframe = ui.GetFrame("market_cabinet")
     if marketframe:IsVisible() == 1 then
@@ -441,25 +380,6 @@ function market_voucher_auto_close(frame)
 
 end
 
---[[function printTable(table, indent)
-    indent = indent or 0
-    for k, v in pairs(table) do
-        if type(v) == "table" then
-            print(string.rep("  ", indent) .. k .. ":")
-            printTable(v, indent + 1)
-        else
-            print(string.rep("  ", indent) .. k .. ": " .. tostring(v))
-        end
-    end
-end]]
-
---[[function market_voucher_set_textview(textview, logText)
-    -- print(tostring(logText))
-    textview:SetText(logText)
-    textview:SetFontName("white_16_ol")
-
-    textview:ShowWindow(1)
-end]]
 function market_voucher_round(number)
     return math.floor(number + 0.5)
 end
@@ -470,7 +390,7 @@ function market_voucher_clear(frame)
         "The list of sold items has been cleared.{nl}販売履歴を削除しました。logtextには残っています。")
 
     market_voucher_save_settings()
-    market_voucher_load_settings()
+    -- market_voucher_load_settings()
     frame:ShowWindow(0)
 
 end
@@ -483,85 +403,12 @@ function market_voucher_print_close(frame, ctrl, argStr, argNum)
 end
 
 function market_voucher_load_settings()
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local settings, err = acutil.loadJSON(g.settings_path)
 
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
+    if not settings then
+        settings = {}
     end
-
-    if settings then
-
-        g.settings = settings
-
-    end
-
+    g.settings = settings
+    market_voucher_save_settings()
 end
 
---[[function market_voucher_CABINET_ITEM_BUY(frame, ctrl, guid)
-    -- market.ReqGetCabinetItem(guid);
-    -- g.settings = {}
-    print(tostring(ctrl:GetName()))
-    --  Close popup
-    local popUp_frame = ui.GetFrame("market_cabinet_popup")
-    if popUp_frame ~= nil then
-        ui.CloseFrame("market_cabinet_popup")
-    end
-
-    local frame = ui.GetFrame("market_cabinet")
-    local itemGbox = GET_CHILD(frame, "itemGbox");
-
-    -- local itemID = cabinetItem:GetItemID();
-
-    -- local itemObj = GetIES(cabinetItem:GetObject());
-    -- local itemName = dictionary.ReplaceDicIDInCompStr(guid.Name)
-    local itemName = guid.ClassName
-    print(tostring(itemName))
-    local registerTime = cabinetItem:GetRegSysTime()
-    print(tostring(registerTime))
-    -- local sysTime = geTime.GetServerSystemTime();
-
-    local difSec = imcTime.GetDifSec(sysTime, registerTime);
-    print(tostring(difSec))
-    local currentTime = os.time()
-    local newTime = currentTime - difSec
-    local newDate = os.date("%Y-%m-%d %H:%M:%S", newTime)
-
-    local whereFrom = cabinetItem:GetWhereFrom();
-
-    local count = 0;
-    local amount = 0;
-    local charName = nil;
-    amount = cabinetItem.sellItemAmount;
-    count = tonumber(cabinetItem:GetCount());
-    charName = GETMYPCNAME();
-
-    if whereFrom == "market_sell" then
-        local count = 0;
-        local amount = 0;
-        local charName = nil;
-        count = cabinetItem.sellItemAmount;
-        amount = tonumber(cabinetItem:GetCount());
-        charName = GETMYPCNAME();
-
-       print(market_voucher_lang("Registered on.") .. newDate .. market_voucher_lang("/name.") .. charName ..
-                  market_voucher_lang("/item.") .. itemName .. market_voucher_lang("/quantity.") .. tonumber(count) ..
-                  market_voucher_lang("/unit price.") .. amount / tonumber(count) ..
-                  market_voucher_lang("/total amount.") .. amount)
-        print("test")
-        local result = market_voucher_lang("Registered on.") .. newDate .. market_voucher_lang("/name.") .. charName ..
-                           market_voucher_lang("/item.") .. itemName .. market_voucher_lang("/quantity.") ..
-                           tonumber(count) .. market_voucher_lang("/unit price.") .. amount / tonumber(count) ..
-                           market_voucher_lang("/total amount.") .. amount .. "/" ..
-                           GET_COMMAED_STRING(amount / tonumber(count)) .. "/" .. GET_COMMAED_STRING(amount)
-        print(tostring(result))
-        table.insert(g.settings, result)
-        local fd = io.open(g.logpath, "a")
-        fd:write(result .. "\n")
-        fd:flush()
-        fd:close()
-        market_voucher_save_settings()
-        market_voucher_load_settings()
-    end
-
-end]]
