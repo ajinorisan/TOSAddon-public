@@ -1,0 +1,84 @@
+{
+  "BOOTS": {
+    "skillName": "Common_Chronomancer_QuickCast",
+    "clsid": 11107052,
+    "lv": 15,
+    "iesid": "1557934962237709",
+    "skillLv": 3
+  },
+  "GLOVES": {
+    "skillName": "Common_Priest_Aspersion",
+    "clsid": 11107053,
+    "lv": 15,
+    "iesid": "1557934962237704",
+    "skillLv": 5
+  },
+  "RELIC": {
+    "iesid": "1364300656583354",
+    "clsid": 11040003,
+    "lv": 20
+  },
+  "RING1": {
+    "iesid": "1557934962242153",
+    "clsid": 11100072,
+    "lv": 10
+  },
+  "RH": {
+    "iesid": "1557934962237680",
+    "clsid": 11107041,
+    "lv": 18
+  },
+  "NECK": {
+    "iesid": "1557934962242144",
+    "clsid": 11100071,
+    "lv": 10
+  },
+  "RING2": {
+    "iesid": "1557934962242160",
+    "clsid": 11100072,
+    "lv": 10
+  },
+  "LH": {
+    "iesid": "1557934962237688",
+    "clsid": 11107029,
+    "lv": 18
+  },
+  "SEAL": {
+
+  },
+  "GOD": {
+
+  },
+  "gear_score": 27828,
+  "LH_SUB": {
+    "iesid": "1557934962237693",
+    "clsid": 11107029,
+    "lv": 18
+  },
+  "RH_SUB": {
+    "iesid": "1557934962237685",
+    "clsid": 11107039,
+    "lv": 18
+  },
+  "ARK": {
+
+  },
+  "SHIRT": {
+    "skillName": "Common_Paladin_StoneSkin",
+    "clsid": 11107050,
+    "lv": 15,
+    "iesid": "1557934962237696",
+    "skillLv": 5
+  },
+  "name": "シェフの",
+  "PANTS": {
+    "skillName": "Common_Highlander_Defiance",
+    "clsid": 11107051,
+    "lv": 15,
+    "iesid": "1557934962237698",
+    "skillLv": 5
+  },
+  "LEG": {
+
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "gear_score": 22737,
+  "PANTS": {
+    "iesid": "1536425766038108",
+    "lv": 18,
+    "skillLv": 2,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "clsid": 11107022
+  },
+  "SEAL": {
+
+  },
+  "GLOVES": {
+    "iesid": "1536425766038101",
+    "lv": 18,
+    "skillLv": 2,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "clsid": 11107024
+  },
+  "SHIRT": {
+    "iesid": "1536425766038126",
+    "lv": 18,
+    "skillLv": 3,
+    "skillName": "Common_Recovery",
+    "clsid": 11107021
+  },
+  "LEG": {
+
+  },
+  "RH_SUB": {
+    "lv": 20,
+    "iesid": "1536515960616033",
+    "clsid": 11107006
+  },
+  "GOD": {
+
+  },
+  "RING2": {
+    "lv": 10,
+    "iesid": "1536425766047340",
+    "clsid": 11100064
+  },
+  "RING1": {
+    "lv": 10,
+    "iesid": "1536425766047328",
+    "clsid": 11100064
+  },
+  "LH_SUB": {
+    "lv": 20,
+    "iesid": "1536515960616036",
+    "clsid": 11107016
+  },
+  "NECK": {
+    "lv": 10,
+    "iesid": "1536425766047318",
+    "clsid": 11100063
+  },
+  "LH": {
+    "lv": 20,
+    "iesid": "1536515960616035",
+    "clsid": 11107016
+  },
+  "RH": {
+    "lv": 20,
+    "iesid": "1536515960616034",
+    "clsid": 11107006
+  },
+  "ARK": {
+
+  },
+  "BOOTS": {
+    "iesid": "1536425766038100",
+    "lv": 18,
+    "skillLv": 3,
+    "skillName": "Common_Enchanter_EnchantLightning",
+    "clsid": 11107023
+  },
+  "RELIC": {
+    "lv": 20,
+    "iesid": "1536279737571842",
+    "clsid": 11040003
+  },
+  "name": "ポポぶー"
+}
