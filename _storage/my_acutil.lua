@@ -54,29 +54,17 @@ function g.save_settings()
     save_json(g.settings_path, g.settings)
 end
 
-function g.load_settings()
+function g.load_json(path)
 
-    local function load_json(path)
-
-        local file = io.open(path, "r")
-        if file then
-            local content = file:read("*all")
-            file:close()
-            local table = json.decode(content)
-            return table
-        else
-            return nil
-        end
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local table = json.decode(content)
+        return table
+    else
+        return nil
     end
-
-    local settings = load_json(g.settings_path)
-
-    if not settings then
-        settings = {}
-    end
-
-    g.settings = settings
-    g.save_settings()
 end
 
 function g.settings_make()
@@ -89,7 +77,9 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
+
     local origin_func = g.FUNCS[origin_func_name]
+
     local function hooked_function(...)
 
         local original_results
@@ -102,11 +92,8 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
 
-        if bool == true and original_results ~= nil then
-            return table.unpack(original_results)
-        else
-            return
-        end
+        return table.unpack(original_results)
+
     end
 
     _G[origin_func_name] = hooked_function
@@ -115,6 +102,17 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         g.RAGISTER[origin_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
     end
+end
+
+function g.SetupHook(func, baseFuncName)
+    g.FUNCS = g.FUNCS or {}
+    local addonUpper = string.upper(addonName)
+    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
+    if (_G[replacementName] == nil) then
+        _G[replacementName] = _G[baseFuncName];
+        _G[baseFuncName] = func
+    end
+    g.FUNCS[baseFuncName] = _G[replacementName]
 end
 
 function g.get_event_args(origin_func_name)
@@ -135,6 +133,31 @@ function g.log_to_file(message)
         file:write(timestamp .. tostring(message) .. "\n")
         file:close()
     end
+end
+
+function g.format_json(data, indent)
+    local indent = indent or 0
+    local formatting = string.rep(" ", indent)
+    local result = ""
+
+    if type(data) == "table" then
+        result = result .. "{\n"
+        local is_first = true
+        for k, v in pairs(data) do
+            if not is_first then
+                result = result .. ",\n"
+            end
+            is_first = false
+            result = result .. formatting .. "  \"" .. tostring(k) .. "\": " .. g.format_json(v, indent + 2)
+        end
+        result = result .. "\n" .. formatting .. "}"
+    elseif type(data) == "string" then
+        result = result .. "\"" .. data .. "\""
+    else
+        result = result .. tostring(data)
+    end
+
+    return result
 end
 
 function ADDON_NAME_ON_INIT(addon, frame)
