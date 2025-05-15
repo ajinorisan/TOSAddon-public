@@ -92,14 +92,17 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
 
-        return table.unpack(original_results)
-
+        if original_results then
+            return table.unpack(original_results)
+        else
+            return
+        end
     end
 
     _G[origin_func_name] = hooked_function
 
-    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
-        g.RAGISTER[origin_func_name] = true
+    if not g.RAGISTER[origin_func_name .. my_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name .. my_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
     end
 end

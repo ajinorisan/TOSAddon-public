@@ -451,7 +451,7 @@ function indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC(frame, ctrl, str
                 return
             end
             FullScreenMenuMoveNpc(name, move_zone_select, move_zone, move_npc_dialog, move_zone_select_msg,
-                                  move_only_in_town);
+                move_only_in_town);
             ui.CloseFrame("fullscreen_navigation_menu");
         end
     end
@@ -781,11 +781,11 @@ function indun_panel_get_entrance_count(indun_type, index)
     local return_str = ""
     if index == 2 then
         return_str = string.format("{ol}{#FFFFFF}{s16}(%d/%d)",
-                                   GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType),
-                                   GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType))
+            GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType),
+            GET_INDUN_MAX_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType))
     elseif index == 1 then
         return_str = string.format("{ol}{#FFFFFF}{s16}(%d)",
-                                   GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType))
+            GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", indun_type).PlayPerResetType))
     end
     return return_str
 end
@@ -886,7 +886,7 @@ function indun_panel_frame_contents(frame)
                                 local icon = itemClass.Icon
                                 local text = g.lang == "Japanese" and
                                                  string.format("{ol}{img %s 25 25 } %d個持っています。", icon,
-                                                               count) or
+                                        count) or
                                                  string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon, count)
 
                                 function indun_panel_raid_itemuse(frame, ctrl, argStr, induntype)
@@ -897,7 +897,7 @@ function indun_panel_frame_contents(frame)
                                     local cnt = guidList:Count()
                                     local targetItems = raidTable[induntype]
                                     local enter_count = GET_CURRENT_ENTERANCE_COUNT(
-                                                            GetClassByType("Indun", induntype).PlayPerResetType)
+                                        GetClassByType("Indun", induntype).PlayPerResetType)
                                     local buffID = buffIDs[induntype]
                                     local sweep_count = indun_panel_sweep_count(buffID)
 
@@ -905,8 +905,7 @@ function indun_panel_frame_contents(frame)
                                         for _, targetClassID in ipairs(targetItems) do
                                             for i = 0, cnt - 1 do
                                                 local itemobj = GetIES(
-                                                                    invItemList:GetItemByGuid(guidList:Get(i))
-                                                                        :GetObject())
+                                                    invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
                                                 local classid = itemobj.ClassID
 
                                                 if classid == targetClassID then
@@ -914,16 +913,16 @@ function indun_panel_frame_contents(frame)
                                                     if enter_count == 2 and sweep_count >= 1 then
                                                         INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                                                         ReserveScript(string.format(
-                                                                          "indun_panel_autosweep(nil,nil,'%s',%d)",
-                                                                          ctrl:GetName(), induntype), 0.2)
+                                                            "indun_panel_autosweep(nil,nil,'%s',%d)", ctrl:GetName(),
+                                                            induntype), 0.2)
                                                         return
                                                     elseif enter_count == 2 and sweep_count == 0 then
                                                         INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
                                                         return
                                                     elseif enter_count <= 1 and sweep_count >= 1 then
                                                         ReserveScript(string.format(
-                                                                          "indun_panel_autosweep(nil,nil,'%s',%d)",
-                                                                          ctrl:GetName(), induntype), 0.2)
+                                                            "indun_panel_autosweep(nil,nil,'%s',%d)", ctrl:GetName(),
+                                                            induntype), 0.2)
                                                         return
                                                     elseif enter_count == 1 and sweep_count == 0 then
                                                         INV_ICON_USE(session.GetInvItemByType(tonumber(classid)))
@@ -948,10 +947,10 @@ function indun_panel_frame_contents(frame)
                             local count = frame:CreateOrGetControl("richtext", key .. "count", x + 170, y + 5, 50, 30)
                             local hard = frame:CreateOrGetControl('button', key .. "hard", x + 215, y, 80, 30)
                             local counthard = frame:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5,
-                                                                       50, 30)
+                                50, 30)
                             local sweep = frame:CreateOrGetControl('button', key .. "sweep", x + 355, y, 80, 30)
                             local sweepcount = frame:CreateOrGetControl("richtext", key .. "sweepcount", x + 440, y + 5,
-                                                                        50, 30)
+                                50, 30)
 
                             solo:SetText("{ol}SOLO")
                             auto:SetText("{ol}{#FFD900}AUTO")
@@ -990,7 +989,7 @@ function indun_panel_frame_contents(frame)
                             local hard = frame:CreateOrGetControl('button', key .. "hard", 350, y, 80, 30)
                             local count = frame:CreateOrGetControl("richtext", key .. "count", 305, y + 5, 50, 30)
                             local counthard = frame:CreateOrGetControl("richtext", key .. "counthard", 435, y + 5, 50,
-                                                                       30)
+                                30)
 
                             solo:SetText("{ol}SOLO")
                             auto:SetText(key == "earring" and "{ol}{#FFD900}NORMAL" or "{ol}{#FFD900}AUTO")
@@ -1064,14 +1063,14 @@ function indun_panel_frame_contents(frame)
                             ticket_btn:SetText("{ol}{#EE7800}{s14}BUYUSE")
                             ticket_btn:SetTextTooltip("{ol}" ..
                                                           INDUN_PANEL_LANG(
-                                                              "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
-                                                                  "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
-                                                                  "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))"))
+                                    "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                                        "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
+                                        "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))"))
                             ticket_btn:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
                             ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value.low)
 
                             local a_ticket_btn = frame:CreateOrGetControl('button', key .. 'a_ticket_btn', 615, y, 80,
-                                                                          30)
+                                30)
                             AUTO_CAST(a_ticket_btn)
 
                             local invItemList = session.GetInvItemList()
@@ -1094,9 +1093,9 @@ function indun_panel_frame_contents(frame)
 
                             local ticket_notice = g.lang == "Japanese" and
                                                       string.format("{ol}{img %s 25 25 } %d個持っています。",
-                                                                    icon1, count) or
+                                    icon1, count) or
                                                       string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon1,
-                                                                    count)
+                                    count)
                             -- 641987 641963
 
                             a_ticket_btn:SetTextTooltip(ticket_notice)
@@ -1105,7 +1104,7 @@ function indun_panel_frame_contents(frame)
                             a_ticket_btn:SetEventScriptArgString(ui.LBUTTONUP, "A")
 
                             local ticket_count = frame:CreateOrGetControl("richtext", key .. "ticket_count", 520, y + 5,
-                                                                          40, 30)
+                                40, 30)
 
                             local recipe_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
 
@@ -1157,13 +1156,13 @@ function indun_panel_frame_contents(frame)
                             ticket_btn:SetText("{ol}{#EE7800}{s14}BUYUSE")
                             ticket_btn:SetTextTooltip("{ol}" ..
                                                           INDUN_PANEL_LANG(
-                                                              "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
-                                                                  "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))"))
+                                    "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
+                                        "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))"))
                             ticket_btn:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
                             ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
 
                             local ticket_count = frame:CreateOrGetControl("richtext", key .. "ticket_count", 335, y + 5,
-                                                                          40, 30)
+                                40, 30)
                             ticket_count:SetText("{ol}{#FFFFFF}{s16}({img pvpmine_shop_btn_total 20 20}d:" ..
                                                      INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_41") .. " w:" ..
                                                      INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_42") ..
@@ -1231,7 +1230,7 @@ function indun_panel_frame_contents(frame)
                             function indun_panel_buyuse_vel(frame, ctrl, recipename, indun_type)
 
                                 local count = GET_CURRENT_ENTERANCE_COUNT(
-                                                  GetClassByType("Indun", indun_type).PlayPerResetType)
+                                    GetClassByType("Indun", indun_type).PlayPerResetType)
 
                                 local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipename)
 
@@ -1286,9 +1285,9 @@ function indun_panel_frame_contents(frame)
                             end
 
                             local change_text = frame:CreateOrGetControl("richtext", key .. "change_text", 350, y + 5,
-                                                                         60, 30)
+                                60, 30)
                             change_text:SetText(string.format("{ol}{#FFFFFF}(%d/%d)", change_count,
-                                                              indun_panel_overbuy_count(recipe_name)))
+                                indun_panel_overbuy_count(recipe_name)))
 
                             local amount = frame:CreateOrGetControl("richtext", key .. "amount", 415, y + 5, 50, 30)
                             local amount_text = "{ol}{#FFFFFF}(" .. "{img pvpmine_shop_btn_total 20 20}"
@@ -1312,8 +1311,7 @@ function indun_panel_frame_contents(frame)
                             else
                                 amount_text = amount_text ..
                                                   string.format("{ol}{#FF0000}%s", GET_COMMAED_STRING(
-                                                                    indun_panel_overbuy_amount(recipe_name))) ..
-                                                  "{ol}{#FFFFFF})"
+                                        indun_panel_overbuy_amount(recipe_name))) .. "{ol}{#FFFFFF})"
                             end
                             amount:SetText(amount_text)
 
@@ -1353,9 +1351,9 @@ function indun_panel_frame_contents(frame)
 
                             local ticket_notice = g.lang == "Japanese" and
                                                       string.format("{ol}{img %s 25 25 } %d個持っています。",
-                                                                    icon1, inv_count) or
+                                    icon1, inv_count) or
                                                       string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon1,
-                                                                    inv_count)
+                                    inv_count)
 
                             ticket_btn:SetTextTooltip(ticket_notice)
                             ticket_btn:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
@@ -1594,7 +1592,7 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
                     if life_time ~= nil and life_time < 86400 then
                         INV_ICON_USE(use_item)
                         ReserveScript(string.format("indun_panel_enter_singularity('%s','%s','%s', %d)", _, _, _,
-                                                    indun_type), 1.0)
+                            indun_type), 1.0)
                         return
                     end
                 end
@@ -1607,12 +1605,12 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
                     if life_time ~= nil then
                         INV_ICON_USE(use_item)
                         ReserveScript(string.format("indun_panel_enter_singularity('%s','%s','%s', %d)", _, _, _,
-                                                    indun_type), 1.0)
+                            indun_type), 1.0)
                         return
                     else
                         INV_ICON_USE(use_item)
                         ReserveScript(string.format("indun_panel_enter_singularity('%s','%s','%s', %d)", _, _, _,
-                                                    indun_type), 1.0)
+                            indun_type), 1.0)
                         return
                     end
                 end
@@ -1642,7 +1640,7 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
             function indun_panel_INV_ICON_USE(classid, indun_type)
                 INV_ICON_USE(session.GetInvItemByType(classid))
                 ReserveScript(string.format("indun_panel_enter_singularity('%s','%s','%s', %d)", _, _, _, indun_type),
-                              1.0)
+                    1.0)
                 return
             end
 

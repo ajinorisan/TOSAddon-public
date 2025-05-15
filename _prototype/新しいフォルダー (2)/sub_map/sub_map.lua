@@ -346,9 +346,7 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
     local gbox = GET_CHILD(frame, "gbox")
     gbox:SetEventScript(ui.MOUSEON, "None")
     local map_pic = frame:GetChildRecursively("map_pic")
-=======
-    local map_pic = GET_CHILD(gbox, "map_pic")
->>>>>>> 7e9382280df7e8e4efbac0673855255b562fe1f5
+
     local mapprop = session.GetCurrentMapProp()
     local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
     local party_count = party_list:Count()
@@ -409,7 +407,7 @@ function sub_map_ipdate_party_or_guild(frame, msg, arg, num, info)
         return
     end
 
-<<<<<<< HEAD
+
     local my_handle = session.GetMyHandle()
     local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
 
