@@ -215,15 +215,6 @@ function indun_panel_frame_drag(frame, ctrl, str, num)
     button:SetText("{ol}{s10}INDUNPANEL")
 end
 
---[[function indun_panel_frame_move_mode(frame, ctrl, str, num)
-    ctrl:SetText("{ol}{s10}MOVE MODE")
-    frame:Resize(170, 40)
-    frame:EnableMove(1)
-    frame:SetSkinName('chat_window')
-    frame:SetTitleBarSkin("None")
-    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
-end]]
-
 function indun_panel_frame_init()
 
     local frame = ui.GetFrame("indun_panel")
@@ -1946,55 +1937,6 @@ function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART(frame)
     end
 end
 
---[[function indun_panel_save_settings()
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
-end
-
-function indun_panel_load_settings()
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc)
-
-    local default_settings = {
-        checkbox = 0,
-        zoom = 336,
-        challenge_checkbox = 1,
-        singularity_checkbox = 1,
-        redania_checkbox = 1,
-        neringa_checkbox = 1,
-        golem_checkbox = 1,
-        merregina_checkbox = 1,
-        slogutis_checkbox = 1,
-        upinis_checkbox = 1,
-        roze_checkbox = 1,
-        falouros_checkbox = 1,
-        spreader_checkbox = 1,
-        jellyzele_checkbox = 1,
-        delmore_checkbox = 1,
-        telharsha_checkbox = 1,
-        velnice_checkbox = 1,
-        giltine_checkbox = 1,
-        earring_checkbox = 1,
-        cemetery_checkbox = 1,
-        jsr_checkbox = 1,
-        singularity_check = 0,
-        en_ver = 0,
-        season_checkbox = 1
-    }
-
-    if not settings then
-        settings = default_settings
-    else
-        for key, value in pairs(default_settings) do
-            if not settings[key] then
-                settings[key] = value
-            end
-        end
-    end
-
-    g.settings = settings
-    indun_panel_save_settings()
-end]]
-
 function INDUN_PANEL_LANG(str)
 
     if g.settings.en_ver == 1 then
@@ -2091,3 +2033,61 @@ function INDUN_PANEL_LANG(str)
 
     return "{s20}" .. str
 end
+
+--[[function indun_panel_save_settings()
+    acutil.saveJSON(g.settingsFileLoc, g.settings);
+end
+
+function indun_panel_load_settings()
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc)
+
+    local default_settings = {
+        checkbox = 0,
+        zoom = 336,
+        challenge_checkbox = 1,
+        singularity_checkbox = 1,
+        redania_checkbox = 1,
+        neringa_checkbox = 1,
+        golem_checkbox = 1,
+        merregina_checkbox = 1,
+        slogutis_checkbox = 1,
+        upinis_checkbox = 1,
+        roze_checkbox = 1,
+        falouros_checkbox = 1,
+        spreader_checkbox = 1,
+        jellyzele_checkbox = 1,
+        delmore_checkbox = 1,
+        telharsha_checkbox = 1,
+        velnice_checkbox = 1,
+        giltine_checkbox = 1,
+        earring_checkbox = 1,
+        cemetery_checkbox = 1,
+        jsr_checkbox = 1,
+        singularity_check = 0,
+        en_ver = 0,
+        season_checkbox = 1
+    }
+
+    if not settings then
+        settings = default_settings
+    else
+        for key, value in pairs(default_settings) do
+            if not settings[key] then
+                settings[key] = value
+            end
+        end
+    end
+
+    g.settings = settings
+    indun_panel_save_settings()
+end]]
+
+--[[function indun_panel_frame_move_mode(frame, ctrl, str, num)
+    ctrl:SetText("{ol}{s10}MOVE MODE")
+    frame:Resize(170, 40)
+    frame:EnableMove(1)
+    frame:SetSkinName('chat_window')
+    frame:SetTitleBarSkin("None")
+    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+end]]
