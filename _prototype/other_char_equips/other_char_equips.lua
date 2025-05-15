@@ -328,16 +328,16 @@ function other_char_equips_load_settings()
                 cid = "",
                 equips = {}
             }
-            for i, key in ipairs(equips) do
-                if i <= 4 then
-                    settings.character[barrack_pc_name].equips[key] = {
+            for j, equip_name in ipairs(equips) do
+                if j <= 4 then
+                    settings.characters[barrack_pc_name].equips[equip_name] = {
                         clsid = 0,
                         lv = 0,
                         skill_name = "",
                         skill_lv = 0
                     }
                 else
-                    settings.character[barrack_pc_name].equips[key] = {
+                    settings.characters[barrack_pc_name].equips[equip_name] = {
                         clsid = 0,
                         lv = 0
                     }
@@ -417,10 +417,10 @@ function other_char_equips_tableset()
         for name, charData in pairs(g.settings.characters) do
 
             if name == pc_name then
-                g.settings.character[name].cid = pc_cid
-                g.settings.character[name].index = i
+                g.settings.characters[name].cid = pc_cid
+                g.settings.characters[name].index = i
                 if g.layer and g.layer ~= g.settings.character[name].layer then
-                    g.settings.character[name].layer = g.layer
+                    g.settings.characters[name].layer = g.layer
                 end
             end
         end
@@ -456,7 +456,7 @@ function other_char_equips_save_enchant()
     local count = equip_item_list:Count()
     local cid = session.GetMySession():GetCID()
 
-    local data = g.settings.character[pc_name].equips
+    local data = g.settings.characters[pc_name].equips
 
     local score = 0
     for i = 0, count - 1 do
@@ -538,7 +538,7 @@ function other_char_equips_save_enchant()
     else
         data["GOD"] = {}
     end
-    g.settings.character[pc_name].gear_score = score
+    g.settings.characters[pc_name].gear_score = score
 
     g.save_settings()
 end

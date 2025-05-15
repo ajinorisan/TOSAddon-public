@@ -459,8 +459,71 @@ function sub_map_change_minimap_mode(frame, msg)
     timer:SetUpdateScript("sub_map_time_update")
     timer:Start(1.0)
 end
+--- 
 
 function sub_map_set_pcicon_update(frame, msg, str, num, info)
+
+    local frame = ui.GetFrame("sub_map")
+
+    sub_map_change_minimap_mode(frame, msg)
+
+    local gbox = GET_CHILD(frame, "gbox")
+    gbox:SetEventScript(ui.MOUSEON, "None")
+    local map_pic = frame:GetChildRecursively("map_pic")
+    local mapprop = session.GetCurrentMapProp()
+
+    local list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    local count = list:Count()
+
+    if count == 1 then
+        sub_map_DESTROY_CHILD_BYNAME(gbox, "pm_")
+        return
+    end
+
+    local my_handle = session.GetMyHandle()
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
+
+    for i = 1, selected_objects_count do
+
+        local handle = GetHandle(selected_objects[i])
+        if handle and info.IsPC(handle) == 1 then
+            local actor = world.GetActor(handle)
+
+            for j = 0, count - 1 do
+                local pc_info = list:Element(j)
+                if my_handle ~= handle and handle ~= 0 then
+                    local instInfo = pc_info:GetInst()
+                    local worldPos = actor:GetPos()
+                    local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
+                    local x = (pos.x - g.icon_size / 2)
+                    local y = (pos.y - g.icon_size / 2)
+                    local icon = GET_CHILD_RECURSIVELY(gbox, "pm_" .. handle)
+
+                    if icon then
+                        AUTO_CAST(icon)
+                        icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName())
+                        icon:SetEnableStretch(1)
+                    else
+                        icon = gbox:CreateOrGetControl("picture", "pm_" .. handle, x, y, g.icon_size, g.icon_size)
+                        AUTO_CAST(icon)
+                        icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName())
+                        icon:SetEnableStretch(1)
+                    end
+                    icon:SetPos(x, y)
+                    local pcinfo_hp = instInfo.hp
+                    if pcinfo_hp > 0 then
+                        icon:SetImage("Archer_party")
+                    else
+                        icon:SetImage("die_party")
+                    end
+                end
+            end
+        end
+    end
+    gbox:Invalidate()
+end
+
+--[[function sub_map_set_pcicon_update(frame, msg, str, num, info)
 
     local frame = ui.GetFrame("sub_map")
 
@@ -516,7 +579,7 @@ function sub_map_set_pcicon_update(frame, msg, str, num, info)
         end
     end
     gbox:Invalidate()
-end
+end]]
 
 function sub_map_frame_toggle(frame, ctrl)
 
@@ -1047,7 +1110,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             local item_name = GetClass("Item", item_split[2]).Name
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                0, 0, 0)
+                                                 0, 0, 0)
             AUTO_CAST(icon)
 
             icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
@@ -1067,7 +1130,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                0, 0, 0)
+                                                 0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.name)
             icon:SetImage(data.icon_name)
@@ -1114,7 +1177,7 @@ function sub_map_set_warp_point(frame, map_name)
                     local pos = gen_list:Element(j)
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
-                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
                     AUTO_CAST(icon)
                     local map_cls = GetClass("Map", cls_name)
                     icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name)
