@@ -67,11 +67,12 @@
 -- v1.6.7 ウルトラワイドを再修正。クエストフレームの挙動を追加
 -- v1.6.8 チャンネルフレームの初期場所修正。セッティングファイルバグ修正
 -- v1.6.9 ボスのエフェクト調整。FPSの手入力。ブラックマーケットのお知らせ修正。ヴェルニケ報酬自動受け取り
--- v1.6.9 週間ボス報酬系修正。いつでもメンバーチャット修正。
+-- v1.7.0 週間ボス報酬系修正。いつでもメンバーチャット修正。
+-- v1.7.1 エフェクト関係のバグ修正。NOTICE_ON_MSGのバグ修正。
 local addonName = "MINI_ADDONS"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.7.0"
+local ver = "1.7.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1142,7 +1143,9 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
+
     local origin_func = g.FUNCS[origin_func_name]
+
     local function hooked_function(...)
 
         local original_results
@@ -1155,7 +1158,7 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
 
-        if bool == true and original_results ~= nil then
+        if original_results then
             return table.unpack(original_results)
         else
             return
@@ -1164,8 +1167,8 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
     _G[origin_func_name] = hooked_function
 
-    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
-        g.RAGISTER[origin_func_name] = true
+    if not g.RAGISTER[origin_func_name .. my_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name .. my_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
     end
 end
@@ -1654,13 +1657,6 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.setup_hook_and_event(addon, "SHOW_PC_CONTEXT_MENU", "MINI_ADDONS_SHOW_PC_CONTEXT_MENU", false)
     g.setup_hook_and_event(addon, "POPUP_DUMMY", "MINI_ADDONS_POPUP_DUMMY", false)
 
-    -- g.SetupHook(MINI_ADDONS_CHAT_RBTN_POPUP, "CHAT_RBTN_POPUP")
-    -- g.SetupHook(MINI_ADDONS_POPUP_GUILD_MEMBER, "POPUP_GUILD_MEMBER")
-    -- g.SetupHook(MINI_ADDONS_CONTEXT_PARTY, "CONTEXT_PARTY") -- SHOW_PC_CONTEXT_MENU(handle)
-    -- g.SetupHook(MINI_ADDONS_SHOW_PC_CONTEXT_MENU, "SHOW_PC_CONTEXT_MENU")
-    -- g.SetupHook(MINI_ADDONS_POPUP_DUMMY, "POPUP_DUMMY")
-    -- g.SetupHook(MINI_ADDONS_ACCOUNTPROP_INVENTORY_UPDATE, "ACCOUNTPROP_INVENTORY_UPDATE")
-
     g.call = {}
     g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas", true)
     -- acutil.setupEvent(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas")
@@ -1719,15 +1715,13 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE")
     acutil.setupEvent(addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
 
+    local frame = ui.GetFrame("buff_separatedlist")
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+    AUTO_CAST(gbox)
     if g.settings.separated_buff == 1 then
-        local frame = ui.GetFrame("buff_separatedlist")
-        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-        AUTO_CAST(gbox)
         gbox:SetSkinName("None")
     else
-        local frame = ui.GetFrame("buff_separatedlist")
-        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-        AUTO_CAST(gbox)
+
         gbox:SetSkinName("chat_window")
     end
 
@@ -3894,15 +3888,18 @@ end
 
 function MINI_ADDONS_BOSS_EFFECT_SETTING()
 
-    EFFECT_TRANSPARENCY_ON()
-    local boss_effect = config.GetBossMonsterEffectTransparency()
+    local frame = ui.GetFrame("systemoption")
+    local slide = GET_CHILD_RECURSIVELY(frame, "effect_transparency_boss_monster_value", "ui::CSlideBar");
+
     if g.settings.boss_effect_value ~= nil then
-        config.SetBossMonsterEffectTransparency(g.settings.my_effect_value)
-        -- config.SetMyEffectTransparency(g.settings.my_effect_value)
+        config.SetBossMonsterEffectTransparency(g.settings.boss_effect_value)
+        slide:SetLevel(g.settings.boss_effect_value);
     else
+        local boss_effect = config.GetBossMonsterEffectTransparency()
         config.SetBossMonsterEffectTransparency(boss_effect)
-        -- config.SetMyEffectTransparency(my_effect)
+
     end
+
 end
 
 function MINI_ADDONS_MY_EFFECT_EDIT(frame, ctrl)
@@ -3923,13 +3920,17 @@ end
 
 function MINI_ADDONS_MY_EFFECT_SETTING()
 
-    EFFECT_TRANSPARENCY_ON()
-    local my_effect = config.GetMyEffectTransparency()
+    local frame = ui.GetFrame("systemoption")
+    local slide = GET_CHILD_RECURSIVELY(frame, "effect_transparency_my_value", "ui::CSlideBar");
+
     if g.settings.my_effect_value ~= nil then
         config.SetMyEffectTransparency(g.settings.my_effect_value)
+        slide:SetLevel(g.settings.my_effect_value);
     else
+        local my_effect = config.GetMyEffectTransparency()
         config.SetMyEffectTransparency(my_effect)
     end
+
 end
 
 function MINI_ADDONS_OTHER_EFFECT_EDIT(frame, ctrl)
@@ -3950,11 +3951,13 @@ end
 
 function MINI_ADDONS_OTHER_EFFECT_SETTING()
 
-    EFFECT_TRANSPARENCY_ON()
-    local other_effect = config.GetOtherEffectTransparency()
+    local frame = ui.GetFrame("systemoption")
+    local slide = GET_CHILD_RECURSIVELY(frame, "effect_transparency_other_value", "ui::CSlideBar");
     if g.settings.other_effect_value ~= nil then
         config.SetOtherEffectTransparency(g.settings.other_effect_value)
+        slide:SetLevel(g.settings.other_effect_value);
     else
+        local other_effect = config.GetOtherEffectTransparency()
         config.SetOtherEffectTransparency(other_effect)
     end
 end
@@ -4017,7 +4020,7 @@ end
 function MINI_ADDONS_NOTICE_ON_MSG(frame, origin_func_name)
 
     local frame, msg, str, num = g.get_event_args(origin_func_name)
-    -- print(tostring(str) .. ":" .. tostring(msg))
+
     if g.settings.chat_system == 1 then
         if string.find(str, "StartBlackMarketBetween") then
             return

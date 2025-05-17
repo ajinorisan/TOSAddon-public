@@ -168,7 +168,7 @@ function ADDON_NAME_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    g.RAGISTER = {}
+    g.REGISTER = {}
 
     g.lang = option.GetCurrentCountry()
     g.cid = session.GetMySession():GetCID()

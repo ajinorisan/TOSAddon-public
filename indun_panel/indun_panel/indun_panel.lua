@@ -56,10 +56,11 @@
 -- v1.5.6 フレーム移動出来るように
 -- v1.5.7 移動後フレーム固定
 -- v1.5.8 フレーム固定を設定に変更。墓チケットを使える様に。その他コード見直しacutilやめた。
+-- v1.5.9 傭兵団コインの1日分裂券バグってたの修正。でもIMCが勝手に仕様変更したのもアカンと思うんです。
 local addonName = "indun_panel"
 local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.5.8"
+local ver = "1.5.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -101,11 +102,8 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
 
-        if bool == true and original_results ~= nil then
-            return table.unpack(original_results)
-        else
-            return
-        end
+        return table.unpack(original_results)
+
     end
 
     _G[origin_func_name] = hooked_function
@@ -217,15 +215,6 @@ function indun_panel_frame_drag(frame, ctrl, str, num)
     AUTO_CAST(button)
     button:SetText("{ol}{s10}INDUNPANEL")
 end
-
---[[function indun_panel_frame_move_mode(frame, ctrl, str, num)
-    ctrl:SetText("{ol}{s10}MOVE MODE")
-    frame:Resize(170, 40)
-    frame:EnableMove(1)
-    frame:SetSkinName('chat_window')
-    frame:SetTitleBarSkin("None")
-    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
-end]]
 
 function indun_panel_frame_init()
 
@@ -456,7 +445,7 @@ function indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC(frame, ctrl, str
                 return;
             end
             -- 레이드 지역에서 이용 불가
-            local zoneKeyword = TryGetProp(curMap, 'Keyword', 'None')
+            local zoneKeyword = TryGetProp(cur_map, 'Keyword', 'None')
             local keywordTable = StringSplit(zoneKeyword, ';')
             if table.find(keywordTable, 'IsRaidField') > 0 or table.find(keywordTable, 'WeeklyBossMap') > 0 then
                 ui.SysMsg(ScpArgMsg('ThisLocalUseNot'))
@@ -1796,9 +1785,6 @@ function indun_panel_FPS_UPDATE(frame, msg)
     end
 end
 
-g.loaded = false
-g.sing = false
-
 function g.save_settings()
     local function save_json(path, tbl)
         local file = io.open(path, "w")
@@ -1878,6 +1864,8 @@ function g.get_map_type()
     return map_type
 end
 
+g.loaded = false
+g.sing = false
 function INDUN_PANEL_ON_INIT(addon, frame)
 
     local start_time = os.clock() -- ★処理開始前の時刻を記録★
@@ -1908,8 +1896,9 @@ function INDUN_PANEL_ON_INIT(addon, frame)
             local earthtowershop = ui.GetFrame('earthtowershop')
             if earthtowershop then
                 earthtowershop:Resize(0, 0)
+                indun_panel_minimized_pvpmine_shop_init()
+                g.sing = true
             end
-            g.sing = true
         end
 
         g.setup_hook_and_event(addon, "INDUN_ALREADY_PLAYING", "indun_panel_INDUN_ALREADY_PLAYING", false)
@@ -1946,55 +1935,6 @@ function INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART(frame)
         return 1
     end
 end
-
---[[function indun_panel_save_settings()
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
-end
-
-function indun_panel_load_settings()
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc)
-
-    local default_settings = {
-        checkbox = 0,
-        zoom = 336,
-        challenge_checkbox = 1,
-        singularity_checkbox = 1,
-        redania_checkbox = 1,
-        neringa_checkbox = 1,
-        golem_checkbox = 1,
-        merregina_checkbox = 1,
-        slogutis_checkbox = 1,
-        upinis_checkbox = 1,
-        roze_checkbox = 1,
-        falouros_checkbox = 1,
-        spreader_checkbox = 1,
-        jellyzele_checkbox = 1,
-        delmore_checkbox = 1,
-        telharsha_checkbox = 1,
-        velnice_checkbox = 1,
-        giltine_checkbox = 1,
-        earring_checkbox = 1,
-        cemetery_checkbox = 1,
-        jsr_checkbox = 1,
-        singularity_check = 0,
-        en_ver = 0,
-        season_checkbox = 1
-    }
-
-    if not settings then
-        settings = default_settings
-    else
-        for key, value in pairs(default_settings) do
-            if not settings[key] then
-                settings[key] = value
-            end
-        end
-    end
-
-    g.settings = settings
-    indun_panel_save_settings()
-end]]
 
 function INDUN_PANEL_LANG(str)
 
@@ -2092,3 +2032,61 @@ function INDUN_PANEL_LANG(str)
 
     return "{s20}" .. str
 end
+
+--[[function indun_panel_save_settings()
+    acutil.saveJSON(g.settingsFileLoc, g.settings);
+end
+
+function indun_panel_load_settings()
+
+    local settings, err = acutil.loadJSON(g.settingsFileLoc)
+
+    local default_settings = {
+        checkbox = 0,
+        zoom = 336,
+        challenge_checkbox = 1,
+        singularity_checkbox = 1,
+        redania_checkbox = 1,
+        neringa_checkbox = 1,
+        golem_checkbox = 1,
+        merregina_checkbox = 1,
+        slogutis_checkbox = 1,
+        upinis_checkbox = 1,
+        roze_checkbox = 1,
+        falouros_checkbox = 1,
+        spreader_checkbox = 1,
+        jellyzele_checkbox = 1,
+        delmore_checkbox = 1,
+        telharsha_checkbox = 1,
+        velnice_checkbox = 1,
+        giltine_checkbox = 1,
+        earring_checkbox = 1,
+        cemetery_checkbox = 1,
+        jsr_checkbox = 1,
+        singularity_check = 0,
+        en_ver = 0,
+        season_checkbox = 1
+    }
+
+    if not settings then
+        settings = default_settings
+    else
+        for key, value in pairs(default_settings) do
+            if not settings[key] then
+                settings[key] = value
+            end
+        end
+    end
+
+    g.settings = settings
+    indun_panel_save_settings()
+end]]
+
+--[[function indun_panel_frame_move_mode(frame, ctrl, str, num)
+    ctrl:SetText("{ol}{s10}MOVE MODE")
+    frame:Resize(170, 40)
+    frame:EnableMove(1)
+    frame:SetSkinName('chat_window')
+    frame:SetTitleBarSkin("None")
+    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+end]]

@@ -10,11 +10,12 @@
 -- v1.0.9 ReserveScriptを無くした。色々書き換えた。
 -- v1.1.0 キャラ順バグるの修正
 -- v1.1.1 レイヤーの取り方修正。バラックでのフックの結果をグローバルに置くように。
+-- v1.1.2 リターンバラックで戻った時にゲームに接続できないバグ修正。
 local addonName = "INSTANTCC"
 local addonNameLower = string.lower(addonName)
 
 local author = "ebisuke"
-local ver = "1.1.1"
+local ver = "1.1.2"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -224,7 +225,7 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN(...)
 
     local start_game = GET_CHILD(barrack_gamestart, "start_game")
     AUTO_CAST(start_game)
-    start_game:SetEventScript(ui.LBUTTONUP, "INSTANTCC_TOGAME")
+    start_game:SetEventScript(ui.LBUTTONUP, "BARRACK_TO_GAME")
 
     if g.do_cc and not g.retry then
         g.retry = 0
