@@ -1,22 +1,7 @@
--- v1.0.1 skillnameがNoneの場合に表示バグってたの修正
--- v1.0.2 UI少し変更。CC時のカードやエンブレムの装備取り忘れ確認機能。
--- v1.0.3 読み込み早くしたつもり。自分では何も感じない。回線のせいか？
--- v1.0.4 3回目以降のCCはキャラクターリストを読み込まない様に変更
--- v1.0.5 書き直した。高速化したはず。
--- v1.0.6 instantcc使ってたら順番バグるの修正。フレーム開ける時に読み込みに変更。
--- v1.0.7 順番バグってたの再修正
--- v1.0.8 キャラの装備詳細見れる様にした。でも同一バラックじゃないと無理／(^o^)＼ 他の装備LVも可視化
--- v1.0.9 バグ修正
--- v1.1.0 高速化。ギアスコア表示。セーブデータは一旦消えます(´;ω;｀)
--- v1.1.1 セーブファイルの呼出修正
--- v1.1.2 新キャラ作った時に反映されなかったの修正
--- v1.1.3 キャラ削除した時に反映されなかったの修正。ロードを起動時のみに。セーブデータ持ち方修正。レイヤーの取り方修正
--- v1.1.4 バニラでセッティングバグってたの修正
--- v1.1.5 バグで色々どうしようもなくなったので仕切り直し。セーブファイル消えます。アドオンメニューに参加
-local addon_name = "OTHER_CHARACTER_SKILL_LIST"
-local addon_name_lower = string.lower(addon_name)
+-- v1.0.0 OTHER_CHARACTER_SKILL_LISTv1.1.5と同じ
+local addon_name = "other_char_equips"
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.0.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -143,17 +128,17 @@ function g.mkdir_new_folder()
         end
     end
 
-    local addon_folder = string.format("../addons/%s", addon_name_lower)
-    local addon_mkdir_file = string.format("../addons/%s/mkdir.txt", addon_name_lower)
+    local addon_folder = string.format("../addons/%s", addon_name)
+    local addon_mkdir_file = string.format("../addons/%s/mkdir.txt", addon_name)
     create_folder(addon_folder, addon_mkdir_file)
 
     g.active_id = session.loginInfo.GetAID()
 
-    local user_folder = string.format("../addons/%s/%s", addon_name_lower, g.active_id)
-    local user_mkdir_file = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, g.active_id)
+    local user_folder = string.format("../addons/%s/%s", addon_name, g.active_id)
+    local user_mkdir_file = string.format("../addons/%s/%s/mkdir.txt", addon_name, g.active_id)
     create_folder(user_folder, user_mkdir_file)
 
-    g.settings_path = string.format("../addons/%s/%s/_2505_settings.json", addon_name_lower, g.active_id)
+    g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name, g.active_id)
 
 end
 g.mkdir_new_folder()
@@ -211,7 +196,7 @@ end
 
 function g.log_to_file(message)
 
-    local file_path = string.format("../addons/%s/log.txt", addon_name_lower)
+    local file_path = string.format("../addons/%s/log.txt", addon_name)
     local file = io.open(file_path, "a")
 
     if file then
@@ -244,187 +229,7 @@ function g.load_json(path)
     end
 end
 
--- アドオンメニューボタン
-local norisan_menu_settings = string.format("../addons/%s/settings.json", "norisan_menu")
-local norisan_menu_folder = string.format("../addons/%s", "norisan_menu")
-local norisan_menu_mkfile = string.format("../addons/%s/mkdir.txt", "norisan_menu")
-_G["norisan"] = _G["norisan"] or {}
-_G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
-
-local function norisan_menu_create_folder_file()
-    local file = io.open(norisan_menu_mkfile, "r")
-    if not file then
-        os.execute('mkdir "' .. norisan_menu_folder .. '"')
-        file = io.open(norisan_menu_mkfile, "w")
-        if file then
-            file:write("created");
-            file:close()
-        end
-    else
-        file:close()
-    end
-end
-
-local function norisan_menu_load_json(path)
-
-    local file = io.open(path, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        if content and content ~= "" then
-            local decoded, err = json.decode(content)
-            if decoded then
-                return decoded
-            end
-        end
-    end
-    return nil
-end
-
-local function norisan_menu_save_json(path, tbl)
-
-    local data_to_save = {
-        x = tbl.x,
-        y = tbl.y
-
-    }
-    local file = io.open(path, "w")
-    if file then
-        local str = json.encode(data_to_save)
-        file:write(str)
-        file:close()
-    end
-end
-
-function _G.norisan_menu_frame_open(frame, ctrl) -- frame, ctrl はそのまま
-
-    if not frame then
-        return
-    end
-
-    imcSound.PlaySoundEvent("window_open")
-    if frame:GetHeight() > 40 then
-        local child_count = frame:GetChildCount()
-        local remove_list = {}
-        for i = 0, child_count - 1 do
-            local child_ctrl = frame:GetChildByIndex(i)
-            if child_ctrl then
-                local child_name = child_ctrl:GetName()
-                if child_name ~= "norisan_menu_pic" then
-                    table.insert(remove_list, child_name)
-                end
-            end
-        end
-        for _, name_to_remove in ipairs(remove_list) do
-            frame:RemoveChild(name_to_remove)
-        end
-        frame:Resize(40, 40)
-        return
-    end
-
-    local menu_items_tbl = _G["norisan"]["MENU"]
-    local item_count = 0
-    local disp_idx = 0
-
-    if menu_items_tbl then
-        for key, item_data in pairs(menu_items_tbl) do
-
-            if key ~= "x" and key ~= "y" and type(item_data) == "table" and item_data.name and item_data.icon and
-                item_data.func then
-
-                item_count = item_count + 1
-                local item_pic_name = "menu_item_" .. key -- menu_pic_ctrl_name から変更
-                local item_pic = frame:CreateOrGetControl('picture', item_pic_name, disp_idx * 35, 35, 35, 40) -- menu_pic を item_pic に
-                AUTO_CAST(item_pic)
-                item_pic:SetImage(item_data.icon)
-                item_pic:SetEnableStretch(1)
-                item_pic:SetTextTooltip("{ol}" .. item_data.name)
-                item_pic:SetEventScript(ui.LBUTTONUP, item_data.func)
-                item_pic:ShowWindow(1)
-                disp_idx = disp_idx + 1
-            end
-        end
-    end
-
-    if item_count > 0 then
-        frame:Resize(math.max(40, item_count * 35), 70)
-    else
-        frame:Resize(40, 40)
-    end
-end
-
-function _G.norisan_menu_move_drag(frame, ctrl)
-    if not frame then
-        return
-    end
-    _G["norisan"]["MENU"].x = frame:GetX()
-    _G["norisan"]["MENU"].y = frame:GetY()
-    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
-end
-
-function _G.norisan_menu_create_frame()
-
-    norisan_menu_create_folder_file()
-
-    local loaded_cfg = norisan_menu_load_json(norisan_menu_settings)
-    local cfg_x = nil
-    local cfg_y = nil
-
-    if loaded_cfg then
-        cfg_x = loaded_cfg.x
-        cfg_y = loaded_cfg.y
-    end
-
-    if cfg_x == nil or cfg_y == nil then
-
-        _G["norisan"]["MENU"].x = _G["norisan"]["MENU"].x or 510
-        _G["norisan"]["MENU"].y = _G["norisan"]["MENU"].y or 30
-        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
-    else
-
-        local map_frame = ui.GetFrame("map")
-        local width = map_frame:GetWidth()
-
-        if _G["norisan"]["MENU"].x and _G["norisan"]["MENU"].x > 1920 and width <= 1920 then
-            cfg_x = 510
-            cfg_y = 30
-        end
-
-        _G["norisan"]["MENU"].x = cfg_x
-        _G["norisan"]["MENU"].y = cfg_y
-    end
-
-    local frame = ui.GetFrame("norisan_menu")
-    if not frame then
-
-        frame = ui.CreateNewFrame("chat_memberlist", "norisan_menu")
-        AUTO_CAST(frame)
-        frame:SetSkinName("chat_window")
-        frame:SetSkinName("None")
-        frame:SetTitleBarSkin("None")
-        frame:Resize(40, 40)
-
-        frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
-        frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
-
-        local norisan_menu_pic = frame:CreateOrGetControl('picture', "norisan_menu_pic", 0, 0, 35, 40)
-        AUTO_CAST(norisan_menu_pic)
-        norisan_menu_pic:SetImage("sysmenu_sys")
-        norisan_menu_pic:SetEnableStretch(1)
-        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open") -- グローバル関数名を指定
-        norisan_menu_pic:SetTextTooltip("{ol}addons menu")
-    end
-
-    if frame then
-
-        frame:ShowWindow(1)
-    end
-
-end
-
--- アドオンメニューボタンここまで
-
-function other_character_skill_list_BARRACK_TO_GAME(...)
+function other_char_equips_BARRACK_TO_GAME(...)
 
     local bc_frame = ui.GetFrame("barrack_charlist")
     if bc_frame then
@@ -443,18 +248,18 @@ function other_character_skill_list_BARRACK_TO_GAME(...)
     return result
 end
 
-function other_character_skill_list_BARRACK_TO_GAME_hook()
+function other_char_equips_BARRACK_TO_GAME_hook()
     local origin_func_name = "BARRACK_TO_GAME"
     if _G[origin_func_name] then
         if not g.FUNCS[origin_func_name] then
             g.FUNCS[origin_func_name] = _G[origin_func_name]
         end
-        _G[origin_func_name] = other_character_skill_list_BARRACK_TO_GAME
+        _G[origin_func_name] = other_char_equips_BARRACK_TO_GAME
     end
 end
 
 g.first = true
-function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
+function OTHER_CHAR_EQUIPS_ON_INIT(addon, frame)
     local start_time = os.clock() -- ★処理開始前の時刻を記録★
     g.addon = addon
     g.frame = frame
@@ -470,7 +275,7 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
     _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
     if not _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] then
         _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addon_name
-        addon:RegisterMsg("GAME_START", "other_character_skill_list_BARRACK_TO_GAME_hook")
+        addon:RegisterMsg("GAME_START", "other_char_equips_BARRACK_TO_GAME_hook")
     end
 
     -- 初回ログイン時はバラックPCカウント取れないのでreturn
@@ -479,33 +284,24 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
         return
     end
 
-    local menu_data = {
-        name = "Other Character Skill List ",
-        icon = "sysmenu_friend",
-        func = "other_character_skill_list_frame_open"
-    }
-    _G["norisan"]["MENU"][addon_name] = menu_data
-    addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
-
     if g.get_map_type() == "City" then
         if not g.settings then
-            addon:RegisterMsg("GAME_START", "other_character_skill_list_load_settings")
+            addon:RegisterMsg("GAME_START", "other_char_equips_load_settings")
         end
-        addon:RegisterMsg("GAME_START", "other_character_skill_list_save_enchant")
-        g.setup_hook_and_event(addon, "INVENTORY_OPEN", "other_character_skill_list_INVENTORY_OPEN", true)
-        g.setup_hook_and_event(addon, "INVENTORY_CLOSE", "other_character_skill_list_INVENTORY_CLOSE", true)
-        -- addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_frame_init")
-        addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_tableset")
+        addon:RegisterMsg("GAME_START", "other_char_equips_save_enchant")
+        g.setup_hook_and_event(addon, "INVENTORY_OPEN", "other_char_equips_INVENTORY_OPEN", true)
+        g.setup_hook_and_event(addon, "INVENTORY_CLOSE", "other_char_equips_INVENTORY_CLOSE", true)
+        addon:RegisterMsg("GAME_START_3SEC", "other_char_equips_frame_init")
     end
     local end_time = os.clock()
     local elapsed_time = end_time - start_time
-    -- CHAT_SYSTEM(string.format("other_character_skill_list_ON_INIT: %.4f seconds", elapsed_time))
+    -- CHAT_SYSTEM(string.format("other_char_equips_ON_INIT: %.4f seconds", elapsed_time))
 end
 
 local equips = {"SHIRT", "PANTS", "GLOVES", "BOOTS", "LEG", "GOD", "SEAL", "ARK", "RELIC", "RH", "LH", "RH_SUB",
                 "LH_SUB", "RING1", "RING2", "NECK"}
 
-function other_character_skill_list_load_settings()
+function other_char_equips_load_settings()
 
     local settings = g.load_json(g.settings_path)
 
@@ -581,7 +377,7 @@ function other_character_skill_list_load_settings()
     g.save_settings()
 end
 
-function other_character_skill_list_sort()
+function other_char_equips_sort()
 
     local function sort_layer_order(a, b)
         if a.layer ~= b.layer then
@@ -609,7 +405,7 @@ function other_character_skill_list_sort()
     g.characters = char_list
 end
 
-function other_character_skill_list_tableset()
+function other_char_equips_tableset()
 
     local account_info = session.barrack.GetMyAccount()
     local same_count = account_info:GetPCCount()
@@ -630,11 +426,11 @@ function other_character_skill_list_tableset()
     end
     g.save_settings()
     g.layer = nil
-    other_character_skill_list_sort()
+    other_char_equips_sort()
 end
 
-function other_character_skill_list_frame_init()
-    local frame = ui.GetFrame("other_character_skill_list")
+function other_char_equips_frame_init()
+    local frame = ui.GetFrame(addon_name)
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
     frame:Resize(35, 35)
@@ -647,12 +443,12 @@ function other_character_skill_list_frame_init()
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_friend 35 35}")
 
-    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_frame_open")
-    btn:SetTextTooltip("{ol}Other Character Skill List")
-    other_character_skill_list_tableset()
+    btn:SetEventScript(ui.LBUTTONDOWN, "other_char_equips_frame_open")
+    btn:SetTextTooltip("{ol}[Other Char Equips]")
+    other_char_equips_tableset()
 end
 
-function other_character_skill_list_save_enchant()
+function other_char_equips_save_enchant()
 
     local inventory = ui.GetFrame("inventory")
     local pc_name = session.GetMySession():GetPCApc():GetName()
@@ -747,29 +543,27 @@ function other_character_skill_list_save_enchant()
     g.save_settings()
 end
 
-function other_character_skill_list_INVENTORY_OPEN()
-    local frame = ui.GetFrame("other_character_skill_list")
-    frame:ShowWindow(0)
-    other_character_skill_list_save_enchant()
+function other_char_equips_INVENTORY_OPEN()
+    local newframe = ui.GetFrame(addon_name .. "new_frame")
+    newframe:ShowWindow(0)
+    other_char_equips_save_enchant()
 end
 
-function other_character_skill_list_INVENTORY_CLOSE()
-    local frame = ui.GetFrame("other_character_skill_list")
-    frame:ShowWindow(1)
-    other_character_skill_list_save_enchant()
+function other_char_equips_INVENTORY_CLOSE()
+    other_char_equips_save_enchant()
 end
 
-function other_character_skill_list_char_report_close(frame, ctrl, str, num)
+function other_char_equips_char_report_close(frame, ctrl, str, num)
 
     local parent = frame:GetParent()
     parent = parent:GetParent()
 
     parent:ShowWindow(0)
 
-    other_character_skill_list_frame_open()
+    other_char_equips_frame_open()
 end
 
-function other_character_skill_list_char_report(frame, ctrl, char_name_str, num)
+function other_char_equips_char_report(frame, ctrl, char_name_str, num)
 
     local cid = g.settings.characters[char_name_str].cid
     local current_cid = frame:GetUserValue("CID")
@@ -790,7 +584,7 @@ function other_character_skill_list_char_report(frame, ctrl, char_name_str, num)
         ui.SysMsg(language == "Japanese" and
                       "{ol}詳細表示は、ログイン中のキャラと同一バラックのキャラのみ対応しています (´;ω;｀))" or
                       "{ol}Detailed view is supported only for characters in the same barracks as the currently logged-in character.")
-        other_character_skill_list_frame_open()
+        other_char_equips_frame_open()
         return
     end
 
@@ -808,7 +602,7 @@ function other_character_skill_list_char_report(frame, ctrl, char_name_str, num)
     AUTO_CAST(indun_btn)
 
     indun_btn:SetImage("testclose_button")
-    indun_btn:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report_close")
+    indun_btn:SetEventScript(ui.LBUTTONUP, "other_char_equips_char_report_close")
 
     btn:ShowWindow(1)
     local apc = bpc_info:GetApc()
@@ -926,9 +720,9 @@ function other_character_skill_list_char_report(frame, ctrl, char_name_str, num)
     end
 end
 
-function other_character_skill_list_frame_open(frame, ctrl, str, num)
+function other_char_equips_frame_open(frame, ctrl, str, num) -- 関数名はそのまま
 
-    local main_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "new_frame", 0, 0, 70, 30)
+    local main_frame = ui.CreateNewFrame("notice_on_pc", addon_name .. "new_frame", 0, 0, 70, 30)
     AUTO_CAST(main_frame)
 
     main_frame:SetSkinName("test_frame_midle")
@@ -942,7 +736,7 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
     AUTO_CAST(close_btn)
     close_btn:SetImage("testclose_button")
     close_btn:SetGravity(ui.LEFT, ui.TOP)
-    close_btn:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_frame_close")
+    close_btn:SetEventScript(ui.LBUTTONUP, "other_char_equips_frame_close")
 
     local help_btn = title_box:CreateOrGetControl('button', "help", 40, 0, 35, 35)
     AUTO_CAST(help_btn)
@@ -1021,7 +815,7 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
         AUTO_CAST(name_lbl)
         name_lbl:SetText("{ol}" .. char_info.name)
         name_lbl:AdjustFontSizeByWidth(150)
-        name_lbl:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report")
+        name_lbl:SetEventScript(ui.LBUTTONUP, "other_char_equips_char_report")
         name_lbl:SetEventScriptArgString(ui.LBUTTONUP, char_info.name)
         local gs_str = gear_score ~= 0 and tostring(gear_score) or "NoData" -- tostring 追加
 
@@ -1169,8 +963,8 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
     main_frame:ShowWindow(1)
 end
 
-function other_character_skill_list_frame_close(frame, ctrl, str, num)
-    local frame = ui.GetFrame(addon_name_lower .. "new_frame")
+function other_char_equips_frame_close(frame, ctrl, str, num)
+    local frame = ui.GetFrame(addon_name .. "new_frame")
     frame:ShowWindow(0)
 
 end

@@ -17,10 +17,11 @@
 -- v1.1.6 ジョイスティックモードにも対応したつもり
 -- v1.1.7 レダニア追加
 -- v1.1.8 コード書き直した。右SHIFTでポーション入替える仕様に。ギルドレイド対応。
+-- v1.1.9 やっぱバグってた。直したつもり
 local addon_name = "quickslot_operate"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.8"
+local ver = "1.1.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -203,12 +204,13 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 end
 
 function quickslot_operate_set_script()
-    local frame = ui.GetFrame("quickslotnexpbar")
-    if not frame then
+
+    if keyboard.IsKeyPressed("RSHIFT") == 0 then
         return 1
     end
 
-    if keyboard.IsKeyPressed("RSHIFT") == 0 then
+    local frame = ui.GetFrame("quickslotnexpbar")
+    if not frame then
         return 1
     end
 
@@ -219,37 +221,44 @@ function quickslot_operate_set_script()
         local slot = tolua.cast(frame:GetChildRecursively(slot_name), "ui::CSlot")
 
         local slot_info = quickslot.GetInfoByIndex(i)
+
         if slot_info then
             local icon = slot:GetIcon()
 
-            local icon_info = icon:GetInfo()
+            if icon then
+                local icon_info = icon:GetInfo()
 
-            local clsid = icon_info.type
-            for current_potion_type, potion_id in pairs(def_list) do
-                if potion_id == clsid then
-                    local next_potion_type = nil
-                    local current_idx = nil
+                local clsid = icon_info.type
+                for current_potion_type, potion_id in pairs(def_list) do
 
-                    for k, p_type_in_list in ipairs(potion_type_order) do
-                        if p_type_in_list == current_potion_type then
-                            current_idx = k
-                            break
+                    if potion_id == clsid then
+                        local next_potion_type = nil
+                        local current_idx = nil
+
+                        for k, p_type_in_list in ipairs(potion_type_order) do
+                            if p_type_in_list == current_potion_type then
+                                current_idx = k
+                                break
+                            end
                         end
-                    end
 
-                    if current_idx then
-                        if current_idx < #potion_type_order then
-                            next_potion_type = potion_type_order[current_idx + 1]
-                        else
-                            next_potion_type = potion_type_order[1]
+                        if current_idx then
+                            if current_idx < #potion_type_order then
+                                next_potion_type = potion_type_order[current_idx + 1]
+                            else
+                                next_potion_type = potion_type_order[1]
+                            end
                         end
-                    end
 
-                    if next_potion_type then
-                        quickslot_operate_get_potion(next_potion_type)
+                        if next_potion_type then
+                            local quickslot_operate = ui.GetFrame("quickslot_operate")
+                            quickslot_operate:SetUserValue("POT_TYPE", next_potion_type)
+                            quickslot_operate_get_potion(quickslot_operate)
+                        end
+                        return 1
                     end
-                    return 1
                 end
+
             end
         end
     end
@@ -398,20 +407,23 @@ function quickslot_operate_GAME_START_3SEC(frame, msg)
     local map_name = session.GetMapName()
     local map_cls = GetClass("Map", map_name)
     local map_id = map_cls.ClassID
+    local frame = ui.GetFrame("quickslot_operate")
 
     for _, zone_id in ipairs(zone_id_list) do
         if zone_id == map_id then
             local potion_type = quickslot_operate_get_potion_type(g.indun_type)
             if potion_type then
-                quickslot_operate_get_potion(potion_type)
+                frame:SetUserValue("POT_TYPE", potion_type)
+                frame:RunUpdateScript("quickslot_operate_get_potion", 2.0)
+                -- quickslot_operate_get_potion(potion_type)
+                return
             end
-            break
         end
     end
 
     for _, eventmap_id in ipairs(guild_eventmap) do
         if eventmap_id == map_id then
-            local frame = ui.GetFrame("quickslot_operate")
+            frame:SetUserValue("POT_TYPE", "Velnias")
             frame:RunUpdateScript("quickslot_operate_get_potion", 2.0)
             return
         end
@@ -486,11 +498,13 @@ function quickslot_operate_SHOW_INDUNENTER_DIALOG()
 
     local indunenter = ui.GetFrame('indunenter')
     local indun_type = tonumber(indunenter:GetUserValue("INDUN_TYPE"))
-
+    g.indun_type = indun_type
     local potion_type = quickslot_operate_get_potion_type(indun_type)
 
     if potion_type then
-        quickslot_operate_get_potion(potion_type)
+        local quickslot_operate = ui.GetFrame("quickslot_operate")
+        quickslot_operate:SetUserValue("POT_TYPE", potion_type)
+        quickslot_operate_get_potion(quickslot_operate)
     end
 end
 
@@ -555,11 +569,9 @@ function quickslot_operate_check_all_slots(atk_pid, def_pid)
 
 end
 
-function quickslot_operate_get_potion(potion_type)
+function quickslot_operate_get_potion(frame)
 
-    if type(potion_type) ~= "string" then
-        potion_type = "Velnias"
-    end
+    local potion_type = frame:GetUserValue("POT_TYPE")
 
     local atk_pid = atk_list[potion_type][1]
     local second_atk_pid = atk_list[potion_type][2]
@@ -604,7 +616,6 @@ function quickslot_operate_get_potion_type(indun_type)
     for potion_type, indun_list in pairs(raid_list) do
         for _, indun_id in ipairs(indun_list) do
             if indun_id == indun_type then
-                g.indun_type = indun_type
                 return potion_type
             end
         end
