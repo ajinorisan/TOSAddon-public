@@ -370,7 +370,7 @@ function _G.norisan_menu_create_frame()
     else
         local map_frame = ui.GetFrame("map")
         local width = map_frame:GetWidth()
-        if _G["norisan"]["MENU"].x > 1920 and width <= 1920 then
+        if _G["norisan"]["MENU"].x and _G["norisan"]["MENU"].x > 1920 and width <= 1920 then
             cfg_x = 510
             cfg_y = 30
         end
