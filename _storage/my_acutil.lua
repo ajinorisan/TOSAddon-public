@@ -357,6 +357,9 @@ function _G.norisan_menu_always_visible_frame(system)
         if target_frame:IsVisible() == 0 then
             target_frame:ShowWindow(1)
         end
+    else
+        _G.norisan_menu_create_frame()
+        return 1
     end
     return 1
 end
@@ -436,6 +439,7 @@ function _G.norisan_menu_create_frame()
         func = "AUTO_REPAIR_SETTING_FRAME_INIT"
     }
     _G["norisan"]["MENU"][addonName] = menu_data
+    _G["norisan"]["MENU"].last_addon = addonName
     addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
 
 end
