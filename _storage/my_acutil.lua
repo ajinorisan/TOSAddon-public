@@ -285,7 +285,7 @@ local function norisan_menu_save_json(path, tbl)
     end
 end
 
-function _G.norisan_menu_frame_open(frame, ctrl) -- frame, ctrl はそのまま
+function _G.norisan_menu_frame_open(frame, ctrl)
 
     if not frame then
         return
@@ -350,6 +350,30 @@ function _G.norisan_menu_move_drag(frame, ctrl)
     norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
 end
 
+function _G.norisan_menu_always_visible_frame(system)
+
+    local target_frame = ui.GetFrame("norisan_menu")
+    if target_frame then
+        if target_frame:IsVisible() == 0 then
+            target_frame:ShowWindow(1)
+        end
+    end
+    return 1
+end
+
+function _G.norisan_menu_always_visible_set()
+
+    local sysmenu = ui.GetFrame("sysmenu")
+    if sysmenu then
+        local system = GET_CHILD(sysmenu, "system")
+        if system then
+            if system:HaveUpdateScript("norisan_menu_always_visible_frame") == false then
+                system:RunUpdateScript("norisan_menu_always_visible_frame", 1.0)
+            end
+        end
+    end
+end
+
 function _G.norisan_menu_create_frame()
 
     norisan_menu_create_folder_file()
@@ -395,23 +419,24 @@ function _G.norisan_menu_create_frame()
         AUTO_CAST(norisan_menu_pic)
         norisan_menu_pic:SetImage("sysmenu_sys")
         norisan_menu_pic:SetEnableStretch(1)
-        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open") -- グローバル関数名を指定
+        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
         norisan_menu_pic:SetTextTooltip("{ol}addons menu")
     end
 
     if frame then
         frame:ShowWindow(1)
+        _G.norisan_menu_always_visible_set()
     end
 
     --[[ アドオンメニューボタンここまで
-この部分はON_INIT内で書く
-local menu_data = {
+この部分はON_INIT内で書く]]
+    local menu_data = {
         name = "Auto Repair",
         icon = "sysmenu_mac",
         func = "AUTO_REPAIR_SETTING_FRAME_INIT"
     }
     _G["norisan"]["MENU"][addonName] = menu_data
-    addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")]]
+    addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
 
 end
 
