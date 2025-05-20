@@ -54,6 +54,15 @@ function g.save_settings()
     save_json(g.settings_path, g.settings)
 end
 
+function g.save_json(path, tbl)
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+end
+
 function g.load_json(path)
 
     local file = io.open(path, "r")

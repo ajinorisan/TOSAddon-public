@@ -19,42 +19,6 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-local acutil = require("acutil")
-local json = require("json")
-local os = require("os")
-
-function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
-    local file = io.open(file_path, "r")
-    if not file then
-        os.execute('mkdir "' .. folder_path .. '"')
-        file = io.open(file_path, "w")
-        if file then
-            file:write("A new file has been created")
-            file:close()
-        end
-    else
-        file:close()
-    end
-end
-g.mkdir_new_folder()
-
-g.settings_file_path = string.format("../addons/%s/settings.json", addonNameLower)
-g.get_buffs_file_path = string.format("../addons/%s/get_buffs.json", addonNameLower)
-
-local base = {}
-
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName]
-        _G[baseFuncName] = func
-    end
-    base[baseFuncName] = _G[replacementName]
-end
-
 local color_tabel = {
     [1] = "C0C0C0", -- シルバー
     [2] = "ADFF2F", -- 黄緑
@@ -107,24 +71,66 @@ local effect_list = {
     [10] = "F_archere_magicarrow_gruond_loop2"
 }
 
+local json = require("json")
+
+function g.mkdir_new_folder()
+    local folder_path = string.format("../addons/%s", addonNameLower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local file = io.open(file_path, "r")
+    if not file then
+        os.execute('mkdir "' .. folder_path .. '"')
+        file = io.open(file_path, "w")
+        if file then
+            file:write("A new file has been created")
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+g.mkdir_new_folder()
+
+g.settings_file_path = string.format("../addons/%s/settings.json", addonNameLower)
+g.get_buffs_file_path = string.format("../addons/%s/get_buffs.json", addonNameLower)
+
+function g.save_json(path, tbl)
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+end
+
+function g.load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local table = json.decode(content)
+        return table
+    else
+        return nil
+    end
+end
+
 function SKILL_NOTICE_FREE_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
     g.buffs = {}
+    g.cid = session.GetMySession():GetCID()
 
     addon:RegisterMsg("GAME_START", "skill_notice_free_load_settings")
     addon:RegisterMsg("BUFF_UPDATE", "skill_notice_free_buff_update")
     addon:RegisterMsg("BUFF_ADD", "skill_notice_free_buff_add")
     addon:RegisterMsg("BUFF_REMOVE", "skill_notice_free_buff_remove")
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    -- if mapCls.MapType ~= "City" then
+
     addon:RegisterMsg("GAME_START", "skill_notice_free_frame_init")
-    -- end
+
     addon:RegisterMsg("FPS_UPDATE", "skill_notice_free_FPS_UPDATE")
-    addon:RegisterMsg("GAME_START", "skill_notice_free_start_frame")
+    -- addon:RegisterMsg("GAME_START", "skill_notice_free_start_frame")
 
     local menu_data = {
         name = "Skill Notice Free",
@@ -136,89 +142,11 @@ function SKILL_NOTICE_FREE_ON_INIT(addon, frame)
     addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
 end
 
-function skill_notice_free_frame_move_reserve(frame, ctrl, str, num)
-
-    frame:SetSkinName("chat_window")
-    frame:Resize(40, 30)
-    frame:EnableHittestFrame(1);
-    frame:EnableMove(1)
-    frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_frame_move_save")
-end
-
-function skill_notice_free_frame_move_save(frame, ctrl, str, num)
-    local x = frame:GetX();
-    local y = frame:GetY();
-    g.settings["screen"] = {
-        x = x,
-        y = y
-    }
-    skill_notice_free_save_settings()
-    frame:StopUpdateScript("skill_notice_free_frame_move_setskin")
-    frame:RunUpdateScript("skill_notice_free_frame_move_setskin", 5.0)
-
-end
-
-function skill_notice_free_frame_move_setskin(frame)
-    frame:SetSkinName("None")
-    frame:Resize(30, 30)
-end
-
-function skill_notice_free_start_frame()
-    local start_frame = ui.CreateNewFrame("chat_memberlist", addonNameLower .. "start_frame", 0, 0, 0, 0)
-    AUTO_CAST(start_frame)
-
-    if not g.settings["screen"] then
-        g.settings["screen"] = {
-            x = 1820,
-            y = 305
-        }
-    end
-    skill_notice_free_save_settings()
-
-    local map_frame = ui.GetFrame("map")
-    local width = map_frame:GetWidth()
-
-    if g.settings["screen"].x > 1920 and width <= 1920 then
-        g.settings["screen"] = {
-            x = 1820,
-            y = 305
-        }
-    end
-
-    start_frame:RemoveAllChild()
-    start_frame:SetSkinName("None")
-    start_frame:SetTitleBarSkin("None")
-    start_frame:EnableHitTest(1)
-    start_frame:SetPos(g.settings["screen"].x, g.settings["screen"].y)
-    start_frame:ShowWindow(1)
-    start_frame:Resize(30, 30)
-
-    local setting_button = start_frame:CreateOrGetControl('button', 'setting_button', 0, 0, 25, 30)
-    AUTO_CAST(setting_button)
-    setting_button:SetSkinName("None")
-    setting_button:SetText("{img sysmenu_skill 30 30}")
-    setting_button:SetGravity(ui.LEFT, ui.TOP)
-    setting_button:SetEventScript(ui.LBUTTONUP, "skill_notice_free_setting")
-    local tooltip_text = "{ol}Skill Notice{nl}Left-Click Settings{nl}Grab the edge of the frame and move it"
-    setting_button:SetTextTooltip(tooltip_text)
-
-    setting_button:SetEventScript(ui.MOUSEON, "skill_notice_free_frame_move_reserve")
-    setting_button:SetEventScript(ui.MOUSEOFF, "skill_notice_free_frame_move_save")
-
-end
-
 function skill_notice_free_FPS_UPDATE()
 
-    local start_frame = ui.GetFrame(addonNameLower .. "start_frame")
-
-    if start_frame:IsVisible() == 0 then
-        local pc = GetMyPCObject();
-        local curMap = GetZoneName(pc)
-        local mapCls = GetClass("Map", curMap)
-        -- if mapCls.MapType ~= "City" then
+    local frame = ui.GetFrame(addonNameLower .. "icon_frame")
+    if frame:IsVisible() == 0 then
         skill_notice_free_frame_init()
-        -- end
-        skill_notice_free_start_frame()
     else
         return
     end
@@ -226,11 +154,7 @@ end
 
 function skill_notice_free_load_settings()
 
-    local settings, err = acutil.loadJSON(g.settings_file_path, g.settings)
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
+    local settings, err = g.load_json(g.settings_file_path)
 
     if not settings then
         settings = {
@@ -242,7 +166,6 @@ function skill_notice_free_load_settings()
         }
     end
 
-    g.cid = session.GetMySession():GetCID()
     if not settings[tostring(g.cid)] then
         settings[tostring(g.cid)] = {}
     end
@@ -250,16 +173,16 @@ function skill_notice_free_load_settings()
     g.settings = settings
     skill_notice_free_save_settings()
 
-    local get_buffs, err = acutil.loadJSON(g.get_buffs_file_path, g.get_buffs)
+    local get_buffs, err = g.load_json(g.get_buffs_file_path)
     if not get_buffs then
         get_buffs = {}
     end
     g.get_buffs = get_buffs
-    acutil.saveJSON(g.get_buffs_file_path, g.get_buffs)
+    g.save_json(g.get_buffs_file_path, g.get_buffs)
 end
 
 function skill_notice_free_save_settings()
-    acutil.saveJSON(g.settings_file_path, g.settings)
+    g.save_json(g.settings_file_path, g.settings)
 end
 
 function skill_notice_free_end_drag(frame, ctrl, str, num)
@@ -331,7 +254,7 @@ function skill_notice_free_frame_init()
                 if mode == "icon" then
 
                     local icon_slot = icon_frame:CreateOrGetControl("slot", "icon_slot" .. buff_id,
-                        (icon_count - 1) * 50, 10, 50, 50)
+                                                                    (icon_count - 1) * 50, 10, 50, 50)
                     AUTO_CAST(icon_slot)
                     icon_slot:EnablePop(0)
                     icon_slot:EnableDrop(0)
@@ -389,7 +312,7 @@ function skill_notice_free_frame_init()
                     end
 
                     local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160,
-                        20)
+                                                                20)
                     AUTO_CAST(buff_text)
                     local dic_buff_name = buff_class.Name
                     buff_text:SetText("{ol}{s12}" .. dic_buff_name)
@@ -426,7 +349,7 @@ function skill_notice_free_buff_list_open(frame, ctrl, str, num)
     close_button:SetGravity(ui.RIGHT, ui.TOP)
     close_button:SetEventScript(ui.LBUTTONUP, "skill_notice_free_buff_list_close");
 
-    local get_buffs, err = acutil.loadJSON(g.get_buffs_file_path, g.get_buffs)
+    local get_buffs, err = g.load_json(g.get_buffs_file_path)
 
     local sorted_buffs = {}
     for buff_id, _ in pairs(get_buffs) do
@@ -468,7 +391,7 @@ function skill_notice_free_buff_list_open(frame, ctrl, str, num)
                     buff_set:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
                     local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
-                        200, 30)
+                                                                      200, 30)
                     AUTO_CAST(buff_text)
                     buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
                     buff_text:AdjustFontSizeByWidth(400)
@@ -480,136 +403,6 @@ function skill_notice_free_buff_list_open(frame, ctrl, str, num)
     end
 
     buff_list_frame:ShowWindow(1)
-end
-
-function skill_notice_free_frame_init_test()
-
-    local frame = ui.GetFrame("skill_notice_free")
-    frame:RemoveAllChild()
-    frame:SetSkinName("chat_window")
-    frame:SetAlpha(20)
-    frame:SetTitleBarSkin("None")
-    frame:EnableMove(1)
-    frame:EnableHitTest(1)
-    frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_end_drag")
-    frame:SetEventScript(ui.RBUTTONUP, "skill_notice_free_setting")
-    frame:SetPos(g.settings.x or 400, g.settings.y or 400)
-
-    local buffgb = frame:CreateOrGetControl("groupbox", "buffgb", 0, 20, 190, 25)
-    buffgb:SetSkinName("None")
-    buffgb:RemoveAllChild()
-
-    local buff_table = g.settings["buffs"]
-    local cid_table = g.settings[tostring(g.cid)]
-    local icon_count = 1
-
-    local icon_frame = ui.CreateNewFrame("chat_memberlist", addonNameLower .. "icon_frame", 0, 0, 0, 0)
-    AUTO_CAST(icon_frame)
-
-    icon_frame:RemoveAllChild()
-    icon_frame:SetSkinName("None")
-    icon_frame:SetTitleBarSkin("None")
-    icon_frame:SetAlpha(30)
-    icon_frame:SetLayerLevel(61)
-    icon_frame:EnableHitTest(1)
-    icon_frame:EnableMove(1)
-    icon_frame:SetPos(g.settings.icon_x or 500, g.settings.icon_y or 500)
-    icon_frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_end_drag")
-    icon_frame:ShowWindow(1)
-    icon_frame:Resize(0, 0)
-
-    local y = 0
-    for str_buff_id, _ in pairs(buff_table) do
-
-        if cid_table[str_buff_id] == nil then
-            cid_table[str_buff_id] = "YES"
-        end
-
-        local buff_id = tonumber(str_buff_id)
-        local mode = buff_table[str_buff_id].mode
-
-        if cid_table[str_buff_id] == "YES" then
-
-            local my_handle = session.GetMyHandle()
-            local info_buff = info.GetBuff(my_handle, buff_id)
-            local buff_class = GetClassByType("Buff", buff_id)
-
-            if mode == "icon" then
-
-                local icon_slot = icon_frame:CreateOrGetControl("slot", "icon_slot" .. buff_id, (icon_count - 1) * 50,
-                    10, 50, 50)
-                AUTO_CAST(icon_slot)
-                icon_slot:EnablePop(0)
-                icon_slot:EnableDrop(0)
-                icon_slot:EnableDrag(0)
-                icon_slot:SetSkinName("invenslot2")
-                local image_name = GET_BUFF_ICON_NAME(buff_class)
-                SET_SLOT_ICON(icon_slot, image_name)
-                icon_slot:EnableHitTest(0)
-
-                local buff_name = buff_class.ClassName
-                local icon = CreateIcon(icon_slot)
-                AUTO_CAST(icon)
-                icon:SetTooltipType("buff")
-                icon:SetTooltipArg(buff_name, buff_id, 0)
-                icon_slot:Invalidate()
-
-                local buff_count = icon_slot:CreateOrGetControl("richtext", "buff_count" .. buff_id, 0, 0, 40, 40)
-                AUTO_CAST(buff_count)
-                buff_count:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-                buff_count:SetColorTone("FFFFFFFF")
-                if info_buff == nil then
-                    buff_count:SetText("{ol}{s35}0")
-                else
-                    if info_buff.over >= 100 then
-                        buff_count:SetText("{ol}{s30}" .. info_buff.over)
-                    else
-                        buff_count:SetText("{ol}{s35}" .. info_buff.over)
-                    end
-
-                end
-
-                icon_frame:Resize(icon_count * 50 + 10, 50 + 10)
-                icon_count = icon_count + 1
-
-            else
-                local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buff_id, 10, y * 25 + 10, 160, 20)
-                AUTO_CAST(gauge)
-                local max_charge = buff_table[str_buff_id].max_charge
-                local color = buff_table[str_buff_id].color
-
-                gauge:SetSkinName("gauge")
-                gauge:SetColorTone(color)
-                if info_buff ~= nil then
-                    gauge:SetPoint(info_buff.over, max_charge)
-                    gauge:AddStat("{ol}{s20}%v/%m")
-                    gauge:SetStatFont(0, "quickiconfont")
-                    gauge:SetStatOffset(0, -10, 0)
-                    gauge:SetStatAlign(0, ui.RIGHT, ui.CENTER_VERT)
-                else
-                    gauge:SetPoint(0, max_charge)
-                    gauge:AddStat("{ol}{s20}%v/%m")
-                    gauge:SetStatFont(0, "quickiconfont")
-                    gauge:SetStatOffset(0, -10, 0)
-                    gauge:SetStatAlign(0, ui.RIGHT, ui.CENTER_VERT)
-                end
-
-                local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160, 20)
-                AUTO_CAST(buff_text)
-                local dic_buff_name = buff_class.Name
-                buff_text:SetText("{ol}{s12}" .. dic_buff_name)
-
-                y = y + 1
-            end
-
-        end
-
-    end
-    skill_notice_free_save_settings()
-
-    buffgb:Resize(180, y * 25 + 30)
-    frame:Resize(180, y * 25 + 30)
-    frame:ShowWindow(1)
 end
 
 function skill_notice_free_add_monitoring_buff(frame, ctrl, str, buff_id)
@@ -629,8 +422,8 @@ function skill_notice_free_add_monitoring_buff(frame, ctrl, str, buff_id)
         buff_table[str_buff_id].max_charge = 10
         buff_table[str_buff_id].mode = "gauge"
         skill_notice_free_save_settings()
-        -- skill_notice_free_frame_init()
-        skill_notice_free_frame_init_test()
+        skill_notice_free_frame_init()
+        -- skill_notice_free_frame_init_test()
         skill_notice_free_setting(nil, nil, nil, nil)
     end
 end
@@ -643,8 +436,8 @@ end
 
 function skill_notice_free_setting(frame, ctrl, str, num)
 
-    -- skill_notice_free_frame_init()
-    skill_notice_free_frame_init_test()
+    skill_notice_free_frame_init()
+    -- skill_notice_free_frame_init_test()
 
     local setting_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "setting_frame", 0, 0, 200, 400)
     AUTO_CAST(setting_frame)
@@ -740,8 +533,8 @@ function skill_notice_free_newframe_close(frame, ctrl, argStr, argNum)
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType ~= "City" then
-        -- skill_notice_free_frame_init()
-        skill_notice_free_frame_init_test()
+        skill_notice_free_frame_init()
+        -- skill_notice_free_frame_init_test()
     else
         local snf_frame = ui.GetFrame("skill_notice_free")
         snf_frame:ShowWindow(0)
@@ -783,8 +576,8 @@ function skill_notice_free_buffid_edit(frame, buffid_edit, buff_id, index)
             buff_table[str_buff_id].max_charge = 10
             buff_table[str_buff_id].mode = "gauge"
             skill_notice_free_save_settings()
-            -- skill_notice_free_frame_init()
-            skill_notice_free_frame_init_test()
+            skill_notice_free_frame_init()
+            -- skill_notice_free_frame_init_test()
             skill_notice_free_setting(nil, nil, nil, nil)
         end
 
@@ -945,8 +738,8 @@ function skill_notice_free_color_select(frame, ctrl, connect_str, buff_id)
     end
 
     skill_notice_free_color_test_gauge(buff_name, color_name, buff_id)
-    -- skill_notice_free_frame_init()
-    skill_notice_free_frame_init_test()
+    skill_notice_free_frame_init()
+    -- skill_notice_free_frame_init_test()
 end
 
 function skill_notice_free_color_test_gauge(buff_name, color_name, buff_id)
@@ -1046,8 +839,8 @@ function skill_notice_free_charge_edit(frame, ctrl, str, buff_id)
     buff_table[str_buff_id].max_charge = charge_text
     skill_notice_free_save_settings()
     ui.SysMsg("Charge set")
-    -- skill_notice_free_frame_init()
-    skill_notice_free_frame_init_test()
+    skill_notice_free_frame_init()
+    -- skill_notice_free_frame_init_test()
 end
 
 function skill_notice_free_setting_check(frame, ctrl, str, buff_id)
@@ -1067,8 +860,8 @@ function skill_notice_free_setting_check(frame, ctrl, str, buff_id)
         buff_table[str_buff_id].mode = "gauge"
     end
     skill_notice_free_save_settings()
-    -- skill_notice_free_frame_init()
-    skill_notice_free_frame_init_test()
+    skill_notice_free_frame_init()
+    -- skill_notice_free_frame_init_test()
 end
 
 function skill_notice_free_setting_delete(frame, ctrl, str, buff_id)
@@ -1077,8 +870,8 @@ function skill_notice_free_setting_delete(frame, ctrl, str, buff_id)
     buff_table[str_buff_id] = nil
     skill_notice_free_save_settings()
     skill_notice_free_setting(frame, ctrl, str, nil)
-    -- skill_notice_free_frame_init()
-    skill_notice_free_frame_init_test()
+    skill_notice_free_frame_init()
+    -- skill_notice_free_frame_init_test()
 end
 
 g.icon_tbl = {}
@@ -1159,7 +952,7 @@ function skill_notice_free_buff_add(frame, msg, str, buff_id)
         if not g.get_buffs[str_buff_id] then
             local buff_name = buff_class.ClassName
             g.get_buffs[str_buff_id] = buff_name
-            acutil.saveJSON(g.get_buffs_file_path, g.get_buffs)
+            g.save_json(g.get_buffs_file_path, g.get_buffs)
         end
     end
 
@@ -1175,36 +968,6 @@ function skill_notice_free_buff_add(frame, msg, str, buff_id)
 
     skill_notice_free_frame_init()
 
-    --[[if buff_data.mode == "icon" then
-
-        local icon_frame = ui.GetFrame(addonNameLower .. "icon_frame")
-        local icon_slot = icon_frame:CreateOrGetControl("icon_slot" .. str_buff_id)
-        -- local icon_slot = GET_CHILD_RECURSIVELY(icon_frame, "icon_slot" .. str_buff_id)
-        AUTO_CAST(icon_slot)
-        local buff_count = icon_slot:CreateOrGetControl("buff_count" .. str_buff_id)
-        -- local buff_count = GET_CHILD_RECURSIVELY(icon_slot, "buff_count" .. str_buff_id)
-        AUTO_CAST(buff_count)
-
-        buff_count:SetText("{ol}{s35}" .. info_buff.over)
-        -- icon_slot:ShowWindow(1)
-    else
-        local gauge = frame:CreateOrGetControl("gauge" .. str_buff_id)
-        -- local gauge = GET_CHILD_RECURSIVELY(frame, "gauge" .. str_buff_id)
-        if gauge then
-            AUTO_CAST(gauge)
-            gauge:RemoveAllChild()
-            gauge:SetPoint(info_buff.over, buff_data.max_charge)
-            gauge:SetStatFont(0, "quickiconfont")
-            gauge:SetStatOffset(0, -10, 0)
-            gauge:SetStatAlign(0, ui.RIGHT, ui.CENTER_VERT)
-            gauge:EnableHitTest(0)
-            local color = buff_table[str_buff_id].color
-            gauge:SetColorTone(color)
-        end
-        -- gauge:ShowWindow(1)
-    end
-    g.buffs[str_buff_id] = false
-    skill_notice_free_frame_init()]]
 end
 
 function skill_notice_free_buff_update(frame, msg, str, buff_id)
@@ -1494,3 +1257,206 @@ function _G.norisan_menu_create_frame()
         _G.norisan_menu_always_visible_set()
     end
 end
+
+--[[
+function skill_notice_free_frame_init_test()
+
+    local frame = ui.GetFrame("skill_notice_free")
+    frame:RemoveAllChild()
+    frame:SetSkinName("chat_window")
+    frame:SetAlpha(20)
+    frame:SetTitleBarSkin("None")
+    frame:EnableMove(1)
+    frame:EnableHitTest(1)
+    frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_end_drag")
+    frame:SetEventScript(ui.RBUTTONUP, "skill_notice_free_setting")
+    frame:SetPos(g.settings.x or 400, g.settings.y or 400)
+
+    local buffgb = frame:CreateOrGetControl("groupbox", "buffgb", 0, 20, 190, 25)
+    buffgb:SetSkinName("None")
+    buffgb:RemoveAllChild()
+
+    local buff_table = g.settings["buffs"]
+    local cid_table = g.settings[tostring(g.cid)]
+    local icon_count = 1
+
+    local icon_frame = ui.CreateNewFrame("chat_memberlist", addonNameLower .. "icon_frame", 0, 0, 0, 0)
+    AUTO_CAST(icon_frame)
+
+    icon_frame:RemoveAllChild()
+    icon_frame:SetSkinName("None")
+    icon_frame:SetTitleBarSkin("None")
+    icon_frame:SetAlpha(30)
+    icon_frame:SetLayerLevel(61)
+    icon_frame:EnableHitTest(1)
+    icon_frame:EnableMove(1)
+    icon_frame:SetPos(g.settings.icon_x or 500, g.settings.icon_y or 500)
+    icon_frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_end_drag")
+    icon_frame:ShowWindow(1)
+    icon_frame:Resize(0, 0)
+
+    local y = 0
+    for str_buff_id, _ in pairs(buff_table) do
+
+        if cid_table[str_buff_id] == nil then
+            cid_table[str_buff_id] = "YES"
+        end
+
+        local buff_id = tonumber(str_buff_id)
+        local mode = buff_table[str_buff_id].mode
+
+        if cid_table[str_buff_id] == "YES" then
+
+            local my_handle = session.GetMyHandle()
+            local info_buff = info.GetBuff(my_handle, buff_id)
+            local buff_class = GetClassByType("Buff", buff_id)
+
+            if mode == "icon" then
+
+                local icon_slot = icon_frame:CreateOrGetControl("slot", "icon_slot" .. buff_id, (icon_count - 1) * 50,
+                                                                10, 50, 50)
+                AUTO_CAST(icon_slot)
+                icon_slot:EnablePop(0)
+                icon_slot:EnableDrop(0)
+                icon_slot:EnableDrag(0)
+                icon_slot:SetSkinName("invenslot2")
+                local image_name = GET_BUFF_ICON_NAME(buff_class)
+                SET_SLOT_ICON(icon_slot, image_name)
+                icon_slot:EnableHitTest(0)
+
+                local buff_name = buff_class.ClassName
+                local icon = CreateIcon(icon_slot)
+                AUTO_CAST(icon)
+                icon:SetTooltipType("buff")
+                icon:SetTooltipArg(buff_name, buff_id, 0)
+                icon_slot:Invalidate()
+
+                local buff_count = icon_slot:CreateOrGetControl("richtext", "buff_count" .. buff_id, 0, 0, 40, 40)
+                AUTO_CAST(buff_count)
+                buff_count:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+                buff_count:SetColorTone("FFFFFFFF")
+                if info_buff == nil then
+                    buff_count:SetText("{ol}{s35}0")
+                else
+                    if info_buff.over >= 100 then
+                        buff_count:SetText("{ol}{s30}" .. info_buff.over)
+                    else
+                        buff_count:SetText("{ol}{s35}" .. info_buff.over)
+                    end
+
+                end
+
+                icon_frame:Resize(icon_count * 50 + 10, 50 + 10)
+                icon_count = icon_count + 1
+
+            else
+                local gauge = buffgb:CreateOrGetControl("gauge", "gauge" .. buff_id, 10, y * 25 + 10, 160, 20)
+                AUTO_CAST(gauge)
+                local max_charge = buff_table[str_buff_id].max_charge
+                local color = buff_table[str_buff_id].color
+
+                gauge:SetSkinName("gauge")
+                gauge:SetColorTone(color)
+                if info_buff ~= nil then
+                    gauge:SetPoint(info_buff.over, max_charge)
+                    gauge:AddStat("{ol}{s20}%v/%m")
+                    gauge:SetStatFont(0, "quickiconfont")
+                    gauge:SetStatOffset(0, -10, 0)
+                    gauge:SetStatAlign(0, ui.RIGHT, ui.CENTER_VERT)
+                else
+                    gauge:SetPoint(0, max_charge)
+                    gauge:AddStat("{ol}{s20}%v/%m")
+                    gauge:SetStatFont(0, "quickiconfont")
+                    gauge:SetStatOffset(0, -10, 0)
+                    gauge:SetStatAlign(0, ui.RIGHT, ui.CENTER_VERT)
+                end
+
+                local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160, 20)
+                AUTO_CAST(buff_text)
+                local dic_buff_name = buff_class.Name
+                buff_text:SetText("{ol}{s12}" .. dic_buff_name)
+
+                y = y + 1
+            end
+
+        end
+
+    end
+    skill_notice_free_save_settings()
+
+    buffgb:Resize(180, y * 25 + 30)
+    frame:Resize(180, y * 25 + 30)
+    frame:ShowWindow(1)
+end
+function skill_notice_free_start_frame()
+    local start_frame = ui.CreateNewFrame("chat_memberlist", addonNameLower .. "start_frame", 0, 0, 0, 0)
+    AUTO_CAST(start_frame)
+
+    if not g.settings["screen"] then
+        g.settings["screen"] = {
+            x = 1820,
+            y = 305
+        }
+    end
+    skill_notice_free_save_settings()
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if g.settings["screen"].x > 1920 and width <= 1920 then
+        g.settings["screen"] = {
+            x = 1820,
+            y = 305
+        }
+    end
+
+    start_frame:RemoveAllChild()
+    start_frame:SetSkinName("None")
+    start_frame:SetTitleBarSkin("None")
+    start_frame:EnableHitTest(1)
+    start_frame:SetPos(g.settings["screen"].x, g.settings["screen"].y)
+    start_frame:ShowWindow(1)
+    start_frame:Resize(30, 30)
+
+    local setting_button = start_frame:CreateOrGetControl('button', 'setting_button', 0, 0, 25, 30)
+    AUTO_CAST(setting_button)
+    setting_button:SetSkinName("None")
+    setting_button:SetText("{img sysmenu_skill 30 30}")
+    setting_button:SetGravity(ui.LEFT, ui.TOP)
+    setting_button:SetEventScript(ui.LBUTTONUP, "skill_notice_free_setting")
+    local tooltip_text = "{ol}Skill Notice{nl}Left-Click Settings{nl}Grab the edge of the frame and move it"
+    setting_button:SetTextTooltip(tooltip_text)
+
+    setting_button:SetEventScript(ui.MOUSEON, "skill_notice_free_frame_move_reserve")
+    setting_button:SetEventScript(ui.MOUSEOFF, "skill_notice_free_frame_move_save")
+
+end
+
+
+
+function skill_notice_free_frame_move_reserve(frame, ctrl, str, num)
+
+    frame:SetSkinName("chat_window")
+    frame:Resize(40, 30)
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+    frame:SetEventScript(ui.LBUTTONUP, "skill_notice_free_frame_move_save")
+end
+
+function skill_notice_free_frame_move_save(frame, ctrl, str, num)
+    local x = frame:GetX();
+    local y = frame:GetY();
+    g.settings["screen"] = {
+        x = x,
+        y = y
+    }
+    skill_notice_free_save_settings()
+    frame:StopUpdateScript("skill_notice_free_frame_move_setskin")
+    frame:RunUpdateScript("skill_notice_free_frame_move_setskin", 5.0)
+
+end
+
+function skill_notice_free_frame_move_setskin(frame)
+    frame:SetSkinName("None")
+    frame:Resize(30, 30)
+end]]
