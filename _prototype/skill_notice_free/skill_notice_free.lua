@@ -132,6 +132,7 @@ function SKILL_NOTICE_FREE_ON_INIT(addon, frame)
         func = "skill_notice_free_setting"
     }
     _G["norisan"]["MENU"][addonName] = menu_data
+    _G["norisan"]["MENU"].last_addon = addonName
     addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
 end
 
@@ -330,7 +331,7 @@ function skill_notice_free_frame_init()
                 if mode == "icon" then
 
                     local icon_slot = icon_frame:CreateOrGetControl("slot", "icon_slot" .. buff_id,
-                                                                    (icon_count - 1) * 50, 10, 50, 50)
+                        (icon_count - 1) * 50, 10, 50, 50)
                     AUTO_CAST(icon_slot)
                     icon_slot:EnablePop(0)
                     icon_slot:EnableDrop(0)
@@ -388,7 +389,7 @@ function skill_notice_free_frame_init()
                     end
 
                     local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160,
-                                                                20)
+                        20)
                     AUTO_CAST(buff_text)
                     local dic_buff_name = buff_class.Name
                     buff_text:SetText("{ol}{s12}" .. dic_buff_name)
@@ -467,7 +468,7 @@ function skill_notice_free_buff_list_open(frame, ctrl, str, num)
                     buff_set:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
                     local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
-                                                                      200, 30)
+                        200, 30)
                     AUTO_CAST(buff_text)
                     buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
                     buff_text:AdjustFontSizeByWidth(400)
@@ -536,7 +537,7 @@ function skill_notice_free_frame_init_test()
             if mode == "icon" then
 
                 local icon_slot = icon_frame:CreateOrGetControl("slot", "icon_slot" .. buff_id, (icon_count - 1) * 50,
-                                                                10, 50, 50)
+                    10, 50, 50)
                 AUTO_CAST(icon_slot)
                 icon_slot:EnablePop(0)
                 icon_slot:EnableDrop(0)
@@ -1416,10 +1417,14 @@ end
 function _G.norisan_menu_always_visible_frame(system)
 
     local target_frame = ui.GetFrame("norisan_menu")
+
     if target_frame then
         if target_frame:IsVisible() == 0 then
             target_frame:ShowWindow(1)
         end
+    else
+        _G.norisan_menu_create_frame()
+        return 1
     end
     return 1
 end
@@ -1428,11 +1433,8 @@ function _G.norisan_menu_always_visible_set()
 
     local sysmenu = ui.GetFrame("sysmenu")
     if sysmenu then
-        local system = GET_CHILD(sysmenu, "system")
-        if system then
-            if system:HaveUpdateScript("norisan_menu_always_visible_frame") == false then
-                system:RunUpdateScript("norisan_menu_always_visible_frame", 1.0)
-            end
+        if sysmenu:HaveUpdateScript("norisan_menu_always_visible_frame") == false then
+            sysmenu:RunUpdateScript("norisan_menu_always_visible_frame", 1.0)
         end
     end
 end
@@ -1466,6 +1468,7 @@ function _G.norisan_menu_create_frame()
     end
 
     local frame = ui.GetFrame("norisan_menu")
+
     if not frame then
 
         frame = ui.CreateNewFrame("chat_memberlist", "norisan_menu")
@@ -1490,8 +1493,4 @@ function _G.norisan_menu_create_frame()
         frame:ShowWindow(1)
         _G.norisan_menu_always_visible_set()
     end
-
-    --[[ アドオンメニューボタンここまで
-この部分はON_INIT内で書く]]
-
 end
