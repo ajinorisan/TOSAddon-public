@@ -15,10 +15,12 @@
 -- v1.2.8 agmとの連携更にばぐってたの修正。
 -- v1.2.9 読込遅かったのを修正。その他ちょいバグ修正。
 -- v1.3.0 ヘアコスのエンチャントが3個じゃない場合バグってたの修正
+-- v1.3.1 オードクローズバグってたの修正。agm全キャラ処理追加
+-- v1.3.2 agm連携のトコ修正した
 local addonName = "CC_HELPER"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.9.1"
+local ver = "1.3.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -75,9 +77,13 @@ function cc_helper_load_settings()
         share_settings = {
             delay = 0.3,
             eco_mode = 0,
-            auto_close = 1
+            auto_close = 1,
+            all_agm = 0
         }
 
+    end
+    if not share_settings.all_agm then
+        share_settings.all_agm = 0
     end
     g.share_settings = share_settings
     acutil.saveJSON(g.settings_location, g.share_settings)
@@ -131,41 +137,43 @@ function cc_helper_load_settings()
     local end_time = os.clock()
     local elapsed_time = end_time - start_time
 
-    -- CHAT_SYSTEM(string.format("load 実行時間: %.6f 秒", elapsed_time))
-
     cc_helper_save_settings()
-
-    --[[local cid_name_file_location = string.format('../addons/%s/%s', addonNameLower, active_id .. "_cid_name.json")
-    g.cid_name = {}
-
-    local file = io.open(cid_name_file_location, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        g.cid_name = json.decode(content) or {}
-    end
-
-    if not g.cid_name[g.cid] then
-        g.cid_name[g.cid] = g.login_name
-
-        local encoded_content = json.encode(g.cid_name)
-        file = io.open(cid_name_file_location, "w")
-        if file then
-            file:write(encoded_content)
-            file:close()
-        end
-    end]]
 
 end
 
 function cc_helper_function_check()
     local functionName = "AETHERGEM_MGR_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
     if type(_G[functionName]) == "function" then
+        g.agm_func = true
         g.agm = true
     else
         g.agm = false
         if g.settings[g.cid].agm_use then
             g.settings[g.cid].agm_use = 0
+        end
+    end
+
+    if g.share_settings.all_agm and g.share_settings.all_agm == 1 then
+        g.agm = false
+    else
+        local found = false
+        for k, v in pairs(g.settings[g.cid]) do
+            if string.find(k, "gem") and type(v) == "table" then
+                for k2, v2 in pairs(v) do
+                    if k2 == "clsid" then
+                        if v2 > 0 then
+                            found = true
+                        end
+
+                    end
+                end
+            end
+        end
+
+        if g.settings[g.cid].agm_use == 1 or found == false then
+            g.agm = true
+        else
+            g.agm = false
         end
     end
 
@@ -178,9 +186,9 @@ function cc_helper_function_check()
             g.settings[g.cid].mcc_use = 0
         end
     end
+
 end
 
--- g.cids = {}
 function CC_HELPER_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -329,6 +337,12 @@ function cc_helper_check_setting(frame, ctrl, argStr, argNum)
         else
             g.share_settings.auto_close = 1
         end
+    elseif ctrl:GetName() == "all_agm" then
+        if ischeck == 0 then
+            g.share_settings.all_agm = 0
+        else
+            g.share_settings.all_agm = 1
+        end
     end
     acutil.saveJSON(g.settings_location, g.share_settings)
     cc_helper_save_settings()
@@ -347,7 +361,7 @@ function cc_helper_setting_frame_init()
     frame:RemoveAllChild()
     frame:SetSkinName("test_frame_low")
     frame:SetLayerLevel(93)
-    frame:Resize(235, 440)
+    frame:Resize(235, 470)
     frame:SetPos(1185, 380)
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
@@ -653,16 +667,50 @@ function cc_helper_setting_frame_init()
         mccuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     end
 
-    if g.agm then
-        local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
-        AUTO_CAST(agmuse)
-        agmuse:SetText("{ol}agm")
-        agmuse:SetTextTooltip(g.lang == "Japanese" and
-                                  "チェックを入れると[Aethergem Manager]と連携します。" or
-                                  "If checked, it will work with [Aethergem Manager].")
-        agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-        agmuse:SetCheck(g.settings[g.cid].agm_use)
+    if g.agm_func then
+        local all_agm = frame:CreateOrGetControl("checkbox", "all_agm", 10, 435, 25, 25)
+        AUTO_CAST(all_agm)
+        all_agm:SetText("{ol}all agm")
+        all_agm:SetTextTooltip(g.lang == "Japanese" and
+                                   "チェックを入れると、全てのキャラの{nl}エーテルジェム関係の動作をストップします。" or
+                                   "If checked, stops all ether gem-related actions for all characters.")
+        all_agm:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+        all_agm:SetCheck(g.share_settings.all_agm)
+
+        if g.share_settings.all_agm == 1 then
+            g.agm = false
+        else
+            local found = false
+            for k, v in pairs(g.settings[g.cid]) do
+                if string.find(k, "gem") and type(v) == "table" then
+                    for k2, v2 in pairs(v) do
+                        if k2 == "clsid" then
+                            if v2 > 0 then
+                                found = true
+                            end
+
+                        end
+                    end
+                end
+            end
+            if g.settings[g.cid].agm_use == 1 or found == false then
+                g.agm = true
+            else
+                g.agm = false
+            end
+        end
     end
+
+    -- if g.agm then
+    local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
+    AUTO_CAST(agmuse)
+    agmuse:SetText("{ol}agm")
+    agmuse:SetTextTooltip(
+        g.lang == "Japanese" and "チェックを入れると[Aethergem Manager]と連携します。" or
+            "If checked, it will work with [Aethergem Manager].")
+    agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+    agmuse:SetCheck(g.settings[g.cid].agm_use)
+    -- end
 
     function cc_helper_agm_setting(frame, ctrl, str, num)
         if g.settings[g.cid].agm_check == 0 then
@@ -710,7 +758,11 @@ function cc_helper_setting_frame_init()
     ecouse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     ecouse:SetCheck(g.share_settings.eco_mode)
 
-    local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 410)
+    --[[if agm_on_off then
+        agm_on_off:ShowWindow(1)
+    end]]
+
+    local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
     delay_title:SetText("{ol}delay")
     function cc_helper_delay_change(frame, ctrl, argStr, argNum)
         local value = tonumber(ctrl:GetText())
@@ -726,7 +778,7 @@ function cc_helper_setting_frame_init()
         end
         acutil.saveJSON(g.settings_location, g.share_settings)
     end
-    local delay = frame:CreateOrGetControl('edit', 'delay', 175, 410, 50, 20)
+    local delay = frame:CreateOrGetControl('edit', 'delay', 175, 440, 50, 20)
     AUTO_CAST(delay)
     delay:SetText("{ol}" .. g.share_settings.delay)
     delay:SetFontName("white_16_ol")
@@ -1491,10 +1543,13 @@ end
 function cc_helper_endput_operation()
     ui.SysMsg("[CCH]End of Operation")
     if g.share_settings.auto_close == 1 then
-        local frame = ui.GetFrame("inventory")
+
+        local awframe = ui.GetFrame("accountwarehouse")
+        ACCOUNTWAREHOUSE_CLOSE(awframe)
+        --[[local frame = ui.GetFrame("inventory")
         frame:ShowWindow(0)
         local awframe = ui.GetFrame("accountwarehouse")
-        awframe:ShowWindow(0)
+        awframe:ShowWindow(0)]]
     end
     if g.mcc and g.share_settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
         g.monstercard = 1
@@ -1706,17 +1761,22 @@ function cc_helper_end_operation()
     local inv_tab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     inv_tab:SelectTab(0)
 
+    --[[print(tostring(g.agm) .. ":" .. tostring(g.share_settings.eco_mode) .. ":" .. tostring(g.settings[g.cid].agm_use) ..
+              ":" .. tostring(g.temp))]]
     if g.agm and g.share_settings.eco_mode == 0 and g.settings[g.cid].agm_use == 1 and g.temp == nil then
         cc_helper_handle_aether_gem_management()
         return
     end
+
     g.temp = nil
     ui.SysMsg("[CCH]End of Operation")
     if g.share_settings.auto_close == 1 then
-        local frame = ui.GetFrame("inventory")
+        local awframe = ui.GetFrame("accountwarehouse")
+        ACCOUNTWAREHOUSE_CLOSE(awframe)
+        --[[local frame = ui.GetFrame("inventory")
         frame:ShowWindow(0)
         local awframe = ui.GetFrame("accountwarehouse")
-        awframe:ShowWindow(0)
+        awframe:ShowWindow(0)]]
     end
     if g.mcc and g.share_settings.eco_mode == 0 and g.settings[g.cid].mcc_use == 1 then
         g.monstercard = 1
@@ -1728,10 +1788,13 @@ end
 function cc_helper_no_scp()
 
     if g.share_settings.auto_close == 1 then
-        local frame = ui.GetFrame("inventory")
+
+        local awframe = ui.GetFrame("accountwarehouse")
+        ACCOUNTWAREHOUSE_CLOSE(awframe)
+        --[[local frame = ui.GetFrame("inventory")
         frame:ShowWindow(0)
         local awframe = ui.GetFrame("accountwarehouse")
-        awframe:ShowWindow(0)
+        awframe:ShowWindow(0)]]
     end
     ui.SysMsg("[CCH]End of Operation")
     return
@@ -1740,6 +1803,7 @@ end
 function cc_helper_handle_aether_gem_management()
 
     local equipSlots = {"RH", "LH", "RH_SUB", "LH_SUB"}
+    local found = false
 
     for _, slotName in ipairs(equipSlots) do
         local equipSlot = GET_CHILD_RECURSIVELY(ui.GetFrame("inventory"), slotName)
@@ -1754,6 +1818,7 @@ function cc_helper_handle_aether_gem_management()
             local gem = equipItem:GetEquipGemID(2)
 
             if gem == 0 then
+                found = true
                 if g.settings[g.cid].agm_check == 1 then
                     local msg = g.lang == "Japanese" and "[Aether Gem Manager]を起動しますか？" or
                                     "Call[Aether Gem Manager]?"
@@ -1769,6 +1834,10 @@ function cc_helper_handle_aether_gem_management()
         end
     end
 
+    if not found then
+        g.temp = true
+        ReserveScript("cc_helper_end_operation()", g.share_settings.delay)
+    end
 end
 
 function cc_helper_out_btn_start_reserve()
@@ -1781,6 +1850,7 @@ function cc_helper_out_btn_start_reserve()
     local icon = equip_slot:GetIcon()
     if icon ~= nil then
         g.temp = true
+
         ReserveScript("cc_helper_end_operation()", g.share_settings.delay)
         return 0
     else

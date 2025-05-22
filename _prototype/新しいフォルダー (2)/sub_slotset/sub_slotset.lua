@@ -13,8 +13,6 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
 local g = _G["ADDONS"][author][addonName]
 
-local acutil = require("acutil")
-local os = require("os")
 local json = require("json")
 
 g.settings_base_FileLoc = string.format('../addons/%s/settings.json', addonNameLower)
@@ -67,21 +65,75 @@ if not file then
     end
 end
 
-local base = {}
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName];
-        _G[baseFuncName] = func
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
-    base[baseFuncName] = _G[replacementName]
+
+    local origin_func = g.FUNCS[origin_func_name]
+
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if original_results then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.REGISTER[origin_func_name .. my_func_name] then -- g.REGISTERはON_INIT内で都度初期化
+        g.REGISTER[origin_func_name .. my_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+function g.get_event_args(origin_func_name)
+    local args = g.ARGS[origin_func_name]
+    if args then
+        return table.unpack(args)
+    end
+    return nil
+end
+
+function g.save_json(path, tbl)
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+end
+
+function g.load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local table = json.decode(content)
+        return table
+    else
+        return nil
+    end
 end
 
 function sub_slotset_load_settings()
 
-    local settings = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local settings = g.load_json(g.settingsFileLoc)
 
     if not settings then
         settings = {
@@ -90,57 +142,66 @@ function sub_slotset_load_settings()
     end
     g.settings = settings
 
-    sub_slotset_save_settings()
-    sub_slotset_personal_load_settings()
-end
+    g.save_json(g.settingsFileLoc, g.settings)
 
-function sub_slotset_personal_load_settings()
+    g.personalFileLoc = string.format('../addons/%s/%s.json', addonNameLower, g.cid)
 
-    local cid = info.GetCID(session.GetMyHandle())
-    g.personalFileLoc = string.format('../addons/%s/%s.json', addonNameLower, cid)
+    local personal = g.load_json(g.personalFileLoc)
 
-    local settings = acutil.loadJSON(g.personalFileLoc)
-
-    if not settings or next(settings) == nil then
-        settings = {}
+    if not personal or not next(settings) then
+        personal = {}
     end
 
-    g.personal = settings
-    sub_slotset_personal_save_settings()
-    sub_slotset_frame_init()
+    g.personal = personal
+    g.save_json(g.personalFileLoc, g.personal)
+
 end
 
-function sub_slotset_personal_save_settings()
-    acutil.saveJSON(g.personalFileLoc, g.personal)
-end
+function sub_slotset_GAME_START_3SEC(frame, msg)
 
-function sub_slotset_save_settings()
-    acutil.saveJSON(g.settingsFileLoc, g.settings)
+    sub_slotset_slotset_frame_init("character")
+    sub_slotset_slotset_frame_init("shared")
 end
 
 function SUB_SLOTSET_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    g.settings = g.settings or {}
-    g.personal = g.personal or {}
+
     g.cid = session.GetMySession():GetCID()
 
-    addon:RegisterMsg("GAME_START", "sub_slotset_load_settings")
-    acutil.setupEvent(addon, "MAKE_QUEST_INFO_TYPE_ICON", "sub_slotset_MAKE_QUEST_INFO_TYPE_ICON");
-    acutil.setupEvent(addon, "EMO_OPEN", "sub_slotset_EMO_OPEN");
-    g.SetupHook(sub_slotset_SET_QUEST_CTRL_TEXT, "SET_QUEST_CTRL_TEXT")
-    acutil.setupEvent(addon, "TPITEM_CLOSE", "sub_slotset_TPITEM_CLOSE");
+    g.REGISTER = {}
+
+    if not g.settings then
+        sub_slotset_load_settings()
+    end
+    addon:RegisterMsg("GAME_START_3SEC", "sub_slotset_GAME_START_3SEC")
+
+    g.setup_hook_and_event(addon, "SET_QUEST_CTRL_TEXT", "sub_slotset_SET_QUEST_CTRL_TEXT", false)
+    g.setup_hook_and_event(addon, "MAKE_QUEST_INFO_TYPE_ICON", "sub_slotset_MAKE_QUEST_INFO_TYPE_ICON", true)
+    g.setup_hook_and_event(addon, "EMO_OPEN", "sub_slotset_EMO_OPEN", true)
+    g.setup_hook_and_event(addon, "TPITEM_CLOSE", "sub_slotset_TPITEM_CLOSE", true)
+    -- button_chat_option
+    -- btn_plus
+    local menu_data = {
+        name = "Sub Slot Set",
+        icon = "ok_button",
+        func = "sub_slotset_make_frame",
+        frame_name = "sub_slotset"
+    }
+    _G["norisan"]["MENU"][addonName] = menu_data
+    _G["norisan"]["MENU"].last_addon = addonName
+    addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
 
 end
 
-function sub_slotset_TPITEM_CLOSE(frame, msg)
+function sub_slotset_TPITEM_CLOSE()
 
     local index = g.settings["index"]
     local sources = {g.settings, g.personal}
 
     for i = 0, index do
-        for _, source in pairs(sources) do -- pairsを使ってテーブルをループ
+        for _, source in pairs(sources) do
             local sub_slot_key = "sub_slotset_" .. tostring(i)
             local sub_slot = source[sub_slot_key]
             if sub_slot then
@@ -151,11 +212,9 @@ function sub_slotset_TPITEM_CLOSE(frame, msg)
     end
 end
 
-function sub_slotset_SET_QUEST_CTRL_TEXT(ctrl, questIES)
-    sub_slotset_SET_QUEST_CTRL_TEXT_(ctrl, questIES)
-end
+function sub_slotset_SET_QUEST_CTRL_TEXT(my_frame, my_msg)
+    local ctrl, questIES = g.get_event_args(my_msg)
 
-function sub_slotset_SET_QUEST_CTRL_TEXT_(ctrl, questIES)
     local Quest_Ctrl = tolua.cast(ctrl, "ui::CControlSet");
     local nametxt = GET_CHILD(Quest_Ctrl, "name", "ui::CRichText");
     local leveltxt = GET_CHILD(Quest_Ctrl, "level", "ui::CRichText");
@@ -203,91 +262,6 @@ function sub_slotset_SET_QUEST_CTRL_TEXT_(ctrl, questIES)
         icon:SetImage("questinfo_return");
         icon:SetTextTooltip("{ol}Sub Slotset{nl}LeftClick:for Registration")
     end
-end
-
-function sub_slotset_frame_move_reserve(frame, ctrl, str, num)
-    AUTO_CAST(frame)
-    frame:SetSkinName("chat_window")
-    frame:Resize(45, 30)
-    frame:EnableHitTest(1)
-    frame:EnableHittestFrame(1);
-    frame:EnableMove(1)
-    frame:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_move_save")
-end
-
-function sub_slotset_frame_move_save(frame, ctrl, str, num)
-    local x = frame:GetX();
-    local y = frame:GetY();
-    g.settings["screen"] = {
-        x = x,
-        y = y
-    }
-    sub_slotset_save_settings()
-    frame:StopUpdateScript("sub_slotset_frame_move_setskin")
-    frame:RunUpdateScript("sub_slotset_frame_move_setskin", 5.0)
-
-end
-
-function sub_slotset_frame_move_setskin(frame)
-    frame:SetSkinName("None")
-    frame:Resize(30, 30)
-end
-
-function sub_slotset_frame_init()
-
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
-        local frame = ui.GetFrame("sub_slotset")
-
-        frame:SetSkinName("None")
-        frame:SetTitleBarSkin("None")
-        frame:Resize(30, 30)
-
-        if not g.settings["screen"] then
-            g.settings["screen"] = {
-                x = 783,
-                y = 5
-            }
-            sub_slotset_save_settings()
-        end
-
-        local map_frame = ui.GetFrame("map")
-        local width = map_frame:GetWidth()
-
-        if g.settings["screen"].x > 1920 and width <= 1920 then
-            g.settings["screen"] = {
-                x = 783,
-                y = 5
-            }
-        end
-
-        frame:SetPos(g.settings["screen"].x, g.settings["screen"].y)
-
-        -- frame:SetPos(783, 5)
-        frame:SetLayerLevel(30);
-        frame:ShowWindow(1)
-
-        local slot = frame:CreateOrGetControl('slot', 'slot', 0, 0, 25, 25)
-        AUTO_CAST(slot)
-        slot:SetSkinName("None");
-        slot:EnablePop(0)
-        slot:EnableDrop(0)
-        slot:EnableDrag(0)
-        slot:SetEventScript(ui.LBUTTONUP, "sub_slotset_make_frame");
-
-        local icon = CreateIcon(slot);
-        AUTO_CAST(icon)
-        icon:SetImage("btn_plus");
-        icon:SetTextTooltip("Sub SlotSet")
-
-        slot:SetEventScript(ui.MOUSEON, "sub_slotset_frame_move_reserve")
-        slot:SetEventScript(ui.MOUSEOFF, "sub_slotset_frame_move_save")
-
-    end
-    sub_slotset_slotset_frame_init("character")
-    sub_slotset_slotset_frame_init("shared")
 end
 
 function sub_slotset_slotset_frame_init(belong, isnew)
@@ -396,7 +370,8 @@ function sub_slotset_newframe_end_drag(frame, ctrl, str, num)
             end
 
         end
-        sub_slotset_save_settings()
+        g.save_json(g.settingsFileLoc, g.settings)
+
     elseif belong == "character" then
         for key, value in pairs(g.personal[frame:GetName()]) do
 
@@ -410,8 +385,7 @@ function sub_slotset_newframe_end_drag(frame, ctrl, str, num)
             end
 
         end
-
-        sub_slotset_personal_save_settings()
+        g.save_json(g.personalFileLoc, g.personal)
     end
 
 end
@@ -473,17 +447,6 @@ function sub_slotset_slotset_init(frame)
     slotset:SetSpc(2, 2)
     slotset:SetSkinName('invenslot2')
     slotset:CreateSlots()
-
-    --[[local slot_count = slotset:GetSlotCount()
-    for i = 1, slot_count do
-        local slot = GET_CHILD(slotset, "slot" .. i)
-        AUTO_CAST(slot)
-        slot:EnableDrop(1)
-
-        slot:SetEventScript(ui.DROP, 'sub_slotset_drop')
-        slot:SetEventScriptArgString(ui.DROP, str)
-
-    end]]
 
     if str == "shared" then
         local titlelabel = frame:CreateOrGetControl('richtext', 'titlelabel', 0, 0, 0, 0)
@@ -559,7 +522,7 @@ function sub_slotset_slotset_init(frame)
             g.settings[frame:GetName()] = slot_table
             g.settings[frame:GetName()]["etc"] = etc_table -- ここで etc_table を settings として保存
 
-            sub_slotset_save_settings()
+            g.save_json(g.settingsFileLoc, g.settings)
 
         elseif str == "character" then
 
@@ -592,7 +555,7 @@ function sub_slotset_slotset_init(frame)
             g.personal[frame:GetName()] = slot_table
             g.personal[frame:GetName()]["etc"] = etc_table -- ここで etc_table を settings として保存
 
-            sub_slotset_personal_save_settings()
+            g.save_json(g.personalFileLoc, g.personal)
 
         end
     end
@@ -676,7 +639,7 @@ function sub_slotset_slotset_update(frame)
                 iesid = g.settings[frame_name][tostring(i)].iesid
             else
                 g.settings[frame_name][tostring(i)] = {}
-                sub_slotset_save_settings()
+                g.save_json(g.settingsFileLoc, g.settings)
             end
         elseif belong == "character" then
             if g.personal[frame_name][tostring(i)] ~= nil then
@@ -685,7 +648,7 @@ function sub_slotset_slotset_update(frame)
                 iesid = g.personal[frame_name][tostring(i)].iesid
             else
                 g.personal[frame_name][tostring(i)] = {}
-                sub_slotset_personal_save_settings()
+                g.save_json(g.personalFileLoc, g.personal)
             end
         end
         if clsid == "Normal" then
@@ -885,7 +848,7 @@ function sub_slotset_pop(frame, ctrl, str, num)
             g.settings[frame_name][index].clsid = 0
             g.settings[frame_name][index].category = ""
             g.settings[frame_name][index].iesid = ""
-            sub_slotset_save_settings()
+            g.save_json(g.settingsFileLoc, g.settings)
             CLEAR_SLOT_ITEM_INFO(ctrl)
 
         end
@@ -895,7 +858,7 @@ function sub_slotset_pop(frame, ctrl, str, num)
             g.personal[frame_name][index].clsid = 0
             g.personal[frame_name][index].category = ""
             g.personal[frame_name][index].iesid = ""
-            sub_slotset_personal_save_settings()
+            g.save_json(g.personalFileLoc, g.personal)
             CLEAR_SLOT_ITEM_INFO(ctrl)
 
         end
@@ -948,7 +911,7 @@ function sub_slotset_drop(frame, slot, str, num)
             iesid = iesid
         }
 
-        sub_slotset_save_settings()
+        g.save_json(g.settingsFileLoc, g.settings)
     elseif str == "character" then
 
         g.personal[frameName][tostring(index)] = {
@@ -957,14 +920,18 @@ function sub_slotset_drop(frame, slot, str, num)
             iesid = iesid
         }
 
-        sub_slotset_personal_save_settings()
+        g.save_json(g.personalFileLoc, g.personal)
     end
 
     sub_slotset_slotset_update(frame)
 
 end
 
-function sub_slotset_make_frame(frame)
+function sub_slotset_make_frame()
+
+    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "_make_frame", 0, 0, 0, 0)
+    AUTO_CAST(frame)
+
     frame:Resize(225, 200)
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
@@ -1036,8 +1003,16 @@ function sub_slotset_make_frame(frame)
     AUTO_CAST(cancel)
     cancel:SetSkinName("test_gray_button")
     cancel:SetText("{ol}{s16}Cancel")
-    cancel:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_init");
+    cancel:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_close");
 
+    frame:ShowWindow(1)
+
+end
+
+function sub_slotset_frame_close(frame, ctrl)
+
+    local top_frame = frame:GetTopParentFrame()
+    top_frame:ShowWindow(0)
 end
 
 function sub_slotset_set_edit(frame, ctrl, str, num)
@@ -1097,14 +1072,10 @@ function sub_slotset_make_context(frame, ctrl, str, num)
 end
 
 function sub_slotset_make_slotset_frame(str)
-    sub_slotset_frame_init()
-
-    local client_Width = ui.GetClientInitialWidth() -- 1920
-    local client_Height = ui.GetClientInitialHeight() -- 1080
 
     g.settings.index = g.settings.index + 1
     local isnew = true
-    sub_slotset_save_settings()
+    g.save_json(g.settingsFileLoc, g.settings)
     sub_slotset_slotset_frame_init(str, isnew)
 
 end
@@ -1150,14 +1121,14 @@ function sub_slotset_newframe_remove(frame_name)
         if g.settings[frame_name] then
             g.settings[frame:GetName()] = nil
         end
-        sub_slotset_save_settings()
+        g.save_json(g.settingsFileLoc, g.settings)
     elseif belong == "character" then
         if g.personal[frame_name] then
             g.personal[frame:GetName()] = nil
 
         end
 
-        sub_slotset_personal_save_settings()
+        g.save_json(g.personalFileLoc, g.personal)
     end
 
     ui.DestroyFrame(frame_name);
@@ -1176,7 +1147,7 @@ function sub_slotset_lock_slotset_frame(frame_name)
                 g.settings[frame:GetName()]["etc"].lock = true
             end
         end
-        sub_slotset_save_settings()
+        g.save_json(g.settingsFileLoc, g.settings)
         sub_slotset_slotset_init(frame)
     elseif belong == "character" then
         if g.personal[frame_name] then
@@ -1189,7 +1160,7 @@ function sub_slotset_lock_slotset_frame(frame_name)
             end
         end
 
-        sub_slotset_personal_save_settings()
+        g.save_json(g.personalFileLoc, g.personal)
         sub_slotset_slotset_init(frame)
     end
 
@@ -1378,10 +1349,10 @@ function sub_slotset_reset_edit(frame, ctrl, str, num)
 
     if belong == "shared" then
         g.settings[frame_name]["etc"] = table
-        sub_slotset_save_settings()
+        g.save_json(g.settingsFileLoc, g.settings)
     elseif belong == "character" then
         g.personal[frame_name]["etc"] = table
-        sub_slotset_personal_save_settings()
+        g.save_json(g.personalFileLoc, g.personal)
     end
 
     local slot_frame = ui.GetFrame(frame_name)
@@ -1410,8 +1381,8 @@ function sub_slotset_change_belong(frame, ctrl, belong, num)
             belong = "shared"
         end
     end
-    sub_slotset_save_settings()
-    sub_slotset_personal_save_settings()
+    g.save_json(g.settingsFileLoc, g.settings)
+    g.save_json(g.personalFileLoc, g.personal)
 
     local slot_frame = ui.GetFrame(frame_name)
     slot_frame:RemoveAllChild()
@@ -1520,14 +1491,8 @@ function sub_slotset_slot_rbutton(frame, slot, category, clsid)
     end
 end
 
-function sub_slotset_EMO_OPEN(frame, msg)
-    local button = acutil.getEventArgs(msg)
-
-    sub_slotset_EMO_OPEN_(button)
-
-end
-
-function sub_slotset_EMO_OPEN_(button)
+function sub_slotset_EMO_OPEN(my_frame, my_msg)
+    local button = g.get_event_args(my_msg)
 
     local frame = ui.GetFrame("chat_emoticon")
     local group_name = frame:GetUserValue("EMOTICON_GROUP")
@@ -1572,7 +1537,6 @@ function sub_slotset_EMO_OPEN_(button)
     end
 
     CHAT_EMOTICON_MAKELIST(frame)
-
 end
 
 function sub_slotset_emoticon_pop(frame, ctrl, str, num)
@@ -1599,8 +1563,9 @@ function sub_slotset_emoticon_clear(frame)
     g.emoticon_iesid = nil
 end
 
-function sub_slotset_MAKE_QUEST_INFO_TYPE_ICON(frame, msg)
-    local ctrlset, x, y, questIES, result = acutil.getEventArgs(msg)
+function sub_slotset_MAKE_QUEST_INFO_TYPE_ICON(my_frame, my_msg)
+
+    local ctrlset, x, y, questIES, result = g.get_event_args(my_msg)
 
     local picture = GET_CHILD_RECURSIVELY(ctrlset, "statepicture")
     local image = picture:GetImageName()
@@ -1628,3 +1593,266 @@ function sub_slotset_questslot_pop(frame, ctrl, str, num)
     g.quest_category = str
 
 end
+
+-- アドオンメニューボタン
+local norisan_menu_addons = string.format("../%s", "addons")
+local norisan_menu_addons_mkfile = string.format("../%s/mkdir.txt", "addons")
+local norisan_menu_settings = string.format("../addons/%s/settings.json", "norisan_menu")
+local norisan_menu_folder = string.format("../addons/%s", "norisan_menu")
+local norisan_menu_mkfile = string.format("../addons/%s/mkdir.txt", "norisan_menu")
+_G["norisan"] = _G["norisan"] or {}
+_G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
+
+local function norisan_menu_create_folder_file()
+
+    local addons_file = io.open(norisan_menu_addons_mkfile, "r")
+    if not addons_file then
+        os.execute('mkdir "' .. norisan_menu_addons .. '"')
+        addons_file = io.open(norisan_menu_addons_mkfile, "w")
+        if addons_file then
+            addons_file:write("created");
+            addons_file:close()
+        end
+    else
+        addons_file:close()
+    end
+
+    local file = io.open(norisan_menu_mkfile, "r")
+    if not file then
+        os.execute('mkdir "' .. norisan_menu_folder .. '"')
+        file = io.open(norisan_menu_mkfile, "w")
+        if file then
+            file:write("created");
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+norisan_menu_create_folder_file()
+
+local function norisan_menu_save_json(path, tbl)
+
+    local data_to_save = {
+        x = tbl.x,
+        y = tbl.y
+
+    }
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(data_to_save)
+        file:write(str)
+        file:close()
+    end
+end
+
+local function norisan_menu_load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        if content and content ~= "" then
+            local decoded, err = json.decode(content)
+            if decoded then
+                return decoded
+            end
+        end
+    end
+    return nil
+end
+
+function _G.norisan_menu_frame_open(frame, ctrl)
+
+    if frame then
+        if frame:GetHeight() > 40 then
+            local child_count = frame:GetChildCount()
+            local remove_list = {}
+            for i = 0, child_count - 1 do
+                local child_ctrl = frame:GetChildByIndex(i)
+                if child_ctrl then
+                    local child_name = child_ctrl:GetName()
+                    if child_name ~= "norisan_menu_pic" then
+                        table.insert(remove_list, child_name)
+                    end
+                end
+            end
+            for _, name_to_remove in ipairs(remove_list) do
+                frame:RemoveChild(name_to_remove)
+            end
+            frame:Resize(40, 40)
+            return
+        end
+
+        local menu_items_tbl = _G["norisan"]["MENU"]
+        local item_count = 0
+        local disp_idx = 0
+
+        if menu_items_tbl then
+            for key, item_data in pairs(menu_items_tbl) do
+
+                if key ~= "x" and key ~= "y" and type(item_data) == "table" and item_data.name and item_data.icon and
+                    item_data.func then
+
+                    item_count = item_count + 1
+                    local item_pic_name = "menu_item_" .. key -- menu_pic_ctrl_name から変更
+                    local item_pic = frame:CreateOrGetControl('picture', item_pic_name, disp_idx * 35, 35, 35, 40) -- menu_pic を item_pic に
+                    AUTO_CAST(item_pic)
+                    item_pic:SetImage(item_data.icon)
+                    item_pic:SetEnableStretch(1)
+                    item_pic:SetTextTooltip("{ol}" .. item_data.name)
+                    item_pic:SetEventScript(ui.LBUTTONUP, item_data.func)
+                    item_pic:ShowWindow(1)
+                    disp_idx = disp_idx + 1
+                end
+            end
+        end
+
+        if item_count > 0 then
+            frame:Resize(math.max(40, item_count * 35), 70)
+        else
+            frame:Resize(40, 40)
+        end
+    end
+end
+
+function _G.norisan_menu_move_drag(frame, ctrl)
+
+    if frame then
+        _G["norisan"]["MENU"].x = frame:GetX()
+        _G["norisan"]["MENU"].y = frame:GetY()
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+    end
+end
+
+function _G.norisan_menu_create_frame()
+
+    local loaded_cfg = norisan_menu_load_json(norisan_menu_settings)
+    local cfg_x = nil
+    local cfg_y = nil
+
+    if loaded_cfg then
+        cfg_x = loaded_cfg.x
+        cfg_y = loaded_cfg.y
+    end
+
+    if cfg_x == nil or cfg_y == nil then
+        _G["norisan"]["MENU"].x = _G["norisan"]["MENU"].x or 510
+        _G["norisan"]["MENU"].y = _G["norisan"]["MENU"].y or 30
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+    else
+        local map_frame = ui.GetFrame("map")
+        local width = map_frame:GetWidth()
+        if _G["norisan"]["MENU"].x and _G["norisan"]["MENU"].x > 1920 and width <= 1920 then
+            cfg_x = 510
+            cfg_y = 30
+        end
+        _G["norisan"]["MENU"].x = cfg_x
+        _G["norisan"]["MENU"].y = cfg_y
+    end
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if frame then
+        AUTO_CAST(frame)
+        frame:SetSkinName("None")
+        frame:SetTitleBarSkin("None")
+        frame:Resize(40, 40)
+        frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
+        frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
+
+        local norisan_menu_pic = frame:CreateOrGetControl('picture', "norisan_menu_pic", 0, 0, 35, 40)
+        AUTO_CAST(norisan_menu_pic)
+        norisan_menu_pic:SetImage("sysmenu_sys")
+        norisan_menu_pic:SetEnableStretch(1)
+        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
+        norisan_menu_pic:SetTextTooltip("{ol}addons menu")
+
+        frame:ShowWindow(1)
+    end
+
+end
+--[[function sub_slotset_frame_move_reserve(frame, ctrl, str, num)
+    AUTO_CAST(frame)
+    frame:SetSkinName("chat_window")
+    frame:Resize(45, 30)
+    frame:EnableHitTest(1)
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+    frame:SetEventScript(ui.LBUTTONUP, "sub_slotset_frame_move_save")
+end
+
+function sub_slotset_frame_move_save(frame, ctrl, str, num)
+    local x = frame:GetX();
+    local y = frame:GetY();
+    g.settings["screen"] = {
+        x = x,
+        y = y
+    }
+    sub_slotset_save_settings()
+    frame:StopUpdateScript("sub_slotset_frame_move_setskin")
+    frame:RunUpdateScript("sub_slotset_frame_move_setskin", 5.0)
+
+end
+
+function sub_slotset_frame_move_setskin(frame)
+    frame:SetSkinName("None")
+    frame:Resize(30, 30)
+end
+
+function sub_slotset_frame_init()
+
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        local frame = ui.GetFrame("sub_slotset")
+
+        frame:SetSkinName("None")
+        frame:SetTitleBarSkin("None")
+        frame:Resize(30, 30)
+
+        if not g.settings["screen"] then
+            g.settings["screen"] = {
+                x = 783,
+                y = 5
+            }
+            sub_slotset_save_settings()
+        end
+
+        local map_frame = ui.GetFrame("map")
+        local width = map_frame:GetWidth()
+
+        if g.settings["screen"].x > 1920 and width <= 1920 then
+            g.settings["screen"] = {
+                x = 783,
+                y = 5
+            }
+        end
+
+        frame:SetPos(g.settings["screen"].x, g.settings["screen"].y)
+
+        -- frame:SetPos(783, 5)
+        frame:SetLayerLevel(30);
+        frame:ShowWindow(1)
+
+        local slot = frame:CreateOrGetControl('slot', 'slot', 0, 0, 25, 25)
+        AUTO_CAST(slot)
+        slot:SetSkinName("None");
+        slot:EnablePop(0)
+        slot:EnableDrop(0)
+        slot:EnableDrag(0)
+        slot:SetEventScript(ui.LBUTTONUP, "sub_slotset_make_frame");
+
+        local icon = CreateIcon(slot);
+        AUTO_CAST(icon)
+        icon:SetImage("btn_plus");
+        icon:SetTextTooltip("Sub SlotSet")
+
+        slot:SetEventScript(ui.MOUSEON, "sub_slotset_frame_move_reserve")
+        slot:SetEventScript(ui.MOUSEOFF, "sub_slotset_frame_move_save")
+
+    end
+
+end]]

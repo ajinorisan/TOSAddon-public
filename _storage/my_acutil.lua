@@ -65,14 +65,26 @@ end
 
 function g.load_json(path)
 
-    local file = io.open(path, "r")
-    if file then
+    function g.load_json(path)
+        local file = io.open(path, "r")
+        if not file then
+            return nil, "Error opening file: " .. path
+        end
+
         local content = file:read("*all")
         file:close()
-        local table = json.decode(content)
-        return table
-    else
-        return nil
+
+        if not content or content == "" then
+            return nil, "File content is empty or could not be read: " .. path
+        end
+
+        local decoded_table, decode_err = json.decode(content)
+
+        if not decoded_table then
+            return nil, decode_err
+        end
+
+        return decoded_table, nil
     end
 end
 
