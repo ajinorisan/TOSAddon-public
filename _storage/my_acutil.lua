@@ -312,55 +312,83 @@ end
 
 function _G.norisan_menu_frame_open(frame, ctrl)
 
-    if frame then
-        if frame:GetHeight() > 40 then
-            local child_count = frame:GetChildCount()
-            local remove_list = {}
-            for i = 0, child_count - 1 do
-                local child_ctrl = frame:GetChildByIndex(i)
-                if child_ctrl then
-                    local child_name = child_ctrl:GetName()
-                    if child_name ~= "norisan_menu_pic" then
-                        table.insert(remove_list, child_name)
-                    end
-                end
-            end
-            for _, name_to_remove in ipairs(remove_list) do
-                frame:RemoveChild(name_to_remove)
-            end
-            frame:Resize(40, 40)
-            return
-        end
-
-        local menu_items_tbl = _G["norisan"]["MENU"]
-        local item_count = 0
-        local disp_idx = 0
-
-        if menu_items_tbl then
-            for key, item_data in pairs(menu_items_tbl) do
-
-                if key ~= "x" and key ~= "y" and type(item_data) == "table" and item_data.name and item_data.icon and
-                    item_data.func then
-
-                    item_count = item_count + 1
-                    local item_pic_name = "menu_item_" .. key -- menu_pic_ctrl_name から変更
-                    local item_pic = frame:CreateOrGetControl('picture', item_pic_name, disp_idx * 35, 35, 35, 40) -- menu_pic を item_pic に
-                    AUTO_CAST(item_pic)
-                    item_pic:SetImage(item_data.icon)
-                    item_pic:SetEnableStretch(1)
-                    item_pic:SetTextTooltip("{ol}" .. item_data.name)
-                    item_pic:SetEventScript(ui.LBUTTONUP, item_data.func)
-                    item_pic:ShowWindow(1)
-                    disp_idx = disp_idx + 1
+    if frame:GetHeight() > 40 then
+        local child_count = frame:GetChildCount()
+        local remove_list = {}
+        for i = 0, child_count - 1 do
+            local child_ctrl = frame:GetChildByIndex(i)
+            if child_ctrl then
+                local child_name = child_ctrl:GetName()
+                if child_name ~= "norisan_menu_pic" then
+                    table.insert(remove_list, child_name)
                 end
             end
         end
+        for _, name_to_remove in ipairs(remove_list) do
+            frame:RemoveChild(name_to_remove)
+        end
+        frame:Resize(40, 40)
+        return
+    end
 
-        if item_count > 0 then
-            frame:Resize(math.max(40, item_count * 35), 70)
+    local menu_items = _G["norisan"]["MENU"]
+    local max_cols = 5
+    local item_w = 35
+    local item_h = 35
+    local y_offset = 35
+
+    local item_idx = 0
+
+    if menu_items then
+        for key, data in pairs(menu_items) do
+            if key ~= "x" and key ~= "y" and type(data) == "table" and data.name and data.func and
+                ((data.image and data.image ~= "") or (data.icon and data.icon ~= "")) then
+
+                local col = item_idx % max_cols
+                local row = math.floor(item_idx / max_cols)
+
+                local x = col * item_w
+                local y = y_offset + (row * item_h)
+
+                local ctrl_name = "menu_item_" .. key
+
+                local item_ui
+
+                if data.image and data.image ~= "" then
+                    item_ui = frame:CreateOrGetControl('button', ctrl_name, x, y, item_w, item_h)
+                    AUTO_CAST(item_ui)
+                    item_ui:SetSkinName("None")
+                    item_ui:SetText(data.image)
+                else
+                    item_ui = frame:CreateOrGetControl('picture', ctrl_name, x, y, item_w, item_h)
+                    AUTO_CAST(item_ui)
+                    item_ui:SetImage(data.icon)
+                    item_ui:SetEnableStretch(1)
+                end
+
+                if item_ui then
+                    item_ui:SetTextTooltip("{ol}" .. data.name)
+                    item_ui:SetEventScript(ui.LBUTTONUP, data.func)
+                    item_ui:ShowWindow(1)
+                    item_idx = item_idx + 1
+                end
+            end
+        end
+    end
+
+    if item_idx > 0 then
+        local num_rows = math.ceil(item_idx / max_cols)
+        local frame_w = 0
+        if num_rows == 1 then
+            frame_w = math.max(40, item_idx * item_w)
         else
-            frame:Resize(40, 40)
+            frame_w = math.max(40, max_cols * item_w)
         end
+
+        local items_h_total = (num_rows * item_h) + (num_rows > 1 and num_rows - 1 or 0)
+        frame:Resize(frame_w, y_offset + items_h_total)
+    else
+        frame:Resize(40, 40)
     end
 end
 
@@ -385,14 +413,14 @@ function _G.norisan_menu_create_frame()
     end
 
     if cfg_x == nil or cfg_y == nil then
-        _G["norisan"]["MENU"].x = _G["norisan"]["MENU"].x or 510
+        _G["norisan"]["MENU"].x = _G["norisan"]["MENU"].x or 1190
         _G["norisan"]["MENU"].y = _G["norisan"]["MENU"].y or 30
         norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
     else
         local map_frame = ui.GetFrame("map")
         local width = map_frame:GetWidth()
         if _G["norisan"]["MENU"].x and _G["norisan"]["MENU"].x > 1920 and width <= 1920 then
-            cfg_x = 510
+            cfg_x = 1190
             cfg_y = 30
         end
         _G["norisan"]["MENU"].x = cfg_x
@@ -407,6 +435,7 @@ function _G.norisan_menu_create_frame()
         frame:SetSkinName("None")
         frame:SetTitleBarSkin("None")
         frame:Resize(40, 40)
+        frame:SetLayerLevel(999)
         frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
         frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
 
@@ -414,8 +443,8 @@ function _G.norisan_menu_create_frame()
         AUTO_CAST(norisan_menu_pic)
         norisan_menu_pic:SetImage("sysmenu_sys")
         norisan_menu_pic:SetEnableStretch(1)
-        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
         norisan_menu_pic:SetTextTooltip("{ol}addons menu")
+        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
 
         frame:ShowWindow(1)
     end
@@ -425,12 +454,13 @@ end
 --[[ アドオンメニューボタンここまで
 この部分はON_INIT内で書く]]
 local menu_data = {
-    name = "Auto Repair",
-    icon = "sysmenu_mac",
-    func = "AUTO_REPAIR_SETTING_FRAME_INIT",
-    frame_name = "auto_repair"
+    name = "Sub Slot Set",
+    icon = "icon_item_gold",
+    func = "sub_slotset_make_frame",
+    image = "{img btn_worldmap_zoomin 30 30}"
 }
 _G["norisan"]["MENU"][addonName] = menu_data
+_G["norisan"]["MENU"].frame_name = "sub_slotset"
 _G["norisan"]["MENU"].last_addon = addonName
 addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
 
