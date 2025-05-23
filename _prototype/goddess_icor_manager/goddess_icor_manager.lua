@@ -9,17 +9,17 @@
 -- v1.0.6 2ページ目のイコル付け替えた際に1ページ目に戻るの修正。イコルのLV表示取りやめ。
 -- v1.0.7 settingsファイルが無い状態で読み込んだらバグってたの修正。ツールチップ併記取りやめ。
 -- v1.0.8 種族特攻とかのMAX数値が間違ってたの修正。そんなん知らんかった。
-local addonName = "GODDESS_ICOR_MANAGER"
-local addonNameLower = string.lower(addonName)
+local addon_name = "GODDESS_ICOR_MANAGER"
+local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
 local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
-g.settingsFileLoc = string.format('../addons/%s/settings.json', addonNameLower)
+g.settings_path = string.format('../addons/%s/settings.json', addon_name_lower)
 
 local acutil = require("acutil")
 
@@ -1126,7 +1126,7 @@ function goddess_icor_manager_language(str)
     return str
 end
 
-local managed_list = {'RH', 'LH', 'SHIRT', 'PANTS', 'GLOVES', 'BOOTS', 'RH_SUB', 'LH_SUB'}
+local managed_list = {'RH', 'LH', 'Shirt', 'Pants', 'GLOVES', 'BOOTS', 'RH_SUB', 'LH_SUB'}
 local managed_slot_list = {{
     SlotName = 'RH',
     SkinName = 'rh',
@@ -1160,25 +1160,78 @@ local managed_slot_list = {{
     SkinName = 'lh',
     ClMsg = 'LH_SUB'
 }}
+---
+
+function g.save_json(path, tbl)
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+end
+
+function g.load_json(path)
+
+    function g.load_json(path)
+        local file = io.open(path, "r")
+        if not file then
+            return nil, "Error opening file: " .. path
+        end
+
+        local content = file:read("*all")
+        file:close()
+
+        if not content or content == "" then
+            return nil, "File content is empty or could not be read: " .. path
+        end
+
+        local decoded_table, decode_err = json.decode(content)
+
+        if not decoded_table then
+            return nil, decode_err
+        end
+
+        return decoded_table, nil
+    end
+end
+
+function g.get_map_type()
+    local map_name = session.GetMapName()
+    local map_cls = GetClass("Map", map_name)
+    local map_type = map_cls.MapType
+    return map_type
+end
+
+function goddess_icor_manager_load_settings()
+
+    local settings, err = g.load_json(g.settings_path)
+
+    if not settings then
+        settings = {
+            check = 0
+        }
+    end
+    g.settings = settings
+    g.save_json(g.settings_path, g.settings)
+end
 
 function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-    g.settings = g.settings or {}
 
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
-        -- goddess_icor_manager_load_settings()
+    g.lang = option.GetCurrentCountry()
 
-        goddess_icor_manager_frame_init()
-        addon:RegisterMsg("GAME_START", "goddess_icor_manager_load_settings");
-        addon:RegisterMsg('ESCAPE_PRESSED', 'goddess_icor_manager_list_close');
-        return;
+    if g.get_map_type() == "City" then
+        addon:RegisterMsg("GAME_START", "goddess_icor_manager_GAME_START")
+        addon:RegisterMsg('ESCAPE_PRESSED', 'goddess_icor_manager_list_close')
     end
+end
 
+function goddess_icor_manager_GAME_START()
+    goddess_icor_manager_load_settings()
+    goddess_icor_manager_frame_init()
 end
 
 function goddess_icor_manager_frame_init()
@@ -1199,26 +1252,136 @@ function goddess_icor_manager_frame_init()
     icor_btn:SetTextTooltip("{ol}Goddes Icor Manager Frame Open")
 end
 
-function goddess_icor_manager_list_init(frame, ctrl, argStr, argNum)
+function goddess_icor_manager_list_init(frame, ctrl, str, page)
 
     local frame = ui.GetFrame("goddess_icor_manager")
     frame:Resize(1430, 1060) -- 1000
     frame:SetOffset(0, 10) -- 0,20
     frame:ShowWindow(1)
     frame:SetLayerLevel(121)
-    frame:ShowTitleBar(0);
+    frame:ShowTitleBar(0)
     frame:SetSkinName("test_frame_midle_light")
     frame:RemoveAllChild()
     goddess_icor_manager_newframe_init()
-    if argNum == 2 then
+    if page == 2 then
         g.num = 2
         goddess_icor_manager_list_gb_init(frame, 2)
-
     else
         g.num = 1
         goddess_icor_manager_list_gb_init(frame, 1)
     end
 
+end
+
+function goddess_icor_manager_newframe_init()
+
+    local newframe = ui.CreateNewFrame("notice_on_pc", "goddess_icor_manager_newframe", 0, 0, 0, 0)
+    AUTO_CAST(newframe)
+    newframe:SetOffset(1420, 5)
+    newframe:Resize(500, 1070)
+    newframe:SetSkinName('test_frame_midle_light')
+    newframe:SetLayerLevel(121)
+    newframe:RemoveAllChild()
+
+    local change_check = newframe:CreateOrGetControl('checkbox', 'change_check', 60, 20, 30, 30)
+    AUTO_CAST(change_check)
+    change_check:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_check_save")
+    change_check:SetCheck(g.settings.check)
+    change_check:SetText(g.lang == "Japanese" and "{ol}チェックで表示切替" or "{ol}Check to switch display")
+
+    local closebtn = newframe:CreateOrGetControl("button", "closebtn", 445, 10, 40, 45)
+    closebtn:SetText("{img testclose_button 40 40}")
+    AUTO_CAST(closebtn)
+    closebtn:SetSkinName("None")
+    closebtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
+    closebtn:SetTextTooltip("{ol}Frame Close.")
+
+    local swapbtn = newframe:CreateOrGetControl("button", "swapbtn", 10, 10, 40, 45)
+    swapbtn:SetText("{img sysmenu_skill 40 40}")
+    AUTO_CAST(swapbtn)
+    swapbtn:SetSkinName("test_pvp_btn")
+    swapbtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_swap_weapon")
+    swapbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}武器の裏表切替" or
+                               "{ol}Swap the reverse side of weapons")
+
+    local x = 5
+    local y = 50
+    local yy = 50
+    for i = 1, #managed_list do
+        local new_bg
+        if i <= 2 or i >= 7 then
+            new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, x, y + 10, 240, 130)
+            y = y + 131
+        elseif i <= 6 or i >= 3 then
+            new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, x + 245, yy + 10, 240, 130)
+            yy = yy + 131
+        end
+        AUTO_CAST(new_bg)
+        new_bg:SetSkinName("test_frame_midle_light")
+    end
+
+    newframe:ShowWindow(1)
+
+    for i = 1, #managed_list do
+
+        local slot_info = managed_list[i]
+        local new_bg = GET_CHILD(newframe, "new_bg" .. i)
+        local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 5, 5)
+        AUTO_CAST(slot)
+        slot:SetText("{ol}" .. ClMsg(slot_info))
+
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info))
+        local item_obj = GetIES(inv_item:GetObject())
+        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+        local size = item_dic["Size"]
+
+        local jx = 25
+        if size ~= 0 then
+            for j = 1, size do
+
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local group_key = "RandomOptionGroup_" .. j
+                local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
+                local text = bg:CreateOrGetControl("richtext", "text" .. j, 5, jx)
+                AUTO_CAST(text)
+                -- text:SetText("")
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                local group = item_dic[group_key]
+                -- manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+                local color = goddess_icor_manager_color(tostring(group))
+                -- option:SetText("{ol}" .. color .. goddess_icor_manager_language(parts1[k]) .. "{ol}{#FFFFFF} : " ..
+                --                   "{ol}{#FFFFFF}" .. parts3[k])
+
+                text:SetText("{ol}" .. color .. goddess_icor_manager_language(option) .. "{#FFFFFF} : " .. value) -- aa
+                -- text:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
+                -- text:SetTextTooltip(goddess_icor_manager_language(option) .. " : " .. value)
+                jx = jx + 20
+
+            end
+            local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
+            local colortone = goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
+            bg:SetColorTone(colortone)
+        end
+
+    end
+
+    local status_bg = newframe:CreateOrGetControl("groupbox", "status_bg", 5, 590, 490, 470)
+    AUTO_CAST(status_bg)
+    status_bg:SetSkinName("bg")
+
+    local status_table = {"Cloth_Atk", "Leather_Atk", "Iron_Atk", "Ghost_Atk", "MiddleSize_Def", "Cloth_Def",
+                          "Leather_Def", "Iron_Def", "Forester_Atk", "Widling_Atk", "Klaida_Atk", "Paramune_Atk",
+                          "Velnias_Atk", "perfection", "revenge"}
+    local stframe = ui.GetFrame("status")
+    if stframe:IsVisible() == 0 then
+        ui.OpenFrame("status")
+    end
+    for i = 1, #status_table do
+        local status_str = status_table[i]
+        goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, i)
+    end
 end
 
 function goddess_icor_manager_list_gb_init(frame, argNum)
@@ -1230,7 +1393,6 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
     local max_page = GET_MAX_ENGARVE_SLOT_COUNT(acc)
     local page_max = 0
     if tonumber(remain_time) == 0 then
-
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
     else
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
@@ -1288,7 +1450,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
 
-                    manage_bg:SetSkinName("test_frame_midle_light");
+                    manage_bg:SetSkinName("test_frame_midle_light")
 
                     manage_X = manage_X + 122
                     -- end
@@ -1351,9 +1513,9 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
 
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
-                    -- manage_bg:SetSkinName("chat_window_2");
-                    -- manage_bg:SetSkinName("digitnotice_bg");
-                    manage_bg:SetSkinName("test_frame_midle_light");
+                    -- manage_bg:SetSkinName("chat_window_2")
+                    -- manage_bg:SetSkinName("digitnotice_bg")
+                    manage_bg:SetSkinName("test_frame_midle_light")
                     manage_X = manage_X + 122
                     -- end
                     local parts1 = {}
@@ -1424,9 +1586,9 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
 
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
-                    -- manage_bg:SetSkinName("chat_window_2");
-                    -- manage_bg:SetSkinName("digitnotice_bg");
-                    manage_bg:SetSkinName("test_frame_midle_light");
+                    -- manage_bg:SetSkinName("chat_window_2")
+                    -- manage_bg:SetSkinName("digitnotice_bg")
+                    manage_bg:SetSkinName("test_frame_midle_light")
                     manage_X = manage_X + 122
                     -- end
                     local parts1 = {}
@@ -1486,7 +1648,7 @@ function goddess_icor_manager_list_gb_init(frame, argNum)
                     local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
                     manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
 
-                    manage_bg:SetSkinName("test_frame_midle_light");
+                    manage_bg:SetSkinName("test_frame_midle_light")
 
                     manage_X = manage_X + 122
                     -- end
@@ -1542,21 +1704,21 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
         local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.SlotName))
         local checkbox = GET_CHILD(ctrlset, 'checkbox')
         if tonumber(argStr) == 1 and i == 1 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         elseif tonumber(argStr) == 2 and i == 2 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         elseif tonumber(argStr) == 3 and i == 3 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         elseif tonumber(argStr) == 4 and i == 4 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         elseif tonumber(argStr) == 5 and i == 5 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         elseif tonumber(argStr) == 6 and i == 6 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         elseif tonumber(argStr) == 7 and i == 7 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         elseif tonumber(argStr) == 8 and i == 8 then
-            checkbox:SetCheck(1);
+            checkbox:SetCheck(1)
         end
         if tgt_item ~= nil and checkbox:IsChecked() == 1 then
             if tgt_item.isLockState == true then
@@ -1597,12 +1759,12 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
         for i = 1, page_max do
             local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
             AUTO_CAST(bg)
-            local curpos = bg:GetScrollCurPos();
+            local curpos = bg:GetScrollCurPos()
             if curpos == 514 then
                 curpos = 0
             end
             g.settings[tostring(i)] = curpos
-            goddess_icor_manager_save_settings()
+            g.save_json(g.settings_path, g.settings)
 
         end
     end
@@ -1621,11 +1783,11 @@ function goddess_icor_manager_set_pos(frame, page_max)
 
         local pos = tonumber(g.settings[tostring(i)])
 
-        bg:SetScrollPos(0);
+        bg:SetScrollPos(0)
         if pos ~= 0 then
-            bg:EnableScrollBar(1);
-            bg:EnableDrawFrame(1);
-            bg:SetScrollPos(pos);
+            bg:EnableScrollBar(1)
+            bg:EnableDrawFrame(1)
+            bg:SetScrollPos(pos)
         end
 
     end
@@ -1688,10 +1850,10 @@ function goddess_icor_manager_check()
                         equip_button:SetText("{ol}{s14}E")
                         equip_button:SetSkinName("test_red_button")
                         equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
-                        equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
-                        equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                        equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
+                        equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                         equip_button:SetTextTooltip(goddess_icor_manager_language(
-                            "Equip the icor with a left click of the button."))
+                                                        "Equip the icor with a left click of the button."))
                     end
                 end
             end
@@ -1741,10 +1903,10 @@ function goddess_icor_manager_check()
                             equip_button:SetText("{ol}{s14}E")
                             equip_button:SetSkinName("test_red_button")
                             equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
-                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
-                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
+                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                             equip_button:SetTextTooltip(goddess_icor_manager_language(
-                                "Equip the icor with a left click of the button."))
+                                                            "Equip the icor with a left click of the button."))
 
                         end
                     end
@@ -1791,10 +1953,10 @@ function goddess_icor_manager_check()
                             equip_button:SetText("{ol}{s14}E")
                             equip_button:SetSkinName("test_red_button")
                             equip_button:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_equip_button")
-                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i); -- sets the 4th parameter (numarg)
-                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j);
+                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
+                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                             equip_button:SetTextTooltip(goddess_icor_manager_language(
-                                "Equip the icor with a left click of the button."))
+                                                            "Equip the icor with a left click of the button."))
                         end
                     end
                 end
@@ -1958,169 +2120,11 @@ end
 function goddess_icor_manager_check_save(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
     g.settings.check = ischeck
-    goddess_icor_manager_save_settings()
+    g.save_json(g.settings_path, g.settings)
     local frame = ui.GetFrame("goddess_icor_manager")
 
     ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", 1), 0.5)
 
-end
-
-function goddess_icor_manager_load_settings()
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
-
-    if err then
-        -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", addonNameLower))
-    end
-
-    if not settings then
-
-        settings = {
-            check = 0
-        }
-    end
-    g.settings = settings
-    goddess_icor_manager_save_settings()
-end
-
-function goddess_icor_manager_save_settings()
-
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
-
-end
-
-function goddess_icor_manager_newframe_init()
-
-    local newframe = ui.CreateNewFrame("notice_on_pc", "goddess_icor_manager_newframe", 0, 0, 0, 0)
-    AUTO_CAST(newframe)
-    newframe:SetOffset(1420, 5)
-    newframe:Resize(500, 1070)
-    -- newframe:SetSkinName('bg')
-    newframe:SetSkinName('test_frame_midle_light')
-    -- newframe:SetSkinName('None')
-    newframe:SetLayerLevel(121)
-    newframe:RemoveAllChild();
-
-    local change_check = newframe:CreateOrGetControl('checkbox', 'change_check', 60, 20, 30, 30)
-    AUTO_CAST(change_check)
-    change_check:SetTextTooltip(goddess_icor_manager_language("Check the box to switch to batch display."))
-    change_check:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_check_save")
-    change_check:SetCheck(g.settings.check)
-
-    local change_text = newframe:CreateOrGetControl("richtext", 'change_text', 90, 30, 0, 40)
-    AUTO_CAST(change_text)
-    change_text:SetText(goddess_icor_manager_language("{ol}Check box to switch display number"))
-    change_text:AdjustFontSizeByWidth(350)
-    --[[local close_bg = newframe:CreateOrGetControl("groupbox", "close_bg", 290, 10, 200, 60)
-    AUTO_CAST(close_bg)
-    -- close_bg:SetSkinName("test_frame_midle_light");
-    close_bg:SetSkinName("None");
-    -- close_bg:RemoveAllChild();]]
-
-    local closebtn = newframe:CreateOrGetControl("button", "closebtn", 445, 10, 40, 45)
-    closebtn:SetText("{img testclose_button 40 40}")
-    AUTO_CAST(closebtn)
-    closebtn:SetSkinName("None")
-    closebtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
-    closebtn:SetTextTooltip("Frame Close.")
-
-    local swapbtn = newframe:CreateOrGetControl("button", "swapbtn", 10, 10, 40, 45)
-    swapbtn:SetText("{img sysmenu_skill 40 40}")
-    AUTO_CAST(swapbtn)
-    swapbtn:SetSkinName("test_pvp_btn")
-    swapbtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_swap_weapon")
-    swapbtn:SetTextTooltip(goddess_icor_manager_language("Swap the reverse side of the weapon."))
-
-    local x = 50
-    local xx = 50
-    -- local new_bg1
-    for i = 1, #managed_list do
-        if i <= 2 or i >= 7 then
-            local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 5, x + 10, 240, 130)
-            AUTO_CAST(new_bg)
-            new_bg:SetSkinName("test_frame_midle_light");
-            new_bg:RemoveAllChild();
-            new_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-            new_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
-            x = x + 131
-
-        elseif i <= 6 or i >= 3 then
-            local new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, 250, xx + 10, 240, 130)
-            AUTO_CAST(new_bg)
-            new_bg:SetSkinName("test_frame_midle_light");
-            new_bg:RemoveAllChild();
-            new_bg:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-            new_bg:SetTextTooltip(goddess_icor_manager_language("Right click to close."))
-            xx = xx + 131
-        end
-    end
-
-    newframe:ShowWindow(1)
-
-    for i = 1, #managed_list do
-
-        local slot_info = managed_list[i]
-        local new_bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
-        local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 5, 5)
-        AUTO_CAST(slot)
-        -- slot:SetText("")
-        slot:SetText("{ol}" .. goddess_icor_manager_language(slot_info))
-
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info))
-        local item_obj = GetIES(inv_item:GetObject())
-        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-        local size = item_dic["Size"]
-
-        local jx = 25
-        if size ~= 0 then
-            for j = 1, size do
-
-                local key = "RandomOption_" .. j
-                local value_key = "RandomOptionValue_" .. j
-                local group_key = "RandomOptionGroup_" .. j
-                local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
-                local text = bg:CreateOrGetControl("richtext", "text" .. j, 5, jx)
-                AUTO_CAST(text)
-                -- text:SetText("")
-                local option = item_dic[key]
-                local value = item_dic[value_key]
-                local group = item_dic[group_key]
-                -- manage_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
-                local color = goddess_icor_manager_color(tostring(group))
-                -- option:SetText("{ol}" .. color .. goddess_icor_manager_language(parts1[k]) .. "{ol}{#FFFFFF} : " ..
-                --                   "{ol}{#FFFFFF}" .. parts3[k])
-
-                text:SetText("{ol}" .. color .. goddess_icor_manager_language(option) .. "{#FFFFFF} : " .. value) -- aa
-                -- text:SetEventScript(ui.RBUTTONUP, "goddess_icor_manager_list_close")
-                -- text:SetTextTooltip(goddess_icor_manager_language(option) .. " : " .. value)
-                jx = jx + 20
-
-            end
-            local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
-            local colortone = goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
-            bg:SetColorTone(colortone)
-        end
-
-    end
-
-    local status_bg = newframe:CreateOrGetControl("groupbox", "status_bg", 5, 590, 490, 470)
-    AUTO_CAST(status_bg)
-    -- close_bg:SetSkinName("test_frame_midle_light");
-    status_bg:SetSkinName("bg");
-
-    local status_table = {"Cloth_Atk", "Leather_Atk", "Iron_Atk", "Ghost_Atk", "MiddleSize_Def", "Cloth_Def",
-                          "Leather_Def", "Iron_Def", "Forester_Atk", "Widling_Atk", "Klaida_Atk", "Paramune_Atk",
-                          "Velnias_Atk", "perfection", "revenge"}
-    local stframe = ui.GetFrame("status")
-    if stframe:IsVisible() == 0 then
-        ui.OpenFrame("status")
-    end
-    for i = 1, #status_table do
-        local status_str = status_table[i]
-
-        goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, i)
-    end
 end
 
 function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, index)
@@ -2129,7 +2133,7 @@ function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str
 
     local language = option.GetCurrentCountry()
 
-    local level = info.GetLevel(session.GetMyHandle());
+    local level = info.GetLevel(session.GetMyHandle())
     local setting_num = level * 30
     local setting_num2 = level * 15
     -- print(tostring(level))
@@ -2189,7 +2193,7 @@ function goddess_icor_manager_swap_weapon()
     ui.CloseFrame("goddess_icor_manager_newframe")
 
     local frame = ui.GetFrame("inventory")
-    local equipItemList = session.GetEquipItemList();
+    local equipItemList = session.GetEquipItemList()
     local RH = GET_CHILD_RECURSIVELY(frame, "RH")
     local LH = GET_CHILD_RECURSIVELY(frame, "LH")
     local RH_SUB = GET_CHILD_RECURSIVELY(frame, "RH_SUB")
@@ -2225,39 +2229,39 @@ function goddess_icor_manager_equip()
 
     local frame = ui.GetFrame("inventory")
     if g.rh_sub_guid ~= nil then
-        local invitem = session.GetInvItemByGuid(g.rh_sub_guid);
+        local invitem = session.GetInvItemByGuid(g.rh_sub_guid)
         local spotname = "RH"
         ITEM_EQUIP(invitem.invIndex, spotname)
-        frame:Invalidate();
+        frame:Invalidate()
         g.rh_sub_guid = nil
         ReserveScript("goddess_icor_manager_equip()", 0.6)
         return
     elseif g.lh_sub_guid ~= nil then
 
-        local invitem = session.GetInvItemByGuid(g.lh_sub_guid);
+        local invitem = session.GetInvItemByGuid(g.lh_sub_guid)
         local spotname = "LH"
         ITEM_EQUIP(invitem.invIndex, spotname)
-        frame:Invalidate();
+        frame:Invalidate()
         g.lh_sub_guid = nil
         ReserveScript("goddess_icor_manager_equip()", 0.6)
         return
 
     elseif g.rh_guid ~= nil then
         DO_WEAPON_SLOT_CHANGE(frame, 2)
-        local invitem = session.GetInvItemByGuid(g.rh_guid);
+        local invitem = session.GetInvItemByGuid(g.rh_guid)
         local spotname = "RH_SUB"
         ITEM_EQUIP(invitem.invIndex, spotname)
-        frame:Invalidate();
+        frame:Invalidate()
         g.rh_guid = nil
         ReserveScript("goddess_icor_manager_equip()", 0.6)
         return
 
     elseif g.lh_guid ~= nil then
         DO_WEAPON_SLOT_CHANGE(frame, 2)
-        local invitem = session.GetInvItemByGuid(g.lh_guid);
+        local invitem = session.GetInvItemByGuid(g.lh_guid)
         local spotname = "LH_SUB"
         ITEM_EQUIP(invitem.invIndex, spotname)
-        frame:Invalidate();
+        frame:Invalidate()
         g.lh_guid = nil
         ReserveScript("goddess_icor_manager_equip()", 0.6)
         return
@@ -2275,17 +2279,17 @@ function goddess_icor_manager_unequip(frame, num)
     local invTab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     invTab:SelectTab(1)
     if true == BEING_TRADING_STATE() then
-        return;
+        return
     end
 
-    local isEmptySlot = false;
+    local isEmptySlot = false
     if session.GetInvItemList():Count() < MAX_INV_COUNT then
-        isEmptySlot = true;
+        isEmptySlot = true
     end
     if isEmptySlot == true then
 
-        imcSound.PlaySoundEvent('inven_unequip');
-        item.UnEquip(tonumber(num));
+        imcSound.PlaySoundEvent('inven_unequip')
+        item.UnEquip(tonumber(num))
 
         ReserveScript("goddess_icor_manager_swap_weapon()", 0.5)
         return
@@ -2467,7 +2471,7 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
 
 end
 
---[[ local token = StringSplit(arg_str, ';')
+--[[ local token = StringSplit(arg_str, '')
 local name = token[1]
 local before = token[2]
 local record = token[3]]
@@ -2522,13 +2526,13 @@ function goddess_icor_manager_list_close(frame)
         for i = 1, page_max do
             local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
             AUTO_CAST(bg)
-            local curpos = bg:GetScrollCurPos();
+            local curpos = bg:GetScrollCurPos()
             if curpos == 514 then
                 curpos = 0
             end
             g.settings[tostring(i)] = curpos
-            goddess_icor_manager_save_settings()
-            -- bg:SetUserValue("SAVE_POS", curpos);
+            g.save_json(g.settings_path, g.settings)
+            -- bg:SetUserValue("SAVE_POS", curpos)
 
         end
     end
