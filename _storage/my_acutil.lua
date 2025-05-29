@@ -88,10 +88,6 @@ function g.load_json(path)
     end
 end
 
-function g.settings_make()
-
-end
-
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
     g.FUNCS = g.FUNCS or {}
