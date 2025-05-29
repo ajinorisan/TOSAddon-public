@@ -133,6 +133,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Vakarine Equip)</summary>
 
+*   v1.0.4 最適化。手動モード。JSRの起動ONOFF
 *   v1.0.3 ローディング最適化
 *   v1.0.2 `ui.hold` 使用停止（再起動が必要になる問題を回避）
 *   v1.0.1 ネックレスを最後に処理するように修正
