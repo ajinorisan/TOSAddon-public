@@ -11,10 +11,11 @@
 -- v1.1.2 530update
 -- v1.1.3 セッティングファイルがnullになるの修正
 -- v1.1.4 acutil止めた。独自のアドオンボタン実装。僭越。自動補充チェック付けた。
+-- v1.1.5 アドオンボタン回りを修正し、他アドオンとの共通コードに
 local addon_name = "AUTO_REPAIR"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.4"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}

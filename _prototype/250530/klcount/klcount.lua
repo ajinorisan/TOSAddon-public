@@ -10,10 +10,11 @@
 -- v1.1.4 フレームのxmlにAutoOpen書いた。謎にzoneInsts取得してバグってたの直した
 -- v1.1.5 mapinfoのエラー処理追加
 -- v1.1.6 ウルトラワイド対応。ID毎のセーブファイルに
+-- v1.1.7 アドオンボタン共通化。マップインフォのバグ修正。
 local addon_name = "KLCOUNT"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.6"
+local ver = "1.1.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -301,7 +302,7 @@ function klcount_information_context(frame, ctrl, str, num)
         local map_name = GetClassByType("Map", g.settings.map_ids[i]).ClassName
 
         local map_file_location = string.format("../addons/%s/%s/%s.json", addon_name_lower, g.active_id,
-            g.settings.map_ids[i])
+                                                g.settings.map_ids[i])
 
         local map_data, err = g.load_json(map_file_location);
 
@@ -321,7 +322,7 @@ function klcount_information_context(frame, ctrl, str, num)
         elseif next(map_data.get_items) then
             local display_text = g.settings.map_ids[i] .. " " .. GetClassByType("Map", g.settings.map_ids[i]).Name
             local script = ui.AddContextMenuItem(context, display_text,
-                string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
+                                                 string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
         else
             map_data = {
                 map_name = map_name,
@@ -418,7 +419,7 @@ function klcount_map_information(map_id)
     map_name_label:SetText("{ol}" .. map_disp_name)
 
     local info_box = ui_frame:CreateOrGetControl("groupbox", "info_gbox", 10, 40, ui_frame:GetWidth() - 20,
-        ui_frame:GetHeight() - 55)
+                                                 ui_frame:GetHeight() - 55)
     AUTO_CAST(info_box)
     info_box:RemoveAllChild()
     info_box:SetSkinName("bg")
@@ -440,7 +441,7 @@ function klcount_map_information(map_id)
     kill_label:SetText("{ol}" .. kill_count_str .. kill_count_val)
 
     local kill_per_hour_label = info_box:CreateOrGetControl('richtext', 'kill_count_hour', kill_label:GetWidth() + 20,
-        35, 50, 20)
+                                                            35, 50, 20)
     AUTO_CAST(kill_per_hour_label)
     if total_sec > 0 then
         local kills_ph_val = math.floor(kill_count_val / total_sec * 3600)
@@ -483,7 +484,7 @@ function klcount_map_information(map_id)
                     (g.lang == "Japanese" and " 獲得数 : " or " Get Count : ") .. item_get_count .. pcs_str
 
             local item_label1 = info_box:CreateOrGetControl('richtext', 'display_text' .. item_id_str_key, 10,
-                95 + current_y, 50, 20)
+                                                            95 + current_y, 50, 20)
             AUTO_CAST(item_label1)
             item_label1:SetText(item_disp_str1)
 
@@ -517,7 +518,7 @@ function klcount_map_information(map_id)
                                        rounded_sec_per_item .. st_str
 
             local item_label2 = info_box:CreateOrGetControl('richtext', 'display_text2' .. item_id_str_key, 10,
-                120 + current_y, 50, 20)
+                                                            120 + current_y, 50, 20)
             AUTO_CAST(item_label2)
             item_label2:SetText("{ol}" .. item_disp_str2)
             current_y = current_y + 55

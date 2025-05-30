@@ -13,10 +13,11 @@
 -- v1.1.3 キャラ削除した時に反映されなかったの修正。ロードを起動時のみに。セーブデータ持ち方修正。レイヤーの取り方修正
 -- v1.1.4 バニラでセッティングバグってたの修正
 -- v1.1.5 バグで色々どうしようもなくなったので仕切り直し。セーブファイル消えます。アドオンメニューに参加
+-- v1.1.6 アドオンメニュー回り修正。
 local addon_name = "OTHER_CHARACTER_SKILL_LIST"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.1.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -871,7 +872,7 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
 
             if j <= 4 then
                 local skill_slot = main_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i,
-                    equip_grp_x + (225 * (j - 1)) + 30, y_pos, 25, 24)
+                                                                equip_grp_x + (225 * (j - 1)) + 30, y_pos, 25, 24)
                 AUTO_CAST(skill_slot)
                 skill_slot:EnablePop(0);
                 skill_slot:EnableDrop(0);
@@ -879,7 +880,7 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
                 skill_slot:SetSkinName('invenslot2')
 
                 local item_slot = main_gbox:CreateOrGetControl("slot", "equip" .. equip_type .. i,
-                    equip_grp_x + (225 * (j - 1)), y_pos, 25, 24)
+                                                               equip_grp_x + (225 * (j - 1)), y_pos, 25, 24)
                 AUTO_CAST(item_slot)
                 item_slot:EnablePop(0);
                 item_slot:EnableDrop(0);
@@ -910,10 +911,11 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
                     SET_SLOT_ICON(skill_slot, skill_icon_name)
 
                     local skill_name_lbl = main_gbox:CreateOrGetControl("richtext", "skill_name" .. equip_type .. i,
-                        equip_grp_x + 60 + (225 * (j - 1)), y_pos, 140, 20) -- skill_name を skill_name_lbl に
+                                                                        equip_grp_x + 60 + (225 * (j - 1)), y_pos, 140,
+                                                                        20) -- skill_name を skill_name_lbl に
 
                     skill_slot:SetText('{s14}{ol}{#FFFF00}' .. equip_data_entry.skill_lv, 'count', ui.RIGHT, ui.BOTTOM,
-                        -2, -2)
+                                       -2, -2)
 
                     local icon = skill_slot:GetIcon()
 
@@ -933,7 +935,7 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
 
             elseif j >= 5 and j <= 9 then
                 local etc_slot = main_gbox:CreateOrGetControl("slot", "etc_slot" .. equip_type .. i,
-                    equip_grp_x + 225 * 4 + etc_x_offset, y_pos, 25, 24)
+                                                              equip_grp_x + 225 * 4 + etc_x_offset, y_pos, 25, 24)
                 AUTO_CAST(etc_slot)
                 etc_slot:EnablePop(0);
                 etc_slot:EnableDrop(0);
@@ -959,7 +961,7 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
                     weapon_slot_x = 155 + 30 * (j - 10) + 10
                 end
                 local weapon_slot = main_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i, weapon_slot_x,
-                    y_pos, 25, 24)
+                                                                 y_pos, 25, 24)
                 AUTO_CAST(weapon_slot)
                 weapon_slot:EnablePop(0);
                 weapon_slot:EnableDrop(0);

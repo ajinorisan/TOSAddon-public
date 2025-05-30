@@ -9,65 +9,19 @@
 -- v1.0.9 バグ修正
 -- v1.1.0 高速化。ギアスコア表示。セーブデータは一旦消えます(´;ω;｀)
 -- v1.1.1 セーブファイルの呼出修正
--- v1.1.2 新キャラ作成時にキャラクター数が増えなかったの修正
-local addonName = "OTHER_CHARACTER_SKILL_LIST"
-local addonNameLower = string.lower(addonName)
+-- v1.1.2 新キャラ作った時に反映されなかったの修正
+-- v1.1.3 キャラ削除した時に反映されなかったの修正。ロードを起動時のみに。セーブデータ持ち方修正。レイヤーの取り方修正
+-- v1.1.4 バニラでセッティングバグってたの修正
+-- v1.1.5 バグで色々どうしようもなくなったので仕切り直し。セーブファイル消えます。アドオンメニューに参加
+local addon_name = "OTHER_CHARACTER_SKILL_LIST"
+local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
-
-local function unicode_to_codepoint(char)
-    local codepoint = utf8.codepoint(char)
-    return string.format("%X", codepoint)
-end
-
-local function convert_to_ascii(input)
-    local result = ""
-    for char in input:gmatch(utf8.charpattern) do
-        result = result .. unicode_to_codepoint(char)
-    end
-    return result
-end
-
-local input = GETMYFAMILYNAME()
-local output = convert_to_ascii(input)
-g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, output .. "2501")
-g.changeFileLoc = string.format('../addons/%s/%s.json', addonNameLower, "change" .. output .. "2501")
-local acutil = require("acutil")
-local json = require('json')
-local os = require("os")
-local base = {}
-
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName];
-        _G[baseFuncName] = func
-    end
-    base[baseFuncName] = _G[replacementName]
-end
-
-function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
-    local file = io.open(file_path, "r")
-    if not file then
-        os.execute('mkdir "' .. folder_path .. '"')
-        file = io.open(file_path, "w")
-        if file then
-            file:write("A new file has been created")
-            file:close()
-        end
-    else
-        file:close()
-    end
-end
-g.mkdir_new_folder()
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
 local jatbl = {
     ["Common_Peltasta_HardShield"] = "ハードシールド",
@@ -172,155 +126,297 @@ local entbl = {
 
 }
 
-function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
+local json = require('json')
 
-    g.addon = addon
-    g.frame = frame
-    g.settings = g.settings or {}
-    g.change = g.change or {}
-
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
-
-        other_character_skill_list_load_settings()
-
-        addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_frame_init")
-
-        acutil.setupEvent(addon, "INVENTORY_OPEN", "other_character_skill_list_INVENTORY_OPEN")
-        acutil.setupEvent(addon, "INVENTORY_CLOSE", "other_character_skill_list_INVENTORY_CLOSE")
-
-        g.SetupHook(other_character_skill_list_BARRACK_TO_GAME, "BARRACK_TO_GAME")
-
-        local accountInfo = session.barrack.GetMyAccount()
-        local cnt = accountInfo:GetPCCount()
-        local equipments = {"RH", "LH", "RH_SUB", "LH_SUB", "NECK", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES",
-                            "BOOTS", "SEAL", "ARK", "RELIC", "LEG", "GOD"}
-        for i = 0, cnt - 1 do
-
-            local pcInfo = accountInfo:GetPCByIndex(i)
-            local pcApc = pcInfo:GetApc()
-            local pcName = pcApc:GetName()
-            local pccid = pcInfo:GetCID()
-
-            for name, charData in pairs(g.settings.character) do
-
-                if name == pcName then
-
-                    if g.change[name] ~= nil then
-                        g.change[name] = pccid
-                        acutil.saveJSON(g.changeFileLoc, g.change) -- 変更ファイルの保存
-
-                    end
-
-                    g.charFileLoc = string.format('../addons/%s/%s.json', addonNameLower, pccid)
-
-                    local file = io.open(g.charFileLoc, "r")
-                    if not file then
-                        -- ファイルが存在しない場合、新しいテーブルを作成
-                        local cid = {
-                            name = pcName,
-                            gear_score = 0
-                        }
-                        local equipments = {"RH", "LH", "RH_SUB", "LH_SUB", "NECK", "RING1", "RING2", "SHIRT", "PANTS",
-                                            "GLOVES", "BOOTS", "SEAL", "ARK", "RELIC", "LEG", "GOD"}
-                        for _, key in ipairs(equipments) do
-                            cid[key] = {}
-
-                        end
-                        g.cid = cid
-                        acutil.saveJSON(g.charFileLoc, g.cid)
-                    else
-                        file:close()
-                    end
-
-                    g.settings.character[name].index = i
-
-                    if g.layer ~= nil and g.layer ~= g.settings.character[name].layer then
-                        g.settings.character[name].layer = g.layer
-
-                    end
-                end
+function g.mkdir_new_folder()
+    local function create_folder(folder_path, file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            os.execute('mkdir "' .. folder_path .. '"')
+            file = io.open(file_path, "w")
+            if file then
+                file:write("A new file has been created")
+                file:close()
             end
+        else
+            file:close()
         end
-        g.layer = nil
-        other_character_skill_list_save_settings()
-
     end
 
+    local addon_folder = string.format("../addons/%s", addon_name_lower)
+    local addon_mkdir_file = string.format("../addons/%s/mkdir.txt", addon_name_lower)
+    create_folder(addon_folder, addon_mkdir_file)
+
+    g.active_id = session.loginInfo.GetAID()
+
+    local user_folder = string.format("../addons/%s/%s", addon_name_lower, g.active_id)
+    local user_mkdir_file = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, g.active_id)
+    create_folder(user_folder, user_mkdir_file)
+
+    g.settings_path = string.format("../addons/%s/%s/_2505_settings.json", addon_name_lower, g.active_id)
+
 end
+g.mkdir_new_folder()
+
+function g.get_map_type()
+    local map_name = session.GetMapName()
+    local map_cls = GetClass("Map", map_name)
+    local map_type = map_cls.MapType
+    return map_type
+end
+
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    local origin_func = g.FUNCS[origin_func_name]
+
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if original_results then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.REGISTER[origin_func_name .. my_func_name] then -- g.REGISTERはON_INIT内で都度初期化
+        g.REGISTER[origin_func_name .. my_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+function g.get_event_args(origin_func_name)
+    local args = g.ARGS[origin_func_name]
+    if args then
+        return table.unpack(args)
+    end
+    return nil
+end
+
+function g.log_to_file(message)
+
+    local file_path = string.format("../addons/%s/log.txt", addon_name_lower)
+    local file = io.open(file_path, "a")
+
+    if file then
+        local timestamp = os.date("[%Y-%m-%d %H:%M:%S] ")
+        file:write(timestamp .. tostring(message) .. "\n")
+        file:close()
+    end
+end
+
+function g.save_settings()
+    local function save_json(path, tbl)
+        local file = io.open(path, "w")
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+    save_json(g.settings_path, g.settings)
+end
+
+function g.load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local table = json.decode(content)
+        return table
+    else
+        return nil
+    end
+end
+
+function other_character_skill_list_BARRACK_TO_GAME(...)
+
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    if bc_frame then
+        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+        _G["norisan"] = _G["norisan"] or {}
+        _G["norisan"]["LAST_LAYER"] = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+    end
+
+    local original_func = g.FUNCS["BARRACK_TO_GAME"]
+    local result
+
+    if original_func then
+        original_func(...)
+    end
+
+    return result
+end
+
+function other_character_skill_list_BARRACK_TO_GAME_hook()
+    local origin_func_name = "BARRACK_TO_GAME"
+    if _G[origin_func_name] then
+        if not g.FUNCS[origin_func_name] then
+            g.FUNCS[origin_func_name] = _G[origin_func_name]
+        end
+        _G[origin_func_name] = other_character_skill_list_BARRACK_TO_GAME
+    end
+end
+
+g.first = true
+function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
+    local start_time = os.clock() -- ★処理開始前の時刻を記録★
+    g.addon = addon
+    g.frame = frame
+
+    g.name = session.GetMySession():GetPCApc():GetName()
+    g.cid = session.GetMySession():GetCID()
+
+    g.layer = g.layer or _G["norisan"]["LAST_LAYER"] or 1
+
+    g.REGISTER = {}
+
+    _G["norisan"] = _G["norisan"] or {}
+    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
+    if not _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] then
+        _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addon_name
+        addon:RegisterMsg("GAME_START", "other_character_skill_list_BARRACK_TO_GAME_hook")
+    end
+
+    -- 初回ログイン時はバラックPCカウント取れないのでreturn
+    if g.first then
+        g.first = false
+        return
+    end
+
+    local menu_data = {
+        name = "Other Character Skill List ",
+        icon = "sysmenu_friend",
+        func = "other_character_skill_list_frame_open",
+        image = ""
+    }
+    if g.get_map_type() == "City" then
+        _G["norisan"]["MENU"][addon_name] = menu_data
+    else
+        _G["norisan"]["MENU"][addon_name] = nil
+    end
+    if not _G["norisan"]["MENU"][addon_name_lower] or _G["norisan"]["MENU"].frame_name == addon_name_lower then
+        _G["norisan"]["MENU"].frame_name = addon_name_lower
+        addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
+    end
+
+    if g.get_map_type() == "City" then
+        if not g.settings then
+            addon:RegisterMsg("GAME_START", "other_character_skill_list_load_settings")
+        end
+        addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_save_enchant")
+        g.setup_hook_and_event(addon, "INVENTORY_OPEN", "other_character_skill_list_INVENTORY_OPEN", true)
+        g.setup_hook_and_event(addon, "INVENTORY_CLOSE", "other_character_skill_list_INVENTORY_CLOSE", true)
+        g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "other_character_APPS_TRY_MOVE_BARRACK", false)
+
+        addon:RegisterMsg("GAME_START_3SEC", "other_character_skill_list_tableset")
+    end
+    local end_time = os.clock()
+    local elapsed_time = end_time - start_time
+    -- CHAT_SYSTEM(string.format("other_character_skill_list_ON_INIT: %.4f seconds", elapsed_time))
+end
+
+function other_character_APPS_TRY_MOVE_BARRACK()
+    other_character_skill_list_save_enchant()
+end
+
+local equips = {"SHIRT", "PANTS", "GLOVES", "BOOTS", "LEG", "GOD", "SEAL", "ARK", "RELIC", "RH", "LH", "RH_SUB",
+                "LH_SUB", "RING1", "RING2", "NECK"}
 
 function other_character_skill_list_load_settings()
 
-    local settings, err = acutil.loadJSON(g.settingsFileLoc, g.settings)
+    local settings = g.load_json(g.settings_path)
 
-    local accountInfo = session.barrack.GetMyAccount()
-    local barrackPCCount = accountInfo:GetBarrackPCCount()
+    local account_info = session.barrack.GetMyAccount()
+    local all_pc_count = account_info:GetBarrackPCCount()
 
-    if not settings or next(settings["character"]) == nil then
+    if not settings then
 
         settings = {
-            character = {}
+            characters = {}
         }
 
-        for i = 0, barrackPCCount - 1 do
-            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
-            local barrackPCName = barrackPCInfo:GetName()
+        for i = 0, all_pc_count - 1 do
+            local barrack_pc_info = account_info:GetBarrackPCByIndex(i)
+            local barrack_pc_name = barrack_pc_info:GetName()
 
-            settings.character[barrackPCName] = {
-
+            settings.characters[barrack_pc_name] = {
                 index = i,
-                layer = 9
-
+                layer = 9,
+                gear_score = 0,
+                cid = "",
+                equips = {}
             }
-        end
-        g.settings = settings
-    else
-        for i = 0, barrackPCCount - 1 do
-            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
-            local barrackPCName = barrackPCInfo:GetName()
-
-            if not settings.character[barrackPCName] then
-                settings.character[barrackPCName] = {
-
-                    index = i,
-                    layer = 9
-
-                }
+            for j, equip_name in ipairs(equips) do
+                if j <= 4 then
+                    settings.characters[barrack_pc_name].equips[equip_name] = {
+                        clsid = 0,
+                        lv = 0,
+                        skill_name = "",
+                        skill_lv = 0
+                    }
+                else
+                    settings.characters[barrack_pc_name].equips[equip_name] = {
+                        clsid = 0,
+                        lv = 0
+                    }
+                end
             end
+
         end
-        g.settings = settings
     end
 
-    other_character_skill_list_save_settings()
-
-    local change, err = acutil.loadJSON(g.changeFileLoc, g.change)
-
-    if not change or not next(change) then
-        change = {}
-        for i = 0, barrackPCCount - 1 do
-            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
-            local barrackPCName = barrackPCInfo:GetName()
-            change[barrackPCName] = "0"
+    local temp_name = {}
+    for i = 0, all_pc_count - 1 do
+        local barrack_pc_info = account_info:GetBarrackPCByIndex(i)
+        local barrack_pc_name = barrack_pc_info:GetName()
+        if barrack_pc_name then
+            table.insert(temp_name, barrack_pc_name)
         end
-        g.change = change
+    end
 
-    else
-        for i = 0, barrackPCCount - 1 do
-            local barrackPCInfo = accountInfo:GetBarrackPCByIndex(i)
-            local barrackPCName = barrackPCInfo:GetName()
-            if not change[barrackPCName] then
-                change[barrackPCName] = "0"
+    local keys_to_delete = {}
+    for character_name, char_data in pairs(settings.characters) do
+        local found_in_barrack = false
+
+        for _, barrack_name in ipairs(temp_name) do
+            if character_name == barrack_name then
+                found_in_barrack = true
+                break
             end
         end
-        g.change = change
+
+        if not found_in_barrack then
+            table.insert(keys_to_delete, character_name)
+        end
     end
+
+    for _, key_to_remove in ipairs(keys_to_delete) do
+        settings.characters[key_to_remove] = nil
+    end
+
+    g.settings = settings
+    g.save_settings()
 end
 
 function other_character_skill_list_sort()
 
-    local function sortByLayerAndOrder(a, b)
+    local function sort_layer_order(a, b)
         if a.layer ~= b.layer then
             return a.layer < b.layer
         else
@@ -328,233 +424,50 @@ function other_character_skill_list_sort()
         end
     end
 
-    local characterList = {}
-    for name, charData in pairs(g.settings.character) do
+    local char_list = {}
 
-        local cid = g.change[name]
+    for name, char_data in pairs(g.settings.characters) do
 
-        if cid then
-            charData.name = name
-            charData.cid = cid
-            table.insert(characterList, charData)
+        local cid = g.settings.characters[name].cid
 
+        char_data.name = name
+
+        if cid ~= "" then
+
+            table.insert(char_list, char_data)
         end
     end
 
-    table.sort(characterList, sortByLayerAndOrder)
-    g.characters = characterList
-    other_character_skill_list_frame_open()
-
-    --[[for cid, charData in pairs(characterList) do
-        print(string.format("CID: %s", cid))
-        print(string.format("  Name: %s", charData.name))
-        print(string.format("  Layer: %d", charData.layer))
-        print(string.format("  Index: %d", charData.index))
-    end]]
-
+    table.sort(char_list, sort_layer_order)
+    g.characters = char_list
 end
 
-function other_character_skill_list_BARRACK_TO_GAME()
-    local frame = ui.GetFrame("barrack_charlist")
-    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
-    g.layer = layer
+function other_character_skill_list_tableset()
 
-    local gsframe = ui.GetFrame("barrack_gamestart")
-    local checkbtn = gsframe:GetChildRecursively("hidelogin")
-    AUTO_CAST(checkbtn)
-    checkbtn:SetCheck(1)
-    barrack.SetHideLogin(1);
+    local account_info = session.barrack.GetMyAccount()
+    local same_count = account_info:GetPCCount()
 
-    -- BARRACK_TO_GAME_OLD()
-    base["BARRACK_TO_GAME"]()
-end
+    for i = 0, same_count - 1 do
 
-function other_character_skill_list_INVENTORY_OPEN()
-    local frame = ui.GetFrame(addonNameLower)
-    frame:ShowWindow(0)
-    local newframe = ui.GetFrame(addonNameLower .. "new_frame")
-    newframe:ShowWindow(0)
+        local pc_info = account_info:GetPCByIndex(i)
+        local active_pc = pc_info:GetApc()
+        local pc_name = active_pc:GetName()
+        local pc_cid = pc_info:GetCID()
 
-    other_character_skill_list_save_enchant()
-end
+        g.settings.characters[pc_name].cid = pc_cid
+        g.settings.characters[pc_name].index = i
 
-function other_character_skill_list_INVENTORY_CLOSE()
-    local frame = ui.GetFrame(addonNameLower)
-    frame:ShowWindow(1)
-    other_character_skill_list_save_enchant()
-end
-
-local function format_json(data, indent)
-    local indent = indent or 0
-    local formatting = string.rep(" ", indent)
-    local result = ""
-
-    if type(data) == "table" then
-        result = result .. "{\n"
-        local isFirst = true
-        for k, v in pairs(data) do
-            if not isFirst then
-                result = result .. ",\n"
-            end
-            isFirst = false
-            result = result .. formatting .. "  \"" .. tostring(k) .. "\": " .. format_json(v, indent + 2)
+        if g.layer and g.layer ~= g.settings.characters[pc_name].layer then
+            g.settings.characters[pc_name].layer = g.layer
         end
-        result = result .. "\n" .. formatting .. "}"
-    elseif type(data) == "string" then
-        result = result .. "\"" .. data .. "\""
-    else
-        result = result .. tostring(data)
     end
-
-    return result
-end
-
-function other_character_skill_list_save_enchant()
-
-    local ivframe = ui.GetFrame("inventory")
-    local pcName = session.GetMySession():GetPCApc():GetName()
-    local equipItemList = session.GetEquipItemList()
-    local count = equipItemList:Count()
-    local cid = session.GetMySession():GetCID()
-
-    local path = string.format('../addons/%s/%s.json', addonNameLower, cid)
-    local file = io.open(path, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        local data = json.decode(content)
-        local characterName = data.name
-
-        -- 名前の比較をループの外で行う
-        if characterName == pcName then
-            local score = 0
-            for i = 0, count - 1 do
-                local equipItem = equipItemList:GetEquipItemByIndex(i)
-                local spotName = item.GetEquipSpotName(equipItem.equipSpot)
-                local iesid = tostring(equipItem:GetIESID())
-                local Item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spotName))
-                local obj = GetIES(Item:GetObject())
-                if obj.ClassName ~= "NoRing" then
-                    score = GET_GEAR_SCORE(obj) + score
-                end
-
-                -- 各装備スポットの処理
-                if spotName == "SHIRT" or spotName == "PANTS" or spotName == "GLOVES" or spotName == "BOOTS" then
-                    local slot = GET_CHILD_RECURSIVELY(ivframe, spotName)
-                    local icon = slot:GetIcon()
-
-                    local lv, Name, Level, slotcnt
-                    if icon ~= nil then
-                        lv = TryGetProp(obj, "Reinforce_2", 0)
-                        Name, Level = shared_skill_enchant.get_enchanted_skill(obj, 1)
-                        slotcnt = TryGetProp(obj, 'EnchantSkillSlotCount', 0)
-                        data[spotName] = {
-                            clsid = obj.ClassID,
-                            lv = lv,
-                            iesid = iesid,
-                            skillName = Name,
-                            skillLv = Level
-                        }
-                    else
-                        data[spotName] = {}
-                    end
-                elseif spotName == "RH" or spotName == "LH" or spotName == "RH_SUB" or spotName == "LH_SUB" then
-                    local slot = GET_CHILD_RECURSIVELY(ivframe, spotName)
-                    local icon = slot:GetIcon()
-
-                    local lv, Name, Level, slotcnt
-                    if icon ~= nil then
-                        lv = TryGetProp(obj, "Reinforce_2", 0)
-                        -- Name, Level = shared_skill_enchant.get_enchanted_skill(obj, 1)
-                        slotcnt = TryGetProp(obj, 'EnchantSkillSlotCount', 0)
-                        data[spotName] = {
-                            clsid = obj.ClassID,
-                            lv = lv,
-                            iesid = iesid
-                        }
-                    else
-                        data[spotName] = {}
-                    end
-                elseif spotName == "RING1" or spotName == "RING2" or spotName == "NECK" then
-                    local slot = GET_CHILD_RECURSIVELY(ivframe, spotName)
-                    local icon = slot:GetIcon()
-
-                    local lv, Name, Level, slotcnt
-                    if icon ~= nil then
-                        lv = TryGetProp(obj, "Reinforce_2", 0)
-                        -- Name, Level = shared_skill_enchant.get_enchanted_skill(obj, 1)
-                        slotcnt = TryGetProp(obj, 'EnchantSkillSlotCount', 0)
-                        data[spotName] = {
-                            clsid = obj.ClassID,
-                            lv = lv,
-                            iesid = iesid
-                        }
-                    else
-                        data[spotName] = {}
-                    end
-                elseif spotName == "SEAL" or spotName == "ARK" or spotName == "RELIC" then
-                    local slot = GET_CHILD_RECURSIVELY(ivframe, spotName)
-                    local icon = slot:GetIcon()
-
-                    local lv
-                    if spotName == "SEAL" then
-                        lv = GET_CURRENT_SEAL_LEVEL(obj)
-                    elseif spotName == "ARK" then
-                        lv = TryGetProp(obj, 'ArkLevel', 1)
-                    elseif spotName == "RELIC" then
-                        lv = TryGetProp(obj, 'Relic_LV', 1)
-                    end
-                    if icon ~= nil then
-                        data[spotName] = {
-                            clsid = obj.ClassID,
-                            lv = lv,
-                            iesid = iesid
-                        }
-                    else
-                        data[spotName] = {}
-                    end
-                end
-            end
-
-            -- 装備カードの処理
-            if equipcard.GetCardInfo(13) ~= nil then
-                local info = equipcard.GetCardInfo(13)
-                data["LEG"].clsid = info:GetCardID()
-                data["LEG"].lv = info.cardLv
-            else
-                data["LEG"] = {}
-            end
-
-            if equipcard.GetCardInfo(14) ~= nil then
-                local info = equipcard.GetCardInfo(14)
-                data["GOD"].clsid = info:GetCardID()
-                data["GOD"].lv = info.cardLv
-            else
-                data["GOD"] = {}
-            end
-            data.gear_score = score
-
-            -- 更新されたデータをファイルに書き込む
-            local file = io.open(path, "w")
-            local formattedJson = format_json(data, 0)
-            file:write(formattedJson)
-            file:close()
-
-        else
-            print("Character name does not match.")
-        end
-
-    else
-        --[[local file = io.open(path, "w")
-        file:write({})
-        file:Close()
-        -- print("File not found or unable to open: " .. path)]]
-    end
-
+    g.save_settings()
+    g.layer = nil
+    other_character_skill_list_sort()
 end
 
 function other_character_skill_list_frame_init()
-    local frame = ui.GetFrame(addonNameLower)
+    local frame = ui.GetFrame("other_character_skill_list")
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
     frame:Resize(35, 35)
@@ -566,17 +479,119 @@ function other_character_skill_list_frame_init()
     AUTO_CAST(btn)
     btn:SetSkinName("None")
     btn:SetText("{img sysmenu_friend 35 35}")
-    -- other_character_skill_list_sort()
-    -- btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_load_settings")
-    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_sort")
+
+    btn:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_frame_open")
     btn:SetTextTooltip("{ol}Other Character Skill List")
+    other_character_skill_list_tableset()
+end
+
+function other_character_skill_list_save_enchant()
+
+    local inventory = ui.GetFrame("inventory")
+    local pc_name = session.GetMySession():GetPCApc():GetName()
+    local equip_item_list = session.GetEquipItemList()
+
+    local count = equip_item_list:Count()
+    local cid = session.GetMySession():GetCID()
+
+    local data = g.settings.characters[pc_name].equips
+
+    local score = 0
+    for i = 0, count - 1 do
+        local equip_item = equip_item_list:GetEquipItemByIndex(i)
+        local spot_name = item.GetEquipSpotName(equip_item.equipSpot)
+        local spot_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
+        local obj = GetIES(spot_item:GetObject())
+        if obj.ClassName ~= "NoRing" then
+            score = GET_GEAR_SCORE(obj) + score
+        end
+
+        local lv = TryGetProp(obj, "Reinforce_2", 0)
+
+        if spot_name == "SHIRT" or spot_name == "PANTS" or spot_name == "GLOVES" or spot_name == "BOOTS" then
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+
+            if icon then
+                local name, skill_lv = shared_skill_enchant.get_enchanted_skill(obj, 1)
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = lv,
+                    skill_name = name,
+                    skill_lv = skill_lv
+                }
+            else
+                data[spot_name] = {}
+            end
+        elseif spot_name == "RH" or spot_name == "LH" or spot_name == "RH_SUB" or spot_name == "LH_SUB" or spot_name ==
+            "RING1" or spot_name == "RING2" or spot_name == "NECK" then
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+
+            if icon then
+
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = lv
+                }
+            else
+                data[spot_name] = {}
+            end
+
+        elseif spot_name == "SEAL" or spot_name == "ARK" or spot_name == "RELIC" then
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+
+            if spot_name == "SEAL" then
+                lv = GET_CURRENT_SEAL_LEVEL(obj)
+            elseif spot_name == "ARK" then
+                lv = TryGetProp(obj, 'ArkLevel', 1)
+            elseif spot_name == "RELIC" then
+                lv = TryGetProp(obj, 'Relic_LV', 1)
+            end
+            if icon then
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = lv
+
+                }
+            else
+                data[spot_name] = {}
+            end
+        end
+    end
+
+    local info = equipcard.GetCardInfo(13)
+    if info then
+        data["LEG"].clsid = info:GetCardID()
+        data["LEG"].lv = info.cardLv
+    else
+        data["LEG"] = {}
+    end
+
+    local info = equipcard.GetCardInfo(14)
+    if info then
+        data["GOD"].clsid = info:GetCardID()
+        data["GOD"].lv = info.cardLv
+    else
+        data["GOD"] = {}
+    end
+    g.settings.characters[pc_name].gear_score = score
+
+    g.save_settings()
 
 end
 
--- other_character_skill_list_load_settings()
-function other_character_skill_list_save_settings()
+function other_character_skill_list_INVENTORY_OPEN()
+    local frame = ui.GetFrame("other_character_skill_list")
+    frame:ShowWindow(0)
+    other_character_skill_list_save_enchant()
+end
 
-    acutil.saveJSON(g.settingsFileLoc, g.settings)
+function other_character_skill_list_INVENTORY_CLOSE()
+    local frame = ui.GetFrame("other_character_skill_list")
+    frame:ShowWindow(1)
+    other_character_skill_list_save_enchant()
 end
 
 function other_character_skill_list_char_report_close(frame, ctrl, str, num)
@@ -585,456 +600,842 @@ function other_character_skill_list_char_report_close(frame, ctrl, str, num)
     parent = parent:GetParent()
 
     parent:ShowWindow(0)
+
+    other_character_skill_list_frame_open()
 end
 
-local skin_list = {}
-function other_character_skill_list_char_report(frame, ctrl, str, num)
-    -- print(tostring(frame:GetName()))
-    local cid = ""
-    for name, changecid in pairs(g.change) do
-        if name == str then
-            cid = changecid
-            break
-        end
-    end
-    local key = cid
-    local ctrl_name = frame:GetUserValue("CTRL_NAME")
-    if ctrl_name ~= "None" and ctrl_name ~= key then
-        DESTROY_CHILD_BYNAME(frame, "char_" .. ctrl_name)
+function other_character_skill_list_char_report(frame, ctrl, char_name_str, num)
+
+    local cid = g.settings.characters[char_name_str].cid
+    local current_cid = frame:GetUserValue("CID")
+
+    if current_cid ~= "None" and current_cid ~= cid then
+        DESTROY_CHILD_BYNAME(frame, "char_" .. current_cid)
     else
-        local char_frame = GET_CHILD_RECURSIVELY(frame, "char_" .. ctrl_name)
-        if char_frame ~= nil then
+        local char_frame = GET_CHILD_RECURSIVELY(frame, "char_" .. current_cid)
+        if char_frame then
             char_frame:ShowWindow(1)
         end
     end
 
-    local bpc = barrack.GetBarrackPCInfoByCID(cid);
+    local bpc_info = barrack.GetBarrackPCInfoByCID(cid)
 
-    if bpc == nil then
+    if not bpc_info then
         local language = option.GetCurrentCountry()
-        if language == "Japanese" then
-            ui.SysMsg(
-                "{ol}詳細表示は、ログイン中のキャラと同一バラックのキャラのみ対応しています (´;ω;｀)")
-
-        else
-            ui.SysMsg(
-                "{ol}Detailed view is supported only for characters in the same barracks as the currently logged-in character.")
-        end
-
+        ui.SysMsg(language == "Japanese" and
+                      "{ol}詳細表示は、ログイン中のキャラと同一バラックのキャラのみ対応しています (´;ω;｀))" or
+                      "{ol}Detailed view is supported only for characters in the same barracks as the currently logged-in character.")
+        other_character_skill_list_frame_open()
         return
-
     end
-    local name = str
 
-    local charCtrl = frame:CreateOrGetControlSet('barrack_charlist', 'char_' .. cid, 150, 80);
-    AUTO_CAST(charCtrl)
-    frame:SetUserValue("CTRL_NAME", cid)
-    charCtrl:SetUserValue("CID", cid);
-    local mainBox = GET_CHILD(charCtrl, 'mainBox', 'ui::CGroupBox');
-    local btn = mainBox:GetChild("btn");
-    btn:SetSkinName('character_off');
-    btn:SetSValue(name);
-    btn:SetOverSound('button_over');
-    btn:SetClickSound('button_click_2');
-    -- btn:SetEventScript(ui.LBUTTONUP, "SELECT_CHARBTN_LBTNUP");
-    -- btn:SetEventScriptArgString(ui.LBUTTONUP, cid);
+    local char_ctrl = frame:CreateOrGetControlSet('barrack_charlist', 'char_' .. cid, 150, 10)
+    AUTO_CAST(char_ctrl)
+    frame:SetUserValue("CID", cid)
+    local main_box = GET_CHILD(char_ctrl, 'mainBox', 'ui::CGroupBox')
+    local btn = main_box:GetChild("btn")
+    btn:SetSkinName('character_off')
+    btn:SetSValue(char_name_str)
+    btn:SetOverSound('button_over')
+    btn:SetClickSound('button_click_2')
 
-    local indunBtn = mainBox:GetChild("indunBtn")
-    AUTO_CAST(indunBtn)
+    local indun_btn = main_box:GetChild("indunBtn")
+    AUTO_CAST(indun_btn)
 
-    indunBtn:SetImage("testclose_button")
-    -- indunBtn:ShowWindow(1)
-    indunBtn:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report_close");
+    indun_btn:SetImage("testclose_button")
+    indun_btn:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report_close")
 
-    btn:ShowWindow(1);
-    local apc = bpc:GetApc();
+    btn:ShowWindow(1)
+    local apc = bpc_info:GetApc()
 
-    local gender = apc:GetGender();
-    local jobid = apc:GetJob();
+    local gender = apc:GetGender()
+    local job_id = apc:GetJob()
     local level = apc:GetLv()
-    local pic = GET_CHILD(mainBox, "char_icon", "ui::CPicture");
-    local headIconName = ui.CaptureModelHeadImageByApperance(apc);
-    pic:SetImage(headIconName);
+    local pic = GET_CHILD(main_box, "char_icon", "ui::CPicture")
+    local head_icon = ui.CaptureModelHeadImageByApperance(apc)
+    pic:SetImage(head_icon)
 
-    local nameCtrl = GET_CHILD(mainBox, "name", "ui::CRichText");
-    nameCtrl:SetText("{@st42b}{b}" .. name);
+    local name_label = GET_CHILD(main_box, "name", "ui::CRichText")
+    name_label:SetText("{@st42b}{b}" .. char_name_str)
 
-    local barrack_pc = session.barrack.GetMyAccount():GetByStrCID(key);
+    local barrack_pc = session.barrack.GetMyAccount():GetByStrCID(cid)
     if barrack_pc ~= nil and barrack_pc:GetRepID() ~= 0 then
-        jobid = barrack_pc:GetRepID();
+        job_id = barrack_pc:GetRepID()
     end
 
-    local jobCls = GetClassByType("Job", jobid);
-    local jobCtrl = GET_CHILD(mainBox, "job", "ui::CRichText");
-    jobCtrl:SetText("{@st42b}" .. GET_JOB_NAME(jobCls, gender));
-    local levelCtrl = GET_CHILD(mainBox, "level", "ui::CRichText");
-    levelCtrl:SetText("{@st42b}Lv." .. level);
+    local job_cls = GetClassByType("Job", job_id)
+    local job_label = GET_CHILD(main_box, "job", "ui::CRichText")
+    job_label:SetText("{@st42b}" .. GET_JOB_NAME(job_cls, gender))
+    local level_label = GET_CHILD(main_box, "level", "ui::CRichText")
+    level_label:SetText("{@st42b}Lv." .. level)
 
-    local detail = GET_CHILD(charCtrl, 'detailBox', 'ui::CGroupBox');
-    local RH_SUB = detail:CreateOrGetControl("slot", "RH_SUB", 138, 214, 55, 55)
-    local LH_SUB = detail:CreateOrGetControl("slot", "LH_SUB", 198, 214, 55, 55)
-    local mapNameCtrl = GET_CHILD(detail, 'mapName', 'ui::CRichText');
+    local detail_box = GET_CHILD(char_ctrl, 'detailBox', 'ui::CGroupBox')
+    local rh_sub_slot = detail_box:CreateOrGetControl("slot", "RH_SUB", 138, 214, 55, 55)
+    local lh_sub_slot = detail_box:CreateOrGetControl("slot", "LH_SUB", 198, 214, 55, 55)
+    local map_label = GET_CHILD(detail_box, 'mapName', 'ui::CRichText')
 
-    local mapCls = GetClassByType("Map", apc.mapID);
-    if mapCls ~= nil then
-        local mapName = mapCls.Name;
-        mapNameCtrl:SetText("{@st66b}" .. mapName);
+    local map_cls = GetClassByType("Map", apc.mapID)
+    if map_cls ~= nil then
+        local map_name = map_cls.Name
+        map_label:SetText("{@st66b}" .. map_name)
     end
 
-    local spotCount = item.GetEquipSpotCount() - 1;
+    local spot_count = item.GetEquipSpotCount() - 1
 
-    for i = 0, spotCount do
-        local eqpObj = bpc:GetEquipObj(i);
-        local esName = item.GetEquipSpotName(i);
+    local skin_list = {}
+    for i = 0, spot_count do
+        local equip_obj = bpc_info:GetEquipObj(i)
+        local spot_name = item.GetEquipSpotName(i)
 
-        if eqpObj ~= nil then
-
-            local obj = GetIES(eqpObj);
-            local eqpType = TryGet_Str(obj, "EqpType");
-            if eqpType == "HELMET" then
-                if item.IsNoneItem(obj.ClassID) == 0 then
-                    esName = "HAIR";
+        if equip_obj then
+            local ies_obj = GetIES(equip_obj)
+            local equip_type = TryGet_Str(ies_obj, "EqpType")
+            if equip_type == "HELMET" then
+                if item.IsNoneItem(ies_obj.ClassID) == 0 then
+                    spot_name = "HAIR"
                 end
             end
 
-            if esName == "TRINKET" and obj ~= nil and item.IsNoneItem(obj.ClassID) == 0 then
-                esName = "LH"
+            if spot_name == "TRINKET" and item.IsNoneItem(ies_obj.ClassID) == 0 then
+                spot_name = "LH"
             end
-
         end
 
-        local eqpSlot = GET_CHILD(detail, esName, "ui::CSlot");
-        -- AUTO_CAST(eqpSlot)
+        local slot_ctrl = GET_CHILD(detail_box, spot_name, "ui::CSlot")
 
-        if eqpSlot ~= nil then
-            if eqpSlot:GetName() == "SHIRT" then
-                eqpSlot:SetMargin(-120, 150, 0, 0);
-            elseif eqpSlot:GetName() == "PANTS" then
-                eqpSlot:SetMargin(-60, 150, 0, 0);
-            elseif eqpSlot:GetName() == "GLOVES" then
-                eqpSlot:SetMargin(0, 150, 0, 0);
-            elseif eqpSlot:GetName() == "BOOTS" then
-                eqpSlot:SetMargin(60, 150, 0, 0);
-            elseif eqpSlot:GetName() == "RH" then
-                eqpSlot:SetMargin(-120, 214, 0, 0);
-            elseif eqpSlot:GetName() == "LH" then
-                eqpSlot:SetMargin(-60, 214, 0, 0);
-            elseif eqpSlot:GetName() == "ARK" then
-                eqpSlot:SetMargin(120, 150, 0, 0);
-            elseif eqpSlot:GetName() == "RELIC" then
-                eqpSlot:SetMargin(120, 214, 0, 0);
-                -- local rect = eqpSlot:GetMargin();
-                -- print(rect.left .. ":" .. rect.top .. ":" .. rect.right .. ":" .. rect.bottom);
+        if slot_ctrl then
+            if slot_ctrl:GetName() == "SHIRT" then
+                slot_ctrl:SetMargin(-120, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "PANTS" then
+                slot_ctrl:SetMargin(-60, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "GLOVES" then
+                slot_ctrl:SetMargin(0, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "BOOTS" then
+                slot_ctrl:SetMargin(60, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "RH" then
+                slot_ctrl:SetMargin(-120, 214, 0, 0)
+            elseif slot_ctrl:GetName() == "LH" then
+                slot_ctrl:SetMargin(-60, 214, 0, 0)
+            elseif slot_ctrl:GetName() == "ARK" then
+                slot_ctrl:SetMargin(120, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "RELIC" then
+                slot_ctrl:SetMargin(120, 214, 0, 0)
             end
-            if skin_list[esName] == nil then
-                skin_list[esName] = eqpSlot:GetSkinName()
+            if skin_list[spot_name] == nil then
+                skin_list[spot_name] = slot_ctrl:GetSkinName()
             end
 
-            eqpSlot:EnableDrag(0);
-            if eqpObj == nil then
-                CLEAR_SLOT_ITEM_INFO(eqpSlot);
+            slot_ctrl:EnableDrag(0)
+            if not equip_obj then
+                CLEAR_SLOT_ITEM_INFO(slot_ctrl)
             else
-                local obj = GetIES(eqpObj);
+                local ies_item = GetIES(equip_obj)
 
-                local refreshScp = obj.RefreshScp;
-                if refreshScp ~= "None" then
-                    refreshScp = _G[refreshScp];
-                    refreshScp(obj);
+                local refresh_scp = ies_item.RefreshScp
+                if refresh_scp ~= "None" then
+                    local scp_func = _G[refresh_scp]
+                    scp_func(ies_item)
                 end
 
-                if 0 == item.IsNoneItem(obj.ClassID) then
-                    CLEAR_SLOT_ITEM_INFO(eqpSlot);
-                    SET_SLOT_ITEM_OBJ(eqpSlot, obj, gender, 1);
-
+                if 0 == item.IsNoneItem(ies_item.ClassID) then
+                    CLEAR_SLOT_ITEM_INFO(slot_ctrl)
+                    SET_SLOT_ITEM_OBJ(slot_ctrl, ies_item, gender, 1)
                 else
-                    local skin_name = skin_list[esName]
-                    if skin_name ~= nil then
-                        eqpSlot:SetSkinName(skin_name)
+                    local current_skin = skin_list[spot_name]
+                    if current_skin ~= nil then
+                        slot_ctrl:SetSkinName(current_skin)
                     end
-                    SET_SLOT_TRANSCEND_LEVEL(eqpSlot, 0)
-                    SET_SLOT_REINFORCE_LEVEL(eqpSlot, 0)
-                    CLEAR_SLOT_ITEM_INFO(eqpSlot);
+                    SET_SLOT_TRANSCEND_LEVEL(slot_ctrl, 0)
+                    SET_SLOT_REINFORCE_LEVEL(slot_ctrl, 0)
+                    CLEAR_SLOT_ITEM_INFO(slot_ctrl)
                 end
             end
         end
     end
-
-    -- charCtrl:Resize(charCtrl:GetWidth(), 128);
-
+    char_ctrl:Resize(400, 430)
+    local top_frame = frame:GetTopParentFrame()
+    if top_frame:GetHeight() < 490 then
+        top_frame:Resize(top_frame:GetWidth(), 540 - 60)
+        local gbox = GET_CHILD(top_frame, "gbox")
+        gbox:Resize(gbox:GetWidth(), top_frame:GetHeight() - 40)
+    end
 end
 
-function other_character_skill_list_frame_open(frame, ctrl, argStr, argNum)
+function other_character_skill_list_frame_open(frame, ctrl, str, num)
 
-    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "new_frame", 0, 0, 70, 30)
-    AUTO_CAST(frame)
+    local main_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "new_frame", 0, 0, 70, 30)
+    AUTO_CAST(main_frame)
 
-    frame:SetSkinName("test_frame_midle")
-    frame:Resize(990, 300)
-    frame:SetLayerLevel(103)
+    main_frame:SetSkinName("test_frame_midle")
+    main_frame:SetLayerLevel(103)
 
-    local title = frame:CreateOrGetControl("groupbox", "title", 0, 0, 1070, 40)
-    AUTO_CAST(title)
-    title:SetSkinName("None")
+    local title_box = main_frame:CreateOrGetControl("groupbox", "title", 0, 0, 1070, 40)
+    AUTO_CAST(title_box)
+    title_box:SetSkinName("None")
 
-    local close = title:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.LEFT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_frame_close")
+    local close_btn = title_box:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close_btn)
+    close_btn:SetImage("testclose_button")
+    close_btn:SetGravity(ui.LEFT, ui.TOP)
+    close_btn:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_frame_close")
 
-    local help = title:CreateOrGetControl('button', "help", 40, 0, 35, 35)
-    AUTO_CAST(help);
+    local help_btn = title_box:CreateOrGetControl('button', "help", 40, 0, 35, 35)
+    AUTO_CAST(help_btn)
+    help_btn:SetText("{ol}{img question_mark 20 20}")
+    help_btn:SetSkinName("test_pvp_btn")
 
-    help:SetText("{ol}{img question_mark 20 20}")
-    help:SetSkinName("test_pvp_btn")
-    local language = option.GetCurrentCountry()
-    if language ~= "Japanese" then
-        help:SetTextTooltip(
-            "{ol}順番に並ばない場合は一度バラックに戻ってバラック1､2､3毎にログインしてください。{nl}" ..
-                "InstantCCアドオンを使用している場合は「Return To Barrack」で戻ってください。{nl} {nl}" ..
-                "{ol}名前部分を押すと、ログインキャラと同一バラックの各キャラの装備詳細が見れます。")
-    else
-        help:SetTextTooltip("{ol}If you do not line up in order,{nl}" ..
+    local ccbtn = title_box:CreateOrGetControl('button', 'ccbtn', 75, 0, 35, 35)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{ol}{img barrack_button_normal 35 35}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+    ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+
+    local current_lang = option.GetCurrentCountry()
+    help_btn:SetTextTooltip(current_lang == "Japanese" and
+                                "{ol}順番に並ばない場合は一度バラックに戻ってバラック1､2､3毎にログインしてください。{nl}" ..
+                                "InstantCCアドオンを使用している場合は「Return To Barrack」で戻ってください。{nl} {nl}" ..
+                                "{ol}名前部分を押すと、ログインキャラと同一バラックの各キャラの装備詳細が見れます。" or
+                                "{ol}If you do not line up in order,{nl}" ..
                                 "please return to the barracks once and log in for each barracks 1,2,3.{nl}" ..
                                 "If you are using the InstantCC add-on, please return with [Return To Barrack].{nl} {nl}" ..
                                 "{ol}Press the name section to see the equipment details of each character{nl}in the same barrack as the login character.")
-    end
 
-    local weapon = title:CreateOrGetControl("richtext", "weapon", 160, 10, 100, 20)
+    local weapon_lbl = title_box:CreateOrGetControl("richtext", "weapon", 160, 10, 100, 20)
+    weapon_lbl:SetText(current_lang == "Japanese" and "{ol}" .. "武器" or "{ol}" .. "weapons")
+    weapon_lbl:AdjustFontSizeByWidth(100)
 
-    if language == "Japanese" then
-        weapon:SetText("{ol}" .. "武器")
-    else
-        weapon:SetText("{ol}" .. "weapons")
-    end
+    local acc_lbl = title_box:CreateOrGetControl("richtext", "Accessory", 290, 10, 100, 20)
+    acc_lbl:SetText(current_lang == "Japanese" and "{ol}" .. "アクセ" or "{ol}" .. "Accessory")
 
-    local Accessory = title:CreateOrGetControl("richtext", "Accessory", 280, 10, 100, 20)
-
-    if language == "Japanese" then
-        Accessory:SetText("{ol}" .. "アクセ")
-    else
-        Accessory:SetText("{ol}" .. "Accessory")
-    end
-
-    weapon:AdjustFontSizeByWidth(100)
-    local y = 370
+    local equip_x = 390
     for i = 0, 4 do
-        local equip_text = title:CreateOrGetControl("richtext", "equip_text" .. i, y, 10, 100, 20)
+        local equip_lbl = title_box:CreateOrGetControl("richtext", "equip_text" .. i, equip_x, 10, 100, 20) -- equip_text を eq_text_lbl に
 
         if i == 0 then
-            equip_text:SetText("{ol}" .. ClMsg("Shirt"))
-            equip_text:AdjustFontSizeByWidth(100)
+            equip_lbl:SetText("{ol}" .. ClMsg("Shirt"))
         elseif i == 1 then
-            equip_text:SetText("{ol}" .. ClMsg("Pants"))
-            equip_text:AdjustFontSizeByWidth(100)
+            equip_lbl:SetText("{ol}" .. ClMsg("Pants"))
         elseif i == 2 then
-            equip_text:SetText("{ol}" .. ClMsg("GLOVES"))
-            equip_text:AdjustFontSizeByWidth(100)
+            equip_lbl:SetText("{ol}" .. ClMsg("GLOVES"))
         elseif i == 3 then
-            equip_text:SetText("{ol}" .. ClMsg("BOOTS"))
-            equip_text:AdjustFontSizeByWidth(100)
-
+            equip_lbl:SetText("{ol}" .. ClMsg("BOOTS"))
         elseif i == 4 then
-            if language == "Japanese" then
-                equip_text:SetText("{ol}その他")
-                equip_text:AdjustFontSizeByWidth(100)
-            else
-                equip_text:SetText("{ol}etc.")
-                equip_text:AdjustFontSizeByWidth(100)
-            end
+            equip_lbl:SetText(current_lang == "Japanese" and "{ol}その他" or "{ol}etc.")
         end
-        y = y + 225
+
+        equip_lbl:AdjustFontSizeByWidth(100)
+
+        equip_x = equip_x + 225
     end
 
-    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 5, 35, 1070, 280)
-    AUTO_CAST(gbox)
-    gbox:RemoveAllChild()
-    gbox:SetSkinName("test_frame_midle_light")
+    local main_gbox = main_frame:CreateOrGetControl("groupbox", "gbox", 5, 35, 1070, 280)
+    AUTO_CAST(main_gbox)
+    main_gbox:RemoveAllChild()
+    -- main_gbox:SetSkinName("test_frame_midle_light")
+    main_gbox:SetSkinName("chat_window_2")
 
-    local langtbl = {}
+    local trans_tbl = current_lang == "Japanese" and jatbl or entbl
 
-    if language == "Japanese" then
-        langtbl = jatbl
-    else
-        langtbl = entbl
-    end
+    local all_skills = GetClassList("Skill")
 
-    local x = 10
-    local yy = 370
-    local yyy = 0
-    local equips = {"SHIRT", "PANTS", "GLOVES", "BOOTS", "LEG", "GOD", "SEAL", "ARK", "RELIC", "RH", "LH", "RH_SUB",
-                    "LH_SUB", "RING1", "RING2", "NECK"}
+    local y_pos = 10
+    local equip_grp_x = 385
+    local etc_x_offset = 0
 
-    local cnt = 0
-    for _, character in ipairs(g.characters) do
-        -- print(tostring(character.cid))
-        local path = string.format('../addons/%s/%s.json', addonNameLower, character.cid)
-        local file = io.open(path, "r")
-        if file then
-            local content = file:read("*all")
-            file:close()
-            local data = json.decode(content)
-            local name_text = gbox:CreateOrGetControl("richtext", "name_text" .. character.name, 10, x, 145, 20)
-            AUTO_CAST(name_text)
-            name_text:SetText("{ol}" .. character.name)
-            name_text:AdjustFontSizeByWidth(150)
-            name_text:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report")
-            name_text:SetEventScriptArgString(ui.LBUTTONUP, character.name)
+    local char_count = 0
 
-            local gear_score = data.gear_score
-            local gs_str = ""
+    for i, char_info in ipairs(g.characters) do
 
-            if gear_score ~= 0 then
-                gs_str = gear_score
-            else
-                gs_str = "NoData"
-            end
+        local char_settings = g.settings.characters[char_info.name]
 
-            if language == "Japanese" then
-                name_text:SetTextTooltip("{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
-                                             "名前部分を押すと各キャラの装備詳細が見れます。")
-            else
-                name_text:SetTextTooltip("{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
-                                             "Press the name part to see the{nl}equipment details of each character.")
-            end
+        local char_equips = char_settings.equips
+        local gear_score = char_settings.gear_score
 
-            local skill_list = GetClassList("Skill");
+        local name_lbl = main_gbox:CreateOrGetControl("richtext", "name_text" .. i, 10, y_pos, 145, 20)
+        AUTO_CAST(name_lbl)
+        name_lbl:SetText("{ol}" .. char_info.name)
+        name_lbl:AdjustFontSizeByWidth(150)
+        name_lbl:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report")
+        name_lbl:SetEventScriptArgString(ui.LBUTTONUP, char_info.name)
+        local gs_str = gear_score ~= 0 and tostring(gear_score) or "NoData" -- tostring 追加
 
-            for i, equipType in ipairs(equips) do
+        name_lbl:SetTextTooltip(current_lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                    "名前部分を押すと各キャラの装備詳細が見れます。" or
+                                    "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                    "Press the name part to see the{nl}equipment details of each character.")
 
-                if i <= 4 then
-                    local slot = gbox:CreateOrGetControl("slot", "slot" .. equipType .. character.name,
-                                                         yy + (225 * (i - 1)) + 30, x, 25, 24)
-                    AUTO_CAST(slot)
-                    slot:EnablePop(0)
-                    slot:EnableDrop(0)
-                    slot:EnableDrag(0)
-                    slot:SetSkinName('invenslot2');
+        for j, equip_type in ipairs(equips) do
 
-                    local equip = gbox:CreateOrGetControl("slot", "equip" .. equipType .. character.name,
-                                                          yy + (225 * (i - 1)), x, 25, 24)
-                    AUTO_CAST(equip)
-                    equip:EnablePop(0)
-                    equip:EnableDrop(0)
-                    equip:EnableDrag(0)
-                    equip:SetSkinName('invenslot2');
+            local equip_data_entry = char_equips[equip_type]
 
-                    local clsID = data[equipType].clsid
+            if j <= 4 then
+                local skill_slot = main_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i,
+                    equip_grp_x + (225 * (j - 1)) + 30, y_pos, 25, 24)
+                AUTO_CAST(skill_slot)
+                skill_slot:EnablePop(0);
+                skill_slot:EnableDrop(0);
+                skill_slot:EnableDrag(0);
+                skill_slot:SetSkinName('invenslot2')
 
-                    if clsID ~= nil then
-                        local lv = data[equipType].lv
-                        local itemCls = GetClassByType("Item", clsID);
-                        local imageName = itemCls.Icon;
-                        SET_SLOT_ICON(equip, imageName)
+                local item_slot = main_gbox:CreateOrGetControl("slot", "equip" .. equip_type .. i,
+                    equip_grp_x + (225 * (j - 1)), y_pos, 25, 24)
+                AUTO_CAST(item_slot)
+                item_slot:EnablePop(0);
+                item_slot:EnableDrop(0);
+                item_slot:EnableDrag(0);
+                item_slot:SetSkinName('invenslot2')
 
-                        SET_SLOT_BG_BY_ITEMGRADE(equip, itemCls)
-                        equip:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
-                        local icon = equip:GetIcon()
-                        icon:SetTextTooltip(itemCls.Name);
-                    end
+                local clsid = equip_data_entry.clsid
+                local item_cls = GetClassByType("Item", clsid)
+                if item_cls then
+                    local lv = equip_data_entry.lv
 
-                    local skill = GetClassByNameFromList(skill_list, data[equipType].skillName)
+                    local image_name = item_cls.Icon
+                    SET_SLOT_ICON(item_slot, image_name)
 
-                    if skill ~= nil then
-                        local sklCls = GetClassByType("Skill", skill.ClassID);
-
-                        local imageName = 'icon_' .. sklCls.Icon;
-                        SET_SLOT_ICON(slot, imageName)
-                        local skill_name = gbox:CreateOrGetControl("richtext",
-                                                                   "skill_name" .. equipType .. character.name,
-                                                                   yy + 60 + (225 * (i - 1)), x, 140, 20)
-
-                        slot:SetText('{s14}{ol}{#FFFF00}' .. data[equipType].skillLv, 'count', ui.RIGHT, ui.BOTTOM, -2,
-                                     -2)
-
-                        local icon = slot:GetIcon()
-                        icon:SetTooltipType('skill');
-                        icon:SetTooltipArg("Level", skill.ClassID, data[equipType].skillLv);
-
-                        for k, v in pairs(langtbl) do
-
-                            if tostring(k) == tostring(data[equipType].skillName) then
-                                skill_name:SetText("{ol}{s16}" .. v)
-                                skill_name:AdjustFontSizeByWidth(160)
-                            end
-
-                        end
-                    end
-                elseif i >= 5 and i <= 9 then
-                    local slot = gbox:CreateOrGetControl("slot", "etc_slot" .. equipType .. character.name,
-                                                         yy + 225 * 4 + yyy, x, 25, 24)
-                    AUTO_CAST(slot)
-                    slot:EnablePop(0)
-                    slot:EnableDrop(0)
-                    slot:EnableDrag(0)
-                    slot:SetSkinName('invenslot2');
-
-                    local text = ""
-                    if i >= 5 and i <= 6 then
-                        text = "{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}"
-                    else
-                        text = "{s12}{ol}{#FFFF00}+"
-                    end
-                    local itemCls = GetClassByType("Item", data[equipType].clsid)
-                    if itemCls ~= nil then
-
-                        local imageName = itemCls.Icon;
-                        SET_SLOT_ICON(slot, imageName)
-                        local icon = slot:GetIcon()
-                        icon:SetTextTooltip(itemCls.Name);
-                        slot:SetText(text .. data[equipType].lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
-                    end
-                    yyy = yyy + 30
-                elseif i >= 10 then
-                    local slot = gbox:CreateOrGetControl("slot", "slot" .. equipType .. character.name,
-                                                         155 + 30 * (i - 10), x, 25, 24)
-                    AUTO_CAST(slot)
-                    slot:EnablePop(0)
-                    slot:EnableDrop(0)
-                    slot:EnableDrag(0)
-                    slot:SetSkinName('invenslot2');
-
-                    local clsID = data[equipType].clsid
-
-                    if clsID ~= nil then
-                        local lv = data[equipType].lv
-                        local itemCls = GetClassByType("Item", clsID);
-                        local imageName = itemCls.Icon;
-                        SET_SLOT_ICON(slot, imageName)
-
-                        SET_SLOT_BG_BY_ITEMGRADE(slot, itemCls)
-                        slot:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0);
-                        local icon = slot:GetIcon()
-                        icon:SetTextTooltip(itemCls.Name);
+                    SET_SLOT_BG_BY_ITEMGRADE(item_slot, item_cls)
+                    item_slot:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
+                    local icon = item_slot:GetIcon()
+                    if icon then
+                        icon:SetTextTooltip(item_cls.Name)
                     end
                 end
 
-            end
-            yyy = 0
-            x = x + 25
-            cnt = cnt + 1
+                local skill = GetClassByNameFromList(all_skills, equip_data_entry.skill_name)
 
-            -- else
-            -- print("File not found or unable to open: " .. path)
+                if skill then
+                    local skill_icon_name = 'icon_' .. skill.Icon
+
+                    SET_SLOT_ICON(skill_slot, skill_icon_name)
+
+                    local skill_name_lbl = main_gbox:CreateOrGetControl("richtext", "skill_name" .. equip_type .. i,
+                        equip_grp_x + 60 + (225 * (j - 1)), y_pos, 140, 20) -- skill_name を skill_name_lbl に
+
+                    skill_slot:SetText('{s14}{ol}{#FFFF00}' .. equip_data_entry.skill_lv, 'count', ui.RIGHT, ui.BOTTOM,
+                        -2, -2)
+
+                    local icon = skill_slot:GetIcon()
+
+                    if icon then
+                        icon:SetTooltipType('skill')
+                        icon:SetTooltipArg("Level", skill.ClassID, equip_data_entry.skill_lv)
+                    end
+
+                    for k, v in pairs(trans_tbl) do
+
+                        if tostring(k) == tostring(equip_data_entry.skill_name) then
+                            skill_name_lbl:SetText("{ol}{s16}" .. v)
+                            skill_name_lbl:AdjustFontSizeByWidth(160)
+                        end
+                    end
+                end
+
+            elseif j >= 5 and j <= 9 then
+                local etc_slot = main_gbox:CreateOrGetControl("slot", "etc_slot" .. equip_type .. i,
+                    equip_grp_x + 225 * 4 + etc_x_offset, y_pos, 25, 24)
+                AUTO_CAST(etc_slot)
+                etc_slot:EnablePop(0);
+                etc_slot:EnableDrop(0);
+                etc_slot:EnableDrag(0);
+                etc_slot:SetSkinName('invenslot2')
+
+                local text_prefix = (j >= 5 and j <= 6) and "{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}" or
+                                        "{s12}{ol}{#FFFF00}+"
+                local item_cls = GetClassByType("Item", equip_data_entry.clsid)
+                if item_cls then
+                    local image_name = item_cls.Icon
+                    SET_SLOT_ICON(etc_slot, image_name)
+                    local icon = etc_slot:GetIcon()
+                    if icon then
+                        icon:SetTextTooltip(item_cls.Name)
+                    end
+                    etc_slot:SetText(text_prefix .. equip_data_entry.lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
+                end
+                etc_x_offset = etc_x_offset + 30
+            elseif j >= 10 then
+                local weapon_slot_x = 155 + 30 * (j - 10)
+                if j >= 14 then
+                    weapon_slot_x = 155 + 30 * (j - 10) + 10
+                end
+                local weapon_slot = main_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i, weapon_slot_x,
+                    y_pos, 25, 24)
+                AUTO_CAST(weapon_slot)
+                weapon_slot:EnablePop(0);
+                weapon_slot:EnableDrop(0);
+                weapon_slot:EnableDrag(0);
+                weapon_slot:SetSkinName('invenslot2')
+
+                local clsid = equip_data_entry.clsid
+
+                if clsid and clsid ~= 0 then
+                    local lv = equip_data_entry.lv
+                    local item_cls = GetClassByType("Item", clsid)
+                    local image_name = item_cls.Icon
+                    SET_SLOT_ICON(weapon_slot, image_name)
+
+                    SET_SLOT_BG_BY_ITEMGRADE(weapon_slot, item_cls)
+                    weapon_slot:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
+                    local icon = weapon_slot:GetIcon()
+                    if icon then
+                        icon:SetTextTooltip(item_cls.Name)
+                    end
+                end
+            end
         end
+
+        etc_x_offset = 0
+        y_pos = y_pos + 25
+        char_count = char_count + 1
 
     end
 
-    local framex = cnt * 25
-    frame:Resize(1435, framex + 60)
-    title:Resize(1425, 40)
-    gbox:Resize(1425, framex + 20)
+    local frame_height = char_count * 25
+    main_frame:Resize(1450, frame_height + 60)
+    title_box:Resize(1440, 40)
+    main_gbox:Resize(1440, frame_height + 20)
 
-    local myw = frame:GetWidth()
-    local mapFrame = ui.GetFrame("map");
-    local w = mapFrame:GetWidth()
-    frame:SetPos((w - myw) / 2, 0)
-    frame:ShowWindow(1)
+    local current_frame_w = main_frame:GetWidth()
+    local map_frame = ui.GetFrame("map")
+
+    local map_width = map_frame:GetWidth()
+    main_frame:SetPos((map_width - current_frame_w) / 2, 0)
+
+    main_frame:ShowWindow(1)
+end
+
+function other_character_skill_list_frame_close(frame, ctrl, str, num)
+    local frame = ui.GetFrame(addon_name_lower .. "new_frame")
+    frame:ShowWindow(0)
 
 end
 
-function other_character_skill_list_frame_close(frame, ctrl, argStr, argNum)
-    local frame = ui.GetFrame(addonNameLower .. "new_frame")
-    frame:ShowWindow(0)
+-- アドオンメニューボタン
+local norisan_menu_addons = string.format("../%s", "addons")
+local norisan_menu_addons_mkfile = string.format("../%s/mkdir.txt", "addons")
+local norisan_menu_settings = string.format("../addons/%s/settings.json", "norisan_menu")
+local norisan_menu_folder = string.format("../addons/%s", "norisan_menu")
+local norisan_menu_mkfile = string.format("../addons/%s/mkdir.txt", "norisan_menu")
+_G["norisan"] = _G["norisan"] or {}
+_G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
+
+local json = require("json")
+
+local function norisan_menu_create_folder_file()
+
+    local addons_file = io.open(norisan_menu_addons_mkfile, "r")
+    if not addons_file then
+        os.execute('mkdir "' .. norisan_menu_addons .. '"')
+        addons_file = io.open(norisan_menu_addons_mkfile, "w")
+        if addons_file then
+            addons_file:write("created");
+            addons_file:close()
+        end
+    else
+        addons_file:close()
+    end
+
+    local file = io.open(norisan_menu_mkfile, "r")
+    if not file then
+        os.execute('mkdir "' .. norisan_menu_folder .. '"')
+        file = io.open(norisan_menu_mkfile, "w")
+        if file then
+            file:write("created");
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+norisan_menu_create_folder_file()
+
+local function norisan_menu_save_json(path, tbl)
+
+    local data_to_save = {
+        x = tbl.x,
+        y = tbl.y,
+        move = tbl.move,
+        open = tbl.open,
+        layer = tbl.layer
+    }
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(data_to_save)
+        file:write(str)
+        file:close()
+    end
+end
+
+local function norisan_menu_load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        if content and content ~= "" then
+            local decoded, err = json.decode(content)
+            if decoded then
+                return decoded
+            end
+        end
+    end
+    return nil
+end
+
+function _G.norisan_menu_move_drag(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    local current_frame_y = frame:GetY()
+    local current_frame_h = frame:GetHeight()
+    local base_button_h = 40
+
+    local y_to_save = current_frame_y
+
+    if current_frame_h > base_button_h and (_G["norisan"]["MENU"].open == 1) then
+        local items_area_h_calculated = current_frame_h - base_button_h
+        y_to_save = current_frame_y + items_area_h_calculated
+
+    end
+
+    _G["norisan"]["MENU"].x = frame:GetX()
+    _G["norisan"]["MENU"].y = y_to_save
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+end
+
+function _G.norisan_menu_setting_frame_ctrl(setting, ctrl)
+    local ctrl_name = ctrl:GetName()
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if ctrl_name == "layer_edit" then
+        local layer = tonumber(ctrl:GetText())
+        if layer then
+            _G["norisan"]["MENU"].layer = layer
+            frame:SetLayerLevel(layer)
+            norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+            local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤーを変更" or
+                               "{ol}Change Layer"
+            ui.SysMsg(notice)
+            _G.norisan_menu_create_frame()
+            setting:ShowWindow(0)
+            return
+        end
+    end
+
+    if ctrl_name == "def_setting" then
+
+        _G["norisan"]["MENU"].x = 1190
+        _G["norisan"]["MENU"].y = 30
+        _G["norisan"]["MENU"].move = true
+        _G["norisan"]["MENU"].open = 0
+        _G["norisan"]["MENU"].layer = 79
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        setting:ShowWindow(0)
+        return
+    end
+    if ctrl_name == "close" then
+        setting:ShowWindow(0)
+        return
+    end
+
+    local is_check = ctrl:IsChecked()
+    if ctrl_name == "move_toggle" then
+        if is_check == 1 then
+            _G["norisan"]["MENU"].move = false
+        else
+            _G["norisan"]["MENU"].move = true
+        end
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        return
+    elseif ctrl_name == "open_toggle" then
+        _G["norisan"]["MENU"].open = is_check
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        return
+    end
+
+end
+
+function _G.norisan_menu_setting_frame(frame, ctrl)
+    local setting = ui.CreateNewFrame("chat_memberlist", "norisan_menu_setting", 0, 0, 0, 0)
+    AUTO_CAST(setting)
+
+    setting:SetTitleBarSkin("None")
+    setting:SetSkinName("chat_window")
+    setting:Resize(260, 135)
+    setting:SetLayerLevel(999)
+    setting:EnableHitTest(1)
+    setting:EnableMove(1)
+
+    setting:SetPos(frame:GetX() + 200, frame:GetY())
+    setting:ShowWindow(1)
+
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local def_setting = setting:CreateOrGetControl("button", "def_setting", 10, 5, 150, 30)
+    AUTO_CAST(def_setting)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}デフォルトに戻す" or "{ol}Reset to default"
+    def_setting:SetText(notice)
+    def_setting:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local move_toggle = setting:CreateOrGetControl('checkbox', "move_toggle", 10, 35, 30, 30)
+    AUTO_CAST(move_toggle)
+    move_toggle:SetCheck(_G["norisan"]["MENU"].move == true and 0 or 1)
+    move_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                       "{ol}Check to fix frame"
+    move_toggle:SetText(notice)
+
+    local open_toggle = setting:CreateOrGetControl('checkbox', "open_toggle", 10, 70, 30, 30)
+    AUTO_CAST(open_toggle)
+    open_toggle:SetCheck(_G["norisan"]["MENU"].open)
+    open_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックすると上開き" or
+                       "{ol}Check to open upward"
+    open_toggle:SetText(notice)
+
+    local layer_text = setting:CreateOrGetControl('richtext', 'layer_text', 10, 105, 50, 20)
+    AUTO_CAST(layer_text)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤー設定" or "{ol}Set Layer"
+    layer_text:SetText(notice)
+
+    local layer_edit = setting:CreateOrGetControl('edit', 'layer_edit', 130, 105, 70, 20)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetFontName("white_16_ol")
+    layer_edit:SetTextAlign("center", "center")
+    layer_edit:SetText(_G["norisan"]["MENU"].layer or 79)
+    layer_edit:SetEventScript(ui.ENTERKEY, "norisan_menu_setting_frame_ctrl")
+end
+
+function _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir)
+
+    local open_up = (open_dir == 1)
+
+    local menu_src = _G["norisan"]["MENU"]
+    local max_cols = 5
+    local item_w = 35
+    local item_h = 35
+    local y_off_down = 35
+
+    local items = {}
+    if menu_src then
+        for key, data in pairs(menu_src) do
+            if type(data) == "table" then
+                if key ~= "x" and key ~= "y" and key ~= "open" and key ~= "move" and data.name and data.func and
+                    ((data.image and data.image ~= "") or (data.icon and data.icon ~= "")) then
+                    table.insert(items, {
+                        key = key,
+                        data = data
+                    })
+                end
+            end
+        end
+    end
+
+    local num_items = #items
+
+    local num_rows = math.ceil(num_items / max_cols)
+
+    local items_h = num_rows * item_h
+    local frame_h_new = 40 + items_h
+    local frame_y_new = _G["norisan"]["MENU"].y or 30
+
+    if open_up then
+        frame_y_new = frame_y_new - items_h
+    end
+
+    local frame_w_new
+    if num_rows == 1 then
+        frame_w_new = math.max(40, num_items * item_w)
+    else
+        frame_w_new = math.max(40, max_cols * item_w)
+    end
+
+    frame:SetPos(frame:GetX(), frame_y_new)
+    frame:Resize(frame_w_new, frame_h_new)
+
+    for idx, entry in ipairs(items) do
+        local item_sidx = idx - 1
+        local data = entry.data
+        local key = entry.key
+        local col = item_sidx % max_cols
+        local x = col * item_w
+        local y = 0
+
+        if open_up then
+
+            local logical_row_from_bottom = math.floor(item_sidx / max_cols)
+
+            y = (frame_h_new - 40) - ((logical_row_from_bottom + 1) * item_h)
+        else
+
+            local row_down = math.floor(item_sidx / max_cols)
+            y = y_off_down + (row_down * item_h)
+        end
+
+        local ctrl_name = "menu_item_" .. key
+        local item_elem
+
+        if data.image and data.image ~= "" then
+            item_elem = frame:CreateOrGetControl('button', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetSkinName("None");
+            item_elem:SetText(data.image)
+        else
+            item_elem = frame:CreateOrGetControl('picture', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetImage(data.icon);
+            item_elem:SetEnableStretch(1)
+        end
+
+        if item_elem then
+            item_elem:SetTextTooltip("{ol}" .. data.name)
+            item_elem:SetEventScript(ui.LBUTTONUP, data.func)
+            item_elem:ShowWindow(1)
+        end
+    end
+
+    local main_btn = GET_CHILD(frame, "norisan_menu_pic")
+    if main_btn then
+        if open_up then
+            main_btn:SetPos(0, frame_h_new - 40)
+        else
+            main_btn:SetPos(0, 0)
+        end
+    end
+end
+
+function _G.norisan_menu_frame_open(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    if frame:GetHeight() > 40 then
+
+        local children = {}
+        for i = 0, frame:GetChildCount() - 1 do
+            local child_obj = frame:GetChildByIndex(i)
+            if child_obj then
+                table.insert(children, child_obj)
+            end
+        end
+
+        for _, child_obj in ipairs(children) do
+            if child_obj:GetName() ~= "norisan_menu_pic" then
+
+                frame:RemoveChild(child_obj:GetName())
+            end
+        end
+
+        frame:Resize(40, 40)
+        frame:SetPos(frame:GetX(), _G["norisan"]["MENU"].y or 30)
+        local main_pic = GET_CHILD(frame, "norisan_menu_pic")
+        if main_pic then
+            main_pic:SetPos(0, 0)
+        end
+        return
+    end
+
+    local open_dir_val = _G["norisan"]["MENU"].open or 0
+    _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir_val)
+end
+
+function _G.norisan_menu_create_frame()
+
+    _G["norisan"]["MENU"].lang = option.GetCurrentCountry()
+
+    local loaded_cfg = norisan_menu_load_json(norisan_menu_settings)
+
+    if loaded_cfg and loaded_cfg.layer ~= nil then
+        _G["norisan"]["MENU"].layer = loaded_cfg.layer
+    elseif _G["norisan"]["MENU"].layer == nil then
+        _G["norisan"]["MENU"].layer = 79
+    end
+
+    if loaded_cfg and loaded_cfg.move ~= nil then
+        _G["norisan"]["MENU"].move = loaded_cfg.move
+    elseif _G["norisan"]["MENU"].move == nil then
+        _G["norisan"]["MENU"].move = true
+    end
+
+    if loaded_cfg and loaded_cfg.open ~= nil then
+        _G["norisan"]["MENU"].open = loaded_cfg.open
+    elseif _G["norisan"]["MENU"].open == nil then
+        _G["norisan"]["MENU"].open = 0
+    end
+
+    local default_x = 1190
+    local default_y = 30
+
+    local final_x = default_x
+    local final_y = default_y
+
+    if _G["norisan"]["MENU"].x ~= nil then
+        final_x = _G["norisan"]["MENU"].x
+    end
+    if _G["norisan"]["MENU"].y ~= nil then
+        final_y = _G["norisan"]["MENU"].y
+    end
+
+    if loaded_cfg and type(loaded_cfg.x) == "number" then
+        final_x = loaded_cfg.x
+    end
+    if loaded_cfg and type(loaded_cfg.y) == "number" then
+        final_y = loaded_cfg.y
+    end
+
+    local map_ui = ui.GetFrame("map")
+    local screen_w = 1920
+    if map_ui and map_ui:IsVisible() then
+        screen_w = map_ui:GetWidth()
+    end
+
+    if final_x > 1920 and screen_w <= 1920 then
+        final_x = default_x
+        final_y = default_y
+    end
+
+    _G["norisan"]["MENU"].x = final_x
+    _G["norisan"]["MENU"].y = final_y
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if frame then
+        AUTO_CAST(frame)
+        frame:RemoveAllChild()
+        frame:SetSkinName("None")
+        frame:SetTitleBarSkin("None")
+        frame:Resize(40, 40)
+        frame:SetLayerLevel(_G["norisan"]["MENU"].layer)
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
+        frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
+
+        local norisan_menu_pic = frame:CreateOrGetControl('picture', "norisan_menu_pic", 0, 0, 35, 40)
+        AUTO_CAST(norisan_menu_pic)
+        norisan_menu_pic:SetImage("sysmenu_sys")
+        norisan_menu_pic:SetEnableStretch(1)
+        local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{nl}{ol}右クリック: 設定" or
+                           "{nl}{ol}Right click: Settings"
+        norisan_menu_pic:SetTextTooltip("{ol}Addons Menu" .. notice)
+        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
+        norisan_menu_pic:SetEventScript(ui.RBUTTONUP, "norisan_menu_setting_frame")
+
+        frame:ShowWindow(1)
+    end
 
 end

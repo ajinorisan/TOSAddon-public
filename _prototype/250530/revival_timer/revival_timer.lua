@@ -4,10 +4,11 @@
 -- v1.0.3 PTチャットの英語修正。はずい。左ALTで隠すように。
 -- v1.0.4 使用文字バグ修正したはず。なんでなってたかも良くワカラン
 -- v1.0.5 ウルトラワイド対応
+-- v1.0.6 アドオンボタン回り修正。ショートカットのON/OFF。rtimer内のPTチャットをNICOチャットで表示。
 local addon_name = "REVIVAL_TIMER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}

@@ -3,10 +3,11 @@
 -- v1.0.3 インベントリアイテムの数量が0になった時にバグってたの修正。クエストワープの設定方法追加
 -- v1.0.4 エモーションの使用出来ないものを分かるようにした。上手いことハマらないエモーションあったのを直した。
 -- v1.0.5 ウルトラワイド対応。スロット作るボタンも動かせるように
+-- v1.0.6 アドオンボタン修正。使えるエモーション判定部分修正。
 local addon_name = "SUB_SLOTSET"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1233,7 +1234,7 @@ function sub_slotset_resetting(frame_name)
     resetting_frame:ShowWindow(1)
 
     local gbox = resetting_frame:CreateOrGetControl("groupbox", "gbox", 35, 0, resetting_frame:GetWidth() - 35,
-        resetting_frame:GetHeight())
+                                                    resetting_frame:GetHeight())
     AUTO_CAST(gbox)
     gbox:SetSkinName("test_frame_midle_light")
 
@@ -1561,7 +1562,7 @@ function sub_slotset_emoticon_pop(frame, ctrl, str, num)
     local liftIcon = ui.GetLiftIcon();
     local iconInfo = liftIcon:GetInfo();
     local image = iconInfo:GetImageName()
-    print(tostring(image))
+    -- print(tostring(image))
     local topframe = liftIcon:GetTopParentFrame()
 
     local group_name = str

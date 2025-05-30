@@ -67,15 +67,17 @@
 -- v1.6.7 ウルトラワイドを再修正。クエストフレームの挙動を追加
 -- v1.6.8 チャンネルフレームの初期場所修正。セッティングファイルバグ修正
 -- v1.6.9 ボスのエフェクト調整。FPSの手入力。ブラックマーケットのお知らせ修正。ヴェルニケ報酬自動受け取り
-local addonName = "MINI_ADDONS"
-local addonNameLower = string.lower(addonName)
+-- v1.7.0 週間ボス報酬系修正。いつでもメンバーチャット修正。
+-- v1.7.1 エフェクト関係のバグ修正。NOTICE_ON_MSGのバグ修正。
+local addon_name = "MINI_ADDONS"
+local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.6.9"
+local ver = "1.7.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
 local acutil = require("acutil")
 local os = require("os")
@@ -84,7 +86,7 @@ local json = require('json')
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
+    local addonUpper = string.upper(addon_name)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
 
     if (_G[replacementName] == nil) then
@@ -101,12 +103,12 @@ local coin_item = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 112
                    11201234, 11201233, 11201232}
 
 local active_id = session.loginInfo.GetAID()
-g.settingsFileLoc = string.format("../addons/%s/%s.json", addonNameLower, active_id .. "_1")
-g.buffsFileLoc = string.format('../addons/%s/buffs.json', addonNameLower)
+g.settingsFileLoc = string.format("../addons/%s/%s.json", addon_name_lower, active_id .. "_1")
+g.buffsFileLoc = string.format('../addons/%s/buffs.json', addon_name_lower)
 
 function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local folder_path = string.format("../addons/%s", addon_name_lower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
     local file = io.open(file_path, "r")
     if not file then
         os.execute('mkdir "' .. folder_path .. '"')
@@ -120,6 +122,13 @@ function g.mkdir_new_folder()
     end
 end
 g.mkdir_new_folder()
+
+function g.get_map_type()
+    local map_name = session.GetMapName()
+    local map_cls = GetClass("Map", map_name)
+    local map_type = map_cls.MapType
+    return map_type
+end
 
 function MINI_ADDONS_SAVE_SETTINGS()
     acutil.saveJSON(g.settingsFileLoc, g.settings);
@@ -420,18 +429,18 @@ end
 
 -- ヴェルニケ階数を覚える。
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-                                                 default_number)
+    default_number)
     if g.settings.velnice.use == 0 then
         base["INDUN_EDITMSGBOX_FRAME_OPEN"](type, clmsg, desc, yesScp, noScp, min_number, max_number, default_number)
     else
         MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-                                                 default_number)
+            default_number)
 
     end
 end
 
 function MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN_(type, clmsg, desc, yesScp, noScp, min_number, max_number,
-                                                  default_number)
+    default_number)
 
     default_number = g.settings.velnice.level
 
@@ -481,9 +490,8 @@ function MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE(frame, msg, argStr)
         local sec = string.format("%02d", tonumber(remaintimeValue:GetTextByKey("sec")))
 
         imcAddOn.BroadMsg("NOTICE_Dm_stage_start",
-                          string.format(
-                              "{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
-                              current_wave - 1, min, sec), 2.0)
+            string.format("{nl} {nl} {nl} {nl} {nl} {nl} {nl}{@st55_a}Round %s / 8 Fight{nl}{@st64}Remain Time %s : %s",
+                current_wave - 1, min, sec), 2.0)
         g.velnice = current_wave
     else
         return
@@ -527,17 +535,98 @@ function MINI_ADDONS_BUFFLIST_ALL_CHECK(frame, ctrl, str, num)
     acutil.saveJSON(g.buffsFileLoc, g.buffs)
     MINI_ADDONS_SAVE_AND_CREATE_BUFFIDS()
 end
+-- local buff_cls = GetClassByType("Buff", buff_id);
+function mini_addons_bufflist_search(frame, ctrl)
+    if ctrl:GetName() == "search_btn" then
+        ctrl = frame
+    end
+    local ctrl_text = ctrl:GetText()
+
+    if ctrl_text == "" then
+        MINI_ADDONS_BUFFLIST_FRAME_INIT()
+        return
+    end
+
+    local top_frame = ctrl:GetTopParentFrame()
+
+    local bufflist_bg = GET_CHILD(top_frame, "bufflist_bg")
+    bufflist_bg:RemoveAllChild()
+
+    local buffs = {}
+    local buff_id = tonumber(ctrl_text)
+    if buff_id then
+
+        for buff_id_str, check_state in pairs(g.buffs) do
+            if string.find(buff_id_str, ctrl_text, 1, true) then
+                local buff_data = {
+                    buff_id = tonumber(buff_id_str),
+                    check = check_state
+                }
+                table.insert(buffs, buff_data)
+            end
+        end
+
+    else
+        for buff_id_str, check_state in pairs(g.buffs) do
+            local buff_name = dic.getTranslatedStr(GetClassByType("Buff", buff_id_str).Name)
+            if string.find(buff_name, ctrl_text, 1, true) then
+                local buff_data = {
+                    buff_id = tonumber(buff_id_str),
+                    check = check_state
+                }
+                table.insert(buffs, buff_data)
+            end
+        end
+
+        local y = 0
+
+    end
+
+    local y = 0
+    for i, buff_data in ipairs(buffs) do
+        local buff_id = buff_data.buff_id
+        local check = buff_data.check
+        local bufflist_bg = GET_CHILD(top_frame, "bufflist_bg")
+        local buff_slot = bufflist_bg:CreateOrGetControl('slot', 'buff_slot' .. buff_id, 10, y + 5, 30, 30)
+        AUTO_CAST(buff_slot)
+        local buff_cls = GetClassByType("Buff", buff_id);
+
+        if buff_cls then
+            SET_SLOT_IMG(buff_slot, GET_BUFF_ICON_NAME(buff_cls));
+
+            local icon = CreateIcon(buff_slot)
+            AUTO_CAST(icon)
+            icon:SetTooltipType('buff');
+            icon:SetTooltipArg(buff_cls.Name, buff_id, 0);
+
+            local buffcheck = bufflist_bg:CreateOrGetControl('checkbox', 'buffcheck' .. buff_id, 45, y + 5, 30, 30)
+            AUTO_CAST(buffcheck)
+
+            buffcheck:SetCheck(check)
+
+            buffcheck:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFCHECK")
+            buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+            buffcheck:SetText("{ol}" .. buff_cls.Name)
+            buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buff_id ..
+                                         "{nl}チェックするとパーティーバフ表示" or "{ol}" .. buff_id ..
+                                         "{nl}Party buff display when checked")
+            y = y + 35
+
+        end
+    end
+
+end
 
 function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     local bufflistframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_bufflist", 0, 0, 10, 10)
     AUTO_CAST(bufflistframe)
-    bufflistframe:SetSkinName("bg")
+    bufflistframe:SetSkinName("test_frame_low")
     bufflistframe:Resize(500, 1060)
     bufflistframe:SetPos(10, 10)
     bufflistframe:SetLayerLevel(121)
     bufflistframe:RemoveAllChild()
 
-    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1015)
+    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 10, 45, 480, 1005)
     AUTO_CAST(bg)
     bg:SetSkinName("bg")
     bg:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
@@ -549,32 +638,58 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
     closeBtn:SetGravity(ui.RIGHT, ui.TOP)
     closeBtn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_CLOSE");
 
-    local all_toggle = bufflistframe:CreateOrGetControl('checkbox', 'all_toggle', 425, 5, 25, 25)
+    local all_toggle = bufflistframe:CreateOrGetControl('checkbox', 'all_toggle', 435, 10, 25, 25)
     AUTO_CAST(all_toggle)
     all_toggle:SetTextTooltip(g.lang == "Japanese" and "{ol}全ての表示切替" or "Toggle All Displays")
     all_toggle:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_ALL_CHECK");
 
-    local sortedBuffIDs = {}
-    for buffID, _ in pairs(g.buffs) do
-        table.insert(sortedBuffIDs, tonumber(buffID))
-    end
-    table.sort(sortedBuffIDs)
-
-    local bufflisttext = bufflistframe:CreateOrGetControl('richtext', 'bufflisttext', 10, 10, 200, 30)
+    local bufflisttext = bufflistframe:CreateOrGetControl('richtext', 'bufflisttext', 10, 15, 200, 30)
     AUTO_CAST(bufflisttext)
     bufflisttext:SetText("{ol}BUFF LIST")
 
-    -- ソートされた順番で表示
+    local search_edit = bufflistframe:CreateOrGetControl("edit", "search_edit", 120, 10, 305, 38)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+
+    search_edit:SetEventScript(ui.ENTERKEY, "mini_addons_bufflist_search")
+
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    search_btn:SetEventScript(ui.LBUTTONUP, "mini_addons_bufflist_search")
+
+    local buff_id_list_to_sort = {}
+    for buff_id_str, check_state in pairs(g.buffs) do
+        table.insert(buff_id_list_to_sort, {
+            id = tonumber(buff_id_str),
+            checked = (check_state == 0)
+        })
+    end
+
+    table.sort(buff_id_list_to_sort, function(a, b)
+        if b.checked and not a.checked then
+            return true
+        elseif not b.checked and a.checked then
+            return false
+        else
+
+            return a.id < b.id
+        end
+    end)
+
     local y = 0
-    local i = 1
 
-    for _, buffID in ipairs(sortedBuffIDs) do
-
-        local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
+    for item_index, buff_entry in ipairs(buff_id_list_to_sort) do
+        local buffID = buff_entry.id -- バフIDを取得
+        local is_checked_for_this_buff = buff_entry.checked
+        local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. buffID, 10, y + 5, 30, 30)
         AUTO_CAST(buffslot)
         local buffCls = GetClassByType("Buff", buffID);
 
-        if buffCls ~= nil then
+        if buffCls then -- nilチェックは大事
             SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
 
             local icon = CreateIcon(buffslot)
@@ -582,27 +697,20 @@ function MINI_ADDONS_BUFFLIST_FRAME_INIT()
             icon:SetTooltipType('buff');
             icon:SetTooltipArg(buffCls.Name, buffID, 0);
 
-            local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 45, y + 5, 30, 30)
+            local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. buffID, 45, y + 5, 30, 30)
             AUTO_CAST(buffcheck)
-            local check = g.buffs[tostring(buffID)] or 0
 
-            buffcheck:SetCheck(check)
+            buffcheck:SetCheck(is_checked_for_this_buff and 0 or 1)
+
             buffcheck:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFCHECK")
             buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buffID)
-            --[[if buffCls.Name == "None" then
-                print(buffID)
-            end]]
             buffcheck:SetText("{ol}" .. buffCls.Name)
-            -- local clsid = buffCls.ClassID
-
             buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buffID ..
                                          "{nl}チェックするとパーティーバフ表示" or "{ol}" .. buffID ..
                                          "{nl}Party buff display when checked")
-
             y = y + 35
-            i = i + 1
-        end
 
+        end
     end
 
     bufflistframe:ShowWindow(1)
@@ -624,11 +732,15 @@ function MINI_ADDONS_BUFFLIST_FRAME_CLOSE()
     frame:ShowWindow(0)
 end
 
-function MINI_ADDONS_BUFF_TABLE_INSERT(buffID)
+function MINI_ADDONS_BUFF_TABLE_INSERT(buff_id)
 
-    local buffIDStr = tostring(buffID)
-    if g.buffs[buffIDStr] == nil then
-        g.buffs[buffIDStr] = 1
+    local str_buff_id = tostring(buff_id)
+    if g.buffs[str_buff_id] == nil then
+        if g.settings.pt_buff == 0 then
+            g.buffs[str_buff_id] = 1
+        else
+            g.buffs[str_buff_id] = 0
+        end
         acutil.saveJSON(g.buffsFileLoc, g.buffs)
     end
 end
@@ -984,8 +1096,7 @@ function MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE(frame, msg)
 
                     for key, value in pairs(g.settings.group_name) do
                         ui.AddContextMenuItem(context, value, string.format(
-                                                  "MINI_ADDONS_SEND_POPUP_FRAME_CHAT(%s,%s,'%s',%d)", "nil",
-                                                  "main_chat", key, 1))
+                            "MINI_ADDONS_SEND_POPUP_FRAME_CHAT(%s,%s,'%s',%d)", "nil", "main_chat", key, 1))
                     end
                     ui.OpenContextMenu(context)
                 end
@@ -1068,7 +1179,7 @@ function mini_addons_REPUTATION_SHOP_OPEN_context(frame, ctrl, str, num)
         local id = shop.id
         local map_name = GetClassByType("Map", id).Name
         ui.AddContextMenuItem(context, map_name,
-                              string.format("mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN('%s')", shop_name))
+            string.format("mini_addons_ON_REQUEST_REPUTATION_SHOP_OPEN('%s')", shop_name))
     end
     ui.OpenContextMenu(context)
 end
@@ -1143,7 +1254,9 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
+
     local origin_func = g.FUNCS[origin_func_name]
+
     local function hooked_function(...)
 
         local original_results
@@ -1156,7 +1269,7 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
 
-        if bool == true and original_results ~= nil then
+        if original_results then
             return table.unpack(original_results)
         else
             return
@@ -1165,8 +1278,8 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
     _G[origin_func_name] = hooked_function
 
-    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
-        g.RAGISTER[origin_func_name] = true
+    if not g.RAGISTER[origin_func_name .. my_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
+        g.RAGISTER[origin_func_name .. my_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
     end
 end
@@ -1245,7 +1358,7 @@ function MINI_ADDONS_CHAT_RBTN_POPUP(my_frame, my_msg)
     local ctrlName = frame:GetName()
     if GET_PRIVATE_CHANNEL_ACTIVE_STATE() == true then
         local translateScp = string.format("REQ_TRANSLATE_TEXT('%s','%s','%s')", topFrame_Name, parentFrame_Name,
-                                           ctrlName)
+            ctrlName)
         ui.AddContextMenuItem(context, ScpArgMsg("TRANSLATE"), translateScp)
     end
     local copyPcId = string.format("COPY_PC_ID('%s')", targetName)
@@ -1257,14 +1370,15 @@ function MINI_ADDONS_CHAT_RBTN_POPUP(my_frame, my_msg)
     local blockScp = string.format("CHAT_BLOCK_MSG('%s')", targetName)
     ui.AddContextMenuItem(context, ScpArgMsg("FriendBlock"), blockScp)
     ui.AddContextMenuItem(context, ScpArgMsg("Report_AutoBot"),
-                          string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", targetName))
+        string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", targetName))
 
     ui.AddContextMenuItem(context, ScpArgMsg("Cancel"), "None")
-    ui.AddContextMenuItem(context, "-----", "None")
+
     -- ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'), string.format("ui.Chat(%s)", "/ " .. targetName))
     if g.settings.memberinfo == 1 then
+        ui.AddContextMenuItem(context, "-----", "None")
         ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-                              string.format("ui.Chat('%s')", "/memberinfo " .. targetName))
+            string.format("ui.Chat('%s')", "/memberinfo " .. targetName))
     end
     ui.OpenContextMenu(context)
 end
@@ -1295,7 +1409,7 @@ function MINI_ADDONS_POPUP_GUILD_MEMBER(my_frame, my_msg)
         local mapName = session.GetMapName();
         if mapName == 'guild_agit_1' then
             ui.AddContextMenuItem(context, ScpArgMsg("GiveGuildLeaderPermission"),
-                                  string.format("SEND_REQ_GUILD_MASTER('%s')", name));
+                string.format("SEND_REQ_GUILD_MASTER('%s')", name));
         end
     end
 
@@ -1328,7 +1442,7 @@ function MINI_ADDONS_POPUP_GUILD_MEMBER(my_frame, my_msg)
         ui.AddContextMenuItem(context, "-----", "None")
 
         ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-                              string.format("ui.Chat('%s')", "/memberinfo " .. name))
+            string.format("ui.Chat('%s')", "/memberinfo " .. name))
     end
     ui.OpenContextMenu(context);
 
@@ -1366,10 +1480,12 @@ function MINI_ADDONS_CONTEXT_PARTY(my_frame, my_msg)
         ui.AddContextMenuItem(context, ScpArgMsg("WHISPER"), string.format("ui.WhisperTo('%s')", memberInfo:GetName()));
         local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')", memberInfo:GetName());
         ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
-        ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
-                              string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+        if g.settings.memberinfo ~= 1 then
+            ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
+                string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+        end
         ui.AddContextMenuItem(context, ScpArgMsg("GiveLeaderPermission"),
-                              string.format("GIVE_PARTY_LEADER(\"%s\")", memberInfo:GetName()));
+            string.format("GIVE_PARTY_LEADER(\"%s\")", memberInfo:GetName()));
         ui.AddContextMenuItem(context, ScpArgMsg("Ban"), string.format("BAN_PARTY_MEMBER(\"%s\")", memberInfo:GetName()));
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
@@ -1380,14 +1496,18 @@ function MINI_ADDONS_CONTEXT_PARTY(my_frame, my_msg)
                 string.format("SHOW_INDUN_BADPLAYER_REPORT(\"%s\", \"%s\", \"%s\")", aid, serverName, playerName);
             ui.AddContextMenuItem(context, ScpArgMsg("IndunBadPlayerReport"), scp);
         end
+
     else
         -- 3. 파티원이 파티원 우클릭
         -- 대화하기. 세부 정보 보기.
         ui.AddContextMenuItem(context, ScpArgMsg("WHISPER"), string.format("ui.WhisperTo('%s')", memberInfo:GetName()));
         local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')", memberInfo:GetName());
         ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
-        ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
-                              string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+
+        if g.settings.memberinfo ~= 1 then
+            ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
+                string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));
+        end
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
             local aid = memberInfo:GetAID();
@@ -1403,9 +1523,12 @@ function MINI_ADDONS_CONTEXT_PARTY(my_frame, my_msg)
 
     if g.settings.memberinfo == 1 then
         ui.AddContextMenuItem(context, "-----", "None")
-        local playerName = memberInfo:GetName();
+
         ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
-                              string.format("ui.Chat('%s')", "/memberinfo " .. playerName))
+            string.format("ui.Chat('%s')", "/memberinfo " .. memberInfo:GetName()))
+
+        --[[ui.AddContextMenuItem(context, ScpArgMsg("ShowInfomation"),
+            string.format("OPEN_PARTY_MEMBER_INFO(%d)", memberInfo:GetHandle()));]]
     end
     ui.OpenContextMenu(context);
 end
@@ -1478,12 +1601,12 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU(my_frame, my_msg)
         -- 여기에 캐릭터 정보보기, 로그아웃PC관련 메뉴 추가하면됨
         if session.world.IsIntegrateServer() == false then
             local strscp = string.format("exchange.RequestChange(%d)", pcObj:GetHandleVal());
-            ui.AddContextMenuItem(context, ClMsg("Exchange"), strscp);
+            ui.AddContextMenuItem(context, "{img context_transaction 18 18} " .. ClMsg("Exchange"), strscp);
 
             local strWhisperScp = string.format("ui.WhisperTo('%s')", pcObj:GetPCApc():GetFamilyName());
-            ui.AddContextMenuItem(context, ClMsg("WHISPER"), strWhisperScp);
+            ui.AddContextMenuItem(context, "{img context_whisper 18 17} " .. ClMsg("WHISPER"), strWhisperScp);
             strscp = string.format("PARTY_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
-            ui.AddContextMenuItem(context, ClMsg("PARTY_INVITE"), strscp);
+            ui.AddContextMenuItem(context, "{img context_party_invitation 18 17} " .. ClMsg("PARTY_INVITE"), strscp);
 
             --[[
 			if AM_I_LEADER(PARTY_GUILD) == 1 or IS_GUILD_AUTHORITY(1, session.loginInfo.GetAID()) == 1 then
@@ -1493,32 +1616,43 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU(my_frame, my_msg)
 			--]]
             if session.party.GetPartyInfo(PARTY_GUILD) ~= nil and targetInfo.hasGuild == false then
                 strscp = string.format("GUILD_INVITE(\"%s\")", pcObj:GetPCApc():GetFamilyName());
-                ui.AddContextMenuItem(context, ClMsg("GUILD_INVITE"), strscp);
+                ui.AddContextMenuItem(context, "{img context_guild_invitation 18 17} " .. ClMsg("GUILD_INVITE"), strscp);
             end
 
             strscp = string.format("barrackNormal.Visit(%d)", handle);
-            ui.AddContextMenuItem(context, ScpArgMsg("VisitBarrack"), strscp);
+            ui.AddContextMenuItem(context, "{img context_lodging_visit 16 17} " .. ScpArgMsg("VisitBarrack"), strscp);
             strscp = string.format("ui.ToggleHeaderText(%d)", handle);
             if pcObj:GetHeaderText() ~= nil and string.len(pcObj:GetHeaderText()) ~= 0 then
                 if pcObj:IsHeaderTextVisible() == true then
-                    ui.AddContextMenuItem(context, ClMsg("BlockTitleText"), strscp);
+                    ui.AddContextMenuItem(context, "{img context_preface_block 18 17} " .. ClMsg("BlockTitleText"),
+                        strscp);
                 else
-                    ui.AddContextMenuItem(context, ClMsg("UnblockTitleText"), strscp);
+                    ui.AddContextMenuItem(context, "{img context_preface_remove 18 17} " .. ClMsg("UnblockTitleText"),
+                        strscp);
                 end
             end
         end
         if g.settings.memberinfo ~= 1 then
             local strscp = string.format("PROPERTY_COMPARE(%d)", handle);
-            ui.AddContextMenuItem(context, ScpArgMsg("Auto_SalPyeoBoKi"), strscp);
+            ui.AddContextMenuItem(context, "{img context_look_into 18 17} " .. ScpArgMsg("Auto_SalPyeoBoKi"), strscp);
         end
         if session.world.IsIntegrateServer() == false then
             local strRequestAddFriendScp = string.format("friends.RequestRegister('%s')",
-                                                         pcObj:GetPCApc():GetFamilyName());
-            ui.AddContextMenuItem(context, ScpArgMsg("ReqAddFriend"), strRequestAddFriendScp);
+                pcObj:GetPCApc():GetFamilyName());
+            ui.AddContextMenuItem(context, "{img context_friend_application 18 13} " .. ScpArgMsg("ReqAddFriend"),
+                strRequestAddFriendScp);
         end
 
-        ui.AddContextMenuItem(context, ScpArgMsg("RequestFriendlyFight"),
-                              string.format("REQUEST_FIGHT(\"%d\")", pcObj:GetHandleVal()));
+        ui.AddContextMenuItem(context, "{img context_friendly_match 18 17} " .. ScpArgMsg("RequestFriendlyFight"),
+            string.format("REQUEST_FIGHT(\"%d\")", pcObj:GetHandleVal()));
+
+        local mapprop = session.GetCurrentMapProp();
+        local mapCls = GetClassByType("Map", mapprop.type);
+        if IS_TOWN_MAP(mapCls) == true then
+            ui.AddContextMenuItem(context, "{img context_personal_housing 18 17} " .. ScpArgMsg("PH_SEL_DLG_2"),
+
+                string.format("REQUEST_PERSONAL_HOUSING_WARP(\"%s\")", pcObj:GetPCApc():GetAID()));
+        end
 
         local familyname = pcObj:GetPCApc():GetFamilyName()
         local otherpcinfo = session.otherPC.GetByFamilyName(familyname);
@@ -1526,27 +1660,30 @@ function MINI_ADDONS_SHOW_PC_CONTEXT_MENU(my_frame, my_msg)
         if session.world.IsIntegrateServer() == false then
             local strRequestLikeItScp = string.format("SEND_PC_INFO(%d)", handle);
             if session.likeit.AmILikeYou(familyname) == true then
-                ui.AddContextMenuItem(context, ScpArgMsg("ReqUnlikeIt"), strRequestLikeItScp);
+                ui.AddContextMenuItem(context, "{img context_like 18 17} " .. ScpArgMsg("ReqUnlikeIt"),
+                    strRequestLikeItScp);
             else
-                ui.AddContextMenuItem(context, ScpArgMsg("ReqLikeIt"), strRequestLikeItScp);
+                ui.AddContextMenuItem(context, "{img context_like 18 17} " .. ScpArgMsg("ReqLikeIt"),
+                    strRequestLikeItScp);
             end
         end
 
-        ui.AddContextMenuItem(context, ScpArgMsg("Report_AutoBot"),
-                              string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+        ui.AddContextMenuItem(context, "{img context_automatic_suspicion 16 17} " .. ScpArgMsg("Report_AutoBot"),
+            string.format("REPORT_AUTOBOT_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
 
         -- report guild emblem
         if pcObj:IsGuildExist() == true then
-            ui.AddContextMenuItem(context, ScpArgMsg("Report_GuildEmblem"),
-                                  string.format("REPORT_GUILDEMBLEM_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+            ui.AddContextMenuItem(context,
+                "{img context_inappropriate_emblem 17 17} " .. ScpArgMsg("Report_GuildEmblem"), string.format(
+                    "REPORT_GUILDEMBLEM_MSGBOX(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
         end
 
         -- 보호모드, 강제킥
         if 1 == session.IsGM() then
             ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Protected"),
-                                  string.format("REQUEST_GM_ORDER_PROTECTED(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+                string.format("REQUEST_GM_ORDER_PROTECTED(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
             ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Kick"),
-                                  string.format("REQUEST_GM_ORDER_KICK(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
+                string.format("REQUEST_GM_ORDER_KICK(\"%s\")", pcObj:GetPCApc():GetFamilyName()));
         end
 
         if session.world.IsDungeon() and session.world.IsIntegrateIndunServer() == true then
@@ -1598,7 +1735,7 @@ function MINI_ADDONS_POPUP_DUMMY(my_frame, my_msg)
         strscp = string.format("ui.Chat(\"//killmon %d\")", handle);
         ui.AddContextMenuItem(context, ScpArgMsg("Auto_JeKeo"), strscp)
         ui.AddContextMenuItem(context, ScpArgMsg("GM_Order_Kick"),
-                              string.format("REQUEST_ORDER_DUMMY_KICK(\"%s\")", handle))
+            string.format("REQUEST_ORDER_DUMMY_KICK(\"%s\")", handle))
     end
 
     if session.world.IsIntegrateServer() == false then
@@ -1618,8 +1755,129 @@ function MINI_ADDONS_POPUP_DUMMY(my_frame, my_msg)
     ui.OpenContextMenu(context)
 end
 
+function MINI_ADDONS_POPUP_FRIEND_COMPLETE_CTRLSET(my_frame, my_msg)
+
+    local parent, ctrlset = g.get_event_args(my_msg)
+
+    local aid = ctrlset:GetUserValue("AID");
+    if aid == "" then
+        return;
+    end
+
+    local f = session.friends.GetFriendByAID(FRIEND_LIST_COMPLETE, aid);
+
+    if f == nil then
+        return;
+    end
+
+    local info = f:GetInfo();
+    local context = ui.CreateContextMenu("FRIEND_CONTEXT", "", 0, 0, 0, 0);
+
+    if f.mapID ~= 0 then
+        local partyinviteScp = string.format("PARTY_INVITE(\"%s\")", info:GetFamilyName());
+        ui.AddContextMenuItem(context, ScpArgMsg("PARTY_INVITE"), partyinviteScp);
+
+        -- 메모 추가
+        local memoScp = string.format("FRIEND_SET_MEMO(\"%s\")", aid);
+        ui.AddContextMenuItem(context, ScpArgMsg("FriendAddMemo"), memoScp);
+    end
+
+    local whisperScp = string.format("ui.WhisperTo('%s')", info:GetFamilyName());
+    ui.AddContextMenuItem(context, ScpArgMsg("WHISPER"), whisperScp);
+
+    local groupnamelist = {}
+    local cnt = session.friends.GetFriendCount(FRIEND_LIST_COMPLETE);
+
+    for i = 0, cnt - 1 do
+        local allfriend = session.friends.GetFriendByIndex(FRIEND_LIST_COMPLETE, i);
+        local groupname = allfriend:GetGroupName()
+
+        if groupname ~= nil and groupname ~= "" and groupname ~= "None" and groupname ~= f:GetGroupName() and
+            groupnamelist[groupname] == nil then
+
+            table.insert(groupnamelist, groupname)
+
+        end
+    end
+
+    local subcontext = ui.CreateContextMenu("SUB", "", 0, 0, 0, 0);
+    -- 그룹 설정
+
+    for k, customgroupname in pairs(groupnamelist) do
+        local groupScp = string.format("FRIEND_SET_GROUPNAME('%d',\"%s\")", tonumber(aid), customgroupname);
+        ui.AddContextMenuItem(subcontext, customgroupname, groupScp);
+    end
+
+    local nowgroupname = f:GetGroupName()
+    if nowgroupname ~= nil and nowgroupname ~= "" and nowgroupname ~= "None" then
+        local groupScp = string.format("FRIEND_SET_GROUPNAME('%s','%s')", aid, '');
+        ui.AddContextMenuItem(subcontext, ScpArgMsg(FRIEND_GET_GROUPNAME(FRIEND_LIST_COMPLETE)), groupScp);
+    end
+
+    local groupScp = string.format("FRIEND_SET_GROUP(\"%s\")", aid);
+    ui.AddContextMenuItem(subcontext, ScpArgMsg("FriendAddNewGroup"), groupScp);
+
+    local groupScp = string.format("POPUP_FRIEND_GROUP_CONTEXTMENU(\"%s\")", aid);
+    ui.AddContextMenuItem(context, ScpArgMsg("FriendAddGroup"), groupScp, nil, 0, 1, subcontext);
+
+    local blockScp = string.format("friends.RequestBlock('%s')", info:GetFamilyName());
+    ui.AddContextMenuItem(context, ScpArgMsg("FriendBlock"), blockScp)
+
+    local deleteScp = string.format("FRIEND_EXEC_DELETE(\"%s\")", aid);
+    ui.AddContextMenuItem(context, ScpArgMsg("FriendDelete"), deleteScp);
+
+    ui.AddContextMenuItem(context, ScpArgMsg("Cancel"), "None");
+    if g.settings.memberinfo == 1 then
+        ui.AddContextMenuItem(context, "-----", "None")
+
+        ui.AddContextMenuItem(context, ScpArgMsg('ShowInfomation'),
+            string.format("ui.Chat('%s')", "/memberinfo " .. info:GetFamilyName()))
+    end
+    ui.OpenContextMenu(context);
+
+end
+
+function MINI_ADDONS_MEMBERINFO_ONCLICK(frame, ctrl, teamname, num)
+    -- print(tostring(teamname))
+    ui.Chat('/memberinfo ' .. teamname);
+    local compare = ui.GetFrame("compare")
+    compare:SetLayerLevel(102);
+end
+
+function MINI_ADDONS_WEEKLY_BOSS_RANK_UPDATE()
+
+    local frame = ui.GetFrame("induninfo")
+    local rankListBox = GET_CHILD_RECURSIVELY(frame, "rankListBox", "ui::CGroupBox");
+    local cnt = session.weeklyboss.GetRankInfoListSize();
+
+    if cnt == 0 then
+        return;
+    end
+
+    for i = 1, cnt do
+        local ctrlSet = GET_CHILD_RECURSIVELY(rankListBox, "CTRLSET_" .. i)
+        AUTO_CAST(ctrlSet)
+
+        local name = GET_CHILD(ctrlSet, "attr_name_text", "ui::CRichText");
+
+        local teamname = session.weeklyboss.GetRankInfoTeamName(i - 1);
+
+        local functionName = "native_lang_WEEKLY_BOSS_RANK_UPDATE"
+        if type(_G[functionName]) ~= "function" then
+
+            local info_btn = rankListBox:CreateOrGetControl('button', "info_btn_" .. i, name:GetX(), (i - 1) * 73 + 50,
+                50, 25);
+            AUTO_CAST(info_btn)
+            info_btn:SetText("{ol}Info")
+            info_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_MEMBERINFO_ONCLICK")
+
+            info_btn:SetEventScriptArgString(ui.LBUTTONUP, teamname)
+        end
+    end
+
+end
+
 g.solodun_reward = false
-g.weekly_boss_reward = false
 g.loaded = false
 function MINI_ADDONS_ON_INIT(addon, frame)
     local start_time = os.clock() -- ★処理開始前の時刻を記録★
@@ -1640,19 +1898,14 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.setup_hook_and_event(addon, "CONTEXT_PARTY", "MINI_ADDONS_CONTEXT_PARTY", false)
     g.setup_hook_and_event(addon, "SHOW_PC_CONTEXT_MENU", "MINI_ADDONS_SHOW_PC_CONTEXT_MENU", false)
     g.setup_hook_and_event(addon, "POPUP_DUMMY", "MINI_ADDONS_POPUP_DUMMY", false)
-
-    -- g.SetupHook(MINI_ADDONS_CHAT_RBTN_POPUP, "CHAT_RBTN_POPUP")
-    -- g.SetupHook(MINI_ADDONS_POPUP_GUILD_MEMBER, "POPUP_GUILD_MEMBER")
-    -- g.SetupHook(MINI_ADDONS_CONTEXT_PARTY, "CONTEXT_PARTY") -- SHOW_PC_CONTEXT_MENU(handle)
-    -- g.SetupHook(MINI_ADDONS_SHOW_PC_CONTEXT_MENU, "SHOW_PC_CONTEXT_MENU")
-    -- g.SetupHook(MINI_ADDONS_POPUP_DUMMY, "POPUP_DUMMY")
-    -- g.SetupHook(MINI_ADDONS_ACCOUNTPROP_INVENTORY_UPDATE, "ACCOUNTPROP_INVENTORY_UPDATE")
+    g.setup_hook_and_event(addon, "POPUP_FRIEND_COMPLETE_CTRLSET", "MINI_ADDONS_POPUP_FRIEND_COMPLETE_CTRLSET", false)
 
     g.call = {}
     g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas", true)
-    -- acutil.setupEvent(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas")
 
     g.setup_hook_and_event(addon, "SYS_OPTION_OPEN", "MINI_ADDONS_SYS_OPTION_OPEN", true)
+
+    g.setup_hook_and_event(addon, "WEEKLY_BOSS_RANK_UPDATE", "MINI_ADDONS_WEEKLY_BOSS_RANK_UPDATE", true);
 
     if g.settings.group_chat == 1 then
 
@@ -1682,12 +1935,10 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.SetupHook(mini_addons_basefunction_old, "ON_PARTYINFO_BUFFLIST_UPDATE")
     addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
     addon:RegisterMsg("PARTY_INST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_INST_UPDATE")
-    -- g.SetupHook(MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
 
     g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
 
-    -- g.SetupHook(MINI_ADDONS_NOTICE_ON_MSG, "NOTICE_ON_MSG")
     g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG", false)
 
     g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
@@ -1700,21 +1951,17 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM");
     acutil.setupEvent(addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP");
 
-    -- !
-
     local frame = ui.GetFrame("cupole_external_addon")
     frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE")
     acutil.setupEvent(addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
 
+    local frame = ui.GetFrame("buff_separatedlist")
+    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+    AUTO_CAST(gbox)
     if g.settings.separated_buff == 1 then
-        local frame = ui.GetFrame("buff_separatedlist")
-        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-        AUTO_CAST(gbox)
         gbox:SetSkinName("None")
     else
-        local frame = ui.GetFrame("buff_separatedlist")
-        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
-        AUTO_CAST(gbox)
+
         gbox:SetSkinName("chat_window")
     end
 
@@ -1816,16 +2063,15 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
         if g.settings.solodun_reward == 1 and not g.solodun_reward then
             addon:RegisterMsg("GAME_START_3SEC", "mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD")
-            g.solodun_reward = true
         end
 
         if g.settings.goodbye_ragana == 1 then
             addon:RegisterMsg("GAME_START", "mini_addons_ragana_remove_timer");
         end
 
-        if g.settings.weekly_boss_reward == 1 and not g.weekly_boss_reward then
+        if g.settings.weekly_boss_reward == 1 then
             addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_WEEKLY_BOSS_REWARD")
-            g.weekly_boss_reward = true
+
         end
 
         if g.settings.coin_use == 1 then
@@ -1869,10 +2115,206 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         end
     end
 
-    MINI_ADDONS_NEW_FRAME_INIT()
+    local menu_data = {
+        name = "Mini Addons",
+        icon = "sysmenu_jal",
+        func = "MINI_ADDONS_SETTING_FRAME_INIT",
+        image = ""
+    }
+    _G["norisan"]["MENU"][addon_name] = menu_data
+
+    if not _G["norisan"]["MENU"][addon_name_lower] or _G["norisan"]["MENU"].frame_name == addon_name_lower then
+        _G["norisan"]["MENU"].frame_name = addon_name_lower
+        addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
+    end
+
+    addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
+
+    addon:RegisterMsg("GAME_START_3SEC", "mini_addons_toggle_sound_set")
+
+    addon:RegisterMsg("GAME_START_3SEC", "mini_addons_toggle_quest_set")
+
+    -- MINI_ADDONS_NEW_FRAME_INIT()
     local end_time = os.clock() -- ★処理終了後の時刻を記録★
     local elapsed_time = end_time - start_time
     -- CHAT_SYSTEM(string.format("MINI_ADDONS_ON_INIT: %.4f seconds", elapsed_time))
+end
+
+function mini_addons_toggle_quest_set(frame, ctrl)
+    local chaseinfo = ui.GetFrame("chaseinfo")
+    local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfo, "openMark_quest")
+    AUTO_CAST(openMark_quest)
+    openMark_quest:SetEventScript(ui.RBUTTONDOWN, "MINI_ADDONS_QUESTINFO_TOGGLE")
+    local notice =
+        g.lang == "Japanese" and "{ol}Mini Addons{nl}右クリック: クエストの表示/非表示切替" or
+            "{ol}Mini Addons{nl}Right-click: Show/hide quests"
+    openMark_quest:SetTextTooltip(notice)
+end
+
+function mini_addons_toggle_sound_set(frame, ctrl)
+
+    local minimap_outsidebutton = ui.GetFrame("minimap_outsidebutton")
+
+    local BGM_PLAYER = GET_CHILD(minimap_outsidebutton, "BGM_PLAYER")
+    AUTO_CAST(BGM_PLAYER)
+    BGM_PLAYER:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_SOUND_TOGGLE")
+
+    local tooltip = g.lang == "Japanese" and "{@st59}BGMプレイヤー{nl}右クリック: Sound Play/Mute{/}" or
+                        g.lang == "kr" and "{@st59}BGM 플레이어{nl}우클릭: 소리 켜기/끄기{/}" or
+                        "{@st59}BGM Player{nl}Right-click: Sound Play/Mute{/}"
+    BGM_PLAYER:SetTextTooltip(tooltip)
+end
+
+function MINI_ADDONS_FPS_UPDATE()
+
+    if g.get_map_type() == "City" then
+        local coin_get_gauge = ui.GetFrame("coin_get_gauge")
+        if config.GetXMLStrConfig('ShowCoinGetGauge') ~= "0" and coin_get_gauge:IsVisible() == 0 then
+            coin_get_gauge:ShowWindow(1)
+        end
+        local market_button = ui.GetFrame('minimized_market_button')
+        if g.settings.market_display == 1 and market_button:IsVisible() == 0 then
+            MINIMIZED_TOTAL_SHOP_BUTTON_CLICK()
+        end
+    end
+
+    local mini_addons_channel = ui.GetFrame("mini_addons_channel")
+    if g.zone_insts and mini_addons_channel and mini_addons_channel:IsVisible() == 0 then
+
+        mini_addons_channel:ShowWindow(1)
+
+    else
+        return
+    end
+
+end
+
+function MINI_ADDONS_GAME_START_CHANNEL_LIST()
+
+    MINI_ADDONS_POPUP_CHANNEL_LIST()
+    local sysmenu = ui.GetFrame("sysmenu")
+    if sysmenu then
+        local system = GET_CHILD(sysmenu, "system")
+        if system then
+            if system:HaveUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST") == false then
+                system:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 10)
+            end
+        end
+    end
+
+end
+
+function MINI_ADDONS_channelframe_move(frame)
+
+    if g.settings.frame_X ~= frame:GetX() or g.settings.frame_Y ~= frame:GetY() then
+        g.settings.frame_X = frame:GetX()
+        g.settings.frame_Y = frame:GetY()
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+end
+
+function MINI_ADDONS_CH_FRAME_RESIZE(frame, btn, str, num)
+
+    if g.settings.ch_frame_size == 40 then
+        g.settings.ch_frame_size = 50
+    else
+        g.settings.ch_frame_size = 40
+    end
+
+    MINI_ADDONS_SAVE_SETTINGS()
+    MINI_ADDONS_POPUP_CHANNEL_LIST()
+end
+
+function MINI_ADDONS_POPUP_CHANNEL_LIST()
+
+    local zoneInsts = session.serverState.GetMap();
+    if not zoneInsts then
+        local frame = ui.GetFrame("mini_addons_channel")
+        if frame then
+            frame:ShowWindow(0)
+        end
+        g.zone_insts = false
+        return 0
+    else
+        g.zone_insts = true
+    end
+
+    local frame = ui.CreateNewFrame("notice_on_pc", "mini_addons_channel", 10, 10, 10, 10)
+    AUTO_CAST(frame)
+    frame:RemoveAllChild();
+    frame:SetSkinName('None')
+    frame:SetTitleBarSkin("None")
+    frame:EnableHittestFrame(1);
+    frame:EnableMove(1)
+
+    if not g.settings.frame_X then
+        g.settings.frame_X = 1500
+        g.settings.frame_Y = 385
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    if not g.settings.ch_frame_size then
+        g.settings.ch_frame_size = 40
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+    local x = g.settings.frame_X
+    local y = g.settings.frame_Y
+    if g.settings.frame_X > 1920 and width <= 1920 then
+        x = 1500
+        y = 385
+    end
+
+    local size = g.settings.ch_frame_size
+
+    frame:SetPos(x, y)
+    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_channelframe_move")
+    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_CH_FRAME_RESIZE")
+
+    local title = frame:CreateOrGetControl("richtext", "title", 5, 0)
+    title:SetText("{ol}{s12}channel info")
+
+    if zoneInsts:NeedToCheckUpdate() == true then
+        app.RequestChannelTraffics();
+    end
+    local cnt = zoneInsts:GetZoneInstCount();
+    for i = 0, cnt - 1 do
+        local zoneInst = zoneInsts:GetZoneInstByIndex(i);
+        -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+
+        local String = zoneInst.pcCount
+        local btn = frame:CreateOrGetControl("button", "slot" .. i, i * size + 5, 15, size, size)
+        AUTO_CAST(btn)
+        btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
+
+        local channelnum = session.loginInfo.GetChannel();
+        if i == channelnum then
+            btn:SetSkinName("test_pvp_btn");
+        end
+        btn:SetEventScriptArgString(ui.LBUTTONUP, i)
+        if tonumber(String) >= 50 then
+            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FF0000}" .. String
+            btn:SetText(text)
+        elseif tonumber(String) < 20 then
+            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
+            -- local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. 100
+            btn:SetText(text)
+        else
+            local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
+            btn:SetText(text)
+        end
+    end
+    frame:Resize(cnt * size + 20, 60)
+    frame:ShowWindow(1)
+
+    return 1
+end
+
+function MINI_ADDONS_CH_CHANGE(frame, ctrl, argStr, argNum)
+    local channelID = tonumber(argStr) -- 0が1chらしい
+    RUN_GAMEEXIT_TIMER("Channel", channelID);
 end
 
 -- クポルポーションフレームの移動と非表示
@@ -2210,11 +2652,18 @@ function MINI_ADDONS_baubas_call_switch(frame, ctrl, str, num)
         g.settings.baubas_call.guild_notice = 0
     end
     MINI_ADDONS_SAVE_SETTINGS()
-    MINI_ADDONS_SETTING_FRAME_INIT()
+    MINI_ADDONS_SETTING_FRAME_INIT(frame, ctrl, "true", num)
 end
 
-function MINI_ADDONS_SETTING_FRAME_INIT()
+function MINI_ADDONS_SETTING_FRAME_INIT(frame, ctrl, str, num)
+
     local frame = ui.GetFrame("mini_addons")
+    if frame:GetWidth() > 100 and str == "false" then
+        frame:Resize(0, 0)
+        frame:ShowWindow(0)
+        return
+    end
+
     frame:SetSkinName("test_frame_midle_light")
     frame:SetLayerLevel(93)
     frame:EnableHittestFrame(1)
@@ -2412,6 +2861,17 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             party_buff_btn:SetTextTooltip(MINI_ADDONS_LANG("You can choose which buffs to display"))
             party_buff_btn:SetSkinName("test_red_button")
             party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
+
+            local pt_buff = frame:CreateOrGetControl('checkbox', "pt_buff" .. "_checkbox", textWidth + 15 + 70, x - 5,
+                25, 25)
+            AUTO_CAST(pt_buff)
+
+            pt_buff:SetCheck(g.settings.pt_buff or 0)
+            pt_buff:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+            local text = g.lang == "Japanese" and "チェックすると初見バフ非表示" or g.lang == "kr" and
+                             "체크하면 첫눈에 반한 버프 숨기기" or "First-time buffs hidden when checked"
+            pt_buff:SetTextTooltip(text)
+
         elseif setting.name == "baubas_call" then
             local baubas_call_btn = frame:CreateOrGetControl('button', 'baubas_call_btn', textWidth + 15, x - 5, 50, 30)
             AUTO_CAST(baubas_call_btn)
@@ -2441,11 +2901,11 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
 
             end
             auto_gacha_btn:SetTextTooltip(MINI_ADDONS_LANG(
-                                              "When turned on, the gacha starts automatically.CC required for switching"))
+                "When turned on, the gacha starts automatically.CC required for switching"))
             auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
         elseif setting.name == "other_effect" then
             local other_effect_edit = frame:CreateOrGetControl('edit', 'other_effect_edit', textWidth + 15, x - 5, 60,
-                                                               25)
+                25)
             AUTO_CAST(other_effect_edit)
             other_effect_edit:SetEventScript(ui.ENTERKEY, "MINI_ADDONS_OTHER_EFFECT_EDIT")
             other_effect_edit:SetTextTooltip("{ol}1~100")
@@ -2494,7 +2954,7 @@ function MINI_ADDONS_SETTING_FRAME_INIT()
             switch:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH")
             local switch_width = switch:GetWidth()
             local switch_text = frame:CreateOrGetControl("richtext", "switch_text", textWidth + 15 + switch_width,
-                                                         x + 2, 80, 25)
+                x + 2, 80, 25)
             AUTO_CAST(switch_text)
             switch_text:SetText(g.lang == "Japanese" and "{ol}ダメージ報酬切替" or "{ol}Damage Reward Switch")
             -- g.lang = "Japanese"
@@ -2534,7 +2994,7 @@ function MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH(frame, ctrl, str, num)
         ctrl:SetText(g.lang == "Japanese" and "{ol}先週分" or "{ol}last week")
     end
     MINI_ADDONS_SAVE_SETTINGS()
-    MINI_ADDONS_SETTING_FRAME_INIT()
+    MINI_ADDONS_SETTING_FRAME_INIT(frame, ctrl, "true", num)
 end
 
 function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
@@ -2580,7 +3040,8 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
         separated_buff = "separated_buff_checkbox",
         group_chat = "group_chat_checkbox",
         memberinfo = "memberinfo_checkbox",
-        baubas_call = "baubas_call_checkbox"
+        baubas_call = "baubas_call_checkbox",
+        pt_buff = "pt_buff_checkbox"
     }
 
     for settingName, checkboxName in pairs(settingNames) do
@@ -2675,16 +3136,18 @@ function MINI_ADDONS_NEW_FRAME_INIT()
     btn:SetText("{img sysmenu_mac 30 30}")
 
     btn:SetEventScript(ui.LBUTTONDOWN, "MINI_ADDONS_SETTING_FRAME_INIT")
+    btn:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
     local text = g.lang == "Japanese" and
                      "{ol}左クリック: Mini Addons 設定{nl}右クリック: MUTE{nl}フレームの端を掴んで動かせます" or
                      "{ol}Left click: Mini Addons settings{nl}Right click: MUTE{nl}Grab the edge of the frame and move it"
     btn:SetTextTooltip(text)
     btn:SetGravity(ui.LEFT, ui.TOP)
-    btn:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_SOUND_TOGGLE")
+
     btn:SetEventScript(ui.MOUSEON, "MINI_ADDONS_FRAME_MOVE_RESERVE")
     btn:SetEventScript(ui.MOUSEOFF, "MINI_ADDONS_FRAME_MOVE_SAVE")
 
     newframe:ShowWindow(1)
+    btn:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_SOUND_TOGGLE")
     g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
 
     local chaseinfo = ui.GetFrame("chaseinfo")
@@ -2700,26 +3163,6 @@ end
 function MINI_ADDONS_FRAME_CLOSE(frame)
     local frame = ui.GetFrame("mini_addons")
     frame:ShowWindow(0)
-end
-
-function MINI_ADDONS_FPS_UPDATE()
-    local newframe = ui.GetFrame("mini_addons_new")
-    if newframe:IsVisible() == 1 then
-
-        local frame = ui.GetFrame("mini_addons_channel")
-        if frame ~= nil then
-            AUTO_CAST(frame)
-            if frame:IsVisible() == 0 then
-                local addonframe = ui.GetFrame("mini_addons")
-                addonframe:StopUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST")
-                MINI_ADDONS_GAME_START_CHANNEL_LIST()
-            end
-        end
-
-        return
-    else
-        MINI_ADDONS_NEW_FRAME_INIT()
-    end
 end
 
 function MINI_ADDONS_MINIMIZED_CLOSE()
@@ -3112,7 +3555,7 @@ function MINI_ADDONS_CHECK_DREAMY_ABYSS()
             if slogutis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
                 _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', "{st47}スローガティスまだやってへんで？",
-                                     5.0)
+                    5.0)
                 NICO_CHAT("{@st55_a}スローガティスまだやってへんで？")
             elseif upinis ~= 1 then
                 imcSound.PlayMusicQueueLocal('colonywar_win')
@@ -3338,7 +3781,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                     if TryGetProp(itemCls, 'GroupName', 'None') == 'Earring' then
                                         local max_option_count =
                                             shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
-                                                                                                        'UseLv', 1))
+                                                'UseLv', 1))
                                         for ii = 1, max_option_count do
                                             local option_name = 'EarringSpecialOption_' .. ii
                                             local job = TryGetProp(itemCls, option_name, 'None')
@@ -3346,7 +3789,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                                 local job_cls = GetClass('Job', job)
                                                 if job_cls ~= nil then
                                                     itemname = string.lower(
-                                                                   dictionary.ReplaceDicIDInCompStr(job_cls.Name));
+                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name));
                                                     a = string.find(itemname, tempcap);
                                                     if a ~= nil then
                                                         makeSlot = true
@@ -3391,9 +3834,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if invItem.count > 0 and baseidcls.ClassName ~= 'Unused' then -- Unused로 설정된 것은 안보임
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                                                               'ui::CGroupBox')
+                                            'ui::CGroupBox')
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                                           'ui::CTreeControl')
+                                            'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls);
                                     end
                                     -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
@@ -3401,7 +3844,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox')
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                                                               'ui::CTreeControl')
+                                            'ui::CTreeControl')
                                         INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls);
                                     end
                                 end
@@ -3418,9 +3861,9 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                 if isOptionApplied == 1 and cap == "" then -- 검색 중에는 조건에 맞는 아이템 없으면 tree 안 만듬
                                     if invenTypeStr == nil or invenTypeStr == typeStr then
                                         local tree_box = GET_CHILD_RECURSIVELY(group, 'treeGbox_' .. typeStr,
-                                                                               'ui::CGroupBox');
+                                            'ui::CGroupBox');
                                         local tree = GET_CHILD_RECURSIVELY(tree_box, 'inventree_' .. typeStr,
-                                                                           'ui::CTreeControl');
+                                            'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree); -- 해당 아이템이 속한 탭
                                     end
 
@@ -3429,7 +3872,7 @@ function MINI_ADDONS_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, 
                                         local tree_box_all =
                                             GET_CHILD_RECURSIVELY(group, 'treeGbox_All', 'ui::CGroupBox');
                                         local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, 'inventree_All',
-                                                                               'ui::CTreeControl');
+                                            'ui::CTreeControl');
                                         EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree_all); -- ALL 탭 
                                     end
                                 end
@@ -3502,121 +3945,6 @@ function MINI_ADDONS_CHARBASE_RELIC()
     pcRelic_text:SetText("{ol}{s12}" .. cur_rp)
     pcRelicGauge:SetPoint(cur_rp / 10, max_rp / 10)
 
-end
-
-function MINI_ADDONS_GAME_START_CHANNEL_LIST()
-    MINI_ADDONS_POPUP_CHANNEL_LIST()
-    local frame = ui.GetFrame("mini_addons")
-    frame:RunUpdateScript("MINI_ADDONS_POPUP_CHANNEL_LIST", 15)
-    return
-end
-
-function MINI_ADDONS_channelframe_move(frame)
-
-    if g.settings.frame_X ~= frame:GetX() or g.settings.frame_Y ~= frame:GetY() then
-        g.settings.frame_X = frame:GetX()
-        g.settings.frame_Y = frame:GetY()
-        MINI_ADDONS_SAVE_SETTINGS()
-    end
-end
-
-function MINI_ADDONS_CH_FRAME_RESIZE(frame, btn, str, num)
-
-    if g.settings.ch_frame_size == 40 then
-        g.settings.ch_frame_size = 50
-    else
-        g.settings.ch_frame_size = 40
-    end
-
-    MINI_ADDONS_SAVE_SETTINGS()
-    MINI_ADDONS_POPUP_CHANNEL_LIST()
-end
-
-function MINI_ADDONS_POPUP_CHANNEL_LIST()
-
-    local frame = ui.CreateNewFrame("notice_on_pc", "mini_addons_channel", 10, 10, 10, 10)
-    AUTO_CAST(frame)
-    frame:RemoveAllChild();
-    frame:SetSkinName('None')
-    frame:SetTitleBarSkin("None")
-    frame:EnableHittestFrame(1);
-    frame:EnableMove(1)
-
-    if not g.settings.frame_X then
-        g.settings.frame_X = 1500
-        g.settings.frame_Y = 385
-        MINI_ADDONS_SAVE_SETTINGS()
-    end
-
-    if not g.settings.ch_frame_size then
-        g.settings.ch_frame_size = 40
-        MINI_ADDONS_SAVE_SETTINGS()
-    end
-
-    local map_frame = ui.GetFrame("map")
-    local width = map_frame:GetWidth()
-    local x = g.settings.frame_X
-    local y = g.settings.frame_Y
-    if g.settings.frame_X > 1920 and width <= 1920 then
-        x = 1500
-        y = 385
-    end
-
-    local size = g.settings.ch_frame_size
-
-    frame:SetPos(x, y)
-    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_channelframe_move")
-    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_CH_FRAME_RESIZE")
-
-    local title = frame:CreateOrGetControl("richtext", "title", 5, 0)
-    title:SetText("{ol}{s12}channel info")
-
-    local zoneInsts = session.serverState.GetMap();
-
-    if zoneInsts ~= nil then
-
-        if zoneInsts:NeedToCheckUpdate() == true then
-            app.RequestChannelTraffics();
-        end
-        local cnt = zoneInsts:GetZoneInstCount();
-        for i = 0, cnt - 1 do
-            local zoneInst = zoneInsts:GetZoneInstByIndex(i);
-            -- local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
-
-            local String = zoneInst.pcCount
-            local btn = frame:CreateOrGetControl("button", "slot" .. i, i * size + 5, 15, size, size)
-            AUTO_CAST(btn)
-            btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CH_CHANGE")
-
-            local channelnum = session.loginInfo.GetChannel();
-            if i == channelnum then
-                btn:SetSkinName("test_pvp_btn");
-            end
-            btn:SetEventScriptArgString(ui.LBUTTONUP, i)
-            if tonumber(String) >= 50 then
-                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FF0000}" .. String
-                btn:SetText(text)
-            elseif tonumber(String) < 20 then
-                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. String
-                -- local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}" .. 100
-                btn:SetText(text)
-            else
-                local text = "{ol}{s12}ch" .. tonumber(i + 1) .. "{nl}{s16}{#FFCC33}" .. String
-                btn:SetText(text)
-            end
-        end
-        frame:Resize(cnt * size + 20, 60)
-        frame:ShowWindow(1)
-    else
-        frame:ShowWindow(0)
-        return 0
-    end
-    return 1
-end
-
-function MINI_ADDONS_CH_CHANGE(frame, ctrl, argStr, argNum)
-    local channelID = tonumber(argStr) -- 0が1chらしい
-    RUN_GAMEEXIT_TIMER("Channel", channelID);
 end
 
 function MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING(frame, msg)
@@ -3830,8 +4158,7 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 if tostring(spotName) == "SEAL" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                                             "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？",
-                                             3.0)
+                            "{st55_a}{#FF8C00}エンブレム装備してないけど{nl}やれるんか？", 3.0)
                         -- ui.SysMsg("{#FF8C00}エンブレム装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Emblem?")
@@ -3841,8 +4168,7 @@ function MINI_ADDONS_SHOW_INDUNENTER_DIALOG(indunType)
                 elseif tostring(spotName) == "ARK" and tonumber(iesid) == 0 then
                     if langcode == "Japanese" then
                         _G.imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout',
-                                             "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?",
-                                             3.0)
+                            "{st55_a}{#FF8C00}アーク装備してないけど{nl}やれるんか?", 3.0)
                         -- ui.SysMsg("{st55_a}{#FF8C00}アーク装備忘れてない?")
                     else
                         ui.SysMsg("{#FF8C00}Did you forget to equip an Ark?")
@@ -3876,15 +4202,18 @@ end
 
 function MINI_ADDONS_BOSS_EFFECT_SETTING()
 
-    EFFECT_TRANSPARENCY_ON()
-    local boss_effect = config.GetBossMonsterEffectTransparency()
+    local frame = ui.GetFrame("systemoption")
+    local slide = GET_CHILD_RECURSIVELY(frame, "effect_transparency_boss_monster_value", "ui::CSlideBar");
+
     if g.settings.boss_effect_value ~= nil then
-        config.SetBossMonsterEffectTransparency(g.settings.my_effect_value)
-        -- config.SetMyEffectTransparency(g.settings.my_effect_value)
+        config.SetBossMonsterEffectTransparency(g.settings.boss_effect_value)
+        slide:SetLevel(g.settings.boss_effect_value);
     else
+        local boss_effect = config.GetBossMonsterEffectTransparency()
         config.SetBossMonsterEffectTransparency(boss_effect)
-        -- config.SetMyEffectTransparency(my_effect)
+
     end
+
 end
 
 function MINI_ADDONS_MY_EFFECT_EDIT(frame, ctrl)
@@ -3905,13 +4234,17 @@ end
 
 function MINI_ADDONS_MY_EFFECT_SETTING()
 
-    EFFECT_TRANSPARENCY_ON()
-    local my_effect = config.GetMyEffectTransparency()
+    local frame = ui.GetFrame("systemoption")
+    local slide = GET_CHILD_RECURSIVELY(frame, "effect_transparency_my_value", "ui::CSlideBar");
+
     if g.settings.my_effect_value ~= nil then
         config.SetMyEffectTransparency(g.settings.my_effect_value)
+        slide:SetLevel(g.settings.my_effect_value);
     else
+        local my_effect = config.GetMyEffectTransparency()
         config.SetMyEffectTransparency(my_effect)
     end
+
 end
 
 function MINI_ADDONS_OTHER_EFFECT_EDIT(frame, ctrl)
@@ -3932,11 +4265,13 @@ end
 
 function MINI_ADDONS_OTHER_EFFECT_SETTING()
 
-    EFFECT_TRANSPARENCY_ON()
-    local other_effect = config.GetOtherEffectTransparency()
+    local frame = ui.GetFrame("systemoption")
+    local slide = GET_CHILD_RECURSIVELY(frame, "effect_transparency_other_value", "ui::CSlideBar");
     if g.settings.other_effect_value ~= nil then
         config.SetOtherEffectTransparency(g.settings.other_effect_value)
+        slide:SetLevel(g.settings.other_effect_value);
     else
+        local other_effect = config.GetOtherEffectTransparency()
         config.SetOtherEffectTransparency(other_effect)
     end
 end
@@ -3999,7 +4334,7 @@ end
 function MINI_ADDONS_NOTICE_ON_MSG(frame, origin_func_name)
 
     local frame, msg, str, num = g.get_event_args(origin_func_name)
-    print(tostring(str) .. ":" .. tostring(msg))
+
     if g.settings.chat_system == 1 then
         if string.find(str, "StartBlackMarketBetween") then
             return
@@ -4119,7 +4454,7 @@ function MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW(parent, ctrl)
     -- ??티??과 ??동매칭??경우 처리
     local yesScpStr = '_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW()';
     local clientMsg = ScpArgMsg('ReallyAllowUnderstaffMatchingWith{MIN_MEMBER}?', 'MIN_MEMBER',
-                                UnderstaffEnterAllowMinMember);
+        UnderstaffEnterAllowMinMember);
     if INDUNENTER_CHECK_UNDERSTAFF_MODE_WITH_PARTY(topFrame) == true then
         clientMsg = ClMsg('CancelUnderstaffMatching');
     end
@@ -4194,4 +4529,434 @@ function MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE(ctrlset, change)
     end
     edit_itemcount:SetText(countText);
     return countText;
+end
+
+-- アドオンメニューボタン
+local norisan_menu_addons = string.format("../%s", "addons")
+local norisan_menu_addons_mkfile = string.format("../%s/mkdir.txt", "addons")
+local norisan_menu_settings = string.format("../addons/%s/settings.json", "norisan_menu")
+local norisan_menu_folder = string.format("../addons/%s", "norisan_menu")
+local norisan_menu_mkfile = string.format("../addons/%s/mkdir.txt", "norisan_menu")
+_G["norisan"] = _G["norisan"] or {}
+_G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
+
+local json = require("json")
+
+local function norisan_menu_create_folder_file()
+
+    local addons_file = io.open(norisan_menu_addons_mkfile, "r")
+    if not addons_file then
+        os.execute('mkdir "' .. norisan_menu_addons .. '"')
+        addons_file = io.open(norisan_menu_addons_mkfile, "w")
+        if addons_file then
+            addons_file:write("created");
+            addons_file:close()
+        end
+    else
+        addons_file:close()
+    end
+
+    local file = io.open(norisan_menu_mkfile, "r")
+    if not file then
+        os.execute('mkdir "' .. norisan_menu_folder .. '"')
+        file = io.open(norisan_menu_mkfile, "w")
+        if file then
+            file:write("created");
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+norisan_menu_create_folder_file()
+
+local function norisan_menu_save_json(path, tbl)
+
+    local data_to_save = {
+        x = tbl.x,
+        y = tbl.y,
+        move = tbl.move,
+        open = tbl.open,
+        layer = tbl.layer
+    }
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(data_to_save)
+        file:write(str)
+        file:close()
+    end
+end
+
+local function norisan_menu_load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        if content and content ~= "" then
+            local decoded, err = json.decode(content)
+            if decoded then
+                return decoded
+            end
+        end
+    end
+    return nil
+end
+
+function _G.norisan_menu_move_drag(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    local current_frame_y = frame:GetY()
+    local current_frame_h = frame:GetHeight()
+    local base_button_h = 40
+
+    local y_to_save = current_frame_y
+
+    if current_frame_h > base_button_h and (_G["norisan"]["MENU"].open == 1) then
+        local items_area_h_calculated = current_frame_h - base_button_h
+        y_to_save = current_frame_y + items_area_h_calculated
+
+    end
+
+    _G["norisan"]["MENU"].x = frame:GetX()
+    _G["norisan"]["MENU"].y = y_to_save
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+end
+
+function _G.norisan_menu_setting_frame_ctrl(setting, ctrl)
+    local ctrl_name = ctrl:GetName()
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if ctrl_name == "layer_edit" then
+        local layer = tonumber(ctrl:GetText())
+        if layer then
+            _G["norisan"]["MENU"].layer = layer
+            frame:SetLayerLevel(layer)
+            norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+            local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤーを変更" or
+                               "{ol}Change Layer"
+            ui.SysMsg(notice)
+            _G.norisan_menu_create_frame()
+            setting:ShowWindow(0)
+            return
+        end
+    end
+
+    if ctrl_name == "def_setting" then
+
+        _G["norisan"]["MENU"].x = 1190
+        _G["norisan"]["MENU"].y = 30
+        _G["norisan"]["MENU"].move = true
+        _G["norisan"]["MENU"].open = 0
+        _G["norisan"]["MENU"].layer = 79
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        setting:ShowWindow(0)
+        return
+    end
+    if ctrl_name == "close" then
+        setting:ShowWindow(0)
+        return
+    end
+
+    local is_check = ctrl:IsChecked()
+    if ctrl_name == "move_toggle" then
+        if is_check == 1 then
+            _G["norisan"]["MENU"].move = false
+        else
+            _G["norisan"]["MENU"].move = true
+        end
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        return
+    elseif ctrl_name == "open_toggle" then
+        _G["norisan"]["MENU"].open = is_check
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        return
+    end
+
+end
+
+function _G.norisan_menu_setting_frame(frame, ctrl)
+    local setting = ui.CreateNewFrame("chat_memberlist", "norisan_menu_setting", 0, 0, 0, 0)
+    AUTO_CAST(setting)
+
+    setting:SetTitleBarSkin("None")
+    setting:SetSkinName("chat_window")
+    setting:Resize(260, 135)
+    setting:SetLayerLevel(999)
+    setting:EnableHitTest(1)
+    setting:EnableMove(1)
+
+    setting:SetPos(frame:GetX() + 200, frame:GetY())
+    setting:ShowWindow(1)
+
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local def_setting = setting:CreateOrGetControl("button", "def_setting", 10, 5, 150, 30)
+    AUTO_CAST(def_setting)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}デフォルトに戻す" or "{ol}Reset to default"
+    def_setting:SetText(notice)
+    def_setting:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local move_toggle = setting:CreateOrGetControl('checkbox', "move_toggle", 10, 35, 30, 30)
+    AUTO_CAST(move_toggle)
+    move_toggle:SetCheck(_G["norisan"]["MENU"].move == true and 0 or 1)
+    move_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                       "{ol}Check to fix frame"
+    move_toggle:SetText(notice)
+
+    local open_toggle = setting:CreateOrGetControl('checkbox', "open_toggle", 10, 70, 30, 30)
+    AUTO_CAST(open_toggle)
+    open_toggle:SetCheck(_G["norisan"]["MENU"].open)
+    open_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックすると上開き" or
+                       "{ol}Check to open upward"
+    open_toggle:SetText(notice)
+
+    local layer_text = setting:CreateOrGetControl('richtext', 'layer_text', 10, 105, 50, 20)
+    AUTO_CAST(layer_text)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤー設定" or "{ol}Set Layer"
+    layer_text:SetText(notice)
+
+    local layer_edit = setting:CreateOrGetControl('edit', 'layer_edit', 130, 105, 70, 20)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetFontName("white_16_ol")
+    layer_edit:SetTextAlign("center", "center")
+    layer_edit:SetText(_G["norisan"]["MENU"].layer or 79)
+    layer_edit:SetEventScript(ui.ENTERKEY, "norisan_menu_setting_frame_ctrl")
+end
+
+function _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir)
+
+    local open_up = (open_dir == 1)
+
+    local menu_src = _G["norisan"]["MENU"]
+    local max_cols = 5
+    local item_w = 35
+    local item_h = 35
+    local y_off_down = 35
+
+    local items = {}
+    if menu_src then
+        for key, data in pairs(menu_src) do
+            if type(data) == "table" then
+                if key ~= "x" and key ~= "y" and key ~= "open" and key ~= "move" and data.name and data.func and
+                    ((data.image and data.image ~= "") or (data.icon and data.icon ~= "")) then
+                    table.insert(items, {
+                        key = key,
+                        data = data
+                    })
+                end
+            end
+        end
+    end
+
+    local num_items = #items
+
+    local num_rows = math.ceil(num_items / max_cols)
+
+    local items_h = num_rows * item_h
+    local frame_h_new = 40 + items_h
+    local frame_y_new = _G["norisan"]["MENU"].y or 30
+
+    if open_up then
+        frame_y_new = frame_y_new - items_h
+    end
+
+    local frame_w_new
+    if num_rows == 1 then
+        frame_w_new = math.max(40, num_items * item_w)
+    else
+        frame_w_new = math.max(40, max_cols * item_w)
+    end
+
+    frame:SetPos(frame:GetX(), frame_y_new)
+    frame:Resize(frame_w_new, frame_h_new)
+
+    for idx, entry in ipairs(items) do
+        local item_sidx = idx - 1
+        local data = entry.data
+        local key = entry.key
+        local col = item_sidx % max_cols
+        local x = col * item_w
+        local y = 0
+
+        if open_up then
+
+            local logical_row_from_bottom = math.floor(item_sidx / max_cols)
+
+            y = (frame_h_new - 40) - ((logical_row_from_bottom + 1) * item_h)
+        else
+
+            local row_down = math.floor(item_sidx / max_cols)
+            y = y_off_down + (row_down * item_h)
+        end
+
+        local ctrl_name = "menu_item_" .. key
+        local item_elem
+
+        if data.image and data.image ~= "" then
+            item_elem = frame:CreateOrGetControl('button', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetSkinName("None");
+            item_elem:SetText(data.image)
+        else
+            item_elem = frame:CreateOrGetControl('picture', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetImage(data.icon);
+            item_elem:SetEnableStretch(1)
+        end
+
+        if item_elem then
+            item_elem:SetTextTooltip("{ol}" .. data.name)
+            item_elem:SetEventScript(ui.LBUTTONUP, data.func)
+            item_elem:ShowWindow(1)
+        end
+    end
+
+    local main_btn = GET_CHILD(frame, "norisan_menu_pic")
+    if main_btn then
+        if open_up then
+            main_btn:SetPos(0, frame_h_new - 40)
+        else
+            main_btn:SetPos(0, 0)
+        end
+    end
+end
+
+function _G.norisan_menu_frame_open(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    if frame:GetHeight() > 40 then
+
+        local children = {}
+        for i = 0, frame:GetChildCount() - 1 do
+            local child_obj = frame:GetChildByIndex(i)
+            if child_obj then
+                table.insert(children, child_obj)
+            end
+        end
+
+        for _, child_obj in ipairs(children) do
+            if child_obj:GetName() ~= "norisan_menu_pic" then
+
+                frame:RemoveChild(child_obj:GetName())
+            end
+        end
+
+        frame:Resize(40, 40)
+        frame:SetPos(frame:GetX(), _G["norisan"]["MENU"].y or 30)
+        local main_pic = GET_CHILD(frame, "norisan_menu_pic")
+        if main_pic then
+            main_pic:SetPos(0, 0)
+        end
+        return
+    end
+
+    local open_dir_val = _G["norisan"]["MENU"].open or 0
+    _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir_val)
+end
+
+function _G.norisan_menu_create_frame()
+
+    _G["norisan"]["MENU"].lang = option.GetCurrentCountry()
+
+    local loaded_cfg = norisan_menu_load_json(norisan_menu_settings)
+
+    if loaded_cfg and loaded_cfg.layer ~= nil then
+        _G["norisan"]["MENU"].layer = loaded_cfg.layer
+    elseif _G["norisan"]["MENU"].layer == nil then
+        _G["norisan"]["MENU"].layer = 79
+    end
+
+    if loaded_cfg and loaded_cfg.move ~= nil then
+        _G["norisan"]["MENU"].move = loaded_cfg.move
+    elseif _G["norisan"]["MENU"].move == nil then
+        _G["norisan"]["MENU"].move = true
+    end
+
+    if loaded_cfg and loaded_cfg.open ~= nil then
+        _G["norisan"]["MENU"].open = loaded_cfg.open
+    elseif _G["norisan"]["MENU"].open == nil then
+        _G["norisan"]["MENU"].open = 0
+    end
+
+    local default_x = 1190
+    local default_y = 30
+
+    local final_x = default_x
+    local final_y = default_y
+
+    if _G["norisan"]["MENU"].x ~= nil then
+        final_x = _G["norisan"]["MENU"].x
+    end
+    if _G["norisan"]["MENU"].y ~= nil then
+        final_y = _G["norisan"]["MENU"].y
+    end
+
+    if loaded_cfg and type(loaded_cfg.x) == "number" then
+        final_x = loaded_cfg.x
+    end
+    if loaded_cfg and type(loaded_cfg.y) == "number" then
+        final_y = loaded_cfg.y
+    end
+
+    local map_ui = ui.GetFrame("map")
+    local screen_w = 1920
+    if map_ui and map_ui:IsVisible() then
+        screen_w = map_ui:GetWidth()
+    end
+
+    if final_x > 1920 and screen_w <= 1920 then
+        final_x = default_x
+        final_y = default_y
+    end
+
+    _G["norisan"]["MENU"].x = final_x
+    _G["norisan"]["MENU"].y = final_y
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if frame then
+        AUTO_CAST(frame)
+        frame:RemoveAllChild()
+        frame:SetSkinName("None")
+        frame:SetTitleBarSkin("None")
+        frame:Resize(40, 40)
+        frame:SetLayerLevel(_G["norisan"]["MENU"].layer)
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
+        frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
+
+        local norisan_menu_pic = frame:CreateOrGetControl('picture', "norisan_menu_pic", 0, 0, 35, 40)
+        AUTO_CAST(norisan_menu_pic)
+        norisan_menu_pic:SetImage("sysmenu_sys")
+        norisan_menu_pic:SetEnableStretch(1)
+        local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{nl}{ol}右クリック: 設定" or
+                           "{nl}{ol}Right click: Settings"
+        norisan_menu_pic:SetTextTooltip("{ol}Addons Menu" .. notice)
+        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
+        norisan_menu_pic:SetEventScript(ui.RBUTTONUP, "norisan_menu_setting_frame")
+
+        frame:ShowWindow(1)
+    end
+
 end
