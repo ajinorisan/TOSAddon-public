@@ -112,6 +112,7 @@ function KLCOUNT_ON_INIT(addon, frame)
     klcount_load_settings()
 
     g.lang = option.GetCurrentCountry()
+    -- g.lang = "kr"
     g.challenge_mode = false
 
     addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT", "klcount_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT")
@@ -119,14 +120,19 @@ function KLCOUNT_ON_INIT(addon, frame)
 
     local menu_data = {
         name = "Kl Count Map Info",
-        icon = "icon_item_gold",
+        icon = "sysmenu_jobinfo",
         func = "klcount_information_context",
         image = ""
     }
-    _G["norisan"]["MENU"][addon_name] = menu_data
-    _G["norisan"]["MENU"].frame_name = "klcount"
-    _G["norisan"]["MENU"].last_addon = addon_name
-    addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
+    if g.get_map_type() == "City" then
+        _G["norisan"]["MENU"][addon_name] = menu_data
+    else
+        _G["norisan"]["MENU"][addon_name] = nil
+    end
+    if not _G["norisan"]["MENU"][addon_name_lower] or _G["norisan"]["MENU"].frame_name == addon_name_lower then
+        _G["norisan"]["MENU"].frame_name = addon_name_lower
+        addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
+    end
 
 end
 
@@ -148,7 +154,7 @@ function klcount_GAME_START()
 
     if map_type == "Field" or map_type == "Dungeon" then
 
-        addon:RegisterMsg("EXP_UPDATE", "klcount__count_UPDATE")
+        addon:RegisterMsg("EXP_UPDATE", "klcount_EXP_UPDATE")
         addon:RegisterMsg('ITEM_PICK', 'klcount_ITEM_PICK');
 
         local map_file_location = string.format("../addons/%s/%s/%s.json", addon_name_lower, g.active_id, map_id)
@@ -236,6 +242,7 @@ function klcount_frame_init()
 
     g.save_counter = 0
     g.save_interval = 5
+    g.temp_time = 0
 
     frame:RunUpdateScript("klcount_time_update", 1.0)
 end
@@ -257,14 +264,16 @@ function klcount_time_update(frame)
         return 1
     end
 
-    g.map_data.stay_time = g.map_data.stay_time + total_sec
+    g.map_data.stay_time = g.map_data.stay_time + diff_ms - g.temp_time
+    g.temp_time = diff_ms
 
     local h = math.floor(total_sec / 3600)
     local m = math.floor((total_sec % 3600) / 60)
     local s = total_sec % 60
 
-    local timer_text = GET_CHILD(frame, " timer_text")
+    local timer_text = GET_CHILD(frame, "timer_text")
     AUTO_CAST(timer_text)
+
     timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
 
     g.save_counter = g.save_counter + 1
@@ -292,7 +301,7 @@ function klcount_information_context(frame, ctrl, str, num)
         local map_name = GetClassByType("Map", g.settings.map_ids[i]).ClassName
 
         local map_file_location = string.format("../addons/%s/%s/%s.json", addon_name_lower, g.active_id,
-                                                g.settings.map_ids[i])
+            g.settings.map_ids[i])
 
         local map_data, err = g.load_json(map_file_location);
 
@@ -312,7 +321,7 @@ function klcount_information_context(frame, ctrl, str, num)
         elseif next(map_data.get_items) then
             local display_text = g.settings.map_ids[i] .. " " .. GetClassByType("Map", g.settings.map_ids[i]).Name
             local script = ui.AddContextMenuItem(context, display_text,
-                                                 string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
+                string.format("klcount_map_information(%d)", g.settings.map_ids[i]))
         else
             map_data = {
                 map_name = map_name,
@@ -363,6 +372,7 @@ function klcount_map_information(map_id)
         local data_new, err_new = g.load_json(new_path)
         if data_new and not err_new then
             map_data = data_new
+
         else
             if err_new then
                 CHAT_SYSTEM("klcount_map_information: Error loading new map data: " .. tostring(err_new))
@@ -408,12 +418,12 @@ function klcount_map_information(map_id)
     map_name_label:SetText("{ol}" .. map_disp_name)
 
     local info_box = ui_frame:CreateOrGetControl("groupbox", "info_gbox", 10, 40, ui_frame:GetWidth() - 20,
-                                                 ui_frame:GetHeight() - 55)
+        ui_frame:GetHeight() - 55)
     AUTO_CAST(info_box)
     info_box:RemoveAllChild()
     info_box:SetSkinName("bg")
 
-    local total_sec = map_data.stay_time or 0
+    local total_sec = map_data.stay_time / 1000 or 0
     local h = math.floor(total_sec / 3600)
     local m = math.floor((total_sec % 3600) / 60)
     local s = total_sec % 60
@@ -430,7 +440,7 @@ function klcount_map_information(map_id)
     kill_label:SetText("{ol}" .. kill_count_str .. kill_count_val)
 
     local kill_per_hour_label = info_box:CreateOrGetControl('richtext', 'kill_count_hour', kill_label:GetWidth() + 20,
-                                                            35, 50, 20)
+        35, 50, 20)
     AUTO_CAST(kill_per_hour_label)
     if total_sec > 0 then
         local kills_ph_val = math.floor(kill_count_val / total_sec * 3600)
@@ -473,7 +483,7 @@ function klcount_map_information(map_id)
                     (g.lang == "Japanese" and " 獲得数 : " or " Get Count : ") .. item_get_count .. pcs_str
 
             local item_label1 = info_box:CreateOrGetControl('richtext', 'display_text' .. item_id_str_key, 10,
-                                                            95 + current_y, 50, 20)
+                95 + current_y, 50, 20)
             AUTO_CAST(item_label1)
             item_label1:SetText(item_disp_str1)
 
@@ -507,7 +517,7 @@ function klcount_map_information(map_id)
                                        rounded_sec_per_item .. st_str
 
             local item_label2 = info_box:CreateOrGetControl('richtext', 'display_text2' .. item_id_str_key, 10,
-                                                            120 + current_y, 50, 20)
+                120 + current_y, 50, 20)
             AUTO_CAST(item_label2)
             item_label2:SetText("{ol}" .. item_disp_str2)
             current_y = current_y + 55
@@ -535,9 +545,502 @@ function klcount_map_information(map_id)
     end
 
     ui_frame:Resize(max_x + 40, 160 + current_y)
-    ui_frame:SetLayerLevel(150)
+    ui_frame:SetLayerLevel(999)
     info_box:Resize(ui_frame:GetWidth() - 20, ui_frame:GetHeight() - 55)
     ui_frame:ShowWindow(1)
+end
+
+function klcount_map_reset_reserve(frame, ctrl, str, map_id)
+
+    ui.MsgBox("Map Reset?", string.format("klcount_map_reset(%d)", map_id), "None")
+end
+
+function klcount_map_reset(map_id)
+
+    --[[local old_map_file_path = string.format("../addons/%s/%s.json", addon_name_lower, map_id)
+    local map_data = g.load_json(old_map_file_path);
+    local map_name = GetClassByType("Map", map_id).ClassName
+    map_data = {
+        map_name = map_name,
+        stay_time = 0,
+        kill_count = 0,
+        get_items = {}
+    }
+    g.save_json(old_map_file_path, map_data)]]
+
+    local new_map_file_path = string.format("../addons/%s/%s/%s.json", addon_name_lower, g.active_id, map_id)
+    local map_data = g.load_json(new_map_file_path);
+    local map_name = GetClassByType("Map", map_id).ClassName
+    map_data = {
+        map_name = map_name,
+        stay_time = 0,
+        kill_count = 0,
+        get_items = {}
+    }
+    g.save_json(new_map_file_path, map_data)
+    local frame = ui.GetFrame(addon_name_lower .. "map_info")
+    frame:ShowWindow(0)
+end
+
+function klcount_ITEM_PICK(frame, msg, class_id, item_count)
+
+    class_id = string.gsub(class_id, ".000000", "")
+
+    if not g.map_data.get_items[class_id] then
+        g.map_data.get_items[class_id] = item_count
+    else
+        g.map_data.get_items[class_id] = g.map_data.get_items[class_id] + item_count
+    end
+
+    if not g.challenge_mode then
+        g.save_json(g.map_file_location, g.map_data)
+    end
+end
+
+function klcount_EXP_UPDATE()
+
+    local frame = ui.GetFrame(addon_name_lower .. "_frame")
+
+    local count_text = GET_CHILD(frame, "count_text")
+    AUTO_CAST(count_text)
+
+    g.count = g.count + 1
+    count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.count))
+    g.map_data.kill_count = g.map_data.kill_count + 1
+
+    if not g.challenge_mode then
+        g.save_json(g.map_file_location, g.map_data)
+    end
+end
+
+-- アドオンメニューボタン
+local norisan_menu_addons = string.format("../%s", "addons")
+local norisan_menu_addons_mkfile = string.format("../%s/mkdir.txt", "addons")
+local norisan_menu_settings = string.format("../addons/%s/settings.json", "norisan_menu")
+local norisan_menu_folder = string.format("../addons/%s", "norisan_menu")
+local norisan_menu_mkfile = string.format("../addons/%s/mkdir.txt", "norisan_menu")
+_G["norisan"] = _G["norisan"] or {}
+_G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
+
+local json = require("json")
+
+local function norisan_menu_create_folder_file()
+
+    local addons_file = io.open(norisan_menu_addons_mkfile, "r")
+    if not addons_file then
+        os.execute('mkdir "' .. norisan_menu_addons .. '"')
+        addons_file = io.open(norisan_menu_addons_mkfile, "w")
+        if addons_file then
+            addons_file:write("created");
+            addons_file:close()
+        end
+    else
+        addons_file:close()
+    end
+
+    local file = io.open(norisan_menu_mkfile, "r")
+    if not file then
+        os.execute('mkdir "' .. norisan_menu_folder .. '"')
+        file = io.open(norisan_menu_mkfile, "w")
+        if file then
+            file:write("created");
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+norisan_menu_create_folder_file()
+
+local function norisan_menu_save_json(path, tbl)
+
+    local data_to_save = {
+        x = tbl.x,
+        y = tbl.y,
+        move = tbl.move,
+        open = tbl.open,
+        layer = tbl.layer
+    }
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(data_to_save)
+        file:write(str)
+        file:close()
+    end
+end
+
+local function norisan_menu_load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        if content and content ~= "" then
+            local decoded, err = json.decode(content)
+            if decoded then
+                return decoded
+            end
+        end
+    end
+    return nil
+end
+
+function _G.norisan_menu_move_drag(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    local current_frame_y = frame:GetY()
+    local current_frame_h = frame:GetHeight()
+    local base_button_h = 40
+
+    local y_to_save = current_frame_y
+
+    if current_frame_h > base_button_h and (_G["norisan"]["MENU"].open == 1) then
+        local items_area_h_calculated = current_frame_h - base_button_h
+        y_to_save = current_frame_y + items_area_h_calculated
+
+    end
+
+    _G["norisan"]["MENU"].x = frame:GetX()
+    _G["norisan"]["MENU"].y = y_to_save
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+end
+
+function _G.norisan_menu_setting_frame_ctrl(setting, ctrl)
+    local ctrl_name = ctrl:GetName()
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if ctrl_name == "layer_edit" then
+        local layer = tonumber(ctrl:GetText())
+        if layer then
+            _G["norisan"]["MENU"].layer = layer
+            frame:SetLayerLevel(layer)
+            norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+            local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤーを変更" or
+                               "{ol}Change Layer"
+            ui.SysMsg(notice)
+            _G.norisan_menu_create_frame()
+            setting:ShowWindow(0)
+            return
+        end
+    end
+
+    if ctrl_name == "def_setting" then
+
+        _G["norisan"]["MENU"].x = 1190
+        _G["norisan"]["MENU"].y = 30
+        _G["norisan"]["MENU"].move = true
+        _G["norisan"]["MENU"].open = 0
+        _G["norisan"]["MENU"].layer = 79
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        setting:ShowWindow(0)
+        return
+    end
+    if ctrl_name == "close" then
+        setting:ShowWindow(0)
+        return
+    end
+
+    local is_check = ctrl:IsChecked()
+    if ctrl_name == "move_toggle" then
+        if is_check == 1 then
+            _G["norisan"]["MENU"].move = false
+        else
+            _G["norisan"]["MENU"].move = true
+        end
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        return
+    elseif ctrl_name == "open_toggle" then
+        _G["norisan"]["MENU"].open = is_check
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        return
+    end
+
+end
+
+function _G.norisan_menu_setting_frame(frame, ctrl)
+    local setting = ui.CreateNewFrame("chat_memberlist", "norisan_menu_setting", 0, 0, 0, 0)
+    AUTO_CAST(setting)
+
+    setting:SetTitleBarSkin("None")
+    setting:SetSkinName("chat_window")
+    setting:Resize(260, 135)
+    setting:SetLayerLevel(999)
+    setting:EnableHitTest(1)
+    setting:EnableMove(1)
+
+    setting:SetPos(frame:GetX() + 200, frame:GetY())
+    setting:ShowWindow(1)
+
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local def_setting = setting:CreateOrGetControl("button", "def_setting", 10, 5, 150, 30)
+    AUTO_CAST(def_setting)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}デフォルトに戻す" or "{ol}Reset to default"
+    def_setting:SetText(notice)
+    def_setting:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local move_toggle = setting:CreateOrGetControl('checkbox', "move_toggle", 10, 35, 30, 30)
+    AUTO_CAST(move_toggle)
+    move_toggle:SetCheck(_G["norisan"]["MENU"].move == true and 0 or 1)
+    move_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                       "{ol}Check to fix frame"
+    move_toggle:SetText(notice)
+
+    local open_toggle = setting:CreateOrGetControl('checkbox', "open_toggle", 10, 70, 30, 30)
+    AUTO_CAST(open_toggle)
+    open_toggle:SetCheck(_G["norisan"]["MENU"].open)
+    open_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックすると上開き" or
+                       "{ol}Check to open upward"
+    open_toggle:SetText(notice)
+
+    local layer_text = setting:CreateOrGetControl('richtext', 'layer_text', 10, 105, 50, 20)
+    AUTO_CAST(layer_text)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤー設定" or "{ol}Set Layer"
+    layer_text:SetText(notice)
+
+    local layer_edit = setting:CreateOrGetControl('edit', 'layer_edit', 130, 105, 70, 20)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetFontName("white_16_ol")
+    layer_edit:SetTextAlign("center", "center")
+    layer_edit:SetText(_G["norisan"]["MENU"].layer or 79)
+    layer_edit:SetEventScript(ui.ENTERKEY, "norisan_menu_setting_frame_ctrl")
+end
+
+function _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir)
+
+    local open_up = (open_dir == 1)
+
+    local menu_src = _G["norisan"]["MENU"]
+    local max_cols = 5
+    local item_w = 35
+    local item_h = 35
+    local y_off_down = 35
+
+    local items = {}
+    if menu_src then
+        for key, data in pairs(menu_src) do
+            if type(data) == "table" then
+                if key ~= "x" and key ~= "y" and key ~= "open" and key ~= "move" and data.name and data.func and
+                    ((data.image and data.image ~= "") or (data.icon and data.icon ~= "")) then
+                    table.insert(items, {
+                        key = key,
+                        data = data
+                    })
+                end
+            end
+        end
+    end
+
+    local num_items = #items
+
+    local num_rows = math.ceil(num_items / max_cols)
+
+    local items_h = num_rows * item_h
+    local frame_h_new = 40 + items_h
+    local frame_y_new = _G["norisan"]["MENU"].y or 30
+
+    if open_up then
+        frame_y_new = frame_y_new - items_h
+    end
+
+    local frame_w_new
+    if num_rows == 1 then
+        frame_w_new = math.max(40, num_items * item_w)
+    else
+        frame_w_new = math.max(40, max_cols * item_w)
+    end
+
+    frame:SetPos(frame:GetX(), frame_y_new)
+    frame:Resize(frame_w_new, frame_h_new)
+
+    for idx, entry in ipairs(items) do
+        local item_sidx = idx - 1
+        local data = entry.data
+        local key = entry.key
+        local col = item_sidx % max_cols
+        local x = col * item_w
+        local y = 0
+
+        if open_up then
+
+            local logical_row_from_bottom = math.floor(item_sidx / max_cols)
+
+            y = (frame_h_new - 40) - ((logical_row_from_bottom + 1) * item_h)
+        else
+
+            local row_down = math.floor(item_sidx / max_cols)
+            y = y_off_down + (row_down * item_h)
+        end
+
+        local ctrl_name = "menu_item_" .. key
+        local item_elem
+
+        if data.image and data.image ~= "" then
+            item_elem = frame:CreateOrGetControl('button', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetSkinName("None");
+            item_elem:SetText(data.image)
+        else
+            item_elem = frame:CreateOrGetControl('picture', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetImage(data.icon);
+            item_elem:SetEnableStretch(1)
+        end
+
+        if item_elem then
+            item_elem:SetTextTooltip("{ol}" .. data.name)
+            item_elem:SetEventScript(ui.LBUTTONUP, data.func)
+            item_elem:ShowWindow(1)
+        end
+    end
+
+    local main_btn = GET_CHILD(frame, "norisan_menu_pic")
+    if main_btn then
+        if open_up then
+            main_btn:SetPos(0, frame_h_new - 40)
+        else
+            main_btn:SetPos(0, 0)
+        end
+    end
+end
+
+function _G.norisan_menu_frame_open(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    if frame:GetHeight() > 40 then
+
+        local children = {}
+        for i = 0, frame:GetChildCount() - 1 do
+            local child_obj = frame:GetChildByIndex(i)
+            if child_obj then
+                table.insert(children, child_obj)
+            end
+        end
+
+        for _, child_obj in ipairs(children) do
+            if child_obj:GetName() ~= "norisan_menu_pic" then
+
+                frame:RemoveChild(child_obj:GetName())
+            end
+        end
+
+        frame:Resize(40, 40)
+        frame:SetPos(frame:GetX(), _G["norisan"]["MENU"].y or 30)
+        local main_pic = GET_CHILD(frame, "norisan_menu_pic")
+        if main_pic then
+            main_pic:SetPos(0, 0)
+        end
+        return
+    end
+
+    local open_dir_val = _G["norisan"]["MENU"].open or 0
+    _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir_val)
+end
+
+function _G.norisan_menu_create_frame()
+
+    _G["norisan"]["MENU"].lang = option.GetCurrentCountry()
+
+    local loaded_cfg = norisan_menu_load_json(norisan_menu_settings)
+
+    if loaded_cfg and loaded_cfg.layer ~= nil then
+        _G["norisan"]["MENU"].layer = loaded_cfg.layer
+    elseif _G["norisan"]["MENU"].layer == nil then
+        _G["norisan"]["MENU"].layer = 79
+    end
+
+    if loaded_cfg and loaded_cfg.move ~= nil then
+        _G["norisan"]["MENU"].move = loaded_cfg.move
+    elseif _G["norisan"]["MENU"].move == nil then
+        _G["norisan"]["MENU"].move = true
+    end
+
+    if loaded_cfg and loaded_cfg.open ~= nil then
+        _G["norisan"]["MENU"].open = loaded_cfg.open
+    elseif _G["norisan"]["MENU"].open == nil then
+        _G["norisan"]["MENU"].open = 0
+    end
+
+    local default_x = 1190
+    local default_y = 30
+
+    local final_x = default_x
+    local final_y = default_y
+
+    if _G["norisan"]["MENU"].x ~= nil then
+        final_x = _G["norisan"]["MENU"].x
+    end
+    if _G["norisan"]["MENU"].y ~= nil then
+        final_y = _G["norisan"]["MENU"].y
+    end
+
+    if loaded_cfg and type(loaded_cfg.x) == "number" then
+        final_x = loaded_cfg.x
+    end
+    if loaded_cfg and type(loaded_cfg.y) == "number" then
+        final_y = loaded_cfg.y
+    end
+
+    local map_ui = ui.GetFrame("map")
+    local screen_w = 1920
+    if map_ui and map_ui:IsVisible() then
+        screen_w = map_ui:GetWidth()
+    end
+
+    if final_x > 1920 and screen_w <= 1920 then
+        final_x = default_x
+        final_y = default_y
+    end
+
+    _G["norisan"]["MENU"].x = final_x
+    _G["norisan"]["MENU"].y = final_y
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if frame then
+        AUTO_CAST(frame)
+        frame:RemoveAllChild()
+        frame:SetSkinName("None")
+        frame:SetTitleBarSkin("None")
+        frame:Resize(40, 40)
+        frame:SetLayerLevel(_G["norisan"]["MENU"].layer)
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
+        frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
+
+        local norisan_menu_pic = frame:CreateOrGetControl('picture', "norisan_menu_pic", 0, 0, 35, 40)
+        AUTO_CAST(norisan_menu_pic)
+        norisan_menu_pic:SetImage("sysmenu_sys")
+        norisan_menu_pic:SetEnableStretch(1)
+        local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{nl}{ol}右クリック: 設定" or
+                           "{nl}{ol}Right click: Settings"
+        norisan_menu_pic:SetTextTooltip("{ol}Addons Menu" .. notice)
+        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
+        norisan_menu_pic:SetEventScript(ui.RBUTTONUP, "norisan_menu_setting_frame")
+
+        frame:ShowWindow(1)
+    end
+
 end
 
 --[[function klcount_map_information(map_id)
@@ -670,274 +1173,6 @@ end
     frame:ShowWindow(1)
 
 end]]
-
-function klcount_map_reset_reserve(frame, ctrl, str, map_id)
-
-    ui.MsgBox("Map Reset?", string.format("klcount_map_reset(%d)", map_id), "None")
-end
-
-function klcount_map_reset(map_id)
-
-    --[[local old_map_file_path = string.format("../addons/%s/%s.json", addon_name_lower, map_id)
-    local map_data = g.load_json(old_map_file_path);
-    local map_name = GetClassByType("Map", map_id).ClassName
-    map_data = {
-        map_name = map_name,
-        stay_time = 0,
-        kill_count = 0,
-        get_items = {}
-    }
-    g.save_json(old_map_file_path, map_data)]]
-
-    local new_map_file_path = string.format("../addons/%s/%s/%s.json", addon_name_lower, g.active_id, map_id)
-    local map_data = g.load_json(new_map_file_path);
-    local map_name = GetClassByType("Map", map_id).ClassName
-    map_data = {
-        map_name = map_name,
-        stay_time = 0,
-        kill_count = 0,
-        get_items = {}
-    }
-    g.save_json(new_map_file_path, map_data)
-    local frame = ui.GetFrame(addon_name_lower .. "map_info")
-    frame:ShowWindow(0)
-end
-
-function klcount_ITEM_PICK(frame, msg, class_id, item_count)
-
-    class_id = string.gsub(class_id, ".000000", "")
-
-    if not g.map_data.get_items[class_id] then
-        g.map_data.get_items[class_id] = item_count
-    else
-        g.map_data.get_items[class_id] = g.map_data.get_items[class_id] + item_count
-    end
-
-    if not g.challenge_mode then
-        g.save_json(g.map_file_location, g.map_data)
-    end
-end
-
-function klcount__count_UPDATE(frame)
-
-    local count_text = GET_CHILD_RECURSIVELY(frame, "count_text")
-    g.count = g.count + 1
-    count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.count))
-    g.map_data.kill_count = g.map_data.kill_count + 1
-    if not g.challenge_mode then
-        g.save_json(g.map_file_location, g.map_data)
-    end
-end
-
--- アドオンメニューボタン
-local norisan_menu_addons = string.format("../%s", "addons")
-local norisan_menu_addons_mkfile = string.format("../%s/mkdir.txt", "addons")
-local norisan_menu_settings = string.format("../addons/%s/settings.json", "norisan_menu")
-local norisan_menu_folder = string.format("../addons/%s", "norisan_menu")
-local norisan_menu_mkfile = string.format("../addons/%s/mkdir.txt", "norisan_menu")
-_G["norisan"] = _G["norisan"] or {}
-_G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
-
-local function norisan_menu_create_folder_file()
-
-    local addons_file = io.open(norisan_menu_addons_mkfile, "r")
-    if not addons_file then
-        os.execute('mkdir "' .. norisan_menu_addons .. '"')
-        addons_file = io.open(norisan_menu_addons_mkfile, "w")
-        if addons_file then
-            addons_file:write("created");
-            addons_file:close()
-        end
-    else
-        addons_file:close()
-    end
-
-    local file = io.open(norisan_menu_mkfile, "r")
-    if not file then
-        os.execute('mkdir "' .. norisan_menu_folder .. '"')
-        file = io.open(norisan_menu_mkfile, "w")
-        if file then
-            file:write("created");
-            file:close()
-        end
-    else
-        file:close()
-    end
-end
-norisan_menu_create_folder_file()
-
-local function norisan_menu_save_json(path, tbl)
-
-    local data_to_save = {
-        x = tbl.x,
-        y = tbl.y
-
-    }
-    local file = io.open(path, "w")
-    if file then
-        local str = json.encode(data_to_save)
-        file:write(str)
-        file:close()
-    end
-end
-
-local function norisan_menu_load_json(path)
-
-    local file = io.open(path, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        if content and content ~= "" then
-            local decoded, err = json.decode(content)
-            if decoded then
-                return decoded
-            end
-        end
-    end
-    return nil
-end
-
-function _G.norisan_menu_frame_open(frame, ctrl)
-
-    if frame:GetHeight() > 40 then
-        local child_count = frame:GetChildCount()
-        local remove_list = {}
-        for i = 0, child_count - 1 do
-            local child_ctrl = frame:GetChildByIndex(i)
-            if child_ctrl then
-                local child_name = child_ctrl:GetName()
-                if child_name ~= "norisan_menu_pic" then
-                    table.insert(remove_list, child_name)
-                end
-            end
-        end
-        for _, name_to_remove in ipairs(remove_list) do
-            frame:RemoveChild(name_to_remove)
-        end
-        frame:Resize(40, 40)
-        return
-    end
-
-    local menu_items = _G["norisan"]["MENU"]
-    local max_cols = 5
-    local item_w = 35
-    local item_h = 35
-    local y_offset = 35
-
-    local item_idx = 0
-
-    if menu_items then
-        for key, data in pairs(menu_items) do
-            if key ~= "x" and key ~= "y" and type(data) == "table" and data.name and data.func and
-                ((data.image and data.image ~= "") or (data.icon and data.icon ~= "")) then
-
-                local col = item_idx % max_cols
-                local row = math.floor(item_idx / max_cols)
-
-                local x = col * item_w
-                local y = y_offset + (row * item_h)
-
-                local ctrl_name = "menu_item_" .. key
-
-                local item_ui
-
-                if data.image and data.image ~= "" then
-                    item_ui = frame:CreateOrGetControl('button', ctrl_name, x, y, item_w, item_h)
-                    AUTO_CAST(item_ui)
-                    item_ui:SetSkinName("None")
-                    item_ui:SetText(data.image)
-                else
-                    item_ui = frame:CreateOrGetControl('picture', ctrl_name, x, y, item_w, item_h)
-                    AUTO_CAST(item_ui)
-                    item_ui:SetImage(data.icon)
-                    item_ui:SetEnableStretch(1)
-                end
-
-                if item_ui then
-                    item_ui:SetTextTooltip("{ol}" .. data.name)
-                    item_ui:SetEventScript(ui.LBUTTONUP, data.func)
-                    item_ui:ShowWindow(1)
-                    item_idx = item_idx + 1
-                end
-            end
-        end
-    end
-
-    if item_idx > 0 then
-        local num_rows = math.ceil(item_idx / max_cols)
-        local frame_w = 0
-        if num_rows == 1 then
-            frame_w = math.max(40, item_idx * item_w)
-        else
-            frame_w = math.max(40, max_cols * item_w)
-        end
-
-        local items_h_total = (num_rows * item_h) + (num_rows > 1 and num_rows - 1 or 0)
-        frame:Resize(frame_w, y_offset + items_h_total)
-    else
-        frame:Resize(40, 40)
-    end
-end
-
-function _G.norisan_menu_move_drag(frame, ctrl)
-
-    if frame then
-        _G["norisan"]["MENU"].x = frame:GetX()
-        _G["norisan"]["MENU"].y = frame:GetY()
-        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
-    end
-end
-
-function _G.norisan_menu_create_frame()
-
-    local loaded_cfg = norisan_menu_load_json(norisan_menu_settings)
-    local cfg_x = nil
-    local cfg_y = nil
-
-    if loaded_cfg then
-        cfg_x = loaded_cfg.x
-        cfg_y = loaded_cfg.y
-    end
-
-    if cfg_x == nil or cfg_y == nil then
-        _G["norisan"]["MENU"].x = _G["norisan"]["MENU"].x or 1190
-        _G["norisan"]["MENU"].y = _G["norisan"]["MENU"].y or 30
-        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
-    else
-        local map_frame = ui.GetFrame("map")
-        local width = map_frame:GetWidth()
-        if _G["norisan"]["MENU"].x and _G["norisan"]["MENU"].x > 1920 and width <= 1920 then
-            cfg_x = 1190
-            cfg_y = 30
-        end
-        _G["norisan"]["MENU"].x = cfg_x
-        _G["norisan"]["MENU"].y = cfg_y
-    end
-
-    local frame_name = _G["norisan"]["MENU"].frame_name
-    local frame = ui.GetFrame(frame_name)
-
-    if frame then
-        AUTO_CAST(frame)
-        frame:SetSkinName("None")
-        frame:SetTitleBarSkin("None")
-        frame:Resize(40, 40)
-        frame:SetLayerLevel(999)
-        frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
-        frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
-
-        local norisan_menu_pic = frame:CreateOrGetControl('picture', "norisan_menu_pic", 0, 0, 35, 40)
-        AUTO_CAST(norisan_menu_pic)
-        norisan_menu_pic:SetImage("sysmenu_sys")
-        norisan_menu_pic:SetEnableStretch(1)
-        norisan_menu_pic:SetTextTooltip("{ol}addons menu")
-        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
-
-        frame:ShowWindow(1)
-    end
-
-end
-
 --[[function klcount_information_button(frame)
 
     AUTO_CAST(frame)
